@@ -59,6 +59,23 @@ public class GuiUtils
     // European equivalent.
     private static final Map<Character, Character> DIGIT_MAPPINGS;
 
+    /**
+     *  Characters and their replacement in created folder names
+     */
+    private final static String[][] ESCAPE_SEQUENCES = new String[][]
+    {
+        {"&", "&_amp"},
+        {"/", "&_sl"},
+        {"\\\\", "&_bs"},   // the char \
+        {":", "&_co"},
+        {"\\*", "&_as"},    // the char *
+        {"\\?", "&_qm"},    // the char ?
+        {"\"", "&_pa"},     // the char "
+        {"<", "&_lt"},
+        {">", "&_gt"},
+        {"\\|", "&_pp"}     // the char |
+    };
+
     static
     {
         HashMap<Character, Character> digitMap
@@ -643,5 +660,25 @@ public class GuiUtils
             for(int i = 0; i < children.length; i++)
                 updateComponentTreeUI0(children[i]);
         }
+    }
+
+    /**
+     * Replaces the characters that we must escape used for the created
+     * filename.
+     *
+     * @param string the <tt>String</tt> which is to have its characters escaped
+     * @return a <tt>String</tt> derived from the specified <tt>id</tt> by
+     * escaping characters
+     */
+    public static String escapeFileNameSpecialCharacters(String string)
+    {
+        String resultId = string;
+
+        for (int j = 0; j < ESCAPE_SEQUENCES.length; j++)
+        {
+            resultId = resultId.
+                replaceAll(ESCAPE_SEQUENCES[j][0], ESCAPE_SEQUENCES[j][1]);
+        }
+        return resultId;
     }
 }

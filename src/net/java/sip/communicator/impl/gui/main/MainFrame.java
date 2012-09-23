@@ -276,7 +276,7 @@ public class MainFrame
         this.setJMenuBar(menu);
 
         TransparentPanel searchPanel
-            = new TransparentPanel(new BorderLayout(2, 0));
+            = new TransparentPanel(new BorderLayout(5, 0));
 
         searchPanel.add(searchField);
         searchPanel.add(new DialPadButton(), BorderLayout.WEST);

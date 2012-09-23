@@ -35,7 +35,7 @@ public interface ChatTransport
      * messaging, otherwise returns <code>false</code>
      */
     public boolean allowsInstantMessage();
-    
+
     /**
      * Returns <tt>true</tt> if this chat transport supports message
      * corrections and false otherwise.

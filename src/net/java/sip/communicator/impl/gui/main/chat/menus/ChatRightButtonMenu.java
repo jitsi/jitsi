@@ -36,14 +36,6 @@ public class ChatRightButtonMenu
         GuiActivator.getResources().getI18NString("service.gui.COPY"),
         new ImageIcon(ImageLoader.getImage(ImageLoader.COPY_ICON)));
 
-    private JMenuItem saveMenuItem = new JMenuItem(
-        GuiActivator.getResources().getI18NString("service.gui.SAVE"),
-        new ImageIcon(ImageLoader.getImage(ImageLoader.SAVE_ICON)));
-
-    private JMenuItem printMenuItem = new JMenuItem(
-        GuiActivator.getResources().getI18NString("service.gui.PRINT"),
-        new ImageIcon(ImageLoader.getImage(ImageLoader.PRINT_ICON)));
-
     private JMenuItem closeMenuItem = new JMenuItem(
         GuiActivator.getResources().getI18NString("service.gui.CLOSE"),
         new ImageIcon(ImageLoader.getImage(ImageLoader.CLOSE_ICON)));
@@ -71,47 +63,23 @@ public class ChatRightButtonMenu
 
         this.addSeparator();
 
-        this.add(saveMenuItem);
-        this.add(printMenuItem);
-
-        this.addSeparator();
-
         this.add(closeMenuItem);
 
         this.copyMenuItem.setName("copy");
-        this.saveMenuItem.setName("save");
-        this.printMenuItem.setName("print");
         this.closeMenuItem.setName("service.gui.CLOSE");
 
         this.copyMenuItem.addActionListener(this);
-        this.saveMenuItem.addActionListener(this);
-        this.printMenuItem.addActionListener(this);
         this.closeMenuItem.addActionListener(this);
 
         this.copyMenuItem.setMnemonic(
             GuiActivator.getResources().getI18nMnemonic("service.gui.COPY"));
-        this.saveMenuItem.setMnemonic(
-            GuiActivator.getResources().getI18nMnemonic("service.gui.SAVE"));
-        this.printMenuItem.setMnemonic(
-            GuiActivator.getResources().getI18nMnemonic("service.gui.PRINT"));
+
         this.closeMenuItem.setMnemonic(
             GuiActivator.getResources().getI18nMnemonic("service.gui.CLOSE"));
 
         this.copyMenuItem.setAccelerator(
                 KeyStroke.getKeyStroke(KeyEvent.VK_C,
                 KeyEvent.CTRL_MASK));
-
-        this.saveMenuItem.setAccelerator(
-                KeyStroke.getKeyStroke(KeyEvent.VK_S,
-                KeyEvent.CTRL_MASK));
-
-        this.printMenuItem.setAccelerator(
-                KeyStroke.getKeyStroke(KeyEvent.VK_R,
-                KeyEvent.CTRL_MASK));
-
-        // Disable all menu items that do nothing.
-        this.saveMenuItem.setEnabled(false);
-        this.printMenuItem.setEnabled(false);
     }
 
     /**
@@ -167,12 +135,6 @@ public class ChatRightButtonMenu
     {
         copyMenuItem.setIcon(new ImageIcon(
                 ImageLoader.getImage(ImageLoader.COPY_ICON)));
-
-        saveMenuItem.setIcon(new ImageIcon(
-                ImageLoader.getImage(ImageLoader.SAVE_ICON)));
-
-        printMenuItem.setIcon(new ImageIcon(
-                ImageLoader.getImage(ImageLoader.PRINT_ICON)));
 
         closeMenuItem.setIcon(new ImageIcon(
                 ImageLoader.getImage(ImageLoader.CLOSE_ICON)));

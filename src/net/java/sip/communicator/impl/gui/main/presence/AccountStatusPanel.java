@@ -345,7 +345,7 @@ public class AccountStatusPanel
      */
     public void registrationStateChanged(RegistrationStateChangeEvent evt)
     {
-        ProtocolProviderService protocolProvider = evt.getProvider();
+        final ProtocolProviderService protocolProvider = evt.getProvider();
 
         this.updateStatus(protocolProvider);
 
@@ -379,16 +379,30 @@ public class AccountStatusPanel
                     {
                         if (currentImage == null)
                         {
-                            byte[] accountImage
-                                = AccountInfoUtils.getImage(accountInfoOpSet);
+                            currentImage
+                                = AvatarCacheUtils
+                                    .getCachedAvatar(protocolProvider);
 
-                            // do not set empty images
-                            if ((accountImage != null)
-                                    && (accountImage.length > 0))
+                            if (currentImage == null)
                             {
-                                currentImage = accountImage;
-                                accountImageLabel.setImageIcon(currentImage);
+                                byte[] accountImage
+                                    = AccountInfoUtils
+                                        .getImage(accountInfoOpSet);
+
+                                // do not set empty images
+                                if ((accountImage != null)
+                                        && (accountImage.length > 0))
+                                {
+                                    currentImage = accountImage;
+
+                                    AvatarCacheUtils.cacheAvatar(
+                                        protocolProvider, accountImage);
+
+                                    accountImageLabel.setImageIcon(currentImage);
+                                }
                             }
+                            else
+                                accountImageLabel.setImageIcon(currentImage);
                         }
 
                         if(!StringUtils.isNullOrEmpty(globalDisplayName))
@@ -570,6 +584,10 @@ public class AccountStatusPanel
             currentImage = ImageUtils.toByteArray(
                     ImageLoader.getImage(ImageLoader.DEFAULT_USER_PHOTO));
         }
+
+        AvatarCacheUtils.cacheAvatar(
+            event.getSourceProvider(), currentImage);
+
         accountImageLabel.setImageIcon(currentImage);
     }
 

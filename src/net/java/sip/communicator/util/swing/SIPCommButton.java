@@ -221,19 +221,11 @@ public class SIPCommButton
 
             g.setColor(new Color(1.0f, 1.0f, 1.0f, visibility));
 
-            if (this.bgImage != null)
+            if (this.bgImage == null
+                && (isContentAreaFilled() || (visibility != 0.0f)))
             {
                 g.fillRoundRect(
-                    this.getWidth() / 2 - this.bgImage.getWidth(null) / 2,
-                    this.getHeight() / 2 - this.bgImage.getHeight(null) / 2,
-                    bgImage.getWidth(null),
-                    bgImage.getHeight(null),
-                    10, 10);
-            }
-            else if (isContentAreaFilled() || (visibility != 0.0f))
-            {
-                g.fillRoundRect(
-                    0, 0, this.getWidth(), this.getHeight(), 10, 10);
+                    0, 0, this.getWidth(), this.getHeight(), 8, 8);
             }
         }
 

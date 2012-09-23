@@ -1,6 +1,6 @@
 h1
 {
-  background-color: #c6d0e1;
+  background-color: #6a6868;
   margin: 0px;
   text-align: center;
   font-weight: bold;
@@ -10,14 +10,18 @@ h1
 h2
 {
   margin: 0px;
-  font-size: 100%;
-  color: #ef7b1e;
+  padding-top: 4px;
+  padding-left: 10px;
+  font-size: 10px;
+  color: #488fe7;
 }
 
 h3
 {
   margin: 0px;
-  font-size: 100%;
+  padding-top: 4px;
+  padding-left: 10px;
+  font-size: 10px;
   color: #2e538b;
 }
 
@@ -47,8 +51,8 @@ h6
 p
 {
   margin: 0px;
+  width: 100%;
   font-size: 100%;
-  font-weight: bold;
   color: #62BD80;
 }
 

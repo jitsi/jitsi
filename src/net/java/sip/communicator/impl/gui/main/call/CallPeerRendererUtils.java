@@ -13,7 +13,6 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -26,30 +25,6 @@ import net.java.sip.communicator.util.swing.*;
  */
 public class CallPeerRendererUtils
 {
-    /**
-     * Creates a new <tt>Component</tt> through which the user would be able to
-     * exit the full screen mode.
-     *
-     * @param renderer the renderer through which we exit the full screen mode
-     * @return the newly created component
-     */
-    public static Component createExitFullScreenButton(
-            final CallRenderer renderer)
-    {
-        JButton button = new ExitFullScreenButton();
-
-        button.setToolTipText(GuiActivator.getResources().getI18NString(
-            "service.gui.EXIT_FULL_SCREEN_TOOL_TIP"));
-        button.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent event)
-            {
-                renderer.exitFullScreen();
-            }
-        });
-        return button;
-    }
-
     /**
      * Sets the given <tt>background</tt> color to the given <tt>component</tt>.
      *
@@ -87,24 +62,27 @@ public class CallPeerRendererUtils
     /**
      * Creates a buttons bar from the given list of button components.
      *
-     * @param heavyweight indicates if the created button bar should be heavy
-     * weight component (useful in full screen mode)
+     * @param fullScreen indicates if the created button bar would be shown in
+     * full screen mode
      * @param buttons the list of buttons to add in the created button bar
      * @return the created button bar
      */
-    public static Component createButtonBar(boolean heavyweight,
+    public static JComponent createButtonBar(boolean fullScreen,
                                             Component[] buttons)
     {
-        Container buttonBar
-            = heavyweight ? new Container() : new TransparentPanel();
+        JComponent buttonBar = fullScreen
+                                ? new CallToolBarPanel(true)
+                                : new CallToolBarPanel(false);
 
-        buttonBar.setLayout(new FlowLayout(FlowLayout.CENTER, 3, 3));
-
-        for (Component button : buttons)
+        if (buttons != null)
         {
-            if (button != null)
-                buttonBar.add(button);
+            for (Component button : buttons)
+            {
+                if (button != null)
+                    ((Container) buttonBar).add(button);
+            }
         }
+
         return buttonBar;
     }
 
@@ -137,32 +115,74 @@ public class CallPeerRendererUtils
     }
 
     /**
-     * Full screen exit button. Implements <tt>Skinnable</tt>.
+     * The tool bar container shown in the call window.
      */
-    public static class ExitFullScreenButton
-            extends SIPCommButton
-            implements Skinnable
+    private static class CallToolBarPanel
+        extends OrderedTransparentPanel
     {
-        /**
-         * Creates an instance of SIPCommButton.
-         */
-        public ExitFullScreenButton()
+        final Color settingsColor
+            = new Color(GuiActivator.getResources().getColor(
+                "service.gui.CALL_TOOL_BAR"));
+
+        final Color settingsFullScreenColor
+            = new Color(GuiActivator.getResources().getColor(
+                "service.gui.CALL_TOOL_BAR_FULL_SCREEN"));
+
+        final Image buttonSeparatorImage
+            = ImageLoader.getImage(ImageLoader.CALL_TOOLBAR_SEPARATOR);
+
+        private final boolean isFullScreen;
+
+        private final int TOOL_BAR_BORDER = 2;
+
+        private final int TOOL_BAR_X_GAP = 3;
+
+        public CallToolBarPanel(boolean isFullScreen)
         {
-            super(
-                ImageLoader.getImage(ImageLoader.FULL_SCREEN_BUTTON_BG),
-                ImageLoader.getImage(ImageLoader.EXIT_FULL_SCREEN_BUTTON));
+            this.isFullScreen = isFullScreen;
+
+            setLayout(new FlowLayout(FlowLayout.CENTER, 3, 0));
+            setBorder(BorderFactory.createEmptyBorder(
+                TOOL_BAR_BORDER,
+                TOOL_BAR_BORDER, 
+                TOOL_BAR_BORDER,
+                TOOL_BAR_BORDER));
         }
 
-        /**
-         * Reloads icons.
-         */
-        public void loadSkin()
+        public void paintComponent(Graphics g)
         {
-            setBackgroundImage(
-                    ImageLoader.getImage(ImageLoader.FULL_SCREEN_BUTTON_BG));
-            setIconImage(
-                    ImageLoader.getImage(ImageLoader.EXIT_FULL_SCREEN_BUTTON));
-        }
+            super.paintComponent(g);
 
+            g = g.create();
+
+            AntialiasingManager.activateAntialiasing(g);
+
+            try
+            {
+                if (isFullScreen)
+                    g.setColor(settingsFullScreenColor);
+                else
+                    g.setColor(settingsColor);
+
+                g.fillRoundRect(0, 0, getWidth(), getHeight(), 8, 8);
+
+                // We add the border.
+                int x = CallToolBarButton.DEFAULT_WIDTH
+                        + TOOL_BAR_BORDER + TOOL_BAR_X_GAP;
+
+                while (x < getWidth() - TOOL_BAR_BORDER - TOOL_BAR_X_GAP)
+                {
+                    g.drawImage(buttonSeparatorImage, x + 1,
+                        (getHeight() - buttonSeparatorImage.getHeight(this))/2,
+                        this);
+
+                    x += CallToolBarButton.DEFAULT_WIDTH + TOOL_BAR_X_GAP;
+                }
+            }
+            finally
+            {
+                g.dispose();
+            }
+        }
     }
 }

@@ -51,8 +51,14 @@ public class InputVolumeControlButton
      */
     private final VolumeControl volumeControl;
 
-    private final VolumeControlSlider sliderMenu;
+    /**
+     * The slider popup menu.
+     */
+    private final JPopupMenu sliderMenu;
 
+    /**
+     * Indicates if this component is shown in full screen mode.
+     */
     private final boolean fullScreen;
 
     /**
@@ -135,7 +141,9 @@ public class InputVolumeControlButton
         volumeControl = getVolumeControl();
 
         // Creates the menu that would contain the volume control component.
-        sliderMenu = new VolumeControlSlider(volumeControl);
+        sliderMenu
+            = new VolumeControlSlider(volumeControl, JSlider.VERTICAL)
+                .getPopupMenu();
         sliderMenu.setInvoker(this);
 
         addMouseListener(new MouseAdapter()

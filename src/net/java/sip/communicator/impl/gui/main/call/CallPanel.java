@@ -14,7 +14,6 @@ import java.util.*;
 
 import javax.swing.*;
 import javax.swing.Timer;
-import javax.swing.border.*;
 import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.gui.*;
@@ -29,7 +28,6 @@ import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
-import net.java.sip.communicator.util.swing.border.*;
 
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.device.*;
@@ -108,11 +106,6 @@ public class CallPanel
     /**
      * The hang up button name.
      */
-    private static final String HANGUP_BUTTON = "HANGUP_BUTTON";
-
-    /**
-     * The hang up button name.
-     */
     private static final String MERGE_BUTTON = "MERGE_BUTTON";
 
     /**
@@ -128,7 +121,7 @@ public class CallPanel
     /**
      * The panel containing call settings.
      */
-    private final TransparentPanel settingsPanel = new OrderedTransparentPanel();
+    private JComponent settingsPanel;
 
     /**
      * The panel representing the call. For conference calls this would be an
@@ -181,17 +174,20 @@ public class CallPanel
     /**
      * The dial button, which opens a keypad dialog.
      */
-    private SIPCommButton dialButton = new SIPCommButton(
-        ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_BG),
-        ImageLoader.getImage(ImageLoader.DIAL_BUTTON));
+    private CallToolBarButton dialButton = new CallToolBarButton(
+        ImageLoader.getImage(ImageLoader.DIAL_BUTTON),
+        DIAL_BUTTON,
+        GuiActivator.getResources().getI18NString("service.gui.DIALPAD"));
 
     /**
      * The conference button.
      */
-    private SIPCommButton conferenceButton
-        = new SIPCommButton(
-                ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_BG),
-                ImageLoader.getImage(ImageLoader.ADD_TO_CALL_BUTTON));
+    private CallToolBarButton conferenceButton
+        = new CallToolBarButton(
+                ImageLoader.getImage(ImageLoader.ADD_TO_CALL_BUTTON),
+                CONFERENCE_BUTTON,
+                GuiActivator.getResources().getI18NString(
+                    "service.gui.CREATE_CONFERENCE_CALL"));
 
     /**
      * Chat button.
@@ -216,10 +212,12 @@ public class CallPanel
     /**
      * Merge button.
      */
-    private SIPCommButton mergeButton =
-        new SIPCommButton(
-            ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_BG),
-            ImageLoader.getImage(ImageLoader.MERGE_CALL_BUTTON));
+    private CallToolBarButton mergeButton =
+        new CallToolBarButton(
+            ImageLoader.getImage(ImageLoader.MERGE_CALL_BUTTON),
+            MERGE_BUTTON,
+            GuiActivator.getResources().getI18NString(
+                "service.gui.MERGE_TO_CALL"));
 
     /**
      * The call represented in this dialog.
@@ -264,7 +262,7 @@ public class CallPanel
     /**
      * Sound remote level label.
      */
-    private OutputVolumeControlButton remoteLevel;
+    private Component remoteLevel;
 
     /**
      * A collection of listeners, registered for call title change events.
@@ -290,23 +288,28 @@ public class CallPanel
         this.call = call;
         this.callWindow = callWindow;
 
+        settingsPanel
+            = CallPeerRendererUtils.createButtonBar(false, null);
+
         holdButton = new HoldButton(call);
         recordButton = new RecordButton(call);
         videoButton = new LocalVideoButton(call);
         showHideVideoButton = new ShowHideVideoButton(call);
         desktopSharingButton = new DesktopSharingButton(call);
         transferCallButton = new TransferCallButton(call);
-        fullScreenButton = new FullScreenButton(this);
-        chatButton = new SIPCommButton(
-            ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_BG),
-            ImageLoader.getImage(ImageLoader.CHAT_BUTTON_SMALL_WHITE));
+        fullScreenButton = new FullScreenButton(this, false);
+        chatButton = new CallToolBarButton(
+            ImageLoader.getImage(ImageLoader.CHAT_BUTTON_SMALL_WHITE),
+            CHAT_BUTTON,
+            GuiActivator.getResources().getI18NString("service.gui.CHAT"));
+
         localLevel = new InputVolumeControlButton(
             call,
             ImageLoader.MICROPHONE,
             ImageLoader.MUTE_BUTTON,
             false, true, false);
         remoteLevel = new OutputVolumeControlButton(
-                ImageLoader.VOLUME_CONTROL_BUTTON, false, true);
+                ImageLoader.VOLUME_CONTROL_BUTTON, false, true).getComponent();
 
         this.callDurationTimer = new Timer(1000, new CallTimerListener());
         this.callDurationTimer.setRepeats(true);
@@ -345,7 +348,7 @@ public class CallPanel
             callPeers.next().addCallPeerConferenceListener(this);
 
         // Initializes all buttons and common panels.
-        init();
+        initToolBar();
 
         initPluginComponents();
     }
@@ -353,15 +356,12 @@ public class CallPanel
     /**
      * Initializes all buttons and common panels
      */
-    private void init()
+    private void initToolBar()
     {
-        hangupButton = new SIPCommButton(
-            ImageLoader.getImage(ImageLoader.HANGUP_BUTTON_BG));
+        hangupButton = new HangupButton(this);
 
-        holdButton.setIndex(2);
-        recordButton.setIndex(3);
-        videoButton.setIndex(11);
-        showHideVideoButton.setIndex(12);
+        // Initializes the order of buttons in the call tool bar.
+        initButtonIndexes();
 
         showHideVideoButton.setPeerRenderer(((CallRenderer) callPanel)
             .getCallPeerRenderer(call.getCallPeers().next()));
@@ -388,42 +388,9 @@ public class CallPanel
             }
         });
 
-        desktopSharingButton.setIndex(8);
-        transferCallButton.setIndex(5);
-        fullScreenButton.setIndex(10);
-
-        chatButton.setName(CHAT_BUTTON);
-        chatButton.setToolTipText(
-            GuiActivator.getResources().getI18NString("service.gui.CHAT"));
         chatButton.addActionListener(this);
-        chatButton.setIndex(19);
-
-        localLevel.setIndex(6);
-        remoteLevel.setIndex(7);
-
-        dialButton.setIndex(0);
-        dialButton.setName(DIAL_BUTTON);
-        dialButton.setToolTipText(
-            GuiActivator.getResources().getI18NString("service.gui.DIALPAD"));
         dialButton.addActionListener(this);
-
-        conferenceButton.setIndex(1);
-        conferenceButton.setName(CONFERENCE_BUTTON);
-        conferenceButton.setToolTipText(
-            GuiActivator.getResources().getI18NString(
-                "service.gui.CREATE_CONFERENCE_CALL"));
         conferenceButton.addActionListener(this);
-
-        hangupButton.setName(HANGUP_BUTTON);
-        hangupButton.setToolTipText(
-            GuiActivator.getResources().getI18NString("service.gui.HANG_UP"));
-        hangupButton.addActionListener(this);
-
-        mergeButton.setIndex(4);
-        mergeButton.setName(MERGE_BUTTON);
-        mergeButton.setToolTipText(
-            GuiActivator.getResources().getI18NString(
-                "service.gui.MERGE_TO_CALL"));
         mergeButton.addActionListener(this);
 
         /*
@@ -474,24 +441,50 @@ public class CallPanel
         if(GuiActivator.getConfigurationService()
                 .getBoolean(SHOW_CALL_INFO_BUTON_PROP, true))
         {
-            infoButton = new SIPCommButton(
-                    ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_BG),
-                    ImageLoader.getImage(ImageLoader.CALL_INFO));
-            infoButton.setName(INFO_BUTTON);
-            infoButton.setToolTipText(
-                GuiActivator.getResources().getI18NString(
-                    "service.gui.PRESS_FOR_CALL_INFO"));
+            infoButton = new CallToolBarButton(
+                    ImageLoader.getImage(ImageLoader.CALL_INFO),
+                    INFO_BUTTON,
+                    GuiActivator.getResources().getI18NString(
+                        "service.gui.PRESS_FOR_CALL_INFO"));
+
             infoButton.addActionListener(this);
-            infoButton.setIndex(20);
             settingsPanel.add(infoButton);
         }
 
+        settingsPanel.add(hangupButton);
+
         dtmfHandler = new DTMFHandler(this);
 
-        JComponent bottomBar = createBottomBar();
-
         add(callPanel, BorderLayout.CENTER);
-        add(bottomBar, BorderLayout.SOUTH);
+        add(createBottomBar(), BorderLayout.SOUTH);
+    }
+
+    /**
+     * Initializes buttons order in the call tool bar.
+     */
+    private void initButtonIndexes()
+    {
+        dialButton.setIndex(0);
+        conferenceButton.setIndex(1);
+        holdButton.setIndex(2);
+        recordButton.setIndex(3);
+        mergeButton.setIndex(4);
+        transferCallButton.setIndex(5);
+        localLevel.setIndex(6);
+
+        if (remoteLevel instanceof OrderedComponent)
+            ((OrderedComponent) remoteLevel).setIndex(7);
+
+        desktopSharingButton.setIndex(8);
+        fullScreenButton.setIndex(10);
+        videoButton.setIndex(11);
+        showHideVideoButton.setIndex(12);
+        chatButton.setIndex(19);
+
+        if (infoButton != null)
+            infoButton.setIndex(20);
+
+        hangupButton.setIndex(100);
     }
 
     /**
@@ -503,11 +496,7 @@ public class CallPanel
         JButton button = (JButton) evt.getSource();
         String buttonName = button.getName();
 
-        if (buttonName.equals(HANGUP_BUTTON))
-        {
-            actionPerformedOnHangupButton(false);
-        }
-        else if (buttonName.equals(MERGE_BUTTON))
+        if (buttonName.equals(MERGE_BUTTON))
         {
             Collection<Call> calls = CallManager.getActiveCalls();
 
@@ -1612,10 +1601,10 @@ public class CallPanel
      */
     private JComponent createBottomBar()
     {
-        JComponent bottomBar = new TransparentPanel();
+        JComponent bottomBar
+            = new TransparentPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
 
-        bottomBar.setBorder(
-            new ExtendedEtchedBorder(EtchedBorder.LOWERED, 1, 0, 0, 0));
+        bottomBar.setBorder(BorderFactory.createEmptyBorder(0, 30, 2, 30));
 
         if (OSUtils.IS_MAC)
         {
@@ -1625,9 +1614,7 @@ public class CallPanel
                     .getColor("service.gui.MAC_PANEL_BACKGROUND")));
         }
 
-        bottomBar.setLayout(new BorderLayout());
-        bottomBar.add(settingsPanel, BorderLayout.WEST);
-        bottomBar.add(hangupButton, BorderLayout.EAST);
+        bottomBar.add(settingsPanel);
 
         return bottomBar;
     }

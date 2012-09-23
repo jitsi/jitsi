@@ -12,8 +12,6 @@ import java.util.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.skin.*;
-import net.java.sip.communicator.util.swing.*;
 
 /**
  * Represents an UI means to transfer (the <tt>Call</tt> of) an associated
@@ -24,8 +22,7 @@ import net.java.sip.communicator.util.swing.*;
  * @author Adam Netocny
  */
 public class TransferCallButton
-    extends SIPCommButton
-    implements Skinnable
+    extends CallToolBarButton
 {
     /**
      * The <tt>Call</tt> to be transfered.
@@ -42,13 +39,11 @@ public class TransferCallButton
      */
     public TransferCallButton(Call c)
     {
-        super(  ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_BG),
-                ImageLoader.getImage(ImageLoader.TRANSFER_CALL_BUTTON));
+        super(  ImageLoader.getImage(ImageLoader.TRANSFER_CALL_BUTTON),
+                GuiActivator.getResources().getI18NString(
+                    "service.gui.TRANSFER_BUTTON_TOOL_TIP"));
 
         this.call = c;
-
-        setToolTipText(GuiActivator.getResources().getI18NString(
-            "service.gui.TRANSFER_BUTTON_TOOL_TIP"));
 
         OperationSetAdvancedTelephony<?> telephony =
             call.getProtocolProvider()
@@ -130,17 +125,5 @@ public class TransferCallButton
             }
         }
         return transferCalls;
-    }
-
-    /**
-     * Reloads icons.
-     */
-    public void loadSkin()
-    {
-        this.setBackgroundImage(ImageLoader.getImage(
-                ImageLoader.CALL_SETTING_BUTTON_BG));
-
-        this.setIconImage(ImageLoader.getImage(
-                ImageLoader.TRANSFER_CALL_BUTTON));
     }
 }

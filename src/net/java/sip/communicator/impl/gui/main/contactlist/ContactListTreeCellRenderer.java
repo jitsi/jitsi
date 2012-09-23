@@ -16,6 +16,8 @@ import javax.swing.*;
 import javax.swing.JPopupMenu.Separator;
 import javax.swing.tree.*;
 
+import org.jitsi.util.*;
+
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
@@ -74,6 +76,16 @@ public class ContactListTreeCellRenderer
     private static final int EXTENDED_AVATAR_WIDTH = 45;
 
     /**
+     * The default width of the button.
+     */
+    private static final int BUTTON_WIDTH = 26;
+
+    /**
+     * The default height of the button.
+     */
+    private static final int BUTTON_HEIGHT = 27;
+
+    /**
      * Left border value.
      */
     private static final int LEFT_BORDER = 5;
@@ -84,14 +96,30 @@ public class ContactListTreeCellRenderer
     private static final int TOP_BORDER = 2;
 
     /**
-     * Status label right border.
+     * Bottom border value.
      */
-    private static final int STATUS_RIGHT_BORDER = 2;
+    private static final int BOTTOM_BORDER = 2;
 
     /**
-     * Status label top border.
+     * Right border value.
      */
-    private static final int STATUS_TOP_BORDER = 2;
+    private static final int RIGHT_BORDER = 2;
+
+    /**
+     * The horizontal gap between columns in pixels;
+     */
+    private static final int H_GAP = 2;
+
+    /**
+     * The vertical gap between rows in pixels;
+     */
+    private static final int V_GAP = 3;
+
+    /**
+     * The separator image for the button toolbar.
+     */
+    private static final Image BUTTON_SEPARATOR_IMG
+        = ImageLoader.getImage(ImageLoader.CONTACT_LIST_BUTTON_SEPARATOR);
 
     /**
      * The icon used for opened groups.
@@ -131,18 +159,12 @@ public class ContactListTreeCellRenderer
     /**
      * The call video button.
      */
-    private final SIPCommButton callVideoButton = new SIPCommButton(
-        ImageLoader.getImage(ImageLoader.CALL_VIDEO_BUTTON_SMALL),
-        ImageLoader.getImage(ImageLoader.CALL_VIDEO_BUTTON_SMALL_PRESSED),
-        null);
+    private final SIPCommButton callVideoButton = new SIPCommButton();
 
     /**
      * The desktop sharing button.
      */
-    private final SIPCommButton desktopSharingButton = new SIPCommButton(
-        ImageLoader.getImage(ImageLoader.DESKTOP_BUTTON_SMALL),
-        ImageLoader.getImage(ImageLoader.DESKTOP_BUTTON_SMALL_PRESSED),
-        null);
+    private final SIPCommButton desktopSharingButton = new SIPCommButton();
 
     /**
      * The chat button.
@@ -152,10 +174,7 @@ public class ContactListTreeCellRenderer
     /**
      * The add contact button.
      */
-    private final SIPCommButton addContactButton = new SIPCommButton(
-        ImageLoader.getImage(ImageLoader.ADD_CONTACT_BUTTON_SMALL),
-        ImageLoader.getImage(ImageLoader.ADD_CONTACT_BUTTON_SMALL_PRESSED),
-        null);
+    private final SIPCommButton addContactButton = new SIPCommButton();
 
     /**
      * The constraints used to align components in the <tt>centerPanel</tt>.
@@ -209,6 +228,11 @@ public class ContactListTreeCellRenderer
     private List<JButton> customActionButtons;
 
     /**
+     * The last added button.
+     */
+    private SIPCommButton lastAddedButton;
+
+    /**
      * Initializes the panel containing the node.
      */
     public ContactListTreeCellRenderer()
@@ -222,11 +246,11 @@ public class ContactListTreeCellRenderer
          * correctly calculated problems may occur when clicking buttons!
          */
         this.setBorder(BorderFactory
-            .createEmptyBorder(TOP_BORDER, LEFT_BORDER, 2, 2));
+            .createEmptyBorder( TOP_BORDER,
+                                LEFT_BORDER, 
+                                BOTTOM_BORDER,
+                                RIGHT_BORDER));
 
-        statusLabel.setBorder(
-            BorderFactory.createEmptyBorder(STATUS_TOP_BORDER,
-                                            0, 0, STATUS_RIGHT_BORDER));
         loadSkin();
 
         this.setOpaque(true);
@@ -236,6 +260,10 @@ public class ContactListTreeCellRenderer
         this.displayDetailsLabel.setForeground(Color.GRAY);
 
         this.rightLabel.setHorizontalAlignment(JLabel.RIGHT);
+
+        // !! IMPORTANT: General insets used for all components if not
+        // overwritten!
+        constraints.insets = new Insets(0, 0, V_GAP, H_GAP);
 
         constraints.anchor = GridBagConstraints.WEST;
         constraints.fill = GridBagConstraints.NONE;
@@ -595,11 +623,11 @@ public class ContactListTreeCellRenderer
             if (preferredHeight > 0)
                 preferredSize.height = preferredHeight;
             else if (contact instanceof ShowMoreContact)
-                preferredSize.height = 18;
+                preferredSize.height = 20;
             else if (isSelected && treeContactList.isContactButtonsVisible())
                 preferredSize.height = 70;
             else
-                preferredSize.height = 30;
+                preferredSize.height = 35;
         }
         else if (treeNode instanceof GroupNode)
         {
@@ -611,7 +639,7 @@ public class ContactListTreeCellRenderer
             if (preferredHeight > 0)
                 preferredSize.height = preferredHeight;
             else
-                preferredSize.height = 18;
+                preferredSize.height = 20;
         }
 
         return preferredSize;
@@ -638,8 +666,6 @@ public class ContactListTreeCellRenderer
         constraints.gridheight = 1;
         constraints.gridwidth = nameLabelGridWidth;
         this.add(nameLabel, constraints);
-
-        rightLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 2));
 
         constraints.anchor = GridBagConstraints.NORTHEAST;
         constraints.fill = GridBagConstraints.VERTICAL;
@@ -719,15 +745,6 @@ public class ContactListTreeCellRenderer
         if (!isSelected)
             return;
 
-        int statusMessageLabelHeight = 0;
-        if (displayDetailsLabel.getText().length() > 0)
-            statusMessageLabelHeight = 20;
-        else
-            statusMessageLabelHeight = 15;
-
-        int y = TOP_BORDER + STATUS_TOP_BORDER
-            + nameLabel.getHeight() + statusMessageLabelHeight;
-
         UIContactDetail imContact = null;
         // For now we support instance messaging only for contacts in our
         // contact list until it's implemented for external source contacts.
@@ -736,9 +753,8 @@ public class ContactListTreeCellRenderer
                          OperationSetBasicInstantMessaging.class);
 
         int x = (statusIcon == null ? 0 : statusIcon.getIconWidth())
-                + (statusLabel == null ? 0 : statusLabel.getIconTextGap())
                 + LEFT_BORDER
-                + STATUS_RIGHT_BORDER;
+                + H_GAP;
 
         // Re-initialize the x grid.
         constraints.gridx = 0;
@@ -746,20 +762,7 @@ public class ContactListTreeCellRenderer
 
         if (imContact != null)
         {
-            constraints.anchor = GridBagConstraints.WEST;
-            constraints.fill = GridBagConstraints.NONE;
-            constraints.gridx = ++gridX;
-            constraints.gridy = 2;
-            constraints.gridwidth = 1;
-            constraints.gridheight = 1;
-            constraints.weightx = 0f;
-            constraints.weighty = 0f;
-            this.chatButton.setBorder(null);
-            this.add(chatButton, constraints);
-
-            chatButton.setBounds(x, y, 28, 28);
-
-            x += chatButton.getWidth();
+            x += addButton(chatButton, ++gridX, x, false);
         }
 
         UIContactDetail telephonyContact
@@ -833,22 +836,7 @@ public class ContactListTreeCellRenderer
             || uiContact.getDescriptor() instanceof SourceContact ||
             (hasPhone && providers.size() > 0))
         {
-            constraints.anchor = GridBagConstraints.WEST;
-            constraints.fill = GridBagConstraints.NONE;
-            constraints.gridx = ++gridX;
-            constraints.gridy = 2;
-            constraints.gridwidth = 1;
-            constraints.gridheight = 1;
-            constraints.weightx = 0f;
-            constraints.weighty = 0f;
-            this.callButton.setBorder(null);
-            this.add(callButton, constraints);
-
-            callButton.setBounds(x, y, 28, 28);
-
-            callButton.setEnabled(telephonyContact != null || hasPhone);
-
-            x += callButton.getWidth();
+            x += addButton(callButton, ++gridX, x, false);
         }
 
         UIContactDetail videoContact
@@ -864,20 +852,7 @@ public class ContactListTreeCellRenderer
                                     null,
                                     null).size() > 0))
         {
-            constraints.anchor = GridBagConstraints.WEST;
-            constraints.fill = GridBagConstraints.NONE;
-            constraints.gridx = ++gridX;
-            constraints.gridy = 2;
-            constraints.gridwidth = 1;
-            constraints.gridheight = 1;
-            constraints.weightx = 0f;
-            constraints.weighty = 0f;
-            this.callVideoButton.setBorder(null);
-            this.add(callVideoButton, constraints);
-
-            callVideoButton.setBounds(x, y, 28, 28);
-
-            x += callVideoButton.getWidth();
+            x += addButton(callVideoButton, ++gridX, x, false);
         }
 
         UIContactDetail desktopContact
@@ -893,39 +868,13 @@ public class ContactListTreeCellRenderer
                             null,
                             null).size() > 0))
         {
-            constraints.anchor = GridBagConstraints.WEST;
-            constraints.fill = GridBagConstraints.NONE;
-            constraints.gridx = ++gridX;
-            constraints.gridy = 2;
-            constraints.gridwidth = 1;
-            constraints.gridheight = 1;
-            constraints.weightx = 0f;
-            constraints.weighty = 0f;
-            this.desktopSharingButton.setBorder(null);
-            this.add(desktopSharingButton, constraints);
-
-            desktopSharingButton.setBounds(x, y, 28, 28);
-
-            x += desktopSharingButton.getWidth();
+            x += addButton(desktopSharingButton, ++gridX, x, false);
         }
 
         if (uiContact.getDescriptor() instanceof SourceContact
             && !ConfigurationManager.isAddContactDisabled())
         {
-            constraints.anchor = GridBagConstraints.WEST;
-            constraints.fill = GridBagConstraints.NONE;
-            constraints.gridx = ++gridX;
-            constraints.gridy = 2;
-            constraints.gridwidth = 1;
-            constraints.gridheight = 1;
-            constraints.weightx = 0f;
-            constraints.weighty = 0f;
-            this.addContactButton.setBorder(null);
-            this.add(addContactButton, constraints);
-
-            addContactButton.setBounds(x, y, 28, 28);
-
-            x += addContactButton.getWidth();
+            x += addButton(addContactButton, ++gridX, x, false);
         }
 
         // The list of the contact actions
@@ -933,16 +882,20 @@ public class ContactListTreeCellRenderer
         Collection<SIPCommButton> contactActions
             = uiContact.getContactCustomActionButtons();
 
-        if (contactActions != null)
+        if (contactActions != null && contactActions.size() > 0)
         {
-            initContactActionButtons(contactActions, gridX, x);
+            initContactActionButtons(contactActions, ++gridX, x);
         }
         else
         {
             addLabels(gridX);
         }
 
-        this.setBounds(0, 0, treeContactList.getWidth(), getPreferredSize().height);
+        if (lastAddedButton != null)
+            setButtonBg(lastAddedButton, gridX, true);
+
+        this.setBounds(0, 0, treeContactList.getWidth(),
+                        getPreferredSize().height);
     }
 
     /**
@@ -970,28 +923,8 @@ public class ContactListTreeCellRenderer
 
             customActionButtons.add(actionButton);
 
-            constraints.anchor = GridBagConstraints.WEST;
-            constraints.fill = GridBagConstraints.NONE;
-            constraints.gridx = ++gridX;
-            constraints.gridy = 2;
-            constraints.gridwidth = 1;
-            constraints.gridheight = 1;
-            constraints.weightx = 0f;
-            constraints.weighty = 0f;
-            actionButton.setBorder(null);
-            this.add(actionButton, constraints);
-
-            int statusMessageLabelHeight = 0;
-            if (displayDetailsLabel.getText().length() > 0)
-                statusMessageLabelHeight = 20;
-            else
-                statusMessageLabelHeight = 15;
-
-            actionButton.setBounds(xBounds,
-                nameLabel.getHeight() + statusMessageLabelHeight
-                 + TOP_BORDER + STATUS_TOP_BORDER, 28, 28);
-
-            xBounds += actionButton.getWidth();
+            xBounds
+                += addButton(actionButton, ++gridX, xBounds, false);
         }
     }
 
@@ -1033,6 +966,15 @@ public class ContactListTreeCellRenderer
         {
             g.dispose();
         }
+    }
+
+    /**
+     * Returns the call button contained in the current cell.
+     * @return the call button contained in the current cell
+     */
+    public JButton getChatButton()
+    {
+        return chatButton;
     }
 
     /**
@@ -1365,7 +1307,9 @@ public class ContactListTreeCellRenderer
         else if (desktopContacts.size() > 1)
         {
             chooseAccountDialog
-                = new ChooseCallAccountPopupMenu(treeContactList, desktopContacts,
+                = new ChooseCallAccountPopupMenu(
+                    treeContactList,
+                    desktopContacts,
                     OperationSetDesktopSharingServer.class);
         }
 
@@ -1378,7 +1322,8 @@ public class ContactListTreeCellRenderer
             SwingUtilities.convertPointToScreen(location, treeContactList);
 
             location.y = location.y
-                + treeContactList.getPathBounds(treeContactList.getSelectionPath()).y;
+                + treeContactList.getPathBounds(
+                    treeContactList.getSelectionPath()).y;
 
             chooseAccountDialog.showPopupMenu(location.x + 8, location.y - 8);
         }
@@ -1487,14 +1432,14 @@ public class ContactListTreeCellRenderer
                 tree.getWidth() - imageWidth, 0, imageWidth, imageHeight);
         }
 
-        statusLabel.setBounds(  0, 0,
+        dragC.statusLabel.setBounds(  0, 0,
                                 statusLabel.getWidth(),
                                 statusLabel.getHeight());
 
-        nameLabel.setBounds(statusLabel.getWidth(), 0,
+        dragC.nameLabel.setBounds(statusLabel.getWidth(), 0,
             tree.getWidth() - imageWidth - 5, nameLabel.getHeight());
 
-        displayDetailsLabel.setBounds(
+        dragC.displayDetailsLabel.setBounds(
             displayDetailsLabel.getX(),
             nameLabel.getHeight(),
             displayDetailsLabel.getWidth(),
@@ -1509,19 +1454,23 @@ public class ContactListTreeCellRenderer
     public void loadSkin()
     {
         openedGroupIcon
-            = new ImageIcon(ImageLoader.getImage(ImageLoader.DOWN_ARROW_ICON));
+            = new ImageIcon(ImageLoader.getImage(ImageLoader.OPENED_GROUP_ICON));
 
         closedGroupIcon
-            = new ImageIcon(ImageLoader.getImage(ImageLoader.RIGHT_ARROW_ICON));
+            = new ImageIcon(ImageLoader.getImage(ImageLoader.CLOSED_GROUP_ICON));
 
-        callButton.setBackgroundImage(ImageLoader.getImage(
+        callButton.setIconImage(ImageLoader.getImage(
                 ImageLoader.CALL_BUTTON_SMALL));
+        callButton.setRolloverImage(ImageLoader.getImage(
+                ImageLoader.CALL_BUTTON_SMALL_PRESSED));
         callButton.setPressedImage(ImageLoader.getImage(
                 ImageLoader.CALL_BUTTON_SMALL_PRESSED));
 
-        chatButton.setBackgroundImage(ImageLoader.getImage(
+        chatButton.setIconImage(ImageLoader.getImage(
                 ImageLoader.CHAT_BUTTON_SMALL));
         chatButton.setPressedImage(ImageLoader.getImage(
+                ImageLoader.CHAT_BUTTON_SMALL_PRESSED));
+        chatButton.setRolloverImage(ImageLoader.getImage(
                 ImageLoader.CHAT_BUTTON_SMALL_PRESSED));
 
         msgReceivedImage
@@ -1539,17 +1488,40 @@ public class ContactListTreeCellRenderer
         if (contactForegroundProperty > -1)
             contactForegroundColor = new Color(contactForegroundProperty);
 
-        callVideoButton.setBackgroundImage(ImageLoader.getImage(
+        callVideoButton.setIconImage(ImageLoader.getImage(
                 ImageLoader.CALL_VIDEO_BUTTON_SMALL));
-
+        callVideoButton.setRolloverImage(ImageLoader.getImage(
+            ImageLoader.CALL_VIDEO_BUTTON_SMALL_PRESSED));
         callVideoButton.setPressedImage(ImageLoader.getImage(
                 ImageLoader.CALL_VIDEO_BUTTON_SMALL_PRESSED));
 
-        desktopSharingButton.setBackgroundImage(ImageLoader.getImage(
+        desktopSharingButton.setIconImage(ImageLoader.getImage(
                 ImageLoader.DESKTOP_BUTTON_SMALL));
-
+        desktopSharingButton.setRolloverImage(ImageLoader.getImage(
+            ImageLoader.DESKTOP_BUTTON_SMALL_PRESSED));
         desktopSharingButton.setPressedImage(ImageLoader.getImage(
                 ImageLoader.DESKTOP_BUTTON_SMALL_PRESSED));
+
+        callVideoButton.setIconImage(
+            ImageLoader.getImage(ImageLoader.CALL_VIDEO_BUTTON_SMALL));
+        callVideoButton.setRolloverImage(
+            ImageLoader.getImage(ImageLoader.CALL_VIDEO_BUTTON_SMALL_PRESSED));
+        callVideoButton.setPressedImage(
+            ImageLoader.getImage(ImageLoader.CALL_VIDEO_BUTTON_SMALL_PRESSED));
+
+        desktopSharingButton.setIconImage(
+            ImageLoader.getImage(ImageLoader.DESKTOP_BUTTON_SMALL));
+        desktopSharingButton.setRolloverImage(
+            ImageLoader.getImage(ImageLoader.DESKTOP_BUTTON_SMALL_PRESSED));
+        desktopSharingButton.setPressedImage(
+            ImageLoader.getImage(ImageLoader.DESKTOP_BUTTON_SMALL_PRESSED));
+
+        addContactButton.setIconImage(
+            ImageLoader.getImage(ImageLoader.ADD_CONTACT_BUTTON_SMALL));
+        addContactButton.setRolloverImage(
+            ImageLoader.getImage(ImageLoader.ADD_CONTACT_BUTTON_SMALL_PRESSED));
+        addContactButton.setPressedImage(
+            ImageLoader.getImage(ImageLoader.ADD_CONTACT_BUTTON_SMALL_PRESSED));
     }
 
     /**
@@ -1627,5 +1599,79 @@ public class ContactListTreeCellRenderer
                  }
             }
         }
+    }
+
+    private int addButton(  SIPCommButton button,
+                            int gridX,
+                            int xBounds,
+                            boolean isLast)
+    {
+        lastAddedButton = button;
+
+        constraints.insets = new Insets(0, 0, V_GAP, 0);
+        constraints.anchor = GridBagConstraints.WEST;
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.gridx = gridX;
+        constraints.gridy = 2;
+        constraints.gridwidth = 1;
+        constraints.gridheight = 1;
+        constraints.weightx = 0f;
+        constraints.weighty = 0f;
+        this.add(button, constraints);
+
+//        addButtonSeparator(gridX);
+
+        int yBounds = TOP_BORDER + BOTTOM_BORDER + 2*V_GAP
+                + GuiUtils.getStringSize(
+                    nameLabel, nameLabel.getText()).height
+                + GuiUtils.getStringSize(
+                    displayDetailsLabel, displayDetailsLabel.getText()).height;
+
+        button.setBounds(xBounds, yBounds, BUTTON_WIDTH, BUTTON_HEIGHT);
+
+        button.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+
+        setButtonBg(button, gridX, isLast);
+
+        return button.getWidth();// + BUTTON_SEPARATOR_IMG.getWidth(this);
+    }
+
+    private void setButtonBg(SIPCommButton button,
+                            int gridX,
+                            boolean isLast)
+    {
+        if (!isLast)
+        {
+            if (gridX == 1)
+                button.setBackgroundImage(ImageLoader.getImage(
+                    ImageLoader.CONTACT_LIST_BUTTON_BG_LEFT));
+            else if (gridX > 1)
+                button.setBackgroundImage(ImageLoader.getImage(
+                    ImageLoader.CONTACT_LIST_BUTTON_BG_MIDDLE));
+        }
+        else
+        {
+            if (gridX == 1) // We have only one button shown.
+                button.setBackgroundImage(ImageLoader.getImage(
+                    ImageLoader.CONTACT_LIST_ONE_BUTTON_BG));
+            else // We set the background of the last button in the toolbar
+                button.setBackgroundImage(ImageLoader.getImage(
+                    ImageLoader.CONTACT_LIST_BUTTON_BG_RIGHT));
+        }
+    }
+
+    private void addButtonSeparator(int buttonGridX)
+    {
+        JLabel separatorLabel = new JLabel(new ImageIcon(BUTTON_SEPARATOR_IMG));
+
+        constraints.anchor = GridBagConstraints.WEST;
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.gridx = ++buttonGridX;
+        constraints.gridy = 2;
+        constraints.gridwidth = 1;
+        constraints.gridheight = 1;
+        constraints.weightx = 0f;
+        constraints.weighty = 0f;
+        this.add(separatorLabel, constraints);
     }
 }

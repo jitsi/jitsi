@@ -20,7 +20,7 @@ import net.java.sip.communicator.util.swing.*;
 
 /**
  * The <tt>FileMenu</tt> is the menu in the chat window menu bar that contains
- * save, print and close.
+ * my chat rooms, history and close.
  * 
  * @author Yana Stamcheva
  * @author Adam Netocny

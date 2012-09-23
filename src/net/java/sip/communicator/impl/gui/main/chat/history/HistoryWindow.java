@@ -263,13 +263,14 @@ public class HistoryWindow
                 Object o = i.next();
 
                 ChatMessage chatMessage = null;
+                ProtocolProviderService protocolProvider = null;
 
                 if(o instanceof MessageDeliveredEvent)
                 {
                     MessageDeliveredEvent evt = (MessageDeliveredEvent) o;
 
-                    ProtocolProviderService protocolProvider = evt
-                        .getDestinationContact().getProtocolProvider();
+                    protocolProvider
+                        = evt.getDestinationContact().getProtocolProvider();
 
                     chatMessage = new ChatMessage(
                             GuiActivator.getUIService().getMainFrame()
@@ -288,6 +289,9 @@ public class HistoryWindow
                 {
                     MessageReceivedEvent evt = (MessageReceivedEvent) o;
 
+                    protocolProvider
+                        = evt.getSourceContact().getProtocolProvider();
+
                     chatMessage = new ChatMessage(
                         evt.getSourceContact().getAddress(),
                         evt.getSourceContact().getDisplayName(),
@@ -304,6 +308,9 @@ public class HistoryWindow
                     ChatRoomMessageReceivedEvent evt
                         = (ChatRoomMessageReceivedEvent) o;
 
+                    protocolProvider
+                        = evt.getSourceChatRoom().getParentProvider();
+
                     chatMessage = new ChatMessage(
                         evt.getSourceChatRoomMember().getName(),
                         evt.getTimestamp(), Chat.INCOMING_MESSAGE,
@@ -314,6 +321,9 @@ public class HistoryWindow
                 {
                     ChatRoomMessageDeliveredEvent evt
                         = (ChatRoomMessageDeliveredEvent) o;
+
+                    protocolProvider
+                        = evt.getSourceChatRoom().getParentProvider();
 
                     chatMessage = new ChatMessage(
                         evt.getSourceChatRoom().getParentProvider()
@@ -326,6 +336,9 @@ public class HistoryWindow
                 {
                     FileRecord fileRecord = (FileRecord) o;
 
+                    protocolProvider
+                        = fileRecord.getContact().getProtocolProvider();
+
                     FileHistoryConversationComponent component
                         = new FileHistoryConversationComponent(
                             this, fileRecord);
@@ -336,10 +349,13 @@ public class HistoryWindow
                 if (chatMessage != null)
                 {
                     processedMessage = chatConvPanel.processMessage(
-                            chatMessage, searchKeyword);
+                            chatMessage,
+                            searchKeyword,
+                            protocolProvider,
+                            chatMessage.getContactName());
 
                     chatConvPanel.appendMessageToEnd(processedMessage,
-                        ChatConversationPanel.TEXT_CONTENT_TYPE);
+                        ChatHtmlUtils.TEXT_CONTENT_TYPE);
                 }
             }
         }
@@ -875,7 +891,9 @@ public class HistoryWindow
                         messageContentType);
 
                     String processedMessage = chatConvPanel.processMessage(
-                        chatMessage, searchKeyword);
+                        chatMessage, searchKeyword,
+                        contact.getProtocolProvider(),
+                        contact.getAddress());
 
                     this.appendMessageToDocument(document, processedMessage);
                 }

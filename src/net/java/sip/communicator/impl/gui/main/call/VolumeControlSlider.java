@@ -22,7 +22,7 @@ import org.jitsi.service.neomedia.event.*;
  * @author Yana Stamcheva
  */
 public class VolumeControlSlider
-    extends SIPCommPopupMenu
+    extends TransparentPanel
     implements VolumeChangeListener
 {
     private final JSlider volumeSlider;
@@ -41,12 +41,19 @@ public class VolumeControlSlider
      * @param volumeControl the <tt>VolumeControl</tt> that do the actual volume
      * adjusting.
      */
-    public VolumeControlSlider(final VolumeControl volumeControl)
+    public VolumeControlSlider( final VolumeControl volumeControl,
+                                int orientation)
     {
+        super(new BorderLayout());
+
         volumeControl.addVolumeChangeListener(this);
 
-        volumeSlider = new JSlider(JSlider.VERTICAL, 0, 100, 50);
-        volumeSlider.setPreferredSize(new Dimension(20, 100));
+        volumeSlider = new JSlider(orientation, 0, 100, 50);
+
+        if (orientation == JSlider.VERTICAL)
+            volumeSlider.setPreferredSize(new Dimension(20, 100));
+        else
+            volumeSlider.setPreferredSize(new Dimension(100, 20));
 
         // Sets the minimum, maximum and default volume values for the volume
         // slider.
@@ -82,5 +89,19 @@ public class VolumeControlSlider
 
         if (volumeSlider.getValue() != newValue)
             volumeSlider.setValue(newValue);
+    }
+
+    /**
+     * Returns this slider in a popup menu.
+     *
+     * @return this slider in a popup menu
+     */
+    public JPopupMenu getPopupMenu()
+    {
+        SIPCommPopupMenu popupMenu = new SIPCommPopupMenu();
+
+        popupMenu.add(this);
+
+        return popupMenu;
     }
 }

@@ -18,7 +18,7 @@ public class OrderedTransparentPanel
     extends TransparentPanel
 {
     private static final long serialVersionUID = 0L;
-    
+
     public Component add(Component comp) 
     {
         if(comp instanceof OrderedComponent)
@@ -54,7 +54,7 @@ public class OrderedTransparentPanel
             int cIx;
             if(c instanceof OrderedComponent)
             {
-                cIx = ((OrderedComponent)c).getIndex();
+                cIx = ((OrderedComponent) c).getIndex();
 
                 if(orederIndex < cIx)
                 {

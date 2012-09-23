@@ -142,7 +142,7 @@ public class OneToOneCallPeerPanel
     /**
      * Sound remote level label.
      */
-    private OutputVolumeControlButton remoteLevel;
+    private Component remoteLevel;
 
     /**
      * The center component.
@@ -356,7 +356,7 @@ public class OneToOneCallPeerPanel
                 ImageLoader.MUTE_BUTTON,
                 false, false, false);
         remoteLevel = new OutputVolumeControlButton(
-                ImageLoader.HEADPHONE, false, false);
+                ImageLoader.HEADPHONE, false, false).getComponent();
 
         final SoundLevelIndicator localLevelIndicator
             = new SoundLevelIndicator(
@@ -831,9 +831,8 @@ public class OneToOneCallPeerPanel
             localLevel.setIcon(new ImageIcon(
                 ImageLoader.getImage(ImageLoader.MICROPHONE)));
 
-        if(remoteLevel != null)
-            remoteLevel.setIcon(new ImageIcon(
-                ImageLoader.getImage(ImageLoader.HEADPHONE)));
+        if(remoteLevel != null && remoteLevel instanceof Skinnable)
+            ((Skinnable) remoteLevel).loadSkin();
 
         if(muteStatusLabel.getIcon() != null)
             muteStatusLabel.setIcon(new ImageIcon(

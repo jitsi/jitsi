@@ -130,8 +130,6 @@ public class ChatPanel
 
     private boolean isHistoryLoaded;
 
-    private int autoDividerLocation = 0;
-
     /**
      * Stores all active  file transfer requests and effective transfers with
      * the identifier of the transfer.
@@ -482,7 +480,7 @@ public class ChatPanel
                 new String[]{evt.getSourceMember().getName(),
                 getRoleDescription(evt.getNewRole())})
                 +"</DIV>",
-            ChatConversationPanel.HTML_CONTENT_TYPE);
+            ChatHtmlUtils.HTML_CONTENT_TYPE);
     }
 
     /**
@@ -497,7 +495,7 @@ public class ChatPanel
             +GuiActivator.getResources().getI18NString("service.gui.ARE_NOW",
                 new String[]{
                 getRoleDescription(evt.getNewRole())}) +"</DIV>",
-            ChatConversationPanel.HTML_CONTENT_TYPE);
+                ChatHtmlUtils.HTML_CONTENT_TYPE);
     }
 
     /**
@@ -687,7 +685,7 @@ public class ChatPanel
 
             if (historyString != null)
                 conversationPanel.appendMessageToEnd(
-                    historyString, ChatConversationPanel.TEXT_CONTENT_TYPE);
+                    historyString, ChatHtmlUtils.TEXT_CONTENT_TYPE);
         }
 
         fireChatHistoryChange();
@@ -839,6 +837,11 @@ public class ChatPanel
                 message, "text");
     }
 
+    /**
+     * Displays the given chat message.
+     *
+     * @param chatMessage the chat message to display
+     */
     private void displayChatMessage(ChatMessage chatMessage)
     {
         if (chatMessage.getCorrectedMessageUID() != null
@@ -863,7 +866,9 @@ public class ChatPanel
     private void appendChatMessage(ChatMessage chatMessage)
     {
         String processedMessage
-            = this.conversationPanel.processMessage(chatMessage);
+            = this.conversationPanel.processMessage(chatMessage,
+                chatSession.getCurrentChatTransport().getProtocolProvider(),
+                chatSession.getCurrentChatTransport().getName());
 
         if (chatSession instanceof ConferenceChatSession)
         {
@@ -963,7 +968,10 @@ public class ChatPanel
                 messageType, null, message, contentType, messageId, null);
 
         String processedMessage =
-            this.conversationPanel.processMessage(chatMessage);
+            this.conversationPanel.processMessage(chatMessage,
+                chatSession.getCurrentChatTransport().getProtocolProvider(),
+                chatSession.getCurrentChatTransport().getName());
+
         if (chatSession instanceof ConferenceChatSession)
         {
             String tempMessage =
@@ -1004,7 +1012,7 @@ public class ChatPanel
     public String getTextFromWriteArea(String mimeType)
     {
         if (mimeType.equals(
-            OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE))
+                OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE))
         {
             return writeMessagePanel.getText();
         }
@@ -2062,7 +2070,7 @@ public class ChatPanel
             System.currentTimeMillis(),
             Chat.STATUS_MESSAGE,
             statusMessage,
-            ChatConversationPanel.TEXT_CONTENT_TYPE);
+            ChatHtmlUtils.TEXT_CONTENT_TYPE);
     }
 
     /**
@@ -2094,7 +2102,7 @@ public class ChatPanel
                     "service.gui.CHAT_ROOM_SUBJECT_CHANGED",
                     new String []{  chatSession.getChatName(),
                                     subject}),
-                ChatConversationPanel.TEXT_CONTENT_TYPE);
+                    ChatHtmlUtils.TEXT_CONTENT_TYPE);
         }
     }
 
@@ -2461,8 +2469,6 @@ public class ChatPanel
     {
         int dividerLocation = messagePane.getHeight() - location;
 
-        autoDividerLocation = dividerLocation;
-
         messagePane.setDividerLocation(dividerLocation);
         messagePane.revalidate();
         messagePane.repaint();
@@ -2760,8 +2766,7 @@ public class ChatPanel
                 + event.getOldValue()
                 + " is now known as "
                 + event.getNewValue() + "</DIV>",
-                ChatConversationPanel.HTML_CONTENT_TYPE);
-        
+                ChatHtmlUtils.HTML_CONTENT_TYPE);
     }
 
     /**

@@ -6,15 +6,12 @@
  */
 package net.java.sip.communicator.impl.contactlist;
 
-import java.io.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.contactlist.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
-
-import org.jitsi.service.fileaccess.*;
 
 /**
  * A default implementation of the <code>MetaContact</code> interface.
@@ -94,32 +91,9 @@ public class MetaContactImpl
     private Map<String, List<String>> details;
 
     /**
-     * The name (i.e. not the whole path) of the directory in which the avatar
-     * files are to be cached for later reuse.
-     */
-    private final static String AVATAR_DIR = "avatarcache";
-
-    /**
      * Whether user has renamed this meta contact.
      */
     private boolean isDisplayNameUserDefined = false;
-
-    /**
-     *  Characters and their replacement in created folder names
-     */
-    private final static String[][] ESCAPE_SEQUENCES = new String[][]
-    {
-        {"&", "&_amp"},
-        {"/", "&_sl"},
-        {"\\\\", "&_bs"},   // the char \
-        {":", "&_co"},
-        {"\\*", "&_as"},    // the char *
-        {"\\?", "&_qm"},    // the char ?
-        {"\"", "&_pa"},     // the char "
-        {"<", "&_lt"},
-        {">", "&_gt"},
-        {"\\|", "&_pp"}     // the char |
-    };
 
     /**
      * Creates new meta contact with a newly generated meta contact UID.
@@ -636,16 +610,8 @@ public class MetaContactImpl
         while (iter.hasNext())
         {
             Contact protoContact = iter.next();
-            String avatarPath = AVATAR_DIR
-                + File.separator
-                + escapeSpecialCharacters(
-                        protoContact
-                            .getProtocolProvider()
-                                .getAccountID().getAccountUniqueID())
-                + File.separator
-                + escapeSpecialCharacters(protoContact.getAddress());
 
-            cachedAvatar = getLocallyStoredAvatar(avatarPath);
+            cachedAvatar = AvatarCacheUtils.getCachedAvatar(protoContact);
             /*
              * Caching a zero-length avatar happens but such an avatar isn't
              * very useful.
@@ -1103,136 +1069,7 @@ public class MetaContactImpl
         this.cachedAvatar = avatarBytes;
         this.avatarFileCacheAlreadyQueried = true;
 
-        String avatarDirPath
-            = AVATAR_DIR
-                + File.separator
-                + escapeSpecialCharacters(
-                        protoContact
-                            .getProtocolProvider()
-                                .getAccountID().getAccountUniqueID());
-        String avatarFileName
-            = escapeSpecialCharacters(protoContact.getAddress());
-
-        File avatarDir = null;
-        File avatarFile = null;
-        try
-        {
-            FileAccessService fileAccessService
-                = ContactlistActivator.getFileAccessService();
-
-            avatarDir
-                = fileAccessService.getPrivatePersistentDirectory(
-                        avatarDirPath);
-            avatarFile
-                = fileAccessService.getPrivatePersistentFile(
-                        avatarDirPath + File.separator + avatarFileName);
-
-            if(!avatarFile.exists())
-            {
-                if (!avatarDir.exists() && !avatarDir.mkdirs())
-                {
-                    throw
-                        new IOException(
-                                "Failed to create directory: "
-                                    + avatarDir.getAbsolutePath());
-                }
-
-                if (!avatarFile.createNewFile())
-                {
-                    throw
-                        new IOException(
-                                "Failed to create file"
-                                    + avatarFile.getAbsolutePath());
-                }
-            }
-
-            FileOutputStream fileOutStream = new FileOutputStream(avatarFile);
-
-            try
-            {
-                fileOutStream.write(avatarBytes);
-                fileOutStream.flush();
-            }
-            finally
-            {
-                fileOutStream.close();
-            }
-        }
-        catch (Exception ex)
-        {
-            logger.error(
-                    "Failed to store avatar. dir =" + avatarDir
-                        + " file=" + avatarFile,
-                    ex);
-        }
-    }
-
-    /**
-     * Returns the avatar image corresponding to the given avatar path.
-     *
-     * @param avatarPath The path to the lovally stored avatar.
-     * @return the avatar image corresponding to the given avatar path.
-     */
-    private byte[] getLocallyStoredAvatar(String avatarPath)
-    {
-        try
-        {
-            File avatarFile
-                = ContactlistActivator
-                    .getFileAccessService()
-                        .getPrivatePersistentFile(avatarPath);
-
-            if(avatarFile.exists())
-            {
-                FileInputStream avatarInputStream
-                    = new FileInputStream(avatarFile);
-                byte[] bs = null;
-
-                try
-                {
-                    int available = avatarInputStream.available();
-
-                    if (available > 0)
-                    {
-                        bs = new byte[available];
-                        avatarInputStream.read(bs);
-                    }
-                }
-                finally
-                {
-                    avatarInputStream.close();
-                }
-                if (bs != null)
-                    return bs;
-            }
-        }
-        catch (Exception ex)
-        {
-            logger.error(
-                    "Could not read avatar image from file " + avatarPath,
-                    ex);
-        }
-        return null;
-    }
-
-    /**
-     * Replaces the characters that we must escape used for the created
-     * filename.
-     *
-     * @param id the <tt>String</tt> which is to have its characters escaped
-     * @return a <tt>String</tt> derived from the specified <tt>id</tt> by
-     * escaping characters
-     */
-    private String escapeSpecialCharacters(String id)
-    {
-        String resultId = id;
-
-        for (int j = 0; j < ESCAPE_SEQUENCES.length; j++)
-        {
-            resultId = resultId.
-                replaceAll(ESCAPE_SEQUENCES[j][0], ESCAPE_SEQUENCES[j][1]);
-        }
-        return resultId;
+        AvatarCacheUtils.cacheAvatar(protoContact, avatarBytes);
     }
 
     /**

@@ -42,6 +42,11 @@ public class CallHistoryButton
     private Image pressedImage;
 
     /**
+     * The notification image.
+     */
+    private Image notificationImage;
+
+    /**
      * Indicates if the history is visible.
      */
     private boolean isHistoryVisible = false;
@@ -142,7 +147,10 @@ public class CallHistoryButton
      */
     private void setHistoryView()
     {
-        isNotificationsView = false;
+        if (isNotificationsView)
+            isNotificationsView = false;
+        else
+            setIcon(null);
 
         if (isHistoryVisible)
         {
@@ -167,7 +175,6 @@ public class CallHistoryButton
     {
         int notificationCount = 0;
         isNotificationsView = true;
-        this.setBgImage(null);
 
         Iterator<UINotificationGroup> groupsIter
             = notificationGroups.iterator();
@@ -204,7 +211,29 @@ public class CallHistoryButton
         this.setToolTipText(tooltipText + "</html>");
 
         this.setBackground(new Color(200, 0, 0));
-        this.setText(new Integer(notificationCount).toString());
+        this.setVerticalTextPosition(SwingConstants.TOP);
+
+        Image iconImage = ImageLoader.getImage(notificationImage,
+            new Integer(notificationCount).toString(), this);
+
+        if (isHistoryVisible)
+        {
+            setBgImage(ImageLoader.getImage(
+                pressedImage,
+                iconImage,
+                pressedImage.getWidth(null)/2
+                    - notificationImage.getWidth(null)/2,
+                0));
+        }
+        else
+        {
+            setBgImage(ImageLoader.getImage(
+                historyImage,
+                iconImage,
+                pressedImage.getWidth(null)/2
+                    - notificationImage.getWidth(null)/2,
+                0));
+        }
     }
 
     /**
@@ -217,6 +246,10 @@ public class CallHistoryButton
 
         pressedImage
             = ImageLoader.getImage(ImageLoader.CALL_HISTORY_BUTTON_PRESSED);
+
+        notificationImage
+            = ImageLoader.getImage(
+                ImageLoader.CALL_HISTORY_BUTTON_NOTIFICATION);
 
         this.setPreferredSize(new Dimension(historyImage.getWidth(this),
                                             historyImage.getHeight(this)));

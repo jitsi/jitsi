@@ -78,7 +78,7 @@ public class SIPCommTabbedPaneUI
 
     public static final int BUTTONSIZE = 15;
 
-    public static final int WIDTHDELTA = 10;
+    public static final int WIDTHDELTA = 1;
 
     private static final Border PRESSEDBORDER = new SoftBevelBorder(
             SoftBevelBorder.LOWERED);
@@ -237,9 +237,10 @@ public class SIPCommTabbedPaneUI
 
         tabPane.putClientProperty("html", null);
 
-        iconRect.x = tabRect.x + 5;
+        iconRect.y = iconRect.y + 2;
+        iconRect.x = tabRect.x + 7;
+        textRect.y = textRect.y + 2;
         textRect.x = iconRect.x + iconRect.width + 5;
-
     }
 
     protected MouseListener createMouseListener()
@@ -649,8 +650,7 @@ public class SIPCommTabbedPaneUI
             if (cropShape)
             {
                 save = g2.getClip();
-                g2
-                        .clipRect(tabRect.x, tabRect.y, tabRect.width,
+                g2.clipRect(tabRect.x, tabRect.y, tabRect.width,
                                 tabRect.height);
 
             }
@@ -687,7 +687,7 @@ public class SIPCommTabbedPaneUI
         else if (isOver || isSelected)
         {
             int dx = tabRect.x + tabRect.width - BUTTONSIZE - WIDTHDELTA;
-            int dy = (tabRect.y + tabRect.height) / 2 - 7;
+            int dy = (tabRect.y + tabRect.height) / 2 - 3;
 
             if (isCloseButtonEnabled)
                 paintCloseIcon(g2, dx, dy, isOver);

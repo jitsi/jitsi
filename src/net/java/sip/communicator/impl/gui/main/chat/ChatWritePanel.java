@@ -18,7 +18,6 @@ import javax.swing.text.html.*;
 import javax.swing.undo.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.chat.menus.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -654,7 +653,7 @@ public class ChatWritePanel
 
                 chatPanel.getChatConversationPanel()
                     .appendMessageToEnd(contactList,
-                        ChatConversationPanel.HTML_CONTENT_TYPE);
+                        ChatHtmlUtils.HTML_CONTENT_TYPE);
             }
             else if(contacts.size() == 1)
             {
@@ -963,7 +962,7 @@ public class ChatWritePanel
                             GuiActivator.getResources().
                                 getI18NString("service.gui.MSG_NOT_POSSIBLE") +
                             "</h5>",
-                            ChatConversationPanel.HTML_CONTENT_TYPE);
+                            ChatHtmlUtils.HTML_CONTENT_TYPE);
                 }
                 else
                 {

@@ -92,6 +92,16 @@ public class SIPCommTextButton extends JButton
     }
 
     /**
+     * Return the background image.
+     *
+     * @return the background image of this button
+     */
+    public Image getBgImage()
+    {
+        return bgImage;
+    }
+
+    /**
      * Overrides the <code>paintComponent</code> method of <tt>JButton</tt> to
      * paint the button background and icon, and all additional effects of this
      * configurable button.

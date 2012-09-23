@@ -34,17 +34,30 @@ public class FullScreenLayout
     private Component south;
 
     /**
+     * The vertical gap between the center and the south components.
+     */
+    private int yGap = 0;
+
+    /**
      * Initializes a new <tt>FullScreenLayout</tt> instance.
      *
      * @param overlay <tt>true</tt> to lay out the <tt>Component</tt> at
      * {@link #SOUTH} on top of the <tt>Component</tt> at {@link #CENTER} i.e as
      * an overlay; otherwise, <tt>false</tt>
+     * @oaram yGap the gap betwen the center and the south component
      */
-    public FullScreenLayout(boolean overlay)
+    public FullScreenLayout(boolean overlay, int yGap)
     {
         this.overlay = overlay;
+        this.yGap = yGap;
     }
 
+    /**
+     * Adds the given component to this layout.
+     *
+     * @param name the name of the constraint (CENTER or SOUTH)
+     * @param comp the component to add to this layout
+     */
     public void addLayoutComponent(String name, Component comp)
     {
         if (CENTER.equals(name))
@@ -72,6 +85,11 @@ public class FullScreenLayout
         return layoutComponents;
     }
 
+    /**
+     * Lays out the components added in the given parent container
+     *
+     * @param parent the parent container to lay out
+     */
     public void layoutContainer(Container parent)
     {
         int southWidth;
@@ -97,7 +115,7 @@ public class FullScreenLayout
              * If the Component at the SOUTH is not to be shown as an overlay,
              * make room for it bellow the Component at the CENTER.
              */
-            int yOffset = overlay ? 0 : southHeight;
+            int yOffset = overlay ? 0 : southHeight + yGap;
 
             center.setBounds(
                     0,

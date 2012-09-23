@@ -209,7 +209,7 @@ public class OneToOneCallPanel
 
         // Lay out the main Components of the UI.
         final Container contentPane = frame.getContentPane();
-        contentPane.setLayout(new FullScreenLayout(false));
+        contentPane.setLayout(new FullScreenLayout(false, 10));
         if (buttonBar != null)
             contentPane.add(buttonBar, FullScreenLayout.SOUTH);
         if (center != null)
@@ -331,7 +331,7 @@ public class OneToOneCallPanel
      *
      * @return the buttons bar <tt>Component</tt>
      */
-    private Component createFullScreenButtonBar()
+    private JComponent createFullScreenButtonBar()
     {
         ShowHideVideoButton showHideButton = new ShowHideVideoButton(
             call, true, callContainer.isShowHideVideoButtonSelected());
@@ -341,16 +341,17 @@ public class OneToOneCallPanel
         Component[] buttons
             = new Component[]
             {
+                new OutputVolumeControlButton(true).getComponent(),
                 new InputVolumeControlButton(call, true, callPeer.isMute()),
-                new OutputVolumeControlButton(true),
                 new HoldButton(call,
                                true,
                                CallPeerState.isOnHold(callPeer.getState())),
                 new RecordButton(call, true, callContainer.isRecordingStarted()),
+                new FullScreenButton(callContainer, true),
                 new LocalVideoButton(
                     call, true, callContainer.isVideoButtonSelected()),
                 showHideButton,
-                CallPeerRendererUtils.createExitFullScreenButton(this)
+                new HangupButton(callContainer)
             };
 
         return CallPeerRendererUtils.createButtonBar(true, buttons);

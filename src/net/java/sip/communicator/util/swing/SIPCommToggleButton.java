@@ -234,12 +234,17 @@ public class SIPCommToggleButton
             }
         }
 
+        int bgWidth = (bgImage != null)
+                        ? bgImage.getWidth(null)
+                        : getWidth();
+        int bgHeight = (bgImage != null)
+                        ? bgImage.getHeight(null)
+                        : getHeight();
+
         if (iconImageFinal != null)
             g.drawImage(iconImageFinal,
-                (this.bgImage.getWidth(null) - iconImageFinal
-                        .getWidth(null)) / 2, (this.bgImage
-                        .getHeight(null) - iconImageFinal
-                        .getHeight(null)) / 2, this);
+                (bgWidth - iconImageFinal.getWidth(null)) / 2,
+                (bgHeight - iconImageFinal.getHeight(null)) / 2, this);
     }
 
     /**

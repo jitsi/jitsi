@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.gui.main.call;
 
+import java.awt.*;
 import java.awt.event.*;
 
 import net.java.sip.communicator.impl.gui.*;
@@ -24,19 +25,30 @@ public class FullScreenButton
     implements Skinnable
 {
     /**
+     * Indicates if this buttons is shown in full screen view or normal window.
+     */
+    private boolean isFullScreen = false;
+
+    /**
      * Initializes a new <tt>FullScreenButton</tt> instance which is to
      * enter the full screen mode.
      *
      * @param callContainer the parent <tt>CallContainer</tt>, where this button
      * is contained
      */
-    public FullScreenButton(final CallPanel callContainer)
+    public FullScreenButton(final CallPanel callContainer,
+                            final boolean isFullScreen)
     {
-        super(  ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_BG),
-                ImageLoader.getImage(ImageLoader.ENTER_FULL_SCREEN_BUTTON));
+        this.isFullScreen = isFullScreen;
 
-        setToolTipText(GuiActivator.getResources().getI18NString(
-            "service.gui.ENTER_FULL_SCREEN_TOOL_TIP"));
+        if (isFullScreen)
+            setToolTipText(GuiActivator.getResources().getI18NString(
+                "service.gui.EXIT_FULL_SCREEN_TOOL_TIP"));
+        else
+            setToolTipText(GuiActivator.getResources().getI18NString(
+                "service.gui.ENTER_FULL_SCREEN_TOOL_TIP"));
+
+        loadSkin();
 
         addActionListener(new ActionListener()
         {
@@ -49,7 +61,10 @@ public class FullScreenButton
              */
             public void actionPerformed(ActionEvent evt)
             {
-                callContainer.getCurrentCallRenderer().enterFullScreen();
+                if (isFullScreen)
+                    callContainer.getCurrentCallRenderer().exitFullScreen();
+                else
+                    callContainer.getCurrentCallRenderer().enterFullScreen();
             }
         });
     }
@@ -59,10 +74,13 @@ public class FullScreenButton
      */
     public void loadSkin()
     {
-        setBackgroundImage(ImageLoader.getImage(
-                ImageLoader.CALL_SETTING_BUTTON_BG));
+        setPreferredSize(new Dimension(44, 38));
 
-        setIconImage(ImageLoader.getImage(
+        if (isFullScreen)
+            setIconImage(ImageLoader.getImage(
+                ImageLoader.EXIT_FULL_SCREEN_BUTTON));
+        else
+            setIconImage(ImageLoader.getImage(
                 ImageLoader.ENTER_FULL_SCREEN_BUTTON));
     }
 }

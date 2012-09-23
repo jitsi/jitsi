@@ -196,12 +196,6 @@ public class ImageLoader
         = new ImageID("service.gui.buttons.MORE_BUTTON");
 
     /**
-     * Closed group icon.
-     */
-    public static final ImageID RIGHT_ARROW_ICON
-        = new ImageID("service.gui.icons.RIGHT_ARROW_ICON");
-
-    /**
      * The background of the main window and chat window.
      */
     public static final ImageID DOWN_ARROW_ICON
@@ -276,6 +270,40 @@ public class ImageLoader
         = new ImageID("service.gui.buttons.CALL_VIDEO_BUTTON_BG");
 
     /**
+     * The background image for a button in contact list that is shown on the
+     * left of the button toolbar.
+     */
+    public static final ImageID CONTACT_LIST_BUTTON_BG_LEFT
+        = new ImageID("service.gui.buttons.CONTACT_LIST_BUTTON_BG_LEFT");
+
+    /**
+     * The background image for a button in contact list that is shown on the
+     * right of the button toolbar.
+     */
+    public static final ImageID CONTACT_LIST_BUTTON_BG_RIGHT
+        = new ImageID("service.gui.buttons.CONTACT_LIST_BUTTON_BG_RIGHT");
+
+    /**
+     * The background image for a button in contact list that is shown in the
+     * middle of other buttons.
+     */
+    public static final ImageID CONTACT_LIST_BUTTON_BG_MIDDLE
+        = new ImageID("service.gui.buttons.CONTACT_LIST_BUTTON_BG_MIDDLE");
+
+    /**
+     * The background image for a button in contact list if there's only one
+     * button shown.
+     */
+    public static final ImageID CONTACT_LIST_ONE_BUTTON_BG
+        = new ImageID("service.gui.buttons.CONTACT_LIST_ONE_BUTTON_BG");
+
+    /**
+     * The separator image for the button toolbar in the contact list.
+     */
+    public static final ImageID CONTACT_LIST_BUTTON_SEPARATOR
+        = new ImageID("service.gui.buttons.CONTACT_LIST_BUTTON_SEPARATOR");
+
+    /**
      * The call button small image.
      */
     public static final ImageID CALL_BUTTON_SMALL
@@ -344,10 +372,22 @@ public class ImageLoader
         = new ImageID("service.gui.buttons.CHAT_BUTTON_SMALL_WHITE");
 
     /**
+     * The icon used to separate buttons in the call toolbar.
+     */
+    public static final ImageID CALL_TOOLBAR_SEPARATOR
+        = new ImageID("service.gui.icons.CALL_TOOLBAR_SEPARATOR");
+
+    /**
      * The chat call button image.
      */
     public static final ImageID CHAT_CALL
         = new ImageID("service.gui.buttons.CHAT_CALL");
+
+    /**
+     * The chat video call button image.
+     */
+    public static final ImageID CHAT_VIDEO_CALL
+        = new ImageID("service.gui.buttons.CHAT_VIDEO_CALL");
 
     /**
      * The chat call button image.
@@ -366,6 +406,12 @@ public class ImageLoader
      */
     public static final ImageID CALL_HISTORY_BUTTON_PRESSED
         = new ImageID("service.gui.buttons.CALL_HISTORY_BUTTON_PRESSED");
+
+    /**
+     * The call history button missed call notification image.
+     */
+    public static final ImageID CALL_HISTORY_BUTTON_NOTIFICATION
+        = new ImageID("service.gui.icons.CALL_HISTORY_BUTTON_NOTIFICATION");
 
     /**
      * The chat button small pressed image.
@@ -987,13 +1033,13 @@ public class ImageLoader
     /**
      * The image used for opened groups.
      */
-    public static final ImageID OPENED_GROUP
+    public static final ImageID OPENED_GROUP_ICON
         = new ImageID("service.gui.icons.OPENED_GROUP");
 
     /**
      * The image used for closed groups.
      */
-    public static final ImageID CLOSED_GROUP
+    public static final ImageID CLOSED_GROUP_ICON
         = new ImageID("service.gui.icons.CLOSED_GROUP");
 
     /**
@@ -1763,6 +1809,67 @@ public class ImageLoader
             badged = image;
         return badged;
     }
+
+    /**
+     * Returns the given protocol image with an index allowing to distinguish
+     * different accounts from the same protocol.
+     *
+     * @param bgImage the background image
+     * @param topImage the image that should be painted on the top of the
+     * background image
+     * @param x the x coordinate of the top image
+     * @param y the y coordinate of the top image
+     * @return the result merged image
+     */
+    public static Image getImage(Image bgImage, Image topImage, int x, int y)
+    {
+        BufferedImage buffImage
+            = new BufferedImage(bgImage.getWidth(null),
+                                bgImage.getHeight(null),
+                                BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = (Graphics2D) buffImage.getGraphics();
+
+        AntialiasingManager.activateAntialiasing(g);
+        g.drawImage(bgImage, 0, 0, null);
+        g.drawImage(topImage, x, y, null);
+
+        return buffImage;
+    }
+
+    /**
+     * Returns the given protocol image with an index allowing to distinguish
+     * different accounts from the same protocol.
+     *
+     * @param bgImage the background image
+     * @param text the text that should be painted on the top of the
+     * background image
+     * @return the result merged image
+     */
+    public static Image getImage(Image bgImage, String text, Component c)
+    {
+        BufferedImage buffImage
+            = new BufferedImage(bgImage.getWidth(c),
+                                bgImage.getHeight(c),
+                                BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = (Graphics2D) buffImage.getGraphics();
+
+        AntialiasingManager.activateAntialiasing(g);
+        g.setColor(Color.WHITE);
+        g.setFont(c.getFont().deriveFont(Font.BOLD, 9));
+        g.drawImage(bgImage, 0, 0, null);
+
+        FontMetrics fontMetrics = g.getFontMetrics();
+        int fontHeight = fontMetrics.getHeight();
+        int textWidth = fontMetrics.stringWidth(text);
+
+        g.drawString(
+                text,
+                (bgImage.getWidth(null) - textWidth)/2 + 1,
+                (bgImage.getHeight(null) - fontHeight)/2 + fontHeight - 3);
+
+        return buffImage;
+    }
+
     /**
      * Loads an image icon from a given image path.
      * @param imagePath The identifier of the image.

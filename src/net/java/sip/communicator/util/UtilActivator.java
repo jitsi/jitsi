@@ -18,6 +18,7 @@ import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.resources.*;
 
 import org.jitsi.service.configuration.*;
+import org.jitsi.service.fileaccess.*;
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
@@ -50,6 +51,8 @@ public class UtilActivator
     private static BrowserLauncherService browserLauncherService;
 
     private static UIService uiService;
+
+    private static FileAccessService fileAccessService;
 
     private static BundleContext bundleContext;
 
@@ -236,6 +239,23 @@ public class UtilActivator
         if (uiService == null)
             uiService = ServiceUtils.getService(bundleContext, UIService.class);
         return uiService;
+    }
+
+    /**
+     * Returns the <tt>FileAccessService</tt> obtained from the bundle context.
+     *
+     * @return the <tt>FileAccessService</tt> obtained from the bundle context
+     */
+    public static FileAccessService getFileAccessService()
+    {
+        if (fileAccessService == null)
+        {
+            fileAccessService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        FileAccessService.class);
+        }
+        return fileAccessService;
     }
 
     /**

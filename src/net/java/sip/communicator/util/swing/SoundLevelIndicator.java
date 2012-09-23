@@ -32,11 +32,29 @@ public class SoundLevelIndicator
      */
     private static final long serialVersionUID = 0L;
 
-    private static final String SOUND_LEVEL_ACTIVE
-        = "service.gui.soundlevel.SOUND_LEVEL_ACTIVE";
+    private static final String SOUND_LEVEL_ACTIVE_LEFT
+        = "service.gui.soundlevel.SOUND_LEVEL_ACTIVE_LEFT";
 
-    private static final String SOUND_LEVEL_INACTIVE
-        = "service.gui.soundlevel.SOUND_LEVEL_INACTIVE";
+    private static final String SOUND_LEVEL_ACTIVE_LEFT_GRADIENT
+        = "service.gui.soundlevel.SOUND_LEVEL_ACTIVE_LEFT_GRADIENT";
+
+    private static final String SOUND_LEVEL_ACTIVE_MIDDLE
+        = "service.gui.soundlevel.SOUND_LEVEL_ACTIVE_MIDDLE";
+
+    private static final String SOUND_LEVEL_ACTIVE_RIGHT
+        = "service.gui.soundlevel.SOUND_LEVEL_ACTIVE_RIGHT";
+
+    private static final String SOUND_LEVEL_ACTIVE_RIGHT_GRADIENT
+        = "service.gui.soundlevel.SOUND_LEVEL_ACTIVE_RIGHT_GRADIENT";
+
+    private static final String SOUND_LEVEL_INACTIVE_LEFT
+        = "service.gui.soundlevel.SOUND_LEVEL_INACTIVE_LEFT";
+
+    private static final String SOUND_LEVEL_INACTIVE_MIDDLE
+        = "service.gui.soundlevel.SOUND_LEVEL_INACTIVE_MIDDLE";
+
+    private static final String SOUND_LEVEL_INACTIVE_RIGHT
+        = "service.gui.soundlevel.SOUND_LEVEL_INACTIVE_RIGHT";
 
     /**
      * The maximum possible sound level.
@@ -62,12 +80,42 @@ public class SoundLevelIndicator
     /**
      * Image when a sound level block is active
      */
-    private ImageIcon soundLevelActiveImage;
+    private ImageIcon soundLevelActiveImageLeft;
+
+    /**
+     * Image when a sound level block is active
+     */
+    private ImageIcon soundLevelActiveImageLeftGradient;
+
+    /**
+     * Image when a sound level block is active
+     */
+    private ImageIcon soundLevelActiveImageMiddle;
+
+    /**
+     * Image when a sound level block is active
+     */
+    private ImageIcon soundLevelActiveImageRight;
+
+    /**
+     * Image when a sound level block is active
+     */
+    private ImageIcon soundLevelActiveImageRightGradient;
 
     /**
      * Image when a sound level block is not active
      */
-    private ImageIcon soundLevelInactiveImage;
+    private ImageIcon soundLevelInactiveImageLeft;
+
+    /**
+     * Image when a sound level block is not active
+     */
+    private ImageIcon soundLevelInactiveImageMiddle;
+
+    /**
+     * Image when a sound level block is not active
+     */
+    private ImageIcon soundLevelInactiveImageRight;
 
     /**
      * Initializes a new <tt>SoundLevelIndicator</tt> instance.
@@ -143,12 +191,42 @@ public class SoundLevelIndicator
 
             if (c instanceof JLabel)
             {
+                Icon activeIcon = null;
+                Icon inactiveIcon = null;
+                if (i == 0)
+                {
+                    if (activeSoundBarCount == 1)
+                        activeIcon = soundLevelActiveImageLeftGradient;
+                    else
+                    {
+                        activeIcon = soundLevelActiveImageLeft;
+                        inactiveIcon = soundLevelInactiveImageLeft;
+                    }
+                }
+                else if (i == activeSoundBarCount - 1)
+                {
+                    if (i == components.length - 1)
+                        activeIcon = soundLevelActiveImageRight;
+                    else
+                        activeIcon = soundLevelActiveImageRightGradient;
+                }
+                else if (i == components.length - 1)
+                {
+                    inactiveIcon = soundLevelInactiveImageRight;
+                }
+                else
+                {
+                    activeIcon = soundLevelActiveImageMiddle;
+                    inactiveIcon = soundLevelInactiveImageMiddle;
+                }
+
                 ((JLabel) c).setIcon(
                         (i < activeSoundBarCount)
-                            ? soundLevelActiveImage
-                            : soundLevelInactiveImage);
+                            ? activeIcon
+                            : inactiveIcon);
             }
         }
+
         repaint();
     }
 
@@ -183,7 +261,13 @@ public class SoundLevelIndicator
             }
             while (soundBarCount < newSoundBarCount)
             {
-                JLabel soundBar = new JLabel(soundLevelInactiveImage);
+                JLabel soundBar;
+                if (soundBarCount == 0)
+                    soundBar = new JLabel(soundLevelInactiveImageLeft);
+                else if (soundBarCount == newSoundBarCount - 1)
+                    soundBar = new JLabel(soundLevelInactiveImageRight);
+                else
+                    soundBar = new JLabel(soundLevelInactiveImageMiddle);
 
                 soundBar.setVerticalAlignment(JLabel.CENTER);
                 add(soundBar);
@@ -206,7 +290,7 @@ public class SoundLevelIndicator
      */
     private int getSoundBarCount(int width)
     {
-        int soundBarWidth = soundLevelActiveImage.getIconWidth();
+        int soundBarWidth = soundLevelActiveImageLeft.getIconWidth();
 
         return width / soundBarWidth;
     }
@@ -218,28 +302,43 @@ public class SoundLevelIndicator
     {
         ResourceManagementService resources = UtilActivator.getResources();
 
-        soundLevelActiveImage = resources.getImage(SOUND_LEVEL_ACTIVE);
-        soundLevelInactiveImage = resources.getImage(SOUND_LEVEL_INACTIVE);
+        soundLevelActiveImageLeft
+            = resources.getImage(SOUND_LEVEL_ACTIVE_LEFT);
+        soundLevelActiveImageLeftGradient
+            = resources.getImage(SOUND_LEVEL_ACTIVE_LEFT_GRADIENT);
+        soundLevelActiveImageMiddle
+            = resources.getImage(SOUND_LEVEL_ACTIVE_MIDDLE);
+        soundLevelActiveImageRight
+            = resources.getImage(SOUND_LEVEL_ACTIVE_RIGHT);
+        soundLevelActiveImageRightGradient
+            = resources.getImage(SOUND_LEVEL_ACTIVE_RIGHT_GRADIENT);
+
+        soundLevelInactiveImageLeft
+            = resources.getImage(SOUND_LEVEL_INACTIVE_LEFT);
+        soundLevelInactiveImageMiddle
+            = resources.getImage(SOUND_LEVEL_INACTIVE_MIDDLE);
+        soundLevelInactiveImageRight
+            = resources.getImage(SOUND_LEVEL_INACTIVE_RIGHT);
 
         if (!isPreferredSizeSet())
         {
             int preferredHeight = 0;
             int preferredWidth = 0;
 
-            if (soundLevelActiveImage != null)
+            if (soundLevelActiveImageLeft != null)
             {
-                int height = soundLevelActiveImage.getIconHeight();
-                int width = soundLevelActiveImage.getIconWidth();
+                int height = soundLevelActiveImageLeft.getIconHeight();
+                int width = soundLevelActiveImageLeft.getIconWidth();
 
                 if (preferredHeight < height)
                     preferredHeight = height;
                 if (preferredWidth < width)
                     preferredWidth = width;
             }
-            if (soundLevelInactiveImage != null)
+            if (soundLevelInactiveImageLeft != null)
             {
-                int height = soundLevelInactiveImage.getIconHeight();
-                int width = soundLevelInactiveImage.getIconWidth();
+                int height = soundLevelInactiveImageLeft.getIconHeight();
+                int width = soundLevelInactiveImageLeft.getIconWidth();
 
                 if (preferredHeight < height)
                     preferredHeight = height;

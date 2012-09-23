@@ -23,11 +23,11 @@ import javax.swing.text.html.*;
 import javax.swing.text.html.HTML.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
 import net.java.sip.communicator.impl.gui.main.chat.menus.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.replacement.*;
 import net.java.sip.communicator.service.replacement.smilies.*;
 import net.java.sip.communicator.util.*;
@@ -59,16 +59,6 @@ public class ChatConversationPanel
      */
     private static final Logger logger
         = Logger.getLogger(ChatConversationPanel.class);
-
-    /**
-     * The closing tag of the <code>PLAINTEXT</code> HTML element.
-     */
-    private static final String END_PLAINTEXT_TAG = "</PLAINTEXT>";
-
-    /**
-     * The opening tag of the <code>PLAINTEXT</code> HTML element.
-     */
-    private static final String START_PLAINTEXT_TAG = "<PLAINTEXT>";
 
     /**
      * The regular expression (in the form of compiled <tt>Pattern</tt>) which
@@ -141,25 +131,22 @@ public class ChatConversationPanel
     private long lastIncomingMsgTimestamp;
 
     /**
+     * The timestamp of the last message.
+     */
+    private long lastMessageTimestamp;
+
+    /**
      * Indicates if this component is rendering a history conversation.
      */
     private final boolean isHistory;
-
-    /**
-     * The html text content type.
-     */
-    public static final String HTML_CONTENT_TYPE = "text/html";
-
-    /**
-     * The plain text content type.
-     */
-    public static final String TEXT_CONTENT_TYPE = "text/plain";
 
     /**
      * The indicator which determines whether an automatic scroll to the bottom
      * of {@link #chatTextPane} is to be performed.
      */
     private boolean scrollToBottomIsPending = false;
+
+    private String lastMessageUID = null;
 
     /**
      * The implementation of the routine which scrolls {@link #chatTextPane} to its
@@ -339,32 +326,6 @@ public class ChatConversationPanel
     }
 
     /**
-     * Initializes the editor by adding a header containing the date.
-     * TODO: remove if not used anymore
-     */
-//    private void initEditor()
-//    {
-//        Element root = this.document.getDefaultRootElement();
-//
-//        Date date = new Date(System.currentTimeMillis());
-//
-//        String chatHeader = "<h1>" + GuiUtils.formatDate(date) + " " + "</h1>";
-//
-//        try
-//        {
-//            this.document.insertAfterStart(root, chatHeader);
-//        }
-//        catch (BadLocationException e)
-//        {
-//            logger.error("Insert in the HTMLDocument failed.", e);
-//        }
-//        catch (IOException e)
-//        {
-//            logger.error("Insert in the HTMLDocument failed.", e);
-//        }
-//    }
-
-    /**
      * Retrieves the contents of the sent message with the given ID.
      * 
      * @param messageUID The ID of the message to retrieve.
@@ -373,7 +334,11 @@ public class ChatConversationPanel
     public String getMessageContents(String messageUID)
     {
         Element root = document.getDefaultRootElement();
-        Element e = document.getElement(root, Attribute.ID, messageUID);
+        Element e = document.getElement(
+            root,
+            Attribute.ID,
+            ChatHtmlUtils.MESSAGE_TEXT_ID + messageUID);
+
         if (e == null)
         {
             logger.warn("Could not find message with ID" + messageUID);
@@ -395,38 +360,6 @@ public class ChatConversationPanel
     }
 
     /**
-     * Creates a tag that shows the last edit time of a message, in the format
-     *  (Edited at ...).
-     * If <tt>date < 0</tt>, returns an empty tag that serves as a placeholder
-     * for future corrections of this message.
-     * 
-     * @param messageUID The ID of the edited message.
-     * @param date The date when the message was last edited, or -1 to generate
-     * an empty tag.
-     * @return The string representation of the tag.
-     */
-    private String generateEditedAtTag(String messageUID, long date)
-    {
-        StringBuilder res = new StringBuilder();
-        // Use a <cite /> tag here as most of the other inline tags (e.g. h1-7,
-        // b, i) cause different problems when used in setOuterHTML.
-        res.append("<cite id='");
-        res.append(messageUID);
-        res.append("-editedAt'> ");
-        if (date > 0)
-        {
-            res.append("&nbsp;");
-            String contents = GuiActivator.getResources().getI18NString(
-                    "service.gui.EDITED_AT",
-                    new String[] { GuiUtils.formatTime(date) }
-            );
-            res.append(contents);
-        }
-        res.append("</cite>");
-        return res.toString();
-    }
-
-    /**
      * Processes the message given by the parameters.
      *
      * @param chatMessage the message
@@ -434,8 +367,20 @@ public class ChatConversationPanel
      * display of <tt>chatMessage</tt> in the UI
      * @return the processed message
      */
-    public String processMessage(ChatMessage chatMessage, String keyword)
+    public String processMessage(   ChatMessage chatMessage,
+                                    String keyword,
+                                    ProtocolProviderService protocolProvider,
+                                    String contactAddress)
     {
+        String contentType = chatMessage.getContentType();
+
+        // If this is a consecutive message don't go through the initiation
+        // and just append it.
+        if (appendConsecutiveMessage(chatMessage, keyword, contentType))
+            return null;
+
+        lastMessageTimestamp = chatMessage.getDate();
+
         String contactName = chatMessage.getContactName();
         String contactDisplayName = chatMessage.getContactDisplayName();
         if (contactDisplayName == null
@@ -445,99 +390,88 @@ public class ChatConversationPanel
         {
             // for some reason &apos; is not rendered correctly from our ui,
             // lets use its equivalent. Other similar chars(< > & ") seem ok.
-            contactDisplayName = contactDisplayName.replaceAll("&apos;", "&#39;");
+            contactDisplayName
+                = contactDisplayName.replaceAll("&apos;", "&#39;");
         }
 
-        String contentType = chatMessage.getContentType();
         long date = chatMessage.getDate();
         String messageType = chatMessage.getMessageType();
         String messageTitle = chatMessage.getMessageTitle();
-        String message = chatMessage.getMessage();
         String messageUID = chatMessage.getMessageUID();
-
-        String msgID = "message";
-        String msgHeaderID = "messageHeader";
+        String message = chatMessage.getMessage();
+        String msgID = ChatHtmlUtils.MESSAGE_TEXT_ID + messageUID;
         String chatString = "";
         String endHeaderTag = "";
-        String dateString = getDateString(date);
-        String idAttr = messageUID == null ? "" : " id='" + messageUID + "'";
-        String dateAttr = " date='" + date + "'";
-        String editedAtTag = generateEditedAtTag(messageUID, -1);
 
-        String startDivTag = "<DIV identifier=\"" + msgID + "\"" + idAttr + ">";
-        String startHistoryDivTag
-            = "<DIV identifier=\"" + msgID + "\" style=\"color:#707070;\">";
         String startSystemDivTag
             = "<DIV identifier=\"systemMessage\" style=\"color:#627EB7;\">";
         String endDivTag = "</DIV>";
 
-        String startPlainTextTag;
-        String endPlainTextTag;
+        lastMessageUID = messageUID;
 
-        if (HTML_CONTENT_TYPE.equals(contentType))
-        {
-            startPlainTextTag = "";
-            endPlainTextTag = "";
-        }
-        else
-        {
-            startPlainTextTag = START_PLAINTEXT_TAG;
-            endPlainTextTag = END_PLAINTEXT_TAG;
-        }
+        String startPlainTextTag
+            = ChatHtmlUtils.createStartPlainTextTag(contentType);
+        String endPlainTextTag
+            = ChatHtmlUtils.createEndPlainTextTag(contentType);
 
         if (messageType.equals(Chat.INCOMING_MESSAGE))
         {
             this.lastIncomingMsgTimestamp = System.currentTimeMillis();
 
-            chatString      = "<h2 identifier=\"" + msgHeaderID + "\""
-                                    + dateAttr + ">"
-                                    + "<a style=\"color:#ef7b1e;"
-                                    + "font-weight:bold;"
-                                    + "text-decoration:none;\" "
-                                    + "href=\"" + contactName + "\">";
-
-            endHeaderTag = "</a></h2>";
-
-            chatString
-                += dateString + contactDisplayName + " at "
-                    + GuiUtils.formatTime(date) + editedAtTag + endHeaderTag
-                    + startDivTag + startPlainTextTag
-                    + formatMessage(message, contentType, keyword)
-                    + endPlainTextTag + endDivTag;
-        }
-        else if (messageType.equals(Chat.SMS_MESSAGE))
-        {
-            chatString      = "<h2 identifier=\""
-                            + msgHeaderID
-                            + "\" date=\""
-                            + date + "\">";
-
-            endHeaderTag = "</h2>";
-
-            chatString
-                += "SMS: " + dateString + contactName + " at "
-                    + GuiUtils.formatTime(date) + endHeaderTag + startDivTag
-                    + startPlainTextTag
-                    + formatMessage(message, contentType, keyword)
-                    + endPlainTextTag + endDivTag;
+            chatString = ChatHtmlUtils.createIncomingMessageTag(
+                msgID,
+                contactName,
+                contactDisplayName,
+                getContactAvatar(protocolProvider, contactAddress),
+                date,
+                formatMessage(message, contentType, keyword),
+                contentType);
         }
         else if (messageType.equals(Chat.OUTGOING_MESSAGE))
         {
-            chatString      = "<h3 identifier=\"" + msgHeaderID + "\""
-                                    + dateAttr + ">"
-                                    + "<a style=\"color:#2e538b;"
-                                    + "font-weight:bold;"
-                                    + "text-decoration:none;\" "
-                                    + "href=\"" + contactName + "\">";
+            chatString = ChatHtmlUtils.createOutgoingMessageTag(
+                msgID,
+                contactName,
+                contactDisplayName,
+                getContactAvatar(protocolProvider),
+                date,
+                formatMessage(message, contentType, keyword),
+                contentType);
+        }
+        else if (messageType.equals(Chat.HISTORY_INCOMING_MESSAGE))
+        {
+            this.lastIncomingMsgTimestamp = System.currentTimeMillis();
 
-            endHeaderTag = "</a></h3>";
-
-            chatString
-                += dateString + contactDisplayName + " at "
-                    + GuiUtils.formatTime(date) + editedAtTag + endHeaderTag
-                    + startDivTag + startPlainTextTag
-                    + formatMessage(message, contentType, keyword)
-                    + endPlainTextTag + endDivTag;
+            chatString = ChatHtmlUtils.createIncomingMessageTag(
+                msgID,
+                contactName,
+                contactDisplayName,
+                getContactAvatar(protocolProvider, contactAddress),
+                date,
+                formatMessage(message, contentType, keyword),
+                contentType);
+        }
+        else if (messageType.equals(Chat.HISTORY_OUTGOING_MESSAGE))
+        {
+            chatString = ChatHtmlUtils.createOutgoingMessageTag(
+                msgID,
+                contactName,
+                contactDisplayName,
+                getContactAvatar(protocolProvider),
+                date,
+                formatMessage(message, contentType, keyword),
+                contentType);
+        }
+        else if (messageType.equals(Chat.SMS_MESSAGE))
+        {
+            chatString = ChatHtmlUtils.createIncomingMessageTag(
+                msgID,
+                contactName,
+                contactDisplayName,
+                getContactAvatar(protocolProvider, contactAddress),
+                date,
+                formatMessage("SMS: " + message, contentType, keyword),
+                contentType);
         }
         else if (messageType.equals(Chat.STATUS_MESSAGE))
         {
@@ -570,7 +504,7 @@ public class ChatConversationPanel
         else if (messageType.equals(Chat.ERROR_MESSAGE))
         {
             chatString      = "<h6 identifier=\""
-                            + msgHeaderID
+                            + ChatHtmlUtils.MESSAGE_HEADER_ID
                             + "\" date=\""
                             + date + "\">";
 
@@ -584,43 +518,6 @@ public class ChatConversationPanel
                 + messageTitle
                 + endHeaderTag + "<h5>" + message + "</h5>";
         }
-        else if (messageType.equals(Chat.HISTORY_INCOMING_MESSAGE))
-        {
-            chatString      = "<h2 identifier=\"" + msgHeaderID + "\""
-                                + dateAttr + ">"
-                                + "<a style=\"color:#ef7b1e;"
-                                + "font-weight:bold;"
-                                + "text-decoration:none;\" "
-                                + "href=\"" + contactName + "\">";
-
-            endHeaderTag = "</a></h2>";
-
-            chatString
-                += dateString + contactDisplayName
-                    + " at " + GuiUtils.formatTime(date) + endHeaderTag
-                    + editedAtTag + startHistoryDivTag + startPlainTextTag
-                    + formatMessage(message, contentType, keyword)
-                    + endPlainTextTag + endDivTag;
-        }
-        else if (messageType.equals(Chat.HISTORY_OUTGOING_MESSAGE))
-        {
-            chatString      = "<h3 identifier=\"" + msgHeaderID + "\""
-                                + dateAttr + ">"
-                                + "<a style=\"color:#2e538b;"
-                                + "font-weight:bold;"
-                                + "text-decoration:none;\" "
-                                + "href=\"" + contactName + "\">";
-
-            endHeaderTag = "</h3>";
-
-            chatString
-                += dateString
-                    + contactDisplayName + " at " + GuiUtils.formatTime(date)
-                    + editedAtTag + endHeaderTag
-                    + startHistoryDivTag + startPlainTextTag
-                    + formatMessage(message, contentType, keyword)
-                    + endPlainTextTag + endDivTag;
-        }
 
         return chatString;
     }
@@ -631,9 +528,91 @@ public class ChatConversationPanel
      * @param chatMessage the message.
      * @return the formatted message
      */
-    public String processMessage(ChatMessage chatMessage)
+    public String processMessage(   ChatMessage chatMessage,
+                                    ProtocolProviderService protocolProvider,
+                                    String contactAddress)
     {
-        return processMessage(chatMessage, null);
+        return processMessage(  chatMessage,
+                                null,
+                                protocolProvider,
+                                contactAddress);
+    }
+
+    /**
+     * Appends a consecutive message to the document.
+     *
+     * @param chatMessage the message to append
+     * @return <tt>true</tt> if the append succeeded, <tt>false</tt> - otherwise
+     */
+    public boolean appendConsecutiveMessage(ChatMessage chatMessage,
+                                            String keyword,
+                                            String contentType)
+    {
+        if (lastMessageUID == null)
+            return false;
+
+        Element root = document.getDefaultRootElement();
+        Element lastMsgElement = document.getElement(root, Attribute.ID,
+            ChatHtmlUtils.MESSAGE_TEXT_ID + lastMessageUID);
+
+        if (lastMsgElement == null)
+        {
+            logger.warn("Could not find message with ID " + lastMessageUID);
+            return false;
+        }
+
+        String contactAddress
+            = (String) lastMsgElement.getAttributes()
+                .getAttribute(Attribute.NAME);
+
+        if (contactAddress != null
+                && contactAddress.equals(chatMessage.getContactName())
+                // And if the new message is within a minute from the last one.
+                && (chatMessage.getDate() - lastMessageTimestamp
+                        < 60000))
+        {
+            String newMessage = ChatHtmlUtils.createMessageTag(
+                                        ChatHtmlUtils.MESSAGE_TEXT_ID
+                                            + chatMessage.getMessageUID(),
+                                        contactAddress,
+                                        formatMessage(chatMessage.getMessage(),
+                                            contentType,
+                                            keyword),
+                                        contentType,
+                                        chatMessage.getDate(),
+                                        false);
+
+            synchronized (scrollToBottomRunnable)
+            {
+                try
+                {
+                    Element parentElement = lastMsgElement.getParentElement();
+
+                    document.insertBeforeEnd(parentElement, newMessage);
+
+                    lastMessageUID = chatMessage.getMessageUID();
+
+                    // Need to call explicitly scrollToBottom, because for some
+                    // reason the componentResized event isn't fired every time
+                    // we add text.
+                    SwingUtilities.invokeLater(scrollToBottomRunnable);
+                }
+                catch (BadLocationException ex)
+                {
+                    logger.error("Could not replace chat message", ex);
+                }
+                catch (IOException ex)
+                {
+                    logger.error("Could not replace chat message", ex);
+                }
+            }
+
+            finishMessageAdd(newMessage, contentType);
+
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -647,82 +626,78 @@ public class ChatConversationPanel
     {
         String correctedUID = chatMessage.getCorrectedMessageUID();
         Element root = document.getDefaultRootElement();
-        Element e = document.getElement(root, Attribute.ID, correctedUID);
-        if (e == null)
+        Element correctedMsgElement
+            = document.getElement(root,
+                                  Attribute.ID,
+                                  ChatHtmlUtils.MESSAGE_TEXT_ID + correctedUID);
+
+        if (correctedMsgElement == null)
         {
             logger.warn("Could not find message with ID " + correctedUID);
             return;
         }
-        int len = e.getEndOffset() - e.getStartOffset();
-        
-        StringBuilder newContents = new StringBuilder();
-        String bgColor = GuiActivator.getResources().getColorString(
-                "service.gui.CHAT_EDIT_MESSAGE_BACKGROUND");
-        newContents.append("<div identifier='message' id='");
-        newContents.append(chatMessage.getMessageUID());
-        newContents.append("' bgcolor='");
-        newContents.append(bgColor);
-        newContents.append("'>");
-        if (chatMessage.getContentType().equals(TEXT_CONTENT_TYPE))
+
+        String contactAddress
+            = (String) correctedMsgElement.getAttributes()
+                .getAttribute(Attribute.NAME);
+
+        String newMessage = ChatHtmlUtils.createMessageTag(
+            ChatHtmlUtils.MESSAGE_TEXT_ID
+                + chatMessage.getMessageUID(),
+            contactAddress,
+            formatMessage(  chatMessage.getMessage(),
+                            chatMessage.getContentType(),
+                            ""),
+            chatMessage.getContentType(),
+            chatMessage.getDate(),
+            true);
+
+        synchronized (scrollToBottomRunnable)
         {
-            newContents.append(START_PLAINTEXT_TAG);
-            newContents.append(chatMessage.getMessage());
-            newContents.append(END_PLAINTEXT_TAG);
-        }
-        else
-        {
-            newContents.append(chatMessage.getMessage());
-        }
-        newContents.append("</div>");
-        
-        Element header = document.getElement(root, Attribute.ID,
-                correctedUID + "-editedAt");
-        
-        try
-        {
-            if (header != null)
+            try
             {
-                String newHeaderContents = generateEditedAtTag(
-                        chatMessage.getMessageUID(), chatMessage.getDate());
-                document.setOuterHTML(header, newHeaderContents);
+                document.setOuterHTML(correctedMsgElement, newMessage);
+
+                lastMessageUID = chatMessage.getMessageUID();
+
+                // Need to call explicitly scrollToBottom, because for some
+                // reason the componentResized event isn't fired every time
+                // we add text.
+                SwingUtilities.invokeLater(scrollToBottomRunnable);
             }
-            document.setOuterHTML(e, newContents.toString());
+            catch (BadLocationException ex)
+            {
+                logger.error("Could not replace chat message", ex);
+            }
+            catch (IOException ex)
+            {
+                logger.error("Could not replace chat message", ex);
+            }
         }
-        catch (BadLocationException ex)
-        {
-            logger.error("Could not replace chat message", ex);
-        }
-        catch (IOException ex)
-        {
-            logger.error("Could not replace chat message", ex);
-        }
+
+        finishMessageAdd(newMessage, chatMessage.getContentType());
     }
 
     /**
      * Appends the given string at the end of the contained in this panel
      * document.
      *
-     * @param chatString the string to append
+     * @param message the message string to append
      */
-    public void appendMessageToEnd(String chatString, String contentType)
+    public void appendMessageToEnd(String message, String contentType)
     {
+        if (message == null)
+            return;
+
         synchronized (scrollToBottomRunnable)
         {
             Element root = document.getDefaultRootElement();
 
-//          Need to call explicitly scrollToBottom, because for some
-//          reason the componentResized event isn't fired every time we
-//          add text.
-//          Replaced by the code on line: 573.
-//
-//            scrollToBottomIsPending = true;
-
             try
             {
-                document
-                    .insertAfterEnd(
-                        root.getElement(root.getElementCount() - 1),
-                        chatString);
+                document.insertAfterEnd(
+                            root.getElement(root.getElementCount() - 1),
+                            message);
 
                 // Need to call explicitly scrollToBottom, because for some
                 // reason the componentResized event isn't fired every time we
@@ -737,33 +712,44 @@ public class ChatConversationPanel
             {
                 logger.error("Insert in the HTMLDocument failed.", e);
             }
-            if (!isHistory)
-                ensureDocumentSize();
+        }
 
-            // Process replacements.
-            final Element elem;
-            /*
-             * Check to make sure element isn't the first element in the HTML
-             * document.
-             */
-            if (!(root.getElementCount() < 2))
-            {
-                elem = root.getElement(root.getElementCount() - 2);
-            }
-            else
-                elem = root.getElement(1);
+        finishMessageAdd(message, contentType);
+    }
 
-            /*
-             * Replacements will be processed only if it is enabled in the
-             * property
-             */
-            if (GuiActivator.getConfigurationService().getBoolean(
-                ReplacementProperty.REPLACEMENT_ENABLE, true)
-                || GuiActivator.getConfigurationService().getBoolean(
-                    ReplacementProperty.getPropertyName("SMILEY"), true))
-            {
-                processReplacement(elem, chatString, contentType);
-            }
+    /**
+     * Performs all operations needed in order to finish the adding of the
+     * message to the document.
+     *
+     * @param message the message string
+     * @param contentType
+     */
+    private void finishMessageAdd(String message, String contentType)
+    {
+        Element root = document.getDefaultRootElement();
+
+        // If we're not in chat history case we need to be sure the document
+        // has not exceeded the required size (number of messages).
+        if (!isHistory)
+            ensureDocumentSize();
+
+        /*
+         * Check to make sure element isn't the first element in the HTML
+         * document.
+         */
+        Element elem = document.getElement(root, Attribute.ID,
+            ChatHtmlUtils.MESSAGE_TEXT_ID + lastMessageUID);
+
+        /*
+         * Replacements will be processed only if it is enabled in the
+         * property.
+         */
+        if (GuiActivator.getConfigurationService().getBoolean(
+            ReplacementProperty.REPLACEMENT_ENABLE, true)
+            || GuiActivator.getConfigurationService().getBoolean(
+                ReplacementProperty.getPropertyName("SMILEY"), true))
+        {
+            processReplacement(elem, message, contentType);
         }
     }
 
@@ -818,15 +804,6 @@ public class ChatConversationPanel
 
                    Matcher m = p.matcher(msgStore);
 
-                   String startPlainTextTag = "";
-                   String endPlainTextTag = "";
-
-                   if (!HTML_CONTENT_TYPE.equals(contentType))
-                   {
-                       startPlainTextTag = START_PLAINTEXT_TAG;
-                       endPlainTextTag = END_PLAINTEXT_TAG;
-                   }
-
                    int count = 0, startPos = 0;
                    StringBuffer msgBuff = new StringBuffer();
 
@@ -843,7 +820,9 @@ public class ChatConversationPanel
                        {
                            if(isSmiley)
                            {
-                               msgBuff.append(endPlainTextTag);
+                               msgBuff.append(
+                                   ChatHtmlUtils.createEndPlainTextTag(
+                                       contentType));
                                msgBuff.append("<IMG SRC=\"");
                            }
                            else
@@ -858,7 +837,9 @@ public class ChatConversationPanel
                            msgBuff.append("\"></IMG>");
 
                            if(isSmiley)
-                               msgBuff.append(startPlainTextTag);
+                               msgBuff.append(
+                                   ChatHtmlUtils.createStartPlainTextTag(
+                                       contentType));
                        }
                        else
                        {
@@ -884,8 +865,12 @@ public class ChatConversationPanel
                    synchronized (scrollToBottomRunnable)
                    {
                        scrollToBottomIsPending = true;
+
+                       int msgStartIndex = msgStore.indexOf("<div id");
                        document.setOuterHTML(elem, msgStore.toString()
-                           .substring(msgStore.indexOf("<DIV")));
+                           .substring(
+                               msgStartIndex,
+                               msgStore.indexOf("</div>", msgStartIndex)));
                    }
                }
                return "";
@@ -916,7 +901,7 @@ public class ChatConversationPanel
                     .getAttributes().getAttribute("identifier");
 
                 if(idAttr != null
-                    && (idAttr.equals("message")
+                    && (idAttr.startsWith(ChatHtmlUtils.MESSAGE_TEXT_ID)
                         || idAttr.equals("statusMessage")
                         || idAttr.equals("systemMessage")))
                 {
@@ -940,7 +925,8 @@ public class ChatConversationPanel
                 // Remove the header of the message if such exists.
                 if(firstMsgIndex > 0)
                 {
-                    Element headerElement = rootElement.getElement(firstMsgIndex - 1);
+                    Element headerElement
+                        = rootElement.getElement(firstMsgIndex - 1);
 
                     String idAttr = (String) headerElement
                         .getAttributes().getAttribute("identifier");
@@ -977,20 +963,6 @@ public class ChatConversationPanel
                                     String contentType,
                                     String keyword)
     {
-        String startPlainTextTag;
-        String endPlainTextTag;
-
-        if (HTML_CONTENT_TYPE.equals(contentType))
-        {
-            startPlainTextTag = "";
-            endPlainTextTag = "";
-        }
-        else
-        {
-            startPlainTextTag = START_PLAINTEXT_TAG;
-            endPlainTextTag = END_PLAINTEXT_TAG;
-        }
-
         Matcher m
             = Pattern.compile(Pattern.quote(keyword), Pattern.CASE_INSENSITIVE)
                 .matcher(message);
@@ -1004,11 +976,11 @@ public class ChatConversationPanel
 
             String keywordMatch = m.group().trim();
 
-            msgBuffer.append(endPlainTextTag);
+            msgBuffer.append(ChatHtmlUtils.createEndPlainTextTag(contentType));
             msgBuffer.append("<b>");
             msgBuffer.append(keywordMatch);
             msgBuffer.append("</b>");
-            msgBuffer.append(startPlainTextTag);
+            msgBuffer.append(ChatHtmlUtils.createStartPlainTextTag(contentType));
         }
 
         /*
@@ -1037,7 +1009,7 @@ public class ChatConversationPanel
     {
         // If the message content type is HTML we won't process links and
         // new lines, but only the smileys.
-        if (!HTML_CONTENT_TYPE.equals(contentType))
+        if (!ChatHtmlUtils.HTML_CONTENT_TYPE.equals(contentType))
         {
 
             /*
@@ -1065,7 +1037,8 @@ public class ChatConversationPanel
 
             message
                 = processNewLines(
-                    processLinksAndHTMLChars(message, processHTMLChars));
+                    processLinksAndHTMLChars(
+                        message, processHTMLChars, contentType), contentType);
         }
         // If the message content is HTML, we process br and img tags.
         else
@@ -1090,10 +1063,12 @@ public class ChatConversationPanel
      * @param message The source message string.
      * @param processHTMLChars  <tt>true</tt> to escape the special HTML chars;
      * otherwise, <tt>false</tt>
+     * @param contentType the message content type (html or plain text)
      * @return The message string with properly formatted links.
      */
     private String processLinksAndHTMLChars(String message,
-                                            boolean processHTMLChars)
+                                            boolean processHTMLChars,
+                                            String contentType)
     {
         Matcher m = URL_PATTERN.matcher(message);
         StringBuffer msgBuffer = new StringBuffer();
@@ -1110,7 +1085,7 @@ public class ChatConversationPanel
 
             String url = m.group().trim();
 
-            msgBuffer.append(END_PLAINTEXT_TAG);
+            msgBuffer.append(ChatHtmlUtils.createEndPlainTextTag(contentType));
             msgBuffer.append("<A href=\"");
             if (url.startsWith("www"))
                 msgBuffer.append("http://");
@@ -1118,7 +1093,7 @@ public class ChatConversationPanel
             msgBuffer.append("\">");
             msgBuffer.append(url);
             msgBuffer.append("</A>");
-            msgBuffer.append(START_PLAINTEXT_TAG);
+            msgBuffer.append(ChatHtmlUtils.createStartPlainTextTag(contentType));
         }
 
         String fromPrevEndToEnd = message.substring(prevEnd);
@@ -1151,9 +1126,10 @@ public class ChatConversationPanel
      * Formats message new lines.
      *
      * @param message The source message string.
+     * @param contentType message contentType (html or plain text)
      * @return The message string with properly formatted new lines.
      */
-    private String processNewLines(String message)
+    private String processNewLines(String message, String contentType)
     {
 
         /*
@@ -1171,7 +1147,9 @@ public class ChatConversationPanel
             message
                 .replaceAll(
                     "\n",
-                    END_PLAINTEXT_TAG + "<BR/>&#10;" + START_PLAINTEXT_TAG);
+                    ChatHtmlUtils.createEndPlainTextTag(contentType)
+                    + "<BR/>&#10;"
+                    + ChatHtmlUtils.createStartPlainTextTag(contentType));
     }
 
     /**
@@ -1508,7 +1486,8 @@ public class ChatConversationPanel
         int start = 0;
 
         // while we find some <img /> self-closing tags with a slash inside.
-        while(m.find()){
+        while(m.find())
+        {
             // First, we have to copy all the message preceding the <img> tag.
             processedMessage.append(message.substring(start, m.start()));
             // Then, we find the position of the slash inside the tag.
@@ -1577,12 +1556,15 @@ public class ChatConversationPanel
 
             wrapPanel.add(component, BorderLayout.NORTH);
 
-            style
-                .addAttribute(StyleConstants.ComponentAttribute, wrapPanel);
+            style.addAttribute(StyleConstants.ComponentAttribute, wrapPanel);
             style.addAttribute("identifier", "messageHeader");
             style.addAttribute("date", component.getDate().getTime());
 
             scrollToBottomIsPending = true;
+
+            // We need to reinitialize the last message ID, because we don't
+            // want components to be taken into account.
+            lastMessageUID = null;
 
             // Insert the component style at the end of the text
             try
@@ -1620,26 +1602,6 @@ public class ChatConversationPanel
     }
 
     /**
-     * Returns the date string to show for the given date.
-     * 
-     * @param date the date to format
-     * @return the date string to show for the given date
-     */
-    public static String getDateString(long date)
-    {
-        if (GuiUtils.compareDatesOnly(date, System.currentTimeMillis()) < 0)
-        {
-            StringBuffer dateStrBuf = new StringBuffer();
-
-            GuiUtils.formatDate(date, dateStrBuf);
-            dateStrBuf.append(" ");
-            return dateStrBuf.toString();
-        }
-
-        return "";
-    }
-
-    /**
      * Reloads images.
      */
     public void loadSkin()
@@ -1665,32 +1627,25 @@ public class ChatConversationPanel
     {
         return processKeyword(message, contentType, keyWord);
     }
-    
+
+    /**
+     * Processes /me command in group chats.
+     *
+     * @param chatMessage the chat message
+     * @return the newly processed message string
+     */
     public String processMeCommand(ChatMessage chatMessage)
     {
         String contentType = chatMessage.getContentType();
         String message = chatMessage.getMessage();
 
-        String msgID = "message";
+        String msgID
+            = ChatHtmlUtils.MESSAGE_TEXT_ID + chatMessage.getMessageUID();
         String chatString = "";
         String endHeaderTag = "";
 
-        String startDivTag = "<DIV identifier=\"" + msgID + "\">";
+        String startDivTag = "<DIV id=\"" + msgID + "\">";
         String endDivTag = "</DIV>";
-
-        String startPlainTextTag;
-        String endPlainTextTag;
-
-        if (HTML_CONTENT_TYPE.equals(contentType))
-        {
-            startPlainTextTag = "";
-            endPlainTextTag = "";
-        }
-        else
-        {
-            startPlainTextTag = START_PLAINTEXT_TAG;
-            endPlainTextTag = END_PLAINTEXT_TAG;
-        }
 
         if (message.length() > 4 && message.substring(0, 4).equals("/me "))
         {
@@ -1699,7 +1654,6 @@ public class ChatConversationPanel
             endHeaderTag = "</I></B>" + endDivTag;
 
             chatString +=
-
                 processHTMLChars("*** " + chatMessage.getContactName() + " "
                     + message.substring(4))
                     + endHeaderTag;
@@ -1731,9 +1685,13 @@ public class ChatConversationPanel
 
                     while (m.find())
                     {
-                        msgTemp.insert(m.start(), startPlainTextTag);
-                        msgTemp.insert(m.end() + startPlainTextTag.length(),
-                            endPlainTextTag);
+                        msgTemp.insert(m.start(),
+                            ChatHtmlUtils.createStartPlainTextTag(contentType));
+                        msgTemp.insert(
+                            m.end()
+                            + ChatHtmlUtils
+                                .createStartPlainTextTag(contentType).length(),
+                            ChatHtmlUtils.createEndPlainTextTag(contentType));
 
                     }
                     if (msgTemp.length() != msgStore.length())
@@ -1745,5 +1703,73 @@ public class ChatConversationPanel
         }
         else
             return "";
+    }
+
+    /**
+     * Returns the avatar corresponding to the account of the given
+     * <tt>protocolProvider</tt>.
+     *
+     * @param protocolProvider the protocol provider service, which account
+     * avatar we're looking for
+     * @return the avatar corresponding to the account of the given
+     * <tt>protocolProvider</tt>
+     */
+    private static String getContactAvatar(
+                                    ProtocolProviderService protocolProvider,
+                                    String contactAddress)
+    {
+        String avatarPath
+            = AvatarCacheUtils.getCachedAvatarPath( protocolProvider,
+                                                    contactAddress);
+
+        File avatarFile;
+        try
+        {
+            avatarFile = GuiActivator.getFileAccessService()
+                .getPrivatePersistentFile(avatarPath);
+        }
+        catch (Exception e)
+        {
+            return null;
+        }
+
+        if(avatarFile.exists() && avatarFile.length() > 0)
+            return "file:" + avatarFile.getAbsolutePath();
+        else
+            return GuiActivator.getResources().getImageURL(
+                "service.gui.DEFAULT_USER_PHOTO_SMALL").toString();
+    }
+
+   /**
+    * Returns the avatar corresponding to the account of the given
+    * <tt>protocolProvider</tt>.
+    *
+    * @param protocolProvider the protocol provider service, which account
+    * avatar we're looking for
+    * @return the avatar corresponding to the account of the given
+    * <tt>protocolProvider</tt>
+    */
+    private static String getContactAvatar(
+                                    ProtocolProviderService protocolProvider)
+    {
+        String avatarPath
+            = AvatarCacheUtils.getCachedAvatarPath(protocolProvider);
+
+        File avatarFile;
+        try
+        {
+            avatarFile = GuiActivator.getFileAccessService()
+                .getPrivatePersistentFile(avatarPath);
+        }
+        catch (Exception e)
+        {
+            return null;
+        }
+
+        if(avatarFile.exists() && avatarFile.length() > 0)
+            return "file:" + avatarFile.getAbsolutePath();
+        else
+            return GuiActivator.getResources().getImageURL(
+                "service.gui.DEFAULT_USER_PHOTO_SMALL").toString();
     }
 }

@@ -61,13 +61,13 @@ public class ContactListCellRenderer
      * The icon indicating an open group.
      */
     private ImageIcon openedGroupIcon =
-        new ImageIcon(ImageLoader.getImage(ImageLoader.DOWN_ARROW_ICON));
+        new ImageIcon(ImageLoader.getImage(ImageLoader.OPENED_GROUP_ICON));
 
     /**
      * The icon indicating a closed group.
      */
     private ImageIcon closedGroupIcon =
-        new ImageIcon(ImageLoader.getImage(ImageLoader.RIGHT_ARROW_ICON));
+        new ImageIcon(ImageLoader.getImage(ImageLoader.CLOSED_GROUP_ICON));
 
     /**
      * The foreground color for groups.
@@ -494,7 +494,7 @@ public class ContactListCellRenderer
             = new ImageIcon(ImageLoader.getImage(ImageLoader.DOWN_ARROW_ICON));
 
         closedGroupIcon
-            = new ImageIcon(ImageLoader.getImage(ImageLoader.RIGHT_ARROW_ICON));
+            = new ImageIcon(ImageLoader.getImage(ImageLoader.CLOSED_GROUP_ICON));
 
         int groupForegroundProperty = GuiActivator.getResources()
             .getColor("service.gui.CONTACT_LIST_GROUP_FOREGROUND");

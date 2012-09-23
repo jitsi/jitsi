@@ -37,17 +37,17 @@ public abstract class AbstractCallToggleButton
     /**
      * The background image.
      */
-    protected ImageID bgImage;
+    protected ImageID bgImageID;
 
     /**
      * The rollover image
      */
-    protected ImageID bgRolloverImage;
+    protected ImageID bgRolloverImageID;
 
     /**
      * The pressed image.
      */
-    protected ImageID pressedImage;
+    protected ImageID pressedImageID;
 
     /**
      * The icon image.
@@ -136,27 +136,17 @@ public abstract class AbstractCallToggleButton
         this.fullScreen = fullScreen;
         this.settingsPanel = settingsPanel;
 
-        if (fullScreen)
+        if(settingsPanel)
         {
-            bgImage = ImageLoader.FULL_SCREEN_BUTTON_BG;
-            bgRolloverImage = ImageLoader.FULL_SCREEN_BUTTON_BG;
-            pressedImage = ImageLoader.FULL_SCREEN_BUTTON_BG_PRESSED;
+            bgRolloverImageID = ImageLoader.CALL_SETTING_BUTTON_BG;
+            pressedImageID = ImageLoader.CALL_SETTING_BUTTON_PRESSED_BG;
         }
         else
         {
-            if(settingsPanel)
-            {
-                bgImage = ImageLoader.CALL_SETTING_BUTTON_BG;
-                bgRolloverImage = ImageLoader.CALL_SETTING_BUTTON_BG;
-                pressedImage = ImageLoader.CALL_SETTING_BUTTON_PRESSED_BG;
-            }
-            else
-            {
-                bgImage = ImageLoader.SOUND_SETTING_BUTTON_BG;
-                bgRolloverImage = ImageLoader.SOUND_SETTING_BUTTON_BG;
-                pressedImage = ImageLoader.SOUND_SETTING_BUTTON_PRESSED;
+            bgImageID = ImageLoader.SOUND_SETTING_BUTTON_BG;
+            bgRolloverImageID = ImageLoader.SOUND_SETTING_BUTTON_BG;
+            pressedImageID = ImageLoader.SOUND_SETTING_BUTTON_PRESSED;
 
-            }
         }
 
         if (toolTipTextKey != null)
@@ -171,13 +161,6 @@ public abstract class AbstractCallToggleButton
 
         // All items are now instantiated and could safely load the skin.
         loadSkin();
-
-        int width = getBgImage().getWidth(null);
-        int height = getBgImage().getHeight(null);
-
-        this.setPreferredSize(new Dimension(width, height));
-        this.setMaximumSize(new Dimension(width, height));
-        this.setMinimumSize(new Dimension(width, height));
     }
 
     /**
@@ -256,15 +239,30 @@ public abstract class AbstractCallToggleButton
      */
     public void loadSkin()
     {
-        setBgImage(ImageLoader.getImage(bgImage));
-        setBgRolloverImage(ImageLoader.getImage(bgRolloverImage));
-        setPressedImage(ImageLoader.getImage(pressedImage));
+        int width = CallToolBarButton.DEFAULT_WIDTH;
+        int height = CallToolBarButton.DEFAULT_HEIGHT;
+
+        if (bgImageID != null)
+        {
+            Image bgImage = ImageLoader.getImage(bgImageID);
+            setBgImage(bgImage);
+
+            width = bgImage.getWidth(this);
+            height = bgImage.getHeight(this);
+        }
+
+        setPreferredSize(new Dimension(width, height));
+        setMaximumSize(new Dimension(width, height));
+        setMinimumSize(new Dimension(width, height));
+
+        setBgRolloverImage(ImageLoader.getImage(bgRolloverImageID));
+        setPressedImage(ImageLoader.getImage(pressedImageID));
 
         if (iconImageID != null)
         {
             if (!fullScreen && !settingsPanel)
                 setIconImage(ImageUtils.scaleImageWithinBounds(
-                    ImageLoader.getImage(iconImageID), 12, 12));
+                    ImageLoader.getImage(iconImageID), 18, 18));
             else
                 setIconImage(ImageLoader.getImage(iconImageID));
         }
@@ -273,7 +271,7 @@ public abstract class AbstractCallToggleButton
         {
             if (!fullScreen && !settingsPanel)
                 setPressedIconImage(ImageUtils.scaleImageWithinBounds(
-                    ImageLoader.getImage(pressedIconImageID), 12, 12));
+                    ImageLoader.getImage(pressedIconImageID), 18, 18));
             else
                 setPressedIconImage(ImageLoader.getImage(pressedIconImageID));
         }
@@ -290,7 +288,7 @@ public abstract class AbstractCallToggleButton
 
         if (!fullScreen && !settingsPanel)
             setIconImage(ImageUtils.scaleImageWithinBounds(
-                ImageLoader.getImage(iconImageID), 12, 12));
+                ImageLoader.getImage(iconImageID), 18, 18));
         else
             setIconImage(ImageLoader.getImage(iconImageID));
     }

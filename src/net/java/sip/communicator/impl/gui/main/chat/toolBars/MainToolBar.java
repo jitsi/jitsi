@@ -21,7 +21,6 @@ import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
 import net.java.sip.communicator.impl.gui.main.configforms.*;
-import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
@@ -29,10 +28,8 @@ import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.FaxDetail;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.GenericDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.MobilePhoneDetail;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.PagerDetail;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.PhoneNumberDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.WorkPhoneDetail;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
@@ -109,6 +106,13 @@ public class MainToolBar
                 ImageLoader.getImage(ImageLoader.CHAT_CALL));
 
     /**
+     * The call button.
+     */
+    private final ChatToolbarButton callVideoButton
+        = new ChatToolbarButton(
+                ImageLoader.getImage(ImageLoader.CHAT_VIDEO_CALL));
+
+    /**
      * The options button.
      */
     private final ChatToolbarButton optionsButton
@@ -181,6 +185,7 @@ public class MainToolBar
             this.add(leaveChatRoomButton);
 
         this.add(callButton);
+//        this.add(callVideoButton);
         this.add(desktopSharingButton);
         this.add(sendFileButton);
 
@@ -235,6 +240,11 @@ public class MainToolBar
             GuiActivator.getResources().getI18NString(
                 "service.gui.CALL_CONTACT"));
 
+        this.callVideoButton.setName("callVideo");
+        this.callVideoButton.setToolTipText(
+            GuiActivator.getResources().getI18NString(
+                "service.gui.CALL_CONTACT"));
+
         this.desktopSharingButton.setName("desktop");
         this.desktopSharingButton.setToolTipText(
             GuiActivator.getResources().getI18NString(
@@ -264,6 +274,7 @@ public class MainToolBar
         inviteButton.addActionListener(this);
         leaveChatRoomButton.addActionListener(this);
         callButton.addActionListener(this);
+        callVideoButton.addActionListener(this);
         desktopSharingButton.addActionListener(this);
         historyButton.addActionListener(this);
         optionsButton.addActionListener(this);
@@ -377,7 +388,7 @@ public class MainToolBar
                     }
                 }
             }
-            
+
             callButton.setEnabled(hasTelephony || hasPhone);
             desktopSharingButton.setEnabled(!getOperationSetForCapabilities(
                 chatPanel.chatSession.getTransportsForOperationSet(
@@ -550,84 +561,13 @@ public class MainToolBar
             List<ChatTransport> contactOpSetSupported =
                 getOperationSetForCapabilities(telTransports,
                         OperationSetBasicTelephony.class);
-            
+
             MetaContact metaContact
                 = GuiActivator.getUIService().getChatContact(chatPanel);
-            Iterator<Contact> contacts = metaContact.getContacts(); 
-            List<UIContactDetail> phones = new ArrayList<UIContactDetail>();
-        
-            while(contacts.hasNext())
-            {
-                Contact contact = contacts.next();
-                
-                OperationSetServerStoredContactInfo infoOpSet =
-                    contact.getProtocolProvider().getOperationSet(
-                        OperationSetServerStoredContactInfo.class);
-                Iterator<GenericDetail> details = null;
+ 
+            List<UIContactDetail> phones
+                = CallManager.getAdditionalNumbers(metaContact);
 
-                if(infoOpSet != null)
-                {
-                    details = infoOpSet.getAllDetailsForContact(contact);
-
-                    while(details.hasNext())
-                    {
-                        GenericDetail d = details.next();
-                        if(d instanceof PhoneNumberDetail && 
-                            !(d instanceof PagerDetail) && 
-                            !(d instanceof FaxDetail))
-                        {
-                            PhoneNumberDetail pnd = (PhoneNumberDetail)d;
-                            if(pnd.getNumber() != null &&
-                                pnd.getNumber().length() > 0)
-                            {
-                                String localizedType = null;
-                                
-                                if(d instanceof WorkPhoneDetail)
-                                {
-                                    localizedType = 
-                                        GuiActivator.getResources().
-                                            getI18NString(
-                                                "service.gui.WORK_PHONE");
-                                }
-                                else if(d instanceof MobilePhoneDetail)
-                                {
-                                    localizedType = 
-                                        GuiActivator.getResources().
-                                            getI18NString(
-                                                "service.gui.MOBILE_PHONE");
-                                }
-                                else
-                                {
-                                    localizedType = 
-                                        GuiActivator.getResources().
-                                            getI18NString(
-                                                "service.gui.PHONE");
-                                }
-                                    
-                                UIContactDetail cd =
-                                    new UIContactDetailImpl(
-                                        pnd.getNumber(),
-                                        pnd.getNumber() + 
-                                        " (" + localizedType + ")",
-                                        null,
-                                        new ArrayList<String>(),
-                                        null,
-                                        null,
-                                        null,
-                                        pnd)
-                                {
-                                    public PresenceStatus getPresenceStatus()
-                                    {
-                                        return null;
-                                    }
-                                };
-                                phones.add(cd);
-                            }
-                        }
-                    }
-                }
-            }
-            
             if (telTransports != null || phones.size() > 0)
             {
                 if (contactOpSetSupported.size() == 1 && phones.size() == 0)
@@ -638,7 +578,7 @@ public class MainToolBar
                         transport.getName());
                 }
                 else if (contactOpSetSupported.size() == 0
-                    && phones.size() == 1)
+                            && phones.size() == 1)
                 {
                     UIContactDetail detail = phones.get(0);
 

@@ -1224,25 +1224,25 @@ public class TreeContactList
     /**
      * Forwards the given mouse <tt>event</tt> to the list of original
      * <tt>MouseListener</tt>-s.
-     * @param event the <tt>MouseEvent</tt> that notified us
+     * @param e the <tt>MouseEvent</tt> that notified us
      */
-    public void mouseEntered(MouseEvent event)
+    public void mouseEntered(MouseEvent e)
     {
         // forward the event to the original listeners
         for (MouseListener listener : originalMouseListeners)
-           listener.mouseEntered(event);
+            listener.mouseEntered(e);
     }
 
     /**
      * Forwards the given mouse <tt>event</tt> to the list of original
      * <tt>MouseListener</tt>-s.
-     * @param event the <tt>MouseEvent</tt> that notified us
+     * @param e the <tt>MouseEvent</tt> that notified us
      */
-    public void mouseExited(MouseEvent event)
+    public void mouseExited(MouseEvent e)
     {
         // forward the event to the original listeners
         for (MouseListener listener : originalMouseListeners)
-           listener.mouseExited(event);
+           listener.mouseExited(e);
     }
 
     /**
@@ -1278,7 +1278,14 @@ public class TreeContactList
         rightButtonMenu.setVisible(true);
     }
 
-    public void mouseMoved(MouseEvent e) {}
+    public void mouseMoved(MouseEvent e)
+    {
+        dispatchEventToButtons(e);
+
+        // forward the event to the original listeners
+        for (MouseListener listener : originalMouseListeners)
+           listener.mouseReleased(e);
+    }
 
     public void mouseDragged(MouseEvent e) {}
 
@@ -1335,18 +1342,29 @@ public class TreeContactList
         TreePath mousePath
             = this.getPathForLocation(event.getX(), event.getY());
 
+        ContactListTreeCellRenderer renderer
+            = (ContactListTreeCellRenderer) getCellRenderer()
+                .getTreeCellRendererComponent(  this,
+                                                mousePath.getLastPathComponent(),
+                                                true,
+                                                true,
+                                                true,
+                                                this.getRowForPath(mousePath),
+                                                true);
+
         // If this is not the selection path we have nothing to do here.
         if (mousePath == null || !mousePath.equals(this.getSelectionPath()))
-            return;
+        {
+            renderer.getChatButton().getModel().setRollover(false);
+            renderer.getCallButton().getModel().setRollover(false);
+            renderer.getCallVideoButton().getModel().setRollover(false);
+            renderer.getDesktopSharingButton().getModel().setRollover(false);
+            renderer.getAddContactButton().getModel().setRollover(false);
 
-        JPanel renderer = (JPanel) getCellRenderer()
-            .getTreeCellRendererComponent(  this,
-                                            mousePath.getLastPathComponent(),
-                                            true,
-                                            true,
-                                            true,
-                                            this.getRowForPath(mousePath),
-                                            true);
+            this.repaint();
+
+            return;
+        }
 
         // We need to translate coordinates here.
         Rectangle r = this.getPathBounds(mousePath);
@@ -1373,10 +1391,37 @@ public class TreeContactList
                                             5, // we're in the button for sure
                                             event.getClickCount(),
                                             event.isPopupTrigger());
-            mouseComponent.dispatchEvent(evt);
 
-            this.repaint();
+            ((SIPCommButton) mouseComponent).getModel()
+                .setRollover(event.getID() == MouseEvent.MOUSE_MOVED);
+
+            if (!mouseComponent.equals(renderer.getChatButton()))
+                renderer.getChatButton().getModel().setRollover(false);
+
+            if (!mouseComponent.equals(renderer.getCallButton()))
+                renderer.getCallButton().getModel().setRollover(false);
+
+            if (!mouseComponent.equals(renderer.getCallVideoButton()))
+                renderer.getCallVideoButton().getModel().setRollover(false);
+
+            if (!mouseComponent.equals(renderer.getDesktopSharingButton()))
+                renderer.getDesktopSharingButton().getModel().setRollover(false);
+
+            if (!mouseComponent.equals(renderer.getAddContactButton()))
+                renderer.getAddContactButton().getModel().setRollover(false);
+
+            mouseComponent.dispatchEvent(evt);
         }
+        else
+        {
+            renderer.getChatButton().getModel().setRollover(false);
+            renderer.getCallButton().getModel().setRollover(false);
+            renderer.getCallVideoButton().getModel().setRollover(false);
+            renderer.getDesktopSharingButton().getModel().setRollover(false);
+            renderer.getAddContactButton().getModel().setRollover(false);
+        }
+
+        this.repaint();
     }
 
     /**

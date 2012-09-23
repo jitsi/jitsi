@@ -168,7 +168,7 @@ public class ImageUtils
             g.setComposite(AlphaComposite.Src);
             AntialiasingManager.activateAntialiasing(g);
             g.setColor(Color.WHITE);
-            g.fillRoundRect(0, 0, scaledImageWidth, scaledImageHeight, 15, 15);
+            g.fillRoundRect(0, 0, scaledImageWidth, scaledImageHeight, 5, 5);
 
             // We use SrcAtop, which effectively uses the
             // alpha value as a coverage value for each pixel stored in the
