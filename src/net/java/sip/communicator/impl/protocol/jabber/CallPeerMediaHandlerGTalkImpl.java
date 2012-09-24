@@ -277,6 +277,9 @@ public class CallPeerMediaHandlerGTalkImpl
             //the device this stream would be reading from and writing to.
             MediaDevice dev = getDefaultDevice(mediaType);
 
+            if(!isDeviceActive(dev))
+                continue;
+
             // stream target
             MediaStreamTarget target = transportManager.getStreamTarget(
                     mediaType);
@@ -369,6 +372,9 @@ public class CallPeerMediaHandlerGTalkImpl
 
             //the device this stream would be reading from and writing to.
             MediaDevice dev = getDefaultDevice(mediaType);
+
+            if(!isDeviceActive(dev))
+                continue;
 
             // stream target
             MediaStreamTarget target = transportManager.getStreamTarget(
@@ -463,7 +469,7 @@ public class CallPeerMediaHandlerGTalkImpl
         {
             MediaDevice dev = getDefaultDevice(mediaType);
 
-            if (dev != null)
+            if (isDeviceActive(dev))
             {
                 MediaDirection direction = dev.getDirection().and(
                                 getDirectionUserPreference(mediaType));

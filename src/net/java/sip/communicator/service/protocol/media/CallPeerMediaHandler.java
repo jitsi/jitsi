@@ -1657,7 +1657,7 @@ public abstract class CallPeerMediaHandler
             QualityPreset receivePreset)
     {
         if(mediaDevice == null)
-            return new LinkedList<MediaFormat>();
+            return Collections.emptyList();
 
         boolean accountOverridesEncodings = false;
 

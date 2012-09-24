@@ -463,6 +463,9 @@ public class CallPeerMediaHandlerJabberImpl
             //the device this stream would be reading from and writing to.
             MediaDevice dev = getDefaultDevice(type);
 
+            if(!isDeviceActive(dev))
+                continue;
+
             // stream target
             MediaStreamTarget target = transportManager.getStreamTarget(type);
 
@@ -634,7 +637,9 @@ public class CallPeerMediaHandlerJabberImpl
     {
         MediaDevice dev = getDefaultDevice(mediaType);
 
-        return (dev == null) ? null : createContent(dev);
+        if(isDeviceActive(dev))
+            return createContent(dev);
+        return null;
     }
 
     /**
@@ -658,7 +663,7 @@ public class CallPeerMediaHandlerJabberImpl
         List<ContentPacketExtension> mediaDescs
             = new ArrayList<ContentPacketExtension>();
 
-        if (dev != null)
+        if (isDeviceActive(dev))
         {
             ContentPacketExtension content = createContent(dev);
 
@@ -717,7 +722,7 @@ public class CallPeerMediaHandlerJabberImpl
         {
             MediaDevice dev = getDefaultDevice(mediaType);
 
-            if (dev != null)
+            if (isDeviceActive(dev))
             {
                 MediaDirection direction = dev.getDirection();
 
@@ -1019,7 +1024,7 @@ public class CallPeerMediaHandlerJabberImpl
 
         MediaDevice dev = getDefaultDevice(mediaType);
 
-        if(dev == null)
+        if(!isDeviceActive(dev))
         {
             closeStream(mediaType);
             return;

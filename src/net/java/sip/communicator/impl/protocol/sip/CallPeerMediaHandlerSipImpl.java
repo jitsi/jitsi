@@ -479,14 +479,28 @@ public class CallPeerMediaHandlerSipImpl
             MediaDirection direction
                 = devDirection.getDirectionForAnswer(remoteDirection);
 
-            // intersect the MediaFormats of our device with remote ones
-            List<MediaFormat> mutuallySupportedFormats
-                = (dev == null)
-                    ? null
-                    : intersectFormats(
-                            remoteFormats,
-                            getLocallySupportedFormats(dev));
-            
+            List<MediaFormat> mutuallySupportedFormats;
+            if(dev == null)
+            {
+                mutuallySupportedFormats = null;
+            }
+            else if(mediaType.equals(MediaType.VIDEO) &&
+                    qualityControls != null)
+            {
+                mutuallySupportedFormats = intersectFormats(
+                        remoteFormats,
+                        getLocallySupportedFormats(
+                                dev,
+                                qualityControls.getRemoteReceivePreset(),
+                                qualityControls.getRemoteSendMaxPreset()));
+            }
+            else
+            {
+                mutuallySupportedFormats = intersectFormats(
+                        remoteFormats,
+                        getLocallySupportedFormats(dev));
+            }
+
             // stream target
             MediaStreamTarget target
                 = SdpUtils.extractDefaultTarget(mediaDescription, offer);
@@ -523,9 +537,6 @@ public class CallPeerMediaHandlerSipImpl
             // check for options from remote party and set them locally
             if(mediaType.equals(MediaType.VIDEO))
             {
-                QualityPreset sendQualityPreset = null;
-                QualityPreset receiveQualityPreset = null;
-
                 // update stream
                 MediaStream stream = getStream(MediaType.VIDEO);
 
@@ -542,25 +553,6 @@ public class CallPeerMediaHandlerSipImpl
                         ((VideoMediaStream)stream).updateQualityControl(
                             fmt.getAdvancedAttributes());
                     }
-                }
-
-                if(qualityControls != null)
-                {
-                    // the one we will send is the other party receive
-                    sendQualityPreset =
-                            qualityControls.getRemoteReceivePreset();
-                    // the one we want to receive
-                    receiveQualityPreset =
-                            qualityControls.getRemoteSendMaxPreset();
-
-                    mutuallySupportedFormats
-                        = (dev == null)
-                            ? null
-                            : intersectFormats(
-                                mutuallySupportedFormats,
-                                getLocallySupportedFormats(dev,
-                                    sendQualityPreset,
-                                    receiveQualityPreset));
                 }
 
                 supportQualityControls =
