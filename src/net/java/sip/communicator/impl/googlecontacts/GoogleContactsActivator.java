@@ -60,13 +60,6 @@ public class GoogleContactsActivator implements BundleActivator
     private static ResourceManagementService resourceService;
 
     /**
-     * The cached reference to the <tt>PhoneNumberI18nService</tt> instance used
-     * by the functionality of the Google Contacts plug-in and fetched from its
-     * <tt>BundleContext</tt>.
-     */
-    private static PhoneNumberI18nService phoneNumberI18nService;
-
-    /**
      * Google contacts service.
      */
     private static GoogleContactsServiceImpl googleContactsService;
@@ -76,25 +69,6 @@ public class GoogleContactsActivator implements BundleActivator
      */
     private static Map<GoogleContactsSourceService, ServiceRegistration> cssList
         = new HashMap<GoogleContactsSourceService, ServiceRegistration>();
-
-    /**
-     * Gets the <tt>PhoneNumberI18nService</tt> to be used by the functionality
-     * of the addrbook plug-in.
-     *
-     * @return the <tt>PhoneNumberI18nService</tt> to be used by the
-     * functionality of the addrbook plug-in
-     */
-    public static PhoneNumberI18nService getPhoneNumberI18nService()
-    {
-        if (phoneNumberI18nService == null)
-        {
-            phoneNumberI18nService
-                = ServiceUtils.getService(
-                        bundleContext,
-                        PhoneNumberI18nService.class);
-        }
-        return phoneNumberI18nService;
-    }
 
     /**
      * Returns a reference to a ConfigurationService implementation currently

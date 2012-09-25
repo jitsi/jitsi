@@ -55,98 +55,6 @@ public class GoogleContactsQuery
     }
 
     /**
-     * Normalizes a <tt>String</tt> phone number by converting alpha characters
-     * to their respective digits on a keypad and then stripping non-digit
-     * characters.
-     *
-     * @param phoneNumber a <tt>String</tt> which represents a phone number to
-     * normalize
-     * @return a <tt>String</tt> which is a normalized form of the specified
-     * <tt>phoneNumber</tt>
-     */
-    protected String normalizePhoneNumber(String phoneNumber)
-    {
-        PhoneNumberI18nService phoneNumberI18nService
-            = GoogleContactsActivator.getPhoneNumberI18nService();
-
-        return
-            (phoneNumberI18nService == null)
-                ? phoneNumber
-                : phoneNumberI18nService.normalize(phoneNumber);
-    }
-
-    /**
-     * Determines whether a specific <tt>String</tt> phone number matches the
-     * {@link #query} of this <tt>AsyncContactQuery</tt>.
-     *
-     * @param phoneNumber the <tt>String</tt> which represents the phone number
-     * to match to the <tt>query</tt> of this <tt>AsyncContactQuery</tt>
-     * @return <tt>true</tt> if the specified <tt>phoneNumber</tt> matches the
-     * <tt>query</tt> of this <tt>AsyncContactQuery</tt>; otherwise,
-     * <tt>false</tt>
-     */
-    protected boolean phoneNumberMatches(String phoneNumber)
-    {
-        /*
-         * PhoneNumberI18nService implements functionality to aid the parsing,
-         * formatting and validation of international phone numbers so attempt to
-         * use it to determine whether the specified phoneNumber matches the
-         * query. For example, check whether the normalized phoneNumber matches
-         * the query.
-         */
-
-        PhoneNumberI18nService phoneNumberI18nService
-            = GoogleContactsActivator.getPhoneNumberI18nService();
-        boolean phoneNumberMatches = false;
-
-        if (phoneNumberI18nService != null)
-        {
-            if (query
-                    .matcher(phoneNumberI18nService.normalize(phoneNumber))
-                        .find())
-            {
-                phoneNumberMatches = true;
-            }
-            else
-            {
-                /*
-                 * The fact that the normalized form of the phoneNumber doesn't
-                 * match the query doesn't mean that, for example, it doesn't
-                 * match the normalized form of the query. The latter, though,
-                 * requires the query to look like a phone number as well. In
-                 * order to not accidentally start matching all queries to phone
-                 * numbers, it seems justified to normalize the query only when
-                 * it is a phone number, not whenever it looks like a piece of a
-                 * phone number.
-                 */
-
-                String phoneNumberQuery = getPhoneNumberQuery();
-
-                if ((phoneNumberQuery != null)
-                        && (phoneNumberQuery.length() != 0))
-                {
-                    try
-                    {
-                        phoneNumberMatches
-                            = phoneNumberI18nService.phoneNumbersMatch(
-                                    phoneNumberQuery,
-                                    phoneNumber);
-                    }
-                    catch (IllegalArgumentException iaex)
-                    {
-                        /*
-                         * Ignore it, phoneNumberMatches will remain equal to
-                         * false.
-                         */
-                    }
-                }
-            }
-        }
-        return phoneNumberMatches;
-    }
-
-
-    /**
      * Create a <tt>SourceContact</tt> from a <tt>GoogleContactsEntry</tt>.
      *
      * @param entry <tt>GoogleContactsEntry</tt>
@@ -264,7 +172,7 @@ public class GoogleContactsQuery
                 = new ArrayList<Class<? extends OperationSet>>(1);
 
             supportedOpSets.add(OperationSetBasicTelephony.class);
-            homePhone = normalizePhoneNumber(homePhone);
+            homePhone = PhoneNumberI18nService.normalize(homePhone);
             detail = new ContactDetail(homePhone,
                     ContactDetail.CATEGORY_PHONE,
                     new String[]{ContactDetail.LABEL_HOME});
@@ -278,7 +186,7 @@ public class GoogleContactsQuery
                 = new ArrayList<Class<? extends OperationSet>>(1);
 
             supportedOpSets.add(OperationSetBasicTelephony.class);
-            workPhone = normalizePhoneNumber(workPhone);
+            workPhone = PhoneNumberI18nService.normalize(workPhone);
             detail = new ContactDetail(workPhone,
                     ContactDetail.CATEGORY_PHONE,
                     new String[]{ContactDetail.LABEL_WORK});
@@ -292,7 +200,7 @@ public class GoogleContactsQuery
                 = new ArrayList<Class<? extends OperationSet>>(1);
 
             supportedOpSets.add(OperationSetBasicTelephony.class);
-            mobilePhone = normalizePhoneNumber(mobilePhone);
+            mobilePhone = PhoneNumberI18nService.normalize(mobilePhone);
             detail = new ContactDetail(mobilePhone,
                     ContactDetail.CATEGORY_PHONE,
                     new String[]{ContactDetail.LABEL_MOBILE});

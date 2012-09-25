@@ -779,7 +779,7 @@ public class CallManager
 
         // Removes special characters from phone numbers.
         if (ConfigurationManager.isNormalizePhoneNumber())
-            callString = normalizePhoneNumber(callString);
+            callString = PhoneNumberI18nService.normalize(callString);
 
         List<ProtocolProviderService> telephonyProviders
             = CallManager.getTelephonyProviders();
@@ -1595,7 +1595,7 @@ public class CallManager
                     contact = null;
                 }
 
-                stringContact = normalizePhoneNumber(stringContact);
+                stringContact = PhoneNumberI18nService.normalize(stringContact);
             }
 
             try
@@ -2255,44 +2255,6 @@ public class CallManager
     }
 
     /**
-     * Normalizes a <tt>String</tt> contact address or phone number for the
-     * purposes of establishing a <tt>Call</tt>.
-     * 
-     * @param callee the <tt>String</tt> contact address or phone number to be
-     * normalized for the purposes of establishing a <tt>Call</tt>
-     * @return the normalized form of the specified <tt>callee</tt> appropriate
-     * for establishing a <tt>Call</tt>
-     */
-    private static String normalizePhoneNumber(String callee)
-    {
-        return
-            normalizePhoneNumber(callee, GuiActivator.getPhoneNumberService());
-    }
-
-    /**
-     * Normalizes a <tt>String</tt> contact address or phone number for the
-     * purposes of establishing a <tt>Call</tt>.
-     * 
-     * @param addr the <tt>String</tt> contact address or phone number to be
-     * normalized for the purposes of establishing a <tt>Call</tt>
-     * @param phoneNumberService the <tt>PhoneNumberI18nService</tt> to perform
-     * the normalization if the specified <tt>addr</tt> is recognized as a
-     * phone number
-     * @return the normalized form of the specified <tt>addr</tt> appropriate
-     * for establishing a <tt>Call</tt>
-     */
-    private static String normalizePhoneNumber(
-            String addr,
-            PhoneNumberI18nService phoneNumberService)
-    {
-        addr = StringUtils.concatenateWords(addr);
-        if (!StringUtils.containsLetters(addr)
-                && phoneNumberService.isPhoneNumber(addr))
-            addr = phoneNumberService.normalize(addr);
-        return addr;
-    }
-
-    /**
      * Normalizes the phone numbers (if any) in a list of <tt>String</tt>
      * contact addresses or phone numbers.
      *
@@ -2301,10 +2263,7 @@ public class CallManager
      */
     private static void normalizePhoneNumbers(String callees[])
     {
-        PhoneNumberI18nService phoneNumberService
-            = GuiActivator.getPhoneNumberService();
-
         for (int i = 0 ; i < callees.length ; i++)
-            callees[i] = normalizePhoneNumber(callees[i], phoneNumberService);
+            callees[i] = PhoneNumberI18nService.normalize(callees[i]);
     }
 }

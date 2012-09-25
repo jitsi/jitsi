@@ -118,13 +118,11 @@ public class ProtocolContactSourceServiceImpl
             this.contactCount = contactCount;
         }
 
-        @Override
         protected String normalizePhoneNumber(String phoneNumber)
         {
             return phoneNumber;
         }
 
-        @Override
         protected boolean phoneNumberMatches(String phoneNumber)
         {
             return false;

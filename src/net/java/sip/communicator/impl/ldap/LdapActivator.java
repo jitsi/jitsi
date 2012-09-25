@@ -56,13 +56,6 @@ public class LdapActivator
     }
 
     /**
-     * The cached reference to the <tt>PhoneNumberI18nService</tt> instance used
-     * by the functionality of the LDAP plug-in and fetched from its
-     * <tt>BundleContext</tt>.
-     */
-    private static PhoneNumberI18nService phoneNumberI18nService;
-
-    /**
      * List of contact source service registrations.
      */
     private static Map<LdapContactSourceService, ServiceRegistration> cssList =
@@ -165,25 +158,6 @@ public class LdapActivator
                         confReference);
         }
         return resourceService;
-    }
-
-    /**
-     * Gets the <tt>PhoneNumberI18nService</tt> to be used by the functionality
-     * of the addrbook plug-in.
-     *
-     * @return the <tt>PhoneNumberI18nService</tt> to be used by the
-     * functionality of the addrbook plug-in
-     */
-    public static PhoneNumberI18nService getPhoneNumberI18nService()
-    {
-        if (phoneNumberI18nService == null)
-        {
-            phoneNumberI18nService
-                = ServiceUtils.getService(
-                        bundleContext,
-                        PhoneNumberI18nService.class);
-        }
-        return phoneNumberI18nService;
     }
 
     /**

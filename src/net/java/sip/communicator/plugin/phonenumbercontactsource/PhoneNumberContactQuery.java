@@ -214,13 +214,11 @@ public class PhoneNumberContactQuery
         }
     }
 
-    @Override
     protected String normalizePhoneNumber(String phoneNumber)
     {
         return null;
     }
 
-    @Override
     protected boolean phoneNumberMatches(String phoneNumber)
     {
         return false;

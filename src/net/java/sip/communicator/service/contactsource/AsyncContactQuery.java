@@ -9,6 +9,8 @@ package net.java.sip.communicator.service.contactsource;
 import java.util.*;
 import java.util.regex.*;
 
+import net.java.sip.communicator.service.protocol.*;
+
 /**
  * Provides an abstract implementation of a <tt>ContactQuery</tt> which runs in
  * a separate <tt>Thread</tt>.
@@ -175,30 +177,6 @@ public abstract class AsyncContactQuery<T extends ContactSourceService>
     }
 
     /**
-     * Normalizes a <tt>String</tt> phone number by converting alpha characters
-     * to their respective digits on a keypad and then stripping non-digit
-     * characters.
-     *
-     * @param phoneNumber a <tt>String</tt> which represents a phone number to
-     * normalize
-     * @return a <tt>String</tt> which is a normalized form of the specified
-     * <tt>phoneNumber</tt>
-     */
-    protected abstract String normalizePhoneNumber(String phoneNumber);
-
-    /**
-     * Determines whether a specific <tt>String</tt> phone number matches the
-     * {@link #query} of this <tt>AsyncContactQuery</tt>.
-     *
-     * @param phoneNumber the <tt>String</tt> which represents the phone number
-     * to match to the <tt>query</tt> of this <tt>AsyncContactQuery</tt>
-     * @return <tt>true</tt> if the specified <tt>phoneNumber</tt> matches the
-     * <tt>query</tt> of this <tt>AsyncContactQuery</tt>; otherwise,
-     * <tt>false</tt>
-     */
-    protected abstract boolean phoneNumberMatches(String phoneNumber);
-
-    /**
      * Performs this <tt>ContactQuery</tt> in a background <tt>Thread</tt>.
      */
     protected abstract void run();
@@ -252,5 +230,70 @@ public abstract class AsyncContactQuery<T extends ContactSourceService>
     {
         if (getStatus() == QUERY_IN_PROGRESS)
             setStatus(completed ? QUERY_COMPLETED : QUERY_ERROR);
+    }
+
+    /**
+     * Determines whether a specific <tt>String</tt> phone number matches the
+     * {@link #query} of this <tt>AsyncContactQuery</tt>.
+     *
+     * @param phoneNumber the <tt>String</tt> which represents the phone number
+     * to match to the <tt>query</tt> of this <tt>AsyncContactQuery</tt>
+     * @return <tt>true</tt> if the specified <tt>phoneNumber</tt> matches the
+     * <tt>query</tt> of this <tt>AsyncContactQuery</tt>; otherwise,
+     * <tt>false</tt>
+     */
+    protected boolean phoneNumberMatches(String phoneNumber)
+    {
+        /*
+         * PhoneNumberI18nService implements functionality to aid the parsing,
+         * formatting and validation of international phone numbers so attempt
+         * to use it to determine whether the specified phoneNumber matches the
+         * query. For example, check whether the normalized phoneNumber matches
+         * the query.
+         */
+
+        boolean phoneNumberMatches = false;
+
+        if (query
+                .matcher(PhoneNumberI18nService.normalize(phoneNumber))
+                    .find())
+        {
+            phoneNumberMatches = true;
+        }
+        else
+        {
+            /*
+             * The fact that the normalized form of the phoneNumber doesn't
+             * match the query doesn't mean that, for example, it doesn't
+             * match the normalized form of the query. The latter, though,
+             * requires the query to look like a phone number as well. In
+             * order to not accidentally start matching all queries to phone
+             * numbers, it seems justified to normalize the query only when
+             * it is a phone number, not whenever it looks like a piece of a
+             * phone number.
+             */
+
+            String phoneNumberQuery = getPhoneNumberQuery();
+
+            if ((phoneNumberQuery != null)
+                    && (phoneNumberQuery.length() != 0))
+            {
+                try
+                {
+                    phoneNumberMatches
+                        = PhoneNumberI18nService.phoneNumbersMatch(
+                                phoneNumberQuery,
+                                phoneNumber);
+                }
+                catch (IllegalArgumentException iaex)
+                {
+                    /*
+                     * Ignore it, phoneNumberMatches will remain equal to
+                     * false.
+                     */
+                }
+            }
+        }
+        return phoneNumberMatches;
     }
 }

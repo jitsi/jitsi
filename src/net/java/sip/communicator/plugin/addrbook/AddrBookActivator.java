@@ -67,13 +67,6 @@ public class AddrBookActivator
     private static ServiceRegistration cssServiceRegistration;
 
     /**
-     * The cached reference to the <tt>PhoneNumberI18nService</tt> instance used
-     * by the functionality of the addrbook plug-in and fetched from its
-     * <tt>BundleContext</tt>.
-     */
-    private static PhoneNumberI18nService phoneNumberI18nService;
-
-    /**
      * The <tt>ResourceManagementService</tt> through which we access resources.
      */
     private static ResourceManagementService resourceService;
@@ -83,25 +76,6 @@ public class AddrBookActivator
      * properties.
      */
     private static ConfigurationService configService;
-
-    /**
-     * Gets the <tt>PhoneNumberI18nService</tt> to be used by the functionality
-     * of the addrbook plug-in.
-     *
-     * @return the <tt>PhoneNumberI18nService</tt> to be used by the
-     * functionality of the addrbook plug-in
-     */
-    public static PhoneNumberI18nService getPhoneNumberI18nService()
-    {
-        if (phoneNumberI18nService == null)
-        {
-            phoneNumberI18nService
-                = ServiceUtils.getService(
-                        bundleContext,
-                        PhoneNumberI18nService.class);
-        }
-        return phoneNumberI18nService;
-    }
 
     /**
      * Gets the <tt>ResourceManagementService</tt> to be used by the
@@ -154,11 +128,6 @@ public class AddrBookActivator
         throws Exception
     {
         AddrBookActivator.bundleContext = bundleContext;
-
-        bundleContext.registerService(
-                PhoneNumberI18nService.class.getName(),
-                new PhoneNumberI18nServiceImpl(),
-                null);
 
         Dictionary<String, String> properties = new Hashtable<String, String>();
 
