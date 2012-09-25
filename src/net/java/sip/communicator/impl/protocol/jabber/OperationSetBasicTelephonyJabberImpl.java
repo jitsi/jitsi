@@ -948,11 +948,10 @@ public class OperationSetBasicTelephonyJabberImpl
 
             if(error != null)
             {
+                message += "\ncode=" + error.getCode()
+                    + " message=" + error.getMessage();
                 logger.error(" code=" + error.getCode()
                                 + " message=" + error.getMessage());
-
-                if (error.getMessage() != null)
-                    message = error.getMessage();
             }
 
             if (callPeer != null)
