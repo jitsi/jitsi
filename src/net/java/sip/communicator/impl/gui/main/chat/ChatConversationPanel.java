@@ -1772,4 +1772,15 @@ public class ChatConversationPanel
             return GuiActivator.getResources().getImageURL(
                 "service.gui.DEFAULT_USER_PHOTO_SMALL").toString();
     }
+
+    /**
+     * Releases the resources allocated by this instance throughout its lifetime
+     * and prepares it for garbage collection.
+     */
+    public void dispose()
+    {
+        super.dispose();
+
+        clear();
+    }
 }

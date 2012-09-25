@@ -70,6 +70,15 @@ public class UIFilterQuery
     private final ContactList contactList;
 
     /**
+     * Map of the created show more contacts for a query.
+     * We stored them, so we can remove them (sometimes those
+     * contacts are not added to UI, so they are not removed and
+     * not cleared)
+     */
+    private final Map<ContactQuery,ShowMoreContact> showMoreContactMap
+        = new HashMap<ContactQuery, ShowMoreContact>();
+
+    /**
      * Creates an instance of <tt>UIFilterQuery</tt> by specifying the parent
      * <tt>ContactList</tt>.
      *
@@ -299,6 +308,14 @@ public class UIFilterQuery
             contactQuery.removeContactQueryListener(contactList);
             if (!isSucceeded && contactQuery.getQueryResults().size() > 0)
                 isSucceeded = true;
+
+            // removes ShowMoreContact and clears it
+            ShowMoreContact showMoreContact
+                = showMoreContactMap.remove(contactQuery);
+            if(showMoreContact != null)
+            {
+                showMoreContact.setContactNode(null);
+            }
         }
         else if (query instanceof MetaContactQuery)
         {
@@ -343,6 +360,7 @@ public class UIFilterQuery
 
             ShowMoreContact moreInfoContact
                 = new ShowMoreContact(query, queryResults, getMaxResultShown());
+            showMoreContactMap.put(query, moreInfoContact);
 
             ContactSourceService contactSource = query.getContactSource();
 

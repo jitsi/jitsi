@@ -11,6 +11,7 @@ import java.awt.event.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
+import javax.swing.text.*;
 
 import net.java.sip.communicator.plugin.generalconfig.*;
 import net.java.sip.communicator.util.swing.*;
@@ -101,6 +102,15 @@ public class AutoAwayConfigurationPanel
                         resources.getI18NString(
                                 "plugin.autoaway.AWAY_MINUTES")));
         timerPanel.add(timer);
+
+        try
+        {
+            // changes that are valid will be saved immediately while typing
+            ((DefaultFormatter)((JSpinner.DefaultEditor)timer.getEditor())
+                .getTextField().getFormatter()).setCommitsOnValidEdit(true);
+        }
+        catch(Throwable t)
+        {}
 
         JPanel mainPanel = new TransparentPanel(new BorderLayout(5, 5));
 

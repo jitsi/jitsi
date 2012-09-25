@@ -219,6 +219,13 @@ public class ShowMoreContact
     public void setContactNode(ContactNode contactNode)
     {
         this.contactNode = contactNode;
+
+        // contactNode is null, when the the ui contact is removed/cleared
+        // we must free resources
+        if(contactNode == null)
+        {
+            GuiActivator.getContactList().removeContactListListener(this);
+        }
     }
 
     /**

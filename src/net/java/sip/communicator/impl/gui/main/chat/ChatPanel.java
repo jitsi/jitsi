@@ -906,7 +906,7 @@ public class ChatPanel
      * Passes the message to the contained <code>ChatConversationPanel</code>
      * for processing and replaces the specified message with this one.
      *
-     * @param chatMessage The message used as a correction.
+     * @param message The message used as a correction.
      */
     private void applyMessageCorrection(ChatMessage message)
     {
