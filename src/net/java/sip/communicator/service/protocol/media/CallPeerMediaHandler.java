@@ -1002,6 +1002,10 @@ public abstract class CallPeerMediaHandler
             for (MediaType mediaType : MediaType.values())
             {
                 MediaStream stream = getStream(mediaType);
+
+                if (stream == null)
+                    continue;
+
                 MediaDevice oldDevice = stream.getDevice();
 
                 if (oldDevice != null)
