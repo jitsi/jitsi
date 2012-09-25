@@ -16,7 +16,7 @@
  */
 package net.java.sip.communicator.util.swing;
 
-import java.lang.Thread.UncaughtExceptionHandler;
+import java.util.concurrent.*;
 
 import javax.swing.*;
 
@@ -24,92 +24,106 @@ import javax.swing.*;
  * Utility class based on the javax.swing.SwingWorker. <tt>SwingWorker</tt> is
  * an abstract class that you subclass to perform GUI-related work in a
  * dedicated thread. In addition to the original SwingWorker this class takes
- * care of exceptions occured during the execution of the separate thread. It
- * would call a catchException() method in the Swing thread if an exception
+ * care of exceptions occurring during the execution of the separate thread. It
+ * will call a catchException() method in the Swing thread if an exception
  * occurs.
- * 
+ *
  * @author Yana Stamcheva
+ * @author Lyubomir Marinov
  */
 public abstract class SwingWorker
 {
-    private Object value;  // see getValue(), setValue()
-
-    /** 
-     * Class to maintain reference to current worker thread
-     * under separate synchronization control.
+    /**
+     * The <tt>ExecutorService</tt> which is shared by the <tt>SwingWorker</tt>
+     * instances for the purposes of controlling the use of <tt>Thread</tt>s.
      */
-    private static class ThreadVar
+    private static ExecutorService executorService;
+
+    /**
+     * The <tt>Callable</tt> implementation which is (to be) submitted to
+     * {@link #executorService} and invokes {@link #construct()} on behalf of
+     * this <tt>SwingWorker</tt>.
+     */
+    private final Callable<Object> callable;
+
+    /**
+     * The <tt>Future</tt> instance which represents the state and the return
+     * value of the execution of {@link #callable} i.e. {@link #construct()}.
+     */
+    private Future<?> future;
+
+    /**
+     * Start a thread that will call the <code>construct</code> method
+     * and then exit.
+     */
+    public SwingWorker()
     {
-        private Thread thread;
-        ThreadVar(Thread t)
-        {
-            thread = t;
-        }
-        synchronized Thread get()
-        {
-            return thread;
-        }
-        synchronized void clear()
-        {
-            thread = null;
-        }
+        callable
+            = new Callable<Object>()
+            {
+                public Object call()
+                {
+                    Object value = null;
+
+                    try
+                    {
+                        value = construct();
+                    }
+                    catch (final Throwable t)
+                    {
+                        if (t instanceof ThreadDeath)
+                            throw (ThreadDeath) t;
+                        else
+                        {
+                            // catchException
+                            SwingUtilities.invokeLater(
+                                    new Runnable()
+                                    {
+                                        public void run()
+                                        {
+                                            catchException(t);
+                                        }
+                                    });
+                        }
+                    }
+
+                    // finished
+                    SwingUtilities.invokeLater(
+                            new Runnable()
+                            {
+                                public void run()
+                                {
+                                    finished();
+                                }
+                            });
+
+                    return value;
+                }
+            };
     }
 
-    private ThreadVar threadVar;
-
-    /** 
-     * Get the value produced by the worker thread, or null if it 
-     * hasn't been constructed yet.
+    /**
+     * Called on the event dispatching thread (not on the worker thread)
+     * if an exception has occurred during the <code>construct</code> method.
+     * 
+     * @param exception the exception that has occurred
      */
-    protected synchronized Object getValue()
-    { 
-        return value; 
+    protected void catchException(Throwable exception)
+    {
     }
 
     /** 
-     * Set the value produced by worker thread 
+     * Computes the value to be returned by {@link #get()}. 
      */
-    private synchronized void setValue(Object x)
-    { 
-        value = x; 
-    }
-
-    /** 
-     * Compute the value to be returned by the <code>get</code> method. 
-     */
-    public abstract Object construct()
+    protected abstract Object construct()
         throws Exception;
 
     /**
      * Called on the event dispatching thread (not on the worker thread)
      * after the <code>construct</code> method has returned.
      */
-    public void finished()
+    protected void finished()
     {
-    }
-
-    /**
-     * Called on the event dispatching thread (not on the worker thread)
-     * if an exception has occured during the <code>construct</code> method.
-     * 
-     * @param exception the exception that has occured
-     */
-    public void catchException(Throwable exception)
-    {
-    }
-
-    /**
-     * A new method that interrupts the worker thread.  Call this method
-     * to force the worker to stop what it's doing.
-     */
-    public void interrupt()
-    {
-        Thread t = threadVar.get();
-        if (t != null)
-        {
-            t.interrupt();
-        }
-        threadVar.clear();
     }
 
     /**
@@ -121,68 +135,69 @@ public abstract class SwingWorker
      */
     public Object get()
     {
-        while (true)
+        Future<?> future;
+
+        synchronized (this)
         {
-            Thread t = threadVar.get();
-            if (t == null)
-            {
-                return getValue();
-            }
-            try
-            {
-                t.join();
-            }
-            catch (InterruptedException e)
-            {
-                Thread.currentThread().interrupt(); // propagate
-                return null;
-            }
+            /*
+             * SwingWorker assigns a value to the future field only once and we
+             * do not want to invoke Future#cancel(true) while holding a lock.
+             */
+            future = this.future;
         }
-    }
 
+        Object value = null;
 
-    /**
-     * Start a thread that will call the <code>construct</code> method
-     * and then exit.
-     */
-    public SwingWorker()
-    {
-        final Runnable doFinished = new Runnable()
+        if (future != null)
         {
-           public void run() { finished(); }
-        };
+            boolean interrupted = false;
 
-        Runnable doConstruct = new Runnable()
-        {
-            public void run()
+            while (!future.isDone())
             {
+                value = null;
                 try
                 {
-                    setValue(construct());
+                    value = future.get();
                 }
-                catch (final Exception exception)
+                catch (CancellationException ce)
                 {
-                    SwingUtilities.invokeLater(new Runnable()
-                    {
-                        public void run()
-                        {
-                            catchException(exception);
-                        }
-                    });
+                    break;
                 }
-                finally
+                catch (ExecutionException ee)
                 {
-                    threadVar.clear();
+                    break;
                 }
-
-                SwingUtilities.invokeLater(doFinished);
+                catch (InterruptedException ie)
+                {
+                    interrupted = true;
+                }
             }
-        };
+            if (interrupted) // propagate
+                Thread.currentThread().interrupt();
+        }
 
-        Thread t = new Thread(doConstruct);
+        return value;
+    }
 
-        t.setUncaughtExceptionHandler(new SwingUncaughtExceptionHandler());
-        threadVar = new ThreadVar(t);
+    /**
+     * A new method that interrupts the worker thread.  Call this method
+     * to force the worker to stop what it's doing.
+     */
+    public void interrupt()
+    {
+        Future<?> future;
+
+        synchronized (this)
+        {
+            /*
+             * SwingWorker assigns a value to the future field only once and we
+             * do not want to invoke Future#cancel(true) while holding a lock.
+             */
+            future = this.future;
+        }
+
+        if (future != null)
+            future.cancel(true);
     }
 
     /**
@@ -190,30 +205,21 @@ public abstract class SwingWorker
      */
     public void start()
     {
-        Thread t = threadVar.get();
-        if (t != null)
-        {
-            t.start();
-        }
-    }
+        ExecutorService executorService;
 
-    /**
-     * An exception handler that calls the catchException() in the Swing thread
-     * if an exception occurs while processing the construct method in a
-     * separate thread.
-     */
-    private class SwingUncaughtExceptionHandler
-        implements UncaughtExceptionHandler
-    {
-        public void uncaughtException(Thread t, final Throwable e)
+        synchronized (SwingWorker.class)
         {
-            SwingUtilities.invokeLater(new Runnable()
-            {
-                public void run()
-                {
-                    catchException(e);
-                }
-            });
+            if (SwingWorker.executorService == null)
+                SwingWorker.executorService = Executors.newCachedThreadPool();
+            executorService = SwingWorker.executorService;
+        }
+
+        synchronized (this)
+        {
+            if (future == null)
+                future = executorService.submit(callable);
+            else
+                throw new IllegalStateException("future");
         }
     }
 }

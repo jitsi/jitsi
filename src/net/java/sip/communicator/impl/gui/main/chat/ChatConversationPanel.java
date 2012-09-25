@@ -12,8 +12,6 @@ import java.awt.event.*;
 import java.io.*;
 import java.net.*;
 import java.util.*;
-import java.util.Map.Entry;
-import java.util.Map;
 import java.util.regex.*;
 
 import javax.swing.*;
@@ -21,6 +19,8 @@ import javax.swing.event.*;
 import javax.swing.text.*;
 import javax.swing.text.html.*;
 import javax.swing.text.html.HTML.*;
+
+import org.jitsi.service.configuration.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
@@ -562,14 +562,13 @@ public class ChatConversationPanel
         }
 
         String contactAddress
-            = (String) lastMsgElement.getAttributes()
-                .getAttribute(Attribute.NAME);
+            = (String) lastMsgElement.getAttributes().getAttribute(
+                    Attribute.NAME);
 
         if (contactAddress != null
                 && contactAddress.equals(chatMessage.getContactName())
                 // And if the new message is within a minute from the last one.
-                && (chatMessage.getDate() - lastMessageTimestamp
-                        < 60000))
+                && ((chatMessage.getDate() - lastMessageTimestamp) < 60000))
         {
             String newMessage = ChatHtmlUtils.createMessageTag(
                                         ChatHtmlUtils.MESSAGE_TEXT_ID
@@ -737,17 +736,22 @@ public class ChatConversationPanel
          * Check to make sure element isn't the first element in the HTML
          * document.
          */
-        Element elem = document.getElement(root, Attribute.ID,
-            ChatHtmlUtils.MESSAGE_TEXT_ID + lastMessageUID);
+        Element elem
+            = document.getElement(
+                    root,
+                    Attribute.ID,
+                    ChatHtmlUtils.MESSAGE_TEXT_ID + lastMessageUID);
 
         /*
          * Replacements will be processed only if it is enabled in the
          * property.
          */
-        if (GuiActivator.getConfigurationService().getBoolean(
-            ReplacementProperty.REPLACEMENT_ENABLE, true)
-            || GuiActivator.getConfigurationService().getBoolean(
-                ReplacementProperty.getPropertyName("SMILEY"), true))
+        ConfigurationService cfg = GuiActivator.getConfigurationService();
+
+        if (cfg.getBoolean(ReplacementProperty.REPLACEMENT_ENABLE, true)
+                || cfg.getBoolean(
+                        ReplacementProperty.getPropertyName("SMILEY"),
+                        true))
         {
             processReplacement(elem, message, contentType);
         }
@@ -765,64 +769,60 @@ public class ChatConversationPanel
                                     final String chatString,
                                     final String contentType)
     {
-       final String chatFinal = chatString;
-
        SwingWorker worker = new SwingWorker()
        {
            public Object construct() throws Exception
            {
-               String temp = "", msgStore = chatFinal;
-
+               ConfigurationService cfg
+                   = GuiActivator.getConfigurationService();
                boolean isEnabled
-                   = GuiActivator.getConfigurationService().getBoolean(
-                       ReplacementProperty.REPLACEMENT_ENABLE, true);
+                   = cfg.getBoolean(
+                           ReplacementProperty.REPLACEMENT_ENABLE,
+                           true);
+               String msgStore = chatString;
 
-               Map<String, ReplacementService> listSources
-                   = GuiActivator.getReplacementSources();
-
-               Iterator<Entry<String, ReplacementService>> entrySetIter
-                   = listSources.entrySet().iterator();
-
-               for (int i = 0; i < listSources.size(); i++)
+               for (Map.Entry<String, ReplacementService> entry
+                       : GuiActivator.getReplacementSources().entrySet())
                {
-                   Map.Entry<String, ReplacementService> entry
-                       = entrySetIter.next();
-
                    ReplacementService source = entry.getValue();
 
                    boolean isSmiley
                        = source instanceof SmiliesReplacementService;
 
-                   if (!(GuiActivator.getConfigurationService().getBoolean(
-                       ReplacementProperty.getPropertyName(source
-                       .getSourceName()), true) && (isEnabled || isSmiley)))
+                   if (!(cfg.getBoolean(
+                               ReplacementProperty.getPropertyName(
+                                       source.getSourceName()),
+                               true)
+                           && (isEnabled || isSmiley)))
                        continue;
 
                    String sourcePattern = source.getPattern();
-                   Pattern p = Pattern.compile(sourcePattern,
-                                   Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
-
+                   Pattern p
+                       = Pattern.compile(
+                               sourcePattern,
+                               Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
                    Matcher m = p.matcher(msgStore);
 
-                   int count = 0, startPos = 0;
-                   StringBuffer msgBuff = new StringBuffer();
+                   StringBuilder msgBuff = new StringBuilder();
+                   int startPos = 0;
 
                    while (m.find())
                    {
-                       count++;
                        msgBuff.append(msgStore.substring(startPos, m.start()));
                        startPos = m.end();
 
-                       temp = source.getReplacement(m.group());
+                       String group = m.group();
+                       String temp = source.getReplacement(group);
+                       String group0 = m.group(0);
 
-                       if(!temp.equals(m.group(0)) || source.getSourceName()
-                               .equals("DIRECTIMAGE"))
+                       if(!temp.equals(group0)
+                               || source.getSourceName().equals("DIRECTIMAGE"))
                        {
                            if(isSmiley)
                            {
                                msgBuff.append(
-                                   ChatHtmlUtils.createEndPlainTextTag(
-                                       contentType));
+                                       ChatHtmlUtils.createEndPlainTextTag(
+                                               contentType));
                                msgBuff.append("<IMG SRC=\"");
                            }
                            else
@@ -833,7 +833,7 @@ public class ChatConversationPanel
 
                            msgBuff.append(temp);
                            msgBuff.append("\" BORDER=\"0\" ALT=\"");
-                           msgBuff.append(m.group(0));
+                           msgBuff.append(group0);
                            msgBuff.append("\"></IMG>");
 
                            if(isSmiley)
@@ -843,8 +843,7 @@ public class ChatConversationPanel
                        }
                        else
                        {
-                           msgBuff.append(
-                               msgStore.substring(m.start(), m.end()));
+                           msgBuff.append(group);
                        }
                    }
 
@@ -854,23 +853,25 @@ public class ChatConversationPanel
                     * replace the msgStore variable with the current replaced
                     * message before next iteration
                     */
-                   if (!msgBuff.toString().equals(msgStore))
-                   {
-                       msgStore = msgBuff.toString();
-                   }
+                   String msgBuffString = msgBuff.toString();
+
+                   if (!msgBuffString.equals(msgStore))
+                       msgStore = msgBuffString;
                }
 
-               if (!msgStore.equals(chatFinal))
+               if (!msgStore.equals(chatString))
                {
                    synchronized (scrollToBottomRunnable)
                    {
                        scrollToBottomIsPending = true;
 
-                       int msgStartIndex = msgStore.indexOf("<div id");
-                       document.setOuterHTML(elem, msgStore.toString()
-                           .substring(
-                               msgStartIndex,
-                               msgStore.indexOf("</div>", msgStartIndex)));
+                       int msgBeginIndex = msgStore.indexOf("<div id");
+                       int msgEndIndex
+                           = msgStore.indexOf("</div>", msgBeginIndex);
+
+                       document.setOuterHTML(
+                               elem,
+                               msgStore.substring(msgBeginIndex, msgEndIndex));
                    }
                }
                return "";
@@ -1661,7 +1662,7 @@ public class ChatConversationPanel
             Map<String, ReplacementService> listSources =
                 GuiActivator.getReplacementSources();
 
-            Iterator<Entry<String, ReplacementService>> entrySetIter =
+            Iterator<Map.Entry<String, ReplacementService>> entrySetIter =
                 listSources.entrySet().iterator();
             StringBuffer msgStore = new StringBuffer(chatString);
 

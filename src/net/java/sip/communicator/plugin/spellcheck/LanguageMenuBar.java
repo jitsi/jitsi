@@ -524,9 +524,10 @@ public class LanguageMenuBar
          * Called on the event dispatching thread (not on the worker thread)
          * after the <code>construct</code> method has returned.
          */
+        @Override
         public void finished()
         {
-            if (getValue() != null)
+            if (get() != null)
             {
                 sourceList.setEnabled(true);
 
