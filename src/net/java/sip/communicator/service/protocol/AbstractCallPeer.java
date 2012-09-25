@@ -624,10 +624,11 @@ public abstract class AbstractCallPeer<T extends Call,
             if (conferenceMemberCount <= 0)
                 conferenceMembers = NO_CONFERENCE_MEMBERS;
             else
+            {
                 conferenceMembers
-                    = this.conferenceMembers
-                            .toArray(
-                                new ConferenceMember[conferenceMemberCount]);
+                    = this.conferenceMembers.toArray(
+                            new ConferenceMember[conferenceMemberCount]);
+            }
         }
         return conferenceMembers;
     }

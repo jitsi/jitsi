@@ -19,8 +19,8 @@ import net.java.sip.communicator.util.*;
  * @author Yana Stamcheva
  */
 public class OperationSetTelephonyConferencingGibberishImpl
-    implements  OperationSetTelephonyConferencing,
-                CallChangeListener
+    implements OperationSetTelephonyConferencing,
+               CallChangeListener
 {
     private static final Logger logger
         = Logger.getLogger(OperationSetTelephonyConferencingGibberishImpl.class);
@@ -72,13 +72,16 @@ public class OperationSetTelephonyConferencingGibberishImpl
 
     /**
      * Creates a conference call with the given list of <tt>callees</tt>
+     *
      * @param callees the list of <tt>callees</tt> to invite in the call
-     * @param group the <tt>CallGroup</tt> or null
+     * @param conference the <tt>CallConference</tt> which represents the state
+     * of the telephony conference into which the specified callees are to be
+     * invited
      * @return the created call
      * @throws OperationNotSupportedException indicates that the operation is
      * not supported for the given <tt>callees</tt>.
      */
-    public Call createConfCall(String[] callees, CallGroup group)
+    public Call createConfCall(String[] callees, CallConference conference)
         throws OperationNotSupportedException
     {
         CallGibberishImpl newCall = new CallGibberishImpl(protocolProvider);

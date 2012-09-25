@@ -12,129 +12,19 @@ import java.util.*;
 import net.java.sip.communicator.plugin.generalconfig.*;
 import net.java.sip.communicator.service.protocol.*;
 
-import org.jitsi.service.configuration.*;
-import org.jitsi.service.resources.*;
-
 /**
- * A Runnable, which permanently looks at the mouse position. If the mouse is
- * not moved, all accounts are set to "Away" or similar states.
+ * A <tt>Runnable</tt> which permanently looks at the mouse position. If the
+ * mouse is not moved, all accounts are set to &quot;Away&quot; or similar
+ * states.
  * 
  * @author Thomas Hofer
  */
 public class StatusUpdateThread
     implements Runnable
 {
-    private boolean run = false;
-    private Point lastPosition = null;
-    private final Map<ProtocolProviderService, PresenceStatus> lastStates
-        = new HashMap<ProtocolProviderService, PresenceStatus>();
-
-    private static final int IDLE_TIMER = 3000;
     private static final int AWAY_DEFAULT_STATUS = 40;
 
-    public void run()
-    {
-        run = true;
-        int timer = 0;
-        do
-        {
-            try
-            {
-                if (MouseInfo.getPointerInfo() != null)
-                {
-                    PointerInfo info = MouseInfo.getPointerInfo();
-                    Point currentPosition
-                        = (info != null) ? info.getLocation() : new Point(0, 0);
-
-                    if (!isNear(lastPosition, currentPosition))
-                    {
-                        // position has changed
-                        // check, if a minor state has been automatically set
-                        // and
-                        // reset this state to the former state.
-                        for (ProtocolProviderService protocolProviderService
-                                : GeneralConfigPluginActivator.getProtocolProviders())
-                        {
-                            if (lastStates.get(protocolProviderService) != null)
-                            {
-                                PresenceStatus lastState
-                                    = lastStates.get(protocolProviderService);
-                                OperationSetPresence presence
-                                    = protocolProviderService
-                                        .getOperationSet(
-                                            OperationSetPresence.class);
-                                try
-                                {
-                                    presence
-                                        .publishPresenceStatus(lastState, "");
-                                } catch (IllegalArgumentException e)
-                                {
-                                } catch (IllegalStateException e)
-                                {
-                                } catch (OperationFailedException e)
-                                {
-                                }
-                                lastStates.remove(protocolProviderService);
-                            }
-                        }
-                        timer = Preferences.getTimer() * 1000 * 60;
-                    } else
-                    {
-                        // position has not changed!
-                        // get all protocols and set them to away
-                        for (ProtocolProviderService protocolProviderService
-                                : GeneralConfigPluginActivator.getProtocolProviders())
-                        {
-                            OperationSetPresence presence
-                                = protocolProviderService
-                                    .getOperationSet(
-                                        OperationSetPresence.class);
-
-                            PresenceStatus status = presence
-                                    .getPresenceStatus();
-
-                            if (status.getStatus()
-                                    < PresenceStatus.AVAILABLE_THRESHOLD)
-                            {
-                                // already (manually) set to away or lower
-                                continue;
-                            }
-
-                            lastStates.put(protocolProviderService, status);
-
-                            PresenceStatus newStatus = findAwayStatus(presence);
-
-                            try
-                            {
-                                if (newStatus != null)
-                                    presence
-                                        .publishPresenceStatus(
-                                            newStatus,
-                                            newStatus.getStatusName());
-                            } catch (IllegalArgumentException e)
-                            {
-                            } catch (IllegalStateException e)
-                            {
-                            } catch (OperationFailedException e)
-                            {
-                            }
-                        }
-
-                        timer = IDLE_TIMER;
-                    }
-                    lastPosition = currentPosition;
-                }
-                Thread.sleep(timer);
-            } catch (InterruptedException e)
-            {
-            }
-        } while (run && timer > 0);
-    }
-
-    public void stop()
-    {
-        run = false;
-    }
+    private static final int IDLE_TIMER = 3000;
 
     /**
      * Finds the Away-Status of the protocols
@@ -168,17 +58,134 @@ public class StatusUpdateThread
         return status;
     }
 
-    public boolean isRunning()
-    {
-        return run;
-    }
-
-    private boolean isNear(Point p1, Point p2)
+    private static boolean isNear(Point p1, Point p2)
     {
         return
             (p1 != null)
                 && (p2 != null)
                 && (Math.abs(p1.x - p2.x) <= 10)
                 && (Math.abs(p1.y - p2.y) <= 10);
+    }
+
+    private Point lastPosition = null;
+
+    private final Map<ProtocolProviderService, PresenceStatus> lastStates
+        = new HashMap<ProtocolProviderService, PresenceStatus>();
+
+    private boolean run = false;
+
+    public boolean isRunning()
+    {
+        return run;
+    }
+
+    public void run()
+    {
+        run = true;
+        int timer = 0;
+        do
+        {
+            try
+            {
+                if (MouseInfo.getPointerInfo() != null)
+                {
+                    PointerInfo info = MouseInfo.getPointerInfo();
+                    Point currentPosition
+                        = (info != null) ? info.getLocation() : new Point(0, 0);
+
+                    if (!isNear(lastPosition, currentPosition))
+                    {
+                        // Position has changed check, if a minor state has been
+                        // automatically set and reset this state to the former
+                        // state.
+                        for (ProtocolProviderService protocolProvider
+                                : GeneralConfigPluginActivator.getProtocolProviders())
+                        {
+                            if (lastStates.get(protocolProvider) != null)
+                            {
+                                PresenceStatus lastState
+                                    = lastStates.get(protocolProvider);
+                                OperationSetPresence presence
+                                    = protocolProvider.getOperationSet(
+                                            OperationSetPresence.class);
+                                try
+                                {
+                                    presence
+                                        .publishPresenceStatus(lastState, "");
+                                }
+                                catch (IllegalArgumentException e)
+                                {
+                                }
+                                catch (IllegalStateException e)
+                                {
+                                }
+                                catch (OperationFailedException e)
+                                {
+                                }
+                                lastStates.remove(protocolProvider);
+                            }
+                        }
+                        timer = Preferences.getTimer() * 1000 * 60;
+                    }
+                    else
+                    {
+                        // Position has not changed! Get all protocols and set
+                        // them to away.
+                        for (ProtocolProviderService protocolProvider
+                                : GeneralConfigPluginActivator.getProtocolProviders())
+                        {
+                            OperationSetPresence presence
+                                = protocolProvider.getOperationSet(
+                                        OperationSetPresence.class);
+                            PresenceStatus status
+                                = presence.getPresenceStatus();
+
+                            if (status.getStatus()
+                                    < PresenceStatus.AVAILABLE_THRESHOLD)
+                            {
+                                // already (manually) set to away or lower
+                                continue;
+                            }
+
+                            lastStates.put(protocolProvider, status);
+
+                            PresenceStatus newStatus = findAwayStatus(presence);
+
+                            try
+                            {
+                                if (newStatus != null)
+                                {
+                                    presence.publishPresenceStatus(
+                                            newStatus,
+                                            newStatus.getStatusName());
+                                }
+                            }
+                            catch (IllegalArgumentException e)
+                            {
+                            }
+                            catch (IllegalStateException e)
+                            {
+                            }
+                            catch (OperationFailedException e)
+                            {
+                            }
+                        }
+
+                        timer = IDLE_TIMER;
+                    }
+                    lastPosition = currentPosition;
+                }
+                Thread.sleep(timer);
+            }
+            catch (InterruptedException e)
+            {
+            }
+        }
+        while (run && timer > 0);
+    }
+
+    public void stop()
+    {
+        run = false;
     }
 }

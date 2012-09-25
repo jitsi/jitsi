@@ -272,9 +272,9 @@ public abstract class MediaAwareCallPeer
      */
     public void reevalLocalHoldStatus()
     {
+        CallPeerState state = getState();
         boolean locallyOnHold = getMediaHandler().isLocallyOnHold();
 
-        CallPeerState state = getState();
         if (CallPeerState.ON_HOLD_LOCALLY.equals(state))
         {
             if (!locallyOnHold)

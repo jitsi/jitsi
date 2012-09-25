@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.service.protocol.event;
 
+import java.beans.*;
+
 import net.java.sip.communicator.service.protocol.*;
 
 /**
@@ -17,7 +19,7 @@ import net.java.sip.communicator.service.protocol.*;
  * @author Emil Ivov
  */
 public class CallChangeEvent
-    extends java.beans.PropertyChangeEvent
+    extends PropertyChangeEvent
 {
     /**
      * Serial version UID.
@@ -25,17 +27,10 @@ public class CallChangeEvent
     private static final long serialVersionUID = 0L;
 
     /**
-     * An event type indicating that the corresponding event is caused by a
-     * change of the Call state.
+     * The type of <tt>CallChangeEvent</tt> which indicates that the state of
+     * the associated <tt>Call</tt> has changed.
      */
     public static final String CALL_STATE_CHANGE = "CallState";
-
-    /**
-     * An event type indicating that the corresponding event is caused by a
-     * change of the Call he became focus for a conference call or was one
-     * and is no longer such.
-     */
-    public static final String CALL_FOCUS_CHANGE = "CallFocusState";
 
     /**
      * The event which was the cause for current event, like last peer
@@ -95,10 +90,13 @@ public class CallChangeEvent
      */
     public String toString()
     {
-
-        return "CallChangeEvent: type="+getEventType()
-            + " oldV="+getOldValue()
-            + " newV="+getNewValue();
+        return
+            "CallChangeEvent: type="
+                + getEventType()
+                + " oldV="
+                + getOldValue()
+                + " newV="
+                + getNewValue();
     }
 
     /**

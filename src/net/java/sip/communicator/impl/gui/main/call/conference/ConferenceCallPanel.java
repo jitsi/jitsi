@@ -203,14 +203,9 @@ public class ConferenceCallPanel
 
         addLocalCallPeer();
 
-        Iterator<? extends CallPeer> iterator;
-
-        iterator = this.call.getCallPeers();
-        while (iterator.hasNext())
-            addCallPeerPanel(iterator.next());
-        iterator = this.call.getCrossProtocolCallPeers();
-        while (iterator.hasNext())
-            addCallPeerPanel(iterator.next());
+        for (CallPeer conferenceCallPeer
+                : CallConference.getCallPeers(this.call))
+            addCallPeerPanel(conferenceCallPeer);
     }
 
     /**
@@ -221,10 +216,7 @@ public class ConferenceCallPanel
     public JScrollBar getVerticalScrollBar()
     {
         // If this is a video conference we may not have a scrollpane.
-        if (scrollPane != null)
-            return scrollPane.getVerticalScrollBar();
-
-        return null;
+        return (scrollPane == null) ? null : scrollPane.getVerticalScrollBar();
     }
 
     /**

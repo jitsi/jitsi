@@ -6,27 +6,43 @@
  */
 package net.java.sip.communicator.service.protocol;
 
+import java.beans.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 /**
- * A representation of a Call. The Call class must only be created by users (i.e.
- * telephony protocols) of the PhoneUIService such as a SIP protocol
- * implementation. Extensions of this class might have names like CallSipImpl
- * or CallJabberImpl or CallAnyOtherTelephonyProtocolImpl
+ * A representation of a call. <tt>Call</tt> instances must only be created by
+ * users (i.e. telephony protocols) of the PhoneUIService such as a SIP protocol
+ * implementation. Extensions of this class might have names like
+ * <tt>CallSipImpl</tt>, <tt>CallJabberImpl</tt>, or
+ * <tt>CallAnyOtherTelephonyProtocolImpl</tt>.
  *
  * @author Emil Ivov
  * @author Emanuel Onica
+ * @author Lyubomir Marinov
  */
 public abstract class Call
-    implements CallGroupListener
 {
     /**
      * Our class logger.
      */
     private static final Logger logger = Logger.getLogger(Call.class);
+
+    /**
+     * The name of the <tt>Call</tt> property which represents its telephony
+     * conference-related state.
+     */
+    public static final String CONFERENCE = "conference";
+
+    /**
+     * The name of the <tt>Call</tt> property which indicates whether the local
+     * peer/user represented by the respective <tt>Call</tt> is acting as a
+     * conference focus.
+     */
+    public static final String CONFERENCE_FOCUS
+        = "conferenceFocus";
 
     /**
      * An identifier uniquely representing the call.
@@ -38,7 +54,7 @@ public abstract class Call
      * <tt>CallChangeEvent</tt>s
      */
     private final List<CallChangeListener> callListeners
-                                            = new Vector<CallChangeListener>();
+        = new Vector<CallChangeListener>();
 
     /**
      * A reference to the ProtocolProviderService instance that created us.
@@ -63,6 +79,15 @@ public abstract class Call
      * The state that this call is currently in.
      */
     private CallState callState = CallState.CALL_INITIALIZATION;
+
+    /**
+     * The telephony conference-related state of this <tt>Call</tt>. Since a
+     * non-conference <tt>Call</tt> may be converted into a conference
+     * <tt>Call</tt> at any time, every <tt>Call</tt> instance maintains a
+     * <tt>CallConference</tt> instance regardless of whether the <tt>Call</tt>
+     * in question is participating in a telephony conference.
+     */
+    private CallConference conference;
 
     /**
      * Creates a new Call instance.
@@ -110,11 +135,9 @@ public abstract class Call
      */
     public boolean equals(Object obj)
     {
-        if(obj == null
-           || !(obj instanceof Call))
+        if ((obj == null) || !(obj instanceof Call))
             return false;
-        return (obj == this)
-           || ((Call)obj).getCallID().equals(getCallID());
+        return (obj == this) || ((Call)obj).getCallID().equals(getCallID());
     }
 
     /**
@@ -122,6 +145,7 @@ public abstract class Call
      *
      * @return  a hash code value for this call.
      */
+    @Override
     public int hashCode()
     {
         return getCallID().hashCode();
@@ -138,7 +162,7 @@ public abstract class Call
         synchronized(callListeners)
         {
             if(!callListeners.contains(listener))
-                this.callListeners.add(listener);
+                callListeners.add(listener);
         }
     }
 
@@ -151,7 +175,7 @@ public abstract class Call
     {
         synchronized(callListeners)
         {
-            this.callListeners.remove(listener);
+            callListeners.remove(listener);
         }
     }
 
@@ -175,16 +199,19 @@ public abstract class Call
      * newly created event.
      * @param eventID the ID of the event to create (see CPE member ints)
      */
-    protected void fireCallPeerEvent(CallPeer sourceCallPeer,
-                                     int      eventID)
+    protected void fireCallPeerEvent(CallPeer sourceCallPeer, int eventID)
     {
-        CallPeerEvent cpEvent = new CallPeerEvent(
-            sourceCallPeer, this, eventID);
+        CallPeerEvent event
+            = new CallPeerEvent(sourceCallPeer, this, eventID);
 
         if (logger.isDebugEnabled())
-            logger.debug("Dispatching a CallPeer event to "
+        {
+            logger.debug(
+                    "Dispatching a CallPeer event to "
                      + callListeners.size()
-                     +" listeners. event is: " + cpEvent.toString());
+                     +" listeners. The event is: "
+                     + event);
+        }
 
         Iterator<CallChangeListener> listeners;
         synchronized(callListeners)
@@ -198,9 +225,9 @@ public abstract class Call
             CallChangeListener listener = listeners.next();
 
             if(eventID == CallPeerEvent.CALL_PEER_ADDED)
-                listener.callPeerAdded(cpEvent);
+                listener.callPeerAdded(event);
             else if (eventID == CallPeerEvent.CALL_PEER_REMOVED)
-                listener.callPeerRemoved(cpEvent);
+                listener.callPeerRemoved(event);
 
         }
     }
@@ -210,10 +237,10 @@ public abstract class Call
      *
      * @return  a string representation of the object.
      */
+    @Override
     public String toString()
     {
-        return "Call: id=" + getCallID() + " peers="
-                           + getCallPeerCount();
+        return "Call: id=" + getCallID() + " peers=" + getCallPeerCount();
     }
 
     /**
@@ -265,7 +292,7 @@ public abstract class Call
             logger.debug(
                     "Dispatching a CallChange event to "
                         + callListeners.size()
-                        + " listeners. The CallChange event is: "
+                        + " listeners. The event is: "
                         + event);
         }
 
@@ -286,7 +313,7 @@ public abstract class Call
      * Returns the state that this call is currently in.
      *
      * @return a reference to the <tt>CallState</tt> instance that the call is
-     *         currently in.
+     * currently in.
      */
     public CallState getCallState()
     {
@@ -298,7 +325,7 @@ public abstract class Call
      * registered listeners for the change.
      *
      * @param newState a reference to the <tt>CallState</tt> instance that the
-     *            call is to enter.
+     * call is to enter.
      */
     protected void setCallState(CallState newState)
     {
@@ -323,10 +350,18 @@ public abstract class Call
         {
             this.callState = newState;
 
-            fireCallChangeEvent(
-                    CallChangeEvent.CALL_STATE_CHANGE,
-                    oldState, newState,
-                    cause);
+            try
+            {
+                fireCallChangeEvent(
+                        CallChangeEvent.CALL_STATE_CHANGE,
+                        oldState, this.callState,
+                        cause);
+            }
+            finally
+            {
+                if (CallState.CALL_ENDED.equals(getCallState()))
+                    setConference(null);
+            }
         }
     }
 
@@ -351,21 +386,6 @@ public abstract class Call
     }
 
     /**
-     * Sets the <tt>CallGroup</tt> of this <tt>Call</tt>.
-     *
-     * @param callGroup <tt>CallGroup</tt> to set
-     */
-    public abstract void setCallGroup(CallGroup callGroup);
-
-    /**
-     * Returns the <tt>CallGroup</tt> from which this <tt>Call</tt> belongs.
-     *
-     * @return <tt>CallGroup</tt> or null if the <tt>Call</tt> does not belongs
-     * to a <tt>CallGroup</tt>
-     */
-    public abstract CallGroup getCallGroup();
-
-    /**
      * Returns an iterator over all call peers.
      *
      * @return an Iterator over all peers currently involved in the call.
@@ -376,32 +396,16 @@ public abstract class Call
      * Returns the number of peers currently associated with this call.
      *
      * @return an <tt>int</tt> indicating the number of peers currently
-     *         associated with this call.
+     * associated with this call.
      */
     public abstract int getCallPeerCount();
 
     /**
-     * Returns an iterator over all cross-protocol call peers.
-     *
-     * @return an Iterator over all cross-protocol peers currently involved in
-     * the call.
-     */
-    public abstract Iterator<CallPeer> getCrossProtocolCallPeers();
-
-    /**
-     * Returns the number of cross-protocol peers currently associated with this
-     * call.
-     *
-     * @return an <tt>int</tt> indicating the number of cross-protocol peers
-     * currently associated with this call.
-     */
-    public abstract int getCrossProtocolCallPeerCount();
-
-    /**
      * Gets the indicator which determines whether the local peer represented by
-     * this <tt>Call</tt> is acting as a conference focus and thus should send
-     * the &quot;isfocus&quot; parameter in the Contact headers of its outgoing
-     * SIP signaling.
+     * this <tt>Call</tt> is acting as a conference focus. In the case of SIP,
+     * for example, it determines whether the local peer should send the
+     * &quot;isfocus&quot; parameter in the Contact headers of its outgoing SIP
+     * signaling.
      *
      * @return <tt>true</tt> if the local peer represented by this <tt>Call</tt>
      * is acting as a conference focus; otherwise, <tt>false</tt>
@@ -411,17 +415,135 @@ public abstract class Call
     /**
      * Adds a specific <tt>SoundLevelListener</tt> to the list of
      * listeners interested in and notified about changes in local sound level
-     * related information.
+     * information.
+     *
      * @param l the <tt>SoundLevelListener</tt> to add
      */
     public abstract void addLocalUserSoundLevelListener(SoundLevelListener l);
 
     /**
-     * Removes a specific <tt>SoundLevelListener</tt> of the list of
+     * Removes a specific <tt>SoundLevelListener</tt> from the list of
      * listeners interested in and notified about changes in local sound level
-     * related information.
+     * information.
+     *
      * @param l the <tt>SoundLevelListener</tt> to remove
      */
     public abstract void removeLocalUserSoundLevelListener(
-        SoundLevelListener l);
+            SoundLevelListener l);
+
+    /**
+     * Creates a new <tt>CallConference</tt> instance which is to represent the
+     * telephony conference-related state of this <tt>Call</tt>. If the method
+     * returns non-<tt>null</tt> reference, this <tt>Call</tt> will add itself
+     * to the returned reference via {@link CallConference#addCall(Call)}.
+     * Allows extenders to override and customize the runtime type of the
+     * <tt>CallConference</tt> to used by this <tt>Call</tt>.
+     * 
+     * @return a new <tt>CallConference</tt> instance which is to represent the
+     * telephony conference-related state of this <tt>Call</tt>
+     */
+    protected CallConference createConference()
+    {
+        return new CallConference();
+    }
+
+    /**
+     * Gets the telephony conference-related state of this <tt>Call</tt>. Since
+     * a non-conference <tt>Call</tt> may be converted into a conference
+     * <tt>Call</tt> at any time, every <tt>Call</tt> instance maintains a
+     * <tt>CallConference</tt> instance regardless of whether the <tt>Call</tt>
+     * in question is participating in a telephony conference.
+     *
+     * @return a <tt>CallConference</tt> instance which represents the
+     * telephony conference-related state of this <tt>Call</tt>.
+     */
+    public CallConference getConference()
+    {
+        if (conference == null)
+        {
+            CallConference newValue = createConference();
+
+            if (newValue == null)
+            {
+                /*
+                 * Call is documented to always have a telephony
+                 * conference-related state because there is an expectation that
+                 * a 1-to-1 Call can always be turned into a conference Call.
+                 */
+                throw new IllegalStateException("conference");
+            }
+            else
+                setConference(newValue);
+        }
+        return conference;
+    }
+
+    /**
+     * Sets the telephony conference-related state of this <tt>Call</tt>. If the
+     * invocation modifies this instance, it notifies the registered
+     * <tt>CallChangeListeners</tt> with a
+     * {@link CallChangeEvent#CALL_CONFERENCE_CHANGE} event.
+     *
+     * @param conference the <tt>CallConference</tt> instance to represent the
+     * telephony conference-related state of this <tt>Call</tt>
+     */
+    public void setConference(CallConference conference)
+    {
+        if (this.conference != conference)
+        {
+            CallConference oldValue = this.conference;
+
+            this.conference = conference;
+
+            CallConference newValue = this.conference;
+
+            if (oldValue != null)
+                oldValue.removeCall(this);
+            if (newValue != null)
+                newValue.addCall(this);
+
+            firePropertyChange(CONFERENCE, oldValue, newValue);
+        }
+    }
+
+    /**
+     * Adds a specific <tt>PropertyChangeListener</tt> to the list of listeners
+     * interested in and notified about changes in the values of the properties
+     * of this <tt>Call</tt>.
+     * 
+     * @param listener a <tt>PropertyChangeListener</tt> to be notified about
+     * changes in the values of the properties of this <tt>Call</tt>. If the
+     * specified listener is already in the list of interested listeners (i.e.
+     * it has been previously added), it is not added again.
+     */
+    public abstract void addPropertyChangeListener(
+            PropertyChangeListener listener);
+
+    /**
+     * Fires a new <tt>PropertyChangeEvent</tt> to the
+     * <tt>PropertyChangeListener</tt>s registered with this <tt>Call</tt> in
+     * order to notify about a change in the value of a specific property which
+     * had its old value modified to a specific new value.
+     * 
+     * @param property the name of the property of this <tt>Call</tt> which had
+     * its value changed
+     * @param oldValue the value of the property with the specified name before
+     * the change
+     * @param newValue the value of the property with the specified name after
+     * the change
+     */
+    protected abstract void firePropertyChange(
+            String property,
+            Object oldValue, Object newValue);
+
+    /**
+     * Removes a specific <tt>PropertyChangeListener</tt> from the list of
+     * listeners interested in and notified about changes in the values of the
+     * properties of this <tt>Call</tt>.
+     * 
+     * @param listener a <tt>PropertyChangeListener</tt> to no longer be
+     * notified about changes in the values of the properties of this <tt>Call</tt>
+     */
+    public abstract void removePropertyChangeListener(
+            PropertyChangeListener listener);
 }

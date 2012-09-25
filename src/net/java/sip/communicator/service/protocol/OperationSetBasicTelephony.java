@@ -111,7 +111,8 @@ public interface OperationSetBasicTelephony<T extends ProtocolProviderService>
      *
      * @param uri the address of the callee who we should invite to a new
      * <tt>Call</tt>
-     * @param group <tt>CallGroup</tt> from which the <tt>Call</tt> will belong
+     * @param conference the <tt>CallConference</tt> in which the newly-created
+     * <tt>Call</tt> is to participate
      * @return a newly created <tt>Call</tt>. The specified <tt>callee</tt> is
      * available in the <tt>Call</tt> as a <tt>CallPeer</tt>
      * @throws OperationFailedException with the corresponding code if we fail
@@ -119,7 +120,7 @@ public interface OperationSetBasicTelephony<T extends ProtocolProviderService>
      * @throws ParseException if <tt>callee</tt> is not a valid SIP address
      * <tt>String</tt>
      */
-    public Call createCall(String uri, CallGroup group)
+    public Call createCall(String uri, CallConference conference)
         throws OperationFailedException,
                ParseException;
 
@@ -129,13 +130,14 @@ public interface OperationSetBasicTelephony<T extends ProtocolProviderService>
      *
      * @param callee the address of the callee who we should invite to a new
      * call
-     * @param group <tt>CallGroup</tt> from which the <tt>Call</tt> will belong
+     * @param conference the <tt>CallConference</tt> in which the newly-created
+     * <tt>Call</tt> is to participate
      * @return a newly created <tt>Call</tt>. The specified <tt>callee</tt> is
      * available in the <tt>Call</tt> as a <tt>CallPeer</tt>
      * @throws OperationFailedException with the corresponding code if we fail
      * to create the call
      */
-    public Call createCall(Contact callee, CallGroup group)
+    public Call createCall(Contact callee, CallConference conference)
         throws OperationFailedException;
 
     /**

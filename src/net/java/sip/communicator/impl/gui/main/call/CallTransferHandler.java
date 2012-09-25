@@ -13,6 +13,8 @@ import java.util.*;
 
 import javax.swing.*;
 
+import org.jitsi.service.resources.*;
+
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
@@ -160,26 +162,30 @@ public class CallTransferHandler
                 {
                     Map<ProtocolProviderService, List<String>> callees =
                         new HashMap<ProtocolProviderService, List<String>>();
-                    List<String> lst = new ArrayList<String>();
 
-                    lst.add(callee);
-                    callees.put(provider, lst);
-                    CallManager.inviteToCrossProtocolConferenceCall(
-                        callees, call);
+                    callees.put(provider, Arrays.asList(callee));
+                    CallManager.inviteToConferenceCall(callees, call);
 
                     return true;
                 }
                 else
+                {
+                    ResourceManagementService resources
+                        = GuiActivator.getResources();
+                    AccountID accountID = callProvider.getAccountID();
+
                     new ErrorDialog(null,
-                        GuiActivator.getResources().getI18NString(
-                            "service.gui.ERROR"),
-                        GuiActivator.getResources().getI18NString(
-                            "service.gui.CALL_NOT_SUPPORTING_PARTICIPANT",
-                            new String[]{
-                                callProvider.getAccountID().getService(),
-                                callProvider.getAccountID().getUserID(),
-                                uiContact.getDisplayName()}))
+                        resources.getI18NString("service.gui.ERROR"),
+                        resources.getI18NString(
+                                "service.gui.CALL_NOT_SUPPORTING_PARTICIPANT",
+                                new String[]
+                                        {
+                                            accountID.getService(),
+                                            accountID.getUserID(),
+                                            uiContact.getDisplayName()
+                                        }))
                     .showDialog();
+                }
             }
         }
         else if (t.isDataFlavorSupported(DataFlavor.stringFlavor))

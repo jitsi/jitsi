@@ -129,6 +129,10 @@ public abstract class AbstractOperationSetTelephonyConferencing<
             OperationSetBasicTelephonyT oldValue,
             OperationSetBasicTelephonyT newValue)
     {
+        if (oldValue != null)
+            oldValue.removeCallListener(this);
+        if (newValue != null)
+            newValue.addCallListener(this);
     }
 
     /**
@@ -147,16 +151,19 @@ public abstract class AbstractOperationSetTelephonyConferencing<
     }
 
     /**
-     * Creates a conference call with the specified callees as call peers.
+     * Creates a conference <tt>Call</tt> with the specified callees as
+     * <tt>CallPeers</tt>.
      *
      * @param callees the list of addresses that we should call
-     * @param group the <tt>CallGroup</tt> or null
-     * @return the newly created conference call containing all CallPeers
-     * @throws OperationFailedException if establishing the conference call
-     * fails
-     * @see OperationSetTelephonyConferencing#createConfCall(String[])
+     * @param conference the <tt>CallConference</tt> which represents the state
+     * of the telephony conference into which the specified callees are to be
+     * invited
+     * @return the newly-created conference call containing all
+     * <tt>CallPeer</tt>s
+     * @throws OperationFailedException if establishing the conference
+     * <tt>Call</tt> fails
      */
-    public Call createConfCall(String[] callees, CallGroup group)
+    public Call createConfCall(String[] callees, CallConference conference)
         throws OperationFailedException
     {
         List<CalleeAddressT> calleeAddresses
@@ -167,36 +174,15 @@ public abstract class AbstractOperationSetTelephonyConferencing<
 
         MediaAwareCallT call = createOutgoingCall();
 
-        if(group != null && group.getCalls().size() > 0)
-        {
-            group.addCall(call);
-            call.setCallGroup(group);
-        }
-
-        call.setConferenceFocus(true);
+        if (conference == null)
+            conference = call.getConference();
+        else
+            call.setConference(conference);
+        conference.setConferenceFocus(true);
 
         for (CalleeAddressT calleeAddress : calleeAddresses)
-        {
-            boolean wasConferenceFocus;
+            doInviteCalleeToCall(calleeAddress, call);
 
-            if (call.isConferenceFocus())
-                wasConferenceFocus = true;
-            else
-            {
-                wasConferenceFocus = false;
-                call.setConferenceFocus(true);
-            }
-
-            CallPeer peer
-                = inviteCalleeToCall(calleeAddress, call, wasConferenceFocus);
-
-            // GTalk case
-            if (group != null && peer.getCall() != call)
-                group.addCall(peer.getCall());
-
-            if (group != null && call.getCallGroup() == null)
-                group.addCall(call);
-        }
         return call;
     }
 
@@ -242,44 +228,29 @@ public abstract class AbstractOperationSetTelephonyConferencing<
     {
         CalleeAddressT calleeAddress = parseAddressString(uri);
         @SuppressWarnings("unchecked")
-        MediaAwareCallT mediaAwareCall = (MediaAwareCallT) call;
-        boolean wasConferenceFocus;
+        MediaAwareCallT mediaAwareCallT = (MediaAwareCallT) call;
 
-        if (mediaAwareCall.isConferenceFocus())
-            wasConferenceFocus = true;
-        else
-        {
-            wasConferenceFocus = false;
-            mediaAwareCall.setConferenceFocus(true);
-        }
-        return
-            inviteCalleeToCall(
-                calleeAddress,
-                mediaAwareCall,
-                wasConferenceFocus);
+        mediaAwareCallT.getConference().setConferenceFocus(true);
+        return doInviteCalleeToCall(calleeAddress, mediaAwareCallT);
     }
 
     /**
-     * Invites a callee with a specific address to be joined in a specific
-     * <tt>Call</tt> in the sense of conferencing.
+     * Invites a callee with a specific address to join a specific <tt>Call</tt>
+     * for the purposes of telephony conferencing.
      *
      * @param calleeAddress the address of the callee to be invited to the
      * specified existing <tt>Call</tt>
      * @param call the existing <tt>Call</tt> to invite the callee with the
      * specified address to
-     * @param wasConferenceFocus the value of the <tt>conferenceFocus</tt>
-     * property of the specified <tt>call</tt> prior to the request to invite
-     * the specified <tt>calleeAddress</tt>
      * @return a new <tt>CallPeer</tt> instance which describes the signaling
      * and the media streaming of the newly-invited callee within the specified
      * <tt>Call</tt>
      * @throws OperationFailedException if inviting the specified callee to the
-     * specified call fails
+     * specified <tt>Call</tt> fails
      */
-    protected abstract CallPeer inviteCalleeToCall(
+    protected abstract CallPeer doInviteCalleeToCall(
             CalleeAddressT calleeAddress,
-            MediaAwareCallT call,
-            boolean wasConferenceFocus)
+            MediaAwareCallT call)
         throws OperationFailedException;
 
     /**
@@ -387,10 +358,7 @@ public abstract class AbstractOperationSetTelephonyConferencing<
      */
     private void callPeersChanged(CallPeerEvent event)
     {
-        Call call = event.getSourceCall();
-
-        notifyAll(call);
-        notifyCallsInGroup(call);
+        notifyAll(event.getSourceCall());
     }
 
     /**
@@ -416,14 +384,14 @@ public abstract class AbstractOperationSetTelephonyConferencing<
                 || CallPeerMediaHandler.VIDEO_REMOTE_SSRC.equals(
                         propertyName))
         {
-            Call call = ((CallPeerMediaHandler<MediaAwareCallPeerT>)
-                    event.getSource()).getPeer().getCall();
+            Call call
+                = ((CallPeerMediaHandler<MediaAwareCallPeerT>)
+                        event.getSource())
+                    .getPeer()
+                        .getCall();
 
             if (call != null)
-            {
                 notifyAll(call);
-                notifyCallsInGroup(call);
-            }
         }
     }
 
@@ -518,37 +486,51 @@ public abstract class AbstractOperationSetTelephonyConferencing<
     }
 
     /**
-     * Notify the <tt>Call</tt>s in the <tt>CallGroup</tt> if any.
+     * Notifies all <tt>CallPeer</tt>s associated with the telephony conference
+     * in which a specific <tt>Call</tt> is participating about changes in the
+     * telephony conference-related information.
      *
-     * @param call the <tt>Call</tt>
+     * @param call the <tt>Call</tt> which specifies the telephony conference
+     * the associated <tt>CallPeer</tt>s of which are to be notified about
+     * changes in the telephony conference-related information
      */
-    private void notifyCallsInGroup(Call call)
+    @SuppressWarnings("rawtypes")
+    protected void notifyAll(Call call)
     {
-        if(call.getCallGroup() != null)
-        {
-            CallGroup group = call.getCallGroup();
-            for(Call c : group.getCalls())
-            {
-                if(c == call)
-                    continue;
+        CallConference conference = call.getConference();
 
-                AbstractOperationSetTelephonyConferencing<?,?,?,?,?> opSet =
-                    (AbstractOperationSetTelephonyConferencing<?,?,?,?,?>)
-                    c.getProtocolProvider().getOperationSet(
-                        OperationSetTelephonyConferencing.class);
-                if(opSet != null)
+        if (conference == null)
+            notifyCallPeers(call);
+        else
+        {
+            /*
+             * Make each Call notify its CallPeers through its
+             * OperationSetBasicTelephony (i.e. its protocol).
+             */
+            for (Call conferenceCall : conference.getCalls())
+            {
+                OperationSetTelephonyConferencing opSet
+                    = conferenceCall.getProtocolProvider().getOperationSet(
+                            OperationSetTelephonyConferencing.class);
+
+                if (opSet instanceof AbstractOperationSetTelephonyConferencing)
                 {
-                    opSet.notifyAll(c);
+                    ((AbstractOperationSetTelephonyConferencing) opSet)
+                        .notifyCallPeers(conferenceCall);
                 }
             }
         }
     }
 
     /**
-     * Notifies all CallPeer associated with and established in a
-     * specific call for conference information.
+     * Notifies all <tt>CallPeer</tt>s associated with a specific <tt>Call</tt>
+     * about changes in the telephony conference-related information. In
+     * contrast, {@link #notifyAll()} notifies all <tt>CallPeer</tt>s associated
+     * with the telephony conference in which a specific <tt>Call</tt> is
+     * participating.
      *
-     * @param call the <tt>Call</tt>
+     * @param call the <tt>Call</tt> whose <tt>CallPeer</tt>s are to be notified
+     * about changes in the telephony conference-related information
      */
-    protected abstract void notifyAll(Call call);
+    protected abstract void notifyCallPeers(Call call);
 }

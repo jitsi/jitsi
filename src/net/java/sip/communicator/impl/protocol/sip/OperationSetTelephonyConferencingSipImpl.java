@@ -275,25 +275,6 @@ public class OperationSetTelephonyConferencingSipImpl
     }
 
     /**
-     * Notifies this <tt>OperationSetTelephonyConferencing</tt> that its
-     * <tt>basicTelephony</tt> property has changed its value from a specific
-     * <tt>oldValue</tt> to a specific <tt>newValue</tt>
-     *
-     * @param oldValue the old value of the <tt>basicTelephony</tt> property
-     * @param newValue the new value of the <tt>basicTelephony</tt> property
-     */
-    @Override
-    protected void basicTelephonyChanged(
-            OperationSetBasicTelephonySipImpl oldValue,
-            OperationSetBasicTelephonySipImpl newValue)
-    {
-        if (oldValue != null)
-            oldValue.removeCallListener(this);
-        if (newValue != null)
-            newValue.addCallListener(this);
-    }
-
-    /**
      * Notifies this <tt>CallChangeListener</tt> that a specific
      * <tt>CallPeer</tt> has been added to a specific <tt>Call</tt>.
      *
@@ -304,11 +285,10 @@ public class OperationSetTelephonyConferencingSipImpl
     {
         super.callPeerAdded(event);
 
-        if(!(event.getSourceCallPeer() instanceof CallPeerSipImpl))
-            return;
+        CallPeer callPeer = event.getSourceCallPeer();
 
-        CallPeerSipImpl callPeer = (CallPeerSipImpl) event.getSourceCallPeer();
-        callPeer.addMethodProcessorListener(this);
+        if (callPeer instanceof CallPeerSipImpl)
+            ((CallPeerSipImpl) callPeer).addMethodProcessorListener(this);
     }
 
     /**
@@ -320,8 +300,11 @@ public class OperationSetTelephonyConferencingSipImpl
      */
     public void callPeerRemoved(CallPeerEvent event)
     {
-        CallPeerSipImpl callPeer = (CallPeerSipImpl) event.getSourceCallPeer();
-        callPeer.removeMethodProcessorListener(this);
+        CallPeer callPeer = event.getSourceCallPeer();
+
+        if (callPeer instanceof CallPeerSipImpl)
+            ((CallPeerSipImpl) callPeer).removeMethodProcessorListener(this);
+
         super.callPeerRemoved(event);
     }
 
@@ -368,34 +351,6 @@ public class OperationSetTelephonyConferencingSipImpl
         }
 
         StringBuffer xml = new StringBuffer();
-        CallSipImpl call = callPeer.getCall();
-        List<CallPeer> crossPeers = new ArrayList<CallPeer>();
-        Iterator<CallPeer> crossProtocolCallPeerIter =
-            call.getCrossProtocolCallPeers();
-
-        while (crossProtocolCallPeerIter.hasNext())
-        {
-            MediaAwareCallPeer<?,?,?> crossPeer =
-                (MediaAwareCallPeer<?,?,?>)crossProtocolCallPeerIter.next();
-            Iterator<CallPeerSipImpl> it = call.getCallPeers();
-            boolean found = false;
-
-            while(it.hasNext())
-            {
-                CallPeerSipImpl cpsip = it.next();
-                if(cpsip.getAddress().equals(crossPeer.getAddress()))
-                {
-                    found = true;
-                    break;
-                }
-            }
-
-            if(found)
-                continue;
-
-            if(!crossPeers.contains(crossPeer))
-                crossPeers.add(crossPeer);
-        }
 
         xml.append( "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n");
         // <conference-info>
@@ -412,8 +367,11 @@ public class OperationSetTelephonyConferencingSipImpl
         append(xml, "<", ELEMENT_CONFERENCE_STATE, ">");
         // <user-count>
         append(xml, "<", ELEMENT_USER_COUNT, ">");
-        xml.append(call.getCallPeerCount() + 1 +
-            call.getCrossProtocolCallPeerCount());
+
+        CallSipImpl call = callPeer.getCall();
+        List<CallPeer> conferenceCallPeers = CallConference.getCallPeers(call);
+
+        xml.append(1 /* the local peer/user */ + conferenceCallPeers.size());
         // </user-count>
         append(xml, "</", ELEMENT_USER_COUNT, ">");
         // </conference-state>
@@ -452,17 +410,8 @@ public class OperationSetTelephonyConferencingSipImpl
         // </user>
         append(xml, "</", ELEMENT_USER, ">");
 
-        Iterator<CallPeerSipImpl> callPeerIter = call.getCallPeers();
-
-        while (callPeerIter.hasNext())
-            getUserXML(callPeerIter.next(), xml);
-
-        for(CallPeer cp : crossPeers)
-        {
-            MediaAwareCallPeer<?,?,?> crossPeer =
-                (MediaAwareCallPeer<?,?,?>)cp;
-            getUserXML(crossPeer, xml);
-        }
+        for (CallPeer conferenceCallPeer : conferenceCallPeers)
+            getUserXML(conferenceCallPeer, xml);
 
         // </users>
         append(xml, "</", ELEMENT_USERS, ">");
@@ -566,7 +515,7 @@ public class OperationSetTelephonyConferencingSipImpl
      * an <tt>endpoint</tt> XML element and which describes the state of the
      * specified <tt>callPeer</tt>
      */
-    private String getEndpointStatusXML(MediaAwareCallPeer<?,?,?> callPeer)
+    private String getEndpointStatusXML(CallPeer callPeer)
     {
         CallPeerState callPeerState = callPeer.getState();
 
@@ -674,18 +623,17 @@ public class OperationSetTelephonyConferencingSipImpl
      * tree describing the conference participation of the specified
      * <tt>callPeer</tt> to
      */
-    private void getUserXML(MediaAwareCallPeer<?,?,?> callPeer,
-        StringBuffer xml)
+    private void getUserXML(CallPeer callPeer, StringBuffer xml)
     {
         // <user>
         append(xml, "<", ELEMENT_USER);
         // entity
         append(
-            xml,
-            " entity=\"",
-            domElementWriter
-                .encode(stripParametersFromAddress(callPeer.getURI())),
-            "\"");
+                xml,
+                " entity=\"",
+                domElementWriter.encode(
+                        stripParametersFromAddress(callPeer.getURI())),
+                "\"");
         // state
         xml.append(" state=\"full\">");
 
@@ -712,7 +660,8 @@ public class OperationSetTelephonyConferencingSipImpl
             // </status>
             append(xml, "</", ELEMENT_STATUS, ">");
         }
-        getMediaXML(callPeer, true, xml);
+        if (callPeer instanceof MediaAwareCallPeer<?,?,?>)
+            getMediaXML((MediaAwareCallPeer<?,?,?>) callPeer, true, xml);
         // </endpoint>
         append(xml, "</", ELEMENT_ENDPOINT, ">");
         // </user>
@@ -720,36 +669,18 @@ public class OperationSetTelephonyConferencingSipImpl
     }
 
     /**
-     * Invites a callee with a specific SIP <tt>Address</tt> to be joined in a
-     * specific <tt>Call</tt> in the sense of SIP conferencing.
+     * {@inheritDoc}
      *
-     * @param calleeAddress the SIP <tt>Address</tt> of the callee to be invited
-     * to the specified existing <tt>Call</tt>
-     * @param call the existing <tt>Call</tt> to invite the callee with the
-     * specified SIP <tt>calleeAddress</tt> to
-     * @param wasConferenceFocus the value of the <tt>conferenceFocus</tt>
-     * property of the specified <tt>call</tt> prior to the request to invite
-     * the specified <tt>calleeAddress</tt>
-     * @return a new SIP <tt>CallPeer</tt> instance which describes the SIP
-     * signaling and the media streaming of the newly-invited callee within the
-     * specified <tt>Call</tt>
-     * @throws OperationFailedException if inviting the specified callee to the
-     * specified call fails
+     * Implements the protocol-dependent part of the logic of inviting a callee
+     * to a <tt>Call</tt>. The protocol-independent part of that logic is
+     * implemented by
+     * {@link AbstractOperationSetTelephonyConferencing#inviteCalleToCall(String,Call)}.
      */
-    protected CallPeerSipImpl inviteCalleeToCall(
+    protected CallPeerSipImpl doInviteCalleeToCall(
             Address calleeAddress,
-            CallSipImpl call,
-            boolean wasConferenceFocus)
+            CallSipImpl call)
         throws OperationFailedException
     {
-        if (!wasConferenceFocus && call.isConferenceFocus())
-        {
-            Iterator<CallPeerSipImpl> callPeerIter = call.getCallPeers();
-
-            while (callPeerIter.hasNext())
-                callPeerIter.next().sendReInvite();
-        }
-
         return call.invite(calleeAddress, null);
     }
 
@@ -822,14 +753,16 @@ public class OperationSetTelephonyConferencingSipImpl
     }
 
     /**
-     * Notifies all <tt>Subscription</tt>s associated with and established in a
-     * specific <tt>Call</tt> about an <tt>ACTIVE</tt> subscription state
-     * without a reason for that subscription state.
+     * Notifies all <tt>CallPeer</tt>s associated with a specific <tt>Call</tt>
+     * about changes in the telephony conference-related information. In
+     * contrast, {@link #notifyAll()} notifies all <tt>CallPeer</tt>s associated
+     * with the telephony conference in which a specific <tt>Call</tt> is
+     * participating.
      *
-     * @param call the <tt>Call</tt> in which the <tt>Subscription</tt>s to be
-     * notified have been established
+     * @param call the <tt>Call</tt> whose <tt>CallPeer</tt>s are to be notified
+     * about changes in the telephony conference-related information
      */
-    protected void notifyAll(Call call)
+    protected void notifyCallPeers(Call call)
     {
         notifyAll(SubscriptionStateHeader.ACTIVE, null, call);
     }
@@ -1021,9 +954,8 @@ public class OperationSetTelephonyConferencingSipImpl
                             conferenceMembersToRemove[conferenceMemberIndex];
 
                     if ((conferenceMember != null)
-                            && address
-                                    .equalsIgnoreCase(
-                                        conferenceMember.getAddress()))
+                            && address.equalsIgnoreCase(
+                                    conferenceMember.getAddress()))
                     {
                         conferenceMembersToRemove[conferenceMemberIndex] = null;
                         existingConferenceMember = conferenceMember;
@@ -1105,9 +1037,13 @@ public class OperationSetTelephonyConferencingSipImpl
                             = peerVideoStream.getVisualComponent(newSsrc);
 
                         if (visualComponent != null)
-                            callPeer.getMediaHandler()
-                                .fireVisualComponentResolveEvent(
-                                    visualComponent, existingConferenceMember);
+                        {
+                            callPeer
+                                .getMediaHandler()
+                                    .fireVisualComponentResolveEvent(
+                                            visualComponent,
+                                            existingConferenceMember);
+                        }
                     }
 
                     if (addConferenceMember)
@@ -1131,7 +1067,7 @@ public class OperationSetTelephonyConferencingSipImpl
                 callPeer.removeConferenceMember(conferenceMemberToRemove);
         }
 
-        if(changed)
+        if (changed)
             notifyAll(callPeer.getCall());
     }
 

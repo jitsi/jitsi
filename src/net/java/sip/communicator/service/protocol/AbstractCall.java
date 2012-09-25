@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.service.protocol;
 
+import java.beans.*;
 import java.util.*;
 
 /**
@@ -19,6 +20,7 @@ import java.util.*;
  * <tt>ProtocolProviderServiceJabberImpl</tt>
  *
  * @author Emil Ivov
+ * @author Lyubomir Marinov
  */
 public abstract class AbstractCall<T extends CallPeer,
                                    U extends ProtocolProviderService>
@@ -27,18 +29,14 @@ public abstract class AbstractCall<T extends CallPeer,
     /**
      * A list containing all <tt>CallPeer</tt>s of this call.
      */
-    private Vector<T> callPeers = new Vector<T>();
+    private final Vector<T> callPeers = new Vector<T>();
 
     /**
-     * List of <tt>CallPeer</tt> from other protocol (cross-protocol conference
-     * call).
+     * The <tt>PropertyChangeSupport</tt> which helps this instance with
+     * <tt>PropertyChangeListener</tt>s.
      */
-    private Vector<CallPeer> crossProtocolCallPeers = new Vector<CallPeer>();
-
-    /**
-     * The <tt>CallGroup</tt> of this <tt>Call</tt>.
-     */
-    protected CallGroup callGroup = null;
+    private final PropertyChangeSupport propertyChangeSupport
+        = new PropertyChangeSupport(this);
 
     /**
      * Creates a new Call instance.
@@ -51,9 +49,32 @@ public abstract class AbstractCall<T extends CallPeer,
     }
 
     /**
+     * {@inheritDoc}
+     *
+     * Delegates to {@link #propertyChangeSupport}.
+     */
+    public void addPropertyChangeListener(PropertyChangeListener listener)
+    {
+        propertyChangeSupport.addPropertyChangeListener(listener);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Delegates to {@link #propertyChangeSupport}.
+     */
+    protected void firePropertyChange(
+            String property,
+            Object oldValue, Object newValue)
+    {
+        propertyChangeSupport.firePropertyChange(property, oldValue, newValue);
+    }
+
+    /**
      * Returns an iterator over all call peers.
      *
-     * @return an Iterator over all peers currently involved in the call.
+     * @return an <tt>Iterator</tt> over all peers currently involved in this
+     * call.
      */
     public Iterator<T> getCallPeers()
     {
@@ -64,7 +85,7 @@ public abstract class AbstractCall<T extends CallPeer,
      * Returns the number of peers currently associated with this call.
      *
      * @return an <tt>int</tt> indicating the number of peers currently
-     *         associated with this call.
+     * associated with this call.
      */
     public int getCallPeerCount()
     {
@@ -76,7 +97,7 @@ public abstract class AbstractCall<T extends CallPeer,
      * part of this call. This method should eventually be removed and code
      * that is using it in the descendants should be brought here.
      *
-     * @return  the {@link Vector} containing {@link CallPeer}s currently
+     * @return the {@link Vector} containing {@link CallPeer}s currently
      * participating in this call.
      */
     protected Vector<T> getCallPeersVector()
@@ -85,48 +106,10 @@ public abstract class AbstractCall<T extends CallPeer,
     }
 
     /**
-     * Returns an iterator over all cross-protocol call peers.
-     *
-     * @return an Iterator over all cross-protocol peers currently involved in
-     * the call.
-     */
-    public Iterator<CallPeer> getCrossProtocolCallPeers()
-    {
-        return new LinkedList<CallPeer>(getCrossProtocolCallPeersVector()).
-            iterator();
-    }
-
-    /**
-     * Returns the number of cross-protocol peers currently associated with this
-     * call.
-     *
-     * @return an <tt>int</tt> indicating the number of cross-protocol peers
-     * currently associated with this call.
-     */
-    public int getCrossProtocolCallPeerCount()
-    {
-        return crossProtocolCallPeers.size();
-    }
-
-    /**
-     * Returns the {@link Vector} containing cross-protocol {@link CallPeer}s
-     * currently part of this call. This method should eventually be removed and
-     * code that is using it in the descendants should be brought here.
-     *
-     * @return  the {@link Vector} containing cross-protocol {@link CallPeer}s
-     * currently participating in this call.
-     */
-    protected Vector<CallPeer> getCrossProtocolCallPeersVector()
-    {
-        return crossProtocolCallPeers;
-    }
-
-    /**
      * Returns a reference to the <tt>ProtocolProviderService</tt> instance
      * that created this call.
      *
-     * @return a reference to the <tt>ProtocolProviderService</tt> instance that
-     * created this call.
+     * @return the <tt>ProtocolProviderService</tt> that created this call.
      */
     @SuppressWarnings("unchecked")
     public U getProtocolProvider()
@@ -135,23 +118,12 @@ public abstract class AbstractCall<T extends CallPeer,
     }
 
     /**
-     * Returns the <tt>CallGroup</tt> from which this <tt>Call</tt> belongs.
+     * {@inheritDoc}
      *
-     * @return <tt>CallGroup</tt> or null if the <tt>Call</tt> does not belongs
-     * to a <tt>CallGroup</tt>
+     * Delegates to {@link #propertyChangeSupport}.
      */
-    public CallGroup getCallGroup()
+    public void removePropertyChangeListener(PropertyChangeListener listener)
     {
-        return callGroup;
-    }
-
-    /**
-     * Sets the <tt>CallGroup</tt> of this <tt>Call</tt>.
-     *
-     * @param callGroup <tt>CallGroup</tt> to set
-     */
-    public void setCallGroup(CallGroup callGroup)
-    {
-        this.callGroup = callGroup;
+        propertyChangeSupport.removePropertyChangeListener(listener);
     }
 }

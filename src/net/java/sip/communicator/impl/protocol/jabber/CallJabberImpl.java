@@ -83,353 +83,6 @@ public class CallJabberImpl
     }
 
     /**
-     * Creates a new call peer and sends a RINGING response.
-     *
-     * @param jingleIQ the {@link JingleIQ} that created the session.
-     *
-     * @return the newly created {@link CallPeerJabberImpl} (the one that sent
-     * the INVITE).
-     */
-    public CallPeerJabberImpl processSessionInitiate(JingleIQ jingleIQ)
-    {
-        String remoteParty = jingleIQ.getInitiator();
-        boolean autoAnswer = false;
-        CallPeerJabberImpl attendant = null;
-        OperationSetBasicTelephonyJabberImpl basicTelephony = null;
-
-        //according to the Jingle spec initiator may be null.
-        if (remoteParty == null)
-            remoteParty = jingleIQ.getFrom();
-
-        CallPeerJabberImpl callPeer
-            = new CallPeerJabberImpl(remoteParty, this, jingleIQ);
-
-        addCallPeer(callPeer);
-
-        /*
-         * We've already sent ack to the specified session-initiate so if it has
-         * been sent as part of an attended transfer, we have to hang up on the
-         * attendant.
-         */
-        try
-        {
-            TransferPacketExtension transfer
-                = (TransferPacketExtension)
-                    jingleIQ.getExtension(
-                            TransferPacketExtension.ELEMENT_NAME,
-                            TransferPacketExtension.NAMESPACE);
-
-            if (transfer != null)
-            {
-                String sid = transfer.getSID();
-
-                if (sid != null)
-                {
-                    ProtocolProviderServiceJabberImpl protocolProvider
-                        = getProtocolProvider();
-                    basicTelephony
-                        = (OperationSetBasicTelephonyJabberImpl)
-                            protocolProvider.getOperationSet(
-                                    OperationSetBasicTelephony.class);
-                    CallJabberImpl attendantCall
-                        = basicTelephony
-                            .getActiveCallsRepository()
-                                .findSID(sid);
-
-                    if (attendantCall != null)
-                    {
-                        attendant = attendantCall.getPeer(sid);
-                        if ((attendant != null)
-                                && basicTelephony
-                                    .getFullCalleeURI(attendant.getAddress())
-                                        .equals(transfer.getFrom())
-                                && protocolProvider.getOurJID().equals(
-                                        transfer.getTo()))
-                        {
-                            //basicTelephony.hangupCallPeer(attendant);
-                            autoAnswer = true;
-                        }
-                    }
-                }
-            }
-        }
-        catch (Throwable t)
-        {
-            logger.error(
-                    "Failed to hang up on attendant"
-                        + " as part of session transfer",
-                    t);
-
-            if (t instanceof ThreadDeath)
-                throw (ThreadDeath) t;
-        }
-
-        CoinPacketExtension coin
-            = (CoinPacketExtension)
-                jingleIQ.getExtension(
-                        CoinPacketExtension.ELEMENT_NAME,
-                        CoinPacketExtension.NAMESPACE);
-
-        if (coin != null)
-        {
-            boolean b
-                = Boolean.parseBoolean(
-                        (String)
-                            coin.getAttribute(
-                                    CoinPacketExtension.ISFOCUS_ATTR_NAME));
-
-            callPeer.setConferenceFocus(b);
-        }
-
-        //before notifying about this call, make sure that it looks alright
-        callPeer.processSessionInitiate(jingleIQ);
-
-        // if paranoia is set, to accept the call we need to know that
-        // the other party has support for media encryption
-        if (getProtocolProvider().getAccountID().getAccountPropertyBoolean(
-                ProtocolProviderFactory.MODE_PARANOIA, false)
-            && callPeer.getMediaHandler().getAdvertisedEncryptionMethods()
-                    .length
-                == 0)
-        {
-            //send an error response;
-            String reasonText
-                = JabberActivator.getResources().getI18NString(
-                        "service.gui.security.encryption.required");
-            JingleIQ errResp
-                = JinglePacketFactory.createSessionTerminate(
-                        jingleIQ.getTo(),
-                        jingleIQ.getFrom(),
-                        jingleIQ.getSID(),
-                        Reason.SECURITY_ERROR,
-                        reasonText);
-
-            callPeer.setState(CallPeerState.FAILED, reasonText);
-            getProtocolProvider().getConnection().sendPacket(errResp);
-
-            return null;
-        }
-
-        if (callPeer.getState() == CallPeerState.FAILED)
-            return null;
-
-        callPeer.setState( CallPeerState.INCOMING_CALL );
-
-        // in case of attended transfer, auto answer the call
-        if (autoAnswer)
-        {
-            /* answer directly */
-            try
-            {
-                callPeer.answer();
-            }
-            catch(Exception e)
-            {
-                logger.info(
-                        "Exception occurred while answer transferred call",
-                        e);
-                callPeer = null;
-            }
-
-            // hang up now
-            try
-            {
-                basicTelephony.hangupCallPeer(attendant);
-            }
-            catch(OperationFailedException e)
-            {
-                logger.error(
-                        "Failed to hang up on attendant as part of session"
-                            + " transfer",
-                        e);
-            }
-
-            return callPeer;
-        }
-
-        /* see if offer contains audio and video so that we can propose
-         * option to the user (i.e. answer with video if it is a video call...)
-         */
-        List<ContentPacketExtension> offer
-            = callPeer.getSessionIQ().getContentList();
-        Map<MediaType, MediaDirection> directions
-            = new HashMap<MediaType, MediaDirection>();
-
-        directions.put(MediaType.AUDIO, MediaDirection.INACTIVE);
-        directions.put(MediaType.VIDEO, MediaDirection.INACTIVE);
-
-        for (ContentPacketExtension c : offer)
-        {
-            String contentName = c.getName();
-            MediaDirection remoteDirection
-                = JingleUtils.getDirection(c, callPeer.isInitiator());
-
-            if (MediaType.AUDIO.toString().equals(contentName))
-                directions.put(MediaType.AUDIO, remoteDirection);
-            else if (MediaType.VIDEO.toString().equals(contentName))
-                directions.put(MediaType.VIDEO, remoteDirection);
-        }
-
-        // if this was the first peer we added in this call then the call is
-        // new and we also need to notify everyone of its creation.
-        if ((getCallPeerCount() == 1) && (getCallGroup() == null))
-        {
-            parentOpSet.fireCallEvent(
-                    CallEvent.CALL_RECEIVED,
-                    this,
-                    directions);
-        }
-
-        // Manages auto answer with "audio only", or "audio / video" answer.
-        OperationSetAutoAnswerJabberImpl autoAnswerOpSet
-            = (OperationSetAutoAnswerJabberImpl)
-                getProtocolProvider().getOperationSet(
-                    OperationSetBasicAutoAnswer.class);
-
-        if (autoAnswerOpSet != null)
-            autoAnswerOpSet.autoAnswer(this, directions);
-
-        return callPeer;
-    }
-
-    /**
-     * Creates a <tt>CallPeerJabberImpl</tt> from <tt>calleeJID</tt> and sends
-     * them <tt>session-initiate</tt> IQ request.
-     *
-     * @param calleeJID the party that we would like to invite to this call.
-     * @param discoverInfo any discovery information that we have for the jid
-     * we are trying to reach and that we are passing in order to avoid having
-     * to ask for it again.
-     * @param sessionInitiateExtensions a collection of additional and optional
-     * <tt>PacketExtension</tt>s to be added to the <tt>session-initiate</tt>
-     * {@link JingleIQ} which is to init this <tt>CallJabberImpl</tt>
-     *
-     * @return the newly created <tt>Call</tt> corresponding to
-     * <tt>calleeJID</tt>. All following state change events will be
-     * delivered through this call peer.
-     *
-     * @throws OperationFailedException  with the corresponding code if we fail
-     *  to create the call.
-     */
-    public CallPeerJabberImpl initiateSession(
-            String calleeJID,
-            DiscoverInfo discoverInfo,
-            Iterable<PacketExtension> sessionInitiateExtensions)
-        throws OperationFailedException
-    {
-        // create the session-initiate IQ
-        CallPeerJabberImpl callPeer = new CallPeerJabberImpl(calleeJID, this);
-
-        callPeer.setDiscoverInfo(discoverInfo);
-
-        addCallPeer(callPeer);
-
-        callPeer.setState(CallPeerState.INITIATING_CALL);
-
-        // if this was the first peer we added in this call then the call is
-        // new and we also need to notify everyone of its creation.
-        CallGroup callGroup = getCallGroup();
-
-        if ((getCallPeerCount() == 1) && (callGroup == null))
-        {
-            parentOpSet.fireCallEvent(CallEvent.CALL_INITIATED, this);
-        }
-        else if (callGroup != null)
-        {
-            // only TelephonyConferencing OperationSet should know about it
-            CallEvent event = new CallEvent(this, CallEvent.CALL_INITIATED);
-            AbstractOperationSetTelephonyConferencing<?,?,?,?,?> opSet
-                = (AbstractOperationSetTelephonyConferencing<?,?,?,?,?>)
-                    getProtocolProvider().getOperationSet(
-                            OperationSetTelephonyConferencing.class);
-
-            if (opSet != null)
-                opSet.outgoingCallCreated(event);
-        }
-
-        CallPeerMediaHandlerJabberImpl mediaHandler
-            = callPeer.getMediaHandler();
-
-        /* enable video if it is a video call */
-        mediaHandler.setLocalVideoTransmissionEnabled(localVideoAllowed);
-        /* enable remote-control if it is a desktop sharing session */
-        mediaHandler.setLocalInputEvtAware(getLocalInputEvtAware());
-
-        /*
-         * Set call state to connecting so that the user interface would start
-         * playing the tones. We do that here because we may be harvesting
-         * STUN/TURN addresses in initiateSession() which would take a while.
-         */
-        callPeer.setState(CallPeerState.CONNECTING);
-
-        // if initializing session fails, set peer to failed
-        boolean sessionInitiated = false;
-
-        try
-        {
-            callPeer.initiateSession(sessionInitiateExtensions);
-            sessionInitiated = true;
-        }
-        finally
-        {
-            // if initialization throws an exception
-            if (!sessionInitiated)
-                callPeer.setState(CallPeerState.FAILED);
-        }
-        return callPeer;
-    }
-
-    /**
-     * Sends a <tt>content-modify</tt> message to each of the current
-     * <tt>CallPeer</tt>s to reflect a possible change in the media setup
-     * related to video.
-     *
-     * @param allowed <tt>true</tt> if the streaming of the local video to the
-     * remote peer is allowed; otherwise, <tt>false</tt>
-     * @throws OperationFailedException if a problem occurred during message
-     * generation or there was a network problem
-     */
-    public void modifyVideoContent(boolean allowed)
-        throws OperationFailedException
-    {
-        if (logger.isInfoEnabled())
-        {
-            logger.info(
-                    (allowed ? "Start" : "Stop") + " local video streaming");
-        }
-
-        for (CallPeerJabberImpl peer : getCallPeersVector())
-            peer.sendModifyVideoContent(allowed);
-    }
-
-    /**
-     * Notifies this instance that a specific <tt>Call</tt> has been added to a
-     * <tt>CallGroup</tt>.
-     *
-     * @param evt a <tt>CallGroupEvent</tt> which specifies the <tt>Call</tt>
-     * which has been added to a <tt>CallGroup</tt>
-     * @see MediaAwareCall#callAdded(CallGroupEvent)
-     */
-    @Override
-    public void callAdded(CallGroupEvent evt)
-    {
-        Iterator<CallPeerJabberImpl> peers = getCallPeers();
-
-        // reflect conference focus
-        while(peers.hasNext())
-        {
-            setConferenceFocus(true);
-
-            CallPeerJabberImpl callPeer = peers.next();
-
-            if(callPeer.getState() == CallPeerState.CONNECTED)
-                callPeer.sendCoinSessionInfo(true);
-        }
-
-        super.callAdded(evt);
-    }
-
-    /**
      * Closes a specific <tt>CobriStreamConnector</tt> which is associated with
      * a <tt>MediaStream</tt> of a specific <tt>MediaType</tt> upon request from
      * a specific <tt>CallPeer</tt>.
@@ -447,6 +100,34 @@ public class CallJabberImpl
             CobriStreamConnector cobriStreamConnector)
     {
         cobriStreamConnector.close();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Sends a <tt>content</tt> message to each of the <tt>CallPeer</tt>s
+     * associated with this <tt>CallJabberImpl</tt> in order to include/exclude
+     * the &quot;isfocus&quot; attribute. 
+     */
+    @Override
+    protected void conferenceFocusChanged(boolean oldValue, boolean newValue)
+    {
+        try
+        {
+            Iterator<CallPeerJabberImpl> peers = getCallPeers();
+
+            while (peers.hasNext())
+            {
+                CallPeerJabberImpl callPeer = peers.next();
+
+                if (callPeer.getState() == CallPeerState.CONNECTED)
+                    callPeer.sendCoinSessionInfo();
+            }
+        }
+        finally
+        {
+            super.conferenceFocusChanged(oldValue, newValue);
+        }
     }
 
     /**
@@ -827,5 +508,309 @@ public class CallJabberImpl
                         conferenceRequest);
             }
         }
+    }
+
+    /**
+     * Creates a <tt>CallPeerJabberImpl</tt> from <tt>calleeJID</tt> and sends
+     * them <tt>session-initiate</tt> IQ request.
+     *
+     * @param calleeJID the party that we would like to invite to this call.
+     * @param discoverInfo any discovery information that we have for the jid
+     * we are trying to reach and that we are passing in order to avoid having
+     * to ask for it again.
+     * @param sessionInitiateExtensions a collection of additional and optional
+     * <tt>PacketExtension</tt>s to be added to the <tt>session-initiate</tt>
+     * {@link JingleIQ} which is to init this <tt>CallJabberImpl</tt>
+     *
+     * @return the newly created <tt>Call</tt> corresponding to
+     * <tt>calleeJID</tt>. All following state change events will be
+     * delivered through this call peer.
+     *
+     * @throws OperationFailedException  with the corresponding code if we fail
+     *  to create the call.
+     */
+    public CallPeerJabberImpl initiateSession(
+            String calleeJID,
+            DiscoverInfo discoverInfo,
+            Iterable<PacketExtension> sessionInitiateExtensions)
+        throws OperationFailedException
+    {
+        // create the session-initiate IQ
+        CallPeerJabberImpl callPeer = new CallPeerJabberImpl(calleeJID, this);
+
+        callPeer.setDiscoverInfo(discoverInfo);
+
+        addCallPeer(callPeer);
+
+        callPeer.setState(CallPeerState.INITIATING_CALL);
+
+        // If this was the first peer we added in this call, then the call is
+        // new and we need to notify everyone of its creation.
+        if (getCallPeerCount() == 1)
+            parentOpSet.fireCallEvent(CallEvent.CALL_INITIATED, this);
+
+        CallPeerMediaHandlerJabberImpl mediaHandler
+            = callPeer.getMediaHandler();
+
+        /* enable video if it is a video call */
+        mediaHandler.setLocalVideoTransmissionEnabled(localVideoAllowed);
+        /* enable remote-control if it is a desktop sharing session */
+        mediaHandler.setLocalInputEvtAware(getLocalInputEvtAware());
+
+        /*
+         * Set call state to connecting so that the user interface would start
+         * playing the tones. We do that here because we may be harvesting
+         * STUN/TURN addresses in initiateSession() which would take a while.
+         */
+        callPeer.setState(CallPeerState.CONNECTING);
+
+        // if initializing session fails, set peer to failed
+        boolean sessionInitiated = false;
+
+        try
+        {
+            callPeer.initiateSession(sessionInitiateExtensions);
+            sessionInitiated = true;
+        }
+        finally
+        {
+            // if initialization throws an exception
+            if (!sessionInitiated)
+                callPeer.setState(CallPeerState.FAILED);
+        }
+        return callPeer;
+    }
+
+    /**
+     * Sends a <tt>content-modify</tt> message to each of the current
+     * <tt>CallPeer</tt>s to reflect a possible change in the media setup
+     * related to video.
+     *
+     * @param allowed <tt>true</tt> if the streaming of the local video to the
+     * remote peer is allowed; otherwise, <tt>false</tt>
+     * @throws OperationFailedException if a problem occurred during message
+     * generation or there was a network problem
+     */
+    public void modifyVideoContent(boolean allowed)
+        throws OperationFailedException
+    {
+        if (logger.isInfoEnabled())
+        {
+            logger.info(
+                    (allowed ? "Start" : "Stop") + " local video streaming");
+        }
+
+        for (CallPeerJabberImpl peer : getCallPeersVector())
+            peer.sendModifyVideoContent(allowed);
+    }
+
+    /**
+     * Creates a new call peer and sends a RINGING response.
+     *
+     * @param jingleIQ the {@link JingleIQ} that created the session.
+     *
+     * @return the newly created {@link CallPeerJabberImpl} (the one that sent
+     * the INVITE).
+     */
+    public CallPeerJabberImpl processSessionInitiate(JingleIQ jingleIQ)
+    {
+        String remoteParty = jingleIQ.getInitiator();
+        boolean autoAnswer = false;
+        CallPeerJabberImpl attendant = null;
+        OperationSetBasicTelephonyJabberImpl basicTelephony = null;
+
+        //according to the Jingle spec initiator may be null.
+        if (remoteParty == null)
+            remoteParty = jingleIQ.getFrom();
+
+        CallPeerJabberImpl callPeer
+            = new CallPeerJabberImpl(remoteParty, this, jingleIQ);
+
+        addCallPeer(callPeer);
+
+        /*
+         * We've already sent ack to the specified session-initiate so if it has
+         * been sent as part of an attended transfer, we have to hang up on the
+         * attendant.
+         */
+        try
+        {
+            TransferPacketExtension transfer
+                = (TransferPacketExtension)
+                    jingleIQ.getExtension(
+                            TransferPacketExtension.ELEMENT_NAME,
+                            TransferPacketExtension.NAMESPACE);
+
+            if (transfer != null)
+            {
+                String sid = transfer.getSID();
+
+                if (sid != null)
+                {
+                    ProtocolProviderServiceJabberImpl protocolProvider
+                        = getProtocolProvider();
+                    basicTelephony
+                        = (OperationSetBasicTelephonyJabberImpl)
+                            protocolProvider.getOperationSet(
+                                    OperationSetBasicTelephony.class);
+                    CallJabberImpl attendantCall
+                        = basicTelephony
+                            .getActiveCallsRepository()
+                                .findSID(sid);
+
+                    if (attendantCall != null)
+                    {
+                        attendant = attendantCall.getPeer(sid);
+                        if ((attendant != null)
+                                && basicTelephony
+                                    .getFullCalleeURI(attendant.getAddress())
+                                        .equals(transfer.getFrom())
+                                && protocolProvider.getOurJID().equals(
+                                        transfer.getTo()))
+                        {
+                            //basicTelephony.hangupCallPeer(attendant);
+                            autoAnswer = true;
+                        }
+                    }
+                }
+            }
+        }
+        catch (Throwable t)
+        {
+            logger.error(
+                    "Failed to hang up on attendant"
+                        + " as part of session transfer",
+                    t);
+
+            if (t instanceof ThreadDeath)
+                throw (ThreadDeath) t;
+        }
+
+        CoinPacketExtension coin
+            = (CoinPacketExtension)
+                jingleIQ.getExtension(
+                        CoinPacketExtension.ELEMENT_NAME,
+                        CoinPacketExtension.NAMESPACE);
+
+        if (coin != null)
+        {
+            boolean b
+                = Boolean.parseBoolean(
+                        (String)
+                            coin.getAttribute(
+                                    CoinPacketExtension.ISFOCUS_ATTR_NAME));
+
+            callPeer.setConferenceFocus(b);
+        }
+
+        //before notifying about this call, make sure that it looks alright
+        callPeer.processSessionInitiate(jingleIQ);
+
+        // if paranoia is set, to accept the call we need to know that
+        // the other party has support for media encryption
+        if (getProtocolProvider().getAccountID().getAccountPropertyBoolean(
+                ProtocolProviderFactory.MODE_PARANOIA, false)
+            && callPeer.getMediaHandler().getAdvertisedEncryptionMethods()
+                    .length
+                == 0)
+        {
+            //send an error response;
+            String reasonText
+                = JabberActivator.getResources().getI18NString(
+                        "service.gui.security.encryption.required");
+            JingleIQ errResp
+                = JinglePacketFactory.createSessionTerminate(
+                        jingleIQ.getTo(),
+                        jingleIQ.getFrom(),
+                        jingleIQ.getSID(),
+                        Reason.SECURITY_ERROR,
+                        reasonText);
+
+            callPeer.setState(CallPeerState.FAILED, reasonText);
+            getProtocolProvider().getConnection().sendPacket(errResp);
+
+            return null;
+        }
+
+        if (callPeer.getState() == CallPeerState.FAILED)
+            return null;
+
+        callPeer.setState( CallPeerState.INCOMING_CALL );
+
+        // in case of attended transfer, auto answer the call
+        if (autoAnswer)
+        {
+            /* answer directly */
+            try
+            {
+                callPeer.answer();
+            }
+            catch(Exception e)
+            {
+                logger.info(
+                        "Exception occurred while answer transferred call",
+                        e);
+                callPeer = null;
+            }
+
+            // hang up now
+            try
+            {
+                basicTelephony.hangupCallPeer(attendant);
+            }
+            catch(OperationFailedException e)
+            {
+                logger.error(
+                        "Failed to hang up on attendant as part of session"
+                            + " transfer",
+                        e);
+            }
+
+            return callPeer;
+        }
+
+        /* see if offer contains audio and video so that we can propose
+         * option to the user (i.e. answer with video if it is a video call...)
+         */
+        List<ContentPacketExtension> offer
+            = callPeer.getSessionIQ().getContentList();
+        Map<MediaType, MediaDirection> directions
+            = new HashMap<MediaType, MediaDirection>();
+
+        directions.put(MediaType.AUDIO, MediaDirection.INACTIVE);
+        directions.put(MediaType.VIDEO, MediaDirection.INACTIVE);
+
+        for (ContentPacketExtension c : offer)
+        {
+            String contentName = c.getName();
+            MediaDirection remoteDirection
+                = JingleUtils.getDirection(c, callPeer.isInitiator());
+
+            if (MediaType.AUDIO.toString().equals(contentName))
+                directions.put(MediaType.AUDIO, remoteDirection);
+            else if (MediaType.VIDEO.toString().equals(contentName))
+                directions.put(MediaType.VIDEO, remoteDirection);
+        }
+
+        // If this was the first peer we added in this call, then the call is
+        // new and we need to notify everyone of its creation.
+        if (getCallPeerCount() == 1)
+        {
+            parentOpSet.fireCallEvent(
+                    CallEvent.CALL_RECEIVED,
+                    this,
+                    directions);
+        }
+
+        // Manages auto answer with "audio only", or "audio/video" answer.
+        OperationSetAutoAnswerJabberImpl autoAnswerOpSet
+            = (OperationSetAutoAnswerJabberImpl)
+                getProtocolProvider().getOperationSet(
+                        OperationSetBasicAutoAnswer.class);
+
+        if (autoAnswerOpSet != null)
+            autoAnswerOpSet.autoAnswer(this, directions);
+
+        return callPeer;
     }
 }

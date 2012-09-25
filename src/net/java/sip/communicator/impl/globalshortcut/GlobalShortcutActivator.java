@@ -187,28 +187,31 @@ public class GlobalShortcutActivator
      */
     public void registerListenerWithProtocolProviderService()
     {
-        ServiceReference refs[] = null;
+        ServiceReference[] ppsRefs = null;
+
         try
         {
-             refs = bundleContext.getServiceReferences(
-                    ProtocolProviderService.class.getName(), null);
+             ppsRefs
+                 = bundleContext.getServiceReferences(
+                         ProtocolProviderService.class.getName(),
+                         null);
         }
-        catch (InvalidSyntaxException e)
+        catch(InvalidSyntaxException ise)
         {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            logger.error(
+                    "Failed to get ProtocolProviderService ServiceReferences",
+                    ise);
         }
 
-        if(refs == null)
+        if(ppsRefs == null)
             return;
 
-        for(ServiceReference ref : refs)
+        for(ServiceReference ppsRef : ppsRefs)
         {
-            ProtocolProviderService service =
-                (ProtocolProviderService)bundleContext.getService(ref);
-
-            OperationSetBasicTelephony<?> opSet =
-                service.getOperationSet(OperationSetBasicTelephony.class);
+            ProtocolProviderService pps
+                = (ProtocolProviderService) bundleContext.getService(ppsRef);
+            OperationSetBasicTelephony<?> opSet
+                = pps.getOperationSet(OperationSetBasicTelephony.class);
 
             if(opSet != null)
                 opSet.addCallListener(globalShortcutService.getCallShortcut());

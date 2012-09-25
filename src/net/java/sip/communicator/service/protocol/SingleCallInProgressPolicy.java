@@ -77,7 +77,6 @@ public class SingleCallInProgressPolicy
          */
         public void callPeerRemoved( CallPeerEvent callPeerEvent)
         {
-
             /*
              * Not of interest, just implementing CallChangeListener in which
              * only #callStateChanged(CallChangeEvent) is of interest.
@@ -253,19 +252,31 @@ public class SingleCallInProgressPolicy
                             PNAME_SINGLE_CALL_IN_PROGRESS_POLICY_ENABLED,
                             true))
         {
+            CallConference conference = call.getConference();
+
             synchronized (calls)
             {
                 for (Call otherCall : calls)
                 {
                     if (!call.equals(otherCall)
-                            && CallState.CALL_IN_PROGRESS
-                                    .equals(otherCall.getCallState()))
+                            && CallState.CALL_IN_PROGRESS.equals(
+                                    otherCall.getCallState()))
                     {
-                        if((call.getCallGroup() == null &&
-                            otherCall.getCallGroup() == null) ||
-                            (call.getCallGroup() != null ||
-                                otherCall.getCallGroup() != null) &&
-                            call.getCallGroup() != otherCall.getCallGroup())
+                        /*
+                         * Only put on hold calls which are visually distinctive
+                         * from the specified call i.e. do not put on hold calls
+                         * which participate in the same telephony conference as
+                         * the specified call.
+                         */
+                        boolean putOnHold;
+                        CallConference otherConference
+                            = otherCall.getConference();
+
+                        if (conference == null)
+                            putOnHold = (otherConference == null);
+                        else
+                            putOnHold = (conference != otherConference);
+                        if (putOnHold)
                             putOnHold(otherCall);
                     }
                 }

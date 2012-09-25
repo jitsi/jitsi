@@ -30,6 +30,7 @@ import net.java.sip.communicator.util.swing.transparent.*;
 
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.device.*;
+import org.jitsi.service.resources.*;
 import org.jitsi.util.*;
 
 /**
@@ -52,11 +53,11 @@ public class CallManager
      * that are currently used to display them.
      */
     private static Hashtable<Call, CallPanel> activeCalls
-                                    = new Hashtable<Call, CallPanel>();
+        = new Hashtable<Call, CallPanel>();
 
     /**
-     * The property indicating if the user should be warned when starting a
-     * desktop sharing session.
+     * The name of the property which indicates whether the user should be
+     * warned when starting a desktop sharing session.
      */
     private static final String desktopSharingWarningProperty
         = "net.java.sip.communicator.impl.gui.main"
@@ -70,12 +71,14 @@ public class CallManager
     /**
      * A call listener.
      */
-    public static class GuiCallListener implements CallListener
+    public static class GuiCallListener
+        implements CallListener
     {
         /**
-         * Implements CallListener.incomingCallReceived. When a call is received
-         * creates a <tt>ReceivedCallDialog</tt> and plays the
-         * ring phone sound to the user.
+         * Implements {@link CallListener#incomingCallReceived(CallEvent)}. When
+         * a call is received, creates a <tt>ReceivedCallDialog</tt> and plays
+         * the ring phone sound to the user.
+         *
          * @param event the <tt>CallEvent</tt>
          */
         public void incomingCallReceived(final CallEvent event)
@@ -106,7 +109,6 @@ public class CallManager
             {
                 if (receivedCallDialog.isVisible())
                     receivedCallDialog.setVisible(false);
-
                 return;
             }
 
@@ -123,125 +125,119 @@ public class CallManager
                     if (receivedCallDialog.isVisible())
                         receivedCallDialog.setVisible(false);
 
-                    // Ensure that the CallDialog is created, because for now
-                    // it is the one that listens for CallPeers.
+                    // Ensure that the CallDialog is created, because it is the
+                    // one that listens for CallPeers.
+                    Object newValue = evt.getNewValue();
                     Call call = evt.getSourceCall();
-                    if ((evt.getNewValue()
-                            .equals(CallState.CALL_INITIALIZATION)
-                        || evt.getNewValue()
-                            .equals(CallState.CALL_IN_PROGRESS))
-                        && activeCalls.get(call) == null &&
-                        call.getCallGroup() == null)
-                    {
-                        openCallContainer(call);
-                    }
 
-                    if (evt.getNewValue().equals(CallState.CALL_ENDED))
+                    if (CallState.CALL_INITIALIZATION.equals(newValue)
+                            || CallState.CALL_IN_PROGRESS.equals(newValue))
                     {
-                        if (evt.getOldValue()
-                                .equals(CallState.CALL_INITIALIZATION))
+                        openCallContainerIfNecessary(call);
+                    }
+                    else if (CallState.CALL_ENDED.equals(newValue))
+                    {
+                        if (evt.getOldValue().equals(
+                                CallState.CALL_INITIALIZATION))
                         {
                             // if call was answered elsewhere, don't add it
                             // to missed calls
-                            if(evt.getCause() == null
-                               || (evt.getCause().getReasonCode() !=
-                                    CallPeerChangeEvent.NORMAL_CALL_CLEARING))
+                            CallPeerChangeEvent cause = evt.getCause();
+
+                            if((cause == null)
+                                || (cause.getReasonCode()
+                                    != CallPeerChangeEvent.NORMAL_CALL_CLEARING))
                             {
                                 addMissedCallNotification(peerName, callDate);
                             }
 
-                            evt.getSourceCall().removeCallChangeListener(this);
+                            call.removeCallChangeListener(this);
                         }
 
-                        // If we're currently in the call history view refresh
-                        // the view.
+                        // If we're currently in the call history view, refresh
+                        // it.
                         TreeContactList contactList
                             = GuiActivator.getContactList();
 
-                        if (contactList.getCurrentFilter()
-                                .equals(TreeContactList.historyFilter))
+                        if (contactList.getCurrentFilter().equals(
+                                TreeContactList.historyFilter))
                         {
                             contactList.applyFilter(
-                                TreeContactList.historyFilter);
+                                    TreeContactList.historyFilter);
                         }
                     }
                 }
             });
 
-            List<CallPanel> calls = new ArrayList<CallPanel>(
-                activeCalls.values());
+            /*
+             * Notify the existing CallPanels about the CallEvent (in case they
+             * need to update their UI, for example). 
+             */
+            List<CallPanel> callPanels
+                = new ArrayList<CallPanel>(activeCalls.values());
 
-            for(CallPanel cp : calls)
+            for (CallPanel callPanel : callPanels)
             {
-                if(cp != null)
-                    cp.incomingCallReceived(event);
+                if (callPanel != null)
+                    callPanel.incomingCallReceived(event);
             }
         }
 
         /**
          * Implements CallListener.callEnded. Stops sounds that are playing at
-         * the moment if there're any. Removes the call panel and disables the
-         * hang up button.
+         * the moment if there're any. Removes the <tt>CallPanel</tt> and
+         * disables the hang-up button.
          *
-         * @param event the <tt>CallEvent</tt>
+         * @param event the <tt>CallEvent</tt> which specifies the <tt>Call</tt>
+         * that has ended
          */
         public void callEnded(CallEvent event)
         {
             Call sourceCall = event.getSourceCall();
+            CallPanel callContainer = getActiveCallContainer(sourceCall);
 
-            if (activeCalls.get(sourceCall) != null)
+            if (callContainer != null)
             {
-                CallPanel callContainer = activeCalls.get(sourceCall);
+                closeCallContainerIfNotNecessary(sourceCall, true);
 
-                CallGroup group = sourceCall.getCallGroup();
+                /*
+                 * Notify the existing CallPanels about the CallEvent (in case
+                 * they need to update their UI, for example). 
+                 */
+                List<CallPanel> callPanels
+                    = new ArrayList<CallPanel>(activeCalls.values());
 
-                if(group != null)
+                for (CallPanel callPanel : callPanels)
                 {
-                    for (Call c : group.getCalls())
-                    {
-                        if (c == sourceCall)
-                            continue;
-                        CallPanel container = activeCalls.get(c);
-                        if (container != null)
-                        {
-                            activeCalls.remove(c);
-                            container.getCallWindow().close(container);
-                        }
-                    }
-                }
-
-                activeCalls.remove(sourceCall);
-
-                callContainer.getCallWindow().closeWait(callContainer);
-                List<CallPanel> calls = new ArrayList<CallPanel>(
-                    activeCalls.values());
-
-                for(CallPanel cp : calls)
-                {
-                    if(cp != null)
-                        cp.incomingCallReceived(event);
+                    if (callPanel != null)
+                        callPanel.callEnded(event);
                 }
             }
         }
 
         /**
          * Creates and opens a call dialog. Implements
-         * CallListener.outGoingCallCreated.
+         * {@link CallListener#outgoingCallCreated(CallEvent)}.
+         *
          * @param event the <tt>CallEvent</tt>
          */
         public void outgoingCallCreated(CallEvent event)
         {
             Call sourceCall = event.getSourceCall();
 
-            CallManager.openCallContainer(sourceCall);
+            openCallContainerIfNecessary(sourceCall);
 
-            List<CallPanel> calls = new ArrayList<CallPanel>(
-                activeCalls.values());
+            /*
+             * Notify the existing CallPanels about the CallEvent (in case they
+             * need to update their UI, for example). 
+             */
+            List<CallPanel> callPanels
+                = new ArrayList<CallPanel>(activeCalls.values());
 
-            for(CallPanel cp : calls)
+            for (CallPanel callPanel : callPanels)
             {
-                if(cp != null)
-                    cp.incomingCallReceived(event);
+                if (callPanel != null)
+                    callPanel.outgoingCallCreated(event);
             }
         }
     }
@@ -251,11 +247,25 @@ public class CallManager
      *
      * @param call the call to answer
      */
-    public static void answerCall(final Call call)
+    public static void answerCall(Call call)
     {
-        CallManager.openCallContainer(call);
+        answerCall(call, null, false /* without video */);
+    }
 
-        new AnswerCallThread(call).start();
+    /**
+     * Answers a specific <tt>Call</tt> with or without video and, optionally,
+     * does that in a telephony conference with an existing <tt>Call</tt>.
+     *
+     * @param call
+     * @param existingCall
+     * @param video
+     */
+    private static void answerCall(Call call, Call existingCall, boolean video)
+    {
+        if (existingCall == null)
+            openCallContainerIfNecessary(call);
+
+        new AnswerCallThread(call, existingCall, video).start();
     }
 
     /**
@@ -264,35 +274,24 @@ public class CallManager
      *
      * @param call the call to answer
      */
-    public static void answerCallInFirstExistingCall(final Call call)
+    public static void answerCallInFirstExistingCall(Call call)
     {
-        Call existingCall = null;
+        // Find the first existing call.
+        Iterator<Call> existingCallIter = getActiveCalls().iterator();
+        Call existingCall
+            = existingCallIter.hasNext() ? existingCallIter.next() : null;
 
-        // pick up the first available call
-        for(Call c : activeCalls.keySet())
-        {
-            existingCall = c;
-            break;
-        }
-
-        if(existingCall == null)
-        {
-            answerCall(call);
-        }
-        else
-        {
-            new AnswerCallThread(call, existingCall).start();
-        }
+        answerCall(call, existingCall, false /* without video */);
     }
 
     /**
-     * Merge two existing <tt>Call</tt>s into a single conference call.
+     * Merge multiple existing <tt>Call</tt>s into a single conference
+     * <tt>Call</tt>.
      *
      * @param first first call
      * @param calls list of calls
      */
-    public static void mergeExistingCall(final Call first,
-        final Collection<Call> calls)
+    public static void mergeExistingCall(Call first, Collection<Call> calls)
     {
         new MergeExistingCalls(first, calls).start();
     }
@@ -302,11 +301,9 @@ public class CallManager
      *
      * @param call the call to answer
      */
-    public static void answerVideoCall(final Call call)
+    public static void answerVideoCall(Call call)
     {
-        CallManager.openCallContainer(call);
-
-        new AnswerVideoCallThread(call).start();
+        answerCall(call, null, true /* with video */);
     }
 
     /**
@@ -338,7 +335,8 @@ public class CallManager
     public static void createCall(  ProtocolProviderService protocolProvider,
                                     String contact)
     {
-        new CreateCallThread(protocolProvider, contact).start();
+        new CreateCallThread(protocolProvider, contact, false /* audio-only */)
+            .start();
     }
 
     /**
@@ -350,7 +348,8 @@ public class CallManager
     public static void createCall(  ProtocolProviderService protocolProvider,
                                     Contact contact)
     {
-        new CreateCallThread(protocolProvider, contact).start();
+        new CreateCallThread(protocolProvider, contact, false /* audio-only */)
+            .start();
     }
 
     /**
@@ -362,7 +361,8 @@ public class CallManager
     public static void createVideoCall(ProtocolProviderService protocolProvider,
                                         String contact)
     {
-        new CreateVideoCallThread(protocolProvider, contact).start();
+        new CreateCallThread(protocolProvider, contact, true /* video */)
+            .start();
     }
 
     /**
@@ -374,7 +374,8 @@ public class CallManager
     public static void createVideoCall(ProtocolProviderService protocolProvider,
                                         Contact contact)
     {
-        new CreateVideoCallThread(protocolProvider, contact).start();
+        new CreateCallThread(protocolProvider, contact, true /* video */)
+            .start();
     }
 
     /**
@@ -649,29 +650,29 @@ public class CallManager
         // if the operation set isn't available.
         if (desktopOpSet != null)
         {
-            // First make sure to disable the local video if it's currently
-            // enabled.
+            // First make sure the local video button is disabled.
             if (enable && isLocalVideoEnabled(call))
                 getActiveCallContainer(call).setVideoButtonSelected(false);
 
             try
             {
                 if (mediaDevice != null)
+                {
                     desktopOpSet.setLocalVideoAllowed(
-                        call,
-                        mediaDevice,
-                        enable);
+                            call,
+                            mediaDevice,
+                            enable);
+                }
                 else
-                    desktopOpSet.setLocalVideoAllowed(
-                        call,
-                        enable);
+                    desktopOpSet.setLocalVideoAllowed(call, enable);
 
                 enableSucceeded = true;
             }
             catch (OperationFailedException ex)
             {
                 logger.error(
-                    "Failed to toggle the streaming of local video.", ex);
+                        "Failed to toggle the streaming of local video.",
+                        ex);
             }
         }
 
@@ -846,11 +847,12 @@ public class CallManager
         }
         else
         {
+            ResourceManagementService resources = GuiActivator.getResources();
+
             new ErrorDialog(
                     null,
-                    GuiActivator.getResources().getI18NString(
-                            "service.gui.WARNING"),
-                    GuiActivator.getResources().getI18NString(
+                    resources.getI18NString("service.gui.WARNING"),
+                    resources.getI18NString(
                             "service.gui.NO_ONLINE_TELEPHONY_ACCOUNT"))
                 .showDialog();
         }
@@ -863,10 +865,14 @@ public class CallManager
      * @param callees the list of contacts to call to
      */
     public static void createConferenceCall(
-        String[] callees,
-        ProtocolProviderService protocolProvider)
+            String[] callees,
+            ProtocolProviderService protocolProvider)
     {
-        new CreateConferenceCallThread(callees, protocolProvider).start();
+        Map<ProtocolProviderService, List<String>> crossProtocolCallees
+            = new HashMap<ProtocolProviderService, List<String>>();
+
+        crossProtocolCallees.put(protocolProvider, Arrays.asList(callees));
+        createConferenceCall(crossProtocolCallees);
     }
 
     /**
@@ -879,7 +885,13 @@ public class CallManager
     public static void inviteToConferenceCall(  String[] callees,
                                                 Call call)
     {
-        new InviteToConferenceCallThread(callees, call).start();
+        Map<ProtocolProviderService, List<String>> crossProtocolCallees
+            = new HashMap<ProtocolProviderService, List<String>>();
+
+        crossProtocolCallees.put(
+                call.getProtocolProvider(),
+                Arrays.asList(callees));
+        inviteToConferenceCall(crossProtocolCallees, call);
     }
 
     /**
@@ -889,23 +901,24 @@ public class CallManager
      * @param callees the list of contacts to invite
      * @param call existing call
      */
-    public static void inviteToCrossProtocolConferenceCall(
-        Map<ProtocolProviderService, List<String>> callees,
-        Call call)
+    public static void inviteToConferenceCall(
+            Map<ProtocolProviderService, List<String>> callees,
+            Call call)
     {
-        new InviteToCrossProtocolConferenceCallThread(callees, call).
-            start();
+        new InviteToConferenceCallThread(callees, call).start();
     }
 
     /**
-     * Create a call to the given list of contacts.
+     * Asynchronously creates a new conference <tt>Call</tt> with a specific
+     * list of participants/callees.
      *
-     * @param callees the list of contacts to invite
+     * @param callees the list of participants/callees to invite to a
+     * newly-created conference <tt>Call</tt>
      */
-    public static void createCrossProtocolConferenceCall(
+    public static void createConferenceCall(
         Map<ProtocolProviderService, List<String>> callees)
     {
-        new CreateCrossProtocolConferenceCallThread(callees).start();
+        new InviteToConferenceCallThread(callees, null).start();
     }
 
     /**
@@ -969,28 +982,91 @@ public class CallManager
     }
 
     /**
-     * Opens a call container for the given call.
+     * Closes the <tt>CallPanel</tt> of a specific <tt>Call</tt> if it is no
+     * longer necessary (i.e. is not used by other <tt>Call</tt>s participating
+     * in the same telephony conference as the specified <tt>Call</tt>.)
      *
-     * @param call the call object to pass to the call container
-     *
-     * @return the created and opened call container
+     * @param call the <tt>Call</tt> which is to have its associated
+     * <tt>CallPanel</tt>, if any, closed
+     * @param wait <tt>true</tt> to use
+     * {@link CallContainer#closeWait(CallPanel)} or <tt>false</tt> to use
+     * {@link CallContainer#close(CallPanel)}
      */
-    private static CallPanel openCallContainer(Call call)
+    private static void closeCallContainerIfNotNecessary(
+            Call call,
+            boolean wait)
     {
-        // If we're in a single window mode we just return the single window
-        // call container.
-        CallContainer callContainer
-            = GuiActivator.getUIService().getSingleWindowContainer();
+        CallPanel callPanel = activeCalls.remove(call);
 
-        if (callContainer == null)
-            // If we're in a multi-window mode we create the CallDialog.
-            callContainer = new CallDialog();
+        if ((callPanel != null) && !activeCalls.containsValue(callPanel))
+        {
+            CallContainer callContainer = callPanel.getCallWindow();
 
-        CallPanel callPanel = new CallPanel(call, callContainer);
+            if (wait)
+                callContainer.closeWait(callPanel);
+            else
+                callContainer.close(callPanel);
+        }
+    }
 
-        activeCalls.put(call, callPanel);
+    /**
+     * Opens a <tt>CallPanel</tt> for a specific <tt>Call</tt> if there is none.
+     *
+     * @param call the <tt>Call</tt> to open a <tt>CallPanel</tt> for
+     * @return the <tt>CallPanel</tt> associated with the <tt>Call</tt>
+     */
+    private static CallPanel openCallContainerIfNecessary(Call call)
+    {
+        CallPanel callPanel = activeCalls.get(call);
 
-        callContainer.addCallPanel(callPanel);
+        if (callPanel == null)
+        {
+            /*
+             * Technically, CallPanel displays a whole CallConference, not a
+             * single Call. Try to locate the CallPanel for the specified Call
+             * by looking at the CallPanels of the other Calls.
+             */
+            CallConference conference = call.getConference();
+
+            if (conference != null)
+            {
+                for (Call conferenceCall : conference.getCalls())
+                {
+                    CallPanel conferenceCallPanel
+                        = activeCalls.get(conferenceCall);
+
+                    if (conferenceCallPanel != null)
+                    {
+                        if (callPanel == null)
+                            callPanel = conferenceCallPanel;
+                        else if (logger.isDebugEnabled()
+                                && (conferenceCallPanel != callPanel))
+                        {
+                            logger.debug(
+                                    "Calls in the same CallConference"
+                                        + " have different CallPanels.");
+                        }
+                    }
+                }
+            }
+
+            if (callPanel == null)
+            {
+                // If we're in single-window mode, the single window is the
+                // CallContainer.
+                CallContainer callContainer
+                    = GuiActivator.getUIService().getSingleWindowContainer();
+
+                // If we're in multi-window mode, we create the CallDialog.
+                if (callContainer == null)
+                    callContainer = new CallDialog();
+
+                callPanel = new CallPanel(call, callContainer);
+                callContainer.addCallPanel(callPanel);
+            }
+
+            activeCalls.put(call, callPanel);
+        }
 
         return callPanel;
     }
@@ -1173,12 +1249,14 @@ public class CallManager
                     {
                         logger.info("Unable to change video quality.", e);
 
+                        ResourceManagementService resources
+                            = GuiActivator.getResources();
+
                         new ErrorDialog(
                                 null,
-                                GuiActivator.getResources()
-                                    .getI18NString("service.gui.WARNING"),
-                                GuiActivator.getResources().getI18NString(
-                                    "service.gui.UNABLE_TO_CHANGE_VIDEO_QUALITY"),
+                                resources.getI18NString("service.gui.WARNING"),
+                                resources.getI18NString(
+                                        "service.gui.UNABLE_TO_CHANGE_VIDEO_QUALITY"),
                                 e)
                             .showDialog();
                     }
@@ -1439,149 +1517,130 @@ public class CallManager
     }
 
     /**
-     * Creates a call from a given Contact or a given String.
+     * Creates a new (audio-only or video) <tt>Call</tt> to a contact specified
+     * as a <tt>Contact</tt> instance or a <tt>String</tt> contact
+     * address/identifier.
      */
     private static class CreateCallThread
         extends Thread
     {
-        private final String stringContact;
-
         private final Contact contact;
 
         private final ProtocolProviderService protocolProvider;
 
-        public CreateCallThread(ProtocolProviderService protocolProvider,
-                                String contact)
+        private final String stringContact;
+
+        /**
+         * The indicator which determines whether this instance is to create a
+         * new video (as opposed to audio-only) <tt>Call</tt>.
+         */
+        private final boolean video;
+
+        public CreateCallThread(
+                ProtocolProviderService protocolProvider,
+                Contact contact,
+                boolean video)
         {
-            this.protocolProvider = protocolProvider;
-            this.stringContact = contact;
-            this.contact = null;
+            this(protocolProvider, contact, null, video);
         }
 
-        public CreateCallThread(ProtocolProviderService protocolProvider,
-                                Contact contact)
+        public CreateCallThread(
+                ProtocolProviderService protocolProvider,
+                String contact,
+                boolean video)
+        {
+            this(protocolProvider, null, contact, video);
+        }
+
+        /**
+         * Initializes a new <tt>CreateCallThread</tt> instance which is to
+         * create a new <tt>Call</tt> to a contact specified either as a
+         * <tt>Contact</tt> instance or as a <tt>String</tt> contact
+         * address/identifier.
+         * <p>
+         * The constructor is private because it relies on its arguments being
+         * validated prior to its invocation.
+         * </p>
+         *
+         * @param protocolProvider the <tt>ProtocolProviderService</tt> which is
+         * to perform the establishment of the new <tt>Call</tt>
+         * @param contact
+         * @param stringContact
+         * @param video <tt>true</tt> if this instance is to create a new video
+         * (as opposed to audio-only) <tt>Call</tt>
+         */
+        private CreateCallThread(
+                ProtocolProviderService protocolProvider,
+                Contact contact,
+                String stringContact,
+                boolean video)
         {
             this.protocolProvider = protocolProvider;
             this.contact = contact;
-            this.stringContact = null;
+            this.stringContact = stringContact;
+            this.video = video;
         }
 
         @Override
         public void run()
         {
-            OperationSetBasicTelephony<?> telephonyOpSet
-                = protocolProvider.getOperationSet(
-                        OperationSetBasicTelephony.class);
+            Contact contact = this.contact;
+            String stringContact = this.stringContact;
 
-            /*
-             * XXX If we are here and we just discover that
-             * OperationSetBasicTelephony is not supported, then we're already
-             * in trouble. At the very least, we've already started a whole new
-             * thread just to check that a reference is null.
-             */
-            if (telephonyOpSet == null)
-                return;
-
-            String callString = null;
-
-            if(contact != null)
-                callString = contact.getAddress();
-            else if(stringContact != null)
-                callString = stringContact;
-
-            if(ConfigurationManager.isNormalizePhoneNumber())
-                callString = normalizePhoneNumber(callString);
-
-            try
-            {
-                telephonyOpSet.createCall(callString);
-            }
-            catch (Throwable exception)
-            {
-                logger.error("The call could not be created: ", exception);
-
-                new ErrorDialog(
-                        null,
-                        GuiActivator.getResources()
-                            .getI18NString("service.gui.ERROR"),
-                        exception.getMessage(),
-                        exception)
-                    .showDialog();
-            }
-        }
-    }
-
-    /**
-     * Creates a video call from a given Contact or a given String.
-     */
-    private static class CreateVideoCallThread
-        extends Thread
-    {
-        private final String stringContact;
-
-        private final Contact contact;
-
-        private final ProtocolProviderService protocolProvider;
-
-        public CreateVideoCallThread(ProtocolProviderService protocolProvider,
-                                    String contact)
-        {
-            this.protocolProvider = protocolProvider;
-            this.stringContact = contact;
-            this.contact = null;
-        }
-
-        public CreateVideoCallThread(ProtocolProviderService protocolProvider,
-                                    Contact contact)
-        {
-            this.protocolProvider = protocolProvider;
-            this.contact = contact;
-            this.stringContact = null;
-        }
-
-        @Override
-        public void run()
-        {
-            OperationSetVideoTelephony videoTelOpSet
-                = protocolProvider.getOperationSet(
-                        OperationSetVideoTelephony.class);
-
-            /*
-             * XXX If we are here and we just discover that
-             * OperationSetVideoTelephony is not supported, then we're already
-             * in trouble. At the very least, we've already started a whole new
-             * thread just to check that a reference is null.
-             */
-            if (videoTelOpSet == null)
-                return;
-
-            Throwable exception = null;
-
-            try
+            if (ConfigurationManager.isNormalizePhoneNumber())
             {
                 if (contact != null)
-                    videoTelOpSet.createVideoCall(contact);
-                else if (stringContact != null)
-                    videoTelOpSet.createVideoCall(stringContact);
-            }
-            catch (OperationFailedException e)
-            {
-                exception = e;
-            }
-            catch (ParseException e)
-            {
-                exception = e;
-            }
-            if (exception != null)
-            {
-                logger.error("The call could not be created: ", exception);
+                {
+                    stringContact = contact.getAddress();
+                    contact = null;
+                }
 
+                stringContact = normalizePhoneNumber(stringContact);
+            }
+
+            try
+            {
+                if (video)
+                {
+                    OperationSetVideoTelephony telephony
+                        = protocolProvider.getOperationSet(
+                                OperationSetVideoTelephony.class);
+
+                    if (telephony != null)
+                    {
+                        if (contact != null)
+                            telephony.createVideoCall(contact);
+                        else if (stringContact != null)
+                            telephony.createVideoCall(stringContact);
+                    }
+                }
+                else
+                {
+                    OperationSetBasicTelephony<?> telephony
+                        = protocolProvider.getOperationSet(
+                                OperationSetBasicTelephony.class);
+
+                    if (telephony != null)
+                    {
+                        if (contact != null)
+                            telephony.createCall(contact);
+                        else if (stringContact != null)
+                            telephony.createCall(stringContact);
+                    }
+                }
+            }
+            catch (Throwable t)
+            {
+                if (t instanceof ThreadDeath)
+                    throw (ThreadDeath) t;
+
+                logger.error("The call could not be created: ", t);
                 new ErrorDialog(
                         null,
-                        GuiActivator.getResources()
-                            .getI18NString("service.gui.ERROR"),
-                        exception.getMessage(),
-                        ErrorDialog.ERROR)
+                        GuiActivator.getResources().getI18NString(
+                                "service.gui.ERROR"),
+                        t.getMessage(),
+                        t)
                     .showDialog();
             }
         }
@@ -1638,8 +1697,8 @@ public class CallManager
             /*
              * XXX If we are here and we just discover that
              * OperationSetDesktopSharingServer is not supported, then we're
-             * already in trouble. At the very least, we've already started a
-             * whole new thread just to check that a reference is null.
+             * already in trouble - we've already started a whole new thread
+             * just to check that a reference is null.
              */
             if (desktopSharingOpSet == null)
                 return;
@@ -1649,8 +1708,11 @@ public class CallManager
             try
             {
                 if (mediaDevice != null)
-                    desktopSharingOpSet
-                        .createVideoCall(stringContact, mediaDevice);
+                {
+                    desktopSharingOpSet.createVideoCall(
+                            stringContact,
+                            mediaDevice);
+                }
                 else
                     desktopSharingOpSet.createVideoCall(stringContact);
             }
@@ -1668,8 +1730,8 @@ public class CallManager
 
                 new ErrorDialog(
                         null,
-                        GuiActivator.getResources()
-                            .getI18NString("service.gui.ERROR"),
+                        GuiActivator.getResources().getI18NString(
+                                "service.gui.ERROR"),
                         exception.getMessage(),
                         ErrorDialog.ERROR)
                     .showDialog();
@@ -1678,270 +1740,107 @@ public class CallManager
     }
 
     /**
-     * Answers all call peers in the given call.
+     * Answers to all <tt>CallPeer</tt>s associated with a specific
+     * <tt>Call</tt> and, optionally, does that in a telephony conference with
+     * an existing <tt>Call</tt>.
      */
     private static class AnswerCallThread
         extends Thread
     {
-        private final Call call;
-
-        private final Call existingCall;
-
-        public AnswerCallThread(Call call)
-        {
-            this.call = call;
-            this.existingCall = null;
-        }
-
-        public AnswerCallThread(Call call, Call existingCall)
-        {
-            this.call = call;
-            this.existingCall = existingCall;
-        }
-
-        @Override
-        public void run()
-        {
-            ProtocolProviderService pps = call.getProtocolProvider();
-            Iterator<? extends CallPeer> peers = call.getCallPeers();
-            CallGroup group = null;
-
-            if(existingCall != null)
-            {
-                if(existingCall.getCallGroup() == null)
-                {
-                    group = new CallGroup();
-                    group.addCall(existingCall);
-                }
-                else
-                {
-                    group = existingCall.getCallGroup();
-                }
-
-                if(call.getCallGroup() == null && group != null)
-                    group.addCall(call);
-            }
-
-            while (peers.hasNext())
-            {
-                CallPeer peer = peers.next();
-                OperationSetBasicTelephony<?> telephony =
-                    pps.getOperationSet(OperationSetBasicTelephony.class);
-
-                try
-                {
-                    telephony.answerCallPeer(peer);
-                }
-                catch (OperationFailedException e)
-                {
-                    logger.error("Could not answer to : " + peer
-                        + " caused by the following exception: " + e);
-                }
-            }
-        }
-    }
-
-    /**
-     * Answers all call peers in the given call with video.
-     */
-    private static class AnswerVideoCallThread
-        extends Thread
-    {
+        /**
+         * The <tt>Call</tt> which is to be answered.
+         */
         private final Call call;
 
         /**
-         * Constructor.
-         *
-         * @param call source call
+         * The existing <tt>Call</tt>, if any, which represents a telephony
+         * conference in which {@link #call} is to be answered.
          */
-        public AnswerVideoCallThread(Call call)
+        private final Call existingCall;
+
+        /**
+         * The indicator which determines whether this instance is to answer
+         * {@link #call} with video.
+         */
+        private final boolean video;
+
+        public AnswerCallThread(Call call, Call existingCall, boolean video)
         {
             this.call = call;
+            this.existingCall = existingCall;
+            this.video = video;
         }
 
         @Override
         public void run()
         {
+            if (existingCall != null)
+                call.setConference(existingCall.getConference());
+
             ProtocolProviderService pps = call.getProtocolProvider();
             Iterator<? extends CallPeer> peers = call.getCallPeers();
 
             while (peers.hasNext())
             {
                 CallPeer peer = peers.next();
-                OperationSetVideoTelephony telephony =
-                    pps.getOperationSet(OperationSetVideoTelephony.class);
 
-                try
+                if (video)
                 {
-                    telephony.answerVideoCallPeer(peer);
+                    OperationSetVideoTelephony telephony
+                        = pps.getOperationSet(OperationSetVideoTelephony.class);
+
+                    try
+                    {
+                        telephony.answerVideoCallPeer(peer);
+                    }
+                    catch (OperationFailedException ofe)
+                    {
+                        logger.error(
+                                "Could not answer "
+                                    + peer
+                                    + " with video"
+                                    + " because of the following exception: "
+                                    + ofe);
+                    }
                 }
-                catch (OperationFailedException e)
+                else
                 {
-                    logger.error("Could not video answer to : " + peer
-                        + " caused by the following exception: " + e);
+                    OperationSetBasicTelephony<?> telephony
+                        = pps.getOperationSet(OperationSetBasicTelephony.class);
+
+                    try
+                    {
+                        telephony.answerCallPeer(peer);
+                    }
+                    catch (OperationFailedException ofe)
+                    {
+                        logger.error(
+                                "Could not answer "
+                                    + peer
+                                    + " because of the following exception: ",
+                                ofe);
+                    }
                 }
             }
         }
     }
 
     /**
-     * Creates a conference call from a given list of contact addresses
-     */
-    private static class CreateConferenceCallThread
-        extends Thread
-    {
-        private final String[] callees;
-
-        private final ProtocolProviderService protocolProvider;
-
-        public CreateConferenceCallThread(
-                String[] callees,
-                ProtocolProviderService protocolProvider)
-        {
-            this.callees = callees;
-            this.protocolProvider = protocolProvider;
-        }
-
-        @Override
-        public void run()
-        {
-            OperationSetTelephonyConferencing confOpSet
-                = protocolProvider.getOperationSet(
-                        OperationSetTelephonyConferencing.class);
-
-            /*
-             * XXX If we are here and we just discover that
-             * OperationSetTelephonyConferencing is not supported, then we're
-             * already in trouble. At the very least, we've already started a
-             * whole new thread just to check that a reference is null.
-             */
-            if (confOpSet == null)
-                return;
-
-            if (ConfigurationManager.isNormalizePhoneNumber())
-                normalizePhoneNumbers(callees);
-
-            Throwable exception = null;
-
-            try
-            {
-                confOpSet.createConfCall(callees);
-            }
-            catch (OperationFailedException ofe)
-            {
-                exception = ofe;
-            }
-            catch (OperationNotSupportedException onse)
-            {
-                exception = onse;
-            }
-            catch (IllegalArgumentException iae)
-            {
-                exception = iae;
-            }
-            if (exception != null)
-            {
-                logger.error("Failed to create conference call. " + exception);
-
-                new ErrorDialog(
-                        null,
-                        GuiActivator
-                            .getResources().getI18NString("service.gui.ERROR"),
-                        exception.getMessage(),
-                        ErrorDialog.ERROR)
-                    .showDialog();
-            }
-        }
-    }
-
-    /**
-     * Invites a list of callees to a conference call.
+     * Invites a list of callees to a specific conference <tt>Call</tt>. If the
+     * specified <tt>Call</tt> is <tt>null</tt>, creates a brand new telephony
+     * conference.
      */
     private static class InviteToConferenceCallThread
         extends Thread
     {
-        private final String[] callees;
-
-        private final Call call;
-
-        public InviteToConferenceCallThread(String[] callees, Call call)
-        {
-            this.callees = callees;
-            this.call = call;
-        }
-
-        @Override
-        public void run()
-        {
-            OperationSetTelephonyConferencing confOpSet
-                = call.getProtocolProvider()
-                    .getOperationSet(
-                            OperationSetTelephonyConferencing.class);
-
-            /*
-             * XXX If we are here and we just discover that
-             * OperationSetTelephonyConferencing is not supported, then we're
-             * already in trouble. At the very least, we've already started a
-             * whole new thread just to check that a reference is null.
-             */
-            if (confOpSet == null)
-                return;
-
-            if (ConfigurationManager.isNormalizePhoneNumber())
-                normalizePhoneNumbers(callees);
-
-            for (String callee : callees)
-            {
-                Throwable exception = null;
-
-                try
-                {
-                    confOpSet.inviteCalleeToCall(callee, call);
-                }
-                catch (OperationFailedException ofe)
-                {
-                    exception = ofe;
-                }
-                catch (OperationNotSupportedException onse)
-                {
-                    exception = onse;
-                }
-                catch (IllegalArgumentException iae)
-                {
-                    exception = iae;
-                }
-                if (exception != null)
-                {
-                    logger
-                        .error("Failed to invite callee: " + callee, exception);
-
-                    new ErrorDialog(
-                            null,
-                            GuiActivator
-                                .getResources()
-                                    .getI18NString("service.gui.ERROR"),
-                            exception.getMessage(),
-                            ErrorDialog.ERROR)
-                        .showDialog();
-                }
-            }
-        }
-    }
-
-    /**
-     * Invites a list of callees to a conference call.
-     */
-    private static class InviteToCrossProtocolConferenceCallThread
-        extends Thread
-    {
         private final Map<ProtocolProviderService, List<String>>
             callees;
 
         private final Call call;
 
-        public InviteToCrossProtocolConferenceCallThread(
-            Map<ProtocolProviderService, List<String>> callees,
-            Call call)
+        public InviteToConferenceCallThread(
+                Map<ProtocolProviderService, List<String>> callees,
+                Call call)
         {
             this.callees = callees;
             this.call = call;
@@ -1950,154 +1849,87 @@ public class CallManager
         @Override
         public void run()
         {
-            for(Map.Entry<ProtocolProviderService, List<String>> entry :
-                callees.entrySet())
+            CallConference conference
+                = (call == null) ? null : call.getConference();
+
+            for(Map.Entry<ProtocolProviderService, List<String>> entry
+                    : callees.entrySet())
             {
-                ProtocolProviderService provider = entry.getKey();
+                ProtocolProviderService pps = entry.getKey();
+
+                OperationSetBasicTelephony<?> basicTelephony
+                    = pps.getOperationSet(OperationSetBasicTelephony.class);
+
+                if(basicTelephony == null)
+                    continue;
+
                 List<String> contactList = entry.getValue();
+                String[] contactArray
+                    = contactList.toArray(new String[contactList.size()]);
 
-                OperationSetBasicTelephony<?> opSetTelephony
-                    = provider.getOperationSet(
-                            OperationSetBasicTelephony.class);
+                if (ConfigurationManager.isNormalizePhoneNumber())
+                    normalizePhoneNumbers(contactArray);
 
-                if(opSetTelephony != null)
+                /* Try to have a single Call per ProtocolProviderService. */
+                Call ppsCall;
+
+                if ((call != null) && pps.equals(call.getProtocolProvider()))
+                    ppsCall = call;
+                else
                 {
-                    OperationSetTelephonyConferencing opSetConf
-                        = provider.getOperationSet(
-                                OperationSetTelephonyConferencing.class);
-
-                    String[] contactArray
-                        = contactList.toArray(new String[contactList.size()]);
-
-                    if (ConfigurationManager.isNormalizePhoneNumber())
-                        normalizePhoneNumbers(contactArray);
-
-                    /* Try to have a single Call per ProtocolProviderService. */
-                    Call providerCall = null;
-                    CallGroup group = null;
-
-                    if (provider.equals(call.getProtocolProvider()))
-                        providerCall = call;
-                    else
+                    ppsCall = null;
+                    if (conference != null)
                     {
-                        group = call.getCallGroup();
-                        if (group == null)
+                        for (Call conferenceCall : conference.getCalls())
                         {
-                            group = new CallGroup();
-                            group.addCall(call);
-                            call.setCallGroup(group);
-                        }
-                        else
-                        {
-                            for (Call groupCall : group.getCalls())
+                            if (pps.equals(
+                                    conferenceCall.getProtocolProvider()))
                             {
-                                if (provider.equals(
-                                        groupCall.getProtocolProvider()))
-                                {
-                                    providerCall = groupCall;
-                                    break;
-                                }
+                                ppsCall = conferenceCall;
+                                break;
                             }
                         }
                     }
-
-                    try
-                    {
-                        if (providerCall == null)
-                        {
-                            opSetConf.createConfCall(
-                                    contactArray,
-                                    group);
-                        }
-                        else
-                        {
-                            for (String contact : contactArray)
-                                opSetConf.inviteCalleeToCall(
-                                        contact,
-                                        providerCall);
-                        }
-                    }
-                    catch(Exception exception)
-                    {
-                        logger
-                            .error("Failed to invite callees",
-                                exception);
-
-                        new ErrorDialog(
-                                null,
-                                GuiActivator
-                                    .getResources()
-                                        .getI18NString("service.gui.ERROR"),
-                                exception.getMessage(),
-                                ErrorDialog.ERROR)
-                            .showDialog();
-                    }
                 }
-            }
-        }
-    }
 
-    /**
-     * Invites a list of callees to a conference call.
-     */
-    private static class CreateCrossProtocolConferenceCallThread
-        extends Thread
-    {
-        private final Map<ProtocolProviderService, List<String>>
-            callees;
-
-        public CreateCrossProtocolConferenceCallThread(
-            Map<ProtocolProviderService, List<String>> callees)
-        {
-            this.callees = callees;
-        }
-
-        @Override
-        public void run()
-        {
-            CallGroup group = new CallGroup();
-
-            for(Map.Entry<ProtocolProviderService, List<String>> entry :
-                callees.entrySet())
-            {
-                ProtocolProviderService provider = entry.getKey();
-                List<String> contacts = entry.getValue();
-
-                OperationSetBasicTelephony<?> opSetTelephony =
-                    provider.getOperationSet(OperationSetBasicTelephony.class);
-
-                if(opSetTelephony != null)
-                {
-                    OperationSetTelephonyConferencing opSetConf =
-                        provider.getOperationSet(
+                OperationSetTelephonyConferencing telephonyConferencing
+                    = pps.getOperationSet(
                             OperationSetTelephonyConferencing.class);
 
-                    String[] contactAddressStrings =
-                        new String[contacts.size()];
-                    contacts.toArray(contactAddressStrings);
-
-                    if (ConfigurationManager.isNormalizePhoneNumber())
-                        normalizePhoneNumbers(contactAddressStrings);
-
-                    try
+                try
+                {
+                    if (ppsCall == null)
                     {
-                        opSetConf.createConfCall(contactAddressStrings, group);
+                        ppsCall
+                            = telephonyConferencing.createConfCall(
+                                    contactArray,
+                                    conference);
+                        if (conference == null)
+                            conference = ppsCall.getConference();
                     }
-                    catch(Exception exception)
+                    else
                     {
-                        logger
-                            .error("Failed to invite callees",
-                                exception);
-
-                        new ErrorDialog(
-                                null,
-                                GuiActivator
-                                    .getResources()
-                                        .getI18NString("service.gui.ERROR"),
-                                exception.getMessage(),
-                                ErrorDialog.ERROR)
-                            .showDialog();
+                        for (String contact : contactArray)
+                        {
+                            telephonyConferencing.inviteCalleeToCall(
+                                    contact,
+                                    ppsCall);
+                        }
                     }
+                }
+                catch(Exception e)
+                {
+                    logger.error(
+                            "Failed to invite callees: "
+                                + Arrays.toString(contactArray),
+                            e);
+                    new ErrorDialog(
+                            null,
+                            GuiActivator.getResources().getI18NString(
+                                    "service.gui.ERROR"),
+                            e.getMessage(),
+                            ErrorDialog.ERROR)
+                        .showDialog();
                 }
             }
         }
@@ -2119,54 +1951,25 @@ public class CallManager
         @Override
         public void run()
         {
-            Iterator<? extends CallPeer> peers = null;
-
-            if(call.getCallGroup() != null)
+            for (Call conferenceCall : CallConference.getCalls(call))
             {
-                List<Call> calls = call.getCallGroup().getCalls();
+                Iterator<? extends CallPeer> peerIter
+                    = conferenceCall.getCallPeers();
+                OperationSetBasicTelephony<?> basicTelephony
+                    = conferenceCall.getProtocolProvider().getOperationSet(
+                            OperationSetBasicTelephony.class);
 
-                for(Call c : calls)
+                while (peerIter.hasNext())
                 {
-                    peers = c.getCallPeers();
-
-                    while(peers.hasNext())
-                    {
-                        CallPeer peer = peers.next();
-                        OperationSetBasicTelephony<?> telephony
-                            = peer.getCall().getProtocolProvider().
-                            getOperationSet(OperationSetBasicTelephony.class);
-
-                        try
-                        {
-                            telephony.hangupCallPeer(peer);
-                        }
-                        catch (OperationFailedException e)
-                        {
-                            logger.error("Could not hang up : " + peer
-                                + " caused by the following exception: " + e);
-                        }
-                    }
-                }
-            }
-            else
-            {
-                ProtocolProviderService pps = call.getProtocolProvider();
-                peers = call.getCallPeers();
-
-                while (peers.hasNext())
-                {
-                    CallPeer peer = peers.next();
-                    OperationSetBasicTelephony<?> telephony
-                        = pps.getOperationSet(OperationSetBasicTelephony.class);
+                    CallPeer peer = peerIter.next();
 
                     try
                     {
-                        telephony.hangupCallPeer(peer);
+                        basicTelephony.hangupCallPeer(peer);
                     }
-                    catch (OperationFailedException e)
+                    catch (OperationFailedException ofe)
                     {
-                        logger.error("Could not hang up : " + peer
-                            + " caused by the following exception: " + e);
+                        logger.error("Could not hang up: " + peer, ofe);
                     }
                 }
             }
@@ -2233,40 +2036,39 @@ public class CallManager
             OperationSetVideoTelephony telephony
                 = call.getProtocolProvider()
                     .getOperationSet(OperationSetVideoTelephony.class);
-
             boolean enableSucceeded = false;
 
-        if (telephony != null)
-        {
-            // First disable desktop sharing if it's currently enabled.
-            if (enable && isDesktopSharingEnabled(call))
+            if (telephony != null)
             {
-                getActiveCallContainer(call).setDesktopSharingButtonSelected(
-                        false);
+                // First make sure the desktop sharing is disabled.
+                if (enable && isDesktopSharingEnabled(call))
+                {
+                    getActiveCallContainer(call)
+                        .setDesktopSharingButtonSelected(false);
 
-                JFrame frame = DesktopSharingFrame.getFrameForCall(call);
+                    JFrame frame = DesktopSharingFrame.getFrameForCall(call);
 
-                if(frame != null)
-                    frame.dispose();
+                    if(frame != null)
+                        frame.dispose();
+                }
+
+                try
+                {
+                    telephony.setLocalVideoAllowed(call, enable);
+                    enableSucceeded = true;
+                }
+                catch (OperationFailedException ex)
+                {
+                    logger.error(
+                        "Failed to toggle the streaming of local video.",
+                        ex);
+                }
             }
 
-            try
-            {
-                telephony.setLocalVideoAllowed(call, enable);
-                enableSucceeded = true;
-            }
-            catch (OperationFailedException ex)
-            {
-                logger.error(
-                    "Failed to toggle the streaming of local video.",
-                    ex);
-            }
-        }
-
-        // If the operation didn't succeeded for some reason we make sure
-        // to unselect the video button.
-        if (enable && !enableSucceeded)
-            getActiveCallContainer(call).setVideoButtonSelected(false);
+            // If the operation didn't succeeded for some reason, make sure the
+            // video button doesn't remain selected.
+            if (enable && !enableSucceeded)
+                getActiveCallContainer(call).setVideoButtonSelected(false);
         }
     }
 
@@ -2302,14 +2104,11 @@ public class CallManager
             }
             catch (OperationFailedException ex)
             {
-                String callPeerAddress = callPeer.getAddress();
-
-                if (isOnHold)
-                    logger.error("Failed to put"
-                        + callPeerAddress + " on hold.", ex);
-                else
-                    logger.error("Failed to put"
-                        + callPeerAddress + " off hold.", ex);
+                logger.error(
+                        "Failed to put"
+                            + callPeer.getAddress()
+                            + (isOnHold ? " on hold." : " off hold."),
+                        ex);
             }
         }
     }
@@ -2334,25 +2133,26 @@ public class CallManager
          * Constructor.
          *
          * @param first first call
-         * @param calls list of cals
+         * @param calls list of calls
          */
-        public MergeExistingCalls(final Call first,
-            final Collection<Call> calls)
+        public MergeExistingCalls(Call first, Collection<Call> calls)
         {
             this.first = first;
             this.calls = calls;
         }
 
         /**
-         * {@inheritDoc}
+         * Puts off hold the <tt>CallPeer</tt>s of a specific <tt>Call</tt>
+         * which are locally on hold.
+         *
+         * @param call the <tt>Call</tt> which is to have its <tt>CallPeer</tt>s
+         * put off hold
          */
-        @Override
-        public void run()
+        private void putOffHold(Call call)
         {
-            // unselect onhold
-            Iterator<? extends CallPeer> peers = first.getCallPeers();
+            Iterator<? extends CallPeer> peers = call.getCallPeers();
             OperationSetBasicTelephony<?> telephony
-                = first.getProtocolProvider().getOperationSet(
+                = call.getProtocolProvider().getOperationSet(
                         OperationSetBasicTelephony.class);
 
             while (peers.hasNext())
@@ -2362,10 +2162,11 @@ public class CallManager
 
                 if(callPeer instanceof MediaAwareCallPeer)
                 {
-                    putOffHold = ((MediaAwareCallPeer<?,?,?>)callPeer).
-                        getMediaHandler().isLocallyOnHold();
+                    putOffHold
+                        = ((MediaAwareCallPeer<?,?,?>) callPeer)
+                            .getMediaHandler()
+                                .isLocallyOnHold();
                 }
-
                 if(putOffHold)
                 {
                     try
@@ -2373,67 +2174,40 @@ public class CallManager
                         telephony.putOffHold(callPeer);
                         Thread.sleep(400);
                     }
-                    catch(Exception ofex)
+                    catch(Exception ofe)
                     {
-                        logger.error(
-                                "Failed to put off hold.",
-                                ofex);
+                        logger.error("Failed to put off hold.", ofe);
                     }
                 }
             }
+        }
 
-            for(Call c : calls)
+        @Override
+        public void run()
+        {
+            // first
+            putOffHold(first);
+
+            // calls
+            if (!calls.isEmpty())
             {
-                if(c == first  || (first.getCallGroup() != null &&
-                    c.getCallGroup() == first.getCallGroup()))
-                    continue;
+                CallConference conference = first.getConference();
 
-                peers = c.getCallPeers();
-                telephony = c.getProtocolProvider().getOperationSet(
-                            OperationSetBasicTelephony.class);
-
-                while (peers.hasNext())
+                for(Call call : calls)
                 {
-                    CallPeer callPeer = peers.next();
-                    boolean putOffHold = true;
+                    if (call == first)
+                        continue;
 
-                    if(callPeer instanceof MediaAwareCallPeer)
-                    {
-                        putOffHold = ((MediaAwareCallPeer<?,?,?>)callPeer).
-                            getMediaHandler().isLocallyOnHold();
-                    }
+                    putOffHold(call);
 
-                    if(putOffHold)
-                    {
-                        try
-                        {
-                            telephony.putOffHold(callPeer);
-                            Thread.sleep(400);
-                        }
-                        catch(Exception ofex)
-                        {
-                            logger.error(
-                                    "Failed to put off hold.",
-                                    ofex);
-                        }
-                    }
+                    /*
+                     * Dispose of the CallPanel associated with the Call which
+                     * is to be merged.
+                     */
+                    closeCallContainerIfNotNecessary(call, false);
+
+                    call.setConference(conference);
                 }
-
-                // dispose existing CallPanel
-                CallPanel callPanel = CallManager.getActiveCallContainer(c);
-                callPanel.getCallWindow().close(callPanel);
-
-                CallGroup group = first.getCallGroup();
-                if(group == null)
-                {
-                    group = new CallGroup();
-                    group.addCall(first);
-                    first.setCallGroup(group);
-                }
-
-                group.addCall(c);
-                group.fireCallGroupEvent(c,
-                    CallGroupEvent.CALLGROUP_CALL_ADDED);
             }
         }
     }
@@ -2443,33 +2217,36 @@ public class CallManager
      * desktop sharing session.
      *
      * @return <tt>true</tt> if the user has accepted the desktop sharing
-     * session, <tt>false</tt> - otherwise
+     * session; <tt>false</tt>, otherwise
      */
     private static boolean showDesktopSharingWarning()
     {
-        Boolean isWarningEnabled = GuiActivator.getConfigurationService()
-            .getBoolean(desktopSharingWarningProperty, true);
+        Boolean isWarningEnabled
+            = GuiActivator.getConfigurationService().getBoolean(
+                    desktopSharingWarningProperty,
+                    true);
 
         if (isWarningEnabled.booleanValue())
         {
-            MessageDialog warningDialog = new MessageDialog(null,
-                GuiActivator.getResources().getI18NString(
-                    "service.gui.WARNING"),
-                GuiActivator.getResources().getI18NString(
-                    "service.gui.DESKTOP_SHARING_WARNING"),
-                true);
+            ResourceManagementService resources = GuiActivator.getResources();
+            MessageDialog warningDialog
+                = new MessageDialog(
+                        null,
+                        resources.getI18NString("service.gui.WARNING"),
+                        resources.getI18NString(
+                                "service.gui.DESKTOP_SHARING_WARNING"),
+                        true);
 
-            int result = warningDialog.showDialog();
-
-            switch (result)
+            switch (warningDialog.showDialog())
             {
                 case MessageDialog.OK_RETURN_CODE:
                     return true;
                 case MessageDialog.CANCEL_RETURN_CODE:
                     return false;
                 case MessageDialog.OK_DONT_ASK_CODE:
-                    GuiActivator.getConfigurationService()
-                        .setProperty(desktopSharingWarningProperty, false);
+                    GuiActivator.getConfigurationService().setProperty(
+                            desktopSharingWarningProperty,
+                            false);
                     return true;
             }
         }

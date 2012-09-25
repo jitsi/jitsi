@@ -15,7 +15,6 @@ import net.java.sip.communicator.service.protocol.event.*;
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.device.*;
 import org.jitsi.service.neomedia.event.*;
-import org.jitsi.util.*;
 
 /**
  * A utility class implementing media control code shared between current
@@ -23,12 +22,12 @@ import org.jitsi.util.*;
  * implementations and should/could not be accessed by bundles that are simply
  * using the telephony functionalities.
  *
- * @param <T> the peer extension class like for example <tt>CallPeerSipImpl</tt>
- * or <tt>CallPeerJabberImpl</tt>
- * @param <U> the provider extension class like for example
+ * @param <T> the peer extension class like, for example,
+ * <tt>CallPeerSipImpl</tt> or <tt>CallPeerJabberImpl</tt>
+ * @param <U> the provider extension class like, for example,
  * <tt>OperationSetBasicTelephonySipImpl</tt> or
  * <tt>OperationSetBasicTelephonySipImpl</tt>
- * @param <V> the provider extension class like for example
+ * @param <V> the provider extension class like, for example,
  * <tt>ProtocolProviderServiceSipImpl</tt> or
  * <tt>ProtocolProviderServiceJabberImpl</tt>
  *
@@ -41,7 +40,6 @@ public abstract class MediaAwareCall<
                 V extends ProtocolProviderService>
     extends AbstractCall<T, V>
     implements CallPeerListener,
-               CallChangeListener,
                PropertyChangeListener
 {
     /**
@@ -53,31 +51,6 @@ public abstract class MediaAwareCall<
      * be performed to retrieve the new value.
      */
     public static final String DEFAULT_DEVICE = "defaultDevice";
-
-    /**
-     * The <tt>MediaDevice</tt> which performs audio mixing for this
-     * <tt>Call</tt> and its <tt>CallPeer</tt>s when the local peer represented
-     * by this <tt>Call</tt> is acting as a conference focus i.e.
-     * {@link #conferenceFocus} is <tt>true</tt>.
-     */
-    private MediaDevice conferenceAudioMixer;
-
-    /**
-     * The <tt>MediaDevice</tt> which performs video mixing for this
-     * <tt>Call</tt> and its <tt>CallPeer</tt>s when the local peer represented
-     * by this <tt>Call</tt> is acting as a conference focus i.e.
-     * {@link #conferenceFocus} is <tt>true</tt>.
-     */
-    private MediaDevice conferenceVideoMixer;
-
-    /**
-     * The indicator which determines whether the local peer represented by this
-     * <tt>Call</tt> is acting as a conference focus and may thus be specifying
-     * a related parameter in its signaling, like for example the
-     * &quot;isfocus&quot; parameter in the Contact headers of its outgoing SIP
-     * signaling.
-     */
-    private boolean conferenceFocus = false;
 
     /**
      * Our video streaming policy.
@@ -119,20 +92,6 @@ public abstract class MediaAwareCall<
     protected MediaUseCase mediaUseCase = MediaUseCase.ANY;
 
     /**
-     * The <tt>MediaDevice</tt> for audio we should use in the call.
-     * In case this member is null, a lookup corresponding to MediaType.AUDIO is
-     * performed to the <tt>MediaService</tt>.
-     */
-    private MediaDevice audioDevice = null;
-
-    /**
-     * The <tt>MediaDevice</tt> for video we should use in the call.
-     * In case this member is null, a lookup corresponding to MediaType.VIDEO is
-     * performed to the <tt>MediaService</tt>.
-     */
-    private MediaDevice videoDevice = null;
-
-    /**
      * The listener that would actually subscribe for level events from the
      * media handler if there's at least one listener in
      * <tt>localUserAudioLevelListeners</tt>.
@@ -147,21 +106,6 @@ public abstract class MediaAwareCall<
                 };
 
     /**
-     * The <tt>RTPTranslator</tt> which forwards video RTP and RTCP traffic
-     * between the <tt>CallPeer</tt>s of this <tt>Call</tt> when the local
-     * peer represented by this <tt>Call</tt> is acting as a conference focus
-     * i.e. {@link #conferenceFocus} is <tt>true</tt>.
-     */
-    private RTPTranslator videoRTPTranslator;
-
-    /**
-     * The <tt>PropertyChangeSupport</tt> which helps this instance with
-     * <tt>PropertyChangeListener</tt>s.
-     */
-    private final PropertyChangeSupport propertyChangeSupport
-        = new PropertyChangeSupport(this);
-
-    /**
      * Crates a <tt>Call</tt> instance belonging to <tt>parentOpSet</tt>.
      *
      * @param parentOpSet a reference to the operation set that's creating us
@@ -172,14 +116,6 @@ public abstract class MediaAwareCall<
         super(parentOpSet.getProtocolProvider());
 
         this.parentOpSet = parentOpSet;
-
-        /*
-         * Listen to MediaService in order to reflect changes in the user's
-         * selection with respect to the default device.
-         */
-        ProtocolMediaActivator
-            .getMediaService()
-                .addPropertyChangeListener(this);
     }
 
     /**
@@ -257,29 +193,14 @@ public abstract class MediaAwareCall<
         finally
         {
             /*
-             * The peer should loose its state once it has finished
-             * firing its events in order to allow the listeners to undo.
+             * The peer should lose its state once it has finished firing the
+             * events in order to allow the listeners to undo.
              */
             callPeer.setCall(null);
         }
 
-        if (getCallPeersVector().isEmpty() &&
-            getCrossProtocolCallPeersVector().isEmpty())
-        {
+        if (getCallPeersVector().isEmpty())
             setCallState(CallState.CALL_ENDED, evt);
-
-            if(getCallGroup() != null)
-            {
-                for(Call c : getCallGroup().getCalls())
-                {
-                    if(c == this)
-                        continue;
-
-                    ((MediaAwareCall<?,?,?>)c).setCallState(
-                        CallState.CALL_ENDED, evt);
-                }
-            }
-        }
     }
 
     /**
@@ -368,44 +289,17 @@ public abstract class MediaAwareCall<
     /**
      * Gets the <tt>RTPTranslator</tt> which forwards RTP and RTCP traffic
      * between the <tt>CallPeer</tt>s of this <tt>Call</tt> when the local
-     * peer represented by this <tt>Call</tt> is acting as a conference focus
-     * i.e. {@link #conferenceFocus} is <tt>true</tt>.
+     * peer represented by this <tt>Call</tt> is acting as a conference focus.
      *
      * @param mediaType the <tt>MediaType</tt> of the <tt>MediaStream</tt> which
      * RTP and RTCP traffic is to be forwarded between
      * @return the <tt>RTPTranslator</tt> which forwards RTP and RTCP traffic
      * between the <tt>CallPeer</tt>s of this <tt>Call</tt> when the local
      * peer represented by this <tt>Call</tt> is acting as a conference focus
-     * i.e. {@link #conferenceFocus} is <tt>true</tt>
      */
     public RTPTranslator getRTPTranslator(MediaType mediaType)
     {
-        RTPTranslator rtpTranslator = null;
-
-        /*
-         * XXX The conferenceAudioMixer is created even when this Call is not a
-         * conference focus in order to enable additional functionality.
-         * Similarly, the videoRTPTranslator is created even when this Call is
-         * not a conference focus in order to enable this Call to turn into a
-         * conference focus at a later time. More specifically, MediaStreamImpl
-         * is unable to accommodate an RTPTranslator after it has created its
-         * RTPManager. Yet again like conferenceAudioMixer, we'd better not try
-         * to use it on Android at this time because of performance issues that
-         * may arise.
-         */
-        if (MediaType.VIDEO.equals(mediaType)
-                && (!OSUtils.IS_ANDROID || isConferenceFocus()))
-        {
-            if (videoRTPTranslator == null)
-            {
-                videoRTPTranslator
-                    = ProtocolMediaActivator
-                        .getMediaService()
-                            .createRTPTranslator();
-            }
-            rtpTranslator = videoRTPTranslator;
-        }
-        return rtpTranslator;
+        return getConference().getRTPTranslator(mediaType);
     }
 
     /**
@@ -418,48 +312,7 @@ public abstract class MediaAwareCall<
      */
     public boolean isConferenceFocus()
     {
-        return conferenceFocus;
-    }
-
-    /**
-     * Sets the indicator which determines whether the local peer represented by
-     * this <tt>Call</tt> is acting as a conference focus (and thus may, for
-     * example, need to send the corresponding parameters in its outgoing
-     * signaling).
-     *
-     * @param conferenceFocus <tt>true</tt> if the local peer represented by
-     * this <tt>Call</tt> is to act as a conference focus; otherwise,
-     * <tt>false</tt>
-     */
-    public synchronized void setConferenceFocus(boolean conferenceFocus)
-    {
-        if (this.conferenceFocus != conferenceFocus)
-        {
-            this.conferenceFocus = conferenceFocus;
-
-            /*
-             * If this Call switches from being a conference focus to not being
-             * one, dispose of the mixers used when it was a conference focus.
-             */
-            if (!this.conferenceFocus)
-            {
-                conferenceAudioMixer = null;
-                conferenceVideoMixer = null;
-                if (videoRTPTranslator != null)
-                {
-                    videoRTPTranslator.dispose();
-                    videoRTPTranslator = null;
-                }
-            }
-
-            /*
-             * Notify the registered CallChangeListeners that the value of the
-             * conferenceFocus property of this Call has changed.
-             */
-            fireCallChangeEvent(
-                    CallChangeEvent.CALL_FOCUS_CHANGE,
-                    !this.conferenceFocus, this.conferenceFocus);
-        }
+        return getConference().isConferenceFocus();
     }
 
     /**
@@ -483,86 +336,7 @@ public abstract class MediaAwareCall<
      */
     public MediaDevice getDefaultDevice(MediaType mediaType)
     {
-        MediaDevice device;
-
-        switch (mediaType)
-        {
-        case AUDIO:
-            {
-                /*
-                 * TODO There must be something wrong related to the CallGroup
-                 * functionality because the end product is that the local
-                 * variable device gets assigned a CallGroup-dependent value and
-                 * then it gets overwritten.
-                 */
-                List<Call> callGroupCalls;
-
-                if ((conferenceAudioMixer == null)
-                        && (callGroup != null)
-                        && ((callGroupCalls = callGroup.getCalls()).size() > 0))
-                {
-                    conferenceAudioMixer
-                        = ((MediaAwareCall<?,?,?>) callGroupCalls.get(0))
-                            .conferenceAudioMixer;
-                    device = conferenceAudioMixer;
-                }
-
-                device = audioDevice;
-            }
-            break;
-        case VIDEO:
-            device = videoDevice;
-            break;
-        default:
-            /*
-             * There is no other MediaType value (at the time of this writing).
-             */
-            return null;
-        }
-
-        MediaService mediaService = ProtocolMediaActivator.getMediaService();
-
-        if (device == null)
-            device = mediaService.getDefaultDevice(mediaType, mediaUseCase);
-
-        /*
-         * Make sure that the audio device has an AudioMixer in order to support
-         * conferencing and call recording.
-         */
-        switch (mediaType)
-        {
-        case AUDIO:
-            if ((conferenceAudioMixer == null)
-                    && (device != null)
-                    /*
-                     * TODO AudioMixer leads to very poor audio quality on
-                     * Android so do not use it unless it is really really
-                     * necessary.
-                     */
-                    && (!OSUtils.IS_ANDROID || isConferenceFocus())
-                    /*
-                     * We can use the AudioMixer only if the device is able to
-                     * capture (because the AudioMixer will push when the
-                     * capture device pushes).
-                     */
-                    && device.getDirection().allowsSending())
-                conferenceAudioMixer = mediaService.createMixer(device);
-            if (conferenceAudioMixer != null)
-                device = conferenceAudioMixer;
-            break;
-
-        case VIDEO:
-            if (isConferenceFocus())
-            {
-                if ((conferenceVideoMixer == null) && (device != null))
-                    conferenceVideoMixer = mediaService.createMixer(device);
-                if (conferenceVideoMixer != null)
-                    device = conferenceVideoMixer;
-            }
-            break;
-        }
-
-        return device;
+        return getConference().getDefaultDevice(mediaType, mediaUseCase);
     }
 
     /**
@@ -800,18 +574,6 @@ public abstract class MediaAwareCall<
     }
 
     /**
-     * Adds a <tt>PropertyChangeListener</tt> to be notified about changes in
-     * the values of the properties of this instance.
-     *
-     * @param listener the <tt>PropertyChangeListener</tt> to be notified about
-     * changes in the values of the properties of this instance
-     */
-    public void addPropertyChangeListener(PropertyChangeListener listener)
-    {
-        propertyChangeSupport.addPropertyChangeListener(listener);
-    }
-
-    /**
      * Registers a <tt>listener</tt> with all <tt>CallPeer</tt> currently
      * participating with the call so that it would be notified of changes in
      * video related properties (e.g. <tt>LOCAL_VIDEO_STREAMING</tt>).
@@ -827,18 +589,6 @@ public abstract class MediaAwareCall<
 
         while (peers.hasNext())
             peers.next().addVideoPropertyChangeListener(listener);
-    }
-
-    /**
-     * Removes a <tt>PropertyChangeListener</tt> to no longer be notified about
-     * changes in the values of the properties of this instance.
-     *
-     * @param listener the <tt>PropertyChangeListener</tt> to no longer be
-     * notified about changes in the values of the properties of this instance
-     */
-    public void removePropertyChangeListener(PropertyChangeListener listener)
-    {
-        propertyChangeSupport.removePropertyChangeListener(listener);
     }
 
     /**
@@ -995,166 +745,27 @@ public abstract class MediaAwareCall<
     }
 
     /**
-     * Sets the <tt>MediaDevice</tt> to be used by this <tt>Call</tt> for the
-     * video.
+     * Sets the <tt>MediaDevice</tt> to be used by this <tt>Call</tt> for audio
+     * capture and/or playback.
      *
-     * @param dev the <tt>MediaDevice</tt> to be used by this <tt>Call</tt> for
-     * the video
+     * @param audioDevice the <tt>MediaDevice</tt> to be used by this
+     * <tt>Call</tt> for audio capture and/or playback
      */
-    public void setVideoDevice(MediaDevice dev)
+    public void setAudioDevice(MediaDevice audioDevice)
     {
-        videoDevice = dev;
+        getConference().setDevice(MediaType.AUDIO, audioDevice);
     }
 
     /**
-     * Sets the <tt>MediaDevice</tt> to be used by this <tt>Call</tt> for the
-     * audio.
+     * Sets the <tt>MediaDevice</tt> to be used by this <tt>Call</tt> for video
+     * capture and/or playback.
      *
-     * @param dev the <tt>MediaDevice</tt> to be used by this <tt>Call</tt> for
-     * the audio
+     * @param videoDevice the <tt>MediaDevice</tt> to be used by this
+     * <tt>Call</tt> for video capture and/or playback
      */
-    public void setAudioDevice(MediaDevice dev)
+    public void setVideoDevice(MediaDevice videoDevice)
     {
-        if (audioDevice != dev)
-        {
-            /*
-             * XXX While we know the old and the new master/wrapped devices, we
-             * are not sure whether conferenceAudioMixer has been used. Anyway,
-             * we have to report different values in order to have
-             * PropertyChangeSupport really fire the event.
-             */
-            MediaDevice oldValue
-                = (conferenceAudioMixer instanceof MediaDeviceWrapper)
-                    ? ((MediaDeviceWrapper) conferenceAudioMixer)
-                            .getWrappedDevice()
-                    : audioDevice;
-
-            audioDevice = dev;
-
-            MediaDevice newValue = audioDevice;
-
-            if (oldValue != newValue)
-            {
-                conferenceAudioMixer = null;
-                propertyChangeSupport.firePropertyChange(
-                        DEFAULT_DEVICE,
-                        oldValue, newValue);
-            }
-        }
-    }
-
-    /**
-     * Indicates that a new call peer has joined the source call.
-     *
-     * @param evt the <tt>CallPeerEvent</tt> containing the source call
-     * and call peer.
-     */
-    public void callPeerAdded(CallPeerEvent evt)
-    {
-        /* peer from another protocol (for cross-protocol conference call) */
-        getCrossProtocolCallPeersVector().add(evt.getSourceCallPeer());
-    }
-
-    /**
-     * Indicates that a call peer has left the source call.
-     *
-     * @param evt the <tt>CallPeerEvent</tt> containing the source call
-     * and call peer.
-     */
-    public void callPeerRemoved(CallPeerEvent evt)
-    {
-        /* peer from another protocol (for cross-protocol conference call) */
-        getCrossProtocolCallPeersVector().remove(evt.getSourceCallPeer());
-    }
-
-    /**
-     * Indicates that a change has occurred in the state of the source call.
-     *
-     * @param evt the <tt>CallChangeEvent</tt> instance containing the source
-     * calls and its old and new state.
-     */
-    public void callStateChanged(CallChangeEvent evt)
-    {
-    }
-
-    /**
-     * Notifies this instance that a specific <tt>Call</tt> has been added to a
-     * <tt>CallGroup</tt>.
-     *
-     * @param evt a <tt>CallGroupEvent</tt> which specifies the <tt>Call</tt>
-     * which has been added to a <tt>CallGroup</tt>
-     * @see CallGroupListener#callAdded(CallGroupEvent)
-     */
-    public void callAdded(CallGroupEvent evt)
-    {
-        Call c = evt.getSourceCall();
-        c.addCallChangeListener(this);
-
-        Iterator<? extends CallPeer> peers = c.getCallPeers();
-
-        // sets the right MediaDevice for the added peer if we are the first
-        // Call of the CallGroup
-        if ((c instanceof MediaAwareCall)
-                && (this == getCallGroup().getCalls().get(0)))
-        {
-            MediaAwareCall<?,?,?> mac = (MediaAwareCall<?,?,?>) c;
-
-            mac.conferenceAudioMixer = null;
-            mac.getDefaultDevice(MediaType.AUDIO);
-        }
-
-        while(peers.hasNext())
-        {
-            CallPeer p = peers.next();
-
-            if(p instanceof MediaAwareCallPeer)
-            {
-                CallPeerMediaHandler<?> mediaHandler =
-                    ((MediaAwareCallPeer<?,?,?>)p).getMediaHandler();
-                MediaStream stream = mediaHandler.getStream(MediaType.AUDIO);
-
-                if(stream != null)
-                {
-                    if(this == getCallGroup().getCalls().get(0))
-                    {
-                        stream.setDevice(getDefaultDevice(MediaType.AUDIO));
-                        // for some protocol provider like XMPP, we do not
-                        // reinit/reconfigure the stream when we advertise
-                        // conference-info
-                        mediaHandler.registerAudioLevelListeners(
-                            (AudioMediaStream)stream);
-                    }
-                }
-
-                // TODO video
-            }
-
-            getCrossProtocolCallPeersVector().add(p);
-            fireCallPeerEvent(p, CallPeerEvent.CALL_PEER_ADDED);
-            setConferenceFocus(true);
-        }
-    }
-
-    /**
-     * Notified when a call is removed from a <tt>CallGroup</tt>.
-     *
-     * @param evt event
-     */
-    public void callRemoved(CallGroupEvent evt)
-    {
-        Call c = evt.getSourceCall();
-        c.removeCallChangeListener(this);
-
-        Iterator<? extends CallPeer> peers = c.getCallPeers();
-        while(peers.hasNext())
-        {
-            CallPeer p = peers.next();
-            getCrossProtocolCallPeersVector().remove(p);
-            fireCallPeerEvent(p, CallPeerEvent.CALL_PEER_REMOVED);
-        }
-
-        if((getCallPeerCount() + getCallGroup().getCalls().size()) < 2)
-            setConferenceFocus(false);
+        getConference().setDevice(MediaType.VIDEO, videoDevice);
     }
 
     /**
@@ -1186,85 +797,132 @@ public abstract class MediaAwareCall<
 
     /**
      * Notifies this instance about a change of the value of a specific property
-     * from a specific old value to a specific new value. At the time of this
-     * writing, <tt>MediaAwareCall</tt> listens to the property value changes of
-     * <tt>MediaService</tt> in order to track the changes of the default
-     * <tt>MediaDevice</tt>.
+     * from a specific old value to a specific new value.
      *
      * @param event a <tt>PropertyChangeEvent</tt> which specifies the name of
      * the property which has its value changed and the old and new values
      */
     public void propertyChange(PropertyChangeEvent event)
     {
-        if (MediaService.DEFAULT_DEVICE.equals(event.getPropertyName()))
+        /*
+         * Forward PropertyChangeEvents notifying about changes in the values of
+         * MediaAwareCall properties which are delegated to
+         * MediaAwareCallConference.
+         */
+        if (event.getSource() instanceof CallConference)
+        {
+            String propertyName = event.getPropertyName();
+
+            if (CONFERENCE_FOCUS.equals(propertyName))
+            {
+                conferenceFocusChanged(
+                        (Boolean) event.getOldValue(),
+                        (Boolean) event.getNewValue());
+            }
+            else if (DEFAULT_DEVICE.equals(propertyName))
+            {
+                firePropertyChange(
+                        DEFAULT_DEVICE,
+                        event.getOldValue(),
+                        event.getNewValue());
+            }
+        }
+    }
+
+    /**
+     * Notifies this instance that the value of its property
+     * {@link Call#CONFERENCE_FOCUS} has changed from a specific old value to a
+     * specific new value. Fires a <tt>PropertyChangeEvent</tt> to the
+     * registered <tt>PropertyChangeListener</tt>s. Protocol implementations
+     * which extend <tt>MediaAwareCall</tt> will likely want to override in
+     * order to add notifying the associated <tt>CallPeer</tt>s about the change
+     * of the property value (e.g. SIP will want to include the
+     * &quot;isfocus&quot; parameter in the Contact header while the local peer
+     * is acting as a conference focus.)
+     *
+     * @param oldValue the value of the property <tt>CONFERENCE_FOCUS</tt>
+     * before the change
+     * @param newValue the value of the property <tt>CONFERENCE_FOCUS</tt> after
+     * the change
+     */
+    protected void conferenceFocusChanged(boolean oldValue, boolean newValue)
+    {
+        firePropertyChange(CONFERENCE_FOCUS, oldValue, newValue);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Creates a new <tt>MediaAwareCallConference</tt> to represent the
+     * media-specific information associated with the telephony
+     * conference-related state of this <tt>MediaAwareCall</tt>.
+     */
+    @Override
+    protected CallConference createConference()
+    {
+        return new MediaAwareCallConference();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Makes sure that the telephony conference-related state of this
+     * <tt>MediaAwareCall</tt> is represented by a
+     * <tt>MediaAwareCallConference</tt> instance.
+     */
+    @Override
+    public MediaAwareCallConference getConference()
+    {
+        return (MediaAwareCallConference) super.getConference();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Listens to the changes in the values of the properties of this
+     * <tt>Call</tt>.
+     */
+    protected void firePropertyChange(
+            String property,
+            Object oldValue, Object newValue)
+    {
+        if (oldValue != newValue)
         {
             /*
-             * The first Call in a CallGroup will process the property change
-             * for all Calls in the CallGroup (because they share one and the
-             * same device).
+             * Listen to the changes in the values of the properties of the
+             * telephony conference-related state of this Call. For example,
+             * MediaAwareCall delegates some of its properties (e.g.
+             * DEFAULT_DEVICE) to its associated MediaAwareCallConference so
+             * changes to the values of the properties of the latter should
+             * result in PropertyChangeEvents fired by the former (as well).
              */
-            CallGroup callGroup = getCallGroup();
-
-            if ((callGroup != null) && (this != callGroup.getCalls().get(0)))
-                return;
-
-            /*
-             * XXX We only support changing the default audio device at the time
-             * of this writing.
-             */
-            MediaDevice oldValue
-                = (conferenceAudioMixer instanceof MediaDeviceWrapper)
-                    ? ((MediaDeviceWrapper) conferenceAudioMixer)
-                            .getWrappedDevice()
-                    : null;
-            MediaDevice newValue
-                = (audioDevice == null)
-                    ? ProtocolMediaActivator.getMediaService().getDefaultDevice(
-                            MediaType.AUDIO,
-                            mediaUseCase)
-                    : audioDevice;
-
-            /*
-             * XXX If MediaService#getDefaultDevice(MediaType, MediaUseCase)
-             * above returns null and its earlier return value was not null, we
-             * will not notify of an actual change in the value of the user's
-             * choice with respect to the default audio device.
-             */
-            if (oldValue != newValue)
+            if (CONFERENCE.equals(property))
             {
-                conferenceAudioMixer = null;
-                propertyChangeSupport.firePropertyChange(
-                        DEFAULT_DEVICE,
-                        oldValue, newValue);
-
-                /*
-                 * As previously stated, the first Call in a CallGroup will
-                 * process the property change for all Calls in the CallGroup.
-                 * Now that the first Call has responded to the change in the
-                 * DEFAULT_DEVICE, the other Calls in the CallGroup can be
-                 * notified about the change as well and they can consult the
-                 * device configured by the first Call. 
-                 */
-                callGroup = getCallGroup();
-                if (callGroup != null)
+                if (oldValue != null)
                 {
-                    List<Call> calls = callGroup.getCalls();
-
-                    for (Call c : calls)
-                    {
-                        if (c != this)
-                        {
-                            MediaAwareCall<?,?,?> call
-                                = (MediaAwareCall<?,?,?>) c;
-
-                            call.conferenceAudioMixer = null;
-                            call.propertyChangeSupport.firePropertyChange(
-                                    DEFAULT_DEVICE,
-                                    oldValue, newValue);
-                        }
-                    }
+                    ((CallConference) oldValue).removePropertyChangeListener(
+                            this);
+                }
+                if (newValue != null)
+                {
+                    ((CallConference) newValue).addPropertyChangeListener(
+                            this);
                 }
             }
         }
+
+        super.firePropertyChange(property, oldValue, newValue);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Makes sure that the telephony conference-related state of this
+     * <tt>MediaAwareCall</tt> is represented by a
+     * <tt>MediaAwareCallConference</tt> instance.
+     */
+    public void setConference(CallConference conference)
+    {
+        super.setConference((MediaAwareCallConference) conference);
     }
 }

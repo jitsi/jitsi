@@ -153,10 +153,12 @@ public class WizardController implements ActionListener
                 //just show an error and leave everything on the same page so that
                 //the user would have the chance to correct errors.
                 new ErrorDialog(
-                    null,
-                    GuiActivator.getResources().getI18NString("service.gui.ERROR"),
-                    ex.getMessage(),
-                    ex).showDialog();
+                        null,
+                        GuiActivator.getResources().getI18NString(
+                                "service.gui.ERROR"),
+                        ex.getMessage(),
+                        ex)
+                    .showDialog();
                 return;
             }
 

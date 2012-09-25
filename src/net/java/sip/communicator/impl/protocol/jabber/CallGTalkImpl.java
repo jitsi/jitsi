@@ -12,7 +12,6 @@ import net.java.sip.communicator.impl.protocol.jabber.extensions.gtalk.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.service.protocol.media.*;
 
 import org.jivesoftware.smack.packet.*;
 
@@ -104,8 +103,8 @@ public class CallGTalkImpl
 
         // if this was the first peer we added in this call then the call is
         // new and we also need to notify everyone of its creation.
-        if(this.getCallPeerCount() == 1 && this.getCallGroup() == null)
-            parentOpSet.fireCallEvent( CallEvent.CALL_RECEIVED, this);
+        if(this.getCallPeerCount() == 1)
+            parentOpSet.fireCallEvent(CallEvent.CALL_RECEIVED, this);
 
         // Manages auto answer with "audio only", or "audio / video" answer.
         OperationSetAutoAnswerJabberImpl autoAnswerOpSet
@@ -186,22 +185,8 @@ public class CallGTalkImpl
             }
             // if this was the first peer we added in this call then the call is
             // new and we also need to notify everyone of its creation.
-            if(getCallPeerCount() == 1 && getCallGroup() == null)
-            {
+            if(getCallPeerCount() == 1)
                 parentOpSet.fireCallEvent(CallEvent.CALL_INITIATED, this);
-            }
-            else if(getCallGroup() != null)
-            {
-                // only TelephonyConferencing OperationSet should know about it
-                CallEvent cEvent = new CallEvent(this,
-                    CallEvent.CALL_INITIATED);
-                AbstractOperationSetTelephonyConferencing<?,?,?,?,?> opSet =
-                    (AbstractOperationSetTelephonyConferencing<?,?,?,?,?>)
-                    getProtocolProvider().getOperationSet(
-                        OperationSetTelephonyConferencing.class);
-                if(opSet != null)
-                    opSet.outgoingCallCreated(cEvent);
-            }
         }
 
         CallPeerMediaHandlerGTalkImpl mediaHandler

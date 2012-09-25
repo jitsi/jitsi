@@ -111,17 +111,16 @@ public class CallGibberishImpl
 
     public void peerStateChanged(CallPeerChangeEvent evt)
     {
-        if ( ( (CallPeerState) evt.getNewValue())
-            == CallPeerState.DISCONNECTED
-            || ( (CallPeerState) evt.getNewValue())
-            == CallPeerState.FAILED)
+        CallPeerState newValue = (CallPeerState) evt.getNewValue();
+
+        if ((newValue == CallPeerState.DISCONNECTED)
+                || (newValue == CallPeerState.FAILED))
         {
             removeCallPeer(
                 (CallPeerGibberishImpl) evt.getSourceCallPeer());
         }
-        else if ( ( (CallPeerState) evt.getNewValue())
-                 == CallPeerState.CONNECTED
-                 && getCallState().equals(CallState.CALL_INITIALIZATION))
+        else if ((newValue == CallPeerState.CONNECTED)
+                && getCallState().equals(CallState.CALL_INITIALIZATION))
         {
             setCallState(CallState.CALL_IN_PROGRESS);
         }
@@ -160,8 +159,7 @@ public class CallGibberishImpl
      *
      * @param l the <tt>SoundLevelListener</tt> to add
      */
-    public void addLocalUserSoundLevelListener(
-        SoundLevelListener l)
+    public void addLocalUserSoundLevelListener(SoundLevelListener l)
     {
     }
 
@@ -172,26 +170,7 @@ public class CallGibberishImpl
      *
      * @param l the <tt>SoundLevelListener</tt> to remove
      */
-    public void removeLocalUserSoundLevelListener(
-        SoundLevelListener l)
-    {
-    }
-
-    /**
-     * Notified when a call are added to a <tt>CallGroup</tt>.
-     *
-     * @param evt event
-     */
-    public void callAdded(CallGroupEvent evt)
-    {
-    }
-
-    /**
-     * Notified when a call are removed from a <tt>CallGroup</tt>.
-     *
-     * @param evt event
-     */
-    public void callRemoved(CallGroupEvent evt)
+    public void removeLocalUserSoundLevelListener(SoundLevelListener l)
     {
     }
 }

@@ -30,7 +30,6 @@ public interface CallListener
     /**
      * This method is called by a protocol provider upon initiation of an
      * outgoing call.
-     * <p>
      *
      * @param event a CalldEvent instance describing the new incoming call.
      */

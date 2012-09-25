@@ -21,14 +21,12 @@ import net.java.sip.communicator.util.swing.*;
 import net.java.sip.communicator.util.swing.TransparentPanel;
 
 import org.jitsi.impl.neomedia.*;
-import org.jitsi.impl.neomedia.codec.*;
 import org.jitsi.impl.neomedia.device.*;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.codec.*;
 import org.jitsi.service.neomedia.device.*;
 import org.jitsi.service.neomedia.event.*;
-import org.jitsi.service.neomedia.format.*;
 import org.jitsi.service.resources.*;
 import org.jitsi.util.swing.*;
 
@@ -36,7 +34,7 @@ import org.jitsi.util.swing.*;
  * @author Lyubomir Marinov
  * @author Damian Minkov
  * @author Yana Stamcheva
- * @author BorisGrozev
+ * @author Boris Grozev
  */
 public class MediaConfigurationImpl implements MediaConfigurationService
 {
@@ -633,31 +631,38 @@ public class MediaConfigurationImpl implements MediaConfigurationService
      * <tt>MediaType.VIDEO</tt>
      * @return The component for encodings configuration.
      */
-    public Component createEncodingControls(MediaType mediaType,
+    public Component createEncodingControls(
+            MediaType mediaType,
             EncodingConfiguration encodingConfiguration,
             boolean autoUpdateConfig)
     {
         if(encodingConfiguration == null)
         {
-            encodingConfiguration =
-                    mediaService.getCurrentEncodingConfiguration();
+            encodingConfiguration
+                = mediaService.getCurrentEncodingConfiguration();
         }
 
-        if(mediaType == MediaType.AUDIO)
+        int deviceConfigurationComboBoxModelType;
+
+        switch (mediaType)
         {
-            return createEncodingControls(
-                    DeviceConfigurationComboBoxModel.AUDIO,
+        case AUDIO:
+            deviceConfigurationComboBoxModelType
+                = DeviceConfigurationComboBoxModel.AUDIO;
+            break;
+        case VIDEO:
+            deviceConfigurationComboBoxModelType
+                = DeviceConfigurationComboBoxModel.VIDEO;
+            break;
+        default:
+            throw new IllegalArgumentException("mediaType");
+        }
+
+        return
+            createEncodingControls(
+                    deviceConfigurationComboBoxModelType,
                     encodingConfiguration,
                     autoUpdateConfig);
-        }
-        else if (mediaType == MediaType.VIDEO)
-        {
-            return createEncodingControls(
-                    DeviceConfigurationComboBoxModel.VIDEO,
-                    encodingConfiguration,
-                    autoUpdateConfig);
-        }
-        throw new IllegalArgumentException();
     }
 
     /**
@@ -950,9 +955,11 @@ public class MediaConfigurationImpl implements MediaConfigurationService
      */
     private static void move(JTable table, boolean up)
     {
-        int index =
-            ((EncodingConfigurationTableModel) table.getModel()).move(table
-                .getSelectedRow(), up);
+        int index
+            = ((EncodingConfigurationTableModel) table.getModel()).move(
+                    table.getSelectedRow(),
+                    up);
+
         table.getSelectionModel().setSelectionInterval(index, index);
     }
 
@@ -1128,7 +1135,7 @@ public class MediaConfigurationImpl implements MediaConfigurationService
     }
 
     /**
-     * Returns the <tt>MediaService</tt> instance
+     * Returns the <tt>MediaService</tt> instance.
      *
      * @return the <tt>MediaService</tt> instance
      */

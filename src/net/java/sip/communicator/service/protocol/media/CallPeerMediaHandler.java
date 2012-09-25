@@ -187,16 +187,12 @@ public abstract class CallPeerMediaHandler
         };
 
     /**
-     * The <tt>Object</tt> to synchronize the access to
-     * {@link #localUserAudioLevelListeners}.
-     */
-    private final Object visualComponentResolveSyncRoot = new Object();
-
-    /**
      * The list of <tt>VisualComponentResolveListener</tt>s interested in
      * visual component resolve events.
      */
-    private List<VisualComponentResolveListener> visualComponentResolveListeners;
+    private final List<VisualComponentResolveListener>
+        visualComponentResolveListeners
+            = new LinkedList<VisualComponentResolveListener>();
 
     /**
      * The state of this instance which may be shared with multiple other
@@ -651,7 +647,7 @@ public abstract class CallPeerMediaHandler
      */
     protected MediaDevice getDefaultDevice(MediaType mediaType)
     {
-        return peer.getCall().getDefaultDevice(mediaType);
+        return getPeer().getCall().getDefaultDevice(mediaType);
     }
 
     /**
@@ -993,24 +989,37 @@ public abstract class CallPeerMediaHandler
      */
     private void callPropertyChange(PropertyChangeEvent event)
     {
-        if (MediaAwareCall.DEFAULT_DEVICE.equals(event.getPropertyName()))
+        String propertyName = event.getPropertyName();
+
+        if (MediaAwareCall.CONFERENCE.equals(propertyName)
+                || MediaAwareCall.DEFAULT_DEVICE.equals(propertyName))
         {
-            /*
-             * XXX We support changing the default audio device only at the time
-             * of this writing.
-             */
-            MediaStream stream = getStream(MediaType.AUDIO);
-            MediaDevice oldValue = stream.getDevice();
+            MediaAwareCall<?,?,?> call = getPeer().getCall();
 
-            if (oldValue != null)
+            if (call == null)
+                return;
+
+            for (MediaType mediaType : MediaType.values())
             {
-                MediaDevice newValue = getDefaultDevice(MediaType.AUDIO);
+                MediaStream stream = getStream(mediaType);
+                MediaDevice oldDevice = stream.getDevice();
 
-                if (oldValue != newValue)
+                if (oldDevice != null)
                 {
-                    stream.setDevice(newValue);
-                    registerAudioLevelListeners((AudioMediaStream) stream);
+                    MediaDevice newDevice = getDefaultDevice(mediaType);
+
+                    if (oldDevice != newDevice)
+                    {
+                        stream.setDevice(newDevice);
+                        if (stream instanceof AudioMediaStream)
+                        {
+                            registerAudioLevelListeners(
+                                    (AudioMediaStream) stream);
+                        }
+                    }
                 }
+
+                stream.setRTPTranslator(call.getRTPTranslator(mediaType));
             }
         }
     }
@@ -1492,21 +1501,15 @@ public abstract class CallPeerMediaHandler
      * correspond to a particular <tt>ConferenceMember</tt>.
      */
     public void addVisualComponentResolveListener(
-        VisualComponentResolveListener listener)
+            VisualComponentResolveListener listener)
     {
         if (listener == null)
             throw new NullPointerException("listener");
 
-        synchronized (visualComponentResolveSyncRoot)
+        synchronized (visualComponentResolveListeners)
         {
-            if ((visualComponentResolveListeners == null)
-                    || visualComponentResolveListeners.isEmpty())
-            {
-                visualComponentResolveListeners
-                    = new ArrayList<VisualComponentResolveListener>();
-            }
-
-            visualComponentResolveListeners.add(listener);
+            if (!visualComponentResolveListeners.contains(listener))
+                visualComponentResolveListeners.add(listener);
         }
     }
 
@@ -1520,15 +1523,11 @@ public abstract class CallPeerMediaHandler
      * removed
      */
     public void removeVisualComponentResolveListener(
-        VisualComponentResolveListener listener)
+            VisualComponentResolveListener listener)
     {
-        synchronized (visualComponentResolveSyncRoot)
+        synchronized (visualComponentResolveListeners)
         {
-            if ((visualComponentResolveListeners != null)
-                    && !visualComponentResolveListeners.isEmpty())
-            {
-                visualComponentResolveListeners.remove(listener);
-            }
+            visualComponentResolveListeners.remove(listener);
         }
     }
 
@@ -1541,39 +1540,26 @@ public abstract class CallPeerMediaHandler
      * @param conferenceMember the resolved <tt>ConferenceMember</tt>
      */
     public void fireVisualComponentResolveEvent(
-                                            Component visualComponent,
-                                            ConferenceMember conferenceMember)
+            Component visualComponent,
+            ConferenceMember conferenceMember)
     {
-        List<VisualComponentResolveListener> visualComponentResolveListeners;
+        VisualComponentResolveListener[] listeners;
 
-        synchronized (visualComponentResolveSyncRoot)
+        synchronized(visualComponentResolveListeners)
         {
-            /*
-            * Since the localUserAudioLevelListeners field of this
-            * MediaAwareCall is implemented as a copy-on-write storage, just
-            * get a reference to it and it should be safe to iterate over it
-            * without ConcurrentModificationExceptions.
-            */
-            visualComponentResolveListeners
-            = this.visualComponentResolveListeners;
+            listeners
+                = this.visualComponentResolveListeners.toArray(
+                        new VisualComponentResolveListener[
+                                this.visualComponentResolveListeners.size()]);
         }
 
-        if (visualComponentResolveListeners != null)
+        for(VisualComponentResolveListener l : listeners)
         {
-        /*
-        * Iterate over localUserAudioLevelListeners using an index rather
-        * than an Iterator in order to try to reduce the number of
-        * allocations (as the number of audio level changes is expected to
-        * be very large).
-        */
-        int visualComponentResolveListenerCount
-        = visualComponentResolveListeners.size();
-
-        for(int i = 0; i < visualComponentResolveListenerCount; i++)
-        visualComponentResolveListeners.get(i).visualComponentResolved(
-        new VisualComponentResolveEvent(this,
-                        visualComponent,
-                        conferenceMember));
+            l.visualComponentResolved(
+                    new VisualComponentResolveEvent(
+                            this,
+                            visualComponent,
+                            conferenceMember));
         }
     }
 
@@ -1652,38 +1638,40 @@ public abstract class CallPeerMediaHandler
      * @return a non-null list of locally supported <tt>MediaFormat</tt>s for
      * <tt>mediaDevice</tt>, in decreasing order of priority.
      */
-    public List<MediaFormat> getLocallySupportedFormats(MediaDevice mediaDevice,
-            QualityPreset sendPreset,
-            QualityPreset receivePreset)
+    public List<MediaFormat> getLocallySupportedFormats(
+            MediaDevice mediaDevice,
+            QualityPreset sendPreset, QualityPreset receivePreset)
     {
         if(mediaDevice == null)
             return Collections.emptyList();
 
-        boolean accountOverridesEncodings = false;
-
         Map<String, String> accountProperties
-                = getPeer().getProtocolProvider()
-                    .getAccountID().getAccountProperties();
+            = getPeer().getProtocolProvider().getAccountID()
+                    .getAccountProperties();
+        String overrideEncodings
+            = accountProperties.get(ProtocolProviderFactory.OVERRIDE_ENCODINGS);
 
-        if(accountProperties.containsKey(ProtocolProviderFactory.OVERRIDE_ENCODINGS)
-                && Boolean.parseBoolean(accountProperties.get
-                (ProtocolProviderFactory.OVERRIDE_ENCODINGS)))
+        if(Boolean.parseBoolean(overrideEncodings))
         {
-                accountOverridesEncodings = true;
-        }
+            /*
+             * The account properties associated with the CallPeer of this
+             * CallPeerMediaHandler override the global EncodingConfiguration.
+             */
 
-        if(accountOverridesEncodings)  /* use account configuration */
-        {
             EncodingConfiguration encodingConfiguration
-                    = ProtocolMediaActivator.getMediaService().
-                        createEmptyEncodingConfiguration();
-            encodingConfiguration.loadProperties(accountProperties,
+                = ProtocolMediaActivator.getMediaService()
+                        .createEmptyEncodingConfiguration();
+
+            encodingConfiguration.loadProperties(
+                    accountProperties,
                     ProtocolProviderFactory.ENCODING_PROP_PREFIX);
 
-            return mediaDevice.getSupportedFormats(sendPreset, receivePreset,
-                    encodingConfiguration);
+            return
+                mediaDevice.getSupportedFormats(
+                        sendPreset, receivePreset,
+                        encodingConfiguration);
         }
-        else    /* use global configuration */
+        else /* The global EncodingConfiguration is in effect. */
         {
             return mediaDevice.getSupportedFormats(sendPreset, receivePreset);
         }
@@ -1697,11 +1685,7 @@ public abstract class CallPeerMediaHandler
      */
     public boolean isDeviceActive(MediaDevice dev)
     {
-        if (dev != null && !getLocallySupportedFormats(dev).isEmpty())
-        {
-            return true;
-        }
-        return false;
+        return (dev != null) && !getLocallySupportedFormats(dev).isEmpty();
     }
 
     /**
@@ -1711,16 +1695,13 @@ public abstract class CallPeerMediaHandler
      * @return <tt>true</tt> if the device is not null, and it has at least
      * one enabled format. Otherwise <tt>false</tt>
      */
-    public boolean isDeviceActive(MediaDevice dev, QualityPreset sendPreset,
-                                  QualityPreset receivePreset)
+    public boolean isDeviceActive(
+            MediaDevice dev,
+            QualityPreset sendPreset, QualityPreset receivePreset)
     {
-        if (dev != null &&
-                !getLocallySupportedFormats(dev,
-                        sendPreset, receivePreset)
-                    .isEmpty())
-        {
-            return true;
-        }
-        return false;
+        return
+            (dev != null)
+                && !getLocallySupportedFormats(dev, sendPreset, receivePreset)
+                        .isEmpty();
     }
 }

@@ -883,8 +883,6 @@ public abstract class EventPackageNotifier
         CallIdHeader callIdHeader
             = (CallIdHeader) response.getHeader(CallIdHeader.NAME);
         String callId = callIdHeader.getCallId();
-        FromHeader fromHeader
-            = (FromHeader) response.getHeader(FromHeader.NAME);
         Subscription subscription = getSubscription(callId);
 
         if (subscription != null)
@@ -896,8 +894,8 @@ public abstract class EventPackageNotifier
              */
             synchronized (subscription)
             {
-                if (subscription
-                        .getDialog().equals(clientTransaction.getDialog()))
+                if (subscription.getDialog().equals(
+                        clientTransaction.getDialog()))
                     removeSubscription(callId, subscription);
             }
         }

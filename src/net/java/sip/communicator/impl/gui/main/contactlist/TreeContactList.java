@@ -1339,21 +1339,31 @@ public class TreeContactList
      */
     private void dispatchEventToButtons(MouseEvent event)
     {
-        TreePath mousePath
-            = this.getPathForLocation(event.getX(), event.getY());
+        TreePath mousePath = getPathForLocation(event.getX(), event.getY());
+
+        /*
+         * XXX The check whether mousePath is equal to null was after the
+         * assignment to renderer, in the same if as
+         * !mousePath.equals(getSelectionPath()). But the assignment to renderer
+         * needs mousePath to be non-null because of the call to
+         * mousePath.getLastPathComponent().
+         */
+        if (mousePath == null)
+            return;
 
         ContactListTreeCellRenderer renderer
-            = (ContactListTreeCellRenderer) getCellRenderer()
-                .getTreeCellRendererComponent(  this,
-                                                mousePath.getLastPathComponent(),
-                                                true,
-                                                true,
-                                                true,
-                                                this.getRowForPath(mousePath),
-                                                true);
+            = (ContactListTreeCellRenderer)
+                getCellRenderer().getTreeCellRendererComponent(
+                        this,
+                        mousePath.getLastPathComponent(),
+                        true,
+                        true,
+                        true,
+                        getRowForPath(mousePath),
+                        true);
 
         // If this is not the selection path we have nothing to do here.
-        if (mousePath == null || !mousePath.equals(this.getSelectionPath()))
+        if (!mousePath.equals(getSelectionPath()))
         {
             renderer.getChatButton().getModel().setRollover(false);
             renderer.getCallButton().getModel().setRollover(false);

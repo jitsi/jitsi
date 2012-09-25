@@ -22,7 +22,8 @@ import net.java.sip.communicator.util.*;
 import org.jitsi.service.neomedia.*;
 
 /**
- * A SIP implementation of the Call abstract class encapsulating SIP dialogs.
+ * A SIP implementation of the abstract <tt>Call</tt> class encapsulating SIP
+ * dialogs.
  *
  * @author Emil Ivov
  */
@@ -38,16 +39,16 @@ public class CallSipImpl
     private static final Logger logger = Logger.getLogger(CallSipImpl.class);
 
     /**
-     * A reference to the <tt>SipMessageFactory</tt> instance that we should
-     * use when creating requests.
-     */
-    private final SipMessageFactory messageFactory;
-
-    /**
      * When starting call we may have quality preferences we must use
      * for the call.
      */
     private QualityPreset initialQualityPreferences;
+
+    /**
+     * A reference to the <tt>SipMessageFactory</tt> instance that we should
+     * use when creating requests.
+     */
+    private final SipMessageFactory messageFactory;
 
     /**
      * Crates a CallSipImpl instance belonging to <tt>sourceProvider</tt> and
@@ -59,11 +60,36 @@ public class CallSipImpl
     protected CallSipImpl(OperationSetBasicTelephonySipImpl parentOpSet)
     {
         super(parentOpSet);
+
         this.messageFactory = getProtocolProvider().getMessageFactory();
 
         //let's add ourselves to the calls repo. we are doing it ourselves just
         //to make sure that no one ever forgets.
         parentOpSet.getActiveCallsRepository().addCall(this);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Re-INVITEs the <tt>CallPeer</tt>s associated with this
+     * <tt>CallSipImpl</tt> in order to include/exclude the &quot;isfocus&quot;
+     * parameter in the Contact header. 
+     */
+    @Override
+    protected void conferenceFocusChanged(boolean oldValue, boolean newValue)
+    {
+        try
+        {
+            reInvite();
+        }
+        catch (OperationFailedException ofe)
+        {
+            logger.info("Failed to re-INVITE this Call: " + this, ofe);
+        }
+        finally
+        {
+            super.conferenceFocusChanged(oldValue, newValue);
+        }
     }
 
     /**
@@ -78,6 +104,136 @@ public class CallSipImpl
     public boolean contains(Dialog dialog)
     {
         return findCallPeer(dialog) != null;
+    }
+
+    /**
+     * Creates a new call peer associated with <tt>containingTransaction</tt>
+     *
+     * @param containingTransaction the transaction that created the call peer.
+     * @param sourceProvider the provider that the containingTransaction belongs
+     * to.
+     * @return a new instance of a <tt>CallPeerSipImpl</tt> corresponding
+     * to the <tt>containingTransaction</tt>.
+     */
+    private CallPeerSipImpl createCallPeerFor(
+            Transaction containingTransaction,
+            SipProvider sourceProvider)
+    {
+        CallPeerSipImpl callPeer
+            = new CallPeerSipImpl(
+                    containingTransaction.getDialog().getRemoteParty(),
+                    this,
+                    containingTransaction,
+                    sourceProvider);
+
+        addCallPeer(callPeer);
+
+        boolean incomingCall
+            = (containingTransaction instanceof ServerTransaction);
+
+        callPeer.setState(
+                incomingCall
+                    ? CallPeerState.INCOMING_CALL
+                    : CallPeerState.INITIATING_CALL);
+
+        // if this was the first peer we added in this call then the call is
+        // new and we also need to notify everyone of its creation.
+        if(getCallPeerCount() == 1)
+        {
+            Map<MediaType, MediaDirection> mediaDirections
+                = new HashMap<MediaType, MediaDirection>();
+
+            mediaDirections.put(MediaType.AUDIO, MediaDirection.INACTIVE);
+            mediaDirections.put(MediaType.VIDEO, MediaDirection.INACTIVE);
+
+            boolean hasZrtp = false;
+            boolean hasSdes = false;
+
+            //this check is not mandatory catch all to skip if a problem exists
+            try
+            {
+                // lets check the supported media types.
+                // for this call
+                Request inviteReq = containingTransaction.getRequest();
+
+                if(inviteReq != null && inviteReq.getRawContent() != null)
+                {
+                    String sdpStr = SdpUtils.getContentAsString(inviteReq);
+                    SessionDescription sesDescr
+                        = SdpUtils.parseSdpString(sdpStr);
+                    List<MediaDescription> remoteDescriptions
+                        = SdpUtils.extractMediaDescriptions(sesDescr);
+
+                    for (MediaDescription mediaDescription : remoteDescriptions)
+                    {
+                        MediaType mediaType
+                            = SdpUtils.getMediaType(mediaDescription);
+
+                        mediaDirections.put(
+                                mediaType,
+                                SdpUtils.getDirection(mediaDescription));
+
+                        // hasZrtp?
+                        if (!hasZrtp)
+                        {
+                            hasZrtp
+                                = (mediaDescription.getAttribute(
+                                        SdpUtils.ZRTP_HASH_ATTR)
+                                    != null);
+                        }
+                        // hasSdes?
+                        if (!hasSdes)
+                        {
+                            @SuppressWarnings("unchecked")
+                            Vector<Attribute> attrs
+                                = mediaDescription.getAttributes(true);
+
+                            for (Attribute attr : attrs)
+                            {
+                                try
+                                {
+                                    if ("crypto".equals(attr.getName()))
+                                    {
+                                        hasSdes = true;
+                                        break;
+                                    }
+                                }
+                                catch (SdpParseException spe)
+                                {
+                                    logger.error(
+                                            "Failed to parse SDP attribute",
+                                            spe);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch(Throwable t)
+            {
+                logger.warn("Error getting media types", t);
+            }
+
+            getParentOperationSet().fireCallEvent(
+                    incomingCall
+                        ? CallEvent.CALL_RECEIVED
+                        : CallEvent.CALL_INITIATED,
+                    this,
+                    mediaDirections);
+
+            if(hasZrtp)
+            {
+                callPeer.getMediaHandler().addAdvertisedEncryptionMethod(
+                        SrtpControlType.ZRTP);
+            }
+            if(hasSdes)
+            {
+                callPeer.getMediaHandler().addAdvertisedEncryptionMethod(
+                        SrtpControlType.SDES);
+            }
+        }
+
+        return callPeer;
     }
 
     /**
@@ -206,207 +362,6 @@ public class CallSipImpl
     }
 
     /**
-     * Send a RE-INVITE request for all current <tt>CallPeer</tt> to reflect
-     * possible change in media setup (video start/stop, ...).
-     *
-     * @throws OperationFailedException if problem occurred during SDP
-     * generation or network problem
-     */
-    public void reInvite() throws OperationFailedException
-    {
-        Iterator<CallPeerSipImpl> peers = getCallPeers();
-
-        while (peers.hasNext())
-        {
-            CallPeerSipImpl peer = peers.next();
-
-            peer.sendReInvite();
-        }
-    }
-
-    /**
-     * Creates a new call peer associated with <tt>containingTransaction</tt>
-     *
-     * @param containingTransaction the transaction that created the call peer.
-     * @param sourceProvider the provider that the containingTransaction belongs
-     * to.
-     *
-     * @return a new instance of a <tt>CallPeerSipImpl</tt> corresponding
-     * to the <tt>containingTransaction</tt>.
-     */
-    private CallPeerSipImpl createCallPeerFor(
-        Transaction containingTransaction, SipProvider sourceProvider)
-    {
-        CallPeerSipImpl callPeer
-            = new CallPeerSipImpl(
-                    containingTransaction.getDialog().getRemoteParty(),
-                    this,
-                    containingTransaction,
-                    sourceProvider);
-
-        addCallPeer(callPeer);
-
-        boolean incomingCall
-            = (containingTransaction instanceof ServerTransaction);
-
-        callPeer.setState(
-                incomingCall
-                    ? CallPeerState.INCOMING_CALL
-                    : CallPeerState.INITIATING_CALL);
-
-        // if this was the first peer we added in this call then the call is
-        // new and we also need to notify everyone of its creation.
-        if(getCallPeerCount() == 1)
-        {
-            Map<MediaType, MediaDirection> mediaDirections
-                = new HashMap<MediaType, MediaDirection>();
-
-            mediaDirections.put(MediaType.AUDIO, MediaDirection.INACTIVE);
-            mediaDirections.put(MediaType.VIDEO, MediaDirection.INACTIVE);
-
-            boolean hasZrtp = false;
-            boolean hasSdes = false;
-
-            //this check is not mandatory catch all to skip if a problem exists
-            try
-            {
-                // lets check the supported media types.
-                // for this call
-                Request inviteReq = containingTransaction.getRequest();
-
-                if(inviteReq != null && inviteReq.getRawContent() != null)
-                {
-                    String sdpStr = SdpUtils.getContentAsString(inviteReq);
-                    SessionDescription sesDescr
-                        = SdpUtils.parseSdpString(sdpStr);
-                    List<MediaDescription> remoteDescriptions
-                        = SdpUtils.extractMediaDescriptions(sesDescr);
-
-                    for (MediaDescription mediaDescription : remoteDescriptions)
-                    {
-                        MediaType mediaType
-                            = SdpUtils.getMediaType(mediaDescription);
-
-                        mediaDirections.put(
-                                mediaType,
-                                SdpUtils.getDirection(mediaDescription));
-
-                        // hasZrtp?
-                        if (!hasZrtp)
-                        {
-                            hasZrtp
-                                = (mediaDescription.getAttribute(
-                                        SdpUtils.ZRTP_HASH_ATTR)
-                                    != null);
-                        }
-                        // hasSdes?
-                        if (!hasSdes)
-                        {
-                            @SuppressWarnings("unchecked")
-                            Vector<Attribute> attrs
-                                = mediaDescription.getAttributes(true);
-
-                            for (Attribute attr : attrs)
-                            {
-                                try
-                                {
-                                    if ("crypto".equals(attr.getName()))
-                                    {
-                                        hasSdes = true;
-                                        break;
-                                    }
-                                }
-                                catch (SdpParseException spe)
-                                {
-                                    logger.error(
-                                            "Failed to parse SDP attribute",
-                                            spe);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            catch(Throwable t)
-            {
-                logger.warn("Error getting media types", t);
-            }
-
-            if(getCallGroup() == null)
-            {
-                getParentOperationSet().fireCallEvent(
-                        incomingCall
-                            ? CallEvent.CALL_RECEIVED
-                            : CallEvent.CALL_INITIATED,
-                        this,
-                        mediaDirections);
-            }
-
-            if(hasZrtp)
-            {
-                callPeer.getMediaHandler().addAdvertisedEncryptionMethod(
-                        SrtpControlType.ZRTP);
-            }
-            if(hasSdes)
-            {
-                callPeer.getMediaHandler().addAdvertisedEncryptionMethod(
-                        SrtpControlType.SDES);
-            }
-        }
-
-        return callPeer;
-    }
-
-    /**
-     * Processes an incoming INVITE that is meant to replace an existing
-     * <tt>CallPeerSipImpl</tt> that is participating in this call. Typically
-     * this would happen as a result of an attended transfer.
-     *
-     * @param jainSipProvider the JAIN-SIP <tt>SipProvider</tt> that received
-     * the request.
-     * @param serverTransaction the transaction containing the INVITE request.
-     * @param callPeerToReplace a reference to the <tt>CallPeer</tt> that this
-     * INVITE is trying to replace.
-     */
-    public void processReplacingInvite(SipProvider       jainSipProvider,
-                                       ServerTransaction serverTransaction,
-                                       CallPeerSipImpl   callPeerToReplace)
-    {
-        CallPeerSipImpl newCallPeer
-                    = createCallPeerFor(serverTransaction, jainSipProvider);
-        try
-        {
-            newCallPeer.answer();
-        }
-        catch (OperationFailedException ex)
-        {
-            logger.error(
-                "Failed to auto-answer the referred call peer "
-                    + newCallPeer, ex);
-            /*
-             * RFC 3891 says an appropriate error response MUST be returned
-             * and callPeerToReplace must be left unchanged.
-             */
-            //TODO should we send a response here?
-            return;
-        }
-
-        //we just accepted the new peer and if we got here then it went well
-        //now let's hangup the other call.
-        try
-        {
-            callPeerToReplace.hangup();
-        }
-        catch (OperationFailedException ex)
-        {
-            logger.error("Failed to hangup the referer "
-                            + callPeerToReplace, ex);
-            callPeerToReplace.setState(
-                            CallPeerState.FAILED, "Internal Error: " + ex);
-        }
-    }
-
-    /**
      * Creates a new call and sends a RINGING response.
      *
      * @param jainSipProvider the provider containing
@@ -446,54 +401,76 @@ public class CallSipImpl
     }
 
     /**
+     * Processes an incoming INVITE that is meant to replace an existing
+     * <tt>CallPeerSipImpl</tt> that is participating in this call. Typically
+     * this would happen as a result of an attended transfer.
+     *
+     * @param jainSipProvider the JAIN-SIP <tt>SipProvider</tt> that received
+     * the request.
+     * @param serverTransaction the transaction containing the INVITE request.
+     * @param callPeerToReplace a reference to the <tt>CallPeer</tt> that this
+     * INVITE is trying to replace.
+     */
+    public void processReplacingInvite(SipProvider       jainSipProvider,
+                                       ServerTransaction serverTransaction,
+                                       CallPeerSipImpl   callPeerToReplace)
+    {
+        CallPeerSipImpl newCallPeer
+                    = createCallPeerFor(serverTransaction, jainSipProvider);
+        try
+        {
+            newCallPeer.answer();
+        }
+        catch (OperationFailedException ex)
+        {
+            logger.error(
+                    "Failed to auto-answer the referred call peer "
+                        + newCallPeer,
+                    ex);
+            /*
+             * RFC 3891 says an appropriate error response MUST be returned
+             * and callPeerToReplace must be left unchanged.
+             */
+            //TODO should we send a response here?
+            return;
+        }
+
+        //we just accepted the new peer and if we got here then it went well
+        //now let's hangup the other call.
+        try
+        {
+            callPeerToReplace.hangup();
+        }
+        catch (OperationFailedException ex)
+        {
+            logger.error("Failed to hangup the referer "
+                            + callPeerToReplace, ex);
+            callPeerToReplace.setState(
+                            CallPeerState.FAILED, "Internal Error: " + ex);
+        }
+    }
+
+    /**
+     * Sends a re-INVITE request to all <tt>CallPeer</tt>s to reflect possible
+     * changes in the media setup (video start/stop, ...).
+     *
+     * @throws OperationFailedException if a problem occurred during the SDP
+     * generation or there was a network problem
+     */
+    public void reInvite() throws OperationFailedException
+    {
+        Iterator<CallPeerSipImpl> peers = getCallPeers();
+
+        while (peers.hasNext())
+            peers.next().sendReInvite();
+    }
+
+    /**
      * Set a quality preferences we may use when we start the call.
      * @param qualityPreferences the initial quality preferences.
      */
     public void setInitialQualityPreferences(QualityPreset qualityPreferences)
     {
         this.initialQualityPreferences = qualityPreferences;
-    }
-
-    /**
-     * Notified when a call are added to a <tt>CallGroup</tt>.
-     *
-     * @param evt event
-     */
-    public synchronized void callAdded(CallGroupEvent evt)
-    {
-        Iterator<CallPeerSipImpl> peers = getCallPeers();
-        boolean sendReinvite = true;
-
-        if(evt.getSourceCall().getCallPeers().hasNext())
-        {
-            sendReinvite = !getCrossProtocolCallPeersVector().contains(
-                evt.getSourceCall().getCallPeers().next());
-        }
-
-        setConferenceFocus(true);
-
-        if(sendReinvite)
-        {
-            // reinvite peers to reflect conference focus
-            while(peers.hasNext())
-            {
-                CallPeerSipImpl callPeer = peers.next();
-
-                try
-                {
-                    if(callPeer.getState() == CallPeerState.CONNECTED &&
-                        sendReinvite)
-                    {
-                        callPeer.sendReInvite();
-                    }
-                }
-                catch(OperationFailedException e)
-                {
-                    logger.info("Failed to reinvite peer: "
-                        + callPeer.getAddress());
-                }
-            }
-        }
-        super.callAdded(evt);
     }
 }

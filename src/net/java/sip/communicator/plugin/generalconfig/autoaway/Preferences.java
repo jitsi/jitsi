@@ -23,14 +23,14 @@ public final class Preferences
     /**
      * Property indicating whether status change on away is enabled.
      */
-    private static final String ENABLE =
-            "net.java.sip.communicator.plugin.statusupdate.enable";
+    private static final String ENABLE
+        = "net.java.sip.communicator.plugin.statusupdate.enable";
 
     /**
      * Property indicating the time in minutes to consider a pc in idle state.
      */
-    private static final String TIMER =
-            "net.java.sip.communicator.plugin.statusupdate.timer";
+    private static final String TIMER
+        = "net.java.sip.communicator.plugin.statusupdate.timer";
 
     /**
      * The default value to be displayed and to be considered
@@ -49,9 +49,12 @@ public final class Preferences
             = GeneralConfigPluginActivator.getResources().getSettingsString(
                     Preferences.ENABLE);
 
-        return GeneralConfigPluginActivator.getConfigurationService()
-            .getBoolean(Preferences.ENABLE,
-                        Boolean.parseBoolean(enabledDefault));
+        return
+            GeneralConfigPluginActivator
+                .getConfigurationService()
+                    .getBoolean(
+                            Preferences.ENABLE,
+                            Boolean.parseBoolean(enabledDefault));
     }
 
     /**
@@ -60,7 +63,7 @@ public final class Preferences
      */
     static int getTimer()
     {
-        ConfigurationService configService
+        ConfigurationService cfg
             = GeneralConfigPluginActivator.getConfigurationService();
         ResourceManagementService resources
             = GeneralConfigPluginActivator.getResources();
@@ -68,7 +71,7 @@ public final class Preferences
         String enabledDefault = resources.getSettingsString(Preferences.ENABLE);
 
         String timerDefaultStr = resources.getSettingsString(Preferences.TIMER);
-        int timerDefault = 0;
+        int timerDefault = DEFAULT_TIMER;
 
         if (timerDefaultStr != null)
         {
@@ -76,18 +79,16 @@ public final class Preferences
             {
                 timerDefault = Integer.parseInt(timerDefaultStr);
             }
-            catch (NumberFormatException r)
+            catch (NumberFormatException nfe)
             {
             }
         }
-        else
-            timerDefault = DEFAULT_TIMER;
 
         return
-            configService.getBoolean(
+            cfg.getBoolean(
                     Preferences.ENABLE,
                     Boolean.parseBoolean(enabledDefault))
-                ? configService.getInt(Preferences.TIMER, timerDefault)
+                ? cfg.getInt(Preferences.TIMER, timerDefault)
                 : 0;
     }
 
@@ -98,15 +99,11 @@ public final class Preferences
      */
     static void saveData(boolean enabled, String timer)
     {
-        ConfigurationService configService
+        ConfigurationService cfg
             = GeneralConfigPluginActivator.getConfigurationService();
 
-        configService.setProperty(
-                Preferences.ENABLE,
-                Boolean.toString(enabled));
-        configService.setProperty(
-                Preferences.TIMER,
-                timer);
+        cfg.setProperty(Preferences.ENABLE, Boolean.toString(enabled));
+        cfg.setProperty(Preferences.TIMER, timer);
     }
 
     /**
@@ -116,8 +113,11 @@ public final class Preferences
     static void addEnableChangeListener(PropertyChangeListener listener)
     {
         // listens for changes in configuration enable/disable
-        GeneralConfigPluginActivator.getConfigurationService()
-            .addPropertyChangeListener(ENABLE, listener);
+        GeneralConfigPluginActivator
+            .getConfigurationService()
+                .addPropertyChangeListener(
+                        ENABLE,
+                        listener);
     }
 
     /**
@@ -127,7 +127,10 @@ public final class Preferences
     static void addTimerChangeListener(PropertyChangeListener listener)
     {
         // listens for changes in configuration enable/disable
-        GeneralConfigPluginActivator.getConfigurationService()
-            .addPropertyChangeListener(TIMER, listener);
+        GeneralConfigPluginActivator
+            .getConfigurationService()
+                .addPropertyChangeListener(
+                        TIMER,
+                        listener);
     }
 }

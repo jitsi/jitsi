@@ -333,8 +333,7 @@ public class CallPanel
                 callPeer = call.getCallPeers().next();
 
             if (callPeer != null)
-                this.callPanel = new OneToOneCallPanel(
-                    this, call, callPeer);
+                this.callPanel = new OneToOneCallPanel(this, call, callPeer);
         }
 
         // Adds a CallChangeListener that would receive events when a peer is
@@ -1743,46 +1742,38 @@ public class CallPanel
      */
     public void updateMergeButtonState()
     {
-        Collection<Call> calls = new ArrayList<Call>(
-            CallManager.getActiveCalls());
-        java.util.List<CallGroup> groups = new java.util.ArrayList<CallGroup>();
-        int cpt = 0;
+        Collection<Call> calls
+            = new ArrayList<Call>(CallManager.getActiveCalls());
 
-        if(calls.size() == 1)
+        if (calls.size() == 1)
         {
             mergeButton.setVisible(false);
             return;
         }
 
-        for(Call c : calls)
+        java.util.List<CallConference> conferences
+            = new ArrayList<CallConference>();
+        int cpt = 0;
+
+        for (Call call : calls)
         {
-            CallGroup group = c.getCallGroup();
-            if(group == null)
+            CallConference conference = call.getConference();
+
+            if (conference == null)
                 cpt++;
-            else
+            else if (!conferences.contains(conference))
             {
-                if(groups.size() == 0)
-                {
-                    cpt++;
-                    groups.add(group);
-                }
-                else
-                {
-                    for(CallGroup g : groups)
-                    {
-                        if(group == g)
-                            continue;
-                        else
-                        {
-                            cpt++;
-                            groups.add(group);
-                        }
-                    }
-                }
+                conferences.add(conference);
+                cpt++;
             }
+            else
+                continue;
+
+            if (cpt > 1)
+                break;
         }
 
-        if(cpt > 1)
+        if (cpt > 1)
             mergeButton.setVisible(true);
     }
 

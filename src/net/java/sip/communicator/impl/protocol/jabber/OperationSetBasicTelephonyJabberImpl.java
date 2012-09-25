@@ -131,22 +131,24 @@ public class OperationSetBasicTelephonyJabberImpl
      *
      * @param callee the address of the callee who we should invite to a new
      * <tt>Call</tt>
-     * @param group <tt>CallGroup</tt> from which the <tt>Call</tt> will belong
+     * @param conference the <tt>CallConference</tt> in which the newly-created
+     * <tt>Call</tt> is to participate
      * @return a newly created <tt>Call</tt>. The specified <tt>callee</tt> is
      * available in the <tt>Call</tt> as a <tt>CallPeer</tt>
      * @throws OperationFailedException with the corresponding code if we fail
      * to create the call
      * @see OperationSetBasicTelephony#createCall(String)
      */
-    public Call createCall(String callee, CallGroup group)
+    public Call createCall(String callee, CallConference conference)
         throws OperationFailedException
     {
         CallJabberImpl call = new CallJabberImpl(this);
-        CallPeer callPeer = null;
 
-        call.setCallGroup(group);
+        if (conference != null)
+            call.setConference(conference);
 
-        callPeer = createOutgoingCall(call, callee);
+        CallPeer callPeer = createOutgoingCall(call, callee);
+
         if (callPeer == null)
         {
             throw new OperationFailedException(
@@ -154,69 +156,18 @@ public class OperationSetBasicTelephonyJabberImpl
                         + " because no peer was created",
                     OperationFailedException.INTERNAL_ERROR);
         }
-        if(callPeer.getCall() != call)
+
+        Call callOfCallPeer = callPeer.getCall();
+
+        if (callOfCallPeer == call)
+            return call;
+        else
         {
-            // We may have a Google Talk call here
-            callPeer.getCall().setCallGroup(group);
-            return callPeer.getCall();
+            // We may have a Google Talk call here.
+            if (conference != null)
+                callOfCallPeer.setConference(conference);
+            return callOfCallPeer;
         }
-
-        return call;
-    }
-
-    /**
-     * Creates a new <tt>Call</tt> and invites a specific <tt>CallPeer</tt>
-     * to it given by her <tt>Contact</tt>.
-     *
-     * @param callee the address of the callee who we should invite to a new
-     * call
-     * @param group <tt>CallGroup</tt> from which the <tt>Call</tt> will belong
-     * @return a newly created <tt>Call</tt>. The specified <tt>callee</tt> is
-     * available in the <tt>Call</tt> as a <tt>CallPeer</tt>
-     * @throws OperationFailedException with the corresponding code if we fail
-     * to create the call
-     * @see OperationSetBasicTelephony#createCall(Contact)
-     */
-    public Call createCall(Contact callee, CallGroup group)
-            throws OperationFailedException
-    {
-        return createCall(callee.getAddress(), group);
-    }
-
-    /**
-     * Creates a new <tt>Call</tt> and invites a specific <tt>CallPeer</tt> to
-     * it given by her <tt>String</tt> URI.
-     *
-     * @param callee the address of the callee who we should invite to a new
-     * <tt>Call</tt>
-     * @return a newly created <tt>Call</tt>. The specified <tt>callee</tt> is
-     * available in the <tt>Call</tt> as a <tt>CallPeer</tt>
-     * @throws OperationFailedException with the corresponding code if we fail
-     * to create the call
-     * @see OperationSetBasicTelephony#createCall(String)
-     */
-    public Call createCall(String callee)
-        throws OperationFailedException
-    {
-        return createCall(callee, null);
-    }
-
-    /**
-     * Creates a new <tt>Call</tt> and invites a specific <tt>CallPeer</tt>
-     * to it given by her <tt>Contact</tt>.
-     *
-     * @param callee the address of the callee who we should invite to a new
-     * call
-     * @return a newly created <tt>Call</tt>. The specified <tt>callee</tt> is
-     * available in the <tt>Call</tt> as a <tt>CallPeer</tt>
-     * @throws OperationFailedException with the corresponding code if we fail
-     * to create the call
-     * @see OperationSetBasicTelephony#createCall(Contact)
-     */
-    public Call createCall(Contact callee)
-            throws OperationFailedException
-    {
-        return createCall(callee.getAddress(), null);
     }
 
     /**
@@ -484,7 +435,7 @@ public class OperationSetBasicTelephonyJabberImpl
                 MediaUseCase useCase = call.getMediaUseCase();
                 boolean isVideo = call.isLocalVideoAllowed(useCase);
 
-                callGTalk.setCallGroup(call.getCallGroup());
+                callGTalk.setConference(call.getConference());
                 callGTalk.setLocalVideoAllowed(isVideo, useCase);
                 peer
                     = callGTalk.initiateGTalkSession(
@@ -630,19 +581,6 @@ public class OperationSetBasicTelephonyJabberImpl
     {
         if(peer instanceof CallPeerJabberImpl)
             ((CallPeerJabberImpl) peer).putOnHold(on);
-    }
-
-    /**
-     * Sets the mute state of the <tt>CallJabberImpl</tt>.
-     *
-     * @param call the <tt>CallJabberImpl</tt> whose mute state is set
-     * @param mute <tt>true</tt> to mute the call streams being sent to
-     *            <tt>peers</tt>; otherwise, <tt>false</tt>
-     */
-    @Override
-    public void setMute(Call call, boolean mute)
-    {
-        ((MediaAwareCall<?, ?, ?>) call).setMute(mute);
     }
 
     /**
@@ -1366,8 +1304,8 @@ public class OperationSetBasicTelephonyJabberImpl
     public void transfer(CallPeer peer, CallPeer target)
         throws OperationFailedException
     {
-        AbstractCallPeerJabberGTalkImpl targetJabberGTalkImpl
-            = (AbstractCallPeerJabberGTalkImpl) target;
+        AbstractCallPeerJabberGTalkImpl<?,?,?> targetJabberGTalkImpl
+            = (AbstractCallPeerJabberGTalkImpl<?,?,?>) target;
         String to = getFullCalleeURI(targetJabberGTalkImpl.getAddress());
 
         /*

@@ -3,6 +3,7 @@ package net.java.sip.communicator.impl.gui.main.call.conference;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
+import java.util.List;
 
 import javax.swing.*;
 
@@ -64,64 +65,26 @@ public class VideoConferenceCallPanel
 
         getVideoHandler().setLocalVideoToolbar(createLocalVideoToolBar());
 
-        Iterator<? extends CallPeer> iterator;
+        List<CallPeer> conferenceCallPeers = CallConference.getCallPeers(call);
 
-        iterator = call.getCallPeers();
-        while (iterator.hasNext())
+        for (CallPeer peer : conferenceCallPeers)
         {
-            CallPeer peer = iterator.next();
-
             ConferenceCallPeerRenderer peerRenderer = createVideoToolBar(peer);
 
             getVideoHandler().addVideoToolbar(peer, peerRenderer.getComponent());
 
             for (ConferenceMember member : peer.getConferenceMembers())
-            {
                 conferenceMemberAdded(peer, member, true);
-            }
 
             // Map the call peer to its renderer.
             callPeerPanels.put(peer, peerRenderer);
         }
 
-        iterator = call.getCrossProtocolCallPeers();
-        while (iterator.hasNext())
+        for (CallPeer peer : conferenceCallPeers)
         {
-            CallPeer peer = iterator.next();
+            ConferenceCallPeerRenderer peerRenderer = callPeerPanels.get(peer);
 
-            ConferenceCallPeerRenderer peerRenderer = createVideoToolBar(peer);
-
-            getVideoHandler().addVideoToolbar(peer, peerRenderer.getComponent());
-
-            for (ConferenceMember member : peer.getConferenceMembers())
-            {
-                conferenceMemberAdded(peer, member, true);
-            }
-
-            // Map the call peer to its renderer.
-            callPeerPanels.put(peer, peerRenderer);
-        }
-
-        iterator = call.getCallPeers();
-        while (iterator.hasNext())
-        {
-            CallPeer callPeer = iterator.next();
-
-            ConferenceCallPeerRenderer peerRenderer
-                = callPeerPanels.get(callPeer);
-
-            addCallPeerPanel(callPeer, peerRenderer);
-        }
-
-        iterator = call.getCrossProtocolCallPeers();
-        while (iterator.hasNext())
-        {
-            CallPeer callPeer = iterator.next();
-
-            ConferenceCallPeerRenderer peerRenderer
-                = callPeerPanels.get(callPeer);
-
-            addCallPeerPanel(callPeer, peerRenderer);
+            addCallPeerPanel(peer, peerRenderer);
         }
     }
 
@@ -336,14 +299,14 @@ public class VideoConferenceCallPanel
     /**
      * Initializes the video tool bar.
      *
-     * @param callPeer the <tt>CallPeer</tt> for which we create a video toolbar
+     * @param conferenceMember the <tt>ConferenceMember</tt> for which we create
+     * a video toolbar
      * @return the created component
      */
     private ConferenceMemberPanel createVideoToolBar(
                                             ConferenceMember conferenceMember)
     {
-        return new ConferenceMemberPanel(
-            this, conferenceMember, true);
+        return new ConferenceMemberPanel(this, conferenceMember, true);
     }
 
     /**

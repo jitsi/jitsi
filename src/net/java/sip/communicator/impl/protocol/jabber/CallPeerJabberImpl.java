@@ -981,19 +981,20 @@ public class CallPeerJabberImpl
     }
 
     /**
-     * Send a <tt>content</tt> message to reflect change in audio setup (start,
-     * stop or conference starts).
-     *
-     * @param isConference if the call if now a conference call
+     * Sends a <tt>content</tt> message to reflect changes in the setup such as
+     * the local peer/user becoming a conference focus.
      */
-    public void sendCoinSessionInfo(boolean isConference)
+    public void sendCoinSessionInfo()
     {
-        JingleIQ sessionInfoIQ = JinglePacketFactory.createSessionInfo(
-                        getProtocolProvider().getOurJID(),
-                        this.peerJID, getSID());
-        CoinPacketExtension coinExt = new CoinPacketExtension(isConference);
-        sessionInfoIQ.addExtension(coinExt);
+        JingleIQ sessionInfoIQ
+            = JinglePacketFactory.createSessionInfo(
+                    getProtocolProvider().getOurJID(),
+                    this.peerJID,
+                    getSID());
+        CoinPacketExtension coinExt
+            = new CoinPacketExtension(getCall().isConferenceFocus());
 
+        sessionInfoIQ.addExtension(coinExt);
         getProtocolProvider().getConnection().sendPacket(sessionInfoIQ);
     }
 

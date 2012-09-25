@@ -16,7 +16,6 @@ import net.java.sip.communicator.service.sysactivity.*;
 import net.java.sip.communicator.service.sysactivity.event.*;
 import net.java.sip.communicator.util.*;
 
-import org.jitsi.service.configuration.*;
 import org.osgi.framework.*;
 
 /**
@@ -220,11 +219,11 @@ public class AutoAwayWatcher
      */
     private void changeProtocolsToAway()
     {
-        for (ProtocolProviderService protocolProviderService
+        for (ProtocolProviderService protocolProvider
                 : GeneralConfigPluginActivator.getProtocolProviders())
         {
             OperationSetPresence presence
-                = protocolProviderService.getOperationSet(
+                = protocolProvider.getOperationSet(
                         OperationSetPresence.class);
 
             if(presence == null)
@@ -238,7 +237,7 @@ public class AutoAwayWatcher
                 continue;
             }
 
-            addProviderToLastStates(protocolProviderService, status);
+            addProviderToLastStates(protocolProvider, status);
 
             PresenceStatus newStatus
                 = StatusUpdateThread.findAwayStatus(presence);
@@ -269,32 +268,30 @@ public class AutoAwayWatcher
      */
     private void changeProtocolsToPreviousState()
     {
-        for (ProtocolProviderService protocolProviderService
+        for (ProtocolProviderService protocolProvider
                 : GeneralConfigPluginActivator.getProtocolProviders())
         {
-            PresenceStatus lastState
-                = lastStates.get(protocolProviderService);
+            PresenceStatus lastState = lastStates.get(protocolProvider);
 
             if (lastState != null)
             {
                 OperationSetPresence presence
-                    = protocolProviderService
-                        .getOperationSet(
+                    = protocolProvider.getOperationSet(
                             OperationSetPresence.class);
                 try
                 {
-                    presence
-                        .publishPresenceStatus(lastState, "");
+                    presence.publishPresenceStatus(lastState, "");
                 }
                 catch (IllegalArgumentException e)
                 {
-                }catch (IllegalStateException e)
+                }
+                catch (IllegalStateException e)
                 {
                 }
                 catch (OperationFailedException e)
                 {
                 }
-                removeProviderFromLastStates(protocolProviderService);
+                removeProviderFromLastStates(protocolProvider);
             }
         }
     }

@@ -75,48 +75,29 @@ public class OperationSetTelephonyConferencingJabberImpl
     }
 
     /**
-     * Notifies this <tt>OperationSetTelephonyConferencing</tt> that its
-     * <tt>basicTelephony</tt> property has changed its value from a specific
-     * <tt>oldValue</tt> to a specific <tt>newValue</tt>
+     * Notifies all <tt>CallPeer</tt>s associated with a specific <tt>Call</tt>
+     * about changes in the telephony conference-related information. In
+     * contrast, {@link #notifyAll()} notifies all <tt>CallPeer</tt>s associated
+     * with the telephony conference in which a specific <tt>Call</tt> is
+     * participating.
      *
-     * @param oldValue the old value of the <tt>basicTelephony</tt> property
-     * @param newValue the new value of the <tt>basicTelephony</tt> property
+     * @param call the <tt>Call</tt> whose <tt>CallPeer</tt>s are to be notified
+     * about changes in the telephony conference-related information
      */
-    @Override
-    protected void basicTelephonyChanged(
-            OperationSetBasicTelephonyJabberImpl oldValue,
-            OperationSetBasicTelephonyJabberImpl newValue)
+    protected void notifyCallPeers(Call call)
     {
-        if (oldValue != null)
-            oldValue.removeCallListener(this);
-        if (newValue != null)
-            newValue.addCallListener(this);
-    }
-
-    /**
-     * Notifies all CallPeer associated with and established in a
-     * specific call for conference information.
-     *
-     * @param call the <tt>Call</tt>
-     */
-    protected void notifyAll(Call call)
-    {
-        if(call.getCallGroup() == null && !call.isConferenceFocus())
+        if (call.isConferenceFocus())
         {
-            return;
-        }
-
-        synchronized(objSync)
-        {
-            // send conference-info to all CallPeer of Call
-            Iterator<? extends CallPeer> it = call.getCallPeers();
-
-            while(it.hasNext())
+            synchronized (objSync)
             {
-                CallPeer callPeer = it.next();
-                notify(callPeer);
+                // send conference-info to all CallPeers of the call.
+                Iterator<? extends CallPeer> callPeerIter = call.getCallPeers();
+
+                while (callPeerIter.hasNext())
+                    notify(callPeerIter.next());
+
+                version++;
             }
-            version++;
         }
     }
 
@@ -141,8 +122,7 @@ public class OperationSetTelephonyConferencingJabberImpl
                 = parentProvider.getDiscoveryManager().discoverInfo(to);
 
             if (!discoverInfo.containsFeature(
-                    ProtocolProviderServiceJabberImpl
-                        .URN_XMPP_JINGLE_COIN))
+                    ProtocolProviderServiceJabberImpl.URN_XMPP_JINGLE_COIN))
             {
                 logger.info(callPeer.getAddress() + " does not support COIN");
                 return;
@@ -155,10 +135,8 @@ public class OperationSetTelephonyConferencingJabberImpl
 
         IQ iq = getConferenceInfo((CallPeerJabberImpl)callPeer, version);
 
-        if(iq != null)
-        {
+        if (iq != null)
             parentProvider.getConnection().sendPacket(iq);
-        }
     }
 
     /**
@@ -214,27 +192,27 @@ public class OperationSetTelephonyConferencingJabberImpl
      * @param callPeer <tt>CallPeer</tt>
      * @return user packet extension
      */
-    private UserPacketExtension getUser(
-            MediaAwareCallPeer<?,?,?> callPeer)
+    private UserPacketExtension getUser(CallPeer callPeer)
     {
-        UserPacketExtension ext = new UserPacketExtension(
-                callPeer.getAddress());
-        EndpointPacketExtension endpoint = null;
-        List<MediaPacketExtension> medias = null;
+        UserPacketExtension ext
+            = new UserPacketExtension(callPeer.getAddress());
 
         ext.setDisplayText(callPeer.getDisplayName());
-        EndpointStatusType status = getEndpointStatus(callPeer);
 
-        endpoint = new EndpointPacketExtension(callPeer.getURI());
-        endpoint.setStatus(status);
+        EndpointPacketExtension endpoint
+            = new EndpointPacketExtension(callPeer.getURI());
 
-        medias = getMedia(callPeer, true);
+        endpoint.setStatus(getEndpointStatus(callPeer));
 
-        if(medias != null)
+        if (callPeer instanceof MediaAwareCallPeer<?,?,?>)
         {
-            for(MediaPacketExtension media : medias)
+            List<MediaPacketExtension> medias
+                = getMedia((MediaAwareCallPeer<?,?,?>) callPeer, true);
+
+            if(medias != null)
             {
-                endpoint.addChildExtension(media);
+                for(MediaPacketExtension media : medias)
+                    endpoint.addChildExtension(media);
             }
         }
 
@@ -254,8 +232,7 @@ public class OperationSetTelephonyConferencingJabberImpl
      * an <tt>endpoint</tt> XML element and which describes the state of the
      * specified <tt>callPeer</tt>
      */
-    private EndpointStatusType getEndpointStatus(
-        MediaAwareCallPeer<?,?,?> callPeer)
+    private EndpointStatusType getEndpointStatus(CallPeer callPeer)
     {
         CallPeerState callPeerState = callPeer.getState();
 
@@ -299,34 +276,13 @@ public class OperationSetTelephonyConferencingJabberImpl
      */
     private IQ getConferenceInfo(CallPeerJabberImpl callPeer, int version)
     {
+        String callPeerSID = callPeer.getSID();
+
+        if (callPeerSID == null)
+            return null;
+
         CoinIQ iq = new CoinIQ();
         CallJabberImpl call = callPeer.getCall();
-        List<CallPeer> crossPeers = new ArrayList<CallPeer>();
-        Iterator<CallPeer> crossProtocolCallPeerIter =
-            call.getCrossProtocolCallPeers();
-
-        while (crossProtocolCallPeerIter.hasNext())
-        {
-            MediaAwareCallPeer<?,?,?> crossPeer =
-                (MediaAwareCallPeer<?,?,?>)crossProtocolCallPeerIter.next();
-            Iterator<CallPeerJabberImpl> it = call.getCallPeers();
-            boolean found = false;
-
-            while(it.hasNext())
-            {
-                if(it.next().getAddress().equals(crossPeer.getAddress()))
-                {
-                    found = true;
-                    break;
-                }
-            }
-
-            if(found)
-                continue;
-
-            if(!crossPeers.contains(crossPeer))
-                crossPeers.add(crossPeer);
-        }
 
         iq.setFrom(call.getProtocolProvider().getOurJID());
         iq.setTo(callPeer.getAddress());
@@ -334,9 +290,6 @@ public class OperationSetTelephonyConferencingJabberImpl
         iq.setEntity(getBasicTelephony().getProtocolProvider().getOurJID());
         iq.setVersion(version);
         iq.setState(StateType.full);
-
-        if(callPeer.getSID() == null)
-            return null;
         iq.setSID(callPeer.getSID());
 
         // conference-description
@@ -344,16 +297,18 @@ public class OperationSetTelephonyConferencingJabberImpl
 
         // conference-state
         StatePacketExtension state = new StatePacketExtension();
-        state.setUserCount(call.getCallPeerCount() + 1 +
-            crossPeers.size());
+        List<CallPeer> conferenceCallPeers = CallConference.getCallPeers(call);
+
+        state.setUserCount(
+                1 /* the local peer/user */ + conferenceCallPeers.size());
         iq.addExtension(state);
 
         // users
         UsersPacketExtension users = new UsersPacketExtension();
 
         // user
-        UserPacketExtension user = new UserPacketExtension(
-               "xmpp:" + parentProvider.getOurJID());
+        UserPacketExtension user
+            = new UserPacketExtension("xmpp:" + parentProvider.getOurJID());
 
         // endpoint
         EndpointPacketExtension endpoint = new EndpointPacketExtension(
@@ -364,28 +319,13 @@ public class OperationSetTelephonyConferencingJabberImpl
         List<MediaPacketExtension> medias = getMedia(callPeer, false);
 
         for(MediaPacketExtension media : medias)
-        {
             endpoint.addChildExtension(media);
-        }
         user.addChildExtension(endpoint);
         users.addChildExtension(user);
 
         // other users
-        Iterator<CallPeerJabberImpl> callPeerIter = call.getCallPeers();
-
-        while (callPeerIter.hasNext())
-        {
-            UserPacketExtension ext = getUser(callPeerIter.next());
-            users.addChildExtension(ext);
-        }
-
-        for(CallPeer cp : crossPeers)
-        {
-            MediaAwareCallPeer<?,?,?> crossPeer =
-                (MediaAwareCallPeer<?,?,?>)cp;
-            UserPacketExtension ext = getUser(crossPeer);
-            users.addChildExtension(ext);
-        }
+        for (CallPeer conferenceCallPeer : conferenceCallPeers)
+            users.addChildExtension(getUser(conferenceCallPeer));
 
         iq.addExtension(users);
         return iq;
@@ -437,45 +377,18 @@ public class OperationSetTelephonyConferencingJabberImpl
     }
 
     /**
-     * Invites a callee with a specific address to be joined in a specific
-     * <tt>Call</tt> in the sense of conferencing.
+     * {@inheritDoc}
      *
-     * @param calleeAddress the address of the callee to be invited to the
-     * specified existing <tt>Call</tt>
-     * @param call the existing <tt>Call</tt> to invite the callee with the
-     * specified address to
-     * @param wasConferenceFocus the value of the <tt>conferenceFocus</tt>
-     * property of the specified <tt>call</tt> prior to the request to invite
-     * the specified <tt>calleeAddress</tt>
-     * @return a new <tt>CallPeer</tt> instance which describes the signaling
-     * and the media streaming of the newly-invited callee within the specified
-     * <tt>Call</tt>
-     * @throws OperationFailedException if inviting the specified callee to the
-     * specified call fails
+     * Implements the protocol-dependent part of the logic of inviting a callee
+     * to a <tt>Call</tt>. The protocol-independent part of that logic is
+     * implemented by
+     * {@link AbstractOperationSetTelephonyConferencing#inviteCalleToCall(String,Call)}.
      */
-    protected CallPeer inviteCalleeToCall(
+    protected CallPeer doInviteCalleeToCall(
             String calleeAddress,
-            CallJabberImpl call,
-            boolean wasConferenceFocus)
+            CallJabberImpl call)
         throws OperationFailedException
     {
-        if (!wasConferenceFocus && call.isConferenceFocus())
-        {
-            /*
-             * Re-INVITE existing CallPeers to inform them that from now the
-             * specified call is a conference call.
-             */
-            Iterator<CallPeerJabberImpl> callPeerIter = call.getCallPeers();
-
-            while (callPeerIter.hasNext())
-            {
-                CallPeerJabberImpl callPeer = callPeerIter.next();
-
-                if (callPeer.getState() == CallPeerState.CONNECTED)
-                    callPeer.sendCoinSessionInfo(true);
-            }
-        }
-
         return
             getBasicTelephony().createOutgoingCall(
                     call,
@@ -746,7 +659,7 @@ public class OperationSetTelephonyConferencingJabberImpl
                 callPeer.removeConferenceMember(conferenceMemberToRemove);
         }
 
-        if(changed)
+        if (changed)
             notifyAll(callPeer.getCall());
     }
 }

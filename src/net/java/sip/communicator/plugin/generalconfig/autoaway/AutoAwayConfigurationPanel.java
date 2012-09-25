@@ -15,7 +15,6 @@ import javax.swing.event.*;
 import net.java.sip.communicator.plugin.generalconfig.*;
 import net.java.sip.communicator.util.swing.*;
 
-import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
 
 /**
@@ -33,6 +32,7 @@ public class AutoAwayConfigurationPanel
     private static final long serialVersionUID = 0L;
 
     private JCheckBox enable;
+
     private JSpinner timer;
 
     /**
@@ -42,9 +42,10 @@ public class AutoAwayConfigurationPanel
     {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
-        JPanel pnlSection = GeneralConfigPluginActivator.
-            createConfigSectionComponent(
-                Resources.getString("service.gui.STATUS"));
+        JPanel pnlSection
+            = GeneralConfigPluginActivator.createConfigSectionComponent(
+                    Resources.getString("service.gui.STATUS"));
+
         pnlSection.add(createMainPanel());
         add(pnlSection);
 
@@ -57,42 +58,53 @@ public class AutoAwayConfigurationPanel
      */
     private Component createMainPanel()
     {
+        ResourceManagementService resources
+            = GeneralConfigPluginActivator.getResources();
+
+        enable
+            = new SIPCommCheckBox(
+                    resources.getI18NString(
+                            "plugin.autoaway.ENABLE_CHANGE_STATUS"));
+        enable.addActionListener(
+                new ActionListener()
+                {
+                    public void actionPerformed(ActionEvent e)
+                    {
+                        timer.setEnabled(enable.isSelected());
+                        saveData();
+                    }
+                });
+
+        // Spinner
+        timer
+            = new JSpinner(
+                    new SpinnerNumberModel(
+                            Preferences.DEFAULT_TIMER,
+                            1,
+                            180,
+                            1));
+        timer.addChangeListener(
+                new ChangeListener()
+                {
+                    public void stateChanged(ChangeEvent e)
+                    {
+                        saveData();
+                    }
+                });
+
+        JPanel timerPanel
+            = new TransparentPanel(new FlowLayout(FlowLayout.LEFT));
+
+        // Text
+        timerPanel.add(
+                new JLabel(
+                        resources.getI18NString(
+                                "plugin.autoaway.AWAY_MINUTES")));
+        timerPanel.add(timer);
+
         JPanel mainPanel = new TransparentPanel(new BorderLayout(5, 5));
 
-        enable = new SIPCommCheckBox(GeneralConfigPluginActivator.getResources()
-                .getI18NString("plugin.autoaway.ENABLE_CHANGE_STATUS"));
-
         mainPanel.add(enable, BorderLayout.NORTH);
-
-        enable.addActionListener(new ActionListener()
-        {
-
-            public void actionPerformed(ActionEvent e)
-            {
-                timer.setEnabled(enable.isSelected());
-                saveData();
-            }
-        });
-
-        JPanel timerPanel =
-            new TransparentPanel(new FlowLayout(FlowLayout.LEFT));
-        // Text
-        timerPanel.add(new JLabel(
-                GeneralConfigPluginActivator.getResources()
-                    .getI18NString("plugin.autoaway.AWAY_MINUTES")));
-        // Spinner
-        timer = new JSpinner(new SpinnerNumberModel(
-                                    Preferences.DEFAULT_TIMER, 1, 180, 1));
-        timerPanel.add(timer);
-        timer.addChangeListener(new ChangeListener()
-        {
-
-            public void stateChanged(ChangeEvent e)
-            {
-                saveData();
-            }
-        });
-
         mainPanel.add(timerPanel, BorderLayout.WEST);
 
         return mainPanel;

@@ -101,45 +101,8 @@ public class OperationSetBasicTelephonySipImpl
      *
      * @param callee the address of the callee who we should invite to a new
      * <tt>Call</tt>
-     * @return a newly created <tt>Call</tt>. The specified <tt>callee</tt> is
-     * available in the <tt>Call</tt> as a <tt>CallPeer</tt>
-     * @throws OperationFailedException with the corresponding code if we fail
-     * to create the call
-     * @throws ParseException if <tt>callee</tt> is not a valid SIP address
-     * <tt>String</tt>
-     * @see OperationSetBasicTelephony#createCall(String)
-     */
-    public Call createCall(String callee)
-        throws OperationFailedException,
-               ParseException
-    {
-        return createCall(callee, null);
-    }
-
-    /**
-     * Creates a new <tt>Call</tt> and invites a specific <tt>CallPeer</tt>
-     * to it given by her <tt>Contact</tt>.
-     *
-     * @param callee the address of the callee who we should invite to a new
-     * call
-     * @return a newly created <tt>Call</tt>. The specified <tt>callee</tt> is
-     * available in the <tt>Call</tt> as a <tt>CallPeer</tt>
-     * @throws OperationFailedException with the corresponding code if we fail
-     * to create the call
-     * @see OperationSetBasicTelephony#createCall(Contact)
-     */
-    public Call createCall(Contact callee) throws OperationFailedException
-    {
-        return createCall(callee, null);
-    }
-
-    /**
-     * Creates a new <tt>Call</tt> and invites a specific <tt>CallPeer</tt> to
-     * it given by her <tt>String</tt> URI.
-     *
-     * @param callee the address of the callee who we should invite to a new
-     * <tt>Call</tt>
-     * @param group <tt>CallGroup</tt> from which the <tt>Call</tt> will belong
+     * @param conference the <tt>CallConference</tt> in which the newly-created
+     * <tt>Call</tt> is to participate
      * @return a newly created <tt>Call</tt>. The specified <tt>callee</tt> is
      * available in the <tt>Call</tt> as a <tt>CallPeer</tt>
      * @throws OperationFailedException with the corresponding code if we fail
@@ -147,44 +110,13 @@ public class OperationSetBasicTelephonySipImpl
      * @throws ParseException if <tt>callee</tt> is not a valid SIP address
      * <tt>String</tt>
      */
-    public Call createCall(String callee, CallGroup group)
+    public Call createCall(String callee, CallConference conference)
         throws OperationFailedException,
                ParseException
     {
         Address toAddress = protocolProvider.parseAddressString(callee);
 
-        return createOutgoingCall(toAddress, null, group);
-    }
-
-    /**
-     * Creates a new <tt>Call</tt> and invites a specific <tt>CallPeer</tt>
-     * to it given by her <tt>Contact</tt>.
-     *
-     * @param callee the address of the callee who we should invite to a new
-     * call
-     * @param group <tt>CallGroup</tt> from which the <tt>Call</tt> will belong
-     * @return a newly created <tt>Call</tt>. The specified <tt>callee</tt> is
-     * available in the <tt>Call</tt> as a <tt>CallPeer</tt>
-     * @throws OperationFailedException with the corresponding code if we fail
-     * to create the call
-     */
-    public Call createCall(Contact callee, CallGroup group)
-        throws OperationFailedException
-    {
-        Address toAddress;
-
-        try
-        {
-            toAddress = protocolProvider.parseAddressString(callee.getAddress());
-        }
-        catch (ParseException ex)
-        {
-            // couldn't happen
-            logger.error(ex.getMessage(), ex);
-            throw new IllegalArgumentException(ex.getMessage());
-        }
-
-        return createOutgoingCall(toAddress, null, group);
+        return createOutgoingCall(toAddress, null, conference);
     }
 
     /**
@@ -192,7 +124,7 @@ public class OperationSetBasicTelephonySipImpl
      * for use by other <tt>OperationSet</tt>s willing to initialize
      * <tt>Call</tt>s and willing to control their establishment in ways
      * different than {@link #createOutgoingCall(Address,
-     * javax.sip.message.Message,CallGroup)}.
+     * javax.sip.message.Message,CallConference)}.
      *
      * @return a new outgoing <tt>Call</tt> with no peers in it
      * @throws OperationFailedException if initializing the new outgoing
@@ -216,6 +148,8 @@ public class OperationSetBasicTelephonySipImpl
      * outgoing call to be placed and which carries additional information to be
      * included in the call initiation (e.g. a Referred-To header and token in a
      * Refer request)
+     * @param conference the <tt>CallConference</tt> in which the newly-created
+     * <tt>Call</tt> is to participate
      *
      * @return CallPeer the CallPeer that will represented by the specified uri.
      * All following state change events will be delivered through that call
@@ -225,13 +159,16 @@ public class OperationSetBasicTelephonySipImpl
      * @throws OperationFailedException with the corresponding code if we fail
      * to create the call.
      */
-    private synchronized CallSipImpl createOutgoingCall(Address calleeAddress,
-        javax.sip.message.Message cause, CallGroup group)
-            throws OperationFailedException
+    private synchronized CallSipImpl createOutgoingCall(
+            Address calleeAddress,
+            javax.sip.message.Message cause,
+            CallConference conference)
+        throws OperationFailedException
     {
         CallSipImpl call = createOutgoingCall();
 
-        call.setCallGroup(group);
+        if (conference != null)
+            call.setConference(conference);
         call.invite(calleeAddress, cause);
 
         return call;
@@ -1886,25 +1823,6 @@ public class OperationSetBasicTelephonySipImpl
                 }
             }
         }
-    }
-
-    /**
-     * Sets the mute state of the <tt>Call</tt>.
-     * <p>
-     * Muting audio streams sent from the call is implementation specific
-     * and one of the possible approaches to it is sending silence.
-     * </p>
-     *
-     * @param call the <tt>Call</tt> whose mute state is set
-     * @param mute <tt>true</tt> to mute the call streams being sent to
-     *            <tt>peers</tt>; otherwise, <tt>false</tt>
-     */
-    @Override
-    public void setMute(Call call, boolean mute)
-    {
-        CallSipImpl sipCall = (CallSipImpl)call;
-
-        sipCall.setMute(mute);
     }
 
     /**

@@ -1135,12 +1135,14 @@ public class UIServiceImpl
 
                 if (isTransparentWindowEnabled)
                 {
-                    ResourceManagementService resources =
-                        GuiActivator.getResources();
+                    ResourceManagementService resources
+                        = GuiActivator.getResources();
 
-                    new ErrorDialog(mainFrame, resources
-                        .getI18NString("service.gui.ERROR"), resources
-                        .getI18NString("service.gui.TRANSPARENCY_NOT_ENABLED"))
+                    new ErrorDialog(
+                            mainFrame,
+                            resources.getI18NString("service.gui.ERROR"),
+                            resources.getI18NString(
+                                    "service.gui.TRANSPARENCY_NOT_ENABLED"))
                         .showDialog();
                 }
 

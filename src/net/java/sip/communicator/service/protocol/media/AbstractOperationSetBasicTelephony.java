@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.service.protocol.media;
 
+import java.text.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
@@ -60,6 +61,56 @@ public abstract class AbstractOperationSetBasicTelephony
     }
 
     /**
+     * {@inheritDoc}
+     *
+     * Forwards to
+     * {@link OperationSetBasicTelephony#createCall(Contact, CallConference)}
+     * with <tt>null</tt> as the <tt>CallConference</tt> argument.
+     */
+    public Call createCall(Contact callee)
+        throws OperationFailedException
+    {
+        return createCall(callee, null);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Forwards to
+     * {@link OperationSetBasicTelephony#createCall(String, CallConference)}
+     * with {@link Contact#getAddress()} as the <tt>String</tt> argument.
+     */
+    public Call createCall(Contact callee, CallConference conference)
+        throws OperationFailedException
+    {
+        try
+        {
+            return createCall(callee.getAddress(), conference);
+        }
+        catch (ParseException pe)
+        {
+            throw new OperationFailedException(
+                    pe.getMessage(),
+                    OperationFailedException.ILLEGAL_ARGUMENT,
+                    pe);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Forwards to
+     * {@link OperationSetBasicTelephony#createCall(String, CallConference)}
+     * with <tt>null</tt> as the <tt>CallConference</tt> argument.
+     */
+    public Call createCall(String uri)
+        throws OperationFailedException,
+               ParseException
+    {
+        return createCall(uri, null);
+    }
+
+    /**
      * Creates and dispatches a <tt>CallEvent</tt> notifying registered
      * listeners that an event with id <tt>eventID</tt> has occurred on
      * <tt>sourceCall</tt>.
@@ -81,15 +132,15 @@ public abstract class AbstractOperationSetBasicTelephony
      * @param sourceCall the call on which the event has occurred.
      * @param mediaDirections direction map for media types
      */
-    public void fireCallEvent(int eventID, Call sourceCall,
+    public void fireCallEvent(
+            int eventID,
+            Call sourceCall,
             Map<MediaType, MediaDirection> mediaDirections)
     {
-        CallEvent cEvent = new CallEvent(sourceCall, eventID);
+        CallEvent event = new CallEvent(sourceCall, eventID);
 
-        if(mediaDirections != null)
-        {
-            cEvent.setMediaDirections(mediaDirections);
-        }
+        if (mediaDirections != null)
+            event.setMediaDirections(mediaDirections);
 
         List<CallListener> listeners;
 
@@ -99,21 +150,26 @@ public abstract class AbstractOperationSetBasicTelephony
         }
 
         if (logger.isDebugEnabled())
-            logger.debug("Dispatching a CallEvent to " + listeners.size()
-            + " listeners. event is: " + cEvent);
+        {
+            logger.debug(
+                    "Dispatching a CallEvent to "
+                        + listeners.size()
+                        + " listeners. The event is: "
+                        + event);
+        }
 
         for (CallListener listener : listeners)
         {
             switch (eventID)
             {
             case CallEvent.CALL_INITIATED:
-                listener.outgoingCallCreated(cEvent);
+                listener.outgoingCallCreated(event);
                 break;
             case CallEvent.CALL_RECEIVED:
-                listener.incomingCallReceived(cEvent);
+                listener.incomingCallReceived(event);
                 break;
             case CallEvent.CALL_ENDED:
-                listener.callEnded(cEvent);
+                listener.callEnded(event);
                 break;
             }
         }
@@ -145,11 +201,16 @@ public abstract class AbstractOperationSetBasicTelephony
      */
     public void setMute(Call call, boolean mute)
     {
-        /*
-         * While throwing UnsupportedOperationException may be a possible
-         * approach, putOnHold/putOffHold just do nothing when not supported so
-         * this implementation takes inspiration from them.
-         */
+        if (call instanceof MediaAwareCall)
+            ((MediaAwareCall<?,?,?>) call).setMute(mute);
+        else
+        {
+            /*
+             * While throwing UnsupportedOperationException may be a possible
+             * approach, putOnHold/putOffHold just do nothing when not supported
+             * so this implementation takes inspiration from them.
+             */
+        }
     }
 
     /**

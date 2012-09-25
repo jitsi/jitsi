@@ -16,7 +16,6 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
-// disambiguation
 
 /**
  * Shortcut for call (take the call, hang up, ...).
@@ -29,8 +28,8 @@ public class CallShortcut
                CallListener
 {
     /**
-     * The <tt>Logger</tt> used by the <tt>CallShortcut</tt> class
-     * and its instances for logging output.
+     * The <tt>Logger</tt> used by the <tt>CallShortcut</tt> class and its
+     * instances for logging output.
      */
     private static final Logger logger = Logger.getLogger(CallShortcut.class);
 
@@ -48,18 +47,18 @@ public class CallShortcut
     /**
      * Keybindings service.
      */
-    private KeybindingsService keybindingsService =
-        GlobalShortcutActivator.getKeybindingsService();
+    private final KeybindingsService keybindingsService
+        = GlobalShortcutActivator.getKeybindingsService();
 
     /**
      * List of incoming calls not yet answered.
      */
-    private ArrayList<Call> incomingCalls = new ArrayList<Call>();
+    private final List<Call> incomingCalls = new ArrayList<Call>();
 
     /**
      * List of answered calls: active (off hold) or on hold.
      */
-    private ArrayList<Call> answeredCalls = new ArrayList<Call>();
+    private final List<Call> answeredCalls = new ArrayList<Call>();
 
     /**
      * Next mute state action.
@@ -67,31 +66,35 @@ public class CallShortcut
     private boolean mute = true;
 
     /**
-     * Constructor.
+     * Initializes a new <tt>CallShortcut</tt> instance.
      */
     public CallShortcut()
     {
     }
 
     /**
-     * Callback when an shortcut is typed
+     * Notifies this <tt>GlobalShortcutListener</tt> that a shortcut was
+     * triggered.
      *
-     * @param evt <tt>GlobalShortcutEvent</tt>
+     * @param evt a <tt>GlobalShortcutEvent</tt> which describes the specifics
+     * of the triggering of the shortcut
      */
     public void shortcutReceived(GlobalShortcutEvent evt)
     {
         AWTKeyStroke keystroke = evt.getKeyStroke();
         GlobalKeybindingSet set = keybindingsService.getGlobalBindings();
 
-        for(Map.Entry<String, List<AWTKeyStroke>> entry :
-            set.getBindings().entrySet())
+        for(Map.Entry<String, List<AWTKeyStroke>> entry
+                : set.getBindings().entrySet())
         {
             for(AWTKeyStroke ks : entry.getValue())
             {
                 if(ks == null)
                     continue;
 
-                if(entry.getKey().equals("answer") &&
+                String entryKey = entry.getKey();
+
+                if(entryKey.equals("answer") &&
                     keystroke.getKeyCode() == ks.getKeyCode() &&
                     keystroke.getModifiers() == ks.getModifiers())
                 {
@@ -99,7 +102,7 @@ public class CallShortcut
                     manageNextIncomingCall(CallAction.ANSWER);
 
                 }
-                else if(entry.getKey().equals("hangup") &&
+                else if(entryKey.equals("hangup") &&
                     keystroke.getKeyCode() == ks.getKeyCode() &&
                     keystroke.getModifiers() == ks.getModifiers())
                 {
@@ -118,7 +121,7 @@ public class CallShortcut
                     }
 
                 }
-                else if(entry.getKey().equals("answer_hangup") &&
+                else if(entryKey.equals("answer_hangup") &&
                     keystroke.getKeyCode() == ks.getKeyCode() &&
                     keystroke.getModifiers() == ks.getModifiers())
                 {
@@ -137,28 +140,29 @@ public class CallShortcut
                     }
 
                 }
-                else if(entry.getKey().equals("mute") &&
+                else if(entryKey.equals("mute") &&
                     keystroke.getKeyCode() == ks.getKeyCode() &&
                     keystroke.getModifiers() == ks.getModifiers())
                 {
-                    synchronized(incomingCalls)
+                    try
                     {
-                        for(Call c : incomingCalls)
+                        synchronized(incomingCalls)
                         {
-                            handleMute(c);
+                            for(Call c : incomingCalls)
+                                handleMute(c);
+                        }
+                        synchronized(answeredCalls)
+                        {
+                            for(Call c : answeredCalls)
+                                handleMute(c);
                         }
                     }
-
-                    synchronized(answeredCalls)
+                    finally
                     {
-                        for(Call c : answeredCalls)
-                        {
-                            handleMute(c);
-                        }
+                        // next action will revert change done here (mute or
+                        // unmute)
+                        mute = !mute;
                     }
-
-                    // next action will revert change done here (mute or unmute)
-                    mute = !mute;
                 }
             }
         }
@@ -172,7 +176,7 @@ public class CallShortcut
      */
     public void incomingCallReceived(CallEvent event)
     {
-        CallShortcut.addCall(event.getSourceCall(), this.incomingCalls);
+        addCall(event.getSourceCall(), this.incomingCalls);
     }
 
     /**
@@ -184,7 +188,7 @@ public class CallShortcut
      */
     public void outgoingCallCreated(CallEvent event)
     {
-        CallShortcut.addCall(event.getSourceCall(), this.answeredCalls);
+        addCall(event.getSourceCall(), this.answeredCalls);
     }
 
     /**
@@ -193,11 +197,11 @@ public class CallShortcut
      * @param call The call to add to the managed call list.
      * @param calls The managed call list.
      */
-    private static void addCall(Call call, ArrayList<Call> calls)
+    private static void addCall(Call call, List<Call> calls)
     {
         synchronized(calls)
         {
-            if(call.getCallGroup() == null)
+            if(!calls.contains(call))
                 calls.add(call);
         }
     }
@@ -215,8 +219,8 @@ public class CallShortcut
     {
         Call sourceCall = event.getSourceCall();
 
-        CallShortcut.removeCall(sourceCall, incomingCalls);
-        CallShortcut.removeCall(sourceCall, answeredCalls);
+        removeCall(sourceCall, incomingCalls);
+        removeCall(sourceCall, answeredCalls);
     }
 
     /**
@@ -225,7 +229,7 @@ public class CallShortcut
      * @param call The call to remove from the managed call list.
      * @param calls The managed call list.
      */
-    private static void removeCall(Call call, ArrayList<Call> calls)
+    private static void removeCall(Call call, List<Call> calls)
     {
         synchronized(calls)
         {
@@ -235,24 +239,28 @@ public class CallShortcut
     }
 
     /**
-     * Handle the mute for a <tt>Call</tt>.
+     * Sets the mute state of a specific <tt>Call</tt> in accord with
+     * {@link #mute}.
      *
-     * @param c the <tt>Call</tt>
+     * @param call the <tt>Call</tt> to set the mute state of
      */
-    private void handleMute(Call c)
+    private void handleMute(Call call)
     {
         // handle only established call
-        if(c.getCallState() != CallState.CALL_IN_PROGRESS)
+        if(call.getCallState() != CallState.CALL_IN_PROGRESS)
             return;
-
         // handle only connected peer (no on hold peer)
-        if(c.getCallPeers().next().getState() != CallPeerState.CONNECTED)
+        if(call.getCallPeers().next().getState() != CallPeerState.CONNECTED)
             return;
 
-        MediaAwareCall<?,?,?> cc = (MediaAwareCall<?,?,?>)c;
-        if(mute != cc.isMute())
+        OperationSetBasicTelephony<?> basicTelephony
+            = call.getProtocolProvider().getOperationSet(
+                    OperationSetBasicTelephony.class);
+
+        if ((basicTelephony != null)
+                && (mute != ((MediaAwareCall<?,?,?>) call).isMute()))
         {
-            cc.setMute(mute);
+            basicTelephony.setMute(call, mute);
         }
     }
 
@@ -272,58 +280,43 @@ public class CallShortcut
             {
                 try
                 {
-                    List<Call> calls;
-                    CallGroup group = call.getCallGroup();
-                    if(group != null)
+                    for (Call aCall : CallConference.getCalls(call))
                     {
-                        calls = group.getCalls();
-                    }
-                    else
-                    {
-                        calls = new Vector<Call>();
-                        calls.add(call);
-                    }
-                    Call tmpCall;
-                    Iterator<? extends CallPeer> callPeers;
-                    CallPeer callPeer;
+                        Iterator<? extends CallPeer> callPeers
+                            = aCall.getCallPeers();
+                        OperationSetBasicTelephony<?> basicTelephony
+                            = aCall.getProtocolProvider().getOperationSet(
+                                    OperationSetBasicTelephony.class);
 
-                    for(int i = 0; i < calls.size();  ++i)
-                    {
-                        tmpCall = calls.get(i);
-                        final OperationSetBasicTelephony<?> opSet =
-                            tmpCall.getProtocolProvider()
-                            .getOperationSet(OperationSetBasicTelephony.class);
-                        callPeers = tmpCall.getCallPeers();
                         while(callPeers.hasNext())
                         {
-                            callPeer = callPeers.next();
+                            CallPeer callPeer = callPeers.next();
+
                             switch(callAction)
                             {
-                                case ANSWER:
-                                    if(callPeer.getState() ==
-                                            CallPeerState.INCOMING_CALL)
-                                    {
-                                        opSet.answerCallPeer(callPeer);
-                                    }
-                                    break;
-                                case HANGUP:
-                                    opSet.hangupCallPeer(callPeer);
-                                    break;
+                            case ANSWER:
+                                if(callPeer.getState()
+                                        == CallPeerState.INCOMING_CALL)
+                                {
+                                    basicTelephony.answerCallPeer(callPeer);
+                                }
+                                break;
+                            case HANGUP:
+                                basicTelephony.hangupCallPeer(callPeer);
+                                break;
                             }
                         }
                     }
 
                 }
-                catch(OperationFailedException e)
+                catch(OperationFailedException ofe)
                 {
-                    logger.info(
+                    logger.error(
                             "Failed to answer/hangup call via global shortcut",
-                            e);
+                            ofe);
                 }
             }
         }.start();
-
-
     }
 
     /**
@@ -338,12 +331,13 @@ public class CallShortcut
     {
         synchronized(incomingCalls)
         {
-            Call call;
             int i = incomingCalls.size();
+
             while(i != 0)
             {
                 --i;
-                call = incomingCalls.get(i);
+
+                Call call = incomingCalls.get(i);
 
                 // Either this incoming call is already answered, or we will
                 // answered it. Thus, we switch it to the answered list.
@@ -375,21 +369,21 @@ public class CallShortcut
     private boolean closeAnsweredCalls(boolean closeOnlyActiveCalls)
     {
         boolean isAtLeastOneCallClosed = false;
-        Call call;
 
         synchronized(answeredCalls)
         {
             int i = answeredCalls.size();
+
             while(i != 0)
             {
                 --i;
-                call = answeredCalls.get(i);
+
+                Call call = answeredCalls.get(i);
 
                 // If we are not limited to active call, then we close all
                 // answered calls. Otherwise, we close only active calls (hold
                 // off calls).
-                if(!closeOnlyActiveCalls
-                        || CallShortcut.isActiveCall(call))
+                if(!closeOnlyActiveCalls || CallShortcut.isActiveCall(call))
                 {
                     CallShortcut.doCallAction(call, CallAction.HANGUP);
                     answeredCalls.remove(i);
@@ -402,57 +396,43 @@ public class CallShortcut
     }
 
     /**
-     * Return true if the call is active: at least one call peer is active (not
-     * on hold).
+     * Returns <tt>true</tt> if a specific <tt>Call</tt> is active - at least
+     * one <tt>CallPeer</tt> is active (i.e. not on hold).
      *
-     * @param call The call that this function will determine as active or not.
-     *
-     * @return True if the call is active. False, otherwise.
+     * @param call the <tt>Call</tt> to be determined whether it is active
+     * @return <tt>true</tt> if the specified <tt>call</tt> is active;
+     * <tt>false</tt>, otherwise.
      */
     private static boolean isActiveCall(Call call)
     {
-        List<Call> calls;
-        CallGroup group = call.getCallGroup();
-        if(group != null)
+        for (Call conferenceCall : CallConference.getCalls(call))
         {
-            calls = group.getCalls();
-        }
-        else
-        {
-            calls = new Vector<Call>();
-            calls.add(call);
-        }
-
-        for(int i = 0; i < calls.size();  ++i)
-        {
-            if(isAtLeastOneActiveCallPeer(calls.get(i).getCallPeers()))
-            {
-                // If there is a single active call peer, then the call is
-                // active.
+            // If at least one CallPeer is active, the whole call is active.
+            if (isAtLeastOneActiveCallPeer(conferenceCall.getCallPeers()))
                 return true;
-            }
         }
         return false;
     }
 
     /**
-     * Return true if at least one call peer is active: not on hold.
-     *
-     * @param callPeers The call peer list which may contain at least an active
-     * call.
-
-     * @return True if at least one call peer is active: not on hold. False,
+     * Returns <tt>true</tt> if at least one <tt>CallPeer</tt> in a list of
+     * <tt>CallPeer</tt>s is active i.e. is not on hold; <tt>false</tt>,
      * otherwise.
+     *
+     * @param callPeers the list of <tt>CallPeer</tt>s to check for at least one
+     * active <tt>CallPeer</tt>
+     * @return <tt>true</tt> if at least one <tt>CallPeer</tt> in
+     * <tt>callPeers</tt> is active i.e. is not on hold; <tt>false</tt>,
+     * otherwise
      */
     private static boolean isAtLeastOneActiveCallPeer(
             Iterator<? extends CallPeer> callPeers)
     {
-        CallPeer callPeer;
-        
-        while(callPeers.hasNext())
+        while (callPeers.hasNext())
         {
-            callPeer = callPeers.next();
-            if(!CallPeerState.isOnHold(callPeer.getState()))
+            CallPeer callPeer = callPeers.next();
+
+            if (!CallPeerState.isOnHold(callPeer.getState()))
             {
                 // If at least one peer is active, then the call is active.
                 return true;

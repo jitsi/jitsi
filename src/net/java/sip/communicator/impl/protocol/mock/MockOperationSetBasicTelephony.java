@@ -67,77 +67,15 @@ public class MockOperationSetBasicTelephony
     }
 
     /**
-     * Creates a new <tt>Call</tt> and invites a specific <tt>CallPeer</tt> to
-     * it given by her <tt>String</tt> URI.
+     * {@inheritDoc}
      *
-     * @param uri the address of the callee who we should invite to a new
-     * <tt>Call</tt>
-     * @return a newly created <tt>Call</tt>. The specified <tt>callee</tt> is
-     * available in the <tt>Call</tt> as a <tt>CallPeer</tt>
-     * @throws OperationFailedException with the corresponding code if we fail
-     * to create the call
-     * @throws ParseException if <tt>callee</tt> is not a valid SIP address
-     * <tt>String</tt>
-     * @see OperationSetBasicTelephony#createCall(String)
+     * Ignores the <tt>CallConference</tt> argument.
      */
-    public Call createCall(String uri) throws OperationFailedException,
-        ParseException
-    {
-        return createNewCall(uri);
-    }
-
-    /**
-     * Creates a new <tt>Call</tt> and invites a specific <tt>CallPeer</tt>
-     * to it given by her <tt>Contact</tt>.
-     *
-     * @param callee the address of the callee who we should invite to a new
-     * call
-     * @return a newly created <tt>Call</tt>. The specified <tt>callee</tt> is
-     * available in the <tt>Call</tt> as a <tt>CallPeer</tt>
-     * @throws OperationFailedException with the corresponding code if we fail
-     * to create the call
-     * @see OperationSetBasicTelephony#createCall(Contact)
-     */
-    public Call createCall(Contact callee) throws OperationFailedException
-    {
-        return createNewCall(callee.getAddress());
-    }
-
-    /**
-     * Creates a new <tt>Call</tt> and invites a specific <tt>CallPeer</tt> to
-     * it given by her <tt>String</tt> URI.
-     *
-     * @param callee the address of the callee who we should invite to a new
-     *            <tt>Call</tt>
-     * @param group <tt>CallGroup</tt> from which the <tt>Call</tt> will belong
-     * @return a newly created <tt>Call</tt>. The specified <tt>callee</tt> is
-     *         available in the <tt>Call</tt> as a <tt>CallPeer</tt>
-     * @throws OperationFailedException with the corresponding code if we fail
-     *             to create the call
-     */
-    public Call createCall(String callee, CallGroup group)
+    public Call createCall(String callee, CallConference conference)
         throws OperationFailedException,
                ParseException
     {
-        return createCall(callee);
-    }
-
-    /**
-     * Creates a new <tt>Call</tt> and invites a specific <tt>CallPeer</tt> to
-     * it given by her <tt>Contact</tt>.
-     *
-     * @param callee the address of the callee who we should invite to a new
-     *            call
-     * @param group <tt>CallGroup</tt> from which the <tt>Call</tt> will belong
-     * @return a newly created <tt>Call</tt>. The specified <tt>callee</tt> is
-     *         available in the <tt>Call</tt> as a <tt>CallPeer</tt>
-     * @throws OperationFailedException with the corresponding code if we fail
-     *             to create the call
-     */
-    public Call createCall(Contact callee, CallGroup group)
-        throws OperationFailedException
-    {
-        return createCall(callee);
+        return createNewCall(callee);
     }
 
     private Call createNewCall(String address)
