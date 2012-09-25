@@ -148,6 +148,8 @@ public class ChatConversationPanel
 
     private String lastMessageUID = null;
 
+    private boolean isSimpleTheme = true;
+
     /**
      * The implementation of the routine which scrolls {@link #chatTextPane} to its
      * bottom.
@@ -266,6 +268,8 @@ public class ChatConversationPanel
             GuiActivator.getResources().getI18nMnemonic(
                 "service.gui.COPY_LINK"));
 
+        this.isSimpleTheme = ConfigurationManager.isChatSimpleThemeEnabled();
+
         /*
          * When we append a new message (regardless of whether it is a string or
          * an UI component), we want to make it visible in the viewport of this
@@ -376,8 +380,11 @@ public class ChatConversationPanel
 
         // If this is a consecutive message don't go through the initiation
         // and just append it.
-        if (appendConsecutiveMessage(chatMessage, keyword, contentType))
+        if (isConsecutiveMessage(chatMessage))
+        {
+            appendConsecutiveMessage(chatMessage, keyword, contentType);
             return null;
+        }
 
         lastMessageTimestamp = chatMessage.getDate();
 
@@ -397,17 +404,15 @@ public class ChatConversationPanel
         long date = chatMessage.getDate();
         String messageType = chatMessage.getMessageType();
         String messageTitle = chatMessage.getMessageTitle();
-        String messageUID = chatMessage.getMessageUID();
         String message = chatMessage.getMessage();
-        String msgID = ChatHtmlUtils.MESSAGE_TEXT_ID + messageUID;
         String chatString = "";
         String endHeaderTag = "";
 
         String startSystemDivTag
-            = "<DIV identifier=\"systemMessage\" style=\"color:#627EB7;\">";
+            = "<DIV id=\"systemMessage\" style=\"color:#627EB7;\">";
         String endDivTag = "</DIV>";
 
-        lastMessageUID = messageUID;
+        lastMessageUID = chatMessage.getMessageUID();
 
         String startPlainTextTag
             = ChatHtmlUtils.createStartPlainTextTag(contentType);
@@ -419,63 +424,68 @@ public class ChatConversationPanel
             this.lastIncomingMsgTimestamp = System.currentTimeMillis();
 
             chatString = ChatHtmlUtils.createIncomingMessageTag(
-                msgID,
+                lastMessageUID,
                 contactName,
                 contactDisplayName,
                 getContactAvatar(protocolProvider, contactAddress),
                 date,
                 formatMessage(message, contentType, keyword),
-                contentType);
+                contentType,
+                isSimpleTheme);
         }
         else if (messageType.equals(Chat.OUTGOING_MESSAGE))
         {
             chatString = ChatHtmlUtils.createOutgoingMessageTag(
-                msgID,
+                lastMessageUID,
                 contactName,
                 contactDisplayName,
                 getContactAvatar(protocolProvider),
                 date,
                 formatMessage(message, contentType, keyword),
-                contentType);
+                contentType,
+                isSimpleTheme);
         }
         else if (messageType.equals(Chat.HISTORY_INCOMING_MESSAGE))
         {
             this.lastIncomingMsgTimestamp = System.currentTimeMillis();
 
             chatString = ChatHtmlUtils.createIncomingMessageTag(
-                msgID,
+                lastMessageUID,
                 contactName,
                 contactDisplayName,
                 getContactAvatar(protocolProvider, contactAddress),
                 date,
                 formatMessage(message, contentType, keyword),
-                contentType);
+                contentType,
+                isSimpleTheme);
         }
         else if (messageType.equals(Chat.HISTORY_OUTGOING_MESSAGE))
         {
             chatString = ChatHtmlUtils.createOutgoingMessageTag(
-                msgID,
+                lastMessageUID,
                 contactName,
                 contactDisplayName,
                 getContactAvatar(protocolProvider),
                 date,
                 formatMessage(message, contentType, keyword),
-                contentType);
+                contentType,
+                isSimpleTheme);
         }
         else if (messageType.equals(Chat.SMS_MESSAGE))
         {
             chatString = ChatHtmlUtils.createIncomingMessageTag(
-                msgID,
+                lastMessageUID,
                 contactName,
                 contactDisplayName,
                 getContactAvatar(protocolProvider, contactAddress),
                 date,
                 formatMessage("SMS: " + message, contentType, keyword),
-                contentType);
+                contentType,
+                isSimpleTheme);
         }
         else if (messageType.equals(Chat.STATUS_MESSAGE))
         {
-            chatString =    "<h4 identifier=\"statusMessage\" date=\""
+            chatString =    "<h4 id=\"statusMessage\" date=\""
                             + date + "\">";
             endHeaderTag = "</h4>";
 
@@ -485,7 +495,7 @@ public class ChatConversationPanel
         }
         else if (messageType.equals(Chat.ACTION_MESSAGE))
         {
-            chatString =    "<p identifier=\"actionMessage\" date=\""
+            chatString =    "<p id=\"actionMessage\" date=\""
                             + date + "\">";
             endHeaderTag = "</p>";
 
@@ -503,7 +513,7 @@ public class ChatConversationPanel
         }
         else if (messageType.equals(Chat.ERROR_MESSAGE))
         {
-            chatString      = "<h6 identifier=\""
+            chatString      = "<h6 id=\""
                             + ChatHtmlUtils.MESSAGE_HEADER_ID
                             + "\" date=\""
                             + date + "\">";
@@ -544,74 +554,74 @@ public class ChatConversationPanel
      * @param chatMessage the message to append
      * @return <tt>true</tt> if the append succeeded, <tt>false</tt> - otherwise
      */
-    public boolean appendConsecutiveMessage(ChatMessage chatMessage,
-                                            String keyword,
-                                            String contentType)
+    public void appendConsecutiveMessage(   final ChatMessage chatMessage,
+                                            final String keyword,
+                                            final String contentType)
     {
-        if (lastMessageUID == null)
-            return false;
+        if (!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    appendConsecutiveMessage(   chatMessage,
+                                                keyword,
+                                                contentType);
+                }
+            });
+            return;
+        }
 
-        Element root = document.getDefaultRootElement();
-        Element lastMsgElement = document.getElement(root, Attribute.ID,
+        Element lastMsgElement = document.getElement(
             ChatHtmlUtils.MESSAGE_TEXT_ID + lastMessageUID);
 
-        if (lastMsgElement == null)
-        {
-            logger.warn("Could not find message with ID " + lastMessageUID);
-            return false;
-        }
-
         String contactAddress
-            = (String) lastMsgElement.getAttributes().getAttribute(
-                    Attribute.NAME);
+            = (String) lastMsgElement.getAttributes()
+                .getAttribute(Attribute.NAME);
 
-        if (contactAddress != null
-                && contactAddress.equals(chatMessage.getContactName())
-                // And if the new message is within a minute from the last one.
-                && ((chatMessage.getDate() - lastMessageTimestamp) < 60000))
-        {
-            String newMessage = ChatHtmlUtils.createMessageTag(
-                                        ChatHtmlUtils.MESSAGE_TEXT_ID
-                                            + chatMessage.getMessageUID(),
-                                        contactAddress,
-                                        formatMessage(chatMessage.getMessage(),
-                                            contentType,
-                                            keyword),
+        String newMessage = ChatHtmlUtils.createMessageTag(
+                                    chatMessage.getMessageUID(),
+                                    contactAddress,
+                                    formatMessage(chatMessage.getMessage(),
                                         contentType,
-                                        chatMessage.getDate(),
-                                        false);
+                                        keyword),
+                                    contentType,
+                                    chatMessage.getDate(),
+                                    false,
+                                    isSimpleTheme);
 
-            synchronized (scrollToBottomRunnable)
+        synchronized (scrollToBottomRunnable)
+        {
+            try
             {
-                try
-                {
-                    Element parentElement = lastMsgElement.getParentElement();
+                Element parentElement = lastMsgElement.getParentElement();
 
-                    document.insertBeforeEnd(parentElement, newMessage);
+                document.insertBeforeEnd(parentElement, newMessage);
 
-                    lastMessageUID = chatMessage.getMessageUID();
+                replaceMessageDivID(
+                    document.getElement(
+                        ChatHtmlUtils.MESSAGE_DIV_ID + lastMessageUID),
+                    lastMessageUID,
+                    chatMessage.getMessageUID());
 
-                    // Need to call explicitly scrollToBottom, because for some
-                    // reason the componentResized event isn't fired every time
-                    // we add text.
-                    SwingUtilities.invokeLater(scrollToBottomRunnable);
-                }
-                catch (BadLocationException ex)
-                {
-                    logger.error("Could not replace chat message", ex);
-                }
-                catch (IOException ex)
-                {
-                    logger.error("Could not replace chat message", ex);
-                }
+                lastMessageUID = chatMessage.getMessageUID();
+
+                // Need to call explicitly scrollToBottom, because for some
+                // reason the componentResized event isn't fired every time
+                // we add text.
+                SwingUtilities.invokeLater(scrollToBottomRunnable);
             }
-
-            finishMessageAdd(newMessage, contentType);
-
-            return true;
+            catch (BadLocationException ex)
+            {
+                logger.error("Could not replace chat message", ex);
+            }
+            catch (IOException ex)
+            {
+                logger.error("Could not replace chat message", ex);
+            }
         }
 
-        return false;
+        finishMessageAdd(newMessage, contentType);
     }
 
     /**
@@ -621,8 +631,20 @@ public class ChatConversationPanel
      * @param chatMessage A <tt>ChatMessage</tt> that contains all the required
      * information to correct the old message.
      */
-    public void correctMessage(ChatMessage chatMessage)
+    public void correctMessage(final ChatMessage chatMessage)
     {
+        if (!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    correctMessage(chatMessage);
+                }
+            });
+            return;
+        }
+
         String correctedUID = chatMessage.getCorrectedMessageUID();
         Element root = document.getDefaultRootElement();
         Element correctedMsgElement
@@ -641,15 +663,15 @@ public class ChatConversationPanel
                 .getAttribute(Attribute.NAME);
 
         String newMessage = ChatHtmlUtils.createMessageTag(
-            ChatHtmlUtils.MESSAGE_TEXT_ID
-                + chatMessage.getMessageUID(),
+            chatMessage.getMessageUID(),
             contactAddress,
             formatMessage(  chatMessage.getMessage(),
                             chatMessage.getContentType(),
                             ""),
             chatMessage.getContentType(),
             chatMessage.getDate(),
-            true);
+            true,
+            isSimpleTheme);
 
         synchronized (scrollToBottomRunnable)
         {
@@ -683,8 +705,21 @@ public class ChatConversationPanel
      *
      * @param message the message string to append
      */
-    public void appendMessageToEnd(String message, String contentType)
+    public void appendMessageToEnd(final String message,
+                                   final String contentType)
     {
+        if (!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    appendMessageToEnd(message, contentType);
+                }
+            });
+            return;
+        }
+
         if (message == null)
             return;
 
@@ -694,8 +729,10 @@ public class ChatConversationPanel
 
             try
             {
-                document.insertAfterEnd(
+                document.insertBeforeEnd(
+                            // the body element
                             root.getElement(root.getElementCount() - 1),
+                            // the message to insert
                             message);
 
                 // Need to call explicitly scrollToBottom, because for some
@@ -711,9 +748,17 @@ public class ChatConversationPanel
             {
                 logger.error("Insert in the HTMLDocument failed.", e);
             }
-        }
 
-        finishMessageAdd(message, contentType);
+        }
+        int lastMsgStartIndex = message.indexOf("<div id=\""
+            + ChatHtmlUtils.MESSAGE_TEXT_ID + lastMessageUID);
+
+        if (lastMsgStartIndex > 0)
+            finishMessageAdd(
+                message.substring(
+                    lastMsgStartIndex,
+                    message.indexOf("</div>", lastMsgStartIndex) + 6),
+                contentType);
     }
 
     /**
@@ -733,16 +778,6 @@ public class ChatConversationPanel
             ensureDocumentSize();
 
         /*
-         * Check to make sure element isn't the first element in the HTML
-         * document.
-         */
-        Element elem
-            = document.getElement(
-                    root,
-                    Attribute.ID,
-                    ChatHtmlUtils.MESSAGE_TEXT_ID + lastMessageUID);
-
-        /*
          * Replacements will be processed only if it is enabled in the
          * property.
          */
@@ -753,7 +788,9 @@ public class ChatConversationPanel
                         ReplacementProperty.getPropertyName("SMILEY"),
                         true))
         {
-            processReplacement(elem, message, contentType);
+            processReplacement( ChatHtmlUtils.MESSAGE_TEXT_ID + lastMessageUID,
+                                message,
+                                contentType);
         }
     }
 
@@ -765,119 +802,135 @@ public class ChatConversationPanel
     * @param elem the element in the HTML Document.
     * @param chatString the message.
     */
-    private void processReplacement(final Element elem,
+    private void processReplacement(final String messageID,
                                     final String chatString,
                                     final String contentType)
     {
-       SwingWorker worker = new SwingWorker()
-       {
-           public Object construct() throws Exception
-           {
-               ConfigurationService cfg
-                   = GuiActivator.getConfigurationService();
-               boolean isEnabled
-                   = cfg.getBoolean(
-                           ReplacementProperty.REPLACEMENT_ENABLE,
-                           true);
-               String msgStore = chatString;
+        SwingWorker worker = new SwingWorker()
+        {
+            /**
+             * Called on the event dispatching thread (not on the worker thread)
+             * after the <code>construct</code> method has returned.
+             */
+            public void finished()
+            {
+                String newMessage = (String) get();
 
-               for (Map.Entry<String, ReplacementService> entry
-                       : GuiActivator.getReplacementSources().entrySet())
-               {
-                   ReplacementService source = entry.getValue();
+                if (newMessage != null && !newMessage.equals(chatString))
+                {
+                    synchronized (scrollToBottomRunnable)
+                    {
+                        scrollToBottomIsPending = true;
 
-                   boolean isSmiley
-                       = source instanceof SmiliesReplacementService;
+                        try
+                        {
+                            Element elem = document.getElement(messageID);
 
-                   if (!(cfg.getBoolean(
-                               ReplacementProperty.getPropertyName(
-                                       source.getSourceName()),
-                               true)
-                           && (isEnabled || isSmiley)))
-                       continue;
+                            document.setOuterHTML(elem, newMessage);
+                        }
+                        catch (BadLocationException ex)
+                        {
+                            logger.error("Could not replace chat message", ex);
+                        }
+                        catch (IOException ex)
+                        {
+                            logger.error("Could not replace chat message", ex);
+                        }
+                    }
+                }
+            }
 
-                   String sourcePattern = source.getPattern();
-                   Pattern p
-                       = Pattern.compile(
-                               sourcePattern,
-                               Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
-                   Matcher m = p.matcher(msgStore);
+            public Object construct() throws Exception
+            {
+                ConfigurationService cfg
+                    = GuiActivator.getConfigurationService();
+                boolean isEnabled
+                    = cfg.getBoolean(
+                            ReplacementProperty.REPLACEMENT_ENABLE,
+                            true);
+                String msgStore = chatString;
 
-                   StringBuilder msgBuff = new StringBuilder();
-                   int startPos = 0;
+                for (Map.Entry<String, ReplacementService> entry
+                        : GuiActivator.getReplacementSources().entrySet())
+                {
+                    ReplacementService source = entry.getValue();
 
-                   while (m.find())
-                   {
-                       msgBuff.append(msgStore.substring(startPos, m.start()));
-                       startPos = m.end();
+                    boolean isSmiley
+                        = source instanceof SmiliesReplacementService;
 
-                       String group = m.group();
-                       String temp = source.getReplacement(group);
-                       String group0 = m.group(0);
+                    if (!(cfg.getBoolean(
+                                ReplacementProperty.getPropertyName(
+                                        source.getSourceName()),
+                                true)
+                            && (isEnabled || isSmiley)))
+                        continue;
 
-                       if(!temp.equals(group0)
-                               || source.getSourceName().equals("DIRECTIMAGE"))
-                       {
-                           if(isSmiley)
-                           {
-                               msgBuff.append(
-                                       ChatHtmlUtils.createEndPlainTextTag(
-                                               contentType));
-                               msgBuff.append("<IMG SRC=\"");
-                           }
-                           else
-                           {
-                               msgBuff.append(
-                                   "<IMG HEIGHT=\"90\" WIDTH=\"120\" SRC=\"");
-                           }
+                    String sourcePattern = source.getPattern();
+                    Pattern p
+                        = Pattern.compile(
+                                sourcePattern,
+                                Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+                    Matcher m = p.matcher(msgStore);
 
-                           msgBuff.append(temp);
-                           msgBuff.append("\" BORDER=\"0\" ALT=\"");
-                           msgBuff.append(group0);
-                           msgBuff.append("\"></IMG>");
+                    StringBuilder msgBuff = new StringBuilder();
+                    int startPos = 0;
 
-                           if(isSmiley)
-                               msgBuff.append(
-                                   ChatHtmlUtils.createStartPlainTextTag(
-                                       contentType));
-                       }
-                       else
-                       {
-                           msgBuff.append(group);
-                       }
-                   }
+                    while (m.find())
+                    {
+                        msgBuff.append(msgStore.substring(startPos, m.start()));
+                        startPos = m.end();
 
-                   msgBuff.append(msgStore.substring(startPos));
+                        String group = m.group();
+                        String temp = source.getReplacement(group);
+                        String group0 = m.group(0);
 
-                   /*
-                    * replace the msgStore variable with the current replaced
-                    * message before next iteration
-                    */
-                   String msgBuffString = msgBuff.toString();
+                        if(!temp.equals(group0)
+                                || source.getSourceName().equals("DIRECTIMAGE"))
+                        {
+                            if(isSmiley)
+                            {
+                                msgBuff.append(
+                                        ChatHtmlUtils.createEndPlainTextTag(
+                                                contentType));
+                                msgBuff.append("<IMG SRC=\"");
+                            }
+                            else
+                            {
+                                msgBuff.append(
+                                    "<IMG HEIGHT=\"90\" WIDTH=\"120\" SRC=\"");
+                            }
 
-                   if (!msgBuffString.equals(msgStore))
-                       msgStore = msgBuffString;
-               }
+                            msgBuff.append(temp);
+                            msgBuff.append("\" BORDER=\"0\" ALT=\"");
+                            msgBuff.append(group0);
+                            msgBuff.append("\"></IMG>");
 
-               if (!msgStore.equals(chatString))
-               {
-                   synchronized (scrollToBottomRunnable)
-                   {
-                       scrollToBottomIsPending = true;
+                            if(isSmiley)
+                                msgBuff.append(
+                                    ChatHtmlUtils.createStartPlainTextTag(
+                                        contentType));
+                        }
+                        else
+                        {
+                            msgBuff.append(group);
+                        }
+                    }
 
-                       int msgBeginIndex = msgStore.indexOf("<div id");
-                       int msgEndIndex
-                           = msgStore.indexOf("</div>", msgBeginIndex);
+                    msgBuff.append(msgStore.substring(startPos));
 
-                       document.setOuterHTML(
-                               elem,
-                               msgStore.substring(msgBeginIndex, msgEndIndex));
-                   }
-               }
-               return "";
-           }
-       };
-       worker.start();
+                    /*
+                     * replace the msgStore variable with the current replaced
+                     * message before next iteration
+                     */
+                    String msgBuffString = msgBuff.toString();
+
+                    if (!msgBuffString.equals(msgStore))
+                        msgStore = msgBuffString;
+                }
+                return msgStore;
+            }
+        };
+        worker.start();
     }
 
     /**
@@ -892,30 +945,32 @@ public class ChatConversationPanel
 
             Element firstMsgElement = null;
 
-            int firstMsgIndex = 0;
+            // The root element.
+            Element root = document.getDefaultRootElement();
 
-            Element rootElement = this.document.getDefaultRootElement();
+            // The body element.
+            Element bodyElement = root.getElement(root.getElementCount() - 1);
+
             // Count how many messages we have in the document.
-            for (int i = 0; i < rootElement.getElementCount(); i++)
+            for (int i = 0; i < bodyElement.getElementCount(); i++)
             {
-                String idAttr = (String) rootElement.getElement(i)
-                    .getAttributes().getAttribute("identifier");
+                String idAttr = (String) bodyElement.getElement(i)
+                    .getAttributes().getAttribute(Attribute.ID);
 
                 if(idAttr != null
-                    && (idAttr.startsWith(ChatHtmlUtils.MESSAGE_TEXT_ID)
+                    && (idAttr.startsWith(ChatHtmlUtils.MESSAGE_DIV_ID)
                         || idAttr.equals("statusMessage")
-                        || idAttr.equals("systemMessage")))
+                        || idAttr.equals("systemMessage")
+                        || idAttr.equals("actionMessage")))
                 {
                     if(firstMsgElement == null)
                     {
-                        firstMsgElement = rootElement.getElement(i);
-                        firstMsgIndex = i;
+                        firstMsgElement = bodyElement.getElement(i);
                     }
 
                     msgElementCount++;
                 }
             }
-
             // If we doesn't have any known elements in the document or if we
             // have only one long message we don't want to remove it.
             if(firstMsgElement == null || msgElementCount < 2)
@@ -923,24 +978,7 @@ public class ChatConversationPanel
 
             try
             {
-                // Remove the header of the message if such exists.
-                if(firstMsgIndex > 0)
-                {
-                    Element headerElement
-                        = rootElement.getElement(firstMsgIndex - 1);
-
-                    String idAttr = (String) headerElement
-                        .getAttributes().getAttribute("identifier");
-
-                    if(idAttr != null && idAttr.equals("messageHeader"))
-                    {
-                        this.document.remove(headerElement.getStartOffset(),
-                            headerElement.getEndOffset()
-                                - headerElement.getStartOffset());
-                    }
-                }
-
-                // Remove the message itself.
+                // Remove the message.
                 this.document.remove(firstMsgElement.getStartOffset(),
                         firstMsgElement.getEndOffset()
                             - firstMsgElement.getStartOffset());
@@ -1319,8 +1357,20 @@ public class ChatConversationPanel
      *
      * @param document the document to set
      */
-    public void setContent(HTMLDocument document)
+    public void setContent(final HTMLDocument document)
     {
+        if (!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    setContent(document);
+                }
+            });
+            return;
+        }
+
         synchronized (scrollToBottomRunnable)
         {
             scrollToBottomIsPending = true;
@@ -1366,27 +1416,15 @@ public class ChatConversationPanel
      */
     public Date getPageFirstMsgTimestamp()
     {
-        Element rootElement = this.document.getDefaultRootElement();
+        Element firstHeaderElement
+            = document.getElement(ChatHtmlUtils.MESSAGE_HEADER_ID);
 
-        Element firstMessageElement = null;
-
-        for(int i = 0; i < rootElement.getElementCount(); i ++)
-        {
-            String idAttr = (String) rootElement.getElement(i)
-                    .getAttributes().getAttribute("identifier");
-
-            if (idAttr != null && idAttr.equals("messageHeader"))
-            {
-                firstMessageElement = rootElement.getElement(i);
-                break;
-            }
-        }
-
-        if(firstMessageElement == null)
+        if(firstHeaderElement == null)
             return new Date(Long.MAX_VALUE);
 
-        String dateObject = firstMessageElement
-            .getAttributes().getAttribute("date").toString();
+        String dateObject = firstHeaderElement
+            .getAttributes().getAttribute(ChatHtmlUtils.DATE_ATTRIBUTE)
+                .toString();
 
         return new Date(Long.parseLong(dateObject));
     }
@@ -1398,27 +1436,23 @@ public class ChatConversationPanel
      */
     public Date getPageLastMsgTimestamp()
     {
-        Element rootElement = this.document.getDefaultRootElement();
-
-        Element lastMessageElement = null;
-
-        for(int i = rootElement.getElementCount() - 1; i >= 0; i --)
-        {
-            String idAttr = (String) rootElement.getElement(i)
-                .getAttributes().getAttribute("identifier");
-
-            if (idAttr != null && idAttr.equals("messageHeader"))
-            {
-                lastMessageElement = rootElement.getElement(i);
-                break;
-            }
-        }
-
-        if(lastMessageElement == null)
+        if (lastMessageUID == null)
             return new Date(0);
 
-        String dateObject = lastMessageElement
-            .getAttributes().getAttribute("date").toString();
+        Element lastMsgElement = document.getElement(
+            ChatHtmlUtils.MESSAGE_DIV_ID + lastMessageUID);
+
+        Element lastHeaderElement = document.getElement(
+            lastMsgElement,
+            Attribute.ID,
+            ChatHtmlUtils.MESSAGE_HEADER_ID);
+
+        if(lastHeaderElement == null)
+            return new Date(0);
+
+        String dateObject = lastHeaderElement
+            .getAttributes().getAttribute(ChatHtmlUtils.DATE_ATTRIBUTE)
+                .toString();
 
         return new Date(Long.parseLong(dateObject));
     }
@@ -1558,8 +1592,9 @@ public class ChatConversationPanel
             wrapPanel.add(component, BorderLayout.NORTH);
 
             style.addAttribute(StyleConstants.ComponentAttribute, wrapPanel);
-            style.addAttribute("identifier", "messageHeader");
-            style.addAttribute("date", component.getDate().getTime());
+            style.addAttribute(Attribute.ID, ChatHtmlUtils.MESSAGE_DIV_ID);
+            style.addAttribute( ChatHtmlUtils.DATE_ATTRIBUTE,
+                                component.getDate().getTime());
 
             scrollToBottomIsPending = true;
 
@@ -1772,6 +1807,104 @@ public class ChatConversationPanel
         else
             return GuiActivator.getResources().getImageURL(
                 "service.gui.DEFAULT_USER_PHOTO_SMALL").toString();
+    }
+
+    /**
+     * Replaces message div tag identifier.
+     *
+     * @param messageDivElement
+     * @param lastMessageUID
+     * @param newMessageUID
+     */
+    private void replaceMessageDivID(   Element messageDivElement,
+                                        String lastMessageUID,
+                                        String newMessageUID)
+    {
+        StringWriter msgDivWriter = new StringWriter();
+
+        try
+        {
+            editorKit.write(msgDivWriter, 
+                            document,
+                            0,
+                            document.getLength());
+
+            String msgDivString = msgDivWriter.toString();
+
+            String newMsgDivString
+                = msgDivString.replaceFirst(
+                    ChatHtmlUtils.MESSAGE_DIV_ID + lastMessageUID,
+                    ChatHtmlUtils.MESSAGE_DIV_ID + newMessageUID);
+
+            // Find the first index of the element.
+            int msgStartIndex = newMsgDivString.indexOf(
+                "<div id=\"" + ChatHtmlUtils.MESSAGE_DIV_ID + newMessageUID);
+
+            int msgEndIndex;
+            // Find the first index of the next div.
+            int nextDivIndex = newMsgDivString.indexOf(
+                "<div id=\"" + ChatHtmlUtils.MESSAGE_DIV_ID, msgStartIndex + 1);
+
+            // If there's a next div.
+            if (nextDivIndex > 0)
+            {
+                msgEndIndex = newMsgDivString
+                    .substring(msgStartIndex, nextDivIndex)
+                        .lastIndexOf("</div>");
+            }
+            else
+                msgEndIndex = newMsgDivString.lastIndexOf("</div>");
+
+            document.setOuterHTML(messageDivElement,
+                newMsgDivString.substring(
+                    msgStartIndex,
+                    msgEndIndex + 6));
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+        catch (BadLocationException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Indicates if this is a consecutive message.
+     *
+     * @param chatMessage the message to verify
+     * @return <tt>true</tt> if the given message is a consecutive message,
+     * <tt>false</tt> - otherwise
+     */
+    private boolean isConsecutiveMessage(ChatMessage chatMessage)
+    {
+        if (lastMessageUID == null)
+            return false;
+
+        Element lastMsgElement = document.getElement(
+            ChatHtmlUtils.MESSAGE_TEXT_ID + lastMessageUID);
+
+        if (lastMsgElement == null)
+        {
+            logger.warn("Could not find message with ID " + lastMessageUID);
+            return false;
+        }
+
+        String contactAddress
+            = (String) lastMsgElement.getAttributes()
+                .getAttribute(Attribute.NAME);
+
+        if (contactAddress != null
+                && contactAddress.equals(chatMessage.getContactName())
+                // And if the new message is within a minute from the last one.
+                && ((chatMessage.getDate() - lastMessageTimestamp)
+                        < 60000))
+        {
+            return true;
+        }
+
+        return false;
     }
 
     /**

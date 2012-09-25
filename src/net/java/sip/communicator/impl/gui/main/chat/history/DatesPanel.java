@@ -12,7 +12,6 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
-import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.util.swing.*;
 

@@ -35,6 +35,12 @@ public class OptionsMenu
         GuiActivator.getResources().getI18NString("service.gui.VIEW_SMILEYS"));
     private static final String ACTCMD_VIEW_SMILEYS = "ACTCMD_VIEW_SMILEYS";
 
+    private JCheckBoxMenuItem chatSimpleTheme = new JCheckBoxMenuItem(
+        GuiActivator.getResources().getI18NString(
+            "service.gui.VIEW_SIMPLE_CHAT_THEME"));
+    private static final String ACTCMD_VIEW_SIMPLE_THEME
+        = "ACTCMD_VIEW_SIMPLE_THEME";
+
     /**
      * Creates an instance of <tt>HelpMenu</tt>.
      * @param chatWindow The parent <tt>MainFrame</tt>.
@@ -49,11 +55,15 @@ public class OptionsMenu
 
         this.viewToolBar.setActionCommand(ACTCMD_VIEW_TOOLBAR);
         this.viewToolBar.addActionListener(this);
-        this.add(this.viewToolBar);
+        this.add(viewToolBar);
 
         this.viewSmileys.setActionCommand(ACTCMD_VIEW_SMILEYS);
         this.viewSmileys.addActionListener(this);
-        this.add(this.viewSmileys);
+        this.add(viewSmileys);
+
+        this.chatSimpleTheme.setActionCommand(ACTCMD_VIEW_SIMPLE_THEME);
+        this.chatSimpleTheme.addActionListener(this);
+//        this.add(chatSimpleTheme);
 
         initValues();
     }
@@ -68,6 +78,9 @@ public class OptionsMenu
 
         this.viewSmileys.setSelected(
             ConfigurationManager.isShowSmileys());
+
+        this.chatSimpleTheme.setSelected(
+            ConfigurationManager.isChatSimpleThemeEnabled());
     }
 
     /**
@@ -88,6 +101,11 @@ public class OptionsMenu
         else if (action.equals(ACTCMD_VIEW_SMILEYS))
         {
             ConfigurationManager.setShowSmileys(viewSmileys.isSelected());
+        }
+        else if (action.equals(ACTCMD_VIEW_SIMPLE_THEME))
+        {
+            ConfigurationManager.setChatSimpleThemeEnabled(
+                chatSimpleTheme.isSelected());
         }
     }
 }

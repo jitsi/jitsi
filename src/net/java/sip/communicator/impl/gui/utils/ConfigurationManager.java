@@ -127,6 +127,11 @@ public class ConfigurationManager
     private static boolean isShowSmileys;
 
     /**
+     * Indicates if the chat simple theme is activated.
+     */
+    private static boolean isChatSimpleThemeEnabled;
+
+    /**
      * Indicates if the add contact functionality is disabled.
      */
     private static boolean isAddContactDisabled;
@@ -232,6 +237,9 @@ public class ConfigurationManager
 
     private static final String SHOW_SMILEYS_PROPERTY
             = "net.java.sip.communicator.service.replacement.SMILEY.enable";
+
+    private static final String CHAT_SIMPLE_THEME_ENABLED_PROP
+        = "net.java.sip.communicator.service.gui.CHAT_SIMPLE_THEME_ENABLED";
 
     /**
      * Loads all user interface configurations.
@@ -511,6 +519,12 @@ public class ConfigurationManager
         isShowSmileys
             = configService.getBoolean(
                 SHOW_SMILEYS_PROPERTY,
+                true);
+
+        // Load the "isChatSimpleThemeEnabled" property.
+        isChatSimpleThemeEnabled
+            = configService.getBoolean(
+                CHAT_SIMPLE_THEME_ENABLED_PROP,
                 true);
 
         // Load the "lastContactParent" property.
@@ -871,6 +885,17 @@ public class ConfigurationManager
     public static boolean isShowSmileys()
     {
         return isShowSmileys;
+    }
+
+    /**
+     * Returns <code>true</code> if the "isChatSimpleTheme" property is
+     * true, otherwise - returns <code>false</code>..
+     * @return <code>true</code> if the "isChatSimpleTheme" property is
+     * true, otherwise - returns <code>false</code>.
+     */
+    public static boolean isChatSimpleThemeEnabled()
+    {
+        return isChatSimpleThemeEnabled;
     }
 
     /**
@@ -1351,6 +1376,21 @@ public class ConfigurationManager
         configService.setProperty(
                 SHOW_SMILEYS_PROPERTY,
                 Boolean.toString(isShowSmileys));
+    }
+
+    /**
+     * Updates the "isChatSimpleThemeEnabled" property through the
+     * <tt>ConfigurationService</tt>.
+     * 
+     * @param isVisible indicates if the chat simple theme is enabled
+     */
+    public static void setChatSimpleThemeEnabled(boolean isEnabled)
+    {
+        isChatSimpleThemeEnabled = isEnabled;
+
+        configService.setProperty(
+                CHAT_SIMPLE_THEME_ENABLED_PROP,
+                Boolean.toString(isChatSimpleThemeEnabled));
     }
 
     /**

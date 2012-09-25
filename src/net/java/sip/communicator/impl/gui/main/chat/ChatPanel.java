@@ -1930,8 +1930,10 @@ public class ChatPanel
             {
                 ChatConversationPanel conversationPanel
                     = getChatConversationPanel();
+
                 Date firstMsgDate
                     = conversationPanel.getPageFirstMsgTimestamp();
+
                 Collection<Object> c = null;
 
                 if(firstMsgDate != null)

@@ -9,20 +9,26 @@ h1
 
 h2
 {
+  width: 100%;
   margin: 0px;
+  /*
   padding-top: 4px;
   padding-left: 10px;
-  font-size: 10px;
+  */
+  font-size: 9px;
   color: #488fe7;
 }
 
 h3
 {
+  width: 100%;
   margin: 0px;
+  /*
   padding-top: 4px;
   padding-left: 10px;
-  font-size: 10px;
-  color: #2e538b;
+  */
+  font-size: 9px;
+  color: #535353;
 }
 
 h4
