@@ -152,12 +152,12 @@ public abstract class SwingWorker
         {
             boolean interrupted = false;
 
-            while (!future.isDone())
+            do
             {
-                value = null;
                 try
                 {
                     value = future.get();
+                    break;
                 }
                 catch (CancellationException ce)
                 {
@@ -172,6 +172,7 @@ public abstract class SwingWorker
                     interrupted = true;
                 }
             }
+            while (true);
             if (interrupted) // propagate
                 Thread.currentThread().interrupt();
         }
