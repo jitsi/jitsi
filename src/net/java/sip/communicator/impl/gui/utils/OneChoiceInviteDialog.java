@@ -245,6 +245,7 @@ public class OneChoiceInviteDialog
             = GuiActivator.getUIService().createContactListComponent();
 
         contactList.setContactButtonsVisible(false);
+        contactList.setRightButtonMenuEnabled(false);
         contactList.addContactListListener(new ContactListListener()
         {
             public void groupSelected(ContactListEvent evt) {}

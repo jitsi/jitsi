@@ -70,6 +70,11 @@ public class TreeContactList
     private Component rightButtonMenu;
 
     /**
+     * Indicates if the right mouse button menu is enabled.
+     */
+    private boolean isRightButtonMenuEnabled;
+
+    /**
      * A list of all contacts that are currently "active". An "active" contact
      * is a contact that has been sent a message. The list is used to indicate
      * these contacts with a special icon.
@@ -1187,31 +1192,34 @@ public class TreeContactList
             this.setSelectionPath(path);
         }
 
-        // Open right button menu when right mouse is pressed.
-        if (lastComponent instanceof ContactNode)
+        if (isRightButtonMenuEnabled)
         {
-            UIContact uiContact
-                = ((ContactNode) lastComponent).getContactDescriptor();
-
-            if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0
-                    || (e.isControlDown() && !e.isMetaDown()))
+            // Open right button menu when right mouse is pressed.
+            if (lastComponent instanceof ContactNode)
             {
-                rightButtonMenu = uiContact.getRightButtonMenu();
+                UIContact uiContact
+                    = ((ContactNode) lastComponent).getContactDescriptor();
 
-                openRightButtonMenu(e.getPoint());
+                if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0
+                        || (e.isControlDown() && !e.isMetaDown()))
+                {
+                    rightButtonMenu = uiContact.getRightButtonMenu();
+
+                    openRightButtonMenu(e.getPoint());
+                }
             }
-        }
-        else if (lastComponent instanceof GroupNode)
-        {
-            UIGroup uiGroup
-                = ((GroupNode) lastComponent).getGroupDescriptor();
-
-            if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0
-                    || (e.isControlDown() && !e.isMetaDown()))
+            else if (lastComponent instanceof GroupNode)
             {
-                rightButtonMenu = uiGroup.getRightButtonMenu();
+                UIGroup uiGroup
+                    = ((GroupNode) lastComponent).getGroupDescriptor();
 
-                openRightButtonMenu(e.getPoint());
+                if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0
+                        || (e.isControlDown() && !e.isMetaDown()))
+                {
+                    rightButtonMenu = uiGroup.getRightButtonMenu();
+
+                    openRightButtonMenu(e.getPoint());
+                }
             }
         }
 
@@ -2316,5 +2324,16 @@ public class TreeContactList
     public boolean isContactButtonsVisible()
     {
         return isContactButtonsVisible;
+    }
+
+    /**
+     * Enables/disables the right mouse click menu.
+     *
+     * @param isEnabled <tt>true</tt> to enable right button menu,
+     * <tt>false</tt> otherwise.
+     */
+    public void setRightButtonMenuEnabled(boolean isEnabled)
+    {
+        this.isRightButtonMenuEnabled = isEnabled;
     }
 }

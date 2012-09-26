@@ -300,4 +300,12 @@ public interface ContactList
      * otherwise
      */
     public void setDragEnabled(boolean isEnabled);
+
+    /**
+     * Enables/disables the right mouse click menu.
+     *
+     * @param isEnabled <tt>true</tt> to enable right button menu,
+     * <tt>false</tt> otherwise.
+     */
+    public void setRightButtonMenuEnabled(boolean isEnabled);
 }

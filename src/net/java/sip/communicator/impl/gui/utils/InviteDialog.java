@@ -358,6 +358,7 @@ public class InviteDialog
             = GuiActivator.getUIService().createContactListComponent();
 
         srcContactList.setDragEnabled(true);
+        srcContactList.setRightButtonMenuEnabled(false);
         srcContactList.setContactButtonsVisible(false);
         srcContactList.setMultipleSelectionEnabled(true);
         srcContactList.addContactListListener(new ContactListListener()
@@ -399,6 +400,7 @@ public class InviteDialog
             = GuiActivator.getUIService().createContactListComponent();
 
         destContactList.setContactButtonsVisible(false);
+        destContactList.setRightButtonMenuEnabled(false);
         destContactList.setMultipleSelectionEnabled(true);
         destContactList.addContactListListener(new ContactListListener()
         {
