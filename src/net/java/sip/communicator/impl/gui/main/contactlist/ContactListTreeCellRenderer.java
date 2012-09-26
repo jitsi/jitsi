@@ -213,7 +213,7 @@ public class ContactListTreeCellRenderer
     /**
      * Indicates if the current cell contains a leaf or a group.
      */
-    protected TreeNode treeNode;
+    protected TreeNode treeNode = null;
 
     /**
      * The parent tree.
@@ -249,7 +249,7 @@ public class ContactListTreeCellRenderer
 
         // !! IMPORTANT: General insets used for all components if not
         // overwritten!
-        constraints.insets = new Insets(0, 0, V_GAP, H_GAP);
+        constraints.insets = new Insets(0, 0, 0, H_GAP);
 
         constraints.anchor = GridBagConstraints.WEST;
         constraints.fill = GridBagConstraints.NONE;
@@ -364,6 +364,7 @@ public class ContactListTreeCellRenderer
         DefaultTreeContactList contactList = (DefaultTreeContactList) tree;
 
         setBorder();
+        addLabels(1);
 
         // Set background color.
         if (contactList instanceof TreeContactList)
@@ -645,6 +646,11 @@ public class ContactListTreeCellRenderer
         remove(rightLabel);
         remove(displayDetailsLabel);
 
+        if (treeNode != null && !(treeNode instanceof GroupNode))
+            constraints.insets = new Insets(0, 0, V_GAP, H_GAP);
+        else
+            constraints.insets = new Insets(0, 0, 0, H_GAP);
+
         constraints.anchor = GridBagConstraints.WEST;
         constraints.fill = GridBagConstraints.NONE;
         constraints.gridx = 1;
@@ -655,25 +661,28 @@ public class ContactListTreeCellRenderer
         constraints.gridwidth = nameLabelGridWidth;
         this.add(nameLabel, constraints);
 
-        constraints.anchor = GridBagConstraints.NORTHEAST;
-        constraints.fill = GridBagConstraints.VERTICAL;
-        constraints.gridx = nameLabelGridWidth + 1;
-        constraints.gridy = 0;
-        constraints.gridheight = 3;
-        constraints.weightx = 0f;
-        constraints.weighty = 1f;
-        this.add(rightLabel, constraints);
+        if (treeNode != null && treeNode instanceof ContactNode)
+        {
+            constraints.anchor = GridBagConstraints.NORTHEAST;
+            constraints.fill = GridBagConstraints.VERTICAL;
+            constraints.gridx = nameLabelGridWidth + 1;
+            constraints.gridy = 0;
+            constraints.gridheight = 3;
+            constraints.weightx = 0f;
+            constraints.weighty = 1f;
+            this.add(rightLabel, constraints);
 
-        constraints.anchor = GridBagConstraints.WEST;
-        constraints.fill = GridBagConstraints.NONE;
-        constraints.gridx = 1;
-        constraints.gridy = 1;
-        constraints.weightx = 1f;
-        constraints.weighty = 0f;
-        constraints.gridwidth = nameLabelGridWidth;
-        constraints.gridheight = 1;
+            constraints.anchor = GridBagConstraints.WEST;
+            constraints.fill = GridBagConstraints.NONE;
+            constraints.gridx = 1;
+            constraints.gridy = 1;
+            constraints.weightx = 1f;
+            constraints.weighty = 0f;
+            constraints.gridwidth = nameLabelGridWidth;
+            constraints.gridheight = 1;
 
-        this.add(displayDetailsLabel, constraints);
+            this.add(displayDetailsLabel, constraints);
+        }
     }
 
     /**
@@ -1690,7 +1699,7 @@ public class ContactListTreeCellRenderer
         else // GroupNode || ShowMoreContact
         {
             this.setBorder(BorderFactory
-                .createEmptyBorder( 4,
+                .createEmptyBorder( 0,
                                     LEFT_BORDER, 
                                     0,
                                     RIGHT_BORDER));
