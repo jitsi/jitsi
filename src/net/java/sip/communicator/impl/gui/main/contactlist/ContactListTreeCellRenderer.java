@@ -16,8 +16,6 @@ import javax.swing.*;
 import javax.swing.JPopupMenu.Separator;
 import javax.swing.tree.*;
 
-import org.jitsi.util.*;
-
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
@@ -239,18 +237,6 @@ public class ContactListTreeCellRenderer
     {
         super(new GridBagLayout());
 
-        /*
-         * !!! When changing border values we should make sure that we
-         * recalculate the X and Y coordinates of the buttons added in
-         * initButtonsPanel and initContactActionButtons functions. If not
-         * correctly calculated problems may occur when clicking buttons!
-         */
-        this.setBorder(BorderFactory
-            .createEmptyBorder( TOP_BORDER,
-                                LEFT_BORDER, 
-                                BOTTOM_BORDER,
-                                RIGHT_BORDER));
-
         loadSkin();
 
         this.setOpaque(true);
@@ -376,6 +362,8 @@ public class ContactListTreeCellRenderer
         this.rightLabel.setIcon(null);
 
         DefaultTreeContactList contactList = (DefaultTreeContactList) tree;
+
+        setBorder();
 
         // Set background color.
         if (contactList instanceof TreeContactList)
@@ -1660,6 +1648,9 @@ public class ContactListTreeCellRenderer
         }
     }
 
+    /**
+     * Adds a separator between buttons.
+     */
     private void addButtonSeparator(int buttonGridX)
     {
         JLabel separatorLabel = new JLabel(new ImageIcon(BUTTON_SEPARATOR_IMG));
@@ -1673,5 +1664,36 @@ public class ContactListTreeCellRenderer
         constraints.weightx = 0f;
         constraints.weighty = 0f;
         this.add(separatorLabel, constraints);
+    }
+
+    /**
+     * Sets the correct border depending on the contained object.
+     */
+    private void setBorder()
+    {
+        /*
+         * !!! When changing border values we should make sure that we
+         * recalculate the X and Y coordinates of the buttons added in
+         * initButtonsPanel and initContactActionButtons functions. If not
+         * correctly calculated problems may occur when clicking buttons!
+         */
+        if (treeNode instanceof ContactNode
+            && !(((ContactNode) treeNode).getContactDescriptor() instanceof
+                    ShowMoreContact))
+        {
+                this.setBorder(BorderFactory
+                    .createEmptyBorder( TOP_BORDER,
+                                        LEFT_BORDER, 
+                                        BOTTOM_BORDER,
+                                        RIGHT_BORDER));
+        }
+        else // GroupNode || ShowMoreContact
+        {
+            this.setBorder(BorderFactory
+                .createEmptyBorder( 4,
+                                    LEFT_BORDER, 
+                                    0,
+                                    RIGHT_BORDER));
+        }
     }
 }
