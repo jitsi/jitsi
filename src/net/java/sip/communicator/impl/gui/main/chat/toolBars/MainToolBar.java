@@ -185,7 +185,7 @@ public class MainToolBar
             this.add(leaveChatRoomButton);
 
         this.add(callButton);
-//        this.add(callVideoButton);
+        this.add(callVideoButton);
         this.add(desktopSharingButton);
         this.add(sendFileButton);
 
@@ -550,110 +550,11 @@ public class MainToolBar
         }
         else if (buttonText.equals("call"))
         {
-            ChatSession chatSession = chatPanel.getChatSession();
-
-            List<ChatTransport> telTransports = null;
-            if (chatSession != null)
-                telTransports = chatSession
-                    .getTransportsForOperationSet(
-                        OperationSetBasicTelephony.class);
-
-            List<ChatTransport> contactOpSetSupported =
-                getOperationSetForCapabilities(telTransports,
-                        OperationSetBasicTelephony.class);
-
-            MetaContact metaContact
-                = GuiActivator.getUIService().getChatContact(chatPanel);
- 
-            List<UIContactDetail> phones
-                = CallManager.getAdditionalNumbers(metaContact);
-
-            if (telTransports != null || phones.size() > 0)
-            {
-                if (contactOpSetSupported.size() == 1 && phones.size() == 0)
-                {
-                    ChatTransport transport = contactOpSetSupported.get(0);
-                    CallManager.createCall(
-                        transport.getProtocolProvider(),
-                        transport.getName());
-                }
-                else if (contactOpSetSupported.size() == 0
-                            && phones.size() == 1)
-                {
-                    UIContactDetail detail = phones.get(0);
-
-                    ProtocolProviderService preferredProvider
-                        = detail.getPreferredProtocolProvider(
-                            OperationSetBasicTelephony.class);
-
-                    List<ProtocolProviderService> providers
-                        = GuiActivator.getOpSetRegisteredProviders(
-                            OperationSetBasicTelephony.class,
-                            preferredProvider,
-                            detail.getPreferredProtocol(
-                                OperationSetBasicTelephony.class));
-
-                    if (providers != null)
-                    {
-                        int providersCount = providers.size();
-
-                        if (providersCount <= 0)
-                        {
-                            new ErrorDialog(null,
-                                GuiActivator.getResources().getI18NString(
-                                    "service.gui.CALL_FAILED"),
-                                GuiActivator.getResources().getI18NString(
-                                    "service.gui.NO_ONLINE_TELEPHONY_ACCOUNT"))
-                            .showDialog();
-                        }
-                        else if (providersCount == 1)
-                        {
-                            CallManager.createCall(
-                                providers.get(0), detail.getAddress());
-                        }
-                        else if (providersCount > 1)
-                        {
-                            ChooseCallAccountPopupMenu chooseAccountDialog = 
-                                new ChooseCallAccountPopupMenu(
-                                    callButton, detail.getAddress(), providers);
-                            Point location = new Point(callButton.getX(),
-                                callButton.getY() + callButton.getHeight());
-
-                            SwingUtilities.convertPointToScreen(
-                                location, this);
-
-                            chooseAccountDialog
-                                .showPopupMenu(location.x, location.y);
-                        }
-                    }
-                }
-                else if ((contactOpSetSupported.size() + phones.size()) > 1)
-                {
-                    List<Object> allContacts = new ArrayList<Object>();
-                    for(ChatTransport t : contactOpSetSupported)
-                    {
-                        allContacts.add(t);
-                    }
-                    for(UIContactDetail t : phones)
-                    {
-                        allContacts.add(t);
-                    }
-                                        
-                    ChooseCallAccountPopupMenu chooseAccountDialog
-                        = new ChooseCallAccountPopupMenu(
-                            callButton,
-                            allContacts);
-
-                    Point location = new Point(callButton.getX(),
-                        callButton.getY() + callButton.getHeight());
-
-                    SwingUtilities.convertPointToScreen(
-                        location, this);
-
-                    chooseAccountDialog
-                        .showPopupMenu(location.x, location.y);
-                }
-            }
+            call(false);
+        }
+        else if (buttonText.equals("callVideo"))
+        {
+            call(true);
         }
         else if (buttonText.equals("desktop"))
         {
@@ -873,4 +774,154 @@ public class MainToolBar
         }
     }
 
+    /**
+     * Establishes a call.
+     *
+     * @param isVideo indicates if a video call should be established.
+     */
+    private void call(boolean isVideo)
+    {
+        ChatPanel chatPanel = chatContainer.getCurrentChat();
+
+        ChatSession chatSession = chatPanel.getChatSession();
+
+        List<ChatTransport> telTransports = null;
+        if (chatSession != null)
+            telTransports = chatSession
+                .getTransportsForOperationSet(
+                    OperationSetBasicTelephony.class);
+
+        List<ChatTransport> contactOpSetSupported;
+
+        if (isVideo)
+            contactOpSetSupported =
+                getOperationSetForCapabilities(telTransports,
+                    OperationSetVideoTelephony.class);
+        else
+            contactOpSetSupported =
+                getOperationSetForCapabilities(telTransports,
+                    OperationSetBasicTelephony.class);
+
+        MetaContact metaContact
+            = GuiActivator.getUIService().getChatContact(chatPanel);
+
+        List<UIContactDetail> phones
+            = CallManager.getAdditionalNumbers(metaContact);
+
+        if (telTransports != null || phones.size() > 0)
+        {
+            if (contactOpSetSupported.size() == 1 && phones.size() == 0)
+            {
+                ChatTransport transport = contactOpSetSupported.get(0);
+                if (isVideo)
+                    CallManager.createVideoCall(
+                        transport.getProtocolProvider(),
+                        transport.getName());
+                else
+                    CallManager.createCall(
+                        transport.getProtocolProvider(),
+                        transport.getName());
+            }
+            else if (contactOpSetSupported.size() == 0
+                        && phones.size() == 1)
+            {
+                UIContactDetail detail = phones.get(0);
+
+                ProtocolProviderService preferredProvider
+                    = detail.getPreferredProtocolProvider(
+                        OperationSetBasicTelephony.class);
+
+                List<ProtocolProviderService> providers
+                    = GuiActivator.getOpSetRegisteredProviders(
+                        OperationSetBasicTelephony.class,
+                        preferredProvider,
+                        detail.getPreferredProtocol(
+                            OperationSetBasicTelephony.class));
+
+                if (providers != null)
+                {
+                    int providersCount = providers.size();
+
+                    if (providersCount <= 0)
+                    {
+                        new ErrorDialog(null,
+                            GuiActivator.getResources().getI18NString(
+                                "service.gui.CALL_FAILED"),
+                            GuiActivator.getResources().getI18NString(
+                                "service.gui.NO_ONLINE_TELEPHONY_ACCOUNT"))
+                        .showDialog();
+                    }
+                    else if (providersCount == 1)
+                    {
+                        if (isVideo)
+                            CallManager.createVideoCall(
+                                providers.get(0), detail.getAddress());
+                        else
+                            CallManager.createCall(
+                                providers.get(0), detail.getAddress());
+                    }
+                    else if (providersCount > 1)
+                    {
+                        ChooseCallAccountPopupMenu chooseAccountDialog;
+
+                        if (isVideo)
+                            chooseAccountDialog = 
+                                new ChooseCallAccountPopupMenu(
+                                    callButton, detail.getAddress(), providers,
+                                    OperationSetVideoTelephony.class);
+                        else
+                            chooseAccountDialog = 
+                                new ChooseCallAccountPopupMenu(
+                                    callButton, detail.getAddress(), providers,
+                                    OperationSetBasicTelephony.class);
+
+                        Point location = new Point(callButton.getX(),
+                            callButton.getY() + callButton.getHeight());
+
+                        SwingUtilities.convertPointToScreen(
+                            location, this);
+
+                        chooseAccountDialog
+                            .showPopupMenu(location.x, location.y);
+                    }
+                }
+            }
+            else if ((contactOpSetSupported.size() + phones.size()) > 1)
+            {
+                List<Object> allContacts = new ArrayList<Object>();
+                for(ChatTransport t : contactOpSetSupported)
+                {
+                    allContacts.add(t);
+                }
+                for(UIContactDetail t : phones)
+                {
+                    allContacts.add(t);
+                }
+
+                ChooseCallAccountPopupMenu chooseAccountDialog;
+
+                if (isVideo)
+                    chooseAccountDialog
+                        = new ChooseCallAccountPopupMenu(
+                                            callButton,
+                                            allContacts,
+                                            OperationSetVideoTelephony.class);
+                else
+                    chooseAccountDialog
+                        = new ChooseCallAccountPopupMenu(
+                                            callButton,
+                                            allContacts,
+                                            OperationSetBasicTelephony.class);
+
+                Point location = new Point(callButton.getX(),
+                    callButton.getY() + callButton.getHeight());
+
+                SwingUtilities.convertPointToScreen(
+                    location, this);
+
+                chooseAccountDialog
+                    .showPopupMenu(location.x, location.y);
+            }
+        }
+    }
 }
