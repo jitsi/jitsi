@@ -193,6 +193,9 @@ public class ProtocolContactSourceServiceImpl
                             contact.getDisplayName(),
                             contactDetails);
 
+                    if (!contact.getAddress().equals(contact.getDisplayName()))
+                        sourceContact.setDisplayDetails(contact.getAddress());
+
                     sourceContact.setImage(metaContact.getAvatar());
                     sourceContact
                         .setPresenceStatus(contact.getPresenceStatus());
