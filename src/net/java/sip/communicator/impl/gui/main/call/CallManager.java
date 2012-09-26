@@ -96,8 +96,10 @@ public class CallManager
             }
 
             Call sourceCall = event.getSourceCall();
+            boolean isVideoCall = event.isVideoCall() && ConfigurationManager
+                    .hasEnabledVideoFormat(sourceCall.getProtocolProvider());
             final ReceivedCallDialog receivedCallDialog
-                = new ReceivedCallDialog(sourceCall, event.isVideoCall(),
+                = new ReceivedCallDialog(sourceCall, isVideoCall,
                     (CallManager.getActiveCalls().size() > 0));
 
             receivedCallDialog.setVisible(true);

@@ -8,12 +8,15 @@ package net.java.sip.communicator.impl.gui.utils;
 
 import java.awt.*;
 import java.beans.*;
-import java.util.List;
+import java.util.*;
+import java.util.List; /* disambiguation */
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 
 import org.jitsi.service.configuration.*;
+import org.jitsi.service.neomedia.*;
+import org.jitsi.service.neomedia.codec.*;
 import org.osgi.framework.*;
 
 /**
@@ -2020,5 +2023,39 @@ public class ConfigurationManager
         String className = factory.getClass().getName();
 
         return className.substring(0, className.lastIndexOf('.'));
+    }
+
+    /**
+     * Returns <tt>true</tt> if the account associated with
+     * <tt>protocolProvider</tt> has at least one video format enabled in it's
+     * configuration, <tt>false</tt> otherwise.
+     *
+     * @return <tt>true</tt> if the account associated with
+     * <tt>protocolProvider</tt> has at least one video format enabled in it's
+     * configuration, <tt>false</tt> otherwise.
+     */
+    public static boolean hasEnabledVideoFormat(
+            ProtocolProviderService protocolProvider)
+    {
+        Map<String, String> accountProperties
+                = protocolProvider.getAccountID().getAccountProperties();
+
+        EncodingConfiguration encodingConfiguration;
+        String overrideEncodings = accountProperties
+                .get(ProtocolProviderFactory.OVERRIDE_ENCODINGS);
+        if(Boolean.parseBoolean(overrideEncodings))
+        {
+            encodingConfiguration = GuiActivator.getMediaService().
+                    createEmptyEncodingConfiguration();
+            encodingConfiguration.loadProperties(accountProperties,
+                    ProtocolProviderFactory.ENCODING_PROP_PREFIX);
+        }
+        else
+        {
+            encodingConfiguration = GuiActivator.getMediaService().
+                    getCurrentEncodingConfiguration();
+        }
+
+        return encodingConfiguration.hasEnabledFormat(MediaType.VIDEO);
     }
 }

@@ -29,8 +29,6 @@ import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
-import org.jitsi.service.neomedia.*;
-import org.jitsi.service.neomedia.device.*;
 import org.jitsi.util.*;
 import org.osgi.framework.*;
 
@@ -735,6 +733,8 @@ public class CallPanel
     {
         dialButton.setEnabled(!hold);
 
+        videoButton.setEnabled(!hold);
+
         ProtocolProviderService protocolProvider
         = call.getProtocolProvider();
 
@@ -742,41 +742,25 @@ public class CallPanel
             = protocolProvider.getOperationSet(
                     OperationSetVideoTelephony.class);
 
-        MediaDevice videoDevice = GuiActivator.getMediaService()
-            .getDefaultDevice(MediaType.VIDEO, MediaUseCase.CALL);
-
-        // If the video telephony is supported and the default video device
-        // isn't null, i.e. there's an available camera to the video we
-        // enable the video button.
-        if (videoTelephony != null && videoDevice != null)
-        {
-            videoButton.setEnabled(!hold);
-
-            // If the video was already enabled (for example in the case of
-            // direct video call) make sure the video button is selected.
-            if (videoTelephony.isLocalVideoAllowed(call)
-                    && !videoButton.isSelected())
-                setVideoButtonSelected(!hold);
-        }
-        else if (videoDevice == null)
-            videoButton.setToolTipText(GuiActivator.getResources()
-                    .getI18NString("service.gui.NO_CAMERA_AVAILABLE"));
+        // If the video was already enabled (for example in the case of
+        // direct video call) make sure the video button is selected.
+        if (videoTelephony != null &&
+                videoTelephony.isLocalVideoAllowed(call) &&
+                !videoButton.isSelected())
+            setVideoButtonSelected(!hold);
 
         OperationSetDesktopSharingServer desktopSharing
             = protocolProvider.getOperationSet(
                 OperationSetDesktopSharingServer.class);
 
-        if (desktopSharing != null)
-        {
-            desktopSharingButton.setEnabled(!hold);
-
-            // If the video was already enabled (for example in the case of
-            // direct desktop sharing call) make sure the video button is
-            // selected.
-            if (desktopSharing.isLocalVideoAllowed(call)
-                && !desktopSharingButton.isSelected())
-                setDesktopSharingButtonSelected(!hold);
-        }
+        desktopSharingButton.setEnabled(!hold);
+        // If the video was already enabled (for example in the case of
+        // direct desktop sharing call) make sure the video button is
+        // selected.
+        if (desktopSharing != null &&
+                desktopSharing.isLocalVideoAllowed(call) &&
+                !desktopSharingButton.isSelected())
+            setDesktopSharingButtonSelected(!hold);
     }
 
     /**
@@ -807,12 +791,8 @@ public class CallPanel
             conferenceButton.setEnabled(enable);
         }
 
-        if (protocolProvider.getOperationSet(OperationSetVideoTelephony.class)
-                != null
-                && videoButton != null)
-        {
+        if (videoButton != null)
             videoButton.setEnabled(enable);
-        }
 
         if (!isLastConference)
         {

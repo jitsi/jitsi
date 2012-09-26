@@ -25,6 +25,12 @@ public class DesktopSharingButton
     extends AbstractCallToggleButton
 {
     /**
+     * Whether desktop sharing is enabled. If false, calls to
+     * <tt>setEnabled(true)</tt> will NOT enable the button.
+     */
+    private boolean desktopSharingAvailable;
+
+    /**
      * Initializes a new <tt>DesktopSharingButton</tt> instance which is meant
      * to be used to initiate a desktop sharing during a call.
      *
@@ -54,6 +60,31 @@ public class DesktopSharingButton
                 selected,
                 ImageLoader.CALL_DESKTOP_BUTTON,
                 "service.gui.SHARE_DESKTOP_WITH_CONTACT");
+
+        OperationSetDesktopSharingServer desktopSharing
+                = call.getProtocolProvider().getOperationSet(
+                OperationSetDesktopSharingServer.class);
+
+        if (desktopSharing == null)
+        {
+            setToolTipText(GuiActivator.getResources()
+                    .getI18NString("NO_DESKTOP_SHARING_FOR_PROTOCOL"));
+            desktopSharingAvailable = false;
+        }
+        else if(!ConfigurationManager.hasEnabledVideoFormat(
+                call.getProtocolProvider()))
+        {
+            setToolTipText(GuiActivator.getResources()
+                    .getI18NString("service.gui.NO_VIDEO_ENCODINGS"));
+            desktopSharingAvailable = false;
+        }
+        else
+        {
+            setToolTipText(GuiActivator.getResources()
+                    .getI18NString("service.gui.SHARE_DESKTOP_WITH_CONTACT"));
+            desktopSharingAvailable = true;
+        }
+        super.setEnabled(desktopSharingAvailable);
     }
 
     /**
@@ -135,5 +166,19 @@ public class DesktopSharingButton
         });
 
         return popupMenu;
+    }
+
+    /**
+     * Enables/disables the button. If <tt>this.desktopSharingAvailable</tt> is
+     * false, keeps the button as it is (i.e. disabled).
+     *
+     * @param enable <tt>true</tt> to enable the button, <tt>false</tt> to
+     * disable it.
+     */
+    @Override
+    public void setEnabled(boolean enable)
+    {
+        if(desktopSharingAvailable)
+            super.setEnabled(enable);
     }
 }
