@@ -56,6 +56,12 @@ public class ConfigurationManager
      */
     private static boolean isNormalizePhoneNumber;
 
+    /**
+     * Indicates if a string containing alphabetical characters might be
+     * considered as a phone number.
+     */
+    private static boolean acceptPhoneNumberWithAlphaChars;
+
     private static ConfigurationService configService
         = GeneralConfigPluginActivator.getConfigurationService();
 
@@ -246,6 +252,14 @@ public class ConfigurationManager
         isNormalizePhoneNumber
             = GeneralConfigPluginActivator.getConfigurationService()
                 .getBoolean(normalizePhoneNumberProperty, true);
+
+        // Load the "ACCEPT_PHONE_NUMBER_WITH_ALPHA_CHARS" property.
+        String acceptPhoneNumberWithAlphaCharsProperty =
+                "impl.gui.ACCEPT_PHONE_NUMBER_WITH_ALPHA_CHARS";
+
+        acceptPhoneNumberWithAlphaChars
+            = GeneralConfigPluginActivator.getConfigurationService()
+                .getBoolean(acceptPhoneNumberWithAlphaCharsProperty, true);
     }
 
     /**
@@ -411,6 +425,36 @@ public class ConfigurationManager
 
         configService.setProperty("impl.gui.NORMALIZE_PHONE_NUMBER",
             Boolean.toString(isNormalize));
+    }
+
+    /**
+     * Returns <code>true</code> if a string with a alphabetical character migth
+     * be considered as a phone number.  <code>false</code> otherwise.
+     *
+     * @return <code>true</code> if a string with a alphabetical character migth
+     * be considered as a phone number.  <code>false</code> otherwise.
+     */
+    public static boolean acceptPhoneNumberWithAlphaChars()
+    {
+        return acceptPhoneNumberWithAlphaChars;
+    }
+
+    /**
+     * Updates the "ACCEPT_PHONE_NUMBER_WITH_CHARS" property.
+     *
+     * @param accepPhoneNumberWithAlphaChars indicates to the user interface
+     * whether a string with alphabetical characters might be accepted as a
+     * phone number.
+     */
+    public static void setAcceptPhoneNumberWithAlphaChars(
+            boolean acceptPhoneNumberWithAlphaChars)
+    {
+        ConfigurationManager.acceptPhoneNumberWithAlphaChars
+            = acceptPhoneNumberWithAlphaChars;
+
+        configService.setProperty(
+                "impl.gui.ACCEPT_PHONE_NUMBER_WITH_ALPHA_CHARS",
+                Boolean.toString(acceptPhoneNumberWithAlphaChars));
     }
 
     /**

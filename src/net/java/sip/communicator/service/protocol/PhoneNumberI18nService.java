@@ -29,12 +29,6 @@ public abstract class PhoneNumberI18nService
         = ProtocolProviderActivator.getConfigurationService();
 
     /**
-     * String identifier of a boolean propery telling if a phone number can
-     * contain alphabetical characters.
-     */
-    private static final String DISABLED_PROP
-        = "net.java.sip.communicator.plugin.addrbook.phonenumbercharacterstonumbers.DISABLED";
-    /**
      * Characters which have to be removed from a phone number in order to
      * normalized it.
      */
@@ -203,7 +197,9 @@ public abstract class PhoneNumberI18nService
                     = possibleNumber.replaceAll(" \\(\\)", "");
                 // If the property is enabled and the string starts with a "+",
                 // then we consider that this is a phone number.
-                if(!configService.getBoolean(DISABLED_PROP, false)
+                if(configService.getBoolean(
+                        "impl.gui.ACCEPT_PHONE_NUMBER_WITH_ALPHA_CHARS",
+                        true)
                         && tmpPossibleNumber.startsWith("+"))
                 {
                     return true;

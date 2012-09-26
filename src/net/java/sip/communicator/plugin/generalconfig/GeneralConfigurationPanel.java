@@ -666,6 +666,7 @@ public class GeneralConfigurationPanel
                 Resources.getString("service.gui.CALL"));
 
         callConfigPanel.add(createNormalizeNumberCheckBox());
+        callConfigPanel.add(createAcceptPhoneNumberWithAlphaCharCheckBox());
 
         return callConfigPanel;
     }
@@ -710,6 +711,56 @@ public class GeneralConfigurationPanel
 
         return checkBoxPanel;
     }
+
+    /**
+     * Creates the accept phone number with alphabetical character check box.
+     *
+     * @return the created component
+     */
+    private Component createAcceptPhoneNumberWithAlphaCharCheckBox()
+    {
+        JPanel checkBoxPanel = new TransparentPanel(new BorderLayout());
+
+        // Checkbox to accept string with alphabetical characters as potential
+        // phone numbers.
+        SIPCommCheckBox acceptPhoneNumberWithAlphaChars
+            = new SIPCommCheckBox("",
+                ConfigurationManager.acceptPhoneNumberWithAlphaChars());
+
+        acceptPhoneNumberWithAlphaChars.setAlignmentY(Component.TOP_ALIGNMENT);
+
+        acceptPhoneNumberWithAlphaChars.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                ConfigurationManager.setAcceptPhoneNumberWithAlphaChars(
+                        ((JCheckBox)e.getSource()).isSelected());
+            }
+        });
+
+        StyledHTMLEditorPane acceptPhoneNumberWithAlphaCharsTextLabel
+                = new StyledHTMLEditorPane();
+
+        acceptPhoneNumberWithAlphaCharsTextLabel.setContentType("text/html");
+        acceptPhoneNumberWithAlphaCharsTextLabel.appendToEnd(
+                "<html>"
+                + GeneralConfigPluginActivator.getResources().getI18NString(
+                    "plugin.generalconfig.ACCEPT_PHONE_NUMBER_WITH_ALPHA_CHARS")
+                + "</html>");
+
+        acceptPhoneNumberWithAlphaCharsTextLabel.setBorder(
+                BorderFactory.createEmptyBorder(3, 0, 0, 0));
+        acceptPhoneNumberWithAlphaCharsTextLabel.setOpaque(false);
+        acceptPhoneNumberWithAlphaCharsTextLabel.setEditable(false);
+
+        checkBoxPanel.add(acceptPhoneNumberWithAlphaChars, BorderLayout.WEST);
+        checkBoxPanel.add(
+                acceptPhoneNumberWithAlphaCharsTextLabel,
+                BorderLayout.CENTER);
+
+        return checkBoxPanel;
+    }
+
     /**
      * Initializes the startup config panel.
      * @return the created component
