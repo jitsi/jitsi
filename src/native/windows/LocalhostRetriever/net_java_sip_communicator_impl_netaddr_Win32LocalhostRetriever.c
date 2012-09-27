@@ -113,13 +113,16 @@ static int get_source_for_destination(struct sockaddr* dst, struct sockaddr_stor
     if(dst->sa_family == AF_INET && (adapter->IfIndex == ifindex))
     {
       IP_ADAPTER_UNICAST_ADDRESS* unicast = adapter->FirstUnicastAddress;
-      struct sockaddr_in* addr = (struct sockaddr_in*)unicast->Address.lpSockaddr;
+      if(unicast != NULL)
+      {
+        struct sockaddr_in* addr = (struct sockaddr_in*)unicast->Address.lpSockaddr;
 
-      memcpy(src, addr, sizeof(struct sockaddr_in));
-      found = TRUE;
+        memcpy(src, addr, sizeof(struct sockaddr_in));
+        found = TRUE;
 
-      /* found source address, break the loop */
-      break;
+        /* found source address, break the loop */
+        break;
+      }
     }
     else if(dst->sa_family == AF_INET6 && (adapter->Ipv6IfIndex == ifindex))
     {
@@ -127,13 +130,16 @@ static int get_source_for_destination(struct sockaddr* dst, struct sockaddr_stor
        * multiple global addresses (+ link-local address), handle this case 
        */
       IP_ADAPTER_UNICAST_ADDRESS* unicast = adapter->FirstUnicastAddress;
-      struct sockaddr_in6* addr = (struct sockaddr_in6*)unicast->Address.lpSockaddr;
+      if(unicast != NULL)
+      {
+        struct sockaddr_in6* addr = (struct sockaddr_in6*)unicast->Address.lpSockaddr;
 
-      memcpy(src, addr, sizeof(struct sockaddr_in6));
-      found = TRUE;
+        memcpy(src, addr, sizeof(struct sockaddr_in6));
+        found = TRUE;
 
-      /* found source address, break the loop */
-      break;
+        /* found source address, break the loop */
+        break;
+      }
     }
 
     adapter = adapter->Next;
