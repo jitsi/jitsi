@@ -86,7 +86,8 @@ public class ContactListSearchKeyDispatcher
                     .getSingleWindowContainer() != null)
                 && GuiActivator.getUIService()
                     .getSingleWindowContainer().containsFocus()
-            || keyManager.getFocusOwner() instanceof JTextComponent)
+            || (keyManager.getFocusOwner() != null
+                && keyManager.getFocusOwner() instanceof JTextComponent))
             return false;
 
         // Ctrl-Enter || Cmd-Enter typed when this window is the focused

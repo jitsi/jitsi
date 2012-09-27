@@ -171,6 +171,11 @@ public class MainFrame
     private final ContactListSearchKeyDispatcher clKeyDispatcher;
 
     /**
+     * The keyboard focus manager.
+     */
+    final KeyboardFocusManager keyManager;
+
+    /**
      * Creates an instance of <tt>MainFrame</tt>.
      */
     public MainFrame()
@@ -189,28 +194,6 @@ public class MainFrame
                                             true);
 
         menu = new MainMenu(this);
-
-        /*
-         * If the application is configured to quit when this frame is closed,
-         * do so.
-         */
-        this.addWindowListener(new WindowAdapter()
-        {
-            /**
-             * Invoked when a window has been closed.
-             */
-            public void windowClosed(WindowEvent event)
-            {
-                MainFrame.this.windowClosed(event);
-            }
-            /**
-             * Invoked when a window has been opened.
-             */
-            public void windowOpened(WindowEvent e)
-            {
-                GuiActivator.getContactList().requestFocusInWindow();
-            }
-        });
 
         this.initTitleFont();
 
@@ -239,13 +222,48 @@ public class MainFrame
                 GuiActivator.getResources()
                     .getColor("service.gui.MAIN_WINDOW_BACKGROUND")));
 
-        KeyboardFocusManager keyManager
-            = KeyboardFocusManager.getCurrentKeyboardFocusManager();
+        keyManager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
 
         clKeyDispatcher = new ContactListSearchKeyDispatcher(   keyManager,
                                                                 searchField,
                                                                 this);
         keyManager.addKeyEventDispatcher(clKeyDispatcher);
+
+        /*
+         * If the application is configured to quit when this frame is closed,
+         * do so.
+         */
+        this.addWindowListener(new WindowAdapter()
+        {
+            /**
+             * Invoked when a window has been closed.
+             */
+            public void windowClosed(WindowEvent event)
+            {
+                MainFrame.this.windowClosed(event);
+            }
+
+            /**
+             * Invoked when a window has been opened.
+             */
+            public void windowOpened(WindowEvent e)
+            {
+                Window focusedWindow = keyManager.getFocusedWindow();
+
+                // If there's no other focused window we request the focus
+                // in the contact list.
+                if (focusedWindow == null)
+                {
+                    requestFocusInContactList();
+                }
+                // If some other window keeps the focus we'll wait until it's
+                // closed.
+                else if (!focusedWindow.equals(MainFrame.this))
+                {
+                    requestFocusLater(focusedWindow);
+                }
+            }
+        });
 
         this.init();
 
@@ -253,12 +271,49 @@ public class MainFrame
     }
 
     /**
+     * Adds a WindowListener to the given <tt>focusedWindow</tt> and once it's
+     * closed we check again if we can request the focus.
+     *
+     * @param focusedWindow the currently focused window
+     */
+    private void requestFocusLater(Window focusedWindow)
+    {
+        focusedWindow.addWindowListener(new WindowAdapter()
+        {
+            /**
+             * Invoked when a window has been closed.
+             */
+            public void windowClosed(WindowEvent event)
+            {
+                event.getWindow().removeWindowListener(this);
+
+                Window focusedWindow = keyManager.getFocusedWindow();
+
+                // If the focused window is null or it's the shared owner frame,
+                // which keeps focus for closed dialogs without owner, we'll
+                // request the focus in the contact list.
+                if (focusedWindow == null
+                    || focusedWindow.getClass().getName().equals(
+                        "javax.swing.SwingUtilities$SharedOwnerFrame"))
+                {
+                    requestFocusInContactList();
+                }
+                else if (!focusedWindow.equals(MainFrame.this))
+                {
+                    requestFocusLater(focusedWindow);
+                }
+            }
+        });
+    }
+
+    /**
      * Requests the focus in the center panel, which contains either the
      * contact list or the unknown contact panel.
      */
-    public void requestFocusInCenterPanel()
+    public void requestFocusInContactList()
     {
         centerPanel.requestFocusInWindow();
+        GuiActivator.getContactList().requestFocus();
     }
 
     /**
@@ -889,8 +944,8 @@ public class MainFrame
 
             //request the focus in the contact list panel, which
             //permits to search in the contact list
-            this.contactListPanel.getContactList()
-                    .requestFocus();
+//            this.contactListPanel.getContactList()
+//                    .requestFocus();
         }
     }
 
@@ -1680,7 +1735,21 @@ public class MainFrame
                 if(isVisible)
                 {
                     MainFrame.this.addNativePlugins();
+
+                    Window focusedWindow = keyManager.getFocusedWindow();
+
+                    // If there's another currently focused window we prevent
+                    // this frame from steeling the focus. This happens for
+                    // example in the case of a Master Password window which is
+                    // opened before the contact list window.
+                    if (focusedWindow != null)
+                        setFocusableWindowState(false);
+
                     MainFrame.super.setVisible(isVisible);
+
+                    if (focusedWindow != null)
+                        setFocusableWindowState(true);
+
                     MainFrame.super.setExtendedState(MainFrame.NORMAL);
                     MainFrame.super.toFront();
                 }

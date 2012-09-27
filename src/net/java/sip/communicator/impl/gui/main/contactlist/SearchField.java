@@ -103,7 +103,7 @@ public class SearchField
                 setText("");
 
                 if (SearchField.this.mainFrame != null)
-                    SearchField.this.mainFrame.requestFocusInCenterPanel();
+                    SearchField.this.mainFrame.requestFocusInContactList();
             }
         });
 
