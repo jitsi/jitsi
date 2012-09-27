@@ -199,7 +199,7 @@ public class MasterPasswordInputDialog
                         currentPasswdField.getPassword());
         }
         // hide dialog and unblock application
-        dialog.setVisible(false);
+        dialog.dispose();
     }
 
     /**
