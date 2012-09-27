@@ -160,6 +160,7 @@ public class SIPCommTextField
     {
         super.setText(defaultText);
         this.setForeground(defaultTextColor);
+        this.setCaretPosition(0);
     }
 
     /**

@@ -127,7 +127,7 @@ public class SearchFieldUI
             int dy = (c.getY() + c.getHeight()) / 2
                 - searchIcon.getIconHeight()/2;
 
-            g2.drawImage(searchIcon.getImage(), 5, dy + 1, null);
+            g2.drawImage(searchIcon.getImage(), 3, dy + 1, null);
 
             if (c.getText() != null
                 && c.getText().length() > 0
@@ -171,11 +171,11 @@ public class SearchFieldUI
 
         if ((rect.width > 0) && (rect.height > 0))
         {
-            rect.x += searchIcon.getIconWidth() + 8;
-            rect.width -= searchIcon.getIconWidth() + 8;
+            rect.x += searchIcon.getIconWidth() + 5;
+            rect.width -= (searchIcon.getIconWidth() + 5);
 
-            if (isCallButtonEnabled)
-                rect.width -= callRolloverIcon.getWidth(null) + 12;
+            if (isCallIconVisible)
+                rect.width -= (callRolloverIcon.getWidth(null) + 12);
             else
                 rect.width -= 8;
 

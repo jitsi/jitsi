@@ -307,7 +307,7 @@ public class SIPCommTextFieldUI
      */
     protected Rectangle getVisibleEditorRect()
     {
-        if (!isDeleteButtonEnabled)
+        if (!isDeleteIconVisible)
         {
             return super.getVisibleEditorRect();
         }
