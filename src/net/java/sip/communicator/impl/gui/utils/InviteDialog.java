@@ -458,13 +458,20 @@ public class InviteDialog
     private void initTransferHandler()
     {
         inviteContactTransferHandler
-            = new InviteContactTransferHandler( srcContactList,
-                                                destContactList,
-                                                true);
+            = new InviteContactTransferHandler(
+                destContactList,
+                InviteContactTransferHandler.DEST_TRANSFER_HANDLER,
+                true);
+
+        InviteContactTransferHandler srcContactTransferHandler
+            = new InviteContactTransferHandler(
+                srcContactList,
+                InviteContactTransferHandler.SOURCE_TRANSFER_HANDLER,
+                true);
 
         if (srcContactList.getComponent() instanceof JComponent)
             ((JComponent) srcContactList).setTransferHandler(
-                inviteContactTransferHandler);
+                srcContactTransferHandler);
 
         if (destContactList.getComponent() instanceof JComponent)
             ((JComponent) destContactList).setTransferHandler(

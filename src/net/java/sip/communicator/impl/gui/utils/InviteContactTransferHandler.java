@@ -46,14 +46,9 @@ public class InviteContactTransferHandler
         = new DataFlavor(UIContact.class, "UIContact");
 
     /**
-     * The source contact list.
-     */
-    private final ContactList srcContactList;
-
-    /**
      * The destination contact list.
      */
-    private final ContactList destContactList;
+    private final ContactList contactList;
 
     /**
      * The backup provider to use if no provider is specified.
@@ -66,17 +61,37 @@ public class InviteContactTransferHandler
     private final boolean selected;
 
     /**
+     * Indicates that this handler is of type source transfer handler.
+     */
+    public static final int SOURCE_TRANSFER_HANDLER = 0;
+
+    /**
+     * Indicates that this handler is of type destination transfer handler.
+     */
+    public static final int DEST_TRANSFER_HANDLER = 1;
+
+    /**
+     * The type of this transfer handler. Indicates if it's used for dragging
+     * from the source contact list, or dropping in the destination contact
+     * list.
+     */
+    private final int type;
+
+    /**
      * Constructor.
      *
-     * @param dialog the invite dialog
+     * @param contactList the contact list, this transfer handler is about
+     * @param type the type of this transfer handler. Indicates if it's used for
+     * dragging from the source contact list, or dropping in the destination
+     * contact list. One of SOURCE_TRANSFER_HANDLER or DEST_TRANSFER_HANDLER
      * @param selected if the column is the selected ones
      */
-    public InviteContactTransferHandler(ContactList srcContactList,
-                                        ContactList destContactList,
+    public InviteContactTransferHandler(ContactList contactList,
+                                        int type,
                                         boolean selected)
     {
-        this.srcContactList = srcContactList;
-        this.destContactList = destContactList;
+        this.contactList = contactList;
+        this.type = type;
         this.selected = selected;
     }
 
@@ -91,6 +106,10 @@ public class InviteContactTransferHandler
     @Override
     protected Transferable createTransferable(JComponent component)
     {
+        // Dragging is only enabled in the source contact list.
+        if (type != SOURCE_TRANSFER_HANDLER)
+            return null;
+
         if (component instanceof ContactList)
         {
             List<UIContact> c = ((ContactList) component).getSelectedContacts();
@@ -116,6 +135,10 @@ public class InviteContactTransferHandler
      */
     public boolean canImport(JComponent comp, DataFlavor flavor[])
     {
+        // Dropping is only enabled in the destination contact list.
+        if (type != DEST_TRANSFER_HANDLER)
+            return false;
+
         for (int i = 0, n = flavor.length; i < n; i++)
         {
             if (flavor[i].equals(uiContactDataFlavor))
@@ -174,7 +197,7 @@ public class InviteContactTransferHandler
 
                     if (nextO instanceof UIContact)
                     {
-                        destContactList.addContact(
+                        contactList.addContact(
                             new InviteUIContact((UIContact) nextO,
                                                 backupProvider),
                             null, false, false);
@@ -185,7 +208,7 @@ public class InviteContactTransferHandler
             }
             else if (o instanceof UIContact)
             {
-                destContactList.addContact(
+                contactList.addContact(
                     new InviteUIContact((UIContact) o,
                                         backupProvider),
                     null, false, false);
@@ -198,7 +221,7 @@ public class InviteContactTransferHandler
 
                 if (uiContact != null)
                 {
-                    destContactList.addContact(
+                    contactList.addContact(
                         new InviteUIContact(uiContact,
                                             backupProvider),
                         null, false, false);
