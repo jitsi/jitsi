@@ -394,7 +394,7 @@ public class DTMFHandler
         }
         else
         {
-            Collection<Call> activeCalls = CallManager.getActiveCalls();
+            Collection<Call> activeCalls = CallManager.getInProgressCalls();
 
             if (activeCalls != null)
             {
@@ -459,7 +459,7 @@ public class DTMFHandler
         }
         else
         {
-            Collection<Call> activeCalls = CallManager.getActiveCalls();
+            Collection<Call> activeCalls = CallManager.getInProgressCalls();
 
             if (activeCalls != null)
             {

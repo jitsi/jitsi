@@ -100,7 +100,7 @@ public class CallManager
                     .hasEnabledVideoFormat(sourceCall.getProtocolProvider());
             final ReceivedCallDialog receivedCallDialog
                 = new ReceivedCallDialog(sourceCall, isVideoCall,
-                    (CallManager.getActiveCalls().size() > 0));
+                    (CallManager.getInProgressCalls().size() > 0));
 
             receivedCallDialog.setVisible(true);
 
@@ -279,7 +279,7 @@ public class CallManager
     public static void answerCallInFirstExistingCall(Call call)
     {
         // Find the first existing call.
-        Iterator<Call> existingCallIter = getActiveCalls().iterator();
+        Iterator<Call> existingCallIter = getInProgressCalls().iterator();
         Call existingCall
             = existingCallIter.hasNext() ? existingCallIter.next() : null;
 
@@ -1105,6 +1105,31 @@ public class CallManager
     public static Collection<Call> getActiveCalls()
     {
         return activeCalls.keySet();
+    }
+
+    /**
+     * Returns a collection of all currently in progress calls.
+     *
+     * @return a collection of all currently in progress calls.
+     */
+    public static Collection<Call> getInProgressCalls()
+    {
+        Set<Call> calls = activeCalls.keySet();
+        ArrayList<Call> inProgressCalls = new ArrayList<Call>(calls.size()); 
+        Iterator<Call> it = calls.iterator();
+        Call tmpCall;
+
+        while(it.hasNext())
+        {
+            tmpCall = it.next();
+            if(tmpCall.getCallState() == CallState.CALL_IN_PROGRESS)
+            {
+                inProgressCalls.add(tmpCall);
+            }
+        }
+
+        //return calls;
+        return inProgressCalls;
     }
 
     /**

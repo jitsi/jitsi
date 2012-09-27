@@ -337,6 +337,12 @@ public class CallPanel
         // Adds a CallChangeListener that would receive events when a peer is
         // added or removed, or the state of the call has changed.
         call.addCallChangeListener(this);
+        Iterator<Call> calls = CallManager.getActiveCalls().iterator();
+        while(calls.hasNext())
+        {
+            calls.next().addCallChangeListener(this);
+        }
+
 
         // Adds the CallPeerConferenceListener that would listen for changes in
         // the focus state of each call peer.
@@ -495,7 +501,7 @@ public class CallPanel
 
         if (buttonName.equals(MERGE_BUTTON))
         {
-            Collection<Call> calls = CallManager.getActiveCalls();
+            Collection<Call> calls = CallManager.getInProgressCalls();
 
             CallManager.mergeExistingCall(call, calls);
         }
@@ -922,7 +928,9 @@ public class CallPanel
     }
 
     public void callStateChanged(CallChangeEvent evt)
-    {}
+    {
+        updateMergeButtonState();
+    }
 
     /**
      * Updates <tt>CallPeer</tt> related components to fit the new focus state.
@@ -1699,6 +1707,7 @@ public class CallPanel
     public void incomingCallReceived(CallEvent event)
     {
         updateMergeButtonState();
+        event.getSourceCall().addCallChangeListener(this);
     }
 
     /**
@@ -1707,6 +1716,7 @@ public class CallPanel
     public void outgoingCallCreated(CallEvent event)
     {
         updateMergeButtonState();
+        event.getSourceCall().addCallChangeListener(this);
     }
 
     /**
@@ -1715,6 +1725,16 @@ public class CallPanel
     public void callEnded(CallEvent event)
     {
         updateMergeButtonState();
+        Call evtCall = event.getSourceCall();
+        evtCall.removeCallChangeListener(this);
+        if(evtCall.equals(this.call))
+        {
+            Iterator<Call> calls = CallManager.getActiveCalls().iterator();
+            while(calls.hasNext())
+            {
+                calls.next().removeCallChangeListener(this);
+            }
+        }
     }
 
     /**
@@ -1723,7 +1743,7 @@ public class CallPanel
     public void updateMergeButtonState()
     {
         Collection<Call> calls
-            = new ArrayList<Call>(CallManager.getActiveCalls());
+            = new ArrayList<Call>(CallManager.getInProgressCalls());
 
         if (calls.size() == 1)
         {
