@@ -14,7 +14,6 @@
 	<classpathentry kind="lib" path="lib/installer-exclude/apache-ant-1.7.0.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/cglib-nodep.osgi-2.1_3.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/commons-logging-1.1.1.jar"/>
-	<classpathentry kind="lib" path="lib/installer-exclude/concurrent.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/dhcp4java-1.00.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/dict4j.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/dnsjava.jar">
@@ -43,7 +42,6 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/installer-exclude/jain-sip-api.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/jain-sip-ri.jar"/>
-	<classpathentry kind="lib" path="lib/installer-exclude/jcalendar-1.3.2.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/jdic_misc.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/jdom.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/jfontchooser-1.0.5.jar"/>

@@ -1281,7 +1281,6 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset src="${lib.noinst}/jain-sip-ri.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/jain-sip-api.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/jain-sdp.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/concurrent.jar" prefix=""/>
         </jar>
     </target>
 
