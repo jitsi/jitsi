@@ -77,6 +77,8 @@ public class ContactListSearchKeyDispatcher
      */
     public boolean dispatchKeyEvent(KeyEvent e)
     {
+        Component focusOwner = keyManager.getFocusOwner();
+
         // If this window is not the focus window  or if the event is not
         // of type PRESSED we have nothing more to do here.
         if (!contactListContainer.isFocused()
@@ -86,8 +88,9 @@ public class ContactListSearchKeyDispatcher
                     .getSingleWindowContainer() != null)
                 && GuiActivator.getUIService()
                     .getSingleWindowContainer().containsFocus()
-            || (keyManager.getFocusOwner() != null
-                && keyManager.getFocusOwner() instanceof JTextComponent))
+            || (focusOwner != null
+                && !searchField.isFocusOwner()
+                && focusOwner instanceof JTextComponent))
             return false;
 
         // Ctrl-Enter || Cmd-Enter typed when this window is the focused
