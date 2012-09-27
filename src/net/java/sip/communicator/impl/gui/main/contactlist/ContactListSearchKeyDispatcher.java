@@ -9,6 +9,8 @@ package net.java.sip.communicator.impl.gui.main.contactlist;
 import java.awt.*;
 import java.awt.event.*;
 
+import javax.swing.text.*;
+
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.service.gui.*;
 
@@ -83,7 +85,8 @@ public class ContactListSearchKeyDispatcher
             || (GuiActivator.getUIService()
                     .getSingleWindowContainer() != null)
                 && GuiActivator.getUIService()
-                    .getSingleWindowContainer().containsFocus())
+                    .getSingleWindowContainer().containsFocus()
+            || keyManager.getFocusOwner() instanceof JTextComponent)
             return false;
 
         // Ctrl-Enter || Cmd-Enter typed when this window is the focused
