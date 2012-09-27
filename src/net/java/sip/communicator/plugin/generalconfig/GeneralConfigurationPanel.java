@@ -753,10 +753,24 @@ public class GeneralConfigurationPanel
         acceptPhoneNumberWithAlphaCharsTextLabel.setOpaque(false);
         acceptPhoneNumberWithAlphaCharsTextLabel.setEditable(false);
 
+        // The example of changing letters to numbers in a phone number.
+        String label = "* " + Resources.getString(
+            "plugin.generalconfig.ACCEPT_PHONE_NUMBER_WITH_ALPHA_CHARS_EXAMPLE");
+        JLabel exampleLabel = new JLabel(label);
+        exampleLabel.setToolTipText(label);
+        exampleLabel.setForeground(Color.GRAY);
+        exampleLabel.setFont(exampleLabel.getFont().deriveFont(8));
+        exampleLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
+        exampleLabel.setHorizontalAlignment(JLabel.LEFT);
+
+        // Adds the components to the current panel.
         checkBoxPanel.add(acceptPhoneNumberWithAlphaChars, BorderLayout.WEST);
         checkBoxPanel.add(
                 acceptPhoneNumberWithAlphaCharsTextLabel,
                 BorderLayout.CENTER);
+        checkBoxPanel.add(
+                exampleLabel,
+                BorderLayout.SOUTH);
 
         return checkBoxPanel;
     }
