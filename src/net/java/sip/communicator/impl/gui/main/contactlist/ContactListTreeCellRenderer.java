@@ -661,17 +661,17 @@ public class ContactListTreeCellRenderer
         constraints.gridwidth = nameLabelGridWidth;
         this.add(nameLabel, constraints);
 
+        constraints.anchor = GridBagConstraints.NORTHEAST;
+        constraints.fill = GridBagConstraints.VERTICAL;
+        constraints.gridx = nameLabelGridWidth + 1;
+        constraints.gridy = 0;
+        constraints.gridheight = 3;
+        constraints.weightx = 0f;
+        constraints.weighty = 1f;
+        this.add(rightLabel, constraints);
+
         if (treeNode != null && treeNode instanceof ContactNode)
         {
-            constraints.anchor = GridBagConstraints.NORTHEAST;
-            constraints.fill = GridBagConstraints.VERTICAL;
-            constraints.gridx = nameLabelGridWidth + 1;
-            constraints.gridy = 0;
-            constraints.gridheight = 3;
-            constraints.weightx = 0f;
-            constraints.weighty = 1f;
-            this.add(rightLabel, constraints);
-
             constraints.anchor = GridBagConstraints.WEST;
             constraints.fill = GridBagConstraints.NONE;
             constraints.gridx = 1;
@@ -1201,7 +1201,8 @@ public class ContactListTreeCellRenderer
             SwingUtilities.convertPointToScreen(location, treeContactList);
 
             location.y = location.y
-                + treeContactList.getPathBounds(treeContactList.getSelectionPath()).y;
+                + treeContactList.getPathBounds(
+                    treeContactList.getSelectionPath()).y;
 
             chooseAccountDialog.showPopupMenu(location.x + 8, location.y - 8);
         }
