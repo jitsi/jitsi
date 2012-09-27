@@ -105,7 +105,7 @@ public class OneChoiceInviteDialog
 
         contactList.setDefaultFilter(inviteFilter);
 
-        searchField = new SearchField(null, inviteFilter);
+        searchField = new SearchField(null, inviteFilter, false);
         searchField.setPreferredSize(new Dimension(200, 25));
         searchField.setContactList(contactList);
         searchField.addFocusListener(new FocusAdapter()

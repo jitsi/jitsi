@@ -66,11 +66,13 @@ public class SearchField
      * Creates the <tt>SearchField</tt>.
      *
      * @param frame the main application window
-     * @param contactList the contact list, which we're searching
      * @param searchFilter the filter to apply on search
+     * @param isCallButtonEnabled indicates if the call button should be
+     * enabled in this search field
      */
     public SearchField( MainFrame frame,
-                        ContactListSearchFilter searchFilter)
+                        ContactListSearchFilter searchFilter,
+                        boolean isCallButtonEnabled)
     {
         super(GuiActivator.getResources()
                 .getI18NString("service.gui.ENTER_NAME_OR_NUMBER"));
@@ -79,7 +81,10 @@ public class SearchField
         this.searchFilter = searchFilter;
 
         if(getUI() instanceof  SearchFieldUI)
+        {
             ((SearchFieldUI)getUI()).setDeleteButtonEnabled(true);
+            ((SearchFieldUI)getUI()).setCallButtonEnabled(isCallButtonEnabled);
+        }
 
         this.setBorder(null);
         this.setOpaque(false);

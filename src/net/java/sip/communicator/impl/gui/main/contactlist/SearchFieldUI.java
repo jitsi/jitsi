@@ -90,6 +90,16 @@ public class SearchFieldUI
     }
 
     /**
+     * Enables/disabled the call button in the search field.
+     *
+     * @param isEnabled indicates if the call button is enabled
+     */
+    public void setCallButtonEnabled(boolean isEnabled)
+    {
+        this.isCallButtonEnabled = isEnabled;
+    }
+
+    /**
      * Implements parent paintSafely method and enables antialiasing.
      * @param g the <tt>Graphics</tt> object that notified us
      */
@@ -138,7 +148,6 @@ public class SearchFieldUI
             }
             else
                 isCallIconVisible = false;
-
         }
         finally
         {

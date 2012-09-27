@@ -184,7 +184,9 @@ public class MainFrame
 
         this.accountStatusPanel = new AccountStatusPanel(this);
 
-        this.searchField = new SearchField(this, TreeContactList.searchFilter);
+        this.searchField = new SearchField( this,
+                                            TreeContactList.searchFilter,
+                                            true);
 
         menu = new MainMenu(this);
 
