@@ -57,7 +57,7 @@ public class LanguageMenuBar
         .getLogger(LanguageMenuBar.class);
 
     private static final ImageIcon BLANK_FLAG_ICON = Resources
-        .getImage("blankFlag");
+        .getImage("plugin.spellcheck.BLANK_FLAG");
 
     private final ListCellRenderer languageSelectionRenderer;
 
