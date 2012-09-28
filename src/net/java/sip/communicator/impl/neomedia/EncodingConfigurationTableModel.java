@@ -36,8 +36,6 @@ public class EncodingConfigurationTableModel
     private MediaFormat[] encodings;
 
     private final MediaType type;
-    
-    private final boolean autoUpdateConfig;
 
     /**
      * Constructor.
@@ -46,14 +44,11 @@ public class EncodingConfigurationTableModel
      * @param type media type
      */
     public EncodingConfigurationTableModel(int type,
-        EncodingConfiguration encodingConfiguration,
-        boolean autoUpdateConfig)
+        EncodingConfiguration encodingConfiguration)
     {
         if (encodingConfiguration == null)
             throw new IllegalArgumentException("encodingConfiguration");
         this.encodingConfiguration = encodingConfiguration;
-        
-        this.autoUpdateConfig = autoUpdateConfig;
 
         switch (type)
         {
@@ -255,8 +250,7 @@ public class EncodingConfigurationTableModel
             throw new IllegalArgumentException("priorities");
         for (int i = 0; i < count; i++)
         {
-            encodingConfiguration.setPriority(encodings[i], priorities[i],
-                    autoUpdateConfig);
+            encodingConfiguration.setPriority(encodings[i], priorities[i]);
         }
     }
 
@@ -274,8 +268,7 @@ public class EncodingConfigurationTableModel
             // property in order to have more reactive user interface.
             fireTableCellUpdated(rowIndex, columnIndex);
 
-            encodingConfiguration.setPriority(encoding, priority,
-                    autoUpdateConfig);
+            encodingConfiguration.setPriority(encoding, priority);
         }
     }
 }

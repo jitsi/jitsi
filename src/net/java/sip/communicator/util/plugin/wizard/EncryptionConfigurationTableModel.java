@@ -94,8 +94,6 @@ public class EncryptionConfigurationTableModel
             // We fire the update event before setting the configuration
             // property in order to have more reactive user interface.
             fireTableCellUpdated(rowIndex, columnIndex);
-
-            //encodingConfiguration.setPriorityConfig(encoding, priority);
         }
     }
 

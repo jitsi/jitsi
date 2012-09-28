@@ -109,11 +109,9 @@ public class EncodingsPanel extends TransparentPanel
                 .getMediaService().getCurrentEncodingConfiguration());
 
         audioControls = mediaConfiguration.
-                createEncodingControls(MediaType.AUDIO,
-                encodingConfiguration, false);
+                createEncodingControls(MediaType.AUDIO, encodingConfiguration);
         videoControls = mediaConfiguration.
-                createEncodingControls(MediaType.VIDEO,
-                encodingConfiguration, false);
+                createEncodingControls(MediaType.VIDEO, encodingConfiguration);
 
         JPanel mainPanel = new TransparentPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
@@ -200,11 +198,9 @@ public class EncodingsPanel extends TransparentPanel
         audioPanel.remove(audioControls);
         videoPanel.remove(videoControls);
         audioControls = mediaConfiguration.
-                createEncodingControls(MediaType.AUDIO,
-                encodingConfiguration, false);
+                createEncodingControls(MediaType.AUDIO, encodingConfiguration);
         videoControls = mediaConfiguration.
-                createEncodingControls(MediaType.VIDEO,
-                encodingConfiguration, false);
+                createEncodingControls(MediaType.VIDEO, encodingConfiguration);
 
         audioPanel.add(audioControls);
         videoPanel.add(videoControls);

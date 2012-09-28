@@ -604,7 +604,7 @@ public class MediaConfigurationImpl implements MediaConfigurationService
             container.insertTab(
                 res.getI18NString("impl.media.configform.ENCODINGS"),
                 null,
-                createEncodingControls(type, null, true),
+                createEncodingControls(type, null),
                 null,
                 1);
         }
@@ -633,8 +633,7 @@ public class MediaConfigurationImpl implements MediaConfigurationService
      */
     public Component createEncodingControls(
             MediaType mediaType,
-            EncodingConfiguration encodingConfiguration,
-            boolean autoUpdateConfig)
+            EncodingConfiguration encodingConfiguration)
     {
         if(encodingConfiguration == null)
         {
@@ -661,8 +660,7 @@ public class MediaConfigurationImpl implements MediaConfigurationService
         return
             createEncodingControls(
                     deviceConfigurationComboBoxModelType,
-                    encodingConfiguration,
-                    autoUpdateConfig);
+                    encodingConfiguration);
     }
 
     /**
@@ -671,8 +669,7 @@ public class MediaConfigurationImpl implements MediaConfigurationService
      * @return the component.
      */
     private Component createEncodingControls(int type,
-            EncodingConfiguration encodingConfiguration,
-            boolean autoUpdateConfig)
+            EncodingConfiguration encodingConfiguration)
     {
         if(encodingConfiguration == null)
         {
@@ -712,8 +709,7 @@ public class MediaConfigurationImpl implements MediaConfigurationService
         container.add(parentButtonBar, BorderLayout.EAST);
 
         table.setModel(new EncodingConfigurationTableModel(type,
-                encodingConfiguration,
-                autoUpdateConfig));
+                encodingConfiguration));
         /*
          * The first column contains the check boxes which enable/disable their
          * associated encodings and it doesn't make sense to make it wider than
