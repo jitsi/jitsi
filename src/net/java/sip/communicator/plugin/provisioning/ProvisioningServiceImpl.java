@@ -311,6 +311,21 @@ public class ProvisioningServiceImpl
                 url = url.replace("${ipaddr}", ipaddr.getHostAddress());
             }
 
+            if(url.indexOf("${computername}") != -1)
+            {
+                String name;
+                if(OSUtils.IS_WINDOWS)
+                {
+                    // avoid reverse DNS lookup
+                    name = System.getenv("COMPUTERNAME");
+                }
+                else
+                {
+                    name = ipaddr.getHostName();
+                }
+                url = url.replace("${computername}", name);
+            }
+
             if(url.indexOf("${hwaddr}") != -1)
             {
                 if(ipaddr != null)
