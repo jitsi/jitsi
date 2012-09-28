@@ -1460,15 +1460,15 @@ public class ContactListTreeCellRenderer
         callButton.setIconImage(ImageLoader.getImage(
                 ImageLoader.CALL_BUTTON_SMALL));
         callButton.setRolloverImage(ImageLoader.getImage(
-                ImageLoader.CALL_BUTTON_SMALL_PRESSED));
+                ImageLoader.CALL_BUTTON_SMALL_ROLLOVER));
         callButton.setPressedImage(ImageLoader.getImage(
                 ImageLoader.CALL_BUTTON_SMALL_PRESSED));
 
         chatButton.setIconImage(ImageLoader.getImage(
                 ImageLoader.CHAT_BUTTON_SMALL));
-        chatButton.setPressedImage(ImageLoader.getImage(
-                ImageLoader.CHAT_BUTTON_SMALL_PRESSED));
         chatButton.setRolloverImage(ImageLoader.getImage(
+            ImageLoader.CHAT_BUTTON_SMALL_ROLLOVER));
+        chatButton.setPressedImage(ImageLoader.getImage(
                 ImageLoader.CHAT_BUTTON_SMALL_PRESSED));
 
         msgReceivedImage
@@ -1486,38 +1486,24 @@ public class ContactListTreeCellRenderer
         if (contactForegroundProperty > -1)
             contactForegroundColor = new Color(contactForegroundProperty);
 
-        callVideoButton.setIconImage(ImageLoader.getImage(
-                ImageLoader.CALL_VIDEO_BUTTON_SMALL));
-        callVideoButton.setRolloverImage(ImageLoader.getImage(
-            ImageLoader.CALL_VIDEO_BUTTON_SMALL_PRESSED));
-        callVideoButton.setPressedImage(ImageLoader.getImage(
-                ImageLoader.CALL_VIDEO_BUTTON_SMALL_PRESSED));
-
-        desktopSharingButton.setIconImage(ImageLoader.getImage(
-                ImageLoader.DESKTOP_BUTTON_SMALL));
-        desktopSharingButton.setRolloverImage(ImageLoader.getImage(
-            ImageLoader.DESKTOP_BUTTON_SMALL_PRESSED));
-        desktopSharingButton.setPressedImage(ImageLoader.getImage(
-                ImageLoader.DESKTOP_BUTTON_SMALL_PRESSED));
-
         callVideoButton.setIconImage(
             ImageLoader.getImage(ImageLoader.CALL_VIDEO_BUTTON_SMALL));
         callVideoButton.setRolloverImage(
-            ImageLoader.getImage(ImageLoader.CALL_VIDEO_BUTTON_SMALL_PRESSED));
+            ImageLoader.getImage(ImageLoader.CALL_VIDEO_BUTTON_SMALL_ROLLOVER));
         callVideoButton.setPressedImage(
             ImageLoader.getImage(ImageLoader.CALL_VIDEO_BUTTON_SMALL_PRESSED));
 
         desktopSharingButton.setIconImage(
             ImageLoader.getImage(ImageLoader.DESKTOP_BUTTON_SMALL));
         desktopSharingButton.setRolloverImage(
-            ImageLoader.getImage(ImageLoader.DESKTOP_BUTTON_SMALL_PRESSED));
+            ImageLoader.getImage(ImageLoader.DESKTOP_BUTTON_SMALL_ROLLOVER));
         desktopSharingButton.setPressedImage(
             ImageLoader.getImage(ImageLoader.DESKTOP_BUTTON_SMALL_PRESSED));
 
         addContactButton.setIconImage(
             ImageLoader.getImage(ImageLoader.ADD_CONTACT_BUTTON_SMALL));
         addContactButton.setRolloverImage(
-            ImageLoader.getImage(ImageLoader.ADD_CONTACT_BUTTON_SMALL_PRESSED));
+            ImageLoader.getImage(ImageLoader.ADD_CONTACT_BUTTON_SMALL_ROLLOVER));
         addContactButton.setPressedImage(
             ImageLoader.getImage(ImageLoader.ADD_CONTACT_BUTTON_SMALL_PRESSED));
     }

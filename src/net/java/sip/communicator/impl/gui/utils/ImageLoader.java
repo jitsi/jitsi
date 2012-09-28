@@ -216,6 +216,12 @@ public class ImageLoader
     /**
      * The call button small pressed image.
      */
+    public static final ImageID CALL_BUTTON_SMALL_ROLLOVER
+        = new ImageID("service.gui.buttons.CALL_BUTTON_SMALL_ROLLOVER");
+
+    /**
+     * The call button small pressed image.
+     */
     public static final ImageID CALL_BUTTON_SMALL_PRESSED
         = new ImageID("service.gui.buttons.CALL_BUTTON_SMALL_PRESSED");
 
@@ -224,6 +230,12 @@ public class ImageLoader
      */
     public static final ImageID DESKTOP_BUTTON_SMALL
         = new ImageID("service.gui.buttons.DESKTOP_BUTTON_SMALL");
+
+    /**
+     * The desktop sharing button small pressed image.
+     */
+    public static final ImageID DESKTOP_BUTTON_SMALL_ROLLOVER
+        = new ImageID("service.gui.buttons.DESKTOP_BUTTON_SMALL_ROLLOVER");
 
     /**
      * The desktop sharing button small pressed image.
@@ -246,6 +258,12 @@ public class ImageLoader
     /**
      * The call button small pressed image.
      */
+    public static final ImageID CALL_VIDEO_BUTTON_SMALL_ROLLOVER
+        = new ImageID("service.gui.buttons.CALL_VIDEO_BUTTON_SMALL_ROLLOVER");
+
+    /**
+     * The call button small pressed image.
+     */
     public static final ImageID CALL_VIDEO_BUTTON_SMALL_PRESSED
         = new ImageID("service.gui.buttons.CALL_VIDEO_BUTTON_SMALL_PRESSED");
 
@@ -255,6 +273,13 @@ public class ImageLoader
      */
     public static final ImageID ADD_CONTACT_BUTTON_SMALL
         = new ImageID("service.gui.buttons.ADD_CONTACT_BUTTON_SMALL");
+
+    /**
+     * The add contact button small pressed image, shown when an external source
+     * contact is selected and add contact button is pressed.
+     */
+    public static final ImageID ADD_CONTACT_BUTTON_SMALL_ROLLOVER
+        = new ImageID("service.gui.buttons.ADD_CONTACT_BUTTON_SMALL_ROLLOVER");
 
     /**
      * The add contact button small pressed image, shown when an external source
@@ -322,6 +347,12 @@ public class ImageLoader
      */
     public static final ImageID CHAT_BUTTON_SMALL_PRESSED
         = new ImageID("service.gui.buttons.CHAT_BUTTON_SMALL_PRESSED");
+
+    /**
+     * The chat button small pressed image.
+     */
+    public static final ImageID CHAT_BUTTON_SMALL_ROLLOVER
+        = new ImageID("service.gui.buttons.CHAT_BUTTON_SMALL_ROLLOVER");
 
     /**
      * The hangup button image.
