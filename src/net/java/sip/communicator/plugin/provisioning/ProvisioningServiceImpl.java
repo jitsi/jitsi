@@ -311,7 +311,7 @@ public class ProvisioningServiceImpl
                 url = url.replace("${ipaddr}", ipaddr.getHostAddress());
             }
 
-            if(url.indexOf("${computername}") != -1)
+            if(url.indexOf("${hostname}") != -1)
             {
                 String name;
                 if(OSUtils.IS_WINDOWS)
@@ -323,7 +323,7 @@ public class ProvisioningServiceImpl
                 {
                     name = ipaddr.getHostName();
                 }
-                url = url.replace("${computername}", name);
+                url = url.replace("${hostname}", name);
             }
 
             if(url.indexOf("${hwaddr}") != -1)
