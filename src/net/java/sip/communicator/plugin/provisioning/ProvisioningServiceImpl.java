@@ -5,6 +5,7 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 import java.util.List;
+import java.util.regex.*;
 
 import javax.swing.*;
 
@@ -267,6 +268,50 @@ public class ProvisioningServiceImpl
             InetAddress ipaddr = 
                 ProvisioningActivator.getNetworkAddressManagerService().
                     getLocalHost(InetAddress.getByName(u.getHost()));
+
+            // Get any system environment identified by ${env.xyz}
+            Pattern p = Pattern.compile("\\$\\{env\\.([^\\}]*)\\}");
+            Matcher m = p.matcher(url);
+            StringBuffer sb = new StringBuffer();
+            while(m.find())
+            {
+                String value = System.getenv(m.group(1));
+                if(value != null)
+                {
+                    m.appendReplacement(sb, Matcher.quoteReplacement(value));
+                }
+            }
+            m.appendTail(sb);
+            url = sb.toString();
+
+            // Get any system property variable identified by ${system.xyz}
+            p = Pattern.compile("\\$\\{system\\.([^\\}]*)\\}");
+            m = p.matcher(url);
+            sb = new StringBuffer();
+            while(m.find())
+            {
+                String value = System.getProperty(m.group(1));
+                if(value != null)
+                {
+                    m.appendReplacement(sb, Matcher.quoteReplacement(value));
+                }
+            }
+            m.appendTail(sb);
+            url = sb.toString();
+
+            if(url.indexOf("${home.location}") != -1)
+            {
+                url = url.replace("${home.location}",
+                    ProvisioningActivator.getConfigurationService()
+                        .getScHomeDirLocation());
+            }
+
+            if(url.indexOf("${home.name}") != -1)
+            {
+                url = url.replace("${home.name}",
+                    ProvisioningActivator.getConfigurationService()
+                        .getScHomeDirName());
+            }
 
             if(url.indexOf("${uuid}") != -1)
             {
