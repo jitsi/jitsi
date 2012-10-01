@@ -6,8 +6,6 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
-import java.util.*;
-
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.jabberconstants.*;
@@ -50,8 +48,8 @@ public class OperationSetTypingNotificationsJabberImpl
      */
     private MessageEventManager messageEventManager = null;
 
-    private final Map<String, String> packetIDsTable
-        = new Hashtable<String, String>();
+//    private final Map<String, String> packetIDsTable
+//        = new Hashtable<String, String>();
 
     /**
      * The listener instance that we use to track chat states according to
@@ -322,11 +320,11 @@ public class OperationSetTypingNotificationsJabberImpl
         public void composingNotificationRequested(String from, String packetID,
             MessageEventManager messageEventManager)
         {
-            if(packetID != null)
-            {
-                String fromID = StringUtils.parseBareAddress(from);
-                packetIDsTable.put(fromID, packetID);
-            }
+//            if(packetID != null)
+//            {
+//                String fromID = StringUtils.parseBareAddress(from);
+//                packetIDsTable.put(fromID, packetID);
+//            }
         }
 
         public void offlineNotificationRequested(String from, String packetID,
@@ -388,15 +386,19 @@ public class OperationSetTypingNotificationsJabberImpl
      * The listener that we use to track chat state notifications according
      * to XEP-0085.
      */
-    private class SmackChatStateListener implements ChatStateListener
+    private class SmackChatStateListener
+        implements ChatStateListener
     {
         /**
          * Called by smack when the state of a chat changes.
          *
          * @param chat the chat that is concerned by this event.
          * @param state the new state of the chat.
+         * @param message the message containing the new chat state
          */
-        public void stateChanged(Chat chat, ChatState state)
+        public void stateChanged(Chat chat,
+                                 ChatState state,
+                                 org.jivesoftware.smack.packet.Message message)
         {
             if (logger.isTraceEnabled())
                 logger.trace(chat.getParticipant() + " entered the "
@@ -411,20 +413,30 @@ public class OperationSetTypingNotificationsJabberImpl
                 sourceContact = opSetPersPresence.createVolatileContact(fromID);
             }
 
+            int evtCode = STATE_UNKNOWN;
+
             if (ChatState.composing.equals(state))
             {
-                fireTypingNotificationsEvent(sourceContact, STATE_TYPING);
+                evtCode = STATE_TYPING;
             }
             else if (ChatState.paused.equals(state)
                 || ChatState.active.equals(state) )
             {
-                fireTypingNotificationsEvent(sourceContact, STATE_PAUSED);
+                evtCode = STATE_PAUSED;
             }
             else if (ChatState.inactive.equals(state)
                 || ChatState.gone.equals(state) )
             {
-                fireTypingNotificationsEvent(sourceContact, STATE_STOPPED);
+                evtCode = STATE_STOPPED;
             }
+
+            if(message.getError() != null)
+                fireTypingNotificationsDeliveryFailedEvent(
+                    sourceContact, evtCode);
+            else  if(evtCode != STATE_UNKNOWN)
+                fireTypingNotificationsEvent(sourceContact, STATE_STOPPED);
+            else
+                logger.warn("Unknown typing state!");
         }
 
         /**

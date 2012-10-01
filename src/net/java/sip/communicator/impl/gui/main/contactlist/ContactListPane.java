@@ -520,6 +520,50 @@ public class ContactListPane
     }
 
     /**
+     * Called to indicate that sending typing notification has failed.
+     *
+     * @param evt a <tt>TypingNotificationEvent</tt> containing the sender
+     * of the notification and its type.
+     */
+    public void typingNotificationDeliveryFailed(TypingNotificationEvent evt)
+    {
+        if (typingTimer.isRunning())
+            typingTimer.stop();
+
+        String notificationMsg = "";
+
+        MetaContact metaContact = GuiActivator.getContactListService()
+                .findMetaContactByContact(evt.getSourceContact());
+        String contactName = metaContact.getDisplayName() + " ";
+
+        if (contactName.equals(""))
+        {
+            contactName = GuiActivator.getResources()
+                .getI18NString("service.gui.UNKNOWN") + " ";
+        }
+
+        ChatPanel chatPanel
+            = chatWindowManager.getContactChat(metaContact, false);
+
+        notificationMsg
+            = GuiActivator.getResources().getI18NString(
+                "service.gui.CONTACT_TYPING_SEND_FAILED",
+                new String[]{contactName});
+
+        // Proactive typing notification
+        if (!chatWindowManager.isChatOpenedFor(metaContact))
+        {
+            return;
+        }
+
+        if (chatPanel != null)
+            chatPanel.addErrorSendingTypingNotification(notificationMsg);
+
+        typingTimer.setMetaContact(metaContact);
+        typingTimer.start();
+    }
+
+    /**
      * When a request has been received we show it to the user through the
      * chat session renderer.
      *

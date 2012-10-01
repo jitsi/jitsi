@@ -1013,6 +1013,15 @@ public class NotificationManager
     }
 
     /**
+     * Called to indicate that sending typing notification has failed.
+     *
+     * @param event a <tt>TypingNotificationEvent</tt> containing the sender
+     * of the notification and its type.
+     */
+    public void typingNotificationDeliveryFailed(TypingNotificationEvent event)
+    {}
+
+    /**
      * Implements CallListener.incomingCallReceived. When a call is received
      * plays the ring phone sound to the user and gathers caller information
      * that may be used by a user-specified command (incomingCall event trigger).

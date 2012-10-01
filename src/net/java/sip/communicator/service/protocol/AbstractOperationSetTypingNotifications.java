@@ -134,6 +134,43 @@ public abstract class AbstractOperationSetTypingNotifications<T extends Protocol
     }
 
     /**
+     * Delivers a <tt>TypingNotificationEvent</tt> to all registered listeners
+     * for delivery failed event.
+     *
+     * @param sourceContact the contact who has sent the notification
+     * @param evtCode the code of the event to deliver
+     */
+    public void fireTypingNotificationsDeliveryFailedEvent(
+        Contact sourceContact,
+        int evtCode)
+    {
+        TypingNotificationsListener[] listeners;
+        synchronized (typingNotificationsListeners)
+        {
+            listeners
+                = typingNotificationsListeners
+                    .toArray(
+                        new TypingNotificationsListener[
+                                typingNotificationsListeners.size()]);
+        }
+
+        if (logger.isDebugEnabled())
+            logger.debug(
+            "Dispatching a TypingNotificationEvent to "
+                + listeners.length
+                + " listeners for typingNotificationDeliveryFailed. Contact "
+                + sourceContact.getAddress()
+                + " has now a typing status of "
+                + evtCode);
+
+        TypingNotificationEvent evt
+            = new TypingNotificationEvent(sourceContact, evtCode);
+
+        for (TypingNotificationsListener listener : listeners)
+            listener.typingNotificationDeliveryFailed(evt);
+    }
+
+    /**
      * Removes <tt>listener</tt> from the list of listeners registered for
      * receiving <tt>TypingNotificationEvent</tt>s.
      *

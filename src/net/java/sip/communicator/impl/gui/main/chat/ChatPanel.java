@@ -380,6 +380,26 @@ public class ChatPanel
     }
 
     /**
+     * Adds a typing notification message to the conversation panel,
+     * saying that typin notifications has not been delivered.
+     *
+     * @param typingNotification the typing notification to show
+     */
+    public void addErrorSendingTypingNotification(
+                    String typingNotification)
+    {
+        typingNotificationLabel.setText(typingNotification);
+
+        if (typingNotification != null && !typingNotification.equals(" "))
+            typingNotificationLabel.setIcon(typingIcon);
+        else
+            typingNotificationLabel.setIcon(null);
+
+        revalidate();
+        repaint();
+    }
+
+    /**
      * Removes the typing notification message from the conversation panel.
      */
     public void removeTypingNotification()

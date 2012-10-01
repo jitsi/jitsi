@@ -270,6 +270,15 @@ public class TestOperationSetTypingNotifications
         }
 
         /**
+         * Called to indicate that sending typing notification has failed.
+         *
+         * @param event a <tt>TypingNotificationEvent</tt> containing the sender
+         * of the notification and its type.
+         */
+        public void typingNotificationDeliveryFailed(TypingNotificationEvent event)
+        {}
+
+        /**
          * Blocks until at least one event is received or until waitFor
          * miliseconds pass (whicever happens first).
          *
