@@ -250,16 +250,16 @@ public class ConfigurationManager
             "impl.gui.NORMALIZE_PHONE_NUMBER";
 
         isNormalizePhoneNumber
-            = GeneralConfigPluginActivator.getConfigurationService()
-                .getBoolean(normalizePhoneNumberProperty, true);
+            = configService.getBoolean(normalizePhoneNumberProperty, true);
 
         // Load the "ACCEPT_PHONE_NUMBER_WITH_ALPHA_CHARS" property.
         String acceptPhoneNumberWithAlphaCharsProperty =
                 "impl.gui.ACCEPT_PHONE_NUMBER_WITH_ALPHA_CHARS";
 
         acceptPhoneNumberWithAlphaChars
-            = GeneralConfigPluginActivator.getConfigurationService()
-                .getBoolean(acceptPhoneNumberWithAlphaCharsProperty, true);
+            = configService.getBoolean(
+                    acceptPhoneNumberWithAlphaCharsProperty,
+                    true);
     }
 
     /**

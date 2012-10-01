@@ -29,8 +29,8 @@ import com.explodingpixels.macwidgets.*;
  * @author Yana Stamcheva
  */
 public abstract class PreCallDialog
-    implements  ActionListener,
-                Skinnable
+    implements ActionListener,
+               Skinnable
 {
     /**
      * The call button name.
@@ -101,20 +101,20 @@ public abstract class PreCallDialog
     /**
      * The window handling received calls.
      */
-    private Window preCallWindow;
+    private final Window preCallWindow;
 
     /**
      * If it is a video call.
      */
-    private boolean video = false;
+    private final boolean video;
 
     /**
      * If the call should be answered in an existing call.
      */
-    private boolean mergeCall = false;
+    private final boolean mergeCall;
 
     /**
-     * Creates an instanceof <tt>PreCallDialog</tt> by specifying the dialog
+     * Creates an instance of <tt>PreCallDialog</tt> by specifying the dialog
      * title.
      *
      * @param title the title of the dialog
@@ -127,7 +127,7 @@ public abstract class PreCallDialog
     }
 
     /**
-     * Creates an instanceof <tt>PreCallDialog</tt> by specifying the dialog
+     * Creates an instance of <tt>PreCallDialog</tt> by specifying the dialog
      * title and the text to show.
      *
      * @param title the title of the dialog
@@ -140,7 +140,7 @@ public abstract class PreCallDialog
     }
 
     /**
-     * Creates an instanceof <tt>PreCallDialog</tt> by specifying the dialog
+     * Creates an instance of <tt>PreCallDialog</tt> by specifying the dialog
      * title and the text to show.
      *
      * @param title the title of the dialog
@@ -154,18 +154,24 @@ public abstract class PreCallDialog
     {
         preCallWindow = createPreCallWindow(title, text, accounts);
 
+        if (video)
+        {
+            // Make sure there is a VIDEO MediaDevice and it is capable of
+            // capture/sending
+            MediaDevice mediaDevice
+                = GuiActivator.getMediaService().getDefaultDevice(
+                        MediaType.VIDEO,
+                        MediaUseCase.CALL);
+
+            if ((mediaDevice == null)
+                    || !mediaDevice.getDirection().allowsSending())
+                video = false;
+        }
+
         this.video = video;
         this.mergeCall = existingCall;
 
-        MediaDevice mediaDevice
-            = GuiActivator.getMediaService().getDefaultDevice(
-                    MediaType.VIDEO, MediaUseCase.CALL);
-
-        // check whether we have device enabled for capturing(sending)
-        if (mediaDevice != null)
-            this.video = video && mediaDevice.getDirection().allowsSending();
-
-        this.initComponents();
+        initComponents();
     }
 
     /**
@@ -199,8 +205,9 @@ public abstract class PreCallDialog
 
             if (accounts != null)
             {
-                accountsCombo = HudWidgetFactory
-                    .createHudComboBox(new DefaultComboBoxModel(accounts));
+                accountsCombo
+                    = HudWidgetFactory.createHudComboBox(
+                            new DefaultComboBoxModel(accounts));
             }
         }
         else
@@ -216,9 +223,7 @@ public abstract class PreCallDialog
             callLabelImage = new JLabel();
 
             if (accounts != null)
-            {
                 accountsCombo = new JComboBox(accounts);
-            }
         }
 
         if (text != null)

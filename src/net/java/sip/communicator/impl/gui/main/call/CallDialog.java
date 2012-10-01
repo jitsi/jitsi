@@ -53,13 +53,13 @@ public class CallDialog
     public Dimension getMinimumSize()
     {
         Dimension minSize = super.getMinimumSize();
+
         if(callPanel != null)
         {
             int minButtonWidth = callPanel.getMinimumButtonWidth();
+
             if(minButtonWidth > minSize.getWidth())
-            {
-                return new Dimension(minButtonWidth, 300);
-            }
+                minSize = new Dimension(minButtonWidth, 300);
         }
 
         return minSize;
@@ -108,19 +108,19 @@ public class CallDialog
     public void closeWait(CallPanel callPanel)
     {
         if (this.callPanel.equals(callPanel))
-        {
             disposeWait();
-        }
     }
 
     /**
-     * Hang ups the current call on close.
-     * @param isEscaped indicates if the window was close by pressing the escape
-     * button
+     * {@inheritDoc}
+     *
+     * Hang ups the call/telephony conference depicted by this
+     * <tt>CallDialog</tt> on close.
      */
-    protected void close(boolean isEscaped)
+    @Override
+    protected void close(boolean escape)
     {
-        callPanel.actionPerformedOnHangupButton(isEscaped);
+        callPanel.actionPerformedOnHangupButton(escape);
     }
 
     /**
@@ -132,10 +132,7 @@ public class CallDialog
      */
     public boolean isCallVisible(CallPanel callPanel)
     {
-        if (this.callPanel.equals(callPanel))
-            return isVisible();
-
-        return false;
+        return this.callPanel.equals(callPanel) ? isVisible() : false;
     }
 
     /**

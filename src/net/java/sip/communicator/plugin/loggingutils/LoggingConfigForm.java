@@ -273,24 +273,18 @@ public class LoggingConfigForm
      */
     private void loadValues()
     {
-        PacketLoggingService packetLogging =
-                LoggingUtilsActivator.getPacketLoggingService();
+        PacketLoggingService packetLogging
+            = LoggingUtilsActivator.getPacketLoggingService();
+        PacketLoggingConfiguration cfg = packetLogging.getConfiguration();
 
-        enableCheckBox.setSelected(
-                packetLogging.getConfiguration().isGlobalLoggingEnabled());
+        enableCheckBox.setSelected(cfg.isGlobalLoggingEnabled());
 
-        sipProtocolCheckBox.setSelected(
-                packetLogging.getConfiguration().isSipLoggingEnabled());
-        jabberProtocolCheckBox.setSelected(
-                packetLogging.getConfiguration().isJabberLoggingEnabled());
-        rtpProtocolCheckBox.setSelected(
-                packetLogging.getConfiguration().isRTPLoggingEnabled());
-        ice4jProtocolCheckBox.setSelected(
-                packetLogging.getConfiguration().isIce4JLoggingEnabled());
-        fileCountField.setText(String.valueOf(
-                packetLogging.getConfiguration().getLogfileCount()));
-        fileSizeField.setText(String.valueOf(
-                packetLogging.getConfiguration().getLimit()/1000));
+        sipProtocolCheckBox.setSelected(cfg.isSipLoggingEnabled());
+        jabberProtocolCheckBox.setSelected(cfg.isJabberLoggingEnabled());
+        rtpProtocolCheckBox.setSelected(cfg.isRTPLoggingEnabled());
+        ice4jProtocolCheckBox.setSelected(cfg.isIce4JLoggingEnabled());
+        fileCountField.setText(String.valueOf(cfg.getLogfileCount()));
+        fileSizeField.setText(String.valueOf(cfg.getLimit() / 1000));
 
         updateButtonsState();
     }

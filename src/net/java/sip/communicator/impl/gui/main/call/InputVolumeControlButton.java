@@ -37,11 +37,6 @@ public class InputVolumeControlButton
                Runnable
 {
     /**
-     * The <tt>Call</tt> that this button controls.
-     */
-    private final Call call;
-
-    /**
      * Mutes the call in other thread.
      */
     private Thread muteRunner;
@@ -134,7 +129,6 @@ public class InputVolumeControlButton
                 pressedIconImageID,
                 "service.gui.MUTE_BUTTON_TOOL_TIP");
 
-        this.call = call;
         this.fullScreen = fullScreen;
         this.mute = selected;
 

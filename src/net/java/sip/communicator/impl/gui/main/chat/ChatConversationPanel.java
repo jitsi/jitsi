@@ -1830,7 +1830,6 @@ public class ChatConversationPanel
                             document.getLength());
 
             String msgDivString = msgDivWriter.toString();
-
             String newMsgDivString
                 = msgDivString.replaceFirst(
                     ChatHtmlUtils.MESSAGE_DIV_ID + lastMessageUID,
@@ -1855,10 +1854,9 @@ public class ChatConversationPanel
             else
                 msgEndIndex = newMsgDivString.lastIndexOf("</div>");
 
-            document.setOuterHTML(messageDivElement,
-                newMsgDivString.substring(
-                    msgStartIndex,
-                    msgEndIndex + 6));
+            document.setOuterHTML(
+                    messageDivElement,
+                    newMsgDivString.substring(msgStartIndex, msgEndIndex + 6));
         }
         catch (IOException e)
         {

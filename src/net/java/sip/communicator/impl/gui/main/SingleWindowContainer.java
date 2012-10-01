@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.gui.main;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
+import java.util.List;
 
 import javax.swing.*;
 import javax.swing.Timer;
@@ -29,20 +30,20 @@ import net.java.sip.communicator.util.swing.*;
  */
 public class SingleWindowContainer
     extends TransparentPanel
-    implements  ChatContainer,
-                CallContainer,
-                CallTitleListener,
-                ChangeListener
+    implements ChatContainer,
+               CallContainer,
+               CallTitleListener,
+               ChangeListener
 {
     /**
-     * The logger for this class.
+     * The <tt>Logger</tt> used by this instance for logging output.
      */
     private final Logger logger = Logger.getLogger(SingleWindowContainer.class);
 
     /**
      * The tabbed pane, containing all conversations.
      */
-    private ConversationTabbedPane tabbedPane = null;
+    private final ConversationTabbedPane tabbedPane;
 
     /**
      * The count of current conversations.
@@ -52,8 +53,8 @@ public class SingleWindowContainer
     /**
      * Chat change listeners.
      */
-    private final java.util.List<ChatChangeListener> chatChangeListeners =
-        new Vector<ChatChangeListener>();
+    private final List<ChatChangeListener> chatChangeListeners
+        = new Vector<ChatChangeListener>();
 
     /**
      * The contact photo panel.
@@ -377,19 +378,15 @@ public class SingleWindowContainer
     {
         Component currentConversation = getCurrentConversation();
 
-        tabbedPane.addTab(
-            name,
-            icon,
-            conversation);
-
+        tabbedPane.addTab(name, icon, conversation);
         tabbedPane.getParent().validate();
 
-        // If not specified explicitly, when added to the tabbed pane,
-        // the first chat panel should rest the selected component.
-        if (currentConversation != null && !isSelected)
-            tabbedPane.setSelectedComponent(currentConversation);
-        else
-            tabbedPane.setSelectedComponent(conversation);
+        // If not specified explicitly, when added to the tabbed pane, the first
+        // chat panel should rest the selected component.
+        tabbedPane.setSelectedComponent(
+                (currentConversation != null && !isSelected)
+                    ? currentConversation
+                    : conversation);
     }
 
     /**
@@ -408,21 +405,18 @@ public class SingleWindowContainer
 
     private Component createToolbar()
     {
-        JPanel northPanel = new TransparentPanel(new BorderLayout());
-
         mainToolBar = new MainToolBar(this);
 
         // The toolbar would be only visible when a chat is opened.
         mainToolBar.setVisible(false);
 
-        boolean chatToolbarVisible = ConfigurationManager.isChatToolbarVisible();
-        northPanel.setVisible(chatToolbarVisible);
+        JPanel northPanel = new TransparentPanel(new BorderLayout());
 
         northPanel.setBorder(BorderFactory.createEmptyBorder(3, 0, 3, 0));
+        northPanel.setPreferredSize(new Dimension(500, 35));
+        northPanel.setVisible(ConfigurationManager.isChatToolbarVisible());
         northPanel.add(mainToolBar, BorderLayout.EAST);
         northPanel.add(contactPhotoPanel, BorderLayout.WEST);
-
-        northPanel.setPreferredSize(new Dimension(500, 35));
 
         return northPanel;
     }

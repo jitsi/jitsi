@@ -47,7 +47,7 @@ public class ConferenceCallPanel
     /**
      * The conference call.
      */
-    private final Call call;
+    protected final Call call;
 
     /**
      * The scroll pane.

@@ -181,14 +181,10 @@ public abstract class AbstractCallToggleButton
         implements ActionListener,
                    Runnable
     {
-        private final Call call;
-
         private Thread runner;
 
         public CallToggleButtonModel(Call call)
         {
-            this.call = call;
-
             addActionListener(this);
         }
 

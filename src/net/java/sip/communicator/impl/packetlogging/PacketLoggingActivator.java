@@ -26,8 +26,8 @@ public class PacketLoggingActivator
     /**
      * Our logging.
      */
-    private static Logger logger =
-        Logger.getLogger(PacketLoggingActivator.class);
+    private static Logger logger
+        = Logger.getLogger(PacketLoggingActivator.class);
 
     /**
      * The OSGI bundle context. 
@@ -62,20 +62,32 @@ public class PacketLoggingActivator
      * @throws Exception if starting the PacketLoggingServiceImpl.
      */
     public void start(BundleContext bundleContext)
-            throws
-            Exception
+            throws Exception
     {
-        PacketLoggingActivator.bundleContext = bundleContext;
+        /*
+         * PacketLoggingServiceImpl requires a FileAccessService implementation.
+         * Ideally, we'd be listening to the bundleContext and will be making
+         * the PacketLoggingService implementation available in accord with the
+         * availability of a FileAccessService implementation. Unfortunately,
+         * the real world is far from ideal.
+         */
+        fileAccessService
+            = ServiceUtils.getService(bundleContext, FileAccessService.class);
+        if (fileAccessService != null)
+        {
+            PacketLoggingActivator.bundleContext = bundleContext;
 
-        packetLoggingService = new PacketLoggingServiceImpl();
+            packetLoggingService = new PacketLoggingServiceImpl();
+            packetLoggingService.start();
 
-        packetLoggingService.start();
+            bundleContext.registerService(
+                    PacketLoggingService.class.getName(),
+                    packetLoggingService,
+                    null);
 
-        bundleContext.registerService(PacketLoggingService.class.getName(),
-                packetLoggingService, null);
-
-        if (logger.isInfoEnabled())
-            logger.info("Packet Logging Service ...[REGISTERED]");
+            if (logger.isInfoEnabled())
+                logger.info("Packet Logging Service ...[REGISTERED]");
+        }
     }
 
     /**
@@ -84,11 +96,14 @@ public class PacketLoggingActivator
      * @param bundleContext  the OSGI bundle context
      */
     public void stop(BundleContext bundleContext)
-            throws
-            Exception
+            throws Exception
     {
         if(packetLoggingService != null)
             packetLoggingService.stop();
+
+        configurationService = null;
+        fileAccessService = null;
+        packetLoggingService = null;
 
         if (logger.isInfoEnabled())
             logger.info("Packet Logging Service ...[STOPPED]");
@@ -121,13 +136,6 @@ public class PacketLoggingActivator
      */
     public static FileAccessService getFileAccessService()
     {
-        if (fileAccessService == null)
-        {
-            fileAccessService
-                = ServiceUtils.getService(
-                        bundleContext,
-                        FileAccessService.class);
-        }
         return fileAccessService;
     }
 }

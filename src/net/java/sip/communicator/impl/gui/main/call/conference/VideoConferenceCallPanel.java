@@ -24,15 +24,11 @@ public class VideoConferenceCallPanel
     extends ConferenceCallPanel
 {
     /**
-     * The contained call.
-     */
-    private final Call call;
-
-    /**
      * Maps a <tt>CallPeer</tt> to its renderer.
      */
     protected final Hashtable<CallPeer, ConferenceCallPeerRenderer>
-        callPeerPanels = new Hashtable<CallPeer, ConferenceCallPeerRenderer>();
+        callPeerPanels
+            = new Hashtable<CallPeer, ConferenceCallPeerRenderer>();
 
     /**
      * A mapping of a member and its renderer.
@@ -41,8 +37,7 @@ public class VideoConferenceCallPanel
         conferenceMembersPanels
             = new Hashtable<ConferenceMember, ConferenceMemberPanel>();
 
-    public VideoConferenceCallPanel(CallPanel callPanel,
-                                    Call call)
+    public VideoConferenceCallPanel(CallPanel callPanel, Call call)
     {
         this(callPanel, call, null);
     }
@@ -58,8 +53,6 @@ public class VideoConferenceCallPanel
                                     UIVideoHandler videoHandler)
     {
         super(callPanel, call, videoHandler, true);
-
-        this.call = call;
 
         addVideoContainer();
 
@@ -103,13 +96,13 @@ public class VideoConferenceCallPanel
     public void conferenceMemberAdded(  CallPeer callPeer,
                                         ConferenceMember member)
     {
-        // It's already there.
-        if (conferenceMembersPanels.containsKey(member))
-            return;
+        // Only if it isn't there yet.
+        if (!conferenceMembersPanels.containsKey(member))
+        {
+            conferenceMemberAdded(callPeer, member, false);
 
-        conferenceMemberAdded(callPeer, member, false);
-
-        getVideoHandler().handleVideoEvent(call, null);
+            getVideoHandler().handleVideoEvent(call, null);
+        }
     }
 
     /**
@@ -124,7 +117,7 @@ public class VideoConferenceCallPanel
             return;
 
         if (CallManager.addressesAreEqual(
-            member.getAddress(), callPeer.getAddress()))
+                member.getAddress(), callPeer.getAddress()))
         {
             return;
         }

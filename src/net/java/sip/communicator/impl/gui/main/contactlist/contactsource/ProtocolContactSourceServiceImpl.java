@@ -106,7 +106,7 @@ public class ProtocolContactSourceServiceImpl
     {
         private int contactCount;
 
-        private String queryString;
+        private final String queryString;
 
         public ProtocolCQuery(String queryString, int contactCount)
         {
@@ -118,11 +118,12 @@ public class ProtocolContactSourceServiceImpl
             this.contactCount = contactCount;
         }
 
-        protected String normalizePhoneNumber(String phoneNumber)
-        {
-            return phoneNumber;
-        }
-
+        /**
+         * {@inheritDoc}
+         *
+         * Always returns <tt>false</tt>.
+         */
+        @Override
         protected boolean phoneNumberMatches(String phoneNumber)
         {
             return false;
@@ -130,8 +131,9 @@ public class ProtocolContactSourceServiceImpl
 
         public void run()
         {
-            Iterator<MetaContact> contactListIter = metaContactListService
-                .findAllMetaContactsForProvider(protocolProvider);
+            Iterator<MetaContact> contactListIter
+                = metaContactListService.findAllMetaContactsForProvider(
+                        protocolProvider);
 
             while (contactListIter.hasNext())
             {
@@ -166,39 +168,40 @@ public class ProtocolContactSourceServiceImpl
                     break;
 
                 Contact contact = contacts.next();
+                String contactAddress = contact.getAddress();
+                String contactDisplayName = contact.getDisplayName();
 
                 if (queryString == null
                     || queryString.length() <= 0
                     || metaContact.getDisplayName().startsWith(queryString)
-                    || contact.getAddress().startsWith(queryString)
-                    || contact.getDisplayName().startsWith(queryString))
+                    || contactAddress.startsWith(queryString)
+                    || contactDisplayName.startsWith(queryString))
                 {
-                    ArrayList<ContactDetail> contactDetails
-                        = new ArrayList<ContactDetail>();
-
                     ContactDetail contactDetail
-                        = new ContactDetail(contact.getAddress());
-
-                    ArrayList<Class<? extends OperationSet>>
-                        supportedOpSets
+                        = new ContactDetail(contactAddress);
+                    List<Class<? extends OperationSet>> supportedOpSets
                         = new ArrayList<Class<? extends OperationSet>>();
+
                     supportedOpSets.add(opSetClass);
                     contactDetail.setSupportedOpSets(supportedOpSets);
+
+                    List<ContactDetail> contactDetails
+                        = new ArrayList<ContactDetail>();
 
                     contactDetails.add(contactDetail);
 
                     GenericSourceContact sourceContact
                         = new GenericSourceContact(
-                            ProtocolContactSourceServiceImpl.this,
-                            contact.getDisplayName(),
-                            contactDetails);
+                                ProtocolContactSourceServiceImpl.this,
+                                contactDisplayName,
+                                contactDetails);
 
-                    if (!contact.getAddress().equals(contact.getDisplayName()))
-                        sourceContact.setDisplayDetails(contact.getAddress());
+                    if (!contactAddress.equals(contactDisplayName))
+                        sourceContact.setDisplayDetails(contactAddress);
 
                     sourceContact.setImage(metaContact.getAvatar());
-                    sourceContact
-                        .setPresenceStatus(contact.getPresenceStatus());
+                    sourceContact.setPresenceStatus(
+                            contact.getPresenceStatus());
 
                     addQueryResult(sourceContact);
                 }

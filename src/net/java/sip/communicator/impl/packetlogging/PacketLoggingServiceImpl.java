@@ -159,13 +159,18 @@ public class PacketLoggingServiceImpl
     private void getFileNames()
         throws Exception
     {
-        files = new File[getConfiguration().getLogfileCount()];
-        for(int i = 0; i < getConfiguration().getLogfileCount(); i++)
+        int fileCount = getConfiguration().getLogfileCount();
+
+        files = new File[fileCount];
+        for(int i = 0; i < fileCount; i++)
         {
-            files[i] = PacketLoggingActivator.getFileAccessService()
-                .getPrivatePersistentFile(
-                    PacketLoggingActivator.LOGGING_DIR_NAME
-                        + File.separator + "jitsi" + i + ".pcap");
+            files[i]
+                = PacketLoggingActivator.getFileAccessService().getPrivatePersistentFile(
+                        PacketLoggingActivator.LOGGING_DIR_NAME
+                            + File.separator
+                            + "jitsi"
+                            + i
+                            + ".pcap");
         }
     }
 
@@ -183,16 +188,15 @@ public class PacketLoggingServiceImpl
             outputStream.close();
         }
 
-        for (int i = getConfiguration().getLogfileCount() -2; i >= 0; i--)
+        for (int i = getConfiguration().getLogfileCount() - 2; i >= 0; i--)
         {
             File f1 = files[i];
             File f2 = files[i+1];
+
             if (f1.exists())
             {
                 if (f2.exists())
-                {
                     f2.delete();
-                }
                 f1.renameTo(f2);
             }
         }
@@ -220,7 +224,10 @@ public class PacketLoggingServiceImpl
             {
                 e.printStackTrace();
             }
-            outputStream = null;
+            finally
+            {
+                outputStream = null;
+            }
         }
     }
 
@@ -281,31 +288,40 @@ public class PacketLoggingServiceImpl
     }
 
     /**
-     * Checks is logging globally enabled for and is it currently
-     * available fo the given service.
+     * Checks is logging globally enabled for and is it currently available for
+     * the given service.
      *
      * @param protocol that is checked.
      * @return is logging enabled.
      */
     public boolean isLoggingEnabled(ProtocolName protocol)
     {
-        switch(protocol)
+        PacketLoggingConfiguration cfg = getConfiguration();
+
+        if (cfg.isGlobalLoggingEnabled())
         {
-            case SIP:
-                return getConfiguration().isGlobalLoggingEnabled()
-                        && getConfiguration().isSipLoggingEnabled();
-            case JABBER:
-                return getConfiguration().isGlobalLoggingEnabled()
-                        && getConfiguration().isJabberLoggingEnabled();
-            case RTP:
-                return getConfiguration().isGlobalLoggingEnabled()
-                        && getConfiguration().isRTPLoggingEnabled();
-            case ICE4J:
-                return getConfiguration().isGlobalLoggingEnabled()
-                        && getConfiguration().isIce4JLoggingEnabled();
-            default:
-                return false;
+            switch(protocol)
+            {
+                case SIP:
+                    return cfg.isSipLoggingEnabled();
+                case JABBER:
+                    return cfg.isJabberLoggingEnabled();
+                case RTP:
+                    return cfg.isRTPLoggingEnabled();
+                case ICE4J:
+                    return cfg.isIce4JLoggingEnabled();
+                default:
+                    /*
+                     * It may seem like it was unnecessary to invoke
+                     * getConfiguration and isGlobalLoggingEnabled prior to
+                     * checking that the specified protocol is supported but,
+                     * actually, there are no other ProtocolName values.
+                     */
+                    return false;
+            }
         }
+        else
+            return false;
     }
 
     /**
@@ -539,8 +555,9 @@ public class PacketLoggingServiceImpl
                 rotateFiles();// this one opens the file for write
             }
 
-            if(getConfiguration().getLimit() > 0
-                && written > getConfiguration().getLimit())
+            long limit = getConfiguration().getLimit();
+
+            if((limit > 0) && (written > limit))
                 rotateFiles();
 
             addInt(tsSec);
@@ -739,7 +756,7 @@ public class PacketLoggingServiceImpl
         /**
          * List of packets queued to be written in the file.
          */
-        private List<Packet> packetsToDump = new ArrayList<Packet>();
+        private final List<Packet> pktsToSave = new ArrayList<Packet>();
 
         /**
          * Sends instant messages in separate thread so we don't block
@@ -748,14 +765,13 @@ public class PacketLoggingServiceImpl
         public void run()
         {
             stopped = false;
-
             while(!stopped)
             {
-                Packet pktToSave = null;
+                Packet pktToSave;
 
                 synchronized(this)
                 {
-                    if(packetsToDump.isEmpty())
+                    if(pktsToSave.isEmpty())
                     {
                         try
                         {
@@ -764,10 +780,10 @@ public class PacketLoggingServiceImpl
                         catch (InterruptedException iex)
                         {
                         }
+                        continue;
                     }
 
-                    if(!packetsToDump.isEmpty())
-                        pktToSave = packetsToDump.remove(0);
+                    pktToSave = pktsToSave.remove(0);
                 }
 
                 if(pktToSave != null)
@@ -778,7 +794,14 @@ public class PacketLoggingServiceImpl
                     }
                     catch(Throwable t)
                     {
-                        logger.error("Error writing packet to file", t);
+                        /*
+                         * XXX ThreadDeath must be rethrown; otherwise, the
+                         * related Thread will not die.
+                         */
+                        if (t instanceof ThreadDeath)
+                            throw (ThreadDeath) t;
+                        else
+                            logger.error("Error writing packet to file", t);
                     }
                 }
             }
@@ -799,7 +822,7 @@ public class PacketLoggingServiceImpl
          */
         public synchronized void queuePacket(Packet packet)
         {
-            packetsToDump.add(packet);
+            pktsToSave.add(packet);
             notifyAll();
         }
     }

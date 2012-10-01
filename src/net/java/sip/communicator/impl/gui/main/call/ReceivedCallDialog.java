@@ -29,9 +29,9 @@ import org.jitsi.util.*;
  */
 public class ReceivedCallDialog
     extends PreCallDialog
-    implements  ActionListener,
-                CallListener,
-                Skinnable
+    implements ActionListener,
+               CallListener,
+               Skinnable
 {
     /**
      * The incoming call to render.
@@ -57,11 +57,11 @@ public class ReceivedCallDialog
 
         this.incomingCall = call;
 
-        OperationSetBasicTelephony<?> telephonyOpSet
-            = call.getProtocolProvider()
-                .getOperationSet(OperationSetBasicTelephony.class);
+        OperationSetBasicTelephony<?> basicTelephony
+            = call.getProtocolProvider().getOperationSet(
+                    OperationSetBasicTelephony.class);
 
-        telephonyOpSet.addCallListener(this);
+        basicTelephony.addCallListener(this);
 
         initCallLabel(getCallLabels());
     }
@@ -150,16 +150,34 @@ public class ReceivedCallDialog
     }
 
     /**
-     * When call is remotely ended we close this dialog.
-     * @param event the <tt>CallEvent</tt> that has been triggered
+     * {@inheritDoc}
+     *
+     * When the <tt>Call</tt> depicted by this dialog is (remotely) ended,
+     * close/dispose of this dialog.
+     *
+     * @param event a <tt>CallEvent</tt> which specifies the <tt>Call</tt> that
+     * has ended
      */
     public void callEnded(CallEvent event)
     {
-        Call sourceCall = event.getSourceCall();
-
-        if (sourceCall.equals(incomingCall))
-        {
+        if (event.getSourceCall().equals(incomingCall))
             dispose();
+    }
+
+    @Override
+    public void dispose()
+    {
+        try
+        {
+            OperationSetBasicTelephony<?> basicTelephony
+                = incomingCall.getProtocolProvider().getOperationSet(
+                        OperationSetBasicTelephony.class);
+
+            basicTelephony.removeCallListener(this);
+        }
+        finally
+        {
+            super.dispose();
         }
     }
 
@@ -227,12 +245,11 @@ public class ReceivedCallDialog
     private String getPeerDisplayName(CallPeer peer)
     {
         String displayName = peer.getDisplayName();
-        String peerAddress = peer.getAddress();
 
-        if(StringUtils.isNullOrEmpty(displayName, true))
-            return peerAddress;
-
-        return displayName;
+        return
+            StringUtils.isNullOrEmpty(displayName, true)
+                ? peer.getAddress()
+                : displayName;
     }
 
     /**
@@ -243,15 +260,16 @@ public class ReceivedCallDialog
      */
     private String getPeerDisplayAddress(CallPeer peer)
     {
-        String displayName = peer.getDisplayName();
         String peerAddress = peer.getAddress();
 
         if(StringUtils.isNullOrEmpty(peerAddress, true))
             return null;
-
-        if(peerAddress.equalsIgnoreCase(displayName))
-            return null;
-
-        return peerAddress;
+        else
+        {
+            return
+                peerAddress.equalsIgnoreCase(peer.getDisplayName())
+                    ? null
+                    : peerAddress;
+        }
     }
 }

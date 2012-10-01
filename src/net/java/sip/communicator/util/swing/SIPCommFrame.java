@@ -811,13 +811,13 @@ public class SIPCommFrame
     }
 
     /**
-     * All functions implemented in this method will be invoked when user
-     * presses the Escape key.
-     * @param isEscaped indicates if this frame has been closed by pressing the
-     * Esc key
+     * Notifies this instance that it has been requested to close. The default
+     * <tt>SIPCommFrame</tt> implementation does nothing.
+     *
+     * @param escape <tt>true</tt> if the request to close this instance is in
+     * response of a press on the Escape key; otherwise, <tt>false</tt>
      */
-    protected void close(boolean isEscaped)
+    protected void close(boolean escape)
     {
-
     }
 }
