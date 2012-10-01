@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.gui.main.call;
 
 import java.awt.*;
 import java.beans.*;
+import java.net.*;
 import java.util.*;
 import java.util.List;
 
@@ -274,15 +275,6 @@ public class CallInfoFrame
 
             if(callPeerMediaHandler != null)
             {
-                String iceCandidateExtendedType =
-                    callPeerMediaHandler.getICECandidateExtendedType();
-                if(iceCandidateExtendedType != null)
-                {
-                    stringBuffer.append(getLineString(resources.getI18NString(
-                            "service.gui.callinfo.ICE_CANDIDATE_EXTENDED_TYPE"),
-                                iceCandidateExtendedType));
-                }
-
                 String iceState = callPeerMediaHandler.getICEState();
                 if(iceState != null && !iceState.equals("Terminated"))
                 {
@@ -292,6 +284,7 @@ public class CallInfoFrame
                         resources.getI18NString(
                             "service.gui.callinfo.ICE_STATE." + iceState)));
                 }
+
 
                 MediaStream mediaStream =
                     callPeerMediaHandler.getStream(MediaType.AUDIO);
@@ -309,6 +302,7 @@ public class CallInfoFrame
                             MediaType.AUDIO);
 
                     constructAudioVideoInfo(
+                            callPeerMediaHandler,
                             mediaStream,
                             stringBuffer,
                             MediaType.AUDIO);
@@ -329,6 +323,7 @@ public class CallInfoFrame
                             MediaType.VIDEO);
 
                     constructAudioVideoInfo(
+                            callPeerMediaHandler,
                             mediaStream,
                             stringBuffer,
                             MediaType.VIDEO);
@@ -340,6 +335,8 @@ public class CallInfoFrame
     /**
      * Constructs audio video peer info.
      *
+     * @param callPeerMediaHandler The <tt>CallPeerMadiaHandler</tt> containing
+     * the AUDIO/VIDEO stream.
      * @param mediaStream the <tt>MediaStream</tt> that gives us access to
      * audio video info
      * @param stringBuffer the <tt>StringBuffer</tt>, where call peer info will
@@ -348,6 +345,7 @@ public class CallInfoFrame
      * media handler must returns it encryption method.
      */
     private void constructAudioVideoInfo(
+            CallPeerMediaHandler callPeerMediaHandler,
             MediaStream mediaStream,
             StringBuffer stringBuffer,
             MediaType mediaType)
@@ -389,17 +387,118 @@ public class CallInfoFrame
                 mediaStreamStats.getEncoding()
                 + " / " + mediaStreamStats.getEncodingClockRate() + " Hz"));
 
-        stringBuffer.append(
-            getLineString(
-                resources.getI18NString("service.gui.callinfo.LOCAL_IP"),
-                mediaStreamStats.getLocalIPAddress()
-                + " / " + String.valueOf(mediaStreamStats.getLocalPort())));
+        boolean displayedIpPort = false;
 
-        stringBuffer.append(
-            getLineString(
-                resources.getI18NString("service.gui.callinfo.REMOTE_IP"),
-                mediaStreamStats.getRemoteIPAddress()
-                + " / " + String.valueOf(mediaStreamStats.getRemotePort())));
+        // ICE candidate type
+        String iceCandidateExtendedType =
+            callPeerMediaHandler.getICECandidateExtendedType(
+                    mediaType.toString());
+        if(iceCandidateExtendedType != null)
+        {
+            stringBuffer.append(getLineString(resources.getI18NString(
+                    "service.gui.callinfo.ICE_CANDIDATE_EXTENDED_TYPE"),
+                        iceCandidateExtendedType));
+            displayedIpPort = true;
+        }
+
+        // Local host address
+        InetSocketAddress iceLocalHostAddress =
+            callPeerMediaHandler.getICELocalHostAddress(mediaType.toString());
+        if(iceLocalHostAddress != null)
+        {
+            stringBuffer.append(getLineString(resources.getI18NString(
+                    "service.gui.callinfo.ICE_LOCAL_HOST_ADDRESS"),
+                    iceLocalHostAddress.getAddress().getHostAddress()
+                        + "/" + iceLocalHostAddress.getPort()));
+            displayedIpPort = true;
+        }
+
+        // Local reflexive address
+        InetSocketAddress iceLocalReflexiveAddress =
+            callPeerMediaHandler.getICELocalReflexiveAddress(
+                    mediaType.toString());
+        if(iceLocalReflexiveAddress != null)
+        {
+            stringBuffer.append(getLineString(resources.getI18NString(
+                    "service.gui.callinfo.ICE_LOCAL_REFLEXIVE_ADDRESS"),
+                    iceLocalReflexiveAddress.getAddress()
+                        .getHostAddress()
+                        + "/" + iceLocalReflexiveAddress.getPort()));
+            displayedIpPort = true;
+        }
+
+        // Local relayed address
+        InetSocketAddress iceLocalRelayedAddress =
+            callPeerMediaHandler.getICELocalRelayedAddress(
+                    mediaType.toString());
+        if(iceLocalRelayedAddress != null)
+        {
+            stringBuffer.append(getLineString(resources.getI18NString(
+                    "service.gui.callinfo.ICE_LOCAL_RELAYED_ADDRESS"),
+                    iceLocalRelayedAddress.getAddress()
+                        .getHostAddress()
+                        + "/" + iceLocalRelayedAddress.getPort()));
+            displayedIpPort = true;
+        }
+
+        // Remote relayed address
+        InetSocketAddress iceRemoteRelayedAddress =
+            callPeerMediaHandler.getICERemoteRelayedAddress(
+                    mediaType.toString());
+        if(iceRemoteRelayedAddress != null)
+        {
+            stringBuffer.append(getLineString(resources.getI18NString(
+                    "service.gui.callinfo.ICE_REMOTE_RELAYED_ADDRESS"),
+                    iceRemoteRelayedAddress.getAddress()
+                        .getHostAddress()
+                        + "/" + iceRemoteRelayedAddress.getPort()));
+            displayedIpPort = true;
+        }
+
+        // Remote reflexive address
+        InetSocketAddress iceRemoteReflexiveAddress =
+            callPeerMediaHandler.getICERemoteReflexiveAddress(
+                    mediaType.toString());
+        if(iceRemoteReflexiveAddress != null)
+        {
+            stringBuffer.append(getLineString(resources.getI18NString(
+                    "service.gui.callinfo.ICE_REMOTE_REFLEXIVE_ADDRESS"),
+                    iceRemoteReflexiveAddress.getAddress()
+                        .getHostAddress()
+                        + "/" + iceRemoteReflexiveAddress.getPort()));
+            displayedIpPort = true;
+        }
+
+        // Remote host address
+        InetSocketAddress iceRemoteHostAddress =
+            callPeerMediaHandler.getICERemoteHostAddress(mediaType.toString());
+        if(iceRemoteHostAddress != null)
+        {
+            stringBuffer.append(getLineString(resources.getI18NString(
+                    "service.gui.callinfo.ICE_REMOTE_HOST_ADDRESS"),
+                    iceRemoteHostAddress.getAddress().getHostAddress()
+                        + "/" + iceRemoteHostAddress.getPort()));
+            displayedIpPort = true;
+        }
+
+        // If the stream does not use ICE, then show the transport IP/port.
+        if(!displayedIpPort)
+        {
+            stringBuffer.append(
+                getLineString(
+                    resources.getI18NString("service.gui.callinfo.LOCAL_IP"),
+                    mediaStreamStats.getLocalIPAddress()
+                    + " / "
+                    + String.valueOf(mediaStreamStats.getLocalPort())));
+
+            stringBuffer.append(
+                getLineString(
+                    resources.getI18NString("service.gui.callinfo.REMOTE_IP"),
+                    mediaStreamStats.getRemoteIPAddress()
+                    + " / "
+                    + String.valueOf(mediaStreamStats.getRemotePort())));
+        }
+
 
         stringBuffer.append(
             getLineString(

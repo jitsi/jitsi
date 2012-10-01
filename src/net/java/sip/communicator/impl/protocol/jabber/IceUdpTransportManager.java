@@ -1192,13 +1192,16 @@ public class IceUdpTransportManager
      * Returns the extended type of the candidate selected if this transport
      * manager is using ICE.
      *
+     * @param streamName The stream name (AUDIO, VIDEO);
+     *
      * @return The extended type of the candidate selected if this transport
      * manager is using ICE. Otherwise, returns null.
      */
-    public String getICECandidateExtendedType()
+    public String getICECandidateExtendedType(String streamName)
     {
         return TransportManager.getICECandidateExtendedType(
-                this.iceAgent);
+                this.iceAgent,
+                streamName);
     }
 
     /**
@@ -1209,6 +1212,142 @@ public class IceUdpTransportManager
     public String getICEState()
     {
         return iceAgent.getState().toString();
+    }
+
+    /**
+     * Returns the ICE local host address.
+     *
+     * @param streamName The stream name (AUDIO, VIDEO);
+     *
+     * @return the ICE local host address if this transport
+     * manager is using ICE. Otherwise, returns null.
+     */
+    public InetSocketAddress getICELocalHostAddress(String streamName)
+    {
+        if(iceAgent != null)
+        {
+            LocalCandidate localCandidate =
+                iceAgent.getSelectedLocalCandidate(streamName);
+            if(localCandidate != null)
+            {
+                return localCandidate.getHostAddress();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns the ICE remote host address.
+     *
+     * @param streamName The stream name (AUDIO, VIDEO);
+     *
+     * @return the ICE remote host address if this transport
+     * manager is using ICE. Otherwise, returns null.
+     */
+    public InetSocketAddress getICERemoteHostAddress(String streamName)
+    {
+        if(iceAgent != null)
+        {
+            RemoteCandidate remoteCandidate =
+                iceAgent.getSelectedRemoteCandidate(streamName);
+            if(remoteCandidate != null)
+            {
+                return remoteCandidate.getHostAddress();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns the ICE local reflexive address (server or peer reflexive).
+     *
+     * @param streamName The stream name (AUDIO, VIDEO);
+     *
+     * @return the ICE local reflexive address. May be null if this transport
+     * manager is not using ICE or if there is no reflexive address for the
+     * local candidate used.
+     */
+    public InetSocketAddress getICELocalReflexiveAddress(String streamName)
+    {
+        if(iceAgent != null)
+        {
+            LocalCandidate localCandidate =
+                iceAgent.getSelectedLocalCandidate(streamName);
+            if(localCandidate != null)
+            {
+                return localCandidate.getReflexiveAddress();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns the ICE remote reflexive address (server or peer reflexive).
+     *
+     * @param streamName The stream name (AUDIO, VIDEO);
+     *
+     * @return the ICE remote reflexive address. May be null if this transport
+     * manager is not using ICE or if there is no reflexive address for the
+     * remote candidate used.
+     */
+    public InetSocketAddress getICERemoteReflexiveAddress(String streamName)
+    {
+        if(iceAgent != null)
+        {
+            RemoteCandidate remoteCandidate =
+                iceAgent.getSelectedRemoteCandidate(streamName);
+            if(remoteCandidate != null)
+            {
+                return remoteCandidate.getReflexiveAddress();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns the ICE local relayed address (server or peer relayed).
+     *
+     * @param streamName The stream name (AUDIO, VIDEO);
+     *
+     * @return the ICE local relayed address. May be null if this transport
+     * manager is not using ICE or if there is no relayed address for the
+     * local candidate used.
+     */
+    public InetSocketAddress getICELocalRelayedAddress(String streamName)
+    {
+        if(iceAgent != null)
+        {
+            LocalCandidate localCandidate =
+                iceAgent.getSelectedLocalCandidate(streamName);
+            if(localCandidate != null)
+            {
+                return localCandidate.getRelayedAddress();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns the ICE remote relayed address (server or peer relayed).
+     *
+     * @param streamName The stream name (AUDIO, VIDEO);
+     *
+     * @return the ICE remote relayed address. May be null if this transport
+     * manager is not using ICE or if there is no relayed address for the
+     * remote candidate used.
+     */
+    public InetSocketAddress getICERemoteRelayedAddress(String streamName)
+    {
+        if(iceAgent != null)
+        {
+            RemoteCandidate remoteCandidate =
+                iceAgent.getSelectedRemoteCandidate(streamName);
+            if(remoteCandidate != null)
+            {
+                return remoteCandidate.getRelayedAddress();
+            }
+        }
+        return null;
     }
 
     /**

@@ -654,10 +654,12 @@ public class RawUdpTransportManager
      * Returns the extended type of the candidate selected if this transport
      * manager is using ICE.
      *
+     * @param streamName The stream name (AUDIO, VIDEO);
+     *
      * @return The extended type of the candidate selected if this transport
      * manager is using ICE. Otherwise, returns null.
      */
-    public String getICECandidateExtendedType()
+    public String getICECandidateExtendedType(String streamName)
     {
         return null;
     }
@@ -668,6 +670,88 @@ public class RawUdpTransportManager
      * @return the current state of ICE processing.
      */
     public String getICEState()
+    {
+        return null;
+    }
+
+    /**
+     * Returns the ICE local host address.
+     *
+     * @param streamName The stream name (AUDIO, VIDEO);
+     *
+     * @return the ICE local host address if this transport
+     * manager is using ICE. Otherwise, returns null.
+     */
+    public InetSocketAddress getICELocalHostAddress(String streamName)
+    {
+        return null;
+    }
+
+    /**
+     * Returns the ICE remote host address.
+     *
+     * @param streamName The stream name (AUDIO, VIDEO);
+     *
+     * @return the ICE remote host address if this transport
+     * manager is using ICE. Otherwise, returns null.
+     */
+    public InetSocketAddress getICERemoteHostAddress(String streamName)
+    {
+        return null;
+    }
+
+    /**
+     * Returns the ICE local reflexive address (server or peer reflexive).
+     *
+     * @param streamName The stream name (AUDIO, VIDEO);
+     *
+     * @return the ICE local reflexive address. May be null if this transport
+     * manager is not using ICE or if there is no reflexive address for the
+     * local candidate used.
+     */
+    public InetSocketAddress getICELocalReflexiveAddress(String streamName)
+    {
+        return null;
+    }
+
+    /**
+     * Returns the ICE remote reflexive address (server or peer reflexive).
+     *
+     * @param streamName The stream name (AUDIO, VIDEO);
+     *
+     * @return the ICE remote reflexive address. May be null if this transport
+     * manager is not using ICE or if there is no reflexive address for the
+     * remote candidate used.
+     */
+    public InetSocketAddress getICERemoteReflexiveAddress(String streamName)
+    {
+        return null;
+    }
+
+    /**
+     * Returns the ICE local relayed address (server or peer relayed).
+     *
+     * @param streamName The stream name (AUDIO, VIDEO);
+     *
+     * @return the ICE local relayed address. May be null if this transport
+     * manager is not using ICE or if there is no relayed address for the
+     * local candidate used.
+     */
+    public InetSocketAddress getICELocalRelayedAddress(String streamName)
+    {
+        return null;
+    }
+
+    /**
+     * Returns the ICE remote relayed address (server or peer relayed).
+     *
+     * @param streamName The stream name (AUDIO, VIDEO);
+     *
+     * @return the ICE remote relayed address. May be null if this transport
+     * manager is not using ICE or if there is no relayed address for the
+     * remote candidate used.
+     */
+    public InetSocketAddress getICERemoteRelayedAddress(String streamName)
     {
         return null;
     }
