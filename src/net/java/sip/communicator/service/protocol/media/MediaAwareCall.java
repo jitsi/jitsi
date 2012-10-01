@@ -702,13 +702,12 @@ public abstract class MediaAwareCall<
                         {
                             removeCallChangeListener(callChangeListener);
 
-                            Iterator<Recorder.Listener> iter =
-                                ProtocolMediaActivator.getMediaService()
+                            Iterator<Recorder.Listener> iter
+                                = ProtocolMediaActivator.getMediaService()
                                     .getRecorderListeners();
+
                             while(iter.hasNext())
-                            {
                                 recorder.removeListener(iter.next());
-                            }
                         }
                     });
 

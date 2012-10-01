@@ -6,38 +6,45 @@
  */
 package net.java.sip.communicator.impl.gui.main.call;
 
+import java.util.*;
+
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.device.*;
 
 /**
- * The local video button is the button used to start/stop video in a
- * conversation.
+ * Implements a button which starts/stops the streaming of the local video in a
+ * <tt>Call</tt> to the remote peer(s).
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class LocalVideoButton
     extends AbstractCallToggleButton
 {
-    private static final Logger logger
-        = Logger.getLogger(LocalVideoButton.class);
-
     private static final long serialVersionUID = 0L;
 
     /**
-     * Whether video is enabled. If this is <tt>false</tt>, calls to
+     * The telephony conference to be depicted by this instance.
+     */
+    private final CallConference callConference;
+
+    /**
+     * Whether video is enabled. If <tt>false</tt>, calls to
      * <tt>setEnabled(true)</tt> will NOT enable the button.
      */
     private boolean videoAvailable;
 
     /**
-     * Creates a <tt>LocalVideoButton</tt> by specifying the corresponding
-     * <tt>call</tt>.
-     * @param call the corresponding to this button call
+     * Initializes a new <tt>LocalVideoButton</tt> instance which is to
+     * start/stop the streaming of the local video to the remote peers
+     * participating in a specific telephony conference.
+     *
+     * @param call the <tt>Call</tt> which participates in the telephony
+     * conference to start/stop the streaming of the local video to the remote
+     * peers in
      */
     public LocalVideoButton(Call call)
     {
@@ -45,61 +52,92 @@ public class LocalVideoButton
     }
 
     /**
-     * Creates a <tt>LocalVideoButton</tt> by specifying the corresponding
-     * <tt>call</tt>.
+     * Initializes a new <tt>LocalVideoButton</tt> instance which is to
+     * start/stop the streaming of the local video to the remote peers
+     * participating in a specific telephony conference.
      *
-     * @param call  the <tt>Call</tt> to be associated with the new instance and
-     * to be put on/off hold upon performing its action
-     * @param fullScreen <tt>true</tt> if the new instance is to be used in
+     * @param call the <tt>Call</tt> which participates in the telephony
+     * conference to start/stop the streaming of the local video to the remote
+     * peers in
+     * @param fullScreen <tt>true</tt> if the new instance is to be used in a
      * full-screen UI; otherwise, <tt>false</tt>
-     * @param selected <tt>true</tt> if the new toggle button is to be initially
+     * @param selected <tt>true</tt> if the new instance is to be initially
      * selected; otherwise, <tt>false</tt>
      */
     public LocalVideoButton(Call call, boolean fullScreen, boolean selected)
     {
-        super(  call,
-            fullScreen,
-            true,
-            selected,
-            ImageLoader.LOCAL_VIDEO_BUTTON,
-            ImageLoader.LOCAL_VIDEO_BUTTON_PRESSED,
-            "service.gui.LOCAL_VIDEO_BUTTON_TOOL_TIP");
+        super(
+                null,
+                fullScreen,
+                true,
+                selected,
+                ImageLoader.LOCAL_VIDEO_BUTTON,
+                ImageLoader.LOCAL_VIDEO_BUTTON_PRESSED,
+                "service.gui.LOCAL_VIDEO_BUTTON_TOOL_TIP");
 
+        this.callConference = call.getConference();
 
-        OperationSetVideoTelephony videoTelephony
-                = call.getProtocolProvider().getOperationSet(
-                OperationSetVideoTelephony.class);
+        MediaDevice videoDevice
+            = GuiActivator.getMediaService().getDefaultDevice(
+                    MediaType.VIDEO,
+                    MediaUseCase.CALL);
+        String toolTipTextKey;
 
-        MediaDevice videoDevice = GuiActivator.getMediaService()
-                .getDefaultDevice(MediaType.VIDEO, MediaUseCase.CALL);
-
-        /* Check whether we can send video and set the appropriate tooltip */
-        if(videoDevice == null ||
-                videoDevice.getDirection().equals(MediaDirection.RECVONLY))
+        /* Check whether we can send video and set the appropriate tooltip. */
+        if((videoDevice == null)
+                || !videoDevice.getDirection().allowsSending())
         {
-            setToolTipText(GuiActivator.getResources()
-                    .getI18NString("service.gui.NO_CAMERA_AVAILABLE"));
-            videoAvailable = false;
-        }
-        else if (videoTelephony == null)
-        {
-            setToolTipText(GuiActivator.getResources()
-                    .getI18NString("service.gui.NO_VIDEO_FOR_PROTOCOL"));
-            videoAvailable = false;
-        }
-        else if(!ConfigurationManager.hasEnabledVideoFormat(
-                call.getProtocolProvider()))
-        {
-            setToolTipText(GuiActivator.getResources()
-                    .getI18NString("service.gui.NO_VIDEO_ENCODINGS"));
+            toolTipTextKey = "service.gui.NO_CAMERA_AVAILABLE";
             videoAvailable = false;
         }
         else
         {
-            setToolTipText(GuiActivator.getResources()
-                    .getI18NString("service.gui.LOCAL_VIDEO_BUTTON_TOOL_TIP"));
-            videoAvailable = true;
+            boolean hasVideoTelephony = false;
+            boolean hasEnabledVideoFormat = false;
+
+            for (Call conferenceCall : callConference.getCalls())
+            {
+                ProtocolProviderService protocolProvider
+                    = conferenceCall.getProtocolProvider();
+
+                if (!hasVideoTelephony)
+                {
+                    OperationSetVideoTelephony videoTelephony
+                        = protocolProvider.getOperationSet(
+                                OperationSetVideoTelephony.class);
+
+                    if (videoTelephony != null)
+                        hasVideoTelephony = true;
+                }
+                if (!hasEnabledVideoFormat
+                        && ConfigurationManager.hasEnabledVideoFormat(
+                                protocolProvider))
+                {
+                    hasEnabledVideoFormat = true;
+                }
+
+                if (hasVideoTelephony && hasEnabledVideoFormat)
+                    break;
+            }
+
+            if (!hasVideoTelephony)
+            {
+                toolTipTextKey = "service.gui.NO_VIDEO_FOR_PROTOCOL";
+                videoAvailable = false;
+            }
+            else if(!hasEnabledVideoFormat)
+            {
+                toolTipTextKey = "service.gui.NO_VIDEO_ENCODINGS";
+                videoAvailable = false;
+            }
+            else
+            {
+                toolTipTextKey = "service.gui.LOCAL_VIDEO_BUTTON_TOOL_TIP";
+                videoAvailable = true;
+            }
         }
+        setToolTipText(
+                GuiActivator.getResources().getI18NString(toolTipTextKey));
 
         super.setEnabled(videoAvailable);
     }
@@ -109,8 +147,21 @@ public class LocalVideoButton
      */
     public void buttonPressed()
     {
-        CallManager.enableLocalVideo(call,
-            !CallManager.isLocalVideoEnabled(call));
+        /*
+         * CallManager actually enables/disables the local video for the
+         * telephony conference associated with the Call so pick up a Call
+         * participating in callConference and it should do.
+         */
+        List<Call> calls = callConference.getCalls();
+
+        if (!calls.isEmpty())
+        {
+            Call call = calls.get(0);
+
+            CallManager.enableLocalVideo(
+                    call,
+                    !CallManager.isLocalVideoEnabled(call));
+        }
     }
 
     /**
@@ -123,7 +174,7 @@ public class LocalVideoButton
     @Override
     public void setEnabled(boolean enable)
     {
-        if(videoAvailable)
+        if (videoAvailable)
             super.setEnabled(enable);
     }
 }

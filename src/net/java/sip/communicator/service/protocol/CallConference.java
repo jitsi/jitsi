@@ -63,9 +63,18 @@ public class CallConference
                 };
 
     /**
-     * The list of <tt>Call</tt>s participating in this telephony conference.
+     * The list of <tt>CallChangeListener</tt>s added to the <tt>Call</tt>s
+     * participating in this telephony conference via
+     * {@link #addCallChangeListener(CallChangeListener)}.
      */
-    private final List<Call> calls = new LinkedList<Call>();
+    private final List<CallChangeListener> callChangeListeners
+        = new LinkedList<CallChangeListener>();
+
+    /**
+     * The synchronization root/<tt>Object</tt> which protects the access to
+     * {@link #immutableCalls} and {@link #mutableCalls}.
+     */
+    private final Object callsSyncRoot = new Object();
 
     /**
      * The indicator which determines whether the local peer represented by this
@@ -77,10 +86,26 @@ public class CallConference
     private boolean conferenceFocus = false;
 
     /**
+     * The list of <tt>Call</tt>s participating in this telephony conference as
+     * an immutable <tt>List</tt> which can be exposed out of this instance
+     * without the need to make a copy. In other words, it is an unmodifiable
+     * view of {@link #mutableCalls}.
+     */
+    private List<Call> immutableCalls;
+
+    /**
+     * The list of <tt>Call</tt>s participating in this telephony conference as
+     * a mutable <tt>List</tt> which should not be exposed out of this instance.
+     */
+    private List<Call> mutableCalls;
+
+    /**
      * Initializes a new <tt>CallConference</tt> instance.
      */
     public CallConference()
     {
+        mutableCalls = new ArrayList<Call>();
+        immutableCalls = Collections.unmodifiableList(mutableCalls);
     }
 
     /**
@@ -92,17 +117,61 @@ public class CallConference
      * @return <tt>true</tt> if the list of <tt>Call</tt>s participating in this
      * telephony conference changed as a result of the method call; otherwise,
      * <tt>false</tt>
+     * @throws NullPointerException if <tt>call</tt> is <tt>null</tt>
      */
     boolean addCall(Call call)
     {
-        synchronized (calls)
+        if (call == null)
+            throw new NullPointerException("call");
+
+        synchronized (callsSyncRoot)
         {
-            if (calls.contains(call) || !calls.add(call))
+            if (mutableCalls.contains(call))
+                return false;
+
+            /*
+             * Implement the List of Calls participating in this telephony
+             * conference as a copy-on-write storage in order to optimize the
+             * getCalls method which is likely to be executed much more often
+             * than the addCall and removeCall methods.
+             */
+            List<Call> newMutableCalls = new ArrayList<Call>(mutableCalls);
+
+            if (newMutableCalls.add(call))
+            {
+                mutableCalls = newMutableCalls;
+                immutableCalls = Collections.unmodifiableList(mutableCalls);
+            }
+            else
                 return false;
         }
 
         callAdded(call);
         return true;
+    }
+
+    /**
+     * Adds a <tt>CallChangeListener</tt> to the <tt>Call</tt>s participating in
+     * this telephony conference. The method is a convenience that takes on the
+     * responsibility of tracking the <tt>Call</tt>s that get added/removed
+     * to/from this telephony conference.
+     *
+     * @param listener the <tt>CallChangeListner</tt> to be added to the
+     * <tt>Call</tt>s participating in this telephony conference
+     * @throws NullPointerException if <tt>listener</tt> is <tt>null</tt>
+     */
+    public void addCallChangeListener(CallChangeListener listener)
+    {
+        if (listener == null)
+            throw new NullPointerException("listener");
+        else
+        {
+            synchronized (callChangeListeners)
+            {
+                if (!callChangeListeners.contains(listener))
+                    callChangeListeners.add(listener);
+            }
+        }
     }
 
     /**
@@ -149,9 +218,10 @@ public class CallConference
              * it if the new conferenceFocus value is in accord with the
              * expectations.
              */
+            int eventID = ev.getEventID();
             boolean conferenceFocus = isConferenceFocus(getCalls());
 
-            switch (ev.getEventID())
+            switch (eventID)
             {
             case CallPeerEvent.CALL_PEER_ADDED:
                 if (conferenceFocus)
@@ -167,6 +237,22 @@ public class CallConference
                  * only.
                  */
                 break;
+            }
+
+            // Forward the CallPeerEvent to the callChangeListeners.
+            for (CallChangeListener l : getCallChangeListeners())
+            {
+                switch (eventID)
+                {
+                case CallPeerEvent.CALL_PEER_ADDED:
+                    l.callPeerAdded(ev);
+                    break;
+                case CallPeerEvent.CALL_PEER_REMOVED:
+                    l.callPeerRemoved(ev);
+                    break;
+                default:
+                    break;
+                }
             }
         }
     }
@@ -225,13 +311,25 @@ public class CallConference
     {
         Call call = ev.getSourceCall();
 
-        if (containsCall(call) && CallState.CALL_ENDED.equals(ev.getNewValue()))
+        if (containsCall(call))
         {
-            /*
-             * Should not be vital because Call will remove itself. Anyway, do
-             * it for the sake of completeness.
-             */
-            removeCall(call);
+            try
+            {
+                // Forward the CallChangeEvent to the callChangeListeners.
+                for (CallChangeListener l : getCallChangeListeners())
+                    l.callStateChanged(ev);
+            }
+            finally
+            {
+                if (CallState.CALL_ENDED.equals(ev.getNewValue()))
+                {
+                    /*
+                     * Should not be vital because Call will remove itself.
+                     * Anyway, do it for the sake of completeness.
+                     */
+                    removeCall(call);
+                }
+            }
         }
     }
 
@@ -261,9 +359,28 @@ public class CallConference
      */
     public boolean containsCall(Call call)
     {
-        synchronized (calls)
+        synchronized (callsSyncRoot)
         {
-            return calls.contains(call);
+            return mutableCalls.contains(call);
+        }
+    }
+
+    /**
+     * Gets the list of <tt>CallChangeListener</tt>s added to the <tt>Call</tt>s
+     * participating in this telephony conference via
+     * {@link #addCallChangeListener(CallChangeListener)}.
+     * 
+     * @return the list of <tt>CallChangeListener</tt>s added to the
+     * <tt>Call</tt>s participating in this telephony conference via
+     * {@link #addCallChangeListener(CallChangeListener)}
+     */
+    private CallChangeListener[] getCallChangeListeners()
+    {
+        synchronized (callChangeListeners)
+        {
+            return
+                callChangeListeners.toArray(
+                        new CallChangeListener[callChangeListeners.size()]);
         }
     }
 
@@ -276,9 +393,9 @@ public class CallConference
      */
     public int getCallCount()
     {
-        synchronized (calls)
+        synchronized (callsSyncRoot)
         {
-            return calls.size();
+            return mutableCalls.size();
         }
     }
 
@@ -395,11 +512,11 @@ public class CallConference
      * conference. An empty array of <tt>Call</tt> element type is returned if
      * there are no <tt>Call</tt>s in this telephony conference-related state.
      */
-    public Call[] getCalls()
+    public List<Call> getCalls()
     {
-        synchronized (calls)
+        synchronized (callsSyncRoot)
         {
-            return calls.toArray(new Call[calls.size()]);
+            return immutableCalls;
         }
     }
 
@@ -413,12 +530,16 @@ public class CallConference
      * @return the list of <tt>Call</tt>s participating in the telephony
      * conference in which the specified <tt>call</tt> is participating
      */
-    public static Call[] getCalls(Call call)
+    public static List<Call> getCalls(Call call)
     {
         CallConference conference = call.getConference();
+        List<Call> calls;
 
-        return
-            (conference == null) ? new Call[] { call } : conference.getCalls();
+        if (conference == null)
+            calls = Collections.emptyList();
+        else
+            calls = conference.getCalls();
+        return calls;
     }
 
     /**
@@ -446,16 +567,17 @@ public class CallConference
      * <tt>calls</tt> is judged to be a conference focus; otherwise,
      * <tt>false</tt>
      */
-    private static boolean isConferenceFocus(Call[] calls)
+    private static boolean isConferenceFocus(List<Call> calls)
     {
+        int callCount = calls.size();
         boolean conferenceFocus;
 
-        if (calls.length < 1)
+        if (callCount < 1)
             conferenceFocus = false;
-        else if (calls.length > 1)
+        else if (callCount > 1)
             conferenceFocus = true;
         else
-            conferenceFocus = (calls[0].getCallPeerCount() > 1);
+            conferenceFocus = (calls.get(0).getCallPeerCount() > 1);
         return conferenceFocus;
     }
 
@@ -471,14 +593,52 @@ public class CallConference
      */
     boolean removeCall(Call call)
     {
-        synchronized (calls)
+        if (call == null)
+            return false;
+
+        synchronized (callsSyncRoot)
         {
-            if (!calls.remove(call))
+            if (!mutableCalls.contains(call))
+                return false;
+
+            /*
+             * Implement the List of Calls participating in this telephony
+             * conference as a copy-on-write storage in order to optimize the
+             * getCalls method which is likely to be executed much more often
+             * than the addCall and removeCall methods.
+             */
+            List<Call> newMutableCalls = new ArrayList<Call>(mutableCalls);
+
+            if (newMutableCalls.remove(call))
+            {
+                mutableCalls = newMutableCalls;
+                immutableCalls = Collections.unmodifiableList(mutableCalls);
+            }
+            else
                 return false;
         }
 
         callRemoved(call);
         return true;
+    }
+
+    /**
+     * Removes a <tt>CallChangeListener</tt> from the <tt>Call</tt>s
+     * participating in this telephony conference.
+     *
+     * @param listener the <tt>CallChangeListener</tt> to be removed from the
+     * <tt>Call</tt>s participating in this telephony conference
+     * @see #addCallChangeListener(CallChangeListener)
+     */
+    public void removeCallChangeListener(CallChangeListener listener)
+    {
+        if (listener != null)
+        {
+            synchronized (callChangeListeners)
+            {
+                callChangeListeners.remove(listener);
+            }
+        }
     }
 
     /**

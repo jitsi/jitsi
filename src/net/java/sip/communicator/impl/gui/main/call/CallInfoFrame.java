@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.gui.main.call;
 import java.awt.*;
 import java.beans.*;
 import java.util.*;
+import java.util.List;
 
 import javax.swing.*;
 
@@ -26,7 +27,7 @@ import org.jitsi.util.*;
 import com.explodingpixels.macwidgets.*;
 
 /**
- * The frame displaying the statistical information for a call.
+ * The frame displaying the statistical information for a telephony conference.
  *
  * @author Vincent Lucas
  * @author Yana Stamcheva
@@ -36,9 +37,9 @@ public class CallInfoFrame
                PropertyChangeListener
 {
     /**
-     * The Call from which are computed the statisics displayed.
+     * The telephony conference to compute and display the statistics of.
      */
-    private Call call;
+    private CallConference callConference;
 
     /**
      * The call info window.
@@ -62,13 +63,15 @@ public class CallInfoFrame
         = GuiActivator.getResources();
 
     /**
-     * Creates a new frame containing the statistical information for a call.
+     * Creates a new frame containing the statistical information for a specific
+     * telephony conference.
      *
-     * @param call The call from which are computed the statistics displayed.
+     * @param callConference the telephony conference to compute and display the
+     * statistics of
      */
-    public CallInfoFrame(Call call)
+    public CallInfoFrame(CallConference callConference)
     {
-        this.call = call;
+        this.callConference = callConference;
 
         JScrollPane scrollPane = new JScrollPane();
         scrollPane.setOpaque(false);
@@ -172,27 +175,41 @@ public class CallInfoFrame
         stringBuffer.append(getLineString(resources.getI18NString(
             "service.gui.callinfo.CALL_INFORMATION"), ""));
 
-        stringBuffer.append(getLineString(resources.getI18NString(
-            "service.gui.callinfo.CALL_IDENTITY"),
-            call.getProtocolProvider().getAccountID().getDisplayName()));
+        List<Call> calls = callConference.getCalls();
+        /*
+         * TODO A telephony conference may consist of a single Call with
+         * multiple CallPeers but it may as well consist of multiple Calls.
+         */
+        Call aCall = calls.get(0);
 
-        int callPeerCount = call.getCallPeerCount();
-        if (call.getCallPeerCount() > 1)
+        stringBuffer.append(
+                getLineString(
+                        resources.getI18NString(
+                                "service.gui.callinfo.CALL_IDENTITY"),
+                                aCall.getProtocolProvider().getAccountID()
+                                        .getDisplayName()));
+
+        int callPeerCount = callConference.getCallPeerCount();
+        if (callPeerCount > 1)
+        {
             stringBuffer.append(
-                getLineString(resources.getI18NString(
-                    "service.gui.callinfo.PEER_COUNT"),
-                    String.valueOf(callPeerCount)));
+                    getLineString(resources.getI18NString(
+                            "service.gui.callinfo.PEER_COUNT"),
+                            String.valueOf(callPeerCount)));
+        }
 
-        boolean isConfFocus = call.isConferenceFocus();
+        boolean isConfFocus = callConference.isConferenceFocus();
 
         if (isConfFocus)
+        {
             stringBuffer.append(getLineString(
-                resources.getI18NString(
-                    "service.gui.callinfo.IS_CONFERENCE_FOCUS"),
-                String.valueOf(isConfFocus)));
+                    resources.getI18NString(
+                            "service.gui.callinfo.IS_CONFERENCE_FOCUS"),
+                    String.valueOf(isConfFocus)));
+        }
 
-        TransportProtocol preferredTransport =
-            call.getProtocolProvider().getTransportProtocol();
+        TransportProtocol preferredTransport
+            = aCall.getProtocolProvider().getTransportProtocol();
 
         if (preferredTransport != TransportProtocol.UNKNOWN)
             stringBuffer.append(getLineString(
@@ -216,15 +233,13 @@ public class CallInfoFrame
      */
     private void constructCallPeersInfo(StringBuffer stringBuffer)
     {
-        Iterator<? extends CallPeer> callPeers = this.call.getCallPeers();
-
-        while(callPeers.hasNext())
+        for (CallPeer callPeer : callConference.getCallPeers())
         {
-            CallPeer callPeer = callPeers.next();
             if(callPeer instanceof MediaAwareCallPeer)
             {
-                ((MediaAwareCallPeer)callPeer).getMediaHandler()
-                    .addPropertyChangeListener(this);
+                ((MediaAwareCallPeer<?,?,?>) callPeer)
+                    .getMediaHandler()
+                        .addPropertyChangeListener(this);
             }
             stringBuffer.append("<br/>");
             constructPeerInfo(callPeer, stringBuffer);
@@ -254,8 +269,8 @@ public class CallInfoFrame
 
         if(callPeer instanceof MediaAwareCallPeer)
         {
-            CallPeerMediaHandler callPeerMediaHandler
-                = ((MediaAwareCallPeer) callPeer).getMediaHandler();
+            CallPeerMediaHandler<?> callPeerMediaHandler
+                = ((MediaAwareCallPeer<?,?,?>) callPeer).getMediaHandler();
 
             if(callPeerMediaHandler != null)
             {
@@ -493,7 +508,7 @@ public class CallInfoFrame
      */
     private void appendStreamEncryptionMethod(
             StringBuffer stringBuffer,
-            CallPeerMediaHandler callPeerMediaHandler,
+            CallPeerMediaHandler<?> callPeerMediaHandler,
             MediaStream mediaStream,
             MediaType mediaType)
     {
