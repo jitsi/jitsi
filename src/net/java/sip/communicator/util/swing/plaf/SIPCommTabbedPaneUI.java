@@ -237,10 +237,18 @@ public class SIPCommTabbedPaneUI
 
         tabPane.putClientProperty("html", null);
 
-        iconRect.y = iconRect.y + 2;
-        iconRect.x = tabRect.x + 7;
+        if (icon != null)
+        {
+            iconRect.y = iconRect.y + 2;
+            iconRect.x = tabRect.x + 7;
+        }
+
         textRect.y = textRect.y + 2;
-        textRect.x = iconRect.x + iconRect.width + 5;
+
+        if (icon != null)
+            textRect.x = iconRect.x + iconRect.width + 5;
+        else
+            textRect.x = textRect.x + 8;
     }
 
     protected MouseListener createMouseListener()
@@ -255,21 +263,21 @@ public class SIPCommTabbedPaneUI
 
     protected Rectangle newCloseRect(Rectangle rect)
     {
-        int dx = rect.x + rect.width;
-        int dy = (rect.y + rect.height) / 2 - 6;
-        return new Rectangle(dx - BUTTONSIZE - WIDTHDELTA, dy, BUTTONSIZE,
-                BUTTONSIZE);
+        int dx = rect.x + rect.width - BUTTONSIZE - WIDTHDELTA;
+        int dy = rect.y + (rect.height - BUTTONSIZE) / 2 + 2;
+
+        return new Rectangle(dx, dy, BUTTONSIZE, BUTTONSIZE);
     }
 
     protected Rectangle newMaxRect(Rectangle rect)
     {
-        int dx = rect.x + rect.width;
-        int dy = (rect.y + rect.height) / 2 - 6;
+        int dx = rect.x + rect.width - BUTTONSIZE - WIDTHDELTA;
+        int dy = rect.y + (rect.height - BUTTONSIZE) / 2 + 2;
+
         if (isCloseButtonEnabled)
             dx -= BUTTONSIZE;
 
-        return new Rectangle(dx - BUTTONSIZE - WIDTHDELTA, dy, BUTTONSIZE,
-                BUTTONSIZE);
+        return new Rectangle(dx, dy, BUTTONSIZE, BUTTONSIZE);
     }
 
     protected void updateOverTab(int x, int y)
@@ -686,8 +694,10 @@ public class SIPCommTabbedPaneUI
         }
         else if (isOver || isSelected)
         {
-            int dx = tabRect.x + tabRect.width - BUTTONSIZE - WIDTHDELTA;
-            int dy = (tabRect.y + tabRect.height) / 2 - 3;
+            Rectangle closeRect = newCloseRect(tabRect);
+
+            int dx = closeRect.x;
+            int dy = closeRect.y;
 
             if (isCloseButtonEnabled)
                 paintCloseIcon(g2, dx, dy, isOver);
