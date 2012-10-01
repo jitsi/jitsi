@@ -55,7 +55,6 @@ install: build
 	cp $(BASEDIR)/resources/install/logging.properties debian/$(PACKAGE_NAME)/usr/lib/$(PACKAGE_NAME)/lib/
 	cp debian/felix.client.run.properties debian/$(PACKAGE_NAME)/usr/lib/$(PACKAGE_NAME)/lib/
 	cp -r $(BASEDIR)/lib/bundle debian/$(PACKAGE_NAME)/usr/lib/$(PACKAGE_NAME)/lib/
-	cp debian/update-location.properties debian/$(PACKAGE_NAME)/usr/lib/$(PACKAGE_NAME)/
 
 	# Copy OS specific and native libs
 	cp $(BASEDIR)/lib/os-specific/linux/*.jar debian/$(PACKAGE_NAME)/usr/lib/$(PACKAGE_NAME)/lib/
