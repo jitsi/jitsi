@@ -990,7 +990,7 @@ public class OneToOneCallPeerPanel
             securityPanel.setBeginPoint(
                 new Point((int) newPoint.getX() + 15, 0));
             securityPanel.setBounds(
-                0, (int) newPoint.getY() - 5, this.getWidth(), 110);
+                0, (int) newPoint.getY() - 5, this.getWidth(), 130);
 
             glassPane.add(securityPanel);
             // Need to show the security panel explicitly in order to keep the

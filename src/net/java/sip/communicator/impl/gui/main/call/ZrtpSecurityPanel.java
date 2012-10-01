@@ -298,10 +298,6 @@ public class ZrtpSecurityPanel
             }
         };
 
-        sasPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        sasPanel.setPreferredSize(new Dimension(200, 80));
-        sasPanel.setMinimumSize(new Dimension(200, 80));
-        sasPanel.setMaximumSize(new Dimension(200, 80));
         sasPanel.setLayout(new BoxLayout(sasPanel, BoxLayout.Y_AXIS));
 
         initSasLabels();
