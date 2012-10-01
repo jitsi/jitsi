@@ -31,7 +31,6 @@ import net.java.sip.communicator.util.swing.transparent.*;
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.device.*;
 import org.jitsi.service.resources.*;
-import org.jitsi.util.*;
 
 /**
  * The <tt>CallManager</tt> is the one that handles calls. It contains also
@@ -44,16 +43,10 @@ import org.jitsi.util.*;
 public class CallManager
 {
     /**
-     * Our class logger.
+     * The <tt>Logger</tt> used by the <tt>CallManager</tt> class and its
+     * instances for logging output.
      */
     private static final Logger logger = Logger.getLogger(CallManager.class);
-
-    /**
-     * A table mapping protocol <tt>Call</tt> objects to the GUI dialogs
-     * that are currently used to display them.
-     */
-    private static Hashtable<Call, CallPanel> activeCalls
-        = new Hashtable<Call, CallPanel>();
 
     /**
      * The name of the property which indicates whether the user should be
@@ -64,43 +57,43 @@ public class CallManager
             + ".call.SHOW_DESKTOP_SHARING_WARNING";
 
     /**
+     * The <tt>CallPanel</tt>s opened by <tt>CallManager</tt> (because
+     * <tt>CallContainer</tt> does not give access to such lists.)
+     */
+    private static final Map<CallConference, CallPanel> callPanels
+        = new HashMap<CallConference, CallPanel>();
+
+    /**
      * The group of notifications dedicated to missed calls.
      */
     private static UINotificationGroup missedCallGroup;
 
     /**
-     * A call listener.
+     * A <tt>CallListener</tt>.
      */
     public static class GuiCallListener
-        implements CallListener
+        extends SwingCallListener
     {
         /**
          * Implements {@link CallListener#incomingCallReceived(CallEvent)}. When
          * a call is received, creates a <tt>ReceivedCallDialog</tt> and plays
          * the ring phone sound to the user.
          *
-         * @param event the <tt>CallEvent</tt>
+         * @param ev the <tt>CallEvent</tt>
          */
-        public void incomingCallReceived(final CallEvent event)
+        @Override
+        public void incomingCallReceivedInEventDispatchThread(CallEvent ev)
         {
-            if(!SwingUtilities.isEventDispatchThread())
-            {
-                SwingUtilities.invokeLater(new Runnable()
-                {
-                    public void run()
-                    {
-                        incomingCallReceived(event);
-                    }
-                });
-                return;
-            }
-
-            Call sourceCall = event.getSourceCall();
-            boolean isVideoCall = event.isVideoCall() && ConfigurationManager
-                    .hasEnabledVideoFormat(sourceCall.getProtocolProvider());
+            Call sourceCall = ev.getSourceCall();
+            boolean isVideoCall
+                = ev.isVideoCall()
+                    && ConfigurationManager.hasEnabledVideoFormat(
+                            sourceCall.getProtocolProvider());
             final ReceivedCallDialog receivedCallDialog
-                = new ReceivedCallDialog(sourceCall, isVideoCall,
-                    (CallManager.getInProgressCalls().size() > 0));
+                = new ReceivedCallDialog(
+                        sourceCall,
+                        isVideoCall,
+                        (CallManager.getInProgressCalls().size() > 0));
 
             receivedCallDialog.setVisible(true);
 
@@ -120,8 +113,21 @@ public class CallManager
             sourceCall.addCallChangeListener(new CallChangeAdapter()
             {
                 @Override
-                public void callStateChanged(CallChangeEvent evt)
+                public void callStateChanged(final CallChangeEvent ev)
                 {
+                    if(!SwingUtilities.isEventDispatchThread())
+                    {
+                        SwingUtilities.invokeLater(
+                                new Runnable()
+                                {
+                                    public void run()
+                                    {
+                                        callStateChanged(ev);
+                                    }
+                                });
+                        return;
+                    }
+
                     // When the call state changes, we ensure here that the
                     // received call notification dialog is closed.
                     if (receivedCallDialog.isVisible())
@@ -129,8 +135,8 @@ public class CallManager
 
                     // Ensure that the CallDialog is created, because it is the
                     // one that listens for CallPeers.
-                    Object newValue = evt.getNewValue();
-                    Call call = evt.getSourceCall();
+                    Object newValue = ev.getNewValue();
+                    Call call = ev.getSourceCall();
 
                     if (CallState.CALL_INITIALIZATION.equals(newValue)
                             || CallState.CALL_IN_PROGRESS.equals(newValue))
@@ -139,12 +145,12 @@ public class CallManager
                     }
                     else if (CallState.CALL_ENDED.equals(newValue))
                     {
-                        if (evt.getOldValue().equals(
+                        if (ev.getOldValue().equals(
                                 CallState.CALL_INITIALIZATION))
                         {
                             // if call was answered elsewhere, don't add it
                             // to missed calls
-                            CallPeerChangeEvent cause = evt.getCause();
+                            CallPeerChangeEvent cause = ev.getCause();
 
                             if((cause == null)
                                 || (cause.getReasonCode()
@@ -175,14 +181,7 @@ public class CallManager
              * Notify the existing CallPanels about the CallEvent (in case they
              * need to update their UI, for example). 
              */
-            List<CallPanel> callPanels
-                = new ArrayList<CallPanel>(activeCalls.values());
-
-            for (CallPanel callPanel : callPanels)
-            {
-                if (callPanel != null)
-                    callPanel.incomingCallReceived(event);
-            }
+            forwardCallEventToCallPanels(ev);
         }
 
         /**
@@ -190,42 +189,33 @@ public class CallManager
          * the moment if there're any. Removes the <tt>CallPanel</tt> and
          * disables the hang-up button.
          *
-         * @param event the <tt>CallEvent</tt> which specifies the <tt>Call</tt>
+         * @param ev the <tt>CallEvent</tt> which specifies the <tt>Call</tt>
          * that has ended
          */
-        public void callEnded(CallEvent event)
+        @Override
+        public void callEndedInEventDispatchThread(CallEvent ev)
         {
-            Call sourceCall = event.getSourceCall();
-            CallPanel callContainer = getActiveCallContainer(sourceCall);
+            Call sourceCall = ev.getSourceCall();
 
-            if (callContainer != null)
-            {
-                closeCallContainerIfNotNecessary(sourceCall, true);
+            closeCallContainerIfNotNecessary(sourceCall, true);
 
-                /*
-                 * Notify the existing CallPanels about the CallEvent (in case
-                 * they need to update their UI, for example). 
-                 */
-                List<CallPanel> callPanels
-                    = new ArrayList<CallPanel>(activeCalls.values());
-
-                for (CallPanel callPanel : callPanels)
-                {
-                    if (callPanel != null)
-                        callPanel.callEnded(event);
-                }
-            }
+            /*
+             * Notify the existing CallPanels about the CallEvent (in case
+             * they need to update their UI, for example). 
+             */
+            forwardCallEventToCallPanels(ev);
         }
 
         /**
          * Creates and opens a call dialog. Implements
          * {@link CallListener#outgoingCallCreated(CallEvent)}.
          *
-         * @param event the <tt>CallEvent</tt>
+         * @param ev the <tt>CallEvent</tt>
          */
-        public void outgoingCallCreated(CallEvent event)
+        @Override
+        public void outgoingCallCreatedInEventDispatchThread(CallEvent ev)
         {
-            Call sourceCall = event.getSourceCall();
+            Call sourceCall = ev.getSourceCall();
 
             openCallContainerIfNecessary(sourceCall);
 
@@ -233,14 +223,7 @@ public class CallManager
              * Notify the existing CallPanels about the CallEvent (in case they
              * need to update their UI, for example). 
              */
-            List<CallPanel> callPanels
-                = new ArrayList<CallPanel>(activeCalls.values());
-
-            for (CallPanel callPanel : callPanels)
-            {
-                if (callPanel != null)
-                    callPanel.outgoingCallCreated(event);
-            }
+            forwardCallEventToCallPanels(ev);
         }
     }
 
@@ -287,15 +270,17 @@ public class CallManager
     }
 
     /**
-     * Merge multiple existing <tt>Call</tt>s into a single conference
-     * <tt>Call</tt>.
+     * Merges specific existing <tt>Call</tt>s into a specific telephony
+     * conference.
      *
      * @param first first call
      * @param calls list of calls
      */
-    public static void mergeExistingCall(Call first, Collection<Call> calls)
+    public static void mergeExistingCalls(
+            CallConference conference,
+            Collection<Call> calls)
     {
-        new MergeExistingCalls(first, calls).start();
+        new MergeExistingCalls(conference, calls).start();
     }
 
     /**
@@ -313,7 +298,7 @@ public class CallManager
      *
      * @param call the call to hang up
      */
-    public static void hangupCall(final Call call)
+    public static void hangupCall(Call call)
     {
         new HangupCallThread(call).start();
     }
@@ -323,9 +308,21 @@ public class CallManager
      *
      * @param callPeer the <tt>CallPeer</tt> to hang up
      */
-    public static void hangupCallPeer(final CallPeer callPeer)
+    public static void hangupCallPeer(CallPeer peer)
     {
-        new HangupCallPeerThread(callPeer).start();
+        new HangupCallThread(peer).start();
+    }
+
+    /**
+     * Asynchronously hangs up the <tt>Call</tt>s participating in a specific
+     * <tt>CallConference</tt>.
+     *
+     * @param conference the <tt>CallConference</tt> whose participating
+     * <tt>Call</tt>s are to be hanged up
+     */
+    public static void hangupCalls(CallConference conference)
+    {
+        new HangupCallThread(conference).start();
     }
 
     /**
@@ -381,10 +378,11 @@ public class CallManager
     }
 
     /**
-     * Enables/disables local video for the given call.
+     * Enables/disables local video for a specific <tt>Call</tt>.
      *
-     * @param enable indicates whether to enable or disable the local video
-     * @param call the call for which the local video should be enabled/disabled
+     * @param call the <tt>Call</tt> to enable/disable to local video for
+     * @param enable <tt>true</tt> to enable the local video; otherwise,
+     * <tt>false</tt>
      */
     public static void enableLocalVideo(Call call, boolean enable)
     {
@@ -884,8 +882,7 @@ public class CallManager
      * @param callees the list of contacts to invite
      * @param call the protocol provider to which this call belongs
      */
-    public static void inviteToConferenceCall(  String[] callees,
-                                                Call call)
+    public static void inviteToConferenceCall(String[] callees, Call call)
     {
         Map<ProtocolProviderService, List<String>> crossProtocolCallees
             = new HashMap<ProtocolProviderService, List<String>>();
@@ -907,6 +904,37 @@ public class CallManager
             Map<ProtocolProviderService, List<String>> callees,
             Call call)
     {
+        new InviteToConferenceCallThread(callees, call).start();
+    }
+
+    /**
+     * Invites specific <tt>callees</tt> to a specific telephony conference.
+     *
+     * @param callees the list of contacts to invite
+     * @param conference the telephony conference to invite the specified
+     * <tt>callees</tt> into
+     */
+    public static void inviteToConferenceCall(
+            Map<ProtocolProviderService, List<String>> callees,
+            CallConference conference)
+    {
+        /*
+         * InviteToConferenceCallThread takes a specific Call but actually
+         * invites to the telephony conference associated with the specified
+         * Call (if any). In order to not change the signature of its
+         * constructor at this time, just pick up a Call participating in the
+         * specified telephony conference (if any).
+         */
+        Call call = null;
+
+        if (conference != null)
+        {
+            List<Call> calls = conference.getCalls();
+
+            if (!calls.isEmpty())
+                call = calls.get(0);
+        }
+
         new InviteToConferenceCallThread(callees, call).start();
     }
 
@@ -995,79 +1023,130 @@ public class CallManager
      * {@link CallContainer#close(CallPanel)}
      */
     private static void closeCallContainerIfNotNecessary(
-            Call call,
-            boolean wait)
+            final Call call,
+            final boolean wait)
     {
-        CallPanel callPanel = activeCalls.remove(call);
-
-        if ((callPanel != null) && !activeCalls.containsValue(callPanel))
+        if (!SwingUtilities.isEventDispatchThread())
         {
-            CallContainer callContainer = callPanel.getCallWindow();
+            SwingUtilities.invokeLater(
+                    new Runnable()
+                    {
+                        public void run()
+                        {
+                            closeCallContainerIfNotNecessary(call, wait);
+                        }
+                    });
+            return;
+        }
 
-            if (wait)
-                callContainer.closeWait(callPanel);
-            else
-                callContainer.close(callPanel);
+        /*
+         * XXX The integrity of the execution of the method may be compromised
+         * if it is not invoked on the AWT event dispatching thread because
+         * findCallPanel and callPanels.remove must be atomically executed. The
+         * uninterrupted execution (with respect to the synchronization) is
+         * guaranteed by requiring all modifications to callPanels to be made on
+         * the AWT event dispatching thread.
+         */
+
+        CallConference conference = call.getConference();
+
+        for (Iterator<Map.Entry<CallConference, CallPanel>> entryIter
+                    = callPanels.entrySet().iterator();
+                entryIter.hasNext();)
+        {
+            Map.Entry<CallConference, CallPanel> entry = entryIter.next();
+            CallConference aConference = entry.getKey();
+            List<Call> calls = aConference.getCalls();
+            boolean notNecessary = true;
+
+            for (Call aCall : calls)
+            {
+                if (!CallState.CALL_ENDED.equals(aCall.getCallState()))
+                {
+                    notNecessary = false;
+                    break;
+                }
+            }
+            if (notNecessary)
+            {
+                CallPanel aCallPanel = entry.getValue();
+                CallContainer window = aCallPanel.getCallWindow();
+
+                try
+                {
+                    if (wait && (aConference == conference))
+                        window.closeWait(aCallPanel);
+                    else
+                        window.close(aCallPanel);
+                }
+                finally
+                {
+                    /*
+                     * We allow non-modifications i.e. reads of callPanels on
+                     * threads other than the AWT event dispatching thread so we
+                     * have to make sure that we will not cause
+                     * ConcurrentModificationException.
+                     */
+                    synchronized (callPanels)
+                    {
+                        entryIter.remove();
+                    }
+
+                    aCallPanel.dispose();
+                }
+            }
         }
     }
 
     /**
      * Opens a <tt>CallPanel</tt> for a specific <tt>Call</tt> if there is none.
+     * <p>
+     * <b>Note</b>: The method can be called only on the AWT event dispatching
+     * thread.
+     * </p>
      *
      * @param call the <tt>Call</tt> to open a <tt>CallPanel</tt> for
      * @return the <tt>CallPanel</tt> associated with the <tt>Call</tt>
+     * @throws RuntimeException if the method is not called on the AWT event
+     * dispatching thread
      */
     private static CallPanel openCallContainerIfNecessary(Call call)
     {
-        CallPanel callPanel = activeCalls.get(call);
+        /*
+         * XXX The integrity of the execution of the method may be compromised
+         * if it is not invoked on the AWT event dispatching thread because
+         * findCallPanel and callPanels.put must be atomically executed. The
+         * uninterrupted execution (with respect to the synchronization) is
+         * guaranteed by requiring all modifications to callPanels to be made on
+         * the AWT event dispatching thread.
+         */
+        assertIsEventDispatchingThread();
+
+        /*
+         * CallPanel displays a CallConference (which may contain multiple
+         * Calls.)
+         */
+        CallConference conference = call.getConference();
+        CallPanel callPanel = findCallPanel(conference);
 
         if (callPanel == null)
         {
-            /*
-             * Technically, CallPanel displays a whole CallConference, not a
-             * single Call. Try to locate the CallPanel for the specified Call
-             * by looking at the CallPanels of the other Calls.
-             */
-            CallConference conference = call.getConference();
+            // If we're in single-window mode, the single window is the
+            // CallContainer.
+            CallContainer callContainer
+                = GuiActivator.getUIService().getSingleWindowContainer();
 
-            if (conference != null)
+            // If we're in multi-window mode, we create the CallDialog.
+            if (callContainer == null)
+                callContainer = new CallDialog();
+
+            callPanel = new CallPanel(conference, callContainer);
+            callContainer.addCallPanel(callPanel);
+
+            synchronized (callPanels)
             {
-                for (Call conferenceCall : conference.getCalls())
-                {
-                    CallPanel conferenceCallPanel
-                        = activeCalls.get(conferenceCall);
-
-                    if (conferenceCallPanel != null)
-                    {
-                        if (callPanel == null)
-                            callPanel = conferenceCallPanel;
-                        else if (logger.isDebugEnabled()
-                                && (conferenceCallPanel != callPanel))
-                        {
-                            logger.debug(
-                                    "Calls in the same CallConference"
-                                        + " have different CallPanels.");
-                        }
-                    }
-                }
+                callPanels.put(conference, callPanel);
             }
-
-            if (callPanel == null)
-            {
-                // If we're in single-window mode, the single window is the
-                // CallContainer.
-                CallContainer callContainer
-                    = GuiActivator.getUIService().getSingleWindowContainer();
-
-                // If we're in multi-window mode, we create the CallDialog.
-                if (callContainer == null)
-                    callContainer = new CallDialog();
-
-                callPanel = new CallPanel(call, callContainer);
-                callContainer.addCallPanel(callPanel);
-            }
-
-            activeCalls.put(call, callPanel);
         }
 
         return callPanel;
@@ -1104,7 +1183,26 @@ public class CallManager
      */
     public static Collection<Call> getActiveCalls()
     {
-        return activeCalls.keySet();
+        CallConference[] conferences;
+
+        synchronized (callPanels)
+        {
+            Set<CallConference> keySet = callPanels.keySet();
+
+            conferences = keySet.toArray(new CallConference[keySet.size()]);
+        }
+
+        List<Call> calls = new ArrayList<Call>();
+
+        for (CallConference conference : conferences)
+        {
+            for (Call call : conference.getCalls())
+            {
+                if (call.getCallState() == CallState.CALL_IN_PROGRESS)
+                    calls.add(call);
+            }
+        }
+        return calls;
     }
 
     /**
@@ -1114,21 +1212,16 @@ public class CallManager
      */
     public static Collection<Call> getInProgressCalls()
     {
-        Set<Call> calls = activeCalls.keySet();
-        ArrayList<Call> inProgressCalls = new ArrayList<Call>(calls.size()); 
-        Iterator<Call> it = calls.iterator();
-        Call tmpCall;
+        /* TODO Synchronize the access to the callPanels field. */
 
-        while(it.hasNext())
+        Collection<Call> calls = getActiveCalls();
+        List<Call> inProgressCalls = new ArrayList<Call>(calls.size());
+
+        for (Call call : calls)
         {
-            tmpCall = it.next();
-            if(tmpCall.getCallState() == CallState.CALL_IN_PROGRESS)
-            {
-                inProgressCalls.add(tmpCall);
-            }
+            if (call.getCallState() == CallState.CALL_IN_PROGRESS)
+                inProgressCalls.add(call);
         }
-
-        //return calls;
         return inProgressCalls;
     }
 
@@ -1143,7 +1236,7 @@ public class CallManager
      */
     public static CallPanel getActiveCallContainer(Call call)
     {
-        return activeCalls.get(call);
+        return findCallPanel(call.getConference());
     }
 
     /**
@@ -1295,31 +1388,45 @@ public class CallManager
     /**
      * Indicates if we have video streams to show in this interface.
      *
-     * @return <tt>true</tt> if we have video streams to show in this interface,
-     * otherwise we return <tt>false</tt>.
+     * @return <tt>true</tt> if we have video streams to show in this interface;
+     * otherwise, <tt>false</tt>
      */
     public static boolean isVideoStreaming(Call call)
     {
-        OperationSetVideoTelephony videoOpSet
-            = call.getProtocolProvider()
-                .getOperationSet(OperationSetVideoTelephony.class);
+        return isVideoStreaming(call.getConference());
+    }
 
-        if (videoOpSet == null)
-            return false;
-
-        if (videoOpSet.isLocalVideoStreaming(call))
-            return true;
-
-        Iterator<? extends CallPeer> callPeers = call.getCallPeers();
-        while (callPeers.hasNext())
+    /**
+     * Indicates if we have video streams to show in this interface.
+     *
+     * @return <tt>true</tt> if we have video streams to show in this interface;
+     * otherwise, <tt>false</tt>
+     */
+    public static boolean isVideoStreaming(CallConference conference)
+    {
+        for (Call call : conference.getCalls())
         {
-            List<Component> remoteVideos
-                = videoOpSet.getVisualComponents(callPeers.next());
+            OperationSetVideoTelephony videoTelephony
+                = call.getProtocolProvider().getOperationSet(
+                        OperationSetVideoTelephony.class);
 
-            if (remoteVideos != null && remoteVideos.size() > 0)
+            if (videoTelephony == null)
+                continue;
+
+            if (videoTelephony.isLocalVideoStreaming(call))
                 return true;
-        }
 
+            Iterator<? extends CallPeer> callPeers = call.getCallPeers();
+
+            while (callPeers.hasNext())
+            {
+                List<Component> remoteVideos
+                    = videoTelephony.getVisualComponents(callPeers.next());
+
+                if ((remoteVideos != null) && (remoteVideos.size() > 0))
+                    return true;
+            }
+        }
         return false;
     }
 
@@ -1963,74 +2070,112 @@ public class CallManager
     }
 
     /**
-     * Hang-ups all call peers in the given call.
+     * Hangs up a specific <tt>Call</tt> (i.e. all <tt>CallPeer</tt>s associated
+     * with a <tt>Call</tt>), <tt>CallConference</tt> (i.e. all <tt>Call</tt>s
+     * participating in a <tt>CallConference</tt>), or <tt>CallPeer</tt>.
      */
     private static class HangupCallThread
         extends Thread
     {
         private final Call call;
 
+        private final CallConference conference;
+
+        private final CallPeer peer;
+
+        /**
+         * Initializes a new <tt>HangupCallThread</tt> instance which is to hang
+         * up a specific <tt>Call</tt> i.e. all <tt>CallPeer</tt>s associated
+         * with the <tt>Call</tt>.
+         *
+         * @param call the <tt>Call</tt> whose associated <tt>CallPeer</tt>s are
+         * to be hanged up
+         */
         public HangupCallThread(Call call)
         {
+            this(call, null, null);
+        }
+
+        /**
+         * Initializes a new <tt>HangupCallThread</tt> instance which is to hang
+         * up a specific <tt>CallConference</tt> i.e. all <tt>Call</tt>s
+         * participating in the <tt>CallConference</tt>.
+         *
+         * @param conference the <tt>CallConference</tt> whose participating
+         * <tt>Call</tt>s re to be hanged up
+         */
+        public HangupCallThread(CallConference conference)
+        {
+            this(null, conference, null);
+        }
+
+        /**
+         * Initializes a new <tt>HangupCallThread</tt> instance which is to hang
+         * up a specific <tt>CallPeer</tt>.
+         *
+         * @param peer the <tt>CallPeer</tt> to hang up
+         */
+        public HangupCallThread(CallPeer peer)
+        {
+            this(null, null, peer);
+        }
+
+        /**
+         * Initializes a new <tt>HangupCallThread</tt> instance which is to hang
+         * up a specific <tt>Call</tt>, <tt>CallConference</tt>, or
+         * <tt>CallPeer</tt>.
+         *
+         * @param call the <tt>Call</tt> whose associated <tt>CallPeer</tt>s are
+         * to be hanged up
+         * @param conference the <tt>CallConference</tt> whose participating
+         * <tt>Call</tt>s re to be hanged up
+         * @param peer the <tt>CallPeer</tt> to hang up
+         */
+        private HangupCallThread(
+                Call call,
+                CallConference conference,
+                CallPeer peer)
+        {
             this.call = call;
+            this.conference = conference;
+            this.peer = peer;
         }
 
         @Override
         public void run()
         {
-            for (Call conferenceCall : CallConference.getCalls(call))
+            /*
+             * There is only an OperationSet which hangs up a CallPeer at a time
+             * so prepare a list of all CallPeers to be hanged up.
+             */
+            Set<CallPeer> peers = new HashSet<CallPeer>();
+
+            if (call != null)
             {
-                Iterator<? extends CallPeer> peerIter
-                    = conferenceCall.getCallPeers();
-                OperationSetBasicTelephony<?> basicTelephony
-                    = conferenceCall.getProtocolProvider().getOperationSet(
-                            OperationSetBasicTelephony.class);
+                Iterator<? extends CallPeer> peerIter = call.getCallPeers();
 
                 while (peerIter.hasNext())
+                    peers.add(peer);
+            }
+            if (conference != null)
+                peers.addAll(conference.getCallPeers());
+            if (peer != null)
+                peers.add(peer);
+
+            for (CallPeer peer : peers)
+            {
+                OperationSetBasicTelephony<?> basicTelephony
+                    = peer.getProtocolProvider().getOperationSet(
+                            OperationSetBasicTelephony.class);
+
+                try
                 {
-                    CallPeer peer = peerIter.next();
-
-                    try
-                    {
-                        basicTelephony.hangupCallPeer(peer);
-                    }
-                    catch (OperationFailedException ofe)
-                    {
-                        logger.error("Could not hang up: " + peer, ofe);
-                    }
+                    basicTelephony.hangupCallPeer(peer);
                 }
-            }
-        }
-    }
-
-    /**
-     * Hang-ups the given <tt>CallPeer</tt>.
-     */
-    private static class HangupCallPeerThread
-        extends Thread
-    {
-        private final CallPeer callPeer;
-
-        public HangupCallPeerThread(CallPeer callPeer)
-        {
-            this.callPeer = callPeer;
-        }
-
-        @Override
-        public void run()
-        {
-            ProtocolProviderService pps = callPeer.getProtocolProvider();
-            OperationSetBasicTelephony<?> telephony
-                = pps.getOperationSet(OperationSetBasicTelephony.class);
-
-            try
-            {
-                telephony.hangupCallPeer(callPeer);
-            }
-            catch (OperationFailedException e)
-            {
-                logger.error("Could not hang up : " + callPeer
-                    + " caused by the following exception: " + e);
+                catch (OperationFailedException ofe)
+                {
+                    logger.error("Could not hang up: " + peer, ofe);
+                }
             }
         }
     }
@@ -2141,15 +2286,16 @@ public class CallManager
     }
 
     /**
-     * Merge existing calls thread.
+     * Merges specific existing <tt>Call</tt>s into a specific telephony
+     * conference.
      */
     private static class MergeExistingCalls
         extends Thread
     {
         /**
-         * First call.
+         * The telephony conference in which {@link #calls} are to be merged.
          */
-        private final Call first;
+        private final CallConference conference;
 
         /**
          * Second call.
@@ -2157,14 +2303,20 @@ public class CallManager
         private final Collection<Call> calls;
 
         /**
-         * Constructor.
+         * Initializes a new <tt>MergeExistingCalls</tt> instance which is to
+         * merge specific existing <tt>Call</tt>s into a specific telephony
+         * conference.
          *
-         * @param first first call
-         * @param calls list of calls
+         * @param conference the telephony conference in which the specified
+         * <tt>Call</tt>s are to be merged
+         * @param calls the <tt>Call</tt>s to be merged into the specified
+         * telephony conference
          */
-        public MergeExistingCalls(Call first, Collection<Call> calls)
+        public MergeExistingCalls(
+                CallConference conference,
+                Collection<Call> calls)
         {
-            this.first = first;
+            this.conference = conference;
             this.calls = calls;
         }
 
@@ -2212,17 +2364,16 @@ public class CallManager
         @Override
         public void run()
         {
-            // first
-            putOffHold(first);
+            // conference
+            for (Call call : conference.getCalls())
+                putOffHold(call);
 
             // calls
             if (!calls.isEmpty())
             {
-                CallConference conference = first.getConference();
-
                 for(Call call : calls)
                 {
-                    if (call == first)
+                    if (conference.containsCall(call))
                         continue;
 
                     putOffHold(call);
@@ -2292,5 +2443,89 @@ public class CallManager
     {
         for (int i = 0 ; i < callees.length ; i++)
             callees[i] = PhoneNumberI18nService.normalize(callees[i]);
+    }
+
+    /**
+     * Throws a <tt>RuntimeException</tt> if the current thread is not the AWT
+     * event dispatching thread.
+     */
+    private static void assertIsEventDispatchingThread()
+    {
+        if (!SwingUtilities.isEventDispatchThread())
+        {
+            throw new RuntimeException(
+                    "The methon can be called only on the AWT event dispatching"
+                        + " thread.");
+        }
+    }
+
+    /**
+     * Finds the <tt>CallPanel</tt>, if any, which depicts a specific
+     * <tt>CallConference</tt>.
+     * <p>
+     * <b>Note</b>: The method can be called only on the AWT event dispatching
+     * thread.
+     * </p>
+     *
+     * @param conference the <tt>CallConference</tt> to find the depicting
+     * <tt>CallPanel</tt> of
+     * @return the <tt>CallPanel</tt> which depicts the specified
+     * <tt>CallConference</tt> if such a <tt>CallPanel</tt> exists; otherwise,
+     * <tt>null</tt>
+     * @throws RuntimeException if the method is not called on the AWT event
+     * dispatching thread
+     */
+    private static CallPanel findCallPanel(CallConference conference)
+    {
+        synchronized (callPanels)
+        {
+            return callPanels.get(conference);
+        }
+    }
+
+    /**
+     * Notifies {@link #callPanels} about a specific <tt>CallEvent</tt> received
+     * by <tt>CallManager</tt> (because they may need to update their UI, for
+     * example).
+     * <p>
+     * <b>Note</b>: The method can be called only on the AWT event dispatching
+     * thread.
+     * </p>
+     *
+     * @param ev the <tt>CallEvent</tt> received by <tt>CallManager</tt> which
+     * is to be forwarded to <tt>callPanels</tt> for further
+     * <tt>CallPanel</tt>-specific handling
+     * @throws RuntimeException if the method is not called on the AWT event
+     * dispatching thread
+     */
+    private static void forwardCallEventToCallPanels(CallEvent ev)
+    {
+        assertIsEventDispatchingThread();
+
+        CallPanel[] callPanels;
+
+        synchronized (CallManager.callPanels)
+        {
+            Collection<CallPanel> values = CallManager.callPanels.values();
+
+            callPanels = values.toArray(new CallPanel[values.size()]);
+        }
+
+        for (CallPanel callPanel : callPanels)
+        {
+            try
+            {
+                callPanel.onCallEvent(ev);
+            }
+            catch (Exception ex)
+            {
+                /*
+                 * There is no practical reason while the failure of a CallPanel
+                 * to handle the CallEvent should cause the other CallPanels to
+                 * be left out-of-date.
+                 */
+                logger.error("A CallPanel failed to handle a CallEvent", ex);
+            }
+        }
     }
 }

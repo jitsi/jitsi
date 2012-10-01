@@ -28,6 +28,7 @@ import net.java.sip.communicator.util.swing.*;
  * button in the chat toolbar.
  *
  * @author Yana Stamcheva
+ * @author Lyubomir Marinov
  */
 public class ConferenceInviteDialog
     extends InviteDialog
@@ -48,9 +49,10 @@ public class ConferenceInviteDialog
     private Object lastSelectedAccount;
 
     /**
-     * The call.
+     * The telephony conference into which this instance is to invite
+     * participants.
      */
-    private final Call call;
+    private final CallConference conference;
 
     /**
      * The current provider contact source.
@@ -63,17 +65,18 @@ public class ConferenceInviteDialog
     private ContactSourceService currentStringContactSource;
 
     /**
-     * Creates <tt>ConferenceInviteDialog</tt> by specifying the call, to which
-     * the contacts are invited.
+     * Initializes a new <tt>ConferenceInviteDialog</tt> instance which is to
+     * invite contacts/participants in a specific telephony conference.
      *
-     * @param call the call to which the contacts are invited
+     * @param conference the telephony conference in which the new instance is
+     * to invite contacts/participants
      */
-    public ConferenceInviteDialog(Call call)
+    public ConferenceInviteDialog(CallConference conference)
     {
         super(GuiActivator.getResources()
             .getI18NString("service.gui.INVITE_CONTACT_TO_CALL"));
 
-        this.call = call;
+        this.conference = conference;
 
         JLabel accountSelectorLabel = new JLabel(
             GuiActivator.getResources().getI18NString("service.gui.CALL_VIA"));
@@ -201,33 +204,46 @@ public class ConferenceInviteDialog
     private void initAccountListData()
     {
         Iterator<ProtocolProviderService> protocolProviders
-            = GuiActivator.getUIService()
-                .getMainFrame().getProtocolProviders();
+            = GuiActivator.getUIService().getMainFrame().getProtocolProviders();
 
         while(protocolProviders.hasNext())
         {
             ProtocolProviderService protocolProvider
                 = protocolProviders.next();
             OperationSet opSet
-                = protocolProvider
-                    .getOperationSet(
+                = protocolProvider.getOperationSet(
                         OperationSetTelephonyConferencing.class);
 
-            if (opSet != null && protocolProvider.isRegistered())
-            {
+            if ((opSet != null) && protocolProvider.isRegistered())
                 accountSelectorBox.addItem(protocolProvider);
-            }
         }
 
-        // Obtain the last conference provider used.
-        ProtocolProviderService lastConfProvider
+        // Try to select the last used account if available.
+        ProtocolProviderService pps
             = ConfigurationManager.getLastCallConferenceProvider();
 
-        // Try to select the last used account if it's available.
-        if(call != null)
-            accountSelectorBox.setSelectedItem(call.getProtocolProvider());
-        else if (lastConfProvider != null)
-            accountSelectorBox.setSelectedItem(lastConfProvider);
+        if (pps != null)
+            accountSelectorBox.setSelectedItem(pps);
+        else if (conference != null)
+        {
+            /*
+             * Pick up the first account from the ones participating in the
+             * associated telephony conference which supports
+             * OperationSetTelephonyConferencing.
+             */
+            for (Call call : conference.getCalls())
+            {
+                ProtocolProviderService callPps = call.getProtocolProvider();
+
+                if (callPps.getOperationSet(
+                            OperationSetTelephonyConferencing.class)
+                        != null)
+                {
+                    pps = callPps;
+                    break;
+                }
+            }
+        }
     }
 
     /**
@@ -290,9 +306,11 @@ public class ConferenceInviteDialog
                         OperationSetBasicTelephony.class);
 
                 if (selectedProvider == null)
+                {
                     selectedProvider
-                        = (ProtocolProviderService) accountSelectorBox
-                            .getSelectedItem();
+                        = (ProtocolProviderService)
+                            accountSelectorBox.getSelectedItem();
+                }
 
                 if(selectedProvider != null
                     && selectedProviderCallees.get(selectedProvider) != null)
@@ -309,9 +327,11 @@ public class ConferenceInviteDialog
             }
         }
 
-        if(call != null)
+        if(conference != null)
         {
-            CallManager.inviteToConferenceCall(selectedProviderCallees, call);
+            CallManager.inviteToConferenceCall(
+                    selectedProviderCallees,
+                    conference);
         }
         else
         {

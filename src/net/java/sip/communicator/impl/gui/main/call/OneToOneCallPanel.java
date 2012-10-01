@@ -103,14 +103,12 @@ public class OneToOneCallPanel
      * call type (incoming or outgoing) and the parent dialog.
      *
      * @param callContainer the container containing this panel
-     * @param call          the call corresponding to this panel
      * @param callPeer      the remote participant in the call
      */
     public OneToOneCallPanel(   CallPanel callContainer,
-                                Call call,
                                 CallPeer callPeer)
     {
-        this(callContainer, call, callPeer, null);
+        this(callContainer, callPeer, null);
     }
 
     /**
@@ -118,18 +116,17 @@ public class OneToOneCallPanel
      * call type (incoming or outgoing) and the parent dialog.
      *
      * @param callContainer the container containing this panel
-     * @param call          the call corresponding to this panel
      * @param callPeer      the remote participant in the call
+     * @param videoHandler
      */
     public OneToOneCallPanel(   CallPanel callContainer,
-                                Call call,
                                 CallPeer callPeer,
                                 UIVideoHandler videoHandler)
     {
         super(new BorderLayout());
 
         this.callContainer = callContainer;
-        this.call = call;
+        this.call = callPeer.getCall();
         this.callPeer = callPeer;
 
         if (videoHandler == null)
@@ -662,21 +659,23 @@ public class OneToOneCallPanel
      * @param callPeer the parent call peer
      * @param conferenceMember the member that was added
      */
-    public void conferenceMemberAdded(CallPeer callPeer,
-        ConferenceMember conferenceMember)
+    public void conferenceMemberAdded(
+            CallPeer callPeer,
+            ConferenceMember conferenceMember)
     {
         // We don't want to add the local member to the list of members.
         if (CallManager.isLocalUser(conferenceMember))
             return;
 
         if (CallManager.addressesAreEqual(
-            conferenceMember.getAddress(), callPeer.getAddress()))
+                conferenceMember.getAddress(),
+                callPeer.getAddress()))
         {
             return;
         }
 
         getCallContainer().enableConferenceInterface(
-            CallManager.isVideoStreaming(call));
+                CallManager.isVideoStreaming(call));
     }
 
     /**

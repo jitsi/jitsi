@@ -44,10 +44,15 @@ public class ConversationTabbedPane
                 Component c = getComponentAt(tabIndex);
 
                 if (c instanceof ChatPanel)
+                {
                     GuiActivator.getUIService()
                         .getChatWindowManager().closeChat((ChatPanel) c);
+                }
                 else if (c instanceof CallPanel)
-                    CallManager.hangupCall(((CallPanel) c).getCall());
+                {
+                    CallManager.hangupCalls(
+                            ((CallPanel) c).getCallConference());
+                }
             }
         });
 
