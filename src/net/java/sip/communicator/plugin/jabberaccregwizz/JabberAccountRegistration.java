@@ -97,6 +97,11 @@ public class JabberAccountRegistration
     private String domainBypassCaps = null;
 
     /**
+     * Is jingle disabled for this account.
+     */
+    private boolean disableJingle = false;
+
+    /**
      * The port.
      */
     private int port = new Integer(DEFAULT_PORT).intValue();
@@ -342,6 +347,16 @@ public class JabberAccountRegistration
     }
 
     /**
+     * Gets if Jingle is disabled for this account.
+     *
+     * @return True if jingle is disabled for this account. False otherwise.
+     */
+    public boolean isJingleDisabled()
+    {
+        return this.disableJingle;
+    }
+
+    /**
      * The address of the server we will use for this account
      * @return String
      */
@@ -443,6 +458,16 @@ public class JabberAccountRegistration
     public void setTelephonyDomainBypassCaps(String text)
     {
         this.domainBypassCaps = text;
+    }
+
+    /**
+     * Sets if Jingle is disabled for this account.
+     *
+     * @param True if jingle is disabled for this account. False otherwise.
+     */
+    public void setDisableJingle(boolean disabled)
+    {
+        this.disableJingle = disabled;
     }
 
     /**

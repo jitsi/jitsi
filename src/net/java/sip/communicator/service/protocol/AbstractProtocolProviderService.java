@@ -96,6 +96,15 @@ public abstract class AbstractProtocolProviderService
     }
 
     /**
+     * Removes all <tt>OperationSet</tt> implementation from the set of
+     * supported <tt>OperationSet</tt>s for this instance.
+     */
+    protected void clearSupportedOperationSet()
+    {
+        supportedOperationSets.clear();
+    }
+
+    /**
      * Creates a RegistrationStateChange event corresponding to the specified
      * old and new states and notifies all currently registered listeners.
      *

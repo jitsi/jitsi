@@ -26,6 +26,12 @@ public class TelephonyConfigPanel
     private static final long serialVersionUID = 0L;
 
     /**
+     * The check box to enable/disable Jingle (audio and video calls with XMPP).
+     */
+    private final JCheckBox disableJingle = new SIPCommCheckBox(
+        Resources.getString("plugin.jabberaccregwizz.DISABLE_JINGLE"));
+
+    /**
      * Text field for domain name.
      */
     private final JTextField domainField = new TrimTextField();
@@ -76,12 +82,34 @@ public class TelephonyConfigPanel
         lblPanel.add(gtalkCallLbl);
         valPanel.add(domainField);
         valPanel.add(domainBypassCapsField);
+
+        telPanel.add(disableJingle, BorderLayout.NORTH);
         telPanel.add(lblPanel, BorderLayout.WEST);
         telPanel.add(valPanel, BorderLayout.CENTER);
 
         mainPanel.add(telPanel);
 
         add(mainPanel, BorderLayout.NORTH);
+    }
+
+    /**
+     * Returns if Jingle is disabled.
+     *
+     * @return True if Jingle is disabled. False otherwise.
+     */
+    public boolean isJingleDisabled()
+    {
+        return disableJingle.isSelected();
+    }
+
+    /**
+     * Disables or enables Jingle.
+     *
+     * @param disabled True to disable Jingle. False otherwise.
+     */
+    public void setDisableJingle(boolean disabled)
+    {
+        disableJingle.setSelected(disabled);
     }
 
     /**

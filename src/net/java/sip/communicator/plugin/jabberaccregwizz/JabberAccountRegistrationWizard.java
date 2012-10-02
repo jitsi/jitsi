@@ -345,6 +345,10 @@ public class JabberAccountRegistrationWizard
                 registration.getOverridePhoneSuffix());
         }
 
+        accountProperties.put(
+                ProtocolProviderFactory.IS_CALLING_DISABLED_FOR_ACCOUNT,
+                Boolean.toString(registration.isJingleDisabled()));
+
         accountProperties.put("BYPASS_GTALK_CAPABILITIES",
             String.valueOf(registration.getBypassGtalkCaps()));
 

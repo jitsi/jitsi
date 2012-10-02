@@ -349,6 +349,8 @@ public class JabberAccountRegistrationForm
 
         registration.setAllowNonSecure(connectionPanel.isAllowNonSecure());
 
+        registration.setDisableJingle(
+            telephonyConfigPanel.isJingleDisabled());
         registration.setTelephonyDomainBypassCaps(
             telephonyConfigPanel.getTelephonyDomainBypassCaps());
         registration.setOverridePhoneSufix(
@@ -550,6 +552,10 @@ public class JabberAccountRegistrationForm
                                 false);
 
         connectionPanel.setServerOverridden(isServerOverriden);
+
+        boolean disabledJingle = Boolean.parseBoolean(accountProperties.get(
+                    ProtocolProviderFactory.IS_CALLING_DISABLED_FOR_ACCOUNT));
+        telephonyConfigPanel.setDisableJingle(disabledJingle);
 
         String telephonyDomain = accountProperties.get("OVERRIDE_PHONE_SUFFIX");
         telephonyConfigPanel.setTelephonyDomain(telephonyDomain);

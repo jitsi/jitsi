@@ -1471,6 +1471,7 @@ public class ProtocolProviderServiceJabberImpl
             // call
             supportedFeatures.clear();
             this.clearRegistrationStateChangeListener();
+            this.clearSupportedOperationSet();
 
             synchronized(providerCreationLock)
             {
