@@ -434,7 +434,7 @@ public class OperationSetTypingNotificationsJabberImpl
                 fireTypingNotificationsDeliveryFailedEvent(
                     sourceContact, evtCode);
             else  if(evtCode != STATE_UNKNOWN)
-                fireTypingNotificationsEvent(sourceContact, STATE_STOPPED);
+                fireTypingNotificationsEvent(sourceContact, evtCode);
             else
                 logger.warn("Unknown typing state!");
         }
