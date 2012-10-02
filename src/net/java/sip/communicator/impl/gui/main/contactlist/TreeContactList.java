@@ -1373,11 +1373,7 @@ public class TreeContactList
         // If this is not the selection path we have nothing to do here.
         if (!mousePath.equals(getSelectionPath()))
         {
-            renderer.getChatButton().getModel().setRollover(false);
-            renderer.getCallButton().getModel().setRollover(false);
-            renderer.getCallVideoButton().getModel().setRollover(false);
-            renderer.getDesktopSharingButton().getModel().setRollover(false);
-            renderer.getAddContactButton().getModel().setRollover(false);
+            renderer.resetRolloverState();
 
             this.repaint();
 
@@ -1413,30 +1409,13 @@ public class TreeContactList
             ((SIPCommButton) mouseComponent).getModel()
                 .setRollover(event.getID() == MouseEvent.MOUSE_MOVED);
 
-            if (!mouseComponent.equals(renderer.getChatButton()))
-                renderer.getChatButton().getModel().setRollover(false);
-
-            if (!mouseComponent.equals(renderer.getCallButton()))
-                renderer.getCallButton().getModel().setRollover(false);
-
-            if (!mouseComponent.equals(renderer.getCallVideoButton()))
-                renderer.getCallVideoButton().getModel().setRollover(false);
-
-            if (!mouseComponent.equals(renderer.getDesktopSharingButton()))
-                renderer.getDesktopSharingButton().getModel().setRollover(false);
-
-            if (!mouseComponent.equals(renderer.getAddContactButton()))
-                renderer.getAddContactButton().getModel().setRollover(false);
+            renderer.resetRolloverState(mouseComponent);
 
             mouseComponent.dispatchEvent(evt);
         }
         else
         {
-            renderer.getChatButton().getModel().setRollover(false);
-            renderer.getCallButton().getModel().setRollover(false);
-            renderer.getCallVideoButton().getModel().setRollover(false);
-            renderer.getDesktopSharingButton().getModel().setRollover(false);
-            renderer.getAddContactButton().getModel().setRollover(false);
+            renderer.resetRolloverState();
         }
 
         this.repaint();

@@ -34,7 +34,13 @@ public interface ContactAction<T>
     public byte[] getIcon();
 
     /**
-     * The icon used by the UI to visualize this action.
+     * The icon used by the UI to visualize the rollover state of the button.
+     * @return the button icon.
+     */
+    public byte[] getRolloverIcon();
+
+    /**
+     * The icon used by the UI to visualize the pressed state of the button
      * @return the button icon.
      */
     public byte[] getPressedIcon();

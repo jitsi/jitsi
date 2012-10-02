@@ -1046,10 +1046,14 @@ public class MetaContactListSource
 
                 if (actionButton == null)
                 {
-                    actionButton = new SIPCommButton(
-                        new ImageIcon(ca.getIcon()).getImage(),
-                        new ImageIcon(ca.getPressedIcon()).getImage(),
-                        null);
+                    actionButton = new SIPCommButton();
+
+                    actionButton.setIconImage(
+                        new ImageIcon(ca.getIcon()).getImage());
+                    actionButton.setRolloverImage(
+                        new ImageIcon(ca.getRolloverIcon()).getImage());
+                    actionButton.setPressedImage(
+                        new ImageIcon(ca.getPressedIcon()).getImage());
 
                     actionButton.addActionListener(new ActionListener()
                     {

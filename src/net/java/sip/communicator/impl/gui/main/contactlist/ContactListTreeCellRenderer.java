@@ -1447,6 +1447,64 @@ public class ContactListTreeCellRenderer
     }
 
     /**
+     * Resets the rollover state of all rollover components in the current cell.
+     */
+    public void resetRolloverState()
+    {
+        chatButton.getModel().setRollover(false);
+        callButton.getModel().setRollover(false);
+        callVideoButton.getModel().setRollover(false);
+        desktopSharingButton.getModel().setRollover(false);
+        addContactButton.getModel().setRollover(false);
+
+        if (customActionButtons != null)
+        {
+            Iterator<JButton> buttonsIter = customActionButtons.iterator();
+            while (buttonsIter.hasNext())
+            {
+                JButton button = buttonsIter.next();
+                button.getModel().setRollover(false);
+            }
+        }
+    }
+
+    /**
+     * Resets the rollover state of all rollover components in the current cell
+     * except the component given as a parameter.
+     *
+     * @param excludeComponent the component to exclude from the reset
+     */
+    public void resetRolloverState(Component excludeComponent)
+    {
+        if (!chatButton.equals(excludeComponent))
+            chatButton.getModel().setRollover(false);
+
+        if (!callButton.equals(excludeComponent))
+            callButton.getModel().setRollover(false);
+
+        if (!callVideoButton.equals(excludeComponent))
+            callVideoButton.getModel().setRollover(false);
+
+        if (!desktopSharingButton.equals(excludeComponent))
+            desktopSharingButton.getModel().setRollover(false);
+
+        if (!addContactButton.equals(excludeComponent))
+            addContactButton.getModel().setRollover(false);
+
+        if (customActionButtons != null)
+        {
+            Iterator<JButton> buttonsIter = customActionButtons.iterator();
+            while (buttonsIter.hasNext())
+            {
+                JButton button = buttonsIter.next();
+
+                if (!button.equals(excludeComponent))
+                    button.getModel().setRollover(false);
+            }
+        }
+    }
+
+    /**
      * Loads all images and colors.
      */
     public void loadSkin()
@@ -1603,8 +1661,6 @@ public class ContactListTreeCellRenderer
         constraints.weighty = 0f;
         this.add(button, constraints);
 
-//        addButtonSeparator(gridX);
-
         int yBounds = TOP_BORDER + BOTTOM_BORDER + 2*V_GAP
                 + GuiUtils.getStringSize(
                     nameLabel, nameLabel.getText()).height
@@ -1617,9 +1673,17 @@ public class ContactListTreeCellRenderer
 
         setButtonBg(button, gridX, isLast);
 
-        return button.getWidth();// + BUTTON_SEPARATOR_IMG.getWidth(this);
+        return button.getWidth();
     }
 
+    /**
+     * Sets the background of the button depending on its position in the button
+     * bar.
+     *
+     * @param button the button which background to set
+     * @param gridX the position of the button in the grid
+     * @param isLast indicates if this is the last button in the button bar
+     */
     private void setButtonBg(SIPCommButton button,
                             int gridX,
                             boolean isLast)
@@ -1642,24 +1706,6 @@ public class ContactListTreeCellRenderer
                 button.setBackgroundImage(ImageLoader.getImage(
                     ImageLoader.CONTACT_LIST_BUTTON_BG_RIGHT));
         }
-    }
-
-    /**
-     * Adds a separator between buttons.
-     */
-    private void addButtonSeparator(int buttonGridX)
-    {
-        JLabel separatorLabel = new JLabel(new ImageIcon(BUTTON_SEPARATOR_IMG));
-
-        constraints.anchor = GridBagConstraints.WEST;
-        constraints.fill = GridBagConstraints.NONE;
-        constraints.gridx = ++buttonGridX;
-        constraints.gridy = 2;
-        constraints.gridwidth = 1;
-        constraints.gridheight = 1;
-        constraints.weightx = 0f;
-        constraints.weighty = 0f;
-        this.add(separatorLabel, constraints);
     }
 
     /**
