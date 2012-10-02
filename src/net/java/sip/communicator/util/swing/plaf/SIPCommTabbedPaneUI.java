@@ -641,6 +641,8 @@ public class SIPCommTabbedPaneUI
         {
             g2 = (Graphics2D) g;
 
+            AntialiasingManager.activateAntialiasing(g2);
+
             // Render visual for cropped tab edge...
             Rectangle viewRect = tabScroller.viewport.getViewRect();
             int cropline;
@@ -660,7 +662,6 @@ public class SIPCommTabbedPaneUI
                 save = g2.getClip();
                 g2.clipRect(tabRect.x, tabRect.y, tabRect.width,
                                 tabRect.height);
-
             }
         }
 
