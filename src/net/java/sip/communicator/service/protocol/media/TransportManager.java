@@ -669,6 +669,17 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
             String streamName);
 
     /**
+     * Returns the harvesting time (in ms) for the harvester given in parameter.
+     *
+     * @param harvesterName The class name if the harvester.
+     *
+     * @return The harvesting time (in ms) for the harvester given in parameter.
+     * -1 if this harvester does not exists, if the ICE agent is null, or if the
+     * agent is not currently harvesting with this harvester.
+     */
+    public abstract long getHarvestingTime(String harvesterName);
+
+    /**
      * Returns the ICE candidate extended type selected by the given agent.
      *
      * @param iceAgent The ICE agent managing the ICE offer/answer exchange,

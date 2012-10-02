@@ -1477,6 +1477,24 @@ public class TransportManagerGTalkImpl
     }
 
     /**
+     * Returns the harvesting time (in ms) for the harvester given in parameter.
+     *
+     * @param harvesterName The class name if the harvester.
+     *
+     * @return The harvesting time (in ms) for the harvester given in parameter.
+     * -1 if this harvester does not exists, if the ICE agent is null, or if the
+     * agent is not currently harvesting with this harvester.
+     */
+    public long getHarvestingTime(String harvesterName)
+    {
+        if(iceAgent != null)
+        {
+            return iceAgent.getHarvestingTime(harvesterName);
+        }
+        return -1;
+    }
+
+    /**
      * Retransmit state change events from the Agent.
      * @param evt the event for state change.
      */

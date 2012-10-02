@@ -1576,6 +1576,25 @@ public abstract class CallPeerMediaHandler
                 : transportManager.getICERemoteRelayedAddress(streamName);
     }
 
+    /**
+     * Returns the harvesting time (in ms) for the harvester given in parameter.
+     *
+     * @param harvesterName The class name if the harvester.
+     *
+     * @return The harvesting time (in ms) for the harvester given in parameter.
+     * -1 if this harvester does not exists, if the ICE agent is null, or if the
+     * agent is not currently harvesting with this harvester.
+     */
+    public long getHarvestingTime(String harvesterName)
+    {
+        TransportManager<?> transportManager = getTransportManager();
+
+        return
+            (transportManager == null)
+                ? null
+                : transportManager.getHarvestingTime(harvesterName);
+    }
+
     public MediaHandler getMediaHandler()
     {
         return mediaHandler;

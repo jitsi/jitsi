@@ -275,17 +275,6 @@ public class CallInfoFrame
 
             if(callPeerMediaHandler != null)
             {
-                String iceState = callPeerMediaHandler.getICEState();
-                if(iceState != null && !iceState.equals("Terminated"))
-                {
-                    stringBuffer.append(getLineString(
-                        resources.getI18NString(
-                            "service.gui.callinfo.ICE_STATE"),
-                        resources.getI18NString(
-                            "service.gui.callinfo.ICE_STATE." + iceState)));
-                }
-
-
                 MediaStream mediaStream =
                     callPeerMediaHandler.getStream(MediaType.AUDIO);
 
@@ -328,6 +317,45 @@ public class CallInfoFrame
                             stringBuffer,
                             MediaType.VIDEO);
                 }
+
+                stringBuffer.append("<br/>");
+                // ICE state
+                String iceState = callPeerMediaHandler.getICEState();
+                if(iceState != null && !iceState.equals("Terminated"))
+                {
+                    stringBuffer.append(getLineString(
+                        resources.getI18NString(
+                            "service.gui.callinfo.ICE_STATE"),
+                        resources.getI18NString(
+                            "service.gui.callinfo.ICE_STATE." + iceState)));
+                }
+
+                // Current harvester time if ICE agent is harvesting.
+                String[] harvesterNames =
+                {
+                    "GoogleTurnCandidateHarvester",
+                    "GoogleTurnSSLCandidateHarvester",
+                    "HostCandidateHarvester",
+                    "JingleNodesHarvester",
+                    "StunCandidateHarvester",
+                    "TurnCandidateHarvester",
+                    "UPNPHarvester"
+                };
+                long harvestingTime;
+                for(int i = 0; i < harvesterNames.length; ++i)
+                {
+                    harvestingTime = callPeerMediaHandler.getHarvestingTime(
+                            harvesterNames[i]);
+                    if(harvestingTime != -1)
+                    {
+                        stringBuffer.append(getLineString(
+                                    resources.getI18NString(
+                                        "service.gui.callinfo.HARVESTING_TIME")
+                                    + " " + harvesterNames[i] + ":",
+                                    harvestingTime + " ms"));
+                    }
+                }
+
             }
         }
     }
