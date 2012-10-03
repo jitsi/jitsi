@@ -534,7 +534,7 @@ public class ContactListPane
 
         MetaContact metaContact = GuiActivator.getContactListService()
                 .findMetaContactByContact(evt.getSourceContact());
-        String contactName = metaContact.getDisplayName() + " ";
+        String contactName = metaContact.getDisplayName();
 
         if (contactName.equals(""))
         {
