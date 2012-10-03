@@ -35,6 +35,11 @@ public class SIPCommTextFieldUI
     protected boolean isDeleteMouseOver = false;
 
     /**
+     * Indicates if the mouse is currently pressed on the delete button.
+     */
+    protected boolean isDeleteMousePressed = false;
+
+    /**
      * The gap between the delete button and the text in the field.
      */
     protected static int BUTTON_GAP = 5;
@@ -48,6 +53,11 @@ public class SIPCommTextFieldUI
      * The rollover image of the delete text button.
      */
     private Image deleteButtonRolloverImg;
+
+    /**
+     * The image for the pressed state of the delete text button.
+     */
+    private Image deleteButtonPressedImg;
 
     /**
      * Indicates if the text field contains a
@@ -201,6 +211,8 @@ public class SIPCommTextFieldUI
                         && c.getText().length() > 0
                         && isDeleteButtonEnabled)
                 {
+                    if (isDeleteMousePressed)
+                        g2.drawImage(deleteButtonPressedImg, dx, dy, null);
                     if (isDeleteMouseOver)
                         g2.drawImage(deleteButtonRolloverImg, dx, dy, null);
                     else
@@ -264,14 +276,27 @@ public class SIPCommTextFieldUI
 
         if (isDeleteIconVisible && deleteRect.contains(x, y))
         {
-            isDeleteMouseOver = true;
+            if (evt.getID() == MouseEvent.MOUSE_PRESSED)
+            {
+                isDeleteMouseOver = false;
+                isDeleteMousePressed = true;
+            }
+            else
+            {
+                isDeleteMouseOver = true;
+                isDeleteMousePressed = false;
+            }
+
             getComponent().setCursor(Cursor.getDefaultCursor());
 
             if (evt.getID() == MouseEvent.MOUSE_CLICKED)
                 getComponent().setText("");
         }
         else
+        {
             isDeleteMouseOver = false;
+            isDeleteMousePressed = false;
+        }
 
         getComponent().repaint();
     }
@@ -290,7 +315,7 @@ public class SIPCommTextFieldUI
 
         Rectangle rect = c.getBounds();
 
-        int dx = rect.width - deleteButton.getWidth() - BUTTON_GAP - 5;
+        int dx = rect.width - deleteButton.getWidth() - BUTTON_GAP;
         int dy = rect.height / 2 - deleteButton.getHeight()/2;
 
         return new Rectangle(   dx,
@@ -378,15 +403,23 @@ public class SIPCommTextFieldUI
             .getImage("service.gui.lookandfeel.DELETE_TEXT_ROLLOVER_ICON")
                 .getImage();
 
+        deleteButtonPressedImg = UtilActivator.getResources()
+            .getImage("service.gui.lookandfeel.DELETE_TEXT_PRESSED_ICON")
+                .getImage();
+
         if(deleteButton != null)
         {
             deleteButton.setBackgroundImage(deleteButtonImg);
-            deleteButton.setIconImage(deleteButtonRolloverImg);
+            deleteButton.setRolloverImage(deleteButtonRolloverImg);
+            deleteButton.setPressedImage(deleteButtonPressedImg);
         }
         else
         {
             deleteButton = new SIPCommButton(
-                    deleteButtonImg, deleteButtonRolloverImg);
+                    deleteButtonImg,
+                    deleteButtonRolloverImg,
+                    deleteButtonPressedImg,
+                    null, null, null);
         }
 
         deleteButton.setSize (  deleteButtonImg.getWidth(null),
@@ -423,10 +456,15 @@ public class SIPCommTextFieldUI
         updateCursor(e);
     }
 
-    public void mousePressed(MouseEvent e) {}
+    public void mousePressed(MouseEvent e)
+    {
+        updateDeleteIcon(e);
+    }
 
-    public void mouseReleased(MouseEvent e) {}
-
+    public void mouseReleased(MouseEvent e)
+    {
+        updateDeleteIcon(e);
+    }
 
     /**
      * Updates the delete icon when the mouse is dragged over.
@@ -448,6 +486,11 @@ public class SIPCommTextFieldUI
         updateCursor(e);
     }
 
+    /**
+     * Updates the cursor type depending on a given <tt>MouseEvent</tt>.
+     *
+     * @param mouseEvent the <tt>MouseEvent</tt> on which the cursor depends
+     */
     private void updateCursor(MouseEvent mouseEvent)
     {
         Rectangle rect = getVisibleEditorRect();

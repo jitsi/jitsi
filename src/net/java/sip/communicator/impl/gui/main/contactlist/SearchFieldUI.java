@@ -43,14 +43,29 @@ public class SearchFieldUI
     private Image callIcon;
 
     /**
+     * The separator icon shown between the call icon and the close.
+     */
+    private Image separatorIcon;
+
+    /**
      * The roll over icon of the call button.
      */
     private Image callRolloverIcon;
 
     /**
+     * The pressed icon of the call button.
+     */
+    private Image callPressedIcon;
+
+    /**
      * Indicates if the mouse is currently over the call button.
      */
     private boolean isCallMouseOver = false;
+
+    /**
+     * Indicates if the mouse is currently over the call button.
+     */
+    private boolean isCallMousePressed = false;
 
     /**
      * The call button tool tip string.
@@ -139,10 +154,18 @@ public class SearchFieldUI
                 int dx = callRect.x;
                 dy = callRect.y;
 
-                if (isCallMouseOver)
+                if (isCallMousePressed)
+                    g2.drawImage(callPressedIcon, dx, dy, null);
+                else if (isCallMouseOver)
                     g2.drawImage(callRolloverIcon, dx, dy, null);
                 else
                     g2.drawImage(callIcon, dx, dy, null);
+
+                g2.drawImage(   separatorIcon,
+                                dx + callRect.width + 3,
+                                dy + (callRect.height
+                                    - separatorIcon.getHeight(null))/2,
+                                null);
 
                 isCallIconVisible = true;
             }
@@ -223,11 +246,17 @@ public class SearchFieldUI
     public void mousePressed(MouseEvent e)
     {
         super.mousePressed(e);
+
+        if(isCallButtonEnabled)
+            updateCallIcon(e);
     }
 
     public void mouseReleased(MouseEvent e)
     {
         super.mouseReleased(e);
+
+        if(isCallButtonEnabled)
+            updateCallIcon(e);
     }
 
     /**
@@ -284,8 +313,18 @@ public class SearchFieldUI
                         x, y, // X-Y of the mouse for the tool tip
                         0, false));
 
+            if (evt.getID() == MouseEvent.MOUSE_PRESSED)
+            {
+                isCallMouseOver = false;
+                isCallMousePressed = true;
+            }
+            else
+            {
+                isCallMouseOver = true;
+                isCallMousePressed = false;
+            }
+
             // Update the default cursor.
-            isCallMouseOver = true;
             getComponent().setCursor(Cursor.getDefaultCursor());
 
             // Perform call action when the call button is clicked.
@@ -305,6 +344,7 @@ public class SearchFieldUI
                         0, false));
 
             isCallMouseOver = false;
+            isCallMousePressed = false;
         }
 
         getComponent().repaint();
@@ -320,7 +360,7 @@ public class SearchFieldUI
         Component c = getComponent();
         Rectangle rect = c.getBounds();
 
-        int dx = getDeleteButtonRect().x - callRolloverIcon.getWidth(null) - 2;
+        int dx = getDeleteButtonRect().x - callRolloverIcon.getWidth(null) - 8;
         int dy = (rect.y + rect.height) / 2 - callRolloverIcon.getHeight(null)/2;
 
         return new Rectangle(   dx,
@@ -347,6 +387,13 @@ public class SearchFieldUI
             callRolloverIcon = UtilActivator.getResources()
                 .getImage("service.gui.buttons.SEARCH_CALL_ROLLOVER_ICON")
                     .getImage();
+
+            callPressedIcon = UtilActivator.getResources()
+                .getImage("service.gui.buttons.SEARCH_CALL_PRESSED_ICON")
+                    .getImage();
+
+            separatorIcon = UtilActivator.getResources()
+                .getImage("service.gui.icons.SEARCH_SEPARATOR").getImage();
         }
     }
 
