@@ -124,6 +124,22 @@ public class MasterPasswordInputDialog
                 okButton.doClick();
             }
         });
+        // Prevents the password field to select the whole text automatically
+        // when it regains the focus. The master password dialog may loose the
+        // focus and regain it when the main contact list window is loaded, so
+        // we make sure here that we won't delete everything that we've already
+        // typed when the focus lost/gained events happen.
+        currentPasswdField.addFocusListener(new FocusAdapter()
+        {
+            @Override
+            public void focusGained(FocusEvent evt2)
+            {
+                int caretPosition = currentPasswdField.getCaretPosition();
+                currentPasswdField.setSelectionEnd(0);
+                // Reset the caret position.
+                currentPasswdField.setCaretPosition(caretPosition);
+            }
+        });
 
         // OK and cancel buttons
         okButton = new JButton(resources.getI18NString("service.gui.OK"));
