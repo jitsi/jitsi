@@ -330,6 +330,19 @@ public class CallInfoFrame
                             "service.gui.callinfo.ICE_STATE." + iceState)));
                 }
 
+                stringBuffer.append("<br/>");
+                // Total harvesting time.
+                long harvestingTime
+                    = callPeerMediaHandler.getTotalHarvestingTime();
+                if(harvestingTime != -1)
+                {
+                    stringBuffer.append(getLineString(resources.getI18NString(
+                                    "service.gui.callinfo.TOTAL_HARVESTING_TIME"
+                                    )
+                                + ":",
+                                harvestingTime + " ms"));
+                }
+
                 // Current harvester time if ICE agent is harvesting.
                 String[] harvesterNames =
                 {
@@ -341,7 +354,6 @@ public class CallInfoFrame
                     "TurnCandidateHarvester",
                     "UPNPHarvester"
                 };
-                long harvestingTime;
                 for(int i = 0; i < harvesterNames.length; ++i)
                 {
                     harvestingTime = callPeerMediaHandler.getHarvestingTime(
@@ -355,7 +367,6 @@ public class CallInfoFrame
                                     harvestingTime + " ms"));
                     }
                 }
-
             }
         }
     }
