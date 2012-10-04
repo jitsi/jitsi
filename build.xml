@@ -414,6 +414,9 @@
                     </font>
                  ]]>
              </bottom>
+          <!-- link to libjitsi and ice4j -->
+          <link href="http://dev.jitsi.org/libjitsi/javadoc/"/>
+          <link href="http://dev.jitsi.org/ice4j/javadoc/"/>
         </javadoc>
     </target>
 
