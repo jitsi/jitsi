@@ -71,8 +71,8 @@ public class CallPeerRendererUtils
                                             Component[] buttons)
     {
         JComponent buttonBar = fullScreen
-                                ? new CallToolBarPanel(true)
-                                : new CallToolBarPanel(false);
+                                ? new CallToolBarPanel(true, false)
+                                : new CallToolBarPanel(false, false);
 
         if (buttons != null)
         {
@@ -84,6 +84,19 @@ public class CallPeerRendererUtils
         }
 
         return buttonBar;
+    }
+
+    /**
+     * Creates a buttons bar from the given list of button components.
+     *
+     * @param fullScreen indicates if the created button bar would be shown in
+     * full screen mode
+     * @param buttons the list of buttons to add in the created button bar
+     * @return the created button bar
+     */
+    public static JComponent createIncomingCallButtonBar()
+    {
+        return new CallToolBarPanel(false, true);
     }
 
     /**
@@ -120,28 +133,45 @@ public class CallPeerRendererUtils
     private static class CallToolBarPanel
         extends OrderedTransparentPanel
     {
-        final Color settingsColor
+        final Color toolbarColor
             = new Color(GuiActivator.getResources().getColor(
                 "service.gui.CALL_TOOL_BAR"));
 
-        final Color settingsFullScreenColor
+        final Color toolbarFullScreenColor
             = new Color(GuiActivator.getResources().getColor(
                 "service.gui.CALL_TOOL_BAR_FULL_SCREEN"));
+
+        final Color toolbarInCallBorderColor
+            = new Color(GuiActivator.getResources().getColor(
+                "service.gui.IN_CALL_TOOL_BAR_BORDER"));
+
+        final Color toolbarInCallShadowColor
+            = new Color(GuiActivator.getResources().getColor(
+                "service.gui.IN_CALL_TOOL_BAR_BORDER_SHADOW"));
 
         final Image buttonSeparatorImage
             = ImageLoader.getImage(ImageLoader.CALL_TOOLBAR_SEPARATOR);
 
+        final Image buttonDarkSeparatorImage
+            = ImageLoader.getImage(ImageLoader.CALL_TOOLBAR_DARK_SEPARATOR);
+
         private final boolean isFullScreen;
+
+        private final boolean isIncomingCall;
 
         private final int TOOL_BAR_BORDER = 2;
 
         private final int TOOL_BAR_X_GAP = 3;
 
-        public CallToolBarPanel(boolean isFullScreen)
+        private Image separatorImage;
+
+        public CallToolBarPanel(boolean isFullScreen,
+                                boolean isIncomingCall)
         {
             this.isFullScreen = isFullScreen;
+            this.isIncomingCall = isIncomingCall;
 
-            setLayout(new FlowLayout(FlowLayout.CENTER, 3, 0));
+            setLayout(new FlowLayout(FlowLayout.CENTER, TOOL_BAR_X_GAP, 0));
             setBorder(BorderFactory.createEmptyBorder(
                 TOOL_BAR_BORDER,
                 TOOL_BAR_BORDER, 
@@ -159,24 +189,46 @@ public class CallPeerRendererUtils
 
             try
             {
-                if (isFullScreen)
-                    g.setColor(settingsFullScreenColor);
-                else
-                    g.setColor(settingsColor);
-
-                g.fillRoundRect(0, 0, getWidth(), getHeight(), 8, 8);
-
-                // We add the border.
-                int x = CallToolBarButton.DEFAULT_WIDTH
-                        + TOOL_BAR_BORDER + TOOL_BAR_X_GAP;
-
-                while (x < getWidth() - TOOL_BAR_BORDER - TOOL_BAR_X_GAP)
+                if (isIncomingCall)
                 {
-                    g.drawImage(buttonSeparatorImage, x + 1,
-                        (getHeight() - buttonSeparatorImage.getHeight(this))/2,
-                        this);
+                    g.setColor(toolbarInCallShadowColor);
+                    g.drawRoundRect(
+                        0, 0, getWidth() - 1, getHeight() - 2, 10, 10);
 
-                    x += CallToolBarButton.DEFAULT_WIDTH + TOOL_BAR_X_GAP;
+                    g.setColor(toolbarInCallBorderColor);
+                    g.drawRoundRect(
+                        0, 0, getWidth() - 1, getHeight() - 3, 10, 10);
+                }
+                else
+                {
+                    if (isFullScreen)
+                        g.setColor(toolbarFullScreenColor);
+                    else
+                        g.setColor(toolbarColor);
+
+                    g.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
+                }
+
+                if (!isFullScreen)
+                {
+                    // We add the border.
+                    int x = CallToolBarButton.DEFAULT_WIDTH
+                            + TOOL_BAR_BORDER + TOOL_BAR_X_GAP;
+
+                    while (x < getWidth() - TOOL_BAR_BORDER - TOOL_BAR_X_GAP)
+                    {
+                        separatorImage = (isIncomingCall)
+                                ? buttonDarkSeparatorImage
+                                : buttonSeparatorImage;
+
+                        g.drawImage(separatorImage,
+                            x + 1,
+                            (getHeight()
+                                - separatorImage.getHeight(this))/2,
+                            this);
+
+                        x += CallToolBarButton.DEFAULT_WIDTH + TOOL_BAR_X_GAP;
+                    }
                 }
             }
             finally

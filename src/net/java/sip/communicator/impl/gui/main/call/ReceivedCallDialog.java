@@ -192,14 +192,6 @@ public class ReceivedCallDialog
     public void outgoingCallCreated(CallEvent event) {}
 
     /**
-     * Reloads icons.
-     */
-    public void loadSkin()
-    {
-        this.initCallLabel(getCallLabels());
-    }
-
-    /**
      * Answers the call when the call button has been pressed.
      */
     @Override

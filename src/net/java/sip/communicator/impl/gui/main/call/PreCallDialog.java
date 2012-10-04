@@ -18,6 +18,7 @@ import net.java.sip.communicator.util.swing.*;
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.device.*;
 import org.jitsi.util.*;
+import org.jitsi.util.swing.TransparentPanel;
 
 import com.explodingpixels.macwidgets.*;
 
@@ -51,11 +52,6 @@ public abstract class PreCallDialog
      * The hangup button name.
      */
     private static final String HANGUP_BUTTON = "HangupButton";
-
-    /**
-     * The horizontal gap between buttons.
-     */
-    private static final int HGAP = 5;
 
     /**
      * Call button.
@@ -244,36 +240,31 @@ public abstract class PreCallDialog
      */
     private void initComponents()
     {
-        JPanel mainPanel = new JPanel(new GridBagLayout());
+        JPanel mainPanel = new TransparentPanel(new BorderLayout(10, 0));
+
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         // disable html rendering
         callLabelDisplayName.putClientProperty("html.disable", Boolean.TRUE);
         callLabelAddress.putClientProperty("html.disable", Boolean.TRUE);
         callLabelImage.putClientProperty("html.disable", Boolean.TRUE);
 
-        JPanel buttonsPanel = new TransparentPanel(new GridBagLayout());
+        JComponent buttonsPanel
+            = CallPeerRendererUtils.createIncomingCallButtonBar();
 
-        callButton = new SIPCommButton(
-            ImageLoader.getImage(ImageLoader.CALL_BUTTON_BG));
+        callButton = new SIPCommButton();
 
         if(mergeCall)
         {
-            mergeCallButton = new SIPCommButton(
-                ImageLoader.getImage(ImageLoader.MERGE_CALL_BUTTON_BG));
+            mergeCallButton = new SIPCommButton();
         }
 
         if(video)
         {
-            videoCallButton = new SIPCommButton(
-                ImageLoader.getImage(ImageLoader.CALL_VIDEO_BUTTON_BG));
+            videoCallButton = new SIPCommButton();
         }
 
-        hangupButton = new SIPCommButton(
-            ImageLoader.getImage(ImageLoader.HANGUP_BUTTON_BG));
-
-        mainPanel.setPreferredSize(new Dimension(400, 90));
-        mainPanel.setOpaque(false);
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        hangupButton = new SIPCommButton();
 
         callButton.setName(CALL_BUTTON);
         hangupButton.setName(HANGUP_BUTTON);
@@ -296,71 +287,47 @@ public abstract class PreCallDialog
 
         preCallWindow.add(mainPanel);
 
-        GridBagConstraints constraints = new GridBagConstraints();
-        constraints.anchor = GridBagConstraints.WEST;
-        constraints.gridx = 0;
-        constraints.gridy = 0;
-        constraints.gridheight = 2;
-        constraints.insets = new Insets(0, 0, 0, HGAP);
-        mainPanel.add(callLabelImage, constraints);
+        mainPanel.add(callLabelImage, BorderLayout.WEST);
 
-        constraints.insets = new Insets(0, 0, 0, 0);
-        constraints.gridheight = 1;
-        constraints.gridx = 1;
-        constraints.weightx = 1;
-        mainPanel.add(callLabelDisplayName, constraints);
+        JPanel labelsPanel = new TransparentPanel();
+        labelsPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
 
-        constraints.gridy = 1;
-        mainPanel.add(callLabelAddress, constraints);
+        labelsPanel.setLayout(new BoxLayout(labelsPanel, BoxLayout.Y_AXIS));
+        callLabelDisplayName.setAlignmentX(JLabel.LEFT_ALIGNMENT);
+        labelsPanel.add(callLabelDisplayName);
+        labelsPanel.add(Box.createVerticalStrut(3));
+        callLabelAddress.setAlignmentX(JLabel.LEFT_ALIGNMENT);
+        labelsPanel.add(callLabelAddress);
 
         if (accountsCombo != null)
         {
-            constraints.gridx = 1;
-            constraints.weightx = 1;
-            mainPanel.add(Box.createVerticalStrut(HGAP), constraints);
-
-            constraints.gridx = 1;
-            constraints.gridy = 2;
-            constraints.weightx = 1;
-            mainPanel.add(accountsCombo, constraints);
+            labelsPanel.add(Box.createVerticalStrut(3));
+            accountsCombo.setAlignmentX(JLabel.LEFT_ALIGNMENT);
+            labelsPanel.add(accountsCombo);
         }
 
-        constraints.anchor = GridBagConstraints.CENTER;
-        constraints.gridx = 2;
-        constraints.gridy = 0;
-        constraints.weightx = 0;
-        constraints.gridheight = 2;
-        mainPanel.add(Box.createHorizontalStrut(HGAP), constraints);
+        mainPanel.add(labelsPanel, BorderLayout.CENTER);
 
-        constraints.anchor = GridBagConstraints.CENTER;
-        constraints.gridx = 3;
-        constraints.weightx = 0;
-        mainPanel.add(buttonsPanel, constraints);
+        // Loads skin resources.
+        loadSkin();
 
-        constraints.gridx = 0;
-        constraints.gridy = 0;
-        constraints.gridheight = 0;
-        buttonsPanel.add(callButton, constraints);
+        JPanel rightPanel = new TransparentPanel(
+            new FlowLayout(FlowLayout.CENTER, 0, 0));
+
+        rightPanel.setBorder(BorderFactory.createEmptyBorder(6, 0, 0, 0));
+
+        buttonsPanel.add(callButton);
 
         if(mergeCall)
-        {
-            constraints.gridx++;
-            buttonsPanel.add(Box.createHorizontalStrut(HGAP));
-            constraints.gridx++;
-            buttonsPanel.add(mergeCallButton, constraints);
-        }
+            buttonsPanel.add(mergeCallButton);
 
         if(video)
-        {
-            constraints.gridx++;
-            buttonsPanel.add(Box.createHorizontalStrut(HGAP));
-            constraints.gridx++;
-            buttonsPanel.add(videoCallButton, constraints);
-        }
-        constraints.gridx++;
-        buttonsPanel.add(Box.createHorizontalStrut(HGAP));
-        constraints.gridx++;
-        buttonsPanel.add(hangupButton, constraints);
+            buttonsPanel.add(videoCallButton);
+
+        buttonsPanel.add(hangupButton);
+
+        rightPanel.add(buttonsPanel);
+        mainPanel.add(rightPanel, BorderLayout.EAST);
     }
 
     /**
@@ -436,13 +403,38 @@ public abstract class PreCallDialog
     public void loadSkin()
     {
         callButton.setBackgroundImage(
-            ImageLoader.getImage(ImageLoader.CALL_BUTTON_BG));
+            ImageLoader.getImage(ImageLoader.INCOMING_CALL_BUTTON_BG));
+        callButton.setRolloverImage(
+            ImageLoader.getImage(ImageLoader.INCOMING_CALL_BUTTON_ROLLOVER));
+        callButton.setPressedImage(
+            ImageLoader.getImage(ImageLoader.INCOMING_CALL_BUTTON_PRESSED));
 
-        videoCallButton.setBackgroundImage(
-            ImageLoader.getImage(ImageLoader.CALL_VIDEO_BUTTON_BG));
+        if (videoCallButton != null)
+        {
+            videoCallButton.setBackgroundImage(
+                ImageLoader.getImage(ImageLoader.CALL_VIDEO_BUTTON_BG));
+            videoCallButton.setRolloverImage(
+                ImageLoader.getImage(ImageLoader.CALL_VIDEO_BUTTON_ROLLOVER));
+            videoCallButton.setPressedImage(
+                ImageLoader.getImage(ImageLoader.CALL_VIDEO_BUTTON_PRESSED));
+        }
+
+        if (mergeCallButton != null)
+        {
+            mergeCallButton.setBackgroundImage(
+                ImageLoader.getImage(ImageLoader.MERGE_CALL_BUTTON_BG));
+            mergeCallButton.setRolloverImage(
+                ImageLoader.getImage(ImageLoader.MERGE_CALL_BUTTON_ROLLOVER));
+            mergeCallButton.setPressedImage(
+                ImageLoader.getImage(ImageLoader.MERGE_CALL_BUTTON_PRESSED));
+        }
 
         hangupButton.setBackgroundImage(
             ImageLoader.getImage(ImageLoader.HANGUP_BUTTON_BG));
+        hangupButton.setRolloverImage(
+            ImageLoader.getImage(ImageLoader.HANGUP_BUTTON_ROLLOVER));
+        hangupButton.setPressedImage(
+            ImageLoader.getImage(ImageLoader.HANGUP_BUTTON_PRESSED));
     }
 
     /**
