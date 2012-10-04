@@ -158,8 +158,20 @@ public class ImageLoader
     /**
      * The call button image.
      */
-    public static final ImageID CALL_BUTTON_BG
-        = new ImageID("service.gui.buttons.CALL_BUTTON_BG");
+    public static final ImageID INCOMING_CALL_BUTTON_BG
+        = new ImageID("service.gui.buttons.INCOMING_CALL_BUTTON_BG");
+
+    /**
+     * The call button image.
+     */
+    public static final ImageID INCOMING_CALL_BUTTON_ROLLOVER
+        = new ImageID("service.gui.buttons.INCOMING_CALL_BUTTON_ROLLOVER");
+
+    /**
+     * The call button image.
+     */
+    public static final ImageID INCOMING_CALL_BUTTON_PRESSED
+        = new ImageID("service.gui.buttons.INCOMING_CALL_BUTTON_PRESSED");
 
     /**
      * The merge call button image.
@@ -168,10 +180,34 @@ public class ImageLoader
         = new ImageID("service.gui.buttons.MERGE_CALL_BUTTON_BG");
 
     /**
+     * The merge call button image.
+     */
+    public static final ImageID MERGE_CALL_BUTTON_ROLLOVER
+        = new ImageID("service.gui.buttons.MERGE_CALL_BUTTON_ROLLOVER");
+
+    /**
+     * The merge call button image.
+     */
+    public static final ImageID MERGE_CALL_BUTTON_PRESSED
+        = new ImageID("service.gui.buttons.MERGE_CALL_BUTTON_PRESSED");
+
+    /**
      * The video call button image.
      */
     public static final ImageID CALL_VIDEO_BUTTON_BG
         = new ImageID("service.gui.buttons.CALL_VIDEO_BUTTON_BG");
+
+    /**
+     * The video call button image.
+     */
+    public static final ImageID CALL_VIDEO_BUTTON_ROLLOVER
+        = new ImageID("service.gui.buttons.CALL_VIDEO_BUTTON_ROLLOVER");
+
+    /**
+     * The video call button image.
+     */
+    public static final ImageID CALL_VIDEO_BUTTON_PRESSED
+        = new ImageID("service.gui.buttons.CALL_VIDEO_BUTTON_PRESSED");
 
     /**
      * The background image for a button in contact list that is shown on the
@@ -307,6 +343,12 @@ public class ImageLoader
         = new ImageID("service.gui.icons.CALL_TOOLBAR_SEPARATOR");
 
     /**
+     * The icon used to separate buttons in the call toolbar.
+     */
+    public static final ImageID CALL_TOOLBAR_DARK_SEPARATOR
+        = new ImageID("service.gui.icons.CALL_TOOLBAR_DARK_SEPARATOR");
+
+    /**
      * The chat call button image.
      */
     public static final ImageID CHAT_CALL
@@ -359,6 +401,18 @@ public class ImageLoader
      */
     public static final ImageID HANGUP_BUTTON_BG
         = new ImageID("service.gui.buttons.HANGUP_BUTTON_BG");
+
+    /**
+     * The hangup button image.
+     */
+    public static final ImageID HANGUP_BUTTON_ROLLOVER
+        = new ImageID("service.gui.buttons.HANGUP_BUTTON_ROLLOVER");
+
+    /**
+     * The hangup button image.
+     */
+    public static final ImageID HANGUP_BUTTON_PRESSED
+        = new ImageID("service.gui.buttons.HANGUP_BUTTON_PRESSED");
 
     /**
      * The background image for all setting buttons in the call panel.
