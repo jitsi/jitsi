@@ -218,7 +218,8 @@ public class SmileysSelectorBox
         smileyItem.setIcon(imageIcon);
 
         smileyDescriptionLabel.setText(smiley.getDescription());
-        smileyTextLabel.setText(smiley.getDefaultString());
+        smileyTextLabel.setText(
+            "<html>" + smiley.getDefaultString() + "</html>");
     }
 
     /**

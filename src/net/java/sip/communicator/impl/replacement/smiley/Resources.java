@@ -52,7 +52,7 @@ public class Resources
                             ":~-(", ":~(", "(upset)" }, "Upset"));
 
         defaultSmileyList.add(new SmileyImpl("service.gui.smileys.SMILEY6",
-            new String[] {"(L)" , "(l)", "(H)", "(h)"}, "In love"));
+            new String[] {"&lt;3", "(L)" , "(l)", "(H)", "(h)"}, "In love"));
 
         defaultSmileyList.add(new SmileyImpl("service.gui.smileys.SMILEY7",
             new String[] {"(blush)"}, "Blushing"));
