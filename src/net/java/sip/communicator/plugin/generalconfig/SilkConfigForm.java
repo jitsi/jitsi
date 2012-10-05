@@ -31,28 +31,28 @@ public class SilkConfigForm
      */
     private static final String FEC_PROP
             = "net.java.sip.communicator.impl.neomedia.codec.audio.silk." +
-              "encoder.usefec";
+              "encoder.USE_FEC";
 
     /**
      * The property name associated with the 'force packet loss' setting
      */
     private static final String FEC_FORCE_PL_PROP
             = "net.java.sip.communicator.impl.neomedia.codec.audio.silk." +
-            "encoder.forcepacketloss";
+            "encoder.AWLAYS_ASSUME_PACKET_LOSS";
 
     /**
      * The property name associated with the 'speech activity threshold' setting
      */
     private static final String FEC_SAT_PROP
             = "net.java.sip.communicator.impl.neomedia.codec.audio.silk." +
-            "encoder.sat";
+            "encoder.SPEECH_ACTIVITY_THRESHOLD";
 
     /**
      * The property name associated with the 'advertise fec' setting
      */
     private static final String FEC_ADVERTISE_PROP
             = "net.java.sip.communicator.impl.neomedia.codec.audio.silk." +
-            "encoder.advertisefec";
+            "ADVERTISE_FEC";
 
     /**
      * The default value for the SAT setting
@@ -135,7 +135,7 @@ public class SilkConfigForm
         labelPanel.add(new JLabel(Resources.getString(
                         "plugin.generalconfig.SILK_USE_FEC")));
         labelPanel.add(new JLabel(Resources.getString(
-                        "plugin.generalconfig.SILK_FORCE_FEC_PACKET_LOSS")));
+                        "plugin.generalconfig.SILK_ALWAYS_ASSUME_PACKET_LOSS")));
         labelPanel.add(new JLabel(Resources.getString(
                         "plugin.generalconfig.SILK_SAT")));
         labelPanel.add(new JLabel(Resources.getString(
