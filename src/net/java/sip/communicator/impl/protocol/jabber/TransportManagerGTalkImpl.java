@@ -1483,7 +1483,7 @@ public class TransportManagerGTalkImpl
     /**
      * Returns the total harvesting time (in ms) for all harvesters.
      *
-     * @return The total harvesting time (in ms) for all the harvesters.  -1 if
+     * @return The total harvesting time (in ms) for all the harvesters.  0 if
      * the ICE agent is null, or if the agent has nevers harvested.
      */
     public long getTotalHarvestingTime()
@@ -1492,7 +1492,7 @@ public class TransportManagerGTalkImpl
         {
             return iceAgent.getTotalHarvestingTime();
         }
-        return -1;
+        return 0;
     }
 
     /**
@@ -1501,7 +1501,7 @@ public class TransportManagerGTalkImpl
      * @param harvesterName The class name if the harvester.
      *
      * @return The harvesting time (in ms) for the harvester given in parameter.
-     * -1 if this harvester does not exists, if the ICE agent is null, or if the
+     * 0 if this harvester does not exists, if the ICE agent is null, or if the
      * agent has never harvested with this harvester.
      */
     public long getHarvestingTime(String harvesterName)
@@ -1510,7 +1510,39 @@ public class TransportManagerGTalkImpl
         {
             return iceAgent.getHarvestingTime(harvesterName);
         }
-        return -1;
+        return 0;
+    }
+
+    /**
+     * Returns the number of harvesting for this agent.
+     *
+     * @return The number of harvesting for this agent.
+     */
+    public int getNbHarvesting()
+    {
+        if(iceAgent != null)
+        {
+            return iceAgent.getNbHarvesting();
+        }
+        return 0;
+    }
+
+    /**
+     * Returns the number of harvesting time for the harvester given in
+     * parameter.
+     *
+     * @param harvesterName The class name if the harvester.
+     *
+     * @return The number of harvesting time for the harvester given in
+     * parameter.
+     */
+    public int getNbHarvesting(String harvesterName)
+    {
+        if(iceAgent != null)
+        {
+            return iceAgent.getNbHarvesting(harvesterName);
+        }
+        return 0;
     }
 
     /**

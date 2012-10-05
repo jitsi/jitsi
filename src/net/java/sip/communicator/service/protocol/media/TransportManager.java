@@ -671,7 +671,7 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
     /**
      * Returns the total harvesting time (in ms) for all harvesters.
      *
-     * @return The total harvesting time (in ms) for all the harvesters.  -1 if
+     * @return The total harvesting time (in ms) for all the harvesters. 0 if
      * the ICE agent is null, or if the agent has nevers harvested.
      */
     public abstract long getTotalHarvestingTime();
@@ -682,10 +682,28 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
      * @param harvesterName The class name if the harvester.
      *
      * @return The harvesting time (in ms) for the harvester given in parameter.
-     * -1 if this harvester does not exists, if the ICE agent is null, or if the
+     * 0 if this harvester does not exists, if the ICE agent is null, or if the
      * agent has never harvested with this harvester.
      */
     public abstract long getHarvestingTime(String harvesterName);
+
+    /**
+     * Returns the number of harvesting for this agent.
+     *
+     * @return The number of harvesting for this agent.
+     */
+    public abstract int getNbHarvesting();
+
+    /**
+     * Returns the number of harvesting time for the harvester given in
+     * parameter.
+     *
+     * @param harvesterName The class name if the harvester.
+     *
+     * @return The number of harvesting time for the harvester given in
+     * parameter.
+     */
+    public abstract int getNbHarvesting(String harvesterName);
 
     /**
      * Returns the ICE candidate extended type selected by the given agent.

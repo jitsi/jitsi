@@ -158,12 +158,12 @@ public class TransportManagerSipImpl extends TransportManager<CallPeerSipImpl>
     /**
      * Returns the total harvesting time (in ms) for all harvesters.
      *
-     * @return The total harvesting time (in ms) for all the harvesters.  -1 if
+     * @return The total harvesting time (in ms) for all the harvesters.  0 if
      * the ICE agent is null, or if the agent has nevers harvested.
      */
     public long getTotalHarvestingTime()
     {
-        return -1;
+        return 0;
     }
 
     /**
@@ -172,11 +172,35 @@ public class TransportManagerSipImpl extends TransportManager<CallPeerSipImpl>
      * @param harvesterName The class name if the harvester.
      *
      * @return The harvesting time (in ms) for the harvester given in parameter.
-     * -1 if this harvester does not exists, if the ICE agent is null, or if the
+     * 0 if this harvester does not exists, if the ICE agent is null, or if the
      * agent has never harvested with this harvester.
      */
     public long getHarvestingTime(String harvesterName)
     {
-        return -1;
+        return 0;
+    }
+
+    /**
+     * Returns the number of harvesting for this agent.
+     *
+     * @return The number of harvesting for this agent.
+     */
+    public int getNbHarvesting()
+    {
+        return 0;
+    }
+
+    /**
+     * Returns the number of harvesting time for the harvester given in
+     * parameter.
+     *
+     * @param harvesterName The class name if the harvester.
+     *
+     * @return The number of harvesting time for the harvester given in
+     * parameter.
+     */
+    public int getNbHarvesting(String harvesterName)
+    {
+        return 0;
     }
 }

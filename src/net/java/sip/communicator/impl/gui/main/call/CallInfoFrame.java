@@ -335,13 +335,20 @@ public class CallInfoFrame
                 // Total harvesting time.
                 long harvestingTime
                     = callPeerMediaHandler.getTotalHarvestingTime();
-                if(harvestingTime != -1)
+                if(harvestingTime != 0)
                 {
                     stringBuffer.append(getLineString(resources.getI18NString(
                                     "service.gui.callinfo.TOTAL_HARVESTING_TIME"
-                                    )
-                                + ":",
-                                harvestingTime + " ms"));
+                                    ),
+                                harvestingTime
+                                + " "
+                                + resources.getI18NString(
+                                    "service.gui.callinfo.HARVESTING_MS_FOR")
+                                + " "
+                                + callPeerMediaHandler.getNbHarvesting()
+                                + " "
+                                + resources.getI18NString(
+                                    "service.gui.callinfo.HARVESTS")));
                 }
 
                 // Current harvester time if ICE agent is harvesting.
@@ -359,13 +366,23 @@ public class CallInfoFrame
                 {
                     harvestingTime = callPeerMediaHandler.getHarvestingTime(
                             harvesterNames[i]);
-                    if(harvestingTime != -1)
+                    if(harvestingTime != 0)
                     {
                         stringBuffer.append(getLineString(
                                     resources.getI18NString(
                                         "service.gui.callinfo.HARVESTING_TIME")
-                                    + " " + harvesterNames[i] + ":",
-                                    harvestingTime + " ms"));
+                                    + " " + harvesterNames[i],
+                                    harvestingTime
+                                    + " "
+                                    + resources.getI18NString(
+                                        "service.gui.callinfo.HARVESTING_MS_FOR"
+                                        )
+                                    + " "
+                                    + callPeerMediaHandler.getNbHarvesting(
+                                        harvesterNames[i])
+                                    + " "
+                                    + resources.getI18NString(
+                                        "service.gui.callinfo.HARVESTS")));
                     }
                 }
             }
