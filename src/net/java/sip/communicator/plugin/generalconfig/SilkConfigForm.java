@@ -48,6 +48,13 @@ public class SilkConfigForm
             "encoder.sat";
 
     /**
+     * The property name associated with the 'advertise fec' setting
+     */
+    private static final String FEC_ADVERTISE_PROP
+            = "net.java.sip.communicator.impl.neomedia.codec.audio.silk." +
+            "encoder.advertisefec";
+
+    /**
      * The default value for the SAT setting
      */
     private static final String FEC_SAT_DEFAULT = "0.5";
@@ -61,6 +68,11 @@ public class SilkConfigForm
      * The default value for the FEC force packet loss setting
      */
     private static final boolean FEC_FORCE_PL_DEFAULT = true;
+
+    /**
+     * The default value for the 'advertise FEC' setting
+     */
+    private static final boolean FEC_ADVERTISE_DEFAULT = false;
 
     /**
      * The "restore defaults" button
@@ -77,6 +89,11 @@ public class SilkConfigForm
      * The "force packet loss" checkbox
      */
     private final JCheckBox fecForcePLCheckbox = new JCheckBox();
+
+    /**
+     * The " advertise FEC" checkbox
+     */
+    private final JCheckBox advertiseFECCheckbox = new JCheckBox();
 
     /**
      * The "speech activity threshold" field
@@ -121,6 +138,8 @@ public class SilkConfigForm
                         "plugin.generalconfig.SILK_FORCE_FEC_PACKET_LOSS")));
         labelPanel.add(new JLabel(Resources.getString(
                         "plugin.generalconfig.SILK_SAT")));
+        labelPanel.add(new JLabel(Resources.getString(
+                        "plugin.generalconfig.SILK_ADVERTISE_FEC")));
 
 
         fecCheckbox.addActionListener(new ActionListener() {
@@ -137,7 +156,7 @@ public class SilkConfigForm
         fecForcePLCheckbox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                configurationService.setProperty(FEC_PROP,
+                configurationService.setProperty(FEC_FORCE_PL_PROP,
                         fecForcePLCheckbox.isSelected());
             }
         });
@@ -160,6 +179,17 @@ public class SilkConfigForm
                 FEC_SAT_PROP, FEC_SAT_DEFAULT));
         valuePanel.add(SATField);
 
+        advertiseFECCheckbox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                configurationService.setProperty(FEC_ADVERTISE_PROP,
+                        advertiseFECCheckbox.isSelected());
+            }
+        });
+        advertiseFECCheckbox.setSelected(configurationService.getBoolean(
+                FEC_ADVERTISE_PROP, FEC_ADVERTISE_DEFAULT));
+        valuePanel.add(advertiseFECCheckbox);
+
 
         southPanel.add(restoreButton);
         restoreButton.addActionListener(new ActionListener(){
@@ -168,7 +198,8 @@ public class SilkConfigForm
                 restoreDefaults();
             }
         });
-
+        southPanel.add(new JLabel(Resources.getString(
+                        "plugin.generalconfig.DEFAULT_LANGUAGE_RESTART_WARN")));
     }
 
     /**
@@ -185,5 +216,9 @@ public class SilkConfigForm
 
         SATField.setText(FEC_SAT_DEFAULT);
         configurationService.setProperty(FEC_SAT_PROP, FEC_SAT_DEFAULT);
+
+        advertiseFECCheckbox.setSelected(FEC_ADVERTISE_DEFAULT);
+        configurationService.setProperty(
+                FEC_ADVERTISE_PROP, FEC_ADVERTISE_DEFAULT);
     }
 }
