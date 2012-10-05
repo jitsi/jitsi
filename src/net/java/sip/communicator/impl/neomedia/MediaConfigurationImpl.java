@@ -581,6 +581,7 @@ public class MediaConfigurationImpl implements MediaConfigurationService
 
     /**
      * Creates all the controls (including encoding) for a type(AUDIO or VIDEO)
+     *
      * @param type the type.
      * @return the build Component.
      */
@@ -627,8 +628,12 @@ public class MediaConfigurationImpl implements MediaConfigurationService
     /**
      * Returns a component for encodings configuration for the given
      * <tt>mediaType</tt>
+     *
      * @param mediaType Either <tt>MediaType.AUDIO</tt> or 
      * <tt>MediaType.VIDEO</tt>
+     * @param encodingConfiguration The <tt>EncodingConfiguration</tt> instance
+     * to use. If null, it will use the current encoding configuration from
+     * the media service.
      * @return The component for encodings configuration.
      */
     public Component createEncodingControls(
@@ -665,7 +670,12 @@ public class MediaConfigurationImpl implements MediaConfigurationService
 
     /**
      * Creates Component for the encodings of type(AUDIO or VIDEO).
-     * @param type the type
+     *
+     * @param type the type, either DeviceConfigurationComboBoxModel.AUDIO or
+     * DeviceConfigurationComboBoxModel.AUDIO
+     * @param encodingConfiguration The <tt>EncodingConfiguration</tt> instance
+     * to use. If null, it will use the current encoding configuration from
+     * the media service.
      * @return the component.
      */
     private Component createEncodingControls(int type,
@@ -946,6 +956,7 @@ public class MediaConfigurationImpl implements MediaConfigurationService
 
     /**
      * Used to move encoding options.
+     *
      * @param table the table with encodings
      * @param up move direction.
      */

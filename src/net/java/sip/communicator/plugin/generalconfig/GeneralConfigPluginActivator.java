@@ -145,6 +145,17 @@ public class GeneralConfigPluginActivator
                     52, true),
                 properties);
         }
+        properties.put( ConfigurationForm.FORM_TYPE,
+                ConfigurationForm.ADVANCED_TYPE);
+        bundleContext.registerService(
+                ConfigurationForm.class.getName(),
+                new LazyConfigurationForm(
+                        SilkConfigForm.class.getName(),
+                        getClass().getClassLoader(),
+                        null,
+                        "plugin.generalconfig.SILK_CONFIG",
+                        52, true),
+                properties);
 
         /*
          * Wait for the first ProtocolProviderService to register in order to
