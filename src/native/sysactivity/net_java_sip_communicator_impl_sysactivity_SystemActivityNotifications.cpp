@@ -396,6 +396,18 @@ HRESULT callback(UINT Msg, WPARAM wParam, LPARAM lParam)
             return TRUE;
         }
     }
+    else if (Msg == WM_QUERYENDSESSION)
+    {
+        notify(net_java_sip_communicator_impl_sysactivity_SystemActivityNotifications_NOTIFY_QUERY_ENDSESSION);
+        return TRUE;
+    }
+    else if (Msg == WM_ENDSESSION && wParam == TRUE)
+    {
+        // we fire the message only if we are really ending the session
+        // is wParam is False means someone has canceled the shutdown/logoff
+        notify(net_java_sip_communicator_impl_sysactivity_SystemActivityNotifications_NOTIFY_ENDSESSION);
+        return TRUE;
+    }
 
     jvm->DetachCurrentThread();
 

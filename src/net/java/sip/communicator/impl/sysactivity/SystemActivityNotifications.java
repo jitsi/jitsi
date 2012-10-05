@@ -69,6 +69,18 @@ public class SystemActivityNotifications
     public static final int NOTIFY_DNS_CHANGE = 10;
 
     /**
+     * Notifies for start of process of ending desktop session,
+     * logoff or shutdown.
+     */
+    public static final int NOTIFY_QUERY_ENDSESSION = 11;
+
+    /**
+     * All processes have been informed about ending session, now notify for
+     * the actual end session.
+     */
+    public static final int NOTIFY_ENDSESSION = 12;
+
+    /**
      * The logger.
      */
     private static Logger logger = Logger.getLogger(

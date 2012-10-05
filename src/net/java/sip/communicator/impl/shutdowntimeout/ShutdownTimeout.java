@@ -30,9 +30,15 @@ public class ShutdownTimeout
         = Logger.getLogger(ShutdownTimeout.class);
 
     /**
+     * The system property which can be used to set custom timeout.
+     */
+    public static String SHUTDOWN_TIMEOUT_PROP =
+        "org.jitsi.shutdown.SHUTDOWN_TIMEOUT";
+
+    /**
      * The number of miliseconds that we wait before we force a shutdown.
      */
-    public static final long SHUTDOWN_TIMEOUT = 15000;//ms
+    public static final long SHUTDOWN_TIMEOUT_DEFAULT = 3000;//ms
 
     /**
      * The code that we exit with if the application is not down in 15 seconds.
@@ -72,11 +78,31 @@ public class ShutdownTimeout
             {
                 synchronized(this)
                 {
-                    try{
+                    try
+                    {
+
+                        long shutDownTimeout = SHUTDOWN_TIMEOUT_DEFAULT;
+
+                        // check for custom value available through system
+                        // property
+                        try
+                        {
+                            String shutdownCustomValue =
+                                System.getProperty(SHUTDOWN_TIMEOUT_PROP);
+
+                            if(shutdownCustomValue != null
+                                && shutdownCustomValue.length() > 0)
+                            {
+                                shutDownTimeout =
+                                    Long.valueOf(shutdownCustomValue);
+                            }
+                        }
+                        catch(Throwable t){}
+
                         if (logger.isTraceEnabled())
                             logger.trace("Starting shutdown countdown of "
-                                     + SHUTDOWN_TIMEOUT + "ms.");
-                        wait(SHUTDOWN_TIMEOUT);
+                                     + shutDownTimeout + "ms.");
+                        wait(shutDownTimeout);
                         logger.error("Failed to gently shutdown. Forcing exit.");
                         System.exit(SYSTEM_EXIT_CODE);
                     }catch (InterruptedException ex){

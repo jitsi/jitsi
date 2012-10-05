@@ -278,6 +278,30 @@ public class SystemActivityNotificationsServiceImpl
                     SystemActivityEvent.EVENT_DNS_CHANGE);
                 break;
             }
+            case SystemActivityNotifications.NOTIFY_QUERY_ENDSESSION :
+            {
+                // both events QUERY_ENDSESSION and ENDSESSION
+                // depend on the result one after another
+                // we don't put them in new thread in order to give control
+                // in the bundles using this events.
+                evt = new SystemActivityEvent(this,
+                    SystemActivityEvent.EVENT_QUERY_ENDSESSION);
+                eventDispatcher.fireSystemActivityEventCurrentThread(evt);
+
+                return;
+            }
+            case SystemActivityNotifications.NOTIFY_ENDSESSION :
+            {
+                // both events QUERY_ENDSESSION and ENDSESSION
+                // depend on the result one after another
+                // we don't put them in new thread in order to give control
+                // in the bundles using this events.
+                evt = new SystemActivityEvent(this,
+                    SystemActivityEvent.EVENT_ENDSESSION);
+                eventDispatcher.fireSystemActivityEventCurrentThread(evt);
+
+                return;
+            }
         }
 
         if (evt != null)

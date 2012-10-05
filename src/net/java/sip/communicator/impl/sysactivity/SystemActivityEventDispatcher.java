@@ -117,6 +117,25 @@ public class SystemActivityEventDispatcher
     }
 
     /**
+     * Delivers the specified event to all registered listeners. Without
+     * using the thread, but delivering them in the calling thread.
+     *
+     * @param evt the <tt>SystemActivityEvent</tt> that we'd like delivered to
+     * all registered message listeners.
+     */
+    protected void fireSystemActivityEventCurrentThread(SystemActivityEvent evt)
+    {
+        List<SystemActivityChangeListener> listenersCopy = new ArrayList
+            <SystemActivityChangeListener>(listeners);
+        for (int i = 0; i < listenersCopy.size(); i++)
+        {
+            fireSystemActivityEvent(
+                evt,
+                listenersCopy.get(i));
+        }
+    }
+
+    /**
      * Delivers the specified event to all registered listeners.
      *
      * @param evt the <tt>SystemActivityEvent</tt> that we'd like delivered to

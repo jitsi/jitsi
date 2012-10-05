@@ -439,6 +439,12 @@
                 <include name="logging.properties" />
             </fileset>
         </copy>
+
+        <!-- Add the windows specific bundle path in the felix.client.run.properties file -->
+        <echo file="${light.dir}/lib/felix.client.run.properties"
+            append="true">felix.auto.start.14= reference:file:sc-bundles/windows-clean-shutdown.jar
+        </echo>
+
         <mkdir dir="${light.dir}/lib/bundle" />
         <copy todir="${light.dir}/lib/bundle" overwrite="true">
             <fileset dir="${sc.basedir}/lib/bundle">

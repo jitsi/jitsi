@@ -87,6 +87,19 @@ public class SystemActivityEvent
     public static final int EVENT_DNS_CHANGE = 12;
 
     /**
+     * Informing that the machine is logging of or shutting down.
+     */
+    public static final int EVENT_QUERY_ENDSESSION = 13;
+
+    /**
+     * The log off or shutdown is in process for us, no matter
+     * what other process has replied, whether one of them has canceled
+     * or not the current end of session. It's like that cause we have answered
+     * that we will shutdown.
+     */
+    public static final int EVENT_ENDSESSION = 14;
+
+    /**
      * The type of the event.
      */
     private final int eventID;
