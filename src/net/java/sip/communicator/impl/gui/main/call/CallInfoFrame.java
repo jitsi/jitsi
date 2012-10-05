@@ -327,7 +327,8 @@ public class CallInfoFrame
                         resources.getI18NString(
                             "service.gui.callinfo.ICE_STATE"),
                         resources.getI18NString(
-                            "service.gui.callinfo.ICE_STATE." + iceState)));
+                            "service.gui.callinfo.ICE_STATE."
+                                + iceState.toUpperCase())));
                 }
 
                 stringBuffer.append("<br/>");
