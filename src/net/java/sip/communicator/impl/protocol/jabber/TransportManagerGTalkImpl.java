@@ -1074,6 +1074,8 @@ public class TransportManagerGTalkImpl
                                 candidate.getType().toString()),
                         "0",
                         (long)(candidate.getPreference() * 1000),
+                        // Gingle does not send rel-addr/rel-port infromation.
+                        null,
                         ufrag);
                 component.addUpdateRemoteCandidate(remoteCandidate);
             }
@@ -1162,6 +1164,8 @@ public class TransportManagerGTalkImpl
                             candidate.getType().toString()),
                     "0",
                     (long)(candidate.getPreference() * 1000),
+                    // Gingle does not send rel-addr/rel-port infromation.
+                    null,
                     ufrag);
             component.addRemoteCandidate(remoteCandidate);
             startConnectivityEstablishment = true;

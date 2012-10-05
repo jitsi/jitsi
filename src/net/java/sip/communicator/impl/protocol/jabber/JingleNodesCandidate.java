@@ -57,7 +57,8 @@ public class JingleNodesCandidate
                 transportAddress,
                 parentComponent,
                 CandidateType.RELAYED_CANDIDATE,
-                CandidateExtendedType.JINGLE_NODE_CANDIDATE);
+                CandidateExtendedType.JINGLE_NODE_CANDIDATE,
+                null);
         setBase(this);
         setRelayServerAddress(localEndPoint);
         this.localEndPoint = localEndPoint;

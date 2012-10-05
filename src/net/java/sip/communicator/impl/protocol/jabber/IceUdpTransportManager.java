@@ -839,6 +839,11 @@ public class IceUdpTransportManager
                 List<CandidatePacketExtension> candidates
                     = transport.getChildExtensionsOfType(
                         CandidatePacketExtension.class);
+                // Sorts the remote candidates (host < reflexive < relayed) in
+                // order to create first host, then reflexive, the relayed
+                // candidates, to be able to set the relative-candidate matching
+                // the rel-addr/rel-port attribute.
+                Collections.sort(candidates);
 
                 if(candidates == null || candidates.size() == 0)
                 {
@@ -891,6 +896,17 @@ public class IceUdpTransportManager
                     Component component
                         = stream.getComponent(candidate.getComponent());
 
+                    TransportAddress relatedAddr = null;
+                    if(candidate.getRelAddr() != null
+                            && candidate.getRelPort() != -1)
+                    {
+                        relatedAddr = new TransportAddress(
+                                candidate.getRelAddr(),
+                                candidate.getRelPort(),
+                                Transport.parse(candidate.getProtocol()));
+                    }
+                    RemoteCandidate relatedCandidate
+                        = component.findRemoteCandidate(relatedAddr);
                     component.addUpdateRemoteCandidate(
                             new RemoteCandidate(
                                     new TransportAddress(
@@ -902,7 +918,8 @@ public class IceUdpTransportManager
                                     org.ice4j.ice.CandidateType.parse(
                                             candidate.getType().toString()),
                                     Integer.toString(candidate.getFoundation()),
-                                    candidate.getPriority()));
+                                    candidate.getPriority(),
+                                    relatedCandidate));
                 }
             }
 
@@ -930,6 +947,11 @@ public class IceUdpTransportManager
             List<CandidatePacketExtension> candidates
                 = transport.getChildExtensionsOfType(
                         CandidatePacketExtension.class);
+            // Sorts the remote candidates (host < reflexive < relayed) in order
+            // to create first host, then reflexive, the relayed candidates, to
+            // be able to set the relative-candidate matching the
+            // rel-addr/rel-port attribute.
+            Collections.sort(candidates);
 
             /*
              * If we cannot associate an IceMediaStream with the remote content,
@@ -979,6 +1001,17 @@ public class IceUdpTransportManager
                 Component component
                     = stream.getComponent(candidate.getComponent());
 
+                TransportAddress relatedAddr = null;
+                if(candidate.getRelAddr() != null
+                        && candidate.getRelPort() != -1)
+                {
+                    relatedAddr = new TransportAddress(
+                            candidate.getRelAddr(),
+                            candidate.getRelPort(),
+                            Transport.parse(candidate.getProtocol()));
+                }
+                RemoteCandidate relatedCandidate
+                    = component.findRemoteCandidate(relatedAddr);
                 component.addRemoteCandidate(
                         new RemoteCandidate(
                                 new TransportAddress(
@@ -990,7 +1023,8 @@ public class IceUdpTransportManager
                                 org.ice4j.ice.CandidateType.parse(
                                         candidate.getType().toString()),
                                 Integer.toString(candidate.getFoundation()),
-                                candidate.getPriority()));
+                                candidate.getPriority(),
+                                relatedCandidate));
                 startConnectivityEstablishment = true;
             }
         }

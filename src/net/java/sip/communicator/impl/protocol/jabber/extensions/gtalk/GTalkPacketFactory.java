@@ -285,7 +285,7 @@ public class GTalkPacketFactory
             List<LocalCandidate> candToRemove = new ArrayList<LocalCandidate>();
             List<LocalCandidate> candidates = component.getLocalCandidates();
 
-            for(Candidate candidate : component.getLocalCandidates())
+            for(LocalCandidate candidate : component.getLocalCandidates())
             {
                 if(candidate instanceof UPNPCandidate)
                 {

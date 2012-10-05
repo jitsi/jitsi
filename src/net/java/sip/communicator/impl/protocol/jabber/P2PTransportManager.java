@@ -126,7 +126,7 @@ public class P2PTransportManager
                 List<LocalCandidate> candidates =
                     component.getLocalCandidates();
 
-                for(Candidate candidate : component.getLocalCandidates())
+                for(LocalCandidate candidate : component.getLocalCandidates())
                 {
                     if(candidate instanceof UPNPCandidate)
                     {
@@ -371,6 +371,8 @@ public class P2PTransportManager
                                 candidate.getType().toString()),
                         "0",
                         (long)(candidate.getPreference() * 1000),
+                        // Gingle does not send rel-addr/rel-port infromation.
+                        null,
                         ufrag);
 
                     component.addUpdateRemoteCandidate(remoteCandidate);
@@ -460,6 +462,8 @@ public class P2PTransportManager
                                 candidate.getType().toString()),
                         "0",
                         (long)(candidate.getPreference() * 1000),
+                        // Gingle does not send rel-addr/rel-port infromation.
+                        null,
                         ufrag);
 
                 component.addRemoteCandidate(remoteCandidate);

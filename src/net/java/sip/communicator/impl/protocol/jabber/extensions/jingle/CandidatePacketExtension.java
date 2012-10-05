@@ -12,6 +12,7 @@ import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
  * @author Emil Ivov
  */
 public class CandidatePacketExtension extends AbstractPacketExtension
+    implements Comparable<CandidatePacketExtension>
 {
     /**
      * The name of the "candidate" element.
@@ -370,5 +371,43 @@ public class CandidatePacketExtension extends AbstractPacketExtension
     public CandidateType getType()
     {
         return CandidateType.valueOf(getAttributeAsString(TYPE_ATTR_NAME));
+    }
+
+    /**
+     * Compares this instance with another CandidatePacketExtension by
+     * preference of type: host < local < prflx < srflx < stun < relay.
+     *
+     * @return 0 if the type are equal. -1 if this instance type is preferred.
+     * Otherwise 1.
+     */
+    public int compareTo(CandidatePacketExtension candidatePacketExtension)
+    {
+        // If the types are differents.
+        if(this.getType() != candidatePacketExtension.getType())
+        {
+            CandidateType[] types = {
+                CandidateType.host,
+                CandidateType.local,
+                CandidateType.prflx,
+                CandidateType.srflx,
+                CandidateType.stun,
+                CandidateType.relay
+            };
+            for(int i = 0; i < types.length; ++i)
+            {
+                // this object is preferred.
+                if(types[i] == this.getType())
+                {
+                    return -1;
+                }
+                // the candidatePacketExtension is preferred.
+                else if(types[i] == candidatePacketExtension.getType())
+                {
+                    return 1;
+                }
+            }
+        }
+        // If the types are equal.
+        return 0;
     }
 }
