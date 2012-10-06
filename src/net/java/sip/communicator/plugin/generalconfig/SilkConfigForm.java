@@ -34,9 +34,9 @@ public class SilkConfigForm
               "encoder.USE_FEC";
 
     /**
-     * The property name associated with the 'force packet loss' setting
+     * The property name associated with the 'always assume packet loss' setting
      */
-    private static final String FEC_FORCE_PL_PROP
+    private static final String ASSUME_PL_PROP
             = "net.java.sip.communicator.impl.neomedia.codec.audio.silk." +
             "encoder.AWLAYS_ASSUME_PACKET_LOSS";
 
@@ -88,7 +88,7 @@ public class SilkConfigForm
     /**
      * The "force packet loss" checkbox
      */
-    private final JCheckBox fecForcePLCheckbox = new JCheckBox();
+    private final JCheckBox assumePLCheckbox = new JCheckBox();
 
     /**
      * The " advertise FEC" checkbox
@@ -103,7 +103,7 @@ public class SilkConfigForm
     /**
      * The <tt>ConfigurationService</tt> to be used to access configuration
      */
-    ConfigurationService configurationService
+    private final ConfigurationService configurationService
             = GeneralConfigPluginActivator.getConfigurationService();
 
 
@@ -143,7 +143,6 @@ public class SilkConfigForm
 
 
         fecCheckbox.addActionListener(new ActionListener() {
-            @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 configurationService.setProperty(FEC_PROP,
                         fecCheckbox.isSelected());
@@ -153,22 +152,19 @@ public class SilkConfigForm
                 FEC_PROP, FEC_DEFAULT));
         valuePanel.add(fecCheckbox);
 
-        fecForcePLCheckbox.addActionListener(new ActionListener() {
-            @Override
+        assumePLCheckbox.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent actionEvent) {
-                configurationService.setProperty(FEC_FORCE_PL_PROP,
-                        fecForcePLCheckbox.isSelected());
+                configurationService.setProperty(ASSUME_PL_PROP,
+                        assumePLCheckbox.isSelected());
             }
         });
-        fecForcePLCheckbox.setSelected(configurationService.getBoolean(
-                FEC_FORCE_PL_PROP, FEC_FORCE_PL_DEFAULT));
-        valuePanel.add(fecForcePLCheckbox);
+        assumePLCheckbox.setSelected(configurationService.getBoolean(
+                ASSUME_PL_PROP, FEC_FORCE_PL_DEFAULT));
+        valuePanel.add(assumePLCheckbox);
 
         SATField.addFocusListener(new FocusListener() {
-            @Override
             public void focusGained(FocusEvent focusEvent){}
 
-            @Override
             public void focusLost(FocusEvent focusEvent)
             {
                 configurationService.setProperty(FEC_SAT_PROP,
@@ -180,7 +176,6 @@ public class SilkConfigForm
         valuePanel.add(SATField);
 
         advertiseFECCheckbox.addActionListener(new ActionListener() {
-            @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 configurationService.setProperty(FEC_ADVERTISE_PROP,
                         advertiseFECCheckbox.isSelected());
@@ -210,9 +205,9 @@ public class SilkConfigForm
         fecCheckbox.setSelected(FEC_DEFAULT);
         configurationService.setProperty(FEC_PROP, FEC_DEFAULT);
 
-        fecForcePLCheckbox.setSelected(FEC_FORCE_PL_DEFAULT);
+        assumePLCheckbox.setSelected(FEC_FORCE_PL_DEFAULT);
         configurationService.setProperty(
-                FEC_FORCE_PL_PROP, FEC_FORCE_PL_DEFAULT);
+                ASSUME_PL_PROP, FEC_FORCE_PL_DEFAULT);
 
         SATField.setText(FEC_SAT_DEFAULT);
         configurationService.setProperty(FEC_SAT_PROP, FEC_SAT_DEFAULT);
