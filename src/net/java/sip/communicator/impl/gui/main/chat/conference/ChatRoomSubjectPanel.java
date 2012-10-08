@@ -82,9 +82,10 @@ public class ChatRoomSubjectPanel
         ChatRoomMemberRole role = ((ChatRoomWrapper)chatSession.getDescriptor())
                 .getChatRoom().getUserRole();
 
-        if(role.equals(ChatRoomMemberRole.ADMINISTRATOR)
-            || role.equals(ChatRoomMemberRole.MODERATOR)
-            || role.equals(ChatRoomMemberRole.OWNER))
+        if(!ConfigurationManager.isChatRoomConfigDisabled()
+            && (role.equals(ChatRoomMemberRole.ADMINISTRATOR)
+                || role.equals(ChatRoomMemberRole.MODERATOR)
+                || role.equals(ChatRoomMemberRole.OWNER)))
         {
             configButton
                 = new JButton(

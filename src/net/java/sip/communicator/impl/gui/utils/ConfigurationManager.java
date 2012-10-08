@@ -238,11 +238,28 @@ public class ConfigurationManager
      */
     private static boolean autoAnswerDisableSubmenu = false;
 
+    /**
+     * Whether the chat room user configuration functionality is disabled.
+     */
+    private static boolean isChatRoomConfigDisabled = false;
+
+    /**
+     * The name of the show smileys property.
+     */
     private static final String SHOW_SMILEYS_PROPERTY
             = "net.java.sip.communicator.service.replacement.SMILEY.enable";
 
+    /**
+     * The name of the simple theme property.
+     */
     private static final String CHAT_SIMPLE_THEME_ENABLED_PROP
         = "net.java.sip.communicator.service.gui.CHAT_SIMPLE_THEME_ENABLED";
+
+    /**
+     * The name of the chat room configuration property.
+     */
+    private static final String CHAT_ROOM_CONFIG_DISABLED_PROP
+        = "net.java.sip.communicator.service.gui.CHAT_ROOM_CONFIG_DISABLED";
 
     /**
      * Loads all user interface configurations.
@@ -687,6 +704,10 @@ public class ConfigurationManager
         autoAnswerDisableSubmenu = configService.getBoolean(
             autoAnswerDisableSubmenuProperty,
             autoAnswerDisableSubmenu);
+
+        isChatRoomConfigDisabled = configService.getBoolean(
+            CHAT_ROOM_CONFIG_DISABLED_PROP,
+            isChatRoomConfigDisabled);
     }
 
     /**
@@ -954,6 +975,17 @@ public class ConfigurationManager
     public static boolean isAdvancedAccountConfigDisabled()
     {
         return isAdvancedAccountConfigDisabled;
+    }
+
+    /**
+     * Indicates if the chat room user configuration functionality is disabled.
+     *
+     * @return <tt>true</tt> if the chat room configuration is disabled,
+     * <tt>false</tt> - otherwise
+     */
+    public static boolean isChatRoomConfigDisabled()
+    {
+        return isChatRoomConfigDisabled;
     }
 
     /**
