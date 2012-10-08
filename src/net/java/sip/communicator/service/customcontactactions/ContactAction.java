@@ -34,7 +34,7 @@ public interface ContactAction<T>
     public byte[] getIcon();
 
     /**
-     * The icon used by the UI to visualize the rollover state of the button.
+     * The icon used by the UI to visualize the roll over state of the button.
      * @return the button icon.
      */
     public byte[] getRolloverIcon();
@@ -44,6 +44,15 @@ public interface ContactAction<T>
      * @return the button icon.
      */
     public byte[] getPressedIcon();
+
+    /**
+     * Returns the tool tip text of the component to create for this contact
+     * action.
+     * 
+     * @return the tool tip text of the component to create for this contact
+     * action
+     */
+    public String getToolTipText();
 
     /**
      * Indicates if this action is visible for the given <tt>actionSource</tt>.

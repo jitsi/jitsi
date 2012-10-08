@@ -334,6 +334,7 @@ public class ContactListTreeCellRenderer
             }
         });
 
+        initButtonToolTips();
         this.setToolTipText("");
     }
 
@@ -914,6 +915,12 @@ public class ContactListTreeCellRenderer
         while (actionsIter.hasNext())
         {
             final SIPCommButton actionButton = actionsIter.next();
+
+            // We need to explicitly remove the buttons from the tooltip manager,
+            // because we're going to manager the tooltip ourselves in the
+            // DefaultTreeContactList class. We need to do this in order to have
+            // a different tooltip for every button and for non button area.
+            ToolTipManager.sharedInstance().unregisterComponent(actionButton);
 
             if (customActionButtons == null)
                 customActionButtons = new LinkedList<JButton>();
@@ -1737,5 +1744,33 @@ public class ContactListTreeCellRenderer
                                     0,
                                     RIGHT_BORDER));
         }
+    }
+
+    /**
+     * Inializes button tool tips.
+     */
+    private void initButtonToolTips()
+    {
+        callButton.setToolTipText(GuiActivator.getResources()
+            .getI18NString("service.gui.CALL_CONTACT"));
+        callVideoButton.setToolTipText(GuiActivator.getResources()
+            .getI18NString("service.gui.VIDEO_CALL"));
+        desktopSharingButton.setToolTipText(GuiActivator.getResources()
+            .getI18NString("service.gui.SHARE_DESKTOP"));
+        chatButton.setToolTipText(GuiActivator.getResources()
+            .getI18NString("service.gui.SEND_MESSAGE"));
+        addContactButton.setToolTipText(GuiActivator.getResources()
+            .getI18NString("service.gui.ADD_CONTACT"));
+
+        // We need to explicitly remove the buttons from the tooltip manager,
+        // because we're going to manager the tooltip ourselves in the
+        // DefaultTreeContactList class. We need to do this in order to have
+        // a different tooltip for every button and for non button area.
+        ToolTipManager ttManager = ToolTipManager.sharedInstance();
+        ttManager.unregisterComponent(callButton);
+        ttManager.unregisterComponent(callVideoButton);
+        ttManager.unregisterComponent(desktopSharingButton);
+        ttManager.unregisterComponent(chatButton);
+        ttManager.unregisterComponent(addContactButton);
     }
 }

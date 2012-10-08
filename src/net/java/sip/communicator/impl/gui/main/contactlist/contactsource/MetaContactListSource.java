@@ -1048,6 +1048,8 @@ public class MetaContactListSource
                 {
                     actionButton = new SIPCommButton();
 
+                    actionButton.setToolTipText(ca.getToolTipText());
+
                     actionButton.setIconImage(
                         new ImageIcon(ca.getIcon()).getImage());
                     actionButton.setRolloverImage(

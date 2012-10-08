@@ -162,6 +162,7 @@ public class DefaultTreeContactList
 
         TreePath path = this.getClosestPathForLocation(
             currentMouseLocation.x, currentMouseLocation.y);
+
         Object element = path.getLastPathComponent();
 
         MainFrame mainWindow = GuiActivator.getUIService().getMainFrame();
@@ -169,14 +170,29 @@ public class DefaultTreeContactList
         ExtendedTooltip tip = null;
         if (element instanceof ContactNode)
         {
-            UIContact contact
-                = ((ContactNode) element).getContactDescriptor();
+            Component cellComponent
+                = findTreeCellComponent(currentMouseLocation);
 
-            tip = contact.getToolTip();
-            if (tip == null)
+            // If we're over a button we show the button tool tip.
+            if (cellComponent instanceof SIPCommButton
+                && ((SIPCommButton) cellComponent).getToolTipText() != null
+                && ((SIPCommButton) cellComponent)
+                    .getToolTipText().length() > 0)
             {
                 tip = new ExtendedTooltip(mainWindow, true);
-                tip.setTitle(contact.getDisplayName());
+                tip.setTitle(((SIPCommButton)cellComponent).getToolTipText());
+            }
+            else
+            {
+                UIContact contact
+                    = ((ContactNode) element).getContactDescriptor();
+
+                tip = contact.getToolTip();
+                if (tip == null)
+                {
+                    tip = new ExtendedTooltip(mainWindow, true);
+                    tip.setTitle(contact.getDisplayName());
+                }
             }
         }
         else if (element instanceof GroupNode)
@@ -227,19 +243,30 @@ public class DefaultTreeContactList
         {
             Object element = path.getLastPathComponent();
 
+            String buttonString = "";
+
+            Component mouseComponent = findTreeCellComponent(event.getPoint());
+
+            if (mouseComponent instanceof SIPCommButton)
+                buttonString = Integer.toString(mouseComponent.hashCode());
+
+            String uniqueToolTipString = "className= "
+                                            + element.getClass().getName()
+                                            + ", hashCode= "
+                                            + element.hashCode()
+                                            + ", toString= "
+                                            + element.toString();
             /*
              * Since it does not seem obvious how to get a unique String ID for
              * element even after converting to ContactNode, GroupNode or
              * ChatContact, just make up a String which is very likely to be
              * different for the different nodes in this JTree.
              */
-            return
-                "className= "
-                    + element.getClass().getName()
-                    + ", hashCode= "
-                    + element.hashCode()
-                    + ", toString= "
-                    + element.toString();
+            return  (buttonString.length() > 0)
+                    ? uniqueToolTipString
+                        + ", onButton="
+                        + buttonString
+                    : uniqueToolTipString;
         }
         return null;
     }
@@ -262,5 +289,33 @@ public class DefaultTreeContactList
     public String getUIClassID()
     {
         return uiClassID;
+    }
+
+    protected Component findTreeCellComponent(Point point)
+    {
+        TreePath path = getClosestPathForLocation(point.x, point.y);
+
+        if (path == null)
+            return null;
+
+        Object element = path.getLastPathComponent();
+
+        ContactListTreeCellRenderer renderer
+            = (ContactListTreeCellRenderer)
+                getCellRenderer().getTreeCellRendererComponent(
+                        this,
+                        element,
+                        true,
+                        true,
+                        true,
+                        getRowForPath(path),
+                        true);
+
+        // We need to translate coordinates here.
+        Rectangle r = this.getPathBounds(path);
+        int translatedX = point.x - r.x;
+        int translatedY = point.y - r.y;
+
+        return renderer.findComponentAt(translatedX, translatedY);
     }
 }
