@@ -8,15 +8,11 @@ package net.java.sip.communicator.plugin.generalconfig;
 
 
 import net.java.sip.communicator.util.swing.*;
-import org.jitsi.service.configuration.ConfigurationService;
+import org.jitsi.service.configuration.*;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-
+import java.awt.event.*;
 
 /**
  * Implements the Silk configuration panel.
