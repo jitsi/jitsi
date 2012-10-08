@@ -535,16 +535,14 @@ public class HistoryWindow
                     FileRecord fileRecord = (FileRecord) o;
                     date = fileRecord.getDate();
                 }
-
+ 
                 boolean containsDate = false;
-                long milisecondsPerDay = 24*60*60*1000;
                 Iterator<Date> iterator = datesDisplayed.iterator();
                 while(iterator.hasNext())
                 {
-                    Date curr = iterator.next();
-                    containsDate =
-                        Math.floor(curr.getTime()/milisecondsPerDay)
-                        == Math.floor(date/milisecondsPerDay);
+                    long currDate = iterator.next().getTime();
+                    containsDate
+                        = (GuiUtils.compareDatesOnly(date, currDate) == 0);
 
                     if(containsDate)
                         break;
@@ -552,8 +550,7 @@ public class HistoryWindow
 
                 if(!containsDate)
                 {
-                    datesDisplayed.add(
-                        new Date(date - date % milisecondsPerDay));
+                    datesDisplayed.add(new Date(date));
                 }
             }
 

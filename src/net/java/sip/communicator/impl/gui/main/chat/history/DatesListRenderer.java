@@ -28,27 +28,28 @@ public class DatesListRenderer
 {
     private JLabel label = new JLabel();
     private boolean isSelected;
-    
+
     private Calendar calendar = Calendar.getInstance();
-    
+
     public DatesListRenderer()
     {
         super(new BorderLayout());
-        
+
         this.add(label);
     }
-    
+
     public Component getListCellRendererComponent(JList list, Object value,
             int index, boolean isSelected, boolean cellHasFocus)
     {
         Date dateValue = (Date) value;
-        
-        calendar.setTime(dateValue);
-        String text = GuiUtils.formatDate(dateValue);
-        
-        this.label.setText(text);
+
+        StringBuffer dateStrBuf = new StringBuffer();
+
+        GuiUtils.formatDate(dateValue.getTime(), dateStrBuf);
+
+        this.label.setText(dateStrBuf.toString());
         this.isSelected = isSelected;
-        
+
         return this;
     }
     
