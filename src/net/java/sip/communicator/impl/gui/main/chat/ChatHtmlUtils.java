@@ -5,6 +5,8 @@
  */
 package net.java.sip.communicator.impl.gui.main.chat;
 
+import javax.swing.text.html.HTML.Tag;
+
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.util.*;
 
@@ -23,11 +25,6 @@ public class ChatHtmlUtils
      * The date attribute.
      */
     public final static String DATE_ATTRIBUTE = "date";
-
-    /**
-     * The identifier of the message div.
-     */
-    public final static String MESSAGE_DIV_ID = "messageDiv";
 
     /**
      * The message header identifier attribute.
@@ -70,6 +67,7 @@ public class ChatHtmlUtils
      * @param date the date, when the message was sent
      * @param message the message content
      * @param contentType the content type HTML or PLAIN_TEXT
+     * @param isHistory indicates if this is a message coming from history
      * @param isSimpleTheme indicates if the simple or the advance theme should
      * be used
      * @return the created incoming message tag
@@ -82,14 +80,27 @@ public class ChatHtmlUtils
         long date,
         String message,
         String contentType,
+        boolean isHistory,
         boolean isSimpleTheme)
     {
         if (isSimpleTheme)
-            return createSimpleIncomingMessageTag(messageID, contactName,
-                contactDisplayName, avatarPath, date, message, contentType);
+            return createSimpleIncomingMessageTag(  messageID,
+                                                    contactName,
+                                                    contactDisplayName,
+                                                    avatarPath,
+                                                    date,
+                                                    message,
+                                                    contentType,
+                                                    isHistory);
         else
-            return createAdvancedIncomingMessageTag(messageID, contactName,
-                contactDisplayName, avatarPath, date, message, contentType);
+            return createAdvancedIncomingMessageTag(messageID,
+                                                    contactName,
+                                                    contactDisplayName,
+                                                    avatarPath,
+                                                    date,
+                                                    message,
+                                                    contentType,
+                                                    isHistory);
     }
 
     /**
@@ -103,6 +114,7 @@ public class ChatHtmlUtils
      * @param date the date, when the message was sent
      * @param message the content of the message
      * @param contentType the content type HTML or PLAIN_TEXT
+     * @param isHistory indicates if this is a message coming from history
      * @param isSimpleTheme indicates if the simple or the advance theme should
      * be used
      * @return the created outgoing message tag
@@ -114,14 +126,27 @@ public class ChatHtmlUtils
                                                     long date,
                                                     String message,
                                                     String contentType,
+                                                    boolean isHistory,
                                                     boolean isSimpleTheme)
     {
         if (isSimpleTheme)
-            return createSimpleOutgoingMessageTag(messageID, contactName,
-                contactDisplayName, avatarPath, date, message, contentType);
+            return createSimpleOutgoingMessageTag(  messageID,
+                                                    contactName,
+                                                    contactDisplayName,
+                                                    avatarPath,
+                                                    date,
+                                                    message,
+                                                    contentType,
+                                                    isHistory);
         else
-            return createAdvancedOutgoingMessageTag(messageID, contactName,
-                contactDisplayName, avatarPath, date, message, contentType);
+            return createAdvancedOutgoingMessageTag(messageID,
+                                                    contactName,
+                                                    contactDisplayName,
+                                                    avatarPath,
+                                                    date,
+                                                    message,
+                                                    contentType,
+                                                    isHistory);
     }
 
     /**
@@ -133,6 +158,7 @@ public class ChatHtmlUtils
      * @param contentType the content type (html or plain text)
      * @param date the date on which the message was sent
      * @param isEdited indicates if the given message has been edited
+     * @param isHistory indicates if this is a message coming from history
      * @param isSimpleTheme indicates if the simple or the advance theme should
      * be used
      * @return the newly constructed message tag
@@ -143,14 +169,25 @@ public class ChatHtmlUtils
                                             String contentType,
                                             long date,
                                             boolean isEdited,
+                                            boolean isHistory,
                                             boolean isSimpleTheme)
     {
         if (isSimpleTheme)
-            return createSimpleMessageTag(messageID, contactName, message,
-                contentType, date, isEdited);
+            return createSimpleMessageTag(  messageID,
+                                            contactName,
+                                            message,
+                                            contentType,
+                                            date,
+                                            isEdited,
+                                            isHistory);
         else
-            return createAdvancedMessageTag(messageID, contactName, message,
-                contentType, date, isEdited);
+            return createAdvancedMessageTag(messageID,
+                                            contactName,
+                                            message,
+                                            contentType,
+                                            date,
+                                            isEdited,
+                                            isHistory);
     }
 
     /**
@@ -164,6 +201,7 @@ public class ChatHtmlUtils
      * @param date the date, when the message was sent
      * @param message the message content
      * @param contentType the content type HTML or PLAIN_TEXT
+     * @param isHistory indicates if this is a message coming from history
      * @return the created incoming message tag
      */
     private static String createSimpleIncomingMessageTag(
@@ -173,25 +211,27 @@ public class ChatHtmlUtils
         String avatarPath,
         long date,
         String message,
-        String contentType)
+        String contentType,
+        boolean isHistory)
     {
         StringBuffer headerBuffer = new StringBuffer();
 
         headerBuffer.append("<h2 id=\"" + MESSAGE_HEADER_ID + "\" ");
         headerBuffer.append(DATE_ATTRIBUTE + "='" + date + "'" + ">");
-//        headerBuffer.append("<a style=\"color:#488fe7;");
-//        headerBuffer.append("font-weight:bold;");
-//        headerBuffer.append("text-decoration:none;\" ");
-//        headerBuffer.append("href=\"" + contactName + "\">");
+        headerBuffer.append("<a style=\"color:#488fe7;");
+        headerBuffer.append("font-weight:bold;");
+        headerBuffer.append("text-decoration:none;\" ");
+        headerBuffer.append("href=\"" + contactName + "\">");
         headerBuffer.append(
             contactDisplayName + createEditedAtTag(messageID, -1));
-//        headerBuffer.append("</a>");
+        headerBuffer.append("</a>");
         headerBuffer.append("</h2>");
 
         StringBuffer messageBuff = new StringBuffer();
 
-        messageBuff.append("<div id=\"" + MESSAGE_DIV_ID + messageID + "\">");
         messageBuff.append("<table width=\"100%\" ");
+        messageBuff.append(NAME_ATTRIBUTE + "=\""
+                            +  Tag.TABLE.toString() + "\" ");
         messageBuff.append("style=\"background-color:#efefef;\">");
         messageBuff.append("<tr>");
         messageBuff.append("<td align=\"left\" >");
@@ -208,9 +248,8 @@ public class ChatHtmlUtils
                                     message,
                                     contentType,
                                     date,
-                                    false));
-        messageBuff.append("</div>");
-        messageBuff.append("<br/>");
+                                    false,
+                                    isHistory));
 
         return messageBuff.toString();
     }
@@ -226,6 +265,7 @@ public class ChatHtmlUtils
      * @param date the date, when the message was sent
      * @param message the content of the message
      * @param contentType the content type HTML or PLAIN_TEXT
+     * @param isHistory indicates if this is a message coming from history
      * @return the created outgoing message tag
      */
     private static String createSimpleOutgoingMessageTag( String messageID,
@@ -234,25 +274,27 @@ public class ChatHtmlUtils
                                                     String avatarPath,
                                                     long date,
                                                     String message,
-                                                    String contentType)
+                                                    String contentType,
+                                                    boolean isHistory)
     {
         StringBuffer headerBuffer = new StringBuffer();
 
-        headerBuffer.append("<h3 id=\"" + MESSAGE_HEADER_ID + "\"");
+        headerBuffer.append("<h3 id=\"" + MESSAGE_HEADER_ID + "\" ");
         headerBuffer.append(DATE_ATTRIBUTE + "='" + date + "'" + ">");
-//        headerBuffer.append("<a style=\"color:#535353;");
-//        headerBuffer.append("font-weight:bold;");
-//        headerBuffer.append("text-decoration:none;\" ");
-//        headerBuffer.append("href=\"" + contactName + "\">");
+        headerBuffer.append("<a style=\"color:#535353;");
+        headerBuffer.append("font-weight:bold;");
+        headerBuffer.append("text-decoration:none;\" ");
+        headerBuffer.append("href=\"" + contactName + "\">");
         headerBuffer.append(contactDisplayName
                 + createEditedAtTag(messageID, -1));
-//        headerBuffer.append("</a>");
+        headerBuffer.append("</a>");
         headerBuffer.append("</h3>");
 
         StringBuffer messageBuff = new StringBuffer();
 
-        messageBuff.append("<div id=\"" + MESSAGE_DIV_ID + messageID + "\">");
         messageBuff.append("<table width=\"100%\" ");
+        messageBuff.append(NAME_ATTRIBUTE + "=\""
+                            +  Tag.TABLE.toString() + "\" ");
         messageBuff.append("style=\"background-color:#efefef;\">");
         messageBuff.append("<tr>");
         messageBuff.append("<td align=\"left\" >");
@@ -269,9 +311,8 @@ public class ChatHtmlUtils
                                     message,
                                     contentType,
                                     date,
-                                    false));
-        messageBuff.append("</div>");
-        messageBuff.append("<br/>");
+                                    false,
+                                    isHistory));
 
         return messageBuff.toString();
     }
@@ -287,6 +328,7 @@ public class ChatHtmlUtils
      * @param date the date, when the message was sent
      * @param message the message content
      * @param contentType the content type HTML or PLAIN_TEXT
+     * @param isHistory indicates if this is a message coming from history
      * @return the created incoming message tag
      */
     private static String createAdvancedIncomingMessageTag(
@@ -296,12 +338,14 @@ public class ChatHtmlUtils
         String avatarPath,
         long date,
         String message,
-        String contentType)
+        String contentType,
+        boolean isHistory)
     {
         StringBuffer headerBuffer = new StringBuffer();
 
         headerBuffer.append("<h2 id=\"" + MESSAGE_HEADER_ID + "\" ");
-        headerBuffer.append(DATE_ATTRIBUTE + "='" + date + "'" + ">");
+        headerBuffer.append(DATE_ATTRIBUTE + "='" + date + "' ");
+        headerBuffer.append(IncomingMessageStyle.createHeaderStyle() + ">");
         headerBuffer.append("<a style=\"color:#488fe7;");
         headerBuffer.append("font-weight:bold;");
         headerBuffer.append("text-decoration:none;\" ");
@@ -312,9 +356,9 @@ public class ChatHtmlUtils
 
         StringBuffer messageBuff = new StringBuffer();
 
-        messageBuff.append("<div id=\"" + MESSAGE_DIV_ID + messageID + "\" "
-            + IncomingMessageStyle.createMessageStyle() + ">");
-        messageBuff.append("<table width=\"100%\">");
+        messageBuff.append("<table width=\"100%\" ");
+        messageBuff.append(NAME_ATTRIBUTE + "=\""
+            +  Tag.TABLE.toString() + "\">");
         messageBuff.append("<tr>");
         messageBuff.append("<td valign=\"top\">");
         messageBuff.append(
@@ -336,7 +380,6 @@ public class ChatHtmlUtils
         messageBuff.append("<tr>");
         messageBuff.append("<td><img src=\"" + avatarPath
             + "\" width=\"26px\" height=\"26px\"/> </td>");
-        messageBuff.append("<td></td>");
         messageBuff.append("<td "
             + IncomingMessageStyle.createIndicatorStyle() +"></td>");
         messageBuff.append("<td "
@@ -348,7 +391,8 @@ public class ChatHtmlUtils
                                         message,
                                         contentType,
                                         date,
-                                        false));
+                                        false,
+                                        isHistory));
 
         messageBuff.append("</td>");
         messageBuff.append("<td "
@@ -370,7 +414,6 @@ public class ChatHtmlUtils
         messageBuff.append("</td>");
         messageBuff.append("</tr>");
         messageBuff.append("</table>");
-        messageBuff.append("</div>");
 
         return messageBuff.toString();
     }
@@ -386,6 +429,7 @@ public class ChatHtmlUtils
      * @param date the date, when the message was sent
      * @param message the content of the message
      * @param contentType the content type HTML or PLAIN_TEXT
+     * @param isHistory indicates if this is a message coming from history
      * @return the created outgoing message tag
      */
     private static String createAdvancedOutgoingMessageTag( String messageID,
@@ -394,12 +438,14 @@ public class ChatHtmlUtils
                                                     String avatarPath,
                                                     long date,
                                                     String message,
-                                                    String contentType)
+                                                    String contentType,
+                                                    boolean isHistory)
     {
         StringBuffer headerBuffer = new StringBuffer();
 
-        headerBuffer.append("<h3 id=\"" + MESSAGE_HEADER_ID + "\"");
-        headerBuffer.append(DATE_ATTRIBUTE + "='" + date + "'" + ">");
+        headerBuffer.append("<h3 id=\"" + MESSAGE_HEADER_ID + "\" ");
+        headerBuffer.append(DATE_ATTRIBUTE + "='" + date + "' ");
+        headerBuffer.append(IncomingMessageStyle.createHeaderStyle() + ">");
         headerBuffer.append("<a style=\"color:#6a6868;");
         headerBuffer.append("font-weight:bold;");
         headerBuffer.append("float:left;");
@@ -412,9 +458,9 @@ public class ChatHtmlUtils
         StringBuffer messageBuff = new StringBuffer();
 
         // Construct the message.
-        messageBuff.append("<div id=\"" + MESSAGE_DIV_ID + messageID + "\" "
-            + OutgoingMessageStyle.createMessageStyle() + ">");
-        messageBuff.append("<table width=\"100%\">");
+        messageBuff.append("<table width=\"100%\" ");
+        messageBuff.append(NAME_ATTRIBUTE + "=\""
+                            +  Tag.TABLE.toString() + "\">");
         messageBuff.append("<tr>");
         messageBuff.append("<td valign=\"top\">");
         messageBuff.append(
@@ -445,7 +491,8 @@ public class ChatHtmlUtils
                                         message,
                                         contentType,
                                         date,
-                                        false));
+                                        false,
+                                        isHistory));
 
         messageBuff.append("</td>");
         messageBuff.append("<td "
@@ -456,7 +503,6 @@ public class ChatHtmlUtils
         messageBuff.append("<td><div width=\"26px\" height=\"26px\"><img src=\""
                 + avatarPath
                 + "\" width=\"26px\" height=\"26px\"/></div></td>");
-        messageBuff.append("<td><div width=\"26px\" height=\"26px\"></div></td>");
         messageBuff.append("</tr>");
 
         // Forth row.
@@ -472,7 +518,6 @@ public class ChatHtmlUtils
         messageBuff.append("</td>");
         messageBuff.append("</tr>");
         messageBuff.append("</table>");
-        messageBuff.append("</div>");
 
         return messageBuff.toString();
     }
@@ -584,6 +629,7 @@ public class ChatHtmlUtils
      * @param contentType the content type (html or plain text)
      * @param date the date on which the message was sent
      * @param isEdited indicates if the given message has been edited
+     * @param isHistory indicates if this is a message coming from history
      * @return the newly constructed message tag
      */
     private static String createSimpleMessageTag(String messageID,
@@ -591,26 +637,23 @@ public class ChatHtmlUtils
                                                 String message,
                                                 String contentType,
                                                 long date,
-                                                boolean isEdited)
+                                                boolean isEdited,
+                                                boolean isHistory)
     {
         StringBuffer messageTag = new StringBuffer();
 
         messageTag.append("<div id=\"");
         messageTag.append(MESSAGE_TEXT_ID + messageID);
         messageTag.append("\" ");
-        messageTag.append(NAME_ATTRIBUTE + "=\"" + contactName + "\"");
-        if (isEdited)
-        {
-            messageTag.append(" style=\"font-style:italic;\">");
-        }
-        else
-            messageTag.append(">");
-
+        messageTag.append(NAME_ATTRIBUTE + "=\"" + contactName + "\" ");
+        messageTag.append(DATE_ATTRIBUTE + "=\"" + date + "\" ");
+        messageTag.append(IncomingMessageStyle
+            .createSingleMessageStyle(isHistory, isEdited, true));
+        messageTag.append(">");
         messageTag.append(createStartPlainTextTag(contentType));
         messageTag.append(message);
         if (isEdited)
-            messageTag.append(" (edited at "
-                + GuiUtils.formatTime(date) + ")");
+            messageTag.append(" " + createEditedAt(date));
         messageTag.append(createEndPlainTextTag(contentType));
         messageTag.append("</div>");
 
@@ -626,6 +669,7 @@ public class ChatHtmlUtils
      * @param contentType the content type (html or plain text)
      * @param date the date on which the message was sent
      * @param isEdited indicates if the given message has been edited
+     * @param isHistory indicates if this is a message coming from history
      * @return the newly constructed message tag
      */
     private static String createAdvancedMessageTag( String messageID,
@@ -633,24 +677,23 @@ public class ChatHtmlUtils
                                                     String message,
                                                     String contentType,
                                                     long date,
-                                                    boolean isEdited)
+                                                    boolean isEdited,
+                                                    boolean isHistory)
     {
         StringBuffer messageTag = new StringBuffer();
 
         messageTag.append("<div id=\"");
         messageTag.append(MESSAGE_TEXT_ID + messageID);
         messageTag.append("\" ");
-        messageTag.append(NAME_ATTRIBUTE + "=\"" + contactName);
-        messageTag.append("\" style=\"padding-left:10px;");
-        if (isEdited)
-            messageTag.append("font-style:italic;\">");
-        else
-            messageTag.append("\">");
+        messageTag.append(NAME_ATTRIBUTE + "=\"" + contactName + "\" ");
+        messageTag.append(DATE_ATTRIBUTE + "=\"" + date + "\" ");
+        messageTag.append(IncomingMessageStyle
+            .createSingleMessageStyle(isHistory, isEdited, false));
+        messageTag.append(">");
         messageTag.append(createStartPlainTextTag(contentType));
         messageTag.append(message);
         if (isEdited)
-            messageTag.append(" (edited at "
-                + GuiUtils.formatTime(date) + ")");
+            messageTag.append(" " + createEditedAt(date));
         messageTag.append(createEndPlainTextTag(contentType));
         messageTag.append("</div>");
 
@@ -675,5 +718,19 @@ public class ChatHtmlUtils
         }
 
         return "";
+    }
+
+    /**
+     * Creates the edited at string.
+     *
+     * @param date the date of the re-edition
+     * @return the newly constructed string
+     */
+    private static String createEditedAt(long date)
+    {
+        return "(" + GuiActivator.getResources()
+                    .getI18NString( "service.gui.EDITED_AT",
+                                    new String[]{GuiUtils.formatTime(date)})
+                + ")";
     }
 }

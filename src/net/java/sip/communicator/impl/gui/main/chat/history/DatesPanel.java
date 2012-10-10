@@ -34,9 +34,9 @@ public class DatesPanel
     private final DefaultListModel listModel = new DefaultListModel();
 
     private final HistoryWindow historyWindow;
-    
+
     private int lastSelectedIndex = -1;
-    
+
     /**
      * Creates an instance of <tt>DatesPanel</tt>.
      *

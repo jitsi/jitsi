@@ -9,25 +9,15 @@ h1
 
 h2
 {
-  width: 100%;
   margin: 0px;
-  /*
-  padding-top: 4px;
-  padding-left: 10px;
-  */
-  font-size: 9px;
+  font-size: 10px;
   color: #488fe7;
 }
 
 h3
 {
-  width: 100%;
   margin: 0px;
-  /*
-  padding-top: 4px;
-  padding-left: 10px;
-  */
-  font-size: 9px;
+  font-size: 10px;
   color: #535353;
 }
 
@@ -54,6 +44,7 @@ h6
   font-weight: bold;
   color: #990000;
 }
+
 p
 {
   margin: 0px;

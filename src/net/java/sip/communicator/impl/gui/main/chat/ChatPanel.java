@@ -525,7 +525,8 @@ public class ChatPanel
      * @return the ID of the last message sent in this chat, or <tt>null</tt>
      * if no messages have been sent yet.
      */
-    public String getLastSentMessageUID() {
+    public String getLastSentMessageUID()
+    {
         return lastSentMessageUID;
     }
 
@@ -1596,20 +1597,50 @@ public class ChatPanel
      */
     public void startMessageCorrection(String correctedMessageUID)
     {
-        this.correctedMessageUID = correctedMessageUID;
-        this.refreshWriteArea();
-        String messageContents
-            = conversationPanel.getMessageContents(correctedMessageUID);
-        if (messageContents == null)
+        if (!showMessageInWriteArea(correctedMessageUID))
         {
-            this.stopMessageCorrection();
             return;
         }
-        Color bgColor = new Color(GuiActivator.getResources()
+        if (chatSession.getCurrentChatTransport().allowsMessageCorrections())
+        {
+            this.correctedMessageUID = correctedMessageUID;
+            Color bgColor = new Color(GuiActivator.getResources()
                 .getColor("service.gui.CHAT_EDIT_MESSAGE_BACKGROUND"));
-        this.writeMessagePanel.setEditorPaneBackground(bgColor);
-        this.setMessage(messageContents);
+                    this.writeMessagePanel.setEditorPaneBackground(bgColor);
+        }
     }
+
+    /**
+     * Shows the last sent message in the write area, either in order to
+     * correct it or to send it again.
+     *
+     * @return <tt>true</tt> on success, <tt>false</tt> on failure.
+     */
+    public boolean showLastMessageInWriteArea()
+    {
+        return showMessageInWriteArea(lastSentMessageUID);
+    }
+
+    /**
+     * Shows the message with the specified ID in the write area, either
+     * in order to correct it or to send it again.
+     *
+     * @param messageUID The ID of the message to show.
+     * @return <tt>true</tt> on success, <tt>false</tt> on failure.
+     */
+     public boolean showMessageInWriteArea(String messageUID)
+     {
+         String messageContents = conversationPanel.getMessageContents(
+             messageUID);
+
+         if (messageContents == null)
+         {
+             return false;
+         }
+         this.refreshWriteArea();
+         this.setMessage(messageContents);
+         return true;
+     }
 
     /**
      * Exits editing mode, clears the write panel and the background.
@@ -2761,17 +2792,9 @@ public class ChatPanel
      */
     public void loadSkin()
     {
-        try
-        {
-            Document doc
-                = this.conversationPanel.getChatTextPane().getDocument();
-            doc.remove(0, doc.getLength());
-        }
-        catch (BadLocationException ex)
-        {
-            logger.error(ex);
-        }
+        getChatConversationPanel().clear();
         loadHistory();
+        getChatConversationPanel().setDefaultContent();
     }
 
     /**

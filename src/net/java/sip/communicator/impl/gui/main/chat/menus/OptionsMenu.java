@@ -8,6 +8,7 @@
 package net.java.sip.communicator.impl.gui.main.chat.menus;
 
 import java.awt.event.*;
+import java.util.*;
 
 import javax.swing.*;
 
@@ -63,7 +64,7 @@ public class OptionsMenu
 
         this.chatSimpleTheme.setActionCommand(ACTCMD_VIEW_SIMPLE_THEME);
         this.chatSimpleTheme.addActionListener(this);
-//        this.add(chatSimpleTheme);
+        this.add(chatSimpleTheme);
 
         initValues();
     }
@@ -106,6 +107,16 @@ public class OptionsMenu
         {
             ConfigurationManager.setChatSimpleThemeEnabled(
                 chatSimpleTheme.isSelected());
+
+            List<ChatPanel> currentChats = chatWindow.getChats();
+            if (currentChats != null)
+            {
+                Iterator<ChatPanel> chatsIter = currentChats.iterator();
+                while (chatsIter.hasNext())
+                {
+                    chatsIter.next().loadSkin();
+                }
+            }
         }
     }
 }

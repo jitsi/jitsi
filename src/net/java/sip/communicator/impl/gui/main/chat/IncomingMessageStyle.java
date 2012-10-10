@@ -52,6 +52,13 @@ public class IncomingMessageStyle
             "service.gui.lookandfeel.INCOMING_MESSAGE_CURVES_TOP").toString();
 
     /**
+     * The foreground color of history messages.
+     */
+    private final static String HISTORY_FOREGROUND_COLOR
+        = GuiActivator.getResources().getColorString(
+            "service.gui.CHAT_HISTORY_FOREGROUND");
+
+    /**
      * Creates the global message style.
      *
      * @return the style attribute defining the global message style.
@@ -62,6 +69,37 @@ public class IncomingMessageStyle
                 + "width:100%;"
                 + "opacity:0.96;"
                 + "\"";
+    }
+
+    public static String createSingleMessageStyle(  boolean isHistory,
+                                                    boolean isEdited,
+                                                    boolean isSimpleTheme)
+    {
+        StringBuffer styleBuff = new StringBuffer();
+
+        if (isSimpleTheme)
+            styleBuff.append("style=\"");
+        else
+            styleBuff.append("style=\"padding-left:10px;");
+
+        if (isEdited)
+        {
+            styleBuff.append("font-style:italic;");
+
+            if (isHistory)
+                styleBuff.append("color:#" + HISTORY_FOREGROUND_COLOR + ";\"");
+            else
+                styleBuff.append("\"");
+        }
+        else
+        {
+            if (isHistory)
+                styleBuff.append("color:#" + HISTORY_FOREGROUND_COLOR + ";\"");
+            else
+                styleBuff.append("\"");
+        }
+
+        return styleBuff.toString().replaceFirst(";\"", "\"");
     }
 
     /**
@@ -199,5 +237,16 @@ public class IncomingMessageStyle
         return "style=\"width:26px;"
                 + " height:26px;"
                 + " float:left;\"";
+    }
+
+    /**
+     * Creates the header style.
+     *
+     * @return the header style.
+     */
+    public static String createHeaderStyle()
+    {
+        return "style=\"padding-top: 4px;"
+                + " padding-left: 10px;\"";
     }
 }
