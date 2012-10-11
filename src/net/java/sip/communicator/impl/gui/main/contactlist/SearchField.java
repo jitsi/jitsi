@@ -63,6 +63,11 @@ public class SearchField
     private final ContactListSearchFilter searchFilter;
 
     /**
+     * The current filter query.
+     */
+    private FilterQuery currentFilterQuery = null;
+
+    /**
      * Creates the <tt>SearchField</tt>.
      *
      * @param frame the main application window
@@ -145,40 +150,42 @@ public class SearchField
     {
         String filterString = getText();
 
-        FilterQuery filterQuery = null;
-
         boolean isDefaultFilter = false;
 
         searchFilter.setFilterString(filterString.trim());
 
+        // First finish the last filter.
+        if (currentFilterQuery != null)
+            filterQueryFinished(currentFilterQuery, true);
+
         if (filterString != null && filterString.length() > 0)
         {
-            filterQuery = contactList.applyFilter(searchFilter);
+            currentFilterQuery = contactList.applyFilter(searchFilter);
         }
         else
         {
-            filterQuery = contactList.applyDefaultFilter();
+            currentFilterQuery = contactList.applyDefaultFilter();
             isDefaultFilter = true;
         }
 
-        if (filterQuery != null && !filterQuery.isCanceled())
+        if (currentFilterQuery != null && !currentFilterQuery.isCanceled())
         {
             // If we already have a result here we update the interface.
             // In the case of default filter we don't need to know if the
             // query has succeeded, as event if it isn't we would like to
             // remove the unknown contact view.
-            if (isDefaultFilter || filterQuery.isSucceeded())
+            if (isDefaultFilter || currentFilterQuery.isSucceeded())
                 enableUnknownContactView(false);
             else
                 // Otherwise we will listen for events for changes in status
                 // of this query.
-                filterQuery.setQueryListener(this);
+                currentFilterQuery.setQueryListener(this);
         }
         else
         {
             // If the query is null or is canceled, we would simply check the
             // contact list content.
-            closeFilterQuery(filterQuery, !contactList.isEmpty());
+            filterQueryFinished(currentFilterQuery, !contactList.isEmpty());
         }
     }
 
@@ -218,7 +225,9 @@ public class SearchField
      */
     public void filterQueryFailed(FilterQuery query)
     {
-        closeFilterQuery(query, !contactList.isEmpty());
+        // If the query has failed then we don't have results.
+        if (currentFilterQuery.equals(query))
+            filterQueryFinished(query, false);
     }
 
     /**
@@ -229,7 +238,9 @@ public class SearchField
      */
     public void filterQuerySucceeded(FilterQuery query)
     {
-        closeFilterQuery(query, !contactList.isEmpty());
+        // If the query has succeeded then we have results.
+        if (currentFilterQuery.equals(query))
+            filterQueryFinished(query, true);
     }
 
     /**
@@ -253,7 +264,13 @@ public class SearchField
         return uiClassID;
     }
 
-    private void closeFilterQuery(FilterQuery query, boolean hasResults)
+    /**
+     * Performs all needed updates when a filter query has finished.
+     *
+     * @param query the query that has finished
+     * @param hasResults indicates if the query has results
+     */
+    private void filterQueryFinished(FilterQuery query, boolean hasResults)
     {
         // If the unknown contact view was previously enabled, but we
         // have found matching contacts we enter the normal view.

@@ -2026,7 +2026,9 @@ public class TreeContactList
                 break;
             }
 
-            if(changed)
+            // We don't need to refresh the filter if this is the presence
+            // filter, because it doesn't depend on any contact sources.
+            if(changed && !currentFilter.equals(presenceFilter))
             {
                 if(currentFilter.equals(defaultFilter))
                     applyDefaultFilter();

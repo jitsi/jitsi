@@ -340,15 +340,22 @@ public class UIFilterQuery
     }
 
     /**
-     * Cancels asynchronous queries after the maximum desired result count is
-     * reached.
+     * Indicates that a contact has been received as a result of a query.
      *
-     * @param query the query we're interested in
-     * @param contact the source contact we just received as a result of the
-     * given query
+     * @param event the <tt>ContactReceivedEvent</tt> that notified us
      */
-    private void contactReceived(ContactQuery query, SourceContact contact)
+    public void contactReceived(ContactReceivedEvent event)
     {
+        ContactQuery query = event.getQuerySource();
+        SourceContact contact = event.getContact();
+
+        // First set the isSucceeded property.
+        if (!isSucceeded() && !query.getQueryResults().isEmpty())
+            setSucceeded(true);
+
+        // Inform interested listeners that this query has succeeded.
+        fireFilterQueryEvent();
+
         List<SourceContact> queryResults = filterQueries.get(query);
 
         queryResults.add(contact);
@@ -373,16 +380,6 @@ public class UIFilterQuery
     }
 
     /**
-     * Indicates that a contact has been received as a result of a query.
-     *
-     * @param event the <tt>ContactReceivedEvent</tt> that notified us
-     */
-    public void contactReceived(ContactReceivedEvent event)
-    {
-        contactReceived(event.getQuerySource(), event.getContact());
-    }
-
-    /**
      * Indicates that a contact has been removed after a search.
      * @param event the <tt>ContactQueryEvent</tt> containing information
      * about the received <tt>SourceContact</tt>
@@ -398,7 +395,21 @@ public class UIFilterQuery
     public void contactChanged(ContactChangedEvent event)
     {}
 
-    public void metaContactReceived(MetaContactQueryEvent event) {}
+    public void metaContactReceived(MetaContactQueryEvent event)
+    {
+        if (!isSucceeded() && event.getQuerySource().getResultCount() > 0)
+            setSucceeded(true);
 
-    public void metaGroupReceived(MetaGroupQueryEvent event) {}
+     // Inform interested listeners that this query has succeeded.
+        fireFilterQueryEvent();
+    }
+
+    public void metaGroupReceived(MetaGroupQueryEvent event)
+    {
+        if (!isSucceeded() && event.getQuerySource().getResultCount() > 0)
+            setSucceeded(true);
+
+     // Inform interested listeners that this query has succeeded.
+        fireFilterQueryEvent();
+    }
 }
