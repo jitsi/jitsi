@@ -36,9 +36,19 @@ public class NotificationEntry
     private boolean popup;
 
     /**
-     * Parameter which defines if the sound is activated.
+     * Parameter which defines if the sound is played on notification device.
      */
-    private boolean sound;
+    private boolean soundNotification;
+
+    /**
+     * Parameter which defines if the sound is played on playback device.
+     */
+    private boolean soundPlayback;
+
+    /**
+     * Parameter which defines if the sound is played on pc speaker device.
+     */
+    private boolean soundPCSpeaker;
 
     /**
      * Name of sound file which is play
@@ -60,7 +70,9 @@ public class NotificationEntry
         program = false;
         programFile = "";
         popup = false;
-        sound = false;
+        soundNotification = false;
+        soundPlayback = false;
+        soundPCSpeaker = false;
         soundFile = "";
         event = "";
     }
@@ -72,20 +84,29 @@ public class NotificationEntry
      * @param program assigns the value of _program to this.program.
      * @param programFile assigns the value of _programFile to this.programFile.
      * @param popup assigns the value of _popup to this.popup.
-     * @param sound assigns the value of _sound to this.sound.
+     * @param soundPlayback assigns the value of _soundPlayback
+     *                      to this.soundPlayback.
+     * @param soundNotification assigns the value of _soundNotification
+     *                          to this.soundNotification.
+     * @param soundPCSpeaker assigns the value of _soundPCSpeaker
+     *                       to this.soundPCSpeaker.
      * @param soundFile assigns the value of _soundFile to this.soundFile.
      * @param event assigns the value of _event to this.event.
      */
     public NotificationEntry(
             boolean enabled, boolean program, 
-            String programFile, boolean popup, boolean sound,
+            String programFile, boolean popup,
+            boolean soundNotification, boolean soundPlayback,
+            boolean soundPCSpeaker,
             String soundFile, String event)
     {
         this.enabled = enabled;
         this.program = program;
         this.programFile = programFile;
         this.popup = popup;
-        this.sound = sound;
+        this.soundNotification = soundNotification;
+        this.soundPlayback = soundPlayback;
+        this.soundPCSpeaker = soundPCSpeaker;
         this.soundFile = soundFile;
         this.event = event;
     }
@@ -127,12 +148,30 @@ public class NotificationEntry
     }
 
     /**
-     * Method which returns if one sound is executed.
-     * @return boolean true if a sound is playing.
+     * Method which returns if one sound is to be played on notification device.
+     * @return boolean true if a sound is playing on notification device.
      */
-    public boolean getSound()
+    public boolean getSoundNotification()
     {
-        return this.sound;
+        return this.soundNotification;
+    }
+
+    /**
+     * Method which returns if one sound is to be played on playback device.
+     * @return boolean true if a sound is playing on playback device.
+     */
+    public boolean getSoundPlayback()
+    {
+        return this.soundPlayback;
+    }
+
+    /**
+     * Method which returns if one sound is to be played on pc speaker device.
+     * @return boolean true if a sound is playing on pc speaker device.
+     */
+    public boolean getSoundPCSpeaker()
+    {
+        return this.soundPCSpeaker;
     }
 
     /**
@@ -194,11 +233,31 @@ public class NotificationEntry
     /**
      * Method which set a boolean to true a sound is playing for the 
      * notification.
-     * @param sound boolean for the presence of a sound.
+     * @param sound boolean for the presence of a sound for notification device.
      */
-    public void setSound(boolean sound)
+    public void setSoundNotification(boolean sound)
     {
-        this.sound = sound;
+        this.soundNotification = sound;
+    }
+
+    /**
+     * Method which set a boolean to true a sound is playing for the
+     * playback.
+     * @param sound boolean for the presence of a sound for playback device.
+     */
+    public void setSoundPlayback(boolean sound)
+    {
+        this.soundPlayback = sound;
+    }
+
+    /**
+     * Method which set a boolean to true a sound is playing for the
+     * pc speaker.
+     * @param sound boolean for the presence of a sound for pc speaker device.
+     */
+    public void setSoundPCSpeaker(boolean sound)
+    {
+        this.soundPCSpeaker = sound;
     }
 
     /**

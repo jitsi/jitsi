@@ -21,6 +21,7 @@ import net.java.sip.communicator.service.desktop.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.keybindings.*;
 import net.java.sip.communicator.service.metahistory.*;
+import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.globalstatus.*;
 import net.java.sip.communicator.service.replacement.*;
@@ -85,6 +86,8 @@ public class GuiActivator implements BundleActivator
     private static GlobalStatusService globalStatusService;
 
     private static AccountManager accountManager;
+
+    private static NotificationService notificationService;
 
     private static List<ContactSourceService> contactSources;
 
@@ -788,6 +791,26 @@ public class GuiActivator implements BundleActivator
                     SecurityAuthority.class);
         }
         return securityAuthority;
+    }
+
+    /**
+     * Returns the <tt>NotificationService</tt> obtained from the bundle context.
+     *
+     * @return the <tt>NotificationService</tt> obtained from the bundle context
+     */
+    public static NotificationService getNotificationService()
+    {
+        if(notificationService == null)
+        {
+            // Get the notification service implementation
+            ServiceReference notifReference = bundleContext
+                .getServiceReference(NotificationService.class.getName());
+
+            notificationService = (NotificationService) bundleContext
+                .getService(notifReference);
+        }
+
+        return notificationService;
     }
 
     /**

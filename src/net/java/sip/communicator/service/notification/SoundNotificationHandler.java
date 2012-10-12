@@ -31,4 +31,18 @@ public interface SoundNotificationHandler
      * @param data Additional data for the event.
      */
     public void stop(NotificationData data);
+
+    /**
+     * Stops/Restores all currently playing sounds.
+     *
+     * @param isMute mute or not currently playing sounds
+     */
+    public void setMute(boolean isMute);
+
+    /**
+     * Specifies if currently the sound is off.
+     *
+     * @return TRUE if currently the sound is off, FALSE otherwise
+     */
+    public boolean isMute();
 }

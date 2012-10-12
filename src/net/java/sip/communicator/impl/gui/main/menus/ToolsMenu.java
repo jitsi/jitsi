@@ -21,6 +21,7 @@ import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
+import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
@@ -194,6 +195,23 @@ public class ToolsMenu
             boolean isMute = GuiActivator.getAudioNotifier().isMute();
 
             GuiActivator.getAudioNotifier().setMute(!isMute);
+
+            {
+                // also set mute to notification service and its
+                // sound handlers
+                for(NotificationHandler handler :
+                        GuiActivator.getNotificationService()
+                        .getActionHandlers(NotificationAction.ACTION_SOUND))
+                {
+                    if(handler instanceof SoundNotificationHandler)
+                    {
+                        SoundNotificationHandler soundHandler
+                            = (SoundNotificationHandler)handler;
+                        soundHandler.setMute(!soundHandler.isMute());
+                    }
+                }
+
+            }
 
             String itemTextKey = !isMute
                     ? "service.gui.SOUND_ON"

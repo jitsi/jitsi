@@ -400,7 +400,9 @@ class NotificationServiceImpl
             {
                 SoundNotificationAction soundNotificationAction
                     = (SoundNotificationAction) action;
-                if(soundNotificationAction.isSoundEnabled())
+                if(soundNotificationAction.isSoundNotificationEnabled()
+                    || soundNotificationAction.isSoundPlaybackEnabled()
+                    || soundNotificationAction.isSoundPCSpeakerEnabled())
                 {
                     ((SoundNotificationHandler) handler)
                         .start((SoundNotificationAction) action, data);
@@ -412,6 +414,28 @@ class NotificationServiceImpl
                     .execute(
                         (CommandNotificationAction)action,
                         data.getExtra());
+            }
+        }
+    }
+
+    /**
+     * Stops a notification if notification is continuous, like playing sounds
+     * in loop. Do nothing if there are no such events currently processing.
+     *
+     * @param data the data that has been returned when firing the event..
+     */
+    public void stopNotification(NotificationData data)
+    {
+        Iterable<NotificationHandler> soundHandlers
+            = getActionHandlers(NotificationAction.ACTION_SOUND);
+
+        // There could be no sound action handler for this event type
+        if (soundHandlers != null)
+        {
+            for (NotificationHandler handler : soundHandlers)
+            {
+                if (handler instanceof SoundNotificationHandler)
+                    ((SoundNotificationHandler) handler).stop(data);
             }
         }
     }
@@ -512,8 +536,9 @@ class NotificationServiceImpl
      * <tt>ConfigurationService</tt>.
      * 
      * @param eventType the name of the event
-     * @param actionType the type of action
      * @param action the notification action to change
+     * @param isActive is the event active
+     * @param isDefault is it a default one
      */
     private void saveNotification(  String eventType,
                                     NotificationAction action,
@@ -593,8 +618,16 @@ class NotificationServiceImpl
                 soundAction.getLoopInterval());
 
             configProperties.put(
-                actionTypeNodeName + ".isSoundEnabled",
-                soundAction.isSoundEnabled());
+                actionTypeNodeName + ".isSoundNotificationEnabled",
+                soundAction.isSoundNotificationEnabled());
+
+            configProperties.put(
+                actionTypeNodeName + ".isSoundPlaybackEnabled",
+                soundAction.isSoundPlaybackEnabled());
+
+            configProperties.put(
+                actionTypeNodeName + ".isSoundPCSpeakerEnabled",
+                soundAction.isSoundPCSpeakerEnabled());
         }
         else if(action instanceof PopupMessageNotificationAction)
         {
@@ -671,15 +704,27 @@ class NotificationServiceImpl
                         = configService.getString(
                             actionPropName + ".loopInterval");
 
-                    boolean isSoundEnabled
+                    boolean isSoundNotificationEnabled
                         = configService.getBoolean(
-                            actionPropName + ".isSoundEnabled",
+                            actionPropName + ".isSoundNotificationEnabled",
                             (soundFileDescriptor != null));
+
+                    boolean isSoundPlaybackEnabled
+                        = configService.getBoolean(
+                            actionPropName + ".isSoundPlaybackEnabled",
+                            false);
+
+                    boolean isSoundPCSpeakerEnabled
+                        = configService.getBoolean(
+                            actionPropName + ".isSoundPCSpeakerEnabled",
+                            false);
 
                     action = new SoundNotificationAction(
                         soundFileDescriptor,
                         Integer.parseInt(loopInterval),
-                        isSoundEnabled);
+                        isSoundNotificationEnabled,
+                        isSoundPlaybackEnabled,
+                        isSoundPCSpeakerEnabled);
                 }
                 else if(actionType.equals(ACTION_POPUP_MESSAGE))
                 {

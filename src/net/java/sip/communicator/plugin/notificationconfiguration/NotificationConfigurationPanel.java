@@ -159,6 +159,8 @@ public class NotificationConfigurationPanel
             "plugin.notificationconfig.tableheader.EXECUTE",
             "plugin.notificationconfig.tableheader.POPUP",
             "plugin.notificationconfig.tableheader.SOUND",
+            "plugin.notificationconfig.tableheader.PLAYBACK_SOUND",
+            "plugin.notificationconfig.tableheader.PCSPEAKER_SOUND",
             "plugin.notificationconfig.tableheader.DESCRIPTION"
         };
 
@@ -170,10 +172,16 @@ public class NotificationConfigurationPanel
                             "plugin.notificationconfig.POPUP_ICON")));
         JLabel icon3
             = new JLabel(new ImageIcon(Resources.getImageInBytes(
+                            "plugin.notificationconfig.SOUND_ICON_NOTIFY")));
+        JLabel icon4
+            = new JLabel(new ImageIcon(Resources.getImageInBytes(
+                            "plugin.notificationconfig.SOUND_ICON_PLAYBACK")));
+        JLabel icon5
+            = new JLabel(new ImageIcon(Resources.getImageInBytes(
                             "plugin.notificationconfig.SOUND_ICON")));
         Object column[] =
             {   "",
-                icon1, icon2, icon3,
+                icon1, icon2, icon3, icon4, icon5,
                 Resources.getString("plugin.notificationconfig.DESCRIPTION") };
 
         notificationList = new NotificationsTable(column, columnToolTips, this);
@@ -200,8 +208,10 @@ public class NotificationConfigurationPanel
         programFileTextField.setText(
             (programFile != null && programFile.length() > 0) ? programFile : "");
 
-        soundFileChooser.setEnabled(entry.getSound());
-        soundFileTextField.setEnabled(entry.getSound());
+        soundFileChooser.setEnabled(entry.getSoundNotification()
+            || entry.getSoundPlayback());
+        soundFileTextField.setEnabled(entry.getSoundNotification()
+            || entry.getSoundPlayback());
 
         String soundFile = entry.getSoundFile();
         soundFileTextField.setText(

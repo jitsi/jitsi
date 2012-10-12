@@ -13,6 +13,7 @@ import java.util.List;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
@@ -56,7 +57,12 @@ public class DTMFHandler
      * If we are currently playing an audio for a DTMF tone. Used
      * to play in Loop and stop it if forced to do or new tone has come.
      */
-    private SCAudioClip currentlyPlayingAudio;
+    NotificationData currentlyPlayingTone;
+
+    /**
+     * Default event type for DTMF tone.
+     */
+    public static final String DTMF_TONE_PREFIX = "DTMFTone.";
 
     /**
      * All available tones and its properties like images for buttons, and
@@ -196,6 +202,11 @@ public class DTMFHandler
                 };
 
     /**
+     * Whether we have already loaded the defaults for dtmf tones.
+     */
+    private static Boolean defaultsLoaded = false;
+
+    /**
      * Creates DTMF handler for a call.
      */
     public DTMFHandler()
@@ -237,6 +248,32 @@ public class DTMFHandler
                 if (parent.isVisible())
                     addParent(parent);
             }
+        }
+    }
+
+    /**
+     * Load the defaults for dtmf tones.
+     */
+    public static void loadDefaults()
+    {
+        synchronized(defaultsLoaded)
+        {
+            if(defaultsLoaded)
+                return;
+
+            // init the
+            NotificationService notificationService =
+                GuiActivator.getNotificationService();
+
+            for(DTMFToneInfo info : AVAILABLE_TONES)
+            {
+                notificationService.registerDefaultNotificationForEvent(
+                    DTMF_TONE_PREFIX + info.tone.getValue(),
+                    new SoundNotificationAction(
+                        info.sound, 0, false, true, false));
+            }
+
+            defaultsLoaded = true;
         }
     }
 
@@ -372,18 +409,10 @@ public class DTMFHandler
      */
     private synchronized void startSendingDtmfTone(DTMFToneInfo info)
     {
-        AudioNotifierService audioNotifier = GuiActivator.getAudioNotifier();
-
         if(info.sound != null)
         {
-            if(currentlyPlayingAudio != null)
-                currentlyPlayingAudio.stop();
-
-            currentlyPlayingAudio = audioNotifier.createAudio(info.sound);
-
-            // some little silence, must have a non-zero or it won't loop
-            if(currentlyPlayingAudio != null)
-                currentlyPlayingAudio.playInLoop(10);
+            currentlyPlayingTone = GuiActivator.getNotificationService()
+                .fireNotification(DTMF_TONE_PREFIX + info.tone.getValue());
         }
 
         if (callContainer != null)
@@ -448,9 +477,9 @@ public class DTMFHandler
      */
     public synchronized void stopSendingDtmfTone()
     {
-        if (currentlyPlayingAudio != null)
-            currentlyPlayingAudio.stop();
-        currentlyPlayingAudio = null;
+        if(currentlyPlayingTone != null)
+            GuiActivator.getNotificationService()
+                .stopNotification(currentlyPlayingTone);
 
         if (callContainer != null)
         {

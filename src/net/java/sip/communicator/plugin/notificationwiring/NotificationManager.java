@@ -179,9 +179,8 @@ public class NotificationManager
 
         notificationService.registerDefaultNotificationForEvent(
                 INCOMING_MESSAGE,
-                NotificationAction.ACTION_SOUND,
-                SoundProperties.INCOMING_MESSAGE,
-                null);
+                new SoundNotificationAction(
+                    SoundProperties.INCOMING_MESSAGE, -1, true, false, false));
 
         // Register incoming call notifications.
         notificationService.registerDefaultNotificationForEvent(
@@ -191,7 +190,8 @@ public class NotificationManager
                 null);
 
         SoundNotificationAction inCallSoundHandler
-            = new SoundNotificationAction(SoundProperties.INCOMING_CALL, 2000);
+            = new SoundNotificationAction(
+                    SoundProperties.INCOMING_CALL, 2000, true, true, true);
 
         notificationService.registerDefaultNotificationForEvent(
                 INCOMING_CALL,
@@ -199,7 +199,8 @@ public class NotificationManager
 
         // Register outgoing call notifications.
         SoundNotificationAction outCallSoundHandler
-            = new SoundNotificationAction(SoundProperties.OUTGOING_CALL, 3000);
+            = new SoundNotificationAction(
+                    SoundProperties.OUTGOING_CALL, 3000, false, true, false);
 
         notificationService.registerDefaultNotificationForEvent(
                 OUTGOING_CALL,
@@ -207,7 +208,8 @@ public class NotificationManager
 
         // Register busy call notifications.
         SoundNotificationAction busyCallSoundHandler
-            = new SoundNotificationAction(SoundProperties.BUSY, 1);
+            = new SoundNotificationAction(SoundProperties.BUSY, 1,
+                    false, true, false);
 
         notificationService.registerDefaultNotificationForEvent(
                 BUSY_CALL,
@@ -215,7 +217,8 @@ public class NotificationManager
 
         // Register dial notifications.
         SoundNotificationAction dialSoundHandler
-            = new SoundNotificationAction(SoundProperties.DIALING, 0);
+            = new SoundNotificationAction(
+                    SoundProperties.DIALING, 0, false, true, false);
 
         notificationService.registerDefaultNotificationForEvent(
                 DIALING,
@@ -223,7 +226,8 @@ public class NotificationManager
 
         // Register the hangup sound notification.
         SoundNotificationAction hangupSoundHandler
-            = new SoundNotificationAction(SoundProperties.HANG_UP, -1);
+            = new SoundNotificationAction(
+                    SoundProperties.HANG_UP, -1, false, true, false);
 
         notificationService.registerDefaultNotificationForEvent(
                 HANG_UP,
@@ -246,16 +250,16 @@ public class NotificationManager
         // Register sound notification for security state on during a call.
         notificationService.registerDefaultNotificationForEvent(
                 CALL_SECURITY_ON,
-                NotificationAction.ACTION_SOUND,
-                SoundProperties.CALL_SECURITY_ON,
-                null);
+                new SoundNotificationAction(
+                        SoundProperties.CALL_SECURITY_ON, -1,
+                        false, true, false));
 
         // Register sound notification for security state off during a call.
         notificationService.registerDefaultNotificationForEvent(
                 CALL_SECURITY_ERROR,
-                NotificationAction.ACTION_SOUND,
-                SoundProperties.CALL_SECURITY_ERROR,
-                null);
+                new SoundNotificationAction(
+                        SoundProperties.CALL_SECURITY_ERROR, -1,
+                        false, true, false));
 
         // Register sound notification for incoming files.
         notificationService.registerDefaultNotificationForEvent(
@@ -266,9 +270,9 @@ public class NotificationManager
 
         notificationService.registerDefaultNotificationForEvent(
                 INCOMING_FILE,
-                NotificationAction.ACTION_SOUND,
-                SoundProperties.INCOMING_FILE,
-                null);
+                new SoundNotificationAction(
+                        SoundProperties.INCOMING_FILE, -1,
+                        true, false, false));
 
         // Register notification for saved calls.
         notificationService.registerDefaultNotificationForEvent(
@@ -714,19 +718,7 @@ public class NotificationManager
         if(notificationService == null)
             return;
 
-        Iterable<NotificationHandler> soundHandlers
-            = notificationService.getActionHandlers(
-                    NotificationAction.ACTION_SOUND);
-
-        // There could be no sound action handler for this event type
-        if (soundHandlers != null)
-        {
-            for (NotificationHandler handler : soundHandlers)
-            {
-                if (handler instanceof SoundNotificationHandler)
-                    ((SoundNotificationHandler) handler).stop(data);
-            }
-        }
+        notificationService.stopNotification(data);
     }
 
     /**

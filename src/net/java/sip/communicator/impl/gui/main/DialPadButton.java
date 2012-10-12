@@ -11,6 +11,7 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.util.swing.*;
 
@@ -36,6 +37,9 @@ public class DialPadButton
 
         loadSkin();
         setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+
+        // Load the defaults (registers with notification service)
+        DTMFHandler.loadDefaults();
 
         addActionListener(new ActionListener()
         {

@@ -301,6 +301,14 @@ public interface NotificationService
     public NotificationData fireNotification(String eventType);
 
     /**
+     * Stops a notification if notification is continuous, like playing sounds
+     * in loop. Do nothing if there are no such events currently processing.
+     *
+     * @param data the data that has been returned when firing the event..
+     */
+    public void stopNotification(NotificationData data);
+
+    /**
      * Activates or deactivates all notification actions related to the
      * specified <tt>eventType</tt>. This method does nothing if the given
      * <tt>eventType</tt> is not contained in the list of registered event types.

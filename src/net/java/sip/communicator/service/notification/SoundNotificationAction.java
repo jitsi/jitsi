@@ -26,24 +26,25 @@ public class SoundNotificationAction
     private String soundFileDescriptor;
 
     /**
-     * The boolean telling if this sound is activated or not.
+     * The boolean telling if this sound is to be played on notification device.
      */
-    private boolean isSoundEnabled;
+    private boolean isSoundNotificationEnabled;
 
     /**
-     * Creates an instance of <tt>SoundNotification</tt> by
-     * specifying the sound file descriptor. The sound is played once.
-     * 
-     * @param soundDescriptor the sound file descriptor
+     * Is sound to be played on playback device.
      */
-    public SoundNotificationAction(String soundDescriptor)
-    {
-        this(soundDescriptor, -1, (soundDescriptor != null));
-    }
+    private boolean isSoundPlaybackEnabled;
+
+    /**
+     * Is sound to be played on pc speaker device.
+     */
+    private boolean isSoundPCSpeakerEnabled;
 
     /**
      * Creates an instance of <tt>SoundNotification</tt> by
      * specifying the sound file descriptor and the loop interval.
+     * By default is enabling simulation output to notification and
+     * playback device.
      *
      * @param soundDescriptor the sound file descriptor
      * @param loopInterval the loop interval
@@ -51,7 +52,10 @@ public class SoundNotificationAction
     public SoundNotificationAction( String soundDescriptor,
                                     int loopInterval)
     {
-        this(soundDescriptor, loopInterval, (soundDescriptor != null));
+        this(soundDescriptor, loopInterval,
+            false,
+            false,
+            false);
     }
 
     /**
@@ -60,16 +64,22 @@ public class SoundNotificationAction
      * 
      * @param soundDescriptor the sound file descriptor
      * @param loopInterval the loop interval
-     * @param isSoundEnabled True if this sound is activated. False Otherwise.
+     * @param isSoundNotificationEnabled True if this sound is activated. False Otherwise.
+     * @param isSoundPlaybackEnabled True if this sound is activated. False Otherwise.
+     * @param isSoundPCSpeakerEnabled True if this sound is activated. False Otherwise.
      */
     public SoundNotificationAction( String soundDescriptor,
-                                            int loopInterval,
-                                            boolean isSoundEnabled)
+                                    int loopInterval,
+                                    boolean isSoundNotificationEnabled,
+                                    boolean isSoundPlaybackEnabled,
+                                    boolean isSoundPCSpeakerEnabled)
     {
         super(NotificationAction.ACTION_SOUND);
         this.soundFileDescriptor = soundDescriptor;
         this.loopInterval = loopInterval;
-        this.isSoundEnabled = isSoundEnabled;
+        this.isSoundNotificationEnabled = isSoundNotificationEnabled;
+        this.isSoundPlaybackEnabled = isSoundPlaybackEnabled;
+        this.isSoundPCSpeakerEnabled = isSoundPCSpeakerEnabled;
     }
 
     /**
@@ -95,22 +105,68 @@ public class SoundNotificationAction
     }
 
     /**
-     * Returns if this sound is activated or not.
+     * Returns if this sound is to be played on notification device.
      *
-     * @return True if this sound is activated. False Otherwise.
+     * @return True if this sound is played on notification device.
+     * False Otherwise.
      */
-    public boolean isSoundEnabled()
+    public boolean isSoundNotificationEnabled()
     {
-        return isSoundEnabled;
+        return isSoundNotificationEnabled;
     }
 
     /**
-     * Enables or disables this sound notification.
+     * Returns if this sound is to be played on playback device.
      *
-     * @param isSoundEnabled True if this sound is activated. False Otherwise.
+     * @return True if this sound is played on playback device.
+     * False Otherwise.
      */
-    public void setSoundEnabled(boolean isSoundEnabled)
+    public boolean isSoundPlaybackEnabled()
     {
-        this.isSoundEnabled = isSoundEnabled;
+        return isSoundPlaybackEnabled;
+    }
+
+    /**
+     * Returns if this sound is to be played on pc speaker device.
+     *
+     * @return True if this sound is played on pc speaker device.
+     * False Otherwise.
+     */
+    public boolean isSoundPCSpeakerEnabled()
+    {
+        return isSoundPCSpeakerEnabled;
+    }
+
+    /**
+     * Enables or disables this sound for notification device.
+     *
+     * @param isSoundEnabled True if this sound is played on notification
+     *                       device. False Otherwise.
+     */
+    public void setSoundNotificationEnabled(boolean isSoundEnabled)
+    {
+        this.isSoundNotificationEnabled = isSoundEnabled;
+    }
+
+    /**
+     * Enables or disables this sound for playback device.
+     *
+     * @param isSoundEnabled True if this sound is played on playback
+     *                       device. False Otherwise.
+     */
+    public void setSoundPlaybackEnabled(boolean isSoundEnabled)
+    {
+        this.isSoundPlaybackEnabled = isSoundEnabled;
+    }
+
+    /**
+     * Enables or disables this sound for pc speaker device.
+     *
+     * @param isSoundEnabled True if this sound is played on speaker
+     *                       device. False Otherwise.
+     */
+    public void setSoundPCSpeakerEnabled(boolean isSoundEnabled)
+    {
+        this.isSoundPCSpeakerEnabled = isSoundEnabled;
     }
 }

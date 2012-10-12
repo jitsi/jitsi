@@ -163,7 +163,13 @@ public class NotificationsTable
                     && popupHandler.isEnabled(),
                 soundHandler != null
                     && soundHandler.isEnabled()
-                    && soundHandler.isSoundEnabled(),
+                    && soundHandler.isSoundNotificationEnabled(),
+                soundHandler != null
+                    && soundHandler.isEnabled()
+                    && soundHandler.isSoundPlaybackEnabled(),
+                soundHandler != null
+                    && soundHandler.isEnabled()
+                    && soundHandler.isSoundPCSpeakerEnabled(),
                 (soundHandler != null)
                     ? soundHandler.getDescriptor()
                     : null,
@@ -179,13 +185,15 @@ public class NotificationsTable
      */
     private void addEntry(NotificationEntry entry)
     {
-        Object row[] = new Object[5];
+        Object row[] = new Object[7];
 
         row[0] = new Boolean(entry.getEnabled());
         row[1] = (entry.getProgram()) ? ENABLED : DISABLED;
         row[2] = entry.getPopup() ? ENABLED : DISABLED;
-        row[3] = (entry.getSound()) ? ENABLED : DISABLED;
-        row[4] = entry;
+        row[3] = (entry.getSoundNotification()) ? ENABLED : DISABLED;
+        row[4] = (entry.getSoundPlayback()) ? ENABLED : DISABLED;
+        row[5] = (entry.getSoundPCSpeaker()) ? ENABLED : DISABLED;
+        row[6] = entry;
 
         this.addLine(row);
     }
@@ -201,8 +209,13 @@ public class NotificationsTable
         notifTable.setValueAt(new Boolean(entry.getEnabled()), row, 0);
         notifTable.setValueAt((entry.getProgram()) ? ENABLED : DISABLED, row, 1);
         notifTable.setValueAt(entry.getPopup() ? ENABLED : DISABLED, row, 2);
-        notifTable.setValueAt((entry.getSound()) ? ENABLED : DISABLED, row, 3);
-        notifTable.setValueAt(entry, row, 4);
+        notifTable.setValueAt((entry.getSoundNotification())
+            ? ENABLED : DISABLED, row, 3);
+        notifTable.setValueAt((entry.getSoundPlayback())
+            ? ENABLED : DISABLED, row, 4);
+        notifTable.setValueAt((entry.getSoundPCSpeaker())
+            ? ENABLED : DISABLED, row, 5);
+        notifTable.setValueAt(entry, row, 6);
     }
 
     /**
@@ -343,6 +356,16 @@ public class NotificationsTable
         else if(column == 3)
         {
             return new ImageIcon(Resources.getImageInBytes(
+                            "plugin.notificationconfig.SOUND_ICON_NOTIFY"));
+        }
+        else if(column == 4)
+        {
+            return new ImageIcon(Resources.getImageInBytes(
+                            "plugin.notificationconfig.SOUND_ICON_PLAYBACK"));
+        }
+        else if(column == 5)
+        {
+            return new ImageIcon(Resources.getImageInBytes(
                             "plugin.notificationconfig.SOUND_ICON"));
         }
         return null;
@@ -452,7 +475,7 @@ public class NotificationsTable
 
             Object o = notifTable.getValueAt(row, col);
 
-            if (col > 0 && col < 4)
+            if (col > 0 && col < 6)
                 if (o.equals(ENABLED))
                     notifTable.setValueAt(DISABLED, row, col);
                 else
@@ -511,18 +534,50 @@ public class NotificationsTable
                 }
                 break;
             case 3:
-                boolean isSound = notifTable.getValueAt(row, 3).equals(ENABLED);
-                entry.setSound(isSound);
+                boolean isSoundNotification
+                    = notifTable.getValueAt(row, 3).equals(ENABLED);
+                entry.setSoundNotification(isSoundNotification);
 
                 SoundNotificationAction soundNotificationAction
                     = (SoundNotificationAction)
                     notificationService.getEventNotificationAction(
                             entry.getEvent(), NotificationAction.ACTION_SOUND);
-                soundNotificationAction.setSoundEnabled(isSound);
+                soundNotificationAction
+                    .setSoundNotificationEnabled(isSoundNotification);
                 notificationService.registerNotificationForEvent(
                         entry.getEvent(),
                         soundNotificationAction);
                 break;
+            case 4:
+                boolean isSoundPlayback
+                    = notifTable.getValueAt(row, 4).equals(ENABLED);
+                entry.setSoundPlayback(isSoundPlayback);
+
+                SoundNotificationAction soundPlaybackAction
+                    = (SoundNotificationAction)
+                    notificationService.getEventNotificationAction(
+                            entry.getEvent(), NotificationAction.ACTION_SOUND);
+
+                soundPlaybackAction.setSoundPlaybackEnabled(isSoundPlayback);
+                notificationService.registerNotificationForEvent(
+                        entry.getEvent(),
+                        soundPlaybackAction);
+                break;
+            case 5:
+                boolean isPCSpeakerSound
+                    = notifTable.getValueAt(row, 5).equals(ENABLED);
+                entry.setSoundPCSpeaker(isPCSpeakerSound);
+
+                SoundNotificationAction soundPCSpeakerAction
+                    = (SoundNotificationAction)
+                    notificationService.getEventNotificationAction(
+                            entry.getEvent(), NotificationAction.ACTION_SOUND);
+                soundPCSpeakerAction.setSoundPCSpeakerEnabled(isPCSpeakerSound);
+                notificationService.registerNotificationForEvent(
+                        entry.getEvent(),
+                        soundPCSpeakerAction);
+                break;
+
             };
 
             configPanel.setNotificationEntry(entry);
@@ -565,7 +620,8 @@ public class NotificationsTable
         else if(event.getActionHandler().getActionType()
                 .equals(NotificationAction.ACTION_SOUND))
         {
-            entry.setSound(isActionEnabled);
+            entry.setSoundNotification(isActionEnabled);
+            entry.setSoundPlayback(isActionEnabled);
 
             entry.setSoundFile(((SoundNotificationAction)event
                     .getActionHandler()).getDescriptor());
@@ -602,7 +658,9 @@ public class NotificationsTable
         else if(event.getActionHandler().getActionType()
                 .equals(NotificationAction.ACTION_SOUND))
         {
-            entry.setSound(false);
+            entry.setSoundNotification(false);
+            entry.setSoundPlayback(false);
+            entry.setSoundPCSpeaker(false);
             entry.setSoundFile("");
         }
 
@@ -672,7 +730,9 @@ public class NotificationsTable
                 programHandler != null && programHandler.isEnabled(),
                 (programHandler != null) ? programHandler.getDescriptor() : null,
                 popupHandler != null && popupHandler.isEnabled(),
-                soundHandler != null && soundHandler.isEnabled(),
+                soundHandler != null && soundHandler.isSoundNotificationEnabled(),
+                soundHandler != null && soundHandler.isSoundPlaybackEnabled(),
+                soundHandler != null && soundHandler.isSoundPCSpeakerEnabled(),
                 (soundHandler != null) ? soundHandler.getDescriptor() : null,
                 eventName);
 
