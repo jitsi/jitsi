@@ -1,5 +1,5 @@
 /*
- * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
  *
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
@@ -13,5 +13,8 @@ package net.java.sip.communicator.impl.version;
  */
 public class NightlyBuildID
 {
-    public static final String BUILD_ID="1234.5678";
+    /**
+     * The build ID.
+     */
+    public static final String BUILD_ID="0.build.by.SVN";
 }
