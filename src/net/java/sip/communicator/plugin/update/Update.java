@@ -98,42 +98,39 @@ public class Update
             return;
         }
 
-        Thread checkForUpdatesThread
-            = new Thread()
+        Thread checkForUpdatesThread = new Thread()
+        {
+            @Override
+            public void run()
             {
-                @Override
-                public void run()
+                try
                 {
-                    try
+                    if(isLatestVersion())
                     {
-                        if(isLatestVersion())
+                        if(notifyAboutNewestVersion)
                         {
-                            if(notifyAboutNewestVersion)
-                            {
-                                ResourceManagementService resources
-                                    = Resources.getResources();
+                            ResourceManagementService resources
+                                = Resources.getResources();
 
-                                UpdateActivator.getUIService()
-                                        .getPopupDialog()
-                                            .showMessagePopupDialog(
-                                                    resources.getI18NString(
-                                                            "plugin.updatechecker.DIALOG_NOUPDATE"),
-                                                    resources.getI18NString(
-                                                            "plugin.updatechecker.DIALOG_NOUPDATE_TITLE"),
-                                                    PopupDialog.INFORMATION_MESSAGE);
-                            }
+                            UpdateActivator.getUIService().getPopupDialog()
+                               .showMessagePopupDialog(resources.getI18NString(
+                                  "plugin.updatechecker.DIALOG_NOUPDATE"),
+                                  resources.getI18NString(
+                                  "plugin.updatechecker.DIALOG_NOUPDATE_TITLE"),
+                                  PopupDialog.INFORMATION_MESSAGE);
                         }
-                        else if (OSUtils.IS_WINDOWS)
-                            showWindowsNewVersionAvailableDialog();
-                        else
-                            showGenericNewVersionAvailableDialog();
                     }
-                    finally
-                    {
-                        exitCheckForUpdates(null);
-                    }
+                    else if (OSUtils.IS_WINDOWS)
+                        showWindowsNewVersionAvailableDialog();
+                    else
+                        showGenericNewVersionAvailableDialog();
                 }
-            };
+                finally
+                {
+                    exitCheckForUpdates(null);
+                }
+            }
+        };
 
         checkForUpdatesThread.setDaemon(true);
 
@@ -858,12 +855,13 @@ public class Update
             if(ver.isNightly())
                 deltaTarget = ver.getNightlyBuildID();
             else
-                deltaTarget = String.valueOf(ver.getVersionRevision());
+                deltaTarget = String.valueOf(ver.toString());
 
             String deltaLink
                 = downloadLink.replace(
                         latestVersion,
                         latestVersion + "-delta-" + deltaTarget);
+
             /*
              * TODO Download the delta update regardless of the logging level
              * once the generation of delta updates is implemented and the whole

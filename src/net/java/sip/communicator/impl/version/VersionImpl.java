@@ -18,18 +18,18 @@ public class VersionImpl
     implements Version
 {
     /**
-     * The version major of the current SIP Communicator version. In an
+     * The version major of the current Jitsi version. In an
      * example 2.3.1 version string 2 is the version major. The version major
      * number changes when a relatively extensive set of new features and
-     * possibly rearchitecturing have been applied to the SIP Communicator.
+     * possibly rearchitecturing have been applied to the Jitsi.
      */
     public static final int VERSION_MAJOR = 1;
 
     /**
-     * The version major of the current SIP Communicator version. In an
+     * The version major of the current Jitsi version. In an
      * example 2.3.1 version string 2 is the version major. The version major
      * number changes when a relatively extensive set of new features and
-     * possibly rearchitecturing have been applied to the SIP Communicator.
+     * possibly rearchitecturing have been applied to the Jitsi.
      */
     public static final int VERSION_MINOR = 1;
 
@@ -40,16 +40,14 @@ public class VersionImpl
     public static final boolean IS_PRE_RELEASE_VERSION  = false;
 
     /**
-     * Returns the version prerelease ID of the current SIP Communicator version
-     * and null if this version is not a prerelease. Version pre-release id-s
-     * and version revisions are exclusive, so in case this version is a pre-
-     * release the revision will bereturn null.
+     * Returns the version prerelease ID of the current Jitsi version
+     * and null if this version is not a prerelease.
      */
     public static final String PRE_RELEASE_ID = "beta1";
 
     /**
-     * Indicates if this SIP Communicator version corresponds to a nightly build
-     * of a repository snapshot or to an official SIP Communicator release.
+     * Indicates if this Jitsi version corresponds to a nightly build
+     * of a repository snapshot or to an official Jitsi release.
      */
     public static final boolean IS_NIGHTLY_BUILD = true;
 
@@ -65,15 +63,15 @@ public class VersionImpl
 
     /**
      * Returns the VersionImpl instance describing the current version of
-     * SIP Communicator.
+     * Jitsi.
      */
     public static final VersionImpl CURRENT_VERSION = new VersionImpl();
 
     /**
-     * Returns the version major of the current SIP Communicator version. In an
+     * Returns the version major of the current Jitsi version. In an
      * example 2.3.1 version string 2 is the version major. The version major
      * number changes when a relatively extensive set of new features and
-     * possibly rearchitecturing have been applied to the SIP Communicator.
+     * possibly rearchitecturing have been applied to the Jitsi.
      *
      * @return the version major String.
      */
@@ -83,10 +81,10 @@ public class VersionImpl
     }
 
     /**
-     * Returns the version minor of the current SIP Communicator version. In an
+     * Returns the version minor of the current Jitsi version. In an
      * example 2.3.1 version string 3 is the version minor. The version minor
      * number changes after adding enhancements and possibly new features to a
-     * given SIP Communicator version.
+     * given Jitsi version.
      *
      * @return the version minor integer.
      */
@@ -96,35 +94,11 @@ public class VersionImpl
     }
 
     /**
-     * Returns the version revision number of the current SIP Communicator
-     * version. In an example 2.3.1 version string 1 is the revision number.
-     * The version revision number number changes after applying bug fixes and
-     * possible some small enhancements to a given SIP Communicator version.
-     *
-     * @return the version revision number or -1 if this version of
-     * SIP Communicator corresponds to a pre-release.
-     */
-    public int getVersionRevision()
-    {
-        if(isPreRelease())
-            return -1;
-
-        try
-        {
-            return Integer.valueOf(RevisionID.REVISION_ID);
-        } catch (NumberFormatException numberFormatException)
-        {
-            // if we cannot parse the revision number return -1, so we skip it
-            return -1;
-        }
-    }
-
-    /**
-     * Indicates if this SIP Communicator version corresponds to a nightly build
-     * of a repository snapshot or to an official SIP Communicator release.
+     * Indicates if this Jitsi version corresponds to a nightly build
+     * of a repository snapshot or to an official Jitsi release.
      *
      * @return true if this is a build of a nightly repository snapshot and
-     * false if this is an official SIP Communicator release.
+     * false if this is an official Jitsi release.
      */
     public boolean isNightly()
     {
@@ -133,8 +107,8 @@ public class VersionImpl
 
     /**
      * If this is a nightly build, returns the build identifies (e.g.
-     * nightly-2007.12.07-06.45.17). If this is not a nightly build SIP
-     * Communicator version, the method returns null.
+     * nightly-2007.12.07-06.45.17). If this is not a nightly build Jitsi
+     * version, the method returns null.
      *
      * @return a String containing a nightly build identifier or null if this is
      * a release version and therefore not a nightly build
@@ -158,10 +132,8 @@ public class VersionImpl
     }
 
     /**
-     * Returns the version prerelease ID of the current SIP Communicator version
-     * and null if this version is not a prerelease. Version pre-release id-s
-     * and version revisions are exclusive, so in case this version is a pre-
-     * release the revision will bereturn null
+     * Returns the version prerelease ID of the current Jitsi version
+     * and null if this version is not a prerelease.
      *
      * @return a String containing the version prerelease ID.
      */
@@ -197,13 +169,13 @@ public class VersionImpl
 
     /**
      * Compares the <tt>version</tt> parameter to this version and returns true
-     * if and only if both reference the same SIP Communicator version and
+     * if and only if both reference the same Jitsi version and
      * false otherwise.
      *
      * @param version the version instance that we'd like to compare with this
      * one.
      * @return true if and only the version param references the same
-     * SIP Communicator version as this Version instance and false otherwise.
+     * Jitsi version as this Version instance and false otherwise.
      */
     public boolean equals(Object version)
     {
@@ -216,13 +188,12 @@ public class VersionImpl
 
     /**
      * Returns a String representation of this Version instance in the generic
-     * form of major.minor.revision[.nightly.build.id]. If you'd just
-     * like to obtain the version of SIP Communicator so that you could display
-     * it (e.g. in a Help->About dialog) then all you need is calling this
-     * method.
+     * form of major.minor[.nightly.build.id]. If you'd just like to obtain the
+     * version of Jitsi so that you could display it (e.g. in a Help->About
+     * dialog) then all you need is calling this method.
      *
-     * @return a major.minor.revision[.build] String containing the complete
-     * SIP Communicator version.
+     * @return a major.minor[.build] String containing the complete
+     * Jitsi version.
      */
     public String toString()
     {
@@ -237,19 +208,10 @@ public class VersionImpl
             versionStringBuff.append("-");
             versionStringBuff.append(getPreReleaseID());
         }
-        else
-        {
-            int rev = getVersionRevision();
-            if(rev >= 0)
-            {
-                versionStringBuff.append(".");
-                versionStringBuff.append(Integer.toString(rev));
-            }
-        }
 
         if(isNightly())
         {
-            versionStringBuff.append("-");
+            versionStringBuff.append(".");
             versionStringBuff.append(getNightlyBuildID());
         }
 
@@ -258,10 +220,10 @@ public class VersionImpl
 
     /**
      * Returns the VersionImpl instance describing the current version of
-     * SIP Communicator.
+     * Jitsi.
      *
      * @return the VersionImpl instance describing the current version of
-     * SIP Communicator.
+     * Jitsi.
      */
     public static final VersionImpl currentVersion()
     {
@@ -270,10 +232,10 @@ public class VersionImpl
 
     /**
      * Returns the name of the application that we're currently running. Default
-     * MUST be SIP Communicator.
+     * MUST be Jitsi.
      *
      * @return the name of the application that we're currently running. Default
-     * MUST be SIP Communicator.
+     * MUST be Jitsi.
      */
     public String getApplicationName()
     {
