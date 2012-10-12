@@ -64,8 +64,7 @@
 			<attribute name="javadoc_location" value="http://dbus.freedesktop.org/doc/dbus-java/api/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/installer-exclude/libjitsi.jar" sourcepath="/Users/emcho/devel/libjitsi/src"/>
-	<classpathentry kind="lib" path="/Users/emcho/devel/jitsi/lib/installer-exclude/libphonenumber-2.4.jar"/>
+	<classpathentry kind="lib" path="lib/installer-exclude/libjitsi.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/log4j-1.2.8.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/mac_widgets-0.9.5.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/objenesis-1.2.jar"/>
@@ -91,3 +90,4 @@
 	<classpathentry kind="lib" path="lib/os-specific/windows/installer-exclude/jna-platform-win32.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
+
