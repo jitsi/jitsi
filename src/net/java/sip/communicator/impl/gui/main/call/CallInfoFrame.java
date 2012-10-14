@@ -575,6 +575,11 @@ public class CallInfoFrame
                     + "% &uarr; "
                     + (int) mediaStreamStats.getUploadPercentLoss()
                     + "%"));
+        stringBuffer.append(
+            getLineString(
+                 resources.getI18NString(
+                     "service.gui.callinfo.DECODED_WITH_FEC"),
+                 String.valueOf(mediaStreamStats.getNbFec())));
 
         long rttMs = mediaStreamStats.getRttMs();
         if(rttMs != -1)
