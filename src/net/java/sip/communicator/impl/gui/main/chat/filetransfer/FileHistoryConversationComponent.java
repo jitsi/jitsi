@@ -6,7 +6,6 @@
  */
 package net.java.sip.communicator.impl.gui.main.chat.filetransfer;
 
-import java.awt.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.filehistory.*;
@@ -22,11 +21,8 @@ public class FileHistoryConversationComponent
 {
     private final FileRecord fileRecord;
 
-    public FileHistoryConversationComponent(Window parentWindow,
-                                            FileRecord fileRecord)
+    public FileHistoryConversationComponent(FileRecord fileRecord)
     {
-        super(parentWindow);
-
         this.fileRecord = fileRecord;
 
         String contactName = fileRecord.getContact().getDisplayName();

@@ -408,8 +408,7 @@ public class MetaUIContact
      */
     public ExtendedTooltip getToolTip()
     {
-        ExtendedTooltip tip = new ExtendedTooltip(
-            GuiActivator.getUIService().getMainFrame(), true);
+        ExtendedTooltip tip = new ExtendedTooltip(true);
 
         byte[] avatarImage = metaContact.getAvatar();
 

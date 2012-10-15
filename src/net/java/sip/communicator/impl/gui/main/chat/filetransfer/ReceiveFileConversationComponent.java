@@ -61,8 +61,6 @@ public class ReceiveFileConversationComponent
         final IncomingFileTransferRequest request,
         final Date date)
     {
-        super(chatPanel.getChatContainer().getFrame());
-
         this.chatPanel = chatPanel;
         this.fileTransferOpSet = opSet;
         this.fileTransferRequest = request;

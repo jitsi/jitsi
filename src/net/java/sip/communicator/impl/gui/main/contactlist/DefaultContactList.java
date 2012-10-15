@@ -128,8 +128,7 @@ public class DefaultContactList
 
         Object element = getModel().getElementAt(index);
 
-        ExtendedTooltip tip = new ExtendedTooltip(
-            GuiActivator.getUIService().getMainFrame(), true);
+        ExtendedTooltip tip = new ExtendedTooltip(true);
 
         if (element instanceof MetaContact)
         {

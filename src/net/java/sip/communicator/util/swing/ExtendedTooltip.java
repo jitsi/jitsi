@@ -59,7 +59,7 @@ public class ExtendedTooltip
      * Created a <tt>MetaContactTooltip</tt>.
      * @param isListViewEnabled indicates if the list view is enabled
      */
-    public ExtendedTooltip(final Window parentWindow, boolean isListViewEnabled)
+    public ExtendedTooltip(boolean isListViewEnabled)
     {
         this.isListViewEnabled = isListViewEnabled;
 
@@ -99,6 +99,10 @@ public class ExtendedTooltip
         bottomTextArea.setFont(bottomTextArea.getFont().deriveFont(10f));
         mainPanel.add(bottomTextArea, BorderLayout.SOUTH);
 
+        final Window parentWindow
+            = KeyboardFocusManager.getCurrentKeyboardFocusManager()
+                .getActiveWindow();
+
         // Hide the tooltip when the parent window hides.
         /*
          * FIXME The parentWindow will surely outlive this ExtendedTooltip so
@@ -130,34 +134,36 @@ public class ExtendedTooltip
             public void windowGainedFocus(WindowEvent e) {}
         });
 
+        // Comments this code as it hides the tool tip once it's opened and this
+        // appears as a buggy behavior.
         // Hide the tooltip if the parent window isn't active
-        addComponentListener(new ComponentAdapter()
-        {
-            public void componentResized(ComponentEvent evt)
-            {
-                if (!parentWindow.isActive())
-                {
-                    Window popupWindow
-                        = SwingUtilities.getWindowAncestor(
-                                ExtendedTooltip.this);
-
-                    if (popupWindow != null
-                        && popupWindow.isVisible()
-                        && !(popupWindow instanceof JFrame)
-                        // The popup window should normally be a JWindow, so we
-                        // check here explicitly if for some reason we didn't get
-                        // something else.
-                        && (popupWindow instanceof JWindow))
-                    {
-                        if (logger.isInfoEnabled())
-                            logger.info("Tooltip window ancestor to hide: "
-                                + popupWindow);
-
-                        popupWindow.setVisible(false);
-                    }
-                }
-            }
-        });
+//        addComponentListener(new ComponentAdapter()
+//        {
+//            public void componentResized(ComponentEvent evt)
+//            {
+//                if (!parentWindow.isActive())
+//                {
+//                    Window popupWindow
+//                        = SwingUtilities.getWindowAncestor(
+//                                ExtendedTooltip.this);
+//
+//                    if (popupWindow != null
+//                        && popupWindow.isVisible()
+//                        && !(popupWindow instanceof JFrame)
+//                        // The popup window should normally be a JWindow, so we
+//                        // check here explicitly if for some reason we didn't
+//                        // get something else.
+//                        && (popupWindow instanceof JWindow))
+//                    {
+//                        if (logger.isInfoEnabled())
+//                            logger.info("Tooltip window ancestor to hide: "
+//                                + popupWindow);
+//
+//                        popupWindow.setVisible(false);
+//                    }
+//                }
+//            }
+//        });
 
         this.add(mainPanel);
     }

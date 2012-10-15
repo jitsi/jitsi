@@ -165,8 +165,6 @@ public class DefaultTreeContactList
 
         Object element = path.getLastPathComponent();
 
-        MainFrame mainWindow = GuiActivator.getUIService().getMainFrame();
-
         ExtendedTooltip tip = null;
         if (element instanceof ContactNode)
         {
@@ -179,7 +177,7 @@ public class DefaultTreeContactList
                 && ((SIPCommButton) cellComponent)
                     .getToolTipText().length() > 0)
             {
-                tip = new ExtendedTooltip(mainWindow, true);
+                tip = new ExtendedTooltip(true);
                 tip.setTitle(((SIPCommButton)cellComponent).getToolTipText());
             }
             else
@@ -190,7 +188,7 @@ public class DefaultTreeContactList
                 tip = contact.getToolTip();
                 if (tip == null)
                 {
-                    tip = new ExtendedTooltip(mainWindow, true);
+                    tip = new ExtendedTooltip(true);
                     tip.setTitle(contact.getDisplayName());
                 }
             }
@@ -200,7 +198,7 @@ public class DefaultTreeContactList
             UIGroup group
                 = ((GroupNode) element).getGroupDescriptor();
 
-            tip = new ExtendedTooltip(mainWindow, true);
+            tip = new ExtendedTooltip(true);
             tip.setTitle(group.getDisplayName());
         }
         else if (element instanceof ChatContact<?>)
@@ -209,7 +207,7 @@ public class DefaultTreeContactList
 
             ImageIcon avatarImage = chatContact.getAvatar();
 
-            tip = new ExtendedTooltip(mainWindow, true);
+            tip = new ExtendedTooltip(true);
             if (avatarImage != null)
                 tip.setImage(avatarImage);
 

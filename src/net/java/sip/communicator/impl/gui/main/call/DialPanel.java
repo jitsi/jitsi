@@ -136,7 +136,7 @@ public class DialPanel
      */
     public void paintComponent(Graphics g)
     {
-     // do the superclass behavior first
+        // do the superclass behavior first
         super.paintComponent(g);
 
         Graphics2D g2 = (Graphics2D) g;

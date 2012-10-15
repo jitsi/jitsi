@@ -340,8 +340,7 @@ public class HistoryWindow
                         = fileRecord.getContact().getProtocolProvider();
 
                     FileHistoryConversationComponent component
-                        = new FileHistoryConversationComponent(
-                            this, fileRecord);
+                        = new FileHistoryConversationComponent(fileRecord);
 
                     chatConvPanel.addComponent(component);
                 }

@@ -47,6 +47,9 @@ public class InviteContactListFilter
         {
             filterSources.addAll(sourceContactList
                 .getContactSources(ContactSourceService.SEARCH_TYPE));
+
+            filterSources.addAll(sourceContactList
+                .getContactSources(ContactSourceService.HISTORY_TYPE));
         }
 
         Iterator<UIContactSource> filterSourceIter = filterSources.iterator();

@@ -114,7 +114,7 @@ public class ChatWindow
 
         menuBar = new MessageWindowMenuBar(this);
 
-        contactPhotoPanel = new ContactPhotoPanel(this);
+        contactPhotoPanel = new ContactPhotoPanel();
 
         this.setJMenuBar(menuBar);
 

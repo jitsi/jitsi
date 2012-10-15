@@ -374,8 +374,7 @@ public class SourceUIContact
      */
     public ExtendedTooltip getToolTip()
     {
-        ExtendedTooltip tip = new ExtendedTooltip(
-            GuiActivator.getUIService().getMainFrame(), true);
+        ExtendedTooltip tip = new ExtendedTooltip(true);
 
         byte[] avatarImage = sourceContact.getImage();
 

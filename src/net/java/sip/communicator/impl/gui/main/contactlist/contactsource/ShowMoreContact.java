@@ -152,8 +152,7 @@ public class ShowMoreContact
      */
     public ExtendedTooltip getToolTip()
     {
-        ExtendedTooltip tooltip = new ExtendedTooltip(
-            GuiActivator.getUIService().getMainFrame(), false);
+        ExtendedTooltip tooltip = new ExtendedTooltip(false);
 
         tooltip.setTitle(GuiActivator.getResources()
             .getI18NString("service.gui.SHOW_MORE_TOOLTIP"));

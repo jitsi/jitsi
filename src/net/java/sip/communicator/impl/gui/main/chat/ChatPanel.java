@@ -698,8 +698,7 @@ public class ChatPanel
                 FileRecord fileRecord = (FileRecord) o;
 
                 FileHistoryConversationComponent component
-                    = new FileHistoryConversationComponent(
-                        chatContainer.getFrame(), fileRecord);
+                    = new FileHistoryConversationComponent(fileRecord);
 
                 conversationPanel.addComponent(component);
             }

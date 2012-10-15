@@ -76,8 +76,7 @@ public class SingleWindowContainer
         setPreferredSize(new Dimension(620, 580));
 
         tabbedPane = new ConversationTabbedPane();
-        contactPhotoPanel = new ContactPhotoPanel(
-            GuiActivator.getUIService().getMainFrame());
+        contactPhotoPanel = new ContactPhotoPanel();
 
         add(createToolbar(), BorderLayout.NORTH);
         tabbedPane.addChangeListener(this);

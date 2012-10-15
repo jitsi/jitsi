@@ -98,6 +98,8 @@ public class ConferenceInviteDialog
         {
             public void run()
             {
+                initContactListSources();
+
                 // Initialize the list of contacts to select from.
                 initContactListData(
                     (ProtocolProviderService) accountSelectorBox
@@ -222,9 +224,7 @@ public class ConferenceInviteDialog
         ProtocolProviderService pps
             = ConfigurationManager.getLastCallConferenceProvider();
 
-        if (pps != null)
-            accountSelectorBox.setSelectedItem(pps);
-        else if (conference != null)
+        if (pps == null && conference != null)
         {
             /*
              * Pick up the first account from the ones participating in the
@@ -244,21 +244,18 @@ public class ConferenceInviteDialog
                 }
             }
         }
+
+        if (pps != null)
+            accountSelectorBox.setSelectedItem(pps);
+        else if (accountSelectorBox.getItemCount() > 0)
+            accountSelectorBox.setSelectedIndex(0);
     }
 
     /**
-     * Initializes the left contact list with the contacts that could be added
-     * to the current chat session.
-     * @param protocolProvider the protocol provider from which to initialize
-     * the contact list data
+     * Initializes contact sources for the source contact list.
      */
-    private void initContactListData(ProtocolProviderService protocolProvider)
+    private void initContactListSources()
     {
-        this.setCurrentProvider(protocolProvider);
-
-        srcContactList.removeContactSource(currentProviderContactSource);
-        srcContactList.removeContactSource(currentStringContactSource);
-
         Iterator<UIContactSource> sourcesIter
             = new ArrayList<UIContactSource>(
                 srcContactList.getContactSources()).iterator();
@@ -273,6 +270,20 @@ public class ConferenceInviteDialog
             srcContactList.addContactSource(
                 new DemuxContactSource(contactSource));
         }
+    }
+
+    /**
+     * Initializes the left contact list with the contacts that could be added
+     * to the current chat session.
+     * @param protocolProvider the protocol provider from which to initialize
+     * the contact list data
+     */
+    private void initContactListData(ProtocolProviderService protocolProvider)
+    {
+        this.setCurrentProvider(protocolProvider);
+
+        srcContactList.removeContactSource(currentProviderContactSource);
+        srcContactList.removeContactSource(currentStringContactSource);
 
         currentProviderContactSource
             = new ProtocolContactSourceServiceImpl(

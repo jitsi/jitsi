@@ -6,7 +6,6 @@
  */
 package net.java.sip.communicator.impl.gui.utils;
 
-import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.net.*;
@@ -31,22 +30,6 @@ public class FileImageLabel
     private ImageIcon tooltipIcon;
 
     private String tooltipTitle;
-
-    /**
-     * The parent window where this component will be added.
-     */
-    private final Window parentWindow;
-
-    /**
-     * Creates an instance of <tt>FileImageLabel</tt> by specifying the parent
-     * window where this label would be added.
-     *
-     * @param parentWindow the parent window
-     */
-    public FileImageLabel(Window parentWindow)
-    {
-        this.parentWindow = parentWindow;
-    }
 
     /**
      * Sets the icon to show in the tool tip.
@@ -75,7 +58,7 @@ public class FileImageLabel
      */
     public JToolTip createToolTip()
     {
-        ExtendedTooltip tip = new ExtendedTooltip(parentWindow, false);
+        ExtendedTooltip tip = new ExtendedTooltip(false);
 
         if (tooltipIcon != null)
             tip.setImage(tooltipIcon);

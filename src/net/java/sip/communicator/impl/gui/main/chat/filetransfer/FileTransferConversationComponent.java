@@ -181,9 +181,9 @@ public abstract class FileTransferConversationComponent
     /**
      * Creates a file conversation component.
      */
-    public FileTransferConversationComponent(Window parentWindow)
+    public FileTransferConversationComponent()
     {
-        imageLabel = new FileImageLabel(parentWindow);
+        imageLabel = new FileImageLabel();
 
         constraints.gridx = 0;
         constraints.gridy = 0;
