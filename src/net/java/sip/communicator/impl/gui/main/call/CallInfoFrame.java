@@ -580,6 +580,14 @@ public class CallInfoFrame
                  resources.getI18NString(
                      "service.gui.callinfo.DECODED_WITH_FEC"),
                  String.valueOf(mediaStreamStats.getNbFec())));
+        stringBuffer.append(getLineString(
+                 resources.getI18NString(
+                         "service.gui.callinfo.DISCARDED_PERCENT"),
+                 String.valueOf((int)mediaStreamStats.getPercentDiscarded()
+                         + "%")));
+        stringBuffer.append(getLineString(
+                resources.getI18NString("service.gui.callinfo.DISCARDED_TOTAL"),
+                String.valueOf(mediaStreamStats.getNbDiscarded())));
 
         long rttMs = mediaStreamStats.getRttMs();
         if(rttMs != -1)
