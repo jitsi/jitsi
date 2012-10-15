@@ -126,7 +126,7 @@ class VerifyCertificateDialog
         northPanel.setBorder(BorderFactory.createEmptyBorder(10, 5, 5, 5));
 
         JLabel imgLabel = new JLabel(
-            R.getImage("service.gui.icons.WARNING_ICON"));
+            R.getImage("service.gui.icons.CERTIFICATE_WARNING"));
         imgLabel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         northPanel.add(imgLabel, BorderLayout.WEST);
 
