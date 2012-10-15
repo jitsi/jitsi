@@ -475,9 +475,9 @@ public class CallPeerMediaHandlerJabberImpl
 
             // if we answer with video, tell remote peer that video direction is
             // sendrecv, and whether video device can capture/send
-            if ((type == MediaType.VIDEO)
+            if (MediaType.VIDEO.equals(type)
                     && (isLocalVideoTransmissionEnabled()
-                            || isRTPTranslationEnabled())
+                            || isRTPTranslationEnabled(type))
                     && dev.getDirection().allowsSending())
             {
                direction = MediaDirection.SENDRECV;
@@ -583,7 +583,8 @@ public class CallPeerMediaHandlerJabberImpl
          * In the case of RTP translation performed by the conference focus,
          * the conference focus is not required to capture media.
          */
-        if (!(MediaType.VIDEO.equals(mediaType) && isRTPTranslationEnabled()))
+        if (!(MediaType.VIDEO.equals(mediaType)
+                && isRTPTranslationEnabled(mediaType)))
             direction = direction.and(getDirectionUserPreference(mediaType));
         if (isLocallyOnHold())
             direction = direction.and(MediaDirection.SENDONLY);
@@ -731,7 +732,7 @@ public class CallPeerMediaHandlerJabberImpl
                  * focus, the conference focus is not required to capture media.
                  */
                 if (!(MediaType.VIDEO.equals(mediaType) 
-                        && isRTPTranslationEnabled()))
+                        && isRTPTranslationEnabled(mediaType)))
                 {
                     direction
                         = direction.and(getDirectionUserPreference(mediaType));
@@ -1277,7 +1278,7 @@ public class CallPeerMediaHandlerJabberImpl
                      */
                     CallJabberImpl call = peer.getCall();
 
-                    if (call.isConferenceFocus())
+                    if (call.getConference().isJitsiVideoBridge())
                     {
                         String jitsiVideoBridge
                             = protocolProvider.getJitsiVideoBridge();
@@ -1302,6 +1303,15 @@ public class CallPeerMediaHandlerJabberImpl
                                     transports[0] = jitsiVideoBridgeTransport;
                                 }
                             }
+
+                            /*
+                             * XXX If a telephony conference utilizing the Jitsi
+                             * VideoBridge server-side telephony conferencing
+                             * technology is to work, its only chance of working
+                             * is to use RAW UDP at the time of this writing.
+                             */
+                            transports
+                                = new String[] { jitsiVideoBridgeTransport };
                         }
                     }
 

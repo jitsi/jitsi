@@ -27,6 +27,7 @@ import net.java.sip.communicator.util.swing.*;
  * The container of the single window interface.
  *
  * @author Yana Stamcheva
+ * @author Lyubomir Marinov
  */
 public class SingleWindowContainer
     extends TransparentPanel
@@ -440,27 +441,21 @@ public class SingleWindowContainer
     }
 
     /**
-     * Closes the given <tt>CallPanel</tt>.
+     * {@inheritDoc}
      *
-     * @param callPanel the <tt>CallPanel</tt> to close
+     * The delay implemented by <tt>SingleWindowContainer</tt> is 5 seconds.
      */
-    public void close(CallPanel callPanel)
+    public void close(CallPanel callPanel, boolean delay)
     {
-        removeConversation(callPanel);
-    }
+        if (delay)
+        {
+            Timer timer = new Timer(5000, new CloseCallListener(callPanel));
 
-    /**
-     * Closes the given <tt>CallPanel</tt>.
-     *
-     * @param callPanel the <tt>CallPanel</tt> to close
-     */
-    public void closeWait(CallPanel callPanel)
-    {
-        Timer timer
-            = new Timer(5000, new CloseCallListener(callPanel));
-
-        timer.setRepeats(false);
-        timer.start();
+            timer.setRepeats(false);
+            timer.start();
+        }
+        else
+            removeConversation(callPanel);
     }
 
     /**
@@ -566,5 +561,14 @@ public class SingleWindowContainer
 
         if(index > -1)
             this.tabbedPane.setTitleAt(index, title);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <tt>SingleWindowContainer</tt> does nothing.
+     */
+    public void ensureSize(Component component, int width, int height)
+    {
     }
 }

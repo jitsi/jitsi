@@ -24,6 +24,7 @@ import net.java.sip.communicator.util.swing.*;
 
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.protocol.event.*;
+import org.jitsi.service.resources.*;
 
 /**
  * The <tt>ConferencePeerPanel</tt> renders a single <tt>ConferencePeer</tt>,
@@ -34,9 +35,9 @@ import org.jitsi.service.protocol.event.*;
  * @author Adam Netocny
  */
 public class ConferencePeerPanel
-    extends BasicConferenceParticipantPanel
-    implements  ConferenceCallPeerRenderer,
-                Skinnable
+    extends BasicConferenceParticipantPanel<Object>
+    implements ConferenceCallPeerRenderer,
+               Skinnable
 {
     /**
      * Serial version UID.
@@ -44,19 +45,23 @@ public class ConferencePeerPanel
     private static final long serialVersionUID = 0L;
 
     /**
-     * The parent dialog containing this panel.
+     * The <tt>Call</tt> which represents the local peer depicted by this
+     * instance. If <tt>null</tt>, then this instance does not depict the local
+     * peer and depicts {@link #callPeer}.
      */
-    private final CallPanel callPanel;
+    private final Call call;
 
     /**
-     * The parent call renderer.
-     */
-    private final ConferenceCallPanel callRenderer;
-
-    /**
-     * The call peer shown in this panel.
+     * The <tt>CallPeer</tt> depicted by this instance. If <tt>null</tt>, then
+     * this instance depicts the local peer represented by {@link #call}.
      */
     private final CallPeer callPeer;
+
+    /**
+     * The <tt>CallPeerAdapter</tt> which implements common
+     * <tt>CallPeer</tt>-related listeners on behalf of this instance.
+     */
+    private final CallPeerAdapter callPeerAdapter;
 
     /**
      * The tools menu available for each peer.
@@ -64,9 +69,9 @@ public class ConferencePeerPanel
     private CallPeerMenu callPeerMenu;
 
     /**
-     * The label showing whether the voice has been set to mute.
+     * The DTMF label.
      */
-    private final JLabel muteStatusLabel = new JLabel();
+    private final JLabel dtmfLabel = new JLabel();
 
     /**
      * The label showing whether the voice has been set to mute.
@@ -74,9 +79,9 @@ public class ConferencePeerPanel
     private final JLabel holdStatusLabel = new JLabel();
 
     /**
-     * The DTMF label.
+     * The label showing whether the voice has been set to mute.
      */
-    private final JLabel dtmfLabel = new JLabel();
+    private final JLabel muteStatusLabel = new JLabel();
 
     /**
      * The component showing the security details.
@@ -84,106 +89,203 @@ public class ConferencePeerPanel
     private SecurityPanel<?> securityPanel;
 
     /**
-     * The call peer adapter.
+     * The <tt>SoundLevelListener</tt> which listens to the changes in the
+     * audio/sound level of the model of this instance. (If {@link #callPeer} is
+     * non-<tt>null</tt>, <tt>callPeer</tt> is the model of this instance.)
      */
-    private CallPeerAdapter callPeerAdapter;
+    private final SoundLevelListener soundLevelListener
+        = new SoundLevelListener()
+        {
+            /**
+             * Updates the sound level bar upon stream sound level changes.
+             *
+             * {@inheritDoc}
+             */
+            public void soundLevelChanged(Object source, int level)
+            {
+                if (source.equals(participant))
+                    updateSoundBar(level);
+            }
+        };
 
     /**
-     * Listens for sound level changes on the stream of the
-     * conference members.
-     */
-    private StreamSoundLevelListener streamSoundLevelListener = null;
-
-    /**
-     * Creates a <tt>ConferencePeerPanel</tt> by specifying the parent
-     * <tt>callDialog</tt>, containing it and the corresponding
-     * <tt>protocolProvider</tt>.
+     * Initializes a new <tt>ConferencePeerPanel</tt> which is to depict the
+     * local peer represented by a specific <tt>Call</tt> on behalf of a
+     * specific <tt>BasicConferenceCallPanel</tt> i.e. <tt>CallRenderer</tt>.
      *
-     * @param callRenderer the renderer of the corresponding call
-     * @param callContainer the call panel containing this peer panel
-     * @param protocolProvider the <tt>ProtocolProviderService</tt> for the
-     * call
-     * @param isVideo indicates if the video interface is enabled
+     * @param callRenderer the <tt>BasicConferenceCallPanel</tt> which requests
+     * the initialization of the new instance and which will use the new
+     * instance to depict the local peer represented by the specified
+     * <tt>Call</tt>
+     * @param call the <tt>Call</tt> which represents the local peer to be
+     * depicted by the new instance
+     * @param video <tt>true</tt> if the new instance will be associated with a
+     * display of video (e.g. which will be streaming to the <tt>CallPeer</tt>s
+     * associated with the specified <tt>call</tt>); otherwise, <tt>false</tt>
+     * @throws NullPointerException if <tt>call</tt> is <tt>null</tt>
      */
-    public ConferencePeerPanel( ConferenceCallPanel callRenderer,
-                                CallPanel callContainer,
-                                ProtocolProviderService protocolProvider,
-                                boolean isVideo)
+    public ConferencePeerPanel(
+            BasicConferenceCallPanel callRenderer,
+            Call call,
+            boolean video)
     {
-        super(callRenderer, true, isVideo);
+        super(callRenderer, call, video);
 
-        this.callRenderer = callRenderer;
-        this.callPanel = callContainer;
+        if (call == null)
+            throw new NullPointerException("call");
+
+        this.call = call;
         this.callPeer = null;
+
+        callPeerAdapter = null;
 
         // Try to set the same image as the one in the main window. This way
         // we improve our chances to have an image, instead of looking only at
         // the protocol provider avatar, which could be null, we look for any
         // image coming from one of our accounts.
         byte[] globalAccountImage = AccountStatusPanel.getGlobalAccountImage();
-        if (globalAccountImage != null && globalAccountImage.length > 0)
-            this.setPeerImage(globalAccountImage);
 
-        this.setPeerName(protocolProvider.getAccountID().getUserID()
-            + " (" + GuiActivator.getResources()
-                .getI18NString("service.gui.ACCOUNT_ME").toLowerCase() + ")");
+        if ((globalAccountImage != null) && (globalAccountImage.length > 0))
+            setPeerImage(globalAccountImage);
 
-        if (isVideo)
-            this.setTitleBackground(Color.DARK_GRAY);
-        else
-            this.setTitleBackground(
-                new Color(GuiActivator.getResources().getColor(
-                    "service.gui.CALL_LOCAL_USER_BACKGROUND")));
+        ResourceManagementService resources = GuiActivator.getResources();
+
+        setPeerName(
+                call.getProtocolProvider().getAccountID().getUserID()
+                    + " ("
+                    + resources
+                        .getI18NString("service.gui.ACCOUNT_ME")
+                            .toLowerCase()
+                    + ")");
+        setTitleBackground(
+                video
+                    ? Color.DARK_GRAY
+                    : new Color(
+                            resources.getColor(
+                                    "service.gui.CALL_LOCAL_USER_BACKGROUND")));
+
+        call.addLocalUserSoundLevelListener(soundLevelListener);
     }
 
     /**
-     * Creates a <tt>ConferencePeerPanel</tt>, that would be contained in
-     * the given <tt>callDialog</tt> and would correspond to the given
-     * <tt>callPeer</tt>.
+     * Initializes a new <tt>ConferencePeerPanel</tt> which is to depict a
+     * specific <tt>CallPeer</tt> on behalf of a specific
+     * <tt>BasicConferenceCallPanel</tt> i.e. <tt>CallRenderer</tt>.
      *
-     * @param callRenderer the renderer of the corresponding call
-     * @param callContainer the container, in which this panel is shown
-     * @param callPeer The peer who own this UI
-     * @param videoHandler the video handler
-     * @param isVideo indicates if the video interface is enabled
+     * @param callRenderer the <tt>BasicConferenceCallPanel</tt> which requests
+     * the initialization of the new instance and which will use the new
+     * instance to depict the specified <tt>CallPeer</tt>
+     * @param callPeer the <tt>CallPeer</tt> to be depicted by the new instance
      */
-    public ConferencePeerPanel( ConferenceCallPanel callRenderer,
-                                CallPanel callContainer,
-                                CallPeer callPeer,
-                                boolean isVideo)
+    public ConferencePeerPanel(
+            BasicConferenceCallPanel callRenderer,
+            CallPeer callPeer)
     {
-        super(callRenderer, false, isVideo);
+        this(callRenderer, callPeer, false);
+    }
 
-        this.callRenderer = callRenderer;
-        this.callPanel = callContainer;
+    /**
+     * Initializes a new <tt>ConferencePeerPanel</tt> which is to depict a
+     * specific <tt>CallPeer</tt> on behalf of a specific
+     * <tt>BasicConferenceCallPanel</tt> i.e. <tt>CallRenderer</tt>.
+     *
+     * @param callRenderer the <tt>BasicConferenceCallPanel</tt> which requests
+     * the initialization of the new instance and which will use the new
+     * instance to depict the specified <tt>CallPeer</tt>
+     * @param callPeer the <tt>CallPeer</tt> to be depicted by the new instance
+     * @param video <tt>true</tt> if the new instance will be associated with a
+     * display of video (e.g. which will be streaming from the specified
+     * <tt>callPeer</tt>); otherwise, <tt>false</tt>
+     * @throws NullPointerException if <tt>callPeer</tt> is <tt>null</tt>
+     */
+    public ConferencePeerPanel(
+            BasicConferenceCallPanel callRenderer,
+            CallPeer callPeer,
+            boolean video)
+    {
+        super(callRenderer, callPeer, video);
+
+        if (callPeer == null)
+            throw new NullPointerException("callPeer");
+
+        this.call = null;
         this.callPeer = callPeer;
 
-        this.securityPanel = SecurityPanel.create(this, callPeer, null);
+        securityPanel = SecurityPanel.create(this, callPeer, null);
 
-        this.setMute(callPeer.isMute());
+        setMute(callPeer.isMute());
 
-        this.setPeerImage(CallManager.getPeerImage(callPeer));
-
-        this.setPeerName(callPeer.getDisplayName());
+        setPeerImage(CallManager.getPeerImage(callPeer));
+        setPeerName(callPeer.getDisplayName());
 
         // We initialize the status bar for call peers only.
-        this.initStatusBar(callPeer);
+        initStatusBar(callPeer);
 
         callPeerMenu = new CallPeerMenu(callPeer);
 
         SIPCommMenuBar menuBar = new SIPCommMenuBar();
+
         menuBar.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 0));
         menuBar.add(callPeerMenu);
-        this.addToNameBar(menuBar);
+        addToNameBar(menuBar);
 
         setTitleBackground(
-                isVideo
+                video
                     ? Color.DARK_GRAY
                     : new Color(
                             GuiActivator.getResources().getColor(
                                     "service.gui.CALL_PEER_NAME_BACKGROUND")));
 
         initSecuritySettings();
+
+        callPeerAdapter = new CallPeerAdapter(this.callPeer, this);
+        this.callPeer.addStreamSoundLevelListener(soundLevelListener);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void dispose()
+    {
+        if (callPeerAdapter != null)
+            callPeerAdapter.dispose();
+        if (callPeer != null)
+            callPeer.removeStreamSoundLevelListener(soundLevelListener);
+        if (call != null)
+            call.removeLocalUserSoundLevelListener(soundLevelListener);
+    }
+
+    /**
+     * Gets the <tt>Call</tt> associated with this instance. If this instance
+     * depicts the local peer, it was initialized with a specific <tt>Call</tt>
+     * which represents the local peer. If this instance depicts an actual
+     * <tt>CallPeer</tt>, its associated <tt>Call</tt> is returned.
+     *
+     * @return the <tt>Call</tt> associated with this instance
+     */
+    public Call getCall()
+    {
+        return (callPeer == null) ? call : callPeer.getCall();
+    }
+
+    /**
+     * Returns <tt>CallPeer</tt> contact address.
+     *
+     * @return <tt>CallPeer</tt> contact address
+     */
+    public String getCallPeerContactAddress()
+    {
+        return callPeer.getURI();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Returns this instance.
+     */
+    public Component getComponent()
+    {
+        return this;
     }
 
     /**
@@ -215,10 +317,165 @@ public class ConferencePeerPanel
              */
             public void mousePressed(MouseEvent e)
             {
-                setSecurityPanelVisible(!callRenderer.getCallContainer()
-                    .getCallWindow().getFrame().getGlassPane().isVisible());
+                setSecurityPanelVisible(
+                        !getCallPanel().getCallWindow().getFrame()
+                                .getGlassPane().isVisible());
             }
         });
+    }
+
+    /**
+     * Initializes the status bar component for the given <tt>callPeer</tt>.
+     *
+     * @param callPeer the underlying peer, which status would be displayed
+     */
+    private void initStatusBar(CallPeer callPeer)
+    {
+        this.setParticipantState(callPeer.getState().getLocalizedStateString());
+
+        this.addToStatusBar(holdStatusLabel);
+        this.addToStatusBar(muteStatusLabel);
+        this.addToStatusBar(dtmfLabel);
+    }
+
+    /**
+     * Indicates if the local video component is currently visible.
+     *
+     * @return <tt>true</tt> if the local video component is currently visible,
+     * <tt>false</tt> - otherwise
+     */
+    public boolean isLocalVideoVisible()
+    {
+        return false;
+    }
+
+    /**
+     * Reloads style information.
+     */
+    public void loadSkin()
+    {
+        setTitleBackground(
+                new Color(
+                        GuiActivator.getResources().getColor(
+                                "service.gui.CALL_LOCAL_USER_BACKGROUND")));
+
+        if(muteStatusLabel.getIcon() != null)
+        {
+            muteStatusLabel.setIcon(
+                    new ImageIcon(
+                            ImageLoader.getImage(
+                                    ImageLoader.MUTE_STATUS_ICON)));
+        }
+        if(holdStatusLabel.getIcon() != null)
+        {
+            holdStatusLabel.setIcon(
+                    new ImageIcon(
+                            ImageLoader.getImage(
+                                    ImageLoader.HOLD_STATUS_ICON)));
+        }
+        if(callPeerMenu != null)
+            callPeerMenu.loadSkin();
+    }
+
+    /**
+     * Prints the given DTMG character through this <tt>CallPeerRenderer</tt>.
+     * @param dtmfChar the DTMF char to print
+     */
+    public void printDTMFTone(char dtmfChar)
+    {
+        dtmfLabel.setText(dtmfLabel.getText() + dtmfChar);
+    }
+
+    /**
+     * Re-dispatches glass pane mouse events only in case they occur on the
+     * security panel.
+     *
+     * @param glassPane the glass pane
+     * @param e the mouse event in question
+     */
+    private void redispatchMouseEvent(Component glassPane, MouseEvent e)
+    {
+        Point glassPanePoint = e.getPoint();
+        Point securityPanelPoint
+            = SwingUtilities.convertPoint(
+                    glassPane,
+                    glassPanePoint,
+                    securityPanel);
+
+        Component component;
+        Point componentPoint;
+
+        if (securityPanelPoint.y > 0)
+        {
+            component = securityPanel;
+            componentPoint = securityPanelPoint;
+        }
+        else
+        {
+            Container contentPane
+                = getCallPanel().getCallWindow().getFrame().getContentPane();
+            Point containerPoint
+                = SwingUtilities.convertPoint(
+                        glassPane,
+                        glassPanePoint,
+                        contentPane);
+
+            component
+                = SwingUtilities.getDeepestComponentAt(
+                        contentPane,
+                        containerPoint.x,
+                        containerPoint.y);
+            componentPoint
+                = SwingUtilities.convertPoint(
+                        contentPane,
+                        glassPanePoint,
+                        component);
+        }
+
+        if (component != null)
+        {
+            component.dispatchEvent(
+                    new MouseEvent(
+                            component,
+                            e.getID(),
+                            e.getWhen(),
+                            e.getModifiers(),
+                            componentPoint.x,
+                            componentPoint.y,
+                            e.getClickCount(),
+                            e.isPopupTrigger()));
+        }
+
+        e.consume();
+    }
+
+    /**
+     * The handler for the security event received. The security event
+     * for starting establish a secure connection.
+     *
+     * @param securityNegotiationStartedEvent
+     *            the security started event received
+     */
+    public void securityNegotiationStarted(
+        CallPeerSecurityNegotiationStartedEvent securityNegotiationStartedEvent)
+    {
+
+    }
+
+    /**
+     * Indicates that the security has gone off.
+     *
+     * @param evt Details about the event that caused this message.
+     */
+    @Override
+    public void securityOff(CallPeerSecurityOffEvent evt)
+    {
+        super.securityOff(evt);
+
+        if(securityPanel != null)
+        {
+            securityPanel.securityOff(evt);
+        }
     }
 
     /**
@@ -268,24 +525,6 @@ public class ConferencePeerPanel
         {
             setSecurityPanelVisible(true);
         }
-
-        callPanel.refreshContainer();
-    }
-
-    /**
-     * Indicates that the security has gone off.
-     *
-     * @param evt Details about the event that caused this message.
-     */
-    @Override
-    public void securityOff(CallPeerSecurityOffEvent evt)
-    {
-        super.securityOff(evt);
-
-        if(securityPanel != null)
-        {
-            securityPanel.securityOff(evt);
-        }
     }
 
     /**
@@ -327,17 +566,23 @@ public class ConferencePeerPanel
     }
 
     /**
-     * The handler for the security event received. The security event
-     * for starting establish a secure connection.
-     *
-     * @param securityNegotiationStartedEvent
-     *            the security started event received
+     * Sets the reason of a call failure if one occurs. The renderer should
+     * display this reason to the user.
+     * @param reason the reason to display
      */
-    public void securityNegotiationStarted(
-        CallPeerSecurityNegotiationStartedEvent securityNegotiationStartedEvent)
+    public void setErrorReason(String reason)
     {
-
+        super.setErrorReason(reason);
     }
+
+    /**
+     * Shows/hides the local video component.
+     *
+     * @param isVisible <tt>true</tt> to show the local video, <tt>false</tt> -
+     * otherwise
+     */
+    public void setLocalVideoVisible(boolean isVisible) {}
+
 
     /**
      * Sets the mute status icon to the status panel.
@@ -381,7 +626,7 @@ public class ConferencePeerPanel
     {
         // If this is the local peer (i.e. us) or any peer, but the focus peer.
         if (callPeer == null || !callPeer.isConferenceFocus())
-            this.setParticipantImage(icon);
+            setParticipantImage(icon);
     }
 
     /**
@@ -390,7 +635,7 @@ public class ConferencePeerPanel
      */
     public void setPeerName(String name)
     {
-        this.setParticipantName(name);
+        setParticipantName(name);
     }
 
     /**
@@ -409,183 +654,6 @@ public class ConferencePeerPanel
     }
 
     /**
-     * Sets the call peer adapter that manages all related listeners.
-     * @param adapter the call peer adapter
-     */
-    public void setCallPeerAdapter(CallPeerAdapter adapter)
-    {
-        this.callPeerAdapter = adapter;
-    }
-
-    /**
-     * Returns the call peer adapter that manages all related listeners.
-     * @return the call peer adapter
-     */
-    public CallPeerAdapter getCallPeerAdapter()
-    {
-        return callPeerAdapter;
-    }
-
-    /**
-     * Returns the parent <tt>CallPanel</tt> containing this renderer.
-     * @return the parent <tt>CallPanel</tt> containing this renderer
-     */
-    public CallPanel getCallPanel()
-    {
-        return callPanel;
-    }
-
-    /**
-     * Prints the given DTMG character through this <tt>CallPeerRenderer</tt>.
-     * @param dtmfChar the DTMF char to print
-     */
-    public void printDTMFTone(char dtmfChar)
-    {
-        dtmfLabel.setText(dtmfLabel.getText() + dtmfChar);
-    }
-
-    /**
-     * Sets the reason of a call failure if one occurs. The renderer should
-     * display this reason to the user.
-     * @param reason the reason to display
-     */
-    public void setErrorReason(String reason)
-    {
-        super.setErrorReason(reason);
-    }
-
-    /**
-     * Initializes the status bar component for the given <tt>callPeer</tt>.
-     *
-     * @param callPeer the underlying peer, which status would be displayed
-     */
-    private void initStatusBar(CallPeer callPeer)
-    {
-        this.setParticipantState(callPeer.getState().getLocalizedStateString());
-
-        this.addToStatusBar(holdStatusLabel);
-        this.addToStatusBar(muteStatusLabel);
-        this.addToStatusBar(dtmfLabel);
-    }
-
-    /**
-     * Updates the sound bar level of the local user participating in the
-     * conference.
-     * @param level the new sound level
-     */
-    public void fireLocalUserSoundLevelChanged(int level)
-    {
-        this.updateSoundBar(level);
-    }
-
-    /**
-     * Returns null to indicate that there's no stream sound level listener
-     * registered with this focus panel.
-     */
-    public ConferenceMembersSoundLevelListener
-        getConferenceMembersSoundLevelListener()
-    {
-        return null;
-    }
-
-    /**
-     * Returns the listener instance and created if needed.
-     * @return the streamSoundLevelListener
-     */
-    public StreamSoundLevelListener getStreamSoundLevelListener()
-    {
-        if(streamSoundLevelListener == null)
-            streamSoundLevelListener = new StreamSoundLevelListener();
-        return streamSoundLevelListener;
-    }
-
-    /**
-     * Updates the sound bar level to fit the new stream sound level.
-     */
-    private class StreamSoundLevelListener
-        implements SoundLevelListener
-    {
-        /**
-         * Updates the sound level bar upon stream sound level changes.
-         *
-         * {@inheritDoc}
-         */
-        public void soundLevelChanged(Object source, int level)
-        {
-            if (source.equals(callPeer))
-                updateSoundBar(level);
-        }
-    }
-
-    /**
-     * Reloads style information.
-     */
-    public void loadSkin()
-    {
-        this.setTitleBackground(
-            new Color(GuiActivator.getResources().getColor(
-                "service.gui.CALL_LOCAL_USER_BACKGROUND")));
-
-        if(muteStatusLabel.getIcon() != null)
-            muteStatusLabel.setIcon(new ImageIcon(
-                ImageLoader.getImage(ImageLoader.MUTE_STATUS_ICON)));
-
-        if(holdStatusLabel.getIcon() != null)
-            holdStatusLabel.setIcon(new ImageIcon(
-                ImageLoader.getImage(ImageLoader.HOLD_STATUS_ICON)));
-
-        if(callPeerMenu != null)
-            callPeerMenu.loadSkin();
-    }
-
-
-    /**
-     * Shows/hides the local video component.
-     *
-     * @param isVisible <tt>true</tt> to show the local video, <tt>false</tt> -
-     * otherwise
-     */
-    public void setLocalVideoVisible(boolean isVisible) {}
-
-    /**
-     * Indicates if the local video component is currently visible.
-     *
-     * @return <tt>true</tt> if the local video component is currently visible,
-     * <tt>false</tt> - otherwise
-     */
-    public boolean isLocalVideoVisible() { return false; }
-
-    /**
-     * Returns the parent call renderer.
-     *
-     * @return the parent call renderer
-     */
-    public CallRenderer getCallRenderer()
-    {
-        return callRenderer;
-    }
-
-    /**
-     * Returns the component associated with this renderer.
-     *
-     * @return the component associated with this renderer
-     */
-    public Component getComponent()
-    {
-        return this;
-    }
-
-    /**
-     * Returns <tt>CallPeer</tt> contact address.
-     *
-     * @return <tt>CallPeer</tt> contact address
-     */
-    public String getCallPeerContactAddress()
-    {
-        return callPeer.getURI();
-    }
-
-    /**
      * Shows/hides the security panel.
      *
      * @param isVisible <tt>true</tt> to show the security panel, <tt>false</tt>
@@ -593,9 +661,7 @@ public class ConferencePeerPanel
      */
     public void setSecurityPanelVisible(boolean isVisible)
     {
-        final JFrame callFrame = callRenderer.getCallContainer()
-            .getCallWindow().getFrame();
-
+        final JFrame callFrame = getCallPanel().getCallWindow().getFrame();
         final JPanel glassPane = (JPanel) callFrame.getGlassPane();
 
         if (!isVisible)
@@ -609,40 +675,41 @@ public class ConferencePeerPanel
         else
         {
             glassPane.setLayout(null);
-            glassPane.addMouseListener(new MouseListener()
-            {
-                public void mouseReleased(MouseEvent e)
+            glassPane.addMouseListener(
+                new MouseListener()
                 {
-                    redispatchMouseEvent(glassPane, e);
-                }
+                    public void mouseClicked(MouseEvent e)
+                    {
+                        redispatchMouseEvent(glassPane, e);
+                    }
 
-                public void mousePressed(MouseEvent e)
-                {
-                    redispatchMouseEvent(glassPane, e);
-                }
+                    public void mouseEntered(MouseEvent e)
+                    {
+                        redispatchMouseEvent(glassPane, e);
+                    }
 
-                public void mouseExited(MouseEvent e)
-                {
-                    redispatchMouseEvent(glassPane, e);
-                }
+                    public void mouseExited(MouseEvent e)
+                    {
+                        redispatchMouseEvent(glassPane, e);
+                    }
 
-                public void mouseEntered(MouseEvent e)
-                {
-                    redispatchMouseEvent(glassPane, e);
-                }
+                    public void mousePressed(MouseEvent e)
+                    {
+                        redispatchMouseEvent(glassPane, e);
+                    }
 
-                public void mouseClicked(MouseEvent e)
-                {
-                    redispatchMouseEvent(glassPane, e);
-                }
-            });
+                    public void mouseReleased(MouseEvent e)
+                    {
+                        redispatchMouseEvent(glassPane, e);
+                    }
+                });
 
             Point securityLabelPoint = securityStatusLabel.getLocation();
-
             Point newPoint
-                = SwingUtilities.convertPoint(securityStatusLabel.getParent(),
-                securityLabelPoint.x, securityLabelPoint.y,
-                callFrame);
+                = SwingUtilities.convertPoint(
+                        securityStatusLabel.getParent(),
+                        securityLabelPoint.x, securityLabelPoint.y,
+                        callFrame);
 
             securityPanel.setBeginPoint(
                 new Point((int) newPoint.getX() + 15, 0));
@@ -655,75 +722,21 @@ public class ConferencePeerPanel
             securityPanel.setVisible(true);
             glassPane.setVisible(true);
 
-            glassPane.addComponentListener(new ComponentAdapter()
-            {
-                /**
-                 * Invoked when the component's size changes.
-                 */
-                public void componentResized(ComponentEvent e)
+            glassPane.addComponentListener(
+                new ComponentAdapter()
                 {
-                    if (glassPane.isVisible())
+                    /**
+                     * Invoked when the component's size changes.
+                     */
+                    public void componentResized(ComponentEvent e)
                     {
-                        glassPane.setVisible(false);
-                        callFrame.removeComponentListener(this);
+                        if (glassPane.isVisible())
+                        {
+                            glassPane.setVisible(false);
+                            callFrame.removeComponentListener(this);
+                        }
                     }
-                }
-            });
+                });
         }
-    }
-
-    /**
-     * Re-dispatches glass pane mouse events only in case they occur on the
-     * security panel.
-     *
-     * @param glassPane the glass pane
-     * @param e the mouse event in question
-     */
-    private void redispatchMouseEvent(Component glassPane, MouseEvent e)
-    {
-        Point glassPanePoint = e.getPoint();
-
-        Point securityPanelPoint = SwingUtilities.convertPoint(
-                                        glassPane,
-                                        glassPanePoint,
-                                        securityPanel);
-
-        Component component;
-        Point componentPoint;
-
-        if (securityPanelPoint.y > 0)
-        {
-            component = securityPanel;
-            componentPoint = securityPanelPoint;
-        }
-        else
-        {
-            Container contentPane
-                = callRenderer.getCallContainer().getCallWindow()
-                                    .getFrame().getContentPane();
-
-            Point containerPoint = SwingUtilities.convertPoint(
-                                                    glassPane,
-                                                    glassPanePoint,
-                                                    contentPane);
-
-            component = SwingUtilities.getDeepestComponentAt(contentPane,
-                    containerPoint.x, containerPoint.y);
-
-            componentPoint = SwingUtilities.convertPoint(contentPane,
-                glassPanePoint, component);
-        }
-
-        if (component != null)
-            component.dispatchEvent(new MouseEvent( component,
-                                                    e.getID(),
-                                                    e.getWhen(),
-                                                    e.getModifiers(),
-                                                    componentPoint.x,
-                                                    componentPoint.y,
-                                                    e.getClickCount(),
-                                                    e.isPopupTrigger()));
-
-        e.consume();
     }
 }

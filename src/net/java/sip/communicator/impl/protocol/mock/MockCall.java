@@ -6,8 +6,6 @@
  */
 package net.java.sip.communicator.impl.protocol.mock;
 
-import java.util.*;
-
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -45,14 +43,10 @@ public class MockCall
      */
     public void addCallPeer(MockCallPeer callPeer)
     {
-        List<MockCallPeer> callPeers = getCallPeersVector();
-
-        if(callPeers.contains(callPeer))
+        if (!doAddCallPeer(callPeer))
             return;
 
         callPeer.addCallPeerListener(this);
-
-        callPeers.add(callPeer);
 
         if (logger.isInfoEnabled())
             logger.info("Will fire peer added");
@@ -70,18 +64,15 @@ public class MockCall
      */
     public void removeCallPeer(MockCallPeer callPeer)
     {
-        List<MockCallPeer> callPeers = getCallPeersVector();
-
-        if(!callPeers.contains(callPeer))
+        if (!doRemoveCallPeer(callPeer))
             return;
 
-        callPeers.remove(callPeer);
         callPeer.removeCallPeerListener(this);
 
         fireCallPeerEvent(
             callPeer, CallPeerEvent.CALL_PEER_REMOVED);
 
-        if(callPeers.size() == 0)
+        if(getCallPeerCount() == 0)
             setCallState(CallState.CALL_ENDED);
     }
 

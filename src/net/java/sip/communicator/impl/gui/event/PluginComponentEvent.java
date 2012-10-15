@@ -11,14 +11,13 @@ import java.util.*;
 import net.java.sip.communicator.service.gui.*;
 
 /**
- * The <tt>PluginComponentEvent</tt> 
+ * Implements an <tt>EventObject</tt> related to a <tt>PluginComponent</tt>.
+ *
  * @author Yana Stamcheva
  */
 public class PluginComponentEvent
     extends EventObject
 {
-    private final int eventID;
-
     /**
      * Indicates that the PluginComponentEvent instance was triggered by
      * adding a plugin component.
@@ -32,14 +31,25 @@ public class PluginComponentEvent
     public static final int PLUGIN_COMPONENT_REMOVED = 2;
 
     /**
-     * Creates a new PluginComponentEvent according to the specified
-     * parameters.
-     * @param pluginComponent The pluginComponent that is added to the container.
-     * @param eventID one of the PLUGIN_COMPONENT_XXX static fields indicating
-     * the nature of the event.
+     * The ID of this event which is one of the <tt>PLUGIN_COMPONENT_XXX</tt>
+     * constants defined by the <tt>PluginComponentEvent</tt> class.
      */
-    public PluginComponentEvent(PluginComponent pluginComponent,
-                                int eventID)
+    private final int eventID;
+
+    /**
+     * Initializes a new <tt>PluginComponentEvent</tt> instance which is to
+     * notify about a specific <tt>PluginComponent</tt> and which is to be of a
+     * nature indicated by a specific ID.
+     *
+     * @param pluginComponent the <tt>PluginComponent</tt> about which the new
+     * instance is to notify
+     * @param eventID one of the <tt>PLUGIN_COMPONENT_XXX</tt> constants defined
+     * by the <tt>PluginComponentEvent</tt> class which indicates the very
+     * nature of the event that the new instance is to represent
+     */
+    public PluginComponentEvent(
+            PluginComponent pluginComponent,
+            int eventID)
     {
         super(pluginComponent);
 
@@ -47,22 +57,25 @@ public class PluginComponentEvent
     }
 
     /**
+     * Returns the ID of this event which is one of
+     * {@link #PLUGIN_COMPONENT_ADDED} and {@link #PLUGIN_COMPONENT_REMOVED}.
+     * 
+     * @return the ID of this event which is one of the
+     * <tt>PLUGIN_COMPONENT_XXX</tt> constants defined by the
+     * <tt>PluginComponentEvent</tt> class
+     */
+    public int getEventID()
+    {
+        return eventID;
+    }
+
+    /**
      * Returns the <tt>PluginComponent</tt> associated with this event.
+     *
      * @return the <tt>PluginComponent</tt> associated with this event
      */
     public PluginComponent getPluginComponent()
     {
         return (PluginComponent) getSource();
-    }
-
-    /**
-     * Returns an event id specifying whether the type of this event 
-     * (PLUGIN_COMPONENT_ADDED or PLUGIN_COMPONENT_REMOVED)
-     * 
-     * @return one of the PLUGIN_COMPONENT_XXX int fields of this class.
-     */
-    public int getEventID()
-    {
-        return eventID;
     }
 }

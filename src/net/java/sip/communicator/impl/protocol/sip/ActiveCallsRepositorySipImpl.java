@@ -12,6 +12,7 @@ import javax.sip.*;
 import javax.sip.header.*;
 
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -280,9 +281,14 @@ public class ActiveCallsRepositorySipImpl
      *
      * @param eventID the ID of the event to dispatch
      * @param sourceCall the call on which the event has occurred
-     * @see ActiveCallsRepository#fireCallEvent(int, Call)
+     * @param cause the <tt>CallChangeEvent</tt>, if any, which is the cause
+     * that necessitated a new <tt>CallEvent</tt> to be fired
+     * @see ActiveCallsRepository#fireCallEvent(int, Call, CallChangeEvent)
      */
-    protected void fireCallEvent(int eventID, Call sourceCall)
+    protected void fireCallEvent(
+            int eventID,
+            Call sourceCall,
+            CallChangeEvent cause)
     {
         parentOperationSet.fireCallEvent(eventID, sourceCall);
     }

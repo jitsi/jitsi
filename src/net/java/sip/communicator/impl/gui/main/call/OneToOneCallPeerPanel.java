@@ -41,8 +41,8 @@ import org.jitsi.util.swing.*;
  */
 public class OneToOneCallPeerPanel
     extends TransparentPanel
-    implements  CallPeerRenderer,
-                Skinnable
+    implements CallPeerRenderer,
+               Skinnable
 {
     /**
      * Serial version UID.
@@ -50,10 +50,20 @@ public class OneToOneCallPeerPanel
     private static final long serialVersionUID = 0L;
 
     /**
-     * The <tt>CallPeerAdapter</tt> that implements all common tt>CallPeer</tt>
-     * related listeners.
+     * The <tt>CallPeer</tt>, which is rendered in this panel.
      */
-    private CallPeerAdapter callPeerAdapter;
+    private final CallPeer callPeer;
+
+    /**
+     * The <tt>CallPeerAdapter</tt> which implements common
+     * <tt>CallPeer</tt>-related listeners on behalf of this instance.
+     */
+    private final CallPeerAdapter callPeerAdapter;
+
+    /**
+     * The renderer of the call.
+     */
+    private final CallRenderer callRenderer;
 
     /**
      * The component showing the status of the underlying call peer.
@@ -61,19 +71,16 @@ public class OneToOneCallPeerPanel
     private final JLabel callStatusLabel = new JLabel();
 
     /**
-     * The security status of the peer
+     * The center component.
      */
-    private SecurityStatusLabel securityStatusLabel = new SecurityStatusLabel();
+    private final VideoContainer center;
 
     /**
-     * The label showing whether the voice has been set to mute.
+     * The AWT <tt>Component</tt> which implements a button which allows
+     * closing/hiding the visual <tt>Component</tt> which depicts the video
+     * streaming from the local peer/user to the remote peer(s).
      */
-    private final JLabel muteStatusLabel = new JLabel();
-
-    /**
-     * The label showing whether the call is on or off hold.
-     */
-    private final JLabel holdStatusLabel = new JLabel();
+    private Component closeLocalVisualComponentButton;
 
     /**
      * The DTMF label.
@@ -81,32 +88,36 @@ public class OneToOneCallPeerPanel
     private final JLabel dtmfLabel = new JLabel();
 
     /**
-     * Current id for security image.
-     */
-    private ImageID securityImageID = ImageLoader.SECURE_BUTTON_OFF;
-
-    /**
      * The component responsible for displaying an error message.
      */
     private JTextComponent errorMessageComponent;
 
     /**
-     * The <tt>Component</tt>s showing the avatar of the underlying call peer.
-     * <p>
-     * Because the <tt>Component</tt>s showing the avatar of the underlying call
-     * peer are managed by their respective <tt>VideoContainer</tt>s and are
-     * automatically displayed whenever there is no associated remote video,
-     * each <tt>VideoContainer</tt> must have its own. Otherwise, the various
-     * <tt>VideoContainer</tt>s might start fighting over which one is to
-     * contain the one and only photoLabel.
-     * </p>
+     * The label showing whether the call is on or off hold.
      */
-    private final List<JLabel> photoLabels = new LinkedList<JLabel>();
+    private final JLabel holdStatusLabel = new JLabel();
 
     /**
-     * The panel containing security related components.
+     * Sound local level label.
      */
-    private SecurityPanel<?> securityPanel;
+    private InputVolumeControlButton localLevel;
+
+    /**
+     * The <tt>Component</tt> which
+     * {@link #updateViewFromModelInEventDispatchThread()} last added to
+     * {@link #center} as the visual <tt>Component</tt> displaying the video
+     * streaming from the local peer/user to the remote peer(s).
+     * <p>
+     * <b>Warning</b>: It is not to be used for any other purposes because it
+     * may not represent the current state of the model of this view.
+     * </p>
+     */
+    private Component localVideo;
+
+    /**
+     * The label showing whether the voice has been set to mute.
+     */
+    private final JLabel muteStatusLabel = new JLabel();
 
     /**
      * The <tt>Icon</tt> which represents the avatar of the associated call
@@ -120,24 +131,9 @@ public class OneToOneCallPeerPanel
     private String peerName;
 
     /**
-     * The list containing all video containers.
+     * The label containing the user photo.
      */
-    private final List<Container> videoContainers;
-
-    /**
-     * The renderer of the call.
-     */
-    private final CallRenderer callRenderer;
-
-    /**
-     * The <tt>CallPeer</tt>, which is rendered in this panel.
-     */
-    private CallPeer callPeer;
-
-    /**
-     * Sound local level label.
-     */
-    private InputVolumeControlButton localLevel;
+    private final JLabel photoLabel;
 
     /**
      * Sound remote level label.
@@ -145,9 +141,32 @@ public class OneToOneCallPeerPanel
     private Component remoteLevel;
 
     /**
-     * The center component.
+     * The <tt>Component</tt> which
+     * {@link #updateViewFromModelInEventDispatchThread()} last added to
+     * {@link #center} as the visual <tt>Component</tt> displaying the video
+     * streaming from the remote peer(s) to the local peer/user.
+     * <p>
+     * <b>Warning</b>: It is not to be used for any other purposes because it
+     * may not represent the current state of the model of this view.
+     * </p>
      */
-    private final Component center;
+    private Component remoteVideo;
+
+    /**
+     * Current id for security image.
+     */
+    private ImageID securityImageID = ImageLoader.SECURE_BUTTON_OFF;
+
+    /**
+     * The panel containing security related components.
+     */
+    private SecurityPanel<?> securityPanel;
+
+    /**
+     * The security status of the peer
+     */
+    private final SecurityStatusLabel securityStatusLabel
+        = new SecurityStatusLabel();
 
     /**
      * The status bar component.
@@ -155,37 +174,69 @@ public class OneToOneCallPeerPanel
     private final Component statusBar;
 
     /**
-     * The label containing the user photo.
+     * The facility which aids this instance in the dealing with the
+     * video-related information.
      */
-    private final JLabel photoLabel;
+    private final UIVideoHandler2 uiVideoHandler;
+
+    /**
+     * The <tt>Observer</tt> which listens to changes in the video-related
+     * information detected and reported by {@link #uiVideoHandler}.
+     */
+    private final Observer uiVideoHandlerObserver
+        = new Observer()
+        {
+            public void update(Observable o, Object arg)
+            {
+                updateViewFromModel();
+            }
+        };
+
+    /**
+     * The <tt>Runnable</tt> which is scheduled by
+     * {@link #updateViewFromModel()} for execution in the AWT event dispatching
+     * thread in order to invoke
+     * {@link #updateViewFromModelInEventDispatchThread()}.
+     */
+    private final Runnable updateViewFromModelInEventDispatchThread
+        = new Runnable()
+        {
+            public void run()
+            {
+                updateViewFromModelInEventDispatchThread();
+            }
+        };
 
     /**
      * Creates a <tt>CallPeerPanel</tt> for the given call peer.
      *
      * @param callRenderer the renderer of the call
      * @param callPeer the <tt>CallPeer</tt> represented in this panel
-     * @param videoContainers the video <tt>Container</tt> list
+     * @param uiVideoHandler the facility which is to aid the new instance in
+     * the dealing with the video-related information
      */
-    public OneToOneCallPeerPanel(   CallRenderer callRenderer,
-                                    CallPeer callPeer,
-                                    List<Container> videoContainers)
+    public OneToOneCallPeerPanel(
+            CallRenderer callRenderer,
+            CallPeer callPeer,
+            UIVideoHandler2 uiVideoHandler)
     {
         this.callRenderer = callRenderer;
         this.callPeer = callPeer;
-        this.peerName = callPeer.getDisplayName();
-        this.videoContainers = videoContainers;
-        this.securityPanel = SecurityPanel.create(this, callPeer, null);
+        this.uiVideoHandler = uiVideoHandler;
+
+        peerName = callPeer.getDisplayName();
+        securityPanel = SecurityPanel.create(this, callPeer, null);
 
         photoLabel = new JLabel(getPhotoLabelIcon());
-        center = createCenter(videoContainers);
+        center = createCenter();
         statusBar = createStatusBar();
 
-        this.setPeerImage(CallManager.getPeerImage(callPeer));
+        setPeerImage(CallManager.getPeerImage(callPeer));
 
         /* Lay out the main Components of the UI. */
         setLayout(new GridBagLayout());
 
-        GridBagConstraints constraints = new GridBagConstraints();
+        GridBagConstraints cnstrnts = new GridBagConstraints();
 
         if (center != null)
         {
@@ -197,147 +248,47 @@ public class OneToOneCallPeerPanel
              */
             center.setPreferredSize(new Dimension(1, 1));
 
-            constraints.fill = GridBagConstraints.BOTH;
-            constraints.gridx = 0;
-            constraints.gridy = 1;
-            constraints.weightx = 1;
-            constraints.weighty = 1;
-
-            add(center, constraints);
+            cnstrnts.fill = GridBagConstraints.BOTH;
+            cnstrnts.gridx = 0;
+            cnstrnts.gridy = 1;
+            cnstrnts.weightx = 1;
+            cnstrnts.weighty = 1;
+            add(center, cnstrnts);
         }
         if (statusBar != null)
         {
-            constraints.fill = GridBagConstraints.NONE;
-            constraints.gridx = 0;
-            constraints.gridy = 3;
-            constraints.weightx = 0;
-            constraints.weighty = 0;
-            constraints.insets = new Insets(5, 0, 0, 0);
-
-            add(statusBar, constraints);
+            cnstrnts.fill = GridBagConstraints.NONE;
+            cnstrnts.gridx = 0;
+            cnstrnts.gridy = 3;
+            cnstrnts.weightx = 0;
+            cnstrnts.weighty = 0;
+            cnstrnts.insets = new Insets(5, 0, 0, 0);
+            add(statusBar, cnstrnts);
         }
 
         createSoundLevelIndicators();
         initSecuritySettings();
+
+        /*
+         * Add the listeners which will be notified about changes in the model
+         * and which will update this view.
+         */
+        callPeerAdapter = new CallPeerAdapter(callPeer, this);
+        uiVideoHandler.addObserver(uiVideoHandlerObserver);
+
+        updateViewFromModel();
     }
 
     /**
-     * Creates the <code>Component</code> hierarchy of the central area of this
-     * <code>CallPeerPanel</code> which displays the photo of the
-     * <code>CallPeer</code> or the video if any.
-     *
-     * @return the root of the <code>Component</code> hierarchy of the central
-     *         area of this <code>CallPeerPanel</code> which displays the
-     *         photo of the <code>CallPeer</code> or the video if any
+     * Creates the <tt>Component</tt> hierarchy of the central area of this
+     * <tt>CallPeerPanel</tt> which displays the photo of the <tt>CallPeer</tt>
+     * or the video if any.
      */
-    Component createCenter(final List<Container> videoContainers)
+    private VideoContainer createCenter()
     {
         photoLabel.setPreferredSize(new Dimension(90, 90));
 
-        final Container videoContainer = createVideoContainer(photoLabel);
-
-        videoContainer.addHierarchyListener(new HierarchyListener()
-        {
-            public void hierarchyChanged(HierarchyEvent event)
-            {
-                int changeFlags = HierarchyEvent.DISPLAYABILITY_CHANGED;
-
-                if ((event.getChangeFlags() & changeFlags) == changeFlags)
-                {
-                    synchronized (videoContainers)
-                    {
-                        boolean changed = false;
-
-                        if (videoContainer.isDisplayable())
-                        {
-                            if (!videoContainers.contains(videoContainer))
-                                changed = videoContainers.add(videoContainer);
-                            if (!photoLabels.contains(photoLabel))
-                                photoLabels.add(photoLabel);
-                        }
-                        else
-                        {
-                            changed = videoContainers.remove(videoContainer);
-                            photoLabels.remove(photoLabel);
-                        }
-                        if (changed)
-                            callRenderer.getVideoHandler()
-                                .handleVideoEvent(callPeer.getCall(), null);
-                    }
-                }
-            }
-        });
-        return videoContainer;
-    }
-
-    /**
-     * Creates a new AWT <code>Container</code> which can display a single
-     * <code>Component</code> at a time (supposedly, one which represents video)
-     * and, in the absence of such a <code>Component</code>, displays a
-     * predefined default <code>Component</code> (in accord with the previous
-     * supposition, one which is the default when there is no video). The
-     * returned <code>Container</code> will track the <code>Components</code>s
-     * added to and removed from it in order to make sure that
-     * <code>noVideoContainer</code> is displayed as described.
-     *
-     * @param noVideoComponent the predefined default <code>Component</code> to
-     *            be displayed in the returned <code>Container</code> when there
-     *            is no other <code>Component</code> in it
-     * @return a new <code>Container</code> which can display a single
-     *         <code>Component</code> at a time and, in the absence of such a
-     *         <code>Component</code>, displays <code>noVideoComponent</code>
-     */
-    private Container createVideoContainer(Component noVideoComponent)
-    {
-        VideoContainer oldParent
-            = (VideoContainer) noVideoComponent.getParent();
-        if (oldParent != null)
-            oldParent.remove(noVideoComponent);
-
-        return new VideoContainer(noVideoComponent, false);
-    }
-
-    /**
-     * Creates the <code>Component</code> hierarchy of the area of
-     * status-related information such as <code>CallPeer</code> display
-     * name, call duration, security status.
-     *
-     * @return the root of the <code>Component</code> hierarchy of the area of
-     *         status-related information such as <code>CallPeer</code>
-     *         display name, call duration, security status
-     */
-    private Component createStatusBar()
-    {
-        // stateLabel
-        callStatusLabel.setForeground(Color.WHITE);
-        dtmfLabel.setForeground(Color.WHITE);
-        callStatusLabel.setText(callPeer.getState().getLocalizedStateString());
-
-        PeerStatusPanel statusPanel = new PeerStatusPanel(new GridBagLayout());
-
-        GridBagConstraints constraints = new GridBagConstraints();
-
-        constraints.gridx = 0;
-        constraints.gridy = 0;
-        statusPanel.add(securityStatusLabel, constraints);
-        initSecurityStatusLabel();
-
-        constraints.gridx++;
-        statusPanel.add(holdStatusLabel, constraints);
-
-        constraints.gridx++;
-        statusPanel.add(muteStatusLabel, constraints);
-
-        constraints.gridx++;
-        callStatusLabel.setBorder(
-            BorderFactory.createEmptyBorder(2, 3, 2, 12));
-        statusPanel.add(callStatusLabel, constraints);
-
-        constraints.gridx++;
-        constraints.weightx = 1f;
-        statusPanel.add(dtmfLabel, constraints);
-
-        return statusPanel;
+        return createVideoContainer(photoLabel);
     }
 
     /**
@@ -411,6 +362,141 @@ public class OneToOneCallPeerPanel
     }
 
     /**
+     * Creates the <tt>Component</tt> hierarchy of the area of
+     * status-related information such as <tt>CallPeer</tt> display
+     * name, call duration, security status.
+     *
+     * @return the root of the <tt>Component</tt> hierarchy of the area of
+     *         status-related information such as <tt>CallPeer</tt>
+     *         display name, call duration, security status
+     */
+    private Component createStatusBar()
+    {
+        // stateLabel
+        callStatusLabel.setForeground(Color.WHITE);
+        dtmfLabel.setForeground(Color.WHITE);
+        callStatusLabel.setText(callPeer.getState().getLocalizedStateString());
+
+        PeerStatusPanel statusPanel = new PeerStatusPanel(new GridBagLayout());
+
+        GridBagConstraints constraints = new GridBagConstraints();
+
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        statusPanel.add(securityStatusLabel, constraints);
+        initSecurityStatusLabel();
+
+        constraints.gridx++;
+        statusPanel.add(holdStatusLabel, constraints);
+
+        constraints.gridx++;
+        statusPanel.add(muteStatusLabel, constraints);
+
+        constraints.gridx++;
+        callStatusLabel.setBorder(
+            BorderFactory.createEmptyBorder(2, 3, 2, 12));
+        statusPanel.add(callStatusLabel, constraints);
+
+        constraints.gridx++;
+        constraints.weightx = 1f;
+        statusPanel.add(dtmfLabel, constraints);
+
+        return statusPanel;
+    }
+
+    /**
+     * Creates a new AWT <tt>Container</tt> which can display a single
+     * <tt>Component</tt> at a time (supposedly, one which represents video)
+     * and, in the absence of such a <tt>Component</tt>, displays a
+     * predefined default <tt>Component</tt> (in accord with the previous
+     * supposition, one which is the default when there is no video). The
+     * returned <tt>Container</tt> will track the <tt>Components</tt>s
+     * added to and removed from it in order to make sure that
+     * <tt>noVideoContainer</tt> is displayed as described.
+     *
+     * @param noVideoComponent the predefined default <tt>Component</tt> to
+     *            be displayed in the returned <tt>Container</tt> when there
+     *            is no other <tt>Component</tt> in it
+     * @return a new <tt>Container</tt> which can display a single
+     *         <tt>Component</tt> at a time and, in the absence of such a
+     *         <tt>Component</tt>, displays <tt>noVideoComponent</tt>
+     */
+    private VideoContainer createVideoContainer(Component noVideoComponent)
+    {
+        Container oldParent = noVideoComponent.getParent();
+
+        if (oldParent != null)
+            oldParent.remove(noVideoComponent);
+
+        return new VideoContainer(noVideoComponent, false);
+    }
+
+    /**
+     * Releases the resources acquired by this instance which require explicit
+     * disposal (e.g. any listeners added to the depicted <tt>CallPeer</tt>.
+     * Invoked by <tt>OneToOneCallPanel</tt> when it determines that this
+     * <tt>OneToOneCallPeerPanel</tt> is no longer necessary. 
+     */
+    public void dispose()
+    {
+        callPeerAdapter.dispose();
+        uiVideoHandler.deleteObserver(uiVideoHandlerObserver);
+    }
+
+    /**
+     * Returns the parent <tt>CallPanel</tt> containing this renderer.
+     * @return the parent <tt>CallPanel</tt> containing this renderer
+     */
+    public CallPanel getCallPanel()
+    {
+        return callRenderer.getCallContainer();
+    }
+
+    /**
+     * Returns the parent call renderer.
+     *
+     * @return the parent call renderer
+     */
+    public CallRenderer getCallRenderer()
+    {
+        return callRenderer;
+    }
+
+    /**
+     * Returns the component associated with this renderer.
+     *
+     * @return the component associated with this renderer
+     */
+    public Component getComponent()
+    {
+        return this;
+    }
+
+    /**
+     * Returns the name of the peer, contained in this panel.
+     *
+     * @return the name of the peer, contained in this panel
+     */
+    public String getPeerName()
+    {
+        return peerName;
+    }
+
+    /**
+     * Gets the <tt>Icon</tt> to be displayed in {@link #photoLabel}.
+     *
+     * @return the <tt>Icon</tt> to be displayed in {@link #photoLabel}
+     */
+    private ImageIcon getPhotoLabelIcon()
+    {
+        return
+            (peerImage == null)
+                ? new ImageIcon(
+                        ImageLoader.getImage(ImageLoader.DEFAULT_USER_PHOTO))
+                : peerImage;
+    }
+
+    /**
      * Initializes the security settings for this call peer.
      */
     private void initSecuritySettings()
@@ -426,192 +512,183 @@ public class OneToOneCallPeerPanel
     }
 
     /**
-     * Returns the name of the peer, contained in this panel.
-     *
-     * @return the name of the peer, contained in this panel
+     * Initializes the security status label, shown in the call status bar.
      */
-    public String getPeerName()
+    private void initSecurityStatusLabel()
     {
-        return peerName;
-    }
+        securityStatusLabel.setBorder(
+            BorderFactory.createEmptyBorder(2, 5, 2, 5));
 
-    /**
-     * The <tt>TransparentPanel</tt> that will display the peer status.
-     */
-    private static class PeerStatusPanel
-        extends TransparentPanel
-    {
-        /**
-         * Silence the serial warning. Though there isn't a plan to serialize
-         * the instances of the class, there're no fields so the default
-         * serialization routine will work.
-         */
-        private static final long serialVersionUID = 0L;
-
-        /**
-         * Constructs a new <tt>PeerStatusPanel</tt>.
-         *
-         * @param layout the <tt>LayoutManager</tt> to use
-         */
-        public PeerStatusPanel(LayoutManager layout)
+        securityStatusLabel.addMouseListener(new MouseAdapter()
         {
-            super(layout);
-        }
-
-        /**
-         * @{inheritDoc}
-         */
-        @Override
-        public void paintComponent(Graphics g)
-        {
-            super.paintComponent(g);
-
-            g = g.create();
-
-            try
+            /**
+             * Invoked when a mouse button has been pressed on a component.
+             */
+            public void mousePressed(MouseEvent e)
             {
-                AntialiasingManager.activateAntialiasing(g);
+                CallPeerSecurityStatusEvent securityEvt
+                    = callPeer.getCurrentSecuritySettings();
 
-                g.setColor(Color.DARK_GRAY);
-                g.fillRoundRect(0, 0, this.getWidth(), this.getHeight(), 20, 20);
-            }
-            finally
-            {
-                g.dispose();
-            }
-        }
-    }
-
-    /**
-     * Sets the name of the peer.
-     * @param name the name of the peer
-     */
-    public void setPeerName(String name)
-    {
-        peerName = name;
-
-        ((OneToOneCallPanel) callRenderer).setPeerName(name);
-    }
-
-    /**
-     * Set the image of the peer
-     *
-     * @param image new image
-     */
-    public void setPeerImage(byte[] image)
-    {
-        if (image == null || image.length <= 0)
-        {
-            GuiActivator.getContactList().setSourceContactImage(
-                peerName, photoLabel, 100, 100);
-        }
-        else
-        {
-            this.peerImage = ImageUtils.getScaledRoundedIcon(image, 100, 100);
-
-            this.peerImage = getPhotoLabelIcon();
-
-            synchronized (videoContainers)
-            {
-                if (photoLabels.size() > 0)
-                    for (JLabel photoLabel : photoLabels)
-                    {
-                        photoLabel.setIcon(this.peerImage);
-                        photoLabel.repaint();
-                    }
-                else
+                // Only show the security details if the security is on.
+                if (securityEvt instanceof CallPeerSecurityOnEvent
+                    && ((CallPeerSecurityOnEvent) securityEvt)
+                        .getSecurityController() instanceof ZrtpControl)
                 {
-                    photoLabel.setIcon(peerImage);
-                    photoLabel.repaint();
+                    setSecurityPanelVisible(!callRenderer.getCallContainer()
+                        .getCallWindow().getFrame().getGlassPane().isVisible());
                 }
             }
-        }
+        });
     }
 
     /**
-     * Gets the <tt>Icon</tt> to be displayed in {@link #photoLabels}.
+     * Determines whether the visual <tt>Component</tt> depicting the video
+     * streaming from the local peer/user to the remote peer(s) is currently
+     * visible.
      *
-     * @return the <tt>Icon</tt> to be displayed in {@link #photoLabels}
+     * @return <tt>true</tt> if the visual <tt>Component</tt> depicting the
+     * video streaming from the local peer/user to the remote peer(s) is
+     * currently visible; otherwise, <tt>false</tt>
      */
-    private ImageIcon getPhotoLabelIcon()
+    public boolean isLocalVideoVisible()
     {
-        return
-            (peerImage == null)
-                ? new ImageIcon(
-                        ImageLoader.getImage(ImageLoader.DEFAULT_USER_PHOTO))
-                : peerImage;
+        return uiVideoHandler.isLocalVideoVisible();
     }
 
     /**
-     * Sets the state of the contained call peer by specifying the
-     * state name.
-     *
-     * @param oldState the previous state of the peer
-     * @param newState the new state of the peer
-     * @param stateString the state of the contained call peer
+     * Reloads all icons.
      */
-    public void setPeerState(   CallPeerState oldState,
-                                CallPeerState newState,
-                                String stateString)
+    public void loadSkin()
     {
-        this.callStatusLabel.setText(stateString);
+        if(localLevel != null)
+            localLevel.setIcon(new ImageIcon(
+                ImageLoader.getImage(ImageLoader.MICROPHONE)));
 
-        if (newState == CallPeerState.CONNECTED
-            && !CallPeerState.isOnHold(oldState)
-            && !securityStatusLabel.isSecurityStatusSet())
-        {
-            securityStatusLabel.setSecurityOff();
-        }
-    }
+        if(remoteLevel != null && remoteLevel instanceof Skinnable)
+            ((Skinnable) remoteLevel).loadSkin();
 
-    /**
-     * Sets the mute status icon to the status panel.
-     *
-     * @param isMute indicates if the call with this peer is
-     * muted
-     */
-    public void setMute(boolean isMute)
-    {
-        if(isMute)
-        {
+        if(muteStatusLabel.getIcon() != null)
             muteStatusLabel.setIcon(new ImageIcon(
                 ImageLoader.getImage(ImageLoader.MUTE_STATUS_ICON)));
-            muteStatusLabel.setBorder(
-                BorderFactory.createEmptyBorder(2, 3, 2, 3));
-        }
-        else
-        {
-            muteStatusLabel.setIcon(null);
-            muteStatusLabel.setBorder(
-                BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        }
 
-        this.revalidate();
-        this.repaint();
+        if(holdStatusLabel.getIcon() != null)
+            holdStatusLabel.setIcon(new ImageIcon(
+                ImageLoader.getImage(ImageLoader.HOLD_STATUS_ICON)));
+
+        securityStatusLabel.setIcon(new ImageIcon(
+                ImageLoader.getImage(securityImageID)));
+
+        if(peerImage == null)
+        {
+            photoLabel.setIcon(
+                    new ImageIcon(
+                            ImageLoader.getImage(
+                                    ImageLoader.DEFAULT_USER_PHOTO)));
+        }
     }
 
     /**
-     * Sets the "on hold" property value.
-     * @param isOnHold indicates if the call with this peer is put on hold
+     * Prints the given DTMG character through this <tt>CallPeerRenderer</tt>.
+     * @param dtmfChar the DTMF char to print
      */
-    public void setOnHold(boolean isOnHold)
+    public void printDTMFTone(char dtmfChar)
     {
-        if(isOnHold)
+        dtmfLabel.setText(dtmfLabel.getText() + dtmfChar);
+        if (dtmfLabel.getBorder() == null)
+            dtmfLabel.setBorder(
+                BorderFactory.createEmptyBorder(2, 1, 2, 5));
+    }
+
+    /**
+     * Re-dispatches glass pane mouse events only in case they occur on the
+     * security panel.
+     *
+     * @param glassPane the glass pane
+     * @param e the mouse event in question
+     */
+    private void redispatchMouseEvent(Component glassPane, MouseEvent e)
+    {
+        Point glassPanePoint = e.getPoint();
+
+        Point securityPanelPoint = SwingUtilities.convertPoint(
+                                        glassPane,
+                                        glassPanePoint,
+                                        securityPanel);
+
+        Component component;
+        Point componentPoint;
+
+        if (securityPanelPoint.y > 0)
         {
-            holdStatusLabel.setIcon(new ImageIcon(
-                ImageLoader.getImage(ImageLoader.HOLD_STATUS_ICON)));
-            holdStatusLabel.setBorder(
-                BorderFactory.createEmptyBorder(2, 3, 2, 3));
+            component = securityPanel;
+            componentPoint = securityPanelPoint;
         }
         else
         {
-            holdStatusLabel.setIcon(null);
-            holdStatusLabel.setBorder(
-                BorderFactory.createEmptyBorder(0, 0, 0, 0));
+            Container contentPane
+                = callRenderer.getCallContainer().getCallWindow()
+                                    .getFrame().getContentPane();
+
+            Point containerPoint = SwingUtilities.convertPoint(
+                                                    glassPane,
+                                                    glassPanePoint,
+                                                    contentPane);
+
+            component = SwingUtilities.getDeepestComponentAt(contentPane,
+                    containerPoint.x, containerPoint.y);
+
+            componentPoint = SwingUtilities.convertPoint(contentPane,
+                glassPanePoint, component);
         }
 
-        this.revalidate();
-        this.repaint();
+        if (component != null)
+            component.dispatchEvent(new MouseEvent( component,
+                                                    e.getID(),
+                                                    e.getWhen(),
+                                                    e.getModifiers(),
+                                                    componentPoint.x,
+                                                    componentPoint.y,
+                                                    e.getClickCount(),
+                                                    e.isPopupTrigger()));
+
+        e.consume();
+    }
+
+    /**
+     * The handler for the security event received. The security event
+     * for starting establish a secure connection.
+     *
+     * @param evt the security started event received
+     */
+    public void securityNegotiationStarted(
+        CallPeerSecurityNegotiationStartedEvent evt)
+    {
+        if(Boolean.parseBoolean(GuiActivator.getResources()
+                .getSettingsString("impl.gui.PARANOIA_UI")))
+        {
+            SrtpControl srtpControl = null;
+            if (callPeer instanceof MediaAwareCallPeer)
+                srtpControl = evt.getSecurityController();
+
+            securityPanel
+                = new ParanoiaTimerSecurityPanel<SrtpControl>(srtpControl);
+
+            setSecurityPanelVisible(true);
+        }
+    }
+
+    /**
+     * Indicates that the security has gone off.
+     */
+    public void securityOff(CallPeerSecurityOffEvent evt)
+    {
+        securityStatusLabel.setText("");
+        securityStatusLabel.setSecurityOff();
+        if (securityStatusLabel.getBorder() == null)
+            securityStatusLabel.setBorder(
+                BorderFactory.createEmptyBorder(2, 5, 2, 3));
+
+        securityPanel.securityOff(evt);
     }
 
     /**
@@ -686,20 +763,6 @@ public class OneToOneCallPeerPanel
     }
 
     /**
-     * Indicates that the security has gone off.
-     */
-    public void securityOff(CallPeerSecurityOffEvent evt)
-    {
-        securityStatusLabel.setText("");
-        securityStatusLabel.setSecurityOff();
-        if (securityStatusLabel.getBorder() == null)
-            securityStatusLabel.setBorder(
-                BorderFactory.createEmptyBorder(2, 5, 2, 3));
-
-        securityPanel.securityOff(evt);
-    }
-
-    /**
      * Indicates that the security status is pending confirmation.
      */
     public void securityPending()
@@ -716,68 +779,6 @@ public class OneToOneCallPeerPanel
     {
         if (securityPanel != null)
             securityPanel.securityTimeout(evt);
-    }
-
-    /**
-     * The handler for the security event received. The security event
-     * for starting establish a secure connection.
-     *
-     * @param evt the security started event received
-     */
-    public void securityNegotiationStarted(
-        CallPeerSecurityNegotiationStartedEvent evt)
-    {
-        if(Boolean.parseBoolean(GuiActivator.getResources()
-                .getSettingsString("impl.gui.PARANOIA_UI")))
-        {
-            SrtpControl srtpControl = null;
-            if (callPeer instanceof MediaAwareCallPeer)
-                srtpControl = evt.getSecurityController();
-
-            securityPanel
-                = new ParanoiaTimerSecurityPanel<SrtpControl>(srtpControl);
-
-            setSecurityPanelVisible(true);
-        }
-    }
-
-    /**
-     * Sets the call peer adapter managing all related listeners.
-     * @param adapter the adapter to set
-     */
-    public void setCallPeerAdapter(CallPeerAdapter adapter)
-    {
-        this.callPeerAdapter = adapter;
-    }
-
-    /**
-     * Returns the call peer adapter managing all related listeners.
-     * @return the call peer adapter
-     */
-    public CallPeerAdapter getCallPeerAdapter()
-    {
-        return callPeerAdapter;
-    }
-
-    /**
-     * Returns the parent <tt>CallPanel</tt> containing this renderer.
-     * @return the parent <tt>CallPanel</tt> containing this renderer
-     */
-    public CallPanel getCallPanel()
-    {
-        return callRenderer.getCallContainer();
-    }
-
-    /**
-     * Prints the given DTMG character through this <tt>CallPeerRenderer</tt>.
-     * @param dtmfChar the DTMF char to print
-     */
-    public void printDTMFTone(char dtmfChar)
-    {
-        dtmfLabel.setText(dtmfLabel.getText() + dtmfChar);
-        if (dtmfLabel.getBorder() == null)
-            dtmfLabel.setBorder(
-                BorderFactory.createEmptyBorder(2, 1, 2, 5));
     }
 
     /**
@@ -823,109 +824,122 @@ public class OneToOneCallPeerPanel
     }
 
     /**
-     * Reloads all icons.
+     * Shows/hides the visual <tt>Component</tt> depicting the video streaming
+     * from the local peer/user to the remote peer(s).
+     *
+     * @param visible <tt>true</tt> to show the visual <tt>Component</tt>
+     * depicting the video streaming from the local peer/user to the remote
+     * peer(s); <tt>false</tt>, otherwise
      */
-    public void loadSkin()
+    public void setLocalVideoVisible(boolean visible)
     {
-        if(localLevel != null)
-            localLevel.setIcon(new ImageIcon(
-                ImageLoader.getImage(ImageLoader.MICROPHONE)));
+        uiVideoHandler.setLocalVideoVisible(visible);
+    }
 
-        if(remoteLevel != null && remoteLevel instanceof Skinnable)
-            ((Skinnable) remoteLevel).loadSkin();
-
-        if(muteStatusLabel.getIcon() != null)
+    /**
+     * Sets the mute status icon to the status panel.
+     *
+     * @param isMute indicates if the call with this peer is
+     * muted
+     */
+    public void setMute(boolean isMute)
+    {
+        if(isMute)
+        {
             muteStatusLabel.setIcon(new ImageIcon(
                 ImageLoader.getImage(ImageLoader.MUTE_STATUS_ICON)));
+            muteStatusLabel.setBorder(
+                BorderFactory.createEmptyBorder(2, 3, 2, 3));
+        }
+        else
+        {
+            muteStatusLabel.setIcon(null);
+            muteStatusLabel.setBorder(
+                BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        }
 
-        if(holdStatusLabel.getIcon() != null)
+        this.revalidate();
+        this.repaint();
+    }
+
+    /**
+     * Sets the "on hold" property value.
+     * @param isOnHold indicates if the call with this peer is put on hold
+     */
+    public void setOnHold(boolean isOnHold)
+    {
+        if(isOnHold)
+        {
             holdStatusLabel.setIcon(new ImageIcon(
                 ImageLoader.getImage(ImageLoader.HOLD_STATUS_ICON)));
-
-        securityStatusLabel.setIcon(new ImageIcon(
-                ImageLoader.getImage(securityImageID)));
-
-        if(this.peerImage == null)
+            holdStatusLabel.setBorder(
+                BorderFactory.createEmptyBorder(2, 3, 2, 3));
+        }
+        else
         {
-            synchronized (videoContainers)
-            {
-                for (JLabel photoLabel : photoLabels)
-                    photoLabel.setIcon(new ImageIcon(
-                        ImageLoader.getImage(ImageLoader.DEFAULT_USER_PHOTO)));
-            }
+            holdStatusLabel.setIcon(null);
+            holdStatusLabel.setBorder(
+                BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        }
+
+        this.revalidate();
+        this.repaint();
+    }
+
+    /**
+     * Set the image of the peer
+     *
+     * @param image new image
+     */
+    public void setPeerImage(byte[] image)
+    {
+        if (image == null || image.length <= 0)
+        {
+            GuiActivator.getContactList().setSourceContactImage(
+                peerName, photoLabel, 100, 100);
+        }
+        else
+        {
+            peerImage = ImageUtils.getScaledRoundedIcon(image, 100, 100);
+            if (peerImage == null)
+                peerImage = getPhotoLabelIcon();
+
+            photoLabel.setIcon(peerImage);
+            photoLabel.repaint();
         }
     }
 
     /**
-     * Shows/hides the local video component.
-     *
-     * @param isVisible <tt>true</tt> to show the local video, <tt>false</tt> -
-     * otherwise
+     * Sets the name of the peer.
+     * @param name the name of the peer
      */
-    public void setLocalVideoVisible(boolean isVisible)
+    public void setPeerName(String name)
     {
-        callRenderer.getVideoHandler().setLocalVideoVisible(isVisible);
+        peerName = name;
+
+        ((OneToOneCallPanel) callRenderer).setPeerName(name);
     }
 
     /**
-     * Indicates if the local video component is currently visible.
+     * Sets the state of the contained call peer by specifying the
+     * state name.
      *
-     * @return <tt>true</tt> if the local video component is currently visible,
-     * <tt>false</tt> - otherwise
+     * @param oldState the previous state of the peer
+     * @param newState the new state of the peer
+     * @param stateString the state of the contained call peer
      */
-    public boolean isLocalVideoVisible()
+    public void setPeerState(   CallPeerState oldState,
+                                CallPeerState newState,
+                                String stateString)
     {
-        return callRenderer.getVideoHandler().isLocalVideoVisible();
-    }
+        this.callStatusLabel.setText(stateString);
 
-    /**
-     * Returns the parent call renderer.
-     *
-     * @return the parent call renderer
-     */
-    public CallRenderer getCallRenderer()
-    {
-        return callRenderer;
-    }
-
-    /**
-     * Returns the component associated with this renderer.
-     *
-     * @return the component associated with this renderer
-     */
-    public Component getComponent()
-    {
-        return this;
-    }
-
-    /**
-     * Initializes the security status label, shown in the call status bar.
-     */
-    private void initSecurityStatusLabel()
-    {
-        securityStatusLabel.setBorder(
-            BorderFactory.createEmptyBorder(2, 5, 2, 5));
-
-        securityStatusLabel.addMouseListener(new MouseAdapter()
+        if (newState == CallPeerState.CONNECTED
+            && !CallPeerState.isOnHold(oldState)
+            && !securityStatusLabel.isSecurityStatusSet())
         {
-            /**
-             * Invoked when a mouse button has been pressed on a component.
-             */
-            public void mousePressed(MouseEvent e)
-            {
-                CallPeerSecurityStatusEvent securityEvt
-                    = callPeer.getCurrentSecuritySettings();
-
-                // Only show the security details if the security is on.
-                if (securityEvt instanceof CallPeerSecurityOnEvent
-                    && ((CallPeerSecurityOnEvent) securityEvt)
-                        .getSecurityController() instanceof ZrtpControl)
-                {
-                    setSecurityPanelVisible(!callRenderer.getCallContainer()
-                        .getCallWindow().getFrame().getGlassPane().isVisible());
-                }
-            }
-        });
+            securityStatusLabel.setSecurityOff();
+        }
     }
 
     /**
@@ -954,17 +968,7 @@ public class OneToOneCallPeerPanel
             glassPane.setLayout(null);
             glassPane.addMouseListener(new MouseListener()
             {
-                public void mouseReleased(MouseEvent e)
-                {
-                    redispatchMouseEvent(glassPane, e);
-                }
-
-                public void mousePressed(MouseEvent e)
-                {
-                    redispatchMouseEvent(glassPane, e);
-                }
-
-                public void mouseExited(MouseEvent e)
+                public void mouseClicked(MouseEvent e)
                 {
                     redispatchMouseEvent(glassPane, e);
                 }
@@ -974,7 +978,17 @@ public class OneToOneCallPeerPanel
                     redispatchMouseEvent(glassPane, e);
                 }
 
-                public void mouseClicked(MouseEvent e)
+                public void mouseExited(MouseEvent e)
+                {
+                    redispatchMouseEvent(glassPane, e);
+                }
+
+                public void mousePressed(MouseEvent e)
+                {
+                    redispatchMouseEvent(glassPane, e);
+                }
+
+                public void mouseReleased(MouseEvent e)
                 {
                     redispatchMouseEvent(glassPane, e);
                 }
@@ -1016,57 +1030,188 @@ public class OneToOneCallPeerPanel
     }
 
     /**
-     * Re-dispatches glass pane mouse events only in case they occur on the
-     * security panel.
-     *
-     * @param glassPane the glass pane
-     * @param e the mouse event in question
+     * Updates this view i.e. <tt>OneToOneCallPeerPanel</tt> so that it depicts
+     * the current state of its model i.e. <tt>callPeer</tt>.
      */
-    private void redispatchMouseEvent(Component glassPane, MouseEvent e)
+    private void updateViewFromModel()
     {
-        Point glassPanePoint = e.getPoint();
-
-        Point securityPanelPoint = SwingUtilities.convertPoint(
-                                        glassPane,
-                                        glassPanePoint,
-                                        securityPanel);
-
-        Component component;
-        Point componentPoint;
-
-        if (securityPanelPoint.y > 0)
-        {
-            component = securityPanel;
-            componentPoint = securityPanelPoint;
-        }
+        if (SwingUtilities.isEventDispatchThread())
+            updateViewFromModelInEventDispatchThread();
         else
         {
-            Container contentPane
-                = callRenderer.getCallContainer().getCallWindow()
-                                    .getFrame().getContentPane();
+            SwingUtilities.invokeLater(
+                    updateViewFromModelInEventDispatchThread);
+        }
+    }
 
-            Point containerPoint = SwingUtilities.convertPoint(
-                                                    glassPane,
-                                                    glassPanePoint,
-                                                    contentPane);
+    /**
+     * Updates this view i.e. <tt>OneToOneCallPeerPanel</tt> so that it depicts
+     * the current state of its model i.e. <tt>callPeer</tt>. The update is
+     * performed in the AWT event dispatching thread.
+     */
+    private void updateViewFromModelInEventDispatchThread()
+    {
+        /*
+         * Update the display of visual <tt>Component</tt>s depicting video
+         * streaming between the local peer/user and the remote peer(s).
+         */
 
-            component = SwingUtilities.getDeepestComponentAt(contentPane,
-                    containerPoint.x, containerPoint.y);
+        OperationSetVideoTelephony videoTelephony
+            = callPeer.getProtocolProvider().getOperationSet(
+                    OperationSetVideoTelephony.class);
+        Component remoteVideo = null;
+        Component localVideo = null;
 
-            componentPoint = SwingUtilities.convertPoint(contentPane,
-                glassPanePoint, component);
+        if (videoTelephony != null)
+        {
+            List<Component> remoteVideos
+                = videoTelephony.getVisualComponents(callPeer);
+
+            if ((remoteVideos != null) && !remoteVideos.isEmpty())
+            {
+                /*
+                 * TODO OneToOneCallPeerPanel displays a one-to-one conversation
+                 * between the local peer/user and a specific remote peer. If
+                 * the remote peer is the focus of a telephony conference of its
+                 * own, it may be sending multiple videos to the local peer.
+                 * Switching to a user interface which displays multiple videos
+                 * is the responsibility of whoever decided that this
+                 * OneToOneCallPeerPanel is to be used to depict the current
+                 * state of the CallConference associated with the CallPeer
+                 * depicted by this instance. If that switching decides that
+                 * this instance is to continue being the user interface, then
+                 * we should probably pick up the remote video which is
+                 * generated by the remote peer and not one of its
+                 * ConferenceMembers.  
+                 */
+                remoteVideo = remoteVideos.get(0);
+            }
+
+            if (uiVideoHandler.isLocalVideoVisible())
+            {
+                try
+                {
+                    localVideo
+                        = videoTelephony.getLocalVisualComponent(callPeer);
+                }
+                catch (OperationFailedException ofe)
+                {
+                    /*
+                     * Well, we cannot do much about the exception. We'll just
+                     * not display the local video.
+                     */
+                }
+            }
+
+            /*
+             * Determine whether there is actually a change in the local and
+             * remote videos which requires an update.
+             */
+            boolean localVideoChanged
+                = ((localVideo != this.localVideo)
+                    || ((localVideo != null)
+                        && !UIVideoHandler2.isAncestor(center, localVideo)));
+            boolean remoteVideoChanged
+                = ((remoteVideo != this.remoteVideo)
+                    || ((remoteVideo != null)
+                        && !UIVideoHandler2.isAncestor(center, remoteVideo)));
+
+            if (localVideoChanged || remoteVideoChanged)
+            {
+                /*
+                 * VideoContainer and JAWTRenderer cannot handle random
+                 * additions of Components. Removing the localVideo when the
+                 * user has requests its hiding though, should work without
+                 * removing all Components from the VideoCotainer and adding
+                 * them again.
+                 */
+                if (localVideoChanged
+                        && !remoteVideoChanged
+                        && (localVideo == null))
+                {
+                    if (this.localVideo != null)
+                    {
+                        center.remove(this.localVideo);
+                        this.localVideo = null;
+
+                        if (closeLocalVisualComponentButton != null)
+                            center.remove(closeLocalVisualComponentButton);
+                    }
+                }
+                else
+                {
+                    center.removeAll();
+                    if (remoteVideo != null)
+                        center.add(remoteVideo, VideoLayout.CENTER_REMOTE);
+                    this.remoteVideo = remoteVideo;
+
+                    if (localVideo != null)
+                    {
+                        center.add(localVideo, VideoLayout.LOCAL);
+
+                        if (closeLocalVisualComponentButton == null)
+                        {
+                            closeLocalVisualComponentButton
+                                = new CloseLocalVisualComponentButton(
+                                        uiVideoHandler);
+                        }
+                        center.add(
+                                closeLocalVisualComponentButton,
+                                VideoLayout.CLOSE_LOCAL_BUTTON);
+                    }
+                    this.localVideo = localVideo;
+                }
+
+                center.validate();
+                center.repaint();
+            }
+        }
+    }
+
+    /**
+     * The <tt>TransparentPanel</tt> that will display the peer status.
+     */
+    private static class PeerStatusPanel
+        extends TransparentPanel
+    {
+        /**
+         * Silence the serial warning. Though there isn't a plan to serialize
+         * the instances of the class, there're no fields so the default
+         * serialization routine will work.
+         */
+        private static final long serialVersionUID = 0L;
+
+        /**
+         * Constructs a new <tt>PeerStatusPanel</tt>.
+         *
+         * @param layout the <tt>LayoutManager</tt> to use
+         */
+        public PeerStatusPanel(LayoutManager layout)
+        {
+            super(layout);
         }
 
-        if (component != null)
-            component.dispatchEvent(new MouseEvent( component,
-                                                    e.getID(),
-                                                    e.getWhen(),
-                                                    e.getModifiers(),
-                                                    componentPoint.x,
-                                                    componentPoint.y,
-                                                    e.getClickCount(),
-                                                    e.isPopupTrigger()));
+        /**
+         * @{inheritDoc}
+         */
+        @Override
+        public void paintComponent(Graphics g)
+        {
+            super.paintComponent(g);
 
-        e.consume();
+            g = g.create();
+
+            try
+            {
+                AntialiasingManager.activateAntialiasing(g);
+
+                g.setColor(Color.DARK_GRAY);
+                g.fillRoundRect(0, 0, this.getWidth(), this.getHeight(), 20, 20);
+            }
+            finally
+            {
+                g.dispose();
+            }
+        }
     }
 }

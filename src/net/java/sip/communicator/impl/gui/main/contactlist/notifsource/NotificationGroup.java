@@ -318,7 +318,7 @@ public class NotificationGroup
                     contact.getDisplayName(),
                     contact.getDisplayName()
                         + " : " + contact.getDisplayDetails(),
-                    new Date(),
+                    System.currentTimeMillis(),
                     uiNotificationGroup,
                     contact.getUnreadMessageCount()));
         }

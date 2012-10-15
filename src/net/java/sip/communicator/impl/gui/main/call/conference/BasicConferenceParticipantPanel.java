@@ -13,6 +13,7 @@ import javax.swing.text.*;
 
 import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
@@ -27,21 +28,12 @@ import org.jitsi.service.neomedia.*;
  *
  * @author Yana Stamcheva
  * @author Adam Netocny
+ * @author Lyubomir Marinov
  */
-public abstract class BasicConferenceParticipantPanel
+public abstract class BasicConferenceParticipantPanel<T>
     extends TransparentPanel
     implements Skinnable
 {
-    /**
-     * Serial version UID.
-     */
-    private static final long serialVersionUID = 0L;
-
-    /**
-     * Background color.
-     */
-    private static final Color bgColor = new Color(255, 255, 255);
-
     /**
      * The avatar icon height.
      */
@@ -53,19 +45,21 @@ public abstract class BasicConferenceParticipantPanel
     private static final int AVATAR_WIDTH = 50;
 
     /**
-     * The label showing the name of the participant.
+     * Background color.
      */
-    private final JLabel nameLabel = new JLabel();
+    private static final Color bgColor = new Color(255, 255, 255);
 
     /**
-     * The panel containing the title of the participant.
+     * Serial version UID.
      */
-    private final JPanel titleBar = new CallTitlePanel(new GridBagLayout());
+    private static final long serialVersionUID = 0L;
 
     /**
-     * The label showing the image of the participant.
+     * The <tt>CallRenderer</tt> which (directly or indirectly) initialized this
+     * instance and which uses it to depict the associated
+     * conference participant.
      */
-    private final JLabel imageLabel = new JLabel();
+    private final CallRenderer callRenderer;
 
     /**
      * The status of the peer
@@ -73,21 +67,29 @@ public abstract class BasicConferenceParticipantPanel
     private final JLabel callStatusLabel = new JLabel();
 
     /**
+     * Main panel constraints.
+     */
+    private final GridBagConstraints constraints = new GridBagConstraints();
+
+    /**
      * The component responsible for displaying an error message.
      */
     private JTextComponent errorMessageComponent;
 
     /**
-     * The status bar of the participant panel.
+     * True if the avatar icon was changed and is no more default.
      */
-    private final JPanel statusBar
-        = new TransparentPanel(new GridBagLayout());
+    private boolean iconChanged = false;
 
     /**
-     * The status bar constraints.
+     * The label showing the image of the participant.
      */
-    private final GridBagConstraints statusBarConstraints
-        = new GridBagConstraints();
+    private final JLabel imageLabel = new JLabel();
+
+    /**
+     * Indicates if we're in a video interface.
+     */
+    private final boolean isVideo;
 
     /**
      * The name bar.
@@ -102,6 +104,17 @@ public abstract class BasicConferenceParticipantPanel
         = new GridBagConstraints();
 
     /**
+     * The label showing the name of the participant.
+     */
+    private final JLabel nameLabel = new JLabel();
+
+    /**
+     * The conference participant which is depicted by this instance. If it is a
+     * Call instance, this instance represents the local peer/user.
+     */
+    protected final T participant;
+
+    /**
      * The panel containing all peer details.
      */
     private final TransparentPanel peerDetailsPanel = new TransparentPanel();
@@ -111,21 +124,6 @@ public abstract class BasicConferenceParticipantPanel
      */
     private final TransparentPanel rightDetailsPanel
         = new TransparentPanel(new GridLayout(0, 1));
-
-    /**
-     * The component showing the sound level of the participant.
-     */
-    private SoundLevelIndicator soundIndicator;
-
-    /**
-     * Main panel constraints.
-     */
-    private final GridBagConstraints constraints = new GridBagConstraints();
-
-    /**
-     * True if the avatar icon was changed and is no more default.
-     */
-    private boolean iconChanged = false;
 
     /**
      * Security imageID.
@@ -138,33 +136,42 @@ public abstract class BasicConferenceParticipantPanel
     protected SecurityStatusLabel securityStatusLabel;
 
     /**
-     * Indicates if this panel is mentioned for the local participant.
+     * The component showing the sound level of the participant.
      */
-    private boolean isLocalPeer;
+    private SoundLevelIndicator soundIndicator;
 
     /**
-     * A reference to the container of this call member panel.
+     * The status bar of the participant panel.
      */
-    private CallRenderer renderer = null;
+    private final JPanel statusBar
+        = new TransparentPanel(new GridBagLayout());
 
     /**
-     * Indicates if we're in a video interface.
+     * The status bar constraints.
      */
-    private boolean isVideo;
+    private final GridBagConstraints statusBarConstraints
+        = new GridBagConstraints();
 
     /**
-     * Creates an instance of <tt>ConferenceParticipantPanel</tt>.
+     * The panel containing the title of the participant.
+     */
+    private final JPanel titleBar = new CallTitlePanel(new GridBagLayout());
+
+    /**
+     * Initializes a new <tt>BasicConferenceParticipantPanel</tt> instance which
+     * is to depict a specific conference participant.
      *
-     * @param renderer the renderer for the call
+     * @param callRenderer the renderer for the call
      * @param isLocalPeer if the peer is the local ones
      * @param isVideo indicates if we're in a video interface
      */
-    public BasicConferenceParticipantPanel( CallRenderer renderer,
-                                            boolean isLocalPeer,
-                                            boolean isVideo)
+    public BasicConferenceParticipantPanel(
+            CallRenderer callRenderer,
+            T participant,
+            boolean isVideo)
     {
-        this.renderer = renderer;
-        this.isLocalPeer = isLocalPeer;
+        this.callRenderer = callRenderer;
+        this.participant = participant;
         this.isVideo = isVideo;
 
         constraints.anchor = GridBagConstraints.CENTER;
@@ -176,38 +183,81 @@ public abstract class BasicConferenceParticipantPanel
     }
 
     /**
-     * Creates an instance of <tt>ConferenceParticipantPanel</tt>.
-     *
-     * @param renderer the renderer for the call
-     * @param isLocalPeer if the peer is the local ones
-     * @param isVideo indicates if we're in a video interface
+     * Adds the given <tt>component</tt> to the center below the sound bar.
+     * @param component the component to add
      */
-    public BasicConferenceParticipantPanel( CallRenderer renderer,
-                                            boolean isLocalPeer)
+    public void addToCenter(Component component)
     {
-        this(renderer, isLocalPeer, false);
+        rightDetailsPanel.add(component);
     }
 
     /**
-     * Initializes video conference specific panel.
+     * Adds the given <tt>component</tt> to the name bar.
+     * @param component the component to add
      */
-    private void initVideoConferencePanel()
+    public void addToNameBar(Component component)
     {
-        securityStatusLabel = new SecurityStatusLabel();
-        securityStatusLabel.setSecurityOff();
+        nameBarConstraints.gridx = nameBarConstraints.gridx + 1;
+        nameBarConstraints.weightx = 0f;
+        this.nameBar.add(component, nameBarConstraints);
+    }
 
-        this.setLayout(new GridBagLayout());
-        this.setBorder(BorderFactory.createEmptyBorder(7, 7, 7, 7));
+    /**
+     * Adds the given <tt>component</tt> to the status bar.
+     * @param component the component to add
+     */
+    public void addToStatusBar(Component component)
+    {
+        statusBarConstraints.gridx = statusBarConstraints.gridx + 1;
+        statusBarConstraints.weightx = 0f;
+        statusBarConstraints.insets = new Insets(0, 5, 0, 5);
 
-        this.initTitleBar();
+        this.statusBar.add(component, statusBarConstraints);
+    }
 
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.gridx = 0;
-        constraints.gridy = 0;
-        constraints.weightx = 1;
-        constraints.weighty = 0;
-        constraints.insets = new Insets(0, 0, 0, 0);
-        this.add(titleBar, constraints);
+    /**
+     * Gets the <tt>CallPanel</tt> which contains this instances and uses it to
+     * depict the associated conference participant.
+     *
+     * @return the <tt>CallPanel</tt> which contains this instances and uses it
+     * to depict the associated conference participant
+     */
+    public CallPanel getCallPanel()
+    {
+        return getCallRenderer().getCallContainer();
+    }
+
+    /**
+     * Gets the <tt>CallRenderer</tt> which (directly or indirectly) initialized
+     * this instance and which uses it to depict the associated conference
+     * participant.
+     *
+     * @return the <tt>CallRenderer</tt> which (directly or indirectly)
+     * initialized this instance and which uses it to depict the associated
+     * conference participant
+     */
+    public CallRenderer getCallRenderer()
+    {
+        return callRenderer;
+    }
+
+    /**
+     * Gets the conference participant depicted by this instance.
+     *
+     * @return the conference participant depicted by this instance
+     */
+    public T getParticipant()
+    {
+        return participant;
+    }
+
+    /**
+     * Sets the name of the participant.
+     * @param participantName the name of the participant
+     */
+    public String getParticipantName()
+    {
+        return nameLabel.getText();
     }
 
     private void initAudioConferencePanel()
@@ -284,93 +334,6 @@ public abstract class BasicConferenceParticipantPanel
     }
 
     /**
-     * Sets the name of the participant.
-     * @param participantName the name of the participant
-     */
-    public void setParticipantName(String participantName)
-    {
-        nameLabel.setText(participantName);
-    }
-
-    /**
-     * Sets the name of the participant.
-     * @param participantName the name of the participant
-     */
-    public String getParticipantName()
-    {
-        return nameLabel.getText();
-    }
-
-    /**
-     * Sets the state of the participant.
-     * @param participantState the state of the participant
-     */
-    public void setParticipantState(String participantState)
-    {
-        callStatusLabel.setText(participantState.toLowerCase());
-    }
-
-    /**
-     * Sets the image of the participant.
-     * @param image the image to set
-     */
-    public void setParticipantImage(byte[] image)
-    {
-        ImageIcon icon = ImageUtils.getScaledRoundedIcon(image,
-                                                        AVATAR_WIDTH,
-                                                        AVATAR_HEIGHT);
-
-        if (icon != null)
-        {
-            iconChanged = true;
-            imageLabel.setIcon(icon);
-        }
-    }
-
-    /**
-     * Adds the given <tt>component</tt> to the status bar.
-     * @param component the component to add
-     */
-    public void addToStatusBar(Component component)
-    {
-        statusBarConstraints.gridx = statusBarConstraints.gridx + 1;
-        statusBarConstraints.weightx = 0f;
-        statusBarConstraints.insets = new Insets(0, 5, 0, 5);
-
-        this.statusBar.add(component, statusBarConstraints);
-    }
-
-    /**
-     * Adds the given <tt>component</tt> to the name bar.
-     * @param component the component to add
-     */
-    public void addToNameBar(Component component)
-    {
-        nameBarConstraints.gridx = nameBarConstraints.gridx + 1;
-        nameBarConstraints.weightx = 0f;
-        this.nameBar.add(component, nameBarConstraints);
-    }
-
-    /**
-     * Adds the given <tt>component</tt> to the center below the sound bar.
-     * @param component the component to add
-     */
-    public void addToCenter(Component component)
-    {
-        rightDetailsPanel.add(component);
-    }
-
-    /**
-     * Updates the sound level bar to reflect the new sound level value.
-     * @param soundLevel the new sound level value
-     */
-    public void updateSoundBar(int soundLevel)
-    {
-        if (soundIndicator != null)
-            soundIndicator.updateSoundLevel(soundLevel);
-    }
-
-    /**
      * Initializes the title bar.
      */
     private void initTitleBar()
@@ -389,8 +352,8 @@ public abstract class BasicConferenceParticipantPanel
         statusBarConstraints.weightx = 1f;
         statusBar.add(callStatusLabel, statusBarConstraints);
 
-        if (!isLocalPeer)
-            this.addToStatusBar(securityStatusLabel);
+        if (!(participant instanceof Call))
+            addToStatusBar(securityStatusLabel);
 
         GridBagConstraints constraints = new GridBagConstraints();
 
@@ -405,6 +368,50 @@ public abstract class BasicConferenceParticipantPanel
         constraints.weightx = 1f;
         constraints.anchor = GridBagConstraints.EAST;
         titleBar.add(statusBar, constraints);
+    }
+
+    /**
+     * Initializes video conference specific panel.
+     */
+    private void initVideoConferencePanel()
+    {
+        securityStatusLabel = new SecurityStatusLabel();
+        securityStatusLabel.setSecurityOff();
+
+        this.setLayout(new GridBagLayout());
+        this.setBorder(BorderFactory.createEmptyBorder(7, 7, 7, 7));
+
+        this.initTitleBar();
+
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        constraints.weightx = 1;
+        constraints.weighty = 0;
+        constraints.insets = new Insets(0, 0, 0, 0);
+        this.add(titleBar, constraints);
+    }
+
+    /**
+     * Reloads default avatar icon.
+     */
+    public void loadSkin()
+    {
+        if(!iconChanged)
+        {
+            ImageIcon avatarIcon
+                = new ImageIcon(
+                        ImageLoader.getImage(ImageLoader.DEFAULT_USER_PHOTO)
+                                .getScaledInstance(
+                                        AVATAR_WIDTH,
+                                        AVATAR_HEIGHT,
+                                        Image.SCALE_SMOOTH));
+
+            imageLabel.setIcon(avatarIcon);
+        }
+
+        securityStatusLabel.setIcon(
+                new ImageIcon(ImageLoader.getImage(securityImageID)));
     }
 
     /**
@@ -423,7 +430,6 @@ public abstract class BasicConferenceParticipantPanel
             return;
 
         g = g.create();
-
         try
         {
             AntialiasingManager.activateAntialiasing(g);
@@ -439,12 +445,64 @@ public abstract class BasicConferenceParticipantPanel
     }
 
     /**
-     * Sets the background color of the title panel.
-     * @param color the background color to set
+     * Indicates that the security has gone off.
+     *
+     * @param evt Details about the event that caused this message.
      */
-    protected void setTitleBackground(Color color)
+    public void securityOff(CallPeerSecurityOffEvent evt)
     {
-        titleBar.setBackground(color);
+        securityStatusLabel.setText("");
+        securityStatusLabel.setSecurityOff();
+        if (securityStatusLabel.getBorder() == null)
+            securityStatusLabel.setBorder(
+                BorderFactory.createEmptyBorder(2, 5, 2, 3));
+    }
+
+    /**
+     * Indicates that the security is turned on.
+     * <p>
+     * Sets the secured status icon to the status panel and initializes/updates
+     * the corresponding security details.
+     *
+     * @param evt Details about the event that caused this message.
+     */
+    public void securityOn(CallPeerSecurityOnEvent evt)
+    {
+        // If the securityOn is called without a specific event, we'll just set
+        // the security label status to on.
+        if (evt == null)
+        {
+            securityStatusLabel.setSecurityOn();
+            return;
+        }
+
+        SrtpControl srtpControl = evt.getSecurityController();
+
+        if ((srtpControl.requiresSecureSignalingTransport()
+            && getCallRenderer().getCall().getProtocolProvider()
+                .isSignalingTransportSecure())
+            || !srtpControl.requiresSecureSignalingTransport())
+        {
+            if (srtpControl instanceof ZrtpControl)
+            {
+                securityStatusLabel.setText("zrtp");
+
+                if (!((ZrtpControl) srtpControl).isSecurityVerified())
+                    securityStatusLabel.setSecurityPending();
+                else
+                    securityStatusLabel.setSecurityOn();
+            }
+            else
+                securityStatusLabel.setSecurityOn();
+        }
+    }
+
+    /**
+     * Indicates that the security status is pending confirmation.
+     */
+    public void securityPending()
+    {
+        securityStatusLabel.setSecurityPending();
     }
 
     /**
@@ -481,86 +539,56 @@ public abstract class BasicConferenceParticipantPanel
     }
 
     /**
-     * Reloads default avatar icon.
+     * Sets the image of the participant.
+     * @param image the image to set
      */
-    public void loadSkin()
+    public void setParticipantImage(byte[] image)
     {
-        if(!iconChanged)
+        ImageIcon icon = ImageUtils.getScaledRoundedIcon(image,
+                                                        AVATAR_WIDTH,
+                                                        AVATAR_HEIGHT);
+
+        if (icon != null)
         {
-            ImageIcon avatarIcon
-                = new ImageIcon(
-                        ImageLoader
-                            .getImage(ImageLoader.DEFAULT_USER_PHOTO)
-                                .getScaledInstance(
-                                        AVATAR_WIDTH,
-                                        AVATAR_HEIGHT,
-                                        Image.SCALE_SMOOTH));
-
-            imageLabel.setIcon(avatarIcon);
-        }
-
-        securityStatusLabel.setIcon(new ImageIcon(
-                ImageLoader.getImage(securityImageID)));
-    }
-
-    /**
-     * Indicates that the security is turned on.
-     * <p>
-     * Sets the secured status icon to the status panel and initializes/updates
-     * the corresponding security details.
-     *
-     * @param evt Details about the event that caused this message.
-     */
-    public void securityOn(CallPeerSecurityOnEvent evt)
-    {
-        // If the securityOn is called without a specific event, we'll just set
-        // the security label status to on.
-        if (evt == null)
-        {
-            securityStatusLabel.setSecurityOn();
-            return;
-        }
-
-        SrtpControl srtpControl = evt.getSecurityController();
-
-        if ((srtpControl.requiresSecureSignalingTransport()
-            && renderer.getCall().getProtocolProvider()
-                .isSignalingTransportSecure())
-            || !srtpControl.requiresSecureSignalingTransport())
-        {
-            if (srtpControl instanceof ZrtpControl)
-            {
-                securityStatusLabel.setText("zrtp");
-
-                if (!((ZrtpControl) srtpControl).isSecurityVerified())
-                    securityStatusLabel.setSecurityPending();
-                else
-                    securityStatusLabel.setSecurityOn();
-            }
-            else
-                securityStatusLabel.setSecurityOn();
+            iconChanged = true;
+            imageLabel.setIcon(icon);
         }
     }
 
     /**
-     * Indicates that the security has gone off.
-     *
-     * @param evt Details about the event that caused this message.
+     * Sets the name of the participant.
+     * @param participantName the name of the participant
      */
-    public void securityOff(CallPeerSecurityOffEvent evt)
+    public void setParticipantName(String participantName)
     {
-        securityStatusLabel.setText("");
-        securityStatusLabel.setSecurityOff();
-        if (securityStatusLabel.getBorder() == null)
-            securityStatusLabel.setBorder(
-                BorderFactory.createEmptyBorder(2, 5, 2, 3));
+        nameLabel.setText(participantName);
     }
 
     /**
-     * Indicates that the security status is pending confirmation.
+     * Sets the state of the participant.
+     * @param participantState the state of the participant
      */
-    public void securityPending()
+    public void setParticipantState(String participantState)
     {
-        securityStatusLabel.setSecurityPending();
+        callStatusLabel.setText(participantState.toLowerCase());
+    }
+
+    /**
+     * Sets the background color of the title panel.
+     * @param color the background color to set
+     */
+    protected void setTitleBackground(Color color)
+    {
+        titleBar.setBackground(color);
+    }
+
+    /**
+     * Updates the sound level bar to reflect the new sound level value.
+     * @param soundLevel the new sound level value
+     */
+    public void updateSoundBar(int soundLevel)
+    {
+        if (soundIndicator != null)
+            soundIndicator.updateSoundLevel(soundLevel);
     }
 }

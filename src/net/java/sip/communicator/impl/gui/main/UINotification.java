@@ -33,9 +33,9 @@ public class UINotification
     private final String notificationDisplayName;
 
     /**
-     * The time when the notification was received.
+     * The time in milliseconds when the notification was received.
      */
-    private final Date notificationTime;
+    private final long notificationTime;
 
     /**
      * Number of unread objects like calls or messages.
@@ -48,12 +48,12 @@ public class UINotification
      *
      * notification belongs
      * @param displayName the name associated to this notification
-     * @param time the time when the notification was received
+     * @param time the time in milliseconds when the notification was received
      * @param parentGroup the group of notifications, to which this notification
      * belongs
      */
     public UINotification(  String displayName,
-                            Date time,
+                            long time,
                             UINotificationGroup parentGroup)
     {
         this(displayName, time, parentGroup, 1);
@@ -65,13 +65,13 @@ public class UINotification
      *
      * notification belongs
      * @param displayName the name associated to this notification
-     * @param time the time when the notification was received
+     * @param time the time in milliseconds when the notification was received
      * @param parentGroup the group of notifications, to which this notification
      * belongs
      * @param unreadObjects number of unread objects for this notification.
      */
     public UINotification(  String displayName,
-                            Date time,
+                            long time,
                             UINotificationGroup parentGroup,
                             int unreadObjects)
     {
@@ -85,14 +85,14 @@ public class UINotification
      * notification belongs
      * @param name the notification name
      * @param displayName the name associated to this notification
-     * @param time the time when the notification was received
+     * @param time the time in milliseconds when the notification was received
      * @param parentGroup the group of notifications, to which this notification
      * belongs
      * @param unreadObjects number of unread objects for this notification.
      */
     public UINotification(  String name,
                             String displayName,
-                            Date time,
+                            long time,
                             UINotificationGroup parentGroup,
                             int unreadObjects)
     {
@@ -114,11 +114,11 @@ public class UINotification
     }
 
     /**
-     * Returns the time the notification was received.
+     * Returns the time in milliseconds the notification was received.
      *
-     * @return the time the notification was received
+     * @return the time in milliseconds the notification was received
      */
-    public Date getTime()
+    public long getTime()
     {
         return notificationTime;
     }

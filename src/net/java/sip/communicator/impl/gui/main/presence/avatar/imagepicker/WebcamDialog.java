@@ -37,7 +37,7 @@ public class WebcamDialog
      */
     private static final Logger logger = Logger.getLogger(WebcamDialog.class);
 
-    private VideoContainer videoContainer;
+    private Component videoContainer;
 
     private JButton grabSnapshot;
 
@@ -121,13 +121,16 @@ public class WebcamDialog
     private void initAccessWebcam()
     {
         //Call the method in the media service
-        this.videoContainer =
-            (VideoContainer)GuiActivator.getMediaService()
-                .getVideoPreviewComponent(
-                    GuiActivator.getMediaService().getDefaultDevice(
-                        MediaType.VIDEO,
-                        MediaUseCase.CALL
-                        ), 320, 240);
+        MediaService mediaService = GuiActivator.getMediaService();
+
+        this.videoContainer
+            = (Component)
+                mediaService.getVideoPreviewComponent(
+                        mediaService.getDefaultDevice(
+                                MediaType.VIDEO,
+                                MediaUseCase.CALL),
+                        320,
+                        240);
         this.grabSnapshot.setEnabled(true);
     }
     

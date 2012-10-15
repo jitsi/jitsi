@@ -7,13 +7,19 @@
 package net.java.sip.communicator.impl.gui.main.call;
 
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.protocol.*;
 
 /**
- * The local video button is the button used to start/stop video in a
- * conversation.
+ * Implements an AWT/Swing button which toggles the display of the visual
+ * <tt>Component</tt> which depicting the video streaming from the local
+ * peer/user to the remote peer(s).
+ * <p>
+ * Though <tt>ShowHideVideoButton</tt> extends
+ * <tt>AbstractCallToggleButton</tt>, it is not associated with any
+ * <tt>Call</tt> and its model is a <tt>UIVideoHandler2</tt>.
+ * </p>
  *
  * @author Yana Stamcheva
+ * @author Lyubomir Marinov
  */
 public class ShowHideVideoButton
     extends AbstractCallToggleButton
@@ -21,59 +27,61 @@ public class ShowHideVideoButton
     private static final long serialVersionUID = 0L;
 
     /**
-     * The call peer renderer.
+     * The facility which aids this instance with the dealing with the
+     * video-related information and which is the model of the view represented
+     * by this instance.
      */
-    private CallPeerRenderer renderer;
+    private final UIVideoHandler2 uiVideoHandler;
 
     /**
-     * Creates a <tt>LocalVideoButton</tt> by specifying the corresponding
-     * <tt>call</tt>.
+     * Initializes a new <tt>ShowHideVideoButton</tt> instance which is to
+     * toggle the display of the visual <tt>Component</tt> which depicts the
+     * video streaming from the local peer/user to the remote peer(s).
      *
-     * @param call the parent call
+     * @param uiVideoHandler the <tt>UIVideoHandler</tt> which is to be the
+     * model of the view represented by the new instance
      */
-    public ShowHideVideoButton(Call call)
+    public ShowHideVideoButton(UIVideoHandler2 uiVideoHandler)
     {
-        this(call, false, false);
+        this(uiVideoHandler, false, false);
     }
 
     /**
-     * Creates a <tt>LocalVideoButton</tt> by specifying the corresponding
-     * <tt>call</tt>.
+     * Initializes a new <tt>ShowHideVideoButton</tt> instance which is to
+     * toggle the display of the visual <tt>Component</tt> which depicts the
+     * video streaming from the local peer/user to the remote peer(s).
      *
-     * @param call the parent call
+     * @param uiVideoHandler the <tt>UIVideoHandler</tt> which is to be the
+     * model of the view represented by the new instance
      * @param fullScreen <tt>true</tt> if the new instance is to be used in
      * full-screen UI; otherwise, <tt>false</tt>
      * @param selected <tt>true</tt> if the new toggle button is to be initially
      * selected; otherwise, <tt>false</tt>
      */
-    public ShowHideVideoButton( Call call,
-                                boolean fullScreen,
-                                boolean selected)
+    public ShowHideVideoButton(
+            UIVideoHandler2 uiVideoHandler,
+            boolean fullScreen,
+            boolean selected)
     {
-        super(  call,
-            fullScreen,
-            true,
-            selected,
-            ImageLoader.SHOW_LOCAL_VIDEO_BUTTON,
-            ImageLoader.SHOW_LOCAL_VIDEO_BUTTON_PRESSED,
-            "service.gui.SHOW_LOCAL_VIDEO_BUTTON_TOOL_TIP");
+        super(
+                null,
+                fullScreen,
+                true,
+                selected,
+                ImageLoader.SHOW_LOCAL_VIDEO_BUTTON,
+                ImageLoader.SHOW_LOCAL_VIDEO_BUTTON_PRESSED,
+                "service.gui.SHOW_LOCAL_VIDEO_BUTTON_TOOL_TIP");
+
+        this.uiVideoHandler = uiVideoHandler;
     }
 
     /**
-     * Sets the peer renderer.
-     * 
-     * @param renderer the peer renderer
-     */
-    public void setPeerRenderer(CallPeerRenderer renderer)
-    {
-        this.renderer = renderer;
-    }
-
-    /**
-     * Enables or disables local video when the button is toggled/untoggled.
+     * Toggles the display of the visual <tt>Component</tt> which depicts the
+     * video streaming from the local peer/user to the remote peer(s).
      */
     public void buttonPressed()
     {
-        renderer.setLocalVideoVisible(!renderer.isLocalVideoVisible());
+        uiVideoHandler.setLocalVideoVisible(
+                !uiVideoHandler.isLocalVideoVisible());
     }
 }

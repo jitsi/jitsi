@@ -32,12 +32,6 @@ public class LocalVideoButton
     private final CallConference callConference;
 
     /**
-     * Whether video is enabled. If <tt>false</tt>, calls to
-     * <tt>setEnabled(true)</tt> will NOT enable the button.
-     */
-    private boolean videoAvailable;
-
-    /**
      * Initializes a new <tt>LocalVideoButton</tt> instance which is to
      * start/stop the streaming of the local video to the remote peers
      * participating in a specific telephony conference.
@@ -76,14 +70,55 @@ public class LocalVideoButton
                 "service.gui.LOCAL_VIDEO_BUTTON_TOOL_TIP");
 
         this.callConference = call.getConference();
+    }
+
+    /**
+     * Enables or disables local video when the button is toggled/untoggled.
+     */
+    public void buttonPressed()
+    {
+        /*
+         * CallManager actually enables/disables the local video for the
+         * telephony conference associated with the Call so pick up a Call
+         * participating in callConference and it should do.
+         */
+        List<Call> calls = callConference.getCalls();
+
+        if (!calls.isEmpty())
+        {
+            Call call = calls.get(0);
+
+            CallManager.enableLocalVideo(
+                    call,
+                    !CallManager.isLocalVideoEnabled(call));
+        }
+    }
+
+    /**
+     * Enables/disables the button. If <tt>this.videoAvailable</tt> is false,
+     * keeps the button as it is (i.e. disabled).
+     *
+     * @param enabled <tt>true</tt> to enable the button, <tt>false</tt> to
+     * disable it.
+     */
+    @Override
+    public void setEnabled(boolean enabled)
+    {
+        /*
+         * Regardless of what CallPanel tells us about the enabled state of
+         * this LocalVideoButton, we have to analyze the state ourselves because
+         * we have to update the tool tip and take into account the global state
+         * of the application.
+         */
 
         MediaDevice videoDevice
             = GuiActivator.getMediaService().getDefaultDevice(
                     MediaType.VIDEO,
                     MediaUseCase.CALL);
         String toolTipTextKey;
+        boolean videoAvailable;
 
-        /* Check whether we can send video and set the appropriate tooltip. */
+        /* Check whether we can send video and set the appropriate tool tip. */
         if((videoDevice == null)
                 || !videoDevice.getDirection().allowsSending())
         {
@@ -139,42 +174,6 @@ public class LocalVideoButton
         setToolTipText(
                 GuiActivator.getResources().getI18NString(toolTipTextKey));
 
-        super.setEnabled(videoAvailable);
-    }
-
-    /**
-     * Enables or disables local video when the button is toggled/untoggled.
-     */
-    public void buttonPressed()
-    {
-        /*
-         * CallManager actually enables/disables the local video for the
-         * telephony conference associated with the Call so pick up a Call
-         * participating in callConference and it should do.
-         */
-        List<Call> calls = callConference.getCalls();
-
-        if (!calls.isEmpty())
-        {
-            Call call = calls.get(0);
-
-            CallManager.enableLocalVideo(
-                    call,
-                    !CallManager.isLocalVideoEnabled(call));
-        }
-    }
-
-    /**
-     * Enables/disables the button. If <tt>this.videoAvailable</tt> is false,
-     * keeps the button as it is (i.e. disabled).
-     *
-     * @param enable <tt>true</tt> to enable the button, <tt>false</tt> to
-     * disable it.
-     */
-    @Override
-    public void setEnabled(boolean enable)
-    {
-        if (videoAvailable)
-            super.setEnabled(enable);
+        super.setEnabled(videoAvailable && enabled);
     }
 }

@@ -1,3 +1,9 @@
+/*
+ * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.impl.gui.main.call.conference;
 
 import java.awt.*;
@@ -8,320 +14,226 @@ import java.util.List;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.main.call.*;
-import net.java.sip.communicator.impl.gui.main.call.CallPeerAdapter;
+import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.util.swing.TransparentPanel;
 
 import org.jitsi.util.swing.*;
 
 /**
- * The UI for video conference calls. This panel contains all conference peers
- * and members.
+ * Extends <tt>BasicConferenceCallPanel</tt> to implement a user interface
+ * <tt>Component</tt> which depicts a <tt>CallConference</tt> with audio and
+ * video and is contained in a <tt>CallPanel</tt>.
  *
  * @author Yana Stamcheva
+ * @author Lyubomir Marinov
  */
 public class VideoConferenceCallPanel
-    extends ConferenceCallPanel
+    extends BasicConferenceCallPanel
 {
     /**
-     * Maps a <tt>CallPeer</tt> to its renderer.
+     * The <tt>Logger</tt> used by the <tt>VideoConferenceCallPanel</tt> class
+     * and its instances for logging output.
      */
-    protected final Hashtable<CallPeer, ConferenceCallPeerRenderer>
-        callPeerPanels
-            = new Hashtable<CallPeer, ConferenceCallPeerRenderer>();
+    private static final Logger logger
+        = Logger.getLogger(VideoConferenceCallPanel.class);
 
     /**
-     * A mapping of a member and its renderer.
+     * The facility which aids this instance with the video-related information.
      */
-    private final Map<ConferenceMember, ConferenceMemberPanel>
-        conferenceMembersPanels
-            = new Hashtable<ConferenceMember, ConferenceMemberPanel>();
-
-    public VideoConferenceCallPanel(CallPanel callPanel, Call call)
-    {
-        this(callPanel, call, null);
-    }
+    private final UIVideoHandler2 uiVideoHandler;
 
     /**
-     * Creates an instance of <tt>VideoConferenceCallPanel</tt>.
+     * The <tt>Observer</tt> which listens to {@link #uiVideoHandler} about
+     * changes in the video-related information.
+     */
+    private final Observer uiVideoHandlerObserver
+        = new Observer()
+        {
+            public void update(Observable o, Object arg)
+            {
+                updateViewFromModel();
+            }
+        };
+
+    /**
+     * The <tt>VideoContainer</tt> which occupies this whole <tt>Component</tt>
+     * and arranges the visual <tt>Component</tt>s displaying the video
+     * streaming between the local peer/user and the remote peer(s).
+     */
+    private final VideoContainer videoContainer;
+
+    /**
+     * Initializes a new <tt>VideoConferenceCallPanel</tt> instance which is to
+     * be used by a specific <tt>CallPanel</tt> to depict a specific
+     * <tt>CallConference</tt>. The new instance will depict both the
+     * audio-related and the video-related information.
      *
-     * @param callPanel the call panel which contains this panel
-     * @param call the conference call object
+     * @param callPanel the <tt>CallPanel</tt> which will use the new instance
+     * to depict the specified <tt>CallConference</tt>.
+     * @param callConference the <tt>CallConference</tt> to be depicted by the
+     * new instance
+     * @param uiVideoHandler the utility which is to aid the new instance in
+     * dealing with the video-related information 
      */
-    public VideoConferenceCallPanel(CallPanel callPanel,
-                                    Call call,
-                                    UIVideoHandler videoHandler)
+    public VideoConferenceCallPanel(
+            CallPanel callPanel,
+            CallConference callConference,
+            UIVideoHandler2 uiVideoHandler)
     {
-        super(callPanel, call, videoHandler, true);
+        super(callPanel, callConference);
 
-        addVideoContainer();
+        this.uiVideoHandler = uiVideoHandler;
 
-        getVideoHandler().setLocalVideoToolbar(createLocalVideoToolBar());
+        videoContainer = createVideoContainer();
 
-        List<CallPeer> conferenceCallPeers = CallConference.getCallPeers(call);
+        /*
+         * Our user interface hierarchy has been initialized so we are ready to
+         * begin receiving events warranting updates of this view from its
+         * model.
+         */
+        uiVideoHandler.addObserver(uiVideoHandlerObserver);
 
-        for (CallPeer peer : conferenceCallPeers)
+        /*
+         * Notify the super that this instance has completed its initialization
+         * and the view that it implements is ready to be updated from the
+         * model.
+         */
+        initializeComplete();
+    }
+
+    private void addConferenceMemberContainers(
+            ConferenceParticipantContainer cpc)
+    {
+        List<ConferenceParticipantContainer> cmcs
+            = cpc.conferenceMemberContainers;
+
+        if ((cmcs != null) && !cmcs.isEmpty())
         {
-            ConferenceCallPeerRenderer peerRenderer = createVideoToolBar(peer);
-
-            getVideoHandler().addVideoToolbar(peer, peerRenderer.getComponent());
-
-            for (ConferenceMember member : peer.getConferenceMembers())
-                conferenceMemberAdded(peer, member, true);
-
-            // Map the call peer to its renderer.
-            callPeerPanels.put(peer, peerRenderer);
-        }
-
-        for (CallPeer peer : conferenceCallPeers)
-        {
-            ConferenceCallPeerRenderer peerRenderer = callPeerPanels.get(peer);
-
-            addCallPeerPanel(peer, peerRenderer);
+            for (ConferenceParticipantContainer cmc : cmcs)
+            {
+                if (!cmc.toBeRemoved)
+                {
+                    videoContainer.add(
+                            cmc.getComponent(),
+                            VideoLayout.CENTER_REMOTE);
+                }
+            }
         }
     }
 
+    private Component createDefaultPhotoPanel(Call call)
+    {
+        OperationSetServerStoredAccountInfo accountInfo
+            = call.getProtocolProvider().getOperationSet(
+                    OperationSetServerStoredAccountInfo.class);
+        ImageIcon photoLabelIcon = null;
+
+        if (accountInfo != null)
+        {
+            byte[] accountImage = AccountInfoUtils.getImage(accountInfo);
+
+            // do not set empty images
+            if ((accountImage != null) && (accountImage.length > 0))
+                photoLabelIcon = new ImageIcon(accountImage);
+        }
+        if (photoLabelIcon == null)
+        {
+            photoLabelIcon
+                = new ImageIcon(
+                        ImageLoader.getImage(ImageLoader.DEFAULT_USER_PHOTO));
+        }
+
+        return createDefaultPhotoPanel(photoLabelIcon);
+    }
+
+    private Component createDefaultPhotoPanel(CallPeer callPeer)
+    {
+        byte[] peerImage = CallManager.getPeerImage(callPeer);
+        ImageIcon photoLabelIcon
+            = (peerImage == null)
+                ? new ImageIcon(
+                        ImageLoader.getImage(ImageLoader.DEFAULT_USER_PHOTO))
+                : new ImageIcon(peerImage);
+
+        return createDefaultPhotoPanel(photoLabelIcon);
+    }
+
+    private Component createDefaultPhotoPanel(ConferenceMember conferenceMember)
+    {
+        return
+            createDefaultPhotoPanel(
+                    new ImageIcon(
+                            ImageLoader.getImage(
+                                    ImageLoader.DEFAULT_USER_PHOTO)));
+    }
+
     /**
-     * Returns the <tt>CallPeerRenderer</tt> corresponding to the given
-     * <tt>callPeer</tt>.
+     * Creates a new <tt>Component</tt> which is to display a specific
+     * <tt>ImageIcon</tt> representing the photo of a participant in a call.
      *
-     * @param callPeer the <tt>CallPeer</tt>, which renderer we're looking for
-     * @return the renderer for the given <tt>callPeer</tt>.
+     * @param photoLabelIcon the <tt>ImageIcon</tt> which represents the photo
+     * of a participant in a call and which is to be displayed by the new
+     * <tt>Component</tt>
+     * @return a new <tt>Component</tt> which displays the specified
+     * <tt>photoLabelIcon</tt>
      */
-    public CallPeerRenderer getCallPeerRenderer(CallPeer callPeer)
+    private Component createDefaultPhotoPanel(ImageIcon photoLabelIcon)
     {
-        return callPeerPanels.get(callPeer);
-    }
+        JLabel photoLabel = new JLabel();
 
-    public void conferenceMemberAdded(  CallPeer callPeer,
-                                        ConferenceMember member)
-    {
-        // Only if it isn't there yet.
-        if (!conferenceMembersPanels.containsKey(member))
-        {
-            conferenceMemberAdded(callPeer, member, false);
+        photoLabel.setIcon(photoLabelIcon);
 
-            getVideoHandler().handleVideoEvent(call, null);
-        }
-    }
+        JPanel photoPanel
+            = new TransparentPanel(new GridBagLayout())
+            {
+                /**
+                 * @{inheritDoc}
+                 */
+                @Override
+                public void paintComponent(Graphics g)
+                {
+                    super.paintComponent(g);
 
-    /**
-     * 
-     */
-    public void conferenceMemberAdded(  CallPeer callPeer,
-                                        ConferenceMember member,
-                                        boolean isInitialAdd)
-    {
-        // We don't want to add the local member to the list of members.
-        if (CallManager.isLocalUser(member))
-            return;
+                    g = g.create();
+                    try
+                    {
+                        AntialiasingManager.activateAntialiasing(g);
 
-        if (CallManager.addressesAreEqual(
-                member.getAddress(), callPeer.getAddress()))
-        {
-            return;
-        }
+                        g.setColor(Color.GRAY);
+                        g.fillRoundRect(
+                                0, 0, this.getWidth(), this.getHeight(),
+                                6, 6);
+                    }
+                    finally
+                    {
+                        g.dispose();
+                    }
+                }
+            };
 
-        // It's already there.
-        if (conferenceMembersPanels.containsKey(member))
-            return;
+        photoPanel.setPreferredSize(new Dimension(320, 240));
 
-        ConferenceMemberPanel memberVideoToolbar = createVideoToolBar(member);
+        GridBagConstraints photoPanelConstraints = new GridBagConstraints();
 
-        member.addPropertyChangeListener(memberVideoToolbar);
+        photoPanelConstraints.anchor = GridBagConstraints.CENTER;
+        photoPanelConstraints.fill = GridBagConstraints.NONE;
+        photoPanel.add(photoLabel, photoPanelConstraints);
 
-        getVideoHandler().addVideoToolbar(member, memberVideoToolbar);
-        conferenceMembersPanels.put(member, memberVideoToolbar);
-    }
-
-    /**
-     * 
-     */
-    public void conferenceMemberRemoved(CallPeer callPeer,
-                                        ConferenceMember member)
-    {
-        // We don't want to add the local member to the list of members.
-        if (CallManager.isLocalUser(member))
-            return;
-
-        if (CallManager.addressesAreEqual(
-            member.getAddress(), callPeer.getAddress()))
-        {
-            return;
-        }
-
-        getVideoHandler().removeVideoToolbar(member);
-
-        ConferenceMemberPanel memberPanel = conferenceMembersPanels.get(member);
-
-        if (memberPanel != null)
-        {
-            member.removePropertyChangeListener(memberPanel);
-            conferenceMembersPanels.remove(member);
-        }
-    }
-
-    /**
-     * Creates and adds a <tt>CallPeerRenderer</tt> for the given <tt>peer</tt>.
-     *
-     * @param peer the peer for which to create a renderer
-     */
-    public void addCallPeerPanel(CallPeer peer)
-    {
-        ConferenceCallPeerRenderer peerRenderer = createVideoToolBar(peer);
-
-        getVideoHandler().addVideoToolbar(peer, peerRenderer.getComponent());
-
-        // Map the call peer to its renderer.
-        callPeerPanels.put(peer, peerRenderer);
-
-        addCallPeerPanel(peer, peerRenderer);
-
-        getVideoHandler().handleVideoEvent(call, null);
-    }
-
-    /**
-     * Creates and adds a <tt>CallPeerRenderer</tt> for the given <tt>peer</tt>.
-     *
-     * @param peer the added peer
-     * @param peer the peer for which to create a renderer
-     */
-    private void addCallPeerPanel(  CallPeer peer,
-                                    ConferenceCallPeerRenderer peerRenderer)
-    {
-        getVideoHandler().addVideoListener(peer);
-        getVideoHandler().addRemoteControlListener(peer);
-
-        if (peer.getConferenceMemberCount() > 0)
-        {
-            peer.addConferenceMembersSoundLevelListener(peerRenderer.
-                getConferenceMembersSoundLevelListener());
-            peer.addStreamSoundLevelListener(peerRenderer.
-                getStreamSoundLevelListener());
-        }
-        else
-        {
-            //peer.addConferenceMembersSoundLevelListener(
-            //    confPeerRenderer.getConferenceMembersSoundLevelListener());
-            peer.addStreamSoundLevelListener(
-                peerRenderer.getStreamSoundLevelListener());
-        }
-
-        // Create an adapter which would manage all common call peer listeners.
-        CallPeerAdapter callPeerAdapter
-            = new CallPeerAdapter(peer, peerRenderer);
-
-        peerRenderer.setCallPeerAdapter(callPeerAdapter);
-
-        peer.addCallPeerListener(callPeerAdapter);
-        peer.addPropertyChangeListener(callPeerAdapter);
-        peer.addCallPeerSecurityListener(callPeerAdapter);
-        peer.addCallPeerConferenceListener(callPeerAdapter);
-    }
-
-    /**
-     * Removes the <tt>CallPeerRenderer</tt> and all related listeners
-     * corresponding to the given <tt>peer</tt>.
-     *
-     * @param peer the <tt>CallPeer</tt> to remove
-     */
-    public void removeCallPeerPanel(CallPeer peer)
-    {
-        ConferenceCallPeerRenderer confPeerRenderer = callPeerPanels.get(peer);
-
-        if (confPeerRenderer == null)
-            return;
-
-        getVideoHandler().removeRemoteControlListener(peer);
-        getVideoHandler().removeVideoToolbar(peer);
-
-        for (ConferenceMember member : peer.getConferenceMembers())
-        {
-            getVideoHandler().removeVideoToolbar(member);
-        }
-
-        // first remove the listeners as after removing the panel
-        // we may still receive sound level indicators and there are
-        // missing ui components leading to exception
-        ConferenceMembersSoundLevelListener membersSoundLevelListener
-            = confPeerRenderer.getConferenceMembersSoundLevelListener();
-        if (membersSoundLevelListener != null)
-            peer.removeConferenceMembersSoundLevelListener(
-                membersSoundLevelListener);
-
-        SoundLevelListener soundLevelListener
-            = confPeerRenderer.getStreamSoundLevelListener();
-        if (soundLevelListener != null)
-            peer.removeStreamSoundLevelListener(soundLevelListener);
-
-        // Remove the corresponding renderer.
-        callPeerPanels.remove(peer);
-
-        // Remove all common listeners.
-        CallPeerAdapter adapter = confPeerRenderer.getCallPeerAdapter();
-
-        peer.removeCallPeerListener(adapter);
-        peer.removePropertyChangeListener(adapter);
-        peer.removeCallPeerSecurityListener(adapter);
-        peer.removeCallPeerConferenceListener(adapter);
-    }
-
-    /**
-     * Creates the tool bar for the local video component.
-     *
-     * @return created component
-     */
-    private Component createLocalVideoToolBar()
-    {
-        return new ConferencePeerPanel(
-            this, getCallContainer(), call.getProtocolProvider(), true);
-    }
-
-    /**
-     * Initializes the video tool bar.
-     *
-     * @param callPeer the <tt>CallPeer</tt> for which we create a video toolbar
-     * @return the created component
-     */
-    private ConferenceCallPeerRenderer createVideoToolBar(CallPeer callPeer)
-    {
-        return new ConferencePeerPanel(
-            this, getCallContainer(), callPeer, true);
-    }
-
-    /**
-     * Initializes the video tool bar.
-     *
-     * @param conferenceMember the <tt>ConferenceMember</tt> for which we create
-     * a video toolbar
-     * @return the created component
-     */
-    private ConferenceMemberPanel createVideoToolBar(
-                                            ConferenceMember conferenceMember)
-    {
-        return new ConferenceMemberPanel(this, conferenceMember, true);
+        return photoPanel;
     }
 
     /**
      * Initializes a new <tt>VideoContainer</tt> instance which is to contain
-     * the visual/video <tt>Component</tt>s of {@link #call}.
+     * the visual/video <tt>Component</tt>s of the telephony conference depicted
+     * by this instance.
      */
-    protected void addVideoContainer()
+    private VideoContainer createVideoContainer()
     {
-        if (!SwingUtilities.isEventDispatchThread())
-        {
-            SwingUtilities.invokeLater(new Runnable()
-            {
-                public void run()
-                {
-                    addVideoContainer();
-                }
-            });
-            return;
-        }
-
-        final VideoContainer videoContainer
-            = new VideoContainer(new JLabel(), true);
+        final VideoContainer videoContainer = new VideoContainer(null, true);
 
         videoContainer.setPreferredSize(new Dimension(0, 0));
 
@@ -374,16 +286,16 @@ public class VideoConferenceCallPanel
                     if (e.getID() == ContainerEvent.COMPONENT_ADDED)
                     {
                         Dimension preferredSize
-                            = videoContainer.getLayout()
-                                .preferredLayoutSize(videoContainer);
+                            = videoContainer.getLayout().preferredLayoutSize(
+                                    videoContainer);
 
                         if ((preferredSize != null)
                                 && (preferredSize.width > 0)
                                 && (preferredSize.height > 0))
                         {
-                            ensureSize(
-                                    videoContainer,
-                                    preferredSize.width, preferredSize.height);
+//                            ensureSize(
+//                                    videoContainer,
+//                                    preferredSize.width, preferredSize.height);
                         }
                     }
                 }
@@ -398,6 +310,925 @@ public class VideoConferenceCallPanel
                 }
             });
 
-        videoContainers.add(videoContainer);
+        return videoContainer;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void dispose()
+    {
+        try
+        {
+            uiVideoHandler.deleteObserver(uiVideoHandlerObserver);
+        }
+        finally
+        {
+            super.dispose();
+        }
+    }
+
+    /**
+     * Determines whether a specific <tt>ConferenceMember</tt> represents the
+     * same conference participant as a specific <tt>CallPeer</tt>. If the
+     * specified <tt>conferenceMember</tt> is <tt>null</tt>, returns
+     * <tt>true</tt>. Otherwise, determines whether the addresses of the
+     * specified <tt>conferenceMember</tt> and the specified <tt>callPeer</tt>
+     * identify one and the same entity.
+     *
+     * @param conferenceMember the <tt>ConferenceMember</tt> to be checked
+     * whether is represents the same conference participant as the specified
+     * <tt>callPeer</tt>. If it is <tt>null</tt>, <tt>true</tt> is returned.
+     * @param callPeer the <tt>CallPeer</tt> to be checked whether it represents
+     * the same conference participant as the specified
+     * <tt>conferenceMember</tt>
+     * @return <tt>true</tt> if the specified <tt>conferenceMember</tt> and the
+     * specified <tt>callPeer</tt> represent the same conference participant or
+     * the specified <tt>conferenceMember</tt> is <tt>null</tt>; otherwise,
+     * <tt>false</tt>
+     */
+    private boolean isConferenceMemberCallPeer(
+            ConferenceMember conferenceMember,
+            CallPeer callPeer)
+    {
+        return
+            (conferenceMember == null)
+                ? true
+                : CallManager.addressesAreEqual(
+                        conferenceMember.getAddress(),
+                        callPeer.getAddress());
+    }
+
+    /**
+     * Determines whether a specific <tt>ConferenceMember</tt> represents the
+     * local peer/user. Since this instance depicts a whole telephony
+     * conference, the local peer/user may be participating with multiple
+     * <tt>Call</tt>s in it. The <tt>Call</tt>s may be through different
+     * (local) accounts. That's why the implementation determines whether the
+     * address of the specified <tt>conferenceMember</tt> identifies the address
+     * of a (local) accounts involved in the telephony conference depicted by
+     * this instance.  
+     *
+     * @param conferenceMember the <tt>ConferenceMember</tt> to be checked
+     * whether it represents the local peer/user
+     * @return <tt>true</tt> if the specified <tt>conferenceMember</tt>
+     * represents the local peer/user; otherwise, <tt>false</tt>
+     */
+    private boolean isConferenceMemberLocalUser(
+            ConferenceMember conferenceMember)
+    {
+        String address = conferenceMember.getAddress();
+
+        for (Call call : callConference.getCalls())
+        {
+            if (CallManager.addressesAreEqual(
+                    address,
+                    call.getProtocolProvider().getAccountID()
+                            .getAccountAddress()))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void removeConferenceMemberContainers(
+            ConferenceParticipantContainer cpc,
+            boolean all)
+    {
+        List<ConferenceParticipantContainer> cmcs
+            = cpc.conferenceMemberContainers;
+
+        if ((cmcs != null) && !cmcs.isEmpty())
+        {
+            Iterator<ConferenceParticipantContainer> i = cmcs.iterator();
+
+            while (i.hasNext())
+            {
+                ConferenceParticipantContainer cmc = i.next();
+
+                if (all || cmc.toBeRemoved)
+                {
+                    i.remove();
+
+                    videoContainer.remove(cmc.getComponent());
+                    cmc.dispose();
+                }
+            }
+        }
+    }
+
+    /**
+     * Updates the <tt>ConferenceParticipantContainer</tt>s which depict the
+     * <tt>ConferenceMember</tt>s of the <tt>CallPeer</tt> depicted by a
+     * specific <tt>ConferenceParticipantContainer</tt>.
+     *
+     * @param cpc the <tt>ConferenceParticipantContainer</tt> which depicts the
+     * <tt>CallPeer</tt> whose <tt>ConferenceMember</tt>s are to be depicted
+     * @param videos the visual <tt>Component</tt>s displaying video streaming
+     * from the remote peer (represented by <tt>cpc</tt>) to the local peer/user
+     * @param videoTelephony the <tt>OperationSetVideoTelephony</tt> which
+     * retrieved the specified <tt>videos</tt> from the <tt>CallPeer</tt>
+     * depicted by <tt>cpc</tt>. While the <tt>CallPeer</tt> could be queried
+     * for it, such a query would waste more resources at run time given that
+     * the invoker has it already. 
+     */
+    private void updateConferenceMemberContainers(
+            ConferenceParticipantContainer cpc,
+            List<Component> videos,
+            OperationSetVideoTelephony videoTelephony)
+    {
+        CallPeer callPeer = (CallPeer) cpc.getParticipant();
+        List<ConferenceParticipantContainer> cmcs
+            = cpc.conferenceMemberContainers;
+
+        /*
+         * Invalidate all conferenceMemberContainers. Then validate which of
+         * them are to remain and which of them are to really be removed
+         * later on.
+         */
+        if (cmcs != null)
+        {
+            for (ConferenceParticipantContainer cmc : cmcs)
+                cmc.toBeRemoved = true;
+        }
+
+        /*
+         * Depict the remote videos. They may or may not be associated with
+         * ConferenceMembers so the ConferenceMembers which have no
+         * associated videos will be depicted afterwards.
+         */
+        if (videos != null)
+        {
+            Component video = cpc.getVideo();
+
+            for (Component conferenceMemberVideo : videos)
+            {
+                /*
+                 * One of the remote videos is already used to depict the
+                 * callPeer.
+                 */
+                if (conferenceMemberVideo == video)
+                    continue;
+
+                boolean addNewConferenceParticipantContainer = true;
+                ConferenceMember conferenceMember
+                    = videoTelephony.getConferenceMember(
+                            callPeer,
+                            conferenceMemberVideo);
+
+                if (cmcs == null)
+                {
+                    cmcs = new LinkedList<ConferenceParticipantContainer>();
+                    cpc.conferenceMemberContainers = cmcs;
+                }
+                else
+                {
+                    for (ConferenceParticipantContainer cmc : cmcs)
+                    {
+                        Object cmcParticipant = cmc.getParticipant();
+
+                        if (conferenceMember == null)
+                        {
+                            if (cmcParticipant == callPeer)
+                            {
+                                Component cmcVideo = cmc.getVideo();
+
+                                if (cmcVideo == null)
+                                {
+                                    cmc.setVideo(conferenceMemberVideo);
+                                    cmc.toBeRemoved = false;
+                                    addNewConferenceParticipantContainer
+                                        = false;
+                                    break;
+                                }
+                                else if (cmcVideo == conferenceMemberVideo)
+                                {
+                                    cmc.toBeRemoved = false;
+                                    addNewConferenceParticipantContainer
+                                        = false;
+                                    break;
+                                }
+                            }
+                        }
+                        else if (cmcParticipant == conferenceMember)
+                        {
+                            cmc.setVideo(conferenceMemberVideo);
+                            cmc.toBeRemoved = false;
+                            addNewConferenceParticipantContainer = false;
+                            break;
+                        }
+                    }
+                }
+
+                if (addNewConferenceParticipantContainer)
+                {
+                    ConferenceParticipantContainer cmc
+                        = (conferenceMember == null)
+                            ? new ConferenceParticipantContainer(
+                                    callPeer,
+                                    conferenceMemberVideo)
+                            : new ConferenceParticipantContainer(
+                                    conferenceMember,
+                                    conferenceMemberVideo);
+
+                    cmcs.add(cmc);
+                }
+            }
+        }
+
+        /*
+         * Depict the ConferenceMembers which have not been depicted yet.
+         * They have no associated videos.
+         */
+        List<ConferenceMember> conferenceMembers
+            = callPeer.getConferenceMembers();
+
+        if (!conferenceMembers.isEmpty())
+        {
+            if (cmcs == null)
+            {
+                cmcs = new LinkedList<ConferenceParticipantContainer>();
+                cpc.conferenceMemberContainers = cmcs;
+            }
+            for (ConferenceMember conferenceMember : conferenceMembers)
+            {
+                /*
+                 * If the callPeer reports itself as a ConferenceMember, then
+                 * we've already depicted it with cpc.
+                 */
+                if (isConferenceMemberCallPeer(conferenceMember, callPeer))
+                    continue;
+                /*
+                 * If the callPeer reports the local peer/user as a
+                 * ConferenceMember, then we've already depicted it.
+                 */
+                if (isConferenceMemberLocalUser(conferenceMember))
+                    continue;
+
+                boolean addNewConferenceParticipantContainer = true;
+
+                for (ConferenceParticipantContainer cmc : cmcs)
+                {
+                    if (cmc.getParticipant() == conferenceMember)
+                    {
+                        if (cmc.toBeRemoved)
+                        {
+                            cmc.setVideo(null);
+                            cmc.toBeRemoved = false;
+                        }
+                        addNewConferenceParticipantContainer = false;
+                        break;
+                    }
+                }
+
+                if (addNewConferenceParticipantContainer)
+                {
+                    ConferenceParticipantContainer cmc
+                        = new ConferenceParticipantContainer(
+                                conferenceMember,
+                                null);
+
+                    cmcs.add(cmc);
+                }
+            }
+        }
+
+        if ((cmcs != null) && !cmcs.isEmpty())
+        {
+            removeConferenceMemberContainers(cpc, false);
+            /*
+             * If cpc is already added to the user interface hierarchy of this
+             * instance, then it was there before the update procedure and it
+             * was determined to be appropriate to continue to depict its model.
+             * Consequently, its Component will be neither added to (because it
+             * was already added) nor removed from the user interface hierarchy
+             * of this instance. That's why we have make sure that the
+             * Components of its conferenceMemberContainers are also added to
+             * the user interface.
+             */
+            if (UIVideoHandler2.isAncestor(this, cpc.getComponent()))
+                addConferenceMemberContainers(cpc);
+        }
+    }
+
+    @Override
+    protected ConferenceCallPeerRenderer updateViewFromModel(
+            ConferenceCallPeerRenderer callPeerPanel,
+            CallPeer callPeer)
+    {
+        if (callPeer == null)
+        {
+            /*
+             * The local peer/user will be represented by a Call which has a
+             * CallPeer which provides local video.
+             */
+            Component video = null;
+
+            for (Call aCall : callConference.getCalls())
+            {
+                Iterator<? extends CallPeer> callPeerIter
+                    = aCall.getCallPeers();
+                OperationSetVideoTelephony videoTelephony
+                    = aCall.getProtocolProvider().getOperationSet(
+                            OperationSetVideoTelephony.class);
+
+                while (callPeerIter.hasNext())
+                {
+                    callPeer = callPeerIter.next();
+
+                    /*
+                     * If there is no videoTelephony, no local video will be
+                     * available and we will represent the local peer/user with
+                     * the Call of the first CallPeer.
+                     */
+                    if (videoTelephony == null)
+                        break;
+
+                    try
+                    {
+                        video
+                            = videoTelephony.getLocalVisualComponent(callPeer);
+                    }
+                    catch (OperationFailedException ofe)
+                    {
+                        logger.error(
+                                "Failed to retrieve the local video"
+                                    + " for display",
+                                ofe);
+                    }
+                    if (video != null)
+                        break;
+                }
+
+                if (video != null)
+                    break;
+            }
+
+            if (callPeer == null)
+                callPeerPanel = null;
+            else
+            {
+                Call call = callPeer.getCall();
+
+                if (callPeerPanel instanceof ConferenceParticipantContainer)
+                {
+                    ConferenceParticipantContainer cpc
+                        = (ConferenceParticipantContainer) callPeerPanel;
+
+                    if (cpc.getParticipant() == call)
+                        cpc.setVideo(video);
+                    else
+                        callPeerPanel = null;
+                }
+                else
+                    callPeerPanel = null;
+                if (callPeerPanel == null)
+                {
+                    callPeerPanel
+                        = new ConferenceParticipantContainer(call, video);
+                }
+            }
+        }
+        else
+        {
+            /*
+             * The specified callPeer will be represented by one of its remote
+             * videos which is not associated with a ConferenceMember or is
+             * associated with a ConferenceMember representing the callPeer
+             * itself.
+             */
+            OperationSetVideoTelephony videoTelephony
+                = callPeer.getProtocolProvider().getOperationSet(
+                        OperationSetVideoTelephony.class);
+            List<Component> videos = null;
+            Component video = null;
+
+            if (videoTelephony != null)
+            {
+                videos = videoTelephony.getVisualComponents(callPeer);
+                if ((videos != null) && !videos.isEmpty())
+                {
+                    for (Component aVideo : videos)
+                    {
+                        ConferenceMember conferenceMember
+                            = videoTelephony.getConferenceMember(
+                                    callPeer,
+                                    aVideo);
+
+                        if (isConferenceMemberCallPeer(
+                                conferenceMember,
+                                callPeer))
+                        {
+                            video = aVideo;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            ConferenceParticipantContainer cpc = null;
+
+            if (callPeerPanel instanceof ConferenceParticipantContainer)
+            {
+                cpc = (ConferenceParticipantContainer) callPeerPanel;
+                if (cpc.getParticipant() == callPeer)
+                    cpc.setVideo(video);
+                else
+                    cpc = null;
+            }
+            if (cpc == null)
+                cpc = new ConferenceParticipantContainer(callPeer, video);
+            callPeerPanel = cpc;
+
+            // Update the conferenceMemberContainers of the cpc.
+            updateConferenceMemberContainers(cpc, videos, videoTelephony);
+        }
+        return callPeerPanel;
+    }
+
+    @Override
+    protected void viewForModelAdded(
+            ConferenceCallPeerRenderer callPeerPanel,
+            CallPeer callPeer)
+    {
+        videoContainer.add(
+                callPeerPanel.getComponent(),
+                VideoLayout.CENTER_REMOTE);
+        if ((callPeer != null)
+                && (callPeerPanel instanceof ConferenceParticipantContainer))
+        {
+            addConferenceMemberContainers(
+                    (ConferenceParticipantContainer) callPeerPanel);
+        }
+    }
+
+    @Override
+    protected void viewForModelRemoved(
+            ConferenceCallPeerRenderer callPeerPanel,
+            CallPeer callPeer)
+    {
+        videoContainer.remove(callPeerPanel.getComponent());
+        if ((callPeer != null)
+                && (callPeerPanel instanceof ConferenceParticipantContainer))
+        {
+            removeConferenceMemberContainers(
+                    (ConferenceParticipantContainer) callPeerPanel,
+                    true);
+        }
+    }
+
+    /**
+     * Implements an AWT <tt>Component</tt> which contains the user interface
+     * elements depicting a specific participant in the telephony conference
+     * depicted by a <tt>VideoConferenceCallPanel</tt>.
+     */
+    private class ConferenceParticipantContainer
+        extends TransparentPanel
+        implements ConferenceCallPeerRenderer
+    {
+        /**
+         * The list of <tt>ConferenceParticipantContainer</tt>s which represent
+         * the <tt>ConferenceMember</tt>s of the participant represented by this
+         * instance. Since a <tt>CallPeer</tt> may send the local peer/user
+         * multiple videos without providing a way to associate a
+         * ConferenceMember with each one of them, the list may contain
+         * <tt>ConferenceParticipantContainer</tt>s which do not represent a
+         * specific <tt>ConferenceMember</tt> instance but rather a video sent
+         * by a <tt>CallPeer</tt> to the local peer/user which looks like (in
+         * the terms of <tt>VideoConferenceCallPanel) a member of a conference
+         * organized by the <tt>CallPeer</tt> in question.
+         * <p>
+         * Implements a state which is private to
+         * <tt>VideoConferenceCallPanel</tt> and is of no concern to
+         * <tt>ConferenceParticipantContainer</tt>.
+         * </p>
+         */
+        List<ConferenceParticipantContainer> conferenceMemberContainers;
+
+        /**
+         * The indicator which determines whether this instance is to be removed
+         * because it has become out-of-date, obsolete, unnecessary.
+         * <p>
+         * Implements a state which is private to
+         * <tt>VideoConferenceCallPanel</tt> and is of no concern to
+         * <tt>ConferenceParticipantContainer</tt>.
+         * </p>
+         */
+        boolean toBeRemoved;
+
+        /**
+         * The <tt>BasicConferenceParticipantPanel</tt> which is displayed at
+         * the bottom of this instance, bellow the {@link #video} (i.e.
+         * {@link #videoContainer}) and is referred to as the tool bar.
+         */
+        private final BasicConferenceParticipantPanel<?> toolBar;
+
+        /**
+         * The visual <tt>Component</tt>, if any, displaying video which is
+         * depicted by this instance.
+         */
+        private Component video;
+
+        /**
+         * The <tt>VideoContainer</tt> which lays out the video depicted by this
+         * instance i.e. {@link #video}.
+         */
+        private final VideoContainer videoContainer;
+
+        /**
+         * Initializes a new <tt>ConferenceParticipantContainer</tt> instance
+         * which is to depict the local peer/user.
+         *
+         * @param call a <tt>Call</tt> which is to provide information about the
+         * local peer/user
+         * @param video the visual <tt>Component</tt>, if any, displaying the
+         * video streaming from the local peer/user to the remote peer(s)
+         */
+        public ConferenceParticipantContainer(Call call, Component video)
+        {
+            this(
+                    createDefaultPhotoPanel(call),
+                    video,
+                    new ConferencePeerPanel(
+                            VideoConferenceCallPanel.this,
+                            call,
+                            true));
+        }
+
+        public ConferenceParticipantContainer(
+                CallPeer callPeer,
+                Component video)
+        {
+            this(
+                    createDefaultPhotoPanel(callPeer),
+                    video,
+                    new ConferencePeerPanel(
+                            VideoConferenceCallPanel.this,
+                            callPeer,
+                            true));
+        }
+
+        private ConferenceParticipantContainer(
+                Component noVideo,
+                Component video,
+                BasicConferenceParticipantPanel<?> toolBar)
+        {
+            super(new BorderLayout());
+
+            videoContainer = new VideoContainer(noVideo, false);
+            add(videoContainer, BorderLayout.CENTER);
+
+            this.toolBar = toolBar;
+            if (this.toolBar != null)
+                add(this.toolBar, BorderLayout.SOUTH);
+
+            if (video != null)
+                setVideo(video);
+        }
+
+        public ConferenceParticipantContainer(
+                ConferenceMember conferenceMember,
+                Component video)
+        {
+            this(
+                    createDefaultPhotoPanel(conferenceMember),
+                    video,
+                    new ConferenceMemberPanel(
+                            VideoConferenceCallPanel.this,
+                            conferenceMember,
+                            true));
+        }
+
+        public void dispose()
+        {
+            ConferenceCallPeerRenderer delegate
+                = getConferenceCallPeerRendererDelegate();
+
+            if (delegate != null)
+                delegate.dispose();
+
+            // Dispose of the conferenceMemberContainers if any.
+            /*
+             * XXX The field conferenceMemberContainers implements a state
+             * private to VideoConferenceCallPanel which the latter makes sure
+             * to access on the AWT event dispatching thread only. Since we are
+             * going out of our way here to help VideoConferenceCallPanel,
+             * ensure that the mentioned synchronization rule is not violated.
+             */
+            CallManager.assertIsEventDispatchingThread();
+            if (conferenceMemberContainers != null)
+            {
+                for (ConferenceParticipantContainer cmc
+                        : conferenceMemberContainers)
+                {
+                    cmc.dispose();
+                }
+            }
+        }
+
+        public CallPanel getCallPanel()
+        {
+            return getCallRenderer().getCallContainer();
+        }
+
+        public CallRenderer getCallRenderer()
+        {
+            return VideoConferenceCallPanel.this;
+        }
+
+        public Component getComponent()
+        {
+            return this;
+        }
+
+        private ConferenceCallPeerRenderer
+            getConferenceCallPeerRendererDelegate()
+        {
+            return
+                (toolBar instanceof ConferenceCallPeerRenderer)
+                    ? (ConferenceCallPeerRenderer) toolBar
+                    : null;
+        }
+
+        /**
+         * Gets the conference participant depicted by this instance.
+         *
+         * @return the conference participant depicted by this instance
+         */
+        public Object getParticipant()
+        {
+            return (toolBar == null) ? null : toolBar.getParticipant();
+        }
+
+        public Component getVideo()
+        {
+            return video;
+        }
+
+        /**
+         * {@inheritDoc}
+         *
+         * Delegates to the <tt>toolBar</tt>, if the latter implements
+         * <tt>ConferenceCallPeerRenderer</tt>, because this instance is a
+         * container only. Otherwise, returns <tt>false</tt>.
+         */
+        public boolean isLocalVideoVisible()
+        {
+            ConferenceCallPeerRenderer delegate
+                = getConferenceCallPeerRendererDelegate();
+
+            return (delegate == null) ? false : delegate.isLocalVideoVisible();
+        }
+
+        /**
+         * {@inheritDoc}
+         *
+         * Delegates to the <tt>toolBar</tt>, if the latter implements
+         * <tt>ConferenceCallPeerRenderer</tt>, because this instance is a
+         * container only.
+         */
+        public void printDTMFTone(char dtmfChar)
+        {
+            ConferenceCallPeerRenderer delegate
+                = getConferenceCallPeerRendererDelegate();
+
+            if (delegate != null)
+                delegate.printDTMFTone(dtmfChar);
+        }
+
+        /**
+         * {@inheritDoc}
+         *
+         * Delegates to the <tt>toolBar</tt>, if the latter implements
+         * <tt>ConferenceCallPeerRenderer</tt>, because this instance is a
+         * container only.
+         */
+        public void securityNegotiationStarted(
+                CallPeerSecurityNegotiationStartedEvent ev)
+        {
+            ConferenceCallPeerRenderer delegate
+                = getConferenceCallPeerRendererDelegate();
+
+            if (delegate != null)
+                delegate.securityNegotiationStarted(ev);
+        }
+
+        /**
+         * {@inheritDoc}
+         *
+         * Delegates to the <tt>toolBar</tt>, if the latter implements
+         * <tt>ConferenceCallPeerRenderer</tt>, because this instance is a
+         * container only.
+         */
+        public void securityOff(CallPeerSecurityOffEvent ev)
+        {
+            ConferenceCallPeerRenderer delegate
+                = getConferenceCallPeerRendererDelegate();
+
+            if (delegate != null)
+                delegate.securityOff(ev);
+        }
+
+        /**
+         * {@inheritDoc}
+         *
+         * Delegates to the <tt>toolBar</tt>, if the latter implements
+         * <tt>ConferenceCallPeerRenderer</tt>, because this instance is a
+         * container only.
+         */
+        public void securityOn(CallPeerSecurityOnEvent ev)
+        {
+            ConferenceCallPeerRenderer delegate
+                = getConferenceCallPeerRendererDelegate();
+
+            if (delegate != null)
+                delegate.securityOn(ev);
+        }
+
+        /**
+         * {@inheritDoc}
+         *
+         * Delegates to the <tt>toolBar</tt>, if the latter implements
+         * <tt>ConferenceCallPeerRenderer</tt>, because this instance is a
+         * container only.
+         */
+        public void securityPending()
+        {
+            ConferenceCallPeerRenderer delegate
+                = getConferenceCallPeerRendererDelegate();
+
+            if (delegate != null)
+                delegate.securityPending();
+        }
+
+        /**
+         * {@inheritDoc}
+         *
+         * Delegates to the <tt>toolBar</tt>, if the latter implements
+         * <tt>ConferenceCallPeerRenderer</tt>, because this instance is a
+         * container only.
+         */
+        public void securityTimeout(CallPeerSecurityTimeoutEvent ev)
+        {
+            ConferenceCallPeerRenderer delegate
+                = getConferenceCallPeerRendererDelegate();
+
+            if (delegate != null)
+                delegate.securityTimeout(ev);
+        }
+
+        /**
+         * {@inheritDoc}
+         *
+         * Delegates to the <tt>toolBar</tt>, if the latter implements
+         * <tt>ConferenceCallPeerRenderer</tt>, because this instance is a
+         * container only.
+         */
+        public void setErrorReason(String reason)
+        {
+            ConferenceCallPeerRenderer delegate
+                = getConferenceCallPeerRendererDelegate();
+
+            if (delegate != null)
+                delegate.setErrorReason(reason);
+        }
+
+        /**
+         * {@inheritDoc}
+         *
+         * Delegates to the <tt>toolBar</tt>, if the latter implements
+         * <tt>ConferenceCallPeerRenderer</tt>, because this instance is a
+         * container only.
+         */
+        public void setLocalVideoVisible(boolean visible)
+        {
+            ConferenceCallPeerRenderer delegate
+                = getConferenceCallPeerRendererDelegate();
+
+            if (delegate != null)
+                delegate.setLocalVideoVisible(visible);
+        }
+
+        /**
+         * {@inheritDoc}
+         *
+         * Delegates to the <tt>toolBar</tt>, if the latter implements
+         * <tt>ConferenceCallPeerRenderer</tt>, because this instance is a
+         * container only.
+         */
+        public void setMute(boolean mute)
+        {
+            ConferenceCallPeerRenderer delegate
+                = getConferenceCallPeerRendererDelegate();
+
+            if (delegate != null)
+                delegate.setMute(mute);
+        }
+
+        /**
+         * {@inheritDoc}
+         *
+         * Delegates to the <tt>toolBar</tt>, if the latter implements
+         * <tt>ConferenceCallPeerRenderer</tt>, because this instance is a
+         * container only.
+         */
+        public void setOnHold(boolean onHold)
+        {
+            ConferenceCallPeerRenderer delegate
+                = getConferenceCallPeerRendererDelegate();
+
+            if (delegate != null)
+                delegate.setOnHold(onHold);
+        }
+
+        /**
+         * {@inheritDoc}
+         *
+         * Delegates to the <tt>toolBar</tt>, if the latter implements
+         * <tt>ConferenceCallPeerRenderer</tt>, because this instance is a
+         * container only.
+         */
+        public void setPeerImage(byte[] image)
+        {
+            ConferenceCallPeerRenderer delegate
+                = getConferenceCallPeerRendererDelegate();
+
+            if (delegate != null)
+                delegate.setPeerImage(image);
+        }
+
+        /**
+         * {@inheritDoc}
+         *
+         * Delegates to the <tt>toolBar</tt>, if the latter implements
+         * <tt>ConferenceCallPeerRenderer</tt>, because this instance is a
+         * container only.
+         */
+        public void setPeerName(String name)
+        {
+            ConferenceCallPeerRenderer delegate
+                = getConferenceCallPeerRendererDelegate();
+
+            if (delegate != null)
+                delegate.setPeerName(name);
+        }
+
+        /**
+         * {@inheritDoc}
+         *
+         * Delegates to the <tt>toolBar</tt>, if the latter implements
+         * <tt>ConferenceCallPeerRenderer</tt>, because this instance is a
+         * container only.
+         */
+        public void setPeerState(
+                CallPeerState oldState,
+                CallPeerState newState,
+                String stateString)
+        {
+            ConferenceCallPeerRenderer delegate
+                = getConferenceCallPeerRendererDelegate();
+
+            if (delegate != null)
+                delegate.setPeerState(oldState, newState, stateString);
+        }
+
+        /**
+         * {@inheritDoc}
+         *
+         * Delegates to the <tt>toolBar</tt>, if the latter implements
+         * <tt>ConferenceCallPeerRenderer</tt>, because this instance is a
+         * container only.
+         */
+        public void setSecurityPanelVisible(boolean visible)
+        {
+            ConferenceCallPeerRenderer delegate
+                = getConferenceCallPeerRendererDelegate();
+
+            if (delegate != null)
+                delegate.setSecurityPanelVisible(visible);
+        }
+
+        /**
+         * Sets the visual <tt>Component</tt> displaying the video associated
+         * with the participant depicted by this instance.
+         *
+         * @param video the visual <tt>Component</tt> displaying video which is
+         * to be associated with the participant depicted by this instance 
+         */
+        void setVideo(Component video)
+        {
+            if (this.video != video)
+            {
+                if (this.video != null)
+                    videoContainer.remove(this.video);
+
+                this.video = video;
+
+                if (this.video != null)
+                    videoContainer.add(this.video, VideoLayout.CENTER_REMOTE);
+            }
+        }
     }
 }

@@ -18,12 +18,6 @@ public class CoinIQ
     extends IQ
 {
     /**
-     * The namespace that coin belongs to.
-     */
-    public static final String NAMESPACE =
-        "urn:ietf:params:xml:ns:conference-info";
-
-    /**
      * The name of the element that contains the coin data.
      */
     public static final String ELEMENT_NAME = "conference-info";
@@ -34,14 +28,10 @@ public class CoinIQ
     public static final String ENTITY_ATTR_NAME = "entity";
 
     /**
-     * Version attribute name.
+     * The namespace that coin belongs to.
      */
-    public static final String VERSION_ATTR_NAME = "version";
-
-    /**
-     * Version attribute name.
-     */
-    public static final String STATE_ATTR_NAME = "state";
+    public static final String NAMESPACE =
+        "urn:ietf:params:xml:ns:conference-info";
 
     /**
      * Jingle session ID attribute name.
@@ -49,9 +39,14 @@ public class CoinIQ
     public static final String SID_ATTR_NAME = "sid";
 
     /**
-     * Version.
+     * Version attribute name.
      */
-    private int version = 0;
+    public static final String STATE_ATTR_NAME = "state";
+
+    /**
+     * Version attribute name.
+     */
+    public static final String VERSION_ATTR_NAME = "version";
 
     /**
      * Entity name.
@@ -59,73 +54,51 @@ public class CoinIQ
     private String entity = null;
 
     /**
-     * State.
-     */
-    private StateType state = StateType.full;
-
-    /**
      * Jingle session ID.
      */
     private String sid = null;
 
     /**
-     * Get version.
-     *
-     * @return version
+     * State.
      */
-    public int getVersion()
-    {
-        return version;
-    }
+    private StateType state = StateType.full;
 
     /**
-     * Get state.
-     *
-     * @return state
+     * Version.
      */
-    public StateType getState()
-    {
-        return state;
-    }
+    private int version = 0;
 
     /**
-     * Get session ID.
+     * Returns the XML string of this Jingle IQ's "section" sub-element.
      *
-     * @return session ID
+     * Extensions of this class must override this method.
+     *
+     * @return the child element section of the IQ XML.
      */
-    public String getSID()
+    public String getChildElementXML()
     {
-        return sid;
-    }
+        StringBuilder bldr = new StringBuilder("<");
 
-    /**
-     * Set version.
-     *
-     * @param version version
-     */
-    public void setVersion(int version)
-    {
-        this.version = version;
-    }
+        bldr.append(ELEMENT_NAME);
+        bldr.append(" xmlns='").append(NAMESPACE).append("'");
+        bldr.append(" state='").append(state).append("'");
+        bldr.append(" entity='").append(entity).append("'");
+        bldr.append(" version='").append(version).append("'");
 
-    /**
-     * Set state.
-     *
-     * @param state state to set
-     */
-    public void setState(StateType state)
-    {
-        this.state = state;
-    }
+        if(sid != null)
+            bldr.append(" sid='").append(sid).append("'");
 
-    /**
-     * Set session ID.
-     *
-     * @param sid session ID to set
-     */
-    public void setSID(String sid)
-    {
-        this.sid = sid;
+        if(getExtensions().size() == 0)
+            bldr.append("/>");
+        else
+        {
+            bldr.append(">");
+            for(PacketExtension pe : getExtensions())
+                bldr.append(pe.toXML());
+            bldr.append("</").append(ELEMENT_NAME).append(">");
+        }
+
+        return bldr.toString();
     }
 
     /**
@@ -139,6 +112,36 @@ public class CoinIQ
     }
 
     /**
+     * Get session ID.
+     *
+     * @return session ID
+     */
+    public String getSID()
+    {
+        return sid;
+    }
+
+    /**
+     * Get state.
+     *
+     * @return state
+     */
+    public StateType getState()
+    {
+        return state;
+    }
+
+    /**
+     * Get version.
+     *
+     * @return version
+     */
+    public int getVersion()
+    {
+        return version;
+    }
+
+    /**
      * Set entity.
      *
      * @param entity entity
@@ -149,42 +152,32 @@ public class CoinIQ
     }
 
     /**
-     * Returns the XML string of this Jingle IQ's "section" sub-element.
+     * Set session ID.
      *
-     * Extensions of this class must override this method.
-     *
-     * @return the child element section of the IQ XML.
+     * @param sid session ID to set
      */
-    @Override
-    public String getChildElementXML()
+    public void setSID(String sid)
     {
-        StringBuilder bldr = new StringBuilder("<");
+        this.sid = sid;
+    }
 
-        bldr.append(ELEMENT_NAME);
-        bldr.append(" xmlns='" + NAMESPACE + "'");
-        bldr.append(" state='" + state + "'");
-        bldr.append(" entity='" + entity + "'");
-        bldr.append(" version='" + version + "'");
+    /**
+     * Set state.
+     *
+     * @param state state to set
+     */
+    public void setState(StateType state)
+    {
+        this.state = state;
+    }
 
-        if(sid != null)
-        {
-            bldr.append(" sid='" + sid + "'");
-        }
-
-        if(getExtensions().size() == 0)
-        {
-            bldr.append("/>");
-        }
-        else
-        {
-            bldr.append(">");
-            for(PacketExtension pe : getExtensions())
-            {
-                bldr.append(pe.toXML());
-            }
-            bldr.append("</").append(ELEMENT_NAME).append(">");
-        }
-
-        return bldr.toString();
+    /**
+     * Set version.
+     *
+     * @param version version
+     */
+    public void setVersion(int version)
+    {
+        this.version = version;
     }
 }

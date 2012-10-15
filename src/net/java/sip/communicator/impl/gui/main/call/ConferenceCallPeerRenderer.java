@@ -6,28 +6,13 @@
  */
 package net.java.sip.communicator.impl.gui.main.call;
 
-import net.java.sip.communicator.service.protocol.event.*;
-
 /**
  * The conference peer renderer.
  *
  * @author Yana Stamcheva
+ * @author Lyubomir Marinov
  */
 public interface ConferenceCallPeerRenderer
     extends CallPeerRenderer
 {
-    /**
-     * Returns the associated sound level listener.
-     *
-     * @return the associated sound level listener
-     */
-    public ConferenceMembersSoundLevelListener
-        getConferenceMembersSoundLevelListener();
-
-    /**
-     * Returns the stream sound level listener.
-     *
-     * @return the stream sound level listener
-     */
-    public SoundLevelListener getStreamSoundLevelListener();
 }

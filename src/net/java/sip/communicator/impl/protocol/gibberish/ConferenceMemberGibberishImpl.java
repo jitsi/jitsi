@@ -10,6 +10,7 @@ import net.java.sip.communicator.service.protocol.*;
 
 /**
  * A Gibberish implementation of the <tt>ConferenceMember</tt> interface.
+ *
  * @author Yana Stamcheva
  */
 public class ConferenceMemberGibberishImpl
@@ -21,8 +22,9 @@ public class ConferenceMemberGibberishImpl
      * @param conferenceFocusCallPeer the parent call peer
      * @param address the protocol address of the member
      */
-    public ConferenceMemberGibberishImpl(   CallPeer conferenceFocusCallPeer,
-                                            String address)
+    public ConferenceMemberGibberishImpl(
+            CallPeer conferenceFocusCallPeer,
+            String address)
     {
         super(conferenceFocusCallPeer, address);
     }

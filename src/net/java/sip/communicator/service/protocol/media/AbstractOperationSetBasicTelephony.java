@@ -120,7 +120,7 @@ public abstract class AbstractOperationSetBasicTelephony
      */
     public void fireCallEvent(int eventID, Call sourceCall)
     {
-        this.fireCallEvent(eventID, sourceCall, null);
+        fireCallEvent(eventID, sourceCall, null);
     }
 
     /**
@@ -137,11 +137,7 @@ public abstract class AbstractOperationSetBasicTelephony
             Call sourceCall,
             Map<MediaType, MediaDirection> mediaDirections)
     {
-        CallEvent event = new CallEvent(sourceCall, eventID);
-
-        if (mediaDirections != null)
-            event.setMediaDirections(mediaDirections);
-
+        CallEvent event = new CallEvent(sourceCall, eventID, mediaDirections);
         List<CallListener> listeners;
 
         synchronized (callListeners)

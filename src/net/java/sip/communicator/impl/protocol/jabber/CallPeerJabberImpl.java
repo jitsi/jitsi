@@ -511,7 +511,7 @@ public class CallPeerJabberImpl
                 = mediaHandler.getStream(MediaType.VIDEO);
 
             if ((newVideoStream != null)
-                    && mediaHandler.isRTPTranslationEnabled())
+                    && mediaHandler.isRTPTranslationEnabled(MediaType.VIDEO))
             {
                 try
                 {
@@ -1015,7 +1015,7 @@ public class CallPeerJabberImpl
          * remove content and should rather add/modify content in order to
          * perform RTP translation.
          */
-        if (!allowed && mediaHandler.isRTPTranslationEnabled())
+        if (!allowed && mediaHandler.isRTPTranslationEnabled(MediaType.VIDEO))
             allowed = true;
 
         ContentPacketExtension remoteContent

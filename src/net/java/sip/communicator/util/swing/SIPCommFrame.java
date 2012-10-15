@@ -571,17 +571,19 @@ public class SIPCommFrame
     }
 
     /**
-     * Overwrites the dispose method in order to save the size and the position
-     * of this window before closing it.
+     * {@inheritDoc}
+     *
+     * Overwrites the super's <tt>dispose</tt> method in order to save the size
+     * and the position of this <tt>Window</tt> before closing it.
      */
     @Override
     public void dispose()
     {
         if (isSaveSizeAndLocation)
-            this.saveSizeAndLocation();
+            saveSizeAndLocation();
 
         /*
-         * The keybinding service will outlive us so don't let us retain our
+         * The KeybindingsService will outlive us so don't let us retain our
          * memory.
          */
         if (bindings != null)

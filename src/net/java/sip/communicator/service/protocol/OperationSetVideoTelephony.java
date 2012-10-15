@@ -11,8 +11,6 @@ import java.beans.*;
 import java.text.*;
 import java.util.List;
 
-import net.java.sip.communicator.service.protocol.event.*;
-
 import org.jitsi.service.neomedia.*;
 import org.jitsi.util.event.*;
 
@@ -265,46 +263,21 @@ public interface OperationSetVideoTelephony
     public QualityControl getQualityControl(CallPeer peer);
 
     /**
-     * Adds a specific <tt>VisualComponentResolveListener</tt> to this telephony
-     * in order to receive notifications when visual/video <tt>Component</tt>s
-     * are being resolved to correspond to a particular
-     * <tt>ConferenceMember</tt>.
-     *
-     * @param callPeer the <tt>CallPeer</tt>, which visual components we're
-     * listening to
-     * @param listener the <tt>VisualComponentResolveListener</tt> to be
-     * notified when visual/video <tt>Component</tt>s are being resolved to
-     * correspond to a particular <tt>ConferenceMember</tt>.
-     */
-    public void addVisualComponentResolveListener(
-        CallPeer callPeer,
-        VisualComponentResolveListener listener);
-
-    /**
-     * Removes a <tt>VisualComponentResolveListener</tt> from this video
-     * telephony operation set, which was previously added in order to receive
-     * notifications when visual/video <tt>Component</tt>s are being resolved to
-     * be corresponding to a particular <tt>ConferenceMember</tt>.
-     *
-     * @param callPeer the <tt>CallPeer</tt>, which visual components we're
-     * listening to
-     * @param listener the <tt>VisualComponentResolveListener</tt> to be
-     * removed
-     */
-    public void removeVisualComponentResolveListener(
-        CallPeer callPeer,
-        VisualComponentResolveListener listener);
-
-    /**
-     * Returns the <tt>ConferenceMember</tt> corresponding to the given
-     * <tt>visualComponent</tt>.
+     * Determines the <tt>ConferenceMember</tt> which is participating in a
+     * telephony conference with a specific <tt>CallPeer</tt> as its focus and
+     * which is sending a video content/RTP stream displayed in a specific
+     * visual <tt>Component</tt>.
      * 
-     * @param peer the parent <tt>CallPeer</tt>
-     * @param visualComponent the visual <tt>Component</tt>, which corresponding
-     * <tt>ConferenceMember</tt> we're looking for
-     * @return the <tt>ConferenceMember</tt> corresponding to the given
-     * <tt>visualComponent</tt>.
+     * @param peer the <tt>CallPeer</tt> which is the conference focus of the
+     * telephony conference to be examined in order to locate the
+     * <tt>ConferenceMember</tt> which is sending the video content/RTP stream
+     * displayed in the specified <tt>visualComponent</tt>
+     * @param visualComponent the visual <tt>Component</tt> which displays the
+     * video content/RTP stream of the <tt>ConferenceMember</tt> to be located
+     * @return the <tt>ConferenceMember</tt>, if any, which is sending the video
+     * content/RTP stream displayed in the specific <tt>visualComponent</tt>
      */
-    public ConferenceMember getConferenceMember(CallPeer peer,
-                                                Component visualComponent);
+    public ConferenceMember getConferenceMember(
+            CallPeer peer,
+            Component visualComponent);
 }

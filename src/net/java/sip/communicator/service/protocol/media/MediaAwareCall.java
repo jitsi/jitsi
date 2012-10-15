@@ -127,7 +127,7 @@ public abstract class MediaAwareCall<
      */
     protected void addCallPeer(T callPeer)
     {
-        if (getCallPeersVector().contains(callPeer))
+        if (!doAddCallPeer(callPeer))
             return;
 
         callPeer.addCallPeerListener(this);
@@ -135,17 +135,17 @@ public abstract class MediaAwareCall<
         synchronized(localUserAudioLevelListenersSyncRoot)
         {
             // if there's someone listening for audio level events then they'd
-            // also like to know about the new peer.
-            // make sure always the fisrt element is the one to listen
-            // for local audio events
-            if(getCallPeersVector().isEmpty())
+            // also like to know about the new peer. make sure always the first
+            // element is the one to listen for local audio events
+            List<T> callPeers = getCallPeerList();
+
+            if ((callPeers.size() == 1) && callPeers.get(0).equals(callPeer))
             {
                 callPeer.getMediaHandler().setLocalUserAudioLevelListener(
                         localAudioLevelDelegator);
             }
         }
 
-        getCallPeersVector().add(callPeer);
         fireCallPeerEvent(callPeer, CallPeerEvent.CALL_PEER_ADDED);
     }
 
@@ -161,14 +161,11 @@ public abstract class MediaAwareCall<
     @SuppressWarnings("unchecked")
     private void removeCallPeer(CallPeerChangeEvent evt)
     {
-        T callPeer = (T)evt.getSourceCallPeer();
+        T callPeer = (T) evt.getSourceCallPeer();
 
-        if (!getCallPeersVector().contains(callPeer))
+        if (!doRemoveCallPeer(callPeer))
             return;
 
-        int elementPeerIx = getCallPeersVector().indexOf(callPeer);
-
-        getCallPeersVector().remove(callPeer);
         callPeer.removeCallPeerListener(this);
 
         synchronized (localUserAudioLevelListenersSyncRoot)
@@ -179,10 +176,13 @@ public abstract class MediaAwareCall<
             // if there are more peers and the peer was the first, the one
             // that listens for local levels, now lets make sure
             // the new first will listen for local level events
-            if(!getCallPeersVector().isEmpty() && (elementPeerIx == 0))
+            List<T> callPeers = getCallPeerList();
+
+            if(!callPeers.isEmpty())
             {
-                getCallPeersVector().firstElement().getMediaHandler()
-                    .setLocalUserAudioLevelListener(localAudioLevelDelegator);
+                callPeers.get(0).getMediaHandler()
+                        .setLocalUserAudioLevelListener(
+                                localAudioLevelDelegator);
             }
         }
 
@@ -199,7 +199,7 @@ public abstract class MediaAwareCall<
             callPeer.setCall(null);
         }
 
-        if (getCallPeersVector().isEmpty())
+        if (getCallPeerCount() == 0)
             setCallState(CallState.CALL_ENDED, evt);
     }
 

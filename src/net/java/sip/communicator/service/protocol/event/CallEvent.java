@@ -22,9 +22,10 @@ public class CallEvent
     extends EventObject
 {
     /**
-     * Serial version UID.
+     * An event id value indicating that this event has been triggered as a
+     * result of a call being ended (all its peers have left).
      */
-    private static final long serialVersionUID = 0L;
+    public static final int CALL_ENDED  = 3;
 
     /**
      * An event id value indicating that this event has been triggered as a
@@ -39,10 +40,9 @@ public class CallEvent
     public static final int CALL_RECEIVED  = 2;
 
     /**
-     * An event id value indicating that this event has been triggered as a
-     * result of a call being ended (all its peers have left).
+     * Serial version UID.
      */
-    public static final int CALL_ENDED  = 3;
+    private static final long serialVersionUID = 0L;
 
     /**
      * Determines whether this event has been fired to indicate an incoming or
@@ -54,8 +54,7 @@ public class CallEvent
      * The media types supported by this call, if information is
      * available.
      */
-    private Map<MediaType, MediaDirection> mediaDirections = new
-        HashMap<MediaType, MediaDirection>();
+    private final Map<MediaType, MediaDirection> mediaDirections;
 
     /**
      * Creates an event instance indicating that an incoming/outgoing call
@@ -67,18 +66,36 @@ public class CallEvent
      */
     public CallEvent(Call call, int eventID)
     {
-        super(call);
-        this.eventID = eventID;
+        this(call, eventID, null);
     }
 
     /**
-     * Returns the <tt>Call</tt> that trigered this event.
+     * Initializes a new <tt>CallEvent</tt> instance which is to represent an
+     * event fired by a specific <tt>Call</tt> as its source.
      *
-     * @return the <tt>Call</tt> that trigered this event.
+     * @param call the <tt>Call</tt> which will fire the new instance
+     * @param eventID the indicator which determines whether the new instance
+     * will represent an event notifying that an incoming <tt>Call</tt> was
+     * received, an outgoing <tt>Call</tt> was initiated, or a <tt>Call</tt>
+     * ended
+     * @param mediaDirections
      */
-    public Call getSourceCall()
+    public CallEvent(
+            Call call,
+            int eventID,
+            Map<MediaType, MediaDirection> mediaDirections)
     {
-        return (Call)getSource();
+        super(call);
+
+        this.eventID = eventID;
+
+        /* Make  */
+        Map<MediaType, MediaDirection> thisMediaDirections
+            = new HashMap<MediaType, MediaDirection>();
+
+        if (mediaDirections != null)
+            thisMediaDirections.putAll(mediaDirections);
+        this.mediaDirections = Collections.unmodifiableMap(thisMediaDirections);
     }
 
     /**
@@ -93,14 +110,12 @@ public class CallEvent
     }
 
     /**
-     * Returns a String representation of this CallEvent.
-     *
-     * @return  A a String representation of this CallEvent.
+     * Return the media directions map
+     * @return the supported media direction map of current call.
      */
-    public String toString()
+    public Map<MediaType, MediaDirection> getMediaDirections()
     {
-        return "CallEvent:[ id=" + getEventID()
-            + " Call=" + getSourceCall() + "]";
+        return mediaDirections;
     }
 
     /**
@@ -115,22 +130,13 @@ public class CallEvent
     }
 
     /**
-     * Return the media directions map
-     * @return the supported media direction map of current call.
+     * Returns the <tt>Call</tt> that triggered this event.
+     *
+     * @return the <tt>Call</tt> that triggered this event.
      */
-    public Map<MediaType, MediaDirection> getMediaDirections()
+    public Call getSourceCall()
     {
-        return mediaDirections;
-    }
-
-    /**
-     * Update media types for the event.
-     * @param mediaDirections the new media types.
-     */
-    public void setMediaDirections(
-        Map<MediaType, MediaDirection> mediaDirections)
-    {
-        this.mediaDirections = mediaDirections;
+        return (Call)getSource();
     }
 
     /**
@@ -140,14 +146,23 @@ public class CallEvent
      */
     public boolean isVideoCall()
     {
-        MediaDirection direction = mediaDirections.get(
-            MediaType.VIDEO);
+        MediaDirection direction = mediaDirections.get(MediaType.VIDEO);
 
-        if(direction != null)
-        {
-            return direction == MediaDirection.SENDRECV;
-        }
+        return
+            (direction == null)
+                ? false
+                : (direction == MediaDirection.SENDRECV);
+    }
 
-        return false;
+    /**
+     * Returns a String representation of this CallEvent.
+     *
+     * @return  A a String representation of this CallEvent.
+     */
+    @Override
+    public String toString()
+    {
+        return
+            "CallEvent:[ id=" + getEventID() + " Call=" + getSourceCall() + "]";
     }
 }

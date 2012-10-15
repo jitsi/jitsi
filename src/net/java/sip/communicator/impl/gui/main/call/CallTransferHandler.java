@@ -23,9 +23,10 @@ import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
- * A TransferHandler that we use to handle dropping of <tt>UIContact</tt>s or
- * simple string addresses to an existing <tt>Call</tt>. Dropping of a such data
- * in the <tt>CallDialog</tt> would result in the creation of a call conference.
+ * A <tt>TransferHandler</tt> that handles dropping of <tt>UIContact</tt>s or
+ * <tt>String</tt> addresses on a <tt>CallConference</tt>. Dropping such data on
+ * the <tt>CallDialog</tt> will turn a one-to-one <tt>Call</tt> into a telephony
+ * conference.
  *
  * @author Yana Stamcheva
  */
@@ -50,18 +51,34 @@ public class CallTransferHandler
         = Logger.getLogger(CallTransferHandler.class);
 
     /**
-     * The call corresponding to the transfer.
+     * The <tt>CallConference</tt> into which the dropped callees are to be
+     * invited.
      */
-    private final Call call;
+    private final CallConference callConference;
 
     /**
-     * Creates an instance of <tt>CallTransferHandler</tt> by specifying the
-     * <tt>call</tt>, to which dragged callees will be added.
-     * @param call the call to which the dragged callees will be added
+     * Initializes a new <tt>CallTransferHandler</tt> instance which is to
+     * invite dropped callees to a telephony conference specified by a specific
+     * <tt>Call</tt> which participates in it.
+     *
+     * @param call the <tt>Call</tt> which specifies the telephony conference to
+     * which dropped callees are to be invited
      */
     public CallTransferHandler(Call call)
     {
-        this.call = call;
+        this(call.getConference());
+    }
+
+    /**
+     * Initializes a new <tt>CallTransferHandler</tt> instance which is to
+     * invite dropped callees to a specific <tt>CallConference</tt>.
+     *
+     * @param callConference the <tt>CallConference</tt> to which dropped
+     * callees are to be invited
+     */
+    public CallTransferHandler(CallConference callConference)
+    {
+        this.callConference = callConference;
     }
 
     /**
@@ -76,22 +93,16 @@ public class CallTransferHandler
      * otherwise
      * @throws NullPointerException if <code>support</code> is {@code null}
      */
-    public boolean canImport(JComponent comp, DataFlavor flavor[])
+    public boolean canImport(JComponent comp, DataFlavor[] flavor)
     {
-        for (int i = 0, n = flavor.length; i < n; i++)
+        for (DataFlavor f : flavor)
         {
-            if (flavor[i].equals(DataFlavor.stringFlavor)
-                || flavor[i].equals(uiContactDataFlavor))
+            if (f.equals(DataFlavor.stringFlavor)
+                    || f.equals(uiContactDataFlavor))
             {
-                if (comp instanceof JPanel)
-                {
-                    return true;
-                }
-
-                return false;
+                return (comp instanceof JPanel);
             }
         }
-
         return false;
     }
 
@@ -107,6 +118,9 @@ public class CallTransferHandler
      */
     public boolean importData(JComponent comp, Transferable t)
     {
+        String callee = null;
+        ProtocolProviderService provider = null;
+
         if (t.isDataFlavorSupported(uiContactDataFlavor))
         {
             Object o = null;
@@ -128,29 +142,21 @@ public class CallTransferHandler
 
             if (o instanceof ContactNode)
             {
-                UIContact uiContact
-                    = ((ContactNode) o).getContactDescriptor();
-
-                ProtocolProviderService callProvider
-                    = call.getProtocolProvider();
-
+                UIContact uiContact = ((ContactNode) o).getContactDescriptor();
                 Iterator<UIContactDetail> contactDetails
-                    = uiContact.getContactDetailsForOperationSet(
-                        OperationSetBasicTelephony.class).iterator();
-
-                String callee = null;
-                ProtocolProviderService provider = null;
+                    = uiContact
+                        .getContactDetailsForOperationSet(
+                                OperationSetBasicTelephony.class)
+                            .iterator();
 
                 while (contactDetails.hasNext())
                 {
                     UIContactDetail detail = contactDetails.next();
-
                     ProtocolProviderService detailProvider
                         = detail.getPreferredProtocolProvider(
-                            OperationSetBasicTelephony.class);
+                                OperationSetBasicTelephony.class);
 
-                    if (detailProvider != null
-                        /*&& detailProvider.equals(callProvider)*/)
+                    if (detailProvider != null)
                     {
                         callee = detail.getAddress();
                         provider = detailProvider;
@@ -158,59 +164,71 @@ public class CallTransferHandler
                     }
                 }
 
-                if (callee != null)
+                if (callee == null)
                 {
-                    Map<ProtocolProviderService, List<String>> callees =
-                        new HashMap<ProtocolProviderService, List<String>>();
+                    /*
+                     * It turns out that the error message to be reported would
+                     * like to display information about the account which could
+                     * not add the dropped callee to the telephony conference.
+                     * Unfortunately, a telephony conference may have multiple
+                     * accounts involved. Anyway, choose the first account
+                     * involved in the telephony conference.
+                     */
+                    ProtocolProviderService callProvider
+                        = callConference.getCalls().get(0)
+                                .getProtocolProvider();
 
-                    callees.put(provider, Arrays.asList(callee));
-                    CallManager.inviteToConferenceCall(callees, call);
-
-                    return true;
-                }
-                else
-                {
                     ResourceManagementService resources
                         = GuiActivator.getResources();
                     AccountID accountID = callProvider.getAccountID();
 
                     new ErrorDialog(null,
-                        resources.getI18NString("service.gui.ERROR"),
-                        resources.getI18NString(
-                                "service.gui.CALL_NOT_SUPPORTING_PARTICIPANT",
-                                new String[]
-                                        {
-                                            accountID.getService(),
-                                            accountID.getUserID(),
-                                            uiContact.getDisplayName()
-                                        }))
-                    .showDialog();
+                            resources.getI18NString("service.gui.ERROR"),
+                            resources.getI18NString(
+                                    "service.gui.CALL_NOT_SUPPORTING_PARTICIPANT",
+                                    new String[]
+                                            {
+                                                accountID.getService(),
+                                                accountID.getUserID(),
+                                                uiContact.getDisplayName()
+                                            }))
+                        .showDialog();
                 }
             }
         }
         else if (t.isDataFlavorSupported(DataFlavor.stringFlavor))
         {
             InputContext inputContext = comp.getInputContext();
+
             if (inputContext != null)
-            {
                 inputContext.endComposition();
-            }
 
             try
             {
-                BufferedReader reader = new BufferedReader(
-                    DataFlavor.stringFlavor.getReaderForText(t));
+                BufferedReader reader
+                    = new BufferedReader(
+                            DataFlavor.stringFlavor.getReaderForText(t));
 
-                final StringBuffer buffToCall = new StringBuffer();
+                try
+                {
+                    String line;
+                    StringBuilder calleeBuilder = new StringBuilder();
 
-                String str;
-                while ((str = reader.readLine()) != null)
-                    buffToCall.append(str);
+                    while ((line = reader.readLine()) != null)
+                        calleeBuilder.append(line);
 
-                CallManager.inviteToConferenceCall(
-                    new String[]{buffToCall.toString()}, call);
-
-                return true;
+                    callee = calleeBuilder.toString();
+                    /*
+                     * The value of the local variable provider will be null
+                     * because we have a String only and hence we have no
+                     * associated ProtocolProviderService.
+                     * CallManager.inviteToConferenceCall will accept it.
+                     */
+                }
+                finally
+                {
+                    reader.close();
+                }
             }
             catch (UnsupportedFlavorException e)
             {
@@ -223,6 +241,18 @@ public class CallTransferHandler
                     logger.debug("Failed to drop string.", e);
             }
         }
-        return false;
+
+        if (callee == null)
+            return false;
+        else
+        {
+            Map<ProtocolProviderService, List<String>> callees
+                = new HashMap<ProtocolProviderService, List<String>>();
+
+            callees.put(provider, Arrays.asList(callee));
+            CallManager.inviteToConferenceCall(callees, callConference);
+
+            return true;
+        }
     }
 }

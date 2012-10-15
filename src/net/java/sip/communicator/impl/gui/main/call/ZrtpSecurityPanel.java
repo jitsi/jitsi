@@ -160,14 +160,13 @@ public class ZrtpSecurityPanel
         this.callPeer = callPeer;
 
         OperationSetVideoTelephony telephony
-            = callPeer.getProtocolProvider()
-                .getOperationSet(OperationSetVideoTelephony.class);
+            = callPeer.getProtocolProvider().getOperationSet(
+                    OperationSetVideoTelephony.class);
 
         telephony.addVideoListener(callPeer, this);
         telephony.addPropertyChangeListener(callPeer.getCall(), this);
 
         audioSecurityLabel = createSecurityLabel("", null);
-
         videoSecurityLabel = createSecurityLabel("", null);
 
         zidString = zrtpControl.getPeerZidString();

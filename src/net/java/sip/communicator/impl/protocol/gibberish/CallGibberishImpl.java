@@ -45,14 +45,10 @@ public class CallGibberishImpl
      */
     public void addCallPeer(final CallPeerGibberishImpl callPeer)
     {
-        List<CallPeerGibberishImpl> callPeers = getCallPeersVector();
-
-        if(callPeers.contains(callPeer))
+        if (!doAddCallPeer(callPeer))
             return;
 
         callPeer.addCallPeerListener(this);
-
-        callPeers.add(callPeer);
 
         if (logger.isInfoEnabled())
             logger.info("Will fire peer added");
@@ -63,26 +59,32 @@ public class CallGibberishImpl
         callPeer.setState(CallPeerState.ALERTING_REMOTE_SIDE, "no reason");
 
         Timer timer1 = new Timer(false);
-        timer1.schedule(new TimerTask()
-        {
-            @Override
-            public void run()
+
+        timer1.schedule(
+            new TimerTask()
             {
-                callPeer.setState(CallPeerState.CONNECTED, "no reason");
-            }
-        }, 1500);
+                @Override
+                public void run()
+                {
+                    callPeer.setState(CallPeerState.CONNECTED, "no reason");
+                }
+            },
+            1500);
 
         final Random random = new Random();
         Timer timer = new Timer(false);
-        timer.scheduleAtFixedRate(new TimerTask()
-        {
-            @Override
-            public void run()
-            {
-                callPeer.fireStreamSoundLevelEvent(random.nextInt(255));
-            }
-        }, 1800, 100);
 
+        timer.scheduleAtFixedRate(
+            new TimerTask()
+            {
+                @Override
+                public void run()
+                {
+                    callPeer.fireStreamSoundLevelEvent(random.nextInt(255));
+                }
+            },
+            1800,
+            100);
     }
 
     /**
@@ -94,18 +96,15 @@ public class CallGibberishImpl
      */
     public void removeCallPeer(CallPeerGibberishImpl callPeer)
     {
-        List<CallPeerGibberishImpl> callPeers = getCallPeersVector();
-
-        if(!callPeers.contains(callPeer))
+        if (!doRemoveCallPeer(callPeer))
             return;
 
-        callPeers.remove(callPeer);
         callPeer.removeCallPeerListener(this);
 
         fireCallPeerEvent(
             callPeer, CallPeerEvent.CALL_PEER_REMOVED);
 
-        if(callPeers.size() == 0)
+        if(getCallPeerCount() == 0)
             setCallState(CallState.CALL_ENDED);
     }
 

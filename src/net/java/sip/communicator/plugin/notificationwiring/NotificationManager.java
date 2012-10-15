@@ -1550,8 +1550,10 @@ public class NotificationManager
     {
         try
         {
-            CallPeer peer =
-                conferenceEvent.getConferenceMember().getConferenceFocusCallPeer();
+            CallPeer peer
+                = conferenceEvent
+                    .getConferenceMember()
+                        .getConferenceFocusCallPeer();
 
             if(peer.getConferenceMemberCount() > 0)
             {
@@ -1559,14 +1561,15 @@ public class NotificationManager
                     = peer.getCurrentSecuritySettings();
 
                 if (securityEvent instanceof CallPeerSecurityOnEvent)
-                {
                     fireNotification(CALL_SECURITY_ON);
-                }
             }
         }
         catch(Throwable t)
         {
-            logger.error("Error notifying for secured call member", t);
+            if (t instanceof ThreadDeath)
+                throw (ThreadDeath) t;
+            else
+                logger.error("Error notifying for secured call member", t);
         }
     }
 

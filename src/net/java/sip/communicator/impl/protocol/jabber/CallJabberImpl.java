@@ -147,7 +147,7 @@ public class CallJabberImpl
             CallPeerJabberImpl peer,
             Iterable<RtpDescriptionPacketExtension> rdpes)
     {
-        if (!isConferenceFocus())
+        if (!getConference().isJitsiVideoBridge())
             return null;
 
         /*
@@ -600,7 +600,7 @@ public class CallJabberImpl
                     (allowed ? "Start" : "Stop") + " local video streaming");
         }
 
-        for (CallPeerJabberImpl peer : getCallPeersVector())
+        for (CallPeerJabberImpl peer : getCallPeerList())
             peer.sendModifyVideoContent(allowed);
     }
 

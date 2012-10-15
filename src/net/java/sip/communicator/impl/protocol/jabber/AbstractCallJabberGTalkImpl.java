@@ -92,7 +92,7 @@ public abstract class AbstractCallJabberGTalkImpl
      */
     public T getPeer(String sid)
     {
-        for(T peer : getCallPeersVector())
+        for(T peer : getCallPeerList())
         {
             if (peer.getSID().equals(sid))
                 return peer;
@@ -125,7 +125,7 @@ public abstract class AbstractCallJabberGTalkImpl
      */
     public T getPeerBySessInitPacketID(String id)
     {
-        for(T peer : getCallPeersVector())
+        for(T peer : getCallPeerList())
         {
             if (peer.getSessInitID().equals(id))
                 return peer;

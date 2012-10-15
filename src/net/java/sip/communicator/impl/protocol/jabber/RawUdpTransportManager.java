@@ -502,7 +502,7 @@ public class RawUdpTransportManager
          * If Jitsi VideoBridge is to be used, determine which channels are to
          * be allocated and attempt to allocate them now.
          */
-        if (call.isConferenceFocus())
+        if (call.getConference().isJitsiVideoBridge())
         {
             List<RtpDescriptionPacketExtension> mediaTypes
                 = new ArrayList<RtpDescriptionPacketExtension>();

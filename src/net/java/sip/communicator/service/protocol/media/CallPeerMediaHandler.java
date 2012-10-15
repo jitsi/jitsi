@@ -13,7 +13,6 @@ import java.util.*;
 import java.util.List;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.event.*;
 
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.codec.*;
@@ -186,14 +185,6 @@ public abstract class CallPeerMediaHandler
                 return CallPeerMediaHandler.this.requestKeyFrame();
             }
         };
-
-    /**
-     * The list of <tt>VisualComponentResolveListener</tt>s interested in
-     * visual component resolve events.
-     */
-    private final List<VisualComponentResolveListener>
-        visualComponentResolveListeners
-            = new LinkedList<VisualComponentResolveListener>();
 
     /**
      * The state of this instance which may be shared with multiple other
@@ -1679,91 +1670,18 @@ public abstract class CallPeerMediaHandler
     }
 
     /**
-     * Adds a specific <tt>VisualComponentResolveListener</tt> to this telephony
-     * in order to receive notifications when visual/video <tt>Component</tt>s
-     * are being resolved to correspond to a particular
-     * <tt>ConferenceMember</tt>.
-     *
-     * @param listener the <tt>VisualComponentResolveListener</tt> to be
-     * notified when visual/video <tt>Component</tt>s are being resolved to
-     * correspond to a particular <tt>ConferenceMember</tt>.
-     */
-    public void addVisualComponentResolveListener(
-            VisualComponentResolveListener listener)
-    {
-        if (listener == null)
-            throw new NullPointerException("listener");
-
-        synchronized (visualComponentResolveListeners)
-        {
-            if (!visualComponentResolveListeners.contains(listener))
-                visualComponentResolveListeners.add(listener);
-        }
-    }
-
-    /**
-     * Removes a <tt>VisualComponentResolveListener</tt> from this video
-     * telephony operation set, which was previously added in order to receive
-     * notifications when visual/video <tt>Component</tt>s are being resolved to
-     * be corresponding to a particular <tt>ConferenceMember</tt>.
-     *
-     * @param listener the <tt>VisualComponentResolveListener</tt> to be
-     * removed
-     */
-    public void removeVisualComponentResolveListener(
-            VisualComponentResolveListener listener)
-    {
-        synchronized (visualComponentResolveListeners)
-        {
-            visualComponentResolveListeners.remove(listener);
-        }
-    }
-
-    /**
-     * Notifies all registered <tt>VisualComponentResolveListener</tt> that a
-     * visual <tt>Component</tt> has been resolved.
-     *
-     * @param visualComponent the visual <tt>Component</tt> that has been
-     * resolved
-     * @param conferenceMember the resolved <tt>ConferenceMember</tt>
-     */
-    public void fireVisualComponentResolveEvent(
-            Component visualComponent,
-            ConferenceMember conferenceMember)
-    {
-        VisualComponentResolveListener[] listeners;
-
-        synchronized(visualComponentResolveListeners)
-        {
-            listeners
-                = this.visualComponentResolveListeners.toArray(
-                        new VisualComponentResolveListener[
-                                this.visualComponentResolveListeners.size()]);
-        }
-
-        for(VisualComponentResolveListener l : listeners)
-        {
-            l.visualComponentResolved(
-                    new VisualComponentResolveEvent(
-                            this,
-                            visualComponent,
-                            conferenceMember));
-        }
-    }
-
-    /**
      * Determines whether RTP translation is enabled for the <tt>CallPeer</tt>
-     * represented by this <tt>CallPeerMediaHandler</tt>.
-     * <p>
-     * For the sake of simplicity at the time of this writing, the current
-     * implementation presumes the <tt>MediaType</tt> is <tt>VIDEO</tt>.
-     * </p>
+     * represented by this <tt>CallPeerMediaHandler</tt> and for a specific
+     * <tt>MediaType</tt>.
      *
+     * @param mediaType the <tt>MediaType</tt> for which it is to be determined
+     * whether RTP translation is enabled for the <tT>CallPeeer</tt> represented
+     * by this <tt>CallPeerMediaHandler</tt>
      * @return <tt>true</tt> if RTP translation is enabled for the
-     * <tt>CallPeer</tt> represented by this <tt>CallPeerMediaHandler</tt>;
-     * otherwise, <tt>false</tt>
+     * <tt>CallPeer</tt> represented by this <tt>CallPeerMediaHandler</tt> and
+     * for the specified <tt>mediaType; otherwise, <tt>false</tt>
      */
-    public boolean isRTPTranslationEnabled()
+    public boolean isRTPTranslationEnabled(MediaType mediaType)
     {
         T peer = getPeer();
         MediaAwareCall<?,?,?> call = peer.getCall();
@@ -1778,10 +1696,10 @@ public abstract class CallPeerMediaHandler
             {
                 MediaAwareCallPeer<?,?,?> callPeer
                     = (MediaAwareCallPeer<?,?,?>) callPeerIt.next();
-                MediaStream videoMediaStream
-                    = callPeer.getMediaHandler().getStream(MediaType.VIDEO);
+                MediaStream stream
+                    = callPeer.getMediaHandler().getStream(mediaType);
 
-                if (videoMediaStream != null)
+                if (stream != null)
                     return true;
             }
         }

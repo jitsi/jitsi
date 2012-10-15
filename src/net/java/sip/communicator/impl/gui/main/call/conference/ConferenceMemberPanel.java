@@ -21,9 +21,9 @@ import net.java.sip.communicator.util.skin.*;
  * @author Adam Netocny
  */
 public class ConferenceMemberPanel
-    extends BasicConferenceParticipantPanel
-    implements  PropertyChangeListener,
-                Skinnable
+    extends BasicConferenceParticipantPanel<ConferenceMember>
+    implements PropertyChangeListener,
+               Skinnable
 {
     /**
      * Serial version UID.
@@ -43,20 +43,34 @@ public class ConferenceMemberPanel
      * @param member the <tt>ConferenceMember</tt> shown in this panel
      * @param isVideo indicates if the video conference interface is enabled.
      */
-    public ConferenceMemberPanel(   CallRenderer callRenderer,
-                                    ConferenceMember member,
-                                    boolean isVideo)
+    public ConferenceMemberPanel(
+            CallRenderer callRenderer,
+            ConferenceMember member,
+            boolean isVideo)
     {
-        super(callRenderer, false, isVideo);
+        super(callRenderer, member, isVideo);
 
         this.member = member;
 
-        this.setParticipantName(member.getDisplayName());
-        this.setParticipantState(member.getState().toString());
+        this.member.addPropertyChangeListener(this);
 
-        this.setTitleBackground(
-            new Color(GuiActivator.getResources().getColor(
-            "service.gui.CALL_MEMBER_NAME_BACKGROUND")));
+        setParticipantName(member.getDisplayName());
+        setParticipantState(member.getState().toString());
+
+        setTitleBackground(
+                new Color(
+                        GuiActivator.getResources().getColor(
+                                "service.gui.CALL_MEMBER_NAME_BACKGROUND")));
+    }
+
+    /**
+     * Releases the resources (which require explicit disposal such as listeners
+     * added by this view to its model) acquired by this instance throughout its
+     * lifetime and prepares it for garbage collection.
+     */
+    void dispose()
+    {
+        member.removePropertyChangeListener(this);
     }
 
     /**
@@ -70,44 +84,50 @@ public class ConferenceMemberPanel
     }
 
     /**
-     * Updates the name and the state of the conference member whenever notified
-     * of a change.
-     *
-     * @param evt the <tt>PropertyChangeEvent</tt> that notified us of the
-     * change
+     * Reloads title background color.
      */
-    public void propertyChange(PropertyChangeEvent evt)
+    @Override
+    public void loadSkin()
     {
-        String propertyName = evt.getPropertyName();
+        super.loadSkin();
+
+        setTitleBackground(
+                new Color(
+                        GuiActivator.getResources().getColor(
+                                "service.gui.CALL_MEMBER_NAME_BACKGROUND")));
+    }
+
+    /**
+     * Updates the display name and the state of the <tt>ConferenceMember</tt>
+     * depicted by this instance whenever the values of the respective
+     * properties change.
+     *
+     * @param ev a <tt>PropertyChangeEvent</tt> which specifies the name of the
+     * <tt>ConferenceMember</tt> property which had its value changed and the
+     * old and new values of that property
+     */
+    public void propertyChange(PropertyChangeEvent ev)
+    {
+        String propertyName = ev.getPropertyName();
 
         if (propertyName.equals(ConferenceMember.DISPLAY_NAME_PROPERTY_NAME))
         {
-            String displayName = (String) evt.getNewValue();
+            String displayName = (String) ev.getNewValue();
 
-            this.setParticipantName(displayName);
+            setParticipantName(displayName);
 
-            this.revalidate();
-            this.repaint();
+            revalidate();
+            repaint();
         }
         else if (propertyName.equals(ConferenceMember.STATE_PROPERTY_NAME))
         {
             ConferenceMemberState state
-                = (ConferenceMemberState) evt.getNewValue();
+                = (ConferenceMemberState) ev.getNewValue();
 
-            this.setParticipantState(state.toString());
+            setParticipantState(state.toString());
 
-            this.revalidate();
-            this.repaint();
+            revalidate();
+            repaint();
         }
-    }
-
-    /**
-     * Reloads title background color.
-     */
-    public void loadSkin()
-    {
-        this.setTitleBackground(
-            new Color(GuiActivator.getResources().getColor(
-            "service.gui.CALL_MEMBER_NAME_BACKGROUND")));
     }
 }

@@ -177,23 +177,22 @@ public class MetaContactImpl
         {
             ProtocolProviderService contactProvider
                 = contact.getProtocolProvider();
-
             // First try to ask the capabilities operation set if such is
             // available.
-            OperationSetContactCapabilities capOpSet = contactProvider
-                .getOperationSet(OperationSetContactCapabilities.class);
+            OperationSetContactCapabilities capOpSet
+                = contactProvider.getOperationSet(
+                        OperationSetContactCapabilities.class);
 
             if (capOpSet != null)
             {
                 List<Contact> capContacts
                     = capabilities.get(opSetClass.getName());
-                if (capContacts != null && capContacts.contains(contact))
-                {
-                    opSetContacts.add( contact );
-                }
+
+                if ((capContacts != null) && capContacts.contains(contact))
+                    opSetContacts.add(contact);
             }
             else if (contactProvider.getOperationSet(opSetClass) != null)
-                opSetContacts.add( contact );
+                opSetContacts.add(contact);
         }
 
         return opSetContacts;

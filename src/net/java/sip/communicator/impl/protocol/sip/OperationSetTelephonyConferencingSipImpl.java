@@ -6,19 +6,15 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
-import java.awt.*;
 import java.io.*;
 import java.text.*;
 import java.util.*;
-import java.util.List;
 
 import javax.sip.*;
-import javax.sip.Dialog;
 import javax.sip.address.*;
 import javax.sip.header.*;
 import javax.sip.message.*;
 import javax.sip.message.Message;
-import javax.xml.parsers.*;
 
 import net.java.sip.communicator.impl.protocol.sip.sdp.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -29,8 +25,6 @@ import net.java.sip.communicator.util.*;
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.MediaType;
 import org.jitsi.util.xml.*;
-import org.w3c.dom.*;
-import org.xml.sax.*;
 
 /**
  * Implements <tt>OperationSetTelephonyConferencing</tt> for SIP.
@@ -79,49 +73,9 @@ public class OperationSetTelephonyConferencingSipImpl
     private static final String ELEMENT_CONFERENCE_STATE = "conference-state";
 
     /**
-     * The name of the conference-info XML element <tt>display-text</tt>.
-     */
-    private static final String ELEMENT_DISPLAY_TEXT = "display-text";
-
-    /**
-     * The name of the conference-info XML element <tt>endpoint</tt>.
-     */
-    private static final String ELEMENT_ENDPOINT = "endpoint";
-
-    /**
-     * The name of the conference-info XML element <tt>media</tt>.
-     */
-    private static final String ELEMENT_MEDIA = "media";
-
-    /**
-     * The name of the conference-info XML element <tt>src-id</tt>.
-     */
-    private static final String ELEMENT_SRC_ID = "src-id";
-
-    /**
-     * The name of the conference-info XML element <tt>status</tt>.
-     */
-    private static final String ELEMENT_STATUS = "status";
-
-    /**
-     * The name of the conference-info XML element <tt>type</tt>.
-     */
-    private static final String ELEMENT_TYPE = "type";
-
-    /**
-     * The name of the conference-info XML element <tt>user</tt>.
-     */
-    private static final String ELEMENT_USER = "user";
-
-    /**
      * The name of the conference-info XML element <tt>user-count</tt>.
      */
     private static final String ELEMENT_USER_COUNT = "user-count";
-
-    /**
-     * The name of the conference-info XML element <tt>users</tt>.
-     */
-    private static final String ELEMENT_USERS = "users";
 
     /**
      * The name of the event package supported by
@@ -401,7 +355,7 @@ public class OperationSetTelephonyConferencingSipImpl
         // <status>
         append(xml, "<", ELEMENT_STATUS, ">");
         // We are the conference focus so we're connected to the conference.
-        xml.append(ConferenceMemberSipImpl.CONNECTED);
+        xml.append(AbstractConferenceMember.CONNECTED);
         // </status>
         append(xml, "</", ELEMENT_STATUS, ">");
         getMediaXML(callPeer, false, xml);
@@ -421,90 +375,6 @@ public class OperationSetTelephonyConferencingSipImpl
     }
 
     /**
-     * Reads the text content of the <tt>src-id</tt> XML element of a
-     * <tt>media</tt> XML element of a specific <tt>endpoint</tt> XML element.
-     *
-     * @param endpoint an XML <tt>Node</tt> which represents the
-     * <tt>endpoint</tt> XML element from which to get the text content of a
-     * <tt>src-id</tt> XML element of a <tt>media</tt> XML element
-     * @param mediaType the type of the media to get the <tt>src-id</tt> of
-     * @return the text content of the <tt>src-id</tt> XML element of the
-     * <tt>media</tt> XML element of the specified <tt>endpoint</tt> XML element
-     * if any; otherwise, <tt>null</tt>
-     */
-    private String getEndpointMediaSrcId(Node endpoint, MediaType mediaType)
-    {
-        NodeList endpointChildList = endpoint.getChildNodes();
-        int endpoingChildCount = endpointChildList.getLength();
-        String mediaTypeStr = mediaType.toString();
-
-        for (int endpointChildIndex = 0;
-                endpointChildIndex < endpoingChildCount;
-                endpointChildIndex++)
-        {
-            Node endpointChild = endpointChildList.item(endpointChildIndex);
-
-            if (ELEMENT_MEDIA.equals(endpointChild.getNodeName()))
-            {
-                NodeList mediaChildList = endpointChild.getChildNodes();
-                int mediaChildCount = mediaChildList.getLength();
-                String srcId = null;
-                String type = null;
-
-                for (int mediaChildIndex = 0;
-                        mediaChildIndex < mediaChildCount;
-                        mediaChildIndex++)
-                {
-                    Node mediaChild = mediaChildList.item(mediaChildIndex);
-                    String mediaChildName = mediaChild.getNodeName();
-
-                    if (ELEMENT_SRC_ID.equals(mediaChildName))
-                    {
-                        srcId = mediaChild.getTextContent();
-                        if (mediaTypeStr.equalsIgnoreCase(type))
-                            return srcId;
-                    }
-                    else if (ELEMENT_TYPE.equals(mediaChildName))
-                    {
-                        type = mediaChild.getTextContent();
-                        if ((srcId != null) && mediaTypeStr.equalsIgnoreCase(
-                                type))
-                            return srcId;
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Reads the text content of the <tt>status</tt> XML element of a specific
-     * <tt>endpoint</tt> XML element.
-     *
-     * @param endpoint an XML <tt>Node</tt> which represents the
-     * <tt>endpoint</tt> XML element from which to get the text content of its
-     * <tt>status</tt> XML element
-     * @return the text content of the <tt>status</tt> XML element of the
-     * specified <tt>endpoint</tt> XML element if any; otherwise, <tt>null</tt>
-     */
-    private String getEndpointStatus(Node endpoint)
-    {
-        NodeList endpointChildList = endpoint.getChildNodes();
-        int endpoingChildCount = endpointChildList.getLength();
-
-        for (int endpointChildIndex = 0;
-                endpointChildIndex < endpoingChildCount;
-                endpointChildIndex++)
-        {
-            Node endpointChild = endpointChildList.item(endpointChildIndex);
-
-            if (ELEMENT_STATUS.equals(endpointChild.getNodeName()))
-                return endpointChild.getTextContent();
-        }
-        return null;
-    }
-
-    /**
      * Generates the text content to be put in the <tt>status</tt> XML element
      * of an <tt>endpoint</tt> XML element and which describes the state of a
      * specific <tt>CallPeer</tt>.
@@ -520,17 +390,17 @@ public class OperationSetTelephonyConferencingSipImpl
         CallPeerState callPeerState = callPeer.getState();
 
         if (CallPeerState.ALERTING_REMOTE_SIDE.equals(callPeerState))
-            return ConferenceMemberSipImpl.ALERTING;
+            return AbstractConferenceMember.ALERTING;
         if (CallPeerState.CONNECTING.equals(callPeerState)
                 || CallPeerState
                     .CONNECTING_WITH_EARLY_MEDIA.equals(callPeerState))
-            return ConferenceMemberSipImpl.PENDING;
+            return AbstractConferenceMember.PENDING;
         if (CallPeerState.DISCONNECTED.equals(callPeerState))
-            return ConferenceMemberSipImpl.DISCONNECTED;
+            return AbstractConferenceMember.DISCONNECTED;
         if (CallPeerState.INCOMING_CALL.equals(callPeerState))
-            return ConferenceMemberSipImpl.DIALING_IN;
+            return AbstractConferenceMember.DIALING_IN;
         if (CallPeerState.INITIATING_CALL.equals(callPeerState))
-            return ConferenceMemberSipImpl.DIALING_OUT;
+            return AbstractConferenceMember.DIALING_OUT;
 
         /*
          * he/she is neither "hearing" the conference mix nor is his/her media
@@ -538,9 +408,9 @@ public class OperationSetTelephonyConferencingSipImpl
          */
         if (CallPeerState.ON_HOLD_LOCALLY.equals(callPeerState)
                 || CallPeerState.ON_HOLD_MUTUALLY.equals(callPeerState))
-            return ConferenceMemberSipImpl.ON_HOLD;
+            return AbstractConferenceMember.ON_HOLD;
         if (CallPeerState.CONNECTED.equals(callPeerState))
-            return ConferenceMemberSipImpl.CONNECTED;
+            return AbstractConferenceMember.CONNECTED;
         return null;
     }
 
@@ -895,287 +765,6 @@ public class OperationSetTelephonyConferencingSipImpl
                     && Request.INVITE.equalsIgnoreCase(cseqHeader.getMethod()))
                 inviteCompleted(sourceCallPeer, response, request);
         }
-    }
-
-    /**
-     * Updates the conference-related properties of a specific <tt>CallPeer</tt>
-     * such as <tt>conferenceFocus</tt> and <tt>conferenceMembers</tt> with
-     * information received from it as a conference focus in the form of a
-     * conference-info XML document.
-     *
-     * @param callPeer the <tt>CallPeer</tt> which is a conference focus and has
-     * sent the specified conference-info XML document
-     * @param conferenceInfoDocument the conference-info XML document sent by
-     * <tt>callPeer</tt> in order to update the conference-related information
-     * of the local peer represented by the associated <tt>Call</tt>
-     */
-    private void setConferenceInfoDocument(
-            CallPeerSipImpl callPeer,
-            Document conferenceInfoDocument)
-    {
-        NodeList usersList
-            = conferenceInfoDocument.getElementsByTagName(ELEMENT_USERS);
-        ConferenceMember[] conferenceMembersToRemove
-            = callPeer.getConferenceMembers();
-        int conferenceMembersToRemoveCount = conferenceMembersToRemove.length;
-        boolean changed = false;
-
-        if (usersList.getLength() > 0)
-        {
-            NodeList userList = usersList.item(0).getChildNodes();
-            int userCount = userList.getLength();
-
-            for (int userIndex = 0; userIndex < userCount; userIndex++)
-            {
-                Node user = userList.item(userIndex);
-
-                if (!ELEMENT_USER.equals(user.getNodeName()))
-                    continue;
-
-                String address
-                    = stripParametersFromAddress(
-                        ((Element) user).getAttribute("entity"));
-
-                if ((address == null) || (address.length() < 1))
-                    continue;
-
-                /*
-                 * Determine the ConferenceMembers which are no longer in the
-                 * list.
-                 */
-                ConferenceMemberSipImpl existingConferenceMember = null;
-
-                for (int conferenceMemberIndex = 0;
-                        conferenceMemberIndex < conferenceMembersToRemoveCount;
-                        conferenceMemberIndex++)
-                {
-                    ConferenceMemberSipImpl conferenceMember
-                        = (ConferenceMemberSipImpl)
-                            conferenceMembersToRemove[conferenceMemberIndex];
-
-                    if ((conferenceMember != null)
-                            && address.equalsIgnoreCase(
-                                    conferenceMember.getAddress()))
-                    {
-                        conferenceMembersToRemove[conferenceMemberIndex] = null;
-                        existingConferenceMember = conferenceMember;
-                        break;
-                    }
-                }
-
-                // Create the new ones.
-                boolean addConferenceMember;
-                if (existingConferenceMember == null)
-                {
-                    existingConferenceMember
-                        = new ConferenceMemberSipImpl(callPeer, address);
-                    addConferenceMember = true;
-                }
-                else
-                    addConferenceMember = false;
-
-                // Update the existing ones.
-                if (existingConferenceMember != null)
-                {
-                    NodeList userChildList = user.getChildNodes();
-                    int userChildCount = userChildList.getLength();
-                    String displayName = null;
-                    String endpointStatus = null;
-                    String audioSsrc = null;
-                    String videoSsrc = null;
-
-                    for (int userChildIndex = 0;
-                            userChildIndex < userChildCount;
-                            userChildIndex++)
-                    {
-                        Node userChild = userChildList.item(userChildIndex);
-                        String userChildName = userChild.getNodeName();
-
-                        if (ELEMENT_DISPLAY_TEXT.equals(userChildName))
-                            displayName = userChild.getTextContent();
-                        else if (ELEMENT_ENDPOINT.equals(userChildName))
-                        {
-                            endpointStatus = getEndpointStatus(userChild);
-                            audioSsrc = getEndpointMediaSrcId(
-                                            userChild,
-                                            MediaType.AUDIO);
-                            videoSsrc = getEndpointMediaSrcId(
-                                            userChild,
-                                            MediaType.VIDEO);
-                        }
-                    }
-                    existingConferenceMember.setDisplayName(displayName);
-                    existingConferenceMember.setEndpointStatus(endpointStatus);
-
-                    if (audioSsrc != null)
-                    {
-                        long newSsrc = Long.parseLong(audioSsrc);
-                        if(existingConferenceMember.getAudioSsrc() != newSsrc)
-                            changed = true;
-                        existingConferenceMember.setAudioSsrc(newSsrc);
-                    }
-
-                    if (videoSsrc != null)
-                    {
-                        long newSsrc = Long.parseLong(videoSsrc);
-                        long currentSsrc
-                            = existingConferenceMember.getVideoSsrc();
-
-                        if (currentSsrc != -1 && currentSsrc == newSsrc)
-                            continue;
-
-                        if(existingConferenceMember.getVideoSsrc() != newSsrc)
-                            changed = true;
-
-                        existingConferenceMember.setVideoSsrc(newSsrc);
-
-                        VideoMediaStream peerVideoStream
-                            = (VideoMediaStream) callPeer.getMediaHandler()
-                                .getStream(MediaType.VIDEO);
-
-                        Component visualComponent
-                            = peerVideoStream.getVisualComponent(newSsrc);
-
-                        if (visualComponent != null)
-                        {
-                            callPeer
-                                .getMediaHandler()
-                                    .fireVisualComponentResolveEvent(
-                                            visualComponent,
-                                            existingConferenceMember);
-                        }
-                    }
-
-                    if (addConferenceMember)
-                        callPeer.addConferenceMember(existingConferenceMember);
-                }
-            }
-        }
-
-        /*
-         * Remove the ConferenceMember instance which are no longer present in
-         * the conference-info XML document.
-         */
-        for (int conferenceMemberIndex = 0;
-                conferenceMemberIndex < conferenceMembersToRemoveCount;
-                conferenceMemberIndex++)
-        {
-            ConferenceMember conferenceMemberToRemove
-                = conferenceMembersToRemove[conferenceMemberIndex];
-
-            if (conferenceMemberToRemove != null)
-                callPeer.removeConferenceMember(conferenceMemberToRemove);
-        }
-
-        if (changed)
-            notifyAll(callPeer.getCall());
-    }
-
-    /**
-     * Updates the conference-related properties of a specific <tt>CallPeer</tt>
-     * such as <tt>conferenceFocus</tt> and <tt>conferenceMembers</tt> with
-     * information received from it as a conference focus in the form of a
-     * conference-info XML document.
-     *
-     * @param callPeer the <tt>CallPeer</tt> which is a conference focus and has
-     * sent the specified conference-info XML document
-     * @param version the value of the <tt>version</tt> attribute of the
-     * <tt>conference-info</tt> XML element currently represented in the
-     * specified <tt>callPeer</tt>
-     * @param conferenceInfoXML the conference-info XML document sent by
-     * <tt>callPeer</tt> in order to update the conference-related information
-     * of the local peer represented by the associated <tt>Call</tt>
-     * @return the value of the <tt>version</tt> attribute of the
-     * <tt>conference-info</tt> XML element of the specified
-     * <tt>conferenceInfoXML</tt> if it was successfully parsed and represented
-     * in the specified <tt>callPeer</tt>
-     */
-    private int setConferenceInfoXML(
-            CallPeerSipImpl callPeer,
-            int version,
-            String conferenceInfoXML)
-    {
-        byte[] bytes;
-
-        try
-        {
-            bytes = conferenceInfoXML.getBytes("UTF-8");
-        }
-        catch (UnsupportedEncodingException uee)
-        {
-            logger
-                .warn(
-                    "Failed to gets bytes from String for the UTF-8 charset",
-                    uee);
-            bytes = conferenceInfoXML.getBytes();
-        }
-
-        Document document = null;
-        Throwable exception = null;
-
-        try
-        {
-            document
-                = DocumentBuilderFactory
-                    .newInstance()
-                        .newDocumentBuilder()
-                            .parse(new ByteArrayInputStream(bytes));
-        }
-        catch (IOException ioe)
-        {
-            exception = ioe;
-        }
-        catch (ParserConfigurationException pce)
-        {
-            exception = pce;
-        }
-        catch (SAXException saxe)
-        {
-            exception = saxe;
-        }
-        if (exception != null)
-            logger.error("Failed to parse conference-info XML", exception);
-        else
-        {
-            /*
-             * The CallPeer sent conference-info XML so we're sure it's a
-             * conference focus.
-             */
-            callPeer.setConferenceFocus(true);
-
-            int documentVersion
-                = Integer
-                    .parseInt(
-                        document.getDocumentElement().getAttribute("version"));
-
-            if (documentVersion >= version)
-            {
-                setConferenceInfoDocument(callPeer, document);
-                return documentVersion;
-            }
-        }
-        return -1;
-    }
-
-    /**
-     * Removes the parameters (specified after a semicolon) from a specific
-     * address <tt>String</tt> if any are present in it.
-     *
-     * @param address the <tt>String</tt> value representing an address from
-     * which any parameters are to be removed
-     * @return a <tt>String</tt> representing the specified <tt>address</tt>
-     * without any parameters
-     */
-    private static String stripParametersFromAddress(String address)
-    {
-        if (address != null)
-        {
-            int parametersBeginIndex = address.indexOf(';');
-
-            if (parametersBeginIndex > -1)
-                address = address.substring(0, parametersBeginIndex);
-        }
-        return address;
     }
 
     /**

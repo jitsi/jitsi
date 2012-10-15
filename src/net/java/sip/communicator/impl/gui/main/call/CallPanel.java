@@ -10,13 +10,11 @@ import java.awt.*;
 import java.awt.Container;
 import java.awt.event.*;
 import java.beans.*;
-import java.lang.reflect.*;
 import java.util.*;
 import java.util.List;
 
 import javax.swing.*;
 import javax.swing.Timer;
-import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.event.*;
@@ -32,6 +30,7 @@ import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 import org.jitsi.util.*;
+import org.jitsi.util.event.*;
 import org.osgi.framework.*;
 
 /**
@@ -57,24 +56,48 @@ import org.osgi.framework.*;
  *
  * @author Yana Stamcheva
  * @author Adam Netocny
+ * @author Lyubomir Marinov
  */
 public class CallPanel
     extends TransparentPanel
     implements ActionListener,
-               CallChangeListener,
-               CallPeerConferenceListener,
                PluginComponentListener,
                Skinnable
 {
     /**
-     * Serial version UID.
+     * The chat button name.
      */
-    private static final long serialVersionUID = 0L;
+    private static final String CHAT_BUTTON = "CHAT_BUTTON";
+
+    /**
+     * The conference button name.
+     */
+    private static final String CONFERENCE_BUTTON = "CONFERENCE_BUTTON";
+
+    /**
+     * The dial button name.
+     */
+    private static final String DIAL_BUTTON = "DIAL_BUTTON";
+
+    /**
+     * The info button name.
+     */
+    private static final String INFO_BUTTON = "INFO_BUTTON";
 
     /**
      * The logger for this class.
      */
     private static final Logger logger = Logger.getLogger(CallDialog.class);
+
+    /**
+     * The hang up button name.
+     */
+    private static final String MERGE_BUTTON = "MERGE_BUTTON";
+
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
 
     /**
      * Property to disable the info button.
@@ -83,29 +106,69 @@ public class CallPanel
         "net.java.sip.communicator.impl.gui.main.call.SHOW_CALL_INFO_BUTTON";
 
     /**
-     * The dial button name.
+     * The {@link CallConference} instance depicted by this <tt>CallPanel</tt>.
      */
-    private static final String DIAL_BUTTON = "DIAL_BUTTON";
+    private final CallConference callConference;
 
     /**
-     * The conference button name.
+     * The listener which listens to events fired by the <tt>CallConference</tt>
+     * depicted by this instance, the <tt>Call</tt>s participating in that
+     * telephony conference, the <tt>CallPeer</tt>s associated with those
+     * <tt>Call</tt>s and the <tt>ConferenceMember</tt>s participating in the
+     * telephony conferences organized by those <tt>CallPeer</tt>s. Updates this
+     * view i.e. CallPanel so that it depicts the current state of its model
+     * i.e. {@link #callConference}.
      */
-    private static final String CONFERENCE_BUTTON = "CONFERENCE_BUTTON";
+    private final CallConferenceListener callConferenceListener
+        = new CallConferenceListener();
 
     /**
-     * The chat button name.
+     * The time in milliseconds at which the telephony call/conference depicted
+     * by this <tt>CallPanel</tt> (i.e. {@link #callConference}) has started.
      */
-    private static final String CHAT_BUTTON = "CHAT_BUTTON";
+    private long callConferenceStartTime;
 
     /**
-     * The info button name.
+     * A timer to count call duration.
      */
-    private static final String INFO_BUTTON = "INFO_BUTTON";
+    private Timer callDurationTimer;
 
     /**
-     * The hang up button name.
+     * The Frame used to display this call information statistics.
      */
-    private static final String MERGE_BUTTON = "MERGE_BUTTON";
+    private CallInfoFrame callInfoFrame;
+
+    /**
+     * The panel representing the call. For conference calls this would be an
+     * instance of <tt>ConferenceCallPanel</tt> and for one-to-one calls this
+     * would be an instance of <tt>OneToOneCallPanel</tt>.
+     */
+    private JComponent callPanel;
+
+    /**
+     * Parent window.
+     */
+    private final CallContainer callWindow;
+
+    /**
+     * Chat button.
+     */
+    private SIPCommButton chatButton;
+
+    /**
+     * The conference button.
+     */
+    private CallToolBarButton conferenceButton;
+
+    /**
+     * The desktop sharing button.
+     */
+    private DesktopSharingButton desktopSharingButton;
+
+    /**
+     * The dial button, which opens a keypad dialog.
+     */
+    private CallToolBarButton dialButton;
 
     /**
      * The dial pad dialog opened when the dial button is clicked.
@@ -118,21 +181,39 @@ public class CallPanel
     private DTMFHandler dtmfHandler;
 
     /**
-     * The panel containing call settings.
+     * The full screen button.
      */
-    private JComponent settingsPanel;
+    private FullScreenButton fullScreenButton;
 
     /**
-     * The panel representing the call. For conference calls this would be an
-     * instance of <tt>ConferenceCallPanel</tt> and for one-to-one calls this
-     * would be an instance of <tt>OneToOneCallPanel</tt>.
+     * HangUp button.
      */
-    private JComponent callPanel = null;
+    private SIPCommButton hangupButton;
 
     /**
      * The hold button.
      */
     private HoldButton holdButton;
+
+    /**
+     * Info button.
+     */
+    private SIPCommButton infoButton;
+
+    /**
+     * Indicates if the call timer has been started.
+     */
+    private boolean isCallTimerStarted = false;
+
+    /**
+     * Sound local level label.
+     */
+    private InputVolumeControlButton localLevel;
+
+    /**
+     * Merge button.
+     */
+    private CallToolBarButton mergeButton;
 
     /**
      * The button which allows starting and stopping the recording of
@@ -141,14 +222,9 @@ public class CallPanel
     private RecordButton recordButton;
 
     /**
-     * The video button.
+     * Sound remote level label.
      */
-    private LocalVideoButton videoButton;
-
-    /**
-     * The button responsible for hiding/showing the local video.
-     */
-    private ShowHideVideoButton showHideVideoButton;
+    private Component remoteLevel;
 
     /**
      * The video resize button.
@@ -156,111 +232,14 @@ public class CallPanel
     private ResizeVideoButton resizeVideoButton;
 
     /**
-     * The desktop sharing button.
+     * The panel containing call settings.
      */
-    private DesktopSharingButton desktopSharingButton;
+    private JComponent settingsPanel;
 
     /**
-     * The transfer call button.
+     * The button responsible for hiding/showing the local video.
      */
-    private TransferCallButton transferCallButton;
-
-    /**
-     * The full screen button.
-     */
-    private FullScreenButton fullScreenButton;
-
-    /**
-     * The dial button, which opens a keypad dialog.
-     */
-    private CallToolBarButton dialButton = new CallToolBarButton(
-        ImageLoader.getImage(ImageLoader.DIAL_BUTTON),
-        DIAL_BUTTON,
-        GuiActivator.getResources().getI18NString("service.gui.DIALPAD"));
-
-    /**
-     * The conference button.
-     */
-    private CallToolBarButton conferenceButton
-        = new CallToolBarButton(
-                ImageLoader.getImage(ImageLoader.ADD_TO_CALL_BUTTON),
-                CONFERENCE_BUTTON,
-                GuiActivator.getResources().getI18NString(
-                    "service.gui.CREATE_CONFERENCE_CALL"));
-
-    /**
-     * Chat button.
-     */
-    private SIPCommButton chatButton;
-
-    /**
-     * Info button.
-     */
-    private SIPCommButton infoButton;
-
-    /**
-     * The Frame used to display this call information statistics.
-     */
-    private CallInfoFrame callInfoFrame;
-
-    /**
-     * HangUp button.
-     */
-    private SIPCommButton hangupButton;
-
-    /**
-     * Merge button.
-     */
-    private CallToolBarButton mergeButton =
-        new CallToolBarButton(
-            ImageLoader.getImage(ImageLoader.MERGE_CALL_BUTTON),
-            MERGE_BUTTON,
-            GuiActivator.getResources().getI18NString(
-                "service.gui.MERGE_TO_CALL"));
-
-    /**
-     * The {@link CallConference} instance depicted by this <tt>CallPanel</tt>.
-     */
-    private final CallConference callConference;
-
-    /**
-     * The <tt>PropertyChangeListener</tt> which listens to changes in the
-     * values of {@link #callConference}'s properties.
-     */
-    private final PropertyChangeListener callConferencePropertyChangeListener
-        = new PropertyChangeListener()
-        {
-            public void propertyChange(PropertyChangeEvent ev)
-            {
-                callConferencePropertyChange(ev);
-            }
-        };
-
-    /**
-     * Indicates if the last call was a conference call.
-     */
-    private boolean isLastConference = false;
-
-    /**
-     * The time in milliseconds at which the telephony call/conference depicted
-     * by this <tt>CallPanel</tt> (i.e. {@link #callConference}) has started.
-     */
-    private long callConferenceStartTime;
-
-    /**
-     * Indicates if the call timer has been started.
-     */
-    private boolean isCallTimerStarted = false;
-
-    /**
-     * A timer to count call duration.
-     */
-    private Timer callDurationTimer;
-
-    /**
-     * Parent window.
-     */
-    private final CallContainer callWindow;
+    private ShowHideVideoButton showHideVideoButton;
 
     /**
      * The title of this call container.
@@ -268,20 +247,54 @@ public class CallPanel
     private String title;
 
     /**
-     * Sound local level label.
-     */
-    private InputVolumeControlButton localLevel;
-
-    /**
-     * Sound remote level label.
-     */
-    private Component remoteLevel;
-
-    /**
      * A collection of listeners, registered for call title change events.
      */
     private Collection<CallTitleListener> titleListeners
         = new Vector<CallTitleListener>();
+
+    /**
+     * The transfer call button.
+     */
+    private TransferCallButton transferCallButton;
+
+    /**
+     * The facility which aids this instance in the dealing with the
+     * video-related information.
+     */
+    private final UIVideoHandler2 uiVideoHandler;
+
+    /**
+     * The <tt>Observer</tt> which listens to {@link #uiVideoHandler} about
+     * changes in the video-related information.
+     */
+    private final Observer uiVideoHandlerObserver
+        = new Observer()
+        {
+            public void update(Observable o, Object arg)
+            {
+                uiVideoHandlerUpdate(arg);
+            }
+        };
+
+    /**
+     * The <tt>Runnable</tt> which is scheduled by
+     * {@link #updateViewFromModel()} for execution in the AWT event dispatching
+     * thread in order to invoke
+     * {@link #updateViewFromModelInEventDispatchThread()}.
+     */
+    private final Runnable updateViewFromModelInEventDispatchThread
+        = new Runnable()
+        {
+            public void run()
+            {
+                updateViewFromModelInEventDispatchThread();
+            }
+        };
+
+    /**
+     * The video button.
+     */
+    private LocalVideoButton videoButton;
 
     /**
      * Initializes a new <tt>CallPanel</tt> which is to depict a specific
@@ -299,214 +312,39 @@ public class CallPanel
         this.callConference = callConference;
         this.callWindow = callWindow;
 
-        settingsPanel = CallPeerRendererUtils.createButtonBar(false, null);
+        uiVideoHandler = new UIVideoHandler2(callConference);
 
-        /*
-         * TODO CallPanel depicts a whole CallConference which may have multiple
-         * Calls, new Calls may be added to the CallConference and existing
-         * Calls may be removed from the CallConference. For example, the
-         * buttons which accept a Call as an argument should be changed to take
-         * into account the whole CallConference.
-         */
-        Call call = this.callConference.getCalls().get(0);
-
-        holdButton = new HoldButton(call);
-        recordButton = new RecordButton(call);
-        videoButton = new LocalVideoButton(call);
-        showHideVideoButton = new ShowHideVideoButton(call);
-        desktopSharingButton = new DesktopSharingButton(call);
-        transferCallButton = new TransferCallButton(call);
-        fullScreenButton = new FullScreenButton(this, false);
-        chatButton = new CallToolBarButton(
-            ImageLoader.getImage(ImageLoader.CHAT_BUTTON_SMALL_WHITE),
-            CHAT_BUTTON,
-            GuiActivator.getResources().getI18NString("service.gui.CHAT"));
-
-        localLevel
-            = new InputVolumeControlButton(
-                    call, ImageLoader.MICROPHONE, ImageLoader.MUTE_BUTTON,
-                    false, true, false);
-        remoteLevel
-            = new OutputVolumeControlButton(
-                    ImageLoader.VOLUME_CONTROL_BUTTON, false, true)
-                .getComponent();
-
-        this.callDurationTimer = new Timer(1000, new CallTimerListener());
-        this.callDurationTimer.setRepeats(true);
+        callDurationTimer
+            = new Timer(
+                    1000,
+                    new ActionListener()
+                            {
+                                public void actionPerformed(ActionEvent e)
+                                {
+                                    setCallTitle(callConferenceStartTime);
+                                }
+                            });
+        callDurationTimer.setRepeats(true);
 
         // The call duration parameter is not known yet.
-        this.setCallTitle(0);
+        setCallTitle(0);
 
-        // Initializes the correct renderer panel depending on whether we're in
-        // a single call or a conference call.
-        this.isLastConference = isConference();
-
-        if (isLastConference)
-        {
-            enableConferenceInterface(
-                    CallManager.isVideoStreaming(callConference));
-        }
-        else
-        {
-            List<CallPeer> callPeers = callConference.getCallPeers();
-            CallPeer callPeer = null;
-
-            if (!callPeers.isEmpty())
-            {
-                callPeer = callPeers.get(0);
-                this.callPanel = new OneToOneCallPanel(this, callPeer);
-            }
-        }
-
-        // Adds a CallChangeListener that would receive events when a peer is
-        // added or removed, or the state of the call has changed.
-        callConference.addCallChangeListener(this);
-        callConference.addPropertyChangeListener(
-                callConferencePropertyChangeListener);
-        // Adds the CallPeerConferenceListener that would listen for changes in
-        // the focus state of each call peer.
-        for (CallPeer callPeer : callConference.getCallPeers())
-            callPeer.addCallPeerConferenceListener(this);
-
-        // Initializes all buttons and common panels.
-        initToolBar();
-
-        initPluginComponents();
-    }
-
-    /**
-     * Initializes all buttons and common panels
-     */
-    private void initToolBar()
-    {
-        hangupButton = new HangupButton(this);
-
-        // Initializes the order of buttons in the call tool bar.
-        initButtonIndexes();
-
-        showHideVideoButton.setPeerRenderer(
-                ((CallRenderer) callPanel).getCallPeerRenderer(
-                        callConference.getCallPeers().get(0)));
-
-        // When the local video is enabled/disabled we ensure that the show/hide
-        // local video button is selected/unselected.
-        videoButton.addChangeListener(new ChangeListener()
-        {
-            public void stateChanged(ChangeEvent e)
-            {
-                boolean isVideoSelected = videoButton.isSelected();
-                if (isVideoSelected)
-                    settingsPanel.add(showHideVideoButton,
-                        GuiUtils.getComponentIndex(
-                            videoButton, settingsPanel) + 1);
-                else
-                    settingsPanel.remove(showHideVideoButton);
-
-                showHideVideoButton.setEnabled(isVideoSelected);
-                showHideVideoButton.setSelected(isVideoSelected);
-
-                settingsPanel.revalidate();
-                settingsPanel.repaint();
-            }
-        });
-
-        chatButton.addActionListener(this);
-        dialButton.addActionListener(this);
-        conferenceButton.addActionListener(this);
-        mergeButton.addActionListener(this);
-
-        /*
-         * The buttons will be enabled once the call has entered in a connected
-         * state.
-         */
-        dialButton.setEnabled(false);
-        conferenceButton.setEnabled(false);
-        holdButton.setEnabled(false);
-        recordButton.setEnabled(false);
-
-        settingsPanel.add(dialButton);
-        settingsPanel.add(conferenceButton);
-        settingsPanel.add(holdButton);
-        settingsPanel.add(recordButton);
-        settingsPanel.add(mergeButton);
-        mergeButton.setVisible(false);
-
-        if (!isLastConference)
-        {
-            // Buttons would be enabled once the call has entered in state
-            // connected.
-            transferCallButton.setEnabled(false);
-            desktopSharingButton.setEnabled(false);
-            videoButton.setEnabled(false);
-            showHideVideoButton.setEnabled(false);
-            fullScreenButton.setEnabled(false);
-
-            addOneToOneSpecificComponents();
-
-            // Enables the button only if there is 1 and only 1 peer which is
-            // basicIM capable.
-            if(getIMCapableCallPeers().size() == 1)
-            {
-                settingsPanel.add(chatButton);
-            }
-        }
-        else
-        {
-            // These buttons are only added in the conference call. For the one
-            // to one call mute and sound buttons are in the call peer panel.
-            localLevel.setEnabled(false);
-            remoteLevel.setEnabled(false);
-
-            addConferenceSpecificComponents();
-        }
-
-        if(GuiActivator.getConfigurationService()
-                .getBoolean(SHOW_CALL_INFO_BUTON_PROP, true))
-        {
-            infoButton = new CallToolBarButton(
-                    ImageLoader.getImage(ImageLoader.CALL_INFO),
-                    INFO_BUTTON,
-                    GuiActivator.getResources().getI18NString(
-                        "service.gui.PRESS_FOR_CALL_INFO"));
-
-            infoButton.addActionListener(this);
-            settingsPanel.add(infoButton);
-        }
-
-        settingsPanel.add(hangupButton);
+        initializeUserInterfaceHierarchy();
 
         dtmfHandler = new DTMFHandler(this);
 
-        add(callPanel, BorderLayout.CENTER);
-        add(createBottomBar(), BorderLayout.SOUTH);
-    }
+        /*
+         * Adds the listeners which will observe the model and will trigger the
+         * updates of this view from it.
+         */
+        callConference.addCallChangeListener(callConferenceListener);
+        callConference.addCallPeerConferenceListener(callConferenceListener);
+        callConference.addPropertyChangeListener(callConferenceListener);
+        uiVideoHandler.addObserver(uiVideoHandlerObserver);
 
-    /**
-     * Initializes buttons order in the call tool bar.
-     */
-    private void initButtonIndexes()
-    {
-        dialButton.setIndex(0);
-        conferenceButton.setIndex(1);
-        holdButton.setIndex(2);
-        recordButton.setIndex(3);
-        mergeButton.setIndex(4);
-        transferCallButton.setIndex(5);
-        localLevel.setIndex(6);
+        updateViewFromModel();
 
-        if (remoteLevel instanceof OrderedComponent)
-            ((OrderedComponent) remoteLevel).setIndex(7);
-
-        desktopSharingButton.setIndex(8);
-        fullScreenButton.setIndex(10);
-        videoButton.setIndex(11);
-        showHideVideoButton.setIndex(12);
-        chatButton.setIndex(19);
-
-        if (infoButton != null)
-            infoButton.setIndex(20);
-
-        hangupButton.setIndex(100);
+        initPluginComponents();
     }
 
     /**
@@ -557,19 +395,24 @@ public class CallPanel
         }
         else if (buttonName.equals(CHAT_BUTTON))
         {
-            Collection<Contact> collectionIMCapableContacts
-                = getIMCapableCallPeers();
+            /*
+             * If there is exactly 1 CallPeer capable of instant messaging, then
+             * we'll try to start a chat with her.
+             */
+            /*
+             * TODO The following is very likely to block the user interface in
+             * a noticeable way sooner or later.
+             */
+            List<Contact> imCapableCallPeers = getIMCapableCallPeers(1);
 
-            // If a single peer is basic instant messaging capable, then we
-            // create a chat with this account.
-            if(collectionIMCapableContacts.size() == 1)
+            if (imCapableCallPeers.size() == 1)
             {
-                Contact contact = collectionIMCapableContacts.iterator().next();
-                MetaContact metaContact =
-                    GuiActivator.getContactListService()
-                    .findMetaContactByContact(contact);
-                GuiActivator.getUIService().getChatWindowManager()
-                    .startChat(metaContact);
+                Contact contact = imCapableCallPeers.get(0);
+                MetaContact metaContact
+                    = GuiActivator.getContactListService()
+                            .findMetaContactByContact(contact);
+                GuiActivator.getUIService().getChatWindowManager().startChat(
+                        metaContact);
             }
         }
         else if (buttonName.equals(INFO_BUTTON))
@@ -579,7 +422,6 @@ public class CallPanel
                 this.callInfoFrame = new CallInfoFrame(callConference);
                 this.addCallTitleListener(callInfoFrame);
             }
-
             callInfoFrame.setVisible(!callInfoFrame.isVisible());
         }
     }
@@ -604,6 +446,424 @@ public class CallPanel
     }
 
     /**
+     * Adds the given <tt>CallTitleListener</tt> to the list of listeners,
+     * notified for call title changes.
+     *
+     * @param l the <tt>CallTitleListener</tt> to add
+     */
+    public void addCallTitleListener(CallTitleListener l)
+    {
+        synchronized (titleListeners)
+        {
+            titleListeners.add(l);
+        }
+    }
+
+    /**
+     * Adds remote video specific components.
+     *
+     * @param callPeer the <tt>CallPeer</tt>
+     */
+    private void addRemoteVideoSpecificComponents(CallPeer callPeer)
+    {
+        if(CallManager.isVideoQualityPresetSupported(callPeer))
+        {
+            if(resizeVideoButton == null)
+            {
+                resizeVideoButton = new ResizeVideoButton(callPeer.getCall());
+                resizeVideoButton.setIndex(9);
+            }
+
+            if(resizeVideoButton.countAvailableOptions() > 1)
+                settingsPanel.add(resizeVideoButton);
+        }
+
+        settingsPanel.revalidate();
+        settingsPanel.repaint();
+    }
+
+    /**
+     * Count the number of the buttons in the supplied components.
+     * @param cs the components to search for buttons.
+     * @return number of buttons.
+     */
+    private int countButtons(Component[] cs)
+    {
+        int count = 0;
+
+        for(Component c : cs)
+        {
+            if(c instanceof SIPCommButton || c instanceof SIPCommToggleButton)
+                count++;
+            if(c instanceof Container)
+                count += countButtons(((Container)c).getComponents());
+        }
+
+        return count;
+    }
+
+    /**
+     * Creates the bottom bar panel for this <tt>CallPanel</tt>.
+     *
+     * @return a new bottom bar panel for this <tt>CallPanel</tt>
+     */
+    private JComponent createBottomBar()
+    {
+        JComponent bottomBar
+            = new TransparentPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+
+        bottomBar.setBorder(BorderFactory.createEmptyBorder(0, 30, 2, 30));
+
+        if (OSUtils.IS_MAC)
+        {
+            bottomBar.setOpaque(true);
+            bottomBar.setBackground(
+                    new Color(GuiActivator.getResources().getColor(
+                            "service.gui.MAC_PANEL_BACKGROUND")));
+        }
+
+        bottomBar.add(settingsPanel);
+
+        return bottomBar;
+    }
+
+    /**
+     * Releases the resources acquired by this instance which require explicit
+     * disposal (e.g. any listeners added to the depicted
+     * <tt>CallConference</tt>, the participating <tt>Call</tt>s, and their
+     * associated <tt>CallPeer</tt>s). Invoked by <tt>CallManager</tt> when it
+     * determines that this <tt>CallPanel</tt> is no longer necessary. 
+     */
+    void dispose()
+    {
+        callConference.removeCallChangeListener(callConferenceListener);
+        callConference.removeCallPeerConferenceListener(callConferenceListener);
+        callConference.removePropertyChangeListener(callConferenceListener);
+
+        uiVideoHandler.deleteObserver(uiVideoHandlerObserver);
+        uiVideoHandler.dispose();
+
+        if (callPanel != null)
+            ((CallRenderer) callPanel).dispose();
+    }
+
+    /**
+     * Disposes the call info frame if it exists.
+     */
+    public void disposeCallInfoFrame()
+    {
+        if (callInfoFrame != null)
+            callInfoFrame.dispose();
+    }
+
+    /**
+     * Updates {@link #settingsPanel} from the model of this view. The update is
+     * performed in the AWT event dispatching thread.
+     * <p>
+     * The center of this view is occupied by {@link #callPanel}, the bottom of
+     * this view is dedicated to <tt>settingsPanel</tt>. The method
+     * {@link #updateViewFromModelInEventDispatchThread()} updates
+     * <tt>callPanel</tt> from the model of this view and then invokes the
+     * method <tt>updateSettingsPanelInEventDispatchThread()</tt>. Thus this
+     * whole view is updated so that it depicts the current state of its model.
+     * </p>
+     *
+     * @param callConferenceIsEnded <tt>true</tt> if the method
+     * <tt>updateViewFromModelInEventDispatchThread()</tt> considers the
+     * {@link #callConference} ended; otherwise, <tt>false</tt>. When the
+     * <tt>callConference</tt> is considered ended, the <tt>callPanel</tt>
+     * instance will not be switched to a specific type (one-to-one, audio-only,
+     * or audio/video) because, otherwise, the switch will leave it
+     * <tt>null</tt> and this view will remain blank. In such a case,
+     * <tt>settingsPanel</tt> may wish to do pretty much the same but disable
+     * and/or hide the buttons it contains. 
+     */
+    private void doUpdateSettingsPanelInEventDispatchThread(
+            boolean callConferenceIsEnded)
+    {
+        boolean isConference = (callPanel instanceof BasicConferenceCallPanel);
+
+        /*
+         * For whatever reason, we're treating the localLevel and the
+         * remoteLevel buttons differently and we're adding and removing them in
+         * accord with the conference state of the user interface.
+         */
+        if (isConference)
+        {
+            settingsPanel.add(localLevel);
+            settingsPanel.add(remoteLevel);
+        }
+        else
+        {
+            settingsPanel.remove(localLevel);
+            settingsPanel.remove(remoteLevel);
+        }
+
+        chatButton.setVisible(getIMCapableCallPeers(1).size() == 1);
+        /*
+         * TODO The full-screen support is currently broken so the
+         * fullScreenButton is not enabled or shown.
+         */
+        fullScreenButton.setEnabled(false);
+        updateHoldButtonState();
+        updateMergeButtonState();
+
+        List<Call> calls = callConference.getCalls();
+        boolean advancedTelephony = !calls.isEmpty();
+        boolean telephonyConferencing = false;
+        boolean videoTelephony = false;
+        boolean videoTelephonyIsLocalVideoAllowed = false;
+        boolean videoTelephonyIsLocalVideoStreaming = false;
+
+        for (Call call : calls)
+        {
+            ProtocolProviderService pps = call.getProtocolProvider();
+
+            /*
+             * The transferCallButton requires OperationSetAdvancedTelephony
+             * for all Calls.
+             */
+            if (advancedTelephony)
+            {
+                OperationSetAdvancedTelephony<?> osat
+                    = pps.getOperationSet(OperationSetAdvancedTelephony.class);
+
+                if (osat == null)
+                    advancedTelephony = false;
+            }
+
+            /*
+             * The conferenceButton needs at least one Call with
+             * OperationSetTelephonyConferencing,
+             */
+            if (!telephonyConferencing)
+            {
+                OperationSetTelephonyConferencing ostc
+                    = pps.getOperationSet(
+                            OperationSetTelephonyConferencing.class);
+
+                if (ostc != null)
+                    telephonyConferencing = true;
+            }
+
+            if (!videoTelephony
+                    || !videoTelephonyIsLocalVideoAllowed
+                    || !videoTelephonyIsLocalVideoStreaming)
+            {
+                OperationSetVideoTelephony osvt
+                    = pps.getOperationSet(OperationSetVideoTelephony.class);
+
+                if (osvt != null)
+                {
+                    if (!videoTelephony)
+                        videoTelephony = true;
+                    if (!videoTelephonyIsLocalVideoAllowed
+                            && osvt.isLocalVideoAllowed(call))
+                        videoTelephonyIsLocalVideoAllowed = true;
+                    if (!videoTelephonyIsLocalVideoStreaming
+                            && osvt.isLocalVideoStreaming(call))
+                        videoTelephonyIsLocalVideoStreaming = true;
+                }
+            }
+        }
+
+        conferenceButton.setEnabled(telephonyConferencing);
+        transferCallButton.setEnabled(advancedTelephony);
+
+        /*
+         * The videoButton is a beast of its own kind because it depends not
+         * only on the state of the depicted telephony conference but also on
+         * the global application state.
+         */
+        videoButton.setEnabled(videoTelephony);
+        videoButton.setSelected(videoTelephonyIsLocalVideoAllowed);
+        /*
+         * Consequently, the showHideVideoButton which depends on videoButton
+         * has to be updated depending on the state of the videoButton as well.
+         */
+        showHideVideoButton.setEnabled(
+                videoButton.isEnabled()
+                    && videoTelephonyIsLocalVideoAllowed);
+        showHideVideoButton.setSelected(
+                showHideVideoButton.isEnabled()
+                    && uiVideoHandler.isLocalVideoVisible());
+        showHideVideoButton.setVisible(showHideVideoButton.isEnabled());
+    }
+
+    /**
+     * Updates this view i.e. <tt>CallPanel</tt> so that it depicts the current
+     * state of its model i.e. <tt>callConference</tt>. The update is performed
+     * in the AWT event dispatching thread.
+     */
+    private void doUpdateViewFromModelInEventDispatchThread()
+    {
+        /*
+         * If the telephony conference depicted by this instance has ended, do
+         * not update the user interface because it will be left blank. It is
+         * CallManager's responsibility to dispose of this CallPanel after its
+         * telephony conference has ended. Additionally, the various types of
+         * callPanel will usually require at least one CallPeer in order to not
+         * be blank. The absence of CallPeers usually indicates that a Call and,
+         * respectively, a telephony conference has ended. So it makes some
+         * sense to skip the update in such cases in order to try to not have
+         * the user interface blank.
+         */
+        if (callConference.isEnded()
+                || (callConference.getCallPeerCount() == 0))
+        {
+            /*
+             * However, the settingsPanel contains buttons which may still need
+             * to be disabled and/or hidden.
+             */
+            updateSettingsPanelInEventDispatchThread(true);
+            return;
+        }
+
+        boolean isConference = isConference();
+        boolean isVideo = CallManager.isVideoStreaming(callConference);
+        CallPeer callPeer = null;
+
+        if (callPanel != null)
+        {
+            boolean removeCallPanel;
+
+            if (isConference)
+            {
+                if (callPanel instanceof BasicConferenceCallPanel)
+                {
+                    if (isVideo)
+                    {
+                        removeCallPanel
+                            = !(callPanel instanceof VideoConferenceCallPanel);
+                    }
+                    else
+                    {
+                        removeCallPanel
+                            = (callPanel instanceof VideoConferenceCallPanel);
+                    }
+                }
+                else
+                {
+                    removeCallPanel = true;
+                }
+            }
+            else
+            {
+                if (callPanel instanceof OneToOneCallPanel)
+                {
+                    if (callPeer == null)
+                    {
+                        List<CallPeer> callPeers
+                            = callConference.getCallPeers();
+
+                        if (!callPeers.isEmpty())
+                            callPeer = callPeers.get(0);
+                    }
+                    removeCallPanel
+                        = !((OneToOneCallPanel) callPanel).getCallPeer().equals(
+                                callPeer);
+                        
+                }
+                else
+                    removeCallPanel = true;
+            }
+            if (removeCallPanel)
+            {
+                remove(callPanel);
+                try
+                {
+                    ((CallRenderer) callPanel).dispose();
+                }
+                finally
+                {
+                    callPanel = null;
+                }
+            }
+        }
+        if (callPanel == null)
+        {
+            if (isConference)
+            {
+                if (isVideo)
+                {
+                    callPanel
+                        = new VideoConferenceCallPanel(
+                                this,
+                                callConference,
+                                uiVideoHandler);
+                }
+                else
+                {
+                    callPanel
+                        = new AudioConferenceCallPanel(this, callConference);
+                }
+            }
+            else
+            {
+                if (callPeer == null)
+                {
+                    List<CallPeer> callPeers = callConference.getCallPeers();
+
+                    if (!callPeers.isEmpty())
+                        callPeer = callPeers.get(0);
+                }
+                if (callPeer != null)
+                {
+                    callPanel
+                        = new OneToOneCallPanel(this, callPeer, uiVideoHandler);
+                }
+            }
+            if (callPanel != null)
+                add(callPanel, BorderLayout.CENTER);
+        }
+
+        /*
+         * The center of this view is occupied by callPanel and we have just
+         * updated it. The bottom of this view is dedicated to settingsPanel so
+         * we have to update it as well.
+         */
+        updateSettingsPanelInEventDispatchThread(false);
+    }
+
+    /**
+     * Attempts to give a specific <tt>Component</tt> a visible rectangle with a
+     * specific width  and a specific height if possible and sane by resizing
+     * the <tt>Window</tt> which contains this instance.
+     *
+     * @param component the <tt>Component</tt> which requests a visible
+     * rectangle with the specified <tt>width</tt> and <tt>height</tt>
+     * @param width the width of the visible rectangle requested by the
+     * specified <tt>component</tt>
+     * @param height the height of the visible rectangle requested by the
+     * specified <tt>component</tt>
+     */
+    private void ensureSize(Component component, int width, int height)
+    {
+        CallContainer callContainer = getCallWindow();
+
+        if (callContainer != null)
+            callContainer.ensureSize(component, width, height);
+    }
+
+    /**
+     * Notifies interested listeners of a call title change.
+     */
+    private void fireTitleChangeEvent()
+    {
+        Iterator<CallTitleListener> listeners;
+
+        synchronized (titleListeners)
+        {
+            listeners = new Vector<CallTitleListener>(titleListeners).iterator();
+        }
+
+        while (listeners.hasNext())
+        {
+            listeners.next().callTitleChanged(this);
+        }
+    }
+
+    /**
      * Returns the <tt>CallConference</tt> depicted by this <tt>CallPanel</tt>
      *
      * @return the <tt>CallConference</tt> depicted by this
@@ -612,6 +872,17 @@ public class CallPanel
     public CallConference getCallConference()
     {
         return callConference;
+    }
+
+    /**
+     * Returns the initial call title. The call title could be then changed by
+     * call setCallTitle.
+     *
+     * @return the call title
+     */
+    public String getCallTitle()
+    {
+        return title;
     }
 
     /**
@@ -625,6 +896,15 @@ public class CallPanel
     }
 
     /**
+     * Returns the currently used <tt>CallRenderer</tt>.
+     * @return the currently used <tt>CallRenderer</tt>
+     */
+    public CallRenderer getCurrentCallRenderer()
+    {
+        return (CallRenderer) callPanel;
+    }
+
+    /**
      * Returns the <tt>DialpadDialog</tt> corresponding to this CallDialog.
      *
      * @return the <tt>DialpadDialog</tt> corresponding to this CallDialog.
@@ -635,430 +915,276 @@ public class CallPanel
     }
 
     /**
-     * Updates the state of the general hold button. The hold button is selected
-     * only if all call peers are locally or mutually on hold at the same time.
-     * In all other cases the hold button is unselected.
+     * Finds the <tt>Contact</tt>s which are participating in the telephony
+     * conference depicted by this instance and which are capable of instant
+     * messaging i.e. support {@link OperationSetBasicTelephony}.
+     *
+     * @param limit the maximum number of <tt>Contact</tt>s to be found. Since
+     * it is expensive in terms of execution time (at very least) to find a
+     * <tt>Contact</tt> which stands for a <tt>CallPeer</tt> (and to query it
+     * whether it supports instant messaging), it is advised to limit the search
+     * as much as possible. For example, the <tt>chatButton</tt> is enabled
+     * and/or shown only when there is exactly one such <tt>Contact</tt> so it
+     * makes perfect sense to specify <tt>1</tt> as the <tt>limit</tt> in the
+     * case.
+     * @return a <tt>List</tt> of the <tt>Contact</tt>s which are participating
+     * in the telephony conference depicted by this instance and which are
+     * capable of instant messaging i.e. support
+     * <tt>OperationSetBasicTelephony</tt>
      */
-    public void updateHoldButtonState()
+    private List<Contact> getIMCapableCallPeers(int limit)
     {
-        boolean areAllPeersLocallyOnHold = true;
+        List<CallPeer> callPeers = callConference.getCallPeers();
+        List<Contact> contacts = new ArrayList<Contact>(callPeers.size());
 
-        for (CallPeer peer : callConference.getCallPeers())
+        /*
+         * Choose the CallPeers (or rather their associated Contacts) which are
+         * capable of basic instant messaging.
+         */
+        for (CallPeer callPeer : callPeers)
         {
-            CallPeerState state = peer.getState();
-
-            // If we have clicked the hold button in a full screen mode
-            // we need to update the state of the call dialog hold button.
-            if (!state.equals(CallPeerState.ON_HOLD_LOCALLY)
-                && !state.equals(CallPeerState.ON_HOLD_MUTUALLY))
+            if (callPeer.getProtocolProvider().getOperationSet(
+                        OperationSetBasicInstantMessaging.class)
+                    != null)
             {
-                areAllPeersLocallyOnHold = false;
-                break;
-            }
-        }
+                /*
+                 * CallPeer#getContact) is more expensive in terms of execution
+                 * than ProtocolProviderService#getOperationSet(Class).
+                 */
+                Contact contact = callPeer.getContact();
 
-        // If we have clicked the hold button in a full screen mode or selected
-        // hold of the peer menu in a conference call we need to update the
-        // state of the call dialog hold button.
-        this.holdButton.setSelected(areAllPeersLocallyOnHold);
-    }
-
-    /**
-     * Selects or unselects the video button in this call dialog.
-     *
-     * @param isSelected indicates if the video button should be selected or not
-     */
-    public void setVideoButtonSelected(boolean isSelected)
-    {
-        if (isSelected && !videoButton.isSelected())
-            videoButton.setSelected(true);
-        else if (!isSelected && videoButton.isSelected())
-            videoButton.setSelected(false);
-    }
-
-    /**
-     * Returns <tt>true</tt> if the video button is currently selected,
-     * <tt>false</tt> - otherwise.
-     *
-     * @return <tt>true</tt> if the video button is currently selected,
-     * <tt>false</tt> - otherwise
-     */
-    public boolean isVideoButtonSelected()
-    {
-        return videoButton.isSelected();
-    }
-
-    /**
-     * Selects or unselects the show/hide video button in this call dialog.
-     *
-     * @param isSelected indicates if the show/hide video button should be
-     * selected or not
-     */
-    public void setShowHideVideoButtonSelected(boolean isSelected)
-    {
-        if (isSelected && !showHideVideoButton.isSelected())
-            showHideVideoButton.setSelected(true);
-        else if (!isSelected && showHideVideoButton.isSelected())
-            showHideVideoButton.setSelected(false);
-    }
-
-    /**
-     * Returns <tt>true</tt> if the show/hide video button is currently selected,
-     * <tt>false</tt> - otherwise.
-     *
-     * @return <tt>true</tt> if the show/hide video button is currently selected,
-     * <tt>false</tt> - otherwise
-     */
-    public boolean isShowHideVideoButtonSelected()
-    {
-        return showHideVideoButton.isSelected();
-    }
-
-    /**
-     * Selects or unselects the desktop sharing button in this call dialog.
-     *
-     * @param isSelected indicates if the video button should be selected or not
-     */
-    public void setDesktopSharingButtonSelected(boolean isSelected)
-    {
-        if (logger.isTraceEnabled())
-            logger.trace("Desktop sharing enabled: " + isSelected);
-
-        if (isSelected && !desktopSharingButton.isSelected())
-            desktopSharingButton.setSelected(true);
-        else if (!isSelected && desktopSharingButton.isSelected())
-            desktopSharingButton.setSelected(false);
-
-        if (callPanel instanceof OneToOneCallPanel)
-        {
-            OneToOneCallPanel oneToOneCallPanel = (OneToOneCallPanel) callPanel;
-
-            if (isSelected
-                && oneToOneCallPanel.getCall().getProtocolProvider()
-                    .getOperationSet(
-                        OperationSetDesktopSharingServer.class) != null)
-            {
-                oneToOneCallPanel.addDesktopSharingComponents();
-            }
-            else
-                oneToOneCallPanel.removeDesktopSharingComponents();
-        }
-    }
-
-    /**
-     * Enables or disable some setting buttons when we get on/off hold.
-     *
-     * @param hold true if we are on hold, false otherwise
-     */
-    public void enableButtonsWhileOnHold(boolean hold)
-    {
-        dialButton.setEnabled(!hold);
-        videoButton.setEnabled(!hold);
-
-        boolean videoTelephonyAllowsLocalVideo = false;
-        boolean desktopSharingServerAllowsLocalVideo = false;
-
-        for (Call call : callConference.getCalls())
-        {
-            ProtocolProviderService protocolProvider
-                = call.getProtocolProvider();
-
-            if (!videoTelephonyAllowsLocalVideo)
-            {
-                OperationSetVideoTelephony videoTelephony
-                    = protocolProvider.getOperationSet(
-                            OperationSetVideoTelephony.class);
-
-                if ((videoTelephony != null)
-                        && videoTelephony.isLocalVideoAllowed(call))
+                if (contact != null)
                 {
-                    videoTelephonyAllowsLocalVideo = true;
+                    contacts.add(contact);
+                    if (contacts.size() >= limit)
+                        break;
                 }
             }
-            if (!desktopSharingServerAllowsLocalVideo)
-            {
-                OperationSetDesktopSharingServer desktopSharingServer
-                    = protocolProvider.getOperationSet(
-                            OperationSetDesktopSharingServer.class);
-
-                if ((desktopSharingServer != null)
-                        && desktopSharingServer.isLocalVideoAllowed(call))
-                {
-                    desktopSharingServerAllowsLocalVideo = true;
-                }
-            }
-
-            if (videoTelephonyAllowsLocalVideo
-                    && desktopSharingServerAllowsLocalVideo)
-            {
-                break;
-            }
         }
-
-        // If the video was already enabled (for example in the case of
-        // direct video call) make sure the video button is selected.
-        if (videoTelephonyAllowsLocalVideo && !videoButton.isSelected())
-            setVideoButtonSelected(!hold);
-
-        desktopSharingButton.setEnabled(!hold);
-        // If the video was already enabled (for example in the case of
-        // direct desktop sharing call) make sure the video button is
-        // selected.
-        if (desktopSharingServerAllowsLocalVideo
-                && !desktopSharingButton.isSelected())
-        {
-            setDesktopSharingButtonSelected(!hold);
-        }
+        return contacts;
     }
 
     /**
-     * Enables or disable all setting buttons.
-     *
-     * @param enable true to enable all setting buttons, false to disable them
+     * Returns the minimum width needed to show buttons.
+     * Used to calculate the minimum size of the call dialog.
+     * @return the minimum width for the buttons.
      */
-    public void enableButtons(boolean enable)
+    public int getMinimumButtonWidth()
     {
-        // Buttons would be enabled once the call has entered in state
-        // connected.
-        dialButton.setEnabled(enable);
-        holdButton.setEnabled(enable);
-        recordButton.setEnabled(enable);
-        localLevel.setEnabled(enable);
-        remoteLevel.setEnabled(enable);
-        mergeButton.setEnabled(enable);
+        int numberOfButtons = countButtons(settingsPanel.getComponents());
 
-        // Buttons would be enabled once the call has entered in the connected
-        // state.
-        List<Call> calls = callConference.getCalls();
-        boolean enableConferenceButton = false;
-        boolean enableTransferCallButton = !calls.isEmpty();
-        boolean enableVideoButtons = false;
-
-        for (Call call : calls)
+        if (numberOfButtons > 0)
         {
-            ProtocolProviderService protocolProvider
-                = call.getProtocolProvider();
-
-            if (!enableConferenceButton
-                    && (protocolProvider.getOperationSet(
-                            OperationSetTelephonyConferencing.class)
-                        != null))
-            {
-                enableConferenceButton = true;
-            }
-
-            if (enableTransferCallButton
-                    && (protocolProvider.getOperationSet(
-                            OperationSetAdvancedTelephony.class)
-                        == null))
-            {
-                enableTransferCallButton = false;
-            }
-
-            if (!enableVideoButtons
-                    && (protocolProvider.getOperationSet(
-                            OperationSetVideoTelephony.class)
-                        != null))
-            {
-                enableVideoButtons = true;
-            }
+            // +1 cause we had and a hangup button
+            // *32, a button is 28 pixels width and give some border
+            return (numberOfButtons + 1) * 32;
         }
-
-        if (enableConferenceButton && (conferenceButton != null))
-            conferenceButton.setEnabled(enable);
-
-        if (videoButton != null)
-            videoButton.setEnabled(enable);
-
-        if (!isLastConference)
-        {
-            List<CallPeer> callPeers = callConference.getCallPeers();
-
-            if (callPeers.size() > 0)
-            {
-                CallPeer callPeer = callPeers.get(0);
-                CallPeerState callPeerState = callPeer.getState();
-
-                enableButtonsWhileOnHold(
-                        callPeerState == CallPeerState.ON_HOLD_LOCALLY
-                            || callPeerState == CallPeerState.ON_HOLD_MUTUALLY
-                            || callPeerState == CallPeerState.ON_HOLD_REMOTELY);
-            }
-
-            if (enableTransferCallButton && (transferCallButton != null))
-                transferCallButton.setEnabled(enable);
-
-            if (enableVideoButtons)
-            {
-                if (fullScreenButton != null)
-                    fullScreenButton.setEnabled(enable);
-                if (desktopSharingButton != null)
-                    desktopSharingButton.setEnabled(enable);
-            }
-        }
+        else
+            return -1;
     }
 
     /**
-     * Implements {@link CallChangeListener#callPeerAdded(CallPeerEvent)}. Adds
-     * the appropriate user interface when a new <tt>CallPeer</tt> is added to
-     * a <tt>Call</tt> participating in {@link #callConference}.
-     *
-     * @param evt the <tt>CallPeerEvent</tt> which specifies the
-     * <tt>CallPeer</tt> that got added and the <tt>Call</tt> to which it was
-     * added
+     * Initializes buttons order in the call tool bar.
      */
-    public void callPeerAdded(final CallPeerEvent evt)
+    private void initButtonIndexes()
     {
-        if (!callConference.containsCall(evt.getSourceCall()))
-            return;
+        dialButton.setIndex(0);
+        conferenceButton.setIndex(1);
+        holdButton.setIndex(2);
+        recordButton.setIndex(3);
+        mergeButton.setIndex(4);
+        transferCallButton.setIndex(5);
 
-        final CallPeer callPeer = evt.getSourceCallPeer();
+        localLevel.setIndex(6);
+        if (remoteLevel instanceof OrderedComponent)
+            ((OrderedComponent) remoteLevel).setIndex(7);
 
-        callPeer.addCallPeerConferenceListener(this);
+        desktopSharingButton.setIndex(8);
+        fullScreenButton.setIndex(10);
+        videoButton.setIndex(11);
+        showHideVideoButton.setIndex(12);
+        chatButton.setIndex(19);
 
-        SwingUtilities.invokeLater(new Runnable()
-        {
-            public void run()
-            {
-                if (isLastConference)
-                {
-                    if (CallManager.isVideoStreaming(callConference))
-                    {
-                        if (!(callPanel instanceof VideoConferenceCallPanel))
-                            enableConferenceInterface(true);
-                        else
-                        {
-                            ((VideoConferenceCallPanel) callPanel)
-                                .addCallPeerPanel(callPeer);
-                        }
-                    }
-                    else
-                    {
-                        if(callPanel instanceof VideoConferenceCallPanel)
-                            enableConferenceInterface(false);
-                        else
-                        {
-                            ((ConferenceCallPanel) callPanel)
-                                .addCallPeerPanel(callPeer);
-                        }
-                    }
-                }
-                else
-                {
-                    isLastConference = isConference();
+        if (infoButton != null)
+            infoButton.setIndex(20);
 
-                    // We've been in one-to-one call and we're now in a
-                    // conference.
-                    if (isLastConference)
-                    {
-                        enableConferenceInterface(
-                            CallManager.isVideoStreaming(callConference));
-                    }
-                    // We're still in a one-to-one call and we receive the
-                    // remote peer.
-                    else
-                    {
-                        List<CallPeer> callPeers
-                            = callConference.getCallPeers();
-
-                        if (!callPeers.isEmpty())
-                        {
-                            CallPeer onlyCallPeer = callPeers.get(0);
-
-                            ((OneToOneCallPanel) callPanel)
-                                .addCallPeerPanel(onlyCallPeer);
-                        }
-                    }
-                }
-
-                refreshContainer();
-            }
-        });
+        hangupButton.setIndex(100);
     }
 
     /**
-     * Implements the <tt>CallChangeListener.callPeerRemoved</tt> method.
-     * Removes all related user interface when a peer is removed from the call.
-     * @param evt the <tt>CallPeerEvent</tt> that has been triggered
+     * Initialize plug-in components already registered for this container.
      */
-    public void callPeerRemoved(CallPeerEvent evt)
+    private void initPluginComponents()
+    {
+        // Search for plug-in components registered through the OSGI
+        // BundleContext.
+
+        String osgiFilter
+            = "("
+                + net.java.sip.communicator.service.gui.Container.CONTAINER_ID
+                + "="
+                + net.java.sip.communicator.service.gui.Container
+                    .CONTAINER_CALL_DIALOG.getID()
+                + ")";
+        ServiceReference[] serRefs = null;
+
+        try
+        {
+            serRefs
+                = GuiActivator.bundleContext.getServiceReferences(
+                        PluginComponent.class.getName(),
+                        osgiFilter);
+        }
+        catch (InvalidSyntaxException ise)
+        {
+            logger.error("Could not obtain plugin reference.", ise);
+        }
+
+        if (serRefs != null)
+        {
+            for (ServiceReference serRef : serRefs)
+            {
+                PluginComponent component
+                    = (PluginComponent)
+                        GuiActivator.bundleContext.getService(serRef);
+
+                this.add((Component) component.getComponent());
+            }
+        }
+
+        GuiActivator.getUIService().addPluginComponentListener(this);
+    }
+
+    /**
+     * Initializes the user interface hierarchy of this <tt>CallPanel</tt> i.e.
+     * the AWT <tt>Component</tt>s which constitute the user interface to be
+     * displayed by this <tt>Component</tt>. Their state does not have to depict
+     * the current state of the model of this view because
+     * {@link #updateViewFromModel()} will be invoked before this view becomes
+     * visible. At the center of the user interface of this view is
+     * {@link #callPanel} but it is dynamically added and removed multiple times
+     * as part of the execution of the <tt>updateViewFromModel</tt> method so
+     * it is not dealt with here.
+     */
+    private void initializeUserInterfaceHierarchy()
     {
         /*
-         * Technically, we do not have to remove this as a
-         * CallPeerConferenceListener from a CallPeer which was removed from a
-         * Call not participating in callConference. Anyway, it shouldn't hurt
-         * (much).
+         * The settingsPanel will contain the buttons. It is initialized before
+         * the buttons in case any of the buttons need it (which is hard to
+         * determine at the time of this writing).
          */
-        CallPeer peer = evt.getSourceCallPeer();
+        settingsPanel = CallPeerRendererUtils.createButtonBar(false, null);
 
-        peer.removeCallPeerConferenceListener(this);
+        /*
+         * TODO CallPanel depicts a whole CallConference which may have multiple
+         * Calls, new Calls may be added to the CallConference and existing
+         * Calls may be removed from the CallConference. For example, the
+         * buttons which accept a Call as an argument should be changed to take
+         * into account the whole CallConference.
+         */
+        Call aCall = this.callConference.getCalls().get(0);
 
-        Call call = evt.getSourceCall();
-
-        if (callConference.containsCall(call))
+        chatButton
+            = new CallToolBarButton(
+                    ImageLoader.getImage(ImageLoader.CHAT_BUTTON_SMALL_WHITE),
+                    CHAT_BUTTON,
+                    GuiActivator.getResources().getI18NString(
+                            "service.gui.CHAT"));
+        conferenceButton
+            = new CallToolBarButton(
+                    ImageLoader.getImage(ImageLoader.ADD_TO_CALL_BUTTON),
+                    CONFERENCE_BUTTON,
+                    GuiActivator.getResources().getI18NString(
+                            "service.gui.CREATE_CONFERENCE_CALL"));
+        desktopSharingButton = new DesktopSharingButton(aCall);
+        dialButton
+            = new CallToolBarButton(
+                    ImageLoader.getImage(ImageLoader.DIAL_BUTTON),
+                    DIAL_BUTTON,
+                    GuiActivator.getResources().getI18NString(
+                            "service.gui.DIALPAD"));
+        fullScreenButton = new FullScreenButton(this, false);
+        hangupButton = new HangupButton(this);
+        holdButton = new HoldButton(aCall);
+        if(GuiActivator.getConfigurationService().getBoolean(
+                SHOW_CALL_INFO_BUTON_PROP,
+                true))
         {
-            /*
-             * We could argue that the logic applied to
-             * removeCallPeerConferenceListener above allies to
-             * RemovePeerPanelListener. But we're creating a Timer here so it
-             * hurts (more).
-             */
-            Timer timer = new Timer(5000, new RemovePeerPanelListener(peer));
-
-            timer.setRepeats(false);
-            timer.start();
-
-            /*
-             * The call/telephony conference is finished when that last CallPeer
-             * is removed.
-             */
-            if (callConference.getCallPeerCount() == 0)
-                stopCallTimer();
+            infoButton
+                = new CallToolBarButton(
+                        ImageLoader.getImage(ImageLoader.CALL_INFO),
+                        INFO_BUTTON,
+                        GuiActivator.getResources().getI18NString(
+                                "service.gui.PRESS_FOR_CALL_INFO"));
         }
+        mergeButton
+            = new CallToolBarButton(
+                    ImageLoader.getImage(ImageLoader.MERGE_CALL_BUTTON),
+                    MERGE_BUTTON,
+                    GuiActivator.getResources().getI18NString(
+                            "service.gui.MERGE_TO_CALL"));
+        recordButton = new RecordButton(aCall);
+        showHideVideoButton = new ShowHideVideoButton(uiVideoHandler);
+        transferCallButton = new TransferCallButton(aCall);
+        videoButton = new LocalVideoButton(aCall);
+
+        localLevel
+            = new InputVolumeControlButton(
+                    aCall,
+                    ImageLoader.MICROPHONE,
+                    ImageLoader.MUTE_BUTTON,
+                    false,
+                    true,
+                    false);
+        remoteLevel
+            = new OutputVolumeControlButton(
+                    ImageLoader.VOLUME_CONTROL_BUTTON,
+                    false,
+                    true)
+                .getComponent();
+
+        /*
+         * Now that the buttons have been initialized, set their order indexes
+         * so that they get added in the correct order later on.
+         */
+        initButtonIndexes();
+
+        chatButton.addActionListener(this);
+        conferenceButton.addActionListener(this);
+        dialButton.addActionListener(this);
+        if (infoButton != null)
+            infoButton.addActionListener(this);
+        mergeButton.addActionListener(this);
+
+        settingsPanel.add(chatButton);
+        settingsPanel.add(conferenceButton);
+        settingsPanel.add(desktopSharingButton);
+        settingsPanel.add(dialButton);
+        settingsPanel.add(fullScreenButton);
+        settingsPanel.add(hangupButton);
+        settingsPanel.add(holdButton);
+        if (infoButton != null)
+            settingsPanel.add(infoButton);
+        settingsPanel.add(mergeButton);
+        settingsPanel.add(recordButton);
+        settingsPanel.add(showHideVideoButton);
+        settingsPanel.add(transferCallButton);
+        settingsPanel.add(videoButton);;
+
+        // The bottom bar will contain the settingsPanel.
+        add(createBottomBar(), BorderLayout.SOUTH);
     }
 
     /**
-     * Implements {@link CallChangeListener#callStateChanged(CallChangeEvent)}.
+     * Returns <code>true</code> if the call timer has been started, otherwise
+     * returns <code>false</code>.
+     * @return <code>true</code> if the call timer has been started, otherwise
+     * returns <code>false</code>
      */
-    public void callStateChanged(CallChangeEvent evt)
+    public boolean isCallTimerStarted()
     {
-        updateMergeButtonState();
+        return isCallTimerStarted;
     }
-
-    /**
-     * Updates <tt>CallPeer</tt> related components to fit the new focus state.
-     * @param conferenceEvent the event that notified us of the change
-     */
-    public void conferenceFocusChanged(CallPeerConferenceEvent conferenceEvent)
-    {
-        SwingUtilities.invokeLater(new Runnable()
-        {
-            public void run()
-            {
-//                if (!isLastConference)
-//                {
-//                    isLastConference = isConference();
-//
-//                    // We've been in one-to-one call and we're now in a
-//                    // conference.
-//                    if (isLastConference)
-//                    {
-//                        removeOneToOneSpecificComponents();
-//                        enableConferenceInterface(
-//                            CallManager.isVideoStreaming(call));
-//                    }
-//                }
-
-                refreshContainer();
-            }
-        });
-    }
-
-    public void conferenceMemberAdded(CallPeerConferenceEvent conferenceEvent)
-    {}
-
-    public void conferenceMemberRemoved(CallPeerConferenceEvent conferenceEvent)
-    {}
 
     /**
      * Checks if the contained call is a conference call.
@@ -1066,7 +1192,7 @@ public class CallPanel
      * @return <code>true</code> if the contained <tt>Call</tt> is a conference
      * call, otherwise - returns <code>false</code>.
      */
-    public boolean isConference()
+    boolean isConference()
     {
         // If we're the focus of the conference.
         if (callConference.isConferenceFocus())
@@ -1092,32 +1218,27 @@ public class CallPanel
     }
 
     /**
-     * Starts the timer that counts call duration.
+     * Checks whether recording is currently enabled or not, state retrieved
+     * from call record button state.
+     *
+     * @return <tt>true</tt> if the recording is already started, <tt>false</tt>
+     * otherwise
      */
-    public void startCallTimer()
+    public boolean isRecordingStarted()
     {
-        callConferenceStartTime = System.currentTimeMillis();
-        callDurationTimer.start();
-        isCallTimerStarted = true;
+        return recordButton.isSelected();
     }
 
     /**
-     * Stops the timer that counts call duration.
+     * Returns <tt>true</tt> if the show/hide video button is currently selected,
+     * <tt>false</tt> - otherwise.
+     *
+     * @return <tt>true</tt> if the show/hide video button is currently selected,
+     * <tt>false</tt> - otherwise
      */
-    public void stopCallTimer()
+    public boolean isShowHideVideoButtonSelected()
     {
-        this.callDurationTimer.stop();
-    }
-
-    /**
-     * Returns <code>true</code> if the call timer has been started, otherwise
-     * returns <code>false</code>.
-     * @return <code>true</code> if the call timer has been started, otherwise
-     * returns <code>false</code>
-     */
-    public boolean isCallTimerStarted()
-    {
-        return isCallTimerStarted;
+        return showHideVideoButton.isSelected();
     }
 
     /**
@@ -1135,22 +1256,287 @@ public class CallPanel
         conferenceButton.setIconImage(
                 ImageLoader.getImage(ImageLoader.ADD_TO_CALL_BUTTON));
 
-        if(hangupButton != null)
+        if (hangupButton != null)
             hangupButton.setBackgroundImage(
                     ImageLoader.getImage(ImageLoader.HANGUP_BUTTON_BG));
     }
 
     /**
-     * Each second refreshes the time label to show to the user the exact
-     * duration of the call.
+     * Notifies this instance about a specific <tt>VideoEvent</tt> which may
+     * warrant {@link #ensureSize(Component, int, int)} to be invoked in order
+     * to try to have the associated visual <tt>Component</tt> displaying video
+     * shown without scaling. The method will execute on the AWT event
+     * dispatching thread because it will be making its judgments based on the
+     * properties of AWT <tt>Component</tt>s.
+     *
+     * @param ev a <tt>VideoEvent</tt> which represents the cause of the
+     * notification and specifies the visual <tt>Component</tt> displaying video
+     * which may need an adjustment of a Frame's size in order to be displayed
+     * without scaling 
      */
-    private class CallTimerListener
-        implements ActionListener
+    private void maybeEnsureSize(final VideoEvent ev)
     {
-        public void actionPerformed(ActionEvent e)
+        if (!SwingUtilities.isEventDispatchThread())
         {
-            setCallTitle(callConferenceStartTime);
+            SwingUtilities.invokeLater(
+                    new Runnable()
+                    {
+                        public void run()
+                        {
+                            maybeEnsureSize(ev);
+                        }
+                    });
+            return;
         }
+
+        if (ev instanceof SizeChangeVideoEvent)
+        {
+            /*
+             * If a visual Component depicting video (streaming between the
+             * local peer/user and the remote peers) changes its size, try to
+             * adjust the size of the Frame which displays it so that it appears
+             * without scaling.
+             */
+            SizeChangeVideoEvent scev = (SizeChangeVideoEvent) ev;
+
+            ensureSize(
+                    scev.getVisualComponent(),
+                    scev.getWidth(), scev.getHeight());
+        }
+        else if (ev.getType() == VideoEvent.VIDEO_ADDED)
+        {
+            Component video = ev.getVisualComponent();
+
+            if ((video != null)
+                    && UIVideoHandler2.isAncestor(this, video)
+                    && video.isPreferredSizeSet())
+            {
+                Dimension preferredSize = video.getPreferredSize();
+
+                if ((preferredSize.height > 0) && (preferredSize.width > 0))
+                {
+                    Dimension size = video.getSize();
+
+                    if ((preferredSize.height > size.height)
+                            || (preferredSize.width > size.width))
+                    {
+                        ensureSize(
+                                video,
+                                preferredSize.width, preferredSize.height);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Invoked by {@link #callConferenceListener} to notify this instance about
+     * an <tt>EventObject</tt> related to the <tt>CallConference</tt> depicted
+     * by this <tt>CallPanel</tt>, the <tt>Call</tt>s participating in it,
+     * the <tt>CallPeer</tt>s associated with them, the
+     * <tt>ConferenceMember</tt>s participating in any telephony conferences
+     * organized by them, etc. In other words, notifies this instance about
+     * any change which may cause an update to be required so that this view
+     * i.e. <tt>CallPanel</tt> depicts the current state of its model i.e.
+     * {@link #callConference}.
+     *
+     * @param ev the <tt>EventObject</tt> this instance is being notified
+     * about.
+     */
+    private void onCallConferenceEventObject(EventObject ev)
+    {
+        /*
+         * The main task is to invoke updateViewFromModel() in order to make
+         * sure that this view depicts the current state of its model.
+         */
+
+        try
+        {
+            /*
+             * However, we seem to be keeping track of the duration of the call
+             * (i.e. the telephony conference) in the user interface. Stop the
+             * Timer which ticks the duration of the call as soon as the
+             * telephony conference depicted by this instance appears to have
+             * ended. The situation will very likely occur when a Call is
+             * removed from the telephony conference or a CallPeer is removed
+             * from a Call.
+             */
+            boolean tryStopCallTimer = false;
+
+            if (ev instanceof CallPeerEvent)
+            {
+                tryStopCallTimer
+                    = (CallPeerEvent.CALL_PEER_REMOVED
+                            == ((CallPeerEvent) ev).getEventID());
+            }
+            else if (ev instanceof PropertyChangeEvent)
+            {
+                PropertyChangeEvent pcev = (PropertyChangeEvent) ev;
+
+                tryStopCallTimer
+                    = (CallConference.CALLS.equals(pcev)
+                            && (pcev.getOldValue() instanceof Call)
+                            && (pcev.getNewValue() == null));
+            }
+            if (tryStopCallTimer
+                    && (callConference.isEnded()
+                            || callConference.getCallPeerCount() == 0))
+            {
+                stopCallTimer();
+            }
+        }
+        finally
+        {
+            updateViewFromModel();
+        }
+    }
+
+    /**
+     * Notifies this <tt>CallPanel</tt> about a specific <tt>CallEvent</tt>
+     * (received by <tt>CallManager</tt>). The source <tt>Call</tt> may or may
+     * not be participating in the telephony conference depicted by this
+     * instance but allows it to update any state which may depend on the
+     * <tt>Call</tt>s which are established application-wide.
+     *
+     * @param ev a <tt>CallEvent</tt> which specifies the <tt>Call</tt> which
+     * caused this instance to be notified and the exact type of the
+     * notification event
+     */
+    void onCallEvent(CallEvent ev)
+    {
+        updateMergeButtonState();
+    }
+
+    /**
+     * Adds/removes the <tt>Component</tt> of the <tt>PluginComponent</tt>
+     * specified by a <tt>PluginComponentEvent</tt> to/from
+     * {@link #settingsPanel} (if it is appropriate for this
+     * <tt>Container</tt>).
+     *
+     * @param ev a <tt>PluginComponentEvent</tt> which specifies the
+     * <tt>PluginComponent</tt> whose <tt>Component</tt> is to be added/removed
+     * to/from {@link #settingsPanel}
+     */
+    protected void onPluginComponentEvent(PluginComponentEvent ev)
+    {
+        PluginComponent pc = ev.getPluginComponent();
+        Object c;
+
+        if (pc.getContainer().equals(
+                    net.java.sip.communicator.service.gui.Container
+                            .CONTAINER_CALL_DIALOG)
+                && ((c = pc.getComponent()) instanceof Component))
+        {
+            switch (ev.getEventID())
+            {
+            case PluginComponentEvent.PLUGIN_COMPONENT_ADDED:
+                settingsPanel.add((Component) c);
+                break;
+            case PluginComponentEvent.PLUGIN_COMPONENT_REMOVED:
+                settingsPanel.remove((Component) c);
+                break;
+            }
+
+            settingsPanel.revalidate();
+            settingsPanel.repaint();
+        }
+    }
+
+
+    /**
+     * {@inheritDoc}
+     *
+     * Adds the <tt>Component</tt> of the <tt>PluginComponent</tt> specified by
+     * the <tt>PluginComponentEvent</tt> to {@link #settingsPanel} (if it is
+     * appropriate for this <tt>Container</tt>).
+     */
+    public void pluginComponentAdded(PluginComponentEvent ev)
+    {
+        onPluginComponentEvent(ev);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Removes the <tt>Component</tt> of the <tt>PluginComponent</tt> specified
+     * by the <tt>PluginComponentEvent</tt> from {@link #settingsPanel} (if it
+     * is appropriate for this <tt>Container</tt>).
+     */
+    public void pluginComponentRemoved(PluginComponentEvent ev)
+    {
+        onPluginComponentEvent(ev);
+    }
+
+    /**
+     * Refreshes the content of this dialog.
+     */
+    private void refreshContainer()
+    {
+        if (!isVisible())
+            return;
+
+        validate();
+
+        // Calling pack would resize the window to fit the new content. We'd
+        // like to use the whole possible space before showing the scroll bar.
+        // Needed a workaround for the following problem:
+        // When window reaches its maximum size (and the scroll bar is visible?)
+        // calling pack() results in an incorrect repainting and makes the
+        // whole window to freeze.
+        // We check also if the vertical scroll bar is visible in order to
+        // correctly pack the window when a peer is removed.
+        boolean isScrollBarVisible;
+
+        if (callPanel instanceof AudioConferenceCallPanel)
+        {
+            Component scrollBar
+                = ((AudioConferenceCallPanel) callPanel).getVerticalScrollBar();
+
+            isScrollBarVisible = ((scrollBar != null) && scrollBar.isVisible());
+        }
+        else
+            isScrollBarVisible = false;
+
+        /*
+         * Re-packing should be done only when the callWindow is not high enough
+         * to not have a vertical scroll bar and there is still room left to
+         * expand its height without going out of the screen.
+         */
+        if (isScrollBarVisible
+                && (getHeight()
+                        < GraphicsEnvironment
+                            .getLocalGraphicsEnvironment()
+                                .getMaximumWindowBounds()
+                                    .height))
+            callWindow.pack();
+        else
+            repaint();
+    }
+
+    /**
+     * Removes the given <tt>CallTitleListener</tt> to the list of listeners,
+     * notified for call title changes.
+     *
+     * @param l the <tt>CallTitleListener</tt> to remove
+     */
+    public void removeCallTitleListener(CallTitleListener l)
+    {
+        synchronized (titleListeners)
+        {
+            titleListeners.remove(l);
+        }
+    }
+
+    /**
+     * Remove remote video specific components.
+     */
+    private void removeRemoteVideoSpecificComponents()
+    {
+        if(resizeVideoButton != null)
+            settingsPanel.remove(resizeVideoButton);
+
+        settingsPanel.revalidate();
+        settingsPanel.repaint();
     }
 
     /**
@@ -1197,617 +1583,190 @@ public class CallPanel
     }
 
     /**
-     * Returns the initial call title. The call title could be then changed by
-     * call setCallTitle.
+     * Selects or unselects the desktop sharing button in this call dialog.
      *
-     * @return the call title
+     * @param isSelected indicates if the video button should be selected or not
      */
-    public String getCallTitle()
+    public void setDesktopSharingButtonSelected(boolean isSelected)
     {
-        return title;
-    }
+        if (logger.isTraceEnabled())
+            logger.trace("Desktop sharing enabled: " + isSelected);
 
-    /**
-     * Removes the given CallPeer panel from this CallPanel.
-     */
-    private class RemovePeerPanelListener
-        implements ActionListener
-    {
-        private final CallPeer peer;
-
-        public RemovePeerPanelListener(CallPeer peer)
-        {
-            this.peer = peer;
-        }
-
-        public void actionPerformed(ActionEvent e)
-        {
-            SwingUtilities.invokeLater(new Runnable()
-            {
-                public void run()
-                {
-                    int callPeerCount = callConference.getCallPeerCount();
-
-                    if (isLastConference)
-                    {
-                        if (callPeerCount == 1)
-                        {
-                            isLastConference = false;
-
-                            remove(callPanel);
-
-                            CallPeer singlePeer
-                                = callConference.getCallPeers().get(0);
-
-                            // if the other party is focus we want to see
-                            // his members
-                            if (!singlePeer.isConferenceFocus())
-                            {
-                                CallRenderer callRenderer
-                                    = (CallRenderer) callPanel;
-                                UIVideoHandler videoHandler
-                                    = callRenderer.getVideoHandler();
-
-                                // If we have already a video handler, try to
-                                // initiate the new UI with the current video
-                                // handler!
-                                JComponent newPanel
-                                    = new OneToOneCallPanel(
-                                            CallPanel.this,
-                                            singlePeer,
-                                            videoHandler);
-
-                                updateCurrentCallPanel(newPanel);
-                            }
-                            else if(singlePeer.isConferenceFocus())
-                            {
-                                ((ConferenceCallPanel) callPanel)
-                                    .removeCallPeerPanel(peer);
-                            }
-
-                            add(callPanel, BorderLayout.CENTER);
-                        }
-                        else if (callPeerCount > 1)
-                        {
-                            ((ConferenceCallPanel) callPanel)
-                                .removeCallPeerPanel(peer);
-                        }
-                        else
-                        {
-                            // when in conference and the focus closes the
-                            // conference we receive event for peer remove and
-                            // there are no other peers in the call, so dispose
-                            // the window
-                            callWindow.close(CallPanel.this);
-                        }
-
-                        refreshContainer();
-                    }
-                    else
-                    {
-                        // Dispose the window if there are no peers
-                        if (callPeerCount < 1)
-                            callWindow.close(CallPanel.this);
-                    }
-                }
-            });
-        }
-    }
-
-    /**
-     * Refreshes the content of this dialog.
-     */
-    public void refreshContainer()
-    {
-        if (!isVisible())
-            return;
-
-        validate();
-
-        // Calling pack would resize the window to fit the new content. We'd
-        // like to use the whole possible space before showing the scroll bar.
-        // Needed a workaround for the following problem:
-        // When window reaches its maximum size (and the scroll bar is visible?)
-        // calling pack() results in an incorrect repainting and makes the
-        // whole window to freeze.
-        // We check also if the vertical scroll bar is visible in order to
-        // correctly pack the window when a peer is removed.
-        boolean isScrollBarVisible;
-
-        if (callPanel instanceof ConferenceCallPanel)
-        {
-            Component scrollBar
-                = ((ConferenceCallPanel) callPanel).getVerticalScrollBar();
-
-            isScrollBarVisible = ((scrollBar != null) && scrollBar.isVisible());
-        }
-        else
-            isScrollBarVisible = false;
-
-        /*
-         * Repacking should be done only when the callWindow is not high enough
-         * to not have a vertical scroll bar and there is still room left to
-         * expand its height without going out of the screen.
-         */
-        if (isScrollBarVisible
-                && (getHeight()
-                        < GraphicsEnvironment
-                            .getLocalGraphicsEnvironment()
-                                .getMaximumWindowBounds()
-                                    .height))
-            callWindow.pack();
-        else
-            repaint();
-    }
-
-    /**
-     * Returns the currently used <tt>CallRenderer</tt>.
-     * @return the currently used <tt>CallRenderer</tt>
-     */
-    public CallRenderer getCurrentCallRenderer()
-    {
-        return (CallRenderer) callPanel;
-    }
-
-    /**
-     * Adds remote video specific components.
-     *
-     * @param callPeer the <tt>CallPeer</tt>
-     */
-    public void addRemoteVideoSpecificComponents(CallPeer callPeer)
-    {
-        if(CallManager.isVideoQualityPresetSupported(callPeer))
-        {
-            if(resizeVideoButton == null)
-            {
-                resizeVideoButton = new ResizeVideoButton(callPeer.getCall());
-                resizeVideoButton.setIndex(9);
-            }
-
-            if(resizeVideoButton.countAvailableOptions() > 1)
-                settingsPanel.add(resizeVideoButton);
-        }
-
-        settingsPanel.add(fullScreenButton);
-        settingsPanel.revalidate();
-        settingsPanel.repaint();
-    }
-
-    /**
-     * Remove remote video specific components.
-     */
-    public void removeRemoteVideoSpecificComponents()
-    {
-        if(resizeVideoButton != null)
-            settingsPanel.remove(resizeVideoButton);
-
-        settingsPanel.remove(fullScreenButton);
-        settingsPanel.revalidate();
-        settingsPanel.repaint();
-    }
-
-    /**
-     * Replaces the current call panel with the given one.
-     * @param callPanel the <tt>JComponent</tt> to replace the current
-     * call panel
-     */
-    private void updateCurrentCallPanel(JComponent callPanel)
-    {
-        this.callPanel = callPanel;
+        if (isSelected && !desktopSharingButton.isSelected())
+            desktopSharingButton.setSelected(true);
+        else if (!isSelected && desktopSharingButton.isSelected())
+            desktopSharingButton.setSelected(false);
 
         if (callPanel instanceof OneToOneCallPanel)
         {
-            removeConferenceSpecificComponents();
-            addOneToOneSpecificComponents();
-        }
-        else
-        {
-            removeOneToOneSpecificComponents();
-            addConferenceSpecificComponents();
+            OneToOneCallPanel oneToOneCallPanel = (OneToOneCallPanel) callPanel;
+
+            if (isSelected
+                && (oneToOneCallPanel.getCall().getProtocolProvider()
+                        .getOperationSet(OperationSetDesktopSharingServer.class)
+                    != null))
+            {
+                oneToOneCallPanel.addDesktopSharingComponents();
+            }
+            else
+                oneToOneCallPanel.removeDesktopSharingComponents();
         }
     }
 
     /**
-     * Enables the video or non-video conference interface.
+     * Selects or unselects the video button in this call dialog.
      *
-     * @param isVideo <tt>true</tt> to enable the video conference interface or
-     * <tt>false</tt> to enable the non-video conference interface
+     * @param isSelected indicates if the video button should be selected or not
      */
-    public void enableConferenceInterface(final boolean isVideo)
+    public void setVideoButtonSelected(boolean isSelected)
     {
-        if (!SwingUtilities.isEventDispatchThread())
+        if (isSelected && !videoButton.isSelected())
+            videoButton.setSelected(true);
+        else if (!isSelected && videoButton.isSelected())
+            videoButton.setSelected(false);
+    }
+
+    /**
+     * Starts the timer that counts call duration.
+     */
+    public void startCallTimer()
+    {
+        callConferenceStartTime = System.currentTimeMillis();
+        callDurationTimer.start();
+        isCallTimerStarted = true;
+    }
+
+    /**
+     * Stops the timer that counts call duration.
+     */
+    private void stopCallTimer()
+    {
+        this.callDurationTimer.stop();
+    }
+
+    /**
+     * Notifies this instance that {@link #uiVideoHandler} has reported a change
+     * in the video-related information which may warrant an update of this view
+     * from its model.
+     *
+     * @param arg an <tt>Object</tt>, if any, which represents the cause that
+     * triggered the notification
+     */
+    private void uiVideoHandlerUpdate(Object arg)
+    {
+        /* The most important task is to update this view from its model. */
+
+        /*
+         * If a visual Component displaying video is reported to have been
+         * added/prepared/received, we may have to adjust the size of the Frame
+         * displaying this user interface so that the video appears without
+         * scaling.
+         */
+        /*
+         * XXX The following may be making judgments about the user interface
+         * out of the AWT event dispatching thread which is a prerequisite for
+         * unexpected behavior. Anyway, that's the only idea at the time of this
+         * writing.
+         */
+        VideoEvent maybeEnsureSize = null;
+
+        if (arg instanceof VideoEvent)
         {
             try
             {
-                SwingUtilities.invokeAndWait(new Runnable()
+                VideoEvent vev = (VideoEvent) arg;
+                int vevType = vev.getType();
+
+                if (vevType == VideoEvent.VIDEO_ADDED)
                 {
-                    public void run()
+                    Component video = vev.getVisualComponent();
+
+                    if ((video != null)
+                            && !UIVideoHandler2.isAncestor(this, video))
                     {
-                        enableConferenceInterface(isVideo);
+                        maybeEnsureSize = vev;
                     }
-                });
+                }
+                else if (vevType == SizeChangeVideoEvent.VIDEO_SIZE_CHANGE)
+                {
+                    /*
+                     * If a visual Component depicting video (streaming between
+                     * the local peer/user and the remote peers) changes its
+                     * size, try to adjust the size of the Frame which displays
+                     * it so that it appears without scaling.
+                     */
+                    maybeEnsureSize = vev;
+                }
             }
-            catch (InterruptedException e)
+            catch (Throwable t)
             {
-                logger.error("Failed to enable conference interface", e);
+                if (t instanceof ThreadDeath)
+                    throw (ThreadDeath) t;
+                else if (logger.isDebugEnabled())
+                {
+                    logger.debug(
+                            "Failed to determine whether it is necessary to"
+                                + " adjust a Frame's size in response to a"
+                                + " VideoEvent.",
+                            t);
+                }
             }
-            catch (InvocationTargetException e)
+        }
+
+        updateViewFromModel();
+
+        if (maybeEnsureSize != null)
+        {
+            /*
+             * The method maybeEnsureSize will execute on the AWT event
+             * dispatching thread.
+             */
+            try
             {
-                logger.error("Failed to enable conference interface", e);
+                maybeEnsureSize(maybeEnsureSize);
             }
-            return;
-        }
-
-        UIVideoHandler videoHandler = null;
-
-        if (callPanel != null)
-        {
-            videoHandler = ((CallRenderer) callPanel).getVideoHandler();
-
-            remove(callPanel);
-        }
-
-        // We've been in a one-to-one call and we're now in a conference.
-        ConferenceCallPanel newCallPanel;
-        Call call = callConference.getCalls().get(0);
-
-        if (isVideo)
-        {
-            newCallPanel
-                = new VideoConferenceCallPanel(this, call, videoHandler);
-        }
-        else
-        {
-            newCallPanel
-                = new ConferenceCallPanel(this, call, videoHandler, false);
-        }
-        updateCurrentCallPanel(newCallPanel);
-
-        add(callPanel, BorderLayout.CENTER);
-
-        refreshContainer();
-    }
-
-    /**
-     * Removes components specific for the one-to-one call.
-     */
-    private void removeOneToOneSpecificComponents()
-    {
-        // Disable desktop sharing.
-        if (desktopSharingButton != null && desktopSharingButton.isSelected())
-            desktopSharingButton.doClick();
-
-        // Disable full screen.
-        if (fullScreenButton != null && fullScreenButton.isSelected())
-            fullScreenButton.doClick();
-
-        if (videoButton != null)
-            settingsPanel.remove(videoButton);
-
-        if (showHideVideoButton != null)
-            settingsPanel.remove(showHideVideoButton);
-
-        if(resizeVideoButton != null)
-            settingsPanel.remove(resizeVideoButton);
-
-        if (desktopSharingButton != null)
-        {
-            settingsPanel.remove(desktopSharingButton);
-            settingsPanel.remove(transferCallButton);
-            settingsPanel.remove(fullScreenButton);
-        }
-    }
-
-    /**
-     * Adds components specific for the one-to-one call.
-     */
-    private void addOneToOneSpecificComponents()
-    {
-        for (CallPeer callPeer : callConference.getCallPeers())
-        {
-            settingsPanel.add(transferCallButton);
-
-            Contact peerContact = callPeer.getContact();
-
-            ProtocolProviderService callProvider
-                = callPeer.getCall().getProtocolProvider();
-
-            OperationSetContactCapabilities capOpSet
-                = callProvider.getOperationSet(
-                    OperationSetContactCapabilities.class);
-
-            if (peerContact != null
-                && capOpSet != null)
+            catch (Throwable t)
             {
-                if (capOpSet.getOperationSet(peerContact,
-                    OperationSetDesktopSharingServer.class) != null)
-                    settingsPanel.add(desktopSharingButton);
-
-                if (capOpSet.getOperationSet(peerContact,
-                    OperationSetVideoTelephony.class) != null)
-                    settingsPanel.add(videoButton);
+                if (t instanceof ThreadDeath)
+                    throw (ThreadDeath) t;
+                else
+                {
+                    logger.error(
+                            "Failed to adjust a Frame's size"
+                                + " in response to a VideoEvent.",
+                            t);
+                }
             }
-            else
+        }
+    }
+
+    /**
+     * Updates the state of the general hold button. The hold button is selected
+     * only if all call peers are locally or mutually on hold at the same time.
+     * In all other cases the hold button is unselected.
+     */
+    void updateHoldButtonState()
+    {
+        boolean areAllPeersLocallyOnHold = true;
+
+        for (CallPeer peer : callConference.getCallPeers())
+        {
+            CallPeerState state = peer.getState();
+
+            // If we have clicked the hold button in a full screen mode
+            // we need to update the state of the call dialog hold button.
+            if (!state.equals(CallPeerState.ON_HOLD_LOCALLY)
+                && !state.equals(CallPeerState.ON_HOLD_MUTUALLY))
             {
-                if (callProvider.getOperationSet(
-                    OperationSetDesktopSharingServer.class) != null)
-                    settingsPanel.add(desktopSharingButton);
-                if (callProvider.getOperationSet(
-                    OperationSetVideoTelephony.class) != null)
-                    settingsPanel.add(videoButton);
-            }
-
-            if (callPeer.getState() == CallPeerState.CONNECTED)
-            {
-                if(!isCallTimerStarted())
-                    startCallTimer();
-
-                enableButtons(true);
-                return;
-            }
-        }
-        enableButtons(false);
-    }
-
-    /**
-     * Adds components specific for the conference call.
-     */
-    private void addConferenceSpecificComponents()
-    {
-        settingsPanel.add(localLevel);
-        settingsPanel.add(remoteLevel);
-        settingsPanel.add(videoButton);
-
-        for (CallPeer callPeer : callConference.getCallPeers())
-        {
-            if (callPeer.getState() == CallPeerState.CONNECTED)
-            {
-                if(!isCallTimerStarted())
-                    startCallTimer();
-
-                enableButtons(true);
-                return;
-            }
-        }
-        enableButtons(false);
-    }
-
-    /**
-     * Removes components specific for the conference call.
-     */
-    private void removeConferenceSpecificComponents()
-    {
-        settingsPanel.remove(localLevel);
-        settingsPanel.remove(remoteLevel);
-    }
-
-    /**
-     * Initialize plug-in components already registered for this container.
-     */
-    private void initPluginComponents()
-    {
-        // Search for plugin components registered through the OSGI bundle
-        // context.
-        ServiceReference[] serRefs = null;
-
-        String osgiFilter = "("
-            + net.java.sip.communicator.service.gui.Container.CONTAINER_ID
-            + "="+net.java.sip.communicator.service.gui.Container
-                                            .CONTAINER_CALL_DIALOG.getID()+")";
-
-        try
-        {
-            serRefs = GuiActivator.bundleContext.getServiceReferences(
-                PluginComponent.class.getName(),
-                osgiFilter);
-        }
-        catch (InvalidSyntaxException exc)
-        {
-            logger.error("Could not obtain plugin reference.", exc);
-        }
-
-        if (serRefs != null)
-        {
-            for (int i = 0; i < serRefs.length; i ++)
-            {
-                PluginComponent component = (PluginComponent) GuiActivator
-                    .bundleContext.getService(serRefs[i]);;
-
-                this.add((Component)component.getComponent());
+                areAllPeersLocallyOnHold = false;
+                break;
             }
         }
 
-        GuiActivator.getUIService().addPluginComponentListener(this);
-    }
-
-
-    /**
-     * Indicates that a plugin component has been successfully added
-     * to the container.
-     *
-     * @param event the PluginComponentEvent containing the corresponding
-     * plugin component
-     */
-    public void pluginComponentAdded(PluginComponentEvent event)
-    {
-        PluginComponent c = event.getPluginComponent();
-
-        if (c.getContainer().equals(
-            net.java.sip.communicator.service.gui.Container
-                .CONTAINER_CALL_DIALOG)
-            && c.getComponent() instanceof Component)
-        {
-            settingsPanel.add((Component) c.getComponent());
-
-            settingsPanel.revalidate();
-            settingsPanel.repaint();
-        }
-    }
-
-    /**
-     * Indicates that a plugin component has been successfully removed
-     * from the container.
-     *
-     * @param event the PluginComponentEvent containing the corresponding
-     * plugin component
-     */
-    public void pluginComponentRemoved(PluginComponentEvent event)
-    {
-        PluginComponent c = event.getPluginComponent();
-
-        if (c.getContainer().equals(
-            net.java.sip.communicator.service.gui.Container
-                .CONTAINER_CALL_DIALOG)
-            && c.getComponent() instanceof Component)
-        {
-            settingsPanel.remove((Component) c.getComponent());
-
-            settingsPanel.revalidate();
-            settingsPanel.repaint();
-        }
-    }
-
-    /**
-     * Checks whether recording is currently enabled or not, state retrieved
-     * from call record button state.
-     *
-     * @return <tt>true</tt> if the recording is already started, <tt>false</tt>
-     * otherwise
-     */
-    public boolean isRecordingStarted()
-    {
-        return recordButton.isSelected();
-    }
-
-    /**
-     * Creates the bottom bar panel for this call dialog, depending on the
-     * current operating system.
-     *
-     * @return the created bottom bar
-     */
-    private JComponent createBottomBar()
-    {
-        JComponent bottomBar
-            = new TransparentPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
-
-        bottomBar.setBorder(BorderFactory.createEmptyBorder(0, 30, 2, 30));
-
-        if (OSUtils.IS_MAC)
-        {
-            bottomBar.setOpaque(true);
-            bottomBar.setBackground(
-                new Color(GuiActivator.getResources()
-                    .getColor("service.gui.MAC_PANEL_BACKGROUND")));
-        }
-
-        bottomBar.add(settingsPanel);
-
-        return bottomBar;
-    }
-
-    /**
-     * Adds the given <tt>CallTitleListener</tt> to the list of listeners,
-     * notified for call title changes.
-     *
-     * @param l the <tt>CallTitleListener</tt> to add
-     */
-    public void addCallTitleListener(CallTitleListener l)
-    {
-        synchronized (titleListeners)
-        {
-            titleListeners.add(l);
-        }
-    }
-
-    /**
-     * Removes the given <tt>CallTitleListener</tt> to the list of listeners,
-     * notified for call title changes.
-     *
-     * @param l the <tt>CallTitleListener</tt> to remove
-     */
-    public void removeCallTitleListener(CallTitleListener l)
-    {
-        synchronized (titleListeners)
-        {
-            titleListeners.remove(l);
-        }
-    }
-
-    /**
-     * Notifies interested listeners of a call title change.
-     */
-    private void fireTitleChangeEvent()
-    {
-        Iterator<CallTitleListener> listeners;
-
-        synchronized (titleListeners)
-        {
-            listeners = new Vector<CallTitleListener>(titleListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            listeners.next().callTitleChanged(this);
-        }
-    }
-
-    /**
-     * Returns the list of call peers which are capable to manage basic instant
-     * messaging operations.
-     *
-     * @return The collection of contacts for this call which are IM capable.
-     */
-    private Collection<Contact> getIMCapableCallPeers()
-    {
-        List<CallPeer> callPeers = callConference.getCallPeers();
-        List<Contact> contacts = new ArrayList<Contact>(callPeers.size());
-
-        /*
-         * Choose the CallPeers (or rather their associated Contacts) which are
-         * capable of basic instant messaging.
-         */
-        for (CallPeer callPeer : callPeers)
-        {
-            if (callPeer.getProtocolProvider().getOperationSet(
-                        OperationSetBasicInstantMessaging.class)
-                    != null)
-            {
-                /*
-                 * CallPeer#getContact) is more expensive in terms of execution
-                 * than ProtocolProviderService#getOperationSet(Class).
-                 */
-                Contact contact = callPeer.getContact();
-
-                if (contact != null)
-                    contacts.add(contact);
-            }
-        }
-        return contacts;
-    }
-
-    /**
-     * Disposes the call info frame if it exists.
-     */
-    public void disposeCallInfoFrame()
-    {
-        if (callInfoFrame != null)
-            callInfoFrame.dispose();
-    }
-
-    /**
-     * Notifies this <tt>CallPanel</tt> about a specific <tt>CallEvent</tt>
-     * (received by <tt>CallManager</tt>). The source <tt>Call</tt> may or may
-     * not be participating in the telephony conference depicted by this
-     * instance but allows it to update any state which may depend on the
-     * <tt>Call</tt>s which are established application-wide.
-     *
-     * @param ev a <tt>CallEvent</tt> which specifies the <tt>Call</tt> which
-     * caused this instance to be notified and the exact type of the
-     * notification event
-     */
-    void onCallEvent(CallEvent ev)
-    {
-        updateMergeButtonState();
+        // If we have clicked the hold button in a full screen mode or selected
+        // hold of the peer menu in a conference call we need to update the
+        // state of the call dialog hold button.
+        holdButton.setSelected(areAllPeersLocallyOnHold);
     }
 
     /**
@@ -1840,101 +1799,208 @@ public class CallPanel
     }
 
     /**
-     * Returns the minimum width needed to show buttons.
-     * Used to calculate the minimum size of the call dialog.
-     * @return the minimum width for the buttons.
-     */
-    public int getMinimumButtonWidth()
-    {
-        int numberOfButtons = countButtons(settingsPanel.getComponents());
-
-        if (numberOfButtons > 0)
-        {
-            // +1 cause we had and a hangup button
-            // *32, a button is 28 pixels width and give some border
-            return (numberOfButtons + 1) * 32;
-        }
-        else
-            return -1;
-    }
-
-    /**
-     * Count the number of the buttons in the supplied components.
-     * @param cs the components to search for buttons.
-     * @return number of buttons.
-     */
-    private int countButtons(Component[] cs)
-    {
-        int count = 0;
-
-        for(Component c : cs)
-        {
-            if(c instanceof SIPCommButton || c instanceof SIPCommToggleButton)
-                count++;
-            if(c instanceof Container)
-                count += countButtons(((Container)c).getComponents());
-        }
-
-        return count;
-    }
-
-    /**
-     * Notifies this instance that the value of a property of
-     * {@link #callConference} has changed.
+     * Updates {@link #settingsPanel} from the model of this view. The update is
+     * performed in the AWT event dispatching thread.
+     * <p>
+     * The center of this view is occupied by {@link #callPanel}, the bottom of
+     * this view is dedicated to <tt>settingsPanel</tt>. The method
+     * {@link #updateViewFromModelInEventDispatchThread()} updates
+     * <tt>callPanel</tt> from the model of this view and then invokes the
+     * method <tt>updateSettingsPanelInEventDispatchThread()</tt>. Thus this
+     * whole view is updated so that it depicts the current state of its model.
+     * </p>
      *
-     * @param ev a <tt>PropertyChangeEvent</tt> which specifies the name of the
-     * property which had its value changed and the old and new values of that
-     * property
+     * @param callConferenceIsEnded <tt>true</tt> if the method
+     * <tt>updateViewFromModelInEventDispatchThread()</tt> considers the
+     * {@link #callConference} ended; otherwise, <tt>false</tt>. When the
+     * <tt>callConference</tt> is considered ended, the <tt>callPanel</tt>
+     * instance will not be switched to a specific type (one-to-one, audio-only,
+     * or audio/video) because, otherwise, the switch will leave it
+     * <tt>null</tt> and this view will remain blank. In such a case,
+     * <tt>settingsPanel</tt> may wish to do pretty much the same but disable
+     * and/or hide the buttons it contains. 
      */
-    private void callConferencePropertyChange(PropertyChangeEvent ev)
+    private void updateSettingsPanelInEventDispatchThread(
+            boolean callConferenceIsEnded)
     {
-        if (CallConference.CALLS.equals(ev.getPropertyName()))
+        /*
+         * XXX The method directly delegates to the method
+         * doUpdateSettingsPanelInEventDispatchThread at the time of this
+         * writing which may be considered a waste. But in the fashion of the
+         * method updateViewFromModelInEventDispatchThread we have made it easy
+         * to add code before and/or after the invocation of the delegate.
+         */
+
+        doUpdateSettingsPanelInEventDispatchThread(callConferenceIsEnded);
+    }
+
+    /**
+     * Updates this view i.e. <tt>CallPanel</tt> so that it depicts the current
+     * state of its model i.e. <tt>callConference</tt>.
+     */
+    private void updateViewFromModel()
+    {
+        if (SwingUtilities.isEventDispatchThread())
+            updateViewFromModelInEventDispatchThread();
+        else
         {
-            /*
-             * When a Call is removed from the callConference, remove any
-             * listeners from it and its associated CallPeers.
-             */
-            Object oldValue = ev.getOldValue();
-
-            if (oldValue instanceof Call)
-            {
-                Iterator<? extends CallPeer> oldPeerIter
-                    = ((Call) oldValue).getCallPeers();
-
-                while (oldPeerIter.hasNext())
-                    oldPeerIter.next().removeCallPeerConferenceListener(this);
-            }
-
-            /*
-             * When a Call is added to the callConference, add any (necessary)
-             * listeners to it and its associated CallPeers.
-             */
-            Object newValue = ev.getNewValue();
-
-            if (newValue instanceof Call)
-            {
-                Iterator<? extends CallPeer> newPeerIter
-                    = ((Call) newValue).getCallPeers();
-
-                while (newPeerIter.hasNext())
-                    newPeerIter.next().addCallPeerConferenceListener(this);
-            }
+            SwingUtilities.invokeLater(
+                    updateViewFromModelInEventDispatchThread);
         }
     }
 
     /**
-     * Releases the resources acquired by this instance which require explicit
-     * disposal (e.g. any listeners added to the depicted
-     * <tt>CallConference</tt>, the participating <tt>Call</tt>s, and their
-     * associated <tt>CallPeer</tt>s). Invoked by <tt>CallManager</tt> when it
-     * determines that this <tt>CallPanel</tt> is no longer necessary. 
+     * Updates this view i.e. <tt>CallPanel</tt> so that it depicts the current
+     * state of its model i.e. <tt>callConference</tt>. The update is performed
+     * in the AWT event dispatching thread.
      */
-    void dispose()
+    private void updateViewFromModelInEventDispatchThread()
     {
-        callConference.removeCallChangeListener(this);
-        callConference.removePropertyChangeListener(
-                callConferencePropertyChangeListener);
-        for (CallPeer callPeer : callConference.getCallPeers())
-            callPeer.removeCallPeerConferenceListener(this);
+        /*
+         * We may add, remove, show, and hide various Components of the user
+         * interface hierarchy of this instance bellow. Consequently, this view
+         * may become larger in width and/or height than its current Frame has
+         * dedicated to it. Try to detect such cases and attempt to adjust the
+         * Frame's size accordingly. 
+         */
+        Dimension oldPreferredSize = getPreferredSize();
+
+        doUpdateViewFromModelInEventDispatchThread();
+
+        /*
+         * We may have added, removed, shown, and hidden various Components of
+         * the user interface hierarchy of this instance above. Consequently,
+         * this view may have become larger in width and/or height than its
+         * current Frame has dedicated to it. Try to detect such cases and
+         * attempt to adjust the Frame's size accordingly. 
+         */
+        Dimension newPreferredSize = getPreferredSize();
+
+        if ((newPreferredSize != null)
+                && (newPreferredSize.width
+                        > ((oldPreferredSize == null)
+                                ? 0
+                                : oldPreferredSize.width))
+                && ((newPreferredSize.height > getHeight())
+                        || (newPreferredSize.width > getWidth())))
+        {
+            ensureSize(
+                    this,
+                    newPreferredSize.width, newPreferredSize.height);
+        }
+    }
+
+    /**
+     * Implements the listener which listens to events fired by the
+     * <tt>CallConference</tt> depicted by this instance, the <tt>Call</tt>s
+     * participating in that telephony conference, the <tt>CallPeer</tt>s
+     * associated with those <tt>Call</tt>s and the <tt>ConferenceMember</tt>s
+     * participating in the telephony conferences organized by those
+     * <tt>CallPeer</tt>s. Updates this view i.e. CallPanel so that it depicts
+     * the current state of its model i.e. {@link #callConference}.
+     */
+    private class CallConferenceListener
+        extends CallPeerConferenceAdapter
+        implements CallChangeListener,
+                   PropertyChangeListener
+    {
+        /**
+         * {@inheritDoc}
+         *
+         * Invokes {@link #onCallPeerEvent(CallPeerEvent)} because the
+         * <tt>CallPeerEvent</tt> allows distinguishing whether a
+         * <tt>CallPeer</tt> was added or removed by examining its
+         * <tt>eventID</tt>.
+         */
+        public void callPeerAdded(CallPeerEvent ev)
+        {
+            onCallPeerEvent(ev);
+        }
+
+        /**
+         * {@inheritDoc}
+         *
+         * Invokes {@link #onCallPeerEvent(CallPeerEvent)} because the
+         * <tt>CallPeerEvent</tt> allows distinguishing whether a
+         * <tt>CallPeer</tt> was added or removed by examining its
+         * <tt>eventID</tt>.
+         */
+        public void callPeerRemoved(CallPeerEvent ev)
+        {
+            onCallPeerEvent(ev);
+        }
+
+        /**
+         * {@inheritDoc}
+         *
+         * Invokes {@link #onEventObject(EventObject)}.
+         */
+        public void callStateChanged(CallChangeEvent ev)
+        {
+            onEventObject(ev);
+        }
+
+        /**
+         * {@inheritDoc}
+         *
+         * Invokes {@link #onEventObject(EventObject)}.
+         */
+        @Override
+        protected void onCallPeerConferenceEvent(CallPeerConferenceEvent ev)
+        {
+            onEventObject(ev);
+        }
+
+        /**
+         * Notifies this <tt>CallChangeListener</tt> about a specific
+         * <tt>CallPeerEvent</tt> i.e. that a <tt>CallPeer</tt> was added to or
+         * removed from a <tt>Call</tt>. Invokes
+         * {@link #onEventObject(EventObject)}.
+         *
+         * @param ev the <tt>CallPeerEvent</tt> to notify this
+         * <tt>CallChangeListener</tt> about i.e. which specifies the
+         * <tt>CallPeer</tt> which was added/removed and the <tt>Call</tt>
+         * to/from which it was added/removed
+         */
+        private void onCallPeerEvent(CallPeerEvent ev)
+        {
+            onEventObject(ev);
+        }
+
+        /**
+         * Invoked by the various listener method implementations provided by
+         * this <tt>CallConferenceListener</tt> to notify this instance about an
+         * <tt>EventObject</tt> related to the <tt>CallConference</tt> depicted
+         * by this <tt>CallPanel</tt>, the <tt>Call</tt>s participating in it,
+         * the <tt>CallPeer</tt>s associated with them, the
+         * <tt>ConferenceMember</tt>s participating in any telephony conferences
+         * organized by them, etc. In other words, notifies this instance about
+         * any change which may cause an update to be required so that this view
+         * i.e. <tt>CallPanel</tt> depicts the current state of its model i.e.
+         * {@link CallPanel#callConference}.
+         *
+         * @param ev the <tt>EventObject</tt> this instance is being notified
+         * about.
+         */
+        private void onEventObject(EventObject ev)
+        {
+            onCallConferenceEventObject(ev);
+        }
+
+        /**
+         * {@inheritDoc}
+         *
+         * Invokes {@link #onEventObject(EventObject)}.
+         */
+        public void propertyChange(PropertyChangeEvent ev)
+        {
+            /*
+             * If a Call is added to or removed from the CallConference depicted
+             * by this CallPanel, an update of the view from its model will most
+             * likely be required.
+             */
+            if (ev.getPropertyName().equals(CallConference.CALLS))
+                onEventObject(ev);
+        }
     }
 }

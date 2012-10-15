@@ -14,58 +14,94 @@ import net.java.sip.communicator.service.protocol.event.*;
 import org.jitsi.service.protocol.event.*;
 
 /**
- * The <tt>CallPeerAdapter</tt> is an adapter that implements all common
- * <tt>CallPeer</tt> related listeners in order to facilitate the task of
- * different <tt>CallPeerRenderer</tt>s when implementing peer functionalities.
+ * <tt>CallPeerAdapter</tt> implements common <tt>CallPeer</tt> related
+ * listeners in order to facilitate the task of implementing
+ * <tt>CallPeerRenderer</tt>.
  *
  * @author Yana Stamcheva
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class CallPeerAdapter
     extends net.java.sip.communicator.service.protocol.event.CallPeerAdapter
-    implements PropertyChangeListener,
-               CallPeerSecurityListener,
-               CallPeerConferenceListener
+    implements CallPeerSecurityListener,
+               PropertyChangeListener
 {
     /**
-     * The renderer of the underlying <tt>CallPeer</tt>.
+     * The <tt>CallPeer</tt> which is depicted by {@link #renderer}.
+     */
+    private final CallPeer peer;
+
+    /**
+     * The <tt>CallPeerRenderer</tt> which is facilitated by this instance.
      */
     private final CallPeerRenderer renderer;
 
     /**
-     * The underlying call peer.
-     */
-    private final CallPeer callPeer;
-
-    /**
-     * Creates a <tt>CallPeerAdapter</tt> by specifying the
-     * corresponding <tt>callPeer</tt> and corresponding <tt>renderer</tt>.
+     * Initializes a new <tt>CallPeerAdapter</tt> instance which is to listen to
+     * a specific <tt>CallPeer</tt> on behalf of a specific
+     * <tt>CallPeerRenderer</tt>. The new instance adds itself to the specified
+     * <tt>CallPeer</tt> as a listener for each of the implemented listener
+     * types.
      *
-     * @param callPeer the underlying peer
-     * @param renderer the component we're using to render the given
-     * <tt>callPeer</tt>
+     * @param peer the <tt>CallPeer</tt> which the new instance is to listen to
+     * on behalf of the specified <tt>renderer</tt>
+     * @param renderer the <tt>CallPeerRenderer</tt> which is to be facilitated
+     * by the new instance
      */
-    public CallPeerAdapter(CallPeer callPeer, CallPeerRenderer renderer)
+    public CallPeerAdapter(CallPeer peer, CallPeerRenderer renderer)
     {
-        this.callPeer = callPeer;
+        this.peer = peer;
         this.renderer = renderer;
+
+        this.peer.addCallPeerListener(this);
+        this.peer.addCallPeerSecurityListener(this);
+        this.peer.addPropertyChangeListener(this);
     }
 
     /**
-     * Fired when peer's state is changed
-     *
-     * @param evt fired CallPeerEvent
+     * Removes the listeners implemented by this instance from the associated
+     * <tt>CallPeer</tt> and prepares it for garbage collection.
+     */
+    public void dispose()
+    {
+        peer.removeCallPeerListener(this);
+        peer.removeCallPeerSecurityListener(this);
+        peer.removePropertyChangeListener(this);
+    }
+
+    /**
+     * {@inheritDoc}
      */
     @Override
-    public void peerStateChanged(CallPeerChangeEvent evt)
+    public void peerDisplayNameChanged(CallPeerChangeEvent ev)
     {
-        CallPeer sourcePeer = evt.getSourceCallPeer();
+        if (peer.equals(ev.getSourceCallPeer()))
+            renderer.setPeerName((String) ev.getNewValue());
+    }
 
-        if (!sourcePeer.equals(callPeer))
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void peerImageChanged(CallPeerChangeEvent ev)
+    {
+        if (peer.equals(ev.getSourceCallPeer()))
+            renderer.setPeerImage((byte[]) ev.getNewValue());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void peerStateChanged(CallPeerChangeEvent ev)
+    {
+        CallPeer sourcePeer = ev.getSourceCallPeer();
+
+        if (!sourcePeer.equals(peer))
             return;
 
-        CallPeerState newState = (CallPeerState) evt.getNewValue();
-        CallPeerState oldState = (CallPeerState) evt.getOldValue();
+        CallPeerState newState = (CallPeerState) ev.getNewValue();
+        CallPeerState oldState = (CallPeerState) ev.getOldValue();
 
         String newStateString = sourcePeer.getState().getLocalizedStateString();
 
@@ -75,16 +111,11 @@ public class CallPeerAdapter
             {
                 if (!renderer.getCallPanel().isCallTimerStarted())
                     renderer.getCallPanel().startCallTimer();
-
-                // Enabling all buttons when the call is connected.
-                renderer.getCallPanel().enableButtons(true);
             }
             else
             {
                 renderer.setOnHold(false);
                 renderer.getCallPanel().updateHoldButtonState();
-                // Enabling all buttons when the call get back from hold
-                renderer.getCallPanel().enableButtonsWhileOnHold(false);
             }
         }
         else if (newState == CallPeerState.DISCONNECTED)
@@ -100,169 +131,74 @@ public class CallPeerAdapter
         else if (CallPeerState.isOnHold(newState))
         {
             renderer.setOnHold(true);
-            renderer.getCallPanel().enableButtonsWhileOnHold(true);
             renderer.getCallPanel().updateHoldButtonState();
         }
 
         renderer.setPeerState(oldState, newState, newStateString);
 
-        String reasonString = evt.getReasonString();
+        String reasonString = ev.getReasonString();
         if (reasonString != null)
             renderer.setErrorReason(reasonString);
     }
 
     /**
-     * Fired when peer's display name is changed
-     *
-     * @param evt fired CallPeerEvent
+     * {@inheritDoc}
      */
-    @Override
-    public void peerDisplayNameChanged(CallPeerChangeEvent evt)
+    public void propertyChange(PropertyChangeEvent ev)
     {
-        CallPeer sourcePeer = evt.getSourceCallPeer();
-
-        if (sourcePeer.equals(callPeer))
-            renderer.setPeerName((String) evt.getNewValue());
-    }
-
-    /**
-     * Fired when peer's image is changed
-     *
-     * @param evt fired CallPeerEvent
-     */
-    @Override
-    public void peerImageChanged(CallPeerChangeEvent evt)
-    {
-        if (callPeer.equals(evt.getSourceCallPeer()))
-            renderer.setPeerImage((byte[]) evt.getNewValue());
-    }
-
-    /**
-     * Fired when a change in property happened.
-     *
-     * @param evt fired PropertyChangeEvent
-     */
-    public void propertyChange(PropertyChangeEvent evt)
-    {
-        String propertyName = evt.getPropertyName();
+        String propertyName = ev.getPropertyName();
 
         if (propertyName.equals(CallPeer.MUTE_PROPERTY_NAME))
         {
-            boolean isMute = (Boolean) evt.getNewValue();
+            boolean mute = (Boolean) ev.getNewValue();
 
-            renderer.setMute(isMute);
+            renderer.setMute(mute);
         }
     }
 
     /**
-     * Does nothing.
-     * @param event the event we received
-     */
-    public void securityMessageRecieved(CallPeerSecurityMessageEvent event)
-    {
-    }
-
-    /**
-     * Creates the security panel, when a <tt>securityOnEvent</tt> is received.
-     * @param evt the event we received
-     */
-    public void securityOn(CallPeerSecurityOnEvent evt)
-    {
-        CallPeer peer = (CallPeer) evt.getSource();
-
-        if (!peer.equals(callPeer))
-            return;
-
-        renderer.securityOn(evt);
-    }
-
-    /**
-     * The handler for the security event received. The security event
-     * for starting establish a secure connection.
+     * {@inheritDoc}
      *
-     * @param evt the security negotiation started event received
+     * <tt>CallPeerAdapter</tt> does nothing.
+     */
+    public void securityMessageRecieved(CallPeerSecurityMessageEvent ev)
+    {
+    }
+
+    /**
+     * {@inheritDoc}
      */
     public void securityNegotiationStarted(
-        CallPeerSecurityNegotiationStartedEvent evt)
+            CallPeerSecurityNegotiationStartedEvent ev)
     {
-        CallPeer peer = (CallPeer) evt.getSource();
-
-        if (!peer.equals(callPeer))
-            return;
-
-        renderer.securityNegotiationStarted(evt);
+        if (peer.equals(ev.getSource()))
+            renderer.securityNegotiationStarted(ev);
     }
 
     /**
-     * Indicates the new state through the security indicator components.
-     * @param securityOffEvent the event we received
+     * {@inheritDoc}
      */
-    public void securityOff(CallPeerSecurityOffEvent securityOffEvent)
+    public void securityOff(CallPeerSecurityOffEvent ev)
     {
-        CallPeer peer = (CallPeer) securityOffEvent.getSource();
-
-        if (!peer.equals(callPeer))
-            return;
-
-        renderer.securityOff(securityOffEvent);
+        if (peer.equals(ev.getSource()))
+            renderer.securityOff(ev);
     }
 
     /**
-     * The handler for the security event received. The security event
-     * represents a timeout trying to establish a secure connection.
-     * Most probably the other peer doesn't support it.
-     *
-     * @param securityTimeoutEvent
-     *            the security timeout event received
+     * {@inheritDoc}
      */
-    public void securityTimeout(
-        CallPeerSecurityTimeoutEvent securityTimeoutEvent)
+    public void securityOn(CallPeerSecurityOnEvent ev)
     {
-        CallPeer peer = (CallPeer) securityTimeoutEvent.getSource();
-
-        if (!peer.equals(callPeer))
-            return;
-
-        renderer.securityTimeout(securityTimeoutEvent);
+        if (peer.equals(ev.getSource()))
+            renderer.securityOn(ev);
     }
 
     /**
-     * Adds a <tt>ConferenceMemberPanel</tt> to this container when a
-     * <tt>ConferenceMember</tt> has been added to the corresponding conference.
-     * @param conferenceEvent the <tt>CallPeerConferenceEvent</tt> that has been
-     * triggered
+     * {@inheritDoc}
      */
-    public void conferenceMemberAdded(CallPeerConferenceEvent conferenceEvent)
+    public void securityTimeout(CallPeerSecurityTimeoutEvent ev)
     {
-        renderer.getCallRenderer().conferenceMemberAdded(
-            callPeer, conferenceEvent.getConferenceMember());
+        if (peer.equals(ev.getSource()))
+            renderer.securityTimeout(ev);
     }
-
-    /**
-     * Removes the corresponding <tt>ConferenceMemberPanel</tt> from this
-     * container when a <tt>ConferenceMember</tt> has been removed from the
-     * corresponding conference.
-     * @param conferenceEvent the <tt>CallPeerConferenceEvent</tt> that has been
-     * triggered
-     */
-    public void conferenceMemberRemoved(CallPeerConferenceEvent conferenceEvent)
-    {
-        renderer.getCallRenderer().conferenceMemberRemoved(
-            callPeer, conferenceEvent.getConferenceMember());
-    }
-
-    /**
-     * Enables or disables the conference focus UI depending on the change.
-     *
-     * When a peer changes its status from focus to not focus or the reverse.
-     * we must change its listeners.
-     * If the peer is focus we use conference member lister, cause we will
-     * receive its status and the statuses of its conference members.
-     * And if it is not a focus we must listen with stream
-     * sound level listener
-     *
-     * @param conferenceEvent the conference event
-     */
-    public void conferenceFocusChanged(CallPeerConferenceEvent conferenceEvent)
-    {}
 }

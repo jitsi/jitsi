@@ -45,22 +45,22 @@ public class CallConference
      */
     private final CallChangeListener callChangeListener
         = new CallChangeListener()
-                {
-                    public void callPeerAdded(CallPeerEvent ev)
-                    {
-                        CallConference.this.callPeerAdded(ev);
-                    }
+        {
+            public void callPeerAdded(CallPeerEvent ev)
+            {
+                CallConference.this.callPeerAdded(ev);
+            }
 
-                    public void callPeerRemoved(CallPeerEvent ev)
-                    {
-                        CallConference.this.callPeerRemoved(ev);
-                    }
+            public void callPeerRemoved(CallPeerEvent ev)
+            {
+                CallConference.this.callPeerRemoved(ev);
+            }
 
-                    public void callStateChanged(CallChangeEvent ev)
-                    {
-                        CallConference.this.callStateChanged(ev);
-                    }
-                };
+            public void callStateChanged(CallChangeEvent ev)
+            {
+                CallConference.this.callStateChanged(ev);
+            }
+        };
 
     /**
      * The list of <tt>CallChangeListener</tt>s added to the <tt>Call</tt>s
@@ -69,6 +69,37 @@ public class CallConference
      */
     private final List<CallChangeListener> callChangeListeners
         = new LinkedList<CallChangeListener>();
+
+    /**
+     * The <tt>CallPeerConferenceListener</tt> which listens to the
+     * <tt>CallPeer</tt>s associated with the <tt>Call</tt>s participating in
+     * this telephony conference.
+     */
+    private final CallPeerConferenceListener callPeerConferenceListener
+        = new CallPeerConferenceAdapter()
+        {
+            /**
+             * {@inheritDoc}
+             *
+             * Invokes
+             * {@link CallConference#onCallPeerConferenceEvent(
+             * CallPeerConferenceEvent)}.
+             */
+            @Override
+            protected void onCallPeerConferenceEvent(CallPeerConferenceEvent ev)
+            {
+                CallConference.this.onCallPeerConferenceEvent(ev);
+            }
+        };
+
+    /**
+     * The list of <tt>CallPeerConferenceListener</tt>s added to the
+     * <tt>CallPeer</tt>s associated with the <tt>CallPeer</tt>s participating
+     * in this telephony conference via
+     * {@link #addCallPeerConferenceListener</tt>}.
+     */
+    private final List<CallPeerConferenceListener> callPeerConferenceListeners
+        = new LinkedList<CallPeerConferenceListener>();
 
     /**
      * The synchronization root/<tt>Object</tt> which protects the access to
@@ -94,6 +125,13 @@ public class CallConference
     private List<Call> immutableCalls;
 
     /**
+     * The indicator which determines whether the telephony conference
+     * represented by this instance is utilizing the Jitsi VideoBridge
+     * server-side telephony conferencing technology.
+     */
+    private final boolean jitsiVideoBridge;
+
+    /**
      * The list of <tt>Call</tt>s participating in this telephony conference as
      * a mutable <tt>List</tt> which should not be exposed out of this instance.
      */
@@ -104,6 +142,22 @@ public class CallConference
      */
     public CallConference()
     {
+        this(false);
+    }
+
+    /**
+     * Initializes a new <tt>CallConference</tt> instance which is to optionally
+     * utilize the Jitsi VideoBridge server-side telephony conferencing
+     * technology.
+     *
+     * @param jitsiVideoBridge <tt>true</tt> if the telephony conference
+     * represented by the new instance is to utilize the Jitsi VideoBridge
+     * server-side telephony conferencing technology; otherwise, <tt>false</tt>
+     */
+    public CallConference(boolean jitsiVideoBridge)
+    {
+        this.jitsiVideoBridge = jitsiVideoBridge;
+
         mutableCalls = new ArrayList<Call>();
         immutableCalls = Collections.unmodifiableList(mutableCalls);
     }
@@ -175,6 +229,52 @@ public class CallConference
     }
 
     /**
+     * Adds {@link #callPeerConferenceListener} to the <tt>CallPeer</tt>s
+     * associated with a specific <tt>Call</tt>.
+     *
+     * @param call the <tt>Call</tt> to whose associated <tt>CallPeer</tt>s
+     * <tt>callPeerConferenceListener</tt> is to be added
+     */
+    private void addCallPeerConferenceListener(Call call)
+    {
+        Iterator<? extends CallPeer> callPeerIter = call.getCallPeers();
+
+        while (callPeerIter.hasNext())
+        {
+            callPeerIter.next().addCallPeerConferenceListener(
+                    callPeerConferenceListener);
+        }
+    }
+
+    /**
+     * Adds a <tt>CallPeerConferenceListener</tt> to the <tt>CallPeer</tt>s
+     * associated with the <tt>Call</tt>s participating in this telephony
+     * conference. The method is a convenience that takes on the responsibility
+     * of tracking the <tt>Call</tt>s that get added/removed to/from this
+     * telephony conference and the <tt>CallPeer</tt> that get added/removed
+     * to/from these <tt>Call</tt>s.
+     *
+     * @param listener the <tt>CallPeerConferenceListener</tt> to be added to
+     * the <tt>CallPeer</tt>s associated with the <tt>Call</tt>s participating
+     * in this telephony conference
+     * @throws NullPointerException if <tt>listener</tt> is <tt>null</tt>
+     */
+    public void addCallPeerConferenceListener(
+            CallPeerConferenceListener listener)
+    {
+        if (listener == null)
+            throw new NullPointerException("listener");
+        else
+        {
+            synchronized (callPeerConferenceListeners)
+            {
+                if (!callPeerConferenceListeners.contains(listener))
+                    callPeerConferenceListeners.add(listener);
+            }
+        }
+    }
+
+    /**
      * Notifies this <tt>CallConference</tt> that a specific <tt>Call</tt> has
      * been added to the list of <tt>Call</tt>s participating in this telephony
      * conference.
@@ -185,6 +285,7 @@ public class CallConference
     protected void callAdded(Call call)
     {
         call.addCallChangeListener(callChangeListener);
+        addCallPeerConferenceListener(call);
 
         /*
          * Update the conferenceFocus state. Because the public
@@ -210,7 +311,16 @@ public class CallConference
      */
     private void callPeerAdded(CallPeerEvent ev)
     {
-        if (containsCall(ev.getSourceCall()))
+        /*
+         * XXX The callPeerRemoved method calls the callPeerAdded method because
+         * they both do pretty much the same thing. The callPeerAdded method
+         * makes the distinctions where necessary by examining the eventID of
+         * the CallPeerEvent.
+         */
+
+        Call call = ev.getSourceCall();
+
+        if (containsCall(call))
         {
             /*
              * Update the conferenceFocus state. Following the line of thinking
@@ -239,16 +349,42 @@ public class CallConference
                 break;
             }
 
-            // Forward the CallPeerEvent to the callChangeListeners.
-            for (CallChangeListener l : getCallChangeListeners())
+            try
             {
+                // Forward the CallPeerEvent to the callChangeListeners.
+                for (CallChangeListener l : getCallChangeListeners())
+                {
+                    switch (eventID)
+                    {
+                    case CallPeerEvent.CALL_PEER_ADDED:
+                        l.callPeerAdded(ev);
+                        break;
+                    case CallPeerEvent.CALL_PEER_REMOVED:
+                        l.callPeerRemoved(ev);
+                        break;
+                    default:
+                        break;
+                    }
+                }
+            }
+            finally
+            {
+                /*
+                 * Add/remove the callPeerConferenceListener to/from the source
+                 * CallPeer (for the purposes of the
+                 * addCallPeerConferenceListener method of this CallConference).
+                 */
+                CallPeer callPeer = ev.getSourceCallPeer();
+
                 switch (eventID)
                 {
                 case CallPeerEvent.CALL_PEER_ADDED:
-                    l.callPeerAdded(ev);
+                    callPeer.addCallPeerConferenceListener(
+                            callPeerConferenceListener);
                     break;
                 case CallPeerEvent.CALL_PEER_REMOVED:
-                    l.callPeerRemoved(ev);
+                    callPeer.removeCallPeerConferenceListener(
+                            callPeerConferenceListener);
                     break;
                 default:
                     break;
@@ -285,6 +421,7 @@ public class CallConference
     protected void callRemoved(Call call)
     {
         call.removeCallChangeListener(callChangeListener);
+        removeCallPeerConferenceListener(call);
 
         /*
          * Update the conferenceFocus state. Following the line of thinking
@@ -396,6 +533,28 @@ public class CallConference
         synchronized (callsSyncRoot)
         {
             return mutableCalls.size();
+        }
+    }
+
+    /**
+     * Gets the list of <tt>CallPeerConferenceListener</tt>s added to the
+     * <tt>CallPeer</tt>s associated with the <tt>Call</tt>s participating in
+     * this telephony conference via
+     * {@link #addCallPeerConferenceListener(CallPeerConferenceListener)}.
+     * 
+     * @return the list of <tt>CallPeerConferenceListener</tt>s added to the
+     * <tt>CallPeer</tt>s associated with the <tt>Call</tt>s participating in
+     * this telephony conference via
+     * {@link #addCallPeerConferenceListener(CallPeerConferenceListener)}
+     */
+    private CallPeerConferenceListener[] getCallPeerConferenceListeners()
+    {
+        synchronized (callPeerConferenceListeners)
+        {
+            return
+                callPeerConferenceListeners.toArray(
+                        new CallPeerConferenceListener[
+                                callPeerConferenceListeners.size()]);
         }
     }
 
@@ -582,6 +741,73 @@ public class CallConference
     }
 
     /**
+     * Determines whether the current state of this instance suggests that the
+     * telephony conference it represents has ended. Iterates over the
+     * <tt>Call</tt>s participating in this telephony conference and looks for a
+     * <tt>Call</tt> which is not in the {@link CallState#CALL_ENDED} state.
+     *
+     * @return <tt>true</tt> if the current state of this instance suggests that
+     * the telephony conference it represents has ended; otherwise,
+     * <tt>false</tt>
+     */
+    public boolean isEnded()
+    {
+        for (Call call : getCalls())
+        {
+            if (!CallState.CALL_ENDED.equals(call.getCallState()))
+                return false;
+        }
+        return true;
+    }
+
+    /**
+     * Determines whether the telephony conference represented by this instance
+     * is utilizing the Jitsi VideoBridge server-side telephony conferencing
+     * technology.
+     *
+     * @return <tt>true</tt> if the telephony conference represented by this
+     * instance is utilizing the Jitsi VideoBridge server-side telephony
+     * conferencing technology
+     */
+    public boolean isJitsiVideoBridge()
+    {
+        return jitsiVideoBridge;
+    }
+
+    /**
+     * Notifies this telephony conference that a
+     * <tt>CallPeerConferenceEvent</tt> was fired by a <tt>CallPeer</tt>
+     * associated with a <tt>Call</tt> participating in this telephony
+     * conference. Forwards the specified <tt>CallPeerConferenceEvent</tt> to
+     * {@link #callPeerConferenceListeners}.
+     *
+     * @param ev the <tt>CallPeerConferenceEvent</tt> which was fired
+     */
+    private void onCallPeerConferenceEvent(CallPeerConferenceEvent ev)
+    {
+        int eventID = ev.getEventID();
+
+        for (CallPeerConferenceListener l : getCallPeerConferenceListeners())
+        {
+            switch (eventID)
+            {
+            case CallPeerConferenceEvent.CONFERENCE_FOCUS_CHANGED:
+                l.conferenceFocusChanged(ev);
+                break;
+            case CallPeerConferenceEvent.CONFERENCE_MEMBER_ADDED:
+                l.conferenceMemberAdded(ev);
+                break;
+            case CallPeerConferenceEvent.CONFERENCE_MEMBER_REMOVED:
+                l.conferenceMemberRemoved(ev);
+                break;
+            default:
+                throw new UnsupportedOperationException(
+                        "Unsupported CallPeerConferenceEvent eventID.");
+            }
+        }
+    }
+
+    /**
      * Removes a specific <tt>Call</tt> from the list of <tt>Call</tt>s
      * participating in this telephony conference.
      *
@@ -637,6 +863,46 @@ public class CallConference
             synchronized (callChangeListeners)
             {
                 callChangeListeners.remove(listener);
+            }
+        }
+    }
+
+    /**
+     * Removes {@link #callPeerConferenceListener} from the <tt>CallPeer</tt>s
+     * associated with a specific <tt>Call</tt>.
+     *
+     * @param call the <tt>Call</tt> from whose associated <tt>CallPeer</tt>s
+     * <tt>callPeerConferenceListener</tt> is to be removed
+     */
+    private void removeCallPeerConferenceListener(Call call)
+    {
+        Iterator<? extends CallPeer> callPeerIter = call.getCallPeers();
+
+        while (callPeerIter.hasNext())
+        {
+            callPeerIter.next().removeCallPeerConferenceListener(
+                    callPeerConferenceListener);
+        }
+    }
+
+    /**
+     * Removes a <tt>CallPeerConferenceListener</tt> from the <tt>CallPeer</tt>s
+     * associated with the <tt>Call</tt>s participating in this telephony
+     * conference.
+     *
+     * @param listener the <tt>CallPeerConferenceListener</tt> to be removed
+     * from the <tt>CallPeer</tt>s associated with the <tt>Call</tt>s
+     * participating in this telephony conference
+     * @see #addCallPeerConferenceListener(CallPeerConferenceListener)
+     */
+    public void removeCallPeerConferenceListener(
+            CallPeerConferenceListener listener)
+    {
+        if (listener != null)
+        {
+            synchronized (callPeerConferenceListeners)
+            {
+                callPeerConferenceListeners.remove(listener);
             }
         }
     }

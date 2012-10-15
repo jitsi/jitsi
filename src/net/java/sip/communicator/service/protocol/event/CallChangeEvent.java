@@ -22,19 +22,21 @@ public class CallChangeEvent
     extends PropertyChangeEvent
 {
     /**
-     * Serial version UID.
-     */
-    private static final long serialVersionUID = 0L;
-
-    /**
      * The type of <tt>CallChangeEvent</tt> which indicates that the state of
      * the associated <tt>Call</tt> has changed.
      */
     public static final String CALL_STATE_CHANGE = "CallState";
 
     /**
-     * The event which was the cause for current event, like last peer
-     * removed from call will hangup current call, if any, otherwise is null.
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
+     * The <tt>CallPeerChangeEvent</tt>, if any, which is the cause for this
+     * <tt>CallChangeEvent</tt> to be fired. For example, when the last
+     * <tt>CallPeer</tt> in a <tt>Call</tt> is disconnected, the <tt>Call</tt>
+     * will end.
      */
     private final CallPeerChangeEvent cause;
 
@@ -70,7 +72,19 @@ public class CallChangeEvent
                             CallPeerChangeEvent cause)
     {
         super(source, type, oldValue, newValue);
+
         this.cause = cause;
+    }
+
+    /**
+     * The event which was the cause for current event, like last peer
+     * removed from call will hangup current call, if any, otherwise is null.
+     *
+     * @return <tt>CallPeerChangeEvent</tt> that represents the cause
+     */
+    public CallPeerChangeEvent getCause()
+    {
+        return cause;
     }
 
     /**
@@ -84,10 +98,21 @@ public class CallChangeEvent
     }
 
     /**
+     * The Call on which the event has occurred.
+     *
+     * @return   The Call on which the event has occurred.
+     */
+    public Call getSourceCall()
+    {
+        return (Call) getSource();
+    }
+
+    /**
      * Returns a String representation of this CallChangeEvent.
      *
      * @return  A a String representation of this CallChangeEvent.
      */
+    @Override
     public String toString()
     {
         return
@@ -97,27 +122,6 @@ public class CallChangeEvent
                 + getOldValue()
                 + " newV="
                 + getNewValue();
-    }
-
-    /**
-     * The Call on which the event has occurred.
-     *
-     * @return   The Call on which the event has occurred.
-     */
-    public Call getSourceCall()
-    {
-        return (Call)getSource();
-    }
-
-    /**
-     * The event which was the cause for current event, like last peer
-     * removed from call will hangup current call, if any, otherwise is null.
-     *
-     * @return <tt>CallPeerChangeEvent</tt> that represents the cause
-     */
-    public CallPeerChangeEvent getCause()
-    {
-        return cause;
     }
 }
 

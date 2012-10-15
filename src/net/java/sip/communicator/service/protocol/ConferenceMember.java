@@ -8,28 +8,34 @@ package net.java.sip.communicator.service.protocol;
 
 import java.beans.*;
 
-
 /**
  * Represents a member and its details in a telephony conference managed by a
  * <tt>CallPeer</tt> in its role as a conference focus.
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public interface ConferenceMember
 {
     /**
-     * The name of the property of <tt>ConferenceMember</tt> which specifies
-     * the user-friendly display name of the respective
-     * <tt>ConferenceMember</tt> in the conference.
+     * The name of the property of <tt>ConferenceMember</tt> which specifies the
+     * user-friendly display name of the respective <tt>ConferenceMember</tt> in
+     * the conference.
      */
-    public static final String DISPLAY_NAME_PROPERTY_NAME = "DisplayName";
+    public static final String DISPLAY_NAME_PROPERTY_NAME = "displayName";
 
     /**
-     * The name of the property of <tt>ConferenceMember</tt> which specifies
-     * the state of the device and signaling session of the respective
+     * The name of the property of <tt>ConferenceMember</tt> which specifies the
+     * state of the device and signaling session of the respective
      * <tt>ConferenceMember</tt> in the conference.
      */
-    public static final String STATE_PROPERTY_NAME = "State";
+    public static final String STATE_PROPERTY_NAME = "state";
+
+    /**
+     * The name of the property of <tt>ConferenceMember</tt> which specifies the
+     * SSRC of the video content/RTP stream sent by the respective
+     * <tt>ConferenceMember</tt> in the conference.
+     */
+    public static final String VIDEO_SSRC_PROPERTY_NAME = "videoSsrc";
 
     /**
      * Adds a specific <tt>PropertyChangeListener</tt> to the list of
@@ -59,6 +65,26 @@ public interface ConferenceMember
     public String getAddress();
 
     /**
+     * Returns the SSRC of the audio content/RTP stream sent by this
+     * <tt>ConferenceMember</tt> in the conference or <tt>-1</tt> if such
+     * information is not currently available.
+     *
+     * @return the SSRC of the audio content/RTP stream sent by this
+     * <tt>ConferenceMember</tt> in the conference or <tt>-1</tt> if such
+     * information is not currently available
+     */
+    public long getAudioSsrc();
+
+    /**
+     * Gets the <tt>CallPeer</tt> which is the conference focus of this
+     * <tt>ConferenceMember</tt>.
+     *
+     * @return the <tt>CallPeer</tt> which is the conference focus of this
+     * <tt>ConferenceMember</tt>
+     */
+    public CallPeer getConferenceFocusCallPeer();
+
+    /**
      * Gets the user-friendly display name of this <tt>ConferenceMember</tt>
      * in the conference.
      *
@@ -66,15 +92,6 @@ public interface ConferenceMember
      *         <tt>ConferenceMember</tt> in the conference
      */
     public String getDisplayName();
-
-    /**
-     * Gets the <tt>CallPeer</tt> which is the conference focus of
-     * this <tt>ConferenceMember</tt>.
-     *
-     * @return the <tt>CallPeer</tt> which is the conference focus of
-     *         this <tt>ConferenceMember</tt>
-     */
-    public CallPeer getConferenceFocusCallPeer();
 
     /**
      * Gets the state of the device and signaling session of this
@@ -86,6 +103,17 @@ public interface ConferenceMember
      *         <tt>ConferenceMember</tt> in the conference
      */
     public ConferenceMemberState getState();
+
+    /**
+     * Returns the SSRC of the video content/RTP stream sent by this
+     * <tt>ConferenceMember</tt> in the conference or <tt>-1</tt> if such
+     * information is not currently available.
+     *
+     * @return the SSRC of the video content/RTP stream sent by this
+     * <tt>ConferenceMember</tt> in the conference or <tt>-1</tt> if such
+     * information is not currently available
+     */
+    public long getVideoSsrc();
 
     /**
      * Removes a specific <tt>PropertyChangeListener</tt> from the list of
@@ -100,22 +128,4 @@ public interface ConferenceMember
      *            <tt>ConferenceMember</tt>
      */
     public void removePropertyChangeListener(PropertyChangeListener listener);
-
-    /**
-     * Returns the SSRC value associated with this participant or <tt>null</tt>
-     * if the value is not currently known.;
-     *
-     * @return the ssrc associated with the RTP stream that this participant
-     * is transmitting or <tt>null</tt> if this value is not currently known.
-     */
-    public long getAudioSsrc();
-
-    /**
-     * Returns the SSRC value associated with this participant or <tt>null</tt>
-     * if the value is not currently known.;
-     *
-     * @return the ssrc associated with the RTP stream that this participant
-     * is transmitting or <tt>null</tt> if this value is not currently known.
-     */
-    public long getVideoSsrc();
 }

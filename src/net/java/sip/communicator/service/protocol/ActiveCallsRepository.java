@@ -70,17 +70,22 @@ public abstract class ActiveCallsRepository<T extends Call,
      * @param evt the <tt>CallChangeEvent</tt> instance containing the source
      * calls and its old and new state.
      */
+    @Override
     public void callStateChanged(CallChangeEvent evt)
     {
         if(evt.getEventType().equals(CallChangeEvent.CALL_STATE_CHANGE)
                 && evt.getNewValue().equals(CallState.CALL_ENDED))
         {
-            T sourceCall =
-                this.activeCalls.remove(evt.getSourceCall().getCallID());
+            T sourceCall = activeCalls.remove(evt.getSourceCall().getCallID());
 
             if (logger.isTraceEnabled())
-                logger.trace("Removing call " + sourceCall + " from the list of "
-                        + "active calls because it entered an ENDED state");
+            {
+                logger.trace(
+                        "Removing call "
+                            + sourceCall
+                            + " from the list of active calls"
+                            + " because it entered an ENDED state");
+            }
 
             fireCallEvent(CallEvent.CALL_ENDED, sourceCall);
         }
@@ -108,8 +113,21 @@ public abstract class ActiveCallsRepository<T extends Call,
     {
         synchronized (activeCalls)
         {
-            return this.activeCalls.size();
+            return activeCalls.size();
         }
+    }
+
+    /**
+     * Creates and dispatches a <tt>CallEvent</tt> notifying registered
+     * listeners that an event with id <tt>eventID</tt> has occurred on
+     * <tt>sourceCall</tt>.
+     *
+     * @param eventID the ID of the event to dispatch
+     * @param sourceCall the call on which the event has occurred.
+     */
+    protected void fireCallEvent(int eventID, Call sourceCall)
+    {
+        fireCallEvent(eventID, sourceCall, null);
     }
 
     /**
@@ -125,7 +143,12 @@ public abstract class ActiveCallsRepository<T extends Call,
      * </p>
      *
      * @param eventID the ID of the event to dispatch
-     * @param sourceCall the call on which the event has occurred.
+     * @param sourceCall the call on which the event has occurred
+     * @param cause the <tt>CallChangeEvent</tt>, if any, which is the cause
+     * that necessitated a new <tt>CallEvent</tt> to be fired
      */
-    protected abstract void fireCallEvent(int eventID, Call sourceCall);
+    protected abstract void fireCallEvent(
+            int eventID,
+            Call sourceCall,
+            CallChangeEvent cause);
 }

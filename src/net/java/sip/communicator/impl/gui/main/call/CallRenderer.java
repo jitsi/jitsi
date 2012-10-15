@@ -6,8 +6,6 @@
  */
 package net.java.sip.communicator.impl.gui.main.call;
 
-import java.awt.*;
-
 import net.java.sip.communicator.service.protocol.*;
 
 /**
@@ -19,9 +17,18 @@ import net.java.sip.communicator.service.protocol.*;
 public interface CallRenderer
 {
     /**
-     * Returns the call represented by this call renderer.
+     * Releases the resources acquired by this instance which require explicit
+     * disposal (e.g. any listeners added to the depicted
+     * <tt>CallConference</tt>, the participating <tt>Call</tt>s, and their
+     * associated <tt>CallPeer</tt>s). Invoked by <tt>CallPanel</tt> when it
+     * determines that this <tt>CallRenderer</tt> is no longer necessary. 
+     */
+    public void dispose();
+
+    /**
+     * Returns the <tt>Call</tt> depicted by this renderer.
      *
-     * @return the call represented by this call renderer
+     * @return the <tt>Call</tt> depicted by this renderer
      */
     public Call getCall();
 
@@ -36,18 +43,11 @@ public interface CallRenderer
     public void exitFullScreen();
 
     /**
-     * Ensures the size of the window.
+     * Returns the parent, container which created this <tt>CallRenderer</tt>
+     * and in which this <tt>CallRenderer</tt> is added
      *
-     * @param component the component, which size should be considered
-     * @param width the desired width
-     * @param height the desired height
-     */
-    public void ensureSize(Component component, int width, int height);
-
-    /**
-     * Returns the parent call container, where this renderer is contained.
-     *
-     * @return the parent call container, where this renderer is contained
+     * @return the parent, container which created this <tt>CallRenderer</tt>
+     * and in which this <tt>CallRenderer</tt> is added
      */
     public CallPanel getCallContainer();
 
@@ -61,31 +61,4 @@ public interface CallRenderer
      * <tt>callPeer</tt>
      */
     public CallPeerRenderer getCallPeerRenderer(CallPeer callPeer);
-
-    /**
-     * Indicates that the given conference member has been added to the given
-     * peer.
-     *
-     * @param callPeer the parent call peer
-     * @param conferenceMember the member that was added
-     */
-    public void conferenceMemberAdded(  CallPeer callPeer,
-                                        ConferenceMember conferenceMember);
-
-    /**
-     * Indicates that the given conference member has been removed from the
-     * given peer.
-     *
-     * @param callPeer the parent call peer
-     * @param conferenceMember the member that was removed
-     */
-    public void conferenceMemberRemoved(CallPeer callPeer,
-                                        ConferenceMember conferenceMember);
-
-    /**
-     * Returns the video handler associated with this call peer renderer.
-     *
-     * @return the video handler associated with this call peer renderer
-     */
-    public UIVideoHandler getVideoHandler();
 }

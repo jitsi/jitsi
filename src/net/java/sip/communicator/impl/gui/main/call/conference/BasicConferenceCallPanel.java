@@ -1,0 +1,512 @@
+/*
+ * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
+package net.java.sip.communicator.impl.gui.main.call.conference;
+
+import java.awt.*;
+import java.util.*;
+import java.util.List;
+
+import javax.swing.*;
+
+import net.java.sip.communicator.impl.gui.main.call.*;
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.swing.*;
+
+/**
+ * A base implementation of a user interface <tt>Component</tt> which depicts a
+ * <tt>CallConference</tt> and is contained in a <tt>CallPanel</tt>.
+ *
+ * @author Lyubomir Marinov
+ */
+public abstract class BasicConferenceCallPanel
+    extends TransparentPanel
+    implements CallRenderer
+{
+    /**
+     * The <tt>CallPanel</tt> which has created this instance and uses it to
+     * depict {@link #callConference}.
+     */
+    protected final CallPanel callPanel;
+
+    /**
+     * The <tt>CallConference</tt> which is depicted by this
+     * <tt>BasicConferenceCallPanel</tt> i.e. the model of this view.
+     */
+    protected final CallConference callConference;
+
+    /**
+     * The listener which listens to the <tt>CallConference</tt> depicted by
+     * this instance, the <tt>Call</tt>s participating in it, and the
+     * <tt>CallPeer</tt>s associated with them.
+     */
+    private final CallConferenceListener callConferenceListener
+        = new CallConferenceListener();
+
+    /**
+     * The <tt>ConferenceCallPeerRenderer</tt>s which depict/render
+     * <tt>CallPeer</tt>s associated with the <tt>Call</tt>s participating in
+     * the telephony conference depicted by this instance.
+     */
+    private final Map<CallPeer, ConferenceCallPeerRenderer> callPeerPanels
+        = new HashMap<CallPeer, ConferenceCallPeerRenderer>();
+
+    /**
+     * The <tt>Runnable</tt> which is scheduled by
+     * {@link #updateViewFromModel()} for execution in the AWT event dispatching
+     * thread in order to invoke
+     * {@link #updateViewFromModelInEventDispatchThread()}.
+     */
+    private final Runnable updateViewFromModelInEventDispatchThread
+        = new Runnable()
+        {
+            public void run()
+            {
+                updateViewFromModelInEventDispatchThread();
+            }
+        };
+
+    /**
+     * Initializes a new <tt>BasicConferenceCallPanel</tt> instance which is to
+     * be used by a specific <tt>CallPanel</tt> to depict a specific
+     * <tt>CallConference</tt>.
+     *
+     * @param callPanel the <tt>CallPanel</tt> which will use the new instance
+     * to depict the specified <tt>CallConference</tt>.
+     * @param callConference the <tt>CallConference</tt> to be depicted by the
+     * new instance
+     */
+    protected BasicConferenceCallPanel(
+            CallPanel callPanel,
+            CallConference callConference)
+    {
+        super(new GridBagLayout());
+
+        this.callPanel = callPanel;
+        this.callConference = callConference;
+    }
+
+    /**
+     * Notifies this instance that a <tt>CallPeer</tt> was added to a
+     * <tt>Call</tt> participating in the telephony conference depicted by this
+     * instance.
+     *
+     * @param ev a <tt>CallPeerEvent</tt> which specifies the <tt>CallPeer</tt>
+     * which was added and the <tt>Call</tt> to which it was added
+     */
+    protected void callPeerAdded(CallPeerEvent ev)
+    {
+        updateViewFromModel();
+    }
+
+    /**
+     * Notifies this instance that a <tt>CallPeer</tt> was removed from a
+     * <tt>Call</tt> participating in the telephony conference depicted by this
+     * instance.
+     *
+     * @param ev a <tt>CallPeerEvent</tt> which specifies the <tt>CallPeer</tt>
+     * which was removed and the <tt>Call</tt> from which it was removed
+     */
+    protected void callPeerRemoved(CallPeerEvent ev)
+    {
+        updateViewFromModel();
+    }
+
+    /**
+     * Notifies this instance that there was a change in the <tt>CallState</tt>
+     * of a <tt>Call</tt> participating in the telephony conference depicted by
+     * this instance.
+     *
+     * @param ev a <tt>CallChangeEvent</tt> which specifies the <tt>Call</tt>
+     * whose <tt>CallState</tt> was changed and the old and new
+     * <tt>CallState</tt>s
+     */
+    protected void callStateChanged(CallChangeEvent ev)
+    {
+        updateViewFromModel();
+    }
+
+    /**
+     * Notifies this instance that a <tt>CallPeer</tt> associated with a
+     * <tt>Call</tt> participating in the telephony conference depicted by this
+     * instance changed its <tt>conferenceFocus</tt> state/property.
+     *
+     * @param ev a <tt>CallPeerConferenceEvent</tt> which specifies the
+     * <tt>CallPeer</tt> which changed its <tt>conferenceFocus</tt>
+     * state/property
+     */
+    protected void conferenceFocusChanged(CallPeerConferenceEvent ev)
+    {
+        updateViewFromModel();
+    }
+
+    /**
+     * Notifies this instance that a <tt>CallPeer</tt> associated with a
+     * <tt>Call</tt> participating in the telephony conference depicted by this
+     * instance added a <tt>ConferenceMember</tt> (to its list).
+     *
+     * @param ev a <tt>CallPeerConferenceEvent</tt> which specifies the
+     * <tt>ConferenceMember</tt> which was added and the <tt>CallPeer</tt> which
+     * added that <tt>ConferenceMember</tt> (to its list)
+     */
+    protected void conferenceMemberAdded(CallPeerConferenceEvent ev)
+    {
+        updateViewFromModel();
+    }
+
+    /**
+     * Notifies this instance that a <tt>CallPeer</tt> associated with a
+     * <tt>Call</tt> participating in the telephony conference depicted by this
+     * instance removed a <tt>ConferenceMember</tt> (from its list).
+     *
+     * @param ev a <tt>CallPeerConferenceEvent</tt> which specifies the
+     * <tt>ConferenceMember</tt> which was removed and the <tt>CallPeer</tt>
+     * which removed that <tt>ConferenceMember</tt> (from its list)
+     */
+    protected void conferenceMemberRemoved(CallPeerConferenceEvent ev)
+    {
+        updateViewFromModel();
+    }
+
+    /**
+     * Releases the resources acquired by this instance which require explicit
+     * disposal (e.g. any listeners added to the depicted
+     * <tt>CallConference</tt>, the participating <tt>Call</tt>s, and their
+     * associated <tt>CallPeer</tt>s). Invoked by <tt>CallPanel</tt> when it
+     * determines that this <tt>BasicConferenceCallPanel</tt> is no longer
+     * necessary. 
+     */
+    public void dispose()
+    {
+        callConference.removeCallChangeListener(callConferenceListener);
+        callConference.removeCallPeerConferenceListener(callConferenceListener);
+
+        for (ConferenceCallPeerRenderer callPeerPanel
+                : callPeerPanels.values())
+            callPeerPanel.dispose();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <tt>BasicConferenceCallPanel</tt> does not provide an actual
+     * implementation the method.
+     */
+    public void enterFullScreen()
+    {
+        // TODO Auto-generated method stub
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <tt>BasicConferenceCallPanel</tt> does not provide an actual
+     * implementation the method.
+     */
+    public void exitFullScreen()
+    {
+        // TODO Auto-generated method stub
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <tt>BasicConferenceCallPanel</tt> always returns <tt>null</tt> because it
+     * depicts a <tt>CallConference</tt> which may have multiple <tt>Call</tt>s. 
+     */
+    public Call getCall()
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Implements {@link CallRenderer#getCallContainer()}.
+     */
+    public CallPanel getCallContainer()
+    {
+        return callPanel;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Implements {@link CallRenderer#getCallPeerRenderer(CallPeer)}.
+     */
+    public CallPeerRenderer getCallPeerRenderer(CallPeer callPeer)
+    {
+        return callPeerPanels.get(callPeer);
+    }
+
+    /**
+     * Notifies this instance that it has been fully initialized and the view
+     * that it implements is ready to be updated from its model. Allows
+     * extenders to provide additional initialization in their constructors
+     * before <tt>BasicConferenceCallPanel</tt> invokes
+     * {@link #updateViewFromModel()}.
+     */
+    protected void initializeComplete()
+    {
+        callConference.addCallChangeListener(callConferenceListener);
+        callConference.addCallPeerConferenceListener(callConferenceListener);
+
+        updateViewFromModel();
+    }
+
+    /**
+     * Notifies this instance about a specific <tt>CallPeerConferenceEvent</tt>
+     * fired in the telephony conference depicted by this instance.
+     *
+     * @param ev the <tt>CallPeerConferenceEvent</tt> this instance is notified
+     * about
+     */
+    protected void onCallPeerConferenceEvent(CallPeerConferenceEvent ev)
+    {
+        switch (ev.getEventID())
+        {
+        case CallPeerConferenceEvent.CONFERENCE_FOCUS_CHANGED:
+            conferenceFocusChanged(ev);
+            break;
+        case CallPeerConferenceEvent.CONFERENCE_MEMBER_ADDED:
+            conferenceMemberAdded(ev);
+            break;
+        case CallPeerConferenceEvent.CONFERENCE_MEMBER_REMOVED:
+            conferenceMemberRemoved(ev);
+            break;
+        default:
+            throw new IllegalArgumentException(
+                    "CallPeerConferenceEvent.getEventID");
+        }
+    }
+
+    /**
+     * Notifies this instance about a specific <tt>CallPeerEvent</tt> fired in
+     * the telephony conference depicted by this instance. Depending on the
+     * <tt>eventID</tt> of <tt>ev</tt>, calls
+     * {@link #callPeerAdded(CallPeerEvent)} or
+     * {@link #callPeerRemoved(CallPeerEvent)}.
+     *
+     * @param ev the <tt>CallPeerEvent</tt> this instance is notified about
+     */
+    protected void onCallPeerEvent(CallPeerEvent ev)
+    {
+        switch (ev.getEventID())
+        {
+        case CallPeerEvent.CALL_PEER_ADDED:
+            callPeerAdded(ev);
+            break;
+        case CallPeerEvent.CALL_PEER_REMOVED:
+            callPeerRemoved(ev);
+            break;
+        default:
+            throw new IllegalArgumentException("CallPeerEvent.getEventID");
+        }
+    }
+
+    /**
+     * Updates this view i.e. <tt>BasicConferenceCallPanel</tt> so that it
+     * depicts the current state of its model i.e. <tt>callConference</tt>.
+     */
+    protected void updateViewFromModel()
+    {
+        if (SwingUtilities.isEventDispatchThread())
+            updateViewFromModelInEventDispatchThread();
+        else
+        {
+            SwingUtilities.invokeLater(
+                    updateViewFromModelInEventDispatchThread);
+        }
+    }
+
+    /**
+     * Updates the <tt>ConferenceCallPeerRenderer</tt> which is to depict a
+     * specific <tt>CallPeer</tt>.
+     *
+     * @param callPeer the <tt>CallPeer</tt> whose depicting
+     * <tt>ConferenceCallPeerPanel</tt> is to be updated. The <tt>null</tt>
+     * value is used to indicate the local peer.
+     * @see #updateViewFromModel(ConferenceCallPeerRenderer, CallPeer)
+     */
+    private void updateViewFromModel(CallPeer callPeer)
+    {
+        ConferenceCallPeerRenderer oldCallPeerPanel
+            = callPeerPanels.get(callPeer);
+        ConferenceCallPeerRenderer newCallPeerPanel
+            = updateViewFromModel(oldCallPeerPanel, callPeer);
+
+        if (newCallPeerPanel != oldCallPeerPanel)
+        {
+            if (oldCallPeerPanel != null)
+            {
+                callPeerPanels.remove(oldCallPeerPanel);
+                try
+                {
+                    viewForModelRemoved(oldCallPeerPanel, callPeer);
+                }
+                finally
+                {
+                    oldCallPeerPanel.dispose();
+                }
+            }
+            if (newCallPeerPanel != null)
+            {
+                callPeerPanels.put(callPeer, newCallPeerPanel);
+                viewForModelAdded(newCallPeerPanel, callPeer);
+            }
+        }
+    }
+
+    /**
+     * Updates the <tt>ConferenceCallPeerRenderer</tt> which is to depict a
+     * specific <tt>CallPeer</tt>. The update is in the sense of making sure
+     * that the existing <tt>callPeerPanel</tt> is of the right run-time type to
+     * continue depicting the current state of <tt>callPeer</tt> and the
+     * telephony conference in which it participates, replacing it with a new
+     * <tt>ConferenceCallPeerRenderer</tt> if the existing one is no longer
+     * appropriate, or creating a new <tt>ConferenceCallPeerRenderer</tt> if
+     * there is no existing one to depict the specified <tt>callPeer</tt>. If
+     * the existing <tt>callPeerPanel</tt> is still appropriate for the current
+     * state of the specified <tt>callPeer</tt>, the update does not include
+     * notifying the existing <tt>callPeerPanel</tt> that it should update its
+     * view from its model. <tt>BasicConferenceCallPanel</tt> invokes the method
+     * in the AWT event dispatching thread.
+     *
+     * @param callPeerPanel the <tt>ConferenceCallPeerRenderer</tt>, if any,
+     * which currently depicts the specified <tt>CallPeer</tt> 
+     * @param callPeer the <tt>CallPeer</tt> whose depicting
+     * <tt>ConferenceCallPeerPanel</tt> is to be updated. The <tt>null</tt>
+     * value is used to indicate the local peer.
+     * @return the <tt>ConferenceCallPeerRenderer</tt>, if any, which is to
+     * depict the specified <tt>callPeer</tt>. If it is different from
+     * <tt>callPeerPanel</tt> (and <tt>callPeerPanel</tt> is non-<tt>null</tt>),
+     * <tt>callPeerPanel</tt> will be disposed of with a call to
+     * {@link ConferenceCallPeerRenderer#dispose()}.
+     */
+    protected abstract ConferenceCallPeerRenderer updateViewFromModel(
+            ConferenceCallPeerRenderer callPeerPanel,
+            CallPeer callPeer);
+
+    /**
+     * Updates this view i.e. <tt>BasicConferenceCallPanel</tt> so that it
+     * depicts the current state of its model i.e. <tt>callConference</tt>. The
+     * update is performed on the AWT event dispatching thread.
+     */
+    protected void updateViewFromModelInEventDispatchThread()
+    {
+        /* Update the view of the local peer. */
+        updateViewFromModel(null);
+
+        List<CallPeer> callPeers = callConference.getCallPeers();
+
+        /*
+         * Dispose of the callPeerPanels whose CallPeers are no longer in the
+         * telephony conference depicted by this instance.
+         */
+        for (Iterator<Map.Entry<CallPeer, ConferenceCallPeerRenderer>> entryIter
+                    = callPeerPanels.entrySet().iterator();
+                entryIter.hasNext();)
+        {
+            Map.Entry<CallPeer, ConferenceCallPeerRenderer> entry
+                = entryIter.next();
+            CallPeer callPeer = entry.getKey();
+
+            if ((callPeer != null) && !callPeers.contains(callPeer))
+            {
+                ConferenceCallPeerRenderer callPeerPanel = entry.getValue();
+
+                entryIter.remove();
+                try
+                {
+                    viewForModelRemoved(callPeerPanel, callPeer);
+                }
+                finally
+                {
+                    callPeerPanel.dispose();
+                }
+            }
+        }
+
+        /*
+         * Update the callPeerPanels whose CallPeers are still in the telephony
+         * conference depicted by this instance. The update procedure includes
+         * adding callPeerPanels for new CallPeers and replacing callPeerPanels
+         * for existing CallPeers who require different callPeerPanels.
+         */
+        for (CallPeer callPeer : callPeers)
+            updateViewFromModel(callPeer);
+    }
+
+    /**
+     * Notifies this instance that a <tt>ConferenceCallPeerRenderer</tt> was
+     * added to depict a specific <tt>CallPeer</tt>. Implementers are expected
+     * to add the AWT <tt>Component</tt> of the specified <tt>callPeerPanel</tt>
+     * to their user interface hierarchy.
+     *
+     * @param callPeerPanel the <tt>ConferenceCallPeerRenderer</tt> which was
+     * added to depict the specified <tt>callPeer</tt>
+     * @param callPeer the <tt>CallPeer</tt> which is depicted by the specified
+     * <tt>callPeerPanel</tt>
+     */
+    protected abstract void viewForModelAdded(
+            ConferenceCallPeerRenderer callPeerPanel,
+            CallPeer callPeer);
+
+    /**
+     * Notifies this instance that a <tt>ConferenceCallPeerRenderer</tt> was
+     * removed to no longer depict a specific <tt>CallPeer</tt>. Implementers
+     * are expected to remove the AWT <tt>Component</tt> of the specified
+     * <tt>callPeerPanel</tt> from their user interface hierarchy.
+     *
+     * @param callPeerPanel the <tt>ConferenceCallPeerRenderer</tt> which was
+     * removed to no longer depict the specified <tt>callPeer</tt>
+     * @param callPeer the <tt>CallPeer</tt> which is depicted by the specified
+     * <tt>callPeerPanel</tt>
+     */
+    protected abstract void viewForModelRemoved(
+            ConferenceCallPeerRenderer callPeerPanel,
+            CallPeer callPeer);
+
+    /**
+     * Implements the listeners which get notified about events related to the
+     * telephony conference depicted by this <tt>BasicConferenceCallPanel</tt>
+     * and which may cause a need to update this view from its model.
+     */
+    private class CallConferenceListener
+        extends CallPeerConferenceAdapter
+        implements CallChangeListener
+    {
+        public void callPeerAdded(CallPeerEvent ev)
+        {
+            BasicConferenceCallPanel.this.onCallPeerEvent(ev);
+        }
+
+        public void callPeerRemoved(CallPeerEvent ev)
+        {
+            BasicConferenceCallPanel.this.onCallPeerEvent(ev);
+        }
+
+        public void callStateChanged(CallChangeEvent ev)
+        {
+            BasicConferenceCallPanel.this.callStateChanged(ev);
+        }
+
+        /**
+         * {@inheritDoc}
+         *
+         * Invokes
+         * {@link BasicConferenceCallPanel#onCallPeerConferenceEvent(
+         * CallPeerConferenceEvent)}.
+         */
+        @Override
+        protected void onCallPeerConferenceEvent(CallPeerConferenceEvent ev)
+        {
+            BasicConferenceCallPanel.this.onCallPeerConferenceEvent(ev);
+        }
+    }
+}

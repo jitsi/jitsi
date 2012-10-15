@@ -21,6 +21,61 @@ public class AbstractConferenceMember
     implements ConferenceMember
 {
     /**
+     * A Public Switched Telephone Network (PSTN) ALERTING or SIP 180 Ringing
+     * was returned for the outbound call; endpoint is being alerted.
+     */
+    public static final String ALERTING = "alerting";
+
+    /**
+     * The endpoint is a participant in the conference. Depending on the media
+     * policies, he/she can send and receive media to and from other
+     * participants.
+     */
+    public static final String CONNECTED = "connected";
+
+    /**
+     * Endpoint is dialing into the conference, not yet in the roster (probably
+     * being authenticated).
+     */
+    public static final String DIALING_IN = "dialing-in";
+
+    /**
+     * Focus has dialed out to connect the endpoint to the conference, but the
+     * endpoint is not yet in the roster (probably being authenticated).
+     */
+    public static final String DIALING_OUT = "dialing-out";
+
+    /**
+     * The endpoint is not a participant in the conference, and no active dialog
+     * exists between the endpoint and the focus.
+     */
+    public static final String DISCONNECTED = "disconnected";
+
+    /**
+     * Active signaling dialog exists between an endpoint and a focus, but
+     * endpoint is "on-hold" for this conference, i.e., he/she is neither
+     * "hearing" the conference mix nor is his/her media being mixed in the
+     * conference.
+     */
+    public static final String ON_HOLD = "on-hold";
+
+    /**
+     * Endpoint is not yet in the session, but it is anticipated that he/she
+     * will join in the near future.
+     */
+    public static final String PENDING = "pending";
+
+    /**
+     * The protocol address of this <tt>ConferenceMember</tt>.
+     */
+    private final String address;
+
+    /**
+     * The audio SSRC value if transmitted by the focus of the conference.
+     */
+    private long audioSsrc = -1;
+
+    /**
      * The <tt>CallPeer</tt> which is the conference focus of this
      * <tt>ConferenceMember</tt>.
      */
@@ -33,20 +88,10 @@ public class AbstractConferenceMember
     private String displayName;
 
     /**
-     * The protocol address of this <tt>ConferenceMember</tt>.
-     */
-    private String address;
-
-    /**
      * The state of the device and signaling session of this
      * <tt>ConferenceMember</tt> in the conference.
      */
     private ConferenceMemberState state = ConferenceMemberState.UNKNOWN;
-
-    /**
-     * The audio SSRC value if transmitted by the focus of the conference.
-     */
-    private long audioSsrc = -1;
 
     /**
      * The video SSRC value if transmitted by the focus of the conference.
@@ -57,24 +102,50 @@ public class AbstractConferenceMember
      * Creates an instance of <tt>AbstractConferenceMember</tt> by specifying
      * the corresponding <tt>conferenceFocusCallPeer</tt>, to which this member
      * is connected.
+     *
      * @param conferenceFocusCallPeer the <tt>CallPeer</tt> to which this member
      * is connected
      * @param address the protocol address of this <tt>ConferenceMember</tt>
+     * @throws NullPointerException if <tt>conferenceFocusCallPeer</tt> or
+     * <tt>address</tt> is <tt>null</tt>
      */
-    public AbstractConferenceMember(CallPeer conferenceFocusCallPeer,
-                                    String address)
+    public AbstractConferenceMember(
+            CallPeer conferenceFocusCallPeer,
+            String address)
     {
-        this.conferenceFocusCallPeer = conferenceFocusCallPeer;
-
+        if (conferenceFocusCallPeer == null)
+            throw new NullPointerException("conferenceFocusCallPeer");
         if (address == null)
             throw new NullPointerException("address");
+
+        this.conferenceFocusCallPeer = conferenceFocusCallPeer;
         this.address = address;
     }
 
     /**
-     * Returns the <tt>CallPeer</tt>, to which this member is connected.
-     * Implements <tt>ConferenceMember#getConferenceFocusCallPeer()</tt>.
-     * @return the <tt>CallPeer</tt>, to which this member is connected
+     * Returns the protocol address of this <tt>ConferenceMember</tt>.
+     *
+     * @return the protocol address of this <tt>ConferenceMember</tt>
+     */
+    public String getAddress()
+    {
+        return address;
+    }
+
+    /**
+     * Returns the SSRC value associated with this participant;
+     *
+     * @return the audio ssrc id
+     */
+    public long getAudioSsrc()
+    {
+        return audioSsrc;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Implements {@link ConferenceMember#getConferenceFocusCallPeer()}.
      */
     public CallPeer getConferenceFocusCallPeer()
     {
@@ -88,6 +159,15 @@ public class AbstractConferenceMember
      */
     public String getDisplayName()
     {
+        String displayName = this.displayName;
+
+        if ((displayName == null) || (displayName.length() < 1))
+        {
+            String address = getAddress();
+
+            if ((address != null) && (address.length() > 0))
+                return address;
+        }
         return displayName;
     }
 
@@ -102,13 +182,23 @@ public class AbstractConferenceMember
     }
 
     /**
-     * Returns the protocol address of this <tt>ConferenceMember</tt>.
+     * Returns the SSRC value associated with this participant;
      *
-     * @return the protocol address of this <tt>ConferenceMember</tt>
+     * @return the video ssrc id
      */
-    public String getAddress()
+    public long getVideoSsrc()
     {
-        return address;
+        return videoSsrc;
+    }
+
+    /**
+     * Sets the audio SSRC identifier of this member.
+     *
+     * @param ssrc the audio SSRC ID to set for this member.
+     */
+    public void setAudioSsrc(long ssrc)
+    {
+        this.audioSsrc = ssrc;
     }
 
     /**
@@ -131,10 +221,41 @@ public class AbstractConferenceMember
             this.displayName = displayName;
 
             firePropertyChange(
-                DISPLAY_NAME_PROPERTY_NAME,
-                oldValue,
-                this.displayName);
+                    DISPLAY_NAME_PROPERTY_NAME,
+                    oldValue, this.displayName);
         }
+    }
+
+    /**
+     * Sets the <tt>state</tt> property of this <tt>ConferenceMember</tt> by
+     * translating it from its conference-info XML endpoint status.
+     *
+     * @param endpointStatus the conference-info XML endpoint status of this
+     * <tt>ConferenceMember</tt> indicated by its
+     * <tt>conferenceFocusCallPeer</tt>
+     */
+    public void setEndpointStatus(String endpointStatus)
+    {
+        ConferenceMemberState state;
+
+        if (ALERTING.equalsIgnoreCase(endpointStatus))
+            state = ConferenceMemberState.ALERTING;
+        else if (CONNECTED.equalsIgnoreCase(endpointStatus))
+            state = ConferenceMemberState.CONNECTED;
+        else if (DIALING_IN.equalsIgnoreCase(endpointStatus))
+            state = ConferenceMemberState.DIALING_IN;
+        else if (DIALING_OUT.equalsIgnoreCase(endpointStatus))
+            state = ConferenceMemberState.DIALING_OUT;
+        else if (DISCONNECTED.equalsIgnoreCase(endpointStatus))
+            state = ConferenceMemberState.DISCONNECTED;
+        else if (ON_HOLD.equalsIgnoreCase(endpointStatus))
+            state = ConferenceMemberState.ON_HOLD;
+        else if (PENDING.equalsIgnoreCase(endpointStatus))
+            state = ConferenceMemberState.PENDING;
+        else
+            state = ConferenceMemberState.UNKNOWN;
+
+        setState(state);
     }
 
     /**
@@ -160,42 +281,21 @@ public class AbstractConferenceMember
     }
 
     /**
-     * Returns the SSRC value associated with this participant;
-     *
-     * @return the audio ssrc id
-     */
-    public long getAudioSsrc()
-    {
-        return audioSsrc;
-    }
-
-    /**
-     * Sets the audio SSRC identifier of this member.
-     *
-     * @param ssrc the audio SSRC ID to set for this member.
-     */
-    public void setAudioSsrc(long ssrc)
-    {
-        this.audioSsrc = ssrc;
-    }
-
-    /**
-     * Returns the SSRC value associated with this participant;
-     *
-     * @return the video ssrc id
-     */
-    public long getVideoSsrc()
-    {
-        return videoSsrc;
-    }
-
-    /**
      * Sets the video SSRC identifier of this member.
      *
      * @param ssrc the video SSRC ID to set for this member.
      */
     public void setVideoSsrc(long ssrc)
     {
-        this.videoSsrc = ssrc;
+        if (this.videoSsrc != ssrc)
+        {
+            long oldValue = this.videoSsrc;
+
+            this.videoSsrc = ssrc;
+
+            firePropertyChange(
+                    VIDEO_SSRC_PROPERTY_NAME,
+                    oldValue, this.videoSsrc);
+        }
     }
 }

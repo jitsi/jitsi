@@ -12,7 +12,6 @@ import java.text.*;
 import java.util.List;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.event.*;
 
 import org.jitsi.service.neomedia.*;
 import org.jitsi.util.event.*;
@@ -85,10 +84,7 @@ public abstract class AbstractOperationSetVideoTelephony<
         if (listener == null)
             throw new NullPointerException("listener");
 
-        ((W)peer)
-            .getMediaHandler()
-                .addVideoListener(
-                    new InternalVideoListener(this, peer, listener));
+        ((W)peer).getMediaHandler().addVideoListener(listener);
     }
 
     /**
@@ -183,10 +179,7 @@ public abstract class AbstractOperationSetVideoTelephony<
     public void removeVideoListener(CallPeer peer, VideoListener listener)
     {
         if (listener != null)
-            ((W)peer)
-                .getMediaHandler()
-                    .removeVideoListener(
-                        new InternalVideoListener(this, peer, listener));
+            ((W)peer).getMediaHandler().removeVideoListener(listener);
     }
 
     /**
@@ -357,211 +350,5 @@ public abstract class AbstractOperationSetVideoTelephony<
         throws OperationFailedException
     {
         return createVideoCall(callee);
-    }
-
-    /**
-     * Represents a <tt>VideoListener</tt> which forwards notifications to a
-     * specific delegate <tt>VideoListener</tt> and hides the original
-     * <tt>VideoEvent</tt> sender from it by pretending the sender is a
-     * specific <tt>OperationSetVideoTelephony</tt>. It's necessary in order
-     * to hide from the <tt>VideoListener</tt>s the fact that the video of
-     * the SIP protocol implementation is managed by <tt>CallSession</tt>.
-     */
-    private static class InternalVideoListener
-        implements VideoListener
-    {
-
-        /**
-         * The <tt>VideoListener</tt> this implementation hides the original
-         * <tt>VideoEvent</tt> source from.
-         */
-        private final VideoListener delegate;
-
-        /**
-         * The <tt>CallPeer</tt> whose videos {@link #delegate} is
-         * interested in.
-         */
-        private final CallPeer peer;
-
-        /**
-         * The <tt>OperationSetVideoTelephony</tt> which is to be presented
-         * as the source of the <tt>VideoEvents</tt> forwarded to
-         * {@link #delegate}.
-         */
-        private final OperationSetVideoTelephony telephony;
-
-        /**
-         * Initializes a new <tt>InternalVideoListener</tt> which is to
-         * impersonate the sources of <tt>VideoEvents</tt> with a specific
-         * <tt>OperationSetVideoTelephony</tt> for a specific
-         * <tt>VideoListener</tt> interested in the videos of a specific
-         * <tt>CallPeer</tt>.
-         *
-         * @param telephony the <tt>OperationSetVideoTelephony</tt> which is
-         * to be stated as the source of the <tt>VideoEvent</tt> sent to the
-         * specified delegate <tt>VideoListener</tt>
-         * @param peer the <tt>CallPeer</tt> whose videos the specified delegate
-         * <tt>VideoListener</tt> is interested in
-         * @param delegate the <tt>VideoListener</tt> which shouldn't know
-         * that the videos in the SIP protocol implementation is managed by the
-         * <tt>CallSession</tt> and not by the specified <tt>telephony</tt>
-         */
-        public InternalVideoListener(
-                OperationSetVideoTelephony telephony,
-                CallPeer peer,
-                VideoListener delegate)
-        {
-            if (peer == null)
-                throw new NullPointerException("peer cannot be null");
-
-            this.telephony = telephony;
-            this.peer = peer;
-            this.delegate = delegate;
-        }
-
-        /**
-         * Compares two InternalVideoListeners and determines they are equal
-         * if they impersonate the sources of VideoEvents with equal
-         * OperationSetVideoTelephonies for equal delegate VideoListeners added
-         * to equal CallPeer-s.
-         *
-         * @param other the object that we'd be compared to.
-         *
-         * @return true if the underlying peer, telephony operation set and
-         * delegate are equal to those of the <tt>other</tt> instance.
-         */
-        @Override
-        public boolean equals(Object other)
-        {
-            if (other == this)
-                return true;
-            if ((other == null) || !other.getClass().equals(getClass()))
-                return false;
-
-            InternalVideoListener otherListener = (InternalVideoListener) other;
-
-            return otherListener.telephony.equals(telephony)
-                && otherListener.peer.equals(peer)
-                && otherListener.delegate.equals(delegate);
-        }
-
-        /**
-         * Returns a hashcode based on the hash codes of the wrapped telephony
-         * operation set and <tt>VideoListener</tt> delegate.
-         *
-         * @return a hashcode based on the hash codes of the wrapped telephony
-         * operation set and <tt>VideoListener</tt> delegate.
-         */
-        @Override
-        public int hashCode()
-        {
-            return (telephony.hashCode() << 16) + (delegate.hashCode() >> 16);
-        }
-
-        /**
-         * Upon receiving a VideoEvent, sends to delegate a new VideoEvent of
-         * the same type and with the same visual Component but with the source
-         * of the event being set to #telephony. Thus the fact that the
-         * CallSession is the original source is hidden from the clients of
-         * OperationSetVideoTelephony.
-         *
-         * @param event the <tt>VideoEvent</tt> containing the visual component
-         */
-        public void videoAdded(VideoEvent event)
-        {
-            VideoEvent delegateEvent
-                = new VideoEvent(
-                        this,
-                        event.getType(),
-                        event.getVisualComponent(),
-                        event.getOrigin());
-
-            delegate.videoAdded(delegateEvent);
-            if (delegateEvent.isConsumed())
-                event.consume();
-        }
-
-        /**
-         * Upon receiving a VideoEvent, sends to delegate a new VideoEvent of
-         * the same type and with the same visual Component but with the source
-         * of the event being set to #telephony. Thus the fact that the
-         * CallSession is the original source is hidden from the clients of
-         * OperationSetVideoTelephony.
-         *
-         * @param event the <tt>VideoEvent</tt> containing video details and
-         * the event component.
-         */
-        public void videoRemoved(VideoEvent event)
-        {
-            VideoEvent delegateEvent
-                = new VideoEvent(
-                        this,
-                        event.getType(),
-                        event.getVisualComponent(),
-                        event.getOrigin());
-
-            delegate.videoRemoved(delegateEvent);
-            if (delegateEvent.isConsumed())
-                event.consume();
-        }
-
-        /**
-         * Forwards a specific <tt>VideoEvent</tt> to the associated delegate.
-         *
-         * @param event the <tt>VideoEvent</tt> to be forwarded to the
-         * associated delegate
-         */
-        public void videoUpdate(VideoEvent event)
-        {
-            /*
-             * TODO Since the specified event is directly fired, the sender is
-             * the original one and not this.
-             */
-            delegate.videoUpdate(event);
-        }
-    }
-
-    /**
-     * Adds a specific <tt>VisualComponentResolveListener</tt> to this telephony
-     * in order to receive notifications when visual/video <tt>Component</tt>s
-     * are being resolved to correspond to a particular
-     * <tt>ConferenceMember</tt>.
-     *
-     * @param callPeer the <tt>CallPeer</tt>, which visual components we're
-     * listening to
-     * @param listener the <tt>VisualComponentResolveListener</tt> to be
-     * notified when visual/video <tt>Component</tt>s are being resolved to
-     * correspond to a particular <tt>ConferenceMember</tt>.
-     */
-    @SuppressWarnings("unchecked") // work with MediaAware* in media package
-    public void addVisualComponentResolveListener(
-        CallPeer callPeer,
-        VisualComponentResolveListener listener)
-    {
-        if (listener == null)
-            throw new NullPointerException("listener");
-
-        ((W)callPeer).getMediaHandler().addVisualComponentResolveListener(
-            listener);
-    }
-
-    /**
-     * Removes a <tt>VisualComponentResolveListener</tt> from this video
-     * telephony operation set, which was previously added in order to receive
-     * notifications when visual/video <tt>Component</tt>s are being resolved to
-     * be corresponding to a particular <tt>ConferenceMember</tt>.
-     *
-     * @param callPeer the <tt>CallPeer</tt>, which visual components we're
-     * listening to
-     * @param listener the <tt>VisualComponentResolveListener</tt> to be
-     * removed
-     */
-    @SuppressWarnings("unchecked") // work with MediaAware* in media package
-    public void removeVisualComponentResolveListener(
-        CallPeer callPeer,
-        VisualComponentResolveListener listener)
-    {
-        ((W)callPeer).getMediaHandler().removeVisualComponentResolveListener(
-            listener);
     }
 }

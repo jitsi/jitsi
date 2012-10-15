@@ -137,7 +137,7 @@ public class ParanoiaTimerSecurityPanel<T extends SrtpControl>
         {
             try
             {
-                AbstractCallPeer peer = (AbstractCallPeer)evt.getSource();
+                CallPeer peer = (CallPeer) evt.getSource();
                 OperationSetBasicTelephony<?> telephony
                     = peer.getProtocolProvider().getOperationSet(
                             OperationSetBasicTelephony.class);

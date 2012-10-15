@@ -7,8 +7,6 @@ package net.java.sip.communicator.impl.gui.main.call;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.*;
-import java.util.List;
 
 import javax.swing.*;
 
@@ -28,7 +26,7 @@ import com.explodingpixels.macwidgets.*;
  * information about call peers, call duration, etc.
  *
  * @author Yana Stamcheva
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  * @author Adam Netocny
  */
 public class OneToOneCallPanel
@@ -47,14 +45,9 @@ public class OneToOneCallPanel
     private static final long serialVersionUID = 0L;
 
     /**
-     * The component showing the name of the underlying call peer.
+     * The underlying <tt>Call</tt>, this panel is representing.
      */
-    private final JLabel nameLabel = new JLabel("", JLabel.CENTER);
-
-    /**
-     * The panel representing the underlying <tt>CallPeer</tt>.
-     */
-    private OneToOneCallPeerPanel peerPanel;
+    private final Call call;
 
     /**
      * The parent call container.
@@ -62,14 +55,15 @@ public class OneToOneCallPanel
     private final CallPanel callContainer;
 
     /**
-     * The underlying <tt>Call</tt>, this panel is representing.
-     */
-    private final Call call;
-
-    /**
      * The underlying <tt>CallPeer</tt>.
      */
     private final CallPeer callPeer;
+
+    /**
+     * The check box allowing to turn on remote control when in a desktop
+     * sharing session.
+     */
+    private JCheckBox enableDesktopRemoteControl;
 
     /**
      * The current <code>Window</code> being displayed in full-screen. Because
@@ -80,113 +74,234 @@ public class OneToOneCallPanel
     private Window fullScreenWindow;
 
     /**
-     * The check box allowing to turn on remote control when in a desktop
-     * sharing session.
+     * The component showing the name of the underlying call peer.
      */
-    private JCheckBox enableDesktopRemoteControl;
+    private final JLabel nameLabel = new JLabel("", JLabel.CENTER);
 
     /**
-     * The list containing all video containers.
+     * The panel representing the underlying <tt>CallPeer</tt>.
      */
-    private final List<Container> videoContainers
-        = new LinkedList<Container>();
+    private OneToOneCallPeerPanel peerPanel;
 
     /**
      * The panel added on the south of this container.
      */
     private JPanel southPanel;
 
-    private final UIVideoHandler videoHandler;
-
     /**
-     * Creates a call panel for the corresponding call, by specifying the
-     * call type (incoming or outgoing) and the parent dialog.
+     * Initializes a new <tt>OneToOneCallPanel</tt> which is to depict a
+     * one-to-one audio and/or video conversation of the local peer/user with a
+     * specific remote <tt>CallPeer</tt> and which is to be used by a specific
+     * <tt>CallPanel</tt> for that purpose.
      *
-     * @param callContainer the container containing this panel
-     * @param callPeer      the remote participant in the call
+     * @param callContainer the <tt>CallPanel</tt> which requested the
+     * initialization of the new instance and which is to use it to depict the
+     * one-to-one audio and/or video conversation of the local peer/user with
+     * the specified <tt>callPeer</tt>
+     * @param callPeer the <tt>CallPeer</tt> whose one-to-one audio and/or video
+     * conversation with the local peer/user is to be depicted by the new
+     * instance
+     * @param uiVideoHandler the utility which is to aid the new instance in
+     * dealing with the video-related information
      */
-    public OneToOneCallPanel(   CallPanel callContainer,
-                                CallPeer callPeer)
-    {
-        this(callContainer, callPeer, null);
-    }
-
-    /**
-     * Creates a call panel for the corresponding call, by specifying the
-     * call type (incoming or outgoing) and the parent dialog.
-     *
-     * @param callContainer the container containing this panel
-     * @param callPeer      the remote participant in the call
-     * @param videoHandler
-     */
-    public OneToOneCallPanel(   CallPanel callContainer,
-                                CallPeer callPeer,
-                                UIVideoHandler videoHandler)
+    public OneToOneCallPanel(
+            CallPanel callContainer,
+            CallPeer callPeer,
+            UIVideoHandler2 uiVideoHandler)
     {
         super(new BorderLayout());
 
         this.callContainer = callContainer;
-        this.call = callPeer.getCall();
         this.callPeer = callPeer;
 
-        if (videoHandler == null)
-            this.videoHandler = new UIVideoHandler(this, videoContainers);
-        else
-        {
-            this.videoHandler = videoHandler;
-            videoHandler.setVideoContainersList(videoContainers);
-            videoHandler.setCallRenderer(this);
-        }
+        call = this.callPeer.getCall();
 
-        this.setTransferHandler(new CallTransferHandler(call));
+        addCallPeerPanel(callPeer, uiVideoHandler);
 
-        this.addCallPeerPanel(callPeer);
-
-        this.setPreferredSize(new Dimension(400, 400));
+        setPreferredSize(new Dimension(400, 400));
+        setTransferHandler(new CallTransferHandler(call));
     }
 
     /**
-     * Creates and adds a panel for a call peer.
+     * Initializes and adds a new <tt>OneToOneCallPeerPanel</tt> instance which
+     * is to depict a specific <tt>CallPeer</tt> on behalf of this instance.
      *
-     * @param peer the call peer
+     * @param peer the <tt>CallPeer</tt> to be depicted by the new
+     * <tt>OneToOneCallPeerPanel</tt> instance
+     * @param uiVideoHandler the facility to aid the new instance in dealing
+     * with the video-related information
      */
-    public void addCallPeerPanel(CallPeer peer)
+    private void addCallPeerPanel(CallPeer peer, UIVideoHandler2 uiVideoHandler)
     {
         if (peerPanel == null)
         {
-            videoHandler.addVideoListener(callPeer);
-            videoHandler.addRemoteControlListener(callPeer);
+//            videoHandler.addVideoListener(callPeer);
+//            videoHandler.addRemoteControlListener(callPeer);
 
-            peerPanel = new OneToOneCallPeerPanel(
-                    this, peer, videoContainers);
+            peerPanel = new OneToOneCallPeerPanel(this, peer, uiVideoHandler);
 
             /* Create the main Components of the UI. */
             nameLabel.setText(getPeerDisplayText(peer, peer.getDisplayName()));
 
             JComponent topBar = createTopComponent();
+
             topBar.add(nameLabel);
+            add(topBar, BorderLayout.NORTH);
 
-            this.add(topBar, BorderLayout.NORTH);
-            this.add(peerPanel);
-
-            // Create an adapter which would manage all common call peer
-            // listeners.
-            CallPeerAdapter callPeerAdapter
-                = new CallPeerAdapter(peer, peerPanel);
-
-            peerPanel.setCallPeerAdapter(callPeerAdapter);
-
-            peer.addCallPeerListener(callPeerAdapter);
-            peer.addPropertyChangeListener(callPeerAdapter);
-            peer.addCallPeerSecurityListener(callPeerAdapter);
-
-            // Refresh the call panel if it's already visible.
-            if (isVisible())
-            {
-                this.revalidate();
-                this.repaint();
-            }
+            add(peerPanel);
         }
+    }
+
+    /**
+     * Adds all desktop sharing related components to this container.
+     */
+    public void addDesktopSharingComponents()
+    {
+        OperationSetDesktopSharingServer opSetDesktopSharingServer
+            = callPeer.getProtocolProvider().getOperationSet(
+                OperationSetDesktopSharingServer.class);
+        if(opSetDesktopSharingServer != null
+                && opSetDesktopSharingServer.isRemoteControlAvailable(callPeer))
+        {
+            if (logger.isTraceEnabled())
+                logger.trace("Add desktop sharing related components.");
+
+            if (enableDesktopRemoteControl == null)
+            {
+                enableDesktopRemoteControl = new JCheckBox(
+                    GuiActivator.getResources().getI18NString(
+                        "service.gui.ENABLE_DESKTOP_REMOTE_CONTROL"));
+
+                southPanel = new TransparentPanel(
+                    new FlowLayout(FlowLayout.CENTER));
+
+                southPanel.add(enableDesktopRemoteControl);
+
+                enableDesktopRemoteControl.setAlignmentX(CENTER_ALIGNMENT);
+                enableDesktopRemoteControl.setOpaque(false);
+
+                enableDesktopRemoteControl.addItemListener(new ItemListener()
+                {
+                    public void itemStateChanged(ItemEvent e)
+                    {
+                        CallManager.enableDesktopRemoteControl(
+                            callPeer, e.getStateChange() == ItemEvent.SELECTED);
+                    }
+                });
+            }
+
+            if (OSUtils.IS_MAC)
+            {
+                southPanel.setOpaque(true);
+                southPanel.setBackground(new Color(GuiActivator.getResources()
+                    .getColor("service.gui.MAC_PANEL_BACKGROUND")));
+            }
+
+            add(southPanel, BorderLayout.SOUTH);
+        }
+        revalidate();
+        repaint();
+    }
+
+    /**
+     * Create the buttons bar for the fullscreen mode.
+     *
+     * @return the buttons bar <tt>Component</tt>
+     */
+    private JComponent createFullScreenButtonBar()
+    {
+        ShowHideVideoButton showHideButton
+            = new ShowHideVideoButton(
+                    null /* uiVideoHandler */,
+                    true,
+                    callContainer.isShowHideVideoButtonSelected());
+        boolean isVideoButtonSelected = false;//callContainer.isVideoButtonSelected();
+
+        showHideButton.setEnabled(isVideoButtonSelected);
+
+        Component[] buttons
+            = new Component[]
+            {
+                new OutputVolumeControlButton(true).getComponent(),
+                new InputVolumeControlButton(call, true, callPeer.isMute()),
+                new HoldButton(
+                        call,
+                        true,
+                        CallPeerState.isOnHold(callPeer.getState())),
+                new RecordButton(
+                        call,
+                        true,
+                        callContainer.isRecordingStarted()),
+                new FullScreenButton(callContainer, true),
+                new LocalVideoButton(
+                        call,
+                        true,
+                        isVideoButtonSelected),
+                showHideButton,
+                new HangupButton(callContainer)
+            };
+
+        return CallPeerRendererUtils.createButtonBar(true, buttons);
+    }
+
+    /**
+     * Creates the toolbar panel for this chat window, depending on the current
+     * operating system.
+     *
+     * @return the created toolbar
+     */
+    private JComponent createTopComponent()
+    {
+        JComponent topComponent = null;
+
+        if (OSUtils.IS_MAC)
+        {
+            if (callContainer.getCallWindow() instanceof Window)
+            {
+                UnifiedToolBar macToolbarPanel = new UnifiedToolBar();
+
+                MacUtils.makeWindowLeopardStyle(
+                    callContainer.getCallWindow().getFrame().getRootPane());
+
+                macToolbarPanel.getComponent().setLayout(new BorderLayout());
+                macToolbarPanel.disableBackgroundPainter();
+                macToolbarPanel.installWindowDraggerOnWindow(
+                    callContainer.getCallWindow().getFrame());
+
+                topComponent = macToolbarPanel.getComponent();
+            }
+            else
+            {
+                topComponent = new TransparentPanel(new BorderLayout());
+                topComponent.setOpaque(true);
+                topComponent.setBackground(new Color(GuiActivator.getResources()
+                    .getColor("service.gui.MAC_PANEL_BACKGROUND")));
+            }
+
+            // Set the color of the center panel.
+            peerPanel.setOpaque(true);
+            peerPanel.setBackground(new Color(GuiActivator.getResources()
+                .getColor("service.gui.MAC_PANEL_BACKGROUND")));
+        }
+        else
+        {
+            JPanel panel = new TransparentPanel(new BorderLayout());
+
+            panel.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
+
+            topComponent = panel;
+        }
+
+        return topComponent;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void dispose()
+    {
+        if (peerPanel != null)
+            peerPanel.dispose();
     }
 
     /**
@@ -201,7 +316,7 @@ public class OneToOneCallPanel
         frame.setTitle(peerPanel.getPeerName());
         frame.setUndecorated(true);
 
-        Component center = peerPanel.createCenter(videoContainers);
+        Component center = null;//peerPanel.createCenter(videoContainers);
         final Component buttonBar = createFullScreenButtonBar();
 
         // Lay out the main Components of the UI.
@@ -324,239 +439,6 @@ public class OneToOneCallPanel
     }
 
     /**
-     * Create the buttons bar for the fullscreen mode.
-     *
-     * @return the buttons bar <tt>Component</tt>
-     */
-    private JComponent createFullScreenButtonBar()
-    {
-        ShowHideVideoButton showHideButton = new ShowHideVideoButton(
-            call, true, callContainer.isShowHideVideoButtonSelected());
-        showHideButton.setPeerRenderer(peerPanel);
-        showHideButton.setEnabled(callContainer.isVideoButtonSelected());
-
-        Component[] buttons
-            = new Component[]
-            {
-                new OutputVolumeControlButton(true).getComponent(),
-                new InputVolumeControlButton(call, true, callPeer.isMute()),
-                new HoldButton(call,
-                               true,
-                               CallPeerState.isOnHold(callPeer.getState())),
-                new RecordButton(call, true, callContainer.isRecordingStarted()),
-                new FullScreenButton(callContainer, true),
-                new LocalVideoButton(
-                    call, true, callContainer.isVideoButtonSelected()),
-                showHideButton,
-                new HangupButton(callContainer)
-            };
-
-        return CallPeerRendererUtils.createButtonBar(true, buttons);
-    }
-
-    /**
-     * Attempts to give a specific <tt>Component</tt> a visible rectangle with a
-     * specific width and a specific height if possible and sane.
-     *
-     * @param component the <tt>Component</tt> to be given a visible rectangle
-     * with the specified width and height
-     * @param width the width of the visible rectangle to be given to the
-     * specified <tt>Component</tt>
-     * @param height the height of the visible rectangle to be given to the
-     * specified <tt>Component</tt>
-     */
-    public void ensureSize(Component component, int width, int height)
-    {
-        Frame frame = CallPeerRendererUtils.getFrame(component);
-
-        if (frame == null)
-            return;
-        else if ((frame.getExtendedState() & Frame.MAXIMIZED_BOTH)
-                == Frame.MAXIMIZED_BOTH)
-        {
-            /*
-             * Forcing the size of a Component which is displayed in a maximized
-             * window does not sound like anything we want to do.
-             */
-            return;
-        }
-        else if (frame.equals(frame.getGraphicsConfiguration()
-                                .getDevice().getFullScreenWindow()))
-        {
-            /*
-             * Forcing the size of a Component which is displayed in a
-             * full-screen window does not sound like anything we want to do.
-             */
-            return;
-        }
-        else
-        {
-            Insets frameInsets = frame.getInsets();
-
-            /*
-             * XXX This is a very wild guess and it is very easy to break
-             * because it wants to have the component with the specified width
-             * yet it forces the Frame to have nearly the same width without
-             * knowing anything about the layouts of the containers between the
-             * Frame and the component.
-             */
-            int newFrameWidth = width + frameInsets.left + frameInsets.right;
-
-            Dimension frameSize = frame.getSize();
-            Dimension componentSize = component.getSize();
-
-            int newFrameHeight
-                = frameSize.height + height - componentSize.height;
-
-            // Don't get bigger than the screen.
-            Rectangle screenBounds
-                = frame.getGraphicsConfiguration().getBounds();
-
-            if (newFrameWidth > screenBounds.width)
-                newFrameWidth = screenBounds.width;
-            if (newFrameHeight > screenBounds.height)
-                newFrameHeight = screenBounds.height;
-
-            // Don't go out of the screen.
-            Point frameLocation = frame.getLocation();
-            int newFrameX = frameLocation.x;
-            int newFrameY = frameLocation.y;
-            int xDelta
-                = (newFrameX + newFrameWidth)
-                    - (screenBounds.x + screenBounds.width);
-            int yDelta
-                = (newFrameY + newFrameHeight)
-                    - (screenBounds.y + screenBounds.height);
-
-            if (xDelta > 0)
-            {
-                newFrameX -= xDelta;
-                if (newFrameX < screenBounds.x)
-                    newFrameX = screenBounds.x;
-            }
-            if (yDelta > 0)
-            {
-                newFrameY -= yDelta;
-                if (newFrameY < screenBounds.y)
-                    newFrameY = screenBounds.y;
-            }
-
-            // Don't get smaller than the min size.
-            Dimension minSize = frame.getMinimumSize();
-
-            if (newFrameWidth < minSize.width)
-                newFrameWidth = minSize.width;
-            if (newFrameHeight < minSize.height)
-                newFrameHeight = minSize.height;
-
-            /*
-             * XXX Unreliable because VideoRenderer Components such as the
-             * Component of the AWTRenderer on Linux overrides its
-             * #getPreferredSize().
-             */
-            component.setPreferredSize(new Dimension(width, height));
-
-            /*
-             * If we're going to make too small a change, don't even bother.
-             * Besides, we don't want some weird recursive resizing.
-             */
-            int frameWidthDelta = newFrameWidth - frameSize.width;
-            int frameHeightDelta = newFrameHeight - frameSize.height;
-
-            if ((frameWidthDelta < -1)
-                    || (frameWidthDelta > 1)
-                    || (frameHeightDelta < -1)
-                    || (frameHeightDelta > 1))
-            {
-                frame.setBounds(
-                        newFrameX, newFrameY,
-                        newFrameWidth, newFrameHeight);
-            }
-        }
-    }
-
-    /**
-     * Adds all desktop sharing related components to this container.
-     */
-    public void addDesktopSharingComponents()
-    {
-        OperationSetDesktopSharingServer opSetDesktopSharingServer
-            = callPeer.getProtocolProvider().getOperationSet(
-                OperationSetDesktopSharingServer.class);
-        if(opSetDesktopSharingServer != null
-                && opSetDesktopSharingServer.isRemoteControlAvailable(callPeer))
-        {
-            if (logger.isTraceEnabled())
-                logger.trace("Add desktop sharing related components.");
-
-            if (enableDesktopRemoteControl == null)
-            {
-                enableDesktopRemoteControl = new JCheckBox(
-                    GuiActivator.getResources().getI18NString(
-                        "service.gui.ENABLE_DESKTOP_REMOTE_CONTROL"));
-
-                southPanel = new TransparentPanel(
-                    new FlowLayout(FlowLayout.CENTER));
-
-                southPanel.add(enableDesktopRemoteControl);
-
-                enableDesktopRemoteControl.setAlignmentX(CENTER_ALIGNMENT);
-                enableDesktopRemoteControl.setOpaque(false);
-
-                enableDesktopRemoteControl.addItemListener(new ItemListener()
-                {
-                    public void itemStateChanged(ItemEvent e)
-                    {
-                        CallManager.enableDesktopRemoteControl(
-                            callPeer, e.getStateChange() == ItemEvent.SELECTED);
-                    }
-                });
-            }
-
-            if (OSUtils.IS_MAC)
-            {
-                southPanel.setOpaque(true);
-                southPanel.setBackground(new Color(GuiActivator.getResources()
-                    .getColor("service.gui.MAC_PANEL_BACKGROUND")));
-            }
-
-            add(southPanel, BorderLayout.SOUTH);
-        }
-        revalidate();
-        repaint();
-    }
-
-    /**
-     * Removes all desktop sharing related components from this container.
-     */
-    public void removeDesktopSharingComponents()
-    {
-        if (southPanel != null)
-        {
-            remove(southPanel);
-            enableDesktopRemoteControl.setSelected(false);
-        }
-
-        revalidate();
-        repaint();
-    }
-
-    /**
-     * Returns the <tt>CallPeerRenderer</tt> corresponding to the given
-     * <tt>callPeer</tt>.
-     * @param callPeer the <tt>CallPeer</tt>, for which we're looking for a
-     * renderer
-     * @return the <tt>CallPeerRenderer</tt> corresponding to the given
-     * <tt>callPeer</tt>
-     */
-    public CallPeerRenderer getCallPeerRenderer(CallPeer callPeer)
-    {
-        if (callPeer.equals(this.callPeer))
-            return peerPanel;
-        return null;
-    }
-
-    /**
      * Returns the call represented by this call renderer.
      * @return the call represented by this call renderer
      */
@@ -575,63 +457,28 @@ public class OneToOneCallPanel
     }
 
     /**
-     * Sets the name of the peer.
-     * @param name the name of the peer
+     * Gets the <tt>CallPeer</tt> depicted by this instance.
+     *
+     * @return the <tt>CallPeer</tt> depicted by this instance
      */
-    public void setPeerName(String name)
+    public CallPeer getCallPeer()
     {
-        this.nameLabel.setText(getPeerDisplayText(callPeer, name));
+        return callPeer;
     }
 
     /**
-     * Creates the toolbar panel for this chat window, depending on the current
-     * operating system.
-     *
-     * @return the created toolbar
+     * Returns the <tt>CallPeerRenderer</tt> corresponding to the given
+     * <tt>callPeer</tt>.
+     * @param callPeer the <tt>CallPeer</tt>, for which we're looking for a
+     * renderer
+     * @return the <tt>CallPeerRenderer</tt> corresponding to the given
+     * <tt>callPeer</tt>
      */
-    private JComponent createTopComponent()
+    public CallPeerRenderer getCallPeerRenderer(CallPeer callPeer)
     {
-        JComponent topComponent = null;
-
-        if (OSUtils.IS_MAC)
-        {
-            if (callContainer.getCallWindow() instanceof Window)
-            {
-                UnifiedToolBar macToolbarPanel = new UnifiedToolBar();
-
-                MacUtils.makeWindowLeopardStyle(
-                    callContainer.getCallWindow().getFrame().getRootPane());
-
-                macToolbarPanel.getComponent().setLayout(new BorderLayout());
-                macToolbarPanel.disableBackgroundPainter();
-                macToolbarPanel.installWindowDraggerOnWindow(
-                    callContainer.getCallWindow().getFrame());
-
-                topComponent = macToolbarPanel.getComponent();
-            }
-            else
-            {
-                topComponent = new TransparentPanel(new BorderLayout());
-                topComponent.setOpaque(true);
-                topComponent.setBackground(new Color(GuiActivator.getResources()
-                    .getColor("service.gui.MAC_PANEL_BACKGROUND")));
-            }
-
-            // Set the color of the center panel.
-            peerPanel.setOpaque(true);
-            peerPanel.setBackground(new Color(GuiActivator.getResources()
-                .getColor("service.gui.MAC_PANEL_BACKGROUND")));
-        }
-        else
-        {
-            JPanel panel = new TransparentPanel(new BorderLayout());
-
-            panel.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
-
-            topComponent = panel;
-        }
-
-        return topComponent;
+        if (callPeer.equals(this.callPeer))
+            return peerPanel;
+        return null;
     }
 
     /**
@@ -653,48 +500,26 @@ public class OneToOneCallPanel
     }
 
     /**
-     * Indicates that the given conference member has been added to the given
-     * peer.
-     *
-     * @param callPeer the parent call peer
-     * @param conferenceMember the member that was added
+     * Removes all desktop sharing related components from this container.
      */
-    public void conferenceMemberAdded(
-            CallPeer callPeer,
-            ConferenceMember conferenceMember)
+    public void removeDesktopSharingComponents()
     {
-        // We don't want to add the local member to the list of members.
-        if (CallManager.isLocalUser(conferenceMember))
-            return;
-
-        if (CallManager.addressesAreEqual(
-                conferenceMember.getAddress(),
-                callPeer.getAddress()))
+        if (southPanel != null)
         {
-            return;
+            remove(southPanel);
+            enableDesktopRemoteControl.setSelected(false);
         }
 
-        getCallContainer().enableConferenceInterface(
-                CallManager.isVideoStreaming(call));
+        revalidate();
+        repaint();
     }
 
     /**
-     * Indicates that the given conference member has been removed from the
-     * given peer.
-     *
-     * @param callPeer the parent call peer
-     * @param conferenceMember the member that was removed
+     * Sets the name of the peer.
+     * @param name the name of the peer
      */
-    public void conferenceMemberRemoved(CallPeer callPeer,
-        ConferenceMember conferenceMember) {}
-
-    /**
-     * Returns the video handler associated with this call peer renderer.
-     *
-     * @return the video handler associated with this call peer renderer
-     */
-    public UIVideoHandler getVideoHandler()
+    public void setPeerName(String name)
     {
-        return videoHandler;
+        this.nameLabel.setText(getPeerDisplayText(callPeer, name));
     }
 }

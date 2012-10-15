@@ -158,27 +158,29 @@ public class CallGTalkImpl
 
         // if this was the first peer we added in this call then the call is
         // new and we also need to notify everyone of its creation.
-        if(getCallPeerCount() == 1 && !calleeJID.endsWith(
-            ProtocolProviderServiceJabberImpl.GOOGLE_VOICE_DOMAIN) ||
-            getCallPeerCount() == 2 && firstCallPeerIsGV)
+        List<CallPeerGTalkImpl> callPeers = getCallPeerList();
+        int callPeerCount = callPeers.size();
+
+        if(((callPeerCount == 1)
+                    && !calleeJID.endsWith(
+                            ProtocolProviderServiceJabberImpl
+                                .GOOGLE_VOICE_DOMAIN))
+                || ((callPeerCount == 2) && firstCallPeerIsGV))
         {
             if(firstCallPeerIsGV)
             {
                 // now all is setup, considered that there is no GV call
                 firstCallPeerIsGV = false;
-                Iterator<CallPeerGTalkImpl> it =
-                    getCallPeersVector().iterator();
+
                 String sub = calleeJID.substring(0, calleeJID.indexOf("/"));
 
                 // remove Google Voice first call from CallPeer vector otherwise
                 // we will display a conference call window
-                while(it.hasNext())
+                for (CallPeerGTalkImpl p : callPeers)
                 {
-                    CallPeer p = it.next();
-
                     if(p.getAddress().equals(sub))
                     {
-                        it.remove();
+                        doRemoveCallPeer(p);
                         break;
                     }
                 }
@@ -192,7 +194,7 @@ public class CallGTalkImpl
         CallPeerMediaHandlerGTalkImpl mediaHandler
             = callPeer.getMediaHandler();
 
-        /* enable video if it is a videocall */
+        /* enable video if it is a video call */
         mediaHandler.setLocalVideoTransmissionEnabled(localVideoAllowed);
 
         //set call state to connecting so that the user interface would start
@@ -202,22 +204,20 @@ public class CallGTalkImpl
 
         // if initializing session fails, set peer to failed
         boolean sessionInitiated = false;
+
         try
         {
 
             callPeer.initiateSession(sessionInitiateExtensions);
             sessionInitiated = true;
-
-            return callPeer;
         }
         finally
         {
             // if initialization throws an exception
             if(!sessionInitiated)
-            {
                 callPeer.setState(CallPeerState.FAILED);
-            }
         }
+        return callPeer;
     }
 
     /**

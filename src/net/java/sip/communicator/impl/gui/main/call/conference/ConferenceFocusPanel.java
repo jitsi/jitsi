@@ -12,7 +12,6 @@ import java.util.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.main.call.*;
-import net.java.sip.communicator.impl.gui.main.call.CallPeerAdapter;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.skin.*;
@@ -21,14 +20,17 @@ import net.java.sip.communicator.util.swing.*;
 import org.jitsi.service.protocol.event.*;
 
 /**
- *
+ * Depicts a specific <tt>CallPeer</tt> who is a focus of a telephony conference
+ * and the <tt>ConferenceMember</tt>s whom the specified <tt>CallPeer</tt> is
+ * acting as a conference focus of.
  *
  * @author Yana Stamcheva
+ * @author Lyubomir Marinov
  */
 public class ConferenceFocusPanel
     extends TransparentPanel
-    implements  ConferenceCallPeerRenderer,
-                Skinnable
+    implements ConferenceCallPeerRenderer,
+               Skinnable
 {
     /**
      * Serial version UID.
@@ -36,173 +38,298 @@ public class ConferenceFocusPanel
     private static final long serialVersionUID = 0L;
 
     /**
-     * The peer corresponding to the focus.
+     * The <tt>BasicConferenceCallPanel</tt> which initialized this instance and
+     * which uses it to depict {@link #focusPeer}.
+     */
+    private final BasicConferenceCallPanel callRenderer;
+
+    /*
+     * XXX The conferenceMemberPanels field is modified by various threads
+     * without any synchronization whatsoever.
+     */
+    /**
+     * The <tt>ConferenceMemberPanel</tt>s which depict the
+     * <tt>ConferenceMember</tt>s of {@link #focusPeer}. Mapped by their
+     * respective <tt>ConferenceMember</tt> instances for optimized access.
+     */
+    private final Map<ConferenceMember, ConferenceMemberPanel>
+        conferenceMemberPanels
+            = new Hashtable<ConferenceMember, ConferenceMemberPanel>();
+
+    private final GridBagConstraints cnstrnts;
+
+    /**
+     * The <tt>CallPeer</tt> depicted by this instance.
      */
     private final CallPeer focusPeer;
 
-    /**
-     * The renderer corresponding to the parent call call.
-     */
-    private final ConferenceCallPanel callRenderer;
+    private final FocusPeerListener focusPeerListener = new FocusPeerListener();
 
     /**
-     * The call panel.
-     */
-    private final CallPanel callPanel;
-
-    /**
-     * A mapping of a member and its renderer.
-     */
-    private final Map<ConferenceMember, ConferenceMemberPanel>
-        conferenceMembersPanels
-            = new Hashtable<ConferenceMember, ConferenceMemberPanel>();
-
-    /**
-     * Listens for sound level events on the conference members.
-     */
-    private ConferenceMembersSoundLevelListener
-        conferenceMembersSoundLevelListener = null;
-
-    /**
-     * The panel of the focus peer.
+     * The <tt>ConferencePeerPanel</tt> which depicts {@link #focusPeer} without
+     * the <tt>ConferenceMember</tt>s which participate in the telephony
+     * conference that it is the focus of.
      */
     private ConferencePeerPanel focusPeerPanel;
 
     /**
-     * Creates an instance of <tt>ConferenceFocusPanel</tt> by specifying the
-     * parent call renderer, the call panel and the peer represented by this
-     * conference focus panel.
+     * Initializes a new <tt>ConferenceFocusPanel</tt> which is to depict a
+     * specific <tt>CallPeer</tt> on behalf of a specific
+     * <tt>BasicConferenceCallPanel</tt> i.e. <tt>CallRenderer</tt>.
      *
-     * @param callRenderer the parent call renderer
-     * @param callPanel the call panel
-     * @param callPeer the peer represented by this focus panel
-     * @param videoHandler the video handler
+     * @param callRenderer the <tt>BasicConferenceCallPanel</tt> which requests
+     * the initialization of the new instance and which will use the new
+     * instance to depict the specified <tt>CallPeer</tt>
+     * @param callPeer the <tt>CallPeer</tt> to be depicted by the new instance
      */
-    public ConferenceFocusPanel(ConferenceCallPanel callRenderer,
-                                CallPanel callPanel,
-                                CallPeer callPeer)
+    public ConferenceFocusPanel(
+            BasicConferenceCallPanel callRenderer,
+            CallPeer callPeer)
     {
+        super(new GridBagLayout());
+
         this.focusPeer = callPeer;
         this.callRenderer = callRenderer;
-        this.callPanel = callPanel;
 
-        this.setLayout(new GridBagLayout());
-
-        // First add the focus peer.
+        cnstrnts = new GridBagConstraints();
+        cnstrnts.fill = GridBagConstraints.BOTH;
+        cnstrnts.gridx = 0;
+        cnstrnts.gridy = 0;
+        cnstrnts.insets = new Insets(0, 0, 3, 0);
+        cnstrnts.weightx = 1;
+        cnstrnts.weighty = 0;
+        /*
+         * Add the user interface which will depict the focusPeer without the
+         * ConferenceMembers.
+         */
         addFocusPeerPanel();
 
-        for (ConferenceMember member : callPeer.getConferenceMembers())
+        this.focusPeer.addCallPeerConferenceListener(focusPeerListener);
+        this.focusPeer.addConferenceMembersSoundLevelListener(
+                focusPeerListener);
+
+        for (ConferenceMember conferenceMember
+                : this.focusPeer.getConferenceMembers())
         {
-            addConferenceMemberPanel(member);
+            addConferenceMemberPanel(conferenceMember);
         }
     }
 
     /**
-     * Adds the focus peer panel.
-     */
-    public void addFocusPeerPanel()
-    {
-        focusPeerPanel
-            = new ConferencePeerPanel(
-                callRenderer, callPanel, focusPeer, false);
-
-        GridBagConstraints constraints = new GridBagConstraints();
-
-        // Add the member panel to this container
-        constraints.fill = GridBagConstraints.BOTH;
-        constraints.gridx = 0;
-        constraints.gridy = 0;
-        constraints.weightx = 1;
-        constraints.weighty = 0;
-        constraints.insets = new Insets(0, 0, 3, 0);
-
-        this.add(focusPeerPanel, constraints);
-    }
-
-    /**
-     * Adds a <tt>ConferenceMemberPanel</tt> for a given
-     * <tt>ConferenceMember</tt>.
+     * Adds a <tt>ConferenceMemberPanel</tt> to depict a specific
+     * <tt>ConferenceMember</tt> if there is not one yet.
      *
-     * @param member the <tt>ConferenceMember</tt> that will correspond to the
-     * panel to add.
+     * @param conferenceMember the <tt>ConferenceMember</tt> to be depicted
      */
-    public void addConferenceMemberPanel(ConferenceMember member)
+    private void addConferenceMemberPanel(ConferenceMember conferenceMember)
     {
-        // We don't want to add the local member to the list of members.
-        if (CallManager.isLocalUser(member))
+        /*
+         * The local user/peer should not be depicted by a ConferenceMemberPanel
+         * because it is not the responsibility of ConferenceFocusPanel and
+         * ConferenceMemberPanel.
+         */
+        if (CallManager.isLocalUser(conferenceMember))
             return;
-
+        /*
+         * If the focusPeer is reported as a ConferenceMember, it should be
+         * depicted by focusPeerPanel only and not a ConferenceMemberPanel.
+         */
         if (CallManager.addressesAreEqual(
-                member.getAddress(), focusPeer.getAddress()))
+                conferenceMember.getAddress(),
+                focusPeer.getAddress()))
             return;
 
-        // It's already there.
-        if (conferenceMembersPanels.containsKey(member))
+        /*
+         * The specified ConferenceMember is already depicted by this view with
+         * a ConferenceMemberPanel.
+         */
+        if (conferenceMemberPanels.containsKey(conferenceMember))
             return;
 
-        ConferenceMemberPanel memberPanel
-            = new ConferenceMemberPanel(callRenderer, member, false);
+        ConferenceMemberPanel conferenceMemberPanel
+            = new ConferenceMemberPanel(callRenderer, conferenceMember, false);
 
-        member.addPropertyChangeListener(memberPanel);
+        /*
+         * Remember the ConferenceMemberPanel which depicts the specified
+         * ConferenceMember.
+         */
+        conferenceMemberPanels.put(conferenceMember, conferenceMemberPanel);
 
-        // Map the conference member to the created member panel.
-        conferenceMembersPanels.put(member, memberPanel);
-
-        GridBagConstraints constraints = new GridBagConstraints();
-
-        // Add the member panel to this container
-        constraints.fill = GridBagConstraints.BOTH;
-        constraints.gridx = 0;
-        constraints.gridy = getComponentCount();
-        constraints.weightx = 1;
-        constraints.weighty = 0;
-        constraints.insets = new Insets(0, 0, 3, 0);
-
-        this.add(memberPanel, constraints);
+        /*
+         * Add the newly-initialized ConferenceMemberPanel to the user interface
+         * hierarchy of this view.
+         */
+        add(conferenceMemberPanel, cnstrnts);
+        cnstrnts.gridy++;
 
         initSecuritySettings();
     }
 
     /**
-     * Removes the <tt>ConferenceMemberPanel</tt> corresponding to the given
-     * <tt>member</tt>.
-     *
-     * @param member the <tt>ConferenceMember</tt>, which panel to remove
+     * Adds the <tt>ConferencePeerPanel</tt> which will depict
+     * {@link #focusPeer} without the <tt>ConferenceMember</tt>s which
+     * participate in the telephony conference that it is the focus of.
      */
-    public void removeConferenceMemberPanel(ConferenceMember member)
+    private void addFocusPeerPanel()
     {
-        Component memberPanel = conferenceMembersPanels.get(member);
+        focusPeerPanel = new ConferencePeerPanel(callRenderer, focusPeer);
+        add(focusPeerPanel, cnstrnts);
+        cnstrnts.gridy++;
+    }
 
-        if (memberPanel != null)
+    /**
+     * Releases the resources acquired by this instance which require explicit
+     * disposal (e.g. any listeners added to the depicted <tt>CallPeer</tt>.
+     * Invoked by <tt>BasicConferenceCallPanel</tt> when it determines that this
+     * <tt>ConferenceFocusPanel</tt> is no longer necessary. 
+     */
+    public void dispose()
+    {
+        focusPeer.removeCallPeerConferenceListener(focusPeerListener);
+        focusPeer.removeConferenceMembersSoundLevelListener(focusPeerListener);
+
+        if (focusPeerPanel != null)
+            focusPeerPanel.dispose();
+        for (ConferenceMemberPanel conferenceMemberPanel
+                : conferenceMemberPanels.values())
         {
-            int i = 0;
-            this.remove(memberPanel);
-            conferenceMembersPanels.remove(member);
+            conferenceMemberPanel.dispose();
+        }
+    }
 
-            if (!CallManager.addressesAreEqual(
-                member.getAddress(), focusPeer.getAddress()))
-                member.removePropertyChangeListener(
-                    (ConferenceMemberPanel) memberPanel);
+    /**
+     * Returns the parent <tt>CallPanel</tt> containing this renderer.
+     *
+     * @return the parent <tt>CallPanel</tt> containing this renderer
+     */
+    public CallPanel getCallPanel()
+    {
+        return getCallRenderer().getCallContainer();
+    }
 
-            for(Map.Entry<ConferenceMember, ConferenceMemberPanel> m :
-                conferenceMembersPanels.entrySet())
+    /**
+     * Returns the parent call renderer.
+     *
+     * @return the parent call renderer
+     */
+    public CallRenderer getCallRenderer()
+    {
+        return callRenderer;
+    }
+
+    /**
+     * Returns the component associated with this renderer.
+     *
+     * @return the component associated with this renderer
+     */
+    public Component getComponent()
+    {
+        return this;
+    }
+
+    /**
+     * Initializes the security settings of {@link #focusPeerPanel} and
+     * {@link #conferenceMemberPanels} with the security settings of
+     * {@link #focusPeer}.
+     */
+    private void initSecuritySettings()
+    {
+        CallPeerSecurityStatusEvent securityEvent
+            = focusPeer.getCurrentSecuritySettings();
+
+        if (securityEvent instanceof CallPeerSecurityOnEvent)
+            securityOn((CallPeerSecurityOnEvent) securityEvent);
+    }
+
+    /**
+     * Indicates if the local video component is currently visible.
+     *
+     * @return <tt>true</tt> if the local video component is currently visible,
+     * <tt>false</tt> - otherwise
+     */
+    public boolean isLocalVideoVisible()
+    {
+        return focusPeerPanel.isLocalVideoVisible();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * The implementation of <tt>ConferenceFocusPanel</tt> does nothing.
+     */
+    public void loadSkin()
+    {
+    }
+
+    /**
+     * Notifies this instance about a specific <tt>CallPeerConferenceEvent</tt>
+     * which was fired by {@link #focusPeer}. The notification is brought in the
+     * AWT event dispatching thread.
+     *
+     * @param ev the <tt>CallPeerConferenceEvent</tt> which was fired by
+     * {@link #focusPeer} and which this instance is notified about
+     */
+    protected void onCallPeerConferenceEvent(final CallPeerConferenceEvent ev)
+    {
+        /*
+         * ConferenceFocusPanel is interested in the additions and the removals
+         * of ConferenceMembers only. Because we are handling the
+         * CallPeerConferenceEvents in the AWT event dispatching thread which is
+         * not friendly to the garbage collection, filter out the
+         * CallPeerConferenceEvents which are of no interest at this time.
+         */
+        switch(ev.getEventID())
+        {
+        case CallPeerConferenceEvent.CONFERENCE_MEMBER_ADDED:
+        case CallPeerConferenceEvent.CONFERENCE_MEMBER_REMOVED:
+            if (SwingUtilities.isEventDispatchThread())
             {
-                GridBagConstraints constraints = new GridBagConstraints();
-                Component mV = m.getValue();
-
-                this.remove(mV);
-
-                // Add again the member panel to this container
-                constraints.fill = GridBagConstraints.BOTH;
-                constraints.gridx = 0;
-                constraints.gridy = i;
-                constraints.weightx = 1;
-                constraints.weighty = 0;
-                constraints.insets = new Insets(0, 0, 3, 0);
-
-                this.add(mV, constraints);
-                i++;
+                onCallPeerConferenceEventInEventDispatchThread(ev);
             }
+            else
+            {
+                SwingUtilities.invokeLater(
+                        new Runnable()
+                        {
+                            public void run()
+                            {
+                                onCallPeerConferenceEventInEventDispatchThread(
+                                        ev);
+                            }
+                        });
+            }
+            break;
+
+        default:
+            /*
+             * As it is said above, we are not interested in all
+             * CallPeerConferenceEvents.
+             */
+            break;
+        }
+    }
+
+    /**
+     * Notifies this instance about a specific <tt>CallPeerConferenceEvent</tt>
+     * which was fired by {@link #focusPeer}.
+     *
+     * @param ev the <tt>CallPeerConferenceEvent</tt> which was fired by
+     * {@link #focusPeer} and which this instance is notified about
+     */
+    protected void onCallPeerConferenceEventInEventDispatchThread(
+            CallPeerConferenceEvent ev)
+    {
+        ConferenceMember conferenceMember = ev.getConferenceMember();
+
+        switch (ev.getEventID())
+        {
+        case CallPeerConferenceEvent.CONFERENCE_MEMBER_ADDED:
+            addConferenceMemberPanel(conferenceMember);
+            break;
+
+        case CallPeerConferenceEvent.CONFERENCE_MEMBER_REMOVED:
+            removeConferenceMemberPanel(conferenceMember);
+            break;
         }
     }
 
@@ -223,11 +350,14 @@ public class ConferenceFocusPanel
         {
             AntialiasingManager.activateAntialiasing(g);
 
+            int height = getHeight();
+            int width = getWidth();
+
             g.setColor(Color.LIGHT_GRAY);
-            g.fillRect(0, 0, this.getWidth(), this.getHeight());
+            g.fillRect(0, 0, width, height);
             g.setColor(Color.DARK_GRAY);
-            g.drawLine(0, 0, getWidth(), 0);
-            g.drawLine(0, getHeight() - 1, getWidth(), getHeight() - 1);
+            g.drawLine(0, 0, width, 0);
+            g.drawLine(0, height - 1, width, height - 1);
         }
         finally
         {
@@ -236,43 +366,84 @@ public class ConferenceFocusPanel
     }
 
     /**
-     * Reloads default avatar icon.
-     */
-    public void loadSkin() {}
-
-    /**
-     * Sets the name of the peer.
+     * Prints the given DTMG character through this <tt>CallPeerRenderer</tt>.
      *
-     * @param name the name of the peer
+     * @param dtmfChar the DTMF char to print
      */
-    public void setPeerName(String name)
+    public void printDTMFTone(char dtmfChar)
     {
-        focusPeerPanel.setPeerName(name);
+        focusPeerPanel.printDTMFTone(dtmfChar);
     }
 
     /**
-     * Sets the <tt>image</tt> of the peer.
+     * Removes the <tt>ConferenceMemberPanel</tt> depicting a specific
+     * <tt>ConferenceMember</tt>.
      *
-     * @param image the image to set
+     * @param conferenceMember the <tt>ConferenceMember</tt> whose depicting
+     * <tt>ConferenceMemberPanel</tt> is to be removed
      */
-    public void setPeerImage(byte[] image)
+    private void removeConferenceMemberPanel(ConferenceMember conferenceMember)
     {
-        focusPeerPanel.setPeerImage(image);
+        ConferenceMemberPanel conferenceMemberPanel
+            = conferenceMemberPanels.remove(conferenceMember);
+
+        if (conferenceMemberPanel != null)
+        {
+            remove(conferenceMemberPanel);
+            conferenceMemberPanel.dispose();
+        }
     }
 
     /**
-     * Sets the state of the contained call peer by specifying the
-     * state name.
+     * The handler for the security event received. The security event
+     * for starting establish a secure connection.
      *
-     * @param oldState the previous state of the peer
-     * @param newState the new state of the peer
-     * @param stateString the state of the contained call peer
+     * @param securityNegotiationStartedEvent
+     *            the security started event received
      */
-    public void setPeerState(   CallPeerState oldState,
-                                CallPeerState newState,
-                                String stateString)
+    public void securityNegotiationStarted(
+        CallPeerSecurityNegotiationStartedEvent securityNegotiationStartedEvent)
+    {}
+
+    /**
+     * Indicates that the security is turned off.
+     *
+     * @param evt Details about the event that caused this message.
+     */
+    public void securityOff(CallPeerSecurityOffEvent evt)
     {
-        focusPeerPanel.setPeerState(oldState, newState, stateString);
+        focusPeerPanel.securityOff(evt);
+        for (ConferenceMemberPanel member : conferenceMemberPanels.values())
+            member.securityOff(evt);
+    }
+
+    /**
+     * Indicates that the security is turned on.
+     *
+     * @param evt Details about the event that caused this message.
+     */
+    public void securityOn(CallPeerSecurityOnEvent evt)
+    {
+        focusPeerPanel.securityOn(evt);
+        for (ConferenceMemberPanel member : conferenceMemberPanels.values())
+            member.securityOn(evt);
+    }
+
+    /**
+     * Indicates that the security status is pending confirmation.
+     */
+    public void securityPending()
+    {
+        focusPeerPanel.securityPending();
+    }
+
+    /**
+     * Indicates that the security is timeouted, is not supported by the
+     * other end.
+     * @param evt Details about the event that caused this message.
+     */
+    public void securityTimeout(CallPeerSecurityTimeoutEvent evt)
+    {
     }
 
     /**
@@ -284,6 +455,17 @@ public class ConferenceFocusPanel
     public void setErrorReason(String reason)
     {
         focusPeerPanel.setErrorReason(reason);
+    }
+
+    /**
+     * Shows/hides the local video component.
+     *
+     * @param isVisible <tt>true</tt> to show the local video, <tt>false</tt> -
+     * otherwise
+     */
+    public void setLocalVideoVisible(boolean isVisible)
+    {
+        focusPeerPanel.setLocalVideoVisible(isVisible);
     }
 
     /**
@@ -308,263 +490,106 @@ public class ConferenceFocusPanel
     }
 
     /**
-     * Indicates that the security is turned on.
+     * Sets the <tt>image</tt> of the peer.
      *
-     * @param evt Details about the event that caused this message.
+     * @param image the image to set
      */
-    public void securityOn(CallPeerSecurityOnEvent evt)
+    public void setPeerImage(byte[] image)
     {
-        focusPeerPanel.securityOn(evt);
-
-        for (ConferenceMemberPanel member : conferenceMembersPanels.values())
-        {
-            member.securityOn(evt);
-        }
+        focusPeerPanel.setPeerImage(image);
     }
 
     /**
-     * Indicates that the security is turned off.
+     * Sets the name of the peer.
      *
-     * @param evt Details about the event that caused this message.
+     * @param name the name of the peer
      */
-    public void securityOff(CallPeerSecurityOffEvent evt)
+    public void setPeerName(String name)
     {
-        focusPeerPanel.securityOff(evt);
-        for (ConferenceMemberPanel member : conferenceMembersPanels.values())
-        {
-            member.securityOff(evt);
-        }
+        focusPeerPanel.setPeerName(name);
     }
 
     /**
-     * Indicates that the security status is pending confirmation.
-     */
-    public void securityPending()
-    {
-        focusPeerPanel.securityPending();
-    }
-
-    /**
-     * Indicates that the security is timeouted, is not supported by the
-     * other end.
-     * @param evt Details about the event that caused this message.
-     */
-    public void securityTimeout(CallPeerSecurityTimeoutEvent evt)
-    {
-
-    }
-
-    /**
-     * The handler for the security event received. The security event
-     * for starting establish a secure connection.
+     * Sets the state of the contained call peer by specifying the
+     * state name.
      *
-     * @param securityNegotiationStartedEvent
-     *            the security started event received
+     * @param oldState the previous state of the peer
+     * @param newState the new state of the peer
+     * @param stateString the state of the contained call peer
      */
-    public void securityNegotiationStarted(
-        CallPeerSecurityNegotiationStartedEvent securityNegotiationStartedEvent)
-    {}
+    public void setPeerState(   CallPeerState oldState,
+                                CallPeerState newState,
+                                String stateString)
+    {
+        focusPeerPanel.setPeerState(oldState, newState, stateString);
+    }
 
     /**
-     * Sets the call peer adapter that manages all related listeners.
+     * {@inheritDoc}
      *
-     * @param adapter the call peer adapter
+     * The implementation of <tt>ConferenceFocusPanel</tt> does nothing.
      */
-    public void setCallPeerAdapter(CallPeerAdapter adapter)
+    public void setSecurityPanelVisible(boolean visible)
     {
-        focusPeerPanel.setCallPeerAdapter(adapter);
     }
 
     /**
-     * Returns the call peer adapter that manages all related listeners.
-     *
-     * @return the call peer adapter
+     * Implements the listeners which get notified about events related to the
+     * <tt>CallPeer</tt> depicted by this <tt>ConferenceFocusPanel</tt> and
+     * which may cause a need to update this view from its model.
      */
-    public CallPeerAdapter getCallPeerAdapter()
-    {
-        return focusPeerPanel.getCallPeerAdapter();
-    }
-
-    /**
-     * Prints the given DTMG character through this <tt>CallPeerRenderer</tt>.
-     *
-     * @param dtmfChar the DTMF char to print
-     */
-    public void printDTMFTone(char dtmfChar)
-    {
-        focusPeerPanel.printDTMFTone(dtmfChar);
-    }
-
-    /**
-     * Returns the parent <tt>CallPanel</tt> containing this renderer.
-     *
-     * @return the parent <tt>CallPanel</tt> containing this renderer
-     */
-    public CallPanel getCallPanel()
-    {
-        return callPanel;
-    }
-
-    /**
-     * Returns the parent call renderer.
-     *
-     * @return the parent call renderer
-     */
-    public CallRenderer getCallRenderer()
-    {
-        return callRenderer;
-    }
-
-    /**
-     * Shows/hides the local video component.
-     *
-     * @param isVisible <tt>true</tt> to show the local video, <tt>false</tt> -
-     * otherwise
-     */
-    public void setLocalVideoVisible(boolean isVisible)
-    {
-        focusPeerPanel.setLocalVideoVisible(isVisible);
-    }
-
-    /**
-     * Indicates if the local video component is currently visible.
-     *
-     * @return <tt>true</tt> if the local video component is currently visible,
-     * <tt>false</tt> - otherwise
-     */
-    public boolean isLocalVideoVisible()
-    {
-        return focusPeerPanel.isLocalVideoVisible();
-    }
-
-    /**
-     * Returns the component associated with this renderer.
-     *
-     * @return the component associated with this renderer
-     */
-    public Component getComponent()
-    {
-        return this;
-    }
-
-    /**
-     * Indicates that the given conference member has been added to the given
-     * peer.
-     *
-     * @param callPeer the parent call peer
-     * @param conferenceMember the member that was added
-     */
-    public void conferenceMemberAdded(  CallPeer callPeer,
-                                        ConferenceMember conferenceMember)
-    {
-        addConferenceMemberPanel(conferenceMember);
-
-        callPanel.refreshContainer();
-    }
-
-    /**
-     * Indicates that the given conference member has been removed from the
-     * given peer.
-     *
-     * @param callPeer the parent call peer
-     * @param conferenceMember the member that was removed
-     */
-    public void conferenceMemberRemoved(CallPeer callPeer,
-                                        ConferenceMember conferenceMember)
-    {
-        removeConferenceMemberPanel(conferenceMember);
-
-        callPanel.refreshContainer();
-    }
-
-    /**
-     * Returns the listener instance and created if needed.
-     * @return the conferenceMembersSoundLevelListener
-     */
-    public ConferenceMembersSoundLevelListener
-        getConferenceMembersSoundLevelListener()
-    {
-        if(conferenceMembersSoundLevelListener == null)
-            conferenceMembersSoundLevelListener =
-                new ConfMembersSoundLevelListener();
-
-        return conferenceMembersSoundLevelListener;
-    }
-
-    /**
-     * Returns the listener instance and created if needed.
-     * @return the streamSoundLevelListener
-     */
-    public SoundLevelListener getStreamSoundLevelListener()
-    {
-        return focusPeerPanel.getStreamSoundLevelListener();
-    }
-
-    /**
-     * Initializes security.
-     */
-    private void initSecuritySettings()
-    {
-        CallPeerSecurityStatusEvent securityEvent
-            = focusPeer.getCurrentSecuritySettings();
-
-        if (securityEvent instanceof CallPeerSecurityOnEvent)
-        {
-            securityOn((CallPeerSecurityOnEvent) securityEvent);
-        }
-    }
-
-    /**
-     * Updates according sound level indicators to reflect the new member sound
-     * level.
-     */
-    private class ConfMembersSoundLevelListener
+    private class FocusPeerListener
+        extends CallPeerConferenceAdapter
         implements ConferenceMembersSoundLevelListener
     {
         /**
-         * Delivers <tt>SoundLevelChangeEvent</tt>s on conference member
-         * sound level change.
-         *
-         * @param event the notification event containing the list of changes.
+         * {@inheritDoc}
          */
-        public void soundLevelChanged(
-            ConferenceMembersSoundLevelEvent event)
+        @Override
+        protected void onCallPeerConferenceEvent(CallPeerConferenceEvent ev)
         {
-            Map<ConferenceMember, Integer> levels = event.getLevels();
+            ConferenceFocusPanel.this.onCallPeerConferenceEvent(ev);
+        }
 
+        /**
+         * {@inheritDoc}
+         *
+         * Notifies this listener about changes in the audio/sound level-related
+         * information of the <tt>ConferenceMember</tt>s of
+         * {@link ConferenceFocusPanel#focusPeer}. Updates the user interface
+         * which displays the audio/sound levels i.e.
+         * <tt>SoundLevelIndicator</tt>.
+         */
+        public void soundLevelChanged(ConferenceMembersSoundLevelEvent ev)
+        {
+            Map<ConferenceMember, Integer> levels = ev.getLevels();
+
+            // focusPeerPanel
             for(Map.Entry<ConferenceMember, Integer> e : levels.entrySet())
             {
                 ConferenceMember key = e.getKey();
                 Integer value = e.getValue();
                 String address = focusPeerPanel.getCallPeerContactAddress();
 
-                if(key.getAddress().equals(address))
+                if(CallManager.addressesAreEqual(key.getAddress(), address))
                 {
                     focusPeerPanel.updateSoundBar(value);
                     break;
                 }
             }
 
+            // conferenceMemberPanels
             for (Map.Entry<ConferenceMember, ConferenceMemberPanel> entry
-                    : conferenceMembersPanels.entrySet())
+                    : conferenceMemberPanels.entrySet())
             {
                 ConferenceMember member = entry.getKey();
-                int memberSoundLevel
-                    = levels.containsKey(member) ? levels.get(member) : 0;
+                Integer memberSoundLevel = levels.get(member);
 
-                entry.getValue().updateSoundBar(memberSoundLevel);
+                entry.getValue().updateSoundBar(
+                        (memberSoundLevel == null)
+                            ? 0
+                            : memberSoundLevel.intValue());
             }
         }
-    }
-
-    /**
-     * Shows/hides the security panel.
-     *
-     * @param isVisible <tt>true</tt> to show the security panel, <tt>false</tt>
-     * to hide it
-     */
-    public void setSecurityPanelVisible(boolean isVisible)
-    {
-        
     }
 }

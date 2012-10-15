@@ -21,10 +21,15 @@ import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.FaxDetail;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.GenericDetail;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.MobilePhoneDetail;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.PagerDetail;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.PhoneNumberDetail;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.WorkPhoneDetail;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.media.*;
-import net.java.sip.communicator.util.Logger;
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 import net.java.sip.communicator.util.swing.transparent.*;
 
@@ -97,18 +102,17 @@ public class CallManager
 
             receivedCallDialog.setVisible(true);
 
-            Iterator<? extends CallPeer> peerIterator =
-                sourceCall.getCallPeers();
+            Iterator<? extends CallPeer> peerIter = sourceCall.getCallPeers();
 
-            if(!peerIterator.hasNext())
+            if(!peerIter.hasNext())
             {
                 if (receivedCallDialog.isVisible())
                     receivedCallDialog.setVisible(false);
                 return;
             }
 
-            final String peerName = peerIterator.next().getDisplayName();
-            final Date callDate = new Date();
+            final String peerName = peerIter.next().getDisplayName();
+            final long callTime = System.currentTimeMillis();
 
             sourceCall.addCallChangeListener(new CallChangeAdapter()
             {
@@ -148,19 +152,20 @@ public class CallManager
                         if (ev.getOldValue().equals(
                                 CallState.CALL_INITIALIZATION))
                         {
-                            // if call was answered elsewhere, don't add it
-                            // to missed calls
+                            // If the call was answered elsewhere, don't mark it
+                            // as missed.
                             CallPeerChangeEvent cause = ev.getCause();
 
-                            if((cause == null)
-                                || (cause.getReasonCode()
-                                    != CallPeerChangeEvent.NORMAL_CALL_CLEARING))
+                            if ((cause == null)
+                                    || (cause.getReasonCode()
+                                            != CallPeerChangeEvent
+                                                    .NORMAL_CALL_CLEARING))
                             {
-                                addMissedCallNotification(peerName, callDate);
+                                addMissedCallNotification(peerName, callTime);
                             }
-
-                            call.removeCallChangeListener(this);
                         }
+
+                        call.removeCallChangeListener(this);
 
                         // If we're currently in the call history view, refresh
                         // it.
@@ -1056,17 +1061,8 @@ public class CallManager
         {
             Map.Entry<CallConference, CallPanel> entry = entryIter.next();
             CallConference aConference = entry.getKey();
-            List<Call> calls = aConference.getCalls();
-            boolean notNecessary = true;
+            boolean notNecessary = aConference.isEnded();
 
-            for (Call aCall : calls)
-            {
-                if (!CallState.CALL_ENDED.equals(aCall.getCallState()))
-                {
-                    notNecessary = false;
-                    break;
-                }
-            }
             if (notNecessary)
             {
                 CallPanel aCallPanel = entry.getValue();
@@ -1074,10 +1070,9 @@ public class CallManager
 
                 try
                 {
-                    if (wait && (aConference == conference))
-                        window.closeWait(aCallPanel);
-                    else
-                        window.close(aCallPanel);
+                    window.close(
+                            aCallPanel,
+                            wait && (aConference == conference));
                 }
                 finally
                 {
@@ -1633,21 +1628,21 @@ public class CallManager
      * Adds a missed call notification.
      *
      * @param peerName the name of the peer
-     * @param callDate the date of the call
+     * @param callTime the time of the call
      */
-    private static void addMissedCallNotification(  String peerName,
-                                                    Date callDate)
+    private static void addMissedCallNotification(String peerName, long callTime)
     {
         if (missedCallGroup == null)
+        {
             missedCallGroup
-                = new UINotificationGroup("MissedCalls",
-                    GuiActivator.getResources().getI18NString(
-                        "service.gui.MISSED_CALLS_TOOL_TIP"));
+                = new UINotificationGroup(
+                        "MissedCalls",
+                        GuiActivator.getResources().getI18NString(
+                                "service.gui.MISSED_CALLS_TOOL_TIP"));
+        }
 
-        UINotificationManager.addNotification(new UINotification(
-                                                    peerName,
-                                                    callDate,
-                                                    missedCallGroup));
+        UINotificationManager.addNotification(
+                new UINotification(peerName, callTime, missedCallGroup));
     }
 
     /**
@@ -1983,19 +1978,82 @@ public class CallManager
         @Override
         public void run()
         {
-            CallConference conference
-                = (call == null) ? null : call.getConference();
+            CallConference conference;
+
+            if (call == null)
+            {
+                conference = null;
+
+                /*
+                 * FIXME Autmagically choose whether the Jitsi VideoBridge
+                 * server-side telephony conferencing technology is to be
+                 * utilized.
+                 */
+                if (callees.size() == 1)
+                {
+                    Iterator<Map.Entry<ProtocolProviderService, List<String>>>
+                        iter
+                            = callees.entrySet().iterator();
+                    Map.Entry<ProtocolProviderService, List<String>>
+                        entry
+                            = iter.next();
+                    ProtocolProviderService pps = entry.getKey();
+
+                    if ((pps != null)
+                            && ProtocolNames.JABBER.equals(
+                                    pps.getProtocolName()))
+                    {
+                        Object jitsiVideoBridge = null;
+
+                        try
+                        {
+                            jitsiVideoBridge
+                                = pps
+                                    .getClass()
+                                        .getMethod("getJitsiVideoBridge")
+                                            .invoke(pps);
+                        }
+                        catch (Throwable t)
+                        {
+                            if (t instanceof ThreadDeath)
+                                throw (ThreadDeath) t;
+                            else
+                            {
+                                logger.error(
+                                        "Failed to determine whether Jitsi"
+                                            + " VideoBridge is available for "
+                                            + pps.getAccountID());
+                            }
+                        }
+
+                        if ((jitsiVideoBridge instanceof String)
+                                && (((String) jitsiVideoBridge).length() != 0))
+                        {
+                            conference = new MediaAwareCallConference(true);
+                        }
+                    }
+                }
+            }
+            else
+                conference = call.getConference();
 
             for(Map.Entry<ProtocolProviderService, List<String>> entry
                     : callees.entrySet())
             {
                 ProtocolProviderService pps = entry.getKey();
 
-                OperationSetBasicTelephony<?> basicTelephony
-                    = pps.getOperationSet(OperationSetBasicTelephony.class);
+                /*
+                 * We'd like to allow specifying callees without specifying an
+                 * associated ProtocolProviderService.
+                 */
+                if (pps != null)
+                {
+                    OperationSetBasicTelephony<?> basicTelephony
+                        = pps.getOperationSet(OperationSetBasicTelephony.class);
 
-                if(basicTelephony == null)
-                    continue;
+                    if(basicTelephony == null)
+                        continue;
+                }
 
                 List<String> contactList = entry.getValue();
                 String[] contactArray
@@ -2007,20 +2065,48 @@ public class CallManager
                 /* Try to have a single Call per ProtocolProviderService. */
                 Call ppsCall;
 
-                if ((call != null) && pps.equals(call.getProtocolProvider()))
+                if ((call != null) && call.getProtocolProvider().equals(pps))
                     ppsCall = call;
                 else
                 {
                     ppsCall = null;
                     if (conference != null)
                     {
-                        for (Call conferenceCall : conference.getCalls())
+                        List<Call> conferenceCalls = conference.getCalls();
+
+                        if (pps == null)
                         {
-                            if (pps.equals(
-                                    conferenceCall.getProtocolProvider()))
+                            /*
+                             * We'd like to allow specifying callees without
+                             * specifying an associated ProtocolProviderService.
+                             * The simplest approach is to just choose the first
+                             * ProtocolProviderService involved in the telephony
+                             * conference.
+                             */
+                            if (call == null)
                             {
-                                ppsCall = conferenceCall;
-                                break;
+                                if (!conferenceCalls.isEmpty())
+                                {
+                                    ppsCall = conferenceCalls.get(0);
+                                    pps = ppsCall.getProtocolProvider();
+                                }
+                            }
+                            else
+                            {
+                                ppsCall = call;
+                                pps = ppsCall.getProtocolProvider();
+                            }
+                        }
+                        else
+                        {
+                            for (Call conferenceCall : conferenceCalls)
+                            {
+                                if (pps.equals(
+                                        conferenceCall.getProtocolProvider()))
+                                {
+                                    ppsCall = conferenceCall;
+                                    break;
+                                }
                             }
                         }
                     }
@@ -2449,7 +2535,7 @@ public class CallManager
      * Throws a <tt>RuntimeException</tt> if the current thread is not the AWT
      * event dispatching thread.
      */
-    private static void assertIsEventDispatchingThread()
+    public static void assertIsEventDispatchingThread()
     {
         if (!SwingUtilities.isEventDispatchThread())
         {

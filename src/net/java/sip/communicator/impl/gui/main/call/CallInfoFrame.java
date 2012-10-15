@@ -402,7 +402,7 @@ public class CallInfoFrame
      * media handler must returns it encryption method.
      */
     private void constructAudioVideoInfo(
-            CallPeerMediaHandler callPeerMediaHandler,
+            CallPeerMediaHandler<?> callPeerMediaHandler,
             MediaStream mediaStream,
             StringBuffer stringBuffer,
             MediaType mediaType)

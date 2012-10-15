@@ -13,7 +13,7 @@ import java.util.*;
  * <tt>CallPeer</tt> delivered in the form of
  * <tt>CallPeerConferenceEvent</tt>s.
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public interface CallPeerConferenceListener
     extends EventListener

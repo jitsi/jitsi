@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
 
 /**
  * Keeps a list of all calls currently active and maintained by this protocol
@@ -116,9 +117,14 @@ public class ActiveCallsRepositoryJabberGTalkImpl
      *
      * @param eventID the ID of the event to dispatch
      * @param sourceCall the call on which the event has occurred
-     * @see ActiveCallsRepository#fireCallEvent(int, Call)
+     * @param cause the <tt>CallChangeEvent</tt>, if any, which is the cause
+     * that necessitated a new <tt>CallEvent</tt> to be fired
+     * @see ActiveCallsRepository#fireCallEvent(int, Call, CallChangeEvent)
      */
-    protected void fireCallEvent(int eventID, Call sourceCall)
+    protected void fireCallEvent(
+            int eventID,
+            Call sourceCall,
+            CallChangeEvent cause)
     {
         parentOperationSet.fireCallEvent(eventID, sourceCall);
     }
