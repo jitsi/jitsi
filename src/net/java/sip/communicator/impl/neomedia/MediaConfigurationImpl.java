@@ -144,7 +144,8 @@ public class MediaConfigurationImpl implements MediaConfigurationService
                     {
                         cdi
                             = soundLevelIndicator.isShowing()
-                                ? audioSystem.getCaptureDevice()
+                                ? audioSystem.getDevice(
+                                        AudioSystem.CAPTURE_INDEX)
                                 : null;
                     }
                     else

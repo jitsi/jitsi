@@ -223,26 +223,24 @@ public class DeviceConfigurationComboBoxModel
         {
         case AUDIO_CAPTURE:
             audioSystem = deviceConfiguration.getAudioSystem();
-            infos
-                = (audioSystem == null)
+            infos = (audioSystem == null)
                     ? null
-                    : audioSystem.getCaptureDevices();
+                    : audioSystem.getDevices(AudioSystem.CAPTURE_INDEX);
             break;
         case AUDIO_NOTIFY:
             audioSystem = deviceConfiguration.getAudioSystem();
-            infos
-                = (audioSystem == null) ? null : audioSystem.getNotifyDevices();
+            infos = (audioSystem == null)
+                ? null
+                : audioSystem.getDevices(AudioSystem.NOTIFY_INDEX);
             break;
         case AUDIO_PLAYBACK:
             audioSystem = deviceConfiguration.getAudioSystem();
-            infos
-                = (audioSystem == null)
+            infos = (audioSystem == null)
                     ? null
-                    : audioSystem.getPlaybackDevices();
+                    : audioSystem.getDevices(AudioSystem.PLAYBACK_INDEX);
             break;
         case VIDEO:
-            infos
-                = deviceConfiguration.getAvailableVideoCaptureDevices(
+            infos = deviceConfiguration.getAvailableVideoCaptureDevices(
                         MediaUseCase.CALL);
             break;
         default:
@@ -273,20 +271,21 @@ public class DeviceConfigurationComboBoxModel
         {
         case AUDIO_CAPTURE:
             audioSystem = deviceConfiguration.getAudioSystem();
-            info
-                = (audioSystem == null) ? null : audioSystem.getCaptureDevice();
+            info = (audioSystem == null)
+                ? null
+                : audioSystem.getDevice(AudioSystem.CAPTURE_INDEX);
             break;
         case AUDIO_NOTIFY:
             audioSystem = deviceConfiguration.getAudioSystem();
-            info
-                = (audioSystem == null) ? null : audioSystem.getNotifyDevice();
+            info = (audioSystem == null)
+                ? null
+                : audioSystem.getDevice(AudioSystem.NOTIFY_INDEX);
             break;
         case AUDIO_PLAYBACK:
             audioSystem = deviceConfiguration.getAudioSystem();
-            info
-                = (audioSystem == null)
-                    ? null
-                    : audioSystem.getPlaybackDevice();
+            info = (audioSystem == null)
+                ? null
+                : audioSystem.getDevice(AudioSystem.PLAYBACK_INDEX);
             break;
         case VIDEO:
             info = deviceConfiguration.getVideoCaptureDevice(MediaUseCase.ANY);
@@ -354,17 +353,26 @@ public class DeviceConfigurationComboBoxModel
             case AUDIO_CAPTURE:
                 audioSystem = deviceConfiguration.getAudioSystem();
                 if (audioSystem != null)
-                    audioSystem.setCaptureDevice(device.info, true);
+                    audioSystem.setDevice(
+                            AudioSystem.CAPTURE_INDEX,
+                            device.info,
+                            true);
                 break;
             case AUDIO_NOTIFY:
                 audioSystem = deviceConfiguration.getAudioSystem();
                 if (audioSystem != null)
-                    audioSystem.setNotifyDevice(device.info, true);
+                    audioSystem.setDevice(
+                            AudioSystem.NOTIFY_INDEX,
+                            device.info,
+                            true);
                 break;
             case AUDIO_PLAYBACK:
                 audioSystem = deviceConfiguration.getAudioSystem();
                 if (audioSystem != null)
-                    audioSystem.setPlaybackDevice(device.info, true);
+                    audioSystem.setDevice(
+                            AudioSystem.PLAYBACK_INDEX,
+                            device.info,
+                            true);
                 break;
             case VIDEO:
                 deviceConfiguration.setVideoCaptureDevice(device.info, true);
