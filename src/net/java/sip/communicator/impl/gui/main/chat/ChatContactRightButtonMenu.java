@@ -590,7 +590,7 @@ public class ChatContactRightButtonMenu
         this.revokeOwnershipItem.setIcon(ImageUtils.getScaledRoundedIcon(
             ImageLoader.getImage(ImageLoader.CHATROOM_MEMBER_ADMIN), 16, 16));
         this.revokeVoiceItem.setIcon(ImageUtils.getScaledRoundedIcon(
-            ImageLoader.getImage(ImageLoader.CHATROOM_MEMBER_SILENT), 16, 16));
+            ImageLoader.getImage(ImageLoader.CHAT_ROOM_REVOKE_VOICE), 16, 16));
         this.kickItem.setIcon(new ImageIcon(ImageLoader.getImage(
             ImageLoader.KICK_ICON_16x16)));
         this.banItem.setIcon(new ImageIcon(ImageLoader.getImage(

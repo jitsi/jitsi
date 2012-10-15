@@ -942,6 +942,12 @@ public class ImageLoader
         = new ImageID("service.gui.icons.LEAVE_ICON");
 
     /**
+     * The image used to set to the chat room "remove" right button menu.
+     */
+    public static final ImageID REMOVE_CHAT_ICON
+        = new ImageID("service.gui.icons.REMOVE_CHAT_ICON");
+
+    /**
      * Background image of the dial button.
      */
     public static final ImageID DIAL_BUTTON_BG
@@ -1181,6 +1187,12 @@ public class ImageLoader
      */
     public static final ImageID RENAME_16x16_ICON
         = new ImageID("service.gui.icons.RENAME_16x16_ICON");
+
+    /**
+     * Rename 16x16 image.
+     */
+    public static final ImageID CHAT_ROOM_REVOKE_VOICE
+        = new ImageID("service.gui.icons.CHAT_ROOM_REVOKE_VOICE");
 
     /**
      * Toolbar drag area icon.
