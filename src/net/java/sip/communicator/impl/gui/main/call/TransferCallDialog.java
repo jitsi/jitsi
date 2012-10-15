@@ -8,10 +8,12 @@ package net.java.sip.communicator.impl.gui.main.call;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 
@@ -83,6 +85,21 @@ public class TransferCallDialog
      */
     private void initContactListData(ProtocolProviderService protocolProvider)
     {
+        Iterator<UIContactSource> sourcesIter
+            = new ArrayList<UIContactSource>(
+                contactList.getContactSources()).iterator();
+
+        contactList.removeAllContactSources();
+
+        while (sourcesIter.hasNext())
+        {
+            ContactSourceService contactSource
+                = sourcesIter.next().getContactSourceService();
+
+            contactList.addContactSource(
+                new DemuxContactSource(contactSource));
+        }
+
         contactList.addContactSource(
             new ProtocolContactSourceServiceImpl(
                 protocolProvider, OperationSetBasicTelephony.class));

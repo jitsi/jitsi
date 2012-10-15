@@ -38,7 +38,7 @@ public class ChatInviteDialog
     public ChatInviteDialog (ChatPanel chatPanel)
     {
         super(GuiActivator.getResources()
-            .getI18NString("service.gui.INVITE_CONTACT_TO_CHAT"));
+            .getI18NString("service.gui.INVITE_CONTACT_TO_CHAT"), true);
 
         this.chatPanel = chatPanel;
 

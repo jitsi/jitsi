@@ -87,7 +87,7 @@ public class InviteDialog
      *
      * @param title the title to show on the top of this dialog
      */
-    public InviteDialog (String title)
+    public InviteDialog (String title, boolean enableReason)
     {
         this.setModal(false);
 
@@ -103,10 +103,6 @@ public class InviteDialog
 
         mainPanel.setBorder(
             BorderFactory.createEmptyBorder(15, 15, 15, 15));
-
-        this.reasonArea.setBorder(BorderFactory.createTitledBorder(
-            GuiActivator.getResources()
-                .getI18NString("service.gui.INVITE_REASON")));
 
         JTextArea infoTextArea = new JTextArea();
 
@@ -212,9 +208,18 @@ public class InviteDialog
         centerPanel.add(listPanel, BorderLayout.CENTER);
         centerPanel.add(addRemoveButtonsPanel, BorderLayout.SOUTH);
 
-        TransparentPanel southPanel = new TransparentPanel(new BorderLayout());
-        southPanel.add(reasonArea, BorderLayout.CENTER);
+        TransparentPanel southPanel
+            = new TransparentPanel(new BorderLayout());
         southPanel.add(buttonsPanel, BorderLayout.SOUTH);
+
+        if (enableReason)
+        {
+            this.reasonArea.setBorder(BorderFactory.createTitledBorder(
+                GuiActivator.getResources()
+                    .getI18NString("service.gui.INVITE_REASON")));
+
+            southPanel.add(reasonArea, BorderLayout.CENTER);
+        }
 
         mainPanel.add(northPanel, BorderLayout.NORTH);
         mainPanel.add(centerPanel, BorderLayout.CENTER);

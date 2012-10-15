@@ -74,7 +74,7 @@ public class ConferenceInviteDialog
     public ConferenceInviteDialog(CallConference conference)
     {
         super(GuiActivator.getResources()
-            .getI18NString("service.gui.INVITE_CONTACT_TO_CALL"));
+            .getI18NString("service.gui.INVITE_CONTACT_TO_CALL"), false);
 
         this.conference = conference;
 
@@ -258,6 +258,21 @@ public class ConferenceInviteDialog
 
         srcContactList.removeContactSource(currentProviderContactSource);
         srcContactList.removeContactSource(currentStringContactSource);
+
+        Iterator<UIContactSource> sourcesIter
+            = new ArrayList<UIContactSource>(
+                srcContactList.getContactSources()).iterator();
+
+        srcContactList.removeAllContactSources();
+
+        while (sourcesIter.hasNext())
+        {
+            ContactSourceService contactSource
+                = sourcesIter.next().getContactSourceService();
+
+            srcContactList.addContactSource(
+                new DemuxContactSource(contactSource));
+        }
 
         currentProviderContactSource
             = new ProtocolContactSourceServiceImpl(

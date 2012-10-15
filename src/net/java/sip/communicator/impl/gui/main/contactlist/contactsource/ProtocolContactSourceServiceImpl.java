@@ -15,7 +15,8 @@ import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
- * 
+ * The <tt>ProtocolContactSourceServiceImpl</tt> 
+ *
  * @author Yana Stamcheva
  */
 public class ProtocolContactSourceServiceImpl

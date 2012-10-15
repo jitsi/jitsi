@@ -125,7 +125,7 @@ public class SearchFilter
      * filter to
      * @return the <tt>ContactQuery</tt> that tracks this filter
      */
-    public ContactQuery applyFilter(UIContactSource contactSource)
+    protected ContactQuery applyFilter(UIContactSource contactSource)
     {
         ContactSourceService sourceService
             = contactSource.getContactSourceService();
@@ -233,7 +233,7 @@ public class SearchFilter
      * Adds the list of <tt>sourceContacts</tt> to the contact list.
      * @param sourceContacts the list of <tt>SourceContact</tt>s to add
      */
-    private void addMatching(List<SourceContact> sourceContacts)
+    protected void addMatching(List<SourceContact> sourceContacts)
     {
         Iterator<SourceContact> contactsIter = sourceContacts.iterator();
 
