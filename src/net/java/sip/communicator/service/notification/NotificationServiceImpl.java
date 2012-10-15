@@ -127,10 +127,10 @@ class NotificationServiceImpl
         }
 
         // Save the notification through the ConfigurationService.
-        this.saveNotification(  eventType,
-                                action,
-                                true,
-                                false);
+        this.saveNotification(eventType,
+            action,
+            true,
+            false);
     }
 
     /**
@@ -983,6 +983,8 @@ class NotificationServiceImpl
                 eventType,
                 action);
         }
+        else
+            checkDefaultAgainstLoadedNotification(eventType, action);
 
         // now store this default events if we want to restore them
         Notification notification = null;
@@ -1019,8 +1021,8 @@ class NotificationServiceImpl
                                                         String defaultMessage)
     {
         if (logger.isDebugEnabled())
-            logger.debug("Registering default event " + eventType + "/" + 
-            actionType + "/" + actionDescriptor + "/" + defaultMessage);
+            logger.debug("Registering default event " + eventType + "/" +
+                actionType + "/" + actionDescriptor + "/" + defaultMessage);
 
         if(isDefault(eventType, actionType))
         {
@@ -1109,6 +1111,154 @@ class NotificationServiceImpl
         }
 
         notification.addAction(action);
+    }
+
+    /**
+     * Checking an action when it is edited (property .default=false).
+     * Checking for older versions of the property. If it is older one
+     * we migrate it to new configuration using the default values.
+     *
+     * @param eventType the event type.
+     * @param defaultAction the default action which values we will use.
+     */
+    private void checkDefaultAgainstLoadedNotification
+        (String eventType, NotificationAction defaultAction)
+    {
+        // checking for new sound action properties
+        if(defaultAction instanceof SoundNotificationAction)
+        {
+            SoundNotificationAction soundDefaultAction
+                = (SoundNotificationAction)defaultAction;
+            SoundNotificationAction soundAction = (SoundNotificationAction)
+                getEventNotificationAction(eventType, ACTION_SOUND);
+
+            boolean isSoundNotificationEnabledPropExist
+                = getNotificationActionProperty(
+                    eventType,
+                    defaultAction,
+                    "isSoundNotificationEnabled") != null;
+
+            if(!isSoundNotificationEnabledPropExist)
+            {
+                soundAction.setSoundNotificationEnabled(
+                    soundDefaultAction.isSoundNotificationEnabled());
+            }
+
+            boolean isSoundPlaybackEnabledPropExist
+                = getNotificationActionProperty(
+                    eventType,
+                    defaultAction,
+                    "isSoundPlaybackEnabled") != null;
+
+            if(!isSoundPlaybackEnabledPropExist)
+            {
+                soundAction.setSoundPlaybackEnabled(
+                    soundDefaultAction.isSoundPlaybackEnabled());
+            }
+
+            boolean isSoundPCSpeakerEnabledPropExist
+                = getNotificationActionProperty(
+                    eventType,
+                    defaultAction,
+                    "isSoundPCSpeakerEnabled") != null;
+
+            if(!isSoundPCSpeakerEnabledPropExist)
+            {
+                soundAction.setSoundPCSpeakerEnabled(
+                    soundDefaultAction.isSoundPCSpeakerEnabled());
+            }
+
+            boolean fixDialingLoop = false;
+
+            // hack to fix wrong value:just check whether loop for outgoing call
+            // (dialing) has gone into config as 0, should be -1
+            if(eventType.equals("Dialing")
+               && soundAction.getLoopInterval() == 0)
+            {
+                soundAction.setLoopInterval(
+                    soundDefaultAction.getLoopInterval());
+                fixDialingLoop = true;
+            }
+
+            if(!(isSoundNotificationEnabledPropExist
+                && isSoundPCSpeakerEnabledPropExist
+                && isSoundPlaybackEnabledPropExist)
+                || fixDialingLoop)
+            {
+                // this check is done only when the notification
+                // is edited and is not default
+                saveNotification(
+                    eventType,
+                    soundAction,
+                    soundAction.isEnabled(),
+                    false);
+            }
+        }
+    }
+
+    /**
+     * Getting a notification property directly from configuration service.
+     * Used to check do we have an updated version of already saved/edited
+     * notification configurations. Detects old configurations.
+     *
+     * @param eventType the event type
+     * @param action the action which property to check.
+     * @param property the property name without the action prefix.
+     * @return the property value or null if missing.
+     * @throws IllegalArgumentException when the event ot action is not
+     * found.
+     */
+    private String getNotificationActionProperty(
+        String eventType,
+        NotificationAction action,
+        String property)
+            throws IllegalArgumentException
+    {
+        String eventTypeNodeName = null;
+        String actionTypeNodeName = null;
+
+        List<String> eventTypes = configService
+                .getPropertyNamesByPrefix(NOTIFICATIONS_PREFIX, true);
+
+        for (String eventTypeRootPropName : eventTypes)
+        {
+            String eType = configService.getString(eventTypeRootPropName);
+            if(eType.equals(eventType))
+                eventTypeNodeName = eventTypeRootPropName;
+        }
+
+        // If we didn't find the given event type in the configuration
+        // there is not need to further check
+        if(eventTypeNodeName == null)
+        {
+            throw new IllegalArgumentException("Missing event type node");
+        }
+
+        // Go through contained actions.
+        String actionPrefix = eventTypeNodeName + ".actions";
+
+        List<String> actionTypes = configService
+                .getPropertyNamesByPrefix(actionPrefix, true);
+
+        for (String actionTypeRootPropName : actionTypes)
+        {
+            String aType = configService.getString(actionTypeRootPropName);
+            if(aType.equals(action.getActionType()))
+                actionTypeNodeName = actionTypeRootPropName;
+        }
+
+        Map<String, Object> configProperties = new HashMap<String, Object>();
+
+        // If we didn't find the given actionType in the configuration
+        // there is no need to further check
+        if(actionTypeNodeName == null)
+        {
+            throw new IllegalArgumentException("Missing action type node");
+        }
+
+        return
+            (String)configService
+                .getProperty(actionTypeNodeName + "." + property);
     }
 
     /**

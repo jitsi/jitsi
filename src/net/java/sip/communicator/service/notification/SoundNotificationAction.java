@@ -95,6 +95,17 @@ public class SoundNotificationAction
     }
 
     /**
+     * Changes the loop interval. This is the interval of milliseconds to wait
+     * before repeating the sound, when playing a sound in loop.
+     *
+     * @return the loop interval
+     */
+    public void setLoopInterval(int loopInterval)
+    {
+        this.loopInterval = loopInterval;
+    }
+
+    /**
      * Returns the descriptor pointing to the sound to be played.
      * 
      * @return the descriptor pointing to the sound to be played.

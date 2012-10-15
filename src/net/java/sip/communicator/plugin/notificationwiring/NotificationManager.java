@@ -218,7 +218,7 @@ public class NotificationManager
         // Register dial notifications.
         SoundNotificationAction dialSoundHandler
             = new SoundNotificationAction(
-                    SoundProperties.DIALING, 0, false, true, false);
+                    SoundProperties.DIALING, -1, false, true, false);
 
         notificationService.registerDefaultNotificationForEvent(
                 DIALING,
