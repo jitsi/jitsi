@@ -95,6 +95,8 @@ public class GuiActivator implements BundleActivator
 
     private static SecurityAuthority securityAuthority;
 
+    private static DemuxContactSourceService demuxContactSourceService;
+
     private static final Map<Object, ProtocolProviderFactory>
         providerFactoriesMap = new Hashtable<Object, ProtocolProviderFactory>();
 
@@ -683,6 +685,25 @@ public class GuiActivator implements BundleActivator
                 = ServiceUtils.getService(bundleContext, MediaService.class);
         }
         return mediaService;
+    }
+
+    /**
+     * Returns the <tt>DemuxContactSourceService</tt> obtained from the bundle
+     * context.
+     *
+     * @return the <tt>DemuxContactSourceService</tt> obtained from the bundle
+     * context
+     */
+    public static DemuxContactSourceService getDemuxContactSourceService()
+    {
+        if (demuxContactSourceService == null)
+        {
+            demuxContactSourceService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        DemuxContactSourceService.class);
+        }
+        return demuxContactSourceService;
     }
 
     /**

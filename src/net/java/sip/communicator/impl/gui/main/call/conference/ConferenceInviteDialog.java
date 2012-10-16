@@ -98,7 +98,7 @@ public class ConferenceInviteDialog
         {
             public void run()
             {
-                initContactListSources();
+                initContactSources();
 
                 // Initialize the list of contacts to select from.
                 initContactListData(
@@ -252,10 +252,18 @@ public class ConferenceInviteDialog
     }
 
     /**
-     * Initializes contact sources for the source contact list.
+     * Initializes contact list sources.
      */
-    private void initContactListSources()
+    private void initContactSources()
     {
+        DemuxContactSourceService demuxCSService
+             = GuiActivator.getDemuxContactSourceService();
+
+        // If the DemuxContactSourceService isn't registered we use the default
+        // contact source set.
+        if (demuxCSService == null)
+            return;
+
         Iterator<UIContactSource> sourcesIter
             = new ArrayList<UIContactSource>(
                 srcContactList.getContactSources()).iterator();
@@ -268,7 +276,7 @@ public class ConferenceInviteDialog
                 = sourcesIter.next().getContactSourceService();
 
             srcContactList.addContactSource(
-                new DemuxContactSource(contactSource));
+                demuxCSService.createDemuxContactSource(contactSource));
         }
     }
 
@@ -281,6 +289,23 @@ public class ConferenceInviteDialog
     private void initContactListData(ProtocolProviderService protocolProvider)
     {
         this.setCurrentProvider(protocolProvider);
+
+        Iterator<UIContactSource> sourcesIter
+            = new ArrayList<UIContactSource>(
+                srcContactList.getContactSources()).iterator();
+
+        while (sourcesIter.hasNext())
+        {
+            ContactSourceService contactSource
+                = sourcesIter.next().getContactSourceService();
+
+            if (contactSource instanceof ProtocolAwareContactSourceService)
+            {
+                ((ProtocolAwareContactSourceService) contactSource)
+                    .setPreferredProtocolProvider(
+                        OperationSetBasicTelephony.class, protocolProvider);
+            }
+        }
 
         srcContactList.removeContactSource(currentProviderContactSource);
         srcContactList.removeContactSource(currentStringContactSource);

@@ -1,0 +1,9 @@
+Bundle-Activator: net.java.sip.communicator.plugin.demuxcontactsource.DemuxContactSourceActivator
+Bundle-Description: Demultiplexing contact source
+Bundle-Name: Demux Contact Source
+Bundle-Vendor: jitsi.org
+Bundle-Version: 0.0.1
+Import-Package: net.java.sip.communicator.service.contactsource,
+ net.java.sip.communicator.service.protocol,
+ org.osgi.framework
+System-Bundle: yes

@@ -4,12 +4,13 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.main.contactlist.contactsource;
+package net.java.sip.communicator.plugin.demuxcontactsource;
 
 import java.util.*;
 import java.util.regex.*;
 
 import net.java.sip.communicator.service.contactsource.*;
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * The <tt>DemuxContactSource</tt> is a contact source that takes as parameter
@@ -20,12 +21,18 @@ import net.java.sip.communicator.service.contactsource.*;
  * @author Yana Stamcheva
  */
 public class DemuxContactSource
-    implements ContactSourceService
+    implements ProtocolAwareContactSourceService
 {
     /**
      * The underlying contact source service.
      */
     private final ContactSourceService contactSource;
+
+    /**
+     * The preferred protocol provider for this contact source.
+     */
+    private Map<Class<? extends OperationSet>, ProtocolProviderService>
+        preferredProtocolProviders;
 
     /**
      * Create an instance of <tt>DemuxContactSource</tt> by specifying the
@@ -37,6 +44,23 @@ public class DemuxContactSource
     public DemuxContactSource(ContactSourceService contactSource)
     {
         this.contactSource = contactSource;
+    }
+
+    /**
+     * Sets the preferred protocol provider for this contact source.
+     *
+     * @param protocolProvider the <tt>ProtocolProviderService</tt> to set
+     */
+    public void setPreferredProtocolProvider(
+                                    Class<? extends OperationSet> opSetClass,
+                                    ProtocolProviderService protocolProvider)
+    {
+        if (preferredProtocolProviders == null)
+            preferredProtocolProviders
+                = new HashMap<  Class<? extends OperationSet>,
+                                ProtocolProviderService>();
+
+        preferredProtocolProviders.put(opSetClass, protocolProvider);
     }
 
     /**
@@ -182,9 +206,14 @@ public class DemuxContactSource
                 while (detailsIter.hasNext())
                 {
                     ContactDetail detail = detailsIter.next();
-                    newSourceContacts.add(
-                        createSourceContact(sourceContact,
-                                            detail));
+
+                    if (preferredProtocolProviders == null
+                        || isPreferredContactDetail(detail))
+                    {
+                        newSourceContacts.add(
+                            createSourceContact(sourceContact,
+                                                detail));
+                    }
                 }
             }
 
@@ -224,8 +253,12 @@ public class DemuxContactSource
             {
                 ContactDetail detail = detailsIter.next();
 
-                fireContactReceived(
-                    createSourceContact(sourceContact, detail));
+                if (preferredProtocolProviders == null
+                    || isPreferredContactDetail(detail))
+                {
+                    fireContactReceived(
+                        createSourceContact(sourceContact, detail));
+                }
             }
         }
 
@@ -268,5 +301,39 @@ public class DemuxContactSource
         public void contactRemoved(ContactRemovedEvent event) {}
 
         public void contactChanged(ContactChangedEvent event) {}
+    }
+
+    /**
+     * Indicates if the given contact detail has a pair of OperationSet and
+     * ProtocolProviderService that matches the preferred pairs indicated for
+     * this contact source.
+     *
+     * @param c the <tt>ContactDetail</tt> to check
+     * @return <tt>true</tt> if the given <tt>ContactDetail</tt> contains one
+     * of the preferred pairs or has no preferred pairs,
+     * <tt>false</tt> - otherwise.
+     */
+    private boolean isPreferredContactDetail(ContactDetail c)
+    {
+        Iterator<Class<? extends OperationSet>> preferredProviderOpSets
+            = preferredProtocolProviders.keySet().iterator();
+
+        while (preferredProviderOpSets.hasNext())
+        {
+            Class<? extends OperationSet> opSetClass
+                = preferredProviderOpSets.next();
+
+            ProtocolProviderService preferredProvider
+                = c.getPreferredProtocolProvider(opSetClass);
+
+            if (preferredProvider == null
+                || preferredProvider.equals(
+                    preferredProtocolProviders.get(opSetClass)))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

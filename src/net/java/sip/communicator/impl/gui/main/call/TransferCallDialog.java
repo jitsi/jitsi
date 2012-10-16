@@ -77,14 +77,18 @@ public class TransferCallDialog
     }
 
     /**
-     * Initializes the left contact list with the contacts that could be added
-     * to the current chat session.
-     *
-     * @param protocolProvider the protocol provider from which to initialize
-     * the contact list data
+     * Initializes contact list sources.
      */
-    private void initContactListData(ProtocolProviderService protocolProvider)
+    private void initContactSources()
     {
+        DemuxContactSourceService demuxCSService
+             = GuiActivator.getDemuxContactSourceService();
+
+        // If the DemuxContactSourceService isn't registered we use the default
+        // contact source set.
+        if (demuxCSService == null)
+            return;
+
         Iterator<UIContactSource> sourcesIter
             = new ArrayList<UIContactSource>(
                 contactList.getContactSources()).iterator();
@@ -97,8 +101,20 @@ public class TransferCallDialog
                 = sourcesIter.next().getContactSourceService();
 
             contactList.addContactSource(
-                new DemuxContactSource(contactSource));
+                demuxCSService.createDemuxContactSource(contactSource));
         }
+    }
+
+    /**
+     * Initializes the left contact list with the contacts that could be added
+     * to the current chat session.
+     *
+     * @param protocolProvider the protocol provider from which to initialize
+     * the contact list data
+     */
+    private void initContactListData(ProtocolProviderService protocolProvider)
+    {
+        initContactSources();
 
         contactList.addContactSource(
             new ProtocolContactSourceServiceImpl(
