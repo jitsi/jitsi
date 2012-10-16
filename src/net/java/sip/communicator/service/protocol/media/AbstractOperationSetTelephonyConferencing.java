@@ -444,9 +444,11 @@ public abstract class AbstractOperationSetTelephonyConferencing<
                     else if (ELEMENT_TYPE.equals(mediaChildName))
                     {
                         type = mediaChild.getTextContent();
-                        if ((srcId != null) && mediaTypeStr.equalsIgnoreCase(
-                                type))
+                        if ((srcId != null)
+                                && mediaTypeStr.equalsIgnoreCase(type))
+                        {
                             return srcId;
+                        }
                     }
                 }
             }

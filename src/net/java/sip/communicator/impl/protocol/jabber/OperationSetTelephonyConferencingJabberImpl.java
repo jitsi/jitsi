@@ -150,11 +150,8 @@ public class OperationSetTelephonyConferencingJabberImpl
             MediaAwareCallPeer<?,?,?> callPeer,
             boolean remote)
     {
-        MediaPacketExtension ext = null;
-        CallPeerMediaHandler<?> mediaHandler =
-            callPeer.getMediaHandler();
-        List<MediaPacketExtension> ret =
-            new ArrayList<MediaPacketExtension>();
+        CallPeerMediaHandler<?> mediaHandler = callPeer.getMediaHandler();
+        List<MediaPacketExtension> ret = new ArrayList<MediaPacketExtension>();
         long i = 1;
 
         for(MediaType mediaType : MediaType.values())
@@ -163,23 +160,26 @@ public class OperationSetTelephonyConferencingJabberImpl
 
             if (stream != null)
             {
-                long srcId = remote
-                            ? stream.getRemoteSourceID()
-                                    : stream.getLocalSourceID();
+                MediaPacketExtension ext
+                    = new MediaPacketExtension(Long.toString(i));
+                long srcId
+                    = remote
+                        ? stream.getRemoteSourceID()
+                        : stream.getLocalSourceID();
 
                 if (srcId != -1)
-                {
-                    ext = new MediaPacketExtension(Long.toString(i));
                     ext.setSrcID(Long.toString(srcId));
-                    ext.setType(mediaType.toString());
-                    MediaDirection direction = stream.getDirection();
 
-                    if (direction == null)
-                        direction = MediaDirection.INACTIVE;
-                    ext.setStatus(direction.toString());
-                    ret.add(ext);
-                    i++;
-                }
+                ext.setType(mediaType.toString());
+
+                MediaDirection direction = stream.getDirection();
+
+                if (direction == null)
+                    direction = MediaDirection.INACTIVE;
+
+                ext.setStatus(direction.toString());
+                ret.add(ext);
+                i++;
             }
         }
 

@@ -469,6 +469,7 @@ public class OperationSetTelephonyConferencingSipImpl
 
                 if (direction == null)
                     direction = MediaDirection.INACTIVE;
+
                 // <status>
                 append(xml, "<", ELEMENT_STATUS, ">");
                 xml.append(direction.toString());

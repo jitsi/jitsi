@@ -93,6 +93,7 @@ public class MediaPacketExtension
     public MediaPacketExtension(String id)
     {
         super(NAMESPACE, ELEMENT_NAME);
+
         setAttribute(ID_ATTR_NAME, id);
     }
 
