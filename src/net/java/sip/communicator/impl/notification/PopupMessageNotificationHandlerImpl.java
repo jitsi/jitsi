@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.notification;
 
 import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.systray.*;
+import net.java.sip.communicator.service.systray.event.*; 
 import net.java.sip.communicator.util.Logger;
 
 import org.jitsi.util.*;
@@ -61,5 +62,35 @@ public class PopupMessageNotificationHandlerImpl
         else
             logger.error("Message is null or empty!",
                 new Throwable("Null or empty message"));
+    }
+
+    /**
+     * Adds a listener for <tt>SystrayPopupMessageEvent</tt>s posted when user
+     * clicks on the system tray popup message.
+     *
+     * @param listener the listener to add
+     */
+    public void addPopupMessageListener(SystrayPopupMessageListener listener)
+    {
+        SystrayService systray = NotificationActivator.getSystray();
+        if(systray == null)
+            return;
+
+        systray.addPopupMessageListener(listener);
+    }
+
+    /**
+     * Removes a listener previously added with
+     * <tt>addPopupMessageListener</tt>.
+     *
+     * @param listener the listener to remove
+     */
+    public void removePopupMessageListener(SystrayPopupMessageListener listener)
+    {
+        SystrayService systray = NotificationActivator.getSystray();
+        if(systray == null)
+            return;
+
+        systray.removePopupMessageListener(listener);
     }
 }

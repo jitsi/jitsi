@@ -15,7 +15,10 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.neomedia.codec.video.h264.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.resources.*;
+import net.java.sip.communicator.service.systray.*;
+import net.java.sip.communicator.service.systray.event.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
@@ -86,6 +89,13 @@ public class NeomediaActivator
         = "net.java.sip.communicator.impl.neomedia.callrecordingconfig.DISABLED";
 
     /**
+     * The name of the notification pop-up event displayed when the device
+     * configration has changed.
+     */
+    private static final String DEVICE_CONFIGURATION_HAS_CHANGED
+        = "DeviceConfigurationChanged";
+
+    /**
      * The context in which the one and only <tt>NeomediaActivator</tt> instance
      * has started executing.
      */
@@ -103,6 +113,11 @@ public class NeomediaActivator
      * used by the <tt>NeomediaActivator</tt> instance to safely access files.
      */
     private static FileAccessService fileAccessService;
+
+    /**
+     * The notifcation service to pop-up messages.
+     */
+    private static NotificationService notificationService;
 
     /**
      * The one and only <tt>MediaServiceImpl</tt> instance registered in
@@ -124,7 +139,12 @@ public class NeomediaActivator
      */
     private static PacketLoggingService packetLoggingService  = null;
 
-    private PropertyChangeListener deviceConfigurationPropertyChangeListener;
+    /**
+     *  A listener to the click on the popup message concerning device
+     *  configuration changes.
+     */
+    private AudioDeviceConfigurationListener
+        deviceConfigurationPropertyChangeListener;
 
     /**
      * Audio configuration dialog.
@@ -135,6 +155,12 @@ public class NeomediaActivator
      * A {@link MediaConfigurationService} instance.
      */
     private static MediaConfigurationImpl mediaConfiguration;
+
+    /**
+     *  The audio configuration form used to define the capture/notify/playback
+     *  audio devices.
+     */
+    private static ConfigurationForm audioConfigurationForm;
 
     /**
      * Starts the execution of the neomedia bundle in the specified context.
@@ -179,7 +205,7 @@ public class NeomediaActivator
         // If the audio configuration form is disabled don't register it.
         if ((cfg == null) || !cfg.getBoolean(AUDIO_CONFIG_DISABLED_PROP, false))
         {
-            final ConfigurationForm audioConfigurationForm
+            audioConfigurationForm
                 = new LazyConfigurationForm(
                         AudioConfigurationPanel.class.getName(),
                         getClass().getClassLoader(),
@@ -194,18 +220,12 @@ public class NeomediaActivator
 
             if (deviceConfigurationPropertyChangeListener == null)
             {
+                // Initializes and registers the changed device configuration
+                // event ot the notification service.
+                getNotificationService();
+
                 deviceConfigurationPropertyChangeListener
-                    = new PropertyChangeListener()
-                    {
-                        public void propertyChange(PropertyChangeEvent event)
-                        {
-                            if (DeviceConfiguration.PROP_AUDIO_SYSTEM_DEVICES
-                                    .equals(event.getPropertyName()))
-                            {
-                                showAudioConfiguration();
-                            }
-                        }
-                    };
+                    = new AudioDeviceConfigurationListener();
                 mediaServiceImpl
                     .getDeviceConfiguration()
                         .addPropertyChangeListener(
@@ -317,118 +337,6 @@ public class NeomediaActivator
     }
 
     /**
-     * Show audio configuration panel when media devices change.
-     */
-    private void showAudioConfiguration()
-    {
-        if(audioConfigDialog != null && audioConfigDialog.isVisible())
-        {
-            // Because toFront() method gives us no guarantee that our dialog
-            // would go on top we'll try to also first request the focus and
-            // set our dialog always on top to put all the chances on our side.
-            audioConfigDialog.requestFocus();
-            audioConfigDialog.setAlwaysOnTop(true);
-            audioConfigDialog.toFront();
-            audioConfigDialog.setAlwaysOnTop(false);
-            return;
-        }
-
-        if (!SwingUtilities.isEventDispatchThread())
-        {
-            SwingUtilities.invokeLater(
-                    new Runnable()
-                    {
-                        public void run()
-                        {
-                            showAudioConfiguration();
-                        }
-                    });
-            return;
-        }
-
-        audioConfigDialog =
-            new SIPCommDialog()
-            {
-                /** Serial version UID. */
-                private static final long serialVersionUID = 0L;
-
-                /** {@inheritDoc} */
-                @Override
-                protected void close(boolean escaped)
-                {
-                    setVisible(false);
-                    audioConfigDialog = null;
-                }
-            };
-
-        TransparentPanel mainPanel
-            = new TransparentPanel(new BorderLayout(20, 5));
-        TransparentPanel fieldsPanel
-            = new TransparentPanel(new BorderLayout(10, 5));
-
-        mainPanel.setBorder(
-                BorderFactory.createEmptyBorder(20, 20, 20, 20));
-
-        TransparentPanel btnPanel
-            = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
-        ResourceManagementService resources
-            = NeomediaActivator.getResources();
-        JButton btn
-            = new JButton(resources.getI18NString("service.gui.CLOSE"));
-
-        btn.addActionListener(
-                new ActionListener()
-                {
-                    public void actionPerformed(ActionEvent evt)
-                    {
-                        audioConfigDialog.setVisible(false);
-                    }
-                });
-        btnPanel.add(btn);
-
-        JTextArea infoTextArea = new JTextArea();
-
-        infoTextArea.setOpaque(false);
-        infoTextArea.setEditable(false);
-        infoTextArea.setWrapStyleWord(true);
-        infoTextArea.setLineWrap(true);
-        infoTextArea.setText(
-                resources.getI18NString(
-                        "impl.media.configform"
-                            + ".AUDIO_DEVICE_CONNECTED_REMOVED"));
-
-        JPanel preview = new TransparentPanel(new GridBagLayout());
-        mediaConfiguration.createAudioSystemControls(
-            mediaServiceImpl.getDeviceConfiguration().getAudioSystem(),
-            preview);
-
-        fieldsPanel.add(infoTextArea, BorderLayout.NORTH);
-        fieldsPanel.add(preview, BorderLayout.CENTER);
-        fieldsPanel.add(btnPanel, BorderLayout.SOUTH);
-
-        TransparentPanel iconPanel
-            = new TransparentPanel(new BorderLayout());
-
-        iconPanel.add(
-                new JLabel(
-                        resources.getImage(
-                                "plugin.mediaconfig.AUDIO_ICON_64x64")),
-                BorderLayout.NORTH);
-
-        mainPanel.add(iconPanel, BorderLayout.WEST);
-        mainPanel.add(fieldsPanel, BorderLayout.CENTER);
-
-        audioConfigDialog.setTitle(
-                resources.getI18NString(
-                        "impl.media.configform.AUDIO_DEVICE_CONFIG"));
-        audioConfigDialog.add(mainPanel);
-        audioConfigDialog.validate();
-        audioConfigDialog.pack();
-
-        audioConfigDialog.setVisible(true);
-    }
-
-    /**
      * Stops the execution of the neomedia bundle in the specified context.
      *
      * @param bundleContext the context in which the neomedia bundle is to stop
@@ -447,7 +355,12 @@ public class NeomediaActivator
                     .getDeviceConfiguration()
                         .removePropertyChangeListener(
                                 deviceConfigurationPropertyChangeListener);
-                deviceConfigurationPropertyChangeListener = null;
+                if(deviceConfigurationPropertyChangeListener != null)
+                {
+                    deviceConfigurationPropertyChangeListener
+                        .managePopupMessageListenerRegistration(false);
+                    deviceConfigurationPropertyChangeListener = null;
+                }
             }
         }
         finally
@@ -553,5 +466,158 @@ public class NeomediaActivator
                         PacketLoggingService.class);
         }
         return packetLoggingService;
+    }
+
+    /**
+     * Returns the <tt>NotificationService</tt> obtained from the bundle
+     * context.
+     *
+     * @return The <tt>NotificationService</tt> obtained from the bundle
+     * context.
+     */
+    public static NotificationService getNotificationService()
+    {
+        if(notificationService == null)
+        {
+            // Get the notification service implementation
+            ServiceReference notifReference = bundleContext
+                .getServiceReference(NotificationService.class.getName());
+
+            notificationService = (NotificationService) bundleContext
+                .getService(notifReference);
+
+            if(notificationService != null)
+            {
+                // Register a popup message for a device configuration changed
+                // notification.
+                notificationService.registerDefaultNotificationForEvent(
+                        DEVICE_CONFIGURATION_HAS_CHANGED,
+                        net.java.sip.communicator.service.notification.NotificationAction.ACTION_POPUP_MESSAGE,
+                        "Device onfiguration has changed",
+                        null);
+            }
+        }
+
+        return notificationService;
+    }
+
+    /**
+     *  A listener to the click on the popup message concerning device
+     *  configuration changes.
+     */
+    private class AudioDeviceConfigurationListener
+        implements PropertyChangeListener,
+                   SystrayPopupMessageListener
+    {
+        /**
+         * A boolean used to verify that this listener registers only once to
+         * the popup message notification handler.
+         */
+        private boolean isRegisteredToPopupMessageListener = false;
+
+        /**
+         * Registers or unregister as a popup message listener to detect when a
+         * user click on notification saying that the device configuration has
+         * changed.
+         *
+         * @param enable True to register to the popup message notifcation
+         * handler.  False to unregister.
+         */
+        public void managePopupMessageListenerRegistration(boolean enable)
+        {
+            Iterator<NotificationHandler> notificationHandlers
+                = notificationService.getActionHandlers(
+                        net.java.sip.communicator.service.notification.NotificationAction.ACTION_POPUP_MESSAGE)
+                .iterator();
+            NotificationHandler notificationHandler;
+            while(notificationHandlers.hasNext())
+            {
+                notificationHandler = notificationHandlers.next();
+                if(notificationHandler
+                        instanceof PopupMessageNotificationHandler)
+                {
+                    // Register.
+                    if(enable)
+                    {
+                        ((PopupMessageNotificationHandler) notificationHandler)
+                            .addPopupMessageListener(this);
+                    }
+                    // Unregister.
+                    else
+                    {
+                        ((PopupMessageNotificationHandler) notificationHandler)
+                            .removePopupMessageListener(this);
+                    }
+                }
+            }
+        }
+
+        /**
+         * Fonction called when an audio device is plugged or unplugged.
+         *
+         * @param The property change event which may concern the audio device.
+         */
+        public void propertyChange(PropertyChangeEvent event)
+        {
+            if (DeviceConfiguration.PROP_AUDIO_SYSTEM_DEVICES
+                    .equals(event.getPropertyName()))
+            {
+                NotificationService notificationService
+                    = getNotificationService();
+                if(notificationService != null)
+                {
+                    // Registers only once to the  popup message notification
+                    // handler.
+                    if(!isRegisteredToPopupMessageListener)
+                    {
+                        isRegisteredToPopupMessageListener = true;
+                        managePopupMessageListenerRegistration(true);
+                    }
+                    // Fires the popup notification.
+                    ResourceManagementService resources
+                        = NeomediaActivator.getResources();
+                    notificationService.fireNotification(
+                            DEVICE_CONFIGURATION_HAS_CHANGED,
+                            resources.getI18NString(
+                                "impl.media.configform"
+                                    + ".AUDIO_DEVICE_CONFIG_CHANGED"),
+                            resources.getI18NString(
+                                "impl.media.configform"
+                                    + ".AUDIO_DEVICE_CONFIG_MANAGMENT_CLICK"),
+                            null,
+                            this);
+                }
+            }
+        }
+
+        /**
+         * Indicates that user has clicked on the systray popup message.
+         * 
+         * @param evt the event triggered when user clicks on the systray popup
+         * message
+         */
+        public void popupMessageClicked(SystrayPopupMessageEvent evt)
+        {
+            // Checks if this event is fired from one click on one of our popup
+            // message.
+            if(evt.getTag() == deviceConfigurationPropertyChangeListener)
+            {
+                // Get the UI service
+                ServiceReference uiReference = bundleContext
+                    .getServiceReference(UIService.class.getName());
+
+                UIService uiService = (UIService) bundleContext
+                    .getService(uiReference);
+
+                if(uiService != null)
+                {
+                    // Shows the audio configuration window.
+                    ConfigurationContainer configurationContainer
+                        = uiService.getConfigurationContainer();
+                    configurationContainer.setSelected(audioConfigurationForm);
+                    configurationContainer.setVisible(true);
+                }
+            }
+        }
     }
 }

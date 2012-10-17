@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.service.notification;
 
+import net.java.sip.communicator.service.systray.event.*; 
+
 /**
  * The <tt>PopupMessageNotificationHandler</tt> interface is meant to be
  * implemented by the notification bundle in order to provide handling of
@@ -32,4 +34,21 @@ public interface PopupMessageNotificationHandler
         String message,
         byte[] icon,
         Object tag);
+
+    /**
+     * Adds a listener for <tt>SystrayPopupMessageEvent</tt>s posted when user
+     * clicks on the system tray popup message.
+     *
+     * @param listener the listener to add
+     */
+    public void addPopupMessageListener(SystrayPopupMessageListener listener);
+
+    /**
+     * Removes a listener previously added with
+     * <tt>addPopupMessageListener</tt>.
+     *
+     * @param listener the listener to remove
+     */
+    public void removePopupMessageListener(
+            SystrayPopupMessageListener listener);
 }

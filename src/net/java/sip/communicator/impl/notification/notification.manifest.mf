@@ -18,4 +18,5 @@ Import-Package: org.osgi.framework,
  net.java.sip.communicator.service.protocol.event,
  org.jitsi.service.resources,
  net.java.sip.communicator.service.resources,
- net.java.sip.communicator.service.systray
+ net.java.sip.communicator.service.systray,
+ net.java.sip.communicator.service.systray.event
