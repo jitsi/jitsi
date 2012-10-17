@@ -722,6 +722,7 @@ public class CallPanel
         boolean isConference = isConference();
         boolean isVideo = CallManager.isVideoStreaming(callConference);
         CallPeer callPeer = null;
+        boolean validateAndRepaint = false;
 
         if (callPanel != null)
         {
@@ -770,6 +771,7 @@ public class CallPanel
             if (removeCallPanel)
             {
                 remove(callPanel);
+                validateAndRepaint = true;
                 try
                 {
                     ((CallRenderer) callPanel).dispose();
@@ -814,15 +816,39 @@ public class CallPanel
                 }
             }
             if (callPanel != null)
+            {
                 add(callPanel, BorderLayout.CENTER);
+                validateAndRepaint = true;
+            }
         }
 
-        /*
-         * The center of this view is occupied by callPanel and we have just
-         * updated it. The bottom of this view is dedicated to settingsPanel so
-         * we have to update it as well.
-         */
-        updateSettingsPanelInEventDispatchThread(false);
+        try
+        {
+            /*
+             * The center of this view is occupied by callPanel and we have just
+             * updated it. The bottom of this view is dedicated to settingsPanel
+             * so we have to update it as well.
+             */
+            updateSettingsPanelInEventDispatchThread(false);
+        }
+        finally
+        {
+            /*
+             * It seems that AWT/Swing does not validate and/or repaint this
+             * Container (enough) and, consequently, its display may not update
+             * itself with an up-to-date drawing of the current callPanel. 
+             */
+            if (validateAndRepaint)
+            {
+                if (isDisplayable())
+                {
+                    validate();
+                    repaint();
+                }
+                else
+                    doLayout();
+            }
+        }
     }
 
     /**

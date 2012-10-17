@@ -326,14 +326,16 @@ public abstract class BasicConferenceCallPanel
 
     /**
      * Updates the <tt>ConferenceCallPeerRenderer</tt> which is to depict a
-     * specific <tt>CallPeer</tt>.
+     * specific <tt>CallPeer</tt>. Invoked by
+     * {@link #updateViewFromModelInEventDispatchThread()} in the AWT event
+     * dispatching thread.
      *
      * @param callPeer the <tt>CallPeer</tt> whose depicting
      * <tt>ConferenceCallPeerPanel</tt> is to be updated. The <tt>null</tt>
      * value is used to indicate the local peer.
      * @see #updateViewFromModel(ConferenceCallPeerRenderer, CallPeer)
      */
-    private void updateViewFromModel(CallPeer callPeer)
+    protected void updateViewFromModel(CallPeer callPeer)
     {
         ConferenceCallPeerRenderer oldCallPeerPanel
             = callPeerPanels.get(callPeer);
@@ -399,7 +401,7 @@ public abstract class BasicConferenceCallPanel
      */
     protected void updateViewFromModelInEventDispatchThread()
     {
-        /* Update the view of the local peer. */
+        /* Update the view of the local peer/user. */
         updateViewFromModel(null);
 
         List<CallPeer> callPeers = callConference.getCallPeers();

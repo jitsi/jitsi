@@ -67,6 +67,13 @@ public class VideoConferenceCallPanel
     private final VideoContainer videoContainer;
 
     /**
+     * The set of visual <tt>Component</tt>s displaying video streaming between
+     * the local peer/user and the remote peers which are depicted by this
+     * instance.
+     */
+    private final Set<Component> videos = new HashSet<Component>();
+
+    /**
      * Initializes a new <tt>VideoConferenceCallPanel</tt> instance which is to
      * be used by a specific <tt>CallPanel</tt> to depict a specific
      * <tt>CallConference</tt>. The new instance will depict both the
@@ -573,7 +580,28 @@ public class VideoConferenceCallPanel
                 {
                     if (cmc.getParticipant() == conferenceMember)
                     {
-                        if (cmc.toBeRemoved)
+                        /*
+                         * It is possible to have a ConferenceMember who is
+                         * sending video but we just do not have the SSRC of
+                         * that video to associate the video with the
+                         * ConferenceMember. In such a case, we may be depicting
+                         * the ConferenceMember twice: once with video without a
+                         * ConferenceMember and once with a ConferenceMember
+                         * without video. This will surely be the case at the
+                         * time of this writing with non-focus participants in a
+                         * telephony conference hosted on a Jitsi VideoBridge.
+                         * Such a display is undesirable. If the
+                         * conferenceMember is known to send video, we will not
+                         * display it until we associated it with a video. This
+                         * way, if a ConferenceMember is not sending video, we
+                         * will depict it and we can be sure that no video
+                         * without a ConferenceMember association will be
+                         * depicting it a second time.
+                         */
+                        if (cmc.toBeRemoved
+                                && !conferenceMember
+                                        .getVideoStatus()
+                                            .allowsSending())
                         {
                             cmc.setVideo(null);
                             cmc.toBeRemoved = false;
@@ -613,7 +641,6 @@ public class VideoConferenceCallPanel
         }
     }
 
-    @Override
     protected ConferenceCallPeerRenderer updateViewFromModel(
             ConferenceCallPeerRenderer callPeerPanel,
             CallPeer callPeer)
@@ -746,6 +773,96 @@ public class VideoConferenceCallPanel
             updateConferenceMemberContainers(cpc, videos, videoTelephony);
         }
         return callPeerPanel;
+    }
+
+    @Override
+    protected void updateViewFromModelInEventDispatchThread()
+    {
+        /*
+         * Determine the set of visual Components displaying video streaming
+         * between the local peer/user and the remote peers which are to be
+         * depicted by this instance.
+         */
+        Component localVideo = null;
+        Set<Component> videos = new HashSet<Component>();
+
+        for (Call call : callConference.getCalls())
+        {
+            OperationSetVideoTelephony videoTelephony
+                = call.getProtocolProvider().getOperationSet(
+                        OperationSetVideoTelephony.class);
+
+            if (videoTelephony == null)
+                continue;
+
+            Iterator<? extends CallPeer> callPeerIter = call.getCallPeers();
+
+            while (callPeerIter.hasNext())
+            {
+                CallPeer callPeer = callPeerIter.next();
+
+                if (uiVideoHandler.isLocalVideoVisible()
+                        && (localVideo == null))
+                {
+                    try
+                    {
+                        localVideo
+                            = videoTelephony.getLocalVisualComponent(callPeer);
+                    }
+                    catch (OperationFailedException ofe)
+                    {
+                        /*
+                         * We'll just try to get the local video through another
+                         * CallPeer then.
+                         */
+                    }
+                    if (localVideo != null)
+                        videos.add(localVideo);
+                }
+
+                List<Component> callPeerRemoteVideos
+                    = videoTelephony.getVisualComponents(callPeer);
+
+                videos.addAll(callPeerRemoteVideos);
+            }
+        }
+
+        /*
+         * Remove the Components of this view which are no longer present in the
+         * model.
+         */
+        Iterator<Component> thisVideoIter = this.videos.iterator();
+
+        while (thisVideoIter.hasNext())
+        {
+            Component thisVideo = thisVideoIter.next();
+
+            if (!videos.contains(thisVideo))
+            {
+                thisVideoIter.remove();
+                videoContainer.remove(thisVideo);
+            }
+
+            /*
+             * If a video is known to be depicted by this view and is still
+             * present in the model, then we could remove it from the set of
+             * videos present in the model in order to prevent going through the
+             * procedure of adding it to this view. However, we choose to play
+             * on the safe side.
+             */
+        }
+
+        /*
+         * Add the Components of the model which are not depicted by this view.
+         */
+        for (Component video : videos)
+        {
+            if (!UIVideoHandler2.isAncestor(videoContainer, video))
+            {
+                this.videos.add(video);
+                videoContainer.add(video, VideoLayout.CENTER_REMOTE);
+            }
+        }
     }
 
     @Override

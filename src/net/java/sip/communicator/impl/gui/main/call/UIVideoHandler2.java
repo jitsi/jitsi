@@ -96,17 +96,17 @@ public class UIVideoHandler2
     }
 
     /**
-     * Notifies this instance about a change in the value of the
-     * <tt>videoSsrc</tt> property of a <tt>ConferenceMember</tt>. Changing the
-     * value in question means that a visual <tt>Component</tt> displaying video
-     * may be associated or dissociated with the <tt>ConferenceMember</tt>.
+     * Notifies this instance about a change in the value of a video-related
+     * property of a <tt>ConferenceMember</tt>. Changing such a value means that
+     * a visual <tt>Component</tt> displaying video may be associated or
+     * dissociated with the <tt>ConferenceMember</tt>.
      *
      * @param ev a <tt>PropertyChangeEvent</tt> which specifies the
-     * <tt>ConferenceMember</tt> whose <tt>videoSsrc</tt> property value changed
-     * and the old and new values of the property in question
+     * <tt>ConferenceMember</tt> whose video-related property value changed, the
+     * name of the property whose value changed, and the old and new values of
+     * the property in question
      */
-    protected void conferenceMemberVideoSsrcPropertyChange(
-            PropertyChangeEvent ev)
+    protected void conferenceMemberVideoPropertyChange(PropertyChangeEvent ev)
     {
         notifyObservers(ev);
     }
@@ -488,10 +488,12 @@ public class UIVideoHandler2
                 }
             }
             else if (ConferenceMember.VIDEO_SSRC_PROPERTY_NAME.equals(
-                    propertyName))
+                            propertyName)
+                    || ConferenceMember.VIDEO_STATUS_PROPERTY_NAME.equals(
+                            propertyName))
             {
                 if (ev.getSource() instanceof ConferenceMember)
-                    conferenceMemberVideoSsrcPropertyChange(ev);
+                    conferenceMemberVideoPropertyChange(ev);
             }
             else if (OperationSetVideoTelephony.LOCAL_VIDEO_STREAMING.equals(
                     propertyName))

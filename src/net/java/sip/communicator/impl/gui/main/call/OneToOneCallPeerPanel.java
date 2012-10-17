@@ -1161,9 +1161,6 @@ public class OneToOneCallPeerPanel
                     }
                     this.localVideo = localVideo;
                 }
-
-                center.validate();
-                center.repaint();
             }
         }
     }

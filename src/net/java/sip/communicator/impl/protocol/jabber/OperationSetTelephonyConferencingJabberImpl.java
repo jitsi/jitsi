@@ -164,7 +164,7 @@ public class OperationSetTelephonyConferencingJabberImpl
                     = new MediaPacketExtension(Long.toString(i));
                 long srcId
                     = remote
-                        ? stream.getRemoteSourceID()
+                        ? getRemoteSourceID(callPeer, mediaType)
                         : stream.getLocalSourceID();
 
                 if (srcId != -1)
@@ -172,7 +172,10 @@ public class OperationSetTelephonyConferencingJabberImpl
 
                 ext.setType(mediaType.toString());
 
-                MediaDirection direction = stream.getDirection();
+                MediaDirection direction
+                    = remote
+                        ? getRemoteDirection(callPeer, mediaType)
+                        : stream.getDirection();
 
                 if (direction == null)
                     direction = MediaDirection.INACTIVE;
@@ -290,7 +293,7 @@ public class OperationSetTelephonyConferencingJabberImpl
         iq.setEntity(getBasicTelephony().getProtocolProvider().getOurJID());
         iq.setVersion(version);
         iq.setState(StateType.full);
-        iq.setSID(callPeer.getSID());
+        iq.setSID(callPeerSID);
 
         // conference-description
         iq.addExtension(new DescriptionPacketExtension());

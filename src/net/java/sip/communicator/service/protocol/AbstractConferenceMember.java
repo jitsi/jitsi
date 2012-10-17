@@ -6,6 +6,9 @@
  */
 package net.java.sip.communicator.service.protocol;
 
+import java.util.*;
+
+import org.jitsi.service.neomedia.*;
 import org.jitsi.util.event.*;
 
 /**
@@ -76,6 +79,12 @@ public class AbstractConferenceMember
     private long audioSsrc = -1;
 
     /**
+     * The status in both directions of the audio RTP stream from the point of
+     * view of this <tt>ConferenceMember</tt>.
+     */
+    private MediaDirection audioStatus = MediaDirection.INACTIVE;
+
+    /**
      * The <tt>CallPeer</tt> which is the conference focus of this
      * <tt>ConferenceMember</tt>.
      */
@@ -97,6 +106,12 @@ public class AbstractConferenceMember
      * The video SSRC value if transmitted by the focus of the conference.
      */
     private long videoSsrc = -1;
+
+    /**
+     * The status in both directions of the video RTP stream from the point of
+     * view of this <tt>ConferenceMember</tt>.
+     */
+    private MediaDirection videoStatus = MediaDirection.INACTIVE;
 
     /**
      * Creates an instance of <tt>AbstractConferenceMember</tt> by specifying
@@ -140,6 +155,14 @@ public class AbstractConferenceMember
     public long getAudioSsrc()
     {
         return audioSsrc;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public MediaDirection getAudioStatus()
+    {
+        return audioStatus;
     }
 
     /**
@@ -192,13 +215,97 @@ public class AbstractConferenceMember
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public MediaDirection getVideoStatus()
+    {
+        return videoStatus;
+    }
+
+    private static long parseMediaSssrc(Object value)
+    {
+        long ssrc;
+
+        if (value == null)
+            ssrc = -1;
+        else if (value instanceof Long)
+            ssrc = ((Long) value).longValue();
+        else
+        {
+            String str = value.toString();
+
+            if ((str == null) || (str.length() == 0))
+                ssrc = -1;
+            else
+                ssrc = Long.parseLong(str);
+        }
+
+        return ssrc;
+    }
+
+    private static MediaDirection parseMediaStatus(Object value)
+    {
+        MediaDirection status;
+
+        if (value == null)
+            status = MediaDirection.INACTIVE;
+        else if (value instanceof MediaDirection)
+            status = (MediaDirection) value;
+        else
+        {
+            String str = value.toString();
+
+            if ((str == null) || (str.length() == 0))
+                status = MediaDirection.INACTIVE;
+            else
+                status = MediaDirection.parseString(str);
+        }
+
+        return status;
+    }
+
+    /**
      * Sets the audio SSRC identifier of this member.
      *
      * @param ssrc the audio SSRC ID to set for this member.
      */
     public void setAudioSsrc(long ssrc)
     {
-        this.audioSsrc = ssrc;
+        if (this.audioSsrc != ssrc)
+        {
+            long oldValue = this.audioSsrc;
+
+            this.audioSsrc = ssrc;
+
+            firePropertyChange(
+                    AUDIO_SSRC_PROPERTY_NAME,
+                    oldValue, this.audioSsrc);
+        }
+    }
+
+    /**
+     * Sets the status in both directions of the audio RTP stream from the point
+     * of view of this <tt>ConferenceMember</tt>.
+     *
+     * @param status the status in both directions of the audio RTP stream from
+     * the point of view of this <tt>ConferenceMember</tt>. If <tt>null</tt>,
+     * the method executes as if {@link MediaDirection#INACTIVE}. was specified.
+     */
+    public void setAudioStatus(MediaDirection status)
+    {
+        if (status == null)
+            status = MediaDirection.INACTIVE;
+
+        if (this.audioStatus != status)
+        {
+            MediaDirection oldValue = this.audioStatus;
+
+            this.audioStatus = status;
+
+            firePropertyChange(
+                    AUDIO_STATUS_PROPERTY_NAME,
+                    oldValue, this.audioStatus);
+        }
     }
 
     /**
@@ -258,6 +365,60 @@ public class AbstractConferenceMember
         setState(state);
     }
 
+    public boolean setProperties(Map<String, Object> properties)
+    {
+        boolean changed = false;
+
+        for (Map.Entry<String, Object> entry : properties.entrySet())
+        {
+            String key = entry.getKey();
+            Object value = entry.getValue();
+
+            if (AUDIO_SSRC_PROPERTY_NAME.equals(key))
+            {
+                long ssrc = parseMediaSssrc(value);
+
+                if (getAudioSsrc() != ssrc)
+                {
+                    setAudioSsrc(ssrc);
+                    changed = true;
+                }
+            }
+            else if (AUDIO_STATUS_PROPERTY_NAME.equals(key))
+            {
+                MediaDirection status = parseMediaStatus(value);
+
+                if (!getAudioStatus().equals(status))
+                {
+                    setAudioStatus(status);
+                    changed = true;
+                }
+            }
+            else if (VIDEO_SSRC_PROPERTY_NAME.equals(key))
+            {
+                long ssrc = parseMediaSssrc(value);
+
+                if (getVideoSsrc() != ssrc)
+                {
+                    setVideoSsrc(ssrc);
+                    changed = true;
+                }
+            }
+            else if (VIDEO_STATUS_PROPERTY_NAME.equals(key))
+            {
+                MediaDirection status = parseMediaStatus(value);
+
+                if (!getVideoStatus().equals(status))
+                {
+                    setVideoStatus(status);
+                    changed = true;
+                }
+            }
+        }
+
+        return changed;
+    }
+
     /**
      * Sets the state of the device and signaling session of this
      * <tt>ConferenceMember</tt> in the conference and fires a new
@@ -296,6 +457,31 @@ public class AbstractConferenceMember
             firePropertyChange(
                     VIDEO_SSRC_PROPERTY_NAME,
                     oldValue, this.videoSsrc);
+        }
+    }
+
+    /**
+     * Sets the status in both directions of the video RTP stream from the point
+     * of view of this <tt>ConferenceMember</tt>.
+     *
+     * @param status the status in both directions of the video RTP stream from
+     * the point of view of this <tt>ConferenceMember</tt>. If <tt>null</tt>,
+     * the method executes as if {@link MediaDirection#INACTIVE}. was specified.
+     */
+    public void setVideoStatus(MediaDirection status)
+    {
+        if (status == null)
+            status = MediaDirection.INACTIVE;
+
+        if (this.videoStatus != status)
+        {
+            MediaDirection oldValue = this.videoStatus;
+
+            this.videoStatus = status;
+
+            firePropertyChange(
+                    VIDEO_STATUS_PROPERTY_NAME,
+                    oldValue, this.videoStatus);
         }
     }
 }

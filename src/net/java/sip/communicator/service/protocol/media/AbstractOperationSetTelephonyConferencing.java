@@ -397,23 +397,12 @@ public abstract class AbstractOperationSetTelephonyConferencing<
         return basicTelephony;
     }
 
-    /**
-     * Reads the text content of the <tt>src-id</tt> XML element of a
-     * <tt>media</tt> XML element of a specific <tt>endpoint</tt> XML element.
-     *
-     * @param endpoint an XML <tt>Node</tt> which represents the
-     * <tt>endpoint</tt> XML element from which to get the text content of a
-     * <tt>src-id</tt> XML element of a <tt>media</tt> XML element
-     * @param mediaType the type of the media to get the <tt>src-id</tt> of
-     * @return the text content of the <tt>src-id</tt> XML element of the
-     * <tt>media</tt> XML element of the specified <tt>endpoint</tt> XML element
-     * if any; otherwise, <tt>null</tt>
-     */
-    private String getEndpointMediaSrcId(Node endpoint, MediaType mediaType)
+    private void getEndpointMediaProperties(
+            Node endpoint,
+            Map<String, Object> properties)
     {
         NodeList endpointChildList = endpoint.getChildNodes();
         int endpoingChildCount = endpointChildList.getLength();
-        String mediaTypeStr = mediaType.toString();
 
         for (int endpointChildIndex = 0;
                 endpointChildIndex < endpoingChildCount;
@@ -426,6 +415,7 @@ public abstract class AbstractOperationSetTelephonyConferencing<
                 NodeList mediaChildList = endpointChild.getChildNodes();
                 int mediaChildCount = mediaChildList.getLength();
                 String srcId = null;
+                String status = null;
                 String type = null;
 
                 for (int mediaChildIndex = 0;
@@ -436,24 +426,33 @@ public abstract class AbstractOperationSetTelephonyConferencing<
                     String mediaChildName = mediaChild.getNodeName();
 
                     if (ELEMENT_SRC_ID.equals(mediaChildName))
-                    {
                         srcId = mediaChild.getTextContent();
-                        if (mediaTypeStr.equalsIgnoreCase(type))
-                            return srcId;
-                    }
+                    else if (ELEMENT_STATUS.equals(mediaChildName))
+                        status = mediaChild.getTextContent();
                     else if (ELEMENT_TYPE.equals(mediaChildName))
-                    {
                         type = mediaChild.getTextContent();
-                        if ((srcId != null)
-                                && mediaTypeStr.equalsIgnoreCase(type))
-                        {
-                            return srcId;
-                        }
-                    }
+                }
+
+                if (MediaType.AUDIO.toString().equalsIgnoreCase(type))
+                {
+                    properties.put(
+                            ConferenceMember.AUDIO_SSRC_PROPERTY_NAME,
+                            srcId);
+                    properties.put(
+                            ConferenceMember.AUDIO_STATUS_PROPERTY_NAME,
+                            status);
+                }
+                else if (MediaType.VIDEO.toString().equalsIgnoreCase(type))
+                {
+                    properties.put(
+                            ConferenceMember.VIDEO_SSRC_PROPERTY_NAME,
+                            srcId);
+                    properties.put(
+                            ConferenceMember.VIDEO_STATUS_PROPERTY_NAME,
+                            status);
                 }
             }
         }
-        return null;
     }
 
     /**
@@ -481,6 +480,110 @@ public abstract class AbstractOperationSetTelephonyConferencing<
                 return endpointChild.getTextContent();
         }
         return null;
+    }
+
+    /**
+     * Gets the <tt>MediaDirection</tt> of the media RTP stream of a specific
+     * <tt>CallPeer</tt> with a specific <tt>MediaType</tt> from the point of
+     * view of the remote peer.
+     *
+     * @param callPeer
+     * @param mediaType
+     * @return the <tt>MediaDirection</tt> of the media RTP stream of a specific
+     * <tt>CallPeer</tt> with a specific <tt>MediaType</tt> from the point of
+     * view of the remote peer
+     */
+    protected MediaDirection getRemoteDirection(
+            MediaAwareCallPeer<?,?,?> callPeer,
+            MediaType mediaType)
+    {
+        MediaStream stream = callPeer.getMediaHandler().getStream(mediaType);
+        MediaDirection remoteDirection;
+
+        if (stream != null)
+        {
+            remoteDirection = stream.getDirection();
+            if (remoteDirection != null)
+                remoteDirection = remoteDirection.getReverseDirection();
+        }
+        else
+            remoteDirection = null;
+        return null;
+    }
+
+    /**
+     * Gets the remote SSRC to be reported in the conference-info XML for a
+     * specific <tt>CallPeer</tt>'s media of a specific <tt>MediaType</tt>.
+     *
+     * @param callPeer the <tt>CallPeer</tt> whose remote SSRC for the media of
+     * the specified <tt>mediaType</tt> is to be returned
+     * @param mediaType the <tt>MediaType</tt> of the specified
+     * <tt>callPeer</tt>'s media whose remote SSRC is to be returned
+     * @return the remote SSRC to be reported in the conference-info XML for the
+     * specified <tt>callPeer</tt>'s media of the specified <tt>mediaType</tt>
+     */
+    protected long getRemoteSourceID(
+            MediaAwareCallPeer<?,?,?> callPeer,
+            MediaType mediaType)
+    {
+        MediaStream stream = callPeer.getMediaHandler().getStream(mediaType);
+        long remoteSourceID;
+
+        if (stream != null)
+        {
+            remoteSourceID = stream.getRemoteSourceID();
+            if (remoteSourceID != -1)
+            {
+                /*
+                 * TODO Technically, we are detecting conflicts within a Call
+                 * while we should be detecting them within the whole
+                 * CallConference.
+                 */
+                MediaAwareCall<?,?,?> call = callPeer.getCall();
+
+                if (call != null)
+                {
+                    for (MediaAwareCallPeer<?,?,?> aCallPeer
+                            : call.getCallPeerList())
+                    {
+                        if (aCallPeer != callPeer)
+                        {
+                            MediaStream aStream
+                                = aCallPeer.getMediaHandler().getStream(
+                                        mediaType);
+
+                            /*
+                             * When the Jitsi VideoBridge server-side technology
+                             * is utilized by the local peer/user to host a
+                             * telephony conference, one and the same
+                             * MediaStream instance will be shared by the
+                             * CallPeers. This will definitely lead to a
+                             * conflict.
+                             */
+                            if (aStream == stream)
+                            {
+                                remoteSourceID = -1;
+                                break;
+                            }
+                            else
+                            {
+                                long aRemoteSourceID
+                                    = stream.getRemoteSourceID();
+
+                                if (aRemoteSourceID == remoteSourceID)
+                                {
+                                    remoteSourceID = -1;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        else
+            remoteSourceID = -1;
+        return remoteSourceID;
     }
 
     /**
@@ -703,6 +806,8 @@ public abstract class AbstractOperationSetTelephonyConferencing<
         {
             NodeList userList = usersList.item(0).getChildNodes();
             int userCount = userList.getLength();
+            Map<String, Object> conferenceMemberProperties
+                = new HashMap<String, Object>();
 
             for (int userIndex = 0; userIndex < userCount; userIndex++)
             {
@@ -759,9 +864,19 @@ public abstract class AbstractOperationSetTelephonyConferencing<
                     int userChildCount = userChildList.getLength();
                     String displayName = null;
                     String endpointStatus = null;
-                    String audioSsrc = null;
-                    String videoSsrc = null;
 
+                    conferenceMemberProperties.put(
+                            ConferenceMember.AUDIO_SSRC_PROPERTY_NAME,
+                            null);
+                    conferenceMemberProperties.put(
+                            ConferenceMember.AUDIO_STATUS_PROPERTY_NAME,
+                            null);
+                    conferenceMemberProperties.put(
+                            ConferenceMember.VIDEO_SSRC_PROPERTY_NAME,
+                            null);
+                    conferenceMemberProperties.put(
+                            ConferenceMember.VIDEO_STATUS_PROPERTY_NAME,
+                            null);
                     for (int userChildIndex = 0;
                             userChildIndex < userChildCount;
                             userChildIndex++)
@@ -774,39 +889,17 @@ public abstract class AbstractOperationSetTelephonyConferencing<
                         else if (ELEMENT_ENDPOINT.equals(userChildName))
                         {
                             endpointStatus = getEndpointStatus(userChild);
-                            audioSsrc
-                                = getEndpointMediaSrcId(
-                                        userChild,
-                                        MediaType.AUDIO);
-                            videoSsrc
-                                = getEndpointMediaSrcId(
-                                        userChild,
-                                        MediaType.VIDEO);
+                            getEndpointMediaProperties(
+                                    userChild,
+                                    conferenceMemberProperties);
                         }
                     }
                     existingConferenceMember.setDisplayName(displayName);
                     existingConferenceMember.setEndpointStatus(endpointStatus);
 
-                    if (audioSsrc != null)
-                    {
-                        long newSsrc = Long.parseLong(audioSsrc);
-
-                        if (existingConferenceMember.getAudioSsrc() != newSsrc)
-                        {
-                            changed = true;
-                            existingConferenceMember.setAudioSsrc(newSsrc);
-                        }
-                    }
-                    if (videoSsrc != null)
-                    {
-                        long newSsrc = Long.parseLong(videoSsrc);
-
-                        if (existingConferenceMember.getVideoSsrc() != newSsrc)
-                        {
-                            changed = true;
-                            existingConferenceMember.setVideoSsrc(newSsrc);
-                        }
-                    }
+                    changed
+                        = existingConferenceMember.setProperties(
+                                conferenceMemberProperties);
 
                     if (addConferenceMember)
                         callPeer.addConferenceMember(existingConferenceMember);

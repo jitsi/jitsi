@@ -8,6 +8,8 @@ package net.java.sip.communicator.service.protocol;
 
 import java.beans.*;
 
+import org.jitsi.service.neomedia.*;
+
 /**
  * Represents a member and its details in a telephony conference managed by a
  * <tt>CallPeer</tt> in its role as a conference focus.
@@ -16,6 +18,20 @@ import java.beans.*;
  */
 public interface ConferenceMember
 {
+    /**
+     * The name of the property of <tt>ConferenceMember</tt> which specifies the
+     * SSRC of the audio content/RTP stream sent by the respective
+     * <tt>ConferenceMember</tt> in the conference.
+     */
+    public static final String AUDIO_SSRC_PROPERTY_NAME = "audioSsrc";
+
+    /**
+     * The name of the property of <tt>ConferenceMember</tt> which specifies the
+     * status of the audio RTP stream from the point of view of the
+     * <tt>ConferenceMember</tt>.
+     */
+    public static final String AUDIO_STATUS_PROPERTY_NAME = "audioStatus";
+
     /**
      * The name of the property of <tt>ConferenceMember</tt> which specifies the
      * user-friendly display name of the respective <tt>ConferenceMember</tt> in
@@ -36,6 +52,13 @@ public interface ConferenceMember
      * <tt>ConferenceMember</tt> in the conference.
      */
     public static final String VIDEO_SSRC_PROPERTY_NAME = "videoSsrc";
+
+    /**
+     * The name of the property of <tt>ConferenceMember</tt> which specifies the
+     * status of the video RTP stream from the point of view of the
+     * <tt>ConferenceMember</tt>.
+     */
+    public static final String VIDEO_STATUS_PROPERTY_NAME = "videoStatus";
 
     /**
      * Adds a specific <tt>PropertyChangeListener</tt> to the list of
@@ -76,6 +99,16 @@ public interface ConferenceMember
     public long getAudioSsrc();
 
     /**
+     * Gets the status in both directions of the audio RTP stream from the point
+     * of view of this <tt>ConferenceMember</tt>.
+     *
+     * @return a <tt>MediaDIrection</tt> which represents the status in both
+     * directions of the audio RTP stream from the point of view of this
+     * <tt>ConferenceMember</tt>
+     */
+    public MediaDirection getAudioStatus();
+
+    /**
      * Gets the <tt>CallPeer</tt> which is the conference focus of this
      * <tt>ConferenceMember</tt>.
      *
@@ -114,6 +147,16 @@ public interface ConferenceMember
      * information is not currently available
      */
     public long getVideoSsrc();
+
+    /**
+     * Gets the status in both directions of the video RTP stream from the point
+     * of view of this <tt>ConferenceMember</tt>.
+     *
+     * @return a <tt>MediaDIrection</tt> which represents the status in both
+     * directions of the video RTP stream from the point of view of this
+     * <tt>ConferenceMember</tt>
+     */
+    public MediaDirection getVideoStatus();
 
     /**
      * Removes a specific <tt>PropertyChangeListener</tt> from the list of

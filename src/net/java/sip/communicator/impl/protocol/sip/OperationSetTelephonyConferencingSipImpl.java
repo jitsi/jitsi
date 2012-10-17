@@ -453,7 +453,7 @@ public class OperationSetTelephonyConferencingSipImpl
 
                 long srcId
                     = remote
-                        ? stream.getRemoteSourceID()
+                        ? getRemoteSourceID(callPeer, mediaType)
                         : stream.getLocalSourceID();
 
                 if (srcId != -1)
@@ -465,7 +465,10 @@ public class OperationSetTelephonyConferencingSipImpl
                     append(xml, "</", ELEMENT_SRC_ID, ">");
                 }
 
-                MediaDirection direction = stream.getDirection();
+                MediaDirection direction
+                    = remote
+                        ? getRemoteDirection(callPeer, mediaType)
+                        : stream.getDirection();
 
                 if (direction == null)
                     direction = MediaDirection.INACTIVE;
