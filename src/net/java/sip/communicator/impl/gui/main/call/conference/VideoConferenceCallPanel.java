@@ -801,6 +801,14 @@ public class VideoConferenceCallPanel
             {
                 CallPeer callPeer = callPeerIter.next();
 
+                /*
+                 * TODO VideoConferenceCallPanel respects
+                 * UIVideoHandler2.isLocalVideoVisible() in order to react to
+                 * the associated button at the bottom of the CallPanel.
+                 * However, it does not add a close button on top of the local
+                 * video in contrast to OneToOneCallPeerPanel. Overall, the
+                 * result is questionable.
+                 */
                 if (uiVideoHandler.isLocalVideoVisible()
                         && (localVideo == null))
                 {
