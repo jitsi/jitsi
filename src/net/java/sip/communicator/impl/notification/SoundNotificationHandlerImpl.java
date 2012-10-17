@@ -49,14 +49,33 @@ public class SoundNotificationHandlerImpl
         if(isMute())
             return;
 
-        if(action.isSoundNotificationEnabled())
-        {
-            play(action, data, false);
-        }
+        boolean playOnlyOnPlayback = true;
 
-        if(action.isSoundPlaybackEnabled())
+        AudioNotifierService audioNotifService
+                    = NotificationActivator.getAudioNotifier();
+        if(audioNotifService != null)
+            playOnlyOnPlayback =
+                audioNotifService.audioOutAndNotificationsShareSameDevice();
+
+        if(playOnlyOnPlayback)
         {
-            play(action, data, true);
+            if(action.isSoundNotificationEnabled()
+                || action.isSoundPlaybackEnabled())
+            {
+                play(action, data, true);
+            }
+        }
+        else
+        {
+            if(action.isSoundNotificationEnabled())
+            {
+                play(action, data, false);
+            }
+
+            if(action.isSoundPlaybackEnabled())
+            {
+                play(action, data, true);
+            }
         }
 
         if(action.isSoundPCSpeakerEnabled())
