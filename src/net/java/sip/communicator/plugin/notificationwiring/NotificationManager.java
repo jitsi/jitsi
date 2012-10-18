@@ -9,6 +9,7 @@ package net.java.sip.communicator.plugin.notificationwiring;
 import java.awt.image.*;
 import java.net.*;
 import java.util.*;
+import java.util.concurrent.*;
 
 import javax.imageio.*;
 
@@ -22,71 +23,41 @@ import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.protocol.event.*;
+import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
 
 /**
- * Listens for all kinds of events and triggers when needed a notification,
- * a popup or sound one or other.
+ * Listens to various events which are related to the display and/or playback of
+ * notifications and shows/starts or hides/stops the notifications in question.
+ *
  * @author Damian Minkov
+ * @author Lyubomir Marinov
  */
 public class NotificationManager
-    implements MessageListener,
-               ServiceListener,
-               FileTransferListener,
-               TypingNotificationsListener,
-               CallListener,
+    implements AdHocChatRoomMessageListener,
                CallChangeListener,
+               CallListener,
+               CallPeerConferenceListener,
                CallPeerListener,
                CallPeerSecurityListener,
                ChatRoomMessageListener,
-               LocalUserChatRoomPresenceListener,
+               FileTransferListener,
                LocalUserAdHocChatRoomPresenceListener,
-               AdHocChatRoomMessageListener,
-               CallPeerConferenceListener,
-               Recorder.Listener
+               LocalUserChatRoomPresenceListener,
+               MessageListener,
+               Recorder.Listener,
+               ServiceListener,
+               TypingNotificationsListener
 {
     /**
-     * Our logger.
+     * Default event type for a busy call.
      */
-    private static final Logger logger =
-        Logger.getLogger(NotificationManager.class);
-
-    /**
-     * The image used, when a contact has no photo specified.
-     */
-    public static final ImageID DEFAULT_USER_PHOTO
-        = new ImageID("service.gui.DEFAULT_USER_PHOTO");
-
-    /**
-     * Stores all already loaded images.
-     */
-    private static final Map<ImageID, BufferedImage> loadedImages =
-        new Hashtable<ImageID, BufferedImage>();
-
-    /**
-     * Pseudo timer used to delay multiple typings notifications before
-     * receiving the message.
-     *
-     * Time to live : 1 minute
-     */
-    private Map<Contact,Long> proactiveTimer = new HashMap<Contact, Long>();
-
-    /**
-     * Stores notification references to stop them if a notification has expired
-     * (e.g. to stop the dialing sound).
-     */
-    private Map<Call, NotificationData> callNotifications =
-        new WeakHashMap<Call, NotificationData>();
+    public static final String BUSY_CALL = "BusyCall";
 
     /**
      * Default event type for call been saved using a recorder.
      */
     public static final String CALL_SAVED = "CallSaved";
-
-    /**
-     * Default event type for incoming file transfers.
-     */
-    public static final String INCOMING_FILE = "IncomingFile";
 
     /**
      * Default event type for security error on a call.
@@ -99,9 +70,55 @@ public class NotificationManager
     public static final String CALL_SECURITY_ON = "CallSecurityOn";
 
     /**
-     * Default event type when a secure message received.
+     * The image used, when a contact has no photo specified.
      */
-    public static final String SECURITY_MESSAGE = "SecurityMessage";
+    public static final ImageID DEFAULT_USER_PHOTO
+        = new ImageID("service.gui.DEFAULT_USER_PHOTO");
+
+    /**
+     * Default event type for dialing.
+     */
+    public static final String DIALING = "Dialing";
+
+    /**
+     * Default event type for hanging up calls.
+     */
+    public static final String HANG_UP = "HangUp";
+
+    /**
+     * The cache of <tt>BufferedImage</tt> instances which we have already
+     * loaded by <tt>ImageID</tt> and which we store so that we do not have to
+     * load them again.
+     */
+    private static final Map<ImageID, BufferedImage> images
+        = new Hashtable<ImageID, BufferedImage>();
+
+    /**
+     * Default event type for receiving calls (incoming calls).
+     */
+    public static final String INCOMING_CALL = "IncomingCall";
+
+    /**
+     * Default event type for incoming file transfers.
+     */
+    public static final String INCOMING_FILE = "IncomingFile";
+
+    /**
+     * Default event type for receiving messages.
+     */
+    public static final String INCOMING_MESSAGE = "IncomingMessage";
+
+    /**
+     * The <tt>Logger</tt> used by the <tt>NotificationManager</tt> class and
+     * its instances for logging output.
+     */
+    private static final Logger logger
+        = Logger.getLogger(NotificationManager.class);
+
+    /**
+     * Default event type for outgoing calls.
+     */
+    public static final String OUTGOING_CALL = "OutgoingCall";
 
     /**
      * Default event type for
@@ -110,59 +127,24 @@ public class NotificationManager
     public static final String PROACTIVE_NOTIFICATION = "ProactiveNotification";
 
     /**
-     * Default event type for hanging up calls.
+     * Default event type when a secure message received.
      */
-    public static final String HANG_UP = "HangUp";
+    public static final String SECURITY_MESSAGE = "SecurityMessage";
 
     /**
-     * Default event type for dialing.
+     * Fires a chat message notification for the given event type through the
+     * <tt>NotificationService</tt>.
+     *
+     * @param chatContact the chat contact to which the chat message corresponds;
+     * the chat contact could be a Contact or a ChatRoom.
+     * @param eventType the event type for which we fire a notification
+     * @param messageTitle the title of the message
+     * @param message the content of the message
      */
-    public static final String DIALING = "Dialing";
-
-    /**
-     * Default event type for a busy call.
-     */
-    public static final String BUSY_CALL = "BusyCall";
-
-    /**
-     * Default event type for outgoing calls.
-     */
-    public static final String OUTGOING_CALL = "OutgoingCall";
-
-    /**
-     * Default event type for receiving calls (incoming calls).
-     */
-    public static final String INCOMING_CALL = "IncomingCall";
-
-    /**
-     * Default event type for receiving messages.
-     */
-    public static final String INCOMING_MESSAGE = "IncomingMessage";
-
-    /**
-     * Initialize, register default notifications and start listening for
-     * new protocols or removed one and find any that are already registered.
-     */
-    void init()
-    {
-        registerDefaultNotifications();
-
-        // listens for new protocols
-        NotificationWiringActivator.bundleContext.addServiceListener(this);
-
-        // enumerate currently registered protocols
-        for(ProtocolProviderService pp : getProtocolProviders())
-        {
-            handleProviderAdded(pp);
-        }
-
-        NotificationWiringActivator.getMediaService().addRecorderListener(this);
-    }
-
-    /**
-     * Register all default notifications.
-     */
-    private void registerDefaultNotifications()
+    public static void fireChatNotification(Object chatContact,
+                                            String eventType,
+                                            String messageTitle,
+                                            String message)
     {
         NotificationService notificationService
             = NotificationWiringActivator.getNotificationService();
@@ -170,116 +152,232 @@ public class NotificationManager
         if(notificationService == null)
             return;
 
-        // Register incoming message notifications.
-        notificationService.registerDefaultNotificationForEvent(
-                INCOMING_MESSAGE,
-                NotificationAction.ACTION_POPUP_MESSAGE,
-                null,
-                null);
+        NotificationAction popupActionHandler = null;
+        UIService uiService = NotificationWiringActivator.getUIService();
 
-        notificationService.registerDefaultNotificationForEvent(
-                INCOMING_MESSAGE,
-                new SoundNotificationAction(
-                    SoundProperties.INCOMING_MESSAGE, -1, true, false, false));
+        Chat chatPanel = null;
+        byte[] contactIcon = null;
+        if (chatContact instanceof Contact)
+        {
+            Contact contact = (Contact) chatContact;
 
-        // Register incoming call notifications.
-        notificationService.registerDefaultNotificationForEvent(
-                INCOMING_CALL,
-                NotificationAction.ACTION_POPUP_MESSAGE,
-                null,
-                null);
+            if(uiService != null)
+                chatPanel = uiService.getChat(contact);
 
-        SoundNotificationAction inCallSoundHandler
-            = new SoundNotificationAction(
-                    SoundProperties.INCOMING_CALL, 2000, true, true, true);
+            contactIcon = contact.getImage();
+            if(contactIcon == null)
+            {
+                contactIcon =
+                    ImageUtils.toByteArray(getImage(DEFAULT_USER_PHOTO));
+            }
+        }
+        else if (chatContact instanceof ChatRoom)
+        {
+            ChatRoom chatRoom = (ChatRoom) chatContact;
 
-        notificationService.registerDefaultNotificationForEvent(
-                INCOMING_CALL,
-                inCallSoundHandler);
+            // For system rooms we don't want to send notification events.
+            if (chatRoom.isSystem())
+                return;
 
-        // Register outgoing call notifications.
-        SoundNotificationAction outCallSoundHandler
-            = new SoundNotificationAction(
-                    SoundProperties.OUTGOING_CALL, 3000, false, true, false);
+            if(uiService != null)
+                chatPanel = uiService.getChat(chatRoom);
+        }
 
-        notificationService.registerDefaultNotificationForEvent(
-                OUTGOING_CALL,
-                outCallSoundHandler);
+        if (chatPanel != null)
+        {
+            if (eventType.equals(INCOMING_MESSAGE)
+                    && chatPanel.isChatFocused())
+            {
+                popupActionHandler = notificationService
+                        .getEventNotificationAction(eventType,
+                                NotificationAction.ACTION_POPUP_MESSAGE);
 
-        // Register busy call notifications.
-        SoundNotificationAction busyCallSoundHandler
-            = new SoundNotificationAction(SoundProperties.BUSY, 1,
-                    false, true, false);
+                popupActionHandler.setEnabled(false);
+            }
+        }
 
-        notificationService.registerDefaultNotificationForEvent(
-                BUSY_CALL,
-                busyCallSoundHandler);
+        Map<String,Object> extras = new HashMap<String,Object>();
 
-        // Register dial notifications.
-        SoundNotificationAction dialSoundHandler
-            = new SoundNotificationAction(
-                    SoundProperties.DIALING, -1, false, true, false);
+        extras.put(
+                NotificationData.POPUP_MESSAGE_HANDLER_TAG_EXTRA,
+                chatContact);
+        notificationService.fireNotification(
+                eventType,
+                messageTitle,
+                message,
+                contactIcon,
+                extras);
 
-        notificationService.registerDefaultNotificationForEvent(
-                DIALING,
-                dialSoundHandler);
+        if(popupActionHandler != null)
+            popupActionHandler.setEnabled(true);
+    }
 
-        // Register the hangup sound notification.
-        SoundNotificationAction hangupSoundHandler
-            = new SoundNotificationAction(
-                    SoundProperties.HANG_UP, -1, false, true, false);
+    /**
+     * Fires a notification for the given event type through the
+     * <tt>NotificationService</tt>. The event type is one of the static
+     * constants defined in the <tt>NotificationManager</tt> class.
+     * <p>
+     * <b>Note</b>: The uses of the method at the time of this writing do not
+     * take measures to stop looping sounds if the respective notifications use
+     * them i.e. there is implicit agreement that the notifications fired
+     * through the method do not loop sounds. Consequently, the method passes
+     * arguments to <tt>NotificationService</tt> so that sounds are played once
+     * only.
+     * </p>
+     *
+     * @param eventType the event type for which we want to fire a notification
+     */
+    private static void fireNotification(String eventType)
+    {
+        NotificationService notificationService
+            = NotificationWiringActivator.getNotificationService();
 
-        notificationService.registerDefaultNotificationForEvent(
-                HANG_UP,
-                hangupSoundHandler);
+        if (notificationService != null)
+            notificationService.fireNotification(eventType);
+    }
 
-        // Register proactive notifications.
-        notificationService.registerDefaultNotificationForEvent(
-                PROACTIVE_NOTIFICATION,
-                NotificationAction.ACTION_POPUP_MESSAGE,
-                null,
-                null);
+    /**
+     * Fires a notification for the given event type through the
+     * <tt>NotificationService</tt>. The event type is one of the static
+     * constants defined in the <tt>NotificationManager</tt> class.
+     *
+     * @param eventType the event type for which we want to fire a notification
+     * @param loopCondition the method which will determine whether any sounds
+     * played as part of the specified notification will continue looping
+     * @return a reference to the fired notification to stop it.
+     */
+    private static NotificationData fireNotification(
+            String eventType,
+            Callable<Boolean> loopCondition)
+    {
+        return fireNotification(eventType, null, null, null, loopCondition);
+    }
 
-        // Register warning message notifications.
-        notificationService.registerDefaultNotificationForEvent(
-                SECURITY_MESSAGE,
-                NotificationAction.ACTION_POPUP_MESSAGE,
-                null,
-                null);
+    /**
+     * Fires a notification through the <tt>NotificationService</tt> with a
+     * specific event type, a specific message title and a specific message.
+     * <p>
+     * <b>Note</b>: The uses of the method at the time of this writing do not
+     * take measures to stop looping sounds if the respective notifications use
+     * them i.e. there is implicit agreement that the notifications fired
+     * through the method do not loop sounds. Consequently, the method passes
+     * arguments to <tt>NotificationService</tt> so that sounds are played once
+     * only.
+     * </p>
+     *
+     * @param eventType the event type of the notification to be fired
+     * @param messageTitle the title of the message to be displayed by the
+     * notification to be fired if such a display is supported
+     * @param message the message to be displayed by the notification to be
+     * fired if such a display is supported
+     */
+    private static void fireNotification(
+            String eventType,
+            String messageTitle,
+            String message)
+    {
+        NotificationService notificationService
+            = NotificationWiringActivator.getNotificationService();
 
-        // Register sound notification for security state on during a call.
-        notificationService.registerDefaultNotificationForEvent(
-                CALL_SECURITY_ON,
-                new SoundNotificationAction(
-                        SoundProperties.CALL_SECURITY_ON, -1,
-                        false, true, false));
+        if (notificationService != null)
+        {
+            notificationService.fireNotification(
+                        eventType,
+                        messageTitle,
+                        message,
+                        null);
+        }
+    }
 
-        // Register sound notification for security state off during a call.
-        notificationService.registerDefaultNotificationForEvent(
-                CALL_SECURITY_ERROR,
-                new SoundNotificationAction(
-                        SoundProperties.CALL_SECURITY_ERROR, -1,
-                        false, true, false));
+    /**
+     * Fires a message notification for the given event type through the
+     * <tt>NotificationService</tt>.
+     *
+     * @param eventType the event type for which we fire a notification
+     * @param messageTitle the title of the message
+     * @param message the content of the message
+     * @param cmdargs the value to be provided to
+     * {@link CommandNotificationHandler#execute(CommandNotificationAction,
+     * Map)} as the <tt>cmdargs</tt> argument
+     * @param loopCondition the method which will determine whether any sounds
+     * played as part of the specified notification will continue looping
+     * @return a reference to the fired notification to stop it.
+     */
+    private static NotificationData fireNotification(
+            String eventType,
+            String messageTitle,
+            String message,
+            Map<String,String> cmdargs,
+            Callable<Boolean> loopCondition)
+    {
+        NotificationService notificationService
+            = NotificationWiringActivator.getNotificationService();
 
-        // Register sound notification for incoming files.
-        notificationService.registerDefaultNotificationForEvent(
-                INCOMING_FILE,
-                NotificationAction.ACTION_POPUP_MESSAGE,
-                null,
-                null);
+        if (notificationService == null)
+            return null;
+        else
+        {
+            Map<String,Object> extras = new HashMap<String,Object>();
 
-        notificationService.registerDefaultNotificationForEvent(
-                INCOMING_FILE,
-                new SoundNotificationAction(
-                        SoundProperties.INCOMING_FILE, -1,
-                        true, false, false));
+            if (cmdargs != null)
+            {
+                extras.put(
+                        NotificationData
+                            .COMMAND_NOTIFICATION_HANDLER_CMDARGS_EXTRA,
+                        cmdargs);
+            }
+            if (loopCondition != null)
+            {
+                extras.put(
+                        NotificationData
+                            .SOUND_NOTIFICATION_HANDLER_LOOP_CONDITION_EXTRA,
+                        loopCondition);
+            }
+            return
+                notificationService.fireNotification(
+                        eventType,
+                        messageTitle,
+                        message,
+                        null,
+                        extras);
+        }
+    }
 
-        // Register notification for saved calls.
-        notificationService.registerDefaultNotificationForEvent(
-            CALL_SAVED,
-            NotificationAction.ACTION_POPUP_MESSAGE,
-            null,
-            null);
+    /**
+     * Loads an image from a given image identifier.
+     *
+     * @param imageID The identifier of the image.
+     * @return The image for the given identifier.
+     */
+    public static BufferedImage getImage(ImageID imageID)
+    {
+        /*
+         * If we were mapping ImageID to null, we would be using the method
+         * Map.containsKey. However, that does not seem to be the case.
+         */
+        BufferedImage image = images.get(imageID);
+
+        if (image == null)
+        {
+            URL path
+                = NotificationWiringActivator.getResources().getImageURL(
+                        imageID.getId());
+
+            if (path != null)
+            {
+                try
+                {
+                    image = ImageIO.read(path);
+                    images.put(imageID, image);
+                }
+                catch (Exception ex)
+                {
+                    logger.error("Failed to load image: " + path, ex);
+                }
+            }
+        }
+
+        return image;
     }
 
     /**
@@ -362,6 +460,226 @@ public class NotificationManager
         }
         return providersList;
     }
+
+    /**
+     * Determines whether a specific <code>ChatRoom</code> is private i.e.
+     * represents a one-to-one conversation which is not a channel. Since the
+     * interface {@link ChatRoom} does not expose the private property, an
+     * heuristic is used as a workaround: (1) a system <code>ChatRoom</code> is
+     * obviously not private and (2) a <code>ChatRoom</code> is private if it
+     * has only one <code>ChatRoomMember</code> who is not the local user.
+     *
+     * @param chatRoom
+     *            the <code>ChatRoom</code> to be determined as private or not
+     * @return <tt>true</tt> if the specified <code>ChatRoom</code> is private;
+     *         otherwise, <tt>false</tt>
+     */
+    private static boolean isPrivate(ChatRoom chatRoom)
+    {
+        if (!chatRoom.isSystem()
+            && chatRoom.isJoined()
+            && (chatRoom.getMembersCount() == 1))
+        {
+            String nickname = chatRoom.getUserNickname();
+
+            if (nickname != null)
+            {
+                for (ChatRoomMember member : chatRoom.getMembers())
+                    if (nickname.equals(member.getName()))
+                        return false;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Stops all sounds for the given event type.
+     *
+     * @param data the event type for which we should stop sounds. One of
+     * the static event types defined in this class.
+     */
+    public static void stopSound(NotificationData data)
+    {
+        NotificationService notificationService
+            = NotificationWiringActivator.getNotificationService();
+
+        if(notificationService != null)
+            notificationService.stopNotification(data);
+    }
+
+    /**
+     * Stores notification references to stop them if a notification has expired
+     * (e.g. to stop the dialing sound).
+     */
+    private final Map<Call, NotificationData> callNotifications
+        = new WeakHashMap<Call, NotificationData>();
+
+    /**
+     * The pseudo timer which is used to delay multiple typing notifications
+     * before receiving the message.
+     */
+    private final Map<Contact, Long> proactiveTimer
+        = new HashMap<Contact, Long>();
+
+    /**
+     * Implements CallListener.callEnded. Stops sounds that are playing at
+     * the moment if there're any.
+     * @param event the <tt>CallEvent</tt>
+     */
+    public void callEnded(CallEvent event)
+    {
+        try
+        {
+            // Stop all telephony related sounds.
+//            stopAllTelephonySounds();
+            stopSound(callNotifications.get(event.getSourceCall()));
+
+            // Play the hangup sound.
+            fireNotification(HANG_UP);
+        }
+        catch(Throwable t)
+        {
+            logger.error("Error notifying for call ended", t);
+        }
+    }
+
+    /**
+     * Implements the <tt>CallChangeListener.callPeerAdded</tt> method.
+     * @param evt the <tt>CallPeerEvent</tt> that notifies us for the change
+     */
+    public void callPeerAdded(CallPeerEvent evt)
+    {
+        CallPeer peer = evt.getSourceCallPeer();
+
+        if(peer == null)
+            return;
+
+        peer.addCallPeerListener(this);
+        peer.addCallPeerSecurityListener(this);
+        peer.addCallPeerConferenceListener(this);
+    }
+
+    /**
+     * Implements the <tt>CallChangeListener.callPeerRemoved</tt> method.
+     * @param evt the <tt>CallPeerEvent</tt> that has been triggered
+     */
+    public void callPeerRemoved(CallPeerEvent evt)
+    {
+        CallPeer peer = evt.getSourceCallPeer();
+
+        if(peer == null)
+            return;
+
+        peer.removeCallPeerListener(this);
+        peer.removeCallPeerSecurityListener(this);
+        peer.addCallPeerConferenceListener(this);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Not used.
+     */
+    public void callStateChanged(CallChangeEvent ev) {}
+
+    /**
+     * {@inheritDoc}
+     *
+     * Not used.
+     */
+    public void conferenceFocusChanged(CallPeerConferenceEvent ev) {}
+
+    /**
+     * Indicates that the given conference member has been added to the given
+     * peer.
+     *
+     * @param conferenceEvent the event
+     */
+    public void conferenceMemberAdded(CallPeerConferenceEvent conferenceEvent)
+    {
+        try
+        {
+            CallPeer peer
+                = conferenceEvent
+                    .getConferenceMember()
+                        .getConferenceFocusCallPeer();
+
+            if(peer.getConferenceMemberCount() > 0)
+            {
+                CallPeerSecurityStatusEvent securityEvent
+                    = peer.getCurrentSecuritySettings();
+
+                if (securityEvent instanceof CallPeerSecurityOnEvent)
+                    fireNotification(CALL_SECURITY_ON);
+            }
+        }
+        catch(Throwable t)
+        {
+            if (t instanceof ThreadDeath)
+                throw (ThreadDeath) t;
+            else
+                logger.error("Error notifying for secured call member", t);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Not used.
+     */
+    public void conferenceMemberRemoved(CallPeerConferenceEvent ev) {}
+
+    /**
+     * {@inheritDoc}
+     *
+     * Not used.
+     */
+    public void fileTransferCreated(FileTransferCreatedEvent ev) {}
+
+    /**
+     * {@inheritDoc}
+     *
+     * Not used.
+     */
+    public void fileTransferRequestCanceled(FileTransferRequestEvent ev) {}
+
+    /**
+     * When a request has been received we show a notification.
+     *
+     * @param event <tt>FileTransferRequestEvent</tt>
+     * @see FileTransferListener#fileTransferRequestReceived(FileTransferRequestEvent)
+     */
+    public void fileTransferRequestReceived(FileTransferRequestEvent event)
+    {
+        try
+        {
+            IncomingFileTransferRequest request = event.getRequest();
+            Contact sourceContact = request.getSender();
+
+            //Fire notification
+            String title = NotificationWiringActivator.getResources().getI18NString(
+                "service.gui.FILE_RECEIVING_FROM",
+                new String[]{sourceContact.getDisplayName()});
+
+            fireChatNotification(
+                    sourceContact,
+                    INCOMING_FILE,
+                    title,
+                    request.getFileName());
+        }
+        catch(Throwable t)
+        {
+            logger.error("Error notifying for file transfer req received", t);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Not used.
+     */
+    public void fileTransferRequestRejected(FileTransferRequestEvent ev) {}
 
     /**
      * Adds all listeners related to the given protocol provider.
@@ -517,245 +835,105 @@ public class NotificationManager
     }
 
     /**
-     * Implements the <tt>ServiceListener</tt> method. Verifies whether the
-     * passed event concerns a <tt>ProtocolProviderService</tt> and adds the
-     * corresponding listeners.
+     * Implements CallListener.incomingCallReceived. When a call is received
+     * plays the ring phone sound to the user and gathers caller information
+     * that may be used by a user-specified command (incomingCall event
+     * trigger).
      *
-     * @param event The <tt>ServiceEvent</tt> object.
+     * @param ev the <tt>CallEvent</tt>
      */
-    public void serviceChanged(ServiceEvent event)
+    public void incomingCallReceived(CallEvent ev)
     {
-        ServiceReference serviceRef = event.getServiceReference();
-
-        // if the event is caused by a bundle being stopped, we don't want to
-        // know
-        if (serviceRef.getBundle().getState() == Bundle.STOPPING)
+        try
         {
-            return;
+            final Call call = ev.getSourceCall();
+            CallPeer peer = call.getCallPeers().next();
+            Map<String,String> peerInfo = new HashMap<String, String>();
+            String peerName = peer.getDisplayName();
+
+            peerInfo.put("caller.uri", peer.getURI());
+            peerInfo.put("caller.address", peer.getAddress());
+            peerInfo.put("caller.name", peerName);
+            peerInfo.put("caller.id", peer.getPeerID());
+
+            NotificationData notification
+                = fireNotification(
+                        INCOMING_CALL,
+                        "",
+                        NotificationWiringActivator.getResources()
+                                .getI18NString(
+                                        "service.gui.INCOMING_CALL",
+                                        new String[] { peerName }),
+                        peerInfo,
+                        new Callable<Boolean>()
+                        {
+                            public Boolean call()
+                            {
+                                /*
+                                 * INCOMING_CALL should be played for a Call
+                                 * only while there is a CallPeer in the
+                                 * INCOMING_CALL state.
+                                 */
+                                Iterator<? extends CallPeer> peerIter
+                                    = call.getCallPeers();
+                                boolean loop = false;
+
+                                while (peerIter.hasNext())
+                                {
+                                    CallPeer peer = peerIter.next();
+
+                                    if (CallPeerState.INCOMING_CALL.equals(
+                                            peer.getState()))
+                                    {
+                                        loop = true;
+                                        break;
+                                    }
+                                }
+                                return loop;
+                            }
+                        });
+
+            if (notification != null)
+                callNotifications.put(call, notification);
+
+            call.addCallChangeListener(this);
+
+            peer.addCallPeerListener(this);
+            peer.addCallPeerSecurityListener(this);
+            peer.addCallPeerConferenceListener(this);
         }
-
-        Object service =
-            NotificationWiringActivator.bundleContext.getService(serviceRef);
-
-        // we don't care if the source service is not a protocol provider
-        if (!(service instanceof ProtocolProviderService))
+        catch(Throwable t)
         {
-            return;
-        }
-
-        switch (event.getType())
-        {
-            case ServiceEvent.REGISTERED:
-                this.handleProviderAdded((ProtocolProviderService) service);
-                break;
-            case ServiceEvent.UNREGISTERING:
-                this.handleProviderRemoved((ProtocolProviderService) service);
-                break;
-        }
-    }
-
-    /**
-     * Fires a message notification for the given event type through the
-     * <tt>NotificationService</tt>.
-     *
-     * @param eventType the event type for which we fire a notification
-     * @param messageTitle the title of the message
-     * @param message the content of the message
-     * @return A reference to the fired notification to stop it.
-     */
-    public static NotificationData fireNotification(String eventType,
-                                        String messageTitle,
-                                        String message)
-    {
-        NotificationService notificationService
-            = NotificationWiringActivator.getNotificationService();
-
-        if(notificationService == null)
-            return null;
-
-        return notificationService.fireNotification(   eventType,
-                                                messageTitle,
-                                                message,
-                                                null,
-                                                null);
-    }
-
-    /**
-     * Fires a message notification for the given event type through the
-     * <tt>NotificationService</tt>.
-     *
-     * @param eventType the event type for which we fire a notification
-     * @param messageTitle the title of the message
-     * @param message the content of the message
-     * @param extra additional event data for external processing
-     * @return A reference to the fired notification to stop it.
-     */
-    public static NotificationData fireNotification(String eventType,
-                                        String messageTitle,
-                                        String message,
-                                        Map<String,String> extra)
-    {
-        NotificationService notificationService
-            = NotificationWiringActivator.getNotificationService();
-
-        if(notificationService == null)
-            return null;
-
-        return notificationService.fireNotification(eventType,
-                                                    messageTitle,
-                                                    message,
-                                                    extra,
-                                                    null,
-                                                    null);
-    }
-
-    /**
-     * Fires a chat message notification for the given event type through the
-     * <tt>NotificationService</tt>.
-     *
-     * @param chatContact the chat contact to which the chat message corresponds;
-     * the chat contact could be a Contact or a ChatRoom.
-     * @param eventType the event type for which we fire a notification
-     * @param messageTitle the title of the message
-     * @param message the content of the message
-     */
-    public static void fireChatNotification(Object chatContact,
-                                            String eventType,
-                                            String messageTitle,
-                                            String message)
-    {
-        NotificationService notificationService
-            = NotificationWiringActivator.getNotificationService();
-
-        if(notificationService == null)
-            return;
-
-        NotificationAction popupActionHandler = null;
-        UIService uiService = NotificationWiringActivator.getUIService();
-
-        Chat chatPanel = null;
-        byte[] contactIcon = null;
-        if (chatContact instanceof Contact)
-        {
-            Contact contact = (Contact) chatContact;
-
-            if(uiService != null)
-                chatPanel = uiService.getChat(contact);
-
-            contactIcon = contact.getImage();
-            if(contactIcon == null)
+            if (t instanceof ThreadDeath)
+                throw (ThreadDeath) t;
+            else
             {
-                contactIcon =
-                    ImageUtils.toByteArray(getImage(DEFAULT_USER_PHOTO));
+                logger.error(
+                        "An error occurred while trying to notify"
+                            + " about an incoming call",
+                        t);
             }
         }
-        else if (chatContact instanceof ChatRoom)
-        {
-            ChatRoom chatRoom = (ChatRoom) chatContact;
-
-            // For system rooms we don't want to send notification events.
-            if (chatRoom.isSystem())
-                return;
-
-            if(uiService != null)
-                chatPanel = uiService.getChat(chatRoom);
-        }
-
-        if (chatPanel != null)
-        {
-            if (eventType.equals(INCOMING_MESSAGE)
-                    && chatPanel.isChatFocused())
-            {
-                popupActionHandler = notificationService
-                        .getEventNotificationAction(eventType,
-                                NotificationAction.ACTION_POPUP_MESSAGE);
-
-                popupActionHandler.setEnabled(false);
-            }
-        }
-
-        notificationService.fireNotification(   eventType,
-                                                messageTitle,
-                                                message,
-                                                null,
-                                                contactIcon,
-                                                chatContact);
-
-        if(popupActionHandler != null)
-            popupActionHandler.setEnabled(true);
     }
 
     /**
-     * Fires a notification for the given event type through the
-     * <tt>NotificationService</tt>. The event type is one of the static
-     * constants defined in this class.
-     *
-     * @param eventType the event type for which we want to fire a notification
-     * @return A reference to the fired notification to stop it.
+     * Initialize, register default notifications and start listening for
+     * new protocols or removed one and find any that are already registered.
      */
-    public static NotificationData fireNotification(String eventType)
+    void init()
     {
-        NotificationService notificationService
-            = NotificationWiringActivator.getNotificationService();
+        registerDefaultNotifications();
 
-        if(notificationService == null)
-            return null;
+        // listens for new protocols
+        NotificationWiringActivator.bundleContext.addServiceListener(this);
 
-        return notificationService.fireNotification(eventType);
-    }
-
-    /**
-     * Stops all sounds for the given event type.
-     *
-     * @param data the event type for which we should stop sounds. One of
-     * the static event types defined in this class.
-     */
-    public static void stopSound(NotificationData data)
-    {
-        NotificationService notificationService
-            = NotificationWiringActivator.getNotificationService();
-
-        if(notificationService == null)
-            return;
-
-        notificationService.stopNotification(data);
-    }
-
-    /**
-     * Loads an image from a given image identifier.
-     *
-     * @param imageID The identifier of the image.
-     * @return The image for the given identifier.
-     */
-    public static BufferedImage getImage(ImageID imageID)
-    {
-        BufferedImage image = null;
-
-        if (loadedImages.containsKey(imageID))
+        // enumerate currently registered protocols
+        for(ProtocolProviderService pp : getProtocolProviders())
         {
-            image = loadedImages.get(imageID);
-        }
-        else
-        {
-            URL path = NotificationWiringActivator.getResources()
-                .getImageURL(imageID.getId());
-
-            if (path != null)
-            {
-                try
-                {
-                    image = ImageIO.read(path);
-
-                    loadedImages.put(imageID, image);
-                }
-                catch (Exception ex)
-                {
-                    logger.error("Failed to load image: " + path, ex);
-                }
-            }
+            handleProviderAdded(pp);
         }
 
-        return image;
+        NotificationWiringActivator.getMediaService().addRecorderListener(this);
     }
 
     /**
@@ -793,535 +971,146 @@ public class NotificationManager
     }
 
     /**
-     * Determines whether a specific <code>ChatRoom</code> is private i.e.
-     * represents a one-to-one conversation which is not a channel. Since the
-     * interface {@link ChatRoom} does not expose the private property, an
-     * heuristic is used as a workaround: (1) a system <code>ChatRoom</code> is
-     * obviously not private and (2) a <code>ChatRoom</code> is private if it
-     * has only one <code>ChatRoomMember</code> who is not the local user.
+     * Implements the
+     * <tt>LocalUserAdHocChatRoomPresenceListener.localUserPresenceChanged</tt>
+     * method
      *
-     * @param chatRoom
-     *            the <code>ChatRoom</code> to be determined as private or not
-     * @return <tt>true</tt> if the specified <code>ChatRoom</code> is private;
-     *         otherwise, <tt>false</tt>
+     * @param evt the <tt>LocalUserAdHocChatRoomPresenceChangeEvent</tt> that
+     * notified us of a presence change
      */
-    private static boolean isPrivate(ChatRoom chatRoom)
+    public void localUserAdHocPresenceChanged(
+                    LocalUserAdHocChatRoomPresenceChangeEvent evt)
     {
-        if (!chatRoom.isSystem()
-            && chatRoom.isJoined()
-            && (chatRoom.getMembersCount() == 1))
-        {
-            String nickname = chatRoom.getUserNickname();
+        String eventType = evt.getEventType();
 
-            if (nickname != null)
-            {
-                for (ChatRoomMember member : chatRoom.getMembers())
-                    if (nickname.equals(member.getName()))
-                        return false;
-                return true;
-            }
+        if (LocalUserAdHocChatRoomPresenceChangeEvent
+                .LOCAL_USER_JOINED.equals(eventType))
+        {
+            evt.getAdHocChatRoom().addMessageListener(this);
         }
-        return false;
+        else if (LocalUserAdHocChatRoomPresenceChangeEvent
+                        .LOCAL_USER_LEFT.equals(eventType)
+                    || LocalUserAdHocChatRoomPresenceChangeEvent
+                            .LOCAL_USER_DROPPED.equals(eventType))
+        {
+            evt.getAdHocChatRoom().removeMessageListener(this);
+        }
     }
 
     /**
-     *  Fired on new messages.
-     * @param evt the <tt>MessageReceivedEvent</tt> containing
-     * details on the received message
+     * Implements the
+     * <tt>LocalUserChatRoomPresenceListener.localUserPresenceChanged</tt>
+     * method.
+     * @param evt the <tt>LocalUserChatRoomPresenceChangeEvent</tt> that
+     * notified us
      */
-    public void messageReceived(MessageReceivedEvent evt)
+    public void localUserPresenceChanged(
+                    LocalUserChatRoomPresenceChangeEvent evt)
+    {
+        ChatRoom sourceChatRoom = evt.getChatRoom();
+        String eventType = evt.getEventType();
+
+        if (LocalUserChatRoomPresenceChangeEvent
+                .LOCAL_USER_JOINED.equals(eventType))
+        {
+            sourceChatRoom.addMessageListener(this);
+        }
+        else if (LocalUserChatRoomPresenceChangeEvent
+                        .LOCAL_USER_LEFT.equals(eventType)
+                    || LocalUserChatRoomPresenceChangeEvent
+                            .LOCAL_USER_KICKED.equals(eventType)
+                    || LocalUserChatRoomPresenceChangeEvent
+                            .LOCAL_USER_DROPPED.equals(eventType))
+        {
+            sourceChatRoom.removeMessageListener(this);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Not used.
+     */
+    public void messageDelivered(AdHocChatRoomMessageDeliveredEvent ev) {}
+
+    /**
+     * {@inheritDoc}
+     *
+     * Not used.
+     */
+    public void messageDelivered(ChatRoomMessageDeliveredEvent ev) {}
+
+    /**
+     * {@inheritDoc}
+     *
+     * Not used
+     */
+    public void messageDelivered(MessageDeliveredEvent ev) {}
+
+    /**
+     * {@inheritDoc}
+     *
+     * Not used.
+     */
+    public void messageDeliveryFailed(
+            AdHocChatRoomMessageDeliveryFailedEvent ev) {}
+
+    /**
+     * {@inheritDoc}
+     *
+     * Not used.
+     */
+    public void messageDeliveryFailed(ChatRoomMessageDeliveryFailedEvent ev) {}
+
+    /**
+     * {@inheritDoc}
+     *
+     * Not used.
+     */
+    public void messageDeliveryFailed(MessageDeliveryFailedEvent ev) {}
+
+    /**
+     * Implements the <tt>AdHocChatRoomMessageListener.messageReceived</tt>
+     * method.
+     * <br>
+     * @param evt the <tt>AdHocChatRoomMessageReceivedEvent</tt> that notified
+     * us
+     */
+    public void messageReceived(AdHocChatRoomMessageReceivedEvent evt)
     {
         try
         {
-            // Fire notification
-            String title = NotificationWiringActivator.getResources().getI18NString(
-                "service.gui.MSG_RECEIVED",
-                new String[]{evt.getSourceContact().getDisplayName()});
+            AdHocChatRoom sourceChatRoom = evt.getSourceChatRoom();
+            Contact sourceParticipant = evt.getSourceChatRoomParticipant();
 
-            fireChatNotification(
-                    evt.getSourceContact(),
+            // Fire notification
+            boolean fireChatNotification;
+
+            String nickname = sourceChatRoom.getName();
+            String messageContent = evt.getMessage().getContent();
+
+            fireChatNotification =
+                (nickname == null)
+                    || messageContent.toLowerCase().contains(
+                            nickname.toLowerCase());
+
+            if (fireChatNotification)
+            {
+                String title
+                    = NotificationWiringActivator.getResources().getI18NString(
+                            "service.gui.MSG_RECEIVED",
+                            new String[] { sourceParticipant.getDisplayName() });
+
+                fireChatNotification(
+                    sourceChatRoom,
                     INCOMING_MESSAGE,
                     title,
-                    evt.getSourceMessage().getContent());
-        }
-        catch(Throwable t)
-        {
-            logger.error("Error notifying for message received", t);
-        }
-    }
-
-    /**
-     * Fired when message is delivered.
-     * @param evt the <tt>MessageDeliveredEvent</tt> containing
-     * details on the delivered message
-     */
-    public void messageDelivered(MessageDeliveredEvent evt)
-    {}
-
-    /**
-     * Fired when message deliver fail.
-     * @param evt the <tt>MessageDeliveryFailedEvent</tt> containing
-     * details on the failed message
-     */
-    public void messageDeliveryFailed(MessageDeliveryFailedEvent evt)
-    {}
-
-    /**
-     * When a request has been received we show a notification.
-     *
-     * @param event <tt>FileTransferRequestEvent</tt>
-     * @see FileTransferListener#fileTransferRequestReceived(FileTransferRequestEvent)
-     */
-    public void fileTransferRequestReceived(FileTransferRequestEvent event)
-    {
-        try
-        {
-            IncomingFileTransferRequest request = event.getRequest();
-            Contact sourceContact = request.getSender();
-
-            //Fire notification
-            String title = NotificationWiringActivator.getResources().getI18NString(
-                "service.gui.FILE_RECEIVING_FROM",
-                new String[]{sourceContact.getDisplayName()});
-
-            fireChatNotification(
-                    sourceContact,
-                    INCOMING_FILE,
-                    title,
-                    request.getFileName());
-        }
-        catch(Throwable t)
-        {
-            logger.error("Error notifying for file transfer req received", t);
-        }
-    }
-
-    /**
-     * Nothing to do here, because we already know when a file transfer is
-     * created.
-     * @param event the <tt>FileTransferCreatedEvent</tt> that notified us
-     */
-    public void fileTransferCreated(FileTransferCreatedEvent event)
-    {}
-
-    /**
-     * Called when a new <tt>IncomingFileTransferRequest</tt> has been rejected.
-     * Nothing to do here, because we are the one who rejects the request.
-     *
-     * @param event the <tt>FileTransferRequestEvent</tt> containing the
-     * received request which was rejected.
-     */
-    public void fileTransferRequestRejected(FileTransferRequestEvent event)
-    {}
-
-    /**
-     * Called when an <tt>IncomingFileTransferRequest</tt> has been canceled
-     * from the contact who sent it.
-     *
-     * @param event the <tt>FileTransferRequestEvent</tt> containing the
-     * request which was canceled.
-     */
-    public void fileTransferRequestCanceled(FileTransferRequestEvent event)
-    {}
-
-    /**
-     * Informs the user what is the typing state of his chat contacts.
-     *
-     * @param event the event containing details on the typing notification
-     */
-    public void typingNotificationReceived(TypingNotificationEvent event)
-    {
-        try
-        {
-            Contact contact = event.getSourceContact();
-
-            // we don't care for proactive notifications, different than typing
-            // sometimes after closing chat we can see someone is typing us
-            // its just server sanding that the chat is inactive (STATE_STOPPED)
-            if(event.getTypingState()
-                != OperationSetTypingNotifications.STATE_TYPING)
-                return;
-
-            // check whether the current chat window shows the
-            // chat we received a typing info for and in such case don't show
-            // notifications
-            UIService uiService = NotificationWiringActivator.getUIService();
-
-            if(uiService != null)
-            {
-                Chat chat = uiService.getCurrentChat();
-                if(chat != null)
-                {
-                    MetaContact metaContact = uiService.getChatContact(chat);
-
-                    if(metaContact != null && metaContact.containsContact(contact)
-                        && chat.isChatFocused())
-                    {
-                        return;
-                    }
-                }
-            }
-
-            long currentTime = System.currentTimeMillis();
-
-            if (this.proactiveTimer.size() > 0)
-            {
-                // first remove contacts that have been here longer than the
-                // timeout to avoid memory leaks
-                Iterator<Map.Entry<Contact, Long>> entries
-                    = this.proactiveTimer.entrySet().iterator();
-                while (entries.hasNext())
-                {
-                    Map.Entry<Contact, Long> entry = entries.next();
-                    Long lastNotificationDate = entry.getValue();
-                    if (lastNotificationDate.longValue() + 30000 <  currentTime)
-                    {
-                        // The entry is outdated
-                        entries.remove();
-                    }
-                }
-
-                // Now, check if the contact is still in the map
-                if (this.proactiveTimer.containsKey(contact))
-                {
-                    // We already notified the others about this
-                    return;
-                }
-            }
-
-            this.proactiveTimer.put(contact, currentTime);
-
-            fireChatNotification(
-                contact,
-                PROACTIVE_NOTIFICATION,
-                contact.getDisplayName(),
-                NotificationWiringActivator.getResources()
-                    .getI18NString("service.gui.PROACTIVE_NOTIFICATION"));
-        }
-        catch(Throwable t)
-        {
-            logger.error("Error notifying for typing evt received", t);
-        }
-    }
-
-    /**
-     * Called to indicate that sending typing notification has failed.
-     *
-     * @param event a <tt>TypingNotificationEvent</tt> containing the sender
-     * of the notification and its type.
-     */
-    public void typingNotificationDeliveryFailed(TypingNotificationEvent event)
-    {}
-
-    /**
-     * Implements CallListener.incomingCallReceived. When a call is received
-     * plays the ring phone sound to the user and gathers caller information
-     * that may be used by a user-specified command (incomingCall event trigger).
-     * @param event the <tt>CallEvent</tt>
-     */
-    public void incomingCallReceived(CallEvent event)
-    {
-        try
-        {
-            Call call = event.getSourceCall();
-            CallPeer firstPeer = call.getCallPeers().next();
-            String peerName = firstPeer.getDisplayName();
-
-            Map<String,String> peerInfo = new HashMap<String, String>();
-            peerInfo.put("caller.uri", firstPeer.getURI());
-            peerInfo.put("caller.address", firstPeer.getAddress());
-            peerInfo.put("caller.name", firstPeer.getDisplayName());
-            peerInfo.put("caller.id", firstPeer.getPeerID());
-
-            callNotifications.put(event.getSourceCall(),
-                fireNotification(
-                    INCOMING_CALL,
-                    "",
-                    NotificationWiringActivator.getResources()
-                            .getI18NString("service.gui.INCOMING_CALL",
-                                    new String[]{peerName}),
-                    peerInfo));
-
-            call.addCallChangeListener(this);
-
-            if(call.getCallPeers().hasNext())
-            {
-                CallPeer peer = call.getCallPeers().next();
-                peer.addCallPeerListener(this);
-                peer.addCallPeerSecurityListener(this);
-                peer.addCallPeerConferenceListener(this);
+                    messageContent);
             }
         }
         catch(Throwable t)
         {
-            logger.error("Error notifying for incoming call received", t);
-        }
-    }
-
-    /**
-     * Do nothing. Implements CallListener.outGoingCallCreated.
-     * @param event the <tt>CallEvent</tt>
-     */
-    public void outgoingCallCreated(CallEvent event)
-    {
-        Call call = event.getSourceCall();
-        call.addCallChangeListener(this);
-
-        if(call.getCallPeers().hasNext())
-        {
-            CallPeer peer = call.getCallPeers().next();
-            peer.addCallPeerListener(this);
-            peer.addCallPeerSecurityListener(this);
-            peer.addCallPeerConferenceListener(this);
-        }
-    }
-
-    /**
-     * Implements CallListener.callEnded. Stops sounds that are playing at
-     * the moment if there're any.
-     * @param event the <tt>CallEvent</tt>
-     */
-    public void callEnded(CallEvent event)
-    {
-        try
-        {
-            // Stop all telephony related sounds.
-//            stopAllTelephonySounds();
-            stopSound(callNotifications.get(event.getSourceCall()));
-
-            // Play the hangup sound.
-            fireNotification(HANG_UP);
-        }
-        catch(Throwable t)
-        {
-            logger.error("Error notifying for call ended", t);
-        }
-    }
-
-    /**
-     * Implements the <tt>CallChangeListener.callPeerAdded</tt> method.
-     * @param evt the <tt>CallPeerEvent</tt> that notifies us for the change
-     */
-    public void callPeerAdded(CallPeerEvent evt)
-    {
-        CallPeer peer = evt.getSourceCallPeer();
-
-        if(peer == null)
-            return;
-
-        peer.addCallPeerListener(this);
-        peer.addCallPeerSecurityListener(this);
-        peer.addCallPeerConferenceListener(this);
-    }
-
-    /**
-     * Implements the <tt>CallChangeListener.callPeerRemoved</tt> method.
-     * @param evt the <tt>CallPeerEvent</tt> that has been triggered
-     */
-    public void callPeerRemoved(CallPeerEvent evt)
-    {
-        CallPeer peer = evt.getSourceCallPeer();
-
-        if(peer == null)
-            return;
-
-        peer.removeCallPeerListener(this);
-        peer.removeCallPeerSecurityListener(this);
-        peer.addCallPeerConferenceListener(this);
-    }
-
-    /**
-     * Call state changed.
-     * @param evt the <tt>CallChangeEvent</tt> instance containing the source
-     */
-    public void callStateChanged(CallChangeEvent evt)
-    {
-    }
-
-    /**
-     * Fired when peer's state is changed
-     *
-     * @param evt fired CallPeerEvent
-     */
-    public void peerStateChanged(CallPeerChangeEvent evt)
-    {
-        try
-        {
-            CallPeer sourcePeer = evt.getSourceCallPeer();
-            Call call = sourcePeer.getCall();
-            CallPeerState newState = (CallPeerState) evt.getNewValue();
-            CallPeerState oldState = (CallPeerState) evt.getOldValue();
-
-            // Play the dialing audio when in connecting and initiating call state.
-            // Stop the dialing audio when we enter any other state.
-            if (newState == CallPeerState.INITIATING_CALL
-                || newState == CallPeerState.CONNECTING)
-            {
-                callNotifications.put(call, fireNotification(DIALING));
-            }
-            else
-            {
-                stopSound(callNotifications.get(call));
-            }
-
-            if (newState == CallPeerState.ALERTING_REMOTE_SIDE
-                //if we were already in state CONNECTING_WITH_EARLY_MEDIA the server
-                //is already taking care of playing the notifications so we don't
-                //need to fire a notification here.
-                && oldState != CallPeerState.CONNECTING_WITH_EARLY_MEDIA)
-            {
-                callNotifications.put(call, fireNotification(OUTGOING_CALL));
-            }
-            else if (newState == CallPeerState.BUSY)
-            {
-                // We start the busy sound only if we're in a simple call.
-                if (!isConference(call))
-                {
-                    callNotifications.put(call, fireNotification(BUSY_CALL));
-                }
-            }
-            else if (newState == CallPeerState.DISCONNECTED
-                    || newState == CallPeerState.FAILED)
-            {
-                callNotifications.put(call, fireNotification(HANG_UP));
-            }
-        }
-        catch(Throwable t)
-        {
-            logger.error("Error notifying after peer state changed", t);
-        }
-    }
-
-    /**
-     * Fired when peer's display name is changed
-     *
-     * @param evt fired CallPeerEvent
-     */
-    public void peerDisplayNameChanged(CallPeerChangeEvent evt)
-    {}
-
-    /**
-     * Fired when peer's address is changed
-     *
-     * @param evt fired CallPeerEvent
-     */
-    public void peerAddressChanged(CallPeerChangeEvent evt)
-    {}
-
-    /**
-     * Fired when peer's transport is changed
-     *
-     * @param evt fired CallPeerEvent
-     */
-    public void peerTransportAddressChanged(CallPeerChangeEvent evt)
-    {}
-
-    /**
-     * Fired when peer's image is changed
-     *
-     * @param evt fired CallPeerEvent
-     */
-    public void peerImageChanged(CallPeerChangeEvent evt)
-    {}
-
-    /**
-     * When a <tt>securityOnEvent</tt> is received.
-     * @param evt the event we received
-     */
-    public void securityOn(CallPeerSecurityOnEvent evt)
-    {
-        try
-        {
-            CallPeer peer = (CallPeer) evt.getSource();
-
-            if((evt.getSecurityController().requiresSecureSignalingTransport()
-                && peer.getProtocolProvider().isSignalingTransportSecure())
-                || !evt.getSecurityController().requiresSecureSignalingTransport())
-            {
-                fireNotification(CALL_SECURITY_ON);
-            }
-        }
-        catch(Throwable t)
-        {
-            logger.error("Error for notify for security event", t);
-        }
-    }
-
-    /**
-     * Indicates the new state through the security indicator components.
-     * @param securityOffEvent the event we received
-     */
-    public void securityOff(CallPeerSecurityOffEvent securityOffEvent)
-    {}
-
-    /**
-     * The handler for the security event received. The security event
-     * represents a timeout trying to establish a secure connection.
-     * Most probably the other peer doesn't support it.
-     *
-     * @param securityTimeoutEvent
-     *            the security timeout event received
-     */
-    public void securityTimeout(
-        CallPeerSecurityTimeoutEvent securityTimeoutEvent)
-    {}
-
-    /**
-     * The handler for the security event received. The security event
-     * for starting establish a secure connection.
-     *
-     * @param securityNegotiationStartedEvent
-     *            the security started event received
-     */
-    public void securityNegotiationStarted(
-        CallPeerSecurityNegotiationStartedEvent securityNegotiationStartedEvent)
-    {}
-
-    /**
-     * Processes the received security message.
-     * @param event the event we received
-     */
-    public void securityMessageRecieved(CallPeerSecurityMessageEvent event)
-    {
-        try
-        {
-            int severity = event.getEventSeverity();
-
-            String messageTitle = null;
-
-            switch (severity)
-            {
-                // Don't play alert sound for Info or warning.
-                case CallPeerSecurityMessageEvent.INFORMATION:
-                {
-                    messageTitle = NotificationWiringActivator.getResources()
-                        .getI18NString("service.gui.SECURITY_INFO");
-                    break;
-                }
-                case CallPeerSecurityMessageEvent.WARNING:
-                {
-                    messageTitle = NotificationWiringActivator.getResources()
-                        .getI18NString("service.gui.SECURITY_WARNING");
-                    break;
-                }
-                // Alert sound indicates: security cannot established
-                case CallPeerSecurityMessageEvent.SEVERE:
-                case CallPeerSecurityMessageEvent.ERROR:
-                {
-                    messageTitle = NotificationWiringActivator.getResources()
-                        .getI18NString("service.gui.SECURITY_ERROR");
-                    fireNotification(CALL_SECURITY_ERROR);
-                }
-            }
-
-            fireNotification(
-                SECURITY_MESSAGE,
-                messageTitle,
-                event.getI18nMessage());
-        }
-        catch(Throwable t)
-        {
-            logger.error("Error notifying for security message received", t);
+            logger.error("Error notifying for adhoc message received", t);
         }
     }
 
@@ -1392,195 +1181,176 @@ public class NotificationManager
     }
 
     /**
-     * Implements the <tt>ChatRoomMessageListener.messageDelivered</tt> method.
-     * <br>
-     * @param evt the <tt>ChatRoomMessageDeliveredEvent</tt> that notified us
-     * that the message was delivered to its destination
+     *  Fired on new messages.
+     * @param evt the <tt>MessageReceivedEvent</tt> containing
+     * details on the received message
      */
-    public void messageDelivered(ChatRoomMessageDeliveredEvent evt)
-    {}
-
-    /**
-     * Implements the <tt>ChatRoomMessageListener.messageDeliveryFailed</tt>
-     * method.
-     * <br>
-     * @param evt the <tt>ChatRoomMessageDeliveryFailedEvent</tt> that notified
-     * us of a delivery failure
-     */
-    public void messageDeliveryFailed(ChatRoomMessageDeliveryFailedEvent evt)
-    {}
-
-    /**
-     * Implements the
-     * <tt>LocalUserChatRoomPresenceListener.localUserPresenceChanged</tt>
-     * method.
-     * @param evt the <tt>LocalUserChatRoomPresenceChangeEvent</tt> that
-     * notified us
-     */
-    public void localUserPresenceChanged(
-                    LocalUserChatRoomPresenceChangeEvent evt)
-    {
-        ChatRoom sourceChatRoom = evt.getChatRoom();
-        String eventType = evt.getEventType();
-
-        if (LocalUserChatRoomPresenceChangeEvent
-                .LOCAL_USER_JOINED.equals(eventType))
-        {
-            sourceChatRoom.addMessageListener(this);
-        }
-        else if (LocalUserChatRoomPresenceChangeEvent
-                        .LOCAL_USER_LEFT.equals(eventType)
-                    || LocalUserChatRoomPresenceChangeEvent
-                            .LOCAL_USER_KICKED.equals(eventType)
-                    || LocalUserChatRoomPresenceChangeEvent
-                            .LOCAL_USER_DROPPED.equals(eventType))
-        {
-            sourceChatRoom.removeMessageListener(this);
-        }
-    }
-
-    /**
-     * Implements the
-     * <tt>LocalUserAdHocChatRoomPresenceListener.localUserPresenceChanged</tt>
-     * method
-     *
-     * @param evt the <tt>LocalUserAdHocChatRoomPresenceChangeEvent</tt> that
-     * notified us of a presence change
-     */
-    public void localUserAdHocPresenceChanged(
-                    LocalUserAdHocChatRoomPresenceChangeEvent evt)
-    {
-        String eventType = evt.getEventType();
-
-        if (LocalUserAdHocChatRoomPresenceChangeEvent
-                .LOCAL_USER_JOINED.equals(eventType))
-        {
-            evt.getAdHocChatRoom().addMessageListener(this);
-        }
-        else if (LocalUserAdHocChatRoomPresenceChangeEvent
-                        .LOCAL_USER_LEFT.equals(eventType)
-                    || LocalUserAdHocChatRoomPresenceChangeEvent
-                            .LOCAL_USER_DROPPED.equals(eventType))
-        {
-            evt.getAdHocChatRoom().removeMessageListener(this);
-        }
-    }
-
-    /**
-     * Implements the <tt>AdHocChatRoomMessageListener.messageReceived</tt>
-     * method.
-     * <br>
-     * @param evt the <tt>AdHocChatRoomMessageReceivedEvent</tt> that notified
-     * us
-     */
-    public void messageReceived(AdHocChatRoomMessageReceivedEvent evt)
+    public void messageReceived(MessageReceivedEvent evt)
     {
         try
         {
-            AdHocChatRoom sourceChatRoom = evt.getSourceChatRoom();
-            Contact sourceParticipant = evt.getSourceChatRoomParticipant();
-
             // Fire notification
-            boolean fireChatNotification;
+            String title = NotificationWiringActivator.getResources().getI18NString(
+                "service.gui.MSG_RECEIVED",
+                new String[]{evt.getSourceContact().getDisplayName()});
 
-            String nickname = sourceChatRoom.getName();
-            String messageContent = evt.getMessage().getContent();
-
-            fireChatNotification =
-                (nickname == null)
-                    || messageContent.toLowerCase().contains(
-                            nickname.toLowerCase());
-
-            if (fireChatNotification)
-            {
-                String title
-                    = NotificationWiringActivator.getResources().getI18NString(
-                            "service.gui.MSG_RECEIVED",
-                            new String[] { sourceParticipant.getDisplayName() });
-
-                fireChatNotification(
-                    sourceChatRoom,
+            fireChatNotification(
+                    evt.getSourceContact(),
                     INCOMING_MESSAGE,
                     title,
-                    messageContent);
-            }
+                    evt.getSourceMessage().getContent());
         }
         catch(Throwable t)
         {
-            logger.error("Error notifying for adhoc message received", t);
+            logger.error("Error notifying for message received", t);
         }
     }
 
     /**
-     * Implements the <tt>ChatRoomMessageListener.messageDelivered</tt> method.
-     * <br>
-     * @param evt the <tt>ChatRoomMessageDeliveredEvent</tt> that notified us
-     * that the message was delivered to its destination
+     * Do nothing. Implements CallListener.outGoingCallCreated.
+     * @param event the <tt>CallEvent</tt>
      */
-    public void messageDelivered(AdHocChatRoomMessageDeliveredEvent evt)
-    {}
+    public void outgoingCallCreated(CallEvent event)
+    {
+        Call call = event.getSourceCall();
+        call.addCallChangeListener(this);
+
+        if(call.getCallPeers().hasNext())
+        {
+            CallPeer peer = call.getCallPeers().next();
+            peer.addCallPeerListener(this);
+            peer.addCallPeerSecurityListener(this);
+            peer.addCallPeerConferenceListener(this);
+        }
+    }
 
     /**
-     * Implements <tt>AdHocChatRoomMessageListener.messageDeliveryFailed</tt>
-     * method.
-     * <br>
-     * In the conversation area shows an error message, explaining the problem.
-     * @param evt the <tt>AdHocChatRoomMessageDeliveryFailedEvent</tt> that
-     * notified us
-     */
-    public void messageDeliveryFailed(AdHocChatRoomMessageDeliveryFailedEvent evt)
-    {}
-
-    /**
-     * Call peer has changed.
-     * @param conferenceEvent
-     *            a <tt>CallPeerConferenceEvent</tt> with ID
-     *            <tt>CallPeerConferenceEvent#CONFERENCE_FOCUS_CHANGED</tt>
-     */
-    public void conferenceFocusChanged(CallPeerConferenceEvent conferenceEvent)
-    {}
-
-    /**
-     * Indicates that the given conference member has been added to the given
-     * peer.
+     * {@inheritDoc}
      *
-     * @param conferenceEvent the event
+     * Not used.
      */
-    public void conferenceMemberAdded(CallPeerConferenceEvent conferenceEvent)
+    public void peerAddressChanged(CallPeerChangeEvent ev) {}
+
+    /**
+     * {@inheritDoc}
+     *
+     * Not used.
+     */
+    public void peerDisplayNameChanged(CallPeerChangeEvent ev) {}
+
+    /**
+     * {@inheritDoc}
+     *
+     * Not used.
+     */
+    public void peerImageChanged(CallPeerChangeEvent ev) {}
+
+    /**
+     * Fired when peer's state is changed
+     *
+     * @param ev fired CallPeerEvent
+     */
+    public void peerStateChanged(CallPeerChangeEvent ev)
     {
         try
         {
-            CallPeer peer
-                = conferenceEvent
-                    .getConferenceMember()
-                        .getConferenceFocusCallPeer();
+            final CallPeer peer = ev.getSourceCallPeer();
+            Call call = peer.getCall();
+            CallPeerState newState = (CallPeerState) ev.getNewValue();
+            CallPeerState oldState = (CallPeerState) ev.getOldValue();
 
-            if(peer.getConferenceMemberCount() > 0)
+            // Play the dialing audio when in connecting and initiating call state.
+            // Stop the dialing audio when we enter any other state.
+            if ((newState == CallPeerState.INITIATING_CALL)
+                    || (newState == CallPeerState.CONNECTING))
             {
-                CallPeerSecurityStatusEvent securityEvent
-                    = peer.getCurrentSecuritySettings();
+                NotificationData notification
+                    = fireNotification(
+                            DIALING,
+                            new Callable<Boolean>()
+                            {
+                                public Boolean call()
+                                {
+                                    CallPeerState state = peer.getState();
 
-                if (securityEvent instanceof CallPeerSecurityOnEvent)
-                    fireNotification(CALL_SECURITY_ON);
+                                    return
+                                        CallPeerState.INITIATING_CALL.equals(
+                                                state)
+                                            || CallPeerState.CONNECTING.equals(
+                                                    state);
+                                }
+                            });
+
+                if (notification != null)
+                    callNotifications.put(call, notification);
+            }
+            else
+            {
+                stopSound(callNotifications.get(call));
+            }
+
+            if (newState == CallPeerState.ALERTING_REMOTE_SIDE
+                //if we were already in state CONNECTING_WITH_EARLY_MEDIA the server
+                //is already taking care of playing the notifications so we don't
+                //need to fire a notification here.
+                && oldState != CallPeerState.CONNECTING_WITH_EARLY_MEDIA)
+            {
+                NotificationData notification
+                    = fireNotification(
+                            OUTGOING_CALL,
+                            new Callable<Boolean>()
+                            {
+                                public Boolean call()
+                                {
+                                    return
+                                        CallPeerState.ALERTING_REMOTE_SIDE
+                                                .equals(peer.getState());
+                                }
+                            });
+
+                if (notification != null)
+                    callNotifications.put(call, notification);
+            }
+            else if (newState == CallPeerState.BUSY)
+            {
+                // We start the busy sound only if we're in a simple call.
+                if (!isConference(call))
+                {
+                    NotificationData notification
+                        = fireNotification(
+                                BUSY_CALL,
+                                new Callable<Boolean>()
+                                {
+                                    public Boolean call()
+                                    {
+                                        return
+                                            CallPeerState.BUSY.equals(
+                                                    peer.getState());
+                                    }
+                                });
+
+                    if (notification != null)
+                        callNotifications.put(call, notification);
+                }
+            }
+            else if ((newState == CallPeerState.DISCONNECTED)
+                    || (newState == CallPeerState.FAILED))
+            {
+                fireNotification(HANG_UP);
             }
         }
         catch(Throwable t)
         {
-            if (t instanceof ThreadDeath)
-                throw (ThreadDeath) t;
-            else
-                logger.error("Error notifying for secured call member", t);
+            logger.error("Error notifying after peer state changed", t);
         }
     }
 
     /**
-     * Indicates that the given conference member has been removed from the
-     * given peer.
+     * {@inheritDoc}
      *
-     * @param conferenceEvent the event
+     * Not used.
      */
-    public void conferenceMemberRemoved(CallPeerConferenceEvent conferenceEvent)
-    {}
+    public void peerTransportAddressChanged(CallPeerChangeEvent ev) {}
 
     /**
      * Notifies that a specific <tt>Recorder</tt> has
@@ -1593,17 +1363,396 @@ public class NotificationManager
     {
         try
         {
+            ResourceManagementService resources
+                = NotificationWiringActivator.getResources();
+
             fireNotification(
                     CALL_SAVED,
-                    NotificationWiringActivator.getResources().getI18NString(
+                    resources.getI18NString(
                             "plugin.callrecordingconfig.CALL_SAVED"),
-                    NotificationWiringActivator.getResources().getI18NString(
+                    resources.getI18NString(
                             "plugin.callrecordingconfig.CALL_SAVED_TO",
                             new String[] { recorder.getFilename() }));
         }
         catch(Throwable t)
         {
-            logger.error("Error notifying for recorder stopped", t);
+            if (t instanceof ThreadDeath)
+                throw (ThreadDeath) t;
+            else
+            {
+                logger.error(
+                        "An error occurred while trying to notify that"
+                            + " the recording of a call has stopped.",
+                        t);
+            }
+        }
+    }
+
+    /**
+     * Register all default notifications.
+     */
+    private void registerDefaultNotifications()
+    {
+        NotificationService notificationService
+            = NotificationWiringActivator.getNotificationService();
+
+        if(notificationService == null)
+            return;
+
+        // Register incoming message notifications.
+        notificationService.registerDefaultNotificationForEvent(
+                INCOMING_MESSAGE,
+                NotificationAction.ACTION_POPUP_MESSAGE,
+                null,
+                null);
+
+        notificationService.registerDefaultNotificationForEvent(
+                INCOMING_MESSAGE,
+                new SoundNotificationAction(
+                    SoundProperties.INCOMING_MESSAGE, -1, true, false, false));
+
+        // Register incoming call notifications.
+        notificationService.registerDefaultNotificationForEvent(
+                INCOMING_CALL,
+                NotificationAction.ACTION_POPUP_MESSAGE,
+                null,
+                null);
+
+        SoundNotificationAction inCallSoundHandler
+            = new SoundNotificationAction(
+                    SoundProperties.INCOMING_CALL, 2000, true, true, true);
+
+        notificationService.registerDefaultNotificationForEvent(
+                INCOMING_CALL,
+                inCallSoundHandler);
+
+        // Register outgoing call notifications.
+        SoundNotificationAction outCallSoundHandler
+            = new SoundNotificationAction(
+                    SoundProperties.OUTGOING_CALL, 3000, false, true, false);
+
+        notificationService.registerDefaultNotificationForEvent(
+                OUTGOING_CALL,
+                outCallSoundHandler);
+
+        // Register busy call notifications.
+        notificationService.registerDefaultNotificationForEvent(
+                BUSY_CALL,
+                new SoundNotificationAction(
+                        SoundProperties.BUSY,
+                        1,
+                        false, true, false));
+
+        // Register dial notifications.
+        SoundNotificationAction dialSoundHandler
+            = new SoundNotificationAction(
+                    SoundProperties.DIALING, -1, false, true, false);
+
+        notificationService.registerDefaultNotificationForEvent(
+                DIALING,
+                dialSoundHandler);
+
+        // Register the hangup sound notification.
+        notificationService.registerDefaultNotificationForEvent(
+                HANG_UP,
+                new SoundNotificationAction(
+                        SoundProperties.HANG_UP,
+                        -1,
+                        false, true, false));
+
+        // Register proactive notifications.
+        notificationService.registerDefaultNotificationForEvent(
+                PROACTIVE_NOTIFICATION,
+                NotificationAction.ACTION_POPUP_MESSAGE,
+                null,
+                null);
+
+        // Register warning message notifications.
+        notificationService.registerDefaultNotificationForEvent(
+                SECURITY_MESSAGE,
+                NotificationAction.ACTION_POPUP_MESSAGE,
+                null,
+                null);
+
+        // Register sound notification for security state on during a call.
+        notificationService.registerDefaultNotificationForEvent(
+                CALL_SECURITY_ON,
+                new SoundNotificationAction(
+                        SoundProperties.CALL_SECURITY_ON, -1,
+                        false, true, false));
+
+        // Register sound notification for security state off during a call.
+        notificationService.registerDefaultNotificationForEvent(
+                CALL_SECURITY_ERROR,
+                new SoundNotificationAction(
+                        SoundProperties.CALL_SECURITY_ERROR, -1,
+                        false, true, false));
+
+        // Register sound notification for incoming files.
+        notificationService.registerDefaultNotificationForEvent(
+                INCOMING_FILE,
+                NotificationAction.ACTION_POPUP_MESSAGE,
+                null,
+                null);
+
+        notificationService.registerDefaultNotificationForEvent(
+                INCOMING_FILE,
+                new SoundNotificationAction(
+                        SoundProperties.INCOMING_FILE, -1,
+                        true, false, false));
+
+        // Register notification for saved calls.
+        notificationService.registerDefaultNotificationForEvent(
+            CALL_SAVED,
+            NotificationAction.ACTION_POPUP_MESSAGE,
+            null,
+            null);
+    }
+
+    /**
+     * Processes the received security message.
+     * @param ev the event we received
+     */
+    public void securityMessageRecieved(CallPeerSecurityMessageEvent ev)
+    {
+        try
+        {
+            String messageTitleKey;
+
+            switch (ev.getEventSeverity())
+            {
+            // Don't play alert sound for Info or warning.
+            case CallPeerSecurityMessageEvent.INFORMATION:
+                messageTitleKey = "service.gui.SECURITY_INFO";
+                break;
+
+            case CallPeerSecurityMessageEvent.WARNING:
+                messageTitleKey = "service.gui.SECURITY_WARNING";
+                break;
+
+            // Security cannot be established! Play an alert sound.
+            case CallPeerSecurityMessageEvent.SEVERE:
+            case CallPeerSecurityMessageEvent.ERROR:
+                messageTitleKey = "service.gui.SECURITY_ERROR";
+                fireNotification(CALL_SECURITY_ERROR);
+                break;
+
+            default:
+                /*
+                 * Whatever other severity there is or will be, we do not how to
+                 * react to it yet.
+                 */
+                messageTitleKey = null;
+            }
+
+            if (messageTitleKey != null)
+            {
+                fireNotification(
+                        SECURITY_MESSAGE,
+                        NotificationWiringActivator.getResources()
+                                .getI18NString(messageTitleKey),
+                        ev.getI18nMessage());
+            }
+        }
+        catch(Throwable t)
+        {
+            if (t instanceof ThreadDeath)
+                throw (ThreadDeath) t;
+            else
+            {
+                logger.error(
+                        "An error occurred while trying to notify"
+                            + " about a security message",
+                        t);
+            }
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Not used.
+     */
+    public void securityNegotiationStarted(
+            CallPeerSecurityNegotiationStartedEvent ev) {}
+
+    /**
+     * {@inheritDoc}
+     *
+     * Not used.
+     */
+    public void securityOff(CallPeerSecurityOffEvent ev) {}
+
+    /**
+     * When a <tt>securityOnEvent</tt> is received.
+     * @param ev the event we received
+     */
+    public void securityOn(CallPeerSecurityOnEvent ev)
+    {
+        try
+        {
+            SrtpControl securityController = ev.getSecurityController();
+            CallPeer peer = (CallPeer) ev.getSource();
+
+            if(!securityController.requiresSecureSignalingTransport()
+                    || peer.getProtocolProvider().isSignalingTransportSecure())
+            {
+                fireNotification(CALL_SECURITY_ON);
+            }
+        }
+        catch(Throwable t)
+        {
+            if (t instanceof ThreadDeath)
+                throw (ThreadDeath) t;
+            else
+            {
+                logger.error(
+                        "An error occurred while trying to notify"
+                            + " about a security-related event",
+                        t);
+            }
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Not used.
+     */
+    public void securityTimeout(CallPeerSecurityTimeoutEvent ev) {}
+
+    /**
+     * Implements the <tt>ServiceListener</tt> method. Verifies whether the
+     * passed event concerns a <tt>ProtocolProviderService</tt> and adds the
+     * corresponding listeners.
+     *
+     * @param event The <tt>ServiceEvent</tt> object.
+     */
+    public void serviceChanged(ServiceEvent event)
+    {
+        ServiceReference serviceRef = event.getServiceReference();
+
+        // if the event is caused by a bundle being stopped, we don't want to
+        // know
+        if (serviceRef.getBundle().getState() == Bundle.STOPPING)
+            return;
+
+        Object service
+            = NotificationWiringActivator.bundleContext.getService(serviceRef);
+
+        // we don't care if the source service is not a protocol provider
+        if (service instanceof ProtocolProviderService)
+        {
+            switch (event.getType())
+            {
+                case ServiceEvent.REGISTERED:
+                    handleProviderAdded((ProtocolProviderService) service);
+                    break;
+                case ServiceEvent.UNREGISTERING:
+                    handleProviderRemoved((ProtocolProviderService) service);
+                    break;
+            }
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Not used.
+     */
+    public void typingNotificationDeliveryFailed(TypingNotificationEvent ev) {}
+
+    /**
+     * Informs the user what is the typing state of his chat contacts.
+     *
+     * @param ev the event containing details on the typing notification
+     */
+    public void typingNotificationReceived(TypingNotificationEvent ev)
+    {
+        try
+        {
+            Contact contact = ev.getSourceContact();
+
+            // we don't care for proactive notifications, different than typing
+            // sometimes after closing chat we can see someone is typing us
+            // its just server sanding that the chat is inactive (STATE_STOPPED)
+            if(ev.getTypingState()
+                    != OperationSetTypingNotifications.STATE_TYPING)
+            {
+                return;
+            }
+
+            // check whether the current chat window shows the
+            // chat we received a typing info for and in such case don't show
+            // notifications
+            UIService uiService = NotificationWiringActivator.getUIService();
+
+            if(uiService != null)
+            {
+                Chat chat = uiService.getCurrentChat();
+
+                if(chat != null)
+                {
+                    MetaContact metaContact = uiService.getChatContact(chat);
+
+                    if((metaContact != null)
+                            && metaContact.containsContact(contact)
+                            && chat.isChatFocused())
+                    {
+                        return;
+                    }
+                }
+            }
+
+            long currentTime = System.currentTimeMillis();
+
+            if (proactiveTimer.size() > 0)
+            {
+                // first remove contacts that have been here longer than the
+                // timeout to avoid memory leaks
+                Iterator<Map.Entry<Contact, Long>> entries
+                    = proactiveTimer.entrySet().iterator();
+
+                while (entries.hasNext())
+                {
+                    Map.Entry<Contact, Long> entry = entries.next();
+                    Long lastNotificationDate = entry.getValue();
+
+                    if (lastNotificationDate.longValue() + 30000 <  currentTime)
+                    {
+                        // The entry is outdated
+                        entries.remove();
+                    }
+                }
+
+                // Now, check if the contact is still in the map
+                if (proactiveTimer.containsKey(contact))
+                {
+                    // We already notified the others about this
+                    return;
+                }
+            }
+
+            proactiveTimer.put(contact, currentTime);
+
+            fireChatNotification(
+                    contact,
+                    PROACTIVE_NOTIFICATION,
+                    contact.getDisplayName(),
+                    NotificationWiringActivator.getResources().getI18NString(
+                            "service.gui.PROACTIVE_NOTIFICATION"));
+        }
+        catch(Throwable t)
+        {
+            if (t instanceof ThreadDeath)
+                throw (ThreadDeath) t;
+            else
+            {
+                logger.error(
+                        "An error occurred while handling"
+                            + " a typing notification.",
+                        t);
+            }
         }
     }
 }

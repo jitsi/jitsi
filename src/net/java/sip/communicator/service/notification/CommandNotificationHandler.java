@@ -19,10 +19,12 @@ public interface CommandNotificationHandler
 {
     /**
      * Executes the program pointed by the descriptor.
+     *
      * @param action the action to act upon
      * @param cmdargs arguments that are passed to the command line specified
      * in the action
      */
-    public void execute(CommandNotificationAction action,
-        Map<String,String> cmdargs);
+    public void execute(
+            CommandNotificationAction action,
+            Map<String,String> cmdargs);
 }

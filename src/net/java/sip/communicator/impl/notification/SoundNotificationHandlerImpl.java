@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.notification;
 
 import java.awt.*;
 import java.util.*;
+import java.util.concurrent.*;
 
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.notification.*;
@@ -23,13 +24,15 @@ import org.jitsi.util.*;
 public class SoundNotificationHandlerImpl
     implements SoundNotificationHandler
 {
-    WeakHashMap<SCAudioClip, NotificationData> playedClips =
-        new WeakHashMap<SCAudioClip, NotificationData>();
-
     /**
-     * If the sound is currently disabled.
+     * The indicator which determines whether this
+     * <tt>SoundNotificationHandler</tt> is currently muted i.e. the sounds are
+     * off.
      */
-    private boolean isMute;
+    private boolean mute;
+
+    private Map<SCAudioClip, NotificationData> playedClips
+        = new WeakHashMap<SCAudioClip, NotificationData>();
 
     /**
      * {@inheritDoc}
@@ -40,55 +43,13 @@ public class SoundNotificationHandlerImpl
     }
 
     /**
-     * Plays the sound given by the containing <tt>soundFileDescriptor</tt>. The
-     * sound is played in loop if the loopInterval is defined.
-     * @param action The action to act upon.
-     * @param data Additional data for the event.
+     * Specifies if currently the sound is off.
+     *
+     * @return TRUE if currently the sound is off, FALSE otherwise
      */
-    public void start(SoundNotificationAction action, NotificationData data)
+    public boolean isMute()
     {
-        if(isMute())
-            return;
-
-        boolean playOnlyOnPlayback = true;
-
-        AudioNotifierService audioNotifService
-                    = NotificationActivator.getAudioNotifier();
-        if(audioNotifService != null)
-            playOnlyOnPlayback =
-                audioNotifService.audioOutAndNotificationsShareSameDevice();
-
-        if(playOnlyOnPlayback)
-        {
-            if(action.isSoundNotificationEnabled()
-                || action.isSoundPlaybackEnabled())
-            {
-                play(action, data, true);
-            }
-        }
-        else
-        {
-            if(action.isSoundNotificationEnabled())
-            {
-                play(action, data, false);
-            }
-
-            if(action.isSoundPlaybackEnabled())
-            {
-                play(action, data, true);
-            }
-        }
-
-        if(action.isSoundPCSpeakerEnabled())
-        {
-            PCSpeakerClip audio = new PCSpeakerClip();
-            playedClips.put(audio, data);
-
-            if(action.getLoopInterval() > -1)
-                audio.playInLoop(action.getLoopInterval());
-            else
-                audio.play();
-        }
+        return mute;
     }
 
     /**
@@ -96,16 +57,18 @@ public class SoundNotificationHandlerImpl
      * sound is played in loop if the loopInterval is defined.
      * @param action The action to act upon.
      * @param data Additional data for the event.
-     * @param playback to use or not the playback or notification device.
+     * @param device
      */
-    private void play(SoundNotificationAction action, NotificationData data,
-                      boolean playback)
+    private void play(
+            SoundNotificationAction action,
+            NotificationData data,
+            SCAudioClipDevice device)
     {
         AudioNotifierService audioNotifService
             = NotificationActivator.getAudioNotifier();
 
-        if(audioNotifService == null
-            || StringUtils.isNullOrEmpty(action.getDescriptor(), true))
+        if((audioNotifService == null)
+                || StringUtils.isNullOrEmpty(action.getDescriptor(), true))
             return;
 
         // this is hack, seen on some os (particularly seen on macosx with
@@ -113,51 +76,42 @@ public class SoundNotificationHandlerImpl
         // when playing notification in the call, can break the call and
         // no further communicating can be done after the notification.
         // So we skip playing notification if we have a call running
-        if(playback)
+        if(SCAudioClipDevice.PLAYBACK.equals(device))
         {
             UIService uiService = NotificationActivator.getUIService();
+
             if(uiService.getInProgressCalls().size() > 0)
-            {
                 return;
-            }
         }
 
-        SCAudioClip audio = audioNotifService
-            .createAudio(action.getDescriptor(), playback);
+        SCAudioClip audio = null;
+
+        switch (device)
+        {
+        case NOTIFICATION:
+        case PLAYBACK:
+            audio = audioNotifService.createAudio(action.getDescriptor(), SCAudioClipDevice.PLAYBACK.equals(device));
+            break;
+
+        case PC_SPEAKER:
+            audio = new PCSpeakerClip();
+            break;
+        }
 
         // it is possible that audio cannot be created
         if(audio == null)
             return;
 
         playedClips.put(audio, data);
-        if(action.getLoopInterval() > -1)
-            audio.playInLoop(action.getLoopInterval());
-        else
-            audio.play();
-    }
 
-    /**
-     * Stops the sound.
-     * @param data Additional data for the event.
-     */
-    public void stop(NotificationData data)
-    {
-        AudioNotifierService audioNotifService
-            = NotificationActivator.getAudioNotifier();
+        @SuppressWarnings("unchecked")
+        Callable<Boolean> loopCondition
+            = (Callable<Boolean>)
+                data.getExtra(
+                        NotificationData
+                            .SOUND_NOTIFICATION_HANDLER_LOOP_CONDITION_EXTRA);
 
-        if(audioNotifService == null)
-            return;
-
-        for (Map.Entry<SCAudioClip, NotificationData> entry : playedClips
-            .entrySet())
-        {
-            if(entry.getValue() == data)
-            {
-                SCAudioClip audio = entry.getKey();
-                audio.stop();
-                audioNotifService.destroyAudio(audio);
-            }
-        }
+        audio.play(action.getLoopInterval(), loopCondition);
     }
 
     /**
@@ -167,7 +121,7 @@ public class SoundNotificationHandlerImpl
      */
     public void setMute(boolean isMute)
     {
-        this.isMute = isMute;
+        this.mute = isMute;
 
         if(isMute)
         {
@@ -189,182 +143,117 @@ public class SoundNotificationHandlerImpl
     }
 
     /**
-     * Specifies if currently the sound is off.
-     *
-     * @return TRUE if currently the sound is off, FALSE otherwise
+     * Plays the sound given by the containing <tt>soundFileDescriptor</tt>. The
+     * sound is played in loop if the loopInterval is defined.
+     * @param action The action to act upon.
+     * @param data Additional data for the event.
      */
-    public boolean isMute()
+    public void start(SoundNotificationAction action, NotificationData data)
     {
-        return isMute;
+        if(isMute())
+            return;
+
+        boolean playOnlyOnPlayback = true;
+
+        AudioNotifierService audioNotifService
+            = NotificationActivator.getAudioNotifier();
+
+        if(audioNotifService != null)
+        {
+            playOnlyOnPlayback
+                = audioNotifService.audioOutAndNotificationsShareSameDevice();
+        }
+
+        if(playOnlyOnPlayback)
+        {
+            if(action.isSoundNotificationEnabled()
+                    || action.isSoundPlaybackEnabled())
+            {
+                play(action, data, SCAudioClipDevice.PLAYBACK);
+            }
+        }
+        else
+        {
+            if(action.isSoundNotificationEnabled())
+                play(action, data, SCAudioClipDevice.NOTIFICATION);
+            if(action.isSoundPlaybackEnabled())
+                play(action, data, SCAudioClipDevice.PLAYBACK);
+        }
+
+        if(action.isSoundPCSpeakerEnabled())
+            play(action, data, SCAudioClipDevice.PC_SPEAKER);
     }
 
     /**
-     * Plays beep on the pc speaker.
+     * Stops the sound.
+     * @param data Additional data for the event.
      */
-    private class PCSpeakerClip
-        implements SCAudioClip
+    public void stop(NotificationData data)
+    {
+        AudioNotifierService audioNotifService
+            = NotificationActivator.getAudioNotifier();
+
+        if(audioNotifService == null)
+            return;
+
+        for (Map.Entry<SCAudioClip, NotificationData> entry
+                : playedClips.entrySet())
+        {
+            if(entry.getValue() == data)
+            {
+                SCAudioClip audio = entry.getKey();
+
+                audio.stop();
+                audioNotifService.destroyAudio(audio);
+            }
+        }
+    }
+
+    /**
+     * Beeps the PC speaker.
+     */
+    private static class PCSpeakerClip
+        extends AbstractSCAudioClip
     {
         /**
-         * Synching start/stop.
+         * Initializes a new <tt>PCSpeakerClip</tt> instance.
          */
-        private final Object syncObject = new Object();
-
-        /**
-         * Is beep started.
-         */
-        private boolean started = false;
-
-        /**
-         * Is looping.
-         */
-        private boolean isLooping;
-
-        /**
-         * The interval to loop.
-         */
-        private int loopInterval;
-
-        /**
-         * Plays this audio.
-         */
-        public void play()
+        public PCSpeakerClip()
         {
-            started = true;
-            new Thread("Playing beep:" + this.getClass())
-                    {
-                        @Override
-                        public void run()
-                        {
-                            runInPlayThread();
-                        }
-                    }.start();
+            super(null, NotificationActivator.getAudioNotifier());
         }
 
         /**
-         * Plays this audio in loop.
+         * Beeps the PC speaker.
          *
-         * @param silenceInterval interval between loops
+         * @return <tt>true</tt> if the playback was successful; otherwise,
+         * <tt>false</tt>
          */
-        public void playInLoop(int silenceInterval)
-        {
-            setLoopInterval(silenceInterval);
-            setIsLooping(true);
-
-            play();
-        }
-
-        /**
-         * Stops this audio.
-         */
-        public void stop()
-        {
-            internalStop();
-            setIsLooping(false);
-        }
-
-        /**
-         * Stops this audio without setting the isLooping property in the case of
-         * a looping audio.
-         */
-        public void internalStop()
-        {
-            synchronized (syncObject)
-            {
-                if (started)
-                {
-                    started = false;
-                    syncObject.notifyAll();
-                }
-            }
-        }
-
-        /**
-         * Runs in a separate thread to perform the actual playback.
-         */
-        private void runInPlayThread()
-        {
-            while (started)
-            {
-                if (!runOnceInPlayThread())
-                    break;
-
-                if(isLooping())
-                {
-                    synchronized(syncObject)
-                    {
-                        if (started)
-                        {
-                            try
-                            {
-                                if(getLoopInterval() > 0)
-                                    syncObject.wait(getLoopInterval());
-                            }
-                            catch (InterruptedException e)
-                            {
-                            }
-                        }
-                    }
-                }
-                else
-                    break;
-            }
-        }
-
-        /**
-         * Beeps.
-         *
-         * @return <tt>true</tt> if the playback was successful;
-         * otherwise, <tt>false</tt>
-         */
-        private boolean runOnceInPlayThread()
+        protected boolean runOnceInPlayThread()
         {
             try
             {
                 Toolkit.getDefaultToolkit().beep();
+                return true;
             }
             catch (Throwable t)
             {
-                //logger.error("Failed to get audio stream " + url, ioex);
-                return false;
+                if (t instanceof ThreadDeath)
+                    throw (ThreadDeath) t;
+                else
+                    return false;
             }
-
-            return true;
         }
+    }
 
-        /**
-         * Returns TRUE if this audio is currently playing in loop,
-         * FALSE otherwise.
-         * @return TRUE if this audio is currently playing in loop,
-         * FALSE otherwise.
-         */
-        public boolean isLooping()
-        {
-            return isLooping;
-        }
-
-        /**
-         * Returns the loop interval if this audio is looping.
-         * @return the loop interval if this audio is looping
-         */
-        public int getLoopInterval()
-        {
-            return loopInterval;
-        }
-
-        /**
-         * @param isLooping the isLooping to set
-         */
-        public void setIsLooping(boolean isLooping)
-        {
-            this.isLooping = isLooping;
-        }
-
-        /**
-         * @param loopInterval the loopInterval to set
-         */
-        public void setLoopInterval(int loopInterval)
-        {
-            this.loopInterval = loopInterval;
-        }
+    /**
+     * Enumerates the types of devices on which <tt>SCAudioClip</tt>s may be
+     * played back.
+     */
+    private static enum SCAudioClipDevice
+    {
+        NOTIFICATION,
+        PC_SPEAKER,
+        PLAYBACK
     }
 }

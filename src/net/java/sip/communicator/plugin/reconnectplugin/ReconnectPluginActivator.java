@@ -606,7 +606,6 @@ public class ReconnectPluginActivator
                     NETWORK_NOTIFICATIONS,
                     title,
                     getResources().getI18NString(i18nKey, params),
-                    null,
                     null);
     }
 

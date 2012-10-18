@@ -474,22 +474,19 @@ public class LoggingConfigForm
 
         if(notificationService != null)
         {
-            String bodyMsgKey = null;
-
-            if(dest != null)
-                bodyMsgKey = "plugin.loggingutils.ARCHIVE_MESSAGE_OK";
-            else
-                bodyMsgKey = "plugin.loggingutils.ARCHIVE_MESSAGE_NOTOK";
+            String bodyMsgKey
+                = (dest == null)
+                    ? "plugin.loggingutils.ARCHIVE_MESSAGE_NOTOK"
+                    : "plugin.loggingutils.ARCHIVE_MESSAGE_OK";
 
             notificationService.fireNotification(
-                LOGFILES_ARCHIVED,
-                resources.getI18NString(
-                        "plugin.loggingutils.ARCHIVE_BUTTON"),
-                resources.getI18NString(
-                        bodyMsgKey,
-                        new String[]{dest.getAbsolutePath()}),
-                null,
-                null);
+                    LOGFILES_ARCHIVED,
+                    resources.getI18NString(
+                            "plugin.loggingutils.ARCHIVE_BUTTON"),
+                    resources.getI18NString(
+                            bodyMsgKey,
+                            new String[]{dest.getAbsolutePath()}),
+                    null);
         }
     }
 
@@ -721,20 +718,18 @@ public class LoggingConfigForm
 
                 if(notificationService != null)
                 {
+                    ResourceManagementService resources
+                        = LoggingUtilsActivator.getResourceService();
                     String bodyMsgKey = "plugin.loggingutils.ARCHIVE_MESSAGE_OK";
 
-                    ResourceManagementService resources =
-                        LoggingUtilsActivator.getResourceService();
-
                     notificationService.fireNotification(
-                        LOGFILES_ARCHIVED,
-                        resources.getI18NString(
-                                "plugin.loggingutils.ARCHIVE_BUTTON"),
-                        resources.getI18NString(
-                                bodyMsgKey,
-                                new String[]{uploadLocation}),
-                        null,
-                        null);
+                            LOGFILES_ARCHIVED,
+                            resources.getI18NString(
+                                    "plugin.loggingutils.ARCHIVE_BUTTON"),
+                            resources.getI18NString(
+                                    bodyMsgKey,
+                                    new String[]{uploadLocation}),
+                            null);
                 }
             }
         }

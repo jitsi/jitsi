@@ -6,31 +6,23 @@
  */
 package net.java.sip.communicator.impl.neomedia;
 
-import java.awt.*;
-import java.awt.event.*;
 import java.beans.*;
 import java.util.*;
-
-import javax.swing.*;
 
 import net.java.sip.communicator.impl.neomedia.codec.video.h264.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.resources.*;
-import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.service.systray.event.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.swing.*;
 
 import org.jitsi.impl.neomedia.*;
-import org.jitsi.impl.neomedia.codec.*;
 import org.jitsi.impl.neomedia.device.*;
 import org.jitsi.service.audionotifier.*;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.fileaccess.*;
 import org.jitsi.service.libjitsi.*;
 import org.jitsi.service.neomedia.*;
-import org.jitsi.service.neomedia.codec.*;
 import org.jitsi.service.packetlogging.*;
 import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
@@ -146,11 +138,6 @@ public class NeomediaActivator
     private AudioDeviceConfigurationListener
         deviceConfigurationPropertyChangeListener;
 
-    /**
-     * Audio configuration dialog.
-     */
-    private static SIPCommDialog audioConfigDialog = null;
-    
     /**
      * A {@link MediaConfigurationService} instance.
      */
@@ -553,7 +540,7 @@ public class NeomediaActivator
         }
 
         /**
-         * Fonction called when an audio device is plugged or unplugged.
+         * Function called when an audio device is plugged or unplugged.
          *
          * @param The property change event which may concern the audio device.
          */
@@ -564,6 +551,7 @@ public class NeomediaActivator
             {
                 NotificationService notificationService
                     = getNotificationService();
+
                 if(notificationService != null)
                 {
                     // Registers only once to the  popup message notification
@@ -573,9 +561,15 @@ public class NeomediaActivator
                         isRegisteredToPopupMessageListener = true;
                         managePopupMessageListenerRegistration(true);
                     }
+
                     // Fires the popup notification.
                     ResourceManagementService resources
                         = NeomediaActivator.getResources();
+                    Map<String,Object> extras = new HashMap<String,Object>();
+
+                    extras.put(
+                            NotificationData.POPUP_MESSAGE_HANDLER_TAG_EXTRA,
+                            this);
                     notificationService.fireNotification(
                             DEVICE_CONFIGURATION_HAS_CHANGED,
                             resources.getI18NString(
@@ -585,7 +579,7 @@ public class NeomediaActivator
                                 "impl.media.configform"
                                     + ".AUDIO_DEVICE_CONFIG_MANAGMENT_CLICK"),
                             null,
-                            this);
+                            extras);
                 }
             }
         }

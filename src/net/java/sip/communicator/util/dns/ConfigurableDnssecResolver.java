@@ -142,9 +142,10 @@ public class ConfigurableDnssecResolver
                 || last.before(new Date(new Date().getTime() - 1000*60*5)))
             {
                 DnsUtilActivator.getNotificationService().fireNotification(
-                    EVENT_TYPE,
-                    R.getI18NString("util.dns.INSECURE_ANSWER_TITLE"),
-                    text, null, null);
+                        EVENT_TYPE,
+                        R.getI18NString("util.dns.INSECURE_ANSWER_TITLE"),
+                        text,
+                        null);
                 lastNotifications.put(text, new Date());
             }
             throw new DnssecRuntimeException(text);

@@ -10,10 +10,8 @@ import junit.framework.*;
 import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.service.systray.event.*;
-import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
-
 
 /**
  * Test suite for the popup message handler interface.
@@ -22,10 +20,6 @@ import org.osgi.framework.*;
 public class TestPopupMessageHandler
     extends TestCase
 {
-    /** Logger for this class */
-    private static final Logger logger
-            = Logger.getLogger(TestPopupMessageHandler.class);
-
     /**
      * the <tt>SystrayService</tt> reference we will get from bundle
      * context to register ours handlers
@@ -121,7 +115,6 @@ public class TestPopupMessageHandler
     {
         serviceReference =  bc.getServiceReference(
                 NotificationService.class.getName());
-
         notificationService
             = (NotificationService) bc.getService(serviceReference);
 
@@ -129,7 +122,6 @@ public class TestPopupMessageHandler
                 NotificationAction.ACTION_POPUP_MESSAGE,
                 messageStart,
                 messageStart,
-                null,
                 null);
     }
 

@@ -29,11 +29,12 @@ public interface PopupMessageNotificationHandler
      * appropriate
      * @param tag additional info to be used by the notification handler
      */
-    public void popupMessage(PopupMessageNotificationAction action,
-        String title,
-        String message,
-        byte[] icon,
-        Object tag);
+    public void popupMessage(
+            PopupMessageNotificationAction action,
+            String title,
+            String message,
+            byte[] icon,
+            Object tag);
 
     /**
      * Adds a listener for <tt>SystrayPopupMessageEvent</tt>s posted when user

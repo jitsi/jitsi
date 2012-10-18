@@ -235,6 +235,7 @@ public interface NotificationService
      * <p>
      * This method does nothing if the given <tt>eventType</tt> is not contained
      * in the list of registered event types.
+     * </p>
      *
      * @param eventType the type of the event that we'd like to fire a
      *            notification for.
@@ -243,7 +244,6 @@ public interface NotificationService
      * @param message the message to use if and where appropriate (e.g. with
      *            systray or log notification.)
      * @param icon the icon to show in the notification if and where appropriate
-     * @param tag additional info to be used by the notification handler
      * @return An object referencing the notification. It may be used to stop a
      *         still running notification. Can be null if the eventType is
      *         unknown or the notification is not active.
@@ -251,8 +251,7 @@ public interface NotificationService
     public NotificationData fireNotification(   String eventType,
                                     String messageTitle,
                                     String message,
-                                    byte[] icon,
-                                    Object tag);
+                                    byte[] icon);
 
     /**
      * Fires all notifications registered for the specified <tt>eventType</tt>
@@ -268,19 +267,21 @@ public interface NotificationService
      *            (e.g. with systray)
      * @param message the message to use if and where appropriate (e.g. with
      *            systray or log notification.)
-     * @param extra the extra data to pass (especially for Command execution)
      * @param icon the icon to show in the notification if and where appropriate
-     * @param tag additional info to be used by the notification handler
+     * @param extras additional/extra {@link NotificationHandler}-specific data
+     * to be provided to the firing of the specified notification(s). The
+     * well-known keys are defined by the <tt>NotificationData</tt>
+     * <tt>XXX_EXTRA</tt> constants.
      * @return An object referencing the notification. It may be used to stop a
      *         still running notification. Can be null if the eventType is
      *         unknown or the notification is not active.
      */
-    public NotificationData fireNotification(   String eventType,
-                                    String messageTitle,
-                                    String message,
-                                    Map<String,String> extra,
-                                    byte[] icon,
-                                    Object tag);
+    public NotificationData fireNotification(
+            String eventType,
+            String messageTitle,
+            String message,
+            byte[] icon,
+            Map<String,Object> extras);
 
     /**
      * Fires all notifications registered for the specified <tt>eventType</tt>
