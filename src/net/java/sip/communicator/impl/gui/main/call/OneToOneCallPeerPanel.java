@@ -1142,12 +1142,12 @@ public class OneToOneCallPeerPanel
                 {
                     center.removeAll();
                     if (remoteVideo != null)
-                        center.add(remoteVideo, VideoLayout.CENTER_REMOTE);
+                        center.add(remoteVideo, VideoLayout.CENTER_REMOTE, -1);
                     this.remoteVideo = remoteVideo;
 
                     if (localVideo != null)
                     {
-                        center.add(localVideo, VideoLayout.LOCAL);
+                        center.add(localVideo, VideoLayout.LOCAL, -1);
 
                         if (closeLocalVisualComponentButton == null)
                         {
@@ -1157,7 +1157,8 @@ public class OneToOneCallPeerPanel
                         }
                         center.add(
                                 closeLocalVisualComponentButton,
-                                VideoLayout.CLOSE_LOCAL_BUTTON);
+                                VideoLayout.CLOSE_LOCAL_BUTTON,
+                                -1);
                     }
                     this.localVideo = localVideo;
                 }
