@@ -26,12 +26,22 @@ public class VersionImpl
     public static final int VERSION_MAJOR = 1;
 
     /**
+     * The version major field. Default value is VERSION_MAJOR.
+     */
+    private int versionMajor = VERSION_MAJOR;
+
+    /**
      * The version major of the current Jitsi version. In an
      * example 2.3.1 version string 2 is the version major. The version major
      * number changes when a relatively extensive set of new features and
      * possibly rearchitecturing have been applied to the Jitsi.
      */
     public static final int VERSION_MINOR = 1;
+
+    /**
+     * The version minor field. Default value is VERSION_MINOR.
+     */
+    private int versionMinor = VERSION_MINOR;
 
     /**
      * Indicates whether this version represents a prerelease (i.e. a
@@ -52,6 +62,11 @@ public class VersionImpl
     public static final boolean IS_NIGHTLY_BUILD = true;
 
     /**
+     * The nightly build id field. Default value is NightlyBuildID.BUILD_ID.
+     */
+    private String nightlyBuildID = NightlyBuildID.BUILD_ID;
+
+    /**
      * The default name of this application.
      */
     public static final String DEFAULT_APPLICATION_NAME = "Jitsi";
@@ -68,6 +83,28 @@ public class VersionImpl
     public static final VersionImpl CURRENT_VERSION = new VersionImpl();
 
     /**
+     * Creates version object with default (current) values.
+     */
+    private VersionImpl()
+    {}
+
+    /**
+     * Creates version object with custom major, minor and nightly build id.
+     *
+     * @param majorVersion the major version to use.
+     * @param minorVersion the minor version to use.
+     * @param nightlyBuildID the nightly build id value for new version object.
+     */
+    private VersionImpl(int majorVersion,
+                       int minorVersion,
+                       String nightlyBuildID)
+    {
+        this.versionMajor = majorVersion;
+        this.versionMinor = minorVersion;
+        this.nightlyBuildID = nightlyBuildID;
+    }
+
+    /**
      * Returns the version major of the current Jitsi version. In an
      * example 2.3.1 version string 2 is the version major. The version major
      * number changes when a relatively extensive set of new features and
@@ -77,7 +114,7 @@ public class VersionImpl
      */
     public int getVersionMajor()
     {
-        return VERSION_MAJOR;
+        return versionMajor;
     }
 
     /**
@@ -90,7 +127,7 @@ public class VersionImpl
      */
     public int getVersionMinor()
     {
-        return VERSION_MINOR;
+        return versionMinor;
     }
 
     /**
@@ -118,7 +155,7 @@ public class VersionImpl
         if(!isNightly())
             return null;
 
-        return NightlyBuildID.BUILD_ID;
+        return nightlyBuildID;
     }
 
     /**
@@ -160,11 +197,16 @@ public class VersionImpl
      */
     public int compareTo(Version version)
     {
-        //our versioning system is built to produce lexicographically ordered
-        //names so we could simply return the comparison of the version strings.
-        return toString().compareTo( (version == null)
-                                        ? "null"
-                                        : version.toString());
+        if(version == null)
+            return -1;
+
+        if(getVersionMajor() != version.getVersionMajor())
+            return getVersionMajor() - version.getVersionMajor();
+
+        if(getVersionMinor() != version.getVersionMinor())
+            return getVersionMinor() - version.getVersionMinor();
+
+        return getNightlyBuildID().compareTo(version.getNightlyBuildID());
     }
 
     /**
@@ -228,6 +270,24 @@ public class VersionImpl
     public static final VersionImpl currentVersion()
     {
         return CURRENT_VERSION;
+    }
+
+    /**
+     * Returns the VersionImpl instance describing the version with the
+     * parameters supplied.
+     *
+     * @param majorVersion the major version to use.
+     * @param minorVersion the minor version to use.
+     * @param nightlyBuildID the nightly build id value for new version object.
+     * @return the VersionImpl instance describing the version with parameters
+     * supplied.
+     */
+    public static final VersionImpl customVersion(
+        int majorVersion,
+        int minorVersion,
+        String nightlyBuildID)
+    {
+        return new VersionImpl(majorVersion, minorVersion, nightlyBuildID);
     }
 
     /**
