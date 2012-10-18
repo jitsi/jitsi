@@ -1525,4 +1525,14 @@ public class UIServiceImpl
     {
         return new TreeContactList();
     }
+
+    /**
+     * Returns a collection of all currently in progress calls.
+     *
+     * @return a collection of all currently in progress calls.
+     */
+    public Collection<Call> getInProgressCalls()
+    {
+        return CallManager.getInProgressCalls();
+    }
 }

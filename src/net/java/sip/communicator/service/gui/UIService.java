@@ -462,4 +462,11 @@ public interface UIService
      * @return the created <tt>ContactList</tt>
      */
     public ContactList createContactListComponent();
+
+    /**
+     * Returns a collection of all currently in progress calls.
+     *
+     * @return a collection of all currently in progress calls.
+     */
+    public Collection<Call> getInProgressCalls();
 }

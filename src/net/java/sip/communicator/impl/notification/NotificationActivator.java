@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.notification;
 
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.util.*;
@@ -30,6 +31,11 @@ public class NotificationActivator
     private static AudioNotifierService audioNotifierService;
     private static SystrayService systrayService;
     private static NotificationService notificationService;
+
+    /**
+     * A reference to the <tt>UIService</tt> currently in use in Jitsi.
+     */
+    private static UIService uiService = null;
 
     private CommandNotificationHandler commandHandler;
     private LogMessageNotificationHandler logMessageHandler;
@@ -124,5 +130,19 @@ public class NotificationActivator
         }
 
         return systrayService;
+    }
+
+    /**
+     * Returns a reference to an UIService implementation currently registered
+     * in the bundle context or null if no such implementation was found.
+     *
+     * @return a reference to an UIService implementation currently registered
+     * in the bundle context or null if no such implementation was found.
+     */
+    public static UIService getUIService()
+    {
+        if(uiService == null)
+            uiService = ServiceUtils.getService(bundleContext, UIService.class);
+        return uiService;
     }
 }

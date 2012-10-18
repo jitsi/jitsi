@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.notification;
 import java.awt.*;
 import java.util.*;
 
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.notification.*;
 
 import org.jitsi.service.audionotifier.*;
@@ -106,6 +107,20 @@ public class SoundNotificationHandlerImpl
         if(audioNotifService == null
             || StringUtils.isNullOrEmpty(action.getDescriptor(), true))
             return;
+
+        // this is hack, seen on some os (particularly seen on macosx with
+        // external devices).
+        // when playing notification in the call, can break the call and
+        // no further communicating can be done after the notification.
+        // So we skip playing notification if we have a call running
+        if(playback)
+        {
+            UIService uiService = NotificationActivator.getUIService();
+            if(uiService.getInProgressCalls().size() > 0)
+            {
+                return;
+            }
+        }
 
         SCAudioClip audio = audioNotifService
             .createAudio(action.getDescriptor(), playback);
@@ -215,7 +230,7 @@ public class SoundNotificationHandlerImpl
         public void play()
         {
             started = true;
-            new Thread()
+            new Thread("Playing beep:" + this.getClass())
                     {
                         @Override
                         public void run()
