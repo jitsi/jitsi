@@ -65,19 +65,141 @@ public class ConferenceInviteDialog
     private ContactSourceService currentStringContactSource;
 
     /**
+     * The previously selected protocol provider, with which this dialog has
+     * been instantiated.
+     */
+    private ProtocolProviderService preselectedProtocolProvider;
+
+    /**
      * Initializes a new <tt>ConferenceInviteDialog</tt> instance which is to
      * invite contacts/participants in a specific telephony conference.
      *
      * @param conference the telephony conference in which the new instance is
      * to invite contacts/participants
      */
-    public ConferenceInviteDialog(CallConference conference)
+    public ConferenceInviteDialog(  CallConference conference,
+                                    ProtocolProviderService preselectedProvider,
+                                    final boolean isVideoBridge)
     {
-        super(GuiActivator.getResources()
-            .getI18NString("service.gui.INVITE_CONTACT_TO_CALL"), false);
+        // Set the correct dialog title depending if we're going to create a
+        // video bridge conference call
+        super((isVideoBridge
+                ? GuiActivator.getResources()
+                    .getI18NString("service.gui.INVITE_CONTACT_TO_VIDEO_BRIDGE")
+                : GuiActivator.getResources()
+                    .getI18NString("service.gui.INVITE_CONTACT_TO_CALL")),
+                false);
 
         this.conference = conference;
+        this.preselectedProtocolProvider = preselectedProvider;
 
+        if (preselectedProtocolProvider == null)
+            initAccountSelectorPanel();
+
+        // init the list, as we check whether features are supported
+        // it may take some time if we have too much contacts
+        SwingUtilities.invokeLater(new Runnable()
+        {
+            public void run()
+            {
+                initContactSources();
+
+                // Initialize the list of contacts to select from.
+                if (preselectedProtocolProvider != null)
+                    initContactListData(preselectedProtocolProvider);
+                else
+                    initContactListData(
+                        (ProtocolProviderService) accountSelectorBox
+                            .getSelectedItem());
+            }
+        });
+
+        this.addInviteButtonListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                Collection<UIContact> selectedContacts
+                    = destContactList.getContacts(null);
+
+                if (selectedContacts != null && selectedContacts.size() > 0)
+                {
+                    if (preselectedProtocolProvider == null)
+                        preselectedProtocolProvider
+                            = (ProtocolProviderService) accountSelectorBox
+                                .getSelectedItem();
+
+                    if (isVideoBridge)
+                        inviteVideoBridgeContacts(  preselectedProtocolProvider,
+                                                    selectedContacts);
+                    else
+                        inviteContacts(selectedContacts);
+
+                    // Store the last used account in order to pre-select it
+                    // next time.
+                    ConfigurationManager.setLastCallConferenceProvider(
+                        preselectedProtocolProvider);
+
+                    dispose();
+                }
+                else
+                {
+                    // TODO: The underlying invite dialog should show a message
+                    // to the user that she should select at least two contacts
+                    // in order to create a conference.
+                }
+            }
+        });
+
+        this.addCancelButtonListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                dispose();
+            }
+        });
+    }
+
+    /**
+     * Constructs the <tt>ConferenceInviteDialog</tt>.
+     */
+    public ConferenceInviteDialog()
+    {
+        this(null, null, false);
+    }
+
+    /**
+     * Creates an instance of <tt>ConferenceInviteDialog</tt> by specifying an
+     * already created conference. To use when inviting contacts to an existing
+     * conference is needed.
+     *
+     * @param conference the existing <tt>CallConference</tt>
+     */
+    public ConferenceInviteDialog(CallConference conference)
+    {
+        this(conference, null, false);
+    }
+
+    /**
+     * Creates an instance of <tt>ConferenceInviteDialog</tt> by specifying a
+     * preselected protocol provider to be used and if this is an invite for
+     * a video bridge conference.
+     *
+     * @param selectedConfProvider the preselected protocol provider
+     * @param isVideoBridge indicates if this dialog should create a conference
+     * through a video bridge
+     */
+    public ConferenceInviteDialog(
+                                ProtocolProviderService selectedConfProvider,
+                                boolean isVideoBridge)
+    {
+        this(null, selectedConfProvider, isVideoBridge);
+    }
+
+    /**
+     * Initializes the account selector panel.
+     */
+    private void initAccountSelectorPanel()
+    {
         JLabel accountSelectorLabel = new JLabel(
             GuiActivator.getResources().getI18NString("service.gui.CALL_VIA"));
 
@@ -91,23 +213,6 @@ public class ConferenceInviteDialog
 
         // Initialize the account selector box.
         this.initAccountListData();
-
-        // init the list, as we check whether features are supported
-        // it may take some time if we have too much contacts
-        SwingUtilities.invokeLater(new Runnable()
-        {
-            public void run()
-            {
-                initContactSources();
-
-                // Initialize the list of contacts to select from.
-                initContactListData(
-                    (ProtocolProviderService) accountSelectorBox
-                        .getSelectedItem());
-            }
-        });
-
-        this.getContentPane().add(accountSelectorPanel, BorderLayout.NORTH);
 
         this.accountSelectorBox.setRenderer(new DefaultListCellRenderer()
         {
@@ -152,52 +257,7 @@ public class ConferenceInviteDialog
             }
         });
 
-        this.addInviteButtonListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                Collection<UIContact> selectedContacts
-                    = destContactList.getContacts(null);
-
-                if (selectedContacts != null && selectedContacts.size() > 0)
-                {
-                    ProtocolProviderService selectedProvider
-                        = (ProtocolProviderService) accountSelectorBox
-                            .getSelectedItem();
-
-                    inviteContacts(selectedContacts);
-
-                    // Store the last used account in order to pre-select it
-                    // next time.
-                    ConfigurationManager.setLastCallConferenceProvider(
-                        selectedProvider);
-
-                    dispose();
-                }
-                else
-                {
-                    // TODO: The underlying invite dialog should show a message
-                    // to the user that she should select at least two contacts
-                    // in order to create a conference.
-                }
-            }
-        });
-
-        this.addCancelButtonListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                dispose();
-            }
-        });
-    }
-
-    /**
-     * Constructs the <tt>ConferenceInviteDialog</tt>.
-     */
-    public ConferenceInviteDialog()
-    {
-        this(null);
+        this.getContentPane().add(accountSelectorPanel, BorderLayout.NORTH);
     }
 
     /**
@@ -387,6 +447,51 @@ public class ConferenceInviteDialog
         else
         {
             CallManager.createConferenceCall(selectedProviderCallees);
+        }
+    }
+
+    /**
+     * Invites the contacts to the chat conference.
+     *
+     * @param contacts the list of contacts to invite
+     */
+    private void inviteVideoBridgeContacts(
+                                ProtocolProviderService preselectedProvider,
+                                Collection<UIContact> contacts)
+    {
+        List<String> callees = new ArrayList<String>();
+
+        Iterator<UIContact> contactsIter = contacts.iterator();
+
+        while (contactsIter.hasNext())
+        {
+            UIContact uiContact = contactsIter.next();
+
+            Iterator<UIContactDetail> contactDetailsIter = uiContact
+                .getContactDetailsForOperationSet(
+                    OperationSetBasicTelephony.class).iterator();
+
+            // We invite the first protocol contact that corresponds to the
+            // invite provider.
+            if (contactDetailsIter.hasNext())
+            {
+                UIContactDetail inviteDetail = contactDetailsIter.next();
+
+                callees.add(inviteDetail.getAddress());
+            }
+        }
+
+        if(conference != null)
+        {
+            CallManager.inviteToVideoBridgeConfCall(
+                    callees.toArray(new String[callees.size()]),
+                    conference.getCalls().get(0));
+        }
+        else
+        {
+            CallManager.createVideoBridgeConfCall(
+                preselectedProvider,
+                callees.toArray(new String[callees.size()]));
         }
     }
 }

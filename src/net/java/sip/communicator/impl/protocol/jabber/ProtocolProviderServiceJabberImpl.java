@@ -1728,6 +1728,10 @@ public class ProtocolProviderServiceJabberImpl
                     OperationSetBasicAutoAnswer.class,
                     new OperationSetAutoAnswerJabberImpl(this));
 
+                addSupportedOperationSet(
+                    OperationSetVideoBridge.class,
+                    new OperationSetVideoBridgeImpl(this));
+
                 // init DTMF
                 OperationSetDTMFJabberImpl operationSetDTMFSip
                     = new OperationSetDTMFJabberImpl(this);
@@ -1795,7 +1799,7 @@ public class ProtocolProviderServiceJabberImpl
             supportedFeatures.add(MessageCorrectionExtension.NAMESPACE);
             addSupportedOperationSet(OperationSetMessageCorrection.class,
                     basicInstantMessaging);
-            
+
             OperationSetChangePassword opsetChangePassword 
                     = new OperationSetChangePasswordJabberImpl(this);
             addSupportedOperationSet(OperationSetChangePassword.class,

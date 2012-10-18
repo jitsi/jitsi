@@ -391,7 +391,17 @@ public class CallPanel
         }
         else if (buttonName.equals(CONFERENCE_BUTTON))
         {
-            new ConferenceInviteDialog(callConference).setVisible(true);
+            ConferenceInviteDialog inviteDialog;
+            if (callConference.isJitsiVideoBridge())
+                inviteDialog = new ConferenceInviteDialog(
+                                            callConference,
+                                            callConference.getCalls()
+                                                .get(0).getProtocolProvider(),
+                                            true);
+            else
+                inviteDialog = new ConferenceInviteDialog(callConference);
+
+            inviteDialog.setVisible(true);
         }
         else if (buttonName.equals(CHAT_BUTTON))
         {

@@ -957,6 +957,34 @@ public class CallManager
     }
 
     /**
+     * Asynchronously creates a new video bridge conference <tt>Call</tt> with
+     * a specific list of participants/callees.
+     *
+     * @param callees the list of participants/callees to invite to the
+     * newly-created video bridge conference <tt>Call</tt>
+     */
+    public static void createVideoBridgeConfCall(
+                                        ProtocolProviderService callProvider,
+                                        String[] callees)
+    {
+        new InviteToConferenceBridgeThread(callProvider, callees, null).start();
+    }
+
+    /**
+     * Invites the given list of <tt>callees</tt> to the given conference
+     * <tt>call</tt>.
+     *
+     * @param callees the list of contacts to invite
+     * @param call the protocol provider to which this call belongs
+     */
+    public static void inviteToVideoBridgeConfCall(String[] callees, Call call)
+    {
+        new InviteToConferenceBridgeThread( call.getProtocolProvider(),
+                                            callees,
+                                            call).start();
+    }
+
+    /**
      * Puts on or off hold the given <tt>callPeer</tt>.
      * @param callPeer the peer to put on/off hold
      * @param isOnHold indicates the action (on hold or off hold)
@@ -1978,63 +2006,9 @@ public class CallManager
         @Override
         public void run()
         {
-            CallConference conference;
+            CallConference conference = null;
 
-            if (call == null)
-            {
-                conference = null;
-
-                /*
-                 * FIXME Autmagically choose whether the Jitsi VideoBridge
-                 * server-side telephony conferencing technology is to be
-                 * utilized.
-                 */
-                if (callees.size() == 1)
-                {
-                    Iterator<Map.Entry<ProtocolProviderService, List<String>>>
-                        iter
-                            = callees.entrySet().iterator();
-                    Map.Entry<ProtocolProviderService, List<String>>
-                        entry
-                            = iter.next();
-                    ProtocolProviderService pps = entry.getKey();
-
-                    if ((pps != null)
-                            && ProtocolNames.JABBER.equals(
-                                    pps.getProtocolName()))
-                    {
-                        Object jitsiVideoBridge = null;
-
-                        try
-                        {
-                            jitsiVideoBridge
-                                = pps
-                                    .getClass()
-                                        .getMethod("getJitsiVideoBridge")
-                                            .invoke(pps);
-                        }
-                        catch (Throwable t)
-                        {
-                            if (t instanceof ThreadDeath)
-                                throw (ThreadDeath) t;
-                            else
-                            {
-                                logger.error(
-                                        "Failed to determine whether Jitsi"
-                                            + " VideoBridge is available for "
-                                            + pps.getAccountID());
-                            }
-                        }
-
-                        if ((jitsiVideoBridge instanceof String)
-                                && (((String) jitsiVideoBridge).length() != 0))
-                        {
-                            conference = new MediaAwareCallConference(true);
-                        }
-                    }
-                }
-            }
-            else
+            if (call != null)
                 conference = call.getConference();
 
             for(Map.Entry<ProtocolProviderService, List<String>> entry
@@ -2151,6 +2125,76 @@ public class CallManager
                             ErrorDialog.ERROR)
                         .showDialog();
                 }
+            }
+        }
+    }
+
+    /**
+     * Invites a list of callees to a specific conference <tt>Call</tt>. If the
+     * specified <tt>Call</tt> is <tt>null</tt>, creates a brand new telephony
+     * conference.
+     */
+    private static class InviteToConferenceBridgeThread
+        extends Thread
+    {
+        private final ProtocolProviderService callProvider;
+
+        private final String[] callees;
+
+        private final Call call;
+
+        public InviteToConferenceBridgeThread(
+                                        ProtocolProviderService callProvider,
+                                        String[] callees,
+                                        Call call)
+        {
+            this.callProvider = callProvider;
+            this.callees = callees;
+            this.call = call;
+        }
+
+        @Override
+        public void run()
+        {
+            OperationSetVideoBridge opSetVideoBridge
+                = callProvider.getOperationSet(
+                    OperationSetVideoBridge.class);
+
+            // Normally if this method is called then this should not happen
+            // but we check in order to be sure to be able to proceed.
+            if (opSetVideoBridge == null || !opSetVideoBridge.isActive())
+                return;
+
+            if (ConfigurationManager.isNormalizePhoneNumber())
+                normalizePhoneNumbers(callees);
+
+            try
+            {
+                if (call == null)
+                {
+                    opSetVideoBridge.createConfCall(callees);
+                }
+                else
+                {
+                    for (String contact : callees)
+                    {
+                        opSetVideoBridge.inviteCalleeToCall(contact, call);
+                    }
+                }
+            }
+            catch(Exception e)
+            {
+                logger.error(
+                        "Failed to invite callees: "
+                            + Arrays.toString(callees),
+                        e);
+                new ErrorDialog(
+                        null,
+                        GuiActivator.getResources().getI18NString(
+                                "service.gui.ERROR"),
+                        e.getMessage(),
+                        ErrorDialog.ERROR)
+                    .showDialog();
             }
         }
     }
