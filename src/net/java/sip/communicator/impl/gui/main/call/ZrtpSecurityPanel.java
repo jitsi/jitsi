@@ -710,13 +710,14 @@ public class ZrtpSecurityPanel
         public ZidToNameThread()
         {
         }
-        
         @Override
         public void run()
         {
             String message = zidAorMismatch ? 
-                GuiActivator.getResources().getI18NString("service.gui.ZID_NAME_UNEXPECTED") :
-                GuiActivator.getResources().getI18NString("service.gui.ZID_NAME_SET");
+                GuiActivator.getResources()
+                    .getI18NString("service.gui.ZID_NAME_UNEXPECTED") :
+                GuiActivator.getResources()
+                    .getI18NString("service.gui.ZID_NAME_SET");
 
             if (zidNameValue == null) // No name for ZID found, ask for a name
             {
