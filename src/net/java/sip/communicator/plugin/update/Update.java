@@ -401,12 +401,18 @@ public class Update
      */
     private static Version getCurrentVersion()
     {
-        VersionService verService
-            = ServiceUtils.getService(
+        return getVersionService().getCurrentVersion();
+    }
+
+    /**
+     * Returns the currently registered instance of version service.
+     * @return the current version service.
+     */
+    private static VersionService getVersionService()
+    {
+        return ServiceUtils.getService(
                     UpdateActivator.bundleContext,
                     VersionService.class);
-
-        return verService.getCurrentVersion();
     }
 
     /**
@@ -463,6 +469,27 @@ public class Update
                                 updateLink.lastIndexOf("/") + 1)
                             + props.getProperty("changes_html");
 
+                    try
+                    {
+                        VersionService versionService = getVersionService();
+
+                        Version latestVersionObj =
+                            versionService.parseVersionString(latestVersion);
+
+                        if(latestVersionObj != null)
+                            return latestVersionObj.compareTo(
+                                        getCurrentVersion()) <= 0;
+                        else
+                            logger.error("Version obj not parsed("
+                                                + latestVersion + ")");
+                    }
+                    catch(Throwable t)
+                    {
+                        logger.error("Error parsing version string", t);
+                    }
+
+                    // fallback to lexicographically compare
+                    // of version strings in case of an error
                     return latestVersion.compareTo(
                                 getCurrentVersion().toString()) <= 0;
                 }
