@@ -100,7 +100,16 @@ public class CallDialog
         {
             if (delay)
             {
-                Timer timer = new Timer(5000, new DisposeCallDialogListener());
+                Timer timer
+                    = new Timer(
+                            5000,
+                            new ActionListener()
+                            {
+                                public void actionPerformed(ActionEvent ev)
+                                {
+                                    dispose();
+                                }
+                            });
 
                 timer.setRepeats(false);
                 timer.start();
@@ -144,6 +153,9 @@ public class CallDialog
      * Frame size in relation to a AWT Component should be analyzing that same
      * Component in the AWT event dispatching thread only.
      * </p>
+     *
+     * @throws RuntimeException if the method is not called on the AWT event
+     * dispatching thread
      */
     public void ensureSize(
             final Component component,
@@ -188,6 +200,14 @@ public class CallDialog
             int newFrameHeight
                 = frameSize.height + height - componentSize.height;
 
+            // Respect the minimum size.
+            Dimension minSize = frame.getMinimumSize();
+
+            if (newFrameWidth < minSize.width)
+                newFrameWidth = minSize.width;
+            if (newFrameHeight < minSize.height)
+                newFrameHeight = minSize.height;
+
             // Don't get bigger than the screen.
             Rectangle screenBounds
                 = frame.getGraphicsConfiguration().getBounds();
@@ -197,58 +217,37 @@ public class CallDialog
             if (newFrameHeight > screenBounds.height)
                 newFrameHeight = screenBounds.height;
 
-            // Don't go out of the screen.
-            Point frameLocation = frame.getLocation();
-            int newFrameX = frameLocation.x;
-            int newFrameY = frameLocation.y;
-            int xDelta
-                = (newFrameX + newFrameWidth)
-                    - (screenBounds.x + screenBounds.width);
-            int yDelta
-                = (newFrameY + newFrameHeight)
-                    - (screenBounds.y + screenBounds.height);
-
-            if (xDelta > 0)
-            {
-                newFrameX -= xDelta;
-                if (newFrameX < screenBounds.x)
-                    newFrameX = screenBounds.x;
-            }
-            if (yDelta > 0)
-            {
-                newFrameY -= yDelta;
-                if (newFrameY < screenBounds.y)
-                    newFrameY = screenBounds.y;
-            }
-
-            // Don't get smaller than the min size.
-            Dimension minSize = frame.getMinimumSize();
-
-            if (newFrameWidth < minSize.width)
-                newFrameWidth = minSize.width;
-            if (newFrameHeight < minSize.height)
-                newFrameHeight = minSize.height;
-
             /*
              * If we're going to make too small a change, don't even bother.
              * Besides, we don't want some weird recursive resizing.
+             * Additionally, do not reduce the Frame size.
              */
-            int frameWidthDelta = newFrameWidth - frameSize.width;
-            int frameHeightDelta = newFrameHeight - frameSize.height;
+            boolean changeWidth = ((newFrameWidth - frameSize.width) > 1);
+            boolean changeHeight = ((newFrameHeight - frameSize.height) > 1);
 
-            // Do not reduce the frame size.
-            if ((frameWidthDelta > 1) || (frameHeightDelta > 1))
+            if (changeWidth || changeHeight)
             {
-                if (!(frameWidthDelta > 1))
-                {
-                    newFrameX = frameLocation.x;
+                if (!changeWidth)
                     newFrameWidth = frameSize.width;
-                }
-                else if (!(frameHeightDelta > 1))
-                {
-                    newFrameY = frameLocation.y;
+                else if (!changeHeight)
                     newFrameHeight = frameSize.height;
-                }
+
+                /*
+                 * The latest requirement with respect to the behavior upon
+                 * resizing is to center the Frame.
+                 */
+                int newFrameX
+                    = screenBounds.x
+                        + (screenBounds.width - newFrameWidth) / 2;
+                int newFrameY
+                    = screenBounds.y
+                        + (screenBounds.height - newFrameHeight) / 2;
+
+                // Do not let the top left go out of the screen.
+                if (newFrameX < screenBounds.x)
+                    newFrameX = screenBounds.x;
+                if (newFrameY < screenBounds.y)
+                    newFrameY = screenBounds.y;
 
                 frame.setBounds(
                         newFrameX, newFrameY,
@@ -298,17 +297,5 @@ public class CallDialog
     public boolean isCallVisible(CallPanel callPanel)
     {
         return this.callPanel.equals(callPanel) ? isVisible() : false;
-    }
-
-    /**
-     * Removes the given CallPanel from the main tabbed pane.
-     */
-    private class DisposeCallDialogListener
-        implements ActionListener
-    {
-        public void actionPerformed(ActionEvent e)
-        {
-            dispose();
-        }
     }
 }
