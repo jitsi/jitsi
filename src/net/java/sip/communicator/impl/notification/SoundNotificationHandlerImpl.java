@@ -90,7 +90,10 @@ public class SoundNotificationHandlerImpl
         {
         case NOTIFICATION:
         case PLAYBACK:
-            audio = audioNotifService.createAudio(action.getDescriptor(), SCAudioClipDevice.PLAYBACK.equals(device));
+            audio
+                = audioNotifService.createAudio(
+                        action.getDescriptor(),
+                        SCAudioClipDevice.PLAYBACK.equals(device));
             break;
 
         case PC_SPEAKER:
@@ -104,14 +107,25 @@ public class SoundNotificationHandlerImpl
 
         playedClips.put(audio, data);
 
-        @SuppressWarnings("unchecked")
-        Callable<Boolean> loopCondition
-            = (Callable<Boolean>)
-                data.getExtra(
-                        NotificationData
-                            .SOUND_NOTIFICATION_HANDLER_LOOP_CONDITION_EXTRA);
+        boolean played = false;
 
-        audio.play(action.getLoopInterval(), loopCondition);
+        try
+        {
+            @SuppressWarnings("unchecked")
+            Callable<Boolean> loopCondition
+                = (Callable<Boolean>)
+                    data.getExtra(
+                            NotificationData
+                                .SOUND_NOTIFICATION_HANDLER_LOOP_CONDITION_EXTRA);
+
+            audio.play(action.getLoopInterval(), loopCondition);
+            played = true;
+        }
+        finally
+        {
+            if (!played)
+                playedClips.remove(audio);
+        }
     }
 
     /**
@@ -119,26 +133,17 @@ public class SoundNotificationHandlerImpl
      *
      * @param isMute mute or not currently playing sounds
      */
-    public void setMute(boolean isMute)
+    public void setMute(boolean mute)
     {
-        this.mute = isMute;
+        this.mute = mute;
 
-        if(isMute)
+        if (mute)
         {
-            AudioNotifierService audioNotifService
+            AudioNotifierService ans
                 = NotificationActivator.getAudioNotifier();
 
-            if(audioNotifService == null)
-                return;
-
-            // stop all sounds
-            for (Map.Entry<SCAudioClip, NotificationData> entry : playedClips
-                        .entrySet())
-            {
-                SCAudioClip audio = entry.getKey();
-                audio.stop();
-                audioNotifService.destroyAudio(audio);
-            }
+            if ((ans != null) && (ans.isMute() != this.mute))
+                ans.setMute(this.mute);
         }
     }
 
@@ -193,18 +198,26 @@ public class SoundNotificationHandlerImpl
         AudioNotifierService audioNotifService
             = NotificationActivator.getAudioNotifier();
 
-        if(audioNotifService == null)
-            return;
-
-        for (Map.Entry<SCAudioClip, NotificationData> entry
-                : playedClips.entrySet())
+        if (audioNotifService != null)
         {
-            if(entry.getValue() == data)
-            {
-                SCAudioClip audio = entry.getKey();
+            Iterator<Map.Entry<SCAudioClip, NotificationData>> i
+                = playedClips.entrySet().iterator();
 
-                audio.stop();
-                audioNotifService.destroyAudio(audio);
+            while (i.hasNext())
+            {
+                Map.Entry<SCAudioClip, NotificationData> e = i.next();
+
+                if (e.getValue() == data)
+                {
+                    try
+                    {
+                        e.getKey().stop();
+                    }
+                    finally
+                    {
+                        i.remove();
+                    }
+                }
             }
         }
     }

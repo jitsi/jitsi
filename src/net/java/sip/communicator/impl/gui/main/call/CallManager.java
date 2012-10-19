@@ -1983,18 +1983,58 @@ public class CallManager
     }
 
     /**
-     * Invites a list of callees to a specific conference <tt>Call</tt>. If the
-     * specified <tt>Call</tt> is <tt>null</tt>, creates a brand new telephony
-     * conference.
+     * Invites a list of callees to a conference <tt>Call</tt>. If the specified
+     * <tt>Call</tt> is <tt>null</tt>, creates a brand new telephony conference.
      */
     private static class InviteToConferenceCallThread
         extends Thread
     {
+        /**
+         * The addresses of the callees to be invited into the telephony
+         * conference to be organized by this instance. For further details,
+         * refer to the documentation on the <tt>callees</tt> parameter of the
+         * respective <tt>InviteToConferenceCallThread</tt> constructor.
+         */
         private final Map<ProtocolProviderService, List<String>>
             callees;
 
+        /**
+         * The <tt>Call</tt>, if any, into the telephony conference of which
+         * {@link #callees} are to be invited. If non-<tt>null</tt>, its
+         * <tt>CallConference</tt> state will be shared with all <tt>Call</tt>s
+         * established by this instance for the purposes of having the
+         * <tt>callees</tt> into the same telephony conference.
+         */
         private final Call call;
 
+        /**
+         * Initializes a new <tt>InviteToConferenceCallThread</tt> instance
+         * which is to invite a list of callees to a conference <tt>Call</tt>.
+         * If the specified <tt>call</tt> is <tt>null</tt>, creates a brand new
+         * telephony conference.
+         *
+         * @param callees the addresses of the callees to be invited into a
+         * telephony conference. The addresses are provided in multiple
+         * <tt>List&lt;String&gt;</tt>s. Each such list of addresses is mapped
+         * by the <tt>ProtocolProviderService</tt> through which they are to be
+         * invited into the telephony conference. If there are multiple
+         * <tt>ProtocolProviderService</tt>s in the specified <tt>Map</tt>, the
+         * resulting telephony conference is known by the name
+         * &quot;cross-protocol&quot;. It is also allowed to have a list of
+         * addresses mapped to <tt>null</tt> which means that the new instance
+         * will automatically choose a <tt>ProtocolProviderService</tt> to
+         * invite the respective callees into the telephony conference.
+         * @param call the <tt>Call</tt> to invite the specified
+         * <tt>callees</tt> into. If <tt>null</tt>, this instance will create a
+         * brand new telephony conference. Technically, a <tt>Call</tt> instance
+         * is protocol/account-specific and it is possible to have
+         * cross-protocol/account telephony conferences. That's why the
+         * specified <tt>callees</tt> are invited into one and the same
+         * <tt>CallConference</tt>: the one in which the specified <tt>call</tt>
+         * is participating or a new one if <tt>call</tt> is <tt>null</tt>. Of
+         * course, an attempt is made to have all callees from one and the same
+         * protocol/account into one <tt>Call</tt> instance.
+         */
         public InviteToConferenceCallThread(
                 Map<ProtocolProviderService, List<String>> callees,
                 Call call)
@@ -2003,13 +2043,15 @@ public class CallManager
             this.call = call;
         }
 
+        /**
+         * Invites {@link #callees} into a telephony conference which is
+         * optionally specified by {@link #call}.
+         */
         @Override
         public void run()
         {
-            CallConference conference = null;
-
-            if (call != null)
-                conference = call.getConference();
+            CallConference conference
+                = (call == null) ? null : call.getConference();
 
             for(Map.Entry<ProtocolProviderService, List<String>> entry
                     : callees.entrySet())
@@ -2177,9 +2219,7 @@ public class CallManager
                 else
                 {
                     for (String contact : callees)
-                    {
                         opSetVideoBridge.inviteCalleeToCall(contact, call);
-                    }
                 }
             }
             catch(Exception e)
@@ -2285,7 +2325,7 @@ public class CallManager
                 Iterator<? extends CallPeer> peerIter = call.getCallPeers();
 
                 while (peerIter.hasNext())
-                    peers.add(peer);
+                    peers.add(peerIter.next());
             }
             if (conference != null)
                 peers.addAll(conference.getCallPeers());

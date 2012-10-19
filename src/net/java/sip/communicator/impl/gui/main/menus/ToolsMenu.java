@@ -201,32 +201,30 @@ public class ToolsMenu
         }
         else if (itemName.equals("sound"))
         {
-            boolean isMute = GuiActivator.getAudioNotifier().isMute();
+            boolean mute = !GuiActivator.getAudioNotifier().isMute();
 
-            GuiActivator.getAudioNotifier().setMute(!isMute);
-
+            GuiActivator.getAudioNotifier().setMute(mute);
             {
-                // also set mute to notification service and its
-                // sound handlers
-                for(NotificationHandler handler :
-                        GuiActivator.getNotificationService()
-                        .getActionHandlers(NotificationAction.ACTION_SOUND))
+                // Distribute the mute state to the SoundNotificaitonHandler.
+                for(NotificationHandler handler
+                        : GuiActivator.getNotificationService()
+                            .getActionHandlers(NotificationAction.ACTION_SOUND))
                 {
                     if(handler instanceof SoundNotificationHandler)
                     {
                         SoundNotificationHandler soundHandler
-                            = (SoundNotificationHandler)handler;
-                        soundHandler.setMute(!soundHandler.isMute());
+                            = (SoundNotificationHandler) handler;
+
+                        soundHandler.setMute(mute);
                     }
                 }
             }
 
-            String itemTextKey = !isMute
-                    ? "service.gui.SOUND_ON"
-                    : "service.gui.SOUND_OFF";
-
             menuItem.setText(
-                GuiActivator.getResources().getI18NString(itemTextKey));
+                    GuiActivator.getResources().getI18NString(
+                            mute
+                                ? "service.gui.SOUND_ON"
+                                : "service.gui.SOUND_OFF"));
         }
     }
 
@@ -529,7 +527,7 @@ public class ToolsMenu
         extends JMenuItem
         implements ActionListener
     {
-        private ProtocolProviderService protocolProvider;
+        private final ProtocolProviderService protocolProvider;
 
         /**
          * Creates an instance of <tt>VideoBridgeProviderMenuItem</tt> by

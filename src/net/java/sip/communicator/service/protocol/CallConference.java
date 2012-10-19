@@ -40,6 +40,109 @@ public class CallConference
     public static final String CALLS = "calls";
 
     /**
+     * Gets the number of <tt>CallPeer</tt>s associated with the <tt>Call</tt>s
+     * participating in the telephony conference-related state of a specific
+     * <tt>Call</tt>.
+     *
+     * @param call the <tt>Call</tt> for which the number of <tt>CallPeer</tt>s
+     * associated with the <tt>Call</tt>s participating in its associated
+     * telephony conference-related state
+     * @return the number of <tt>CallPeer</tt>s associated with the
+     * <tt>Call</tt>s participating in the telephony conference-related state
+     * of the specified <tt>call</tt>
+     */
+    public static int getCallPeerCount(Call call)
+    {
+        CallConference conference = call.getConference();
+
+        /*
+         * A Call instance is supposed to always maintain a CallConference
+         * instance. Anyway, if it turns out that it is not the case, we will
+         * consider the Call as a representation of a telephony conference.
+         */
+        return
+            (conference == null)
+                ? call.getCallPeerCount()
+                : conference.getCallPeerCount();
+    }
+
+    /**
+     * Gets a list of the <tt>CallPeer</tt>s associated with the <tt>Call</tt>s
+     * participating in the telephony conference in which a specific
+     * <tt>Call</tt> is participating.
+     *
+     * @param call the <tt>Call</tt> which specifies the telephony conference
+     * the <tt>CallPeer</tt>s of which are to be retrieved
+     * @return a list of the <tt>CallPeer</tt>s associated with the
+     * <tt>Call</tt>s participating in the telephony conference in which the
+     * specified <tt>call</tt> is participating
+     */
+    public static List<CallPeer> getCallPeers(Call call)
+    {
+        CallConference conference = call.getConference();
+        List<CallPeer> callPeers = new ArrayList<CallPeer>();
+
+        if (conference == null)
+        {
+            Iterator<? extends CallPeer> callPeerIt = call.getCallPeers();
+
+            while (callPeerIt.hasNext())
+                callPeers.add(callPeerIt.next());
+        }
+        else
+            conference.getCallPeers(callPeers);
+        return callPeers;
+    }
+
+    /**
+     * Gets the list of <tt>Call</tt>s participating in the telephony conference
+     * in which a specific <tt>Call</tt> is participating.
+     *
+     * @param call the <tt>Call</tt> which participates in the telephony
+     * conference the list of participating <tt>Call</tt>s of which is to be
+     * returned
+     * @return the list of <tt>Call</tt>s participating in the telephony
+     * conference in which the specified <tt>call</tt> is participating
+     */
+    public static List<Call> getCalls(Call call)
+    {
+        CallConference conference = call.getConference();
+        List<Call> calls;
+
+        if (conference == null)
+            calls = Collections.emptyList();
+        else
+            calls = conference.getCalls();
+        return calls;
+    }
+
+    /**
+     * Determines whether a <tt>CallConference</tt> is to report the local
+     * peer/user as a conference focus judging by a specific list of
+     * <tt>Call</tt>s.
+     * 
+     * @param calls the list of <tt>Call</tt> which are to be judged whether
+     * the local peer/user that they represent is to be considered as a
+     * conference focus 
+     * @return <tt>true</tt> if the local peer/user represented by the specified
+     * <tt>calls</tt> is judged to be a conference focus; otherwise,
+     * <tt>false</tt>
+     */
+    private static boolean isConferenceFocus(List<Call> calls)
+    {
+        int callCount = calls.size();
+        boolean conferenceFocus;
+
+        if (callCount < 1)
+            conferenceFocus = false;
+        else if (callCount > 1)
+            conferenceFocus = true;
+        else
+            conferenceFocus = (calls.get(0).getCallPeerCount() > 1);
+        return conferenceFocus;
+    }
+
+    /**
      * The <tt>CallChangeListener</tt> which listens to changes in the
      * <tt>Call</tt>s participating in this telephony conference.
      */
@@ -48,12 +151,12 @@ public class CallConference
         {
             public void callPeerAdded(CallPeerEvent ev)
             {
-                CallConference.this.callPeerAdded(ev);
+                CallConference.this.onCallPeerEvent(ev);
             }
 
             public void callPeerRemoved(CallPeerEvent ev)
             {
-                CallConference.this.callPeerRemoved(ev);
+                CallConference.this.onCallPeerEvent(ev);
             }
 
             public void callStateChanged(CallChangeEvent ev)
@@ -303,114 +406,6 @@ public class CallConference
     }
 
     /**
-     * Notifies this telephony conference that a <tt>CallPeer</tt> has been
-     * added to a <tt>Call</tt>.
-     *
-     * @param ev a <tt>CallPeerEvent</tt> which specifies the <tt>CallPeer</tt>
-     * which has been added and the <tt>Call</tt> to which it has been added
-     */
-    private void callPeerAdded(CallPeerEvent ev)
-    {
-        /*
-         * XXX The callPeerRemoved method calls the callPeerAdded method because
-         * they both do pretty much the same thing. The callPeerAdded method
-         * makes the distinctions where necessary by examining the eventID of
-         * the CallPeerEvent.
-         */
-
-        Call call = ev.getSourceCall();
-
-        if (containsCall(call))
-        {
-            /*
-             * Update the conferenceFocus state. Following the line of thinking
-             * expressed in the callAdded and callRemoved methods, only update
-             * it if the new conferenceFocus value is in accord with the
-             * expectations.
-             */
-            int eventID = ev.getEventID();
-            boolean conferenceFocus = isConferenceFocus(getCalls());
-
-            switch (eventID)
-            {
-            case CallPeerEvent.CALL_PEER_ADDED:
-                if (conferenceFocus)
-                    setConferenceFocus(conferenceFocus);
-                break;
-            case CallPeerEvent.CALL_PEER_REMOVED:
-                if (!conferenceFocus)
-                    setConferenceFocus(conferenceFocus);
-                break;
-            default:
-                /*
-                 * We're interested in the adding and removing of CallPeers
-                 * only.
-                 */
-                break;
-            }
-
-            try
-            {
-                // Forward the CallPeerEvent to the callChangeListeners.
-                for (CallChangeListener l : getCallChangeListeners())
-                {
-                    switch (eventID)
-                    {
-                    case CallPeerEvent.CALL_PEER_ADDED:
-                        l.callPeerAdded(ev);
-                        break;
-                    case CallPeerEvent.CALL_PEER_REMOVED:
-                        l.callPeerRemoved(ev);
-                        break;
-                    default:
-                        break;
-                    }
-                }
-            }
-            finally
-            {
-                /*
-                 * Add/remove the callPeerConferenceListener to/from the source
-                 * CallPeer (for the purposes of the
-                 * addCallPeerConferenceListener method of this CallConference).
-                 */
-                CallPeer callPeer = ev.getSourceCallPeer();
-
-                switch (eventID)
-                {
-                case CallPeerEvent.CALL_PEER_ADDED:
-                    callPeer.addCallPeerConferenceListener(
-                            callPeerConferenceListener);
-                    break;
-                case CallPeerEvent.CALL_PEER_REMOVED:
-                    callPeer.removeCallPeerConferenceListener(
-                            callPeerConferenceListener);
-                    break;
-                default:
-                    break;
-                }
-            }
-        }
-    }
-
-    /**
-     * Notifies this telephony conference that a <tt>CallPeer</tt> has been
-     * removed from a <tt>Call</tt>.
-     *
-     * @param ev a <tt>CallPeerEvent</tt> which specifies the <tt>CallPeer</tt>
-     * which has been removed and the <tt>Call</tt> from which it has been
-     * removed
-     */
-    private void callPeerRemoved(CallPeerEvent ev)
-    {
-        /*
-         * The callPeerAdded method will take into account the eventID of the
-         * CallPeerEvent.
-         */
-        callPeerAdded(ev);
-    }
-
-    /**
      * Notifies this <tt>CallConference</tt> that a specific <tt>Call</tt> has
      * been removed from the list of <tt>Call</tt>s participating in this
      * telephony conference.
@@ -575,33 +570,6 @@ public class CallConference
     }
 
     /**
-     * Gets the number of <tt>CallPeer</tt>s associated with the <tt>Call</tt>s
-     * participating in the telephony conference-related state of a specific
-     * <tt>Call</tt>.
-     *
-     * @param call the <tt>Call</tt> for which the number of <tt>CallPeer</tt>s
-     * associated with the <tt>Call</tt>s participating in its associated
-     * telephony conference-related state
-     * @return the number of <tt>CallPeer</tt>s associated with the
-     * <tt>Call</tt>s participating in the telephony conference-related state
-     * of the specified <tt>call</tt>
-     */
-    public static int getCallPeerCount(Call call)
-    {
-        CallConference conference = call.getConference();
-
-        /*
-         * A Call instance is supposed to always maintain a CallConference
-         * instance. Anyway, if it turns out that it is not the case, we will
-         * consider the Call as a representation of a telephony conference.
-         */
-        return
-            (conference == null)
-                ? call.getCallPeerCount()
-                : conference.getCallPeerCount();
-    }
-
-    /**
      * Gets a list of the <tt>CallPeer</tt>s associated with the <tt>Call</tt>s
      * participating in this telephony conference.
      *
@@ -613,34 +581,6 @@ public class CallConference
         List<CallPeer> callPeers = new ArrayList<CallPeer>();
 
         getCallPeers(callPeers);
-        return callPeers;
-    }
-
-    /**
-     * Gets a list of the <tt>CallPeer</tt>s associated with the <tt>Call</tt>s
-     * participating in the telephony conference in which a specific
-     * <tt>Call</tt> is participating.
-     *
-     * @param call the <tt>Call</tt> which specifies the telephony conference
-     * the <tt>CallPeer</tt>s of which are to be retrieved
-     * @return a list of the <tt>CallPeer</tt>s associated with the
-     * <tt>Call</tt>s participating in the telephony conference in which the
-     * specified <tt>call</tt> is participating
-     */
-    public static List<CallPeer> getCallPeers(Call call)
-    {
-        CallConference conference = call.getConference();
-        List<CallPeer> callPeers = new ArrayList<CallPeer>();
-
-        if (conference == null)
-        {
-            Iterator<? extends CallPeer> callPeerIt = call.getCallPeers();
-
-            while (callPeerIt.hasNext())
-                callPeers.add(callPeerIt.next());
-        }
-        else
-            conference.getCallPeers(callPeers);
         return callPeers;
     }
 
@@ -680,28 +620,6 @@ public class CallConference
     }
 
     /**
-     * Gets the list of <tt>Call</tt>s participating in the telephony conference
-     * in which a specific <tt>Call</tt> is participating.
-     *
-     * @param call the <tt>Call</tt> which participates in the telephony
-     * conference the list of participating <tt>Call</tt>s of which is to be
-     * returned
-     * @return the list of <tt>Call</tt>s participating in the telephony
-     * conference in which the specified <tt>call</tt> is participating
-     */
-    public static List<Call> getCalls(Call call)
-    {
-        CallConference conference = call.getConference();
-        List<Call> calls;
-
-        if (conference == null)
-            calls = Collections.emptyList();
-        else
-            calls = conference.getCalls();
-        return calls;
-    }
-
-    /**
      * Determines whether the local peer/user associated with this instance and
      * represented by the <tt>Call</tt>s participating into it is acting as a
      * conference focus.
@@ -711,32 +629,6 @@ public class CallConference
      */
     public boolean isConferenceFocus()
     {
-        return conferenceFocus;
-    }
-
-    /**
-     * Determines whether a <tt>CallConference</tt> is to report the local
-     * peer/user as a conference focus judging by a specific list of
-     * <tt>Call</tt>s.
-     * 
-     * @param calls the list of <tt>Call</tt> which are to be judged whether
-     * the local peer/user that they represent is to be considered as a
-     * conference focus 
-     * @return <tt>true</tt> if the local peer/user represented by the specified
-     * <tt>calls</tt> is judged to be a conference focus; otherwise,
-     * <tt>false</tt>
-     */
-    private static boolean isConferenceFocus(List<Call> calls)
-    {
-        int callCount = calls.size();
-        boolean conferenceFocus;
-
-        if (callCount < 1)
-            conferenceFocus = false;
-        else if (callCount > 1)
-            conferenceFocus = true;
-        else
-            conferenceFocus = (calls.get(0).getCallPeerCount() > 1);
         return conferenceFocus;
     }
 
@@ -803,6 +695,92 @@ public class CallConference
             default:
                 throw new UnsupportedOperationException(
                         "Unsupported CallPeerConferenceEvent eventID.");
+            }
+        }
+    }
+
+    /**
+     * Notifies this telephony conference about a specific
+     * <tt>CallPeerEvent</tt> i.e. that a <tt>CallPeer</tt> was either added to
+     * or removed from a <tt>Call</tt>.
+     *
+     * @param ev a <tt>CallPeerEvent</tt> which specifies the <tt>CallPeer</tt>
+     * which was added or removed and the <tt>Call</tt> to which it was added or
+     * from which is was removed
+     */
+    private void onCallPeerEvent(CallPeerEvent ev)
+    {
+        Call call = ev.getSourceCall();
+
+        if (containsCall(call))
+        {
+            /*
+             * Update the conferenceFocus state. Following the line of thinking
+             * expressed in the callAdded and callRemoved methods, only update
+             * it if the new conferenceFocus value is in accord with the
+             * expectations.
+             */
+            int eventID = ev.getEventID();
+            boolean conferenceFocus = isConferenceFocus(getCalls());
+
+            switch (eventID)
+            {
+            case CallPeerEvent.CALL_PEER_ADDED:
+                if (conferenceFocus)
+                    setConferenceFocus(conferenceFocus);
+                break;
+            case CallPeerEvent.CALL_PEER_REMOVED:
+                if (!conferenceFocus)
+                    setConferenceFocus(conferenceFocus);
+                break;
+            default:
+                /*
+                 * We're interested in the adding and removing of CallPeers
+                 * only.
+                 */
+                break;
+            }
+
+            try
+            {
+                // Forward the CallPeerEvent to the callChangeListeners.
+                for (CallChangeListener l : getCallChangeListeners())
+                {
+                    switch (eventID)
+                    {
+                    case CallPeerEvent.CALL_PEER_ADDED:
+                        l.callPeerAdded(ev);
+                        break;
+                    case CallPeerEvent.CALL_PEER_REMOVED:
+                        l.callPeerRemoved(ev);
+                        break;
+                    default:
+                        break;
+                    }
+                }
+            }
+            finally
+            {
+                /*
+                 * Add/remove the callPeerConferenceListener to/from the source
+                 * CallPeer (for the purposes of the
+                 * addCallPeerConferenceListener method of this CallConference).
+                 */
+                CallPeer callPeer = ev.getSourceCallPeer();
+
+                switch (eventID)
+                {
+                case CallPeerEvent.CALL_PEER_ADDED:
+                    callPeer.addCallPeerConferenceListener(
+                            callPeerConferenceListener);
+                    break;
+                case CallPeerEvent.CALL_PEER_REMOVED:
+                    callPeer.removeCallPeerConferenceListener(
+                            callPeerConferenceListener);
+                    break;
+                default:
+                    break;
+                }
             }
         }
     }
