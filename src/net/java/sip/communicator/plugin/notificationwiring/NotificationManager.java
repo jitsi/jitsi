@@ -7,6 +7,7 @@
 package net.java.sip.communicator.plugin.notificationwiring;
 
 import java.awt.image.*;
+import java.lang.ref.*;
 import java.net.*;
 import java.util.*;
 import java.util.concurrent.*;
@@ -494,6 +495,77 @@ public class NotificationManager
     }
 
     /**
+     * Determines whether the <tt>DIALING</tt> sound notification should be
+     * played for a specific <tt>CallPeer</tt>.
+     *
+     * @param weakPeer the <tt>CallPeer</tt> for which it is to be determined
+     * whether the <tt>DIALING</tt> sound notification is to be played
+     * @return <tt>true</tt> if the <tt>DIALING</tt> sound notification should
+     * be played for the specified <tt>callPeer</tt>; otherwise, <tt>false</tt>
+     */
+    private static boolean shouldPlayDialingSound(
+            WeakReference<CallPeer> weakPeer)
+    {
+        CallPeer peer = weakPeer.get();
+
+        if (peer == null)
+            return false;
+
+        Call call = peer.getCall();
+
+        if (call == null)
+            return false;
+
+        CallConference conference = call.getConference();
+
+        if (conference == null)
+            return false;
+
+        boolean play = false;
+
+        for (Call aCall : conference.getCalls())
+        {
+            Iterator<? extends CallPeer> peerIter = aCall.getCallPeers();
+
+            while (peerIter.hasNext())
+            {
+                CallPeer aPeer = peerIter.next();
+
+                /*
+                 * The peer is still in a call/telephony conference so the
+                 * DIALING sound may need to be played.
+                 */
+                if (peer == aPeer)
+                    play = true;
+
+                CallPeerState state = peer.getState();
+
+                if (CallPeerState.INITIATING_CALL.equals(state)
+                        || CallPeerState.CONNECTING.equals(state))
+                {
+                    /*
+                     * The DIALING sound should be played for the first CallPeer
+                     * only.
+                     */
+                    if (peer != aPeer)
+                        return false;
+                }
+                else
+                {
+                    /*
+                     * The DIALING sound should not be played if there is a
+                     * CallPeer which does not require the DIALING sound to be
+                     * played.
+                     */
+                    return false;
+                }
+            }
+        }
+
+        return play;
+    }
+
+    /**
      * Stops all sounds for the given event type.
      *
      * @param data the event type for which we should stop sounds. One of
@@ -525,15 +597,20 @@ public class NotificationManager
     /**
      * Implements CallListener.callEnded. Stops sounds that are playing at
      * the moment if there're any.
-     * @param event the <tt>CallEvent</tt>
+     *
+     * @param ev the <tt>CallEvent</tt>
      */
-    public void callEnded(CallEvent event)
+    public void callEnded(CallEvent ev)
     {
         try
         {
             // Stop all telephony related sounds.
 //            stopAllTelephonySounds();
-            stopSound(callNotifications.get(event.getSourceCall()));
+            NotificationData notification
+                = callNotifications.get(ev.getSourceCall());
+
+            if (notification != null)
+                stopSound(notification);
 
             // Play the hangup sound.
             fireNotification(HANG_UP);
@@ -846,7 +923,7 @@ public class NotificationManager
     {
         try
         {
-            final Call call = ev.getSourceCall();
+            Call call = ev.getSourceCall();
             CallPeer peer = call.getCallPeers().next();
             Map<String,String> peerInfo = new HashMap<String, String>();
             String peerName = peer.getDisplayName();
@@ -856,6 +933,14 @@ public class NotificationManager
             peerInfo.put("caller.name", peerName);
             peerInfo.put("caller.id", peer.getPeerID());
 
+            /*
+             * The loopCondition will stay with the notification sound until the
+             * latter is stopped. If by any chance the sound fails to stop by
+             * the time the call is no longer referenced, do try to stop it
+             * then. That's why the loopCondition will weakly reference the
+             * call.
+             */
+            final WeakReference<Call> weakCall = new WeakReference<Call>(call);
             NotificationData notification
                 = fireNotification(
                         INCOMING_CALL,
@@ -869,6 +954,11 @@ public class NotificationManager
                         {
                             public Boolean call()
                             {
+                                Call call = weakCall.get();
+
+                                if (call == null)
+                                    return false;
+
                                 /*
                                  * INCOMING_CALL should be played for a Call
                                  * only while there is a CallPeer in the
@@ -1254,7 +1344,7 @@ public class NotificationManager
     {
         try
         {
-            final CallPeer peer = ev.getSourceCallPeer();
+            CallPeer peer = ev.getSourceCallPeer();
             Call call = peer.getCall();
             CallPeerState newState = (CallPeerState) ev.getNewValue();
             CallPeerState oldState = (CallPeerState) ev.getOldValue();
@@ -1264,29 +1354,40 @@ public class NotificationManager
             if ((newState == CallPeerState.INITIATING_CALL)
                     || (newState == CallPeerState.CONNECTING))
             {
-                NotificationData notification
-                    = fireNotification(
-                            DIALING,
-                            new Callable<Boolean>()
-                            {
-                                public Boolean call()
+                /*
+                 * The loopCondition will stay with the notification sound until
+                 * the latter is stopped. If by any chance the sound fails to
+                 * stop by the time the peer is no longer referenced, do try to
+                 * stop it then. That's why the loopCondition will weakly
+                 * reference the peer.
+                 */
+                final WeakReference<CallPeer> weakPeer
+                    = new WeakReference<CallPeer>(peer);
+
+                /* We want to play the dialing once for multiple CallPeers. */
+                if (shouldPlayDialingSound(weakPeer))
+                {
+                    NotificationData notification
+                        = fireNotification(
+                                DIALING,
+                                new Callable<Boolean>()
                                 {
-                                    CallPeerState state = peer.getState();
+                                    public Boolean call()
+                                    {
+                                        return shouldPlayDialingSound(weakPeer);
+                                    }
+                                });
 
-                                    return
-                                        CallPeerState.INITIATING_CALL.equals(
-                                                state)
-                                            || CallPeerState.CONNECTING.equals(
-                                                    state);
-                                }
-                            });
-
-                if (notification != null)
-                    callNotifications.put(call, notification);
+                    if (notification != null)
+                        callNotifications.put(call, notification);
+                }
             }
             else
             {
-                stopSound(callNotifications.get(call));
+                NotificationData notification = callNotifications.get(call);
+
+                if (notification != null)
+                    stopSound(notification);
             }
 
             if (newState == CallPeerState.ALERTING_REMOTE_SIDE
@@ -1295,6 +1396,8 @@ public class NotificationManager
                 //need to fire a notification here.
                 && oldState != CallPeerState.CONNECTING_WITH_EARLY_MEDIA)
             {
+                final WeakReference<CallPeer> weakPeer
+                    = new WeakReference<CallPeer>(peer);
                 NotificationData notification
                     = fireNotification(
                             OUTGOING_CALL,
@@ -1302,9 +1405,13 @@ public class NotificationManager
                             {
                                 public Boolean call()
                                 {
+                                    CallPeer peer = weakPeer.get();
+
                                     return
-                                        CallPeerState.ALERTING_REMOTE_SIDE
-                                                .equals(peer.getState());
+                                        (peer != null)
+                                            && CallPeerState
+                                                .ALERTING_REMOTE_SIDE
+                                                    .equals(peer.getState());
                                 }
                             });
 
@@ -1316,6 +1423,8 @@ public class NotificationManager
                 // We start the busy sound only if we're in a simple call.
                 if (!isConference(call))
                 {
+                    final WeakReference<CallPeer> weakPeer
+                        = new WeakReference<CallPeer>(peer);
                     NotificationData notification
                         = fireNotification(
                                 BUSY_CALL,
@@ -1323,9 +1432,12 @@ public class NotificationManager
                                 {
                                     public Boolean call()
                                     {
+                                        CallPeer peer = weakPeer.get();
+
                                         return
-                                            CallPeerState.BUSY.equals(
-                                                    peer.getState());
+                                            (peer != null)
+                                                && CallPeerState.BUSY.equals(
+                                                        peer.getState());
                                     }
                                 });
 
@@ -1444,13 +1556,12 @@ public class NotificationManager
                         false, true, false));
 
         // Register dial notifications.
-        SoundNotificationAction dialSoundHandler
-            = new SoundNotificationAction(
-                    SoundProperties.DIALING, -1, false, true, false);
-
         notificationService.registerDefaultNotificationForEvent(
                 DIALING,
-                dialSoundHandler);
+                new SoundNotificationAction(
+                        SoundProperties.DIALING,
+                        -1,
+                        false, true, false));
 
         // Register the hangup sound notification.
         notificationService.registerDefaultNotificationForEvent(
