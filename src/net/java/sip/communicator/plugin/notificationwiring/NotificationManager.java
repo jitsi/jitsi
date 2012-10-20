@@ -566,21 +566,6 @@ public class NotificationManager
     }
 
     /**
-     * Stops all sounds for the given event type.
-     *
-     * @param data the event type for which we should stop sounds. One of
-     * the static event types defined in this class.
-     */
-    public static void stopSound(NotificationData data)
-    {
-        NotificationService notificationService
-            = NotificationWiringActivator.getNotificationService();
-
-        if(notificationService != null)
-            notificationService.stopNotification(data);
-    }
-
-    /**
      * Stores notification references to stop them if a notification has expired
      * (e.g. to stop the dialing sound).
      */
@@ -617,7 +602,15 @@ public class NotificationManager
         }
         catch(Throwable t)
         {
-            logger.error("Error notifying for call ended", t);
+            if (t instanceof ThreadDeath)
+                throw (ThreadDeath) t;
+            else
+            {
+                logger.error(
+                        "An error occurred while trying to notify"
+                            + " about the end of a call.",
+                        t);
+            }
         }
     }
 
@@ -1453,7 +1446,15 @@ public class NotificationManager
         }
         catch(Throwable t)
         {
-            logger.error("Error notifying after peer state changed", t);
+            if (t instanceof ThreadDeath)
+                throw (ThreadDeath) t;
+            else
+            {
+                logger.error(
+                        "An error occurred while trying to notify"
+                            + " about a change in the state of a call peer.",
+                        t);
+            }
         }
     }
 
@@ -1539,13 +1540,12 @@ public class NotificationManager
                 inCallSoundHandler);
 
         // Register outgoing call notifications.
-        SoundNotificationAction outCallSoundHandler
-            = new SoundNotificationAction(
-                    SoundProperties.OUTGOING_CALL, 3000, false, true, false);
-
         notificationService.registerDefaultNotificationForEvent(
                 OUTGOING_CALL,
-                outCallSoundHandler);
+                new SoundNotificationAction(
+                        SoundProperties.OUTGOING_CALL,
+                        3000,
+                        false, true, false));
 
         // Register busy call notifications.
         notificationService.registerDefaultNotificationForEvent(
@@ -1762,6 +1762,46 @@ public class NotificationManager
                 case ServiceEvent.UNREGISTERING:
                     handleProviderRemoved((ProtocolProviderService) service);
                     break;
+            }
+        }
+    }
+
+    /**
+     * Stops all sounds for the given event type.
+     *
+     * @param data the event type for which we should stop sounds. One of
+     * the static event types defined in this class.
+     */
+    private void stopSound(NotificationData data)
+    {
+        if (data == null)
+            return;
+
+        try
+        {
+            NotificationService notificationService
+                = NotificationWiringActivator.getNotificationService();
+
+            if(notificationService != null)
+                notificationService.stopNotification(data);
+        }
+        finally
+        {
+            /*
+             * The field callNotifications associates a Call with a
+             * NotificationData for the purposes of the stopSound method so the
+             * stopSound method should dissociate them upon stopping a specific
+             * NotificationData.
+             */
+            Iterator<Map.Entry<Call, NotificationData>> i
+                = callNotifications.entrySet().iterator();
+
+            while (i.hasNext())
+            {
+                Map.Entry<Call, NotificationData> e = i.next();
+
+                if (data.equals(e.getValue()))
+                    i.remove();
             }
         }
     }

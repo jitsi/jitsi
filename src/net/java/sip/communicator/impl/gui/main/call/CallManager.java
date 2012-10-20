@@ -1200,11 +1200,11 @@ public class CallManager
     }
 
     /**
-     * Returns a collection of all currently active calls.
+     * Returns a list of all currently active calls.
      *
-     * @return a collection of all currently active calls
+     * @return a list of all currently active calls
      */
-    public static Collection<Call> getActiveCalls()
+    private static List<Call> getActiveCalls()
     {
         CallConference[] conferences;
 
@@ -1229,23 +1229,15 @@ public class CallManager
     }
 
     /**
-     * Returns a collection of all currently in progress calls.
+     * Returns a collection of all currently in progress calls. A call is active
+     * if it is in progress so the method merely delegates to
+     * {@link #getActiveCalls()}.
      *
      * @return a collection of all currently in progress calls.
      */
     public static Collection<Call> getInProgressCalls()
     {
-        /* TODO Synchronize the access to the callPanels field. */
-
-        Collection<Call> calls = getActiveCalls();
-        List<Call> inProgressCalls = new ArrayList<Call>(calls.size());
-
-        for (Call call : calls)
-        {
-            if (call.getCallState() == CallState.CALL_IN_PROGRESS)
-                inProgressCalls.add(call);
-        }
-        return inProgressCalls;
+        return getActiveCalls();
     }
 
     /**

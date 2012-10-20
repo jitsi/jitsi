@@ -80,7 +80,7 @@ public class SoundNotificationHandlerImpl
         {
             UIService uiService = NotificationActivator.getUIService();
 
-            if(uiService.getInProgressCalls().size() > 0)
+            if(!uiService.getInProgressCalls().isEmpty())
                 return;
         }
 
