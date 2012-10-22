@@ -551,7 +551,7 @@ public class AddContactDialog
      */
     public void bringToFront()
     {
-        this.bringToFront();
+        super.toFront();
     }
 
     /**
