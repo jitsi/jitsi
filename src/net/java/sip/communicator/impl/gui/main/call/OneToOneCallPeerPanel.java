@@ -858,6 +858,11 @@ public class OneToOneCallPeerPanel
                 BorderFactory.createEmptyBorder(0, 0, 0, 0));
         }
 
+        // Update input volume control button state to reflect the current
+        // mute status.
+        if (localLevel.isSelected() != isMute)
+            localLevel.setSelected(isMute);
+
         this.revalidate();
         this.repaint();
     }
