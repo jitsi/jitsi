@@ -86,6 +86,18 @@ public class CallDialog
     @Override
     protected void close(boolean escape)
     {
+        // If the window has been closed by clicking the X button or pressing
+        // the key combination corresponding to the same button we close the
+        // window first and then perform all hang up operations.
+        if (!escape)
+        {
+            this.callPanel.disposeCallInfoFrame();
+            // We hide the window here. It will be disposed when the call has
+            // been ended.
+            setVisible(false);
+        }
+
+        // Then perform hang up operations.
         callPanel.actionPerformedOnHangupButton(escape);
     }
 

@@ -202,7 +202,7 @@ public class CallManager
         {
             Call sourceCall = ev.getSourceCall();
 
-            closeCallContainerIfNotNecessary(sourceCall, true);
+            closeCallContainerIfNotNecessary(sourceCall);
 
             /*
              * Notify the existing CallPanels about the CallEvent (in case
@@ -1042,6 +1042,38 @@ public class CallManager
                     + " to " + target, ex);
             }
         }
+    }
+
+    /**
+     * Closes the <tt>CallPanel</tt> of a specific <tt>Call</tt> if it is no
+     * longer necessary (i.e. is not used by other <tt>Call</tt>s participating
+     * in the same telephony conference as the specified <tt>Call</tt>.)
+     *
+     * @param call the <tt>Call</tt> which is to have its associated
+     * <tt>CallPanel</tt>, if any, closed
+     * {@link CallContainer#closeWait(CallPanel)} or <tt>false</tt> to use
+     * {@link CallContainer#close(CallPanel)}
+     */
+    private static void closeCallContainerIfNotNecessary(final Call call)
+    {
+        if (!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(
+                    new Runnable()
+                    {
+                        public void run()
+                        {
+                            closeCallContainerIfNotNecessary(call);
+                        }
+                    });
+            return;
+        }
+
+        CallPanel callPanel = callPanels.get(call.getConference());
+
+        if (callPanel != null)
+            closeCallContainerIfNotNecessary(
+                call, callPanel.isCloseWaitAfterHangup());
     }
 
     /**

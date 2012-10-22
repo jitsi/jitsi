@@ -264,6 +264,14 @@ public class CallPanel
     private final UIVideoHandler2 uiVideoHandler;
 
     /**
+     * Indicates if this call panel should be closed immediately after hang up
+     * or should wait some time so that the user can be notified of the last
+     * state. By default we wait, so that the user can be notified of the
+     * current state of the call.
+     */
+    private boolean isCloseWaitAfterHangup = true;
+
+    /**
      * The <tt>Observer</tt> which listens to {@link #uiVideoHandler} about
      * changes in the video-related information.
      */
@@ -445,14 +453,28 @@ public class CallPanel
      */
     public void actionPerformedOnHangupButton(boolean closeWait)
     {
-        this.disposeCallInfoFrame();
+        isCloseWaitAfterHangup = closeWait;
 
-        CallManager.hangupCalls(callConference);
+        this.disposeCallInfoFrame();
 
         /*
          * XXX It is the responsibility of CallManager to close this CallPanel
          * when a Call is ended.
          */
+        CallManager.hangupCalls(callConference);
+    }
+
+    /**
+     * Indicates if this call panel should be closed immediately after hang up
+     * or should wait some time so that the user can be notified of the last
+     * state.
+     *
+     * @return <tt>true</tt> to indicate that when hanged up this call panel
+     * should not be closed immediately, <tt>false</tt> - otherwise
+     */
+    public boolean isCloseWaitAfterHangup()
+    {
+        return isCloseWaitAfterHangup;
     }
 
     /**
