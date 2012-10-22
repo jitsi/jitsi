@@ -193,7 +193,7 @@ public class ContactJabberImpl
     @Override
     public int hashCode()
     {
-        return getAddress().hashCode();
+        return getAddress().toLowerCase().hashCode();
     }
 
     /**
