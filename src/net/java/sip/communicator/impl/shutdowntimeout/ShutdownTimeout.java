@@ -93,8 +93,13 @@ public class ShutdownTimeout
                             if(shutdownCustomValue != null
                                 && shutdownCustomValue.length() > 0)
                             {
-                                shutDownTimeout =
+                                long custom =
                                     Long.valueOf(shutdownCustomValue);
+
+                                // make sure custom is not 0, or it will
+                                // wait forever
+                                if(custom > 0)
+                                    shutDownTimeout = custom;
                             }
                         }
                         catch(Throwable t){}
