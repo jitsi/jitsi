@@ -11,7 +11,6 @@ import java.util.regex.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
-import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.event.*;
@@ -44,6 +43,14 @@ public class SearchFilter
      * The source contact list.
      */
     protected ContactList sourceContactList;
+
+    /**
+     * The name of the property indicating if searches in call history are
+     * enabled.
+     */
+    protected String DISABLE_CALL_HISTORY_SEARCH_PROP
+        = "net.java.sip.communicator.impl.gui"
+                + ".DISABLE_CALL_HISTORY_SEARCH_IN_CONTACT_LIST";
 
     /**
      * Creates an instance of <tt>SearchFilter</tt>.
@@ -104,9 +111,10 @@ public class SearchFilter
 
             // Don't search in history sources if this is disabled from the
             // corresponding configuration property.
-            if (GuiActivator.getConfigurationService().getBoolean(
-                    "net.java.sip.communicator.impl.gui"
-                    + ".DISABLE_CALL_HISTORY_SEARCH_IN_CONTACT_LIST", false)
+            if (sourceContactList.getDefaultFilter()
+                    .equals(TreeContactList.presenceFilter)
+                && GuiActivator.getConfigurationService().getBoolean(
+                    DISABLE_CALL_HISTORY_SEARCH_PROP, true)
                 && filterSource.getContactSourceService().getType()
                     == ContactSourceService.HISTORY_TYPE)
                 continue;
