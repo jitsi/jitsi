@@ -11,6 +11,7 @@ import java.util.regex.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.event.*;
@@ -100,6 +101,15 @@ public class SearchFilter
         {
             final UIContactSource filterSource
                 = filterSources.next();
+
+            // Don't search in history sources if this is disabled from the
+            // corresponding configuration property.
+            if (GuiActivator.getConfigurationService().getBoolean(
+                    "net.java.sip.communicator.impl.gui"
+                    + ".DISABLE_CALL_HISTORY_SEARCH_IN_CONTACT_LIST", false)
+                && filterSource.getContactSourceService().getType()
+                    == ContactSourceService.HISTORY_TYPE)
+                continue;
 
             // If we have stopped filtering in the mean time we return here.
             if (filterQuery.isCanceled())
