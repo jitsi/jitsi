@@ -114,7 +114,7 @@ public class SearchFilter
             if (sourceContactList.getDefaultFilter()
                     .equals(TreeContactList.presenceFilter)
                 && GuiActivator.getConfigurationService().getBoolean(
-                    DISABLE_CALL_HISTORY_SEARCH_PROP, true)
+                    DISABLE_CALL_HISTORY_SEARCH_PROP, false)
                 && filterSource.getContactSourceService().getType()
                     == ContactSourceService.HISTORY_TYPE)
                 continue;
