@@ -36,6 +36,20 @@ public class OtrActivator
     private static final String OTR_CHAT_CONFIG_DISABLED_PROP
         = "net.java.sip.communicator.plugin.otr.otrchatconfig.DISABLED";
 
+
+    /**
+     * A property specifying whether private messaging should be made mandatory.
+     */
+    public static final String OTR_MANDATORY_PROP =
+        "net.java.sip.communicator.plugin.otr.PRIVATE_MESSAGING_MANDATORY";
+
+    /**
+     * A property specifying whether private messaging should be automatically
+     * initiated.
+     */
+    public static final String AUTO_INIT_OTR_PROP =
+        "net.java.sip.communicator.plugin.otr.AUTO_INIT_PRIVATE_MESSAGING";
+
     /**
      * The {@link BundleContext} of the {@link OtrActivator}.
      */

@@ -243,8 +243,30 @@ public class OtrConfigurationPanel
             cbEnable.setSelected(otrEnabled);
             cbAutoInitiate.setEnabled(otrEnabled);
             cbRequireOtr.setEnabled(otrEnabled);
-            cbAutoInitiate.setSelected(otrPolicy.getEnableAlways());
-            cbRequireOtr.setSelected(otrPolicy.getRequireEncryption());
+
+            String autoInitPropValue
+                = OtrActivator.configService.getString(
+                    OtrActivator.AUTO_INIT_OTR_PROP);
+            boolean isAutoInit = otrPolicy.getEnableAlways();
+            if (autoInitPropValue != null)
+                isAutoInit = Boolean.parseBoolean(autoInitPropValue);
+
+            cbAutoInitiate.setSelected(isAutoInit);
+
+            String otrMandatoryPropValue
+                = OtrActivator.configService.getString(
+                    OtrActivator.OTR_MANDATORY_PROP);
+            String defaultOtrPropValue
+                = OtrActivator.resourceService.getSettingsString(
+                    OtrActivator.OTR_MANDATORY_PROP);
+
+            boolean isMandatory = otrPolicy.getRequireEncryption();
+            if (otrMandatoryPropValue != null)
+                isMandatory = Boolean.parseBoolean(otrMandatoryPropValue);
+            else if (!isMandatory && defaultOtrPropValue != null)
+                isMandatory = Boolean.parseBoolean(defaultOtrPropValue);
+
+            cbRequireOtr.setSelected(isMandatory);
         }
 
         private SIPCommCheckBox cbEnable;
@@ -292,8 +314,13 @@ public class OtrConfigurationPanel
                         OtrActivator.scOtrEngine
                             .getGlobalPolicy();
 
-                    otrPolicy.setEnableAlways(((JCheckBox) e.getSource())
-                        .isSelected());
+                    boolean isAutoInit
+                        = ((JCheckBox) e.getSource()).isSelected();
+
+                    otrPolicy.setEnableAlways(isAutoInit);
+                    OtrActivator.configService.setProperty(
+                        OtrActivator.AUTO_INIT_OTR_PROP,
+                        Boolean.toString(isAutoInit));
 
                     OtrActivator.scOtrEngine.setGlobalPolicy(otrPolicy);
 
@@ -313,8 +340,14 @@ public class OtrConfigurationPanel
                     OtrPolicy otrPolicy =
                         OtrActivator.scOtrEngine.getGlobalPolicy();
 
-                    otrPolicy.setRequireEncryption(((JCheckBox) e.getSource())
-                        .isSelected());
+                    boolean isRequired
+                        = ((JCheckBox) e.getSource()).isSelected();
+
+                    otrPolicy.setRequireEncryption(isRequired);
+
+                    OtrActivator.configService.setProperty(
+                        OtrActivator.OTR_MANDATORY_PROP,
+                        Boolean.toString(isRequired));
 
                     OtrActivator.scOtrEngine.setGlobalPolicy(otrPolicy);
 

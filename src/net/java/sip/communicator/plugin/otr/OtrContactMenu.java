@@ -127,7 +127,7 @@ class OtrContactMenu
         {
             OtrPolicy policy =
                 OtrActivator.scOtrEngine.getContactPolicy(contact);
-            boolean state = ((JCheckBoxMenuItem) e.getSource()).getState();
+            boolean state = ((JCheckBoxMenuItem) e.getSource()).isSelected();
 
             policy.setEnableManual(state);
             OtrActivator.scOtrEngine.setContactPolicy(contact, policy);
@@ -137,9 +137,12 @@ class OtrContactMenu
         {
             OtrPolicy policy =
                 OtrActivator.scOtrEngine.getContactPolicy(contact);
-            boolean state = ((JCheckBoxMenuItem) e.getSource()).getState();
+            boolean state = ((JCheckBoxMenuItem) e.getSource()).isSelected();
 
             policy.setEnableAlways(state);
+            OtrActivator.configService.setProperty(
+                OtrActivator.AUTO_INIT_OTR_PROP,
+                Boolean.toString(state));
             OtrActivator.scOtrEngine.setContactPolicy(contact, policy);
         }
 
@@ -147,9 +150,12 @@ class OtrContactMenu
         {
             OtrPolicy policy =
                 OtrActivator.scOtrEngine.getContactPolicy(contact);
-            boolean state = ((JCheckBoxMenuItem) e.getSource()).getState();
+            boolean state = ((JCheckBoxMenuItem) e.getSource()).isSelected();
 
             policy.setRequireEncryption(state);
+            OtrActivator.configService.setProperty(
+                OtrActivator.OTR_MANDATORY_PROP,
+                Boolean.toString(state));
             OtrActivator.scOtrEngine.setContactPolicy(contact, policy);
         }
         else if (ACTION_COMMAND_CB_RESET.equals(actionCommand))
@@ -274,7 +280,7 @@ class OtrContactMenu
         JCheckBoxMenuItem cbEnable = new JCheckBoxMenuItem();
         cbEnable.setText(OtrActivator.resourceService
             .getI18NString("plugin.otr.menu.CB_ENABLE"));
-        cbEnable.setState(policy.getEnableManual());
+        cbEnable.setSelected(policy.getEnableManual());
         cbEnable.setActionCommand(ACTION_COMMAND_CB_ENABLE);
         cbEnable.addActionListener(this);
 
@@ -282,7 +288,16 @@ class OtrContactMenu
         cbAlways.setText(OtrActivator.resourceService
             .getI18NString("plugin.otr.menu.CB_AUTO"));
         cbAlways.setEnabled(policy.getEnableManual());
-        cbAlways.setState(policy.getEnableAlways());
+
+        String autoInitPropValue
+            = OtrActivator.configService.getString(
+                OtrActivator.AUTO_INIT_OTR_PROP);
+        boolean isAutoInit = policy.getEnableAlways();
+        if (autoInitPropValue != null)
+            isAutoInit = Boolean.parseBoolean(autoInitPropValue);
+
+        cbAlways.setSelected(isAutoInit);
+
         cbAlways.setActionCommand(ACTION_COMMAND_CB_AUTO);
         cbAlways.addActionListener(this);
 
@@ -290,7 +305,22 @@ class OtrContactMenu
         cbRequire.setText(OtrActivator.resourceService
             .getI18NString("plugin.otr.menu.CB_REQUIRE"));
         cbRequire.setEnabled(policy.getEnableManual());
-        cbRequire.setState(policy.getRequireEncryption());
+
+        String otrMandatoryPropValue
+            = OtrActivator.configService.getString(
+                OtrActivator.OTR_MANDATORY_PROP);
+        String defaultOtrPropValue
+            = OtrActivator.resourceService.getSettingsString(
+                OtrActivator.OTR_MANDATORY_PROP);
+
+        boolean isMandatory = policy.getRequireEncryption();
+        if (otrMandatoryPropValue != null)
+            isMandatory = Boolean.parseBoolean(otrMandatoryPropValue);
+        else if (!isMandatory && defaultOtrPropValue != null)
+            isMandatory = Boolean.parseBoolean(defaultOtrPropValue);
+
+        cbRequire.setSelected(isMandatory);
+
         cbRequire.setActionCommand(ACTION_COMMAND_CB_REQUIRE);
         cbRequire.addActionListener(this);
 
