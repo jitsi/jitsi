@@ -573,20 +573,14 @@ public class AddContactDialog
     }
 
     /**
-     * Maximizes the window.
+     * This window can't be maximized.
      */
-    public void maximize()
-    {
-        this.maximize();
-    }
+    public void maximize() {}
 
     /**
-     * Minimizes the window.
+     * This window can't be minimized.
      */
-    public void minimize()
-    {
-        this.minimize();
-    }
+    public void minimize() {}
 
     /**
      * This method can be called to pass any params to the exported window. This
