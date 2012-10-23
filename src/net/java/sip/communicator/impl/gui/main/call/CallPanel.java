@@ -1805,19 +1805,32 @@ public class CallPanel
      */
     void updateHoldButtonState()
     {
-        boolean areAllPeersLocallyOnHold = true;
+        List<CallPeer> peers = callConference.getCallPeers();
+        boolean areAllPeersLocallyOnHold;
 
-        for (CallPeer peer : callConference.getCallPeers())
+        if (peers.isEmpty())
         {
-            CallPeerState state = peer.getState();
-
-            // If we have clicked the hold button in a full screen mode
-            // we need to update the state of the call dialog hold button.
-            if (!state.equals(CallPeerState.ON_HOLD_LOCALLY)
-                && !state.equals(CallPeerState.ON_HOLD_MUTUALLY))
+            /*
+             * It feels natural to not have the holdButton selected when there
+             * are no peers.
+             */
+            areAllPeersLocallyOnHold = false;
+        }
+        else
+        {
+            areAllPeersLocallyOnHold = true;
+            for (CallPeer peer : callConference.getCallPeers())
             {
-                areAllPeersLocallyOnHold = false;
-                break;
+                CallPeerState state = peer.getState();
+
+                // If we have clicked the hold button in a full screen mode
+                // we need to update the state of the call dialog hold button.
+                if (!state.equals(CallPeerState.ON_HOLD_LOCALLY)
+                    && !state.equals(CallPeerState.ON_HOLD_MUTUALLY))
+                {
+                    areAllPeersLocallyOnHold = false;
+                    break;
+                }
             }
         }
 
