@@ -458,10 +458,21 @@ public class CallPanel
         this.disposeCallInfoFrame();
 
         /*
-         * XXX It is the responsibility of CallManager to close this CallPanel
+         * It is the responsibility of CallManager to close this CallPanel
          * when a Call is ended.
          */
-        CallManager.hangupCalls(callConference);
+        if (callConference.getCallCount() > 0)
+            CallManager.hangupCalls(callConference);
+        /*
+         * If however there are no more calls related to this panel we will
+         * close the window directly. This could happen in the case, where
+         * the other side has already hanged up the call, the call window shows
+         * the state disconnected and we press the hang up button. In this
+         * case the contained call is already null and we should only close the
+         * call window.
+         */
+        else
+            callWindow.close(this, false);
     }
 
     /**

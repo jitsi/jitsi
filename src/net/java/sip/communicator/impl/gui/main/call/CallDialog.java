@@ -106,7 +106,7 @@ public class CallDialog
      *
      * The delay implemented by <tt>CallDialog</tt> is 5 seconds.
      */
-    public void close(CallPanel callPanel, boolean delay)
+    public void close(final CallPanel callPanel, boolean delay)
     {
         if (this.callPanel.equals(callPanel))
         {
@@ -128,7 +128,6 @@ public class CallDialog
             }
             else
             {
-                this.callPanel.disposeCallInfoFrame();
                 dispose();
             }
         }
@@ -151,7 +150,10 @@ public class CallDialog
          * such a case at this time so try to reduce the risk of memory leaks.
          */
         if (this.callPanel != null)
-            this.callPanel.dispose();
+        {
+            callPanel.disposeCallInfoFrame();
+            callPanel.dispose();
+        }
     }
 
     /**

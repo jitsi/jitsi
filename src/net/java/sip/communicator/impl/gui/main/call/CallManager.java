@@ -2351,8 +2351,10 @@ public class CallManager
                 while (peerIter.hasNext())
                     peers.add(peerIter.next());
             }
+
             if (conference != null)
                 peers.addAll(conference.getCallPeers());
+
             if (peer != null)
                 peers.add(peer);
 
