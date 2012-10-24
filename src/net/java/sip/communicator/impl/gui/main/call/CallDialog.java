@@ -169,9 +169,7 @@ public class CallDialog
      * @throws RuntimeException if the method is not called on the AWT event
      * dispatching thread
      */
-    public void ensureSize(
-            final Component component,
-            final int width, final int height)
+    public void ensureSize(Component component, int width, int height)
     {
         CallManager.assertIsEventDispatchingThread();
 
@@ -205,10 +203,92 @@ public class CallDialog
         }
         else
         {
-            Dimension frameSize = frame.getSize();
+            /*
+             * If there is no callPanel, it is unlikely that this CallDialog
+             * will be asked to ensureSize. Anyway, support the scenario just in
+             * case. In light of the absence of a callPanel to guide this
+             * CallDialog about the preferred size, we do not have much of a
+             * choice but to trust the method arguments.
+             */
+            if (callPanel != null)
+            {
+                /*
+                 * If there is a callPanel, we are likely to get a much better
+                 * estimation about the preferred size by asking the callPanel
+                 * rather than by trusting the method arguments. For example,
+                 * the visual Component displaying the video streaming from the
+                 * local user/peer to the remote peer(s) will think that its
+                 * preferred size is the one to base this Frame's size on but
+                 * that may be misleading because the local video may not be
+                 * displayed with its preferred size even if this Frame's size
+                 * will accommodate it.
+                 */
+                /*
+                 * Just asking the callPanel about its preferredSize would've
+                 * been terrificly great. Unfortunately, that is presently
+                 * futile because the callPanel may have a preferredSize while
+                 * we are still required to display visual Components displaying
+                 * video in their non-scaled size. The same goes for any
+                 * Container which is an ancestor of the specified component.
+                 */
+                Container ancestor
+                    = findClosestAncestorWithSetPreferredSize(component);
+
+                if (ancestor == null)
+                    ancestor = callPanel;
+                /*
+                 * If the ancestor has a forced preferredSize, its LayoutManager
+                 * may be able to give a good enough estimation.
+                 */
+                if (ancestor.isPreferredSizeSet())
+                {
+                    LayoutManager ancestorLayout = ancestor.getLayout();
+
+                    if (ancestorLayout != null)
+                    {
+                        Dimension preferredLayoutSize
+                            = ancestorLayout.preferredLayoutSize(ancestor);
+
+                        if (preferredLayoutSize != null)
+                        {
+                            component = ancestor;
+                            width = preferredLayoutSize.width;
+                            height = preferredLayoutSize.height;
+                        }
+                    }
+                }
+                else
+                {
+                    /*
+                     * If the ancestor doesn't have a preferredSize forced, then
+                     * we may think that it will calculate an appropriate
+                     * preferredSize itself.
+                     */
+                    Dimension preferredSize = ancestor.getPreferredSize();
+
+                    if (preferredSize != null)
+                    {
+                        component = ancestor;
+                        width = preferredSize.width;
+                        height = preferredSize.height;
+                    }
+                }
+            }
+
+            /*
+             * If the component (which may be an ancestor of the Component
+             * specified as an argument to the ensureSize method at this point)
+             * has not been given a size, we will make a mistake if we try to
+             * use it for the purposes of determining how much this Frame is to
+             * be enlarged.
+             */
             Dimension componentSize = component.getSize();
-            int newFrameWidth
-                = frameSize.width + width - componentSize.width;
+
+            if ((componentSize.width < 1) || (componentSize.height < 1))
+                return;
+
+            Dimension frameSize = frame.getSize();
+            int newFrameWidth = frameSize.width + width - componentSize.width;
             int newFrameHeight
                 = frameSize.height + height - componentSize.height;
 
@@ -265,6 +345,37 @@ public class CallDialog
                         newFrameX, newFrameY,
                         newFrameWidth, newFrameHeight);
             }
+        }
+    }
+
+    /**
+     * Finds a <tt>Container</tt> which is an ancestor of a specific
+     * <tt>Component</tt>, has a set <tt>preferredSize</tt> and is closest to
+     * the specified <tt>Component</tt> up the ancestor hierarchy.
+     * 
+     * @param component the <tt>Component</tt> whose ancestor hierarchy is to be
+     * searched upwards
+     * @return a <tt>Container</tt>, if any, which is an ancestor of the
+     * specified <tt>component</tt>, has a set <tt>preferredSize</tt> and is
+     * closest to the specified <tt>component</tt> up the ancestor hierarchy
+     */
+    private static Container findClosestAncestorWithSetPreferredSize(
+            Component component)
+    {
+        if ((component instanceof Container) && component.isPreferredSizeSet())
+            return (Container) component;
+        else
+        {
+            Container parent;
+
+            while ((parent = component.getParent()) != null)
+            {
+                if (parent.isPreferredSizeSet())
+                    return parent;
+                else
+                    component = parent;
+            }
+            return null;
         }
     }
 

@@ -18,7 +18,7 @@ import net.java.sip.communicator.service.protocol.*;
  * @author Mihai Balan
  */
 public class ContactRssImpl
-    implements Contact
+    extends AbstractContact
 {
 
     /**
@@ -395,37 +395,6 @@ public class ContactRssImpl
     public void setResolved(boolean resolved)
     {
         this.isResolved = resolved;
-    }
-
-    /**
-     * Indicates whether some other object is "equal to" this one which in terms
-     * of contacts translates to having equal IDs. The resolved status of the
-     * contacts is deliberately ignored so that contacts would be declared equal
-     * even if one contact is resolved and the other is not.
-     * <p>
-     * @param obj the reference object with which to compare.
-     * @return  <code>true</code> if this contact has the same ID as that of the
-     * <code>obj</code> argument.
-     */
-    public boolean equals(Object obj)
-    {
-        if (obj == null
-                || ! (obj instanceof ContactRssImpl))
-            return false;
-
-        ContactRssImpl rssContact = (ContactRssImpl) obj;
-
-        return this.getAddress().equals(rssContact.getAddress());
-    }
-
-    /**
-     * Overrides <tt>hashCode</tt> from <tt>Object</tt> to ensure that
-     * equal objects have same hashcode
-     *
-     * http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Object.html#equals(java.lang.Object)
-     */
-    public int hashCode() {
-        return getAddress().hashCode();
     }
 
     /**

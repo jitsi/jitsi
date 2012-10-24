@@ -40,9 +40,6 @@ public class AddContactDialog
                 WindowFocusListener,
                 Skinnable
 {
-    private final Logger logger
-        = Logger.getLogger(AddContactDialog.class.getName());
-
     private final  JLabel accountLabel = new JLabel(
         GuiActivator.getResources().getI18NString(
             "service.gui.SELECT_ACCOUNT") + ": ");
@@ -503,7 +500,8 @@ public class AddContactDialog
     /**
      * A custom renderer displaying groups in a combo box.
      */
-    private static class GroupComboRenderer extends DefaultListCellRenderer
+    private static class GroupComboRenderer
+        extends DefaultListCellRenderer
     {
         @Override
         public Component getListCellRendererComponent(  JList list,
@@ -547,11 +545,11 @@ public class AddContactDialog
     }
 
     /**
-     * Brings this window to front.
+     * Brings this window to the front.
      */
     public void bringToFront()
     {
-        super.toFront();
+        toFront();
     }
 
     /**

@@ -24,7 +24,7 @@ import net.java.sip.communicator.util.*;
  * @author Jonathan Martin
  */
 public class ContactZeroconfImpl
-    implements Contact
+    extends AbstractContact
 {
     private static final Logger logger
         = Logger.getLogger(ContactZeroconfImpl.class);
@@ -429,28 +429,6 @@ public class ContactZeroconfImpl
     {
         this.isResolved = resolved;
     }
-
-    /**
-     * Indicates whether some other object is "equal to" this one which in terms
-     * of contacts translates to having equal ids. The resolved status of the
-     * contacts deliberately ignored so that contacts would be declared equal
-     * even if it differs.
-     * <p>
-     * @param   obj   the reference object with which to compare.
-     * @return  <code>true</code> if this contact has the same id as that of the
-     * <code>obj</code> argument.
-     */
-    public boolean equals(Object obj)
-    {
-        if (obj == null
-            || ! (obj instanceof ContactZeroconfImpl))
-            return false;
-
-        ContactZeroconfImpl zeroconfContact = (ContactZeroconfImpl) obj;
-
-        return this.getAddress().equals(zeroconfContact.getAddress());
-    }
-
 
     /**
      * Returns the persistent presence operation set that this contact belongs

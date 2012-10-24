@@ -240,14 +240,6 @@ public class OneToOneCallPeerPanel
 
         if (center != null)
         {
-            /*
-             * Don't let the center dictate the preferred size because it may
-             * display large videos. Otherwise, the large video will make this
-             * panel expand and then the panel's container will show scroll
-             * bars.
-             */
-            center.setPreferredSize(new Dimension(1, 1));
-
             cnstrnts.fill = GridBagConstraints.BOTH;
             cnstrnts.gridx = 0;
             cnstrnts.gridy = 1;

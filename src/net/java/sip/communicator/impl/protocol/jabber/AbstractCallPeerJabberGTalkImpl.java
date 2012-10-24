@@ -89,11 +89,11 @@ public abstract class AbstractCallPeerJabberGTalkImpl
      */
     public Contact getContact()
     {
-        ProtocolProviderService pps = getCall().getProtocolProvider();
-        OperationSetPresence opSetPresence
-            = pps.getOperationSet(OperationSetPresence.class);
+        OperationSetPresence presence
+            = getProtocolProvider().getOperationSet(OperationSetPresence.class);
 
-        return opSetPresence.findContactByID(getAddress());
+        return
+            (presence == null) ? null : presence.findContactByID(getAddress());
     }
 
     /**
@@ -155,19 +155,18 @@ public abstract class AbstractCallPeerJabberGTalkImpl
      */
     protected void retrieveDiscoverInfo(String calleeURI)
     {
-        DiscoverInfo tmpDiscoverInfo = null;
         try
         {
-            tmpDiscoverInfo = this.getCall().getProtocolProvider()
-                .getDiscoveryManager().discoverInfo(calleeURI);
-            if(tmpDiscoverInfo != null)
-            {
-                this.setDiscoverInfo(tmpDiscoverInfo);
-            }
+            DiscoverInfo discoverInfo
+                = getProtocolProvider().getDiscoveryManager().discoverInfo(
+                        calleeURI);
+
+            if(discoverInfo != null)
+                setDiscoverInfo(discoverInfo);
         }
-        catch (XMPPException ex)
+        catch (XMPPException xmppex)
         {
-            logger.warn("could not retrieve info for " + calleeURI, ex);
+            logger.warn("Could not retrieve info for " + calleeURI, xmppex);
         }
     }
 

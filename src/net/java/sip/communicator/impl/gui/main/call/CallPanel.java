@@ -1948,16 +1948,28 @@ public class CallPanel
         Dimension newPreferredSize = getPreferredSize();
 
         if ((newPreferredSize != null)
-                && (newPreferredSize.width
-                        > ((oldPreferredSize == null)
-                                ? 0
-                                : oldPreferredSize.width))
                 && ((newPreferredSize.height > getHeight())
                         || (newPreferredSize.width > getWidth())))
         {
-            ensureSize(
-                    this,
-                    newPreferredSize.width, newPreferredSize.height);
+            int oldPreferredHeight, oldPreferredWidth;
+
+            if (oldPreferredSize == null)
+            {
+                oldPreferredHeight = 0;
+                oldPreferredWidth = 0;
+            }
+            else
+            {
+                oldPreferredHeight = oldPreferredSize.height;
+                oldPreferredWidth = oldPreferredSize.width;
+            }
+            if ((newPreferredSize.height != oldPreferredHeight)
+                    || (newPreferredSize.width != oldPreferredWidth))
+            {
+                ensureSize(
+                        this,
+                        newPreferredSize.width, newPreferredSize.height);
+            }
         }
     }
 

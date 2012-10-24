@@ -8,10 +8,11 @@ import net.kano.joustsim.oscar.oscar.service.ssi.*;
 
 /**
  * The ICQ implementation of the service.protocol.Contact interface.
+ *
  * @author Emil Ivov
  */
 public class ContactIcqImpl
-    implements Contact
+    extends AbstractContact
 {
     Buddy joustSimBuddy = null;
     private boolean isLocal = false;
@@ -80,37 +81,6 @@ public class ContactIcqImpl
     public byte[] getImage()
     {
         return image;
-    }
-
-    /**
-     * Returns a hashCode for this contact. The returned hashcode is actually
-     * that of the Contact's UIN
-     * @return the hashcode of this Contact
-     */
-    public int hashCode()
-    {
-        return getUIN().hashCode();
-    }
-
-    /**
-     * Indicates whether some other object is "equal to" this one.
-     * <p>
-     *
-     * @param   obj   the reference object with which to compare.
-     * @return  <tt>true</tt> if this object is the same as the obj
-     *          argument; <tt>false</tt> otherwise.
-     */
-    public boolean equals(Object obj)
-    {
-        if (obj == null
-            || !(obj instanceof ContactIcqImpl)
-            || !(((ContactIcqImpl)obj).getAddress().equals(getAddress())
-                && ((ContactIcqImpl)obj).getProtocolProvider()
-                        == getProtocolProvider()))
-
-            return false;
-
-        return true;
     }
 
     /**

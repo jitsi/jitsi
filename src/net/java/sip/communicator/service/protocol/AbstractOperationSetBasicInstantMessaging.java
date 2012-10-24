@@ -18,7 +18,7 @@ import net.java.sip.communicator.util.*;
  * implementers to provide complete solutions while focusing on
  * implementation-specific details.
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public abstract class AbstractOperationSetBasicInstantMessaging
     implements OperationSetBasicInstantMessaging
@@ -189,16 +189,22 @@ public abstract class AbstractOperationSetBasicInstantMessaging
             {
                 switch (eventType)
                 {
-                    case MessageDelivered:
-                        listener.messageDelivered((MessageDeliveredEvent) evt);
-                        break;
-                    case MessageDeliveryFailed:
-                        listener
-                        .messageDeliveryFailed((MessageDeliveryFailedEvent)evt);
-                        break;
-                    case MessageReceived:
-                        listener.messageReceived((MessageReceivedEvent) evt);
-                        break;
+                case MessageDelivered:
+                    listener.messageDelivered((MessageDeliveredEvent) evt);
+                    break;
+                case MessageDeliveryFailed:
+                    listener.messageDeliveryFailed(
+                            (MessageDeliveryFailedEvent)evt);
+                    break;
+                case MessageReceived:
+                    listener.messageReceived((MessageReceivedEvent) evt);
+                    break;
+                default:
+                    /*
+                     * We either have nothing to do or we do not know what to
+                     * do. Anyway, we'll silence the compiler.
+                     */
+                    break;
                 }
             }
         }
@@ -257,7 +263,7 @@ public abstract class AbstractOperationSetBasicInstantMessaging
             protocolProvider = ((MessageReceivedEvent)evt).getSourceContact().getProtocolProvider();
             break;
         default:
-                return evt;
+            return evt;
         }
 
         OperationSetInstantMessageTransformImpl opSetMessageTransform =
@@ -294,6 +300,12 @@ public abstract class AbstractOperationSetBasicInstantMessaging
                         evt
                             = transformLayer
                                 .messageReceived((MessageReceivedEvent)evt);
+                        break;
+                    default:
+                        /*
+                         * We either have nothing to do or we do not know what
+                         * to do. Anyway, we'll silence the compiler.
+                         */
                         break;
                     }
                 }

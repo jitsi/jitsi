@@ -215,7 +215,7 @@ public class OperationSetPresenceSipImpl
     /**
      * Watcher status from the watchers info list.
      */
-    private enum WatcherStatus
+    private static enum WatcherStatus
     {
         PENDING("pending"),
         ACTIVE("active"),
@@ -225,7 +225,7 @@ public class OperationSetPresenceSipImpl
         /**
          * The value.
          */
-        private String value;
+        private final String value;
 
         /**
          * Creates <>tt WatcherStatus</tt>

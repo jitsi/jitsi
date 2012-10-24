@@ -16,7 +16,7 @@ import net.java.sip.communicator.service.protocol.*;
  * @author Emil Ivov
  */
 public class MockContact
-    implements Contact
+    extends AbstractContact
 {
     private String contactID = null;
     private MockProvider parentProvider = null;
@@ -215,27 +215,6 @@ public class MockContact
         this.isResolved = resolved;
     }
 
-    /**
-     * Indicates whether some other object is "equal to" this one which in terms
-     * of contacts translates to having equal ids. The resolved status of the
-     * contacts deliberately ignored so that contacts would be declared equal
-     * even if it differs.
-     * <p>
-     * @param   obj   the reference object with which to compare.
-     * @return  <code>true</code> if this contact has the same id as that of the
-     * <code>obj</code> argument.
-     */
-    public boolean equals(Object obj)
-    {
-        if (obj == null
-            || ! (obj instanceof MockContact))
-            return false;
-
-        MockContact mockContact = (MockContact) obj;
-
-        return this.getAddress().equals(mockContact.getAddress());
-    }
-    
     /**
      * Return the current status message of this contact.
      * 

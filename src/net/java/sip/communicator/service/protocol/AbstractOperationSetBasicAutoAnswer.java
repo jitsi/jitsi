@@ -239,10 +239,7 @@ public abstract class AbstractOperationSetBasicAutoAnswer
          */
         public void run()
         {
-            OperationSetBasicAutoAnswer opSetBasicAutoAnswer
-                = protocolProvider.getOperationSet(
-                        OperationSetBasicAutoAnswer.class);
-            OperationSetBasicTelephony opSetBasicTelephony
+            OperationSetBasicTelephony<?> opSetBasicTelephony
                 = protocolProvider.getOperationSet(
                         OperationSetBasicTelephony.class);
             OperationSetVideoTelephony opSetVideoTelephony
@@ -251,14 +248,14 @@ public abstract class AbstractOperationSetBasicAutoAnswer
             try
             {
                 // If this is a video call and that the user has configured to
-                // answer it with wideo, then create a video call.
+                // answer it with video, then create a video call.
                 if(this.isVideoCall
                         && answerWithVideo
                         && opSetVideoTelephony != null)
                 {
                     opSetVideoTelephony.answerVideoCallPeer(peer);
                 }
-                // Else sends only audio to the repote peer (the remote peer is
+                // Else sends only audio to the remote peer (the remote peer is
                 // still able to send us its video stream).
                 else if(opSetBasicTelephony != null)
                 {
@@ -277,6 +274,7 @@ public abstract class AbstractOperationSetBasicAutoAnswer
          *
          * @param evt the <tt>CallPeerChangeEvent</tt> instance containing the
          */
+        @Override
         public void peerStateChanged(CallPeerChangeEvent evt)
         {
             CallPeerState newState = (CallPeerState) evt.getNewValue();

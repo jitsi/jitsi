@@ -7,7 +7,6 @@
 package net.java.sip.communicator.impl.gui.main.call.conference;
 
 import java.awt.*;
-import java.awt.event.*;
 import java.util.*;
 import java.util.List;
 
@@ -240,82 +239,16 @@ public class VideoConferenceCallPanel
      */
     private VideoContainer createVideoContainer()
     {
-        final VideoContainer videoContainer = new VideoContainer(null, true);
-
-        videoContainer.setPreferredSize(new Dimension(0, 0));
-
+        VideoContainer videoContainer = new VideoContainer(null, true);
         GridBagConstraints videoContainerGridBagConstraints
             = new GridBagConstraints();
 
         videoContainerGridBagConstraints.fill = GridBagConstraints.BOTH;
         videoContainerGridBagConstraints.gridx = 0;
         videoContainerGridBagConstraints.gridy = 0;
-        videoContainerGridBagConstraints.weightx = 0;
+        videoContainerGridBagConstraints.weightx = 1;
         videoContainerGridBagConstraints.weighty = 1;
         add(videoContainer, videoContainerGridBagConstraints);
-        /*
-         * When the videoContainer is empty i.e. it has nothing to show, don't
-         * show it.
-         */
-        videoContainer.addContainerListener(
-            new ContainerListener()
-            {
-                public void componentAdded(ContainerEvent e)
-                {
-                    GridBagLayout layout = (GridBagLayout) getLayout();
-                    boolean videoContainerIsVisible
-                        = (videoContainer.getComponentCount() > 0);
-
-                    for (Component component : getComponents())
-                    {
-                        GridBagConstraints constraints
-                            = layout.getConstraints(component);
-
-                        if (videoContainerIsVisible)
-                        {
-                            constraints.weightx
-                                = (component == videoContainer) ? 1 : 0;
-                        }
-                        else
-                        {
-                            constraints.weightx
-                                = (component == videoContainer) ? 0 : 1;
-                        }
-                        layout.setConstraints(component, constraints);
-                    }
-
-                    /*
-                     * When the first visual/video Component gets added, this
-                     * videoContainer is still not accommodated by the frame
-                     * size because it has just become visible. So try to resize
-                     * the frame to accommodate this videoContainer.
-                     */
-                    if (e.getID() == ContainerEvent.COMPONENT_ADDED)
-                    {
-                        Dimension preferredSize
-                            = videoContainer.getLayout().preferredLayoutSize(
-                                    videoContainer);
-
-                        if ((preferredSize != null)
-                                && (preferredSize.width > 0)
-                                && (preferredSize.height > 0))
-                        {
-//                            ensureSize(
-//                                    videoContainer,
-//                                    preferredSize.width, preferredSize.height);
-                        }
-                    }
-                }
-
-                public void componentRemoved(ContainerEvent e)
-                {
-                    /*
-                     * It's all the same with respect to the purpose of this
-                     * ContainerListener.
-                     */
-                    componentAdded(e);
-                }
-            });
 
         return videoContainer;
     }
@@ -775,6 +708,17 @@ public class VideoConferenceCallPanel
         return callPeerPanel;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * Temporarily disables the use of <tt>ConferenceParticipantContainer</tt>
+     * because the functionality implemented in the model at the time of this
+     * writing does not fully support mapping of visual <tt>Component</tt>s
+     * displaying video to telephony conference participants (e.g. in telephony
+     * conferences utilizing the Jitsi VideoBridge server-side technology).
+     * Instead displays the videos only, does not map videos to participants and
+     * does not display participants who do not have videos.
+     */
     @Override
     protected void updateViewFromModelInEventDispatchThread()
     {
@@ -868,7 +812,11 @@ public class VideoConferenceCallPanel
             if (!UIVideoHandler2.isAncestor(videoContainer, video))
             {
                 this.videos.add(video);
-                videoContainer.add(video, VideoLayout.CENTER_REMOTE);
+                videoContainer.add(
+                        video,
+                        (video == localVideo)
+                            ? VideoLayout.LOCAL
+                            : VideoLayout.CENTER_REMOTE);
             }
         }
     }

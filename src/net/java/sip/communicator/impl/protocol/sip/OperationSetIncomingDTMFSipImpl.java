@@ -19,11 +19,6 @@ public class OperationSetIncomingDTMFSipImpl
     implements OperationSetIncomingDTMF
 {
     /**
-     * The parent provider.
-     */
-    private ProtocolProviderServiceSipImpl provider;
-
-    /**
      * The send DTMF operation set holding dtmf implementations.
      */
     private OperationSetDTMFSipImpl opsetDTMFSip;
@@ -36,8 +31,6 @@ public class OperationSetIncomingDTMFSipImpl
     OperationSetIncomingDTMFSipImpl(ProtocolProviderServiceSipImpl provider,
                                     OperationSetDTMFSipImpl opsetDTMFSip)
     {
-        this.provider = provider;
-
         this.opsetDTMFSip = opsetDTMFSip;
     }
 

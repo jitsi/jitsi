@@ -17,7 +17,7 @@ import ymsg.network.*;
  * @author Emil Ivov
  */
 public class ContactYahooImpl
-    implements Contact
+    extends AbstractContact
 {
     private static final Logger logger =
         Logger.getLogger(ContactYahooImpl.class);
@@ -209,36 +209,6 @@ public class ContactYahooImpl
                 logger.info("setting image " + image);
 
         this.image = image;
-    }
-
-    /**
-     * Returns a hashCode for this contact. The returned hashcode is actually
-     * that of the Contact's Address
-     * @return the hashcode of this Contact
-     */
-    public int hashCode()
-    {
-        return getAddress().hashCode();
-    }
-
-    /**
-     * Indicates whether some other object is "equal to" this one.
-     * <p>
-     *
-     * @param   obj   the reference object with which to compare.
-     * @return  <tt>true</tt> if this object is the same as the obj
-     *          argument; <tt>false</tt> otherwise.
-     */
-    public boolean equals(Object obj)
-    {
-        if (obj == null
-            || !(obj instanceof ContactYahooImpl)
-            || !( ((ContactYahooImpl)obj).getID().equals(getID()) )
-                && ((ContactYahooImpl)obj).getProtocolProvider()
-                        == getProtocolProvider())
-            return false;
-        else
-            return true;
     }
 
     /**

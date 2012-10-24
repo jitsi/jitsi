@@ -402,9 +402,7 @@ public abstract class ServerStoredContactList
         for (ContactSipImpl uniqueContact : getUniqueContacts(rootGroup))
         {
             if (uniqueContact.getUri().equals(contactUri))
-            {
                 return true;
-            }
         }
         return false;
     }
@@ -439,9 +437,7 @@ public abstract class ServerStoredContactList
         for (ContactSipImpl contact : getContacts(contactUri))
         {
             if (contact.isPersistent())
-            {
                 return true;
-            }
         }
         return false;
     }

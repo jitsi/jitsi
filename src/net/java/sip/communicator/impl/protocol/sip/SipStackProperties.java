@@ -13,7 +13,6 @@ import java.util.logging.*;
 import javax.net.ssl.*;
 
 import net.java.sip.communicator.impl.protocol.sip.net.*;
-import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.Logger;
 
 import org.jitsi.util.*;
