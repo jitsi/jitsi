@@ -362,6 +362,8 @@ public class SdpUtils
      * @param ptRegistry a reference to the <tt>DynamycPayloadTypeRegistry</tt>
      * where we should be registering newly added payload type number to format
      * mappings.
+     * @param overridePTMapping a payload types that we will need to remap
+     * when sending if selected. Use to respect remote party payload types.
      *
      * @return an ordered list of <tt>MediaFormat</tt>s that are both advertised
      * in the <tt>mediaDesc</tt> description and supported by our
@@ -370,7 +372,8 @@ public class SdpUtils
     @SuppressWarnings("unchecked")//legacy code from jain-sdp
     public static List<MediaFormat> extractFormats(
                                          MediaDescription mediaDesc,
-                                         DynamicPayloadTypeRegistry ptRegistry)
+                                         DynamicPayloadTypeRegistry ptRegistry,
+                                         Map<Byte, Byte> overridePTMapping)
     {
         List<MediaFormat> mediaFmts = new ArrayList<MediaFormat>();
         Vector<String> formatStrings;
@@ -467,6 +470,35 @@ public class SdpUtils
             {
                 mediaFormat = createFormat(
                     pt, rtpmap, fmtp, frameRate, advp, ptRegistry);
+
+                MediaFormat addedFormat = ptRegistry.findFormat(pt);
+
+                if(addedFormat == null)
+                {
+                    // the format wasn't added, as no longer we are overriding
+                    // our own settings, means the remote party wants
+                    // payload remapping
+                    overridePTMapping.put(
+                        ptRegistry.obtainPayloadTypeNumber(mediaFormat), pt);
+                }
+                else
+                {
+                    // if formats are different, other party ignores
+                    // our settings and wants a particular payload type
+                    // for its format, lets add a override mapping
+                    // despite that we already have a format with the same
+                    // payload
+                    if(mediaFormat != null && !mediaFormat.equals(addedFormat))
+                    {
+                        byte ourPT =
+                            ptRegistry.obtainPayloadTypeNumber(mediaFormat);
+
+                        if(ourPT != pt)
+                        {
+                            overridePTMapping.put(ourPT, pt);
+                        }
+                    }
+                }
             }
             catch (SdpException e)
             {

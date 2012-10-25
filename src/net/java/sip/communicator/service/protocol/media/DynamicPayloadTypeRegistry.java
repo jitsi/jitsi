@@ -250,6 +250,10 @@ public class DynamicPayloadTypeRegistry
                         + MediaFormat.MAX_DYNAMIC_PAYLOAD_TYPE);
         }
 
+        // don't override our mappings
+        if(payloadTypeMappings.containsKey(format))
+            return;
+
         payloadTypeMappings.put(format, Byte.valueOf(payloadType));
     }
 

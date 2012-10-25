@@ -128,9 +128,18 @@ public class CallPeerMediaHandlerGTalkImpl
         boolean atLeastOneValidDescription = false;
         List<PayloadTypePacketExtension> answer =
             new ArrayList<PayloadTypePacketExtension>();
+
+        // if we got payload types that override ours
+        // they goes in here so we can pass it to the stream to use them
+        // when sending. To change the outgoing packets payload types
+        // with the value preferred from the sender
+        HashMap<Byte, Byte> overridePTMapping =
+            new HashMap<Byte, Byte>();
+
         List<MediaFormat> remoteFormats = JingleUtils.extractFormats(
                     offer,
-                    getDynamicPayloadTypes());
+                    getDynamicPayloadTypes(),
+                    overridePTMapping);
         boolean isAudio = false;
         boolean isVideo = false;
 
@@ -178,6 +187,14 @@ public class CallPeerMediaHandlerGTalkImpl
             answer.addAll(contents);
 
             localContentMap.put(mediaType.toString(), answer);
+
+            // if stream is configured/created, lets set
+            // the override payload type mappings
+            MediaStream stream = getStream(mediaType);
+            if(stream != null)
+            {
+                stream.setPTMappingOverrides(overridePTMapping);
+            }
 
             atLeastOneValidDescription = true;
         }
@@ -237,6 +254,13 @@ public class CallPeerMediaHandlerGTalkImpl
             String ns = getNamespaceForMediaType(mediaType);
             String mediaName = getNameForMediaType(mediaType);
 
+            // if we got payload types that override ours
+            // they goes in here so we can pass it to the stream to use them
+            // when sending. To change the outgoing packets payload types
+            // with the value preferred from the sender
+            HashMap<Byte, Byte> overridePTMapping =
+                new HashMap<Byte, Byte>();
+
             for(PayloadTypePacketExtension ext : lst)
             {
                 if(ext.getNamespace().equals(ns))
@@ -256,7 +280,8 @@ public class CallPeerMediaHandlerGTalkImpl
 
                     format = JingleUtils.payloadTypeToMediaFormat(
                         ext,
-                        getDynamicPayloadTypes());
+                        getDynamicPayloadTypes(),
+                        overridePTMapping);
                     description.addPayloadType(ext);
 
                     if(format != null)
@@ -315,6 +340,14 @@ public class CallPeerMediaHandlerGTalkImpl
 
             initStream(mediaName, connector, dev, format, target,
                     direction, rtpExtensions, masterStream);
+
+            // stream is configured/created, lets set
+            // the override payload type mappings
+            MediaStream stream = getStream(mediaType);
+            if(stream != null)
+            {
+                stream.setPTMappingOverrides(overridePTMapping);
+            }
         }
 
         return description;
@@ -348,13 +381,22 @@ public class CallPeerMediaHandlerGTalkImpl
             String mediaName = getNameForMediaType(mediaType);
             MediaFormat format = null;
 
+            // if we got payload types that override ours
+            // they goes in here so we can pass it to the stream to use them
+            // when sending. To change the outgoing packets payload types
+            // with the value preferred from the sender
+            HashMap<Byte, Byte> overridePTMapping =
+                new HashMap<Byte, Byte>();
+
+
             for(PayloadTypePacketExtension ext : lst)
             {
                 if(ext.getNamespace().equals(ns))
                 {
                     format = JingleUtils.payloadTypeToMediaFormat(
                             ext,
-                            getDynamicPayloadTypes());
+                            getDynamicPayloadTypes(),
+                            overridePTMapping);
                     if(format != null)
                         break;
                 }
@@ -404,6 +446,14 @@ public class CallPeerMediaHandlerGTalkImpl
 
             initStream(mediaName, connector, dev, format, target,
                     direction, rtpExtensions, masterStream);
+
+            // stream is configured/created, lets set
+            // the override payload type mappings
+            MediaStream stream = getStream(mediaType);
+            if(stream != null)
+            {
+                stream.setPTMappingOverrides(overridePTMapping);
+            }
         }
     }
 

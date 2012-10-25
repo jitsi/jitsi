@@ -249,10 +249,18 @@ public class CallPeerMediaHandlerJabberImpl
             MediaType mediaType
                 = MediaType.parseString( description.getMedia() );
 
+            // if we got payload types that override ours
+            // they goes in here so we can pass it to the stream to use them
+            // when sending. To change the outgoing packets payload types
+            // with the value preferred from the sender
+           HashMap<Byte, Byte> overridePTMapping =
+                new HashMap<Byte, Byte>();
+
             List<MediaFormat> remoteFormats
                 = JingleUtils.extractFormats(
                         description,
-                        getDynamicPayloadTypes());
+                        getDynamicPayloadTypes(),
+                        overridePTMapping);
 
             MediaDevice dev = getDefaultDevice(mediaType);
 
@@ -366,6 +374,14 @@ public class CallPeerMediaHandlerJabberImpl
 
             answer.add(ourContent);
             localContentMap.put(content.getName(), ourContent);
+
+            // if stream is configured/created, lets set
+            // the override payload type mappings
+            MediaStream stream = getStream(mediaType);
+            if(stream != null)
+            {
+                stream.setPTMappingOverrides(overridePTMapping);
+            }
 
             atLeastOneValidDescription = true;
         }
@@ -493,13 +509,21 @@ public class CallPeerMediaHandlerJabberImpl
                 = JingleUtils.getRtpDescription(theirContent);
             MediaFormat format = null;
 
+            // if we got payload types that override ours
+            // they goes in here so we can pass it to the stream to use them
+            // when sending. To change the outgoing packets payload types
+            // with the value preferred from the sender
+            HashMap<Byte, Byte> overridePTMapping =
+                new HashMap<Byte, Byte>();
+
             for(PayloadTypePacketExtension payload
                     : theirDescription.getPayloadTypes())
             {
                 format
                     = JingleUtils.payloadTypeToMediaFormat(
                             payload,
-                            getDynamicPayloadTypes());
+                            getDynamicPayloadTypes(),
+                            overridePTMapping);
                 if(format != null)
                     break;
             }
@@ -559,6 +583,14 @@ public class CallPeerMediaHandlerJabberImpl
                     direction,
                     rtpExtensions,
                     masterStream);
+
+            // stream is configured/created, lets set
+            // the override payload type mappings
+            MediaStream stream = getStream(type);
+            if(stream != null)
+            {
+                stream.setPTMappingOverrides(overridePTMapping);
+            }
         }
         return sessAccept;
     }
@@ -1020,8 +1052,15 @@ public class CallPeerMediaHandlerJabberImpl
             return;
         }
 
-        List<MediaFormat> supportedFormats
-            = JingleUtils.extractFormats(description, getDynamicPayloadTypes());
+        // if we got payload types that override ours
+        // they goes in here so we can pass it to the stream to use them
+        // when sending. To change the outgoing packets payload types
+        // with the value preferred from the sender
+        HashMap<Byte, Byte> overridePTMapping =
+            new HashMap<Byte, Byte>();
+
+        List<MediaFormat> supportedFormats = JingleUtils.extractFormats(
+            description, getDynamicPayloadTypes(), overridePTMapping);
 
         MediaDevice dev = getDefaultDevice(mediaType);
 
@@ -1131,6 +1170,14 @@ public class CallPeerMediaHandlerJabberImpl
                 direction,
                 rtpExtensions,
                 masterStream);
+
+        // stream is configured/created, lets set
+        // the override payload type mappings
+        MediaStream stream = getStream(mediaType);
+        if(stream != null)
+        {
+            stream.setPTMappingOverrides(overridePTMapping);
+        }
     }
 
     /**

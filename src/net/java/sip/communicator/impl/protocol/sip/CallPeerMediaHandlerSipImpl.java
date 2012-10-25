@@ -461,8 +461,18 @@ public class CallPeerMediaHandlerSipImpl
                 continue;
             }
 
-            List<MediaFormat> remoteFormats = SdpUtils.extractFormats(
-                            mediaDescription, getDynamicPayloadTypes());
+            // if we got payload types that override ours
+            // they goes in here so we can pass it to the stream to use them
+            // when sending. To change the outgoing packets payload types
+            // with the value preferred from the sender
+           HashMap<Byte, Byte> overridePTMapping =
+                new HashMap<Byte, Byte>();
+
+            List<MediaFormat> remoteFormats =
+                SdpUtils.extractFormats(
+                    mediaDescription,
+                    getDynamicPayloadTypes(),
+                    overridePTMapping);
 
             MediaDevice dev = getDefaultDevice(mediaType);
             MediaDirection devDirection
@@ -612,6 +622,14 @@ public class CallPeerMediaHandlerSipImpl
 
             initStream(connector, dev, fmt, target, direction, rtpExtensions,
                 masterStream);
+
+            // stream is configured/created, lets set
+            // the override payload type mappings
+            MediaStream stream = getStream(mediaType);
+            if(stream != null)
+            {
+                stream.setPTMappingOverrides(overridePTMapping);
+            }
 
             // create the answer description
             answerDescriptions.add(md);
@@ -882,8 +900,19 @@ public class CallPeerMediaHandlerSipImpl
                 closeStream(mediaType);
                 continue;
             }
-            List<MediaFormat> supportedFormats = SdpUtils.extractFormats(
-                            mediaDescription, getDynamicPayloadTypes());
+
+            // if we got payload types that override ours
+            // they goes in here so we can pass it to the stream to use them
+            // when sending. To change the outgoing packets payload types
+            // with the value preferred from the sender
+            HashMap<Byte, Byte> overridePTMapping =
+                new HashMap<Byte, Byte>();
+
+            List<MediaFormat> supportedFormats =
+                SdpUtils.extractFormats(
+                    mediaDescription,
+                    getDynamicPayloadTypes(),
+                    overridePTMapping);
 
             MediaDevice dev = getDefaultDevice(mediaType);
 
@@ -1025,6 +1054,14 @@ public class CallPeerMediaHandlerSipImpl
             // create the corresponding stream...
             initStream(connector, dev, supportedFormats.get(0), target,
                                 direction, rtpExtensions, masterStream);
+
+            // stream is configured/created, lets set
+            // the override payload type mappings
+            MediaStream stream = getStream(mediaType);
+            if(stream != null)
+            {
+                stream.setPTMappingOverrides(overridePTMapping);
+            }
         }
     }
 
@@ -1202,7 +1239,7 @@ public class CallPeerMediaHandlerSipImpl
      * @param isInitiator True if the local call instance is the initiator of
      * the call. False otherwise.
      * @param sDesControl The SDES based SRTP MediaStream encryption control.
-     * @param encryptionPacketExtension The ENCRYPTION element received from the
+     * @param mediaDescription The description received from the
      * remote peer. This contains the SDES crypto suites available for the
      * remote peer.
      *
