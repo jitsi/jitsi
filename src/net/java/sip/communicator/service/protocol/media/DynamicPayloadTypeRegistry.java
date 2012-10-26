@@ -225,11 +225,15 @@ public class DynamicPayloadTypeRegistry
      * to <tt>format</tt>.
      * @param format the <tt>MediaFormat</tt> that we'd like to create a
      * dynamic mapping for.
+     * @param overrideMapping will the supplied <tt>MediaFormat</tt> should
+     * override the format if already mapped to a <tt>payloadType</tt>.
      *
      * @throws IllegalArgumentException in case <tt>payloadType</tt> has
      * already been assigned to another format.
      */
-    public void addMapping(MediaFormat format, byte payloadType)
+    public void addMapping(MediaFormat format,
+                           byte payloadType,
+                           boolean overrideMapping)
         throws IllegalArgumentException
     {
         MediaFormat alreadyMappedFmt = findFormat(payloadType);
@@ -250,8 +254,8 @@ public class DynamicPayloadTypeRegistry
                         + MediaFormat.MAX_DYNAMIC_PAYLOAD_TYPE);
         }
 
-        // don't override our mappings
-        if(payloadTypeMappings.containsKey(format))
+        // check whether we should override our mappings
+        if(!overrideMapping && payloadTypeMappings.containsKey(format))
             return;
 
         payloadTypeMappings.put(format, Byte.valueOf(payloadType));

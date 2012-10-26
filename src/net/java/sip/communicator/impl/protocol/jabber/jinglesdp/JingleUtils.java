@@ -70,6 +70,8 @@ public class JingleUtils
      * mappings.
      * @param overridePTMapping a payload types that we will need to remap
      * when sending if selected. Use to respect remote party payload types.
+     * Can be null, then we override the payload type and use the other party
+     * payload types for this session.
      *
      * @return an ordered list of <tt>MediaFormat</tt>s that are both advertised
      * in the <tt>description</tt> and supported by our <tt>MediaService</tt>
@@ -114,6 +116,8 @@ public class JingleUtils
      * into a <tt>DynamicPayloadTypeRegistry</tt>.
      * @param overridePTMapping a payload types that we will need to remap
      * when sending if selected. Use to respect remote party payload types.
+     * Can be null, then we override the payload type and use the other party
+     * payload types for this session.
      *
      * @return the {@link MediaFormat} described in the <tt>payloadType</tt>
      * extension or <tt>null</tt> if we don't recognize the format.
@@ -145,6 +149,8 @@ public class JingleUtils
      * into a <tt>DynamicPayloadTypeRegistry</tt>.
      * @param overridePTMapping a payload types that we will need to remap
      * when sending if selected. Use to respect remote party payload types.
+     * Can be null, then we override the payload type and use the other party
+     * payload types for this session.
      *
      * @return the {@link MediaFormat} described in the <tt>payloadType</tt>
      * extension or <tt>null</tt> if we don't recognize the format.
@@ -214,34 +220,39 @@ public class JingleUtils
                 && (pt <= MediaFormat.MAX_DYNAMIC_PAYLOAD_TYPE)
                 && (ptRegistry.findFormat(pt) == null))
         {
-            ptRegistry.addMapping(format, pt);
+            ptRegistry.addMapping(format, pt, overridePTMapping != null);
         }
 
-        MediaFormat addedFormat = ptRegistry.findFormat(pt);
+        // if we need to check and set some override payload
+        // type mappings
+        if(overridePTMapping != null)
+        {
+            MediaFormat addedFormat = ptRegistry.findFormat(pt);
 
-        if(addedFormat == null)
-        {
-            // the format wasn't added, as no longer we are overriding
-            // our own settings, means the remote party wants
-            // payload remapping
-            overridePTMapping.put(
-                ptRegistry.obtainPayloadTypeNumber(format), pt);
-        }
-        else
-        {
-            // if formats are different, other party ignores
-            // our settings and wants a particular payload type
-            // for its format, lets add a override mapping
-            // despite that we already have a format with the same
-            // payload
-            if(format != null && !format.equals(addedFormat))
+            if(addedFormat == null)
             {
-                byte ourPT =
-                    ptRegistry.obtainPayloadTypeNumber(format);
-
-                if(ourPT != pt)
+                // the format wasn't added, as no longer we are overriding
+                // our own settings, means the remote party wants
+                // payload remapping
+                overridePTMapping.put(
+                    ptRegistry.obtainPayloadTypeNumber(format), pt);
+            }
+            else
+            {
+                // if formats are different, other party ignores
+                // our settings and wants a particular payload type
+                // for its format, lets add a override mapping
+                // despite that we already have a format with the same
+                // payload
+                if(format != null && !format.equals(addedFormat))
                 {
-                    overridePTMapping.put(ourPT, pt);
+                    byte ourPT =
+                        ptRegistry.obtainPayloadTypeNumber(format);
+
+                    if(ourPT != pt)
+                    {
+                        overridePTMapping.put(ourPT, pt);
+                    }
                 }
             }
         }

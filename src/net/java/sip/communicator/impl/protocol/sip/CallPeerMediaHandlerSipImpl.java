@@ -465,8 +465,13 @@ public class CallPeerMediaHandlerSipImpl
             // they goes in here so we can pass it to the stream to use them
             // when sending. To change the outgoing packets payload types
             // with the value preferred from the sender
-           HashMap<Byte, Byte> overridePTMapping =
-                new HashMap<Byte, Byte>();
+            // in case of answer to first offer don't remap anything,
+            // just override our settings and use the offered one
+            // this way we agree with other party payload mappings
+           HashMap<Byte, Byte> overridePTMapping = null;
+
+           if(localSess != null)
+               overridePTMapping = new HashMap<Byte, Byte>();
 
             List<MediaFormat> remoteFormats =
                 SdpUtils.extractFormats(
@@ -626,7 +631,7 @@ public class CallPeerMediaHandlerSipImpl
             // stream is configured/created, lets set
             // the override payload type mappings
             MediaStream stream = getStream(mediaType);
-            if(stream != null)
+            if(overridePTMapping != null && stream != null)
             {
                 stream.setPTMappingOverrides(overridePTMapping);
             }
