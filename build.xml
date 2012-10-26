@@ -917,7 +917,7 @@
         bundle-plugin-msnaccregwizz,bundle-plugin-sipaccregwizz,
         bundle-plugin-yahooaccregwizz,bundle-plugin-aimaccregwizz,
         bundle-commons-codec,bundle-httputil,bundle-plugin-spellcheck,
-        bundle-version-impl,bundle-shutdown-timeout,
+        bundle-version-impl,bundle-shutdown-timeout,bundle-windows-clean-shutdown,
         bundle-growlnotification,bundle-swingnotification,bundle-galagonotification,
         bundle-sparkle, bundle-plugin-branding,
         bundle-systemactivitynotifications,
@@ -1745,6 +1745,16 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/impl/shutdowntimeout/shutdown.timeout.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/shutdowntimeout"
                 prefix="net/java/sip/communicator/impl/shutdowntimeout"/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-WINDOWS-CLEAN-SHUTDOWN -->
+    <target name="bundle-windows-clean-shutdown">
+        <!-- Creates a bundle for the windows-clean-shutdown plugin.-->
+        <jar compress="false" destfile="${bundles.dest.win}/windows-clean-shutdown.jar"
+             manifest="${src}/net/java/sip/communicator/plugin/windowscleanshutdown/cleanshutdown.manifest.mf">
+             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/windowscleanshutdown"
+                 prefix="net/java/sip/communicator/plugin/windowscleanshutdown"/>
         </jar>
     </target>
 
