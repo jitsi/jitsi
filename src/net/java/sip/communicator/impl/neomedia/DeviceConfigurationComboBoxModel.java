@@ -35,13 +35,24 @@ public class DeviceConfigurationComboBoxModel
     {
         /**
          * Compares two CaptureDeviceInfo
-         * @param a first <tt>CaptureDeviceInfo</tt> to compare
-         * @param b second <tt>CaptureDeviceInfo</tt> to compare
-         * @return whether a is equal to b
+         * @param device The <tt>CaptureDeviceInfo</tt> to compare with.
+         * @return whether this CaptureDevice is equal to device.
          */
-        public static boolean equals(CaptureDeviceInfo a, CaptureDeviceInfo b)
+        public boolean equals(CaptureDeviceInfo device)
         {
-            return (a == null) ? (b == null) : a.equals(b);
+            if(info == null && device == null)
+            {
+                return true;
+            }
+            else if(info != null)
+            {
+                if(info instanceof ExtendedCaptureDeviceInfo)
+                {
+                    return ((ExtendedCaptureDeviceInfo) info).equals(device);
+                }
+                return info.equals(device);
+            }
+            return false;
         }
 
         /**
@@ -68,11 +79,25 @@ public class DeviceConfigurationComboBoxModel
         @Override
         public String toString()
         {
-            return
-                (info == null)
-                    ? NeomediaActivator.getResources().getI18NString(
-                            "impl.media.configform.NO_DEVICE")
-                    : info.getName();
+            if(info == null)
+            {
+                return NeomediaActivator.getResources().getI18NString(
+                        "impl.media.configform.NO_DEVICE");
+            }
+            else
+            {
+                String deviceString = info.getName();
+                if(info instanceof ExtendedCaptureDeviceInfo)
+                {
+                    String transportType
+                        = ((ExtendedCaptureDeviceInfo) info).getTransportType();
+                    if(transportType != null)
+                    {
+                        deviceString += " (" + transportType + ")";
+                    }
+                }
+                return deviceString;
+            }
         }
     }
 
@@ -217,7 +242,7 @@ public class DeviceConfigurationComboBoxModel
             return devices;
 
         AudioSystem audioSystem;
-        List<CaptureDeviceInfo> infos;
+        List<? extends CaptureDeviceInfo> infos = null;
 
         switch (type)
         {
@@ -294,9 +319,14 @@ public class DeviceConfigurationComboBoxModel
             throw new IllegalStateException("type");
         }
 
-        for (CaptureDevice device : getDevices())
-            if (CaptureDevice.equals(device.info, info))
-                return device;
+        if(info != null)
+        {
+            for (CaptureDevice device : getDevices())
+            {
+                if (device.info.equals(info))
+                    return device;
+            }
+        }
         return null;
     }
 
@@ -355,7 +385,7 @@ public class DeviceConfigurationComboBoxModel
                 if (audioSystem != null)
                     audioSystem.setDevice(
                             AudioSystem.CAPTURE_INDEX,
-                            device.info,
+                            ((ExtendedCaptureDeviceInfo) device.info),
                             true);
                 break;
             case AUDIO_NOTIFY:
@@ -363,7 +393,7 @@ public class DeviceConfigurationComboBoxModel
                 if (audioSystem != null)
                     audioSystem.setDevice(
                             AudioSystem.NOTIFY_INDEX,
-                            device.info,
+                            ((ExtendedCaptureDeviceInfo) device.info),
                             true);
                 break;
             case AUDIO_PLAYBACK:
@@ -371,7 +401,7 @@ public class DeviceConfigurationComboBoxModel
                 if (audioSystem != null)
                     audioSystem.setDevice(
                             AudioSystem.PLAYBACK_INDEX,
-                            device.info,
+                            ((ExtendedCaptureDeviceInfo) device.info),
                             true);
                 break;
             case VIDEO:

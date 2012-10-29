@@ -902,6 +902,62 @@ Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaDeviceInfo_1g
     return nameBytes;
 }
 
+JNIEXPORT jbyteArray JNICALL
+Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaDeviceInfo_1getTransportTypeBytes
+    (JNIEnv *env, jclass clazz, jlong deviceInfo)
+{
+    jbyteArray typeBytes = NULL;
+    if(((PaDeviceInfo *) (intptr_t) deviceInfo)->structVersion >= 3)
+    {
+        const char *type
+            = ((PaDeviceInfo *) (intptr_t) deviceInfo)->transportType;
+
+        if(type != NULL)
+        {
+            size_t typeLength = strlen(type);
+
+            typeBytes = (*env)->NewByteArray(env, typeLength);
+            if (typeBytes && typeLength)
+            {
+                (*env)->SetByteArrayRegion(
+                        env,
+                        typeBytes, 0, typeLength,
+                        (jbyte *) type);
+            }
+        }
+    }
+
+    return typeBytes;
+}
+
+JNIEXPORT jbyteArray JNICALL
+Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaDeviceInfo_1getDeviceUIDBytes
+    (JNIEnv *env, jclass clazz, jlong deviceInfo)
+{
+    jbyteArray uidBytes = NULL;
+    if(((PaDeviceInfo *) (intptr_t) deviceInfo)->structVersion >= 3)
+    {
+        const char *uid
+            = ((PaDeviceInfo *) (intptr_t) deviceInfo)->deviceUID;
+        
+        if (uid)
+        {
+            size_t uidLength = strlen(uid);
+
+            uidBytes = (*env)->NewByteArray(env, uidLength);
+            if (uidBytes && uidLength)
+            {
+                (*env)->SetByteArrayRegion(
+                        env,
+                        uidBytes, 0, uidLength,
+                        (jbyte *) uid);
+            }
+        }
+    }
+
+    return uidBytes;
+}
+
 JNIEXPORT jint JNICALL
 Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaHostApiInfo_1getDefaultInputDevice
     (JNIEnv *env, jclass clazz, jlong hostApi)
