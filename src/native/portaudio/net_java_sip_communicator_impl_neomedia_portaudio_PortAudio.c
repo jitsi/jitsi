@@ -11,6 +11,7 @@
 #include "ConditionVariable.h"
 #include "Mutex.h"
 #include <portaudio.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -143,14 +144,15 @@ JNIEXPORT void JNICALL
 Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_free
     (JNIEnv *env, jclass clazz, jlong ptr)
 {
-    free((void *) ptr);
+    free((void *) (intptr_t) ptr);
 }
 
 JNIEXPORT void JNICALL
 Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1AbortStream
     (JNIEnv *env, jclass clazz, jlong stream)
 {
-    PaError errorCode = Pa_AbortStream(((PortAudioStream *) stream)->stream);
+    PaError errorCode
+        = Pa_AbortStream(((PortAudioStream *) (intptr_t) stream)->stream);
 
     if (paNoError != errorCode)
         PortAudio_throwException(env, errorCode);
@@ -160,7 +162,7 @@ JNIEXPORT void JNICALL
 Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1CloseStream
     (JNIEnv *env, jclass clazz, jlong stream)
 {
-    PortAudioStream *portAudioStream = (PortAudioStream *) stream;
+    PortAudioStream *portAudioStream = (PortAudioStream *) (intptr_t) stream;
     PaError errorCode = Pa_CloseStream(portAudioStream->stream);
 
     if (paNoError != errorCode)
@@ -200,14 +202,14 @@ JNIEXPORT jlong JNICALL
 Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1GetDeviceInfo(
     JNIEnv *env, jclass clazz, jint deviceIndex)
 {
-    return (jlong) Pa_GetDeviceInfo(deviceIndex);
+    return (jlong) (intptr_t) Pa_GetDeviceInfo(deviceIndex);
 }
 
 JNIEXPORT jlong JNICALL
 Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1GetHostApiInfo
     (JNIEnv *env , jclass clazz, jint hostApiIndex)
 {
-    return (jlong) Pa_GetHostApiInfo(hostApiIndex);
+    return (jlong) (intptr_t) Pa_GetHostApiInfo(hostApiIndex);
 }
 
 JNIEXPORT jint JNICALL
@@ -221,14 +223,18 @@ JNIEXPORT jlong JNICALL
 Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1GetStreamReadAvailable
     (JNIEnv *env, jclass clazz, jlong stream)
 {
-    return Pa_GetStreamReadAvailable(((PortAudioStream *) stream)->stream);
+    return
+        Pa_GetStreamReadAvailable(
+            ((PortAudioStream *) (intptr_t) stream)->stream);
 }
 
 JNIEXPORT jlong JNICALL
 Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1GetStreamWriteAvailable
     (JNIEnv *env, jclass clazz, jlong stream)
 {
-    return Pa_GetStreamWriteAvailable(((PortAudioStream *) stream)->stream);
+    return
+        Pa_GetStreamWriteAvailable(
+            ((PortAudioStream *) (intptr_t) stream)->stream);
 }
 
 JNIEXPORT void JNICALL
@@ -280,8 +286,8 @@ Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1IsFormatSup
     jlong inputParameters, jlong outputParameters, jdouble sampleRate)
 {
     if (Pa_IsFormatSupported(
-                (PaStreamParameters *) inputParameters,
-                (PaStreamParameters *) outputParameters,
+                (PaStreamParameters *) (intptr_t) inputParameters,
+                (PaStreamParameters *) (intptr_t) outputParameters,
                 sampleRate)
             == paFormatIsSupported)
         return JNI_TRUE;
@@ -305,9 +311,9 @@ Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1OpenStream
     PaHostApiTypeId hostApiType = paInDevelopment;
     PaError errorCode;
     PaStreamParameters *inputStreamParameters
-        = (PaStreamParameters *) inputParameters;
+        = (PaStreamParameters *) (intptr_t) inputParameters;
     PaStreamParameters *outputStreamParameters
-        = (PaStreamParameters *) outputParameters;
+        = (PaStreamParameters *) (intptr_t) outputParameters;
 
     if (!stream)
         return 0;
@@ -480,7 +486,7 @@ Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1OpenStream
             {
                 Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1CloseStream(
                     env, clazz,
-                    (jlong) stream);
+                    (jlong) (intptr_t) stream);
                 if (JNI_FALSE == (*env)->ExceptionCheck(env))
                 {
                     PortAudio_throwException(env, paInsufficientMemory);
@@ -524,7 +530,7 @@ Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1OpenStream
             {
                 Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1CloseStream(
                     env, clazz,
-                    (jlong) stream);
+                    (jlong) (intptr_t) stream);
                 if (JNI_FALSE == (*env)->ExceptionCheck(env))
                 {
                     PortAudio_throwException(env, paInsufficientMemory);
@@ -548,7 +554,7 @@ Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1OpenStream
         if (stream->pseudoBlocking)
             PortAudioStream_retain(stream);
 
-        return (jlong) stream;
+        return (jlong) (intptr_t) stream;
     }
     else
     {
@@ -566,7 +572,8 @@ Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1ReadStream
 
     if (data)
     {
-        PortAudioStream *portAudioStream = (PortAudioStream *) stream;
+        PortAudioStream *portAudioStream
+            = (PortAudioStream *) (intptr_t) stream;
         PaError errorCode;
         jlong framesInBytes = frames * portAudioStream->inputFrameSize;
 
@@ -661,7 +668,7 @@ JNIEXPORT void JNICALL
 Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1StartStream
     (JNIEnv *env, jclass clazz, jlong stream)
 {
-    PortAudioStream *portAudioStream = (PortAudioStream *) stream;
+    PortAudioStream *portAudioStream = (PortAudioStream *) (intptr_t) stream;
     PaError errorCode;
 
     if (portAudioStream->pseudoBlocking)
@@ -690,7 +697,8 @@ JNIEXPORT void JNICALL
 Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1StopStream
     (JNIEnv *env, jclass clazz, jlong stream)
 {
-    PaError errorCode = Pa_StopStream(((PortAudioStream *) stream)->stream);
+    PaError errorCode
+        = Pa_StopStream(((PortAudioStream *) (intptr_t) stream)->stream);
 
     if (paNoError != errorCode)
         PortAudio_throwException(env, errorCode);
@@ -720,7 +728,7 @@ Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1WriteStream
         return;
     data = bufferBytes + offset;
 
-    portAudioStream = (PortAudioStream *) stream;
+    portAudioStream = (PortAudioStream *) (intptr_t) stream;
     framesInBytes = frames * portAudioStream->outputFrameSize;
     audioQualityImprovement = portAudioStream->audioQualityImprovement;
     sampleRate = portAudioStream->sampleRate;
@@ -825,63 +833,63 @@ JNIEXPORT jdouble JNICALL
 Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaDeviceInfo_1getDefaultHighInputLatency
     (JNIEnv *env, jclass clazz, jlong deviceInfo)
 {
-    return ((PaDeviceInfo *) deviceInfo)->defaultHighInputLatency;
+    return ((PaDeviceInfo *) (intptr_t) deviceInfo)->defaultHighInputLatency;
 }
 
 JNIEXPORT jdouble JNICALL
 Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaDeviceInfo_1getDefaultHighOutputLatency
     (JNIEnv *env, jclass clazz, jlong deviceInfo)
 {
-    return ((PaDeviceInfo *) deviceInfo)->defaultHighOutputLatency;
+    return ((PaDeviceInfo *) (intptr_t) deviceInfo)->defaultHighOutputLatency;
 }
 
 JNIEXPORT jdouble JNICALL
 Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaDeviceInfo_1getDefaultLowInputLatency
     (JNIEnv *env, jclass clazz, jlong deviceInfo)
 {
-    return ((PaDeviceInfo *) deviceInfo)->defaultLowInputLatency;
+    return ((PaDeviceInfo *) (intptr_t) deviceInfo)->defaultLowInputLatency;
 }
 
 JNIEXPORT jdouble JNICALL
 Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaDeviceInfo_1getDefaultLowOutputLatency
     (JNIEnv *env, jclass clazz, jlong deviceInfo)
 {
-    return ((PaDeviceInfo *) deviceInfo)->defaultLowOutputLatency;
+    return ((PaDeviceInfo *) (intptr_t) deviceInfo)->defaultLowOutputLatency;
 }
 
 JNIEXPORT jdouble JNICALL
 Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaDeviceInfo_1getDefaultSampleRate
     (JNIEnv *env, jclass clazz, jlong deviceInfo)
 {
-    return ((PaDeviceInfo *) deviceInfo)->defaultSampleRate;
+    return ((PaDeviceInfo *) (intptr_t) deviceInfo)->defaultSampleRate;
 }
 
 JNIEXPORT jint JNICALL
 Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaDeviceInfo_1getHostApi
     (JNIEnv *env, jclass clazz, jlong deviceInfo)
 {
-    return ((PaDeviceInfo *) deviceInfo)->hostApi;
+    return ((PaDeviceInfo *) (intptr_t) deviceInfo)->hostApi;
 }
 
 JNIEXPORT jint JNICALL
 Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaDeviceInfo_1getMaxInputChannels
     (JNIEnv *env, jclass clazz, jlong deviceInfo)
 {
-    return ((PaDeviceInfo *) deviceInfo)->maxInputChannels;
+    return ((PaDeviceInfo *) (intptr_t) deviceInfo)->maxInputChannels;
 }
 
 JNIEXPORT jint JNICALL
 Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaDeviceInfo_1getMaxOutputChannels
     (JNIEnv *env, jclass clazz, jlong deviceInfo)
 {
-    return ((PaDeviceInfo *) deviceInfo)->maxOutputChannels;
+    return ((PaDeviceInfo *) (intptr_t) deviceInfo)->maxOutputChannels;
 }
 
 JNIEXPORT jbyteArray JNICALL
 Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaDeviceInfo_1getNameBytes
     (JNIEnv *env, jclass clazz, jlong deviceInfo)
 {
-    const char *name = ((PaDeviceInfo *) deviceInfo)->name;
+    const char *name = ((PaDeviceInfo *) (intptr_t) deviceInfo)->name;
     jbyteArray nameBytes;
 
     if (name)
@@ -907,9 +915,10 @@ Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaDeviceInfo_1g
     (JNIEnv *env, jclass clazz, jlong deviceInfo)
 {
     jbyteArray typeBytes = NULL;
-    if(((PaDeviceInfo *) deviceInfo)->structVersion >= 3)
+    if(((PaDeviceInfo *) (intptr_t) deviceInfo)->structVersion >= 3)
     {
-        const char *type = ((PaDeviceInfo *) deviceInfo)->transportType;
+        const char *type
+            = ((PaDeviceInfo *) (intptr_t) deviceInfo)->transportType;
 
         if(type != NULL)
         {
@@ -934,9 +943,10 @@ Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaDeviceInfo_1g
     (JNIEnv *env, jclass clazz, jlong deviceInfo)
 {
     jbyteArray uidBytes = NULL;
-    if(((PaDeviceInfo *) deviceInfo)->structVersion >= 3)
+    if(((PaDeviceInfo *) (intptr_t) deviceInfo)->structVersion >= 3)
     {
-        const char *uid = ((PaDeviceInfo *) deviceInfo)->deviceUID;
+        const char *uid
+            = ((PaDeviceInfo *) (intptr_t) deviceInfo)->deviceUID;
         
         if (uid)
         {
@@ -960,28 +970,28 @@ JNIEXPORT jint JNICALL
 Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaHostApiInfo_1getDefaultInputDevice
     (JNIEnv *env, jclass clazz, jlong hostApi)
 {
-    return ((PaHostApiInfo *) hostApi)->defaultInputDevice;
+    return ((PaHostApiInfo *) (intptr_t) hostApi)->defaultInputDevice;
 }
 
 JNIEXPORT jint JNICALL
 Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaHostApiInfo_1getDefaultOutputDevice
     (JNIEnv *env, jclass clazz, jlong hostApi)
 {
-    return ((PaHostApiInfo *) hostApi)->defaultOutputDevice;
+    return ((PaHostApiInfo *) (intptr_t) hostApi)->defaultOutputDevice;
 }
 
 JNIEXPORT jint JNICALL
 Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaHostApiInfo_1getDeviceCount
     (JNIEnv *env, jclass clazz, jlong hostApi)
 {
-    return ((PaHostApiInfo *) hostApi)->deviceCount;
+    return ((PaHostApiInfo *) (intptr_t) hostApi)->deviceCount;
 }
 
 JNIEXPORT jstring JNICALL
 Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaHostApiInfo_1getName
     (JNIEnv *env, jclass clazz, jlong hostApi)
 {
-    const char *name = ((PaHostApiInfo *) hostApi)->name;
+    const char *name = ((PaHostApiInfo *) (intptr_t) hostApi)->name;
 
     /* PaHostApiInfo_GetName has been deprected in the Java source code. */
     return name ? (*env)->NewStringUTF(env, name) : NULL;
@@ -991,7 +1001,7 @@ JNIEXPORT jint JNICALL
 Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaHostApiInfo_1getType
     (JNIEnv *env, jclass clazz, jlong hostApi)
 {
-    return ((PaHostApiInfo *) hostApi)->type;
+    return ((PaHostApiInfo *) (intptr_t) hostApi)->type;
 }
 
 JNIEXPORT jlong JNICALL
@@ -1013,7 +1023,7 @@ Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaStreamParamet
         streamParameters->suggestedLatency = suggestedLatency;
         streamParameters->hostApiSpecificStreamInfo = NULL;
     }
-    return (jlong) streamParameters;
+    return (jlong) (intptr_t) streamParameters;
 }
 
 JNIEXPORT void JNICALL
@@ -1021,7 +1031,7 @@ Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_setDenoise
     (JNIEnv *env, jclass clazz, jlong stream, jboolean denoise)
 {
     AudioQualityImprovement *audioQualityImprovement
-        = ((PortAudioStream *) stream)->audioQualityImprovement;
+        = ((PortAudioStream *) (intptr_t) stream)->audioQualityImprovement;
 
     if (audioQualityImprovement)
         AudioQualityImprovement_setDenoise(audioQualityImprovement, denoise);
@@ -1032,7 +1042,7 @@ Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_setEchoFilterLe
     (JNIEnv *env, jclass clazz, jlong stream, jlong echoFilterLengthInMillis)
 {
     AudioQualityImprovement *audioQualityImprovement
-        = ((PortAudioStream *) stream)->audioQualityImprovement;
+        = ((PortAudioStream *) (intptr_t) stream)->audioQualityImprovement;
 
     if (audioQualityImprovement)
     {
