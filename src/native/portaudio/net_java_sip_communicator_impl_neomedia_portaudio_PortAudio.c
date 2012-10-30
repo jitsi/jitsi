@@ -907,10 +907,9 @@ Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaDeviceInfo_1g
     (JNIEnv *env, jclass clazz, jlong deviceInfo)
 {
     jbyteArray typeBytes = NULL;
-    if(((PaDeviceInfo *) (intptr_t) deviceInfo)->structVersion >= 3)
+    if(((PaDeviceInfo *) deviceInfo)->structVersion >= 3)
     {
-        const char *type
-            = ((PaDeviceInfo *) (intptr_t) deviceInfo)->transportType;
+        const char *type = ((PaDeviceInfo *) deviceInfo)->transportType;
 
         if(type != NULL)
         {
@@ -935,10 +934,9 @@ Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaDeviceInfo_1g
     (JNIEnv *env, jclass clazz, jlong deviceInfo)
 {
     jbyteArray uidBytes = NULL;
-    if(((PaDeviceInfo *) (intptr_t) deviceInfo)->structVersion >= 3)
+    if(((PaDeviceInfo *) deviceInfo)->structVersion >= 3)
     {
-        const char *uid
-            = ((PaDeviceInfo *) (intptr_t) deviceInfo)->deviceUID;
+        const char *uid = ((PaDeviceInfo *) deviceInfo)->deviceUID;
         
         if (uid)
         {
