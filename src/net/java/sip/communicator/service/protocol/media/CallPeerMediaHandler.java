@@ -1096,6 +1096,9 @@ public abstract class CallPeerMediaHandler
      * by one of our local <tt>MediaDevice</tt>s and returns a third
      * <tt>List</tt> that contains their intersection.
      *
+     * Note that it also treats telephone-event as a special case and puts it
+     * to the end of the intersection, if there is any intersection.
+     *
      * @param remoteFormats remote <tt>MediaFormat</tt> found in the
      * SDP message
      * @param localFormats local supported <tt>MediaFormat</tt> of our device
@@ -1106,15 +1109,40 @@ public abstract class CallPeerMediaHandler
                                             List<MediaFormat> localFormats)
     {
         List<MediaFormat> ret = new ArrayList<MediaFormat>();
+        MediaFormat telephoneEvents = null;
 
         for(MediaFormat remoteFormat : remoteFormats)
         {
             MediaFormat localFormat
                 = findMediaFormat(localFormats, remoteFormat);
 
-            if(localFormat != null)
+            if (localFormat != null)
+            {
+                // We ignore telephone-event here as it's not a real media
+                // format.  Therefore we don't want to decide to use it as
+                // our preferred format.  We'll add it back later if we find
+                // a suitable format.
+                //
+                // Note if there are multiple telephone-event formats, we'll
+                // lose all but the last one.  That's fine because it's
+                // meaningless to have multiple repeated formats.
+                if (Constants.TELEPHONE_EVENT.equals(localFormat.getEncoding()))
+                {
+                    telephoneEvents = localFormat;
+                    continue;
+                }
+
                 ret.add(localFormat);
+            }
         }
+
+        // If we've found some compatible formats, add telephone-event back
+        // in to the end of the list if we removed it above.  If we didn't
+        // find any compatible formats, we don't want to add telephone-event
+        // as the only entry in the list because there'd be no media.
+        if ((!ret.isEmpty()) && (telephoneEvents != null))
+            ret.add(telephoneEvents);
+
         return ret;
     }
 
@@ -1726,13 +1754,13 @@ public abstract class CallPeerMediaHandler
     {
         return getLocallySupportedFormats(mediaDevice, null, null);
     }
-    
+
     /**
-     * Returns a list of locally supported <tt>MediaFormat</tt>s for the 
+     * Returns a list of locally supported <tt>MediaFormat</tt>s for the
      * given <tt>MediaDevice</tt>, ordered in descending priority. Takes into
      * account the configuration obtained from the <tt>ProtocolProvider</tt>
-     * instance associated this media handler -- if its set up to override the 
-     * global encoding settings, uses that configuration, otherwise uses the 
+     * instance associated this media handler -- if its set up to override the
+     * global encoding settings, uses that configuration, otherwise uses the
      * global configuration.
      *
      * @param mediaDevice the <tt>MediaDevice</tt>.

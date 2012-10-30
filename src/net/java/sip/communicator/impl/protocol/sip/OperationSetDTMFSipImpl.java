@@ -13,8 +13,8 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.OperationFailedException;
 import net.java.sip.communicator.util.*;
 
-import org.jitsi.impl.neomedia.codec.*;
 import org.jitsi.service.neomedia.*;
+import org.jitsi.service.neomedia.codec.*;
 import org.jitsi.service.neomedia.format.*;
 import org.jitsi.service.protocol.*;
 
