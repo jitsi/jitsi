@@ -1238,8 +1238,51 @@ PortAudio_throwException(JNIEnv *env, PaError errorCode)
 {
     jclass clazz
         = (*env)->FindClass(
-                env,
-                "net/java/sip/communicator/impl/neomedia/portaudio/PortAudioException");
+            env,
+            "net/java/sip/communicator/impl/neomedia/portaudio/PortAudioException");
+
+    if(errorCode == paUnanticipatedHostError)
+    {
+        // throw new exception with host error info
+        const PaHostErrorInfo*  herr = Pa_GetLastHostErrorInfo();
+        if (herr)
+        {
+            jmethodID methodID
+                = (*env)->GetMethodID(
+                        env,
+                        clazz,
+                        "<init>",
+                        "(Ljava/lang/String;IJLjava/lang/String;)V");
+
+            if (methodID)
+            {
+                jstring jmessage;
+                if (herr->errorText)
+                    jmessage = (*env)->NewStringUTF(env, herr->errorText);
+                else
+                    jmessage = (*env)->NewStringUTF(env, "");
+
+                if (jmessage)
+                {
+                    jobject t
+                        = (*env)->NewObject(
+                                env,
+                                clazz,
+                                methodID,
+                                Pa_GetErrorText(errorCode),
+                                herr->hostApiType,
+                                herr->errorCode,
+                                jmessage);
+
+                    if (t)
+                    {
+                        (*env)->Throw(env, (jthrowable) t);
+                        return;
+                    }
+                }
+            }
+        }
+    }
 
     if (clazz)
         (*env)->ThrowNew(env, clazz, Pa_GetErrorText(errorCode));
