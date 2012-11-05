@@ -71,12 +71,18 @@ public class MediaConfigurationImpl implements MediaConfigurationService
     private static final String ENCODINGS_DISABLED_PROP
         = "net.java.sip.communicator.impl.neomedia.encodingsconfig.DISABLED";
 
-     /**
+    /**
      * Indicates if the Video/More Settings configuration tab
      * should be disabled, i.e. not visible to the user.
      */
     private static final String VIDEO_MORE_SETTINGS_DISABLED_PROP
         = "net.java.sip.communicator.impl.neomedia.videomoresettingsconfig.DISABLED";
+
+    /**
+     * The thread which updates the capture device as selected by the user. This
+     * prevent the UI to lock while changing the device.
+     */
+    private AudioLevelListenerThread audioLevelListenerThread = null;
 
     /**
      * Returns the audio configuration panel.
@@ -98,207 +104,6 @@ public class MediaConfigurationImpl implements MediaConfigurationService
         return createControls(DeviceConfigurationComboBoxModel.VIDEO);
     }
 
-    private static void createAudioPreview(
-            final AudioSystem audioSystem,
-            final JComboBox comboBox,
-            final SoundLevelIndicator soundLevelIndicator)
-    {
-        final ActionListener captureComboActionListener
-            = new ActionListener()
-            {
-                private final SimpleAudioLevelListener audioLevelListener
-                    = new SimpleAudioLevelListener()
-                    {
-                        public void audioLevelChanged(int level)
-                        {
-                            soundLevelIndicator.updateSoundLevel(level);
-                        }
-                    };
-
-                private AudioMediaDeviceSession deviceSession;
-
-                private final BufferTransferHandler transferHandler
-                    = new BufferTransferHandler()
-                    {
-                        public void transferData(PushBufferStream stream)
-                        {
-                            try
-                            {
-                                stream.read(transferHandlerBuffer);
-                            }
-                            catch (IOException ioe)
-                            {
-                            }
-                        }
-                    };
-
-                private final Buffer transferHandlerBuffer = new Buffer();
-
-                public void actionPerformed(ActionEvent event)
-                {
-                    setDeviceSession(null);
-
-                    CaptureDeviceInfo cdi;
-
-                    if (comboBox == null)
-                    {
-                        cdi
-                            = soundLevelIndicator.isShowing()
-                                ? audioSystem.getDevice(
-                                        AudioSystem.CAPTURE_INDEX)
-                                : null;
-                    }
-                    else
-                    {
-                        Object selectedItem
-                            = soundLevelIndicator.isShowing()
-                                ? comboBox.getSelectedItem()
-                                : null;
-
-                        cdi
-                            = (selectedItem
-                                    instanceof
-                                        DeviceConfigurationComboBoxModel
-                                            .CaptureDevice)
-                                ? ((DeviceConfigurationComboBoxModel
-                                            .CaptureDevice)
-                                        selectedItem)
-                                    .info
-                                : null;
-                    }
-
-                    if (cdi != null)
-                    {
-                        for (MediaDevice md
-                                : mediaService.getDevices(
-                                        MediaType.AUDIO,
-                                        MediaUseCase.ANY))
-                        {
-                            if (md instanceof AudioMediaDeviceImpl)
-                            {
-                                AudioMediaDeviceImpl amd
-                                    = (AudioMediaDeviceImpl) md;
-
-                                if (cdi.equals(amd.getCaptureDeviceInfo()))
-                                {
-                                    try
-                                    {
-                                        MediaDeviceSession deviceSession
-                                            = amd.createSession();
-                                        boolean setDeviceSession = false;
-
-                                        try
-                                        {
-                                            if (deviceSession
-                                                    instanceof
-                                                        AudioMediaDeviceSession)
-                                            {
-                                                setDeviceSession(
-                                                    (AudioMediaDeviceSession)
-                                                        deviceSession);
-                                                setDeviceSession = true;
-                                            }
-                                        }
-                                        finally
-                                        {
-                                            if (!setDeviceSession)
-                                                deviceSession.close();
-                                        }
-                                    }
-                                    catch (Throwable t)
-                                    {
-                                        if (t instanceof ThreadDeath)
-                                            throw (ThreadDeath) t;
-                                    }
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-
-                private void setDeviceSession(
-                        AudioMediaDeviceSession deviceSession)
-                {
-                    if (this.deviceSession == deviceSession)
-                        return;
-
-                    if (this.deviceSession != null)
-                    {
-                        try
-                        {
-                            this.deviceSession.close();
-                        }
-                        finally
-                        {
-                            this.deviceSession.setLocalUserAudioLevelListener(
-                                    null);
-                            soundLevelIndicator.resetSoundLevel();
-                        }
-                    }
-
-                    this.deviceSession = deviceSession;
-
-                    if (this.deviceSession != null)
-                    {
-                        this.deviceSession.setContentDescriptor(
-                                new ContentDescriptor(ContentDescriptor.RAW));
-                        this.deviceSession.setLocalUserAudioLevelListener(
-                                audioLevelListener);
-                        this.deviceSession.start(MediaDirection.SENDONLY);
-
-                        try
-                        {
-                            DataSource dataSource
-                                = this.deviceSession.getOutputDataSource();
-
-                            dataSource.connect();
-
-                            PushBufferStream[] streams
-                                = ((PushBufferDataSource) dataSource)
-                                    .getStreams();
-
-                            for (PushBufferStream stream : streams)
-                                stream.setTransferHandler(transferHandler);
-
-                            dataSource.start();
-                        }
-                        catch (Throwable t)
-                        {
-                            if (t instanceof ThreadDeath)
-                                throw (ThreadDeath) t;
-                            else
-                                setDeviceSession(null);
-                        }
-                    }
-                }
-            };
-
-        if (comboBox != null)
-            comboBox.addActionListener(captureComboActionListener);
-
-        soundLevelIndicator.addHierarchyListener(
-                new HierarchyListener()
-                {
-                    public void hierarchyChanged(HierarchyEvent event)
-                    {
-                        if ((event.getChangeFlags()
-                                    & HierarchyEvent.SHOWING_CHANGED)
-                                != 0)
-                        {
-                            SwingUtilities.invokeLater(
-                                    new Runnable()
-                                    {
-                                        public void run()
-                                        {
-                                            captureComboActionListener
-                                                .actionPerformed(null);
-                                        }
-                                    });
-                        }
-                    }
-                });
-    }
     /**
      * Creates the UI controls which are to control the details of a specific
      * <tt>AudioSystem</tt>.
@@ -309,7 +114,7 @@ public class MediaConfigurationImpl implements MediaConfigurationService
      * are to control the details of the specified <tt>audioSystem</tt> are to
      * be added
      */
-    public static void createAudioSystemControls(
+    public void createAudioSystemControls(
             AudioSystem audioSystem,
             JComponent container)
     {
@@ -449,7 +254,13 @@ public class MediaConfigurationImpl implements MediaConfigurationService
             container.add(denoiseCheckBox, constraints);
         }
 
-        createAudioPreview(audioSystem, captureCombo, capturePreview);
+        if(audioLevelListenerThread == null)
+        {
+            audioLevelListenerThread = new AudioLevelListenerThread(
+                    audioSystem,
+                    captureCombo,
+                    capturePreview);
+        }
     }
 
     /**
@@ -458,7 +269,7 @@ public class MediaConfigurationImpl implements MediaConfigurationService
      * @param type the type.
      * @return the build Component.
      */
-    private static Component createBasicControls(final int type)
+    private Component createBasicControls(final int type)
     {
         final JComboBox deviceComboBox = new JComboBox();
 
@@ -826,8 +637,10 @@ public class MediaConfigurationImpl implements MediaConfigurationService
      * @param prefSize the preferred size
      * @return the component.
      */
-    private static Component createPreview(int type, final JComboBox comboBox,
-                                           Dimension prefSize)
+    private Component createPreview(
+            int type,
+            final JComboBox comboBox,
+            Dimension prefSize)
     {
         JComponent preview = null;
 
@@ -1203,6 +1016,335 @@ public class MediaConfigurationImpl implements MediaConfigurationService
                 setText(((int) d.getWidth()) + "x" + ((int) d.getHeight()));
             }
             return this;
+        }
+    }
+
+    /**
+     * Creates a new listener to combo box and affect changes to the audio
+     * level indicator. The level indicator is updated via a thread in order to
+     * avoid deadloack of the user interface.
+     */
+    private class AudioLevelListenerThread
+            implements ActionListener,
+                       Runnable
+    {
+        /**
+         * The audio system used to get and set the sound devices.
+         */
+        private final AudioSystem audioSystem;
+
+        /**
+         * The combo box used to select the device the user wants to use.
+         */
+        private final JComboBox comboBox;
+
+        /**
+         * The sound level indicator used to show the effectiveness of the
+         * capture device.
+         */
+        private final SoundLevelIndicator soundLevelIndicator;
+
+        /**
+         * The buffer used for reading the capture device.
+         */
+        private final Buffer transferHandlerBuffer = new Buffer();
+
+        /**
+         * The thread managing the change of capture device.
+         */
+        private Thread runDeviceSession = null;
+
+        /**
+         * The object used to synchronized the change of capture device.
+         */
+        private Object syncPendingDeviceSession = new Object();
+
+        /**
+         * The new device choosen by the user and that we need to initialize as
+         * the new capture device.
+         */
+        private AudioMediaDeviceSession pendingDeviceSession = null;
+
+        /**
+         * The current capture device.
+         */
+        private AudioMediaDeviceSession deviceSession = null;
+
+        /**
+         * Creates a new listener to combo box and affect changes to the audio
+         * level indicator.
+         *
+         * @param audioSystem The audio system used to get and set the sound
+         * devices.
+         * @param comboBox The combo box used to select the device the user
+         * wants to use.
+         * @param soundLevelIndicator The sound level indicator used to show the
+         * effectiveness of the capture device.
+         */
+        public AudioLevelListenerThread(
+                final AudioSystem audioSystem,
+                final JComboBox comboBox,
+                final SoundLevelIndicator soundLevelIndicator)
+        {
+            this.audioSystem = audioSystem;
+            this.comboBox = comboBox;
+            this.soundLevelIndicator = soundLevelIndicator;
+            this.runDeviceSession = new Thread(this);
+            this.runDeviceSession.start();
+
+            if (comboBox != null)
+                comboBox.addActionListener(this);
+
+            soundLevelIndicator.addHierarchyListener(
+                    new HierarchyListener()
+                    {
+                        public void hierarchyChanged(HierarchyEvent event)
+                        {
+                            if ((event.getChangeFlags()
+                                    & HierarchyEvent.SHOWING_CHANGED)
+                                != 0)
+                            {
+                                SwingUtilities.invokeLater(
+                                    new Runnable()
+                                    {
+                                        public void run()
+                                        {
+                                            actionPerformed(null);
+                                        }
+                                    });
+                            }
+                        }
+                    });
+        }
+
+        /**
+         * Listener to update the audio level indicator.
+         */
+        private final SimpleAudioLevelListener audioLevelListener
+            = new SimpleAudioLevelListener()
+            {
+                public void audioLevelChanged(int level)
+                {
+                    soundLevelIndicator.updateSoundLevel(level);
+                }
+            };
+
+        /**
+         *  Provides an handler which reads the stream into the
+         *  "transferHandlerBuffer".
+         */
+        private final BufferTransferHandler transferHandler
+            = new BufferTransferHandler()
+            {
+                public void transferData(PushBufferStream stream)
+                {
+                    try
+                    {
+                        stream.read(transferHandlerBuffer);
+                    }
+                    catch (IOException ioe)
+                    {
+                    }
+                }
+            };
+
+        /**
+         * Refhresh combo box when the user click on it.
+         *
+         * @param event The click on the  combo box.
+         */
+        public void actionPerformed(ActionEvent event)
+        {
+            synchronized(syncPendingDeviceSession)
+            {
+                this.pendingDeviceSession = null;
+                syncPendingDeviceSession.notify();
+            }
+
+            CaptureDeviceInfo cdi;
+
+            if (comboBox == null)
+            {
+                cdi = soundLevelIndicator.isShowing()
+                    ? audioSystem.getDevice(AudioSystem.CAPTURE_INDEX)
+                    : null;
+            }
+            else
+            {
+                Object selectedItem = soundLevelIndicator.isShowing()
+                    ? comboBox.getSelectedItem()
+                    : null;
+
+                cdi = (selectedItem instanceof
+                        DeviceConfigurationComboBoxModel.CaptureDevice)
+                    ? ((DeviceConfigurationComboBoxModel.CaptureDevice)
+                            selectedItem).info
+                    : null;
+            }
+
+            if (cdi != null)
+            {
+                for (MediaDevice md: mediaService.getDevices(
+                            MediaType.AUDIO,
+                            MediaUseCase.ANY))
+                {
+                    if (md instanceof AudioMediaDeviceImpl)
+                    {
+                        AudioMediaDeviceImpl amd = (AudioMediaDeviceImpl) md;
+
+                        if (cdi.equals(amd.getCaptureDeviceInfo()))
+                        {
+                            try
+                            {
+                                MediaDeviceSession deviceSession
+                                    = amd.createSession();
+                                boolean setDeviceSession = false;
+
+                                try
+                                {
+                                    if (deviceSession instanceof
+                                            AudioMediaDeviceSession)
+                                    {
+                                        synchronized(syncPendingDeviceSession)
+                                        {
+                                            this.pendingDeviceSession
+                                                = (AudioMediaDeviceSession)
+                                                    deviceSession;
+                                            syncPendingDeviceSession.notify();
+                                        }
+                                        setDeviceSession = true;
+                                    }
+                                }
+                                finally
+                                {
+                                    if (!setDeviceSession)
+                                        deviceSession.close();
+                                }
+                            }
+                            catch (Throwable t)
+                            {
+                                if (t instanceof ThreadDeath)
+                                    throw (ThreadDeath) t;
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        /**
+         * Sets the new capture device used by the audio level indicator.
+         *
+         * @param deviceSession The new capture device used by the audio level
+         * indicator.
+         */
+        private void setDeviceSession(
+                final AudioMediaDeviceSession deviceSession)
+        {
+            if (this.deviceSession == deviceSession)
+                return;
+
+            if (this.deviceSession != null)
+            {
+                try
+                {
+                    this.deviceSession.close();
+                }
+                finally
+                {
+                    this.deviceSession.setLocalUserAudioLevelListener(null);
+                    soundLevelIndicator.resetSoundLevel();
+                }
+            }
+
+            this.deviceSession = deviceSession;
+
+            if (this.deviceSession != null)
+            {
+                this.deviceSession.setContentDescriptor(
+                        new ContentDescriptor(ContentDescriptor.RAW));
+                this.deviceSession.setLocalUserAudioLevelListener(
+                        audioLevelListener);
+
+                deviceSession.start(MediaDirection.SENDONLY);
+
+                try
+                {
+                    DataSource dataSource = deviceSession.getOutputDataSource();
+
+                    dataSource.connect();
+
+                    PushBufferStream[] streams
+                        = ((PushBufferDataSource) dataSource).getStreams();
+
+                    for (PushBufferStream stream : streams)
+                        stream.setTransferHandler(transferHandler);
+
+                    dataSource.start();
+                }
+                catch (Throwable t)
+                {
+                    if (t instanceof ThreadDeath)
+                        throw (ThreadDeath) t;
+                    else
+                    {
+                        synchronized(syncPendingDeviceSession)
+                        {
+                            this.pendingDeviceSession = null;
+                            syncPendingDeviceSession.notify();
+                        }
+                    }
+                }
+            }
+        }
+
+        /**
+         * The thread which activates the pending device session to se has next
+         * audio level source.
+         */
+        public void run()
+        {
+            AudioMediaDeviceSession tmpDeviceSession = null;
+            boolean run = true;
+            while(run)
+            {
+                tmpDeviceSession = null;
+                synchronized(syncPendingDeviceSession)
+                {
+                    try
+                    {
+                        // If there is no device change pending, then wait for
+                        // the next change.
+                        if(pendingDeviceSession == null)
+                        {
+                            syncPendingDeviceSession.wait();
+                        }
+
+                        // If the "new" device session is not null, then set is
+                        // as the new audio level source. The real call to
+                        // setDeviceSession is done outside the synchronized
+                        // statement to avoid GUI deadlock.
+                        if(pendingDeviceSession != null)
+                        {
+                            tmpDeviceSession = pendingDeviceSession;
+                            pendingDeviceSession = null;
+                        }
+                    }
+                    catch(InterruptedException ie)
+                    {
+                        run = false;
+                    }
+                }
+
+                // Call the chane of audio level source. This function blocks
+                // on MacOSX for bluetooth devices, if the device is paired but
+                // not connected.
+                if(tmpDeviceSession != null && run)
+                {
+                    setDeviceSession(tmpDeviceSession);
+                }
+            }
         }
     }
 }
