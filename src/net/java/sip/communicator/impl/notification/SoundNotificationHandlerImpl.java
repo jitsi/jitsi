@@ -6,7 +6,6 @@
  */
 package net.java.sip.communicator.impl.notification;
 
-import java.awt.*;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -24,6 +23,12 @@ import org.jitsi.util.*;
 public class SoundNotificationHandlerImpl
     implements SoundNotificationHandler
 {
+    /**
+     * The logger that will be used to log messages.
+     */
+    private Logger logger
+        = Logger.getLogger(SoundNotificationHandlerImpl.class);
+
     /**
      * The indicator which determines whether this
      * <tt>SoundNotificationHandler</tt> is currently muted i.e. the sounds are
@@ -105,7 +110,10 @@ public class SoundNotificationHandlerImpl
         if(audio == null)
             return;
 
-        playedClips.put(audio, data);
+        synchronized(playedClips)
+        {
+            playedClips.put(audio, data);
+        }
 
         boolean played = false;
 
@@ -123,15 +131,18 @@ public class SoundNotificationHandlerImpl
         }
         finally
         {
-            if (!played)
-                playedClips.remove(audio);
+            synchronized(playedClips)
+            {
+                if (!played)
+                    playedClips.remove(audio);
+            }
         }
     }
 
     /**
      * Stops/Restores all currently playing sounds.
      *
-     * @param isMute mute or not currently playing sounds
+     * @param mute mute or not currently playing sounds
      */
     public void setMute(boolean mute)
     {
@@ -200,23 +211,34 @@ public class SoundNotificationHandlerImpl
 
         if (audioNotifService != null)
         {
-            Iterator<Map.Entry<SCAudioClip, NotificationData>> i
-                = playedClips.entrySet().iterator();
+            List<SCAudioClip> clipsToStop = new ArrayList<SCAudioClip>();
 
-            while (i.hasNext())
+            synchronized(playedClips)
             {
-                Map.Entry<SCAudioClip, NotificationData> e = i.next();
+                Iterator<Map.Entry<SCAudioClip, NotificationData>> i
+                    = playedClips.entrySet().iterator();
 
-                if (e.getValue() == data)
+                while (i.hasNext())
                 {
-                    try
+                    Map.Entry<SCAudioClip, NotificationData> e = i.next();
+
+                    if (e.getValue() == data)
                     {
-                        e.getKey().stop();
-                    }
-                    finally
-                    {
+                        clipsToStop.add(e.getKey());
                         i.remove();
                     }
+                }
+            }
+
+            for(SCAudioClip clip : clipsToStop)
+            {
+                try
+                {
+                    clip.stop();
+                }
+                catch(Throwable t)
+                {
+                    logger.error("Error stopping audio clip", t);
                 }
             }
         }
@@ -246,7 +268,7 @@ public class SoundNotificationHandlerImpl
         {
             try
             {
-                Toolkit.getDefaultToolkit().beep();
+                java.awt.Toolkit.getDefaultToolkit().beep();
                 return true;
             }
             catch (Throwable t)
