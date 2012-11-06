@@ -138,9 +138,7 @@ public class UIServiceImpl
         // Initialize the single window container if we're in this case. This
         // should be done before initializing the main window, because he'll
         // search for it.
-        if (Boolean.parseBoolean(
-                GuiActivator.getResources().getSettingsString(
-                        "impl.gui.SINGLE_WINDOW_INTERFACE")))
+        if (ConfigurationManager.isSingleWindowInterfaceEnabled())
             singleWindowContainer = new SingleWindowContainer();
 
         // Initialize the main window.

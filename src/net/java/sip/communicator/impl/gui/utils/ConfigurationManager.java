@@ -244,6 +244,11 @@ public class ConfigurationManager
     private static boolean isChatRoomConfigDisabled = false;
 
     /**
+     * Indicates if the single window interface is enabled.
+     */
+    private static boolean isSingleWindowInterfaceEnabled = false;
+
+    /**
      * The name of the show smileys property.
      */
     private static final String SHOW_SMILEYS_PROPERTY
@@ -260,6 +265,12 @@ public class ConfigurationManager
      */
     private static final String CHAT_ROOM_CONFIG_DISABLED_PROP
         = "net.java.sip.communicator.service.gui.CHAT_ROOM_CONFIG_DISABLED";
+
+    /**
+     * The name of the single interface property.
+     */
+    private static final String SINGLE_WINDOW_INTERFACE_ENABLED
+        = "net.java.sip.communicator.service.gui.SINGLE_WINDOW_INTERFACE_ENABLED";
 
     /**
      * Loads all user interface configurations.
@@ -602,6 +613,25 @@ public class ConfigurationManager
                 "net.java.sip.communicator.impl.gui.main.account." +
                 "ADVANCED_CONFIG_DISABLED",
                 isAdvancedConfigDisabled);
+
+        // Single interface enabled property.
+        String singleInterfaceEnabledProp
+            = GuiActivator.getResources().getSettingsString(
+                SINGLE_WINDOW_INTERFACE_ENABLED);
+
+        boolean isEnabled = false;
+
+        if (singleInterfaceEnabledProp != null)
+            isEnabled = Boolean.parseBoolean(singleInterfaceEnabledProp);
+        else
+            isEnabled = Boolean.parseBoolean(
+                GuiActivator.getResources().getSettingsString(
+                "impl.gui.SINGLE_WINDOW_INTERFACE"));
+
+        // Load the advanced account configuration disabled.
+        isSingleWindowInterfaceEnabled
+            = configService.getBoolean( SINGLE_WINDOW_INTERFACE_ENABLED,
+                                        isEnabled);
 
         if(isFontSupportEnabled())
         {
@@ -1254,6 +1284,31 @@ public class ConfigurationManager
     public static boolean isAutoAnswerDisableSubmenu()
     {
         return autoAnswerDisableSubmenu;
+    }
+
+    /**
+     * Indicates if the single interface is enabled.
+     *
+     * @return <tt>true</tt> if the single window interface is enabled,
+     * <tt>false</tt> - otherwise
+     */
+    public static boolean isSingleWindowInterfaceEnabled()
+    {
+        return isSingleWindowInterfaceEnabled;
+    }
+
+    /**
+     * Updates the "singleWindowInterface" property through the
+     * <tt>ConfigurationService</tt>.
+     *
+     * @param singleWindowInterface <code>true</code> to indicate that the
+     * single window interface is enabled, <tt>false</tt> - otherwise
+     */
+    public static void setSingleWindowInterfaceEnabled(boolean isEnabled)
+    {
+        isSingleWindowInterfaceEnabled = isEnabled;
+
+        configService.setProperty(SINGLE_WINDOW_INTERFACE_ENABLED, isEnabled);
     }
 
     /**
