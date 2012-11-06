@@ -224,8 +224,6 @@ public class CallPeerMediaHandlerJabberImpl
      *
      * @param offer the offer that we'd like to parse, handle and get an answer
      * for.
-     * @param overrideMapping will the supplied <tt>MediaFormat</tt> should
-     * override the format if already mapped to a <tt>payloadType</tt>.
      *
      * @throws OperationFailedException if we have a problem satisfying the
      * description received in <tt>offer</tt> (e.g. failed to open a device or
@@ -233,8 +231,7 @@ public class CallPeerMediaHandlerJabberImpl
      * @throws IllegalArgumentException if there's a problem with
      * <tt>offer</tt>'s format or semantics.
      */
-    public void processOffer(List<ContentPacketExtension> offer,
-                             boolean overrideMapping)
+    public void processOffer(List<ContentPacketExtension> offer)
         throws OperationFailedException,
                IllegalArgumentException
     {
@@ -252,23 +249,10 @@ public class CallPeerMediaHandlerJabberImpl
             MediaType mediaType
                 = MediaType.parseString( description.getMedia() );
 
-            // if we got payload types that override ours
-            // they goes in here so we can pass it to the stream to use them
-            // when sending. To change the outgoing packets payload types
-            // with the value preferred from the sender
-            // in case of answer to first offer don't remap anything,
-            // just override our settings and use the offered one
-            // this way we agree with other party payload mappings
-            HashMap<Byte, Byte> overridePTMappingMap = null;
-
-            if(overrideMapping)
-                overridePTMappingMap = new HashMap<Byte, Byte>();
-
             List<MediaFormat> remoteFormats
                 = JingleUtils.extractFormats(
                         description,
-                        getDynamicPayloadTypes(),
-                        overridePTMappingMap);
+                        getDynamicPayloadTypes());
 
             MediaDevice dev = getDefaultDevice(mediaType);
 
@@ -383,14 +367,6 @@ public class CallPeerMediaHandlerJabberImpl
             answer.add(ourContent);
             localContentMap.put(content.getName(), ourContent);
 
-            // if stream is configured/created, lets set
-            // the override payload type mappings
-            MediaStream stream = getStream(mediaType);
-            if(overrideMapping && stream != null)
-            {
-                stream.setPTMappingOverrides(overridePTMappingMap);
-            }
-
             atLeastOneValidDescription = true;
         }
 
@@ -438,16 +414,13 @@ public class CallPeerMediaHandlerJabberImpl
      * Wraps up any ongoing candidate harvests and returns our response to the
      * last offer we've received, so that the peer could use it to send a
      * <tt>session-accept</tt>.
-     * @param overrideMapping will the supplied <tt>MediaFormat</tt> should
-     * override the format if already mapped to a <tt>payloadType</tt>.
      *
      * @return  the last generated list of {@link ContentPacketExtension}s that
      * the call peer could use to send a <tt>session-accept</tt>.
      *
      * @throws OperationFailedException if we fail to configure the media stream
      */
-    public Iterable<ContentPacketExtension> generateSessionAccept(
-            boolean overrideMapping)
+    public Iterable<ContentPacketExtension> generateSessionAccept()
         throws OperationFailedException
     {
         TransportManagerJabberImpl transportManager = getTransportManager();
@@ -520,26 +493,11 @@ public class CallPeerMediaHandlerJabberImpl
                 = JingleUtils.getRtpDescription(theirContent);
             MediaFormat format = null;
 
-            // if we got payload types that override ours
-            // they goes in here so we can pass it to the stream to use them
-            // when sending. To change the outgoing packets payload types
-            // with the value preferred from the sender
-            // in case of answer to first offer don't remap anything,
-            // just override our settings and use the offered one
-            // this way we agree with other party payload mappings
-            HashMap<Byte, Byte> overridePTMapping = null;
-
-            if(overrideMapping)
-                overridePTMapping = new HashMap<Byte, Byte>();
-
             for(PayloadTypePacketExtension payload
                     : theirDescription.getPayloadTypes())
             {
-                format
-                    = JingleUtils.payloadTypeToMediaFormat(
-                            payload,
-                            getDynamicPayloadTypes(),
-                            overridePTMapping);
+                format = JingleUtils.payloadTypeToMediaFormat(
+                            payload, getDynamicPayloadTypes());
                 if(format != null)
                     break;
             }
@@ -599,14 +557,6 @@ public class CallPeerMediaHandlerJabberImpl
                     direction,
                     rtpExtensions,
                     masterStream);
-
-            // stream is configured/created, lets set
-            // the override payload type mappings
-            MediaStream stream = getStream(type);
-            if(stream != null)
-            {
-                stream.setPTMappingOverrides(overridePTMapping);
-            }
         }
         return sessAccept;
     }
@@ -1068,15 +1018,8 @@ public class CallPeerMediaHandlerJabberImpl
             return;
         }
 
-        // if we got payload types that override ours
-        // they goes in here so we can pass it to the stream to use them
-        // when sending. To change the outgoing packets payload types
-        // with the value preferred from the sender
-        HashMap<Byte, Byte> overridePTMapping =
-            new HashMap<Byte, Byte>();
-
         List<MediaFormat> supportedFormats = JingleUtils.extractFormats(
-            description, getDynamicPayloadTypes(), overridePTMapping);
+            description, getDynamicPayloadTypes());
 
         MediaDevice dev = getDefaultDevice(mediaType);
 
@@ -1186,14 +1129,6 @@ public class CallPeerMediaHandlerJabberImpl
                 direction,
                 rtpExtensions,
                 masterStream);
-
-        // stream is configured/created, lets set
-        // the override payload type mappings
-        MediaStream stream = getStream(mediaType);
-        if(stream != null)
-        {
-            stream.setPTMappingOverrides(overridePTMapping);
-        }
     }
 
     /**

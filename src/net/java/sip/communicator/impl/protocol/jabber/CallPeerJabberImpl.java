@@ -116,7 +116,7 @@ public class CallPeerJabberImpl
         {
             getMediaHandler().getTransportManager().
                 wrapupConnectivityEstablishment();
-            answer = getMediaHandler().generateSessionAccept(false);
+            answer = getMediaHandler().generateSessionAccept();
         }
         catch(Exception exc)
         {
@@ -422,7 +422,7 @@ public class CallPeerJabberImpl
         {
             if(!contentAddWithNoCands)
             {
-                mediaHandler.processOffer(contents, true);
+                mediaHandler.processOffer(contents);
 
                 /*
                  * Gingle transport will not put candidate in session-initiate
@@ -470,7 +470,7 @@ public class CallPeerJabberImpl
             mediaHandler.getTransportManager().
                 wrapupConnectivityEstablishment();
             logger.info("wraping up");
-            answerContents = mediaHandler.generateSessionAccept(true);
+            answerContents = mediaHandler.generateSessionAccept();
             contentIQ = null;
         }
         catch(Exception e)
@@ -701,7 +701,7 @@ public class CallPeerJabberImpl
 
         try
         {
-            getMediaHandler().processOffer(offer, false);
+            getMediaHandler().processOffer(offer);
 
             CoinPacketExtension coin = null;
 

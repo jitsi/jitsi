@@ -68,10 +68,6 @@ public class JingleUtils
      * @param ptRegistry a reference to the <tt>DynamycPayloadTypeRegistry</tt>
      * where we should be registering newly added payload type number to format
      * mappings.
-     * @param overridePTMapping a payload types that we will need to remap
-     * when sending if selected. Use to respect remote party payload types.
-     * Can be null, then we override the payload type and use the other party
-     * payload types for this session.
      *
      * @return an ordered list of <tt>MediaFormat</tt>s that are both advertised
      * in the <tt>description</tt> and supported by our <tt>MediaService</tt>
@@ -79,8 +75,7 @@ public class JingleUtils
      */
     public static List<MediaFormat> extractFormats(
                                      RtpDescriptionPacketExtension description,
-                                     DynamicPayloadTypeRegistry    ptRegistry,
-                                     Map<Byte, Byte> overridePTMapping)
+                                     DynamicPayloadTypeRegistry    ptRegistry)
     {
         List<MediaFormat> mediaFmts = new ArrayList<MediaFormat>();
         List<PayloadTypePacketExtension> payloadTypes
@@ -88,8 +83,7 @@ public class JingleUtils
 
         for(PayloadTypePacketExtension ptExt : payloadTypes)
         {
-            MediaFormat format = payloadTypeToMediaFormat(
-                ptExt, ptRegistry, overridePTMapping);
+            MediaFormat format = payloadTypeToMediaFormat(ptExt, ptRegistry);
 
             //continue if our media service does not know this format
             if(format == null)
@@ -114,25 +108,19 @@ public class JingleUtils
      * use for the registration of possible dynamic payload types or
      * <tt>null</tt> the returned <tt>MediaFormat</tt> is to not be registered
      * into a <tt>DynamicPayloadTypeRegistry</tt>.
-     * @param overridePTMapping a payload types that we will need to remap
-     * when sending if selected. Use to respect remote party payload types.
-     * Can be null, then we override the payload type and use the other party
-     * payload types for this session.
      *
      * @return the {@link MediaFormat} described in the <tt>payloadType</tt>
      * extension or <tt>null</tt> if we don't recognize the format.
      */
     public static MediaFormat payloadTypeToMediaFormat(
             PayloadTypePacketExtension payloadType,
-            DynamicPayloadTypeRegistry ptRegistry,
-            Map<Byte, Byte> overridePTMapping)
+            DynamicPayloadTypeRegistry ptRegistry)
     {
         return
             payloadTypeToMediaFormat(
                     payloadType,
                     JabberActivator.getMediaService(),
-                    ptRegistry,
-                    overridePTMapping);
+                    ptRegistry);
     }
 
     /**
@@ -147,10 +135,6 @@ public class JingleUtils
      * use for the registration of possible dynamic payload types or
      * <tt>null</tt> the returned <tt>MediaFormat</tt> is to not be registered
      * into a <tt>DynamicPayloadTypeRegistry</tt>.
-     * @param overridePTMapping a payload types that we will need to remap
-     * when sending if selected. Use to respect remote party payload types.
-     * Can be null, then we override the payload type and use the other party
-     * payload types for this session.
      *
      * @return the {@link MediaFormat} described in the <tt>payloadType</tt>
      * extension or <tt>null</tt> if we don't recognize the format.
@@ -158,8 +142,7 @@ public class JingleUtils
     public static MediaFormat payloadTypeToMediaFormat(
                     PayloadTypePacketExtension payloadType,
                     MediaService mediaService,
-                    DynamicPayloadTypeRegistry ptRegistry,
-                    Map<Byte, Byte> overridePTMapping)
+                    DynamicPayloadTypeRegistry ptRegistry)
     {
         byte pt = (byte)payloadType.getID();
         boolean unknown = false;
@@ -208,53 +191,19 @@ public class JingleUtils
          * so we have to remember the mapping between the two so that we
          * don't, for example, map the same payloadType to a different
          * MediaFormat at a later time when we do automatic generation
-         * of payloadType in DynamicPayloadTypeRegistry.
-         */
-        /*
-         * TODO What is expected to happen when the remote peer tries to
-         * re-map a payloadType in its answer to a different MediaFormat
-         * than the one we've specified in our offer?
+         * of payloadType in DynamicPayloadTypeRegistry. If the remote peer
+         * tries to remap a payloadType in its answer to a different MediaFormat
+         * than the one we've specified in our offer, then the dynamic paylaod
+         * type registry will keep the original value for receiving and also
+         * add an overriding value for the new one. The overriding value will
+         * be streamed to our peer.
          */
         if ((ptRegistry != null)
                 && (pt >= MediaFormat.MIN_DYNAMIC_PAYLOAD_TYPE)
                 && (pt <= MediaFormat.MAX_DYNAMIC_PAYLOAD_TYPE)
                 && (ptRegistry.findFormat(pt) == null))
         {
-            ptRegistry.addMapping(format, pt, overridePTMapping != null);
-        }
-
-        // if we need to check and set some override payload
-        // type mappings
-        if(overridePTMapping != null)
-        {
-            MediaFormat addedFormat = ptRegistry.findFormat(pt);
-
-            if(addedFormat == null)
-            {
-                // the format wasn't added, as no longer we are overriding
-                // our own settings, means the remote party wants
-                // payload remapping
-                overridePTMapping.put(
-                    ptRegistry.obtainPayloadTypeNumber(format), pt);
-            }
-            else
-            {
-                // if formats are different, other party ignores
-                // our settings and wants a particular payload type
-                // for its format, lets add a override mapping
-                // despite that we already have a format with the same
-                // payload
-                if(format != null && !format.equals(addedFormat))
-                {
-                    byte ourPT =
-                        ptRegistry.obtainPayloadTypeNumber(format);
-
-                    if(ourPT != pt)
-                    {
-                        overridePTMapping.put(ourPT, pt);
-                    }
-                }
-            }
+            ptRegistry.addMapping(format, pt);
         }
 
         return unknown ? null : format;

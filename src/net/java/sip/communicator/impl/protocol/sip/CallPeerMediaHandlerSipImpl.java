@@ -461,23 +461,8 @@ public class CallPeerMediaHandlerSipImpl
                 continue;
             }
 
-            // if we got payload types that override ours
-            // they goes in here so we can pass it to the stream to use them
-            // when sending. To change the outgoing packets payload types
-            // with the value preferred from the sender
-            // in case of answer to first offer don't remap anything,
-            // just override our settings and use the offered one
-            // this way we agree with other party payload mappings
-           HashMap<Byte, Byte> overridePTMapping = null;
-
-           if(localSess != null)
-               overridePTMapping = new HashMap<Byte, Byte>();
-
-            List<MediaFormat> remoteFormats =
-                SdpUtils.extractFormats(
-                    mediaDescription,
-                    getDynamicPayloadTypes(),
-                    overridePTMapping);
+            List<MediaFormat> remoteFormats = SdpUtils.extractFormats(
+                mediaDescription, getDynamicPayloadTypes());
 
             MediaDevice dev = getDefaultDevice(mediaType);
             MediaDirection devDirection
@@ -627,14 +612,6 @@ public class CallPeerMediaHandlerSipImpl
 
             initStream(connector, dev, fmt, target, direction, rtpExtensions,
                 masterStream);
-
-            // stream is configured/created, lets set
-            // the override payload type mappings
-            MediaStream stream = getStream(mediaType);
-            if(overridePTMapping != null && stream != null)
-            {
-                stream.setPTMappingOverrides(overridePTMapping);
-            }
 
             // create the answer description
             answerDescriptions.add(md);
@@ -906,18 +883,8 @@ public class CallPeerMediaHandlerSipImpl
                 continue;
             }
 
-            // if we got payload types that override ours
-            // they goes in here so we can pass it to the stream to use them
-            // when sending. To change the outgoing packets payload types
-            // with the value preferred from the sender
-            HashMap<Byte, Byte> overridePTMapping =
-                new HashMap<Byte, Byte>();
-
-            List<MediaFormat> supportedFormats =
-                SdpUtils.extractFormats(
-                    mediaDescription,
-                    getDynamicPayloadTypes(),
-                    overridePTMapping);
+            List<MediaFormat> supportedFormats = SdpUtils.extractFormats(
+                mediaDescription, getDynamicPayloadTypes());
 
             MediaDevice dev = getDefaultDevice(mediaType);
 
@@ -1059,14 +1026,6 @@ public class CallPeerMediaHandlerSipImpl
             // create the corresponding stream...
             initStream(connector, dev, supportedFormats.get(0), target,
                                 direction, rtpExtensions, masterStream);
-
-            // stream is configured/created, lets set
-            // the override payload type mappings
-            MediaStream stream = getStream(mediaType);
-            if(stream != null)
-            {
-                stream.setPTMappingOverrides(overridePTMapping);
-            }
         }
     }
 

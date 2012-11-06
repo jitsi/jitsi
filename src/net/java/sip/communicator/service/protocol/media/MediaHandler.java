@@ -670,8 +670,9 @@ public class MediaHandler
     }
 
     /**
-     * Registers all dynamic payload mappings known to this
-     * <tt>MediaHandler</tt> with the specified <tt>MediaStream</tt>.
+     * Registers all dynamic payload mappings and any payload type overrides
+     * that are known to this <tt>MediaHandler</tt> with the specified
+     * <tt>MediaStream</tt>.
      *
      * @param stream the <tt>MediaStream</tt> that we'd like to register our
      * dynamic payload mappings with.
@@ -680,15 +681,30 @@ public class MediaHandler
             CallPeerMediaHandler<?> callPeerMediaHandler,
             MediaStream stream)
     {
+        DynamicPayloadTypeRegistry dynamicPayloadTypes
+                = callPeerMediaHandler.getDynamicPayloadTypes();
+
+        //first register the mappings
         for (Map.Entry<MediaFormat, Byte> mapEntry
-                : callPeerMediaHandler.getDynamicPayloadTypes().getMappings()
-                        .entrySet())
+                : dynamicPayloadTypes.getMappings().entrySet())
         {
             byte pt = mapEntry.getValue();
             MediaFormat fmt = mapEntry.getKey();
 
             stream.addDynamicRTPPayloadType(pt, fmt);
         }
+
+        //now register whatever overrides we have for the above mappings
+        for (Map.Entry<Byte, Byte> overrideEntry
+                : dynamicPayloadTypes.getMappingOverrides().entrySet())
+        {
+            byte originalPt = overrideEntry.getKey();
+            byte overridePt = overrideEntry.getValue();
+
+            stream.addDynamicRTPPayloadTypeOverride(originalPt, overridePt);
+        }
+
+
     }
 
     /**

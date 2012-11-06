@@ -83,8 +83,8 @@ public class SecurityPanel
         @Override
         public String toString()
         {
-            return UtilActivator.getResources().getI18NString("plugin.sipaccregwizz.SAVP_OPTION_"
-                + option);
+            return UtilActivator.getResources().getI18NString(
+                "plugin.sipaccregwizz.SAVP_OPTION_" + option);
         }
     }
 
@@ -244,8 +244,9 @@ public class SecurityPanel
         c.fill = GridBagConstraints.HORIZONTAL;
 
         //general encryption option
-        enableDefaultEncryption = new SIPCommCheckBox(UtilActivator.getResources()
-            .getI18NString("plugin.sipaccregwizz.ENABLE_DEFAULT_ENCRYPTION"),
+        enableDefaultEncryption = new SIPCommCheckBox(UtilActivator
+            .getResources()
+              .getI18NString("plugin.sipaccregwizz.ENABLE_DEFAULT_ENCRYPTION"),
             regform.isDefaultEncryption());
         enableDefaultEncryption.addActionListener(this);
         mainPanel.add(enableDefaultEncryption, c);
@@ -308,7 +309,8 @@ public class SecurityPanel
         // Encryption protcol preferences.
         JLabel lblEncryptionProtocolPreferences = new JLabel();
         lblEncryptionProtocolPreferences.setText(UtilActivator.getResources()
-            .getI18NString("plugin.sipaccregwizz.ENCRYPTION_PROTOCOL_PREFERENCES"));
+            .getI18NString(
+                "plugin.sipaccregwizz.ENCRYPTION_PROTOCOL_PREFERENCES"));
         c.gridy++;
         pnlAdvancedSettings.add(lblEncryptionProtocolPreferences, c);
 
@@ -330,8 +332,8 @@ public class SecurityPanel
         //ZRTP
         JLabel lblZrtpOption = new JLabel();
         lblZrtpOption.setBorder(new EmptyBorder(5, 5, 5, 0));
-        lblZrtpOption.setText(
-                UtilActivator.getResources().getI18NString("plugin.sipaccregwizz.ZRTP_OPTION"));
+        lblZrtpOption.setText(UtilActivator.getResources()
+            .getI18NString("plugin.sipaccregwizz.ZRTP_OPTION"));
         c.gridx = 0;
         c.gridy++;
         c.gridwidth = 1;
@@ -339,7 +341,8 @@ public class SecurityPanel
         c.gridx = 1;
         pnlAdvancedSettings.add(new JSeparator(), c);
 
-        enableSipZrtpAttribute = new SIPCommCheckBox(UtilActivator.getResources()
+        enableSipZrtpAttribute = new SIPCommCheckBox(
+            UtilActivator.getResources()
             .getI18NString("plugin.sipaccregwizz.ENABLE_SIPZRTP_ATTRIBUTE"),
             regform.isSipZrtpAttribute());
         c.gridx = 0;
@@ -350,8 +353,8 @@ public class SecurityPanel
         //SDES
         JLabel lblSDesOption = new JLabel();
         lblSDesOption.setBorder(new EmptyBorder(5, 5, 5, 0));
-        lblSDesOption.setText(
-                UtilActivator.getResources().getI18NString("plugin.sipaccregwizz.SDES_OPTION"));
+        lblSDesOption.setText( UtilActivator.getResources().getI18NString(
+            "plugin.sipaccregwizz.SDES_OPTION"));
         c.gridx = 0;
         c.gridy++;
         c.gridwidth = 1;
@@ -384,8 +387,8 @@ public class SecurityPanel
         c.gridwidth = 1;
         JLabel lblSavpOption = new JLabel();
         lblSavpOption.setBorder(new EmptyBorder(5, 5, 5, 0));
-        lblSavpOption.setText(
-            UtilActivator.getResources().getI18NString("plugin.sipaccregwizz.SAVP_OPTION"));
+        lblSavpOption.setText( UtilActivator.getResources().getI18NString(
+            "plugin.sipaccregwizz.SAVP_OPTION"));
         if(this.displaySavpOtions)
         {
             c.gridy++;
@@ -486,10 +489,12 @@ public class SecurityPanel
         this.encryptionProtocolPreferences.setEnabled(b);
         enableSipZrtpAttribute.setEnabled(
                 b
-                && this.encryptionConfigurationTableModel.isEnabledLabel("ZRTP"));
+                && this.encryptionConfigurationTableModel
+                    .isEnabledLabel("ZRTP"));
         tabCiphers.setEnabled(
                 b
-                && this.encryptionConfigurationTableModel.isEnabledLabel("SDES"));
+                && this.encryptionConfigurationTableModel
+                    .isEnabledLabel("SDES"));
     }
 
     /**
@@ -536,7 +541,8 @@ public class SecurityPanel
             Arrays.asList(encryptions);
         for(int i = 0; i < this.encryptionProtocols.length; ++i)
         {
-            if(!alreadyLoadedEncryptionProtocols.contains(encryptionProtocols[i]))
+            if(!alreadyLoadedEncryptionProtocols
+                    .contains(encryptionProtocols[i]))
             {
                 encryptions[index] = encryptionProtocols[i];
                 selectedEncryptions[index] = false;

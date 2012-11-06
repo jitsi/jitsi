@@ -105,14 +105,14 @@ public class CallPeerGTalkImpl
         {
             getMediaHandler().getTransportManager().
                 wrapupConnectivityEstablishment();
-            answer = getMediaHandler().generateSessionAccept(true, false);
+            answer = getMediaHandler().generateSessionAccept(true);
         }
         catch(IllegalArgumentException e)
         {
             sessAcceptedWithNoCands = new SessionIQ();
 
             // HACK apparently FreeSwitch need to have accept before
-            answer = getMediaHandler().generateSessionAccept(false, false);
+            answer = getMediaHandler().generateSessionAccept(false);
 
             SessionIQ response
                 = GTalkPacketFactory.createSessionAccept(
@@ -548,7 +548,7 @@ public class CallPeerGTalkImpl
 
         try
         {
-            getMediaHandler().processOffer(description, false);
+            getMediaHandler().processOffer(description);
         }
         catch(Exception ex)
         {

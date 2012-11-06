@@ -1491,7 +1491,9 @@ public class OperationSetPersistentPresenceJabberImpl
             }
             catch(XMPPException ex)
             {
-                logger.info("Can not retrieve vCard from: " + packet.getFrom(), ex);
+                logger.info("Can not retrieve vCard from: " + packet.getFrom());
+                if(logger.isTraceEnabled())
+                    logger.trace("vCard retrieval exception was: ", ex);
             }
         }
     }

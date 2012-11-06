@@ -497,7 +497,8 @@ public abstract class AccountID
 
         for(int i = 0; i < tmp.length; ++i)
         {
-            encryptionProtocolList.add(tmp[i]);
+            if(tmp[i] != null && tmp[i].trim().length() > 0 )
+                encryptionProtocolList.add(tmp[i]);
         }
 
         return encryptionProtocolList;

@@ -43,10 +43,17 @@ public class DynamicPayloadTypeRegistry
         = new HashMap<MediaFormat, Byte>();
 
     /**
+     * Maps locally defined payload types to payload type numbers that the
+     * remote party wants to use.
+     */
+    private final Map<Byte, Byte> payloadTypeOverrides
+        = new HashMap<Byte, Byte>();
+
+    /**
      * An override mappings of <tt>MediaFormat</tt> instances to the
      * dynamic payload type numbers.
      */
-    private Map<Byte, String> overridePayloadTypeMappings = null;
+    private Map<Byte, String> localPayloadTypePreferences = null;
 
     /**
      * Payload types mapping from <tt>MediaService</tt>.
@@ -58,9 +65,9 @@ public class DynamicPayloadTypeRegistry
      *
      * @param mappings the override payload-type mappings.
      */
-    public void setOverridePayloadTypeMappings(Map<Byte, String> mappings)
+    public void setLocalPayloadTypePreferences(Map<Byte, String> mappings)
     {
-        overridePayloadTypeMappings = mappings;
+        localPayloadTypePreferences = mappings;
     }
 
     /**
@@ -144,14 +151,14 @@ public class DynamicPayloadTypeRegistry
                 ProtocolMediaActivator.getMediaService()
                     .getDynamicPayloadTypePreferences());
 
-            if(overridePayloadTypeMappings == null)
+            if(localPayloadTypePreferences == null)
                 return mappings;
 
             // if we have specific payload type preferences from
             // CallPeerMediaHandler, replace them here
 
             for(Map.Entry<Byte, String> e :
-                this.overridePayloadTypeMappings.entrySet())
+                this.localPayloadTypePreferences.entrySet())
             {
                 Byte key = e.getKey();
                 String fmt = e.getValue();
@@ -216,7 +223,11 @@ public class DynamicPayloadTypeRegistry
 
     /**
      * Adds the specified <tt>format</tt> to <tt>payloadType</tt> mapping to
-     * the list of mappings known to this registry. The method is meant for
+     * the list of mappings known to this registry. If the mapping already
+     * exists in the registry then we will use the new value to create an
+     * overriding mapping. This basically means that we will expect packets to
+     * be streamed to us with the original PT but we will be streaming with
+     * The method is meant for
      * use primarily when handling incoming media descriptions, methods
      * generating local SDP should use the <tt>obtainPayloadTypeNumber</tt>
      * instead.
@@ -225,15 +236,11 @@ public class DynamicPayloadTypeRegistry
      * to <tt>format</tt>.
      * @param format the <tt>MediaFormat</tt> that we'd like to create a
      * dynamic mapping for.
-     * @param overrideMapping will the supplied <tt>MediaFormat</tt> should
-     * override the format if already mapped to a <tt>payloadType</tt>.
      *
      * @throws IllegalArgumentException in case <tt>payloadType</tt> has
      * already been assigned to another format.
      */
-    public void addMapping(MediaFormat format,
-                           byte payloadType,
-                           boolean overrideMapping)
+    public void addMapping(MediaFormat format, byte payloadType)
         throws IllegalArgumentException
     {
         MediaFormat alreadyMappedFmt = findFormat(payloadType);
@@ -254,11 +261,19 @@ public class DynamicPayloadTypeRegistry
                         + MediaFormat.MAX_DYNAMIC_PAYLOAD_TYPE);
         }
 
-        // check whether we should override our mappings
-        if(!overrideMapping && payloadTypeMappings.containsKey(format))
-            return;
-
-        payloadTypeMappings.put(format, Byte.valueOf(payloadType));
+        // if the format is already mapped to a PT then we'll keep it and use
+        // the new one as an override value for sending. we'd still expect to
+        // receive packets with the value that we had first selected.
+        if(payloadTypeMappings.containsKey(format))
+        {
+            byte originalPayloadType = payloadTypeMappings.get(format);
+            payloadTypeOverrides.put(originalPayloadType, payloadType);
+        }
+        else
+        {
+            //we are just adding a new mapping. nothing out of the ordinary
+            payloadTypeMappings.put(format, Byte.valueOf(payloadType));
+        }
     }
 
     /**
@@ -352,5 +367,17 @@ public class DynamicPayloadTypeRegistry
     public Map<MediaFormat, Byte> getMappings()
     {
         return new HashMap<MediaFormat, Byte>(payloadTypeMappings);
+    }
+
+    /**
+     * Returns a copy of all mapping overrides  currently registered in this
+     * registry.
+     *
+     * @return a copy of all mapping overrides  currently registered in this
+     * registry.
+     */
+    public Map<Byte, Byte> getMappingOverrides()
+    {
+        return new HashMap<Byte, Byte>(payloadTypeOverrides);
     }
 }

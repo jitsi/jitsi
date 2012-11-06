@@ -362,10 +362,6 @@ public class SdpUtils
      * @param ptRegistry a reference to the <tt>DynamycPayloadTypeRegistry</tt>
      * where we should be registering newly added payload type number to format
      * mappings.
-     * @param overridePTMapping a payload types that we will need to remap
-     * when sending if selected. Use to respect remote party payload types.
-     * Can be null, then we override the payload type and use the other party
-     * payload types for this session.
      *
      * @return an ordered list of <tt>MediaFormat</tt>s that are both advertised
      * in the <tt>mediaDesc</tt> description and supported by our
@@ -374,8 +370,7 @@ public class SdpUtils
     @SuppressWarnings("unchecked")//legacy code from jain-sdp
     public static List<MediaFormat> extractFormats(
                                          MediaDescription mediaDesc,
-                                         DynamicPayloadTypeRegistry ptRegistry,
-                                         Map<Byte, Byte> overridePTMapping)
+                                         DynamicPayloadTypeRegistry ptRegistry)
     {
         List<MediaFormat> mediaFmts = new ArrayList<MediaFormat>();
         Vector<String> formatStrings;
@@ -471,42 +466,7 @@ public class SdpUtils
             try
             {
                 mediaFormat = createFormat(
-                    pt, rtpmap, fmtp, frameRate, advp, ptRegistry,
-                    overridePTMapping != null);
-
-                // if we need to check and set some override payload
-                // type mappings
-                if(overridePTMapping != null)
-                {
-                    MediaFormat addedFormat = ptRegistry.findFormat(pt);
-
-                    if(addedFormat == null)
-                    {
-                        // the format wasn't added, as no longer we are overriding
-                        // our own settings, means the remote party wants
-                        // payload remapping
-                        overridePTMapping.put(
-                            ptRegistry.obtainPayloadTypeNumber(mediaFormat), pt);
-                    }
-                    else
-                    {
-                        // if formats are different, other party ignores
-                        // our settings and wants a particular payload type
-                        // for its format, lets add a override mapping
-                        // despite that we already have a format with the same
-                        // payload
-                        if(mediaFormat != null && !mediaFormat.equals(addedFormat))
-                        {
-                            byte ourPT =
-                                ptRegistry.obtainPayloadTypeNumber(mediaFormat);
-
-                            if(ourPT != pt)
-                            {
-                                overridePTMapping.put(ourPT, pt);
-                            }
-                        }
-                    }
-                }
+                    pt, rtpmap, fmtp, frameRate, advp, ptRegistry);
             }
             catch (SdpException e)
             {
@@ -692,8 +652,6 @@ public class SdpUtils
      * @param ptRegistry the {@link DynamicPayloadTypeRegistry} that we are to
      * use in case <tt>payloadType</tt> is dynamic and <tt>rtpmap</tt> is
      * <tt>null</tt> (in which case we can hope its in the registry).
-     * @param overrideMapping will the supplied <tt>MediaFormat</tt> should
-     * override the format if already mapped to a <tt>payloadType</tt>.
      *
      * @return a <tt>MediaForamt</tt> instance corresponding to the specified
      * <tt>payloadType</tt> and <tt>rtpmap</tt>, and <tt>fmtp</tt> attributes
@@ -710,8 +668,7 @@ public class SdpUtils
                                         Attribute                  fmtp,
                                         float                      frameRate,
                                         List<Attribute>            advp,
-                                        DynamicPayloadTypeRegistry ptRegistry,
-                                        boolean overrideMapping)
+                                        DynamicPayloadTypeRegistry ptRegistry)
         throws SdpException
     {
         //default values in case rtpmap is null.
@@ -804,19 +761,19 @@ public class SdpUtils
          * have to remember the mapping between the two so that we don't, for
          * example, map the same payloadType to a different MediaFormat at a
          * later time when we do automatic generation of payloadType in
-         * DynamicPayloadTypeRegistry.
-         */
-        /*
-         * TODO What is expected to happen when the remote peer tries to remap a
+         * DynamicPayloadTypeRegistry. If the remote peer tries to remap a
          * payloadType in its answer to a different MediaFormat than the one
-         * we've specified in our offer?
+         * we've specified in our offer, then the dynamic paylaod type registry
+         * will keep the original value for receiving and also add an overriding
+         * value for the new one. The overriding value will be streamed to our
+         * peer.
          */
         if ((payloadType >= MediaFormat.MIN_DYNAMIC_PAYLOAD_TYPE)
                 && (payloadType
                         <= MediaFormat.MAX_DYNAMIC_PAYLOAD_TYPE)
                 && (format != null)
                 && (ptRegistry.findFormat(payloadType) == null))
-            ptRegistry.addMapping(format, payloadType, overrideMapping);
+            ptRegistry.addMapping(format, payloadType);
 
         return format;
     }
