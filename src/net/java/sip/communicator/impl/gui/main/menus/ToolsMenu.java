@@ -30,6 +30,8 @@ import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
+import org.jitsi.service.configuration.*;
+import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
 
 /**
@@ -37,7 +39,7 @@ import org.osgi.framework.*;
  * contains "New account".
  *
  * @author Yana Stamcheva
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  * @author Adam Netocny
  */
 public class ToolsMenu
@@ -92,16 +94,16 @@ public class ToolsMenu
      * Creates an instance of <tt>FileMenu</tt>.
      * @param parentWindow The parent <tt>ChatWindow</tt>.
      */
-    public ToolsMenu(MainFrame parentWindow) {
+    public ToolsMenu(MainFrame parentWindow)
+    {
+        ResourceManagementService r = GuiActivator.getResources();
 
-        super(GuiActivator.getResources().getI18NString("service.gui.TOOLS"));
+        setText(r.getI18NString("service.gui.TOOLS"));
+        setMnemonic(r.getI18nMnemonic("service.gui.TOOLS"));
 
-        this.setMnemonic(
-            GuiActivator.getResources().getI18nMnemonic("service.gui.TOOLS"));
+        registerMenuItems();
 
-        this.registerMenuItems();
-
-        this.initPluginComponents();
+        initPluginComponents();
     }
 
     /**
@@ -174,13 +176,16 @@ public class ToolsMenu
                 confInviteDialog.setVisible(true);
             }
             else
+            {
+                ResourceManagementService r = GuiActivator.getResources();
+
                 new ErrorDialog(
-                    null,
-                    GuiActivator.getResources().getI18NString(
-                        "service.gui.WARNING"),
-                    GuiActivator.getResources().getI18NString(
-                        "service.gui.NO_ONLINE_CONFERENCING_ACCOUNT"))
-                .showDialog();
+                        null,
+                        r.getI18NString("service.gui.WARNING"),
+                        r.getI18NString(
+                                "service.gui.NO_ONLINE_CONFERENCING_ACCOUNT"))
+                    .showDialog();
+            }
         }
         else if (itemName.equals("showHideOffline"))
         {
@@ -287,36 +292,38 @@ public class ToolsMenu
     {
         // We only add the options button if the property SHOW_OPTIONS_WINDOW
         // specifies so or if it's not set.
+        ConfigurationService cfg = GuiActivator.getConfigurationService();
         Boolean showOptionsProp
-            = GuiActivator.getConfigurationService()
-                .getBoolean(ConfigurationFrame.SHOW_OPTIONS_WINDOW_PROPERTY,
-                            true);
+            = cfg.getBoolean(
+                    ConfigurationFrame.SHOW_OPTIONS_WINDOW_PROPERTY,
+                    true);
 
         if (showOptionsProp.booleanValue())
         {
             UIService uiService = GuiActivator.getUIService();
-            if ((uiService == null) || !uiService.useMacOSXScreenMenuBar()
-                || !registerConfigMenuItemMacOSX())
+
+            if ((uiService == null)
+                    || !uiService.useMacOSXScreenMenuBar()
+                    || !registerConfigMenuItemMacOSX())
             {
                 registerConfigMenuItemNonMacOSX();
             }
         }
 
-        conferenceMenuItem = new JMenuItem(
-            GuiActivator.getResources().getI18NString(
-                "service.gui.CREATE_CONFERENCE_CALL"));
+        ResourceManagementService r = GuiActivator.getResources();
 
-        conferenceMenuItem.setMnemonic(GuiActivator.getResources()
-            .getI18nMnemonic("service.gui.CREATE_CONFERENCE_CALL"));
+        conferenceMenuItem
+            = new JMenuItem(
+                    r.getI18NString("service.gui.CREATE_CONFERENCE_CALL"));
+        conferenceMenuItem.setMnemonic(
+                r.getI18nMnemonic("service.gui.CREATE_CONFERENCE_CALL"));
         conferenceMenuItem.setName("conference");
         conferenceMenuItem.addActionListener(this);
-        this.add(conferenceMenuItem);
+        add(conferenceMenuItem);
 
         initVideoBridgeMenu();
 
-        if(!GuiActivator.getConfigurationService().getBoolean(
-            AUTO_ANSWER_MENU_DISABLED_PROP,
-            false))
+        if(!cfg.getBoolean(AUTO_ANSWER_MENU_DISABLED_PROP, false))
         {
             if(ConfigurationManager.isAutoAnswerDisableSubmenu())
             {
@@ -337,25 +344,20 @@ public class ToolsMenu
                             ? "service.gui.HIDE_OFFLINE_CONTACTS"
                             : "service.gui.SHOW_OFFLINE_CONTACTS";
 
-        hideOfflineMenuItem = new JMenuItem(
-            GuiActivator.getResources().getI18NString(offlineTextKey));
-
-        hideOfflineMenuItem.setMnemonic(GuiActivator.getResources()
-            .getI18nMnemonic(offlineTextKey));
+        hideOfflineMenuItem = new JMenuItem(r.getI18NString(offlineTextKey));
+        hideOfflineMenuItem.setMnemonic(r.getI18nMnemonic(offlineTextKey));
         hideOfflineMenuItem.setName("showHideOffline");
         hideOfflineMenuItem.addActionListener(this);
         this.add(hideOfflineMenuItem);
 
         // Sound on/off menu item.
-        String soundTextKey = GuiActivator.getAudioNotifier().isMute()
-                            ? "service.gui.SOUND_ON"
-                            : "service.gui.SOUND_OFF";
+        String soundTextKey
+            = GuiActivator.getAudioNotifier().isMute()
+                ? "service.gui.SOUND_ON"
+                : "service.gui.SOUND_OFF";
 
-        soundMenuItem = new JMenuItem(
-            GuiActivator.getResources().getI18NString(soundTextKey));
-
-        soundMenuItem.setMnemonic(GuiActivator.getResources()
-            .getI18nMnemonic(soundTextKey));
+        soundMenuItem = new JMenuItem(r.getI18NString(soundTextKey));
+        soundMenuItem.setMnemonic(r.getI18nMnemonic(soundTextKey));
         soundMenuItem.setName("sound");
         soundMenuItem.addActionListener(this);
         this.add(soundMenuItem);
@@ -398,7 +400,7 @@ public class ToolsMenu
      */
     private void initVideoBridgeMenu()
     {
-        // If already created remove the previous menu in order to reinitialize
+        // If already created, remove the previous menu in order to reinitialize
         // it.
         if (videoBridgeMenuItem != null)
         {
@@ -427,47 +429,53 @@ public class ToolsMenu
             = getVideoBridgeProviders();
 
         // Add a service listener in order to be notified when a new protocol
-        // privder is added or removed and the list should be refreshed.
+        // provider is added or removed and the list should be refreshed.
         GuiActivator.bundleContext.addServiceListener(this);
 
-        if (videoBridgeProviders == null || videoBridgeProviders.size() <= 0)
+        int videoBridgeProviderCount
+            = (videoBridgeProviders == null) ? 0 : videoBridgeProviders.size();
+        ResourceManagementService r = GuiActivator.getResources();
+
+        if (videoBridgeProviderCount <= 0)
         {
-            videoBridgeMenuItem = new VideoBridgeProviderMenuItem(
-                GuiActivator.getResources().getI18NString(
-                    "service.gui.CREATE_VIDEO_BRIDGE"), null);
+            videoBridgeMenuItem
+                = new VideoBridgeProviderMenuItem(
+                        r.getI18NString("service.gui.CREATE_VIDEO_BRIDGE"),
+                        null);
             videoBridgeMenuItem.setEnabled(false);
         }
-        else if (videoBridgeProviders.size() == 1)
+        else if (videoBridgeProviderCount == 1)
         {
-            videoBridgeMenuItem = new VideoBridgeProviderMenuItem(
-                GuiActivator.getResources().getI18NString(
-                    "service.gui.CREATE_VIDEO_BRIDGE"),
-                    videoBridgeProviders.get(0));
+            videoBridgeMenuItem
+                = new VideoBridgeProviderMenuItem(
+                        r.getI18NString("service.gui.CREATE_VIDEO_BRIDGE"),
+                        videoBridgeProviders.get(0));
             videoBridgeMenuItem.setName("videoBridge");
             videoBridgeMenuItem.addActionListener(this);
         }
-        else if (videoBridgeProviders.size() > 1)
+        else if (videoBridgeProviderCount > 1)
         {
-            videoBridgeMenuItem = new SIPCommMenu(
-                GuiActivator.getResources().getI18NString(
-                    "service.gui.CREATE_VIDEO_BRIDGE_MENU"));
+            videoBridgeMenuItem
+                = new SIPCommMenu(
+                        r.getI18NString(
+                                "service.gui.CREATE_VIDEO_BRIDGE_MENU"));
 
             for (ProtocolProviderService videoBridgeProvider
-                                                        : videoBridgeProviders)
+                    : videoBridgeProviders)
             {
                 VideoBridgeProviderMenuItem videoBridgeItem
                     = new VideoBridgeProviderMenuItem(videoBridgeProvider);
 
                 ((JMenu) videoBridgeMenuItem).add(videoBridgeItem);
                 videoBridgeItem.setIcon(
-                    ImageLoader.getAccountStatusImage(videoBridgeProvider));
+                        ImageLoader.getAccountStatusImage(videoBridgeProvider));
             }
         }
 
-        videoBridgeMenuItem.setIcon(GuiActivator.getResources().getImage(
-            "service.gui.icons.VIDEO_BRIDGE"));
-        videoBridgeMenuItem.setMnemonic(GuiActivator.getResources()
-            .getI18nMnemonic("service.gui.CREATE_VIDEO_BRIDGE"));
+        videoBridgeMenuItem.setIcon(
+                r.getImage("service.gui.icons.VIDEO_BRIDGE"));
+        videoBridgeMenuItem.setMnemonic(
+                r.getI18nMnemonic("service.gui.CREATE_VIDEO_BRIDGE"));
 
         insert(videoBridgeMenuItem, 1);
     }
@@ -487,14 +495,15 @@ public class ToolsMenu
      */
     private void registerConfigMenuItemNonMacOSX()
     {
-        configMenuItem = new JMenuItem(
-            GuiActivator.getResources().getI18NString("service.gui.SETTINGS"),
-            GuiActivator.getResources().getImage(
-                                "service.gui.icons.CONFIGURE_ICON"));
+        ResourceManagementService r = GuiActivator.getResources();
 
-        this.add(configMenuItem);
-        configMenuItem.setMnemonic(GuiActivator.getResources()
-            .getI18nMnemonic("service.gui.SETTINGS"));
+        configMenuItem
+            = new JMenuItem(
+                    r.getI18NString("service.gui.SETTINGS"),
+                    r.getImage("service.gui.icons.CONFIGURE_ICON"));
+        add(configMenuItem);
+        configMenuItem.setMnemonic(
+                r.getI18nMnemonic("service.gui.SETTINGS"));
         configMenuItem.setName("config");
         configMenuItem.addActionListener(this);
     }
@@ -504,19 +513,23 @@ public class ToolsMenu
      */
     public void loadSkin()
     {
-        conferenceMenuItem.setIcon(GuiActivator.getResources().getImage(
-                "service.gui.icons.CONFERENCE_CALL"));
-        videoBridgeMenuItem.setIcon(GuiActivator.getResources().getImage(
-                "service.gui.icons.VIDEO_BRIDGE"));
-        hideOfflineMenuItem.setIcon(GuiActivator.getResources().getImage(
-                "service.gui.icons.SHOW_HIDE_OFFLINE_ICON"));
-        soundMenuItem.setIcon(GuiActivator.getResources().getImage(
-                "service.gui.icons.SOUND_MENU_ICON"));
+        ResourceManagementService r = GuiActivator.getResources();
 
-        if(configMenuItem != null)
+        conferenceMenuItem.setIcon(
+                r.getImage("service.gui.icons.CONFERENCE_CALL"));
+        if (configMenuItem != null)
         {
-            configMenuItem.setIcon(GuiActivator.getResources().getImage(
-                    "service.gui.icons.CONFIGURE_ICON"));
+            configMenuItem.setIcon(
+                    r.getImage("service.gui.icons.CONFIGURE_ICON"));
+        }
+        hideOfflineMenuItem.setIcon(
+                r.getImage("service.gui.icons.SHOW_HIDE_OFFLINE_ICON"));
+        soundMenuItem.setIcon(
+                r.getImage("service.gui.icons.SOUND_MENU_ICON"));
+        if (videoBridgeMenuItem != null)
+        {
+            videoBridgeMenuItem.setIcon(
+                    r.getImage("service.gui.icons.VIDEO_BRIDGE"));
         }
     }
 
