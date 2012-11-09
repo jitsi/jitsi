@@ -87,15 +87,18 @@ public abstract class SwingWorker
                         }
                     }
 
-                    // finished
-                    SwingUtilities.invokeLater(
-                            new Runnable()
-                            {
-                                public void run()
+                    // We only want to perform the finished if the thread hasn't
+                    // been interrupted.
+                    if (!Thread.currentThread().isInterrupted())
+                        // finished
+                        SwingUtilities.invokeLater(
+                                new Runnable()
                                 {
-                                    finished();
-                                }
-                            });
+                                    public void run()
+                                    {
+                                        finished();
+                                    }
+                                });
 
                     return value;
                 }
@@ -217,7 +220,7 @@ public abstract class SwingWorker
 
         synchronized (this)
         {
-            if (future == null)
+            if (future == null || future.isDone())
                 future = executorService.submit(callable);
             else
                 throw new IllegalStateException("future");

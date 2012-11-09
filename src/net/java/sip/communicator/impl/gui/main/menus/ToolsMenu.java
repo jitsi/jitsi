@@ -27,11 +27,15 @@ import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.util.swing.SwingWorker;
 
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
+import org.jitsi.util.*;
+
 import org.osgi.framework.*;
 
 /**
@@ -89,6 +93,19 @@ public class ToolsMenu
     * Preferences menu item.
     */
     JMenuItem configMenuItem;
+
+    /**
+     * The <tt>SwingWorker</tt> creating the video bridge menu item depending
+     * on the number of <tt>ProtocolProviderService</tt>-s supporting the video
+     * bridge functionality.
+     */
+    private SwingWorker initVideoBridgeMenuWorker;
+
+    /**
+     * The menu listener that would update the video bridge menu item every
+     * time the user clicks on the Tools menu.
+     */
+    private MenuListener videoBridgeMenuListener;
 
     /**
      * Creates an instance of <tt>FileMenu</tt>.
@@ -238,7 +255,8 @@ public class ToolsMenu
      */
     void configActionPerformed()
     {
-        GuiActivator.getUIService().getConfigurationContainer().setVisible(true);
+        GuiActivator.getUIService()
+            .getConfigurationContainer().setVisible(true);
     }
 
     /**
@@ -321,6 +339,10 @@ public class ToolsMenu
         conferenceMenuItem.addActionListener(this);
         add(conferenceMenuItem);
 
+        // Add a service listener in order to be notified when a new protocol
+        // provider is added or removed and the list should be refreshed.
+        GuiActivator.bundleContext.addServiceListener(this);
+
         initVideoBridgeMenu();
 
         if(!cfg.getBoolean(AUTO_ANSWER_MENU_DISABLED_PROP, false))
@@ -400,84 +422,172 @@ public class ToolsMenu
      */
     private void initVideoBridgeMenu()
     {
-        // If already created, remove the previous menu in order to reinitialize
-        // it.
-        if (videoBridgeMenuItem != null)
+        if (!SwingUtilities.isEventDispatchThread())
         {
-            remove(videoBridgeMenuItem);
-            videoBridgeMenuItem = null;
-        }
-        else
-        {
-            // For now we re-init the video bridge menu item each time the
-            // parent menu is selected in order to be able to refresh the list
-            // of available video bridge active providers.
-            addMenuListener(new MenuListener()
+            SwingUtilities.invokeLater(new Runnable()
             {
-                public void menuSelected(MenuEvent arg0)
+                public void run()
                 {
                     initVideoBridgeMenu();
                 }
-
-                public void menuDeselected(MenuEvent arg0) {}
-
-                public void menuCanceled(MenuEvent arg0) {}
             });
+            return;
         }
 
-        List<ProtocolProviderService> videoBridgeProviders
-            = getVideoBridgeProviders();
-
-        // Add a service listener in order to be notified when a new protocol
-        // provider is added or removed and the list should be refreshed.
-        GuiActivator.bundleContext.addServiceListener(this);
-
-        int videoBridgeProviderCount
-            = (videoBridgeProviders == null) ? 0 : videoBridgeProviders.size();
-        ResourceManagementService r = GuiActivator.getResources();
-
-        if (videoBridgeProviderCount <= 0)
+        // We create the video default video bridge menu item and set it
+        // disabled until we have more information on video bridge support.
+        if (videoBridgeMenuItem == null)
         {
-            videoBridgeMenuItem
-                = new VideoBridgeProviderMenuItem(
-                        r.getI18NString("service.gui.CREATE_VIDEO_BRIDGE"),
+            videoBridgeMenuItem = new VideoBridgeProviderMenuItem(
+                    GuiActivator.getResources()
+                        .getI18NString("service.gui.CREATE_VIDEO_BRIDGE"),
                         null);
+
             videoBridgeMenuItem.setEnabled(false);
-        }
-        else if (videoBridgeProviderCount == 1)
-        {
-            videoBridgeMenuItem
-                = new VideoBridgeProviderMenuItem(
-                        r.getI18NString("service.gui.CREATE_VIDEO_BRIDGE"),
-                        videoBridgeProviders.get(0));
-            videoBridgeMenuItem.setName("videoBridge");
-            videoBridgeMenuItem.addActionListener(this);
-        }
-        else if (videoBridgeProviderCount > 1)
-        {
-            videoBridgeMenuItem
-                = new SIPCommMenu(
-                        r.getI18NString(
-                                "service.gui.CREATE_VIDEO_BRIDGE_MENU"));
 
-            for (ProtocolProviderService videoBridgeProvider
-                    : videoBridgeProviders)
+            insert(videoBridgeMenuItem, 1);
+        }
+
+        // We re-init the video bridge menu item each time the
+        // parent menu is selected in order to be able to refresh the list
+        // of available video bridge active providers.
+        if (videoBridgeMenuListener == null)
+        {
+            videoBridgeMenuListener = new VideoBridgeMenuListener();
+
+            addMenuListener(videoBridgeMenuListener);
+        }
+
+        // Check the protocol providers supporting video bridge in a new thread.
+        if (initVideoBridgeMenuWorker == null)
+            initVideoBridgeMenuWorker
+                = (OSUtils.IS_MAC)
+                    ? new InitVideoBridgeMenuWorkerMacOSX()
+                    : new InitVideoBridgeMenuWorker();
+        else
+            initVideoBridgeMenuWorker.interrupt();
+
+        initVideoBridgeMenuWorker.start();
+    }
+
+    /**
+     * Initializes the video bridge menu on Mac OSX.
+     */
+    private class InitVideoBridgeMenuWorkerMacOSX
+        extends SwingWorker
+    {
+        protected Object construct()
+        {
+            List<ProtocolProviderService> videoBridgeProviders
+                = getVideoBridgeProviders();
+
+            int videoBridgeProviderCount
+                = (videoBridgeProviders == null)
+                    ? 0 : videoBridgeProviders.size();
+
+            VideoBridgeProviderMenuItem menuItem
+                = ((VideoBridgeProviderMenuItem) videoBridgeMenuItem);
+
+            if (videoBridgeProviderCount <= 0)
+                menuItem.setEnabled(false);
+            else if (videoBridgeProviderCount == 1)
             {
-                VideoBridgeProviderMenuItem videoBridgeItem
-                    = new VideoBridgeProviderMenuItem(videoBridgeProvider);
+                menuItem.setPreselectedProvider(videoBridgeProviders.get(0));
+                menuItem.setEnabled(true);
+            }
+            else if (videoBridgeProviderCount > 1)
+            {
+                menuItem.setPreselectedProvider(null);
+                menuItem.setVideoBridgeProviders(videoBridgeProviders);
+                menuItem.setEnabled(true);
+            }
 
-                ((JMenu) videoBridgeMenuItem).add(videoBridgeItem);
-                videoBridgeItem.setIcon(
+            return null;
+        }
+    }
+
+    /**
+     * The <tt>InitVideoBridgeMenuWorker</tt> initializes the video bridge
+     * menu item depending on the number of providers currently supporting video
+     * bridge calls.
+     */
+    private class InitVideoBridgeMenuWorker
+        extends SwingWorker
+    {
+        private ResourceManagementService r = GuiActivator.getResources();
+
+        protected Object construct() //throws Exception
+        {
+            List<ProtocolProviderService> videoBridgeProviders
+                = getVideoBridgeProviders();
+
+            int videoBridgeProviderCount
+                = (videoBridgeProviders == null)
+                    ? 0 : videoBridgeProviders.size();
+
+            if (videoBridgeProviderCount <= 0)
+            {
+                videoBridgeMenuItem
+                    = new VideoBridgeProviderMenuItem(
+                            r.getI18NString("service.gui.CREATE_VIDEO_BRIDGE"),
+                            null);
+                videoBridgeMenuItem.setEnabled(false);
+            }
+            else if (videoBridgeProviderCount == 1)
+            {
+                videoBridgeMenuItem
+                    = new VideoBridgeProviderMenuItem(
+                            r.getI18NString("service.gui.CREATE_VIDEO_BRIDGE"),
+                            videoBridgeProviders.get(0));
+                videoBridgeMenuItem.setName("videoBridge");
+                videoBridgeMenuItem.addActionListener(ToolsMenu.this);
+            }
+            else if (videoBridgeProviderCount > 1)
+            {
+                videoBridgeMenuItem
+                    = new SIPCommMenu(
+                            r.getI18NString(
+                                    "service.gui.CREATE_VIDEO_BRIDGE_MENU"));
+
+                for (ProtocolProviderService videoBridgeProvider
+                        : videoBridgeProviders)
+                {
+                    VideoBridgeProviderMenuItem videoBridgeItem
+                        = new VideoBridgeProviderMenuItem(videoBridgeProvider);
+
+                    ((JMenu) videoBridgeMenuItem).add(videoBridgeItem);
+                    videoBridgeItem.setIcon(
                         ImageLoader.getAccountStatusImage(videoBridgeProvider));
+                }
+            }
+            return null;
+        }
+
+        protected void finished()
+        {
+            // If the menu item is already created we're going to remove it in
+            // order to reinitialize it.
+            remove(videoBridgeMenuItem);
+            videoBridgeMenuItem = null;
+
+            videoBridgeMenuItem.setIcon(
+                    r.getImage("service.gui.icons.VIDEO_BRIDGE"));
+            videoBridgeMenuItem.setMnemonic(
+                    r.getI18nMnemonic("service.gui.CREATE_VIDEO_BRIDGE"));
+
+            insert(videoBridgeMenuItem, 1);
+
+            if (isPopupMenuVisible())
+            {
+                java.awt.Container c = videoBridgeMenuItem.getParent();
+
+                if (c instanceof JComponent)
+                {
+                    ((JComponent) c).revalidate();
+                }
+                c.repaint();
             }
         }
-
-        videoBridgeMenuItem.setIcon(
-                r.getImage("service.gui.icons.VIDEO_BRIDGE"));
-        videoBridgeMenuItem.setMnemonic(
-                r.getI18nMnemonic("service.gui.CREATE_VIDEO_BRIDGE"));
-
-        insert(videoBridgeMenuItem, 1);
     }
 
     /**
@@ -536,11 +646,14 @@ public class ToolsMenu
     /**
      * The <tt>VideoBridgeProviderMenuItem</tt> for each protocol provider.
      */
+    @SuppressWarnings("serial")
     private class VideoBridgeProviderMenuItem
         extends JMenuItem
         implements ActionListener
     {
-        private final ProtocolProviderService protocolProvider;
+        private ProtocolProviderService preselectedProvider;
+
+        private List<ProtocolProviderService> videoBridgeProviders;
 
         /**
          * Creates an instance of <tt>VideoBridgeProviderMenuItem</tt> by
@@ -562,19 +675,24 @@ public class ToolsMenu
          * provides the video bridge.
          *
          * @param name the name of the menu item
-         * @param protocolProvider the <tt>ProtocolProviderService</tt> that
+         * @param preselectedProvider the <tt>ProtocolProviderService</tt> that
          * provides the video bridge
          */
         public VideoBridgeProviderMenuItem(
                                     String name,
-                                    ProtocolProviderService protocolProvider)
+                                    ProtocolProviderService preselectedProvider)
         {
             if (name != null && name.length() > 0)
                 setText(name);
             else
-                setText(protocolProvider.getAccountID().getDisplayName());
+                setText(preselectedProvider.getAccountID().getDisplayName());
 
-            this.protocolProvider = protocolProvider;
+            this.preselectedProvider = preselectedProvider;
+
+            ResourceManagementService r = GuiActivator.getResources();
+
+            setIcon(r.getImage("service.gui.icons.VIDEO_BRIDGE"));
+            setMnemonic(r.getI18nMnemonic("service.gui.CREATE_VIDEO_BRIDGE"));
 
             addActionListener(this);
         }
@@ -582,9 +700,30 @@ public class ToolsMenu
         /**
          * Opens a conference invite dialog when this menu is selected.
          */
-        public void actionPerformed(ActionEvent arg0)
+        public void actionPerformed(ActionEvent event)
         {
-            new ConferenceInviteDialog(protocolProvider, true).setVisible(true);
+            ConferenceInviteDialog inviteDialog;
+
+            if (preselectedProvider != null)
+                inviteDialog
+                    = new ConferenceInviteDialog(preselectedProvider, true);
+            else
+                inviteDialog
+                    = new ConferenceInviteDialog(videoBridgeProviders, true);
+
+            inviteDialog.setVisible(true);
+        }
+
+        public void setPreselectedProvider(
+                ProtocolProviderService protocolProvider)
+        {
+            this.preselectedProvider = protocolProvider;
+        }
+
+        public void setVideoBridgeProviders(
+                List<ProtocolProviderService> videoBridgeProviders)
+        {
+            this.videoBridgeProviders = videoBridgeProviders;
         }
     }
 
@@ -621,5 +760,17 @@ public class ToolsMenu
                 initVideoBridgeMenu();
                 break;
         }
+    }
+
+    private class VideoBridgeMenuListener implements MenuListener
+    {
+        public void menuSelected(MenuEvent arg0)
+        {
+            initVideoBridgeMenu();
+        }
+
+        public void menuDeselected(MenuEvent arg0) {}
+
+        public void menuCanceled(MenuEvent arg0) {}
     }
 }

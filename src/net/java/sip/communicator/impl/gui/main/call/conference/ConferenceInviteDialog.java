@@ -13,6 +13,8 @@ import java.util.List;
 
 import javax.swing.*;
 
+import com.sun.org.apache.bcel.internal.generic.*;
+
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
@@ -20,6 +22,7 @@ import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 // disambiguation
 
@@ -71,15 +74,23 @@ public class ConferenceInviteDialog
     private ProtocolProviderService preselectedProtocolProvider;
 
     /**
+     * Indicates if this conference invite dialog is associated with a video
+     * bridge invite.
+     */
+    private final boolean isVideoBridge;
+
+    /**
      * Initializes a new <tt>ConferenceInviteDialog</tt> instance which is to
      * invite contacts/participants in a specific telephony conference.
      *
      * @param conference the telephony conference in which the new instance is
      * to invite contacts/participants
      */
-    public ConferenceInviteDialog(  CallConference conference,
-                                    ProtocolProviderService preselectedProvider,
-                                    final boolean isVideoBridge)
+    public ConferenceInviteDialog(
+                            CallConference conference,
+                            ProtocolProviderService preselectedProvider,
+                            List<ProtocolProviderService> protocolProviders,
+                            final boolean isVideoBridge)
     {
         // Set the correct dialog title depending if we're going to create a
         // video bridge conference call
@@ -92,9 +103,10 @@ public class ConferenceInviteDialog
 
         this.conference = conference;
         this.preselectedProtocolProvider = preselectedProvider;
+        this.isVideoBridge = isVideoBridge;
 
         if (preselectedProtocolProvider == null)
-            initAccountSelectorPanel();
+            initAccountSelectorPanel(protocolProviders);
 
         // init the list, as we check whether features are supported
         // it may take some time if we have too much contacts
@@ -164,7 +176,7 @@ public class ConferenceInviteDialog
      */
     public ConferenceInviteDialog()
     {
-        this(null, null, false);
+        this(null, null, null, false);
     }
 
     /**
@@ -176,7 +188,38 @@ public class ConferenceInviteDialog
      */
     public ConferenceInviteDialog(CallConference conference)
     {
-        this(conference, null, false);
+        this(conference, null, null, false);
+    }
+
+    /**
+     * Creates an instance of <tt>ConferenceInviteDialog</tt> by specifying an
+     * already created conference. To use when inviting contacts to an existing
+     * conference is needed.
+     *
+     * @param conference the existing <tt>CallConference</tt>
+     */
+    public ConferenceInviteDialog(
+                        CallConference conference,
+                        ProtocolProviderService preselectedProtocolProvider,
+                        boolean isVideoBridge)
+    {
+        this(conference, preselectedProtocolProvider, null, isVideoBridge);
+    }
+
+    /**
+     * Creates an instance of <tt>ConferenceInviteDialog</tt> by specifying a
+     * preselected protocol provider to be used and if this is an invite for
+     * a video bridge conference.
+     *
+     * @param selectedConfProvider the preselected protocol provider
+     * @param isVideoBridge indicates if this dialog should create a conference
+     * through a video bridge
+     */
+    public ConferenceInviteDialog(
+                                List<ProtocolProviderService> protocolProviders,
+                                boolean isVideoBridge)
+    {
+        this(null, null, protocolProviders, isVideoBridge);
     }
 
     /**
@@ -192,13 +235,17 @@ public class ConferenceInviteDialog
                                 ProtocolProviderService selectedConfProvider,
                                 boolean isVideoBridge)
     {
-        this(null, selectedConfProvider, isVideoBridge);
+        this(null, selectedConfProvider, null, isVideoBridge);
     }
 
     /**
      * Initializes the account selector panel.
+     *
+     * @param protocolProviders the list of protocol providers we'd like to
+     * show in the account selector box
      */
-    private void initAccountSelectorPanel()
+    private void initAccountSelectorPanel(
+                        List<ProtocolProviderService> protocolProviders)
     {
         JLabel accountSelectorLabel = new JLabel(
             GuiActivator.getResources().getI18NString("service.gui.CALL_VIA"));
@@ -212,7 +259,10 @@ public class ConferenceInviteDialog
         accountSelectorPanel.add(accountSelectorBox, BorderLayout.CENTER);
 
         // Initialize the account selector box.
-        this.initAccountListData();
+        if (protocolProviders != null && protocolProviders.size() > 0)
+            this.initAccountListData(protocolProviders);
+        else
+            this.initAccountListData();
 
         this.accountSelectorBox.setRenderer(new DefaultListCellRenderer()
         {
@@ -253,11 +303,39 @@ public class ConferenceInviteDialog
                     initContactListData(
                         (ProtocolProviderService) accountSelectorBox
                             .getSelectedItem());
+
+                    if (isVideoBridge)
+                        destContactList.applyDefaultFilter();
                 }
             }
         });
 
         this.getContentPane().add(accountSelectorPanel, BorderLayout.NORTH);
+    }
+
+    /**
+     * Initializes the account selector box with the given list of
+     * <tt>ProtocolProviderService</tt>-s.
+     *
+     * @param protocolProviders the list of <tt>ProtocolProviderService</tt>-s
+     * we'd like to show in the account selector box
+     */
+    private void initAccountListData(
+                            List<ProtocolProviderService> protocolProviders)
+    {
+        Iterator<ProtocolProviderService> providersIter
+            = protocolProviders.iterator();
+
+        while (providersIter.hasNext())
+        {
+            ProtocolProviderService protocolProvider
+                = providersIter.next();
+
+            accountSelectorBox.addItem(protocolProvider);
+        }
+
+        if (accountSelectorBox.getItemCount() > 0)
+            accountSelectorBox.setSelectedIndex(0);
     }
 
     /**
