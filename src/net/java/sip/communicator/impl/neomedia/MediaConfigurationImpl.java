@@ -261,6 +261,13 @@ public class MediaConfigurationImpl implements MediaConfigurationService
                     captureCombo,
                     capturePreview);
         }
+        else
+        {
+            audioLevelListenerThread.init(
+                    audioSystem,
+                    captureCombo,
+                    capturePreview);
+        }
     }
 
     /**
@@ -1031,18 +1038,18 @@ public class MediaConfigurationImpl implements MediaConfigurationService
         /**
          * The audio system used to get and set the sound devices.
          */
-        private final AudioSystem audioSystem;
+        private AudioSystem audioSystem;
 
         /**
          * The combo box used to select the device the user wants to use.
          */
-        private final JComboBox comboBox;
+        private JComboBox comboBox;
 
         /**
          * The sound level indicator used to show the effectiveness of the
          * capture device.
          */
-        private final SoundLevelIndicator soundLevelIndicator;
+        private SoundLevelIndicator soundLevelIndicator;
 
         /**
          * The buffer used for reading the capture device.
@@ -1086,15 +1093,48 @@ public class MediaConfigurationImpl implements MediaConfigurationService
                 final JComboBox comboBox,
                 final SoundLevelIndicator soundLevelIndicator)
         {
-            this.audioSystem = audioSystem;
-            this.comboBox = comboBox;
-            this.soundLevelIndicator = soundLevelIndicator;
-            this.runDeviceSession = new Thread(this);
-            this.runDeviceSession.start();
+            this.init(audioSystem, comboBox, soundLevelIndicator);
+        }
 
+        /**
+         * Creates a new listener to combo box and affect changes to the audio
+         * level indicator.
+         *
+         * @param audioSystem The audio system used to get and set the sound
+         * devices.
+         * @param comboBox The combo box used to select the device the user
+         * wants to use.
+         * @param soundLevelIndicator The sound level indicator used to show the
+         * effectiveness of the capture device.
+         */
+        public void init(
+                final AudioSystem audioSystem,
+                final JComboBox comboBox,
+                final SoundLevelIndicator soundLevelIndicator)
+        {
+            this.audioSystem = audioSystem;
+
+            // When this code is call to reinit the audio level indicator, then
+            // first remove old listeners for the combo box.
+            if(this.comboBox != null)
+                this.comboBox.removeActionListener(this);
+            this.comboBox = comboBox;
             if (comboBox != null)
                 comboBox.addActionListener(this);
 
+            // When this code is call to reinit the audio level indicator, then
+            // first remove old listeners for the sound level indicator.
+            if(this.soundLevelIndicator != null)
+            {
+                HierarchyListener[] hierarchyListeners
+                    = soundLevelIndicator.getHierarchyListeners();
+                for(int i=0; i < hierarchyListeners.length; ++i)
+                {
+                    soundLevelIndicator.removeHierarchyListener(
+                        hierarchyListeners[i]);
+                }
+            }
+            this.soundLevelIndicator = soundLevelIndicator;
             soundLevelIndicator.addHierarchyListener(
                     new HierarchyListener()
                     {
@@ -1115,6 +1155,13 @@ public class MediaConfigurationImpl implements MediaConfigurationService
                             }
                         }
                     });
+
+            // Keeps the same single thread for the whole Jitsi session.
+            if(this.runDeviceSession == null)
+            {
+                this.runDeviceSession = new Thread(this);
+                this.runDeviceSession.start();
+            }
         }
 
         /**
