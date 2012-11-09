@@ -26,7 +26,6 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
@@ -525,26 +524,27 @@ public class ToolsMenu
                 = (videoBridgeProviders == null)
                     ? 0 : videoBridgeProviders.size();
 
+            JMenuItem newMenuItem = null;
             if (videoBridgeProviderCount <= 0)
             {
-                videoBridgeMenuItem
+                newMenuItem
                     = new VideoBridgeProviderMenuItem(
                             r.getI18NString("service.gui.CREATE_VIDEO_BRIDGE"),
                             null);
-                videoBridgeMenuItem.setEnabled(false);
+                newMenuItem.setEnabled(false);
             }
             else if (videoBridgeProviderCount == 1)
             {
-                videoBridgeMenuItem
+                newMenuItem
                     = new VideoBridgeProviderMenuItem(
                             r.getI18NString("service.gui.CREATE_VIDEO_BRIDGE"),
                             videoBridgeProviders.get(0));
-                videoBridgeMenuItem.setName("videoBridge");
-                videoBridgeMenuItem.addActionListener(ToolsMenu.this);
+                newMenuItem.setName("videoBridge");
+                newMenuItem.addActionListener(ToolsMenu.this);
             }
             else if (videoBridgeProviderCount > 1)
             {
-                videoBridgeMenuItem
+                newMenuItem
                     = new SIPCommMenu(
                             r.getI18NString(
                                     "service.gui.CREATE_VIDEO_BRIDGE_MENU"));
@@ -555,20 +555,24 @@ public class ToolsMenu
                     VideoBridgeProviderMenuItem videoBridgeItem
                         = new VideoBridgeProviderMenuItem(videoBridgeProvider);
 
-                    ((JMenu) videoBridgeMenuItem).add(videoBridgeItem);
+                    ((JMenu) newMenuItem).add(videoBridgeItem);
                     videoBridgeItem.setIcon(
                         ImageLoader.getAccountStatusImage(videoBridgeProvider));
                 }
             }
-            return null;
+            return newMenuItem;
         }
 
         protected void finished()
         {
-            // If the menu item is already created we're going to remove it in
-            // order to reinitialize it.
-            remove(videoBridgeMenuItem);
-            videoBridgeMenuItem = null;
+            if (videoBridgeMenuItem != null)
+            {
+                // If the menu item is already created we're going to remove it
+                // in order to reinitialize it.
+                remove(videoBridgeMenuItem);
+            }
+
+            videoBridgeMenuItem = (JMenuItem) get();
 
             videoBridgeMenuItem.setIcon(
                     r.getImage("service.gui.icons.VIDEO_BRIDGE"));
