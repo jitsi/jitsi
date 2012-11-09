@@ -77,7 +77,7 @@ public class ChatConversationPanel
     /**
      * List for observing text messages.
      */
-    private Set<ChatLinkClickedListener> chatLinkClickedListeners = 
+    private Set<ChatLinkClickedListener> chatLinkClickedListeners =
         new HashSet<ChatLinkClickedListener>();
 
     /**
@@ -647,7 +647,7 @@ public class ChatConversationPanel
     /**
      * Replaces the contents of the message with ID of the corrected message
      * specified in chatMessage, with this message.
-     * 
+     *
      * @param chatMessage A <tt>ChatMessage</tt> that contains all the required
      * information to correct the old message.
      */
@@ -822,7 +822,7 @@ public class ChatConversationPanel
     * Formats the given message. Processes the messages and replaces links to
     * video/image sources with their previews or any other substitution. Spawns
     * a separate thread for replacement.
-    * 
+    *
     * @param elem the element in the HTML Document.
     * @param chatString the message.
     */
@@ -1096,7 +1096,7 @@ public class ChatConversationPanel
      * such and <code>&lt;PLAINTEXT&gt;</code>. The two procedures are carried
      * out in one call in order to not break URLs which contain special HTML
      * characters such as &amp;.
-     * 
+     *
      * @param message The source message string.
      * @param processHTMLChars  <tt>true</tt> to escape the special HTML chars;
      * otherwise, <tt>false</tt>
@@ -1260,7 +1260,7 @@ public class ChatConversationPanel
                 logger.error("Invalid URL", e1);
                 return;
             }
-            if(uri.getScheme().equals("jitsi"))
+            if("jitsi".equals(uri.getScheme()))
             {
                 for(ChatLinkClickedListener l:chatLinkClickedListeners)
                 {
@@ -1540,9 +1540,9 @@ public class ChatConversationPanel
         extends JTextPane
     {
         /**
-         * Returns the string to be used as the tooltip for <i>event</i>. 
+         * Returns the string to be used as the tooltip for <i>event</i>.
          *
-         * @param event the <tt>MouseEvent</tt> 
+         * @param event the <tt>MouseEvent</tt>
          * @return the string to be used as the tooltip for <i>event</i>.
          */
         @Override
@@ -1557,7 +1557,7 @@ public class ChatConversationPanel
 
     /**
      * Adds a custom component at the end of the conversation.
-     * 
+     *
      * @param component the component to add at the end of the conversation.
      */
     public void addComponent(ChatConversationComponent component)
@@ -1608,7 +1608,7 @@ public class ChatConversationPanel
 
     /**
      * Registers a new link click listener.
-     * 
+     *
      * @param listener the object that should be notified when an internal
      * link was clicked.
      */
@@ -1620,7 +1620,7 @@ public class ChatConversationPanel
 
     /**
      * Remove a registered link click listener.
-     * 
+     *
      * @param listener a registered click listener to remove
      */
     public void removeChatLinkClickedListener(ChatLinkClickedListener listener)
@@ -1643,7 +1643,7 @@ public class ChatConversationPanel
 
     /**
      * Highlights the string in multi user chat.
-     * 
+     *
      * @param message the message to process
      * @param contentType the content type of the message
      * @param keyWord the keyword to highlight
@@ -1859,7 +1859,7 @@ public class ChatConversationPanel
     }
 
     /**
-     * 
+     *
      * @param attribute
      * @param matchStrings
      * @return
@@ -1873,7 +1873,7 @@ public class ChatConversationPanel
     }
 
     /**
-     * 
+     *
      * @param attribute
      * @param matchStrings
      * @return
@@ -1884,7 +1884,7 @@ public class ChatConversationPanel
     }
 
     /**
-     * 
+     *
      * @param element
      * @param attrName
      * @param matchStrings
@@ -1917,7 +1917,7 @@ public class ChatConversationPanel
     }
 
     /**
-     * 
+     *
      * @param element
      * @param attrName
      * @param matchStrings
@@ -1944,7 +1944,7 @@ public class ChatConversationPanel
     }
 
     /**
-     * 
+     *
      * @param elementId
      * @param message
      * @return

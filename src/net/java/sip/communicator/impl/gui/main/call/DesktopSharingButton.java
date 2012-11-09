@@ -64,7 +64,6 @@ public class DesktopSharingButton
         OperationSetDesktopSharingServer desktopSharing
                 = call.getProtocolProvider().getOperationSet(
                 OperationSetDesktopSharingServer.class);
-        System.err.println("DOHH"+desktopSharing);
 
         if (desktopSharing == null)
         {
