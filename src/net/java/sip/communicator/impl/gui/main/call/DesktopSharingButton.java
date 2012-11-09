@@ -64,11 +64,12 @@ public class DesktopSharingButton
         OperationSetDesktopSharingServer desktopSharing
                 = call.getProtocolProvider().getOperationSet(
                 OperationSetDesktopSharingServer.class);
+        System.err.println("DOHH"+desktopSharing);
 
         if (desktopSharing == null)
         {
-            setToolTipText(GuiActivator.getResources()
-                    .getI18NString("NO_DESKTOP_SHARING_FOR_PROTOCOL"));
+            setToolTipText(GuiActivator.getResources().getI18NString(
+                    "service.gui.NO_DESKTOP_SHARING_FOR_PROTOCOL"));
             desktopSharingAvailable = false;
         }
         else if(!ConfigurationManager.hasEnabledVideoFormat(
