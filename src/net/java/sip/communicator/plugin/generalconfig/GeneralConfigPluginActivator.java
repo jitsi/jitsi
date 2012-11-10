@@ -154,7 +154,16 @@ public class GeneralConfigPluginActivator
                         getClass().getClassLoader(),
                         null,
                         "plugin.generalconfig.SILK_CONFIG",
-                        52, true),
+                        0, true),
+                properties);
+        bundleContext.registerService(
+                ConfigurationForm.class.getName(),
+                new LazyConfigurationForm(
+                        OpusConfigForm.class.getName(),
+                        getClass().getClassLoader(),
+                        null,
+                        "plugin.generalconfig.OPUS_CONFIG",
+                        0, true),
                 properties);
 
         /*

@@ -9,6 +9,7 @@ package net.java.sip.communicator.plugin.generalconfig;
 
 import net.java.sip.communicator.util.swing.*;
 import org.jitsi.service.configuration.*;
+import org.jitsi.service.neomedia.codec.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -22,33 +23,7 @@ import java.awt.event.*;
 public class SilkConfigForm
         extends TransparentPanel
 {
-    /**
-     * The property name associated with the 'use fec' setting
-     */
-    private static final String FEC_PROP
-            = "net.java.sip.communicator.impl.neomedia.codec.audio.silk." +
-              "encoder.USE_FEC";
 
-    /**
-     * The property name associated with the 'always assume packet loss' setting
-     */
-    private static final String ASSUME_PL_PROP
-            = "net.java.sip.communicator.impl.neomedia.codec.audio.silk." +
-            "encoder.AWLAYS_ASSUME_PACKET_LOSS";
-
-    /**
-     * The property name associated with the 'speech activity threshold' setting
-     */
-    private static final String FEC_SAT_PROP
-            = "net.java.sip.communicator.impl.neomedia.codec.audio.silk." +
-            "encoder.SPEECH_ACTIVITY_THRESHOLD";
-
-    /**
-     * The property name associated with the 'advertise fec' setting
-     */
-    private static final String FEC_ADVERTISE_PROP
-            = "net.java.sip.communicator.impl.neomedia.codec.audio.silk." +
-            "ADVERTISE_FEC";
 
     /**
      * The default value for the SAT setting
@@ -140,22 +115,22 @@ public class SilkConfigForm
 
         fecCheckbox.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent actionEvent) {
-                configurationService.setProperty(FEC_PROP,
+                configurationService.setProperty(Constants.PROP_SILK_FEC,
                         fecCheckbox.isSelected());
             }
         });
         fecCheckbox.setSelected(configurationService.getBoolean(
-                FEC_PROP, FEC_DEFAULT));
+                Constants.PROP_SILK_FEC, FEC_DEFAULT));
         valuePanel.add(fecCheckbox);
 
         assumePLCheckbox.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent actionEvent) {
-                configurationService.setProperty(ASSUME_PL_PROP,
+                configurationService.setProperty(Constants.PROP_SILK_ASSUME_PL,
                         assumePLCheckbox.isSelected());
             }
         });
         assumePLCheckbox.setSelected(configurationService.getBoolean(
-                ASSUME_PL_PROP, FEC_FORCE_PL_DEFAULT));
+                Constants.PROP_SILK_ASSUME_PL, FEC_FORCE_PL_DEFAULT));
         valuePanel.add(assumePLCheckbox);
 
         SATField.addFocusListener(new FocusListener() {
@@ -163,22 +138,23 @@ public class SilkConfigForm
 
             public void focusLost(FocusEvent focusEvent)
             {
-                configurationService.setProperty(FEC_SAT_PROP,
+                configurationService.setProperty(Constants.PROP_SILK_FEC_SAT,
                         SATField.getText());
             }
         });
         SATField.setText(configurationService.getString(
-                FEC_SAT_PROP, FEC_SAT_DEFAULT));
+                Constants.PROP_SILK_FEC_SAT, FEC_SAT_DEFAULT));
         valuePanel.add(SATField);
 
         advertiseFECCheckbox.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent actionEvent) {
-                configurationService.setProperty(FEC_ADVERTISE_PROP,
+                configurationService.setProperty(
+                        Constants.PROP_SILK_ADVERSISE_FEC,
                         advertiseFECCheckbox.isSelected());
             }
         });
         advertiseFECCheckbox.setSelected(configurationService.getBoolean(
-                FEC_ADVERTISE_PROP, FEC_ADVERTISE_DEFAULT));
+                Constants.PROP_SILK_ADVERSISE_FEC, FEC_ADVERTISE_DEFAULT));
         valuePanel.add(advertiseFECCheckbox);
 
 
@@ -199,17 +175,18 @@ public class SilkConfigForm
     private void restoreDefaults()
     {
         fecCheckbox.setSelected(FEC_DEFAULT);
-        configurationService.setProperty(FEC_PROP, FEC_DEFAULT);
+        configurationService.setProperty(Constants.PROP_SILK_FEC, FEC_DEFAULT);
 
         assumePLCheckbox.setSelected(FEC_FORCE_PL_DEFAULT);
         configurationService.setProperty(
-                ASSUME_PL_PROP, FEC_FORCE_PL_DEFAULT);
+                Constants.PROP_SILK_ASSUME_PL, FEC_FORCE_PL_DEFAULT);
 
         SATField.setText(FEC_SAT_DEFAULT);
-        configurationService.setProperty(FEC_SAT_PROP, FEC_SAT_DEFAULT);
+        configurationService.setProperty(
+                Constants.PROP_SILK_FEC_SAT, FEC_SAT_DEFAULT);
 
         advertiseFECCheckbox.setSelected(FEC_ADVERTISE_DEFAULT);
         configurationService.setProperty(
-                FEC_ADVERTISE_PROP, FEC_ADVERTISE_DEFAULT);
+                Constants.PROP_SILK_ADVERSISE_FEC, FEC_ADVERTISE_DEFAULT);
     }
 }
