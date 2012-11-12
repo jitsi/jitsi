@@ -164,7 +164,13 @@ public class ConferencePeerPanel
                             resources.getColor(
                                     "service.gui.CALL_LOCAL_USER_BACKGROUND")));
 
+        if(!GuiActivator.getConfigurationService().getBoolean(
+                "net.java.sip.communicator.impl.gui.main.call."
+                        + "DISABLE_SOUND_LEVEL_INDICATORS",
+                false))
+        {
         call.addLocalUserSoundLevelListener(soundLevelListener);
+        }
     }
 
     /**
@@ -239,7 +245,14 @@ public class ConferencePeerPanel
         initSecuritySettings();
 
         callPeerAdapter = new CallPeerAdapter(this.callPeer, this);
-        this.callPeer.addStreamSoundLevelListener(soundLevelListener);
+
+        if(!GuiActivator.getConfigurationService().getBoolean(
+                "net.java.sip.communicator.impl.gui.main.call."
+                        + "DISABLE_SOUND_LEVEL_INDICATORS",
+                false))
+        {
+            this.callPeer.addStreamSoundLevelListener(soundLevelListener);
+        }
     }
 
     /**

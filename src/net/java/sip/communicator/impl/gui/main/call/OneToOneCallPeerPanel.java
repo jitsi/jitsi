@@ -334,23 +334,29 @@ public class OneToOneCallPeerPanel
 
         add(remoteLevelPanel, constraints);
 
-        this.callPeer.addStreamSoundLevelListener(
-                new SoundLevelListener()
-                {
-                    public void soundLevelChanged(Object source, int level)
+        if(!GuiActivator.getConfigurationService().getBoolean(
+                "net.java.sip.communicator.impl.gui.main.call."
+                    + "DISABLE_SOUND_LEVEL_INDICATORS",
+                false))
+        {
+            this.callPeer.addStreamSoundLevelListener(
+                    new SoundLevelListener()
                     {
-                        remoteLevelIndicator.updateSoundLevel(level);
-                    }
-                });
+                        public void soundLevelChanged(Object source, int level)
+                        {
+                            remoteLevelIndicator.updateSoundLevel(level);
+                        }
+                    });
 
-        this.callPeer.getCall().addLocalUserSoundLevelListener(
-                new SoundLevelListener()
-                {
-                    public void soundLevelChanged(Object source, int level)
+            this.callPeer.getCall().addLocalUserSoundLevelListener(
+                    new SoundLevelListener()
                     {
-                        localLevelIndicator.updateSoundLevel(level);
-                    }
+                        public void soundLevelChanged(Object source, int level)
+                        {
+                            localLevelIndicator.updateSoundLevel(level);
+                        }
                 });
+        }
     }
 
     /**
