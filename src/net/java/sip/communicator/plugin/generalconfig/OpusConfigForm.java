@@ -191,8 +191,6 @@ public class OpusConfigForm
                         Constants.PROP_OPUS_FEC, FEC_DEFAULT));
         fecCheckbox.addActionListener(this);
         valuePanel.add(fecCheckbox);
-        //Disabled until FEC actually works
-        fecCheckbox.setEnabled(false);
 
         //min expected packet loss
         labelPanel.add(new JLabel(Resources.getString(
