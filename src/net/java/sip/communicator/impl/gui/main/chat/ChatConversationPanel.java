@@ -43,7 +43,7 @@ import net.java.sip.communicator.util.swing.SwingWorker;
  * links.
  *
  * @author Yana Stamcheva
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  * @author Adam Netocny
  */
 public class ChatConversationPanel
@@ -1435,17 +1435,26 @@ public class ChatConversationPanel
      */
     public Date getPageLastMsgTimestamp()
     {
-        if (lastMessageUID == null)
-            return new Date(0);
+        long timestamp = 0;
 
-        Element lastMsgElement = document.getElement(
-            ChatHtmlUtils.MESSAGE_TEXT_ID + lastMessageUID);
+        if (lastMessageUID != null)
+        {
+            Element lastMsgElement
+                = document.getElement(
+                        ChatHtmlUtils.MESSAGE_TEXT_ID + lastMessageUID);
 
-        String dateObject = lastMsgElement
-            .getAttributes().getAttribute(ChatHtmlUtils.DATE_ATTRIBUTE)
-                .toString();
+            if (lastMsgElement != null)
+            {
+                Object date
+                    = lastMsgElement.getAttributes().getAttribute(
+                            ChatHtmlUtils.DATE_ATTRIBUTE);
 
-        return new Date(Long.parseLong(dateObject));
+                if (date != null)
+                    timestamp = Long.parseLong(date.toString());
+            }
+        }
+
+        return new Date(timestamp);
     }
 
     /**
