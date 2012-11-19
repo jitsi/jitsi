@@ -75,6 +75,14 @@ public class ChatConversationPanel
             + ")");
 
     /**
+     * A regular expression that matches a <div> tag and its contents.
+     * The opening tag is group 1, and the tag contents is group 2 when
+     * a match is found.
+     */
+    private static final Pattern DIV_PATTERN =
+            Pattern.compile("(<div[^>]*>)(.*)(</div>)", Pattern.DOTALL);
+
+    /**
      * List for observing text messages.
      */
     private Set<ChatLinkClickedListener> chatLinkClickedListeners =
@@ -342,36 +350,30 @@ public class ChatConversationPanel
             root,
             Attribute.ID,
             ChatHtmlUtils.MESSAGE_TEXT_ID + messageUID);
-
         if (e == null)
         {
-            logger.warn("Could not find message with ID" + messageUID);
+            logger.warn("Could not find message with ID " + messageUID);
             return null;
         }
 
-        int elemLen = e.getEndOffset() - e.getStartOffset();
-        String res = null;
-        try
+        Object original_message = e.getAttributes().getAttribute(
+                ChatHtmlUtils.ORIGINAL_MESSAGE_ATTRIBUTE);
+        if (original_message == null)
         {
-            res = document.getText(e.getStartOffset(), elemLen);
-
-            // Check if an "edited at" tag has been added and remove it before
-            // returning the string
-            String editedAtString = GuiActivator.getResources()
-                .getI18NString( "service.gui.EDITED_AT");
-
-            int editedAtIndex
-                = res.indexOf("(" + editedAtString.substring(
-                                        0, editedAtString.indexOf("{0}")));
-
-            if (editedAtIndex > 0)
-                res = res.substring(0, editedAtIndex);
+            logger.warn("Message with ID " + messageUID +
+                    " does not have original_message attribute");
+            return null;
         }
-        catch (BadLocationException exc)
-        {
-            logger.warn("Could not get message contents for message "
-                    + "with ID" + messageUID, exc);
-        }
+        
+        String res = original_message.toString();
+        // Remove all newline characters that were inserted to make copying
+        // newlines from the conversation panel work.
+        // They shouldn't be in the write panel, because otherwise a newline
+        // would consist of two chars, one of them invisible (the &#10;), but
+        // both of them have to be deleted in order to remove it.
+        // On the other hand this means that copying newlines from the write
+        // area produces only spaces, but this seems like the better option.
+        res = res.replace("&#10;", "");
         return res;
     }
 
@@ -849,7 +851,6 @@ public class ChatConversationPanel
                         try
                         {
                             Element elem = document.getElement(messageID);
-
                             document.setOuterHTML(elem, newMessage);
                         }
                         catch (BadLocationException ex)
@@ -872,7 +873,16 @@ public class ChatConversationPanel
                     = cfg.getBoolean(
                             ReplacementProperty.REPLACEMENT_ENABLE,
                             true);
+                Matcher divMatcher = DIV_PATTERN.matcher(chatString);
+                String openingTag = "";
                 String msgStore = chatString;
+                String closingTag = "";
+                if (divMatcher.find())
+                {
+                    openingTag = divMatcher.group(1);
+                    msgStore = divMatcher.group(2);
+                    closingTag = divMatcher.group(3);
+                }
 
                 for (Map.Entry<String, ReplacementService> entry
                         : GuiActivator.getReplacementSources().entrySet())
@@ -951,7 +961,7 @@ public class ChatConversationPanel
                     if (!msgBuffString.equals(msgStore))
                         msgStore = msgBuffString;
                 }
-                return msgStore;
+                return openingTag + msgStore + closingTag;
             }
         };
         worker.start();
@@ -1072,10 +1082,8 @@ public class ChatConversationPanel
             else
                 processHTMLChars = true;
 
-            message
-                = processNewLines(
-                    processLinksAndHTMLChars(
-                        message, processHTMLChars, contentType), contentType);
+            message = processNewLines(processLinksAndHTMLChars(
+                    message, processHTMLChars, contentType), contentType);
         }
         // If the message content is HTML, we process br and img tags.
         else
@@ -1116,7 +1124,10 @@ public class ChatConversationPanel
             String fromPrevEndToStart = message.substring(prevEnd, m.start());
 
             if (processHTMLChars)
-                fromPrevEndToStart = processHTMLChars(fromPrevEndToStart);
+            {
+                fromPrevEndToStart = 
+                        ChatHtmlUtils.escapeHTMLChars(fromPrevEndToStart);
+            }
             msgBuffer.append(fromPrevEndToStart);
             prevEnd = m.end();
 
@@ -1136,27 +1147,10 @@ public class ChatConversationPanel
         String fromPrevEndToEnd = message.substring(prevEnd);
 
         if (processHTMLChars)
-            fromPrevEndToEnd = processHTMLChars(fromPrevEndToEnd);
+            fromPrevEndToEnd = ChatHtmlUtils.escapeHTMLChars(fromPrevEndToEnd);
         msgBuffer.append(fromPrevEndToEnd);
 
         return msgBuffer.toString();
-    }
-
-    /**
-     * Escapes special HTML characters such as &lt;, &gt;, &amp; and &quot; in
-     * the specified message.
-     *
-     * @param message the message to be processed
-     * @return the processed message with escaped special HTML characters
-     */
-    private String processHTMLChars(String message)
-    {
-        return
-            message
-                .replace("&", "&amp;")
-                    .replace("<", "&lt;")
-                        .replace(">", "&gt;")
-                            .replace("\"", "&quot;");
     }
 
     /**
@@ -1180,13 +1174,24 @@ public class ChatConversationPanel
          * To fix this we need "&#10;" - the HTML-Code for ASCII-Character No.10
          * (Line feed).
          */
+        Matcher divMatcher = DIV_PATTERN.matcher(message);
+        String openingTag = "";
+        String closingTag = "";
+        if (divMatcher.find())
+        {
+            openingTag = divMatcher.group(1);
+            message = divMatcher.group(2);
+            closingTag = divMatcher.group(3);
+        }
         return
+            openingTag +
             message
                 .replaceAll(
                     "\n",
                     ChatHtmlUtils.createEndPlainTextTag(contentType)
                     + "<BR/>&#10;"
-                    + ChatHtmlUtils.createStartPlainTextTag(contentType));
+                    + ChatHtmlUtils.createStartPlainTextTag(contentType))
+            + closingTag;
     }
 
     /**
@@ -1674,71 +1679,42 @@ public class ChatConversationPanel
     {
         String contentType = chatMessage.getContentType();
         String message = chatMessage.getMessage();
+        if (message.length() <= 4 || !message.startsWith("/me "))
+        {
+            return "";
+        }
 
         String msgID
             = ChatHtmlUtils.MESSAGE_TEXT_ID + chatMessage.getMessageUID();
-        String chatString = "";
-        String endHeaderTag = "";
+        String chatString = "<DIV ID='" + msgID + "'><B><I>";
+        String endHeaderTag = "</I></B></DIV>";
 
-        String startDivTag = "<DIV id=\"" + msgID + "\">";
-        String endDivTag = "</DIV>";
+        chatString +=
+            ChatHtmlUtils.escapeHTMLChars("*** " + chatMessage.getContactName()
+                + " " + message.substring(4))
+                + endHeaderTag;
 
-        if (message.length() > 4 && message.substring(0, 4).equals("/me "))
+        Map<String, ReplacementService> listSources =
+            GuiActivator.getReplacementSources();
+        for (ReplacementService source : listSources.values())
         {
-            chatString = startDivTag + "<B><I>";
-
-            endHeaderTag = "</I></B>" + endDivTag;
-
-            chatString +=
-                processHTMLChars("*** " + chatMessage.getContactName() + " "
-                    + message.substring(4))
-                    + endHeaderTag;
-
-            Map<String, ReplacementService> listSources =
-                GuiActivator.getReplacementSources();
-
-            Iterator<Map.Entry<String, ReplacementService>> entrySetIter =
-                listSources.entrySet().iterator();
-            StringBuffer msgStore = new StringBuffer(chatString);
-
-            for (int i = 0; i < listSources.size(); i++)
+            boolean isSmiley = source instanceof SmiliesReplacementService;
+            if (!isSmiley)
             {
-                Map.Entry<String, ReplacementService> entry =
-                    entrySetIter.next();
-
-                ReplacementService source = entry.getValue();
-
-                boolean isSmiley = source instanceof SmiliesReplacementService;
-                if (isSmiley)
-                {
-                    String sourcePattern = source.getPattern();
-                    Pattern p =
-                        Pattern.compile(sourcePattern, Pattern.CASE_INSENSITIVE
-                            | Pattern.DOTALL);
-                    Matcher m = p.matcher(msgStore);
-
-                    StringBuffer msgTemp = new StringBuffer(chatString);
-
-                    while (m.find())
-                    {
-                        msgTemp.insert(m.start(),
-                            ChatHtmlUtils.createStartPlainTextTag(contentType));
-                        msgTemp.insert(
-                            m.end()
-                            + ChatHtmlUtils
-                                .createStartPlainTextTag(contentType).length(),
-                            ChatHtmlUtils.createEndPlainTextTag(contentType));
-
-                    }
-                    if (msgTemp.length() != msgStore.length())
-                        msgStore = msgTemp;
-                }
+                continue;
             }
-
-            return msgStore.toString();
+            String sourcePattern = source.getPattern();
+            Pattern p =
+                Pattern.compile(sourcePattern, Pattern.CASE_INSENSITIVE
+                    | Pattern.DOTALL);
+            Matcher m = p.matcher(chatString);
+            // Surround all smilies with <plaintext> tags.
+            chatString = m.replaceAll(
+                    ChatHtmlUtils.createStartPlainTextTag(contentType)
+                    + "$0"
+                    + ChatHtmlUtils.createEndPlainTextTag(contentType));
         }
-        else
-            return "";
+        return chatString;
     }
 
     /**
@@ -1961,10 +1937,10 @@ public class ChatConversationPanel
     private String getElementContent(String elementId, String message)
     {
         Pattern p = Pattern.compile(
-            ".*(<div.*id=\\\""
+            ".*(<div.*id=[\\\"']"
             + ChatHtmlUtils.MESSAGE_TEXT_ID
             + elementId
-            + "\\\".*?</div>)", Pattern.DOTALL);
+            + "[\\\"'].*?</div>)", Pattern.DOTALL);
 
         Matcher m = p.matcher(message);
 

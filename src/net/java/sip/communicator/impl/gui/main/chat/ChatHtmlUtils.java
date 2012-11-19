@@ -27,6 +27,12 @@ public class ChatHtmlUtils
     public final static String DATE_ATTRIBUTE = "date";
 
     /**
+     * The name of the attribute containing the original chat message before
+     * processing replacements.
+     */
+    public final static String ORIGINAL_MESSAGE_ATTRIBUTE = "original_message";
+
+    /**
      * The message header identifier attribute.
      */
     public final static String MESSAGE_HEADER_ID = "messageHeader";
@@ -640,13 +646,14 @@ public class ChatHtmlUtils
                                                 boolean isEdited,
                                                 boolean isHistory)
     {
-        StringBuffer messageTag = new StringBuffer();
+        StringBuilder messageTag = new StringBuilder();
 
-        messageTag.append("<div id=\"");
-        messageTag.append(MESSAGE_TEXT_ID + messageID);
-        messageTag.append("\" ");
-        messageTag.append(NAME_ATTRIBUTE + "=\"" + contactName + "\" ");
+        messageTag.append(String.format("<div id='%s' %s = '%s' ",
+                MESSAGE_TEXT_ID + messageID, NAME_ATTRIBUTE,
+                contactName));
         messageTag.append(DATE_ATTRIBUTE + "=\"" + date + "\" ");
+        messageTag.append(String.format("%s = '%s' ",
+                ORIGINAL_MESSAGE_ATTRIBUTE, escapeHTMLChars(message)));
         messageTag.append(IncomingMessageStyle
             .createSingleMessageStyle(isHistory, isEdited, true));
         messageTag.append(">");
@@ -680,13 +687,14 @@ public class ChatHtmlUtils
                                                     boolean isEdited,
                                                     boolean isHistory)
     {
-        StringBuffer messageTag = new StringBuffer();
+        StringBuilder messageTag = new StringBuilder();
 
-        messageTag.append("<div id=\"");
-        messageTag.append(MESSAGE_TEXT_ID + messageID);
-        messageTag.append("\" ");
-        messageTag.append(NAME_ATTRIBUTE + "=\"" + contactName + "\" ");
+        messageTag.append(String.format("<div id='%s' %s = '%s' ",
+                MESSAGE_TEXT_ID + messageID, NAME_ATTRIBUTE,
+                contactName));
         messageTag.append(DATE_ATTRIBUTE + "=\"" + date + "\" ");
+        messageTag.append(String.format("%s = '%s' ",
+                ORIGINAL_MESSAGE_ATTRIBUTE, escapeHTMLChars(message)));
         messageTag.append(IncomingMessageStyle
             .createSingleMessageStyle(isHistory, isEdited, false));
         messageTag.append(">");
@@ -732,5 +740,23 @@ public class ChatHtmlUtils
                     .getI18NString( "service.gui.EDITED_AT",
                                     new String[]{GuiUtils.formatTime(date)})
                 + ")";
+    }
+
+
+
+    /**
+     * Escapes special HTML characters such as &lt;, &gt;, &amp; and &quot; in
+     * the specified message.
+     *
+     * @param message the message to be processed
+     * @return the processed message with escaped special HTML characters
+     */
+    public static String escapeHTMLChars(String message)
+    {
+        return message
+                .replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;");
     }
 }

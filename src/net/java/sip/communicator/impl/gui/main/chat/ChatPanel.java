@@ -1605,7 +1605,7 @@ public class ChatPanel
             this.correctedMessageUID = correctedMessageUID;
             Color bgColor = new Color(GuiActivator.getResources()
                 .getColor("service.gui.CHAT_EDIT_MESSAGE_BACKGROUND"));
-                    this.writeMessagePanel.setEditorPaneBackground(bgColor);
+            this.writeMessagePanel.setEditorPaneBackground(bgColor);
         }
     }
 

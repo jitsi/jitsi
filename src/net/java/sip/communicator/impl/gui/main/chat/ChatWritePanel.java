@@ -681,6 +681,7 @@ public class ChatWritePanel
                     && this.chatPanel.isWriteAreaEmpty())
             {
                 this.chatPanel.startLastMessageCorrection();
+                e.consume();
             }
         }
         else if (e.getKeyCode() == KeyEvent.VK_DOWN)
@@ -830,6 +831,9 @@ public class ChatWritePanel
             "<html>|<head>|<body>|</html>|</head>|</body>", "");
 
         formattedString = extractFormattedText(formattedString);
+        // Returned string is formatted with newlines, etc. so we need to get
+        // rid of them before checking for the ending <br/>.
+        formattedString = formattedString.trim();
 
         if (formattedString.endsWith("<BR/>"))
             formattedString = formattedString
