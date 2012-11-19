@@ -33,6 +33,8 @@ public class AuthorizationRequestedDialog
     private final Logger logger
         = Logger.getLogger(AuthorizationRequestedDialog.class);
 
+    public static final int UNDEFINED_CODE = -2;
+
     public static final int ACCEPT_CODE = 0;
 
     public static final int REJECT_CODE = 1;
@@ -82,7 +84,7 @@ public class AuthorizationRequestedDialog
 
     private Object lock = new Object();
 
-    private int result;
+    private int result = UNDEFINED_CODE;
 
     /**
      * Constructs the <tt>RequestAuthorisationDialog</tt>.
@@ -209,15 +211,23 @@ public class AuthorizationRequestedDialog
      * Shows this modal dialog.
      * @return the result code, which shows what was the choice of the user
      */
-    public int showDialog()
+    public void showDialog()
     {
         this.setVisible(true);
+    }
 
+    /**
+     * Returns the code for the user interaction result.
+     * @return the result of the dialog input.
+     */
+    public int getReturnCode()
+    {
         synchronized (lock)
         {
             try
             {
-                lock.wait();
+                if(result == UNDEFINED_CODE)
+                    lock.wait();
             }
             catch (InterruptedException e)
             {
@@ -239,25 +249,25 @@ public class AuthorizationRequestedDialog
         JButton button = (JButton)e.getSource();
         String name = button.getName();
 
-        if (name.equals("authorize"))
-        {
-            this.result = ACCEPT_CODE;
-        }
-        else if (name.equals("deny"))
-        {
-            this.result = REJECT_CODE;
-        }
-        else if (name.equals("ignore"))
-        {
-            this.result = IGNORE_CODE;
-        }
-        else
-        {
-            this.result = ERROR_CODE;
-        }
-
         synchronized (lock)
         {
+            if (name.equals("authorize"))
+            {
+                this.result = ACCEPT_CODE;
+            }
+            else if (name.equals("deny"))
+            {
+                this.result = REJECT_CODE;
+            }
+            else if (name.equals("ignore"))
+            {
+                this.result = IGNORE_CODE;
+            }
+            else
+            {
+                this.result = ERROR_CODE;
+            }
+
             lock.notify();
         }
 

@@ -236,8 +236,20 @@ public class ConfigurationFrame
      *
      * @param isVisible specifies whether the frame is to be visible or not.
      */
-    public void setVisible(boolean isVisible)
+    public void setVisible(final boolean isVisible)
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    setVisible(isVisible);
+                }
+            });
+            return;
+        }
+
         if (isVisible && configList.getSelectedIndex() < 0)
         {
             this.configList.setSelectedIndex(0);
@@ -310,8 +322,20 @@ public class ConfigurationFrame
      *
      * @see ConfigFormList#addConfigForm(ConfigurationForm)
      */
-    private void addConfigurationForm(ConfigurationForm configForm)
+    private void addConfigurationForm(final ConfigurationForm configForm)
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    addConfigurationForm(configForm);
+                }
+            });
+            return;
+        }
+
         configList.addConfigForm(configForm);
     }
 
@@ -323,13 +347,37 @@ public class ConfigurationFrame
      *
      * @see ConfigFormList#removeConfigForm(ConfigurationForm)
      */
-    private void removeConfigurationForm(ConfigurationForm configForm)
+    private void removeConfigurationForm(final ConfigurationForm configForm)
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    removeConfigurationForm(configForm);
+                }
+            });
+            return;
+        }
+
         configList.removeConfigForm(configForm);
     }
 
-    public void setSelected(ConfigurationForm configForm)
+    public void setSelected(final ConfigurationForm configForm)
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    setSelected(configForm);
+                }
+            });
+            return;
+        }
+
         configList.setSelected(configForm);
     }
 

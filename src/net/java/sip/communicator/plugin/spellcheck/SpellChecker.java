@@ -17,6 +17,8 @@ import org.dts.spell.dictionary.*;
 import org.jitsi.service.fileaccess.*;
 import org.osgi.framework.*;
 
+import javax.swing.*;
+
 /**
  * Model for spell checking capabilities. This allows for the on-demand
  * retrieval of dictionaries in other languages which are cached with the user's
@@ -145,17 +147,26 @@ class SpellChecker
                 + localeIso);
         this.locale = tmp; // needed for synchronization lock
 
-        // initializes dictionary and saves locale config
-        // use the worker to set the locale if it fails
-        // will still show spellcheck and will not fail
-        // starting spell check plugin
-        LanguageMenuBar.makeSelectionField(this)
-            .createSpellCheckerWorker(locale).start();
+        SwingUtilities.invokeLater(new Runnable()
+        {
+            public void run()
+            {
+                // initializes dictionary and saves locale config
+                // use the worker to set the locale if it fails
+                // will still show spellcheck and will not fail
+                // starting spell check plugin
+                LanguageMenuBar.makeSelectionField(SpellChecker.this)
+                    .createSpellCheckerWorker(locale).start();
 
-        // attaches to uiService so this'll be attached to future chats
-        SpellCheckActivator.getUIService().addChatListener(this);
-        for (Chat chat : SpellCheckActivator.getUIService().getAllChats())
-            chatCreated(chat);
+                // attaches to uiService so this'll be attached to future chats
+                SpellCheckActivator.getUIService()
+                    .addChatListener(SpellChecker.this);
+
+                for (Chat chat : SpellCheckActivator.getUIService()
+                                    .getAllChats())
+                    chatCreated(chat);
+            }
+        });
 
         if (logger.isInfoEnabled())
             logger.info("Spell Checker loaded.");

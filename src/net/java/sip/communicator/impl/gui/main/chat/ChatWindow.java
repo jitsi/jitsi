@@ -213,14 +213,8 @@ public class ChatWindow
 
         chatPanel.setShown(true);
 
-        new Thread()
-        {
-            public void run()
-            {
-                for (ChatChangeListener l : chatChangeListeners)
-                    l.chatChanged(chatPanel);
-            }
-        }.start();
+        for (ChatChangeListener l : chatChangeListeners)
+            l.chatChanged(chatPanel);
     }
 
     /**
@@ -433,14 +427,8 @@ public class ChatWindow
 
         chatPanel.requestFocusInWriteArea();
 
-        new Thread()
-        {
-            public void run()
-            {
-                for (ChatChangeListener l : chatChangeListeners)
-                    l.chatChanged(chatPanel);
-            }
-        }.start();
+        for (ChatChangeListener l : chatChangeListeners)
+            l.chatChanged(chatPanel);
     }
 
     /**

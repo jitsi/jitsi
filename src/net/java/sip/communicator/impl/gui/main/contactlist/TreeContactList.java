@@ -1885,8 +1885,23 @@ public class TreeContactList
      * @param height the desired image height
      */
     private static void setScaledLabelImage(
-        JLabel label, byte[] image, int width, int height)
+        final JLabel label,
+        final byte[] image,
+        final int width,
+        final int height)
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    setScaledLabelImage(label, image, width, height);
+                }
+            });
+            return;
+        }
+
         label.setIcon(
             ImageUtils.getScaledRoundedIcon(image, width, height));
 

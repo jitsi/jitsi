@@ -678,8 +678,20 @@ public class OneToOneCallPeerPanel
     /**
      * Indicates that the security has gone off.
      */
-    public void securityOff(CallPeerSecurityOffEvent evt)
+    public void securityOff(final CallPeerSecurityOffEvent evt)
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    securityOff(evt);
+                }
+            });
+            return;
+        }
+
         securityStatusLabel.setText("");
         securityStatusLabel.setSecurityOff();
         if (securityStatusLabel.getBorder() == null)
@@ -696,8 +708,20 @@ public class OneToOneCallPeerPanel
      * the corresponding security details.
      * @param evt Details about the event that caused this message.
      */
-    public void securityOn(CallPeerSecurityOnEvent evt)
+    public void securityOn(final CallPeerSecurityOnEvent evt)
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    securityOn(evt);
+                }
+            });
+            return;
+        }
+
         // If the securityOn is called without a specific event, we'll just set
         // the security label status to on.
         if (evt == null)
@@ -773,8 +797,20 @@ public class OneToOneCallPeerPanel
      * other end.
      * @param evt Details about the event that caused this message.
      */
-    public void securityTimeout(CallPeerSecurityTimeoutEvent evt)
+    public void securityTimeout(final CallPeerSecurityTimeoutEvent evt)
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    securityTimeout(evt);
+                }
+            });
+            return;
+        }
+
         if (securityPanel != null)
             securityPanel.securityTimeout(evt);
     }
@@ -784,8 +820,20 @@ public class OneToOneCallPeerPanel
      * display this reason to the user.
      * @param reason the reason to display
      */
-    public void setErrorReason(String reason)
+    public void setErrorReason(final String reason)
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    setErrorReason(reason);
+                }
+            });
+            return;
+        }
+
         if (errorMessageComponent == null)
         {
             errorMessageComponent = new JTextPane();
@@ -840,8 +888,20 @@ public class OneToOneCallPeerPanel
      * @param isMute indicates if the call with this peer is
      * muted
      */
-    public void setMute(boolean isMute)
+    public void setMute(final boolean isMute)
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    setMute(isMute);
+                }
+            });
+            return;
+        }
+
         if(isMute)
         {
             muteStatusLabel.setIcon(new ImageIcon(
@@ -869,8 +929,20 @@ public class OneToOneCallPeerPanel
      * Sets the "on hold" property value.
      * @param isOnHold indicates if the call with this peer is put on hold
      */
-    public void setOnHold(boolean isOnHold)
+    public void setOnHold(final boolean isOnHold)
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    setOnHold(isOnHold);
+                }
+            });
+            return;
+        }
+
         if(isOnHold)
         {
             holdStatusLabel.setIcon(new ImageIcon(
@@ -907,8 +979,22 @@ public class OneToOneCallPeerPanel
             if (peerImage == null)
                 peerImage = getPhotoLabelIcon();
 
-            photoLabel.setIcon(peerImage);
-            photoLabel.repaint();
+            if(!SwingUtilities.isEventDispatchThread())
+            {
+                SwingUtilities.invokeLater(new Runnable()
+                {
+                    public void run()
+                    {
+                        photoLabel.setIcon(peerImage);
+                        photoLabel.repaint();
+                    }
+                });
+            }
+            else
+            {
+                photoLabel.setIcon(peerImage);
+                photoLabel.repaint();
+            }
         }
     }
 
@@ -916,8 +1002,20 @@ public class OneToOneCallPeerPanel
      * Sets the name of the peer.
      * @param name the name of the peer
      */
-    public void setPeerName(String name)
+    public void setPeerName(final String name)
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    setPeerName(name);
+                }
+            });
+            return;
+        }
+
         peerName = name;
 
         ((OneToOneCallPanel) callRenderer).setPeerName(name);
@@ -931,10 +1029,22 @@ public class OneToOneCallPeerPanel
      * @param newState the new state of the peer
      * @param stateString the state of the contained call peer
      */
-    public void setPeerState(   CallPeerState oldState,
-                                CallPeerState newState,
-                                String stateString)
+    public void setPeerState(final CallPeerState oldState,
+                             final CallPeerState newState,
+                             final String stateString)
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    setPeerState(oldState, newState, stateString);
+                }
+            });
+            return;
+        }
+
         this.callStatusLabel.setText(stateString);
 
         if (newState == CallPeerState.CONNECTED
@@ -951,8 +1061,20 @@ public class OneToOneCallPeerPanel
      * @param isVisible <tt>true</tt> to show the security panel, <tt>false</tt>
      * to hide it
      */
-    public void setSecurityPanelVisible(boolean isVisible)
+    public void setSecurityPanelVisible(final boolean isVisible)
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    setSecurityPanelVisible(isVisible);
+                }
+            });
+            return;
+        }
+
         final JFrame callFrame = callRenderer.getCallContainer()
             .getCallWindow().getFrame();
 

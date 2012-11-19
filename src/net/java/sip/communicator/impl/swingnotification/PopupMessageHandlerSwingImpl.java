@@ -34,8 +34,20 @@ public class PopupMessageHandlerSwingImpl
      *
      * @param popupMessage the message we will show
      */
-    public void showPopupMessage(PopupMessage popupMessage)
+    public void showPopupMessage(final PopupMessage popupMessage)
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    showPopupMessage(popupMessage);
+                }
+            });
+            return;
+        }
+
         final GraphicsConfiguration graphicsConf =
             GraphicsEnvironment.getLocalGraphicsEnvironment().
             getDefaultScreenDevice().

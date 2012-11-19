@@ -1421,12 +1421,13 @@ public class MetaContactRightButtonMenu
 
         final RequestAuthorizationDialog dialog
             = new RequestAuthorizationDialog(mainFrame, contact, request);
+        dialog.showDialog();
 
         new Thread()
         {
             public void run()
             {
-                int returnCode = dialog.showDialog();
+                int returnCode = dialog.getReturnCode();
 
                 if(returnCode == RequestAuthorizationDialog.OK_RETURN_CODE)
                 {

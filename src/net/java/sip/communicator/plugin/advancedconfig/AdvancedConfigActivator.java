@@ -10,6 +10,8 @@ import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
 
+import javax.swing.*;
+
 /**
  * 
  * @author Yana Stamcheva
@@ -71,18 +73,29 @@ public class AdvancedConfigActivator
         if (getConfigurationService().getBoolean(DISABLED_PROP, false))
             return;
 
-        Dictionary<String, String> properties = new Hashtable<String, String>();
-        properties.put( ConfigurationForm.FORM_TYPE,
-                        ConfigurationForm.GENERAL_TYPE);
-        panel = new AdvancedConfigurationPanel();
-        panelRegistration = bundleContext
-            .registerService(
-                ConfigurationForm.class.getName(),
-                panel,
-                properties);
+        SwingUtilities.invokeLater(new Runnable()
+        {
+            public void run()
+            {
+                final Dictionary<String, String> properties = new Hashtable<String, String>();
+                properties.put( ConfigurationForm.FORM_TYPE,
+                                ConfigurationForm.GENERAL_TYPE);
+                panel = new AdvancedConfigurationPanel();
+                bundleContext.addServiceListener(panel);
 
-
-        bundleContext.addServiceListener(panel);
+                // do not block swing thread
+                new Thread(new Runnable()
+                {
+                    public void run()
+                    {
+                        bundleContext.registerService(
+                            ConfigurationForm.class.getName(),
+                            panel,
+                            properties);
+                    }
+                }).start();
+            }
+        });
 
         if (logger.isInfoEnabled())
             logger.info("ADVANCED CONFIG PLUGIN... [REGISTERED]");

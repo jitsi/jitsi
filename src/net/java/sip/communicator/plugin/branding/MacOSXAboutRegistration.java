@@ -11,7 +11,6 @@ import com.apple.eawt.*;
 /**
  * @author Lubomir Marinov
  */
-@SuppressWarnings("deprecation")
 public final class MacOSXAboutRegistration
 {
     /**
@@ -24,20 +23,14 @@ public final class MacOSXAboutRegistration
         Application application = Application.getApplication();
         if (application != null)
         {
-            application.addAboutMenuItem();
-            if (application.isAboutMenuItemPresent())
+            application.setAboutHandler(new AboutHandler()
             {
-                application.setEnabledAboutMenu(true);
-                application.addApplicationListener(new ApplicationAdapter()
+                public void handleAbout(AppEvent.AboutEvent aboutEvent)
                 {
-                    public void handleAbout(ApplicationEvent event)
-                    {
-                        AboutWindowPluginComponent.actionPerformed();
-                        event.setHandled(true);
-                    }
-                });
-                return true;
-            }
+                    AboutWindowPluginComponent.actionPerformed();
+                }
+            });
+            return true;
         }
         return false;
     }

@@ -1816,6 +1816,19 @@ public class CallPanel
      */
     void updateHoldButtonState()
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    updateHoldButtonState();
+                }
+            });
+
+            return;
+        }
+
         List<CallPeer> peers = callConference.getCallPeers();
         boolean areAllPeersLocallyOnHold;
 

@@ -542,7 +542,7 @@ public class NeomediaActivator
         /**
          * Function called when an audio device is plugged or unplugged.
          *
-         * @param The property change event which may concern the audio device.
+         * @param event The property change event which may concern the audio device.
          */
         public void propertyChange(PropertyChangeEvent event)
         {

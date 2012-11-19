@@ -152,7 +152,21 @@ public class SystrayServiceJdicImpl
         this.systray = systray;
 
         if (this.systray != null)
-            initSystray();
+            initSystrayInEventDispatchThread();
+    }
+
+    /**
+     * Starts initializing systray running in event dispatch thread.
+     */
+    private void initSystrayInEventDispatchThread()
+    {
+        SwingUtilities.invokeLater(new Runnable()
+        {
+            public void run()
+            {
+                initSystray();
+            }
+        });
     }
 
     /**
@@ -752,7 +766,7 @@ public class SystrayServiceJdicImpl
                             this);
 
                     if (!initialized)
-                        initSystray();
+                        initSystrayInEventDispatchThread();
                 }
             }
         }

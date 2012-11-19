@@ -10,6 +10,8 @@ import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
 
+import javax.swing.*;
+
 /**
  * The <tt>AuthorizationHandlerImpl</tt> is an implementation of the
  * <tt>AuthorizationHandler</tt> interface, which is used by the protocol
@@ -20,6 +22,7 @@ import net.java.sip.communicator.service.protocol.*;
  * permission to subscibe.
  * 
  * @author Yana Stamcheva
+ * @author Damian Minkov
  */
 public class AuthorizationHandlerImpl
     implements AuthorizationHandler {
@@ -41,10 +44,35 @@ public class AuthorizationHandlerImpl
             AuthorizationRequest req, Contact sourceContact) {
         AuthorizationResponse response = null;
 
-        AuthorizationRequestedDialog dialog 
-            = new AuthorizationRequestedDialog(mainFrame, sourceContact, req);
+        AuthorizationRequestedDialog dialog = null;
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            ProcessAuthorizationRequestRunnable runnable
+                = new ProcessAuthorizationRequestRunnable(
+                sourceContact, req);
+            try
+            {
+                SwingUtilities.invokeAndWait(runnable);
+            }
+            catch(Throwable t)
+            {
+                // if we cannot init in event dispatch thread
+                // execute on current thread
+                if(dialog == null)
+                {
+                    runnable.run();
+                }
+            }
 
-        int result = dialog.showDialog();
+            dialog = runnable.getDialog();
+        }
+        else
+        {
+            dialog = createAndShowAuthorizationRequestDialog(
+                sourceContact, req);
+        }
+
+        int result = dialog.getReturnCode();
 
         if(result == AuthorizationRequestedDialog.ACCEPT_CODE)
         {
@@ -74,20 +102,61 @@ public class AuthorizationHandlerImpl
     }
 
     /**
+     * Creates and shows the dialog.
+     * @param contact the contact to pass to dialog.
+     * @param request the request
+     * @return the dialog.
+     */
+    private AuthorizationRequestedDialog
+        createAndShowAuthorizationRequestDialog(Contact contact,
+                                                AuthorizationRequest request)
+    {
+        AuthorizationRequestedDialog dialog = new AuthorizationRequestedDialog(
+                        mainFrame, contact, request);
+        dialog.showDialog();
+
+        return dialog;
+    }
+
+    /**
      * Implements the <tt>AuthorizationHandler.createAuthorizationRequest</tt>
      * method.
      * <p>
      * The method is called when the user has tried to add a contact to the
      * contact list and this contact requires authorization.
      */
-    public AuthorizationRequest createAuthorizationRequest(Contact contact) {
-        
+    public AuthorizationRequest createAuthorizationRequest(
+        final Contact contact)
+    {
         AuthorizationRequest request = new AuthorizationRequest();
-        
-        RequestAuthorizationDialog dialog 
-            = new RequestAuthorizationDialog(mainFrame, contact, request);
 
-        int returnCode = dialog.showDialog();
+        RequestAuthorizationDialog dialog = null;
+
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            RequestAuthorizationRunnable runnable =
+                new RequestAuthorizationRunnable(contact, request);
+            try
+            {
+                SwingUtilities.invokeAndWait(runnable);
+            }
+            catch(Throwable t)
+            {
+                // if we cannot init in event dispatch thread
+                if(dialog == null)
+                {
+                    runnable.run();
+                }
+            }
+
+            dialog = runnable.getDialog();
+        }
+        else
+        {
+            dialog = createAndShowRequestAuthorizationDialog(contact, request);
+        }
+
+        int returnCode = dialog.getReturnCode();
         
         if(returnCode == RequestAuthorizationDialog.OK_RETURN_CODE) {
             request.setReason(dialog.getRequestReason());
@@ -99,18 +168,145 @@ public class AuthorizationHandlerImpl
     }
 
     /**
+     * Creates and shows the dialog.
+     * @param contact the contact to pass to dialog.
+     * @param request the request
+     * @return the dialog.
+     */
+    private RequestAuthorizationDialog
+        createAndShowRequestAuthorizationDialog(Contact contact,
+                                                AuthorizationRequest request)
+    {
+        RequestAuthorizationDialog dialog = new RequestAuthorizationDialog(
+                        mainFrame, contact, request);
+        dialog.showDialog();
+
+        return dialog;
+    }
+
+    /**
      * Implements the <tt>AuthorizationHandler.processAuthorizationResponse</tt>
      * method.
      * <p>
      * The method will be called any whenever someone acts upone an authorization
      * request that we have previously sent.
      */
-    public void processAuthorizationResponse(AuthorizationResponse response,
-            Contact sourceContact)
+    public void processAuthorizationResponse(final AuthorizationResponse response,
+            final Contact sourceContact)
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    processAuthorizationResponse(response, sourceContact);
+                }
+            });
+            return;
+        }
+
         AuthorizationResponseDialog dialog 
             = new AuthorizationResponseDialog(mainFrame, sourceContact, response);
         
         dialog.setVisible(true);
+    }
+
+    /**
+     * Creates and shows the dialog in new thread.
+     * Keeps a reference to the dialog.
+     */
+    private class RequestAuthorizationRunnable
+        implements Runnable
+    {
+        /**
+         * The contact to use.
+         */
+        private final Contact contact;
+
+        /**
+         * The request to use.
+         */
+        private final AuthorizationRequest request;
+
+        /**
+         * The created and shown dialog.
+         */
+        private RequestAuthorizationDialog dialog;
+
+        /**
+         * Constructs.
+         * @param contact
+         * @param request
+         */
+        private RequestAuthorizationRunnable(
+            Contact contact, AuthorizationRequest request)
+        {
+            this.contact = contact;
+            this.request = request;
+        }
+
+        public void run()
+        {
+            dialog = createAndShowRequestAuthorizationDialog(contact, request);
+        }
+
+        /**
+         * The dialog.
+         * @return
+         */
+        public RequestAuthorizationDialog getDialog()
+        {
+            return dialog;
+        }
+    }
+
+    /**
+     * Creates and shows the dialog in new thread.
+     * Keeps a reference to the dialog.
+     */
+    private class ProcessAuthorizationRequestRunnable
+        implements Runnable
+    {
+        /**
+         * The contact to use.
+         */
+        private final Contact contact;
+
+        /**
+         * The request to use.
+         */
+        private final AuthorizationRequest request;
+
+        /**
+         * The created and shown dialog.
+         */
+        private AuthorizationRequestedDialog dialog;
+
+        /**
+         * Constructs.
+         * @param contact
+         * @param request
+         */
+        private ProcessAuthorizationRequestRunnable(
+            Contact contact, AuthorizationRequest request)
+        {
+            this.contact = contact;
+            this.request = request;
+        }
+
+        public void run()
+        {
+            dialog = createAndShowAuthorizationRequestDialog(contact, request);
+        }
+
+        /**
+         * Returns the dialog reference.
+         * @return
+         */
+        public AuthorizationRequestedDialog getDialog()
+        {
+            return dialog;
+        }
     }
 }

@@ -72,11 +72,6 @@ public class ChatAlerterActivator
             return;
         }
         
-        ServiceReference uiServiceRef
-            = bc.getServiceReference(UIService.class.getName());
-
-        uiService = (UIService) bc.getService(uiServiceRef);
-
         this.bundleContext = bc;
 
         // start listening for newly register or removed protocol providers
@@ -302,7 +297,7 @@ public class ChatAlerterActivator
         try
         {
             ExportedWindow win 
-                = uiService.getExportedWindow(ExportedWindow.CHAT_WINDOW);
+                = getUIService().getExportedWindow(ExportedWindow.CHAT_WINDOW);
             if (win == null)
                 return;
 
@@ -393,5 +388,25 @@ public class ChatAlerterActivator
         {
             evt.getAdHocChatRoom().removeMessageListener(this);
         }
+    }
+
+    /**
+     * Returns the <tt>UIService</tt> obtained from the bundle
+     * context.
+     * @return the <tt>UIService</tt> obtained from the bundle
+     * context
+     */
+    public UIService getUIService()
+    {
+        if(uiService == null)
+        {
+            ServiceReference serviceRef = bundleContext
+                .getServiceReference(UIService.class.getName());
+
+            if (serviceRef != null)
+                uiService = (UIService) bundleContext.getService(serviceRef);
+        }
+
+        return uiService;
     }
 }

@@ -30,6 +30,8 @@ public class RequestAuthorizationDialog
     implements  ActionListener,
                 Skinnable
 {
+    public static final int UNDEFINED_RETURN_CODE = -1;
+
     public static final int OK_RETURN_CODE = 1;
 
     public static final int CANCEL_RETURN_CODE = 0;
@@ -71,7 +73,7 @@ public class RequestAuthorizationDialog
 
     private Object lock = new Object();
 
-    private int returnCode;
+    private int returnCode = UNDEFINED_RETURN_CODE;
 
     /**
      * Constructs the <tt>RequestAuthorisationDialog</tt>.
@@ -146,17 +148,25 @@ public class RequestAuthorizationDialog
      * @return if the "Request" button was pressed returns OK_RETURN_CODE,
      * otherwise CANCEL_RETURN_CODE is returned
      */
-    public int showDialog()
+    public void showDialog()
     {
         this.setVisible(true);
 
         this.requestField.requestFocus();
+    }
 
+    /**
+     * Returns the result over the dialog operation. OK or Cancel.
+     * @return
+     */
+    public int getReturnCode()
+    {
         synchronized (lock)
         {
             try
             {
-                lock.wait();
+                if(returnCode == UNDEFINED_RETURN_CODE)
+                    lock.wait();
             }
             catch (InterruptedException e)
             {
@@ -179,17 +189,17 @@ public class RequestAuthorizationDialog
         JButton button = (JButton)e.getSource();
         String name = button.getName();
 
-        if(name.equals("request"))
-        {
-            returnCode = OK_RETURN_CODE;
-        }
-        else if(name.equals("cancel"))
-        {
-            returnCode = CANCEL_RETURN_CODE;
-        }
-
         synchronized (lock)
         {
+            if(name.equals("request"))
+            {
+                returnCode = OK_RETURN_CODE;
+            }
+            else if(name.equals("cancel"))
+            {
+                returnCode = CANCEL_RETURN_CODE;
+            }
+
             lock.notify();
         }
 

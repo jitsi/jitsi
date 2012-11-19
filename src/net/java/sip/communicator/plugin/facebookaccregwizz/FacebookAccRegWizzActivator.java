@@ -23,7 +23,7 @@ import org.osgi.framework.*;
  * @author Dai Zhiwei
  */
 public class FacebookAccRegWizzActivator
-    implements BundleActivator
+    extends AbstractServiceDependentActivator
 {
     /**
      * The logger.
@@ -60,19 +60,13 @@ public class FacebookAccRegWizzActivator
 
     /**
      * Starts this bundle.
-     * @param bc the currently valid <tt>BundleContext</tt>.
      */
-    public void start(BundleContext bc)
+    public void start(Object dependentService)
     {
         if (logger.isInfoEnabled())
             logger.info("Loading facebook account wizard.");
 
-        bundleContext = bc;
-
-        ServiceReference uiServiceRef = bundleContext
-            .getServiceReference(UIService.class.getName());
-
-        uiService = (UIService) bundleContext.getService(uiServiceRef);
+        uiService = (UIService)dependentService;
 
         wizardContainer = uiService.getAccountRegWizardContainer();
 
@@ -93,6 +87,26 @@ public class FacebookAccRegWizzActivator
 
         if (logger.isInfoEnabled())
             logger.info("Facebook account registration wizard [STARTED].");
+    }
+
+    /**
+     * The dependent class. We are waiting for the ui service.
+     * @return the ui service class.
+     */
+    @Override
+    public Class getDependentServiceClass()
+    {
+        return UIService.class;
+    }
+
+    /**
+     * The bundle context to use.
+     * @param context the context to set.
+     */
+    @Override
+    public void setBundleContext(BundleContext context)
+    {
+        bundleContext = context;
     }
 
     /**

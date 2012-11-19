@@ -118,6 +118,11 @@ public class SoundLevelIndicator
     private ImageIcon soundLevelInactiveImageRight;
 
     /**
+     * A runnable that will be used to update the sound level.
+     */
+    private LevelUpdate levelUpdate = new LevelUpdate();
+
+    /**
      * Initializes a new <tt>SoundLevelIndicator</tt> instance.
      *
      * @param minSoundLevel the minimum possible sound level
@@ -140,6 +145,17 @@ public class SoundLevelIndicator
      * @param soundLevel the sound level to show
      */
     public void updateSoundLevel(int soundLevel)
+    {
+        levelUpdate.setSoundLevel(soundLevel);
+        LowPriorityEventQueue.invokeLater(levelUpdate);
+    }
+
+    /**
+     * Update the sound level indicator component to fit the given values.
+     *
+     * @param soundLevel the sound level to show
+     */
+    private void updateSoundLevelInternal(int soundLevel)
     {
         int range = 1;
 
@@ -284,7 +300,7 @@ public class SoundLevelIndicator
      * Returns the number of sound level bars that we could currently show in
      * this panel.
      *
-     * @param windowWidth the current width of the call window
+     * @param width the current width of the call window
      * @return the number of sound level bars that we could currently show in
      * this panel
      */
@@ -354,4 +370,33 @@ public class SoundLevelIndicator
 
         updateSoundLevel(soundLevel);
     }
+
+    /**
+     * Runnable used to update sound levels.
+     */
+    private class LevelUpdate
+        implements Runnable
+    {
+        /**
+         * The current sound level to update.
+         */
+        private int soundLevel;
+
+        /**
+         * Update.
+         */
+        public void run()
+        {
+            updateSoundLevelInternal(soundLevel);
+        }
+
+        /**
+         * Changes the sound level.
+         * @param soundLevel changes the sound level.
+         */
+        public void setSoundLevel(int soundLevel)
+        {
+            this.soundLevel = soundLevel;
+        }
+    };
 }

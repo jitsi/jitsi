@@ -120,8 +120,20 @@ public class CallPeerMenu
      * @param evt the <tt>CallPeerChangeEvent</tt> that notified us of the state
      * change
      */
-    public void peerStateChanged(CallPeerChangeEvent evt)
+    public void peerStateChanged(final CallPeerChangeEvent evt)
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    peerStateChanged(evt);
+                }
+            });
+            return;
+        }
+
         CallPeerState newState = (CallPeerState) evt.getNewValue();
         CallPeerState oldState = (CallPeerState) evt.getOldValue();
 

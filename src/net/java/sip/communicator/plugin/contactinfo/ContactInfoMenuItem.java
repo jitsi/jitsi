@@ -23,10 +23,7 @@ public class ContactInfoMenuItem
     extends AbstractPluginComponent
     implements ActionListener
 {
-    private JMenuItem menuItem
-        = new JMenuItem(Resources.getString("service.gui.CONTACT_INFO"),
-            new ImageIcon(Resources.getImage(
-                "plugin.contactinfo.CONTACT_INFO_ICON")));
+    private JMenuItem menuItem = null;
 
     private MetaContact metaContact;
 
@@ -36,8 +33,6 @@ public class ContactInfoMenuItem
     public ContactInfoMenuItem()
     {
         super(Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU);
-
-        menuItem.addActionListener(this);
     }
 
     /**
@@ -65,11 +60,25 @@ public class ContactInfoMenuItem
 
     public Object getComponent()
     {
-        return menuItem;
+        return getMenuItem();
     }
 
     public String getName()
     {
-        return menuItem.getText();
+        return getMenuItem().getText();
+    }
+
+    private JMenuItem getMenuItem()
+    {
+        if(menuItem == null)
+        {
+            menuItem =
+                new JMenuItem(Resources.getString("service.gui.CONTACT_INFO"),
+                    new ImageIcon(Resources.getImage(
+                        "plugin.contactinfo.CONTACT_INFO_ICON")));
+            menuItem.addActionListener(this);
+        }
+
+        return menuItem;
     }
 }

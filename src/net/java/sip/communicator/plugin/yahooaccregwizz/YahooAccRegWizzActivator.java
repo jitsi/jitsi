@@ -20,7 +20,8 @@ import org.osgi.framework.*;
  *
  * @author Yana Stamcheva
  */
-public class YahooAccRegWizzActivator implements BundleActivator
+public class YahooAccRegWizzActivator
+    extends AbstractServiceDependentActivator
 {
     /**
      * OSGi bundle context.
@@ -40,17 +41,10 @@ public class YahooAccRegWizzActivator implements BundleActivator
 
     /**
      * Starts this bundle.
-     * @param bc BundleContext
-     * @throws Exception
      */
-    public void start(BundleContext bc) throws Exception {
-
-        bundleContext = bc;
-
-        ServiceReference uiServiceRef = bundleContext
-            .getServiceReference(UIService.class.getName());
-
-        uiService = (UIService) bundleContext.getService(uiServiceRef);
+    public void start(Object dependentService)
+    {
+        uiService = (UIService)dependentService;
 
         wizardContainer = uiService.getAccountRegWizardContainer();
 
@@ -67,6 +61,26 @@ public class YahooAccRegWizzActivator implements BundleActivator
             AccountRegistrationWizard.class.getName(),
             yahooWizard,
             containerFilter);
+    }
+
+    /**
+     * The dependent class. We are waiting for the ui service.
+     * @return the ui service class.
+     */
+    @Override
+    public Class getDependentServiceClass()
+    {
+        return UIService.class;
+    }
+
+    /**
+     * The bundle context to use.
+     * @param context the context to set.
+     */
+    @Override
+    public void setBundleContext(BundleContext context)
+    {
+        bundleContext = context;
     }
 
     public void stop(BundleContext bundleContext) throws Exception

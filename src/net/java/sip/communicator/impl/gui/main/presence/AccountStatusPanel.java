@@ -25,6 +25,7 @@ import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
+import net.java.sip.communicator.util.swing.SwingWorker;
 import org.jitsi.util.*;
 
 /**
@@ -115,6 +116,8 @@ public class AccountStatusPanel
     private String currentFirstName;
 
     private String currentLastName;
+
+    private String currentDisplayName;
 
     private String globalDisplayName;
 
@@ -212,8 +215,20 @@ public class AccountStatusPanel
      * @param protocolProvider the <tt>ProtocolProviderService</tt>
      * corresponding to the account to add
      */
-    public void addAccount(ProtocolProviderService protocolProvider)
+    public void addAccount(final ProtocolProviderService protocolProvider)
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    addAccount(protocolProvider);
+                }
+            });
+            return;
+        }
+
         statusComboBox.addAccount(protocolProvider);
 
         protocolProvider.addRegistrationStateChangeListener(this);
@@ -225,11 +240,25 @@ public class AccountStatusPanel
      * @param protocolProvider the <tt>ProtocolProviderService</tt>
      * corresponding to the account to remove
      */
-    public void removeAccount(ProtocolProviderService protocolProvider)
+    public void removeAccount(final ProtocolProviderService protocolProvider)
     {
-        statusComboBox.removeAccount(protocolProvider);
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    removeAccount(protocolProvider);
+                }
+            });
+            return;
+        }
 
-        protocolProvider.removeRegistrationStateChangeListener(this);
+        if (containsAccount(protocolProvider))
+        {
+            statusComboBox.removeAccount(protocolProvider);
+            protocolProvider.removeRegistrationStateChangeListener(this);
+        }
     }
 
     /**
@@ -275,14 +304,29 @@ public class AccountStatusPanel
 
     /**
      * Updates the current status of the <tt>protocolProvider</tt> with the
-     * <tt>newStatus</tt>.
+     * <tt>newStatus</tt>. If status is null uses the current status.
      * @param protocolProvider the <tt>ProtocolProviderService</tt> to update
      * @param newStatus the new status to set
      */
-    public void updateStatus(   ProtocolProviderService protocolProvider,
-                                PresenceStatus newStatus)
+    public void updateStatus(final ProtocolProviderService protocolProvider,
+                             final PresenceStatus newStatus)
     {
-        statusComboBox.updateStatus(protocolProvider, newStatus);
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    updateStatus(protocolProvider, newStatus);
+                }
+            });
+            return;
+        }
+
+        if(newStatus != null)
+            statusComboBox.updateStatus(protocolProvider, newStatus);
+        else
+            statusComboBox.updateStatus(protocolProvider);
     }
 
     /**
@@ -291,7 +335,7 @@ public class AccountStatusPanel
      */
     public void updateStatus( ProtocolProviderService protocolProvider)
     {
-        statusComboBox.updateStatus(protocolProvider);
+        updateStatus(protocolProvider, null);
     }
 
     /**
@@ -312,8 +356,20 @@ public class AccountStatusPanel
      * @param protocolProvider the <tt>ProtocolProviderService</tt> to start
      * connecting for
      */
-    public void startConnecting(ProtocolProviderService protocolProvider)
+    public void startConnecting(final ProtocolProviderService protocolProvider)
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    startConnecting(protocolProvider);
+                }
+            });
+            return;
+        }
+
         statusComboBox.startConnecting(protocolProvider);
     }
 
@@ -322,8 +378,20 @@ public class AccountStatusPanel
      * @param protocolProvider the <tt>ProtocolProviderService</tt> to stop
      * connecting for
      */
-    public void stopConnecting(ProtocolProviderService protocolProvider)
+    public void stopConnecting(final ProtocolProviderService protocolProvider)
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    stopConnecting(protocolProvider);
+                }
+            });
+            return;
+        }
+
         statusComboBox.stopConnecting(protocolProvider);
     }
 
@@ -345,7 +413,7 @@ public class AccountStatusPanel
      */
     public void registrationStateChanged(RegistrationStateChangeEvent evt)
     {
-        final ProtocolProviderService protocolProvider = evt.getProvider();
+        ProtocolProviderService protocolProvider = evt.getProvider();
 
         this.updateStatus(protocolProvider);
 
@@ -357,11 +425,12 @@ public class AccountStatusPanel
              * currently support it and thus starting a Thread that is not going
              * to do anything useful can be prevented.
              */
-            final OperationSetServerStoredAccountInfo accountInfoOpSet
+            OperationSetServerStoredAccountInfo accountInfoOpSet
                 = protocolProvider.getOperationSet(
                         OperationSetServerStoredAccountInfo.class);
 
             if (accountInfoOpSet != null)
+            {
                 /*
                  * FIXME Starting a separate Thread for each
                  * ProtocolProviderService is uncontrollable because the
@@ -373,88 +442,9 @@ public class AccountStatusPanel
                  * overwritten by a ProtocolProviderService which is able to
                  * provide just one of them.
                  */
-                new Thread()
-                {
-                    public void run()
-                    {
-                        if (currentImage == null)
-                        {
-                            currentImage
-                                = AvatarCacheUtils
-                                    .getCachedAvatar(protocolProvider);
-
-                            if (currentImage == null)
-                            {
-                                byte[] accountImage
-                                    = AccountInfoUtils
-                                        .getImage(accountInfoOpSet);
-
-                                // do not set empty images
-                                if ((accountImage != null)
-                                        && (accountImage.length > 0))
-                                {
-                                    currentImage = accountImage;
-
-                                    AvatarCacheUtils.cacheAvatar(
-                                        protocolProvider, accountImage);
-
-                                    accountImageLabel.setImageIcon(currentImage);
-                                }
-                            }
-                            else
-                                accountImageLabel.setImageIcon(currentImage);
-                        }
-
-                        if(!StringUtils.isNullOrEmpty(globalDisplayName))
-                            return;
-
-                        String accountName = null;
-                        if (currentFirstName == null)
-                        {
-                            String firstName = AccountInfoUtils
-                                .getFirstName(accountInfoOpSet);
-
-                            if (firstName != null && firstName.length() > 0)
-                            {
-                                currentFirstName = firstName;
-                                accountName = currentFirstName;
-                            }
-                        }
-
-                        if (currentLastName == null)
-                        {
-                            String lastName = AccountInfoUtils
-                                .getLastName(accountInfoOpSet);
-
-                            if (lastName != null && lastName.length() > 0)
-                            {
-                                currentLastName = lastName;
-                                /*
-                                 * If accountName is null, don't use += because
-                                 * it will make the accountName start with the
-                                 * string "null".
-                                 */
-                                if ((accountName == null)
-                                        || (accountName.length() == 0))
-                                    accountName = currentLastName;
-                                else
-                                    accountName += " " + currentLastName;
-                            }
-                        }
-
-                        if (currentFirstName == null && currentLastName == null)
-                        {
-                            String displayName = AccountInfoUtils
-                                .getDisplayName(accountInfoOpSet);
-
-                            if (displayName != null)
-                                accountName = displayName;
-                        }
-
-                        if (accountName != null && accountName.length() > 0)
-                            accountNameLabel.setText(accountName);
-                    }
-                }.start();
+                new UpdateAccountInfo(protocolProvider, accountInfoOpSet)
+                    .start();
+            }
 
             OperationSetAvatar avatarOpSet
                 = protocolProvider.getOperationSet(OperationSetAvatar.class);
@@ -523,10 +513,13 @@ public class AccountStatusPanel
     {
         PluginComponent pluginComponent = event.getPluginComponent();
         Container containerID = pluginComponent.getContainer();
+        /*
+        // avoid early creating of components by calling getComponent
         Object component = pluginComponent.getComponent();
 
         if (!(component instanceof Component))
             return;
+        */
 
         if (containerID.equals(Container.CONTAINER_MAIN_TOOL_BAR)
            || containerID.equals(Container.CONTAINER_ACCOUNT_SOUTH))
@@ -546,10 +539,11 @@ public class AccountStatusPanel
     {
         PluginComponent pluginComponent = event.getPluginComponent();
         Container pluginContainer = pluginComponent.getContainer();
-        Object component = pluginComponent.getComponent();
+        /*Object component = pluginComponent.getComponent();
 
         if (!(component instanceof Component))
             return;
+        */
 
         if (pluginContainer.equals(Container.CONTAINER_MAIN_TOOL_BAR)
             || pluginContainer.equals(Container.CONTAINER_ACCOUNT_SOUTH))
@@ -662,5 +656,148 @@ public class AccountStatusPanel
             return uiClassID;
         else
             return super.getUIClassID();
+    }
+
+    /**
+     * Queries the operations sets to obtain names and display info.
+     * Queries are done in separate thread.
+     */
+    private class UpdateAccountInfo
+        extends SwingWorker
+    {
+        /**
+         * The protocol provider.
+         */
+        private ProtocolProviderService protocolProvider;
+
+        /**
+         * The account info operation set to query.
+         */
+        private OperationSetServerStoredAccountInfo accountInfoOpSet;
+
+        /**
+         * Constructs with provider and opset to use.
+         * @param protocolProvider the provider.
+         * @param accountInfoOpSet the opset.
+         */
+        UpdateAccountInfo(
+            ProtocolProviderService protocolProvider,
+            OperationSetServerStoredAccountInfo accountInfoOpSet)
+        {
+            this.protocolProvider = protocolProvider;
+            this.accountInfoOpSet = accountInfoOpSet;
+        }
+
+        /**
+         * Worker thread method.
+         * @return
+         * @throws Exception
+         */
+        @Override
+        protected Object construct()
+            throws
+            Exception
+        {
+            if (currentImage == null)
+            {
+                currentImage
+                    = AvatarCacheUtils
+                        .getCachedAvatar(protocolProvider);
+
+                if (currentImage == null)
+                {
+                    byte[] accountImage
+                        = AccountInfoUtils
+                            .getImage(accountInfoOpSet);
+
+                    // do not set empty images
+                    if ((accountImage != null)
+                            && (accountImage.length > 0))
+                    {
+                        currentImage = accountImage;
+
+                        AvatarCacheUtils.cacheAvatar(
+                            protocolProvider, accountImage);
+                    }
+                }
+            }
+
+            if(!StringUtils.isNullOrEmpty(globalDisplayName))
+                return null;
+
+            if (currentFirstName == null)
+            {
+                String firstName = AccountInfoUtils
+                    .getFirstName(accountInfoOpSet);
+
+                if (!StringUtils.isNullOrEmpty(firstName))
+                {
+                    currentFirstName = firstName;
+                }
+            }
+
+            if (currentLastName == null)
+            {
+                String lastName = AccountInfoUtils
+                    .getLastName(accountInfoOpSet);
+
+                if (!StringUtils.isNullOrEmpty(lastName))
+                {
+                    currentLastName = lastName;
+                }
+            }
+
+            if (currentFirstName == null && currentLastName == null)
+            {
+                String displayName = AccountInfoUtils
+                    .getDisplayName(accountInfoOpSet);
+
+                if (displayName != null)
+                    currentDisplayName = displayName;
+            }
+
+            return null;
+        }
+
+        /**
+         * Called on the event dispatching thread (not on the worker thread)
+         * after the <code>construct</code> method has returned.
+         */
+        protected void finished()
+        {
+            if ((currentImage != null) && (currentImage.length > 0))
+            {
+                accountImageLabel.setImageIcon(currentImage);
+            }
+
+            String accountName = null;
+            if (!StringUtils.isNullOrEmpty(currentFirstName))
+            {
+                accountName = currentFirstName;
+            }
+
+            if (!StringUtils.isNullOrEmpty(currentLastName))
+            {
+                /*
+                 * If accountName is null, don't use += because
+                 * it will make the accountName start with the
+                 * string "null".
+                 */
+                if ((accountName == null)
+                        || (accountName.length() == 0))
+                    accountName = currentLastName;
+                else
+                    accountName += " " + currentLastName;
+            }
+
+            if (currentFirstName == null && currentLastName == null)
+            {
+                if (currentDisplayName != null)
+                    accountName = currentDisplayName;
+            }
+
+            if (accountName != null && accountName.length() > 0)
+                    accountNameLabel.setText(accountName);
+        }
     }
 }

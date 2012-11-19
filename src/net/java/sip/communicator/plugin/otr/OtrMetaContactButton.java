@@ -189,7 +189,7 @@ public class OtrMetaContactButton
      * Sets the button enabled status according to the passed in
      * {@link OtrPolicy}.
      * 
-     * @param otrPolicy the {@link OtrPolicy}.
+     * @param contactPolicy the {@link OtrPolicy}.
      */
     private void setPolicy(OtrPolicy contactPolicy)
     {
@@ -200,7 +200,7 @@ public class OtrMetaContactButton
     /**
      * Sets the button icon according to the passed in {@link SessionStatus}.
      * 
-     * @param otrPolicy the {@link SessionStatus}.
+     * @param status the {@link SessionStatus}.
      */
     private void setStatus(SessionStatus status)
     {

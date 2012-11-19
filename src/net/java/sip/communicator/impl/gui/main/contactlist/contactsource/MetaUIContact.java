@@ -470,8 +470,20 @@ public class MetaUIContact
                                 .DetailsResponseListener()
                         {
                             public void detailsRetrieved(
-                                Iterator<GenericDetail> details)
+                                final Iterator<GenericDetail> details)
                             {
+                                if(!SwingUtilities.isEventDispatchThread())
+                                {
+                                    SwingUtilities.invokeLater(new Runnable()
+                                    {
+                                        public void run()
+                                        {
+                                            detailsRetrieved(details);
+                                        }
+                                    });
+                                    return;
+                                }
+
                                 // remove previously shown information
                                 // as it contains "Loading..." text
                                 tip.removeAllLines();

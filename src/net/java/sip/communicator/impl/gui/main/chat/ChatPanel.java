@@ -366,8 +366,20 @@ public class ChatPanel
      *
      * @param typingNotification the typing notification to show
      */
-    public void addTypingNotification(String typingNotification)
+    public void addTypingNotification(final String typingNotification)
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    addTypingNotification(typingNotification);
+                }
+            });
+            return;
+        }
+
         typingNotificationLabel.setText(typingNotification);
 
         if (typingNotification != null && !typingNotification.equals(" "))
@@ -386,8 +398,20 @@ public class ChatPanel
      * @param typingNotification the typing notification to show
      */
     public void addErrorSendingTypingNotification(
-                    String typingNotification)
+                    final String typingNotification)
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    addErrorSendingTypingNotification(typingNotification);
+                }
+            });
+            return;
+        }
+
         typingNotificationLabel.setText(typingNotification);
 
         if (typingNotification != null && !typingNotification.equals(" "))
@@ -1010,6 +1034,18 @@ public class ChatPanel
      */
     public void refreshWriteArea()
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    refreshWriteArea();
+                }
+            });
+            return;
+        }
+
         this.writeMessagePanel.clearWriteArea();
     }
 
@@ -1931,8 +1967,20 @@ public class ChatPanel
      * box and notifies the user for the status change.
      * @param chatTransport the <tt>chatTransport</tt> to update
      */
-    public void updateChatTransportStatus(ChatTransport chatTransport)
+    public void updateChatTransportStatus(final ChatTransport chatTransport)
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    updateChatTransportStatus(chatTransport);
+                }
+            });
+            return;
+        }
+
         writeMessagePanel.updateChatTransportStatus(chatTransport);
 
         if(ConfigurationManager.isShowStatusChangedInChat())
@@ -2114,9 +2162,21 @@ public class ChatPanel
      * @param chatContact the chat contact to update
      * @param statusMessage the status message to show
      */
-    public void updateChatContactStatus(ChatContact<?> chatContact,
-                                        String statusMessage)
+    public void updateChatContactStatus(final ChatContact<?> chatContact,
+                                        final String statusMessage)
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    updateChatContactStatus(chatContact, statusMessage);
+                }
+            });
+            return;
+        }
+
         this.addMessage(
             chatContact.getName(),
             System.currentTimeMillis(),

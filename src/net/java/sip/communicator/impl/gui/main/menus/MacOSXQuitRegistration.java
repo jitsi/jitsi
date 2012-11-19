@@ -11,7 +11,6 @@ import com.apple.eawt.*;
 /**
  * @author Lubomir Marinov
  */
-@SuppressWarnings("deprecation")
 public final class MacOSXQuitRegistration
 {
     public static boolean run(final Object userData)
@@ -19,9 +18,10 @@ public final class MacOSXQuitRegistration
         Application application = Application.getApplication();
         if (application != null)
         {
-            application.addApplicationListener(new ApplicationAdapter()
+            application.setQuitHandler(new QuitHandler()
             {
-                public void handleQuit(ApplicationEvent event)
+                public void handleQuitRequestWith(AppEvent.QuitEvent quitEvent,
+                                                  QuitResponse quitResponse)
                 {
                     ((FileMenu) userData).closeActionPerformed();
 
@@ -47,10 +47,10 @@ public final class MacOSXQuitRegistration
                             wait(15000);
                         }catch (InterruptedException ex){}
                     }
-
-                    event.setHandled(true);
+                    quitResponse.performQuit();
                 }
             });
+
             return true;
         }
         return false;

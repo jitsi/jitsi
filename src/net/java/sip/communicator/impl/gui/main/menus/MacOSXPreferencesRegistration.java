@@ -11,7 +11,6 @@ import com.apple.eawt.*;
 /**
  * @author Lubomir Marinov
  */
-@SuppressWarnings("deprecation")
 public final class MacOSXPreferencesRegistration
 {
     public static boolean run(final Object userData)
@@ -19,20 +18,15 @@ public final class MacOSXPreferencesRegistration
         Application application = Application.getApplication();
         if (application != null)
         {
-            application.addPreferencesMenuItem();
-            if (application.isPreferencesMenuItemPresent())
+            application.setPreferencesHandler(new PreferencesHandler()
             {
-                application.setEnabledPreferencesMenu(true);
-                application.addApplicationListener(new ApplicationAdapter()
+                public void handlePreferences(
+                    AppEvent.PreferencesEvent preferencesEvent)
                 {
-                    public void handlePreferences(ApplicationEvent event)
-                    {
-                        ((ToolsMenu) userData).configActionPerformed();
-                        event.setHandled(true);
-                    }
-                });
-                return true;
-            }
+                    ((ToolsMenu) userData).configActionPerformed();
+                }
+            });
+            return true;
         }
         return false;
     }

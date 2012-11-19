@@ -137,9 +137,22 @@ public class AutoAnswerMenu
      * @param protocolProvider the <tt>ProtocolProviderService</tt>, for which
      * to add a menu
      */
-    private static void addAccount(ProtocolProviderService protocolProvider,
-                                  SIPCommMenu parentMenu)
+    private static void addAccount(
+        final ProtocolProviderService protocolProvider,
+        final SIPCommMenu parentMenu)
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    addAccount(protocolProvider, parentMenu);
+                }
+            });
+            return;
+        }
+
         // the initial number of autoanswer menu items
         int initialCount = getAutoAnswerItemCount(parentMenu);
 
@@ -310,9 +323,22 @@ public class AutoAnswerMenu
      * @param protocolProvider the <tt>ProtocolProviderService</tt>, for which
      * to remove the menu
      */
-    public static void removeAccount(ProtocolProviderService protocolProvider,
-                                     SIPCommMenu parentMenu)
+    public static void removeAccount(
+        final ProtocolProviderService protocolProvider,
+        final SIPCommMenu parentMenu)
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    removeAccount(protocolProvider, parentMenu);
+                }
+            });
+            return;
+        }
+
         for(int i = 0; i < parentMenu.getItemCount(); i++)
         {
             JMenuItem c = parentMenu.getItem(i);

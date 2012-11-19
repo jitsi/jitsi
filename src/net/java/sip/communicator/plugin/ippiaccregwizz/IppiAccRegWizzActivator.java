@@ -13,8 +13,11 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
 
+import net.java.sip.communicator.util.*;
 import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
+
+import javax.swing.*;
 
 /**
  * Registers the <tt>IppiAccountRegistrationWizard</tt> in the UI Service.
@@ -24,7 +27,7 @@ import org.osgi.framework.*;
  * @author Damian Minkov
  */
 public class IppiAccRegWizzActivator
-    implements BundleActivator
+    extends AbstractServiceDependentActivator
 {
     /**
      * The bundle context.
@@ -48,23 +51,28 @@ public class IppiAccRegWizzActivator
 
     /**
      * Starts this bundle.
-     * @param bc BundleContext
-     * @throws Exception
      */
-    public void start(BundleContext bc)
-        throws Exception
+    public void start(final Object dependentService)
     {
-        bundleContext = bc;
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    start(dependentService);
+                }
+            });
+            return;
+        }
+
+        uiService = (UIService)dependentService;
 
         System.setProperty(
             "http.agent",
             System.getProperty("sip-communicator.application.name")
                 + "/" 
                 + System.getProperty("sip-communicator.version"));
-
-        uiService =
-            (UIService) bundleContext.getService(bundleContext
-                .getServiceReference(UIService.class.getName()));
 
         IppiAccountRegistrationWizard wizard
             = new IppiAccountRegistrationWizard(uiService
@@ -80,6 +88,26 @@ public class IppiAccRegWizzActivator
             AccountRegistrationWizard.class.getName(),
             wizard,
             containerFilter);
+    }
+
+    /**
+     * The dependent class. We are waiting for the ui service.
+     * @return the ui service class.
+     */
+    @Override
+    public Class getDependentServiceClass()
+    {
+        return UIService.class;
+    }
+
+    /**
+     * The bundle context to use.
+     * @param context the context to set.
+     */
+    @Override
+    public void setBundleContext(BundleContext context)
+    {
+        bundleContext = context;
     }
 
     public void stop(BundleContext bundleContext) throws Exception {}

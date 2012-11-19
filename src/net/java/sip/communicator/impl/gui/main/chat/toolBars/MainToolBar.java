@@ -32,6 +32,7 @@ import net.java.sip.communicator.service.protocol.ServerStoredDetails.PagerDetai
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.PhoneNumberDetail;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.util.swing.SwingWorker;
 
 /**
  * The <tt>MainToolBar</tt> is a <tt>JToolBar</tt> which contains buttons
@@ -338,62 +339,11 @@ public class MainToolBar
             sendFileButton.setEnabled(
                 chatPanel.findFileTransferChatTransport() != null);
 
-            boolean hasPhone = false;
-            boolean hasTelephony =
-                !getOperationSetForCapabilities(
+            new UpdateCallButtonWorker(chatSession, contact).start();
+
+            new UpdateDesktopSharingButtonWorker(
                     chatPanel.chatSession.getTransportsForOperationSet(
-                        OperationSetBasicTelephony.class),
-                        OperationSetBasicTelephony.class).isEmpty();
-
-            if(!hasTelephony && contact != null)
-            {
-                Iterator<Contact> contacts = contact.getContacts();
-                while(contacts.hasNext())
-                {
-                    Contact c = contacts.next();
-                    
-                    if(!c.getProtocolProvider().isRegistered())
-                        continue;
-                    
-                    OperationSetServerStoredContactInfo infoOpSet =
-                        c.getProtocolProvider().getOperationSet(
-                            OperationSetServerStoredContactInfo.class);
-                    Iterator<GenericDetail> details;
-
-                    if(infoOpSet != null)
-                    {
-                        details = infoOpSet.requestAllDetailsForContact(c,
-                            new DetailsListener(
-                                    chatPanel.chatSession, callButton));
-
-                        if(details != null)
-                        {
-                            while(details.hasNext())
-                            {
-                                GenericDetail d = details.next();
-                                if(d instanceof PhoneNumberDetail &&
-                                    !(d instanceof PagerDetail) &&
-                                    !(d instanceof FaxDetail))
-                                {
-                                    PhoneNumberDetail pnd = (PhoneNumberDetail)d;
-                                    if(pnd.getNumber() != null &&
-                                        pnd.getNumber().length() > 0)
-                                    {
-                                        hasPhone = true;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            callButton.setEnabled(hasTelephony || hasPhone);
-            desktopSharingButton.setEnabled(!getOperationSetForCapabilities(
-                chatPanel.chatSession.getTransportsForOperationSet(
-                    OperationSetDesktopSharingServer.class),
-                    OperationSetDesktopSharingServer.class).isEmpty());
+                        OperationSetDesktopSharingServer.class)).start();
 
             changeHistoryButtonsState(chatPanel);
         }
@@ -923,5 +873,165 @@ public class MainToolBar
                     .showPopupMenu(location.x, location.y);
             }
         }
+    }
+
+    /**
+     * Check the capabilities and change the enable/disable state of the
+     * desktopSharingButton button.
+     */
+    private class UpdateDesktopSharingButtonWorker
+        extends SwingWorker
+    {
+        /**
+         * The current chat trasnports.
+         */
+        private List<ChatTransport> chatTransports;
+
+        /**
+         * Constructs worker.
+         * @param chatTransports
+         */
+        UpdateDesktopSharingButtonWorker(List<ChatTransport> chatTransports)
+        {
+            this.chatTransports = chatTransports;
+        }
+
+        /**
+         * Executes in worker thread.
+         * @return
+         * @throws Exception
+         */
+        @Override
+        protected Object construct()
+            throws
+            Exception
+        {
+            return getOperationSetForCapabilities(
+                chatTransports,
+                OperationSetDesktopSharingServer.class).isEmpty();
+        }
+
+        /**
+         * Called on the event dispatching thread (not on the worker thread)
+         * after the <code>construct</code> method has returned.
+         */
+        protected void finished()
+        {
+            desktopSharingButton.setEnabled(!((Boolean)get()));
+        }
+    }
+
+    /**
+     * Searches for phone numbers in <tt>MetaContact/tt> operation sets.
+     * And changes the call button enable/disable state.
+     */
+    private class UpdateCallButtonWorker
+        extends SwingWorker
+    {
+        /**
+         * The current chat session.
+         */
+        private ChatSession chatSession;
+
+        /**
+         * The current contact.
+         */
+        private MetaContact contact;
+
+        /**
+         * Has this contact any phone.
+         */
+        private boolean hasPhone = false;
+
+        /**
+         * Has this contact telephone at all.
+         */
+        private boolean hasTelephony = false;
+
+        /**
+         * Creates worker.
+         * @param chatSession
+         * @param contact
+         */
+        UpdateCallButtonWorker(ChatSession chatSession, MetaContact contact)
+        {
+            this.chatSession = chatSession;
+            this.contact = contact;
+        }
+
+        /**
+         * Executes in worker thread.
+         * @return
+         * @throws Exception
+         */
+        @Override
+        protected Object construct()
+            throws
+            Exception
+        {
+            List<ChatTransport> chatTransports =
+                this.chatSession.getTransportsForOperationSet(
+                        OperationSetBasicTelephony.class);
+
+            hasTelephony =
+                !getOperationSetForCapabilities(
+                    chatTransports,
+                    OperationSetBasicTelephony.class).isEmpty();
+
+            if(!hasTelephony && contact != null)
+            {
+                Iterator<Contact> contacts = contact.getContacts();
+                while(contacts.hasNext())
+                {
+                    Contact c = contacts.next();
+
+                    if(!c.getProtocolProvider().isRegistered())
+                        continue;
+
+                    OperationSetServerStoredContactInfo infoOpSet =
+                        c.getProtocolProvider().getOperationSet(
+                            OperationSetServerStoredContactInfo.class);
+                    Iterator<GenericDetail> details;
+
+                    if(infoOpSet != null)
+                    {
+                        details = infoOpSet.requestAllDetailsForContact(c,
+                            new DetailsListener(
+                                    this.chatSession, callButton));
+
+                        if(details != null)
+                        {
+                            while(details.hasNext())
+                            {
+                                GenericDetail d = details.next();
+                                if(d instanceof PhoneNumberDetail &&
+                                    !(d instanceof PagerDetail) &&
+                                    !(d instanceof FaxDetail))
+                                {
+                                    PhoneNumberDetail pnd = (PhoneNumberDetail)d;
+                                    if(pnd.getNumber() != null &&
+                                        pnd.getNumber().length() > 0)
+                                    {
+                                        hasPhone = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
+        /**
+         * Called on the event dispatching thread (not on the worker thread)
+         * after the <code>construct</code> method has returned.
+         */
+        protected void finished()
+        {
+            callButton.setEnabled(hasTelephony || hasPhone);
+        }
+
     }
 }

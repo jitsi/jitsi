@@ -37,6 +37,8 @@ import org.jitsi.service.neomedia.*;
 import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
 
+import javax.swing.*;
+
 /**
  * The GUI Activator class.
  *
@@ -138,21 +140,45 @@ public class GuiActivator implements BundleActivator
 
             // Create the ui service
             uiService = new UIServiceImpl();
-            uiService.loadApplicationGui();
 
-            if (logger.isInfoEnabled())
-                logger.info("UI Service...[  STARTED ]");
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    uiService.loadApplicationGui();
 
-            bundleContext.registerService(UIService.class.getName(),
-                                          uiService,
-                                          null);
-            if (logger.isInfoEnabled())
-                logger.info("UI Service ...[REGISTERED]");
+                    GuiActivator.getConfigurationService()
+                                .addPropertyChangeListener(uiService);
 
-            // UIServiceImpl also implements ShutdownService.
-            bundleContext.registerService(ShutdownService.class.getName(),
-                                          (ShutdownService) uiService,
-                                          null);
+                    bundleContext.addServiceListener(uiService);
+
+                    // don't block the ui thread
+                    // with registering services, as they are executed
+                    // in the same thread as registering
+                    new Thread(new Runnable()
+                    {
+                        public void run()
+                        {
+                            if (logger.isInfoEnabled())
+                                logger.info("UI Service...[  STARTED ]");
+
+                            bundleContext.registerService(
+                                UIService.class.getName(),
+                                uiService,
+                                null);
+
+                            if (logger.isInfoEnabled())
+                                logger.info("UI Service ...[REGISTERED]");
+
+                            // UIServiceImpl also implements ShutdownService.
+                            bundleContext.registerService(
+                                ShutdownService.class.getName(),
+                                uiService,
+                                null);
+                        }
+                    }).start();
+                }
+            });
 
             logger.logEntry();
         }
@@ -160,11 +186,6 @@ public class GuiActivator implements BundleActivator
         {
             logger.logExit();
         }
-
-        GuiActivator.getConfigurationService()
-            .addPropertyChangeListener(uiService);
-
-        bundleContext.addServiceListener(uiService);
     }
 
     /**

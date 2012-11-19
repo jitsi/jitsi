@@ -216,6 +216,18 @@ public class AccountsConfigurationPanel
      */
     private void updateButtons()
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    updateButtons();
+                }
+            });
+            return;
+        }
+
         Account account = accountList.getSelectedAccount();
         boolean enabled = (account != null);
 

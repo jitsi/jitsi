@@ -344,7 +344,17 @@ public class ChatWindowManager
      */
     public ChatPanel getContactChat(MetaContact metaContact, boolean create)
     {
-        return getContactChat(metaContact, null, create, null);
+        // if we are not creating a ui we don't need any execution
+        // in event dispatch thread, lets execute now
+        if(!create)
+            return getContactChat(metaContact, null, create, null);
+        else
+        {
+            // we may create using event dispatch thread
+            MetaContactChatCreateRunnable runnable
+                = new MetaContactChatCreateRunnable(metaContact, null, null);
+            return runnable.getChatPanel();
+        }
     }
 
     /**
@@ -373,17 +383,16 @@ public class ChatWindowManager
                                     Contact protocolContact,
                                     String escapedMessageID)
     {
-        return
-            getContactChat(
-                metaContact,
-                protocolContact,
-                true,
-                escapedMessageID);
+        // we may create using event dispatch thread
+        MetaContactChatCreateRunnable runnable
+            = new MetaContactChatCreateRunnable(metaContact, null, null);
+        return runnable.getChatPanel();
     }
 
     /**
      * Gets the <tt>ChatPanel</tt> corresponding to the specified
      * <tt>MetaContact</tt> and optionally creates it if it does not exist.
+     * Must be executed on the event dispatch thread as it is creating UI.
      *
      * @param metaContact the <tt>MetaContact</tt> to get the corresponding
      * <tt>ChatPanel</tt> of
@@ -474,7 +483,7 @@ public class ChatWindowManager
      * <tt>ChatRoomWrapper</tt> or <tt>null</tt> if no such <tt>ChatPanel</tt>
      * exists and <tt>create</tt> is <tt>false</tt>
      */
-    public ChatPanel getMultiChat(
+    private ChatPanel getMultiChatInternal(
             ChatRoomWrapper chatRoomWrapper,
             boolean create)
     {
@@ -485,6 +494,36 @@ public class ChatWindowManager
             if ((chatPanel == null) && create)
                 chatPanel = createChat(chatRoomWrapper);
             return chatPanel;
+        }
+    }
+
+    /**
+     * Gets the <tt>ChatPanel</tt> corresponding to the specified
+     * <tt>ChatRoomWrapper</tt> and optionally creates it if it does not exist
+     * yet.
+     * Must be executed on the event dispatch thread.
+     *
+     * @param chatRoomWrapper the <tt>ChatRoomWrapper</tt> to get the
+     * corresponding <tt>ChatPanel</tt> of
+     * @param create <tt>true</tt> to create a new <tt>ChatPanel</tt> for the
+     * specified <tt>ChatRoomWrapper</tt> if no such <tt>ChatPanel</tt> exists
+     * already; otherwise, <tt>false</tt>
+     * @return the <tt>ChatPanel</tt> corresponding to the specified
+     * <tt>ChatRoomWrapper</tt> or <tt>null</tt> if no such <tt>ChatPanel</tt>
+     * exists and <tt>create</tt> is <tt>false</tt>
+     */
+    public ChatPanel getMultiChat(
+            ChatRoomWrapper chatRoomWrapper,
+            boolean create)
+    {
+        if(!create)
+            return getMultiChatInternal(chatRoomWrapper, create);
+        else
+        {
+            // tries to execute creating of the ui on the
+            // event dispatch thread
+            return new CreateChatRoomWrapperRunner(chatRoomWrapper)
+                .getChatPanel();
         }
     }
 
@@ -502,7 +541,7 @@ public class ChatWindowManager
      * <tt>AdHocChatRoomWrapper</tt> or <tt>null</tt> if no such
      * <tt>ChatPanel</tt> exists and <tt>create</tt> is <tt>false</tt>
      */
-    public ChatPanel getMultiChat(
+    private ChatPanel getMultiChatInternal(
             AdHocChatRoomWrapper chatRoomWrapper,
             boolean create)
     {
@@ -513,6 +552,36 @@ public class ChatWindowManager
             if ((chatPanel == null) && create)
                 chatPanel = createChat(chatRoomWrapper);
             return chatPanel;
+        }
+    }
+
+    /**
+     * Gets the <tt>ChatPanel</tt> corresponding to the specified
+     * <tt>AdHocChatRoomWrapper</tt> and optionally creates it if it does not
+     * exist yet.
+     * Must be executed on the event dispatch thread.
+     *
+     * @param chatRoomWrapper the <tt>AdHocChatRoomWrapper</tt> to get the
+     * corresponding <tt>ChatPanel</tt> of
+     * @param create <tt>true</tt> to create a new <tt>ChatPanel</tt> for the
+     * specified <tt>AdHocChatRoomWrapper</tt> if no such <tt>ChatPanel</tt>
+     * exists already; otherwise, <tt>false</tt>
+     * @return the <tt>ChatPanel</tt> corresponding to the specified
+     * <tt>AdHocChatRoomWrapper</tt> or <tt>null</tt> if no such
+     * <tt>ChatPanel</tt> exists and <tt>create</tt> is <tt>false</tt>
+     */
+    public ChatPanel getMultiChat(
+            AdHocChatRoomWrapper chatRoomWrapper,
+            boolean create)
+    {
+        if(!create)
+            return getMultiChatInternal(chatRoomWrapper, create);
+        else
+        {
+            // tries to execute creating of the ui on the
+            // event dispatch thread
+            return new CreateAdHocChatRoomWrapperRunner(chatRoomWrapper)
+                .getChatPanel();
         }
     }
 
@@ -567,7 +636,7 @@ public class ChatWindowManager
      * <tt>ChatRoom</tt>; <tt>null</tt> if there is no such <tt>ChatPanel</tt>
      * and <tt>create</tt> is <tt>false</tt>
      */
-    public ChatPanel getMultiChat(ChatRoom chatRoom,
+    private ChatPanel getMultiChatInternal(ChatRoom chatRoom,
                                   boolean create,
                                   String escapedMessageID)
     {
@@ -609,7 +678,37 @@ public class ChatWindowManager
 
     /**
      * Gets the <tt>ChatPanel</tt> corresponding to the specified
+     * <tt>ChatRoom</tt> and optionally creates it if it does not exist.
+     * Must be executed on the event dispatch thread.
+     *
+     * @param chatRoom the <tt>ChatRoom</tt> to get the corresponding
+     * <tt>ChatPanel</tt> of
+     * @param create <tt>true</tt> to create a <tt>ChatPanel</tt> corresponding
+     * to the specified <tt>ChatRoom</tt> if such <tt>ChatPanel</tt> does not
+     * exist yet
+     * @param escapedMessageID the message ID of the message that should be
+     * excluded from the history when the last one is loaded in the chat
+     * @return the <tt>ChatPanel</tt> corresponding to the specified
+     * <tt>ChatRoom</tt>; <tt>null</tt> if there is no such <tt>ChatPanel</tt>
+     * and <tt>create</tt> is <tt>false</tt>
+     */
+    public ChatPanel getMultiChat(ChatRoom chatRoom,
+                                  boolean create,
+                                  String escapedMessageID)
+    {
+        if(!create)
+            return getMultiChatInternal(chatRoom, create, escapedMessageID);
+        else
+        {
+            return new CreateChatRoomRunner(chatRoom, escapedMessageID)
+                .getChatPanel();
+        }
+    }
+
+    /**
+     * Gets the <tt>ChatPanel</tt> corresponding to the specified
      * <tt>AdHocChatRoom</tt> and optionally creates it if it does not exist.
+     * Must be executed on the event dispatch thread.
      *
      * @param adHocChatRoom the <tt>AdHocChatRoom</tt> to get the corresponding
      * <tt>ChatPanel</tt> of
@@ -622,7 +721,7 @@ public class ChatWindowManager
      * <tt>AdHocChatRoom</tt>; <tt>null</tt> if there is no such
      * <tt>ChatPanel</tt> and <tt>create</tt> is <tt>false</tt>
      */
-    public ChatPanel getMultiChat(AdHocChatRoom adHocChatRoom,
+    private ChatPanel getMultiChatInternal(AdHocChatRoom adHocChatRoom,
                                   boolean create,
                                   String escapedMessageID)
     {
@@ -660,6 +759,34 @@ public class ChatWindowManager
 
             return chatPanel;
         }
+    }
+
+    /**
+     * Gets the <tt>ChatPanel</tt> corresponding to the specified
+     * <tt>AdHocChatRoom</tt> and optionally creates it if it does not exist.
+     * Must be executed on the event dispatch thread.
+     *
+     * @param adHocChatRoom the <tt>AdHocChatRoom</tt> to get the corresponding
+     * <tt>ChatPanel</tt> of
+     * @param create <tt>true</tt> to create a <tt>ChatPanel</tt> corresponding
+     * to the specified <tt>AdHocChatRoom</tt> if such <tt>ChatPanel</tt> does
+     * not exist yet
+     * @param escapedMessageID the message ID of the message that should be
+     * excluded from the history when the last one is loaded in the chat
+     * @return the <tt>ChatPanel</tt> corresponding to the specified
+     * <tt>AdHocChatRoom</tt>; <tt>null</tt> if there is no such
+     * <tt>ChatPanel</tt> and <tt>create</tt> is <tt>false</tt>
+     */
+    public ChatPanel getMultiChat(AdHocChatRoom adHocChatRoom,
+                                  boolean create,
+                                  String escapedMessageID)
+    {
+        if(!create)
+            return getMultiChatInternal(
+                adHocChatRoom, create, escapedMessageID);
+        else
+            return new CreateAdHocChatRoomRunner(
+                adHocChatRoom, escapedMessageID).getChatPanel();
     }
 
     /**
@@ -1229,5 +1356,224 @@ public class ChatWindowManager
                     "service.gui.WARNING"),
                 JOptionPane.OK_CANCEL_OPTION,
                 JOptionPane.WARNING_MESSAGE);
+    }
+
+    /**
+     * Runnable used as base for all that creates chat panels.
+     */
+    private abstract class AbstractChatPanelCreateRunnable
+        implements Runnable
+    {
+        /**
+         * The result panel.
+         */
+        private ChatPanel chatPanel;
+
+        /**
+         * Returns the result chat panel.
+         * @return the result chat panel.
+         */
+        public ChatPanel getChatPanel()
+        {
+            try
+            {
+                if(!SwingUtilities.isEventDispatchThread())
+                    SwingUtilities.invokeAndWait(this);
+                else
+                    this.run();
+            }
+            catch(Throwable t)
+            {
+                logger.warn("Cannot dispatch on event dispatch thread", t);
+                // if we cannot execute on event dispatch thread
+                this.run();
+            }
+
+            return chatPanel;
+        }
+
+        /**
+         * Runs on event dispatch thread.
+         */
+        public void run()
+        {
+            chatPanel = createChatPanel();
+        }
+
+        /**
+         * The method that will create the panel.
+         * @return the result chat panel.
+         */
+        protected abstract ChatPanel createChatPanel();
+    }
+
+    /**
+     * Creates/Obtains chat panel on swing event dispatch thread.
+     */
+    private class MetaContactChatCreateRunnable
+        extends AbstractChatPanelCreateRunnable
+    {
+        /**
+         * The source meta contact.
+         */
+        private MetaContact metaContact;
+
+        /**
+         * The protocol contact used for creating chat panel.
+         */
+        private Contact protocolContact;
+
+        /**
+         * The message ID of the message to be excluded from
+         * newly created chat panel.
+         */
+        private String escapedMessageID;
+
+        /**
+         * Creates chat.
+         *
+         * @param metaContact
+         */
+        private MetaContactChatCreateRunnable(MetaContact metaContact,
+                                              Contact protocolContact,
+                                              String escapedMessageID)
+        {
+            this.metaContact = metaContact;
+            this.protocolContact = protocolContact;
+            this.escapedMessageID = escapedMessageID;
+        }
+
+        /**
+         * Runs on event dispatch thread.
+         */
+        protected ChatPanel createChatPanel()
+        {
+            return getContactChat(metaContact, null, true, null);
+        }
+    }
+
+    /**
+     * Creates chat room wrapper in event dispatch thread.
+     */
+    private class CreateChatRoomWrapperRunner
+        extends AbstractChatPanelCreateRunnable
+    {
+        /**
+         * The source chat room.
+         */
+        private ChatRoomWrapper chatRoomWrapper;
+
+        /**
+         * Constructs.
+         * @param chatRoomWrapper
+         */
+        private CreateChatRoomWrapperRunner(ChatRoomWrapper chatRoomWrapper)
+        {
+            this.chatRoomWrapper = chatRoomWrapper;
+        }
+
+        /**
+         * Runs on event dispatch thread.
+         */
+        protected ChatPanel createChatPanel()
+        {
+            return getMultiChatInternal(chatRoomWrapper, true);
+        }
+    }
+
+    /**
+     * Creates chat room wrapper in event dispatch thread.
+     */
+    private class CreateAdHocChatRoomWrapperRunner
+        extends AbstractChatPanelCreateRunnable
+    {
+        /**
+         * The source chat room.
+         */
+        private AdHocChatRoomWrapper chatRoomWrapper;
+
+        /**
+         * Constructs.
+         * @param chatRoomWrapper
+         */
+        private CreateAdHocChatRoomWrapperRunner(
+            AdHocChatRoomWrapper chatRoomWrapper)
+        {
+            this.chatRoomWrapper = chatRoomWrapper;
+        }
+
+        /**
+         * Runs on event dispatch thread.
+         */
+        protected ChatPanel createChatPanel()
+        {
+            return getMultiChatInternal(chatRoomWrapper, true);
+        }
+    }
+
+    /**
+     * Creates chat room in event dispatch thread.
+     */
+    private class CreateChatRoomRunner
+        extends AbstractChatPanelCreateRunnable
+    {
+        /**
+         * The source chat room.
+         */
+        private ChatRoom chatRoom;
+
+        private String escapedMessageID;
+
+        /**
+         * Constructs.
+         * @param chatRoom
+         */
+        private CreateChatRoomRunner(ChatRoom chatRoom,
+                                    String escapedMessageID)
+        {
+            this.chatRoom = chatRoom;
+            this.escapedMessageID = escapedMessageID;
+        }
+
+        /**
+         * Runs on event dispatch thread.
+         */
+        protected ChatPanel createChatPanel()
+        {
+            return getMultiChatInternal(chatRoom, true, escapedMessageID);
+        }
+    }
+
+    /**
+     * Creates chat room in event dispatch thread.
+     */
+    private class CreateAdHocChatRoomRunner
+        extends AbstractChatPanelCreateRunnable
+    {
+        /**
+         * The source chat room.
+         */
+        private AdHocChatRoom adHocChatRoom;
+
+        private String escapedMessageID;
+
+        /**
+         * Constructs.
+         * @param adHocChatRoom
+         */
+        private CreateAdHocChatRoomRunner(AdHocChatRoom adHocChatRoom,
+                                    String escapedMessageID)
+        {
+            this.adHocChatRoom = adHocChatRoom;
+            this.escapedMessageID = escapedMessageID;
+        }
+
+        /**
+         * Runs on event dispatch thread.
+         */
+        protected ChatPanel createChatPanel()
+        {
+            return getMultiChatInternal(adHocChatRoom, true, escapedMessageID);
+        }
     }
 }

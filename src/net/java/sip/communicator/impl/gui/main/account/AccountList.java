@@ -17,6 +17,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.swing.SwingWorker;
 
 import org.osgi.framework.*;
 
@@ -138,8 +139,20 @@ public class AccountList
      * @param evt the <tt>ProviderPresenceStatusChangeEvent</tt> that notified
      * us
      */
-    public void providerStatusChanged(ProviderPresenceStatusChangeEvent evt)
+    public void providerStatusChanged(final ProviderPresenceStatusChangeEvent evt)
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    providerStatusChanged(evt);
+                }
+            });
+            return;
+        }
+
         accountListModelContentChanged(evt.getProvider());
     }
 
@@ -239,24 +252,7 @@ public class AccountList
      */
     public void mousePressed(final MouseEvent e)
     {
-        // run in separate thread, if account is currently blocked for
-        // registering, authenticating or something else make sure
-        // we don't block UI
-        new Thread()
-        {
-            public void run()
-            {
-                dispatchEventToCheckBox(e);
-
-                SwingUtilities.invokeLater(new Runnable()
-                {
-                    public void run()
-                    {
-                        AccountList.this.repaint();
-                    }
-                });
-            }
-        }.start();
+        dispatchEventToCheckBox(e);
     }
 
     public void mouseReleased(MouseEvent e) {}
@@ -264,8 +260,20 @@ public class AccountList
     /**
      * Refreshes the account status icon, when the status has changed.
      */
-    public void registrationStateChanged(RegistrationStateChangeEvent evt)
+    public void registrationStateChanged(final RegistrationStateChangeEvent evt)
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    registrationStateChanged(evt);
+                }
+            });
+            return;
+        }
+
         accountListModelContentChanged(evt.getProvider());
     }
 
@@ -345,9 +353,8 @@ public class AccountList
                         + !checkBox.isSelected());
 
             checkBox.setSelected(!checkBox.isSelected());
-            enableAccount(account, checkBox.isSelected());
 
-            this.repaint();
+            new EnableAccountWorker(account, checkBox.isSelected()).start();
         }
     }
 
@@ -390,5 +397,52 @@ public class AccountList
 
         if (account != null)
             accountListModel.removeElement(account);
+    }
+
+    /**
+     * Enables the account in separate thread.
+     */
+    private class EnableAccountWorker
+        extends SwingWorker
+    {
+        /**
+         * The account to use.
+         */
+        private Account account;
+
+        /**
+         * Enable/disable account.
+         */
+        private boolean enable;
+
+        EnableAccountWorker(Account account, boolean enable)
+        {
+            this.account = account;
+            this.enable = enable;
+        }
+
+        /**
+         * Worker thread.
+         * @return
+         * @throws Exception
+         */
+        @Override
+        protected Object construct()
+            throws
+            Exception
+        {
+            enableAccount(account, enable);
+
+            return null;
+        }
+
+        /**
+         * Called on the event dispatching thread (not on the worker thread)
+         * after the <code>construct</code> method has returned.
+         */
+        protected void finished()
+        {
+            AccountList.this.repaint();
+        }
     }
 }

@@ -23,7 +23,7 @@ import org.osgi.framework.*;
  * @author Lubomir Marinov
  */
 public class IptelAccRegWizzActivator
-    implements BundleActivator
+    extends AbstractServiceDependentActivator
 {
     /**
      * OSGi bundle context.
@@ -45,17 +45,10 @@ public class IptelAccRegWizzActivator
 
     /**
      * Starts this bundle.
-     * @param bc BundleContext
-     * @throws Exception
      */
-    public void start(BundleContext bc)
-        throws Exception
+    public void start(Object dependentService)
     {
-        bundleContext = bc;
-
-        uiService =
-            (UIService) bundleContext.getService(bundleContext
-                .getServiceReference(UIService.class.getName()));
+        uiService = (UIService)dependentService;
 
         IptelAccountRegistrationWizard wizard
             = new IptelAccountRegistrationWizard(uiService
@@ -71,6 +64,26 @@ public class IptelAccRegWizzActivator
             AccountRegistrationWizard.class.getName(),
             wizard,
             containerFilter);
+    }
+
+    /**
+     * The dependent class. We are waiting for the ui service.
+     * @return the ui service class.
+     */
+    @Override
+    public Class getDependentServiceClass()
+    {
+        return UIService.class;
+    }
+
+    /**
+     * The bundle context to use.
+     * @param context the context to set.
+     */
+    @Override
+    public void setBundleContext(BundleContext context)
+    {
+        bundleContext = context;
     }
 
     public void stop(BundleContext bundleContext) throws Exception {}

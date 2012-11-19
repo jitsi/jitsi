@@ -30,8 +30,8 @@ import org.osgi.framework.*;
  * @author Yana Stamcheva
  */
 public class GeneralConfigPluginActivator
-    implements  BundleActivator,
-                ServiceListener
+    extends AbstractServiceDependentActivator
+    implements  ServiceListener
 {
     /**
      * The logger.
@@ -92,18 +92,10 @@ public class GeneralConfigPluginActivator
 
     /**
      * Starts this bundle.
-     * @param bc the bundle context
-     * @throws Exception if something goes wrong
      */
-    public void start(BundleContext bc)
-        throws Exception
+    public void start(Object dependentService)
     {
-        bundleContext = bc;
-
-        ServiceReference uiServiceRef = bundleContext
-            .getServiceReference(UIService.class.getName());
-
-        uiService = (UIService) bundleContext.getService(uiServiceRef);
+        uiService = (UIService)dependentService;
 
         Dictionary<String, String> properties
             = new Hashtable<String, String>();
@@ -166,15 +158,15 @@ public class GeneralConfigPluginActivator
                         0, true),
                 properties);
 
-        /*
-         * Wait for the first ProtocolProviderService to register in order to
-         * start the auto-away functionality i.e. to call #startThread().
-         */
-        ServiceReference[] protocolRefs = bundleContext.getServiceReferences(
-                ProtocolProviderService.class.getName(), null);
-        if(protocolRefs != null && protocolRefs.length > 0)
+        try
         {
-            try
+            /*
+             * Wait for the first ProtocolProviderService to register in order to
+             * start the auto-away functionality i.e. to call #startThread().
+             */
+            ServiceReference[] protocolRefs = bundleContext.getServiceReferences(
+                    ProtocolProviderService.class.getName(), null);
+            if(protocolRefs != null && protocolRefs.length > 0)
             {
                 synchronized (GeneralConfigPluginActivator.class)
                 {
@@ -185,17 +177,37 @@ public class GeneralConfigPluginActivator
                     }
                 }
             }
-            catch(Throwable t)
-            {
-                // not supposed to happen
-                logger.error("Error starting auto away thread", t);
-            }
+            else
+                bundleContext.addServiceListener(this);
         }
-        else
-            bundleContext.addServiceListener(this);
+        catch(Throwable t)
+        {
+            // not supposed to happen
+            logger.error("Error starting auto away thread", t);
+        }
 
         if (logger.isInfoEnabled())
             logger.info("PREFERENCES PLUGIN... [REGISTERED]");
+    }
+
+    /**
+     * The dependent class. We are waiting for the ui service.
+     * @return
+     */
+    @Override
+    public Class getDependentServiceClass()
+    {
+        return UIService.class;
+    }
+
+    /**
+     * The bundle context to use.
+     * @param context the context to set.
+     */
+    @Override
+    public void setBundleContext(BundleContext context)
+    {
+        bundleContext = context;
     }
 
     /**

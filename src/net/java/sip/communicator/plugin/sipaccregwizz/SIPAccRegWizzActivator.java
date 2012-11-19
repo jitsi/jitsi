@@ -12,7 +12,6 @@ import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.plugin.wizard.*;
 
 import org.jitsi.service.configuration.*;
 import org.osgi.framework.*;
@@ -23,9 +22,8 @@ import org.osgi.framework.*;
  * @author Yana Stamcheva
  */
 public class SIPAccRegWizzActivator
-    implements BundleActivator
+    extends AbstractServiceDependentActivator
 {
-
     /**
      * OSGi bundle context.
      */
@@ -51,19 +49,10 @@ public class SIPAccRegWizzActivator
 
     /**
      * Starts this bundle.
-     *
-     * @param bc BundleContext
-     * @throws Exception
      */
-    public void start(BundleContext bc) throws Exception
+    public void start(Object dependentService)
     {
-
-        bundleContext = bc;
-
-        ServiceReference uiServiceRef =
-            bundleContext.getServiceReference(UIService.class.getName());
-
-        uiService = (UIService) bundleContext.getService(uiServiceRef);
+        uiService = (UIService)dependentService;
 
         wizardContainer = uiService.getAccountRegWizardContainer();
 
@@ -80,6 +69,26 @@ public class SIPAccRegWizzActivator
             AccountRegistrationWizard.class.getName(),
             sipWizard,
             containerFilter);
+    }
+
+    /**
+     * The dependent class. We are waiting for the ui service.
+     * @return the ui service class.
+     */
+    @Override
+    public Class getDependentServiceClass()
+    {
+        return UIService.class;
+    }
+
+    /**
+     * The bundle context to use.
+     * @param context the context to set.
+     */
+    @Override
+    public void setBundleContext(BundleContext context)
+    {
+        bundleContext = context;
     }
 
     public void stop(BundleContext bundleContext) throws Exception

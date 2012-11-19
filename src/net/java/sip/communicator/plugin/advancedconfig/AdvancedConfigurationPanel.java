@@ -173,8 +173,20 @@ public class AdvancedConfigurationPanel
      * Adds a new <tt>ConfigurationForm</tt> to this list.
      * @param configForm The <tt>ConfigurationForm</tt> to add.
      */
-    public void addConfigForm(ConfigurationForm configForm)
+    public void addConfigForm(final ConfigurationForm configForm)
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    addConfigForm(configForm);
+                }
+            });
+            return;
+        }
+
         if (configForm == null)
             throw new IllegalArgumentException("configForm");
 
@@ -212,8 +224,20 @@ public class AdvancedConfigurationPanel
      * Removes a <tt>ConfigurationForm</tt> from this list.
      * @param configForm The <tt>ConfigurationForm</tt> to remove.
      */
-    public void removeConfigForm(ConfigurationForm configForm)
+    public void removeConfigForm(final ConfigurationForm configForm)
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    removeConfigForm(configForm);
+                }
+            });
+            return;
+        }
+
         DefaultListModel listModel = (DefaultListModel) configList.getModel();
 
         for(int count = listModel.getSize(), i = count - 1; i >= 0; i--)

@@ -11,7 +11,6 @@ import com.apple.eawt.*;
  *
  * @author Yana Stamcheva
  */
-@SuppressWarnings("deprecation")
 public class MacOSXDockIcon
 {
     /**
@@ -23,14 +22,10 @@ public class MacOSXDockIcon
         Application application = Application.getApplication();
         if (application != null)
         {
-            application.addApplicationListener(new ApplicationAdapter()
+
+            application.addAppEventListener(new AppReOpenedListener()
             {
-                /**
-                 * Handles re-open application event. Shows the contact list
-                 * window.
-                 */
-                public void handleReOpenApplication(
-                    ApplicationEvent applicationevent)
+                public void appReOpened(AppEvent.AppReOpenedEvent appReOpenedEvent)
                 {
                     UIService uiService = OsDependentActivator.getUIService();
 

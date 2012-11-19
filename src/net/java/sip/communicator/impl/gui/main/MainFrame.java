@@ -909,10 +909,7 @@ public class MainFrame
 
         this.updateProvidersIndexes(protocolProvider);
 
-        if (accountStatusPanel.containsAccount(protocolProvider))
-        {
-            accountStatusPanel.removeAccount(protocolProvider);
-        }
+        accountStatusPanel.removeAccount(protocolProvider);
     }
 
     /**

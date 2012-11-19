@@ -1052,6 +1052,10 @@ public class UIServiceImpl
             if (logger.isInfoEnabled())
                 logger.info("Handling registration of a new Plugin Component.");
 
+            /*
+            // call getComponent for the first time when the component is
+            // needed to be created and add to a container
+            // skip early creating of components
             Object component = pluginComponent.getComponent();
             if (!(component instanceof Component))
             {
@@ -1061,7 +1065,7 @@ public class UIServiceImpl
                     logger.debug("Logging exception to show the calling plugin",
                     new Exception(""));
                 return;
-            }
+            }*/
 
             this.firePluginEvent(pluginComponent,
                 PluginComponentEvent.PLUGIN_COMPONENT_ADDED);
@@ -1236,7 +1240,32 @@ public class UIServiceImpl
     public ConfigurationContainer getConfigurationContainer()
     {
         if (configurationFrame == null)
+        {
+            if(!SwingUtilities.isEventDispatchThread())
+            {
+                try
+                {
+                    SwingUtilities.invokeAndWait(new Runnable()
+                    {
+                        public void run()
+                        {
+                            getConfigurationContainer();
+                        }
+                    });
+                }
+                catch(Throwable e)
+                {
+                    logger.error("Error creating config frame in swing thread");
+                    // if still no frame create it outside event dispatch thread
+                    if(configurationFrame == null)
+                        configurationFrame = new ConfigurationFrame(mainFrame);
+                }
+
+                return configurationFrame;
+            }
+
             configurationFrame = new ConfigurationFrame(mainFrame);
+        }
 
         return configurationFrame;
     }
@@ -1393,6 +1422,18 @@ public class UIServiceImpl
      */
     public void repaintUI()
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    repaintUI();
+                }
+            });
+            return;
+        }
+
         if (UIManager.getLookAndFeel() instanceof SIPCommLookAndFeel)
             ((SIPCommLookAndFeel) UIManager.getLookAndFeel()).loadSkin();
 

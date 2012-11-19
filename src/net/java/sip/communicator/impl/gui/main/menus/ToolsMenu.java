@@ -477,6 +477,7 @@ public class ToolsMenu
     {
         protected Object construct()
         {
+            Boolean enableMenu = true;
             List<ProtocolProviderService> videoBridgeProviders
                 = getVideoBridgeProviders();
 
@@ -488,20 +489,29 @@ public class ToolsMenu
                 = ((VideoBridgeProviderMenuItem) videoBridgeMenuItem);
 
             if (videoBridgeProviderCount <= 0)
-                menuItem.setEnabled(false);
+                enableMenu = false;
             else if (videoBridgeProviderCount == 1)
             {
                 menuItem.setPreselectedProvider(videoBridgeProviders.get(0));
-                menuItem.setEnabled(true);
+                enableMenu = true;
             }
             else if (videoBridgeProviderCount > 1)
             {
                 menuItem.setPreselectedProvider(null);
                 menuItem.setVideoBridgeProviders(videoBridgeProviders);
-                menuItem.setEnabled(true);
+                enableMenu = true;
             }
 
-            return null;
+            return enableMenu;
+        }
+
+        /**
+         * Called on the event dispatching thread (not on the worker thread)
+         * after the <code>construct</code> method has returned.
+         */
+        protected void finished()
+        {
+            videoBridgeMenuItem.setEnabled((Boolean)get());
         }
     }
 
@@ -517,9 +527,17 @@ public class ToolsMenu
 
         protected Object construct() //throws Exception
         {
-            List<ProtocolProviderService> videoBridgeProviders
-                = getVideoBridgeProviders();
+            return getVideoBridgeProviders();
+        }
 
+        /**
+         * Creates the menu item.
+         * @param videoBridgeProviders the list of available providers.
+         * @return the list of available providers.
+         */
+        private JMenuItem createNewMenuItem(
+            List<ProtocolProviderService> videoBridgeProviders)
+        {
             int videoBridgeProviderCount
                 = (videoBridgeProviders == null)
                     ? 0 : videoBridgeProviders.size();
@@ -563,6 +581,7 @@ public class ToolsMenu
             return newMenuItem;
         }
 
+        @SuppressWarnings("unchecked")
         protected void finished()
         {
             if (videoBridgeMenuItem != null)
@@ -572,7 +591,9 @@ public class ToolsMenu
                 remove(videoBridgeMenuItem);
             }
 
-            videoBridgeMenuItem = (JMenuItem) get();
+            // create the menu items in event dispatch thread
+            videoBridgeMenuItem =
+                createNewMenuItem((List<ProtocolProviderService>)get());
 
             videoBridgeMenuItem.setIcon(
                     r.getImage("service.gui.icons.VIDEO_BRIDGE"));

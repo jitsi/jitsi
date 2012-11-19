@@ -13,6 +13,8 @@ import org.jitsi.service.configuration.*;
 import org.jitsi.service.fileaccess.*;
 import org.osgi.framework.*;
 
+import javax.swing.*;
+
 /**
  * Enabling and disabling osgi functionality for the spell checker.
  * 
@@ -42,16 +44,32 @@ public class SpellCheckActivator
 
         this.checker.start(context);
 
-        // adds button to toggle spell checker
-        Hashtable<String, String> containerFilter =
-            new Hashtable<String, String>();
-        containerFilter.put(Container.CONTAINER_ID,
-            Container.CONTAINER_CHAT_TOOL_BAR.getID());
+        SwingUtilities.invokeLater(new Runnable()
+        {
+            public void run()
+            {
+                final LanguageMenuBar menuBar =
+                    LanguageMenuBar.makeSelectionField(checker);
 
-        // adds field to change language
-        context.registerService(PluginComponent.class.getName(),
-            LanguageMenuBar.makeSelectionField(this.checker),
-            containerFilter);
+                new Thread(new Runnable()
+                {
+                    public void run()
+                    {
+                        // adds button to toggle spell checker
+                        Hashtable<String, String> containerFilter =
+                            new Hashtable<String, String>();
+                        containerFilter.put(Container.CONTAINER_ID,
+                            Container.CONTAINER_CHAT_TOOL_BAR.getID());
+
+                        // adds field to change language
+                        bundleContext.registerService(
+                            PluginComponent.class.getName(),
+                            menuBar,
+                            containerFilter);
+                    }
+                }).start();
+            }
+        });
     }
 
     /**

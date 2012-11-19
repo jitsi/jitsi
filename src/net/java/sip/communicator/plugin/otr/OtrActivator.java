@@ -21,7 +21,8 @@ import org.osgi.framework.*;
  * @author George Politis
  */
 public class OtrActivator
-    implements BundleActivator, ServiceListener
+    extends AbstractServiceDependentActivator
+    implements ServiceListener
 {
     /**
      * A property used in configuration to disable the otr plugin.
@@ -91,11 +92,12 @@ public class OtrActivator
     private static Logger logger = Logger.getLogger(OtrActivator.class);
 
     /*
-     * Implements BundleActivator#start(BundleContext).
+     * Implements AbstractServiceDependentActivator#start(UIService).
      */
-    public void start(BundleContext bc) throws Exception
+    @Override
+    public void start(Object dependentService)
     {
-        bundleContext = bc;
+        uiService = (UIService)dependentService;
 
         ServiceReference refConfigService =
             OtrActivator.bundleContext
@@ -121,16 +123,6 @@ public class OtrActivator
                 .getService(OtrActivator.bundleContext);
         if (resourceService == null)
             return;
-
-        ServiceReference refUIService =
-            OtrActivator.bundleContext.getServiceReference(UIService.class
-                .getName());
-
-        if (refUIService == null)
-            return;
-
-        uiService =
-            (UIService) OtrActivator.bundleContext.getService(refUIService);
 
         // Register Transformation Layer
         bundleContext.addServiceListener(this);
@@ -208,6 +200,26 @@ public class OtrActivator
                     "service.gui.CHAT", 1),
                     properties);
         }
+    }
+
+    /**
+     * The dependent class. We are waiting for the ui service.
+     * @return the ui service class.
+     */
+    @Override
+    public Class getDependentServiceClass()
+    {
+        return UIService.class;
+    }
+
+    /**
+     * The bundle context to use.
+     * @param context the context to set.
+     */
+    @Override
+    public void setBundleContext(BundleContext context)
+    {
+        bundleContext = context;
     }
 
     private ServiceRegistration regRightClickMenu;

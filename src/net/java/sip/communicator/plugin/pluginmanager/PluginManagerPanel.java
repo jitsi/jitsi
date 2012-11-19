@@ -169,8 +169,20 @@ public class PluginManagerPanel
     private class PluginListBundleListener
         implements BundleListener
     {
-        public void bundleChanged(BundleEvent event)
+        public void bundleChanged(final BundleEvent event)
         {
+            if(!SwingUtilities.isEventDispatchThread())
+            {
+                SwingUtilities.invokeLater(new Runnable()
+                {
+                    public void run()
+                    {
+                        bundleChanged(event);
+                    }
+                });
+                return;
+            }
+
             tableModel.update();
 
             if (event.getType() == BundleEvent.INSTALLED)
