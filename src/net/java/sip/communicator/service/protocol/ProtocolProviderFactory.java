@@ -203,18 +203,17 @@ public abstract class ProtocolProviderFactory
     public static final String DEFAULT_ENCRYPTION = "DEFAULT_ENCRYPTION";
 
     /**
-     * The name of the property that indicates the enabled encryption protocols
-     * for this account.
+     * The name of the property that indicates the encryption protocols for this
+     * account.
      */
-    public static final String ENABLED_ENCRYPTION_PROTOCOLS
-        = "ENABLED_ENCRYPTION_PROTOCOL";
+    public static final String ENCRYPTION_PROTOCOL = "ENCRYPTION_PROTOCOL";
 
     /**
-     * The name of the property that indicates the disabled encryption protocols
-     * for this account.
+     * The name of the property that indicates the status (enabed or disabled)
+     * encryption protocols for this account.
      */
-    public static final String DISABLED_ENCRYPTION_PROTOCOLS
-        = "DISABLED_ENCRYPTION_PROTOCOL";
+    public static final String ENCRYPTION_PROTOCOL_STATUS
+        = "ENCRYPTION_PROTOCOL_STATUS";
 
     /**
      * The name of the property which defines if to include the ZRTP attribute

@@ -444,91 +444,261 @@ public abstract class AccountID
      */
     public boolean isEncryptionProtocolEnabled(String encryptionProtocolName)
     {
-        List<String> encryptionProtocolList = this.getEncryptionProtocols(true);
-        for(int i = 0; i < encryptionProtocolList.size(); ++i)
-        {
-            if(encryptionProtocolName.equals(encryptionProtocolList.get(i)))
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Returns the enabled or disabled (depending on the enabled parameter)
-     * encryption protocol list.
-     *
-     * @param enabled Set this parameter to true in order to get the enabled
-     * protocol list. Otherwise, when this parameter is set to false, returns
-     * the disabled list.
-
-     * @return The enabled or disabled encryption protocol list.
-     */
-    public List<String> getEncryptionProtocols(boolean enabled)
-    {
-        String encryptionProtocols;
-        if(enabled)
-        {
-            encryptionProtocols = getAccountPropertyString(
-                    ProtocolProviderFactory.ENABLED_ENCRYPTION_PROTOCOLS);
-            // If this property is not set yet, activate ZRTP only by default
-            if(encryptionProtocols == null)
-            {
-                ArrayList<String> result = new ArrayList<String>(1);
-                result.add("ZRTP");
-                return result;
-            }
-        }
-        else
-        {
-            encryptionProtocols = getAccountPropertyString(
-                    ProtocolProviderFactory.DISABLED_ENCRYPTION_PROTOCOLS);
-            if(encryptionProtocols == null)
-            {
-                return new ArrayList<String>(0);
-            }
-        }
-    
-
-        String[] tmp = encryptionProtocols.split(" ");
-        ArrayList<String> encryptionProtocolList
-            = new ArrayList<String>(tmp.length);
-
-        for(int i = 0; i < tmp.length; ++i)
-        {
-            if(tmp[i] != null && tmp[i].trim().length() > 0 )
-                encryptionProtocolList.add(tmp[i]);
-        }
-
-        return encryptionProtocolList;
+        // The default value is false, except for ZRTP.
+        boolean defaultValue = (encryptionProtocolName.equals("ZRTP"));
+        return getAccountPropertyBoolean(
+                ProtocolProviderFactory.ENCRYPTION_PROTOCOL_STATUS
+                    + "."
+                    + encryptionProtocolName,
+                defaultValue);
     }
 
     /**
      * Sorts the enabled encryption protocol list given in parameter to match
      * the preferences set for this account.
      *
-     * @param encryptionProtocolList The list of the encryption protocol to
-     * check.
-     *
      * @return Sorts the enabled encryption protocol list given in parameter to
      * match the preferences set for this account.
      */
-    public List<String> getSortedEnabledEncryptionProtocolList(
-            List<String> encryptionProtocolList)
+    public List<String> getSortedEnabledEncryptionProtocolList()
     {
-        List<String> enabledEncryptionProtocolList
-            = this.getEncryptionProtocols(true);
-        ArrayList<String> result
-            = new ArrayList<String>(enabledEncryptionProtocolList.size()); 
-        for(int i = 0; i < enabledEncryptionProtocolList.size(); ++i)
+        Map<String, Integer> encryptionProtocols
+            = this.getIntegerPropertiesByPrefix(
+                    ProtocolProviderFactory.ENCRYPTION_PROTOCOL,
+                    true);
+        Map<String, Boolean> encryptionProtocolStatus
+            = this.getBooleanPropertiesByPrefix(
+                    ProtocolProviderFactory.ENCRYPTION_PROTOCOL_STATUS,
+                    true,
+                    false);
+        // If the account is not yet configured, then ZRTP is activated by
+        // default.
+        if(encryptionProtocols.size() == 0)
         {
-            if(encryptionProtocolList.contains(
-                        enabledEncryptionProtocolList.get(i)))
+            encryptionProtocols.put(
+                    ProtocolProviderFactory.ENCRYPTION_PROTOCOL + ".ZRTP",
+                    0);
+            encryptionProtocolStatus.put(
+                    ProtocolProviderFactory.ENCRYPTION_PROTOCOL_STATUS
+                        + ".ZRTP",
+                    true);
+        }
+
+        List<String> sortedEncryptionProtocolList
+            = new ArrayList<String>(encryptionProtocols.size());
+        Iterator<String> names = encryptionProtocols.keySet().iterator();
+        String name;
+        int index;
+        // First: add all protocol in the right order.
+        while(names.hasNext())
+        {
+            name = names.next();
+            index = encryptionProtocols.get(name);
+
+            // If the key is set.
+            if(index != -1)
             {
-                result.add(enabledEncryptionProtocolList.get(i));
+                if(index > sortedEncryptionProtocolList.size())
+                {
+                    index = sortedEncryptionProtocolList.size();
+                }
+                sortedEncryptionProtocolList.add(index, name);
             }
         }
-        return result;
+
+        // Second: remove all disabled protocol.
+        String encryptionProtocolPropertyName;
+        int prefixeLength
+            = ProtocolProviderFactory.ENCRYPTION_PROTOCOL.length() + 1;
+        names = encryptionProtocols.keySet().iterator();
+        while(names.hasNext())
+        {
+            encryptionProtocolPropertyName = names.next();
+            index = encryptionProtocols.get(encryptionProtocolPropertyName);
+            name = encryptionProtocolPropertyName.substring(prefixeLength);
+            // If the key is set.
+            if(index != -1 && !encryptionProtocolStatus.get(
+                        ProtocolProviderFactory.ENCRYPTION_PROTOCOL_STATUS
+                        + "."
+                        + name))
+            {
+                sortedEncryptionProtocolList.remove(index);
+            }
+        }
+
+        return sortedEncryptionProtocolList;
+    }
+
+    /**
+     * Returns a <tt>java.util.Map</tt> of <tt>String</tt>s containing the
+     * all property names that have the specified prefix and <tt>Boolean</tt>
+     * containing the value for each property selected. Depending on the value
+     * of the <tt>exactPrefixMatch</tt> parameter the method will (when false)
+     * or will not (when exactPrefixMatch is true) include property names that
+     * have prefixes longer than the specified <tt>prefix</tt> param.
+     * <p>
+     * Example:
+     * <p>
+     * Imagine a configuration service instance containing 2 properties
+     * only:<br>
+     * <code>
+     * net.java.sip.communicator.PROP1=value1<br>
+     * net.java.sip.communicator.service.protocol.PROP1=value2
+     * </code>
+     * <p>
+     * A call to this method with a prefix="net.java.sip.communicator" and
+     * exactPrefixMatch=true would only return the first property -
+     * net.java.sip.communicator.PROP1, whereas the same call with
+     * exactPrefixMatch=false would return both properties as the second prefix
+     * includes the requested prefix string.
+     * <p>
+     * @param prefix a String containing the prefix (the non dotted non-caps
+     * part of a property name) that we're looking for.
+     * @param exactPrefixMatch a boolean indicating whether the returned
+     * property names should all have a prefix that is an exact match of the
+     * the <tt>prefix</tt> param or whether properties with prefixes that
+     * contain it but are longer than it are also accepted.
+     * @param defaultValue the default value if the key is not set.
+     * @return a <tt>java.util.Map</tt> containing all property name String-s
+     * matching the specified conditions and the corresponding values as
+     * Boolean.
+     */
+    public Map<String, Boolean> getBooleanPropertiesByPrefix(
+            String prefix,
+            boolean exactPrefixMatch,
+            boolean defaultValue)
+    {
+        String propertyName;
+        List<String> propertyNames
+            = getPropertyNamesByPrefix(prefix, exactPrefixMatch);
+        Map<String, Boolean> properties
+            = new HashMap<String, Boolean>(propertyNames.size());
+
+        for(int i = 0; i < propertyNames.size(); ++i)
+        {
+            propertyName = propertyNames.get(i);
+            properties.put(
+                    propertyName,
+                    new Boolean(this.getAccountPropertyBoolean(
+                            propertyName,
+                            defaultValue)));
+        }
+
+        return properties;
+    }
+
+    /**
+     * Returns a <tt>java.util.Map</tt> of <tt>String</tt>s containing the
+     * all property names that have the specified prefix and <tt>Integer</tt>
+     * containing the value for each property selected. Depending on the value
+     * of the <tt>exactPrefixMatch</tt> parameter the method will (when false)
+     * or will not (when exactPrefixMatch is true) include property names that
+     * have prefixes longer than the specified <tt>prefix</tt> param.
+     * <p>
+     * Example:
+     * <p>
+     * Imagine a configuration service instance containing 2 properties
+     * only:<br>
+     * <code>
+     * net.java.sip.communicator.PROP1=value1<br>
+     * net.java.sip.communicator.service.protocol.PROP1=value2
+     * </code>
+     * <p>
+     * A call to this method with a prefix="net.java.sip.communicator" and
+     * exactPrefixMatch=true would only return the first property -
+     * net.java.sip.communicator.PROP1, whereas the same call with
+     * exactPrefixMatch=false would return both properties as the second prefix
+     * includes the requested prefix string.
+     * <p>
+     * @param prefix a String containing the prefix (the non dotted non-caps
+     * part of a property name) that we're looking for.
+     * @param exactPrefixMatch a boolean indicating whether the returned
+     * property names should all have a prefix that is an exact match of the
+     * the <tt>prefix</tt> param or whether properties with prefixes that
+     * contain it but are longer than it are also accepted.
+     * @return a <tt>java.util.Map</tt> containing all property name String-s
+     * matching the specified conditions and the corresponding values as
+     * Integer.
+     */
+    public Map<String, Integer> getIntegerPropertiesByPrefix(
+            String prefix,
+            boolean exactPrefixMatch)
+    {
+        String propertyName;
+        List<String> propertyNames
+            = getPropertyNamesByPrefix(prefix, exactPrefixMatch);
+        Map<String, Integer> properties
+            = new HashMap<String, Integer>(propertyNames.size());
+
+        for(int i = 0; i < propertyNames.size(); ++i)
+        {
+            propertyName = propertyNames.get(i);
+            properties.put(
+                    propertyName,
+                    new Integer(this.getAccountPropertyInt(propertyName, -1)));
+        }
+
+        return properties;
+    }
+
+    /**
+     * Returns a <tt>java.util.List</tt> of <tt>String</tt>s containing the
+     * all property names that have the specified prefix. Depending on the value
+     * of the <tt>exactPrefixMatch</tt> parameter the method will (when false)
+     * or will not (when exactPrefixMatch is true) include property names that
+     * have prefixes longer than the specified <tt>prefix</tt> param.
+     * <p>
+     * Example:
+     * <p>
+     * Imagine a configuration service instance containing 2 properties
+     * only:<br>
+     * <code>
+     * net.java.sip.communicator.PROP1=value1<br>
+     * net.java.sip.communicator.service.protocol.PROP1=value2
+     * </code>
+     * <p>
+     * A call to this method with a prefix="net.java.sip.communicator" and
+     * exactPrefixMatch=true would only return the first property -
+     * net.java.sip.communicator.PROP1, whereas the same call with
+     * exactPrefixMatch=false would return both properties as the second prefix
+     * includes the requested prefix string.
+     * <p>
+     * @param prefix a String containing the prefix (the non dotted non-caps
+     * part of a property name) that we're looking for.
+     * @param exactPrefixMatch a boolean indicating whether the returned
+     * property names should all have a prefix that is an exact match of the
+     * the <tt>prefix</tt> param or whether properties with prefixes that
+     * contain it but are longer than it are also accepted.
+     * @return a <tt>java.util.List</tt>containing all property name String-s
+     * matching the specified conditions.
+     */
+    public List<String> getPropertyNamesByPrefix(
+            String prefix,
+            boolean exactPrefixMatch)
+    {
+        List<String> resultKeySet = new LinkedList<String>();
+
+        for (String key : accountProperties.keySet())
+        {
+            int ix = key.lastIndexOf('.');
+
+            if(ix == -1)
+                continue;
+
+            String keyPrefix = key.substring(0, ix);
+
+            if(exactPrefixMatch)
+            {
+                if(prefix.equals(keyPrefix))
+                    resultKeySet.add(key);
+            }
+            else
+            {
+                if(keyPrefix.startsWith(prefix))
+                    resultKeySet.add(key);
+            }
+        }
+
+        return resultKeySet;
     }
 }

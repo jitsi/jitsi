@@ -467,29 +467,13 @@ public class SIPAccountRegistrationWizard
         accountProperties.put(ProtocolProviderFactory.DEFAULT_ENCRYPTION,
                 Boolean.toString(registration.isDefaultEncryption()));
 
-        java.util.List<String> enabledEncryptionProtocols
-            = registration.getEncryptionProtocols(true);
-        String enabledEncryptionProtocolsString = "";
-        for(int i = 0; i < enabledEncryptionProtocols.size(); ++i)
-        {
-            enabledEncryptionProtocolsString
-                += enabledEncryptionProtocols.get(i) + " ";
-        }
-        accountProperties.put(
-                ProtocolProviderFactory.ENABLED_ENCRYPTION_PROTOCOLS,
-                enabledEncryptionProtocolsString);
+        // Sets the ordered list of encryption protocols.
+        registration.addEncryptionProtocolsToProperties(
+                accountProperties);
 
-        java.util.List<String> disabledEncryptionProtocols
-            = registration.getEncryptionProtocols(false);
-        String disabledEncryptionProtocolsString = "";
-        for(int i = 0; i < disabledEncryptionProtocols.size(); ++i)
-        {
-            disabledEncryptionProtocolsString
-                += disabledEncryptionProtocols.get(i) + " ";
-        }
-        accountProperties.put(
-                ProtocolProviderFactory.DISABLED_ENCRYPTION_PROTOCOLS,
-                disabledEncryptionProtocolsString);
+        // Sets the list of encryption protocol status.
+        registration.addEncryptionProtocolStatusToProperties(
+                accountProperties);
 
         accountProperties.put(ProtocolProviderFactory.DEFAULT_SIPZRTP_ATTRIBUTE,
                 Boolean.toString(registration.isSipZrtpAttribute()));

@@ -25,24 +25,29 @@ public class EncryptionConfigurationTableModel
      */
     private static final long serialVersionUID = 0L;
 
-    private boolean[] selectionList;
-    private String[] labelList;
+    /**
+     * The encryption protocol names.
+     */
+    private String[] encryptionProtocols;
+
+    /**
+     * The encryption protocol status (enabled / disabled).
+     */
+    private boolean[] encryptionProtocolStatus;
 
     /**
      * Creates a new table model in order to manage the encryption protocols and
      * the corresponding priority.
      *
-     * @param selectionList A list of boolean which is used to know of the
-     * corresponding protocol (same index) from the labelList is enabled or
-     * disabled.
-     * @param labelList The list of encryption protocols in the priority
-     * order.
+     * @param encryptionProtocols The encryption protocol names.
+     * @param encryptionProtocolStatuss The encryption protocol status (enabled
+     * / disabled).
      */
     public EncryptionConfigurationTableModel(
-            boolean[] selectionList,
-            String[] labelList)
+            String[] encryptionProtocols,
+            boolean[] encryptionProtocolStatus)
     {
-        this.init(selectionList, labelList);
+        this.init(encryptionProtocols, encryptionProtocolStatus);
     }
 
     @Override
@@ -59,10 +64,14 @@ public class EncryptionConfigurationTableModel
         return 2;
     }
 
+    /**
+     * Returns the number of row in this table model.
+     *
+     * @return the number of row in this table model.
+     */
     public int getRowCount()
     {
-        //return getEncodings().length;
-        return labelList.length;
+        return encryptionProtocols.length;
     }
 
     @Override
@@ -76,9 +85,9 @@ public class EncryptionConfigurationTableModel
         switch (columnIndex)
         {
             case 0:
-                return selectionList[rowIndex];
+                return encryptionProtocolStatus[rowIndex];
             case 1:
-                return labelList[rowIndex];
+                return encryptionProtocols[rowIndex];
             default:
                 return null;
         }
@@ -89,7 +98,8 @@ public class EncryptionConfigurationTableModel
     {
         if ((columnIndex == 0) && (value instanceof Boolean))
         {
-            this.selectionList[rowIndex] = ((Boolean) value).booleanValue(); 
+            this.encryptionProtocolStatus[rowIndex]
+                = ((Boolean) value).booleanValue(); 
 
             // We fire the update event before setting the configuration
             // property in order to have more reactive user interface.
@@ -121,38 +131,58 @@ public class EncryptionConfigurationTableModel
         }
 
         // Swaps the selection list.
-        boolean tmpSelectionItem = this.selectionList[rowIndex];
-        this.selectionList[rowIndex] = this.selectionList[toRowIndex];
-        this.selectionList[toRowIndex] = tmpSelectionItem;
+        boolean tmpSelectionItem = this.encryptionProtocolStatus[rowIndex];
+        this.encryptionProtocolStatus[rowIndex]
+            = this.encryptionProtocolStatus[toRowIndex];
+        this.encryptionProtocolStatus[toRowIndex] = tmpSelectionItem;
 
         // Swaps the label list.
-        String tmpLabel = this.labelList[rowIndex];
-        this.labelList[rowIndex] = this.labelList[toRowIndex];
-        this.labelList[toRowIndex] = tmpLabel;
+        String tmpLabel = this.encryptionProtocols[rowIndex];
+        this.encryptionProtocols[rowIndex]
+            = this.encryptionProtocols[toRowIndex];
+        this.encryptionProtocols[toRowIndex] = tmpLabel;
 
         fireTableRowsUpdated(rowIndex, toRowIndex);
         return toRowIndex;
     }
 
     /**
-     * Returns the list of the enabled or disabled label in the priority order.
+     * Returns the map between encryption protocol names and their priority
+     * order.
      *
-     * @param enabledLabels If true this function will return the enabled label
-     * list. Otherwise, it will return the disabled list.
-     *
-     * @return the list of the enabled or disabled label in the priority order.
+     * @return The map between encryption protocol names and their priority
+     * order.
      */
-    public List<String> getLabels(boolean enabledLabels)
+    public Map<String, Integer> getEncryptionProtocols()
     {
-        ArrayList<String> labels = new ArrayList<String>(this.labelList.length);
-        for(int i = 0; i < this.labelList.length; ++i)
+        Map<String, Integer> encryptionProtocolMap
+            = new HashMap<String, Integer>(this.encryptionProtocols.length);
+        for(int i = 0; i < this.encryptionProtocols.length; ++i)
         {
-            if(this.selectionList[i] == enabledLabels)
-            {
-                labels.add(this.labelList[i]);
-            }
+            encryptionProtocolMap.put(
+                    this.encryptionProtocols[i],
+                    new Integer(i));
         }
-        return labels;
+        return encryptionProtocolMap;
+    }
+
+    /**
+     * Returns the map between encryption protocol names and their status.
+     *
+     * @return The map between encryption protocol names and their status.
+     */
+    public Map<String, Boolean> getEncryptionProtocolStatus()
+    {
+        Map<String, Boolean> encryptionProtocolStatusMap
+            = new HashMap<String, Boolean>(
+                    this.encryptionProtocolStatus.length);
+        for(int i = 0; i < this.encryptionProtocolStatus.length; ++i)
+        {
+            encryptionProtocolStatusMap.put(
+                    encryptionProtocols[i],
+                    new Boolean(encryptionProtocolStatus[i]));
+        }
+        return encryptionProtocolStatusMap;
     }
 
     /**
@@ -165,29 +195,29 @@ public class EncryptionConfigurationTableModel
      */
     public boolean isEnabledLabel(String label)
     {
-        for(int i = 0; i < this.labelList.length; ++i)
+        for(int i = 0; i < this.encryptionProtocols.length; ++i)
         {
-            if(this.labelList[i].equals(label))
+            if(this.encryptionProtocols[i].equals(label))
             {
-                return this.selectionList[i];
+                return this.encryptionProtocolStatus[i];
             }
         }
         return false;
     }
 
     /**
-     * Initiates this table model in order to manage the encryption protocols and
-     * the corresponding priority.
+     * Initiates this table model in order to manage the encryption protocols
+     * and the corresponding priority.
      *
-     * @param selectionList A list of boolean which is used to know of the
-     * corresponding protocol (same index) from the labelList is enabled or
-     * disabled.
-     * @param labelList The list of encryption protocols in the priority
-     * order.
+     * @param encryptionProtocols The encryption protocol names.
+     * @param encryptionProtocolStatuss The encryption protocol status (enabled
+     * / disabled).
      */
-    public void init(boolean[] selectionList, String[] labelList)
+    public void init(
+            String[] encryptionProtocols,
+            boolean[] encryptionProtocolStatus)
     {
-        this.selectionList = selectionList;
-        this.labelList = labelList;
+        this.encryptionProtocols = encryptionProtocols;
+        this.encryptionProtocolStatus = encryptionProtocolStatus;
     }
 }

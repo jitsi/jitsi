@@ -1262,18 +1262,16 @@ public class CallPeerMediaHandlerSipImpl
             MediaDescription remoteMd)
     {
         // Sets ZRTP or SDES, depending on the preferences for this account.
-        ArrayList<String> encryptionProtocolList = new ArrayList<String>(2);
-        encryptionProtocolList.add("ZRTP");
-        encryptionProtocolList.add("SDES");
         List<String> preferredEncryptionProtocols = getPeer()
             .getProtocolProvider()
             .getAccountID()
-            .getSortedEnabledEncryptionProtocolList(encryptionProtocolList);
+            .getSortedEnabledEncryptionProtocolList();
 
         for(int i = 0; i < preferredEncryptionProtocols.size(); ++i)
         {
             // ZRTP
-            if(preferredEncryptionProtocols.get(i).equals("ZRTP"))
+            if(preferredEncryptionProtocols.get(i).equals(
+                        ProtocolProviderFactory.ENCRYPTION_PROTOCOL + ".ZRTP"))
             {
                 if(updateMediaDescriptionForZrtp(mediaType, localMd))
                 {
@@ -1282,7 +1280,8 @@ public class CallPeerMediaHandlerSipImpl
                 }
             }
             // SDES
-            else if(preferredEncryptionProtocols.get(i).equals("SDES"))
+            else if(preferredEncryptionProtocols.get(i).equals(
+                        ProtocolProviderFactory.ENCRYPTION_PROTOCOL + ".SDES"))
             {
                 if(updateMediaDescriptionForSDes(
                             mediaType,

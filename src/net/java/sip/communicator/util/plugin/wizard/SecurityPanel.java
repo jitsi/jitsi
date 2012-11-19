@@ -320,8 +320,8 @@ public class SecurityPanel
 
         this.encryptionConfigurationTableModel
             = new EncryptionConfigurationTableModel(
-                    selectedEncryptions,
-                    encryptions);
+                    encryptions,
+                    selectedEncryptions);
         this.encryptionProtocolPreferences = new PriorityTable(
                     this.encryptionConfigurationTableModel,
                     60);
@@ -425,8 +425,10 @@ public class SecurityPanel
     {
         registration.setDefaultEncryption(enableDefaultEncryption.isSelected());
         registration.setEncryptionProtocols(
-                encryptionConfigurationTableModel.getLabels(true),
-                encryptionConfigurationTableModel.getLabels(false));
+                encryptionConfigurationTableModel.getEncryptionProtocols());
+        registration.setEncryptionProtocolStatus(
+                encryptionConfigurationTableModel
+                    .getEncryptionProtocolStatus());
         registration.setSipZrtpAttribute(enableSipZrtpAttribute.isSelected());
         registration.setSavpOption(((SavpOption) cboSavpOption
             .getSelectedItem()).option);
@@ -445,9 +447,20 @@ public class SecurityPanel
                 accountID.getAccountPropertyBoolean(
                         ProtocolProviderFactory.DEFAULT_ENCRYPTION,
                         true));
+
+        Map<String, Integer> encryptionProtocols
+            = accountID.getIntegerPropertiesByPrefix(
+                    ProtocolProviderFactory.ENCRYPTION_PROTOCOL,
+                    true);
+        Map<String, Boolean> encryptionProtocolStatus
+            = accountID.getBooleanPropertiesByPrefix(
+                    ProtocolProviderFactory.ENCRYPTION_PROTOCOL_STATUS,
+                    true,
+                    false);
         this.loadEncryptionProtocols(
-                accountID.getEncryptionProtocols(true),
-                accountID.getEncryptionProtocols(false));
+                encryptionProtocols,
+                encryptionProtocolStatus);
+
         enableSipZrtpAttribute.setSelected(
                 accountID.getAccountPropertyBoolean(
                         ProtocolProviderFactory.DEFAULT_SIPZRTP_ATTRIBUTE,
@@ -507,51 +520,72 @@ public class SecurityPanel
      * available for this account.
      */
     private void loadEncryptionProtocols(
-            List<String> enabledEncryptionProtocols,
-            List<String> disabledEncryptionProtocols)
+            Map<String, Integer> encryptionProtocols,
+            Map<String, Boolean> encryptionProtocolStatus)
     {
         int nbEncryptionProtocols = this.encryptionProtocols.length;
         String[] encryptions = new String[nbEncryptionProtocols];
         boolean[] selectedEncryptions = new boolean[nbEncryptionProtocols];
 
-        List<String> availableEncryptionProtocols =
-            Arrays.asList(this.encryptionProtocols);
-        int index = 0;
-        for(int i = 0; i < enabledEncryptionProtocols.size(); ++i)
+        // Load stored values.
+        int prefixeLength
+            = ProtocolProviderFactory.ENCRYPTION_PROTOCOL.length() + 1;
+        String encryptionProtocolPropertyName;
+        String name;
+        int index;
+        boolean enabled;
+        Iterator<String> encryptionProtocolNames
+            = encryptionProtocols.keySet().iterator();
+        while(encryptionProtocolNames.hasNext())
         {
-            if(availableEncryptionProtocols.contains(
-                        enabledEncryptionProtocols.get(i)))
+            encryptionProtocolPropertyName = encryptionProtocolNames.next();
+            index = encryptionProtocols.get(encryptionProtocolPropertyName);
+            // If the property is set.
+            if(index != -1)
             {
-                encryptions[index] = enabledEncryptionProtocols.get(i);
-                selectedEncryptions[index] = true;
-                ++index;
+                name = encryptionProtocolPropertyName.substring(prefixeLength);
+                enabled = encryptionProtocolStatus.get(
+                        ProtocolProviderFactory.ENCRYPTION_PROTOCOL_STATUS
+                        + "."
+                        + name);
+                encryptions[index] = name;
+                selectedEncryptions[index] = enabled;
             }
         }
-        for(int i = 0; i < disabledEncryptionProtocols.size(); ++i)
-        {
-            if(availableEncryptionProtocols.contains(
-                        disabledEncryptionProtocols.get(i)))
-            {
-                encryptions[index] = disabledEncryptionProtocols.get(i);
-                selectedEncryptions[index] = false;
-                ++index;
-            }
-        }
-        List<String> alreadyLoadedEncryptionProtocols =
-            Arrays.asList(encryptions);
+
+        // Load default values.
+        String encryptionProtocol;
+        boolean set;
+        int j = 0;
         for(int i = 0; i < this.encryptionProtocols.length; ++i)
         {
-            if(!alreadyLoadedEncryptionProtocols
-                    .contains(encryptionProtocols[i]))
+            encryptionProtocol = this.encryptionProtocols[i];
+            // Specify a default value only if there is no specific value set.
+            if(!encryptionProtocols.containsKey(
+                        ProtocolProviderFactory.ENCRYPTION_PROTOCOL
+                            + "."
+                            + encryptionProtocol))
             {
-                encryptions[index] = encryptionProtocols[i];
-                selectedEncryptions[index] = false;
-                ++index;
+                set = false;
+                // Search for the first empty element.
+                while(j < encryptions.length && !set)
+                {
+                    if(encryptions[j] == null)
+                    {
+                        encryptions[j] = encryptionProtocol;
+                        // By default only ZRTP is set to true.
+                        selectedEncryptions[j]
+                            = encryptionProtocol.equals("ZRTP");
+                        set = true;
+                    }
+                    ++j;
+                }
+
             }
         }
 
         this.encryptionConfigurationTableModel.init(
-                selectedEncryptions,
-                encryptions);
+                encryptions,
+                selectedEncryptions);
     }
 }
