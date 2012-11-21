@@ -7,11 +7,13 @@
 package net.java.sip.communicator.service.protocol.media;
 
 import java.beans.*;
+import java.lang.ref.*;
 import java.util.*;
 
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.device.*;
 import org.jitsi.util.*;
+import org.jitsi.util.event.*;
 
 import net.java.sip.communicator.service.protocol.*;
 
@@ -25,6 +27,13 @@ import net.java.sip.communicator.service.protocol.*;
 public class MediaAwareCallConference
     extends CallConference
 {
+    /**
+     * The <tt>PropertyChangeListener</tt> which will listen to the
+     * <tt>MediaService</tt> about <tt>PropertyChangeEvent</tt>s.
+     */
+    private static WeakPropertyChangeListener
+        mediaServicePropertyChangeListener;
+
     /**
      * The <tt>MediaDevice</tt>s indexed by <tt>MediaType</tt> ordinal which are
      * to be used by this telephony conference for media capture and/or
@@ -47,12 +56,12 @@ public class MediaAwareCallConference
      */
     private final PropertyChangeListener propertyChangeListener
         = new PropertyChangeListener()
-                {
-                    public void propertyChange(PropertyChangeEvent event)
-                    {
-                        MediaAwareCallConference.this.propertyChange(event);
-                    }
-                };
+        {
+            public void propertyChange(PropertyChangeEvent ev)
+            {
+                MediaAwareCallConference.this.propertyChange(ev);
+            }
+        };
 
     /**
      * The <tt>RTPTranslator</tt> which forwards video RTP and RTCP traffic
@@ -92,8 +101,49 @@ public class MediaAwareCallConference
          * Listen to the MediaService in order to reflect changes in the user's
          * selection with respect to the default media device.
          */
-        ProtocolMediaActivator.getMediaService().addPropertyChangeListener(
-                propertyChangeListener);
+        addMediaServicePropertyChangeListener(propertyChangeListener);
+    }
+
+    /**
+     * Adds a specific <tt>PropertyChangeListener</tt> to be notified about
+     * <tt>PropertyChangeEvent</tt>s fired by the current <tt>MediaService</tt>
+     * implementation. The implementation adds a <tt>WeakReference</tt> to the
+     * specified <tt>listener</tt> because <tt>MediaAwareCallConference</tt>
+     * is unable to determine when the <tt>PropertyChangeListener</tt> is to be
+     * removed.
+     *
+     * @param listener the <tt>PropertyChangeListener</tt> to add
+     */
+    private static synchronized void addMediaServicePropertyChangeListener(
+            PropertyChangeListener listener)
+    {
+        if (mediaServicePropertyChangeListener == null)
+        {
+            final MediaService mediaService
+                = ProtocolMediaActivator.getMediaService();
+
+            if (mediaService != null)
+            {
+                mediaServicePropertyChangeListener
+                    = new WeakPropertyChangeListener()
+                    {
+                        protected void addThisToNotifier()
+                        {
+                            mediaService.addPropertyChangeListener(this);
+                        }
+
+                        protected void removeThisFromNotifier()
+                        {
+                            mediaService.removePropertyChangeListener(this);
+                        }
+                    };
+            }
+        }
+        if (mediaServicePropertyChangeListener != null)
+        {
+            mediaServicePropertyChangeListener.addPropertyChangeListener(
+                    listener);
+        }
     }
 
     /**
@@ -103,6 +153,7 @@ public class MediaAwareCallConference
      * not being such, disposes of the mixers used by this instance when it was
      * a conference focus 
      */
+    @Override
     protected void conferenceFocusChanged(boolean oldValue, boolean newValue)
     {
         /*
@@ -243,17 +294,17 @@ public class MediaAwareCallConference
      * {@link MediaService#DEFAULT_DEVICE} which represents the user's choice
      * with respect to the default audio device.
      * 
-     * @param event a <tt>PropertyChangeEvent</tt> which specifies the name of
-     * the property which had its value changed and the old and new values of
-     * that property
+     * @param ev a <tt>PropertyChangeEvent</tt> which specifies the name of the
+     * property which had its value changed and the old and new values of that
+     * property
      */
-    private void propertyChange(PropertyChangeEvent event)
+    private void propertyChange(PropertyChangeEvent ev)
     {
-        String propertyName = event.getPropertyName();
+        String propertyName = ev.getPropertyName();
 
         if (MediaService.DEFAULT_DEVICE.equals(propertyName))
         {
-            Object source = event.getSource();
+            Object source = ev.getSource();
 
             if (source instanceof MediaService)
             {
@@ -330,6 +381,185 @@ public class MediaAwareCallConference
             firePropertyChange(
                     MediaAwareCall.DEFAULT_DEVICE,
                     oldValue, newValue);
+        }
+    }
+
+    /**
+     * Implements a <tt>PropertyChangeListener</tt> which weakly references and
+     * delegates to specific <tt>PropertyChangeListener</tt>s and automatically
+     * adds itself to and removes itself from a specific
+     * <tt>PropertyChangeNotifier</tt> depending on whether there are
+     * <tt>PropertyChangeListener</tt>s to delegate to. Thus enables listening
+     * to a <tt>PropertyChangeNotifier</tt> by invoking
+     * {@link PropertyChangeNotifier#addPropertyChangeListener(
+     * PropertyChangeListener)} without
+     * {@link PropertyChangeNotifier#removePropertyChangeListener(
+     * PropertyChangeListener)}.
+     */
+    private static class WeakPropertyChangeListener
+        implements PropertyChangeListener
+    {
+        /**
+         * The indicator which determines whether this
+         * <tt>PropertyChangeListener</tt> has been added to {@link #notifier}.
+         */
+        private boolean added = false;
+
+        /**
+         * The list of <tt>PropertyChangeListener</tt>s which are to be notified
+         * about <tt>PropertyChangeEvent</tt>s fired by {@link #notifier}.
+         */
+        private final List<WeakReference<PropertyChangeListener>> listeners
+            = new LinkedList<WeakReference<PropertyChangeListener>>();
+
+        /**
+         * The <tt>PropertyChangeNotifier</tt> this instance is to listen to
+         * about <tt>PropertyChangeEvent</tt>s which are to be forwarded to
+         * {@link #listeners}.
+         */
+        private final PropertyChangeNotifier notifier;
+
+        /**
+         * Initializes a new <tt>WeakPropertyChangeListener</tt> instance.
+         */
+        protected WeakPropertyChangeListener()
+        {
+            this(null);
+        }
+
+        /**
+         * Initializes a new <tt>WeakPropertyChangeListener</tt> instance which
+         * is to listen to a specific <tt>PropertyChangeNotifier</tt>.
+         *
+         * @param notifier the <tt>PropertyChangeNotifier</tt> the new instance
+         * is to listen to
+         */
+        public WeakPropertyChangeListener(PropertyChangeNotifier notifier)
+        {
+            this.notifier = notifier;
+        }
+
+        /**
+         * Adds a specific <tt>PropertyChangeListener</tt> to the list of
+         * <tt>PropertyChangeListener</tt>s to be notified about
+         * <tt>PropertyChangeEvent</tt>s fired by the
+         * <tt>PropertyChangeNotifier</tt> associated with this instance.
+         *
+         * @param listener the <tt>PropertyChangeListener</tt> to add
+         */
+        public synchronized void addPropertyChangeListener(
+                PropertyChangeListener listener)
+        {
+            Iterator<WeakReference<PropertyChangeListener>> i
+                = listeners.iterator();
+            boolean add = true;
+
+            while (i.hasNext())
+            {
+                PropertyChangeListener l = i.next().get();
+
+                if (l == null)
+                    i.remove();
+                else if (l.equals(listener))
+                    add = false;
+            }
+            if (add
+                    && listeners.add(
+                            new WeakReference<PropertyChangeListener>(listener))
+                    && !this.added)
+            {
+                addThisToNotifier();
+                this.added = true;
+            }
+        }
+
+        /**
+         * Adds this as a <tt>PropertyChangeListener</tt> to {@link #notifier}.
+         */
+        protected void addThisToNotifier()
+        {
+            if (notifier != null)
+                notifier.addPropertyChangeListener(this);
+        }
+
+        /**
+         * {@inheritDoc}
+         *
+         * Notifies this instance about a <tt>PropertyChangeEvent</tt> fired by
+         * {@link #notifier}.
+         */
+        public void propertyChange(PropertyChangeEvent ev)
+        {
+            PropertyChangeListener[] ls;
+            int n;
+
+            synchronized (this)
+            {
+                Iterator<WeakReference<PropertyChangeListener>> i
+                    = listeners.iterator();
+
+                ls = new PropertyChangeListener[listeners.size()];
+                n = 0;
+                while (i.hasNext())
+                {
+                    PropertyChangeListener l = i.next().get();
+
+                    if (l == null)
+                        i.remove();
+                    else
+                        ls[n++] = l;
+                }
+                if ((n == 0) && this.added)
+                {
+                    removeThisFromNotifier();
+                    this.added = false;
+                }
+            }
+
+            if (n != 0)
+            {
+                for (PropertyChangeListener l : ls)
+                    l.propertyChange(ev);
+            }
+        }
+
+        /**
+         * Removes a specific <tt>PropertyChangeListener</tt> from the list of
+         * <tt>PropertyChangeListener</tt>s to be notified about
+         * <tt>PropertyChangeEvent</tt>s fired by the
+         * <tt>PropertyChangeNotifier</tt> associated with this instance.
+         *
+         * @param listener the <tt>PropertyChangeListener</tt> to remove
+         */
+        @SuppressWarnings("unused")
+        public synchronized void removePropertyChangeListener(
+                PropertyChangeListener listener)
+        {
+            Iterator<WeakReference<PropertyChangeListener>> i
+                = listeners.iterator();
+
+            while (i.hasNext())
+            {
+                PropertyChangeListener l = i.next().get();
+
+                if ((l == null) || l.equals(listener))
+                    i.remove();
+            }
+            if (this.added && (listeners.size() == 0))
+            {
+                removeThisFromNotifier();
+                this.added = false;
+            }
+        }
+
+        /**
+         * Removes this as a <tt>PropertyChangeListener</tt> from
+         * {@link #notifier}.
+         */
+        protected void removeThisFromNotifier()
+        {
+            if (notifier != null)
+                notifier.removePropertyChangeListener(this);
         }
     }
 }
