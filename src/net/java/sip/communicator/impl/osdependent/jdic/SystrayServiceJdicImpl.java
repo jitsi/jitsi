@@ -37,6 +37,7 @@ import com.apple.eawt.*;
  * @author Yana Stamcheva
  * @author Lyubomir Marinov
  * @author Symphorien Wanko
+ * @author Damian Minkov
  */
 public class SystrayServiceJdicImpl
     implements SystrayService
@@ -152,21 +153,7 @@ public class SystrayServiceJdicImpl
         this.systray = systray;
 
         if (this.systray != null)
-            initSystrayInEventDispatchThread();
-    }
-
-    /**
-     * Starts initializing systray running in event dispatch thread.
-     */
-    private void initSystrayInEventDispatchThread()
-    {
-        SwingUtilities.invokeLater(new Runnable()
-        {
-            public void run()
-            {
-                initSystray();
-            }
-        });
+            initSystray();
     }
 
     /**
@@ -175,33 +162,6 @@ public class SystrayServiceJdicImpl
     private void initSystray()
     {
         UIService uiService = OsDependentActivator.getUIService();
-
-        if (uiService == null)
-        {
-            /*
-             * Delay the call to the #initSystray() method until the UIService
-             * implementation becomes available.
-             */
-            try
-            {
-                OsDependentActivator.bundleContext.addServiceListener(
-                        new DelayedInitSystrayServiceListener(),
-                        '('
-                            + Constants.OBJECTCLASS
-                            + '='
-                            + UIService.class.getName()
-                            + ')');
-            }
-            catch (InvalidSyntaxException ise)
-            {
-                /*
-                 * Oh, it should not really happen. Besides, it is not clear at
-                 * the time of this writing what is supposed to happen in the
-                 * case of such an exception here.
-                 */
-            }
-            return;
-        }
 
         menu = TrayMenuFactory.createTrayMenu(this, systray.isSwing());
 
@@ -418,7 +378,14 @@ public class SystrayServiceJdicImpl
         if ((activePopupHandler == null) && (pmh != null))
             setActivePopupMessageHandler(pmh);
 
-        systray.addTrayIcon(trayIcon);
+
+        SwingUtilities.invokeLater(new Runnable()
+        {
+            public void run()
+            {
+                systray.addTrayIcon(trayIcon);
+            }
+        });
 
         initialized = true;
 
@@ -737,37 +704,6 @@ public class SystrayServiceJdicImpl
             {
                 if (logger.isDebugEnabled())
                     logger.debug(e);
-            }
-        }
-    }
-
-    /**
-     * Implements a <tt>ServiceListener</tt> which waits for an
-     * <tt>UIService</tt> implementation to become available, invokes
-     * {@link #initSystray()} and unregisters itself.
-     */
-    private class DelayedInitSystrayServiceListener
-        implements ServiceListener
-    {
-        public void serviceChanged(ServiceEvent serviceEvent)
-        {
-            if (serviceEvent.getType() == ServiceEvent.REGISTERED)
-            {
-                UIService uiService = OsDependentActivator.getUIService();
-
-                if (uiService != null)
-                {
-                    /*
-                     * This ServiceListener has successfully waited for an
-                     * UIService implementation to become available so it no
-                     * longer need to listen.
-                     */
-                    OsDependentActivator.bundleContext.removeServiceListener(
-                            this);
-
-                    if (!initialized)
-                        initSystrayInEventDispatchThread();
-                }
             }
         }
     }

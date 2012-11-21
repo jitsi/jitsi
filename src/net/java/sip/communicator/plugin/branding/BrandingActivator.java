@@ -21,7 +21,8 @@ import org.osgi.framework.*;
  * Branding bundle activator.
  */
 public class BrandingActivator
-    implements BundleActivator
+    extends AbstractServiceDependentActivator
+    implements BundleListener
 {
     private final Logger logger = Logger.getLogger(BrandingActivator.class);
 
@@ -37,9 +38,14 @@ public class BrandingActivator
 
     private static ResourceManagementService resourcesService;
 
+    /**
+     * The welcome window.
+     */
+    private WelcomeWindow welcomeWindow;
+
     public void start(BundleContext bc) throws Exception
     {
-        bundleContext = bc;
+        super.start(bc);
 
         ConfigurationService config = getConfigurationService();
         boolean showSplashScreen
@@ -59,7 +65,6 @@ public class BrandingActivator
          * as a final variable used inside a BundleListener which never gets
          * removed).
          */
-        final WelcomeWindow welcomeWindow;
         if (showSplashScreen)
         {
             welcomeWindow = new WelcomeWindow();
@@ -73,58 +78,20 @@ public class BrandingActivator
                 "service.gui.APPLICATION_NAME").equals("SIP Communicator"))
             new JitsiWarningWindow(null).setVisible(true);
 
-        bundleContext.addBundleListener(new BundleListener()
-        {
-
-            /**
-             * The indicator which determines whether the job of this listener
-             * is done and no other <tt>BundleEvent</tt>s should be handled.
-             * <p>
-             * After
-             * {@link BrandingActivator#bundleChanged(BundleEvent, WelcomeWindow)}
-             * reports it's done, it's not enough to remove this listener from
-             * the notifying <tt>BundleContext</tt> in order to not handle more
-             * <tt>BundleEvent</tt>s because the notifications get triggered on
-             * packs of events without consulting the currently registered
-             * <tt>BundleListener</tt> and, if an event in the pack concludes
-             * the job of this listener, the subsequent events from the same
-             * pack will still be handled without the indicator.
-             * </p>
-             */
-            private boolean done;
-
-            public void bundleChanged(BundleEvent evt)
-            {
-                if (!done
-                        && !BrandingActivator
-                                .this.bundleChanged(evt, welcomeWindow))
-                {
-
-                    /*
-                     * Don't let bundleContext retain a reference to this
-                     * listener because it'll retain a reference to
-                     * welcomeWindow. Besides, we're no longer interested in
-                     * handling events so it doesn't make sense to even retain
-                     * this listener.
-                     */
-                    bundleContext.removeBundleListener(this);
-                    done = true;
-                }
-            }
-        });
+        bundleContext.addBundleListener(this);
     }
 
-    public void stop(BundleContext arg0) throws Exception
+    /**
+     * Bundle has been started if welcome window is available and visible
+     * update it to show the bundle activity.
+     * @param evt
+     */
+    public synchronized void bundleChanged(BundleEvent evt)
     {
-    }
-
-    private boolean bundleChanged(BundleEvent evt, WelcomeWindow welcomeWindow)
-    {
-        if ((welcomeWindow != null)
-                && welcomeWindow.isShowing()
-                && (evt.getType() == BundleEvent.STARTED))
+        if (welcomeWindow != null
+            && welcomeWindow.isShowing()
+            && (evt.getType() == BundleEvent.STARTED))
         {
-
             /*
              * The IBM JRE on GNU/Linux reports the Bundle-Name as null while
              * the SUN JRE reports it as non-null. Just prevent the throwing of
@@ -136,36 +103,67 @@ public class BrandingActivator
             welcomeWindow.setBundle(
                 (bundleName == null) ? null : bundleName.toString());
         }
-
-        ServiceReference uiServiceRef =
-            bundleContext.getServiceReference(UIService.class.getName());
-        if ((uiServiceRef != null)
-                && (Bundle.ACTIVE == uiServiceRef.getBundle().getState()))
-        {
-            // UI-Service started.
-
-            // register the about dialog menu entry
-            registerMenuEntry(uiServiceRef);
-
-            if (welcomeWindow != null)
-                welcomeWindow.close();
-
-            /*
-             * We've just closed the WelcomeWindow so there'll be no other
-             * updates to it and we should stop listening to events which
-             * trigger them.
-             */
-            return false;
-        }
-
-        return true;
     }
 
-    private void registerMenuEntry(ServiceReference uiServiceRef)
+    /**
+     * Setting context to the activator, as soon as we have one.
+     *
+     * @param context the context to set.
+     */
+    public void setBundleContext(BundleContext context)
     {
-        UIService uiService
-            = (UIService) bundleContext.getService(uiServiceRef);
+        bundleContext = context;
+    }
 
+    /**
+     * This activator depends on UIService.
+     * @return the class name of uiService.
+     */
+    public Class getDependentServiceClass()
+    {
+        return UIService.class;
+    }
+
+    /**
+     * The dependent service is available and the bundle will start.
+     * @param dependentService the UIService this activator is waiting.
+     */
+    public void start(Object dependentService)
+    {
+        // UI-Service started.
+
+        /*
+         * Don't let bundleContext retain a reference to this
+         * listener because it'll retain a reference to
+         * welcomeWindow. Besides, we're no longer interested in
+         * handling events so it doesn't make sense to even retain
+         * this listener.
+         */
+        bundleContext.removeBundleListener(this);
+
+        // register the about dialog menu entry
+        registerMenuEntry((UIService)dependentService);
+
+        if (welcomeWindow != null)
+        {
+            synchronized(this)
+            {
+                welcomeWindow.close();
+                welcomeWindow = null;
+            }
+        }
+    }
+
+    public void stop(BundleContext arg0) throws Exception
+    {
+    }
+
+    /**
+     * Register the about menu entry.
+     * @param uiService
+     */
+    private void registerMenuEntry(UIService uiService)
+    {
         if ((uiService == null)
                 || !uiService.useMacOSXScreenMenuBar()
                 || !registerMenuEntryMacOSX(uiService))

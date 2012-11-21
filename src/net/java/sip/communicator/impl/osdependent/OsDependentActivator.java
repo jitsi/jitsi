@@ -27,9 +27,10 @@ import org.osgi.framework.*;
  *
  * @author Nicolas Chamouard
  * @author Lubomir Marinov
+ * @author Damian Minkov
  */
 public class OsDependentActivator
-    implements BundleActivator
+    extends AbstractServiceDependentActivator
 {
     /**
      * A currently valid bundle context.
@@ -54,13 +55,11 @@ public class OsDependentActivator
     /**
      * Called when this bundle is started.
      *
-     * @param bc The execution context of the bundle being started.
-     * @throws Exception If
+     * @param dependentService the ui service.
      */
-    public void start(BundleContext bc)
-            throws Exception
+    public void start(Object dependentService)
     {
-        bundleContext = bc;
+        uiService = (UIService)dependentService;
 
         try
         {
@@ -103,6 +102,25 @@ public class OsDependentActivator
         {
             logger.logExit();
         }
+    }
+
+    /**
+     * The class of the service which this activator is interested in.
+     * @return the class name of the ui service.
+     */
+    public Class getDependentServiceClass()
+    {
+        return UIService.class;
+    }
+
+    /**
+     * Setting context to the activator, as soon as we have one.
+     *
+     * @param context the context to set.
+     */
+    public void setBundleContext(BundleContext context)
+    {
+        bundleContext = context;
     }
 
     /**
@@ -170,15 +188,6 @@ public class OsDependentActivator
      */
     public static UIService getUIService()
     {
-        if(uiService == null)
-        {
-            ServiceReference serviceRef = bundleContext
-                .getServiceReference(UIService.class.getName());
-
-            if (serviceRef != null)
-                uiService = (UIService) bundleContext.getService(serviceRef);
-        }
-
         return uiService;
     }
 
