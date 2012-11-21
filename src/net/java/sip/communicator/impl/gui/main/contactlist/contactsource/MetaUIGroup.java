@@ -10,9 +10,9 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
-import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>MetaUIGroup</tt> is the implementation of the UIGroup for the
@@ -88,7 +88,7 @@ public class MetaUIGroup
      */
     public boolean isGroupCollapsed()
     {
-        return ConfigurationManager
+        return ConfigurationUtils
             .isContactListGroupCollapsed(metaGroup.getMetaUID());
     }
 

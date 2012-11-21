@@ -10,7 +10,6 @@ import java.util.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
-import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.event.*;
@@ -44,7 +43,7 @@ public class PresenceFilter
      */
     public PresenceFilter()
     {
-        isShowOffline = ConfigurationManager.isShowOffline();
+        isShowOffline = ConfigurationUtils.isShowOffline();
     }
 
     /**
@@ -117,7 +116,7 @@ public class PresenceFilter
     {
         this.isShowOffline = isShowOffline;
 
-        ConfigurationManager.setShowOffline(isShowOffline);
+        ConfigurationUtils.setShowOffline(isShowOffline);
     }
 
     /**

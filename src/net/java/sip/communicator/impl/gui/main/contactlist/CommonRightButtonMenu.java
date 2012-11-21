@@ -14,6 +14,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.addgroup.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
@@ -48,10 +49,10 @@ public class CommonRightButtonMenu
     {
         this.mainFrame = mainFrame;
 
-        if (!ConfigurationManager.isAddContactDisabled())
+        if (!ConfigurationUtils.isAddContactDisabled())
             this.add(addContactItem);
 
-        if (!ConfigurationManager.isCreateGroupDisabled())
+        if (!ConfigurationUtils.isCreateGroupDisabled())
             this.add(createGroupItem);
 
         this.addContactItem.setMnemonic(GuiActivator.getResources()

@@ -138,7 +138,7 @@ public class UIServiceImpl
         // Initialize the single window container if we're in this case. This
         // should be done before initializing the main window, because he'll
         // search for it.
-        if (ConfigurationManager.isSingleWindowInterfaceEnabled())
+        if (ConfigurationUtils.isSingleWindowInterfaceEnabled())
             singleWindowContainer = new SingleWindowContainer();
 
         // Initialize the main window.
@@ -170,7 +170,7 @@ public class UIServiceImpl
 
         this.wizardContainer = new AccountRegWizardContainerImpl(mainFrame);
 
-        if (ConfigurationManager.isTransparentWindowEnabled())
+        if (ConfigurationUtils.isTransparentWindowEnabled())
         {
             try
             {
@@ -179,11 +179,11 @@ public class UIServiceImpl
             catch (UnsupportedOperationException ex)
             {
                 logger.error(ex.getMessage(), ex);
-                ConfigurationManager.setTransparentWindowEnabled(false);
+                ConfigurationUtils.setTransparentWindowEnabled(false);
             }
         }
 
-        if(ConfigurationManager.isApplicationVisible())
+        if(ConfigurationUtils.isApplicationVisible())
             mainFrame.setFrameVisible(true);
 
         SwingUtilities.invokeLater(new RunLoginGui());
@@ -1148,7 +1148,7 @@ public class UIServiceImpl
                         .showDialog();
                 }
 
-                ConfigurationManager.setTransparentWindowEnabled(false);
+                ConfigurationUtils.setTransparentWindowEnabled(false);
             }
         }
         else if (propertyName.equals(

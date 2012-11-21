@@ -443,7 +443,7 @@ public class MetaUIContact
                 && protocolContact.getStatusMessage().length() > 0)
                 statusMessage = protocolContact.getStatusMessage();
 
-            if(ConfigurationManager.isHideAccountStatusSelectorsEnabled())
+            if(ConfigurationUtils.isHideAccountStatusSelectorsEnabled())
                 break;
 
             ImageIcon protocolStatusIcon

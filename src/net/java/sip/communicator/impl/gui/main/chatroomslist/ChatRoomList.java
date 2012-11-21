@@ -10,7 +10,6 @@ import java.util.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
-import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
@@ -213,7 +212,7 @@ public class ChatRoomList
 
         if (chatRoomWrapper.isPersistent())
         {
-            ConfigurationManager.saveChatRoom(
+            ConfigurationUtils.saveChatRoom(
                 chatRoomProvider.getProtocolProvider(),
                 chatRoomWrapper.getChatRoomID(),
                 chatRoomWrapper.getChatRoomID(),
@@ -237,7 +236,7 @@ public class ChatRoomList
 
             if (chatRoomWrapper.isPersistent())
             {
-                ConfigurationManager.saveChatRoom(
+                ConfigurationUtils.saveChatRoom(
                     chatRoomProvider.getProtocolProvider(),
                     chatRoomWrapper.getChatRoomID(),
                     null,   // The new identifier.

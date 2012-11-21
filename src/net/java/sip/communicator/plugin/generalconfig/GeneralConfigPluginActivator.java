@@ -103,7 +103,7 @@ public class GeneralConfigPluginActivator
         // If the general configuration form is disabled don't continue.
         if (!getConfigurationService().getBoolean(DISABLED_PROP, false))
         {
-            ConfigurationManager.loadGuiConfigurations();
+            ConfigurationUtils.loadGuiConfigurations();
 
             properties.put( ConfigurationForm.FORM_TYPE,
                             ConfigurationForm.GENERAL_TYPE);

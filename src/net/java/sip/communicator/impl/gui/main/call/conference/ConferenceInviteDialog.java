@@ -148,7 +148,7 @@ public class ConferenceInviteDialog
 
                     // Store the last used account in order to pre-select it
                     // next time.
-                    ConfigurationManager.setLastCallConferenceProvider(
+                    ConfigurationUtils.setLastCallConferenceProvider(
                         preselectedProtocolProvider);
 
                     dispose();
@@ -360,7 +360,7 @@ public class ConferenceInviteDialog
 
         // Try to select the last used account if available.
         ProtocolProviderService pps
-            = ConfigurationManager.getLastCallConferenceProvider();
+            = ConfigurationUtils.getLastCallConferenceProvider();
 
         if (pps == null && conference != null)
         {

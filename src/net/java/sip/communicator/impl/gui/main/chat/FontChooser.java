@@ -13,7 +13,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
 import org.jitsi.service.resources.*;
@@ -169,13 +169,13 @@ public class FontChooser
     private void initDefaults()
     {
         String defaultFontFamily
-            = ConfigurationManager.getChatDefaultFontFamily();
+            = ConfigurationUtils.getChatDefaultFontFamily();
 
         int defaultFontSize
-            = ConfigurationManager.getChatDefaultFontSize();
+            = ConfigurationUtils.getChatDefaultFontSize();
 
         Color defaultFontColor
-            = ConfigurationManager.getChatDefaultFontColor();
+            = ConfigurationUtils.getChatDefaultFontColor();
 
         if (defaultFontFamily != null)
             setFontFamily(defaultFontFamily);
@@ -183,9 +183,9 @@ public class FontChooser
         if (defaultFontSize > 0)
             setFontSize(defaultFontSize);
 
-        setBoldStyle(ConfigurationManager.isChatFontBold());
-        setItalicStyle(ConfigurationManager.isChatFontItalic());
-        setUnderlineStyle(ConfigurationManager.isChatFontUnderline());
+        setBoldStyle(ConfigurationUtils.isChatFontBold());
+        setItalicStyle(ConfigurationUtils.isChatFontItalic());
+        setUnderlineStyle(ConfigurationUtils.isChatFontUnderline());
 
         if (defaultFontColor != null)
             setColor(defaultFontColor);

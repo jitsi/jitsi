@@ -9,7 +9,6 @@ package net.java.sip.communicator.impl.gui.main.chat.conference;
 import java.util.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
@@ -244,7 +243,7 @@ public class ChatRoomProviderWrapper
                         if(chatRoomWrapper.isAutojoin())
                         {
                             String nickName =
-                                ConfigurationManager.getChatRoomProperty(
+                                ConfigurationUtils.getChatRoomProperty(
                                     chatRoomWrapper.getParentProvider()
                                         .getProtocolProvider(), chatRoomWrapper
                                         .getChatRoomID(), "userNickName");
@@ -281,7 +280,7 @@ public class ChatRoomProviderWrapper
                                         true);
 
                             String nickName =
-                                ConfigurationManager.getChatRoomProperty(
+                                ConfigurationUtils.getChatRoomProperty(
                                     chatRoomWrapper.getParentProvider()
                                         .getProtocolProvider(), chatRoomWrapper
                                         .getChatRoomID(), "userNickName");

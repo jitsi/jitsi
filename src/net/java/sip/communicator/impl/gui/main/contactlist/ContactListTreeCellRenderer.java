@@ -842,7 +842,7 @@ public class ContactListTreeCellRenderer
                 OperationSetVideoTelephony.class);
 
         if (videoContact != null
-            || (ConfigurationManager
+            || (ConfigurationUtils
                     .isRouteVideoAndDesktopUsingPhoneNumberEnabled()
                     && hasPhone
                     && GuiActivator.getOpSetRegisteredProviders(
@@ -858,7 +858,7 @@ public class ContactListTreeCellRenderer
                 OperationSetDesktopSharingServer.class);
 
         if (desktopContact != null
-            || (ConfigurationManager
+            || (ConfigurationUtils
                     .isRouteVideoAndDesktopUsingPhoneNumberEnabled()
                     && hasPhone
                     && GuiActivator.getOpSetRegisteredProviders(
@@ -870,7 +870,7 @@ public class ContactListTreeCellRenderer
         }
 
         if (uiContact.getDescriptor() instanceof SourceContact
-            && !ConfigurationManager.isAddContactDisabled())
+            && !ConfigurationUtils.isAddContactDisabled())
         {
             x += addButton(addContactButton, ++gridX, x, false);
         }
@@ -1113,7 +1113,7 @@ public class ContactListTreeCellRenderer
             = contactDescriptor.getContactDetailsForOperationSet(
                     OperationSetVideoTelephony.class);
 
-        if(ConfigurationManager.isRouteVideoAndDesktopUsingPhoneNumberEnabled()
+        if(ConfigurationUtils.isRouteVideoAndDesktopUsingPhoneNumberEnabled()
             && contactDescriptor.getDescriptor() instanceof MetaContact)
         {
             videoContacts.addAll(CallManager.getAdditionalNumbers(
@@ -1230,7 +1230,7 @@ public class ContactListTreeCellRenderer
             = contactDescriptor.getContactDetailsForOperationSet(
                     OperationSetDesktopSharingServer.class);
 
-        if(ConfigurationManager.isRouteVideoAndDesktopUsingPhoneNumberEnabled()
+        if(ConfigurationUtils.isRouteVideoAndDesktopUsingPhoneNumberEnabled()
             && contactDescriptor.getDescriptor() instanceof MetaContact)
         {
             desktopContacts.addAll(CallManager.getAdditionalNumbers(

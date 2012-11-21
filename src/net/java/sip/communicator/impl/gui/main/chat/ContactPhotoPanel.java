@@ -124,7 +124,7 @@ public class ContactPhotoPanel extends JLayeredPane
         // cannot be saved with add contact dialog
         if (!chatSession.isDescriptorPersistent()
             && !(chatSession instanceof ConferenceChatSession)
-            && !ConfigurationManager.isAddContactDisabled())
+            && !ConfigurationUtils.isAddContactDisabled())
             this.add(addContactButton, 0);
         else
             this.remove(addContactButton);

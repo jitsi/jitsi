@@ -10,9 +10,9 @@ import java.util.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * Implements <tt>ListModel</tt> for <tt>MetaContactListService</tt> in order to
@@ -383,7 +383,7 @@ public class ContactListModel
 
             this.closedGroups.add(group);
 
-            ConfigurationManager.setContactListGroupCollapsed(
+            ConfigurationUtils.setContactListGroupCollapsed(
                 group.getMetaUID(),
                 true);
         }
@@ -402,7 +402,7 @@ public class ContactListModel
             contentAdded(this.indexOf(group.getMetaContact(0)), this.indexOf(group
                 .getMetaContact(countContactsAndSubgroups(group) - 1)));
 
-            ConfigurationManager.setContactListGroupCollapsed(
+            ConfigurationUtils.setContactListGroupCollapsed(
                 group.getMetaUID(),
                 false);
         }
@@ -516,7 +516,7 @@ public class ContactListModel
 
     private void initGroupsStatus(MetaContactGroup group)
     {
-        boolean isClosed = ConfigurationManager
+        boolean isClosed = ConfigurationUtils
             .isContactListGroupCollapsed(group.getMetaUID());
 
         if (isClosed)

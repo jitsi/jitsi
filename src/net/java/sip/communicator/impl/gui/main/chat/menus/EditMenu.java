@@ -13,6 +13,7 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
@@ -68,7 +69,7 @@ public class EditMenu
         this.add(copyMenuItem);
         this.add(pasteMenuItem);
 
-        if(ConfigurationManager.isFontSupportEnabled())
+        if(ConfigurationUtils.isFontSupportEnabled())
         {
             this.addSeparator();
             this.fontDialogMenuItem.setName("font");

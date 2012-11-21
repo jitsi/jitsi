@@ -12,11 +12,11 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
-import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.metahistory.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.globalstatus.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * An implementation of <tt>ChatSession</tt> for conference chatting.
@@ -96,7 +96,7 @@ public class ConferenceChatSession
      */
     public void dispose()
     {
-        if(ConfigurationManager.isLeaveChatRoomOnWindowCloseEnabled())
+        if(ConfigurationUtils.isLeaveChatRoomOnWindowCloseEnabled())
         {
             ChatRoom chatRoom = chatRoomWrapper.getChatRoom();
             chatRoom.removeMemberPresenceListener(this);
@@ -181,7 +181,7 @@ public class ConferenceChatSession
         return metaHistory.findLast(
             chatHistoryFilter,
             chatRoomWrapper.getChatRoom(),
-            ConfigurationManager.getChatHistorySize());
+            ConfigurationUtils.getChatHistorySize());
     }
 
     /**
@@ -231,7 +231,7 @@ public class ConferenceChatSession
             chatHistoryFilter,
             chatRoomWrapper.getChatRoom(),
             date,
-            ConfigurationManager.getChatHistorySize());
+            ConfigurationUtils.getChatHistorySize());
     }
 
     /**

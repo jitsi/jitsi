@@ -15,6 +15,7 @@ import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
@@ -57,7 +58,7 @@ public class FileMenu
         this.setMnemonic(
             GuiActivator.getResources().getI18nMnemonic("service.gui.FILE"));
 
-        if (!ConfigurationManager.isGoToChatroomDisabled())
+        if (!ConfigurationUtils.isGoToChatroomDisabled())
         {
             this.add(myChatRoomsItem);
         }

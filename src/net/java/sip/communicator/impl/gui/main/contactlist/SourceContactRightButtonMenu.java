@@ -19,6 +19,7 @@ import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
@@ -79,7 +80,7 @@ public class SourceContactRightButtonMenu
             add(initCallMenu());
 
         // Only create the menu if the add contact functionality is enabled.
-        if (!ConfigurationManager.isAddContactDisabled())
+        if (!ConfigurationUtils.isAddContactDisabled())
         {
             addContactComponent
                 = TreeContactList.createAddContactMenu(sourceContact);

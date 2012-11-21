@@ -13,6 +13,7 @@ import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -140,7 +141,7 @@ public class MetaContactListManager
         @SuppressWarnings("fallthrough") //intentional
         public void run()
         {
-            if (!ConfigurationManager.isMoveContactConfirmationRequested())
+            if (!ConfigurationUtils.isMoveContactConfirmationRequested())
             {
                 // we move the specified contact
                 GuiActivator.getContactListService()
@@ -165,7 +166,7 @@ public class MetaContactListManager
             switch (dialog.showDialog())
             {
             case MessageDialog.OK_DONT_ASK_CODE:
-                ConfigurationManager.setMoveContactConfirmationRequested(false);
+                ConfigurationUtils.setMoveContactConfirmationRequested(false);
                 // do fall through
 
             case MessageDialog.OK_RETURN_CODE:
@@ -196,7 +197,7 @@ public class MetaContactListManager
         @SuppressWarnings("fallthrough") //intentional
         public void run()
         {
-            if (!ConfigurationManager.isMoveContactConfirmationRequested())
+            if (!ConfigurationUtils.isMoveContactConfirmationRequested())
             {
                 // We move all subcontacts of the source MetaContact to the
                 // destination MetaContact.
@@ -221,7 +222,7 @@ public class MetaContactListManager
             switch (dialog.showDialog())
             {
             case MessageDialog.OK_DONT_ASK_CODE:
-                ConfigurationManager.setMoveContactConfirmationRequested(false);
+                ConfigurationUtils.setMoveContactConfirmationRequested(false);
                 // do fall through
 
             case MessageDialog.OK_RETURN_CODE:
@@ -266,7 +267,7 @@ public class MetaContactListManager
 
         public void run()
         {
-            if (!ConfigurationManager.isMoveContactConfirmationRequested())
+            if (!ConfigurationUtils.isMoveContactConfirmationRequested())
             {
                 // we move the specified contact
                 GuiActivator.getContactListService()
@@ -291,7 +292,7 @@ public class MetaContactListManager
             switch (dialog.showDialog())
             {
             case MessageDialog.OK_DONT_ASK_CODE:
-                ConfigurationManager.setMoveContactConfirmationRequested(false);
+                ConfigurationUtils.setMoveContactConfirmationRequested(false);
                 // do fall through
 
             case MessageDialog.OK_RETURN_CODE:
@@ -323,7 +324,7 @@ public class MetaContactListManager
         @SuppressWarnings("fallthrough")
         public void run()
         {
-            if (!ConfigurationManager.isMoveContactConfirmationRequested())
+            if (!ConfigurationUtils.isMoveContactConfirmationRequested())
             {
                 // we move the specified contact
                 try
@@ -355,7 +356,7 @@ public class MetaContactListManager
             switch (dialog.showDialog())
             {
             case MessageDialog.OK_DONT_ASK_CODE:
-                ConfigurationManager.setMoveContactConfirmationRequested(false);
+                ConfigurationUtils.setMoveContactConfirmationRequested(false);
                 // do fall through
 
             case MessageDialog.OK_RETURN_CODE:

@@ -469,7 +469,7 @@ public class MetaContactRightButtonMenu
             }
 
             routingForVideoEnabled =
-                            ConfigurationManager
+                            ConfigurationUtils
                                 .isRouteVideoAndDesktopUsingPhoneNumberEnabled()
                             && phones.size() > 0
                             && GuiActivator.getOpSetRegisteredProviders(
@@ -477,14 +477,13 @@ public class MetaContactRightButtonMenu
                                             null,
                                             null).size() > 0;
             routingForDesktopEnabled =
-                ConfigurationManager
+                ConfigurationUtils
                     .isRouteVideoAndDesktopUsingPhoneNumberEnabled()
                 && phones.size() > 0
                 && GuiActivator.getOpSetRegisteredProviders(
                         OperationSetDesktopSharingServer.class,
                         null,
                         null).size() > 0;
-
 
             // add all the contacts that support telephony to the call menu
             if (metaContact.getContactCount() > 1 || phones.size() > 0)
@@ -655,12 +654,12 @@ public class MetaContactRightButtonMenu
 
         addSeparator();
 
-        if (!ConfigurationManager.isAddContactDisabled())
+        if (!ConfigurationUtils.isAddContactDisabled())
             add(addContactItem);
 
         addSeparator();
 
-        if (!ConfigurationManager.isRemoveContactDisabled())
+        if (!ConfigurationUtils.isRemoveContactDisabled())
             add(removeContactMenu);
 
         add(renameContactItem);
@@ -931,11 +930,11 @@ public class MetaContactRightButtonMenu
             SipCommFileChooser scfc = GenericFileDialog.create(
                 null, "Send file...",
                 SipCommFileChooser.LOAD_FILE_OPERATION,
-                ConfigurationManager.getSendFileLastDir());
+                ConfigurationUtils.getSendFileLastDir());
             File selectedFile = scfc.getFileFromDialog();
             if(selectedFile != null)
             {
-                ConfigurationManager.setSendFileLastDir(
+                ConfigurationUtils.setSendFileLastDir(
                         selectedFile.getParent());
 
                 // Obtain the corresponding chat panel.

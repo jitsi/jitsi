@@ -15,6 +15,7 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 /**
  * The <tt>OptionMenu</tt> is a menu in the chat window menu bar.
@@ -75,13 +76,13 @@ public class OptionsMenu
     private void initValues()
     {
         this.viewToolBar.setSelected(
-            ConfigurationManager.isChatToolbarVisible());
+            ConfigurationUtils.isChatToolbarVisible());
 
         this.viewSmileys.setSelected(
-            ConfigurationManager.isShowSmileys());
+            ConfigurationUtils.isShowSmileys());
 
         this.chatSimpleTheme.setSelected(
-            ConfigurationManager.isChatSimpleThemeEnabled());
+            ConfigurationUtils.isChatSimpleThemeEnabled());
     }
 
     /**
@@ -96,16 +97,16 @@ public class OptionsMenu
         if (action.equals(ACTCMD_VIEW_TOOLBAR))
         {
             this.chatWindow.setToolbarVisible(viewToolBar.isSelected());
-            ConfigurationManager
+            ConfigurationUtils
                 .setChatToolbarVisible(viewToolBar.isSelected());
         }
         else if (action.equals(ACTCMD_VIEW_SMILEYS))
         {
-            ConfigurationManager.setShowSmileys(viewSmileys.isSelected());
+            ConfigurationUtils.setShowSmileys(viewSmileys.isSelected());
         }
         else if (action.equals(ACTCMD_VIEW_SIMPLE_THEME))
         {
-            ConfigurationManager.setChatSimpleThemeEnabled(
+            ConfigurationUtils.setChatSimpleThemeEnabled(
                 chatSimpleTheme.isSelected());
 
             List<ChatPanel> currentChats = chatWindow.getChats();

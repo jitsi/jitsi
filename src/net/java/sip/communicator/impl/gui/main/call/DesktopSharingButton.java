@@ -14,6 +14,7 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The button responsible to start(the <tt>Call</tt> of) an associated
@@ -71,7 +72,7 @@ public class DesktopSharingButton
                     "service.gui.NO_DESKTOP_SHARING_FOR_PROTOCOL"));
             desktopSharingAvailable = false;
         }
-        else if(!ConfigurationManager.hasEnabledVideoFormat(
+        else if(!ConfigurationUtils.hasEnabledVideoFormat(
                 call.getProtocolProvider()))
         {
             setToolTipText(GuiActivator.getResources()

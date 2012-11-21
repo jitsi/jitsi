@@ -29,6 +29,7 @@ import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.service.metahistory.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
@@ -828,7 +829,7 @@ public class ChatPanel
             return;
         }
 
-        if (ConfigurationManager.isHistoryShown() && !isHistoryLoaded)
+        if (ConfigurationUtils.isHistoryShown() && !isHistoryLoaded)
         {
             synchronized (incomingEventBuffer)
             {
@@ -1407,7 +1408,7 @@ public class ChatPanel
                 fileTransferTransport.getDisplayName(),
                 file);
 
-        if (ConfigurationManager.isHistoryShown() && !isHistoryLoaded)
+        if (ConfigurationUtils.isHistoryShown() && !isHistoryLoaded)
         {
             synchronized (incomingEventBuffer)
             {
@@ -1839,7 +1840,7 @@ public class ChatPanel
 
                 // Load the last N=CHAT_HISTORY_SIZE messages from history.
                 historyList = chatSession.getHistory(
-                    ConfigurationManager.getChatHistorySize());
+                    ConfigurationUtils.getChatHistorySize());
 
                 return historyList;
             }
@@ -1983,7 +1984,7 @@ public class ChatPanel
 
         writeMessagePanel.updateChatTransportStatus(chatTransport);
 
-        if(ConfigurationManager.isShowStatusChangedInChat())
+        if(ConfigurationUtils.isShowStatusChangedInChat())
         {
             // Show a status message to the user.
             this.addMessage(
@@ -1996,7 +1997,7 @@ public class ChatPanel
                     "text/plain");
         }
 
-        if(ConfigurationManager.isMultiChatWindowEnabled())
+        if(ConfigurationUtils.isMultiChatWindowEnabled())
         {
             if (getChatContainer().getChatCount() > 0)
             {
@@ -2250,7 +2251,7 @@ public class ChatPanel
             = new ReceiveFileConversationComponent(
                 this, fileTransferOpSet, request, date);
 
-        if (ConfigurationManager.isHistoryShown() && !isHistoryLoaded)
+        if (ConfigurationUtils.isHistoryShown() && !isHistoryLoaded)
         {
             synchronized (incomingEventBuffer)
             {
@@ -2558,7 +2559,7 @@ public class ChatPanel
                         = messagePane.getHeight() - dividerLocation
                                         - messagePane.getDividerSize();
 
-                    ConfigurationManager
+                    ConfigurationUtils
                         .setChatWriteAreaSize(writeAreaSize);
 
 //                    writeMessagePanel.setPreferredSize(

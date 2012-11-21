@@ -101,7 +101,7 @@ public class ChatWindow
      */
     public ChatWindow()
     {
-        if (!ConfigurationManager.isWindowDecorated())
+        if (!ConfigurationUtils.isWindowDecorated())
             this.setUndecorated(true);
 
         this.addWindowFocusListener(this);
@@ -109,7 +109,7 @@ public class ChatWindow
         this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
         //If in mode TABBED_CHAT_WINDOW initialize the tabbed pane
-        if(ConfigurationManager.isMultiChatWindowEnabled())
+        if(ConfigurationUtils.isMultiChatWindowEnabled())
             chatTabbedPane = new ConversationTabbedPane();
 
         menuBar = new MessageWindowMenuBar(this);
@@ -204,7 +204,7 @@ public class ChatWindow
      */
     public void addChat(final ChatPanel chatPanel)
     {
-        if (ConfigurationManager.isMultiChatWindowEnabled())
+        if (ConfigurationUtils.isMultiChatWindowEnabled())
             addChatTab(chatPanel);
         else
             addSimpleChat(chatPanel);
@@ -230,7 +230,7 @@ public class ChatWindow
         mainToolBar = new MainToolBar(this);
 
         boolean chatToolbarVisible
-            = ConfigurationManager.isChatToolbarVisible();
+            = ConfigurationUtils.isChatToolbarVisible();
 
         if (OSUtils.IS_MAC)
         {
@@ -1133,7 +1133,7 @@ public class ChatWindow
 
         if(getExtendedState() != JFrame.ICONIFIED)
         {
-            if (ConfigurationManager.isAutoPopupNewMessage() || setSelected)
+            if (ConfigurationUtils.isAutoPopupNewMessage() || setSelected)
             {
                 if (!isVisible())
                     setVisible(true);

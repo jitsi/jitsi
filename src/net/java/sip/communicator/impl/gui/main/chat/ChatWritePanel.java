@@ -20,7 +20,6 @@ import javax.swing.undo.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.chat.menus.*;
-import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
@@ -103,7 +102,7 @@ public class ChatWritePanel
 
         centerPanel = createCenter();
 
-        int chatAreaSize = ConfigurationManager.getChatWriteAreaSize();
+        int chatAreaSize = ConfigurationUtils.getChatWriteAreaSize();
         Dimension writeMessagePanelDefaultSize
             = new Dimension(500, (chatAreaSize > 0) ? chatAreaSize : 28);
         Dimension writeMessagePanelMinSize = new Dimension(500, 28);
@@ -136,7 +135,7 @@ public class ChatWritePanel
         this.changeSendCommand((messageCommand == null || messageCommand
             .equalsIgnoreCase("enter")));
 
-        if(ConfigurationManager.isFontSupportEnabled())
+        if(ConfigurationUtils.isFontSupportEnabled())
             initDefaultFontConfiguration();
     }
 
@@ -145,20 +144,20 @@ public class ChatWritePanel
      */
     private void initDefaultFontConfiguration()
     {
-        String fontFamily = ConfigurationManager.getChatDefaultFontFamily();
-        int fontSize = ConfigurationManager.getChatDefaultFontSize();
+        String fontFamily = ConfigurationUtils.getChatDefaultFontFamily();
+        int fontSize = ConfigurationUtils.getChatDefaultFontSize();
 
         // Font family and size
         if (fontFamily != null && fontSize > 0)
             setFontFamilyAndSize(fontFamily, fontSize);
 
         // Font style
-        setBoldStyleEnable(ConfigurationManager.isChatFontBold());
-        setItalicStyleEnable(ConfigurationManager.isChatFontItalic());
-        setUnderlineStyleEnable(ConfigurationManager.isChatFontUnderline());
+        setBoldStyleEnable(ConfigurationUtils.isChatFontBold());
+        setItalicStyleEnable(ConfigurationUtils.isChatFontItalic());
+        setUnderlineStyleEnable(ConfigurationUtils.isChatFontUnderline());
 
         // Font color
-        Color fontColor = ConfigurationManager.getChatDefaultFontColor();
+        Color fontColor = ConfigurationUtils.getChatDefaultFontColor();
 
         if (fontColor != null)
             setFontColor(fontColor);
@@ -530,7 +529,7 @@ public class ChatWritePanel
      */
     public void keyTyped(KeyEvent e)
     {
-        if (ConfigurationManager.isSendTypingNotifications())
+        if (ConfigurationUtils.isSendTypingNotifications())
         {
             if (typingState != OperationSetTypingNotifications.STATE_TYPING)
             {
@@ -938,7 +937,7 @@ public class ChatWritePanel
                 chatPanel.getChatSession(),
                 chatPanel.getChatSession().getCurrentChatTransport());
 
-            if(ConfigurationManager.isHideAccountSelectionWhenPossibleEnabled()
+            if(ConfigurationUtils.isHideAccountSelectionWhenPossibleEnabled()
                 && transportSelectorBox.getMenu().getItemCount() <= 1)
                 transportSelectorBox.setVisible(false);
         }
@@ -985,7 +984,7 @@ public class ChatWritePanel
             }
             else
             {
-                if( ConfigurationManager
+                if( ConfigurationUtils
                         .isHideAccountSelectionWhenPossibleEnabled()
                     && transportSelectorBox.getMenu().getItemCount() <= 1)
                 {
@@ -1045,7 +1044,7 @@ public class ChatWritePanel
             // it was hidden cause we wanted to hide when there is only one
             // provider
             if(!transportSelectorBox.isVisible()
-                && ConfigurationManager
+                && ConfigurationUtils
                                     .isHideAccountSelectionWhenPossibleEnabled()
                 && transportSelectorBox.getMenu().getItemCount() > 1)
             {
@@ -1087,7 +1086,7 @@ public class ChatWritePanel
             transportSelectorBox.removeChatTransport(chatTransport);
 
         if(transportSelectorBox.getMenu().getItemCount() == 1
-            && ConfigurationManager.isHideAccountSelectionWhenPossibleEnabled())
+            && ConfigurationUtils.isHideAccountSelectionWhenPossibleEnabled())
         {
             transportSelectorBox.setVisible(false);
         }
@@ -1128,12 +1127,12 @@ public class ChatWritePanel
                                                 boolean isUnderline,
                                                 Color color)
     {
-        ConfigurationManager.setChatDefaultFontFamily(fontFamily);
-        ConfigurationManager.setChatDefaultFontSize(fontSize);
-        ConfigurationManager.setChatFontIsBold(isBold);
-        ConfigurationManager.setChatFontIsItalic(isItalic);
-        ConfigurationManager.setChatFontIsUnderline(isUnderline);
-        ConfigurationManager.setChatDefaultFontColor(color);
+        ConfigurationUtils.setChatDefaultFontFamily(fontFamily);
+        ConfigurationUtils.setChatDefaultFontSize(fontSize);
+        ConfigurationUtils.setChatFontIsBold(isBold);
+        ConfigurationUtils.setChatFontIsItalic(isItalic);
+        ConfigurationUtils.setChatFontIsUnderline(isUnderline);
+        ConfigurationUtils.setChatDefaultFontColor(color);
     }
 
     /**

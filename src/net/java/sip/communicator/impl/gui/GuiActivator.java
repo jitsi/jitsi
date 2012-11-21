@@ -11,7 +11,6 @@ import java.util.*;
 import net.java.sip.communicator.impl.gui.main.account.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.main.presence.*;
-import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.service.callhistory.*;
 import net.java.sip.communicator.service.contactlist.*;
@@ -127,7 +126,7 @@ public class GuiActivator implements BundleActivator
         isStarted = true;
         GuiActivator.bundleContext = bContext;
 
-        ConfigurationManager.loadGuiConfigurations();
+        ConfigurationUtils.loadGuiConfigurations();
 
         try
         {

@@ -19,7 +19,6 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.toolBars.*;
-import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
@@ -282,7 +281,7 @@ public class SingleWindowContainer
         MainFrame mainWindow = GuiActivator.getUIService().getMainFrame();
         if(mainWindow.getExtendedState() != JFrame.ICONIFIED)
         {
-            if(ConfigurationManager.isAutoPopupNewMessage()
+            if(ConfigurationUtils.isAutoPopupNewMessage()
                     || setSelected)
                 mainWindow.toFront();
         }
@@ -414,7 +413,7 @@ public class SingleWindowContainer
 
         northPanel.setBorder(BorderFactory.createEmptyBorder(3, 0, 3, 0));
         northPanel.setPreferredSize(new Dimension(500, 35));
-        northPanel.setVisible(ConfigurationManager.isChatToolbarVisible());
+        northPanel.setVisible(ConfigurationUtils.isChatToolbarVisible());
         northPanel.add(mainToolBar, BorderLayout.EAST);
         northPanel.add(contactPhotoPanel, BorderLayout.WEST);
 

@@ -82,7 +82,7 @@ public class ChatRoomSubjectPanel
         ChatRoomMemberRole role = ((ChatRoomWrapper)chatSession.getDescriptor())
                 .getChatRoom().getUserRole();
 
-        if(!ConfigurationManager.isChatRoomConfigDisabled()
+        if(!ConfigurationUtils.isChatRoomConfigDisabled()
             && (role.equals(ChatRoomMemberRole.ADMINISTRATOR)
                 || role.equals(ChatRoomMemberRole.MODERATOR)
                 || role.equals(ChatRoomMemberRole.OWNER)))

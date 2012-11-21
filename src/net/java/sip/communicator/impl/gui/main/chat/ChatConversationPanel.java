@@ -276,7 +276,7 @@ public class ChatConversationPanel
             GuiActivator.getResources().getI18nMnemonic(
                 "service.gui.COPY_LINK"));
 
-        this.isSimpleTheme = ConfigurationManager.isChatSimpleThemeEnabled();
+        this.isSimpleTheme = ConfigurationUtils.isChatSimpleThemeEnabled();
 
         /*
          * When we append a new message (regardless of whether it is a string or
@@ -1353,7 +1353,7 @@ public class ChatConversationPanel
         this.document = (HTMLDocument) editorKit.createDefaultDocument();
         Constants.loadSimpleStyle(
             document.getStyleSheet(), chatTextPane.getFont());
-        this.isSimpleTheme = ConfigurationManager.isChatSimpleThemeEnabled();
+        this.isSimpleTheme = ConfigurationUtils.isChatSimpleThemeEnabled();
     }
 
     /**

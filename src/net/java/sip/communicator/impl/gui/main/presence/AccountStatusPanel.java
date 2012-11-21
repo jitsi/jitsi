@@ -652,7 +652,7 @@ public class AccountStatusPanel
      */
     public String getUIClassID()
     {
-        if(ConfigurationManager.isTransparentWindowEnabled())
+        if(ConfigurationUtils.isTransparentWindowEnabled())
             return uiClassID;
         else
             return super.getUIClassID();

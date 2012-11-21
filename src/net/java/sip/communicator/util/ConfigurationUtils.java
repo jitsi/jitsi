@@ -4,19 +4,24 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.utils;
+package net.java.sip.communicator.util;
 
 import java.awt.*;
 import java.beans.*;
+import java.io.*;
 import java.util.*;
 import java.util.List; /* disambiguation */
 
-import net.java.sip.communicator.impl.gui.*;
+import javax.net.ssl.*;
+
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.resources.*;
 
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.codec.*;
+import org.jitsi.service.resources.*;
+import org.jitsi.util.*;
 import org.osgi.framework.*;
 
 /**
@@ -26,8 +31,24 @@ import org.osgi.framework.*;
  * @author Yana Stamcheva
  * @author Damian Minkov
  */
-public class ConfigurationManager
+public class ConfigurationUtils
 {
+    /**
+     * The logger for this class.
+     */
+    private static final Logger logger
+        = Logger.getLogger(ConfigurationUtils.class);
+
+    /**
+     * The send message command defined by the Enter key.
+     */
+    public static final String ENTER_COMMAND = "Enter";
+
+    /**
+     * The send message command defined by the Ctrl-Enter key.
+     */
+    public static final String CTRL_ENTER_COMMAND = "Ctrl-Enter";
+
     /**
      * Indicates whether the message automatic pop-up is enabled.
      */
@@ -163,7 +184,7 @@ public class ConfigurationManager
      * The configuration service.
      */
     private static ConfigurationService configService
-        = GuiActivator.getConfigurationService();
+        = UtilActivator.getConfigurationService();
 
     /**
      * The parent of the last contact.
@@ -273,6 +294,17 @@ public class ConfigurationManager
         = "net.java.sip.communicator.service.gui.SINGLE_WINDOW_INTERFACE_ENABLED";
 
     /**
+     * Indicates if phone numbers should be normalized before dialed.
+     */
+    private static boolean isNormalizePhoneNumber;
+
+    /**
+     * Indicates if a string containing alphabetical characters might be
+     * considered as a phone number.
+     */
+    private static boolean acceptPhoneNumberWithAlphaChars;
+
+    /**
      * Loads all user interface configurations.
      */
     public static void loadGuiConfigurations()
@@ -287,7 +319,7 @@ public class ConfigurationManager
         String autoPopup = configService.getString(autoPopupProperty);
 
         if(autoPopup == null)
-            autoPopup = GuiActivator.getResources().
+            autoPopup = UtilActivator.getResources().
                 getSettingsString(autoPopupProperty);
 
         if(autoPopup != null && autoPopup.equalsIgnoreCase("yes"))
@@ -300,7 +332,7 @@ public class ConfigurationManager
 
         if(messageCommand == null)
             messageCommand
-                = GuiActivator.getResources()
+                = UtilActivator.getResources()
                     .getSettingsString(messageCommandProperty);
 
         if(messageCommand == null || messageCommand.length() == 0)
@@ -351,7 +383,7 @@ public class ConfigurationManager
 
         if(isSendTypingNotif == null)
             isSendTypingNotif = 
-                GuiActivator.getResources().
+                UtilActivator.getResources().
                     getSettingsString(isSendTypingNotifProperty);
 
         if(isSendTypingNotif != null && isSendTypingNotif.length() > 0)
@@ -381,7 +413,7 @@ public class ConfigurationManager
 
         if(isMultiChatWindowEnabledString == null)
             isMultiChatWindowEnabledString = 
-                GuiActivator.getResources().
+                UtilActivator.getResources().
                     getSettingsString(isMultiChatWindowEnabledStringProperty);
 
         if(isMultiChatWindowEnabledString != null
@@ -401,7 +433,7 @@ public class ConfigurationManager
 
         if(isLeaveChatRoomOnWindowCloseEnabledString == null)
             isLeaveChatRoomOnWindowCloseEnabledString =
-                GuiActivator.getResources().getSettingsString(
+                UtilActivator.getResources().getSettingsString(
                     isLeaveChatRoomOnWindowCloseEnabledStringProperty);
 
         if(isLeaveChatRoomOnWindowCloseEnabledString != null
@@ -433,7 +465,7 @@ public class ConfigurationManager
 
         if(isHistoryShownString == null)
             isHistoryShownString = 
-                GuiActivator.getResources().
+                UtilActivator.getResources().
                     getSettingsString(isHistoryShownStringProperty);
 
         if(isHistoryShownString != null
@@ -451,7 +483,7 @@ public class ConfigurationManager
 
         if(chatHistorySizeString == null)
             chatHistorySizeString = 
-                GuiActivator.getResources().
+                UtilActivator.getResources().
                     getSettingsString(chatHistorySizeStringProperty);
 
         if(chatHistorySizeString != null
@@ -468,7 +500,7 @@ public class ConfigurationManager
 
         if(chatWriteAreaSizeString == null)
             chatWriteAreaSizeString = 
-                GuiActivator.getResources().
+                UtilActivator.getResources().
                     getSettingsString(chatWriteAreaSizeStringProperty);
 
         if(chatWriteAreaSizeString != null
@@ -487,7 +519,7 @@ public class ConfigurationManager
 
         if(isTransparentWindowEnabledString == null)
             isTransparentWindowEnabledString = 
-                GuiActivator.getResources().
+                UtilActivator.getResources().
                     getSettingsString(isTransparentWindowEnabledProperty);
 
         if(isTransparentWindowEnabledString != null
@@ -506,7 +538,7 @@ public class ConfigurationManager
 
         if(windowTransparencyString == null)
             windowTransparencyString = 
-                GuiActivator.getResources().
+                UtilActivator.getResources().
                     getSettingsString(windowTransparencyProperty);
 
         if(windowTransparencyString != null
@@ -525,7 +557,7 @@ public class ConfigurationManager
 
         if(isWindowDecoratedString == null)
             isWindowDecoratedString = 
-                GuiActivator.getResources().
+                UtilActivator.getResources().
                     getSettingsString(isWindowDecoratedProperty);
 
         if(isWindowDecoratedString != null
@@ -598,7 +630,7 @@ public class ConfigurationManager
         // Load the "net.java.sip.communicator.impl.gui.main.account
         // .ADVANCED_CONFIG_DISABLED" property.
         String advancedConfigDisabledDefaultProp
-            = GuiActivator.getResources().getSettingsString(
+            = UtilActivator.getResources().getSettingsString(
                 "impl.gui.main.account.ADVANCED_CONFIG_DISABLED");
 
         boolean isAdvancedConfigDisabled = false;
@@ -616,7 +648,7 @@ public class ConfigurationManager
 
         // Single interface enabled property.
         String singleInterfaceEnabledProp
-            = GuiActivator.getResources().getSettingsString(
+            = UtilActivator.getResources().getSettingsString(
                 SINGLE_WINDOW_INTERFACE_ENABLED);
 
         boolean isEnabled = false;
@@ -625,7 +657,7 @@ public class ConfigurationManager
             isEnabled = Boolean.parseBoolean(singleInterfaceEnabledProp);
         else
             isEnabled = Boolean.parseBoolean(
-                GuiActivator.getResources().getSettingsString(
+                UtilActivator.getResources().getSettingsString(
                 "impl.gui.SINGLE_WINDOW_INTERFACE"));
 
         // Load the advanced account configuration disabled.
@@ -669,7 +701,7 @@ public class ConfigurationManager
 
         String showStatusChangedInChatProperty
                 = "impl.gui.SHOW_STATUS_CHANGED_IN_CHAT";
-        String showStatusChangedInChatDefault = GuiActivator.getResources().
+        String showStatusChangedInChatDefault = UtilActivator.getResources().
             getSettingsString(showStatusChangedInChatProperty);
 
         // if there is a default value use it
@@ -684,7 +716,7 @@ public class ConfigurationManager
         String routeVideoAndDesktopUsingPhoneNumberProperty
             = "impl.gui.ROUTE_VIDEO_AND_DESKTOP_TO_PNONENUMBER";
         String routeVideoAndDesktopUsingPhoneNumberDefault =
-            GuiActivator.getResources()
+            UtilActivator.getResources()
                 .getSettingsString(routeVideoAndDesktopUsingPhoneNumberProperty);
 
         if(routeVideoAndDesktopUsingPhoneNumberDefault != null)
@@ -697,7 +729,7 @@ public class ConfigurationManager
 
         String hideAccountMenuProperty
             = "impl.gui.HIDE_SELECTION_ON_SINGLE_ACCOUNT";
-        String hideAccountMenuDefaultValue = GuiActivator.getResources()
+        String hideAccountMenuDefaultValue = UtilActivator.getResources()
             .getSettingsString(hideAccountMenuProperty);
 
         if(hideAccountMenuDefaultValue != null)
@@ -710,7 +742,7 @@ public class ConfigurationManager
 
         String hideAccountStatusSelectorsProperty
             = "impl.gui.HIDE_ACCOUNT_STATUS_SELECTORS";
-        String hideAccountsStatusDefaultValue = GuiActivator.getResources()
+        String hideAccountsStatusDefaultValue = UtilActivator.getResources()
             .getSettingsString(hideAccountStatusSelectorsProperty);
 
         if(hideAccountsStatusDefaultValue != null)
@@ -724,7 +756,7 @@ public class ConfigurationManager
         String autoAnswerDisableSubmenuProperty
             = "impl.gui.AUTO_ANSWER_DISABLE_SUBMENU";
         String autoAnswerDisableSubmenuDefaultValue =
-            GuiActivator.getResources()
+            UtilActivator.getResources()
                 .getSettingsString(autoAnswerDisableSubmenuProperty);
 
         if(autoAnswerDisableSubmenuDefaultValue != null)
@@ -738,6 +770,15 @@ public class ConfigurationManager
         isChatRoomConfigDisabled = configService.getBoolean(
             CHAT_ROOM_CONFIG_DISABLED_PROP,
             isChatRoomConfigDisabled);
+
+        isNormalizePhoneNumber
+            = configService.getBoolean("impl.gui.NORMALIZE_PHONE_NUMBER", true);
+
+        // Load the "ACCEPT_PHONE_NUMBER_WITH_ALPHA_CHARS" property.
+        acceptPhoneNumberWithAlphaChars
+            = configService.getBoolean(
+                    "impl.gui.ACCEPT_PHONE_NUMBER_WITH_ALPHA_CHARS",
+                    true);
     }
 
     /**
@@ -751,9 +792,9 @@ public class ConfigurationManager
             "net.java.sip.communicator.impl.gui.FONT_SUPPORT_ENABLED";
 
         boolean defaultValue = false;
-        
+
         String defaultSettingStr =
-            GuiActivator.getResources().getSettingsString(fontDisabledProp);
+            UtilActivator.getResources().getSettingsString(fontDisabledProp);
 
         if(defaultSettingStr != null)
             defaultValue = Boolean.parseBoolean(defaultSettingStr);
@@ -772,6 +813,26 @@ public class ConfigurationManager
     public static boolean isAutoPopupNewMessage()
     {
         return autoPopupNewMessage;
+    }
+
+    /**
+     * Updates the "autoPopupNewMessage" property.
+     * 
+     * @param autoPopup indicates to the user interface whether new
+     * messages should be opened and bring to front. 
+     **/
+    public static void setAutoPopupNewMessage(boolean autoPopup)
+    {
+        autoPopupNewMessage = autoPopup;
+
+        if(autoPopupNewMessage)
+            configService.setProperty(
+                    "service.gui.AUTO_POPUP_NEW_MESSAGE",
+                    "yes");
+        else
+            configService.setProperty(
+                    "service.gui.AUTO_POPUP_NEW_MESSAGE",
+                    "no");
     }
 
     /**
@@ -836,6 +897,22 @@ public class ConfigurationManager
     }
 
     /**
+     * Updates the "sendTypingNotifications" property through the
+     * <tt>ConfigurationService</tt>.
+     * 
+     * @param isSendTypingNotif <code>true</code> to indicate that typing
+     * notifications are enabled, <code>false</code> otherwise.
+     */
+    public static void setSendTypingNotifications(boolean isSendTypingNotif)
+    {
+        isSendTypingNotifications = isSendTypingNotif;
+
+        configService.setProperty(
+                "service.gui.SEND_TYPING_NOTIFICATIONS_ENABLED",
+                Boolean.toString(isSendTypingNotif));
+    }
+
+    /**
      * Returns TRUE if the "isMoveContactConfirmationRequested" property is true,
      * otherwise - returns FALSE. Indicates to the user interface whether the
      * confirmation window during the move contact process is enabled or not.
@@ -860,6 +937,22 @@ public class ConfigurationManager
         return isMultiChatWindowEnabled;
     }
 
+    /**
+     * Updates the "isMultiChatWindowEnabled" property through the
+     * <tt>ConfigurationService</tt>.
+     * 
+     * @param isEnabled indicates if the chat window could
+     * contain multiple chats or only one chat.
+     */
+    public static void setMultiChatWindowEnabled(boolean isEnabled)
+    {
+        isMultiChatWindowEnabled = isEnabled;
+
+        configService.setProperty(
+            "service.gui.IS_MULTI_CHAT_WINDOW_ENABLED",
+            Boolean.toString(isMultiChatWindowEnabled));
+    }
+
      /**
      * Returns <code>true</code> if the "isLeaveChatRoomOnWindowCloseEnabled"
      * property is true, otherwise - returns <code>false</code>. Indicates to
@@ -874,6 +967,21 @@ public class ConfigurationManager
     }
 
     /**
+     * Updates the "isLeaveChatroomOnWindowClose" property through
+     * the <tt>ConfigurationService</tt>.
+     * 
+     * @param isLeave indicates whether to leave chat room on window close.
+     */
+    public static void setLeaveChatRoomOnWindowClose(boolean isLeave)
+    {
+        isLeaveChatRoomOnWindowCloseEnabled = isLeave;
+
+        configService.setProperty(
+            "service.gui.LEAVE_CHATROOM_ON_WINDOW_CLOSE",
+            Boolean.toString(isLeaveChatRoomOnWindowCloseEnabled));
+    }
+
+    /**
      * Returns <code>true</code> if the "isHistoryLoggingEnabled" property is
      * true, otherwise - returns <code>false</code>. Indicates to the user
      * interface whether the history logging is enabled.
@@ -884,7 +992,23 @@ public class ConfigurationManager
     {
         return isHistoryLoggingEnabled;
     }
-    
+
+    /**
+     * Updates the "isHistoryLoggingEnabled" property through the
+     * <tt>ConfigurationService</tt>.
+     * 
+     * @param isEnabled indicates if the history logging is
+     * enabled.
+     */
+    public static void setHistoryLoggingEnabled(boolean isEnabled)
+    {
+        isHistoryLoggingEnabled = isEnabled;
+
+        configService.setProperty(
+            "impl.msghistory.IS_MESSAGE_HISTORY_ENABLED",
+            Boolean.toString(isHistoryLoggingEnabled));
+    }
+
     /**
      * Returns <code>true</code> if the "isHistoryShown" property is
      * true, otherwise - returns <code>false</code>. Indicates to the user
@@ -896,7 +1020,22 @@ public class ConfigurationManager
     {
         return isHistoryShown;
     }
-    
+
+    /**
+     * Updates the "isHistoryShown" property through the
+     * <tt>ConfigurationService</tt>.
+     * 
+     * @param isShown indicates if the message history is shown
+     */
+    public static void setHistoryShown(boolean isShown)
+    {
+        isHistoryShown = isShown;
+
+        configService.setProperty(
+            "service.gui.IS_MESSAGE_HISTORY_SHOWN",
+            Boolean.toString(isHistoryShown));
+    }
+
     /**
      * Returns <code>true</code> if the "isWindowDecorated" property is
      * true, otherwise - returns <code>false</code>..
@@ -907,7 +1046,7 @@ public class ConfigurationManager
     {
         return isWindowDecorated;
     }
-    
+
     /**
      * Returns <code>true</code> if the "isChatToolbarVisible" property is
      * true, otherwise - returns <code>false</code>..
@@ -1108,6 +1247,22 @@ public class ConfigurationManager
     }
 
     /**
+     * Updates the "sendMessageCommand" property through the
+     * <tt>ConfigurationService</tt>.
+     * 
+     * @param newMessageCommand the command used to send a message ( it could be
+     * ENTER_COMMAND or CTRL_ENTER_COMMAND)
+     */
+    public static void setSendMessageCommand(String newMessageCommand)
+    {
+        sendMessageCommand = newMessageCommand;
+
+        configService.setProperty(
+                "service.gui.SEND_MESSAGE_COMMAND",
+                newMessageCommand);
+    }
+
+    /**
      * Return the "lastContactParent" property that was saved previously
      * through the <tt>ConfigurationService</tt>. Indicates 
      * the last selected group on adding new contact 
@@ -1145,7 +1300,7 @@ public class ConfigurationManager
         String savedAccountId)
     {
         ProtocolProviderService protocolProvider = null;
-        for (ProtocolProviderFactory providerFactory : GuiActivator
+        for (ProtocolProviderFactory providerFactory : UtilActivator
             .getProtocolProviderFactories().values())
         {
             ServiceReference serRef;
@@ -1159,7 +1314,7 @@ public class ConfigurationManager
                 serRef = providerFactory.getProviderForAccount(accountId);
 
                 protocolProvider
-                    = (ProtocolProviderService) GuiActivator.bundleContext
+                    = (ProtocolProviderService) UtilActivator.bundleContext
                             .getService(serRef);
             }
         }
@@ -1176,6 +1331,22 @@ public class ConfigurationManager
     public static int getChatHistorySize()
     {
         return chatHistorySize;
+    }
+
+    /**
+     * Updates the "chatHistorySize" property through the
+     * <tt>ConfigurationService</tt>.
+     * 
+     * @param historySize indicates if the history logging is
+     * enabled.
+     */
+    public static void setChatHistorySize(int historySize)
+    {
+        chatHistorySize = historySize;
+
+        configService.setProperty(
+            "service.gui.MESSAGE_HISTORY_SIZE",
+            Integer.toString(chatHistorySize));
     }
 
     /**
@@ -1229,8 +1400,48 @@ public class ConfigurationManager
      */
     public static boolean isNormalizePhoneNumber()
     {
-        return configService.getBoolean(
-            "impl.gui.NORMALIZE_PHONE_NUMBER", true);
+        return isNormalizePhoneNumber;
+    }
+
+    /**
+     * Updates the "NORMALIZE_PHONE_NUMBER" property.
+     *
+     * @param isNormalize indicates to the user interface whether all dialed
+     * phone numbers should be normalized
+     */
+    public static void setNormalizePhoneNumber(boolean isNormalize)
+    {
+        isNormalizePhoneNumber = isNormalize;
+
+        configService.setProperty("impl.gui.NORMALIZE_PHONE_NUMBER",
+            Boolean.toString(isNormalize));
+    }
+
+    /**
+     * Returns <code>true</code> if a string with a alphabetical character migth
+     * be considered as a phone number.  <code>false</code> otherwise.
+     *
+     * @return <code>true</code> if a string with a alphabetical character migth
+     * be considered as a phone number.  <code>false</code> otherwise.
+     */
+    public static boolean acceptPhoneNumberWithAlphaChars()
+    {
+        return acceptPhoneNumberWithAlphaChars;
+    }
+
+    /**
+     * Updates the "ACCEPT_PHONE_NUMBER_WITH_CHARS" property.
+     *
+     * @param accept indicates to the user interface whether a string with
+     * alphabetical characters might be accepted as a phone number.
+     */
+    public static void setAcceptPhoneNumberWithAlphaChars(boolean accept)
+    {
+        acceptPhoneNumberWithAlphaChars = accept;
+
+        configService.setProperty(
+                "impl.gui.ACCEPT_PHONE_NUMBER_WITH_ALPHA_CHARS",
+                Boolean.toString(acceptPhoneNumberWithAlphaChars));
     }
 
     /**
@@ -1301,7 +1512,7 @@ public class ConfigurationManager
      * Updates the "singleWindowInterface" property through the
      * <tt>ConfigurationService</tt>.
      *
-     * @param singleWindowInterface <code>true</code> to indicate that the
+     * @param isEnabled <code>true</code> to indicate that the
      * single window interface is enabled, <tt>false</tt> - otherwise
      */
     public static void setSingleWindowInterfaceEnabled(boolean isEnabled)
@@ -1330,7 +1541,7 @@ public class ConfigurationManager
      */
     public static void setShowOffline(boolean isShowOffline)
     {
-        ConfigurationManager.isShowOffline = isShowOffline;
+        ConfigurationUtils.isShowOffline = isShowOffline;
 
         configService.setProperty(
                 "net.java.sip.communicator.impl.gui.showOffline",
@@ -1346,7 +1557,7 @@ public class ConfigurationManager
      */
     public static void setShowCallPanel(boolean isCallPanelShown)
     {
-        ConfigurationManager.isCallPanelShown = isCallPanelShown;
+        ConfigurationUtils.isCallPanelShown = isCallPanelShown;
 
         configService.setProperty(
                 "net.java.sip.communicator.impl.gui.showCallPanel",
@@ -1388,6 +1599,16 @@ public class ConfigurationManager
         configService.setProperty(
                 "net.java.sip.communicator.impl.gui.quitWarningShown",
                 Boolean.toString(isQuitWarningShown));
+    }
+
+    /**
+     * Saves the popup handler choice made by the user.
+     *
+     * @param handler the handler which will be used
+     */
+    public static void setPopupHandlerConfig(String handler)
+    {
+        configService.setProperty("systray.POPUP_HANDLER", handler);
     }
 
      /**
@@ -1472,7 +1693,7 @@ public class ConfigurationManager
      * Updates the "isChatSimpleThemeEnabled" property through the
      * <tt>ConfigurationService</tt>.
      * 
-     * @param isVisible indicates if the chat simple theme is enabled
+     * @param isEnabled indicates if the chat simple theme is enabled
      */
     public static void setChatSimpleThemeEnabled(boolean isEnabled)
     {
@@ -1625,6 +1846,38 @@ public class ConfigurationManager
         configService.setProperty(
             "net.java.sip.communicator.impl.gui.chat.DEFAULT_FONT_COLOR",
             defaultFontColor);
+    }
+
+    /**
+     * Returns the current language configuration.
+     *
+     * @return the current locale
+     */
+    public static Locale getCurrentLanguage()
+    {
+        String localeId
+            = configService.getString(
+                    ResourceManagementService.DEFAULT_LOCALE_CONFIG);
+
+        return
+            (localeId != null)
+                ? ResourceManagementServiceUtils.getLocale(localeId)
+                : Locale.getDefault();
+    }
+
+    /**
+     * Sets the current language configuration.
+     *
+     * @param locale the locale to set
+     */
+    public static void setLanguage(Locale locale)
+    {
+        String language = locale.getLanguage();
+        String country = locale.getCountry();
+
+        configService.setProperty(
+            ResourceManagementService.DEFAULT_LOCALE_CONFIG,
+            (country.length() > 0) ? (language + '_' + country) : language);
     }
 
     /**
@@ -2113,6 +2366,121 @@ public class ConfigurationManager
     }
 
     /**
+     * Returns the configured client port.
+     *
+     * @return the client port
+     */
+    public static int getClientPort()
+    {
+        return configService.getInt(
+            ProtocolProviderFactory.PREFERRED_CLEAR_PORT_PROPERTY_NAME,
+            5060);
+    }
+
+    /**
+     * Sets the client port.
+     *
+     * @param port the port to set
+     */
+    public static void setClientPort(int port)
+    {
+        configService.setProperty(
+            ProtocolProviderFactory.PREFERRED_CLEAR_PORT_PROPERTY_NAME,
+            port);
+    }
+
+    /**
+     * Returns the client secure port.
+     *
+     * @return the client secure port
+     */
+    public static int getClientSecurePort()
+    {
+        return configService.getInt(
+            ProtocolProviderFactory.PREFERRED_SECURE_PORT_PROPERTY_NAME,
+            5061);
+    }
+
+    /**
+     * Sets the client secure port.
+     *
+     * @param port the port to set
+     */
+    public static void setClientSecurePort(int port)
+    {
+        configService.setProperty(
+            ProtocolProviderFactory.PREFERRED_SECURE_PORT_PROPERTY_NAME,
+            port);
+    }
+
+    /**
+     * Returns the list of enabled SSL protocols.
+     *
+     * @return the list of enabled SSL protocols
+     */
+    public static String[] getEnabledSslProtocols()
+    {
+        String enabledSslProtocols = configService
+            .getString("gov.nist.javax.sip.TLS_CLIENT_PROTOCOLS");
+        if(StringUtils.isNullOrEmpty(enabledSslProtocols, true))
+        {
+            SSLSocket temp;
+            try
+            {
+                temp = (SSLSocket) SSLSocketFactory
+                    .getDefault().createSocket();
+                return temp.getEnabledProtocols();
+            }
+            catch (IOException e)
+            {
+                logger.error(e);
+                return getAvailableSslProtocols();
+            }
+        }
+        return enabledSslProtocols.split("(,)|(,\\s)");
+    }
+
+    /**
+     * Returns the list of available SSL protocols.
+     *
+     * @return the list of available SSL protocols
+     */
+    public static String[] getAvailableSslProtocols()
+    {
+        SSLSocket temp;
+        try
+        {
+            temp = (SSLSocket) SSLSocketFactory
+                .getDefault().createSocket();
+            return temp.getSupportedProtocols();
+        }
+        catch (IOException e)
+        {
+            logger.error(e);
+            return new String[]{};
+        }
+    }
+
+    /**
+     * Sets the enables SSL protocols list.
+     *
+     * @param enabledProtocols the list of enabled SSL protocols to set
+     */
+    public static void setEnabledSslProtocols(String[] enabledProtocols)
+    {
+        if(enabledProtocols == null || enabledProtocols.length == 0)
+            configService.removeProperty(
+                "gov.nist.javax.sip.TLS_CLIENT_PROTOCOLS");
+        else
+        {
+            String protocols = Arrays.toString(enabledProtocols);
+            configService.setProperty(
+                "gov.nist.javax.sip.TLS_CLIENT_PROTOCOLS",
+                    protocols.substring(1, protocols.length() - 1));
+        }
+    }
+
+    /**
      * Returns <tt>true</tt> if the account associated with
      * <tt>protocolProvider</tt> has at least one video format enabled in it's
      * configuration, <tt>false</tt> otherwise.
@@ -2132,14 +2500,14 @@ public class ConfigurationManager
                 .get(ProtocolProviderFactory.OVERRIDE_ENCODINGS);
         if(Boolean.parseBoolean(overrideEncodings))
         {
-            encodingConfiguration = GuiActivator.getMediaService().
+            encodingConfiguration = UtilActivator.getMediaService().
                     createEmptyEncodingConfiguration();
             encodingConfiguration.loadProperties(accountProperties,
                     ProtocolProviderFactory.ENCODING_PROP_PREFIX);
         }
         else
         {
-            encodingConfiguration = GuiActivator.getMediaService().
+            encodingConfiguration = UtilActivator.getMediaService().
                     getCurrentEncodingConfiguration();
         }
 

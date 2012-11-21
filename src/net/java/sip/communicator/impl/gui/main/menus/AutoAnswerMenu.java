@@ -84,7 +84,7 @@ public class AutoAnswerMenu
 
         // if we are in disabled menu mode and we have only one item
         // change its name (like global auto answer)
-        if( ConfigurationManager.isAutoAnswerDisableSubmenu()
+        if( ConfigurationUtils.isAutoAnswerDisableSubmenu()
             && getAutoAnswerItemCount(parentMenu) == 1)
         {
             updateItem(getAutoAnswerItem(parentMenu, 0), true);
@@ -162,7 +162,7 @@ public class AutoAnswerMenu
         int itemsCount = getAutoAnswerItemCount(parentMenu);
 
         // if menu is disabled for autoanswer and we have added an item
-        if(ConfigurationManager.isAutoAnswerDisableSubmenu()
+        if(ConfigurationUtils.isAutoAnswerDisableSubmenu()
             && itemsCount != initialCount)
         {
             // if initial count was 1, lets change provider name to the
@@ -359,7 +359,7 @@ public class AutoAnswerMenu
 
         // if menu is disabled for auto answer and we have left with one
         // item set its name like a global one
-        if(ConfigurationManager.isAutoAnswerDisableSubmenu()
+        if(ConfigurationUtils.isAutoAnswerDisableSubmenu()
             && getAutoAnswerItemCount(parentMenu) == 1)
         {
             updateItem(getAutoAnswerItem(parentMenu, 0), true);
@@ -566,7 +566,7 @@ public class AutoAnswerMenu
         private static String getItemDisplayName(
             ProtocolProviderService provider)
         {
-            if(ConfigurationManager.isAutoAnswerDisableSubmenu())
+            if(ConfigurationUtils.isAutoAnswerDisableSubmenu())
                 return GuiActivator.getResources()
                             .getI18NString("service.gui.AUTO_ANSWER")
                     + " - " + provider.getAccountID().getDisplayName();
@@ -912,7 +912,7 @@ public class AutoAnswerMenu
                         answerWithVideoCheckBox.isSelected());
 
                 // as settings changed lets update items
-                if( ConfigurationManager.isAutoAnswerDisableSubmenu()
+                if( ConfigurationUtils.isAutoAnswerDisableSubmenu()
                     && getAutoAnswerItemCount(parentMenu) == 1)
                 {
                     updateItem(getAutoAnswerItem(parentMenu, 0), true);

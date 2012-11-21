@@ -13,6 +13,7 @@ import java.util.List;
 import javax.swing.*;
 
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -65,7 +66,7 @@ public class SIPConfigForm
 
         final JTextField clientPortField = new JTextField(6);
         clientPortField.setText(
-            String.valueOf(ConfigurationManager.getClientPort()));
+            String.valueOf(ConfigurationUtils.getClientPort()));
         valuePanel.add(clientPortField);
         clientPortField.addFocusListener(new FocusListener()
         {
@@ -82,7 +83,7 @@ public class SIPConfigForm
                         throw new NumberFormatException(
                             "Not a port number");
 
-                    ConfigurationManager.setClientPort(port);
+                    ConfigurationUtils.setClientPort(port);
                 }
                 catch (NumberFormatException ex)
                 {
@@ -107,7 +108,7 @@ public class SIPConfigForm
 
         final JTextField clientSecurePortField = new JTextField(6);
         clientSecurePortField.setText(
-            String.valueOf(ConfigurationManager.getClientSecurePort()));
+            String.valueOf(ConfigurationUtils.getClientSecurePort()));
         valuePanel.add(clientSecurePortField);
         clientSecurePortField.addFocusListener(new FocusListener()
         {
@@ -124,7 +125,7 @@ public class SIPConfigForm
                         throw new NumberFormatException(
                             "Not a port number");
 
-                    ConfigurationManager.setClientSecurePort(port);
+                    ConfigurationUtils.setClientSecurePort(port);
                 }
                 catch (NumberFormatException ex)
                 {
@@ -148,13 +149,13 @@ public class SIPConfigForm
         });
 
         String configuredProtocols = Arrays.toString(
-            ConfigurationManager.getEnabledSslProtocols());
+            ConfigurationUtils.getEnabledSslProtocols());
 
         pnlSslProtocols = Box.createVerticalBox();
         pnlSslProtocols.setBorder(BorderFactory.createTitledBorder(Resources
             .getString("plugin.generalconfig.SIP_SSL_PROTOCOLS")));
         pnlSslProtocols.setAlignmentX(Component.LEFT_ALIGNMENT);
-        for(String protocol : ConfigurationManager.getAvailableSslProtocols())
+        for(String protocol : ConfigurationUtils.getAvailableSslProtocols())
         {
             JCheckBox chkProtocol = new SIPCommCheckBox(protocol);
             chkProtocol.addActionListener(this);
@@ -179,7 +180,7 @@ public class SIPConfigForm
                 if(((JCheckBox) child).isSelected())
                     enabledSslProtocols.add(((JCheckBox) child).getText());
         }
-        ConfigurationManager.setEnabledSslProtocols(
+        ConfigurationUtils.setEnabledSslProtocols(
             enabledSslProtocols.toArray(new String[]{}));
     }
 }

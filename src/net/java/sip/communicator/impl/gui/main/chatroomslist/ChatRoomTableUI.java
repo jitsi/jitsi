@@ -20,6 +20,7 @@ import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -170,7 +171,7 @@ public class ChatRoomTableUI
         }
 
         String savedNick =
-            ConfigurationManager.getChatRoomProperty(chatRoomWrapper
+            ConfigurationUtils.getChatRoomProperty(chatRoomWrapper
                 .getParentProvider().getProtocolProvider(), chatRoomWrapper
                 .getChatRoomID(), "userNickName");
 
@@ -192,7 +193,7 @@ public class ChatRoomTableUI
             {
                 nickName = reasonDialog.getReason().trim();
 
-                ConfigurationManager.updateChatRoomProperty(chatRoomWrapper
+                ConfigurationUtils.updateChatRoomProperty(chatRoomWrapper
                     .getParentProvider().getProtocolProvider(), chatRoomWrapper
                     .getChatRoomID(), "userNickName", nickName);
 

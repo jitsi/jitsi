@@ -117,7 +117,7 @@ public class NewAccountDialog
 
         mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
-        if (!ConfigurationManager.isAdvancedAccountConfigDisabled())
+        if (!ConfigurationUtils.isAdvancedAccountConfigDisabled())
         {
             buttonPanel.add(advancedButton, BorderLayout.WEST);
             this.advancedButton.addActionListener(this);

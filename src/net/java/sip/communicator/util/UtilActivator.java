@@ -8,6 +8,7 @@ package net.java.sip.communicator.util;
 
 import java.awt.image.*;
 import java.net.*;
+import java.util.*;
 
 import javax.imageio.*;
 
@@ -15,6 +16,7 @@ import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.keybindings.*;
 import net.java.sip.communicator.service.netaddr.*;
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
 
 import org.jitsi.service.configuration.*;
@@ -54,7 +56,9 @@ public class UtilActivator
 
     private static FileAccessService fileAccessService;
 
-    private static BundleContext bundleContext;
+    private static MediaService mediaService;
+
+    static BundleContext bundleContext;
 
     /**
      * Network address manager service will inform us for changes in
@@ -259,6 +263,22 @@ public class UtilActivator
     }
 
     /**
+     * Returns an instance of the <tt>MediaService</tt> obtained from the
+     * bundle context.
+     * @return an instance of the <tt>MediaService</tt> obtained from the
+     * bundle context
+     */
+    public static MediaService getMediaService()
+    {
+        if (mediaService == null)
+        {
+            mediaService
+                = ServiceUtils.getService(bundleContext, MediaService.class);
+        }
+        return mediaService;
+    }
+
+    /**
      * Returns the {@link MediaConfigurationService} instance registered in the
      * <tt>BundleContext</tt> of the <tt>UtilActivator</tt>.
      *
@@ -269,5 +289,48 @@ public class UtilActivator
     {
         return ServiceUtils.getService(bundleContext, 
                 MediaConfigurationService.class);
+    }
+
+    /**
+     * Returns all <tt>ProtocolProviderFactory</tt>s obtained from the bundle
+     * context.
+     *
+     * @return all <tt>ProtocolProviderFactory</tt>s obtained from the bundle
+     *         context
+     */
+    public static Map<Object, ProtocolProviderFactory>
+        getProtocolProviderFactories()
+    {
+        Map<Object, ProtocolProviderFactory> providerFactoriesMap
+            = new Hashtable<Object, ProtocolProviderFactory>();
+
+        ServiceReference[] serRefs = null;
+        try
+        {
+            // get all registered provider factories
+            serRefs
+                = bundleContext.getServiceReferences(
+                        ProtocolProviderFactory.class.getName(),
+                        null);
+        }
+        catch (InvalidSyntaxException e)
+        {
+            logger.error("LoginManager : " + e);
+        }
+
+        if (serRefs != null)
+        {
+            for (ServiceReference serRef : serRefs)
+            {
+                ProtocolProviderFactory providerFactory
+                    = (ProtocolProviderFactory)
+                        bundleContext.getService(serRef);
+
+                providerFactoriesMap.put(
+                        serRef.getProperty(ProtocolProviderFactory.PROTOCOL),
+                        providerFactory);
+            }
+        }
+        return providerFactoriesMap;
     }
 }

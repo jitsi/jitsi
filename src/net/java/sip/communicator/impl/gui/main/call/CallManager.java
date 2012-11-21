@@ -92,7 +92,7 @@ public class CallManager
             Call sourceCall = ev.getSourceCall();
             boolean isVideoCall
                 = ev.isVideoCall()
-                    && ConfigurationManager.hasEnabledVideoFormat(
+                    && ConfigurationUtils.hasEnabledVideoFormat(
                             sourceCall.getProtocolProvider());
             final ReceivedCallDialog receivedCallDialog
                 = new ReceivedCallDialog(
@@ -783,7 +783,7 @@ public class CallManager
         callString = callString.trim();
 
         // Removes special characters from phone numbers.
-        if (ConfigurationManager.isNormalizePhoneNumber())
+        if (ConfigurationUtils.isNormalizePhoneNumber())
             callString = PhoneNumberI18nService.normalize(callString);
 
         List<ProtocolProviderService> telephonyProviders
@@ -1768,7 +1768,7 @@ public class CallManager
             Contact contact = this.contact;
             String stringContact = this.stringContact;
 
-            if (ConfigurationManager.isNormalizePhoneNumber())
+            if (ConfigurationUtils.isNormalizePhoneNumber())
             {
                 if (contact != null)
                 {
@@ -2099,7 +2099,7 @@ public class CallManager
                 String[] contactArray
                     = contactList.toArray(new String[contactList.size()]);
 
-                if (ConfigurationManager.isNormalizePhoneNumber())
+                if (ConfigurationUtils.isNormalizePhoneNumber())
                     normalizePhoneNumbers(contactArray);
 
                 /* Try to have a single Call per ProtocolProviderService. */
@@ -2231,7 +2231,7 @@ public class CallManager
             if (opSetVideoBridge == null || !opSetVideoBridge.isActive())
                 return;
 
-            if (ConfigurationManager.isNormalizePhoneNumber())
+            if (ConfigurationUtils.isNormalizePhoneNumber())
                 normalizePhoneNumbers(callees);
 
             try

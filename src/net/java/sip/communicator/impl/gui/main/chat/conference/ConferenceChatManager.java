@@ -14,7 +14,6 @@ import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.joinforms.*;
-import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -1128,7 +1127,7 @@ public class ConferenceChatManager
         // We save the choice of the user, before the chat room is really
         // joined, because even the join fails we want the next time when
         // we login to join this chat room automatically.
-        ConfigurationManager.updateChatRoomStatus(
+        ConfigurationUtils.updateChatRoomStatus(
             chatRoomWrapper.getParentProvider().getProtocolProvider(),
             chatRoomWrapper.getChatRoomID(),
             GlobalStatusEnum.OFFLINE_STATUS);
@@ -1525,7 +1524,7 @@ public class ConferenceChatManager
             catch (ExecutionException ignore)
             {}
 
-            ConfigurationManager.updateChatRoomStatus(
+            ConfigurationUtils.updateChatRoomStatus(
                 chatRoomWrapper.getParentProvider().getProtocolProvider(),
                 chatRoomWrapper.getChatRoomID(),
                 GlobalStatusEnum.ONLINE_STATUS);
@@ -1662,7 +1661,7 @@ public class ConferenceChatManager
             catch (ExecutionException ignore)
             {}
 
-            ConfigurationManager.updateChatRoomStatus(
+            ConfigurationUtils.updateChatRoomStatus(
                 adHocChatRoomWrapper.getParentProvider().getProtocolProvider(),
                 adHocChatRoomWrapper.getAdHocChatRoomID(),
                 GlobalStatusEnum.ONLINE_STATUS);

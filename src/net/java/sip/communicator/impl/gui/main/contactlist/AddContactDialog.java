@@ -165,7 +165,7 @@ public class AddContactDialog
         // we have an empty choice and one account
         if(accountCombo.getItemCount() > 2
             || (accountCombo.getItemCount() == 2
-                && !ConfigurationManager
+                && !ConfigurationUtils
                         .isHideAccountSelectionWhenPossibleEnabled()))
         {
             labelsPanel.add(accountLabel);
@@ -213,7 +213,7 @@ public class AddContactDialog
 
         this.getContentPane().add(mainPanel, BorderLayout.CENTER);
 
-        if(ConfigurationManager.isHideAccountSelectionWhenPossibleEnabled())
+        if(ConfigurationUtils.isHideAccountSelectionWhenPossibleEnabled())
             this.setPreferredSize(new Dimension(450, 205));
         else
             this.setPreferredSize(new Dimension(450, 250));
@@ -327,7 +327,7 @@ public class AddContactDialog
         final String newGroupString = GuiActivator.getResources()
             .getI18NString("service.gui.CREATE_GROUP");
 
-        if (!ConfigurationManager.isCreateGroupDisabled())
+        if (!ConfigurationUtils.isCreateGroupDisabled())
         {
             groupCombo.addItem(newGroupString);
         }

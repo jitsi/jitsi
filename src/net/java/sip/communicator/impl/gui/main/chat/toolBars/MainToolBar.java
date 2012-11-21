@@ -30,6 +30,7 @@ import net.java.sip.communicator.service.protocol.ServerStoredDetails.FaxDetail;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.GenericDetail;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.PagerDetail;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.PhoneNumberDetail;
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 import net.java.sip.communicator.util.swing.SwingWorker;
@@ -182,7 +183,7 @@ public class MainToolBar
 
         // if we leave a chat room when we close the window
         // there is no need for this button
-        if(!ConfigurationManager.isLeaveChatRoomOnWindowCloseEnabled())
+        if(!ConfigurationUtils.isLeaveChatRoomOnWindowCloseEnabled())
             this.add(leaveChatRoomButton);
 
         this.add(callButton);
@@ -215,7 +216,7 @@ public class MainToolBar
 
         this.addSeparator();
 
-        if(ConfigurationManager.isFontSupportEnabled())
+        if(ConfigurationUtils.isFontSupportEnabled())
         {
             this.add(fontButton);
             fontButton.setName("font");
@@ -444,11 +445,11 @@ public class MainToolBar
         {
             SipCommFileChooser scfc = GenericFileDialog.create(
                 null, "Send file...", SipCommFileChooser.LOAD_FILE_OPERATION,
-                    ConfigurationManager.getSendFileLastDir());
+                    ConfigurationUtils.getSendFileLastDir());
             File selectedFile = scfc.getFileFromDialog();
             if(selectedFile != null)
             {
-                ConfigurationManager.setSendFileLastDir(
+                ConfigurationUtils.setSendFileLastDir(
                     selectedFile.getParent());
                 chatContainer.getCurrentChat().sendFile(selectedFile);
             }

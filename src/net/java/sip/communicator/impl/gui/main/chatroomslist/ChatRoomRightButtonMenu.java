@@ -19,6 +19,7 @@ import net.java.sip.communicator.impl.gui.main.chatroomslist.joinforms.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
 import org.jitsi.service.resources.*;
@@ -117,7 +118,7 @@ public class ChatRoomRightButtonMenu
             String nickName = null;
 
             nickName =
-                ConfigurationManager.getChatRoomProperty(
+                ConfigurationUtils.getChatRoomProperty(
                     chatRoomWrapper.getParentProvider()
                         .getProtocolProvider(), chatRoomWrapper
                         .getChatRoomID(), "userNickName");
@@ -138,7 +139,7 @@ public class ChatRoomRightButtonMenu
                     String nickName = null;
 
                     nickName =
-                        ConfigurationManager.getChatRoomProperty(
+                        ConfigurationUtils.getChatRoomProperty(
                             chatRoomWrapper.getParentProvider()
                                 .getProtocolProvider(), chatRoomWrapper
                                 .getChatRoomID(), "userNickName");
@@ -166,15 +167,15 @@ public class ChatRoomRightButtonMenu
                             "",
                             false,
                             true);
-                
+
                 String nickName = null;
-                
+
                 nickName =
-                    ConfigurationManager.getChatRoomProperty(
+                    ConfigurationUtils.getChatRoomProperty(
                         chatRoomWrapper.getParentProvider()
                             .getProtocolProvider(), chatRoomWrapper
                             .getChatRoomID(), "userNickName");
-                
+
                 if(nickName == null)
                     nickName = getNickname();
 
@@ -202,13 +203,13 @@ public class ChatRoomRightButtonMenu
         else if(itemName.equals("nickNameChatRoom"))
         {
             String nickName = null;
-            
+
             nickName =
-                ConfigurationManager.getChatRoomProperty(
+                ConfigurationUtils.getChatRoomProperty(
                     chatRoomWrapper.getParentProvider()
                         .getProtocolProvider(), chatRoomWrapper
                         .getChatRoomID(), "userNickName");
-            
+
             ChatOperationReasonDialog reasonDialog =
                 new ChatOperationReasonDialog(GuiActivator.getResources()
                     .getI18NString("service.gui.CHANGE_NICKNAME"), GuiActivator
@@ -225,11 +226,10 @@ public class ChatRoomRightButtonMenu
             {
                 nickName = reasonDialog.getReason().trim();
             }
-            
-            ConfigurationManager.updateChatRoomProperty(chatRoomWrapper
+
+            ConfigurationUtils.updateChatRoomProperty(chatRoomWrapper
                 .getParentProvider().getProtocolProvider(), chatRoomWrapper
                 .getChatRoomID(), "userNickName", nickName);
-            
         }
     }
 

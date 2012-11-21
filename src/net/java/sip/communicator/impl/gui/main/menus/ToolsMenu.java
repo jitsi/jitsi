@@ -26,6 +26,7 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
@@ -205,7 +206,7 @@ public class ToolsMenu
         }
         else if (itemName.equals("showHideOffline"))
         {
-            boolean isShowOffline = ConfigurationManager.isShowOffline();
+            boolean isShowOffline = ConfigurationUtils.isShowOffline();
 
             TreeContactList.presenceFilter.setShowOffline(!isShowOffline);
 
@@ -346,7 +347,7 @@ public class ToolsMenu
 
         if(!cfg.getBoolean(AUTO_ANSWER_MENU_DISABLED_PROP, false))
         {
-            if(ConfigurationManager.isAutoAnswerDisableSubmenu())
+            if(ConfigurationUtils.isAutoAnswerDisableSubmenu())
             {
                 this.addSeparator();
                 AutoAnswerMenu.registerMenuItems(this);
@@ -361,7 +362,7 @@ public class ToolsMenu
         this.addSeparator();
 
         // Show/hide offline contacts menu item.
-        String offlineTextKey = ConfigurationManager.isShowOffline()
+        String offlineTextKey = ConfigurationUtils.isShowOffline()
                             ? "service.gui.HIDE_OFFLINE_CONTACTS"
                             : "service.gui.SHOW_OFFLINE_CONTACTS";
 

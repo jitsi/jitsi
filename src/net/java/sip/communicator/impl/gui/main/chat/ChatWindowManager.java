@@ -16,11 +16,11 @@ import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
-import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.Logger;
 
 import org.jitsi.util.*;
@@ -444,7 +444,7 @@ public class ChatWindowManager
 
         synchronized (chatSyncRoot)
         {
-            if (ConfigurationManager.isMultiChatWindowEnabled())
+            if (ConfigurationUtils.isMultiChatWindowEnabled())
             {
                 if (chatPanelsIter.hasNext())
                 {
@@ -1015,7 +1015,7 @@ public class ChatWindowManager
             this.chatPanels.add(chatPanel);
         }
 
-        if (ConfigurationManager.isHistoryShown())
+        if (ConfigurationUtils.isHistoryShown())
             chatPanel.loadHistory(escapedMessageID);
 
         fireChatCreated(chatPanel);
@@ -1041,7 +1041,7 @@ public class ChatWindowManager
 
         // If we're in a multi-window mode we have two possibilities - multi
         // chat window or single chat windows.
-        if (ConfigurationManager.isMultiChatWindowEnabled())
+        if (ConfigurationUtils.isMultiChatWindowEnabled())
         {
             Iterator<ChatPanel> chatPanelsIter = chatPanels.iterator();
 
@@ -1117,7 +1117,7 @@ public class ChatWindowManager
             this.chatPanels.add(chatPanel);
         }
 
-        if (ConfigurationManager.isHistoryShown())
+        if (ConfigurationUtils.isHistoryShown())
             chatPanel.loadHistory(escapedMessageID);
 
         fireChatCreated(chatPanel);
@@ -1150,7 +1150,7 @@ public class ChatWindowManager
             this.chatPanels.add(chatPanel);
         }
 
-        if (ConfigurationManager.isHistoryShown())
+        if (ConfigurationUtils.isHistoryShown())
             chatPanel.loadHistory(escapedMessageID);
 
         fireChatCreated(chatPanel);

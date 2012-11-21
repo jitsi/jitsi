@@ -22,8 +22,6 @@ import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
-import org.jitsi.service.configuration.*;
-
 /**
  * The <tt>GlobalStatusSelectorBox</tt> is a global status selector box, which
  * appears in the status panel, when the user has more than one account. It
@@ -124,7 +122,7 @@ public class GlobalStatusSelectorBox
                 offlineStatus = status;
         }
 
-        if(!ConfigurationManager.isHideAccountStatusSelectorsEnabled())
+        if(!ConfigurationUtils.isHideAccountStatusSelectorsEnabled())
             this.addSeparator();
 
         this.setFont(titleLabel.getFont().deriveFont(Font.PLAIN, 11f));
@@ -187,7 +185,7 @@ public class GlobalStatusSelectorBox
                 ? new PresenceStatusMenu(protocolProvider)
                 : new SimpleStatusMenu(protocolProvider);
 
-        if(ConfigurationManager.isHideAccountStatusSelectorsEnabled())
+        if(ConfigurationUtils.isHideAccountStatusSelectorsEnabled())
             statusSelectorMenu.setVisible(false);
 
         // If this is the first account in our menu.

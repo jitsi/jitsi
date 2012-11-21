@@ -22,7 +22,6 @@ import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.main.menus.*;
 import net.java.sip.communicator.impl.gui.main.presence.*;
-import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contacteventhandler.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
@@ -180,7 +179,7 @@ public class MainFrame
      */
     public MainFrame()
     {
-        if (!ConfigurationManager.isWindowDecorated())
+        if (!ConfigurationUtils.isWindowDecorated())
         {
             this.setUndecorated(true);
         }
@@ -1724,7 +1723,7 @@ public class MainFrame
      */
     public void setFrameVisible(final boolean isVisible)
     {
-        ConfigurationManager.setApplicationVisible(isVisible);
+        ConfigurationUtils.setApplicationVisible(isVisible);
 
         SwingUtilities.invokeLater(new Runnable(){
             public void run()
@@ -1887,7 +1886,7 @@ public class MainFrame
             {
                 public void run()
                 {
-                    if (ConfigurationManager.isQuitWarningShown())
+                    if (ConfigurationUtils.isQuitWarningShown())
                     {
                         MessageDialog dialog =
                             new MessageDialog(null,
@@ -1897,12 +1896,12 @@ public class MainFrame
                                 "service.gui.HIDE_MAIN_WINDOW"), false);
 
                         if (dialog.showDialog() == MessageDialog.OK_DONT_ASK_CODE)
-                            ConfigurationManager.setQuitWarningShown(false);
+                            ConfigurationUtils.setQuitWarningShown(false);
                     }
                 }
             });
 
-            ConfigurationManager.setApplicationVisible(false);
+            ConfigurationUtils.setApplicationVisible(false);
         }
     }
 

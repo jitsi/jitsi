@@ -19,8 +19,8 @@ import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
-import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
 import org.jitsi.util.*;
@@ -363,7 +363,7 @@ public class ChatRoomTableDialog
             {
                 nickName = reasonDialog.getReason().trim();
 
-                ConfigurationManager.updateChatRoomProperty(
+                ConfigurationUtils.updateChatRoomProperty(
                     getSelectedProvider().getProtocolProvider(),
                     chatRoomWrapper.getChatRoomID(), "userNickName", nickName);
             }
@@ -410,7 +410,7 @@ public class ChatRoomTableDialog
                     {
                         nickName = reasonDialog.getReason().trim();
 
-                        ConfigurationManager.updateChatRoomProperty(
+                        ConfigurationUtils.updateChatRoomProperty(
                             getSelectedProvider().getProtocolProvider(),
                             chatRoomWrapper.getChatRoomID(), "userNickName",
                             nickName);
@@ -434,7 +434,7 @@ public class ChatRoomTableDialog
                     if (!selectedRoom.getChatRoom().isJoined())
                     {
                         String savedNick =
-                            ConfigurationManager.getChatRoomProperty(
+                            ConfigurationUtils.getChatRoomProperty(
                                 selectedRoom.getParentProvider()
                                     .getProtocolProvider(), selectedRoom
                                     .getChatRoomID(), "userNickName");
@@ -461,7 +461,7 @@ public class ChatRoomTableDialog
                             true);
 
                     String savedNick =
-                        ConfigurationManager.getChatRoomProperty(
+                        ConfigurationUtils.getChatRoomProperty(
                             chatRoomWrapper.getParentProvider()
                                 .getProtocolProvider(), chatRoomWrapper
                                 .getChatRoomID(), "userNickName");
@@ -486,12 +486,12 @@ public class ChatRoomTableDialog
                         {
                             nickName = reasonDialog.getReason().trim();
 
-                            ConfigurationManager.updateChatRoomProperty(
+                            ConfigurationUtils.updateChatRoomProperty(
                                 getSelectedProvider().getProtocolProvider(),
                                 chatRoomWrapper.getChatRoomID(),
                                 "userNickName", nickName);
                         }
-                        
+
                         GuiActivator.getUIService().getConferenceChatManager()
                         .joinChatRoom(chatRoomWrapper,nickName,null);
                     }

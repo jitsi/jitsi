@@ -109,16 +109,16 @@ public class FileMenu
                 .getI18nMnemonic("service.gui.NEW_ACCOUNT"));
 
             // add separator only if there are other items enabled
-            if(!ConfigurationManager.isAddContactDisabled()
-               || !ConfigurationManager.isCreateGroupDisabled()
-               || !ConfigurationManager.isGoToChatroomDisabled())
+            if(!ConfigurationUtils.isAddContactDisabled()
+               || !ConfigurationUtils.isCreateGroupDisabled()
+               || !ConfigurationUtils.isGoToChatroomDisabled())
             {
                 this.addSeparator();
                 endsWithSeparator = true;
             }
         }
 
-        if (!ConfigurationManager.isAddContactDisabled())
+        if (!ConfigurationUtils.isAddContactDisabled())
         {
             addContactItem = new JMenuItem(
                 resources.getI18NString("service.gui.ADD_CONTACT") + "...");
@@ -134,8 +134,8 @@ public class FileMenu
 
             // if next item is disabled add separator here
             // only if there is something next
-            if(ConfigurationManager.isCreateGroupDisabled()
-               && !ConfigurationManager.isGoToChatroomDisabled())
+            if(ConfigurationUtils.isCreateGroupDisabled()
+               && !ConfigurationUtils.isGoToChatroomDisabled())
             {
                 this.addSeparator();
                 endsWithSeparator = true;
@@ -144,19 +144,19 @@ public class FileMenu
                 endsWithSeparator = false;
         }
 
-        if (!ConfigurationManager.isCreateGroupDisabled())
+        if (!ConfigurationUtils.isCreateGroupDisabled())
         {
             this.add(createGroupItem);
 
             // add separator if there is something next
-            if(!ConfigurationManager.isGoToChatroomDisabled())
+            if(!ConfigurationUtils.isGoToChatroomDisabled())
             {
                 this.addSeparator();
                 endsWithSeparator = true;
             }
         }
 
-        if (!ConfigurationManager.isGoToChatroomDisabled())
+        if (!ConfigurationUtils.isGoToChatroomDisabled())
         {
             this.add(myChatRoomsItem);
             endsWithSeparator = false;

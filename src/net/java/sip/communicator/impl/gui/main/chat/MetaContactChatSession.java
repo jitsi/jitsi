@@ -18,6 +18,7 @@ import net.java.sip.communicator.service.filehistory.*;
 import net.java.sip.communicator.service.metahistory.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * An implementation of the <tt>ChatSession</tt> interface that represents a
@@ -111,7 +112,7 @@ public class MetaContactChatSession
         return metaHistory.findLast(
             chatHistoryFilter,
             metaContact,
-            ConfigurationManager.getChatHistorySize());
+            ConfigurationUtils.getChatHistorySize());
     }
 
     /**
@@ -134,7 +135,7 @@ public class MetaContactChatSession
 
         return metaHistory.findLastMessagesBefore(
             chatHistoryFilter,
-            metaContact, date, ConfigurationManager.getChatHistorySize());
+            metaContact, date, ConfigurationUtils.getChatHistorySize());
     }
 
     /**
@@ -157,7 +158,7 @@ public class MetaContactChatSession
 
         return metaHistory.findFirstMessagesAfter(
             chatHistoryFilter,
-            metaContact, date, ConfigurationManager.getChatHistorySize());
+            metaContact, date, ConfigurationUtils.getChatHistorySize());
     }
 
     /**

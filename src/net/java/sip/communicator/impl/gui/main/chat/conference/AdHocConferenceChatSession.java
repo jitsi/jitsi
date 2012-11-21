@@ -12,11 +12,11 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
-import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.metahistory.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.globalstatus.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * An implementation of <tt>ChatSession</tt> for ad-hoc conference chatting.
@@ -145,7 +145,7 @@ public class AdHocConferenceChatSession
         return metaHistory.findLast(
             chatHistoryFilter,
             chatRoomWrapper.getAdHocChatRoom(),
-            ConfigurationManager.getChatHistorySize());
+            ConfigurationUtils.getChatHistorySize());
     }
 
     /**
@@ -170,7 +170,7 @@ public class AdHocConferenceChatSession
             chatHistoryFilter,
             chatRoomWrapper.getAdHocChatRoom(),
             date,
-            ConfigurationManager.getChatHistorySize());
+            ConfigurationUtils.getChatHistorySize());
     }
 
     /**
@@ -195,7 +195,7 @@ public class AdHocConferenceChatSession
             chatHistoryFilter,
             chatRoomWrapper.getAdHocChatRoom(),
             date,
-            ConfigurationManager.getChatHistorySize());
+            ConfigurationUtils.getChatHistorySize());
     }
 
     /**

@@ -17,6 +17,7 @@ import javax.swing.event.*;
 
 import net.java.sip.communicator.plugin.generalconfig.autoaway.*;
 import net.java.sip.communicator.service.systray.*;
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.util.swing.*;
 
@@ -254,13 +255,13 @@ public class GeneralConfigurationPanel
 
         groupMessagesCheckBox.setAlignmentX(JCheckBox.LEFT_ALIGNMENT);
         groupMessagesCheckBox.setSelected(
-            ConfigurationManager.isMultiChatWindowEnabled());
+            ConfigurationUtils.isMultiChatWindowEnabled());
 
         groupMessagesCheckBox.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent e)
             {
-                ConfigurationManager.setMultiChatWindowEnabled(
+                ConfigurationUtils.setMultiChatWindowEnabled(
                     groupMessagesCheckBox.isSelected());
             }
         });
@@ -281,13 +282,13 @@ public class GeneralConfigurationPanel
 
         leaveChatroomCheckBox.setAlignmentX(JCheckBox.LEFT_ALIGNMENT);
         leaveChatroomCheckBox.setSelected(
-            ConfigurationManager.isLeaveChatRoomOnWindowCloseEnabled());
+            ConfigurationUtils.isLeaveChatRoomOnWindowCloseEnabled());
 
         leaveChatroomCheckBox.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent e)
             {
-                ConfigurationManager.setLeaveChatRoomOnWindowClose(
+                ConfigurationUtils.setLeaveChatRoomOnWindowClose(
                     leaveChatroomCheckBox.isSelected());
             }
         });
@@ -312,13 +313,13 @@ public class GeneralConfigurationPanel
         logHistoryCheckBox.setText(
             Resources.getString("plugin.generalconfig.LOG_HISTORY"));
         logHistoryCheckBox.setSelected(
-            ConfigurationManager.isHistoryLoggingEnabled());
+            ConfigurationUtils.isHistoryLoggingEnabled());
 
         logHistoryCheckBox.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent e)
             {
-                ConfigurationManager.setHistoryLoggingEnabled(
+                ConfigurationUtils.setHistoryLoggingEnabled(
                     logHistoryCheckBox.isSelected());
             }
         });
@@ -334,13 +335,13 @@ public class GeneralConfigurationPanel
         showHistoryCheckBox.setText(
             Resources.getString("plugin.generalconfig.SHOW_HISTORY"));
         showHistoryCheckBox.setSelected(
-            ConfigurationManager.isHistoryShown());
+            ConfigurationUtils.isHistoryShown());
 
         showHistoryCheckBox.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent e)
             {
-                ConfigurationManager.setHistoryShown(
+                ConfigurationUtils.setHistoryShown(
                     showHistoryCheckBox.isSelected());
             }
         });
@@ -352,7 +353,7 @@ public class GeneralConfigurationPanel
         showHistoryPanel.add(historySizeSpinner);
         historySizeSpinner.setModel(historySizeSpinnerModel);
         historySizeSpinner.setValue(
-            ConfigurationManager.getChatHistorySize());
+            ConfigurationUtils.getChatHistorySize());
 
         logHistoryCheckBox.addChangeListener(new ChangeListener()
         {
@@ -379,7 +380,7 @@ public class GeneralConfigurationPanel
             {
                 public void stateChanged(ChangeEvent e)
                 {
-                    ConfigurationManager.setChatHistorySize(
+                    ConfigurationUtils.setChatHistorySize(
                         ((Integer) historySizeSpinner
                             .getValue()).intValue());
                 }
@@ -390,13 +391,13 @@ public class GeneralConfigurationPanel
         historySizeLabel.setText(
             Resources.getString("plugin.generalconfig.HISTORY_SIZE"));
 
-        if (!ConfigurationManager.isHistoryLoggingEnabled())
+        if (!ConfigurationUtils.isHistoryLoggingEnabled())
         {
             showHistoryCheckBox.setEnabled(false);
             historySizeSpinner.setEnabled(false);
         }
 
-        if (!ConfigurationManager.isHistoryShown())
+        if (!ConfigurationUtils.isHistoryShown())
         {
             historySizeSpinner.setEnabled(false);
         }
@@ -422,19 +423,19 @@ public class GeneralConfigurationPanel
         ComboBoxModel sendMessageComboBoxModel =
             new DefaultComboBoxModel(
                 new String[] {
-                    ConfigurationManager.ENTER_COMMAND,
-                    ConfigurationManager.CTRL_ENTER_COMMAND });
+                    ConfigurationUtils.ENTER_COMMAND,
+                    ConfigurationUtils.CTRL_ENTER_COMMAND });
         final JComboBox sendMessageComboBox = new JComboBox();
         sendMessagePanel.add(sendMessageComboBox);
         sendMessageComboBox.setModel(sendMessageComboBoxModel);
         sendMessageComboBox.setSelectedItem(
-            ConfigurationManager.getSendMessageCommand());
+            ConfigurationUtils.getSendMessageCommand());
 
         sendMessageComboBox.addItemListener(new ItemListener()
         {
             public void itemStateChanged(ItemEvent arg0)
             {
-                ConfigurationManager.setSendMessageCommand(
+                ConfigurationUtils.setSendMessageCommand(
                     (String)sendMessageComboBox.getSelectedItem());
             }
         });
@@ -459,13 +460,13 @@ public class GeneralConfigurationPanel
             new Dimension(253, 20));
 
         enableTypingNotifiCheckBox.setSelected(
-            ConfigurationManager.isSendTypingNotifications());
+            ConfigurationUtils.isSendTypingNotifications());
 
         enableTypingNotifiCheckBox.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent e)
             {
-                ConfigurationManager.setSendTypingNotifications(
+                ConfigurationUtils.setSendTypingNotifications(
                     enableTypingNotifiCheckBox.isSelected());
             }
         });
@@ -487,13 +488,13 @@ public class GeneralConfigurationPanel
         bringToFrontCheckBox.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         bringToFrontCheckBox.setSelected(
-            ConfigurationManager.isAutoPopupNewMessage());
+            ConfigurationUtils.isAutoPopupNewMessage());
 
         bringToFrontCheckBox.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent e)
             {
-                ConfigurationManager.setAutoPopupNewMessage(
+                ConfigurationUtils.setAutoPopupNewMessage(
                     bringToFrontCheckBox.isSelected());
             }
         });
@@ -566,7 +567,7 @@ public class GeneralConfigurationPanel
                 {
                     // "Auto" selected. Delete the user's preference and
                     // select the best available handler.
-                    ConfigurationManager.setPopupHandlerConfig(null);
+                    ConfigurationUtils.setPopupHandlerConfig(null);
                     GeneralConfigPluginActivator.getSystrayService()
                         .selectBestPopupMessageHandler();
 
@@ -576,7 +577,7 @@ public class GeneralConfigurationPanel
                         (PopupMessageHandler)
                         notifConfigComboBox.getSelectedItem();
 
-                    ConfigurationManager.setPopupHandlerConfig(
+                    ConfigurationUtils.setPopupHandlerConfig(
                         handler.getClass().getName());
 
                     GeneralConfigPluginActivator.getSystrayService()
@@ -610,7 +611,7 @@ public class GeneralConfigurationPanel
                 locale.getDisplayLanguage(locale));
         }
         Locale currLocale =
-            ConfigurationManager.getCurrentLanguage();
+            ConfigurationUtils.getCurrentLanguage();
         localesConfigComboBox.setSelectedItem(currLocale
             .getDisplayLanguage(currLocale));
 
@@ -632,7 +633,7 @@ public class GeneralConfigurationPanel
                     if(locale.getDisplayLanguage(locale)
                         .equals(language))
                     {
-                        ConfigurationManager.setLanguage(locale);
+                        ConfigurationUtils.setLanguage(locale);
                         break;
                     }
                 }
@@ -681,7 +682,7 @@ public class GeneralConfigurationPanel
         JPanel checkBoxPanel = new TransparentPanel(new BorderLayout());
 
         SIPCommCheckBox formatPhoneNumber = new SIPCommCheckBox("",
-            ConfigurationManager.isNormalizePhoneNumber());
+            ConfigurationUtils.isNormalizePhoneNumber());
 
         formatPhoneNumber.setAlignmentY(Component.TOP_ALIGNMENT);
 
@@ -689,7 +690,7 @@ public class GeneralConfigurationPanel
         {
             public void actionPerformed(ActionEvent e)
             {
-                ConfigurationManager.setNormalizePhoneNumber(
+                ConfigurationUtils.setNormalizePhoneNumber(
                         ((JCheckBox)e.getSource()).isSelected());
             }
         });
@@ -725,7 +726,7 @@ public class GeneralConfigurationPanel
         // phone numbers.
         SIPCommCheckBox acceptPhoneNumberWithAlphaChars
             = new SIPCommCheckBox("",
-                ConfigurationManager.acceptPhoneNumberWithAlphaChars());
+                ConfigurationUtils.acceptPhoneNumberWithAlphaChars());
 
         acceptPhoneNumberWithAlphaChars.setAlignmentY(Component.TOP_ALIGNMENT);
 
@@ -733,7 +734,7 @@ public class GeneralConfigurationPanel
         {
             public void actionPerformed(ActionEvent e)
             {
-                ConfigurationManager.setAcceptPhoneNumberWithAlphaChars(
+                ConfigurationUtils.setAcceptPhoneNumberWithAlphaChars(
                         ((JCheckBox)e.getSource()).isSelected());
             }
         });

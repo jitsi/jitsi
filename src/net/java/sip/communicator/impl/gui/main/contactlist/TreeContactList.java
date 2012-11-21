@@ -1314,7 +1314,7 @@ public class TreeContactList
             GroupNode groupNode = (GroupNode) collapsedNode;
             String id = groupNode.getGroupDescriptor().getId();
             if (id != null)
-                ConfigurationManager
+                ConfigurationUtils
                     .setContactListGroupCollapsed(id, true);
         }
     }
@@ -1336,7 +1336,7 @@ public class TreeContactList
             GroupNode groupNode = (GroupNode) collapsedNode;
             String id = groupNode.getGroupDescriptor().getId();
             if (id != null)
-                ConfigurationManager
+                ConfigurationUtils
                     .setContactListGroupCollapsed(id, false);
         }
     }

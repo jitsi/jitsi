@@ -6,8 +6,8 @@
  */
 package net.java.sip.communicator.impl.gui.main.chat.conference;
 
-import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>ChatRoomWrapper</tt> is the representation of the <tt>ChatRoom</tt>
@@ -180,7 +180,7 @@ public class ChatRoomWrapper
     {
         if(autoJoin == null)
         {
-            String val = ConfigurationManager.getChatRoomProperty(
+            String val = ConfigurationUtils.getChatRoomProperty(
                 getParentProvider().getProtocolProvider(),
                 getChatRoomID(), AUTOJOIN_PROPERTY_NAME);
 
@@ -206,7 +206,7 @@ public class ChatRoomWrapper
         {
             setPersistent(true);
 
-            ConfigurationManager.saveChatRoom(
+            ConfigurationUtils.saveChatRoom(
                 getParentProvider().getProtocolProvider(),
                 getChatRoomID(),
                 getChatRoomID(),
@@ -215,13 +215,13 @@ public class ChatRoomWrapper
 
         if(value)
         {
-            ConfigurationManager.updateChatRoomProperty(
+            ConfigurationUtils.updateChatRoomProperty(
                 getParentProvider().getProtocolProvider(),
                 chatRoomID, AUTOJOIN_PROPERTY_NAME, Boolean.toString(autoJoin));
         }
         else
         {
-            ConfigurationManager.updateChatRoomProperty(
+            ConfigurationUtils.updateChatRoomProperty(
                 getParentProvider().getProtocolProvider(),
                 chatRoomID, AUTOJOIN_PROPERTY_NAME, null);
         }

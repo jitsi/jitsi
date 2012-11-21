@@ -11,7 +11,6 @@ import java.net.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -97,8 +96,8 @@ public class MetaContactChatTransport
      */
     private void checkImCaps()
     {
-        if (ConfigurationManager.getChatDefaultFontFamily() != null
-            && ConfigurationManager.getChatDefaultFontSize() > 0)
+        if (ConfigurationUtils.getChatDefaultFontFamily() != null
+            && ConfigurationUtils.getChatDefaultFontSize() > 0)
         {
             OperationSetBasicInstantMessaging imOpSet
                 = contact.getProtocolProvider()

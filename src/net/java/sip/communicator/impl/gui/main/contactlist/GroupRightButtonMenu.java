@@ -66,7 +66,7 @@ public class GroupRightButtonMenu
         this.group = group;
         this.mainFrame = mainFrame;
 
-        if (!ConfigurationManager.isAddContactDisabled())
+        if (!ConfigurationUtils.isAddContactDisabled())
             this.add(addContactItem);
 
         this.addSeparator();
