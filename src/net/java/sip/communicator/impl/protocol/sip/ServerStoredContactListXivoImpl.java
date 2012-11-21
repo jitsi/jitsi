@@ -22,7 +22,7 @@ import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.Logger;
 
 import org.jitsi.util.*;
-import org.json.*;
+import org.json.simple.*;
 
 /**
  * Xivo server stored contact list. Currently no modifications are possible.
@@ -250,9 +250,9 @@ public class ServerStoredContactListXivoImpl
                     if(logger.isTraceEnabled())
                         logger.trace("Read from server:" + line);
 
-                    handle(new JSONObject(line));
+                    handle((JSONObject)JSONValue.parseWithException(line));
                 }
-                catch(JSONException ex)
+                catch(Throwable ex)
                 {
                     logger.error("Error parsing object:" + line, ex);
                 }
@@ -471,21 +471,21 @@ public class ServerStoredContactListXivoImpl
      */
     private void handle(JSONObject incomingObject)
     {
-        if(!incomingObject.has("class"))
+        if(!incomingObject.containsKey("class"))
             return;
 
         try
         {
-            String classField = incomingObject.getString("class");
+            String classField = (String)incomingObject.get("class");
 
             if (classField.equals("loginko"))
             {
                 showError(null, null,
                         "Unauthorized. Cannot login: " +
-                        incomingObject.getString("errorstring"));
+                        incomingObject.get("errorstring"));
 
                 logger.error("Error login: " +
-                    incomingObject.getString("errorstring"));
+                    incomingObject.get("errorstring"));
 
                 destroy();
 
@@ -508,22 +508,22 @@ public class ServerStoredContactListXivoImpl
                     password = accountID.getAccountPropertyString(XIVO_PASSWORD);
                 }
 
-                if(!authorize(incomingObject.getString("sessionid"), password))
+                if(!authorize((String)incomingObject.get("sessionid"), password))
                     logger.error("Error login authorization!");
 
                 return;
             }
             else if (classField.equals("login_pass_ok"))
             {
-                if(!sendCapas(incomingObject.getJSONArray("capalist")))
+                if(!sendCapas((JSONArray)incomingObject.get("capalist")))
                     logger.error("Error send capas!");
 
                 return;
             }
             else if (classField.equals("login_capas_ok"))
             {
-                if(!sendFeatures(incomingObject.getString("astid"),
-                            incomingObject.getString("xivo_userid")))
+                if(!sendFeatures((String)incomingObject.get("astid"),
+                            (String)incomingObject.get("xivo_userid")))
                     logger.error("Problem send features get!");
 
                 return;
@@ -563,27 +563,29 @@ public class ServerStoredContactListXivoImpl
      * @param username the username.
      * @return is command successful.
      */
+    @SuppressWarnings("unchecked")
     private boolean login(String username)
     {
         if(connection == null || username == null)
             return false;
 
+
         JSONObject obj = new JSONObject();
         try
         {
-            obj.accumulate("class","login_id");
-            obj.accumulate("company", "Jitsi");
+            obj.put("class","login_id");
+            obj.put("company", "Jitsi");
 
             String os = "x11";
             if(OSUtils.IS_WINDOWS)
                 os = "win";
             else if(OSUtils.IS_MAC)
                 os = "mac";
-            obj.accumulate("ident", username + "@" + os);
+            obj.put("ident", username + "@" + os);
 
-            obj.accumulate("userid", username);
-            obj.accumulate("version", "9999");
-            obj.accumulate("xivoversion", "1.1");
+            obj.put("userid", username);
+            obj.put("version", "9999");
+            obj.put("xivoversion", "1.1");
 
             return send(obj);
         }
@@ -600,6 +602,7 @@ public class ServerStoredContactListXivoImpl
      * @param password the password to authorize.
      * @return is command successful.
      */
+    @SuppressWarnings("unchecked")
     private boolean authorize(String sessionId, String password)
     {
         if(connection == null || sessionId == null || password == null)
@@ -608,8 +611,8 @@ public class ServerStoredContactListXivoImpl
         JSONObject obj = new JSONObject();
         try
         {
-            obj.accumulate("class","login_pass");
-            obj.accumulate("hashedpassword",
+            obj.put("class","login_pass");
+            obj.put("hashedpassword",
                 Sha1Crypto.encode(sessionId + ":" + password));
 
             return send(obj);
@@ -626,20 +629,21 @@ public class ServerStoredContactListXivoImpl
      * @param capalistParam param from previous command.
      * @return is command successful.
      */
+    @SuppressWarnings("unchecked")
     private boolean sendCapas(JSONArray capalistParam)
     {
         if(connection == null
-            || capalistParam == null || capalistParam.length() < 1)
+            || capalistParam == null || capalistParam.isEmpty())
             return false;
 
         JSONObject obj = new JSONObject();
         try
         {
-            obj.accumulate("class", "login_capas");
-            obj.accumulate("capaid", capalistParam.getString(0));
-            obj.accumulate("lastconnwins", "false");
-            obj.accumulate("loginkind", "agent");
-            obj.accumulate("state", "");
+            obj.put("class", "login_capas");
+            obj.put("capaid", capalistParam.get(0));
+            obj.put("lastconnwins", "false");
+            obj.put("loginkind", "agent");
+            obj.put("state", "");
 
             return send(obj);
         }
@@ -656,6 +660,7 @@ public class ServerStoredContactListXivoImpl
      * @param xivoUserId param from previous command.
      * @return is command successful.
      */
+    @SuppressWarnings("unchecked")
     private boolean sendFeatures(String astid, String xivoUserId)
     {
         if(connection == null || astid == null || xivoUserId == null)
@@ -664,8 +669,8 @@ public class ServerStoredContactListXivoImpl
         JSONObject obj = new JSONObject();
         try
         {
-            obj.accumulate("class","featuresget");
-            obj.accumulate("userid", astid + "/" + xivoUserId);
+            obj.put("class","featuresget");
+            obj.put("userid", astid + "/" + xivoUserId);
 
             return send(obj);
         }
@@ -680,13 +685,14 @@ public class ServerStoredContactListXivoImpl
      * Sends command to retrieve phones list.
      * @return is command successful.
      */
+    @SuppressWarnings("unchecked")
     private boolean getPhoneList()
     {
         JSONObject obj = new JSONObject();
         try
         {
-            obj.accumulate("class", "phones");
-            obj.accumulate("function", "getlist");
+            obj.put("class", "phones");
+            obj.put("function", "getlist");
 
             return send(obj);
         }
@@ -722,20 +728,20 @@ public class ServerStoredContactListXivoImpl
     {
         try
         {
-            if(!objReceived.getString("function").equals("sendlist")
-                || !objReceived.has("payload"))
+            if(!objReceived.get("function").equals("sendlist")
+                || !objReceived.containsKey("payload"))
                 return;
 
-            JSONObject payload = objReceived.getJSONObject("payload");
-            Iterator iter = payload.keys();
+            JSONObject payload = (JSONObject)objReceived.get("payload");
+            Iterator iter = payload.keySet().iterator();
             List<JSONObject> phoneList = new ArrayList<JSONObject>();
             while(iter.hasNext())
             {
-                JSONObject obj = (JSONObject)payload.get((String) iter.next());
-                Iterator phonesIter = obj.keys();
+                JSONObject obj = (JSONObject)payload.get(iter.next());
+                Iterator phonesIter = obj.keySet().iterator();
                 while(phonesIter.hasNext())
                     phoneList.add(
-                        (JSONObject)obj.get((String)phonesIter.next()));
+                        (JSONObject)obj.get(phonesIter.next()));
 
             }
 
@@ -744,10 +750,10 @@ public class ServerStoredContactListXivoImpl
                 try
                 {
                     // don't handle non sip phones
-                    if(!phone.getString("tech").equalsIgnoreCase("sip"))
+                    if(!((String)phone.get("tech")).equalsIgnoreCase("sip"))
                         continue;
 
-                    String groupName = phone.getString("context");
+                    String groupName = (String)phone.get("context");
 
                     ContactGroupSipImpl parentGroup =
                         findGroupByName(groupName);
@@ -763,7 +769,7 @@ public class ServerStoredContactListXivoImpl
                             ServerStoredGroupEvent.GROUP_CREATED_EVENT);
                     }
 
-                    String number = phone.getString("number");
+                    String number = (String)phone.get("number");
 
                     Address address =
                             sipProvider.parseAddressString(number);
@@ -776,8 +782,8 @@ public class ServerStoredContactListXivoImpl
                     {
                         contact = new ContactSipImpl(address, sipProvider);
                         contact.setDisplayName(
-                                phone.getString("firstname") + " "
-                                + phone.getString("lastname"));
+                                phone.get("firstname") + " "
+                                + phone.get("lastname"));
                         contact.setResolved(true);
                         parentGroup.addContact(contact);
 
@@ -786,8 +792,8 @@ public class ServerStoredContactListXivoImpl
                     else
                     {
                         contact.setDisplayName(
-                                phone.getString("firstname") + " "
-                                + phone.getString("lastname"));
+                                phone.get("firstname") + " "
+                                + phone.get("lastname"));
                         contact.setResolved(true);
 
                         fireContactResolved(parentGroup, contact);

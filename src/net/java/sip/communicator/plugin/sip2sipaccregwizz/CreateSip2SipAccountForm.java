@@ -19,7 +19,7 @@ import net.java.sip.communicator.plugin.sipaccregwizz.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
-import org.json.*;
+import org.json.simple.*;
 
 /**
  * @author Yana Stamcheva
@@ -304,18 +304,19 @@ public class CreateSip2SipAccountForm
         NewAccount newAccount = null;
         try
         {
-            JSONObject jsonObject = new JSONObject(response);
-            boolean isSuccess = jsonObject.getBoolean("success");
+            JSONObject jsonObject = (JSONObject)JSONValue
+                .parseWithException(response);
+            boolean isSuccess = (Boolean)jsonObject.get("success");
 
             if (isSuccess)
             {
                 newAccount = new NewAccount(
-                    jsonObject.getString("sip_address"),
+                    (String)jsonObject.get("sip_address"),
                     passField.getPassword(),
                     null,
-                    jsonObject.getString("outbound_proxy"));
+                    (String)jsonObject.get("outbound_proxy"));
 
-                String xcapRoot = jsonObject.getString("xcap_root");
+                String xcapRoot = (String)jsonObject.get("xcap_root");
 
                 // as sip2sip adds @sip2sip.info at the end of the
                 // xcap_uri but doesn't report it in resullt after
@@ -340,10 +341,10 @@ public class CreateSip2SipAccountForm
             }
             else
             {
-                showErrorMessage(jsonObject.getString("error_message"));
+                showErrorMessage((String)jsonObject.get("error_message"));
             }
         }
-        catch (JSONException e1)
+        catch (Throwable e1)
         {
             if (logger.isInfoEnabled())
                 logger.info("Failed Json parsing.", e1);

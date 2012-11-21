@@ -11,7 +11,7 @@ import java.net.*;
 import net.java.sip.communicator.service.replacement.*;
 import net.java.sip.communicator.util.*;
 
-import org.json.*;
+import org.json.simple.*;
 
 /**
  * Implements the {@link ReplacementService} to provide previews for Youtube
@@ -76,18 +76,19 @@ public class ReplacementServiceYoutubeImpl
                 holder = inputLine;
             in.close();
 
-            JSONObject wrapper = new JSONObject(holder);
+            JSONObject wrapper = (JSONObject)JSONValue
+                .parseWithException(holder);
 
-            String thumbUrl = wrapper.getString("thumbnail_url");
+            String thumbUrl = (String)wrapper.get("thumbnail_url");
 
             if (thumbUrl != null)
             {
                 return thumbUrl;
             }
         }
-        catch (Exception e)
+        catch (Throwable e)
         {
-            e.printStackTrace();
+            logger.error("Error parsing", e);
         }
 
         return sourceString;

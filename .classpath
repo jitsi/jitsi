@@ -55,7 +55,7 @@
 	<classpathentry kind="lib" path="lib/installer-exclude/joscar-protocol.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/jsch-0.1.36.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/jsocks-klea.jar"/>
-	<classpathentry kind="lib" path="lib/installer-exclude/json-20090723.jar"/>
+	<classpathentry kind="lib" path="lib/installer-exclude/json-simple-1.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/junit.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/laf-widget.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/lcrypto-jdk16-143.jar"/>

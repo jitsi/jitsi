@@ -10,4 +10,4 @@ Import-Package: org.osgi.framework,
  org.jitsi.service.resources, net.java.sip.communicator.service.resources,
  net.java.sip.communicator.util,
  org.apache.http,
- org.json
+ org.json.simple

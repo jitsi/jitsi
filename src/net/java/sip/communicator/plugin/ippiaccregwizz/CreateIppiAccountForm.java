@@ -19,7 +19,7 @@ import net.java.sip.communicator.plugin.sipaccregwizz.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
-import org.json.*;
+import org.json.simple.*;
 
 /**
  * @author Yana Stamcheva
@@ -281,8 +281,9 @@ public class CreateIppiAccountForm
         NewAccount newAccount = null;
         try
         {
-            JSONObject jsonObject = new JSONObject(response);
-            boolean isSuccess = jsonObject.getBoolean("success");
+            JSONObject jsonObject = (JSONObject)JSONValue
+                .parseWithException(response);
+            boolean isSuccess = (Boolean)jsonObject.get("success");
 
             if (isSuccess)
             {
@@ -294,10 +295,10 @@ public class CreateIppiAccountForm
             }
             else
             {
-                showErrorMessage(jsonObject.getString("error_message"));
+                showErrorMessage((String)jsonObject.get("error_message"));
             }
         }
-        catch (JSONException e1)
+        catch (Throwable e1)
         {
             if (logger.isInfoEnabled())
                 logger.info("Failed Json parsing.", e1);

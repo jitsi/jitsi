@@ -12,7 +12,7 @@ import java.util.regex.*;
 import net.java.sip.communicator.service.replacement.*;
 import net.java.sip.communicator.util.*;
 
-import org.json.*;
+import org.json.simple.*;
 
 /**
  * Implements the {@link ReplacementService} to provide previews for Flickr
@@ -99,16 +99,17 @@ public class ReplacementServiceFlickrImpl
                     holder = inputLine;
                 in.close();
 
-                JSONObject wrapper = new JSONObject(holder);
+                JSONObject wrapper = (JSONObject)JSONValue
+                    .parseWithException(holder);
 
-                if (wrapper.getString("stat").equals("ok"))
+                if (wrapper.get("stat").equals("ok"))
                 {
-                    JSONObject result = wrapper.getJSONObject("photo");
-                    if (!(result.length() == 0))
+                    JSONObject result = (JSONObject)wrapper.get("photo");
+                    if (!(result.isEmpty()))
                     {
-                        String farmID = result.getString("farm");
-                        String serverID = result.getString("server");
-                        String secret = result.getString("secret");
+                        String farmID = (String)result.get("farm");
+                        String serverID = (String)result.get("server");
+                        String secret = (String)result.get("secret");
 
                         thumbUrl =
                             "http://farm" + farmID + ".static.flickr.com/"
@@ -117,9 +118,9 @@ public class ReplacementServiceFlickrImpl
                     }
                 }
             }
-            catch(Exception e)
+            catch(Throwable e)
             {
-                e.printStackTrace();
+                logger.error("Error parsing", e);
             }
         }
 

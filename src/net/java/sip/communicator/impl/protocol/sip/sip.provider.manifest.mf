@@ -66,7 +66,7 @@ Import-Package:  ch.imvs.sdes4j.srtp,
  org.jitsi.service.version,
  org.jitsi.util,
  org.jitsi.util.xml,
- org.json,
+ org.json.simple,
  org.osgi.framework,
  org.w3c.dom,
  org.xml.sax

@@ -12,7 +12,7 @@ import java.util.regex.*;
 import net.java.sip.communicator.service.replacement.*;
 import net.java.sip.communicator.util.*;
 
-import org.json.*;
+import org.json.simple.*;
 
 /**
  * Implements the {@link ReplacementService} to provide previews for Vimeo
@@ -88,17 +88,19 @@ public class ReplacementServiceVimeoImpl
                     holder = inputLine;
                 in.close();
 
-                JSONArray result = new JSONArray(holder);
+                JSONArray result = (JSONArray)JSONValue
+                    .parseWithException(holder);
 
-                if (!(result.length() == 0))
+                if (!(result.isEmpty()))
                 {
                     thumbUrl
-                        = result.getJSONObject(0).getString("thumbnail_medium");
+                        = (String)((JSONObject)result.get(0))
+                            .get("thumbnail_medium");
                 }
             }
-            catch (Exception e)
+            catch (Throwable e)
             {
-                e.printStackTrace();
+                logger.error("Error parsing", e);
             }
         }
 

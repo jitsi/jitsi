@@ -2340,11 +2340,8 @@ javax.swing.event, javax.swing.border"/>
         <jar compress="true" destfile="${bundles.dest}/json.jar"
             filesetmanifest="merge">
 
-            <zipfileset src="${lib.noinst}/json-20090723.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/json-simple-1.1.1.jar" prefix=""/>
             <manifest>
-                <attribute name="Export-Package" value="org.json"/>
-                <attribute name="Bundle-Name" value="Json"/>
-                <attribute name="Bundle-Description" value="Json library."/>
                 <attribute name="System-Bundle" value="yes"/>
             </manifest>
         </jar>
