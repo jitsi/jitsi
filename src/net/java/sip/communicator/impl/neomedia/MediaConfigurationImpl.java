@@ -79,6 +79,13 @@ public class MediaConfigurationImpl implements MediaConfigurationService
         = "net.java.sip.communicator.impl.neomedia.videomoresettingsconfig.DISABLED";
 
     /**
+     * The name of the property which specifies if the audio system interface
+     * is disabled.
+     */
+    private static final String AUDIO_SYSTEM_DISABLED_PROP
+        = "net.java.sip.communicator.impl.neomedia.audiosystem.DISABLED";
+
+    /**
      * The thread which updates the capture device as selected by the user. This
      * prevent the UI to lock while changing the device.
      */
@@ -296,8 +303,19 @@ public class MediaConfigurationImpl implements MediaConfigurationService
             = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
 
         devicePanel.setMaximumSize(new Dimension(WIDTH, 25));
-        devicePanel.add(deviceLabel);
-        devicePanel.add(deviceComboBox);
+
+        final boolean isAudioSystemComboDisabled
+            = NeomediaActivator.getConfigurationService()
+                .getBoolean(AUDIO_SYSTEM_DISABLED_PROP, false);
+
+        // For audio configuration form first check if the audio system
+        // property is disabled.
+        if (type != DeviceConfigurationComboBoxModel.AUDIO
+            || !isAudioSystemComboDisabled)
+        {
+            devicePanel.add(deviceLabel);
+            devicePanel.add(deviceComboBox);
+        }
 
         final JPanel deviceAndPreviewPanel
             = new TransparentPanel(new BorderLayout());
@@ -306,7 +324,8 @@ public class MediaConfigurationImpl implements MediaConfigurationService
         switch (type)
         {
         case DeviceConfigurationComboBoxModel.AUDIO:
-            preferredDeviceAndPreviewPanelHeight = 225;
+            preferredDeviceAndPreviewPanelHeight
+                = (isAudioSystemComboDisabled) ? 180 : 225;
             break;
         case DeviceConfigurationComboBoxModel.VIDEO:
             preferredDeviceAndPreviewPanelHeight = 305;
@@ -320,80 +339,104 @@ public class MediaConfigurationImpl implements MediaConfigurationService
                     new Dimension(WIDTH, preferredDeviceAndPreviewPanelHeight));
         deviceAndPreviewPanel.add(devicePanel, BorderLayout.NORTH);
 
-        final ActionListener deviceComboBoxActionListener
-            = new ActionListener()
+        // For audio configuration if the audio system combo is disabled we're
+        // going to look directly in the device configuration and show the
+        // preview panel, which in this case contains audio configuration
+        // components.
+        if (type == DeviceConfigurationComboBoxModel.AUDIO
+            && isAudioSystemComboDisabled)
+        {
+            Component preview = null;
+            if (mediaService.getDeviceConfiguration().getAudioSystem() != null)
             {
-                public void actionPerformed(ActionEvent event)
+                preview = createPreview(type, deviceComboBox,
+                                deviceAndPreviewPanel.getPreferredSize());
+            }
+
+            if (preview != null)
+            {
+                deviceAndPreviewPanel.add(preview, BorderLayout.CENTER);
+            }
+        }
+        else
+        {
+            final ActionListener deviceComboBoxActionListener
+                = new ActionListener()
                 {
-                    boolean revalidateAndRepaint = false;
-
-                    for (int i = deviceAndPreviewPanel.getComponentCount() - 1;
-                            i >= 0;
-                            i--)
+                    public void actionPerformed(ActionEvent event)
                     {
-                        Component c = deviceAndPreviewPanel.getComponent(i);
+                        boolean revalidateAndRepaint = false;
 
-                        if (c != devicePanel)
+                        for (int i = deviceAndPreviewPanel
+                                .getComponentCount() - 1;
+                                i >= 0;
+                                i--)
                         {
-                            deviceAndPreviewPanel.remove(i);
+                            Component c = deviceAndPreviewPanel.getComponent(i);
+
+                            if (c != devicePanel)
+                            {
+                                deviceAndPreviewPanel.remove(i);
+                                revalidateAndRepaint = true;
+                            }
+                        }
+
+                        Component preview = null;
+
+                        if ((deviceComboBox.getSelectedItem() != null)
+                                && deviceComboBox.isShowing())
+                        {
+                            preview = createPreview(type, deviceComboBox,
+                                deviceAndPreviewPanel.getPreferredSize());
+                        }
+
+                        if (preview != null)
+                        {
+                            deviceAndPreviewPanel
+                                .add(preview, BorderLayout.CENTER);
                             revalidateAndRepaint = true;
                         }
-                    }
 
-                    Component preview = null;
-
-                    if ((deviceComboBox.getSelectedItem() != null)
-                            && deviceComboBox.isShowing())
-                    {
-                        preview = createPreview(type, deviceComboBox,
-                            deviceAndPreviewPanel.getPreferredSize());
-                    }
-
-                    if (preview != null)
-                    {
-                        deviceAndPreviewPanel.add(preview, BorderLayout.CENTER);
-                        revalidateAndRepaint = true;
-                    }
-
-                    if (revalidateAndRepaint)
-                    {
-                        deviceAndPreviewPanel.revalidate();
-                        deviceAndPreviewPanel.repaint();
-                    }
-                }
-            };
-
-        deviceComboBox.addActionListener(deviceComboBoxActionListener);
-        /*
-         * We have to initialize the controls to reflect the configuration
-         * at the time of creating this instance. Additionally, because the
-         * video preview will stop when it and its associated controls
-         * become unnecessary, we have to restart it when the mentioned
-         * controls become necessary again. We'll address the two goals
-         * described by pretending there's a selection in the video combo
-         * box when the combo box in question becomes displayable.
-         */
-        deviceComboBox.addHierarchyListener(
-                new HierarchyListener()
-                {
-                    public void hierarchyChanged(HierarchyEvent event)
-                    {
-                        if ((event.getChangeFlags()
-                                    & HierarchyEvent.SHOWING_CHANGED)
-                                != 0)
+                        if (revalidateAndRepaint)
                         {
-                            SwingUtilities.invokeLater(
-                                    new Runnable()
-                                    {
-                                        public void run()
-                                        {
-                                            deviceComboBoxActionListener
-                                                .actionPerformed(null);
-                                        }
-                                    });
+                            deviceAndPreviewPanel.revalidate();
+                            deviceAndPreviewPanel.repaint();
                         }
                     }
-                });
+                };
+
+            deviceComboBox.addActionListener(deviceComboBoxActionListener);
+            /*
+             * We have to initialize the controls to reflect the configuration
+             * at the time of creating this instance. Additionally, because the
+             * video preview will stop when it and its associated controls
+             * become unnecessary, we have to restart it when the mentioned
+             * controls become necessary again. We'll address the two goals
+             * described by pretending there's a selection in the video combo
+             * box when the combo box in question becomes displayable.
+             */
+            deviceComboBox.addHierarchyListener(
+                    new HierarchyListener()
+                    {
+                        public void hierarchyChanged(HierarchyEvent event)
+                        {
+                            if ((event.getChangeFlags()
+                                        & HierarchyEvent.SHOWING_CHANGED)
+                                    != 0)
+                            {
+                                SwingUtilities.invokeLater(
+                                        new Runnable()
+                                        {
+                                            public void run()
+                                            {
+                                                deviceComboBoxActionListener
+                                                    .actionPerformed(null);
+                                            }
+                                        });
+                            }
+                        }
+                    });
+        }
 
         return deviceAndPreviewPanel;
     }
@@ -407,40 +450,97 @@ public class MediaConfigurationImpl implements MediaConfigurationService
     private Component createControls(int type)
     {
         ConfigurationService cfg = NeomediaActivator.getConfigurationService();
-        SIPCommTabbedPane container = new SIPCommTabbedPane();
-        ResourceManagementService res = NeomediaActivator.getResources();
 
-        if((cfg == null) || !cfg.getBoolean(DEVICES_DISABLED_PROP, false))
+        Component devicesComponent = null;
+        Component encodingsComponent = null;
+        Component videoComponent = null;
+
+        int compCount = 0;
+
+        if (cfg == null || !cfg.getBoolean(DEVICES_DISABLED_PROP, false))
         {
-            container.insertTab(
-                res.getI18NString("impl.media.configform.DEVICES"),
-                null,
-                createBasicControls(type),
-                null,
-                0);
+            compCount++;
+            devicesComponent = createBasicControls(type);
         }
-        if((cfg == null) || !cfg.getBoolean(ENCODINGS_DISABLED_PROP, false))
+
+        if (cfg == null || !cfg.getBoolean(ENCODINGS_DISABLED_PROP, false))
         {
-            container.insertTab(
-                res.getI18NString("impl.media.configform.ENCODINGS"),
-                null,
-                createEncodingControls(type, null),
-                null,
-                1);
+            compCount++;
+            encodingsComponent = createEncodingControls(type, null);
         }
-        if ((type == DeviceConfigurationComboBoxModel.VIDEO)
-                && ((cfg == null)
-                        || !cfg.getBoolean(
-                                VIDEO_MORE_SETTINGS_DISABLED_PROP,
-                                false)))
+
+        if (type == DeviceConfigurationComboBoxModel.VIDEO
+            && (cfg == null
+                || !cfg.getBoolean(VIDEO_MORE_SETTINGS_DISABLED_PROP, false)))
         {
-            container.insertTab(
-                res.getI18NString("impl.media.configform.VIDEO_MORE_SETTINGS"),
-                null,
-                createVideoAdvancedSettings(),
-                null,
-                2);
+            compCount++;
+            videoComponent = createVideoAdvancedSettings();
         }
+
+        ResourceManagementService res = NeomediaActivator.getResources();
+        Container container;
+
+        // If we only have one configuration form we don't need to create
+        // a tabbed pane.
+        if (compCount < 2)
+        {
+            container = new TransparentPanel(new BorderLayout());
+
+            if (devicesComponent != null)
+                container.add(devicesComponent);
+            else if (encodingsComponent != null)
+                container.add(encodingsComponent);
+            else if (videoComponent != null)
+                container.add(videoComponent);
+        }
+        else
+        {
+            container = new SIPCommTabbedPane();
+
+            SIPCommTabbedPane tabbedPane = (SIPCommTabbedPane) container;
+
+            int index = 0;
+
+            if (devicesComponent != null)
+            {
+                tabbedPane.insertTab(
+                    res.getI18NString("impl.media.configform.DEVICES"),
+                    null,
+                    devicesComponent,
+                    null,
+                    index);
+
+                index = 1;
+            }
+
+            if (encodingsComponent != null)
+            {
+                if (tabbedPane.getTabCount() >= 1)
+                    index = 1;
+
+                tabbedPane.insertTab(
+                    res.getI18NString("impl.media.configform.ENCODINGS"),
+                    null,
+                    encodingsComponent,
+                    null,
+                    index);
+            }
+
+            if (videoComponent != null)
+            {
+                if (tabbedPane.getTabCount() >= 2)
+                    index = 2;
+
+                tabbedPane.insertTab(
+                    res.getI18NString(
+                        "impl.media.configform.VIDEO_MORE_SETTINGS"),
+                    null,
+                    videoComponent,
+                    null,
+                    index);
+            }
+        }
+
         return container;
     }
 
@@ -653,18 +753,32 @@ public class MediaConfigurationImpl implements MediaConfigurationService
 
         if (type == DeviceConfigurationComboBoxModel.AUDIO)
         {
-            Object selectedItem = comboBox.getSelectedItem();
+            AudioSystem audioSystem = null;
 
-            if (selectedItem instanceof AudioSystem)
+            // If the Audio System combo box is disabled we're looking for the
+            // default device configuration.
+            if (NeomediaActivator.getConfigurationService()
+                    .getBoolean(AUDIO_SYSTEM_DISABLED_PROP, false)
+                && mediaService.getDeviceConfiguration().getAudioSystem()
+                    != null)
             {
-                AudioSystem audioSystem = (AudioSystem) selectedItem;
+                audioSystem
+                    = mediaService.getDeviceConfiguration().getAudioSystem();
+            }
+            else
+            {
+                Object selectedItem = comboBox.getSelectedItem();
 
-                if (!NoneAudioSystem.LOCATOR_PROTOCOL.equalsIgnoreCase(
-                        audioSystem.getLocatorProtocol()))
-                {
-                    preview = new TransparentPanel(new GridBagLayout());
-                    createAudioSystemControls(audioSystem, preview);
-                }
+                if (selectedItem instanceof AudioSystem)
+                    audioSystem = (AudioSystem) selectedItem;
+            }
+
+            if (audioSystem != null
+                && !NoneAudioSystem.LOCATOR_PROTOCOL.equalsIgnoreCase(
+                    audioSystem.getLocatorProtocol()))
+            {
+                preview = new TransparentPanel(new GridBagLayout());
+                createAudioSystemControls(audioSystem, preview);
             }
         }
         else if (type == DeviceConfigurationComboBoxModel.VIDEO)
