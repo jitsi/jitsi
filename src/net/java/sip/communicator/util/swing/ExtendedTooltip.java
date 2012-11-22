@@ -109,61 +109,32 @@ public class ExtendedTooltip
          * adding a WindowFocusListener without removing the same
          * WindowFocusListener later on is guaranteed to cause a memory leak.
          */
-        parentWindow.addWindowFocusListener(new WindowFocusListener()
-        {
-            public void windowLostFocus(WindowEvent e)
+        if (parentWindow != null)
+            parentWindow.addWindowFocusListener(new WindowFocusListener()
             {
-                Window popupWindow
-                    = SwingUtilities.getWindowAncestor(ExtendedTooltip.this);
-
-                if ((popupWindow != null)
-                    && popupWindow.isVisible()
-                    // The popup window should normally be a JWindow, so we
-                    // check here explicitly if for some reason we didn't get
-                    // something else.
-                    && (popupWindow instanceof JWindow))
+                public void windowLostFocus(WindowEvent e)
                 {
-                    if (logger.isInfoEnabled())
-                        logger.info("Tooltip window ancestor to hide: "
-                            + popupWindow);
+                    Window popupWindow
+                        = SwingUtilities.getWindowAncestor(
+                            ExtendedTooltip.this);
 
-                    popupWindow.setVisible(false);
+                    if ((popupWindow != null)
+                        && popupWindow.isVisible()
+                        // The popup window should normally be a JWindow, so we
+                        // check here explicitly if for some reason we didn't
+                        // get something else.
+                        && (popupWindow instanceof JWindow))
+                    {
+                        if (logger.isInfoEnabled())
+                            logger.info("Tooltip window ancestor to hide: "
+                                + popupWindow);
+
+                        popupWindow.setVisible(false);
+                    }
                 }
-            }
 
-            public void windowGainedFocus(WindowEvent e) {}
-        });
-
-        // Comments this code as it hides the tool tip once it's opened and this
-        // appears as a buggy behavior.
-        // Hide the tooltip if the parent window isn't active
-//        addComponentListener(new ComponentAdapter()
-//        {
-//            public void componentResized(ComponentEvent evt)
-//            {
-//                if (!parentWindow.isActive())
-//                {
-//                    Window popupWindow
-//                        = SwingUtilities.getWindowAncestor(
-//                                ExtendedTooltip.this);
-//
-//                    if (popupWindow != null
-//                        && popupWindow.isVisible()
-//                        && !(popupWindow instanceof JFrame)
-//                        // The popup window should normally be a JWindow, so we
-//                        // check here explicitly if for some reason we didn't
-//                        // get something else.
-//                        && (popupWindow instanceof JWindow))
-//                    {
-//                        if (logger.isInfoEnabled())
-//                            logger.info("Tooltip window ancestor to hide: "
-//                                + popupWindow);
-//
-//                        popupWindow.setVisible(false);
-//                    }
-//                }
-//            }
-//        });
+                public void windowGainedFocus(WindowEvent e) {}
+            });
 
         this.add(mainPanel);
     }
