@@ -77,6 +77,11 @@ public class NotificationContact
     private UIContactDetail notificationDetail;
 
     /**
+     * The count of unread urgent messages attached to this notification.
+     */
+    private int unreadUrgentMessageCount = 0;
+
+    /**
      * The count of unread messages attached to this notification.
      */
     private int unreadMessageCount = 0;
@@ -161,12 +166,29 @@ public class NotificationContact
 
         ResourceManagementService resources = GuiActivator.getResources();
 
-        if (unreadMessageCount > 0 && readMessageCount > 0)
+        if ((unreadUrgentMessageCount > 0) &&
+            (unreadMessageCount > 0) &&
+            (readMessageCount > 0))
+        {
+            displayDetails = resources.getI18NString(
+                "service.gui.VOICEMAIL_NEW_URGENT_OLD_RECEIVED",
+                new String[]{   Integer.toString(unreadMessageCount),
+                                Integer.toString(unreadUrgentMessageCount),
+                                Integer.toString(readMessageCount)});
+        }
+        else if ((unreadMessageCount > 0) && (readMessageCount > 0))
         {
             displayDetails = resources.getI18NString(
                 "service.gui.VOICEMAIL_NEW_OLD_RECEIVED",
                 new String[]{   Integer.toString(unreadMessageCount),
                                 Integer.toString(readMessageCount)});
+        }
+        else if ((unreadUrgentMessageCount > 0) && (unreadMessageCount > 0))
+        {
+            displayDetails = resources.getI18NString(
+                "service.gui.VOICEMAIL_NEW_URGENT_RECEIVED",
+                new String[]{   Integer.toString(unreadMessageCount),
+                                Integer.toString(unreadUrgentMessageCount)});
         }
         else if (unreadMessageCount > 0)
         {
@@ -404,6 +426,28 @@ public class NotificationContact
     {
         notificationDetail
             = new MessageWaitingDetail(protocolProvider, messageAccount);
+    }
+
+    /**
+     * Sets the number of urgent unread messages, this notification is about.
+     *
+     * @param count the number of urgent unread messages, this notification is
+     * about
+     */
+    public void setUnreadUrgentMessageCount(int count)
+    {
+        this.unreadUrgentMessageCount = count;
+    }
+
+    /**
+     * Returns the number of urgent unread messages, this notification is
+     * about.
+     *
+     * @return the number of urgent unread messages, this notification is about
+     */
+    public int getUrgentUnreadMessageCount()
+    {
+        return unreadUrgentMessageCount;
     }
 
     /**

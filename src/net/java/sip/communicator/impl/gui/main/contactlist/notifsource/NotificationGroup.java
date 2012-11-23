@@ -278,6 +278,8 @@ public class NotificationGroup
             }
 
             contact.setMessageAccount(event.getAccount());
+            contact.setUnreadUrgentMessageCount(
+                event.getUnreadUrgentMessages());
             contact.setUnreadMessageCount(event.getUnreadMessages());
             contact.setReadMessageCount(event.getReadMessages());
 
