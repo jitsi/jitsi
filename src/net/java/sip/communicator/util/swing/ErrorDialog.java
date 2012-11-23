@@ -66,6 +66,22 @@ public class ErrorDialog
         = new TransparentPanel(new BorderLayout(10, 10));
 
     /**
+     * Load the "net.java.sip.communicator.SHOW_STACK_TRACE" property to
+     * determine whether we should show stack trace in error dialogs.
+     * Default is show.
+     */
+    private static String showStackTraceDefaultProp
+        = UtilActivator.getResources().getSettingsString(
+            "net.java.sip.communicator.SHOW_STACK_TRACE");
+
+    /**
+     * Should we show stack trace.
+     */
+    private final static boolean showStackTrace =
+        (showStackTraceDefaultProp != null) ?
+            Boolean.parseBoolean(showStackTraceDefaultProp) : true;
+
+    /**
      * The indicator which determines whether the details of the error are
      * currently shown.
      * <p>
@@ -92,7 +108,7 @@ public class ErrorDialog
     /**
      * The maximum width that we allow message dialogs to have.
      */
-    private static final int MAX_MSG_PANE_WIDTH = 600;
+    private static final int MAX_MSG_PANE_WIDTH = 340;
 
     /**
      * The maximum height that we allow message dialogs to have.
@@ -116,11 +132,14 @@ public class ErrorDialog
         this.mainPanel.setBorder(
             BorderFactory.createEmptyBorder(20, 20, 10, 20));
 
-        this.stackTraceScrollPane.setBorder(BorderFactory.createLineBorder(
-            iconLabel.getForeground()));
+        if (showStackTrace)
+        {
+            this.stackTraceScrollPane.setBorder(BorderFactory.createLineBorder(
+                iconLabel.getForeground()));
 
-        this.stackTraceScrollPane.setHorizontalScrollBarPolicy(
-            JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+            this.stackTraceScrollPane.setHorizontalScrollBarPolicy(
+                JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+        }
 
         this.setTitle(title);
 
@@ -172,35 +191,38 @@ public class ErrorDialog
     {
         this(owner, title, message);
 
-        this.setTitle(title);
-
-        this.htmlMsgEditorPane.setEditable(false);
-        this.htmlMsgEditorPane.setOpaque(false);
-
-        this.htmlMsgEditorPane.addHyperlinkListener(this);
-
-        showOrHideDetails();
-
-        this.infoMessagePanel.add(htmlMsgEditorPane, BorderLayout.SOUTH);
-
-        StringWriter sw = new StringWriter();
-        PrintWriter pw = new PrintWriter(sw);
-        e.printStackTrace(pw);
-        pw.close();
-
-        String stackTrace = sw.toString();
-
-        try
+        if (showStackTrace)
         {
-            sw.close();
-        }
-        catch (IOException ex)
-        {
-            //really shouldn't happen. but log anyway
-            logger.error("Failed to close a StringWriter. ", ex);
-        }
+            this.setTitle(title);
 
-        this.stackTraceTextArea.setText(stackTrace);
+            this.htmlMsgEditorPane.setEditable(false);
+            this.htmlMsgEditorPane.setOpaque(false);
+
+            this.htmlMsgEditorPane.addHyperlinkListener(this);
+
+            showOrHideDetails();
+
+            this.infoMessagePanel.add(htmlMsgEditorPane, BorderLayout.SOUTH);
+
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            e.printStackTrace(pw);
+            pw.close();
+
+            String stackTrace = sw.toString();
+
+            try
+            {
+                sw.close();
+            }
+            catch (IOException ex)
+            {
+                //really shouldn't happen. but log anyway
+                logger.error("Failed to close a StringWriter. ", ex);
+            }
+
+            this.stackTraceTextArea.setText(stackTrace);
+        }
     }
 
     /**
@@ -323,7 +345,7 @@ public class ErrorDialog
 
     /**
      * Close the ErrorDialog. This function is invoked when user
-     * presses the Escape key. 
+     * presses the Escape key.
      *
      * @param isEscaped Specifies whether the close was triggered by pressing
      * the escape key.
