@@ -7,6 +7,7 @@
 package net.java.sip.communicator.plugin.update;
 
 import java.util.*;
+import java.util.concurrent.*;
 
 import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.service.gui.*;
@@ -50,6 +51,20 @@ public class UpdateActivator
         = "net.java.sip.communicator.plugin.update.checkforupdatesmenu.DISABLED";
 
     /**
+     * The name of the configuration property which indicates whether the client
+     * should automatically check for updates each day or not.
+     */
+    private static final String CHECK_FOR_UPDATES_DAILY_ENABLED_PROP =
+    "net.java.sip.communicator.plugin.update.checkforupdatesmenu.daily.ENABLED";
+
+    /**
+     * The name of the configuration property which indicates the hour that
+     * the client should check for updates (if daily update checking is enabled)
+     */
+    private static final String CHECK_FOR_UPDATES_DAILY_TIME_PROP =
+       "net.java.sip.communicator.plugin.update.checkforupdatesmenu.daily.HOUR";
+
+    /**
      * Reference to the <tt>BrowserLauncherService</tt>.
      */
     private static BrowserLauncherService browserLauncher;
@@ -74,6 +89,11 @@ public class UpdateActivator
      * The update service.
      */
     private static UpdateService updateService;
+
+    /**
+     * A scheduler to check for updates once a day
+     */
+    private ScheduledExecutorService mUpdateExecutor = null;
 
     /**
      * Returns the <tt>BrowserLauncherService</tt> obtained from the bundle
@@ -197,6 +217,45 @@ public class UpdateActivator
 
         if (logger.isDebugEnabled())
             logger.debug("Update checker [REGISTERED]");
+
+        if (configuration.getBoolean(CHECK_FOR_UPDATES_DAILY_ENABLED_PROP,
+                                     false))
+        {
+            logger.info("Scheduled update checking enabled");
+
+            // Schedule a "check for updates" task that will run once a day
+            int hoursToWait = calcHoursToWait();
+            Runnable updateRunnable = new Runnable()
+            {
+                public void run()
+                {
+                    logger.debug("Performing scheduled update check");
+                    getUpdateService().checkForUpdates(false);
+                }
+            };
+
+            mUpdateExecutor = Executors.newSingleThreadScheduledExecutor();
+            mUpdateExecutor.scheduleAtFixedRate(updateRunnable,
+                                                hoursToWait,
+                                                24,
+                                                TimeUnit.HOURS);
+        }
+    }
+
+    /**
+     * Calculate the number of hour to wait until the first scheduled update
+     * check.  This will only be called if daily checking for config updates
+     * is enabled
+     *
+     * @return The number of hours to wait
+     */
+    private int calcHoursToWait()
+    {
+        // The hours to wait is the number of hours until midnight tonight (24
+        // minus the current hour) plus the hour that the config says updates
+        // should be
+        return 24 - Calendar.getInstance().get(Calendar.HOUR_OF_DAY) +
+                     configuration.getInt(CHECK_FOR_UPDATES_DAILY_TIME_PROP, 0);
     }
 
     /**
@@ -208,6 +267,12 @@ public class UpdateActivator
     {
         if (logger.isDebugEnabled())
             logger.debug("Update checker [STOPPED]");
+
+        if (mUpdateExecutor != null)
+        {
+            mUpdateExecutor.shutdown();
+            mUpdateExecutor = null;
+        }
     }
 
     /**
