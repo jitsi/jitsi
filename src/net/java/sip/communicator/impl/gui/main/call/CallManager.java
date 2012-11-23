@@ -184,7 +184,7 @@ public class CallManager
 
             /*
              * Notify the existing CallPanels about the CallEvent (in case they
-             * need to update their UI, for example). 
+             * need to update their UI, for example).
              */
             forwardCallEventToCallPanels(ev);
         }
@@ -206,7 +206,7 @@ public class CallManager
 
             /*
              * Notify the existing CallPanels about the CallEvent (in case
-             * they need to update their UI, for example). 
+             * they need to update their UI, for example).
              */
             forwardCallEventToCallPanels(ev);
         }
@@ -226,7 +226,7 @@ public class CallManager
 
             /*
              * Notify the existing CallPanels about the CallEvent (in case they
-             * need to update their UI, for example). 
+             * need to update their UI, for example).
              */
             forwardCallEventToCallPanels(ev);
         }
@@ -1805,7 +1805,8 @@ public class CallManager
                     {
                         if (contact != null)
                             telephony.createCall(contact);
-                        else if (stringContact != null)
+                        else if (stringContact != null
+                                 && stringContact.length() > 0)
                             telephony.createCall(stringContact);
                     }
                 }

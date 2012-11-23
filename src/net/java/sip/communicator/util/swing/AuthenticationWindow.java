@@ -63,9 +63,11 @@ public class AuthenticationWindow
     /**
      * The check box indicating if the password should be remembered.
      */
-    private final JCheckBox rememberPassCheckBox
-        = new SIPCommCheckBox(UtilActivator.getResources()
-            .getI18NString("service.gui.REMEMBER_PASSWORD"));
+    private final JCheckBox rememberPassCheckBox = new SIPCommCheckBox(
+        UtilActivator.getResources()
+            .getI18NString("service.gui.REMEMBER_PASSWORD"),
+        UtilActivator.getConfigurationService()
+            .getBoolean(PNAME_SAVE_PASSWORD_TICKED, false));
 
     /**
      * Property to disable/enable allow save password option
@@ -73,6 +75,14 @@ public class AuthenticationWindow
      */
     private static final String PNAME_ALLOW_SAVE_PASSWORD =
         "net.java.sip.communicator.util.swing.auth.ALLOW_SAVE_PASSWORD";
+
+    /**
+     * Property to set whether the save password option in
+     * the authentication window is ticked by default or not.
+     * By default it is not ticked
+     */
+    private static final String PNAME_SAVE_PASSWORD_TICKED =
+        "net.java.sip.communicator.util.swing.auth.SAVE_PASSWORD_TICKED";
 
     /**
      * The name of the server, for which this authentication window is about.
