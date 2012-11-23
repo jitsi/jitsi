@@ -16,6 +16,13 @@ public interface OperationSetVideoBridge
     extends OperationSet
 {
     /**
+     * The name of the property under which the user may specify if
+     * video bridge should be disabled.
+     */
+    public static final String IS_VIDEO_BRIDGE_DISABLED
+        = "net.java.sip.communicator.service.protocol.VIDEO_BRIDGE_DISABLED";
+
+    /**
      * Creates a conference call with the specified callees as call peers via a
      * video bridge provided by the parent Jabber provider.
      *

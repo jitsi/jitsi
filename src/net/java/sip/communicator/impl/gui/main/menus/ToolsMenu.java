@@ -422,6 +422,14 @@ public class ToolsMenu
      */
     private void initVideoBridgeMenu()
     {
+        // If video bridge is enabled in the config then add the menu item
+        if (GuiActivator.getConfigurationService()
+             .getBoolean(OperationSetVideoBridge
+                .IS_VIDEO_BRIDGE_DISABLED, false))
+        {
+            return;
+        }
+
         if (!SwingUtilities.isEventDispatchThread())
         {
             SwingUtilities.invokeLater(new Runnable()

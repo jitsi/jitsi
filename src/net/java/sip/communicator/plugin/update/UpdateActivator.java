@@ -177,6 +177,8 @@ public class UpdateActivator
 
         UpdateActivator.bundleContext = bundleContext;
 
+        ConfigurationService cfg = getConfiguration();
+
         if (OSUtils.IS_WINDOWS)
         {
             updateService = new Update();
@@ -185,8 +187,6 @@ public class UpdateActivator
                 UpdateService.class.getName(),
                 updateService,
                 null);
-
-            ConfigurationService cfg = getConfiguration();
 
             // Register the "Check for Updates" menu item if
             // the "Check for Updates" property isn't disabled.
@@ -218,7 +218,7 @@ public class UpdateActivator
         if (logger.isDebugEnabled())
             logger.debug("Update checker [REGISTERED]");
 
-        if (configuration.getBoolean(CHECK_FOR_UPDATES_DAILY_ENABLED_PROP,
+        if (cfg.getBoolean(CHECK_FOR_UPDATES_DAILY_ENABLED_PROP,
                                      false))
         {
             logger.info("Scheduled update checking enabled");

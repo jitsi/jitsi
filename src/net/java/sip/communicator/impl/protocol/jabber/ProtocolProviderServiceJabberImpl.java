@@ -1728,9 +1728,19 @@ public class ProtocolProviderServiceJabberImpl
                     OperationSetBasicAutoAnswer.class,
                     new OperationSetAutoAnswerJabberImpl(this));
 
-                addSupportedOperationSet(
-                    OperationSetVideoBridge.class,
-                    new OperationSetVideoBridgeImpl(this));
+                // Only init video bridge if enabled
+                boolean isVideoBridgeDisabled
+                    = JabberActivator.getConfigurationService()
+                      .getBoolean(OperationSetVideoBridge.
+                          IS_VIDEO_BRIDGE_DISABLED, false);
+
+                if (!isVideoBridgeDisabled)
+                {
+                    // init video bridge
+                    addSupportedOperationSet(
+                        OperationSetVideoBridge.class,
+                        new OperationSetVideoBridgeImpl(this));
+                }
 
                 // init DTMF
                 OperationSetDTMFJabberImpl operationSetDTMFSip
@@ -1800,7 +1810,7 @@ public class ProtocolProviderServiceJabberImpl
             addSupportedOperationSet(OperationSetMessageCorrection.class,
                     basicInstantMessaging);
 
-            OperationSetChangePassword opsetChangePassword 
+            OperationSetChangePassword opsetChangePassword
                     = new OperationSetChangePasswordJabberImpl(this);
             addSupportedOperationSet(OperationSetChangePassword.class,
                     opsetChangePassword);
