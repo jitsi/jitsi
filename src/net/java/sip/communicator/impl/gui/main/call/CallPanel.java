@@ -440,7 +440,15 @@ public class CallPanel
                 this.callInfoFrame = new CallInfoFrame(callConference);
                 this.addCallTitleListener(callInfoFrame);
             }
-            callInfoFrame.setVisible(!callInfoFrame.isVisible());
+
+            if (callInfoFrame.hasCallInfo())
+            {
+                callInfoFrame.setVisible(!callInfoFrame.isVisible());
+            }
+            else
+            {
+                callInfoFrame.setVisible(false);
+            }
         }
     }
 
@@ -575,7 +583,7 @@ public class CallPanel
      * disposal (e.g. any listeners added to the depicted
      * <tt>CallConference</tt>, the participating <tt>Call</tt>s, and their
      * associated <tt>CallPeer</tt>s). Invoked by <tt>CallManager</tt> when it
-     * determines that this <tt>CallPanel</tt> is no longer necessary. 
+     * determines that this <tt>CallPanel</tt> is no longer necessary.
      */
     void dispose()
     {
@@ -619,7 +627,7 @@ public class CallPanel
      * or audio/video) because, otherwise, the switch will leave it
      * <tt>null</tt> and this view will remain blank. In such a case,
      * <tt>settingsPanel</tt> may wish to do pretty much the same but disable
-     * and/or hide the buttons it contains. 
+     * and/or hide the buttons it contains.
      */
     private void doUpdateSettingsPanelInEventDispatchThread(
             boolean callConferenceIsEnded)
@@ -806,7 +814,6 @@ public class CallPanel
                     removeCallPanel
                         = !((OneToOneCallPanel) callPanel).getCallPeer().equals(
                                 callPeer);
-                        
                 }
                 else
                     removeCallPanel = true;
@@ -879,7 +886,7 @@ public class CallPanel
             /*
              * It seems that AWT/Swing does not validate and/or repaint this
              * Container (enough) and, consequently, its display may not update
-             * itself with an up-to-date drawing of the current callPanel. 
+             * itself with an up-to-date drawing of the current callPanel.
              */
             if (validateAndRepaint)
             {
@@ -1341,7 +1348,7 @@ public class CallPanel
      * @param ev a <tt>VideoEvent</tt> which represents the cause of the
      * notification and specifies the visual <tt>Component</tt> displaying video
      * which may need an adjustment of a Frame's size in order to be displayed
-     * without scaling 
+     * without scaling
      */
     private void maybeEnsureSize(final VideoEvent ev)
     {
@@ -1913,7 +1920,7 @@ public class CallPanel
      * or audio/video) because, otherwise, the switch will leave it
      * <tt>null</tt> and this view will remain blank. In such a case,
      * <tt>settingsPanel</tt> may wish to do pretty much the same but disable
-     * and/or hide the buttons it contains. 
+     * and/or hide the buttons it contains.
      */
     private void updateSettingsPanelInEventDispatchThread(
             boolean callConferenceIsEnded)
@@ -1956,7 +1963,7 @@ public class CallPanel
          * interface hierarchy of this instance bellow. Consequently, this view
          * may become larger in width and/or height than its current Frame has
          * dedicated to it. Try to detect such cases and attempt to adjust the
-         * Frame's size accordingly. 
+         * Frame's size accordingly.
          */
         Dimension oldPreferredSize = getPreferredSize();
 
@@ -1967,7 +1974,7 @@ public class CallPanel
          * the user interface hierarchy of this instance above. Consequently,
          * this view may have become larger in width and/or height than its
          * current Frame has dedicated to it. Try to detect such cases and
-         * attempt to adjust the Frame's size accordingly. 
+         * attempt to adjust the Frame's size accordingly.
          */
         Dimension newPreferredSize = getPreferredSize();
 

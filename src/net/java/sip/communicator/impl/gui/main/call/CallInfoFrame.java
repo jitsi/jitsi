@@ -64,6 +64,11 @@ public class CallInfoFrame
         = GuiActivator.getResources();
 
     /**
+     * Indicates if the info window has any text to display.
+     */
+    private boolean hasCallInfo;
+
+    /**
      * Creates a new frame containing the statistical information for a specific
      * telephony conference.
      *
@@ -88,7 +93,7 @@ public class CallInfoFrame
 
         callInfoWindow.getContentPane().add(scrollPane);
 
-        this.constructCallInfo();
+        hasCallInfo = this.constructCallInfo();
     }
 
     /**
@@ -164,8 +169,9 @@ public class CallInfoFrame
 
     /**
      * Constructs the call info text.
+     * @return true if call info could be found, false otherwise
      */
-    private void constructCallInfo()
+    private boolean constructCallInfo()
     {
         StringBuffer stringBuffer = new StringBuffer();
 
@@ -181,49 +187,58 @@ public class CallInfoFrame
          * TODO A telephony conference may consist of a single Call with
          * multiple CallPeers but it may as well consist of multiple Calls.
          */
-        Call aCall = calls.get(0);
-
-        stringBuffer.append(
-                getLineString(
-                        resources.getI18NString(
-                                "service.gui.callinfo.CALL_IDENTITY"),
-                                aCall.getProtocolProvider().getAccountID()
-                                        .getDisplayName()));
-
-        int callPeerCount = callConference.getCallPeerCount();
-        if (callPeerCount > 1)
+        if (calls.size() <= 0)
         {
+            return false;
+        }
+        else
+        {
+            Call aCall = calls.get(0);
+
             stringBuffer.append(
-                    getLineString(resources.getI18NString(
-                            "service.gui.callinfo.PEER_COUNT"),
-                            String.valueOf(callPeerCount)));
+                    getLineString(
+                            resources.getI18NString(
+                                    "service.gui.callinfo.CALL_IDENTITY"),
+                                    aCall.getProtocolProvider().getAccountID()
+                                            .getDisplayName()));
+
+            int callPeerCount = callConference.getCallPeerCount();
+            if (callPeerCount > 1)
+            {
+                stringBuffer.append(
+                        getLineString(resources.getI18NString(
+                                "service.gui.callinfo.PEER_COUNT"),
+                                String.valueOf(callPeerCount)));
+            }
+
+            boolean isConfFocus = callConference.isConferenceFocus();
+
+            if (isConfFocus)
+            {
+                stringBuffer.append(getLineString(
+                        resources.getI18NString(
+                                "service.gui.callinfo.IS_CONFERENCE_FOCUS"),
+                        String.valueOf(isConfFocus)));
+            }
+
+            TransportProtocol preferredTransport
+                = aCall.getProtocolProvider().getTransportProtocol();
+
+            if (preferredTransport != TransportProtocol.UNKNOWN)
+                stringBuffer.append(getLineString(
+                    resources.getI18NString("service.gui.callinfo.CALL_TRANSPORT"),
+                    preferredTransport.toString()));
+
+            constructCallPeersInfo(stringBuffer);
+
+            stringBuffer.append("</font></p></body></html>");
+
+            infoTextPane.setText(stringBuffer.toString());
+            infoTextPane.revalidate();
+            infoTextPane.repaint();
+
+            return true;
         }
-
-        boolean isConfFocus = callConference.isConferenceFocus();
-
-        if (isConfFocus)
-        {
-            stringBuffer.append(getLineString(
-                    resources.getI18NString(
-                            "service.gui.callinfo.IS_CONFERENCE_FOCUS"),
-                    String.valueOf(isConfFocus)));
-        }
-
-        TransportProtocol preferredTransport
-            = aCall.getProtocolProvider().getTransportProtocol();
-
-        if (preferredTransport != TransportProtocol.UNKNOWN)
-            stringBuffer.append(getLineString(
-                resources.getI18NString("service.gui.callinfo.CALL_TRANSPORT"),
-                preferredTransport.toString()));
-
-        constructCallPeersInfo(stringBuffer);
-
-        stringBuffer.append("</font></p></body></html>");
-
-        infoTextPane.setText(stringBuffer.toString());
-        infoTextPane.revalidate();
-        infoTextPane.repaint();
     }
 
     /**
@@ -620,7 +635,7 @@ public class CallInfoFrame
         if (selectedText != null && selectedText.length() > 0)
             return;
 
-        constructCallInfo();
+        hasCallInfo = this.constructCallInfo();
         callInfoWindow.pack();
     }
 
@@ -652,6 +667,17 @@ public class CallInfoFrame
     public boolean isVisible()
     {
         return callInfoWindow.isVisible();
+    }
+
+    /**
+     * Indicates if the call info window has any text to display
+     *
+     * @return <tt>true</tt> if the window contains call info,
+     * <tt>false</tt> otherwise
+     */
+    public boolean hasCallInfo()
+    {
+        return hasCallInfo;
     }
 
     /**
@@ -696,7 +722,7 @@ public class CallInfoFrame
         if(srtpControl != null)
         {
             String info;
-            if (srtpControl instanceof ZrtpControl) 
+            if (srtpControl instanceof ZrtpControl)
             {
                 info = "ZRTP " + ((ZrtpControl)srtpControl).getCipherString();
             }
@@ -707,7 +733,7 @@ public class CallInfoFrame
 
             rtpType = resources.getI18NString(
                 "service.gui.callinfo.MEDIA_STREAM_SRTP")
-                + " (" 
+                + " ("
                 + resources.getI18NString(
                     "service.gui.callinfo.KEY_EXCHANGE_PROTOCOL")
                 + ": "
