@@ -19,11 +19,12 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.swing.*;
 
 import org.jitsi.service.configuration.*;
+import org.jitsi.service.resources.*;
 
 /**
  * The <tt>AccountsConfigurationPanel</tt> is the panel containing the accounts
  * list and according buttons shown in the options form.
- * 
+ *
  * @author Yana Stamcheva
  * @author Lubomir Marinov
  */
@@ -171,11 +172,13 @@ public class AccountsConfigurationPanel
                             = (AccountRegWizardContainerImpl) GuiActivator
                                 .getUIService().getAccountRegWizardContainer();
 
-                        AccountRegistrationWizard wizard
-                            = wizardContainer.getProtocolWizard(
-                                    account.getProtocolProvider());
+                        ProtocolProviderService protocolProvider =
+                                                  account.getProtocolProvider();
+                        AccountRegistrationWizard wizard =
+                            wizardContainer.getProtocolWizard(protocolProvider);
 
-                        wizard.accountRemoved(account.getProtocolProvider());
+                        if (wizard != null)
+                            wizard.accountRemoved(protocolProvider);
                     }
                 }
             }
@@ -191,17 +194,34 @@ public class AccountsConfigurationPanel
                 (AccountRegWizardContainerImpl) GuiActivator.getUIService()
                     .getAccountRegWizardContainer();
 
-            wizard.setTitle(GuiActivator.getResources().getI18NString(
-                "service.gui.ACCOUNT_REGISTRATION_WIZARD"));
+            AccountRegistrationWizard protocolWizard =
+                        wizard.getProtocolWizard(account.getProtocolProvider());
 
-            wizard.modifyAccount(account.getProtocolProvider());
-            wizard.showDialog(false);
+            ResourceManagementService resources = GuiActivator.getResources();
+            if (protocolWizard != null)
+            {
+                wizard.setTitle(resources.getI18NString(
+                                    "service.gui.ACCOUNT_REGISTRATION_WIZARD"));
+
+                wizard.modifyAccount(account.getProtocolProvider());
+                wizard.showDialog(false);
+            }
+            else
+            {
+                // There is no wizard for this account - just show an error
+                // dialog:
+                String title = resources.getI18NString("service.gui.ERROR");
+                String message =
+                      resources.getI18NString("service.gui.EDIT_NOT_SUPPORTED");
+                ErrorDialog dialog = new ErrorDialog(null, title, message);
+                dialog.setVisible(true);
+            }
         }
     }
 
     /**
      * Returns the edit button.
-     * 
+     *
      * @return the edit button
      */
     public JButton getEditButton()
