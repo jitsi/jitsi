@@ -18,6 +18,8 @@ import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
 
+import javax.swing.*;
+
 /**
  *
  * @author Yana Stamcheva
@@ -55,11 +57,31 @@ public class SimpleAccountRegistrationActivator
 
     private static ResourceManagementService resourcesService;
 
-    public void start(BundleContext bc) throws Exception
+    public void start(BundleContext bc)
+        throws Exception
     {
         bundleContext = bc;
 
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    init();
+                }
+            });
+            return;
+        }
 
+        init();
+    }
+
+    /**
+     * Initialize and displays the initial registration frame.
+     */
+    private void init()
+    {
         /*
          * Because the stored accounts may be asynchronously loaded, relying
          * only on the registered accounts isn't possible. Instead, presume the
