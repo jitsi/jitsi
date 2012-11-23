@@ -132,8 +132,17 @@ public class ProtocolProviderServiceYahooImpl
             String password = YahooActivator.
                 getProtocolProviderFactory().loadPassword(getAccountID());
 
-            //decode
-            if (password == null)
+            // If the password hasn't been saved or the reason is one of those
+            // listed below we need to ask the user for credentials again.
+            //
+            // NOTE:  We could check 'reason != CONNECTION_FAILED', but that's
+            // less clear and more easily broken if another reason is added
+            // (which is unlikely to require checking credentials again), so
+            // the performance impact of checking three values is preferred.
+            if ((password == null) ||
+                (authReasonCode == SecurityAuthority.AUTHENTICATION_REQUIRED) ||
+                (authReasonCode == SecurityAuthority.WRONG_PASSWORD) ||
+                (authReasonCode == SecurityAuthority.WRONG_USERNAME))
             {
                 //create a default credentials object
                 UserCredentials credentials = new UserCredentials();
@@ -333,7 +342,7 @@ public class ProtocolProviderServiceYahooImpl
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see net.java.sip.communicator.service.protocol.ProtocolProviderService#
      * isSignallingTransportSecure()
      */
@@ -389,7 +398,7 @@ public class ProtocolProviderServiceYahooImpl
             addSupportedOperationSet(
                 OperationSetInstantMessageTransform.class,
                 new OperationSetInstantMessageTransformImpl());
-            
+
             //initialize the presence operationset
             persistentPresence
                 = new OperationSetPersistentPresenceYahooImpl(this);
