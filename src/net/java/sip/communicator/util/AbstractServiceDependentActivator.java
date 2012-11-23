@@ -68,7 +68,7 @@ public abstract class AbstractServiceDependentActivator
      * The class of the service which this activator is interested in.
      * @return the class name.
      */
-    public abstract Class getDependentServiceClass();
+    public abstract Class<?> getDependentServiceClass();
 
     /**
      * Setting context to the activator, as soon as we have one.

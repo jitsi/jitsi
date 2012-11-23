@@ -7,6 +7,7 @@
 package net.java.sip.communicator.plugin.otr;
 
 import java.awt.event.*;
+import java.lang.ref.*;
 
 import javax.swing.*;
 
@@ -20,9 +21,8 @@ import net.java.sip.communicator.util.swing.*;
  * Off-the-Record functionality for a specific contact.
  *
  * @author George Politis
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
-@SuppressWarnings("serial")
 class OtrContactMenu
     implements ActionListener,
                ScOtrEngineListener,
@@ -64,9 +64,7 @@ class OtrContactMenu
 
     private final JMenu parentMenu;
 
-    private final boolean isSeparateMenu;
-
-    private SIPCommMenu separateMenu;
+    private final SIPCommMenu separateMenu;
 
     /**
      * The OtrContactMenu constructor.
@@ -84,15 +82,26 @@ class OtrContactMenu
         this.contact = contact;
         this.inMacOSXScreenMenuBar = inMacOSXScreenMenuBar;
         this.parentMenu = menu;
-        this.isSeparateMenu = isSeparateMenu;
 
-        if (isSeparateMenu)
-        {
-            separateMenu = new SIPCommMenu(contact.getDisplayName());
-        }
+        separateMenu
+            = isSeparateMenu
+                ? new SIPCommMenu(contact.getDisplayName())
+                : null;
 
-        OtrActivator.scOtrEngine.addListener(this);
-        OtrActivator.scOtrKeyManager.addListener(this);
+        /*
+         * XXX This OtrContactMenu instance cannot be added as a listener to
+         * scOtrEngine and scOtrKeyManager without being removed later on
+         * because the latter live forever. Unfortunately, the dispose() method
+         * of this instance is never executed. WeakListener will keep this
+         * instance as a listener of scOtrEngine and scOtrKeyManager for as long
+         * as this instance is necessary. And this instance will be strongly
+         * referenced by the JMenuItems which depict it. So when the JMenuItems
+         * are gone, this instance will become obsolete and WeakListener will
+         * remove it as a listener of scOtrEngine and scOtrKeyManager.
+         */
+        new WeakListener(
+                this,
+                OtrActivator.scOtrEngine, OtrActivator.scOtrKeyManager);
 
         setSessionStatus(OtrActivator.scOtrEngine.getSessionStatus(contact));
         setOtrPolicy(OtrActivator.scOtrEngine.getContactPolicy(contact));
@@ -199,8 +208,7 @@ class OtrContactMenu
      */
     public void globalPolicyChanged()
     {
-        setOtrPolicy(OtrActivator.scOtrEngine
-            .getContactPolicy(OtrContactMenu.this.contact));
+        setOtrPolicy(OtrActivator.scOtrEngine.getContactPolicy(contact));
     }
 
     /**
@@ -240,7 +248,7 @@ class OtrContactMenu
             authBuddy.setActionCommand(ACTION_COMMAND_AUTHENTICATE_BUDDY);
             authBuddy.addActionListener(this);
 
-            if (isSeparateMenu)
+            if (separateMenu != null)
             {
                 separateMenu.add(endOtr);
                 separateMenu.add(refreshOtr);
@@ -256,7 +264,7 @@ class OtrContactMenu
             break;
 
         case FINISHED:
-            if (isSeparateMenu)
+            if (separateMenu != null)
             {
                 separateMenu.add(endOtr);
                 separateMenu.add(startOtr);
@@ -269,7 +277,7 @@ class OtrContactMenu
             break;
 
         case PLAINTEXT:
-            if (isSeparateMenu)
+            if (separateMenu != null)
                 separateMenu.add(startOtr);
             else
                 parentMenu.add(startOtr);
@@ -330,7 +338,7 @@ class OtrContactMenu
         cbReset.setActionCommand(ACTION_COMMAND_CB_RESET);
         cbReset.addActionListener(this);
 
-        if (isSeparateMenu)
+        if (separateMenu != null)
         {
             separateMenu.addSeparator();
             separateMenu.add(cbEnable);
@@ -377,7 +385,6 @@ class OtrContactMenu
             if (separateMenu != null)
             {
                 updateIcon();
-
                 if (separateMenu.isPopupMenuVisible() || inMacOSXScreenMenuBar)
                     buildMenu();
             }
@@ -396,9 +403,12 @@ class OtrContactMenu
         {
             this.otrPolicy = otrPolicy;
 
-            if (separateMenu != null
-                && (separateMenu.isPopupMenuVisible() || inMacOSXScreenMenuBar))
+            if ((separateMenu != null)
+                    && (separateMenu.isPopupMenuVisible()
+                            || inMacOSXScreenMenuBar))
+            {
                 buildMenu();
+            }
         }
     }
 
@@ -408,7 +418,7 @@ class OtrContactMenu
      */
     private void updateIcon()
     {
-        if (!isSeparateMenu)
+        if (separateMenu == null)
             return;
 
         String imageID;
@@ -435,5 +445,148 @@ class OtrContactMenu
         }
 
         separateMenu.setIcon(OtrActivator.resourceService.getImage(imageID));
+    }
+
+    /**
+     * Implements a <tt>ScOtrEngineListener</tt> and
+     * <tt>ScOtrKeyManagerListener</tt> listener for the purposes of
+     * <tt>OtrContactMenu</tt> which listens to <tt>ScOtrEngine</tt> and
+     * <tt>ScOtrKeyManager</tt> while weakly referencing the
+     * <tt>OtrContactMenu</tt>. Fixes a memory leak of <tt>OtrContactMenu</tt>
+     * instances because these cannot determine when they are to be explicitly
+     * disposed.
+     *
+     * @author Lyubomir Marinov
+     */
+    private static class WeakListener
+        implements ScOtrEngineListener,
+                   ScOtrKeyManagerListener
+    {
+        /**
+         * The <tt>ScOtrEngine</tt> the <tt>OtrContactMenu</tt> associated with
+         * this instance is to listen to.
+         */
+        private final ScOtrEngine engine;
+
+        /**
+         * The <tt>ScOtrKeyManager</tt> the <tt>OtrContactMenu</tt> associated
+         * with this instance is to listen to.
+         */
+        private final ScOtrKeyManager keyManager;
+
+        /**
+         * The <tt>OtrContactMenu</tt> which is associated with this instance
+         * and which is to listen to {@link #engine} and {@link #keyManager}. 
+         */
+        private final WeakReference<OtrContactMenu> listener;
+
+        /**
+         * Initializes a new <tt>WeakListener</tt> instance which is to allow
+         * a specific <tt>OtrContactMenu</tt> to listener to a specific
+         * <tt>ScOtrEngine</tt> and a specific <tt>ScOtrKeyManager</tt> without
+         * being retained by them forever (because they live forever).
+         *
+         * @param listener the <tt>OtrContactMenu</tt> which is to listen to the
+         * specified <tt>engine</tt> and <tt>keyManager</tt>
+         * @param engine the <tt>ScOtrEngine</tt> which is to be listened to by
+         * the specified <tt>OtrContactMenu</tt>
+         * @param keyManager the <tt>ScOtrKeyManager</tt> which is to be
+         * listened to by the specified <tt>OtrContactMenu</tt>
+         */
+        public WeakListener(
+                OtrContactMenu listener,
+                ScOtrEngine engine, ScOtrKeyManager keyManager)
+        {
+            if (listener == null)
+                throw new NullPointerException("listener");
+
+            this.listener = new WeakReference<OtrContactMenu>(listener);
+            this.engine = engine;
+            this.keyManager = keyManager;
+
+            this.engine.addListener(this);
+            this.keyManager.addListener(this);
+        }
+
+        /**
+         * {@inheritDoc}
+         *
+         * Forwards the event/notification to the associated
+         * <tt>OtrContactMenu</tt> if it is still needed by the application.
+         */
+        public void contactPolicyChanged(Contact contact)
+        {
+            ScOtrEngineListener l = getListener();
+
+            if (l != null)
+                l.contactPolicyChanged(contact);
+        }
+
+        /**
+         * {@inheritDoc}
+         *
+         * Forwards the event/notification to the associated
+         * <tt>OtrContactMenu</tt> if it is still needed by the application.
+         */
+        public void contactVerificationStatusChanged(Contact contact)
+        {
+            ScOtrKeyManagerListener l = getListener();
+
+            if (l != null)
+                l.contactVerificationStatusChanged(contact);
+        }
+
+        /**
+         * Gets the <tt>OtrContactMenu</tt> which is listening to
+         * {@link #engine} and {@link #keyManager}. If the
+         * <tt>OtrContactMenu</tt> is no longer needed by the application, this
+         * instance seizes listening to <tt>engine</tt> and <tt>keyManager</tt>
+         * and allows the memory used by this instance to be reclaimed by the
+         * Java virtual machine.
+         *
+         * @return the <tt>OtrContactMenu</tt> which is listening to
+         * <tt>engine</tt> and <tt>keyManager</tt> if it is still needed by the
+         * application; otherwise, <tt>null</tt>
+         */
+        private OtrContactMenu getListener()
+        {
+            OtrContactMenu l = this.listener.get();
+
+            if (l == null)
+            {
+                engine.removeListener(this);
+                keyManager.removeListener(this);
+            }
+
+            return l;
+        }
+
+        /**
+         * {@inheritDoc}
+         *
+         * Forwards the event/notification to the associated
+         * <tt>OtrContactMenu</tt> if it is still needed by the application.
+         */
+        public void globalPolicyChanged()
+        {
+            ScOtrEngineListener l = getListener();
+
+            if (l != null)
+                l.globalPolicyChanged();
+        }
+
+        /**
+         * {@inheritDoc}
+         *
+         * Forwards the event/notification to the associated
+         * <tt>OtrContactMenu</tt> if it is still needed by the application.
+         */
+        public void sessionStatusChanged(Contact contact)
+        {
+            ScOtrEngineListener l = getListener();
+
+            if (l != null)
+                l.sessionStatusChanged(contact);
+        }
     }
 }

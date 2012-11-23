@@ -9,15 +9,14 @@ package net.java.sip.communicator.plugin.otr;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
- * 
+ *
  * @author George Politis
- * 
  */
 public interface ScOtrEngineListener
 {
-    public abstract void sessionStatusChanged(Contact contact);
+    public void contactPolicyChanged(Contact contact);
 
-    public abstract void contactPolicyChanged(Contact contact);
+    public void globalPolicyChanged();
 
-    public abstract void globalPolicyChanged();
+    public void sessionStatusChanged(Contact contact);
 }

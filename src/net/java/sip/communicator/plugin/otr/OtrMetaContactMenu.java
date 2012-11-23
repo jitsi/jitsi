@@ -183,10 +183,12 @@ public class OtrMetaContactMenu
         menu.addSeparator();
 
         whatsThis = new JMenuItem();
-        whatsThis.setIcon(OtrActivator.resourceService
-            .getImage("plugin.otr.HELP_ICON_15x15"));
-        whatsThis.setText(OtrActivator.resourceService
-            .getI18NString("plugin.otr.menu.WHATS_THIS"));
+        whatsThis.setIcon(
+                OtrActivator.resourceService.getImage(
+                        "plugin.otr.HELP_ICON_15x15"));
+        whatsThis.setText(
+                OtrActivator.resourceService.getI18NString(
+                        "plugin.otr.menu.WHATS_THIS"));
         whatsThis.addActionListener(this);
         menu.add(whatsThis);
     }

@@ -25,7 +25,7 @@ public class OtrActivator
     implements ServiceListener
 {
     /**
-     * A property used in configuration to disable the otr plugin.
+     * A property used in configuration to disable the OTR plugin.
      */
     public static final String OTR_DISABLED_PROP =
         "net.java.sip.communicator.plugin.otr.DISABLED";
@@ -36,7 +36,6 @@ public class OtrActivator
      */
     private static final String OTR_CHAT_CONFIG_DISABLED_PROP
         = "net.java.sip.communicator.plugin.otr.otrchatconfig.DISABLED";
-
 
     /**
      * A property specifying whether private messaging should be made mandatory.
@@ -71,25 +70,29 @@ public class OtrActivator
     /**
      * The {@link ResourceManagementService} of the {@link OtrActivator}. Can
      * also be obtained from the {@link OtrActivator#bundleContext} on demand,
-     * but we add it here for convinience.
+     * but we add it here for convenience.
      */
     public static ResourceManagementService resourceService;
 
     /**
      * The {@link UIService} of the {@link OtrActivator}. Can also be obtained
      * from the {@link OtrActivator#bundleContext} on demand, but we add it here
-     * for convinience.
+     * for convenience.
      */
     public static UIService uiService;
 
     /**
      * The {@link ConfigurationService} of the {@link OtrActivator}. Can also be
      * obtained from the {@link OtrActivator#bundleContext} on demand, but we
-     * add it here for convinience.
+     * add it here for convenience.
      */
     public static ConfigurationService configService;
 
-    private static Logger logger = Logger.getLogger(OtrActivator.class);
+    /**
+     * The <tt>Logger</tt> used by the <tt>OtrActivator</tt> class and its
+     * instances for logging output.
+     */
+    private static final Logger logger = Logger.getLogger(OtrActivator.class);
 
     /*
      * Implements AbstractServiceDependentActivator#start(UIService).
@@ -97,32 +100,30 @@ public class OtrActivator
     @Override
     public void start(Object dependentService)
     {
-        uiService = (UIService)dependentService;
-
-        ServiceReference refConfigService =
-            OtrActivator.bundleContext
-                .getServiceReference(ConfigurationService.class.getName());
-
-        if (refConfigService == null)
-            return;
-
-        configService =
-            (ConfigurationService) OtrActivator.bundleContext
-                .getService(refConfigService);
-
-        // check whether someone has disabled this plugin
+        configService
+            = ServiceUtils.getService(
+                    bundleContext,
+                    ConfigurationService.class);
+        // Check whether someone has disabled this plug-in.
         if(configService.getBoolean(OTR_DISABLED_PROP, false))
+        {
+            configService = null;
             return;
+        }
+
+        resourceService
+            = ResourceManagementServiceUtils.getService(bundleContext);
+        if (resourceService == null)
+        {
+            configService = null;
+            return;
+        }
+
+        uiService = (UIService) dependentService;
 
         // Init static variables, don't proceed without them.
         scOtrEngine = new ScOtrEngineImpl();
         otrTransformLayer = new OtrTransformLayer();
-
-        resourceService =
-            ResourceManagementServiceUtils
-                .getService(OtrActivator.bundleContext);
-        if (resourceService == null)
-            return;
 
         // Register Transformation Layer
         bundleContext.addServiceListener(this);
@@ -207,7 +208,7 @@ public class OtrActivator
      * @return the ui service class.
      */
     @Override
-    public Class getDependentServiceClass()
+    public Class<?> getDependentServiceClass()
     {
         return UIService.class;
     }
@@ -216,7 +217,6 @@ public class OtrActivator
      * The bundle context to use.
      * @param context the context to set.
      */
-    @Override
     public void setBundleContext(BundleContext context)
     {
         bundleContext = context;

@@ -19,7 +19,9 @@ import net.java.sip.communicator.service.protocol.*;
 import org.osgi.framework.*;
 
 /**
+ *
  * @author George Politis
+ * @author Lyubomir Marinov
  */
 public class ScOtrEngineImpl
     implements ScOtrEngine,
@@ -44,6 +46,23 @@ public class ScOtrEngineImpl
         {
             if (!listeners.contains(l))
                 listeners.add(l);
+        }
+    }
+
+    /**
+     * Gets a copy of the list of <tt>ScOtrEngineListener</tt>s registered with
+     * this instance which may safely be iterated without the risk of a
+     * <tt>ConcurrentModificationException</tt>.
+     *
+     * @return a copy of the list of <tt>ScOtrEngineListener<tt>s registered
+     * with this instance which may safely be iterated without the risk of a
+     * <tt>ConcurrentModificationException</tt>
+     */
+    private ScOtrEngineListener[] getListeners()
+    {
+        synchronized (listeners)
+        {
+            return listeners.toArray(new ScOtrEngineListener[listeners.size()]);
         }
     }
 
@@ -210,10 +229,8 @@ public class ScOtrEngineImpl
                     Chat.SYSTEM_MESSAGE, message,
                     OperationSetBasicInstantMessaging.HTML_MIME_TYPE);
 
-                for (ScOtrEngineListener l : listeners)
-                {
+                for (ScOtrEngineListener l : getListeners())
                     l.sessionStatusChanged(contact);
-                }
             }
         });
     }
@@ -327,7 +344,7 @@ public class ScOtrEngineImpl
         else
             this.configurator.setProperty("POLICY", policy.getPolicy());
 
-        for (ScOtrEngineListener l : listeners)
+        for (ScOtrEngineListener l : getListeners())
             l.globalPolicyChanged();
     }
 
@@ -366,7 +383,7 @@ public class ScOtrEngineImpl
         else
             this.configurator.setProperty(propertyID, policy.getPolicy());
 
-        for (ScOtrEngineListener l : listeners)
+        for (ScOtrEngineListener l : getListeners())
             l.contactPolicyChanged(contact);
     }
 

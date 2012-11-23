@@ -9,11 +9,10 @@ package net.java.sip.communicator.plugin.otr;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
- * 
- * @author George Politis
  *
+ * @author George Politis
  */
 public interface ScOtrKeyManagerListener
 {
-    public abstract void contactVerificationStatusChanged(Contact contact);
+    public void contactVerificationStatusChanged(Contact contact);
 }

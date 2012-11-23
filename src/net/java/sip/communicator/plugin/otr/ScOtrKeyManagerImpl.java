@@ -14,7 +14,9 @@ import net.java.otr4j.crypto.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
+ *
  * @author George Politis
+ * @author Lyubomir Marinov
  */
 public class ScOtrKeyManagerImpl
     implements ScOtrKeyManager
@@ -30,6 +32,25 @@ public class ScOtrKeyManagerImpl
         {
             if (!listeners.contains(l))
                 listeners.add(l);
+        }
+    }
+
+    /**
+     * Gets a copy of the list of <tt>ScOtrKeyManagerListener</tt>s registered
+     * with this instance which may safely be iterated without the risk of a
+     * <tt>ConcurrentModificationException</tt>.
+     *
+     * @return a copy of the list of <tt>ScOtrKeyManagerListener<tt>s registered
+     * with this instance which may safely be iterated without the risk of a
+     * <tt>ConcurrentModificationException</tt>
+     */
+    private ScOtrKeyManagerListener[] getListeners()
+    {
+        synchronized (listeners)
+        {
+            return
+                listeners.toArray(
+                        new ScOtrKeyManagerListener[listeners.size()]);
         }
     }
 
@@ -49,7 +70,7 @@ public class ScOtrKeyManagerImpl
         this.configurator.setProperty(contact.getAddress()
             + ".publicKey.verified", true);
 
-        for (ScOtrKeyManagerListener l : listeners)
+        for (ScOtrKeyManagerListener l : getListeners())
             l.contactVerificationStatusChanged(contact);
     }
 
@@ -61,7 +82,7 @@ public class ScOtrKeyManagerImpl
         this.configurator.removeProperty(contact.getAddress()
             + ".publicKey.verified");
 
-        for (ScOtrKeyManagerListener l : listeners)
+        for (ScOtrKeyManagerListener l : getListeners())
             l.contactVerificationStatusChanged(contact);
     }
 
