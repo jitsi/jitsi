@@ -1880,7 +1880,10 @@ public class MainFrame
     {
         super.windowClosing(event);
 
-        if (!GuiActivator.getUIService().getExitOnMainWindowClose())
+        // On Mac systems the application is not quited on window close, so we
+        // don't need to warn the user.
+        if (!GuiActivator.getUIService().getExitOnMainWindowClose()
+            && !OSUtils.IS_MAC)
         {
             SwingUtilities.invokeLater(new Runnable()
             {
