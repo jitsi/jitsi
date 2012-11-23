@@ -121,6 +121,13 @@ public class ProtocolProviderServiceSipImpl
         = "net.java.sip.communicator.impl.protocol.sip.CALLING_DISABLED";
 
     /**
+     * The name of the property under which the user may specify if
+     * chat messaging should be disabled.
+     */
+    private static final String IS_MESSAGING_DISABLED
+        = "net.java.sip.communicator.impl.protocol.sip.MESSAGING_DISABLED";
+
+    /**
      * Default number of times that our requests can be forwarded.
      */
     private static final int  MAX_FORWARDS = 70;
@@ -505,20 +512,28 @@ public class ProtocolProviderServiceSipImpl
                     OperationSetPresence.class,
                     opSetPersPresence);
 
-                // init instant messaging
-                OperationSetBasicInstantMessagingSipImpl opSetBasicIM =
-                    new OperationSetBasicInstantMessagingSipImpl(this);
+                // Only init messaging and typing if enabled.
+                boolean isMessagingDisabled
+                    = SipActivator.getConfigurationService()
+                        .getBoolean(IS_MESSAGING_DISABLED, false);
 
-                addSupportedOperationSet(
-                    OperationSetBasicInstantMessaging.class,
-                    opSetBasicIM);
+                if (!isMessagingDisabled)
+                {
+                    // init instant messaging
+                    OperationSetBasicInstantMessagingSipImpl opSetBasicIM =
+                        new OperationSetBasicInstantMessagingSipImpl(this);
 
-                // init typing notifications
-                addSupportedOperationSet(
-                    OperationSetTypingNotifications.class,
-                    new OperationSetTypingNotificationsSipImpl(
+                    addSupportedOperationSet(
+                        OperationSetBasicInstantMessaging.class,
+                        opSetBasicIM);
+
+                    // init typing notifications
+                    addSupportedOperationSet(
+                        OperationSetTypingNotifications.class,
+                        new OperationSetTypingNotificationsSipImpl(
                             this,
                             opSetBasicIM));
+                }
 
                 OperationSetServerStoredAccountInfoSipImpl opSetSSAccountInfo =
                     new OperationSetServerStoredAccountInfoSipImpl(this);
