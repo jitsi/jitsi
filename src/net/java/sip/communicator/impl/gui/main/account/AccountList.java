@@ -27,6 +27,7 @@ import org.osgi.framework.*;
  *
  * @author Yana Stamcheva
  */
+@SuppressWarnings("serial")
 public class AccountList
     extends JList
     implements  ProviderPresenceStatusListener,
@@ -127,6 +128,7 @@ public class AccountList
 
     /**
      * Returns the selected account.
+     *
      * @return the selected account
      */
     public Account getSelectedAccount()
@@ -136,10 +138,12 @@ public class AccountList
 
     /**
      * Refreshes the account status icon, when the status has changed.
+     *
      * @param evt the <tt>ProviderPresenceStatusChangeEvent</tt> that notified
      * us
      */
-    public void providerStatusChanged(final ProviderPresenceStatusChangeEvent evt)
+    public void providerStatusChanged(
+                                final ProviderPresenceStatusChangeEvent evt)
     {
         if(!SwingUtilities.isEventDispatchThread())
         {
@@ -208,26 +212,72 @@ public class AccountList
                 presence.addProviderPresenceStatusListener(this);
             }
 
-            Account account = accountListModel
-                .getAccount(protocolProvider.getAccountID());
-
-            if (account != null)
-                account.setProtocolProvider(protocolProvider);
-            else
-                accountListModel.addAccount(new Account(protocolProvider));
-
-            this.repaint();
+            addAccount(protocolProvider);
         }
         else if (event.getType() == ServiceEvent.UNREGISTERING)
         {
-            Account account = accountListModel
-                .getAccount(protocolProvider.getAccountID());
-
-            // If the unregistered account is a disabled one we don't want to
-            // remove it from our list.
-            if (account != null && account.isEnabled())
-                accountListModel.removeElement(account);
+            removeAccount(protocolProvider);
         }
+    }
+
+    /**
+     * Adds the account given by the <tt><ProtocolProviderService</tt>.
+     *
+     * @param protocolProvider the <tt>ProtocolProviderService</tt> to add
+     */
+    private void addAccount(final ProtocolProviderService protocolProvider)
+    {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    addAccount(protocolProvider);
+                }
+            });
+            return;
+        }
+
+        Account account = accountListModel
+            .getAccount(protocolProvider.getAccountID());
+
+        if (account != null)
+            account.setProtocolProvider(protocolProvider);
+        else
+            accountListModel.addAccount(new Account(protocolProvider));
+
+        this.repaint();
+    }
+
+    /**
+     * Removes the account given by the <tt><ProtocolProviderService</tt>.
+     *
+     * @param protocolProvider the <tt>ProtocolProviderService</tt> to remove
+     */
+    private void removeAccount(final ProtocolProviderService protocolProvider)
+    {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    removeAccount(protocolProvider);
+                }
+            });
+            return;
+        }
+
+        Account account = accountListModel
+            .getAccount(protocolProvider.getAccountID());
+
+        // If the unregistered account is a disabled one we don't want to
+        // remove it from our list.
+        if (account != null && account.isEnabled())
+            accountListModel.removeAccount(account);
+
+        this.repaint();
     }
 
     /**
@@ -304,6 +354,7 @@ public class AccountList
 
     /**
      * Dispatches the given mouse <tt>event</tt> to the underlying buttons.
+     *
      * @param event the <tt>MouseEvent</tt> to dispatch
      */
     private void dispatchEventToCheckBox(MouseEvent event)
@@ -360,6 +411,7 @@ public class AccountList
 
     /**
      * Enables or disables the current account.
+     *
      * @param account the account to disable/enable
      * @param enable indicates if the account should be enabled or disabled
      */
@@ -389,14 +441,27 @@ public class AccountList
     /**
      * Ensures that the account with the given <tt>accountID</tt> is removed
      * from the list.
+     *
      * @param accountID the identifier of the account
      */
-    public void ensureAccountRemoved(AccountID accountID)
+    public void ensureAccountRemoved(final AccountID accountID)
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    ensureAccountRemoved(accountID);
+                }
+            });
+            return;
+        }
+
         Account account = accountListModel.getAccount(accountID);
 
         if (account != null)
-            accountListModel.removeElement(account);
+            accountListModel.removeAccount(account);
     }
 
     /**

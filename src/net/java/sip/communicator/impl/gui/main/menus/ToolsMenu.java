@@ -520,7 +520,9 @@ public class ToolsMenu
          */
         protected void finished()
         {
-            videoBridgeMenuItem.setEnabled((Boolean)get());
+            Boolean enabled = (Boolean) get();
+            if (enabled != null)
+                videoBridgeMenuItem.setEnabled(enabled);
         }
     }
 
