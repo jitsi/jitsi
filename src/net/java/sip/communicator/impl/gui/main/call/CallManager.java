@@ -17,7 +17,6 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
-import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -278,7 +277,7 @@ public class CallManager
      * Merges specific existing <tt>Call</tt>s into a specific telephony
      * conference.
      *
-     * @param first first call
+     * @param conference the conference
      * @param calls list of calls
      */
     public static void mergeExistingCalls(
@@ -311,7 +310,7 @@ public class CallManager
     /**
      * Hang ups the given <tt>callPeer</tt>.
      *
-     * @param callPeer the <tt>CallPeer</tt> to hang up
+     * @param peer the <tt>CallPeer</tt> to hang up
      */
     public static void hangupCallPeer(CallPeer peer)
     {
@@ -960,6 +959,8 @@ public class CallManager
      * Asynchronously creates a new video bridge conference <tt>Call</tt> with
      * a specific list of participants/callees.
      *
+     * @param callProvider the <tt>ProtocolProviderService</tt> to use for
+     * creating the call
      * @param callees the list of participants/callees to invite to the
      * newly-created video bridge conference <tt>Call</tt>
      */
@@ -1435,6 +1436,7 @@ public class CallManager
     /**
      * Indicates if we have video streams to show in this interface.
      *
+     * @param call the call to check for video streaming
      * @return <tt>true</tt> if we have video streams to show in this interface;
      * otherwise, <tt>false</tt>
      */
@@ -1446,6 +1448,7 @@ public class CallManager
     /**
      * Indicates if we have video streams to show in this interface.
      *
+     * @param conference the conference we check for video streaming
      * @return <tt>true</tt> if we have video streams to show in this interface;
      * otherwise, <tt>false</tt>
      */
@@ -1576,6 +1579,8 @@ public class CallManager
      * user.
      *
      * @param conferenceMember the conference member to check
+     * @return <tt>true</tt> if the given <tt>conferenceMember</tt> is the local
+     * user, <tt>false</tt> - otherwise
      */
     public static boolean isLocalUser(ConferenceMember conferenceMember)
     {
@@ -1589,6 +1594,9 @@ public class CallManager
 
     /**
      * Searches for additional phone numbers found in contact information
+     *
+     * @param metaContact the <tt>MetaContact</tt> for which we're looking for
+     * additional numbers
      * @return additional phone numbers found in contact information;
      */
     public static List<UIContactDetail> getAdditionalNumbers(
@@ -1817,11 +1825,18 @@ public class CallManager
                     throw (ThreadDeath) t;
 
                 logger.error("The call could not be created: ", t);
+
+                String message = GuiActivator.getResources()
+                    .getI18NString("servoce.gui.CREATE_CALL_FAILED");
+
+                if (t.getMessage() != null)
+                    message += " " +  t.getMessage();
+
                 new ErrorDialog(
                         null,
                         GuiActivator.getResources().getI18NString(
                                 "service.gui.ERROR"),
-                        t.getMessage(),
+                        message,
                         t)
                     .showDialog();
             }
