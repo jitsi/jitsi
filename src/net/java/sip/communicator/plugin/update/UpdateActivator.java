@@ -237,8 +237,8 @@ public class UpdateActivator
             mUpdateExecutor = Executors.newSingleThreadScheduledExecutor();
             mUpdateExecutor.scheduleAtFixedRate(updateRunnable,
                                                 hoursToWait,
-                                                24,
-                                                TimeUnit.HOURS);
+                                                24*60*60,
+                                                TimeUnit.SECONDS);
         }
     }
 
