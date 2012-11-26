@@ -32,11 +32,11 @@ BEGIN
             VALUE "Comments", ""
             VALUE "CompanyName", "jitsi.org"
             VALUE "FileDescription", PRODUCTNAME
-            VALUE "FileVersion", "1.0.0.0"
+            VALUE "FileVersion", PRODUCTBUILDVERSION
             VALUE "InternalName", "run"
             VALUE "OriginalFilename", "run.exe"
             VALUE "ProductName", PRODUCTNAME
-            VALUE "ProductVersion", "1.0.0.0"
+            VALUE "ProductVersion", PRODUCTBUILDVERSION
         END
     END
     BLOCK "VarFileInfo"

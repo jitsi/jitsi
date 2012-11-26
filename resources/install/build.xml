@@ -405,6 +405,7 @@
             <arg value="PRODUCTNAME=${application.name}" />
             <arg value="MINGW_HOME=${mingw.home}" />
             <arg value="TARGET_DIR=${light.dir}" />
+            <arg value="PRODUCTBUILDVERSION=${sip-communicator.version}" />
         </exec>
         <antcall target="wix-sign-file">
             <param name="file.to.sign" value="${light.dir}/run.exe"/>
@@ -624,6 +625,7 @@
             <env key="PATH" path="${mingw.home}/bin;${env.PATH}" />
             <arg value="MINGW_HOME=${mingw.home}" />
             <arg value="TARGET_DIR=${windows.app.dir}/tmp" />
+            <arg value="PRODUCTBUILDVERSION=${sip-communicator.version}" />
         </exec>
         <antcall target="wix-sign-file">
             <param name="file.to.sign" value="${windows.app.dir}\tmp\setup.exe"/>
@@ -641,10 +643,21 @@
     </target>
 
     <target name="build-installation-wix-msi" if="wix.store.msi">
+
+        <!-- if application publisher is not set use application name -->
+        <condition property="application.publisher"
+                   value="${application.name}">
+            <not>
+                <isset property="application.publisher" />
+            </not>
+        </condition>
+
         <!-- Finish the preparation for the execution of candle.exe -->
         <filter token="APP_EMAIL" value="${application.email}" />
         <filter token="APP_NAME" value="${application.name}" />
         <filter token="APP_WEB" value="${application.web}" />
+        <filter token="APP_PUBLISHER" value="${application.publisher}" />
+        <filter token="PRODUCTBUILDVERSION" value="${sip-communicator.version}" />
         <filter token="WelcomeText1" value="${installer.welcome.wtext1}" />
         <filter token="WelcomeText2" value="${installer.welcome.wtext2}" />
         <filter token="WelcomeText3" value="${installer.welcome.wtext3}" />
@@ -881,6 +894,7 @@
             <arg value="TARGET_DIR=${windows.app.dir}/tmp" />
             <arg value="PACKAGECODE=${old.packagecode}" />
             <arg value="PACKAGESIZE=${old.packagesize}" />
+            <arg value="PRODUCTBUILDVERSION=${sip-communicator.version}" />
         </exec>
         <antcall target="wix-sign-file">
             <param name="file.to.sign" value="${windows.app.dir}\tmp\setup.exe"/>
@@ -1370,7 +1384,7 @@
         </copy>
 
         <tstamp>
-            <format property="current.tstamp" pattern="EEE d MMM yyyy HH:mm:ss"/>
+            <format property="current.tstamp" pattern="d MMM yyyy HH:mm:ss"/>
         </tstamp>
 
         <filter token="BUILD" value="${sparkle.build}" />

@@ -10,10 +10,10 @@
     Id="*"
     Language="1033"
     Codepage='$(var.codepage)'
-    Manufacturer="@APP_NAME@"
+    Manufacturer="@APP_PUBLISHER@"
     Name="@APP_NAME@"
     UpgradeCode="@WIX_UPGRADE_CODE@"
-    Version="1.0.0.0">
+    Version="@PRODUCTBUILDVERSION@">
 
 <!-- in Language we list all languages we support for localize -->
 <Package
@@ -23,7 +23,7 @@
     InstallerVersion="200"
     InstallScope="perMachine"
     Languages="1033,1036"
-    Manufacturer="@APP_NAME@"
+    Manufacturer="@APP_PUBLISHER@"
     Platform="$(var.Platform)"
     SummaryCodepage='$(var.codepage)' />
 
@@ -32,7 +32,7 @@
       IncludeMaximum="yes"
       IncludeMinimum="yes"
       Language="1033,1036"
-      Maximum="1.0.0.0"
+      Maximum="@PRODUCTBUILDVERSION@"
       Minimum="0.0.0.0"
       Property="UPGRADEFOUND" />
 </Upgrade>

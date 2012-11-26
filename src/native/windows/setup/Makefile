@@ -9,6 +9,7 @@ BZ2_HOME ?= .
 LZMA_HOME ?= .
 MINGW_HOME ?= C:/mingw
 PRODUCTNAME ?= Jitsi
+PRODUCTBUILDVERSION ?= 1.0.0.0
 TARGET_BASENAME ?= setup
 TARGET_DIR ?= ../../../../release/windows/tmp
 
@@ -64,7 +65,7 @@ $(cygwin.target.dir)/$(TARGET_BASENAME).exe: bspatch.c $(cygwin.target.dir)/conf
 
 $(cygwin.target.dir)/config.h:
 	-rm.exe -f ../../../../resources/install/windows/config.h
-	echo.exe -e '#define PRODUCTNAME "$(PRODUCTNAME)"\n#$(DEFINE_PACKAGECODE)\n#$(DEFINE_PACKAGESIZE)' > $(cygwin.target.dir)/config.h
+	echo.exe -e '#define PRODUCTNAME "$(PRODUCTNAME)"\n#$(DEFINE_PACKAGECODE)\n#$(DEFINE_PACKAGESIZE)\n#define PRODUCTBUILDVERSION "$(PRODUCTBUILDVERSION)"' > $(cygwin.target.dir)/config.h
 
 $(cygwin.target.dir)/setup.res: $(cygwin.target.dir)/config.h setup.rc
 	$(WINDRES) -I../../../../resources/install/windows -I$(target.dir) setup.rc -O coff -o $(target.dir)/setup.res
