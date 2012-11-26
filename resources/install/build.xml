@@ -976,7 +976,7 @@
                  link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/Sparkle.framework/Versions/Current"/>
     </target>
 
-    <target name="macosx" depends="load-properties"
+    <target name="macosx" depends="load-properties,define-ant-contrib-task"
             description="Create an .app package for MACOSX">
 
       <taskdef name="jarbundler"
@@ -1036,6 +1036,10 @@
       <!-- Delete the old .app if it exists -->
       <delete dir="${macosx.app.dir}/${application.name}.app"
               quiet="yes" failonerror="false"/>
+      <!-- Delete the old tmp if it exists -->
+      <delete dir="${macosx.app.dir}/tmp"
+              quiet="yes" failonerror="false"/>
+      <mkdir dir="${macosx.app.dir}/tmp"/>
 
       <!-- Sparkle needs the build number. If it is not
            available, we use the normal build label -->
@@ -1051,6 +1055,18 @@
            <os arch="i386" />
       </condition>
 
+      <!-- removes any spaces from application name if any -->
+      <propertyregex property="macosx.stub.filename"
+            input="${application.name}"
+            regexp=" "
+            replace=""
+            override="true"
+            global="true"
+            defaultValue="${application.name}"/>
+
+      <copy file="${macosx.stubfile}"
+            tofile="${macosx.app.dir}/tmp/${macosx.stub.filename}"/>
+
       <!-- This creates the .app for MacOSX -->
       <jarbundler dir="${macosx.app.dir}"
                   name="${application.name}"
@@ -1063,7 +1079,7 @@
                   build="${sparkle.build}"
                   infostring="${application.name}"
                   bundleid="org.${package.name}"
-                  stubfile="${macosx.stubfile}"
+                  stubfile="${macosx.app.dir}/tmp/${macosx.stub.filename}"
                   extraclasspath="/System/Library/Java"
                   workingdirectory="$APP_PACKAGE/Contents/Resources/Java"
                   vmoptions="-agentlib:AEGetURLEventHandlerAgent ${jvmarg}">
@@ -1159,6 +1175,10 @@
 
       <copy file="${macosx.resrc.dir}/libgrowl4j.dylib"
             todir="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/lib/native/mac/"/>
+
+      <!-- Delete the tmp if it exists -->
+      <delete dir="${macosx.app.dir}/tmp"
+              quiet="yes" failonerror="false"/>
     </target>
 
     <!-- Create a MacOSX application package with Sparkle support.
@@ -1334,6 +1354,9 @@
       <antcall target="macosx-sparkle-delta-updates"/>
       <antcall target="macosx-sparkle-files-finish"/>
 
+      <!-- remove folder we are done -->
+      <delete dir="${macosx.app.dir}/${application.name}.app"
+              quiet="yes" failonerror="false"/>
     </target>
 
     <!--
@@ -1357,7 +1380,7 @@
             <arg value="${macosx.sign.certid}"/>
             <arg value="--keychain"/>
             <arg value="${macosx.sign.keychain}"/>
-            <arg value="${release}/${application.name}/${application.name}.app"/>
+            <arg value="${macosx.app.dir}/${application.name}.app"/>
         </exec>
 
         <!-- locking again -->
