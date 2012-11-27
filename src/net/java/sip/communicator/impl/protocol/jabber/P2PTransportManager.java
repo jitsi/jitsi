@@ -21,6 +21,7 @@ import org.jivesoftware.smack.packet.*;
  * Google P2P TransportManager.
  *
  * @author Sebastien Vincent
+ * @author Lyubomir Marinov
  */
 public class P2PTransportManager
     extends IceUdpTransportManager
@@ -61,13 +62,16 @@ public class P2PTransportManager
      * @return the ICE agent to use for all the ICE negotiation that this
      * transport manager would be going through
      */
+    @Override
     protected Agent createIceAgent()
     {
         CallPeerJabberImpl peer = getCallPeer();
         ProtocolProviderServiceJabberImpl provider = peer.getProtocolProvider();
 
-        Agent iceAgent = TransportManagerGTalkImpl.createAgent(provider,
-            !peer.isInitiator());
+        Agent iceAgent
+            = TransportManagerGTalkImpl.createAgent(
+                    provider,
+                    !peer.isInitiator());
 
         /* We use a custom strategy that will wait a little bit before choosing
          * to go through a relay. In fact Empathy will begin to send first the
@@ -76,7 +80,7 @@ public class P2PTransportManager
          * checks will start earlier for relay.
          */
         iceAgent.setNominationStrategy(
-            NominationStrategy.NOMINATE_FIRST_HOST_OR_REFLEXIVE_VALID);
+                NominationStrategy.NOMINATE_FIRST_HOST_OR_REFLEXIVE_VALID);
         return iceAgent;
     }
 
@@ -89,6 +93,7 @@ public class P2PTransportManager
      * <tt>TransportManagerJabberImpl</tt>
      * @see TransportManagerJabberImpl#getXmlNamespace()
      */
+    @Override
     public String getXmlNamespace()
     {
         return "http://www.google.com/transport/p2p";
@@ -99,6 +104,7 @@ public class P2PTransportManager
      *
      * @return <tt>PacketExtension</tt>
      */
+    @Override
     protected PacketExtension getTransportPacketExtension()
     {
         return new GTalkTransportPacketExtension();
@@ -113,37 +119,46 @@ public class P2PTransportManager
      *
      * @return the {@link GTalkTransportPacketExtension}
      */
+    @Override
     public PacketExtension createTransport(IceMediaStream stream)
     {
         GTalkTransportPacketExtension trans
             = new GTalkTransportPacketExtension();
 
         if(stream != null)
+        {
             for(Component component : stream.getComponents())
             {
-                List<LocalCandidate> candToRemove =
-                    new ArrayList<LocalCandidate>();
-                List<LocalCandidate> candidates =
-                    component.getLocalCandidates();
+                /* Remove the bases of the UPNP candidates. */
+                List<LocalCandidate> candidates
+                    = component.getLocalCandidates();
+                List<LocalCandidate> candidatesToRemove = null;
 
-                for(LocalCandidate candidate : component.getLocalCandidates())
+                for(LocalCandidate candidate : candidates)
                 {
                     if(candidate instanceof UPNPCandidate)
                     {
                         LocalCandidate base = candidate.getBase();
-                        candToRemove.add(base);
+
+                        if (candidatesToRemove == null)
+                        {
+                            candidatesToRemove
+                                = new ArrayList<LocalCandidate>(
+                                        candidates.size());
+                        }
+                        candidatesToRemove.add(base);
                     }
                 }
-
-                for(Candidate candidate : candToRemove)
+                if (candidatesToRemove != null)
                 {
-                    candidates.remove(candidate);
+                    for(Candidate<?> candidateToRemove : candidatesToRemove)
+                        candidates.remove(candidateToRemove);
                 }
 
-                for(Candidate candidate : candidates)
+                for(Candidate<?> candidate : candidates)
                     trans.addCandidate(createCandidate(candidate));
             }
-
+        }
         return trans;
     }
 
@@ -157,19 +172,13 @@ public class P2PTransportManager
      * @return a new {@link CandidatePacketExtension} corresponding to the state
      * of the <tt>candidate</tt> candidate.
      */
-    private GTalkCandidatePacketExtension createCandidate(Candidate candidate)
+    private GTalkCandidatePacketExtension createCandidate(
+            Candidate<?> candidate)
     {
-        String name =
-            candidate.getParentComponent().getParentStream().getName();
-
-        if(candidate.getParentComponent().getComponentID() == Component.RTP)
-        {
-            name = "rtp";
-        }
-        else
-        {
-            name = "rtcp";
-        }
+        String name
+            = (candidate.getParentComponent().getComponentID() == Component.RTP)
+                ? "rtp"
+                : "rtcp";
 
         return GTalkPacketFactory.createCandidate(candidate, name);
     }
@@ -194,9 +203,10 @@ public class P2PTransportManager
      * {@link #wrapupCandidateHarvest()}.
      * @throws OperationFailedException in case we fail allocating ports
      */
+    @Override
     public void startCandidateHarvest(
-                            List<ContentPacketExtension>   ourOffer,
-                            final TransportInfoSender transportInfoSender)
+            List<ContentPacketExtension> ourOffer,
+            final TransportInfoSender transportInfoSender)
         throws OperationFailedException
     {
         final List<ContentPacketExtension> offer = ourOffer;
@@ -224,13 +234,11 @@ public class P2PTransportManager
         }
 
         for(ContentPacketExtension ourContent : offer)
-        {
-            ourContent.addChildExtension(
-                    getTransportPacketExtension());
-        }
+            ourContent.addChildExtension(getTransportPacketExtension());
 
         new Thread()
         {
+            @Override
             public void run()
             {
                 Collection<ContentPacketExtension> transportInfoContents
@@ -246,7 +254,8 @@ public class P2PTransportManager
                             = ourContent.getFirstChildOfType(
                                     RtpDescriptionPacketExtension.class);
 
-                        ourContent.addChildExtension(getTransportPacketExtension());
+                        ourContent.addChildExtension(
+                                getTransportPacketExtension());
 
                         IceMediaStream stream = null;
                         try
@@ -275,7 +284,7 @@ public class P2PTransportManager
                         transportInfoContents.add(transportInfoContent);
 
                         transportInfoSender.sendTransportInfo(
-                            transportInfoContents);
+                                transportInfoContents);
                     }
                 }
             }
@@ -303,28 +312,23 @@ public class P2PTransportManager
         if (IceProcessingState.RUNNING.equals(iceAgent.getState()))
         {
             if(logger.isInfoEnabled())
-            {
                 logger.info("Update ICE remote candidates");
-            }
 
             for (ContentPacketExtension content : remote)
             {
                 GTalkTransportPacketExtension transport
                     = content.getFirstChildOfType(
                             GTalkTransportPacketExtension.class);
-
                 List<GTalkCandidatePacketExtension> candidates
                     = transport.getChildExtensionsOfType(
-                        GTalkCandidatePacketExtension.class);
+                            GTalkCandidatePacketExtension.class);
 
-                if(candidates == null || candidates.size() == 0)
-                {
+                if((candidates == null) || (candidates.size() == 0))
                     return false;
-                }
 
                 RtpDescriptionPacketExtension description
                     = content.getFirstChildOfType(
-                        RtpDescriptionPacketExtension.class);
+                            RtpDescriptionPacketExtension.class);
 
                 if (description == null)
                 {
@@ -371,7 +375,7 @@ public class P2PTransportManager
                                 candidate.getType().toString()),
                         "0",
                         (long)(candidate.getPreference() * 1000),
-                        // Gingle does not send rel-addr/rel-port infromation.
+                        // Gingle does not send rel-addr/rel-port information.
                         null,
                         ufrag);
 
@@ -383,9 +387,7 @@ public class P2PTransportManager
             for(IceMediaStream stream : iceAgent.getStreams())
             {
                 for(Component component : stream.getComponents())
-                {
                     component.updateRemoteCandidate();
-                }
             }
 
             return false;
@@ -399,7 +401,6 @@ public class P2PTransportManager
             GTalkTransportPacketExtension transport
                 = content.getFirstChildOfType(
                         GTalkTransportPacketExtension.class);
-
             List<GTalkCandidatePacketExtension> candidates
                 = transport.getChildExtensionsOfType(
                         GTalkCandidatePacketExtension.class);
@@ -440,7 +441,6 @@ public class P2PTransportManager
                  */
                 if (candidate.getGeneration() != generation)
                     continue;
-
                 if(candidate.getProtocol().equalsIgnoreCase("ssltcp"))
                     continue;
 
@@ -462,7 +462,7 @@ public class P2PTransportManager
                                 candidate.getType().toString()),
                         "0",
                         (long)(candidate.getPreference() * 1000),
-                        // Gingle does not send rel-addr/rel-port infromation.
+                        // Gingle does not send rel-addr/rel-port information.
                         null,
                         ufrag);
 

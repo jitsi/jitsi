@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import java.lang.reflect.*;
 import java.util.*;
 
+import net.java.sip.communicator.impl.protocol.jabber.extensions.cobri.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 import net.java.sip.communicator.impl.protocol.jabber.jinglesdp.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -18,7 +19,7 @@ import net.java.sip.communicator.util.*;
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.device.*;
 import org.jitsi.service.neomedia.format.*;
-import org.jivesoftware.smack.util.StringUtils;
+import org.jivesoftware.smack.util.*;
 import org.jivesoftware.smackx.packet.*;
 
 /**
@@ -140,6 +141,61 @@ public class CallPeerMediaHandlerJabberImpl
                 return content;
         }
         return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * In the case of a telephony conference organized by the local peer/user
+     * via the Jitsi VideoBridge server-side technology, returns an SSRC
+     * reported by the server as received on the channel allocated by the local
+     * peer/user for the purposes of communicating with the <tt>CallPeer</tt>
+     * associated with this instance.
+     */
+    @Override
+    public long getRemoteSSRC(MediaType mediaType)
+    {
+        /*
+         * If the Jitsi VideoBridge server-side technology is utilized, a single
+         * MediaStream (per MediaType) is shared among the participating
+         * CallPeers and, consequently, the remote SSRCs cannot be associated
+         * with the CallPeers from which they are actually being sent. That's
+         * why the server will report them to the conference focus.
+         */
+        TransportManagerJabberImpl transportManager = this.transportManager;
+
+        if (transportManager instanceof RawUdpTransportManager)
+        {
+            RawUdpTransportManager rawUdpTransportManager
+                = (RawUdpTransportManager) transportManager;
+            CobriConferenceIQ.Channel channel
+                = rawUdpTransportManager.getCobriChannel(
+                        mediaType,
+                        false /* remote */);
+
+            if (channel != null)
+            {
+                long[] ssrcs = channel.getSSRCs();
+
+                /*
+                 * A peer (regardless of whether it is local or remote) may send
+                 * multiple RTP streams at any time. In such a case, it is not
+                 * clear which one of their SSRCs is to be returned. Anyway, the
+                 * super says that the returned is the last known and we will
+                 * presume that the last known in the list reported by the Jitsi
+                 * VideoBridge server is the last.
+                 */
+                for (int i = ssrcs.length - 1; i >= 0; i--)
+                {
+                    long remoteSSRC = ssrcs[i];
+
+                    if (remoteSSRC != -1)
+                        return remoteSSRC;
+                }
+            }
+        }
+
+        return super.getRemoteSSRC(mediaType);
     }
 
     /**
@@ -977,6 +1033,86 @@ public class CallPeerMediaHandlerJabberImpl
     }
 
     /**
+     * Notifies this instance that a specific <tt>CobriConferenceIQ</tt> has
+     * been received. This <tt>CallPeerMediaHandler</tt> uses the part of the
+     * information provided in the specified <tt>conferenceIQ</tt> which
+     * concerns it only.
+     *
+     * @param conferenceIQ the <tt>CobriConferenceIQ</tt> which has been
+     * received
+     */
+    void processCobriConferenceIQ(CobriConferenceIQ conferenceIQ)
+    {
+        /*
+         * This CallPeerMediaHandler stores the media information but it does
+         * not store the cobri Channels (which contain both media and transport
+         * information). The TransportManager associated with this instance
+         * stores the cobri Channels but does not store media information (such
+         * as the remote SSRCs). An design/implementation choice has to be made
+         * though and the present one is to have this CallPeerMediaHandler
+         * transparently (with respect to the TransportManager) store the media
+         * information inside the TransportManager. 
+         */
+        TransportManagerJabberImpl transportManager = this.transportManager;
+
+        if (transportManager instanceof RawUdpTransportManager)
+        {
+            RawUdpTransportManager rawUdpTransportManager
+                = (RawUdpTransportManager) transportManager;
+            long oldAudioRemoteSSRC = getRemoteSSRC(MediaType.AUDIO);
+            long oldVideoRemoteSSRC = getRemoteSSRC(MediaType.VIDEO);
+
+            for (MediaType mediaType : MediaType.values())
+            {
+                CobriConferenceIQ.Channel dst
+                    = rawUdpTransportManager.getCobriChannel(
+                            mediaType,
+                            false /* remote */);
+
+                if (dst != null)
+                {
+                    CobriConferenceIQ.Content content
+                        = conferenceIQ.getContent(mediaType.toString());
+
+                    if (content != null)
+                    {
+                        CobriConferenceIQ.Channel src
+                            = content.getChannel(dst.getID());
+
+                        if (src != null)
+                        {
+                            long[] ssrcs = src.getSSRCs();
+
+                            if (!Arrays.equals(dst.getSSRCs(), ssrcs))
+                                dst.setSSRCs(src.getSSRCs());
+                        }
+                    }
+                }
+            }
+
+            /*
+             * Do fire new PropertyChangeEvents for the properties
+             * AUDIO_REMOTE_SSRC and VIDEO_REMOTE_SSRC if necessary.
+             */
+            long newAudioRemoteSSRC = getRemoteSSRC(MediaType.AUDIO);
+            long newVideoRemoteSSRC = getRemoteSSRC(MediaType.VIDEO);
+
+            if (oldAudioRemoteSSRC != newAudioRemoteSSRC)
+            {
+                firePropertyChange(
+                        AUDIO_REMOTE_SSRC,
+                        oldAudioRemoteSSRC, newAudioRemoteSSRC);
+            }
+            if (oldVideoRemoteSSRC != newVideoRemoteSSRC)
+            {
+                firePropertyChange(
+                        VIDEO_REMOTE_SSRC,
+                        oldVideoRemoteSSRC, newVideoRemoteSSRC);
+            }
+        }
+    }
+
+    /**
      * Process a <tt>ContentPacketExtension</tt> and initialize its
      * corresponding <tt>MediaStream</tt>.
      *
@@ -986,7 +1122,7 @@ public class CallPeerMediaHandlerJabberImpl
      * @throws OperationFailedException if we fail to handle <tt>content</tt>
      * for reasons like failing to initialize media devices or streams.
      * @throws IllegalArgumentException if there's a problem with the syntax or
-     * the semantics of <tt>content</tt>. Method is synchronized in order to
+     * the semantics of <tt>content</tt>. The method is synchronized in order to
      * avoid closing mediaHandler when we are currently in process of
      * initializing, configuring and starting streams and anybody interested
      * in this operation can synchronize to the mediaHandler instance to wait
@@ -1676,6 +1812,7 @@ public class CallPeerMediaHandlerJabberImpl
 
     /**
      * Returns the quality control for video calls if any.
+     *
      * @return the implemented quality control.
      */
     public QualityControl getQualityControl()
@@ -1695,6 +1832,7 @@ public class CallPeerMediaHandlerJabberImpl
     /**
      * Sometimes as initing a call with custom preset can set and we force
      * that quality controls is supported.
+     *
      * @param value whether quality controls is supported..
      */
     public void setSupportQualityControls(boolean value)
@@ -1705,6 +1843,7 @@ public class CallPeerMediaHandlerJabberImpl
     /**
      * Closes the <tt>CallPeerMediaHandler</tt>.
      */
+    @Override
     public synchronized void close()
     {
         super.close();
@@ -1721,16 +1860,17 @@ public class CallPeerMediaHandlerJabberImpl
     /**
      * Overrides to give access to the transport manager to send events
      * about ICE state changes.
+     *
      * @param property the name of the property of this
      * <tt>PropertyChangeNotifier</tt> which had its value changed
      * @param oldValue the value of the property with the specified name before
      * the change
      * @param newValue the value of the property with the specified name after
      */
+    @Override
     protected void firePropertyChange(
             String property,
-            Object oldValue,
-            Object newValue)
+            Object oldValue, Object newValue)
     {
         super.firePropertyChange(property, oldValue, newValue);
     }

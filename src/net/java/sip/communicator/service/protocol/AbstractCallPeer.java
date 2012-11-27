@@ -253,9 +253,8 @@ public abstract class AbstractCallPeer<T extends Call,
     protected ConferenceMember findConferenceMember(long ssrc)
     {
         List<ConferenceMember> members = getConferenceMembers();
-        int memberCount = members.size();
 
-        for (int i = 0; i < memberCount; i++)
+        for (int i = 0, memberCount = members.size(); i < memberCount; i++)
         {
             ConferenceMember member = members.get(i);
 

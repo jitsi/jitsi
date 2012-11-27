@@ -320,7 +320,7 @@ public class CallPanel
         this.callConference = callConference;
         this.callWindow = callWindow;
 
-        uiVideoHandler = new UIVideoHandler2(callConference);
+        uiVideoHandler = new UIVideoHandler2(this.callConference);
 
         callDurationTimer
             = new Timer(
@@ -345,9 +345,10 @@ public class CallPanel
          * Adds the listeners which will observe the model and will trigger the
          * updates of this view from it.
          */
-        callConference.addCallChangeListener(callConferenceListener);
-        callConference.addCallPeerConferenceListener(callConferenceListener);
-        callConference.addPropertyChangeListener(callConferenceListener);
+        this.callConference.addCallChangeListener(callConferenceListener);
+        this.callConference.addCallPeerConferenceListener(
+                callConferenceListener);
+        this.callConference.addPropertyChangeListener(callConferenceListener);
         uiVideoHandler.addObserver(uiVideoHandlerObserver);
 
         updateViewFromModel();
@@ -400,12 +401,16 @@ public class CallPanel
         else if (buttonName.equals(CONFERENCE_BUTTON))
         {
             ConferenceInviteDialog inviteDialog;
+
             if (callConference.isJitsiVideoBridge())
-                inviteDialog = new ConferenceInviteDialog(
-                                            callConference,
-                                            callConference.getCalls()
-                                                .get(0).getProtocolProvider(),
-                                            true);
+            {
+                inviteDialog
+                    = new ConferenceInviteDialog(
+                            callConference,
+                            callConference.getCalls().get(0)
+                                    .getProtocolProvider(),
+                            true);
+            }
             else
                 inviteDialog = new ConferenceInviteDialog(callConference);
 
@@ -437,18 +442,11 @@ public class CallPanel
         {
             if (callInfoFrame == null)
             {
-                this.callInfoFrame = new CallInfoFrame(callConference);
-                this.addCallTitleListener(callInfoFrame);
+                callInfoFrame = new CallInfoFrame(callConference);
+                addCallTitleListener(callInfoFrame);
             }
-
-            if (callInfoFrame.hasCallInfo())
-            {
-                callInfoFrame.setVisible(!callInfoFrame.isVisible());
-            }
-            else
-            {
-                callInfoFrame.setVisible(false);
-            }
+            callInfoFrame.setVisible(
+                    callInfoFrame.hasCallInfo() && !callInfoFrame.isVisible());
         }
     }
 

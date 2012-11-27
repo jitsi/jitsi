@@ -100,7 +100,12 @@ public abstract class ActiveCallsRepository<T extends Call,
     {
         synchronized(activeCalls)
         {
-            return new LinkedList<T>(activeCalls.values()).iterator();
+            /*
+             * Given that we know the elements that will go into the new List,
+             * it is more optimal in terms of memory and execution time to use
+             * ArrayList rather than LinkedList.
+             */
+            return new ArrayList<T>(activeCalls.values()).iterator();
         }
     }
 

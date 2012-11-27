@@ -149,26 +149,34 @@ public class MediaHandler
                 Object source = evt.getSource();
 
                 if (source == audioStream)
+                {
                     setLocalSSRC(
                             MediaType.AUDIO,
                             audioStream.getLocalSourceID());
+                }
                 else if (source == videoStream)
+                {
                     setLocalSSRC(
                             MediaType.VIDEO,
                             videoStream.getLocalSourceID());
+                }
             }
             else if (MediaStream.PNAME_REMOTE_SSRC.equals(propertyName))
             {
                 Object source = evt.getSource();
 
                 if (source == audioStream)
+                {
                     setRemoteSSRC(
                             MediaType.AUDIO,
                             audioStream.getRemoteSourceID());
+                }
                 else if (source == videoStream)
+                {
                     setRemoteSSRC(
                             MediaType.VIDEO,
                             videoStream.getRemoteSourceID());
+                }
             }
         }
     };
@@ -817,8 +825,7 @@ public class MediaHandler
             {
                 this.audioStream
                         .removePropertyChangeListener(
-                            streamPropertyChangeListener);
-
+                                streamPropertyChangeListener);
                 this.audioStream.close();
             }
 
@@ -831,7 +838,7 @@ public class MediaHandler
             {
                 this.audioStream
                         .addPropertyChangeListener(
-                            streamPropertyChangeListener);
+                                streamPropertyChangeListener);
                 audioLocalSSRC = this.audioStream.getLocalSourceID();
                 audioRemoteSSRC = this.audioStream.getRemoteSourceID();
             }

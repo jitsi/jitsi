@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import java.lang.reflect.*;
 import java.util.*;
 
+import net.java.sip.communicator.impl.protocol.jabber.extensions.cobri.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.ContentPacketExtension.SendersEnum;
 import net.java.sip.communicator.impl.protocol.jabber.jinglesdp.*;
@@ -114,9 +115,11 @@ public class CallPeerJabberImpl
 
         try
         {
-            getMediaHandler().getTransportManager().
-                wrapupConnectivityEstablishment();
-            answer = getMediaHandler().generateSessionAccept();
+            CallPeerMediaHandlerJabberImpl mediaHandler = getMediaHandler();
+
+            mediaHandler
+                .getTransportManager().wrapupConnectivityEstablishment();
+            answer = mediaHandler.generateSessionAccept();
         }
         catch(Exception exc)
         {
@@ -362,6 +365,26 @@ public class CallPeerJabberImpl
     }
 
     /**
+     * Notifies this instance that a specific <tt>CobriConferenceIQ</tt> has
+     * been received. This <tt>CallPeerJabberImpl</tt> uses the part of the
+     * information provided in the specified <tt>conferenceIQ</tt> which
+     * concerns it only.
+     *
+     * @param conferenceIQ the <tt>CobriConferenceIQ</tt> which has been
+     * received
+     */
+    void processCobriConferenceIQ(CobriConferenceIQ conferenceIQ)
+    {
+        /*
+         * CallPeerJabberImpl does not itself/directly know the specifics
+         * related to the channels allocated on the Jitsi VideoBridge server.
+         * The channels contain transport and media-related information so
+         * forward the notification to CallPeerMediaHandlerJabberImpl. 
+         */
+        getMediaHandler().processCobriConferenceIQ(conferenceIQ);
+    }
+
+    /**
      * Processes the content-accept {@link JingleIQ}.
      *
      * @param content The {@link JingleIQ} that contains content that remote
@@ -373,20 +396,27 @@ public class CallPeerJabberImpl
 
         try
         {
-            getMediaHandler().getTransportManager().
-                wrapupConnectivityEstablishment();
-            getMediaHandler().processAnswer(contents);
-        }
-        catch(Exception exc)
-        {
-            logger.warn("Failed to process a content-accept", exc);
-            //send an error response;
-            JingleIQ errResp = JinglePacketFactory.createSessionTerminate(
-                    sessionInitIQ.getTo(), sessionInitIQ.getFrom(),
-                    sessionInitIQ.getSID(), Reason.INCOMPATIBLE_PARAMETERS,
-                    "Error: " + exc.getMessage());
+            CallPeerMediaHandlerJabberImpl mediaHandler = getMediaHandler();
 
-            setState(CallPeerState.FAILED, "Error: " + exc.getMessage());
+            mediaHandler
+                .getTransportManager().wrapupConnectivityEstablishment();
+            mediaHandler.processAnswer(contents);
+        }
+        catch (Exception e)
+        {
+            logger.warn("Failed to process a content-accept", e);
+
+            // Send an error response.
+            String reason = "Error: " + e.getMessage();
+            JingleIQ errResp
+                = JinglePacketFactory.createSessionTerminate(
+                    sessionInitIQ.getTo(),
+                    sessionInitIQ.getFrom(),
+                    sessionInitIQ.getSID(),
+                    Reason.INCOMPATIBLE_PARAMETERS,
+                    reason);
+
+            setState(CallPeerState.FAILED, reason);
             getProtocolProvider().getConnection().sendPacket(errResp);
             return;
         }
@@ -446,6 +476,7 @@ public class CallPeerJabberImpl
             {
                 new Thread()
                 {
+                    @Override
                     public void run()
                     {
                         try
@@ -537,25 +568,27 @@ public class CallPeerJabberImpl
 
         try
         {
-            boolean modify = false;
-            if(ext.getFirstChildOfType(RtpDescriptionPacketExtension.class)
-                    != null)
-            {
-                modify = true;
-            }
+            boolean modify
+                = (ext.getFirstChildOfType(RtpDescriptionPacketExtension.class)
+                    != null);
+
             getMediaHandler().reinitContent(ext.getName(), ext, modify);
         }
-        catch(Exception exc)
+        catch(Exception e)
         {
-            logger.info("Failed to process an incoming content-modify", exc);
+            logger.info("Failed to process an incoming content-modify", e);
 
-            //send an error response;
-            JingleIQ errResp = JinglePacketFactory.createSessionTerminate(
-                    sessionInitIQ.getTo(), sessionInitIQ.getFrom(),
-                    sessionInitIQ.getSID(), Reason.INCOMPATIBLE_PARAMETERS,
-                    "Error: " + exc.getMessage());
+            // Send an error response.
+            String reason = "Error: " + e.getMessage();
+            JingleIQ errResp
+                = JinglePacketFactory.createSessionTerminate(
+                        sessionInitIQ.getTo(),
+                        sessionInitIQ.getFrom(),
+                        sessionInitIQ.getSID(),
+                        Reason.INCOMPATIBLE_PARAMETERS,
+                        reason);
 
-            setState(CallPeerState.FAILED, "Error: " + exc.getMessage());
+            setState(CallPeerState.FAILED, reason);
             getProtocolProvider().getConnection().sendPacket(errResp);
             return;
         }
@@ -626,8 +659,8 @@ public class CallPeerJabberImpl
 
         try
         {
-            mediaHandler.getTransportManager().
-                wrapupConnectivityEstablishment();
+            mediaHandler
+                .getTransportManager().wrapupConnectivityEstablishment();
             mediaHandler.processAnswer(answer);
         }
         catch(Exception exc)

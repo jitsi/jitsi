@@ -7,7 +7,6 @@
 package net.java.sip.communicator.service.protocol.media;
 
 import java.net.*;
-import java.util.*;
 
 import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.protocol.*;

@@ -341,26 +341,23 @@ public class OperationSetTelephonyConferencingJabberImpl
      *
      * @param evt the event received
      */
+    @Override
     public void registrationStateChanged(RegistrationStateChangeEvent evt)
     {
         super.registrationStateChanged(evt);
 
         RegistrationState registrationState = evt.getNewState();
 
-        if (registrationState == RegistrationState.REGISTERED)
+        if (RegistrationState.REGISTERED.equals(registrationState))
         {
             if(logger.isDebugEnabled())
-            {
                 logger.debug("Subscribes to Coin packets");
-            }
             subscribeForCoinPackets();
         }
-        else if (registrationState == RegistrationState.UNREGISTERED)
+        else if (RegistrationState.UNREGISTERED.equals(registrationState))
         {
             if(logger.isDebugEnabled())
-            {
                 logger.debug("Unsubscribes to Coin packets");
-            }
             unsubscribeForCoinPackets();
         }
     }
@@ -432,14 +429,14 @@ public class OperationSetTelephonyConferencingJabberImpl
     }
 
     /**
-     * Unsubscribes us to notifications about incoming Coin packets.
+     * Unsubscribes us from notifications about incoming Coin packets.
      */
     private void unsubscribeForCoinPackets()
     {
-        if(parentProvider.getConnection() != null)
-        {
-            parentProvider.getConnection().removePacketListener(this);
-        }
+        XMPPConnection connection = parentProvider.getConnection();
+
+        if (connection != null)
+            connection.removePacketListener(this);
     }
 
     /**
@@ -452,12 +449,7 @@ public class OperationSetTelephonyConferencingJabberImpl
      */
     public boolean accept(Packet packet)
     {
-        if(!(packet instanceof CoinIQ))
-        {
-            return false;
-        }
-
-        return true;
+        return (packet instanceof CoinIQ);
     }
 
     /**
@@ -487,17 +479,20 @@ public class OperationSetTelephonyConferencingJabberImpl
                         sid);
 
             if (callPeer != null)
-                handleCoin(coinIQ, callPeer);
+                handleCoin(callPeer, coinIQ);
         }
     }
 
     /**
-     * Handle Coin IQ.
+     * Handles a specific <tt>CoinIQ</tt> sent from a specific
+     * <tt>CallPeer</tt>.
      *
-     * @param coinIQ Coin IQ
-     * @param callPeer a <tt>CallPeer</tt>
+     * @param callPeer the <tt>CallPeer</tt> from which the specified
+     * <tt>CoinIQ</tt> was sent
+     * @param coinIQ the <tt>CoinIQ</tt> which was sent from the specified
+     * <tt>callPeer</tt> 
      */
-    private void handleCoin(CoinIQ coinIQ, CallPeerJabberImpl callPeer)
+    private void handleCoin(CallPeerJabberImpl callPeer, CoinIQ coinIQ)
     {
         setConferenceInfoXML(callPeer, -1, coinIQ.getChildElementXML());
     }

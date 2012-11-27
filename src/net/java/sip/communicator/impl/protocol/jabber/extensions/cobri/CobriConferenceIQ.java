@@ -39,6 +39,13 @@ public class CobriConferenceIQ
         = "http://jitsi.org/protocol/videobridge#conference";
 
     /**
+     * An array of <tt>long</tt>s which represents the lack of any (RTP) SSRCs
+     * seen/received on a <tt>Channel</tt>. Explicitly defined to reduce
+     * unnecessary allocations.
+     */
+    public static final long[] NO_SSRCS = new long[0];
+
+    /**
      * The list of {@link Content}s included into this <tt>conference</tt> IQ.
      */
     private final List<Content> contents = new LinkedList<Content>();
@@ -234,6 +241,13 @@ public class CobriConferenceIQ
         public static final String RTP_PORT_ATTR_NAME = "rtpport";
 
         /**
+         * The name of the XML element which is a child of the &lt;channel&gt;
+         * element and which identifies/specifies an (RTP) SSRC which has been
+         * seen/received on the respective <tt>Channel</tt>.
+         */
+        public static final String SSRC_ELEMENT_NAME = "ssrc";
+
+        /**
          * The number of seconds of inactivity after which the <tt>channel</tt>
          * represented by this instance expires.
          */
@@ -267,6 +281,13 @@ public class CobriConferenceIQ
         private int rtpPort;
 
         /**
+         * The list of (RTP) SSRCs which have been seen/received on this
+         * <tt>Channel</tt> by now. These may exclude SSRCs which are no longer
+         * active. Set by the Jitsi VideoBridge server, not its clients.
+         */
+        private long[] ssrcs = NO_SSRCS;
+
+        /**
          * Adds a <tt>payload-type</tt> element defined by XEP-0167: Jingle RTP
          * Sessions to this <tt>channel</tt>.
          *
@@ -287,6 +308,33 @@ public class CobriConferenceIQ
                 payloadTypes.contains(payloadType)
                     ? false
                     : payloadTypes.add(payloadType);
+        }
+
+        /**
+         * Adds a specific (RTP) SSRC to the list of SSRCs seen/received on this
+         * <tt>Channel</tt>. Invoked by the Jitsi VideoBridge server, not its
+         * clients.
+         *
+         * @param ssrc the (RTP) SSRC to be added to the list of SSRCs
+         * seen/received on this <tt>Channel</tt>
+         * @return <tt>true</tt> if the list of SSRCs seen/received on this
+         * <tt>Channel</tt> has been modified as part of the method call;
+         * otherwise, <tt>false</tt>
+         */
+        public synchronized boolean addSSRC(long ssrc)
+        {
+            // contains
+            for (long element : ssrcs)
+                if (element == ssrc)
+                    return false;
+
+            // add
+            long[] newSSRCs = new long[ssrcs.length + 1];
+
+            System.arraycopy(ssrcs, 0, newSSRCs, 0, ssrcs.length);
+            newSSRCs[ssrcs.length] = ssrc;
+            ssrcs = newSSRCs;
+            return true;
         }
 
         /**
@@ -332,6 +380,18 @@ public class CobriConferenceIQ
         }
 
         /**
+         * Gets (a copy of) the list of (RTP) SSRCs seen/received on this
+         * <tt>Channel</tt>.
+         *
+         * @return an array of <tt>long</tt>s which represents (a copy of) the
+         * list of (RTP) SSRCs seen/received on this <tt>Channel</tt>
+         */
+        public synchronized long[] getSSRCs()
+        {
+            return (ssrcs.length == 0) ? NO_SSRCS : ssrcs.clone();
+        }
+
+        /**
          * Removes a <tt>payload-type</tt> element defined by XEP-0167: Jingle
          * RTP Sessions from this <tt>channel</tt>.
          *
@@ -344,6 +404,54 @@ public class CobriConferenceIQ
         public boolean removePayloadType(PayloadTypePacketExtension payloadType)
         {
             return payloadTypes.remove(payloadType);
+        }
+
+        /**
+         * Removes a specific (RTP) SSRC from the list of SSRCs seen/received on
+         * this <tt>Channel</tt>. Invoked by the Jitsi VideoBridge server, not
+         * its clients.
+         *
+         * @param ssrc the (RTP) SSRC to be removed from the list of SSRCs
+         * seen/received on this <tt>Channel</tt>
+         * @return <tt>true</tt> if the list of SSRCs seen/received on this
+         * <tt>Channel</tt> has been modified as part of the method call;
+         * otherwise, <tt>false</tt>
+         */
+        public synchronized boolean removeSSRC(long ssrc)
+        {
+            if (ssrcs.length == 1)
+            {
+                if (ssrcs[0] == ssrc)
+                {
+                    ssrcs = NO_SSRCS;
+                    return true;
+                }
+                else
+                    return false;
+            }
+            else
+            {
+                for (int i = 0; i < ssrcs.length; i++)
+                {
+                    if (ssrcs[i] == ssrc)
+                    {
+                        long[] newSSRCs = new long[ssrcs.length - 1];
+
+                        if (i != 0)
+                            System.arraycopy(ssrcs, 0, newSSRCs, 0, i);
+                        if (i != newSSRCs.length)
+                        {
+                            System.arraycopy(
+                                    ssrcs, i + 1,
+                                    newSSRCs, i,
+                                    newSSRCs.length - i);
+                        }
+                        ssrcs = newSSRCs;
+                        return true;
+                    }
+                }
+                return false;
+            }
         }
 
         /**
@@ -389,6 +497,24 @@ public class CobriConferenceIQ
             this.rtpPort = rtpPort;
         }
 
+        /**
+         * Sets the list of (RTP) SSRCs seen/received on this <tt>Channel</tt>.
+         *
+         * @param ssrcs the list of (RTP) SSRCs to be set as seen/received on
+         * this <tt>Channel</tt>
+         */
+        public void setSSRCs(long[] ssrcs)
+        {
+            /*
+             * TODO Make sure that the SSRCs set on this instance do not contain
+             * duplicates.
+             */
+            this.ssrcs
+                = ((ssrcs == null) || (ssrcs.length == 0))
+                    ? NO_SSRCS
+                    : ssrcs.clone();
+        }
+
         public void toXML(StringBuilder xml)
         {
             xml.append('<').append(ELEMENT_NAME);
@@ -396,45 +522,70 @@ public class CobriConferenceIQ
             String id = getID();
 
             if (id != null)
+            {
                 xml.append(' ').append(ID_ATTR_NAME).append("='").append(id)
                         .append('\'');
+            }
 
             String host = getHost();
 
             if (host != null)
+            {
                 xml.append(' ').append(HOST_ATTR_NAME).append("='").append(host)
                         .append('\'');
+            }
 
             int rtpPort = getRTPPort();
 
             if (rtpPort > 0)
+            {
                 xml.append(' ').append(RTP_PORT_ATTR_NAME).append("='")
                         .append(rtpPort).append('\'');
+            }
 
             int rtcpPort = getRTCPPort();
 
             if (rtcpPort > 0)
+            {
                 xml.append(' ').append(RTCP_PORT_ATTR_NAME).append("='")
                         .append(rtcpPort).append('\'');
+            }
 
             int expire = getExpire();
 
             if (expire >= 0)
+            {
                 xml.append(' ').append(EXPIRE_ATTR_NAME).append("='")
                         .append(expire).append('\'');
+            }
 
             List<PayloadTypePacketExtension> payloadTypes = getPayloadTypes();
+            boolean hasPayloadTypes = (payloadTypes.size() != 0);
+            long[] ssrcs = getSSRCs();
+            boolean hasSSRCs = (ssrcs.length != 0);
 
-            if (payloadTypes.size() == 0)
+            if (hasPayloadTypes || hasSSRCs)
             {
-                xml.append(" />");
+                xml.append('>');
+                if (hasPayloadTypes)
+                {
+                    for (PayloadTypePacketExtension payloadType : payloadTypes)
+                        xml.append(payloadType.toXML());
+                }
+                if (hasSSRCs)
+                {
+                    for (long ssrc : ssrcs)
+                    {
+                        xml.append('<').append(SSRC_ELEMENT_NAME).append('>')
+                                .append(ssrc).append("</")
+                                        .append(SSRC_ELEMENT_NAME).append('>');
+                    }
+                }
+                xml.append("</").append(ELEMENT_NAME).append('>');
             }
             else
             {
-                xml.append('>');
-                for (PayloadTypePacketExtension payloadType : payloadTypes)
-                    xml.append(payloadType.toXML());
-                xml.append("</").append(ELEMENT_NAME).append('>');
+                xml.append(" />");
             }
         }
     }

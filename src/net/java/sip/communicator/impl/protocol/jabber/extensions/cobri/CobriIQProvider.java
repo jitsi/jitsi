@@ -51,6 +51,7 @@ public class CobriIQProvider
             CobriConferenceIQ.Channel channel = null;
             CobriConferenceIQ.Content content = null;
             PacketExtensionProvider payloadTypePacketExtensionProvider = null;
+            StringBuilder ssrc = null;
 
             while (!done)
             {
@@ -64,14 +65,20 @@ public class CobriIQProvider
                     {
                         done = true;
                     }
-                    else if (CobriConferenceIQ.Channel.ELEMENT_NAME
-                            .equals(name))
+                    else if (CobriConferenceIQ.Channel.ELEMENT_NAME.equals(
+                            name))
                     {
                         content.addChannel(channel);
                         channel = null;
                     }
-                    else if (CobriConferenceIQ.Content.ELEMENT_NAME
+                    else if (CobriConferenceIQ.Channel.SSRC_ELEMENT_NAME
                             .equals(name))
+                    {
+                        channel.addSSRC(Long.parseLong(ssrc.toString().trim()));
+                        ssrc = null;
+                    }
+                    else if (CobriConferenceIQ.Content.ELEMENT_NAME.equals(
+                            name))
                     {
                         conference.addContent(content);
                         content = null;
@@ -129,8 +136,13 @@ public class CobriIQProvider
                         if ((expire != null) && (expire.length() != 0))
                             channel.setExpire(Integer.parseInt(expire));
                     }
-                    else if (CobriConferenceIQ.Content.ELEMENT_NAME
+                    else if (CobriConferenceIQ.Channel.SSRC_ELEMENT_NAME
                             .equals(name))
+                    {
+                        ssrc = new StringBuilder();
+                    }
+                    else if (CobriConferenceIQ.Content.ELEMENT_NAME.equals(
+                            name))
                     {
                         content = new CobriConferenceIQ.Content();
 
@@ -179,6 +191,13 @@ public class CobriIQProvider
                                 channel.addPayloadType(payloadType);
                         }
                     }
+                    break;
+                }
+
+                case XmlPullParser.TEXT:
+                {
+                    if (ssrc != null)
+                        ssrc.append(parser.getText());
                     break;
                 }
                 }

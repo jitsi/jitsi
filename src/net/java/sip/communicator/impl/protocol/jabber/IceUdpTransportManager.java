@@ -668,7 +668,7 @@ public class IceUdpTransportManager
 
         for(Component component : stream.getComponents())
         {
-            for(Candidate candidate : component.getLocalCandidates())
+            for(Candidate<?> candidate : component.getLocalCandidates())
                 trans.addCandidate(createCandidate(candidate));
         }
 
@@ -685,7 +685,7 @@ public class IceUdpTransportManager
      * @return a new {@link CandidatePacketExtension} corresponding to the state
      * of the <tt>candidate</tt> candidate.
      */
-    private CandidatePacketExtension createCandidate(Candidate candidate)
+    private CandidatePacketExtension createCandidate(Candidate<?> candidate)
     {
         CandidatePacketExtension packet = new CandidatePacketExtension();
 

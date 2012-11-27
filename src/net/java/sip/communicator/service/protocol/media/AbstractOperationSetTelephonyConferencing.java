@@ -526,63 +526,38 @@ public abstract class AbstractOperationSetTelephonyConferencing<
             MediaAwareCallPeer<?,?,?> callPeer,
             MediaType mediaType)
     {
-        MediaStream stream = callPeer.getMediaHandler().getStream(mediaType);
-        long remoteSourceID;
+        long remoteSourceID
+            = callPeer.getMediaHandler().getRemoteSSRC(mediaType);
 
-        if (stream != null)
+        if (remoteSourceID != -1)
         {
-            remoteSourceID = stream.getRemoteSourceID();
-            if (remoteSourceID != -1)
+            /*
+             * TODO Technically, we are detecting conflicts within a Call
+             * while we should be detecting them within the whole
+             * CallConference.
+             */
+            MediaAwareCall<?,?,?> call = callPeer.getCall();
+
+            if (call != null)
             {
-                /*
-                 * TODO Technically, we are detecting conflicts within a Call
-                 * while we should be detecting them within the whole
-                 * CallConference.
-                 */
-                MediaAwareCall<?,?,?> call = callPeer.getCall();
-
-                if (call != null)
+                for (MediaAwareCallPeer<?,?,?> aCallPeer
+                        : call.getCallPeerList())
                 {
-                    for (MediaAwareCallPeer<?,?,?> aCallPeer
-                            : call.getCallPeerList())
+                    if (aCallPeer != callPeer)
                     {
-                        if (aCallPeer != callPeer)
+                        long aRemoteSourceID
+                            = aCallPeer.getMediaHandler().getRemoteSSRC(
+                                    mediaType);
+
+                        if (aRemoteSourceID == remoteSourceID)
                         {
-                            MediaStream aStream
-                                = aCallPeer.getMediaHandler().getStream(
-                                        mediaType);
-
-                            /*
-                             * When the Jitsi VideoBridge server-side technology
-                             * is utilized by the local peer/user to host a
-                             * telephony conference, one and the same
-                             * MediaStream instance will be shared by the
-                             * CallPeers. This will definitely lead to a
-                             * conflict.
-                             */
-                            if (aStream == stream)
-                            {
-                                remoteSourceID = -1;
-                                break;
-                            }
-                            else
-                            {
-                                long aRemoteSourceID
-                                    = stream.getRemoteSourceID();
-
-                                if (aRemoteSourceID == remoteSourceID)
-                                {
-                                    remoteSourceID = -1;
-                                    break;
-                                }
-                            }
+                            remoteSourceID = -1;
+                            break;
                         }
                     }
                 }
             }
         }
-        else
-            remoteSourceID = -1;
         return remoteSourceID;
     }
 
@@ -706,15 +681,15 @@ public abstract class AbstractOperationSetTelephonyConferencing<
      * Notifies this <tt>PropertyChangeListener</tt> that the value of a
      * specific property of the notifier it is registered with has changed.
      *
-     * @param event a <tt>PropertyChangeEvent</tt> which describes the source of
+     * @param ev a <tt>PropertyChangeEvent</tt> which describes the source of
      * the event, the name of the property which has changed its value and the
      * old and new values of the property
      * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
      */
     @SuppressWarnings("unchecked")
-    public void propertyChange(PropertyChangeEvent event)
+    public void propertyChange(PropertyChangeEvent ev)
     {
-        String propertyName = event.getPropertyName();
+        String propertyName = ev.getPropertyName();
 
         if (CallPeerMediaHandler.AUDIO_LOCAL_SSRC.equals(
                 propertyName)
@@ -726,8 +701,7 @@ public abstract class AbstractOperationSetTelephonyConferencing<
                         propertyName))
         {
             Call call
-                = ((CallPeerMediaHandler<MediaAwareCallPeerT>)
-                        event.getSource())
+                = ((CallPeerMediaHandler<MediaAwareCallPeerT>) ev.getSource())
                     .getPeer()
                         .getCall();
 

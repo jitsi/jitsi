@@ -337,6 +337,11 @@ public class RawUdpTransportManager
      * Gets the {@link CobriConferenceIQ.Channel} which belongs to a content
      * associated with a specific <tt>MediaType</tt> and is to be either locally
      * or remotely used.
+     * <p>
+     * <b>Note</b>: Modifications to the <tt>CobriConferenceIQ.Channel</tt>
+     * instance returned by the method propagate to (the state of) this
+     * instance.
+     * </p>
      *
      * @param mediaType the <tt>MediaType</tt> associated with the content which
      * contains the <tt>CobriConferenceIQ.Channel</tt> to get
@@ -348,7 +353,7 @@ public class RawUdpTransportManager
      * in accord with the specified <tt>local</tt> indicator if such a channel
      * exists; otherwise, <tt>null</tt>
      */
-    private CobriConferenceIQ.Channel getCobriChannel(
+    CobriConferenceIQ.Channel getCobriChannel(
             MediaType mediaType,
             boolean local)
     {

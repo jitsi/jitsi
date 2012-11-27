@@ -606,15 +606,15 @@ public abstract class CallPeerMediaHandler
     }
 
     /**
-     * Gets the last-known remote SSRC of the audio <tt>MediaStream</tt> of this
-     * instance.
+     * Gets the last-known SSRC of an RTP stream with a specific
+     * <tt>MediaType</tt> received by a <tt>MediaStream</tt> of this instance.
      *
-     * @return the last-known remote SSRC of the audio <tt>MediaStream</tt> of
-     * this instance
+     * @return the last-known SSRC of an RTP stream with a specific
+     * <tt>MediaType</tt> received by a <tt>MediaStream</tt> of this instance
      */
-    public long getAudioRemoteSSRC()
+    public long getRemoteSSRC(MediaType mediaType)
     {
-        return mediaHandler.getRemoteSSRC(this, MediaType.AUDIO);
+        return mediaHandler.getRemoteSSRC(this, mediaType);
     }
 
     /**
@@ -1032,14 +1032,18 @@ public abstract class CallPeerMediaHandler
         synchronized (localAudioLevelListenerLock)
         {
             if (localAudioLevelListener != null)
+            {
                 audioStream.setLocalUserAudioLevelListener(
                         localAudioLevelListener);
+            }
         }
         synchronized (streamAudioLevelListenerLock)
         {
             if (streamAudioLevelListener != null)
+            {
                 audioStream.setStreamAudioLevelListener(
                         streamAudioLevelListener);
+            }
         }
         synchronized (csrcAudioLevelListenerLock)
         {

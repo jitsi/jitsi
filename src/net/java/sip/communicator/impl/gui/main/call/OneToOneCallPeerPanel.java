@@ -292,14 +292,17 @@ public class OneToOneCallPeerPanel
             = new TransparentPanel(new BorderLayout(5, 0));
         TransparentPanel remoteLevelPanel
             = new TransparentPanel(new BorderLayout(5, 0));
+        Call call = callPeer.getCall();
 
-        localLevel = new InputVolumeControlButton(
-                callPeer.getCall(),
-                ImageLoader.MICROPHONE,
-                ImageLoader.MUTE_BUTTON,
-                false, false, false);
-        remoteLevel = new OutputVolumeControlButton(
-                ImageLoader.HEADPHONE, false, false).getComponent();
+        localLevel
+            = new InputVolumeControlButton(
+                    call,
+                    ImageLoader.MICROPHONE,
+                    ImageLoader.MUTE_BUTTON,
+                    false, false, false);
+        remoteLevel
+            = new OutputVolumeControlButton(ImageLoader.HEADPHONE, false, false)
+                .getComponent();
 
         final SoundLevelIndicator localLevelIndicator
             = new SoundLevelIndicator(
@@ -339,7 +342,7 @@ public class OneToOneCallPeerPanel
                     + "DISABLE_SOUND_LEVEL_INDICATORS",
                 false))
         {
-            this.callPeer.addStreamSoundLevelListener(
+            callPeer.addStreamSoundLevelListener(
                     new SoundLevelListener()
                     {
                         public void soundLevelChanged(Object source, int level)
@@ -347,15 +350,26 @@ public class OneToOneCallPeerPanel
                             remoteLevelIndicator.updateSoundLevel(level);
                         }
                     });
-
-            this.callPeer.getCall().addLocalUserSoundLevelListener(
-                    new SoundLevelListener()
-                    {
-                        public void soundLevelChanged(Object source, int level)
+            /*
+             * By the time the UI gets to be initialized, the callPeer may have
+             * been removed from its Call. As far as the UI is concerned, the
+             * callPeer will never have a Call again and there will be no audio
+             * levels to display anyway so there is no point in throwing a
+             * NullPointerException here.
+             */
+            if (call != null)
+            {
+                call.addLocalUserSoundLevelListener(
+                        new SoundLevelListener()
                         {
-                            localLevelIndicator.updateSoundLevel(level);
-                        }
-                });
+                            public void soundLevelChanged(
+                                    Object source,
+                                    int level)
+                            {
+                                localLevelIndicator.updateSoundLevel(level);
+                            }
+                        });
+            }
         }
     }
 
@@ -502,11 +516,8 @@ public class OneToOneCallPeerPanel
         CallPeerSecurityStatusEvent securityEvent
             = callPeer.getCurrentSecuritySettings();
 
-        if (securityEvent != null
-            && securityEvent instanceof CallPeerSecurityOnEvent)
-        {
+        if (securityEvent instanceof CallPeerSecurityOnEvent)
             securityOn((CallPeerSecurityOnEvent) securityEvent);
-        }
     }
 
     /**
@@ -733,8 +744,10 @@ public class OneToOneCallPeerPanel
         SrtpControl srtpControl = evt.getSecurityController();
 
         if ((srtpControl.requiresSecureSignalingTransport()
-            && callPeer.getProtocolProvider().isSignalingTransportSecure())
-            || !srtpControl.requiresSecureSignalingTransport())
+                    && callPeer
+                        .getProtocolProvider()
+                            .isSignalingTransportSecure())
+                || !srtpControl.requiresSecureSignalingTransport())
         {
             if (srtpControl instanceof ZrtpControl)
             {

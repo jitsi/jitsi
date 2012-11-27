@@ -8,23 +8,38 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.util.*;
 
-import org.jivesoftware.smack.*;
-import org.jivesoftware.smackx.packet.*;
-
 import net.java.sip.communicator.impl.protocol.jabber.extensions.cobri.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.media.*;
+import net.java.sip.communicator.util.*;
+
+import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.filter.*;
+import org.jivesoftware.smack.packet.*;
 
 /**
  * Implements <tt>OperationSetVideoBridge</tt> for Jabber.
  *
  * @author Yana Stamcheva
+ * @author Lyubomir Marinov
  */
 public class OperationSetVideoBridgeImpl
-    implements OperationSetVideoBridge
+    implements OperationSetVideoBridge,
+               PacketFilter,
+               PacketListener,
+               RegistrationStateChangeListener
 {
     /**
-     * The parent protocol provider.
+     * The <tt>Logger</tt> used by the <tt>OperationSetVideoBridgeImpl</tt>
+     * class and its instances for logging output.
+     */
+    private static final Logger logger
+        = Logger.getLogger(OperationSetVideoBridgeImpl.class);
+
+    /**
+     * The <tt>ProtocolProviderService</tt> implementation which initialized
+     * this instance, owns it and is often referred to as its parent.
      */
     private final ProtocolProviderServiceJabberImpl protocolProvider;
 
@@ -35,10 +50,28 @@ public class OperationSetVideoBridgeImpl
      *
      * @param protocolProvider the parent Jabber protocol provider
      */
-    public OperationSetVideoBridgeImpl(ProtocolProviderServiceJabberImpl
-                                                            protocolProvider)
+    public OperationSetVideoBridgeImpl(
+            ProtocolProviderServiceJabberImpl protocolProvider)
     {
         this.protocolProvider = protocolProvider;
+        this.protocolProvider.addRegistrationStateChangeListener(this);
+    }
+
+    /**
+     * Implements {@link PacketFilter}. Determines whether this instance is
+     * interested in a specific {@link Packet}.
+     * <tt>OperationSetVideoBridgeImpl</tt> returns <tt>true</tt> if the
+     * specified <tt>packet</tt> is a {@link CobriConferenceIQ}; otherwise,
+     * <tt>false</tt>. 
+     *
+     * @param packet the <tt>Packet</tt> to be determined whether this instance
+     * is interested in it
+     * @return <tt>true</tt> if the specified <tt>packet</tt> is a
+     * <tt>CobriConferenceIQ</tt>; otherwise, <tt>false</tt>
+     */
+    public boolean accept(Packet packet)
+    {
+        return (packet instanceof CobriConferenceIQ);
     }
 
     /**
@@ -54,12 +87,14 @@ public class OperationSetVideoBridgeImpl
      */
     public Call createConfCall(String[] callees)
         throws OperationFailedException,
-        OperationNotSupportedException
+               OperationNotSupportedException
     {
-        return protocolProvider
+        return
+            protocolProvider
                 .getOperationSet(OperationSetTelephonyConferencing.class)
-                    .createConfCall(callees,
-                                    new MediaAwareCallConference(true));
+                    .createConfCall(
+                            callees,
+                            new MediaAwareCallConference(true));
     }
 
     /**
@@ -82,10 +117,10 @@ public class OperationSetVideoBridgeImpl
         throws OperationFailedException,
         OperationNotSupportedException
     {
-        return protocolProvider.getOperationSet(
-                OperationSetTelephonyConferencing.class).inviteCalleeToCall(
-                                                        uri,
-                                                        call);
+        return
+            protocolProvider
+                .getOperationSet(OperationSetTelephonyConferencing.class)
+                    .inviteCalleeToCall(uri, call);
     }
 
     /**
@@ -100,7 +135,151 @@ public class OperationSetVideoBridgeImpl
     {
         String jitsiVideoBridge = protocolProvider.getJitsiVideoBridge();
 
-        return (jitsiVideoBridge != null
-                && jitsiVideoBridge.length() > 0);
+        return ((jitsiVideoBridge != null) && (jitsiVideoBridge.length() > 0));
+    }
+
+    /**
+     * Notifies this instance that a specific <tt>CobriConferenceIQ</tt> has
+     * been received.
+     *
+     * @param conferenceIQ the <tt>CobriConferenceIQ</tt> which has been
+     * received
+     */
+    private void processCobriConferenceIQ(CobriConferenceIQ conferenceIQ)
+    {
+        /*
+         * The application is not a Jitsi VideoBridge server, it is a client.
+         * Consequently, the specified CobriConferenceIQ is sent to it in
+         * relation to the part of the application's functionality which makes
+         * requests to a Jitsi VideoBridge server i.e. CallJabberImpl.
+         *
+         * Additionally, the method processCobriConferenceIQ is presently tasked
+         * with processing CobriConferenceIQ requests only. They are SET IQs
+         * sent by the Jitsi VideoBridge server to notify the application about
+         * updates in the states of (cobri) conferences organized by the
+         * application.
+         */
+        if (IQ.Type.SET.equals(conferenceIQ.getType())
+                && conferenceIQ.getID() != null)
+        {
+            OperationSetBasicTelephony<?> basicTelephony
+                = protocolProvider.getOperationSet(
+                        OperationSetBasicTelephony.class);
+
+            if (basicTelephony != null)
+            {
+                Iterator<? extends Call> i = basicTelephony.getActiveCalls();
+
+                while (i.hasNext())
+                {
+                    Call call = i.next();
+
+                    if (call instanceof CallJabberImpl)
+                    {
+                        CallJabberImpl callJabberImpl = (CallJabberImpl) call;
+                        MediaAwareCallConference conference
+                            = callJabberImpl.getConference();
+
+                        if ((conference != null)
+                                && conference.isJitsiVideoBridge())
+                        {
+                            /*
+                             * TODO We may want to disallow rogue CallJabberImpl
+                             * instances which may throw an exception to prevent
+                             * the conferenceIQ from reaching the CallJabberImpl
+                             * instance which it was meant for.
+                             */
+                            callJabberImpl.processCobriConferenceIQ(
+                                    conferenceIQ);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Implements {@link PacketListener}. Notifies this instance that a specific
+     * {@link Packet} (which this instance has already expressed interest into
+     * by returning <tt>true</tt> from {@link #accept(Packet)}) has been
+     * received.
+     *
+     * @param packet the <tt>Packet</tt> which has been received and which this
+     * instance is given a chance to process
+     */
+    public void processPacket(Packet packet)
+    {
+        /*
+         * As we do elsewhere, acknowledge the receipt of the Packet first and
+         * then go about our business with it.
+         */
+        IQ iq = (IQ) packet;
+
+        if (iq.getType() == IQ.Type.SET)
+            protocolProvider.getConnection().sendPacket(IQ.createResultIQ(iq));
+
+        /*
+         * Now that the acknowledging is out of the way, do go about our
+         * business with the Packet.
+         */
+        CobriConferenceIQ conferenceIQ = (CobriConferenceIQ) iq;
+        boolean interrupted = false;
+
+        try
+        {
+            processCobriConferenceIQ(conferenceIQ);
+        }
+        catch (Throwable t)
+        {
+            logger.error(
+                    "An error occurred during the processing of a "
+                        + packet.getClass().getName() + " packet",
+                    t);
+
+            if (t instanceof InterruptedException)
+            {
+                /*
+                 * We cleared the interrupted state of the current Thread by
+                 * catching the InterruptedException. However, we do not really
+                 * care whether the current Thread has been interrupted - we
+                 * caught the InterruptedException because we want to swallow
+                 * any Throwable. Consequently, we should better restore the
+                 * interrupted state.  
+                 */
+                interrupted = true;
+            }
+            else if (t instanceof ThreadDeath)
+                throw (ThreadDeath) t;
+        }
+        if (interrupted)
+            Thread.currentThread().interrupt();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Implements {@link RegistrationStateChangeListener}. Notifies this
+     * instance that there has been a change in the <tt>RegistrationState</tt>
+     * of {@link #protocolProvider}. Subscribes this instance to
+     * {@link CobriConferenceIQ}s as soon as <tt>protocolProvider</tt> is
+     * registered and unsubscribes it as soon as <tt>protocolProvider</tt> is
+     * unregistered.
+     */
+    public void registrationStateChanged(RegistrationStateChangeEvent ev)
+    {
+        RegistrationState registrationState = ev.getNewState();
+
+        if (RegistrationState.REGISTERED.equals(registrationState))
+        {
+            protocolProvider.getConnection().addPacketListener(this, this);
+        }
+        else if (RegistrationState.UNREGISTERED.equals(registrationState))
+        {
+            XMPPConnection connection = protocolProvider.getConnection();
+
+            if (connection != null)
+                connection.removePacketListener(this);
+        }
     }
 }

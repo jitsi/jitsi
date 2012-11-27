@@ -605,6 +605,88 @@ public class CallJabberImpl
     }
 
     /**
+     * Notifies this instance that a specific <tt>CobriConferenceIQ</tt> has
+     * been received.
+     *
+     * @param conferenceIQ the <tt>CobriConferenceIQ</tt> which has been
+     * received
+     * @return <tt>true</tt> if the specified <tt>conferenceIQ</tt> was
+     * processed by this instance and no further processing is to be performed
+     * by other possible processors of <tt>CobriConferenceIQ</tt>s; otherwise,
+     * <tt>false</tt>. Because a <tt>CobriConferenceIQ</tt> request sent from
+     * the Jitsi VideoBridge server to the application as its client concerns a
+     * specific <tt>CallJabberImpl</tt> implementation, no further processing by
+     * other <tt>CallJabberImpl</tt> instances is necessary once the
+     * <tt>CobriConferenceIQ</tt> is processed by the associated
+     * <tt>CallJabberImpl</tt> instance.
+     */
+    boolean processCobriConferenceIQ(CobriConferenceIQ conferenceIQ)
+    {
+        if (cobri == null)
+        {
+            /*
+             * This instance has not set up any conference using the Jitsi
+             * VideoBridge server-side technology yet so it cannot be bothered
+             * with related requests.
+             */
+            return false;
+        }
+        else if (conferenceIQ.getID().equals(cobri.getID()))
+        {
+            /*
+             * Remove the local Channels (from the specified conferenceIQ) i.e.
+             * the Channels on which the local peer/user is sending to the Jitsi
+             * VideoBridge server because they concern this Call only and not
+             * its CallPeers.
+             */
+            for (MediaType mediaType : MediaType.values())
+            {
+                String contentName = mediaType.toString();
+                CobriConferenceIQ.Content content
+                    = conferenceIQ.getContent(contentName);
+
+                if (content != null)
+                {
+                    CobriConferenceIQ.Content thisContent
+                        = cobri.getContent(contentName);
+
+                    if ((thisContent != null)
+                            && (thisContent.getChannelCount() > 0))
+                    {
+                        CobriConferenceIQ.Channel thisChannel
+                            = thisContent.getChannel(0);
+                        CobriConferenceIQ.Channel channel
+                            = content.getChannel(thisChannel.getID());
+
+                        if (channel != null)
+                            content.removeChannel(channel);
+                    }
+                }
+            }
+
+            for (CallPeerJabberImpl callPeer : getCallPeerList())
+                callPeer.processCobriConferenceIQ(conferenceIQ);
+
+            /*
+             * We have removed the local Channels from the specified
+             * conferenceIQ. Consequently, it is no longer the same and fit for
+             * processing by other CallJabberImpl instances.
+             */
+            return true;
+        }
+        else
+        {
+            /*
+             * This instance has set up a conference using the Jitsi VideoBridge
+             * server-side technology but it is not the one referred to by the
+             * specified conferenceIQ i.e. the specified conferenceIQ does not
+             * concern this instance.
+             */
+            return false;
+        }
+    }
+
+    /**
      * Creates a new call peer and sends a RINGING response.
      *
      * @param jingleIQ the {@link JingleIQ} that created the session.

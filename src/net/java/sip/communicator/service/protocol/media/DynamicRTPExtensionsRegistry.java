@@ -192,7 +192,7 @@ public class DynamicRTPExtensionsRegistry
             {
                 throw new IllegalStateException(
                     "Impossible to map more than the 255 already mapped "
-                    +" RTP extensions");
+                        +" RTP extensions");
             }
 
             byte extID = nextExtensionMapping++;

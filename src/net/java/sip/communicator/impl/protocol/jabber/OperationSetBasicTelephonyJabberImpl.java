@@ -117,7 +117,6 @@ public class OperationSetBasicTelephonyJabberImpl
         }
         else if (registrationState == RegistrationState.UNREGISTERED)
         {
-            // plug jingle unregistration
             unsubscribeForJinglePackets();
 
             if (logger.isInfoEnabled())
@@ -751,14 +750,14 @@ public class OperationSetBasicTelephonyJabberImpl
     }
 
     /**
-     * Unsubscribes us to notifications about incoming jingle packets.
+     * Unsubscribes us from notifications about incoming jingle packets.
      */
     private void unsubscribeForJinglePackets()
     {
-        if(protocolProvider.getConnection() != null)
-        {
-            protocolProvider.getConnection().removePacketListener(this);
-        }
+        XMPPConnection connection = protocolProvider.getConnection();
+
+        if(connection != null)
+            connection.removePacketListener(this);
     }
 
     /**
@@ -773,19 +772,19 @@ public class OperationSetBasicTelephonyJabberImpl
      */
     public boolean accept(Packet packet)
     {
-        String sid = null;
-
-        //we only handle JingleIQ-s
-        if( ! (packet instanceof JingleIQ) && !(packet instanceof SessionIQ))
+        // We handle JingleIQ and SessionIQ.
+        if(!(packet instanceof JingleIQ) && !(packet instanceof SessionIQ))
         {
-            AbstractCallPeer<?, ?> callPeer =
-                activeCallsRepository.findCallPeerBySessInitPacketID(
-                    packet.getPacketID());
+            String packetID = packet.getPacketID();
+            AbstractCallPeer<?, ?> callPeer
+                = activeCallsRepository.findCallPeerBySessInitPacketID(
+                        packetID);
 
             if(callPeer == null)
             {
-                callPeer = activeGTalkCallsRepository.
-                    findCallPeerBySessInitPacketID(packet.getPacketID());
+                callPeer
+                    = activeGTalkCallsRepository.findCallPeerBySessInitPacketID(
+                            packetID);
             }
 
             if(callPeer != null)
@@ -798,20 +797,30 @@ public class OperationSetBasicTelephonyJabberImpl
 
                 if (error != null)
                 {
-                    logger.error("Received an error: code=" + error.getCode()
-                            + " message=" + error.getMessage());
-                    String message = "Service unavailable";
-                    Roster roster = getProtocolProvider().getConnection().
-                        getRoster();
+                    String errorMessage = error.getMessage();
 
-                    if(!roster.contains(packet.getFrom()))
+                    logger.error(
+                            "Received an error: code=" + error.getCode()
+                                + " message=" + errorMessage);
+
+                    String message;
+
+                    if (errorMessage == null)
                     {
-                        message += ": try adding the contact to your contact " +
-                                "list first.";
-                    }
+                        Roster roster
+                            = getProtocolProvider().getConnection().getRoster();
+                        String packetFrom = packet.getFrom();
 
-                    if (error.getMessage() != null)
-                        message = error.getMessage();
+                        message = "Service unavailable";
+                        if(!roster.contains(packetFrom))
+                        {
+                            message
+                                += ": try adding the contact " + packetFrom
+                                    + " to your contact list first.";
+                        }
+                    }
+                    else
+                        message = errorMessage;
 
                     callPeer.setState(CallPeerState.FAILED, message);
                 }
@@ -831,7 +840,7 @@ public class OperationSetBasicTelephonyJabberImpl
                             RtpDescriptionPacketExtension.class);
             }
 
-            sid = jingleIQ.getSID();
+            String sid = jingleIQ.getSID();
 
             //if this is not a session-initiate we'll only take it if we've
             //already seen its session ID.
@@ -845,12 +854,14 @@ public class OperationSetBasicTelephonyJabberImpl
             {
                 return true;
             }
+            else
+            {
+                String sid = sessionIQ.getID();
 
-            sid = sessionIQ.getID();
-
-            //if this is not a session's initiate we'll only take it if we've
-            //already seen its session ID.
-            return (activeGTalkCallsRepository.findSID(sid) != null);
+                // If this is not a session's initiate, we'll take it only if
+                // we've seen its session ID already.
+                return (activeGTalkCallsRepository.findSID(sid) != null);
+            }
         }
         return false;
     }
@@ -863,66 +874,56 @@ public class OperationSetBasicTelephonyJabberImpl
      */
     public void processPacket(Packet packet)
     {
-        if(packet instanceof JingleIQ)
+        IQ iq = (IQ) packet;
+
+        /*
+         * To prevent hijacking sessions from other Jingle-based features such
+         * as file transfer, we should send the ack only if this is a
+         * session-initiate with RTP content or if we are the owners of the
+         * packet's SID.
+         */
+
+        //first ack all "set" requests.
+        if(iq.getType() == IQ.Type.SET)
         {
-            JingleIQ jingleIQ = (JingleIQ)packet;
+            IQ ack = IQ.createResultIQ(iq);
 
-            //to prevent hijacking sessions from other jingle based features
-            //like file transfer for example,  we should only send the
-            //ack if this is a session-initiate with rtp content or if we are
-            //the owners of this packet's sid
-
-            //first ack all "set" requests.
-            if(jingleIQ.getType() == IQ.Type.SET)
-            {
-                IQ ack = IQ.createResultIQ(jingleIQ);
-                protocolProvider.getConnection().sendPacket(ack);
-            }
-
-            try
-            {
-                processJingleIQ(jingleIQ);
-            }
-            catch(Throwable t)
-            {
-                logger.info("Error while handling incoming Jingle packet: ", t);
-
-                /*
-                 * The Javadoc on ThreadDeath says: If ThreadDeath is caught by
-                 * a method, it is important that it be rethrown so that the
-                 * thread actually dies.
-                 */
-                if (t instanceof ThreadDeath)
-                    throw (ThreadDeath) t;
-            }
+            protocolProvider.getConnection().sendPacket(ack);
         }
-        else if(packet instanceof SessionIQ)
+
+        try
         {
-            SessionIQ sessionIQ = (SessionIQ)packet;
-
-            //first ack all "set" requests.
-            if(sessionIQ.getType() == IQ.Type.SET)
+            if (iq instanceof JingleIQ)
+                processJingleIQ((JingleIQ) iq);
+            else if (iq instanceof SessionIQ)
+                processSessionIQ((SessionIQ) iq);
+        }
+        catch(Throwable t)
+        {
+            if (logger.isInfoEnabled())
             {
-                IQ ack = IQ.createResultIQ(sessionIQ);
-                protocolProvider.getConnection().sendPacket(ack);
+                String packetClass;
+
+                if (iq instanceof JingleIQ)
+                    packetClass = "Jingle";
+                else if (iq instanceof SessionIQ)
+                    packetClass = "Gtalk";
+                else
+                    packetClass = packet.getClass().getSimpleName();
+
+                logger.info(
+                        "Error while handling incoming " + packetClass
+                            + " packet: ",
+                        t);
             }
 
-            try
-            {
-                processSessionIQ(sessionIQ);
-            }
-            catch(Throwable t)
-            {
-                logger.info("Error while handling incoming GTalk packet: ", t);
-
-                /*
-                 * The Javadoc on ThreadDeath says: If ThreadDeath is caught by
-                 * a method, it is important that it be rethrown so that the
-                 * thread actually dies.
-                 */
-                if (t instanceof ThreadDeath)
-                    throw (ThreadDeath) t;
-            }
+            /*
+             * The Javadoc on ThreadDeath says: If ThreadDeath is caught by
+             * a method, it is important that it be rethrown so that the
+             * thread actually dies.
+             */
+            if (t instanceof ThreadDeath)
+                throw (ThreadDeath) t;
         }
     }
 
@@ -948,10 +949,12 @@ public class OperationSetBasicTelephonyJabberImpl
 
             if(error != null)
             {
-                message += "\ncode=" + error.getCode()
-                    + " message=" + error.getMessage();
-                logger.error(" code=" + error.getCode()
-                                + " message=" + error.getMessage());
+                String errorStr
+                    = "code=" + error.getCode()
+                        + " message=" + error.getMessage();
+
+                message += "\n" + errorStr;
+                logger.error(" " + errorStr);
             }
 
             if (callPeer != null)
@@ -964,13 +967,12 @@ public class OperationSetBasicTelephonyJabberImpl
 
         if(action == JingleAction.SESSION_INITIATE)
         {
-            CallJabberImpl call = null;
-
             TransferPacketExtension transfer
                 = (TransferPacketExtension)
                     jingleIQ.getExtension(
-                        TransferPacketExtension.ELEMENT_NAME,
-                        TransferPacketExtension.NAMESPACE);
+                            TransferPacketExtension.ELEMENT_NAME,
+                            TransferPacketExtension.NAMESPACE);
+            CallJabberImpl call = null;
 
             if (transfer != null)
             {
@@ -992,7 +994,7 @@ public class OperationSetBasicTelephonyJabberImpl
                                 && protocolProvider.getOurJID().equals(
                                         transfer.getTo()))
                         {
-                            // OK transfer correspond to us
+                            // OK, we are legally involved in the transfer.
                             call = attendantCall;
                         }
                     }
@@ -1000,18 +1002,16 @@ public class OperationSetBasicTelephonyJabberImpl
             }
 
             if(call == null)
-            {
                 call = new CallJabberImpl(this);
-            }
 
-            final CallJabberImpl callThread = call;
+            final CallJabberImpl finalCall = call;
 
             new Thread()
             {
                 @Override
                 public void run()
                 {
-                    callThread.processSessionInitiate(jingleIQ);
+                    finalCall.processSessionInitiate(jingleIQ);
                 }
             }.start();
 
@@ -1076,11 +1076,14 @@ public class OperationSetBasicTelephonyJabberImpl
 
                 if (packetExtension instanceof CoinPacketExtension)
                 {
-                    CoinPacketExtension coinExt =
-                        (CoinPacketExtension)packetExtension;
+                    CoinPacketExtension coinExt
+                        = (CoinPacketExtension)packetExtension;
+
                     callPeer.setConferenceFocus(
-                            Boolean.parseBoolean(coinExt.getAttributeAsString(
-                            CoinPacketExtension.ISFOCUS_ATTR_NAME)));
+                            Boolean.parseBoolean(
+                                    coinExt.getAttributeAsString(
+                                            CoinPacketExtension
+                                                .ISFOCUS_ATTR_NAME)));
                 }
             }
         }
@@ -1164,6 +1167,7 @@ public class OperationSetBasicTelephonyJabberImpl
                 // smack processor
                 new Thread()
                 {
+                    @Override
                     public void run()
                     {
                         try

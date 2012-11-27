@@ -463,14 +463,15 @@ public abstract class AccountID
     public List<String> getSortedEnabledEncryptionProtocolList()
     {
         Map<String, Integer> encryptionProtocols
-            = this.getIntegerPropertiesByPrefix(
+            = getIntegerPropertiesByPrefix(
                     ProtocolProviderFactory.ENCRYPTION_PROTOCOL,
                     true);
         Map<String, Boolean> encryptionProtocolStatus
-            = this.getBooleanPropertiesByPrefix(
+            = getBooleanPropertiesByPrefix(
                     ProtocolProviderFactory.ENCRYPTION_PROTOCOL_STATUS,
                     true,
                     false);
+
         // If the account is not yet configured, then ZRTP is activated by
         // default.
         if(encryptionProtocols.size() == 0)
@@ -484,49 +485,45 @@ public abstract class AccountID
                     true);
         }
 
-        List<String> sortedEncryptionProtocolList
+        List<String> sortedEncryptionProtocols
             = new ArrayList<String>(encryptionProtocols.size());
-        Iterator<String> names = encryptionProtocols.keySet().iterator();
-        String name;
-        int index;
+
         // First: add all protocol in the right order.
-        while(names.hasNext())
+        for (Map.Entry<String, Integer> e : encryptionProtocols.entrySet())
         {
-            name = names.next();
-            index = encryptionProtocols.get(name);
+            int index = e.getValue();
 
             // If the key is set.
-            if(index != -1)
+            if (index != -1)
             {
-                if(index > sortedEncryptionProtocolList.size())
-                {
-                    index = sortedEncryptionProtocolList.size();
-                }
-                sortedEncryptionProtocolList.add(index, name);
+                if (index > sortedEncryptionProtocols.size())
+                    index = sortedEncryptionProtocols.size();
+
+                String name = e.getKey();
+
+                sortedEncryptionProtocols.add(index, name);
             }
         }
 
         // Second: remove all disabled protocol.
-        String encryptionProtocolPropertyName;
-        int prefixeLength
+        int namePrefixLength
             = ProtocolProviderFactory.ENCRYPTION_PROTOCOL.length() + 1;
-        names = encryptionProtocols.keySet().iterator();
-        while(names.hasNext())
+
+        for (Iterator<String> i = sortedEncryptionProtocols.iterator();
+                i.hasNext();)
         {
-            encryptionProtocolPropertyName = names.next();
-            index = encryptionProtocols.get(encryptionProtocolPropertyName);
-            name = encryptionProtocolPropertyName.substring(prefixeLength);
-            // If the key is set.
-            if(index != -1 && !encryptionProtocolStatus.get(
-                        ProtocolProviderFactory.ENCRYPTION_PROTOCOL_STATUS
+            String name = i.next().substring(namePrefixLength);
+
+            if (!encryptionProtocolStatus.get(
+                    ProtocolProviderFactory.ENCRYPTION_PROTOCOL_STATUS
                         + "."
                         + name))
             {
-                sortedEncryptionProtocolList.remove(index);
+                i.remove();
             }
         }
 
-        return sortedEncryptionProtocolList;
+        return sortedEncryptionProtocols;
     }
 
     /**

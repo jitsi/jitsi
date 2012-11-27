@@ -245,26 +245,23 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
     {
         List<CryptoPacketExtension> cryptoPacketExtensions
             = encryptionPacketExtension.getCryptoList();
-        Vector<SrtpCryptoAttribute> peerAttributes
-            = new Vector<SrtpCryptoAttribute>(cryptoPacketExtensions.size());
+        List<SrtpCryptoAttribute> peerAttributes
+            = new ArrayList<SrtpCryptoAttribute>(cryptoPacketExtensions.size());
 
         for (CryptoPacketExtension cpe : cryptoPacketExtensions)
             peerAttributes.add(cpe.toSrtpCryptoAttribute());
 
-        if (peerAttributes == null)
-            return null;
-
-        if (isInitiator)
-            return sDesControl.initiatorSelectAttribute(peerAttributes);
-        else
-            return sDesControl.responderSelectAttribute(peerAttributes);
+        return
+            isInitiator
+                ? sDesControl.initiatorSelectAttribute(peerAttributes)
+                : sDesControl.responderSelectAttribute(peerAttributes);
     }
 
     /**
      * Returns if the remote peer supports ZRTP.
      *
      * @param encryptionPacketExtension The ENCRYPTION element received from
-     * the remote peer. This may contain the ZRTP acket element for the remote
+     * the remote peer. This may contain the ZRTP packet element for the remote
      * peer.
      *
      * @return True if the remote peer supports ZRTP. False, otherwise.
@@ -513,15 +510,16 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
             RtpDescriptionPacketExtension remoteDescription)
     {
         // Sets ZRTP or SDES, depending on the preferences for this account.
-        List<String> preferredEncryptionProtocols = getPeer()
-            .getProtocolProvider()
-            .getAccountID()
-            .getSortedEnabledEncryptionProtocolList();
+        List<String> preferredEncryptionProtocols
+            = getPeer()
+                .getProtocolProvider()
+                    .getAccountID()
+                        .getSortedEnabledEncryptionProtocolList();
 
-        for(int i = 0; i < preferredEncryptionProtocols.size(); ++i)
+        for(String preferredEncryptionProtocol : preferredEncryptionProtocols)
         {
             // ZRTP
-            if(preferredEncryptionProtocols.get(i).equals(
+            if(preferredEncryptionProtocol.equals(
                         ProtocolProviderFactory.ENCRYPTION_PROTOCOL + ".ZRTP"))
             {
                 boolean isZRTPAddedToDescription
@@ -529,18 +527,19 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
                             mediaType,
                             localDescription,
                             remoteDescription);
+
                 if(isZRTPAddedToDescription)
                 {
                     addZRTPAdvertisedEncryptions(
                             false,
                             remoteDescription,
                             mediaType);
-                    // Stops once an encryption advertisement has been choosen.
+                    // Stops once an encryption advertisement has been chosen.
                     return;
                 }
             }
             // SDES
-            else if(preferredEncryptionProtocols.get(i).equals(
+            else if(preferredEncryptionProtocol.equals(
                         ProtocolProviderFactory.ENCRYPTION_PROTOCOL + ".SDES"))
             {
                 addSDESAdvertisedEncryptions(
@@ -552,7 +551,7 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
                         localDescription,
                         remoteDescription))
                 {
-                    // Stops once an encryption advertisement has been choosen.
+                    // Stops once an encryption advertisement has been chosen.
                     return;
                 }
             }

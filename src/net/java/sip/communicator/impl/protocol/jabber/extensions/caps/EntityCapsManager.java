@@ -27,7 +27,6 @@ import org.jivesoftware.smackx.*;
 import org.jivesoftware.smackx.packet.*;
 import org.xmlpull.mxp1.*;
 import org.xmlpull.v1.*;
-// disambiguation
 
 /**
  * Keeps track of entity capabilities.
@@ -35,7 +34,7 @@ import org.xmlpull.v1.*;
  * This work is based on Jonas Adahl's smack fork.
  *
  * @author Emil Ivov
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class EntityCapsManager
 {
@@ -885,18 +884,16 @@ public class EntityCapsManager
 
             /* Google Talk web does not set hash but we need it to be cached */
             if(hash == null)
-            {
                 hash = "";
-            }
 
             if (hash != null)
             {
                 // Check it the packet indicates  that the user is online. We
                 // will use this information to decide if we're going to send
                 // the discover info request.
-                boolean online = false;
-                if (packet instanceof Presence)
-                    online = ((Presence) packet).isAvailable();
+                boolean online
+                    = (packet instanceof Presence)
+                        && ((Presence) packet).isAvailable();
 
                 if(online)
                 {
@@ -917,7 +914,7 @@ public class EntityCapsManager
      * Implements an immutable value which stands for a specific node, a
      * specific hash (algorithm) and a specific ver.
      *
-     * @author Lubomir Marinov
+     * @author Lyubomir Marinov
      */
     public static class Caps
     {

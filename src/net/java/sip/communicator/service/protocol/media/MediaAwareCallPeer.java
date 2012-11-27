@@ -773,10 +773,10 @@ public abstract class MediaAwareCallPeer
         if (getConferenceMemberCount() > 2)
         {
             // this peer is now a conference focus with more than three
-            // participants. This means that the this peer is mixing and sending
-            // us audio for at least two separate participants. We therefore
-            // need to remove the stream level listeners and switch to CSRC
-            // level listening
+            // participants. This means that this peer is mixing and sending us
+            // audio for at least two separate participants. We therefore need
+            // to remove the stream level listeners and switch to CSRC level
+            // listening
             CallPeerMediaHandler<?> mediaHandler = getMediaHandler();
 
             mediaHandler.setStreamAudioLevelListener(null);
@@ -839,7 +839,8 @@ public abstract class MediaAwareCallPeer
                 && ((conferenceMemberCount = getConferenceMemberCount()) > 0)
                 && (conferenceMemberCount < 3))
         {
-            long audioRemoteSSRC = getMediaHandler().getAudioRemoteSSRC();
+            long audioRemoteSSRC
+                = getMediaHandler().getRemoteSSRC(MediaType.AUDIO);
 
             if (audioRemoteSSRC != CallPeerMediaHandler.SSRC_UNKNOWN)
             {
@@ -873,9 +874,11 @@ public abstract class MediaAwareCallPeer
                 = streamAudioLevelListeners.size();
 
             for(int i = 0; i < streamAudioLevelListenerCount; i++)
+            {
                 streamAudioLevelListeners.get(i).soundLevelChanged(
                         this,
                         newLevel);
+            }
         }
     }
 
