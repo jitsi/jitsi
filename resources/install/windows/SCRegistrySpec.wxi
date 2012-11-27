@@ -26,7 +26,7 @@
           Key="shell\open\command"
           KeyPath="yes"
           Type="string"
-          Value='"[INSTALLDIR]run.exe" %1' />
+          Value='"[INSTALLDIR]@APP_LAUNCHER_NAME@.exe" %1' />
     </RegistryKey>
   </Component>
   <Component
@@ -45,7 +45,7 @@
           Key="shell\open\command"
           KeyPath="yes"
           Type="string"
-          Value='"[INSTALLDIR]run.exe" %1' />
+          Value='"[INSTALLDIR]@APP_LAUNCHER_NAME@.exe" %1' />
     </RegistryKey>
   </Component>
   <Component
@@ -64,7 +64,7 @@
           Key="shell\open\command"
           KeyPath="yes"
           Type="string"
-          Value='"[INSTALLDIR]run.exe" %1' />
+          Value='"[INSTALLDIR]@APP_LAUNCHER_NAME@.exe" %1' />
     </RegistryKey>
   </Component>
 
@@ -80,7 +80,7 @@
           KeyPath="yes"
           Name="@APP_NAME@"
           Type="string"
-          Value="[INSTALLDIR]run.exe" />
+          Value="[INSTALLDIR]@APP_LAUNCHER_NAME@.exe" />
     </RegistryKey>
   </Component>
 
@@ -97,7 +97,7 @@
           KeyPath="yes"
           Name="IMApplication"
           Type="string"
-          Value="run.exe" />
+          Value="@APP_LAUNCHER_NAME@.exe" />
     </RegistryKey>
   </Component>
 <?if $(var.Platform) = x64 ?>
@@ -114,7 +114,7 @@
           KeyPath="yes"
           Name="IMApplication"
           Type="string"
-          Value="run.exe" />
+          Value="@APP_LAUNCHER_NAME@.exe" />
     </RegistryKey>
   </Component>
 <?endif ?>

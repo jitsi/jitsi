@@ -372,7 +372,7 @@
     </target>
 
     <target name="build-installation-wix-base"
-            depends="clean-install-windows">
+            depends="clean-install-windows,define-ant-contrib-task">
         <property name="windows.package.name"
             value="${package.name}-${sip-communicator.version}-${windows.package.name.suffix}"/>
         <property name="windows.msi.package.name"
@@ -388,6 +388,41 @@
                    value="${windows.download.link}" />
             <entry key="changes_html" value="updates/index.html" />
         </propertyfile>
+
+        <!-- removes spaces from application name if any -->
+        <propertyregex property="app.exe.filename"
+            input="${application.name}"
+            regexp=" "
+            replace=""
+            override="true"
+            global="true"
+            defaultValue="${application.name}"/>
+        <!-- removes '-' from app.exe.filename if any -->
+        <propertyregex property="app.exe.filename"
+            input="${app.exe.filename}"
+            regexp="-"
+            replace=""
+            override="true"
+            global="true"
+            defaultValue="${app.exe.filename}"/>
+        <!-- removes '_' from app.exe.filename if any -->
+        <propertyregex property="app.exe.filename"
+            input="${app.exe.filename}"
+            regexp="-"
+            replace=""
+            override="true"
+            global="true"
+            defaultValue="${app.exe.filename}"/>
+        <!-- if wix.app.launcher.name is not set use app.exe.filename
+            If using wix.app.launcher.name make sure not to use spaces,-,_
+            in the name.
+        -->
+        <condition property="wix.app.launcher.name"
+                   value="${app.exe.filename}">
+            <not>
+                <isset property="wix.app.launcher.name" />
+            </not>
+        </condition>
 
         <!--
             Prepare for the execution of heat.exe (which is part of the
@@ -406,9 +441,10 @@
             <arg value="MINGW_HOME=${mingw.home}" />
             <arg value="TARGET_DIR=${light.dir}" />
             <arg value="PRODUCTBUILDVERSION=${sip-communicator.version}" />
+            <arg value="TARGET_BASENAME=${wix.app.launcher.name}" />
         </exec>
         <antcall target="wix-sign-file">
-            <param name="file.to.sign" value="${light.dir}/run.exe"/>
+            <param name="file.to.sign" value="${light.dir}/${wix.app.launcher.name}.exe"/>
         </antcall>
         <delete>
             <fileset dir="${light.dir}">
@@ -655,6 +691,7 @@
         <!-- Finish the preparation for the execution of candle.exe -->
         <filter token="APP_EMAIL" value="${application.email}" />
         <filter token="APP_NAME" value="${application.name}" />
+        <filter token="APP_LAUNCHER_NAME" value="${wix.app.launcher.name}" />
         <filter token="APP_WEB" value="${application.web}" />
         <filter token="APP_PUBLISHER" value="${application.publisher}" />
         <filter token="PRODUCTBUILDVERSION" value="${sip-communicator.version}" />

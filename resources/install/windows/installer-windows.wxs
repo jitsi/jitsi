@@ -75,7 +75,7 @@
           Id="Shortcut_Desktop"
           Icon="Icon.ico"
           Name="@APP_NAME@"
-          Target="[INSTALLDIR]run.exe"
+          Target="[INSTALLDIR]@APP_LAUNCHER_NAME@.exe"
           WorkingDirectory="INSTALLDIR" />
       <RegistryValue
           Key="Software\Microsoft\@APP_NAME@"
@@ -93,7 +93,7 @@
           Id="Shortcut_StartMenu"
           Icon="Icon.ico"
           Name="@APP_NAME@"
-          Target="[INSTALLDIR]run.exe"
+          Target="[INSTALLDIR]@APP_LAUNCHER_NAME@.exe"
           WorkingDirectory="INSTALLDIR" />
       <RegistryValue
           Key="Software\Microsoft\@APP_NAME@"
@@ -111,7 +111,7 @@
           Id="Shortcut_Startup"
           Icon="Icon.ico"
           Name="@APP_NAME@"
-          Target="[INSTALLDIR]run.exe"
+          Target="[INSTALLDIR]@APP_LAUNCHER_NAME@.exe"
           WorkingDirectory="INSTALLDIR" />
       <RegistryValue
           Key="Software\Microsoft\@APP_NAME@"
@@ -477,7 +477,7 @@
 <Property Id="CREATE_SIP_REGISTRY_ENTRIES" Value="1" />
 <Property Id="CREATE_XMPP_REGISTRY_ENTRIES" Value="1" />
 <Property Id="IS_AUTOUPDATE" Value="0" Hidden="yes" />
-<Property Id="WixShellExecTarget" Value="[#run.exe]" />
+<Property Id="WixShellExecTarget" Value="[#@APP_LAUNCHER_NAME@.exe]" />
 <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1" />
 <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="!(loc.ExitDialogOptionaCheckBoxText)" />
 <Property Id="WIXUI_INSTALLDIR" Value="INSTALLDIR" />
