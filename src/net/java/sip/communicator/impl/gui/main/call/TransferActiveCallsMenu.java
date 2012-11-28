@@ -175,7 +175,7 @@ public class TransferActiveCallsMenu
     /**
      * A custom menu item corresponding to a specific <tt>CallPeer</tt>.
      */
-    private class CallPeerMenuItem
+    private static class CallPeerMenuItem
         extends JMenuItem
         implements Skinnable
     {
@@ -203,16 +203,6 @@ public class TransferActiveCallsMenu
         }
 
         /**
-         * Get the <tt>CallPeer</tt> of this instance.
-         *
-         * @return <tt>CallPeer</tt>
-         */
-        public CallPeer getCallPeer()
-        {
-            return callPeer;
-        }
-
-        /**
          * Reloads icon.
          */
         public void loadSkin()
@@ -222,6 +212,5 @@ public class TransferActiveCallsMenu
             if (peerIcon != null)
                 this.setIcon(new ImageIcon(peerIcon));
         }
-
     }
 }

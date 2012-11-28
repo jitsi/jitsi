@@ -13,8 +13,6 @@ import java.util.List;
 
 import javax.swing.*;
 
-import com.sun.org.apache.bcel.internal.generic.*;
-
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
@@ -24,7 +22,6 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
-// disambiguation
 
 /**
  * The invite dialog is the one shown when the user clicks on the conference

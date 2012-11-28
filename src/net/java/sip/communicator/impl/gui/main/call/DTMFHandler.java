@@ -18,7 +18,6 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
-import org.jitsi.service.audionotifier.*;
 import org.jitsi.service.protocol.*;
 
 /**

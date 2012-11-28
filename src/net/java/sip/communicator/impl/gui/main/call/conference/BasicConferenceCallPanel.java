@@ -56,6 +56,13 @@ public abstract class BasicConferenceCallPanel
         = new HashMap<CallPeer, ConferenceCallPeerRenderer>();
 
     /**
+     * The indicator which determines whether {@link #dispose()} has already
+     * been invoked on this instance. If <tt>true</tt>, this instance is
+     * considered non-functional and is to be left to the garbage collector.
+     */
+    private boolean disposed = false;
+
+    /**
      * The <tt>Runnable</tt> which is scheduled by
      * {@link #updateViewFromModel()} for execution in the AWT event dispatching
      * thread in order to invoke
@@ -66,7 +73,17 @@ public abstract class BasicConferenceCallPanel
         {
             public void run()
             {
-                updateViewFromModelInEventDispatchThread();
+                /*
+                 * We receive events/notifications from various threads and we
+                 * respond to them in the AWT event dispatching thread. It is
+                 * possible to first schedule an event to be brought to the AWT
+                 * event dispatching thread, then to have #dispose() invoked on
+                 * this instance and, finally, to receive the scheduled event in
+                 * the AWT event dispatching thread. In such a case, this
+                 * disposed instance should not respond to the event.
+                 */
+                if (!disposed)
+                    updateViewFromModelInEventDispatchThread();
             }
         };
 
@@ -182,6 +199,8 @@ public abstract class BasicConferenceCallPanel
      */
     public void dispose()
     {
+        disposed = true;
+
         callConference.removeCallChangeListener(callConferenceListener);
         callConference.removeCallPeerConferenceListener(callConferenceListener);
 
@@ -260,6 +279,18 @@ public abstract class BasicConferenceCallPanel
     }
 
     /**
+     * Returns <tt>true</tt> if {@link #dispose()} has already been invoked on
+     * this instance; otherwise, <tt>false</tt>.
+     *
+     * @return <tt>true</tt> if <tt>dispose()</tt> has already been invoked on
+     * this instance; otherwise, <tt>false</tt>
+     */
+    protected final boolean isDisposed()
+    {
+        return disposed;
+    }
+
+    /**
      * Notifies this instance about a specific <tt>CallPeerConferenceEvent</tt>
      * fired in the telephony conference depicted by this instance.
      *
@@ -315,12 +346,23 @@ public abstract class BasicConferenceCallPanel
      */
     protected void updateViewFromModel()
     {
-        if (SwingUtilities.isEventDispatchThread())
-            updateViewFromModelInEventDispatchThread();
-        else
+        /*
+         * We receive events/notifications from various threads and we respond
+         * to them in the AWT event dispatching thread. It is possible to first
+         * schedule an event to be brought to the AWT event dispatching thread,
+         * then to have #dispose() invoked on this instance and, finally, to
+         * receive the scheduled event in the AWT event dispatching thread. In
+         * such a case, this disposed instance should not respond to the event.
+         */
+        if (!disposed)
         {
-            SwingUtilities.invokeLater(
-                    updateViewFromModelInEventDispatchThread);
+            if (SwingUtilities.isEventDispatchThread())
+                updateViewFromModelInEventDispatchThread();
+            else
+            {
+                SwingUtilities.invokeLater(
+                        updateViewFromModelInEventDispatchThread);
+            }
         }
     }
 
@@ -401,6 +443,17 @@ public abstract class BasicConferenceCallPanel
      */
     protected void updateViewFromModelInEventDispatchThread()
     {
+        /*
+         * We receive events/notifications from various threads and we respond
+         * to them in the AWT event dispatching thread. It is possible to first
+         * schedule an event to be brought to the AWT event dispatching thread,
+         * then to have #dispose() invoked on this instance and, finally, to
+         * receive the scheduled event in the AWT event dispatching thread. In
+         * such a case, this disposed instance should not respond to the event.
+         */
+        if (disposed)
+            return;
+
         /* Update the view of the local peer/user. */
         updateViewFromModel(null);
 

@@ -45,6 +45,13 @@ public class OneToOneCallPeerPanel
                Skinnable
 {
     /**
+     * The <tt>Logger</tt> used by the <tt>OneToOneCallPeerPanel</tt> class and
+     * its instances for logging output.
+     */
+    private static final Logger logger
+        = Logger.getLogger(OneToOneCallPeerPanel.class);
+
+    /**
      * Serial version UID.
      */
     private static final long serialVersionUID = 0L;
@@ -81,6 +88,13 @@ public class OneToOneCallPeerPanel
      * streaming from the local peer/user to the remote peer(s).
      */
     private Component closeLocalVisualComponentButton;
+
+    /**
+     * The indicator which determines whether {@link #dispose()} has already
+     * been invoked on this instance. If <tt>true</tt>, this instance is
+     * considered non-functional and is to be left to the garbage collector.
+     */
+    private boolean disposed = false;
 
     /**
      * The DTMF label.
@@ -203,7 +217,17 @@ public class OneToOneCallPeerPanel
         {
             public void run()
             {
-                updateViewFromModelInEventDispatchThread();
+                /*
+                 * We receive events/notifications from various threads and we
+                 * respond to them in the AWT event dispatching thread. It is
+                 * possible to first schedule an event to be brought to the AWT
+                 * event dispatching thread, then to have #dispose() invoked on
+                 * this instance and, finally, to receive the scheduled event in
+                 * the AWT event dispatching thread. In such a case, this
+                 * disposed instance should not respond to the event.
+                 */
+                if (!disposed)
+                    updateViewFromModelInEventDispatchThread();
             }
         };
 
@@ -451,6 +475,7 @@ public class OneToOneCallPeerPanel
      */
     public void dispose()
     {
+        disposed = true;
         callPeerAdapter.dispose();
         uiVideoHandler.deleteObserver(uiVideoHandlerObserver);
     }
@@ -1173,12 +1198,26 @@ public class OneToOneCallPeerPanel
      */
     private void updateViewFromModel()
     {
-        if (SwingUtilities.isEventDispatchThread())
-            updateViewFromModelInEventDispatchThread();
-        else
+        /*
+         * We receive events/notifications from various threads and we respond
+         * to them in the AWT event dispatching thread. It is possible to first
+         * schedule an event to be brought to the AWT event dispatching thread,
+         * then to have #dispose() invoked on this instance and, finally, to
+         * receive the scheduled event in the AWT event dispatching thread. In
+         * such a case, this disposed instance should not respond to the event
+         * because it may, for example, steal a visual Components depicting
+         * video (which cannot belong to more than one parent at a time) from
+         * another non-disposed OneToOneCallPeerPanel.
+         */
+        if (!disposed)
         {
-            SwingUtilities.invokeLater(
-                    updateViewFromModelInEventDispatchThread);
+            if (SwingUtilities.isEventDispatchThread())
+                updateViewFromModelInEventDispatchThread();
+            else
+            {
+                SwingUtilities.invokeLater(
+                        updateViewFromModelInEventDispatchThread);
+            }
         }
     }
 
@@ -1189,6 +1228,20 @@ public class OneToOneCallPeerPanel
      */
     private void updateViewFromModelInEventDispatchThread()
     {
+        /*
+         * We receive events/notifications from various threads and we respond
+         * to them in the AWT event dispatching thread. It is possible to first
+         * schedule an event to be brought to the AWT event dispatching thread,
+         * then to have #dispose() invoked on this instance and, finally, to
+         * receive the scheduled event in the AWT event dispatching thread. In
+         * such a case, this disposed instance should not respond to the event
+         * because it may, for example, steal a visual Components depicting
+         * video (which cannot belong to more than one parent at a time) from
+         * another non-disposed OneToOneCallPeerPanel.
+         */
+        if (disposed)
+            return;
+
         /*
          * Update the display of visual <tt>Component</tt>s depicting video
          * streaming between the local peer/user and the remote peer(s).
@@ -1238,6 +1291,9 @@ public class OneToOneCallPeerPanel
                      * Well, we cannot do much about the exception. We'll just
                      * not display the local video.
                      */
+                    logger.warn(
+                            "Failed to retrieve local video to be displayed.",
+                            ofe);
                 }
             }
 
@@ -1279,13 +1335,19 @@ public class OneToOneCallPeerPanel
                 else
                 {
                     center.removeAll();
+                    this.localVideo = null;
+                    this.remoteVideo = null;
+
                     if (remoteVideo != null)
+                    {
                         center.add(remoteVideo, VideoLayout.CENTER_REMOTE, -1);
-                    this.remoteVideo = remoteVideo;
+                        this.remoteVideo = remoteVideo;
+                    }
 
                     if (localVideo != null)
                     {
                         center.add(localVideo, VideoLayout.LOCAL, -1);
+                        this.localVideo = localVideo;
 
                         if (closeLocalVisualComponentButton == null)
                         {
@@ -1298,7 +1360,6 @@ public class OneToOneCallPeerPanel
                                 VideoLayout.CLOSE_LOCAL_BUTTON,
                                 -1);
                     }
-                    this.localVideo = localVideo;
                 }
             }
         }

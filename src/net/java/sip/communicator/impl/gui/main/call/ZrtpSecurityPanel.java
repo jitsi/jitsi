@@ -275,6 +275,7 @@ public class ZrtpSecurityPanel
 
         TransparentPanel sasPanel = new TransparentPanel()
         {
+            @Override
             public void paintComponent(Graphics g)
             {
                 g = g.create();
@@ -428,7 +429,8 @@ public class ZrtpSecurityPanel
         {
             public void actionPerformed(ActionEvent e)
             {
-                // Set ZID name only for verfied peers (SAS compared and confirmed)
+                // Set ZID name only for verified peers (SAS compared and
+                // confirmed).
                 if (!sasVerified)
                     return;
                 
@@ -505,10 +507,7 @@ public class ZrtpSecurityPanel
         repaint();
     }
 
-    public void securityTimeout(CallPeerSecurityTimeoutEvent evt)
-    {
-
-    }
+    public void securityTimeout(CallPeerSecurityTimeoutEvent ev) {}
 
     /**
      * Reloads icons and components.

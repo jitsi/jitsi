@@ -176,6 +176,13 @@ public class CallPanel
     private DialpadDialog dialpadDialog;
 
     /**
+     * The indicator which determines whether {@link #dispose()} has already
+     * been invoked on this instance. If <tt>true</tt>, this instance is
+     * considered non-functional and is to be left to the garbage collector.
+     */
+    private boolean disposed = false;
+
+    /**
      * The handler for DTMF tones.
      */
     private DTMFHandler dtmfHandler;
@@ -295,7 +302,17 @@ public class CallPanel
         {
             public void run()
             {
-                updateViewFromModelInEventDispatchThread();
+                /*
+                 * We receive events/notifications from various threads and we
+                 * respond to them in the AWT event dispatching thread. It is
+                 * possible to first schedule an event to be brought to the AWT
+                 * event dispatching thread, then to have #dispose() invoked on
+                 * this instance and, finally, to receive the scheduled event in
+                 * the AWT event dispatching thread. In such a case, this
+                 * disposed instance should not respond to the event.
+                 */
+                if (!disposed)
+                    updateViewFromModelInEventDispatchThread();
             }
         };
 
@@ -585,6 +602,8 @@ public class CallPanel
      */
     void dispose()
     {
+        disposed = true;
+
         callConference.removeCallChangeListener(callConferenceListener);
         callConference.removeCallPeerConferenceListener(callConferenceListener);
         callConference.removePropertyChangeListener(callConferenceListener);
@@ -1940,12 +1959,23 @@ public class CallPanel
      */
     private void updateViewFromModel()
     {
-        if (SwingUtilities.isEventDispatchThread())
-            updateViewFromModelInEventDispatchThread();
-        else
+        /*
+         * We receive events/notifications from various threads and we respond
+         * to them in the AWT event dispatching thread. It is possible to first
+         * schedule an event to be brought to the AWT event dispatching thread,
+         * then to have #dispose() invoked on this instance and, finally, to
+         * receive the scheduled event in the AWT event dispatching thread. In
+         * such a case, this disposed instance should not respond to the event.
+         */
+        if (!disposed)
         {
-            SwingUtilities.invokeLater(
-                    updateViewFromModelInEventDispatchThread);
+            if (SwingUtilities.isEventDispatchThread())
+                updateViewFromModelInEventDispatchThread();
+            else
+            {
+                SwingUtilities.invokeLater(
+                        updateViewFromModelInEventDispatchThread);
+            }
         }
     }
 
@@ -1956,6 +1986,17 @@ public class CallPanel
      */
     private void updateViewFromModelInEventDispatchThread()
     {
+        /*
+         * We receive events/notifications from various threads and we respond
+         * to them in the AWT event dispatching thread. It is possible to first
+         * schedule an event to be brought to the AWT event dispatching thread,
+         * then to have #dispose() invoked on this instance and, finally, to
+         * receive the scheduled event in the AWT event dispatching thread. In
+         * such a case, this disposed instance should not respond to the event.
+         */
+        if (disposed)
+            return;
+
         /*
          * We may add, remove, show, and hide various Components of the user
          * interface hierarchy of this instance bellow. Consequently, this view
