@@ -389,14 +389,22 @@
             <entry key="changes_html" value="updates/index.html" />
         </propertyfile>
 
-        <!-- removes spaces,-,_ from application name if any -->
+        <!-- removes spaces from application name if any -->
         <propertyregex property="app.exe.filename"
             input="${application.name}"
-            regexp="[ -_]"
+            regexp=" "
             replace=""
             override="true"
             global="true"
             defaultValue="${application.name}"/>
+        <!-- removes -,_ from app.exe.filename if any -->
+        <propertyregex property="app.exe.filename"
+            input="${app.exe.filename}"
+            regexp="[-_]"
+            replace=""
+            override="true"
+            global="true"
+            defaultValue="${app.exe.filename}"/>
         <!-- if wix.app.launcher.name is not set use app.exe.filename
             If using wix.app.launcher.name make sure not to use spaces,-,_
             in the name.
