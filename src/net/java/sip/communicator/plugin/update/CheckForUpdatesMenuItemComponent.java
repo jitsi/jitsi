@@ -25,7 +25,7 @@ public class CheckForUpdatesMenuItemComponent
     /**
      * The "Check for Updates" menu item.
      */
-    private final JMenuItem checkForUpdatesMenuItem;
+    private JMenuItem checkForUpdatesMenuItem;
 
     /**
      * Initializes a new "Check for Updates" menu item.
@@ -35,18 +35,6 @@ public class CheckForUpdatesMenuItemComponent
     public CheckForUpdatesMenuItemComponent(Container container)
     {
         super(container);
-
-        checkForUpdatesMenuItem
-            = new JMenuItem(
-                    Resources.getResources().getI18NString(
-                            "plugin.updatechecker.UPDATE_MENU_ENTRY"));
-        checkForUpdatesMenuItem.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                UpdateActivator.getUpdateService().checkForUpdates(true);
-            }
-        });
     }
 
     /**
@@ -57,6 +45,21 @@ public class CheckForUpdatesMenuItemComponent
      */
     public JMenuItem getComponent()
     {
+        if(checkForUpdatesMenuItem == null)
+        {
+            checkForUpdatesMenuItem
+                = new JMenuItem(
+                        Resources.getResources().getI18NString(
+                                "plugin.updatechecker.UPDATE_MENU_ENTRY"));
+            checkForUpdatesMenuItem.addActionListener(new ActionListener()
+            {
+                public void actionPerformed(ActionEvent e)
+                {
+                    UpdateActivator.getUpdateService().checkForUpdates(true);
+                }
+            });
+        }
+
         return checkForUpdatesMenuItem;
     }
 

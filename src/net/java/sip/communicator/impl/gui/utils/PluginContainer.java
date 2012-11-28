@@ -224,6 +224,8 @@ public class PluginContainer
      */
     private void initPluginComponents()
     {
+        GuiActivator.getUIService().addPluginComponentListener(this);
+
         // Look for PluginComponents registered in the OSGi BundleContext.
         ServiceReference[] serRefs = null;
 
@@ -256,8 +258,6 @@ public class PluginContainer
                 addPluginComponent(component);
             }
         }
-
-        GuiActivator.getUIService().addPluginComponentListener(this);
     }
 
     /**
