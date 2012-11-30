@@ -323,10 +323,20 @@ public class DeviceConfigurationComboBoxModel
         {
             for (CaptureDevice device : getDevices())
             {
-                if (device.info.equals(info))
+                if (info.equals(device.info))
                     return device;
             }
         }
+        else
+        {
+            // just find the one with no info, the None device
+            for (CaptureDevice device : getDevices())
+            {
+                if (device.info == null)
+                    return device;
+            }
+        }
+
         return null;
     }
 

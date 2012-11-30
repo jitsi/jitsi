@@ -162,7 +162,7 @@ public abstract class BasicConferenceParticipantPanel<T>
      * is to depict a specific conference participant.
      *
      * @param callRenderer the renderer for the call
-     * @param isLocalPeer if the peer is the local ones
+     * @param participant participant
      * @param isVideo indicates if we're in a video interface
      */
     public BasicConferenceParticipantPanel(
@@ -252,8 +252,8 @@ public abstract class BasicConferenceParticipantPanel<T>
     }
 
     /**
-     * Sets the name of the participant.
-     * @param participantName the name of the participant
+     * Gets the name of the participant.
+     * @return returns the name of the participant
      */
     public String getParticipantName()
     {
@@ -510,8 +510,20 @@ public abstract class BasicConferenceParticipantPanel<T>
      * display this reason to the user.
      * @param reason the reason to display
      */
-    protected void setErrorReason(String reason)
+    protected void setErrorReason(final String reason)
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    setErrorReason(reason);
+                }
+            });
+            return;
+        }
+
         if (errorMessageComponent == null)
         {
             errorMessageComponent = new JTextPane();
@@ -568,8 +580,20 @@ public abstract class BasicConferenceParticipantPanel<T>
      * Sets the state of the participant.
      * @param participantState the state of the participant
      */
-    public void setParticipantState(String participantState)
+    public void setParticipantState(final String participantState)
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    setParticipantState(participantState);
+                }
+            });
+            return;
+        }
+
         callStatusLabel.setText(participantState.toLowerCase());
     }
 

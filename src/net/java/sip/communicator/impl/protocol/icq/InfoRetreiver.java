@@ -195,50 +195,50 @@ public class InfoRetreiver
 
             if (snac instanceof MetaBasicInfoCmd)
             {
-                if (logger.isInfoEnabled())
-                    logger.info("received basic info");
+                if (logger.isTraceEnabled())
+                    logger.trace("received basic info");
                 readBasicUserInfo((MetaBasicInfoCmd)snac);
             }
             else if (snac instanceof MetaMoreInfoCmd)
             {
-                if (logger.isInfoEnabled())
-                    logger.info("received meta more info");
+                if (logger.isTraceEnabled())
+                    logger.trace("received meta more info");
                 readMoreUserInfo((MetaMoreInfoCmd)snac);
             }
             else if (snac instanceof MetaEmailInfoCmd)
             {
-                if (logger.isInfoEnabled())
-                    logger.info("received email info");
+                if (logger.isTraceEnabled())
+                    logger.trace("received email info");
                 readEmailUserInfo((MetaEmailInfoCmd)snac);
             }
             else if (snac instanceof MetaHomepageCategoryInfoCmd)
             {
-                if (logger.isInfoEnabled())
-                    logger.info("received home page info");
+                if (logger.isTraceEnabled())
+                    logger.trace("received home page info");
                 readHomePageUserInfo((MetaHomepageCategoryInfoCmd)snac);
             }
             else if (snac instanceof MetaWorkInfoCmd)
             {
-                if (logger.isInfoEnabled())
-                    logger.info("received work info");
+                if (logger.isTraceEnabled())
+                    logger.trace("received work info");
                 readWorkUserInfo((MetaWorkInfoCmd)snac);
             }
             else if (snac instanceof MetaNotesInfoCmd)
             {
-                if (logger.isInfoEnabled())
-                    logger.info("received notes info");
+                if (logger.isTraceEnabled())
+                    logger.trace("received notes info");
                 readUserAboutInfo((MetaNotesInfoCmd)snac);
             }
             else if (snac instanceof MetaInterestsInfoCmd)
             {
-                if (logger.isInfoEnabled())
-                    logger.info("received interest info");
+                if (logger.isTraceEnabled())
+                    logger.trace("received interest info");
                 readInterestsUserInfo((MetaInterestsInfoCmd)snac);
             }
             else if (snac instanceof MetaAffiliationsInfoCmd)
             {
-                if (logger.isInfoEnabled())
-                    logger.info("received affiliations info");
+                if (logger.isTraceEnabled())
+                    logger.trace("received affiliations info");
                 readAffilationsUserInfo((MetaAffiliationsInfoCmd)snac);
 
                 result =
