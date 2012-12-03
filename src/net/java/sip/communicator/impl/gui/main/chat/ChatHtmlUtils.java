@@ -742,8 +742,6 @@ public class ChatHtmlUtils
                 + ")";
     }
 
-
-
     /**
      * Escapes special HTML characters such as &lt;, &gt;, &amp; and &quot; in
      * the specified message.
@@ -757,6 +755,8 @@ public class ChatHtmlUtils
                 .replace("&", "&amp;")
                 .replace("<", "&lt;")
                 .replace(">", "&gt;")
-                .replace("\"", "&quot;");
+                .replace("\"", "&quot;")
+                .replace("'", "&#x27;")
+                .replace("/", "&#x2F;");
     }
 }
