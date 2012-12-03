@@ -1436,7 +1436,8 @@
         </copy>
 
         <tstamp>
-            <format property="current.tstamp" pattern="d MMM yyyy HH:mm:ss"/>
+            <format property="current.tstamp" pattern="d MMM yyyy HH:mm:ss"
+                    locale="en,US"/>
         </tstamp>
 
         <filter token="BUILD" value="${sparkle.build}" />
