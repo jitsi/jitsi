@@ -519,7 +519,12 @@ public class MediaAwareCallConference
             if (n != 0)
             {
                 for (PropertyChangeListener l : ls)
-                    l.propertyChange(ev);
+                {
+                    if (l == null)
+                        break;
+                    else
+                        l.propertyChange(ev);
+                }
             }
         }
 
