@@ -126,11 +126,19 @@ public class GrowlNotificationServiceImpl
      *
      * @param context an object identifying the notification
      */
-    public void growlNotificationWasClicked(Object context)
+    public void growlNotificationWasClicked(final Object context)
     {
-        firePopupMessageClicked(new SystrayPopupMessageEvent(this, context));
-        if (logger.isTraceEnabled())
-            logger.trace("Growl notification clicked: " + context);
+        // release the native thread
+        new Thread(new Runnable()
+        {
+            public void run()
+            {
+                firePopupMessageClicked(
+                    new SystrayPopupMessageEvent(this, context));
+                if (logger.isTraceEnabled())
+                    logger.trace("Growl notification clicked: " + context);
+            }
+        }).start();
     }
 
     /**

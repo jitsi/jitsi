@@ -21,7 +21,7 @@ public final class MacOSXQuitRegistration
             application.setQuitHandler(new QuitHandler()
             {
                 public void handleQuitRequestWith(AppEvent.QuitEvent quitEvent,
-                                                  QuitResponse quitResponse)
+                                              final QuitResponse quitResponse)
                 {
                     ((FileMenu) userData).closeActionPerformed();
 
@@ -47,7 +47,20 @@ public final class MacOSXQuitRegistration
                             wait(15000);
                         }catch (InterruptedException ex){}
                     }
-                    quitResponse.performQuit();
+
+                    /**
+                     * Free the event dispatch thread before performing the
+                     * quit (System.exit), shutdown timer may also has started
+                     * the quit and is waiting to free the threads which
+                     * we may be blocking.
+                     */
+                    new Thread(new Runnable()
+                    {
+                        public void run()
+                        {
+                            quitResponse.performQuit();
+                        }
+                    }).start();
                 }
             });
 
