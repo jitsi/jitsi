@@ -27,6 +27,11 @@ public class SysActivityActivator
     private final Logger logger = Logger.getLogger(SysActivityActivator.class);
 
     /**
+     * The OSGi <tt>BundleContext</tt>.
+     */
+    private static BundleContext bundleContext = null;
+
+    /**
      * The system activity service impl.
      */
     private static SystemActivityNotificationsServiceImpl
@@ -83,5 +88,15 @@ public class SysActivityActivator
     {
         if (sysActivitiesServiceImpl != null)
             sysActivitiesServiceImpl.stop();
+    }
+
+    /**
+     * Returns a reference to the bundle context that we were started with.
+     * @return a reference to the BundleContext instance that we were started
+     * with.
+     */
+    public static BundleContext getBundleContext()
+    {
+        return bundleContext;
     }
 }

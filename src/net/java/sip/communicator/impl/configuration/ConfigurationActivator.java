@@ -17,6 +17,11 @@ import org.osgi.framework.*;
 public class ConfigurationActivator
     implements BundleActivator
 {
+    /**
+     * The <tt>BundleContext</tt> in which the configuration bundle has been
+     * started and has not been stopped yet.
+     */
+    private static BundleContext bundleContext;
 
     /**
      * Starts the configuration service
@@ -28,6 +33,8 @@ public class ConfigurationActivator
     public void start(BundleContext bundleContext)
         throws Exception
     {
+        ConfigurationActivator.bundleContext = bundleContext;
+
         ConfigurationService configurationService
             = LibJitsi.getConfigurationService();
 
@@ -52,5 +59,17 @@ public class ConfigurationActivator
     public void stop(BundleContext bundleContext)
         throws Exception
     {
+    }
+
+    /**
+     * Gets the <tt>BundleContext</tt> in which the configuration bundle has
+     * been started and has not been stopped yet.
+     *
+     * @return the <tt>BundleContext</tt> in which the configuration bundle has
+     * been started and has not been stopped yet
+     */
+    public static BundleContext getBundleContext()
+    {
+        return bundleContext;
     }
 }
