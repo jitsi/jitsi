@@ -43,10 +43,11 @@ public class AdvancedConfigForm
         JTextPane descriptionTextPane = new JTextPane();
         descriptionTextPane.setEditable(false);
         descriptionTextPane.setOpaque(false);
-        descriptionTextPane.setForeground(Color.GRAY);
         descriptionTextPane.setText(
             AddrBookActivator.getResources().getI18NString(
                 "plugin.addrbook.DESCRIPTION"));
+        descriptionTextPane.setAlignmentX(Component.LEFT_ALIGNMENT);
+
 
         propertiesPanel.add(descriptionTextPane);
         propertiesPanel.add(Box.createVerticalStrut(15));
@@ -76,11 +77,12 @@ public class AdvancedConfigForm
     private Component createEnableCheckBox(final String configPropName,
                                                  String labelNameKey)
     {
-        final JCheckBox checkBox = new JCheckBox(AddrBookActivator
+        final JCheckBox checkBox = new SIPCommCheckBox(AddrBookActivator
             .getResources().getI18NString(
                 labelNameKey),
                 AddrBookActivator.getConfigService().getBoolean(configPropName,
                                                                 true));
+        checkBox.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         checkBox.addActionListener(new ActionListener()
         {
@@ -127,10 +129,13 @@ public class AdvancedConfigForm
         if (storedPrefix != null && storedPrefix.length() > 0)
             prefixField.setText(storedPrefix);
 
-        JPanel prefixPanel = new TransparentPanel(new BorderLayout());
+        JPanel prefixPanel = new TransparentPanel();
+        prefixPanel.setLayout(new BoxLayout(prefixPanel, BoxLayout.X_AXIS));
 
-        prefixPanel.add(prefixLabel, BorderLayout.WEST);
+        prefixPanel.add(prefixLabel);
+        prefixPanel.add(Box.createHorizontalStrut(10));
         prefixPanel.add(prefixField);
+        prefixPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         prefixField.addFocusListener(new FocusAdapter()
         {
