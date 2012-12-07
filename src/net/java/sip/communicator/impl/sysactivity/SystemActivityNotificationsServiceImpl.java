@@ -89,6 +89,23 @@ public class SystemActivityNotificationsServiceImpl
     private Boolean networkIsConnected = null;
 
     /**
+     * The linux impl class name.
+     */
+    private static final String SYSTEM_ACTIVITY_MANAGER_LINUX_CLASS
+        = "net.java.sip.communicator.impl.sysactivity.NetworkManagerListenerImpl";
+
+    /**
+     * The android impl class name.
+     */
+    private static final String SYSTEM_ACTIVITY_MANAGER_ANDROID_CLASS
+        = "net.java.sip.communicator.impl.sysactivity.ConnectivityManagerListenerImpl";
+
+    /**
+     * The currently instantiated and working manager.
+     */
+    private SystemActivityManager currentRunningManager = null;
+
+    /**
      * Init and start notifications.
      */
     public void start()
@@ -112,17 +129,19 @@ public class SystemActivityNotificationsServiceImpl
         notifystartThread.setDaemon(true);
         notifystartThread.start();
 
-        // a thread periodically checks system idle state and if it pass the
-        // idle time for a particular listener, will inform it.
-        Thread idleNotifyThread
-            = new Thread(
-                    this,
-                    "SystemActivityNotificationsServiceImpl.IdleNotifyThread");
-        idleNotifyThread.setDaemon(true);
-        idleNotifyThread.start();
+        if(isSupported(SystemActivityEvent.EVENT_SYSTEM_IDLE))
+        {
+            // a thread periodically checks system idle state and if it pass the
+            // idle time for a particular listener, will inform it.
+            Thread idleNotifyThread = new Thread(
+                this,
+                "SystemActivityNotificationsServiceImpl.IdleNotifyThread");
+            idleNotifyThread.setDaemon(true);
+            idleNotifyThread.start();
+        }
 
-        if (OSUtils.IS_LINUX)
-            NetworkManagerListenerImpl.getInstance().start();
+        if (getCurrentRunningManager() != null)
+            getCurrentRunningManager().start();
     }
 
     /**
@@ -132,8 +151,8 @@ public class SystemActivityNotificationsServiceImpl
     {
         SystemActivityNotifications.stop();
 
-        if (OSUtils.IS_LINUX)
-            NetworkManagerListenerImpl.getInstance().stop();
+        if (getCurrentRunningManager() != null)
+            getCurrentRunningManager().stop();
 
         eventDispatcher.stop();
 
@@ -566,8 +585,10 @@ public class SystemActivityNotificationsServiceImpl
                 case SystemActivityEvent.EVENT_SLEEP:
                 case SystemActivityEvent.EVENT_NETWORK_CHANGE:
                 {
-                    return NetworkManagerListenerImpl.getInstance()
-                            .isConnected();
+                    return
+                        getCurrentRunningManager() != null ?
+                        getCurrentRunningManager().isConnected()
+                        : false;
                 }
                 case SystemActivityEvent.EVENT_SYSTEM_IDLE:
                 case SystemActivityEvent.EVENT_SYSTEM_IDLE_END:
@@ -590,5 +611,39 @@ public class SystemActivityNotificationsServiceImpl
         }
         else
             return false;
+    }
+
+    /**
+     * Returns or instantiate the manager.
+     * @return
+     */
+    private SystemActivityManager getCurrentRunningManager()
+    {
+        if(currentRunningManager == null)
+        {
+            try
+            {
+                String className = null;
+                if(OSUtils.IS_LINUX)
+                {
+                    className = SYSTEM_ACTIVITY_MANAGER_LINUX_CLASS;
+                }
+                else if(OSUtils.IS_ANDROID)
+                {
+                    className = SYSTEM_ACTIVITY_MANAGER_ANDROID_CLASS;
+                }
+
+                if(className != null)
+                    currentRunningManager = (SystemActivityManager)
+                        Class.forName(SYSTEM_ACTIVITY_MANAGER_LINUX_CLASS)
+                            .newInstance();
+            }
+            catch(Throwable t)
+            {
+                logger.error("Error creating manager", t);
+            }
+        }
+
+        return currentRunningManager;
     }
 }

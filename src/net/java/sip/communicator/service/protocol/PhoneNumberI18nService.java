@@ -6,10 +6,7 @@
  */
 package net.java.sip.communicator.service.protocol;
 
-import java.util.*;
 import java.util.regex.*;
-
-import net.java.sip.communicator.impl.gui.*;
 
 import org.jitsi.service.configuration.*;
 

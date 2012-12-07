@@ -21,18 +21,14 @@ import org.freedesktop.dbus.exceptions.*;
  */
 @SuppressWarnings("rawtypes")
 public class NetworkManagerListenerImpl
-    implements DBusSigHandler
+    implements DBusSigHandler,
+               SystemActivityManager
 {
     /**
      * The logger.
      */
     private Logger logger = Logger.getLogger(
         NetworkManagerListenerImpl.class.getName());
-
-    /**
-     * The only instance of this impl.
-     */
-    private static NetworkManagerListenerImpl networkManagerListenerImpl;
 
     /**
      * Dbus connection we use.
@@ -52,18 +48,6 @@ public class NetworkManagerListenerImpl
         {
             logger.error("Cannot obtain dbus connection", e);
         }
-    }
-
-    /**
-     * Gets the instance of <tt>NetworkManagerListenerImpl</tt>.
-     * @return the NetworkManagerListenerImpl.
-     */
-    public static NetworkManagerListenerImpl getInstance()
-    {
-        if(networkManagerListenerImpl == null)
-            networkManagerListenerImpl = new NetworkManagerListenerImpl();
-
-        return networkManagerListenerImpl;
     }
 
     /**

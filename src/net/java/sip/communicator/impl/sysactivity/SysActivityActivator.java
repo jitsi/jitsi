@@ -50,6 +50,8 @@ public class SysActivityActivator
     public void start(BundleContext bundleContext)
         throws Exception
     {
+        SysActivityActivator.bundleContext = bundleContext;
+
         if (logger.isDebugEnabled())
             logger.debug("Started.");
 
