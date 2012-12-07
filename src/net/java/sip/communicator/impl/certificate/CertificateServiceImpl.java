@@ -154,6 +154,13 @@ public class CertificateServiceImpl
     {
         setTrustStore();
         config.addPropertyChangeListener(PNAME_TRUSTSTORE_TYPE, this);
+
+        System.setProperty("com.sun.security.enableCRLDP",
+            config.getString(PNAME_REVOCATION_CHECK_ENABLED, "false"));
+        System.setProperty("com.sun.net.ssl.checkRevocation",
+            config.getString(PNAME_REVOCATION_CHECK_ENABLED, "false"));
+        Security.setProperty("ocsp.enable",
+            config.getString(PNAME_OCSP_ENABLED, "false"));
     }
 
     public void propertyChange(PropertyChangeEvent evt)
@@ -166,16 +173,6 @@ public class CertificateServiceImpl
         String tsType = (String)config.getProperty(PNAME_TRUSTSTORE_TYPE);
         String tsFile = (String)config.getProperty(PNAME_TRUSTSTORE_FILE);
         String tsPassword = credService.loadPassword(PNAME_TRUSTSTORE_PASSWORD);
-
-        //TODO remove this as soon as we ship with JRE 1.7
-        //remove windows root from x64 on Java < 1.7
-        if (!(OSUtils.IS_WINDOWS32
-                || (OSUtils.IS_WINDOWS
-                    && System.getProperty("java.version").startsWith("1.7"))))
-        {
-            tsType = null;
-            config.removeProperty(CertificateService.PNAME_TRUSTSTORE_TYPE);
-        }
 
         if(tsType != null)
             System.setProperty("javax.net.ssl.trustStoreType", tsType);

@@ -8,6 +8,7 @@ package net.java.sip.communicator.plugin.certconfig;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.security.*;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -45,7 +46,8 @@ public class CertConfigPanel
     private JTable tblCertList;
     private JRadioButton rdoUseWindows;
     private JRadioButton rdoUseJava;
-
+    private SIPCommCheckBox chkEnableRevocationCheck;
+    private SIPCommCheckBox chkEnableOcsp;
 
     // ------------------------------------------------------------------------
     // initialization
@@ -63,17 +65,15 @@ public class CertConfigPanel
 
     private void initComponents()
     {
-        this.setLayout(new BorderLayout());
+        this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
-        //TODO change to OSUtils.IS_WINDOWS as soon as we ship with JRE 1.7
-        if (OSUtils.IS_WINDOWS32
-            || (OSUtils.IS_WINDOWS
-                && System.getProperty("java.version").startsWith("1.7")))
+        // trusted root CA source selection
+        if (OSUtils.IS_WINDOWS)
         {
             JPanel pnlCertConfig = new TransparentPanel(new GridLayout(2, 1));
             pnlCertConfig.setBorder(BorderFactory.createTitledBorder(
                 R.getI18NString("plugin.certconfig.TRUSTSTORE_CONFIG")));
-            add(pnlCertConfig, BorderLayout.NORTH);
+            add(pnlCertConfig);
 
             ButtonGroup grpTrustStore = new ButtonGroup();
 
@@ -102,10 +102,33 @@ public class CertConfigPanel
             }
         }
 
+        // revocation options
+        JPanel pnlRevocation = new TransparentPanel(new GridLayout(2, 1));
+        pnlRevocation.setBorder(BorderFactory.createTitledBorder(
+            R.getI18NString("plugin.certconfig.REVOCATION_TITLE")));
+        add(pnlRevocation);
+
+        chkEnableRevocationCheck = new SIPCommCheckBox(
+            R.getI18NString("plugin.certconfig.REVOCATION_CHECK_ENABLED"));
+        chkEnableRevocationCheck.addActionListener(this);
+        chkEnableRevocationCheck.setSelected(
+            "true".equals(
+                System.getProperty("com.sun.net.ssl.checkRevocation")));
+        pnlRevocation.add(chkEnableRevocationCheck);
+
+        chkEnableOcsp = new SIPCommCheckBox(
+            R.getI18NString("plugin.certconfig.REVOCATION_OCSP_ENABLED"));
+        chkEnableOcsp.addActionListener(this);
+        chkEnableOcsp.setSelected(
+            "true".equals(Security.getProperty("ocsp.enable")));
+        chkEnableOcsp.setEnabled(chkEnableRevocationCheck.isSelected());
+        pnlRevocation.add(chkEnableOcsp);
+
+        // Client certificate authentication list
         JPanel pnlCertList = new TransparentPanel(new BorderLayout());
         pnlCertList.setBorder(BorderFactory.createTitledBorder(
             R.getI18NString("plugin.certconfig.CERT_LIST_TITLE")));
-        add(pnlCertList, BorderLayout.CENTER);
+        add(pnlCertList);
 
         JLabel lblNote = new JLabel();
         lblNote.setText(
@@ -191,6 +214,27 @@ public class CertConfigPanel
                 CertificateService.PNAME_TRUSTSTORE_FILE);
             CertConfigActivator.getCredService().removePassword(
                 CertificateService.PNAME_TRUSTSTORE_PASSWORD);
+        }
+        if (e.getSource() == chkEnableRevocationCheck)
+        {
+            CertConfigActivator.getConfigService().setProperty(
+                CertificateService.PNAME_REVOCATION_CHECK_ENABLED,
+                chkEnableRevocationCheck.isSelected());
+
+            String enabled = new Boolean(
+                chkEnableRevocationCheck.isSelected()).toString();
+            System.setProperty("com.sun.security.enableCRLDP", enabled);
+            System.setProperty("com.sun.net.ssl.checkRevocation", enabled);
+            chkEnableOcsp.setEnabled(chkEnableRevocationCheck.isSelected());
+        }
+        if (e.getSource() == chkEnableOcsp)
+        {
+            CertConfigActivator.getConfigService().setProperty(
+                CertificateService.PNAME_OCSP_ENABLED,
+                chkEnableOcsp.isSelected());
+
+            Security.setProperty("ocsp.enable",
+                new Boolean(chkEnableOcsp.isSelected()).toString());
         }
     }
 

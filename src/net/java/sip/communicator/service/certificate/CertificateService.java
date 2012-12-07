@@ -67,6 +67,21 @@ public interface CertificateService
     public static final String PNAME_TRUSTSTORE_PASSWORD =
         "net.java.sip.communicator.service.cert.truststore.password";
 
+    /**
+     * Property that is being applied to the system properties
+     * <tt>com.sun.net.ssl.checkRevocation</tt> and
+     * <tt>com.sun.security.enableCRLDP</tt>
+     */
+    public static final String PNAME_REVOCATION_CHECK_ENABLED =
+        "net.java.sip.communicator.service.cert.revocation.enabled";
+
+    /**
+     * Property that is being applied to the Security property
+     * <tt>ocsp.enable</tt>
+     */
+    public static final String PNAME_OCSP_ENABLED =
+        "net.java.sip.communicator.service.cert.ocsp.enabled";
+
     // ------------------------------------------------------------------------
     // constants
     // ------------------------------------------------------------------------
