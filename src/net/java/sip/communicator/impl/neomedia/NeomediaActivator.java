@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.neomedia;
 
 import java.beans.*;
 import java.util.*;
+import javax.media.*;
 
 import net.java.sip.communicator.impl.neomedia.codec.video.h264.*;
 import net.java.sip.communicator.service.gui.*;
@@ -86,6 +87,13 @@ public class NeomediaActivator
      */
     private static final String DEVICE_CONFIGURATION_HAS_CHANGED
         = "DeviceConfigurationChanged";
+
+    /**
+     * The name of the notification pop-up event displayed when a new device
+     * is selected (for audio in, audio out or notifications).
+     */
+    private static final String NEW_SELECTED_DEVICE
+        = "NewSelectedDevice";
 
     /**
      * The context in which the one and only <tt>NeomediaActivator</tt> instance
@@ -480,7 +488,15 @@ public class NeomediaActivator
                 notificationService.registerDefaultNotificationForEvent(
                         DEVICE_CONFIGURATION_HAS_CHANGED,
                         net.java.sip.communicator.service.notification.NotificationAction.ACTION_POPUP_MESSAGE,
-                        "Device onfiguration has changed",
+                        "Device configuration has changed",
+                        null);
+
+                // Register a popup message for a new device selected for audio
+                // in, audio out or notifications.
+                notificationService.registerDefaultNotificationForEvent(
+                        NEW_SELECTED_DEVICE,
+                        net.java.sip.communicator.service.notification.NotificationAction.ACTION_POPUP_MESSAGE,
+                        "New selected device",
                         null);
             }
         }
@@ -546,8 +562,74 @@ public class NeomediaActivator
          */
         public void propertyChange(PropertyChangeEvent event)
         {
-            if (DeviceConfiguration.PROP_AUDIO_SYSTEM_DEVICES
+            String popUpEvent = null;
+            String title = null;
+            CaptureDeviceInfo device = null;
+            ResourceManagementService resources
+                = NeomediaActivator.getResources();
+
+            // If the device configuration has changed: a device has been
+            // plugged or un-plugged.
+            if(DeviceConfiguration.PROP_AUDIO_SYSTEM_DEVICES
                     .equals(event.getPropertyName()))
+            {
+                popUpEvent = DEVICE_CONFIGURATION_HAS_CHANGED;
+                // A device has been connected.
+                if(event.getNewValue() != null)
+                {
+                    title = resources.getI18NString(
+                            "impl.media.configform"
+                            + ".AUDIO_DEVICE_CONNECTED");
+                    device = (CaptureDeviceInfo) event.getNewValue();
+                }
+                // A device has been disconnected.
+                else if(event.getOldValue() != null)
+                {
+                    title = resources.getI18NString(
+                            "impl.media.configform"
+                            + ".AUDIO_DEVICE_DISCONNECTED");
+                    device = (CaptureDeviceInfo) event.getOldValue();
+                }
+            }
+            // If a new capture device has been selected.
+            else if(CaptureDevices.PROP_DEVICE.equals(event.getPropertyName()))
+            {
+                if(event.getNewValue() != null)
+                {
+                    popUpEvent = NEW_SELECTED_DEVICE;
+                    title = resources.getI18NString(
+                            "impl.media.configform"
+                            + ".AUDIO_DEVICE_SELECTED_AUDIO_IN");
+                    device = (CaptureDeviceInfo) event.getNewValue();
+                }
+            }
+            // If a new playback device has been selected.
+            else if(PlaybackDevices.PROP_DEVICE.equals(event.getPropertyName()))
+            {
+                if(event.getNewValue() != null)
+                {
+                    popUpEvent = NEW_SELECTED_DEVICE;
+                    title = resources.getI18NString(
+                            "impl.media.configform"
+                            + ".AUDIO_DEVICE_SELECTED_AUDIO_OUT");
+                    device = (CaptureDeviceInfo) event.getNewValue();
+                }
+            }
+            // If a new notify device has been selected.
+            else if(NotifyDevices.PROP_DEVICE.equals(event.getPropertyName()))
+            {
+                if(event.getNewValue() != null)
+                {
+                    popUpEvent = NEW_SELECTED_DEVICE;
+                    title = resources.getI18NString(
+                            "impl.media.configform"
+                            + ".AUDIO_DEVICE_SELECTED_AUDIO_NOTIFICATIONS");
+                    device = (CaptureDeviceInfo) event.getNewValue();
+                }
+            }
+
+            // Shows the pop-up notification.
+            if(title != null && device != null && popUpEvent != null)
             {
                 NotificationService notificationService
                     = getNotificationService();
@@ -563,21 +645,19 @@ public class NeomediaActivator
                     }
 
                     // Fires the popup notification.
-                    ResourceManagementService resources
-                        = NeomediaActivator.getResources();
                     Map<String,Object> extras = new HashMap<String,Object>();
-
                     extras.put(
                             NotificationData.POPUP_MESSAGE_HANDLER_TAG_EXTRA,
                             this);
+
                     notificationService.fireNotification(
-                            DEVICE_CONFIGURATION_HAS_CHANGED,
-                            resources.getI18NString(
+                            popUpEvent,
+                            title,
+                            device.getName()
+                            + "\r\n"
+                            + resources.getI18NString(
                                 "impl.media.configform"
-                                    + ".AUDIO_DEVICE_CONFIG_CHANGED"),
-                            resources.getI18NString(
-                                "impl.media.configform"
-                                    + ".AUDIO_DEVICE_CONFIG_MANAGMENT_CLICK"),
+                                + ".AUDIO_DEVICE_CONFIG_MANAGMENT_CLICK"),
                             null,
                             extras);
                 }
