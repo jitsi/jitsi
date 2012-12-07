@@ -92,16 +92,16 @@ public class FontChooser
 
         // Bold
         this.boldCheckBox
-            = new JCheckBox(res.getI18NString("service.gui.FONT_BOLD"));
+            = new SIPCommCheckBox(res.getI18NString("service.gui.FONT_BOLD"));
         this.boldCheckBox.addActionListener(this);
         this.boldCheckBox.setOpaque(false);
         // Italic
         this.italicCheckBox
-            = new JCheckBox(res.getI18NString("service.gui.FONT_ITALIC"));
+            = new SIPCommCheckBox(res.getI18NString("service.gui.FONT_ITALIC"));
         this.italicCheckBox.addActionListener(this);
         // Underline
         this.underlineCheckBox
-            = new JCheckBox(res.getI18NString("service.gui.FONT_UNDERLINE"));
+            = new SIPCommCheckBox(res.getI18NString("service.gui.FONT_UNDERLINE"));
         this.underlineCheckBox.addActionListener(this);
 
         // Panel

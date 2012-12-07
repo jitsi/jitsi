@@ -89,12 +89,12 @@ public class OpusConfigForm
     /**
      * The "use dtx" checkbox
      */
-    private final JCheckBox dtxCheckbox = new JCheckBox();
+    private final JCheckBox dtxCheckbox = new SIPCommCheckBox();
 
     /**
      * The "use fec" checkbox
      */
-    private final JCheckBox fecCheckbox = new JCheckBox();
+    private final JCheckBox fecCheckbox = new SIPCommCheckBox();
 
     /**
      * The "minimum expected packet loss" field

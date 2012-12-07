@@ -289,7 +289,7 @@ public class IceConfigPanel
          * The check box where user would indicate whether a STUN server is also
          * a TURN server.
          */
-        private final JCheckBox supportTurnCheckBox = new JCheckBox(
+        private final JCheckBox supportTurnCheckBox = new SIPCommCheckBox(
             Resources.getString("plugin.jabberaccregwizz.SUPPORT_TURN"));
 
         /**
@@ -1074,7 +1074,7 @@ public class IceConfigPanel
          * The check box where user would indicate whether a STUN server is also
          * a TURN server.
          */
-        private final JCheckBox supportRelayCheckBox = new JCheckBox(
+        private final JCheckBox supportRelayCheckBox = new SIPCommCheckBox(
             Resources.getString("plugin.jabberaccregwizz.RELAY_SUPPORT"));
 
         /**

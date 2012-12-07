@@ -54,17 +54,17 @@ public class SilkConfigForm
     /**
      * The "use fec" checkbox
      */
-    private final JCheckBox fecCheckbox = new JCheckBox();
+    private final JCheckBox fecCheckbox = new SIPCommCheckBox();
 
     /**
      * The "force packet loss" checkbox
      */
-    private final JCheckBox assumePLCheckbox = new JCheckBox();
+    private final JCheckBox assumePLCheckbox = new SIPCommCheckBox();
 
     /**
      * The " advertise FEC" checkbox
      */
-    private final JCheckBox advertiseFECCheckbox = new JCheckBox();
+    private final JCheckBox advertiseFECCheckbox = new SIPCommCheckBox();
 
     /**
      * The "speech activity threshold" field
