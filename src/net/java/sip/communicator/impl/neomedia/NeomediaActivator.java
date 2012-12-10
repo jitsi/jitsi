@@ -85,14 +85,14 @@ public class NeomediaActivator
      * The name of the notification pop-up event displayed when the device
      * configration has changed.
      */
-    private static final String DEVICE_CONFIGURATION_HAS_CHANGED
+    public static final String DEVICE_CONFIGURATION_HAS_CHANGED
         = "DeviceConfigurationChanged";
 
     /**
      * The name of the notification pop-up event displayed when a new device
      * is selected (for audio in, audio out or notifications).
      */
-    private static final String NEW_SELECTED_DEVICE
+    public static final String NEW_SELECTED_DEVICE
         = "NewSelectedDevice";
 
     /**
@@ -140,11 +140,18 @@ public class NeomediaActivator
     private static PacketLoggingService packetLoggingService  = null;
 
     /**
-     *  A listener to the click on the popup message concerning device
+     *  A listener to the click on the popup message concerning audio device
      *  configuration changes.
      */
     private AudioDeviceConfigurationListener
-        deviceConfigurationPropertyChangeListener;
+        audioDeviceConfigurationPropertyChangeListener;
+
+    /**
+     *  A listener to the click on the popup message concerning video device
+     *  configuration changes.
+     */
+    private VideoDeviceConfigurationListener
+        videoDeviceConfigurationPropertyChangeListener;
 
     /**
      * A {@link MediaConfigurationService} instance.
@@ -156,6 +163,11 @@ public class NeomediaActivator
      *  audio devices.
      */
     private static ConfigurationForm audioConfigurationForm;
+
+    /**
+     *  The video configuration form.
+     */
+    private static ConfigurationForm videoConfigurationForm;
 
     /**
      * Starts the execution of the neomedia bundle in the specified context.
@@ -213,33 +225,52 @@ public class NeomediaActivator
                     audioConfigurationForm,
                     mediaProps);
 
-            if (deviceConfigurationPropertyChangeListener == null)
+            // Initializes and registers the changed audio device configuration
+            // event at the notification service.
+            if (audioDeviceConfigurationPropertyChangeListener == null)
             {
-                // Initializes and registers the changed device configuration
-                // event ot the notification service.
                 getNotificationService();
 
-                deviceConfigurationPropertyChangeListener
-                    = new AudioDeviceConfigurationListener();
+                audioDeviceConfigurationPropertyChangeListener
+                    = new AudioDeviceConfigurationListener(
+                            audioConfigurationForm);
                 mediaServiceImpl
                     .getDeviceConfiguration()
-                        .addPropertyChangeListener(
-                                deviceConfigurationPropertyChangeListener);
+                    .addPropertyChangeListener(
+                            audioDeviceConfigurationPropertyChangeListener);
             }
         }
 
         // If the video configuration form is disabled don't register it.
         if ((cfg == null) || !cfg.getBoolean(VIDEO_CONFIG_DISABLED_PROP, false))
         {
+            videoConfigurationForm
+                = new LazyConfigurationForm(
+                        VideoConfigurationPanel.class.getName(),
+                        getClass().getClassLoader(),
+                        "plugin.mediaconfig.VIDEO_ICON",
+                        "impl.neomedia.configform.VIDEO",
+                        4);
+
             bundleContext.registerService(
                     ConfigurationForm.class.getName(),
-                    new LazyConfigurationForm(
-                            VideoConfigurationPanel.class.getName(),
-                            getClass().getClassLoader(),
-                            "plugin.mediaconfig.VIDEO_ICON",
-                            "impl.neomedia.configform.VIDEO",
-                            4),
+                    videoConfigurationForm,
                     mediaProps);
+
+            // Initializes and registers the changed video device configuration
+            // event at the notification service.
+            if (videoDeviceConfigurationPropertyChangeListener == null)
+            {
+                getNotificationService();
+
+                videoDeviceConfigurationPropertyChangeListener
+                    = new VideoDeviceConfigurationListener(
+                            videoConfigurationForm);
+                mediaServiceImpl
+                    .getDeviceConfiguration()
+                    .addPropertyChangeListener(
+                            videoDeviceConfigurationPropertyChangeListener);
+            }
         }
 
         // H.264
@@ -344,17 +375,31 @@ public class NeomediaActivator
     {
         try
         {
-            if (deviceConfigurationPropertyChangeListener != null)
+            if(audioDeviceConfigurationPropertyChangeListener != null)
             {
                 mediaServiceImpl
                     .getDeviceConfiguration()
-                        .removePropertyChangeListener(
-                                deviceConfigurationPropertyChangeListener);
-                if(deviceConfigurationPropertyChangeListener != null)
+                    .removePropertyChangeListener(
+                            audioDeviceConfigurationPropertyChangeListener);
+                if(audioDeviceConfigurationPropertyChangeListener != null)
                 {
-                    deviceConfigurationPropertyChangeListener
+                    audioDeviceConfigurationPropertyChangeListener
                         .managePopupMessageListenerRegistration(false);
-                    deviceConfigurationPropertyChangeListener = null;
+                    audioDeviceConfigurationPropertyChangeListener = null;
+                }
+            }
+
+            if(videoDeviceConfigurationPropertyChangeListener != null)
+            {
+                mediaServiceImpl
+                    .getDeviceConfiguration()
+                    .removePropertyChangeListener(
+                            videoDeviceConfigurationPropertyChangeListener);
+                if(videoDeviceConfigurationPropertyChangeListener != null)
+                {
+                    videoDeviceConfigurationPropertyChangeListener
+                        .managePopupMessageListenerRegistration(false);
+                    videoDeviceConfigurationPropertyChangeListener = null;
                 }
             }
         }
@@ -505,193 +550,36 @@ public class NeomediaActivator
     }
 
     /**
-     *  A listener to the click on the popup message concerning device
-     *  configuration changes.
+     * Returns the context in which the one and only <tt>NeomediaActivator</tt>
+     * instance has started executing.
+     *
+     * @return The context in which the one and only <tt>NeomediaActivator</tt>
+     * instance has started executing.
      */
-    private class AudioDeviceConfigurationListener
-        implements PropertyChangeListener,
-                   SystrayPopupMessageListener
+    public static BundleContext getBundleContext()
     {
-        /**
-         * A boolean used to verify that this listener registers only once to
-         * the popup message notification handler.
-         */
-        private boolean isRegisteredToPopupMessageListener = false;
+        return bundleContext;
+    }
 
-        /**
-         * Registers or unregister as a popup message listener to detect when a
-         * user click on notification saying that the device configuration has
-         * changed.
-         *
-         * @param enable True to register to the popup message notifcation
-         * handler.  False to unregister.
-         */
-        public void managePopupMessageListenerRegistration(boolean enable)
-        {
-            Iterator<NotificationHandler> notificationHandlers
-                = notificationService.getActionHandlers(
-                        net.java.sip.communicator.service.notification.NotificationAction.ACTION_POPUP_MESSAGE)
-                .iterator();
-            NotificationHandler notificationHandler;
-            while(notificationHandlers.hasNext())
-            {
-                notificationHandler = notificationHandlers.next();
-                if(notificationHandler
-                        instanceof PopupMessageNotificationHandler)
-                {
-                    // Register.
-                    if(enable)
-                    {
-                        ((PopupMessageNotificationHandler) notificationHandler)
-                            .addPopupMessageListener(this);
-                    }
-                    // Unregister.
-                    else
-                    {
-                        ((PopupMessageNotificationHandler) notificationHandler)
-                            .removePopupMessageListener(this);
-                    }
-                }
-            }
-        }
+    /**
+     *  Returns the audio configuration form used to define the
+     *  capture/notify/playback audio devices.
+     *
+     *  @return The audio configuration form used to define the
+     *  capture/notify/playback audio devices.
+     */
+    public static ConfigurationForm getAudioConfigurationForm()
+    {
+        return audioConfigurationForm;
+    }
 
-        /**
-         * Function called when an audio device is plugged or unplugged.
-         *
-         * @param event The property change event which may concern the audio device.
-         */
-        public void propertyChange(PropertyChangeEvent event)
-        {
-            String popUpEvent = null;
-            String title = null;
-            CaptureDeviceInfo device = null;
-            ResourceManagementService resources
-                = NeomediaActivator.getResources();
-
-            // If the device configuration has changed: a device has been
-            // plugged or un-plugged.
-            if(DeviceConfiguration.PROP_AUDIO_SYSTEM_DEVICES
-                    .equals(event.getPropertyName()))
-            {
-                popUpEvent = DEVICE_CONFIGURATION_HAS_CHANGED;
-                // A device has been connected.
-                if(event.getNewValue() != null)
-                {
-                    title = resources.getI18NString(
-                            "impl.media.configform"
-                            + ".AUDIO_DEVICE_CONNECTED");
-                    device = (CaptureDeviceInfo) event.getNewValue();
-                }
-                // A device has been disconnected.
-                else if(event.getOldValue() != null)
-                {
-                    title = resources.getI18NString(
-                            "impl.media.configform"
-                            + ".AUDIO_DEVICE_DISCONNECTED");
-                    device = (CaptureDeviceInfo) event.getOldValue();
-                }
-            }
-            // If a new capture device has been selected.
-            else if(CaptureDevices.PROP_DEVICE.equals(event.getPropertyName()))
-            {
-                if(event.getNewValue() != null)
-                {
-                    popUpEvent = NEW_SELECTED_DEVICE;
-                    title = resources.getI18NString(
-                            "impl.media.configform"
-                            + ".AUDIO_DEVICE_SELECTED_AUDIO_IN");
-                    device = (CaptureDeviceInfo) event.getNewValue();
-                }
-            }
-            // If a new playback device has been selected.
-            else if(PlaybackDevices.PROP_DEVICE.equals(event.getPropertyName()))
-            {
-                if(event.getNewValue() != null)
-                {
-                    popUpEvent = NEW_SELECTED_DEVICE;
-                    title = resources.getI18NString(
-                            "impl.media.configform"
-                            + ".AUDIO_DEVICE_SELECTED_AUDIO_OUT");
-                    device = (CaptureDeviceInfo) event.getNewValue();
-                }
-            }
-            // If a new notify device has been selected.
-            else if(NotifyDevices.PROP_DEVICE.equals(event.getPropertyName()))
-            {
-                if(event.getNewValue() != null)
-                {
-                    popUpEvent = NEW_SELECTED_DEVICE;
-                    title = resources.getI18NString(
-                            "impl.media.configform"
-                            + ".AUDIO_DEVICE_SELECTED_AUDIO_NOTIFICATIONS");
-                    device = (CaptureDeviceInfo) event.getNewValue();
-                }
-            }
-
-            // Shows the pop-up notification.
-            if(title != null && device != null && popUpEvent != null)
-            {
-                NotificationService notificationService
-                    = getNotificationService();
-
-                if(notificationService != null)
-                {
-                    // Registers only once to the  popup message notification
-                    // handler.
-                    if(!isRegisteredToPopupMessageListener)
-                    {
-                        isRegisteredToPopupMessageListener = true;
-                        managePopupMessageListenerRegistration(true);
-                    }
-
-                    // Fires the popup notification.
-                    Map<String,Object> extras = new HashMap<String,Object>();
-                    extras.put(
-                            NotificationData.POPUP_MESSAGE_HANDLER_TAG_EXTRA,
-                            this);
-
-                    notificationService.fireNotification(
-                            popUpEvent,
-                            title,
-                            device.getName()
-                            + "\r\n"
-                            + resources.getI18NString(
-                                "impl.media.configform"
-                                + ".AUDIO_DEVICE_CONFIG_MANAGMENT_CLICK"),
-                            null,
-                            extras);
-                }
-            }
-        }
-
-        /**
-         * Indicates that user has clicked on the systray popup message.
-         * 
-         * @param evt the event triggered when user clicks on the systray popup
-         * message
-         */
-        public void popupMessageClicked(SystrayPopupMessageEvent evt)
-        {
-            // Checks if this event is fired from one click on one of our popup
-            // message.
-            if(evt.getTag() == deviceConfigurationPropertyChangeListener)
-            {
-                // Get the UI service
-                ServiceReference uiReference = bundleContext
-                    .getServiceReference(UIService.class.getName());
-
-                UIService uiService = (UIService) bundleContext
-                    .getService(uiReference);
-
-                if(uiService != null)
-                {
-                    // Shows the audio configuration window.
-                    ConfigurationContainer configurationContainer
-                        = uiService.getConfigurationContainer();
-                    configurationContainer.setSelected(audioConfigurationForm);
-                    configurationContainer.setVisible(true);
-                }
-            }
-        }
+    /**
+     *  Returns the video configuration form.
+     *
+     *  @return The video configuration form.
+     */
+    public static ConfigurationForm getVideoConfigurationForm()
+    {
+        return videoConfigurationForm;
     }
 }
