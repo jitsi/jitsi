@@ -67,7 +67,13 @@ public class VideoDeviceConfigurationListener
             }
         }
 
+        String body = null;
+        if(device != null)
+        {
+            body = device.getName();
+        }
+
         // Shows the pop-up notification.
-        this.showPopUpNotification(title, device, popUpEvent);
+        this.showPopUpNotification(title, body, popUpEvent);
     }
 }

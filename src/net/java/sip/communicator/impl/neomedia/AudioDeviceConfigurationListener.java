@@ -28,6 +28,22 @@ public class AudioDeviceConfigurationListener
     extends AbstractDeviceConfigurationListener
 {
     /**
+     * The last selected capture device for which we have received an event.
+     */
+    private CaptureDeviceInfo captureDevice = null;
+
+    /**
+     * The last selected playback device for which we have received an event.
+     */
+    private CaptureDeviceInfo playbackDevice = null;
+
+    /**
+     * The last selected notification device for which we have received an
+     * event.
+     */
+    private CaptureDeviceInfo notificationDevice = null;
+
+    /**
      * Creates a listener to the click on the popup message concerning audio
      * device configuration changes.
      *
@@ -81,11 +97,7 @@ public class AudioDeviceConfigurationListener
         {
             if(event.getNewValue() != null)
             {
-                popUpEvent = NeomediaActivator.NEW_SELECTED_DEVICE;
-                title = resources.getI18NString(
-                        "impl.media.configform"
-                        + ".AUDIO_DEVICE_SELECTED_AUDIO_IN");
-                device = (CaptureDeviceInfo) event.getNewValue();
+                captureDevice = (CaptureDeviceInfo) event.getNewValue();
             }
         }
         // If a new playback device has been selected.
@@ -93,11 +105,7 @@ public class AudioDeviceConfigurationListener
         {
             if(event.getNewValue() != null)
             {
-                popUpEvent = NeomediaActivator.NEW_SELECTED_DEVICE;
-                title = resources.getI18NString(
-                        "impl.media.configform"
-                        + ".AUDIO_DEVICE_SELECTED_AUDIO_OUT");
-                device = (CaptureDeviceInfo) event.getNewValue();
+                playbackDevice = (CaptureDeviceInfo) event.getNewValue();
             }
         }
         // If a new notify device has been selected.
@@ -105,15 +113,53 @@ public class AudioDeviceConfigurationListener
         {
             if(event.getNewValue() != null)
             {
-                popUpEvent = NeomediaActivator.NEW_SELECTED_DEVICE;
-                title = resources.getI18NString(
-                        "impl.media.configform"
-                        + ".AUDIO_DEVICE_SELECTED_AUDIO_NOTIFICATIONS");
-                device = (CaptureDeviceInfo) event.getNewValue();
+                notificationDevice = (CaptureDeviceInfo) event.getNewValue();
+            }
+        }
+
+        String body = null;
+        if(device != null)
+        {
+            body = device.getName();
+            if(captureDevice != null
+                    || playbackDevice != null
+                    || notificationDevice != null)
+            {
+                body += "\r\n";
+                if(captureDevice != null)
+                {
+                    body += "\r\n"
+                        + resources.getI18NString(
+                                "impl.media.configform"
+                                + ".AUDIO_DEVICE_SELECTED_AUDIO_IN")
+                        + "\r\n\t"
+                        + captureDevice.getName();
+                    captureDevice = null;
+                }
+                if(playbackDevice != null)
+                {
+                    body += "\r\n"
+                        + resources.getI18NString(
+                                "impl.media.configform"
+                                + ".AUDIO_DEVICE_SELECTED_AUDIO_OUT")
+                        + "\r\n\t"
+                        + playbackDevice.getName();
+                    playbackDevice = null;
+                }
+                if(notificationDevice != null)
+                {
+                    body += "\r\n"
+                        + resources.getI18NString(
+                                "impl.media.configform"
+                                + ".AUDIO_DEVICE_SELECTED_AUDIO_NOTIFICATIONS")
+                        + "\r\n\t"
+                        + notificationDevice.getName();
+                    notificationDevice = null;
+                }
             }
         }
 
         // Shows the pop-up notification.
-        super.showPopUpNotification(title, device, popUpEvent);
+        super.showPopUpNotification(title, body, popUpEvent);
     }
 }

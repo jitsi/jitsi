@@ -102,18 +102,17 @@ public abstract class AbstractDeviceConfigurationListener
      * change.
      *
      * @param title The title of the pop-up notification.
-     * @param device The device which has been connected, disconnected or
-     * selected as default device.
+     * @param body A body text describing the device modifications.
      * @param popUpEvent The event for a device which has fired this
      * notification: connected, disconnected or selected.
      */
     public void showPopUpNotification(
             String title,
-            CaptureDeviceInfo device,
+            String body,
             String popUpEvent)
     {
         // Shows the pop-up notification.
-        if(title != null && device != null && popUpEvent != null)
+        if(title != null && body != null && popUpEvent != null)
         {
             NotificationService notificationService
                 = NeomediaActivator.getNotificationService();
@@ -140,8 +139,8 @@ public abstract class AbstractDeviceConfigurationListener
                 notificationService.fireNotification(
                         popUpEvent,
                         title,
-                        device.getName()
-                        + "\r\n"
+                        body
+                        + "\r\n\r\n"
                         + resources.getI18NString(
                             "impl.media.configform"
                             + ".AUDIO_DEVICE_CONFIG_MANAGMENT_CLICK"),
