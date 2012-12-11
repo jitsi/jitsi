@@ -149,9 +149,10 @@ public class NeomediaActivator
     /**
      *  A listener to the click on the popup message concerning video device
      *  configuration changes.
+     *  Disabled until video hotplug is not available.
      */
-    private VideoDeviceConfigurationListener
-        videoDeviceConfigurationPropertyChangeListener;
+    //private VideoDeviceConfigurationListener
+    //    videoDeviceConfigurationPropertyChangeListener;
 
     /**
      * A {@link MediaConfigurationService} instance.
@@ -259,7 +260,8 @@ public class NeomediaActivator
 
             // Initializes and registers the changed video device configuration
             // event at the notification service.
-            if (videoDeviceConfigurationPropertyChangeListener == null)
+            // Disabled until video hotplug is not available.
+            /*if (videoDeviceConfigurationPropertyChangeListener == null)
             {
                 getNotificationService();
 
@@ -270,7 +272,7 @@ public class NeomediaActivator
                     .getDeviceConfiguration()
                     .addPropertyChangeListener(
                             videoDeviceConfigurationPropertyChangeListener);
-            }
+            }*/
         }
 
         // H.264
@@ -389,7 +391,8 @@ public class NeomediaActivator
                 }
             }
 
-            if(videoDeviceConfigurationPropertyChangeListener != null)
+            // Disabled until video hotplug is not available.
+            /*if(videoDeviceConfigurationPropertyChangeListener != null)
             {
                 mediaServiceImpl
                     .getDeviceConfiguration()
@@ -401,7 +404,7 @@ public class NeomediaActivator
                         .managePopupMessageListenerRegistration(false);
                     videoDeviceConfigurationPropertyChangeListener = null;
                 }
-            }
+            }*/
         }
         finally
         {
