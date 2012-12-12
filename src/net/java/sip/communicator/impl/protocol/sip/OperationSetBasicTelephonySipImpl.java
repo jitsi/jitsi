@@ -204,9 +204,13 @@ public class OperationSetBasicTelephonySipImpl
      * @throws OperationFailedException if we fail to construct or send the
      * INVITE request putting the remote side on/off hold.
      */
-    public synchronized void putOffHold(CallPeer peer)
+    public void putOffHold(CallPeer peer)
         throws OperationFailedException
     {
+        /*
+         * XXX We do not need to mark the method putOffHold(CallPeer) as
+         * synchronized because it merely delegates to another method.
+         */
         putOnHold(peer, false);
     }
 
@@ -218,9 +222,13 @@ public class OperationSetBasicTelephonySipImpl
      * @throws OperationFailedException if we fail to construct or send the
      * INVITE request putting the remote side on/off hold.
      */
-    public synchronized void putOnHold(CallPeer peer)
+    public void putOnHold(CallPeer peer)
         throws OperationFailedException
     {
+        /*
+         * XXX We do not need to mark the method putOnHold(CallPeer) as
+         * synchronized because it merely delegates to another method.
+         */
         putOnHold(peer, true);
     }
 
@@ -234,11 +242,10 @@ public class OperationSetBasicTelephonySipImpl
      * @throws OperationFailedException if we fail to construct or send the
      * INVITE request putting the remote side on/off hold.
      */
-    private void putOnHold(CallPeer peer, boolean on)
+    private synchronized void putOnHold(CallPeer peer, boolean on)
         throws OperationFailedException
     {
-        CallPeerSipImpl sipPeer = (CallPeerSipImpl) peer;
-        sipPeer.putOnHold(on);
+        ((CallPeerSipImpl) peer).putOnHold(on);
     }
 
     /**
@@ -1722,9 +1729,9 @@ public class OperationSetBasicTelephonySipImpl
      * CallPeerSipImpl.
      * @throws OperationFailedException if we fail to terminate the call.
      */
-    public synchronized void hangupCallPeer(CallPeer peer)
+    public void hangupCallPeer(CallPeer peer)
         throws ClassCastException,
-        OperationFailedException
+               OperationFailedException
     {
         // By default we hang up by indicating no failure has happened.
         hangupCallPeer(peer, HANGUP_REASON_NORMAL_CLEARING, null);
@@ -1747,10 +1754,9 @@ public class OperationSetBasicTelephonySipImpl
                                             int reasonCode,
                                             String reason)
         throws ClassCastException,
-        OperationFailedException
+               OperationFailedException
     {
-        CallPeerSipImpl peerSipImpl = (CallPeerSipImpl)peer;
-        peerSipImpl.hangup(reasonCode, reason);
+        ((CallPeerSipImpl) peer).hangup(reasonCode, reason);
     }
 
     /**
@@ -1770,9 +1776,7 @@ public class OperationSetBasicTelephonySipImpl
     public synchronized void answerCallPeer(CallPeer peer)
         throws OperationFailedException, ClassCastException
     {
-        CallPeerSipImpl callPeer = (CallPeerSipImpl) peer;
-
-        callPeer.answer();
+        ((CallPeerSipImpl) peer).answer();
     }
 
     /**

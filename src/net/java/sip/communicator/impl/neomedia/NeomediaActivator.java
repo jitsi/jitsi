@@ -6,19 +6,15 @@
  */
 package net.java.sip.communicator.impl.neomedia;
 
-import java.beans.*;
 import java.util.*;
-import javax.media.*;
 
 import net.java.sip.communicator.impl.neomedia.codec.video.h264.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.resources.*;
-import net.java.sip.communicator.service.systray.event.*;
 import net.java.sip.communicator.util.*;
 
 import org.jitsi.impl.neomedia.*;
-import org.jitsi.impl.neomedia.device.*;
 import org.jitsi.service.audionotifier.*;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.fileaccess.*;

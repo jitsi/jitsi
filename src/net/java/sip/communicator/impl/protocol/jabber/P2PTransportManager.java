@@ -521,7 +521,9 @@ public class P2PTransportManager
     public void wrapupConnectivityEstablishment()
         throws OperationFailedException
     {
-        // wait iceAgent to be started before attempt to wrapup
+        // Wait for iceAgent to start before wrapping up.
+        boolean interrupted = false;
+
         while(iceAgent.getState() == IceProcessingState.WAITING)
         {
             synchronized(stateSyncRoot)
@@ -532,9 +534,12 @@ public class P2PTransportManager
                 }
                 catch(InterruptedException e)
                 {
+                    interrupted = true;
                 }
             }
         }
+        if (interrupted)
+            Thread.currentThread().interrupt();
 
         super.wrapupConnectivityEstablishment();
     }

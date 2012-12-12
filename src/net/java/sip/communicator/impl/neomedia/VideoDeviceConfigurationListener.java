@@ -7,16 +7,13 @@
 package net.java.sip.communicator.impl.neomedia;
 
 import java.beans.*;
-import java.util.*;
+
 import javax.media.*;
 
 import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.service.notification.*;
-import net.java.sip.communicator.service.systray.event.*;
 
 import org.jitsi.impl.neomedia.device.*;
 import org.jitsi.service.resources.*;
-import org.osgi.framework.*;
 
 /**
  * A listener to the click on the popup message concerning video

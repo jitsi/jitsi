@@ -20,7 +20,11 @@ import org.jitsi.impl.neomedia.device.*;
 import org.jitsi.service.neomedia.*;
 
 /**
- * @author Lubomir Marinov
+ * Implements <tt>ComboBoxModel</tt> for a specific <tt>DeviceConfiguration</tt>
+ * so that the latter may be displayed and manipulated in the user interface as
+ * a combo box.
+ *
+ * @author Lyubomir Marinov
  * @author Damian Minkov
  */
 public class DeviceConfigurationComboBoxModel
@@ -29,32 +33,11 @@ public class DeviceConfigurationComboBoxModel
                HierarchyListener
 {
     /**
-     * Encapsulates CaptureDeviceInfo
+     * Encapsulates a <tt>CaptureDeviceInfo</tt> for the purposes of its display
+     * in the user interface.
      */
     public static class CaptureDevice
     {
-        /**
-         * Compares two CaptureDeviceInfo
-         * @param device The <tt>CaptureDeviceInfo</tt> to compare with.
-         * @return whether this CaptureDevice is equal to device.
-         */
-        public boolean equals(CaptureDeviceInfo device)
-        {
-            if(info == null && device == null)
-            {
-                return true;
-            }
-            else if(info != null)
-            {
-                if(info instanceof ExtendedCaptureDeviceInfo)
-                {
-                    return ((ExtendedCaptureDeviceInfo) info).equals(device);
-                }
-                return info.equals(device);
-            }
-            return false;
-        }
-
         /**
          * The encapsulated info.
          */
@@ -70,6 +53,23 @@ public class DeviceConfigurationComboBoxModel
         }
 
         /**
+         * Determines whether the <tt>CaptureDeviceInfo</tt> encapsulated by
+         * this instance is equal (by value) to a specific
+         * <tt>CaptureDeviceInfo</tt>.
+         *
+         * @param cdi the <tt>CaptureDeviceInfo</tt> to be determined whether it
+         * is equal (by value) to the <tt>CaptureDeviceInfo</tt> encapsulated by
+         * this instance
+         * @return <tt>true</tt> if the <tt>CaptureDeviceInfo</tt> encapsulated
+         * by this instance is equal (by value) to the specified <tt>cdi</tt>;
+         * otherwise, <tt>false</tt>
+         */
+        public boolean equals(CaptureDeviceInfo cdi)
+        {
+            return (info == null) ? (cdi == null) : info.equals(cdi);
+        }
+
+        /**
          * Gets a human-readable <tt>String</tt> representation of this
          * instance.
          *
@@ -79,25 +79,27 @@ public class DeviceConfigurationComboBoxModel
         @Override
         public String toString()
         {
+            String s;
+
             if(info == null)
             {
-                return NeomediaActivator.getResources().getI18NString(
-                        "impl.media.configform.NO_DEVICE");
+                s
+                    = NeomediaActivator.getResources().getI18NString(
+                            "impl.media.configform.NO_DEVICE");
             }
             else
             {
-                String deviceString = info.getName();
+                s = info.getName();
                 if(info instanceof ExtendedCaptureDeviceInfo)
                 {
                     String transportType
                         = ((ExtendedCaptureDeviceInfo) info).getTransportType();
+
                     if(transportType != null)
-                    {
-                        deviceString += " (" + transportType + ")";
-                    }
+                        s += " (" + transportType + ")";
                 }
-                return deviceString;
             }
+            return s;
         }
     }
 
@@ -276,8 +278,10 @@ public class DeviceConfigurationComboBoxModel
         devices = new CaptureDevice[deviceCount + 1];
 
         if (deviceCount > 0)
+        {
             for (int i = 0; i < deviceCount; i++)
                 devices[i] = new CaptureDevice(infos.get(i));
+        }
         devices[deviceCount] = new CaptureDevice(null);
 
         return devices;
@@ -319,24 +323,11 @@ public class DeviceConfigurationComboBoxModel
             throw new IllegalStateException("type");
         }
 
-        if(info != null)
+        for (CaptureDevice device : getDevices())
         {
-            for (CaptureDevice device : getDevices())
-            {
-                if (info.equals(device.info))
-                    return device;
-            }
+            if (device.equals(info))
+                return device;
         }
-        else
-        {
-            // just find the one with no info, the None device
-            for (CaptureDevice device : getDevices())
-            {
-                if (device.info == null)
-                    return device;
-            }
-        }
-
         return null;
     }
 
@@ -393,26 +384,32 @@ public class DeviceConfigurationComboBoxModel
             case AUDIO_CAPTURE:
                 audioSystem = deviceConfiguration.getAudioSystem();
                 if (audioSystem != null)
+                {
                     audioSystem.setDevice(
                             AudioSystem.CAPTURE_INDEX,
                             ((ExtendedCaptureDeviceInfo) device.info),
                             true);
+                }
                 break;
             case AUDIO_NOTIFY:
                 audioSystem = deviceConfiguration.getAudioSystem();
                 if (audioSystem != null)
+                {
                     audioSystem.setDevice(
                             AudioSystem.NOTIFY_INDEX,
                             ((ExtendedCaptureDeviceInfo) device.info),
                             true);
+                }
                 break;
             case AUDIO_PLAYBACK:
                 audioSystem = deviceConfiguration.getAudioSystem();
                 if (audioSystem != null)
+                {
                     audioSystem.setDevice(
                             AudioSystem.PLAYBACK_INDEX,
                             ((ExtendedCaptureDeviceInfo) device.info),
                             true);
+                }
                 break;
             case VIDEO:
                 deviceConfiguration.setVideoCaptureDevice(device.info, true);
@@ -446,8 +443,8 @@ public class DeviceConfigurationComboBoxModel
      */
     public void propertyChange(final PropertyChangeEvent event)
     {
-        if(DeviceConfiguration.PROP_AUDIO_SYSTEM_DEVICES
-            .equals(event.getPropertyName()))
+        if(DeviceConfiguration.PROP_AUDIO_SYSTEM_DEVICES.equals(
+                event.getPropertyName()))
         {
             if(!SwingUtilities.isEventDispatchThread())
             {
@@ -474,8 +471,8 @@ public class DeviceConfigurationComboBoxModel
      */
     public void hierarchyChanged(HierarchyEvent e)
     {
-       if ((e.getChangeFlags() & HierarchyEvent.SHOWING_CHANGED) != 0
-           && !parent.isShowing())
+       if (((e.getChangeFlags() & HierarchyEvent.SHOWING_CHANGED) != 0)
+               && !parent.isShowing())
        {
            deviceConfiguration.removePropertyChangeListener(this);
        }
