@@ -226,8 +226,11 @@ public class DeviceConfigurationComboBoxModel
         if (type != AUDIO)
             throw new IllegalStateException("type");
 
-        if (audioSystems == null)
-            audioSystems = deviceConfiguration.getAvailableAudioSystems();
+        // This must updated at each call to allows hotplug device system to be
+        // enabled (if the number of devices change to someting greater than 0)
+        // or disabled (if the number of available device changes to 0).
+        audioSystems = deviceConfiguration.getAvailableAudioSystems();
+
         return audioSystems;
     }
 
