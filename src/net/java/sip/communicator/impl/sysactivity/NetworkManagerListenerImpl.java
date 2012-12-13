@@ -38,7 +38,7 @@ public class NetworkManagerListenerImpl
     /**
      * Make only one instance.
      */
-    private NetworkManagerListenerImpl()
+    public NetworkManagerListenerImpl()
     {
         try
         {
