@@ -169,7 +169,7 @@ public class ConferencePeerPanel
                         + "DISABLE_SOUND_LEVEL_INDICATORS",
                 false))
         {
-        call.addLocalUserSoundLevelListener(soundLevelListener);
+            call.addLocalUserSoundLevelListener(soundLevelListener);
         }
     }
 

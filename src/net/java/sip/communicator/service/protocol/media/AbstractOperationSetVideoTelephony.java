@@ -142,26 +142,23 @@ public abstract class AbstractOperationSetVideoTelephony<
      * @return the <tt>ConferenceMember</tt> corresponding to the given
      * <tt>visualComponent</tt>.
      */
-    @SuppressWarnings("unchecked") // work with MediaAware* in media package
     public ConferenceMember getConferenceMember(CallPeer peer,
                                                 Component visualComponent)
     {
-        VideoMediaStream peerVideoStream
-            = (VideoMediaStream) ((W)peer).getMediaHandler()
-                .getStream(MediaType.VIDEO);
+        @SuppressWarnings("unchecked")
+        W w = (W) peer;
+        VideoMediaStream videoStream
+            = (VideoMediaStream) w.getMediaHandler().getStream(MediaType.VIDEO);
 
-        if (peerVideoStream == null)
-            return null;
-
-        for (ConferenceMember member : peer.getConferenceMembers())
+        if (videoStream != null)
         {
-            Component memberComponent = peerVideoStream
-                .getVisualComponent(member.getVideoSsrc());
-
-            if (memberComponent != null
-                && memberComponent.equals(visualComponent))
+            for (ConferenceMember member : peer.getConferenceMembers())
             {
-                return member;
+                Component memberComponent
+                    = videoStream.getVisualComponent(member.getVideoSsrc());
+
+                if (visualComponent.equals(memberComponent))
+                    return member;
             }
         }
         return null;

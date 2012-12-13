@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.gui.main.call;
 import java.awt.*;
 import java.awt.event.*;
 import java.beans.*;
+import java.util.List;
 
 import javax.swing.*;
 
@@ -24,13 +25,14 @@ import net.java.sip.communicator.util.swing.*;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.protocol.event.*;
+import org.jitsi.service.resources.*;
 import org.jitsi.util.event.*;
 
 /**
  * The panel containing details about ZRTP call security.
  *
  * @author Werner Dittman
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  * @author Yana Stamcheva
  */
 public class ZrtpSecurityPanel
@@ -273,30 +275,31 @@ public class ZrtpSecurityPanel
     {
         sasVerified = getSecurityControl().isSecurityVerified();
 
-        TransparentPanel sasPanel = new TransparentPanel()
-        {
-            @Override
-            public void paintComponent(Graphics g)
+        TransparentPanel sasPanel
+            = new TransparentPanel()
             {
-                g = g.create();
-                try
+                @Override
+                public void paintComponent(Graphics g)
                 {
-                    AntialiasingManager.activateAntialiasing(g);
-                    g.setColor(new Color(1f, 1f, 1f, 0.1f));
-                    g.fillRoundRect(
-                        0, 0, this.getWidth(), this.getHeight(), 10, 10);
-                    g.setColor(Color.WHITE);
-                    g.drawRoundRect(
-                        0, 0,
-                        this.getWidth() - 1, this.getHeight() - 1,
-                        10, 10);
+                    g = g.create();
+                    try
+                    {
+                        AntialiasingManager.activateAntialiasing(g);
+                        g.setColor(new Color(1f, 1f, 1f, 0.1f));
+                        g.fillRoundRect(
+                            0, 0, this.getWidth(), this.getHeight(), 10, 10);
+                        g.setColor(Color.WHITE);
+                        g.drawRoundRect(
+                            0, 0,
+                            this.getWidth() - 1, this.getHeight() - 1,
+                            10, 10);
+                    }
+                    finally
+                    {
+                        g.dispose();
+                    }
                 }
-                finally
-                {
-                    g.dispose();
-                }
-            }
-        };
+            };
 
         sasPanel.setLayout(new BoxLayout(sasPanel, BoxLayout.Y_AXIS));
 
@@ -592,57 +595,74 @@ public class ZrtpSecurityPanel
     {
         if (!SwingUtilities.isEventDispatchThread())
         {
-            SwingUtilities.invokeLater(new Runnable()
-            {
-                public void run()
-                {
-                    setVideoSecurityOn(isVideoSecurityOn);
-                }
-            });
+            SwingUtilities.invokeLater(
+                    new Runnable()
+                    {
+                        public void run()
+                        {
+                            setVideoSecurityOn(isVideoSecurityOn);
+                        }
+                    });
             return;
         }
 
         this.isVideoSecurityOn = isVideoSecurityOn;
 
-        Icon statusIcon = null;
-        String statusText = null;
+        Icon icon = null;
+        String text = null;
+        boolean visible = false;
 
-        final OperationSetVideoTelephony telephony
-            = callPeer.getProtocolProvider()
-                .getOperationSet(OperationSetVideoTelephony.class);
+        OperationSetVideoTelephony videoTelephony
+            = callPeer.getProtocolProvider().getOperationSet(
+                    OperationSetVideoTelephony.class);
 
-        if (telephony != null
-            && ((telephony.getVisualComponents(callPeer) != null
-                && telephony.getVisualComponents(callPeer).size() > 0)
-                || ((MediaAwareCallPeer<?, ?, ?>) callPeer)
-                .isLocalVideoStreaming()))
+        if (videoTelephony != null)
         {
-            if (isVideoSecurityOn)
+            /*
+             * The invocation of MediaAwareCallPeer.isLocalVideoStreaming() is
+             * cheaper than the invocation of
+             * OperationSetVideoTelephony.getVisualComponents(CallPeer).
+             */
+            visible
+                = ((MediaAwareCallPeer<?,?,?>) callPeer)
+                    .isLocalVideoStreaming();
+            if (!visible)
             {
-                statusIcon = videoSecuredIcon;
-                statusText = GuiActivator.getResources()
-                    .getI18NString("service.gui.security.SECURE_VIDEO");
+                List<Component> videos
+                    = videoTelephony.getVisualComponents(callPeer);
+
+                visible = ((videos != null) && (videos.size() != 0));
             }
-            else
+
+            if (visible)
             {
-                statusIcon = videoNotSecuredIcon;
-                statusText = GuiActivator.getResources()
-                    .getI18NString("service.gui.security.VIDEO_NOT_SECURED");
+                ResourceManagementService r = GuiActivator.getResources();
+
+                if (isVideoSecurityOn)
+                {
+                    icon = videoSecuredIcon;
+                    text = r.getI18NString("service.gui.security.SECURE_VIDEO");
+                }
+                else
+                {
+                    icon = videoNotSecuredIcon;
+                    text
+                        = r.getI18NString(
+                                "service.gui.security.VIDEO_NOT_SECURED");
+                }
             }
         }
-        else
-        {
-            videoSecurityLabel.setVisible(false);
-        }
 
-        if (statusIcon != null && statusText != null)
+        if ((icon != null) && (text != null))
         {
-            videoSecurityLabel.setIcon(statusIcon);
-            videoSecurityLabel.setText(statusText);
+            videoSecurityLabel.setIcon(icon);
+            videoSecurityLabel.setText(text);
 
             if (!videoSecurityLabel.isVisible())
                 videoSecurityLabel.setVisible(true);
         }
+        else if (visible)
+            videoSecurityLabel.setVisible(visible);
 
         revalidate();
         repaint();
@@ -740,7 +760,7 @@ public class ZrtpSecurityPanel
                 configService.setProperty(zidAorKey, callPeer.getAddress());
                 /*
                  * Reduce length of ZID name to fit the security status label.
-                 * The security status label's tooltip contains the full name
+                 * The security status label's tool tip contains the full name
                  * including an explanatory text.
                  */
                 String label = zidNameValue;

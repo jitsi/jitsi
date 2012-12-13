@@ -1499,29 +1499,30 @@ public class CallManager
             return true;
 
         int aProtocolIndex = a.indexOf(':');
-        if(aProtocolIndex > -1)
+        if(aProtocolIndex != -1)
             a = a.substring(aProtocolIndex + 1);
 
         int bProtocolIndex = b.indexOf(':');
-        if(bProtocolIndex > -1)
+        if(bProtocolIndex != -1)
             b = b.substring(bProtocolIndex + 1);
 
         if (a.equals(b))
             return true;
 
-        int aServiceBegin = a.indexOf('@');
+        int aServiceBegin = a.indexOf('@', aProtocolIndex);
         String aUserID;
         String aService;
 
-        if (aServiceBegin > -1)
+        if (aServiceBegin != -1)
         {
             aUserID = a.substring(0, aServiceBegin);
+            ++aServiceBegin;
 
-            int slashIndex = a.indexOf("/");
-            if (slashIndex > 0)
-                aService = a.substring(aServiceBegin + 1, slashIndex);
+            int aResourceBegin = a.indexOf('/', aServiceBegin);
+            if (aResourceBegin != -1)
+                aService = a.substring(aServiceBegin, aResourceBegin);
             else
-                aService = a.substring(aServiceBegin + 1);
+                aService = a.substring(aServiceBegin);
         }
         else
         {
@@ -1529,19 +1530,20 @@ public class CallManager
             aService = null;
         }
 
-        int bServiceBegin = b.indexOf('@');
+        int bServiceBegin = b.indexOf('@', bProtocolIndex);
         String bUserID;
         String bService;
 
-        if (bServiceBegin > -1)
+        if (bServiceBegin != -1)
         {
             bUserID = b.substring(0, bServiceBegin);
-            int slashIndex = b.indexOf("/");
+            ++bServiceBegin;
 
-            if (slashIndex > 0)
-                bService = b.substring(bServiceBegin + 1, slashIndex);
+            int bResourceBegin = b.indexOf('/', bServiceBegin);
+            if (bResourceBegin != -1)
+                bService = b.substring(bServiceBegin, bResourceBegin);
             else
-                bService = b.substring(bServiceBegin + 1);
+                bService = b.substring(bServiceBegin);
         }
         else
         {

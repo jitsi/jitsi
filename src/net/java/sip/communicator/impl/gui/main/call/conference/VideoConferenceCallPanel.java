@@ -41,6 +41,14 @@ public class VideoConferenceCallPanel
         = Logger.getLogger(VideoConferenceCallPanel.class);
 
     /**
+     * The compile-time flag which indicates whether each video displayed by
+     * <tt>VideoConferenceCallPanel</tt> is to be depicted with an associated
+     * tool bar showing information and controls related to the (local or
+     * remote) peer sending the respective video. 
+     */
+    private static final boolean SHOW_TOOLBARS = true;
+
+    /**
      * The facility which aids this instance with the video-related information.
      */
     private final UIVideoHandler2 uiVideoHandler;
@@ -193,6 +201,7 @@ public class VideoConferenceCallPanel
 
         photoLabel.setIcon(photoLabelIcon);
 
+        @SuppressWarnings("serial")
         JPanel photoPanel
             = new TransparentPanel(new GridBagLayout())
             {
@@ -711,17 +720,24 @@ public class VideoConferenceCallPanel
     /**
      * {@inheritDoc}
      *
-     * Temporarily disables the use of <tt>ConferenceParticipantContainer</tt>
-     * because the functionality implemented in the model at the time of this
-     * writing does not fully support mapping of visual <tt>Component</tt>s
+     * If {@link #SHOW_TOOLBARS} is <tt>false</tt>, disables the use of
+     * <tt>ConferenceParticipantContainer</tt>. A reason for such a value of
+     * <tt>SHOW_TOOLBARS</tt> may be that the functionality implemented in the
+     * model may not fully support mapping of visual <tt>Component</tt>s
      * displaying video to telephony conference participants (e.g. in telephony
-     * conferences utilizing the Jitsi VideoBridge server-side technology).
-     * Instead displays the videos only, does not map videos to participants and
-     * does not display participants who do not have videos.
+     * conferences utilizing the Jitsi VideoBridge server-side technology). In
+     * such a case displays the videos only, does not map videos to participants
+     * and does not display participants who do not have videos.
      */
     @Override
     protected void updateViewFromModelInEventDispatchThread()
     {
+        if (SHOW_TOOLBARS)
+        {
+            super.updateViewFromModelInEventDispatchThread();
+            return;
+        }
+
         /*
          * Determine the set of visual Components displaying video streaming
          * between the local peer/user and the remote peers which are to be
