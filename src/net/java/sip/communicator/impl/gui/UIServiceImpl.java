@@ -31,7 +31,6 @@ import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.service.gui.ContactList;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -1201,15 +1200,9 @@ public class UIServiceImpl
         }
         finally
         {
-            try
-            {
-                GuiActivator.bundleContext.getBundle(0).stop();
-            }
-            catch (BundleException ex)
-            {
-                logger.error("Failed to being gentle shutdown of Felix.", ex);
-                System.exit(0);
-            }
+            // Just exit. The shutdown hook in felix ensures that we stop
+            // everything nicely.
+            System.exit(0);
         }
     }
 

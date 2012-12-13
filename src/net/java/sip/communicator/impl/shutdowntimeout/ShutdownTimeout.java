@@ -109,7 +109,7 @@ public class ShutdownTimeout
                                      + shutDownTimeout + "ms.");
                         wait(shutDownTimeout);
                         logger.error("Failed to gently shutdown. Forcing exit.");
-                        System.exit(SYSTEM_EXIT_CODE);
+                        Runtime.getRuntime().halt(SYSTEM_EXIT_CODE);
                     }catch (InterruptedException ex){
                         if (logger.isDebugEnabled())
                             logger.debug("Interrupted shutdown timer.");
