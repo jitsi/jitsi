@@ -471,7 +471,7 @@ public class ScServiceDiscoveryManager
         EntityCapsManager.Caps caps = capsManager.getCapsByUser(entityID);
 
         // if caps is not valid, has empty hash
-        if (CACHE_NON_CAPS && (caps == null || caps.hash.equals("")))
+        if (CACHE_NON_CAPS && (caps == null || !caps.isValid(discoverInfo)))
         {
             discoverInfo = nonCapsCache.get(entityID);
             if (discoverInfo != null)
@@ -523,7 +523,7 @@ public class ScServiceDiscoveryManager
         EntityCapsManager.Caps caps = capsManager.getCapsByUser(entityID);
 
         // if caps is not valid, has empty hash
-        if (CACHE_NON_CAPS && (caps == null || caps.hash.equals("")))
+        if (CACHE_NON_CAPS && (caps == null || !caps.isValid(discoverInfo)))
         {
             discoverInfo = nonCapsCache.get(entityID);
             if (discoverInfo != null)
