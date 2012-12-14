@@ -601,8 +601,25 @@ public class CallInfoFrame
                  String.valueOf((int)mediaStreamStats.getPercentDiscarded()
                          + "%")));
         stringBuffer.append(getLineString(
-                resources.getI18NString("service.gui.callinfo.DISCARDED_TOTAL"),
-                String.valueOf(mediaStreamStats.getNbDiscarded())));
+            resources.getI18NString("service.gui.callinfo.DISCARDED_TOTAL"),
+            String.valueOf(mediaStreamStats.getNbDiscarded())
+                + " (" + mediaStreamStats.getNbDiscardedLate() + " late, "
+                + mediaStreamStats.getNbDiscardedFull() + " full, "
+                + mediaStreamStats.getNbDiscardedShrink() + " shrink, "
+                + mediaStreamStats.getNbDiscardedReset() + " reset)"));
+
+        stringBuffer.append(getLineString(
+                resources.getI18NString(
+                    "service.gui.callinfo.ADAPTIVE_JITTER_BUFFER"),
+                    mediaStreamStats.isAdaptiveBufferEnabled()
+                            ? "enabled" : "disabled"));
+        stringBuffer.append(getLineString(
+                resources.getI18NString(
+                        "service.gui.callinfo.JITTER_BUFFER_DELAY"),
+                "~" + mediaStreamStats.getJitterBufferDelayMs()
+                + "ms; currently in queue: "
+                + mediaStreamStats.getPacketQueueCountPackets() + "/"
+                + mediaStreamStats.getPacketQueueSize() + " packets"));
 
         long rttMs = mediaStreamStats.getRttMs();
         if(rttMs != -1)
