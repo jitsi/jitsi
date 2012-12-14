@@ -29,8 +29,7 @@ import org.jitsi.service.neomedia.*;
  */
 public class DeviceConfigurationComboBoxModel
     implements ComboBoxModel,
-               PropertyChangeListener,
-               HierarchyListener
+               PropertyChangeListener
 {
     /**
      * Encapsulates a <tt>CaptureDeviceInfo</tt> for the purposes of its display
@@ -186,8 +185,6 @@ public class DeviceConfigurationComboBoxModel
             || type == AUDIO_PLAYBACK)
         {
             deviceConfiguration.addPropertyChangeListener(this);
-
-            parent.addHierarchyListener(this);
         }
     }
 
@@ -466,18 +463,4 @@ public class DeviceConfigurationComboBoxModel
             fireContentsChanged(0, getSize() - 1);
         }
     }
-
-    /**
-     * We listen when the component was hidden in order to release resources,
-     * remove listener to clean this instance.
-     * @param e the event.
-     */
-    public void hierarchyChanged(HierarchyEvent e)
-    {
-       if (((e.getChangeFlags() & HierarchyEvent.SHOWING_CHANGED) != 0)
-               && !parent.isShowing())
-       {
-           deviceConfiguration.removePropertyChangeListener(this);
-       }
-   }
 }
