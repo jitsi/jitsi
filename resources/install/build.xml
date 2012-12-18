@@ -1320,6 +1320,9 @@
       available languages, so macosx can switch languages -->
       <antcall target="dmg-create-language-folders" />
 
+      <!-- sign before creating the image, so the signed app goes into it -->
+      <antcall target="macosx-sign-app"/>
+
       <!-- Create a temporary Disk Image -->
       <exec executable="/usr/bin/hdiutil" os="Mac OS X" failonerror="true">
         <arg value="create"/>
@@ -1357,8 +1360,6 @@
       </exec>
       <!-- Add a symbolic link to the Applications directory -->
       <symlink link="${release}/${application.name}" resource="/Applications"/>
-
-      <antcall target="macosx-sign-app"/>
 
       <!-- Detach the temporary image -->
       <exec executable="/usr/bin/hdiutil" os="Mac OS X" failonerror="true">
@@ -1409,6 +1410,13 @@
             <arg value="${macosx.sign.certid}"/>
             <arg value="--keychain"/>
             <arg value="${macosx.sign.keychain}"/>
+            <arg value="${macosx.app.dir}/${application.name}.app"/>
+        </exec>
+
+        <!-- just print sign info
+            To test is sign accepted do $ sudo spctl -a -v -->
+        <exec executable="/usr/bin/codesign" os="Mac OS X" failonerror="true">
+            <arg value="-dvvv"/>
             <arg value="${macosx.app.dir}/${application.name}.app"/>
         </exec>
 
