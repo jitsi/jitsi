@@ -780,6 +780,29 @@ public class MediaConfigurationImpl implements MediaConfigurationService
                 preview = new TransparentPanel(new GridBagLayout());
                 createAudioSystemControls(audioSystem, preview);
             }
+            else
+            {
+                AudioSystem[] availableAudioSystems
+                    = AudioSystem.getAudioSystems();
+                AudioSystem[] activeAudioSystems = mediaService
+                    .getDeviceConfiguration().getAvailableAudioSystems();
+
+                // If the only one active audio system which is "None" and there
+                // is(are) other(s) available audio system(s), then it means
+                // that the other(s) audio system(s) do(es) not have detected
+                // any device.
+                if(availableAudioSystems != null
+                        && availableAudioSystems.length > 1
+                        && activeAudioSystems != null
+                        && activeAudioSystems.length == 1)
+                {
+                    String noAvailableAudioDevice
+                        = NeomediaActivator.getResources().getI18NString(
+                            "impl.media.configform.NO_AVAILABLE_AUDIO_DEVICE");
+                    preview = new TransparentPanel(new GridBagLayout());
+                    preview.add(new JLabel(noAvailableAudioDevice));
+                }
+            }
         }
         else if (type == DeviceConfigurationComboBoxModel.VIDEO)
         {
