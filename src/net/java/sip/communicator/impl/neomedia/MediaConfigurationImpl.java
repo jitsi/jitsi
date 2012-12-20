@@ -358,85 +358,89 @@ public class MediaConfigurationImpl implements MediaConfigurationService
                 deviceAndPreviewPanel.add(preview, BorderLayout.CENTER);
             }
         }
-        else
-        {
-            final ActionListener deviceComboBoxActionListener
-                = new ActionListener()
+
+        final ActionListener deviceComboBoxActionListener
+            = new ActionListener()
+            {
+                public void actionPerformed(ActionEvent event)
                 {
-                    public void actionPerformed(ActionEvent event)
+                    boolean revalidateAndRepaint = false;
+
+                    for (int i = deviceAndPreviewPanel
+                            .getComponentCount() - 1;
+                            i >= 0;
+                            i--)
                     {
-                        boolean revalidateAndRepaint = false;
+                        Component c = deviceAndPreviewPanel.getComponent(i);
 
-                        for (int i = deviceAndPreviewPanel
-                                .getComponentCount() - 1;
-                                i >= 0;
-                                i--)
+                        if (c != devicePanel)
                         {
-                            Component c = deviceAndPreviewPanel.getComponent(i);
-
-                            if (c != devicePanel)
-                            {
-                                deviceAndPreviewPanel.remove(i);
-                                revalidateAndRepaint = true;
-                            }
-                        }
-
-                        Component preview = null;
-
-                        if ((deviceComboBox.getSelectedItem() != null)
-                                && deviceComboBox.isShowing())
-                        {
-                            preview = createPreview(type, deviceComboBox,
-                                deviceAndPreviewPanel.getPreferredSize());
-                        }
-
-                        if (preview != null)
-                        {
-                            deviceAndPreviewPanel
-                                .add(preview, BorderLayout.CENTER);
+                            deviceAndPreviewPanel.remove(i);
                             revalidateAndRepaint = true;
                         }
+                    }
 
-                        if (revalidateAndRepaint)
+                    Component preview = null;
+
+                    if ((deviceComboBox.getSelectedItem() != null)
+                            && (deviceComboBox.isShowing()
+                                ||
+                                (type == DeviceConfigurationComboBoxModel.AUDIO
+                                 && isAudioSystemComboDisabled)
+                               )
+                       )
+                    {
+                        preview = createPreview(type, deviceComboBox,
+                                deviceAndPreviewPanel.getPreferredSize());
+                    }
+
+                    if (preview != null)
+                    {
+                        deviceAndPreviewPanel
+                            .add(preview, BorderLayout.CENTER);
+                        revalidateAndRepaint = true;
+                    }
+
+                    if (revalidateAndRepaint)
+                    {
+                        deviceAndPreviewPanel.revalidate();
+                        deviceAndPreviewPanel.repaint();
+                    }
+                }
+            };
+
+        deviceComboBox.addActionListener(deviceComboBoxActionListener);
+
+        /*
+         * We have to initialize the controls to reflect the configuration
+         * at the time of creating this instance. Additionally, because the
+         * video preview will stop when it and its associated controls
+         * become unnecessary, we have to restart it when the mentioned
+         * controls become necessary again. We'll address the two goals
+         * described by pretending there's a selection in the video combo
+         * box when the combo box in question becomes displayable.
+         */
+        deviceComboBox.addHierarchyListener(
+                new HierarchyListener()
+                {
+                    public void hierarchyChanged(HierarchyEvent event)
+                    {
+                        if ((event.getChangeFlags()
+                                    & HierarchyEvent.SHOWING_CHANGED)
+                                != 0)
                         {
-                            deviceAndPreviewPanel.revalidate();
-                            deviceAndPreviewPanel.repaint();
+                            SwingUtilities.invokeLater(
+                                    new Runnable()
+                                    {
+                                        public void run()
+                                        {
+                                            deviceComboBoxActionListener
+                                                .actionPerformed(null);
+                                        }
+                                    });
                         }
                     }
-                };
-
-            deviceComboBox.addActionListener(deviceComboBoxActionListener);
-            /*
-             * We have to initialize the controls to reflect the configuration
-             * at the time of creating this instance. Additionally, because the
-             * video preview will stop when it and its associated controls
-             * become unnecessary, we have to restart it when the mentioned
-             * controls become necessary again. We'll address the two goals
-             * described by pretending there's a selection in the video combo
-             * box when the combo box in question becomes displayable.
-             */
-            deviceComboBox.addHierarchyListener(
-                    new HierarchyListener()
-                    {
-                        public void hierarchyChanged(HierarchyEvent event)
-                        {
-                            if ((event.getChangeFlags()
-                                        & HierarchyEvent.SHOWING_CHANGED)
-                                    != 0)
-                            {
-                                SwingUtilities.invokeLater(
-                                        new Runnable()
-                                        {
-                                            public void run()
-                                            {
-                                                deviceComboBoxActionListener
-                                                    .actionPerformed(null);
-                                            }
-                                        });
-                            }
-                        }
-                    });
-        }
+                });
 
         return deviceAndPreviewPanel;
     }
