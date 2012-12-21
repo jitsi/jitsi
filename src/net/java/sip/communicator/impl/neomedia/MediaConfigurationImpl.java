@@ -22,6 +22,7 @@ import net.java.sip.communicator.util.swing.TransparentPanel;
 
 import org.jitsi.impl.neomedia.*;
 import org.jitsi.impl.neomedia.device.*;
+import org.jitsi.service.audionotifier.*;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.codec.*;
@@ -35,8 +36,11 @@ import org.jitsi.util.swing.*;
  * @author Damian Minkov
  * @author Yana Stamcheva
  * @author Boris Grozev
+ * @author Vincent Lucas
  */
-public class MediaConfigurationImpl implements MediaConfigurationService
+public class MediaConfigurationImpl
+    implements ActionListener,
+                MediaConfigurationService
 {
     /**
      * The <tt>Logger</tt> used by the <tt>MediaConfigurationServiceImpl</tt>
@@ -90,6 +94,35 @@ public class MediaConfigurationImpl implements MediaConfigurationService
      * prevent the UI to lock while changing the device.
      */
     private AudioLevelListenerThread audioLevelListenerThread = null;
+
+    /**
+     * The combo box used to selected the playback device.
+     */
+    private JComboBox playbackCombo;
+
+    /**
+     * The combo box used to selected the notification device.
+     */
+    private JComboBox notifyCombo;
+
+    /**
+     * The button used to play a sound in order to test playback device.
+     */
+    private final JButton playbackPlaySoundButton
+        = new JButton(new ImageIcon(NeomediaActivator.getResources()
+                    .getImageInBytes("plugin.notificationconfig.PLAY_ICON")));
+
+    /**
+     * The button used to play a sound in order to test notification devices.
+     */
+    private final JButton notificationPlaySoundButton
+        = new JButton(new ImageIcon(NeomediaActivator.getResources()
+                    .getImageInBytes("plugin.notificationconfig.PLAY_ICON")));
+    /**
+     * The path to the sound used to test the playback and notification devices.
+     */
+    public static final String TEST_SOUND_FILE
+        = NeomediaActivator.getResources().getSoundPath("INCOMING_FILE");
 
     /**
      * Returns the audio configuration panel.
@@ -188,24 +221,24 @@ public class MediaConfigurationImpl implements MediaConfigurationService
 
         if (featureNotifyAndPlaybackDevices)
         {
-            JComboBox playbackCombo = new JComboBox();
-
+            playbackCombo = new JComboBox();
             playbackCombo.setEditable(false);
             playbackCombo.setModel(
                     new DeviceConfigurationComboBoxModel(
                             captureCombo,
                             mediaService.getDeviceConfiguration(),
                             DeviceConfigurationComboBoxModel.AUDIO_PLAYBACK));
+            playbackCombo.addActionListener(this);
             container.add(playbackCombo, constraints);
 
-            JComboBox notifyCombo = new JComboBox();
-
+            notifyCombo = new JComboBox();
             notifyCombo.setEditable(false);
             notifyCombo.setModel(
                     new DeviceConfigurationComboBoxModel(
                             captureCombo,
                             mediaService.getDeviceConfiguration(),
                             DeviceConfigurationComboBoxModel.AUDIO_NOTIFY));
+            notifyCombo.addActionListener(this);
             container.add(notifyCombo, constraints);
         }
 
@@ -259,6 +292,40 @@ public class MediaConfigurationImpl implements MediaConfigurationService
                         }
                     });
             container.add(denoiseCheckBox, constraints);
+        }
+
+        // Adds the play buttons for testing playback and notification devices.
+        constraints.gridx = 2;
+        constraints.insets = new Insets(3, 3, 3, 0);
+        constraints.weightx = 0;
+
+        if (featureNotifyAndPlaybackDevices)
+        {
+            // Playback play sound button.
+            constraints.gridy = 2;
+            playbackPlaySoundButton.setMinimumSize(new Dimension(30,30));
+            playbackPlaySoundButton.setPreferredSize(new Dimension(30,30));
+            if(((DeviceConfigurationComboBoxModel.CaptureDevice)
+                        playbackCombo.getSelectedItem()).info == null)
+            {
+                playbackPlaySoundButton.setEnabled(false);
+            }
+            playbackPlaySoundButton.setOpaque(false);
+            playbackPlaySoundButton.addActionListener(this);
+            container.add(playbackPlaySoundButton, constraints);
+
+            // Notification play sound button.
+            constraints.gridy = 3;
+            notificationPlaySoundButton.setMinimumSize(new Dimension(30,30));
+            notificationPlaySoundButton.setPreferredSize(new Dimension(30,30));
+            if(((DeviceConfigurationComboBoxModel.CaptureDevice)
+                        notifyCombo.getSelectedItem()).info == null)
+            {
+                notificationPlaySoundButton.setEnabled(false);
+            }
+            notificationPlaySoundButton.setOpaque(false);
+            notificationPlaySoundButton.addActionListener(this);
+            container.add(notificationPlaySoundButton, constraints);
         }
 
         if(audioLevelListenerThread == null)
@@ -1534,5 +1601,46 @@ public class MediaConfigurationImpl implements MediaConfigurationService
                 }
             }
         }
+    }
+
+    /**
+     * Indicates that one of the contained in this panel buttons has been
+     * clicked.
+     * @param e the <tt>ActionEvent</tt> that notified us
+     */
+    public void actionPerformed(ActionEvent e)
+    {
+        boolean isPlaybackEvent = (e.getSource() == playbackPlaySoundButton);
+
+        // If the user clicked on one pley sound button.
+        if(isPlaybackEvent
+                || e.getSource() == notificationPlaySoundButton)
+        {
+            AudioNotifierService audioNotifServ
+                = NeomediaActivator.getAudioNotifierService();
+            SCAudioClip sound = audioNotifServ.createAudio(
+                    TEST_SOUND_FILE,
+                    isPlaybackEvent);
+            sound.play();
+        }
+        // If the selected item of the playback or notify combobox has changed.
+        else if(e.getSource() == playbackCombo
+                || e.getSource() == notifyCombo)
+        {
+            DeviceConfigurationComboBoxModel.CaptureDevice device
+                = (DeviceConfigurationComboBoxModel.CaptureDevice)
+                    ((JComboBox) e.getSource()).getSelectedItem();
+
+            boolean isEnabled = (device.info != null);
+            if(e.getSource() == playbackCombo)
+            {
+                playbackPlaySoundButton.setEnabled(isEnabled);
+            }
+            else
+            {
+                notificationPlaySoundButton.setEnabled(isEnabled);
+            }
+        }
+
     }
 }

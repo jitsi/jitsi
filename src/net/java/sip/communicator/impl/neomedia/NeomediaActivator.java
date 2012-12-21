@@ -167,6 +167,11 @@ public class NeomediaActivator
     private static ConfigurationForm videoConfigurationForm;
 
     /**
+     * The audio notifier service.
+     */
+    private static AudioNotifierService audioNotifierService;
+
+    /**
      * Starts the execution of the neomedia bundle in the specified context.
      *
      * @param bundleContext the context in which the neomedia bundle is to start
@@ -580,5 +585,23 @@ public class NeomediaActivator
     public static ConfigurationForm getVideoConfigurationForm()
     {
         return videoConfigurationForm;
+    }
+
+    /**
+     * Returns the <tt>AudioService</tt> obtained from the bundle
+     * context.
+     * @return the <tt>AudioService</tt> obtained from the bundle
+     * context
+     */
+    public static AudioNotifierService getAudioNotifierService()
+    {
+        if(audioNotifierService == null)
+        {
+            audioNotifierService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        AudioNotifierService.class);
+        }
+        return audioNotifierService;
     }
 }
