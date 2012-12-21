@@ -13,11 +13,11 @@ import javax.media.*;
 import net.java.sip.communicator.service.gui.*;
 
 import org.jitsi.impl.neomedia.device.*;
-import org.jitsi.service.resources.*;
 
 /**
- * A listener to the click on the popup message concerning video
- * device configuration changes.
+ * Implements a listener which responds to changes in the video device
+ * configuration by displaying pop-up notifications summarizing the changes for
+ * the user.
  *
  * @author Vincent Lucas
  */
@@ -37,40 +37,32 @@ public class VideoDeviceConfigurationListener
     }
 
     /**
-     * Function called when an audio device is plugged or unplugged.
+     * Notifies this instance that a property related to the configuration of
+     * devices has had its value changed and thus signals that a video device
+     * may have been plugged or unplugged.
      *
-     * @param event The property change event which may concern the audio
-     * device.
+     * @param ev a <tt>PropertyChangeEvent</tt> which describes the name of the
+     * property whose value has changed and the old and new values of that
+     * property
      */
-    public void propertyChange(PropertyChangeEvent event)
+    public void propertyChange(PropertyChangeEvent ev)
     {
-        String popUpEvent = null;
-        String title = null;
-        CaptureDeviceInfo device = null;
-        ResourceManagementService resources
-            = NeomediaActivator.getResources();
-
         // If a new video device has been selected.
-        if(DeviceConfiguration.VIDEO_CAPTURE_DEVICE
-                .equals(event.getPropertyName()))
+        if(DeviceConfiguration.VIDEO_CAPTURE_DEVICE.equals(
+                ev.getPropertyName()))
         {
-            if(event.getNewValue() != null)
+            Object newValue = ev.getNewValue();
+
+            if(newValue != null)
             {
-                popUpEvent = NeomediaActivator.NEW_SELECTED_DEVICE;
-                title = resources.getI18NString(
-                        "impl.media.configform"
-                        + ".VIDEO_DEVICE_SELECTED");
-                device = (CaptureDeviceInfo) event.getNewValue();
+                String title
+                    = NeomediaActivator.getResources().getI18NString(
+                            "impl.media.configform.VIDEO_DEVICE_SELECTED");
+                String body = ((CaptureDeviceInfo) newValue).getName();
+                String popUpEvent = NeomediaActivator.NEW_SELECTED_DEVICE;
+
+                showPopUpNotification(title, body, popUpEvent);
             }
         }
-
-        String body = null;
-        if(device != null)
-        {
-            body = device.getName();
-        }
-
-        // Shows the pop-up notification.
-        this.showPopUpNotification(title, body, popUpEvent);
     }
 }

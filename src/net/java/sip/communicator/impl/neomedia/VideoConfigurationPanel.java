@@ -8,7 +8,6 @@ package net.java.sip.communicator.impl.neomedia;
 import java.awt.*;
 
 import net.java.sip.communicator.util.swing.*;
-import org.jitsi.service.neomedia.*;
 
 /**
  * The video configuration form.
@@ -29,8 +28,10 @@ public class VideoConfigurationPanel
     public VideoConfigurationPanel()
     {
         super(new BorderLayout());
-        MediaConfigurationService mediaConfiguration
-                = NeomediaActivator.getMediaConfiguration();
-        add(mediaConfiguration.createVideoConfigPanel(), BorderLayout.NORTH);
+
+        add(
+                NeomediaActivator.getMediaConfiguration()
+                        .createVideoConfigPanel(),
+                BorderLayout.NORTH);
     }
 }

@@ -7,7 +7,6 @@
 package net.java.sip.communicator.impl.neomedia;
 
 import java.awt.*;
-import java.awt.event.*;
 import java.beans.*;
 import java.util.*;
 import java.util.List;
@@ -32,85 +31,9 @@ public class DeviceConfigurationComboBoxModel
                PropertyChangeListener
 {
     /**
-     * Encapsulates a <tt>CaptureDeviceInfo</tt> for the purposes of its display
-     * in the user interface.
-     */
-    public static class CaptureDevice
-    {
-        /**
-         * The encapsulated info.
-         */
-        public final CaptureDeviceInfo info;
-
-        /**
-         * Creates the wrapper.
-         * @param info the info object we wrap.
-         */
-        public CaptureDevice(CaptureDeviceInfo info)
-        {
-            this.info = info;
-        }
-
-        /**
-         * Determines whether the <tt>CaptureDeviceInfo</tt> encapsulated by
-         * this instance is equal (by value) to a specific
-         * <tt>CaptureDeviceInfo</tt>.
-         *
-         * @param cdi the <tt>CaptureDeviceInfo</tt> to be determined whether it
-         * is equal (by value) to the <tt>CaptureDeviceInfo</tt> encapsulated by
-         * this instance
-         * @return <tt>true</tt> if the <tt>CaptureDeviceInfo</tt> encapsulated
-         * by this instance is equal (by value) to the specified <tt>cdi</tt>;
-         * otherwise, <tt>false</tt>
-         */
-        public boolean equals(CaptureDeviceInfo cdi)
-        {
-            return (info == null) ? (cdi == null) : info.equals(cdi);
-        }
-
-        /**
-         * Gets a human-readable <tt>String</tt> representation of this
-         * instance.
-         *
-         * @return a <tt>String</tt> value which is a human-readable
-         * representation of this instance
-         */
-        @Override
-        public String toString()
-        {
-            String s;
-
-            if(info == null)
-            {
-                s
-                    = NeomediaActivator.getResources().getI18NString(
-                            "impl.media.configform.NO_DEVICE");
-            }
-            else
-            {
-                s = info.getName();
-                if(info instanceof ExtendedCaptureDeviceInfo)
-                {
-                    String transportType
-                        = ((ExtendedCaptureDeviceInfo) info).getTransportType();
-
-                    if(transportType != null)
-                        s += " (" + transportType + ")";
-                }
-            }
-            return s;
-        }
-    }
-
-    /**
      * Type of the model - audio.
      */
     public static final int AUDIO = 1;
-
-    /**
-     * Type of the model - video.
-     */
-    public static final int VIDEO = 2;
 
     /**
      * Audio Capture Device.
@@ -118,14 +41,19 @@ public class DeviceConfigurationComboBoxModel
     public static final int AUDIO_CAPTURE = 3;
 
     /**
+     * Audio device for notification sounds.
+     */
+    public static final int AUDIO_NOTIFY = 5;
+
+    /**
      * Audio playback device.
      */
     public static final int AUDIO_PLAYBACK = 4;
 
     /**
-     * Audio device for notification sounds.
+     * Type of the model - video.
      */
-    public static final int AUDIO_NOTIFY = 5;
+    public static final int VIDEO = 2;
 
     private AudioSystem[] audioSystems;
 
@@ -151,11 +79,6 @@ public class DeviceConfigurationComboBoxModel
     private final int type;
 
     /**
-     * The parent component.
-     */
-    private Component parent;
-
-    /**
      * Creates device combobox model
      * @param parent the parent component
      * @param deviceConfiguration the current device configuration
@@ -175,7 +98,6 @@ public class DeviceConfigurationComboBoxModel
                 && (type != VIDEO))
             throw new IllegalArgumentException("type");
 
-        this.parent = parent;
         this.deviceConfiguration = deviceConfiguration;
         this.type = type;
 
@@ -287,6 +209,14 @@ public class DeviceConfigurationComboBoxModel
         return devices;
     }
 
+    public Object getElementAt(int index)
+    {
+        if (type == AUDIO)
+            return getAudioSystems()[index];
+        else
+            return getDevices()[index];
+    }
+
     /**
      * Extracts the devices selected by the configuration.
      * @return <tt>CaptureDevice</tt> selected
@@ -331,14 +261,6 @@ public class DeviceConfigurationComboBoxModel
         return null;
     }
 
-    public Object getElementAt(int index)
-    {
-        if (type == AUDIO)
-            return getAudioSystems()[index];
-        else
-            return getDevices()[index];
-    }
-
     public Object getSelectedItem()
     {
         if (type == AUDIO)
@@ -353,6 +275,39 @@ public class DeviceConfigurationComboBoxModel
             return getAudioSystems().length;
         else
             return getDevices().length;
+    }
+
+    /**
+     * Notifies this instance about changes in the values of the properties of
+     * {@link #deviceConfiguration} so that this instance keeps itself
+     * up-to-date with respect to the list of devices.
+     *
+     * @param ev a <tt>PropertyChangeEvent</tt> which describes the name of the
+     * property whose value has changed and the old and new values of that
+     * property
+     */
+    public void propertyChange(final PropertyChangeEvent ev)
+    {
+        if(DeviceConfiguration.PROP_AUDIO_SYSTEM_DEVICES.equals(
+                ev.getPropertyName()))
+        {
+            if(SwingUtilities.isEventDispatchThread())
+            {
+                devices = null;
+                fireContentsChanged(0, getSize() - 1);
+            }
+            else
+            {
+                SwingUtilities.invokeLater(
+                        new Runnable()
+                        {
+                            public void run()
+                            {
+                                propertyChange(ev);
+                            }
+                        });
+            }
+        }
     }
 
     public void removeListDataListener(ListDataListener listener)
@@ -437,30 +392,73 @@ public class DeviceConfigurationComboBoxModel
     }
 
     /**
-     * We listen for changes in the devices in order to update the list
-     * of devices we show.
-     * @param event the event.
+     * Encapsulates a <tt>CaptureDeviceInfo</tt> for the purposes of its display
+     * in the user interface.
      */
-    public void propertyChange(final PropertyChangeEvent event)
+    public static class CaptureDevice
     {
-        if(DeviceConfiguration.PROP_AUDIO_SYSTEM_DEVICES.equals(
-                event.getPropertyName()))
-        {
-            if(!SwingUtilities.isEventDispatchThread())
-            {
-                SwingUtilities.invokeLater(
-                    new Runnable()
-                    {
-                        public void run()
-                        {
-                            propertyChange(event);
-                        }
-                    });
-                return;
-            }
+        /**
+         * The encapsulated info.
+         */
+        public final CaptureDeviceInfo info;
 
-            devices = null;
-            fireContentsChanged(0, getSize() - 1);
+        /**
+         * Creates the wrapper.
+         * @param info the info object we wrap.
+         */
+        public CaptureDevice(CaptureDeviceInfo info)
+        {
+            this.info = info;
+        }
+
+        /**
+         * Determines whether the <tt>CaptureDeviceInfo</tt> encapsulated by
+         * this instance is equal (by value) to a specific
+         * <tt>CaptureDeviceInfo</tt>.
+         *
+         * @param cdi the <tt>CaptureDeviceInfo</tt> to be determined whether it
+         * is equal (by value) to the <tt>CaptureDeviceInfo</tt> encapsulated by
+         * this instance
+         * @return <tt>true</tt> if the <tt>CaptureDeviceInfo</tt> encapsulated
+         * by this instance is equal (by value) to the specified <tt>cdi</tt>;
+         * otherwise, <tt>false</tt>
+         */
+        public boolean equals(CaptureDeviceInfo cdi)
+        {
+            return (info == null) ? (cdi == null) : info.equals(cdi);
+        }
+
+        /**
+         * Gets a human-readable <tt>String</tt> representation of this
+         * instance.
+         *
+         * @return a <tt>String</tt> value which is a human-readable
+         * representation of this instance
+         */
+        @Override
+        public String toString()
+        {
+            String s;
+
+            if(info == null)
+            {
+                s
+                    = NeomediaActivator.getResources().getI18NString(
+                            "impl.media.configform.NO_DEVICE");
+            }
+            else
+            {
+                s = info.getName();
+                if(info instanceof ExtendedCaptureDeviceInfo)
+                {
+                    String transportType
+                        = ((ExtendedCaptureDeviceInfo) info).getTransportType();
+
+                    if(transportType != null)
+                        s += " (" + transportType + ")";
+                }
+            }
+            return s;
         }
     }
 }

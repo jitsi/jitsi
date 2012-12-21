@@ -12,9 +12,7 @@ import java.util.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.systray.event.*;
-
-import org.jitsi.service.resources.*;
-import org.osgi.framework.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * An abstract listener to the click on the popup message concerning
@@ -29,7 +27,7 @@ public abstract class AbstractDeviceConfigurationListener
     /**
      *  The audio or video configuration form.
      */
-    private ConfigurationForm configurationForm;
+    private final ConfigurationForm configurationForm;
 
     /**
      * A boolean used to verify that this listener registers only once to
@@ -50,39 +48,81 @@ public abstract class AbstractDeviceConfigurationListener
     }
 
     /**
-     * Registers or unregister as a popup message listener to detect when a
-     * user click on notification saying that the device configuration has
-     * changed.
+     * Adds/removes this instance as a <tt>PopupMessageListener</tt> to/from the
+     * <tt>NotificationService</tt> in order to be able to detect when the user
+     * clicks on a pop-up notification displayed by this instance.
      *
-     * @param enable True to register to the popup message notifcation
-     * handler.  False to unregister.
+     * @param add <tt>true</tt> to add this instance as a
+     * <tt>PopupMessageListener</tt> to the <tt>NotificationService</tt> or
+     * <tt>false</tt> to remove it
      */
-    public void managePopupMessageListenerRegistration(boolean enable)
+    private void addOrRemovePopupMessageListener(boolean add)
     {
-        Iterator<NotificationHandler> notificationHandlers = NeomediaActivator
-            .getNotificationService()
-            .getActionHandlers(
-                    net.java.sip.communicator.service.notification.NotificationAction.ACTION_POPUP_MESSAGE)
-            .iterator();
-        NotificationHandler notificationHandler;
+        Iterator<NotificationHandler> notificationHandlers
+            = NeomediaActivator.getNotificationService()
+                    .getActionHandlers(NotificationAction.ACTION_POPUP_MESSAGE)
+                        .iterator();
+
         while(notificationHandlers.hasNext())
         {
-            notificationHandler = notificationHandlers.next();
-            if(notificationHandler
-                    instanceof PopupMessageNotificationHandler)
+            NotificationHandler notificationHandler
+                = notificationHandlers.next();
+
+            if(notificationHandler instanceof PopupMessageNotificationHandler)
             {
-                // Register.
-                if(enable)
+                PopupMessageNotificationHandler popupMessageNotificationHandler
+                    = (PopupMessageNotificationHandler) notificationHandler;
+
+                if(add)
                 {
-                    ((PopupMessageNotificationHandler) notificationHandler)
-                        .addPopupMessageListener(this);
+                    popupMessageNotificationHandler.addPopupMessageListener(
+                            this);
                 }
-                // Unregister.
                 else
                 {
-                    ((PopupMessageNotificationHandler) notificationHandler)
-                        .removePopupMessageListener(this);
+                    popupMessageNotificationHandler.removePopupMessageListener(
+                            this);
                 }
+            }
+        }
+    }
+
+    /**
+     * Releases the resources acquired by this instance throughout its lifetime,
+     * uninstalls the listeners it has installed and, generally, prepares it for
+     * garbage collection.
+     */
+    public void dispose()
+    {
+        addOrRemovePopupMessageListener(false);
+    }
+
+    /**
+     * Indicates that user has clicked on the systray popup message.
+     * 
+     * @param ev the event triggered when user clicks on the systray popup
+     * message
+     */
+    public void popupMessageClicked(SystrayPopupMessageEvent ev)
+    {
+        // Checks if this event is fired from one click on one of our popup
+        // message.
+        if(ev.getTag() == this)
+        {
+            // Get the UI service
+            UIService uiService
+                = ServiceUtils.getService(
+                        NeomediaActivator.getBundleContext(),
+                        UIService.class);
+
+            if(uiService != null)
+            {
+                // Shows the audio configuration window.
+                ConfigurationContainer configurationContainer
+                    = uiService.getConfigurationContainer();
+
+                configurationContainer.setSelected(configurationForm);
+                configurationContainer.setVisible(true);
             }
         }
     }
@@ -90,10 +130,9 @@ public abstract class AbstractDeviceConfigurationListener
     /**
      * Function called when an audio device is plugged or unplugged.
      *
-     * @param event The property change event which may concern the audio
-     * device.
+     * @param ev The property change event which may concern the audio device
      */
-    public abstract void propertyChange(PropertyChangeEvent event);
+    public abstract void propertyChange(PropertyChangeEvent ev);
 
     /**
      * Shows a pop-up notification corresponding to a device configuration
@@ -117,67 +156,30 @@ public abstract class AbstractDeviceConfigurationListener
 
             if(notificationService != null)
             {
-                // Registers only once to the  popup message notification
+                // Registers only once to the popup message notification
                 // handler.
                 if(!isRegisteredToPopupMessageListener)
                 {
                     isRegisteredToPopupMessageListener = true;
-                    managePopupMessageListenerRegistration(true);
+                    addOrRemovePopupMessageListener(true);
                 }
 
                 // Fires the popup notification.
                 Map<String,Object> extras = new HashMap<String,Object>();
+
                 extras.put(
                         NotificationData.POPUP_MESSAGE_HANDLER_TAG_EXTRA,
                         this);
-
-                ResourceManagementService resources
-                    = NeomediaActivator.getResources();
-
                 notificationService.fireNotification(
                         popUpEvent,
                         title,
                         body
                         + "\r\n\r\n"
-                        + resources.getI18NString(
-                            "impl.media.configform"
-                            + ".AUDIO_DEVICE_CONFIG_MANAGMENT_CLICK"),
+                        + NeomediaActivator.getResources().getI18NString(
+                                "impl.media.configform"
+                                    + ".AUDIO_DEVICE_CONFIG_MANAGMENT_CLICK"),
                         null,
                         extras);
-            }
-        }
-    }
-
-    /**
-     * Indicates that user has clicked on the systray popup message.
-     * 
-     * @param evt the event triggered when user clicks on the systray popup
-     * message
-     */
-    public void popupMessageClicked(SystrayPopupMessageEvent evt)
-    {
-        // Checks if this event is fired from one click on one of our popup
-        // message.
-        //if(evt.getTag() == audioDeviceConfigurationPropertyChangeListener)
-        if(evt.getTag() == this)
-        {
-            // Get the UI service
-            BundleContext bundleContext = NeomediaActivator.getBundleContext();
-            ServiceReference uiReference = bundleContext
-                .getServiceReference(UIService.class.getName());
-
-            UIService uiService = (UIService) bundleContext
-                .getService(uiReference);
-
-            if(uiService != null)
-            {
-                // Shows the audio configuration window.
-                ConfigurationContainer configurationContainer
-                    = uiService.getConfigurationContainer();
-                configurationContainer.setSelected(
-                        this.configurationForm);
-                        //NeomediaActivator.getAudioConfigurationForm());
-                configurationContainer.setVisible(true);
             }
         }
     }

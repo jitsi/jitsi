@@ -37,12 +37,6 @@ public class NeomediaActivator
 {
 
     /**
-     * The <tt>Logger</tt> used by the <tt>NeomediaActivator</tt> class and its
-     * instances for logging output.
-     */
-    private final Logger logger = Logger.getLogger(NeomediaActivator.class);
-
-    /**
      * Indicates if the audio configuration form should be disabled, i.e.
      * not visible to the user.
      */
@@ -50,25 +44,21 @@ public class NeomediaActivator
         = "net.java.sip.communicator.impl.neomedia.AUDIO_CONFIG_DISABLED";
 
     /**
-     * Indicates if the video configuration form should be disabled, i.e.
-     * not visible to the user.
+     *  The audio configuration form used to define the capture/notify/playback
+     *  audio devices.
      */
-    private static final String VIDEO_CONFIG_DISABLED_PROP
-        = "net.java.sip.communicator.impl.neomedia.VIDEO_CONFIG_DISABLED";
+    private static ConfigurationForm audioConfigurationForm;
 
     /**
-     * Indicates if the H.264 configuration form should be disabled, i.e.
-     * not visible to the user.
+     * The audio notifier service.
      */
-    private static final String H264_CONFIG_DISABLED_PROP
-        = "net.java.sip.communicator.impl.neomedia.h264config.DISABLED";
+    private static AudioNotifierService audioNotifierService;
 
     /**
-     * Indicates if the ZRTP configuration form should be disabled, i.e.
-     * not visible to the user.
+     * The context in which the one and only <tt>NeomediaActivator</tt> instance
+     * has started executing.
      */
-    private static final String ZRTP_CONFIG_DISABLED_PROP
-        = "net.java.sip.communicator.impl.neomedia.zrtpconfig.DISABLED";
+    private static BundleContext bundleContext;
 
     /**
      * Indicates if the call recording config form should be disabled, i.e.
@@ -78,11 +68,42 @@ public class NeomediaActivator
         = "net.java.sip.communicator.impl.neomedia.callrecordingconfig.DISABLED";
 
     /**
+     * The <tt>ConfigurationService</tt> registered in {@link #bundleContext}
+     * and used by the <tt>NeomediaActivator</tt> instance to read and write
+     * configuration properties.
+     */
+    private static ConfigurationService configurationService;
+
+    /**
      * The name of the notification pop-up event displayed when the device
      * configration has changed.
      */
     public static final String DEVICE_CONFIGURATION_HAS_CHANGED
         = "DeviceConfigurationChanged";
+
+    /**
+     * The <tt>FileAccessService</tt> registered in {@link #bundleContext} and
+     * used by the <tt>NeomediaActivator</tt> instance to safely access files.
+     */
+    private static FileAccessService fileAccessService;
+
+    /**
+     * Indicates if the H.264 configuration form should be disabled, i.e.
+     * not visible to the user.
+     */
+    private static final String H264_CONFIG_DISABLED_PROP
+        = "net.java.sip.communicator.impl.neomedia.h264config.DISABLED";
+
+    /**
+     * A {@link MediaConfigurationService} instance.
+     */
+    private static MediaConfigurationImpl mediaConfiguration;
+
+    /**
+     * The one and only <tt>MediaServiceImpl</tt> instance registered in
+     * {@link #bundleContext} by the <tt>NeomediaActivator</tt> instance.
+     */
+    private static MediaServiceImpl mediaServiceImpl;
 
     /**
      * The name of the notification pop-up event displayed when a new device
@@ -92,34 +113,15 @@ public class NeomediaActivator
         = "NewSelectedDevice";
 
     /**
-     * The context in which the one and only <tt>NeomediaActivator</tt> instance
-     * has started executing.
-     */
-    private static BundleContext bundleContext;
-
-    /**
-     * The <tt>ConfigurationService</tt> registered in {@link #bundleContext}
-     * and used by the <tt>NeomediaActivator</tt> instance to read and write
-     * configuration properties.
-     */
-    private static ConfigurationService configurationService;
-
-    /**
-     * The <tt>FileAccessService</tt> registered in {@link #bundleContext} and
-     * used by the <tt>NeomediaActivator</tt> instance to safely access files.
-     */
-    private static FileAccessService fileAccessService;
-
-    /**
      * The notifcation service to pop-up messages.
      */
     private static NotificationService notificationService;
 
     /**
-     * The one and only <tt>MediaServiceImpl</tt> instance registered in
-     * {@link #bundleContext} by the <tt>NeomediaActivator</tt> instance.
+     * The OSGi <tt>PacketLoggingService</tt> of {@link #mediaServiceImpl} in
+     * {@link #bundleContext} and used for debugging.
      */
-    private static MediaServiceImpl mediaServiceImpl;
+    private static PacketLoggingService packetLoggingService  = null;
 
     /**
      * The <tt>ResourceManagementService</tt> registered in
@@ -130,17 +132,11 @@ public class NeomediaActivator
     private static ResourceManagementService resources;
 
     /**
-     * The OSGi <tt>PacketLoggingService</tt> of {@link #mediaServiceImpl} in
-     * {@link #bundleContext} and used for debugging.
+     * Indicates if the video configuration form should be disabled, i.e.
+     * not visible to the user.
      */
-    private static PacketLoggingService packetLoggingService  = null;
-
-    /**
-     *  A listener to the click on the popup message concerning audio device
-     *  configuration changes.
-     */
-    private AudioDeviceConfigurationListener
-        audioDeviceConfigurationPropertyChangeListener;
+    private static final String VIDEO_CONFIG_DISABLED_PROP
+        = "net.java.sip.communicator.impl.neomedia.VIDEO_CONFIG_DISABLED";
 
     /**
      *  A listener to the click on the popup message concerning video device
@@ -151,25 +147,218 @@ public class NeomediaActivator
     //    videoDeviceConfigurationPropertyChangeListener;
 
     /**
-     * A {@link MediaConfigurationService} instance.
-     */
-    private static MediaConfigurationImpl mediaConfiguration;
-
-    /**
-     *  The audio configuration form used to define the capture/notify/playback
-     *  audio devices.
-     */
-    private static ConfigurationForm audioConfigurationForm;
-
-    /**
      *  The video configuration form.
      */
     private static ConfigurationForm videoConfigurationForm;
 
     /**
-     * The audio notifier service.
+     * Indicates if the ZRTP configuration form should be disabled, i.e.
+     * not visible to the user.
      */
-    private static AudioNotifierService audioNotifierService;
+    private static final String ZRTP_CONFIG_DISABLED_PROP
+        = "net.java.sip.communicator.impl.neomedia.zrtpconfig.DISABLED";
+
+    /**
+     *  Returns the audio configuration form used to define the
+     *  capture/notify/playback audio devices.
+     *
+     *  @return The audio configuration form used to define the
+     *  capture/notify/playback audio devices.
+     */
+    public static ConfigurationForm getAudioConfigurationForm()
+    {
+        return audioConfigurationForm;
+    }
+
+    /**
+     * Returns the <tt>AudioService</tt> obtained from the bundle
+     * context.
+     * @return the <tt>AudioService</tt> obtained from the bundle
+     * context
+     */
+    public static AudioNotifierService getAudioNotifierService()
+    {
+        if(audioNotifierService == null)
+        {
+            audioNotifierService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        AudioNotifierService.class);
+        }
+        return audioNotifierService;
+    }
+
+    /**
+     * Returns the context in which the one and only <tt>NeomediaActivator</tt>
+     * instance has started executing.
+     *
+     * @return The context in which the one and only <tt>NeomediaActivator</tt>
+     * instance has started executing.
+     */
+    public static BundleContext getBundleContext()
+    {
+        return bundleContext;
+    }
+
+    /**
+     * Returns a reference to a ConfigurationService implementation currently
+     * registered in the bundle context or null if no such implementation was
+     * found.
+     *
+     * @return a currently valid implementation of the ConfigurationService.
+     */
+    public static ConfigurationService getConfigurationService()
+    {
+        if (configurationService == null)
+        {
+            configurationService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        ConfigurationService.class);
+        }
+        return configurationService;
+    }
+
+    /**
+     * Returns a reference to a FileAccessService implementation
+     * currently registered in the bundle context or null if no such
+     * implementation was found.
+     *
+     * @return a currently valid implementation of the
+     * FileAccessService .
+     */
+    public static FileAccessService getFileAccessService()
+    {
+        if (fileAccessService == null)
+        {
+            fileAccessService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        FileAccessService.class);
+        }
+        return fileAccessService;
+    }
+
+    public static MediaConfigurationService getMediaConfiguration()
+    {
+        return mediaConfiguration;
+    }
+    
+    /**
+     * Gets the <tt>MediaService</tt> implementation instance registered by the
+     * neomedia bundle.
+     *
+     * @return the <tt>MediaService</tt> implementation instance registered by
+     * the neomedia bundle
+     */
+    public static MediaServiceImpl getMediaServiceImpl()
+    {
+        return mediaServiceImpl;
+    }
+
+    /**
+     * Returns the <tt>NotificationService</tt> obtained from the bundle
+     * context.
+     *
+     * @return The <tt>NotificationService</tt> obtained from the bundle
+     * context.
+     */
+    public static NotificationService getNotificationService()
+    {
+        if(notificationService == null)
+        {
+            // Get the notification service implementation
+            ServiceReference notifReference = bundleContext
+                .getServiceReference(NotificationService.class.getName());
+
+            notificationService = (NotificationService) bundleContext
+                .getService(notifReference);
+
+            if(notificationService != null)
+            {
+                // Register a popup message for a device configuration changed
+                // notification.
+                notificationService.registerDefaultNotificationForEvent(
+                        DEVICE_CONFIGURATION_HAS_CHANGED,
+                        net.java.sip.communicator.service.notification.NotificationAction.ACTION_POPUP_MESSAGE,
+                        "Device configuration has changed",
+                        null);
+
+                // Register a popup message for a new device selected for audio
+                // in, audio out or notifications.
+                notificationService.registerDefaultNotificationForEvent(
+                        NEW_SELECTED_DEVICE,
+                        net.java.sip.communicator.service.notification.NotificationAction.ACTION_POPUP_MESSAGE,
+                        "New selected device",
+                        null);
+            }
+        }
+
+        return notificationService;
+    }
+
+    /**
+     * Returns a reference to the <tt>PacketLoggingService</tt> implementation
+     * currently registered in the bundle context or null if no such
+     * implementation was found.
+     *
+     * @return a reference to a <tt>PacketLoggingService</tt> implementation
+     * currently registered in the bundle context or null if no such
+     * implementation was found.
+     */
+    public static PacketLoggingService getPacketLogging()
+    {
+        if (packetLoggingService == null)
+        {
+            packetLoggingService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        PacketLoggingService.class);
+        }
+        return packetLoggingService;
+    }
+
+    /**
+     * Gets the <tt>ResourceManagementService</tt> instance which represents the
+     * resources such as internationalized and localized text and images used by
+     * the neomedia bundle.
+     *
+     * @return the <tt>ResourceManagementService</tt> instance which represents
+     * the resources such as internationalized and localized text and images
+     * used by the neomedia bundle
+     */
+    public static ResourceManagementService getResources()
+    {
+        if (resources == null)
+        {
+            resources
+                = ResourceManagementServiceUtils.getService(bundleContext);
+        }
+        return resources;
+    }
+
+    /**
+     *  Returns the video configuration form.
+     *
+     *  @return The video configuration form.
+     */
+    public static ConfigurationForm getVideoConfigurationForm()
+    {
+        return videoConfigurationForm;
+    }
+
+    /**
+     *  A listener to the click on the popup message concerning audio device
+     *  configuration changes.
+     */
+    private AudioDeviceConfigurationListener
+        audioDeviceConfigurationPropertyChangeListener;
+
+    /**
+     * The <tt>Logger</tt> used by the <tt>NeomediaActivator</tt> class and its
+     * instances for logging output.
+     */
+    private final Logger logger = Logger.getLogger(NeomediaActivator.class);
 
     /**
      * Starts the execution of the neomedia bundle in the specified context.
@@ -382,30 +571,24 @@ public class NeomediaActivator
             {
                 mediaServiceImpl
                     .getDeviceConfiguration()
-                    .removePropertyChangeListener(
-                            audioDeviceConfigurationPropertyChangeListener);
-                if(audioDeviceConfigurationPropertyChangeListener != null)
-                {
-                    audioDeviceConfigurationPropertyChangeListener
-                        .managePopupMessageListenerRegistration(false);
-                    audioDeviceConfigurationPropertyChangeListener = null;
-                }
+                        .removePropertyChangeListener(
+                                audioDeviceConfigurationPropertyChangeListener);
+                audioDeviceConfigurationPropertyChangeListener.dispose();
+                audioDeviceConfigurationPropertyChangeListener = null;
             }
 
-            // Disabled until video hotplug is not available.
-            /*if(videoDeviceConfigurationPropertyChangeListener != null)
+            // Disabled until video hotplug is available.
+            /*
+            if(videoDeviceConfigurationPropertyChangeListener != null)
             {
                 mediaServiceImpl
                     .getDeviceConfiguration()
-                    .removePropertyChangeListener(
-                            videoDeviceConfigurationPropertyChangeListener);
-                if(videoDeviceConfigurationPropertyChangeListener != null)
-                {
-                    videoDeviceConfigurationPropertyChangeListener
-                        .managePopupMessageListenerRegistration(false);
-                    videoDeviceConfigurationPropertyChangeListener = null;
-                }
-            }*/
+                        .removePropertyChangeListener(
+                                videoDeviceConfigurationPropertyChangeListener);
+                videoDeviceConfigurationPropertyChangeListener.dispose();
+                videoDeviceConfigurationPropertyChangeListener = null;
+            }
+            */
         }
         finally
         {
@@ -414,194 +597,5 @@ public class NeomediaActivator
             mediaServiceImpl = null;
             resources = null;
         }
-    }
-
-    /**
-     * Returns a reference to a ConfigurationService implementation currently
-     * registered in the bundle context or null if no such implementation was
-     * found.
-     *
-     * @return a currently valid implementation of the ConfigurationService.
-     */
-    public static ConfigurationService getConfigurationService()
-    {
-        if (configurationService == null)
-        {
-            configurationService
-                = ServiceUtils.getService(
-                        bundleContext,
-                        ConfigurationService.class);
-        }
-        return configurationService;
-    }
-
-    /**
-     * Returns a reference to a FileAccessService implementation
-     * currently registered in the bundle context or null if no such
-     * implementation was found.
-     *
-     * @return a currently valid implementation of the
-     * FileAccessService .
-     */
-    public static FileAccessService getFileAccessService()
-    {
-        if (fileAccessService == null)
-        {
-            fileAccessService
-                = ServiceUtils.getService(
-                        bundleContext,
-                        FileAccessService.class);
-        }
-        return fileAccessService;
-    }
-
-    /**
-     * Gets the <tt>MediaService</tt> implementation instance registered by the
-     * neomedia bundle.
-     *
-     * @return the <tt>MediaService</tt> implementation instance registered by
-     * the neomedia bundle
-     */
-    public static MediaServiceImpl getMediaServiceImpl()
-    {
-        return mediaServiceImpl;
-    }
-    
-    public static MediaConfigurationService getMediaConfiguration()
-    {
-        return mediaConfiguration;
-    }
-
-    /**
-     * Gets the <tt>ResourceManagementService</tt> instance which represents the
-     * resources such as internationalized and localized text and images used by
-     * the neomedia bundle.
-     *
-     * @return the <tt>ResourceManagementService</tt> instance which represents
-     * the resources such as internationalized and localized text and images
-     * used by the neomedia bundle
-     */
-    public static ResourceManagementService getResources()
-    {
-        if (resources == null)
-        {
-            resources
-                = ResourceManagementServiceUtils.getService(bundleContext);
-        }
-        return resources;
-    }
-
-    /**
-     * Returns a reference to the <tt>PacketLoggingService</tt> implementation
-     * currently registered in the bundle context or null if no such
-     * implementation was found.
-     *
-     * @return a reference to a <tt>PacketLoggingService</tt> implementation
-     * currently registered in the bundle context or null if no such
-     * implementation was found.
-     */
-    public static PacketLoggingService getPacketLogging()
-    {
-        if (packetLoggingService == null)
-        {
-            packetLoggingService
-                = ServiceUtils.getService(
-                        bundleContext,
-                        PacketLoggingService.class);
-        }
-        return packetLoggingService;
-    }
-
-    /**
-     * Returns the <tt>NotificationService</tt> obtained from the bundle
-     * context.
-     *
-     * @return The <tt>NotificationService</tt> obtained from the bundle
-     * context.
-     */
-    public static NotificationService getNotificationService()
-    {
-        if(notificationService == null)
-        {
-            // Get the notification service implementation
-            ServiceReference notifReference = bundleContext
-                .getServiceReference(NotificationService.class.getName());
-
-            notificationService = (NotificationService) bundleContext
-                .getService(notifReference);
-
-            if(notificationService != null)
-            {
-                // Register a popup message for a device configuration changed
-                // notification.
-                notificationService.registerDefaultNotificationForEvent(
-                        DEVICE_CONFIGURATION_HAS_CHANGED,
-                        net.java.sip.communicator.service.notification.NotificationAction.ACTION_POPUP_MESSAGE,
-                        "Device configuration has changed",
-                        null);
-
-                // Register a popup message for a new device selected for audio
-                // in, audio out or notifications.
-                notificationService.registerDefaultNotificationForEvent(
-                        NEW_SELECTED_DEVICE,
-                        net.java.sip.communicator.service.notification.NotificationAction.ACTION_POPUP_MESSAGE,
-                        "New selected device",
-                        null);
-            }
-        }
-
-        return notificationService;
-    }
-
-    /**
-     * Returns the context in which the one and only <tt>NeomediaActivator</tt>
-     * instance has started executing.
-     *
-     * @return The context in which the one and only <tt>NeomediaActivator</tt>
-     * instance has started executing.
-     */
-    public static BundleContext getBundleContext()
-    {
-        return bundleContext;
-    }
-
-    /**
-     *  Returns the audio configuration form used to define the
-     *  capture/notify/playback audio devices.
-     *
-     *  @return The audio configuration form used to define the
-     *  capture/notify/playback audio devices.
-     */
-    public static ConfigurationForm getAudioConfigurationForm()
-    {
-        return audioConfigurationForm;
-    }
-
-    /**
-     *  Returns the video configuration form.
-     *
-     *  @return The video configuration form.
-     */
-    public static ConfigurationForm getVideoConfigurationForm()
-    {
-        return videoConfigurationForm;
-    }
-
-    /**
-     * Returns the <tt>AudioService</tt> obtained from the bundle
-     * context.
-     * @return the <tt>AudioService</tt> obtained from the bundle
-     * context
-     */
-    public static AudioNotifierService getAudioNotifierService()
-    {
-        if(audioNotifierService == null)
-        {
-            audioNotifierService
-                = ServiceUtils.getService(
-                        bundleContext,
-                        AudioNotifierService.class);
-        }
-        return audioNotifierService;
     }
 }

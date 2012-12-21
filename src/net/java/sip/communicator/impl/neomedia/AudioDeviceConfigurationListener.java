@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.neomedia;
 
 import java.beans.*;
+import java.util.*;
 
 import javax.media.*;
 
@@ -25,20 +26,22 @@ public class AudioDeviceConfigurationListener
     extends AbstractDeviceConfigurationListener
 {
     /**
-     * The last selected capture device for which we have received an event.
+     * The last <tt>PropertyChangeEvent</tt> about an audio capture device which
+     * has been received.
      */
-    private CaptureDeviceInfo captureDevice = null;
+    private PropertyChangeEvent capturePropertyChangeEvent;
 
     /**
-     * The last selected playback device for which we have received an event.
+     * The last <tt>PropertyChangeEvent</tt> about an audio notification device
+     * which has been received.
      */
-    private CaptureDeviceInfo playbackDevice = null;
+    private PropertyChangeEvent notifyPropertyChangeEvent;
 
     /**
-     * The last selected notification device for which we have received an
-     * event.
+     * The last <tt>PropertyChangeEvent</tt> about an audio playback device
+     * which has been received.
      */
-    private CaptureDeviceInfo notificationDevice = null;
+    private PropertyChangeEvent playbackPropertyChangeEvent;
 
     /**
      * Creates a listener to the click on the popup message concerning audio
@@ -53,110 +56,177 @@ public class AudioDeviceConfigurationListener
     }
 
     /**
-     * Function called when an audio device is plugged or unplugged.
+     * Notifies this instance that a property related to the configuration of
+     * devices has had its value changed and thus signals that an audio device
+     * may have been plugged or unplugged.
      *
-     * @param event The property change event which may concern the audio
-     * device.
+     * @param ev a <tt>PropertyChangeEvent</tt> which describes the name of the
+     * property whose value has changed and the old and new values of that
+     * property
      */
-    public void propertyChange(PropertyChangeEvent event)
+    public void propertyChange(PropertyChangeEvent ev)
     {
-        String popUpEvent = null;
-        String title = null;
-        CaptureDeviceInfo device = null;
-        ResourceManagementService resources
-            = NeomediaActivator.getResources();
+        String propertyName = ev.getPropertyName();
 
-        // If the device configuration has changed: a device has been
-        // plugged or un-plugged.
-        if(DeviceConfiguration.PROP_AUDIO_SYSTEM_DEVICES
-                .equals(event.getPropertyName()))
+        /*
+         * The list of available capture, notification and/or playback devices
+         * has changes.
+         */
+        if(DeviceConfiguration.PROP_AUDIO_SYSTEM_DEVICES.equals(propertyName))
         {
-            popUpEvent = NeomediaActivator.DEVICE_CONFIGURATION_HAS_CHANGED;
-            // A device has been connected.
-            if(event.getNewValue() != null)
-            {
-                title = resources.getI18NString(
-                        "impl.media.configform"
-                        + ".AUDIO_DEVICE_CONNECTED");
-                device = (CaptureDeviceInfo) event.getNewValue();
-            }
-            // A device has been disconnected.
-            else if(event.getOldValue() != null)
-            {
-                title = resources.getI18NString(
-                        "impl.media.configform"
-                        + ".AUDIO_DEVICE_DISCONNECTED");
-                device = (CaptureDeviceInfo) event.getOldValue();
-            }
-        }
-        // If a new capture device has been selected.
-        else if(CaptureDevices.PROP_DEVICE.equals(event.getPropertyName()))
-        {
-            if(event.getNewValue() != null)
-            {
-                captureDevice = (CaptureDeviceInfo) event.getNewValue();
-            }
-        }
-        // If a new playback device has been selected.
-        else if(PlaybackDevices.PROP_DEVICE.equals(event.getPropertyName()))
-        {
-            if(event.getNewValue() != null)
-            {
-                playbackDevice = (CaptureDeviceInfo) event.getNewValue();
-            }
-        }
-        // If a new notify device has been selected.
-        else if(NotifyDevices.PROP_DEVICE.equals(event.getPropertyName()))
-        {
-            if(event.getNewValue() != null)
-            {
-                notificationDevice = (CaptureDeviceInfo) event.getNewValue();
-            }
-        }
+            @SuppressWarnings("unchecked")
+            List<CaptureDeviceInfo> oldDevices
+                = (List<CaptureDeviceInfo>) ev.getOldValue();
+            @SuppressWarnings("unchecked")
+            List<CaptureDeviceInfo> newDevices
+                = (List<CaptureDeviceInfo>) ev.getNewValue();
 
-        String body = null;
-        if(device != null)
-        {
-            body = device.getName();
-            if(captureDevice != null
-                    || playbackDevice != null
-                    || notificationDevice != null)
+            if (oldDevices.isEmpty())
+                oldDevices = null;
+            if (newDevices.isEmpty())
+                newDevices = null;
+
+            String title;
+            ResourceManagementService r = NeomediaActivator.getResources();
+            List<CaptureDeviceInfo> devices;
+            boolean removal;
+
+            // At least one new device has been connected.
+            if(newDevices != null)
             {
-                body += "\r\n";
-                if(captureDevice != null)
+                title
+                    = r.getI18NString(
+                            "impl.media.configform.AUDIO_DEVICE_CONNECTED");
+                devices = newDevices;
+                removal = false;
+            }
+            /*
+             * At least one old device has been disconnected and no new device
+             * has been connected.
+             */
+            else if(oldDevices != null)
+            {
+                title
+                    = r.getI18NString(
+                            "impl.media.configform.AUDIO_DEVICE_DISCONNECTED");
+                devices = oldDevices;
+                removal = true;
+            }
+            else
+            {
+                /*
+                 * Neither a new device has been connected nor an old device has
+                 * been disconnected. Why are we even here in the first place
+                 * anyway?
+                 */
+                capturePropertyChangeEvent = null;
+                notifyPropertyChangeEvent = null;
+                playbackPropertyChangeEvent = null;
+                return;
+            }
+
+            StringBuilder body = new StringBuilder();
+
+            for (CaptureDeviceInfo device : devices)
+                body.append(device.getName()).append("\r\n");
+
+            DeviceConfiguration devConf = (DeviceConfiguration) ev.getSource();
+            AudioSystem audioSystem = devConf.getAudioSystem();
+            boolean selectedHasChanged = false;
+
+            if (audioSystem != null)
+            {
+                if(capturePropertyChangeEvent != null)
                 {
-                    body += "\r\n"
-                        + resources.getI18NString(
-                                "impl.media.configform"
-                                + ".AUDIO_DEVICE_SELECTED_AUDIO_IN")
-                        + "\r\n\t"
-                        + captureDevice.getName();
-                    captureDevice = null;
+                    CaptureDeviceInfo cdi
+                        = audioSystem.getDevice(AudioSystem.CAPTURE_INDEX);
+
+                    if ((cdi != null)
+                            && !cdi.equals(
+                                    capturePropertyChangeEvent.getOldValue()))
+                    {
+                        body.append("\r\n")
+                            .append(
+                                    r.getI18NString(
+                                            "impl.media.configform"
+                                                + ".AUDIO_DEVICE_SELECTED_AUDIO_IN"))
+                            .append("\r\n\t")
+                            .append(cdi.getName());
+                        selectedHasChanged = true;
+                    }
                 }
-                if(playbackDevice != null)
+                if(playbackPropertyChangeEvent != null)
                 {
-                    body += "\r\n"
-                        + resources.getI18NString(
-                                "impl.media.configform"
-                                + ".AUDIO_DEVICE_SELECTED_AUDIO_OUT")
-                        + "\r\n\t"
-                        + playbackDevice.getName();
-                    playbackDevice = null;
+                    CaptureDeviceInfo cdi
+                        = audioSystem.getDevice(AudioSystem.PLAYBACK_INDEX);
+
+                    if ((cdi != null)
+                            && !cdi.equals(
+                                    playbackPropertyChangeEvent.getOldValue()))
+                    {
+                        body.append("\r\n")
+                            .append(
+                                    r.getI18NString(
+                                            "impl.media.configform"
+                                                + ".AUDIO_DEVICE_SELECTED_AUDIO_OUT"))
+                            .append("\r\n\t")
+                            .append(cdi.getName());
+                        selectedHasChanged = true;
+                    }
                 }
-                if(notificationDevice != null)
+                if(notifyPropertyChangeEvent != null)
                 {
-                    body += "\r\n"
-                        + resources.getI18NString(
-                                "impl.media.configform"
-                                + ".AUDIO_DEVICE_SELECTED_AUDIO_NOTIFICATIONS")
-                        + "\r\n\t"
-                        + notificationDevice.getName();
-                    notificationDevice = null;
+                    CaptureDeviceInfo cdi
+                        = audioSystem.getDevice(AudioSystem.NOTIFY_INDEX);
+
+                    if ((cdi != null)
+                            && !cdi.equals(
+                                    notifyPropertyChangeEvent.getOldValue()))
+                    {
+                        body.append("\r\n")
+                            .append(
+                                    r.getI18NString(
+                                            "impl.media.configform"
+                                                + ".AUDIO_DEVICE_SELECTED_AUDIO_NOTIFICATIONS"))
+                            .append("\r\n\t")
+                            .append(cdi.getName());
+                        selectedHasChanged = true;
+                    }
                 }
             }
-        }
+            capturePropertyChangeEvent = null;
+            notifyPropertyChangeEvent = null;
+            playbackPropertyChangeEvent = null;
 
-        // Shows the pop-up notification.
-        super.showPopUpNotification(title, body, popUpEvent);
+            /*
+             * If an old device has been disconnected and no new device has been
+             * connected, show a notification only if any selected device has
+             * changed.
+             */
+            if (!removal || selectedHasChanged)
+            {
+                showPopUpNotification(
+                        title,
+                        body.toString(),
+                        NeomediaActivator.DEVICE_CONFIGURATION_HAS_CHANGED);
+            }
+        }
+        /*
+         * A new capture, notification or playback devices has been selected.
+         * We will not show a notification, we will remember to report the
+         * change after the batch of changes completes.
+         */
+        else if(CaptureDevices.PROP_DEVICE.equals(propertyName))
+        {
+            capturePropertyChangeEvent = ev;
+        }
+        else if(NotifyDevices.PROP_DEVICE.equals(propertyName))
+        {
+            notifyPropertyChangeEvent = ev;
+        }
+        else if(PlaybackDevices.PROP_DEVICE.equals(propertyName))
+        {
+            playbackPropertyChangeEvent = ev;
+        }
     }
 }
