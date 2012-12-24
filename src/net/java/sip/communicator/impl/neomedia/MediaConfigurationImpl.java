@@ -108,21 +108,12 @@ public class MediaConfigurationImpl
     /**
      * The button used to play a sound in order to test playback device.
      */
-    private final JButton playbackPlaySoundButton
-        = new JButton(new ImageIcon(NeomediaActivator.getResources()
-                    .getImageInBytes("plugin.notificationconfig.PLAY_ICON")));
+    private JButton playbackPlaySoundButton;
 
     /**
      * The button used to play a sound in order to test notification devices.
      */
-    private final JButton notificationPlaySoundButton
-        = new JButton(new ImageIcon(NeomediaActivator.getResources()
-                    .getImageInBytes("plugin.notificationconfig.PLAY_ICON")));
-    /**
-     * The path to the sound used to test the playback and notification devices.
-     */
-    public static final String TEST_SOUND_FILE
-        = NeomediaActivator.getResources().getSoundPath("INCOMING_FILE");
+    private JButton notificationPlaySoundButton;
 
     /**
      * Returns the audio configuration panel.
@@ -303,6 +294,10 @@ public class MediaConfigurationImpl
         {
             // Playback play sound button.
             constraints.gridy = 2;
+            playbackPlaySoundButton
+                = new JButton(new ImageIcon(NeomediaActivator.getResources()
+                            .getImageInBytes(
+                                "plugin.notificationconfig.PLAY_ICON")));
             playbackPlaySoundButton.setMinimumSize(new Dimension(30,30));
             playbackPlaySoundButton.setPreferredSize(new Dimension(30,30));
             if(((DeviceConfigurationComboBoxModel.CaptureDevice)
@@ -316,6 +311,10 @@ public class MediaConfigurationImpl
 
             // Notification play sound button.
             constraints.gridy = 3;
+            notificationPlaySoundButton
+                = new JButton(new ImageIcon(NeomediaActivator.getResources()
+                            .getImageInBytes(
+                                "plugin.notificationconfig.PLAY_ICON")));
             notificationPlaySoundButton.setMinimumSize(new Dimension(30,30));
             notificationPlaySoundButton.setPreferredSize(new Dimension(30,30));
             if(((DeviceConfigurationComboBoxModel.CaptureDevice)
@@ -1619,7 +1618,8 @@ public class MediaConfigurationImpl
             AudioNotifierService audioNotifServ
                 = NeomediaActivator.getAudioNotifierService();
             SCAudioClip sound = audioNotifServ.createAudio(
-                    TEST_SOUND_FILE,
+                    NeomediaActivator.getResources().getSoundPath(
+                        "INCOMING_FILE"),
                     isPlaybackEvent);
             sound.play();
         }
@@ -1641,6 +1641,5 @@ public class MediaConfigurationImpl
                 notificationPlaySoundButton.setEnabled(isEnabled);
             }
         }
-
     }
 }
