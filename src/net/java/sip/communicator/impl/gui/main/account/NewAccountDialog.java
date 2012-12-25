@@ -135,8 +135,6 @@ public class NewAccountDialog
         networkPanel.add(networkLabel, BorderLayout.WEST);
         networkPanel.add(networkComboBox, BorderLayout.CENTER);
 
-        this.getRootPane().setDefaultButton(addAccountButton);
-
         this.networkComboBox.setRenderer(new NetworkListCellRenderer());
         this.networkComboBox.addActionListener(new ActionListener()
         {
@@ -361,6 +359,8 @@ public class NewAccountDialog
 
         addAccountButton.setEnabled(!isEmptyAccountRegistrationWizard);
         advancedButton.setEnabled(!isEmptyAccountRegistrationWizard);
+        if (!isEmptyAccountRegistrationWizard)
+            getRootPane().setDefaultButton(addAccountButton);
 
         accountPanel.revalidate();
         accountPanel.repaint();
@@ -448,6 +448,7 @@ public class NewAccountDialog
 
         newAccountDialog.pack();
         newAccountDialog.setVisible(true);
+        newAccountDialog.requestFocus();
     }
 
     /**
