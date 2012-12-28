@@ -57,6 +57,14 @@ public class CallEvent
     private final Map<MediaType, MediaDirection> mediaDirections;
 
     /**
+     * The conference of the call for this event. Must be set when creating this
+     * event, because when a call ends, the call conference may be released just
+     * after creating this event, but its reference will still be necessary in
+     * the futur for the UI (i.e to release the call panel),
+     */
+    private final CallConference conference;
+
+    /**
      * Creates an event instance indicating that an incoming/outgoing call
      * has been created
      *
@@ -96,6 +104,8 @@ public class CallEvent
         if (mediaDirections != null)
             thisMediaDirections.putAll(mediaDirections);
         this.mediaDirections = Collections.unmodifiableMap(thisMediaDirections);
+
+        this.conference = call.getConference();
     }
 
     /**
@@ -137,6 +147,16 @@ public class CallEvent
     public Call getSourceCall()
     {
         return (Call)getSource();
+    }
+
+    /**
+     * Returns the <tt>CallConference</tt> that triggered this event.
+     *
+     * @return the <tt>CallConference</tt> that triggered this event.
+     */
+    public CallConference getCallConference()
+    {
+        return this.conference;
     }
 
     /**

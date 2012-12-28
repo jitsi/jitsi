@@ -199,9 +199,9 @@ public class CallManager
         @Override
         public void callEndedInEventDispatchThread(CallEvent ev)
         {
-            Call sourceCall = ev.getSourceCall();
+            CallConference callConference = ev.getCallConference();
 
-            closeCallContainerIfNotNecessary(sourceCall);
+            closeCallContainerIfNotNecessary(callConference);
 
             /*
              * Notify the existing CallPanels about the CallEvent (in case
@@ -1050,31 +1050,19 @@ public class CallManager
      * longer necessary (i.e. is not used by other <tt>Call</tt>s participating
      * in the same telephony conference as the specified <tt>Call</tt>.)
      *
-     * @param call the <tt>Call</tt> which is to have its associated
-     * <tt>CallPanel</tt>, if any, closed
+     * @param callConference The <tt>CallConference</tt> which is to have its
+     * associated <tt>CallPanel</tt>, if any, closed
      * {@link CallContainer#closeWait(CallPanel)} or <tt>false</tt> to use
      * {@link CallContainer#close(CallPanel)}
      */
-    private static void closeCallContainerIfNotNecessary(final Call call)
+    private static void closeCallContainerIfNotNecessary(
+            final CallConference callConference)
     {
-        if (!SwingUtilities.isEventDispatchThread())
-        {
-            SwingUtilities.invokeLater(
-                    new Runnable()
-                    {
-                        public void run()
-                        {
-                            closeCallContainerIfNotNecessary(call);
-                        }
-                    });
-            return;
-        }
-
-        CallPanel callPanel = callPanels.get(call.getConference());
+        CallPanel callPanel = callPanels.get(callConference);
 
         if (callPanel != null)
             closeCallContainerIfNotNecessary(
-                call, callPanel.isCloseWaitAfterHangup());
+                callConference, callPanel.isCloseWaitAfterHangup());
     }
 
     /**
@@ -1082,14 +1070,14 @@ public class CallManager
      * longer necessary (i.e. is not used by other <tt>Call</tt>s participating
      * in the same telephony conference as the specified <tt>Call</tt>.)
      *
-     * @param call the <tt>Call</tt> which is to have its associated
-     * <tt>CallPanel</tt>, if any, closed
+     * @param callConference The <tt>CallConference</tt> which is to have its
+     * associated <tt>CallPanel</tt>, if any, closed
      * @param wait <tt>true</tt> to use
      * {@link CallContainer#closeWait(CallPanel)} or <tt>false</tt> to use
      * {@link CallContainer#close(CallPanel)}
      */
     private static void closeCallContainerIfNotNecessary(
-            final Call call,
+            final CallConference callConference,
             final boolean wait)
     {
         if (!SwingUtilities.isEventDispatchThread())
@@ -1099,7 +1087,9 @@ public class CallManager
                     {
                         public void run()
                         {
-                            closeCallContainerIfNotNecessary(call, wait);
+                            closeCallContainerIfNotNecessary(
+                                callConference,
+                                wait);
                         }
                     });
             return;
@@ -1113,8 +1103,6 @@ public class CallManager
          * guaranteed by requiring all modifications to callPanels to be made on
          * the AWT event dispatching thread.
          */
-
-        CallConference conference = call.getConference();
 
         for (Iterator<Map.Entry<CallConference, CallPanel>> entryIter
                     = callPanels.entrySet().iterator();
@@ -1133,7 +1121,7 @@ public class CallManager
                 {
                     window.close(
                             aCallPanel,
-                            wait && (aConference == conference));
+                            wait && (aConference == callConference));
                 }
                 finally
                 {
@@ -2596,7 +2584,7 @@ public class CallManager
                      * Dispose of the CallPanel associated with the Call which
                      * is to be merged.
                      */
-                    closeCallContainerIfNotNecessary(call, false);
+                    closeCallContainerIfNotNecessary(conference, false);
 
                     call.setConference(conference);
                 }
