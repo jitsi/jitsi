@@ -90,6 +90,13 @@ public class MediaConfigurationImpl
         = "net.java.sip.communicator.impl.neomedia.audiosystem.DISABLED";
 
     /**
+     * The name of the sound file used to test the playback and the notification
+     * devices.
+     */
+    private static final String TEST_SOUND_FILENAME_PROP
+        = "net.java.sip.communicator.impl.neomedia.TestSoundFilename";
+
+    /**
      * The thread which updates the capture device as selected by the user. This
      * prevent the UI to lock while changing the device.
      */
@@ -1617,9 +1624,15 @@ public class MediaConfigurationImpl
         {
             AudioNotifierService audioNotifServ
                 = NeomediaActivator.getAudioNotifierService();
+            String testSoundFilename 
+                = NeomediaActivator.getConfigurationService()
+                    .getString(
+                            TEST_SOUND_FILENAME_PROP,
+                            NeomediaActivator.getResources().getSoundPath(
+                                "TEST_SOUND")
+                            );
             SCAudioClip sound = audioNotifServ.createAudio(
-                    NeomediaActivator.getResources().getSoundPath(
-                        "INCOMING_FILE"),
+                    testSoundFilename,
                     isPlaybackEvent);
             sound.play();
         }
