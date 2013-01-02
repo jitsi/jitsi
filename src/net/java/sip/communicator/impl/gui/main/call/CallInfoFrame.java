@@ -13,6 +13,7 @@ import java.util.*;
 import java.util.List;
 
 import javax.swing.*;
+import javax.swing.text.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -84,6 +85,11 @@ public class CallInfoFrame
         scrollPane.getViewport().setOpaque(false);
 
         infoTextPane = createGeneralInfoPane();
+        Caret caret = infoTextPane.getCaret();
+        if (caret instanceof DefaultCaret)
+        {
+            ((DefaultCaret) caret).setUpdatePolicy(DefaultCaret.NEVER_UPDATE);
+        }
         scrollPane.getViewport().add(infoTextPane);
 
         callInfoWindow
@@ -653,7 +659,6 @@ public class CallInfoFrame
             return;
 
         hasCallInfo = this.constructCallInfo();
-        callInfoWindow.pack();
     }
 
     /**
