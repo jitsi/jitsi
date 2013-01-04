@@ -12,6 +12,7 @@ import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.audionotifier.*;
+import org.jitsi.service.configuration.*;
 import org.osgi.framework.*;
 
 /**
@@ -41,6 +42,13 @@ public class NotificationActivator
     private LogMessageNotificationHandler logMessageHandler;
     private PopupMessageNotificationHandler popupMessageHandler;
     private SoundNotificationHandler soundHandler;
+
+    /**
+     * The <tt>ConfigurationService</tt> registered in {@link #bundleContext}
+     * and used by the <tt>NotificationActivator</tt> instance to read and write
+     * configuration properties.
+     */
+    private static ConfigurationService configurationService;
 
     public void start(BundleContext bc) throws Exception
     {
@@ -144,5 +152,24 @@ public class NotificationActivator
         if(uiService == null)
             uiService = ServiceUtils.getService(bundleContext, UIService.class);
         return uiService;
+    }
+
+    /**
+     * Returns a reference to a ConfigurationService implementation currently
+     * registered in the bundle context or null if no such implementation was
+     * found.
+     *
+     * @return a currently valid implementation of the ConfigurationService.
+     */
+    public static ConfigurationService getConfigurationService()
+    {
+        if (configurationService == null)
+        {
+            configurationService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        ConfigurationService.class);
+        }
+        return configurationService;
     }
 }

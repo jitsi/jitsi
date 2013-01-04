@@ -13,6 +13,7 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.notification.*;
 
 import org.jitsi.service.audionotifier.*;
+import org.jitsi.service.configuration.*;
 import org.jitsi.util.*;
 
 /**
@@ -38,6 +39,12 @@ public class SoundNotificationHandlerImpl
 
     private Map<SCAudioClip, NotificationData> playedClips
         = new WeakHashMap<SCAudioClip, NotificationData>();
+
+    /**
+     * Property to disable sound notification during an on-going call.
+     */
+    private static final String PROP_DISABLE_NOTIFICATION_DURING_CALL =
+    "net.java.sip.communicator.impl.notification.disableNotificationDuringCall";
 
     /**
      * {@inheritDoc}
@@ -81,7 +88,13 @@ public class SoundNotificationHandlerImpl
         // when playing notification in the call, can break the call and
         // no further communicating can be done after the notification.
         // So we skip playing notification if we have a call running
-        if(SCAudioClipDevice.PLAYBACK.equals(device))
+        ConfigurationService cfg
+            = NotificationActivator.getConfigurationService();
+        if(cfg != null
+                && cfg.getBoolean(
+                    PROP_DISABLE_NOTIFICATION_DURING_CALL,
+                    false)
+                && SCAudioClipDevice.PLAYBACK.equals(device))
         {
             UIService uiService = NotificationActivator.getUIService();
 
