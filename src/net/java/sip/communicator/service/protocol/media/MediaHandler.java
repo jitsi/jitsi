@@ -43,6 +43,32 @@ public class MediaHandler
     private AudioMediaStream audioStream;
 
     /**
+     * The <tt>CsrcAudioLevelListener</tt> that this instance sets on its
+     * {@link #audioStream} if {@link #csrcAudioLevelListeners} is not empty.
+     */
+    private final CsrcAudioLevelListener csrcAudioLevelListener
+        = new CsrcAudioLevelListener()
+        {
+            public void audioLevelsReceived(long[] audioLevels)
+            {
+                MediaHandler.this.audioLevelsReceived(audioLevels);
+            }
+        };
+
+    /**
+     * The <tt>Object</tt> which synchronizes the access to
+     * {@link #csrcAudioLevelListener} and {@link #csrcAudioLevelListeners}.
+     */
+    private final Object csrcAudioLevelListenerLock = new Object();
+
+    /**
+     * The list of <tt>CsrcAudioLevelListener</tt>s to be notified about audio
+     * level-related information received from the remote peer(s).
+     */
+    private List<CsrcAudioLevelListener> csrcAudioLevelListeners
+        = Collections.emptyList();
+
+    /**
      * The <tt>KeyFrameControl</tt> currently known to this
      * <tt>MediaHandler</tt> and made available by {@link #videoStream}.
      */
@@ -69,6 +95,39 @@ public class MediaHandler
      * indexed by <tt>MediaType</tt> ordinal.
      */
     private final long[] localSSRCs;
+
+    /**
+     * The <tt>SimpleAudioLeveListener</tt> that this instance sets on its
+     * {@link #audioStream} if {@link #localUserAudioLevelListeners} is not
+     * empty in order to listen to changes in the levels of the audio sent from
+     * the local user/peer to the remote peer(s).
+     */
+    private final SimpleAudioLevelListener localUserAudioLevelListener
+        = new SimpleAudioLevelListener()
+        {
+            public void audioLevelChanged(int level)
+            {
+                MediaHandler.this.audioLevelChanged(
+                        localUserAudioLevelListenerLock,
+                        localUserAudioLevelListeners,
+                        level);
+            }
+        };
+
+    /**
+     * The <tt>Object</tt> which synchronizes the access to
+     * {@link #localUserAudioLevelListener} and
+     * {@link #localUserAudioLevelListeners}.
+     */
+    private final Object localUserAudioLevelListenerLock = new Object();
+
+    /**
+     * The list of <tt>SimpleAudioLevelListener</tt>s to be notified about
+     * changes in the level of the audio sent from the local peer/user to the
+     * remote peer(s).
+     */
+    private List<SimpleAudioLevelListener> localUserAudioLevelListeners
+        = Collections.emptyList();
 
     /**
      * The last-known remote SSRCs of the <tt>MediaStream</tt>s of this instance
@@ -124,6 +183,38 @@ public class MediaHandler
 
     private final List<SrtpListener> srtpListeners
         = new LinkedList<SrtpListener>();
+
+    /**
+     * The <tt>SimpleAudioLeveListener</tt> that this instance sets on its
+     * {@link #audioStream} if {@link #streamAudioLevelListeners} is not empty
+     * in order to listen to changes in the levels of the audio received from
+     * the remote peer(s) to the local user/peer.
+     */
+    private final SimpleAudioLevelListener streamAudioLevelListener
+        = new SimpleAudioLevelListener()
+        {
+            public void audioLevelChanged(int level)
+            {
+                MediaHandler.this.audioLevelChanged(
+                        streamAudioLevelListenerLock,
+                        streamAudioLevelListeners,
+                        level);
+            }
+        };
+
+    /**
+     * The <tt>Object</tt> which synchronizes the access to
+     * {@link #streamAudioLevelListener} and {@link #streamAudioLevelListeners}.
+     */
+    private final Object streamAudioLevelListenerLock = new Object();
+
+    /**
+     * The list of <tt>SimpleAudioLevelListener</tt>s to be notified about
+     * changes in the level of the audio sent from remote peer(s) to the local
+     * peer/user.
+     */
+    private List<SimpleAudioLevelListener> streamAudioLevelListeners
+        = Collections.emptyList();
 
     /**
      * The <tt>PropertyChangeListener</tt> which listens to changes in the
@@ -242,6 +333,42 @@ public class MediaHandler
         streamReferenceCounts = new int[mediaTypeValueCount];
     }
 
+    /**
+     * Adds a specific <tt>CsrcAudioLevelListener</tt> to the list of
+     * <tt>CsrcAudioLevelListener</tt>s to be notified about audio level-related
+     * information received from the remote peer(s).
+     *
+     * @param listener the <tt>CsrcAudioLevelListener</tt> to add to the list of
+     * <tt>CsrcAudioLevelListener</tt>s to be notified about audio level-related
+     * information received from the remote peer(s)
+     */
+    void addCsrcAudioLevelListener(CsrcAudioLevelListener listener)
+    {
+        if (listener == null)
+            throw new NullPointerException("listener");
+
+        synchronized (csrcAudioLevelListenerLock)
+        {
+            if (!csrcAudioLevelListeners.contains(listener))
+            {
+                csrcAudioLevelListeners
+                    = new ArrayList<CsrcAudioLevelListener>(
+                            csrcAudioLevelListeners);
+                if (csrcAudioLevelListeners.add(listener)
+                        && (csrcAudioLevelListeners.size() == 1))
+                {
+                    AudioMediaStream audioStream = this.audioStream;
+
+                    if (audioStream != null)
+                    {
+                        audioStream.setCsrcAudioLevelListener(
+                                csrcAudioLevelListener);
+                    }
+                }
+            }
+        }
+    }
+
     boolean addKeyFrameRequester(
             int index,
             KeyFrameControl.KeyFrameRequester keyFrameRequester)
@@ -267,6 +394,42 @@ public class MediaHandler
         }
     }
 
+    /**
+     * Adds a specific <tt>SimpleAudioLevelListener</tt> to the list of
+     * <tt>SimpleAudioLevelListener</tt>s to be notified about changes in the
+     * level of the audio sent from the local peer/user to the remote peer(s).
+     *
+     * @param listener the <tt>SimpleAudioLevelListener</tt> to add to the list
+     * of <tt>SimpleAudioLevelListener</tt>s to be notified about changes in the
+     * level of the audio sent from the local peer/user to the remote peer(s)
+     */
+    void addLocalUserAudioLevelListener(SimpleAudioLevelListener listener)
+    {
+        if (listener == null)
+            throw new NullPointerException("listener");
+
+        synchronized (localUserAudioLevelListenerLock)
+        {
+            if (!localUserAudioLevelListeners.contains(listener))
+            {
+                localUserAudioLevelListeners
+                    = new ArrayList<SimpleAudioLevelListener>(
+                            localUserAudioLevelListeners);
+                if (localUserAudioLevelListeners.add(listener)
+                        && (localUserAudioLevelListeners.size() == 1))
+                {
+                    AudioMediaStream audioStream = this.audioStream;
+
+                    if (audioStream != null)
+                    {
+                        audioStream.setLocalUserAudioLevelListener(
+                                localUserAudioLevelListener);
+                    }
+                }
+            }
+        }
+    }
+
     void addSrtpListener(SrtpListener listener)
     {
         if (listener == null)
@@ -277,6 +440,42 @@ public class MediaHandler
             {
                 if (!srtpListeners.contains(listener))
                     srtpListeners.add(listener);
+            }
+        }
+    }
+
+    /**
+     * Adds a specific <tt>SimpleAudioLevelListener</tt> to the list of
+     * <tt>SimpleAudioLevelListener</tt>s to be notified about changes in the
+     * level of the audio sent from remote peer(s) to the local peer/user.
+     *
+     * @param listener the <tt>SimpleAudioLevelListener</tt> to add to the list
+     * of <tt>SimpleAudioLevelListener</tt>s to be notified about changes in the
+     * level of the audio sent from the remote peer(s) to the local peer/user
+     */
+    void addStreamAudioLevelListener(SimpleAudioLevelListener listener)
+    {
+        if (listener == null)
+            throw new NullPointerException("listener");
+
+        synchronized (streamAudioLevelListenerLock)
+        {
+            if (!streamAudioLevelListeners.contains(listener))
+            {
+                streamAudioLevelListeners
+                    = new ArrayList<SimpleAudioLevelListener>(
+                            streamAudioLevelListeners);
+                if (streamAudioLevelListeners.add(listener)
+                        && (streamAudioLevelListeners.size() == 1))
+                {
+                    AudioMediaStream audioStream = this.audioStream;
+
+                    if (audioStream != null)
+                    {
+                        audioStream.setStreamAudioLevelListener(
+                                streamAudioLevelListener);
+                    }
+                }
             }
         }
     }
@@ -293,6 +492,67 @@ public class MediaHandler
     void addVideoListener(VideoListener listener)
     {
         videoNotifierSupport.addVideoListener(listener);
+    }
+
+    /**
+     * Notifies this instance that a <tt>SimpleAudioLevelListener</tt> has been
+     * invoked. Forwards the notification to a specific list of
+     * <tt>SimpleAudioLevelListener</tt>s.
+     *
+     * @param lock the <tt>Object</tt> which is to be used to synchronize the
+     * access to <tt>listeners</tt>.
+     * @param listeners the list of <tt>SimpleAudioLevelListener</tt>s to
+     * forward the notification to
+     * @param level the value of the audio level to notify <tt>listeners</tt>
+     * about
+     */
+    private void audioLevelChanged(
+            Object lock,
+            List<SimpleAudioLevelListener> listeners,
+            int level)
+    {
+        List<SimpleAudioLevelListener> ls;
+
+        synchronized (lock)
+        {
+            if (listeners.isEmpty())
+                return;
+            else
+                ls = listeners;
+        }
+        for (int i = 0, count = ls.size();
+                i < count;
+                i++)
+        {
+            ls.get(i).audioLevelChanged(level);
+        }
+    }
+
+    /**
+     * Notifies this instance that audio level-related information has been
+     * received from the remote peer(s). The method forwards the notification to
+     * {@link #csrcAudioLevelListeners}.
+     *
+     * @param audioLevels the audio level-related information received from the
+     * remote peer(s)
+     */
+    private void audioLevelsReceived(long[] audioLevels)
+    {
+        List<CsrcAudioLevelListener> listeners;
+
+        synchronized (csrcAudioLevelListenerLock)
+        {
+            if (csrcAudioLevelListeners.isEmpty())
+                return;
+            else
+                listeners = csrcAudioLevelListeners;
+        }
+        for (int i = 0, count = listeners.size();
+                i < count;
+                i++)
+        {
+            listeners.get(i).audioLevelsReceived(audioLevels);
+        }
     }
 
     /**
@@ -410,7 +670,6 @@ public class MediaHandler
         {
         case AUDIO:
             setAudioStream((AudioMediaStream) stream);
-            callPeerMediaHandler.registerAudioLevelListeners(audioStream);
             break;
 
         case VIDEO:
@@ -743,6 +1002,39 @@ public class MediaHandler
         }
     }
 
+    /**
+     * Removes a specific <tt>CsrcAudioLevelListener</tt> to the list of
+     * <tt>CsrcAudioLevelListener</tt>s to be notified about audio level-related
+     * information received from the remote peer(s).
+     *
+     * @param listener the <tt>CsrcAudioLevelListener</tt> to remove from the
+     * list of <tt>CsrcAudioLevelListener</tt>s to be notified about audio
+     * level-related information received from the remote peer(s)
+     */
+    void removeCsrcAudioLevelListener(CsrcAudioLevelListener listener)
+    {
+        if (listener == null)
+            return;
+
+        synchronized (csrcAudioLevelListenerLock)
+        {
+            if (csrcAudioLevelListeners.contains(listener))
+            {
+                csrcAudioLevelListeners
+                    = new ArrayList<CsrcAudioLevelListener>(
+                            csrcAudioLevelListeners);
+                if (csrcAudioLevelListeners.remove(listener)
+                        && csrcAudioLevelListeners.isEmpty())
+                {
+                    AudioMediaStream audioStream = this.audioStream;
+
+                    if (audioStream != null)
+                        audioStream.setCsrcAudioLevelListener(null);
+                }
+            }
+        }
+    }
+
     boolean removeKeyFrameRequester(
             KeyFrameControl.KeyFrameRequester keyFrameRequester)
     {
@@ -757,6 +1049,40 @@ public class MediaHandler
         }
     }
 
+    /**
+     * Removes a specific <tt>SimpleAudioLevelListener</tt> to the list of
+     * <tt>SimpleAudioLevelListener</tt>s to be notified about changes in the
+     * level of the audio sent from the local peer/user to the remote peer(s).
+     *
+     * @param listener the <tt>SimpleAudioLevelListener</tt> to remove from the
+     * list of <tt>SimpleAudioLevelListener</tt>s to be notified about changes
+     * in the level of the audio sent from the local peer/user to the remote
+     * peer(s)
+     */
+    void removeLocalUserAudioLevelListener(SimpleAudioLevelListener listener)
+    {
+        if (listener == null)
+            return;
+
+        synchronized (localUserAudioLevelListenerLock)
+        {
+            if (localUserAudioLevelListeners.contains(listener))
+            {
+                localUserAudioLevelListeners
+                    = new ArrayList<SimpleAudioLevelListener>(
+                            localUserAudioLevelListeners);
+                if (localUserAudioLevelListeners.remove(listener)
+                        && localUserAudioLevelListeners.isEmpty())
+                {
+                    AudioMediaStream audioStream = this.audioStream;
+
+                    if (audioStream != null)
+                        audioStream.setLocalUserAudioLevelListener(null);
+                }
+            }
+        }
+    }
+
     void removeSrtpListener(SrtpListener listener)
     {
         if (listener != null)
@@ -764,6 +1090,40 @@ public class MediaHandler
             synchronized (srtpListeners)
             {
                 srtpListeners.remove(listener);
+            }
+        }
+    }
+
+    /**
+     * Removes a specific <tt>SimpleAudioLevelListener</tt> to the list of
+     * <tt>SimpleAudioLevelListener</tt>s to be notified about changes in the
+     * level of the audio sent from remote peer(s) to the local peer/user.
+     *
+     * @param listener the <tt>SimpleAudioLevelListener</tt> to remote from the
+     * list of <tt>SimpleAudioLevelListener</tt>s to be notified about changes
+     * in the level of the audio sent from the remote peer(s) to the local
+     * peer/user
+     */
+    void removeStreamAudioLevelListener(SimpleAudioLevelListener listener)
+    {
+        if (listener == null)
+            return;
+
+        synchronized (streamAudioLevelListenerLock)
+        {
+            if (streamAudioLevelListeners.contains(listener))
+            {
+                streamAudioLevelListeners
+                    = new ArrayList<SimpleAudioLevelListener>(
+                            streamAudioLevelListeners);
+                if (streamAudioLevelListeners.remove(listener)
+                        && streamAudioLevelListeners.isEmpty())
+                {
+                    AudioMediaStream audioStream = this.audioStream;
+
+                    if (audioStream != null)
+                        audioStream.setStreamAudioLevelListener(null);
+                }
             }
         }
     }
@@ -825,6 +1185,22 @@ public class MediaHandler
         {
             if (this.audioStream != null)
             {
+                synchronized (csrcAudioLevelListenerLock)
+                {
+                    if (!csrcAudioLevelListeners.isEmpty())
+                        this.audioStream.setCsrcAudioLevelListener(null);
+                }
+                synchronized (localUserAudioLevelListenerLock)
+                {
+                    if (!localUserAudioLevelListeners.isEmpty())
+                        this.audioStream.setLocalUserAudioLevelListener(null);
+                }
+                synchronized (streamAudioLevelListenerLock)
+                {
+                    if (!streamAudioLevelListeners.isEmpty())
+                        this.audioStream.setStreamAudioLevelListener(null);
+                }
+
                 this.audioStream
                         .removePropertyChangeListener(
                                 streamPropertyChangeListener);
@@ -843,6 +1219,31 @@ public class MediaHandler
                                 streamPropertyChangeListener);
                 audioLocalSSRC = this.audioStream.getLocalSourceID();
                 audioRemoteSSRC = this.audioStream.getRemoteSourceID();
+
+                synchronized (csrcAudioLevelListenerLock)
+                {
+                    if (!csrcAudioLevelListeners.isEmpty())
+                    {
+                        this.audioStream.setCsrcAudioLevelListener(
+                                csrcAudioLevelListener);
+                    }
+                }
+                synchronized (localUserAudioLevelListenerLock)
+                {
+                    if (!localUserAudioLevelListeners.isEmpty())
+                    {
+                        this.audioStream.setLocalUserAudioLevelListener(
+                                localUserAudioLevelListener);
+                    }
+                }
+                synchronized (streamAudioLevelListenerLock)
+                {
+                    if (!streamAudioLevelListeners.isEmpty())
+                    {
+                        this.audioStream.setStreamAudioLevelListener(
+                                streamAudioLevelListener);
+                    }
+                }
             }
             else
             {

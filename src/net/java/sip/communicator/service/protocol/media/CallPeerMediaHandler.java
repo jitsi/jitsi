@@ -116,19 +116,19 @@ public abstract class CallPeerMediaHandler
      * The listener that the <tt>CallPeer</tt> registered for local user audio
      * level events.
      */
-    private SimpleAudioLevelListener localAudioLevelListener = null;
+    private SimpleAudioLevelListener localUserAudioLevelListener;
 
     /**
      * The object that we are using to sync operations on
      * <tt>localAudioLevelListener</tt>.
      */
-    private final Object localAudioLevelListenerLock = new Object();
+    private final Object localUserAudioLevelListenerLock = new Object();
 
     /**
      * The listener that our <tt>CallPeer</tt> registered for stream audio
      * level events.
      */
-    private SimpleAudioLevelListener streamAudioLevelListener = null;
+    private SimpleAudioLevelListener streamAudioLevelListener;
 
     /**
      * The object that we are using to sync operations on
@@ -140,7 +140,7 @@ public abstract class CallPeerMediaHandler
      * The listener that our <tt>CallPeer</tt> registers for CSRC audio level
      * events.
      */
-    private CsrcAudioLevelListener csrcAudioLevelListener = null;
+    private CsrcAudioLevelListener csrcAudioLevelListener;
 
     /**
      * The object that we are using to sync operations on
@@ -795,16 +795,27 @@ public abstract class CallPeerMediaHandler
     public void setLocalUserAudioLevelListener(
             SimpleAudioLevelListener listener)
     {
-        synchronized(localAudioLevelListenerLock)
+        synchronized (localUserAudioLevelListenerLock)
         {
-            this.localAudioLevelListener = listener;
-
-            MediaStream audioStream = getStream(MediaType.AUDIO);
-
-            if (audioStream != null)
+            if (this.localUserAudioLevelListener != listener)
             {
-                ((AudioMediaStream) audioStream).setLocalUserAudioLevelListener(
-                        listener);
+                MediaHandler mediaHandler = getMediaHandler();
+
+                if ((mediaHandler != null)
+                        && (this.localUserAudioLevelListener != null))
+                {
+                    mediaHandler.removeLocalUserAudioLevelListener(
+                            this.localUserAudioLevelListener);
+                }
+
+                this.localUserAudioLevelListener = listener;
+
+                if ((mediaHandler != null)
+                        && (this.localUserAudioLevelListener != null))
+                {
+                    mediaHandler.addLocalUserAudioLevelListener(
+                            this.localUserAudioLevelListener);
+                }
             }
         }
     }
@@ -820,16 +831,27 @@ public abstract class CallPeerMediaHandler
      */
     public void setStreamAudioLevelListener(SimpleAudioLevelListener listener)
     {
-        synchronized(streamAudioLevelListenerLock)
+        synchronized (streamAudioLevelListenerLock)
         {
-            this.streamAudioLevelListener = listener;
-
-            MediaStream audioStream = getStream(MediaType.AUDIO);
-
-            if (audioStream != null)
+            if (this.streamAudioLevelListener != listener)
             {
-                ((AudioMediaStream) audioStream).setStreamAudioLevelListener(
-                        listener);
+                MediaHandler mediaHandler = getMediaHandler();
+
+                if ((mediaHandler != null)
+                        && (this.streamAudioLevelListener != null))
+                {
+                    mediaHandler.removeStreamAudioLevelListener(
+                            this.streamAudioLevelListener);
+                }
+
+                this.streamAudioLevelListener = listener;
+
+                if ((mediaHandler != null)
+                        && (this.streamAudioLevelListener != null))
+                {
+                    mediaHandler.addStreamAudioLevelListener(
+                            this.streamAudioLevelListener);
+                }
             }
         }
     }
@@ -844,16 +866,27 @@ public abstract class CallPeerMediaHandler
      */
     public void setCsrcAudioLevelListener(CsrcAudioLevelListener listener)
     {
-        synchronized(csrcAudioLevelListenerLock)
+        synchronized (csrcAudioLevelListenerLock)
         {
-            this.csrcAudioLevelListener = listener;
-
-            MediaStream audioStream = getStream(MediaType.AUDIO);
-
-            if (audioStream != null)
+            if (this.csrcAudioLevelListener != listener)
             {
-                ((AudioMediaStream) audioStream).setCsrcAudioLevelListener(
-                        listener);
+                MediaHandler mediaHandler = getMediaHandler();
+
+                if ((mediaHandler != null)
+                        && (this.csrcAudioLevelListener != null))
+                {
+                    mediaHandler.removeCsrcAudioLevelListener(
+                            this.csrcAudioLevelListener);
+                }
+
+                this.csrcAudioLevelListener = listener;
+
+                if ((mediaHandler != null)
+                        && (this.csrcAudioLevelListener != null))
+                {
+                    mediaHandler.addCsrcAudioLevelListener(
+                            this.csrcAudioLevelListener);
+                }
             }
         }
     }
@@ -1017,50 +1050,11 @@ public abstract class CallPeerMediaHandler
                     MediaDevice newDevice = getDefaultDevice(mediaType);
 
                     if (oldDevice != newDevice)
-                    {
                         stream.setDevice(newDevice);
-                        if (stream instanceof AudioMediaStream)
-                        {
-                            registerAudioLevelListeners(
-                                    (AudioMediaStream) stream);
-                        }
-                    }
                 }
 
                 stream.setRTPTranslator(call.getRTPTranslator(mediaType));
             }
-        }
-    }
-
-    /**
-     * Registers all audio level listeners currently known to this media handler
-     * with the specified <tt>audioStream</tt>.
-     *
-     * @param audioStream the <tt>AudioMediaStream</tt> that we'd like to
-     * register our audio level listeners with.
-     */
-    void registerAudioLevelListeners(AudioMediaStream audioStream)
-    {
-        synchronized (localAudioLevelListenerLock)
-        {
-            if (localAudioLevelListener != null)
-            {
-                audioStream.setLocalUserAudioLevelListener(
-                        localAudioLevelListener);
-            }
-        }
-        synchronized (streamAudioLevelListenerLock)
-        {
-            if (streamAudioLevelListener != null)
-            {
-                audioStream.setStreamAudioLevelListener(
-                        streamAudioLevelListener);
-            }
-        }
-        synchronized (csrcAudioLevelListenerLock)
-        {
-            if (csrcAudioLevelListener != null)
-                audioStream.setCsrcAudioLevelListener(csrcAudioLevelListener);
         }
     }
 
@@ -1691,6 +1685,31 @@ public abstract class CallPeerMediaHandler
         {
             if (this.mediaHandler != null)
             {
+                synchronized (csrcAudioLevelListenerLock)
+                {
+                    if (csrcAudioLevelListener != null)
+                    {
+                        this.mediaHandler.removeCsrcAudioLevelListener(
+                                csrcAudioLevelListener);
+                    }
+                }
+                synchronized (localUserAudioLevelListenerLock)
+                {
+                    if (localUserAudioLevelListener != null)
+                    {
+                        this.mediaHandler.removeLocalUserAudioLevelListener(
+                                localUserAudioLevelListener);
+                    }
+                }
+                synchronized (streamAudioLevelListenerLock)
+                {
+                    if (streamAudioLevelListener != null)
+                    {
+                        this.mediaHandler.removeStreamAudioLevelListener(
+                                streamAudioLevelListener);
+                    }
+                }
+
                 this.mediaHandler.removeKeyFrameRequester(keyFrameRequester);
                 this.mediaHandler.removePropertyChangeListener(
                         streamPropertyChangeListener);
@@ -1703,6 +1722,31 @@ public abstract class CallPeerMediaHandler
 
             if (this.mediaHandler != null)
             {
+                synchronized (csrcAudioLevelListenerLock)
+                {
+                    if (csrcAudioLevelListener != null)
+                    {
+                        this.mediaHandler.addCsrcAudioLevelListener(
+                                csrcAudioLevelListener);
+                    }
+                }
+                synchronized (localUserAudioLevelListenerLock)
+                {
+                    if (localUserAudioLevelListener != null)
+                    {
+                        this.mediaHandler.addLocalUserAudioLevelListener(
+                                localUserAudioLevelListener);
+                    }
+                }
+                synchronized (streamAudioLevelListenerLock)
+                {
+                    if (streamAudioLevelListener != null)
+                    {
+                        this.mediaHandler.addStreamAudioLevelListener(
+                                streamAudioLevelListener);
+                    }
+                }
+
                 this.mediaHandler.addKeyFrameRequester(-1, keyFrameRequester);
                 this.mediaHandler.addPropertyChangeListener(
                         streamPropertyChangeListener);
