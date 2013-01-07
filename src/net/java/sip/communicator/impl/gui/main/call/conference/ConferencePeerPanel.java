@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.gui.main.call.conference;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
 
 import javax.swing.*;
 
@@ -27,8 +28,9 @@ import org.jitsi.service.protocol.event.*;
 import org.jitsi.service.resources.*;
 
 /**
- * The <tt>ConferencePeerPanel</tt> renders a single <tt>ConferencePeer</tt>,
- * which is not a conference focus.
+ * Depicts a single <tt>CallPeer</tt> who participates in a telephony conference
+ * and is not a focus or the local user/peer (identified by a specific
+ * <tt>Call</tt> instance).
  *
  * @author Yana Stamcheva
  * @author Lyubomir Marinov
@@ -90,23 +92,17 @@ public class ConferencePeerPanel
 
     /**
      * The <tt>SoundLevelListener</tt> which listens to the changes in the
-     * audio/sound level of the model of this instance. (If {@link #callPeer} is
-     * non-<tt>null</tt>, <tt>callPeer</tt> is the model of this instance.)
+     * audio/sound level of the model of this instance. If {@link #callPeer} is
+     * non-<tt>null</tt>, <tt>callPeer</tt> is the model of this instance i.e.
+     * <tt>soundLevelListener</tt> will be added to the audio stream of
+     * <tt>callPeer</tt> and will listen to local calculations of the audio
+     * levels of the remote peer; otherwise, {@link #call} is the model of this
+     * instance i.e. <tt>soundLevelListener</tt> will be added to <tt>call</tt>
+     * and will listen to local calculations of the audio levels of the local
+     * peer.
      */
-    private final SoundLevelListener soundLevelListener
-        = new SoundLevelListener()
-        {
-            /**
-             * Updates the sound level bar upon stream sound level changes.
-             *
-             * {@inheritDoc}
-             */
-            public void soundLevelChanged(Object source, int level)
-            {
-                if (source.equals(participant))
-                    updateSoundBar(level);
-            }
-        };
+    private final SoundLevelListenerImpl soundLevelListener
+        = new SoundLevelListenerImpl();
 
     /**
      * Initializes a new <tt>ConferencePeerPanel</tt> which is to depict the
@@ -164,13 +160,8 @@ public class ConferencePeerPanel
                             resources.getColor(
                                     "service.gui.CALL_LOCAL_USER_BACKGROUND")));
 
-        if(!GuiActivator.getConfigurationService().getBoolean(
-                "net.java.sip.communicator.impl.gui.main.call."
-                        + "DISABLE_SOUND_LEVEL_INDICATORS",
-                false))
-        {
+        if(isSoundLevelIndicatorEnabled())
             call.addLocalUserSoundLevelListener(soundLevelListener);
-        }
     }
 
     /**
@@ -246,13 +237,8 @@ public class ConferencePeerPanel
 
         callPeerAdapter = new CallPeerAdapter(this.callPeer, this);
 
-        if(!GuiActivator.getConfigurationService().getBoolean(
-                "net.java.sip.communicator.impl.gui.main.call."
-                        + "DISABLE_SOUND_LEVEL_INDICATORS",
-                false))
-        {
+        if(isSoundLevelIndicatorEnabled())
             this.callPeer.addStreamSoundLevelListener(soundLevelListener);
-        }
     }
 
     /**
@@ -263,7 +249,11 @@ public class ConferencePeerPanel
         if (callPeerAdapter != null)
             callPeerAdapter.dispose();
         if (callPeer != null)
+        {
+            callPeer.removeConferenceMembersSoundLevelListener(
+                    soundLevelListener);
             callPeer.removeStreamSoundLevelListener(soundLevelListener);
+        }
         if (call != null)
             call.removeLocalUserSoundLevelListener(soundLevelListener);
     }
@@ -360,6 +350,24 @@ public class ConferencePeerPanel
     public boolean isLocalVideoVisible()
     {
         return false;
+    }
+
+    /**
+     * Determines whether the indicator which depicts the sound/audio levels (of
+     * the local or remote peer in a call) is to be enabled. For example, the
+     * indicator may be disabled for performance-related reasons.
+     * 
+     * @return <tt>true</tt> if the indicator which depicts the sound/audio
+     * levels (of the local or remote peer in a call) is to be enabled;
+     * otherwise, <tt>false</tt>
+     */
+    static boolean isSoundLevelIndicatorEnabled()
+    {
+        return
+            !GuiActivator.getConfigurationService().getBoolean(
+                    "net.java.sip.communicator.impl.gui.main.call"
+                        + ".DISABLE_SOUND_LEVEL_INDICATORS",
+                    false);
     }
 
     /**
@@ -750,6 +758,49 @@ public class ConferencePeerPanel
                         }
                     }
                 });
+        }
+    }
+
+    /**
+     * Implements the various types of listeners which get notified about
+     * changes in the sound/audio levels of the model of this
+     * <tt>ConferencePeerPanel</tt> and updates its sound level indicator.
+     */
+    private class SoundLevelListenerImpl
+        implements ConferenceMembersSoundLevelListener,
+                   SoundLevelListener
+    {
+        /**
+         * {@inheritDoc}
+         */
+        public void soundLevelChanged(ConferenceMembersSoundLevelEvent ev)
+        {
+            /*
+             * If the callPeer depicted by this ConferencePeerPanel instance is
+             * represented as a ConferenceMember, update the sound level
+             * indicator of this ConferencePeerPanel instance with the specified
+             * sound level (value).
+             */
+            for (Map.Entry<ConferenceMember,Integer> e
+                    : ev.getLevels().entrySet())
+            {
+                if (CallManager.addressesAreEqual(
+                        e.getKey().getAddress(),
+                        callPeer.getAddress()))
+                {
+                    updateSoundBar(e.getValue());
+                    break;
+                }
+            }
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public void soundLevelChanged(Object source, int level)
+        {
+            if (source.equals(participant))
+                updateSoundBar(level);
         }
     }
 }

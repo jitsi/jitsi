@@ -134,9 +134,11 @@ public abstract class MediaAwareCall<
 
         synchronized(localUserAudioLevelListenersSyncRoot)
         {
-            // if there's someone listening for audio level events then they'd
-            // also like to know about the new peer. make sure always the first
-            // element is the one to listen for local audio events
+            /*
+             * If there's someone listening for audio level events, then they'd
+             * also like to know about the new peer. Make sure the first element
+             * is always the one to listen for local audio events.
+             */
             List<T> callPeers = getCallPeerList();
 
             if ((callPeers.size() == 1) && callPeers.get(0).equals(callPeer))
@@ -150,17 +152,16 @@ public abstract class MediaAwareCall<
     }
 
     /**
-     * Removes <tt>callPeer</tt> from the list of peers in this
-     * call. The method has no effect if there was no such peer in the
-     * call.
+     * Removes <tt>callPeer</tt> from the list of peers in this call. The method
+     * has no effect if there was no such peer in the call.
      *
-     * @param evt the event containing the <tt>CallPeer</tt> leaving the call;
-     * also we can obtain the reason for the <tt>CallPeerChangeEvent</tt> if
-     * any. Use the event as cause for the call state change event..
+     * @param ev the event containing the <tt>CallPeer</tt> leaving the call and
+     * the reason (if any) for the <tt>CallPeerChangeEvent</tt>. Use the event
+     * as the cause for the call state change event.
      */
-    @SuppressWarnings("unchecked")
     private void removeCallPeer(CallPeerChangeEvent evt)
     {
+        @SuppressWarnings("unchecked")
         T callPeer = (T) evt.getSourceCallPeer();
 
         if (!doRemoveCallPeer(callPeer))
@@ -180,9 +181,11 @@ public abstract class MediaAwareCall<
 
             if(!callPeers.isEmpty())
             {
-                callPeers.get(0).getMediaHandler()
-                        .setLocalUserAudioLevelListener(
-                                localAudioLevelDelegator);
+                callPeers
+                    .get(0)
+                        .getMediaHandler()
+                            .setLocalUserAudioLevelListener(
+                                    localAudioLevelDelegator);
             }
         }
 
@@ -356,19 +359,21 @@ public abstract class MediaAwareCall<
             if ((localUserAudioLevelListeners == null)
                     || localUserAudioLevelListeners.isEmpty())
             {
-                //if this is the first listener that's being registered with
-                //us, we also need to register ourselves as an audio level
-                //listener with the media handler. we do this so that audio
-                //level would only be calculated if anyone is interested in
-                //receiving them.
+                /*
+                 * If this is the first listener that's being registered, we
+                 * also need to register ourselves as an audio level listener
+                 * with the MediaHandler. We do this so that audio level would
+                 * only be calculated if anyone is interested in receiving them.
+                 */
                 Iterator<T> callPeerIter = getCallPeers();
 
                 while (callPeerIter.hasNext())
                 {
-                    callPeerIter.next()
-                        .getMediaHandler()
-                            .setLocalUserAudioLevelListener(
-                                    localAudioLevelDelegator);
+                    callPeerIter
+                        .next()
+                            .getMediaHandler()
+                                .setLocalUserAudioLevelListener(
+                                        localAudioLevelDelegator);
                 }
             }
 
@@ -425,9 +430,10 @@ public abstract class MediaAwareCall<
 
                 while (callPeerIter.hasNext())
                 {
-                    callPeerIter.next()
-                        .getMediaHandler()
-                            .setLocalUserAudioLevelListener(null);
+                    callPeerIter
+                        .next()
+                            .getMediaHandler()
+                                .setLocalUserAudioLevelListener(null);
                 }
             }
         }

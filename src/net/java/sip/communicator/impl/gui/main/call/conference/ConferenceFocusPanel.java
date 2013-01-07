@@ -105,8 +105,11 @@ public class ConferenceFocusPanel
         addFocusPeerPanel();
 
         this.focusPeer.addCallPeerConferenceListener(focusPeerListener);
-        this.focusPeer.addConferenceMembersSoundLevelListener(
-                focusPeerListener);
+        if (ConferencePeerPanel.isSoundLevelIndicatorEnabled())
+        {
+            this.focusPeer.addConferenceMembersSoundLevelListener(
+                    focusPeerListener);
+        }
 
         for (ConferenceMember conferenceMember
                 : this.focusPeer.getConferenceMembers())
@@ -565,11 +568,12 @@ public class ConferenceFocusPanel
             Map<ConferenceMember, Integer> levels = ev.getLevels();
 
             // focusPeerPanel
+            String address = focusPeerPanel.getCallPeerContactAddress();
+
             for(Map.Entry<ConferenceMember, Integer> e : levels.entrySet())
             {
                 ConferenceMember key = e.getKey();
                 Integer value = e.getValue();
-                String address = focusPeerPanel.getCallPeerContactAddress();
 
                 if(CallManager.addressesAreEqual(key.getAddress(), address))
                 {

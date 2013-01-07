@@ -89,8 +89,10 @@ public class MediaHandler
                     String message, String i18nMessage, int severity)
             {
                 for (SrtpListener listener : getSrtpListeners())
+                {
                     listener.securityMessageReceived(
                             message, i18nMessage, severity);
+                }
             }
 
             public void securityTimeout(int sessionType)

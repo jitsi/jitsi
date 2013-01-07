@@ -32,6 +32,14 @@ public class CobriStreamConnector
         super(streamConnector);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * Overrides {@link StreamConnectorDelegate#close()} in order to prevent the
+     * closing of the <tt>StreamConnector</tt> wrapped by this instance because
+     * the latter is shared and it is not clear whether no
+     * <tt>TransportManager</tt> is using it.
+     */
     @Override
     public void close()
     {
@@ -41,6 +49,14 @@ public class CobriStreamConnector
          */
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * Invokes {@link #close()} on this instance when it is clear that no
+     * <tt>TransportManager</tt> is using it in order to release the resources
+     * allocated by this instance throughout its life time (that need explicit
+     * disposal).
+     */
     @Override
     protected void finalize()
         throws Throwable

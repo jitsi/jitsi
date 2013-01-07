@@ -91,6 +91,11 @@ public class CobriConferenceIQ
         return contents.contains(content) ? false : contents.add(content);
     }
 
+    /**
+     * Returns an XML <tt>String</tt> representation of this <tt>IQ</tt>.
+     *
+     * @return an XML <tt>String</tt> representation of this <tt>IQ</tt>
+     */
     public String getChildElementXML()
     {
         StringBuilder xml = new StringBuilder();
@@ -120,6 +125,16 @@ public class CobriConferenceIQ
         return xml.toString();
     }
 
+    /**
+     * Returns a <tt>Content</tt> from the list of <tt>Content</tt>s of this
+     * <tt>conference</tt> IQ which has a specific name. If no such
+     * <tt>Content</tt> exists, returns <tt>null</tt>.
+     *
+     * @param contentName the name of the <tt>Content</tt> to be returned
+     * @return a <tt>Content</tt> from the list of <tt>Content</tt>s of this
+     * <tt>conference</tt> IQ which has the specified <tt>contentName</tt> if
+     * such a <tt>Content</tt> exists; otherwise, <tt>null</tt>
+     */
     public Content getContent(String contentName)
     {
         for (Content content : getContents())
@@ -128,6 +143,13 @@ public class CobriConferenceIQ
         return null;
     }
 
+    /**
+     * Returns a list of the <tt>Content</tt>s included into this
+     * <tt>conference</tt> IQ.
+     *
+     * @return an unmodifiable <tt>List</tt> of the <tt>Content</tt>s included
+     * into this <tt>conference</tt> IQ
+     */
     public List<Content> getContents()
     {
         return Collections.unmodifiableList(contents);
@@ -143,6 +165,17 @@ public class CobriConferenceIQ
         return id;
     }
 
+    /**
+     * Returns a <tt>Content</tt> from the list of <tt>Content</tt>s of this
+     * <tt>conference</tt> IQ which has a specific name. If no such
+     * <tt>Content</tt> exists at the time of the invocation of the method,
+     * initializes a new <tt>Content</tt> instance with the specified
+     * <tt>contentName</tt> and includes it into this <tt>conference</tt> IQ.
+     *
+     * @param contentName the name of the <tt>Content</tt> to be returned
+     * @return a <tt>Content</tt> from the list of <tt>Content</tt>s of this
+     * <tt>conference</tt> IQ which has the specified <tt>contentName</tt>
+     */
     public Content getOrCreateContent(String contentName)
     {
         Content content = getContent(contentName);
@@ -349,6 +382,14 @@ public class CobriConferenceIQ
             return expire;
         }
 
+        /**
+         * Gets the IP address (as a <tt>String</tt> value) of the host on which
+         * the <tt>channel</tt> represented by this instance has been allocated.
+         *
+         * @return a <tt>String</tt> value which represents the IP address of
+         * the host on which the <tt>channel</tt> represented by this instance
+         * has been allocated
+         */
         public String getHost()
         {
             return host;
@@ -364,16 +405,38 @@ public class CobriConferenceIQ
             return id;
         }
 
+        /**
+         * Gets a list of <tt>payload-type</tt> elements defined by XEP-0167:
+         * Jingle RTP Sessions added to this <tt>channel</tt>.
+         *
+         * @return an unmodifiable <tt>List</tt> of <tt>payload-type</tt>
+         * elements defined by XEP-0167: Jingle RTP Sessions added to this
+         * <tt>channel</tt>
+         */
         public List<PayloadTypePacketExtension> getPayloadTypes()
         {
             return Collections.unmodifiableList(payloadTypes);
         }
 
+        /**
+         * Gets the port which has been allocated to this <tt>channel</tt> for
+         * the purposes of transmitting RTCP packets.
+         *
+         * @return the port which has been allocated to this <tt>channel</tt>
+         * for the purposes of transmitting RTCP packets
+         */
         public int getRTCPPort()
         {
             return rtcpPort;
         }
 
+        /**
+         * Gets the port which has been allocated to this <tt>channel</tt> for
+         * the purposes of transmitting RTP packets.
+         *
+         * @return the port which has been allocated to this <tt>channel</tt>
+         * for the purposes of transmitting RTP packets
+         */
         public int getRTPPort()
         {
             return rtpPort;
@@ -472,6 +535,14 @@ public class CobriConferenceIQ
             this.expire = expire;
         }
 
+        /**
+         * Sets the IP address (as a <tt>String</tt> value) of the host on which
+         * the <tt>channel</tt> represented by this instance has been allocated.
+         *
+         * @param host a <tt>String</tt> value which represents the IP address
+         * of the host on which the <tt>channel</tt> represented by this
+         * instance has been allocated
+         */
         public void setHost(String host)
         {
             this.host = host;
@@ -487,11 +558,25 @@ public class CobriConferenceIQ
             this.id = id;
         }
 
+        /**
+         * Sets the port which has been allocated to this <tt>channel</tt> for
+         * the purposes of transmitting RTCP packets.
+         *
+         * @param rtcpPort the port which has been allocated to this
+         * <tt>channel</tt> for the purposes of transmitting RTCP packets
+         */
         public void setRTCPPort(int rtcpPort)
         {
             this.rtcpPort = rtcpPort;
         }
 
+        /**
+         * Sets the port which has been allocated to this <tt>channel</tt> for
+         * the purposes of transmitting RTP packets.
+         *
+         * @param rtpPort the port which has been allocated to this
+         * <tt>channel</tt> for the purposes of transmitting RTP packets
+         */
         public void setRTPPort(int rtpPort)
         {
             this.rtpPort = rtpPort;
@@ -515,6 +600,14 @@ public class CobriConferenceIQ
                     : ssrcs.clone();
         }
 
+        /**
+         * Appends the XML <tt>String</tt> representation of this
+         * <tt>Channel</tt> to a specific <tt>StringBuilder</tt>.
+         *
+         * @param xml the <tt>StringBuilder</tt> to which the XML
+         * <tt>String</tt> representation of this <tt>Channel</tt> is to be
+         * appended
+         */
         public void toXML(StringBuilder xml)
         {
             xml.append('<').append(ELEMENT_NAME);
@@ -639,6 +732,18 @@ public class CobriConferenceIQ
             setName(name);
         }
 
+        /**
+         * Adds a specific <tt>Channel</tt> to the list of <tt>Channel</tt>s
+         * included into this <tt>Content</tt>.
+         *
+         * @param channel the <tt>Channel</tt> to be included into this
+         * <tt>Content</tt>
+         * @return <tt>true</tt> if the list of <tt>Channel</tt>s included into
+         * this <tt>Content</tt> was modified as a result of the execution of
+         * the method; otherwise, <tt>false</tt>
+         * @throws NullPointerException if the specified <tt>channel</tt> is
+         * <tt>null</tt>
+         */
         public boolean addChannel(Channel channel)
         {
             if (channel == null)
@@ -647,11 +752,32 @@ public class CobriConferenceIQ
             return channels.contains(channel) ? false : channels.add(channel);
         }
 
+        /**
+         * Gets the <tt>Channel</tt> at a specific index/position within the
+         * list of <tt>Channel</tt>s included in this <tt>Content</tt>.
+         *
+         * @param channelIndex the index/position within the list of
+         * <tt>Channel</tt>s included in this <tt>Content</tt> of the
+         * <tt>Channel</tt> to be returned
+         * @return the <tt>Channel</tt> at the specified <tt>channelIndex</tt>
+         * within the list of <tt>Channel</tt>s included in this
+         * <tt>Content</tt>
+         */
         public Channel getChannel(int channelIndex)
         {
             return getChannels().get(channelIndex);
         }
 
+        /**
+         * Gets a <tt>Channel</tt> which is included into this <tt>Content</tt>
+         * and which has a specific ID.
+         *
+         * @param channelID the ID of the <tt>Channel</tt> included into this
+         * <tt>Content</tt> to be returned
+         * @return the <tt>Channel</tt> which is included into this
+         * <tt>Content</tt> and which has the specified <tt>channelID</tt> if
+         * such a <tt>Channel</tt> exists; otherwise, <tt>null</tt> 
+         */
         public Channel getChannel(String channelID)
         {
             for (Channel channel : getChannels())
@@ -660,11 +786,25 @@ public class CobriConferenceIQ
             return null;
         }
 
+        /**
+         * Gets the number of <tt>Channel</tt>s included into/associated with
+         * this <tt>Content</tt>.
+         *
+         * @return the number of <tt>Channel</tt>s included into/associated with
+         * this <tt>Content</tt>
+         */
         public int getChannelCount()
         {
             return getChannels().size();
         }
 
+        /**
+         * Gets a list of the <tt>Channel</tt> included into/associated with
+         * this <tt>Content</tt>.
+         *
+         * @return an unmodifiable <tt>List</tt> of the <tt>Channel</tt>s
+         * included into/associated with this <tt>Content</tt>
+         */
         public List<Channel> getChannels()
         {
             return Collections.unmodifiableList(channels);
@@ -680,6 +820,16 @@ public class CobriConferenceIQ
             return name;
         }
 
+        /**
+         * Removes a specific <tt>Channel</tt> from the list of
+         * <tt>Channel</tt>s included into this <tt>Content</tt>.
+         *
+         * @param channel the <tt>Channel</tt> to be excluded from this
+         * <tt>Content</tt>
+         * @return <tt>true</tt> if the list of <tt>Channel</tt>s included into
+         * this <tt>Content</tt> was modified as a result of the execution of
+         * the method; otherwise, <tt>false</tt>
+         */
         public boolean removeChannel(Channel channel)
         {
             return channels.remove(channel);
@@ -701,6 +851,14 @@ public class CobriConferenceIQ
             this.name = name;
         }
 
+        /**
+         * Appends the XML <tt>String</tt> representation of this
+         * <tt>Content</tt> to a specific <tt>StringBuilder</tt>.
+         *
+         * @param xml the <tt>StringBuilder</tt> to which the XML
+         * <tt>String</tt> representation of this <tt>Content</tt> is to be
+         * appended
+         */
         public void toXML(StringBuilder xml)
         {
             xml.append('<').append(ELEMENT_NAME);

@@ -235,25 +235,39 @@ public abstract class CallPeerMediaHandler
     private final VideoListener videoStreamVideoListener
         = new VideoListener()
         {
-            public void videoAdded(VideoEvent event)
+            /**
+             * Notifies this <tt>VideoListener</tt> about a specific
+             * <tt>VideoEvent</tt>. Fires a new <tt>VideoEvent</tt> which has
+             * this <tt>CallPeerMediaHandler</tt> as its source and carries the
+             * same information as the specified <tt>ev</tt> i.e. translates the
+             * specified <tt>ev</tt> into a <tt>VideoEvent</tt> fired by this
+             * <tt>CallPeerMediaHandler</tt>.
+             *
+             * @param ev the <tt>VideoEvent</tt> to notify this
+             * <tt>VideoListener</tt> about
+             */
+            private void onVideoEvent(VideoEvent ev)
             {
-                VideoEvent clone = event.clone(CallPeerMediaHandler.this);
+                VideoEvent clone = ev.clone(CallPeerMediaHandler.this);
 
                 fireVideoEvent(clone);
                 if (clone.isConsumed())
-                    event.consume();
+                    ev.consume();
             }
 
-            public void videoRemoved(VideoEvent event)
+            public void videoAdded(VideoEvent ev)
             {
-                // Forwarded in the same way as VIDEO_ADDED.
-                videoAdded(event);
+                onVideoEvent(ev);
             }
 
-            public void videoUpdate(VideoEvent event)
+            public void videoRemoved(VideoEvent ev)
             {
-                // Forwarded in the same way as VIDEO_ADDED.
-                videoAdded(event);
+                onVideoEvent(ev);
+            }
+
+            public void videoUpdate(VideoEvent ev)
+            {
+                onVideoEvent(ev);
             }
         };
 
@@ -779,7 +793,7 @@ public abstract class CallPeerMediaHandler
      * <tt>null</tt> if we are trying to remove it.
      */
     public void setLocalUserAudioLevelListener(
-                                            SimpleAudioLevelListener listener)
+            SimpleAudioLevelListener listener)
     {
         synchronized(localAudioLevelListenerLock)
         {
@@ -803,7 +817,6 @@ public abstract class CallPeerMediaHandler
      *
      * @param listener the <tt>SimpleAudioLevelListener</tt> to add or
      * <tt>null</tt> if we are trying to remove it.
-     *
      */
     public void setStreamAudioLevelListener(SimpleAudioLevelListener listener)
     {
@@ -826,22 +839,21 @@ public abstract class CallPeerMediaHandler
      * receiving notifications for changes in the audio levels of the remote
      * participants that our peer is mixing.
      *
-     * @param csrcAudioLevelListener the <tt>CsrcAudioLevelListener</tt> to set
-     * to our audio streams.
+     * @param listener the <tt>CsrcAudioLevelListener</tt> to set to our audio
+     * stream.
      */
-    public void setCsrcAudioLevelListener(
-                                CsrcAudioLevelListener csrcAudioLevelListener)
+    public void setCsrcAudioLevelListener(CsrcAudioLevelListener listener)
     {
         synchronized(csrcAudioLevelListenerLock)
         {
-            this.csrcAudioLevelListener = csrcAudioLevelListener;
+            this.csrcAudioLevelListener = listener;
 
             MediaStream audioStream = getStream(MediaType.AUDIO);
 
             if (audioStream != null)
             {
                 ((AudioMediaStream) audioStream).setCsrcAudioLevelListener(
-                        csrcAudioLevelListener);
+                        listener);
             }
         }
     }
