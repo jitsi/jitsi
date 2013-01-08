@@ -200,8 +200,12 @@ public class JingleUtils
          */
         if ((ptRegistry != null)
                 && (pt >= MediaFormat.MIN_DYNAMIC_PAYLOAD_TYPE)
-                && (pt <= MediaFormat.MAX_DYNAMIC_PAYLOAD_TYPE)
-                && (ptRegistry.findFormat(pt) == null))
+                && (pt <= MediaFormat.MAX_DYNAMIC_PAYLOAD_TYPE))
+                //some systems will violate 3264 by reusing previously defined
+                //payload types for new formats. we try and salvage that
+                //situation by creating an overriding mapping in such cases
+                //we therefore don't do the following check.
+                //&& (ptRegistry.findFormat(pt) == null))
         {
             ptRegistry.addMapping(format, pt);
         }

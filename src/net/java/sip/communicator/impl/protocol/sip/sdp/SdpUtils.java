@@ -771,9 +771,15 @@ public class SdpUtils
         if ((payloadType >= MediaFormat.MIN_DYNAMIC_PAYLOAD_TYPE)
                 && (payloadType
                         <= MediaFormat.MAX_DYNAMIC_PAYLOAD_TYPE)
-                && (format != null)
-                && (ptRegistry.findFormat(payloadType) == null))
+                && (format != null))
+                //some systems will violate 3264 by reusing previously defined
+                //payload types for new formats. we try and salvage that
+                //situation by creating an overriding mapping in such cases
+                //we therefore don't do the following check.
+                //&& (ptRegistry.findFormat(payloadType) == null))
+        {
             ptRegistry.addMapping(format, payloadType);
+        }
 
         return format;
     }

@@ -8,6 +8,8 @@ package net.java.sip.communicator.service.protocol.media;
 
 import java.util.*;
 
+import net.java.sip.communicator.impl.protocol.sip.*;
+import net.java.sip.communicator.util.*;
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.format.*;
 
@@ -30,6 +32,11 @@ import org.jitsi.service.neomedia.format.*;
  */
 public class DynamicPayloadTypeRegistry
 {
+    /**
+     * Our class logger.
+     */
+    private static final Logger logger
+        = Logger.getLogger(DynamicPayloadTypeRegistry.class);
     /**
      * A field that we use to track dynamic payload numbers that we allocate.
      */
@@ -244,12 +251,13 @@ public class DynamicPayloadTypeRegistry
         throws IllegalArgumentException
     {
         MediaFormat alreadyMappedFmt = findFormat(payloadType);
-
         if(alreadyMappedFmt != null)
         {
-            throw new IllegalArgumentException(
-                    payloadType + " has already been allocated to "
-                        + alreadyMappedFmt);
+            logger.warn("Remote party is trying to remap payload type "
+                        + payloadType + " and reassign it from "
+                        + alreadyMappedFmt + " to " + format
+                        + ". We'll go along but there might be issues because"
+                        + " of this.");
         }
 
         if( payloadType < MediaFormat.MIN_DYNAMIC_PAYLOAD_TYPE)
@@ -267,7 +275,13 @@ public class DynamicPayloadTypeRegistry
         if(payloadTypeMappings.containsKey(format))
         {
             byte originalPayloadType = payloadTypeMappings.get(format);
-            payloadTypeOverrides.put(originalPayloadType, payloadType);
+
+            if(originalPayloadType != payloadType)
+            {
+                payloadTypeOverrides.put(originalPayloadType, payloadType);
+            }
+            //else: we already have the exact same mapping, so no need to
+            //override anything.
         }
         else
         {
