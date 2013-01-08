@@ -253,11 +253,26 @@ public class DynamicPayloadTypeRegistry
         MediaFormat alreadyMappedFmt = findFormat(payloadType);
         if(alreadyMappedFmt != null)
         {
+            if(alreadyMappedFmt.equals(format))
+            {
+                //we already have the exact same mapping, so no need to
+                //create a new one override the old PT number.
+                return;
+            }
+            //else:
+            //welcome to hackland: the remote party is trying to re-map a
+            //payload type we already use. we will try to respect their choice
+            //and create an overriding mapping but we also need to make sure
+            //that the format itself actually has a PT we can override.
+            byte newlyObtainedPT = obtainPayloadTypeNumber(format);
+
             logger.warn("Remote party is trying to remap payload type "
                         + payloadType + " and reassign it from "
                         + alreadyMappedFmt + " to " + format
                         + ". We'll go along but there might be issues because"
-                        + " of this.");
+                        + " of this. We'll also expect to receive " + format
+                        + " with PT=" + newlyObtainedPT);
+
         }
 
         if( payloadType < MediaFormat.MIN_DYNAMIC_PAYLOAD_TYPE)
@@ -280,8 +295,6 @@ public class DynamicPayloadTypeRegistry
             {
                 payloadTypeOverrides.put(originalPayloadType, payloadType);
             }
-            //else: we already have the exact same mapping, so no need to
-            //override anything.
         }
         else
         {
