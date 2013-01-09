@@ -1050,11 +1050,53 @@ public abstract class CallPeerMediaHandler
                     MediaDevice newDevice = getDefaultDevice(mediaType);
 
                     if (oldDevice != newDevice)
+                    {
                         stream.setDevice(newDevice);
+                        if (stream instanceof AudioMediaStream)
+                        {
+                            // Updates the audio level listener to the new
+                            // device session when a device is connected or
+                            // disconnected.
+                            registerAudioLevelListeners(
+                                    (AudioMediaStream) stream);
+                        }
+                    }
                 }
 
                 stream.setRTPTranslator(call.getRTPTranslator(mediaType));
             }
+        }
+    }
+
+    /**
+     * Registers all audio level listeners currently known to this media handler
+     * with the specified <tt>audioStream</tt>.
+     *
+     * @param audioStream the <tt>AudioMediaStream</tt> that we'd like to
+     * register our audio level listeners with.
+     */
+    void registerAudioLevelListeners(AudioMediaStream audioStream)
+    {
+        synchronized(localUserAudioLevelListenerLock)
+        {
+            if(localUserAudioLevelListener != null)
+            {
+                audioStream.setLocalUserAudioLevelListener(
+                        localUserAudioLevelListener);
+            }
+        }
+        synchronized(streamAudioLevelListenerLock)
+        {
+            if(streamAudioLevelListener != null)
+            {
+                audioStream.setStreamAudioLevelListener(
+                        streamAudioLevelListener);
+            }
+        }
+        synchronized(csrcAudioLevelListenerLock)
+        {
+            if(csrcAudioLevelListener != null)
+                audioStream.setCsrcAudioLevelListener(csrcAudioLevelListener);
         }
     }
 
