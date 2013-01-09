@@ -738,6 +738,9 @@ public class MacOSXAddrBookContactQuery
         Map<Class<? extends OperationSet>, String> preferredProtocols
             = new HashMap<Class<? extends OperationSet>, String>();
 
+        // can be added as contacts
+        supportedOpSets.add(OperationSetPersistentPresence.class);
+
         switch (property)
         {
         case kABAIMInstantProperty:

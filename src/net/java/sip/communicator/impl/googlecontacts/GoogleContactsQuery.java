@@ -155,23 +155,37 @@ public class GoogleContactsQuery
 
         for(String mail : homeMails)
         {
+            List<Class<? extends OperationSet>> supportedOpSets
+                            = new ArrayList<Class<? extends OperationSet>>(1);
+            // can be added as contacts
+            supportedOpSets.add(OperationSetPersistentPresence.class);
+
             detail = new ContactDetail(mail, ContactDetail.CATEGORY_EMAIL,
                     new String[]{ContactDetail.LABEL_HOME});
+            detail.setSupportedOpSets(supportedOpSets);
             ret.add(detail);
         }
         for(String mail : workMails)
         {
+            List<Class<? extends OperationSet>> supportedOpSets
+                            = new ArrayList<Class<? extends OperationSet>>(1);
+            // can be added as contacts
+            supportedOpSets.add(OperationSetPersistentPresence.class);
+
             detail = new ContactDetail(mail, ContactDetail.CATEGORY_EMAIL,
                     new String[]{ContactDetail.LABEL_WORK});
+            detail.setSupportedOpSets(supportedOpSets);
             ret.add(detail);
         }
 
         for(String homePhone : homePhones)
         {
             List<Class<? extends OperationSet>> supportedOpSets
-                = new ArrayList<Class<? extends OperationSet>>(1);
+                = new ArrayList<Class<? extends OperationSet>>(2);
 
             supportedOpSets.add(OperationSetBasicTelephony.class);
+            // can be added as contacts
+            supportedOpSets.add(OperationSetPersistentPresence.class);
             homePhone = PhoneNumberI18nService.normalize(homePhone);
             detail = new ContactDetail(homePhone,
                     ContactDetail.CATEGORY_PHONE,
@@ -183,9 +197,11 @@ public class GoogleContactsQuery
         for(String workPhone : workPhones)
         {
             List<Class<? extends OperationSet>> supportedOpSets
-                = new ArrayList<Class<? extends OperationSet>>(1);
+                = new ArrayList<Class<? extends OperationSet>>(2);
 
             supportedOpSets.add(OperationSetBasicTelephony.class);
+            // can be added as contacts
+            supportedOpSets.add(OperationSetPersistentPresence.class);
             workPhone = PhoneNumberI18nService.normalize(workPhone);
             detail = new ContactDetail(workPhone,
                     ContactDetail.CATEGORY_PHONE,
@@ -197,9 +213,11 @@ public class GoogleContactsQuery
         for(String mobilePhone : mobilePhones)
         {
             List<Class<? extends OperationSet>> supportedOpSets
-                = new ArrayList<Class<? extends OperationSet>>(1);
+                = new ArrayList<Class<? extends OperationSet>>(2);
 
             supportedOpSets.add(OperationSetBasicTelephony.class);
+            // can be added as contacts
+            supportedOpSets.add(OperationSetPersistentPresence.class);
             mobilePhone = PhoneNumberI18nService.normalize(mobilePhone);
             detail = new ContactDetail(mobilePhone,
                     ContactDetail.CATEGORY_PHONE,
@@ -218,6 +236,11 @@ public class GoogleContactsQuery
                         new String[]{im.getValue().toString()});
 
                 setIMCapabilities(detail, im.getValue());
+
+                // can be added as contacts
+                detail.getSupportedOperationSets()
+                    .add(OperationSetPersistentPresence.class);
+
                 ret.add(detail);
             }
         }

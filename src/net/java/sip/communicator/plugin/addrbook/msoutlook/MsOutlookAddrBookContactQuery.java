@@ -354,9 +354,11 @@ public class MsOutlookAddrBookContactQuery
         if (matches)
         {
             List<Class<? extends OperationSet>> supportedOpSets
-                = new ArrayList<Class<? extends OperationSet>>(1);
+                = new ArrayList<Class<? extends OperationSet>>(2);
 
             supportedOpSets.add(OperationSetBasicTelephony.class);
+            // can be added as contacts
+            supportedOpSets.add(OperationSetPersistentPresence.class);
 
             List<ContactDetail> contactDetails
                 = new LinkedList<ContactDetail>();

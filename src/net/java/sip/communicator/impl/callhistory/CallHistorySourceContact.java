@@ -186,6 +186,9 @@ public class CallHistorySourceContact
                     supportedOpSets.add(OperationSetBasicTelephony.class);
                 }
 
+                // can be added as contacts
+                supportedOpSets.add(OperationSetPersistentPresence.class);
+
                 contactDetail.setSupportedOpSets(supportedOpSets);
 
                 contactDetails.add(contactDetail);
@@ -285,8 +288,10 @@ public class CallHistorySourceContact
     public List<ContactDetail> getContactDetails(
                                     Class<? extends OperationSet> operationSet)
     {
-        // We support only call details.
-        if (!operationSet.equals(OperationSetBasicTelephony.class))
+        // We support only call details
+        // or persistence presence so we can add contacts.
+        if (!(operationSet.equals(OperationSetBasicTelephony.class)
+                || operationSet.equals(OperationSetPersistentPresence.class)))
             return null;
 
         return new LinkedList<ContactDetail>(contactDetails);
@@ -318,8 +323,10 @@ public class CallHistorySourceContact
     public ContactDetail getPreferredContactDetail(
         Class<? extends OperationSet> operationSet)
     {
-        // We support only call details.
-        if (!operationSet.equals(OperationSetBasicTelephony.class))
+        // We support only call details
+        // or persistence presence so we can add contacts.
+        if (!(operationSet.equals(OperationSetBasicTelephony.class)
+                || operationSet.equals(OperationSetPersistentPresence.class)))
             return null;
 
         return contactDetails.get(0);

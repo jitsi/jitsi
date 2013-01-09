@@ -689,7 +689,7 @@ public class ContactListTreeCellRenderer
     /**
      * Initializes the display details component for the given
      * <tt>UIContact</tt>.
-     * @param details the display details to show
+     * @param displayDetails the display details to show
      */
     private void initDisplayDetails(String displayDetails)
     {
@@ -831,8 +831,7 @@ public class ContactListTreeCellRenderer
                 null);
 
         if ((telephonyContact != null && telephonyContact.getAddress() != null)
-            || uiContact.getDescriptor() instanceof SourceContact ||
-            (hasPhone && providers.size() > 0))
+            || (hasPhone && providers.size() > 0))
         {
             x += addButton(callButton, ++gridX, x, false);
         }
@@ -869,7 +868,14 @@ public class ContactListTreeCellRenderer
             x += addButton(desktopSharingButton, ++gridX, x, false);
         }
 
-        if (uiContact.getDescriptor() instanceof SourceContact
+        // enable add contact button if contact source has indicated
+        // that this is possible
+        if (uiContact.getDefaultContactDetail(
+                    OperationSetPersistentPresence.class) != null
+            && GuiActivator.getOpSetRegisteredProviders(
+                    OperationSetPersistentPresence.class,
+                    null,
+                    null).size() > 0
             && !ConfigurationUtils.isAddContactDisabled())
         {
             x += addButton(addContactButton, ++gridX, x, false);
@@ -1359,7 +1365,8 @@ public class ContactListTreeCellRenderer
     {
         SourceContact sourceContact = (SourceContact) contact.getDescriptor();
 
-        List<ContactDetail> details = sourceContact.getContactDetails();
+        List<ContactDetail> details = sourceContact.getContactDetails(
+                    OperationSetPersistentPresence.class);
         int detailsCount = details.size();
 
         if (detailsCount > 1)
