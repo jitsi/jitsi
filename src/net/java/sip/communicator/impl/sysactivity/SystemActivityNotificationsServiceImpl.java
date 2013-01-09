@@ -635,8 +635,7 @@ public class SystemActivityNotificationsServiceImpl
 
                 if(className != null)
                     currentRunningManager = (SystemActivityManager)
-                        Class.forName(SYSTEM_ACTIVITY_MANAGER_LINUX_CLASS)
-                            .newInstance();
+                        Class.forName(className).newInstance();
             }
             catch(Throwable t)
             {
