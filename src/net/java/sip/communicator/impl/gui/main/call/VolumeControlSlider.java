@@ -20,12 +20,26 @@ import org.jitsi.service.neomedia.event.*;
  * The volume control slider component.
  *
  * @author Yana Stamcheva
+ * @author Vincent Lucas
  */
 public class VolumeControlSlider
     extends TransparentPanel
     implements VolumeChangeListener
 {
+    /**
+     * The slider component.
+     */
     private final JSlider volumeSlider;
+
+    /**
+     * The VolumeControl that do the actual volume adjusting.
+     */
+    private final VolumeControl volumeControl;
+
+    /**
+     * The dedicate thread to set the volume.
+     */
+    private SetVolumeThread setVolumeThread = null;
 
     /**
      * The multiplier would just convert the float volume value coming from
@@ -46,7 +60,10 @@ public class VolumeControlSlider
     {
         super(new BorderLayout());
 
+        this.volumeControl = volumeControl;
         volumeControl.addVolumeChangeListener(this);
+
+        setVolumeThread = new SetVolumeThread(volumeControl);
 
         volumeSlider = new JSlider(orientation, 0, 100, 50);
 
@@ -71,7 +88,7 @@ public class VolumeControlSlider
                 int volume = source.getValue();
 
                 // Set the volume to the volume control.
-                volumeControl.setVolume((float) volume/MULTIPLIER);
+                setVolumeThread.setVolume((float) volume/MULTIPLIER);
             }
         });
 
@@ -103,5 +120,146 @@ public class VolumeControlSlider
         popupMenu.add(this);
 
         return popupMenu;
+    }
+
+    /**
+     * Makes this Component displayable by connecting it to a native screen
+     * resource. Starts the thread loop to change volume.
+     */
+    public void addNotify()
+    {
+        super.addNotify();
+
+        // Updates the slider level in correspodance with the system volume
+        // level.
+        volumeChange(new VolumeChangeEvent(
+                    volumeControl,
+                    volumeControl.getVolume(),
+                    volumeControl.getMute()));
+
+        // Starts the thread loop to update the volume, as long as the slider is
+        // shown.
+        if(!setVolumeThread.isAlive())
+        {
+            setVolumeThread = new SetVolumeThread(volumeControl);
+            setVolumeThread.start();
+        }
+    }
+
+    /**
+     *  Makes this Component undisplayable by destroying it native screen
+     *  resource. Stops the thread loop to change volume.
+     */
+    public void removeNotify()
+    {
+        super.removeNotify();
+
+        // Stops the thread loop to update the volume, since the slider is
+        // not shown anymore.
+        if(setVolumeThread.isAlive())
+        {
+            setVolumeThread.end();
+        }
+    }
+
+    /**
+     * Create a dedicate thread to set the volume.
+     */
+    private class SetVolumeThread
+        extends Thread
+    {
+        /**
+         * A boolean set to true if the thread must continue to loop.
+         */
+        private boolean run;
+
+        /**
+         * The VolumeControl that do the actual volume adjusting.
+         */
+        private final VolumeControl volumeControl;
+
+        /**
+         * The volume wished by the UI.
+         */
+        private float volume;
+
+        /**
+         * The volume currently set.
+         */
+        private float lastVolumeSet;
+
+        /**
+         * Create a dedicate thread to set the volume.
+         *
+         * @param volumeControl The VolumeControl that do the actual volume
+         * adjusting.
+         */
+        public SetVolumeThread(final VolumeControl volumeControl)
+        {
+            super("VolumeControlSlider: VolumeControl.setVolume");
+
+            this.run = true;
+            this.volumeControl = volumeControl;
+            this.lastVolumeSet = volumeControl.getVolume();
+            this.volume = this.lastVolumeSet;
+        }
+
+        /**
+         * Updates and sets the volume if changed.
+         */
+        public void run()
+        {
+            while(this.run)
+            {
+                synchronized(this)
+                {
+                    // Wait if there is no update yet.
+                    if(volume == lastVolumeSet)
+                    {
+                        try
+                        {
+                            this.wait();
+                        }
+                        catch(InterruptedException iex)
+                        {
+                        }
+                    }
+                    lastVolumeSet = volume;
+                }
+
+                // Set the volume to the volume control.
+                volumeControl.setVolume(lastVolumeSet);
+            }
+        }
+
+        /**
+         * Sets a new volume value.
+         *
+         * @param newVolume The new volume to set.
+         */
+        public void setVolume(float newVolume)
+        {
+            synchronized(this)
+            {
+                volume = newVolume;
+                // If there is a change, then wake up the tread loop..
+                if(volume != lastVolumeSet)
+                {
+                    this.notify();
+                }
+            }
+        }
+
+        /**
+         * Ends the thread loop.
+         */
+        public void end()
+        {
+            synchronized(this)
+            {
+                this.run = false;
+                this.notify();
+            }
+        }
     }
 }
