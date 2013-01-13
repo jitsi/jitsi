@@ -74,6 +74,12 @@ public class CallPeerMediaHandlerSipImpl
     private QualityControlWrapper qualityControls;
 
     /**
+     * The lock we use to make sure that we won't be processing a second
+     * offer/answer exchange while a .
+     */
+    private Object offerAnswerLock = new Object();
+
+    /**
      * Creates a new handler that will be managing media streams for
      * <tt>peer</tt>.
      *
@@ -301,10 +307,14 @@ public class CallPeerMediaHandlerSipImpl
                IllegalArgumentException
     {
         SessionDescription offer = SdpUtils.parseSdpString(offerString);
-        if (localSess == null)
-            return processFirstOffer(offer).toString();
-        else
-            return processUpdateOffer(offer, localSess).toString();
+
+        synchronized (offerAnswerLock)
+        {
+            if (localSess == null)
+                return processFirstOffer(offer).toString();
+            else
+                return processUpdateOffer(offer, localSess).toString();
+        }
     }
 
     /**
@@ -830,6 +840,33 @@ public class CallPeerMediaHandlerSipImpl
 
     /**
      * Handles the specified <tt>answer</tt> by creating and initializing the
+     * corresponding <tt>MediaStream</tt>s. This method basically just adds
+     * synchronisation on top of {@link #doNonSynchronisedProcessAnswer(
+     * SessionDescription)}
+     *
+     * @param answer the SDP <tt>SessionDescription</tt>.
+     *
+     * @throws OperationFailedException if we fail to handle <tt>answer</tt> for
+     * reasons like failing to initialize media devices or streams.
+     * @throws IllegalArgumentException if there's a problem with the syntax or
+     * the semantics of <tt>answer</tt>. Method is synchronized in order to
+     * avoid closing mediaHandler when we are currently in process of
+     * initializing, configuring and starting streams and anybody interested
+     * in this operation can synchronize to the mediaHandler instance to wait
+     * processing to stop (method setState in CallPeer).
+     */
+    private void processAnswer(SessionDescription answer)
+        throws OperationFailedException,
+               IllegalArgumentException
+    {
+        synchronized (offerAnswerLock)
+        {
+            doNonSynchronisedProcessAnswer(answer);
+        }
+    }
+
+    /**
+     * Handles the specified <tt>answer</tt> by creating and initializing the
      * corresponding <tt>MediaStream</tt>s.
      *
      * @param answer the SDP <tt>SessionDescription</tt>.
@@ -843,9 +880,9 @@ public class CallPeerMediaHandlerSipImpl
      * in this operation can synchronize to the mediaHandler instance to wait
      * processing to stop (method setState in CallPeer).
      */
-    private synchronized void processAnswer(SessionDescription answer)
-        throws OperationFailedException,
-               IllegalArgumentException
+    private void doNonSynchronisedProcessAnswer(SessionDescription answer)
+            throws OperationFailedException,
+                   IllegalArgumentException
     {
         List<MediaDescription> remoteDescriptions
             = SdpUtils.extractMediaDescriptions(answer);
@@ -1292,6 +1329,24 @@ public class CallPeerMediaHandlerSipImpl
                     return;
                 }
             }
+        }
+    }
+
+    /**
+     * Starts this <tt>CallPeerMediaHandler</tt>. If it has already been
+     * started, does nothing. This method just adds synchronization on top of
+     * the one already implemented by {@link CallPeerMediaHandler#start()}.
+     *
+     * @throws IllegalStateException if this method is called without this
+     * handler having first seen a media description or having generated an
+     * offer.
+     */
+    public void start()
+        throws IllegalStateException
+    {
+        synchronized (offerAnswerLock)
+        {
+            super.start();
         }
     }
 }

@@ -118,7 +118,7 @@ public class DynamicPayloadTypeRegistry
                 break;
             }
         }
-
+System.out.println("payloadType="+payloadType + " for format="+format);
         //seems like we haven't allocated a payload type for this format yet.
         //lets try to do so now.
         if (payloadType == null)
@@ -127,7 +127,7 @@ public class DynamicPayloadTypeRegistry
             //this format would like to have (e.g. "telephone-event" generally
             //loves to be called "101").
             Byte preferredPT = getPreferredDynamicPayloadType(format);
-
+System.out.println("preferredPT="+preferredPT);
             if(preferredPT != null && findFormat(preferredPT) == null)
             {
                 //the format has a preference and it's free

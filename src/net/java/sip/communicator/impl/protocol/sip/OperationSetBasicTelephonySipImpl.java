@@ -1001,110 +1001,143 @@ public class OperationSetBasicTelephonySipImpl
             = (OperationSetAutoAnswerSipImpl) protocolProvider.getOperationSet(
                     OperationSetBasicAutoAnswer.class);
 
-        if(existingPeer == null)
+        if(existingPeer != null)
         {
-            //this is not a reINVITE. check if it's a transfer
-            //(i.e. replacing an existing call).
-            ReplacesHeader replacesHeader =
-                (ReplacesHeader) invite.getHeader(ReplacesHeader.NAME);
+            //this is a reINVITE concerning a particular peer. pass and be done.
+            existingPeer.processReInvite(serverTransaction);
+            return;
+        }
 
-            if (replacesHeader == null)
+        //this is not a reINVITE. check if it's a transfer
+        //(i.e. replacing an existing call).
+        ReplacesHeader replacesHeader =
+            (ReplacesHeader) invite.getHeader(ReplacesHeader.NAME);
+
+        if (replacesHeader != null)
+        {
+            //this is a transferred call which is replacing an
+            // existing one (i.e. an attended transfer).
+            existingPeer = activeCallsRepository.findCallPeer(
+                                replacesHeader.getCallId(),
+                                replacesHeader.getToTag(),
+                                replacesHeader.getFromTag());
+
+            if (existingPeer != null)
             {
-                // checks for forward of call, if no further processing
-                // is needed return
-                if(autoAnswerOpSet != null
-                    && autoAnswerOpSet.forwardCall(invite, serverTransaction))
-                    return;
-
-                //this is a brand new call (not a transferred one)
-                CallSipImpl call = new CallSipImpl(this);
-                MediaAwareCallPeer<?,?,?> peer =
-                    call.processInvite(sourceProvider, serverTransaction);
-
-                if(getProtocolProvider().getAccountID()
-                    .getAccountPropertyBoolean(
-                        ProtocolProviderFactory.MODE_PARANOIA, false)
-                    && peer.getMediaHandler()
-                        .getAdvertisedEncryptionMethods().length == 0)
-                {
-                    // if in paranoia mode and we don't find any encryption
-                    // fail peer/call send error with warning explaining why
-                    String reasonText =
-                        SipActivator.getResources().getI18NString(
-                            "service.gui.security.encryption.required");
-
-                    peer.setState(
-                        CallPeerState.FAILED,
-                        reasonText,
-                        Response.SESSION_NOT_ACCEPTABLE);
-
-                    // 606 Not acceptable
-                    // warning header : encryption required
-                    WarningHeader warning = null;
-                    try
-                    {
-                        //399 Miscellaneous warning
-                        warning = protocolProvider.getHeaderFactory()
-                            .createWarningHeader(
-                                protocolProvider.getAccountID().getService()
-                                , 399, reasonText);
-                    }
-                    catch(InvalidArgumentException e)
-                    {
-                        logger.error("Cannot create warning header", e);
-                    }
-                    catch(ParseException e)
-                    {
-                        logger.error("Cannot create warning header", e);
-                    }
-
-                    try
-                    {
-                        protocolProvider.sayError(serverTransaction,
-                                                Response.SESSION_NOT_ACCEPTABLE,
-                                                warning);
-                    }
-                    catch(OperationFailedException e)
-                    {
-                        logger.error("Cannot send 606 error!", e);
-                    }
-
-                    return;
-                }
-                // Manages auto answer with "audio only", or "audio / video"
-                // answer.
-                if(autoAnswerOpSet != null)
-                {
-                    autoAnswerOpSet.autoAnswer(call);
-                }
+                existingPeer.getCall().processReplacingInvite(
+                    sourceProvider, serverTransaction, existingPeer);
             }
             else
             {
-                //this is a transferred call which is replacing an
-                // existing one (i.e. an attended transfer).
-                existingPeer = activeCallsRepository.findCallPeer(
-                                    replacesHeader.getCallId(),
-                                    replacesHeader.getToTag(),
-                                    replacesHeader.getFromTag());
-
-                if (existingPeer != null)
-                {
-                    existingPeer.getCall().processReplacingInvite(
-                        sourceProvider, serverTransaction, existingPeer);
-                }
-                else
-                {
-                    protocolProvider.sayErrorSilently(
-                        serverTransaction,
-                        Response.CALL_OR_TRANSACTION_DOES_NOT_EXIST);
-                }
+                protocolProvider.sayErrorSilently(
+                    serverTransaction,
+                    Response.CALL_OR_TRANSACTION_DOES_NOT_EXIST);
             }
+            return;
         }
-        else
+
+        // not a transfer
+        // check if we need to redirect the call, in which case no further
+        // processing is needed return
+        if(autoAnswerOpSet != null
+            && autoAnswerOpSet.forwardCall(invite, serverTransaction))
         {
-            //this is a reINVITE concerning a particular peer.
-            existingPeer.processReInvite(serverTransaction);
+            return;
         }
+
+        //no redirection necessary. moving on with regular invite processing
+        CallSipImpl call = new CallSipImpl(this);
+        MediaAwareCallPeer<?,?,?> peer =
+            call.processInvite(sourceProvider, serverTransaction);
+
+        if(failServerTranForInsufficientSecurity(peer, serverTransaction))
+        {
+            //apparently we are in a high security (paranoia) mode and this
+            //call didn't have what it takes. we are bailing.
+            return;
+        }
+
+        // We are done with call processing. Let's just check if we need to
+        // leave the phone ringing or maybe auto answer (audio only or
+        // audio/video)
+        if(autoAnswerOpSet != null)
+        {
+            autoAnswerOpSet.autoAnswer(call);
+        }
+    }
+
+    /**
+     * Checks whether the <tt>peer</tt> is being invited with the necessary
+     * security level, returns <tt>false</tt> if so and <tt>true</tt> otherwise.
+     * Typically the method would indicate failure (i.e. return <tt>true</tt>)
+     * when we are running in {@link ProtocolProviderFactory#MODE_PARANOIA} and
+     * the call peer does not seem to offer any encryption possibilities. We
+     * wouldn't care about encryption level in case we are not currently
+     * paranoid.
+     *
+     * @param peer the peer whose security level we are checking.
+     * @param serverTransaction the transaction that the call is being initiated
+     * with
+     *
+     * @return <tt>true</tt> if the call should be failed and <tt>false</tt>
+     * otherwise.
+     */
+    private boolean failServerTranForInsufficientSecurity(
+        MediaAwareCallPeer<?, ?, ?> peer,
+        ServerTransaction serverTransaction)
+    {
+        if(getProtocolProvider().getAccountID()
+            .getAccountPropertyBoolean(
+                ProtocolProviderFactory.MODE_PARANOIA, false)
+            && peer.getMediaHandler()
+                .getAdvertisedEncryptionMethods().length == 0)
+        {
+            // if in paranoia mode and we don't find any encryption
+            // fail peer/call send error with warning explaining why
+            String reasonText =
+                SipActivator.getResources().getI18NString(
+                    "service.gui.security.encryption.required");
+
+            peer.setState(
+                CallPeerState.FAILED,
+                reasonText,
+                Response.SESSION_NOT_ACCEPTABLE);
+
+            // 606 Not acceptable
+            // warning header : encryption required
+            WarningHeader warning = null;
+            try
+            {
+                //399 Miscellaneous warning
+                warning = protocolProvider.getHeaderFactory()
+                    .createWarningHeader(
+                        protocolProvider.getAccountID().getService()
+                        , 399, reasonText);
+            }
+            catch(InvalidArgumentException e)
+            {
+                logger.error("Cannot create warning header", e);
+            }
+            catch(ParseException e)
+            {
+                logger.error("Cannot create warning header", e);
+            }
+
+            try
+            {
+                protocolProvider.sayError(serverTransaction,
+                                        Response.SESSION_NOT_ACCEPTABLE,
+                                        warning);
+            }
+            catch(OperationFailedException e)
+            {
+                logger.error("Cannot send 606 error!", e);
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     /**
