@@ -870,7 +870,8 @@ public class ContactListTreeCellRenderer
 
         // enable add contact button if contact source has indicated
         // that this is possible
-        if (uiContact.getDefaultContactDetail(
+        if (uiContact.getDescriptor() instanceof SourceContact
+            && uiContact.getDefaultContactDetail(
                     OperationSetPersistentPresence.class) != null
             && GuiActivator.getOpSetRegisteredProviders(
                     OperationSetPersistentPresence.class,
