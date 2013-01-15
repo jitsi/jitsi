@@ -1212,21 +1212,10 @@ public abstract class CallPeerMediaHandler
     protected MediaFormat findMediaFormat(
             List<MediaFormat> formats, MediaFormat format)
     {
-        MediaType mediaType = format.getMediaType();
-        String encoding = format.getEncoding();
-        double clockRate = format.getClockRate();
-        int channels
-            = MediaType.AUDIO.equals(mediaType)
-                ? ((AudioMediaFormat) format).getChannels()
-                : MediaFormatFactory.CHANNELS_NOT_SPECIFIED;
-        Map<String, String> formatParameters = format.getFormatParameters();
-
         for(MediaFormat match : formats)
         {
-            if (AbstractMediaStream.matches(
-                        match,
-                        mediaType,
-                        encoding, clockRate, channels, formatParameters))
+
+            if (match.matches(format))
                 return match;
         }
         return null;

@@ -953,6 +953,8 @@ public class MediaHandler
         DynamicPayloadTypeRegistry dynamicPayloadTypes
                 = callPeerMediaHandler.getDynamicPayloadTypes();
 
+        StringBuffer dbgMessage = new StringBuffer("Dynamic PT map: ");
+
         //first register the mappings
         for (Map.Entry<MediaFormat, Byte> mapEntry
                 : dynamicPayloadTypes.getMappings().entrySet())
@@ -960,9 +962,12 @@ public class MediaHandler
             byte pt = mapEntry.getValue();
             MediaFormat fmt = mapEntry.getKey();
 
+            dbgMessage.append(pt).append("=").append(fmt).append("; ");
             stream.addDynamicRTPPayloadType(pt, fmt);
         }
+        logger.info(dbgMessage);
 
+        dbgMessage = new StringBuffer("PT overrides [");
         //now register whatever overrides we have for the above mappings
         for (Map.Entry<Byte, Byte> overrideEntry
                 : dynamicPayloadTypes.getMappingOverrides().entrySet())
@@ -970,8 +975,14 @@ public class MediaHandler
             byte originalPt = overrideEntry.getKey();
             byte overridePt = overrideEntry.getValue();
 
+
+            dbgMessage.append(originalPt).append("->")
+                        .append(overridePt).append(" ");
             stream.addDynamicRTPPayloadTypeOverride(originalPt, overridePt);
         }
+
+        dbgMessage.append("]");
+        logger.info(dbgMessage);
 
 
     }

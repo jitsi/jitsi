@@ -8,9 +8,7 @@ package net.java.sip.communicator.service.protocol.media;
 
 import java.util.*;
 
-import net.java.sip.communicator.impl.protocol.sip.*;
 import net.java.sip.communicator.util.*;
-import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.format.*;
 
 /**
@@ -96,28 +94,7 @@ public class DynamicPayloadTypeRegistry
     public byte obtainPayloadTypeNumber(MediaFormat format)
         throws IllegalStateException
     {
-        MediaType mediaType = format.getMediaType();
-        String encoding = format.getEncoding();
-        double clockRate = format.getClockRate();
-        int channels
-            = MediaType.AUDIO.equals(mediaType)
-                ? ((AudioMediaFormat) format).getChannels()
-                : MediaFormatFactory.CHANNELS_NOT_SPECIFIED;
-        Byte payloadType = null;
-        Map<String, String> formatParameters
-            = format.getFormatParameters();
-
-        for (Map.Entry<MediaFormat, Byte> payloadTypeMapping
-                : payloadTypeMappings.entrySet())
-        {
-            if (AbstractMediaStream.matches(
-                    payloadTypeMapping.getKey(),
-                    mediaType, encoding, clockRate, channels, formatParameters))
-            {
-                payloadType = payloadTypeMapping.getValue();
-                break;
-            }
-        }
+        Byte payloadType = getPayloadType(format);
 
         //seems like we haven't allocated a payload type for this format yet.
         //lets try to do so now.
@@ -225,7 +202,10 @@ public class DynamicPayloadTypeRegistry
      */
     private Byte getPreferredDynamicPayloadType(MediaFormat format)
     {
-        return getDynamicPayloadTypePreferences().get(format);
+        Map<MediaFormat, Byte> ptPreferences
+                = getDynamicPayloadTypePreferences();
+
+        return getPayloadTypeFromMap(ptPreferences, format);
     }
 
     /**
@@ -253,7 +233,7 @@ public class DynamicPayloadTypeRegistry
         MediaFormat alreadyMappedFmt = findFormat(payloadType);
         if(alreadyMappedFmt != null)
         {
-            if(alreadyMappedFmt.equals(format))
+            if(alreadyMappedFmt.matches(format))
             {
                 //we already have the exact same mapping, so no need to
                 //create a new one override the old PT number.
@@ -287,14 +267,11 @@ public class DynamicPayloadTypeRegistry
         // if the format is already mapped to a PT then we'll keep it and use
         // the new one as an override value for sending. we'd still expect to
         // receive packets with the value that we had first selected.
-        if(payloadTypeMappings.containsKey(format))
-        {
-            byte originalPayloadType = payloadTypeMappings.get(format);
+        Byte originalPayloadType = getPayloadType(format);
 
-            if(originalPayloadType != payloadType)
-            {
-                payloadTypeOverrides.put(originalPayloadType, payloadType);
-            }
+        if( originalPayloadType != null && originalPayloadType != payloadType)
+        {
+            payloadTypeOverrides.put(originalPayloadType, payloadType);
         }
         else
         {
@@ -304,7 +281,7 @@ public class DynamicPayloadTypeRegistry
     }
 
     /**
-     * Returns a reference to the <tt>MediaFormat</tt> with the specified
+     * Return   s a reference to the <tt>MediaFormat</tt> with the specified
      * mapping or <tt>null</tt> if the number specified by <tt>payloadType</tt>
      * has not been allocated yet.
      *
@@ -371,7 +348,7 @@ public class DynamicPayloadTypeRegistry
      * are trying to determine as being claimed as preferred or not by a
      * media format.
      *
-     * @return the {@link MediaFormat} with the specified
+     * @return the {@link MediaFormat} with the null
      * <tt>payloadTypePreference</tt> or <tt>null</tt> if no {@link MediaFormat}
      * has claimed this payload type number as preferred.
      */
@@ -407,4 +384,41 @@ public class DynamicPayloadTypeRegistry
     {
         return new HashMap<Byte, Byte>(payloadTypeOverrides);
     }
+
+    /**
+     * Returns the payload type that is currently mapped to <tt>format</tt> or
+     * <tt>null</tt> if there is currently no such payload type.
+     *
+     * @param format the {@link MediaFormat} whose mapping we are looking for
+     * @return the payload type that is currently mapped to <tt>format</tt> or
+     * <tt>null</tt> if there is currently no such payload type.
+     */
+    public Byte getPayloadType(MediaFormat format)
+    {
+        return getPayloadTypeFromMap(payloadTypeMappings, format);
+    }
+
+    /**
+     * Iterates through <tt>formatMap</tt> and returns the payload type that it
+     * maps to <tt>format</tt> or <tt>null</tt> if there is currently no such
+     * payload type.
+     *
+     * @param format the {@link MediaFormat} whose mapping we are looking for
+     * @return the payload type that is currently mapped to <tt>format</tt> or
+     * <tt>null</tt> if there is currently no such payload type.
+     */
+    private static Byte getPayloadTypeFromMap(Map<MediaFormat, Byte> formatMap,
+                                              MediaFormat format)
+    {
+        for (Map.Entry<MediaFormat, Byte> mapping : formatMap.entrySet())
+        {
+            if (mapping.getKey().matches(format))
+            {
+                return mapping.getValue();
+            }
+        }
+
+        return null;
+    }
+
 }
