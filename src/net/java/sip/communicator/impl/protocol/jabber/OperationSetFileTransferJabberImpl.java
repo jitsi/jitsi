@@ -627,9 +627,10 @@ public class OperationSetFileTransferJabberImpl
                     XMPPError error =
                         ((XMPPException)jabberTransfer.getException())
                             .getXMPPError();
-                    if(error.getCode() == 406
-                       || error.getCode() == 403)
-                        status = FileTransferStatusChangeEvent.REFUSED;
+                    if (error != null)
+                        if(error.getCode() == 406
+                           || error.getCode() == 403)
+                            status = FileTransferStatusChangeEvent.REFUSED;
                 }
 
                 statusReason = jabberTransfer.getException().getMessage();
