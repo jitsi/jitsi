@@ -49,6 +49,13 @@ public class VideoConferenceCallPanel
     private static final boolean SHOW_TOOLBARS = true;
 
     /**
+     * The default <tt>Color</tt> to be set as the background of
+     * <tt>VideoContainer</tt>. For example, video usually looks better when
+     * displayed on a black background.
+     */
+    public static final Color VIDEO_CONTAINER_BACKGROUND = Color.BLACK;
+
+    /**
      * The facility which aids this instance with the video-related information.
      */
     private final UIVideoHandler2 uiVideoHandler;
@@ -249,6 +256,13 @@ public class VideoConferenceCallPanel
     private VideoContainer createVideoContainer()
     {
         VideoContainer videoContainer = new VideoContainer(null, true);
+
+        if (VIDEO_CONTAINER_BACKGROUND != null)
+        {
+            videoContainer.setBackground(VIDEO_CONTAINER_BACKGROUND);
+            videoContainer.setOpaque(true);
+        }
+
         GridBagConstraints videoContainerGridBagConstraints
             = new GridBagConstraints();
 

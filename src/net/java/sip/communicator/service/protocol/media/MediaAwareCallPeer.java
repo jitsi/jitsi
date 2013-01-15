@@ -312,10 +312,9 @@ public abstract class MediaAwareCallPeer
          * pass the sound levels measured on the stream so we can see
          * the stream activity of the call.
          */
-        int conferenceMemberCount;
+        int conferenceMemberCount = getConferenceMemberCount();
 
-        if (((conferenceMemberCount = getConferenceMemberCount()) > 0)
-                && (conferenceMemberCount < 3))
+        if ((conferenceMemberCount > 0) && (conferenceMemberCount < 3))
         {
             long audioRemoteSSRC
                 = getMediaHandler().getRemoteSSRC(MediaType.AUDIO);
@@ -356,11 +355,9 @@ public abstract class MediaAwareCallPeer
             {
                 for (int i = 0; i < audioLevels.length; i += 2)
                 {
-                    long audioLevel = audioLevels[i];
-
-                    if (audioLevel == audioRemoteSSRC)
+                    if (audioLevels[i] == audioRemoteSSRC)
                     {
-                        fireStreamSoundLevelChanged((int) audioLevel);
+                        fireStreamSoundLevelChanged((int) audioLevels[i + 1]);
                         break;
                     }
                 }

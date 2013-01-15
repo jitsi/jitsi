@@ -9,6 +9,7 @@ package net.java.sip.communicator.service.protocol.media;
 import java.util.*;
 
 import net.java.sip.communicator.util.*;
+
 import org.jitsi.service.neomedia.format.*;
 
 /**
@@ -35,6 +36,7 @@ public class DynamicPayloadTypeRegistry
      */
     private static final Logger logger
         = Logger.getLogger(DynamicPayloadTypeRegistry.class);
+
     /**
      * A field that we use to track dynamic payload numbers that we allocate.
      */
@@ -131,18 +133,20 @@ public class DynamicPayloadTypeRegistry
     {
         if(mediaMappings == null)
         {
-            Map<MediaFormat, Byte> mappings = new HashMap<MediaFormat, Byte>(
-                ProtocolMediaActivator.getMediaService()
-                    .getDynamicPayloadTypePreferences());
+            Map<MediaFormat, Byte> mappings
+                = new HashMap<MediaFormat, Byte>(
+                        ProtocolMediaActivator
+                            .getMediaService()
+                                .getDynamicPayloadTypePreferences());
 
             if(localPayloadTypePreferences == null)
                 return mappings;
 
-            // if we have specific payload type preferences from
-            // CallPeerMediaHandler, replace them here
+            // If we have specific payload type preferences from
+            // CallPeerMediaHandler, replace them here.
 
-            for(Map.Entry<Byte, String> e :
-                this.localPayloadTypePreferences.entrySet())
+            for(Map.Entry<Byte, String> e
+                    : localPayloadTypePreferences.entrySet())
             {
                 Byte key = e.getKey();
                 String fmt = e.getValue();
@@ -153,18 +157,21 @@ public class DynamicPayloadTypeRegistry
 
                 for(Map.Entry<MediaFormat, Byte> e2 : mappings.entrySet())
                 {
-                    if(e2.getKey().getEncoding().equals(fmt))
+                    MediaFormat fmt2 = e2.getKey();
+                    Byte key2 = e2.getValue();
+
+                    if(fmt2.getEncoding().equals(fmt))
                     {
-                        saveFmt = e2.getKey();
-                        saveKey = e2.getValue();
+                        saveFmt = fmt2;
+                        saveKey = key2;
 
                         if(replaceKey != null)
                             break;
                     }
 
-                    if(e2.getValue().byteValue() == key.byteValue())
+                    if(key2.equals(key))
                     {
-                        replaceFmt = e2.getKey();
+                        replaceFmt = fmt2;
                         replaceKey = key;
 
                         if(saveKey != null)

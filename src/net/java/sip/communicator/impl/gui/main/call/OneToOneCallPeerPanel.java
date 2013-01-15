@@ -15,6 +15,7 @@ import javax.swing.*;
 import javax.swing.text.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.main.call.conference.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -1338,17 +1339,22 @@ public class OneToOneCallPeerPanel
                     this.localVideo = null;
                     this.remoteVideo = null;
 
-                    if (remoteVideo != null)
-                    {
-                        center.add(remoteVideo, VideoLayout.CENTER_REMOTE, -1);
-                        this.remoteVideo = remoteVideo;
-                    }
+                    /*
+                     * AWT does not make a guarantee about the Z order even
+                     * within an operating system i.e. the order of adding the
+                     * Components to their Container does not mean that they
+                     * will be determinedly painted in that or reverse order.
+                     * Anyway, there appears to be an expectation among the
+                     * developers less acquainted with AWT that AWT paints the
+                     * Components of a Container in an order that is the reverse
+                     * of the order of their adding. In order to satisfy that
+                     * expectation and thus give at least some idea to the
+                     * developers reading the code bellow, do add the Components
+                     * according to that expectation.
+                     */
 
                     if (localVideo != null)
                     {
-                        center.add(localVideo, VideoLayout.LOCAL, -1);
-                        this.localVideo = localVideo;
-
                         if (closeLocalVisualComponentButton == null)
                         {
                             closeLocalVisualComponentButton
@@ -1359,6 +1365,35 @@ public class OneToOneCallPeerPanel
                                 closeLocalVisualComponentButton,
                                 VideoLayout.CLOSE_LOCAL_BUTTON,
                                 -1);
+
+                        center.add(localVideo, VideoLayout.LOCAL, -1);
+                        this.localVideo = localVideo;
+                    }
+
+                    if (remoteVideo != null)
+                    {
+                        center.add(remoteVideo, VideoLayout.CENTER_REMOTE, -1);
+                        this.remoteVideo = remoteVideo;
+                    }
+                }
+
+                /*
+                 * If video is depicted, it will usually look better when it is
+                 * displayed on a black background.
+                 */
+                if (VideoConferenceCallPanel.VIDEO_CONTAINER_BACKGROUND != null)
+                {
+                    if ((this.localVideo == null) && (this.remoteVideo == null))
+                    {
+                        center.setBackground(
+                                VideoConferenceCallPanel
+                                    .VIDEO_CONTAINER_BACKGROUND);
+                        center.setOpaque(true);
+                    }
+                    else
+                    {
+                        center.setBackground(null);
+                        center.setOpaque(false);
                     }
                 }
             }

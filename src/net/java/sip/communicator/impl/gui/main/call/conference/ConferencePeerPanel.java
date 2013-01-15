@@ -800,7 +800,25 @@ public class ConferencePeerPanel
         public void soundLevelChanged(Object source, int level)
         {
             if (source.equals(participant))
+            {
+                /*
+                 * If the remote peer is a conference focus and there is at
+                 * least one other member (i.e. different than the remote peer
+                 * and the local peer/user), we expect the remote peer to send
+                 * us CSRC-based audio levels. Otherwise, the stream-based audio
+                 * levels may conflict with the CSRC-based audio levels.
+                 */
+                if (callPeer != null)
+                {
+                    int conferenceMemberCount
+                        = callPeer.getConferenceMemberCount();
+
+                    if (conferenceMemberCount > 2)
+                        return;
+                }
+
                 updateSoundBar(level);
+            }
         }
     }
 }

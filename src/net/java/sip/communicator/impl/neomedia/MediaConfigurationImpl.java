@@ -378,13 +378,14 @@ public class MediaConfigurationImpl
         devicePanel.setMaximumSize(new Dimension(WIDTH, 25));
 
         final boolean isAudioSystemComboDisabled
-            = NeomediaActivator.getConfigurationService()
-                .getBoolean(AUDIO_SYSTEM_DISABLED_PROP, false);
+            = (type == DeviceConfigurationComboBoxModel.AUDIO)
+                && NeomediaActivator.getConfigurationService().getBoolean(
+                        AUDIO_SYSTEM_DISABLED_PROP,
+                        false);
 
         // For audio configuration form first check if the audio system
         // property is disabled.
-        if (type != DeviceConfigurationComboBoxModel.AUDIO
-            || !isAudioSystemComboDisabled)
+        if (!isAudioSystemComboDisabled)
         {
             devicePanel.add(deviceLabel);
             devicePanel.add(deviceComboBox);
@@ -398,7 +399,7 @@ public class MediaConfigurationImpl
         {
         case DeviceConfigurationComboBoxModel.AUDIO:
             preferredDeviceAndPreviewPanelHeight
-                = (isAudioSystemComboDisabled) ? 180 : 225;
+                = isAudioSystemComboDisabled ? 180 : 225;
             break;
         case DeviceConfigurationComboBoxModel.VIDEO:
             preferredDeviceAndPreviewPanelHeight = 305;
@@ -408,16 +409,17 @@ public class MediaConfigurationImpl
             break;
         }
         if (preferredDeviceAndPreviewPanelHeight > 0)
+        {
             deviceAndPreviewPanel.setPreferredSize(
                     new Dimension(WIDTH, preferredDeviceAndPreviewPanelHeight));
+        }
         deviceAndPreviewPanel.add(devicePanel, BorderLayout.NORTH);
 
         // For audio configuration if the audio system combo is disabled we're
         // going to look directly in the device configuration and show the
         // preview panel, which in this case contains audio configuration
         // components.
-        if (type == DeviceConfigurationComboBoxModel.AUDIO
-            && isAudioSystemComboDisabled)
+        if (isAudioSystemComboDisabled)
         {
             Component preview = null;
             if (mediaService.getDeviceConfiguration().getAudioSystem() != null)
@@ -439,8 +441,7 @@ public class MediaConfigurationImpl
                 {
                     boolean revalidateAndRepaint = false;
 
-                    for (int i = deviceAndPreviewPanel
-                            .getComponentCount() - 1;
+                    for (int i = deviceAndPreviewPanel.getComponentCount() - 1;
                             i >= 0;
                             i--)
                     {
@@ -457,20 +458,18 @@ public class MediaConfigurationImpl
 
                     if ((deviceComboBox.getSelectedItem() != null)
                             && (deviceComboBox.isShowing()
-                                ||
-                                (type == DeviceConfigurationComboBoxModel.AUDIO
-                                 && isAudioSystemComboDisabled)
-                               )
-                       )
+                                || isAudioSystemComboDisabled))
                     {
-                        preview = createPreview(type, deviceComboBox,
-                                deviceAndPreviewPanel.getPreferredSize());
+                        preview
+                            = createPreview(
+                                    type,
+                                    deviceComboBox,
+                                    deviceAndPreviewPanel.getPreferredSize());
                     }
 
                     if (preview != null)
                     {
-                        deviceAndPreviewPanel
-                            .add(preview, BorderLayout.CENTER);
+                        deviceAndPreviewPanel.add(preview, BorderLayout.CENTER);
                         revalidateAndRepaint = true;
                     }
 
@@ -799,7 +798,8 @@ public class MediaConfigurationImpl
             if(((MediaDeviceImpl) mediaDevice).getCaptureDeviceInfo().equals(
                     device))
             {
-                Dimension videoContainerSize = videoContainer.getPreferredSize();
+                Dimension videoContainerSize
+                    = videoContainer.getPreferredSize();
                 Component preview
                     = (Component)
                         mediaService.getVideoPreviewComponent(
