@@ -6,6 +6,10 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber.extensions.thumbnail;
 
+import java.text.*;
+import java.util.*;
+
+import org.jitsi.util.Logger;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
 import org.jivesoftware.smack.util.*;
@@ -24,6 +28,27 @@ public class FileElement
     extends File
     implements IQProvider
 {
+    private static final Logger logger = Logger.getLogger(FileElement.class);
+
+    private static final List<DateFormat> dateFormats =
+        new ArrayList<DateFormat>(3){{
+            // XEP-0091
+            add(DelayInformation.XEP_0091_UTC_FORMAT);
+            add(new SimpleDateFormat("yyyyMd'T'HH:mm:ss'Z'"){{
+                setTimeZone(TimeZone.getTimeZone("UTC"));
+            }});
+
+            // XEP-0203
+            add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'"){{
+                setTimeZone(TimeZone.getTimeZone("UTC"));
+            }});
+            add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"){{
+                setTimeZone(TimeZone.getTimeZone("UTC"));
+            }});
+            add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ"));
+            add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ"));
+        }};
+
     private ThumbnailElement thumbnail;
 
     /**
@@ -248,8 +273,37 @@ public class FileElement
                     file.setHash(hash);
 
                     if (date != null)
-                        file.setDate(DelayInformation.
-                            XEP_0091_UTC_FORMAT.parse(date));
+                    {
+                        // try all known date formats
+                        boolean found = false;
+                        if (date.matches(
+                            ".*?T\\d+:\\d+:\\d+(\\.\\d+)?(\\+|-)\\d+:\\d+"))
+                        {
+                            int timeZoneColon = date.lastIndexOf(":");
+                            date = date.substring(0, timeZoneColon)
+                                + date.substring(
+                                    timeZoneColon+1, date.length());
+                        }
+                        for (DateFormat fmt : dateFormats)
+                        {
+                            try
+                            {
+                                file.setDate(fmt.parse(date));
+                                found = true;
+                                break;
+                            }
+                            catch (ParseException ex)
+                            {
+                            }
+                        }
+
+                        if (!found)
+                        {
+                            logger.warn(
+                                "Unknown dateformat on incoming file transfer: "
+                                    + date);
+                        }
+                    }
 
                     if (thumbnail != null)
                         file.setThumbnailElement(thumbnail);
