@@ -1347,42 +1347,11 @@ javax.swing.event, javax.swing.border"/>
     <target name="bundle-jnalib">
         <!-- Creates a bundle containing the win jna implementation.-->
         <jar
-            compress="false" destfile="${bundles.dest.win}/jnalib.jar"
+            compress="false" destfile="${bundles.dest}/jnalib.jar"
             manifest="${lib.noinst}/jna.manifest.mf">
 
-            <zipfileset src="${lib.win.noinst}/jna.jar" prefix=""/>
-            <zipfileset src="${lib.win.noinst}/jna-platform-win32.jar" prefix=""/>
-        </jar>
-
-        <!-- Creates a bundle containing the linux jna implementation.-->
-        <jar
-            compress="false" destfile="${bundles.dest.lin}/jnalib.jar"
-            manifest="${lib.noinst}/jna.manifest.mf">
-            <zipfileset src="${lib.lin.noinst}/jna.jar" prefix=""/>
-        </jar>
-
-        <!-- Creates a bundle containing the mac jna implementation.-->
-        <jar
-            compress="false" destfile="${bundles.dest.mac}/jnalib.jar"
-            manifest="${lib.noinst}/jna.manifest.mf">
-
-            <zipfileset src="${lib.mac.noinst}/jna.jar" prefix=""/>
-        </jar>
-
-        <!-- Creates a bundle containing the freebsd jna implementation.-->
-        <jar
-            compress="false" destfile="${bundles.dest.freebsd}/jnalib.jar"
-            manifest="${lib.noinst}/jna.manifest.mf">
-
-            <zipfileset src="${lib.freebsd.noinst}/jna.jar" prefix=""/>
-        </jar>
-
-        <!-- Creates a bundle containing the freebsd jna implementation.-->
-        <jar
-            compress="false" destfile="${bundles.dest.sol}/jnalib.jar"
-            manifest="${lib.noinst}/jna.manifest.mf">
-
-            <zipfileset src="${lib.sol.noinst}/jna.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/jna.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/jna-platform.jar" prefix=""/>
         </jar>
     </target>
 
@@ -1559,7 +1528,6 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/impl/gui/swing.ui.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/gui"
                 prefix="net/java/sip/communicator/impl/gui"/>
-            <zipfileset src="lib/installer-exclude/transparency.jar" prefix=""/>
             <zipfileset src="lib/installer-exclude/swing-worker-1.2.jar" prefix=""/>
             <zipfileset src="lib/installer-exclude/mac_widgets-0.9.5.jar" prefix=""/>
             <zipfileset src="lib/installer-exclude/forms-1.2.1.jar" prefix=""/>
@@ -1759,7 +1727,7 @@ javax.swing.event, javax.swing.border"/>
     </target>
 
     <!--BUNDLE-GROWLNOTIFICATION-->
-    <target name="bundle-growlnotification">
+    <target name="bundle-growlnotification" if="is.running.macos">
         <!-- Creates a bundle for the growlnotification plugin.-->
         <jar compress="false" destfile="${bundles.dest.mac}/growlnotification.jar"
             manifest="${src}/net/java/sip/communicator/impl/growlnotification/growlnotification.manifest.mf">

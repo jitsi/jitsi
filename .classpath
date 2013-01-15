@@ -76,7 +76,7 @@
 	<classpathentry kind="lib" path="lib/installer-exclude/smack.jar" sourcepath="lib/installer-exclude/smack-src.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/smackx.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/swing-worker-1.2.jar"/>
-	<classpathentry kind="lib" path="lib/installer-exclude/transparency.jar"/>
+	<classpathentry kind="lib" path="lib/installer-exclude/jna-platform.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/unix-0.5.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/weupnp-0.1.2-SNAPSHOT.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/ymsg_network_v0_67.jar"/>
@@ -87,7 +87,6 @@
 	<classpathentry kind="lib" path="lib/os-specific/mac/OrangeExtensions.jar"/>
 	<classpathentry kind="lib" path="lib/os-specific/solaris/jdic_stub.jar"/>
 	<classpathentry kind="lib" path="lib/os-specific/windows/jdic_stub.jar"/>
-	<classpathentry kind="lib" path="lib/os-specific/windows/installer-exclude/jna-platform-win32.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
 

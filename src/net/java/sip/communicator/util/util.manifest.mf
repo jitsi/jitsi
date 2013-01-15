@@ -63,4 +63,5 @@ Export-Package: net.java.sip.communicator.util,
  net.java.sip.communicator.util.swing.event,
  net.java.sip.communicator.util.swing.plaf,
  net.java.sip.communicator.util.swing.transparent,
- net.java.sip.communicator.util.xml
+ net.java.sip.communicator.util.xml,
+ org.xbill.DNS

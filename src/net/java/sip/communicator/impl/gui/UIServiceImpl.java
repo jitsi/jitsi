@@ -44,7 +44,7 @@ import org.jitsi.service.resources.*;
 import org.jitsi.util.*;
 import org.osgi.framework.*;
 
-import com.sun.jna.examples.*;
+import com.sun.jna.platform.*;
 
 /**
  * An implementation of the <tt>UIService</tt> that gives access to other

@@ -5,7 +5,7 @@ Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
 Import-Package: com.apple.eawt,
- com.sun.jna.examples,
+ com.sun.jna.platform,
  javax.accessibility,
  javax.imageio,
  javax.swing,
