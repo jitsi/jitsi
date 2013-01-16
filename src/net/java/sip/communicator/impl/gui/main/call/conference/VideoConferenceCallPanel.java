@@ -49,13 +49,6 @@ public class VideoConferenceCallPanel
     private static final boolean SHOW_TOOLBARS = true;
 
     /**
-     * The default <tt>Color</tt> to be set as the background of
-     * <tt>VideoContainer</tt>. For example, video usually looks better when
-     * displayed on a black background.
-     */
-    public static final Color VIDEO_CONTAINER_BACKGROUND = Color.BLACK;
-
-    /**
      * The facility which aids this instance with the video-related information.
      */
     private final UIVideoHandler2 uiVideoHandler;
@@ -256,13 +249,6 @@ public class VideoConferenceCallPanel
     private VideoContainer createVideoContainer()
     {
         VideoContainer videoContainer = new VideoContainer(null, true);
-
-        if (VIDEO_CONTAINER_BACKGROUND != null)
-        {
-            videoContainer.setBackground(VIDEO_CONTAINER_BACKGROUND);
-            videoContainer.setOpaque(true);
-        }
-
         GridBagConstraints videoContainerGridBagConstraints
             = new GridBagConstraints();
 
@@ -616,35 +602,33 @@ public class VideoConferenceCallPanel
                 OperationSetVideoTelephony videoTelephony
                     = aCall.getProtocolProvider().getOperationSet(
                             OperationSetVideoTelephony.class);
+                boolean localVideoIsVisible
+                    = (videoTelephony != null)
+                        && uiVideoHandler.isLocalVideoVisible();
 
                 while (callPeerIter.hasNext())
                 {
                     callPeer = callPeerIter.next();
 
-                    /*
-                     * If there is no videoTelephony, no local video will be
-                     * available and we will represent the local peer/user with
-                     * the Call of the first CallPeer.
-                     */
-                    if (videoTelephony == null)
-                        break;
-
-                    try
+                    if (localVideoIsVisible)
                     {
-                        video
-                            = videoTelephony.getLocalVisualComponent(callPeer);
+                        try
+                        {
+                            video
+                                = videoTelephony.getLocalVisualComponent(
+                                        callPeer);
+                        }
+                        catch (OperationFailedException ofe)
+                        {
+                            logger.error(
+                                    "Failed to retrieve the local video"
+                                        + " for display",
+                                    ofe);
+                        }
+                        if (video != null)
+                            break;
                     }
-                    catch (OperationFailedException ofe)
-                    {
-                        logger.error(
-                                "Failed to retrieve the local video"
-                                    + " for display",
-                                ofe);
-                    }
-                    if (video != null)
-                        break;
                 }
-
                 if (video != null)
                     break;
             }

@@ -15,7 +15,6 @@ import javax.swing.*;
 import javax.swing.text.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.main.call.conference.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -1374,26 +1373,6 @@ public class OneToOneCallPeerPanel
                     {
                         center.add(remoteVideo, VideoLayout.CENTER_REMOTE, -1);
                         this.remoteVideo = remoteVideo;
-                    }
-                }
-
-                /*
-                 * If video is depicted, it will usually look better when it is
-                 * displayed on a black background.
-                 */
-                if (VideoConferenceCallPanel.VIDEO_CONTAINER_BACKGROUND != null)
-                {
-                    if ((this.localVideo == null) && (this.remoteVideo == null))
-                    {
-                        center.setBackground(
-                                VideoConferenceCallPanel
-                                    .VIDEO_CONTAINER_BACKGROUND);
-                        center.setOpaque(true);
-                    }
-                    else
-                    {
-                        center.setBackground(null);
-                        center.setOpaque(false);
                     }
                 }
             }
