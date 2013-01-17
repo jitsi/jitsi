@@ -1981,7 +1981,7 @@
             and libjdic.so to deb and i386 package fail to build -->
         <replace file="${debianize.dir}/rules"
                  token="get-orig-source:"
-                 value="override_dh_shlibdeps:&#010;&#009;dh_shlibdeps -Xlibmozembed-linux-gtk1.2.so -Xlibjdic.so&#010;&#010;get-orig-source:"/>
+                 value="override_dh_shlibdeps:&#010;&#009;dh_shlibdeps -Xlibmozembed-linux-gtk1.2.so -Xlibjdic.so -Xlibjunbound.so -Xlibsysactivitynotifications.so&#010;&#010;get-orig-source:"/>
     </target>
     <!-- copies links file only if used in the context of deb-src target -->
     <target name="-deb-links-file"
