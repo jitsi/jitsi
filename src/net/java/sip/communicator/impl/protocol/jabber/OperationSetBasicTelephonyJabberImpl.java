@@ -434,7 +434,9 @@ public class OperationSetBasicTelephonyJabberImpl
                 MediaUseCase useCase = call.getMediaUseCase();
                 boolean isVideo = call.isLocalVideoAllowed(useCase);
 
-                callGTalk.setConference(call.getConference());
+                CallConference callConference = call.getConference();
+                callConference.removeCall(call);
+                callGTalk.setConference(callConference);
                 callGTalk.setLocalVideoAllowed(isVideo, useCase);
                 peer
                     = callGTalk.initiateGTalkSession(
