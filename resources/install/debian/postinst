@@ -1,12 +1,12 @@
 #!/bin/sh
 #
-# SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+# Jitsi, the OpenSource Java VoIP and Instant Messaging client.
 #
 # Distributable under LGPL license.
 # See terms of license at gnu.org.
 #
 
-# sources.list setting for SIP Communicator updates.
+# sources.list setting for Jitsi updates.
 REPOCONFIG="deb http://download.jitsi.org/deb unstable/"
 
 SOURCES_PREAMBLE="### THIS FILE IS AUTOMATICALLY CONFIGURED ###
@@ -69,7 +69,7 @@ find_apt_sources() {
   APT_SOURCESDIR="$APTDIR$APTETC$(apt_config_val 'Dir::Etc::sourceparts')"
 }
 
-# Add the SIP Communicator repository to the apt sources.
+# Add the Jitsi repository to the apt sources.
 # Returns:
 # 0 - sources list was created
 # 2 - error

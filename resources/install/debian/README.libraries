@@ -1,0 +1,127 @@
+Libraries that we bundle directly in Jitsi:
+
+Note 1: Currently all libraries live in lib/src.
+Note 2: We have indicated when Jitsi community members are also somehow affiliated with the project
+
+- dhcp4java https://sourceforge.net/projects/dhcp4java/
+Java DHCP API.
+Reason: No Debian package.
+
+- fmj http://fmj-sf.net/
+FMJ is an open-source project with the goal of providing an alternative
+to Java Media Framework (JMF).
+Jitsi team is maintainer of the project.
+Reason: No Debian package.
+
+- ice4j http://code.google.com/p/ice4j/
+This project provides a Java implementation of the ICE protocol
+that would be usable by both SIP and XMPP applications.
+The Jitsi community is the maintainer of this project.
+Reason: No Debian package.
+
+- jfontchooser http://sourceforge.net/projects/jfontchooser/
+This projects tries to provide an easy JFontChooser in the form of the JColorChooser.
+Reason: No Debian package.
+
+- jnsapi http://code.google.com/p/jinglenodes/
+Jingle Nodes is an XMPP Extension that enable users to share and discover
+P2P Media Relays that can be used to enable Voice and Video Chat via Jingle.
+Reason: No Debian package.
+
+- jsip http://jsip.java.net/
+This project publishes a full implementation of the RFC 3261 Specification
+and as well as support for several SIP RFCs.
+Emil Ivov from Jitsi team is contributor and has commit right in the project.
+Reason: No Debian package.
+
+- jymsg http://jymsg9.sourceforge.net/
+This API provides a way for Java applications to connect and
+use the Yahoo Instant Messenger protocol.
+Damian Minkov from Jitsi team is contributor and has commit right in the project.
+Reason: No Debian package.
+
+- libjitsi https://jitsi.org/libjitsi
+An advanced Java media library for secure real-time audio/video communication.
+Jitsi team is maintainer of the project.
+Reason: No Debian package.
+
+- OrangeExtensions http://ymasory.github.com/OrangeExtensions/
+A pluggable jar containing stubs for the Apple Java Extensions.
+Reason: No Debian package.
+
+- portaudio http://www.portaudio.com/
+PortAudio is a free, cross-platform, open-source, audio I/O library.
+Reason: A Debian package does exist for port audio however, the Jitsi community is using one of its forks (i.e. the hotplug branch) with a number of additional changes such as:
+* further improved device hotplug for windows.
+* device hotplug for macosx and linux
+* fixes for various problems with device locks.
+
+- smack_src_3_2_2 http://www.igniterealtime.org/projects/smack/
+Smack is an Open Source XMPP (Jabber) client library.
+Reason: We contributed several patches on version 3.2.2 in order to fix a memory leak, added code that handles some currently unchecked, fixes for discovery info parsing, a pubsub parsing problem and the option to use a custom javax.net.ssl.TrustManager. All of those have been sent to the smack community for integration about a year ago, but haven’t been integrated since.
+And there’s no Debian package.
+
+- weupnp http://code.google.com/p/weupnp/
+Weupnp is a lightweight Java library implements the UPnP protocol.
+Jitsi’s Sebastien Vincent is contributor and has commit right in the project.
+Reason: No Debian package.
+
+- dnsjava-2.1.3 http://dnsjava.org/
+dnsjava is an implementation of DNS in Java.
+Using version 2.1.3.
+Reason: A Debian package exists only for version 2.0.8.
+
+- gdata-java-client http://code.google.com/p/gdata-java-client/
+The Google Data Java client library.
+Using version 1.43.0.
+Reason: A Debian package exist only for version 1.30.0.
+
+- java-jml http://sourceforge.net/apps/trac/java-jml
+JML is a Java API for communication with Windows Live Messenger/
+MSN Messenger services.
+Damian Minkov from Jitsi team is contributor and has commit right in the project.
+Reason: No Debian package.
+
+- jmyspell http://kenai.com/projects/jmyspell
+JMySpell is a 100% pure-Java implementation of the MySpell spell checker.
+Reason: No Debian package.
+
+- joscar http://code.google.com/p/joscar/
+joscar is an easy-to-use, robust library for connecting
+to AOL Instant Messenger and ICQ from Java.
+Reason: No Debian package.
+
+- jsocks http://jsocks.sourceforge.net/
+It is a SOCKS server written entirely in Java,
+which supports both SOCKS4 and SOCKS5 protocols.
+Reason: No Debian package.
+
+- lcrypto http://www.bouncycastle.org/
+A lightweight cryptography API for Java.
+Reason: We are using a modified version based on 1.43 with changes needed for SSL Certificate validation, Skein and also a modified Big Number module better suited for security functions. Discussions on the subject:
+http://java.net/projects/jitsi/lists/dev/archive/2012-07/message/192
+
+- misc http://java.net/projects/jdic
+Using the desktop window alerter (for windows, mac and linux).
+Part in the jdic project svn/trunk/src/incubator/misc.
+Reason: No Debian package.
+
+- otr4j https://github.com/gpolitis/otr4j
+otr4j is an implementation of the OTR (Off The Record) protocol in java.
+Jitsi’s George Politis (who developed the lib as a GSoC 2009 participant) is current maintainer.
+Reason: No Debian package.
+
+- sdes4j http://code.google.com/p/sdes4j/
+Implementation of RFC4568: Session Description Protocol (SDP)
+Security Descriptions for Media Streams for Java.
+Jitsi’s Ingo Bauersachs is maintainer and owner of the project.
+Reason: No Debian package.
+
+- swingworker
+Part of jdesktop.org JDNC project.
+Reason: No Debian package.
+
+- zrtp4j https://github.com/wernerd/ZRTP4J
+Java implementation of ZRTP protocol.
+Werner Dittmann from Jitsi team is maintainer and owner of the project.
+Reason: No Debian package.

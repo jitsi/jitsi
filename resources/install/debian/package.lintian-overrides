@@ -1,0 +1,2 @@
+# Those jars are felix bundles and are jitsi specific and goes in jitsi specific subfolder
+jitsi: jar-not-in-usr-share

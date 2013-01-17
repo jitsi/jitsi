@@ -1,0 +1,123 @@
+--- a/lib/src/libjitsi/src/native/build.xml
++++ b/lib/src/libjitsi/src/native/build.xml
+@@ -104,6 +104,18 @@
+     <isset property="is.running.macos"/>
+   </condition>
+ 
++  <!-- The path to the dpkg-buildpackage tool -->
++  <property name="dpkg-buildpackage" value="/usr/bin/dpkg-buildpackage"/>
++  <!-- The path to the dh_testdir tool -->
++  <property name="dh_testdir" value="/usr/bin/dh_testdir"/>
++  <condition property="is.running.debian">
++    <and>
++        <isset property="is.running.linux"/>
++        <available file="${dpkg-buildpackage}"/>
++        <available file="${dh_testdir}"/>
++    </and>
++  </condition>
++
+   <!--
+   <echo message="ffmpeg library: ${ffmpeg}" />
+   <echo message="x264 library: ${x264}" />
+@@ -192,10 +204,17 @@
+       <linkerarg value="-ljawt" location="end" />
+ 
+       <!-- Linux-specific flags -->
++      <compilerarg value="-D_FORTIFY_SOURCE=2" if="is.running.debian"/>
++      <compilerarg value="-g" if="is.running.debian"/>
++      <compilerarg value="-fstack-protector" if="is.running.debian"/>
++      <compilerarg value="--param=ssp-buffer-size=4" if="is.running.debian"/>
++      <compilerarg value="-Werror=format-security" if="is.running.debian"/>
++      <compilerarg value="-Wformat" if="is.running.debian"/>
+       <compilerarg value="-I${system.JAVA_HOME}/include/linux" if="is.running.linux" />
+ 
+       <linkerarg value="-L${system.JAVA_HOME}/jre/lib/i386" if="is.running.linux" />
+       <linkerarg value="-L${system.JAVA_HOME}/jre/lib/amd64" if="is.running.linux" />
++      <linkerarg value="-Wl,-z,relro" if="is.running.debian"/>
+       <linkerarg value="-lXv" location="end" if="is.running.linux" />
+       <linkerarg value="-lX11" location="end" if="is.running.linux" />
+ 
+@@ -287,6 +306,7 @@
+       <linkerarg value="-lswscale" location="end" />
+       <linkerarg value="-lmp3lame" location="end" />
+       <linkerarg value="-lx264" location="end" />
++      <linkerarg value="-Wl,-z,relro" if="is.running.debian"/>
+       <linkerarg value="-lvpx" location="end" />
+ 
+       <!-- Linux specific flags -->
+@@ -379,6 +399,7 @@
+ 
+       <!-- Linux-specific flags -->
+       <compilerarg value="-I${system.JAVA_HOME}/include/linux" if="is.running.linux" />
++      <compilerarg value="-D_FORTIFY_SOURCE=2" if="is.running.debian"/>
+ 
+       <!-- Static libraries MUST be at the end; otherwise, they will not be
+            added to shared library.
+@@ -392,6 +413,7 @@
+       <linkerarg value="-lasound" location="end" if="is.running.linux" />
+       <linkerarg value="-lm" location="end" if="is.running.linux" />
+       <linkerarg value="-lpthread" location="end" if="is.running.linux" />
++      <linkerarg value="-Wl,-z,relro" if="is.running.debian"/>
+ 
+       <!-- OS X-specific flags -->
+       <compilerarg value="-arch"  if="is.running.macos" />
+@@ -583,6 +605,7 @@
+             <compilerarg value="-D_JNI_IMPLEMENTATION_" />
+ 
+             <linkerarg value="-L${opus}/.libs" />
++            <linkerarg value="-Wl,-z,relro" if="is.running.debian"/>
+ 
+             <!-- Linux specific flags -->
+             <compilerarg value="-m32" if="cross_32" unless="is.running.macos" />
+@@ -660,6 +683,7 @@
+ 
+       <linkerarg value="-m32" if="cross_32" />
+       <linkerarg value="-m64" if="cross_64" />
++      <linkerarg value="-Wl,-z,relro" if="is.running.debian"/>
+ 
+       <fileset dir="${src}/native/linux/video4linux2" includes="*.c"/>
+     </cc>
+@@ -794,6 +818,7 @@
+                 <compilerarg value="-D_REENTRANT" />
+ 
+                 <linkerarg value="-Wl,--no-undefined" />
++                <linkerarg value="-Wl,-z,relro" if="is.running.debian"/>
+                 <linkerarg value="-lpulse" />
+                 <linkerarg value="-ldl" />
+ 
+--- a/lib/src/libjitsi/src/native/ffmpeg/org_jitsi_impl_neomedia_codec_FFmpeg.c
++++ b/lib/src/libjitsi/src/native/ffmpeg/org_jitsi_impl_neomedia_codec_FFmpeg.c
+@@ -17,8 +17,8 @@
+ #include <libavfilter/avfilter.h>
+ #include <libavfilter/avfiltergraph.h>
+ #include <libavfilter/buffersrc.h>
+-#include <libavfilter/formats.h> /* ff_default_query_formats, ff_make_format_list, ff_set_common_formats */
+-#include <libavfilter/internal.h> /* ff_request_frame */
++//#include <libavfilter/formats.h> /* ff_default_query_formats, ff_make_format_list, ff_set_common_formats */
++//#include <libavfilter/internal.h> /* ff_request_frame */
+ #include <libswscale/swscale.h>
+ 
+ #define DEFINE_AVCODECCONTEXT_F_PROPERTY_SETTER(name, property) \
+@@ -512,7 +512,7 @@
+     int err;
+ 
+     /* Find buffer. */
+-    while (src && src->nb_inputs && src->inputs)
++    while (src && src->inputs && src->inputs)
+     {
+         AVFilterLink *link = src->inputs[0];
+ 
+@@ -527,11 +527,11 @@
+     {
+         const int pix_fmts[] = { src->outputs[0]->in_formats->formats[0], -1 };
+ 
+-        ff_set_common_formats(ctx, ff_make_format_list(pix_fmts));
++        avfilter_set_common_formats(ctx, ff_make_format_list(pix_fmts));
+         err = 0;
+     }
+     else
+-        err = ff_default_query_formats(ctx);
++        err = query_formats(ctx);
+     return err;
+ }
+ 
