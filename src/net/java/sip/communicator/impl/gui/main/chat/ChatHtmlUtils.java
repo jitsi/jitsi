@@ -660,8 +660,10 @@ public class ChatHtmlUtils
         messageTag.append(createStartPlainTextTag(contentType));
         messageTag.append(message);
         if (isEdited)
-            messageTag.append(" " + createEditedAt(date));
+            messageTag.append("    ");
         messageTag.append(createEndPlainTextTag(contentType));
+        if (isEdited)
+            messageTag.append(createEditedAt(date));
         messageTag.append("</div>");
 
         return messageTag.toString();
@@ -701,8 +703,10 @@ public class ChatHtmlUtils
         messageTag.append(createStartPlainTextTag(contentType));
         messageTag.append(message);
         if (isEdited)
-            messageTag.append(" " + createEditedAt(date));
+            messageTag.append("    ");
         messageTag.append(createEndPlainTextTag(contentType));
+        if (isEdited)
+            messageTag.append(createEditedAt(date));
         messageTag.append("</div>");
 
         return messageTag.toString();
@@ -736,10 +740,10 @@ public class ChatHtmlUtils
      */
     private static String createEditedAt(long date)
     {
-        return "(" + GuiActivator.getResources()
+        return "<font color=\"#b7b7b7\">(" + GuiActivator.getResources()
                     .getI18NString( "service.gui.EDITED_AT",
                                     new String[]{GuiUtils.formatTime(date)})
-                + ")";
+                + ")</font>";
     }
 
     /**
