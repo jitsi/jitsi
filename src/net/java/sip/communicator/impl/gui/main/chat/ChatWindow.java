@@ -1258,10 +1258,17 @@ public class ChatWindow
 
             if(getCurrentChat() == null)
                 return false;
-            
+
             ChatWritePanel chatWritePanel
                 = getCurrentChat().getChatWritePanel();
             JEditorPane chatWriteEditor = chatWritePanel.getEditorPane();
+
+            // Don't re-dispatch any events if the menu is active. Fixes the
+            // navigation in the menu.
+            if (menuBar.isSelected())
+            {
+                return false;
+            }
 
             if (keyManager.getFocusOwner() != null
                 && !chatWritePanel.isFocusOwner())
