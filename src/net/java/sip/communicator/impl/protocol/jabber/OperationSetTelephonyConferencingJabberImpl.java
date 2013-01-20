@@ -49,15 +49,15 @@ public class OperationSetTelephonyConferencingJabberImpl
         = Logger.getLogger(OperationSetTelephonyConferencingJabberImpl.class);
 
     /**
+     * Synchronization object.
+     */
+    private final Object lock = new Object();
+
+    /**
      * The value of the <tt>version</tt> attribute to be specified in the
      * outgoing <tt>conference-info</tt> root XML elements.
      */
     private int version = 1;
-
-    /**
-     * Synchronization object.
-     */
-    private final Object objSync = new Object();
 
     /**
      * Initializes a new <tt>OperationSetTelephonyConferencingJabberImpl</tt>
@@ -88,13 +88,14 @@ public class OperationSetTelephonyConferencingJabberImpl
     {
         if (call.isConferenceFocus())
         {
-            synchronized (objSync)
+            synchronized (lock)
             {
-                // send conference-info to all CallPeers of the call.
-                Iterator<? extends CallPeer> callPeerIter = call.getCallPeers();
-
-                while (callPeerIter.hasNext())
-                    notify(callPeerIter.next());
+                // send conference-info to all CallPeers of the specified call.
+                for (Iterator<? extends CallPeer> i = call.getCallPeers();
+                        i.hasNext();)
+                {
+                    notify(i.next());
+                }
 
                 version++;
             }
@@ -133,7 +134,7 @@ public class OperationSetTelephonyConferencingJabberImpl
             logger.warn("Failed to retrieve DiscoverInfo for " + to, xmppe);
         }
 
-        IQ iq = getConferenceInfo((CallPeerJabberImpl)callPeer, version);
+        IQ iq = getConferenceInfo((CallPeerJabberImpl) callPeer, version);
 
         if (iq != null)
             parentProvider.getConnection().sendPacket(iq);

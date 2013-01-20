@@ -795,7 +795,7 @@ public class CallConference
      * telephony conference changed as a result of the method call; otherwise,
      * <tt>false</tt>
      */
-    public boolean removeCall(Call call)
+    boolean removeCall(Call call)
     {
         if (call == null)
             return false;

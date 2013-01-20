@@ -1212,9 +1212,8 @@ public class MediaHandler
                         this.audioStream.setStreamAudioLevelListener(null);
                 }
 
-                this.audioStream
-                        .removePropertyChangeListener(
-                                streamPropertyChangeListener);
+                this.audioStream.removePropertyChangeListener(
+                        streamPropertyChangeListener);
                 this.audioStream.close();
             }
 
@@ -1225,9 +1224,8 @@ public class MediaHandler
 
             if (this.audioStream != null)
             {
-                this.audioStream
-                        .addPropertyChangeListener(
-                                streamPropertyChangeListener);
+                this.audioStream.addPropertyChangeListener(
+                        streamPropertyChangeListener);
                 audioLocalSSRC = this.audioStream.getLocalSourceID();
                 audioRemoteSSRC = this.audioStream.getRemoteSourceID();
 

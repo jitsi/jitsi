@@ -268,9 +268,9 @@ public abstract class AbstractOperationSetTelephonyConferencing<
      * @param event a <tt>CallPeerEvent</tt> which specifies the
      * <tt>CallPeer</tt> which has been removed from a <tt>Call</tt>
      */
-    @SuppressWarnings("unchecked")
     public void callPeerRemoved(CallPeerEvent event)
     {
+        @SuppressWarnings("unchecked")
         MediaAwareCallPeerT callPeer =
             (MediaAwareCallPeerT) event.getSourceCallPeer();
 
@@ -467,17 +467,15 @@ public abstract class AbstractOperationSetTelephonyConferencing<
      */
     private String getEndpointStatus(Node endpoint)
     {
-        NodeList endpointChildList = endpoint.getChildNodes();
-        int endpoingChildCount = endpointChildList.getLength();
+        NodeList childNodes = endpoint.getChildNodes();
+        int childCount = childNodes.getLength();
 
-        for (int endpointChildIndex = 0;
-                endpointChildIndex < endpoingChildCount;
-                endpointChildIndex++)
+        for (int i = 0; i < childCount; i++)
         {
-            Node endpointChild = endpointChildList.item(endpointChildIndex);
+            Node child = childNodes.item(i);
 
-            if (ELEMENT_STATUS.equals(endpointChild.getNodeName()))
-                return endpointChild.getTextContent();
+            if (ELEMENT_STATUS.equals(child.getNodeName()))
+                return child.getTextContent();
         }
         return null;
     }
@@ -686,24 +684,19 @@ public abstract class AbstractOperationSetTelephonyConferencing<
      * old and new values of the property
      * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
      */
-    @SuppressWarnings("unchecked")
     public void propertyChange(PropertyChangeEvent ev)
     {
         String propertyName = ev.getPropertyName();
 
-        if (CallPeerMediaHandler.AUDIO_LOCAL_SSRC.equals(
-                propertyName)
-                || CallPeerMediaHandler.AUDIO_REMOTE_SSRC.equals(
-                        propertyName)
-                || CallPeerMediaHandler.VIDEO_LOCAL_SSRC.equals(
-                        propertyName)
-                || CallPeerMediaHandler.VIDEO_REMOTE_SSRC.equals(
-                        propertyName))
+        if (CallPeerMediaHandler.AUDIO_LOCAL_SSRC.equals(propertyName)
+                || CallPeerMediaHandler.AUDIO_REMOTE_SSRC.equals(propertyName)
+                || CallPeerMediaHandler.VIDEO_LOCAL_SSRC.equals(propertyName)
+                || CallPeerMediaHandler.VIDEO_REMOTE_SSRC.equals(propertyName))
         {
-            Call call
-                = ((CallPeerMediaHandler<MediaAwareCallPeerT>) ev.getSource())
-                    .getPeer()
-                        .getCall();
+            @SuppressWarnings("unchecked")
+            CallPeerMediaHandler<MediaAwareCallPeerT> mediaHandler
+                = (CallPeerMediaHandler<MediaAwareCallPeerT>) ev.getSource();
+            Call call = mediaHandler.getPeer().getCall();
 
             if (call != null)
                 notifyAll(call);
@@ -798,23 +791,23 @@ public abstract class AbstractOperationSetTelephonyConferencing<
                     continue;
 
                 /*
-                 * Determine the ConferenceMembers which are no longer in the
-                 * list.
+                 * Determine the ConferenceMembers who are no longer in the list
+                 * i.e. are to be removed.
                  */
-                AbstractConferenceMember existingConferenceMember = null;
+                AbstractConferenceMember conferenceMember = null;
 
                 for (int i = 0; i < toRemoveCount; i++)
                 {
-                    ConferenceMember conferenceMember
+                    ConferenceMember aConferenceMember
                         = toRemove[i];
 
-                    if ((conferenceMember != null)
+                    if ((aConferenceMember != null)
                             && address.equalsIgnoreCase(
-                                    conferenceMember.getAddress()))
+                                    aConferenceMember.getAddress()))
                     {
                         toRemove[i] = null;
-                        existingConferenceMember
-                            = (AbstractConferenceMember) conferenceMember;
+                        conferenceMember
+                            = (AbstractConferenceMember) aConferenceMember;
                         break;
                     }
                 }
@@ -822,9 +815,9 @@ public abstract class AbstractOperationSetTelephonyConferencing<
                 // Create the new ones.
                 boolean addConferenceMember;
 
-                if (existingConferenceMember == null)
+                if (conferenceMember == null)
                 {
-                    existingConferenceMember
+                    conferenceMember
                         = new AbstractConferenceMember(callPeer, address);
                     addConferenceMember = true;
                 }
@@ -832,7 +825,7 @@ public abstract class AbstractOperationSetTelephonyConferencing<
                     addConferenceMember = false;
 
                 // Update the existing ones.
-                if (existingConferenceMember != null)
+                if (conferenceMember != null)
                 {
                     NodeList userChildList = user.getChildNodes();
                     int userChildCount = userChildList.getLength();
@@ -868,15 +861,15 @@ public abstract class AbstractOperationSetTelephonyConferencing<
                                     conferenceMemberProperties);
                         }
                     }
-                    existingConferenceMember.setDisplayName(displayName);
-                    existingConferenceMember.setEndpointStatus(endpointStatus);
+                    conferenceMember.setDisplayName(displayName);
+                    conferenceMember.setEndpointStatus(endpointStatus);
 
                     changed
-                        = existingConferenceMember.setProperties(
+                        = conferenceMember.setProperties(
                                 conferenceMemberProperties);
 
                     if (addConferenceMember)
-                        callPeer.addConferenceMember(existingConferenceMember);
+                        callPeer.addConferenceMember(conferenceMember);
                 }
             }
         }

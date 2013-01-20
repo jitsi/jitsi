@@ -195,6 +195,10 @@ public abstract class CallPeerMediaHandler
     /**
      * The <tt>PropertyChangeListener</tt> which listens to changes in the
      * values of the properties of the <tt>MediaStream</tt>s of this instance.
+     * Since <tt>CallPeerMediaHandler</tt> wraps around/shares a
+     * <tt>MediaHandler</tt>, <tt>streamPropertyChangeListener</tt> actually
+     * listens to <tt>PropertyChangeEvent</tt>s fired by the
+     * <tt>MediaHandler</tt> in question and forwards them as its own.
      */
     private final PropertyChangeListener streamPropertyChangeListener
         = new PropertyChangeListener()

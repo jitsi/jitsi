@@ -591,46 +591,48 @@ public class VideoConferenceCallPanel
         {
             /*
              * The local peer/user will be represented by a Call which has a
-             * CallPeer which provides local video.
+             * CallPeer who provides local video. However, if the user has
+             * selected to hide the local video, the local peer/user will not be
+             * represented at all.
              */
             Component video = null;
 
-            for (Call aCall : callConference.getCalls())
+            if (uiVideoHandler.isLocalVideoVisible())
             {
-                Iterator<? extends CallPeer> callPeerIter
-                    = aCall.getCallPeers();
-                OperationSetVideoTelephony videoTelephony
-                    = aCall.getProtocolProvider().getOperationSet(
-                            OperationSetVideoTelephony.class);
-                boolean localVideoIsVisible
-                    = (videoTelephony != null)
-                        && uiVideoHandler.isLocalVideoVisible();
-
-                while (callPeerIter.hasNext())
+                for (Call aCall : callConference.getCalls())
                 {
-                    callPeer = callPeerIter.next();
+                    Iterator<? extends CallPeer> callPeerIter
+                        = aCall.getCallPeers();
+                    OperationSetVideoTelephony videoTelephony
+                        = aCall.getProtocolProvider().getOperationSet(
+                                OperationSetVideoTelephony.class);
 
-                    if (localVideoIsVisible)
+                    while (callPeerIter.hasNext())
                     {
-                        try
+                        callPeer = callPeerIter.next();
+
+                        if (videoTelephony != null)
                         {
-                            video
-                                = videoTelephony.getLocalVisualComponent(
-                                        callPeer);
+                            try
+                            {
+                                video
+                                    = videoTelephony.getLocalVisualComponent(
+                                            callPeer);
+                            }
+                            catch (OperationFailedException ofe)
+                            {
+                                logger.error(
+                                        "Failed to retrieve the local video"
+                                            + " for display",
+                                        ofe);
+                            }
+                            if (video != null)
+                                break;
                         }
-                        catch (OperationFailedException ofe)
-                        {
-                            logger.error(
-                                    "Failed to retrieve the local video"
-                                        + " for display",
-                                    ofe);
-                        }
-                        if (video != null)
-                            break;
                     }
+                    if (video != null)
+                        break;
                 }
-                if (video != null)
-                    break;
             }
 
             if (callPeer == null)

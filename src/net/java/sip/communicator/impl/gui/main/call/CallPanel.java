@@ -667,7 +667,13 @@ public class CallPanel
             settingsPanel.remove(remoteLevel);
         }
 
-        chatButton.setVisible(getIMCapableCallPeers(1).size() == 1);
+        /*
+         * We do not support chat conferencing with the participants in a
+         * telephony conference at this time so we do not want the chatButton
+         * visible in such a scenario.
+         */
+        chatButton.setVisible(
+                !isConference && (getIMCapableCallPeers(1).size() == 1));
         /*
          * TODO The full-screen support is currently broken so the
          * fullScreenButton is not enabled or shown.
@@ -677,6 +683,12 @@ public class CallPanel
         updateMergeButtonState();
 
         List<Call> calls = callConference.getCalls();
+        /*
+         * OperationSetAdvancedTelephony implements call transfer. The feature
+         * is not supported if the local user/peer is a conference focus.
+         * Instead of disabling the transferCallButton in this case though, we
+         * want it hidden.
+         */
         boolean advancedTelephony = !calls.isEmpty();
         boolean telephonyConferencing = false;
         boolean videoTelephony = false;
@@ -737,6 +749,7 @@ public class CallPanel
 
         conferenceButton.setEnabled(telephonyConferencing);
         transferCallButton.setEnabled(advancedTelephony);
+        transferCallButton.setVisible(!callConference.isConferenceFocus());
 
         /*
          * The videoButton is a beast of its own kind because it depends not
@@ -1949,7 +1962,6 @@ public class CallPanel
          * method updateViewFromModelInEventDispatchThread we have made it easy
          * to add code before and/or after the invocation of the delegate.
          */
-
         doUpdateSettingsPanelInEventDispatchThread(callConferenceIsEnded);
     }
 

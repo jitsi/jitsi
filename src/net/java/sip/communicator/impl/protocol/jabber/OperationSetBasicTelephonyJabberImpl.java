@@ -431,13 +431,20 @@ public class OperationSetBasicTelephonyJabberImpl
             {
                 logger.info("initiate Gingle call");
                 CallGTalkImpl callGTalk = new CallGTalkImpl(this);
+                CallConference conference = call.getConference();
                 MediaUseCase useCase = call.getMediaUseCase();
-                boolean isVideo = call.isLocalVideoAllowed(useCase);
+                boolean video = call.isLocalVideoAllowed(useCase);
 
-                CallConference callConference = call.getConference();
-                callConference.removeCall(call);
-                callGTalk.setConference(callConference);
-                callGTalk.setLocalVideoAllowed(isVideo, useCase);
+                /*
+                 * The specified call is being replaced by callGTalk as its
+                 * runtime representation. Make sure that they do not exist as
+                 * two separate Call instances= Otherwise, they would, for
+                 * example, appear to be in a telephony conference. 
+                 */
+                call.setConference(null);
+                callGTalk.setConference(conference);
+
+                callGTalk.setLocalVideoAllowed(video, useCase);
                 peer
                     = callGTalk.initiateGTalkSession(
                             fullCalleeURI,
