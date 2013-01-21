@@ -1975,9 +1975,8 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/service/httputil/httputil.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/service/httputil"
                 prefix="net/java/sip/communicator/service/httputil"/>
-            <zipfileset src="${lib.noinst}/httpclient-4.1.2.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/httpcore-4.1.2.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/httpmime-4.1.2.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/httpclient-osgi-4.2.3.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/httpcore-osgi-4.2.3.jar" prefix=""/>
         </jar>
     </target>
 

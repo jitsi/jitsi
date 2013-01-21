@@ -32,7 +32,6 @@ import org.apache.http.impl.client.*;
 import org.apache.http.impl.conn.*;
 import org.apache.http.message.*;
 import org.apache.http.params.*;
-import org.apache.http.protocol.*;
 import org.apache.http.util.*;
 import org.jitsi.util.*;
 
@@ -494,8 +493,8 @@ public class HttpUtils
             }
         }
 
-        String s = URLEncodedUtils.format(parameters, HTTP.UTF_8);
-        StringEntity entity = new StringEntity(s, HTTP.UTF_8);
+        String s = URLEncodedUtils.format(parameters, Consts.UTF_8);
+        StringEntity entity = new StringEntity(s, Consts.UTF_8);
         // set content type to "application/x-www-form-urlencoded"
         entity.setContentType(URLEncodedUtils.CONTENT_TYPE);
 
@@ -554,6 +553,9 @@ public class HttpUtils
             throw new IOException(e.getMessage());
         }
 
+        // note to any reviewer concerned about ALLOW_ALL_HOSTNAME_VERIFIER:
+        // the SSL context obtained from the certificate service takes care of
+        // certificate validation
         Scheme sch =
             new Scheme("https", 443, new SSLSocketFactory(sslCtx,
                 SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER));
