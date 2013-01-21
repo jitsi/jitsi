@@ -155,6 +155,11 @@ public class NetworkUtils
     private static final NetworkListener netListener = new NetworkListener();
 
     /**
+     * A random number generator.
+     */
+    private static final Random random = new Random();
+
+    /**
      * Determines whether the address is the result of windows auto configuration.
      * (i.e. One that is in the 169.254.0.0 network)
      * @param add the address to inspect
@@ -627,14 +632,8 @@ public class NetworkUtils
             srvRecords[i] = new SRVRecord(srvRecord);
         }
 
-        /* sort the SRV RRs by RR value (lower is preferred) */
-        Arrays.sort(srvRecords, new Comparator<SRVRecord>()
-        {
-            public int compare(SRVRecord obj1, SRVRecord obj2)
-            {
-                return (obj1.getPriority() - obj2.getPriority());
-            }
-        });
+        // Sort the SRV RRs by priority (lower is preferred) and weight.
+        sortSrvRecord(srvRecords);
 
         if (logger.isTraceEnabled())
         {
@@ -744,7 +743,7 @@ public class NetworkUtils
             return null;
         }
 
-        String[][] recVals = new String[records.length][3];
+        String[][] recVals = new String[records.length][4];
         for (int i = 0; i < records.length; i++)
         {
             NAPTRRecord r = (NAPTRRecord)records[i];
@@ -760,16 +759,41 @@ public class NetworkUtils
                         replacement.substring(0, replacement.length() - 1);
             }
             else
+            {
                 recVals[i][2] = replacement;
+            }
+            recVals[i][3] = "" + r.getPreference();
         }
 
-        /* sort the SRV RRs by RR value (lower is preferred) */
+        // sort the SRV RRs by RR value (lower is preferred)
         Arrays.sort(recVals, new Comparator<String[]>()
         {
+            // Sorts NAPTR records by ORDER (low number first), PREFERENCE (low
+            // number first) and PROTOCOL (0-TLS, 1-TCP, 2-UDP).
             public int compare(String array1[], String array2[])
             {
-                return (Integer.parseInt(   array1[0])
-                        - Integer.parseInt( array2[0]));
+                // First tries to define the priority with the NAPTR order.
+                int order
+                    = Integer.parseInt(array1[0]) - Integer.parseInt(array2[0]);
+                if(order != 0)
+                {
+                    return order;
+                }
+
+                // Second tries to define the priority with the NAPTR
+                // preference.
+                int preference
+                    = Integer.parseInt(array1[4]) - Integer.parseInt(array2[4]);
+                if(preference != 0)
+                {
+                    return preference;
+                }
+
+                // Finally defines the priority with the NAPTR protocol.
+                int protocol
+                    = getProtocolPriority(array1[1])
+                        - getProtocolPriority(array2[1]);
+                return protocol;
             }
         });
 
@@ -795,6 +819,24 @@ public class NetworkUtils
             return "TLS";
         else
             return null;
+    }
+
+    /**
+     * Returns the priority of a protocol. The lowest priority is the highest:
+     * 0-TLS, 1-TCP, 2-UDP.
+     *
+     * @param protocol The protocol name: "TLS", "TCP" or "UDP".
+     *
+     * @return The priority of a protocol. The lowest priority is the highest:
+     * 0-TLS, 1-TCP, 2-UDP.
+     */
+    private static int getProtocolPriority(String protocol)
+    {
+        if(protocol.equals("TLS"))
+            return 0;
+        else if(protocol.equals("TCP"))
+            return 1;
+        return 2; // "UDP".
     }
 
     /**
@@ -1467,6 +1509,151 @@ public class NetworkUtils
         catch(TextParseException e)
         {
             throw new ParseException(e.getMessage(), 0);
+        }
+    }
+
+    /**
+     * Sorts the SRV record list by priority and weight.
+     *
+     * @param srvRecords The list of SRV records.
+     */
+    private static void sortSrvRecord(SRVRecord[] srvRecords)
+    {
+        // Sort the SRV RRs by priority (lower is preferred).
+        Arrays.sort(srvRecords, new Comparator<SRVRecord>()
+        {
+            public int compare(SRVRecord obj1, SRVRecord obj2)
+            {
+                return (obj1.getPriority() - obj2.getPriority());
+            }
+        });
+
+        // Sort the SRV RRs by weight (larger weight has a proportionately
+        // higher probability of being selected).
+        sortSrvRecordByWeight(srvRecords);
+    }
+
+    /**
+     * Sorts each priority of the SRV record list. Each priority is sorted with
+     * the probabilty given by the weight attribute.
+     *
+     * @param srvRecords The list of SRV records already sorted by priority.
+     */
+    private static void sortSrvRecordByWeight(SRVRecord[] srvRecords)
+    {
+        int currentPriority = srvRecords[0].getPriority();
+        int startIndex = 0;
+
+        for(int i = 0; i < srvRecords.length; ++i)
+        {
+            if(currentPriority != srvRecords[i].getPriority())
+            {
+                // Sort the current priority.
+                sortSrvRecordPriorityByWeight(srvRecords, startIndex, i);
+                // Reinit variables for the next priority.
+                startIndex = i;
+                currentPriority = srvRecords[i].getPriority();
+            }
+        }
+    }
+
+    /**
+     * Sorts SRV record list for a given priority: this priority is sorted with
+     * the probabilty given by the weight attribute.
+     *
+     * @param srvRecords The list of SRV records already sorted by priority.
+     * @param startIndex The first index (included) for the current priority.
+     * @param endIndex The last index (excluded) for the current priority.
+     */
+    private static void sortSrvRecordPriorityByWeight(
+            SRVRecord[] srvRecords,
+            int startIndex,
+            int endIndex)
+    {
+        int randomWeight;
+
+        // Loops over the items of the current priority.
+        while(startIndex < endIndex)
+        {
+            // Compute a random number in [0...totalPriorityWeight].
+            randomWeight = getRandomWeight(srvRecords, startIndex, endIndex);
+
+            // Move the selected item on top of the unsorted items for this
+            // priority.
+            moveSelectedSRVRecord(
+                    srvRecords,
+                    startIndex,
+                    endIndex,
+                    randomWeight);
+
+            // Move to next index.
+            ++startIndex;
+        }
+    }
+
+    /**
+     * Compute a random number in [0...totalPriorityWeight] with
+     * totalPriorityWeight the sum of all weight for the current priority.
+     *
+     * @param srvRecords The list of SRV records already sorted by priority.
+     * @param startIndex The first index (included) for the current priority.
+     * @param endIndex The last index (excluded) for the current priority.
+     *
+     * @return A random number in [0...totalPriorityWeight] with
+     * totalPriorityWeight the sum of all weight for the current priority.
+     */
+    private static int getRandomWeight(
+            SRVRecord[] srvRecords,
+            int startIndex,
+            int endIndex)
+    {
+        int totalPriorityWeight = 0;
+
+        // Compute the max born.
+        for(int i = startIndex; i < endIndex; ++i)
+        {
+            totalPriorityWeight += srvRecords[i].getWeight();
+        }
+
+        // Compute a random number in [0...totalPriorityWeight].
+        return random.nextInt(totalPriorityWeight + 1);
+    }
+
+    /**
+     * Moves the selected SRV record in top of the unsorted items for this
+     * priority.
+     *
+     * @param srvRecords The list of SRV records already sorted by priority.
+     * @param startIndex The first unsorted index (included) for the current
+     * priority.
+     * @param endIndex The last unsorted index (excluded) for the current
+     * priority.
+     * @param selectedWeight The selected weight used to design the selected
+     * item to move.
+     */
+    private static void moveSelectedSRVRecord(
+            SRVRecord[] srvRecords,
+            int startIndex,
+            int endIndex,
+            int selectedWeight)
+    {
+        SRVRecord tmpSrvRecord;
+        int totalPriorityWeight = 0;
+
+        for(int i = startIndex; i < endIndex; ++i)
+        {
+            totalPriorityWeight += srvRecords[i].getWeight();
+
+            // If we found the selecting record.
+            if(totalPriorityWeight >= selectedWeight)
+            {
+                // Switch between startIndex and j.
+                tmpSrvRecord = srvRecords[startIndex];
+                srvRecords[startIndex] = srvRecords[i];
+                srvRecords[i] = tmpSrvRecord;
+                // Break the loop;
+                return;
+            }
         }
     }
 }
