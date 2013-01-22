@@ -2874,10 +2874,10 @@
         <!-- libhttpcore-java libhttpmime-java  libhttpclient-java -->
         <symlink resource="/usr/share/java/httpclient.jar"
              overwrite="true"
-             link="${debian.src.dir}/lib/installer-exclude/httpclient-4.1.2.jar"/>
+             link="${debian.src.dir}/lib/installer-exclude/httpclient-osgi-4.2.3.jar"/>
         <symlink resource="/usr/share/java/httpcore.jar"
              overwrite="true"
-             link="${debian.src.dir}/lib/installer-exclude/httpcore-4.1.2.jar"/>
+             link="${debian.src.dir}/lib/installer-exclude/httpcore-osgi-4.2.3.jar"/>
         <symlink resource="/usr/share/java/httpmime.jar"
              overwrite="true"
              link="${debian.src.dir}/lib/installer-exclude/httpmime-4.1.2.jar"/>

@@ -493,8 +493,11 @@ public class HttpUtils
             }
         }
 
-        String s = URLEncodedUtils.format(parameters, Consts.UTF_8);
-        StringEntity entity = new StringEntity(s, Consts.UTF_8);
+        // Uses String UTF-8 to keep compatible with android version and
+        // older versions of the http client libs, as the one used
+        // in debian (4.1.x)
+        String s = URLEncodedUtils.format(parameters, "UTF-8");
+        StringEntity entity = new StringEntity(s, "UTF-8");
         // set content type to "application/x-www-form-urlencoded"
         entity.setContentType(URLEncodedUtils.CONTENT_TYPE);
 
