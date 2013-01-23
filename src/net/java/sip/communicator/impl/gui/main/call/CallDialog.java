@@ -31,9 +31,56 @@ public class CallDialog
     private static final long serialVersionUID = 0L;
 
     /**
+     * Finds a <tt>Container</tt> which is an ancestor of a specific
+     * <tt>Component</tt>, has a set <tt>preferredSize</tt> and is closest to
+     * the specified <tt>Component</tt> up the ancestor hierarchy.
+     * 
+     * @param component the <tt>Component</tt> whose ancestor hierarchy is to be
+     * searched upwards
+     * @return a <tt>Container</tt>, if any, which is an ancestor of the
+     * specified <tt>component</tt>, has a set <tt>preferredSize</tt> and is
+     * closest to the specified <tt>component</tt> up the ancestor hierarchy
+     */
+    private static Container findClosestAncestorWithSetPreferredSize(
+            Component component)
+    {
+        if ((component instanceof Container) && component.isPreferredSizeSet())
+            return (Container) component;
+        else
+        {
+            Container parent;
+
+            while ((parent = component.getParent()) != null)
+            {
+                if (parent.isPreferredSizeSet())
+                    return parent;
+                else
+                    component = parent;
+            }
+            return null;
+        }
+    }
+
+    /**
      * The panel, where all call components are added.
      */
     private CallPanel callPanel;
+
+    private final WindowStateListener windowStateListener
+        = new WindowStateListener()
+        {
+            public void windowStateChanged(WindowEvent ev)
+            {
+                switch (ev.getID())
+                {
+                case WindowEvent.WINDOW_DEACTIVATED:
+                case WindowEvent.WINDOW_ICONIFIED:
+                case WindowEvent.WINDOW_LOST_FOCUS:
+                    setFullScreen(false);
+                    break;
+                }
+            }
+        };
 
     /**
      * Creates a <tt>CallDialog</tt> by specifying the underlying call panel.
@@ -56,8 +103,8 @@ public class CallDialog
 
         getContentPane().add(callPanel);
 
-        this.setTitle(callPanel.getCallTitle());
         callPanel.addCallTitleListener(this);
+        setTitle(callPanel.getCallTitle());
 
         if (!isVisible())
         {
@@ -74,7 +121,7 @@ public class CallDialog
     public void callTitleChanged(CallPanel callPanel)
     {
         if (this.callPanel.equals(callPanel))
-            this.setTitle(callPanel.getCallTitle());
+            setTitle(callPanel.getCallTitle());
     }
 
     /**
@@ -86,12 +133,24 @@ public class CallDialog
     @Override
     protected void close(boolean escape)
     {
-        // If the window has been closed by clicking the X button or pressing
-        // the key combination corresponding to the same button we close the
-        // window first and then perform all hang up operations.
-        if (!escape)
+        if (escape)
         {
-            this.callPanel.disposeCallInfoFrame();
+            /*
+             * In full-screen mode, ESC does not close this CallDialog but exits
+             * from full-screen to windowed mode.
+             */
+            if (isFullScreen())
+                setFullScreen(false);
+        }
+        else
+        {
+            /*
+             * If the window has been closed by clicking the X button or
+             * pressing the key combination corresponding to the same button we
+             * close the window first and then perform all hang up operations.
+             */
+
+            callPanel.disposeCallInfoFrame();
             // We hide the window here. It will be disposed when the call has
             // been ended.
             setVisible(false);
@@ -351,37 +410,6 @@ public class CallDialog
     }
 
     /**
-     * Finds a <tt>Container</tt> which is an ancestor of a specific
-     * <tt>Component</tt>, has a set <tt>preferredSize</tt> and is closest to
-     * the specified <tt>Component</tt> up the ancestor hierarchy.
-     * 
-     * @param component the <tt>Component</tt> whose ancestor hierarchy is to be
-     * searched upwards
-     * @return a <tt>Container</tt>, if any, which is an ancestor of the
-     * specified <tt>component</tt>, has a set <tt>preferredSize</tt> and is
-     * closest to the specified <tt>component</tt> up the ancestor hierarchy
-     */
-    private static Container findClosestAncestorWithSetPreferredSize(
-            Component component)
-    {
-        if ((component instanceof Container) && component.isPreferredSizeSet())
-            return (Container) component;
-        else
-        {
-            Container parent;
-
-            while ((parent = component.getParent()) != null)
-            {
-                if (parent.isPreferredSizeSet())
-                    return parent;
-                else
-                    component = parent;
-            }
-            return null;
-        }
-    }
-
-    /**
      * Returns the frame of the call window.
      *
      * @return the frame of the call window
@@ -422,5 +450,127 @@ public class CallDialog
     public boolean isCallVisible(CallPanel callPanel)
     {
         return this.callPanel.equals(callPanel) ? isVisible() : false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isFullScreen()
+    {
+        return isFullScreen(getFrame());
+    }
+
+    /**
+     * Determines whether a specific <tt>Window</tt> is displayed in full-screen
+     * mode.
+     *
+     * @param window the <tt>Window</tt> to be checked whether it is displayed
+     * in full-screen mode
+     * @return <tt>true</tt> if the specified <tt>window</tt> is displayed in
+     * full-screen mode; otherwise, <tt>false</tt>
+     */
+    public static boolean isFullScreen(Window window)
+    {
+        GraphicsConfiguration graphicsConfiguration
+            = window.getGraphicsConfiguration();
+
+        if (graphicsConfiguration != null)
+        {
+            GraphicsDevice device = graphicsConfiguration.getDevice();
+
+            if (device != null)
+                return window.equals(device.getFullScreenWindow());
+        }
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setFullScreen(boolean fullScreen)
+    {
+        GraphicsConfiguration graphicsConfiguration
+            = getGraphicsConfiguration();
+
+        if (graphicsConfiguration != null)
+        {
+            GraphicsDevice device = graphicsConfiguration.getDevice();
+
+            if (device != null)
+            {
+                boolean thisIsFullScreen = equals(device.getFullScreenWindow());
+                boolean firePropertyChange = false;
+                boolean setVisible = isVisible();
+
+                try
+                {
+                    if (fullScreen)
+                    {
+                        if (!thisIsFullScreen)
+                        {
+                            /*
+                             * XXX The setUndecorated method will only work if
+                             * this Window is not displayable.
+                             */
+                            windowDispose();
+                            setUndecorated(true);
+
+                            device.setFullScreenWindow(this);
+                            firePropertyChange = true;
+                        }
+                    }
+                    else if (thisIsFullScreen)
+                    {
+                        /*
+                         * XXX The setUndecorated method will only work if this
+                         * Window is not displayable.
+                         */
+                        windowDispose();
+                        setUndecorated(false);
+
+                        device.setFullScreenWindow(null);
+                        firePropertyChange = true;
+                    }
+
+                    if (firePropertyChange)
+                    {
+                        if (fullScreen)
+                        {
+                            addWindowStateListener(windowStateListener);
+
+                            /*
+                             * If full-screen mode, a black background is the
+                             * most common.
+                             */
+                            getContentPane().setBackground(Color.BLACK);
+                        }
+                        else
+                        {
+                            removeWindowStateListener(windowStateListener);
+
+                            /*
+                             * In windowed mode, a system-defined background is
+                             * the most common.
+                             */
+                            getContentPane().setBackground(null);
+                        }
+
+                        firePropertyChange(
+                            PROP_FULL_SCREEN,
+                            thisIsFullScreen,
+                            fullScreen);
+                    }
+                }
+                finally
+                {
+                    /*
+                     * Regardless of whether this Window successfully entered or
+                     * exited full-screen mode, make sure that remains visible.
+                     */
+                    if (setVisible)
+                        setVisible(true);
+                }
+            }
+        }
     }
 }

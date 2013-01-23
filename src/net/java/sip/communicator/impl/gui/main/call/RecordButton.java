@@ -74,11 +74,11 @@ public class RecordButton
      * audio stream.
      *
      * @param call the <tt>Call</tt> to be associated with the new instance and
-     *            to have the audio stream recorded
+     * to have the audio stream recorded
      */
     public RecordButton(Call call)
     {
-        this(call, false, false);
+        this(call, false);
     }
 
     /**
@@ -87,16 +87,13 @@ public class RecordButton
      *
      * @param call the <tt>Call</tt> to be associated with the new instance and
      * to have its audio stream recorded
-     * @param fullScreen <tt>true</tt> if the new instance is to be used in
-     * full-screen UI; otherwise, <tt>false</tt>
      * @param selected <tt>true</tt> if the new toggle button is to be initially
      * selected; otherwise, <tt>false</tt>
      */
-    public RecordButton(Call call, boolean fullScreen, boolean selected)
+    public RecordButton(Call call, boolean selected)
     {
         super(
                 call,
-                fullScreen,
                 true,
                 selected,
                 ImageLoader.RECORD_BUTTON,

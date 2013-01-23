@@ -12,6 +12,7 @@ import java.awt.*;
  * Ordered transparent panel. Components added to the panel
  * must implement OrderedComponent to be able to order them or
  * will leave the parent to add them as usual.
+ *
  * @author Damian Minkov
  */
 public class OrderedTransparentPanel
@@ -19,12 +20,11 @@ public class OrderedTransparentPanel
 {
     private static final long serialVersionUID = 0L;
 
+    @Override
     public Component add(Component comp) 
     {
         if(comp instanceof OrderedComponent)
-        {
             return addOrdered(comp);
-        }
         else
             return super.add(comp);
     }
@@ -42,24 +42,22 @@ public class OrderedTransparentPanel
 
         // don't add a component if already added or it will be removed
         // and added at the end
-        for(int i = 0; i < cs.length; i++)
+        for(Component c : cs)
         {
-            if(cs[i].equals(comp))
+            if(c.equals(comp))
                 return comp;
         }
 
         for(int i = 0; i < cs.length; i++)
         {
             Component c = cs[i];
-            int cIx;
+
             if(c instanceof OrderedComponent)
             {
-                cIx = ((OrderedComponent) c).getIndex();
+                int cIndex = ((OrderedComponent) c).getIndex();
 
-                if(orederIndex < cIx)
-                {
+                if(orederIndex < cIndex)
                     return super.add(comp, i);
-                }
             }
         }
 

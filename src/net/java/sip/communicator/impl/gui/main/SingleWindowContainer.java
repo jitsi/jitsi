@@ -36,21 +36,6 @@ public class SingleWindowContainer
                ChangeListener
 {
     /**
-     * The <tt>Logger</tt> used by this instance for logging output.
-     */
-    private final Logger logger = Logger.getLogger(SingleWindowContainer.class);
-
-    /**
-     * The tabbed pane, containing all conversations.
-     */
-    private final ConversationTabbedPane tabbedPane;
-
-    /**
-     * The count of current conversations.
-     */
-    private int conversationCount = 0;
-
-    /**
      * Chat change listeners.
      */
     private final List<ChatChangeListener> chatChangeListeners
@@ -62,9 +47,24 @@ public class SingleWindowContainer
     private final ContactPhotoPanel contactPhotoPanel;
 
     /**
+     * The count of current conversations.
+     */
+    private int conversationCount = 0;
+
+    /**
+     * The <tt>Logger</tt> used by this instance for logging output.
+     */
+    private final Logger logger = Logger.getLogger(SingleWindowContainer.class);
+
+    /**
      * The main toolbar.
      */
     private MainToolBar mainToolBar;
+
+    /**
+     * The tabbed pane, containing all conversations.
+     */
+    private final ConversationTabbedPane tabbedPane;
 
     /**
      * Creates an instance of the <tt>SingleWindowContainer</tt>.
@@ -83,8 +83,24 @@ public class SingleWindowContainer
         add(tabbedPane);
     }
 
-    public void setTitle(String title)
+    /**
+     * Adds the given <tt>CallPanel</tt> to this call window.
+     *
+     * @param callPanel the <tt>CallPanel</tt> to add
+     */
+    public void addCallPanel(CallPanel callPanel)
     {
+        conversationCount ++;
+
+        callPanel.setBorder(
+            BorderFactory.createMatteBorder(1, 0, 0, 0, Color.GRAY));
+
+        callPanel.addCallTitleListener(this);
+
+        addConversationTab(
+            callPanel.getCallTitle(), null, callPanel, true);
+
+        callPanel.requestFocus();
     }
 
     /**
@@ -108,126 +124,120 @@ public class SingleWindowContainer
     }
 
     /**
-     * Removes a given <tt>ChatPanel</tt> from this chat window.
-     * 
-     * @param chatPanel The <tt>ChatPanel</tt> to remove.
-     */
-    public void removeChat(ChatPanel chatPanel)
-    {
-        if (logger.isDebugEnabled())
-            logger.debug("Removes chat for contact: "
-                + chatPanel.getChatSession().getChatName());
-
-        removeConversation(chatPanel);
-    }
-
-    /**
-     * Removes a given <tt>ChatPanel</tt> from this chat window.
-     * 
-     * @param c the conversation component
-     */
-    private void removeConversation(Component c)
-    {
-        int index = tabbedPane.indexOfComponent(c);
-
-        if (index > -1)
-        {
-            tabbedPane.removeTabAt(index);
-
-            conversationCount --;
-        }
-
-        if (tabbedPane.getTabCount() == 0)
-            setToolbarVisible(false);
-    }
-
-    /**
-     * Returns the currently selected chat panel.
-     * 
-     * @return the currently selected chat panel.
-     */
-    public ChatPanel getCurrentChat()
-    {
-        Component c = getCurrentConversation();
-
-        if (c instanceof ChatPanel)
-            return (ChatPanel) c;
-
-        return null;
-    }
-
-    /**
-     * Returns the currently selected chat panel.
-     * 
-     * @return the currently selected chat panel.
-     */
-    private Component getCurrentConversation()
-    {
-        if(tabbedPane.getTabCount() > 0)
-            return tabbedPane.getSelectedComponent();
-
-        return null;
-    }
-
-    /**
-     * Selects the chat tab which corresponds to the given <tt>MetaContact</tt>.
-     * 
-     * @param chatPanel The <tt>ChatPanel</tt> to select.
-     */
-    public void setCurrentChat(ChatPanel chatPanel)
-    {
-        ChatSession chatSession = chatPanel.getChatSession();
-
-        if (logger.isDebugEnabled())
-            logger.debug(
-                "Set current chat panel to: " + chatSession.getChatName());
-
-        if(tabbedPane.getTabCount() > 0)
-            this.tabbedPane.setSelectedComponent(chatPanel);
-
-        this.setTitle(chatSession.getChatName());
-        this.contactPhotoPanel.setChatSession(chatSession);
-
-        chatPanel.requestFocusInWriteArea();
-
-        for (ChatChangeListener l : this.chatChangeListeners)
-        {
-            l.chatChanged(chatPanel);
-        }
-    }
-
-    /**
-     * Shows/hides the toolbar.
+     * Adds the given <tt>ChatChangeListener</tt>.
      *
-     * @param isVisible 
+     * @param listener the listener to add
      */
-    public void setToolbarVisible(boolean isVisible)
+    public void addChatChangeListener(ChatChangeListener listener)
     {
-        mainToolBar.setVisible(isVisible);
-        contactPhotoPanel.setVisible(isVisible);
-
-        revalidate();
-        repaint();
+        synchronized (chatChangeListeners)
+        {
+            if (!chatChangeListeners.contains(listener))
+                chatChangeListeners.add(listener);
+        }
     }
 
     /**
-     * Removes all tabs in the chat tabbed pane. If not in mode
-     * TABBED_CHAT_WINDOW does nothing.
+     * Adds a given <tt>ChatPanel</tt> to the <tt>JTabbedPane</tt> of this
+     * chat window.
+     *
+     * @param name the name of the tab
+     * @param icon the tab icon
+     * @param conversation the conversation component to add in the tab
+     * @param isSelected indicates if this tab should be selected
      */
-    public void removeAllChats()
+    private void addConversationTab(String name,
+                                    Icon icon,
+                                    Component conversation,
+                                    boolean isSelected)
     {
-        if (logger.isDebugEnabled())
-            logger.debug("Remove all tabs from the chat window.");
+        Component currentConversation = getCurrentConversation();
 
-        if(tabbedPane.getTabCount() > 0)
+        tabbedPane.addTab(name, icon, conversation);
+        tabbedPane.getParent().validate();
+
+        // If not specified explicitly, when added to the tabbed pane, the first
+        // chat panel should rest the selected component.
+        tabbedPane.setSelectedComponent(
+                (currentConversation != null && !isSelected)
+                    ? currentConversation
+                    : conversation);
+    }
+
+    /**
+     * Called when the title of the given <tt>CallPanel</tt> changes.
+     *
+     * @param callPanel the <tt>CallPanel</tt>, which title has changed
+     */
+    public void callTitleChanged(CallPanel callPanel)
+    {
+        int i = tabbedPane.indexOfComponent(callPanel);
+
+        if (i > -1)
+            tabbedPane.setTitleAt(i, callPanel.getCallTitle());
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * The delay implemented by <tt>SingleWindowContainer</tt> is 5 seconds.
+     */
+    public void close(CallPanel callPanel, boolean delay)
+    {
+        if (delay)
         {
-            this.tabbedPane.removeAll();
+            Timer timer = new Timer(5000, new CloseCallListener(callPanel));
 
-            conversationCount = 0;
-
-            if (tabbedPane.getTabCount() == 0)
-                setToolbarVisible(false);
+            timer.setRepeats(false);
+            timer.start();
         }
+        else
+            removeConversation(callPanel);
+    }
+
+    /**
+     * Indicates if one of the contained components is currently the owner of
+     * the keyboard focus.
+     *
+     * @return <tt>true</tt> to indicate that a component contained in this
+     * container currently owns the keyboard focus, <tt>false</tt> - otherwise
+     */
+    public boolean containsFocus()
+    {
+        ChatPanel chat = getCurrentChat();
+
+        if (chat != null
+            && chat.getChatWritePanel().getEditorPane().isFocusOwner())
+            return true;
+
+        return false;
+    }
+
+    private Component createToolbar()
+    {
+        mainToolBar = new MainToolBar(this);
+
+        // The toolbar would be only visible when a chat is opened.
+        mainToolBar.setVisible(false);
+
+        JPanel northPanel = new TransparentPanel(new BorderLayout());
+
+        northPanel.setBorder(BorderFactory.createEmptyBorder(3, 0, 3, 0));
+        northPanel.setPreferredSize(new Dimension(500, 35));
+        northPanel.setVisible(ConfigurationUtils.isChatToolbarVisible());
+        northPanel.add(mainToolBar, BorderLayout.EAST);
+        northPanel.add(contactPhotoPanel, BorderLayout.WEST);
+
+        return northPanel;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <tt>SingleWindowContainer</tt> does nothing.
+     */
+    public void ensureSize(Component component, int width, int height)
+    {
     }
 
     /**
@@ -265,6 +275,71 @@ public class SingleWindowContainer
         }
 
         return chatPanels;
+    }
+
+    /**
+     * Returns the currently selected chat panel.
+     * 
+     * @return the currently selected chat panel.
+     */
+    public ChatPanel getCurrentChat()
+    {
+        Component c = getCurrentConversation();
+
+        if (c instanceof ChatPanel)
+            return (ChatPanel) c;
+
+        return null;
+    }
+
+    /**
+     * Returns the currently selected chat panel.
+     * 
+     * @return the currently selected chat panel.
+     */
+    private Component getCurrentConversation()
+    {
+        if(tabbedPane.getTabCount() > 0)
+            return tabbedPane.getSelectedComponent();
+
+        return null;
+    }
+
+    /**
+     * Returns the frame to which this container belongs.
+     *
+     * @return the frame to which this container belongs
+     */
+    public JFrame getFrame()
+    {
+        return GuiActivator.getUIService().getMainFrame();
+    }
+
+    /**
+     * Highlights the corresponding tab for the given chat panel.
+     * 
+     * @param chatPanel the chat panel which corresponds to the tab to highlight
+     */
+    private void highlightTab(ChatPanel chatPanel)
+    {
+        int tabIndex = tabbedPane.indexOfComponent(chatPanel);
+
+        chatPanel.unreadMessageNumber ++;
+
+        tabbedPane.highlightTab(tabIndex, chatPanel.unreadMessageNumber);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <tt>SingleWindowContainer</tt> does not support display in full-screen
+     * mode and thus is expected to return <tt>false</tt>.
+     *
+     * @see CallDialog#isFullScreen(Window)
+     */
+    public boolean isFullScreen()
+    {
+        return CallDialog.isFullScreen(getFrame());
     }
 
     /**
@@ -311,42 +386,47 @@ public class SingleWindowContainer
         }
     }
 
-    public void setChatTitle(ChatPanel chatPanel, String title) {}
-
-    public void setChatIcon(ChatPanel chatPanel, Icon icon) {}
-
     /**
-     * Updates history buttons state.
-     *
-     * @param chatPanel the chat panel for which we should update button states
+     * Packs the content of this call window.
      */
-    public void updateHistoryButtonState(ChatPanel chatPanel)
+    public void pack()
     {
-        mainToolBar.changeHistoryButtonsState(chatPanel);
+        revalidate();
+        repaint();
     }
 
     /**
-     * Returns the frame to which this container belongs.
-     *
-     * @return the frame to which this container belongs
+     * Removes all tabs in the chat tabbed pane. If not in mode
+     * TABBED_CHAT_WINDOW does nothing.
      */
-    public JFrame getFrame()
+    public void removeAllChats()
     {
-        return GuiActivator.getUIService().getMainFrame();
-    }
+        if (logger.isDebugEnabled())
+            logger.debug("Remove all tabs from the chat window.");
 
-    /**
-     * Adds the given <tt>ChatChangeListener</tt>.
-     *
-     * @param listener the listener to add
-     */
-    public void addChatChangeListener(ChatChangeListener listener)
-    {
-        synchronized (chatChangeListeners)
+        if(tabbedPane.getTabCount() > 0)
         {
-            if (!chatChangeListeners.contains(listener))
-                chatChangeListeners.add(listener);
+            this.tabbedPane.removeAll();
+
+            conversationCount = 0;
+
+            if (tabbedPane.getTabCount() == 0)
+                setToolbarVisible(false);
         }
+    }
+
+    /**
+     * Removes a given <tt>ChatPanel</tt> from this chat window.
+     * 
+     * @param chatPanel The <tt>ChatPanel</tt> to remove.
+     */
+    public void removeChat(ChatPanel chatPanel)
+    {
+        if (logger.isDebugEnabled())
+            logger.debug("Removes chat for contact: "
+                + chatPanel.getChatSession().getChatName());
+
+        removeConversation(chatPanel);
     }
 
     /**
@@ -362,178 +442,65 @@ public class SingleWindowContainer
     }
 
     /**
-     * Adds a given <tt>ChatPanel</tt> to the <tt>JTabbedPane</tt> of this
-     * chat window.
-     *
-     * @param name the name of the tab
-     * @param icon the tab icon
-     * @param conversation the conversation component to add in the tab
-     * @param isSelected indicates if this tab should be selected
-     */
-    private void addConversationTab(String name,
-                                    Icon icon,
-                                    Component conversation,
-                                    boolean isSelected)
-    {
-        Component currentConversation = getCurrentConversation();
-
-        tabbedPane.addTab(name, icon, conversation);
-        tabbedPane.getParent().validate();
-
-        // If not specified explicitly, when added to the tabbed pane, the first
-        // chat panel should rest the selected component.
-        tabbedPane.setSelectedComponent(
-                (currentConversation != null && !isSelected)
-                    ? currentConversation
-                    : conversation);
-    }
-
-    /**
-     * Highlights the corresponding tab for the given chat panel.
+     * Removes a given <tt>ChatPanel</tt> from this chat window.
      * 
-     * @param chatPanel the chat panel which corresponds to the tab to highlight
+     * @param c the conversation component
      */
-    private void highlightTab(ChatPanel chatPanel)
+    private void removeConversation(Component c)
     {
-        int tabIndex = tabbedPane.indexOfComponent(chatPanel);
+        int index = tabbedPane.indexOfComponent(c);
 
-        chatPanel.unreadMessageNumber ++;
+        if (index > -1)
+        {
+            tabbedPane.removeTabAt(index);
 
-        tabbedPane.highlightTab(tabIndex, chatPanel.unreadMessageNumber);
+            conversationCount --;
+        }
+
+        if (tabbedPane.getTabCount() == 0)
+            setToolbarVisible(false);
     }
 
-    private Component createToolbar()
-    {
-        mainToolBar = new MainToolBar(this);
+    public void setChatIcon(ChatPanel chatPanel, Icon icon) {}
 
-        // The toolbar would be only visible when a chat is opened.
-        mainToolBar.setVisible(false);
-
-        JPanel northPanel = new TransparentPanel(new BorderLayout());
-
-        northPanel.setBorder(BorderFactory.createEmptyBorder(3, 0, 3, 0));
-        northPanel.setPreferredSize(new Dimension(500, 35));
-        northPanel.setVisible(ConfigurationUtils.isChatToolbarVisible());
-        northPanel.add(mainToolBar, BorderLayout.EAST);
-        northPanel.add(contactPhotoPanel, BorderLayout.WEST);
-
-        return northPanel;
-    }
+    public void setChatTitle(ChatPanel chatPanel, String title) {}
 
     /**
-     * Indicates if one of the contained components is currently the owner of
-     * the keyboard focus.
-     *
-     * @return <tt>true</tt> to indicate that a component contained in this
-     * container currently owns the keyboard focus, <tt>false</tt> - otherwise
+     * Selects the chat tab which corresponds to the given <tt>MetaContact</tt>.
+     * 
+     * @param chatPanel The <tt>ChatPanel</tt> to select.
      */
-    public boolean containsFocus()
+    public void setCurrentChat(ChatPanel chatPanel)
     {
-        ChatPanel chat = getCurrentChat();
+        ChatSession chatSession = chatPanel.getChatSession();
 
-        if (chat != null
-            && chat.getChatWritePanel().getEditorPane().isFocusOwner())
-            return true;
+        if (logger.isDebugEnabled())
+            logger.debug(
+                "Set current chat panel to: " + chatSession.getChatName());
 
-        return false;
+        if(tabbedPane.getTabCount() > 0)
+            this.tabbedPane.setSelectedComponent(chatPanel);
+
+        this.setTitle(chatSession.getChatName());
+        this.contactPhotoPanel.setChatSession(chatSession);
+
+        chatPanel.requestFocusInWriteArea();
+
+        for (ChatChangeListener l : this.chatChangeListeners)
+        {
+            l.chatChanged(chatPanel);
+        }
     }
 
     /**
      * {@inheritDoc}
      *
-     * The delay implemented by <tt>SingleWindowContainer</tt> is 5 seconds.
+     * <tt>SingleWindowContainer</tt> does not support display in full-screen
+     * mode and thus does nothing.
      */
-    public void close(CallPanel callPanel, boolean delay)
+    public void setFullScreen(boolean fullScreen)
     {
-        if (delay)
-        {
-            Timer timer = new Timer(5000, new CloseCallListener(callPanel));
-
-            timer.setRepeats(false);
-            timer.start();
-        }
-        else
-            removeConversation(callPanel);
-    }
-
-    /**
-     * Removes the given CallPanel from the main tabbed pane.
-     */
-    private class CloseCallListener
-        implements ActionListener
-    {
-        private final CallPanel callPanel;
-
-        public CloseCallListener(CallPanel callPanel)
-        {
-            this.callPanel = callPanel;
-        }
-
-        public void actionPerformed(ActionEvent e)
-        {
-            removeConversation(callPanel);
-        }
-    }
-
-    /**
-     * Packs the content of this call window.
-     */
-    public void pack()
-    {
-        revalidate();
-        repaint();
-    }
-
-    /**
-     * Adds the given <tt>CallPanel</tt> to this call window.
-     *
-     * @param callPanel the <tt>CallPanel</tt> to add
-     */
-    public void addCallPanel(CallPanel callPanel)
-    {
-        conversationCount ++;
-
-        callPanel.setBorder(
-            BorderFactory.createMatteBorder(1, 0, 0, 0, Color.GRAY));
-
-        callPanel.addCallTitleListener(this);
-
-        addConversationTab(
-            callPanel.getCallTitle(), null, callPanel, true);
-
-        callPanel.requestFocus();
-    }
-
-    /**
-     * Called when the title of the given <tt>CallPanel</tt> changes.
-     *
-     * @param callPanel the <tt>CallPanel</tt>, which title has changed
-     */
-    public void callTitleChanged(CallPanel callPanel)
-    {
-        int i = tabbedPane.indexOfComponent(callPanel);
-
-        if (i > -1)
-            tabbedPane.setTitleAt(i, callPanel.getCallTitle());
-    }
-
-    /**
-     * Shows/hides the toolbar depending on the selected tab.
-     *
-     * @param event the <tt>ChangeEvent</tt> that notified us of the tab
-     * selection change
-     */
-    public void stateChanged(ChangeEvent event)
-    {
-        int index = tabbedPane.getSelectedIndex();
-
-        // If there's no chat panel selected we do nothing.
-        if (index > -1)
-        {
-            Component c = tabbedPane.getComponentAt(index);
-
-            setToolbarVisible(c instanceof ChatPanel);
-        }
+        // TODO Auto-generated method stub
     }
 
     /**
@@ -561,12 +528,69 @@ public class SingleWindowContainer
             this.tabbedPane.setTitleAt(index, title);
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <tt>SingleWindowContainer</tt> does nothing.
-     */
-    public void ensureSize(Component component, int width, int height)
+    public void setTitle(String title)
     {
+    }
+
+    /**
+     * Shows/hides the toolbar.
+     *
+     * @param isVisible 
+     */
+    public void setToolbarVisible(boolean isVisible)
+    {
+        mainToolBar.setVisible(isVisible);
+        contactPhotoPanel.setVisible(isVisible);
+
+        revalidate();
+        repaint();
+    }
+
+    /**
+     * Shows/hides the toolbar depending on the selected tab.
+     *
+     * @param event the <tt>ChangeEvent</tt> that notified us of the tab
+     * selection change
+     */
+    public void stateChanged(ChangeEvent event)
+    {
+        int index = tabbedPane.getSelectedIndex();
+
+        // If there's no chat panel selected we do nothing.
+        if (index > -1)
+        {
+            Component c = tabbedPane.getComponentAt(index);
+
+            setToolbarVisible(c instanceof ChatPanel);
+        }
+    }
+
+    /**
+     * Updates history buttons state.
+     *
+     * @param chatPanel the chat panel for which we should update button states
+     */
+    public void updateHistoryButtonState(ChatPanel chatPanel)
+    {
+        mainToolBar.changeHistoryButtonsState(chatPanel);
+    }
+
+    /**
+     * Removes the given CallPanel from the main tabbed pane.
+     */
+    private class CloseCallListener
+        implements ActionListener
+    {
+        private final CallPanel callPanel;
+
+        public CloseCallListener(CallPanel callPanel)
+        {
+            this.callPanel = callPanel;
+        }
+
+        public void actionPerformed(ActionEvent e)
+        {
+            removeConversation(callPanel);
+        }
     }
 }

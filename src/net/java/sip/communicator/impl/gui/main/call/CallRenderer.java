@@ -33,16 +33,6 @@ public interface CallRenderer
     public Call getCall();
 
     /**
-     * Enters in full screen mode.
-     */
-    public void enterFullScreen();
-
-    /**
-     * Exits the full screen mode.
-     */
-    public void exitFullScreen();
-
-    /**
      * Returns the parent, container which created this <tt>CallRenderer</tt>
      * and in which this <tt>CallRenderer</tt> is added
      *

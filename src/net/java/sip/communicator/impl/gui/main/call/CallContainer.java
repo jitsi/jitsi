@@ -20,11 +20,18 @@ import javax.swing.*;
 public interface CallContainer
 {
     /**
+     * The name of the boolean property of the <tt>Window</tt> which represents
+     * a <tt>CallContainer</tt> that indicates whether the <tt>Window</tt> is
+     * displayed in full-screen or windowed mode.
+     */
+    static final String PROP_FULL_SCREEN = "fullScreen";
+
+    /**
      * Adds the given <tt>CallPanel</tt> to this call window.
      *
      * @param callPanel the <tt>CallPanel</tt> to add
      */
-    public void addCallPanel(CallPanel callPanel);
+    void addCallPanel(CallPanel callPanel);
 
     /**
      * Closes a specific <tt>CallPanel</tt>. Optionally, does it with an
@@ -35,7 +42,7 @@ public interface CallContainer
      * an implementation-specific delay or <tt>false</tt> to close it as soon as
      * possible
      */
-    public void close(CallPanel callPanel, boolean delay);
+    void close(CallPanel callPanel, boolean delay);
 
     /**
      * Attempts to give a specific <tt>Component</tt> a visible rectangle with a
@@ -56,10 +63,30 @@ public interface CallContainer
      *
      * @return the frame of this call window
      */
-    public JFrame getFrame();
+    JFrame getFrame();
+
+    /**
+     * Determines whether the <tt>Window</tt> representation of this
+     * <tt>CallContainer</tt> is displayed in full-screen mode.
+     *
+     * @return <tt>true</tt> if the <tt>Window</tt> representation of this
+     * <tt>CallContainer</tt> is displayed in full-screen mode; otherwise,
+     * <tt>false</tt>
+     */
+    boolean isFullScreen();
 
     /**
      * Packs the content of this call window.
      */
-    public void pack();
+    void pack();
+
+    /**
+     * Sets the display of the <tt>Window</tt> representation of this
+     * <tt>CallContainer</tt> to full-screen or windowed mode.
+     *
+     * @param fullScreen <tt>true</tt> if the <tt>Window</tt> representation of
+     * this <tt>CallContainer</tt> is to be displayed in full-screen mode or
+     * <tt>false</tt> for windowed mode
+     */
+    void setFullScreen(boolean fullScreen);
 }

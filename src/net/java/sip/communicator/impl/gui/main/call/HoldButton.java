@@ -45,7 +45,7 @@ public class HoldButton
      */
     public HoldButton(Call call)
     {
-        this(call, false, false);
+        this(call, false);
     }
 
     /**
@@ -54,15 +54,12 @@ public class HoldButton
      *
      * @param call  the <tt>Call</tt> to be associated with the new instance and
      * to be put on/off hold upon performing its action
-     * @param fullScreen <tt>true</tt> if the new instance is to be used in
-     * full-screen UI; otherwise, <tt>false</tt>
      * @param selected <tt>true</tt> if the new toggle button is to be initially
      * selected; otherwise, <tt>false</tt>
      */
-    public HoldButton(Call call, boolean fullScreen, boolean selected)
+    public HoldButton(Call call, boolean selected)
     {
         super(  call,
-                fullScreen,
                 true,
                 selected,
                 ImageLoader.HOLD_BUTTON,

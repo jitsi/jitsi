@@ -43,7 +43,7 @@ public class ShowHideVideoButton
      */
     public ShowHideVideoButton(UIVideoHandler2 uiVideoHandler)
     {
-        this(uiVideoHandler, false, false);
+        this(uiVideoHandler, false);
     }
 
     /**
@@ -53,19 +53,13 @@ public class ShowHideVideoButton
      *
      * @param uiVideoHandler the <tt>UIVideoHandler</tt> which is to be the
      * model of the view represented by the new instance
-     * @param fullScreen <tt>true</tt> if the new instance is to be used in
-     * full-screen UI; otherwise, <tt>false</tt>
      * @param selected <tt>true</tt> if the new toggle button is to be initially
      * selected; otherwise, <tt>false</tt>
      */
-    public ShowHideVideoButton(
-            UIVideoHandler2 uiVideoHandler,
-            boolean fullScreen,
-            boolean selected)
+    public ShowHideVideoButton(UIVideoHandler2 uiVideoHandler, boolean selected)
     {
         super(
                 null,
-                fullScreen,
                 true,
                 selected,
                 ImageLoader.SHOW_LOCAL_VIDEO_BUTTON,

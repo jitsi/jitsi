@@ -52,11 +52,6 @@ public class InputVolumeControlButton
     private final JPopupMenu sliderMenu;
 
     /**
-     * Indicates if this component is shown in full screen mode.
-     */
-    private final boolean fullScreen;
-
-    /**
      * Current mute state.
      */
     private boolean mute = false;
@@ -72,7 +67,7 @@ public class InputVolumeControlButton
      */
     public InputVolumeControlButton(Call call)
     {
-        this(call, false, false);
+        this(call, false);
     }
 
     /**
@@ -81,19 +76,15 @@ public class InputVolumeControlButton
      *
      * @param call  the <tt>Call</tt> to be associated with the new instance and
      * whose audio stream is to be muted upon performing its action
-     * @param fullScreen <tt>true</tt> if the new instance is to be used in
-     * full-screen UI; otherwise, <tt>false</tt>
      * @param selected <tt>true</tt> if the new toggle button is to be initially
      * selected; otherwise, <tt>false</tt>
      */
     public InputVolumeControlButton(Call call,
-                                    boolean fullScreen,
                                     boolean selected)
     {
         this(   call,
                 ImageLoader.MICROPHONE,
                 ImageLoader.MUTE_BUTTON,
-                fullScreen,
                 true,
                 selected);
     }
@@ -107,8 +98,6 @@ public class InputVolumeControlButton
      * @param iconImageID the icon image
      * @param pressedIconImageID the <tt>ImageID</tt> of the image to be used
      * as the icon in the pressed button state of the new instance
-     * @param fullScreen <tt>true</tt> if the new instance is to be used in
-     * full-screen UI; otherwise, <tt>false</tt>
      * @param selected <tt>true</tt> if the new toggle button is to be initially
      * selected; otherwise, <tt>false</tt>
      * @param inSettingsPanel <tt>true</tt> when the button is used in a menu,
@@ -117,19 +106,16 @@ public class InputVolumeControlButton
     public InputVolumeControlButton(Call call,
                                     ImageID iconImageID,
                                     ImageID pressedIconImageID,
-                                    boolean fullScreen,
                                     boolean inSettingsPanel,
                                     boolean selected)
     {
         super(  call,
-                fullScreen,
                 inSettingsPanel,
                 selected,
                 iconImageID,
                 pressedIconImageID,
                 "service.gui.MUTE_BUTTON_TOOL_TIP");
 
-        this.fullScreen = fullScreen;
         this.mute = selected;
 
         volumeControl = getVolumeControl();
@@ -188,30 +174,34 @@ public class InputVolumeControlButton
         SwingUtilities.convertPointToScreen(location,
                 InputVolumeControlButton.this.getParent());
 
-        if(fullScreen)
-            location.setLocation(location.getX(),
-                location.getY()
-                    - sliderMenu.getPreferredSize().getHeight()
-                    - getHeight());
+        if(isFullScreen())
+        {
+            location.setLocation(
+                    location.getX(),
+                    location.getY()
+                        - sliderMenu.getPreferredSize().getHeight()
+                        - getHeight());
+        }
 
         sliderMenu.setLocation(location);
 
-        sliderMenu.addPopupMenuListener(new PopupMenuListener()
-        {
-            public void popupMenuWillBecomeVisible(
-                PopupMenuEvent popupmenuevent)
-            {
-                sliderMenuIsVisible = true;
-            }
+        sliderMenu.addPopupMenuListener(
+                new PopupMenuListener()
+                {
+                    public void popupMenuWillBecomeVisible(PopupMenuEvent ev)
+                    {
+                        sliderMenuIsVisible = true;
+                    }
 
-            public void popupMenuWillBecomeInvisible(
-                PopupMenuEvent popupmenuevent)
-            {
-                sliderMenuIsVisible = false;
-            }
+                    public void popupMenuWillBecomeInvisible(PopupMenuEvent ev)
+                    {
+                        sliderMenuIsVisible = false;
+                    }
 
-            public void popupMenuCanceled(PopupMenuEvent popupmenuevent) {}
-        });
+                    public void popupMenuCanceled(PopupMenuEvent ev)
+                    {
+                    }
+                });
 
         sliderMenu.setVisible(!sliderMenu.isVisible());
     }

@@ -212,28 +212,6 @@ public abstract class BasicConferenceCallPanel
     /**
      * {@inheritDoc}
      *
-     * <tt>BasicConferenceCallPanel</tt> does not provide an actual
-     * implementation the method.
-     */
-    public void enterFullScreen()
-    {
-        // TODO Auto-generated method stub
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <tt>BasicConferenceCallPanel</tt> does not provide an actual
-     * implementation the method.
-     */
-    public void exitFullScreen()
-    {
-        // TODO Auto-generated method stub
-    }
-
-    /**
-     * {@inheritDoc}
-     *
      * <tt>BasicConferenceCallPanel</tt> always returns <tt>null</tt> because it
      * depicts a <tt>CallConference</tt> which may have multiple <tt>Call</tt>s. 
      */

@@ -43,7 +43,7 @@ public class LocalVideoButton
      */
     public LocalVideoButton(Call call)
     {
-        this(call, false, false);
+        this(call, false);
     }
 
     /**
@@ -54,16 +54,13 @@ public class LocalVideoButton
      * @param call the <tt>Call</tt> which participates in the telephony
      * conference to start/stop the streaming of the local video to the remote
      * peers in
-     * @param fullScreen <tt>true</tt> if the new instance is to be used in a
-     * full-screen UI; otherwise, <tt>false</tt>
      * @param selected <tt>true</tt> if the new instance is to be initially
      * selected; otherwise, <tt>false</tt>
      */
-    public LocalVideoButton(Call call, boolean fullScreen, boolean selected)
+    public LocalVideoButton(Call call, boolean selected)
     {
         super(
                 null,
-                fullScreen,
                 true,
                 selected,
                 ImageLoader.LOCAL_VIDEO_BUTTON,

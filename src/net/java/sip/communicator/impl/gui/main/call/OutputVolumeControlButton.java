@@ -160,10 +160,9 @@ public class OutputVolumeControlButton
 
     /**
      * Initializes the volume control button.
-     * 
-     * @param fullScreen indicates if we're in fullscreen mode
+     *
      * @param isButtonBar indicates if this button is shown in the button
-     * toolbar
+     * tool bar
      * @param iconImageID the identifier of the button icon
      * @param toolTipTextKey the key of the tool tip text
      */

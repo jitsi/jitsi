@@ -40,7 +40,7 @@ public class DesktopSharingButton
      */
     public DesktopSharingButton(Call call)
     {
-        this(call, false, false);
+        this(call, false);
     }
 
     /**
@@ -54,10 +54,9 @@ public class DesktopSharingButton
      * @param selected <tt>true</tt> if the new toggle button is to be initially
      * selected; otherwise, <tt>false</tt>
      */
-    public DesktopSharingButton(Call call, boolean fullScreen, boolean selected)
+    public DesktopSharingButton(Call call, boolean selected)
     {
         super(  call,
-                fullScreen,
                 selected,
                 ImageLoader.CALL_DESKTOP_BUTTON,
                 "service.gui.SHARE_DESKTOP_WITH_CONTACT");

@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.gui.main.call;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.beans.*;
 import java.util.*;
 import java.util.List;
 
@@ -42,6 +43,7 @@ import org.jitsi.util.swing.*;
 public class OneToOneCallPeerPanel
     extends TransparentPanel
     implements CallPeerRenderer,
+               PropertyChangeListener,
                Skinnable
 {
     /**
@@ -117,6 +119,12 @@ public class OneToOneCallPeerPanel
     private InputVolumeControlButton localLevel;
 
     /**
+     * The <tt>Component</tt> which depicts {@link #localLevel} and its
+     * associated <tt>SoundLevelIndicator</tt>.
+     */
+    private Component localLevelPanel;
+
+    /**
      * The <tt>Component</tt> which
      * {@link #updateViewFromModelInEventDispatchThread()} last added to
      * {@link #center} as the visual <tt>Component</tt> displaying the video
@@ -153,6 +161,12 @@ public class OneToOneCallPeerPanel
      * Sound remote level label.
      */
     private Component remoteLevel;
+
+    /**
+     * The <tt>Component</tt> which depicts {@link #remoteLevel} and its
+     * associated <tt>SoundLevelIndicator</tt>.
+     */
+    private Component remoteLevelPanel;
 
     /**
      * The <tt>Component</tt> which
@@ -292,6 +306,17 @@ public class OneToOneCallPeerPanel
         callPeerAdapter = new CallPeerAdapter(callPeer, this);
         uiVideoHandler.addObserver(uiVideoHandlerObserver);
 
+        /*
+         * This view adapts to whether it is displayed in full-screen or
+         * windowed mode.
+         */
+        if (callRenderer instanceof Component)
+        {
+            ((Component) callRenderer).addPropertyChangeListener(
+                    CallContainer.PROP_FULL_SCREEN,
+                    this);
+        }
+
         updateViewFromModel();
     }
 
@@ -323,7 +348,8 @@ public class OneToOneCallPeerPanel
                     call,
                     ImageLoader.MICROPHONE,
                     ImageLoader.MUTE_BUTTON,
-                    false, false, false);
+                    false,
+                    false);
         remoteLevel
             = new OutputVolumeControlButton(ImageLoader.HEADPHONE, false, false)
                 .getComponent();
@@ -395,6 +421,9 @@ public class OneToOneCallPeerPanel
                         });
             }
         }
+
+        this.localLevelPanel = localLevelPanel;
+        this.remoteLevelPanel = remoteLevelPanel;
     }
 
     /**
@@ -476,8 +505,16 @@ public class OneToOneCallPeerPanel
     public void dispose()
     {
         disposed = true;
+
         callPeerAdapter.dispose();
         uiVideoHandler.deleteObserver(uiVideoHandlerObserver);
+
+        if (callRenderer instanceof Component)
+        {
+            ((Component) callRenderer).removePropertyChangeListener(
+                    CallContainer.PROP_FULL_SCREEN,
+                    this);
+        }
     }
 
     /**
@@ -631,6 +668,23 @@ public class OneToOneCallPeerPanel
         if (dtmfLabel.getBorder() == null)
             dtmfLabel.setBorder(
                 BorderFactory.createEmptyBorder(2, 1, 2, 5));
+    }
+
+    /**
+     * Notifies this instance about a change in the value of a property of a
+     * source which of interest to this instance. For example,
+     * <tt>OneToOneCallPeerPanel</tt> updates its user interface-related
+     * properties upon changes in the value of the
+     * {@link CallContainer#PROP_FULL_SCREEN} property of its associated
+     * {@link #callRenderer}.
+     *
+     * @param ev a <tt>PropertyChangeEvent</tt> which identifies the source, the
+     * name of the property and the old and new values
+     */
+    public void propertyChange(PropertyChangeEvent ev)
+    {
+        if (CallContainer.PROP_FULL_SCREEN.equals(ev.getPropertyName()))
+            updateViewFromModel();
     }
 
     /**

@@ -85,11 +85,11 @@ public class SIPCommFrame
     {
         // If on MacOS we would use the native background.
         if (!OSUtils.IS_MAC)
-            this.setContentPane(new MainContentPane());
+            setContentPane(new MainContentPane());
 
         init();
 
-        this.addWindowListener(new FrameWindowAdapter());
+        addWindowListener(new FrameWindowAdapter());
 
         JRootPane rootPane = getRootPane();
         amap = rootPane.getActionMap();
@@ -152,18 +152,18 @@ public class SIPCommFrame
             {
                 private static final long serialVersionUID = 0L;
                 {
-                add(UtilActivator
-                    .getImage("service.gui.SIP_COMMUNICATOR_LOGO"));
-                add(UtilActivator
-                    .getImage("service.gui.SIP_COMMUNICATOR_LOGO_20x20"));
-                add(UtilActivator
-                    .getImage("service.gui.SIP_COMMUNICATOR_LOGO_32x32"));
-                add(UtilActivator
-                    .getImage("service.gui.SIP_COMMUNICATOR_LOGO_45x45"));
-                add(UtilActivator
-                    .getImage("service.gui.SIP_COMMUNICATOR_LOGO_64x64"));
-                add(UtilActivator
-                    .getImage("service.gui.SIP_COMMUNICATOR_LOGO_128x128"));
+                    add(UtilActivator.getImage(
+                            "service.gui.SIP_COMMUNICATOR_LOGO"));
+                    add(UtilActivator.getImage(
+                            "service.gui.SIP_COMMUNICATOR_LOGO_20x20"));
+                    add(UtilActivator.getImage(
+                            "service.gui.SIP_COMMUNICATOR_LOGO_32x32"));
+                    add(UtilActivator.getImage(
+                            "service.gui.SIP_COMMUNICATOR_LOGO_45x45"));
+                    add(UtilActivator.getImage(
+                            "service.gui.SIP_COMMUNICATOR_LOGO_64x64"));
+                    add(UtilActivator.getImage(
+                            "service.gui.SIP_COMMUNICATOR_LOGO_128x128"));
                 }
             };
             m.invoke(this, logos);
@@ -172,10 +172,10 @@ public class SIPCommFrame
         }
         catch (Exception e)
         {
-            Image scLogo =
-                UtilActivator.getImage("service.gui.SIP_COMMUNICATOR_LOGO");
-            this.setIconImage(scLogo);
+            Image scLogo
+                = UtilActivator.getImage("service.gui.SIP_COMMUNICATOR_LOGO");
 
+            setIconImage(scLogo);
             // In order to have the same icon when using option panes
             JOptionPane.getRootFrame().setIconImage(scLogo);
         }
@@ -301,6 +301,16 @@ public class SIPCommFrame
             saveSizeAndLocation();
 
         close(false);
+    }
+
+    /**
+     * Invokes the {@link Window#dispose()} implementation of this instance
+     * thus skipping any overriding that may be in effect for the method in
+     * question by extenders.
+     */
+    protected void windowDispose()
+    {
+        super.dispose();
     }
 
     /**

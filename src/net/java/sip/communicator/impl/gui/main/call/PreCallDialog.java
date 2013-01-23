@@ -249,20 +249,15 @@ public abstract class PreCallDialog
         callLabelAddress.putClientProperty("html.disable", Boolean.TRUE);
         callLabelImage.putClientProperty("html.disable", Boolean.TRUE);
 
-        JComponent buttonsPanel
-            = CallPeerRendererUtils.createIncomingCallButtonBar();
+        JComponent buttonsPanel = new CallToolBar(false, true);
 
         callButton = new SIPCommButton();
 
         if(mergeCall)
-        {
             mergeCallButton = new SIPCommButton();
-        }
 
         if(video)
-        {
             videoCallButton = new SIPCommButton();
-        }
 
         hangupButton = new SIPCommButton();
 

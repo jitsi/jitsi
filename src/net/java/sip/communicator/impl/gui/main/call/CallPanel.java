@@ -106,6 +106,15 @@ public class CallPanel
         "net.java.sip.communicator.impl.gui.main.call.SHOW_CALL_INFO_BUTTON";
 
     /**
+     * The <tt>Component</tt> which is at the bottom of this view and contains
+     * {@link #settingsPanel}. It overrides the Swing-defined background on OS
+     * X so it needs explicit updating upon switching between full-screen and
+     * windowed mode in order to respect any background-related settings of the
+     * ancestors such as black background in full-screen mode.
+     */
+    private JComponent bottomBar;
+
+    /**
      * The {@link CallConference} instance depicted by this <tt>CallPanel</tt>.
      */
     private final CallConference callConference;
@@ -241,7 +250,7 @@ public class CallPanel
     /**
      * The panel containing call settings.
      */
-    private JComponent settingsPanel;
+    private CallToolBar settingsPanel;
 
     /**
      * The button responsible for hiding/showing the local video.
@@ -367,6 +376,10 @@ public class CallPanel
                 callConferenceListener);
         this.callConference.addPropertyChangeListener(callConferenceListener);
         uiVideoHandler.addObserver(uiVideoHandlerObserver);
+
+        callWindow.getFrame().addPropertyChangeListener(
+                CallContainer.PROP_FULL_SCREEN,
+                callConferenceListener);
 
         updateViewFromModel();
 
@@ -549,6 +562,34 @@ public class CallPanel
     }
 
     /**
+     * Notifies this instance about a <tt>PropertyChangeEvent</tt> fired by
+     * {@link #callWindow}.
+     *
+     * @param ev the <tt>PropertyChangeEvent</tt> fired by <tt>callWindow</tt>
+     * to notify this instance about
+     */
+    private void callWindowPropertyChange(PropertyChangeEvent ev)
+    {
+        /*
+         * We are registered for CallContainer#PROP_FULL_SCREEN only. This
+         * instance will fire the notification as its own to allow listeners to
+         * register with a source which is more similar to them with respect to
+         * life span.
+         */
+        try
+        {
+            if (OSUtils.IS_MAC && (bottomBar != null))
+                bottomBar.setOpaque(!isFullScreen());
+        }
+        finally
+        {
+            firePropertyChange(
+                    ev.getPropertyName(),
+                    ev.getOldValue(), ev.getNewValue());
+        }
+    }
+
+    /**
      * Count the number of the buttons in the supplied components.
      * @param cs the components to search for buttons.
      * @return number of buttons.
@@ -575,14 +616,20 @@ public class CallPanel
      */
     private JComponent createBottomBar()
     {
-        JComponent bottomBar
+        bottomBar
             = new TransparentPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
-
         bottomBar.setBorder(BorderFactory.createEmptyBorder(0, 30, 2, 30));
 
+        /*
+         * The bottomBar on OS X overrides the Swing-defined background.
+         * However, full-screen display usually uses a black background. The
+         * black background will be set elsewhere on an ancestor but we have to
+         * make sure that bottomBar's background does not interfere with the
+         * setting.
+         */
         if (OSUtils.IS_MAC)
         {
-            bottomBar.setOpaque(true);
+            bottomBar.setOpaque(!isFullScreen());
             bottomBar.setBackground(
                     new Color(GuiActivator.getResources().getColor(
                             "service.gui.MAC_PANEL_BACKGROUND")));
@@ -610,6 +657,10 @@ public class CallPanel
 
         uiVideoHandler.deleteObserver(uiVideoHandlerObserver);
         uiVideoHandler.dispose();
+
+        callWindow.getFrame().removePropertyChangeListener(
+                CallContainer.PROP_FULL_SCREEN,
+                callConferenceListener);
 
         if (callPanel != null)
             ((CallRenderer) callPanel).dispose();
@@ -649,6 +700,8 @@ public class CallPanel
     private void doUpdateSettingsPanelInEventDispatchThread(
             boolean callConferenceIsEnded)
     {
+        settingsPanel.setFullScreen(isFullScreen());
+
         boolean isConference = (callPanel instanceof BasicConferenceCallPanel);
 
         /*
@@ -674,11 +727,7 @@ public class CallPanel
          */
         chatButton.setVisible(
                 !isConference && (getIMCapableCallPeers(1).size() == 1));
-        /*
-         * TODO The full-screen support is currently broken so the
-         * fullScreenButton is not enabled or shown.
-         */
-        fullScreenButton.setEnabled(false);
+
         updateHoldButtonState();
         updateMergeButtonState();
 
@@ -1179,7 +1228,7 @@ public class CallPanel
          * the buttons in case any of the buttons need it (which is hard to
          * determine at the time of this writing).
          */
-        settingsPanel = CallPeerRendererUtils.createButtonBar(false, null);
+        settingsPanel = new CallToolBar(isFullScreen(), false);
 
         /*
          * TODO CallPanel depicts a whole CallConference which may have multiple
@@ -1209,7 +1258,7 @@ public class CallPanel
                     DIAL_BUTTON,
                     GuiActivator.getResources().getI18NString(
                             "service.gui.DIALPAD"));
-        fullScreenButton = new FullScreenButton(this, false);
+        fullScreenButton = new FullScreenButton(this);
         hangupButton = new HangupButton(this);
         holdButton = new HoldButton(aCall);
         if(GuiActivator.getConfigurationService().getBoolean(
@@ -1239,7 +1288,6 @@ public class CallPanel
                     aCall,
                     ImageLoader.MICROPHONE,
                     ImageLoader.MUTE_BUTTON,
-                    false,
                     true,
                     false);
         remoteLevel
@@ -1321,6 +1369,18 @@ public class CallPanel
         // to. And the first one is been hanged up and so the call passes through
         // conference call focus a moment and than go again to one to one call.
         return callPeers.size() > 1;
+    }
+
+    /**
+     * Determines whether this view is displayed in full-screen or windowed
+     * mode.
+     *
+     * @return <tt>true</tt> if this view is displayed in full-screen mode or
+     * <tt>false</tt> for windowed mode
+     */
+    boolean isFullScreen()
+    {
+        return callWindow.isFullScreen();
     }
 
     /**
@@ -1717,6 +1777,17 @@ public class CallPanel
             else
                 oneToOneCallPanel.removeDesktopSharingComponents();
         }
+    }
+
+    /**
+     * Sets the display of this view to full-screen or windowed mode.
+     *
+     * @param fullScreen <tt>true</tt> to display this view in full-screen mode
+     * or <tt>false</tt> for windowed mode
+     */
+    void setFullScreen(boolean fullScreen)
+    {
+        callWindow.setFullScreen(fullScreen);
     }
 
     /**
@@ -2159,13 +2230,37 @@ public class CallPanel
          */
         public void propertyChange(PropertyChangeEvent ev)
         {
+            String propertyName = ev.getPropertyName();
+
             /*
              * If a Call is added to or removed from the CallConference depicted
              * by this CallPanel, an update of the view from its model will most
              * likely be required.
              */
-            if (ev.getPropertyName().equals(CallConference.CALLS))
+            if (propertyName.equals(CallConference.CALLS))
+            {
                 onEventObject(ev);
+            }
+            else if (propertyName.equals(CallContainer.PROP_FULL_SCREEN))
+            {
+                if (ev.getSource().equals(callWindow.getFrame()))
+                {
+                    try
+                    {
+                        /*
+                         * We'll turn the switching between full-screen and
+                         * windowed mode into a model state because a
+                         * significant part of this view changes upon such a
+                         * switch.
+                         */
+                        onEventObject(ev);
+                    }
+                    finally
+                    {
+                        callWindowPropertyChange(ev);
+                    }
+                }
+            }
         }
     }
 }
