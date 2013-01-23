@@ -17,6 +17,7 @@ import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
+import org.jitsi.util.StringUtils;
 import org.osgi.framework.*;
 
 /**
@@ -115,7 +116,7 @@ public class ProvisioningActivator
 
         String method = provisioningService.getProvisioningMethod();
 
-        if(method == null || method.equals("NONE"))
+        if(StringUtils.isNullOrEmpty(method, true) || method.equals("NONE"))
         {
             return;
         }
