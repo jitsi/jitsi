@@ -1764,9 +1764,7 @@
         <replace file="${debianize.dir}/sh/${package.name}"
                  token="_PACKAGE_NAME_"
                  value="${package.name}"/>
-        <replace file="${debianize.dir}/sh/${package.name}"
-                 token="net.java.sip.communicator.launcher.SIPCommunicator"
-                 value="-Dnet.java.sip.communicator.SC_HOME_DIR_NAME=${application.home.dirname} net.java.sip.communicator.launcher.SIPCommunicator"/>
+        <antcall target="-deb-sh-update-homedir"/>
 
         <!-- only if called from deb target -->
         <antcall target="-deb-sh-file-update"/>
@@ -1912,6 +1910,13 @@
         <copy todir="${debianize.dir}/patches">
             <fileset dir="${inst.resrc}/debian/patches"/>
         </copy>
+    </target>
+
+    <target name="-deb-sh-update-homedir"
+            if="application.home.dirname">
+        <replace file="${debianize.dir}/sh/${package.name}"
+             token="net.java.sip.communicator.launcher.SIPCommunicator"
+             value="-Dnet.java.sip.communicator.SC_HOME_DIR_NAME=${application.home.dirname} net.java.sip.communicator.launcher.SIPCommunicator"/>
     </target>
 
     <target name="-deb-control-file"
