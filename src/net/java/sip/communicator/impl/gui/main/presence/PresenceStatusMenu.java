@@ -12,14 +12,13 @@ import java.util.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.*;
-import net.java.sip.communicator.impl.gui.main.login.*;
 import net.java.sip.communicator.impl.gui.main.presence.message.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.util.swing.*;
+import org.jitsi.util.*;
 
 /**
  * The <tt>StatusSelectorBox</tt> is a <tt>SIPCommMenu</tt> that contains
@@ -51,7 +50,16 @@ public class PresenceStatusMenu
 
     private OperationSetPresence presence;
 
-    private JLabel titleLabel;
+    /**
+     * The area will display the account display name and its status message
+     * if any.
+     */
+    private JEditorPane titleArea;
+
+    /**
+     * The status message menu.
+     */
+    private StatusMessageMenu statusMessageMenu;
 
     /**
      * Take care for global status items, that only one is selected.
@@ -83,12 +91,17 @@ public class PresenceStatusMenu
 
         this.setToolTipText(tooltip);
 
-        titleLabel = new JLabel(protocolProvider.getAccountID().getDisplayName());
+        titleArea = new JEditorPane();
+        titleArea.setContentType("text/html");
+        titleArea.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
+        titleArea.setOpaque(false);
+        titleArea.setEditable(false);
+        titleArea.setAlignmentX(Component.RIGHT_ALIGNMENT);
 
-        titleLabel.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
-        titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD));
+        statusMessageMenu = new StatusMessageMenu(protocolProvider, this);
+        updateTitleArea();
 
-        this.add(titleLabel);
+        this.add(titleArea);
         this.addSeparator();
 
         while (statusIterator.hasNext())
@@ -116,7 +129,7 @@ public class PresenceStatusMenu
 
         this.addSeparator();
 
-        this.add(new StatusMessageMenu(protocolProvider));
+        this.add(statusMessageMenu);
 
         this.setSelectedStatus(offlineStatus);
         updateStatus(offlineStatus);
@@ -205,10 +218,37 @@ public class PresenceStatusMenu
 
             if(item instanceof JCheckBoxMenuItem)
             {
-                if(item.getText().equals(presenceStatus.getStatusName()))
+                if(item.getName().equals(presenceStatus.getStatusName()))
+                {
                     item.setSelected(true);
+                    //item.setText("<html><b>" + item.getName() + "</b></html>");
+                }
+                else
+                {
+                    item.setText(item.getName());
+                }
             }
         }
+    }
+
+    /**
+     * Updates the current title area with the account display name
+     * and its status.
+     */
+    public void updateTitleArea()
+    {
+        StringBuilder txt = new StringBuilder();
+        txt.append("<html>").append("<b>");
+        txt.append(protocolProvider.getAccountID().getDisplayName())
+            .append("</b>");
+
+        String statusMessage = statusMessageMenu.getCurrentMessage();
+        if(!StringUtils.isNullOrEmpty(statusMessage))
+        {
+            txt.append("<br/>").append(statusMessage);
+        }
+        txt.append("</html>");
+        titleArea.setText(txt.toString());
     }
 
     /**
@@ -225,6 +265,7 @@ public class PresenceStatusMenu
                                 status.getStatusName());
 
         this.setSelected(selectedObject);
+        lastSelectedStatus = status;
 
         String tooltip = this.getToolTipText();
 

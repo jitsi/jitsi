@@ -176,6 +176,11 @@ public class ConfigurationUtils
     private static boolean isRemoveContactDisabled;
 
     /**
+     * Indicates if the pre set status messages are enabled.
+     */
+    private static boolean isPresetStatusMessagesEnabled;
+
+    /**
      * The last directory used in file transfer.
      */
     private static String sendFileLastDir;
@@ -626,6 +631,13 @@ public class ConfigurationUtils
                 "net.java.sip.communicator.impl.gui.main.contactlist." +
                 "CONTACT_REMOVE_DISABLED",
                 false);
+
+        // Load the "PRESET_STATUS_MESSAGES" property.
+        isPresetStatusMessagesEnabled
+            = configService.getBoolean(
+                "net.java.sip.communicator.impl.gui.main.presence." +
+                "PRESET_STATUS_MESSAGES",
+                true);
 
         // Load the "net.java.sip.communicator.impl.gui.main.account
         // .ADVANCED_CONFIG_DISABLED" property.
@@ -1133,6 +1145,17 @@ public class ConfigurationUtils
     public static boolean isRemoveContactDisabled()
     {
         return isRemoveContactDisabled;
+    }
+
+    /**
+     * Returns <code>true</code> if the "PRESET_STATUS_MESSAGES" property is
+     * true, otherwise - returns <code>false</code>.
+     * @return <code>true</code> if the "PRESET_STATUS_MESSAGES" property is
+     * true, otherwise - returns <code>false</code>.
+     */
+    public static boolean isPresetStatusMessagesEnabled()
+    {
+        return isPresetStatusMessagesEnabled;
     }
 
     /**

@@ -57,15 +57,28 @@ public class NewStatusMessageDialog
     private JPanel messagePanel;
 
     /**
+     * The parent menu.
+     */
+    private StatusMessageMenu parentMenu;
+
+    /**
+     * A checkbox when checked, the new message will be saved.
+     */
+    private JCheckBox saveNewMessage;
+
+    /**
      * Creates an instance of <tt>NewStatusMessageDialog</tt>.
      * 
      * @param protocolProvider the <tt>ProtocolProviderService</tt>.
      */
-    public NewStatusMessageDialog (ProtocolProviderService protocolProvider)
+    public NewStatusMessageDialog (ProtocolProviderService protocolProvider,
+                                   StatusMessageMenu parentMenu)
     {
+        super(false);
+
         presenceOpSet
-            = (OperationSetPersistentPresence) protocolProvider
-                .getOperationSet(OperationSetPresence.class);
+            = protocolProvider.getOperationSet(OperationSetPresence.class);
+        this.parentMenu = parentMenu;
 
         this.init();
         pack();
@@ -100,6 +113,9 @@ public class NewStatusMessageDialog
         JPanel buttonsPanel
             = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
 
+        saveNewMessage = new JCheckBox(GuiActivator.getResources()
+            .getI18NString("service.gui.NEW_STATUS_MESSAGE_SAVE"));
+
         this.setTitle(GuiActivator.getResources()
                 .getI18NString("service.gui.NEW_STATUS_MESSAGE"));
 
@@ -120,6 +136,12 @@ public class NewStatusMessageDialog
         infoTitleLabel.setHorizontalAlignment(JLabel.CENTER);
         infoTitleLabel.setFont(
             infoTitleLabel.getFont().deriveFont(Font.BOLD, 18.0f));
+
+        saveNewMessage.setSelected(true);
+        /*JPanel saveToCustomPanel = new TransparentPanel(
+            new FlowLayout(FlowLayout.RIGHT));
+        saveToCustomPanel.add(saveNewMessage);
+        dataPanel.add(saveToCustomPanel, BorderLayout.SOUTH);*/
 
         labelsPanel.add(infoTitleLabel);
         labelsPanel.add(infoArea);
@@ -194,7 +216,9 @@ public class NewStatusMessageDialog
 
         if (name.equals("ok"))
         {
-            new PublishStatusMessageThread(messageTextField.getText()).start();
+            parentMenu.publishStatusMessage(messageTextField.getText(),
+                                            parentMenu.getNewMessageItem(),
+                                            saveNewMessage.isSelected());
         }
 
         this.dispose();
@@ -207,71 +231,6 @@ public class NewStatusMessageDialog
     public void requestFocusInField()
     {
         this.messageTextField.requestFocus();
-    }
-
-    /**
-     *  This class allow to use a thread to change the presence status message.
-     */
-    private class PublishStatusMessageThread extends Thread
-    {
-        private String message;
-
-        private PresenceStatus currentStatus;
-
-        public PublishStatusMessageThread(String message)
-        {
-            this.message = message;
-
-            this.currentStatus = presenceOpSet.getPresenceStatus();
-        }
-
-        public void run()
-        {
-            try
-            {
-                presenceOpSet.publishPresenceStatus(currentStatus, message);
-            }
-            catch (IllegalArgumentException e1)
-            {
-
-                logger.error("Error - changing status", e1);
-            }
-            catch (IllegalStateException e1)
-            {
-
-                logger.error("Error - changing status", e1);
-            }
-            catch (OperationFailedException e1)
-            {
-                
-                if (e1.getErrorCode()
-                    == OperationFailedException.GENERAL_ERROR)
-                {
-                    logger.error(
-                        "General error occured while "
-                        + "publishing presence status.",
-                        e1);
-                }
-                else if (e1.getErrorCode()
-                        == OperationFailedException
-                            .NETWORK_FAILURE) 
-                {
-                    logger.error(
-                        "Network failure occured while "
-                        + "publishing presence status.",
-                        e1);
-                } 
-                else if (e1.getErrorCode()
-                        == OperationFailedException
-                            .PROVIDER_NOT_REGISTERED) 
-                {
-                    logger.error(
-                        "Protocol provider must be"
-                        + "registered in order to change status.",
-                        e1);
-                }
-            }
-        }
     }
 
     /**
