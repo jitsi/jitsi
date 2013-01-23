@@ -10,6 +10,8 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
 import javax.swing.*;
+import javax.swing.event.*;
+
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
@@ -96,7 +98,14 @@ public class EncodingsPanel extends TransparentPanel
         overrideCheckBox = new SIPCommCheckBox(resourceService.
             getI18NString("plugin.jabberaccregwizz.OVERRIDE_ENCODINGS"),
                 false);
-    
+        overrideCheckBox.addChangeListener(new ChangeListener()
+        {
+            public void stateChanged(ChangeEvent e)
+            {
+                updateTableState();
+            }
+        });
+
         mediaConfiguration 
                 = UtilActivator.getMediaConfiguration();
 
@@ -204,5 +213,15 @@ public class EncodingsPanel extends TransparentPanel
 
         audioPanel.add(audioControls);
         videoPanel.add(videoControls);
+        updateTableState();
+    }
+
+    /**
+     * Enables or disables the encodings tables based on the override checkbox.
+     */
+    private void updateTableState()
+    {
+        audioControls.setEnabled(overrideCheckBox.isSelected());
+        videoControls.setEnabled(overrideCheckBox.isSelected());
     }
 }

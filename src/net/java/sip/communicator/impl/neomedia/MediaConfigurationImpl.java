@@ -688,6 +688,19 @@ public class MediaConfigurationImpl
         final JTable table = new JTable();
         table.setShowGrid(false);
         table.setTableHeader(null);
+        table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer()
+        {
+            @Override
+            public Component getTableCellRendererComponent(JTable rtable,
+                Object value, boolean isSelected, boolean hasFocus, int row,
+                int column)
+            {
+                Component component = super.getTableCellRendererComponent(
+                    rtable, value, isSelected, hasFocus, row, column);
+                component.setEnabled(rtable != null && rtable.isEnabled());
+                return component;
+            }
+        });
 
         key = "impl.media.configform.UP";
         final JButton upButton = new JButton(resources.getI18NString(key));
@@ -706,13 +719,6 @@ public class MediaConfigurationImpl
         Container parentButtonBar = new TransparentPanel(new BorderLayout());
         parentButtonBar.add(buttonBar, BorderLayout.NORTH);
 
-        Container container = new TransparentPanel(new BorderLayout());
-        container.setPreferredSize(new Dimension(WIDTH, 100));
-        container.setMaximumSize(new Dimension(WIDTH, 100));
-
-        container.add(new JScrollPane(table), BorderLayout.CENTER);
-        container.add(parentButtonBar, BorderLayout.EAST);
-
         table.setModel(new EncodingConfigurationTableModel(type,
                 encodingConfiguration));
         /*
@@ -724,7 +730,7 @@ public class MediaConfigurationImpl
         TableColumn tableColumn = tableColumnModel.getColumn(0);
         tableColumn.setMaxWidth(tableColumn.getMinWidth());
 
-        ListSelectionListener tableSelectionListener =
+        final ListSelectionListener tableSelectionListener =
             new ListSelectionListener()
             {
                 public void valueChanged(ListSelectionEvent event)
@@ -767,6 +773,29 @@ public class MediaConfigurationImpl
         upButton.addActionListener(buttonListener);
         downButton.addActionListener(buttonListener);
 
+        Container container = new TransparentPanel(new BorderLayout())
+        {
+            @Override
+            public void setEnabled(boolean enabled)
+            {
+                super.setEnabled(enabled);
+                table.setEnabled(enabled);
+                if (enabled)
+                {
+                    tableSelectionListener.valueChanged(null);
+                }
+                else
+                {
+                    upButton.setEnabled(false);
+                    downButton.setEnabled(false);
+                }
+            }
+        };
+        container.setPreferredSize(new Dimension(WIDTH, 100));
+        container.setMaximumSize(new Dimension(WIDTH, 100));
+
+        container.add(new JScrollPane(table), BorderLayout.CENTER);
+        container.add(parentButtonBar, BorderLayout.EAST);
         return container;
     }
 
