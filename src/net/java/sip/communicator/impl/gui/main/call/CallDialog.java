@@ -140,7 +140,10 @@ public class CallDialog
              * from full-screen to windowed mode.
              */
             if (isFullScreen())
+            {
                 setFullScreen(false);
+                return;
+            }
         }
         else
         {
