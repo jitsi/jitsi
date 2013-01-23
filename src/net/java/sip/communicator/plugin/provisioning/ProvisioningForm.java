@@ -246,7 +246,8 @@ public class ProvisioningForm
         userPassPanel.add(labelPanel, BorderLayout.WEST);
         userPassPanel.add(valuesPanel, BorderLayout.CENTER);
         JPanel buttonPanel = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
-        forgetPasswordButton = new JButton("Forget Password!");
+        forgetPasswordButton = new JButton(resources
+            .getI18NString("plugin.provisioning.FORGET_PASSWORD"));
         buttonPanel.add(forgetPasswordButton);
         userPassPanel.add(buttonPanel, BorderLayout.SOUTH);
         c.fill = GridBagConstraints.HORIZONTAL;
