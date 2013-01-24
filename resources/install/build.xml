@@ -1802,9 +1802,10 @@
         <copy file="${inst.resrc}/debian/rules.tmpl"
               tofile="${debianize.dir}/rules"
               overwrite="true"/>
-        <replace file="${debianize.dir}/rules"
-             token="_BUILD_TARGET_"
-             value="${debianize.build.target}"/>
+
+        <!-- makes some checks for custom set targets and sets build target -->
+        <antcall target="-deb-build-target-replace"/>
+
         <replace file="${debianize.dir}/rules"
              token="_PACKAGE_NAME_"
              value="${package.name}"/>
@@ -1909,6 +1910,34 @@
         </copy>
         <copy todir="${debianize.dir}/patches">
             <fileset dir="${inst.resrc}/debian/patches"/>
+        </copy>
+    </target>
+
+    <!-- sets custom build target or a custom one -->
+    <target name="-deb-build-target-replace"
+            depends="-deb-build-replace-custom,-deb-build-replace"/>
+    <!-- checks for custom target request by enabled property:
+        debianize.build.target.custom -->
+    <target name="-deb-build-replace-custom"
+            if="debianize.build.target.custom">
+        <replace file="${debianize.dir}/rules"
+             token="_BUILD_TARGET_"
+             value="copy-ready-scbundles -Dsc.basedir=${sc.basedir} -Dtarget.dir=${debian.target.dir}"/>
+    </target>
+    <!-- target that sets the build target that is in the property:
+        -deb-build-replace -->
+    <target name="-deb-build-replace">
+        <replace file="${debianize.dir}/rules"
+             token="_BUILD_TARGET_"
+             value="${debianize.build.target}"/>
+    </target>
+    <!-- copies already build scbundles to the target.dir folder -->
+    <target name="copy-ready-scbundles">
+        <mkdir dir="${target.dir}/sc-bundles"/>
+        <copy todir="${target.dir}/sc-bundles">
+              <fileset dir="${sc.basedir}/sc-bundles">
+                    <include name="**/*"/>
+              </fileset>
         </copy>
     </target>
 
