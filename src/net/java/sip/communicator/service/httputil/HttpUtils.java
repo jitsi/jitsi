@@ -14,7 +14,7 @@ import java.util.*;
 import javax.net.ssl.*;
 
 import net.java.sip.communicator.util.Logger;
-import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 
 import org.apache.http.*;
 import org.apache.http.Header;

@@ -10,8 +10,7 @@ import java.awt.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 
 /**
  * The <tt>StatusPanel</tt> is the panel shown on the bottom of the chat
@@ -19,7 +18,8 @@ import net.java.sip.communicator.util.swing.*;
  * 
  * @author Yana Stamcheva
  */
-public class StatusPanel extends TransparentPanel
+public class StatusPanel
+    extends TransparentPanel
 {
     private final JLabel statusLabel = new JLabel();
 
@@ -42,9 +42,10 @@ public class StatusPanel extends TransparentPanel
      */
     public void setStatusMessage(String statusMessage)
     {
-        int stringWidth = GuiUtils.getStringWidth(statusLabel, statusMessage);
+        int stringWidth
+            = ComponentUtils.getStringWidth(statusLabel, statusMessage);
 
-        final int dot3 = GuiUtils.getStringWidth(statusLabel, "... ");
+        final int dot3 = ComponentUtils.getStringWidth(statusLabel, "... ");
 
         // first, we avoid to loop if it is useless.
         final int statusPanelWidth = this.getWidth();
@@ -69,7 +70,7 @@ public class StatusPanel extends TransparentPanel
                         statusMessage.length() - 3).concat("...");
                 }
                 stringWidth
-                    = GuiUtils.getStringWidth(statusLabel, statusMessage);
+                    = ComponentUtils.getStringWidth(statusLabel, statusMessage);
             }
         }
         statusLabel.setText(statusMessage);

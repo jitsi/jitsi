@@ -7,7 +7,7 @@ package net.java.sip.communicator.impl.neomedia;
 
 import java.awt.*;
 
-import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 
 /**
  * The audio configuration form.

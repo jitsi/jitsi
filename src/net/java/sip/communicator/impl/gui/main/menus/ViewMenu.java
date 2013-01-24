@@ -8,7 +8,7 @@ package net.java.sip.communicator.impl.gui.main.menus;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.*;
-import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 
 /**
  * The <tt>ViewMenu</tt> is a menu in the main application menu bar.

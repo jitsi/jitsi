@@ -15,9 +15,9 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.skin.*;
-import net.java.sip.communicator.util.swing.*;
 
 import org.jitsi.util.*;
 

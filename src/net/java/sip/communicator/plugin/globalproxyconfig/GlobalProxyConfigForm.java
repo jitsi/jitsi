@@ -10,8 +10,8 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.swing.*;
 
 import org.jitsi.service.configuration.*;
 

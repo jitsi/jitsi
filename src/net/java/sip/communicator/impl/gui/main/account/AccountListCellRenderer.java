@@ -11,7 +11,7 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 
 /**
  * The <tt>AccountListCellRenderer</tt> is the cell renderer used from the 

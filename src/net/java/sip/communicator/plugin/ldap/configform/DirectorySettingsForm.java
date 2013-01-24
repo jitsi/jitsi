@@ -18,7 +18,7 @@ import net.java.sip.communicator.service.ldap.*;
 import net.java.sip.communicator.service.ldap.LdapConstants.Auth;
 import net.java.sip.communicator.service.ldap.LdapConstants.Encryption;
 import net.java.sip.communicator.service.ldap.LdapConstants.Scope;
-import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 //disambiguation
 
 /**

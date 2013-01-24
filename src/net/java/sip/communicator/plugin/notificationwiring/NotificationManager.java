@@ -14,6 +14,7 @@ import java.util.concurrent.*;
 
 import javax.imageio.*;
 
+import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.notification.*;

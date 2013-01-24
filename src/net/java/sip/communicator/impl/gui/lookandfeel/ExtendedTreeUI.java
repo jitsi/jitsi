@@ -12,8 +12,8 @@ import javax.swing.tree.*;
 
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
+import net.java.sip.communicator.plugin.desktoputil.plaf.*;
 import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.util.swing.plaf.*;
 
 /**
  * The <tt>ExtendedTreeUI</tt> is an extended implementation of the

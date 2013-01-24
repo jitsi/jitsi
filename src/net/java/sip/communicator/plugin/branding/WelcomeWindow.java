@@ -14,7 +14,7 @@ import java.io.*;
 import javax.imageio.*;
 import javax.swing.*;
 
-import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 
 import org.jitsi.service.resources.*;
 

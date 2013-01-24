@@ -9,9 +9,9 @@ package net.java.sip.communicator.plugin.contactinfo;
 import java.awt.*;
 import java.util.*;
 
+import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.swing.*;
 
 /**
  * A GUI plug-in for SIP Communicator that will allow cross protocol contact

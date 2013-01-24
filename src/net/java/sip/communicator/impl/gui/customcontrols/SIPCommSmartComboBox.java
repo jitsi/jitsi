@@ -14,8 +14,8 @@ import java.util.List;
 import javax.swing.*;
 import javax.swing.event.*;
 
+import net.java.sip.communicator.plugin.desktoputil.plaf.*;
 import net.java.sip.communicator.util.skin.*;
-import net.java.sip.communicator.util.swing.plaf.*;
 
 /**
  * <tt>SIPCommSmartComboBox</tt> is an editable combo box which selects an item

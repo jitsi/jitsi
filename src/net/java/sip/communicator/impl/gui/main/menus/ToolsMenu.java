@@ -29,8 +29,8 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.util.skin.*;
-import net.java.sip.communicator.util.swing.*;
-import net.java.sip.communicator.util.swing.SwingWorker;
+import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.plugin.desktoputil.SwingWorker;
 
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;

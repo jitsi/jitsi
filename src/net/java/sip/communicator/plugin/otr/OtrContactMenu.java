@@ -14,7 +14,7 @@ import javax.swing.*;
 import net.java.otr4j.*;
 import net.java.otr4j.session.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 
 /**
  * A special {@link JMenu} that holds the menu items for controlling the

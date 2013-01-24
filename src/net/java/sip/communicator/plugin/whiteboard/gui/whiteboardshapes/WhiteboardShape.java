@@ -12,7 +12,7 @@ import java.util.List;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.whiteboardobjects.*;
-import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 
 /**
  * Abstract WhiteboardShape (Shape for the WhitheboardFrame)

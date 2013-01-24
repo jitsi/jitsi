@@ -12,8 +12,8 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.text.*;
 
+import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.swing.*;
 
 import org.jivesoftware.smack.*;
 

@@ -14,6 +14,7 @@ import java.net.*;
 import javax.sip.*;
 import javax.sip.address.*;
 
+import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.util.*;
 
 /**

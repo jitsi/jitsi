@@ -13,7 +13,7 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
-import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 
 /**
  * Panel containing a listing of current keybinding mappings. This contains

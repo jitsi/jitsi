@@ -12,9 +12,9 @@ import javax.swing.*;
 import javax.swing.plaf.*;
 import javax.swing.tree.*;
 
+import net.java.sip.communicator.plugin.desktoputil.plaf.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.swing.plaf.*;
 
 /**
  * The <tt>GroupNode</tt> is a <tt>ContactListNode</tt> corresponding to a

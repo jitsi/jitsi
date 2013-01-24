@@ -12,7 +12,7 @@ import javax.swing.*;
 
 import net.java.sip.communicator.plugin.addrbook.macosx.*;
 import net.java.sip.communicator.plugin.addrbook.msoutlook.*;
-import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 
 import org.jitsi.util.*;
 

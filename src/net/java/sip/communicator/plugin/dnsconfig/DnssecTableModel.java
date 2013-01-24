@@ -13,7 +13,7 @@ import java.util.List;
 import javax.swing.table.*;
 
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.dns.*;
+import net.java.sip.communicator.plugin.desktoputil.dns.*;
 
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;

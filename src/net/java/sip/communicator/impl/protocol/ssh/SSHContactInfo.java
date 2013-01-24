@@ -18,12 +18,13 @@ import java.text.*;
 import javax.swing.*;
 import javax.swing.text.*;
 
-import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 
 /**
  * @author Shobhit Jindal
  */
-class SSHContactInfo extends SIPCommDialog
+class SSHContactInfo
+    extends SIPCommDialog
 {
     /**
      * Serial version UID.

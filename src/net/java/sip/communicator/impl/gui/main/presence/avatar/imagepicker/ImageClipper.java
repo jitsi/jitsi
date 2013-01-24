@@ -12,7 +12,7 @@ import java.awt.image.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 
 /**
  * Component allowing the user to easily crop an image

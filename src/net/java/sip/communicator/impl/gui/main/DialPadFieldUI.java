@@ -11,9 +11,9 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.plaf.*;
 
+import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.plugin.desktoputil.plaf.*;
 import net.java.sip.communicator.util.skin.*;
-import net.java.sip.communicator.util.swing.*;
-import net.java.sip.communicator.util.swing.plaf.*;
 
 /**
  * The <tt>SearchTextFieldUI</tt> is the one responsible for the search field

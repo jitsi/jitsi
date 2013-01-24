@@ -6,15 +6,10 @@
  */
 package net.java.sip.communicator.util;
 
-import java.awt.image.*;
-import java.net.*;
+//import java.awt.image.*;
 import java.util.*;
 
-import javax.imageio.*;
-
-import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.service.keybindings.*;
 import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
@@ -46,11 +41,7 @@ public class UtilActivator
 
     private static ConfigurationService configurationService;
 
-    private static KeybindingsService keybindingsService;
-
     private static ResourceManagementService resourceService;
-
-    private static BrowserLauncherService browserLauncherService;
 
     private static UIService uiService;
 
@@ -139,23 +130,6 @@ public class UtilActivator
     }
 
     /**
-     * Returns the <tt>KeybindingsService</tt> currently registered.
-     *
-     * @return the <tt>KeybindingsService</tt>
-     */
-    public static KeybindingsService getKeybindingsService()
-    {
-        if (keybindingsService == null)
-        {
-            keybindingsService
-                = ServiceUtils.getService(
-                        bundleContext,
-                        KeybindingsService.class);
-        }
-        return keybindingsService;
-    }
-
-    /**
      * Returns the service giving access to all application resources.
      *
      * @return the service giving access to all application resources.
@@ -184,51 +158,6 @@ public class UtilActivator
                         NetworkAddressManagerService.class);
         }
         return networkAddressManagerService;
-    }
-
-    /**
-     * Returns the <tt>BrowserLauncherService</tt> obtained from the bundle
-     * context.
-     * @return the <tt>BrowserLauncherService</tt> obtained from the bundle
-     * context
-     */
-    public static BrowserLauncherService getBrowserLauncher()
-    {
-        if (browserLauncherService == null)
-        {
-            browserLauncherService
-                = ServiceUtils.getService(
-                        bundleContext,
-                        BrowserLauncherService.class);
-        }
-        return browserLauncherService;
-    }
-
-    /**
-     * Returns the image corresponding to the given <tt>imageID</tt>.
-     *
-     * @param imageID the identifier of the image
-     * @return the image corresponding to the given <tt>imageID</tt>
-     */
-    public static BufferedImage getImage(String imageID)
-    {
-        BufferedImage image = null;
-
-        URL path = getResources().getImageURL(imageID);
-
-        if (path == null)
-            return null;
-
-        try
-        {
-            image = ImageIO.read(path);
-        }
-        catch (Exception exc)
-        {
-            logger.error("Failed to load image:" + path, exc);
-        }
-
-        return image;
     }
 
     /**

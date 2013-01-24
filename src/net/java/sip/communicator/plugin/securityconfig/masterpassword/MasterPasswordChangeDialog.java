@@ -10,7 +10,7 @@ import java.awt.event.*;
 
 import net.java.sip.communicator.plugin.securityconfig.*;
 import net.java.sip.communicator.service.credentialsstorage.*;
-import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 
 /**
  * UI dialog to change the master password.

@@ -9,7 +9,7 @@ package net.java.sip.communicator.plugin.notificationconfiguration;
 
 import java.io.*;
 
-import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 
 import org.jitsi.util.*;
 

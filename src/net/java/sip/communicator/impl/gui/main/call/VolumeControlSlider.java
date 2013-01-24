@@ -11,7 +11,7 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
-import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.event.*;

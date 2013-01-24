@@ -12,8 +12,8 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.swing.*;
 
+import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.protocol.*;
 /**
  * @author Yana Stamcheva

@@ -13,8 +13,8 @@ import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.util.swing.*;
 
 /**
  * The <tt>ChatRoomNamePanel</tt> is the form, where we should enter the chat

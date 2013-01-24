@@ -14,9 +14,9 @@ import java.util.List;
 import javax.swing.*;
 import javax.swing.table.*;
 
+import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.swing.*;
 
 import org.jitsi.util.*;
 

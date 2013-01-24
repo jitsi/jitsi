@@ -8,7 +8,7 @@ package net.java.sip.communicator.impl.gui.main.chat;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 
 /**
  * The <tt>ChatContact</tt> is a wrapping class for the <tt>Contact</tt> and

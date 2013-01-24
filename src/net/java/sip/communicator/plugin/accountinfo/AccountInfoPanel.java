@@ -10,9 +10,9 @@ import java.util.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.swing.*;
 
 import org.osgi.framework.*;
 

@@ -13,8 +13,8 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.contactlist.*;
-import net.java.sip.communicator.util.swing.*;
 
 /**
  * The <tt>RenameContactDialog</tt> is the dialog containing the form for

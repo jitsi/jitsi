@@ -13,9 +13,9 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.skin.*;
-import net.java.sip.communicator.util.swing.*;
 
 /**
  * The <tt>ChatContactListPanel</tt> is the panel added on the right of the

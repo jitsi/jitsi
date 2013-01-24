@@ -14,6 +14,7 @@ import java.util.regex.*;
 import javax.sip.address.*;
 
 import net.java.sip.communicator.impl.protocol.sip.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.util.*;
 

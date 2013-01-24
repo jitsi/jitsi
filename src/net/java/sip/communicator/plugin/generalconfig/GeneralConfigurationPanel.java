@@ -16,10 +16,10 @@ import javax.swing.border.*;
 import javax.swing.event.*;
 
 import net.java.sip.communicator.plugin.generalconfig.autoaway.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.Logger;
-import net.java.sip.communicator.util.swing.*;
 
 import org.jitsi.util.*;
 import org.osgi.framework.*;

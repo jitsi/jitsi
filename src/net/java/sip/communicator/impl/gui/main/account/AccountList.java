@@ -17,7 +17,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.swing.SwingWorker;
+import net.java.sip.communicator.plugin.desktoputil.SwingWorker;
 
 import org.osgi.framework.*;
 

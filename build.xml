@@ -949,7 +949,7 @@
         bundle-plugin-contactsourceconfig,bundle-plugin-certconfig,
         bundle-globalshortcut,bundle-plugin-msofficecomm,bundle-libjitsi,
         bundle-customcontactactions, bundle-phonenumbercontactsource,
-        bundle-demuxcontactsource"/>
+        bundle-demuxcontactsource, bundle-desktoputil"/>
 
     <!--BUNDLE-SC-LAUNCHER-->
     <target name="bundle-sc-launcher">
@@ -1061,10 +1061,8 @@
             manifest="${src}/net/java/sip/communicator/util/util.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/util"
                 prefix="net/java/sip/communicator/util">
-                <exclude name="dns/**"/>
             </zipfileset>
             <zipfileset src="${lib.noinst}/dnsjava.jar" prefix=""/>
-            <zipfileset src="lib/installer-exclude/laf-widget.jar" prefix=""/>
         </jar>
     </target>
 
@@ -1072,9 +1070,9 @@
     <target name="bundle-util-dns">
         <!-- Create the dns.jar-->
         <jar compress="true" destfile="${bundles.dest}/dns.jar"
-            manifest="${src}/net/java/sip/communicator/util/dns/util.dns.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/util/dns"
-                prefix="net/java/sip/communicator/util/dns"/>
+            manifest="${src}/net/java/sip/communicator/plugin/desktoputil/dns/desktoputil.dns.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/desktoputil/dns"
+                prefix="net/java/sip/communicator/plugin/desktoputil/dns"/>
         </jar>
     </target>
 
@@ -2749,6 +2747,20 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/plugin/demuxcontactsource/demuxcontactsource.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/demuxcontactsource"
                 prefix="net/java/sip/communicator/plugin/demuxcontactsource"/>
+        </jar>
+    </target>
+
+     <!-- BUNDLE-SWING-UTIL -->
+    <target name="bundle-desktoputil">
+        <!-- Creates a bundle containing the swing utility packages.-->
+        <jar compress="false" destfile="${bundles.dest}/desktoputil.jar"
+            manifest="${src}/net/java/sip/communicator/plugin/desktoputil/desktoputil.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/desktoputil"
+                prefix="net/java/sip/communicator/plugin/desktoputil">
+                <exclude name="dns/**"/>
+            </zipfileset>
+            <zipfileset src="lib/installer-exclude/laf-widget.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/dnsjava.jar" prefix=""/>
         </jar>
     </target>
 </project>

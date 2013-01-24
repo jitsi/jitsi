@@ -11,6 +11,6 @@ Import-Package: javax.swing,
  net.java.sip.communicator.service.protocol,
  org.jitsi.service.resources, net.java.sip.communicator.service.resources,
  net.java.sip.communicator.util,
- net.java.sip.communicator.util.swing,
+ net.java.sip.communicator.plugin.desktoputil,
  org.osgi.framework
 System-Bundle: yes

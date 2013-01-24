@@ -4,7 +4,7 @@ import java.awt.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 
 /**
  * Represents the background status panel of a peer.

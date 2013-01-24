@@ -10,7 +10,7 @@ import java.awt.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 
 /**
  * The <tt>ConfigFormListCellRenderer</tt> is the custom cell renderer used in
@@ -23,7 +23,7 @@ import net.java.sip.communicator.util.swing.*;
  * @author Yana Stamcheva
  */
 public class ConfigFormListCellRenderer
-    extends TransparentPanel 
+    extends TransparentPanel
     implements ListCellRenderer
 {
     

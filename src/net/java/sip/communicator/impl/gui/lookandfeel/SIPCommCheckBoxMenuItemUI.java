@@ -12,7 +12,7 @@ import javax.swing.*;
 import javax.swing.plaf.*;
 import javax.swing.plaf.basic.*;
 
-import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 
 /**
  * The SIPCommCheckBoxMenuItemUI implementation.
@@ -37,7 +37,8 @@ public class SIPCommCheckBoxMenuItemUI
      * @param bgColor selection background color
      * @since 1.4
      */
-    protected void paintBackground(Graphics g, JMenuItem menuItem, Color bgColor)
+    protected void paintBackground(
+        Graphics g, JMenuItem menuItem, Color bgColor)
     {
         super.paintBackground(g, menuItem, bgColor);
 
@@ -52,13 +53,14 @@ public class SIPCommCheckBoxMenuItemUI
         }
     }
 
-    private void internalPaintBackground(Graphics g, JMenuItem menuItem, Color bgColor)
+    private void internalPaintBackground(
+        Graphics g, JMenuItem menuItem, Color bgColor)
     {
         AntialiasingManager.activateAntialiasing(g);
-        
+
         ButtonModel model = menuItem.getModel();
         Color oldColor = g.getColor();
-        
+
         int menuWidth = menuItem.getWidth();
         int menuHeight = menuItem.getHeight();
 

@@ -6,14 +6,7 @@
  */
 package net.java.sip.communicator.util;
 
-import java.awt.*;
-import java.awt.font.*;
-import java.awt.geom.*;
-import java.lang.reflect.*;
 import java.util.*;
-import java.util.List;
-
-import javax.swing.*;
 
 /**
  * The <tt>StringUtils</tt> class is used through this ui implementation for
@@ -25,11 +18,6 @@ import javax.swing.*;
  */
 public class GuiUtils
 {
-    /**
-     * The list of all <tt>Window</tt>s owned by this application.
-     */
-    private static final List<Window> WINDOW_LIST;
-
     private static final Calendar c1 = Calendar.getInstance();
 
     private static final Calendar c2 = Calendar.getInstance();
@@ -112,30 +100,6 @@ public class GuiUtils
         digitMap.put('\uFF19', '9');  // Fullwidth digit 9
         digitMap.put('\u0669', '9');  // Arabic-indic digit 9
         DIGIT_MAPPINGS = Collections.unmodifiableMap(digitMap);
-
-        /*
-         * WINDOW_LIST is flawed because there are more calls to addWindow than
-         * to removeWindow. Java 6 has introduced Window#getWindows so try to
-         * use it instead.
-         */
-        Method Window_getWindows = null;
-
-        try
-        {
-            Window_getWindows = Window.class.getMethod("getWindows");
-        }
-        catch (NoSuchMethodException nsme)
-        {
-            /*
-             * Ignore the exception because we are just checking whether the
-             * method exists.
-             */
-        }
-        catch (SecurityException se)
-        {
-        }
-        WINDOW_LIST
-            = (Window_getWindows == null) ? new ArrayList<Window>() : null;
     }
 
     /**
@@ -146,51 +110,6 @@ public class GuiUtils
     public static String replaceSpecialRegExpChars(String text)
     {
         return text.replaceAll("([.()^&$*|])", "\\\\$1");
-    }
-
-    /**
-     * Returns the width in pixels of a text.
-     * @param c the component where the text is contained
-     * @param text the text to measure
-     * @return the width in pixels of a text.
-     */
-    public static int getStringWidth(Component c, String text)
-    {
-        return SwingUtilities.computeStringWidth(c
-                .getFontMetrics(c.getFont()), text);
-    }
-
-    /**
-     * Returns the size of the given text computed towards to the given
-     * component.
-     * @param c the component where the text is contained
-     * @param text the text to measure
-     * @return the dimensions of the text
-     */
-    public static Dimension getStringSize(Component c, String text)
-    {
-        // get metrics from the graphics
-        FontMetrics metrics = c.getFontMetrics(c.getFont());
-        // get the height of a line of text in this font and render context
-        int hgt = metrics.getHeight();
-        // get the advance of my text in this font and render context
-        int adv = metrics.stringWidth(text);
-        // calculate the size of a box to hold the text with some padding.
-        return new Dimension(adv+2, hgt+2);
-    }
-
-    /**
-     * Returns the bounds of the given string.
-     * @param text the string to measure
-     * @return the bounds of the given string
-     */
-    public static Rectangle2D getDefaultStringSize(String text)
-    {
-        Font font = UIManager.getFont("Label.font");
-        FontRenderContext frc = new FontRenderContext(null, true, false);
-        TextLayout layout = new TextLayout(text, font, frc);
-
-        return layout.getBounds();
     }
 
     /**
@@ -490,176 +409,6 @@ public class GuiUtils
         }
 
         return buf.toString().trim();
-    }
-
-    /**
-     * Returns an array of all {@code Window}s, both owned and ownerless,
-     * created by this application.
-     * If called from an applet, the array includes only the {@code Window}s
-     * accessible by that applet.
-     * <p>
-     * <b>Warning:</b> this method may return system created windows, such
-     * as a print dialog. Applications should not assume the existence of
-     * these dialogs, nor should an application assume anything about these
-     * dialogs such as component positions, <code>LayoutManager</code>s
-     * or serialization.
-     *
-     * @return Returns an array of all {@code Window}s.
-     */
-    public static Window[] getWindows()
-    {
-        if (WINDOW_LIST == null)
-        {
-            Method Window_getWindows = null;
-
-            try
-            {
-                Window_getWindows = Window.class.getMethod("getWindows");
-            }
-            catch (NoSuchMethodException nsme)
-            {
-                /* Ignore it because we cannot really do anything useful. */
-            }
-            catch (SecurityException se)
-            {
-            }
-
-            Object windows = null;
-
-            if (Window_getWindows != null)
-            {
-                try
-                {
-                    windows = Window_getWindows.invoke(null);
-                }
-                catch (ExceptionInInitializerError eiie)
-                {
-                    /* Ignore it because we cannot really do anything useful. */
-                }
-                catch (IllegalAccessException iae)
-                {
-                }
-                catch (IllegalArgumentException iae)
-                {
-                }
-                catch (InvocationTargetException ite)
-                {
-                }
-                catch (NullPointerException npe)
-                {
-                }
-            }
-
-            return
-                (windows instanceof Window[])
-                    ? (Window[]) windows
-                    : new Window[0];
-        }
-        else
-        {
-            synchronized (WINDOW_LIST)
-            {
-                return WINDOW_LIST.toArray(new Window[WINDOW_LIST.size()]);
-            }
-        }
-    }
-
-    /**
-     * Adds a {@link Window} into window list
-     * @param w {@link Window} to be added.
-     */
-    public static void addWindow(Window w)
-    {
-        if (WINDOW_LIST != null)
-        {
-            synchronized (WINDOW_LIST)
-            {
-                if (!WINDOW_LIST.contains(w))
-                    WINDOW_LIST.add(w);
-            }
-        }
-    }
-
-    /**
-     * Removes a {@link Window} into window list
-     * @param w {@link Window} to be removed.
-     */
-    public static void removeWindow(Window w)
-    {
-        if (WINDOW_LIST != null)
-        {
-            synchronized (WINDOW_LIST)
-            {
-                WINDOW_LIST.remove(w);
-            }
-        }
-    }
-
-    /**
-     * A simple minded look and feel change: ask each node in the tree
-     * to <code>updateUI()</code> -- that is, to initialize its UI property
-     * with the current look and feel.
-     *
-     * @param c UI component.
-     */
-    public static void updateComponentTreeUI(Component c)
-    {
-        updateComponentTreeUI0(c);
-        c.invalidate();
-        c.validate();
-        c.repaint();
-    }
-
-    /**
-     * Returns the index of the given component in the given container.
-     *
-     * @param c the Component to look for
-     * @param container the parent container, where this component is added
-     * @return the index of the component in the container or -1 if no such
-     * component is contained in the container
-     */
-    public static int getComponentIndex(Component c, Container container)
-    {
-        for (int i = 0, count = container.getComponentCount(); i < count; i++)
-        {
-            if (container.getComponent(i).equals(c))
-                return i;
-        }
-        return -1;
-    }
-
-    /**
-     * Repaints UI tree recursively.
-     * @param c UI component.
-     */
-    private static void updateComponentTreeUI0(Component c)
-    {
-        if (c instanceof JComponent)
-        {
-            JComponent jc = (JComponent) c;
-            jc.invalidate();
-            jc.validate();
-            jc.repaint();
-            JPopupMenu jpm =jc.getComponentPopupMenu();
-            if(jpm != null && jpm.isVisible() && jpm.getInvoker() == jc)
-            {
-                updateComponentTreeUI(jpm);
-            }
-        }
-        Component[] children = null;
-        if (c instanceof JMenu)
-        {
-            children = ((JMenu)c).getMenuComponents();
-        }
-        else if (c instanceof java.awt.Container)
-        {
-            children = ((java.awt.Container)c).getComponents();
-        }
-        if (children != null)
-        {
-            for(int i = 0; i < children.length; i++)
-                updateComponentTreeUI0(children[i]);
-        }
     }
 
     /**

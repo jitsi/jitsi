@@ -8,6 +8,6 @@ Import-Package: org.jitsi.service.configuration,
  junit.framework,
  org.osgi.framework,
  net.java.sip.communicator.util,
- net.java.sip.communicator.util.dns,
+ net.java.sip.communicator.plugin.desktoputil.dns,
  net.java.sip.communicator.service.protocol,
  net.java.sip.communicator.service.protocol.event,org.jitsi.service.protocol.event

@@ -12,22 +12,25 @@ import javax.swing.*;
 import javax.swing.plaf.*;
 import javax.swing.plaf.basic.*;
 
-import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 
 /**
  * SIPCommTextAreaUI implementation.
  * 
  * @author Yana Stamcheva
  */
-public class SIPCommTextAreaUI extends BasicTextAreaUI {
-
-    public static ComponentUI createUI(JComponent c) {
+public class SIPCommTextAreaUI
+    extends BasicTextAreaUI
+{
+    public static ComponentUI createUI(JComponent c)
+    {
         c.setOpaque(false);
         return new SIPCommTextAreaUI();
     }
     
-    protected void paintSafely(Graphics g) {
+    protected void paintSafely(Graphics g)
+    {
         AntialiasingManager.activateAntialiasing(g);
-        super.paintSafely(g);        
+        super.paintSafely(g);
     }
 }

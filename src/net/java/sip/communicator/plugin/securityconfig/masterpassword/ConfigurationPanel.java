@@ -8,7 +8,7 @@ package net.java.sip.communicator.plugin.securityconfig.masterpassword;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 
 /**
  * Implements a Swing <tt>Component</tt> to represent the user interface of the

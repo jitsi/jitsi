@@ -11,7 +11,7 @@ import java.io.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.dns.*;
+import net.java.sip.communicator.plugin.desktoputil.dns.*;
 import ymsg.network.*;
 import ymsg.network.event.*;
 

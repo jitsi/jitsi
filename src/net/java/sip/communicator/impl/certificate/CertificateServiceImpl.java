@@ -20,11 +20,11 @@ import javax.net.ssl.*;
 import javax.security.auth.callback.*;
 import javax.swing.*;
 
+import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.httputil.*;
 import net.java.sip.communicator.util.Logger;
-import net.java.sip.communicator.util.swing.*;
 
 import org.bouncycastle.asn1.*;
 import org.bouncycastle.asn1.x509.*;

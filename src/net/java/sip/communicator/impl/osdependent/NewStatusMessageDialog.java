@@ -11,9 +11,9 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.swing.*;
 
 /**
  * The <tt>NewStatusMessageDialog</tt> is the dialog containing the form for

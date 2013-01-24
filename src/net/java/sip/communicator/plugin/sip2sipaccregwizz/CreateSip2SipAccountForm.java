@@ -17,7 +17,7 @@ import javax.swing.text.*;
 import net.java.sip.communicator.plugin.ippiaccregwizz.*;
 import net.java.sip.communicator.plugin.sipaccregwizz.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 
 import org.json.simple.*;
 

@@ -15,8 +15,8 @@ import javax.swing.table.*;
 
 import net.java.sip.communicator.impl.replacement.smiley.*;
 import net.java.sip.communicator.plugin.chatconfig.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.replacement.*;
-import net.java.sip.communicator.util.swing.*;
 
 import org.jitsi.service.configuration.*;
 

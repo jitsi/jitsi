@@ -11,8 +11,8 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
+import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.swing.*;
 
 /**
  * The left side panel of ContactInfoDialog. Display all associated subcontacts

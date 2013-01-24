@@ -16,7 +16,7 @@ import net.java.sip.communicator.plugin.ldap.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.ldap.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 
 /**
  * This ConfigurationForm shows the list of LDAP directories

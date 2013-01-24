@@ -13,7 +13,7 @@ import javax.swing.plaf.*;
 import javax.swing.plaf.basic.*;
 import javax.swing.text.*;
 
-import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 
 /**
  * The SIPCommPasswordFieldUI implementation.
@@ -22,16 +22,19 @@ import net.java.sip.communicator.util.swing.*;
  */
 public class SIPCommPasswordFieldUI extends BasicPasswordFieldUI {
 
-    public static ComponentUI createUI(JComponent c) {
+    public static ComponentUI createUI(JComponent c)
+    {
         return new SIPCommPasswordFieldUI();
     }
-    
-    protected void paintSafely(Graphics g) {
+
+    protected void paintSafely(Graphics g)
+    {
         AntialiasingManager.activateAntialiasing(g);
         super.paintSafely(g);
     }
-    
-    protected void paintBackground(Graphics g) {        
+
+    protected void paintBackground(Graphics g)
+    {
         JTextComponent c = this.getComponent();
         g.setColor(c.getBackground());
         g.fillRoundRect(1, 1, c.getWidth()-2, c.getHeight()-2, 5, 5);

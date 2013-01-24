@@ -12,8 +12,8 @@ import java.util.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.keybindings.*;
-import net.java.sip.communicator.util.swing.*;
 
 /**
  * Implementation of the BindingPanel that provides configuring functionality

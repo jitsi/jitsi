@@ -9,7 +9,7 @@ package net.java.sip.communicator.impl.gui.lookandfeel;
 import java.awt.*;
 
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 
 /**
  * The <tt>SIPCommLFUtils</tt> is an utility class helping in drawing some 

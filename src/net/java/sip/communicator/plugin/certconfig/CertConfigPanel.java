@@ -14,9 +14,9 @@ import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.event.*;
 
+import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.util.swing.*;
 
 import org.jitsi.service.resources.*;
 import org.jitsi.util.*;

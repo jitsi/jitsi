@@ -10,8 +10,8 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 
+import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.swing.*;
 
 /**
  * The <tt>UIContact</tt> represents the user interface contact contained in the

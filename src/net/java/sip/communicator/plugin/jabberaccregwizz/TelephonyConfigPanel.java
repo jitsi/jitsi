@@ -10,7 +10,7 @@ import java.awt.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 
 /**
  * Telephony related configuration panel.

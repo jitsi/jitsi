@@ -25,7 +25,7 @@ Import-Package:
  net.java.sip.communicator.service.notification.event,
  net.java.sip.communicator.service.resources,
  net.java.sip.communicator.util,
- net.java.sip.communicator.util.swing,
+ net.java.sip.communicator.plugin.desktoputil,
  org.jitsi.service.audionotifier,
  org.jitsi.service.configuration,
  org.jitsi.service.resources,

@@ -23,10 +23,13 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
-import net.java.sip.communicator.util.swing.*;
 
-import net.java.sip.communicator.util.swing.SwingWorker;
+import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.plugin.desktoputil.SwingWorker;
+import net.java.sip.communicator.plugin.desktoputil.TransparentPanel;
+
 import org.jitsi.util.*;
+import org.jitsi.util.swing.*;
 
 /**
  * The panel shown on the top of the contact list. It contains user name,

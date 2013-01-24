@@ -14,13 +14,13 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.OperationSetMessageWaiting.*;
 import net.java.sip.communicator.service.protocol.event.*;
 
 import net.java.sip.communicator.service.protocol.globalstatus.*;
-import net.java.sip.communicator.util.swing.*;
 
 import org.jitsi.service.resources.*;
 

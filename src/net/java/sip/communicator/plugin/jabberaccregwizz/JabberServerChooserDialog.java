@@ -19,8 +19,8 @@ import javax.swing.event.*;
 import javax.swing.table.*;
 import javax.xml.parsers.*;
 
+import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.swing.*;
 
 import org.jitsi.service.fileaccess.*;
 import org.osgi.framework.*;

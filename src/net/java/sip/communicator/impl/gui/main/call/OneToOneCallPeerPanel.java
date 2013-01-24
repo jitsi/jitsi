@@ -23,8 +23,8 @@ import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
-import net.java.sip.communicator.util.swing.*;
-import net.java.sip.communicator.util.swing.TransparentPanel;
+import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.plugin.desktoputil.TransparentPanel;
 
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.protocol.event.*;

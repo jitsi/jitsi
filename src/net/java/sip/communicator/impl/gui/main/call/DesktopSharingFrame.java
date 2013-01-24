@@ -15,11 +15,11 @@ import java.util.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.plugin.desktoputil.transparent.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.Logger;
-import net.java.sip.communicator.util.swing.*;
-import net.java.sip.communicator.util.swing.transparent.*;
 
 import org.jitsi.service.neomedia.*;
 import org.jitsi.util.*;

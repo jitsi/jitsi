@@ -10,8 +10,8 @@ import javax.swing.*;
 import javax.swing.plaf.*;
 import javax.swing.plaf.metal.*;
 
+import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.util.skin.*;
-import net.java.sip.communicator.util.swing.*;
 
 /**
  * The default SIP-Communicator look&feel.
@@ -101,7 +101,7 @@ public class SIPCommLookAndFeel
                 "MenuUI", lfPackageName + "SIPCommMenuUI",
                 "ToolBarUI", lfPackageName + "SIPCommToolBarUI",
                 "ToolBarSeparatorUI", lfPackageName + "SIPCommToolBarSeparatorUI",
-                "TabbedPaneUI", "net.java.sip.communicator.util.swing.plaf.SIPCommTabbedPaneEnhancedUI",
+                "TabbedPaneUI", "net.java.sip.communicator.plugin.desktoputil.plaf.SIPCommTabbedPaneEnhancedUI",
                 "ToolTipUI", lfPackageName + "SIPCommToolTipUI",
                 "TextAreaUI", lfPackageName + "SIPCommTextAreaUI",
                 "TextPaneUI", lfPackageName + "SIPCommTextPaneUI",

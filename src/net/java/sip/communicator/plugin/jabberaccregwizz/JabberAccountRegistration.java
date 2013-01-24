@@ -8,7 +8,7 @@ package net.java.sip.communicator.plugin.jabberaccregwizz;
 
 import java.util.*;
 
-import net.java.sip.communicator.util.plugin.wizard.*;
+import net.java.sip.communicator.plugin.desktoputil.wizard.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**

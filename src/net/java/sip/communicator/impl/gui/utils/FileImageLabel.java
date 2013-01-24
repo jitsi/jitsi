@@ -12,8 +12,8 @@ import java.net.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.swing.*;
 
 /**
  * The <tt>FileImageLabel</tt> is a <tt>JLabel</tt> associated with a file. It

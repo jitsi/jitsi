@@ -12,7 +12,7 @@ import javax.swing.*;
 import javax.swing.plaf.*;
 import javax.swing.plaf.basic.*;
 
-import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 
 /**
  * <tt>SIPCommListUI</tt> is an implementation of the <tt>BasicListUI</tt>.
@@ -24,11 +24,13 @@ public class SIPCommListUI extends BasicListUI {
     /**
      * Creates a new SIPCommLabelUI instance.
      */
-    public static ComponentUI createUI(JComponent x) {
+    public static ComponentUI createUI(JComponent x)
+    {
         return new SIPCommListUI();
     }
 
-    public void paint(Graphics g, JComponent c) {
+    public void paint(Graphics g, JComponent c)
+    {
         AntialiasingManager.activateAntialiasing(g);
         super.paint(g, c);
     }

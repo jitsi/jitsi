@@ -14,7 +14,7 @@ import javax.swing.event.*;
 import javax.swing.text.*;
 
 import net.java.sip.communicator.plugin.generalconfig.*;
-import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 
 import org.jitsi.service.resources.*;
 

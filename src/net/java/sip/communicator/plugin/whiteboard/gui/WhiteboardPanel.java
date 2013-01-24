@@ -15,7 +15,7 @@ import javax.swing.*;
 import javax.swing.plaf.*;
 
 import net.java.sip.communicator.plugin.whiteboard.gui.whiteboardshapes.*;
-import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 
 /**
  * Panel for drawing shapes

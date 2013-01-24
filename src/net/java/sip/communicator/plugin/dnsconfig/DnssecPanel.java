@@ -14,9 +14,9 @@ import javax.swing.*;
 import javax.swing.plaf.basic.*;
 import javax.swing.table.*;
 
+import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.dns.*;
-import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.plugin.desktoputil.dns.*;
 
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
@@ -28,7 +28,8 @@ import org.osgi.framework.*;
  * @author Ingo Bauersachs
  */
 public class DnssecPanel
-    extends TransparentPanel implements ActionListener, FocusListener
+    extends TransparentPanel
+    implements ActionListener, FocusListener
 {
     /**
      * Serial version UID.

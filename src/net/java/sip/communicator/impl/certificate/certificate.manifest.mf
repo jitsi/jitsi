@@ -7,7 +7,7 @@ System-Bundle: yes
 Export-Package: net.java.sip.communicator.service.certificate
 Import-Package: org.osgi.framework,
  net.java.sip.communicator.util,
- net.java.sip.communicator.util.swing,
+ net.java.sip.communicator.plugin.desktoputil,
  org.jitsi.service.configuration,
  org.jitsi.util,
  net.java.sip.communicator.service.credentialsstorage,

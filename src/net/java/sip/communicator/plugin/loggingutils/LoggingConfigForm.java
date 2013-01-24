@@ -16,7 +16,7 @@ import javax.swing.event.*;
 import net.java.sip.communicator.service.httputil.*;
 import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.util.Logger;
-import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 
 import org.jitsi.service.packetlogging.*;
 import org.jitsi.service.resources.*;

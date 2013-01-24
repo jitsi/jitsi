@@ -11,10 +11,10 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.service.systray.event.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.swing.*;
 
 /**
  * Implements <tt>PopupMessageHandler</tt> using Swing.
@@ -296,7 +296,7 @@ public class PopupMessageHandlerSwingImpl
      */
     private int getPopupMessageAreaHeight(Component c, String message)
     {
-        int stringWidth = GuiUtils.getStringWidth(c, message);
+        int stringWidth = ComponentUtils.getStringWidth(c, message);
 
         int numberOfRows = 0;
         if (stringWidth/230 > 5)

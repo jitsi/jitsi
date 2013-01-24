@@ -13,12 +13,12 @@ import javax.swing.*;
 import javax.swing.border.*;
 
 import net.java.sip.communicator.plugin.generalconfig.autoaway.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.swing.*;
 
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;

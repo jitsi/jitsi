@@ -16,8 +16,8 @@ import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.util.swing.*;
 
 /**
  * This panel allows to search chat rooms on the considered provider, and to 

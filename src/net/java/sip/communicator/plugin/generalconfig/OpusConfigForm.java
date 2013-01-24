@@ -6,8 +6,8 @@
  */
 package net.java.sip.communicator.plugin.generalconfig;
 
+import net.java.sip.communicator.plugin.desktoputil.*;
 
-import net.java.sip.communicator.util.swing.*;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.neomedia.codec.*;
 

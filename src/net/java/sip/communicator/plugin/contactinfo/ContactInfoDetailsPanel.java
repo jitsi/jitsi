@@ -15,6 +15,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.text.html.*;
 
+import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.BinaryDetail;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.BirthDateDetail;
@@ -29,7 +30,6 @@ import net.java.sip.communicator.service.protocol.ServerStoredDetails.MiddleName
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.PhoneNumberDetail;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.TimeZoneDetail;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.swing.*;
 
 /**
  * The right side panel of ContactInfoDialog. Shows one tab of a summary of

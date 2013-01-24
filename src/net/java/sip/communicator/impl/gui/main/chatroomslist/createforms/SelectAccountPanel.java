@@ -15,8 +15,8 @@ import javax.swing.table.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.swing.*;
 
 /**
  * The <tt>SelectAccountPanel</tt> is where the user should select the account,
@@ -24,7 +24,8 @@ import net.java.sip.communicator.util.swing.*;
  * 
  * @author Yana Stamcheva
  */
-public class SelectAccountPanel extends TransparentPanel
+public class SelectAccountPanel
+    extends TransparentPanel
 {
     /**
      * 

@@ -20,6 +20,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.gui.*;
@@ -30,7 +31,6 @@ import net.java.sip.communicator.service.protocol.ServerStoredDetails.PagerDetai
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.PhoneNumberDetail;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
-import net.java.sip.communicator.util.swing.*;
 
 /**
  * The <tt>ContactListCellRenderer</tt> is the custom cell renderer used in the
@@ -1677,9 +1677,9 @@ public class ContactListTreeCellRenderer
         this.add(button, constraints);
 
         int yBounds = TOP_BORDER + BOTTOM_BORDER + 2*V_GAP
-                + GuiUtils.getStringSize(
+                + ComponentUtils.getStringSize(
                     nameLabel, nameLabel.getText()).height
-                + GuiUtils.getStringSize(
+                + ComponentUtils.getStringSize(
                     displayDetailsLabel, displayDetailsLabel.getText()).height;
 
         button.setBounds(xBounds, yBounds, BUTTON_WIDTH, BUTTON_HEIGHT);

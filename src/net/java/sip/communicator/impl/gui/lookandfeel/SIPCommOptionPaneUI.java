@@ -12,7 +12,7 @@ import javax.swing.*;
 import javax.swing.plaf.*;
 import javax.swing.plaf.basic.*;
 
-import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 
 /**
  * The SIPCommOptionPaneUI implementation.
@@ -24,12 +24,14 @@ public class SIPCommOptionPaneUI extends BasicOptionPaneUI {
     /**
      * Creates a new SIPCommOptionPaneUI instance.
      */
-   public static ComponentUI createUI(JComponent x) {
+   public static ComponentUI createUI(JComponent x)
+   {
        return new SIPCommOptionPaneUI();
    }
 
-   public void paint(Graphics g, JComponent c) {        
+   public void paint(Graphics g, JComponent c)
+   {
        AntialiasingManager.activateAntialiasing(g);
-       super.paint(g, c);        
+       super.paint(g, c);
    }
 }

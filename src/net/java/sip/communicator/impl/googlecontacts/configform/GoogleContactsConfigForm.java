@@ -12,11 +12,12 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
+import org.jitsi.util.swing.*;
+
 import net.java.sip.communicator.impl.googlecontacts.*;
 import net.java.sip.communicator.service.googlecontacts.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.swing.*;
 
 /**
  * This ConfigurationForm shows the list of Google Contacts account and allow

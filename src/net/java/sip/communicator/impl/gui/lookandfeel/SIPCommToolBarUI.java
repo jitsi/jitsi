@@ -12,24 +12,27 @@ import javax.swing.*;
 import javax.swing.plaf.*;
 import javax.swing.plaf.metal.*;
 
-import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 
 /**
  * SIPCommToolBarUI implementation.
  * 
  * @author Yana Stamcheva
  */
-public class SIPCommToolBarUI extends MetalToolBarUI {
-
+public class SIPCommToolBarUI
+    extends MetalToolBarUI
+{
     /**
      * Creates a new SIPCommToolBarUI instance.
      */
-    public static ComponentUI createUI(JComponent x) {        
+    public static ComponentUI createUI(JComponent x)
+    {
         return new SIPCommToolBarUI();
     }
 
-    public void paint(Graphics g, JComponent c) {
+    public void paint(Graphics g, JComponent c)
+    {
         AntialiasingManager.activateAntialiasing(g);
-        super.paint(g, c);        
+        super.paint(g, c);
     }
 }

@@ -9,7 +9,7 @@ package net.java.sip.communicator.plugin.whiteboard.gui;
 
 import java.io.*;
 
-import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 
 /**
  * A simple file filter manager

@@ -12,9 +12,9 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.osdependent.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.globalstatus.*;
-import net.java.sip.communicator.util.swing.*;
 
 /**
  * The <tt>StatusSimpleSelector</tt> is a submenu which allow to select a status

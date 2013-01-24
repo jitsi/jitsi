@@ -16,11 +16,11 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.globalstatus.*;
 import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.swing.*;
 
 /**
  * The <tt>GlobalStatusSelectorBox</tt> is a global status selector box, which
@@ -620,7 +620,7 @@ public class GlobalStatusSelectorBox
         textWidth
             = (text == null)
                 ? 0
-                : GuiUtils.getStringWidth(this, text);
+                : ComponentUtils.getStringWidth(this, text);
 
         this.setPreferredSize(new Dimension(
             textWidth + 2*IMAGE_INDENT + arrowImage.getWidth(null) + 5, 20));

@@ -2,8 +2,8 @@ package net.java.sip.communicator.impl.gui.main.contactlist;
 
 import java.awt.*;
 
+import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.swing.*;
 
 /**
  * The ContactProtocolButton is a button behind a "meta contact" in the
@@ -13,7 +13,9 @@ import net.java.sip.communicator.util.swing.*;
  *  
  * @author Yana Stamcheva
  */
-public class ContactProtocolButton extends SIPCommButton {
+public class ContactProtocolButton
+    extends SIPCommButton
+{
 
     private Contact protocolContact;
     

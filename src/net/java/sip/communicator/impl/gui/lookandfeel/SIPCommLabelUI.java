@@ -12,7 +12,7 @@ import javax.swing.*;
 import javax.swing.plaf.*;
 import javax.swing.plaf.metal.*;
 
-import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 
 /**
  * The SIPCommLabelUI implementation.
@@ -24,11 +24,13 @@ public class SIPCommLabelUI extends MetalLabelUI {
     /**
      * Creates a new SIPCommLabelUI instance.
      */
-    public static ComponentUI createUI(JComponent x) {
+    public static ComponentUI createUI(JComponent x)
+    {
         return new SIPCommLabelUI();
     }
 
-    public void paint(Graphics g, JComponent c) {
+    public void paint(Graphics g, JComponent c)
+    {
         AntialiasingManager.activateAntialiasing(g);
         super.paint(g, c);
     }

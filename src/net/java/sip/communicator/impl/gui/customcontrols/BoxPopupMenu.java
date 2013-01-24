@@ -8,7 +8,7 @@ package net.java.sip.communicator.impl.gui.customcontrols;
 
 import java.awt.*;
 
-import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 
 /**
  * The <tt>BoxPopupMenu</tt> is a <tt>JPopupMenu</tt>, which orders its

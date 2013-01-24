@@ -13,9 +13,9 @@ import java.util.List;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.main.call.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.swing.*;
 
 /**
  * A base implementation of a user interface <tt>Component</tt> which depicts a

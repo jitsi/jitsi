@@ -12,19 +12,23 @@ import javax.swing.*;
 import javax.swing.plaf.*;
 import javax.swing.plaf.basic.*;
 
-import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 
 /**
  * SIPCommTextPaneUI implementation.
  * 
  * @author Yana Stamcheva
  */
-public class SIPCommTextPaneUI extends BasicTextPaneUI {
-    public static ComponentUI createUI(JComponent c) {
+public class SIPCommTextPaneUI
+    extends BasicTextPaneUI
+{
+    public static ComponentUI createUI(JComponent c)
+    {
         return new SIPCommTextPaneUI();
     }
-    
-    protected void paintSafely(Graphics g) {
+
+    protected void paintSafely(Graphics g)
+    {
         AntialiasingManager.activateAntialiasing(g);
         super.paintSafely(g);
     }

@@ -29,6 +29,7 @@ import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.main.login.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.impl.gui.utils.Constants;
+import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
@@ -38,13 +39,12 @@ import net.java.sip.communicator.service.shutdown.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.util.skin.*;
-import net.java.sip.communicator.util.swing.*;
 
 import org.jitsi.service.resources.*;
 import org.jitsi.util.*;
 import org.osgi.framework.*;
 
-import com.sun.jna.platform.*;
+import com.sun.jna.platform.WindowUtils;
 
 /**
  * An implementation of the <tt>UIService</tt> that gives access to other
@@ -1433,11 +1433,14 @@ public class UIServiceImpl
         Constants.reload();
         ImageLoader.clearCache();
 
-        Window[] windows = GuiUtils.getWindows();
+        Window[] windows
+            = net.java.sip.communicator.plugin.desktoputil.WindowUtils
+                .getWindows();
+
         for(Window win : windows)
         {
             reloadComponents(win);
-            GuiUtils.updateComponentTreeUI(win);
+            ComponentUtils.updateComponentTreeUI(win);
         }
     }
 
