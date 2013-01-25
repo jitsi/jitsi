@@ -328,7 +328,7 @@ public abstract class CallPeerMediaHandler
             {
                 audioStream.setDirection(
                         audioStream.getDirection().and(
-                                MediaDirection.RECVONLY));
+                                MediaDirection.SENDONLY));
                 audioStream.setMute(locallyOnHold);
             }
 
@@ -338,7 +338,7 @@ public abstract class CallPeerMediaHandler
             {
                 videoStream.setDirection(
                         videoStream.getDirection().and(
-                                MediaDirection.RECVONLY));
+                                MediaDirection.SENDONLY));
                 videoStream.setMute(locallyOnHold);
             }
         }
