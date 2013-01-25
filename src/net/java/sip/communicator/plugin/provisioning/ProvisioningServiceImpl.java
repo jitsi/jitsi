@@ -16,6 +16,7 @@ import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.plugin.desktoputil.*;
 
 import org.jitsi.service.configuration.*;
+import org.jitsi.service.resources.*;
 import org.jitsi.util.*;
 import org.osgi.framework.*;
 // disambiguation
@@ -349,6 +350,17 @@ public class ProvisioningServiceImpl
             {
                 url = url.replace("${build}",
                         System.getProperty("sip-communicator.version"));
+            }
+
+            if(url.indexOf("${locale}") != -1)
+            {
+                String locale =
+                    ProvisioningActivator.getConfigurationService().getString(
+                        ResourceManagementService.DEFAULT_LOCALE_CONFIG);
+                if(locale == null)
+                    locale = "";
+
+                url = url.replace("${locale}", locale);
             }
 
             if(url.indexOf("${ipaddr}") != -1)

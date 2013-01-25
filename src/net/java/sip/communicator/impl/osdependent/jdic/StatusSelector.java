@@ -13,6 +13,7 @@ import java.util.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.osdependent.*;
+import net.java.sip.communicator.plugin.desktoputil.presence.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 

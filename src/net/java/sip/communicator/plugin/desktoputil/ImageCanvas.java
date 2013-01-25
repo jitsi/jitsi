@@ -83,8 +83,7 @@ public class ImageCanvas
         {
             final int preferredWidth = icon.getIconWidth();
             final int preferredHeight = icon.getIconHeight();
-            setMinimumSize(new Dimension(preferredWidth / 2,
-                preferredHeight / 2));
+            setMinimumSize(new Dimension(preferredWidth, preferredHeight));
             setPreferredSize(new Dimension(preferredWidth, preferredHeight));
         }
     }

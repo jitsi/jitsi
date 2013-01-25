@@ -7,15 +7,17 @@ package net.java.sip.communicator.impl.gui.main.presence;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.beans.*;
 import java.util.*;
 
 import javax.swing.*;
+import javax.swing.text.html.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.*;
-import net.java.sip.communicator.impl.gui.main.presence.message.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.plugin.desktoputil.presence.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.Logger;
 import org.jitsi.util.*;
@@ -31,7 +33,8 @@ import org.jitsi.util.*;
  */
 public class PresenceStatusMenu
     extends StatusSelectorMenu
-    implements ActionListener
+    implements ActionListener,
+               PropertyChangeListener
 {
     /**
      * Serial version UID.
@@ -93,12 +96,16 @@ public class PresenceStatusMenu
 
         titleArea = new JEditorPane();
         titleArea.setContentType("text/html");
+        Constants.loadSimpleStyle(((HTMLDocument)titleArea.getDocument())
+                                        .getStyleSheet(),
+                                   titleArea.getFont());
         titleArea.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
         titleArea.setOpaque(false);
         titleArea.setEditable(false);
         titleArea.setAlignmentX(Component.RIGHT_ALIGNMENT);
 
-        statusMessageMenu = new StatusMessageMenu(protocolProvider, this);
+        statusMessageMenu = new StatusMessageMenu(protocolProvider, true);
+        statusMessageMenu.addPropertyChangeListener(this);
         updateTitleArea();
 
         this.add(titleArea);
@@ -129,7 +136,7 @@ public class PresenceStatusMenu
 
         this.addSeparator();
 
-        this.add(statusMessageMenu);
+        this.add((JMenu)statusMessageMenu.getMenu());
 
         this.setSelectedStatus(offlineStatus);
         updateStatus(offlineStatus);
@@ -235,7 +242,7 @@ public class PresenceStatusMenu
      * Updates the current title area with the account display name
      * and its status.
      */
-    public void updateTitleArea()
+    private void updateTitleArea()
     {
         StringBuilder txt = new StringBuilder();
         txt.append("<html>").append("<b>");
@@ -313,5 +320,18 @@ public class PresenceStatusMenu
         super.loadSkin();
 
         this.setIcon(ImageLoader.getAccountStatusImage(protocolProvider));
+    }
+
+    /**
+     * Listens for change in the status message coming from StatusMessageMenu.
+     * @param evt the event.
+     */
+    public void propertyChange(PropertyChangeEvent evt)
+    {
+        if(evt.getPropertyName()
+            .equals(StatusMessageMenu.STATUS_MESSAGE_UPDATED_PROP))
+        {
+            updateTitleArea();
+        }
     }
 }

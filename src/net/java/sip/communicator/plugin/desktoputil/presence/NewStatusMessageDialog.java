@@ -4,15 +4,13 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.main.presence.message;
+package net.java.sip.communicator.plugin.desktoputil.presence;
 
 import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
@@ -33,7 +31,14 @@ public class NewStatusMessageDialog
     /**
      * The Object used for logging.
      */
-    private final Logger logger = Logger.getLogger(NewStatusMessageDialog.class);
+    private final Logger logger =
+        Logger.getLogger(NewStatusMessageDialog.class);
+
+    /**
+     * The icon.
+     */
+    private final static String RENAME_DIALOG_ICON =
+        "service.gui.icons.RENAME_DIALOG_ICON";
 
     /**
      * The field, containing the status message.
@@ -44,7 +49,7 @@ public class NewStatusMessageDialog
      * The button, used to cancel this dialog.
      */
     private final JButton cancelButton = new JButton(
-        GuiActivator.getResources().getI18NString("service.gui.CANCEL"));
+        DesktopUtilActivator.getResources().getI18NString("service.gui.CANCEL"));
 
     /**
      * The presence operation set through which we change the status message.
@@ -91,37 +96,39 @@ public class NewStatusMessageDialog
     private void init()
     {
         JLabel messageLabel = new JLabel(
-            GuiActivator.getResources().getI18NString(
+            DesktopUtilActivator.getResources().getI18NString(
                 "service.gui.NEW_STATUS_MESSAGE"));
 
         JPanel dataPanel
             = new TransparentPanel(new BorderLayout(5, 5));
 
         JTextArea infoArea = new JTextArea(
-            GuiActivator.getResources().getI18NString(
+            DesktopUtilActivator.getResources().getI18NString(
                 "service.gui.STATUS_MESSAGE_INFO"));
 
         JLabel infoTitleLabel = new JLabel(
-            GuiActivator.getResources().getI18NString(
+            DesktopUtilActivator.getResources().getI18NString(
                 "service.gui.NEW_STATUS_MESSAGE"));
 
         JPanel labelsPanel = new TransparentPanel(new GridLayout(0, 1));
 
-        JButton okButton = new JButton(GuiActivator.getResources()
-                        .getI18NString("service.gui.OK"));
+        JButton okButton = new JButton(
+            DesktopUtilActivator.getResources().getI18NString(
+                "service.gui.OK"));
 
         JPanel buttonsPanel
             = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
 
-        saveNewMessage = new JCheckBox(GuiActivator.getResources()
-            .getI18NString("service.gui.NEW_STATUS_MESSAGE_SAVE"));
+        saveNewMessage = new JCheckBox(
+            DesktopUtilActivator.getResources().getI18NString(
+                "service.gui.NEW_STATUS_MESSAGE_SAVE"));
 
-        this.setTitle(GuiActivator.getResources()
+        this.setTitle(DesktopUtilActivator.getResources()
                 .getI18NString("service.gui.NEW_STATUS_MESSAGE"));
 
         this.getRootPane().setDefaultButton(okButton);
 
-        this.setPreferredSize(new Dimension(500, 200));
+        this.setPreferredSize(new Dimension(550, 200));
 
         infoArea.setEditable(false);
         infoArea.setLineWrap(true);
@@ -138,14 +145,14 @@ public class NewStatusMessageDialog
             infoTitleLabel.getFont().deriveFont(Font.BOLD, 18.0f));
 
         saveNewMessage.setSelected(true);
-        /*JPanel saveToCustomPanel = new TransparentPanel(
+        JPanel saveToCustomPanel = new TransparentPanel(
             new FlowLayout(FlowLayout.RIGHT));
         saveToCustomPanel.add(saveNewMessage);
-        dataPanel.add(saveToCustomPanel, BorderLayout.SOUTH);*/
 
         labelsPanel.add(infoTitleLabel);
         labelsPanel.add(infoArea);
         labelsPanel.add(dataPanel);
+        labelsPanel.add(saveToCustomPanel);
 
         messagePanel = new TransparentPanel(new GridBagLayout());
         GridBagConstraints messagePanelConstraints = new GridBagConstraints();
@@ -157,9 +164,9 @@ public class NewStatusMessageDialog
         messagePanelConstraints.weightx = 0;
         messagePanelConstraints.weighty = 0;
         messagePanel
-            .add(new ImageCanvas(ImageLoader
-                .getImage(ImageLoader.RENAME_DIALOG_ICON)),
-                messagePanelConstraints);
+            .add(new ImageCanvas(
+                        DesktopUtilActivator.getImage(RENAME_DIALOG_ICON)),
+                 messagePanelConstraints);
 
         messagePanelConstraints.anchor = GridBagConstraints.NORTH;
         messagePanelConstraints.fill = GridBagConstraints.HORIZONTAL;
@@ -172,9 +179,9 @@ public class NewStatusMessageDialog
         cancelButton.setName("cancel");
 
         okButton.setMnemonic(
-            GuiActivator.getResources().getI18nMnemonic("service.gui.OK"));
+            DesktopUtilActivator.getResources().getI18nMnemonic("service.gui.OK"));
         cancelButton.setMnemonic(
-            GuiActivator.getResources().getI18nMnemonic("service.gui.CANCEL"));
+            DesktopUtilActivator.getResources().getI18nMnemonic("service.gui.CANCEL"));
 
         okButton.addActionListener(this);
         cancelButton.addActionListener(this);
@@ -255,8 +262,8 @@ public class NewStatusMessageDialog
                 if(component instanceof ImageCanvas)
                 {
                     ImageCanvas cmp = (ImageCanvas)component;
-                    cmp.setImage(ImageLoader
-                        .getImage(ImageLoader.RENAME_DIALOG_ICON));
+                    cmp.setImage(
+                            DesktopUtilActivator.getImage(RENAME_DIALOG_ICON));
                 }
             }
         }

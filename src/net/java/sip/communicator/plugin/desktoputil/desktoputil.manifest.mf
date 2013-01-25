@@ -5,6 +5,7 @@ Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
 Import-Package: com.sun.awt,
+ javax.accessibility,
  javax.imageio,
  javax.naming,
  javax.naming.directory,
@@ -39,6 +40,7 @@ Import-Package: com.sun.awt,
  net.java.sip.communicator.service.contactlist,
  net.java.sip.communicator.service.browserlauncher,
  net.java.sip.communicator.service.protocol,
+ net.java.sip.communicator.service.protocol.event,
  org.apache.xml.serialize,
  org.jitsi.service.configuration,
  org.jitsi.service.neomedia,
@@ -59,6 +61,7 @@ Export-Package: net.java.sip.communicator.plugin.desktoputil,
  net.java.sip.communicator.plugin.desktoputil.border,
  net.java.sip.communicator.plugin.desktoputil.event,
  net.java.sip.communicator.plugin.desktoputil.plaf,
+ net.java.sip.communicator.plugin.desktoputil.presence,
  net.java.sip.communicator.plugin.desktoputil.transparent,
  net.java.sip.communicator.plugin.desktoputil.wizard,
  org.xbill.DNS
