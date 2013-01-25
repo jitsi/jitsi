@@ -108,6 +108,28 @@ public class ConfigurationPanel
                 preferredKeyFrameRequesterComboBox,
                 gridBagConstraints);
 
+        JLabel presetLabel
+            = new JLabel(resources.getI18NString(
+                            "impl.neomedia.configform.H264.preset"));
+        gridBagConstraints.anchor = GridBagConstraints.LINE_START;
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        contentPanel.add(presetLabel, gridBagConstraints);
+
+        JComboBox presetComboBox = new JComboBox();
+        presetComboBox.setEditable(false);
+        for(String presetSetting : JNIEncoder.AVAILABLE_PRESETS)
+        {
+            presetComboBox.addItem(
+                    new NameValuePair(presetSetting, presetSetting));
+        }
+        gridBagConstraints.anchor = GridBagConstraints.LINE_START;
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 2;
+        contentPanel.add(
+            presetComboBox,
+                gridBagConstraints);
+
         /*
          * Load the values from the ConfigurationService into the UI components.
          */
@@ -131,6 +153,12 @@ public class ConfigurationPanel
         addActionListener(
                 preferredKeyFrameRequesterComboBox,
                 KeyFrameControl.KeyFrameRequester.PREFERRED_PNAME);
+
+        setSelectedNameValuePair(
+                presetComboBox,
+                configuration.getString(
+                    JNIEncoder.PRESET_PNAME, JNIEncoder.DEFAULT_PRESET));
+        addActionListener(presetComboBox, JNIEncoder.PRESET_PNAME);
     }
 
     /**
