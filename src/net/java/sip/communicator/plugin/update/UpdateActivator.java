@@ -27,7 +27,7 @@ import org.osgi.framework.*;
  * @author Lyubomir Marinov
  */
 public class UpdateActivator
-    implements BundleActivator
+    extends AbstractServiceDependentActivator
 {
     /**
      * The <tt>Logger</tt> used by the <tt>UpdateActivator</tt> class and its
@@ -165,17 +165,14 @@ public class UpdateActivator
     }
 
     /**
-     * Starts this bundle
-     *
-     * @param bundleContext <tt>BundleContext</tt> provided by OSGi framework
-     * @throws Exception if something goes wrong during start
+     * The dependent service is available and the bundle will start.
+     * @param dependentService the UIService this activator is waiting.
      */
-    public void start(BundleContext bundleContext) throws Exception
+    @Override
+    public void start(Object dependentService)
     {
         if (logger.isDebugEnabled())
             logger.debug("Update checker [STARTED]");
-
-        UpdateActivator.bundleContext = bundleContext;
 
         ConfigurationService cfg = getConfiguration();
 
@@ -215,9 +212,6 @@ public class UpdateActivator
                 updateService.checkForUpdates(false);
         }
 
-        if (logger.isDebugEnabled())
-            logger.debug("Update checker [REGISTERED]");
-
         if (cfg.getBoolean(CHECK_FOR_UPDATES_DAILY_ENABLED_PROP,
                                      false))
         {
@@ -240,6 +234,29 @@ public class UpdateActivator
                                                 24*60*60,
                                                 TimeUnit.SECONDS);
         }
+
+        if (logger.isDebugEnabled())
+            logger.debug("Update checker [REGISTERED]");
+    }
+
+    /**
+     * This activator depends on UIService.
+     * @return the class name of uiService.
+     */
+    @Override
+    public Class<?> getDependentServiceClass()
+    {
+        return UIService.class;
+    }
+
+    /**
+     * Setting context to the activator, as soon as we have one.
+     *
+     * @param context the context to set.
+     */
+    public void setBundleContext(BundleContext context)
+    {
+        bundleContext = context;
     }
 
     /**

@@ -110,6 +110,9 @@ public class PluginContainer
      */
     private synchronized void addPluginComponent(PluginComponent c)
     {
+        if (logger.isInfoEnabled())
+            logger.info("Will add following plugin component: " + c);
+
         /*
          * Try to respect positionIndex of PluginComponent to some extent:
          * PluginComponents with positionIndex equal to 0 go at the beginning,

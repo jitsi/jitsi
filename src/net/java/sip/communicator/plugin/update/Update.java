@@ -516,6 +516,19 @@ public class Update
      */
     private static void showGenericNewVersionAvailableDialog()
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    showGenericNewVersionAvailableDialog();
+                }
+            });
+
+            return;
+        }
+
         /*
          * Before showing the dialog, we'll enterCheckForUpdates() in order to
          * notify that it is not safe to enter "Check for Updates" again. If we
@@ -653,6 +666,19 @@ public class Update
      */
     private static void showWindowsNewVersionAvailableDialog()
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    showWindowsNewVersionAvailableDialog();
+                }
+            });
+
+            return;
+        }
+
         /*
          * Before showing the dialog, we'll enterCheckForUpdates() in order to
          * notify that it is not safe to enter "Check for Updates" again. If we
