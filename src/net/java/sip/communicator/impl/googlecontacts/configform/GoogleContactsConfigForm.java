@@ -12,9 +12,8 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
-import org.jitsi.util.swing.*;
-
 import net.java.sip.communicator.impl.googlecontacts.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.googlecontacts.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.util.*;
