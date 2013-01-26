@@ -785,41 +785,27 @@ public class MessageHistoryServiceImpl
 
         // Check if the message history is enabled in the configuration
         // service, and if not do not register the service.
-        String isMessageHistoryEnabledPropertyString =
-            "impl.msghistory.IS_MESSAGE_HISTORY_ENABLED";
-
-        String isMessageHistoryEnabledString = configService.getString(
-            isMessageHistoryEnabledPropertyString);
-
-        if(isMessageHistoryEnabledString == null)
-            isMessageHistoryEnabledString =
-                getResources().
-                getSettingsString(isMessageHistoryEnabledPropertyString);
-
-        // If the property doesn't exist we stop here.
-        if (isMessageHistoryEnabledString == null
-            || isMessageHistoryEnabledString.length() == 0)
-            return;
-
-        boolean isMessageHistoryEnabled
-             = new Boolean(isMessageHistoryEnabledString).booleanValue();
-
-        // If the message history is not enabled we stop here.
-        if (!isMessageHistoryEnabled)
-            return;
+        boolean isMessageHistoryEnabled = configService.getBoolean(
+            MessageHistoryService.PNAME_IS_MESSAGE_HISTORY_ENABLED,
+            Boolean.parseBoolean(getResources().getSettingsString(
+                MessageHistoryService.PNAME_IS_MESSAGE_HISTORY_ENABLED))
+            );
 
         // We're adding a property change listener in order to
         // listen for modifications of the isMessageHistoryEnabled property.
         msgHistoryPropListener = new MessageHistoryPropertyChangeListener();
 
         configService.addPropertyChangeListener(
-            "impl.msghistory.IS_MESSAGE_HISTORY_ENABLED",
+            MessageHistoryService.PNAME_IS_MESSAGE_HISTORY_ENABLED,
             msgHistoryPropListener);
 
-        if (logger.isDebugEnabled())
-            logger.debug("Starting the msg history implementation.");
+        if (isMessageHistoryEnabled)
+        {
+            if (logger.isDebugEnabled())
+                logger.debug("Starting the msg history implementation.");
 
-        this.loadMessageHistoryService();
+            this.loadMessageHistoryService();
+        }
     }
 
     /**
@@ -1881,8 +1867,6 @@ public class MessageHistoryServiceImpl
         implements HistorySearchProgressListener
     {
         private MessageHistorySearchProgressListener listener = null;
-        int allRecords = 0;
-        HistoryReader reader = null;
         double currentReaderProgressRatio = 0;
         double accumulatedRatio = 0;
         double currentProgress = 0;
@@ -1899,8 +1883,6 @@ public class MessageHistoryServiceImpl
         private void setCurrentValues(  HistoryReader currentReader,
                                         int allRecords)
         {
-            this.allRecords = allRecords;
-            this.reader = currentReader;
             currentReaderProgressRatio =
                     (double)currentReader.countRecords()/allRecords * raiser;
             accumulatedRatio += currentReaderProgressRatio;
@@ -1953,7 +1935,6 @@ public class MessageHistoryServiceImpl
          */
         void clear()
         {
-            allRecords = 0;
             currentProgress = 0;
             lastHistoryProgress = 0;
         }
@@ -2228,7 +2209,7 @@ public class MessageHistoryServiceImpl
     public void messageDeliveryFailed(
             AdHocChatRoomMessageDeliveryFailedEvent evt)
     {
-        // TODO Auto-generated method stub
+        // nothing to do for the history service
     }
 
     public void messageReceived(AdHocChatRoomMessageReceivedEvent evt)

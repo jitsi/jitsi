@@ -21,6 +21,14 @@ import net.java.sip.communicator.service.protocol.*;
 public interface MessageHistoryService
 {
     /**
+     * Name of the property that indicates whether the logging of messages is
+     * enabled.
+     */
+    public static final String PNAME_IS_MESSAGE_HISTORY_ENABLED
+        = "net.java.sip.communicator.service.msghistory."
+            + "IS_MESSAGE_HISTORY_ENABLED";
+
+    /**
      * Returns all the messages exchanged by all the contacts
      * in the supplied metacontact after the given date
      *

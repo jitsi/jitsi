@@ -14,6 +14,7 @@ import java.util.List; /* disambiguation */
 
 import javax.net.ssl.*;
 
+import net.java.sip.communicator.service.msghistory.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
 
@@ -55,7 +56,7 @@ public class ConfigurationUtils
     private static boolean autoPopupNewMessage = false;
 
     /**
-     * The send message command. ENTER ou Ctrl-ENTER
+     * The send message command. ENTER or Ctrl-ENTER
      */
     private static String sendMessageCommand;
 
@@ -449,17 +450,13 @@ public class ConfigurationUtils
                     .booleanValue();
         }
 
-        // Load the "isHistoryLoggingEnabled" property.
-        String isHistoryLoggingEnabledString
-            = configService.getString(
-            "net.java.sip.communicator.impl.gui.isHistoryLoggingEnabled");
-
-        if(isHistoryLoggingEnabledString != null
-            && isHistoryLoggingEnabledString.length() > 0)
-        {
-            isHistoryLoggingEnabled
-                = Boolean.parseBoolean(isHistoryLoggingEnabledString);
-        }
+        // Load the "IS_MESSAGE_HISTORY_ENABLED" property.
+        isHistoryLoggingEnabled = configService.getBoolean(
+            MessageHistoryService.PNAME_IS_MESSAGE_HISTORY_ENABLED,
+            Boolean.parseBoolean(UtilActivator
+                .getResources().getSettingsString(
+                    MessageHistoryService.PNAME_IS_MESSAGE_HISTORY_ENABLED))
+            );
 
         // Load the "isHistoryShown" property.
         String isHistoryShownStringProperty = 
@@ -994,11 +991,11 @@ public class ConfigurationUtils
     }
 
     /**
-     * Returns <code>true</code> if the "isHistoryLoggingEnabled" property is
-     * true, otherwise - returns <code>false</code>. Indicates to the user
-     * interface whether the history logging is enabled.
-     * @return <code>true</code> if the "isHistoryLoggingEnabled" property is
-     * true, otherwise - returns <code>false</code>.
+     * Returns <code>true</code> if the "IS_MESSAGE_HISTORY_ENABLED"
+     * property is true, otherwise - returns <code>false</code>.
+     * Indicates to the user interface whether the history logging is enabled.
+     * @return <code>true</code> if the "IS_MESSAGE_HISTORY_ENABLED"
+     * property is true, otherwise - returns <code>false</code>.
      */
     public static boolean isHistoryLoggingEnabled()
     {
@@ -1017,7 +1014,7 @@ public class ConfigurationUtils
         isHistoryLoggingEnabled = isEnabled;
 
         configService.setProperty(
-            "impl.msghistory.IS_MESSAGE_HISTORY_ENABLED",
+            MessageHistoryService.PNAME_IS_MESSAGE_HISTORY_ENABLED,
             Boolean.toString(isHistoryLoggingEnabled));
     }
 
@@ -2320,7 +2317,7 @@ public class ConfigurationUtils
                     = Boolean.parseBoolean(newValue);
             }
             else if (evt.getPropertyName().equals(
-                "net.java.sip.communicator.impl.gui.isHistoryLoggingEnabled"))
+                MessageHistoryService.PNAME_IS_MESSAGE_HISTORY_ENABLED))
             {
                 isHistoryLoggingEnabled = Boolean.parseBoolean(newValue);
             }
