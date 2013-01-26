@@ -156,6 +156,12 @@ public class ImageLoader
         = new ImageID("service.gui.icons.DOWN_ARROW_ICON");
 
     /**
+     * Closed group icon.
+     */
+    public static final ImageID RIGHT_ARROW_ICON
+        = new ImageID("service.gui.icons.RIGHT_ARROW_ICON");
+
+    /**
      * The call button image.
      */
     public static final ImageID INCOMING_CALL_BUTTON_BG
