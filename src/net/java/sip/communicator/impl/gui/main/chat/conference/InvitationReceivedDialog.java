@@ -251,6 +251,7 @@ public class InvitationReceivedDialog
         this.mainPanel.setOpaque(false);
 
         this.getContentPane().add(mainPanel);
+        this.pack();
     }
 
     /**
