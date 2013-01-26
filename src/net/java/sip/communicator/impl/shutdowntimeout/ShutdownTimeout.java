@@ -38,7 +38,7 @@ public class ShutdownTimeout
     /**
      * The number of miliseconds that we wait before we force a shutdown.
      */
-    public static final long SHUTDOWN_TIMEOUT_DEFAULT = 3000;//ms
+    public static final long SHUTDOWN_TIMEOUT_DEFAULT = 5000;//ms
 
     /**
      * The code that we exit with if the application is not down in 15 seconds.
