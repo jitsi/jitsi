@@ -63,7 +63,7 @@ public class SecurityPanel
     /**
      * The encryption protocols managed by this SecurityPanel. 
      */
-    private static final String[] encryptionProtocols = {"ZRTP", "SDES"};
+    private static final String[] ENCRYPTION_PROTOCOLS = {"ZRTP", "SDES"};
 
     /**
      * Boolean used to display or not the SAVP options (only useful for SIP, not
@@ -314,7 +314,7 @@ public class SecurityPanel
         c.gridy++;
         pnlAdvancedSettings.add(lblEncryptionProtocolPreferences, c);
 
-        int nbEncryptionProtocols = this.encryptionProtocols.length;
+        int nbEncryptionProtocols = ENCRYPTION_PROTOCOLS.length;
         String[] encryptions = new String[nbEncryptionProtocols];
         boolean[] selectedEncryptions = new boolean[nbEncryptionProtocols];
 
@@ -523,7 +523,7 @@ public class SecurityPanel
             Map<String, Integer> encryptionProtocols,
             Map<String, Boolean> encryptionProtocolStatus)
     {
-        int nbEncryptionProtocols = this.encryptionProtocols.length;
+        int nbEncryptionProtocols = ENCRYPTION_PROTOCOLS.length;
         String[] encryptions = new String[nbEncryptionProtocols];
         boolean[] selectedEncryptions = new boolean[nbEncryptionProtocols];
 
@@ -557,9 +557,9 @@ public class SecurityPanel
         String encryptionProtocol;
         boolean set;
         int j = 0;
-        for(int i = 0; i < this.encryptionProtocols.length; ++i)
+        for(int i = 0; i < ENCRYPTION_PROTOCOLS.length; ++i)
         {
-            encryptionProtocol = this.encryptionProtocols[i];
+            encryptionProtocol = ENCRYPTION_PROTOCOLS[i];
             // Specify a default value only if there is no specific value set.
             if(!encryptionProtocols.containsKey(
                         ProtocolProviderFactory.ENCRYPTION_PROTOCOL
