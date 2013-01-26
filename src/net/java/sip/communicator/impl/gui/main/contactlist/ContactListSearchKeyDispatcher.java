@@ -152,6 +152,7 @@ public class ContactListSearchKeyDispatcher
             || e.getKeyCode() == KeyEvent.VK_DELETE
             || e.getKeyCode() == KeyEvent.VK_BACK_SPACE
             || e.getKeyCode() == KeyEvent.VK_TAB
+            || e.getKeyChar() == '\t'
             || e.getKeyCode() == KeyEvent.VK_SPACE
             || (selectedGroup != null
                 && (e.getKeyChar() == '+'
