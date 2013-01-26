@@ -322,6 +322,8 @@ public class SecurityPanel
             = new EncryptionConfigurationTableModel(
                     encryptions,
                     selectedEncryptions);
+        loadEncryptionProtocols(new HashMap<String, Integer>(),
+            new HashMap<String, Boolean>());
         this.encryptionProtocolPreferences = new PriorityTable(
                     this.encryptionConfigurationTableModel,
                     60);
@@ -544,12 +546,15 @@ public class SecurityPanel
             if(index != -1)
             {
                 name = encryptionProtocolPropertyName.substring(prefixeLength);
-                enabled = encryptionProtocolStatus.get(
-                        ProtocolProviderFactory.ENCRYPTION_PROTOCOL_STATUS
-                        + "."
-                        + name);
-                encryptions[index] = name;
-                selectedEncryptions[index] = enabled;
+                if (isExistingEncryptionProtocol(name))
+                {
+                    enabled = encryptionProtocolStatus.get(
+                            ProtocolProviderFactory.ENCRYPTION_PROTOCOL_STATUS
+                            + "."
+                            + name);
+                    encryptions[index] = name;
+                    selectedEncryptions[index] = enabled;
+                }
             }
         }
 
@@ -587,5 +592,18 @@ public class SecurityPanel
         this.encryptionConfigurationTableModel.init(
                 encryptions,
                 selectedEncryptions);
+    }
+
+    private boolean isExistingEncryptionProtocol(String protocol)
+    {
+        for (String key : ENCRYPTION_PROTOCOLS)
+        {
+            if (key.equals(protocol))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
