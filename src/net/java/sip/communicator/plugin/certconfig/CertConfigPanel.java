@@ -199,8 +199,9 @@ public class CertConfigPanel
         }
         if (e.getSource() == rdoUseJava)
         {
-            CertConfigActivator.getConfigService().removeProperty(
-                CertificateService.PNAME_TRUSTSTORE_TYPE);
+            CertConfigActivator.getConfigService().setProperty(
+                CertificateService.PNAME_TRUSTSTORE_TYPE,
+                "meta:default");
             CertConfigActivator.getConfigService().removeProperty(
                 CertificateService.PNAME_TRUSTSTORE_FILE);
             CertConfigActivator.getCredService().removePassword(
