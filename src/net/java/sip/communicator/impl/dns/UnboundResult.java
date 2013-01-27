@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.plugin.desktoputil.dns;
+package net.java.sip.communicator.impl.dns;
 
 /**
  * Class that contains the answer to query processed by the native Unbound

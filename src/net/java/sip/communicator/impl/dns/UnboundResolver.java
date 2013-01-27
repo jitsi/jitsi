@@ -4,14 +4,14 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.plugin.desktoputil.dns;
+package net.java.sip.communicator.impl.dns;
 
 import java.io.*;
 import java.net.*;
 import java.util.*;
 import java.util.concurrent.*;
 
-import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.service.dns.*;
 import net.java.sip.communicator.util.*;
 
 import org.xbill.DNS.*;

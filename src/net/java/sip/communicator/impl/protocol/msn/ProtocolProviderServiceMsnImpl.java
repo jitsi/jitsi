@@ -9,10 +9,10 @@ package net.java.sip.communicator.impl.protocol.msn;
 import java.net.*;
 import java.nio.channels.*;
 
+import net.java.sip.communicator.service.dns.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.plugin.desktoputil.dns.*;
 import net.sf.jml.*;
 import net.sf.jml.event.*;
 import net.sf.jml.exception.*;

@@ -18,9 +18,8 @@ import java.text.*;
 import javax.sip.*;
 
 import net.java.sip.communicator.impl.protocol.sip.*;
+import net.java.sip.communicator.service.dns.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.plugin.desktoputil.*;
-import net.java.sip.communicator.plugin.desktoputil.dns.*;
 
 /**
  * Implementation of the autodetect proxy connection. Tries to resolve a SIP-

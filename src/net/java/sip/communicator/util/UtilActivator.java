@@ -9,6 +9,7 @@ package net.java.sip.communicator.util;
 //import java.awt.image.*;
 import java.util.*;
 
+import net.java.sip.communicator.service.dns.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -48,6 +49,8 @@ public class UtilActivator
     private static FileAccessService fileAccessService;
 
     private static MediaService mediaService;
+
+    private static ParallelResolver parallelResolver;
 
     static BundleContext bundleContext;
 
@@ -261,5 +264,20 @@ public class UtilActivator
             }
         }
         return providerFactoriesMap;
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public static ParallelResolver getParallelResolver()
+    {
+        if (parallelResolver == null)
+        {
+            parallelResolver
+                = ServiceUtils.getService(  bundleContext,
+                                            ParallelResolver.class);
+        }
+        return parallelResolver;
     }
 }

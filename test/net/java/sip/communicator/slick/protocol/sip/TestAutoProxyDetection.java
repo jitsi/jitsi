@@ -18,8 +18,8 @@ import java.text.*;
 import junit.framework.*;
 import net.java.sip.communicator.impl.protocol.sip.*;
 import net.java.sip.communicator.impl.protocol.sip.net.*;
+import net.java.sip.communicator.service.dns.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.plugin.desktoputil.dns.*;
 
 /**
  * Tests all variations of automatic proxy detection through (simulated) DNS.

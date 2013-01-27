@@ -4,13 +4,13 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.plugin.desktoputil.dns;
+package net.java.sip.communicator.impl.dns;
 
 import java.io.*;
 import java.net.*;
 import java.util.*;
 
-import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.service.dns.*;
 import net.java.sip.communicator.util.*;
 
 import org.xbill.DNS.*;
@@ -34,14 +34,15 @@ import org.xbill.DNS.*;
  *
  * @author Emil Ivov
  */
-public class ParallelResolver implements Resolver
+public class ParallelResolverImpl
+    implements  ParallelResolver
 {
     /**
      * The <tt>Logger</tt> used by the <tt>ParallelResolver</tt>
      * class and its instances for logging output.
      */
     private static final Logger logger = Logger
-                    .getLogger(ParallelResolver.class.getName());
+                    .getLogger(ParallelResolverImpl.class.getName());
 
     /**
      * Indicates whether we are currently in a mode where all DNS queries are
@@ -129,10 +130,10 @@ public class ParallelResolver implements Resolver
     {
         try
         {
-            currentDnsPatience = DesktopUtilActivator.getConfigurationService()
+            currentDnsPatience = DnsUtilActivator.getConfigurationService()
                 .getLong(PNAME_DNS_PATIENCE, DNS_PATIENCE);
             currentDnsRedemption
-                = DesktopUtilActivator.getConfigurationService()
+                = DnsUtilActivator.getConfigurationService()
                     .getInt(PNAME_DNS_REDEMPTION, DNS_REDEMPTION);
         }
         catch(Throwable t)
@@ -150,7 +151,7 @@ public class ParallelResolver implements Resolver
      *
      * @param resolver the resolver we'd like to use by default from now on.
      */
-    public static void setDefaultResolver(Resolver resolver)
+    public void setDefaultResolver(Resolver resolver)
     {
         defaultResolver = resolver;
     }
@@ -161,7 +162,7 @@ public class ParallelResolver implements Resolver
      *
      * @return  the resolver this class consults first.
      */
-    public static Resolver getDefaultResolver()
+    public Resolver getDefaultResolver()
     {
         return defaultResolver;
     }
@@ -169,17 +170,16 @@ public class ParallelResolver implements Resolver
     /**
      * An extended resolver that would be encapsulating all backup resolvers.
      */
-    private final ExtendedResolver backupResolver;
+    private ExtendedResolver backupResolver;
 
     /**
-     * Creates a <tt>ParallelResolver</tt> that would use the specified array
-     * of <tt>backupServers</tt> if the default DNS doesn't seem to be doing
-     * that well.
+     * Sets the specified array of <tt>backupServers</tt> used if the default
+     * DNS doesn't seem to be doing that well.
      *
      * @param backupServers the list of backup DNS servers that we should use
      * if, and only if, the default servers don't seem to work that well.
      */
-    public ParallelResolver(InetSocketAddress[] backupServers)
+    public void setBackupServers(InetSocketAddress[] backupServers)
     {
         try
         {
@@ -690,5 +690,14 @@ public class ParallelResolver implements Resolver
                 throw new IllegalStateException("ExtendedResolver failure");
             }
         }
+    }
+
+    /**
+     * Sets a DNSSEC resolver as default resolver on lookup when DNSSEC is
+     * enabled; creates a standard lookup otherwise.
+     */
+    public void refreshResolver()
+    {
+        DnsUtilActivator.refreshResolver();
     }
 }

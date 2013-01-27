@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.plugin.desktoputil;
+package net.java.sip.communicator.util;
 
 import java.beans.*;
 import java.net.*;
@@ -12,9 +12,9 @@ import java.text.*;
 import java.util.*;
 import java.util.concurrent.atomic.*;
 
-import net.java.sip.communicator.plugin.desktoputil.dns.*;
+import net.java.sip.communicator.service.dns.*;
 import net.java.sip.communicator.service.netaddr.event.*;
-import net.java.sip.communicator.util.*;
+
 import net.java.sip.communicator.util.SRVRecord;
 
 import org.xbill.DNS.*;
@@ -1257,7 +1257,7 @@ public class NetworkUtils
 
     /**
      * Creates a new {@link Lookup} instance using our own {@link
-     * ParallelResolver} if it is enabled and DNSSEC is not active.
+     * ParallelResolverImpl} if it is enabled and DNSSEC is not active.
      *
      * @param domain the domain we will be resolving
      * @param type the type of the record we will be trying to obtain.
@@ -1307,8 +1307,8 @@ public class NetworkUtils
                 .getBoolean(PNAME_BACKUP_RESOLVER_ENABLED,
                     PDEFAULT_BACKUP_RESOLVER_ENABLED)
             || UtilActivator.getConfigurationService().getBoolean(
-                DnsUtilActivator.PNAME_DNSSEC_RESOLVER_ENABLED,
-                DnsUtilActivator.PDEFAULT_DNSSEC_RESOLVER_ENABLED
+                ParallelResolver.PNAME_DNSSEC_RESOLVER_ENABLED,
+                ParallelResolver.PDEFAULT_DNSSEC_RESOLVER_ENABLED
             ))
         {
             return lookup;
@@ -1361,8 +1361,13 @@ public class NetworkUtils
                     InetSocketAddress resolverSockAddr
                         = new InetSocketAddress(resolverAddress, rslvrPort);
 
-                    parallelResolver = new ParallelResolver(
+                    parallelResolver = UtilActivator.getParallelResolver();
+                    if (parallelResolver != null
+                        && parallelResolver instanceof ParallelResolver)
+                    {
+                        ((ParallelResolver) parallelResolver).setBackupServers(
                                     new InetSocketAddress[]{resolverSockAddr});
+                    }
 
                     //listens for changes on the parallel DNS settings
                     UtilActivator.getConfigurationService()
@@ -1461,7 +1466,7 @@ public class NetworkUtils
         ResolverConfig.refresh();
         try
         {
-            DnsUtilActivator.refreshResolver();
+            ((ParallelResolver) parallelResolver).refreshResolver();
         }
         catch(Throwable t)
         {

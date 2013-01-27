@@ -5,7 +5,7 @@ Bundle-Vendor: sip-communicator.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
 Import-Package: net.java.sip.communicator.util,
- net.java.sip.communicator.plugin.desktoputil.dns,
+ net.java.sip.communicator.service.dns,
  net.java.sip.communicator.service.netaddr,
  org.jitsi.service.configuration,
  junit,

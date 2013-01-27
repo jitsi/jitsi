@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.plugin.dnsconfig;
+package net.java.sip.communicator.impl.dns.dnsconfig;
 
 import java.awt.*;
 import java.util.*;
@@ -13,7 +13,7 @@ import java.util.List;
 import javax.swing.table.*;
 
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.plugin.desktoputil.dns.*;
+import net.java.sip.communicator.impl.dns.*;
 
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;

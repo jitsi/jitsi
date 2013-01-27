@@ -899,7 +899,7 @@
     <!-- - - - - - - - - - - - - - BUNDLE BUILDING TARGETS - - - - - - - -       -->
     <!--ALL BUNDLES-->
     <target name="bundles"
-        depends="bundle-sc-launcher,bundle-util,bundle-util-dns,
+        depends="bundle-sc-launcher,bundle-util,bundle-service-dns,bundle-impl-dns,
         bundle-configuration,bundle-configuration-slick,
         bundle-history,bundle-history-slick,bundle-messagehistory, bundle-msghistory-slick,
         bundle-callhistory, bundle-callhistory-slick, bundle-popupmessagehandler-slick,
@@ -943,7 +943,7 @@
         bundle-vimeo,bundle-vbox7,bundle-metacafe,bundle-flickr,bundle-hulu,
         bundle-twitpic,bundle-directimage,bundle-bliptv,bundle-viddler,
         bundle-plugin-chatconfig,bundle-certificate,bundle-packetlogging,
-        bundle-plugin-loggingutils,bundle-plugin-dnsconfig,
+        bundle-plugin-loggingutils,
         bundle-provdisc,bundle-provdisc-dhcp,bundle-provdisc-mdns,
         bundle-provisioning,bundle-addrbook,bundle-plugin-ldap,
         bundle-plugin-contactsourceconfig,bundle-plugin-certconfig,
@@ -1067,12 +1067,22 @@
     </target>
 
     <!--BUNDLE-UTIL-DNS-->
-    <target name="bundle-util-dns">
+    <target name="bundle-service-dns">
+        <!-- Create the dns.jar-->
+        <jar compress="true" destfile="${bundles.dest}/dnsservice.jar"
+            manifest="${src}/net/java/sip/communicator/service/dns/dns.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/dns"
+                prefix="net/java/sip/communicator/service/dns"/>
+        </jar>
+    </target>
+
+    <!--BUNDLE-UTIL-DNS-->
+    <target name="bundle-impl-dns">
         <!-- Create the dns.jar-->
         <jar compress="true" destfile="${bundles.dest}/dns.jar"
-            manifest="${src}/net/java/sip/communicator/plugin/desktoputil/dns/desktoputil.dns.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/desktoputil/dns"
-                prefix="net/java/sip/communicator/plugin/desktoputil/dns"/>
+            manifest="${src}/net/java/sip/communicator/impl/dns/dns.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/dns"
+                prefix="net/java/sip/communicator/impl/dns"/>
         </jar>
     </target>
 
@@ -2662,14 +2672,6 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/plugin/ldap/ldap.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/ldap"
             prefix="net/java/sip/communicator/plugin/ldap"/>
-        </jar>
-    </target>
-
-    <target name="bundle-plugin-dnsconfig">
-        <jar compress="false" destfile="${bundles.dest}/plugin-dnsconfig.jar"
-            manifest="${src}/net/java/sip/communicator/plugin/dnsconfig/dnsconfig.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/dnsconfig"
-                prefix="net/java/sip/communicator/plugin/dnsconfig" />
         </jar>
     </target>
 

@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.plugin.dnsconfig;
+package net.java.sip.communicator.impl.dns.dnsconfig;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -14,9 +14,10 @@ import javax.swing.*;
 import javax.swing.plaf.basic.*;
 import javax.swing.table.*;
 
+import net.java.sip.communicator.impl.dns.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.service.dns.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.plugin.desktoputil.dns.*;
 
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
@@ -201,8 +202,8 @@ public class DnssecPanel
             )
         );
         chkEnabled.setSelected(config.getBoolean(
-            DnsUtilActivator.PNAME_DNSSEC_RESOLVER_ENABLED,
-            DnsUtilActivator.PDEFAULT_DNSSEC_RESOLVER_ENABLED
+            ParallelResolver.PNAME_DNSSEC_RESOLVER_ENABLED,
+            ParallelResolver.PDEFAULT_DNSSEC_RESOLVER_ENABLED
         ));
         chkAbsolute.setSelected(config.getBoolean(
             NetworkUtils.PNAME_DNS_ALWAYS_ABSOLUTE,
@@ -260,7 +261,7 @@ public class DnssecPanel
                         chkEnabled.setSelected(true);
                 }
                 config.setProperty(
-                    DnsUtilActivator.PNAME_DNSSEC_RESOLVER_ENABLED,
+                    ParallelResolver.PNAME_DNSSEC_RESOLVER_ENABLED,
                     chkEnabled.isSelected());
             }
             catch (Exception ex)

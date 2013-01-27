@@ -13,12 +13,12 @@ import java.net.*;
 import java.text.*;
 import java.util.*;
 
+import net.java.sip.communicator.service.dns.*;
 import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.netaddr.event.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.Logger;
-import net.java.sip.communicator.plugin.desktoputil.NetworkUtils;
-import net.java.sip.communicator.plugin.desktoputil.dns.*;
+import net.java.sip.communicator.util.NetworkUtils;
 
 import org.ice4j.*;
 import org.ice4j.ice.*;

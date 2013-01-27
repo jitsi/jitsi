@@ -4,8 +4,10 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.plugin.desktoputil.dns;
+package net.java.sip.communicator.impl.dns;
 
+import net.java.sip.communicator.impl.dns.dnsconfig.*;
+import net.java.sip.communicator.service.dns.*;
 import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
@@ -24,18 +26,6 @@ import org.xbill.DNS.*;
 public class DnsUtilActivator
     implements BundleActivator
 {
-    /**
-     * The name of the property that enables or disables the DNSSEC resolver
-     * (instead of a normal, non-validating local resolver).
-     */
-    public static final String PNAME_DNSSEC_RESOLVER_ENABLED
-        = "net.java.sip.communicator.util.dns.DNSSEC_ENABLED";
-
-    /**
-     * Default value of @see PNAME_DNSSEC_RESOLVER_ENABLED.
-     */
-    public static final boolean PDEFAULT_DNSSEC_RESOLVER_ENABLED = false;
-
     /**
      * The name of the property that sets custom nameservers to use for all DNS
      * lookups when DNSSEC is enabled. Multiple servers are separated by a comma
@@ -56,6 +46,8 @@ public class DnsUtilActivator
     private static ResourceManagementService resourceService;
     private static BundleContext bundleContext;
 
+    private static DnsConfigActivator dnsConfigActivator;
+
     /**
      * Calls <tt>Thread.setUncaughtExceptionHandler()</tt>
      *
@@ -71,9 +63,14 @@ public class DnsUtilActivator
     {
         bundleContext = context;
 
+        bundleContext.registerService(
+            ParallelResolver.class.getName(),
+            new ParallelResolverImpl(),
+            null);
+
         if(getConfigurationService().getBoolean(
-            PNAME_DNSSEC_RESOLVER_ENABLED,
-            PDEFAULT_DNSSEC_RESOLVER_ENABLED))
+            ParallelResolverImpl.PNAME_DNSSEC_RESOLVER_ENABLED,
+            ParallelResolverImpl.PDEFAULT_DNSSEC_RESOLVER_ENABLED))
         {
             getNotificationService().
                 registerDefaultNotificationForEvent(
@@ -82,6 +79,9 @@ public class DnsUtilActivator
                     null, null);
         }
         refreshResolver();
+
+        dnsConfigActivator = new DnsConfigActivator();
+        dnsConfigActivator.start(context);
     }
 
     /**
@@ -91,8 +91,8 @@ public class DnsUtilActivator
     public static void refreshResolver()
     {
         if(getConfigurationService().getBoolean(
-            PNAME_DNSSEC_RESOLVER_ENABLED,
-            PDEFAULT_DNSSEC_RESOLVER_ENABLED))
+            ParallelResolverImpl.PNAME_DNSSEC_RESOLVER_ENABLED,
+            ParallelResolverImpl.PDEFAULT_DNSSEC_RESOLVER_ENABLED))
         {
             logger.trace("DNSSEC is enabled");
             ConfigurableDnssecResolver res = new ConfigurableDnssecResolver();
@@ -127,6 +127,8 @@ public class DnsUtilActivator
     public void stop(BundleContext context)
         throws Exception
     {
+        if (dnsConfigActivator != null)
+            dnsConfigActivator.stop(context);
     }
 
     /**

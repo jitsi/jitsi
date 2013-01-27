@@ -4,21 +4,21 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.plugin.dnsconfig;
+package net.java.sip.communicator.impl.dns.dnsconfig;
 
-import static net.java.sip.communicator.plugin.desktoputil.NetworkUtils.DEFAULT_BACKUP_RESOLVER;
-import static net.java.sip.communicator.plugin.desktoputil.NetworkUtils.PDEFAULT_BACKUP_RESOLVER_ENABLED;
-import static net.java.sip.communicator.plugin.desktoputil.NetworkUtils.PNAME_BACKUP_RESOLVER;
-import static net.java.sip.communicator.plugin.desktoputil.NetworkUtils.PNAME_BACKUP_RESOLVER_ENABLED;
-import static net.java.sip.communicator.plugin.desktoputil.NetworkUtils.PNAME_BACKUP_RESOLVER_FALLBACK_IP;
-import static net.java.sip.communicator.plugin.desktoputil.NetworkUtils.PNAME_BACKUP_RESOLVER_PORT;
-import static net.java.sip.communicator.plugin.desktoputil.NetworkUtils.getDefaultDnsPort;
-import static net.java.sip.communicator.plugin.desktoputil.NetworkUtils.isIPv4Address;
-import static net.java.sip.communicator.plugin.desktoputil.NetworkUtils.isIPv6Address;
-import static net.java.sip.communicator.plugin.desktoputil.dns.ParallelResolver.DNS_PATIENCE;
-import static net.java.sip.communicator.plugin.desktoputil.dns.ParallelResolver.DNS_REDEMPTION;
-import static net.java.sip.communicator.plugin.desktoputil.dns.ParallelResolver.PNAME_DNS_PATIENCE;
-import static net.java.sip.communicator.plugin.desktoputil.dns.ParallelResolver.PNAME_DNS_REDEMPTION;
+import static net.java.sip.communicator.util.NetworkUtils.DEFAULT_BACKUP_RESOLVER;
+import static net.java.sip.communicator.util.NetworkUtils.PDEFAULT_BACKUP_RESOLVER_ENABLED;
+import static net.java.sip.communicator.util.NetworkUtils.PNAME_BACKUP_RESOLVER;
+import static net.java.sip.communicator.util.NetworkUtils.PNAME_BACKUP_RESOLVER_ENABLED;
+import static net.java.sip.communicator.util.NetworkUtils.PNAME_BACKUP_RESOLVER_FALLBACK_IP;
+import static net.java.sip.communicator.util.NetworkUtils.PNAME_BACKUP_RESOLVER_PORT;
+import static net.java.sip.communicator.util.NetworkUtils.getDefaultDnsPort;
+import static net.java.sip.communicator.util.NetworkUtils.isIPv4Address;
+import static net.java.sip.communicator.util.NetworkUtils.isIPv6Address;
+import static net.java.sip.communicator.service.dns.ParallelResolver.DNS_PATIENCE;
+import static net.java.sip.communicator.service.dns.ParallelResolver.DNS_REDEMPTION;
+import static net.java.sip.communicator.service.dns.ParallelResolver.PNAME_DNS_PATIENCE;
+import static net.java.sip.communicator.service.dns.ParallelResolver.PNAME_DNS_REDEMPTION;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -30,8 +30,8 @@ import javax.swing.event.*;
 import javax.swing.text.*;
 
 import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.service.dns.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.plugin.desktoputil.dns.*;
 
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
@@ -208,8 +208,8 @@ public class ParallelDnsPanel
     public void updateDnssecState()
     {
         boolean isDnssec = configService.getBoolean(
-            DnsUtilActivator.PNAME_DNSSEC_RESOLVER_ENABLED,
-            DnsUtilActivator.PDEFAULT_DNSSEC_RESOLVER_ENABLED);
+            ParallelResolver.PNAME_DNSSEC_RESOLVER_ENABLED,
+            ParallelResolver.PDEFAULT_DNSSEC_RESOLVER_ENABLED);
         if(isDnssec)
             chkBackupDnsEnabled.setSelected(false);
         chkBackupDnsEnabled.setEnabled(!isDnssec);

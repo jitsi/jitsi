@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.plugin.desktoputil.dns;
+package net.java.sip.communicator.service.dns;
 
 /**
  * Checked DNSSEC exception for code that knows how to deal with it.
