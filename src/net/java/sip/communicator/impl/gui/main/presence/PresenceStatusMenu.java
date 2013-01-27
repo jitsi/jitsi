@@ -49,8 +49,6 @@ public class PresenceStatusMenu
 
     private PresenceStatus onlineStatus;
 
-    private PresenceStatus lastSelectedStatus;
-
     private OperationSetPresence presence;
 
     /**
@@ -272,7 +270,6 @@ public class PresenceStatusMenu
                                 status.getStatusName());
 
         this.setSelected(selectedObject);
-        lastSelectedStatus = status;
 
         String tooltip = this.getToolTipText();
 
@@ -299,16 +296,6 @@ public class PresenceStatusMenu
     public PresenceStatus getOnlineStatus()
     {
         return onlineStatus;
-    }
-
-    /**
-     * Returns the status that is currently selected.
-     *
-     * @return the status that is currently selected
-     */
-    public PresenceStatus getLastSelectedStatus()
-    {
-        return lastSelectedStatus;
     }
 
     /**
