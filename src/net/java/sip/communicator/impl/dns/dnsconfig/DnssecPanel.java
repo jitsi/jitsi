@@ -171,8 +171,9 @@ public class DnssecPanel
                 protected void setValue(Object value)
                 {
                     if (value instanceof SecureResolveMode)
-                        setText(R.getI18NString(SecureResolveMode.class
-                            .getName()
+                        setText(R.getI18NString(
+                            "net.java.sip.communicator.util.dns."
+                            + SecureResolveMode.class.getSimpleName()
                             + "."
                             + ((SecureResolveMode) value).name()));
                     else
@@ -320,7 +321,9 @@ public class DnssecPanel
                 Component c =
                     super.getListCellRendererComponent(list, value, index,
                         isSelected, cellHasFocus);
-                setText(R.getI18NString(SecureResolveMode.class.getName() + "."
+                setText(R.getI18NString("net.java.sip.communicator.util.dns."
+                    + SecureResolveMode.class.getSimpleName()
+                    + "."
                     + value));
                 return c;
             }
