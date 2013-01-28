@@ -506,4 +506,18 @@ public class PresencePanel
                 clistOptionUseSipCredentialsBox.isSelected());
         }
     }
+
+    /**
+     * Reinits labels and combobox to default values.
+     */
+    public void reinit()
+    {
+        setClistOptionEnableEnabled(false);
+        setClistOptionUseSipCredentials(false);
+        setClistOptionUseSipCredentialsEnabled(false);
+        setClistOptionServerUri(null);
+        setClistOptionUser(null);
+        setClistOptionPassword(null);
+        contactlistOptionsCombo.setSelectedItem(contactlistOptions[0]);
+    }
 }

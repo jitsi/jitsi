@@ -445,6 +445,7 @@ public class SIPAccountRegistrationForm
 
         securityPanel.loadAccount(accountID);
 
+        presencePanel.reinit();
         presencePanel.setPresenceEnabled(enablePresence);
         presencePanel.setForcePeerToPeerMode(forceP2P);
         presencePanel.setPollPeriod(pollingPeriod);
