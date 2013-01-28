@@ -249,7 +249,9 @@ public class AccountRegWizardContainerImpl
     {
         this.currentWizard = wizard;
 
-        summaryPage.setPreferredSize(this.currentWizard.getSize());
+        if (wizard instanceof DesktopAccountRegistrationWizard)
+            summaryPage.setPreferredSize(
+                ((DesktopAccountRegistrationWizard) currentWizard).getSize());
 
         Iterator<WizardPage> i = wizard.getPages();
 

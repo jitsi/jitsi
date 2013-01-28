@@ -25,7 +25,7 @@ import org.osgi.framework.*;
  * @author Grigorii Balutsel
  */
 public class SIPAccountRegistrationWizard
-    extends ExtendedAccountRegistrationWizard
+    extends ExtendedDesktopAccountRegWizard
 {
     /**
      * The first wizard page.

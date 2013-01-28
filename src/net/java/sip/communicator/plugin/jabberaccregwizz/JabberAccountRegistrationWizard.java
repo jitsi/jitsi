@@ -24,7 +24,7 @@ import org.osgi.framework.*;
  * @author Yana Stamcheva
  */
 public class JabberAccountRegistrationWizard
-    extends AccountRegistrationWizard
+    extends DesktopAccountRegistrationWizard
 {
     /**
      * The logger.

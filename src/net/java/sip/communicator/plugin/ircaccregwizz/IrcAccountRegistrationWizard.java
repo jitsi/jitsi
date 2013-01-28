@@ -23,7 +23,7 @@ import org.osgi.framework.*;
  * @author Lionel Ferreira & Michael Tarantino
  */
 public class IrcAccountRegistrationWizard
-    extends AccountRegistrationWizard
+    extends DesktopAccountRegistrationWizard
 {
     private final Logger logger
         = Logger.getLogger(IrcAccountRegistrationWizard.class);

@@ -23,7 +23,7 @@ import org.osgi.framework.*;
  * @author LITZELMANN Cedric
  */
 public class DictAccountRegistrationWizard
-    extends AccountRegistrationWizard
+    extends DesktopAccountRegistrationWizard
 {
     private final Logger logger
         = Logger.getLogger(DictAccountRegistrationWizard.class);

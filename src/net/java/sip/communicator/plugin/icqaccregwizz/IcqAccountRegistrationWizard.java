@@ -22,7 +22,7 @@ import org.osgi.framework.*;
  * @author Yana Stamcheva
  */
 public class IcqAccountRegistrationWizard
-    extends AccountRegistrationWizard
+    extends DesktopAccountRegistrationWizard
 {
     /**
      * The logger.

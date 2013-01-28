@@ -22,7 +22,7 @@ import org.osgi.framework.*;
  * @author Yana Stamcheva
  */
 public class YahooAccountRegistrationWizard
-    extends AccountRegistrationWizard
+    extends DesktopAccountRegistrationWizard
 {
     private final Logger logger
         = Logger.getLogger(YahooAccountRegistrationWizard.class);

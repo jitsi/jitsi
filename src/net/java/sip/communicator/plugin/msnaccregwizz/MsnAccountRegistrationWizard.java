@@ -22,7 +22,7 @@ import org.osgi.framework.*;
  * @author Yana Stamcheva
  */
 public class MsnAccountRegistrationWizard
-    extends AccountRegistrationWizard
+    extends DesktopAccountRegistrationWizard
 {
     private final Logger logger
         = Logger.getLogger(MsnAccountRegistrationWizard.class);

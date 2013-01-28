@@ -23,7 +23,7 @@ import org.osgi.framework.*;
  * @author Emil Ivov
  */
 public class RssAccountRegistrationWizard
-    extends AccountRegistrationWizard
+    extends DesktopAccountRegistrationWizard
 {
     private final Logger logger
         = Logger.getLogger(RssAccountRegistrationWizard.class);

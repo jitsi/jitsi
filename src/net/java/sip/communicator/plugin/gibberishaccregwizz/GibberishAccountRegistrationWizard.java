@@ -23,7 +23,7 @@ import org.osgi.framework.*;
  * @author Emil Ivov
  */
 public class GibberishAccountRegistrationWizard
-    extends AccountRegistrationWizard
+    extends DesktopAccountRegistrationWizard
 {
     private final Logger logger
         = Logger.getLogger(GibberishAccountRegistrationWizard.class);

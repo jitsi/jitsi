@@ -24,7 +24,7 @@ import org.osgi.framework.*;
  * @author Maxime Catelin
  */
 public class ZeroconfAccountRegistrationWizard
-    extends AccountRegistrationWizard
+    extends DesktopAccountRegistrationWizard
 {
     private Logger logger
         = Logger.getLogger(ZeroconfAccountRegistrationWizard.class);

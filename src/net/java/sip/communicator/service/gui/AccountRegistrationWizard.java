@@ -6,7 +6,6 @@
  */
 package net.java.sip.communicator.service.gui;
 
-import java.awt.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.gui.internal.*;
@@ -196,13 +195,6 @@ public abstract class AccountRegistrationWizard
     {
         return null;
     }
-
-    /**
-     * Returns the preferred dimensions of this wizard.
-     * 
-     * @return the preferred dimensions of this wizard.
-     */
-    public abstract Dimension getSize();
 
     /**
      * Returns a simple account registration form that would be the first form

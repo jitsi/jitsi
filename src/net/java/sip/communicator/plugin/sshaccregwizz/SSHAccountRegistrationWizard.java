@@ -32,7 +32,7 @@ import org.osgi.framework.*;
  * @author Shobhit Jindal
  */
 public class SSHAccountRegistrationWizard
-        extends AccountRegistrationWizard
+        extends DesktopAccountRegistrationWizard
 {
     private final Logger logger
         = Logger.getLogger(SSHAccountRegistrationWizard.class);
