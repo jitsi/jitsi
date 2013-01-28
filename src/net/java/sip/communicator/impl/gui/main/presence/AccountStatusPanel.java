@@ -418,7 +418,15 @@ public class AccountStatusPanel
     {
         ProtocolProviderService protocolProvider = evt.getProvider();
 
-        this.updateStatus(protocolProvider);
+        // There is nothing we can do when account is registering,
+        // will set only connecting state later.
+        // While dispatching the registering if the state of the provider
+        // changes to registered we may end with client logged off
+        // this may happen if registered is coming too quickly after registered
+        // Dispatching registering is doing some swing stuff which
+        // is scheduled in EDT and so can be executing when already registered
+        if (!evt.getNewState().equals(RegistrationState.REGISTERING))
+            this.updateStatus(protocolProvider);
 
         if (evt.getNewState().equals(RegistrationState.REGISTERED))
         {
