@@ -58,4 +58,5 @@ Import-Package: com.sun.awt,
 Export-Package: net.java.sip.communicator.util,
  net.java.sip.communicator.util.launchutils,
  net.java.sip.communicator.util.skin,
- net.java.sip.communicator.util.xml
+ net.java.sip.communicator.util.xml,
+ net.java.sip.communicator.util.account

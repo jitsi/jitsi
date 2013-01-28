@@ -17,6 +17,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.account.*;
 import net.java.sip.communicator.plugin.desktoputil.SwingWorker;
 
 import org.osgi.framework.*;
@@ -100,7 +101,7 @@ public class AccountList
             if (accountManager.isAccountLoaded(accountID))
             {
                 ProtocolProviderService protocolProvider
-                    = GuiActivator.getRegisteredProviderForAccount(accountID);
+                    = AccountUtils.getRegisteredProviderForAccount(accountID);
 
                 if (protocolProvider != null)
                 {

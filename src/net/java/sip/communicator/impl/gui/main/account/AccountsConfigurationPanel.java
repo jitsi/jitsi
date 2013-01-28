@@ -17,6 +17,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.account.*;
 
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
@@ -126,7 +127,7 @@ public class AccountsConfigurationPanel
             AccountID accountID = account.getAccountID();
 
             ProtocolProviderFactory providerFactory =
-                GuiActivator.getProtocolProviderFactory(
+                AccountUtils.getProtocolProviderFactory(
                     accountID.getProtocolName());
 
             if (providerFactory != null)

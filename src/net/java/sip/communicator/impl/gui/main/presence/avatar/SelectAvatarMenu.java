@@ -17,6 +17,7 @@ import net.java.sip.communicator.impl.gui.main.presence.avatar.imagepicker.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.account.*;
 
 /**
  * The dialog used as menu.
@@ -272,7 +273,7 @@ public class SelectAvatarMenu
                     if(accountManager.isAccountLoaded(accountID))
                     {
                         ProtocolProviderService protocolProvider
-                            = GuiActivator.getRegisteredProviderForAccount(
+                            = AccountUtils.getRegisteredProviderForAccount(
                                 accountID);
 
                         if(protocolProvider != null

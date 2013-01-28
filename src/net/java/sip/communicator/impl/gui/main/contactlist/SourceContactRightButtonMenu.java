@@ -21,6 +21,7 @@ import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.account.*;
 import net.java.sip.communicator.util.skin.*;
 
 /**
@@ -116,7 +117,7 @@ public class SourceContactRightButtonMenu
                 public void actionPerformed(ActionEvent e)
                 {
                     List<ProtocolProviderService> providers
-                        = GuiActivator.getOpSetRegisteredProviders(
+                        = AccountUtils.getOpSetRegisteredProviders(
                             OperationSetBasicTelephony.class,
                             detail.getPreferredProtocolProvider(
                                 OperationSetBasicTelephony.class),

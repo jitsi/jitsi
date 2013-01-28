@@ -52,7 +52,7 @@ public class UtilActivator
 
     private static ParallelResolver parallelResolver;
 
-    static BundleContext bundleContext;
+    public static BundleContext bundleContext;
 
     /**
      * Network address manager service will inform us for changes in

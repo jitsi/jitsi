@@ -30,6 +30,7 @@ import net.java.sip.communicator.service.protocol.ServerStoredDetails.GenericDet
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.PagerDetail;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.PhoneNumberDetail;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.account.*;
 import net.java.sip.communicator.util.skin.*;
 
 /**
@@ -825,7 +826,7 @@ public class ContactListTreeCellRenderer
         // for SourceContact in history that do not support telephony, we
         // show the button but disabled
         List<ProtocolProviderService> providers
-            = GuiActivator.getOpSetRegisteredProviders(
+            = AccountUtils.getOpSetRegisteredProviders(
                 OperationSetBasicTelephony.class,
                 null,
                 null);
@@ -844,7 +845,7 @@ public class ContactListTreeCellRenderer
             || (ConfigurationUtils
                     .isRouteVideoAndDesktopUsingPhoneNumberEnabled()
                     && hasPhone
-                    && GuiActivator.getOpSetRegisteredProviders(
+                    && AccountUtils.getOpSetRegisteredProviders(
                                     OperationSetVideoTelephony.class,
                                     null,
                                     null).size() > 0))
@@ -860,7 +861,7 @@ public class ContactListTreeCellRenderer
             || (ConfigurationUtils
                     .isRouteVideoAndDesktopUsingPhoneNumberEnabled()
                     && hasPhone
-                    && GuiActivator.getOpSetRegisteredProviders(
+                    && AccountUtils.getOpSetRegisteredProviders(
                             OperationSetDesktopSharingServer.class,
                             null,
                             null).size() > 0))
@@ -873,7 +874,7 @@ public class ContactListTreeCellRenderer
         if (uiContact.getDescriptor() instanceof SourceContact
             && uiContact.getDefaultContactDetail(
                     OperationSetPersistentPresence.class) != null
-            && GuiActivator.getOpSetRegisteredProviders(
+            && AccountUtils.getOpSetRegisteredProviders(
                     OperationSetPersistentPresence.class,
                     null,
                     null).size() > 0
@@ -1057,7 +1058,7 @@ public class ContactListTreeCellRenderer
                     OperationSetBasicTelephony.class);
 
             List<ProtocolProviderService> providers
-                = GuiActivator.getOpSetRegisteredProviders(
+                = AccountUtils.getOpSetRegisteredProviders(
                     OperationSetBasicTelephony.class,
                     preferredProvider,
                     detail.getPreferredProtocol(
@@ -1151,7 +1152,7 @@ public class ContactListTreeCellRenderer
                 else
                 {
                     protocolName = preferredProvider.getProtocolName();
-                    providers = GuiActivator.getRegisteredProviders(protocolName,
+                    providers = AccountUtils.getRegisteredProviders(protocolName,
                         OperationSetVideoTelephony.class);
                 }
             }
@@ -1164,11 +1165,11 @@ public class ContactListTreeCellRenderer
 
                 if (protocolName != null)
                     providers
-                        = GuiActivator.getRegisteredProviders(protocolName,
+                        = AccountUtils.getRegisteredProviders(protocolName,
                             OperationSetVideoTelephony.class);
                 else
                     providers
-                        = GuiActivator.getRegisteredProviders(
+                        = AccountUtils.getRegisteredProviders(
                             OperationSetVideoTelephony.class);
             }
 
@@ -1269,7 +1270,7 @@ public class ContactListTreeCellRenderer
                 {
                     protocolName = preferredProvider.getProtocolName();
                     providers
-                        = GuiActivator.getRegisteredProviders(protocolName,
+                        = AccountUtils.getRegisteredProviders(protocolName,
                             OperationSetDesktopSharingServer.class);
                 }
             }
@@ -1282,11 +1283,11 @@ public class ContactListTreeCellRenderer
 
                 if (protocolName != null)
                     providers
-                        = GuiActivator.getRegisteredProviders(protocolName,
+                        = AccountUtils.getRegisteredProviders(protocolName,
                             OperationSetDesktopSharingServer.class);
                 else
                     providers
-                        = GuiActivator.getRegisteredProviders(
+                        = AccountUtils.getRegisteredProviders(
                             OperationSetDesktopSharingServer.class);
             }
 

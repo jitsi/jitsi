@@ -37,6 +37,7 @@ import net.java.sip.communicator.service.protocol.ServerStoredDetails.PagerDetai
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.PhoneNumberDetail;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.WorkPhoneDetail;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.account.*;
 import net.java.sip.communicator.util.skin.*;
 
 import org.osgi.framework.*;
@@ -472,7 +473,7 @@ public class MetaContactRightButtonMenu
                             ConfigurationUtils
                                 .isRouteVideoAndDesktopUsingPhoneNumberEnabled()
                             && phones.size() > 0
-                            && GuiActivator.getOpSetRegisteredProviders(
+                            && AccountUtils.getOpSetRegisteredProviders(
                                             OperationSetVideoTelephony.class,
                                             null,
                                             null).size() > 0;
@@ -480,7 +481,7 @@ public class MetaContactRightButtonMenu
                 ConfigurationUtils
                     .isRouteVideoAndDesktopUsingPhoneNumberEnabled()
                 && phones.size() > 0
-                && GuiActivator.getOpSetRegisteredProviders(
+                && AccountUtils.getOpSetRegisteredProviders(
                         OperationSetDesktopSharingServer.class,
                         null,
                         null).size() > 0;

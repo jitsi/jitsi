@@ -31,6 +31,7 @@ import net.java.sip.communicator.service.protocol.ServerStoredDetails.WorkPhoneD
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.account.*;
 
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.device.*;
@@ -1202,7 +1203,7 @@ public class CallManager
      */
     public static List<ProtocolProviderService> getTelephonyProviders()
     {
-        return GuiActivator
+        return AccountUtils
             .getRegisteredProviders(OperationSetBasicTelephony.class);
     }
 
@@ -1216,7 +1217,7 @@ public class CallManager
     public static List<ProtocolProviderService>
                                             getTelephonyConferencingProviders()
     {
-        return GuiActivator
+        return AccountUtils
             .getRegisteredProviders(OperationSetTelephonyConferencing.class);
     }
 

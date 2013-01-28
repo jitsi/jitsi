@@ -33,6 +33,7 @@ import net.java.sip.communicator.service.protocol.ServerStoredDetails.GenericDet
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.PagerDetail;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.PhoneNumberDetail;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.account.*;
 import net.java.sip.communicator.util.skin.*;
 
 /**
@@ -783,7 +784,7 @@ public class MainToolBar
                         OperationSetBasicTelephony.class);
 
                 List<ProtocolProviderService> providers
-                    = GuiActivator.getOpSetRegisteredProviders(
+                    = AccountUtils.getOpSetRegisteredProviders(
                         OperationSetBasicTelephony.class,
                         preferredProvider,
                         detail.getPreferredProtocol(

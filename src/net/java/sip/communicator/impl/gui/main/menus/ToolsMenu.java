@@ -28,6 +28,7 @@ import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.Logger;
+import net.java.sip.communicator.util.account.*;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.plugin.desktoputil.SwingWorker;
@@ -399,7 +400,7 @@ public class ToolsMenu
             = new ArrayList<ProtocolProviderService>();
 
         for (ProtocolProviderService videoBridgeProvider
-                : GuiActivator.getRegisteredProviders(
+                : AccountUtils.getRegisteredProviders(
                         OperationSetVideoBridge.class))
         {
             OperationSetVideoBridge videoBridgeOpSet

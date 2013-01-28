@@ -22,6 +22,7 @@ import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.Logger;
+import net.java.sip.communicator.util.account.*;
 
 import org.jitsi.util.*;
 
@@ -826,7 +827,7 @@ public class ChatWindowManager
     public void startChat(String contactString)
     {
         List<ProtocolProviderService> imProviders
-            = GuiActivator.getRegisteredProviders(
+            = AccountUtils.getRegisteredProviders(
                     OperationSetBasicInstantMessaging.class);
 
         if (imProviders.size() < 1)
