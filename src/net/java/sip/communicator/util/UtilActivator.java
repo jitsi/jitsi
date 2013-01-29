@@ -54,6 +54,10 @@ public class UtilActivator
 
     public static BundleContext bundleContext;
 
+    private static AccountManager accountManager;
+
+    private static AlertUIService alertUIService;
+
     /**
      * Network address manager service will inform us for changes in
      * network configuration.
@@ -279,5 +283,38 @@ public class UtilActivator
                                             ParallelResolver.class);
         }
         return parallelResolver;
+    }
+
+    /**
+     * Returns the <tt>AccountManager</tt> obtained from the bundle context.
+     * @return the <tt>AccountManager</tt> obtained from the bundle context
+     */
+    public static AccountManager getAccountManager()
+    {
+        if(accountManager == null)
+        {
+            accountManager
+                = ServiceUtils.getService(bundleContext, AccountManager.class);
+        }
+        return accountManager;
+    }
+
+
+    /**
+     * Returns the <tt>MetaContactListService</tt> obtained from the bundle
+     * context.
+     * @return the <tt>MetaContactListService</tt> obtained from the bundle
+     * context
+     */
+    public static AlertUIService getAlertUIService()
+    {
+        if (alertUIService == null)
+        {
+            alertUIService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        AlertUIService.class);
+        }
+        return alertUIService;
     }
 }

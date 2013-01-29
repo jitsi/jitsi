@@ -38,6 +38,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.shutdown.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.Logger;
+import net.java.sip.communicator.util.account.*;
 import net.java.sip.communicator.util.skin.*;
 
 import org.jitsi.service.resources.*;
@@ -163,7 +164,8 @@ public class UIServiceImpl
         GuiActivator.getUIService().registerExportedWindow(mainFrame);
 
         // Initialize the login manager.
-        this.loginManager = new LoginManager(mainFrame);
+        this.loginManager
+            = new LoginManager(new LoginRendererSwingImpl());
 
         this.popupDialog = new PopupDialogImpl();
 
@@ -819,7 +821,7 @@ public class UIServiceImpl
      */
     private class RunLoginGui implements Runnable {
         public void run() {
-            loginManager.runLogin(mainFrame);
+            loginManager.runLogin();
         }
     }
 

@@ -29,7 +29,6 @@ import net.java.sip.communicator.plugin.desktoputil.SwingWorker;
 import net.java.sip.communicator.plugin.desktoputil.TransparentPanel;
 
 import org.jitsi.util.*;
-import org.jitsi.util.swing.*;
 
 /**
  * The panel shown on the top of the contact list. It contains user name,
@@ -276,33 +275,6 @@ public class AccountStatusPanel
     public boolean containsAccount(ProtocolProviderService protocolProvider)
     {
         return statusComboBox.containsAccount(protocolProvider);
-    }
-
-    /**
-     * Returns the last used presence status for the given
-     * <tt>protocolProvider</tt>.
-     * @param protocolProvider the <tt>ProtocolProviderService</tt>
-     * corresponding to the account we're looking for
-     * @return the last used presence status for the given
-     * <tt>protocolProvider</tt>
-     */
-    public Object getLastPresenceStatus(
-                                    ProtocolProviderService protocolProvider)
-    {
-        return statusComboBox.getLastPresenceStatus(protocolProvider);
-    }
-
-    /**
-     * Returns the last used status for the given <tt>protocolProvider</tt>
-     * as a String.
-     * @param protocolProvider the <tt>ProtocolProviderService</tt>
-     * corresponding to the account we're looking for
-     * @return a String representation of the last used status for the given
-     * <tt>protocolProvider</tt>
-     */
-    public String getLastStatusString(ProtocolProviderService protocolProvider)
-    {
-        return statusComboBox.getLastStatusString(protocolProvider);
     }
 
     /**

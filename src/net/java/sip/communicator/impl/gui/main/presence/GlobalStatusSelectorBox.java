@@ -21,6 +21,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.globalstatus.*;
 import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.account.*;
 
 /**
  * The <tt>GlobalStatusSelectorBox</tt> is a global status selector box, which
@@ -352,7 +353,8 @@ public class GlobalStatusSelectorBox
                 presenceStatus = presenceStatusMenu.getOfflineStatus();
             else
             {
-                presenceStatus = getLastPresenceStatus(protocolProvider);
+                presenceStatus
+                    = AccountStatusUtils.getLastPresenceStatus(protocolProvider);
                 if (presenceStatus == null)
                     presenceStatus = presenceStatusMenu.getOnlineStatus();
             }
@@ -543,34 +545,6 @@ public class GlobalStatusSelectorBox
         }
 
         return null;
-    }
-
-    /**
-     * Returns the last status that was stored in the configuration xml for the
-     * given protocol provider.
-     * 
-     * @param protocolProvider the protocol provider
-     * @return the last status that was stored in the configuration xml for the
-     *         given protocol provider
-     */
-    public PresenceStatus getLastPresenceStatus(
-        ProtocolProviderService protocolProvider)
-    {
-        return GuiActivator.getGlobalStatusService()
-            .getLastPresenceStatus(protocolProvider);
-    }
-
-    /**
-     * Returns the last contact status saved in the configuration.
-     * 
-     * @param protocolProvider the protocol provider to which the status
-     *            corresponds
-     * @return the last contact status saved in the configuration.
-     */
-    public String getLastStatusString(ProtocolProviderService protocolProvider)
-    {
-        return GuiActivator.getGlobalStatusService()
-            .getLastStatusString(protocolProvider);
     }
 
     /**

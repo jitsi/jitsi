@@ -14,6 +14,9 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
 /**
+ * The <tt>AccountUtils</tt> provides utility methods helping us to easily
+ * obtain an account or a groups of accounts or protocol providers by some
+ * specific criteria.
  *
  * @author Yana Stamcheva
  */

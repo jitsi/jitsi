@@ -987,25 +987,6 @@ public class MainFrame
     }
 
     /**
-     * Returns the presence operation set for the given protocol provider.
-     *
-     * @param protocolProvider The protocol provider for which the
-     * presence operation set is searched.
-     * @return the presence operation set for the given protocol provider.
-     */
-    public static OperationSetPresence getProtocolPresenceOpSet(
-            ProtocolProviderService protocolProvider)
-    {
-        OperationSet opSet
-            = protocolProvider.getOperationSet(OperationSetPresence.class);
-
-        return
-            (opSet instanceof OperationSetPresence)
-                ? (OperationSetPresence) opSet
-                : null;
-    }
-
-    /**
      * Returns the Web Contact Info operation set for the given
      * protocol provider.
      *
@@ -1289,23 +1270,6 @@ public class MainFrame
                 }
             }
         }
-    }
-
-    /**
-     * If the protocol provider supports presence operation set searches the
-     * last status which was selected, otherwise returns null.
-     *
-     * @param protocolProvider the protocol provider we're interested in.
-     * @return the last protocol provider presence status, or null if this
-     * provider doesn't support presence operation set
-     */
-    public Object getProtocolProviderLastStatus(
-            ProtocolProviderService protocolProvider)
-    {
-        if(getProtocolPresenceOpSet(protocolProvider) != null)
-            return accountStatusPanel.getLastPresenceStatus(protocolProvider);
-        else
-            return accountStatusPanel.getLastStatusString(protocolProvider);
     }
 
     /**

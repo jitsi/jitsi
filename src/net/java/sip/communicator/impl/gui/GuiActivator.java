@@ -137,6 +137,11 @@ public class GuiActivator implements BundleActivator
                                           new GlobalStatusServiceImpl(),
                                           null);
 
+            // Registers an implementation of the AlertUIService.
+            bundleContext.registerService(  AlertUIService.class.getName(),
+                                            new AlertUIServiceImpl(),
+                                            null);
+
             // Create the ui service
             uiService = new UIServiceImpl();
 
