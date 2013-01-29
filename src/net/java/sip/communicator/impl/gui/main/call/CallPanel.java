@@ -543,7 +543,7 @@ public class CallPanel
      *
      * @param callPeer the <tt>CallPeer</tt>
      */
-    private void addRemoteVideoSpecificComponents(CallPeer callPeer)
+    public void addRemoteVideoSpecificComponents(CallPeer callPeer)
     {
         if(CallManager.isVideoQualityPresetSupported(callPeer))
         {
@@ -1323,7 +1323,7 @@ public class CallPanel
         settingsPanel.add(recordButton);
         settingsPanel.add(showHideVideoButton);
         settingsPanel.add(transferCallButton);
-        settingsPanel.add(videoButton);;
+        settingsPanel.add(videoButton);
 
         // The bottom bar will contain the settingsPanel.
         add(createBottomBar(), BorderLayout.SOUTH);
@@ -1696,7 +1696,7 @@ public class CallPanel
     /**
      * Remove remote video specific components.
      */
-    private void removeRemoteVideoSpecificComponents()
+    public void removeRemoteVideoSpecificComponents()
     {
         if(resizeVideoButton != null)
             settingsPanel.remove(resizeVideoButton);

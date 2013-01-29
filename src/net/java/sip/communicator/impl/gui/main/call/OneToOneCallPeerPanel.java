@@ -1364,6 +1364,25 @@ public class OneToOneCallPeerPanel
                     || ((remoteVideo != null)
                         && !UIVideoHandler2.isAncestor(center, remoteVideo)));
 
+            // If the remote video has changed, maybe the CallPanel can display
+            // the LO/SD/HD button.
+            if(remoteVideoChanged)
+            {
+                CallPanel callPanel = callRenderer.getCallContainer();
+                // The remote video has been added, then tries to display the
+                // LO/SD/HD button.
+                if(remoteVideo != null)
+                {
+                    callPanel.addRemoteVideoSpecificComponents(callPeer);
+                }
+                // The remote video has been removed, then hide the LO/SD/HD
+                // button if it is currently displayed.
+                else
+                {
+                    callPanel.removeRemoteVideoSpecificComponents();
+                }
+            }
+
             if (localVideoChanged || remoteVideoChanged)
             {
                 /*
