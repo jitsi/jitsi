@@ -11,7 +11,7 @@ prefix=$out/libs
 
 mkdir -p $out
 mkdir -p $prefix/lib
-mkdir -p $prefix/include
+#mkdir -p $prefix/include
 
 cd $out
 
@@ -32,7 +32,7 @@ mv $ldns ldns
 mv $unbound unbound
 
 export MACOSX_DEPLOYMENT_TARGET=10.5
-export CC="/usr/bin/gcc -arch i386 -arch x86_64 -arch ppc -mmacosx-version-min=10.5"
+export CC="/usr/bin/gcc -arch i386 -arch x86_64 -mmacosx-version-min=10.5"
 export CPP="/usr/bin/gcc -E"
     
 function build_arch {
@@ -58,4 +58,4 @@ function build_lib {
 
 cp -r ${prefix}_all/include $prefix/
 cd $out
-g++ -mmacosx-version-min=10.4 -arch x86_64 -arch i386 -arch ppc $out/../../src/net_java_sip_communicator_util_dns_UnboundApi.cpp -fpic -shared -o $out/libjunbound.jnilib -I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers -I${prefix}_all/include -L${prefix}_all/lib -lunbound -lldns -lcrypto
+g++ -mmacosx-version-min=10.4 -arch x86_64 -arch i386 $out/../../src/net_java_sip_communicator_impl_dns_UnboundApi.cpp -fpic -shared -o $out/libjunbound.jnilib -I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers -I${prefix}_all/include -L${prefix}_all/lib -lunbound -lldns -lcrypto

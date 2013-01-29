@@ -6,55 +6,55 @@
  */
 #include <jni.h>
 #include <unbound.h>
-#include "net_java_sip_communicator_util_dns_UnboundApi.h"
+#include "net_java_sip_communicator_impl_dns_UnboundApi.h"
 
 void ub_async_cb(void* my_arg, int err, struct ub_result* result);
 jobject createUnboundResult(JNIEnv* env, ub_result* resolveResult);
 
 /*
- * Class:     net_java_sip_communicator_util_dns_UnboundApi
+ * Class:     net_java_sip_communicator_impl_dns_UnboundApi
  * Method:    setDebugLevel
  * Signature: (JI)V
  */
-JNIEXPORT void JNICALL Java_net_java_sip_communicator_util_dns_UnboundApi_setDebugLevel
+JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_dns_UnboundApi_setDebugLevel
   (JNIEnv* env, jclass clazz, jlong context, jint level)
 {
     int result = ub_ctx_debuglevel((ub_ctx*)context, level);
     if(result != 0)
     {
-        env->ThrowNew(env->FindClass("net/java/sip/communicator/util/dns/UnboundException"), ub_strerror(result));
+        env->ThrowNew(env->FindClass("net/java/sip/communicator/impl/dns/UnboundException"), ub_strerror(result));
         return;
     }
 }
 
 /*
- * Class:     net_java_sip_communicator_util_dns_UnboundApi
+ * Class:     net_java_sip_communicator_impl_dns_UnboundApi
  * Method:    createContext
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_net_java_sip_communicator_util_dns_UnboundApi_createContext
+JNIEXPORT jlong JNICALL Java_net_java_sip_communicator_impl_dns_UnboundApi_createContext
   (JNIEnv* env, jclass clazz)
 {
 	return (jlong)ub_ctx_create();
 }
 
 /*
- * Class:     net_java_sip_communicator_util_dns_UnboundApi
+ * Class:     net_java_sip_communicator_impl_dns_UnboundApi
  * Method:    deleteContext
  * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_net_java_sip_communicator_util_dns_UnboundApi_deleteContext
+JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_dns_UnboundApi_deleteContext
   (JNIEnv* env, jclass clazz, jlong context)
 {
 	ub_ctx_delete((ub_ctx*)context);
 }
 
 /*
- * Class:     net_java_sip_communicator_util_dns_UnboundApi
+ * Class:     net_java_sip_communicator_impl_dns_UnboundApi
  * Method:    setForwarder
  * Signature: (JLjava/lang/String;)V
  */
-JNIEXPORT void JNICALL Java_net_java_sip_communicator_util_dns_UnboundApi_setForwarder
+JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_dns_UnboundApi_setForwarder
   (JNIEnv* env, jclass clazz, jlong context, jstring server)
 {
 	char* chars = (char*)env->GetStringUTFChars(server, NULL);
@@ -62,17 +62,17 @@ JNIEXPORT void JNICALL Java_net_java_sip_communicator_util_dns_UnboundApi_setFor
 	env->ReleaseStringUTFChars(server, chars);
 	if(result != 0)
 	{
-		env->ThrowNew(env->FindClass("net/java/sip/communicator/util/dns/UnboundException"), ub_strerror(result));
+		env->ThrowNew(env->FindClass("net/java/sip/communicator/impl/dns/UnboundException"), ub_strerror(result));
 		return;
 	}
 }
 
 /*
- * Class:     net_java_sip_communicator_util_dns_UnboundApi
+ * Class:     net_java_sip_communicator_impl_dns_UnboundApi
  * Method:    addTrustAnchor
  * Signature: (JLjava/lang/String;)V
  */
-JNIEXPORT void JNICALL Java_net_java_sip_communicator_util_dns_UnboundApi_addTrustAnchor
+JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_dns_UnboundApi_addTrustAnchor
   (JNIEnv* env, jclass clazz, jlong context, jstring anchor)
 {
 	char* chars = (char*)env->GetStringUTFChars(anchor, NULL);
@@ -80,17 +80,17 @@ JNIEXPORT void JNICALL Java_net_java_sip_communicator_util_dns_UnboundApi_addTru
 	env->ReleaseStringUTFChars(anchor, chars);
 	if(result != 0)
 	{
-		env->ThrowNew(env->FindClass("net/java/sip/communicator/util/dns/UnboundException"), ub_strerror(result));
+		env->ThrowNew(env->FindClass("net/java/sip/communicator/impl/dns/UnboundException"), ub_strerror(result));
 		return;
 	}
 }
 
 /*
- * Class:     net_java_sip_communicator_util_dns_UnboundApi
+ * Class:     net_java_sip_communicator_impl_dns_UnboundApi
  * Method:    resolve
- * Signature: (JLjava/lang/String;II)Lnet/java/sip/communicator/util/dns/UnboundResult;
+ * Signature: (JLjava/lang/String;II)Lnet/java/sip/communicator/impl/dns/UnboundResult;
  */
-JNIEXPORT jobject JNICALL Java_net_java_sip_communicator_util_dns_UnboundApi_resolve
+JNIEXPORT jobject JNICALL Java_net_java_sip_communicator_impl_dns_UnboundApi_resolve
   (JNIEnv* env, jclass clazz, jlong context, jstring name, jint rrtype, jint rrclass)
 {
 	char* chars = (char*)env->GetStringUTFChars(name, NULL);
@@ -99,31 +99,31 @@ JNIEXPORT jobject JNICALL Java_net_java_sip_communicator_util_dns_UnboundApi_res
 	env->ReleaseStringUTFChars(name, chars);
 	if(result != 0)
 	{
-		env->ThrowNew(env->FindClass("net/java/sip/communicator/util/dns/UnboundException"), ub_strerror(result));
+		env->ThrowNew(env->FindClass("net/java/sip/communicator/impl/dns/UnboundException"), ub_strerror(result));
 		return NULL;
 	}
 	return createUnboundResult(env, resolveResult);
 }
 
 /*
- * Class:     net_java_sip_communicator_util_dns_UnboundApi
+ * Class:     net_java_sip_communicator_impl_dns_UnboundApi
  * Method:    resolveAsync
- * Signature: (JLjava/lang/String;IILnet/java/sip/communicator/util/dns/UnboundApi/UnboundCallback;)J
+ * Signature: (JLjava/lang/String;IILnet/java/sip/communicator/impl/dns/UnboundApi/UnboundCallback;)J
  */
-JNIEXPORT jint JNICALL Java_net_java_sip_communicator_util_dns_UnboundApi_resolveAsync
+JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_dns_UnboundApi_resolveAsync
   (JNIEnv* env, jclass clazz, jlong context, jstring name, jint rrtype, jint rrclass, jobject data, jobject cb)
 {
 	JavaVM* jvm;
 	if(env->GetJavaVM(&jvm) != 0)
 	{
-		env->ThrowNew(env->FindClass("net/java/sip/communicator/util/dns/UnboundException"), "Unable to obtain Java VM pointer");
+		env->ThrowNew(env->FindClass("net/java/sip/communicator/impl/dns/UnboundException"), "Unable to obtain Java VM pointer");
 		return 0;
 	}
 
 	int result = ub_ctx_async((ub_ctx*)context, true);
 	if(result != 0)
 	{
-		env->ThrowNew(env->FindClass("net/java/sip/communicator/util/dns/UnboundException"), ub_strerror(result));
+		env->ThrowNew(env->FindClass("net/java/sip/communicator/impl/dns/UnboundException"), ub_strerror(result));
 		return 0;
 	}
 
@@ -140,51 +140,51 @@ JNIEXPORT jint JNICALL Java_net_java_sip_communicator_util_dns_UnboundApi_resolv
 	if(result != 0)
 	{
 		delete[] cbData;
-		env->ThrowNew(env->FindClass("net/java/sip/communicator/util/dns/UnboundException"), ub_strerror(result));
+		env->ThrowNew(env->FindClass("net/java/sip/communicator/impl/dns/UnboundException"), ub_strerror(result));
 		return 0;
 	}
 	return asyncId;
 }
 
 /*
- * Class:     net_java_sip_communicator_util_dns_UnboundApi
+ * Class:     net_java_sip_communicator_impl_dns_UnboundApi
  * Method:    cancelAsync
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_net_java_sip_communicator_util_dns_UnboundApi_cancelAsync
+JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_dns_UnboundApi_cancelAsync
   (JNIEnv* env, jclass clazz, jlong context, jint asyncId)
 {
 	int result = ub_cancel((ub_ctx*)context, asyncId);
 	if(result != 0)
 	{
-		env->ThrowNew(env->FindClass("net/java/sip/communicator/util/dns/UnboundException"), ub_strerror(result));
+		env->ThrowNew(env->FindClass("net/java/sip/communicator/impl/dns/UnboundException"), ub_strerror(result));
 		return;
 	}
 }
 
 /*
- * Class:     net_java_sip_communicator_util_dns_UnboundApi
+ * Class:     net_java_sip_communicator_impl_dns_UnboundApi
  * Method:    errorCodeToString
  * Signature: (I)Ljava/lang/String;
  */
-JNIEXPORT jstring JNICALL Java_net_java_sip_communicator_util_dns_UnboundApi_errorCodeToString
+JNIEXPORT jstring JNICALL Java_net_java_sip_communicator_impl_dns_UnboundApi_errorCodeToString
   (JNIEnv* env, jclass clazz, jint code)
 {
 	return env->NewStringUTF(ub_strerror(code));
 }
 
 /*
- * Class:     net_java_sip_communicator_util_dns_UnboundApi
+ * Class:     net_java_sip_communicator_impl_dns_UnboundApi
  * Method:    processAsync
  * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_net_java_sip_communicator_util_dns_UnboundApi_processAsync
+JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_dns_UnboundApi_processAsync
   (JNIEnv* env, jclass clazz, jlong context)
 {
 	int result = ub_wait((ub_ctx*)context);
 	if(result != 0)
 	{
-		env->ThrowNew(env->FindClass("net/java/sip/communicator/util/dns/UnboundException"), ub_strerror(result));
+		env->ThrowNew(env->FindClass("net/java/sip/communicator/impl/dns/UnboundException"), ub_strerror(result));
 		return;
 	}
 }
@@ -211,9 +211,9 @@ void ub_async_cb(void* my_arg, int err, struct ub_result* result)
 		}
 		env->CallVoidMethod(
 			cb, env->GetMethodID(
-				env->FindClass("net/java/sip/communicator/util/dns/UnboundApi$UnboundCallback"),
+				env->FindClass("net/java/sip/communicator/impl/dns/UnboundApi$UnboundCallback"),
 				"UnboundResolveCallback",
-				"(Ljava/lang/Object;ILnet/java/sip/communicator/util/dns/UnboundResult;)V"
+				"(Ljava/lang/Object;ILnet/java/sip/communicator/impl/dns/UnboundResult;)V"
 			), data, (jint)err, ubResult
 		);
 
@@ -229,7 +229,7 @@ void ub_async_cb(void* my_arg, int err, struct ub_result* result)
 
 jobject createUnboundResult(JNIEnv* env, ub_result* resolveResult)
 {
-	jclass ubResultClass = env->FindClass("net/java/sip/communicator/util/dns/UnboundResult");
+	jclass ubResultClass = env->FindClass("net/java/sip/communicator/impl/dns/UnboundResult");
 	jmethodID constructor = env->GetMethodID(ubResultClass, "<init>", "()V");
 	jobject ubResult = env->NewObject(ubResultClass, constructor);
 
