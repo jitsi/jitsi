@@ -8,6 +8,8 @@ package net.java.sip.communicator.impl.dns;
 
 import net.java.sip.communicator.impl.dns.dnsconfig.*;
 import net.java.sip.communicator.service.dns.*;
+import net.java.sip.communicator.service.netaddr.*;
+import net.java.sip.communicator.service.netaddr.event.*;
 import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
@@ -24,8 +26,13 @@ import org.xbill.DNS.*;
  * @author Ingo Bauersachs
  */
 public class DnsUtilActivator
-    implements BundleActivator
+    implements BundleActivator,
+               ServiceListener
 {
+    /** Class logger */
+    private static final Logger logger
+        = Logger.getLogger(DnsUtilActivator.class);
+
     /**
      * The name of the property that sets custom nameservers to use for all DNS
      * lookups when DNSSEC is enabled. Multiple servers are separated by a comma
@@ -34,19 +41,52 @@ public class DnsUtilActivator
     public static final String PNAME_DNSSEC_NAMESERVERS
         = "net.java.sip.communicator.util.dns.DNSSEC_NAMESERVERS";
 
-    /**
-     * The <tt>Logger</tt> used by the <tt>UtilActivator</tt> class and its
-     * instances for logging output.
-     */
-    private static final Logger logger
-        = Logger.getLogger(DnsUtilActivator.class);
-
     private static ConfigurationService configurationService;
     private static NotificationService notificationService;
     private static ResourceManagementService resourceService;
     private static BundleContext bundleContext;
-
     private static DnsConfigActivator dnsConfigActivator;
+
+    /**
+     * The address of the backup resolver we would use by default.
+     */
+    public static final String DEFAULT_BACKUP_RESOLVER
+        = "backup-resolver.jitsi.net";
+
+    /**
+     * The name of the property that users may use to override the port
+     * of our backup DNS resolver.
+     */
+    public static final String PNAME_BACKUP_RESOLVER_PORT
+        = "net.java.sip.communicator.util.dns.BACKUP_RESOLVER_PORT";
+
+    /**
+     * The name of the property that users may use to override the
+     * IP address of our backup DNS resolver. This is only used when the
+     * backup resolver name cannot be determined.
+     */
+    public static final String PNAME_BACKUP_RESOLVER_FALLBACK_IP
+        = "net.java.sip.communicator.util.dns.BACKUP_RESOLVER_FALLBACK_IP";
+
+    /**
+     * The default of the property that users may use to disable
+     * our backup DNS resolver.
+     */
+    public static final boolean PDEFAULT_BACKUP_RESOLVER_ENABLED = true;
+
+    /**
+     * The name of the property that users may use to disable
+     * our backup DNS resolver.
+     */
+    public static final String PNAME_BACKUP_RESOLVER_ENABLED
+        = "net.java.sip.communicator.util.dns.BACKUP_RESOLVER_ENABLED";
+
+    /**
+     * The name of the property that users may use to override the
+     * address of our backup DNS resolver.
+     */
+    public static final String PNAME_BACKUP_RESOLVER
+        = "net.java.sip.communicator.util.dns.BACKUP_RESOLVER";
 
     /**
      * Calls <tt>Thread.setUncaughtExceptionHandler()</tt>
@@ -62,56 +102,82 @@ public class DnsUtilActivator
         throws Exception
     {
         bundleContext = context;
+        context.addServiceListener(this);
 
-        bundleContext.registerService(
-            ParallelResolver.class.getName(),
-            new ParallelResolverImpl(),
-            null);
+        if(UtilActivator.getConfigurationService().getBoolean(
+                DnsUtilActivator.PNAME_BACKUP_RESOLVER_ENABLED,
+                DnsUtilActivator.PDEFAULT_BACKUP_RESOLVER_ENABLED)
+            && !getConfigurationService().getBoolean(
+                CustomResolver.PNAME_DNSSEC_RESOLVER_ENABLED,
+                CustomResolver.PDEFAULT_DNSSEC_RESOLVER_ENABLED))
+        {
+            bundleContext.registerService(
+                CustomResolver.class.getName(),
+                new ParallelResolverImpl(),
+                null);
+        }
 
         if(getConfigurationService().getBoolean(
-            ParallelResolverImpl.PNAME_DNSSEC_RESOLVER_ENABLED,
-            ParallelResolverImpl.PDEFAULT_DNSSEC_RESOLVER_ENABLED))
+            CustomResolver.PNAME_DNSSEC_RESOLVER_ENABLED,
+            CustomResolver.PDEFAULT_DNSSEC_RESOLVER_ENABLED))
         {
-            getNotificationService().
-                registerDefaultNotificationForEvent(
-                    ConfigurableDnssecResolver.EVENT_TYPE,
-                    NotificationAction.ACTION_POPUP_MESSAGE,
-                    null, null);
+            bundleContext.registerService(
+                CustomResolver.class.getName(),
+                new ConfigurableDnssecResolver(),
+                null);
         }
-        refreshResolver();
 
         dnsConfigActivator = new DnsConfigActivator();
         dnsConfigActivator.start(context);
     }
 
     /**
-     * Sets a DNSSEC resolver as default resolver on lookup when DNSSEC is
-     * enabled; creates a standard lookup otherwise.
+     * Listens when network is going from down to up and
+     * resets dns configuration.
      */
-    public static void refreshResolver()
+    private static class NetworkListener
+        implements NetworkConfigurationChangeListener
     {
-        if(getConfigurationService().getBoolean(
-            ParallelResolverImpl.PNAME_DNSSEC_RESOLVER_ENABLED,
-            ParallelResolverImpl.PDEFAULT_DNSSEC_RESOLVER_ENABLED))
+        /**
+         * Fired when a change has occurred in the
+         * computer network configuration.
+         *
+         * @param event the change event.
+         */
+        public void configurationChanged(ChangeEvent event)
         {
-            logger.trace("DNSSEC is enabled");
-            ConfigurableDnssecResolver res = new ConfigurableDnssecResolver();
-            for(int i = 1;;i++)
+            if((event.getType() == ChangeEvent.IFACE_UP
+                || event.getType() == ChangeEvent.DNS_CHANGE)
+                && !event.isInitial())
             {
-                String anchor = getResources().getSettingsString(
-                    "net.java.sip.communicator.util.dns.DS_ROOT." + i);
-                if(anchor == null)
-                    break;
-                res.addTrustAnchor(anchor);
-                if(logger.isTraceEnabled())
-                    logger.trace("Loaded trust anchor " + anchor);
+                reloadDnsResolverConfig();
             }
-            Lookup.setDefaultResolver(res);
         }
-        else
+    }
+
+    /**
+     * Reloads dns server configuration in the resolver.
+     */
+    public static void reloadDnsResolverConfig()
+    {
+        // reread system dns configuration
+        ResolverConfig.refresh();
+        if(logger.isTraceEnabled())
         {
-            logger.trace("DNSSEC is disabled, refresh default config");
-            Lookup.refreshDefault();
+            StringBuilder sb = new StringBuilder();
+            sb.append("Reloaded resolver config, default DNS servers are: ");
+            for(String s : ResolverConfig.getCurrentConfig().servers())
+            {
+                sb.append(s);
+                sb.append(", ");
+            }
+            logger.trace(sb.toString());
+        }
+
+        // now reset an eventually present custom resolver
+        if(Lookup.getDefaultResolver() instanceof CustomResolver)
+        {
+            ((CustomResolver)Lookup.getDefaultResolver()).reset();
         }
     }
 
@@ -179,5 +245,26 @@ public class DnsUtilActivator
                 = ResourceManagementServiceUtils.getService(bundleContext);
         }
         return resourceService;
+    }
+
+    /**
+     * Listens on OSGi service changes and registers a listener for network
+     * changes as soon as the change-notification service is available
+     */
+    public void serviceChanged(ServiceEvent event)
+    {
+        if (event.getType() != ServiceEvent.REGISTERED)
+        {
+            return;
+        }
+
+        Object service = bundleContext.getService(event.getServiceReference());
+        if (!(service instanceof NetworkAddressManagerService))
+        {
+            return;
+        }
+
+        ((NetworkAddressManagerService)service)
+            .addNetworkConfigurationChangeListener(new NetworkListener());
     }
 }

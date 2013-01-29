@@ -203,8 +203,8 @@ public class DnssecPanel
             )
         );
         chkEnabled.setSelected(config.getBoolean(
-            ParallelResolver.PNAME_DNSSEC_RESOLVER_ENABLED,
-            ParallelResolver.PDEFAULT_DNSSEC_RESOLVER_ENABLED
+            CustomResolver.PNAME_DNSSEC_RESOLVER_ENABLED,
+            CustomResolver.PDEFAULT_DNSSEC_RESOLVER_ENABLED
         ));
         chkAbsolute.setSelected(config.getBoolean(
             NetworkUtils.PNAME_DNS_ALWAYS_ABSOLUTE,
@@ -262,7 +262,7 @@ public class DnssecPanel
                         chkEnabled.setSelected(true);
                 }
                 config.setProperty(
-                    ParallelResolver.PNAME_DNSSEC_RESOLVER_ENABLED,
+                    CustomResolver.PNAME_DNSSEC_RESOLVER_ENABLED,
                     chkEnabled.isSelected());
             }
             catch (Exception ex)
@@ -341,7 +341,7 @@ public class DnssecPanel
             config.setProperty(
                 DnsUtilActivator.PNAME_DNSSEC_NAMESERVERS,
                 txtNameservers.getText());
-            NetworkUtils.reloadDnsResolverConfig();
+            DnsUtilActivator.reloadDnsResolverConfig();
         }
     }
 

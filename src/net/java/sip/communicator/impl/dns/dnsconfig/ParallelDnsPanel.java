@@ -6,19 +6,9 @@
  */
 package net.java.sip.communicator.impl.dns.dnsconfig;
 
-import static net.java.sip.communicator.util.NetworkUtils.DEFAULT_BACKUP_RESOLVER;
-import static net.java.sip.communicator.util.NetworkUtils.PDEFAULT_BACKUP_RESOLVER_ENABLED;
-import static net.java.sip.communicator.util.NetworkUtils.PNAME_BACKUP_RESOLVER;
-import static net.java.sip.communicator.util.NetworkUtils.PNAME_BACKUP_RESOLVER_ENABLED;
-import static net.java.sip.communicator.util.NetworkUtils.PNAME_BACKUP_RESOLVER_FALLBACK_IP;
-import static net.java.sip.communicator.util.NetworkUtils.PNAME_BACKUP_RESOLVER_PORT;
-import static net.java.sip.communicator.util.NetworkUtils.getDefaultDnsPort;
-import static net.java.sip.communicator.util.NetworkUtils.isIPv4Address;
-import static net.java.sip.communicator.util.NetworkUtils.isIPv6Address;
-import static net.java.sip.communicator.service.dns.ParallelResolver.DNS_PATIENCE;
-import static net.java.sip.communicator.service.dns.ParallelResolver.DNS_REDEMPTION;
-import static net.java.sip.communicator.service.dns.ParallelResolver.PNAME_DNS_PATIENCE;
-import static net.java.sip.communicator.service.dns.ParallelResolver.PNAME_DNS_REDEMPTION;
+import static net.java.sip.communicator.util.NetworkUtils.*;
+import static net.java.sip.communicator.service.dns.CustomResolver.*;
+import static net.java.sip.communicator.impl.dns.DnsUtilActivator.*;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -29,6 +19,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.text.*;
 
+import net.java.sip.communicator.impl.dns.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.dns.*;
 import net.java.sip.communicator.util.*;
@@ -36,6 +27,7 @@ import net.java.sip.communicator.util.*;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
+import org.xbill.DNS.*;
 
 /**
  * Page inside the advanced configuration options that allow the user to
@@ -208,8 +200,8 @@ public class ParallelDnsPanel
     public void updateDnssecState()
     {
         boolean isDnssec = configService.getBoolean(
-            ParallelResolver.PNAME_DNSSEC_RESOLVER_ENABLED,
-            ParallelResolver.PDEFAULT_DNSSEC_RESOLVER_ENABLED);
+            CustomResolver.PNAME_DNSSEC_RESOLVER_ENABLED,
+            CustomResolver.PDEFAULT_DNSSEC_RESOLVER_ENABLED);
         if(isDnssec)
             chkBackupDnsEnabled.setSelected(false);
         chkBackupDnsEnabled.setEnabled(!isDnssec);
@@ -376,7 +368,7 @@ public class ParallelDnsPanel
             PNAME_BACKUP_RESOLVER_FALLBACK_IP,
             R.getSettingsString(PNAME_BACKUP_RESOLVER_FALLBACK_IP)));
         spnBackupResolverPort.setValue(configService.getInt(
-            PNAME_BACKUP_RESOLVER_PORT, getDefaultDnsPort()));
+            PNAME_BACKUP_RESOLVER_PORT, SimpleResolver.DEFAULT_PORT));
         spnDnsTimeout.setValue(configService.getInt(
             PNAME_DNS_PATIENCE, DNS_PATIENCE));
         spnDnsRedemption.setValue(configService.getInt(

@@ -9,9 +9,7 @@ package net.java.sip.communicator.util;
 //import java.awt.image.*;
 import java.util.*;
 
-import net.java.sip.communicator.service.dns.*;
 import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
 
@@ -50,19 +48,11 @@ public class UtilActivator
 
     private static MediaService mediaService;
 
-    private static ParallelResolver parallelResolver;
-
     public static BundleContext bundleContext;
 
     private static AccountManager accountManager;
 
     private static AlertUIService alertUIService;
-
-    /**
-     * Network address manager service will inform us for changes in
-     * network configuration.
-     */
-    private static NetworkAddressManagerService networkAddressManagerService;
 
     /**
      * Calls <tt>Thread.setUncaughtExceptionHandler()</tt>
@@ -149,22 +139,6 @@ public class UtilActivator
                 = ResourceManagementServiceUtils.getService(bundleContext);
         }
         return resourceService;
-    }
-
-    /**
-     * Returns the service giving access to current network configuration.
-     *
-     * @return the service giving access to current network configuration.
-     */
-    public static NetworkAddressManagerService getNetworkAddressManagerService()
-    {
-        if (networkAddressManagerService == null)
-        {
-            networkAddressManagerService =
-                ServiceUtils.getService(bundleContext,
-                        NetworkAddressManagerService.class);
-        }
-        return networkAddressManagerService;
     }
 
     /**
@@ -271,21 +245,6 @@ public class UtilActivator
     }
 
     /**
-     * 
-     * @return
-     */
-    public static ParallelResolver getParallelResolver()
-    {
-        if (parallelResolver == null)
-        {
-            parallelResolver
-                = ServiceUtils.getService(  bundleContext,
-                                            ParallelResolver.class);
-        }
-        return parallelResolver;
-    }
-
-    /**
      * Returns the <tt>AccountManager</tt> obtained from the bundle context.
      * @return the <tt>AccountManager</tt> obtained from the bundle context
      */
@@ -298,7 +257,6 @@ public class UtilActivator
         }
         return accountManager;
     }
-
 
     /**
      * Returns the <tt>MetaContactListService</tt> obtained from the bundle

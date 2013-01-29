@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.dns;
 
+import java.beans.*;
 import java.io.*;
 import java.net.*;
 import java.util.*;
@@ -35,7 +36,7 @@ import org.xbill.DNS.*;
  * @author Emil Ivov
  */
 public class ParallelResolverImpl
-    implements  ParallelResolver
+    implements CustomResolver, PropertyChangeListener
 {
     /**
      * The <tt>Logger</tt> used by the <tt>ParallelResolver</tt>
@@ -51,37 +52,10 @@ public class ParallelResolverImpl
     private static boolean redundantMode = false;
 
     /**
-     * The default number of milliseconds it takes us to get into redundant
-     * mode while waiting for a DNS query response.
-     */
-    public static final int DNS_PATIENCE = 1500;
-
-    /**
-     * The name of the property that allows us to override the default
-     * <tt>DNS_PATIENCE</tt> value.
-     */
-    public static final String PNAME_DNS_PATIENCE
-        = "net.java.sip.communicator.util.dns.DNS_PATIENCE";
-
-    /**
      * The currently configured number of milliseconds that we need to wait
      * before entering redundant mode.
      */
     private static long currentDnsPatience = DNS_PATIENCE;
-
-    /**
-     * The default number of times that the primary DNS would have to provide a
-     * faster response than the backup resolver before we consider it safe
-     * enough to exit redundant mode.
-     */
-    public static final int DNS_REDEMPTION = 3;
-
-    /**
-     * The name of the property that allows us to override the default
-     * <tt>DNS_REDEMPTION</tt> value.
-     */
-    public static final String PNAME_DNS_REDEMPTION
-        = "net.java.sip.communicator.util.dns.DNS_REDEMPTION";
 
     /**
      * The currently configured number of times that the primary DNS would have
@@ -106,9 +80,17 @@ public class ParallelResolverImpl
     /**
      * The default resolver that we use if everything works properly.
      */
-    private static Resolver defaultResolver;
+    private Resolver defaultResolver;
 
-    static
+    /**
+     * An extended resolver that would be encapsulating all backup resolvers.
+     */
+    private ExtendedResolver backupResolver;
+
+    /**
+     * Creates a new instance of this class.
+     */
+    ParallelResolverImpl()
     {
         try
         {
@@ -120,57 +102,67 @@ public class ParallelResolverImpl
             throw new RuntimeException("Failed to initialize resolver");
         }
 
+        DnsUtilActivator.getConfigurationService()
+            .addPropertyChangeListener(this);
         initProperties();
+        Lookup.setDefaultResolver(this);
     }
 
-    /**
-     * Default resolver property initialisation
-     */
-    private static void initProperties()
+    private void initProperties()
     {
+        String rslvrAddrStr
+            = UtilActivator.getConfigurationService().getString(
+                DnsUtilActivator.PNAME_BACKUP_RESOLVER,
+                DnsUtilActivator.DEFAULT_BACKUP_RESOLVER);
+        String customResolverIP
+            = UtilActivator.getConfigurationService().getString(
+                DnsUtilActivator.PNAME_BACKUP_RESOLVER_FALLBACK_IP,
+                UtilActivator.getResources().getSettingsString(
+                    DnsUtilActivator.PNAME_BACKUP_RESOLVER_FALLBACK_IP));
+
+        InetAddress resolverAddress = null;
         try
         {
-            currentDnsPatience = DnsUtilActivator.getConfigurationService()
-                .getLong(PNAME_DNS_PATIENCE, DNS_PATIENCE);
-            currentDnsRedemption
-                = DnsUtilActivator.getConfigurationService()
-                    .getInt(PNAME_DNS_REDEMPTION, DNS_REDEMPTION);
+            resolverAddress = NetworkUtils.getInetAddress(rslvrAddrStr);
         }
-        catch(Throwable t)
+        catch(UnknownHostException exc)
         {
-            //we don't want messed up properties to screw up DNS resolution
-            //so we just log.
-            logger.info("Failed to initialize DNS resolver properties", t);
+            logger.warn("Oh! Seems like our primary DNS is down!"
+                        + "Don't panic! We'll try to fall back to "
+                        + customResolverIP);
         }
 
-    }
+        if(resolverAddress == null)
+        {
+            // name resolution failed for backup DNS resolver,
+            // try with the IP address of the default backup resolver
+            try
+            {
+                resolverAddress = NetworkUtils.getInetAddress(customResolverIP);
+            }
+            catch (UnknownHostException e)
+            {
+                // this shouldn't happen, but log anyway
+                logger.error(e);
+            }
+        }
 
-    /**
-     * Replaces the default resolver used by this class. Mostly meant for
-     * debugging.
-     *
-     * @param resolver the resolver we'd like to use by default from now on.
-     */
-    public void setDefaultResolver(Resolver resolver)
-    {
-        defaultResolver = resolver;
-    }
+        int resolverPort = UtilActivator.getConfigurationService().getInt(
+            DnsUtilActivator.PNAME_BACKUP_RESOLVER_PORT,
+            SimpleResolver.DEFAULT_PORT);
 
-    /**
-     * Returns the default resolver used by this class. Mostly meant for
-     * debugging.
-     *
-     * @return  the resolver this class consults first.
-     */
-    public Resolver getDefaultResolver()
-    {
-        return defaultResolver;
-    }
+        InetSocketAddress resolverSockAddr
+            = new InetSocketAddress(resolverAddress, resolverPort);
 
-    /**
-     * An extended resolver that would be encapsulating all backup resolvers.
-     */
-    private ExtendedResolver backupResolver;
+        setBackupServers(new InetSocketAddress[]{ resolverSockAddr });
+
+        currentDnsPatience = DnsUtilActivator.getConfigurationService()
+            .getLong(PNAME_DNS_PATIENCE, DNS_PATIENCE);
+
+        currentDnsRedemption
+            = DnsUtilActivator.getConfigurationService()
+                .getInt(PNAME_DNS_REDEMPTION, DNS_REDEMPTION);
+    }
 
     /**
      * Sets the specified array of <tt>backupServers</tt> used if the default
@@ -179,7 +171,7 @@ public class ParallelResolverImpl
      * @param backupServers the list of backup DNS servers that we should use
      * if, and only if, the default servers don't seem to work that well.
      */
-    public void setBackupServers(InetSocketAddress[] backupServers)
+    private void setBackupServers(InetSocketAddress[] backupServers)
     {
         try
         {
@@ -188,7 +180,6 @@ public class ParallelResolverImpl
             {
                 SimpleResolver sr = new SimpleResolver();
                 sr.setAddress(backupServer);
-
                 backupResolver.addResolver(sr);
             }
         }
@@ -393,6 +384,7 @@ public class ParallelResolverImpl
      */
     public void reset()
     {
+        Lookup.refreshDefault();
         ExtendedResolver resolver = (ExtendedResolver)defaultResolver;
 
         // remove old ones
@@ -415,7 +407,9 @@ public class ParallelResolverImpl
                 }
             }
             else
+            {
                 resolver.addResolver(new SimpleResolver());
+            }
         }
         catch (UnknownHostException e)
         {
@@ -692,12 +686,23 @@ public class ParallelResolverImpl
         }
     }
 
-    /**
-     * Sets a DNSSEC resolver as default resolver on lookup when DNSSEC is
-     * enabled; creates a standard lookup otherwise.
-     */
-    public void refreshResolver()
+    @SuppressWarnings("serial")
+    private final Set<String> configNames = new HashSet<String>(5)
+    {{
+        add(DnsUtilActivator.PNAME_BACKUP_RESOLVER);
+        add(DnsUtilActivator.PNAME_BACKUP_RESOLVER_FALLBACK_IP);
+        add(DnsUtilActivator.PNAME_BACKUP_RESOLVER_PORT);
+        add(CustomResolver.PNAME_DNS_PATIENCE);
+        add(CustomResolver.PNAME_DNS_REDEMPTION);
+    }};
+
+    public void propertyChange(PropertyChangeEvent evt)
     {
-        DnsUtilActivator.refreshResolver();
+        if (!configNames.contains(evt.getPropertyName()))
+        {
+            return;
+        }
+
+        initProperties();
     }
 }

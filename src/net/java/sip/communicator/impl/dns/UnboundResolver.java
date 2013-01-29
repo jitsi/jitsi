@@ -23,7 +23,7 @@ import org.xbill.DNS.*;
  * @author Ingo Bauersachs
  */
 public class UnboundResolver
-    implements Resolver
+    implements CustomResolver
 {
     private final static Logger logger =
         Logger.getLogger(UnboundResolver.class);
@@ -94,6 +94,14 @@ public class UnboundResolver
     }
 
     /**
+     * Clears any existing trust anchors previously added.
+     */
+    public void clearTrustAnchors()
+    {
+        trustAnchors.clear();
+    }
+
+    /**
      * Adds a DNSSEC trust anchor validation of the DNSKEYs.
      * 
      * @param anchor trust anchor in the form of
@@ -136,7 +144,7 @@ public class UnboundResolver
                     if(logger.isDebugEnabled() && secureMessage != null)
                         logger.debug(secureMessage);
                 }
-    
+
                 return secureMessage;
             }
         });
@@ -380,5 +388,12 @@ public class UnboundResolver
     public void setTimeout(int secs, int msecs)
     {
         timeout = secs * 1000 + msecs;
+    }
+
+    /** 
+     * Does nothing.
+     */
+    public void reset()
+    {
     }
 }

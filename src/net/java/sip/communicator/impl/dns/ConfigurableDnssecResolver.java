@@ -63,17 +63,9 @@ public class ConfigurableDnssecResolver
     public ConfigurableDnssecResolver()
     {
         super();
-        String forwarders = DnsUtilActivator.getConfigurationService()
-            .getString(DnsUtilActivator.PNAME_DNSSEC_NAMESERVERS);
-        if(!StringUtils.isNullOrEmpty(forwarders, true))
-        {
-            if(logger.isTraceEnabled())
-            {
-                logger.trace("Setting DNSSEC forwarders to: "
-                    + Arrays.toString(forwarders.split(",")));
-            }
-            super.setForwarders(forwarders.split(","));
-        }
+        reset();
+        Lookup.setDefaultResolver(this);
+
         DnsUtilActivator.getNotificationService().
             registerDefaultNotificationForEvent(
                 ConfigurableDnssecResolver.EVENT_TYPE,
@@ -290,7 +282,9 @@ public class ConfigurableDnssecResolver
             for(DnssecDialogResult r : DnssecDialogResult.values())
             {
                 JButton cmd = new JButton(R.getI18NString(
-                    DnssecDialogResult.class.getName() + "." + r.name()));
+                    "net.java.sip.communicator.util.dns."
+                    + "ConfigurableDnssecResolver$DnssecDialogResult."
+                    + r.name()));
                 cmd.setActionCommand(r.name());
                 cmd.addActionListener(this);
                 pnlAdvancedButtons.add(cmd);
@@ -353,5 +347,35 @@ public class ConfigurableDnssecResolver
     private String createPropNameUnsigned(String fqdn, String type)
     {
         return PNAME_BASE_DNSSEC_PIN + "." + fqdn.replace(".", "__");
+    }
+
+    /**
+     * Reloads the configuration of forwarders and trust anchors.
+     */
+    public void reset()
+    {
+        String forwarders = DnsUtilActivator.getConfigurationService()
+            .getString(DnsUtilActivator.PNAME_DNSSEC_NAMESERVERS);
+        if(!StringUtils.isNullOrEmpty(forwarders, true))
+        {
+            if(logger.isTraceEnabled())
+            {
+                logger.trace("Setting DNSSEC forwarders to: "
+                    + Arrays.toString(forwarders.split(",")));
+            }
+            super.setForwarders(forwarders.split(","));
+        }
+
+        for(int i = 1;;i++)
+        {
+            String anchor = DnsUtilActivator.getResources().getSettingsString(
+                "net.java.sip.communicator.util.dns.DS_ROOT." + i);
+            if(anchor == null)
+                break;
+            clearTrustAnchors();
+            addTrustAnchor(anchor);
+            if(logger.isTraceEnabled())
+                logger.trace("Loaded trust anchor " + anchor);
+        }
     }
 }
