@@ -12,5 +12,6 @@ Import-Package: org.osgi.framework,
  net.java.sip.communicator.service.contactlist,
  net.java.sip.communicator.service.protocol
 Export-Package: net.java.sip.communicator.service.gui,
+ net.java.sip.communicator.service.gui.call,
  net.java.sip.communicator.service.gui.event,
  net.java.sip.communicator.service.shutdown

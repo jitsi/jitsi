@@ -215,7 +215,7 @@ public class ConferenceFocusPanel
      *
      * @return the parent call renderer
      */
-    public CallRenderer getCallRenderer()
+    public SwingCallRenderer getCallRenderer()
     {
         return callRenderer;
     }

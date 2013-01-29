@@ -4,10 +4,11 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.main.call;
+package net.java.sip.communicator.util.call;
 
 import java.beans.*;
 
+import net.java.sip.communicator.service.gui.call.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 
@@ -109,13 +110,13 @@ public class CallPeerAdapter
         {
             if (!CallPeerState.isOnHold(oldState))
             {
-                if (!renderer.getCallPanel().isCallTimerStarted())
-                    renderer.getCallPanel().startCallTimer();
+                if (!renderer.getCallRenderer().isCallTimerStarted())
+                    renderer.getCallRenderer().startCallTimer();
             }
             else
             {
                 renderer.setOnHold(false);
-                renderer.getCallPanel().updateHoldButtonState();
+                renderer.getCallRenderer().updateHoldButtonState();
             }
         }
         else if (newState == CallPeerState.DISCONNECTED)
@@ -131,7 +132,7 @@ public class CallPeerAdapter
         else if (CallPeerState.isOnHold(newState))
         {
             renderer.setOnHold(true);
-            renderer.getCallPanel().updateHoldButtonState();
+            renderer.getCallRenderer().updateHoldButtonState();
         }
 
         renderer.setPeerState(oldState, newState, newStateString);

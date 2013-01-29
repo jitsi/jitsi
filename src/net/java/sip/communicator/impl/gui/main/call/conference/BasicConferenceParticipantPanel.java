@@ -59,7 +59,7 @@ public abstract class BasicConferenceParticipantPanel<T>
      * instance and which uses it to depict the associated
      * conference participant.
      */
-    private final CallRenderer callRenderer;
+    private final SwingCallRenderer callRenderer;
 
     /**
      * The status of the peer
@@ -166,7 +166,7 @@ public abstract class BasicConferenceParticipantPanel<T>
      * @param isVideo indicates if we're in a video interface
      */
     public BasicConferenceParticipantPanel(
-            CallRenderer callRenderer,
+            SwingCallRenderer callRenderer,
             T participant,
             boolean isVideo)
     {
@@ -236,7 +236,7 @@ public abstract class BasicConferenceParticipantPanel<T>
      * initialized this instance and which uses it to depict the associated
      * conference participant
      */
-    public CallRenderer getCallRenderer()
+    public SwingCallRenderer getCallRenderer()
     {
         return callRenderer;
     }

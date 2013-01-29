@@ -31,7 +31,7 @@ import com.explodingpixels.macwidgets.*;
  */
 public class OneToOneCallPanel
     extends TransparentPanel
-    implements CallRenderer,
+    implements SwingCallRenderer,
                PropertyChangeListener
 {
     /**
@@ -322,7 +322,7 @@ public class OneToOneCallPanel
      * @return the <tt>CallPeerRenderer</tt> corresponding to the given
      * <tt>callPeer</tt>
      */
-    public CallPeerRenderer getCallPeerRenderer(CallPeer callPeer)
+    public SwingCallPeerRenderer getCallPeerRenderer(CallPeer callPeer)
     {
         return this.callPeer.equals(callPeer) ? peerPanel : null;
     }
@@ -423,5 +423,43 @@ public class OneToOneCallPanel
     public void setPeerName(String name)
     {
         nameLabel.setText(getPeerDisplayText(callPeer, name));
+    }
+
+    /**
+     * Starts the timer that counts call duration.
+     */
+    public void startCallTimer()
+    {
+        callContainer.startCallTimer();
+    }
+
+    /**
+     * Stops the timer that counts call duration.
+     */
+    public void stopCallTimer()
+    {
+        callContainer.stopCallTimer();
+    }
+
+    /**
+     * Returns <code>true</code> if the call timer has been started, otherwise
+     * returns <code>false</code>.
+     *
+     * @return <code>true</code> if the call timer has been started, otherwise
+     * returns <code>false</code>
+     */
+    public boolean isCallTimerStarted()
+    {
+        return callContainer.isCallTimerStarted();
+    }
+
+    /**
+     * Updates the state of the general hold button. The hold button is selected
+     * only if all call peers are locally or mutually on hold at the same time.
+     * In all other cases the hold button is unselected.
+     */
+    public void updateHoldButtonState()
+    {
+        callContainer.updateHoldButtonState();
     }
 }

@@ -121,7 +121,7 @@ public class ZrtpSecurityPanel
     /**
      * The renderer of the corresponding call peer.
      */
-    private final CallPeerRenderer peerRenderer;
+    private final SwingCallPeerRenderer peerRenderer;
 
     /**
      * The security status of the peer
@@ -152,7 +152,7 @@ public class ZrtpSecurityPanel
      * @param zrtpControl the ZRTP security controller that provides information
      *            for this panel and receives the user input
      */
-    public ZrtpSecurityPanel(   CallPeerRenderer peerRenderer,
+    public ZrtpSecurityPanel(   SwingCallPeerRenderer peerRenderer,
                                 CallPeer callPeer,
                                 ZrtpControl zrtpControl)
     {

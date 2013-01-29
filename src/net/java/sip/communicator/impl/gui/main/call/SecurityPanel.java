@@ -65,7 +65,7 @@ public abstract class SecurityPanel<T extends SrtpControl>
      *         unknown or does not have any controls to show.
      */
     public static SecurityPanel<?> create(
-            CallPeerRenderer peerRenderer,
+            SwingCallPeerRenderer peerRenderer,
             CallPeer callPeer,
             SrtpControl srtpControl)
     {

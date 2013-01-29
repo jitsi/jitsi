@@ -1022,7 +1022,7 @@ public class VideoConferenceCallPanel
             return getCallRenderer().getCallContainer();
         }
 
-        public CallRenderer getCallRenderer()
+        public SwingCallRenderer getCallRenderer()
         {
             return VideoConferenceCallPanel.this;
         }

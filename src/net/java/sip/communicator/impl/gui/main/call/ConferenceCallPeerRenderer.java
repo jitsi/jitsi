@@ -13,6 +13,6 @@ package net.java.sip.communicator.impl.gui.main.call;
  * @author Lyubomir Marinov
  */
 public interface ConferenceCallPeerRenderer
-    extends CallPeerRenderer
+    extends SwingCallPeerRenderer
 {
 }

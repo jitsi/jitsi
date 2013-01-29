@@ -4,9 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.main.call;
-
-import java.awt.*;
+package net.java.sip.communicator.service.gui.call;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -29,27 +27,11 @@ public interface CallPeerRenderer
     public void dispose();
 
     /**
-     * Returns the parent <tt>CallPanel</tt> containing this renderer.
-     *
-     * @return the parent <tt>CallPanel</tt> containing this renderer
-     */
-    public CallPanel getCallPanel();
-
-    /**
      * Returns the parent call renderer.
      *
      * @return the parent call renderer
      */
     public CallRenderer getCallRenderer();
-
-    /**
-     * Returns the AWT <tt>Component</tt> which is the user interface equivalent
-     * of this <tt>CallPeerRenderer</tt>.
-     *
-     * @return the AWT <tt>Component</tt> which is the user interface equivalent
-     * of this <tt>CallPeerRenderer</tt>
-     */
-    public Component getComponent();
 
     /**
      * Indicates if the local video component is currently visible.

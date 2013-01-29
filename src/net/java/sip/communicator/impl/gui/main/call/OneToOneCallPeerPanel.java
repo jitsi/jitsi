@@ -17,6 +17,7 @@ import javax.swing.text.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.gui.call.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.media.*;
@@ -25,6 +26,7 @@ import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.plugin.desktoputil.TransparentPanel;
+import net.java.sip.communicator.util.call.CallPeerAdapter;
 
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.protocol.event.*;
@@ -42,7 +44,7 @@ import org.jitsi.util.swing.*;
  */
 public class OneToOneCallPeerPanel
     extends TransparentPanel
-    implements CallPeerRenderer,
+    implements SwingCallPeerRenderer,
                PropertyChangeListener,
                Skinnable
 {
@@ -72,7 +74,7 @@ public class OneToOneCallPeerPanel
     /**
      * The renderer of the call.
      */
-    private final CallRenderer callRenderer;
+    private final SwingCallRenderer callRenderer;
 
     /**
      * The component showing the status of the underlying call peer.
@@ -254,7 +256,7 @@ public class OneToOneCallPeerPanel
      * the dealing with the video-related information
      */
     public OneToOneCallPeerPanel(
-            CallRenderer callRenderer,
+            SwingCallRenderer callRenderer,
             CallPeer callPeer,
             UIVideoHandler2 uiVideoHandler)
     {

@@ -44,7 +44,7 @@ public class ConferenceMemberPanel
      * @param isVideo indicates if the video conference interface is enabled.
      */
     public ConferenceMemberPanel(
-            CallRenderer callRenderer,
+            SwingCallRenderer callRenderer,
             ConferenceMember member,
             boolean isVideo)
     {

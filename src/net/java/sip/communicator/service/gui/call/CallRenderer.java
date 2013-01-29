@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.main.call;
+package net.java.sip.communicator.service.gui.call;
 
 import net.java.sip.communicator.service.protocol.*;
 
@@ -33,15 +33,6 @@ public interface CallRenderer
     public Call getCall();
 
     /**
-     * Returns the parent, container which created this <tt>CallRenderer</tt>
-     * and in which this <tt>CallRenderer</tt> is added
-     *
-     * @return the parent, container which created this <tt>CallRenderer</tt>
-     * and in which this <tt>CallRenderer</tt> is added
-     */
-    public CallPanel getCallContainer();
-
-    /**
      * Returns the <tt>CallPeerRenderer</tt> corresponding to the given
      * <tt>callPeer</tt>.
      *
@@ -51,4 +42,29 @@ public interface CallRenderer
      * <tt>callPeer</tt>
      */
     public CallPeerRenderer getCallPeerRenderer(CallPeer callPeer);
+
+    /**
+     * Starts the timer that counts call duration.
+     */
+    public void startCallTimer();
+
+    /**
+     * Stops the timer that counts call duration.
+     */
+    public void stopCallTimer();
+
+    /**
+     * Returns <code>true</code> if the call timer has been started, otherwise
+     * returns <code>false</code>.
+     * @return <code>true</code> if the call timer has been started, otherwise
+     * returns <code>false</code>
+     */
+    public boolean isCallTimerStarted();
+
+    /**
+     * Updates the state of the general hold button. The hold button is selected
+     * only if all call peers are locally or mutually on hold at the same time.
+     * In all other cases the hold button is unselected.
+     */
+    public void updateHoldButtonState();
 }

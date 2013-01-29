@@ -23,6 +23,7 @@ import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.gui.call.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -1816,7 +1817,7 @@ public class CallPanel
     /**
      * Stops the timer that counts call duration.
      */
-    private void stopCallTimer()
+    public void stopCallTimer()
     {
         this.callDurationTimer.stop();
     }
@@ -1922,7 +1923,7 @@ public class CallPanel
      * only if all call peers are locally or mutually on hold at the same time.
      * In all other cases the hold button is unselected.
      */
-    void updateHoldButtonState()
+    public void updateHoldButtonState()
     {
         if(!SwingUtilities.isEventDispatchThread())
         {

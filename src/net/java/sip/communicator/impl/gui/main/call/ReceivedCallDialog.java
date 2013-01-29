@@ -104,7 +104,6 @@ public class ReceivedCallDialog
             // Only one peer.
             else
             {
-
                 textDisplayName = callLabel[1].getText()
                     + getPeerDisplayName(peer)
                     + " "

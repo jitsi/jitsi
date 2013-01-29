@@ -25,7 +25,7 @@ import net.java.sip.communicator.service.protocol.event.*;
  */
 public abstract class BasicConferenceCallPanel
     extends TransparentPanel
-    implements CallRenderer
+    implements SwingCallRenderer
 {
     /**
      * The <tt>CallPanel</tt> which has created this instance and uses it to
@@ -224,7 +224,7 @@ public abstract class BasicConferenceCallPanel
     /**
      * {@inheritDoc}
      *
-     * Implements {@link CallRenderer#getCallContainer()}.
+     * Implements {@link SwingCallRenderer#getCallContainer()}.
      */
     public CallPanel getCallContainer()
     {
@@ -234,9 +234,9 @@ public abstract class BasicConferenceCallPanel
     /**
      * {@inheritDoc}
      *
-     * Implements {@link CallRenderer#getCallPeerRenderer(CallPeer)}.
+     * Implements {@link SwingCallRenderer#getCallPeerRenderer(CallPeer)}.
      */
-    public CallPeerRenderer getCallPeerRenderer(CallPeer callPeer)
+    public SwingCallPeerRenderer getCallPeerRenderer(CallPeer callPeer)
     {
         return callPeerPanels.get(callPeer);
     }
@@ -541,5 +541,43 @@ public abstract class BasicConferenceCallPanel
         {
             BasicConferenceCallPanel.this.onCallPeerConferenceEvent(ev);
         }
+    }
+
+    /**
+     * Starts the timer that counts call duration.
+     */
+    public void startCallTimer()
+    {
+        callPanel.startCallTimer();
+    }
+
+    /**
+     * Stops the timer that counts call duration.
+     */
+    public void stopCallTimer()
+    {
+        callPanel.stopCallTimer();
+    }
+
+    /**
+     * Returns <code>true</code> if the call timer has been started, otherwise
+     * returns <code>false</code>.
+     *
+     * @return <code>true</code> if the call timer has been started, otherwise
+     * returns <code>false</code>
+     */
+    public boolean isCallTimerStarted()
+    {
+        return callPanel.isCallTimerStarted();
+    }
+
+    /**
+     * Updates the state of the general hold button. The hold button is selected
+     * only if all call peers are locally or mutually on hold at the same time.
+     * In all other cases the hold button is unselected.
+     */
+    public void updateHoldButtonState()
+    {
+        callPanel.updateHoldButtonState();
     }
 }
