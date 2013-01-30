@@ -61,4 +61,5 @@ Export-Package: net.java.sip.communicator.util,
  net.java.sip.communicator.util.skin,
  net.java.sip.communicator.util.xml,
  net.java.sip.communicator.util.account,
- net.java.sip.communicator.util.call
+ net.java.sip.communicator.util.call,
+ net.java.sip.communicator.util.wizard

@@ -3,7 +3,7 @@
  *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
-package net.java.sip.communicator.plugin.desktoputil.wizard;
+package net.java.sip.communicator.util.wizard;
 
 import net.java.sip.communicator.service.protocol.*;
 
