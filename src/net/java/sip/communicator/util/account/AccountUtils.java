@@ -270,4 +270,35 @@ public class AccountUtils
 
         return protocolProviderFactory;
     }
+
+
+    /**
+     * Returns all registered protocol providers.
+     *
+     * @return a list of all registered providers
+     */
+    public static Collection<ProtocolProviderService> getRegisteredProviders()
+    {
+        List<ProtocolProviderService> registeredProviders
+            = new LinkedList<ProtocolProviderService>();
+
+        for (ProtocolProviderFactory providerFactory : UtilActivator
+            .getProtocolProviderFactories().values())
+        {
+            ServiceReference serRef;
+            ProtocolProviderService protocolProvider;
+
+            for (AccountID accountID : providerFactory.getRegisteredAccounts())
+            {
+                serRef = providerFactory.getProviderForAccount(accountID);
+
+                protocolProvider
+                    = (ProtocolProviderService) UtilActivator.bundleContext
+                        .getService(serRef);
+
+                registeredProviders.add(protocolProvider);
+            }
+        }
+        return registeredProviders;
+    }
 }
