@@ -8,8 +8,8 @@ package net.java.sip.communicator.plugin.jabberaccregwizz;
 
 import java.util.*;
 
-import net.java.sip.communicator.plugin.desktoputil.wizard.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.wizard.*;
 
 /**
  * The <tt>JabberAccountRegistration</tt> is used to store all user input data

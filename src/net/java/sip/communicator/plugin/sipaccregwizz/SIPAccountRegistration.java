@@ -7,7 +7,7 @@ package net.java.sip.communicator.plugin.sipaccregwizz;
 
 import java.util.*;
 
-import net.java.sip.communicator.plugin.desktoputil.wizard.*;
+import net.java.sip.communicator.util.wizard.*;
 /**
  * The <tt>SIPAccountRegistration</tt> is used to store all user input data
  * through the <tt>SIPAccountRegistrationWizard</tt>.
