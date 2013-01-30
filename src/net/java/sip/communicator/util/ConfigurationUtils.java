@@ -311,6 +311,17 @@ public class ConfigurationUtils
     private static boolean acceptPhoneNumberWithAlphaChars;
 
     /**
+     * The name of the single interface property.
+     */
+    public static final String ALERTER_ENABLED_PROP
+        = "plugin.chatalerter.ENABLED";
+
+    /**
+     * Indicates if window (task bar or dock icon) alerter is enabled.
+     */
+    private static boolean alerterEnabled;
+
+    /**
      * Loads all user interface configurations.
      */
     public static void loadGuiConfigurations()
@@ -782,6 +793,9 @@ public class ConfigurationUtils
 
         isNormalizePhoneNumber
             = configService.getBoolean("impl.gui.NORMALIZE_PHONE_NUMBER", true);
+
+        alerterEnabled
+            = configService.getBoolean(ALERTER_ENABLED_PROP, true);
 
         // Load the "ACCEPT_PHONE_NUMBER_WITH_ALPHA_CHARS" property.
         acceptPhoneNumberWithAlphaChars
@@ -1435,6 +1449,31 @@ public class ConfigurationUtils
 
         configService.setProperty("impl.gui.NORMALIZE_PHONE_NUMBER",
             Boolean.toString(isNormalize));
+    }
+
+    /**
+     * Returns <code>true</code> if window alerter is enabled (tack bar or
+     * dock icon).
+     *
+     * @return <code>true</code> if window alerter is enables,
+     * <code>false</code> otherwise.
+     */
+    public static boolean isAlerterEnabled()
+    {
+        return alerterEnabled;
+    }
+
+    /**
+     * Updates the "plugin.chatalerter.ENABLED" property.
+     *
+     * @param isEnabled indicates whether to enable or disable alerter.
+     */
+    public static void setAlerterEnabled(boolean isEnabled)
+    {
+        alerterEnabled = isEnabled;
+
+        configService.setProperty(ALERTER_ENABLED_PROP,
+            Boolean.toString(isEnabled));
     }
 
     /**

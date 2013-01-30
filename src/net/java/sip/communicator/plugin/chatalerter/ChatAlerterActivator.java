@@ -11,11 +11,16 @@ import javax.swing.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.Logger;
 
 import org.jdesktop.jdic.misc.*;
+import org.jitsi.service.configuration.*;
 import org.jitsi.util.*;
 import org.osgi.framework.*;
+
+import java.beans.*;
+import java.util.*;
 
 /**
  * Chat Alerter plugin.
@@ -34,7 +39,9 @@ public class ChatAlerterActivator
                 ChatRoomMessageListener,
                 AdHocChatRoomMessageListener,
                 LocalUserChatRoomPresenceListener,
-                LocalUserAdHocChatRoomPresenceListener
+                LocalUserAdHocChatRoomPresenceListener,
+                PropertyChangeListener,
+                CallListener
 {
     /**
      * The logger for this class.
@@ -52,14 +59,30 @@ public class ChatAlerterActivator
     private UIService uiService;
 
     /**
+     * Whether we are started.
+     */
+    private boolean started = false;
+
+    /**
      * Starts this bundle.
      * @param bc bundle context.
      * @throws Exception 
      */
     public void start(BundleContext bc) throws Exception
     {
+        this.bundleContext = bc;
+
+        ServiceUtils.getService(bundleContext, ConfigurationService.class)
+                    .addPropertyChangeListener(
+                        ConfigurationUtils.ALERTER_ENABLED_PROP, this);
+
         try
         {
+            if(!ConfigurationUtils.isAlerterEnabled())
+            {
+                return;
+            }
+
             // try to load native libs, if it fails don't do anything
             if(!OSUtils.IS_MAC)
                 Alerter.newInstance();
@@ -71,9 +94,16 @@ public class ChatAlerterActivator
                 exception);
             return;
         }
-        
-        this.bundleContext = bc;
 
+        startInternal(bc);
+    }
+
+    /**
+     * Starts the impl and adds necessary listeners.
+     * @param bc the current bundle context.
+     */
+    private void startInternal(BundleContext bc)
+    {
         // start listening for newly register or removed protocol providers
         bc.addServiceListener(this);
 
@@ -109,7 +139,8 @@ public class ChatAlerterActivator
                 this.handleProviderAdded(provider);
             }
         }
-        
+
+        this.started = true;
     }
 
     /**
@@ -118,6 +149,19 @@ public class ChatAlerterActivator
      * @throws Exception
      */
     public void stop(BundleContext bc) throws Exception
+    {
+        stopInternal(bc);
+
+        ServiceUtils.getService(bundleContext, ConfigurationService.class)
+            .removePropertyChangeListener(
+                ConfigurationUtils.ALERTER_ENABLED_PROP, this);
+    }
+
+    /**
+     * Stops the impl and removes necessary listeners.
+     * @param bc the current bundle context.
+     */
+    private void stopInternal(BundleContext bc)
     {
         // start listening for newly register or removed protocol providers
         bc.removeServiceListener(this);
@@ -150,6 +194,8 @@ public class ChatAlerterActivator
                 this.handleProviderRemoved(provider);
             }
         }
+
+        this.started = false;
     }
     
     /**
@@ -208,6 +254,14 @@ public class ChatAlerterActivator
             if (logger.isTraceEnabled())
                 logger.trace("Service did not have a multi im op. set.");
         }
+
+        OperationSetBasicTelephony<?> basicTelephonyOpSet
+            = provider.getOperationSet(OperationSetBasicTelephony.class);
+
+        if (basicTelephonyOpSet != null)
+        {
+            basicTelephonyOpSet.addCallListener(this);
+        }
     }
 
     /**
@@ -225,6 +279,14 @@ public class ChatAlerterActivator
         {
             opSetIm.removeMessageListener(this);
         }
+
+        OperationSetSmsMessaging opSetSms
+            = provider.getOperationSet(OperationSetSmsMessaging.class);
+
+        if (opSetSms != null)
+        {
+            opSetSms.removeMessageListener(this);
+        }
         
         OperationSetMultiUserChat opSetMultiUChat
             = provider.getOperationSet(OperationSetMultiUserChat.class);
@@ -233,6 +295,14 @@ public class ChatAlerterActivator
         {
             for (ChatRoom room : opSetMultiUChat.getCurrentlyJoinedChatRooms())
                 room.removeMessageListener(this);
+        }
+
+        OperationSetBasicTelephony<?> basicTelephonyOpSet
+            = provider.getOperationSet(OperationSetBasicTelephony.class);
+
+        if (basicTelephonyOpSet != null)
+        {
+            basicTelephonyOpSet.removeCallListener(this);
         }
     }
 
@@ -294,10 +364,19 @@ public class ChatAlerterActivator
      */
     private void alertChatWindow()
     {
+        alertWindow(ExportedWindow.CHAT_WINDOW);
+    }
+
+    /**
+     * Alerts the <code>windowID</code> by using a platform-dependent
+     * visual clue such as flashing it in the task bar on Windows and Linux,
+     * or the bouncing the dock icon under macosx.
+     */
+    private void alertWindow(WindowID windowID)
+    {
         try
         {
-            ExportedWindow win 
-                = getUIService().getExportedWindow(ExportedWindow.CHAT_WINDOW);
+            ExportedWindow win = getUIService().getExportedWindow(windowID);
             if (win == null)
                 return;
 
@@ -409,4 +488,76 @@ public class ChatAlerterActivator
 
         return uiService;
     }
+
+    /**
+     * Waits for enable/disable property change.
+     * @param evt the event of change
+     */
+    public void propertyChange(PropertyChangeEvent evt)
+    {
+        if(!evt.getPropertyName()
+                    .equals(ConfigurationUtils.ALERTER_ENABLED_PROP))
+            return;
+
+        try
+        {
+            if(ConfigurationUtils.isAlerterEnabled() && !started)
+            {
+                startInternal(bundleContext);
+            }
+            else if(!ConfigurationUtils.isAlerterEnabled() && started)
+            {
+                stopInternal(bundleContext);
+            }
+        }
+        catch(Throwable t)
+        {
+            logger.error("Error starting/stopping on configuration change");
+        }
+    }
+
+    /**
+     * This method is called by a protocol provider whenever an incoming call is
+     * received.
+     *
+     * @param event a CallEvent instance describing the new incoming call
+     */
+    public void incomingCallReceived(CallEvent event)
+    {
+        Call call = event.getSourceCall();
+
+        /*
+         * INCOMING_CALL should be dispatched for a Call
+         * only while there is a CallPeer in the
+         * INCOMING_CALL state.
+         */
+        Iterator<? extends CallPeer> peerIter = call.getCallPeers();
+        boolean alert = false;
+        while (peerIter.hasNext())
+        {
+            CallPeer peer = peerIter.next();
+            if (CallPeerState.INCOMING_CALL.equals(peer.getState()))
+            {
+                alert = true;
+                break;
+            }
+        }
+
+        if(alert)
+            alertWindow(ExportedWindow.MAIN_WINDOW);
+    }
+
+    /**
+     * Not used.
+     * @param event a CalldEvent instance describing the new outgoing call.
+     */
+    public void outgoingCallCreated(CallEvent event)
+    {}
+
+    /**
+     * Not used
+     * @param event the <tt>CallEvent</tt> containing the source call.
+     */
+    public void callEnded(CallEvent event)
+    {}
 }

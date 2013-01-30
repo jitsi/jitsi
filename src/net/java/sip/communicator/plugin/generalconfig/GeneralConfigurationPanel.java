@@ -237,6 +237,7 @@ public class GeneralConfigurationPanel
         configPanel.add(createSendMessagePanel());
         configPanel.add(createTypingNitificationsCheckBox());
         configPanel.add(createBringToFrontCheckBox());
+        configPanel.add(createChatAlertsOnMessageCheckbox());
         configPanel.add(createMultichatCheckbox());
 
         return configPanel;
@@ -267,6 +268,33 @@ public class GeneralConfigurationPanel
         });
 
         return groupMessagesCheckBox;
+    }
+
+    /**
+     * Initializes the window alert on message check box.
+     * @return the created check box
+     */
+    private Component createChatAlertsOnMessageCheckbox()
+    {
+        final JCheckBox chatAlertOnMessageCheckBox = new SIPCommCheckBox();
+        chatAlertOnMessageCheckBox.setText(
+            Resources.getString(
+                "plugin.generalconfig.CHATALERTS_ON_MESSAGE"));
+
+        chatAlertOnMessageCheckBox.setAlignmentX(JCheckBox.LEFT_ALIGNMENT);
+        chatAlertOnMessageCheckBox.setSelected(
+            ConfigurationUtils.isAlerterEnabled());
+
+        chatAlertOnMessageCheckBox.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                ConfigurationUtils.setAlerterEnabled(
+                    chatAlertOnMessageCheckBox.isSelected());
+            }
+        });
+
+        return chatAlertOnMessageCheckBox;
     }
 
     /**
