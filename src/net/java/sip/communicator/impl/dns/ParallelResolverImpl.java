@@ -111,13 +111,13 @@ public class ParallelResolverImpl
     private void initProperties()
     {
         String rslvrAddrStr
-            = UtilActivator.getConfigurationService().getString(
+            = DnsUtilActivator.getConfigurationService().getString(
                 DnsUtilActivator.PNAME_BACKUP_RESOLVER,
                 DnsUtilActivator.DEFAULT_BACKUP_RESOLVER);
         String customResolverIP
-            = UtilActivator.getConfigurationService().getString(
+            = DnsUtilActivator.getConfigurationService().getString(
                 DnsUtilActivator.PNAME_BACKUP_RESOLVER_FALLBACK_IP,
-                UtilActivator.getResources().getSettingsString(
+                DnsUtilActivator.getResources().getSettingsString(
                     DnsUtilActivator.PNAME_BACKUP_RESOLVER_FALLBACK_IP));
 
         InetAddress resolverAddress = null;
@@ -147,7 +147,7 @@ public class ParallelResolverImpl
             }
         }
 
-        int resolverPort = UtilActivator.getConfigurationService().getInt(
+        int resolverPort = DnsUtilActivator.getConfigurationService().getInt(
             DnsUtilActivator.PNAME_BACKUP_RESOLVER_PORT,
             SimpleResolver.DEFAULT_PORT);
 
