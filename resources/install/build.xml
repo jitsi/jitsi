@@ -1180,6 +1180,13 @@
       </array>
       <key>CFBundleName</key>]]></replacevalue>
       </replace>
+      <!-- Add property for high resolution displays -->
+      <replace file="${macosx.app.dir}/${application.name}.app/Contents/Info.plist">
+        <replacetoken><![CDATA[<key>CFBundleName</key>]]></replacetoken>
+        <replacevalue><![CDATA[<key>NSHighResolutionCapable</key>
+      <true/>
+      <key>CFBundleName</key>]]></replacevalue>
+      </replace>
       <symlink resource="lib/native/mac/libAEGetURLEventHandlerAgent.jnilib"
                link="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/libAEGetURLEventHandlerAgent.jnilib"/>
 
