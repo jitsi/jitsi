@@ -162,7 +162,7 @@ public class DnsUtilActivator
     {
         // reread system dns configuration
         ResolverConfig.refresh();
-        if(logger.isTraceEnabled())
+        if(logger.isInfoEnabled())
         {
             StringBuilder sb = new StringBuilder();
             sb.append("Reloaded resolver config, default DNS servers are: ");
@@ -171,12 +171,18 @@ public class DnsUtilActivator
                 sb.append(s);
                 sb.append(", ");
             }
-            logger.trace(sb.toString());
+            logger.info(sb.toString());
         }
 
         // now reset an eventually present custom resolver
         if(Lookup.getDefaultResolver() instanceof CustomResolver)
         {
+            if (logger.isInfoEnabled())
+            {
+                logger.info("Resetting custom resolver "
+                    + Lookup.getDefaultResolver().getClass().getSimpleName());
+            }
+
             ((CustomResolver)Lookup.getDefaultResolver()).reset();
         }
     }
