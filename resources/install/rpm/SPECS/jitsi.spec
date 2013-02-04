@@ -17,7 +17,7 @@ BuildRequires: ant-nodeps
 BuildRequires: gzip
 BuildRequires: subversion
 
-Requires: java >= 1:1.5.0, felix-framework, felix-main
+Requires: java >= 1:1.5.0
 
 %description
 Jitsi is an audio/video Internet phone and instant messenger that
@@ -84,7 +84,6 @@ cp sc-bundles/os-specific/linux/*.jar $RPM_BUILD_ROOT/usr/lib/jitsi/sc-bundles/
 
 # copy the lib jars
 cp lib/*.jar $RPM_BUILD_ROOT/usr/lib/jitsi/lib/
-rm $RPM_BUILD_ROOT/usr/lib/jitsi/lib/felix.jar
 cp lib/bundle/* $RPM_BUILD_ROOT/usr/lib/jitsi/lib/bundle/
 rm $RPM_BUILD_ROOT/usr/lib/jitsi/lib/bundle/junit.jar
 cp lib/os-specific/linux/*.jar $RPM_BUILD_ROOT/usr/lib/jitsi/lib/
