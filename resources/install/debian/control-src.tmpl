@@ -25,6 +25,7 @@ Build-Depends: debhelper (>= 9), javahelper,
                liblog4j1.2-java,
                libjgoodies-forms-java,
                libjmdns-java,
+               libdnsjava-java,
                libmac-widgets-java,
                libfelix-main-java,
                libfelix-framework-java,
@@ -64,11 +65,12 @@ Package: _PACKAGE_NAME_
 Architecture: all
 Depends: ${misc:Depends},
          _PACKAGE_NAME_-jni (>= ${source:Version}),
-         sun-java6-jre | openjdk-6-jre | default-jre | openjdk-7-jre,
+         default-jre | java6-runtime,
          libunixsocket-java,
          libhttpcore-java,
          liblog4j1.2-java,
          libjmdns-java,
+         libdnsjava-java,
          libmac-widgets-java,
          libfelix-main-java,
          libfelix-framework-java,
@@ -85,7 +87,6 @@ Depends: ${misc:Depends},
          libjgoodies-forms-java,
          libjson-simple-java
 Recommends: ${java:Recommends}
-Homepage: _APP_WEB_
 Description: Java VoIP and Instant Messaging client
  _APP_NAME_ is an application that allows you to do audio/video
  conversations over the Internet through the SIP and XMPP/Jabber protocol,
@@ -96,7 +97,6 @@ Package: _PACKAGE_NAME_-jni
 Section: libs
 Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}
-Homepage: _APP_WEB_
 Description: _APP_NAME_ JNI library
  These are the jni bindings for  _APP_NAME_ the Java VoIP
  and Instant Messaging client. Libraries to access audio and video devices.

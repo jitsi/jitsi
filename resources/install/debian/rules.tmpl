@@ -21,7 +21,7 @@ override_dh_install-indep:
 # make and install the debian specific bundles
 # use the prebuild and installed bundles to extract/modify and use the
 # exising debian java packages
-	$(ANT) -file build.xml -Ddebian.bundles.dest=debian/$(PACKAGE_NAME)/usr/lib/$(PACKAGE_NAME)/sc-bundles deb-bundle-jna deb-bundle-util deb-bundle-sysactivitynotifications deb-bundle-swing-ui deb-bundle-httputil deb-bundle-json deb-bundle-smacklib deb-bundle-jmdnslib
+	$(ANT) -file build.xml -Ddebian.bundles.dest=debian/$(PACKAGE_NAME)/usr/lib/$(PACKAGE_NAME)/sc-bundles deb-bundle-jna deb-bundle-util deb-bundle-sysactivitynotifications deb-bundle-swing-ui deb-bundle-httputil deb-bundle-json deb-bundle-smacklib deb-bundle-jmdnslib deb-bundle-desktoputil
 
 override_dh_install-arch:
 ifeq ($(DEB_HOST_ARCH),amd64)

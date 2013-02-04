@@ -1838,8 +1838,8 @@
               tofile="${debianize.dir}/${package.name}.lintian-overrides"
               overwrite="true"/>
 
-        <copy file="${inst.resrc}/debian/README.libraries"
-              tofile="${debianize.dir}/README.libraries"
+        <copy file="${inst.resrc}/debian/README.embedded-libraries"
+              tofile="${debianize.dir}/README.embedded-libraries"
               overwrite="true"/>
 
         <!-- Prepare man page file -->
@@ -1915,9 +1915,9 @@
         <copy todir="${debianize.dir}/source">
             <fileset dir="${inst.resrc}/debian/source"/>
         </copy>
-        <copy todir="${debianize.dir}/patches">
+        <!--copy todir="${debianize.dir}/patches">
             <fileset dir="${inst.resrc}/debian/patches"/>
-        </copy>
+        </copy-->
     </target>
 
     <!-- sets custom build target or a custom one -->
@@ -2331,15 +2331,6 @@
         <mkdir dir="${debian.src.dir}/lib/src/jnsapi/classes"/>
         <mkdir dir="${debian.src.dir}/lib/src/jnsapi/lib"/>
 
-        <!-- dns java -->
-        <unzip src="${sc.basedir}/../libsrc/dnsjava-2.1.3.zip"
-               dest="${debian.src.dir}/lib/src">
-            <patternset>
-                <exclude name="**/*.jar"/>
-                <exclude name="**/*.class"/>
-            </patternset>
-        </unzip>
-
         <!-- java-jml-->
         <unzip src="${sc.basedir}/../libsrc/java-jml.zip"
                dest="${debian.src.dir}/lib/src"/>
@@ -2680,12 +2671,7 @@
              overwrite="true"
              link="${debian.src.dir}/lib/installer-exclude"/>
 
-        <!-- dnsjava -->
-        <ant dir="${debian.src.dir}/lib/src/dnsjava-2.1.3"
-             inheritAll="false"
-             target="jar">
-        </ant>
-        <symlink resource="../src/dnsjava-2.1.3/dnsjava-2.1.3.jar"
+        <symlink resource="/usr/share/java/dnsjava.jar "
              overwrite="true"
              link="${debian.src.dir}/lib/installer-exclude/dnsjava.jar"/>
 
@@ -3016,6 +3002,7 @@
             <property name="x264" value=""/>
             <property name="lame" value=""/>
             <property name="libvpx" value=""/>
+            <property name="LIBAV" value=""/>
         </ant>
 
         <!-- video4linux -->
@@ -3139,10 +3126,8 @@
         </unzip>
         <delete file="${debian.bundles.dest}/util.jar"/>
         <mkdir dir="${debian.bundles.dest}/util.jar/META-INF"/>
-        <symlink resource="../../../../share/java/laf-widget.jar"
-             link="${debian.bundles.dest}/util.jar/laf-widget.jar"/>
-        <copy file="${lib.noinst}/dnsjava.jar"
-              todir="${debian.bundles.dest}/util.jar"/>
+        <symlink resource="../../../../share/java/dnsjava.jar"
+                 link="${debian.bundles.dest}/util.jar/dnsjava.jar"/>
 
         <!-- Create the util.jar-->
         <jar compress="false"
@@ -3179,7 +3164,44 @@
             destfile="${debian.bundles.dest}/util.jar/META-INF/MANIFEST.MF"
             append="true"
             eol="crlf"
-            fixlastline="true">Bundle-ClassPath: .,util.jar,dnsjava.jar,laf-widget.jar&#013;&#010;&#013;&#010;</concat>
+            fixlastline="true">Bundle-ClassPath: .,util.jar,dnsjava.jar&#013;&#010;&#013;&#010;</concat>
+    </target>
+
+    <!-- target to rebuild the util bundle reusing debian package -->
+    <target name="deb-bundle-desktoputil">
+        <unzip src="${debian.bundles.dest}/desktoputil.jar"
+               dest="${debian.bundles.dest}">
+          <patternset>
+            <include name="META-INF/MANIFEST.MF"/>
+          </patternset>
+        </unzip>
+        <delete file="${debian.bundles.dest}/desktoputil.jar"/>
+        <mkdir dir="${debian.bundles.dest}/desktoputil.jar/META-INF"/>
+        <symlink resource="../../../../share/java/laf-widget.jar"
+             link="${debian.bundles.dest}/util.jar/laf-widget.jar"/>
+
+        <!-- Create the desktoputil.jar-->
+        <jar compress="false"
+             destfile="${debian.bundles.dest}/desktoputil.jar/desktoputil.jar">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/desktoputil"
+                prefix="net/java/sip/communicator/plugin/desktoputil">
+                <exclude name="dns/**"/>
+            </zipfileset>
+        </jar>
+        <move file="${debian.bundles.dest}/META-INF/MANIFEST.MF"
+              todir="${debian.bundles.dest}/desktoputil.jar/META-INF"/>
+        <delete dir="${debian.bundles.dest}/META-INF"/>
+        <!-- Removes the last empty line -->
+        <replaceregexp
+            file="${debian.bundles.dest}/desktoputil.jar/META-INF/MANIFEST.MF"
+            match="^\r\n$"
+            flags="m"
+            replace=""/>
+        <concat
+            destfile="${debian.bundles.dest}/desktoputil.jar/META-INF/MANIFEST.MF"
+            append="true"
+            eol="crlf"
+            fixlastline="true">Bundle-ClassPath: .,desktoputil.jar,laf-widget.jar&#013;&#010;&#013;&#010;</concat>
     </target>
 
     <!-- target to rebuild the sysactivitynotifications bundle reusing

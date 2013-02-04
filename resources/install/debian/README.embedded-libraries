@@ -66,15 +66,11 @@ Weupnp is a lightweight Java library implements the UPnP protocol.
 Jitsi’s Sebastien Vincent is contributor and has commit right in the project.
 Reason: No Debian package.
 
-- dnsjava-2.1.3 http://dnsjava.org/
-dnsjava is an implementation of DNS in Java.
-Using version 2.1.3.
-Reason: A Debian package exists only for version 2.0.8.
-
 - gdata-java-client http://code.google.com/p/gdata-java-client/
 The Google Data Java client library.
 Using version 1.43.0.
-Reason: A Debian package exist only for version 1.30.0.
+Reason: The package was removed from Debian (package with version 1.30.0
+exist only in squeeze).
 
 - java-jml http://sourceforge.net/apps/trac/java-jml
 JML is a Java API for communication with Windows Live Messenger/
