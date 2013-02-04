@@ -2762,7 +2762,6 @@ javax.swing.event, javax.swing.border"/>
                 <exclude name="dns/**"/>
             </zipfileset>
             <zipfileset src="lib/installer-exclude/laf-widget.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/dnsjava.jar" prefix=""/>
         </jar>
     </target>
 </project>

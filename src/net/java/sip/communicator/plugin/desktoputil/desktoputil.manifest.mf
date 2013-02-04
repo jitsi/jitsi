@@ -63,5 +63,4 @@ Export-Package: net.java.sip.communicator.plugin.desktoputil,
  net.java.sip.communicator.plugin.desktoputil.plaf,
  net.java.sip.communicator.plugin.desktoputil.presence,
  net.java.sip.communicator.plugin.desktoputil.transparent,
- net.java.sip.communicator.plugin.desktoputil.wizard,
- org.xbill.DNS
+ net.java.sip.communicator.plugin.desktoputil.wizard
