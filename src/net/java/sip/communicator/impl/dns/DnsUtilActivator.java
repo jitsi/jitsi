@@ -185,6 +185,11 @@ public class DnsUtilActivator
 
             ((CustomResolver)Lookup.getDefaultResolver()).reset();
         }
+        else
+        {
+            // or the default otherwise
+            Lookup.refreshDefault();
+        }
     }
 
     /**
