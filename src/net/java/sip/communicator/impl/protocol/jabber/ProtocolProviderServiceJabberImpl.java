@@ -853,7 +853,8 @@ public class ProtocolProviderServiceJabberImpl
             }
         }
         else
-            logger.error("No SRV addresses found for xmpp-client.");
+            logger.error("No SRV addresses found for _xmpp-client._tcp."
+                + domain);
 
         return ConnectState.CONTINUE_TRYING;
     }
