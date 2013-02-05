@@ -555,11 +555,12 @@ public class CallPanel
             }
 
             if(resizeVideoButton.countAvailableOptions() > 1)
+            {
                 settingsPanel.add(resizeVideoButton);
+                settingsPanel.revalidate();
+                settingsPanel.repaint();
+            }
         }
-
-        settingsPanel.revalidate();
-        settingsPanel.repaint();
     }
 
     /**
