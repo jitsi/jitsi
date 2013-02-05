@@ -133,7 +133,8 @@ public class NetworkEventDispatcher
             listener.configurationChanged(evt);
         } catch (Throwable e)
         {
-            logger.warn("Error delivering event:" + evt + ", to:" + listener);
+            logger
+                .warn("Error delivering event:" + evt + ", to:" + listener, e);
         }
     }
 
