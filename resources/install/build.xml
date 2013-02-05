@@ -2016,7 +2016,7 @@
                  value=""/>
         <replace file="${debianize.dir}/rules"
                  token=" usr/lib/jni/"
-                 value=" usr/lib/$(PACKAGE_NAME)/lib/native -Xslickless.jar -Xslick-runner.jar -X-slick.jar -X.svn"/>
+                 value=" usr/share/$(PACKAGE_NAME)/lib/native -Xslickless.jar -Xslick-runner.jar -X-slick.jar -X.svn"/>
 
         <!-- some libs are not found when adding libmozembed-linux-gtk1.2.so
             and libjdic.so to deb and i386 package fail to build -->
@@ -2040,11 +2040,11 @@
         <concat destfile="${debianize.dir}/${package.name}.install"
                 append="true"
                 eol="lf"
-                fixlastline="true">lib/*.jar usr/lib/${package.name}/lib/&#010;lib/os-specific/linux/*.jar usr/lib/${package.name}/lib/&#010;</concat>
+                fixlastline="true">lib/*.jar usr/share/${package.name}/lib/&#010;lib/os-specific/linux/*.jar usr/share/${package.name}/lib/&#010;</concat>
         <concat destfile="${debianize.dir}/${package.name}.install"
                 append="true"
                 eol="lf"
-                fixlastline="true">lib/bundle/commons-logging.jar usr/lib/${package.name}/lib/bundle/&#010;lib/bundle/log4j.jar usr/lib/${package.name}/lib/bundle/&#010;</concat>
+                fixlastline="true">lib/bundle/commons-logging.jar usr/share/${package.name}/lib/bundle/&#010;lib/bundle/log4j.jar usr/share/${package.name}/lib/bundle/&#010;</concat>
     </target>
     <!-- updates the startup scritp only if called from deb target -->
     <target name="-deb-sh-file-update"
@@ -2671,7 +2671,7 @@
              overwrite="true"
              link="${debian.src.dir}/lib/installer-exclude"/>
 
-        <symlink resource="/usr/share/java/dnsjava.jar "
+        <symlink resource="/usr/share/java/dnsjava.jar"
              overwrite="true"
              link="${debian.src.dir}/lib/installer-exclude/dnsjava.jar"/>
 
@@ -2973,6 +2973,11 @@
         </antcall>
 
         <!-- portaudio -->
+        <exec   dir="${debian.src.dir}/lib/src/portaudio"
+                executable="make"
+                failonerror="false">
+            <arg value="distclean" />
+        </exec>
         <chmod file="${debian.src.dir}/lib/src/portaudio/configure" perm="+x"/>
         <exec   dir="${debian.src.dir}/lib/src/portaudio"
                 executable="configure"
@@ -2987,7 +2992,6 @@
                 executable="make"
                 failonerror="true">
             <arg value="lib/libportaudio.la" />
-            <arg value="all-recursive" />
         </exec>
         <ant dir="${debian.src.dir}/lib/src/libjitsi" inheritAll="false"
              target="portaudio">
@@ -3165,6 +3169,11 @@
             append="true"
             eol="crlf"
             fixlastline="true">Bundle-ClassPath: .,util.jar,dnsjava.jar&#013;&#010;&#013;&#010;</concat>
+
+        <!-- Use the system installed dnsjava -->
+        <echo file="${debian.bundles.dest}/../lib/felix.client.run.properties"
+            append="true">felix.auto.start.14= reference:file:/usr/share/java/dnsjava.jar
+        </echo>
     </target>
 
     <!-- target to rebuild the util bundle reusing debian package -->
@@ -3178,7 +3187,7 @@
         <delete file="${debian.bundles.dest}/desktoputil.jar"/>
         <mkdir dir="${debian.bundles.dest}/desktoputil.jar/META-INF"/>
         <symlink resource="../../../../share/java/laf-widget.jar"
-             link="${debian.bundles.dest}/util.jar/laf-widget.jar"/>
+             link="${debian.bundles.dest}/desktoputil.jar/laf-widget.jar"/>
 
         <!-- Create the desktoputil.jar-->
         <jar compress="false"

@@ -7,4 +7,3 @@ Import-Package: org.jitsi.service.fileaccess,
  org.jitsi.service.libjitsi,
  org.osgi.framework
 System-Bundle: yes
- 

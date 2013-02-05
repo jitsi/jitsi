@@ -1,5 +1,5 @@
 Bundle-Activator: net.java.sip.communicator.impl.dns.DnsUtilActivator
-Bundle-Name: SIP Communicator DNS Utility Packages
+Bundle-Name: Jitsi DNS impl Packages
 Bundle-SymbolicName: net.java.sip.communicator.impl.dns
 Bundle-Description: A bundle that export packages with DNS utility classes.
 Bundle-Vendor: jitsi.org
