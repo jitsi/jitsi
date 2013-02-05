@@ -101,6 +101,7 @@ public class DnsUtilActivator
     public void start(BundleContext context)
         throws Exception
     {
+        logger.info("DNS service ... [STARTING]");
         bundleContext = context;
         context.addServiceListener(this);
 
@@ -115,6 +116,7 @@ public class DnsUtilActivator
                 CustomResolver.class.getName(),
                 new ParallelResolverImpl(),
                 null);
+            logger.info("ParallelResolver ... [REGISTERED]");
         }
 
         if(getConfigurationService().getBoolean(
@@ -125,10 +127,12 @@ public class DnsUtilActivator
                 CustomResolver.class.getName(),
                 new ConfigurableDnssecResolver(),
                 null);
+            logger.info("DnssecResolver ... [REGISTERED]");
         }
 
         dnsConfigActivator = new DnsConfigActivator();
         dnsConfigActivator.start(context);
+        logger.info("DNS service ... [STARTED]");
     }
 
     /**
