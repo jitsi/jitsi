@@ -26,10 +26,12 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.call.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.util.skin.*;
 
+import org.jitsi.service.neomedia.*;
 import org.jitsi.util.*;
 import org.jitsi.util.event.*;
 import org.osgi.framework.*;
@@ -745,6 +747,8 @@ public class CallPanel
         boolean videoTelephony = false;
         boolean videoTelephonyIsLocalVideoAllowed = false;
         boolean videoTelephonyIsLocalVideoStreaming = false;
+        boolean desktopSharing = false;
+        boolean desktopSharingIsStreamed = false;
 
         for (Call call : calls)
         {
@@ -796,6 +800,25 @@ public class CallPanel
                         videoTelephonyIsLocalVideoStreaming = true;
                 }
             }
+
+            if(!desktopSharing)
+            {
+                OperationSetDesktopStreaming osds
+                    = pps.getOperationSet(
+                            OperationSetDesktopStreaming.class);
+                if(osds != null)
+                {
+                    desktopSharing = true;
+
+                    if(videoTelephonyIsLocalVideoStreaming
+                            && call instanceof MediaAwareCall
+                            && ((MediaAwareCall) call).getMediaUseCase()
+                                == MediaUseCase.DESKTOP)
+                    {
+                        desktopSharingIsStreamed = true;
+                    }
+                }
+            }
         }
 
         conferenceButton.setEnabled(telephonyConferencing);
@@ -820,6 +843,19 @@ public class CallPanel
                 showHideVideoButton.isEnabled()
                     && uiVideoHandler.isLocalVideoVisible());
         showHideVideoButton.setVisible(showHideVideoButton.isEnabled());
+
+        // The desktop sharing button depends on the operation set desktop
+        // sharing server.
+        desktopSharingButton.setEnabled(desktopSharing);
+        desktopSharingButton.setSelected(desktopSharingIsStreamed);
+        if (callPanel instanceof OneToOneCallPanel)
+        {
+            OneToOneCallPanel oneToOneCallPanel = (OneToOneCallPanel) callPanel;
+            if(desktopSharingIsStreamed)
+                oneToOneCallPanel.addDesktopSharingComponents();
+            else
+                oneToOneCallPanel.removeDesktopSharingComponents();
+        }
     }
 
     /**
@@ -1748,37 +1784,6 @@ public class CallPanel
         this.title = title.toString();
 
         fireTitleChangeEvent();
-    }
-
-    /**
-     * Selects or unselects the desktop sharing button in this call dialog.
-     *
-     * @param isSelected indicates if the video button should be selected or not
-     */
-    public void setDesktopSharingButtonSelected(boolean isSelected)
-    {
-        if (logger.isTraceEnabled())
-            logger.trace("Desktop sharing enabled: " + isSelected);
-
-        if (isSelected && !desktopSharingButton.isSelected())
-            desktopSharingButton.setSelected(true);
-        else if (!isSelected && desktopSharingButton.isSelected())
-            desktopSharingButton.setSelected(false);
-
-        if (callPanel instanceof OneToOneCallPanel)
-        {
-            OneToOneCallPanel oneToOneCallPanel = (OneToOneCallPanel) callPanel;
-
-            if (isSelected
-                && (oneToOneCallPanel.getCall().getProtocolProvider()
-                        .getOperationSet(OperationSetDesktopSharingServer.class)
-                    != null))
-            {
-                oneToOneCallPanel.addDesktopSharingComponents();
-            }
-            else
-                oneToOneCallPanel.removeDesktopSharingComponents();
-        }
     }
 
     /**

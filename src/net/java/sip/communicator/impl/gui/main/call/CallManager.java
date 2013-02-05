@@ -619,7 +619,7 @@ public class CallManager
 
         if (deviceNumber > 0)
         {
-            enableDesktopSharing(
+            boolean succeed = enableDesktopSharing(
                     call,
                     mediaService.getMediaDeviceForPartialDesktopStreaming(
                         width,
@@ -627,6 +627,15 @@ public class CallManager
                         x,
                         y),
                     true);
+            // If the region sharing succeed, then display the frame of the
+            // current region shared.
+            if(succeed)
+            {
+                TransparentFrame frame
+                    = DesktopSharingFrame.createTransparentFrame(call, false);
+
+                frame.setVisible(true);
+            }
         }
 
         // in case we switch to video, disable remote control if it was
@@ -641,8 +650,11 @@ public class CallManager
      * @param mediaDevice the media device corresponding to the screen to share
      * @param enable indicates if the desktop sharing should be enabled or
      * disabled
+     *
+     * @return True if the desktop sharing succeed (we are currently sharing the
+     * whole or a part of the desktop). False, otherwise.
      */
-    private static void enableDesktopSharing(Call call,
+    private static boolean enableDesktopSharing(Call call,
                                             MediaDevice mediaDevice,
                                             boolean enable)
     {
@@ -681,8 +693,7 @@ public class CallManager
             }
         }
 
-        if (enable && !enableSucceeded)
-            getActiveCallContainer(call).setDesktopSharingButtonSelected(false);
+        return (enable && enableSucceeded);
     }
 
     /**
@@ -2418,9 +2429,6 @@ public class CallManager
                 // First make sure the desktop sharing is disabled.
                 if (enable && isDesktopSharingEnabled(call))
                 {
-                    getActiveCallContainer(call)
-                        .setDesktopSharingButtonSelected(false);
-
                     JFrame frame = DesktopSharingFrame.getFrameForCall(call);
 
                     if(frame != null)

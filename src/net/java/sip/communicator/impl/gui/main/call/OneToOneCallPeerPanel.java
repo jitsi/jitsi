@@ -210,6 +210,13 @@ public class OneToOneCallPeerPanel
     private final UIVideoHandler2 uiVideoHandler;
 
     /**
+     * A listener to desktop sharing granted/revoked events and to mouse and
+     * keyboard interaction with the remote video displaying the remote desktop.
+     */
+    private DesktopSharingMouseAndKeyboardListener
+        desktopSharingMouseAndKeyboardListener;
+
+    /**
      * The <tt>Observer</tt> which listens to changes in the video-related
      * information detected and reported by {@link #uiVideoHandler}.
      */
@@ -320,6 +327,9 @@ public class OneToOneCallPeerPanel
         }
 
         updateViewFromModel();
+
+        this.desktopSharingMouseAndKeyboardListener
+            = new DesktopSharingMouseAndKeyboardListener(callPeer);
     }
 
     /**
@@ -1370,6 +1380,11 @@ public class OneToOneCallPeerPanel
             // the LO/SD/HD button.
             if(remoteVideoChanged)
             {
+                // Updates video component which may listen the mouse and key
+                // events.
+                this.desktopSharingMouseAndKeyboardListener
+                    .setVideoComponent(remoteVideo);
+
                 CallPanel callPanel = callRenderer.getCallContainer();
                 // The remote video has been added, then tries to display the
                 // LO/SD/HD button.
