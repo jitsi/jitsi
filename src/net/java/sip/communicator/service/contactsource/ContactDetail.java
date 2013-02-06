@@ -37,6 +37,18 @@ public class ContactDetail
 {
     /**
      * The standard/well-known category of a <tt>ContactDetail</tt> representing
+     * personal details, like name, last name, nickname.
+     */
+    public static final String CATEGORY_PERSONAL = "Personal";
+
+    /**
+     * The standard/well-known category of a <tt>ContactDetail</tt> representing
+     * organization details, like organization name and job title.
+     */
+    public static final String CATEGORY_ORGANIZATION = "Organisation";
+
+    /**
+     * The standard/well-known category of a <tt>ContactDetail</tt> representing
      * an e-mail address.
      */
     public static final String CATEGORY_EMAIL = "Email";
@@ -52,6 +64,30 @@ public class ContactDetail
      * a phone number.
      */
     public static final String CATEGORY_PHONE = "Phone";
+
+    /**
+     * The standard/well-known category of a <tt>ContactDetail</tt> representing
+     * a postal address.
+     */
+    public static final String CATEGORY_ADDRESS = "Address";
+
+    /**
+     * The standard/well-known label of a <tt>ContactDetail</tt> representing a
+     * name. It could be an organization name or a personal name.
+     */
+    public static final String LABEL_NAME = "Name";
+
+    /**
+     * The standard/well-known label of a <tt>ContactDetail</tt> representing a
+     * last name.
+     */
+    public static final String LABEL_LAST_NAME = "Last name";
+
+    /**
+     * The standard/well-known label of a <tt>ContactDetail</tt> representing a
+     * nickname.
+     */
+    public static final String LABEL_NICK_NAME = "Nickname";
 
     /**
      * The standard/well-known label of a <tt>ContactDetail</tt> representing an
@@ -70,6 +106,48 @@ public class ContactDetail
      * address of a contact at their work.
      */
     public static final String LABEL_WORK = "Work";
+
+    /**
+     * The standard/well-known label of a <tt>ContactDetail</tt> representing a
+     * fax number.
+     */
+    public static final String LABEL_FAX = "Fax";
+
+    /**
+     * The standard/well-known label of a <tt>ContactDetail</tt> representing a
+     * different number.
+     */
+    public static final String LABEL_OTHER = "Other";
+
+    /**
+     * The standard/well-known label of a <tt>ContactDetail</tt> representing a
+     * country name.
+     */
+    public static final String LABEL_COUNTRY = "Country";
+
+    /**
+     * The standard/well-known label of a <tt>ContactDetail</tt> representing a
+     * city name.
+     */
+    public static final String LABEL_CITY = "City";
+
+    /**
+     * The standard/well-known label of a <tt>ContactDetail</tt> representing a
+     * street address.
+     */
+    public static final String LABEL_STREET = "Street";
+
+    /**
+     * The standard/well-known label of a <tt>ContactDetail</tt> representing a
+     * postal code.
+     */
+    public static final String LABEL_POSTAL_CODE = "Postal code";
+
+    /**
+     * The standard/well-known label of a <tt>ContactDetail</tt> representing a
+     * job title.
+     */
+    public static final String LABEL_JOB_TITLE = "Job title";
 
     /**
      * The category of this <tt>ContactQuery</tt>. For example,
