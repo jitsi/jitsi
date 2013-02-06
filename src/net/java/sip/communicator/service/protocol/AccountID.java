@@ -576,9 +576,7 @@ public abstract class AccountID
             propertyName = propertyNames.get(i);
             properties.put(
                     propertyName,
-                    new Boolean(this.getAccountPropertyBoolean(
-                            propertyName,
-                            defaultValue)));
+                    getAccountPropertyBoolean(propertyName, defaultValue));
         }
 
         return properties;
@@ -632,7 +630,7 @@ public abstract class AccountID
             propertyName = propertyNames.get(i);
             properties.put(
                     propertyName,
-                    new Integer(this.getAccountPropertyInt(propertyName, -1)));
+                    getAccountPropertyInt(propertyName, -1));
         }
 
         return properties;

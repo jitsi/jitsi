@@ -374,13 +374,10 @@ public class ConfigurationUtils
         }
 
         // Load the "showApplication" property.
-        String isVisible = configService.getString(
-            "net.java.sip.communicator.impl.systray.showApplication");
-
-        if(isVisible != null && isVisible.length() > 0)
-        {
-            isApplicationVisible = new Boolean(isVisible).booleanValue();
-        }
+        isApplicationVisible
+            = configService.getBoolean(
+                    "net.java.sip.communicator.impl.systray.showApplication",
+                    isApplicationVisible);
 
         // Load the "showAppQuitWarning" property.
         String quitWarningShown = configService.getString(
@@ -446,19 +443,21 @@ public class ConfigurationUtils
 
         String isLeaveChatRoomOnWindowCloseEnabledString
             = configService.getString(
-                isLeaveChatRoomOnWindowCloseEnabledStringProperty);
+                    isLeaveChatRoomOnWindowCloseEnabledStringProperty);
 
         if(isLeaveChatRoomOnWindowCloseEnabledString == null)
-            isLeaveChatRoomOnWindowCloseEnabledString =
-                UtilActivator.getResources().getSettingsString(
-                    isLeaveChatRoomOnWindowCloseEnabledStringProperty);
+        {
+            isLeaveChatRoomOnWindowCloseEnabledString
+                = UtilActivator.getResources().getSettingsString(
+                        isLeaveChatRoomOnWindowCloseEnabledStringProperty);
+        }
 
         if(isLeaveChatRoomOnWindowCloseEnabledString != null
             && isLeaveChatRoomOnWindowCloseEnabledString.length() > 0)
         {
             isLeaveChatRoomOnWindowCloseEnabled
-                = new Boolean(isLeaveChatRoomOnWindowCloseEnabledString)
-                    .booleanValue();
+                = Boolean.parseBoolean(
+                        isLeaveChatRoomOnWindowCloseEnabledString);
         }
 
         // Load the "IS_MESSAGE_HISTORY_ENABLED" property.
@@ -1209,7 +1208,7 @@ public class ConfigurationUtils
     public static int getChatDefaultFontSize()
     {
         if (defaultFontSize != null && defaultFontSize.length() > 0)
-            return new Integer(defaultFontSize).intValue();
+            return Integer.parseInt(defaultFontSize);
 
         return -1;
     }
