@@ -549,7 +549,7 @@ public class MetaUIContact
                         localizedType =
                             GuiActivator.getResources().
                                 getI18NString(
-                                    "service.gui.PHONE");
+                                    "service.gui.HOME");
                     }
 
                     tip.addLine(null, (pnd.getNumber() +

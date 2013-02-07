@@ -248,38 +248,95 @@ public class MacOSXAddrBookContactQuery
             String contactAddress,
             Object label)
     {
-        String c, l;
+        ContactDetail.Category c;
+        ContactDetail.SubCategory sc = null;
 
         switch (property)
         {
         case kABEmailProperty:
-            c = ContactDetail.CATEGORY_EMAIL;
+            c = ContactDetail.Category.Email;
             break;
         case kABPhoneProperty:
-            c = ContactDetail.CATEGORY_PHONE;
+            c = ContactDetail.Category.Phone;
             break;
         case kABAIMInstantProperty:
+            sc = ContactDetail.SubCategory.AIM;
+            c = ContactDetail.Category.InstantMessaging;
+            break;
         case kABICQInstantProperty:
+            sc = ContactDetail.SubCategory.ICQ;
+            c = ContactDetail.Category.InstantMessaging;
+            break;
         case kABJabberInstantProperty:
+            sc = ContactDetail.SubCategory.Jabber;
+            c = ContactDetail.Category.InstantMessaging;
+            break;
         case kABMSNInstantProperty:
+            sc = ContactDetail.SubCategory.MSN;
+            c = ContactDetail.Category.InstantMessaging;
+            break;
         case kABYahooInstantProperty:
-            c = ContactDetail.CATEGORY_INSTANT_MESSAGING;
+            sc = ContactDetail.SubCategory.Yahoo;
+            c = ContactDetail.Category.InstantMessaging;
             break;
         default:
             c = null;
             break;
         }
 
-        if (label == null)
-            l = null;
-        else
+        if (sc == null)
         {
-            l = LABEL_PATTERN.matcher((String) label).replaceAll("").trim();
-            if (l.length() < 1)
-                l = null;
+            if (label == null)
+                sc = null;
+            else
+            {
+                sc = getSubCategoryFromLabel(label);
+            }
         }
 
-        return new ContactDetail(contactAddress, c, new String[] { l });
+        return new ContactDetail(contactAddress,
+            c, new ContactDetail.SubCategory[] { sc });
+    }
+
+    /**
+     * Returns the ContactDetail.SubCategory corresponding to the given label.
+     *
+     * @param label the label to match to a <tt>ContactDetail.SubDirectory</tt>
+     * @return the <tt>ContactDetail.SubDirectory</tt> corresponding to the
+     * given label
+     */
+    private ContactDetail.SubCategory getSubCategoryFromLabel(Object label)
+    {
+        String labelString
+            = LABEL_PATTERN.matcher((String) label).replaceAll("").trim();
+
+        if (labelString.length() < 1)
+            return null;
+
+        ContactDetail.SubCategory subCategory = null;
+
+        if (labelString.equalsIgnoreCase("home"))
+            subCategory = ContactDetail.SubCategory.Home;
+        else if (labelString.equalsIgnoreCase("work"))
+            subCategory = ContactDetail.SubCategory.Work;
+        else if (labelString.equalsIgnoreCase("other"))
+            subCategory = ContactDetail.SubCategory.Other;
+        else if (labelString.equalsIgnoreCase("mobile"))
+            subCategory = ContactDetail.SubCategory.Mobile;
+        else if (labelString.equalsIgnoreCase("homepage"))
+            subCategory = ContactDetail.SubCategory.HomePage;
+        else if (labelString.equalsIgnoreCase("street"))
+            subCategory = ContactDetail.SubCategory.Street;
+        else if (labelString.equalsIgnoreCase("ZIP"))
+            subCategory = ContactDetail.SubCategory.PostalCode;
+        else if (labelString.equalsIgnoreCase("country"))
+            subCategory = ContactDetail.SubCategory.Country;
+        else if (labelString.equalsIgnoreCase("city"))
+            subCategory = ContactDetail.SubCategory.City;
+        else if (labelString.equalsIgnoreCase("InstantMessageUsername"))
+            subCategory = ContactDetail.SubCategory.Nickname;
+
+        return subCategory;
     }
 
     /**

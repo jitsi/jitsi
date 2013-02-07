@@ -12,6 +12,8 @@ import java.util.List;
 
 import javax.swing.*;
 
+import org.jitsi.service.resources.*;
+
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -20,7 +22,6 @@ import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.globalstatus.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>SourceUIContact</tt> is the implementation of the UIContact for the
@@ -70,8 +71,8 @@ public class SourceUIContact
         if(contact.getContactDetails() != null)
             for(ContactDetail detail : contact.getContactDetails())
             {
-                if(detail.getContactAddress() != null)
-                    searchStrings.add(detail.getContactAddress());
+                if(detail.getDetail() != null)
+                    searchStrings.add(detail.getDetail());
             }
 
         searchStrings.add(contact.getDisplayName());
@@ -211,7 +212,12 @@ public class SourceUIContact
         {
             ContactDetail detail = details.next();
 
-            resultList.add(new SourceContactDetail(detail, null, sourceContact));
+            resultList.add(new SourceContactDetail(
+                        detail,
+                        getInternationalizedLabel(detail.getCategory()),
+                        getInternationalizedLabels(
+                            detail.getSubCategories().iterator()),
+                        null, sourceContact));
         }
         return resultList;
     }
@@ -243,7 +249,12 @@ public class SourceUIContact
                     && supportedOperationSets.contains(opSetClass))
             {
                 resultList.add(new SourceContactDetail(
-                    detail, opSetClass, sourceContact));
+                    detail,
+                    getInternationalizedLabel(detail.getCategory()),
+                    getInternationalizedLabels(
+                        detail.getSubCategories().iterator()),
+                    opSetClass,
+                    sourceContact));
             }
         }
         return resultList;
@@ -292,17 +303,22 @@ public class SourceUIContact
          * the underlying <tt>detail</tt> and the <tt>OperationSet</tt> class
          * for it.
          * @param detail the underlying <tt>ContactDetail</tt>
+         * @param category detail category string
+         * @param subCategories the detail list of sub-categories
          * @param opSetClass the <tt>OperationSet</tt> class for the
          * preferred protocol provider
+         * @param sourceContact the source contact
          */
         public SourceContactDetail( ContactDetail detail,
+                                    String category,
+                                    Collection<String> subCategories,
                                     Class<? extends OperationSet> opSetClass,
                                     SourceContact sourceContact)
         {
-            super(  detail.getContactAddress(),
-                    detail.getContactAddress(),
-                    detail.getCategory(),
-                    detail.getLabels(),
+            super(  detail.getDetail(),
+                    detail.getDetail(),
+                    category,
+                    subCategories,
                     null,
                     null,
                     null,
@@ -391,27 +407,33 @@ public class SourceUIContact
         try
         {
             List<ContactDetail> details = sourceContact.getContactDetails(
-                            ContactDetail.CATEGORY_PHONE);
+                            ContactDetail.Category.Phone);
 
             if (details != null && details.size() > 0)
-                addDetailsToToolTip(details,
-                        ContactDetail.CATEGORY_PHONE + "s",
+                addDetailsToToolTip(
+                        details,
+                        GuiActivator.getResources()
+                            .getI18NString("service.gui.PHONES"),
                         tip);
 
             details = sourceContact.getContactDetails(
-                ContactDetail.CATEGORY_EMAIL);
+                ContactDetail.Category.Email);
 
             if (details != null && details.size() > 0)
-                addDetailsToToolTip(details,
-                        ContactDetail.CATEGORY_EMAIL + "s",
+                addDetailsToToolTip(
+                        details,
+                        GuiActivator.getResources()
+                            .getI18NString("service.gui.EMAILS"),
                         tip);
 
             details = sourceContact.getContactDetails(
-                ContactDetail.CATEGORY_INSTANT_MESSAGING);
+                ContactDetail.Category.InstantMessaging);
 
             if (details != null && details.size() > 0)
-                addDetailsToToolTip(details,
-                        ContactDetail.CATEGORY_INSTANT_MESSAGING + "s",
+                addDetailsToToolTip(
+                        details,
+                        GuiActivator.getResources()
+                            .getI18NString("service.gui.INSTANT_MESSAGINGS"),
                         tip);
         }
         catch (OperationNotSupportedException e)
@@ -445,16 +467,19 @@ public class SourceUIContact
         while (detailsIter.hasNext())
         {
             contactDetail = detailsIter.next();
-            Collection<String> labels = contactDetail.getLabels();
+            Collection<ContactDetail.SubCategory> subCategories
+                = contactDetail.getSubCategories();
 
-            JLabel[] jLabels = new JLabel[labels.size() + 1];
+            JLabel[] jLabels = new JLabel[subCategories.size() + 1];
             int i = 0;
-            if (labels != null && labels.size() > 0)
+            if (subCategories != null && subCategories.size() > 0)
             {
-                Iterator<String> labelsIter = labels.iterator();
+                Iterator<ContactDetail.SubCategory> labelsIter
+                    = subCategories.iterator();
                 while(labelsIter.hasNext())
                 {
-                    JLabel label = new JLabel(labelsIter.next().toLowerCase());
+                    JLabel label = new JLabel(
+                        getInternationalizedLabel(labelsIter.next()));
                     label.setFont(label.getFont().deriveFont(Font.BOLD));
                     label.setForeground(Color.GRAY);
 
@@ -463,10 +488,150 @@ public class SourceUIContact
                 }
             }
 
-            jLabels[i] = new JLabel(contactDetail.getContactAddress());
+            jLabels[i] = new JLabel(contactDetail.getDetail());
 
             toolTip.addLine(jLabels);
         }
+    }
+
+    /**
+     * Returns the internationalized category corresponding to the given
+     * <tt>ContactDetail.Category</tt>.
+     *
+     * @param category the <tt>ContactDetail.SubCategory</tt>, for which we
+     * would like to obtain an internationalized label
+     * @return the internationalized label corresponding to the given category
+     */
+    protected String getInternationalizedLabel(ContactDetail.Category category)
+    {
+        if (category == null)
+            return null;
+
+        String categoryString = null;
+
+        ResourceManagementService resources = GuiActivator.getResources();
+
+        switch(category)
+        {
+        case Address:
+            categoryString = resources.getI18NString("service.gui.ADDRESS");
+            break;
+        case Email:
+            categoryString = resources.getI18NString("service.gui.EMAIL");
+            break;
+        case Personal:
+            categoryString = resources.getI18NString("service.gui.PERSONAL");
+            break;
+        case Organization:
+            categoryString = resources.getI18NString("service.gui.ORGANIZATION");
+            break;
+        case Phone:
+            categoryString = resources.getI18NString("service.gui.PHONE");
+            break;
+        case InstantMessaging:
+            categoryString = resources.getI18NString("service.gui.IM");
+            break;
+        }
+
+        return categoryString;
+    }
+
+    /**
+     * Returns a collection of internationalized string corresponding to the
+     * given subCategories.
+     *
+     * @param subCategories an Iterator over a list of
+     * <tt>ContactDetail.SubCategory</tt>s
+     * @return a collection of internationalized string corresponding to the
+     * given subCategories
+     */
+    protected Collection<String> getInternationalizedLabels(
+        Iterator<ContactDetail.SubCategory> subCategories)
+    {
+        Collection<String> labels = new LinkedList<String>();
+
+        while (subCategories.hasNext())
+        {
+            labels.add(getInternationalizedLabel(subCategories.next()));
+        }
+
+        return labels;
+    }
+
+    /**
+     * Returns the internationalized label corresponding to the given category.
+     *
+     * @param subCategory the <tt>ContactDetail.SubCategory</tt>, for which we
+     * would like to obtain an internationalized label
+     * @return the internationalized label corresponding to the given category
+     */
+    protected String getInternationalizedLabel(
+                                ContactDetail.SubCategory subCategory)
+    {
+        if (subCategory == null)
+            return null;
+
+        String label = null;
+
+        ResourceManagementService resources = GuiActivator.getResources();
+
+        switch(subCategory)
+        {
+        case City:
+            label = resources.getI18NString("service.gui.CITY");
+            break;
+        case Country:
+            label = resources.getI18NString("service.gui.COUNTRY");
+            break;
+        case Fax:
+            label = resources.getI18NString("service.gui.FAX");
+            break;
+        case Home:
+            label = resources.getI18NString("service.gui.HOME");
+            break;
+        case HomePage:
+            label = resources.getI18NString("service.gui.HOME_PAGE");
+            break;
+        case JobTitle:
+            label = resources.getI18NString("service.gui.JOB_TITLE");
+            break;
+        case LastName:
+            label = resources.getI18NString("service.gui.LAST_NAME");
+            break;
+        case Mobile:
+            label = resources.getI18NString("service.gui.MOBILE_PHONE");
+            break;
+        case Name:
+            label = resources.getI18NString("service.gui.NAME");
+            break;
+        case Nickname:
+            label = resources.getI18NString("service.gui.NICKNAME");
+            break;
+        case Other:
+            label = resources.getI18NString("service.gui.OTHER");
+            break;
+        case PostalCode:
+            label = resources.getI18NString("service.gui.POSTAL_CODE");
+            break;
+        case Street:
+            label = resources.getI18NString("service.gui.STREET");
+            break;
+        case Work:
+            label = resources.getI18NString("service.gui.WORK_PHONE");
+            break;
+        case AIM:
+        case ICQ:
+        case Jabber:
+        case MSN:
+        case Yahoo:
+        case Skype:
+        case GoogleTalk:
+        case Facebook:
+            label = subCategory.value();
+            break;
+        }
+
+        return label;
     }
 
     /**

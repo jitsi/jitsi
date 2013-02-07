@@ -304,7 +304,8 @@ public class CallHistorySourceContact
      * @return a list of all <tt>ContactDetail</tt>s corresponding to the given
      * category
      */
-    public List<ContactDetail> getContactDetails(String category)
+    public List<ContactDetail> getContactDetails(
+        ContactDetail.Category category)
         throws OperationNotSupportedException
     {
         // We don't support category for call history details, so we return null.

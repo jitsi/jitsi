@@ -160,8 +160,10 @@ public class GoogleContactsQuery
             // can be added as contacts
             supportedOpSets.add(OperationSetPersistentPresence.class);
 
-            detail = new ContactDetail(mail, ContactDetail.CATEGORY_EMAIL,
-                    new String[]{ContactDetail.LABEL_HOME});
+            detail = new ContactDetail(mail,
+                    ContactDetail.Category.Email,
+                    new ContactDetail.SubCategory[]{
+                        ContactDetail.SubCategory.Home});
             detail.setSupportedOpSets(supportedOpSets);
             ret.add(detail);
         }
@@ -172,8 +174,10 @@ public class GoogleContactsQuery
             // can be added as contacts
             supportedOpSets.add(OperationSetPersistentPresence.class);
 
-            detail = new ContactDetail(mail, ContactDetail.CATEGORY_EMAIL,
-                    new String[]{ContactDetail.LABEL_WORK});
+            detail = new ContactDetail(mail,
+                    ContactDetail.Category.Email,
+                    new ContactDetail.SubCategory[]{
+                        ContactDetail.SubCategory.Work});
             detail.setSupportedOpSets(supportedOpSets);
             ret.add(detail);
         }
@@ -188,8 +192,9 @@ public class GoogleContactsQuery
             supportedOpSets.add(OperationSetPersistentPresence.class);
             homePhone = PhoneNumberI18nService.normalize(homePhone);
             detail = new ContactDetail(homePhone,
-                    ContactDetail.CATEGORY_PHONE,
-                    new String[]{ContactDetail.LABEL_HOME});
+                    ContactDetail.Category.Phone,
+                    new ContactDetail.SubCategory[]{
+                        ContactDetail.SubCategory.Home});
             detail.setSupportedOpSets(supportedOpSets);
             ret.add(detail);
         }
@@ -204,8 +209,9 @@ public class GoogleContactsQuery
             supportedOpSets.add(OperationSetPersistentPresence.class);
             workPhone = PhoneNumberI18nService.normalize(workPhone);
             detail = new ContactDetail(workPhone,
-                    ContactDetail.CATEGORY_PHONE,
-                    new String[]{ContactDetail.LABEL_WORK});
+                ContactDetail.Category.Phone,
+                new ContactDetail.SubCategory[]{
+                    ContactDetail.SubCategory.Work});
             detail.setSupportedOpSets(supportedOpSets);
             ret.add(detail);
         }
@@ -220,8 +226,9 @@ public class GoogleContactsQuery
             supportedOpSets.add(OperationSetPersistentPresence.class);
             mobilePhone = PhoneNumberI18nService.normalize(mobilePhone);
             detail = new ContactDetail(mobilePhone,
-                    ContactDetail.CATEGORY_PHONE,
-                    new String[]{ContactDetail.LABEL_MOBILE});
+                ContactDetail.Category.Phone,
+                new ContactDetail.SubCategory[]{
+                    ContactDetail.SubCategory.Mobile});
             detail.setSupportedOpSets(supportedOpSets);
             ret.add(detail);
         }
@@ -231,9 +238,33 @@ public class GoogleContactsQuery
         {
             if(im.getValue() != GoogleContactsEntry.IMProtocol.OTHER)
             {
-                detail = new ContactDetail(im.getKey(),
-                        ContactDetail.CATEGORY_INSTANT_MESSAGING,
-                        new String[]{im.getValue().toString()});
+                ContactDetail.SubCategory imSubCat = null;
+                switch(im.getValue())
+                {
+                case AIM:
+                    imSubCat = ContactDetail.SubCategory.AIM;
+                    break;
+                case ICQ:
+                    imSubCat = ContactDetail.SubCategory.ICQ;
+                    break;
+                case YAHOO:
+                    imSubCat = ContactDetail.SubCategory.Yahoo;
+                    break;
+                case JABBER:
+                    imSubCat = ContactDetail.SubCategory.Jabber;
+                    break;
+                case MSN:
+                    imSubCat = ContactDetail.SubCategory.MSN;
+                    break;
+                case GOOGLETALK:
+                    imSubCat = ContactDetail.SubCategory.GoogleTalk;
+                    break;
+                }
+
+                detail = new ContactDetail(
+                    im.getKey(),
+                    ContactDetail.Category.InstantMessaging,
+                    new ContactDetail.SubCategory[]{imSubCat});
 
                 setIMCapabilities(detail, im.getValue());
 

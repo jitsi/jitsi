@@ -70,7 +70,8 @@ public interface SourceContact
      * @throws OperationNotSupportedException if categories aren't supported
      * for call history records
      */
-    public List<ContactDetail> getContactDetails(String category)
+    public List<ContactDetail> getContactDetails(
+                                            ContactDetail.Category category)
         throws OperationNotSupportedException;
 
     /**

@@ -145,7 +145,7 @@ public class LdapContactQuery
             // can be added as contacts
             supportedOpSets.add(OperationSetPersistentPresence.class);
 
-            detail = new ContactDetail(mail, ContactDetail.CATEGORY_EMAIL,
+            detail = new ContactDetail(mail, ContactDetail.Category.Email,
                     null);
             detail.setSupportedOpSets(supportedOpSets);
             ret.add(detail);
@@ -161,8 +161,9 @@ public class LdapContactQuery
             supportedOpSets.add(OperationSetPersistentPresence.class);
             homePhone = PhoneNumberI18nService.normalize(homePhone);
             detail = new ContactDetail(homePhone,
-                    ContactDetail.CATEGORY_PHONE,
-                    new String[]{ContactDetail.LABEL_HOME});
+                    ContactDetail.Category.Phone,
+                    new ContactDetail.SubCategory[]{
+                        ContactDetail.SubCategory.Home});
             detail.setSupportedOpSets(supportedOpSets);
             ret.add(detail);
         }
@@ -177,8 +178,9 @@ public class LdapContactQuery
             supportedOpSets.add(OperationSetPersistentPresence.class);
             workPhone = PhoneNumberI18nService.normalize(workPhone);
             detail = new ContactDetail(workPhone,
-                    ContactDetail.CATEGORY_PHONE,
-                    new String[]{ContactDetail.LABEL_WORK});
+                ContactDetail.Category.Phone,
+                new ContactDetail.SubCategory[]{
+                    ContactDetail.SubCategory.Work});
             detail.setSupportedOpSets(supportedOpSets);
             ret.add(detail);
         }
@@ -193,8 +195,9 @@ public class LdapContactQuery
             supportedOpSets.add(OperationSetPersistentPresence.class);
             mobilePhone = PhoneNumberI18nService.normalize(mobilePhone);
             detail = new ContactDetail(mobilePhone,
-                    ContactDetail.CATEGORY_PHONE,
-                    new String[]{ContactDetail.LABEL_MOBILE});
+                ContactDetail.Category.Phone,
+                new ContactDetail.SubCategory[]{
+                    ContactDetail.SubCategory.Mobile});
             detail.setSupportedOpSets(supportedOpSets);
             ret.add(detail);
         }

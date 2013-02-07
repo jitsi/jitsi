@@ -51,6 +51,11 @@ public class SourceContactRightButtonMenu
     private SIPCommMenu callContactMenu;
 
     /**
+     * Contact details menu.
+     */
+    private SIPCommMenu contactDetailsMenu;
+
+    /**
      * Add contact component.
      */
     private Component addContactComponent;
@@ -111,7 +116,7 @@ public class SourceContactRightButtonMenu
             final ContactDetail detail = details.next();
             // add all the contacts that support telephony to the call menu
             JMenuItem callContactItem = new JMenuItem();
-            callContactItem.setText(detail.getContactAddress());
+            callContactItem.setText(detail.getDetail());
             callContactItem.addActionListener(new ActionListener()
             {
                 public void actionPerformed(ActionEvent e)
@@ -139,14 +144,14 @@ public class SourceContactRightButtonMenu
                     else if (providersCount > 1)
                     {
                         new ChooseCallAccountDialog(
-                            detail.getContactAddress(),
+                            detail.getDetail(),
                             OperationSetBasicTelephony.class, providers)
                         .setVisible(true);
                     }
                     else // providersCount == 1
                     {
                         CallManager.createCall(
-                            providers.get(0), detail.getContactAddress());
+                            providers.get(0), detail.getDetail());
                     }
                 }
             });

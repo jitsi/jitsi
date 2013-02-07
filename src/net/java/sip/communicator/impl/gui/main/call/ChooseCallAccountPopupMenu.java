@@ -284,7 +284,7 @@ public class ChooseCallAccountPopupMenu
 
         String category = telephonyContact.getCategory();
 
-        if (category != null && category.equals(ContactDetail.CATEGORY_PHONE))
+        if (category != null && category.equals(ContactDetail.Category.Phone))
         {
             int index = findPhoneItemIndex();
             if (index < 0)
@@ -299,7 +299,7 @@ public class ChooseCallAccountPopupMenu
                 category = ((ContactMenuItem) lastComp).getCategory();
 
             if (category != null
-                && category.equals(ContactDetail.CATEGORY_PHONE))
+                && category.equals(ContactDetail.Category.Phone))
                 addSeparator();
 
             add(contactItem);
@@ -322,7 +322,7 @@ public class ChooseCallAccountPopupMenu
             {
                 String category = ((ContactMenuItem) c).getCategory();
                 if (category == null
-                    || !category.equals(ContactDetail.CATEGORY_PHONE))
+                    || !category.equals(ContactDetail.Category.Phone))
                 continue;
             }
             else if (c instanceof JSeparator)

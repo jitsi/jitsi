@@ -1955,7 +1955,7 @@ public class TreeContactList
                 final ContactDetail detail = detailsIter.next();
 
                 JMenuItem addMenuItem
-                    = new JMenuItem(detail.getContactAddress());
+                    = new JMenuItem(detail.getDetail());
                 ((JMenu) addContactComponentTmp).add(addMenuItem);
 
                 addMenuItem.addActionListener(new ActionListener()
@@ -1995,7 +1995,7 @@ public class TreeContactList
         if (preferredProvider != null)
             dialog.setSelectedAccount(preferredProvider);
 
-        dialog.setContactAddress(contactDetail.getContactAddress());
+        dialog.setContactAddress(contactDetail.getDetail());
         dialog.setVisible(true);
     }
 

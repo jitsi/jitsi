@@ -215,6 +215,26 @@ public class MsOutlookAddrBookContactQuery
             String query,
             PtrCallback callback);
 
+    private ContactDetail.Category getCategory(int propIndex)
+    {
+        switch (propIndex)
+        {
+        case dispidEmail1EmailAddress:
+        case dispidEmail2EmailAddress:
+        case dispidEmail3EmailAddress:
+        case PR_EMAIL_ADDRESS:
+            return ContactDetail.Category.Email;
+        case PR_BUSINESS2_TELEPHONE_NUMBER:
+        case PR_BUSINESS_TELEPHONE_NUMBER:
+        case PR_HOME2_TELEPHONE_NUMBER:
+        case PR_HOME_TELEPHONE_NUMBER:
+        case PR_MOBILE_TELEPHONE_NUMBER:
+            return ContactDetail.Category.Phone;
+        default:
+            return null;
+        }
+    }
+
     /**
      * Gets the set of <tt>ContactDetail</tt> labels to be assigned to a
      * property specified by its index in {@link #MAPI_MAILUSER_PROP_IDS}.
@@ -224,37 +244,29 @@ public class MsOutlookAddrBookContactQuery
      * @return the set of <tt>ContactDetail</tt> labels to be assigned to the
      * property specified by its index in <tt>MAPI_MAILUSER_PROP_IDS</tt>
      */
-    private String[] getLabels(int propIndex)
+    private ContactDetail.SubCategory[] getSubCategories(int propIndex)
     {
         switch (propIndex)
         {
-        case dispidEmail1EmailAddress:
-        case dispidEmail2EmailAddress:
-        case dispidEmail3EmailAddress:
-        case PR_EMAIL_ADDRESS:
-            return new String[] { ContactDetail.CATEGORY_EMAIL };
         case PR_BUSINESS2_TELEPHONE_NUMBER:
         case PR_BUSINESS_TELEPHONE_NUMBER:
             return
-                new String[]
+                new ContactDetail.SubCategory[]
                         {
-                            ContactDetail.CATEGORY_PHONE,
-                            ContactDetail.LABEL_WORK
+                            ContactDetail.SubCategory.Work
                         };
         case PR_HOME2_TELEPHONE_NUMBER:
         case PR_HOME_TELEPHONE_NUMBER:
             return
-                new String[]
+                new ContactDetail.SubCategory[]
                         {
-                            ContactDetail.CATEGORY_PHONE,
-                            ContactDetail.LABEL_HOME
+                            ContactDetail.SubCategory.Home
                         };
         case PR_MOBILE_TELEPHONE_NUMBER:
             return
-                new String[]
+                new ContactDetail.SubCategory[]
                         {
-                            ContactDetail.CATEGORY_PHONE,
-                            ContactDetail.LABEL_MOBILE
+                            ContactDetail.SubCategory.Mobile
                         };
         default:
             return null;
@@ -382,7 +394,8 @@ public class MsOutlookAddrBookContactQuery
                         ContactDetail contactDetail
                             = new ContactDetail(
                                     stringProp,
-                                    getLabels(propIndex));
+                                    getCategory(propIndex),
+                                    getSubCategories(propIndex));
 
                         contactDetail.setSupportedOpSets(supportedOpSets);
                         contactDetails.add(contactDetail);

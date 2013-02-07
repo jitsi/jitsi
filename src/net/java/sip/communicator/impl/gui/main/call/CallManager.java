@@ -1654,7 +1654,7 @@ public class CallManager
                                 localizedType =
                                     GuiActivator.getResources().
                                         getI18NString(
-                                            "service.gui.PHONE");
+                                            "service.gui.HOME");
                             }
 
                             phones.add(pnd.getNumber());

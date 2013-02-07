@@ -282,7 +282,7 @@ public class DemuxContactSource
                                             sourceContact.getDisplayName(),
                                             contactDetails);
 
-            genericContact.setDisplayDetails(contactDetail.getContactAddress());
+            genericContact.setDisplayDetails(contactDetail.getDetail());
 
             return genericContact;
         }

@@ -169,7 +169,7 @@ public class PhoneNumberContactQuery
                         {
                             localizedType =
                                 PNContactSourceActivator.getResources()
-                                .getI18NString("service.gui.PHONE");
+                                .getI18NString("service.gui.HOME");
                         }
 
                         String contactName = contact.getDisplayName();
