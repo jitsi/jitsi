@@ -52,6 +52,11 @@ public class RecordButton
      */
     private static final ResourceManagementService resources
         = GuiActivator.getResources();
+    
+    /**
+     * Maximum allowed file name length.
+     */
+    private static final int MAX_FILENAME_LENGTH = 64;
 
     /**
      * The full filename of the saved call on the file system.
@@ -198,14 +203,47 @@ public class RecordButton
     }
 
     /**
-     * Generates a file name for the call based on the current date.
+     * Generates a file name for the call based on the current date and
+     * the names of the peers in the call.
      *
      * @param ext file extension
      * @return the file name for the call
      */
     private String generateCallFilename(String ext)
     {
-        return FORMAT.format(new Date()) + "-call." + ext;
+        String filename = FORMAT.format(new Date()) + "-call";
+        int maxLength
+            = MAX_FILENAME_LENGTH - 2 - filename.length() - ext.length();
+        String peerName = getCallPeerName(maxLength);
+        filename += ((!peerName.equals("")) ? "-" : "") + peerName + "." + ext;
+        return  filename;
+    }
+
+    /**
+     * Gets and formats the names of the peers in the call.
+     *
+     * @param maxLength maximum length of the filename
+     * @return the name of the peer in the call formated
+     */
+    private String getCallPeerName(int maxLength)
+    {
+        List<CallPeer> callPeers = call.getConference().getCallPeers();
+        CallPeer callPeer = null;
+        String peerName = "";
+        if (!callPeers.isEmpty())
+        {
+            callPeer = callPeers.get(0);
+            if (callPeer != null)
+            {
+                peerName = callPeer.getDisplayName();
+                peerName = peerName.replaceAll("[^\\da-zA-Z\\_\\-]","");
+                if(peerName.length() > maxLength)
+                {
+                    peerName = peerName.substring(0, maxLength);
+                }
+            }
+        }
+        return peerName;
     }
 
     /**
