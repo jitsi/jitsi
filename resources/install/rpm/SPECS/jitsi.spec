@@ -1,13 +1,13 @@
 Name:     jitsi
 Version:  1.1
-Release:  4450.10402
+Release:  4467.10442
 Summary:  Jitsi - Open Source Video Calls and Chat
 Packager: Damian Minkov <damencho@jitsi.org>
 
 Group:     Applications/Internet
 License:   GNU Lesser General Public License
 URL:       https://www.jitsi.org
-Source0:   http://download.jitsi.org/jitsi/nightly/src/jitsi-src-1.1-4450-10402.zip
+Source0:   http://download.jitsi.org/jitsi/nightly/src/jitsi-src-1.1-4467-10442.zip
 BuildRoot: %{_topdir}/buildroot
 
 AutoReqProv:   no
@@ -30,7 +30,7 @@ freely available under the terms of the GNU Lesser General Public License.
 %setup -q -n jitsi
 
 %build
-ant -Dlabel=4450.10402 rebuild
+ant -Dlabel=4467.10442 rebuild
 
 %install
 [ "$RPM_BUILD_ROOT" != "/" ] && rm -rf $RPM_BUILD_ROOT
@@ -43,11 +43,11 @@ mkdir -p $RPM_BUILD_ROOT/usr/share/applications
 mkdir -p $RPM_BUILD_ROOT/usr/share/doc/jitsi
 mkdir -p $RPM_BUILD_ROOT/usr/share/man/man1
 mkdir -p $RPM_BUILD_ROOT/usr/share/pixmaps
-mkdir -p $RPM_BUILD_ROOT/usr/lib/jitsi
-mkdir -p $RPM_BUILD_ROOT/usr/lib/jitsi/lib
-mkdir -p $RPM_BUILD_ROOT/usr/lib/jitsi/lib/bundle
-mkdir -p $RPM_BUILD_ROOT/usr/lib/jitsi/lib/native
-mkdir -p $RPM_BUILD_ROOT/usr/lib/jitsi/sc-bundles
+mkdir -p $RPM_BUILD_ROOT/usr/share/jitsi
+mkdir -p $RPM_BUILD_ROOT/usr/share/jitsi/lib
+mkdir -p $RPM_BUILD_ROOT/usr/share/jitsi/lib/bundle
+mkdir -p $RPM_BUILD_ROOT/usr/share/jitsi/lib/native
+mkdir -p $RPM_BUILD_ROOT/usr/share/jitsi/sc-bundles
 
 # copy the documentation
 cp resources/install/debian/jitsi.1.tmpl $RPM_BUILD_ROOT/usr/share/man/man1/jitsi.1
@@ -74,33 +74,33 @@ sed -i -e "s/_PACKAGE_NAME_/jitsi/"  $RPM_BUILD_ROOT/usr/share/applications/jits
 sed -i -e "s/_APP_NAME_/Jitsi/"      $RPM_BUILD_ROOT/usr/share/applications/jitsi.desktop
 
 # copy the sc-bundles
-cp sc-bundles/*.jar $RPM_BUILD_ROOT/usr/lib/jitsi/sc-bundles/
+cp sc-bundles/*.jar $RPM_BUILD_ROOT/usr/share/jitsi/sc-bundles/
 # remove all slicks
-rm -rf $RPM_BUILD_ROOT/usr/lib/jitsi/sc-bundles/*-slick.jar
-rm -rf $RPM_BUILD_ROOT/usr/lib/jitsi/sc-bundles/slick*.jar
+rm -rf $RPM_BUILD_ROOT/usr/share/jitsi/sc-bundles/*-slick.jar
+rm -rf $RPM_BUILD_ROOT/usr/share/jitsi/sc-bundles/slick*.jar
 
 # copy the os-specific sc-bundles
-cp sc-bundles/os-specific/linux/*.jar $RPM_BUILD_ROOT/usr/lib/jitsi/sc-bundles/
+cp sc-bundles/os-specific/linux/*.jar $RPM_BUILD_ROOT/usr/share/jitsi/sc-bundles/
 
 # copy the lib jars
-cp lib/*.jar $RPM_BUILD_ROOT/usr/lib/jitsi/lib/
-cp lib/bundle/* $RPM_BUILD_ROOT/usr/lib/jitsi/lib/bundle/
-rm $RPM_BUILD_ROOT/usr/lib/jitsi/lib/bundle/junit.jar
-cp lib/os-specific/linux/*.jar $RPM_BUILD_ROOT/usr/lib/jitsi/lib/
+cp lib/*.jar $RPM_BUILD_ROOT/usr/share/jitsi/lib/
+cp lib/bundle/* $RPM_BUILD_ROOT/usr/share/jitsi/lib/bundle/
+rm $RPM_BUILD_ROOT/usr/share/jitsi/lib/bundle/junit.jar
+cp lib/os-specific/linux/*.jar $RPM_BUILD_ROOT/usr/share/jitsi/lib/
 
 # copy the native libs
 %ifarch i386 i586 i686
-cp lib/native/linux/* $RPM_BUILD_ROOT/usr/lib/jitsi/lib/native/
+cp lib/native/linux/* $RPM_BUILD_ROOT/usr/share/jitsi/lib/native/
 %else
-cp lib/native/linux-64/* $RPM_BUILD_ROOT/usr/lib/jitsi/lib/native/
+cp lib/native/linux-64/* $RPM_BUILD_ROOT/usr/share/jitsi/lib/native/
 %endif
 
 # copy the resources
-cp resources/install/logging.properties $RPM_BUILD_ROOT/usr/lib/jitsi/lib/
-cp lib/felix.client.run.properties $RPM_BUILD_ROOT/usr/lib/jitsi/lib/
+cp resources/install/logging.properties $RPM_BUILD_ROOT/usr/share/jitsi/lib/
+cp lib/felix.client.run.properties $RPM_BUILD_ROOT/usr/share/jitsi/lib/
 
 # Make felix deploy its bundles in ~/.felix/sip-communicator.bin
-sed -i -e "s/felix.cache.profiledir=sip-communicator.bin/felix.cache.profile=sip-communicator.bin/" $RPM_BUILD_ROOT/usr/lib/jitsi/lib/felix.client.run.properties
+sed -i -e "s/felix.cache.profiledir=sip-communicator.bin/felix.cache.profile=sip-communicator.bin/" $RPM_BUILD_ROOT/usr/share/jitsi/lib/felix.client.run.properties
 # fix shell script
 sed -i -e "s/\/usr\/lib\/jni/\$LIBPATH\/native/" $RPM_BUILD_ROOT/usr/bin/jitsi
 sed -i -e "s/\/usr\/share\/java\/jdic\.jar/\$LIBPATH\/jdic_stub\.jar:\$LIBPATH\/jdic-all\.jar/" $RPM_BUILD_ROOT/usr/bin/jitsi
@@ -115,7 +115,7 @@ sed -i -e "s/\/launchutils.jar//" $RPM_BUILD_ROOT/usr/bin/jitsi
 %defattr(-,root,root,-)
 %{_bindir}/jitsi
 #%{_libdir}/jitsi/
-/usr/lib/jitsi
+/usr/share/jitsi
 /usr/share/applications/jitsi*
 /usr/share/pixmaps/jitsi*
 %doc %{_mandir}/man*/*
