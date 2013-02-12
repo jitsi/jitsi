@@ -1921,6 +1921,7 @@ public class TreeContactList
         JMenuItem addContactComponentTmp = null;
 
         List<ContactDetail> details = sourceContact.getContactDetails();
+        final String displayName = sourceContact.getDisplayName();
 
         if (details.size() == 1)
         {
@@ -1936,7 +1937,7 @@ public class TreeContactList
             {
                 public void actionPerformed(ActionEvent e)
                 {
-                    showAddContactDialog(detail);
+                    showAddContactDialog(detail, displayName);
                 }
             });
         }
@@ -1962,7 +1963,7 @@ public class TreeContactList
                 {
                     public void actionPerformed(ActionEvent e)
                     {
-                        showAddContactDialog(detail);
+                        showAddContactDialog(detail, displayName);
                     }
                 });
             }
@@ -1975,8 +1976,11 @@ public class TreeContactList
      * Creates and shows an <tt>AddContactDialog</tt> with a predefined
      * <tt>contactAddress</tt> and <tt>protocolProvider</tt>.
      * @param contactDetail the contact detail to be added
+     * @param displayName the display name of the contact
      */
-    public static void showAddContactDialog(ContactDetail contactDetail)
+    public static void showAddContactDialog(
+        ContactDetail contactDetail,
+        String displayName)
     {
         AddContactDialog dialog = new AddContactDialog(
             GuiActivator.getUIService().getMainFrame());
@@ -1994,8 +1998,13 @@ public class TreeContactList
         }
         if (preferredProvider != null)
             dialog.setSelectedAccount(preferredProvider);
-
-        dialog.setContactAddress(contactDetail.getDetail());
+        
+        String contactAddress = contactDetail.getDetail();
+        dialog.setContactAddress(contactAddress);
+        if(displayName != null && !displayName.equalsIgnoreCase(contactAddress))
+        {
+            dialog.setDisplayName(displayName);
+        }
         dialog.setVisible(true);
     }
 

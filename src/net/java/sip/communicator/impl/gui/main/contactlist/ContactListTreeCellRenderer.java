@@ -1404,7 +1404,9 @@ public class ContactListTreeCellRenderer
         }
         else if (details.size() == 1)
         {
-            TreeContactList.showAddContactDialog(details.get(0));
+            TreeContactList.showAddContactDialog(
+                details.get(0),
+                sourceContact.getDisplayName());
         }
     }
 

@@ -149,6 +149,15 @@ public class AddContactDialog
     }
 
     /**
+     * Sets the display name of the contact to add.
+     * @param displayName the display name of the contact to add
+     */
+    public void setDisplayName(String displayName)
+    {
+        displayNameField.setText(displayName);
+    }
+
+    /**
      * Initializes the dialog.
      */
     private void init()
