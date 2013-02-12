@@ -236,7 +236,7 @@ public class RecordButton
             if (callPeer != null)
             {
                 peerName = callPeer.getDisplayName();
-                peerName = peerName.replaceAll("[^\\da-zA-Z\\_\\-]","");
+                peerName = peerName.replaceAll("[^\\da-zA-Z\\_\\-@\\.]","");
                 if(peerName.length() > maxLength)
                 {
                     peerName = peerName.substring(0, maxLength);
