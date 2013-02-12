@@ -211,9 +211,15 @@ public class ToolsMenu
 
             TreeContactList.presenceFilter.setShowOffline(!isShowOffline);
 
-            GuiActivator.getContactList()
-                .setDefaultFilter(TreeContactList.presenceFilter);
-            GuiActivator.getContactList().applyDefaultFilter();
+            // Only re-apply the filter if the presence filter is showing.
+            // Otherwise we might end up with contacts in the call history
+            if (GuiActivator.getContactList().getDefaultFilter() ==
+                    TreeContactList.presenceFilter)
+            {
+                GuiActivator.getContactList()
+                    .setDefaultFilter(TreeContactList.presenceFilter);
+                GuiActivator.getContactList().applyDefaultFilter();
+            }
 
             String itemTextKey = !isShowOffline
                     ? "service.gui.HIDE_OFFLINE_CONTACTS"
