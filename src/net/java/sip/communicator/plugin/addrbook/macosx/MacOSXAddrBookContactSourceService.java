@@ -37,6 +37,11 @@ public class MacOSXAddrBookContactSourceService
     private long ptr;
 
     /**
+     * The latest query created.
+     */
+    private MacOSXAddrBookContactQuery latestQuery;
+
+    /**
      * Initializes a new <tt>MacOSXAddrBookContactSourceService</tt> instance.
      */
     public MacOSXAddrBookContactSourceService()
@@ -44,6 +49,7 @@ public class MacOSXAddrBookContactSourceService
         ptr = start();
         if (0 == ptr)
             throw new IllegalStateException("ptr");
+        setDelegate(ptr, new NotificationsDelegate());
     }
 
     /**
@@ -86,11 +92,13 @@ public class MacOSXAddrBookContactSourceService
      */
     public ContactQuery queryContactSource(Pattern query)
     {
-        MacOSXAddrBookContactQuery mosxabcq
-            = new MacOSXAddrBookContactQuery(this, query);
+        if(latestQuery != null)
+            latestQuery.clear();
 
-        mosxabcq.start();
-        return mosxabcq;
+        latestQuery = new MacOSXAddrBookContactQuery(this, query);
+
+        latestQuery.start();
+        return latestQuery;
     }
 
     /**
@@ -111,6 +119,12 @@ public class MacOSXAddrBookContactSourceService
     {
         if (0 != ptr)
         {
+            if(latestQuery != null)
+            {
+                latestQuery.clear();
+                latestQuery = null;
+            }
+
             stop(ptr);
             ptr = 0;
         }
@@ -145,4 +159,44 @@ public class MacOSXAddrBookContactSourceService
      * <tt>MacOSXAddrBookContactSourceService</tt> to stop
      */
     private static native void stop(long ptr);
+
+    /**
+     * Sets notifier delegate.
+     * @param ptr
+     * @param delegate
+     */
+    public static native void setDelegate(long ptr, NotificationsDelegate delegate);
+
+    /**
+     * Delegate class to be notified for addressbook changes.
+     */
+    public class NotificationsDelegate
+    {
+        /**
+         * Callback method when receiving notifications for inserted items.
+         */
+        public void inserted(long person)
+        {
+            if(latestQuery != null)
+                latestQuery.inserted(person);
+        }
+
+        /**
+         * Callback method when receiving notifications for updated items.
+         */
+        public void updated(long person)
+        {
+            if(latestQuery != null)
+                latestQuery.updated(person);
+        }
+
+        /**
+         * Callback method when receiving notifications for deleted items.
+         */
+        public void deleted(String id)
+        {
+            if(latestQuery != null)
+                latestQuery.deleted(id);
+        }
+    }
 }

@@ -277,8 +277,7 @@ public class ContactDetail
     }
 
     /**
-     * The category of this <tt>ContactQuery</tt>. For example,
-     * {@link #CATEGORY_PHONE} or {@link #CATEGORY_EMAIL}.
+     * The category of this <tt>ContactQuery</tt>.
      */
     private final Category category;
 
@@ -409,8 +408,7 @@ public class ContactDetail
     }
 
     /**
-     * Gets the category, if any, of this <tt>ContactQuery</tt>. For example,
-     * {@link #CATEGORY_PHONE} or {@link #CATEGORY_EMAIL}.
+     * Gets the category, if any, of this <tt>ContactQuery</tt>.
      *
      * @return the category of this <tt>ContactQuery</tt> if it has any;
      * otherwise, <tt>null</tt>
@@ -488,14 +486,14 @@ public class ContactDetail
      * any of the standard/well-known labels defined by the <tt>LABEL_XXX</tt>
      * constants of the <tt>ContactDetail</tt> class.
      * 
-     * @param label the label to be determined whether it is contained in the
-     * set of labels of this <tt>ContactDetail</tt>
+     * @param subCategory the subCategory to be determined whether
+     * it is contained in this <tt>ContactDetail</tt>
      * @return <tt>true</tt> if the specified <tt>label</tt> is contained in the
      * set of labels of this <tt>ContactDetail</tt>
      */
-    public boolean containsSubCategory(SubCategory label)
+    public boolean containsSubCategory(SubCategory subCategory)
     {
-        return subCategories.contains(label);
+        return subCategories.contains(subCategory);
     }
 
     /**

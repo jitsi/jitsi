@@ -23,6 +23,14 @@ JNIEXPORT jlong JNICALL Java_net_java_sip_communicator_plugin_addrbook_macosx_Ma
 JNIEXPORT void JNICALL Java_net_java_sip_communicator_plugin_addrbook_macosx_MacOSXAddrBookContactSourceService_stop
   (JNIEnv *, jclass, jlong);
 
+/*
+ * Class:     net_java_sip_communicator_plugin_addrbook_macosx_MacOSXAddrBookContactSourceService
+ * Method:    setDelegate
+ * Signature: (JLnet/java/sip/communicator/plugin/addrbook/macosx/MacOSXAddrBookContactSourceService/NotificationsDelegate;)V
+ */
+JNIEXPORT void JNICALL Java_net_java_sip_communicator_plugin_addrbook_macosx_MacOSXAddrBookContactSourceService_setDelegate
+  (JNIEnv *, jclass, jlong, jobject);
+
 #ifdef __cplusplus
 }
 #endif

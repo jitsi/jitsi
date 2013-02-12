@@ -24,7 +24,7 @@ public class GenericSourceContact
     /**
      * The <tt>ContactDetail</tt>s of this <tt>SourceContact</tt>.
      */
-    private final List<ContactDetail> contactDetails;
+    protected final List<ContactDetail> contactDetails;
 
     /**
      * The <tt>ContactSourceService</tt> which has created this

@@ -69,7 +69,7 @@ public class NetworkConfigurationWatcher
     {
         try
         {
-            checkNetworkInterfaces(false, 0);
+            checkNetworkInterfaces(false, 0, true);
         } catch (SocketException e)
         {
             logger.error("Error checking network interfaces", e);
@@ -341,7 +341,7 @@ public class NetworkConfigurationWatcher
         {
             try
             {
-                checkNetworkInterfaces(true, 0);
+                checkNetworkInterfaces(true, 0, true);
             } catch (SocketException e)
             {
                 logger.error("Error checking network interfaces", e);
@@ -385,10 +385,14 @@ public class NetworkConfigurationWatcher
      * @param waitBeforeFiringUpEvents milliseconds to wait before
      * firing events for interfaces up, sometimes we must wait a little bit
      * and give time for interfaces to configure fully (dns on linux).
+     * @param printDebugInfo whether to print debug info, do not print
+     * anything if we are constantly checking as it will flood logs and made
+     * them unusable.
      */
     private void checkNetworkInterfaces(
             boolean fireEvents,
-            int waitBeforeFiringUpEvents)
+            int waitBeforeFiringUpEvents,
+            boolean printDebugInfo)
         throws SocketException
     {
         Enumeration<NetworkInterface> e =
@@ -429,7 +433,7 @@ public class NetworkConfigurationWatcher
         }
 
         // add network debug info, to track wake up problems
-        if(logger.isInfoEnabled())
+        if(logger.isInfoEnabled() && printDebugInfo)
         {
             for(Map.Entry<String, List<InetAddress>> en :
                 activeInterfaces.entrySet())
@@ -627,7 +631,7 @@ public class NetworkConfigurationWatcher
             {
                 boolean networkIsUP = activeInterfaces.size() > 0;
 
-                checkNetworkInterfaces(true, 1000);
+                checkNetworkInterfaces(true, 1000, false);
 
                 // fire that network has gone up
                 if(!networkIsUP && activeInterfaces.size() > 0)

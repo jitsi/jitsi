@@ -116,6 +116,54 @@ public abstract class AbstractContactQuery<T extends ContactSourceService>
 
     /**
      * Notifies the <tt>ContactQueryListener</tt>s registered with this
+     * <tt>ContactQuery</tt> that a <tt>SourceContact</tt> has been
+     * removed.
+     *
+     * @param contact the <tt>SourceContact</tt> which has been removed and
+     * which the registered <tt>ContactQueryListener</tt>s are to be notified
+     * about
+     */
+    protected void fireContactRemoved(SourceContact contact)
+    {
+        ContactQueryListener[] ls;
+
+        synchronized (listeners)
+        {
+            ls = listeners.toArray(new ContactQueryListener[listeners.size()]);
+        }
+
+        ContactRemovedEvent ev = new ContactRemovedEvent(this, contact);
+
+        for (ContactQueryListener l : ls)
+            l.contactRemoved(ev);
+    }
+
+    /**
+     * Notifies the <tt>ContactQueryListener</tt>s registered with this
+     * <tt>ContactQuery</tt> that a <tt>SourceContact</tt> has been
+     * changed.
+     *
+     * @param contact the <tt>SourceContact</tt> which has been changed and
+     * which the registered <tt>ContactQueryListener</tt>s are to be notified
+     * about
+     */
+    protected void fireContactChanged(SourceContact contact)
+    {
+        ContactQueryListener[] ls;
+
+        synchronized (listeners)
+        {
+            ls = listeners.toArray(new ContactQueryListener[listeners.size()]);
+        }
+
+        ContactChangedEvent ev = new ContactChangedEvent(this, contact);
+
+        for (ContactQueryListener l : ls)
+            l.contactChanged(ev);
+    }
+
+    /**
+     * Notifies the <tt>ContactQueryListener</tt>s registered with this
      * <tt>ContactQuery</tt> that its state has changed.
      *
      * @param eventType the type of the <tt>ContactQueryStatusEvent</tt> to be

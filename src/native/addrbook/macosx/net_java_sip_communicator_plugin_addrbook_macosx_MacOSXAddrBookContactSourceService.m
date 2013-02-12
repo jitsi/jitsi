@@ -8,16 +8,24 @@
 #include "net_java_sip_communicator_plugin_addrbook_macosx_MacOSXAddrBookContactSourceService.h"
 
 #import <AddressBook/ABGlobals.h>
+#import <AddressBook/AddressBook.h>
 #import <Foundation/NSAutoreleasePool.h>
 #import <Foundation/NSNotification.h>
 #import <Foundation/NSObject.h>
 
 @interface MacOSXAddrBookContactSourceService : NSObject
 {
+@private
+    jobject delegateObject;
+    JavaVM *vm;
 }
 
 - (void)abDatabaseChangedExternallyNotification:(NSNotification *)notification;
 - (void)abDatabaseChangedNotification:(NSNotification *)notification;
+
+-(void)clean;
+-(void) setDelegate:(jobject)delegate inJNIEnv:(JNIEnv *)jniEnv;
+-(void) notify:(id)param methodName:(NSString *)mtdName;
 @end /* MacOSXAddrBookContactSourceService */
 
 JNIEXPORT jlong JNICALL
@@ -62,14 +70,191 @@ Java_net_java_sip_communicator_plugin_addrbook_macosx_MacOSXAddrBookContactSourc
     pool = [[NSAutoreleasePool alloc] init];
 
     [[NSNotificationCenter defaultCenter] removeObserver:mabcss];
+    [mabcss clean];
     [mabcss release];
 
     [pool release];
 }
 
+/*
+ * Class:     net_java_sip_communicator_plugin_addrbook_macosx_MacOSXAddrBookContactSourceService
+ * Method:    setDelegate
+ * Signature: (JLnet/java/sip/communicator/plugin/addrbook/macosx/MacOSXAddrBookContactSourceService/NotificationsDelegate;)V
+ */
+JNIEXPORT void JNICALL Java_net_java_sip_communicator_plugin_addrbook_macosx_MacOSXAddrBookContactSourceService_setDelegate
+  (JNIEnv *jniEnv, jclass clazz, jlong ptr, jobject m_delegate)
+{
+    MacOSXAddrBookContactSourceService *oDelegate;
+
+    if (m_delegate)
+    {
+        oDelegate = (MacOSXAddrBookContactSourceService *) ptr;
+        [oDelegate setDelegate:m_delegate inJNIEnv:jniEnv];
+    }
+    else
+        oDelegate = nil;
+}
+
 @implementation MacOSXAddrBookContactSourceService
+- (void)clean
+{
+    [self setDelegate:NULL inJNIEnv:NULL];
+}
+
+- (void)setDelegate:(jobject) delegate inJNIEnv:(JNIEnv *)jniEnv
+{
+    if (self->delegateObject)
+    {
+        if (!jniEnv)
+            (*(self->vm))->AttachCurrentThread(self->vm, (void **)&jniEnv, NULL);
+        (*jniEnv)->DeleteGlobalRef(jniEnv, self->delegateObject);
+        self->delegateObject = NULL;
+        self->vm = NULL;
+    }
+    if (delegate)
+    {
+        delegate = (*jniEnv)->NewGlobalRef(jniEnv, delegate);
+        if (delegate)
+        {
+            (*jniEnv)->GetJavaVM(jniEnv, &(self->vm));
+            self->delegateObject = delegate;
+        }
+    }
+}
+
+-(void) notify:(id)param methodName:(NSString *)mName
+{
+    jobject delegate;
+    JNIEnv *jniEnv;
+    jclass delegateClass = NULL;
+
+    delegate = self->delegateObject;
+    if (!delegate)
+        return;
+
+    vm = self->vm;
+    if (0 != (*vm)->AttachCurrentThreadAsDaemon(vm, (void **)&jniEnv, NULL))
+        return;
+
+    delegateClass = (*jniEnv)->GetObjectClass(jniEnv, delegate);
+    if(delegateClass)
+    {
+        jmethodID methodid = NULL;
+
+        if ([param isKindOfClass:[NSString class]])
+        {
+            methodid = (*jniEnv)->GetMethodID(jniEnv,
+                                              delegateClass,
+                                              [mName UTF8String],
+                                              "(Ljava/lang/String;)V");
+
+            if(methodid)
+                (*jniEnv)->CallVoidMethod(jniEnv,
+                                      delegate,
+                                      methodid,
+                                      (*jniEnv)->NewStringUTF(
+                                                    jniEnv,
+                                                    [param UTF8String]));
+
+        }
+        else
+        {
+            methodid = (*jniEnv)->GetMethodID(jniEnv,
+                                              delegateClass,
+                                              [mName UTF8String],
+                                              "(J)V");
+            if(methodid)
+                (*jniEnv)->CallVoidMethod(jniEnv,
+                                      delegate,
+                                      methodid,
+                                      (jlong)param);
+        }
+    }
+    (*jniEnv)->ExceptionClear(jniEnv);
+}
+
 - (void)abDatabaseChangedExternallyNotification:(NSNotification *)notification
 {
+    ABAddressBook *addressBook;
+    id inserted =
+        [[notification userInfo] objectForKey:kABInsertedRecords];
+    id updated =
+        [[notification userInfo] objectForKey:kABUpdatedRecords];
+    id deleted =
+        [[notification userInfo] objectForKey:kABDeletedRecords];
+
+    addressBook = [ABAddressBook sharedAddressBook];
+
+    NSUInteger peopleCount;
+    NSUInteger i;
+    NSString *personID;
+
+    if (inserted)
+    {
+        NSArray *people;
+
+        if ([inserted isKindOfClass:[NSArray class]])
+        {
+            people = inserted;
+        } else
+        {
+            people = [NSArray arrayWithObject:(ABPerson *)[addressBook recordForUniqueId:inserted]];
+        }
+
+        peopleCount = [people count];
+        for (i = 0; i < peopleCount; i++)
+        {
+            personID = [people objectAtIndex:i];
+            ABPerson *person =
+                (ABPerson *)[addressBook recordForUniqueId:personID];
+            [self notify:person methodName:@"inserted"];
+        }
+    }
+
+    if (updated)
+    {
+        NSArray *people;
+
+        if ([updated isKindOfClass:[NSArray class]])
+        {
+            people = updated;
+        }
+        else
+        {
+            people = [NSArray arrayWithObject:(ABPerson *)[addressBook recordForUniqueId:updated]];
+        }
+
+        peopleCount = [people count];
+        for (i = 0; i < peopleCount; i++)
+        {
+            personID = [people objectAtIndex:i];
+            ABPerson *person =
+                (ABPerson *)[addressBook recordForUniqueId:personID];
+            [self notify:person methodName:@"updated"];
+        }
+    }
+
+    if (deleted)
+    {
+        NSArray *people;
+
+        if ([deleted isKindOfClass:[NSArray class]])
+        {
+            people = deleted;
+        }
+        else
+        {
+            people = [NSArray arrayWithObject:(ABPerson *)[addressBook recordForUniqueId:deleted]];
+        }
+
+        peopleCount = [people count];
+        for (i = 0; i < peopleCount; i++)
+        {
+            personID = [people objectAtIndex:i];
+
+            [self notify:personID methodName:@"deleted"];
+        }
+    }
 }
 
 - (void)abDatabaseChangedNotification:(NSNotification *)notification
