@@ -32,6 +32,23 @@ public class ImageUtils
     private static final Logger logger = Logger.getLogger(ImageUtils.class);
 
     /**
+     * Different shapes that an image can be cropped to.
+     */
+    private static enum Shape
+    {
+        /**
+         * Ellipse with the same height and width as the scaled image (this
+         * will be a circle if the un-cropped image is square).
+         */
+        ELLIPSE,
+
+        /**
+         * Rectangle with the corners rounded to arcs with radius 3 pixels
+         */
+        ROUNDED_RECTANGLE;
+    }
+
+    /**
      * Returns a scaled image fitting within the given bounds while keeping the
      * aspect ratio.
      *
@@ -142,6 +159,38 @@ public class ImageUtils
                                                 int width,
                                                 int height)
     {
+        return getScaledImage(image, Shape.ROUNDED_RECTANGLE, width, height);
+    }
+
+    /**
+     * Creates a elliptical avatar image.
+     *
+     * @param image image of the initial avatar image.
+     * @param width the desired width
+     * @param height the desired height
+     * @return The elliptical image.
+     */
+    public static Image getScaledEllipticalImage(  Image image,
+                                                int width,
+                                                int height)
+    {
+        return getScaledImage(image, Shape.ELLIPSE, width, height);
+    }
+
+    /**
+     * Creates an avatar image in the specified shape.
+     *
+     * @param image image of the initial avatar image.
+     * @param shape the desired shape
+     * @param width the desired width
+     * @param height the desired height
+     * @return The cropped, scaled image.
+     */
+    private static Image getScaledImage(  Image image,
+                                          Shape shape,
+                                          int width,
+                                          int height)
+    {
         ImageIcon scaledImage =
             ImageUtils.scaleIconWithinBounds(image, width, height);
         int scaledImageWidth = scaledImage.getIconWidth();
@@ -168,7 +217,18 @@ public class ImageUtils
             g.setComposite(AlphaComposite.Src);
             AntialiasingManager.activateAntialiasing(g);
             g.setColor(Color.WHITE);
-            g.fillRoundRect(0, 0, scaledImageWidth, scaledImageHeight, 5, 5);
+
+            switch (shape)
+            {
+            case ELLIPSE:
+                g.fillOval(0, 0, scaledImageWidth, scaledImageHeight);
+                break;
+            case ROUNDED_RECTANGLE:
+                g.fillRoundRect(0, 0,
+                                scaledImageWidth, scaledImageHeight,
+                                5, 5);
+                break;
+            }
 
             // We use SrcAtop, which effectively uses the
             // alpha value as a coverage value for each pixel stored in the
@@ -189,38 +249,35 @@ public class ImageUtils
     }
 
     /**
-     * Returns a scaled instance of the given <tt>image</tt>.
+     * Returns a scaled rounded instance of the given <tt>image</tt>.
      * @param image the image to scale
      * @param width the desired width
      * @param height the desired height
-     * @return a byte array containing the scaled image
+     * @return a byte array containing the scaled rounded image
      */
     public static byte[] getScaledInstanceInBytes(
         Image image, int width, int height)
     {
-        byte[] scaledBytes = null;
-
         BufferedImage scaledImage
             = (BufferedImage) getScaledRoundedImage(image, width, height);
 
-        if (scaledImage != null)
-        {
-            ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+        return convertImageToBytes(scaledImage);
+    }
 
-            try
-            {
-                ImageIO.write(scaledImage, "png", outStream);
-                scaledBytes = outStream.toByteArray();
-            }
-            catch (IOException e)
-            {
-                if (logger.isDebugEnabled())
-                    logger.debug("Could not scale image in bytes.", e);
-            }
+    /**
+     * Returns a scaled elliptical instance of the given <tt>image</tt>.
+     * @param image the image to scale
+     * @param width the desired width
+     * @param height the desired height
+     * @return a byte array containing the scaled elliptical image
+     */
+    public static byte[] getScaledEllipticalInstanceInBytes(
+        Image image, int width, int height)
+    {
+        BufferedImage scaledImage
+            = (BufferedImage) getScaledEllipticalImage(image, width, height);
 
-        }
-
-        return scaledBytes;
+        return convertImageToBytes(scaledImage);
     }
 
     /**
@@ -243,6 +300,25 @@ public class ImageUtils
     }
 
     /**
+     * Returns a scaled elliptical icon from the given <tt>image</tt>, scaled
+     * within the given <tt>width</tt> and <tt>height</tt>.
+     * @param image the image to scale
+     * @param width the maximum width of the scaled icon
+     * @param height the maximum height of the scaled icon
+     * @return a scaled elliptical icon
+     */
+    public static ImageIcon getScaledEllipticalIcon(Image image, int width,
+        int height)
+    {
+        Image scaledImage = getScaledEllipticalImage(image, width, height);
+
+        if (scaledImage != null)
+            return new ImageIcon(scaledImage);
+
+        return null;
+    }
+
+    /**
      * Creates a rounded corner scaled image.
      *
      * @param imageBytes The bytes of the image to be scaled.
@@ -252,8 +328,45 @@ public class ImageUtils
      * @return The rounded corner scaled image.
      */
     public static ImageIcon getScaledRoundedIcon(  byte[] imageBytes,
-                                                    int width,
-                                                    int height)
+                                                   int width,
+                                                   int height)
+    {
+        return getScaledIcon(imageBytes,
+                             Shape.ROUNDED_RECTANGLE,
+                             width,
+                             height);
+    }
+
+    /**
+     * Creates a elliptical scaled image.
+     *
+     * @param imageBytes The bytes of the image to be scaled.
+     * @param width The maximum width of the scaled image.
+     * @param height The maximum height of the scaled image.
+     *
+     * @return The elliptical scaled image.
+     */
+    public static ImageIcon getScaledEllipticalIcon(  byte[] imageBytes,
+                                                      int width,
+                                                      int height)
+    {
+        return getScaledIcon(imageBytes, Shape.ELLIPSE, width, height);
+    }
+
+    /**
+     * Creates a cropped, scaled image.
+     *
+     * @param imageBytes The bytes of the image to be scaled.
+     * @param shape The shape of the scaled image.
+     * @param width The maximum width of the scaled image.
+     * @param height The maximum height of the scaled image.
+     *
+     * @return The cropped, scaled image.
+     */
+    private static ImageIcon getScaledIcon(  byte[] imageBytes,
+                                             Shape shape,
+                                             int width,
+                                             int height)
     {
         if (imageBytes == null || !(imageBytes.length > 0))
             return null;
@@ -280,7 +393,17 @@ public class ImageUtils
                 }
             }
             if(image != null)
-                imageIcon = getScaledRoundedIcon(image, width, height);
+            {
+                switch (shape)
+                {
+                case ELLIPSE:
+                    imageIcon = getScaledEllipticalIcon(image, width, height);
+                    break;
+                case ROUNDED_RECTANGLE:
+                    imageIcon = getScaledRoundedIcon(image, width, height);
+                    break;
+                }
+            }
             else
                 if (logger.isTraceEnabled())
                     logger.trace("Unknown image format or error reading image");
@@ -445,5 +568,36 @@ public class ImageUtils
             g.drawImage(rightImage, leftWidth + 1, 0, null);
 
         return buffImage;
+    }
+
+    /**
+     * Returns a scaled instance of the given <tt>image</tt>.
+     * @param image the image to scale
+     * @param width the desired width
+     * @param height the desired height
+     * @return a byte array containing the scaled image
+     */
+    private static byte[] convertImageToBytes(BufferedImage scaledImage)
+    {
+        byte[] scaledBytes = null;
+
+        if (scaledImage != null)
+        {
+            ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+
+            try
+            {
+                ImageIO.write(scaledImage, "png", outStream);
+                scaledBytes = outStream.toByteArray();
+            }
+            catch (IOException e)
+            {
+                if (logger.isDebugEnabled())
+                    logger.debug("Could not scale image in bytes.", e);
+            }
+
+        }
+
+        return scaledBytes;
     }
 }
