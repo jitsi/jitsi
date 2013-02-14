@@ -1393,7 +1393,6 @@ public class MacOSXAddrBookContactQuery
          *
          * @param detail the <tt>ContactDetail</tt> to add
          */
-        @SuppressWarnings("unchecked")
         public void addContactDetail(ContactDetail detail)
         {
             String id = (String)getData(SOURCE_CONTACT_ID_DATA_KEY);
@@ -1427,7 +1426,7 @@ public class MacOSXAddrBookContactQuery
                                 || property == kABJabberInstantProperty);
 
                 // first add existing one
-                ArrayList values = new ArrayList();
+                List<String> values = new ArrayList<String>();
 
                 for(ContactDetail cd : details)
                 {
@@ -1573,7 +1572,6 @@ public class MacOSXAddrBookContactQuery
          *
          * @param value the new value of the detail
          */
-        @SuppressWarnings("unchecked")
         public void setDetail(String value)
         {
             //let's save in addressbook
@@ -1584,7 +1582,7 @@ public class MacOSXAddrBookContactQuery
                     parent.getContactDetails(getCategory());
 
                 // first add existing one
-                ArrayList values = new ArrayList();
+                List<String> values = new ArrayList<String>();
                 for(ContactDetail cd : details)
                 {
                     String det = cd.getDetail();

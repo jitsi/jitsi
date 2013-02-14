@@ -119,7 +119,7 @@ public class BrandingActivator
      * This activator depends on UIService.
      * @return the class name of uiService.
      */
-    public Class getDependentServiceClass()
+    public Class<?> getDependentServiceClass()
     {
         return UIService.class;
     }

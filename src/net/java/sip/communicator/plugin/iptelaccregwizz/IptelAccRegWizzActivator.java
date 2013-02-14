@@ -71,7 +71,7 @@ public class IptelAccRegWizzActivator
      * @return the ui service class.
      */
     @Override
-    public Class getDependentServiceClass()
+    public Class<?> getDependentServiceClass()
     {
         return UIService.class;
     }

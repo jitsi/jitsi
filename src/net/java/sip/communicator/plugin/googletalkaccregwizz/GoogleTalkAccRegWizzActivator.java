@@ -71,7 +71,7 @@ public class GoogleTalkAccRegWizzActivator
      * @return
      */
     @Override
-    public Class getDependentServiceClass()
+    public Class<?> getDependentServiceClass()
     {
         return UIService.class;
     }

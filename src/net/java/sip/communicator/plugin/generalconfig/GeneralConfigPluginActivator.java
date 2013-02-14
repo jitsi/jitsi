@@ -195,7 +195,7 @@ public class GeneralConfigPluginActivator
      * @return
      */
     @Override
-    public Class getDependentServiceClass()
+    public Class<?> getDependentServiceClass()
     {
         return UIService.class;
     }

@@ -294,15 +294,15 @@ public class GTalkPacketFactory
                 }
             }
 
-            for(Candidate candidate : candToRemove)
+            for(Candidate<?> candidate : candToRemove)
             {
                 candidates.remove(candidate);
             }
 
-            for(Candidate candidate : candidates)
+            for(Candidate<?> candidate : candidates)
             {
-                GTalkCandidatePacketExtension e = createCandidate(candidate,
-                    mediaName);
+                GTalkCandidatePacketExtension e
+                    = createCandidate(candidate, mediaName);
 
                 if(e != null)
                     exts.add(e);
@@ -324,7 +324,7 @@ public class GTalkPacketFactory
      * state of the <tt>candidate</tt> candidate.
      */
     public static GTalkCandidatePacketExtension createCandidate(
-            Candidate candidate, String name)
+            Candidate<?> candidate, String name)
     {
         GTalkCandidatePacketExtension packet =
             new GTalkCandidatePacketExtension();

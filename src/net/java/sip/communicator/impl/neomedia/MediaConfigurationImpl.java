@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.neomedia;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
+import java.util.concurrent.*;
 
 import javax.media.*;
 import javax.media.MediaException;
@@ -16,9 +17,9 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.table.*;
 
-import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.plugin.desktoputil.TransparentPanel;
+import net.java.sip.communicator.util.*;
 
 import org.jitsi.impl.neomedia.*;
 import org.jitsi.impl.neomedia.device.*;
@@ -32,6 +33,7 @@ import org.jitsi.service.resources.*;
 import org.jitsi.util.swing.*;
 
 /**
+ *
  * @author Lyubomir Marinov
  * @author Damian Minkov
  * @author Yana Stamcheva
@@ -40,26 +42,414 @@ import org.jitsi.util.swing.*;
  */
 public class MediaConfigurationImpl
     implements ActionListener,
-                MediaConfigurationService
+               MediaConfigurationService
 {
     /**
-     * The <tt>Logger</tt> used by the <tt>MediaConfigurationServiceImpl</tt>
-     * class for logging output.
+     * Creates a new listener to combo box and affect changes to the audio level
+     * indicator. The level indicator is updated via a thread in order to avoid
+     * deadlock of the user interface.
      */
-    private static final Logger logger
-        = Logger.getLogger(MediaConfigurationImpl.class);
+    private class AudioLevelListenerThread
+        implements ActionListener,
+                   HierarchyListener
+    {
+        /**
+         * Listener to update the audio level indicator.
+         */
+        private final SimpleAudioLevelListener audioLevelListener
+            = new SimpleAudioLevelListener()
+            {
+                public void audioLevelChanged(int level)
+                {
+                    soundLevelIndicator.updateSoundLevel(level);
+                }
+            };
+
+        /**
+         * The audio system used to get and set the sound devices.
+         */
+        private AudioSystem audioSystem;
+
+        /**
+         * The combo box used to select the device the user wants to use.
+         */
+        private JComboBox comboBox;
+
+        /**
+         * The current capture device.
+         */
+        private AudioMediaDeviceSession deviceSession;
+
+        /**
+         * The new device chosen by the user and that we need to initialize as
+         * the new capture device.
+         */
+        private AudioMediaDeviceSession deviceSessionToSet;
+
+        /**
+         * The indicator which determines whether
+         * {@link #setDeviceSession(AudioMediaDeviceSession)} is to be invoked
+         * when {@link #deviceSessionToSet} is <tt>null</tt>.
+         */
+        private boolean deviceSessionToSetIsNull;
+
+        /**
+         * The <tt>ExecutorService</tt> which is to asynchronously invoke
+         * {@link #setDeviceSession(AudioMediaDeviceSession)} with
+         * {@link #deviceSessionToSet}.
+         */
+        private final ExecutorService setDeviceSessionExecutor
+            = Executors.newSingleThreadExecutor();
+
+        private final Runnable setDeviceSessionTask
+            = new Runnable()
+            {
+                public void run()
+                {
+                    AudioMediaDeviceSession deviceSession = null;
+                    boolean deviceSessionIsNull = false; 
+
+                    synchronized (AudioLevelListenerThread.this)
+                    {
+                        if ((deviceSessionToSet != null)
+                                || deviceSessionToSetIsNull)
+                        {
+                            /*
+                             * Invoke #setDeviceSession(AudioMediaDeviceSession)
+                             * outside the synchronized block to avoid a GUI
+                             * deadlock.
+                             */
+                            deviceSession = deviceSessionToSet;
+                            deviceSessionIsNull = deviceSessionToSetIsNull;
+                            deviceSessionToSet = null;
+                            deviceSessionToSetIsNull = false;
+                        }
+                    }
+
+                    if ((deviceSession != null) || deviceSessionIsNull)
+                    {
+                        /*
+                         * XXX The method blocks on Mac OS X for Bluetooth
+                         * devices which are paired but disconnected.
+                         */
+                        setDeviceSession(deviceSession);
+                    }
+                }
+            };
+
+        /**
+         * The sound level indicator used to show the effectiveness of the
+         * capture device.
+         */
+        private SoundLevelIndicator soundLevelIndicator;
+
+        /**
+         *  Provides an handler which reads the stream into the
+         *  "transferHandlerBuffer".
+         */
+        private final BufferTransferHandler transferHandler
+            = new BufferTransferHandler()
+            {
+                public void transferData(PushBufferStream stream)
+                {
+                    try
+                    {
+                        stream.read(transferHandlerBuffer);
+                    }
+                    catch (IOException ioe)
+                    {
+                    }
+                }
+            };
+
+        /**
+         * The buffer used for reading the capture device.
+         */
+        private final Buffer transferHandlerBuffer = new Buffer();
+
+        /**
+         * Creates a new listener to combo box and affect changes to the audio
+         * level indicator.
+         *
+         * @param audioSystem The audio system used to get and set the sound
+         * devices.
+         * @param comboBox The combo box used to select the device the user
+         * wants to use.
+         * @param soundLevelIndicator The sound level indicator used to show the
+         * effectiveness of the capture device.
+         */
+        public AudioLevelListenerThread(
+                AudioSystem audioSystem,
+                JComboBox comboBox,
+                SoundLevelIndicator soundLevelIndicator)
+        {
+            init(audioSystem, comboBox, soundLevelIndicator);
+        }
+
+        /**
+         * Refresh combo box when the user click on it.
+         *
+         * @param ev The click on the  combo box.
+         */
+        public void actionPerformed(ActionEvent ev)
+        {
+            synchronized (this)
+            {
+                deviceSessionToSet = null;
+                deviceSessionToSetIsNull = true;
+                setDeviceSessionExecutor.execute(setDeviceSessionTask);
+            }
+
+            CaptureDeviceInfo cdi;
+
+            if (comboBox == null)
+            {
+                cdi
+                    = soundLevelIndicator.isShowing()
+                        ? audioSystem.getDevice(AudioSystem.CAPTURE_INDEX)
+                        : null;
+            }
+            else
+            {
+                Object selectedItem
+                    = soundLevelIndicator.isShowing()
+                        ? comboBox.getSelectedItem()
+                        : null;
+
+                cdi
+                    = (selectedItem
+                            instanceof
+                                DeviceConfigurationComboBoxModel.CaptureDevice)
+                        ? ((DeviceConfigurationComboBoxModel.CaptureDevice)
+                                selectedItem)
+                            .info
+                        : null;
+            }
+
+            if (cdi != null)
+            {
+                for (MediaDevice md: mediaService.getDevices(
+                            MediaType.AUDIO,
+                            MediaUseCase.ANY))
+                {
+                    if (md instanceof AudioMediaDeviceImpl)
+                    {
+                        AudioMediaDeviceImpl amd = (AudioMediaDeviceImpl) md;
+
+                        if (cdi.equals(amd.getCaptureDeviceInfo()))
+                        {
+                            try
+                            {
+                                MediaDeviceSession deviceSession
+                                    = amd.createSession();
+                                boolean deviceSessionIsSet = false;
+
+                                try
+                                {
+                                    if (deviceSession instanceof
+                                            AudioMediaDeviceSession)
+                                    {
+                                        synchronized (this)
+                                        {
+                                            deviceSessionToSet
+                                                = (AudioMediaDeviceSession)
+                                                    deviceSession;
+                                            deviceSessionToSetIsNull
+                                                = (deviceSessionToSet == null);
+                                            setDeviceSessionExecutor.execute(
+                                                    setDeviceSessionTask);
+                                        }
+                                        deviceSessionIsSet = true;
+                                    }
+                                }
+                                finally
+                                {
+                                    if (!deviceSessionIsSet)
+                                        deviceSession.close();
+                                }
+                            }
+                            catch (Throwable t)
+                            {
+                                if (t instanceof ThreadDeath)
+                                    throw (ThreadDeath) t;
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        public void hierarchyChanged(HierarchyEvent ev)
+        {
+            if ((ev.getChangeFlags() & HierarchyEvent.SHOWING_CHANGED) != 0)
+            {
+                SwingUtilities.invokeLater(
+                        new Runnable()
+                        {
+                            public void run()
+                            {
+                                actionPerformed(null);
+                            }
+                        });
+            }
+        }
+
+        /**
+         * Creates a new listener to combo box and affect changes to the audio
+         * level indicator.
+         *
+         * @param audioSystem The audio system used to get and set the sound
+         * devices.
+         * @param comboBox The combo box used to select the device the user
+         * wants to use.
+         * @param soundLevelIndicator The sound level indicator used to show the
+         * effectiveness of the capture device.
+         */
+        public void init(
+                AudioSystem audioSystem,
+                JComboBox comboBox,
+                SoundLevelIndicator soundLevelIndicator)
+        {
+            this.audioSystem = audioSystem;
+
+            if (this.comboBox != comboBox)
+            {
+                if (this.comboBox != null)
+                    this.comboBox.removeActionListener(this);
+                this.comboBox = comboBox;
+                if (comboBox != null)
+                    comboBox.addActionListener(this);
+            }
+
+            if (this.soundLevelIndicator != soundLevelIndicator)
+            {
+                if (this.soundLevelIndicator != null)
+                    this.soundLevelIndicator.removeHierarchyListener(this);
+                this.soundLevelIndicator = soundLevelIndicator;
+                if (soundLevelIndicator != null)
+                    soundLevelIndicator.addHierarchyListener(this);
+            }
+        }
+
+        /**
+         * Sets the new capture device used by the audio level indicator.
+         *
+         * @param deviceSession The new capture device used by the audio level
+         * indicator.
+         */
+        private void setDeviceSession(AudioMediaDeviceSession deviceSession)
+        {
+            if (this.deviceSession == deviceSession)
+                return;
+
+            if (this.deviceSession != null)
+            {
+                try
+                {
+                    this.deviceSession.close();
+                }
+                finally
+                {
+                    this.deviceSession.setLocalUserAudioLevelListener(null);
+                    soundLevelIndicator.resetSoundLevel();
+                }
+            }
+
+            this.deviceSession = deviceSession;
+
+            if (deviceSession != null)
+            {
+                deviceSession.setContentDescriptor(
+                        new ContentDescriptor(ContentDescriptor.RAW));
+                deviceSession.setLocalUserAudioLevelListener(
+                        audioLevelListener);
+
+                deviceSession.start(MediaDirection.SENDONLY);
+
+                try
+                {
+                    DataSource dataSource = deviceSession.getOutputDataSource();
+
+                    dataSource.connect();
+
+                    PushBufferStream[] streams
+                        = ((PushBufferDataSource) dataSource).getStreams();
+
+                    for (PushBufferStream stream : streams)
+                        stream.setTransferHandler(transferHandler);
+
+                    dataSource.start();
+                }
+                catch (Throwable t)
+                {
+                    if (t instanceof ThreadDeath)
+                        throw (ThreadDeath) t;
+                }
+            }
+        }
+    }
 
     /**
-     * The <tt>MediaService</tt> implementation used by
-     * <tt>MediaConfigurationImpl</tt>.
+     * Renders the available resolutions in the combo box.
      */
-    private static final MediaServiceImpl mediaService
-        = NeomediaActivator.getMediaServiceImpl();
+    private static class ResolutionCellRenderer
+        extends DefaultListCellRenderer
+    {
+        /**
+         * The serialization version number of the
+         * <tt>ResolutionCellRenderer</tt> class. Defined to the value of
+         * <tt>0</tt> because the <tt>ResolutionCellRenderer</tt> instances do
+         * not have state of their own.
+         */
+        private static final long serialVersionUID = 0L;
+
+        /**
+         * Sets readable text describing the resolution if the selected
+         * value is null we return the string "Auto".
+         *
+         * @param list
+         * @param value
+         * @param index
+         * @param isSelected
+         * @param cellHasFocus
+         * @return Component
+         */
+        @Override
+        public Component getListCellRendererComponent(
+            JList list,
+            Object value,
+            int index,
+            boolean isSelected,
+            boolean cellHasFocus)
+        {
+            // call super to set backgrounds and fonts
+            super.getListCellRendererComponent(
+                    list,
+                    value,
+                    index,
+                    isSelected,
+                    cellHasFocus);
+
+            // now just change the text
+            if(value == null)
+                setText("Auto");
+            else if(value instanceof Dimension)
+            {
+                Dimension d = (Dimension)value;
+
+                setText(((int) d.getWidth()) + "x" + ((int) d.getHeight()));
+            }
+            return this;
+        }
+    }
 
     /**
-     * The preferred width of all panels.
+     * The name of the property which specifies if the audio system interface
+     * is disabled.
      */
-    private final static int WIDTH = 350;
+    private static final String AUDIO_SYSTEM_DISABLED_PROP
+        = "net.java.sip.communicator.impl.neomedia.audiosystem.DISABLED";
 
     /**
      * Indicates if the Devices settings configuration tab
@@ -76,18 +466,18 @@ public class MediaConfigurationImpl
         = "net.java.sip.communicator.impl.neomedia.encodingsconfig.DISABLED";
 
     /**
-     * Indicates if the Video/More Settings configuration tab
-     * should be disabled, i.e. not visible to the user.
+     * The <tt>Logger</tt> used by the <tt>MediaConfigurationServiceImpl</tt>
+     * class for logging output.
      */
-    private static final String VIDEO_MORE_SETTINGS_DISABLED_PROP
-        = "net.java.sip.communicator.impl.neomedia.videomoresettingsconfig.DISABLED";
+    private static final Logger logger
+        = Logger.getLogger(MediaConfigurationImpl.class);
 
     /**
-     * The name of the property which specifies if the audio system interface
-     * is disabled.
+     * The <tt>MediaService</tt> implementation used by
+     * <tt>MediaConfigurationImpl</tt>.
      */
-    private static final String AUDIO_SYSTEM_DISABLED_PROP
-        = "net.java.sip.communicator.impl.neomedia.audiosystem.DISABLED";
+    private static final MediaServiceImpl mediaService
+        = NeomediaActivator.getMediaServiceImpl();
 
     /**
      * The name of the sound file used to test the playback and the notification
@@ -97,15 +487,317 @@ public class MediaConfigurationImpl
         = "net.java.sip.communicator.impl.neomedia.TestSoundFilename";
 
     /**
+     * Indicates if the Video/More Settings configuration tab
+     * should be disabled, i.e. not visible to the user.
+     */
+    private static final String VIDEO_MORE_SETTINGS_DISABLED_PROP
+        = "net.java.sip.communicator.impl.neomedia.videomoresettingsconfig.DISABLED";
+
+    /**
+     * The preferred width of all panels.
+     */
+    private final static int WIDTH = 350;
+
+    /**
+     * Creates the video advanced settings.
+     *
+     * @return video advanced settings panel.
+     */
+    private static Component createVideoAdvancedSettings()
+    {
+        ResourceManagementService resources = NeomediaActivator.getResources();
+
+        final DeviceConfiguration deviceConfig =
+            mediaService.getDeviceConfiguration();
+
+        TransparentPanel centerPanel =
+            new TransparentPanel(new GridBagLayout());
+        centerPanel.setMaximumSize(new Dimension(WIDTH, 150));
+
+        JButton resetDefaultsButton = new JButton(
+            resources.getI18NString(
+                    "impl.media.configform.VIDEO_RESET"));
+        JPanel resetButtonPanel = new TransparentPanel(
+                new FlowLayout(FlowLayout.RIGHT));
+        resetButtonPanel.add(resetDefaultsButton);
+
+        final JPanel centerAdvancedPanel
+            = new TransparentPanel(new BorderLayout());
+        centerAdvancedPanel.add(centerPanel, BorderLayout.NORTH);
+        centerAdvancedPanel.add(resetButtonPanel, BorderLayout.SOUTH);
+
+        GridBagConstraints constraints = new GridBagConstraints();
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.anchor = GridBagConstraints.NORTHWEST;
+        constraints.insets = new Insets(5, 5, 0, 0);
+        constraints.gridx = 0;
+        constraints.weightx = 0;
+        constraints.weighty = 0;
+        constraints.gridy = 0;
+
+        centerPanel.add(new JLabel(
+            resources.getI18NString("impl.media.configform.VIDEO_RESOLUTION")),
+            constraints);
+        constraints.gridy = 1;
+        constraints.insets = new Insets(0, 0, 0, 0);
+        final JCheckBox frameRateCheck = new SIPCommCheckBox(
+            resources.getI18NString("impl.media.configform.VIDEO_FRAME_RATE"));
+        centerPanel.add(frameRateCheck, constraints);
+        constraints.gridy = 2;
+        constraints.insets = new Insets(5, 5, 0, 0);
+        centerPanel.add(new JLabel(
+            resources.getI18NString(
+                    "impl.media.configform.VIDEO_PACKETS_POLICY")),
+            constraints);
+
+        constraints.weightx = 1;
+        constraints.gridx = 1;
+        constraints.gridy = 0;
+        constraints.insets = new Insets(5, 0, 0, 5);
+        Object[] resolutionValues
+            = new Object[DeviceConfiguration.SUPPORTED_RESOLUTIONS.length + 1];
+        System.arraycopy(DeviceConfiguration.SUPPORTED_RESOLUTIONS, 0,
+                        resolutionValues, 1,
+                        DeviceConfiguration.SUPPORTED_RESOLUTIONS.length);
+        final JComboBox sizeCombo = new JComboBox(resolutionValues);
+        sizeCombo.setRenderer(new ResolutionCellRenderer());
+        sizeCombo.setEditable(false);
+        centerPanel.add(sizeCombo, constraints);
+
+        // default value is 20
+        final JSpinner frameRate = new JSpinner(new SpinnerNumberModel(
+            20, 5, 30, 1));
+        frameRate.addChangeListener(new ChangeListener()
+        {
+            public void stateChanged(ChangeEvent e)
+            {
+                deviceConfig.setFrameRate(
+                        ((SpinnerNumberModel)frameRate.getModel())
+                            .getNumber().intValue());
+            }
+        });
+        constraints.gridy = 1;
+        constraints.insets = new Insets(0, 0, 0, 5);
+        centerPanel.add(frameRate, constraints);
+
+        frameRateCheck.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                if(frameRateCheck.isSelected())
+                {
+                    deviceConfig.setFrameRate(
+                        ((SpinnerNumberModel)frameRate.getModel())
+                            .getNumber().intValue());
+                }
+                else // unlimited framerate
+                    deviceConfig.setFrameRate(-1);
+
+                frameRate.setEnabled(frameRateCheck.isSelected());
+            }
+        });
+
+        final JSpinner videoMaxBandwidth = new JSpinner(new SpinnerNumberModel(
+            deviceConfig.getVideoMaxBandwidth(),
+            1, Integer.MAX_VALUE, 1));
+        videoMaxBandwidth.addChangeListener(new ChangeListener()
+        {
+            public void stateChanged(ChangeEvent e)
+            {
+                deviceConfig.setVideoMaxBandwidth(
+                        ((SpinnerNumberModel)videoMaxBandwidth.getModel())
+                            .getNumber().intValue());
+            }
+        });
+        constraints.gridx = 1;
+        constraints.gridy = 2;
+        constraints.insets = new Insets(0, 0, 5, 5);
+        centerPanel.add(videoMaxBandwidth, constraints);
+
+        resetDefaultsButton.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                // reset to defaults
+                sizeCombo.setSelectedIndex(0);
+                frameRateCheck.setSelected(false);
+                frameRate.setEnabled(false);
+                frameRate.setValue(20);
+                // unlimited framerate
+                deviceConfig.setFrameRate(-1);
+                videoMaxBandwidth.setValue(
+                        DeviceConfiguration.DEFAULT_VIDEO_MAX_BANDWIDTH);
+            }
+        });
+
+        // load selected value or auto
+        Dimension videoSize = deviceConfig.getVideoSize();
+
+        if((videoSize.getHeight() != DeviceConfiguration.DEFAULT_VIDEO_HEIGHT)
+                && (videoSize.getWidth()
+                        != DeviceConfiguration.DEFAULT_VIDEO_WIDTH))
+            sizeCombo.setSelectedItem(deviceConfig.getVideoSize());
+        else
+            sizeCombo.setSelectedIndex(0);
+        sizeCombo.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                Dimension selectedVideoSize
+                    = (Dimension) sizeCombo.getSelectedItem();
+
+                if(selectedVideoSize == null)
+                {
+                    // the auto value, default one
+                    selectedVideoSize
+                        = new Dimension(
+                                DeviceConfiguration.DEFAULT_VIDEO_WIDTH,
+                                DeviceConfiguration.DEFAULT_VIDEO_HEIGHT);
+                }
+                deviceConfig.setVideoSize(selectedVideoSize);
+            }
+        });
+
+        frameRateCheck.setSelected(
+            deviceConfig.getFrameRate()
+                != DeviceConfiguration.DEFAULT_VIDEO_FRAMERATE);
+        frameRate.setEnabled(frameRateCheck.isSelected());
+
+        if(frameRate.isEnabled())
+            frameRate.setValue(deviceConfig.getFrameRate());
+
+        return centerAdvancedPanel;
+    }
+
+    /**
+     * Creates the video container.
+     * @param noVideoComponent the container component.
+     * @return the video container.
+     */
+    private static JComponent createVideoContainer(Component noVideoComponent)
+    {
+        return new VideoContainer(noVideoComponent, false);
+    }
+
+    /**
+     * Creates preview for the (video) device in the video container.
+     *
+     * @param device the device
+     * @param videoContainer the video container
+     * @throws IOException a problem accessing the device
+     * @throws MediaException a problem getting preview
+     */
+    private static void createVideoPreview(
+            CaptureDeviceInfo device,
+            JComponent videoContainer)
+        throws IOException,
+               MediaException
+    {
+        videoContainer.removeAll();
+
+        videoContainer.revalidate();
+        videoContainer.repaint();
+
+        if (device == null)
+            return;
+
+        for (MediaDevice mediaDevice
+                : mediaService.getDevices(MediaType.VIDEO, MediaUseCase.ANY))
+        {
+            if(((MediaDeviceImpl) mediaDevice).getCaptureDeviceInfo().equals(
+                    device))
+            {
+                Dimension videoContainerSize
+                    = videoContainer.getPreferredSize();
+                Component preview
+                    = (Component)
+                        mediaService.getVideoPreviewComponent(
+                                mediaDevice,
+                                videoContainerSize.width,
+                                videoContainerSize.height);
+
+                if (preview != null)
+                    videoContainer.add(preview);
+                break;
+            }
+        }
+    }
+
+    /**
+     * The mnemonic for a type.
+     * @param type audio or video type.
+     * @return the mnemonic.
+     */
+    private static char getDisplayedMnemonic(int type)
+    {
+        switch (type)
+        {
+        case DeviceConfigurationComboBoxModel.AUDIO:
+            return NeomediaActivator.getResources().getI18nMnemonic(
+                "impl.media.configform.AUDIO");
+        case DeviceConfigurationComboBoxModel.VIDEO:
+            return NeomediaActivator.getResources().getI18nMnemonic(
+                "impl.media.configform.VIDEO");
+        default:
+            throw new IllegalArgumentException("type");
+        }
+    }
+
+    /**
+     * A label for a type.
+     * @param type the type.
+     * @return the label.
+     */
+    private static String getLabelText(int type)
+    {
+        switch (type)
+        {
+        case DeviceConfigurationComboBoxModel.AUDIO:
+            return NeomediaActivator.getResources().getI18NString(
+                "impl.media.configform.AUDIO");
+        case DeviceConfigurationComboBoxModel.AUDIO_CAPTURE:
+            return NeomediaActivator.getResources().getI18NString(
+                "impl.media.configform.AUDIO_IN");
+        case DeviceConfigurationComboBoxModel.AUDIO_NOTIFY:
+            return NeomediaActivator.getResources().getI18NString(
+                "impl.media.configform.AUDIO_NOTIFY");
+        case DeviceConfigurationComboBoxModel.AUDIO_PLAYBACK:
+            return NeomediaActivator.getResources().getI18NString(
+                "impl.media.configform.AUDIO_OUT");
+        case DeviceConfigurationComboBoxModel.VIDEO:
+            return NeomediaActivator.getResources().getI18NString(
+                "impl.media.configform.VIDEO");
+        default:
+            throw new IllegalArgumentException("type");
+        }
+    }
+
+    /**
+     * Used to move encoding options.
+     *
+     * @param table the table with encodings
+     * @param up move direction.
+     */
+    private static void move(JTable table, boolean up)
+    {
+        int index
+            = ((EncodingConfigurationTableModel) table.getModel()).move(
+                    table.getSelectedRow(),
+                    up);
+
+        table.getSelectionModel().setSelectionInterval(index, index);
+    }
+
+    /**
      * The thread which updates the capture device as selected by the user. This
      * prevent the UI to lock while changing the device.
      */
     private AudioLevelListenerThread audioLevelListenerThread = null;
 
     /**
-     * The combo box used to selected the playback device.
+     * The button used to play a sound in order to test notification devices.
      */
-    private JComboBox playbackCombo;
+    private JButton notificationPlaySoundButton;
 
     /**
      * The combo box used to selected the notification device.
@@ -113,14 +805,61 @@ public class MediaConfigurationImpl
     private JComboBox notifyCombo;
 
     /**
+     * The combo box used to selected the playback device.
+     */
+    private JComboBox playbackCombo;
+
+    /**
      * The button used to play a sound in order to test playback device.
      */
     private JButton playbackPlaySoundButton;
 
     /**
-     * The button used to play a sound in order to test notification devices.
+     * Indicates that one of the contained in this panel buttons has been
+     * clicked.
+     * @param e the <tt>ActionEvent</tt> that notified us
      */
-    private JButton notificationPlaySoundButton;
+    public void actionPerformed(ActionEvent e)
+    {
+        boolean isPlaybackEvent = (e.getSource() == playbackPlaySoundButton);
+
+        // If the user clicked on one pley sound button.
+        if(isPlaybackEvent
+                || e.getSource() == notificationPlaySoundButton)
+        {
+            AudioNotifierService audioNotifServ
+                = NeomediaActivator.getAudioNotifierService();
+            String testSoundFilename 
+                = NeomediaActivator.getConfigurationService()
+                    .getString(
+                            TEST_SOUND_FILENAME_PROP,
+                            NeomediaActivator.getResources().getSoundPath(
+                                "TEST_SOUND")
+                            );
+            SCAudioClip sound = audioNotifServ.createAudio(
+                    testSoundFilename,
+                    isPlaybackEvent);
+            sound.play();
+        }
+        // If the selected item of the playback or notify combobox has changed.
+        else if(e.getSource() == playbackCombo
+                || e.getSource() == notifyCombo)
+        {
+            DeviceConfigurationComboBoxModel.CaptureDevice device
+                = (DeviceConfigurationComboBoxModel.CaptureDevice)
+                    ((JComboBox) e.getSource()).getSelectedItem();
+
+            boolean isEnabled = (device.info != null);
+            if(e.getSource() == playbackCombo)
+            {
+                playbackPlaySoundButton.setEnabled(isEnabled);
+            }
+            else
+            {
+                notificationPlaySoundButton.setEnabled(isEnabled);
+            }
+        }
+    }
 
     /**
      * Returns the audio configuration panel.
@@ -130,16 +869,6 @@ public class MediaConfigurationImpl
     public Component createAudioConfigPanel()
     {
         return createControls(DeviceConfigurationComboBoxModel.AUDIO);
-    }
-
-    /**
-     * Returns the video configuration panel.
-     *
-     * @return the video configuration panel
-     */
-    public Component createVideoConfigPanel()
-    {
-        return createControls(DeviceConfigurationComboBoxModel.VIDEO);
     }
 
     /**
@@ -621,49 +1350,6 @@ public class MediaConfigurationImpl
     }
 
     /**
-     * Returns a component for encodings configuration for the given
-     * <tt>mediaType</tt>
-     *
-     * @param mediaType Either <tt>MediaType.AUDIO</tt> or 
-     * <tt>MediaType.VIDEO</tt>
-     * @param encodingConfiguration The <tt>EncodingConfiguration</tt> instance
-     * to use. If null, it will use the current encoding configuration from
-     * the media service.
-     * @return The component for encodings configuration.
-     */
-    public Component createEncodingControls(
-            MediaType mediaType,
-            EncodingConfiguration encodingConfiguration)
-    {
-        if(encodingConfiguration == null)
-        {
-            encodingConfiguration
-                = mediaService.getCurrentEncodingConfiguration();
-        }
-
-        int deviceConfigurationComboBoxModelType;
-
-        switch (mediaType)
-        {
-        case AUDIO:
-            deviceConfigurationComboBoxModelType
-                = DeviceConfigurationComboBoxModel.AUDIO;
-            break;
-        case VIDEO:
-            deviceConfigurationComboBoxModelType
-                = DeviceConfigurationComboBoxModel.VIDEO;
-            break;
-        default:
-            throw new IllegalArgumentException("mediaType");
-        }
-
-        return
-            createEncodingControls(
-                    deviceConfigurationComboBoxModelType,
-                    encodingConfiguration);
-    }
-
-    /**
      * Creates Component for the encodings of type(AUDIO or VIDEO).
      *
      * @param type the type, either DeviceConfigurationComboBoxModel.AUDIO or
@@ -800,47 +1486,46 @@ public class MediaConfigurationImpl
     }
 
     /**
-     * Creates preview for the (video) device in the video container.
+     * Returns a component for encodings configuration for the given
+     * <tt>mediaType</tt>
      *
-     * @param device the device
-     * @param videoContainer the video container
-     * @throws IOException a problem accessing the device
-     * @throws MediaException a problem getting preview
+     * @param mediaType Either <tt>MediaType.AUDIO</tt> or 
+     * <tt>MediaType.VIDEO</tt>
+     * @param encodingConfiguration The <tt>EncodingConfiguration</tt> instance
+     * to use. If null, it will use the current encoding configuration from
+     * the media service.
+     * @return The component for encodings configuration.
      */
-    private static void createVideoPreview(
-            CaptureDeviceInfo device,
-            JComponent videoContainer)
-        throws IOException,
-               MediaException
+    public Component createEncodingControls(
+            MediaType mediaType,
+            EncodingConfiguration encodingConfiguration)
     {
-        videoContainer.removeAll();
-
-        videoContainer.revalidate();
-        videoContainer.repaint();
-
-        if (device == null)
-            return;
-
-        for (MediaDevice mediaDevice
-                : mediaService.getDevices(MediaType.VIDEO, MediaUseCase.ANY))
+        if(encodingConfiguration == null)
         {
-            if(((MediaDeviceImpl) mediaDevice).getCaptureDeviceInfo().equals(
-                    device))
-            {
-                Dimension videoContainerSize
-                    = videoContainer.getPreferredSize();
-                Component preview
-                    = (Component)
-                        mediaService.getVideoPreviewComponent(
-                                mediaDevice,
-                                videoContainerSize.width,
-                                videoContainerSize.height);
-
-                if (preview != null)
-                    videoContainer.add(preview);
-                break;
-            }
+            encodingConfiguration
+                = mediaService.getCurrentEncodingConfiguration();
         }
+
+        int deviceConfigurationComboBoxModelType;
+
+        switch (mediaType)
+        {
+        case AUDIO:
+            deviceConfigurationComboBoxModelType
+                = DeviceConfigurationComboBoxModel.AUDIO;
+            break;
+        case VIDEO:
+            deviceConfigurationComboBoxModelType
+                = DeviceConfigurationComboBoxModel.VIDEO;
+            break;
+        default:
+            throw new IllegalArgumentException("mediaType");
+        }
+
+        return
+            createEncodingControls(
+                    deviceConfigurationComboBoxModelType,
+                    encodingConfiguration);
     }
 
     /**
@@ -960,249 +1645,13 @@ public class MediaConfigurationImpl
     }
 
     /**
-     * Creates the video container.
-     * @param noVideoComponent the container component.
-     * @return the video container.
-     */
-    private static JComponent createVideoContainer(Component noVideoComponent)
-    {
-        return new VideoContainer(noVideoComponent, false);
-    }
-
-    /**
-     * The mnemonic for a type.
-     * @param type audio or video type.
-     * @return the mnemonic.
-     */
-    private static char getDisplayedMnemonic(int type)
-    {
-        switch (type)
-        {
-        case DeviceConfigurationComboBoxModel.AUDIO:
-            return NeomediaActivator.getResources().getI18nMnemonic(
-                "impl.media.configform.AUDIO");
-        case DeviceConfigurationComboBoxModel.VIDEO:
-            return NeomediaActivator.getResources().getI18nMnemonic(
-                "impl.media.configform.VIDEO");
-        default:
-            throw new IllegalArgumentException("type");
-        }
-    }
-
-    /**
-     * A label for a type.
-     * @param type the type.
-     * @return the label.
-     */
-    private static String getLabelText(int type)
-    {
-        switch (type)
-        {
-        case DeviceConfigurationComboBoxModel.AUDIO:
-            return NeomediaActivator.getResources().getI18NString(
-                "impl.media.configform.AUDIO");
-        case DeviceConfigurationComboBoxModel.AUDIO_CAPTURE:
-            return NeomediaActivator.getResources().getI18NString(
-                "impl.media.configform.AUDIO_IN");
-        case DeviceConfigurationComboBoxModel.AUDIO_NOTIFY:
-            return NeomediaActivator.getResources().getI18NString(
-                "impl.media.configform.AUDIO_NOTIFY");
-        case DeviceConfigurationComboBoxModel.AUDIO_PLAYBACK:
-            return NeomediaActivator.getResources().getI18NString(
-                "impl.media.configform.AUDIO_OUT");
-        case DeviceConfigurationComboBoxModel.VIDEO:
-            return NeomediaActivator.getResources().getI18NString(
-                "impl.media.configform.VIDEO");
-        default:
-            throw new IllegalArgumentException("type");
-        }
-    }
-
-    /**
-     * Used to move encoding options.
+     * Returns the video configuration panel.
      *
-     * @param table the table with encodings
-     * @param up move direction.
+     * @return the video configuration panel
      */
-    private static void move(JTable table, boolean up)
+    public Component createVideoConfigPanel()
     {
-        int index
-            = ((EncodingConfigurationTableModel) table.getModel()).move(
-                    table.getSelectedRow(),
-                    up);
-
-        table.getSelectionModel().setSelectionInterval(index, index);
-    }
-
-    /**
-     * Creates the video advanced settings.
-     *
-     * @return video advanced settings panel.
-     */
-    private static Component createVideoAdvancedSettings()
-    {
-        ResourceManagementService resources = NeomediaActivator.getResources();
-
-        final DeviceConfiguration deviceConfig =
-            mediaService.getDeviceConfiguration();
-
-        TransparentPanel centerPanel =
-            new TransparentPanel(new GridBagLayout());
-        centerPanel.setMaximumSize(new Dimension(WIDTH, 150));
-
-        JButton resetDefaultsButton = new JButton(
-            resources.getI18NString(
-                    "impl.media.configform.VIDEO_RESET"));
-        JPanel resetButtonPanel = new TransparentPanel(
-                new FlowLayout(FlowLayout.RIGHT));
-        resetButtonPanel.add(resetDefaultsButton);
-
-        final JPanel centerAdvancedPanel
-            = new TransparentPanel(new BorderLayout());
-        centerAdvancedPanel.add(centerPanel, BorderLayout.NORTH);
-        centerAdvancedPanel.add(resetButtonPanel, BorderLayout.SOUTH);
-
-        GridBagConstraints constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.anchor = GridBagConstraints.NORTHWEST;
-        constraints.insets = new Insets(5, 5, 0, 0);
-        constraints.gridx = 0;
-        constraints.weightx = 0;
-        constraints.weighty = 0;
-        constraints.gridy = 0;
-
-        centerPanel.add(new JLabel(
-            resources.getI18NString("impl.media.configform.VIDEO_RESOLUTION")),
-            constraints);
-        constraints.gridy = 1;
-        constraints.insets = new Insets(0, 0, 0, 0);
-        final JCheckBox frameRateCheck = new SIPCommCheckBox(
-            resources.getI18NString("impl.media.configform.VIDEO_FRAME_RATE"));
-        centerPanel.add(frameRateCheck, constraints);
-        constraints.gridy = 2;
-        constraints.insets = new Insets(5, 5, 0, 0);
-        centerPanel.add(new JLabel(
-            resources.getI18NString(
-                    "impl.media.configform.VIDEO_PACKETS_POLICY")),
-            constraints);
-
-        constraints.weightx = 1;
-        constraints.gridx = 1;
-        constraints.gridy = 0;
-        constraints.insets = new Insets(5, 0, 0, 5);
-        Object[] resolutionValues
-            = new Object[DeviceConfiguration.SUPPORTED_RESOLUTIONS.length + 1];
-        System.arraycopy(DeviceConfiguration.SUPPORTED_RESOLUTIONS, 0,
-                        resolutionValues, 1,
-                        DeviceConfiguration.SUPPORTED_RESOLUTIONS.length);
-        final JComboBox sizeCombo = new JComboBox(resolutionValues);
-        sizeCombo.setRenderer(new ResolutionCellRenderer());
-        sizeCombo.setEditable(false);
-        centerPanel.add(sizeCombo, constraints);
-
-        // default value is 20
-        final JSpinner frameRate = new JSpinner(new SpinnerNumberModel(
-            20, 5, 30, 1));
-        frameRate.addChangeListener(new ChangeListener()
-        {
-            public void stateChanged(ChangeEvent e)
-            {
-                deviceConfig.setFrameRate(
-                        ((SpinnerNumberModel)frameRate.getModel())
-                            .getNumber().intValue());
-            }
-        });
-        constraints.gridy = 1;
-        constraints.insets = new Insets(0, 0, 0, 5);
-        centerPanel.add(frameRate, constraints);
-
-        frameRateCheck.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                if(frameRateCheck.isSelected())
-                {
-                    deviceConfig.setFrameRate(
-                        ((SpinnerNumberModel)frameRate.getModel())
-                            .getNumber().intValue());
-                }
-                else // unlimited framerate
-                    deviceConfig.setFrameRate(-1);
-
-                frameRate.setEnabled(frameRateCheck.isSelected());
-            }
-        });
-
-        final JSpinner videoMaxBandwidth = new JSpinner(new SpinnerNumberModel(
-            deviceConfig.getVideoMaxBandwidth(),
-            1, Integer.MAX_VALUE, 1));
-        videoMaxBandwidth.addChangeListener(new ChangeListener()
-        {
-            public void stateChanged(ChangeEvent e)
-            {
-                deviceConfig.setVideoMaxBandwidth(
-                        ((SpinnerNumberModel)videoMaxBandwidth.getModel())
-                            .getNumber().intValue());
-            }
-        });
-        constraints.gridx = 1;
-        constraints.gridy = 2;
-        constraints.insets = new Insets(0, 0, 5, 5);
-        centerPanel.add(videoMaxBandwidth, constraints);
-
-        resetDefaultsButton.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                // reset to defaults
-                sizeCombo.setSelectedIndex(0);
-                frameRateCheck.setSelected(false);
-                frameRate.setEnabled(false);
-                frameRate.setValue(20);
-                // unlimited framerate
-                deviceConfig.setFrameRate(-1);
-                videoMaxBandwidth.setValue(
-                        DeviceConfiguration.DEFAULT_VIDEO_MAX_BANDWIDTH);
-            }
-        });
-
-        // load selected value or auto
-        Dimension videoSize = deviceConfig.getVideoSize();
-
-        if((videoSize.getHeight() != DeviceConfiguration.DEFAULT_VIDEO_HEIGHT)
-                && (videoSize.getWidth()
-                        != DeviceConfiguration.DEFAULT_VIDEO_WIDTH))
-            sizeCombo.setSelectedItem(deviceConfig.getVideoSize());
-        else
-            sizeCombo.setSelectedIndex(0);
-        sizeCombo.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                Dimension selectedVideoSize
-                    = (Dimension) sizeCombo.getSelectedItem();
-
-                if(selectedVideoSize == null)
-                {
-                    // the auto value, default one
-                    selectedVideoSize
-                        = new Dimension(
-                                DeviceConfiguration.DEFAULT_VIDEO_WIDTH,
-                                DeviceConfiguration.DEFAULT_VIDEO_HEIGHT);
-                }
-                deviceConfig.setVideoSize(selectedVideoSize);
-            }
-        });
-
-        frameRateCheck.setSelected(
-            deviceConfig.getFrameRate()
-                != DeviceConfiguration.DEFAULT_VIDEO_FRAMERATE);
-        frameRate.setEnabled(frameRateCheck.isSelected());
-
-        if(frameRate.isEnabled())
-            frameRate.setValue(deviceConfig.getFrameRate());
-
-        return centerAdvancedPanel;
+        return createControls(DeviceConfigurationComboBoxModel.VIDEO);
     }
 
     /**
@@ -1213,475 +1662,5 @@ public class MediaConfigurationImpl
     public MediaService getMediaService()
     {
         return mediaService;
-    }
-
-    /**
-     * Renders the available resolutions in the combo box.
-     */
-    private static class ResolutionCellRenderer
-        extends DefaultListCellRenderer
-    {
-        /**
-         * The serialization version number of the
-         * <tt>ResolutionCellRenderer</tt> class. Defined to the value of
-         * <tt>0</tt> because the <tt>ResolutionCellRenderer</tt> instances do
-         * not have state of their own.
-         */
-        private static final long serialVersionUID = 0L;
-
-        /**
-         * Sets readable text describing the resolution if the selected
-         * value is null we return the string "Auto".
-         *
-         * @param list
-         * @param value
-         * @param index
-         * @param isSelected
-         * @param cellHasFocus
-         * @return Component
-         */
-        @Override
-        public Component getListCellRendererComponent(
-            JList list,
-            Object value,
-            int index,
-            boolean isSelected,
-            boolean cellHasFocus)
-        {
-            // call super to set backgrounds and fonts
-            super.getListCellRendererComponent(
-                    list,
-                    value,
-                    index,
-                    isSelected,
-                    cellHasFocus);
-
-            // now just change the text
-            if(value == null)
-                setText("Auto");
-            else if(value instanceof Dimension)
-            {
-                Dimension d = (Dimension)value;
-
-                setText(((int) d.getWidth()) + "x" + ((int) d.getHeight()));
-            }
-            return this;
-        }
-    }
-
-    /**
-     * Creates a new listener to combo box and affect changes to the audio
-     * level indicator. The level indicator is updated via a thread in order to
-     * avoid deadloack of the user interface.
-     */
-    private class AudioLevelListenerThread
-            implements ActionListener,
-                       Runnable
-    {
-        /**
-         * The audio system used to get and set the sound devices.
-         */
-        private AudioSystem audioSystem;
-
-        /**
-         * The combo box used to select the device the user wants to use.
-         */
-        private JComboBox comboBox;
-
-        /**
-         * The sound level indicator used to show the effectiveness of the
-         * capture device.
-         */
-        private SoundLevelIndicator soundLevelIndicator;
-
-        /**
-         * The buffer used for reading the capture device.
-         */
-        private final Buffer transferHandlerBuffer = new Buffer();
-
-        /**
-         * The thread managing the change of capture device.
-         */
-        private Thread runDeviceSession = null;
-
-        /**
-         * The object used to synchronized the change of capture device.
-         */
-        private Object syncPendingDeviceSession = new Object();
-
-        /**
-         * The new device choosen by the user and that we need to initialize as
-         * the new capture device.
-         */
-        private AudioMediaDeviceSession pendingDeviceSession = null;
-
-        /**
-         * The current capture device.
-         */
-        private AudioMediaDeviceSession deviceSession = null;
-
-        /**
-         * Creates a new listener to combo box and affect changes to the audio
-         * level indicator.
-         *
-         * @param audioSystem The audio system used to get and set the sound
-         * devices.
-         * @param comboBox The combo box used to select the device the user
-         * wants to use.
-         * @param soundLevelIndicator The sound level indicator used to show the
-         * effectiveness of the capture device.
-         */
-        public AudioLevelListenerThread(
-                final AudioSystem audioSystem,
-                final JComboBox comboBox,
-                final SoundLevelIndicator soundLevelIndicator)
-        {
-            this.init(audioSystem, comboBox, soundLevelIndicator);
-        }
-
-        /**
-         * Creates a new listener to combo box and affect changes to the audio
-         * level indicator.
-         *
-         * @param audioSystem The audio system used to get and set the sound
-         * devices.
-         * @param comboBox The combo box used to select the device the user
-         * wants to use.
-         * @param soundLevelIndicator The sound level indicator used to show the
-         * effectiveness of the capture device.
-         */
-        public void init(
-                final AudioSystem audioSystem,
-                final JComboBox comboBox,
-                final SoundLevelIndicator soundLevelIndicator)
-        {
-            this.audioSystem = audioSystem;
-
-            // When this code is call to reinit the audio level indicator, then
-            // first remove old listeners for the combo box.
-            if(this.comboBox != null)
-                this.comboBox.removeActionListener(this);
-            this.comboBox = comboBox;
-            if (comboBox != null)
-                comboBox.addActionListener(this);
-
-            // When this code is call to reinit the audio level indicator, then
-            // first remove old listeners for the sound level indicator.
-            if(this.soundLevelIndicator != null)
-            {
-                HierarchyListener[] hierarchyListeners
-                    = soundLevelIndicator.getHierarchyListeners();
-                for(int i=0; i < hierarchyListeners.length; ++i)
-                {
-                    soundLevelIndicator.removeHierarchyListener(
-                        hierarchyListeners[i]);
-                }
-            }
-            this.soundLevelIndicator = soundLevelIndicator;
-            soundLevelIndicator.addHierarchyListener(
-                    new HierarchyListener()
-                    {
-                        public void hierarchyChanged(HierarchyEvent event)
-                        {
-                            if ((event.getChangeFlags()
-                                    & HierarchyEvent.SHOWING_CHANGED)
-                                != 0)
-                            {
-                                SwingUtilities.invokeLater(
-                                    new Runnable()
-                                    {
-                                        public void run()
-                                        {
-                                            actionPerformed(null);
-                                        }
-                                    });
-                            }
-                        }
-                    });
-
-            // Keeps the same single thread for the whole Jitsi session.
-            if(this.runDeviceSession == null)
-            {
-                this.runDeviceSession = new Thread(this);
-                this.runDeviceSession.start();
-            }
-        }
-
-        /**
-         * Listener to update the audio level indicator.
-         */
-        private final SimpleAudioLevelListener audioLevelListener
-            = new SimpleAudioLevelListener()
-            {
-                public void audioLevelChanged(int level)
-                {
-                    soundLevelIndicator.updateSoundLevel(level);
-                }
-            };
-
-        /**
-         *  Provides an handler which reads the stream into the
-         *  "transferHandlerBuffer".
-         */
-        private final BufferTransferHandler transferHandler
-            = new BufferTransferHandler()
-            {
-                public void transferData(PushBufferStream stream)
-                {
-                    try
-                    {
-                        stream.read(transferHandlerBuffer);
-                    }
-                    catch (IOException ioe)
-                    {
-                    }
-                }
-            };
-
-        /**
-         * Refhresh combo box when the user click on it.
-         *
-         * @param event The click on the  combo box.
-         */
-        public void actionPerformed(ActionEvent event)
-        {
-            synchronized(syncPendingDeviceSession)
-            {
-                this.pendingDeviceSession = null;
-                syncPendingDeviceSession.notify();
-            }
-
-            CaptureDeviceInfo cdi;
-
-            if (comboBox == null)
-            {
-                cdi = soundLevelIndicator.isShowing()
-                    ? audioSystem.getDevice(AudioSystem.CAPTURE_INDEX)
-                    : null;
-            }
-            else
-            {
-                Object selectedItem = soundLevelIndicator.isShowing()
-                    ? comboBox.getSelectedItem()
-                    : null;
-
-                cdi = (selectedItem instanceof
-                        DeviceConfigurationComboBoxModel.CaptureDevice)
-                    ? ((DeviceConfigurationComboBoxModel.CaptureDevice)
-                            selectedItem).info
-                    : null;
-            }
-
-            if (cdi != null)
-            {
-                for (MediaDevice md: mediaService.getDevices(
-                            MediaType.AUDIO,
-                            MediaUseCase.ANY))
-                {
-                    if (md instanceof AudioMediaDeviceImpl)
-                    {
-                        AudioMediaDeviceImpl amd = (AudioMediaDeviceImpl) md;
-
-                        if (cdi.equals(amd.getCaptureDeviceInfo()))
-                        {
-                            try
-                            {
-                                MediaDeviceSession deviceSession
-                                    = amd.createSession();
-                                boolean setDeviceSession = false;
-
-                                try
-                                {
-                                    if (deviceSession instanceof
-                                            AudioMediaDeviceSession)
-                                    {
-                                        synchronized(syncPendingDeviceSession)
-                                        {
-                                            this.pendingDeviceSession
-                                                = (AudioMediaDeviceSession)
-                                                    deviceSession;
-                                            syncPendingDeviceSession.notify();
-                                        }
-                                        setDeviceSession = true;
-                                    }
-                                }
-                                finally
-                                {
-                                    if (!setDeviceSession)
-                                        deviceSession.close();
-                                }
-                            }
-                            catch (Throwable t)
-                            {
-                                if (t instanceof ThreadDeath)
-                                    throw (ThreadDeath) t;
-                            }
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-
-        /**
-         * Sets the new capture device used by the audio level indicator.
-         *
-         * @param deviceSession The new capture device used by the audio level
-         * indicator.
-         */
-        private void setDeviceSession(
-                final AudioMediaDeviceSession deviceSession)
-        {
-            if (this.deviceSession == deviceSession)
-                return;
-
-            if (this.deviceSession != null)
-            {
-                try
-                {
-                    this.deviceSession.close();
-                }
-                finally
-                {
-                    this.deviceSession.setLocalUserAudioLevelListener(null);
-                    soundLevelIndicator.resetSoundLevel();
-                }
-            }
-
-            this.deviceSession = deviceSession;
-
-            if (this.deviceSession != null)
-            {
-                this.deviceSession.setContentDescriptor(
-                        new ContentDescriptor(ContentDescriptor.RAW));
-                this.deviceSession.setLocalUserAudioLevelListener(
-                        audioLevelListener);
-
-                deviceSession.start(MediaDirection.SENDONLY);
-
-                try
-                {
-                    DataSource dataSource = deviceSession.getOutputDataSource();
-
-                    dataSource.connect();
-
-                    PushBufferStream[] streams
-                        = ((PushBufferDataSource) dataSource).getStreams();
-
-                    for (PushBufferStream stream : streams)
-                        stream.setTransferHandler(transferHandler);
-
-                    dataSource.start();
-                }
-                catch (Throwable t)
-                {
-                    if (t instanceof ThreadDeath)
-                        throw (ThreadDeath) t;
-                    else
-                    {
-                        synchronized(syncPendingDeviceSession)
-                        {
-                            this.pendingDeviceSession = null;
-                            syncPendingDeviceSession.notify();
-                        }
-                    }
-                }
-            }
-        }
-
-        /**
-         * The thread which activates the pending device session to se has next
-         * audio level source.
-         */
-        public void run()
-        {
-            AudioMediaDeviceSession tmpDeviceSession = null;
-            boolean run = true;
-            while(run)
-            {
-                tmpDeviceSession = null;
-                synchronized(syncPendingDeviceSession)
-                {
-                    try
-                    {
-                        // If there is no device change pending, then wait for
-                        // the next change.
-                        if(pendingDeviceSession == null)
-                        {
-                            syncPendingDeviceSession.wait();
-                        }
-
-                        // If the "new" device session is not null, then set is
-                        // as the new audio level source. The real call to
-                        // setDeviceSession is done outside the synchronized
-                        // statement to avoid GUI deadlock.
-                        if(pendingDeviceSession != null)
-                        {
-                            tmpDeviceSession = pendingDeviceSession;
-                            pendingDeviceSession = null;
-                        }
-                    }
-                    catch(InterruptedException ie)
-                    {
-                        run = false;
-                    }
-                }
-
-                // Call the chane of audio level source. This function blocks
-                // on MacOSX for bluetooth devices, if the device is paired but
-                // not connected.
-                if(tmpDeviceSession != null && run)
-                {
-                    setDeviceSession(tmpDeviceSession);
-                }
-            }
-        }
-    }
-
-    /**
-     * Indicates that one of the contained in this panel buttons has been
-     * clicked.
-     * @param e the <tt>ActionEvent</tt> that notified us
-     */
-    public void actionPerformed(ActionEvent e)
-    {
-        boolean isPlaybackEvent = (e.getSource() == playbackPlaySoundButton);
-
-        // If the user clicked on one pley sound button.
-        if(isPlaybackEvent
-                || e.getSource() == notificationPlaySoundButton)
-        {
-            AudioNotifierService audioNotifServ
-                = NeomediaActivator.getAudioNotifierService();
-            String testSoundFilename 
-                = NeomediaActivator.getConfigurationService()
-                    .getString(
-                            TEST_SOUND_FILENAME_PROP,
-                            NeomediaActivator.getResources().getSoundPath(
-                                "TEST_SOUND")
-                            );
-            SCAudioClip sound = audioNotifServ.createAudio(
-                    testSoundFilename,
-                    isPlaybackEvent);
-            sound.play();
-        }
-        // If the selected item of the playback or notify combobox has changed.
-        else if(e.getSource() == playbackCombo
-                || e.getSource() == notifyCombo)
-        {
-            DeviceConfigurationComboBoxModel.CaptureDevice device
-                = (DeviceConfigurationComboBoxModel.CaptureDevice)
-                    ((JComboBox) e.getSource()).getSelectedItem();
-
-            boolean isEnabled = (device.info != null);
-            if(e.getSource() == playbackCombo)
-            {
-                playbackPlaySoundButton.setEnabled(isEnabled);
-            }
-            else
-            {
-                notificationPlaySoundButton.setEnabled(isEnabled);
-            }
-        }
     }
 }
