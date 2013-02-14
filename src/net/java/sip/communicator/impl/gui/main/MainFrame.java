@@ -1687,38 +1687,42 @@ public class MainFrame
      */
     public void setFrameVisible(final boolean isVisible)
     {
-        ConfigurationUtils.setApplicationVisible(isVisible);
+        if (this.isVisible() != isVisible)
+        {
+            ConfigurationUtils.setApplicationVisible(isVisible);
 
-        SwingUtilities.invokeLater(new Runnable(){
-            public void run()
-            {
-                if(isVisible)
+            SwingUtilities.invokeLater(new Runnable(){
+                public void run()
                 {
-                    MainFrame.this.addNativePlugins();
+                    if(isVisible)
+                    {
+                        MainFrame.this.addNativePlugins();
 
-                    Window focusedWindow = keyManager.getFocusedWindow();
+                        Window focusedWindow = keyManager.getFocusedWindow();
 
-                    // If there's another currently focused window we prevent
-                    // this frame from steeling the focus. This happens for
-                    // example in the case of a Master Password window which is
-                    // opened before the contact list window.
-                    if (focusedWindow != null)
-                        setFocusableWindowState(false);
+                        // If there's another currently focused window we
+                        // prevent this frame from steeling the focus. This
+                        // happens for example in the case of a Master Password
+                        // window which is opened before the contact list
+                        // window.
+                        if (focusedWindow != null)
+                            setFocusableWindowState(false);
 
-                    MainFrame.super.setVisible(isVisible);
+                        MainFrame.super.setVisible(isVisible);
 
-                    if (focusedWindow != null)
-                        setFocusableWindowState(true);
+                        if (focusedWindow != null)
+                            setFocusableWindowState(true);
 
-                    MainFrame.super.setExtendedState(MainFrame.NORMAL);
-                    MainFrame.super.toFront();
+                        MainFrame.super.setExtendedState(MainFrame.NORMAL);
+                        MainFrame.super.toFront();
+                    }
+                    else
+                    {
+                        MainFrame.super.setVisible(isVisible);
+                    }
                 }
-                else
-                {
-                    MainFrame.super.setVisible(isVisible);
-                }
-            }
-        });
+            });
+        }
     }
 
     /**
