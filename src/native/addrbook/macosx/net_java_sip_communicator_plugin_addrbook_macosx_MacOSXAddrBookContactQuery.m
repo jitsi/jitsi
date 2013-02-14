@@ -198,7 +198,6 @@ JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_plugin_addrbook_macosx
     {
         data = [NSDate dateWithTimeIntervalSince1970:(jlong)value];
     }
-    //else if(property == kABBirthdayComponentsProperty: not used for now
     else if(property == kABURLsProperty
             || property == kABCalendarURIsProperty
             || property == kABEmailProperty
@@ -248,53 +247,6 @@ JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_plugin_addrbook_macosx
                 withLabel:JavaStringToNSString(jniEnv, subProperty)];
     }
     //else if(property == kABOtherDatesProperty)//kABMultiDateProperty
-    //else if(property == kABOtherDateComponentsProperty: not used for now
-    else if(property == kABInstantMessageProperty)
-    {
-        jobjectArray arr = (jobjectArray)value;
-        jsize propertyCount = (*jniEnv)->GetArrayLength(jniEnv, arr);
-
-        data=[[ABMutableMultiValue alloc] init];
-
-        // The values are
-        // kABInstantMessageUsernameKey -> the user set username
-        // kABInstantMessageServiceKey -> one of
-        //                                    (kABInstantMessageServiceICQ,
-        //                                    kABInstantMessageServiceJabber,
-        //                                    kABInstantMessageServiceGoogleTalk
-        //                                    ...)
-        for (i = 0; i < propertyCount; i+=4)
-        {
-            NSMutableDictionary *addr;
-            addr = [NSMutableDictionary dictionary];
-
-            jstring value = (jstring) (*jniEnv)->GetObjectArrayElement(
-                                                            jniEnv, arr, i);
-            jstring label = (jstring) (*jniEnv)->GetObjectArrayElement(
-                                                            jniEnv, arr, i+1);
-            jstring value2 = (jstring) (*jniEnv)->GetObjectArrayElement(
-                                                            jniEnv, arr, i+2);
-            jstring label2 = (jstring) (*jniEnv)->GetObjectArrayElement(
-                                                            jniEnv, arr, i+3);
-
-            //NSLog(@"key:%@, value:%@", JavaStringToNSString(jniEnv, label), JavaStringToNSString(jniEnv, value));
-            if(label)
-                [addr setObject:JavaStringToNSString(jniEnv, value)
-                      forKey:JavaStringToNSString(jniEnv, label)];
-            if(label2)
-                [addr setObject:JavaStringToNSString(jniEnv, value2)
-                      forKey:JavaStringToNSString(jniEnv, label2)];
-
-            [(ABMutableMultiValue *) data
-                addValue:addr
-                withLabel:JavaStringToNSString(jniEnv, subProperty)];
-        }
-    }
-    /*else if(property == kABSocialProfileProperty)
-    {
-        // kABSocialProfileURLKey, kABSocialProfileServiceKey,
-        // kABSocialProfileUsernameKey, kABSocialProfileUserIdentifierKey
-    }*/
     else
     {
         data = NULL;
@@ -362,7 +314,6 @@ DEFINE_ABPERSON_PROPERTY_GETTER(kABPhoneProperty)
 DEFINE_ABPERSON_PROPERTY_GETTER(kABYahooInstantProperty)
 DEFINE_ABPERSON_PROPERTY_GETTER(kABMaidenNameProperty)
 DEFINE_ABPERSON_PROPERTY_GETTER(kABBirthdayProperty)
-DEFINE_ABPERSON_PROPERTY_GETTER(kABBirthdayComponentsProperty)
 DEFINE_ABPERSON_PROPERTY_GETTER(kABJobTitleProperty)
 DEFINE_ABPERSON_PROPERTY_GETTER(kABHomePageProperty)
 DEFINE_ABPERSON_PROPERTY_GETTER(kABURLsProperty)
@@ -372,7 +323,6 @@ DEFINE_ABPERSON_PROPERTY_GETTER(kABOtherDatesProperty)
 DEFINE_ABPERSON_PROPERTY_GETTER(kABOtherDateComponentsProperty)
 DEFINE_ABPERSON_PROPERTY_GETTER(kABRelatedNamesProperty)
 DEFINE_ABPERSON_PROPERTY_GETTER(kABDepartmentProperty)
-DEFINE_ABPERSON_PROPERTY_GETTER(kABInstantMessageProperty)
 DEFINE_ABPERSON_PROPERTY_GETTER(kABNoteProperty)
 DEFINE_ABPERSON_PROPERTY_GETTER(kABSocialProfileProperty)
 DEFINE_ABPERSON_PROPERTY_GETTER(kABTitleProperty)
@@ -422,14 +372,6 @@ DEFINE_ABLABEL_PROPERTY_GETTER(kABYahooWorkLabel)
 DEFINE_ABLABEL_PROPERTY_GETTER(kABYahooHomeLabel)
 DEFINE_ABLABEL_PROPERTY_GETTER(kABICQWorkLabel)
 DEFINE_ABLABEL_PROPERTY_GETTER(kABICQHomeLabel)
-DEFINE_ABLABEL_PROPERTY_GETTER(kABInstantMessageServiceAIM)
-DEFINE_ABLABEL_PROPERTY_GETTER(kABInstantMessageServiceFacebook)
-DEFINE_ABLABEL_PROPERTY_GETTER(kABInstantMessageServiceGoogleTalk)
-DEFINE_ABLABEL_PROPERTY_GETTER(kABInstantMessageServiceICQ)
-DEFINE_ABLABEL_PROPERTY_GETTER(kABInstantMessageServiceJabber)
-DEFINE_ABLABEL_PROPERTY_GETTER(kABInstantMessageServiceMSN)
-DEFINE_ABLABEL_PROPERTY_GETTER(kABInstantMessageServiceSkype)
-DEFINE_ABLABEL_PROPERTY_GETTER(kABInstantMessageServiceYahoo)
 DEFINE_ABLABEL_PROPERTY_GETTER(kABAddressStreetKey)
 DEFINE_ABLABEL_PROPERTY_GETTER(kABAddressCityKey)
 DEFINE_ABLABEL_PROPERTY_GETTER(kABAddressZIPKey)
@@ -437,9 +379,6 @@ DEFINE_ABLABEL_PROPERTY_GETTER(kABAddressCountryKey)
 DEFINE_ABLABEL_PROPERTY_GETTER(kABWorkLabel)
 DEFINE_ABLABEL_PROPERTY_GETTER(kABHomeLabel)
 DEFINE_ABLABEL_PROPERTY_GETTER(kABOtherLabel)
-DEFINE_ABLABEL_PROPERTY_GETTER(kABMobileMeLabel)
-DEFINE_ABLABEL_PROPERTY_GETTER(kABInstantMessageUsernameKey)
-DEFINE_ABLABEL_PROPERTY_GETTER(kABInstantMessageServiceKey)
 
 static void
 MacOSXAddrBookContactQuery_idToJObject

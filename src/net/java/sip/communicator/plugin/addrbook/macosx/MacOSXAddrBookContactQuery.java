@@ -54,17 +54,14 @@ public class MacOSXAddrBookContactQuery
             kABOrganizationProperty(),
             kABMaidenNameProperty(),
             kABBirthdayProperty(),
-            kABBirthdayComponentsProperty(),
             kABJobTitleProperty(),
             kABHomePageProperty(),
             kABURLsProperty(),
             kABCalendarURIsProperty(),
             kABAddressProperty(),
             kABOtherDatesProperty(),
-            kABOtherDateComponentsProperty(),
             kABRelatedNamesProperty(),
             kABDepartmentProperty(),
-            kABInstantMessageProperty(),
             kABNoteProperty(),
             kABSocialProfileProperty(),
             kABTitleProperty(),
@@ -192,94 +189,76 @@ public class MacOSXAddrBookContactQuery
     private static final int kABBirthdayProperty = 17;
 
     /**
-     * The index of the <tt>kABBirthdayComponentsProperty</tt> <tt>ABPerson</tt>
-     * property in {@link #ABPERSON_PROPERTIES}.
-     */
-    private static final int kABBirthdayComponentsProperty = 18;
-
-    /**
      * The index of the <tt>kABJobTitleProperty</tt> <tt>ABPerson</tt>
      * property in {@link #ABPERSON_PROPERTIES}.
      */
-    private static final int kABJobTitleProperty = 19;
+    private static final int kABJobTitleProperty = 18;
 
     /**
      * The index of the <tt>kABHomePageProperty</tt> <tt>ABPerson</tt>
      * property in {@link #ABPERSON_PROPERTIES}.
      */
-    private static final int kABHomePageProperty = 20;
+    private static final int kABHomePageProperty = 19;
 
     /**
      * The index of the <tt>kABURLsProperty</tt> <tt>ABPerson</tt>
      * property in {@link #ABPERSON_PROPERTIES}.
      */
-    private static final int kABURLsProperty = 21;
+    private static final int kABURLsProperty = 20;
 
     /**
      * The index of the <tt>kABCalendarURIsProperty</tt> <tt>ABPerson</tt>
      * property in {@link #ABPERSON_PROPERTIES}.
      */
-    private static final int kABCalendarURIsProperty = 22;
+    private static final int kABCalendarURIsProperty = 21;
 
     /**
      * The index of the <tt>kABAddressProperty</tt> <tt>ABPerson</tt>
      * property in {@link #ABPERSON_PROPERTIES}.
      */
-    private static final int kABAddressProperty = 23;
+    private static final int kABAddressProperty = 22;
 
     /**
      * The index of the <tt>kABOtherDatesProperty</tt> <tt>ABPerson</tt>
      * property in {@link #ABPERSON_PROPERTIES}.
      */
-    private static final int kABOtherDatesProperty = 24;
-
-    /**
-     * The index of the <tt>kABOtherDateComponentsProperty</tt> <tt>ABPerson</tt>
-     * property in {@link #ABPERSON_PROPERTIES}.
-     */
-    private static final int kABOtherDateComponentsProperty = 25;
+    private static final int kABOtherDatesProperty = 23;
 
     /**
      * The index of the <tt>kABRelatedNamesProperty</tt> <tt>ABPerson</tt>
      * property in {@link #ABPERSON_PROPERTIES}.
      */
-    private static final int kABRelatedNamesProperty = 26;
+    private static final int kABRelatedNamesProperty = 24;
 
     /**
      * The index of the <tt>kABDepartmentProperty</tt> <tt>ABPerson</tt>
      * property in {@link #ABPERSON_PROPERTIES}.
      */
-    private static final int kABDepartmentProperty = 27;
-
-    /**
-     * The index of the <tt>kABInstantMessageProperty</tt> <tt>ABPerson</tt>
-     * property in {@link #ABPERSON_PROPERTIES}.
-     */
-    private static final int kABInstantMessageProperty = 28;
+    private static final int kABDepartmentProperty = 25;
 
     /**
      * The index of the <tt>kABNoteProperty</tt> <tt>ABPerson</tt>
      * property in {@link #ABPERSON_PROPERTIES}.
      */
-    private static final int kABNoteProperty = 29;
+    private static final int kABNoteProperty = 26;
 
     /**
      * The index of the <tt>kABSocialProfileProperty</tt> <tt>ABPerson</tt>
      * property in {@link #ABPERSON_PROPERTIES}.
      */
-    private static final int kABSocialProfileProperty = 30;
+    private static final int kABSocialProfileProperty = 27;
 
     /**
      * The index of the <tt>kABTitleProperty</tt> <tt>ABPerson</tt>
      * property in {@link #ABPERSON_PROPERTIES}.
      */
-    private static final int kABTitleProperty = 31;
+    private static final int kABTitleProperty = 28;
 
     /**
      * The index of the <tt>kABSuffixProperty</tt> <tt>ABPerson</tt>
      * property in {@link #ABPERSON_PROPERTIES}.
      */
-    private static final int kABSuffixProperty = 32;
+    private static final int kABSuffixProperty = 29;
 
     /**
      * The regex which matches the superfluous parts of an <tt>ABMultiValue</tt>
@@ -412,10 +391,6 @@ public class MacOSXAddrBookContactQuery
             break;
         case kABYahooInstantProperty:
             sc = ContactDetail.SubCategory.Yahoo;
-            c = ContactDetail.Category.InstantMessaging;
-            break;
-        case kABInstantMessageProperty:
-            sc = ContactDetail.SubCategory.fromString(contactAddress);
             c = ContactDetail.Category.InstantMessaging;
             break;
         case kABMaidenNameProperty:
@@ -628,9 +603,6 @@ public class MacOSXAddrBookContactQuery
                     }
 
                     Object l = multiValue[multiValueIndex + 1];
-
-                    if(kABInstantMessageServiceKey().equals(l))
-                        continue;
 
                     contactDetails.add(
                             setCapabilities(
@@ -898,13 +870,6 @@ public class MacOSXAddrBookContactQuery
     private static native long kABBirthdayProperty();
 
     /**
-     * Gets the value of the <tt>kABBirthdayComponentsProperty</tt> constant.
-     *
-     * @return the value of the <tt>kABBirthdayComponentsProperty</tt> constant
-     */
-    private static native long kABBirthdayComponentsProperty();
-
-    /**
      * Gets the value of the <tt>kABJobTitleProperty</tt> constant.
      *
      * @return the value of the <tt>kABJobTitleProperty</tt> constant
@@ -945,13 +910,6 @@ public class MacOSXAddrBookContactQuery
      * @return the value of the <tt>kABOtherDatesProperty</tt> constant
      */
     private static native long kABOtherDatesProperty();
-
-    /**
-     * Gets the value of the <tt>kABOtherDateComponentsProperty</tt> constant.
-     *
-     * @return the value of the <tt>kABOtherDateComponentsProperty</tt> constant
-     */
-    private static native long kABOtherDateComponentsProperty();
 
     /**
      * Gets the value of the <tt>kABRelatedNamesProperty</tt> constant.
@@ -1014,21 +972,10 @@ public class MacOSXAddrBookContactQuery
     private static native String kABHomeLabel();
     private static native String kABWorkLabel();
     private static native String kABOtherLabel();
-    private static native String kABMobileMeLabel();
-    private static native String kABInstantMessageServiceAIM();
-    private static native String kABInstantMessageServiceFacebook();
-    private static native String kABInstantMessageServiceGoogleTalk();
-    private static native String kABInstantMessageServiceICQ();
-    private static native String kABInstantMessageServiceJabber();
-    private static native String kABInstantMessageServiceMSN();
-    private static native String kABInstantMessageServiceSkype();
-    private static native String kABInstantMessageServiceYahoo();
     private static native String kABAddressStreetKey();
     private static native String kABAddressCityKey();
     private static native String kABAddressZIPKey();
     private static native String kABAddressCountryKey();
-    private static native String kABInstantMessageUsernameKey();
-    private static native String kABInstantMessageServiceKey();
 
 
     /**
@@ -1337,7 +1284,19 @@ public class MacOSXAddrBookContactQuery
             case Email:
                 return kABEmailProperty;
             case InstantMessaging:
-                return kABInstantMessageProperty;
+                if(subCategories.contains(ContactDetail.SubCategory.AIM))
+                    return kABAIMInstantProperty;
+                else if(subCategories.contains(ContactDetail.SubCategory.ICQ))
+                    return kABICQInstantProperty;
+                else if(subCategories.contains(ContactDetail.SubCategory.MSN))
+                    return kABMSNInstantProperty;
+                else if(subCategories.contains(
+                            ContactDetail.SubCategory.Jabber))
+                    return kABJabberInstantProperty;
+                else if(subCategories.contains(
+                            ContactDetail.SubCategory.Yahoo))
+                    return kABYahooInstantProperty;
+                break;
             case Phone:
                 return kABPhoneProperty;
             case Address:
@@ -1355,7 +1314,8 @@ public class MacOSXAddrBookContactQuery
      */
     public static String getLabel(
         int property,
-        AddressBookContactDetail.SubCategory subCategory)
+        AddressBookContactDetail.SubCategory subCategory,
+        String subProperty)
     {
         switch(property)
         {
@@ -1365,28 +1325,12 @@ public class MacOSXAddrBookContactQuery
                 if(subCategory == ContactDetail.SubCategory.Work)
                     return kABEmailWorkLabel();
                 break;
-            case kABInstantMessageProperty:
-                switch(subCategory)
-                {
-                    case AIM:
-                        return kABInstantMessageServiceAIM();
-                    case Facebook:
-                        return kABInstantMessageServiceFacebook();
-                    case GoogleTalk:
-                        return kABInstantMessageServiceGoogleTalk();
-                    case ICQ:
-                        return kABInstantMessageServiceICQ();
-                    case Jabber:
-                        return kABInstantMessageServiceJabber();
-                    case MSN:
-                        return kABInstantMessageServiceMSN();
-                    case Skype:
-                        return kABInstantMessageServiceSkype();
-                    case Yahoo:
-                        return kABInstantMessageServiceYahoo();
-                    default:
-                        return null;
-                }
+            case kABICQInstantProperty:
+            case kABAIMInstantProperty:
+            case kABYahooInstantProperty:
+            case kABMSNInstantProperty:
+            case kABJabberInstantProperty:
+                return subProperty;
             case kABPhoneProperty:
                 if(subCategory == ContactDetail.SubCategory.Home)
                     return kABPhoneHomeLabel();
@@ -1476,39 +1420,31 @@ public class MacOSXAddrBookContactQuery
                 List<ContactDetail> details =
                     getContactDetails(detail.getCategory());
 
+                boolean isIM = (property == kABICQInstantProperty
+                                || property == kABAIMInstantProperty
+                                || property == kABYahooInstantProperty
+                                || property == kABMSNInstantProperty
+                                || property == kABJabberInstantProperty);
+
                 // first add existing one
                 ArrayList values = new ArrayList();
 
                 for(ContactDetail cd : details)
                 {
-                    if(subProperty != null
-                        && cd instanceof AddressBookContactDetail
-                        && !subProperty.equals(
-                        ((AddressBookContactDetail) cd)
-                            .getSubPropertyLabel()))
-                    {
-                        continue;
-                    }
-
                     String det = cd.getDetail();
 
                     for(ContactDetail.SubCategory sub : cd.getSubCategories())
                     {
-                        String label = getLabel(property, sub);
+                        // if its an im property check also if the detail
+                        // is the same subcategory (which is icq, yahoo, ...)
+                        if(isIM && !detail.getSubCategories().contains(sub))
+                            continue;
+
+                        String label = getLabel(property, sub, subProperty);
                         if(label != null)
                         {
-                            if(property == kABInstantMessageProperty)
-                            {
-                                values.add(det);
-                                values.add(kABInstantMessageUsernameKey());
-                                values.add(label);
-                                values.add(kABInstantMessageServiceKey());
-                            }
-                            else
-                            {
-                                values.add(det);
-                                values.add(label);
-                            }
+                            values.add(det);
+                            values.add(label);
                         }
                         else
                             logger.warn("Missing label fo prop:" + property
@@ -1519,21 +1455,11 @@ public class MacOSXAddrBookContactQuery
                 // now the new value to add
                 for(ContactDetail.SubCategory sub : detail.getSubCategories())
                 {
-                    String label = getLabel(property, sub);
+                    String label = getLabel(property, sub, subProperty);
                     if(label != null)
                     {
-                        if(property == kABInstantMessageProperty)
-                        {
-                            values.add(detail.getDetail());
-                            values.add(kABInstantMessageUsernameKey());
-                            values.add(label);
-                            values.add(kABInstantMessageServiceKey());
-                        }
-                        else
-                        {
-                            values.add(detail.getDetail());
-                            values.add(label);
-                        }
+                        values.add(detail.getDetail());
+                        values.add(label);
                     }
                     else
                         logger.warn("Missing label fo prop:" + property
@@ -1555,13 +1481,13 @@ public class MacOSXAddrBookContactQuery
                 = detail.getSubCategories();
             contactDetails.add(
                 new AddressBookContactDetail(
-                        property,
-                        detail.getDetail(),
-                        detail.getCategory(),
-                        subCategories.toArray(
-                            new ContactDetail.SubCategory[
-                                    subCategories.size()]),
-                        null));
+                    property,
+                    detail.getDetail(),
+                    detail.getCategory(),
+                    subCategories.toArray(
+                        new ContactDetail.SubCategory[
+                            subCategories.size()]),
+                    null));
         }
 
         /**
@@ -1665,7 +1591,7 @@ public class MacOSXAddrBookContactQuery
 
                     for(ContactDetail.SubCategory sub : cd.getSubCategories())
                     {
-                        String label = getLabel(property, sub);
+                        String label = getLabel(property, sub, subPropertyLabel);
 
                         if(label != null)
                         {
