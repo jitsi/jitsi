@@ -63,7 +63,6 @@ public class MacOSXAddrBookContactQuery
             kABRelatedNamesProperty(),
             kABDepartmentProperty(),
             kABNoteProperty(),
-            kABSocialProfileProperty(),
             kABTitleProperty(),
             kABSuffixProperty()
         };
@@ -243,22 +242,16 @@ public class MacOSXAddrBookContactQuery
     private static final int kABNoteProperty = 26;
 
     /**
-     * The index of the <tt>kABSocialProfileProperty</tt> <tt>ABPerson</tt>
-     * property in {@link #ABPERSON_PROPERTIES}.
-     */
-    private static final int kABSocialProfileProperty = 27;
-
-    /**
      * The index of the <tt>kABTitleProperty</tt> <tt>ABPerson</tt>
      * property in {@link #ABPERSON_PROPERTIES}.
      */
-    private static final int kABTitleProperty = 28;
+    private static final int kABTitleProperty = 27;
 
     /**
      * The index of the <tt>kABSuffixProperty</tt> <tt>ABPerson</tt>
      * property in {@link #ABPERSON_PROPERTIES}.
      */
-    private static final int kABSuffixProperty = 29;
+    private static final int kABSuffixProperty = 28;
 
     /**
      * The regex which matches the superfluous parts of an <tt>ABMultiValue</tt>
@@ -425,7 +418,6 @@ public class MacOSXAddrBookContactQuery
         case kABOtherDatesProperty:
         case kABRelatedNamesProperty:
         case kABNoteProperty:
-        case kABSocialProfileProperty:
         case kABTitleProperty:
         case kABSuffixProperty:
             c = ContactDetail.Category.Personal;
@@ -938,13 +930,6 @@ public class MacOSXAddrBookContactQuery
      * @return the value of the <tt>kABNoteProperty</tt> constant
      */
     private static native long kABNoteProperty();
-
-    /**
-     * Gets the value of the <tt>kABSocialProfileProperty</tt> constant.
-     *
-     * @return the value of the <tt>kABSocialProfileProperty</tt> constant
-     */
-    private static native long kABSocialProfileProperty();
 
     /**
      * Gets the value of the <tt>kABTitleProperty</tt> constant.
