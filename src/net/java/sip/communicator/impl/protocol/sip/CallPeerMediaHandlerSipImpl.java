@@ -444,9 +444,10 @@ public class CallPeerMediaHandlerSipImpl
                     OperationFailedException.ILLEGAL_ARGUMENT, e);
             }
 
-            //ignore RTP/AVP stream when RTP/SAVP is mandatory
+            //ignore RTP/AVP(F) stream when RTP/SAVP(F) is mandatory
             if (savpOption == ProtocolProviderFactory.SAVP_MANDATORY
-                && transportProtocol.equals(SdpConstants.RTP_AVP)
+                && !(transportProtocol.equals("RTP/SAVP")
+                    || transportProtocol.equals("RTP/SAVPF"))
                 && encryptionEnabled)
             {
                 rejectedAvpOfferDueToSavpRequired = true;
