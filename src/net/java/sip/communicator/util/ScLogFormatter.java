@@ -53,6 +53,9 @@ public class ScLogFormatter
         sb.append(record.getLevel().getLocalizedName());
         sb.append(": ");
 
+        // Thread ID
+        sb.append("[" + record.getThreadID() + "] ");
+
         //caller method
         int lineNumber = inferCaller(record);
         String loggerName = record.getLoggerName();
