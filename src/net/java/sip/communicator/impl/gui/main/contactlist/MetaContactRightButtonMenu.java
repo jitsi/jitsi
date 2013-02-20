@@ -82,6 +82,12 @@ public class MetaContactRightButtonMenu
         = GuiActivator.getResources().getI18NString("service.gui.CALL");
 
     /**
+     * String for remove contact menu items.
+     */
+    private static final String removeString = GuiActivator
+        .getResources().getI18NString("service.gui.REMOVE_CONTACT");
+
+    /**
      * The menu responsible for moving a contact to another group.
      */
     private final SIPCommMenu moveToMenu
@@ -99,9 +105,7 @@ public class MetaContactRightButtonMenu
     /**
      * The menu responsible for removing a contact.
      */
-    private final SIPCommMenu removeContactMenu
-        = new SIPCommMenu(GuiActivator.getResources()
-            .getI18NString("service.gui.REMOVE_CONTACT"));
+    private final SIPCommMenu removeContactMenu = new SIPCommMenu(removeString);
 
     /**
      * The menu responsible for calling a contact.
@@ -661,7 +665,27 @@ public class MetaContactRightButtonMenu
         addSeparator();
 
         if (!ConfigurationUtils.isRemoveContactDisabled())
-            add(removeContactMenu);
+        {
+            if (metaContact.getContactCount() > 1)
+            {
+                add(removeContactMenu);
+            }
+            else
+            {
+                // There is only one contact, so a submenu is unnecessary -
+                // just add a single menu item.  It masquerades as an item to
+                // delete all contacts as that way we don't have to specify
+                // the contact's address.
+                Icon deleteIcon = new ImageIcon(
+                    ImageLoader.getImage(ImageLoader.DELETE_16x16_ICON));
+                JMenuItem removeContactItem = createMenuItem(
+                    removeString,
+                    removeContactPrefix + "allContacts",
+                    deleteIcon);
+
+                add(removeContactItem);
+            }
+        }
 
         add(renameContactItem);
 
@@ -717,7 +741,7 @@ public class MetaContactRightButtonMenu
             this.sendFileItem.setEnabled(false);
 
         if (metaContact.getDefaultContact(
-            OperationSetBasicTelephony.class) == null && (!hasPhones || 
+            OperationSetBasicTelephony.class) == null && (!hasPhones ||
             CallManager.getTelephonyProviders().size() == 0))
             this.callItem.setEnabled(false);
 
