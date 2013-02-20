@@ -206,6 +206,12 @@ public class ContactDetail
 
         /**
          * The standard/well-known label of a <tt>ContactDetail</tt>
+         * representing a state name.
+         */
+        State("State"),
+
+        /**
+         * The standard/well-known label of a <tt>ContactDetail</tt>
          * representing a city name.
          */
         City("City"),

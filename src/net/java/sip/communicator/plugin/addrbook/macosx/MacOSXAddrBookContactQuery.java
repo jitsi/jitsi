@@ -11,6 +11,7 @@ import java.util.regex.*;
 
 import net.java.sip.communicator.plugin.addrbook.*;
 import net.java.sip.communicator.service.contactsource.*;
+import net.java.sip.communicator.service.contactsource.ContactDetail.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
@@ -355,83 +356,84 @@ public class MacOSXAddrBookContactQuery
             Object label,
             String additionalProperty)
     {
-        ContactDetail.Category c;
-        ContactDetail.SubCategory sc = null;
+        Category c;
+        SubCategory sc = null;
 
         switch (property)
         {
         case kABEmailProperty:
-            c = ContactDetail.Category.Email;
+            c = Category.Email;
             break;
         case kABPhoneProperty:
-            c = ContactDetail.Category.Phone;
+            c = Category.Phone;
             break;
         case kABAIMInstantProperty:
-            sc = ContactDetail.SubCategory.AIM;
-            c = ContactDetail.Category.InstantMessaging;
+            sc = SubCategory.AIM;
+            c = Category.InstantMessaging;
             break;
         case kABICQInstantProperty:
-            sc = ContactDetail.SubCategory.ICQ;
-            c = ContactDetail.Category.InstantMessaging;
+            sc = SubCategory.ICQ;
+            c = Category.InstantMessaging;
             break;
         case kABJabberInstantProperty:
-            sc = ContactDetail.SubCategory.Jabber;
-            c = ContactDetail.Category.InstantMessaging;
+            sc = SubCategory.Jabber;
+            c = Category.InstantMessaging;
             break;
         case kABMSNInstantProperty:
-            sc = ContactDetail.SubCategory.MSN;
-            c = ContactDetail.Category.InstantMessaging;
+            sc = SubCategory.MSN;
+            c = Category.InstantMessaging;
             break;
         case kABYahooInstantProperty:
-            sc = ContactDetail.SubCategory.Yahoo;
-            c = ContactDetail.Category.InstantMessaging;
+            sc = SubCategory.Yahoo;
+            c = Category.InstantMessaging;
             break;
         case kABMaidenNameProperty:
         case kABFirstNameProperty:
-            sc = ContactDetail.SubCategory.Name;
-            c = ContactDetail.Category.Personal;
+            sc = SubCategory.Name;
+            c = Category.Personal;
             break;
         case kABFirstNamePhoneticProperty:
-            sc = ContactDetail.SubCategory.Name;
-            c = ContactDetail.Category.Personal;
+            sc = SubCategory.Name;
+            c = Category.Personal;
             break;
         case kABLastNameProperty:
-            sc = ContactDetail.SubCategory.LastName;
-            c = ContactDetail.Category.Personal;
+            sc = SubCategory.LastName;
+            c = Category.Personal;
             break;
         case kABLastNamePhoneticProperty:
-            sc = ContactDetail.SubCategory.LastName;
-            c = ContactDetail.Category.Personal;
+            sc = SubCategory.LastName;
+            c = Category.Personal;
             break;
         case kABMiddleNameProperty:
         case kABMiddleNamePhoneticProperty:
         case kABNicknameProperty:
-            sc = ContactDetail.SubCategory.Nickname;
-            c = ContactDetail.Category.Personal;
+            sc = SubCategory.Nickname;
+            c = Category.Personal;
             break;
         case kABBirthdayProperty:
         case kABURLsProperty:
         case kABHomePageProperty:
-            sc = ContactDetail.SubCategory.HomePage;
-            c = ContactDetail.Category.Personal;
+            sc = SubCategory.HomePage;
+            c = Category.Personal;
             break;
         case kABOtherDatesProperty:
         case kABRelatedNamesProperty:
         case kABNoteProperty:
         case kABTitleProperty:
         case kABSuffixProperty:
-            c = ContactDetail.Category.Personal;
+            c = Category.Personal;
             break;
         case kABOrganizationProperty:
         case kABJobTitleProperty:
-            sc = ContactDetail.SubCategory.JobTitle;
-            c = ContactDetail.Category.Organization;
+            sc = SubCategory.JobTitle;
+            c = Category.Organization;
             break;
         case kABDepartmentProperty:
-            c = ContactDetail.Category.Organization;
+            c = Category.Organization;
+            sc = SubCategory.Name;
             break;
         case kABAddressProperty:
-            c = ContactDetail.Category.Address;
+            c = Category.Address;
             break;
         default:
             c = null;
@@ -448,22 +450,34 @@ public class MacOSXAddrBookContactQuery
             }
         }
 
+        SubCategory[] subCategories;
+        SubCategory additionalSubCategory = null;
+
+        if(additionalProperty != null)
+            additionalSubCategory = getSubCategoryFromLabel(additionalProperty);
+
+        if(additionalSubCategory != null)
+            subCategories = new SubCategory[]
+                { sc, additionalSubCategory };
+        else
+            subCategories = new SubCategory[]{ sc };
+
         return new AddressBookContactDetail(
             property,
             contactAddress,
             c,
-            new ContactDetail.SubCategory[] { sc },
+            subCategories,
             additionalProperty);
     }
 
     /**
-     * Returns the ContactDetail.SubCategory corresponding to the given label.
+     * Returns the SubCategory corresponding to the given label.
      *
-     * @param label the label to match to a <tt>ContactDetail.SubDirectory</tt>
-     * @return the <tt>ContactDetail.SubDirectory</tt> corresponding to the
+     * @param label the label to match to a <tt>SubDirectory</tt>
+     * @return the <tt>SubDirectory</tt> corresponding to the
      * given label
      */
-    private ContactDetail.SubCategory getSubCategoryFromLabel(Object label)
+    private SubCategory getSubCategoryFromLabel(Object label)
     {
         String labelString
             = LABEL_PATTERN.matcher((String) label).replaceAll("").trim();
@@ -471,28 +485,32 @@ public class MacOSXAddrBookContactQuery
         if (labelString.length() < 1)
             return null;
 
-        ContactDetail.SubCategory subCategory = null;
+        SubCategory subCategory = null;
 
         if (labelString.equalsIgnoreCase("home"))
-            subCategory = ContactDetail.SubCategory.Home;
+            subCategory = SubCategory.Home;
         else if (labelString.equalsIgnoreCase("work"))
-            subCategory = ContactDetail.SubCategory.Work;
+            subCategory = SubCategory.Work;
         else if (labelString.equalsIgnoreCase("other"))
-            subCategory = ContactDetail.SubCategory.Other;
+            subCategory = SubCategory.Other;
         else if (labelString.equalsIgnoreCase("mobile"))
-            subCategory = ContactDetail.SubCategory.Mobile;
+            subCategory = SubCategory.Mobile;
         else if (labelString.equalsIgnoreCase("homepage"))
-            subCategory = ContactDetail.SubCategory.HomePage;
+            subCategory = SubCategory.HomePage;
         else if (labelString.equalsIgnoreCase("street"))
-            subCategory = ContactDetail.SubCategory.Street;
+            subCategory = SubCategory.Street;
         else if (labelString.equalsIgnoreCase("ZIP"))
-            subCategory = ContactDetail.SubCategory.PostalCode;
+            subCategory = SubCategory.PostalCode;
         else if (labelString.equalsIgnoreCase("country"))
-            subCategory = ContactDetail.SubCategory.Country;
+            subCategory = SubCategory.Country;
         else if (labelString.equalsIgnoreCase("city"))
-            subCategory = ContactDetail.SubCategory.City;
+            subCategory = SubCategory.City;
         else if (labelString.equalsIgnoreCase("InstantMessageUsername"))
-            subCategory = ContactDetail.SubCategory.Nickname;
+            subCategory = SubCategory.Nickname;
+        else if (labelString.equalsIgnoreCase("workfax"))
+            subCategory = SubCategory.Fax;
+        else if (labelString.equalsIgnoreCase("fax"))
+            subCategory = SubCategory.Fax;
 
         return subCategory;
     }
@@ -959,6 +977,7 @@ public class MacOSXAddrBookContactQuery
     private static native String kABOtherLabel();
     private static native String kABAddressStreetKey();
     private static native String kABAddressCityKey();
+    private static native String kABAddressStateKey();
     private static native String kABAddressZIPKey();
     private static native String kABAddressCountryKey();
 
@@ -1049,9 +1068,7 @@ public class MacOSXAddrBookContactQuery
                             getContactSource(),
                             displayName,
                             contactDetails);
-                sourceContact.setData(
-                    SOURCE_CONTACT_ID_DATA_KEY,
-                    id);
+                sourceContact.setData(SourceContact.DATA_ID, id);
 
                 for(ContactDetail cd : contactDetails)
                 {
@@ -1217,7 +1234,7 @@ public class MacOSXAddrBookContactQuery
      * @param category
      * @return
      */
-    private boolean isMultiline(AddressBookContactDetail.Category category)
+    private boolean isMultiline(Category category)
     {
         switch(category)
         {
@@ -1246,40 +1263,40 @@ public class MacOSXAddrBookContactQuery
      * @return
      */
     public static int getProperty(
-        AddressBookContactDetail.Category category,
-        Collection<AddressBookContactDetail.SubCategory> subCategories)
+        Category category,
+        Collection<SubCategory> subCategories)
     {
         switch(category)
         {
             case Personal:
-                if(subCategories.contains(ContactDetail.SubCategory.Name))
+                if(subCategories.contains(SubCategory.Name))
                     return kABFirstNameProperty;
-                else if(subCategories.contains(ContactDetail.SubCategory.LastName))
+                else if(subCategories.contains(SubCategory.LastName))
                     return kABLastNameProperty;
-                else if(subCategories.contains(ContactDetail.SubCategory.Nickname))
-                    return kABLastNameProperty;
-                else if(subCategories.contains(ContactDetail.SubCategory.HomePage))
+                else if(subCategories.contains(SubCategory.Nickname))
+                    return kABNicknameProperty;
+                else if(subCategories.contains(SubCategory.HomePage))
                     return kABHomePageProperty;
                 break;
             case Organization:
-                if(subCategories.contains(ContactDetail.SubCategory.JobTitle))
+                if(subCategories.contains(SubCategory.JobTitle))
                     return kABJobTitleProperty;
                 else
                     return kABDepartmentProperty;
             case Email:
                 return kABEmailProperty;
             case InstantMessaging:
-                if(subCategories.contains(ContactDetail.SubCategory.AIM))
+                if(subCategories.contains(SubCategory.AIM))
                     return kABAIMInstantProperty;
-                else if(subCategories.contains(ContactDetail.SubCategory.ICQ))
+                else if(subCategories.contains(SubCategory.ICQ))
                     return kABICQInstantProperty;
-                else if(subCategories.contains(ContactDetail.SubCategory.MSN))
+                else if(subCategories.contains(SubCategory.MSN))
                     return kABMSNInstantProperty;
                 else if(subCategories.contains(
-                            ContactDetail.SubCategory.Jabber))
+                            SubCategory.Jabber))
                     return kABJabberInstantProperty;
                 else if(subCategories.contains(
-                            ContactDetail.SubCategory.Yahoo))
+                            SubCategory.Yahoo))
                     return kABYahooInstantProperty;
                 break;
             case Phone:
@@ -1299,15 +1316,15 @@ public class MacOSXAddrBookContactQuery
      */
     public static String getLabel(
         int property,
-        AddressBookContactDetail.SubCategory subCategory,
+        SubCategory subCategory,
         String subProperty)
     {
         switch(property)
         {
             case kABEmailProperty:
-                if(subCategory == ContactDetail.SubCategory.Home)
+                if(subCategory == SubCategory.Home)
                     return kABEmailHomeLabel();
-                if(subCategory == ContactDetail.SubCategory.Work)
+                if(subCategory == SubCategory.Work)
                     return kABEmailWorkLabel();
                 break;
             case kABICQInstantProperty:
@@ -1317,21 +1334,27 @@ public class MacOSXAddrBookContactQuery
             case kABJabberInstantProperty:
                 return subProperty;
             case kABPhoneProperty:
-                if(subCategory == ContactDetail.SubCategory.Home)
+                if(subCategory == SubCategory.Home)
                     return kABPhoneHomeLabel();
-                if(subCategory == ContactDetail.SubCategory.Work)
+                if(subCategory == SubCategory.Work)
                     return kABPhoneWorkLabel();
-                if(subCategory == ContactDetail.SubCategory.Fax)
+                if(subCategory == SubCategory.Fax)
                     return kABPhoneWorkFAXLabel();
+                if(subCategory == SubCategory.Mobile)
+                    return kABPhoneMobileLabel();
+                if(subCategory == SubCategory.Other)
+                    return "other";
                 break;
             case kABAddressProperty:
-                if(subCategory == ContactDetail.SubCategory.Street)
+                if(subCategory == SubCategory.Street)
                     return kABAddressStreetKey();
-                if(subCategory == ContactDetail.SubCategory.City)
+                if(subCategory == SubCategory.City)
                     return kABAddressCityKey();
-                if(subCategory == ContactDetail.SubCategory.Country)
+                if(subCategory == SubCategory.State)
+                    return kABAddressStateKey();
+                if(subCategory == SubCategory.Country)
                     return kABAddressCountryKey();
-                if(subCategory == ContactDetail.SubCategory.PostalCode)
+                if(subCategory == SubCategory.PostalCode)
                     return kABAddressZIPKey();
                 break;
             default: return null;
@@ -1380,20 +1403,21 @@ public class MacOSXAddrBookContactQuery
          */
         public void addContactDetail(ContactDetail detail)
         {
-            String id = (String)getData(SOURCE_CONTACT_ID_DATA_KEY);
+            String id = (String)getData(SourceContact.DATA_ID);
 
             if(id == null)
             {
-                logger.warn("No id or wrong ContactDetail");
+                logger.warn("No id or wrong ContactDetail " + detail);
                 return;
             }
 
+            String subProperty = null;
             int property = getProperty(
                 detail.getCategory(), detail.getSubCategories());
 
             if(isMultiline(detail.getCategory()))
             {
-                String subProperty = null;
+
 
                 if(detail instanceof AddressBookContactDetail)
                 {
@@ -1401,44 +1425,118 @@ public class MacOSXAddrBookContactQuery
                         .getSubPropertyLabel();
                 }
 
-                List<ContactDetail> details =
-                    getContactDetails(detail.getCategory());
-
-                boolean isIM = (property == kABICQInstantProperty
-                                || property == kABAIMInstantProperty
-                                || property == kABYahooInstantProperty
-                                || property == kABMSNInstantProperty
-                                || property == kABJabberInstantProperty);
-
-                // first add existing one
-                List<String> values = new ArrayList<String>();
-
-                for(ContactDetail cd : details)
+                if(subProperty == null && property == kABAddressProperty)
                 {
-                    String det = cd.getDetail();
-
-                    for(ContactDetail.SubCategory sub : cd.getSubCategories())
-                    {
-                        // if its an im property check also if the detail
-                        // is the same subcategory (which is icq, yahoo, ...)
-                        if(isIM && !detail.getSubCategories().contains(sub))
-                            continue;
-
-                        String label = getLabel(property, sub, subProperty);
-                        if(label != null)
-                        {
-                            values.add(det);
-                            values.add(label);
-                        }
-                        else
-                            logger.warn("Missing label fo prop:" + property
-                                + " and sub:" + sub);
-                    }
+                    if(detail.containsSubCategory(SubCategory.Home))
+                        subProperty = kABAddressHomeLabel();
+                    else
+                        subProperty = kABAddressWorkLabel();
                 }
 
-                // now the new value to add
-                for(ContactDetail.SubCategory sub : detail.getSubCategories())
+                List<String> values = getValues(
+                    detail, property, subProperty, true);
+
+                setProperty(id, ABPERSON_PROPERTIES[property], subProperty,
+                    values.toArray(new Object[values.size()]));
+            }
+            else
+            {
+                setProperty(id, ABPERSON_PROPERTIES[property], null,
+                    detail.getDetail());
+            }
+
+            // make sure we add AddressBookContactDetail
+            Collection<SubCategory> subCategories
+                = detail.getSubCategories();
+
+            contactDetails.add(
+                new AddressBookContactDetail(
+                    property,
+                    detail.getDetail(),
+                    detail.getCategory(),
+                    subCategories.toArray(
+                        new SubCategory[
+                            subCategories.size()]),
+                    subProperty));
+        }
+
+        /**
+         * Returns the list of values that will be saved.
+         * @param detail the current modified detail
+         * @param property the property we change
+         * @param subProperty the subproperty that is changed
+         * @param addDetail should we add <tt>detail</tt> to the list of values.
+         * @return the list of values to be saved.
+         */
+        private List<String> getValues(ContactDetail detail,
+                                       int property,
+                                       String subProperty,
+                                       boolean addDetail)
+        {
+            // first add existing one
+            List<String> values = new ArrayList<String>();
+
+            List<ContactDetail> details =
+                getContactDetails(detail.getCategory());
+
+            boolean isIM = (property == kABICQInstantProperty
+                        || property == kABAIMInstantProperty
+                        || property == kABYahooInstantProperty
+                        || property == kABMSNInstantProperty
+                        || property == kABJabberInstantProperty);
+
+            boolean isAddress = property == kABAddressProperty;
+            boolean isHomeAddress =
+                detail.containsSubCategory(SubCategory.Home);
+
+            for(ContactDetail cd : details)
+            {
+                if(isAddress)
                 {
+                    // lets check home and work details
+                    if((isHomeAddress
+                            && !cd.containsSubCategory(SubCategory.Home))
+                        || (!isHomeAddress
+                                && !cd.containsSubCategory(SubCategory.Work)))
+                        continue;
+                }
+
+                // if the detail exists do not added, in case of add there is
+                // sense the detail to be added twice. In case of remove
+                // we miss the detail
+                if(cd.equals(detail))
+                    continue;
+
+                String det = cd.getDetail();
+
+                for(SubCategory sub : cd.getSubCategories())
+                {
+                    // if its an im property check also if the detail
+                    // is the same subcategory (which is icq, yahoo, ...)
+                    if(isIM && !detail.getSubCategories().contains(sub))
+                        continue;
+
+                    String label = getLabel(property, sub, subProperty);
+                    if(label != null)
+                    {
+                        values.add(det);
+                        values.add(label);
+                    }
+                }
+            }
+
+            if(addDetail)
+            {
+                // now the new value to add
+                for(SubCategory sub : detail.getSubCategories())
+                {
+                    // when adding new address subcategory is used
+                    // to set work or home address, we miss that value
+                    if(isAddress
+                        && (sub == SubCategory.Home
+                            || sub == SubCategory.Work))
+                        continue;
+
                     String label = getLabel(property, sub, subProperty);
                     if(label != null)
                     {
@@ -1449,29 +1547,9 @@ public class MacOSXAddrBookContactQuery
                         logger.warn("Missing label fo prop:" + property
                             + " and sub:" + sub);
                 }
-
-                setProperty(id, ABPERSON_PROPERTIES[property], subProperty,
-                    values.toArray(new Object[values.size()]));
-
-            }
-            else
-            {
-                setProperty(id, ABPERSON_PROPERTIES[property], null,
-                    detail.getDetail());
             }
 
-            // make sure we add AddressBookContactDetail
-            Collection<ContactDetail.SubCategory> subCategories
-                = detail.getSubCategories();
-            contactDetails.add(
-                new AddressBookContactDetail(
-                    property,
-                    detail.getDetail(),
-                    detail.getCategory(),
-                    subCategories.toArray(
-                        new ContactDetail.SubCategory[
-                            subCategories.size()]),
-                    null));
+            return values;
         }
 
         /**
@@ -1483,14 +1561,39 @@ public class MacOSXAddrBookContactQuery
         public void removeContactDetail(ContactDetail detail)
         {
             //remove the detail from the addressbook
-            String id = (String)getData(SOURCE_CONTACT_ID_DATA_KEY);
+            String id = (String)getData(SourceContact.DATA_ID);
             if(id != null && detail instanceof AddressBookContactDetail)
             {
-                removeProperty(id,
-                    ((AddressBookContactDetail)detail).property);
+                if(isMultiline(detail.getCategory()))
+                {
+                    String subProperty = null;
+
+                    if(detail instanceof AddressBookContactDetail)
+                    {
+                        subProperty = ((AddressBookContactDetail)detail)
+                            .getSubPropertyLabel();
+                    }
+
+                    List<String> values =
+                        getValues(
+                            detail,
+                            ((AddressBookContactDetail)detail).property,
+                            subProperty,
+                            false);
+
+                    setProperty(
+                        id,
+                        ABPERSON_PROPERTIES[
+                            ((AddressBookContactDetail) detail).property],
+                        subProperty,
+                        values.toArray(new Object[values.size()]));
+                }
+                else
+                    removeProperty(id, ABPERSON_PROPERTIES[
+                        ((AddressBookContactDetail) detail).property]);
             }
             else
-                logger.warn("No id or wrong ContactDetail");
+                logger.warn("No id or wrong ContactDetail " + detail);
 
             contactDetails.remove(detail);
         }
@@ -1543,8 +1646,8 @@ public class MacOSXAddrBookContactQuery
         public AddressBookContactDetail(
                 int property,
                 String contactDetailValue,
-                ContactDetail.Category category,
-                ContactDetail.SubCategory[] subCategories,
+                Category category,
+                SubCategory[] subCategories,
                 String subPropertyLabel)
         {
             super(contactDetailValue, category, subCategories);
@@ -1566,13 +1669,26 @@ public class MacOSXAddrBookContactQuery
                 List<ContactDetail> details =
                     parent.getContactDetails(getCategory());
 
+                boolean isAddress = property == kABAddressProperty;
+                boolean isHomeAddress = containsSubCategory(SubCategory.Home);
+
                 // first add existing one
                 List<String> values = new ArrayList<String>();
                 for(ContactDetail cd : details)
                 {
+                    if(isAddress)
+                    {
+                        // lets check home and work details
+                        if((isHomeAddress
+                                && !cd.containsSubCategory(SubCategory.Home))
+                            || (!isHomeAddress
+                                    && !cd.containsSubCategory(SubCategory.Work)))
+                            continue;
+                    }
+
                     String det = cd.getDetail();
 
-                    for(ContactDetail.SubCategory sub : cd.getSubCategories())
+                    for(SubCategory sub : cd.getSubCategories())
                     {
                         String label = getLabel(property, sub, subPropertyLabel);
 

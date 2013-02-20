@@ -29,6 +29,12 @@ public interface SourceContact
     public String getDisplayName();
 
     /**
+     * The key that can be used to store <tt>SourceContact</tt> ids
+     * where need it.
+     */
+    public static final String DATA_ID = SourceContact.class.getName() + ".id";
+
+    /**
      * Returns the parent <tt>ContactSourceService</tt> from which this contact
      * came from.
      * @return the parent <tt>ContactSourceService</tt> from which this contact

@@ -21,12 +21,6 @@ public abstract class AbstractAddrBookContactQuery<T extends ContactSourceServic
     extends AsyncContactQuery<T>
 {
     /**
-     * The key we used for the id of the source contact.
-     */
-    protected static final String SOURCE_CONTACT_ID_DATA_KEY =
-        AbstractAddrBookContactQuery.class.getName() + ".id";
-
-    /**
      * A list of all source contact results.
      */
     protected final List<SourceContact> sourceContacts
@@ -109,7 +103,7 @@ public abstract class AbstractAddrBookContactQuery<T extends ContactSourceServic
         {
             for(SourceContact sc : sourceContacts)
             {
-                Object scID = sc.getData(SOURCE_CONTACT_ID_DATA_KEY);
+                Object scID = sc.getData(SourceContact.DATA_ID);
 
                 if(id.equals(scID))
                     return sc;

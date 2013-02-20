@@ -242,6 +242,11 @@ public class AccountManager
         }
     }
 
+    /**
+     * Returns the package name of the <tt>factory</tt>.
+     * @param factory the factory which package will be returned.
+     * @return the package name of the <tt>factory</tt>.
+     */
     private String getFactoryImplPackageName(ProtocolProviderFactory factory)
     {
         String className = factory.getClass().getName();
@@ -249,7 +254,32 @@ public class AccountManager
         return className.substring(0, className.lastIndexOf('.'));
     }
 
+    /**
+     * Check for stored accounts for the supplied <tt>protocolName</tt>.
+     * @param protocolName the protocol name to check for
+     * @param includeHidden whether to include hidden providers
+     * @return <tt>true</tt> if there is any account stored in configuration
+     * service with <tt>protocolName</tt>, <tt>false</tt> otherwise.
+     */
     public boolean hasStoredAccounts(String protocolName, boolean includeHidden)
+    {
+        return hasStoredAccount(protocolName, includeHidden, null);
+    }
+
+    /**
+     * Checks whether a stored account with <tt>userID</tt> is stored
+     * in configuration.
+     *
+     * @param protocolName the protocol name
+     * @param includeHidden whether to check hidden providers
+     * @param userID the user id to check.
+     * @return <tt>true</tt> if there is any account stored in configuration
+     * service with <tt>protocolName</tt> and <tt>userID</tt>,
+     * <tt>false</tt> otherwise.
+     */
+    public boolean hasStoredAccount(String protocolName,
+                                    boolean includeHidden,
+                                    String userID)
     {
         ServiceReference[] factoryRefs = null;
         boolean hasStoredAccounts = false;
@@ -298,8 +328,9 @@ public class AccountManager
                         configService.getPropertyNamesByPrefix(storedAccount,
                             true);
                     boolean hidden = false;
+                    String accountUserID = null;
 
-                    if (!includeHidden)
+                    if (!includeHidden || userID != null)
                     {
                         for (Iterator<String> storedAccountPropertyIter =
                             storedAccountProperties.iterator();
@@ -314,15 +345,29 @@ public class AccountManager
                                 .equals(property))
                             {
                                 hidden = (value != null);
-                                break;
+                            }
+                            else if (ProtocolProviderFactory.USER_ID
+                                    .equals(property))
+                            {
+                                accountUserID = value;
                             }
                         }
                     }
 
-                    if (!hidden)
+                    if (includeHidden || !hidden)
                     {
-                        hasStoredAccounts = true;
-                        break;
+                        if(accountUserID != null
+                            && userID != null
+                            && userID.equals(accountUserID))
+                        {
+                            hasStoredAccounts = true;
+                            break;
+                        }
+                        else if(userID == null)
+                        {
+                            hasStoredAccounts = true;
+                            break;
+                        }
                     }
                 }
 
