@@ -16,6 +16,9 @@ import java.io.*;
 
 import javax.swing.*;
 import javax.swing.text.*;
+import javax.swing.text.html.*;
+
+import java.util.regex.*;
 
 /**
  * A TransferHandler that we use to handle copying, pasting and DnD operations.
@@ -35,6 +38,17 @@ public class ExtendedTransferHandler
      * Serial version UID.
      */
     private static final long serialVersionUID = 0L;
+
+    /**
+     * HTML Editor Kit used to load and parse the selected html string
+     */
+    private HTMLEditorKit htmlKit = new HTMLEditorKit();
+
+    /**
+     * HTML Document for the htmlKit.
+     */
+    private HTMLDocument htmlDoc
+        = (HTMLDocument) htmlKit.createDefaultDocument();
 
     /**
      * Returns the type of transfer actions supported by the source;
@@ -115,6 +129,8 @@ public class ExtendedTransferHandler
      * Handles transport (cut and copy) from the chat panel to
      * <tt>clipboard</tt>. This method will only transfer plain text and would
      * explicitly ignore any formatting.
+     * If the selected text is HTML the images will be replaced with the 
+     * content of the alt attribute.
      * <p>
      * @param comp  the component holding the data to be transferred;
      *              provided to enable sharing of <code>TransferHandler</code>s
@@ -138,13 +154,12 @@ public class ExtendedTransferHandler
             JTextComponent textComponent = (JTextComponent)comp;
             int startIndex = textComponent.getSelectionStart();
             int endIndex = textComponent.getSelectionEnd();
-            if (startIndex != endIndex)
+            try
             {
-                try
+                Document doc = textComponent.getDocument();
+                String srcData = getSelectedTextFromComponent(textComponent);
+                if(srcData != null)
                 {
-                    Document doc = textComponent.getDocument();
-                    String srcData = doc.getText(startIndex,
-                                                 endIndex - startIndex);
                     StringSelection contents = new StringSelection(srcData);
 
                     // this may throw an IllegalStateException,
@@ -157,12 +172,91 @@ public class ExtendedTransferHandler
                         doc.remove(startIndex, endIndex - startIndex);
                     }
                 }
-                catch (BadLocationException ble)
-                {
-                    //we simply ignore
-                }
+            }
+            catch (BadLocationException ble)
+            {
+                //we simply ignore
             }
         }
+    }
+    
+    /**
+     * Gets the selected text and if the text is HTML replaces the images with 
+     * the content in ALT attribute.
+     * @param textComponent the component which contains the selected data
+     * @return selected text
+     */
+    public String getSelectedTextFromComponent(JTextComponent textComponent)
+    {
+        String srcData = null;
+        int startIndex = textComponent.getSelectionStart();
+        int endIndex = textComponent.getSelectionEnd();
+
+        if (startIndex != endIndex)
+        {
+            Document doc = (Document)textComponent.getDocument();
+            int selectionLength = endIndex - startIndex;
+            try
+            {
+                if (textComponent instanceof JTextPane)
+                {
+                    JTextPane textPaneComponent = (JTextPane)textComponent;
+
+                    StringWriter stringWriter = new StringWriter();
+                    textPaneComponent.getEditorKit().write(stringWriter, 
+                        doc, startIndex, selectionLength);
+                    String data = stringWriter.toString();
+
+                    String smileyHtmlPattern = "<\\s*[iI][mM][gG](.*?)" +
+                        "[aA][lL][tT]\\s*=\\s*[\\\"']([^\\\"]*)" +
+                        "[\\\"'](.*?)>";
+
+                    Pattern p
+                        = Pattern.compile(smileyHtmlPattern,Pattern.DOTALL);
+                    Matcher m = p.matcher(data);
+                    if(m.find())
+                    {
+                        /*
+                         * Remove the PLAINTEXT tags because they brake the 
+                         * HTML
+                         */
+                        data = data.replaceAll(
+                            "<[/]*PLAINTEXT>.*<[/]*PLAINTEXT>", "");
+
+                        /*
+                         * The getText method ignores the BR tag, 
+                         * empty A tag is replaced with \n
+                         */
+                        data = data.replaceAll(
+                            "<\\s*[bB][rR][^>]*>", "<a></a>");
+                        data = data.replaceAll(smileyHtmlPattern, "$2");
+                        htmlDoc.remove(0, htmlDoc.getLength());
+                        htmlKit.read(new StringReader(data), htmlDoc, 0);
+
+                        srcData = htmlDoc.getText(0, htmlDoc.getLength());
+                    }
+                }
+
+                if(srcData == null)
+                {
+                    srcData = doc.getText(startIndex, selectionLength);
+                }
+            }
+            catch (BadLocationException ble)
+            {
+              /*
+               * we simply ignore
+               */
+            }
+            catch (IOException ioe)
+            {
+              /*
+               * we simply ignore
+               */
+            }
+        }
+
+        return srcData;
     }
 
     /**
@@ -219,8 +313,9 @@ public class ExtendedTransferHandler
             {
                 throw new UnsupportedFlavorException(flavor);
             }
-
-            return textComponent.getSelectedText();
+            
+            String data = getSelectedTextFromComponent(textComponent);
+            return ((data == null)? "" : data);
         }
     }
 
