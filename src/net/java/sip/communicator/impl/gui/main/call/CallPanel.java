@@ -812,7 +812,7 @@ public class CallPanel
 
                     if(videoTelephonyIsLocalVideoStreaming
                             && call instanceof MediaAwareCall
-                            && ((MediaAwareCall) call).getMediaUseCase()
+                            && ((MediaAwareCall<?,?,?>) call).getMediaUseCase()
                                 == MediaUseCase.DESKTOP)
                     {
                         desktopSharingIsStreamed = true;
@@ -1515,18 +1515,18 @@ public class CallPanel
                     && UIVideoHandler2.isAncestor(this, video)
                     && video.isPreferredSizeSet())
             {
-                Dimension preferredSize = video.getPreferredSize();
+                Dimension prefSize = video.getPreferredSize();
 
-                if ((preferredSize.height > 0) && (preferredSize.width > 0))
+                if ((prefSize.height > 0) && (prefSize.width > 0))
                 {
                     Dimension size = video.getSize();
 
-                    if ((preferredSize.height > size.height)
-                            || (preferredSize.width > size.width))
+                    if ((prefSize.height > size.height)
+                            || (prefSize.width > size.width))
                     {
                         ensureSize(
                                 video,
-                                preferredSize.width, preferredSize.height);
+                                prefSize.width, prefSize.height);
                     }
                 }
             }
@@ -2094,7 +2094,7 @@ public class CallPanel
          * dedicated to it. Try to detect such cases and attempt to adjust the
          * Frame's size accordingly.
          */
-        Dimension oldPreferredSize = getPreferredSize();
+        Dimension oldPrefSize = getPreferredSize();
 
         doUpdateViewFromModelInEventDispatchThread();
 
@@ -2105,30 +2105,30 @@ public class CallPanel
          * current Frame has dedicated to it. Try to detect such cases and
          * attempt to adjust the Frame's size accordingly.
          */
-        Dimension newPreferredSize = getPreferredSize();
+        Dimension newPrefSize = getPreferredSize();
 
-        if ((newPreferredSize != null)
-                && ((newPreferredSize.height > getHeight())
-                        || (newPreferredSize.width > getWidth())))
+        if ((newPrefSize != null)
+                && ((newPrefSize.height > getHeight())
+                        || (newPrefSize.width > getWidth())))
         {
-            int oldPreferredHeight, oldPreferredWidth;
+            int oldPrefHeight, oldPrefWidth;
 
-            if (oldPreferredSize == null)
+            if (oldPrefSize == null)
             {
-                oldPreferredHeight = 0;
-                oldPreferredWidth = 0;
+                oldPrefHeight = 0;
+                oldPrefWidth = 0;
             }
             else
             {
-                oldPreferredHeight = oldPreferredSize.height;
-                oldPreferredWidth = oldPreferredSize.width;
+                oldPrefHeight = oldPrefSize.height;
+                oldPrefWidth = oldPrefSize.width;
             }
-            if ((newPreferredSize.height != oldPreferredHeight)
-                    || (newPreferredSize.width != oldPreferredWidth))
+            if ((newPrefSize.height != oldPrefHeight)
+                    || (newPrefSize.width != oldPrefWidth))
             {
                 ensureSize(
                         this,
-                        newPreferredSize.width, newPreferredSize.height);
+                        newPrefSize.width, newPrefSize.height);
             }
         }
     }

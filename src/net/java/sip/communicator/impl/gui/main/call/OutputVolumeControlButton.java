@@ -15,7 +15,6 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.resources.*;
-import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.neomedia.*;
 

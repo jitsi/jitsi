@@ -7,11 +7,10 @@ package net.java.sip.communicator.plugin.desktoputil;
 
 import java.awt.*;
 import java.awt.event.*;
+
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.table.*;
-
-import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.resources.*;
 

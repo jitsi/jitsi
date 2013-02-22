@@ -248,39 +248,39 @@ public class LdapDirectorySetImpl
         LdapQuery query;
         switch(event.getCause())
         {
-            case NEW_SEARCH_RESULT:
-                LdapPersonFound result = (LdapPersonFound) event.getContent();
-                query = result.getQuery();
-                if(this.pendingSearches.get(query) != null)
+        case NEW_SEARCH_RESULT:
+            LdapPersonFound result = (LdapPersonFound) event.getContent();
+            query = result.getQuery();
+            if(this.pendingSearches.get(query) != null)
+            {
+                this.fireLdapEvent(event, pendingSearches.get(query).
+                        getCaller());
+                logger.trace("result event for query \"" +
+                        result.getQuery().toString() + "\" forwaded");
+            }
+            break;
+        case SEARCH_ERROR:
+        case SEARCH_CANCELLED:
+        case SEARCH_ACHIEVED:
+            query = (LdapQuery) event.getContent();
+            if(this.pendingSearches.get(query) != null)
+            {
+                this.pendingSearches.get(query).getPendingServers().remove(
+                        event.getSource());
+                logger.trace("end event for query \"" + query.toString() +
+                        "\" on directory \"" + event.getSource() + "\"");
+                if(pendingSearches.get(query).getPendingServers().
+                        size() == 0)
                 {
-                    this.fireLdapEvent(event, pendingSearches.get(query).
+                    fireLdapEvent(event, pendingSearches.get(query).
                             getCaller());
-                    logger.trace("result event for query \"" +
-                            result.getQuery().toString() + "\" forwaded");
+                    event = new LdapEvent(this,
+                            LdapEvent.LdapEventCause.SEARCH_ACHIEVED,
+                            query);
+                    pendingSearches.remove(query);
                 }
-                break;
-            case SEARCH_ERROR:
-            case SEARCH_CANCELLED:
-            case SEARCH_ACHIEVED:
-                query = (LdapQuery) event.getContent();
-                if(this.pendingSearches.get(query) != null)
-                {
-                    this.pendingSearches.get(query).getPendingServers().remove(
-                            event.getSource());
-                    logger.trace("end event for query \"" + query.toString() +
-                            "\" on directory \"" + event.getSource() + "\"");
-                    if(pendingSearches.get(query).getPendingServers().
-                            size() == 0)
-                    {
-                        fireLdapEvent(event, pendingSearches.get(query).
-                                getCaller());
-                        event = new LdapEvent(this,
-                                LdapEvent.LdapEventCause.SEARCH_ACHIEVED,
-                                query);
-                        pendingSearches.remove(query);
-                    }
-                }
-                break;
+            }
+            break;
         }
     }
 }

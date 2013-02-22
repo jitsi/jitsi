@@ -265,6 +265,16 @@ public class CallDialog
             /* This Frame will try to adjust only its own size. */
             return;
         }
+        else if ((component.getHeight() >= height)
+                && (component.getWidth() >= width))
+        {
+            /*
+             * We will only enlarge the frame size. If the component has already
+             * been given at least what it is requesting, do not enlarge the
+             * frame size because the whole calculation is prone to inaccuracy.
+             */
+            return;
+        }
         else
         {
             /*
@@ -328,13 +338,13 @@ public class CallDialog
                      * we may think that it will calculate an appropriate
                      * preferredSize itself.
                      */
-                    Dimension preferredSize = ancestor.getPreferredSize();
+                    Dimension prefSize = ancestor.getPreferredSize();
 
-                    if (preferredSize != null)
+                    if (prefSize != null)
                     {
                         component = ancestor;
-                        width = preferredSize.width;
-                        height = preferredSize.height;
+                        width = prefSize.width;
+                        height = prefSize.height;
                     }
                 }
             }
@@ -408,6 +418,22 @@ public class CallDialog
                 frame.setBounds(
                         newFrameX, newFrameY,
                         newFrameWidth, newFrameHeight);
+
+                /*
+                 * Make sure that the component which originally requested the
+                 * update to the size of the frame realizes the change as soon
+                 * as possible; otherwise, it may request yet another update.
+                 */
+                if (frame.isDisplayable())
+                {
+                    if (frame.isValid())
+                        frame.doLayout();
+                    else
+                        frame.validate();
+                    frame.repaint();
+                }
+                else
+                    frame.doLayout();
             }
         }
     }

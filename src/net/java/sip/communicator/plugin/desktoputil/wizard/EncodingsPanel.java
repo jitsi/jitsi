@@ -20,7 +20,6 @@ import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.codec.*;
 import org.jitsi.service.resources.*;
 
-
 /**
  * The encodings configuration panel (used in the account configuration wizards)
  * 

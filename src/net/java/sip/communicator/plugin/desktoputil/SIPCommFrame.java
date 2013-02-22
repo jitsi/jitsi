@@ -17,7 +17,6 @@ import java.util.List;
 import javax.swing.*;
 
 import net.java.sip.communicator.service.keybindings.*;
-import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.Logger;
 
 import org.jitsi.service.configuration.*;

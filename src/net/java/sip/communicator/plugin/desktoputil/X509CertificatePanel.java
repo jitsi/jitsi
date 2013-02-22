@@ -18,8 +18,6 @@ import javax.naming.ldap.*;
 import javax.security.auth.x500.*;
 import javax.swing.*;
 
-import net.java.sip.communicator.util.*;
-
 import org.jitsi.service.resources.*;
 
 /**
@@ -385,12 +383,19 @@ public class X509CertificatePanel
 
         StringBuilder hex = new StringBuilder(2 * raw.length);
         Formatter f = new Formatter(hex);
-        for (byte b : raw)
+        try
         {
-            f.format("%02x", b);
+            for (byte b : raw)
+                f.format("%02x", b);
+        }
+        finally
+        {
+            f.close();
         }
         return hex.toString();
-    }    /**
+    }
+
+    /**
      * Calculates the hash of the certificate known as the "thumbprint"
      * and returns it as a string representation.
      *
@@ -414,9 +419,14 @@ public class X509CertificatePanel
         byte[] encodedCert = cert.getEncoded();
         StringBuilder sb = new StringBuilder(encodedCert.length * 2);
         Formatter f = new Formatter(sb);
-        for (byte b : digest.digest(encodedCert))
+        try
         {
-            f.format("%02x", b);
+            for (byte b : digest.digest(encodedCert))
+                f.format("%02x", b);
+        }
+        finally
+        {
+            f.close();
         }
         return sb.toString();
     }

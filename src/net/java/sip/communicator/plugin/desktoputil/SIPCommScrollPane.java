@@ -13,7 +13,6 @@ import java.lang.reflect.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 
 import org.jitsi.util.*;
