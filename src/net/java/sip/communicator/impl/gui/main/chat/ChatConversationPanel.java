@@ -1126,7 +1126,7 @@ public class ChatConversationPanel
             if (processHTMLChars)
             {
                 fromPrevEndToStart = 
-                        ChatHtmlUtils.escapeHTMLChars(fromPrevEndToStart);
+                    GuiUtils.escapeHTMLChars(fromPrevEndToStart);
             }
             msgBuffer.append(fromPrevEndToStart);
             prevEnd = m.end();
@@ -1147,7 +1147,7 @@ public class ChatConversationPanel
         String fromPrevEndToEnd = message.substring(prevEnd);
 
         if (processHTMLChars)
-            fromPrevEndToEnd = ChatHtmlUtils.escapeHTMLChars(fromPrevEndToEnd);
+            fromPrevEndToEnd = GuiUtils.escapeHTMLChars(fromPrevEndToEnd);
         msgBuffer.append(fromPrevEndToEnd);
 
         return msgBuffer.toString();
@@ -1690,7 +1690,7 @@ public class ChatConversationPanel
         String endHeaderTag = "</I></B></DIV>";
 
         chatString +=
-            ChatHtmlUtils.escapeHTMLChars("*** " + chatMessage.getContactName()
+            GuiUtils.escapeHTMLChars("*** " + chatMessage.getContactName()
                 + " " + message.substring(4))
                 + endHeaderTag;
 

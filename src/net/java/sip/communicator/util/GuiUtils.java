@@ -430,4 +430,22 @@ public class GuiUtils
         }
         return resultId;
     }
+    
+    /**
+     * Escapes special HTML characters such as &lt;, &gt;, &amp; and &quot; in
+     * the specified message.
+     *
+     * @param message the message to be processed
+     * @return the processed message with escaped special HTML characters
+     */
+    public static String escapeHTMLChars(String message)
+    {
+        return message
+                .replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'", "&#x27;")
+                .replace("/", "&#x2F;");
+    }
 }

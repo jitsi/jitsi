@@ -653,7 +653,7 @@ public class ChatHtmlUtils
                 contactName));
         messageTag.append(DATE_ATTRIBUTE + "=\"" + date + "\" ");
         messageTag.append(String.format("%s = '%s' ",
-                ORIGINAL_MESSAGE_ATTRIBUTE, escapeHTMLChars(message)));
+                ORIGINAL_MESSAGE_ATTRIBUTE, GuiUtils.escapeHTMLChars(message)));
         messageTag.append(IncomingMessageStyle
             .createSingleMessageStyle(isHistory, isEdited, true));
         messageTag.append(">");
@@ -696,7 +696,7 @@ public class ChatHtmlUtils
                 contactName));
         messageTag.append(DATE_ATTRIBUTE + "=\"" + date + "\" ");
         messageTag.append(String.format("%s = '%s' ",
-                ORIGINAL_MESSAGE_ATTRIBUTE, escapeHTMLChars(message)));
+                ORIGINAL_MESSAGE_ATTRIBUTE, GuiUtils.escapeHTMLChars(message)));
         messageTag.append(IncomingMessageStyle
             .createSingleMessageStyle(isHistory, isEdited, false));
         messageTag.append(">");
@@ -744,23 +744,5 @@ public class ChatHtmlUtils
                     .getI18NString( "service.gui.EDITED_AT",
                                     new String[]{GuiUtils.formatTime(date)})
                 + ")</font>";
-    }
-
-    /**
-     * Escapes special HTML characters such as &lt;, &gt;, &amp; and &quot; in
-     * the specified message.
-     *
-     * @param message the message to be processed
-     * @return the processed message with escaped special HTML characters
-     */
-    public static String escapeHTMLChars(String message)
-    {
-        return message
-                .replace("&", "&amp;")
-                .replace("<", "&lt;")
-                .replace(">", "&gt;")
-                .replace("\"", "&quot;")
-                .replace("'", "&#x27;")
-                .replace("/", "&#x2F;");
     }
 }

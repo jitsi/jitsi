@@ -19,6 +19,8 @@ import javax.swing.text.*;
 import javax.swing.text.html.*;
 
 import java.util.regex.*;
+import net.java.sip.communicator.util.*;
+
 
 /**
  * A TransferHandler that we use to handle copying, pasting and DnD operations.
@@ -212,26 +214,44 @@ public class ExtendedTransferHandler
                         "[\\\"'](.*?)>";
 
                     Pattern p
-                        = Pattern.compile(smileyHtmlPattern,Pattern.DOTALL);
+                        = Pattern.compile(smileyHtmlPattern, Pattern.DOTALL);
                     Matcher m = p.matcher(data);
                     if(m.find())
                     {
                         /*
+                         * This loop replaces the IMG tags with the value of 
+                         * the ALT attribute. The value of the ALT attribute 
+                         * is escaped to prevent illegal parsing of special
+                         * HTML chars (like "<", ">", "&") later. If the chars 
+                         * aren't escaped the parser will skip them.
+                         */
+                        int start = 0;
+                        String tempData = "";
+                        do
+                        {
+                            tempData += data.substring(start, m.start()) + 
+                                GuiUtils.escapeHTMLChars(m.group(2));
+                            start = m.end();
+                        }
+                        while(m.find());
+                        tempData += data.substring(start);
+
+                        /*
                          * Remove the PLAINTEXT tags because they brake the 
                          * HTML
                          */
-                        data = data.replaceAll(
+                        tempData = tempData.replaceAll(
                             "<[/]*PLAINTEXT>.*<[/]*PLAINTEXT>", "");
 
                         /*
                          * The getText method ignores the BR tag, 
                          * empty A tag is replaced with \n
                          */
-                        data = data.replaceAll(
+                        tempData = tempData.replaceAll(
                             "<\\s*[bB][rR][^>]*>", "<a></a>");
-                        data = data.replaceAll(smileyHtmlPattern, "$2");
+
                         htmlDoc.remove(0, htmlDoc.getLength());
-                        htmlKit.read(new StringReader(data), htmlDoc, 0);
+                        htmlKit.read(new StringReader(tempData), htmlDoc, 0);
 
                         srcData = htmlDoc.getText(0, htmlDoc.getLength());
                     }
