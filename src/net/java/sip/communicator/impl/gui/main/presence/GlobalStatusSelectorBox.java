@@ -69,12 +69,6 @@ public class GlobalStatusSelectorBox
         = ImageLoader.getImage(ImageLoader.DOWN_ARROW_ICON);
 
     /**
-     * The object used for logging.
-     */
-    private final Logger logger
-        = Logger.getLogger(GlobalStatusSelectorBox.class);
-
-    /**
      * The main application window.
      */
     private final MainFrame mainFrame;

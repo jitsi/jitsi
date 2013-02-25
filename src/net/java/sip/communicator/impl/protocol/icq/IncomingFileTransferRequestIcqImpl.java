@@ -16,7 +16,6 @@ import net.java.sip.communicator.util.*;
 import net.kano.joscar.rvcmd.*;
 import net.kano.joustsim.oscar.oscar.service.icbm.ft.*;
 
-
 /**
  * Icq implementation of the incoming file transfer request
  *
@@ -40,7 +39,7 @@ public class IncomingFileTransferRequestIcqImpl
     private OperationSetFileTransferIcqImpl fileTransferOpSet;
 
     /**
-     * The icq file transfer request received
+     * The ICQ file transfer request received
      */
     private IncomingFileTransfer incomingFileTransfer = null;
 
@@ -73,7 +72,7 @@ public class IncomingFileTransferRequestIcqImpl
     }
 
     /**
-     * Uniquie ID that is identifying the request and then the FileTransfer
+     * Unique ID that is identifying the request and then the FileTransfer
      * if the request has been accepted.
      *
      * @return the id.

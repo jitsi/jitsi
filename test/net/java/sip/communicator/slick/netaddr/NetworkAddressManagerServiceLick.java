@@ -1,3 +1,9 @@
+/*
+ * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.slick.netaddr;
 
 import java.util.*;
@@ -7,11 +13,12 @@ import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
+
 /**
- * This class launche the bundle of which test the NetworkManagerBundle
- * this bundle is a set of (j)unit tests. It aim to be launch by the
- * cruisecontrol module to verify tha an implementation of the
- * NetworkAddressManagerService interface is good.
+ * This class launches the bundle of which tests the NetworkManagerBundle this
+ * bundle is a set of (j)unit tests. It aim to be launch by the cruisecontrol
+ * module to verify that an implementation of the NetworkAddressManagerService
+ * interface is good.
  *
  * @author Emil Ivov
  * @author Pierre Floury

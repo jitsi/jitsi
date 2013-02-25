@@ -61,7 +61,6 @@ public class PriorityTable
 
         ResourceManagementService resources = DesktopUtilActivator.getResources();
         String key;
-        String i18NresourcesKey;
 
         table = new JTable();
         table.setShowGrid(false);

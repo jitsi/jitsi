@@ -1,3 +1,9 @@
+/*
+ * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.slick.netaddr;
 
 import java.net.*;
@@ -5,7 +11,6 @@ import java.util.*;
 
 import junit.framework.*;
 import net.java.sip.communicator.service.netaddr.*;
-import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.configuration.*;
 import org.osgi.framework.*;
@@ -15,14 +20,14 @@ import org.osgi.framework.*;
  *
  * @author Emil Ivov
  * @author Pierre Floury
- *
  */
-public class TestNetworkAddressManagerService extends TestCase {
+public class TestNetworkAddressManagerService
+    extends TestCase
+{
     /**
      * The NetworkAddressManagerService that we will be testing.
      */
     private NetworkAddressManagerService networkAddressManagerService = null;
-    private Logger logger = Logger.getLogger(getClass().getName());
 
     private static final String PROP_STUN_SERVER_ADDR =
                         "net.java.sip.communicator.STUN_SERVER_ADDRESS";

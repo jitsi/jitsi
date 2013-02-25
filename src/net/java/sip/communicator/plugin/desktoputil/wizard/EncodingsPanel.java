@@ -25,14 +25,9 @@ import org.jitsi.service.resources.*;
  * 
  * @author Boris Grozev
  */
-public class EncodingsPanel extends TransparentPanel
+public class EncodingsPanel
+    extends TransparentPanel
 {
-    /**
-     * The <tt>Logger</tt> used by the <tt>EncodingsPanel</tt> class for
-     * logging output.
-     */
-    private static final Logger logger = Logger.getLogger(EncodingsPanel.class);
-
     /**
      * The <tt>ResourceManagementService</tt> used by this class
      */

@@ -5,10 +5,9 @@
  */
 package net.java.sip.communicator.service.protocol.globalstatus;
 
-import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
-
 import java.util.*;
+
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * The global statuses available to the system.
@@ -17,12 +16,6 @@ import java.util.*;
 public class GlobalStatusEnum
     extends PresenceStatus
 {
-    /**
-     * The <tt>Logger</tt> used by the <tt>GlobalStatusEnum</tt> class and its
-     * instances for logging output.
-     */
-    private static Logger logger = Logger.getLogger(GlobalStatusEnum.class);
-
     /**
      * Indicates that the user is connected and ready to communicate.
      */

@@ -11,21 +11,15 @@ import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.*;
 
 /**
- * implementation of the incoming file transfer request
+ * Implementation of the incoming file transfer request.
+ *
  * @author Damian Minkov
  */
 public class IncomingFileTransferRequestYahooImpl
     implements IncomingFileTransferRequest
 {
-    /**
-     * The logger for this class.
-     */
-    private static final Logger logger =
-        Logger.getLogger(IncomingFileTransferRequestYahooImpl.class);
-
     private String id;
 
     /**
@@ -68,10 +62,8 @@ public class IncomingFileTransferRequestYahooImpl
         this.id = id;
     }
 
-
-
     /**
-     * Uniquie ID that is identifying the request and then the FileTransfer
+     * Unique ID that is identifying the request and then the FileTransfer
      * if the request has been accepted.
      *
      * @return the id.
