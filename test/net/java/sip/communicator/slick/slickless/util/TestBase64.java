@@ -17,8 +17,6 @@ import net.java.sip.communicator.util.*;
  */
 public class TestBase64 extends TestCase
 {
-    private Base64 base64 = null;
-
     /**
      * Create a TestBase64 wrapper over the test with the specified name.
      * @param name the name of the test to run
@@ -35,8 +33,6 @@ public class TestBase64 extends TestCase
     protected void setUp() throws Exception
     {
         super.setUp();
-        base64 = new Base64();
-
     }
 
     /**
@@ -45,8 +41,6 @@ public class TestBase64 extends TestCase
      */
     protected void tearDown() throws Exception
     {
-        base64 = null;
-
         super.tearDown();
     }
 
@@ -59,8 +53,8 @@ public class TestBase64 extends TestCase
         String data = "string to encode";
         byte[] expectedReturn = data.getBytes();
 
-        byte[] encodedData = base64.encode(data.getBytes());
-        byte[] actualReturn = base64.decode(encodedData);
+        byte[] encodedData = Base64.encode(data.getBytes());
+        byte[] actualReturn = Base64.decode(encodedData);
         assertTrue("encode decode failed.", Arrays.equals(
             expectedReturn, actualReturn));
     }
@@ -74,11 +68,11 @@ public class TestBase64 extends TestCase
         String data = "string to encode";
         byte[] expectedReturn = data.getBytes();
 
-        byte[] encodedData = base64.encode(data.getBytes());
+        byte[] encodedData = Base64.encode(data.getBytes());
 
         String encodedString = new String(encodedData);
 
-        byte[] actualReturn = base64.decode(encodedString);
+        byte[] actualReturn = Base64.decode(encodedString);
         assertTrue("encode decode failed.", Arrays.equals(
             expectedReturn, actualReturn));
 

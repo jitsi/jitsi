@@ -141,7 +141,7 @@ public class TestAccountUninstallation
             = fixture.findProtocolProviderBundle(fixture.provider1);
 
         //set the global providerBundle reference that we will be using
-        //in the last series of tests (Account uninstallation persistency)
+        //in the last series of tests (Account uninstallation persistence)
         SipSlickFixture.providerBundle = providerBundle;
 
         assertNotNull("Couldn't find a bundle for the tested provider"

@@ -1043,9 +1043,14 @@ public class CertificateServiceImpl
         byte[] encodedCert = cert.getEncoded();
         StringBuilder sb = new StringBuilder(encodedCert.length * 2);
         Formatter f = new Formatter(sb);
-        for (byte b : digest.digest(encodedCert))
+        try
         {
-            f.format("%02x", b);
+            for (byte b : digest.digest(encodedCert))
+                f.format("%02x", b);
+        }
+        finally
+        {
+            f.close();
         }
         return sb.toString();
     }

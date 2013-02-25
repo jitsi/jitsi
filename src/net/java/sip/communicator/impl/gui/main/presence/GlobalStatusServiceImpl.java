@@ -139,8 +139,7 @@ public class GlobalStatusServiceImpl
             else
             {
                 loginManager.setManuallyDisconnected(true);
-                GuiActivator.getUIService().getLoginManager()
-                    .logoff(protocolProvider);
+                LoginManager.logoff(protocolProvider);
             }
         }
         else if (registrationState != RegistrationState.REGISTERED
@@ -156,8 +155,7 @@ public class GlobalStatusServiceImpl
                         == RegistrationState.UNREGISTERING))
         {
             loginManager.setManuallyDisconnected(true);
-            GuiActivator.getUIService().getLoginManager()
-                .logoff(protocolProvider);
+            LoginManager.logoff(protocolProvider);
         }
 
         if(rememberStatus)
@@ -247,8 +245,7 @@ public class GlobalStatusServiceImpl
                         saveStatusInformation(  protocolProvider,
                                                 itemName);
 
-                        GuiActivator.getUIService().getLoginManager()
-                            .logoff(protocolProvider);
+                        LoginManager.logoff(protocolProvider);
 
                         continue;
                     }

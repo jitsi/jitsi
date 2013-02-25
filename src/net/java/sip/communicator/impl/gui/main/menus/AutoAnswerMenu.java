@@ -49,7 +49,7 @@ public class AutoAnswerMenu
 
         loadSkin();
 
-        this.registerMenuItems(this);
+        registerMenuItems(this);
     }
 
     /**

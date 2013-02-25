@@ -2065,12 +2065,27 @@ public class WhiteboardFrame
             try
             {
                 lastDir = file.getParentFile();
+
                 FileInputStream in = new FileInputStream(file);
-                byte buffer[] = new byte[in.available()];
-                in.read(buffer);
-                WhiteboardShapeImage image =
-                    new WhiteboardShapeImage(id(), new WhiteboardPoint(drawX,
-                        drawY), originWidth, originHeight, buffer);
+                byte[] buffer;
+
+                try
+                {
+                    buffer = new byte[in.available()];
+                    in.read(buffer);
+                }
+                finally
+                {
+                    in.close();
+                }
+
+                WhiteboardShapeImage image
+                    = new WhiteboardShapeImage(
+                            id(),
+                            new WhiteboardPoint(drawX, drawY),
+                            originWidth, originHeight,
+                            buffer);
+
                 appendAndSend(image);
             }
             catch (IOException ex)

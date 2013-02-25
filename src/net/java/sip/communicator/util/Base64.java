@@ -162,6 +162,9 @@ public class Base64
         return encoder.decode(data, out);
     }
 
+    /** Prevents the initialization of <tt>Base64</tt> instances. */
+    private Base64() {}
+
     public static class Base64Encoder
     {
         protected final byte[] encodingTable =
@@ -471,5 +474,4 @@ public class Base64
             return i;
         }
     }
-
-    }
+}

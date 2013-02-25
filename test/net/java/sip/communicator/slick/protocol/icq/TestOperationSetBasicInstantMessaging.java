@@ -428,9 +428,9 @@ public class TestOperationSetBasicInstantMessaging
         }
 
 
-        //the follwoing methods only have dummy implementations here as they
-        //do not interest us. complete implementatios are provider in the
-        //basic instant messaging operation set.
+        // The following methods only have dummy implementations here as they do
+        // not interest us. Complete implementations are provided in the basic
+        // instant messaging operation set.
         public void buddyInfoUpdated(IcbmService service, Screenname buddy,
                                      IcbmBuddyInfo info){}
         public void conversationClosed(Conversation c){}

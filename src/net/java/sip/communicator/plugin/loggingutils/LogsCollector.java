@@ -264,12 +264,21 @@ public class LogsCollector
         try
         {
             BufferedReader reader = new BufferedReader(new FileReader(file));
-            String line = null;
-            while((line = reader.readLine()) != null)
-                if(JAVA_ERROR_LOG_PATTERN.matcher(line).find())
-                    return true;
+
+            try
+            {
+                String line;
+
+                while((line = reader.readLine()) != null)
+                    if(JAVA_ERROR_LOG_PATTERN.matcher(line).find())
+                        return true;
+            }
+            finally
+            {
+                reader.close();
+            }
         }
-        catch(Throwable e)
+        catch(Throwable t)
         {}
 
         return false;

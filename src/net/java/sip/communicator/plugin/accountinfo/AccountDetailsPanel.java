@@ -535,9 +535,17 @@ public class AccountDetailsPanel
                     lastAvatarDir = file.getParentFile();
 
                     FileInputStream in = new FileInputStream(file);
-                    byte buffer[] = new byte[in.available()];
-                    in.read(buffer);
+                    byte[] buffer;
 
+                    try
+                    {
+                        buffer = new byte[in.available()];
+                        in.read(buffer);
+                    }
+                    finally
+                    {
+                        in.close();
+                    }
                     if (buffer == null || buffer.length <= 0)
                         return;
 
