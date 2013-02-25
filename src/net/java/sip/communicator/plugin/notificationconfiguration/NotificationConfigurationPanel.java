@@ -324,38 +324,7 @@ public class NotificationConfigurationPanel
      */
     public void insertUpdate(DocumentEvent event)
     {
-        // we are just changing display values, no real change in data
-        // to save it
-        if(isCurrentlyChangeEntryInTable)
-            return;
-
-        NotificationEntry entry = notificationList.getNotificationEntry(
-                                    notificationList.getSelectedRow());
-
-        if(event.getDocument().equals(programFileTextField.getDocument()))
-        {
-            entry.setProgramFile(programFileTextField.getText());
-
-            NotificationConfigurationActivator.getNotificationService()
-                    .registerNotificationForEvent(
-                            entry.getEvent(),
-                            NotificationAction.ACTION_COMMAND,
-                            entry.getProgramFile(),
-                            ""
-                    );
-        }
-        if(event.getDocument().equals(soundFileTextField.getDocument()))
-        {
-            entry.setSoundFile(soundFileTextField.getText());
-
-            NotificationConfigurationActivator.getNotificationService()
-                    .registerNotificationForEvent(
-                            entry.getEvent(),
-                            NotificationAction.ACTION_SOUND,
-                            entry.getSoundFile(),
-                            ""
-                    );
-        }
+        textFieldUpdated(event);
     }
 
     /**
@@ -363,6 +332,17 @@ public class NotificationConfigurationPanel
      * @param event the <tt>DocumentEvent</tt> that notified us
      */
     public void removeUpdate(DocumentEvent event)
+    {
+        textFieldUpdated(event);
+    }
+
+    public void changedUpdate(DocumentEvent de) {}
+
+    /**
+     * Indicates that text is inserted in one of the text fields.
+     * @param event the <tt>DocumentEvent</tt> that notified us
+     */
+    public void textFieldUpdated(DocumentEvent event)
     {
         // we are just changing display values, no real change in data
         // to save it
@@ -388,15 +368,22 @@ public class NotificationConfigurationPanel
         {
             entry.setSoundFile(soundFileTextField.getText());
 
+            NotificationService notificationService =
+                NotificationConfigurationActivator.getNotificationService();
+            SoundNotificationAction origSoundAction
+                = (SoundNotificationAction)
+                notificationService.getEventNotificationAction(
+                        entry.getEvent(), NotificationAction.ACTION_SOUND);
+
             NotificationConfigurationActivator.getNotificationService()
-                    .registerNotificationForEvent(
-                            entry.getEvent(),
-                            NotificationAction.ACTION_SOUND,
+                .registerNotificationForEvent(
+                    entry.getEvent(),
+                    new SoundNotificationAction(
                             entry.getSoundFile(),
-                            ""
-                    );
+                            origSoundAction.getLoopInterval(),
+                            origSoundAction.isSoundNotificationEnabled(),
+                            origSoundAction.isSoundPlaybackEnabled(),
+                            origSoundAction.isSoundPCSpeakerEnabled()));
         }
     }
-
-    public void changedUpdate(DocumentEvent de) {}
 }
