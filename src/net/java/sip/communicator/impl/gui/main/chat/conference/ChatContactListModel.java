@@ -22,7 +22,7 @@ import net.java.sip.communicator.service.protocol.event.*;
  * @author Lyubomir Marinov
  */
 public class ChatContactListModel
-    extends AbstractListModel<ChatContact<?>>
+    extends AbstractListModel
 {
 
     /**

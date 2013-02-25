@@ -29,7 +29,6 @@ import net.java.sip.communicator.service.protocol.ServerStoredDetails.LocaleDeta
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.MiddleNameDetail;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.PhoneNumberDetail;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.TimeZoneDetail;
-import net.java.sip.communicator.util.*;
 
 /**
  * The right side panel of ContactInfoDialog. Shows one tab of a summary of

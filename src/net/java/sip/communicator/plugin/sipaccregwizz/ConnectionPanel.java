@@ -48,19 +48,18 @@ public class ConnectionPanel
 
     private final JCheckBox proxyAutoCheckBox;
 
-    private final JComboBox<Object> certificate = new JComboBox<Object>();
+    private final JComboBox certificate = new JComboBox();
 
-    private JComboBox<String> transportCombo
-        = new JComboBox<String>(new String[] { "UDP", "TCP", "TLS" });
+    private JComboBox transportCombo
+        = new JComboBox(new String[] { "UDP", "TCP", "TLS" });
 
-    private JComboBox<String> keepAliveMethodBox
-        = new JComboBox<String>(
-                new String[] { "NONE", "REGISTER", "OPTIONS" });
+    private JComboBox keepAliveMethodBox
+        = new JComboBox(new String[] { "NONE", "REGISTER", "OPTIONS" });
 
     private JTextField keepAliveIntervalValue = new JTextField();
 
-    private JComboBox<String> dtmfMethodBox
-        = new JComboBox<String>(
+    private JComboBox dtmfMethodBox
+        = new JComboBox(
                 new String[]
                         {
                             Resources.getString(

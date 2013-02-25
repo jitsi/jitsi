@@ -18,7 +18,7 @@ import net.java.sip.communicator.impl.gui.main.chat.conference.*;
  * @author Yana Stamcheva
  */
 public class ChatRoomListModel
-    extends AbstractListModel<Object>
+    extends AbstractListModel
 {
     private final ChatRoomList chatRoomList;
 

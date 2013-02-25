@@ -22,7 +22,7 @@ import net.java.sip.communicator.util.*;
  * @author Lyubomir Marinov
  */
 public class ContactListModel
-    extends AbstractListModel<Object>
+    extends AbstractListModel
 {
     private final MetaContactListService contactList;
 

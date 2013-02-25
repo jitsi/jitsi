@@ -15,7 +15,6 @@ import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>EditPanel</tt> manage the image size and the clipper component

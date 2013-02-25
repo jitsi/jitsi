@@ -448,14 +448,14 @@ public class GeneralConfigurationPanel
         sendMessageLabel.setText(
             Resources.getString("plugin.generalconfig.SEND_MESSAGES_WITH"));
 
-        ComboBoxModel<String> sendMessageComboBoxModel
-            = new DefaultComboBoxModel<String>(
+        ComboBoxModel sendMessageComboBoxModel
+            = new DefaultComboBoxModel(
                     new String[]
                             {
                                 ConfigurationUtils.ENTER_COMMAND,
                                 ConfigurationUtils.CTRL_ENTER_COMMAND
                             });
-        final JComboBox<String> sendMessageComboBox = new JComboBox<String>();
+        final JComboBox sendMessageComboBox = new JComboBox();
         sendMessagePanel.add(sendMessageComboBox);
         sendMessageComboBox.setModel(sendMessageComboBoxModel);
         sendMessageComboBox.setSelectedItem(

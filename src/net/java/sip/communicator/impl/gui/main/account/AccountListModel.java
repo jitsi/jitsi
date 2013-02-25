@@ -18,7 +18,7 @@ import net.java.sip.communicator.service.protocol.*;
  * @author Yana Stamcheva
  */
 public class AccountListModel
-    extends DefaultListModel<Account>
+    extends DefaultListModel
 {
     /**
      * Indicates that the data model content has changed.
@@ -59,12 +59,12 @@ public class AccountListModel
         }
 
         boolean isAccountAdded = false;
-        Enumeration<Account> accounts = elements();
+        Enumeration<?> accounts = elements();
 
         // If we already have other accounts.
         while (accounts.hasMoreElements())
         {
-            Account a = accounts.nextElement();
+            Account a = (Account) accounts.nextElement();
 
             int accountIndex = indexOf(a);
 
@@ -130,12 +130,12 @@ public class AccountListModel
      */
     public Account getAccount(AccountID accountID)
     {
-        Enumeration<Account> accounts = elements();
+        Enumeration<?> accounts = elements();
 
         // If we already have other accounts.
         while (accounts.hasMoreElements())
         {
-            Account account = accounts.nextElement();
+            Account account = (Account) accounts.nextElement();
 
             if (account.getAccountID().equals(accountID))
                 return account;

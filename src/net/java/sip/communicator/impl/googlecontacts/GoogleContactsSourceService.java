@@ -9,7 +9,6 @@ import java.util.*;
 import java.util.regex.*;
 
 import net.java.sip.communicator.impl.googlecontacts.configform.*;
-import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.googlecontacts.*;
 import net.java.sip.communicator.util.*;

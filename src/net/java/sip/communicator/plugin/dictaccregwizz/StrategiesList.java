@@ -20,7 +20,7 @@ import net.java.dict4j.*;
  * @author ROTH Damien
  */
 public class StrategiesList
-    extends JList<Strategy>
+    extends JList
 {
     /**
      * Serial version UID.
@@ -114,7 +114,7 @@ public class StrategiesList
      * @author ROTH Damien
      */
     static class ListModel
-        extends AbstractListModel<Strategy>
+        extends AbstractListModel
     {
         /**
          * Serial version UID.
@@ -189,7 +189,7 @@ public class StrategiesList
      */
     static class CellRenderer
         extends JLabel
-        implements ListCellRenderer<Strategy>
+        implements ListCellRenderer
     {
         /**
          * Serial version UID.
@@ -200,13 +200,13 @@ public class StrategiesList
          * implements <tt>ListCellRenderer.getListCellRendererComponent</tt>
          */
         public Component getListCellRendererComponent(
-                JList<? extends Strategy> list,
-                Strategy value,
+                JList list,
+                Object value,
                 int index,
                 boolean isSelected,
                 boolean cellHasFocus)
         {
-            setText(value.getName());
+            setText(((Strategy) value).getName());
 
             if (isSelected)
             {

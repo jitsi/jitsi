@@ -16,8 +16,6 @@ import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 
-import net.java.sip.communicator.util.*;
-
 /**
  * A generic full implementation of the <tt>UIContact</tt> interface.
  *
