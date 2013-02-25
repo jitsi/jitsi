@@ -14,17 +14,56 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 
 /**
+ *
  * @author Yana Stamcheva
  */
 public class ChatRoomListModel
-    extends AbstractListModel
+    extends AbstractListModel<Object>
 {
     private final ChatRoomList chatRoomList;
 
     public ChatRoomListModel()
     {
-        chatRoomList = GuiActivator.getUIService()
-            .getConferenceChatManager().getChatRoomList();
+        chatRoomList
+            = GuiActivator
+                .getUIService()
+                    .getConferenceChatManager()
+                        .getChatRoomList();
+    }
+
+    /**
+     * Informs interested listeners that new cells are added from startIndex to
+     * endIndex.
+     *
+     * @param startIndex The start index of the range .
+     * @param endIndex The end index of the range.
+     */
+    public void contentAdded(int startIndex, int endIndex)
+    {
+        fireIntervalAdded(this, startIndex, endIndex);
+    }
+
+    /**
+     * Informs interested listeners that the content has changed of the cells
+     * given by the range from startIndex to endIndex.
+     *
+     * @param startIndex The start index of the range .
+     * @param endIndex The end index of the range.
+     */
+    public void contentChanged(int startIndex, int endIndex)
+    {
+        fireContentsChanged(this, startIndex, endIndex);
+    }
+
+    /**
+     * Informs interested listeners that a range of cells is removed.
+     *
+     * @param startIndex The start index of the range.
+     * @param endIndex The end index of the range.
+     */
+    public void contentRemoved(int startIndex, int endIndex)
+    {
+        fireIntervalAdded(this, startIndex, endIndex);
     }
 
     public Object getElementAt(int index)
@@ -69,10 +108,9 @@ public class ChatRoomListModel
 
     public int getSize()
     {
-        int size = 0;
-
         Iterator<ChatRoomProviderWrapper> chatRoomProviders
             = chatRoomList.getChatRoomProviders();
+        int size = 0;
 
         while (chatRoomProviders.hasNext())
         {
@@ -88,8 +126,8 @@ public class ChatRoomListModel
     {
         Iterator<ChatRoomProviderWrapper> chatRoomProviders
             = chatRoomList.getChatRoomProviders();
+        int index = 0;
 
-        int currentIndex = 0;
         while(chatRoomProviders.hasNext())
         {
             ChatRoomProviderWrapper provider = chatRoomProviders.next();
@@ -98,7 +136,7 @@ public class ChatRoomListModel
             {
                 // the current index is the index of the group so if this is the
                 // searched index we return the group
-                return currentIndex;
+                return index;
             }
             else
             {
@@ -107,50 +145,13 @@ public class ChatRoomListModel
                     int i = provider.indexOf((ChatRoomWrapper) o);
 
                     if (i != -1)
-                    {
-                        return currentIndex + i + 1;
-                    }
+                        return index + i + 1;
                 }
 
-                currentIndex += provider.countChatRooms() + 1;
+                index += provider.countChatRooms() + 1;
             }
         }
 
         return -1;
-    }
-
-    /**
-     * Informs interested listeners that the content has changed of the cells
-     * given by the range from startIndex to endIndex.
-     *
-     * @param startIndex The start index of the range .
-     * @param endIndex The end index of the range.
-     */
-    public void contentChanged(int startIndex, int endIndex)
-    {
-        fireContentsChanged(this, startIndex, endIndex);
-    }
-
-    /**
-     * Informs interested listeners that new cells are added from startIndex to
-     * endIndex.
-     *
-     * @param startIndex The start index of the range .
-     * @param endIndex The end index of the range.
-     */
-    public void contentAdded(int startIndex, int endIndex)
-    {
-        fireIntervalAdded(this, startIndex, endIndex);
-    }
-
-    /**
-     * Informs interested listeners that a range of cells is removed.
-     *
-     * @param startIndex The start index of the range.
-     * @param endIndex The end index of the range.
-     */
-    public void contentRemoved(int startIndex, int endIndex)
-    {
-        fireIntervalAdded(this, startIndex, endIndex);
     }
 }

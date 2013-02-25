@@ -20,7 +20,7 @@ import net.java.dict4j.*;
  * @author ROTH Damien
  */
 public class StrategiesList
-    extends JList
+    extends JList<Strategy>
 {
     /**
      * Serial version UID.
@@ -114,21 +114,21 @@ public class StrategiesList
      * @author ROTH Damien
      */
     static class ListModel
-        extends AbstractListModel
+        extends AbstractListModel<Strategy>
     {
         /**
          * Serial version UID.
          */
         private static final long serialVersionUID = 0L;
 
-        List<Strategy> data;
+        private List<Strategy> data;
 
         /**
          * Create an instance of <tt>ListModel</tt>
          */
         public ListModel()
         {
-            this.data = new ArrayList<Strategy>();
+            data = new ArrayList<Strategy>();
         }
 
         /**
@@ -137,8 +137,8 @@ public class StrategiesList
          */
         public void setStrategies(List<Strategy> strategies)
         {
-            this.data = strategies;
-            fireContentsChanged(this, 0, this.data.size());
+            data = strategies;
+            fireContentsChanged(this, 0, data.size());
         }
 
         /**
@@ -146,15 +146,15 @@ public class StrategiesList
          */
         public void clear()
         {
-            this.data.clear();
+            data.clear();
         }
 
         /**
          * Implements <tt>ListModel.getElementAt</tt>
          */
-        public Object getElementAt(int row)
+        public Strategy getElementAt(int row)
         {
-            return this.data.get(row);
+            return data.get(row);
         }
 
         /**
@@ -162,22 +162,21 @@ public class StrategiesList
          */
         public int getSize()
         {
-            return this.data.size();
+            return data.size();
         }
 
         /**
-         * Find the index of a strategie
+         * Find the index of a strategy.
+         *
          * @param strategyCode the code of the strategy
          * @return the index of the strategy
          */
         public int indexOf(String strategyCode)
         {
-            for (int i=0; i<this.data.size(); i++)
+            for (int i = 0, size = data.size(); i < size; i++)
             {
-                if (this.data.get(i).getCode().equals(strategyCode))
-                {
+                if (data.get(i).getCode().equals(strategyCode))
                     return i;
-                }
             }
             return -1;
         }
@@ -190,7 +189,7 @@ public class StrategiesList
      */
     static class CellRenderer
         extends JLabel
-        implements ListCellRenderer
+        implements ListCellRenderer<Strategy>
     {
         /**
          * Serial version UID.
@@ -200,11 +199,14 @@ public class StrategiesList
         /**
          * implements <tt>ListCellRenderer.getListCellRendererComponent</tt>
          */
-        public Component getListCellRendererComponent(JList list, Object value,
-                int index, boolean isSelected, boolean cellHasFocus)
+        public Component getListCellRendererComponent(
+                JList<? extends Strategy> list,
+                Strategy value,
+                int index,
+                boolean isSelected,
+                boolean cellHasFocus)
         {
-            Strategy strategy = (Strategy) value;
-            this.setText(strategy.getName());
+            setText(value.getName());
 
             if (isSelected)
             {

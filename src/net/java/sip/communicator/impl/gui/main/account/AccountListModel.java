@@ -18,7 +18,7 @@ import net.java.sip.communicator.service.protocol.*;
  * @author Yana Stamcheva
  */
 public class AccountListModel
-    extends DefaultListModel
+    extends DefaultListModel<Account>
 {
     /**
      * Indicates that the data model content has changed.
@@ -40,13 +40,14 @@ public class AccountListModel
     {
         if(!SwingUtilities.isEventDispatchThread())
         {
-            SwingUtilities.invokeLater(new Runnable()
-            {
-                public void run()
-                {
-                    addAccount(account);
-                }
-            });
+            SwingUtilities.invokeLater(
+                    new Runnable()
+                    {
+                        public void run()
+                        {
+                            addAccount(account);
+                        }
+                    });
             return;
         }
 
@@ -58,12 +59,12 @@ public class AccountListModel
         }
 
         boolean isAccountAdded = false;
-        Enumeration<?> accounts = elements();
+        Enumeration<Account> accounts = elements();
 
         // If we already have other accounts.
         while (accounts.hasMoreElements())
         {
-            Account a = (Account) accounts.nextElement();
+            Account a = accounts.nextElement();
 
             int accountIndex = indexOf(a);
 
@@ -105,13 +106,14 @@ public class AccountListModel
     {
         if(!SwingUtilities.isEventDispatchThread())
         {
-            SwingUtilities.invokeLater(new Runnable()
-            {
-                public void run()
-                {
-                    removeAccount(account);
-                }
-            });
+            SwingUtilities.invokeLater(
+                    new Runnable()
+                    {
+                        public void run()
+                        {
+                            removeAccount(account);
+                        }
+                    });
             return;
         }
 
@@ -128,12 +130,12 @@ public class AccountListModel
      */
     public Account getAccount(AccountID accountID)
     {
-        Enumeration<?> accounts = elements();
+        Enumeration<Account> accounts = elements();
 
         // If we already have other accounts.
         while (accounts.hasMoreElements())
         {
-            Account account = (Account) accounts.nextElement();
+            Account account = accounts.nextElement();
 
             if (account.getAccountID().equals(accountID))
                 return account;

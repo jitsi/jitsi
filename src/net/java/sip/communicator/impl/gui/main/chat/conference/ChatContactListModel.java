@@ -19,18 +19,18 @@ import net.java.sip.communicator.service.protocol.event.*;
  * the <tt>ChatContact</tt>s according to their member roles and in alphabetical
  * order according to their names.
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class ChatContactListModel
-    extends AbstractListModel
+    extends AbstractListModel<ChatContact<?>>
 {
 
     /**
      * The backing store of this <tt>AbstractListModel</tt> listing the
      * <tt>ChatContact</tt>s.
      */
-    private final List<ChatContact<?>> chatContacts =
-        new ArrayList<ChatContact<?>>();
+    private final List<ChatContact<?>> chatContacts
+        = new ArrayList<ChatContact<?>>();
 
     /**
      * The implementation of the sorting rules - the <tt>ChatContact</tt>s are
@@ -38,45 +38,43 @@ public class ChatContactListModel
      * privileges and then they are sorted according to their names in
      * alphabetical order.
      */
-    private final Comparator<ChatContact<?>> sorter =
-    new Comparator<ChatContact<?>>()
-    {
-        public int compare(ChatContact<?> chatContact0,
-                ChatContact<?> chatContact1)
+    private final Comparator<ChatContact<?>> sorter
+        = new Comparator<ChatContact<?>>()
         {
-
-            /*
-             * Place ChatMembers with more privileges at the beginning of the
-             * list.
-             */
-            if (chatContact0 instanceof ConferenceChatContact)
+            public int compare(ChatContact<?> chatContact0, ChatContact<?> chatContact1)
             {
-                if (chatContact1 instanceof ConferenceChatContact)
+                /*
+                 * Place ChatMembers with more privileges at the beginning of
+                 * the list.
+                 */
+                if (chatContact0 instanceof ConferenceChatContact)
                 {
-                    int role0
-                        = ((ConferenceChatContact) chatContact0).getRole()
-                                .getRoleIndex();
-                    int role1
-                        = ((ConferenceChatContact) chatContact1).getRole()
-                                .getRoleIndex();
+                    if (chatContact1 instanceof ConferenceChatContact)
+                    {
+                        int role0
+                            = ((ConferenceChatContact) chatContact0).getRole()
+                                    .getRoleIndex();
+                        int role1
+                            = ((ConferenceChatContact) chatContact1).getRole()
+                                    .getRoleIndex();
 
-                    if (role0 > role1)
+                        if (role0 > role1)
+                            return -1;
+                        else if (role0 < role1)
+                            return 1;
+                    }
+                    else
                         return -1;
-                    else if (role0 < role1)
-                        return 1;
                 }
-                else
-                    return -1;
-            }
-            else if (chatContact1 instanceof ConferenceChatContact)
-                return 1;
+                else if (chatContact1 instanceof ConferenceChatContact)
+                    return 1;
 
-            /* By default, sort the ChatContacts in alphabetical order. */
-            return
-                chatContact0.getName().compareToIgnoreCase(
-                    chatContact1.getName());
-        }
-    };
+                /* By default, sort the ChatContacts in alphabetical order. */
+                return
+                    chatContact0.getName().compareToIgnoreCase(
+                            chatContact1.getName());
+            }
+        };
 
     /**
      * Creates the model.
@@ -84,33 +82,45 @@ public class ChatContactListModel
      */
     public ChatContactListModel(ChatSession chatSession)
     {
-        // when something like rename on a member change
-        // update the UI to reflect it
-        if(chatSession.getDescriptor() instanceof ChatRoomWrapper)
+        // when something like rename on a member change update the UI to
+        // reflect it
+        Object descriptor = chatSession.getDescriptor();
+
+        if(descriptor instanceof ChatRoomWrapper)
         {
-            ((ChatRoomWrapper)chatSession.getDescriptor()).getChatRoom()
-                .addMemberPropertyChangeListener(
-                    new ChatRoomMemberPropertyChangeListener()
-                {
-                    public void chatRoomPropertyChanged(
-                        ChatRoomMemberPropertyChangeEvent event)
-                    {
-                        // find the index and fire
-                        // that content has changed
-                        int chatContactCount = chatContacts.size();
-
-                        for (int i = 0; i < chatContactCount; i++)
-                        {
-                            ChatContact<?> containedChatContact = chatContacts.get(i);
-
-                            if(containedChatContact.getDescriptor().equals(
-                                event.getSourceChatRoomMember()))
+            ((ChatRoomWrapper) descriptor)
+                .getChatRoom()
+                    .addMemberPropertyChangeListener(
+                            new ChatRoomMemberPropertyChangeListener()
                             {
-                                fireContentsChanged(containedChatContact, i, i);
-                            }
-                        }
-                    }
-            });
+                                public void chatRoomPropertyChanged(
+                                        ChatRoomMemberPropertyChangeEvent ev)
+                                {
+                                    // Translate into
+                                    // ListDataListener.contentsChanged.
+                                    int chatContactCount = chatContacts.size();
+
+                                    for (int i = 0; i < chatContactCount; i++)
+                                    {
+                                        ChatContact<?> chatContact
+                                            = chatContacts.get(i);
+
+                                        if(chatContact.getDescriptor().equals(
+                                                ev.getSourceChatRoomMember()))
+                                        {
+                                            fireContentsChanged(
+                                                    chatContact,
+                                                    i, i);
+                                            /*
+                                             * TODO Can ev.sourceChatRoomMember
+                                             * equal more than one chatContacts
+                                             * element? If it cannot, it will be
+                                             * more efficient to break here.
+                                             */
+                                        }
+                                    }
+                                }
+                            });
         }
     }
 
@@ -157,7 +167,7 @@ public class ChatContactListModel
     }
 
     /* Implements ListModel#getElementAt(int). */
-    public Object getElementAt(int index)
+    public ChatContact<?> getElementAt(int index)
     {
         synchronized(chatContacts)
         {

@@ -92,7 +92,7 @@ public class GuiActivator implements BundleActivator
 
     private static List<ContactSourceService> contactSources;
 
-    private static List<CustomContactActionsService> contactActionsServices;
+    private static List<CustomContactActionsService<?>> contactActionsServices;
 
     private static SecurityAuthority securityAuthority;
 
@@ -708,17 +708,15 @@ public class GuiActivator implements BundleActivator
      * @param providers the list of protocol providers
      * @return an array of wrapped protocol providers
      */
-    public static Object[] getAccounts(List<ProtocolProviderService> providers)
+    public static Account[] getAccounts(List<ProtocolProviderService> providers)
     {
-        ArrayList<Account> accounts = new ArrayList<Account>();
         Iterator<ProtocolProviderService> accountsIter = providers.iterator();
+        List<Account> accounts = new ArrayList<Account>();
 
         while (accountsIter.hasNext())
-        {
             accounts.add(new Account(accountsIter.next()));
-        }
 
-        return accounts.toArray();
+        return accounts.toArray(new Account[accounts.size()]);
     }
 
     /**

@@ -48,33 +48,30 @@ public class ConnectionPanel
 
     private final JCheckBox proxyAutoCheckBox;
 
-    private final JComboBox certificate = new JComboBox();
+    private final JComboBox<Object> certificate = new JComboBox<Object>();
 
-    private JComboBox transportCombo = new JComboBox(new Object[]
-    { "UDP", "TCP", "TLS" });
+    private JComboBox<String> transportCombo
+        = new JComboBox<String>(new String[] { "UDP", "TCP", "TLS" });
 
-    private JComboBox keepAliveMethodBox
-        = new JComboBox(new Object []
-                                {
-                                    "NONE",
-                                    "REGISTER",
-                                    "OPTIONS"
-                                });
+    private JComboBox<String> keepAliveMethodBox
+        = new JComboBox<String>(
+                new String[] { "NONE", "REGISTER", "OPTIONS" });
 
     private JTextField keepAliveIntervalValue = new JTextField();
 
-    private JComboBox dtmfMethodBox
-        = new JComboBox(new Object []
-                                {
-                                    Resources.getString(
-                                        "plugin.sipaccregwizz.DTMF_AUTO"),
-                                    Resources.getString(
-                                        "plugin.sipaccregwizz.DTMF_RTP"),
-                                    Resources.getString(
-                                        "plugin.sipaccregwizz.DTMF_SIP_INFO"),
-                                    Resources.getString(
-                                        "plugin.sipaccregwizz.DTMF_INBAND")
-                                });
+    private JComboBox<String> dtmfMethodBox
+        = new JComboBox<String>(
+                new String[]
+                        {
+                            Resources.getString(
+                                    "plugin.sipaccregwizz.DTMF_AUTO"),
+                            Resources.getString(
+                                    "plugin.sipaccregwizz.DTMF_RTP"),
+                            Resources.getString(
+                                    "plugin.sipaccregwizz.DTMF_SIP_INFO"),
+                            Resources.getString(
+                                    "plugin.sipaccregwizz.DTMF_INBAND")
+                        });
 
     private final JCheckBox mwiCheckBox;
 
@@ -268,10 +265,12 @@ public class ConnectionPanel
     {
         certificate.removeAllItems();
         certificate.insertItemAt(
-            Resources.getString("plugin.sipaccregwizz.NO_CERTIFICATE"), 0);
+                Resources.getString("plugin.sipaccregwizz.NO_CERTIFICATE"),
+                0);
         certificate.setSelectedIndex(0);
-        for(CertificateConfigEntry e : SIPAccRegWizzActivator
-            .getCertificateService().getClientAuthCertificateConfigs())
+        for(CertificateConfigEntry e
+                : SIPAccRegWizzActivator.getCertificateService()
+                        .getClientAuthCertificateConfigs())
         {
             certificate.addItem(e);
             if(e.getId().equals(id))
@@ -524,10 +523,13 @@ public class ConnectionPanel
      */
     String getCertificateId()
     {
-        if(certificate.getSelectedItem() != null
-            && certificate.getSelectedItem() instanceof CertificateConfigEntry)
-            return ((CertificateConfigEntry)certificate.getSelectedItem())
-                .getId();
+        Object selectedItem = certificate.getSelectedItem();
+
+        if((selectedItem != null)
+                && (selectedItem instanceof CertificateConfigEntry))
+        {
+            return ((CertificateConfigEntry) selectedItem).getId();
+        }
         return null;
     }
 

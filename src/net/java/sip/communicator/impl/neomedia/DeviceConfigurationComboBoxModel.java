@@ -27,7 +27,7 @@ import org.jitsi.service.neomedia.*;
  * @author Damian Minkov
  */
 public class DeviceConfigurationComboBoxModel
-    implements ComboBoxModel,
+    implements ComboBoxModel<Object>,
                PropertyChangeListener
 {
     /**

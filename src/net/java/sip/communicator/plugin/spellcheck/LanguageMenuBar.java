@@ -10,6 +10,7 @@ import java.awt.event.*;
 import java.awt.image.*;
 import java.io.*;
 import java.util.*;
+import java.util.List;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -68,13 +69,13 @@ public class LanguageMenuBar
 
     private final SIPCommMenu menu = new SelectorMenu();
 
-    private final ArrayList<Parameters.Locale> localeList =
-        new ArrayList<Parameters.Locale>();
+    private final List<Parameters.Locale> localeList
+        = new ArrayList<Parameters.Locale>();
 
     private final SIPCommTextButton removeItem = new SIPCommTextButton(
         Resources.getString("plugin.spellcheck.UNINSTALL_DICTIONARY"));
 
-    public final JList list;
+    public final JList<Parameters.Locale> list;
 
     /**
      * Provides instance of this class associated with a spell checker. If ones
@@ -121,14 +122,14 @@ public class LanguageMenuBar
         this.menu.setOpaque(false);
         this.setOpaque(false);
 
-        final DefaultListModel model = new DefaultListModel();
-        list = new JList(model);
+        final DefaultListModel<Parameters.Locale> model
+            = new DefaultListModel<Parameters.Locale>();
+        list = new JList<Parameters.Locale>(model);
 
         this.languageSelectionRenderer = new LanguageListRenderer();
 
         for (Parameters.Locale locale : Parameters.getLocales())
         {
-
             if (!localeAvailabilityCache.containsKey(locale))
             {
                 localeAvailabilityCache.put(locale,
@@ -466,26 +467,27 @@ public class LanguageMenuBar
      *
      * @param model the model whose elements are to be set
      */
-    private void setModelElements(DefaultListModel model)
+    private void setModelElements(DefaultListModel<Parameters.Locale> model)
     {
         synchronized (model)
         {
             model.clear();
 
-            Collections.sort(localeList, new Comparator<Parameters.Locale>()
-            {
-                public int compare(Locale o1, Locale o2)
-                {
-                    boolean b1 = spellChecker.isLocaleAvailable(o1);
-                    boolean b2 = spellChecker.isLocaleAvailable(o2);
+            Collections.sort(
+                    localeList,
+                    new Comparator<Parameters.Locale>()
+                    {
+                        public int compare(Locale o1, Locale o2)
+                        {
+                            boolean b1 = spellChecker.isLocaleAvailable(o1);
+                            boolean b2 = spellChecker.isLocaleAvailable(o2);
 
-                    if (b1 == b2)
-                        return 0;
+                            if (b1 == b2)
+                                return 0;
 
-                    return (b1 ? -1 : 1);
-                }
-
-            });
+                            return (b1 ? -1 : 1);
+                        }
+                    });
 
             for (Parameters.Locale loc : localeList)
                 model.addElement(loc);
@@ -509,12 +511,12 @@ public class LanguageMenuBar
     {
         private final Parameters.Locale locale;
 
-        private final JList sourceList;
+        private final JList<Parameters.Locale> sourceList;
 
         private boolean skipFiring = false;
 
         public SetSpellChecker( Parameters.Locale locale,
-                                JList sourceList)
+                                JList<Parameters.Locale> sourceList)
         {
             this.locale = locale;
             this.sourceList = sourceList;
@@ -567,7 +569,9 @@ public class LanguageMenuBar
 
             sourceList.removeListSelectionListener(sourceList
                 .getListSelectionListeners()[0]);
-            setModelElements((DefaultListModel) sourceList.getModel());
+            setModelElements(
+                    (DefaultListModel<Parameters.Locale>)
+                        sourceList.getModel());
             sourceList.setSelectedValue(locale, true);
             removeItem.setEnabled(!spellChecker.getLocale().getIsoCode()
                 .equals(Parameters.getDefault(Parameters.Default.LOCALE)));
@@ -638,7 +642,7 @@ public class LanguageMenuBar
          */
         private static final long serialVersionUID = 0L;
 
-        public Component getListCellRendererComponent(JList list,
+        public Component getListCellRendererComponent(JList<?> list,
             Object value, int index, boolean isSelected,
             boolean cellHasFocus)
         {
@@ -674,9 +678,10 @@ public class LanguageMenuBar
         {
             if (!e.getValueIsAdjusting())
             {
-                final JList source = (JList) e.getSource();
-                final Parameters.Locale locale =
-                    (Parameters.Locale) source.getSelectedValue();
+                @SuppressWarnings("unchecked")
+                JList<Parameters.Locale> source
+                    = (JList<Parameters.Locale>) e.getSource();
+                Parameters.Locale locale = source.getSelectedValue();
 
                 source.setEnabled(false);
 

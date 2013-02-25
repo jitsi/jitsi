@@ -19,10 +19,10 @@ import net.java.sip.communicator.util.*;
  * display it in <tt>ContactList</tt> as a list instead of a tree.
  *
  * @author Yana Stamcheva
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class ContactListModel
-    extends AbstractListModel
+    extends AbstractListModel<Object>
 {
     private final MetaContactListService contactList;
 

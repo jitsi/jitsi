@@ -448,25 +448,28 @@ public class GeneralConfigurationPanel
         sendMessageLabel.setText(
             Resources.getString("plugin.generalconfig.SEND_MESSAGES_WITH"));
 
-        ComboBoxModel sendMessageComboBoxModel =
-            new DefaultComboBoxModel(
-                new String[] {
-                    ConfigurationUtils.ENTER_COMMAND,
-                    ConfigurationUtils.CTRL_ENTER_COMMAND });
-        final JComboBox sendMessageComboBox = new JComboBox();
+        ComboBoxModel<String> sendMessageComboBoxModel
+            = new DefaultComboBoxModel<String>(
+                    new String[]
+                            {
+                                ConfigurationUtils.ENTER_COMMAND,
+                                ConfigurationUtils.CTRL_ENTER_COMMAND
+                            });
+        final JComboBox<String> sendMessageComboBox = new JComboBox<String>();
         sendMessagePanel.add(sendMessageComboBox);
         sendMessageComboBox.setModel(sendMessageComboBoxModel);
         sendMessageComboBox.setSelectedItem(
             ConfigurationUtils.getSendMessageCommand());
 
-        sendMessageComboBox.addItemListener(new ItemListener()
-        {
-            public void itemStateChanged(ItemEvent arg0)
-            {
-                ConfigurationUtils.setSendMessageCommand(
-                    (String)sendMessageComboBox.getSelectedItem());
-            }
-        });
+        sendMessageComboBox.addItemListener(
+                new ItemListener()
+                {
+                    public void itemStateChanged(ItemEvent ev)
+                    {
+                        ConfigurationUtils.setSendMessageCommand(
+                                (String) sendMessageComboBox.getSelectedItem());
+                    }
+                });
 
         return sendMessagePanel;
     }

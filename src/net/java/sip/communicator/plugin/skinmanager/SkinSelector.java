@@ -98,14 +98,15 @@ public class SkinSelector
 
         selectActiveSkin();
 
-        SwingUtilities.invokeLater(new Runnable()
-            {
-                public void run()
+        SwingUtilities.invokeLater(
+                new Runnable()
                 {
-                    if(listener != null)
-                        listener.suppressAction(false);
-                }
-            });
+                    public void run()
+                    {
+                        if(listener != null)
+                            listener.suppressAction(false);
+                    }
+                });
     }
 
     /**

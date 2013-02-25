@@ -11,6 +11,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.main.account.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.util.skin.*;
@@ -92,7 +93,7 @@ public abstract class PreCallDialog
     /**
      * The combo box containing a list of accounts to choose from.
      */
-    private JComboBox accountsCombo;
+    private JComboBox<Account> accountsCombo;
 
     /**
      * The window handling received calls.
@@ -130,7 +131,7 @@ public abstract class PreCallDialog
      * @param text the text to show
      * @param accounts the list of accounts to choose from
      */
-    public PreCallDialog(String title, String text, Object[] accounts)
+    public PreCallDialog(String title, String text, Account[] accounts)
     {
         this(title, text, accounts, false, false);
     }
@@ -145,7 +146,7 @@ public abstract class PreCallDialog
      * @param video if it is a video call
      * @param existingCall true to answer call in an existing call
      */
-    public PreCallDialog(String title, String text, Object[] accounts,
+    public PreCallDialog(String title, String text, Account[] accounts,
         boolean video, boolean existingCall)
     {
         preCallWindow = createPreCallWindow(title, text, accounts);
@@ -180,7 +181,7 @@ public abstract class PreCallDialog
      */
     private Window createPreCallWindow( String title,
                                         String text,
-                                        Object[] accounts)
+                                        Account[] accounts)
     {
         Window receivedCallWindow = null;
 
@@ -203,7 +204,7 @@ public abstract class PreCallDialog
             {
                 accountsCombo
                     = HudWidgetFactory.createHudComboBox(
-                            new DefaultComboBoxModel(accounts));
+                            new DefaultComboBoxModel<Account>(accounts));
             }
         }
         else
@@ -219,7 +220,7 @@ public abstract class PreCallDialog
             callLabelImage = new JLabel();
 
             if (accounts != null)
-                accountsCombo = new JComboBox(accounts);
+                accountsCombo = new JComboBox<Account>(accounts);
         }
 
         if (text != null)
@@ -387,7 +388,7 @@ public abstract class PreCallDialog
      *
      * @return the accounts combo box contained in this dialog
      */
-    public JComboBox getAccountsCombo()
+    public JComboBox<Account> getAccountsCombo()
     {
         return accountsCombo;
     }

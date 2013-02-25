@@ -56,7 +56,8 @@ public class ConfigurationPanel
         gridBagConstraints.gridy = 0;
         contentPanel.add(defaultProfileLabel, gridBagConstraints);
 
-        JComboBox defaultProfileComboBox = new JComboBox();
+        JComboBox<NameValuePair> defaultProfileComboBox
+            = new JComboBox<NameValuePair>();
         defaultProfileComboBox.setEditable(false);
         defaultProfileComboBox.addItem(
                 new NameValuePair(
@@ -85,7 +86,8 @@ public class ConfigurationPanel
         gridBagConstraints.gridy = 1;
         contentPanel.add(preferredKeyFrameRequesterLabel, gridBagConstraints);
 
-        JComboBox preferredKeyFrameRequesterComboBox = new JComboBox();
+        JComboBox<NameValuePair> preferredKeyFrameRequesterComboBox
+            = new JComboBox<NameValuePair>();
         preferredKeyFrameRequesterComboBox.setEditable(false);
         preferredKeyFrameRequesterComboBox.addItem(
                 new NameValuePair(
@@ -116,7 +118,8 @@ public class ConfigurationPanel
         gridBagConstraints.gridy = 2;
         contentPanel.add(presetLabel, gridBagConstraints);
 
-        JComboBox presetComboBox = new JComboBox();
+        JComboBox<NameValuePair> presetComboBox
+            = new JComboBox<NameValuePair>();
         presetComboBox.setEditable(false);
         for(String presetSetting : JNIEncoder.AVAILABLE_PRESETS)
         {
@@ -173,7 +176,7 @@ public class ConfigurationPanel
      * to set the value of
      */
     private void addActionListener(
-            final JComboBox comboBox,
+            final JComboBox<NameValuePair> comboBox,
             final String property)
     {
         comboBox.addActionListener(
@@ -201,14 +204,15 @@ public class ConfigurationPanel
      * @param value the value of the <tt>NameValuePair</tt> to set as the
      * selected item of <tt>comboBox</tt>
      */
-    private void setSelectedNameValuePair(JComboBox comboBox, String value)
+    private void setSelectedNameValuePair(
+            JComboBox<NameValuePair> comboBox,
+            String value)
     {
         int itemCount = comboBox.getItemCount();
 
         for (int itemIndex = 0; itemIndex < itemCount; itemIndex++)
         {
-            NameValuePair nameValuePair
-                = (NameValuePair) comboBox.getItemAt(itemIndex);
+            NameValuePair nameValuePair = comboBox.getItemAt(itemIndex);
 
             if (nameValuePair.value.equals(value))
             {
