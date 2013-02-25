@@ -91,10 +91,7 @@ public class FileMenu
         // whether the last item added was a separator
         boolean endsWithSeparator = false;
 
-        Boolean showAccountConfig = GuiActivator.getConfigurationService()
-            .getBoolean(ConfigurationFrame.SHOW_ACCOUNT_CONFIG_PROPERTY, true);
-
-        if (showAccountConfig.booleanValue())
+        if (ConfigurationUtils.isShowAccountConfig())
         {
             newAccountMenuItem = new JMenuItem(
                 resources.getI18NString("service.gui.NEW_ACCOUNT"));

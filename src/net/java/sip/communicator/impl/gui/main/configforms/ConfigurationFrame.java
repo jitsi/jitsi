@@ -14,6 +14,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.Logger;
 
 import org.jitsi.util.*;
@@ -188,11 +189,7 @@ public class ConfigurationFrame
      */
     public void addDefaultForms()
     {
-        Boolean showAccountConfigProp
-            = GuiActivator.getConfigurationService()
-                .getBoolean(SHOW_ACCOUNT_CONFIG_PROPERTY, true);
-
-        if (showAccountConfigProp.booleanValue())
+        if (ConfigurationUtils.isShowAccountConfig())
             addConfigurationForm(
                 new LazyConfigurationForm(
                     "net.java.sip.communicator.impl.gui.main."

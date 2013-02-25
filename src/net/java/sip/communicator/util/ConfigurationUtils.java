@@ -2284,6 +2284,29 @@ public class ConfigurationUtils
     }
 
     /**
+     * Indicates if the account configuration is disabled.
+     *
+     * @return <tt>true</tt> if the account manual configuration and creation
+     * is disabled, otherwise return <tt>false</tt>
+     */
+    public static boolean isShowAccountConfig()
+    {
+        final String SHOW_ACCOUNT_CONFIG_PROP
+            = "net.java.sip.communicator.impl.gui.main."
+                + "configforms.SHOW_ACCOUNT_CONFIG";
+
+        boolean defaultValue
+            = !Boolean.parseBoolean(UtilActivator.getResources()
+                .getSettingsString(
+                    "impl.gui.main.account.ACCOUNT_CONFIG_DISABLED"));
+
+        Boolean showAccountConfigProp
+            = configService.getBoolean(SHOW_ACCOUNT_CONFIG_PROP, defaultValue);
+
+        return showAccountConfigProp.booleanValue();
+    }
+
+    /**
      * Listens for changes of the properties.
      */
     private static class ConfigurationChangeListener
