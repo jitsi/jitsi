@@ -6,18 +6,9 @@
  */
 package net.java.sip.communicator.impl.dns.dnsconfig;
 
-import static net.java.sip.communicator.impl.dns.DnsUtilActivator.DEFAULT_BACKUP_RESOLVER;
-import static net.java.sip.communicator.impl.dns.DnsUtilActivator.PDEFAULT_BACKUP_RESOLVER_ENABLED;
-import static net.java.sip.communicator.impl.dns.DnsUtilActivator.PNAME_BACKUP_RESOLVER;
-import static net.java.sip.communicator.impl.dns.DnsUtilActivator.PNAME_BACKUP_RESOLVER_ENABLED;
-import static net.java.sip.communicator.impl.dns.DnsUtilActivator.PNAME_BACKUP_RESOLVER_FALLBACK_IP;
-import static net.java.sip.communicator.impl.dns.DnsUtilActivator.PNAME_BACKUP_RESOLVER_PORT;
-import static net.java.sip.communicator.service.dns.CustomResolver.DNS_PATIENCE;
-import static net.java.sip.communicator.service.dns.CustomResolver.DNS_REDEMPTION;
-import static net.java.sip.communicator.service.dns.CustomResolver.PNAME_DNS_PATIENCE;
-import static net.java.sip.communicator.service.dns.CustomResolver.PNAME_DNS_REDEMPTION;
-import static net.java.sip.communicator.util.NetworkUtils.isIPv4Address;
-import static net.java.sip.communicator.util.NetworkUtils.isIPv6Address;
+import static net.java.sip.communicator.impl.dns.DnsUtilActivator.*;
+import static net.java.sip.communicator.service.dns.CustomResolver.*;
+import static net.java.sip.communicator.util.NetworkUtils.*;
 
 import java.awt.*;
 import java.awt.event.*;
