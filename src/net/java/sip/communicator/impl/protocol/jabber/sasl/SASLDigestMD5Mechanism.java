@@ -99,13 +99,13 @@ public class SASLDigestMD5Mechanism
             response = sc.evaluateChallenge(null);
         }
 
-		String authenticationText = null;
-		if(null != response) {
-			authenticationText = Base64.encodeBytes(response,Base64.DONT_BREAK_LINES);
-		}
-		if((null == authenticationText) || (authenticationText.equals(""))) {
-			authenticationText = "=";
-		}
+        String authenticationText = null;
+        if(null != response) {
+            authenticationText = Base64.encodeBytes(response,Base64.DONT_BREAK_LINES);
+        }
+        if((null == authenticationText) || (authenticationText.equals(""))) {
+            authenticationText = "=";
+        }
 
         // Send the authentication to the server
         getSASLAuthentication().send(new Response(authenticationText));

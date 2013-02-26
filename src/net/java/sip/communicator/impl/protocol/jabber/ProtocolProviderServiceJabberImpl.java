@@ -1247,10 +1247,18 @@ public class ProtocolProviderServiceJabberImpl
 
         // Insert our sasl mechanism implementation
         // in order to support some incompatible servers
-        SASLAuthentication.unregisterSASLMechanism("DIGEST-MD5");
-        SASLAuthentication.registerSASLMechanism("DIGEST-MD5",
-            SASLDigestMD5Mechanism.class);
-        SASLAuthentication.supportSASLMechanism("DIGEST-MD5");
+        boolean disableCustomDigestMD5
+            = accountID.getAccountPropertyBoolean(
+            "DISABLE_CUSTOM_DIGEST_MD5",
+            false);
+
+        if(!disableCustomDigestMD5)
+        {
+            SASLAuthentication.unregisterSASLMechanism("DIGEST-MD5");
+            SASLAuthentication.registerSASLMechanism("DIGEST-MD5",
+                SASLDigestMD5Mechanism.class);
+            SASLAuthentication.supportSASLMechanism("DIGEST-MD5");
+        }
 
         connection.login(userName, password, resource);
 
