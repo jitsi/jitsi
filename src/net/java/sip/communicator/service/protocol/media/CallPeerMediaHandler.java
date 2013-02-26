@@ -279,7 +279,7 @@ public abstract class CallPeerMediaHandler
      * Creates a new handler that will be managing media streams for
      * <tt>peer</tt>.
      *
-     * @param peer that <tt>CallPeer</tt> instance that we will be managing
+     * @param peer the <tt>CallPeer</tt> instance that we will be managing
      * media for.
      * @param srtpListener the object that receives SRTP security events.
      */

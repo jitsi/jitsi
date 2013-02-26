@@ -41,7 +41,7 @@ public abstract class AbstractCallPeerJabberGTalkImpl
     private DiscoverInfo discoverInfo;
 
     /**
-     * The indicator which determines whether this peer was initiated the
+     * The indicator which determines whether this peer has initiated the
      * session.
      */
     protected boolean initiator = false;

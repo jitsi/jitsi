@@ -219,7 +219,7 @@ public class OperationSetBasicTelephonyJabberImpl
         throws OperationFailedException
     {
         if (logger.isInfoEnabled())
-            logger.info("creating outgoing call...");
+            logger.info("Creating outgoing call to " + calleeAddress);
         if (protocolProvider.getConnection() == null || call == null)
         {
             throw new OperationFailedException(
@@ -420,7 +420,8 @@ public class OperationSetBasicTelephonyJabberImpl
         }
 
         if(logger.isInfoEnabled())
-            logger.info("Choose one is: " + fullCalleeURI + " " + bestPriority);
+            logger.info("Full JID for outgoing call: " + fullCalleeURI
+                            + ", priority " + bestPriority);
 
         AbstractCallPeer<?, ?> peer = null;
 

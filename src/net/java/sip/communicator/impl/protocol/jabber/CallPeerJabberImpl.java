@@ -437,17 +437,10 @@ public class CallPeerJabberImpl
         Iterable<ContentPacketExtension> answerContents;
         JingleIQ contentIQ;
         boolean noCands = false;
-
-        logger.info("nocand " + noCands);
-        logger.info("run code");
-
-        /*
-         * If a remote peer turns her video on in a conference which is hosted
-         * by the local peer and the local peer is not streaming her local
-         * video, reinvite the other remote peers to enable RTP translation.
-         */
         MediaStream oldVideoStream = mediaHandler.getStream(MediaType.VIDEO);
 
+        if(logger.isInfoEnabled())
+            logger.info("Looking for candidates in content-add.");
         try
         {
             if(!contentAddWithNoCands)
@@ -494,13 +487,16 @@ public class CallPeerJabberImpl
                         contentAddWithNoCands = false;
                     }
                 }.start();
-                logger.info("start thread");
+                if(logger.isInfoEnabled())
+                    logger.info("No candidates found in content-add, started "
+                                + "new thread.");
                 return;
             }
 
             mediaHandler.getTransportManager().
                 wrapupConnectivityEstablishment();
-            logger.info("wraping up");
+            if(logger.isInfoEnabled())
+                logger.info("Wrapping up connectivity establishment");
             answerContents = mediaHandler.generateSessionAccept();
             contentIQ = null;
         }

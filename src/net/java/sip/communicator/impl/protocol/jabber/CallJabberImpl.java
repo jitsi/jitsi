@@ -51,6 +51,9 @@ public class CallJabberImpl
      */
     private MediaHandler cobriMediaHandler;
 
+    /**
+     * Contains one CobriStreamConnector for each <tt>MediaType</tt>
+     */
     private final List<WeakReference<CobriStreamConnector>>
         cobriStreamConnectors;
 

@@ -1247,9 +1247,19 @@ public class CallPeerMediaHandlerJabberImpl
                         if (src != null)
                         {
                             long[] ssrcs = src.getSSRCs();
+                            long[] dstSsrcs = dst.getSSRCs();
 
-                            if (!Arrays.equals(dst.getSSRCs(), ssrcs))
-                                dst.setSSRCs(src.getSSRCs());
+                            if (!Arrays.equals(dstSsrcs, ssrcs))
+                            {
+                                dst.setSSRCs(ssrcs);
+                                if(logger.isDebugEnabled())
+                                {
+                                    logger.debug("SSRCs changed for colibri "
+                                            + mediaType.toString() + " channel "
+                                            + dst.getID() + ". From: "
+                                            + dstSsrcs + ", to: " + ssrcs);
+                                }
+                            }
                         }
                     }
                 }
