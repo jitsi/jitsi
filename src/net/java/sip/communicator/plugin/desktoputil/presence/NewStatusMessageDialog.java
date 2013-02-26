@@ -13,7 +13,6 @@ import javax.swing.*;
 
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 
 /**
@@ -28,12 +27,6 @@ public class NewStatusMessageDialog
     implements  ActionListener,
                 Skinnable
 {
-    /**
-     * The Object used for logging.
-     */
-    private final Logger logger =
-        Logger.getLogger(NewStatusMessageDialog.class);
-
     /**
      * The icon.
      */

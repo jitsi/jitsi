@@ -362,11 +362,11 @@ public abstract class BasicConferenceCallPanel
         ConferenceCallPeerRenderer newCallPeerPanel
             = updateViewFromModel(oldCallPeerPanel, callPeer);
 
-        if (newCallPeerPanel != oldCallPeerPanel)
+        if (oldCallPeerPanel != newCallPeerPanel)
         {
             if (oldCallPeerPanel != null)
             {
-                callPeerPanels.remove(oldCallPeerPanel);
+                callPeerPanels.remove(callPeer);
                 try
                 {
                     viewForModelRemoved(oldCallPeerPanel, callPeer);

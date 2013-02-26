@@ -228,7 +228,7 @@ public class OperationSetPresenceSipImpl
         private final String value;
 
         /**
-         * Creates <>tt WatcherStatus</tt>
+         * Creates <tt>WatcherStatus</tt>
          * @param v value.
          */
         WatcherStatus(String v)

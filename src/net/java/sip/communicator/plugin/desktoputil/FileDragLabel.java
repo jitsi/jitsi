@@ -175,11 +175,10 @@ public class FileDragLabel
 
         public boolean isDataFlavorSupported(DataFlavor flavor)
         {
-            boolean b = false;
-            b = b | flavor.equals(flavors[FILE]);
-            b |= flavor.equals(flavors[STRING]);
-            b |= flavor.equals(flavors[PLAIN]);
-            return (b);
+            return
+                flavor.equals(flavors[FILE])
+                    || flavor.equals(flavors[STRING])
+                    || flavor.equals(flavors[PLAIN]);
         }
 
         public synchronized Object getTransferData(DataFlavor flavor)

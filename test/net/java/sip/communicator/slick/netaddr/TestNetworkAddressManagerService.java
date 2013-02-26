@@ -140,8 +140,8 @@ public class TestNetworkAddressManagerService
     }
 
     /**
-     * This test will specify all local address one by one as "prefered address"
-     * and  test the returned address.
+     * This test will specify all local address one by one as "preferred
+     * address" and  test the returned address.
      *
      * @throws java.lang.Exception if anything goes wrong.
      */
@@ -272,7 +272,7 @@ public class TestNetworkAddressManagerService
 */
 
     /**
-     * Set the configuration to IPv4 pref if the network is not behind a nat
+     * Set the configuration to IPv4 pref if the network is not behind a NAT
      * if not it does nothing
      * and watch if the result of "NetworkAddressManagerService.getlocalhost()
      * is a valid (public) IPv4 address

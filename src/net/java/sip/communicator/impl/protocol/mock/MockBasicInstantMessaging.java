@@ -22,12 +22,12 @@ public class MockBasicInstantMessaging
     /**
      * The currently valid persistent presence operation set..
      */
-    private MockPersistentPresenceOperationSet opSetPersPresence = null;
+    private final MockPersistentPresenceOperationSet opSetPersPresence;
 
     /**
      * The protocol provider that created us.
      */
-    private MockProvider parentProvider = null;
+    private final MockProvider parentProvider;
 
     /**
      * Creates an instance of this operation set keeping a reference to the

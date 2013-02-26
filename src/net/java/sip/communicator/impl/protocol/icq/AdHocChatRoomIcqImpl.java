@@ -79,9 +79,9 @@ public class AdHocChatRoomIcqImpl
      */
     private static final String HTML_MIME_TYPE = "text/html";
 
-    private final String defaultHtmlStartTag = "<HTML>";
+    private static final String defaultHtmlStartTag = "<HTML>";
 
-    private final String defaultHtmlEndTag = "</HTML>";
+    private static final String defaultHtmlEndTag = "</HTML>";
 
     /**
      * Chat room name.

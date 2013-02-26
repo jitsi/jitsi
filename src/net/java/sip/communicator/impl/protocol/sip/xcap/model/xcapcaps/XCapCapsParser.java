@@ -71,15 +71,9 @@ public final class XCapCapsParser
             {
                 Attr attribute = (Attr) attributes.item(i);
                 String namespaceUri = getNamespaceUri(attribute);
-                if (namespaceUri == null)
-                {
+                if ((namespaceUri == null)
+                        || !isStandartXmlNamespace(namespaceUri))
                     throw new Exception("xcap-caps element is invalid");
-                }
-                if (isStandartXmlNamespace(namespaceUri))
-                {
-                    continue;
-                }
-                throw new Exception("xcap-caps element is invalid");
             }
             // Process elements
             NodeList childNodes = xCapCapsElement.getChildNodes();
@@ -167,15 +161,8 @@ public final class XCapCapsParser
         {
             Attr attribute = (Attr) attributes.item(i);
             String namespaceUri = getNamespaceUri(attribute);
-            if (namespaceUri == null)
-            {
+            if ((namespaceUri == null) || !isStandartXmlNamespace(namespaceUri))
                 throw new Exception("auids element is invalid");
-            }
-            if (isStandartXmlNamespace(namespaceUri))
-            {
-                continue;
-            }
-            throw new Exception("auids element is invalid");
         }
         // Process elements
         NodeList childNodes = auidsElement.getChildNodes();
@@ -227,15 +214,8 @@ public final class XCapCapsParser
         {
             Attr attribute = (Attr) attributes.item(i);
             String namespaceUri = getNamespaceUri(attribute);
-            if (namespaceUri == null)
-            {
+            if ((namespaceUri == null) || !isStandartXmlNamespace(namespaceUri))
                 throw new Exception("namespaces element is invalid");
-            }
-            if (isStandartXmlNamespace(namespaceUri))
-            {
-                continue;
-            }
-            throw new Exception("namespaces element is invalid");
         }
         // Process elements
         NodeList childNodes = namespacesElement.getChildNodes();
@@ -287,15 +267,8 @@ public final class XCapCapsParser
         {
             Attr attribute = (Attr) attributes.item(i);
             String namespaceUri = getNamespaceUri(attribute);
-            if (namespaceUri == null)
-            {
+            if ((namespaceUri == null) || !isStandartXmlNamespace(namespaceUri))
                 throw new Exception("extensions element is invalid");
-            }
-            if (isStandartXmlNamespace(namespaceUri))
-            {
-                continue;
-            }
-            throw new Exception("extensions element is invalid");
         }
         // Process elements
         NodeList childNodes = extensionsElement.getChildNodes();

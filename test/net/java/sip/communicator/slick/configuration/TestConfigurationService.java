@@ -35,23 +35,23 @@ public class TestConfigurationService extends TestCase
     /**
      * The name of a property that we will be using for testing.
      */
-    private final String propertyName = "my.test.property";
+    private static final String propertyName = "my.test.property";
 
     /**
      * The name of a property that we will be using for testing custom event
      * notification.
      */
-    private final String listenedPropertyName = "a.property.i.listen.to";
+    private static final String listenedPropertyName = "a.property.i.listen.to";
 
     /**
      * The value of the property with name propertyName.
      */
-    private final String propertyValue = "19200";
+    private static final String propertyValue = "19200";
 
     /**
      * A new value for the property with name propertyName
      */
-    private final String propertyNewValue = "19201";
+    private static final String propertyNewValue = "19201";
 
     /**
      * A PropertyChange listener impl that registers the last received event.

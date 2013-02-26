@@ -17,16 +17,16 @@ import javax.swing.text.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.plugin.desktoputil.TransparentPanel;
 import net.java.sip.communicator.service.gui.call.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.skin.*;
-import net.java.sip.communicator.plugin.desktoputil.*;
-import net.java.sip.communicator.plugin.desktoputil.TransparentPanel;
 import net.java.sip.communicator.util.call.CallPeerAdapter;
+import net.java.sip.communicator.util.skin.*;
 
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.protocol.event.*;
@@ -121,12 +121,6 @@ public class OneToOneCallPeerPanel
     private InputVolumeControlButton localLevel;
 
     /**
-     * The <tt>Component</tt> which depicts {@link #localLevel} and its
-     * associated <tt>SoundLevelIndicator</tt>.
-     */
-    private Component localLevelPanel;
-
-    /**
      * The <tt>Component</tt> which
      * {@link #updateViewFromModelInEventDispatchThread()} last added to
      * {@link #center} as the visual <tt>Component</tt> displaying the video
@@ -163,12 +157,6 @@ public class OneToOneCallPeerPanel
      * Sound remote level label.
      */
     private Component remoteLevel;
-
-    /**
-     * The <tt>Component</tt> which depicts {@link #remoteLevel} and its
-     * associated <tt>SoundLevelIndicator</tt>.
-     */
-    private Component remoteLevelPanel;
 
     /**
      * The <tt>Component</tt> which
@@ -433,9 +421,6 @@ public class OneToOneCallPeerPanel
                         });
             }
         }
-
-        this.localLevelPanel = localLevelPanel;
-        this.remoteLevelPanel = remoteLevelPanel;
     }
 
     /**

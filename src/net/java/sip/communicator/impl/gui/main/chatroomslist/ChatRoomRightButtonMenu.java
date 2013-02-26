@@ -53,33 +53,33 @@ public class ChatRoomRightButtonMenu
         this.setLocation(getLocation());
 
         createMenuItem(
-            "service.gui.OPEN",
-            ImageLoader.CHAT_ROOM_16x16_ICON,
-            "openChatRoom");
+                "service.gui.OPEN",
+                ImageLoader.CHAT_ROOM_16x16_ICON,
+                "openChatRoom");
         JMenuItem joinChatRoomItem
             = createMenuItem(
-                "service.gui.JOIN",
-                ImageLoader.JOIN_ICON,
-                "joinChatRoom");
+                    "service.gui.JOIN",
+                    ImageLoader.JOIN_ICON,
+                    "joinChatRoom");
         JMenuItem joinAsChatRoomItem
             = createMenuItem(
-                "service.gui.JOIN_AS",
-                ImageLoader.JOIN_AS_ICON,
-                "joinAsChatRoom");
+                    "service.gui.JOIN_AS",
+                    ImageLoader.JOIN_AS_ICON,
+                    "joinAsChatRoom");
         JMenuItem leaveChatRoomItem
             = createMenuItem(
-                "service.gui.LEAVE",
-                ImageLoader.LEAVE_ICON,
-                "leaveChatRoom");
+                    "service.gui.LEAVE",
+                    ImageLoader.LEAVE_ICON,
+                    "leaveChatRoom");
         createMenuItem(
-            "service.gui.REMOVE",
-            ImageLoader.REMOVE_CHAT_ICON,
-            "removeChatRoom");
+                "service.gui.REMOVE",
+                ImageLoader.REMOVE_CHAT_ICON,
+                "removeChatRoom");
         JMenuItem nickNameChatRoomItem
-        = createMenuItem(
-            "service.gui.CHANGE_NICK",
-            ImageLoader.RENAME_16x16_ICON,
-            "nickNameChatRoom");
+            = createMenuItem(
+                    "service.gui.CHANGE_NICK",
+                    ImageLoader.RENAME_16x16_ICON,
+                    "nickNameChatRoom");
 
         ChatRoom chatRoom = chatRoomWrapper.getChatRoom();
 

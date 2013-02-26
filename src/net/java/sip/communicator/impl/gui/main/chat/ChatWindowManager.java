@@ -1417,18 +1417,18 @@ public class ChatWindowManager
         /**
          * The source meta contact.
          */
-        private MetaContact metaContact;
+        private final MetaContact metaContact;
 
         /**
          * The protocol contact used for creating chat panel.
          */
-        private Contact protocolContact;
+        private final Contact protocolContact;
 
         /**
          * The message ID of the message to be excluded from
          * newly created chat panel.
          */
-        private String escapedMessageID;
+        private final String escapedMessageID;
 
         /**
          * Creates chat.

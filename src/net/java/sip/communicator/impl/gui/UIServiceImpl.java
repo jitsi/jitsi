@@ -1482,8 +1482,7 @@ public class UIServiceImpl
                     if (jpm instanceof Skinnable)
                         ((Skinnable) jpm).loadSkin();
 
-                    if (jpm instanceof java.awt.Container)
-                        reloadComponents((java.awt.Container) jpm);
+                    reloadComponents(jpm);
                 }
             }
 

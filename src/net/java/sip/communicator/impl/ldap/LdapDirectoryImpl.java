@@ -54,7 +54,7 @@ public class LdapDirectoryImpl
     /**
      * Name of avatar attribute.
      */
-    private final String PHOTO_ATTRIBUTE = "jpegPhoto";
+    private static final String PHOTO_ATTRIBUTE = "jpegPhoto";
 
     /**
      * data structure used to store the LDAP attributes that
@@ -1073,44 +1073,44 @@ public class LdapDirectoryImpl
         LdapQuery query;
         switch(event.getCause())
         {
-            case NEW_SEARCH_RESULT:
-                LdapPersonFound result = (LdapPersonFound) event.getContent();
-                query = result.getQuery();
-                if(this.pendingSearches.get(query) != null)
+        case NEW_SEARCH_RESULT:
+            LdapPersonFound result = (LdapPersonFound) event.getContent();
+            query = result.getQuery();
+            if(this.pendingSearches.get(query) != null)
+            {
+                this.fireLdapEvent(event,
+                        pendingSearches.get(query).getCaller());
+                logger.trace("result event for query \"" +
+                        result.getQuery().toString() + "\" forwaded");
+            }
+            break;
+        case SEARCH_ERROR:
+        case SEARCH_AUTH_ERROR:
+        case SEARCH_CANCELLED:
+        case SEARCH_ACHIEVED:
+            query = (LdapQuery) event.getContent();
+            if(this.pendingSearches.get(query) != null)
+            {
+                this.pendingSearches.get(query).getPendingServers().
+                remove(event.getSource());
+                int sizeLeft = pendingSearches.get(query).
+                    getPendingServers().size();
+                logger.trace("end event received for initial query \"" +
+                        query.toString() + "\" on directory \"" +
+                        event.getSource() + "\"\nthere is " + sizeLeft +
+                        " search pending for this initial query on directory \"" +
+                        event.getSource() + "\"");
+                if(sizeLeft == 0)
                 {
-                    this.fireLdapEvent(event,
-                            pendingSearches.get(query).getCaller());
-                    logger.trace("result event for query \"" +
-                            result.getQuery().toString() + "\" forwaded");
+                    fireLdapEvent(event, pendingSearches.get(query).
+                            getCaller());
+                    event = new LdapEvent(this,
+                            LdapEvent.LdapEventCause.SEARCH_ACHIEVED,
+                            query);
+                    pendingSearches.remove(query);
                 }
-                break;
-            case SEARCH_ERROR:
-            case SEARCH_AUTH_ERROR:
-            case SEARCH_CANCELLED:
-            case SEARCH_ACHIEVED:
-                query = (LdapQuery) event.getContent();
-                if(this.pendingSearches.get(query) != null)
-                {
-                    this.pendingSearches.get(query).getPendingServers().
-                    remove(event.getSource());
-                    int sizeLeft = pendingSearches.get(query).
-                        getPendingServers().size();
-                    logger.trace("end event received for initial query \"" +
-                            query.toString() + "\" on directory \"" +
-                            event.getSource() + "\"\nthere is " + sizeLeft +
-                            " search pending for this initial query on directory \"" +
-                            event.getSource() + "\"");
-                    if(sizeLeft == 0)
-                    {
-                        fireLdapEvent(event, pendingSearches.get(query).
-                                getCaller());
-                        event = new LdapEvent(this,
-                                LdapEvent.LdapEventCause.SEARCH_ACHIEVED,
-                                query);
-                        pendingSearches.remove(query);
-                    }
-                }
-                break;
+            }
+            break;
         }
     }
 

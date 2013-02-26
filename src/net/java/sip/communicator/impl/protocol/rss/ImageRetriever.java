@@ -160,14 +160,12 @@ public class ImageRetriever extends Thread
     }
 
     /**
-     * Returns the address of a favicon (i.e. html "icon" or "shortcut icon") if
+     * Returns the address of a favicon (i.e. HTML "icon" or "shortcut icon") if
      * any is contained by the page on <tt>urlAddress</tt> or <tt>null</tt> if
      * the page on the specified address does not contain a link to a favicon.
      *
      * @param urlAddress
-     *            the address of the page that we'd liek to check for a fav
-     *            icon.
-     *
+     *            the address of the page that we'd like to check for a favicon.
      * @return the address of the favicon for the <tt>urlAddress</tt> page or
      *         <tt>null</tt> if the page does not define such an icon.
      */

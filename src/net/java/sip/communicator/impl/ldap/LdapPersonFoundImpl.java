@@ -92,7 +92,7 @@ public class LdapPersonFoundImpl
     public LdapPersonFoundImpl(LdapDirectoryImpl server, String dn,
             LdapQuery query)
     {
-        if(server == null | query == null | dn==null)
+        if(server == null || query == null || dn == null)
             throw new NullPointerException();
         this.server = server;
         this.query = query;

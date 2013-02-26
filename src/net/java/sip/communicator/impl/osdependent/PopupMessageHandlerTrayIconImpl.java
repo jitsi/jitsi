@@ -10,7 +10,6 @@ import java.awt.event.*;
 
 import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.service.systray.event.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * An implementation  of the <tt>PopupMsystrayessageHandler</tt> using the
@@ -19,12 +18,6 @@ import net.java.sip.communicator.util.*;
 public class PopupMessageHandlerTrayIconImpl
     extends AbstractPopupMessageHandler
 {
-    /**
-     * The logger for this class.
-     */
-    private static Logger logger =
-        Logger.getLogger(PopupMessageHandlerTrayIconImpl.class);
-
     /** the tray icon we will use to popup messages */
     private TrayIcon trayIcon;
 

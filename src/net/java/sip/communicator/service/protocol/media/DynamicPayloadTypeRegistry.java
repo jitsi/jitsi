@@ -359,12 +359,14 @@ public class DynamicPayloadTypeRegistry
      * <tt>payloadTypePreference</tt> or <tt>null</tt> if no {@link MediaFormat}
      * has claimed this payload type number as preferred.
      */
-    private MediaFormat findFormatWithPreference(Byte payloadTypePreference)
+    private MediaFormat findFormatWithPreference(byte payloadTypePreference)
     {
-        for(Map.Entry<MediaFormat, Byte> entry
+        for(Map.Entry<MediaFormat,Byte> entry
                 : getDynamicPayloadTypePreferences().entrySet())
         {
-            if(entry.getValue() == payloadTypePreference)
+            Byte value = entry.getValue();
+
+            if((value != null) && (value.byteValue() == payloadTypePreference))
                 return entry.getKey();
         }
         return null;

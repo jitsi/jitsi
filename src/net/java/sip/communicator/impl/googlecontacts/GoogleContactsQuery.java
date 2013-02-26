@@ -233,12 +233,12 @@ public class GoogleContactsQuery
             ret.add(detail);
         }
 
-        for(Map.Entry<String, GoogleContactsEntry.IMProtocol> im :
-            ims.entrySet())
+        for(Map.Entry<String, GoogleContactsEntry.IMProtocol> im
+                : ims.entrySet())
         {
             if(im.getValue() != GoogleContactsEntry.IMProtocol.OTHER)
             {
-                ContactDetail.SubCategory imSubCat = null;
+                ContactDetail.SubCategory imSubCat;
                 switch(im.getValue())
                 {
                 case AIM:
@@ -259,18 +259,22 @@ public class GoogleContactsQuery
                 case GOOGLETALK:
                     imSubCat = ContactDetail.SubCategory.GoogleTalk;
                     break;
+                default:
+                    imSubCat = null;
+                    break;
                 }
 
-                detail = new ContactDetail(
-                    im.getKey(),
-                    ContactDetail.Category.InstantMessaging,
-                    new ContactDetail.SubCategory[]{imSubCat});
+                detail
+                    = new ContactDetail(
+                            im.getKey(),
+                            ContactDetail.Category.InstantMessaging,
+                            new ContactDetail.SubCategory[] { imSubCat });
 
                 setIMCapabilities(detail, im.getValue());
 
                 // can be added as contacts
-                detail.getSupportedOperationSets()
-                    .add(OperationSetPersistentPresence.class);
+                detail.getSupportedOperationSets().add(
+                        OperationSetPersistentPresence.class);
 
                 ret.add(detail);
             }

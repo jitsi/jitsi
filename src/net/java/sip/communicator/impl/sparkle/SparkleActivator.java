@@ -137,7 +137,7 @@ public class SparkleActivator
      */
     public void stop(BundleContext bundleContext) throws Exception
     {
-        bundleContext = null;
+        SparkleActivator.bundleContext = null;
         if (logger.isInfoEnabled())
             logger.info("Sparkle Plugin ...[Stopped]");
     }

@@ -829,9 +829,23 @@ public class CertificateServiceImpl
                     DEROctetString octs =
                         (DEROctetString) ASN1Object.fromByteArray(aiaBytes);
                     ASN1InputStream as = new ASN1InputStream(octs.getOctets());
-                    AuthorityInformationAccess aia =
-                        AuthorityInformationAccess
-                            .getInstance(as.readObject());
+                    AuthorityInformationAccess aia;
+
+                    try
+                    {
+                        aia
+                            = AuthorityInformationAccess.getInstance(
+                                    as.readObject());
+                    }
+                    finally
+                    {
+                        /*
+                         * Practically, it is likely unnecessary. However, it
+                         * silences a compile-time warning.
+                         */
+                        as.close();
+                    }
+
                     // the AIA may contain different URLs and types, try all
                     // of them
                     for (AccessDescription ad : aia.getAccessDescriptions())

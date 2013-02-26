@@ -66,7 +66,7 @@ public class MetaContactListSource
      * The initial result count below which we insert all filter results
      * directly to the contact list without firing events.
      */
-    private final int INITIAL_CONTACT_COUNT = 30;
+    private static final int INITIAL_CONTACT_COUNT = 30;
 
     /**
      * The list of action buttons for this meta contact.

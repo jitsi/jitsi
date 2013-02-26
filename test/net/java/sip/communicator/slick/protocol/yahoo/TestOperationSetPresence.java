@@ -930,7 +930,7 @@ public class TestOperationSetPresence
 //            try{
 //                opset.subscribe(sourceContact.getAddress());
 //            }catch(Exception ex){}
-            
+
             return
                 new AuthorizationResponse(AuthorizationResponse.ACCEPT, "");
         }

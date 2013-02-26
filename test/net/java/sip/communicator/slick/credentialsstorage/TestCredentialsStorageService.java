@@ -27,22 +27,22 @@ public class TestCredentialsStorageService
     /**
      * Prefix for the test account.
      */
-    private final String accountPrefix = "my.account.prefix";
+    private static final String accountPrefix = "my.account.prefix";
     
     /**
      * Password for the test account.
      */
-    private final String accountPassword = "pa$$W0rt123.";
+    private static final String accountPassword = "pa$$W0rt123.";
     
     /**
      * The master password.
      */
-    private final String masterPassword = "MasterPazz321";
+    private static final String masterPassword = "MasterPazz321";
 
     /**
      * Another master password. 
      */
-    private final String otherMasterPassword = "123$ecretPSWRD";
+    private static final String otherMasterPassword = "123$ecretPSWRD";
     
     
     /**

@@ -1672,52 +1672,6 @@ public class CallPanel
     }
 
     /**
-     * Refreshes the content of this dialog.
-     */
-    private void refreshContainer()
-    {
-        if (!isVisible())
-            return;
-
-        validate();
-
-        // Calling pack would resize the window to fit the new content. We'd
-        // like to use the whole possible space before showing the scroll bar.
-        // Needed a workaround for the following problem:
-        // When window reaches its maximum size (and the scroll bar is visible?)
-        // calling pack() results in an incorrect repainting and makes the
-        // whole window to freeze.
-        // We check also if the vertical scroll bar is visible in order to
-        // correctly pack the window when a peer is removed.
-        boolean isScrollBarVisible;
-
-        if (callPanel instanceof AudioConferenceCallPanel)
-        {
-            Component scrollBar
-                = ((AudioConferenceCallPanel) callPanel).getVerticalScrollBar();
-
-            isScrollBarVisible = ((scrollBar != null) && scrollBar.isVisible());
-        }
-        else
-            isScrollBarVisible = false;
-
-        /*
-         * Re-packing should be done only when the callWindow is not high enough
-         * to not have a vertical scroll bar and there is still room left to
-         * expand its height without going out of the screen.
-         */
-        if (isScrollBarVisible
-                && (getHeight()
-                        < GraphicsEnvironment
-                            .getLocalGraphicsEnvironment()
-                                .getMaximumWindowBounds()
-                                    .height))
-            callWindow.pack();
-        else
-            repaint();
-    }
-
-    /**
      * Removes the given <tt>CallTitleListener</tt> to the list of listeners,
      * notified for call title changes.
      *

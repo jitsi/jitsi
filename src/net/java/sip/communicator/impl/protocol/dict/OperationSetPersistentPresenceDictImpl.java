@@ -523,7 +523,7 @@ public class OperationSetPersistentPresenceDictImpl
      * act upon the request, and return the response.
      *
      * @param request the authorization request that we'd like to deliver to the
-     * desination <tt>contact</tt>.
+     * destination <tt>contact</tt>.
      * @param contact the <tt>Contact</tt> to notify
      *
      * @return the <tt>AuthorizationResponse</tt> that has been given or

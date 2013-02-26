@@ -142,7 +142,7 @@ public class GlobalShortcutActivator
                 logger.debug("GlobalShortcut Service ... [UNREGISTERED]");
         }
 
-        bundleContext = null;
+        GlobalShortcutActivator.bundleContext = null;
     }
 
     /**

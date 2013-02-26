@@ -134,8 +134,8 @@ public class SSHReaderDaemon
                 if(sshContact.isCommandSent())
                 {
                     // if the response is as a result of a command sent
-                    sshContact.setMessageType(sshContact
-                            .CONVERSATION_MESSAGE_RECEIVED);
+                    sshContact.setMessageType(
+                            ContactSSH.CONVERSATION_MESSAGE_RECEIVED);
                     
                     message = message.substring(message.indexOf('\n') + 1);
                     
@@ -145,8 +145,8 @@ public class SSHReaderDaemon
                 {
                     // server sent an asynchronous message to the terminal
                     // display it as a system message
-                    sshContact.setMessageType(sshContact
-                            .SYSTEM_MESSAGE_RECEIVED);
+                    sshContact.setMessageType(
+                            ContactSSH.SYSTEM_MESSAGE_RECEIVED);
                     
                     //popup disabled
 //                    JOptionPane.showMessageDialog(

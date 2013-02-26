@@ -96,15 +96,9 @@ public final class XCapErrorParser
             {
                 Attr attribute = (Attr) attributes.item(i);
                 String namespaceUri = getNamespaceUri(attribute);
-                if (namespaceUri == null)
-                {
+                if ((namespaceUri == null)
+                        || !isStandartXmlNamespace(namespaceUri))
                     throw new Exception("xcap-error element is invalid");
-                }
-                if (isStandartXmlNamespace(namespaceUri))
-                {
-                    continue;
-                }
-                throw new Exception("xcap-error element is invalid");
             }
             // Process elements
             NodeList childNodes = xCapErrorElement.getChildNodes();
@@ -271,15 +265,8 @@ public final class XCapErrorParser
         {
             Attr attribute = (Attr) attributes.item(i);
             String namespaceUri = getNamespaceUri(attribute);
-            if (namespaceUri == null)
-            {
+            if ((namespaceUri == null) || !isStandartXmlNamespace(namespaceUri))
                 throw new Exception("extension element is invalid");
-            }
-            if (isStandartXmlNamespace(namespaceUri))
-            {
-                continue;
-            }
-            throw new Exception("extension element is invalid");
         }
         // Process elements
         NodeList childNodes = element.getChildNodes();

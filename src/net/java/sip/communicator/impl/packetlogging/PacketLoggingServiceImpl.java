@@ -650,7 +650,7 @@ public class PacketLoggingServiceImpl
     /**
      * The data we receive and that we will dump in a file.
      */
-    private class Packet
+    private static class Packet
     {
         /**
          * The protocol logging this packet.

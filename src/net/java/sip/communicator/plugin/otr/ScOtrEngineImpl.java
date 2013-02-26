@@ -237,10 +237,12 @@ public class ScOtrEngineImpl
 
     public static SessionID getSessionID(Contact contact)
     {
-        SessionID sessionID =
-            new SessionID(contact.getProtocolProvider().getAccountID()
-                .getAccountUniqueID(), contact.getAddress(), contact
-                .getProtocolProvider().getProtocolName());
+        ProtocolProviderService pps = contact.getProtocolProvider();
+        SessionID sessionID
+            = new SessionID(
+                    pps.getAccountID().getAccountUniqueID(),
+                    contact.getAddress(),
+                    pps.getProtocolName());
 
         if(contactsMap.containsKey(sessionID))
             return sessionID;

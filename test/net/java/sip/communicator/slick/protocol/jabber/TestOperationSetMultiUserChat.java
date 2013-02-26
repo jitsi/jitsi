@@ -330,8 +330,8 @@ public class TestOperationSetMultiUserChat
         public void memberPresenceChanged(
                         ChatRoomMemberPresenceChangeEvent evt)
         {
-            synchronized(this)
-            {
+//            synchronized(this)
+//            {
 //                logger.debug(
 //                    "Collected evt("+collectedEvents.size()+")= "+event);
 //
@@ -340,7 +340,7 @@ public class TestOperationSetMultiUserChat
 //                    this.collectedEvents.add(event);
 //                    notifyAll();
 //                }
-            }
+//            }
         }
 
 

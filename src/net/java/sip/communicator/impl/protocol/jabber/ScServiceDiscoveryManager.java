@@ -209,7 +209,7 @@ public class ScServiceDiscoveryManager
     {
         // If a XMPPConnection is the managed one, see that the new version is
         // updated
-        if ((connection instanceof XMPPConnection) && (capsManager != null))
+        if ((connection != null) && (capsManager != null))
             capsManager.calculateEntityCapsVersion(getOwnDiscoverInfo());
     }
 

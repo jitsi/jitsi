@@ -23,9 +23,13 @@ import net.java.sip.communicator.util.*;
  * @author Yana Stamcheva
  */
 public class PresenceFilter
-    implements  ContactListFilter
+    implements ContactListFilter
 {
-    private final Logger logger = Logger.getLogger(PresenceFilter.class);
+    /**
+     * The <tt>Logger</tt> used by the <tt>PresenceFilter</tt> class and its
+     * instances to print debugging information.
+     */
+    private static final Logger logger = Logger.getLogger(PresenceFilter.class);
 
     /**
      * Indicates if this presence filter shows or hides the offline contacts.
@@ -36,7 +40,7 @@ public class PresenceFilter
      * The initial result count below which we insert all filter results
      * directly to the contact list without firing events.
      */
-    private final int INITIAL_CONTACT_COUNT = 30;
+    private static final int INITIAL_CONTACT_COUNT = 30;
 
     /**
      * Creates an instance of <tt>PresenceFilter</tt>.

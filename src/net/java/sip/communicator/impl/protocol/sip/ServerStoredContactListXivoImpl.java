@@ -729,10 +729,14 @@ public class ServerStoredContactListXivoImpl
         try
         {
             if(!objReceived.get("function").equals("sendlist")
-                || !objReceived.containsKey("payload"))
+                    || !objReceived.containsKey("payload"))
                 return;
 
             JSONObject payload = (JSONObject)objReceived.get("payload");
+            /*
+             * FIXME The following contains two very inefficient Map-iterating
+             * loops.
+             */
             Iterator iter = payload.keySet().iterator();
             List<JSONObject> phoneList = new ArrayList<JSONObject>();
             while(iter.hasNext())
@@ -742,7 +746,6 @@ public class ServerStoredContactListXivoImpl
                 while(phonesIter.hasNext())
                     phoneList.add(
                         (JSONObject)obj.get(phonesIter.next()));
-
             }
 
             for(JSONObject phone : phoneList)

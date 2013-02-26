@@ -310,20 +310,22 @@ public class ChatAlerterActivator
      * Called to notify interested parties that a change in our presence in
      * a chat room has occurred. Changes may include us being kicked, join,
      * left.
-     * @param evt the <tt>LocalUserChatRoomPresenceChangeEvent</tt> instance
+     * @param ev the <tt>LocalUserChatRoomPresenceChangeEvent</tt> instance
      * containing the chat room and the type, and reason of the change
      */
-    public void localUserPresenceChanged(LocalUserChatRoomPresenceChangeEvent evt)
+    public void localUserPresenceChanged(LocalUserChatRoomPresenceChangeEvent ev)
     {
-        if(evt.getEventType() == 
-            LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_JOINED)
+        ChatRoom chatRoom = ev.getChatRoom();
+
+        if(LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_JOINED.equals(
+                ev.getEventType()))
         {
-            if (!evt.getChatRoom().isSystem())
-                evt.getChatRoom().addMessageListener(this);
+            if (!chatRoom.isSystem())
+                chatRoom.addMessageListener(this);
         }
         else
         {
-            evt.getChatRoom().removeMessageListener(this);
+            chatRoom.removeMessageListener(this);
         }
     }
 
@@ -451,21 +453,23 @@ public class ChatAlerterActivator
      * Called to notify interested parties that a change in our presence in
      * an ad-hoc chat room has occurred. Changes may include us being join,
      * left.
-     * @param evt the <tt>LocalUserAdHocChatRoomPresenceChangeEvent</tt> 
+     * @param ev the <tt>LocalUserAdHocChatRoomPresenceChangeEvent</tt> 
      * instance containing the ad-hoc chat room and the type, and reason of the 
      * change
      */
     public void localUserAdHocPresenceChanged(
-            LocalUserAdHocChatRoomPresenceChangeEvent evt) 
+            LocalUserAdHocChatRoomPresenceChangeEvent ev) 
     {
-        if(evt.getEventType() == 
-            LocalUserAdHocChatRoomPresenceChangeEvent.LOCAL_USER_JOINED)
+        AdHocChatRoom adHocChatRoom = ev.getAdHocChatRoom();
+
+        if(LocalUserAdHocChatRoomPresenceChangeEvent.LOCAL_USER_JOINED.equals(
+                ev.getEventType()))
         {
-            evt.getAdHocChatRoom().addMessageListener(this);
+            adHocChatRoom.addMessageListener(this);
         }
         else
         {
-            evt.getAdHocChatRoom().removeMessageListener(this);
+            ev.getAdHocChatRoom().removeMessageListener(this);
         }
     }
 

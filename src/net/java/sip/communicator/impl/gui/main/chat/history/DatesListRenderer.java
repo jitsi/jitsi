@@ -29,8 +29,6 @@ public class DatesListRenderer
     private JLabel label = new JLabel();
     private boolean isSelected;
 
-    private Calendar calendar = Calendar.getInstance();
-
     public DatesListRenderer()
     {
         super(new BorderLayout());

@@ -141,6 +141,9 @@ public class MimeUtility
             throw new Exception();
         }
         text = text.substring(start, end);
+
+        InputStream is = null;
+
         try
         {
             // The characters in the remaining string must all be 7-bit clean.
@@ -154,7 +157,6 @@ public class MimeUtility
             }
 
             ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
-            InputStream is;
             if (encoding.equalsIgnoreCase("B"))
             {
                 is = new Base64InputStream(bis);
@@ -165,19 +167,15 @@ public class MimeUtility
             }
             else
             {
-                throw new UnsupportedEncodingException("Unknown encoding: " +
-                                                    encoding);
+                throw new UnsupportedEncodingException(
+                        "Unknown encoding: " + encoding);
             }
             len = bis.available();
             bytes = new byte[len];
             len = is.read(bytes, 0, len);
             String ret = new String(bytes, 0, len, charset);
             if (text.length() > end + 2)
-            {
-                String extra = text.substring(end + 2);
-
-                ret = ret + extra;
-            }
+                ret = ret + /* extra */ text.substring(end + 2);
             return ret;
         }
         catch (IOException e)
@@ -187,6 +185,15 @@ public class MimeUtility
         catch (IllegalArgumentException e)
         {
             throw new UnsupportedEncodingException();
+        }
+        finally
+        {
+            /*
+             * Without knowing whether it is practically necessary, it
+             * technically silences a compile-time warning. 
+             */
+            if (is != null)
+                is.close();
         }
     }
 }

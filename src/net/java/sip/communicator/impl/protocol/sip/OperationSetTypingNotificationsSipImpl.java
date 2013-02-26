@@ -56,12 +56,12 @@ public class OperationSetTypingNotificationsSipImpl
     /**
      * The content type of the sent message.
      */
-    private final String CONTENT_TYPE = "application/im-iscomposing+xml";
+    private static final String CONTENT_TYPE = "application/im-iscomposing+xml";
 
     /**
      * The subtype of the message.
      */
-    private final String CONTENT_SUBTYPE = "im-iscomposing+xml";
+    private static final String CONTENT_SUBTYPE = "im-iscomposing+xml";
 
     // isComposing elements and attributes
     /**

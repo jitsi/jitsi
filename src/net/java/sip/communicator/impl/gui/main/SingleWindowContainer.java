@@ -206,11 +206,9 @@ public class SingleWindowContainer
     {
         ChatPanel chat = getCurrentChat();
 
-        if (chat != null
-            && chat.getChatWritePanel().getEditorPane().isFocusOwner())
-            return true;
-
-        return false;
+        return
+            (chat != null)
+                && chat.getChatWritePanel().getEditorPane().isFocusOwner();
     }
 
     private Component createToolbar()

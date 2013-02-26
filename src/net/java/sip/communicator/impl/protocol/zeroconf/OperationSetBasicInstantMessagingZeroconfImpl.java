@@ -27,12 +27,12 @@ public class OperationSetBasicInstantMessagingZeroconfImpl
     /**
      * The currently valid persistent presence operation set..
      */
-    private OperationSetPersistentPresenceZeroconfImpl opSetPersPresence = null;
+    private final OperationSetPersistentPresenceZeroconfImpl opSetPersPresence;
 
     /**
      * The protocol provider that created us.
      */
-    private ProtocolProviderServiceZeroconfImpl parentProvider = null;
+    private final ProtocolProviderServiceZeroconfImpl parentProvider;
 
     /**
      * Creates an instance of this operation set keeping a reference to the

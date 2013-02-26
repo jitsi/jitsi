@@ -42,9 +42,9 @@ public class GuiUtils
      */
     public static final long MILLIS_PER_DAY = 24 * MILLIS_PER_HOUR;
 
-    // These mappings map a character (key) to a specific digit that should replace it for
-    // normalization purposes. Non-European digits that may be used in phone numbers are mapped to a
-    // European equivalent.
+    // These mappings map a character (key) to a specific digit that should
+    // replace it for normalization purposes. Non-European digits that may be
+    // used in phone numbers are mapped to a European equivalent.
     private static final Map<Character, Character> DIGIT_MAPPINGS;
 
     /**

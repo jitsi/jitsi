@@ -278,15 +278,16 @@ public class CallPeerGTalkImpl
                                 ReasonPacketExtension.ELEMENT_NAME,
                                 ReasonPacketExtension.NAMESPACE);
 
-                if (reason != null)
+                if (reason == null)
                 {
+                    if (reasonOtherExtension instanceof ReasonPacketExtension)
+                    {
+                        responseIQ.setReason(
+                                (ReasonPacketExtension) reasonOtherExtension);
+                    }
+                }
+                else
                     reason.setOtherExtension(reasonOtherExtension);
-                }
-                else if(reason instanceof ReasonPacketExtension)
-                {
-                    responseIQ.setReason(
-                        (ReasonPacketExtension)reasonOtherExtension);
-                }
             }
 
             getProtocolProvider().getConnection().sendPacket(responseIQ);

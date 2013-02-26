@@ -204,9 +204,8 @@ public class ContactYahooImpl
      */
     protected void setImage(byte[] image)
     {
-        if(logger.isDebugEnabled())
-            if (logger.isInfoEnabled())
-                logger.info("setting image " + image);
+        if (logger.isInfoEnabled())
+            logger.info("setting image " + image);
 
         this.image = image;
     }

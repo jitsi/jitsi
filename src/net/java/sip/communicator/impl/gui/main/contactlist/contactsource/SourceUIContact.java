@@ -571,8 +571,7 @@ public class SourceUIContact
         if (subCategory == null)
             return null;
 
-        String label = null;
-
+        String label;
         ResourceManagementService resources = GuiActivator.getResources();
 
         switch(subCategory)
@@ -628,6 +627,9 @@ public class SourceUIContact
         case GoogleTalk:
         case Facebook:
             label = subCategory.value();
+            break;
+        default:
+            label = null;
             break;
         }
 

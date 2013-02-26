@@ -16,7 +16,6 @@ import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.globalstatus.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>SimpleStatusSelectorBox</tt> is a <tt>SIPCommMenu</tt> that contains
@@ -31,9 +30,6 @@ public class SimpleStatusMenu
     extends StatusSelectorMenu
     implements ActionListener
 {
-    private static final Logger logger
-        = Logger.getLogger(SimpleStatusMenu.class);
-
     private final JCheckBoxMenuItem onlineItem;
 
     private final JCheckBoxMenuItem offlineItem;

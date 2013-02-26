@@ -13,7 +13,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 
 /**
- * A mock implementation of a basic telephony opearation set
+ * A mock implementation of a basic telephony operation set
  *
  * @author Damian Minkov
  */
@@ -24,14 +24,14 @@ public class MockOperationSetFileTransfer
     /**
      * A list of listeners registered for file transfer events.
      */
-    private Vector<FileTransferListener> fileTransferListeners
+    private final Vector<FileTransferListener> fileTransferListeners
         = new Vector<FileTransferListener>();
 
     /**
      * A reference to the <tt>ProtocolProviderServiceSipImpl</tt> instance
      * that created us.
      */
-    private MockProvider protocolProvider = null;
+    private final MockProvider protocolProvider;
 
     public MockOperationSetFileTransfer(MockProvider protocolProvider)
     {

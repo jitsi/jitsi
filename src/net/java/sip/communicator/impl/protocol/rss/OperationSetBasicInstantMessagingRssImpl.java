@@ -46,7 +46,7 @@ public class OperationSetBasicInstantMessagingRssImpl
      * The value corresponding to the time in ms
      * of the RSS refreshing period (here 5min)
      */
-    private final int PERIOD_REFRESH_RSS = 300000;
+    private static final int PERIOD_REFRESH_RSS = 300000;
 
     /**
      * The value corresponding to the time in ms that we wait before the
@@ -54,7 +54,7 @@ public class OperationSetBasicInstantMessagingRssImpl
      * be less than <tt>PERIOD_REFRESH_RSS</tt> but more than a minute in order
      * to prevent from overloading the system on startup.
      */
-    private final int INITIAL_RSS_LOAD_DELAY = 150000;
+    private static final int INITIAL_RSS_LOAD_DELAY = 150000;
 
     /**
      * The localised message that we should show to the user before we remove

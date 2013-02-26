@@ -78,7 +78,6 @@ class DNSCache
      */
     public static class CacheNode
     {
-        private static Logger logger = Logger.getLogger(CacheNode.class.toString());
         private DNSEntry value;
         private CacheNode next;
 
