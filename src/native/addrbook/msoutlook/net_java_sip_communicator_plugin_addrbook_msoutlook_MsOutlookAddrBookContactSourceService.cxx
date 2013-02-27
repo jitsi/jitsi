@@ -7,12 +7,140 @@
 
 #include "net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService.h"
 
+#include "net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactQuery.h"
+
+#include "../AddrBookContactQuery.h"
 #include "MsOutlookMAPI.h"
 #include "MsOutlookMAPIHResultException.h"
 
+#include "lib/MAPINotification.h"
+
+#include <Mapiutil.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+static jobject contactSourceServiceObject;
+static jmethodID contactSourceServiceMethodIdInserted;
+static jmethodID contactSourceServiceMethodIdUpdated;
+static jmethodID contactSourceServiceMethodIdDeleted;
+static JNIEnv *contactSourceServiceJniEnv;
+static JavaVM *contactSourceServiceVM;
+
+/**
+ * Registers java callback functions when a contact is deleted, inserted or
+ * updated.
+ */
+JNIEXPORT void JNICALL
+Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService_setDelegate
+    (JNIEnv *jniEnv, jclass clazz, jobject callback)
+{
+    if(jniEnv->GetJavaVM(&contactSourceServiceVM) < 0)
+    {
+        fprintf(stderr, "Failed to get the Java VM\n");
+        fflush(stderr);
+    }
+    contactSourceServiceJniEnv = jniEnv;
+    contactSourceServiceObject = jniEnv->NewGlobalRef(callback);
+    jclass callbackClass = jniEnv->GetObjectClass(
+            callback);
+    contactSourceServiceMethodIdInserted = jniEnv->GetMethodID(
+            callbackClass,
+            "inserted",
+            "(J)V");
+    contactSourceServiceMethodIdUpdated = jniEnv->GetMethodID(
+            callbackClass,
+            "updated",
+            "(J)V");
+    contactSourceServiceMethodIdDeleted = jniEnv->GetMethodID(
+            callbackClass,
+            "deleted",
+            "(Ljava/lang/String;)V");
+}
+
+/**
+ * Calls back the java side when a contact is inserted.
+ *
+ * @param iUnknown A pointer to the newly created contact.
+ */
+void callInsertedCallbackMethod(
+        LPUNKNOWN iUnknown)
+{
+    JNIEnv *tmpJniEnv = contactSourceServiceJniEnv;
+
+    if(contactSourceServiceVM->GetEnv(
+                (void**) &tmpJniEnv,
+                JNI_VERSION_1_6)
+            != JNI_OK)
+    {
+        contactSourceServiceVM->AttachCurrentThread((void**) &tmpJniEnv, NULL);
+    }
+
+    tmpJniEnv->CallBooleanMethod(
+            contactSourceServiceObject,
+            contactSourceServiceMethodIdInserted,
+            iUnknown);
+
+    contactSourceServiceVM->DetachCurrentThread();
+}
+
+/**
+ * Calls back the java side when a contact is updated.
+ *
+ * @param iUnknown A pointer to the updated contact.
+ */
+void callUpdatedCallbackMethod(
+        LPUNKNOWN iUnknown)
+{
+    JNIEnv *tmpJniEnv = contactSourceServiceJniEnv;
+
+    if(contactSourceServiceVM->GetEnv(
+                (void**) &tmpJniEnv,
+                JNI_VERSION_1_6)
+            != JNI_OK)
+    {
+        contactSourceServiceVM->AttachCurrentThread((void**) &tmpJniEnv, NULL);
+    }
+
+    tmpJniEnv->CallBooleanMethod(
+            contactSourceServiceObject,
+            contactSourceServiceMethodIdUpdated,
+            iUnknown);
+
+    contactSourceServiceVM->DetachCurrentThread();
+}
+
+/**
+ * Calls back the java side when a contact is deleted.
+ *
+ * @param iUnknown The string representation of the entry id of the deleted
+ * contact.
+ */
+void callDeletedCallbackMethod(
+        LPSTR iUnknown)
+{
+    JNIEnv *tmpJniEnv = contactSourceServiceJniEnv;
+
+    if(contactSourceServiceVM->GetEnv(
+                (void**) &tmpJniEnv,
+                JNI_VERSION_1_6)
+            != JNI_OK)
+    {
+        contactSourceServiceVM->AttachCurrentThread((void**) &tmpJniEnv, NULL);
+    }
+
+    jstring value;
+    value = tmpJniEnv->NewStringUTF(iUnknown);
+
+
+    tmpJniEnv->CallBooleanMethod(
+            contactSourceServiceObject,
+            contactSourceServiceMethodIdDeleted,
+            value);
+
+    contactSourceServiceVM->DetachCurrentThread();
+}
+
 
 static LPMAPIALLOCATEBUFFER
     MsOutlookAddrBookContactSourceService_mapiAllocateBuffer;
@@ -317,6 +445,18 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
         }
     }
 
+    if (HR_SUCCEEDED(hResult)
+            && MsOutlookAddrBookContactSourceService_mapiSession == NULL)
+    {
+        hResult = MAPILogonEx(
+                0,
+                NULL, NULL,
+                MAPI_EXTENDED | MAPI_NO_MAIL | MAPI_USE_DEFAULT,
+                &MsOutlookAddrBookContactSourceService_mapiSession);
+        openAllMsgStores(
+                MsOutlookAddrBookContactSourceService_mapiSession);
+    }
+
     /* Report any possible error regardless of where it has come from. */
     if (HR_FAILED(hResult))
     {
@@ -335,6 +475,7 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
             &MsOutlookAddrBookContactSourceService_mapiSessionCriticalSection);
     if (MsOutlookAddrBookContactSourceService_mapiSession)
     {
+        freeAllMsgStores();
         MsOutlookAddrBookContactSourceService_mapiSession->Logoff(0, 0, 0);
         MsOutlookAddrBookContactSourceService_mapiSession->Release();
         MsOutlookAddrBookContactSourceService_mapiSession = NULL;
@@ -427,4 +568,9 @@ MsOutlookAddrBookContactSourceService_isValidDefaultMailClient
         }
     }
     return validDefaultMailClient;
+}
+
+LPMAPISESSION MsOutlookAddrBookContactSourceService_getMapiSession()
+{
+    return MsOutlookAddrBookContactSourceService_mapiSession;
 }

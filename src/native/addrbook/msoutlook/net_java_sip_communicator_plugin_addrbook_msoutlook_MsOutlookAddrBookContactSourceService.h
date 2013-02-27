@@ -7,6 +7,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#include <mapidefs.h>
+#include <mapix.h>
+#include <Unknwn.h>
+
 /*
  * Class:     net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService
  * Method:    MAPIInitialize
@@ -22,6 +27,21 @@ JNIEXPORT void JNICALL Java_net_java_sip_communicator_plugin_addrbook_msoutlook_
  */
 JNIEXPORT void JNICALL Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService_MAPIUninitialize
   (JNIEnv *, jclass);
+
+JNIEXPORT void JNICALL
+Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService_setDelegate
+    (JNIEnv *jniEnv, jclass clazz, jobject callback);
+
+void callInsertedCallbackMethod(
+        LPUNKNOWN iUnknown);
+
+void callUpdatedCallbackMethod(
+        LPUNKNOWN iUnknown);
+
+void callDeletedCallbackMethod(
+        LPSTR iUnknown);
+
+LPMAPISESSION MsOutlookAddrBookContactSourceService_getMapiSession();
 
 #ifdef __cplusplus
 }

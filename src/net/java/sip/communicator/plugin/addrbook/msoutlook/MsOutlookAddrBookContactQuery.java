@@ -18,9 +18,10 @@ import net.java.sip.communicator.util.*;
  * Implements <tt>ContactQuery</tt> for the Address Book of Microsoft Outlook.
  *
  * @author Lyubomir Marinov
+ * @author Vincent Lucas
  */
 public class MsOutlookAddrBookContactQuery
-    extends AsyncContactQuery<MsOutlookAddrBookContactSourceService>
+    extends AbstractAddrBookContactQuery<MsOutlookAddrBookContactSourceService>
 {
     /**
      * The <tt>Logger</tt> used by the <tt>MsOutlookAddrBookContactQuery</tt>
@@ -62,7 +63,19 @@ public class MsOutlookAddrBookContactQuery
             0x00008083 /* dispidEmail1EmailAddress */,
             0x00008093 /* dispidEmail2EmailAddress */,
             0x000080A3 /* dispidEmail3EmailAddress */,
-            0x3A16 /* PR_COMPANY_NAME */
+            0x3A16 /* PR_COMPANY_NAME */,
+            0x0FFF /* PR_ORIGINAL_ENTRYID */,
+            0x3A24 /* dispidFax1EmailAddress */,
+            0x3A25 /* dispidFax2EmailAddress */,
+            0x3A23 /* dispidFax3EmailAddress */,
+            0x3A4F /* PR_NICKNAME */,
+            0x3A45 /* PR_DISPLAY_NAME_PREFIX */,
+            0x3A50 /* PR_PERSONAL_HOME_PAGE */,
+            0x3A51 /* PR_BUSINESS_HOME_PAGE */
+            //0x00008062 /* dispidInstMsg */, // EDITION NOT WORKING
+            //0x0000801A /* dispidHomeAddress */, // EDITION NOT WORKING
+            //0x0000801B /* dispidWorkAddress */, // EDITION NOT WORKING
+            //0x0000801C /* dispidOtherAddress */ // EDITION ONT WORKING
         };
 
     /**
@@ -151,6 +164,67 @@ public class MsOutlookAddrBookContactQuery
     private static final int PR_SURNAME = 4;
 
     /**
+     * The index of the id of the <tt>PR_ORIGINAL_ENTRYID</tt> property
+     * in {@link #MAPI_MAILUSER_PROP_IDS}.
+     */
+    private static final int PR_ORIGINAL_ENTRYID = 15;
+
+    /**
+     * The index of the 1st fax telephone number (business fax).
+     */
+    private static final int dispidFax1EmailAddress = 16;
+
+    /**
+     * The index of the 2nd fax telephone number (home fax).
+     */
+    private static final int dispidFax2EmailAddress = 17;
+
+    /**
+     * The index of the 3rd fax telephone number (other fax).
+     */
+    private static final int dispidFax3EmailAddress = 18;
+
+    /**
+     * The index of the nickname.
+     */
+    private static final int PR_NICKNAME = 19;
+
+    /**
+     * The index of the name prefix.
+     */
+    private static final int PR_DISPLAY_NAME_PREFIX = 20;
+
+    /**
+     * The index of the personnal home page
+     */
+    private static final int PR_PERSONAL_HOME_PAGE = 21;
+
+    /**
+     * The index of the business home page
+     */
+    private static final int PR_BUSINESS_HOME_PAGE = 22;
+    
+    /**
+     * The index of the instant messaging address.
+     */
+    //private static final int dispidInstMsg = 23;
+
+    /**
+     * The index of the home address
+     */
+    //private static final int dispidHomeAddress = 24;
+
+    /**
+     * The index of the work address
+     */
+    //private static final int dispidWorkAddress = 25;
+
+    /**
+     * The index of the other address
+     */
+    //private static final int dispidOtherAddress = 26;
+
+    /**
      * The indexes in {@link #MAPI_MAILUSER_PROP_IDS} of the property IDs which
      * are to be represented in <tt>SourceContact</tt> as
      * <tt>ContactDetail</tt>s.
@@ -159,6 +233,9 @@ public class MsOutlookAddrBookContactQuery
         = new int[]
         {
             PR_EMAIL_ADDRESS,
+            PR_GIVEN_NAME,
+            PR_MIDDLE_NAME,
+            PR_SURNAME,
             PR_BUSINESS_TELEPHONE_NUMBER,
             PR_BUSINESS2_TELEPHONE_NUMBER,
             PR_HOME_TELEPHONE_NUMBER,
@@ -166,7 +243,19 @@ public class MsOutlookAddrBookContactQuery
             PR_MOBILE_TELEPHONE_NUMBER,
             dispidEmail1EmailAddress,
             dispidEmail2EmailAddress,
-            dispidEmail3EmailAddress
+            dispidEmail3EmailAddress,
+            PR_COMPANY_NAME,
+            dispidFax1EmailAddress,
+            dispidFax2EmailAddress,
+            dispidFax3EmailAddress,
+            PR_NICKNAME,
+            PR_DISPLAY_NAME_PREFIX,
+            PR_PERSONAL_HOME_PAGE,
+            PR_BUSINESS_HOME_PAGE
+            //dispidInstMsg,
+            //dispidHomeAddress,
+            //dispidWorkAddress,
+            //dispidOtherAddress
         };
 
     static
@@ -211,7 +300,7 @@ public class MsOutlookAddrBookContactQuery
      * @param callback the <tt>PtrCallback</tt> to be notified about the
      * matching <tt>MAPI_MAILUSER</tt>s
      */
-    private static native void foreachMailUser(
+    public static native void foreachMailUser(
             String query,
             PtrCallback callback);
 
@@ -219,6 +308,16 @@ public class MsOutlookAddrBookContactQuery
     {
         switch (propIndex)
         {
+        case PR_GIVEN_NAME:
+        case PR_MIDDLE_NAME:
+        case PR_SURNAME:
+        case PR_NICKNAME:
+        case PR_DISPLAY_NAME_PREFIX:
+        case PR_PERSONAL_HOME_PAGE:
+            return ContactDetail.Category.Personal;
+        case PR_COMPANY_NAME:
+        case PR_BUSINESS_HOME_PAGE:
+            return ContactDetail.Category.Organization;
         case dispidEmail1EmailAddress:
         case dispidEmail2EmailAddress:
         case dispidEmail3EmailAddress:
@@ -229,7 +328,16 @@ public class MsOutlookAddrBookContactQuery
         case PR_HOME2_TELEPHONE_NUMBER:
         case PR_HOME_TELEPHONE_NUMBER:
         case PR_MOBILE_TELEPHONE_NUMBER:
+        case dispidFax1EmailAddress:
+        case dispidFax2EmailAddress:
+        case dispidFax3EmailAddress:
             return ContactDetail.Category.Phone;
+        //case dispidInstMsg:
+        //    return ContactDetail.Category.InstantMessaging;
+        //case dispidHomeAddress:
+        //case dispidWorkAddress:
+        //case dispidOtherAddress:
+        //    return ContactDetail.Category.Address;
         default:
             return null;
         }
@@ -248,8 +356,29 @@ public class MsOutlookAddrBookContactQuery
     {
         switch (propIndex)
         {
+        case PR_GIVEN_NAME:
+        case PR_MIDDLE_NAME:
+            return
+                new ContactDetail.SubCategory[]
+                        {
+                            ContactDetail.SubCategory.Name
+                        };
+        case PR_SURNAME:
+            return
+                new ContactDetail.SubCategory[]
+                        {
+                            ContactDetail.SubCategory.LastName
+                        };
+        case PR_NICKNAME:
+            return
+                new ContactDetail.SubCategory[]
+                        {
+                            ContactDetail.SubCategory.Nickname
+                        };
+        case PR_COMPANY_NAME:
         case PR_BUSINESS2_TELEPHONE_NUMBER:
         case PR_BUSINESS_TELEPHONE_NUMBER:
+        //case dispidWorkAddress:
             return
                 new ContactDetail.SubCategory[]
                         {
@@ -257,6 +386,7 @@ public class MsOutlookAddrBookContactQuery
                         };
         case PR_HOME2_TELEPHONE_NUMBER:
         case PR_HOME_TELEPHONE_NUMBER:
+        //case dispidHomeAddress:
             return
                 new ContactDetail.SubCategory[]
                         {
@@ -268,15 +398,129 @@ public class MsOutlookAddrBookContactQuery
                         {
                             ContactDetail.SubCategory.Mobile
                         };
+        case dispidFax1EmailAddress:
+            return
+                new ContactDetail.SubCategory[]
+                        {
+                            ContactDetail.SubCategory.Fax,
+                            ContactDetail.SubCategory.Work
+                        };
+        case dispidFax2EmailAddress:
+            return
+                new ContactDetail.SubCategory[]
+                        {
+                            ContactDetail.SubCategory.Fax,
+                            ContactDetail.SubCategory.Home
+                        };
+        case dispidFax3EmailAddress:
+            return
+                new ContactDetail.SubCategory[]
+                        {
+                            ContactDetail.SubCategory.Fax,
+                            ContactDetail.SubCategory.Other
+                        };
+        //case dispidOtherAddress:
+        //    return
+        //        new ContactDetail.SubCategory[]
+        //                {
+        //                    ContactDetail.SubCategory.Other
+        //                };
         default:
             return null;
         }
+    }
+
+    /**
+     * Find the outlook property tag from category and subcategories.
+     *
+     * @param category The category.
+     * @param subCategories The subcategories.
+     *
+     * @return The outlook property tag corresponding to the given category and
+     * subcategories.
+     */
+    public static long getProperty(
+        ContactDetail.Category category,
+        Collection<ContactDetail.SubCategory> subCategories)
+    {
+        switch(category)
+        {
+            case Personal:
+                if(subCategories.contains(ContactDetail.SubCategory.Name))
+                    return MAPI_MAILUSER_PROP_IDS[PR_GIVEN_NAME];
+                    // PR_MIDDLE_NAME:
+                else if(subCategories.contains(
+                            ContactDetail.SubCategory.LastName))
+                    return MAPI_MAILUSER_PROP_IDS[PR_SURNAME];
+                else if(subCategories.contains(
+                            ContactDetail.SubCategory.Nickname))
+                    return MAPI_MAILUSER_PROP_IDS[PR_NICKNAME];
+                else if(subCategories.contains(
+                            ContactDetail.SubCategory.HomePage))
+                    return MAPI_MAILUSER_PROP_IDS[PR_PERSONAL_HOME_PAGE];
+                else
+                    return MAPI_MAILUSER_PROP_IDS[PR_DISPLAY_NAME_PREFIX];
+            case Organization:
+                if(subCategories.contains(ContactDetail.SubCategory.Work))
+                    return MAPI_MAILUSER_PROP_IDS[PR_COMPANY_NAME];
+                else
+                    return MAPI_MAILUSER_PROP_IDS[PR_BUSINESS_HOME_PAGE];
+            case Email:
+                return MAPI_MAILUSER_PROP_IDS[dispidEmail1EmailAddress];
+                //dispidEmail2EmailAddress:
+                //dispidEmail3EmailAddress:
+                // PR_EMAIL_ADDRESS:
+            case Phone:
+                if(subCategories.contains(ContactDetail.SubCategory.Fax))
+                {
+                    if(subCategories.contains(ContactDetail.SubCategory.Work))
+                        return MAPI_MAILUSER_PROP_IDS[dispidFax1EmailAddress];
+                    else if(subCategories.contains(
+                                ContactDetail.SubCategory.Home))
+                        return MAPI_MAILUSER_PROP_IDS[dispidFax2EmailAddress];
+                    else if(subCategories.contains(
+                                ContactDetail.SubCategory.Other))
+                        return MAPI_MAILUSER_PROP_IDS[dispidFax3EmailAddress];
+                }
+                else if(subCategories.contains(ContactDetail.SubCategory.Work))
+                    return MAPI_MAILUSER_PROP_IDS[PR_BUSINESS_TELEPHONE_NUMBER];
+                    // PR_BUSINESS2_TELEPHONE_NUMBER:
+                else if(subCategories.contains(ContactDetail.SubCategory.Home))
+                    return MAPI_MAILUSER_PROP_IDS[PR_HOME_TELEPHONE_NUMBER];
+                    // PR_HOME2_TELEPHONE_NUMBER:
+                else if(subCategories.contains(
+                            ContactDetail.SubCategory.Mobile))
+                    return MAPI_MAILUSER_PROP_IDS[PR_MOBILE_TELEPHONE_NUMBER];
+                break;
+            //case InstantMessaging:
+            //    return MAPI_MAILUSER_PROP_IDS[dispidInstMsg];
+            //case Address:
+            //    if(subCategories.contains(ContactDetail.SubCategory.Work))
+            //        return MAPI_MAILUSER_PROP_IDS[dispidWorkAddress];
+            //    else if(subCategories.contains(
+            //                ContactDetail.SubCategory.Home))
+            //        return MAPI_MAILUSER_PROP_IDS[dispidHomeAddress];
+            //    else if(subCategories.contains(
+            //                ContactDetail.SubCategory.Other))
+            //        return MAPI_MAILUSER_PROP_IDS[dispidOtherAddress];
+            //    break;
+        }
+        return -1;
     }
 
     private static native Object[] IMAPIProp_GetProps(
             long mapiProp,
             long[] propIds, long flags)
         throws MsOutlookMAPIHResultException;
+
+    public static native boolean IMAPIProp_SetPropString(
+            long propId,
+            String value,
+            String entryId);
+
+    public static native boolean IMAPIProp_DeleteProp(
+            long propId,
+            String entryId);
 
     /**
      * Determines whether a specific index in {@link #MAPI_MAILUSER_PROP_IDS}
@@ -365,43 +609,7 @@ public class MsOutlookAddrBookContactQuery
         }
         if (matches)
         {
-            List<Class<? extends OperationSet>> supportedOpSets
-                = new ArrayList<Class<? extends OperationSet>>(2);
-
-            supportedOpSets.add(OperationSetBasicTelephony.class);
-            // can be added as contacts
-            supportedOpSets.add(OperationSetPersistentPresence.class);
-
-            List<ContactDetail> contactDetails
-                = new LinkedList<ContactDetail>();
-
-            for (int i = 0; i < CONTACT_DETAIL_PROP_INDEXES.length; i++)
-            {
-                propIndex = CONTACT_DETAIL_PROP_INDEXES[i];
-
-                Object prop = props[propIndex];
-
-                if (prop instanceof String)
-                {
-                    String stringProp = (String) prop;
-
-                    if (stringProp.length() != 0)
-                    {
-                        if (isPhoneNumber(propIndex))
-                            stringProp =
-                                PhoneNumberI18nService.normalize(stringProp);
-
-                        ContactDetail contactDetail
-                            = new ContactDetail(
-                                    stringProp,
-                                    getCategory(propIndex),
-                                    getSubCategories(propIndex));
-
-                        contactDetail.setSupportedOpSets(supportedOpSets);
-                        contactDetails.add(contactDetail);
-                    }
-                }
-            }
+            List<ContactDetail> contactDetails = getContactDetails(props);
 
             /*
              * What's the point of showing a contact who has no contact details?
@@ -413,9 +621,10 @@ public class MsOutlookAddrBookContactQuery
                 if ((displayName == null) || (displayName.length() == 0))
                     displayName = (String) props[PR_COMPANY_NAME];
 
-                GenericSourceContact sourceContact
-                    = new GenericSourceContact(
+                MsOutlookAddrBookSourceContact sourceContact
+                    = new MsOutlookAddrBookSourceContact(
                             getContactSource(),
+                            (String) props[PR_ORIGINAL_ENTRYID],
                             displayName,
                             contactDetails);
 
@@ -448,6 +657,57 @@ public class MsOutlookAddrBookContactQuery
             }
         }
         return (getStatus() == QUERY_IN_PROGRESS);
+    }
+
+    /**
+     * Gets the <tt>contactDetails</tt> to be set on a <tt>SourceContact</tt>
+     * which is to represent an <tt>ABPerson</tt> specified by the values of its
+     * {@link #ABPERSON_PROPERTIES}.
+     *
+     * @param values the values of the <tt>ABPERSON_PROPERTIES</tt> which
+     * represent the <tt>ABPerson</tt> to get the <tt>contactDetails</tt> of
+     * @return the <tt>contactDetails</tt> to be set on a <tt>SourceContact</tt>
+     * which is to represent the <tt>ABPerson</tt> specified by <tt>values</tt>
+     */
+    private List<ContactDetail> getContactDetails(Object[] values)
+    {
+        List<Class<? extends OperationSet>> supportedOpSets
+            = new ArrayList<Class<? extends OperationSet>>(2);
+        supportedOpSets.add(OperationSetBasicTelephony.class);
+        // can be added as contacts
+        supportedOpSets.add(OperationSetPersistentPresence.class);
+
+        List<ContactDetail> contactDetails = new LinkedList<ContactDetail>();
+
+        for (int i = 0; i < CONTACT_DETAIL_PROP_INDEXES.length; i++)
+        {
+            int property = CONTACT_DETAIL_PROP_INDEXES[i];
+            Object value = values[property];
+
+            if (value instanceof String)
+            {
+                String stringValue = (String) value;
+
+                if (stringValue.length() != 0)
+                {
+                    if(isPhoneNumber(property))
+                        stringValue
+                            = PhoneNumberI18nService.normalize(stringValue);
+
+                    MsOutlookAddrBookContactDetail contactDetail
+                        = new MsOutlookAddrBookContactDetail(
+                                stringValue,
+                                getCategory(property),
+                                getSubCategories(property),
+                                MAPI_MAILUSER_PROP_IDS[property]);
+
+                    contactDetail.setSupportedOpSets(supportedOpSets);
+                    contactDetails.add(contactDetail);
+                }
+            }
+        }
+        
+        return contactDetails;
     }
 
     /**
@@ -487,24 +747,89 @@ public class MsOutlookAddrBookContactQuery
     }
 
     /**
-     * Notifies this <tt>AsyncContactQuery</tt> that it has stopped performing
-     * in the associated background <tt>Thread</tt>.
+     * Callback method when receiving notifications for inserted items.
      *
-     * @param completed <tt>true</tt> if this <tt>ContactQuery</tt> has
-     * successfully completed, <tt>false</tt> if an error has been encountered
-     * during its execution
-     * @see AsyncContactQuery#stopped(boolean)
+     * @param person The pointer to the outlook contact object.
      */
-    @Override
-    protected void stopped(boolean completed)
+    public void inserted(long person)
     {
         try
         {
-            super.stopped(completed);
+            onMailUser(person);
         }
-        finally
+        catch (MsOutlookMAPIHResultException e)
         {
-            getContactSource().stopped(this);
+            if (logger.isDebugEnabled())
+            {
+                logger.debug(
+                        MsOutlookAddrBookContactQuery.class.getSimpleName()
+                        + "#onMailUser(long)",
+                        e);
+            }
+        }
+    }
+
+    /**
+     * Callback method when receiving notifications for updated items.
+     *
+     * @param person The pointer to the outlook contact object.
+     */
+    public void updated(long person)
+    {
+        Object[] props = null;
+        try
+        {
+            props = IMAPIProp_GetProps(
+                    person,
+                    MAPI_MAILUSER_PROP_IDS,
+                    MAPI_UNICODE);
+        }
+        catch (MsOutlookMAPIHResultException e)
+        {
+            if (logger.isDebugEnabled())
+            {
+                logger.debug(
+                        MsOutlookAddrBookContactQuery.class.getSimpleName()
+                        + "#IMAPIProp_GetProps(long, long[], long)",
+                        e);
+            }
+        }
+
+        if(props[PR_ORIGINAL_ENTRYID] != null)
+        {
+            SourceContact sourceContact
+                = findSourceContactByID((String) props[PR_ORIGINAL_ENTRYID]);
+
+            if(sourceContact != null
+                    && sourceContact instanceof MsOutlookAddrBookSourceContact)
+            {
+                // let's update the the details
+                MsOutlookAddrBookSourceContact editableSourceContact
+                    = (MsOutlookAddrBookSourceContact) sourceContact;
+
+                List<ContactDetail> contactDetails = getContactDetails(props);
+                editableSourceContact.setDetails(contactDetails);
+
+                fireContactChanged(sourceContact);
+            }
+        }
+    }
+
+    /**
+     * Callback method when receiving notifications for deleted items.
+     *
+     * @param id The outlook contact identifier.
+     */
+    public void deleted(String id)
+    {
+        if(id != null)
+        {
+            SourceContact sourceContact = findSourceContactByID(id);
+
+            if(sourceContact != null)
+            {
+                fireContactRemoved(sourceContact);
+            }
         }
     }
 }

@@ -11,16 +11,26 @@ import java.util.regex.*;
 
 import net.java.sip.communicator.plugin.addrbook.*;
 import net.java.sip.communicator.service.contactsource.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * Implements <tt>ContactSourceService</tt> for the Address Book of Microsoft
  * Outlook.
  *
  * @author Lyubomir Marinov
+ * @author Vincent Lucas
  */
 public class MsOutlookAddrBookContactSourceService
     extends AsyncContactSourceService
 {
+    /**
+     * The <tt>Logger</tt> used by the
+     * <tt>MsOutlookAddrBookContactSourceService</tt> class and its instances
+     * for logging output.
+     */
+    private static final Logger logger
+        = Logger.getLogger(MsOutlookAddrBookContactSourceService.class);
+
     /**
      * The outlook address book prefix.
      */
@@ -30,6 +40,11 @@ public class MsOutlookAddrBookContactSourceService
     private static final long MAPI_INIT_VERSION = 0;
 
     private static final long MAPI_MULTITHREAD_NOTIFICATIONS = 0x00000001;
+
+    /**
+     * The latest query created.
+     */
+    private MsOutlookAddrBookContactQuery latestQuery = null;
 
     static
     {
@@ -54,13 +69,6 @@ public class MsOutlookAddrBookContactSourceService
     }
 
     /**
-     * The <tt>List</tt> of <tt>MsOutlookAddrBookContactQuery</tt> instances
-     * which have been started and haven't stopped yet.
-     */
-    private final List<MsOutlookAddrBookContactQuery> queries
-        = new LinkedList<MsOutlookAddrBookContactQuery>();
-
-    /**
      * Initializes a new <tt>MsOutlookAddrBookContactSourceService</tt>
      * instance.
      *
@@ -72,6 +80,8 @@ public class MsOutlookAddrBookContactSourceService
         throws MsOutlookMAPIHResultException
     {
         MAPIInitialize(MAPI_INIT_VERSION, MAPI_MULTITHREAD_NOTIFICATIONS);
+
+        setDelegate(new NotificationsDelegate());
     }
 
     /**
@@ -119,33 +129,13 @@ public class MsOutlookAddrBookContactSourceService
      */
     public ContactQuery queryContactSource(Pattern query)
     {
-        MsOutlookAddrBookContactQuery msoabcq
-            = new MsOutlookAddrBookContactQuery(this, query);
+        if(latestQuery != null)
+            latestQuery.clear();
 
-        synchronized (queries)
-        {
-            queries.add(msoabcq);
-        }
+        latestQuery = new MsOutlookAddrBookContactQuery(this, query);
 
-        boolean msoabcqHasStarted = false;
-
-        try
-        {
-            msoabcq.start();
-            msoabcqHasStarted = true;
-        }
-        finally
-        {
-            if (!msoabcqHasStarted)
-            {
-                synchronized (queries)
-                {
-                    if (queries.remove(msoabcq))
-                        queries.notify();
-                }
-            }
-        }
-        return msoabcq;
+        latestQuery.start();
+        return latestQuery;
     }
 
     /**
@@ -156,26 +146,11 @@ public class MsOutlookAddrBookContactSourceService
      */
     public void stop()
     {
-        boolean interrupted = false;
-
-        synchronized (queries)
+        if(latestQuery != null)
         {
-            while (!queries.isEmpty())
-            {
-                queries.get(0).cancel();
-                try
-                {
-                    queries.wait();
-                }
-                catch (InterruptedException iex)
-                {
-                    interrupted = true;
-                }
-            }
+            latestQuery.clear();
+            latestQuery = null;
         }
-        if (interrupted)
-            Thread.currentThread().interrupt();
-
         MAPIUninitialize();
     }
 
@@ -192,22 +167,6 @@ public class MsOutlookAddrBookContactSourceService
     }
 
     /**
-     * Notifies this <tt>MsOutlookAddrBookContactSourceService</tt> that a
-     * specific <tt>MsOutlookAddrBookContactQuery</tt> has stopped.
-     *
-     * @param msoabcq the <tt>MsOutlookAddrBookContactQuery</tt> which has
-     * stopped
-     */
-    void stopped(MsOutlookAddrBookContactQuery msoabcq)
-    {
-        synchronized (queries)
-        {
-            if (queries.remove(msoabcq))
-                queries.notify();
-        }
-    }
-
-    /**
      * Returns the index of the contact source in the result list.
      *
      * @return the index of the contact source in the result list
@@ -216,4 +175,40 @@ public class MsOutlookAddrBookContactSourceService
     {
         return -1;
     }
+
+    /**
+     * Delegate class to be notified for addressbook changes.
+     */
+    public class NotificationsDelegate
+    {
+        /**
+         * Callback method when receiving notifications for inserted items.
+         */
+        public void inserted(long person)
+        {
+            if(latestQuery != null)
+                latestQuery.inserted(person);
+        }
+
+        /**
+         * Callback method when receiving notifications for updated items.
+         */
+        public void updated(long person)
+        {
+            if(latestQuery != null)
+                latestQuery.updated(person);
+        }
+
+        /**
+         * Callback method when receiving notifications for deleted items.
+         */
+        public void deleted(String id)
+        {
+            if(latestQuery != null)
+                latestQuery.deleted(id);
+        }
+    }
+
+    public static native void setDelegate(
+            NotificationsDelegate callback);
 }

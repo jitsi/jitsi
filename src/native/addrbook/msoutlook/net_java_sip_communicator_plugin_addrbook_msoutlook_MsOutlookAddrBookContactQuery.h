@@ -7,6 +7,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#include <mapidefs.h>
+#include <mapix.h>
+#include <Unknwn.h>
+
 /*
  * Class:     net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactQuery
  * Method:    foreachMailUser
@@ -22,6 +27,22 @@ JNIEXPORT void JNICALL Java_net_java_sip_communicator_plugin_addrbook_msoutlook_
  */
 JNIEXPORT jobjectArray JNICALL Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactQuery_IMAPIProp_1GetProps
   (JNIEnv *, jclass, jlong, jlongArray, jlong);
+
+JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactQuery_IMAPIProp_1SetPropString
+  (JNIEnv *, jclass, jlong, jstring, jstring);
+
+JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactQuery_IMAPIProp_1DeleteProp
+  (JNIEnv *, jclass, jlong, jstring);
+
+LPUNKNOWN openEntry(
+        ULONG cbEntryID,
+        LPENTRYID lpEntryID,
+        LPVOID lpvContext);
+
+void openAllMsgStores(
+        LPMAPISESSION mapiSession);
+
+void freeAllMsgStores(void);
 
 #ifdef __cplusplus
 }
