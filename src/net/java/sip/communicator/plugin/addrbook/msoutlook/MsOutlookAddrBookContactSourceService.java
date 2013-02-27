@@ -47,7 +47,15 @@ public class MsOutlookAddrBookContactSourceService
 
     static
     {
-        System.loadLibrary("jmsoutlookaddrbook");
+        try
+        {
+            System.loadLibrary("jmsoutlookaddrbook");
+        }
+        catch (Throwable ex)
+        {
+            logger.error("Unable to load outlook native lib", ex);
+            throw new RuntimeException(ex);
+        }
 
         /*
          * We have multiple reports of an "UnsatisfiedLinkError: no
