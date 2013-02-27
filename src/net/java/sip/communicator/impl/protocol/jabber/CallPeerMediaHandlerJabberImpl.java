@@ -11,7 +11,7 @@ import java.lang.reflect.*;
 import java.util.*;
 import java.util.List;
 
-import net.java.sip.communicator.impl.protocol.jabber.extensions.cobri.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.colibri.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 import net.java.sip.communicator.impl.protocol.jabber.jinglesdp.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -772,10 +772,10 @@ public class CallPeerMediaHandlerJabberImpl
         {
             RawUdpTransportManager rawUdpTransportManager
                 = (RawUdpTransportManager) transportManager;
-            CobriConferenceIQ.Channel channel
-                = rawUdpTransportManager.getCobriChannel(
-                        mediaType,
-                        false /* remote */);
+            ColibriConferenceIQ.Channel channel
+                = rawUdpTransportManager.getColibriChannel(
+                mediaType,
+                false /* remote */);
 
             if (channel != null)
                 return channel.getSSRCs();
@@ -788,7 +788,7 @@ public class CallPeerMediaHandlerJabberImpl
          */
         long ssrc = super.getRemoteSSRC(mediaType);
 
-        return (ssrc == -1) ? CobriConferenceIQ.NO_SSRCS : new long[] { ssrc };
+        return (ssrc == -1) ? ColibriConferenceIQ.NO_SSRCS : new long[] { ssrc };
     }
 
     /**
@@ -1198,21 +1198,21 @@ public class CallPeerMediaHandlerJabberImpl
     }
 
     /**
-     * Notifies this instance that a specific <tt>CobriConferenceIQ</tt> has
+     * Notifies this instance that a specific <tt>ColibriConferenceIQ</tt> has
      * been received. This <tt>CallPeerMediaHandler</tt> uses the part of the
      * information provided in the specified <tt>conferenceIQ</tt> which
      * concerns it only.
      *
-     * @param conferenceIQ the <tt>CobriConferenceIQ</tt> which has been
+     * @param conferenceIQ the <tt>ColibriConferenceIQ</tt> which has been
      * received
      */
-    void processCobriConferenceIQ(CobriConferenceIQ conferenceIQ)
+    void processColibriConferenceIQ(ColibriConferenceIQ conferenceIQ)
     {
         /*
          * This CallPeerMediaHandler stores the media information but it does
-         * not store the cobri Channels (which contain both media and transport
+         * not store the colibri Channels (which contain both media and transport
          * information). The TransportManager associated with this instance
-         * stores the cobri Channels but does not store media information (such
+         * stores the colibri Channels but does not store media information (such
          * as the remote SSRCs). An design/implementation choice has to be made
          * though and the present one is to have this CallPeerMediaHandler
          * transparently (with respect to the TransportManager) store the media
@@ -1229,19 +1229,19 @@ public class CallPeerMediaHandlerJabberImpl
 
             for (MediaType mediaType : MediaType.values())
             {
-                CobriConferenceIQ.Channel dst
-                    = rawUdpTransportManager.getCobriChannel(
-                            mediaType,
-                            false /* remote */);
+                ColibriConferenceIQ.Channel dst
+                    = rawUdpTransportManager.getColibriChannel(
+                    mediaType,
+                    false /* remote */);
 
                 if (dst != null)
                 {
-                    CobriConferenceIQ.Content content
+                    ColibriConferenceIQ.Content content
                         = conferenceIQ.getContent(mediaType.toString());
 
                     if (content != null)
                     {
-                        CobriConferenceIQ.Channel src
+                        ColibriConferenceIQ.Channel src
                             = content.getChannel(dst.getID());
 
                         if (src != null)

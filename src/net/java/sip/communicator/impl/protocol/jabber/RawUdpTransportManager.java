@@ -9,7 +9,7 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import java.net.*;
 import java.util.*;
 
-import net.java.sip.communicator.impl.protocol.jabber.extensions.cobri.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.colibri.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 import net.java.sip.communicator.impl.protocol.jabber.jinglesdp.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -47,7 +47,7 @@ public class RawUdpTransportManager
      * <tt>CallJabberImpl</tt> which provides information specific to this
      * <tt>RawUdpTransportManager</tt> only.
      */
-    private CobriConferenceIQ cobri;
+    private ColibriConferenceIQ colibri;
 
     /**
      * Creates a new instance of this transport manager, binding it to the
@@ -79,7 +79,7 @@ public class RawUdpTransportManager
         {
             boolean superCloseStreamConnector = true;
 
-            if (streamConnector instanceof CobriStreamConnector)
+            if (streamConnector instanceof ColibriStreamConnector)
             {
                 CallPeerJabberImpl peer = getCallPeer();
 
@@ -90,10 +90,10 @@ public class RawUdpTransportManager
                     if (call != null)
                     {
                         superCloseStreamConnector = false;
-                        call.closeCobriStreamConnector(
-                                peer,
-                                mediaType,
-                                (CobriStreamConnector) streamConnector);
+                        call.closeColibriStreamConnector(
+                            peer,
+                            mediaType,
+                            (ColibriStreamConnector) streamConnector);
                     }
                 }
             }
@@ -103,27 +103,27 @@ public class RawUdpTransportManager
         finally
         {
             /*
-             * Expire the CobriConferenceIQ.Channel associated with the closed
+             * Expire the ColibriConferenceIQ.Channel associated with the closed
              * StreamConnector.
              */
-            if (cobri != null)
+            if (colibri != null)
             {
-                CobriConferenceIQ.Content content
-                    = cobri.getContent(mediaType.toString());
+                ColibriConferenceIQ.Content content
+                    = colibri.getContent(mediaType.toString());
 
                 if (content != null)
                 {
-                    List<CobriConferenceIQ.Channel> channels
+                    List<ColibriConferenceIQ.Channel> channels
                         = content.getChannels();
 
                     if (channels.size() == 2)
                     {
-                        CobriConferenceIQ requestConferenceIQ
-                            = new CobriConferenceIQ();
+                        ColibriConferenceIQ requestConferenceIQ
+                            = new ColibriConferenceIQ();
 
-                        requestConferenceIQ.setID(cobri.getID());
+                        requestConferenceIQ.setID(colibri.getID());
 
-                        CobriConferenceIQ.Content requestContent
+                        ColibriConferenceIQ.Content requestContent
                             = requestConferenceIQ.getOrCreateContent(
                                     content.getName());
 
@@ -136,7 +136,7 @@ public class RawUdpTransportManager
                          * RawUdpTransportManager allocates a single channel per
                          * MediaType, consider the whole Content expired.
                          */
-                        cobri.removeContent(content);
+                        colibri.removeContent(content);
 
                         CallPeerJabberImpl peer = getCallPeer();
 
@@ -145,9 +145,9 @@ public class RawUdpTransportManager
                             CallJabberImpl call = peer.getCall();
 
                             if (call != null)
-                                call.expireCobriChannels(
-                                        peer,
-                                        requestConferenceIQ);
+                                call.expireColibriChannels(
+                                    peer,
+                                    requestConferenceIQ);
                         }
                     }
                 }
@@ -169,35 +169,36 @@ public class RawUdpTransportManager
     protected StreamConnector createStreamConnector(final MediaType mediaType)
         throws OperationFailedException
     {
-        CobriConferenceIQ.Channel channel = getCobriChannel(mediaType, true);
+        ColibriConferenceIQ.Channel channel
+                                        = getColibriChannel(mediaType, true);
 
         if (channel != null)
         {
             CallPeerJabberImpl peer = getCallPeer();
             CallJabberImpl call = peer.getCall();
             StreamConnector streamConnector
-                = call.createCobriStreamConnector(
-                        peer,
-                        mediaType,
-                        channel,
-                        new StreamConnectorFactory()
+                = call.createColibriStreamConnector(
+                peer,
+                mediaType,
+                channel,
+                new StreamConnectorFactory()
+                {
+                    public StreamConnector createStreamConnector()
+                    {
+                        try
                         {
-                            public StreamConnector createStreamConnector()
-                            {
-                                try
-                                {
-                                    return
-                                        RawUdpTransportManager
-                                            .super
-                                                .createStreamConnector(
-                                                        mediaType);
-                                }
-                                catch (OperationFailedException ofe)
-                                {
-                                    return null;
-                                }
-                            }
-                        });
+                            return
+                                RawUdpTransportManager
+                                    .super
+                                    .createStreamConnector(
+                                        mediaType);
+                        }
+                        catch (OperationFailedException ofe)
+                        {
+                            return null;
+                        }
+                    }
+                });
 
             if (streamConnector != null)
                 return streamConnector;
@@ -222,7 +223,8 @@ public class RawUdpTransportManager
             MediaType mediaType,
             StreamConnector connector)
     {
-        CobriConferenceIQ.Channel channel = getCobriChannel(mediaType, false);
+        ColibriConferenceIQ.Channel channel = getColibriChannel(mediaType,
+            false);
 
         RawUdpTransportPacketExtension ourTransport
             = new RawUdpTransportPacketExtension();
@@ -306,8 +308,8 @@ public class RawUdpTransportManager
 
                 if (mediaType.equals(contentMediaType))
                 {
-                    CobriConferenceIQ.Channel channel
-                        = getCobriChannel(mediaType, true);
+                    ColibriConferenceIQ.Channel channel
+                        = getColibriChannel(mediaType, true);
 
                     if (channel == null)
                     {
@@ -334,39 +336,39 @@ public class RawUdpTransportManager
     }
 
     /**
-     * Gets the {@link CobriConferenceIQ.Channel} which belongs to a content
+     * Gets the {@link net.java.sip.communicator.impl.protocol.jabber.extensions.colibri.ColibriConferenceIQ.Channel} which belongs to a content
      * associated with a specific <tt>MediaType</tt> and is to be either locally
      * or remotely used.
      * <p>
-     * <b>Note</b>: Modifications to the <tt>CobriConferenceIQ.Channel</tt>
+     * <b>Note</b>: Modifications to the <tt>ColibriConferenceIQ.Channel</tt>
      * instance returned by the method propagate to (the state of) this
      * instance.
      * </p>
      *
      * @param mediaType the <tt>MediaType</tt> associated with the content which
-     * contains the <tt>CobriConferenceIQ.Channel</tt> to get
-     * @param local <tt>true</tt> if the <tt>CobriConferenceIQ.Channel</tt>
+     * contains the <tt>ColibriConferenceIQ.Channel</tt> to get
+     * @param local <tt>true</tt> if the <tt>ColibriConferenceIQ.Channel</tt>
      * which is to be used locally is to be returned or <tt>false</tt> for the
      * one which is to be used remotely
-     * @return the <tt>CobriConferenceIQ.Channel</tt> which belongs to a content
+     * @return the <tt>ColibriConferenceIQ.Channel</tt> which belongs to a content
      * associated with the specified <tt>mediaType</tt> and which is to be used
      * in accord with the specified <tt>local</tt> indicator if such a channel
      * exists; otherwise, <tt>null</tt>
      */
-    CobriConferenceIQ.Channel getCobriChannel(
-            MediaType mediaType,
-            boolean local)
+    ColibriConferenceIQ.Channel getColibriChannel(
+        MediaType mediaType,
+        boolean local)
     {
-        CobriConferenceIQ.Channel channel = null;
+        ColibriConferenceIQ.Channel channel = null;
 
-        if (cobri != null)
+        if (colibri != null)
         {
-            CobriConferenceIQ.Content content
-                = cobri.getContent(mediaType.toString());
+            ColibriConferenceIQ.Content content
+                = colibri.getContent(mediaType.toString());
 
             if (content != null)
             {
-                List<CobriConferenceIQ.Channel> channels
+                List<ColibriConferenceIQ.Channel> channels
                     = content.getChannels();
 
                 if (channels.size() == 2)
@@ -524,8 +526,8 @@ public class RawUdpTransportManager
                  * of the existence of channels in it signals that a channel
                  * allocation request has already been sent for that mediaType.
                  */
-                if ((cobri == null)
-                        || (cobri.getContent(mediaType.toString()) == null))
+                if ((colibri == null)
+                        || (colibri.getContent(mediaType.toString()) == null))
                 {
                     if (!mediaTypes.contains(rtpDesc))
                         mediaTypes.add(rtpDesc);
@@ -538,32 +540,32 @@ public class RawUdpTransportManager
                  * mediaTypes. Regardless of the response, we do not want to
                  * repeat these requests.
                  */
-                if (cobri == null)
-                    cobri = new CobriConferenceIQ();
+                if (colibri == null)
+                    colibri = new ColibriConferenceIQ();
                 for (RtpDescriptionPacketExtension mediaType : mediaTypes)
-                    cobri.getOrCreateContent(mediaType.getMedia());
+                    colibri.getOrCreateContent(mediaType.getMedia());
 
-                CobriConferenceIQ conferenceResult
-                    = call.createCobriChannels(peer, mediaTypes);
+                ColibriConferenceIQ conferenceResult
+                    = call.createColibriChannels(peer, mediaTypes);
 
                 if (conferenceResult != null)
                 {
-                    String videoBridgeID = cobri.getID();
+                    String videoBridgeID = colibri.getID();
                     String conferenceResultID = conferenceResult.getID();
 
                     if (videoBridgeID == null)
-                        cobri.setID(conferenceResultID);
+                        colibri.setID(conferenceResultID);
                     else if (!videoBridgeID.equals(conferenceResultID))
                         throw new IllegalStateException("conference.id");
 
-                    for (CobriConferenceIQ.Content contentResult
+                    for (ColibriConferenceIQ.Content contentResult
                             : conferenceResult.getContents())
                     {
-                        CobriConferenceIQ.Content content
-                            = cobri.getOrCreateContent(
+                        ColibriConferenceIQ.Content content
+                            = colibri.getOrCreateContent(
                                     contentResult.getName());
 
-                        for (CobriConferenceIQ.Channel channelResult
+                        for (ColibriConferenceIQ.Channel channelResult
                                 : contentResult.getChannels())
                         {
                             if (content.getChannel(channelResult.getID())

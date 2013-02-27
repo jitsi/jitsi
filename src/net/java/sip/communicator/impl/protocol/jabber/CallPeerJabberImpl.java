@@ -9,7 +9,7 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import java.lang.reflect.*;
 import java.util.*;
 
-import net.java.sip.communicator.impl.protocol.jabber.extensions.cobri.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.colibri.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.ContentPacketExtension.SendersEnum;
 import net.java.sip.communicator.impl.protocol.jabber.jinglesdp.*;
@@ -365,15 +365,15 @@ public class CallPeerJabberImpl
     }
 
     /**
-     * Notifies this instance that a specific <tt>CobriConferenceIQ</tt> has
+     * Notifies this instance that a specific <tt>ColibriConferenceIQ</tt> has
      * been received. This <tt>CallPeerJabberImpl</tt> uses the part of the
      * information provided in the specified <tt>conferenceIQ</tt> which
      * concerns it only.
      *
-     * @param conferenceIQ the <tt>CobriConferenceIQ</tt> which has been
+     * @param conferenceIQ the <tt>ColibriConferenceIQ</tt> which has been
      * received
      */
-    void processCobriConferenceIQ(CobriConferenceIQ conferenceIQ)
+    void processColibriConferenceIQ(ColibriConferenceIQ conferenceIQ)
     {
         /*
          * CallPeerJabberImpl does not itself/directly know the specifics
@@ -381,7 +381,7 @@ public class CallPeerJabberImpl
          * The channels contain transport and media-related information so
          * forward the notification to CallPeerMediaHandlerJabberImpl. 
          */
-        getMediaHandler().processCobriConferenceIQ(conferenceIQ);
+        getMediaHandler().processColibriConferenceIQ(conferenceIQ);
     }
 
     /**

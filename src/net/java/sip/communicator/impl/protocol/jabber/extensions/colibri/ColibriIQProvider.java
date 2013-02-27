@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.protocol.jabber.extensions.cobri;
+package net.java.sip.communicator.impl.protocol.jabber.extensions.colibri;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 
@@ -14,11 +14,11 @@ import org.xmlpull.v1.*;
 
 /**
  * Implements an <tt>org.jivesoftware.smack.provider.IQProvider</tt> for the
- * Jitsi VideoBridge extension <tt>CobriConferenceIQ</tt>.
+ * Jitsi VideoBridge extension <tt>ColibriConferenceIQ</tt>.
  *
  * @author Lyubomir Marinov
  */
-public class CobriIQProvider
+public class ColibriIQProvider
     implements IQProvider
 {
     /**
@@ -37,19 +37,19 @@ public class CobriIQProvider
         String namespace = parser.getNamespace();
         IQ iq;
 
-        if (CobriConferenceIQ.ELEMENT_NAME.equals(parser.getName())
-                && CobriConferenceIQ.NAMESPACE.equals(namespace))
+        if (ColibriConferenceIQ.ELEMENT_NAME.equals(parser.getName())
+                && ColibriConferenceIQ.NAMESPACE.equals(namespace))
         {
-            CobriConferenceIQ conference = new CobriConferenceIQ();
-            String conferenceID
-                = parser.getAttributeValue("", CobriConferenceIQ.ID_ATTR_NAME);
+            ColibriConferenceIQ conference = new ColibriConferenceIQ();
+            String conferenceID = parser
+                    .getAttributeValue("", ColibriConferenceIQ.ID_ATTR_NAME);
 
             if ((conferenceID != null) && (conferenceID.length() != 0))
                 conference.setID(conferenceID);
 
             boolean done = false;
-            CobriConferenceIQ.Channel channel = null;
-            CobriConferenceIQ.Content content = null;
+            ColibriConferenceIQ.Channel channel = null;
+            ColibriConferenceIQ.Content content = null;
             PacketExtensionProvider payloadTypePacketExtensionProvider = null;
             StringBuilder ssrc = null;
 
@@ -61,23 +61,23 @@ public class CobriIQProvider
                 {
                     String name = parser.getName();
 
-                    if (CobriConferenceIQ.ELEMENT_NAME.equals(name))
+                    if (ColibriConferenceIQ.ELEMENT_NAME.equals(name))
                     {
                         done = true;
                     }
-                    else if (CobriConferenceIQ.Channel.ELEMENT_NAME.equals(
+                    else if (ColibriConferenceIQ.Channel.ELEMENT_NAME.equals(
                             name))
                     {
                         content.addChannel(channel);
                         channel = null;
                     }
-                    else if (CobriConferenceIQ.Channel.SSRC_ELEMENT_NAME
+                    else if (ColibriConferenceIQ.Channel.SSRC_ELEMENT_NAME
                             .equals(name))
                     {
                         channel.addSSRC(Long.parseLong(ssrc.toString().trim()));
                         ssrc = null;
                     }
-                    else if (CobriConferenceIQ.Content.ELEMENT_NAME.equals(
+                    else if (ColibriConferenceIQ.Content.ELEMENT_NAME.equals(
                             name))
                     {
                         conference.addContent(content);
@@ -90,14 +90,14 @@ public class CobriIQProvider
                 {
                     String name = parser.getName();
 
-                    if (CobriConferenceIQ.Channel.ELEMENT_NAME.equals(name))
+                    if (ColibriConferenceIQ.Channel.ELEMENT_NAME.equals(name))
                     {
-                        channel = new CobriConferenceIQ.Channel();
+                        channel = new ColibriConferenceIQ.Channel();
 
                         String channelID
                             = parser.getAttributeValue(
                                     "",
-                                    CobriConferenceIQ.Channel.ID_ATTR_NAME);
+                                    ColibriConferenceIQ.Channel.ID_ATTR_NAME);
 
                         if ((channelID != null) && (channelID.length() != 0))
                             channel.setID(channelID);
@@ -105,7 +105,7 @@ public class CobriIQProvider
                         String host
                             = parser.getAttributeValue(
                                     "",
-                                    CobriConferenceIQ.Channel.HOST_ATTR_NAME);
+                                    ColibriConferenceIQ.Channel.HOST_ATTR_NAME);
 
                         if ((host != null) && (host.length() != 0))
                             channel.setHost(host);
@@ -113,7 +113,7 @@ public class CobriIQProvider
                         String rtpPort
                             = parser.getAttributeValue(
                                     "",
-                                    CobriConferenceIQ.Channel
+                                    ColibriConferenceIQ.Channel
                                             .RTP_PORT_ATTR_NAME);
 
                         if ((rtpPort != null) && (rtpPort.length() != 0))
@@ -122,7 +122,7 @@ public class CobriIQProvider
                         String rtcpPort
                             = parser.getAttributeValue(
                                     "",
-                                    CobriConferenceIQ.Channel
+                                    ColibriConferenceIQ.Channel
                                             .RTCP_PORT_ATTR_NAME);
 
                         if ((rtcpPort != null) && (rtcpPort.length() != 0))
@@ -131,25 +131,25 @@ public class CobriIQProvider
                         String expire
                             = parser.getAttributeValue(
                                     "",
-                                    CobriConferenceIQ.Channel.EXPIRE_ATTR_NAME);
+                                    ColibriConferenceIQ.Channel.EXPIRE_ATTR_NAME);
 
                         if ((expire != null) && (expire.length() != 0))
                             channel.setExpire(Integer.parseInt(expire));
                     }
-                    else if (CobriConferenceIQ.Channel.SSRC_ELEMENT_NAME
+                    else if (ColibriConferenceIQ.Channel.SSRC_ELEMENT_NAME
                             .equals(name))
                     {
                         ssrc = new StringBuilder();
                     }
-                    else if (CobriConferenceIQ.Content.ELEMENT_NAME.equals(
+                    else if (ColibriConferenceIQ.Content.ELEMENT_NAME.equals(
                             name))
                     {
-                        content = new CobriConferenceIQ.Content();
+                        content = new ColibriConferenceIQ.Content();
 
                         String contentName
                             = parser.getAttributeValue(
                                     "",
-                                    CobriConferenceIQ.Content.NAME_ATTR_NAME);
+                                    ColibriConferenceIQ.Content.NAME_ATTR_NAME);
 
                         if ((contentName != null)
                                 && (contentName.length() != 0))

@@ -9,7 +9,7 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import java.lang.ref.*;
 import java.util.*;
 
-import net.java.sip.communicator.impl.protocol.jabber.extensions.cobri.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.colibri.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 import net.java.sip.communicator.impl.protocol.jabber.jinglesdp.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -43,19 +43,19 @@ public class CallJabberImpl
      * The Jitsi VideoBridge conference which the local peer represented by this
      * instance is a focus of.
      */
-    private CobriConferenceIQ cobri;
+    private ColibriConferenceIQ colibri;
 
     /**
      * The shared <tt>CallPeerMediaHandler</tt> state which is to be used by the
-     * <tt>CallPeer</tt>s of this <tt>Call</tt> which use {@link #cobri}.
+     * <tt>CallPeer</tt>s of this <tt>Call</tt> which use {@link #colibri}.
      */
-    private MediaHandler cobriMediaHandler;
+    private MediaHandler colibriMediaHandler;
 
     /**
-     * Contains one CobriStreamConnector for each <tt>MediaType</tt>
+     * Contains one ColibriStreamConnector for each <tt>MediaType</tt>
      */
-    private final List<WeakReference<CobriStreamConnector>>
-        cobriStreamConnectors;
+    private final List<WeakReference<ColibriStreamConnector>>
+        colibriStreamConnectors;
 
     /**
      * Initializes a new <tt>CallJabberImpl</tt> instance belonging to
@@ -74,11 +74,11 @@ public class CallJabberImpl
 
         int mediaTypeValueCount = MediaType.values().length;
 
-        cobriStreamConnectors
-            = new ArrayList<WeakReference<CobriStreamConnector>>(
+        colibriStreamConnectors
+            = new ArrayList<WeakReference<ColibriStreamConnector>>(
                     mediaTypeValueCount);
         for (int i = 0; i < mediaTypeValueCount; i++)
-            cobriStreamConnectors.add(null);
+            colibriStreamConnectors.add(null);
 
         //let's add ourselves to the calls repo. we are doing it ourselves just
         //to make sure that no one ever forgets.
@@ -86,23 +86,23 @@ public class CallJabberImpl
     }
 
     /**
-     * Closes a specific <tt>CobriStreamConnector</tt> which is associated with
+     * Closes a specific <tt>ColibriStreamConnector</tt> which is associated with
      * a <tt>MediaStream</tt> of a specific <tt>MediaType</tt> upon request from
      * a specific <tt>CallPeer</tt>.
      * 
      * @param peer the <tt>CallPeer</tt> which requests the closing of the
-     * specified <tt>cobriStreamConnector</tt>
+     * specified <tt>colibriStreamConnector</tt>
      * @param mediaType the <tt>MediaType</tt> of the <tt>MediaStream</tt> with
-     * which the specified <tt>cobriStreamConnector</tt> is associated
-     * @param cobriStreamConnector the <tt>CobriStreamConnector</tt> to close on
+     * which the specified <tt>colibriStreamConnector</tt> is associated
+     * @param colibriStreamConnector the <tt>ColibriStreamConnector</tt> to close on
      * behalf of the specified <tt>peer</tt>
      */
-    public void closeCobriStreamConnector(
+    public void closeColibriStreamConnector(
             CallPeerJabberImpl peer,
             MediaType mediaType,
-            CobriStreamConnector cobriStreamConnector)
+            ColibriStreamConnector colibriStreamConnector)
     {
-        cobriStreamConnector.close();
+        colibriStreamConnector.close();
     }
 
     /**
@@ -134,19 +134,19 @@ public class CallJabberImpl
     }
 
     /**
-     * Allocates cobri (conference) channels for a specific <tt>MediaType</tt>
+     * Allocates colibri (conference) channels for a specific <tt>MediaType</tt>
      * to be used by a specific <tt>CallPeer</tt>.
      *
-     * @param peer the <tt>CallPeer</tt> which is to use the allocated cobri
+     * @param peer the <tt>CallPeer</tt> which is to use the allocated colibri
      * (conference) channels
      * @param rdpes the <tt>RtpDescriptionPacketExtension</tt>s which specify
-     * the <tt>MediaType</tt>s for which cobri (conference) channels are to be
+     * the <tt>MediaType</tt>s for which colibri (conference) channels are to be
      * allocated
-     * @return a <tt>CobriConferenceIQ</tt> which describes the allocated cobri
+     * @return a <tt>ColibriConferenceIQ</tt> which describes the allocated colibri
      * (conference) channels for the specified <tt>mediaTypes</tt> which are to
      * be used by the specified <tt>peer</tt>; otherwise, <tt>null</tt>
      */
-    public CobriConferenceIQ createCobriChannels(
+    public ColibriConferenceIQ createColibriChannels(
             CallPeerJabberImpl peer,
             Iterable<RtpDescriptionPacketExtension> rdpes)
     {
@@ -154,14 +154,14 @@ public class CallJabberImpl
             return null;
 
         /*
-         * For a cobri conference to work properly, all CallPeers in the
+         * For a colibri conference to work properly, all CallPeers in the
          * conference must share one and the same CallPeerMediaHandler state
          * i.e. they must use a single set of MediaStreams as if there was a
          * single CallPeerMediaHandler.
          */
         CallPeerMediaHandler<?> peerMediaHandler = peer.getMediaHandler();
 
-        if (peerMediaHandler.getMediaHandler() != cobriMediaHandler)
+        if (peerMediaHandler.getMediaHandler() != colibriMediaHandler)
         {
             for (MediaType mediaType : MediaType.values())
                 if (peerMediaHandler.getStream(mediaType) != null)
@@ -171,49 +171,49 @@ public class CallJabberImpl
         ProtocolProviderServiceJabberImpl protocolProvider
             = getProtocolProvider();
         String jitsiVideoBridge
-            = (cobri == null)
+            = (colibri == null)
                 ? protocolProvider.getJitsiVideoBridge()
-                : cobri.getFrom();
+                : colibri.getFrom();
 
         if ((jitsiVideoBridge == null) || (jitsiVideoBridge.length() == 0))
             return null;
 
-        CobriConferenceIQ conferenceRequest = new CobriConferenceIQ();
+        ColibriConferenceIQ conferenceRequest = new ColibriConferenceIQ();
 
-        if (cobri != null)
-            conferenceRequest.setID(cobri.getID());
+        if (colibri != null)
+            conferenceRequest.setID(colibri.getID());
 
         for (RtpDescriptionPacketExtension rdpe : rdpes)
         {
             MediaType mediaType = MediaType.parseString(rdpe.getMedia());
             String contentName = mediaType.toString();
-            CobriConferenceIQ.Content contentRequest
-                = new CobriConferenceIQ.Content(contentName);
+            ColibriConferenceIQ.Content contentRequest
+                = new ColibriConferenceIQ.Content(contentName);
 
             conferenceRequest.addContent(contentRequest);
 
             boolean requestLocalChannel = true;
 
-            if (cobri != null)
+            if (colibri != null)
             {
-                CobriConferenceIQ.Content content
-                    = cobri.getContent(contentName);
+                ColibriConferenceIQ.Content content
+                    = colibri.getContent(contentName);
 
                 if ((content != null) && (content.getChannelCount() > 0))
                     requestLocalChannel = false;
             }
             if (requestLocalChannel)
             {
-                CobriConferenceIQ.Channel localChannelRequest
-                    = new CobriConferenceIQ.Channel();
+                ColibriConferenceIQ.Channel localChannelRequest
+                    = new ColibriConferenceIQ.Channel();
 
                 for (PayloadTypePacketExtension ptpe : rdpe.getPayloadTypes())
                     localChannelRequest.addPayloadType(ptpe);
                 contentRequest.addChannel(localChannelRequest);
             }
 
-            CobriConferenceIQ.Channel remoteChannelRequest
-                = new CobriConferenceIQ.Channel();
+            ColibriConferenceIQ.Channel remoteChannelRequest
+                = new ColibriConferenceIQ.Channel();
 
             for (PayloadTypePacketExtension ptpe : rdpe.getPayloadTypes())
                 remoteChannelRequest.addPayloadType(ptpe);
@@ -237,36 +237,36 @@ public class CallJabberImpl
 
         if ((response == null)
                 || (response.getError() != null)
-                || !(response instanceof CobriConferenceIQ))
+                || !(response instanceof ColibriConferenceIQ))
             return null;
 
-        CobriConferenceIQ conferenceResponse = (CobriConferenceIQ) response;
+        ColibriConferenceIQ conferenceResponse = (ColibriConferenceIQ) response;
         String conferenceResponseID = conferenceResponse.getID();
 
         /*
-         * Update the complete CobriConferenceIQ representation maintained by
+         * Update the complete ColibriConferenceIQ representation maintained by
          * this instance with the information given by the (current) response.
          */
-        if (cobri == null)
+        if (colibri == null)
         {
-            cobri = conferenceResponse;
+            colibri = conferenceResponse;
         }
         else
         {
-            String cobriID = cobri.getID();
+            String colibriID = colibri.getID();
 
-            if (cobriID == null)
-                cobri.setID(conferenceResponseID);
-            else if (!cobriID.equals(conferenceResponseID))
+            if (colibriID == null)
+                colibri.setID(conferenceResponseID);
+            else if (!colibriID.equals(conferenceResponseID))
                 throw new IllegalStateException("conference.id");
 
-            for (CobriConferenceIQ.Content contentResponse
+            for (ColibriConferenceIQ.Content contentResponse
                     : conferenceResponse.getContents())
             {
-                CobriConferenceIQ.Content content
-                    = cobri.getOrCreateContent(contentResponse.getName());
+                ColibriConferenceIQ.Content content
+                    = colibri.getOrCreateContent(contentResponse.getName());
 
-                for (CobriConferenceIQ.Channel channelResponse
+                for (ColibriConferenceIQ.Channel channelResponse
                         : contentResponse.getChannels())
                     content.addChannel(channelResponse);
             }
@@ -279,21 +279,21 @@ public class CallJabberImpl
          * explicitly requested by the method caller and their
          * respective local channels.
          */
-        CobriConferenceIQ conferenceResult = new CobriConferenceIQ();
+        ColibriConferenceIQ conferenceResult = new ColibriConferenceIQ();
 
         conferenceResult.setID(conferenceResponseID);
 
         for (RtpDescriptionPacketExtension rdpe : rdpes)
         {
             MediaType mediaType = MediaType.parseString(rdpe.getMedia());
-            CobriConferenceIQ.Content contentResponse
+            ColibriConferenceIQ.Content contentResponse
                 = conferenceResponse.getContent(mediaType.toString());
 
             if (contentResponse != null)
             {
                 String contentName = contentResponse.getName();
-                CobriConferenceIQ.Content contentResult
-                    = new CobriConferenceIQ.Content(contentName);
+                ColibriConferenceIQ.Content contentResult
+                    = new ColibriConferenceIQ.Content(contentName);
 
                 conferenceResult.addContent(contentResult);
 
@@ -303,9 +303,9 @@ public class CallJabberImpl
                  * channel in the respective content. Anyway, the current method
                  * caller still needs to know about it.
                  */
-                CobriConferenceIQ.Content content
-                    = cobri.getContent(contentName);
-                CobriConferenceIQ.Channel localChannel = null;
+                ColibriConferenceIQ.Content content
+                    = colibri.getContent(contentName);
+                ColibriConferenceIQ.Channel localChannel = null;
                 
                 if ((content != null) && (content.getChannelCount() > 0))
                 {
@@ -316,7 +316,7 @@ public class CallJabberImpl
                 String localChannelID
                     = (localChannel == null) ? null : localChannel.getID();
 
-                for (CobriConferenceIQ.Channel channelResponse
+                for (ColibriConferenceIQ.Channel channelResponse
                         : contentResponse.getChannels())
                 {
                     if ((localChannelID == null)
@@ -327,50 +327,50 @@ public class CallJabberImpl
         }
 
         /*
-         * The specified CallPeer will participate in the cobri conference
+         * The specified CallPeer will participate in the colibri conference
          * organized by this Call so it must use the shared CallPeerMediaHandler
-         * state of all CallPeers in the same cobri conference.
+         * state of all CallPeers in the same colibri conference.
          */
-        if (cobriMediaHandler == null)
-            cobriMediaHandler = new MediaHandler();
-        peerMediaHandler.setMediaHandler(cobriMediaHandler);
+        if (colibriMediaHandler == null)
+            colibriMediaHandler = new MediaHandler();
+        peerMediaHandler.setMediaHandler(colibriMediaHandler);
 
         return conferenceResult;
     }
 
     /**
-     * Initializes a <tt>CobriStreamConnector</tt> on behalf of a specific
+     * Initializes a <tt>ColibriStreamConnector</tt> on behalf of a specific
      * <tt>CallPeer</tt> to be used in association with a specific
-     * <tt>CobriConferenceIQ.Channel</tt> of a specific <tt>MediaType</tt>.
+     * <tt>ColibriConferenceIQ.Channel</tt> of a specific <tt>MediaType</tt>.
      *
      * @param peer the <tt>CallPeer</tt> which requests the initialization of a
-     * <tt>CobriStreamConnector</tt>
+     * <tt>ColibriStreamConnector</tt>
      * @param mediaType the <tt>MediaType</tt> of the stream which is to use the
-     * initialized <tt>CobriStreamConnector</tt> for RTP and RTCP traffic
-     * @param channel the <tt>CobriConferenceIQ.Channel</tt> to which RTP and
+     * initialized <tt>ColibriStreamConnector</tt> for RTP and RTCP traffic
+     * @param channel the <tt>ColibriConferenceIQ.Channel</tt> to which RTP and
      * RTCP traffic is to be sent and from which such traffic is to be received
-     * via the initialized <tt>CobriStreamConnector</tt>
+     * via the initialized <tt>ColibriStreamConnector</tt>
      * @param factory a <tt>StreamConnectorFactory</tt> implementation which is
      * to allocate the sockets to be used for RTP and RTCP traffic
-     * @return a <tt>CobriStreamConnector</tt> to be used for RTP and RTCP
+     * @return a <tt>ColibriStreamConnector</tt> to be used for RTP and RTCP
      * traffic associated with the specified <tt>channel</tt>
      */
-    public CobriStreamConnector createCobriStreamConnector(
-            CallPeerJabberImpl peer,
-            MediaType mediaType,
-            CobriConferenceIQ.Channel channel,
-            StreamConnectorFactory factory)
+    public ColibriStreamConnector createColibriStreamConnector(
+                CallPeerJabberImpl peer,
+                MediaType mediaType,
+                ColibriConferenceIQ.Channel channel,
+                StreamConnectorFactory factory)
     {
         String channelID = channel.getID();
 
         if (channelID == null)
             throw new IllegalArgumentException("channel");
 
-        if (cobri == null)
-            throw new IllegalStateException("cobri");
+        if (colibri == null)
+            throw new IllegalStateException("colibri");
 
-        CobriConferenceIQ.Content content
-            = cobri.getContent(mediaType.toString());
+        ColibriConferenceIQ.Content content
+            = colibri.getContent(mediaType.toString());
 
         if (content == null)
             throw new IllegalArgumentException("mediaType");
@@ -378,85 +378,85 @@ public class CallJabberImpl
                 || !channelID.equals((channel = content.getChannel(0)).getID()))
             throw new IllegalArgumentException("channel");
 
-        CobriStreamConnector cobriStreamConnector;
+        ColibriStreamConnector colibriStreamConnector;
 
-        synchronized (cobriStreamConnectors)
+        synchronized (colibriStreamConnectors)
         {
             int index = mediaType.ordinal();
-            WeakReference<CobriStreamConnector> weakReference
-                = cobriStreamConnectors.get(index);
+            WeakReference<ColibriStreamConnector> weakReference
+                = colibriStreamConnectors.get(index);
 
-            cobriStreamConnector
+            colibriStreamConnector
                 = (weakReference == null) ? null : weakReference.get();
-            if (cobriStreamConnector == null)
+            if (colibriStreamConnector == null)
             {
                 StreamConnector streamConnector
                     = factory.createStreamConnector();
 
                 if (streamConnector != null)
                 {
-                    cobriStreamConnector
-                        = new CobriStreamConnector(streamConnector);
-                    cobriStreamConnectors.set(
-                            index,
-                            new WeakReference<CobriStreamConnector>(
-                                    cobriStreamConnector));
+                    colibriStreamConnector
+                        = new ColibriStreamConnector(streamConnector);
+                    colibriStreamConnectors.set(
+                        index,
+                        new WeakReference<ColibriStreamConnector>(
+                            colibriStreamConnector));
                 }
             }
         }
 
-        return cobriStreamConnector;
+        return colibriStreamConnector;
     }
 
     /**
-     * Expires specific (cobri) conference channels used by a specific
+     * Expires specific (colibri) conference channels used by a specific
      * <tt>CallPeer</tt>.
      *
-     * @param peer the <tt>CallPeer</tt> which uses the specified (cobri)
+     * @param peer the <tt>CallPeer</tt> which uses the specified (colibri)
      * conference channels to be expired
-     * @param conference a <tt>CobriConferenceIQ</tt> which specifies the
-     * (cobri) conference channels to be expired
+     * @param conference a <tt>ColibriConferenceIQ</tt> which specifies the
+     * (colibri) conference channels to be expired
      */
-    public void expireCobriChannels(
+    public void expireColibriChannels(
             CallPeerJabberImpl peer,
-            CobriConferenceIQ conference)
+            ColibriConferenceIQ conference)
     {
-        // Formulate the CobriConferenceIQ request which is to be sent.
-        if (cobri != null)
+        // Formulate the ColibriConferenceIQ request which is to be sent.
+        if (colibri != null)
         {
-            String conferenceID = cobri.getID();
+            String conferenceID = colibri.getID();
 
             if (conferenceID.equals(conference.getID()))
             {
-                CobriConferenceIQ conferenceRequest = new CobriConferenceIQ();
+                ColibriConferenceIQ conferenceRequest = new ColibriConferenceIQ();
 
                 conferenceRequest.setID(conferenceID);
 
-                for (CobriConferenceIQ.Content content
+                for (ColibriConferenceIQ.Content content
                         : conference.getContents())
                 {
-                    CobriConferenceIQ.Content cobriContent
-                        = cobri.getContent(content.getName());
+                    ColibriConferenceIQ.Content colibriContent
+                        = colibri.getContent(content.getName());
 
-                    if (cobriContent != null)
+                    if (colibriContent != null)
                     {
-                        CobriConferenceIQ.Content contentRequest
+                        ColibriConferenceIQ.Content contentRequest
                             = conferenceRequest.getOrCreateContent(
-                                    cobriContent.getName());
+                            colibriContent.getName());
 
-                        for (CobriConferenceIQ.Channel channel
+                        for (ColibriConferenceIQ.Channel channel
                                 : content.getChannels())
                         {
-                            CobriConferenceIQ.Channel cobriChannel
-                                = cobriContent.getChannel(channel.getID());
+                            ColibriConferenceIQ.Channel colibriChannel
+                                = colibriContent.getChannel(channel.getID());
 
-                            if (cobriChannel != null)
+                            if (colibriChannel != null)
                             {
-                                CobriConferenceIQ.Channel channelRequest
-                                    = new CobriConferenceIQ.Channel();
+                                ColibriConferenceIQ.Channel channelRequest
+                                    = new ColibriConferenceIQ.Channel();
 
                                 channelRequest.setExpire(0);
-                                channelRequest.setID(cobriChannel.getID());
+                                channelRequest.setID(colibriChannel.getID());
                                 contentRequest.addChannel(channelRequest);
                             }
                         }
@@ -467,34 +467,34 @@ public class CallJabberImpl
                  * Remove the channels which are to be expired from the internal
                  * state of the conference managed by this CallJabberImpl.
                  */
-                for (CobriConferenceIQ.Content contentRequest
+                for (ColibriConferenceIQ.Content contentRequest
                         : conferenceRequest.getContents())
                 {
-                    CobriConferenceIQ.Content cobriContent
-                        = cobri.getContent(contentRequest.getName());
+                    ColibriConferenceIQ.Content colibriContent
+                        = colibri.getContent(contentRequest.getName());
 
-                    for (CobriConferenceIQ.Channel channelRequest
+                    for (ColibriConferenceIQ.Channel channelRequest
                             : contentRequest.getChannels())
                     {
-                        CobriConferenceIQ.Channel cobriChannel
-                            = cobriContent.getChannel(channelRequest.getID());
+                        ColibriConferenceIQ.Channel colibriChannel
+                            = colibriContent.getChannel(channelRequest.getID());
 
-                        cobriContent.removeChannel(cobriChannel);
+                        colibriContent.removeChannel(colibriChannel);
 
                         /*
                          * If the last remote channel is to be expired, expire
                          * the local channel as well.
                          */
-                        if (cobriContent.getChannelCount() == 1)
+                        if (colibriContent.getChannelCount() == 1)
                         {
-                            cobriChannel = cobriContent.getChannel(0);
+                            colibriChannel = colibriContent.getChannel(0);
 
-                            channelRequest = new CobriConferenceIQ.Channel();
+                            channelRequest = new ColibriConferenceIQ.Channel();
                             channelRequest.setExpire(0);
-                            channelRequest.setID(cobriChannel.getID());
+                            channelRequest.setID(colibriChannel.getID());
                             contentRequest.addChannel(channelRequest);
 
-                            cobriContent.removeChannel(cobriChannel);
+                            colibriContent.removeChannel(colibriChannel);
 
                             break;
                         }
@@ -502,10 +502,10 @@ public class CallJabberImpl
                 }
 
                 /*
-                 * At long last, send the CobriConferenceIQ request to expire
+                 * At long last, send the ColibriConferenceIQ request to expire
                  * the channels.
                  */
-                conferenceRequest.setTo(cobri.getFrom());
+                conferenceRequest.setTo(colibri.getFrom());
                 conferenceRequest.setType(IQ.Type.SET);
                 getProtocolProvider().getConnection().sendPacket(
                         conferenceRequest);
@@ -608,24 +608,24 @@ public class CallJabberImpl
     }
 
     /**
-     * Notifies this instance that a specific <tt>CobriConferenceIQ</tt> has
+     * Notifies this instance that a specific <tt>ColibriConferenceIQ</tt> has
      * been received.
      *
-     * @param conferenceIQ the <tt>CobriConferenceIQ</tt> which has been
+     * @param conferenceIQ the <tt>ColibriConferenceIQ</tt> which has been
      * received
      * @return <tt>true</tt> if the specified <tt>conferenceIQ</tt> was
      * processed by this instance and no further processing is to be performed
-     * by other possible processors of <tt>CobriConferenceIQ</tt>s; otherwise,
-     * <tt>false</tt>. Because a <tt>CobriConferenceIQ</tt> request sent from
+     * by other possible processors of <tt>ColibriConferenceIQ</tt>s; otherwise,
+     * <tt>false</tt>. Because a <tt>ColibriConferenceIQ</tt> request sent from
      * the Jitsi VideoBridge server to the application as its client concerns a
      * specific <tt>CallJabberImpl</tt> implementation, no further processing by
      * other <tt>CallJabberImpl</tt> instances is necessary once the
-     * <tt>CobriConferenceIQ</tt> is processed by the associated
+     * <tt>ColibriConferenceIQ</tt> is processed by the associated
      * <tt>CallJabberImpl</tt> instance.
      */
-    boolean processCobriConferenceIQ(CobriConferenceIQ conferenceIQ)
+    boolean processColibriConferenceIQ(ColibriConferenceIQ conferenceIQ)
     {
-        if (cobri == null)
+        if (colibri == null)
         {
             /*
              * This instance has not set up any conference using the Jitsi
@@ -634,7 +634,7 @@ public class CallJabberImpl
              */
             return false;
         }
-        else if (conferenceIQ.getID().equals(cobri.getID()))
+        else if (conferenceIQ.getID().equals(colibri.getID()))
         {
             /*
              * Remove the local Channels (from the specified conferenceIQ) i.e.
@@ -645,20 +645,20 @@ public class CallJabberImpl
             for (MediaType mediaType : MediaType.values())
             {
                 String contentName = mediaType.toString();
-                CobriConferenceIQ.Content content
+                ColibriConferenceIQ.Content content
                     = conferenceIQ.getContent(contentName);
 
                 if (content != null)
                 {
-                    CobriConferenceIQ.Content thisContent
-                        = cobri.getContent(contentName);
+                    ColibriConferenceIQ.Content thisContent
+                        = colibri.getContent(contentName);
 
                     if ((thisContent != null)
                             && (thisContent.getChannelCount() > 0))
                     {
-                        CobriConferenceIQ.Channel thisChannel
+                        ColibriConferenceIQ.Channel thisChannel
                             = thisContent.getChannel(0);
-                        CobriConferenceIQ.Channel channel
+                        ColibriConferenceIQ.Channel channel
                             = content.getChannel(thisChannel.getID());
 
                         if (channel != null)
@@ -668,7 +668,7 @@ public class CallJabberImpl
             }
 
             for (CallPeerJabberImpl callPeer : getCallPeerList())
-                callPeer.processCobriConferenceIQ(conferenceIQ);
+                callPeer.processColibriConferenceIQ(conferenceIQ);
 
             /*
              * We have removed the local Channels from the specified

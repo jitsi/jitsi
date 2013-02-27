@@ -8,7 +8,7 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.util.*;
 
-import net.java.sip.communicator.impl.protocol.jabber.extensions.cobri.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.colibri.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.media.*;
@@ -61,17 +61,17 @@ public class OperationSetVideoBridgeImpl
      * Implements {@link PacketFilter}. Determines whether this instance is
      * interested in a specific {@link Packet}.
      * <tt>OperationSetVideoBridgeImpl</tt> returns <tt>true</tt> if the
-     * specified <tt>packet</tt> is a {@link CobriConferenceIQ}; otherwise,
+     * specified <tt>packet</tt> is a {@link net.java.sip.communicator.impl.protocol.jabber.extensions.colibri.ColibriConferenceIQ}; otherwise,
      * <tt>false</tt>. 
      *
      * @param packet the <tt>Packet</tt> to be determined whether this instance
      * is interested in it
      * @return <tt>true</tt> if the specified <tt>packet</tt> is a
-     * <tt>CobriConferenceIQ</tt>; otherwise, <tt>false</tt>
+     * <tt>ColibriConferenceIQ</tt>; otherwise, <tt>false</tt>
      */
     public boolean accept(Packet packet)
     {
-        return (packet instanceof CobriConferenceIQ);
+        return (packet instanceof ColibriConferenceIQ);
     }
 
     /**
@@ -139,24 +139,24 @@ public class OperationSetVideoBridgeImpl
     }
 
     /**
-     * Notifies this instance that a specific <tt>CobriConferenceIQ</tt> has
+     * Notifies this instance that a specific <tt>ColibriConferenceIQ</tt> has
      * been received.
      *
-     * @param conferenceIQ the <tt>CobriConferenceIQ</tt> which has been
+     * @param conferenceIQ the <tt>ColibriConferenceIQ</tt> which has been
      * received
      */
-    private void processCobriConferenceIQ(CobriConferenceIQ conferenceIQ)
+    private void processColibriConferenceIQ(ColibriConferenceIQ conferenceIQ)
     {
         /*
          * The application is not a Jitsi VideoBridge server, it is a client.
-         * Consequently, the specified CobriConferenceIQ is sent to it in
+         * Consequently, the specified ColibriConferenceIQ is sent to it in
          * relation to the part of the application's functionality which makes
          * requests to a Jitsi VideoBridge server i.e. CallJabberImpl.
          *
-         * Additionally, the method processCobriConferenceIQ is presently tasked
-         * with processing CobriConferenceIQ requests only. They are SET IQs
+         * Additionally, the method processColibriConferenceIQ is presently tasked
+         * with processing ColibriConferenceIQ requests only. They are SET IQs
          * sent by the Jitsi VideoBridge server to notify the application about
-         * updates in the states of (cobri) conferences organized by the
+         * updates in the states of (colibri) conferences organized by the
          * application.
          */
         if (IQ.Type.SET.equals(conferenceIQ.getType())
@@ -189,8 +189,8 @@ public class OperationSetVideoBridgeImpl
                              * the conferenceIQ from reaching the CallJabberImpl
                              * instance which it was meant for.
                              */
-                            callJabberImpl.processCobriConferenceIQ(
-                                    conferenceIQ);
+                            callJabberImpl.processColibriConferenceIQ(
+                                conferenceIQ);
                             break;
                         }
                     }
@@ -223,12 +223,12 @@ public class OperationSetVideoBridgeImpl
          * Now that the acknowledging is out of the way, do go about our
          * business with the Packet.
          */
-        CobriConferenceIQ conferenceIQ = (CobriConferenceIQ) iq;
+        ColibriConferenceIQ conferenceIQ = (ColibriConferenceIQ) iq;
         boolean interrupted = false;
 
         try
         {
-            processCobriConferenceIQ(conferenceIQ);
+            processColibriConferenceIQ(conferenceIQ);
         }
         catch (Throwable t)
         {
@@ -262,7 +262,7 @@ public class OperationSetVideoBridgeImpl
      * Implements {@link RegistrationStateChangeListener}. Notifies this
      * instance that there has been a change in the <tt>RegistrationState</tt>
      * of {@link #protocolProvider}. Subscribes this instance to
-     * {@link CobriConferenceIQ}s as soon as <tt>protocolProvider</tt> is
+     * {@link net.java.sip.communicator.impl.protocol.jabber.extensions.colibri.ColibriConferenceIQ}s as soon as <tt>protocolProvider</tt> is
      * registered and unsubscribes it as soon as <tt>protocolProvider</tt> is
      * unregistered.
      */

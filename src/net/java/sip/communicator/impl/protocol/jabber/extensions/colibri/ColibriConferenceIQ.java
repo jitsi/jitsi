@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.protocol.jabber.extensions.cobri;
+package net.java.sip.communicator.impl.protocol.jabber.extensions.colibri;
 
 import java.util.*;
 
@@ -13,11 +13,12 @@ import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 import org.jivesoftware.smack.packet.*;
 
 /**
- * Implements the Jitsi VideoBridge <tt>conference</tt> IQ.
+ * Implements the Jitsi VideoBridge <tt>conference</tt> IQ within the
+ * COnferencing with LIghtweight BRIdging.
  *
  * @author Lyubomir Marinov
  */
-public class CobriConferenceIQ
+public class ColibriConferenceIQ
     extends IQ
 {
     /**
@@ -28,15 +29,16 @@ public class CobriConferenceIQ
     /**
      * The XML name of the <tt>id</tt> attribute of the Jitsi VideoBridge
      * <tt>conference</tt> IQ which represents the value of the <tt>id</tt>
-     * property of <tt>CobriConferenceIQ</tt>.
+     * property of <tt>ColibriConferenceIQ</tt>.
      */
     public static final String ID_ATTR_NAME = "id";
 
     /**
-     * The XML namespace of the Jitsi VideoBridge <tt>conference</tt> IQ.
+     * The XML COnferencing with LIghtweight BRIdging namespace of the Jitsi
+     * VideoBridge <tt>conference</tt> IQ.
      */
     public static final String NAMESPACE
-        = "http://jitsi.org/protocol/videobridge#conference";
+        = "http://jitsi.org/protocol/colibri";
 
     /**
      * An array of <tt>long</tt>s which represents the lack of any (RTP) SSRCs
@@ -230,13 +232,13 @@ public class CobriConferenceIQ
          * The XML name of the <tt>expire</tt> attribute of a <tt>channel</tt>
          * of a <tt>content</tt> of a <tt>conference</tt> IQ which represents
          * the value of the <tt>expire</tt> property of
-         * <tt>CobriConferenceIQ.Channel</tt>.
+         * <tt>ColibriConferenceIQ.Channel</tt>.
          */
         public static final String EXPIRE_ATTR_NAME = "expire";
 
         /**
          * The value of the <tt>expire</tt> property of
-         * <tt>CobriConferenceIQ.Channel</tt> which indicates that no actual
+         * <tt>ColibriConferenceIQ.Channel</tt> which indicates that no actual
          * value has been specified for the property in question.
          */
         public static final int EXPIRE_NOT_SPECIFIED = -1;
@@ -245,7 +247,7 @@ public class CobriConferenceIQ
          * The XML name of the <tt>host</tt> attribute of a <tt>channel</tt> of
          * a <tt>content</tt> of a <tt>conference</tt> IQ which represents the
          * value of the <tt>host</tt> property of
-         * <tt>CobriConferenceIQ.Channel</tt>.
+         * <tt>ColibriConferenceIQ.Channel</tt>.
          */
         public static final String HOST_ATTR_NAME = "host";
 
@@ -253,7 +255,7 @@ public class CobriConferenceIQ
          * The XML name of the <tt>id</tt> attribute of a <tt>channel</tt> of a
          * <tt>content</tt> of a <tt>conference</tt> IQ which represents the
          * value of the <tt>id</tt> property of
-         * <tt>CobriConferenceIQ.Channel</tt>.
+         * <tt>ColibriConferenceIQ.Channel</tt>.
          */
         public static final String ID_ATTR_NAME = "id";
 
@@ -261,7 +263,7 @@ public class CobriConferenceIQ
          * The XML name of the <tt>rtcpport</tt> attribute of a <tt>channel</tt>
          * of a <tt>content</tt> of a <tt>conference</tt> IQ which represents
          * the value of the <tt>rtcpPort</tt> property of
-         * <tt>CobriConferenceIQ.Channel</tt>.
+         * <tt>ColibriConferenceIQ.Channel</tt>.
          */
         public static final String RTCP_PORT_ATTR_NAME = "rtcpport";
 
@@ -269,7 +271,7 @@ public class CobriConferenceIQ
          * The XML name of the <tt>rtpport</tt> attribute of a <tt>channel</tt>
          * of a <tt>content</tt> of a <tt>conference</tt> IQ which represents
          * the value of the <tt>rtpPort</tt> property of
-         * <tt>CobriConferenceIQ.Channel</tt>.
+         * <tt>ColibriConferenceIQ.Channel</tt>.
          */
         public static final String RTP_PORT_ATTR_NAME = "rtpport";
 
@@ -698,7 +700,7 @@ public class CobriConferenceIQ
         /**
          * The XML name of the <tt>name</tt> attribute of a <tt>content</tt> of
          * a <tt>conference</tt> IQ which represents the <tt>name</tt> property
-         * of <tt>CobriConferenceIQ.Content</tt>.
+         * of <tt>ColibriConferenceIQ.Content</tt>.
          */
         public static final String NAME_ATTR_NAME = "name";
 

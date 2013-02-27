@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.protocol.jabber.extensions.cobri;
+package net.java.sip.communicator.impl.protocol.jabber.extensions.colibri;
 
 import org.jitsi.service.neomedia.*;
 
@@ -15,11 +15,11 @@ import org.jitsi.service.neomedia.*;
  *
  * @author Lyubomir Marinov
  */
-public class CobriStreamConnector
+public class ColibriStreamConnector
     extends StreamConnectorDelegate<StreamConnector>
 {
     /**
-     * Initializes a new <tt>CobriStreamConnector</tt> instance which is to
+     * Initializes a new <tt>ColibriStreamConnector</tt> instance which is to
      * share a specific <tt>StreamConnector</tt> instance among multiple
      * <tt>TransportManager</tt>s for the purposes of the Jitsi VideoBridge.
      *
@@ -27,7 +27,7 @@ public class CobriStreamConnector
      * by the new instance among multiple <tt>TransportManager</tt>s for the
      * purposes of the Jitsi VideoBridge
      */
-    public CobriStreamConnector(StreamConnector streamConnector)
+    public ColibriStreamConnector(StreamConnector streamConnector)
     {
         super(streamConnector);
     }

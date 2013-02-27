@@ -18,7 +18,7 @@ import javax.net.ssl.*;
 import net.java.sip.communicator.impl.protocol.jabber.debugger.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.caps.*;
-import net.java.sip.communicator.impl.protocol.jabber.extensions.cobri.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.colibri.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.coin.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.gtalk.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.inputevt.*;
@@ -1679,18 +1679,18 @@ public class ProtocolProviderServiceJabberImpl
 
             // Jitsi VideoBridge IQProvider and PacketExtensionProvider
             providerManager.addIQProvider(
-                    CobriConferenceIQ.ELEMENT_NAME,
-                    CobriConferenceIQ.NAMESPACE,
-                    new CobriIQProvider());
+                    ColibriConferenceIQ.ELEMENT_NAME,
+                    ColibriConferenceIQ.NAMESPACE,
+                    new ColibriIQProvider());
             providerManager.addExtensionProvider(
                     PayloadTypePacketExtension.ELEMENT_NAME,
-                    CobriConferenceIQ.NAMESPACE,
+                    ColibriConferenceIQ.NAMESPACE,
                     new DefaultPacketExtensionProvider<
                                 PayloadTypePacketExtension>(
                             PayloadTypePacketExtension.class));
             providerManager.addExtensionProvider(
                     ParameterPacketExtension.ELEMENT_NAME,
-                    CobriConferenceIQ.NAMESPACE,
+                    ColibriConferenceIQ.NAMESPACE,
                     new DefaultPacketExtensionProvider<
                                 ParameterPacketExtension>(
                             ParameterPacketExtension.class));
@@ -2754,7 +2754,7 @@ public class ProtocolProviderServiceJabberImpl
                     }
                     if ((discoverInfo != null)
                             && discoverInfo.containsFeature(
-                                    CobriConferenceIQ.NAMESPACE))
+                                    ColibriConferenceIQ.NAMESPACE))
                     {
                         return entityID;
                     }
