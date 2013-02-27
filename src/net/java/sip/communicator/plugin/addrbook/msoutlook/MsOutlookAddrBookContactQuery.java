@@ -445,65 +445,68 @@ public class MsOutlookAddrBookContactQuery
     {
         switch(category)
         {
-            case Personal:
-                if(subCategories.contains(ContactDetail.SubCategory.Name))
-                    return MAPI_MAILUSER_PROP_IDS[PR_GIVEN_NAME];
-                    // PR_MIDDLE_NAME:
-                else if(subCategories.contains(
-                            ContactDetail.SubCategory.LastName))
-                    return MAPI_MAILUSER_PROP_IDS[PR_SURNAME];
-                else if(subCategories.contains(
-                            ContactDetail.SubCategory.Nickname))
-                    return MAPI_MAILUSER_PROP_IDS[PR_NICKNAME];
-                else if(subCategories.contains(
-                            ContactDetail.SubCategory.HomePage))
-                    return MAPI_MAILUSER_PROP_IDS[PR_PERSONAL_HOME_PAGE];
-                else
-                    return MAPI_MAILUSER_PROP_IDS[PR_DISPLAY_NAME_PREFIX];
-            case Organization:
+        case Personal:
+            if(subCategories.contains(ContactDetail.SubCategory.Name))
+                return MAPI_MAILUSER_PROP_IDS[PR_GIVEN_NAME];
+                // PR_MIDDLE_NAME:
+            else if(subCategories.contains(
+                        ContactDetail.SubCategory.LastName))
+                return MAPI_MAILUSER_PROP_IDS[PR_SURNAME];
+            else if(subCategories.contains(
+                        ContactDetail.SubCategory.Nickname))
+                return MAPI_MAILUSER_PROP_IDS[PR_NICKNAME];
+            else if(subCategories.contains(
+                        ContactDetail.SubCategory.HomePage))
+                return MAPI_MAILUSER_PROP_IDS[PR_PERSONAL_HOME_PAGE];
+            else
+                return MAPI_MAILUSER_PROP_IDS[PR_DISPLAY_NAME_PREFIX];
+        case Organization:
+            if(subCategories.contains(ContactDetail.SubCategory.Work))
+                return MAPI_MAILUSER_PROP_IDS[PR_COMPANY_NAME];
+            else
+                return MAPI_MAILUSER_PROP_IDS[PR_BUSINESS_HOME_PAGE];
+        case Email:
+            return MAPI_MAILUSER_PROP_IDS[dispidEmail1EmailAddress];
+            //dispidEmail2EmailAddress:
+            //dispidEmail3EmailAddress:
+            // PR_EMAIL_ADDRESS:
+        case Phone:
+            if(subCategories.contains(ContactDetail.SubCategory.Fax))
+            {
                 if(subCategories.contains(ContactDetail.SubCategory.Work))
-                    return MAPI_MAILUSER_PROP_IDS[PR_COMPANY_NAME];
-                else
-                    return MAPI_MAILUSER_PROP_IDS[PR_BUSINESS_HOME_PAGE];
-            case Email:
-                return MAPI_MAILUSER_PROP_IDS[dispidEmail1EmailAddress];
-                //dispidEmail2EmailAddress:
-                //dispidEmail3EmailAddress:
-                // PR_EMAIL_ADDRESS:
-            case Phone:
-                if(subCategories.contains(ContactDetail.SubCategory.Fax))
-                {
-                    if(subCategories.contains(ContactDetail.SubCategory.Work))
-                        return MAPI_MAILUSER_PROP_IDS[dispidFax1EmailAddress];
-                    else if(subCategories.contains(
-                                ContactDetail.SubCategory.Home))
-                        return MAPI_MAILUSER_PROP_IDS[dispidFax2EmailAddress];
-                    else if(subCategories.contains(
-                                ContactDetail.SubCategory.Other))
-                        return MAPI_MAILUSER_PROP_IDS[dispidFax3EmailAddress];
-                }
-                else if(subCategories.contains(ContactDetail.SubCategory.Work))
-                    return MAPI_MAILUSER_PROP_IDS[PR_BUSINESS_TELEPHONE_NUMBER];
-                    // PR_BUSINESS2_TELEPHONE_NUMBER:
-                else if(subCategories.contains(ContactDetail.SubCategory.Home))
-                    return MAPI_MAILUSER_PROP_IDS[PR_HOME_TELEPHONE_NUMBER];
-                    // PR_HOME2_TELEPHONE_NUMBER:
+                    return MAPI_MAILUSER_PROP_IDS[dispidFax1EmailAddress];
                 else if(subCategories.contains(
-                            ContactDetail.SubCategory.Mobile))
-                    return MAPI_MAILUSER_PROP_IDS[PR_MOBILE_TELEPHONE_NUMBER];
-                break;
-            //case InstantMessaging:
-            //    return MAPI_MAILUSER_PROP_IDS[dispidInstMsg];
-            //case Address:
-            //    if(subCategories.contains(ContactDetail.SubCategory.Work))
-            //        return MAPI_MAILUSER_PROP_IDS[dispidWorkAddress];
-            //    else if(subCategories.contains(
-            //                ContactDetail.SubCategory.Home))
-            //        return MAPI_MAILUSER_PROP_IDS[dispidHomeAddress];
-            //    else if(subCategories.contains(
-            //                ContactDetail.SubCategory.Other))
-            //        return MAPI_MAILUSER_PROP_IDS[dispidOtherAddress];
-            //    break;
+                            ContactDetail.SubCategory.Home))
+                    return MAPI_MAILUSER_PROP_IDS[dispidFax2EmailAddress];
+                else if(subCategories.contains(
+                            ContactDetail.SubCategory.Other))
+                    return MAPI_MAILUSER_PROP_IDS[dispidFax3EmailAddress];
+            }
+            else if(subCategories.contains(ContactDetail.SubCategory.Work))
+                return MAPI_MAILUSER_PROP_IDS[PR_BUSINESS_TELEPHONE_NUMBER];
+                // PR_BUSINESS2_TELEPHONE_NUMBER:
+            else if(subCategories.contains(ContactDetail.SubCategory.Home))
+                return MAPI_MAILUSER_PROP_IDS[PR_HOME_TELEPHONE_NUMBER];
+                // PR_HOME2_TELEPHONE_NUMBER:
+            else if(subCategories.contains(
+                        ContactDetail.SubCategory.Mobile))
+                return MAPI_MAILUSER_PROP_IDS[PR_MOBILE_TELEPHONE_NUMBER];
+            break;
+//        case InstantMessaging:
+//            return MAPI_MAILUSER_PROP_IDS[dispidInstMsg];
+//        case Address:
+//            if(subCategories.contains(ContactDetail.SubCategory.Work))
+//                return MAPI_MAILUSER_PROP_IDS[dispidWorkAddress];
+//            else if(subCategories.contains(
+//                        ContactDetail.SubCategory.Home))
+//                return MAPI_MAILUSER_PROP_IDS[dispidHomeAddress];
+//            else if(subCategories.contains(
+//                        ContactDetail.SubCategory.Other))
+//                return MAPI_MAILUSER_PROP_IDS[dispidOtherAddress];
+//            break;
+        default:
+            // Silence the compiler.
+            break;
         }
         return -1;
     }

@@ -6,11 +6,9 @@
  */
 package net.java.sip.communicator.plugin.addrbook.msoutlook;
 
-import net.java.sip.communicator.plugin.addrbook.*;
-import net.java.sip.communicator.service.contactsource.*;
-import net.java.sip.communicator.util.*;
-
 import java.util.*;
+
+import net.java.sip.communicator.service.contactsource.*;
 
 /**
  * Implements a custom <tt>SourceContact</tt> for the Address Book of Microsoft
@@ -22,13 +20,6 @@ public class MsOutlookAddrBookSourceContact
     extends GenericSourceContact
     implements EditableSourceContact
 {
-    /**
-     * The <tt>Logger</tt> used by the <tt>MsOutlookAddrBookSourceContact</tt>
-     * class and its instances for logging output.
-     */
-    private static final Logger logger
-        = Logger.getLogger(MsOutlookAddrBookSourceContact.class);
-
     /**
      * Initializes a new MsOutlookAddrBookSourceContact instance.
      *

@@ -6,7 +6,6 @@
  */
 package net.java.sip.communicator.plugin.addrbook.msoutlook;
 
-import java.util.*;
 import java.util.regex.*;
 
 import net.java.sip.communicator.plugin.addrbook.*;
