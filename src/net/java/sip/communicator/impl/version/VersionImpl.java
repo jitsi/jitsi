@@ -23,7 +23,7 @@ public class VersionImpl
      * number changes when a relatively extensive set of new features and
      * possibly rearchitecturing have been applied to the Jitsi.
      */
-    public static final int VERSION_MAJOR = 1;
+    public static final int VERSION_MAJOR = 2;
 
     /**
      * The version major field. Default value is VERSION_MAJOR.
@@ -36,7 +36,7 @@ public class VersionImpl
      * number changes when a relatively extensive set of new features and
      * possibly rearchitecturing have been applied to the Jitsi.
      */
-    public static final int VERSION_MINOR = 1;
+    public static final int VERSION_MINOR = 0;
 
     /**
      * The version minor field. Default value is VERSION_MINOR.
