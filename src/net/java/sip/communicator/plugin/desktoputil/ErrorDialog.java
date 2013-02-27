@@ -191,7 +191,7 @@ public class ErrorDialog
     {
         this(owner, title, message);
 
-        if (showStackTrace)
+        if (showStackTrace && e != null)
         {
             this.setTitle(title);
 
