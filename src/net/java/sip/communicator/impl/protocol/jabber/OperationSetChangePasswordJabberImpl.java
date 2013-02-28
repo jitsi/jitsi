@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import org.jivesoftware.smack.*;
+import org.jivesoftware.smackx.packet.*;
 
 /**
  * A jabber implementation of the password change operation set.
@@ -72,17 +73,34 @@ public class OperationSetChangePasswordJabberImpl
     }
     
     /**
-     * Returns true if the server supports password changes. This uses smack's
-     * <tt>AccountManager#supportsAccountCreation</tt> method, which checks for
-     * XEP-0077 (inband registrations) support. 
+     * Returns true if the server supports password changes. Checks for
+     * XEP-0077 (inband registrations) support via disco#info.
+     *
      * @return True if the server supports password changes, false otherwise.
      */
     public boolean supportsPasswordChange()
     {
-        org.jivesoftware.smack.AccountManager accountManager
-                = new org.jivesoftware.smack.AccountManager(
-                                        protocolProvider.getConnection());
-                
-        return accountManager.supportsAccountCreation();
+        try
+        {
+            DiscoverInfo discoverInfo
+                    = protocolProvider.getDiscoveryManager()
+                        .discoverInfo(
+                                protocolProvider.getAccountID().getService());
+            return discoverInfo.containsFeature(
+                        ProtocolProviderServiceJabberImpl.URN_REGISTER);
+        }
+        catch(Exception e)
+        {
+            if(logger.isInfoEnabled())
+                logger.info("Exception occurred while trying to find out if" +
+                        " inband registrations are supported. Returning true" +
+                        "anyway.");
+            /* It makes sense to return true if something goes wrong, because
+                failing later on is not fatal, and registrations are very
+                likely to be supported.
+             */
+            return true;
+        }
+
     }
 }

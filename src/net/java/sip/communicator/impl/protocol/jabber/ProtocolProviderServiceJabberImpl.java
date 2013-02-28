@@ -172,6 +172,11 @@ public class ProtocolProviderServiceJabberImpl
         "http://www.google.com/xmpp/protocol/video/v1";
 
     /**
+     * URN for XEP-0077 inband registration
+     */
+    public static final String URN_REGISTER = "jabber:iq:register";
+
+    /**
      * The name of the property under which the user may specify if the desktop
      * streaming or sharing should be disabled.
      */
