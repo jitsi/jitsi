@@ -149,16 +149,16 @@ static LPMAPIINITIALIZE MsOutlookAddrBookContactSourceService_mapiInitialize;
 static LPMAPILOGONEX MsOutlookAddrBookContactSourceService_mapiLogonEx;
 static LPMAPIUNINITIALIZE
     MsOutlookAddrBookContactSourceService_mapiUninitialize;
-static void (*MsOutlookAddrBookContactSourceService_hexFromBin)
+static void (STDAPICALLTYPE *MsOutlookAddrBookContactSourceService_hexFromBin)
     (LPBYTE, int, LPTSTR);
-static void (*MsOutlookAddrBookContactSourceService_HrAllocAdviseSink)
+static void (STDAPICALLTYPE *MsOutlookAddrBookContactSourceService_HrAllocAdviseSink)
     (LPNOTIFCALLBACK, LPVOID, LPMAPIADVISESINK*);
-static WINBOOL (*MsOutlookAddrBookContactSourceService_FBinFromHex)
+static WINBOOL (STDAPICALLTYPE *MsOutlookAddrBookContactSourceService_FBinFromHex)
     (LPTSTR, LPBYTE);
-static HRESULT (*MsOutlookAddrBookContactSourceService_HrQueryAllRows)
+static HRESULT (STDAPICALLTYPE *MsOutlookAddrBookContactSourceService_HrQueryAllRows)
     (LPMAPITABLE, LPSPropTagArray, LPSRestriction, LPSSortOrderSet, LONG,
      LPSRowSet*);
-static void (*MsOutlookAddrBookContactSourceService_FreeProws)
+static void (STDAPICALLTYPE *MsOutlookAddrBookContactSourceService_FreeProws)
     (LPSRowSet);
 
 
@@ -437,21 +437,21 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
 
 
                     MsOutlookAddrBookContactSourceService_hexFromBin
-                        = (void(*)(LPBYTE, int, LPTSTR))
+                        = (STDAPICALLTYPE void(*)(LPBYTE, int, LPTSTR))
                             GetProcAddress(lib, "HexFromBin@12");
                     MsOutlookAddrBookContactSourceService_HrAllocAdviseSink
-                        = (void(*)(LPNOTIFCALLBACK, LPVOID, LPMAPIADVISESINK*))
+                        = (STDAPICALLTYPE void(*)(LPNOTIFCALLBACK, LPVOID, LPMAPIADVISESINK*))
                             GetProcAddress(lib, "HrAllocAdviseSink@12");
                     MsOutlookAddrBookContactSourceService_FBinFromHex
-                        = (WINBOOL(*)(LPTSTR, LPBYTE))
+                        = (STDAPICALLTYPE WINBOOL(*)(LPTSTR, LPBYTE))
                             GetProcAddress(lib, "FBinFromHex@8");
                     MsOutlookAddrBookContactSourceService_HrQueryAllRows
-                        = (HRESULT(*)(LPMAPITABLE, LPSPropTagArray,
+                        = (STDAPICALLTYPE HRESULT(*)(LPMAPITABLE, LPSPropTagArray,
                                     LPSRestriction, LPSSortOrderSet, LONG,
                                     LPSRowSet*))
                             GetProcAddress(lib, "HrQueryAllRows@24");
                     MsOutlookAddrBookContactSourceService_FreeProws
-                        = (void(*)(LPSRowSet))
+                        = (STDAPICALLTYPE void(*)(LPSRowSet))
                             GetProcAddress(lib, "FreeProws@4");
 
                     InitializeCriticalSection(
