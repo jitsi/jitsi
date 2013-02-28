@@ -61,7 +61,7 @@ public class OperationSetVideoBridgeImpl
      * Implements {@link PacketFilter}. Determines whether this instance is
      * interested in a specific {@link Packet}.
      * <tt>OperationSetVideoBridgeImpl</tt> returns <tt>true</tt> if the
-     * specified <tt>packet</tt> is a {@link net.java.sip.communicator.impl.protocol.jabber.extensions.colibri.ColibriConferenceIQ}; otherwise,
+     * specified <tt>packet</tt> is a {@link ColibriConferenceIQ}; otherwise,
      * <tt>false</tt>. 
      *
      * @param packet the <tt>Packet</tt> to be determined whether this instance
@@ -262,7 +262,7 @@ public class OperationSetVideoBridgeImpl
      * Implements {@link RegistrationStateChangeListener}. Notifies this
      * instance that there has been a change in the <tt>RegistrationState</tt>
      * of {@link #protocolProvider}. Subscribes this instance to
-     * {@link net.java.sip.communicator.impl.protocol.jabber.extensions.colibri.ColibriConferenceIQ}s as soon as <tt>protocolProvider</tt> is
+     * {@link ColibriConferenceIQ}s as soon as <tt>protocolProvider</tt> is
      * registered and unsubscribes it as soon as <tt>protocolProvider</tt> is
      * unregistered.
      */

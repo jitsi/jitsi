@@ -30,7 +30,7 @@ public class CandidatePacketExtension extends AbstractPacketExtension
     public static final int RTP_COMPONENT_ID = 1;
 
     /**
-     * The "component" ID for RTP components.
+     * The "component" ID for RTCP components.
      */
     public static final int RTCP_COMPONENT_ID = 2;
 

@@ -325,7 +325,7 @@ public class RawUdpTransportManager
                                             channel.getRTPPort()),
                                     new InetSocketAddress(
                                             channel.getHost(),
-                                            channel.getRTPPort()));
+                                            channel.getRTCPPort()));
                     }
 
                     break;
@@ -336,7 +336,7 @@ public class RawUdpTransportManager
     }
 
     /**
-     * Gets the {@link net.java.sip.communicator.impl.protocol.jabber.extensions.colibri.ColibriConferenceIQ.Channel} which belongs to a content
+     * Gets the {@link ColibriConferenceIQ.Channel} which belongs to a content
      * associated with a specific <tt>MediaType</tt> and is to be either locally
      * or remotely used.
      * <p>
