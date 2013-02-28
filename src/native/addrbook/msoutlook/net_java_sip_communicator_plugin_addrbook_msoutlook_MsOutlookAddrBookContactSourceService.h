@@ -43,6 +43,25 @@ void callDeletedCallbackMethod(
 
 LPMAPISESSION MsOutlookAddrBookContactSourceService_getMapiSession();
 
+void MsOutlookAddrBookContact_hexFromBin(LPBYTE pb, int cb, LPTSTR sz);
+
+void MsOutlookAddrBookContact_HrAllocAdviseSink(
+        LPNOTIFCALLBACK lpfnCallback,
+        LPVOID lpvContext,
+        LPMAPIADVISESINK* lppAdviseSink);
+
+WINBOOL MsOutlookAddrBookContact_FBinFromHex( LPTSTR lpsz, LPBYTE lpb);
+
+HRESULT MsOutlookAddrBookContact_HrQueryAllRows(
+        LPMAPITABLE lpTable,
+        LPSPropTagArray lpPropTags,
+        LPSRestriction lpRestriction,
+        LPSSortOrderSet lpSortOrderSet,
+        LONG crowsMax,
+        LPSRowSet* lppRows);
+
+void MsOutlookAddrBookContact_FreeProws(LPSRowSet lpRows);
+
 #ifdef __cplusplus
 }
 #endif

@@ -149,6 +149,18 @@ static LPMAPIINITIALIZE MsOutlookAddrBookContactSourceService_mapiInitialize;
 static LPMAPILOGONEX MsOutlookAddrBookContactSourceService_mapiLogonEx;
 static LPMAPIUNINITIALIZE
     MsOutlookAddrBookContactSourceService_mapiUninitialize;
+static void (*MsOutlookAddrBookContactSourceService_hexFromBin)
+    (LPBYTE, int, LPTSTR);
+static void (*MsOutlookAddrBookContactSourceService_HrAllocAdviseSink)
+    (LPNOTIFCALLBACK, LPVOID, LPMAPIADVISESINK*);
+static WINBOOL (*MsOutlookAddrBookContactSourceService_FBinFromHex)
+    (LPTSTR, LPBYTE);
+static HRESULT (*MsOutlookAddrBookContactSourceService_HrQueryAllRows)
+    (LPMAPITABLE, LPSPropTagArray, LPSRestriction, LPSSortOrderSet, LONG,
+     LPSRowSet*);
+static void (*MsOutlookAddrBookContactSourceService_FreeProws)
+    (LPSRowSet);
+
 
 static LPMAPISESSION MsOutlookAddrBookContactSourceService_mapiSession = NULL;
 static CRITICAL_SECTION MsOutlookAddrBookContactSourceService_mapiSessionCriticalSection;
@@ -181,9 +193,9 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
     {
         DWORD i = 0;
         TCHAR installRootKeyName[
-                255 /* The size limit of key name as documented in MSDN */
-                    + 20 /* \Outlook\InstallRoot */
-                    + 1 /* The terminating null character */ ];
+                255 // The size limit of key name as documented in MSDN
+                    + 20 // \Outlook\InstallRoot
+                    + 1]; // The terminating null character
 
         while (1)
         {
@@ -232,14 +244,12 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
             {
                 LPTSTR pathValue;
 
-                /*
-                 * MSDN says "the string may not have been stored with the
-                 * proper terminating null characters."
-                 */
+                // MSDN says "the string may not have been stored with the
+                // proper terminating null characters."
                 pathValueSize
                     += sizeof(TCHAR)
-                        * (12 /* \Outlook.exe */
-                            + 1 /* The terminating null character */);
+                        * (12 // \Outlook.exe
+                            + 1); // The terminating null character
 
                 if (pathValueSize <= sizeof(installRootKeyName))
                     pathValue = installRootKeyName;
@@ -284,19 +294,15 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
         }
         RegCloseKey(regKey);
 
-        /*
-         * Make sure that Microsoft Outlook is the default mail client in order
-         * to prevent its dialog in the case of it not being the default mail
-         * client.
-         */
+        // Make sure that Microsoft Outlook is the default mail client in order
+        // to prevent its dialog in the case of it not being the default mail
+        // client.
         if (HR_SUCCEEDED(hResult))
         {
             DWORD defaultValueType;
-            /*
-             * The buffer installRootKeyName is long enough to receive
-             * "Microsoft Outlook" so use it in order to not have to allocate
-             * more memory.
-             */
+            // The buffer installRootKeyName is long enough to receive
+            // "Microsoft Outlook" so use it in order to not have to allocate
+            // more memory.
             LPTSTR defaultValue = (LPTSTR) installRootKeyName;
             DWORD defaultValueCapacity = sizeof(installRootKeyName);
             jboolean checkHKeyLocalMachine;
@@ -397,7 +403,7 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
         }
     }
 
-    /* If we've determined that we'd like to go on with MAPI, try to load it. */
+    // If we've determined that we'd like to go on with MAPI, try to load it.
     if (HR_SUCCEEDED(hResult))
     {
         HMODULE lib = LoadLibrary(_T("mapi32.dll"));
@@ -429,15 +435,46 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
                     MsOutlookAddrBookContactSourceService_mapiLogonEx
                         = (LPMAPILOGONEX) GetProcAddress(lib, "MAPILogonEx");
 
+
+                    MsOutlookAddrBookContactSourceService_hexFromBin
+                        = (void(*)(LPBYTE, int, LPTSTR))
+                            GetProcAddress(lib, "HexFromBin@12");
+                    MsOutlookAddrBookContactSourceService_HrAllocAdviseSink
+                        = (void(*)(LPNOTIFCALLBACK, LPVOID, LPMAPIADVISESINK*))
+                            GetProcAddress(lib, "HrAllocAdviseSink@12");
+                    MsOutlookAddrBookContactSourceService_FBinFromHex
+                        = (WINBOOL(*)(LPTSTR, LPBYTE))
+                            GetProcAddress(lib, "FBinFromHex@8");
+                    MsOutlookAddrBookContactSourceService_HrQueryAllRows
+                        = (HRESULT(*)(LPMAPITABLE, LPSPropTagArray,
+                                    LPSRestriction, LPSSortOrderSet, LONG,
+                                    LPSRowSet*))
+                            GetProcAddress(lib, "HrQueryAllRows@24");
+                    MsOutlookAddrBookContactSourceService_FreeProws
+                        = (void(*)(LPSRowSet))
+                            GetProcAddress(lib, "FreeProws@4");
+
                     InitializeCriticalSection(
                             &MsOutlookAddrBookContactSourceService_mapiSessionCriticalSection);
 
                     if (MsOutlookAddrBookContactSourceService_mapiAllocateBuffer
                             && MsOutlookAddrBookContactSourceService_mapiFreeBuffer
-                            && MsOutlookAddrBookContactSourceService_mapiLogonEx)
+                            && MsOutlookAddrBookContactSourceService_mapiLogonEx
+
+                            && MsOutlookAddrBookContactSourceService_hexFromBin
+                            &&
+                            MsOutlookAddrBookContactSourceService_HrAllocAdviseSink
+                            && MsOutlookAddrBookContactSourceService_FBinFromHex
+                            &&
+                            MsOutlookAddrBookContactSourceService_HrQueryAllRows
+                            && MsOutlookAddrBookContactSourceService_FreeProws
+                            )
                         hResult = S_OK;
                     else
+                    {
                         MsOutlookAddrBookContactSourceService_mapiUninitialize();
+                        hResult = MAPI_E_NO_SUPPORT;
+                    }
                 }
             }
             if (HR_FAILED(hResult))
@@ -448,7 +485,8 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
     if (HR_SUCCEEDED(hResult)
             && MsOutlookAddrBookContactSourceService_mapiSession == NULL)
     {
-        hResult = MAPILogonEx(
+        hResult = MsOutlookAddrBook_mapiLogonEx(
+        //hResult = MAPILogonEx(
                 0,
                 NULL, NULL,
                 MAPI_EXTENDED | MAPI_NO_MAIL | MAPI_USE_DEFAULT,
@@ -573,4 +611,47 @@ MsOutlookAddrBookContactSourceService_isValidDefaultMailClient
 LPMAPISESSION MsOutlookAddrBookContactSourceService_getMapiSession()
 {
     return MsOutlookAddrBookContactSourceService_mapiSession;
+}
+
+void MsOutlookAddrBookContact_hexFromBin(LPBYTE pb, int cb, LPTSTR sz)
+{
+    return MsOutlookAddrBookContactSourceService_hexFromBin(pb, cb, sz);
+}
+
+void MsOutlookAddrBookContact_HrAllocAdviseSink(
+        LPNOTIFCALLBACK lpfnCallback,
+        LPVOID lpvContext,
+        LPMAPIADVISESINK* lppAdviseSink)
+{
+    MsOutlookAddrBookContactSourceService_HrAllocAdviseSink(
+            lpfnCallback,
+            lpvContext,
+            lppAdviseSink);
+}
+
+WINBOOL MsOutlookAddrBookContact_FBinFromHex(LPTSTR lpsz, LPBYTE lpb)
+{
+    return MsOutlookAddrBookContactSourceService_FBinFromHex(lpsz, lpb);
+}
+
+HRESULT MsOutlookAddrBookContact_HrQueryAllRows(
+        LPMAPITABLE lpTable,
+        LPSPropTagArray lpPropTags,
+        LPSRestriction lpRestriction,
+        LPSSortOrderSet lpSortOrderSet,
+        LONG crowsMax,
+        LPSRowSet* lppRows)
+{
+    return MsOutlookAddrBookContactSourceService_HrQueryAllRows(
+            lpTable,
+            lpPropTags,
+            lpRestriction,
+            lpSortOrderSet,
+            crowsMax,
+            lppRows);
+}
+
+void MsOutlookAddrBookContact_FreeProws(LPSRowSet lpRows)
+{
+    MsOutlookAddrBookContactSourceService_FreeProws(lpRows);
 }

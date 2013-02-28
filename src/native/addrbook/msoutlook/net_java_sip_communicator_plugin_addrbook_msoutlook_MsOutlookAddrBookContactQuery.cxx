@@ -315,7 +315,8 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
                         {
                             char entryIdStr[prop->Value.bin.cb * 2 + 1];
 
-                            HexFromBin(
+                            MsOutlookAddrBookContact_hexFromBin(
+                            //HexFromBin(
                                     prop->Value.bin.lpb,
                                     prop->Value.bin.cb,
                                     entryIdStr);
@@ -1255,8 +1256,6 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
             (baseGroupEntryIdProp + 5)  // 0x8085 PidLidEmail1OriginalEntryID
         };
         ULONG propTag;
-        ULONG propCount;
-        LPSPropValue propArray;
         LPSPropTagArray propTagArray;
         MAPIAllocateBuffer(
                 CbNewSPropTagArray(nbProps),
@@ -1375,7 +1374,8 @@ void openAllMsgStores(
         if (HR_SUCCEEDED(hResult))
         {
             LPSRowSet rows;
-            hResult = HrQueryAllRows(
+            hResult = MsOutlookAddrBookContact_HrQueryAllRows(
+            //hResult = HrQueryAllRows(
                     MsOutlookAddrBookContactQuery_msgStoresTable,
                     NULL,
                     NULL,
@@ -1443,7 +1443,8 @@ void openAllMsgStores(
                         }
                     }
                 }
-                FreeProws(rows);
+                MsOutlookAddrBookContact_FreeProws(rows);
+                //FreeProws(rows);
             }
         }
     }
@@ -1497,7 +1498,10 @@ LPUNKNOWN openEntryId(const char* entryId)
 {
     ULONG tmpEntryIdSize = strlen(entryId) / 2;
     LPENTRYID tmpEntryId = (LPENTRYID) malloc(tmpEntryIdSize * sizeof(char));
-    if(FBinFromHex((LPSTR) entryId, (LPBYTE) tmpEntryId))
+    if(MsOutlookAddrBookContact_FBinFromHex(
+                (LPSTR) entryId,
+                (LPBYTE) tmpEntryId))
+    //if(FBinFromHex((LPSTR) entryId, (LPBYTE) tmpEntryId))
     {
         LPMAPISESSION mapiSession
             = MsOutlookAddrBookContactSourceService_getMapiSession();
@@ -1527,7 +1531,8 @@ ULONG registerNotifyTable(
         LPMAPITABLE iUnknown)
 {
     LPMAPIADVISESINK adviseSink;
-    HrAllocAdviseSink(
+    MsOutlookAddrBookContact_HrAllocAdviseSink(
+    //HrAllocAdviseSink(
             &tableChanged,
             iUnknown,
             &adviseSink);
@@ -1557,6 +1562,10 @@ LONG STDAPICALLTYPE tableChanged(
     {
         // Frees and recreates all the notification for the table.
         freeAllMsgStores();
-        openAllMsgStores(MsOutlookAddrBookContactSourceService_getMapiSession());
+        openAllMsgStores(
+                MsOutlookAddrBookContactSourceService_getMapiSession());
     }
+
+    // A client must always return a S_OK.
+    return S_OK;
 }

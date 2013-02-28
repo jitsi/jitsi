@@ -858,7 +858,7 @@
       <linkerarg value="-ojmsoutlookaddrbook.dll" />
       <linkerarg value="-Wl,--kill-at" />
       <linkerarg value="-Wl,--subsystem,windows" />
-      <libset libs="mapi32" />
+      <libset libs="advapi32" />
       <libset libs="uuid" />
       <linkerarg value="-m32" if="cross_32" />
       <linkerarg value="-m64" if="cross_64" />

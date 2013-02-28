@@ -79,7 +79,8 @@ LONG STDAPICALLTYPE onNotify(
             {
                 char entryIdStr[lpNotifications[i].info.obj.cbEntryID * 2 + 1];
 
-                HexFromBin(
+                MsOutlookAddrBookContact_hexFromBin(
+                //HexFromBin(
                         (LPBYTE) lpNotifications[i].info.obj.lpEntryID,
                         lpNotifications[i].info.obj.cbEntryID,
                         entryIdStr);
@@ -96,13 +97,15 @@ LONG STDAPICALLTYPE onNotify(
             if(lpvContext != NULL)
             {
                 char entryIdStr[lpNotifications[i].info.obj.cbEntryID * 2 + 1];
-                HexFromBin(
+                MsOutlookAddrBookContact_hexFromBin(
+                //HexFromBin(
                         (LPBYTE) lpNotifications[i].info.obj.lpEntryID,
                         lpNotifications[i].info.obj.cbEntryID,
                         entryIdStr);
                 char parentEntryIdStr[
                     lpNotifications[i].info.obj.cbParentID * 2 + 1];
-                HexFromBin(
+                MsOutlookAddrBookContact_hexFromBin(
+                //HexFromBin(
                         (LPBYTE) lpNotifications[i].info.obj.lpParentID,
                         lpNotifications[i].info.obj.cbParentID,
                         parentEntryIdStr);
@@ -116,7 +119,8 @@ LONG STDAPICALLTYPE onNotify(
                         &wasteBasketProps); 
                 char wasteBasketEntryIdStr[
                     wasteBasketProps[0].Value.bin.cb * 2 + 1];
-                HexFromBin(
+                MsOutlookAddrBookContact_hexFromBin(
+                //HexFromBin(
                         (LPBYTE) wasteBasketProps[0].Value.bin.lpb,
                         wasteBasketProps[0].Value.bin.cb,
                         wasteBasketEntryIdStr);
@@ -157,7 +161,8 @@ ULONG registerNotifyMessageDataBase(
         LPMDB iUnknown)
 {
     LPMAPIADVISESINK adviseSink;
-    HrAllocAdviseSink(
+    MsOutlookAddrBookContact_HrAllocAdviseSink(
+    //HrAllocAdviseSink(
             &onNotify,
             iUnknown,
             &adviseSink);
