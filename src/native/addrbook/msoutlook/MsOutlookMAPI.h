@@ -11,9 +11,16 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+#ifndef __in
+#define __in
+#endif /* #ifndef __in */
 #ifndef __in_opt
 #define __in_opt
 #endif /* #ifndef __in_opt */
+#ifndef __out
+#define __out
+#endif /* #ifndef __out */
+
 #if defined(_WINBASE_H) && !defined(_WINBASE_)
 #define _tagCY_DEFINED
 #define _WINBASE_

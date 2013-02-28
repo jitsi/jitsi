@@ -7,16 +7,13 @@
 
 #include "net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactQuery.h"
 
-#include "net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService.h"
-
 #include "../AddrBookContactQuery.h"
-#include "MsOutlookMAPI.h"
 #include "MsOutlookMAPIHResultException.h"
-#include "lib/MAPINotification.h"
-
+#include "MAPINotification.h"
+#include "net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService.h"
+#include <mapiutil.h>
 #include <stdio.h>
 #include <string.h>
-#include <mapiutil.h>
 
 #define PR_ATTACHMENT_CONTACTPHOTO PROP_TAG(PT_BOOLEAN, 0x7FFF)
 
@@ -1527,8 +1524,8 @@ LPUNKNOWN openEntryId(const char* entryId)
 /**
  * Registers a callback function for when the message store table changes.
  */
-ULONG registerNotifyTable(
-        LPMAPITABLE iUnknown)
+ULONG
+registerNotifyTable(LPMAPITABLE iUnknown)
 {
     LPMAPIADVISESINK adviseSink;
     MsOutlookAddrBookContact_HrAllocAdviseSink(
@@ -1537,10 +1534,10 @@ ULONG registerNotifyTable(
             iUnknown,
             &adviseSink);
     ULONG nbConnection = 0;
-        iUnknown->Advise(
+    iUnknown->Advise(
             fnevTableModified,
             adviseSink,
-            &nbConnection);
+            (ULONG_PTR *) &nbConnection);
 
     return nbConnection;
 }

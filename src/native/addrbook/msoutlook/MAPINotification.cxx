@@ -6,17 +6,14 @@
  */
 #include "MAPINotification.h"
 
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-
-#include <stdio.h>
-#include <Unknwn.h>
-
+#include "MsOutlookMAPI.h"
+#include "net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService.h"
+#include "net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactQuery.h"
 #include <mapidefs.h>
 #include <mapiutil.h>
+#include <stdio.h>
+#include <unknwn.h>
 
-#include "../net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService.h"
-#include "../net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactQuery.h"
 /**
  * Manages notification for the message data base (used to get the list of
  * contact).
@@ -167,12 +164,12 @@ ULONG registerNotifyMessageDataBase(
             iUnknown,
             &adviseSink);
     ULONG nbConnection = 0;
-        iUnknown->Advise(
-            0,
-            NULL,
+    iUnknown->Advise(
+            (ULONG) 0,
+            (LPENTRYID) NULL,
             EVENT_MASK,
             adviseSink,
-            &nbConnection);
+            (ULONG_PTR *) &nbConnection);
 
     return nbConnection;
 }

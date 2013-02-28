@@ -5,15 +5,15 @@
  * See terms of license at gnu.org.
  */
 
-#ifndef _mapi_notification_h
-#define _mapi_notification_h
+#ifndef _NET_JAVA_SIP_COMMUNICATOR_PLUGIN_ADDRBOOK_MSOUTLOOK_MAPINOTIFICATION_H_
+#define _NET_JAVA_SIP_COMMUNICATOR_PLUGIN_ADDRBOOK_MSOUTLOOK_MAPINOTIFICATION_H_
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+#include "MsOutlookMAPI.h"
 #include <mapidefs.h>
-#include <mapix.h>
 
 LONG STDAPICALLTYPE onNotify(
         LPVOID lpvContext,
@@ -27,4 +27,4 @@ ULONG registerNotifyMessageDataBase(
 }
 #endif
 
-#endif
+#endif /* #ifndef _NET_JAVA_SIP_COMMUNICATOR_PLUGIN_ADDRBOOK_MSOUTLOOK_MAPINOTIFICATION_H_ */

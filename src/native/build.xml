@@ -22,7 +22,10 @@
     </or>
   </condition>
   <condition property="arch" value="64">
-    <os arch="amd64" />
+    <or>
+      <os arch="amd64" />
+      <os arch="x86_64" />
+    </or>
   </condition>
 
   <!--
@@ -833,42 +836,38 @@
     <echo message="-Dportaudio=/path/to/portaudio and -Dspeex=/path/to/speex"  />
   </target>
 
-  <!-- compile jnwmsoutlookaddrbook library for Windows (32-bit/64-bit) -->
+  <!-- compile jmsoutlookaddrbook library for Windows -->
   <target
-    name="msoutlookaddrbook"
-    description="Build jmsoutlookaddrbook shared library for Windows"
-    if="is.running.windows"
-    depends="init-native">
-    <cc name="gcc"
+      name="msoutlookaddrbook"
+      description="Build jmsoutlookaddrbook shared library for Windows"
+      if="is.running.windows"
+      depends="init-native">
+    <fail message="Outlook2010MAPIHeaders not set!" unless="Outlook2010MAPIHeaders" />
+    <cc
+        name="gcc"
         objdir="${obj}"
         outfile="${native_install_dir}/jmsoutlookaddrbook"
         outtype="shared">
-
       <compilerarg value="-D_JNI_IMPLEMENTATION_" />
       <compilerarg value="-D_WIN32_WINNT=0x0502" />
       <compilerarg value="-DWINVER=0x0502" />
       <compilerarg value="-I${system.JAVA_HOME}/include" />
       <compilerarg value="-I${system.JAVA_HOME}/include/win32" />
-      <compilerarg value="-O2" />
-      <compilerarg value="-Wall" />
-      <compilerarg value="-Wreturn-type" />
+      <compilerarg value="-I${Outlook2010MAPIHeaders}" />
       <compilerarg value="-m32" if="cross_32" />
       <compilerarg value="-m64" if="cross_64" />
+      <compilerarg value="-O2" />
+      <compilerarg value="-Wall" />
 
       <linkerarg value="-ojmsoutlookaddrbook.dll" />
-      <linkerarg value="-Wl,--kill-at" />
-      <linkerarg value="-Wl,--subsystem,windows" />
-      <libset libs="advapi32" />
-      <libset libs="uuid" />
       <linkerarg value="-m32" if="cross_32" />
       <linkerarg value="-m64" if="cross_64" />
+      <linkerarg value="-Wl,--kill-at" />
+      <linkerarg value="-Wl,--subsystem,windows" />
+      <libset libs="advapi32,uuid" />
 
       <fileset dir="${src}/native/addrbook" includes="*.c" />
       <fileset dir="${src}/native/addrbook/msoutlook" includes="*.cxx" />
-      <fileset dir="${src}/native/addrbook/msoutlook/lib" includes="*.cxx" />
     </cc>
-
-    <delete dir="${obj}" failonerror="false" />
-    <delete file="${native_install_dir}/history.xml" failonerror="false" />
   </target>
 </project>

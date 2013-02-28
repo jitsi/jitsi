@@ -7,15 +7,11 @@
 
 #include "net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService.h"
 
-#include "net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactQuery.h"
-
 #include "../AddrBookContactQuery.h"
-#include "MsOutlookMAPI.h"
 #include "MsOutlookMAPIHResultException.h"
-
-#include "lib/MAPINotification.h"
-
-#include <Mapiutil.h>
+#include "MAPINotification.h"
+#include "net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactQuery.h"
+#include <mapiutil.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -141,7 +137,6 @@ void callDeletedCallbackMethod(
     contactSourceServiceVM->DetachCurrentThread();
 }
 
-
 static LPMAPIALLOCATEBUFFER
     MsOutlookAddrBookContactSourceService_mapiAllocateBuffer;
 static LPMAPIFREEBUFFER MsOutlookAddrBookContactSourceService_mapiFreeBuffer;
@@ -149,18 +144,18 @@ static LPMAPIINITIALIZE MsOutlookAddrBookContactSourceService_mapiInitialize;
 static LPMAPILOGONEX MsOutlookAddrBookContactSourceService_mapiLogonEx;
 static LPMAPIUNINITIALIZE
     MsOutlookAddrBookContactSourceService_mapiUninitialize;
-static void (STDAPICALLTYPE *MsOutlookAddrBookContactSourceService_hexFromBin)
-    (LPBYTE, int, LPTSTR);
-static void (STDAPICALLTYPE *MsOutlookAddrBookContactSourceService_HrAllocAdviseSink)
-    (LPNOTIFCALLBACK, LPVOID, LPMAPIADVISESINK*);
-static WINBOOL (STDAPICALLTYPE *MsOutlookAddrBookContactSourceService_FBinFromHex)
-    (LPTSTR, LPBYTE);
-static HRESULT (STDAPICALLTYPE *MsOutlookAddrBookContactSourceService_HrQueryAllRows)
-    (LPMAPITABLE, LPSPropTagArray, LPSRestriction, LPSSortOrderSet, LONG,
-     LPSRowSet*);
-static void (STDAPICALLTYPE *MsOutlookAddrBookContactSourceService_FreeProws)
-    (LPSRowSet);
 
+typedef void (STDAPICALLTYPE *LPHEXFROMBIN)(LPBYTE, int, LPTSTR);
+typedef HRESULT (STDAPICALLTYPE *LPHRALLOCADVISESINK)(LPNOTIFCALLBACK, LPVOID, LPMAPIADVISESINK FAR *);
+typedef BOOL (STDAPICALLTYPE *LPFBINFROMHEX)(LPTSTR, LPBYTE);
+typedef HRESULT (STDAPICALLTYPE *LPHRQUERYALLROWS)(LPMAPITABLE, LPSPropTagArray, LPSRestriction, LPSSortOrderSet, LONG, LPSRowSet FAR *);
+typedef void (STDAPICALLTYPE *LPFREEPROWS)(LPSRowSet);
+
+static LPHEXFROMBIN MsOutlookAddrBookContactSourceService_hexFromBin;
+static LPHRALLOCADVISESINK MsOutlookAddrBookContactSourceService_HrAllocAdviseSink;
+static LPFBINFROMHEX MsOutlookAddrBookContactSourceService_FBinFromHex;
+static LPHRQUERYALLROWS MsOutlookAddrBookContactSourceService_HrQueryAllRows;
+static LPFREEPROWS MsOutlookAddrBookContactSourceService_FreeProws;
 
 static LPMAPISESSION MsOutlookAddrBookContactSourceService_mapiSession = NULL;
 static CRITICAL_SECTION MsOutlookAddrBookContactSourceService_mapiSessionCriticalSection;
@@ -406,7 +401,7 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
     // If we've determined that we'd like to go on with MAPI, try to load it.
     if (HR_SUCCEEDED(hResult))
     {
-        HMODULE lib = LoadLibrary(_T("mapi32.dll"));
+        HMODULE lib = ::LoadLibrary(_T("mapi32.dll"));
 
         hResult = MAPI_E_NO_SUPPORT;
         if (lib)
@@ -435,24 +430,18 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
                     MsOutlookAddrBookContactSourceService_mapiLogonEx
                         = (LPMAPILOGONEX) GetProcAddress(lib, "MAPILogonEx");
 
-
                     MsOutlookAddrBookContactSourceService_hexFromBin
-                        = (STDAPICALLTYPE void(*)(LPBYTE, int, LPTSTR))
-                            GetProcAddress(lib, "HexFromBin@12");
+                        = (LPHEXFROMBIN) GetProcAddress(lib, "HexFromBin@12");
                     MsOutlookAddrBookContactSourceService_HrAllocAdviseSink
-                        = (STDAPICALLTYPE void(*)(LPNOTIFCALLBACK, LPVOID, LPMAPIADVISESINK*))
+                        = (LPHRALLOCADVISESINK)
                             GetProcAddress(lib, "HrAllocAdviseSink@12");
                     MsOutlookAddrBookContactSourceService_FBinFromHex
-                        = (STDAPICALLTYPE WINBOOL(*)(LPTSTR, LPBYTE))
-                            GetProcAddress(lib, "FBinFromHex@8");
+                        = (LPFBINFROMHEX) GetProcAddress(lib, "FBinFromHex@8");
                     MsOutlookAddrBookContactSourceService_HrQueryAllRows
-                        = (STDAPICALLTYPE HRESULT(*)(LPMAPITABLE, LPSPropTagArray,
-                                    LPSRestriction, LPSSortOrderSet, LONG,
-                                    LPSRowSet*))
+                        = (LPHRQUERYALLROWS)
                             GetProcAddress(lib, "HrQueryAllRows@24");
                     MsOutlookAddrBookContactSourceService_FreeProws
-                        = (STDAPICALLTYPE void(*)(LPSRowSet))
-                            GetProcAddress(lib, "FreeProws@4");
+                        = (LPFREEPROWS) GetProcAddress(lib, "FreeProws@4");
 
                     InitializeCriticalSection(
                             &MsOutlookAddrBookContactSourceService_mapiSessionCriticalSection);
@@ -462,14 +451,13 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
                             && MsOutlookAddrBookContactSourceService_mapiLogonEx
 
                             && MsOutlookAddrBookContactSourceService_hexFromBin
-                            &&
-                            MsOutlookAddrBookContactSourceService_HrAllocAdviseSink
+                            && MsOutlookAddrBookContactSourceService_HrAllocAdviseSink
                             && MsOutlookAddrBookContactSourceService_FBinFromHex
-                            &&
-                            MsOutlookAddrBookContactSourceService_HrQueryAllRows
-                            && MsOutlookAddrBookContactSourceService_FreeProws
-                            )
+                            && MsOutlookAddrBookContactSourceService_HrQueryAllRows
+                            && MsOutlookAddrBookContactSourceService_FreeProws)
+                    {
                         hResult = S_OK;
+                    }
                     else
                     {
                         MsOutlookAddrBookContactSourceService_mapiUninitialize();
@@ -485,12 +473,12 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
     if (HR_SUCCEEDED(hResult)
             && MsOutlookAddrBookContactSourceService_mapiSession == NULL)
     {
-        hResult = MsOutlookAddrBook_mapiLogonEx(
-        //hResult = MAPILogonEx(
-                0,
-                NULL, NULL,
-                MAPI_EXTENDED | MAPI_NO_MAIL | MAPI_USE_DEFAULT,
-                &MsOutlookAddrBookContactSourceService_mapiSession);
+        hResult
+            = MsOutlookAddrBook_mapiLogonEx(
+                    0,
+                    NULL, NULL,
+                    MAPI_EXTENDED | MAPI_NO_MAIL | MAPI_USE_DEFAULT,
+                    &MsOutlookAddrBookContactSourceService_mapiSession);
         openAllMsgStores(
                 MsOutlookAddrBookContactSourceService_mapiSession);
     }

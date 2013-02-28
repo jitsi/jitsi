@@ -8,9 +8,10 @@
 extern "C" {
 #endif
 
+#include "MsOutlookMAPI.h"
 #include <mapidefs.h>
 #include <mapix.h>
-#include <Unknwn.h>
+#include <unknwn.h>
 
 /*
  * Class:     net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService
