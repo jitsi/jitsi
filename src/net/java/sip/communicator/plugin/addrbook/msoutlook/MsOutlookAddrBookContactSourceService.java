@@ -86,9 +86,10 @@ public class MsOutlookAddrBookContactSourceService
     public MsOutlookAddrBookContactSourceService()
         throws MsOutlookMAPIHResultException
     {
-        MAPIInitialize(MAPI_INIT_VERSION, MAPI_MULTITHREAD_NOTIFICATIONS);
-
-        setDelegate(new NotificationsDelegate());
+        MAPIInitialize(
+                MAPI_INIT_VERSION,
+                MAPI_MULTITHREAD_NOTIFICATIONS,
+                new NotificationsDelegate());
     }
 
     /**
@@ -117,7 +118,10 @@ public class MsOutlookAddrBookContactSourceService
         return SEARCH_TYPE;
     }
 
-    private static native void MAPIInitialize(long version, long flags)
+    private static native void MAPIInitialize(
+            long version,
+            long flags,
+            NotificationsDelegate callback)
         throws MsOutlookMAPIHResultException;
 
     private static native void MAPIUninitialize();
@@ -215,7 +219,4 @@ public class MsOutlookAddrBookContactSourceService
                 latestQuery.deleted(id);
         }
     }
-
-    public static native void setDelegate(
-            NotificationsDelegate callback);
 }

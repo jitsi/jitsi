@@ -28,10 +28,32 @@
 #include <mapitags.h>
 #include <mapix.h>
 
+WINBOOL MsOutlookAddrBook_fBinFromHex(LPTSTR lpsz, LPBYTE lpb);
+#define FBinFromHex MsOutlookAddrBook_fBinFromHex
+
+void MsOutlookAddrBook_freeProws(LPSRowSet lpRows);
+#define FreeProws MsOutlookAddrBook_freeProws
+
+void MsOutlookAddrBook_hexFromBin(LPBYTE pb, int cb, LPTSTR sz);
+#define HexFromBin MsOutlookAddrBook_hexFromBin
+
+void MsOutlookAddrBook_hrAllocAdviseSink
+    (LPNOTIFCALLBACK lpfnCallback, LPVOID lpvContext,
+     LPMAPIADVISESINK* lppAdviseSink);
+#define HrAllocAdviseSink MsOutlookAddrBook_hrAllocAdviseSink
+
+HRESULT MsOutlookAddrBook_hrQueryAllRows
+    (LPMAPITABLE lpTable, LPSPropTagArray lpPropTags,
+     LPSRestriction lpRestriction, LPSSortOrderSet lpSortOrderSet,
+     LONG crowsMax, LPSRowSet* lppRows);
+#define HrQueryAllRows MsOutlookAddrBook_hrQueryAllRows
+
 SCODE MsOutlookAddrBook_mapiAllocateBuffer(ULONG size, LPVOID FAR *buffer);
 #define MAPIAllocateBuffer MsOutlookAddrBook_mapiAllocateBuffer
+
 ULONG MsOutlookAddrBook_mapiFreeBuffer(LPVOID buffer);
 #define MAPIFreeBuffer MsOutlookAddrBook_mapiFreeBuffer
+
 HRESULT MsOutlookAddrBook_mapiLogonEx
     (ULONG_PTR uiParam,
     LPSTR profileName, LPSTR password,

@@ -9,9 +9,6 @@ extern "C" {
 #endif
 
 #include "MsOutlookMAPI.h"
-#include <mapidefs.h>
-#include <mapix.h>
-#include <unknwn.h>
 
 /*
  * Class:     net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService
@@ -19,7 +16,7 @@ extern "C" {
  * Signature: (JJ)V
  */
 JNIEXPORT void JNICALL Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService_MAPIInitialize
-  (JNIEnv *, jclass, jlong, jlong);
+  (JNIEnv *, jclass, jlong, jlong, jobject);
 
 /*
  * Class:     net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService
@@ -28,40 +25,6 @@ JNIEXPORT void JNICALL Java_net_java_sip_communicator_plugin_addrbook_msoutlook_
  */
 JNIEXPORT void JNICALL Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService_MAPIUninitialize
   (JNIEnv *, jclass);
-
-JNIEXPORT void JNICALL
-Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService_setDelegate
-    (JNIEnv *jniEnv, jclass clazz, jobject callback);
-
-void callInsertedCallbackMethod(
-        LPUNKNOWN iUnknown);
-
-void callUpdatedCallbackMethod(
-        LPUNKNOWN iUnknown);
-
-void callDeletedCallbackMethod(
-        LPSTR iUnknown);
-
-LPMAPISESSION MsOutlookAddrBookContactSourceService_getMapiSession();
-
-void MsOutlookAddrBookContact_hexFromBin(LPBYTE pb, int cb, LPTSTR sz);
-
-void MsOutlookAddrBookContact_HrAllocAdviseSink(
-        LPNOTIFCALLBACK lpfnCallback,
-        LPVOID lpvContext,
-        LPMAPIADVISESINK* lppAdviseSink);
-
-WINBOOL MsOutlookAddrBookContact_FBinFromHex( LPTSTR lpsz, LPBYTE lpb);
-
-HRESULT MsOutlookAddrBookContact_HrQueryAllRows(
-        LPMAPITABLE lpTable,
-        LPSPropTagArray lpPropTags,
-        LPSRestriction lpRestriction,
-        LPSSortOrderSet lpSortOrderSet,
-        LONG crowsMax,
-        LPSRowSet* lppRows);
-
-void MsOutlookAddrBookContact_FreeProws(LPSRowSet lpRows);
 
 #ifdef __cplusplus
 }

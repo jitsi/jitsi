@@ -8,26 +8,13 @@
 #include "net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactQuery.h"
 
 #include "../AddrBookContactQuery.h"
-#include "MsOutlookMAPIHResultException.h"
 #include "MAPINotification.h"
-#include "net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService.h"
-#include <mapiutil.h>
+#include "MAPISession.h"
+#include "MsOutlookMAPIHResultException.h"
 #include <stdio.h>
 #include <string.h>
 
 #define PR_ATTACHMENT_CONTACTPHOTO PROP_TAG(PT_BOOLEAN, 0x7FFF)
-
-static ULONG openEntryUlFlags = MAPI_BEST_ACCESS;
-
-LPUNKNOWN openEntryId(const char* entryId);
-
-ULONG registerNotifyTable(
-        LPMAPITABLE iUnknown);
-
-LONG STDAPICALLTYPE tableChanged(
-        LPVOID lpvContext,
-        ULONG cNotifications,
-        LPNOTIFICATION lpNotifications);
 
 typedef
     jboolean (*MsOutlookAddrBookContactQuery_ForeachRowInTableCallback)
@@ -36,6 +23,8 @@ typedef
         JNIEnv *jniEnv,
         jstring query,
         jobject callback, jmethodID callbackMethodID);
+
+static ULONG MsOutlookAddrBookContactQuery_openEntryUlFlags = MAPI_BEST_ACCESS;
 
 static HRESULT MsOutlookAddrBookContactQuery_HrGetOneProp
     (LPMAPIPROP mapiProp, ULONG propTag, LPSPropValue *prop);
@@ -85,6 +74,7 @@ static jboolean MsOutlookAddrBookContactQuery_onForeachMailUserInContainerTableR
     (LPUNKNOWN mapiContainer,
     ULONG entryIDByteCount, LPENTRYID entryID, ULONG objType,
     JNIEnv *jniEnv, jstring query, jobject callback, jmethodID callbackMethodID);
+LPUNKNOWN MsOutlookAddrBookContactQuery_openEntryId(const char* entryId);
 static jbyteArray MsOutlookAddrBookContactQuery_readAttachment
     (LPMESSAGE message, LONG method, ULONG num, JNIEnv *jniEnv, ULONG cond);
 
@@ -97,8 +87,7 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
 {
     jmethodID callbackMethodID;
 
-    LPMAPISESSION mapiSession
-        = MsOutlookAddrBookContactSourceService_getMapiSession();
+    LPMAPISESSION mapiSession = MAPISession_getMapiSession();
 
     callbackMethodID
         = AddrBookContactQuery_getPtrCallbackMethodID(jniEnv, callback);
@@ -124,6 +113,117 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
         }
 
     }
+}
+
+/**
+ * Deletes one property from a contact.
+ *
+ * @param jniEnv The Java native interface environment.
+ * @param clazz A Java class Object.
+ * @param propId The outlook property identifier.
+ * @param entryId The identifer of the outlook entry to modify.
+ *
+ * @return JNI_TRUE if the deletion succeded. JNI_FALSE otherwise.
+ */
+JNIEXPORT jboolean JNICALL
+Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactQuery_IMAPIProp_1DeleteProp
+  (JNIEnv *jniEnv, jclass clazz, jlong propId, jstring entryId)
+{
+    const char *nativeEntryId = jniEnv->GetStringUTFChars(entryId, NULL);
+    LPUNKNOWN mapiProp;
+    if((mapiProp = MsOutlookAddrBookContactQuery_openEntryId(nativeEntryId))
+            == NULL)
+    {
+        return JNI_FALSE;
+    }
+    jniEnv->ReleaseStringUTFChars(entryId, nativeEntryId);
+
+    ULONG baseGroupEntryIdProp = 0;
+    switch(propId)
+    {
+        case 0x00008083: // dispidEmail1EmailAddress
+            baseGroupEntryIdProp = 0x00008080;
+            break;
+        case 0x00008093: // dispidEmail2EmailAddress
+            baseGroupEntryIdProp = 0x00008090;
+            break;
+        case 0x000080A3: // dispidEmail3EmailAddress
+            baseGroupEntryIdProp = 0x000080A0;
+            break;
+    }
+    // If this is a special entry (for email only), then deletes all the
+    // corresponding properties to make it work.
+    if(baseGroupEntryIdProp != 0)
+    {
+        ULONG nbProps = 5;
+        ULONG propIds[] =
+        {
+            (baseGroupEntryIdProp + 0), //0x8080 PidLidEmail1DisplayName
+            (baseGroupEntryIdProp + 2), // 0x8082 PidLidEmail1AddressType
+            (baseGroupEntryIdProp + 3), // 0x8083 PidLidEmail1EmailAddress
+            (baseGroupEntryIdProp + 4), // 0x8084 PidLidEmail1OriginalDisplayName
+            (baseGroupEntryIdProp + 5)  // 0x8085 PidLidEmail1OriginalEntryID
+        };
+        ULONG propTag;
+        LPSPropTagArray propTagArray;
+        MAPIAllocateBuffer(
+                CbNewSPropTagArray(nbProps),
+                (void **) &propTagArray);
+        propTagArray->cValues = nbProps;
+        for(unsigned int i = 0; i < nbProps; ++i)
+        {
+            propTag = MsOutlookAddrBookContactQuery_getPropTagFromLid(
+                    (LPMAPIPROP) mapiProp,
+                    propIds[i]);
+            *(propTagArray->aulPropTag + i) = propTag;
+        }
+
+        HRESULT hResult
+            = ((LPMAPIPROP)  mapiProp)->DeleteProps(
+                    propTagArray,
+                    NULL);
+
+        if (HR_SUCCEEDED(hResult))
+        {
+            hResult
+                = ((LPMAPIPROP)  mapiProp)->SaveChanges(
+                        FORCE_SAVE | KEEP_OPEN_READWRITE);
+
+            if (HR_SUCCEEDED(hResult))
+            {
+                MAPIFreeBuffer(propTagArray);
+                ((LPMAPIPROP)  mapiProp)->Release();
+                return JNI_TRUE;
+            }
+        }
+        MAPIFreeBuffer(propTagArray);
+        ((LPMAPIPROP)  mapiProp)->Release();
+        return JNI_FALSE;
+    }
+
+    SPropTagArray propToDelete;
+    propToDelete.cValues = 1;
+    propToDelete.aulPropTag[0] = PROP_TAG(PT_UNICODE, propId);
+
+    HRESULT hResult
+        = ((LPMAPIPROP)  mapiProp)->DeleteProps(
+                (LPSPropTagArray) &propToDelete,
+                NULL);
+
+    if (HR_SUCCEEDED(hResult))
+    {
+        hResult
+            = ((LPMAPIPROP)  mapiProp)->SaveChanges(
+                    FORCE_SAVE | KEEP_OPEN_READWRITE);
+
+        if (HR_SUCCEEDED(hResult))
+        {
+            ((LPMAPIPROP)  mapiProp)->Release();
+            return JNI_TRUE;
+        }
+    }
+    ((LPMAPIPROP)  mapiProp)->Release();
+    return JNI_FALSE;
 }
 
 JNIEXPORT jobjectArray JNICALL
@@ -312,8 +412,7 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
                         {
                             char entryIdStr[prop->Value.bin.cb * 2 + 1];
 
-                            MsOutlookAddrBookContact_hexFromBin(
-                            //HexFromBin(
+                            HexFromBin(
                                     prop->Value.bin.lpb,
                                     prop->Value.bin.cb,
                                     entryIdStr);
@@ -354,6 +453,153 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
                 __FILE__, __LINE__);
     }
     return props;
+}
+
+/**
+ * Saves one contact property.
+ *
+ * @param jniEnv The Java native interface environment.
+ * @param clazz A Java class Object.
+ * @param propId The outlook property identifier.
+ * @param value The value to set to the outlook property.
+ * @param entryId The identifer of the outlook entry to modify.
+ *
+ * @return JNI_TRUE if the modification succeded. JNI_FALSE otherwise.
+ */
+JNIEXPORT jboolean JNICALL
+Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactQuery_IMAPIProp_1SetPropString
+  (JNIEnv *jniEnv, jclass clazz, jlong propId, jstring value,
+   jstring entryId)
+{
+    HRESULT hResult;
+
+    const char *nativeEntryId = jniEnv->GetStringUTFChars(entryId, NULL);
+    LPUNKNOWN mapiProp;
+    if((mapiProp = MsOutlookAddrBookContactQuery_openEntryId(nativeEntryId))
+            == NULL)
+    {
+        return JNI_FALSE;
+    }
+    jniEnv->ReleaseStringUTFChars(entryId, nativeEntryId);
+
+    const char *nativeValue = jniEnv->GetStringUTFChars(value, NULL);
+    size_t valueLength = strlen(nativeValue);
+    wchar_t wCharValue[valueLength + 1];
+    if(mbstowcs(wCharValue, nativeValue, valueLength + 1)
+            != valueLength)
+    {
+        fprintf(stderr,
+                "setPropUnicode (addrbook/MsOutlookAddrBookContactQuery.c): \
+                    \n\tmbstowcs\n");
+        fflush(stderr);
+        jniEnv->ReleaseStringUTFChars(value, nativeValue);
+        return JNI_FALSE;
+    }
+    jniEnv->ReleaseStringUTFChars(value, nativeValue);
+
+    ULONG baseGroupEntryIdProp = 0;
+    switch(propId)
+    {
+        case 0x00008083: // dispidEmail1EmailAddress
+            baseGroupEntryIdProp = 0x00008080;
+            break;
+        case 0x00008093: // dispidEmail2EmailAddress
+            baseGroupEntryIdProp = 0x00008090;
+            break;
+        case 0x000080A3: // dispidEmail3EmailAddress
+            baseGroupEntryIdProp = 0x000080A0;
+            break;
+    }
+    // If this is a special entry (for email only), then updates all the
+    // corresponding properties to make it work.
+    if(baseGroupEntryIdProp != 0)
+    {
+        ULONG nbProps = 7;
+        ULONG propIds[] =
+        {
+            0x8028, // PidLidAddressBookProviderEmailList
+            0x8029, // PidLidAddressBookProviderArrayType
+            (baseGroupEntryIdProp + 0), //0x8080 PidLidEmail1DisplayName
+            (baseGroupEntryIdProp + 2), // 0x8082 PidLidEmail1AddressType
+            (baseGroupEntryIdProp + 3), // 0x8083 PidLidEmail1EmailAddress
+            (baseGroupEntryIdProp + 4), // 0x8084 PidLidEmail1OriginalDisplayName
+            (baseGroupEntryIdProp + 5)  // 0x8085 PidLidEmail1OriginalEntryID
+        };
+        ULONG propTag;
+        ULONG propCount;
+        LPSPropValue propArray;
+        LPSPropTagArray propTagArray;
+        MAPIAllocateBuffer(
+                CbNewSPropTagArray(nbProps),
+                (void **) &propTagArray);
+        propTagArray->cValues = nbProps;
+        for(unsigned int i = 0; i < nbProps; ++i)
+        {
+            propTag = MsOutlookAddrBookContactQuery_getPropTagFromLid(
+                    (LPMAPIPROP) mapiProp,
+                    propIds[i]);
+            *(propTagArray->aulPropTag + i) = propTag;
+        }
+        hResult = ((LPMAPIPROP)  mapiProp)->GetProps(
+                    propTagArray,
+                    MAPI_UNICODE,
+                    &propCount,
+                    &propArray);
+
+        if(SUCCEEDED(hResult))
+        {
+            propArray[2].Value.lpszW = wCharValue;
+            propArray[4].Value.lpszW = wCharValue;
+            propArray[5].Value.lpszW = wCharValue;
+
+            if(SUCCEEDED(hResult))
+            {
+                hResult = ((LPMAPIPROP)  mapiProp)->SetProps(
+                        nbProps,
+                        propArray,
+                        NULL);
+                if(SUCCEEDED(hResult))
+                {
+                    hResult = ((LPMAPIPROP)  mapiProp)->SaveChanges(
+                                FORCE_SAVE | KEEP_OPEN_READWRITE);
+                    if (HR_SUCCEEDED(hResult))
+                    {
+                        MAPIFreeBuffer(propTagArray);
+                        ((LPMAPIPROP)  mapiProp)->Release();
+                        return JNI_TRUE;
+                    }
+                }
+            }
+        }
+        MAPIFreeBuffer(propTagArray);
+        ((LPMAPIPROP)  mapiProp)->Release();
+        return JNI_FALSE;
+    }
+
+    SPropValue updateValue;
+    updateValue.ulPropTag = PROP_TAG(PT_UNICODE, propId);
+    updateValue.Value.lpszW = wCharValue;
+
+    hResult = ((LPMAPIPROP)  mapiProp)->SetProps(
+            1,
+            (LPSPropValue) &updateValue,
+            NULL);
+
+    if (HR_SUCCEEDED(hResult))
+    {
+        HRESULT hResult
+            = ((LPMAPIPROP)  mapiProp)->SaveChanges(
+                    FORCE_SAVE | KEEP_OPEN_READWRITE);
+
+        if (HR_SUCCEEDED(hResult))
+        {
+            ((LPMAPIPROP)  mapiProp)->Release();
+            return JNI_TRUE;
+        }
+    }
+
+    ((LPMAPIPROP)  mapiProp)->Release();
+    return JNI_FALSE;
 }
 
 static HRESULT
@@ -518,7 +764,7 @@ MsOutlookAddrBookContactQuery_foreachMailUserInAddressBook
                 0,
                 NULL,
                 NULL,
-                openEntryUlFlags,
+                MsOutlookAddrBookContactQuery_openEntryUlFlags,
                 &objType,
                 &iUnknown);
 
@@ -789,7 +1035,7 @@ MsOutlookAddrBookContactQuery_getContactsFolderEntryID
             folderEntryIDByteCount,
             folderEntryID,
             NULL,
-            openEntryUlFlags,
+            MsOutlookAddrBookContactQuery_openEntryUlFlags,
             &objType,
             &folder);
 
@@ -878,7 +1124,7 @@ MsOutlookAddrBookContactQuery_onForeachContactInMsgStoresTableRow
                 0,
                 entryIDByteCount, entryID,
                 NULL,
-                MDB_NO_MAIL | openEntryUlFlags,
+                MDB_NO_MAIL | MsOutlookAddrBookContactQuery_openEntryUlFlags,
                 &msgStore);
     if (HR_SUCCEEDED(hResult))
     {
@@ -918,7 +1164,7 @@ MsOutlookAddrBookContactQuery_onForeachContactInMsgStoresTableRow
                 = msgStore->OpenEntry(
                     contactsFolderEntryIDByteCount, contactsFolderEntryID,
                     NULL,
-                    openEntryUlFlags,
+                    MsOutlookAddrBookContactQuery_openEntryUlFlags,
                     &contactsFolderObjType, &contactsFolder);
             if (HR_SUCCEEDED(hResult))
             {
@@ -970,7 +1216,7 @@ MsOutlookAddrBookContactQuery_onForeachMailUserInContainerTableRow
         = ((LPMAPICONTAINER) mapiContainer)->OpenEntry(
                 entryIDByteCount, entryID,
                 NULL,
-                openEntryUlFlags,
+                MsOutlookAddrBookContactQuery_openEntryUlFlags,
                 &objType, &iUnknown);
     if (HR_SUCCEEDED(hResult))
     {
@@ -986,6 +1232,39 @@ MsOutlookAddrBookContactQuery_onForeachMailUserInContainerTableRow
         proceed = JNI_TRUE;
     }
     return proceed;
+}
+
+/**
+ * Opens an object based on the string representation of its entry id.
+ *
+ * @param entryId The identifier of the entry to open.
+ *
+ * @return A pointer to the opened entry. NULL if anything goes wrong.
+ */
+LPUNKNOWN MsOutlookAddrBookContactQuery_openEntryId(const char* entryId)
+{
+    ULONG tmpEntryIdSize = strlen(entryId) / 2;
+    LPENTRYID tmpEntryId = (LPENTRYID) malloc(tmpEntryIdSize * sizeof(char));
+    if(FBinFromHex((LPSTR) entryId, (LPBYTE) tmpEntryId))
+    {
+        LPMAPISESSION mapiSession = MAPISession_getMapiSession();
+        ULONG objType;
+        LPUNKNOWN iUnknown;
+        HRESULT hResult = mapiSession->OpenEntry(
+                tmpEntryIdSize,
+                tmpEntryId,
+                NULL,
+                MAPI_BEST_ACCESS,
+                &objType,
+                &iUnknown);
+        if(hResult == S_OK)
+        {
+            free(tmpEntryId);
+            return iUnknown;
+        }
+    }
+    free(tmpEntryId);
+    return NULL;
 }
 
 static jbyteArray
@@ -1071,498 +1350,4 @@ MsOutlookAddrBookContactQuery_readAttachment
         }
     }
     return attachment;
-}
-
-/**
- * Saves one contact property.
- */
-JNIEXPORT jboolean JNICALL
-Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactQuery_IMAPIProp_1SetPropString
-  (JNIEnv *jniEnv, jclass clazz, jlong propId, jstring value,
-   jstring entryId)
-{
-    HRESULT hResult;
-
-    const char *nativeEntryId = jniEnv->GetStringUTFChars(entryId, NULL);
-    LPUNKNOWN mapiProp;
-    if((mapiProp = openEntryId(nativeEntryId)) == NULL)
-    {
-        return JNI_FALSE;
-    }
-    jniEnv->ReleaseStringUTFChars(entryId, nativeEntryId);
-
-    const char *nativeValue = jniEnv->GetStringUTFChars(value, NULL);
-    size_t valueLength = strlen(nativeValue);
-    wchar_t wCharValue[valueLength + 1];
-    if(mbstowcs(wCharValue, nativeValue, valueLength + 1)
-            != valueLength)
-    {
-        fprintf(stderr,
-                "setPropUnicode (addrbook/MsOutlookAddrBookContactQuery.c): \
-                    \n\tmbstowcs\n");
-        fflush(stderr);
-        jniEnv->ReleaseStringUTFChars(value, nativeValue);
-        return JNI_FALSE;
-    }
-    jniEnv->ReleaseStringUTFChars(value, nativeValue);
-
-    ULONG baseGroupEntryIdProp = 0;
-    switch(propId)
-    {
-        case 0x00008083: // dispidEmail1EmailAddress
-            baseGroupEntryIdProp = 0x00008080;
-            break;
-        case 0x00008093: // dispidEmail2EmailAddress
-            baseGroupEntryIdProp = 0x00008090;
-            break;
-        case 0x000080A3: // dispidEmail3EmailAddress
-            baseGroupEntryIdProp = 0x000080A0;
-            break;
-    }
-    // If this is a special entry (for email only), then updates all the
-    // corresponding properties to make it work.
-    if(baseGroupEntryIdProp != 0)
-    {
-        ULONG nbProps = 7;
-        ULONG propIds[] =
-        {
-            0x8028, // PidLidAddressBookProviderEmailList
-            0x8029, // PidLidAddressBookProviderArrayType
-            (baseGroupEntryIdProp + 0), //0x8080 PidLidEmail1DisplayName
-            (baseGroupEntryIdProp + 2), // 0x8082 PidLidEmail1AddressType
-            (baseGroupEntryIdProp + 3), // 0x8083 PidLidEmail1EmailAddress
-            (baseGroupEntryIdProp + 4), // 0x8084 PidLidEmail1OriginalDisplayName
-            (baseGroupEntryIdProp + 5)  // 0x8085 PidLidEmail1OriginalEntryID
-        };
-        ULONG propTag;
-        ULONG propCount;
-        LPSPropValue propArray;
-        LPSPropTagArray propTagArray;
-        MAPIAllocateBuffer(
-                CbNewSPropTagArray(nbProps),
-                (void **) &propTagArray);
-        propTagArray->cValues = nbProps;
-        for(unsigned int i = 0; i < nbProps; ++i)
-        {
-            propTag = MsOutlookAddrBookContactQuery_getPropTagFromLid(
-                    (LPMAPIPROP) mapiProp,
-                    propIds[i]);
-            *(propTagArray->aulPropTag + i) = propTag;
-        }
-        hResult = ((LPMAPIPROP)  mapiProp)->GetProps(
-                    propTagArray,
-                    MAPI_UNICODE,
-                    &propCount,
-                    &propArray);
-
-        if(SUCCEEDED(hResult))
-        {
-            propArray[2].Value.lpszW = wCharValue;
-            propArray[4].Value.lpszW = wCharValue;
-            propArray[5].Value.lpszW = wCharValue;
-
-            if(SUCCEEDED(hResult))
-            {
-                hResult = ((LPMAPIPROP)  mapiProp)->SetProps(
-                        nbProps,
-                        propArray,
-                        NULL);
-                if(SUCCEEDED(hResult))
-                {
-                    hResult = ((LPMAPIPROP)  mapiProp)->SaveChanges(
-                                FORCE_SAVE | KEEP_OPEN_READWRITE);
-                    if (HR_SUCCEEDED(hResult))
-                    {
-                        MAPIFreeBuffer(propTagArray);
-                        ((LPMAPIPROP)  mapiProp)->Release();
-                        return JNI_TRUE;
-                    }
-                }
-            }
-        }
-        MAPIFreeBuffer(propTagArray);
-        ((LPMAPIPROP)  mapiProp)->Release();
-        return JNI_FALSE;
-    }
-
-    SPropValue updateValue;
-    updateValue.ulPropTag = PROP_TAG(PT_UNICODE, propId);
-    updateValue.Value.lpszW = wCharValue;
-
-    hResult = ((LPMAPIPROP)  mapiProp)->SetProps(
-            1,
-            (LPSPropValue) &updateValue,
-            NULL);
-
-    if (HR_SUCCEEDED(hResult))
-    {
-        HRESULT hResult
-            = ((LPMAPIPROP)  mapiProp)->SaveChanges(
-                    FORCE_SAVE | KEEP_OPEN_READWRITE);
-
-        if (HR_SUCCEEDED(hResult))
-        {
-            ((LPMAPIPROP)  mapiProp)->Release();
-            return JNI_TRUE;
-        }
-    }
-
-    ((LPMAPIPROP)  mapiProp)->Release();
-    return JNI_FALSE;
-}
-
-/**
- * Deletes one property from a contact.
- */
-JNIEXPORT jboolean JNICALL
-Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactQuery_IMAPIProp_1DeleteProp
-  (JNIEnv *jniEnv, jclass clazz, jlong propId, jstring entryId)
-{
-    const char *nativeEntryId = jniEnv->GetStringUTFChars(entryId, NULL);
-    LPUNKNOWN mapiProp;
-    if((mapiProp = openEntryId(nativeEntryId)) == NULL)
-    {
-        return JNI_FALSE;
-    }
-    jniEnv->ReleaseStringUTFChars(entryId, nativeEntryId);
-
-    ULONG baseGroupEntryIdProp = 0;
-    switch(propId)
-    {
-        case 0x00008083: // dispidEmail1EmailAddress
-            baseGroupEntryIdProp = 0x00008080;
-            break;
-        case 0x00008093: // dispidEmail2EmailAddress
-            baseGroupEntryIdProp = 0x00008090;
-            break;
-        case 0x000080A3: // dispidEmail3EmailAddress
-            baseGroupEntryIdProp = 0x000080A0;
-            break;
-    }
-    // If this is a special entry (for email only), then deletes all the
-    // corresponding properties to make it work.
-    if(baseGroupEntryIdProp != 0)
-    {
-        ULONG nbProps = 5;
-        ULONG propIds[] =
-        {
-            (baseGroupEntryIdProp + 0), //0x8080 PidLidEmail1DisplayName
-            (baseGroupEntryIdProp + 2), // 0x8082 PidLidEmail1AddressType
-            (baseGroupEntryIdProp + 3), // 0x8083 PidLidEmail1EmailAddress
-            (baseGroupEntryIdProp + 4), // 0x8084 PidLidEmail1OriginalDisplayName
-            (baseGroupEntryIdProp + 5)  // 0x8085 PidLidEmail1OriginalEntryID
-        };
-        ULONG propTag;
-        LPSPropTagArray propTagArray;
-        MAPIAllocateBuffer(
-                CbNewSPropTagArray(nbProps),
-                (void **) &propTagArray);
-        propTagArray->cValues = nbProps;
-        for(unsigned int i = 0; i < nbProps; ++i)
-        {
-            propTag = MsOutlookAddrBookContactQuery_getPropTagFromLid(
-                    (LPMAPIPROP) mapiProp,
-                    propIds[i]);
-            *(propTagArray->aulPropTag + i) = propTag;
-        }
-
-        HRESULT hResult
-            = ((LPMAPIPROP)  mapiProp)->DeleteProps(
-                    propTagArray,
-                    NULL);
-
-        if (HR_SUCCEEDED(hResult))
-        {
-            hResult
-                = ((LPMAPIPROP)  mapiProp)->SaveChanges(
-                        FORCE_SAVE | KEEP_OPEN_READWRITE);
-
-            if (HR_SUCCEEDED(hResult))
-            {
-                MAPIFreeBuffer(propTagArray);
-                ((LPMAPIPROP)  mapiProp)->Release();
-                return JNI_TRUE;
-            }
-        }
-        MAPIFreeBuffer(propTagArray);
-        ((LPMAPIPROP)  mapiProp)->Release();
-        return JNI_FALSE;
-    }
-
-    SPropTagArray propToDelete;
-    propToDelete.cValues = 1;
-    propToDelete.aulPropTag[0] = PROP_TAG(PT_UNICODE, propId);
-
-    HRESULT hResult
-        = ((LPMAPIPROP)  mapiProp)->DeleteProps(
-                (LPSPropTagArray) &propToDelete,
-                NULL);
-
-    if (HR_SUCCEEDED(hResult))
-    {
-        hResult
-            = ((LPMAPIPROP)  mapiProp)->SaveChanges(
-                    FORCE_SAVE | KEEP_OPEN_READWRITE);
-
-        if (HR_SUCCEEDED(hResult))
-        {
-            ((LPMAPIPROP)  mapiProp)->Release();
-            return JNI_TRUE;
-        }
-    }
-    ((LPMAPIPROP)  mapiProp)->Release();
-    return JNI_FALSE;
-}
-
-/**
- * Opens an object from its entry id.
- */
-LPUNKNOWN openEntry(
-        ULONG cbEntryID,
-        LPENTRYID lpEntryID,
-        LPVOID lpvContext)
-{
-    if(lpvContext != NULL)
-    {
-        LPUNKNOWN iUnknown;
-        ULONG objType;
-
-        HRESULT hResult = 
-            ((LPMDB) lpvContext)->OpenEntry(
-                cbEntryID,
-                lpEntryID,
-                NULL,
-                openEntryUlFlags,
-                &objType,
-                &iUnknown);
-        if (HR_SUCCEEDED(hResult))
-        {
-            return iUnknown;
-        }
-    }
-    return NULL;
-}
-
-static LPMAPITABLE MsOutlookAddrBookContactQuery_msgStoresTable = NULL;
-static ULONG MsOutlookAddrBookContactQuery_msgStoresTableConnection = 0;
-static ULONG MsOutlookAddrBookContactQuery_nbMsgStores = 0;
-static LPMDB * MsOutlookAddrBookContactQuery_msgStores = NULL;
-static ULONG * MsOutlookAddrBookContactQuery_msgStoresConnection = NULL;
-
-/**
- * Opens all the message store and register to notifications.
- */
-void openAllMsgStores(
-        LPMAPISESSION mapiSession)
-{
-    HRESULT hResult;
-
-    hResult = mapiSession->GetMsgStoresTable(
-            0, 
-            &MsOutlookAddrBookContactQuery_msgStoresTable);
-    if(HR_SUCCEEDED(hResult) && MsOutlookAddrBookContactQuery_msgStoresTable)
-    {
-        MsOutlookAddrBookContactQuery_msgStoresTableConnection
-            = registerNotifyTable(MsOutlookAddrBookContactQuery_msgStoresTable);
-        hResult = MsOutlookAddrBookContactQuery_msgStoresTable->SeekRow(
-                BOOKMARK_BEGINNING,
-                0,
-                NULL);
-        if (HR_SUCCEEDED(hResult))
-        {
-            LPSRowSet rows;
-            hResult = MsOutlookAddrBookContact_HrQueryAllRows(
-            //hResult = HrQueryAllRows(
-                    MsOutlookAddrBookContactQuery_msgStoresTable,
-                    NULL,
-                    NULL,
-                    NULL,
-                    0,
-                    &rows);
-            if (HR_SUCCEEDED(hResult))
-            {
-                MsOutlookAddrBookContactQuery_nbMsgStores = rows->cRows;
-                MsOutlookAddrBookContactQuery_msgStores
-                    = (LPMDB*) malloc(rows->cRows * sizeof(LPMDB));
-                memset(
-                        MsOutlookAddrBookContactQuery_msgStores,
-                        0,
-                        rows->cRows * sizeof(LPMDB));
-                MsOutlookAddrBookContactQuery_msgStoresConnection
-                    = (ULONG*) malloc(rows->cRows * sizeof(ULONG));
-                memset(
-                        MsOutlookAddrBookContactQuery_msgStoresConnection,
-                        0,
-                        rows->cRows * sizeof(ULONG));
-
-                if(MsOutlookAddrBookContactQuery_msgStores != NULL
-                        && MsOutlookAddrBookContactQuery_msgStoresConnection
-                            != NULL)
-                {
-                    for(unsigned int r = 0; r < rows->cRows; ++r)
-                    {
-                        SRow row = rows->aRow[r];
-                        ULONG i;
-                        ULONG objType = 0;
-                        SBinary entryIDBinary = { 0, NULL };
-
-                        for(i = 0; i < row.cValues; ++i)
-                        {
-                            LPSPropValue prop = (row.lpProps) + i;
-
-                            switch (prop->ulPropTag)
-                            {
-                                case PR_OBJECT_TYPE:
-                                    objType = prop->Value.ul;
-                                    break;
-                                case PR_ENTRYID:
-                                    entryIDBinary = prop->Value.bin;
-                                    break;
-                            }
-                        }
-
-                        if(objType && entryIDBinary.cb && entryIDBinary.lpb)
-                        {
-                            hResult = mapiSession->OpenMsgStore(
-                                    0,
-                                    entryIDBinary.cb,
-                                    (LPENTRYID) entryIDBinary.lpb,
-                                    NULL,
-                                    MDB_NO_MAIL | openEntryUlFlags,
-                                    &MsOutlookAddrBookContactQuery_msgStores[r]
-                                    );
-                            if (HR_SUCCEEDED(hResult))
-                            {
-                                MsOutlookAddrBookContactQuery_msgStoresConnection[r]
-                                    = registerNotifyMessageDataBase(
-                                            MsOutlookAddrBookContactQuery_msgStores[r]);
-                            }
-                        }
-                    }
-                }
-                MsOutlookAddrBookContact_FreeProws(rows);
-                //FreeProws(rows);
-            }
-        }
-    }
-}
-
-/**
- * Frees all memory used to keep in mind the list of the message store and
- * unregister each of them from the notifications.
- */
-void freeAllMsgStores(void)
-{
-    if(MsOutlookAddrBookContactQuery_msgStoresConnection != NULL)
-    {
-        for(unsigned int i = 0;
-                i < MsOutlookAddrBookContactQuery_nbMsgStores;
-                ++i)
-        {
-            if(MsOutlookAddrBookContactQuery_msgStoresConnection[i] != 0)
-            {
-                MsOutlookAddrBookContactQuery_msgStores[i]->Unadvise(
-                        MsOutlookAddrBookContactQuery_msgStoresConnection[i]);
-            }
-        }
-        free(MsOutlookAddrBookContactQuery_msgStoresConnection);
-    }
-    if(MsOutlookAddrBookContactQuery_msgStores != NULL)
-    {
-        for(unsigned int i = 0;
-                i < MsOutlookAddrBookContactQuery_nbMsgStores;
-                ++i)
-        {
-            if(MsOutlookAddrBookContactQuery_msgStores[i] != NULL)
-            {
-                MsOutlookAddrBookContactQuery_msgStores[i]->Release();
-            }
-        }
-        free(MsOutlookAddrBookContactQuery_msgStores);
-    }
-    if(MsOutlookAddrBookContactQuery_msgStoresTable != NULL)
-    {
-        MsOutlookAddrBookContactQuery_msgStoresTable->Unadvise(
-                MsOutlookAddrBookContactQuery_msgStoresTableConnection);
-        MsOutlookAddrBookContactQuery_msgStoresTable->Release();
-    }
-}
-
-/**
- * Opens an object based on the string representation of its entry id.
- */
-LPUNKNOWN openEntryId(const char* entryId)
-{
-    ULONG tmpEntryIdSize = strlen(entryId) / 2;
-    LPENTRYID tmpEntryId = (LPENTRYID) malloc(tmpEntryIdSize * sizeof(char));
-    if(MsOutlookAddrBookContact_FBinFromHex(
-                (LPSTR) entryId,
-                (LPBYTE) tmpEntryId))
-    //if(FBinFromHex((LPSTR) entryId, (LPBYTE) tmpEntryId))
-    {
-        LPMAPISESSION mapiSession
-            = MsOutlookAddrBookContactSourceService_getMapiSession();
-        ULONG objType;
-        LPUNKNOWN iUnknown;
-        HRESULT hResult = mapiSession->OpenEntry(
-                tmpEntryIdSize,
-                tmpEntryId,
-                NULL,
-                MAPI_BEST_ACCESS,
-                &objType,
-                &iUnknown);
-        if(hResult == S_OK)
-        {
-            free(tmpEntryId);
-            return iUnknown;
-        }
-    }
-    free(tmpEntryId);
-    return NULL;
-}
-
-/**
- * Registers a callback function for when the message store table changes.
- */
-ULONG
-registerNotifyTable(LPMAPITABLE iUnknown)
-{
-    LPMAPIADVISESINK adviseSink;
-    MsOutlookAddrBookContact_HrAllocAdviseSink(
-    //HrAllocAdviseSink(
-            &tableChanged,
-            iUnknown,
-            &adviseSink);
-    ULONG nbConnection = 0;
-    iUnknown->Advise(
-            fnevTableModified,
-            adviseSink,
-            (ULONG_PTR *) &nbConnection);
-
-    return nbConnection;
-}
-
-/**
- * Function called when a message store table changed.
- */
-LONG STDAPICALLTYPE tableChanged(
-        LPVOID lpvContext,
-        ULONG cNotifications,
-        LPNOTIFICATION lpNotifications)
-{
-    if(lpNotifications->ulEventType == fnevTableModified
-            && (lpNotifications->info.tab.ulTableEvent == TABLE_CHANGED
-                || lpNotifications->info.tab.ulTableEvent == TABLE_ERROR
-                || lpNotifications->info.tab.ulTableEvent == TABLE_RELOAD
-                || lpNotifications->info.tab.ulTableEvent == TABLE_ROW_ADDED
-                || lpNotifications->info.tab.ulTableEvent == TABLE_ROW_DELETED))
-    {
-        // Frees and recreates all the notification for the table.
-        freeAllMsgStores();
-        openAllMsgStores(
-                MsOutlookAddrBookContactSourceService_getMapiSession());
-    }
-
-    // A client must always return a S_OK.
-    return S_OK;
 }

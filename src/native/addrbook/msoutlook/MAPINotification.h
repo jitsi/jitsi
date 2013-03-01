@@ -13,15 +13,21 @@ extern "C" {
 #endif
 
 #include "MsOutlookMAPI.h"
+
+#include <jni.h>
 #include <mapidefs.h>
 
-LONG STDAPICALLTYPE onNotify(
-        LPVOID lpvContext,
-        ULONG cNotifications,
-        LPNOTIFICATION lpNotifications);
+LONG
+STDAPICALLTYPE MAPINotification_onNotify
+    (LPVOID lpvContext, ULONG cNotifications, LPNOTIFICATION lpNotifications);
 
-ULONG registerNotifyMessageDataBase(
-        LPMDB iUnknown);
+void
+MAPINotification_registerNotificationsDelegate
+    (JNIEnv *jniEnv, LPMAPISESSION, jobject);
+
+ULONG MAPINotification_registerNotifyMessageDataBase (LPMDB iUnknown);
+
+void MAPINotification_unregisterNotificationsDelegate (JNIEnv *jniEnv);
 
 #ifdef __cplusplus
 }

@@ -10,133 +10,24 @@
 #include "../AddrBookContactQuery.h"
 #include "MsOutlookMAPIHResultException.h"
 #include "MAPINotification.h"
+#include "MAPISession.h"
 #include "net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactQuery.h"
-#include <mapiutil.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-static jobject contactSourceServiceObject;
-static jmethodID contactSourceServiceMethodIdInserted;
-static jmethodID contactSourceServiceMethodIdUpdated;
-static jmethodID contactSourceServiceMethodIdDeleted;
-static JNIEnv *contactSourceServiceJniEnv;
-static JavaVM *contactSourceServiceVM;
+typedef BOOL (STDAPICALLTYPE *LPFBINFROMHEX)(LPTSTR, LPBYTE);
+typedef void (STDAPICALLTYPE *LPFREEPROWS)(LPSRowSet);
+typedef void (STDAPICALLTYPE *LPHEXFROMBIN)(LPBYTE, int, LPTSTR);
+typedef HRESULT (STDAPICALLTYPE *LPHRALLOCADVISESINK)(LPNOTIFCALLBACK, LPVOID, LPMAPIADVISESINK FAR *);
+typedef HRESULT (STDAPICALLTYPE *LPHRQUERYALLROWS)(LPMAPITABLE, LPSPropTagArray, LPSRestriction, LPSSortOrderSet, LONG, LPSRowSet FAR *);
 
-/**
- * Registers java callback functions when a contact is deleted, inserted or
- * updated.
- */
-JNIEXPORT void JNICALL
-Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService_setDelegate
-    (JNIEnv *jniEnv, jclass clazz, jobject callback)
-{
-    if(jniEnv->GetJavaVM(&contactSourceServiceVM) < 0)
-    {
-        fprintf(stderr, "Failed to get the Java VM\n");
-        fflush(stderr);
-    }
-    contactSourceServiceJniEnv = jniEnv;
-    contactSourceServiceObject = jniEnv->NewGlobalRef(callback);
-    jclass callbackClass = jniEnv->GetObjectClass(
-            callback);
-    contactSourceServiceMethodIdInserted = jniEnv->GetMethodID(
-            callbackClass,
-            "inserted",
-            "(J)V");
-    contactSourceServiceMethodIdUpdated = jniEnv->GetMethodID(
-            callbackClass,
-            "updated",
-            "(J)V");
-    contactSourceServiceMethodIdDeleted = jniEnv->GetMethodID(
-            callbackClass,
-            "deleted",
-            "(Ljava/lang/String;)V");
-}
-
-/**
- * Calls back the java side when a contact is inserted.
- *
- * @param iUnknown A pointer to the newly created contact.
- */
-void callInsertedCallbackMethod(
-        LPUNKNOWN iUnknown)
-{
-    JNIEnv *tmpJniEnv = contactSourceServiceJniEnv;
-
-    if(contactSourceServiceVM->GetEnv(
-                (void**) &tmpJniEnv,
-                JNI_VERSION_1_6)
-            != JNI_OK)
-    {
-        contactSourceServiceVM->AttachCurrentThread((void**) &tmpJniEnv, NULL);
-    }
-
-    tmpJniEnv->CallBooleanMethod(
-            contactSourceServiceObject,
-            contactSourceServiceMethodIdInserted,
-            iUnknown);
-
-    contactSourceServiceVM->DetachCurrentThread();
-}
-
-/**
- * Calls back the java side when a contact is updated.
- *
- * @param iUnknown A pointer to the updated contact.
- */
-void callUpdatedCallbackMethod(
-        LPUNKNOWN iUnknown)
-{
-    JNIEnv *tmpJniEnv = contactSourceServiceJniEnv;
-
-    if(contactSourceServiceVM->GetEnv(
-                (void**) &tmpJniEnv,
-                JNI_VERSION_1_6)
-            != JNI_OK)
-    {
-        contactSourceServiceVM->AttachCurrentThread((void**) &tmpJniEnv, NULL);
-    }
-
-    tmpJniEnv->CallBooleanMethod(
-            contactSourceServiceObject,
-            contactSourceServiceMethodIdUpdated,
-            iUnknown);
-
-    contactSourceServiceVM->DetachCurrentThread();
-}
-
-/**
- * Calls back the java side when a contact is deleted.
- *
- * @param iUnknown The string representation of the entry id of the deleted
- * contact.
- */
-void callDeletedCallbackMethod(
-        LPSTR iUnknown)
-{
-    JNIEnv *tmpJniEnv = contactSourceServiceJniEnv;
-
-    if(contactSourceServiceVM->GetEnv(
-                (void**) &tmpJniEnv,
-                JNI_VERSION_1_6)
-            != JNI_OK)
-    {
-        contactSourceServiceVM->AttachCurrentThread((void**) &tmpJniEnv, NULL);
-    }
-
-    jstring value;
-    value = tmpJniEnv->NewStringUTF(iUnknown);
-
-
-    tmpJniEnv->CallBooleanMethod(
-            contactSourceServiceObject,
-            contactSourceServiceMethodIdDeleted,
-            value);
-
-    contactSourceServiceVM->DetachCurrentThread();
-}
-
+static LPFBINFROMHEX MsOutlookAddrBookContactSourceService_fBinFromHex;
+static LPFREEPROWS MsOutlookAddrBookContactSourceService_freeProws;
+static LPHEXFROMBIN MsOutlookAddrBookContactSourceService_hexFromBin;
+static LPHRALLOCADVISESINK MsOutlookAddrBookContactSourceService_hrAllocAdviseSink;
+static LPHRQUERYALLROWS MsOutlookAddrBookContactSourceService_hrQueryAllRows;
 static LPMAPIALLOCATEBUFFER
     MsOutlookAddrBookContactSourceService_mapiAllocateBuffer;
 static LPMAPIFREEBUFFER MsOutlookAddrBookContactSourceService_mapiFreeBuffer;
@@ -144,21 +35,8 @@ static LPMAPIINITIALIZE MsOutlookAddrBookContactSourceService_mapiInitialize;
 static LPMAPILOGONEX MsOutlookAddrBookContactSourceService_mapiLogonEx;
 static LPMAPIUNINITIALIZE
     MsOutlookAddrBookContactSourceService_mapiUninitialize;
-
-typedef void (STDAPICALLTYPE *LPHEXFROMBIN)(LPBYTE, int, LPTSTR);
-typedef HRESULT (STDAPICALLTYPE *LPHRALLOCADVISESINK)(LPNOTIFCALLBACK, LPVOID, LPMAPIADVISESINK FAR *);
-typedef BOOL (STDAPICALLTYPE *LPFBINFROMHEX)(LPTSTR, LPBYTE);
-typedef HRESULT (STDAPICALLTYPE *LPHRQUERYALLROWS)(LPMAPITABLE, LPSPropTagArray, LPSRestriction, LPSSortOrderSet, LONG, LPSRowSet FAR *);
-typedef void (STDAPICALLTYPE *LPFREEPROWS)(LPSRowSet);
-
-static LPHEXFROMBIN MsOutlookAddrBookContactSourceService_hexFromBin;
-static LPHRALLOCADVISESINK MsOutlookAddrBookContactSourceService_HrAllocAdviseSink;
-static LPFBINFROMHEX MsOutlookAddrBookContactSourceService_FBinFromHex;
-static LPHRQUERYALLROWS MsOutlookAddrBookContactSourceService_HrQueryAllRows;
-static LPFREEPROWS MsOutlookAddrBookContactSourceService_FreeProws;
-
-static LPMAPISESSION MsOutlookAddrBookContactSourceService_mapiSession = NULL;
-static CRITICAL_SECTION MsOutlookAddrBookContactSourceService_mapiSessionCriticalSection;
+static CRITICAL_SECTION
+    MsOutlookAddrBookContactSourceService_mapiSessionCriticalSection;
 
 static jboolean
 MsOutlookAddrBookContactSourceService_isValidDefaultMailClient
@@ -166,7 +44,8 @@ MsOutlookAddrBookContactSourceService_isValidDefaultMailClient
 
 JNIEXPORT void JNICALL
 Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService_MAPIInitialize
-    (JNIEnv *jniEnv, jclass clazz, jlong version, jlong flags)
+    (JNIEnv *jniEnv, jclass clazz, jlong version, jlong flags,
+     jobject notificationsDelegate)
 {
     HKEY regKey;
     HRESULT hResult = MAPI_E_NO_SUPPORT;
@@ -416,9 +295,31 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
             {
                 MAPIINIT_0 mapiInit = { (ULONG) version, (ULONG) flags };
 
-                hResult
-                    = MsOutlookAddrBookContactSourceService_mapiInitialize(
-                            &mapiInit);
+                DWORD dwSize = ::GetCurrentDirectory(0, NULL);
+                if (dwSize > 0)
+                {
+                    LPTSTR lpszWorkingDir
+                        = (LPTSTR)::malloc(dwSize*sizeof(TCHAR));
+                    DWORD dwResult
+                        = ::GetCurrentDirectory(dwSize, lpszWorkingDir);
+                    if (dwResult != 0)
+                    {
+                        hResult
+                            = MsOutlookAddrBookContactSourceService_mapiInitialize(
+                                    &mapiInit);
+                        ::SetCurrentDirectory(lpszWorkingDir);
+                    }
+                    else
+                    {
+                        hResult = HRESULT_FROM_WIN32(::GetLastError());
+                    }
+                    ::free(lpszWorkingDir);
+                }
+                else
+                {
+                    hResult = HRESULT_FROM_WIN32(::GetLastError());
+                }
+
                 if (HR_SUCCEEDED(hResult))
                 {
                     MsOutlookAddrBookContactSourceService_mapiAllocateBuffer
@@ -430,18 +331,18 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
                     MsOutlookAddrBookContactSourceService_mapiLogonEx
                         = (LPMAPILOGONEX) GetProcAddress(lib, "MAPILogonEx");
 
+                    MsOutlookAddrBookContactSourceService_fBinFromHex
+                        = (LPFBINFROMHEX) GetProcAddress(lib, "FBinFromHex@8");
+                    MsOutlookAddrBookContactSourceService_freeProws
+                        = (LPFREEPROWS) GetProcAddress(lib, "FreeProws@4");
                     MsOutlookAddrBookContactSourceService_hexFromBin
                         = (LPHEXFROMBIN) GetProcAddress(lib, "HexFromBin@12");
-                    MsOutlookAddrBookContactSourceService_HrAllocAdviseSink
+                    MsOutlookAddrBookContactSourceService_hrAllocAdviseSink
                         = (LPHRALLOCADVISESINK)
                             GetProcAddress(lib, "HrAllocAdviseSink@12");
-                    MsOutlookAddrBookContactSourceService_FBinFromHex
-                        = (LPFBINFROMHEX) GetProcAddress(lib, "FBinFromHex@8");
-                    MsOutlookAddrBookContactSourceService_HrQueryAllRows
+                    MsOutlookAddrBookContactSourceService_hrQueryAllRows
                         = (LPHRQUERYALLROWS)
                             GetProcAddress(lib, "HrQueryAllRows@24");
-                    MsOutlookAddrBookContactSourceService_FreeProws
-                        = (LPFREEPROWS) GetProcAddress(lib, "FreeProws@4");
 
                     InitializeCriticalSection(
                             &MsOutlookAddrBookContactSourceService_mapiSessionCriticalSection);
@@ -450,11 +351,13 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
                             && MsOutlookAddrBookContactSourceService_mapiFreeBuffer
                             && MsOutlookAddrBookContactSourceService_mapiLogonEx
 
+
+                            && MsOutlookAddrBookContactSourceService_fBinFromHex
+                            && MsOutlookAddrBookContactSourceService_freeProws
                             && MsOutlookAddrBookContactSourceService_hexFromBin
-                            && MsOutlookAddrBookContactSourceService_HrAllocAdviseSink
-                            && MsOutlookAddrBookContactSourceService_FBinFromHex
-                            && MsOutlookAddrBookContactSourceService_HrQueryAllRows
-                            && MsOutlookAddrBookContactSourceService_FreeProws)
+                            && MsOutlookAddrBookContactSourceService_hrAllocAdviseSink
+                            &&
+                            MsOutlookAddrBookContactSourceService_hrQueryAllRows)
                     {
                         hResult = S_OK;
                     }
@@ -470,17 +373,19 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
         }
     }
 
-    if (HR_SUCCEEDED(hResult)
-            && MsOutlookAddrBookContactSourceService_mapiSession == NULL)
+    if(HR_SUCCEEDED(hResult) && MAPISession_getMapiSession() == NULL)
     {
+        LPMAPISESSION mapiSession = NULL;
         hResult
             = MsOutlookAddrBook_mapiLogonEx(
                     0,
                     NULL, NULL,
                     MAPI_EXTENDED | MAPI_NO_MAIL | MAPI_USE_DEFAULT,
-                    &MsOutlookAddrBookContactSourceService_mapiSession);
-        openAllMsgStores(
-                MsOutlookAddrBookContactSourceService_mapiSession);
+                    &mapiSession);
+        MAPINotification_registerNotificationsDelegate(
+                jniEnv,
+                mapiSession,
+                notificationsDelegate);
     }
 
     /* Report any possible error regardless of where it has come from. */
@@ -499,12 +404,13 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
 {
     EnterCriticalSection(
             &MsOutlookAddrBookContactSourceService_mapiSessionCriticalSection);
-    if (MsOutlookAddrBookContactSourceService_mapiSession)
+    LPMAPISESSION mapiSession = MAPISession_getMapiSession();
+    if(mapiSession != NULL)
     {
-        freeAllMsgStores();
-        MsOutlookAddrBookContactSourceService_mapiSession->Logoff(0, 0, 0);
-        MsOutlookAddrBookContactSourceService_mapiSession->Release();
-        MsOutlookAddrBookContactSourceService_mapiSession = NULL;
+        MAPINotification_unregisterNotificationsDelegate(jniEnv);
+        mapiSession->Logoff(0, 0, 0);
+        mapiSession->Release();
+        mapiSession = NULL;
     }
     LeaveCriticalSection(
             &MsOutlookAddrBookContactSourceService_mapiSessionCriticalSection);
@@ -513,6 +419,47 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
 
     DeleteCriticalSection(
             &MsOutlookAddrBookContactSourceService_mapiSessionCriticalSection);
+}
+
+WINBOOL MsOutlookAddrBook_fBinFromHex(LPTSTR lpsz, LPBYTE lpb)
+{
+    return MsOutlookAddrBookContactSourceService_fBinFromHex(lpsz, lpb);
+}
+
+void MsOutlookAddrBook_freeProws(LPSRowSet lpRows)
+{
+    MsOutlookAddrBookContactSourceService_freeProws(lpRows);
+}
+
+void MsOutlookAddrBook_hexFromBin(LPBYTE pb, int cb, LPTSTR sz)
+{
+    return MsOutlookAddrBookContactSourceService_hexFromBin(pb, cb, sz);
+}
+
+void
+MsOutlookAddrBook_hrAllocAdviseSink
+    (LPNOTIFCALLBACK lpfnCallback, LPVOID lpvContext, LPMAPIADVISESINK*
+      lppAdviseSink)
+{
+    MsOutlookAddrBookContactSourceService_hrAllocAdviseSink(
+            lpfnCallback,
+            lpvContext,
+            lppAdviseSink);
+}
+
+HRESULT
+MsOutlookAddrBook_hrQueryAllRows
+    (LPMAPITABLE lpTable, LPSPropTagArray lpPropTags,
+     LPSRestriction lpRestriction, LPSSortOrderSet lpSortOrderSet,
+     LONG crowsMax, LPSRowSet* lppRows)
+{
+    return MsOutlookAddrBookContactSourceService_hrQueryAllRows(
+            lpTable,
+            lpPropTags,
+            lpRestriction,
+            lpSortOrderSet,
+            crowsMax,
+            lppRows);
 }
 
 SCODE
@@ -539,24 +486,51 @@ MsOutlookAddrBook_mapiLogonEx
 
     EnterCriticalSection(
             &MsOutlookAddrBookContactSourceService_mapiSessionCriticalSection);
-    if (MsOutlookAddrBookContactSourceService_mapiSession)
+    LPMAPISESSION currentMapiSession = MAPISession_getMapiSession();
+    if (currentMapiSession != NULL)
         hResult = S_OK;
     else
     {
-        hResult
-            = MsOutlookAddrBookContactSourceService_mapiLogonEx(
-                    uiParam,
-                    profileName, password,
-                    flags,
-                    &MsOutlookAddrBookContactSourceService_mapiSession);
+        DWORD dwSize = ::GetCurrentDirectory(0, NULL);
+        if (dwSize > 0)
+        {
+            LPTSTR lpszWorkingDir = (LPTSTR)::malloc(dwSize*sizeof(TCHAR));
+            DWORD dwResult = ::GetCurrentDirectory(dwSize, lpszWorkingDir);
+            if (dwResult != 0)
+            {
+                hResult
+                    = MsOutlookAddrBookContactSourceService_mapiLogonEx(
+                            uiParam,
+                            profileName, password,
+                            flags,
+                            &currentMapiSession);
+                ::SetCurrentDirectory(lpszWorkingDir);
+
+                MAPISession_setMapiSession(currentMapiSession);
+            }
+            else
+            {
+                hResult = HRESULT_FROM_WIN32(::GetLastError());
+            }
+
+            ::free(lpszWorkingDir);
+        }
+        else
+        {
+            hResult = HRESULT_FROM_WIN32(::GetLastError());
+        }
+
+
+
     }
     if (HR_SUCCEEDED(hResult))
-        *mapiSession = MsOutlookAddrBookContactSourceService_mapiSession;
+        *mapiSession = currentMapiSession;
     LeaveCriticalSection(
             &MsOutlookAddrBookContactSourceService_mapiSessionCriticalSection);
 
     return hResult;
 }
+
 
 static jboolean
 MsOutlookAddrBookContactSourceService_isValidDefaultMailClient
@@ -594,52 +568,4 @@ MsOutlookAddrBookContactSourceService_isValidDefaultMailClient
         }
     }
     return validDefaultMailClient;
-}
-
-LPMAPISESSION MsOutlookAddrBookContactSourceService_getMapiSession()
-{
-    return MsOutlookAddrBookContactSourceService_mapiSession;
-}
-
-void MsOutlookAddrBookContact_hexFromBin(LPBYTE pb, int cb, LPTSTR sz)
-{
-    return MsOutlookAddrBookContactSourceService_hexFromBin(pb, cb, sz);
-}
-
-void MsOutlookAddrBookContact_HrAllocAdviseSink(
-        LPNOTIFCALLBACK lpfnCallback,
-        LPVOID lpvContext,
-        LPMAPIADVISESINK* lppAdviseSink)
-{
-    MsOutlookAddrBookContactSourceService_HrAllocAdviseSink(
-            lpfnCallback,
-            lpvContext,
-            lppAdviseSink);
-}
-
-WINBOOL MsOutlookAddrBookContact_FBinFromHex(LPTSTR lpsz, LPBYTE lpb)
-{
-    return MsOutlookAddrBookContactSourceService_FBinFromHex(lpsz, lpb);
-}
-
-HRESULT MsOutlookAddrBookContact_HrQueryAllRows(
-        LPMAPITABLE lpTable,
-        LPSPropTagArray lpPropTags,
-        LPSRestriction lpRestriction,
-        LPSSortOrderSet lpSortOrderSet,
-        LONG crowsMax,
-        LPSRowSet* lppRows)
-{
-    return MsOutlookAddrBookContactSourceService_HrQueryAllRows(
-            lpTable,
-            lpPropTags,
-            lpRestriction,
-            lpSortOrderSet,
-            crowsMax,
-            lppRows);
-}
-
-void MsOutlookAddrBookContact_FreeProws(LPSRowSet lpRows)
-{
-    MsOutlookAddrBookContactSourceService_FreeProws(lpRows);
 }
