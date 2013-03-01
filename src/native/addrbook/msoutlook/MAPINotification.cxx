@@ -434,7 +434,7 @@ ULONG MAPINotification_registerNotifyMessageDataBase(LPMDB iUnknown)
             (LPENTRYID) NULL,
             MAPINotification_EVENT_MASK,
             adviseSink,
-            (ULONG_PTR *) &nbConnection);
+            (ULONG *) &nbConnection);
 
     return nbConnection;
 }
@@ -453,7 +453,7 @@ ULONG MAPINotification_registerNotifyTable(LPMAPITABLE iUnknown)
     iUnknown->Advise(
             fnevTableModified,
             adviseSink,
-            (ULONG_PTR *) &nbConnection);
+            (ULONG *) &nbConnection);
 
     return nbConnection;
 }
