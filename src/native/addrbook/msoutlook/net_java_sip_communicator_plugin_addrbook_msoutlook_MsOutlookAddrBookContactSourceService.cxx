@@ -338,7 +338,6 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
                         hResult
                             = MsOutlookAddrBookContactSourceService_mapiInitialize(
                                     &mapiInit);
-                        ::SetCurrentDirectory(lpszWorkingDir);
 
                         if(HR_SUCCEEDED(hResult)
                                 && MAPISession_getMapiSession() == NULL)
@@ -356,6 +355,7 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
                                     mapiSession,
                                     notificationsDelegate);
                         }
+                        ::SetCurrentDirectory(lpszWorkingDir);
                         MAPISession_unlock();
                     }
                     else
@@ -489,34 +489,14 @@ MsOutlookAddrBook_mapiLogonEx
         hResult = S_OK;
     else
     {
-        DWORD dwSize = ::GetCurrentDirectory(0, NULL);
-        if (dwSize > 0)
-        {
-            LPTSTR lpszWorkingDir = (LPTSTR)::malloc(dwSize*sizeof(TCHAR));
-            DWORD dwResult = ::GetCurrentDirectory(dwSize, lpszWorkingDir);
-            if (dwResult != 0)
-            {
-                hResult
-                    = MsOutlookAddrBookContactSourceService_mapiLogonEx(
-                            uiParam,
-                            profileName, password,
-                            flags,
-                            &currentMapiSession);
-                ::SetCurrentDirectory(lpszWorkingDir);
+        hResult
+            = MsOutlookAddrBookContactSourceService_mapiLogonEx(
+                    uiParam,
+                    profileName, password,
+                    flags,
+                    &currentMapiSession);
 
-                MAPISession_setMapiSession(currentMapiSession);
-            }
-            else
-            {
-                hResult = HRESULT_FROM_WIN32(::GetLastError());
-            }
-
-            ::free(lpszWorkingDir);
-        }
-        else
-        {
-            hResult = HRESULT_FROM_WIN32(::GetLastError());
-        }
+        MAPISession_setMapiSession(currentMapiSession);
     }
 
     if (HR_SUCCEEDED(hResult))
