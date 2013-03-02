@@ -258,6 +258,29 @@ public class MsOutlookAddrBookContactQuery
             //dispidOtherAddress
         };
 
+    /**
+     * The indexes in {@link #MAPI_MAILUSER_PROP_IDS} of the property IDs which
+     * represent an identifier which can be used for telephony or persistent
+     * presence.
+     */
+    private static final int[] CONTACT_OPERATION_SET_ABLE_PROP_INDEXES
+        = new int[]
+        {
+            PR_EMAIL_ADDRESS,
+            PR_BUSINESS_TELEPHONE_NUMBER,
+            PR_BUSINESS2_TELEPHONE_NUMBER,
+            PR_HOME_TELEPHONE_NUMBER,
+            PR_HOME2_TELEPHONE_NUMBER,
+            PR_MOBILE_TELEPHONE_NUMBER,
+            dispidEmail1EmailAddress,
+            dispidEmail2EmailAddress,
+            dispidEmail3EmailAddress,
+            dispidFax1EmailAddress,
+            dispidFax2EmailAddress,
+            dispidFax3EmailAddress
+            //dispidInstMsg
+        };
+
     static
     {
         System.loadLibrary("jmsoutlookaddrbook");
@@ -704,7 +727,20 @@ public class MsOutlookAddrBookContactQuery
                                 getSubCategories(property),
                                 MAPI_MAILUSER_PROP_IDS[property]);
 
-                    contactDetail.setSupportedOpSets(supportedOpSets);
+                    // Check if this contact detail support the telephony and
+                    // the persistent presence operation set.
+                    for(int j = 0;
+                            j < CONTACT_OPERATION_SET_ABLE_PROP_INDEXES.length;
+                            ++j)
+                    {
+                        if(property
+                                == CONTACT_OPERATION_SET_ABLE_PROP_INDEXES[j])
+                        {
+                            contactDetail.setSupportedOpSets(supportedOpSets);
+                            // Found, then break the loop.
+                            j = CONTACT_OPERATION_SET_ABLE_PROP_INDEXES.length;
+                        }
+                    }
                     contactDetails.add(contactDetail);
                 }
             }

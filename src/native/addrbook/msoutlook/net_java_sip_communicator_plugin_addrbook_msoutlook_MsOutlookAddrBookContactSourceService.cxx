@@ -17,9 +17,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef BOOL (STDAPICALLTYPE *LPFBINFROMHEX)(LPTSTR, LPBYTE);
+typedef BOOL (STDAPICALLTYPE *LPFBINFROMHEX)(LPSTR, LPBYTE);
 typedef void (STDAPICALLTYPE *LPFREEPROWS)(LPSRowSet);
-typedef void (STDAPICALLTYPE *LPHEXFROMBIN)(LPBYTE, int, LPTSTR);
+typedef void (STDAPICALLTYPE *LPHEXFROMBIN)(LPBYTE, int, LPSTR);
 typedef HRESULT (STDAPICALLTYPE *LPHRALLOCADVISESINK)(LPNOTIFCALLBACK, LPVOID, LPMAPIADVISESINK FAR *);
 typedef HRESULT (STDAPICALLTYPE *LPHRQUERYALLROWS)(LPMAPITABLE, LPSPropTagArray, LPSRestriction, LPSSortOrderSet, LONG, LPSRowSet FAR *);
 
@@ -35,8 +35,7 @@ static LPMAPIINITIALIZE MsOutlookAddrBookContactSourceService_mapiInitialize;
 static LPMAPILOGONEX MsOutlookAddrBookContactSourceService_mapiLogonEx;
 static LPMAPIUNINITIALIZE
     MsOutlookAddrBookContactSourceService_mapiUninitialize;
-static CRITICAL_SECTION
-    MsOutlookAddrBookContactSourceService_mapiSessionCriticalSection;
+static HMODULE hMapiLib = NULL;
 
 static jboolean
 MsOutlookAddrBookContactSourceService_isValidDefaultMailClient
@@ -44,7 +43,7 @@ MsOutlookAddrBookContactSourceService_isValidDefaultMailClient
 
 JNIEXPORT void JNICALL
 Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService_MAPIInitialize
-    (JNIEnv *jniEnv, jclass clazz, jlong version, jlong flags,
+    (JNIEnv *jniEnv, jclass /*clazz*/, jlong version, jlong flags,
      jobject notificationsDelegate)
 {
     HKEY regKey;
@@ -129,7 +128,7 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
                     pathValue = installRootKeyName;
                 else
                 {
-                    pathValue = (TCHAR *) malloc(pathValueSize);
+                    pathValue = (LPTSTR)::malloc(pathValueSize);
                     if (!pathValue)
                         continue;
                 }
@@ -151,7 +150,7 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
                         str = pathValue + (pathValueLength - 1);
                         if (*str)
                             str++;
-                        memcpy(str, "\\Outlook.exe", 12 * sizeof(TCHAR));
+                        memcpy(str, _T("\\Outlook.exe"), 12 * sizeof(TCHAR));
                         *(str + 12) = 0;
 
                         fileAttributes = GetFileAttributes(pathValue);
@@ -280,21 +279,52 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
     // If we've determined that we'd like to go on with MAPI, try to load it.
     if (HR_SUCCEEDED(hResult))
     {
-        HMODULE lib = ::LoadLibrary(_T("mapi32.dll"));
+        hMapiLib = ::LoadLibrary(_T("mapi32.dll"));
 
         hResult = MAPI_E_NO_SUPPORT;
-        if (lib)
+        if(hMapiLib)
         {
+            // get and check function pointers
             MsOutlookAddrBookContactSourceService_mapiInitialize
-                = (LPMAPIINITIALIZE) GetProcAddress(lib, "MAPIInitialize");
+                = (LPMAPIINITIALIZE) GetProcAddress(hMapiLib, "MAPIInitialize");
             MsOutlookAddrBookContactSourceService_mapiUninitialize
-                = (LPMAPIUNINITIALIZE) GetProcAddress(lib, "MAPIUninitialize");
+                = (LPMAPIUNINITIALIZE)
+                    GetProcAddress(hMapiLib, "MAPIUninitialize");
+            MsOutlookAddrBookContactSourceService_mapiAllocateBuffer
+                = (LPMAPIALLOCATEBUFFER)
+                    GetProcAddress(hMapiLib, "MAPIAllocateBuffer");
+            MsOutlookAddrBookContactSourceService_mapiFreeBuffer
+                = (LPMAPIFREEBUFFER) GetProcAddress(hMapiLib, "MAPIFreeBuffer");
+            MsOutlookAddrBookContactSourceService_mapiLogonEx
+                = (LPMAPILOGONEX) GetProcAddress(hMapiLib, "MAPILogonEx");
+            MsOutlookAddrBookContactSourceService_fBinFromHex
+                = (LPFBINFROMHEX) GetProcAddress(hMapiLib, "FBinFromHex@8");
+            MsOutlookAddrBookContactSourceService_freeProws
+                = (LPFREEPROWS) GetProcAddress(hMapiLib, "FreeProws@4");
+            MsOutlookAddrBookContactSourceService_hexFromBin
+                = (LPHEXFROMBIN) GetProcAddress(hMapiLib, "HexFromBin@12");
+            MsOutlookAddrBookContactSourceService_hrAllocAdviseSink
+                = (LPHRALLOCADVISESINK)
+                    GetProcAddress(hMapiLib, "HrAllocAdviseSink@12");
+            MsOutlookAddrBookContactSourceService_hrQueryAllRows
+                = (LPHRQUERYALLROWS)
+                    GetProcAddress(hMapiLib, "HrQueryAllRows@24");
 
             if (MsOutlookAddrBookContactSourceService_mapiInitialize
-                    && MsOutlookAddrBookContactSourceService_mapiUninitialize)
+                && MsOutlookAddrBookContactSourceService_mapiUninitialize
+                && MsOutlookAddrBookContactSourceService_mapiAllocateBuffer
+                && MsOutlookAddrBookContactSourceService_mapiFreeBuffer
+                && MsOutlookAddrBookContactSourceService_mapiLogonEx
+                && MsOutlookAddrBookContactSourceService_fBinFromHex
+                && MsOutlookAddrBookContactSourceService_freeProws
+                && MsOutlookAddrBookContactSourceService_hexFromBin
+                && MsOutlookAddrBookContactSourceService_hrAllocAdviseSink
+                && MsOutlookAddrBookContactSourceService_hrQueryAllRows)
             {
                 MAPIINIT_0 mapiInit = { (ULONG) version, (ULONG) flags };
 
+                // Opening MAPI changes the working directory. Make a backup of
+                // the current directory, login to MAPI and restore it
                 DWORD dwSize = ::GetCurrentDirectory(0, NULL);
                 if (dwSize > 0)
                 {
@@ -304,93 +334,53 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
                         = ::GetCurrentDirectory(dwSize, lpszWorkingDir);
                     if (dwResult != 0)
                     {
+                        MAPISession_lock();
                         hResult
                             = MsOutlookAddrBookContactSourceService_mapiInitialize(
                                     &mapiInit);
                         ::SetCurrentDirectory(lpszWorkingDir);
+
+                        if(HR_SUCCEEDED(hResult)
+                                && MAPISession_getMapiSession() == NULL)
+                        {
+                            LPMAPISESSION mapiSession = NULL;
+                            hResult = MsOutlookAddrBook_mapiLogonEx(
+                                    0,
+                                    NULL, NULL,
+                                    MAPI_EXTENDED
+                                        | MAPI_NO_MAIL
+                                        | MAPI_USE_DEFAULT,
+                                    &mapiSession);
+                            MAPINotification_registerNotificationsDelegate(
+                                    jniEnv,
+                                    mapiSession,
+                                    notificationsDelegate);
+                        }
+                        MAPISession_unlock();
                     }
                     else
                     {
                         hResult = HRESULT_FROM_WIN32(::GetLastError());
                     }
+
                     ::free(lpszWorkingDir);
                 }
                 else
                 {
                     hResult = HRESULT_FROM_WIN32(::GetLastError());
                 }
-
-                if (HR_SUCCEEDED(hResult))
-                {
-                    MsOutlookAddrBookContactSourceService_mapiAllocateBuffer
-                        = (LPMAPIALLOCATEBUFFER)
-                            GetProcAddress(lib, "MAPIAllocateBuffer");
-                    MsOutlookAddrBookContactSourceService_mapiFreeBuffer
-                        = (LPMAPIFREEBUFFER)
-                            GetProcAddress(lib, "MAPIFreeBuffer");
-                    MsOutlookAddrBookContactSourceService_mapiLogonEx
-                        = (LPMAPILOGONEX) GetProcAddress(lib, "MAPILogonEx");
-
-                    MsOutlookAddrBookContactSourceService_fBinFromHex
-                        = (LPFBINFROMHEX) GetProcAddress(lib, "FBinFromHex@8");
-                    MsOutlookAddrBookContactSourceService_freeProws
-                        = (LPFREEPROWS) GetProcAddress(lib, "FreeProws@4");
-                    MsOutlookAddrBookContactSourceService_hexFromBin
-                        = (LPHEXFROMBIN) GetProcAddress(lib, "HexFromBin@12");
-                    MsOutlookAddrBookContactSourceService_hrAllocAdviseSink
-                        = (LPHRALLOCADVISESINK)
-                            GetProcAddress(lib, "HrAllocAdviseSink@12");
-                    MsOutlookAddrBookContactSourceService_hrQueryAllRows
-                        = (LPHRQUERYALLROWS)
-                            GetProcAddress(lib, "HrQueryAllRows@24");
-
-                    InitializeCriticalSection(
-                            &MsOutlookAddrBookContactSourceService_mapiSessionCriticalSection);
-
-                    if (MsOutlookAddrBookContactSourceService_mapiAllocateBuffer
-                            && MsOutlookAddrBookContactSourceService_mapiFreeBuffer
-                            && MsOutlookAddrBookContactSourceService_mapiLogonEx
-
-
-                            && MsOutlookAddrBookContactSourceService_fBinFromHex
-                            && MsOutlookAddrBookContactSourceService_freeProws
-                            && MsOutlookAddrBookContactSourceService_hexFromBin
-                            && MsOutlookAddrBookContactSourceService_hrAllocAdviseSink
-                            &&
-                            MsOutlookAddrBookContactSourceService_hrQueryAllRows)
-                    {
-                        hResult = S_OK;
-                    }
-                    else
-                    {
-                        MsOutlookAddrBookContactSourceService_mapiUninitialize();
-                        hResult = MAPI_E_NO_SUPPORT;
-                    }
-                }
             }
-            if (HR_FAILED(hResult))
-                FreeLibrary(lib);
         }
     }
 
-    if(HR_SUCCEEDED(hResult) && MAPISession_getMapiSession() == NULL)
-    {
-        LPMAPISESSION mapiSession = NULL;
-        hResult
-            = MsOutlookAddrBook_mapiLogonEx(
-                    0,
-                    NULL, NULL,
-                    MAPI_EXTENDED | MAPI_NO_MAIL | MAPI_USE_DEFAULT,
-                    &mapiSession);
-        MAPINotification_registerNotificationsDelegate(
-                jniEnv,
-                mapiSession,
-                notificationsDelegate);
-    }
-
-    /* Report any possible error regardless of where it has come from. */
     if (HR_FAILED(hResult))
     {
+        if (hMapiLib)
+        {
+            FreeLibrary(hMapiLib);
+            hMapiLib = NULL;
+        }
+        /* Report any possible error regardless of where it has come from. */
         MsOutlookMAPIHResultException_throwNew(
                 jniEnv,
                 hResult,
@@ -400,28 +390,37 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
 
 JNIEXPORT void JNICALL
 Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService_MAPIUninitialize
-    (JNIEnv *jniEnv, jclass clazz)
+    (JNIEnv *jniEnv, jclass /*clazz*/)
 {
-    EnterCriticalSection(
-            &MsOutlookAddrBookContactSourceService_mapiSessionCriticalSection);
+    MAPISession_lock();
     LPMAPISESSION mapiSession = MAPISession_getMapiSession();
     if(mapiSession != NULL)
     {
         MAPINotification_unregisterNotificationsDelegate(jniEnv);
         mapiSession->Logoff(0, 0, 0);
         mapiSession->Release();
-        mapiSession = NULL;
+        MAPISession_setMapiSession(NULL);
     }
-    LeaveCriticalSection(
-            &MsOutlookAddrBookContactSourceService_mapiSessionCriticalSection);
 
     MsOutlookAddrBookContactSourceService_mapiUninitialize();
 
-    DeleteCriticalSection(
-            &MsOutlookAddrBookContactSourceService_mapiSessionCriticalSection);
+    MsOutlookAddrBookContactSourceService_mapiInitialize = NULL;
+    MsOutlookAddrBookContactSourceService_mapiUninitialize = NULL;
+    MsOutlookAddrBookContactSourceService_mapiAllocateBuffer = NULL;
+    MsOutlookAddrBookContactSourceService_mapiFreeBuffer = NULL;
+    MsOutlookAddrBookContactSourceService_mapiLogonEx = NULL;
+    MsOutlookAddrBookContactSourceService_fBinFromHex = NULL;
+    MsOutlookAddrBookContactSourceService_freeProws = NULL;
+    MsOutlookAddrBookContactSourceService_hexFromBin = NULL;
+    MsOutlookAddrBookContactSourceService_hrAllocAdviseSink = NULL;
+    MsOutlookAddrBookContactSourceService_hrQueryAllRows = NULL;
+    ::FreeLibrary(hMapiLib);
+    hMapiLib = NULL;
+
+    MAPISession_unlock();
 }
 
-WINBOOL MsOutlookAddrBook_fBinFromHex(LPTSTR lpsz, LPBYTE lpb)
+BOOL MsOutlookAddrBook_fBinFromHex(LPSTR lpsz, LPBYTE lpb)
 {
     return MsOutlookAddrBookContactSourceService_fBinFromHex(lpsz, lpb);
 }
@@ -431,7 +430,7 @@ void MsOutlookAddrBook_freeProws(LPSRowSet lpRows)
     MsOutlookAddrBookContactSourceService_freeProws(lpRows);
 }
 
-void MsOutlookAddrBook_hexFromBin(LPBYTE pb, int cb, LPTSTR sz)
+void MsOutlookAddrBook_hexFromBin(LPBYTE pb, int cb, LPSTR sz)
 {
     return MsOutlookAddrBookContactSourceService_hexFromBin(pb, cb, sz);
 }
@@ -478,14 +477,13 @@ MsOutlookAddrBook_mapiFreeBuffer(LPVOID buffer)
 HRESULT
 MsOutlookAddrBook_mapiLogonEx
     (ULONG_PTR uiParam,
-    LPSTR profileName, LPSTR password,
+    LPTSTR profileName, LPTSTR password,
     FLAGS flags,
     LPMAPISESSION FAR *mapiSession)
 {
     HRESULT hResult;
 
-    EnterCriticalSection(
-            &MsOutlookAddrBookContactSourceService_mapiSessionCriticalSection);
+    MAPISession_lock();
     LPMAPISESSION currentMapiSession = MAPISession_getMapiSession();
     if (currentMapiSession != NULL)
         hResult = S_OK;
@@ -519,15 +517,14 @@ MsOutlookAddrBook_mapiLogonEx
         {
             hResult = HRESULT_FROM_WIN32(::GetLastError());
         }
-
-
-
     }
-    if (HR_SUCCEEDED(hResult))
-        *mapiSession = currentMapiSession;
-    LeaveCriticalSection(
-            &MsOutlookAddrBookContactSourceService_mapiSessionCriticalSection);
 
+    if (HR_SUCCEEDED(hResult))
+    {
+        *mapiSession = currentMapiSession;
+    }
+
+    MAPISession_unlock();
     return hResult;
 }
 

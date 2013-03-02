@@ -87,32 +87,39 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
 {
     jmethodID callbackMethodID;
 
+    MAPISession_lock();
     LPMAPISESSION mapiSession = MAPISession_getMapiSession();
+    if (!mapiSession)
+    {
+        MAPISession_unlock();
+        return;
+    }
 
     callbackMethodID
         = AddrBookContactQuery_getPtrCallbackMethodID(jniEnv, callback);
     if (!callbackMethodID || jniEnv->ExceptionCheck())
-        return;
-
-    if (mapiSession)
     {
-        jboolean proceed
-            = MsOutlookAddrBookContactQuery_foreachContactInMsgStoresTable(
-                    mapiSession,
-                    jniEnv,
-                    query,
-                    callback, callbackMethodID);
-
-        if (proceed && !(jniEnv->ExceptionCheck()))
-        {
-            MsOutlookAddrBookContactQuery_foreachMailUserInAddressBook(
-                    mapiSession,
-                    jniEnv,
-                    query,
-                    callback, callbackMethodID);
-        }
-
+        MAPISession_unlock();
+        return;
     }
+
+    jboolean proceed
+        = MsOutlookAddrBookContactQuery_foreachContactInMsgStoresTable(
+                mapiSession,
+                jniEnv,
+                query,
+                callback, callbackMethodID);
+
+    if (proceed && !(jniEnv->ExceptionCheck()))
+    {
+        MsOutlookAddrBookContactQuery_foreachMailUserInAddressBook(
+                mapiSession,
+                jniEnv,
+                query,
+                callback, callbackMethodID);
+    }
+
+    MAPISession_unlock();
 }
 
 /**
@@ -274,7 +281,7 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
                     propTag
                         = MsOutlookAddrBookContactQuery_getPropTagFromLid(
                                 (LPMAPIPROP) mapiProp,
-                                propId);
+                                (LONG)propId);
                 }
                 *(propTagArray->aulPropTag + i) = propTag;
             }
@@ -410,7 +417,7 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
 
                         case PT_BINARY:
                         {
-                            char entryIdStr[prop->Value.bin.cb * 2 + 1];
+                            LPSTR entryIdStr = (LPSTR)::malloc(prop->Value.bin.cb * 2 + 1);
 
                             HexFromBin(
                                     prop->Value.bin.lpb,
@@ -427,6 +434,9 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
                                 if (jniEnv->ExceptionCheck())
                                     props = NULL;
                             }
+
+                            ::free(entryIdStr);
+                            entryIdStr = NULL;
                             break;
                         }
                         }
@@ -484,7 +494,7 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
 
     const char *nativeValue = jniEnv->GetStringUTFChars(value, NULL);
     size_t valueLength = strlen(nativeValue);
-    wchar_t wCharValue[valueLength + 1];
+    LPWSTR wCharValue = (LPWSTR)::malloc((valueLength + 1) * sizeof(wchar_t));
     if(mbstowcs(wCharValue, nativeValue, valueLength + 1)
             != valueLength)
     {
@@ -493,6 +503,8 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
                     \n\tmbstowcs\n");
         fflush(stderr);
         jniEnv->ReleaseStringUTFChars(value, nativeValue);
+        ::free(wCharValue);
+        wCharValue = NULL;
         return JNI_FALSE;
     }
     jniEnv->ReleaseStringUTFChars(value, nativeValue);
@@ -594,11 +606,15 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
         if (HR_SUCCEEDED(hResult))
         {
             ((LPMAPIPROP)  mapiProp)->Release();
+            ::free(wCharValue);
+            wCharValue = NULL;
             return JNI_TRUE;
         }
     }
 
     ((LPMAPIPROP)  mapiProp)->Release();
+    ::free(wCharValue);
+    wCharValue = NULL;
     return JNI_FALSE;
 }
 
@@ -858,7 +874,7 @@ MsOutlookAddrBookContactQuery_foreachRowInTable
 
                 if (objType && entryIDBinary.cb && entryIDBinary.lpb)
                 {
-                    LPENTRYID entryID;
+                    LPENTRYID entryID = NULL;
 
                     if (S_OK
                             == MAPIAllocateBuffer(
@@ -1128,9 +1144,9 @@ MsOutlookAddrBookContactQuery_onForeachContactInMsgStoresTableRow
                 &msgStore);
     if (HR_SUCCEEDED(hResult))
     {
-        LPENTRYID receiveFolderEntryID;
-        ULONG contactsFolderEntryIDByteCount;
-        LPENTRYID contactsFolderEntryID;
+        LPENTRYID receiveFolderEntryID = NULL;
+        ULONG contactsFolderEntryIDByteCount = 0;
+        LPENTRYID contactsFolderEntryID = NULL;
 
         hResult
             = msgStore->GetReceiveFolder(
@@ -1259,11 +1275,12 @@ LPUNKNOWN MsOutlookAddrBookContactQuery_openEntryId(const char* entryId)
                 &iUnknown);
         if(hResult == S_OK)
         {
-            free(tmpEntryId);
+            ::free(tmpEntryId);
             return iUnknown;
         }
     }
-    free(tmpEntryId);
+
+    ::free(tmpEntryId);
     return NULL;
 }
 
@@ -1281,7 +1298,7 @@ MsOutlookAddrBookContactQuery_readAttachment
         hResult = message->OpenAttach(num, NULL, 0, &attach);
         if (HR_SUCCEEDED(hResult))
         {
-            IStream *stream;
+            IStream *stream = NULL;
 
             if (PT_BOOLEAN == PROP_TYPE(cond))
             {
@@ -1309,7 +1326,7 @@ MsOutlookAddrBookContactQuery_readAttachment
                             0,
                             (LPUNKNOWN *) &stream);
             }
-            if (HR_SUCCEEDED(hResult))
+            if (HR_SUCCEEDED(hResult) && stream)
             {
                 STATSTG statstg;
                 ULONGLONG length;

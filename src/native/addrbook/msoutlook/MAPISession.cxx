@@ -7,6 +7,7 @@
 #include "MAPISession.h"
 
 static LPMAPISESSION MAPISession_mapiSession = NULL;
+static CRITICAL_SECTION MAPISession_mapiSessionCriticalSection;
 
 /**
  * Returns the current mapi session which have been created using the
@@ -30,4 +31,24 @@ LPMAPISESSION MAPISession_getMapiSession(void)
 void MAPISession_setMapiSession(LPMAPISESSION mapiSession)
 {
     MAPISession_mapiSession = mapiSession;
+}
+
+void MAPISession_initLock()
+{
+    InitializeCriticalSection(&MAPISession_mapiSessionCriticalSection);
+}
+
+void MAPISession_lock()
+{
+    EnterCriticalSection(&MAPISession_mapiSessionCriticalSection);
+}
+
+void MAPISession_unlock()
+{
+    LeaveCriticalSection(&MAPISession_mapiSessionCriticalSection);
+}
+
+void MAPISession_freeLock()
+{
+    DeleteCriticalSection(&MAPISession_mapiSessionCriticalSection);
 }

@@ -169,7 +169,7 @@ STDAPICALLTYPE MAPINotification_onNotify
         {
             if(lpvContext != NULL)
             {
-                char entryIdStr[lpNotifications[i].info.obj.cbEntryID * 2 + 1];
+                LPSTR entryIdStr = (LPSTR)::malloc(lpNotifications[i].info.obj.cbEntryID * 2 + 1);
 
                 HexFromBin(
                         (LPBYTE) lpNotifications[i].info.obj.lpEntryID,
@@ -180,6 +180,9 @@ STDAPICALLTYPE MAPINotification_onNotify
                 {
                     MAPINotification_callDeletedMethod(entryIdStr);
                 }
+
+                ::free(entryIdStr);
+                entryIdStr = NULL;
             }
         }
         // A contact has been deleted (moved to trash).
@@ -187,13 +190,14 @@ STDAPICALLTYPE MAPINotification_onNotify
         {
             if(lpvContext != NULL)
             {
-                char entryIdStr[lpNotifications[i].info.obj.cbEntryID * 2 + 1];
+                LPSTR entryIdStr
+                    = (LPSTR)::malloc(lpNotifications[i].info.obj.cbEntryID * 2 + 1);
                 HexFromBin(
                         (LPBYTE) lpNotifications[i].info.obj.lpEntryID,
                         lpNotifications[i].info.obj.cbEntryID,
                         entryIdStr);
-                char parentEntryIdStr[
-                    lpNotifications[i].info.obj.cbParentID * 2 + 1];
+                LPSTR parentEntryIdStr
+                    = (LPSTR)::malloc(lpNotifications[i].info.obj.cbParentID * 2 + 1);
                 HexFromBin(
                         (LPBYTE) lpNotifications[i].info.obj.lpParentID,
                         lpNotifications[i].info.obj.cbParentID,
@@ -206,8 +210,8 @@ STDAPICALLTYPE MAPINotification_onNotify
                         MAPI_UNICODE,
                         &wasteBasketNbValues,
                         &wasteBasketProps); 
-                char wasteBasketEntryIdStr[
-                    wasteBasketProps[0].Value.bin.cb * 2 + 1];
+                LPSTR wasteBasketEntryIdStr
+                    = (LPSTR)::malloc(wasteBasketProps[0].Value.bin.cb * 2 + 1);
                 HexFromBin(
                         (LPBYTE) wasteBasketProps[0].Value.bin.lpb,
                         wasteBasketProps[0].Value.bin.cb,
@@ -224,6 +228,13 @@ STDAPICALLTYPE MAPINotification_onNotify
                 {
                     MAPINotification_callDeletedMethod(entryIdStr);
                 }
+
+                ::free(entryIdStr);
+                entryIdStr = NULL;
+                ::free(parentEntryIdStr);
+                parentEntryIdStr = NULL;
+                ::free(wasteBasketEntryIdStr);
+                wasteBasketEntryIdStr = NULL;
             }
         }
 
@@ -493,7 +504,8 @@ void MAPINotification_unregisterNotificationsDelegate(JNIEnv *jniEnv)
     MAPINotification_unregisterNotifyAllMsgStores();
     if(MAPINotification_notificationsDelegateObject != NULL)
     {
-        jniEnv->DeleteGlobalRef( MAPINotification_notificationsDelegateObject);
+        jniEnv->DeleteGlobalRef(MAPINotification_notificationsDelegateObject);
+        MAPINotification_notificationsDelegateObject = NULL;
         MAPINotification_notificationsDelegateMethodIdInserted = NULL;
         MAPINotification_notificationsDelegateMethodIdUpdated = NULL;
         MAPINotification_notificationsDelegateMethodIdDeleted = NULL;
@@ -517,7 +529,9 @@ void MAPINotification_unregisterNotifyAllMsgStores(void)
             }
         }
         free(MAPINotification_msgStoresConnection);
+        MAPINotification_msgStoresConnection = NULL;
     }
+
     if(MAPINotification_msgStores != NULL)
     {
         for(unsigned int i = 0; i < MAPINotification_nbMsgStores; ++i)
@@ -528,12 +542,14 @@ void MAPINotification_unregisterNotifyAllMsgStores(void)
             }
         }
         free(MAPINotification_msgStores);
+        MAPINotification_msgStores = NULL;
     }
+
     if(MAPINotification_msgStoresTable != NULL)
     {
         MAPINotification_msgStoresTable->Unadvise(
                 MAPINotification_msgStoresTableConnection);
         MAPINotification_msgStoresTable->Release();
+        MAPINotification_msgStoresTable = NULL;
     }
 }
-

@@ -17,7 +17,7 @@ extern "C" {
 #endif /* #ifdef __cplusplus */
 
 void MsOutlookMAPIHResultException_throwNew
-    (JNIEnv *jniEnv, HRESULT hResult, LPCTSTR file, ULONG line);
+    (JNIEnv *jniEnv, HRESULT hResult, LPCSTR file, ULONG line);
 
 #ifdef __cplusplus
 }
