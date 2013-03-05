@@ -25,10 +25,7 @@ import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.FaxDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.GenericDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.PagerDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.PhoneNumberDetail;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.account.*;
 import net.java.sip.communicator.util.skin.*;
@@ -771,6 +768,7 @@ public class ContactListTreeCellRenderer
         // Check if contact has additional phone numbers, if yes show the
         // call button
         boolean hasPhone = false;
+        boolean hasVideoPhone = false;
 
         // check for phone stored in contact info only
         // if telephony contact is missing
@@ -814,6 +812,10 @@ public class ContactListTreeCellRenderer
                                     pnd.getNumber().length() > 0)
                                 {
                                     hasPhone = true;
+
+                                    if(d instanceof VideoDetail)
+                                        hasVideoPhone = true;
+
                                     break;
                                 }
                              }
@@ -848,7 +850,8 @@ public class ContactListTreeCellRenderer
                     && AccountUtils.getOpSetRegisteredProviders(
                                     OperationSetVideoTelephony.class,
                                     null,
-                                    null).size() > 0))
+                                    null).size() > 0)
+            || hasVideoPhone)
         {
             x += addButton(callVideoButton, ++gridX, x, false);
         }

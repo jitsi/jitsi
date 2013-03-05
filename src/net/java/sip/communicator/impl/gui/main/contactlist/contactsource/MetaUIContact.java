@@ -18,13 +18,8 @@ import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.OperationSetExtendedAuthorizations.SubscriptionStatus;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.FaxDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.GenericDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.MobilePhoneDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.PagerDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.PhoneNumberDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.WorkPhoneDetail;
+import net.java.sip.communicator.service.protocol.OperationSetExtendedAuthorizations.*;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -543,6 +538,13 @@ public class MetaUIContact
                             GuiActivator.getResources().
                                 getI18NString(
                                     "service.gui.MOBILE_PHONE");
+                    }
+                    else if(d instanceof VideoDetail)
+                    {
+                        localizedType =
+                            GuiActivator.getResources().
+                                getI18NString(
+                                    "service.gui.VIDEO_PHONE");
                     }
                     else
                     {

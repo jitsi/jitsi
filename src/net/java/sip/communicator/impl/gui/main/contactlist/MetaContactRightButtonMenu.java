@@ -29,13 +29,8 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.OperationSetExtendedAuthorizations.SubscriptionStatus;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.FaxDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.GenericDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.MobilePhoneDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.PagerDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.PhoneNumberDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.WorkPhoneDetail;
+import net.java.sip.communicator.service.protocol.OperationSetExtendedAuthorizations.*;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.account.*;
 import net.java.sip.communicator.util.skin.*;
@@ -452,6 +447,13 @@ public class MetaContactRightButtonMenu
                                             getI18NString(
                                                 "service.gui.MOBILE_PHONE");
                                 }
+                                else if(d instanceof VideoDetail)
+                                {
+                                    localizedType =
+                                        GuiActivator.getResources().
+                                            getI18NString(
+                                                "service.gui.VIDEO_PHONE");
+                                }
                                 else
                                 {
                                     localizedType =
@@ -823,7 +825,12 @@ public class MetaContactRightButtonMenu
                 if (component.getComponent() == null)
                     continue;
 
-                this.add((Component)component.getComponent());
+                if(component.getPositionIndex() != -1)
+                    this.add((Component)component.getComponent(),
+                             component.getPositionIndex());
+                else
+                    this.add((Component)component.getComponent());
+
             }
         }
         GuiActivator.getUIService().addPluginComponentListener(this);
@@ -1292,10 +1299,23 @@ public class MetaContactRightButtonMenu
         if (c.getComponent() == null)
             return;
 
+        int ix = c.getPositionIndex();
+
         if (constraints == null)
-            this.add((Component) c.getComponent());
+        {
+            if(ix != -1)
+                this.add((Component) c.getComponent(), ix);
+            else
+                this.add((Component) c.getComponent());
+        }
         else
-            this.add((Component) c.getComponent(), constraints);
+        {
+            if(ix != -1)
+                this.add((Component) c.getComponent(), constraints, ix);
+            else
+                this.add((Component) c.getComponent(), constraints);
+        }
+
 
         c.setCurrentContact(metaContact);
 

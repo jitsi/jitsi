@@ -9,8 +9,7 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import java.lang.reflect.*;
 import java.util.*;
 
-import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.GenericDetail;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
 import net.java.sip.communicator.util.*;
 
 import org.jivesoftware.smack.*;
@@ -157,23 +156,23 @@ public class InfoRetreiver
 
             tmp = checkForFullName(card);
             if(tmp != null)
-                result.add(new ServerStoredDetails.DisplayNameDetail(tmp));
+                result.add(new DisplayNameDetail(tmp));
 
             tmp = card.getFirstName();
             if(tmp != null)
-                result.add(new ServerStoredDetails.FirstNameDetail(tmp));
+                result.add(new FirstNameDetail(tmp));
 
             tmp = card.getMiddleName();
             if(tmp != null)
-                result.add(new ServerStoredDetails.MiddleNameDetail(tmp));
+                result.add(new MiddleNameDetail(tmp));
 
             tmp = card.getLastName();
             if(tmp != null)
-                result.add(new ServerStoredDetails.LastNameDetail(tmp));
+                result.add(new LastNameDetail(tmp));
 
             tmp = card.getNickName();
             if(tmp != null)
-                result.add(new ServerStoredDetails.NicknameDetail(tmp));
+                result.add(new NicknameDetail(tmp));
 
             // Home Details
             // addrField one of
@@ -181,46 +180,50 @@ public class InfoRetreiver
             // LOCALITY, REGION, PCODE, CTRY
             tmp = card.getAddressFieldHome("STREET");
             if(tmp != null)
-                result.add(new ServerStoredDetails.AddressDetail(tmp));
+                result.add(new AddressDetail(tmp));
 
             tmp = card.getAddressFieldHome("LOCALITY");
             if(tmp != null)
-                result.add(new ServerStoredDetails.CityDetail(tmp));
+                result.add(new CityDetail(tmp));
 
             tmp = card.getAddressFieldHome("REGION");
             if(tmp != null)
-                result.add(new ServerStoredDetails.ProvinceDetail(tmp));
+                result.add(new ProvinceDetail(tmp));
 
             tmp = card.getAddressFieldHome("PCODE");
             if(tmp != null)
-                result.add(new ServerStoredDetails.PostalCodeDetail(tmp));
+                result.add(new PostalCodeDetail(tmp));
 
 //                tmp = card.getAddressFieldHome("CTRY");
 //                if(tmp != null)
-//                    result.add(new ServerStoredDetails.CountryDetail(tmp);
+//                    result.add(new CountryDetail(tmp);
 
             // phoneType one of
             //VOICE, FAX, PAGER, MSG, CELL, VIDEO, BBS, MODEM, ISDN, PCS, PREF
 
             tmp = card.getPhoneHome("VOICE");
             if(tmp != null)
-                result.add(new ServerStoredDetails.PhoneNumberDetail(tmp));
+                result.add(new PhoneNumberDetail(tmp));
+
+            tmp = card.getPhoneHome("VIDEO");
+            if(tmp != null)
+                result.add(new VideoDetail(tmp));
 
             tmp = card.getPhoneHome("FAX");
             if(tmp != null)
-                result.add(new ServerStoredDetails.FaxDetail(tmp));
+                result.add(new FaxDetail(tmp));
 
             tmp = card.getPhoneHome("PAGER");
             if(tmp != null)
-                result.add(new ServerStoredDetails.PagerDetail(tmp));
+                result.add(new PagerDetail(tmp));
 
             tmp = card.getPhoneHome("CELL");
             if(tmp != null)
-                result.add(new ServerStoredDetails.MobilePhoneDetail(tmp));
+                result.add(new MobilePhoneDetail(tmp));
 
             tmp = card.getEmailHome();
             if(tmp != null)
-                result.add(new ServerStoredDetails.EmailAddressDetail(tmp));
+                result.add(new EmailAddressDetail(tmp));
 
             // Work Details
             // addrField one of
@@ -228,30 +231,30 @@ public class InfoRetreiver
             // LOCALITY, REGION, PCODE, CTRY
             tmp = card.getAddressFieldWork("STREET");
             if(tmp != null)
-                result.add(new ServerStoredDetails.WorkAddressDetail(tmp));
+                result.add(new WorkAddressDetail(tmp));
 
             tmp = card.getAddressFieldWork("LOCALITY");
             if(tmp != null)
-                result.add(new ServerStoredDetails.WorkCityDetail(tmp));
+                result.add(new WorkCityDetail(tmp));
 
             tmp = card.getAddressFieldWork("REGION");
             if(tmp != null)
-                result.add(new ServerStoredDetails.WorkProvinceDetail(tmp));
+                result.add(new WorkProvinceDetail(tmp));
 
             tmp = card.getAddressFieldWork("PCODE");
             if(tmp != null)
-                result.add(new ServerStoredDetails.WorkPostalCodeDetail(tmp));
+                result.add(new WorkPostalCodeDetail(tmp));
 
 //                tmp = card.getAddressFieldWork("CTRY");
 //                if(tmp != null)
-//                    result.add(new ServerStoredDetails.WorkCountryDetail(tmp);
+//                    result.add(new WorkCountryDetail(tmp);
 
             // phoneType one of
             //VOICE, FAX, PAGER, MSG, CELL, VIDEO, BBS, MODEM, ISDN, PCS, PREF
 
             tmp = card.getPhoneWork("VOICE");
             if(tmp != null)
-                result.add(new ServerStoredDetails.WorkPhoneDetail(tmp));
+                result.add(new WorkPhoneDetail(tmp));
 
             tmp = card.getPhoneWork("FAX");
             if(tmp != null)
@@ -263,16 +266,16 @@ public class InfoRetreiver
 
             tmp = card.getPhoneWork("CELL");
             if(tmp != null)
-                result.add(new ServerStoredDetails.WorkMobilePhoneDetail(tmp));
+                result.add(new WorkMobilePhoneDetail(tmp));
 
 
             tmp = card.getEmailWork();
             if(tmp != null)
-                result.add(new ServerStoredDetails.EmailAddressDetail(tmp));
+                result.add(new EmailAddressDetail(tmp));
 
             tmp = card.getOrganization();
             if(tmp != null)
-                result.add(new ServerStoredDetails.WorkOrganizationNameDetail(tmp));
+                result.add(new WorkOrganizationNameDetail(tmp));
 
             tmp = card.getOrganizationUnit();
             if(tmp != null)
@@ -280,8 +283,7 @@ public class InfoRetreiver
 
             byte[] imageBytes = card.getAvatar();
             if(imageBytes != null && imageBytes.length > 0)
-                result.add(new ServerStoredDetails.ImageDetail(
-                    "Image", imageBytes));
+                result.add(new ImageDetail("Image", imageBytes));
         }
         catch (Throwable exc)
         {
@@ -405,7 +407,7 @@ public class InfoRetreiver
      * Work department
      */
     public static class WorkDepartmentNameDetail
-        extends ServerStoredDetails.NameDetail
+        extends NameDetail
     {
         /**
          * Constructor.
@@ -422,7 +424,7 @@ public class InfoRetreiver
      * Fax at work
      */
     public static class WorkFaxDetail
-        extends ServerStoredDetails.FaxDetail
+        extends FaxDetail
     {
         /**
          * Constructor.
@@ -440,7 +442,7 @@ public class InfoRetreiver
      * Pager at work
      */
     public static class WorkPagerDetail
-        extends ServerStoredDetails.PhoneNumberDetail
+        extends PhoneNumberDetail
     {
         /**
          * Constructor.

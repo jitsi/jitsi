@@ -165,6 +165,13 @@ public class PhoneNumberContactQuery
                                 PNContactSourceActivator.getResources()
                                 .getI18NString("service.gui.MOBILE_PHONE");
                         }
+                        else if(d instanceof VideoDetail)
+                        {
+                            localizedType =
+                                PNContactSourceActivator.getResources().
+                                    getI18NString(
+                                        "service.gui.VIDEO_PHONE");
+                        }
                         else
                         {
                             localizedType =

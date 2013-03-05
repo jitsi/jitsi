@@ -390,6 +390,18 @@ public class ServerStoredDetails
     }
 
     /**
+     * A detail used for representing a work mobile phone number.
+     */
+    public static class VideoDetail extends PhoneNumberDetail
+    {
+        public VideoDetail(String number)
+        {
+            super(number);
+            super.detailDisplayName = "Video";
+        }
+    }
+
+    /**
      * A Pager number.
      */
     public static class PagerDetail extends PhoneNumberDetail
