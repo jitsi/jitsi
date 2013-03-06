@@ -28,6 +28,12 @@ public class ResourceManagementActivator
 
     private static ConfigurationService configService;
 
+    /**
+     * Starts this bundle.
+     *
+     * @param bc the osgi bundle context
+     * @throws Exception
+     */
     public void start(BundleContext bc) throws Exception
     {
         bundleContext = bc;
@@ -35,14 +41,21 @@ public class ResourceManagementActivator
         resPackImpl =
             new ResourceManagementServiceImpl();
 
-        bundleContext.registerService(  ResourceManagementService.class.getName(),
-                                        resPackImpl,
-                                        null);
+        bundleContext.registerService(
+                ResourceManagementService.class.getName(),
+                resPackImpl,
+                null);
 
         if (logger.isInfoEnabled())
             logger.info("Resource manager ... [REGISTERED]");
     }
 
+    /**
+     * Stops this bundle.
+     *
+     * @param bc the osgi bundle context
+     * @throws Exception
+     */
     public void stop(BundleContext bc) throws Exception
     {
         bc.removeServiceListener(resPackImpl);
