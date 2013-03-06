@@ -738,7 +738,15 @@ public class CallPeerMediaHandlerJabberImpl
                 return ssrc;
         }
 
-        return super.getRemoteSSRC(mediaType);
+        /*
+         * XXX In the case of Jitsi VideoBridge, the super implementation of
+         * getRemoteSSRC(MediaType) cannot be trusted because there is a single
+         * VideoMediaStream with multiple ReceiveStreams.
+         */
+        return
+            getPeer().isJitsiVideoBridge()
+                ? -1
+                : super.getRemoteSSRC(mediaType);
     }
 
     /**
@@ -774,8 +782,8 @@ public class CallPeerMediaHandlerJabberImpl
                 = (RawUdpTransportManager) transportManager;
             ColibriConferenceIQ.Channel channel
                 = rawUdpTransportManager.getColibriChannel(
-                mediaType,
-                false /* remote */);
+                        mediaType,
+                        false /* remote */);
 
             if (channel != null)
                 return channel.getSSRCs();
@@ -788,7 +796,8 @@ public class CallPeerMediaHandlerJabberImpl
          */
         long ssrc = super.getRemoteSSRC(mediaType);
 
-        return (ssrc == -1) ? ColibriConferenceIQ.NO_SSRCS : new long[] { ssrc };
+        return
+            (ssrc == -1) ? ColibriConferenceIQ.NO_SSRCS : new long[] { ssrc };
     }
 
     /**
@@ -1231,8 +1240,8 @@ public class CallPeerMediaHandlerJabberImpl
             {
                 ColibriConferenceIQ.Channel dst
                     = rawUdpTransportManager.getColibriChannel(
-                    mediaType,
-                    false /* remote */);
+                            mediaType,
+                            false /* remote */);
 
                 if (dst != null)
                 {
@@ -1254,10 +1263,15 @@ public class CallPeerMediaHandlerJabberImpl
                                 dst.setSSRCs(ssrcs);
                                 if(logger.isDebugEnabled())
                                 {
-                                    logger.debug("SSRCs changed for colibri "
-                                            + mediaType.toString() + " channel "
-                                            + dst.getID() + ". From: "
-                                            + dstSsrcs + ", to: " + ssrcs);
+                                    logger.debug(
+                                            "SSRCs changed for colibri "
+                                                + mediaType.toString()
+                                                + " channel "
+                                                + dst.getID()
+                                                + " from: "
+                                                + Arrays.toString(dstSsrcs)
+                                                + " to: "
+                                                + Arrays.toString(ssrcs));
                                 }
                             }
                         }

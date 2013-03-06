@@ -589,7 +589,7 @@ public abstract class MediaAwareCallPeer
      * telephony conference organized by the local user/peer utilizing the Jitsi
      * VideoBridge server-side technology; otherwise, <tt>false</tt>
      */
-    private boolean isJitsiVideoBridge()
+    public final boolean isJitsiVideoBridge()
     {
         Call call = getCall();
 

@@ -533,7 +533,7 @@ public class RawUdpTransportManager
                         mediaTypes.add(rtpDesc);
                 }
             }
-            if (mediaTypes.size() != 0)
+            if (!mediaTypes.isEmpty())
             {
                 /*
                  * We are about to request the channel allocations for

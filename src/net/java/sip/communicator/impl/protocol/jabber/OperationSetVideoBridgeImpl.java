@@ -190,7 +190,7 @@ public class OperationSetVideoBridgeImpl
                              * instance which it was meant for.
                              */
                             callJabberImpl.processColibriConferenceIQ(
-                                conferenceIQ);
+                                    conferenceIQ);
                             break;
                         }
                     }

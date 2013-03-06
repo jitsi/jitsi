@@ -314,10 +314,10 @@ public class OneToOneCallPeerPanel
                     this);
         }
 
-        updateViewFromModel();
-
-        this.desktopSharingMouseAndKeyboardListener
+        desktopSharingMouseAndKeyboardListener
             = new DesktopSharingMouseAndKeyboardListener(callPeer);
+
+        updateViewFromModel();
     }
 
     /**
@@ -1367,8 +1367,8 @@ public class OneToOneCallPeerPanel
             {
                 // Updates video component which may listen the mouse and key
                 // events.
-                this.desktopSharingMouseAndKeyboardListener
-                    .setVideoComponent(remoteVideo);
+                desktopSharingMouseAndKeyboardListener.setVideoComponent(
+                        remoteVideo);
 
                 CallPanel callPanel = callRenderer.getCallContainer();
                 // The remote video has been added, then tries to display the
