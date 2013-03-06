@@ -463,8 +463,6 @@ public class ChatConversationPanel
         }
         else if (messageType.equals(Chat.HISTORY_INCOMING_MESSAGE))
         {
-            this.lastIncomingMsgTimestamp = System.currentTimeMillis();
-
             chatString = ChatHtmlUtils.createIncomingMessageTag(
                 lastMessageUID,
                 contactName,
