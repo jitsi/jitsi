@@ -256,6 +256,10 @@ public class InfoRetreiver
             if(tmp != null)
                 result.add(new WorkPhoneDetail(tmp));
 
+            tmp = card.getPhoneWork("VIDEO");
+            if(tmp != null)
+                result.add(new WorkVideoDetail(tmp));
+
             tmp = card.getPhoneWork("FAX");
             if(tmp != null)
                 result.add(new WorkFaxDetail(tmp));
