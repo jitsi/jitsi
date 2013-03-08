@@ -177,6 +177,27 @@ public class ConfigurationUtils
     private static boolean isRemoveContactDisabled;
 
     /**
+     * Indicates if the move contact functionality is disabled.
+     */
+    private static boolean isContactMoveDisabled;
+
+    /**
+     * Indicates if the rename contact functionality is disabled.
+     */
+    private static boolean isContactRenameDisabled;
+
+    /**
+     * Indicates if the remove group functionality is disabled.
+     */
+    private static boolean isGroupRemoveDisabled;
+
+    /**
+     * Indicates if the rename group functionality is disabled.
+     */
+    private static boolean isGroupRenameDisabled;
+
+
+    /**
      * Indicates if the pre set status messages are enabled.
      */
     private static boolean isPresetStatusMessagesEnabled;
@@ -637,6 +658,33 @@ public class ConfigurationUtils
             = configService.getBoolean(
                 "net.java.sip.communicator.impl.gui.main.contactlist." +
                 "CONTACT_REMOVE_DISABLED",
+                false);
+
+        // Load the "CONTACT_MOVE_DISABLED" property.
+        isContactMoveDisabled
+            = configService.getBoolean(
+                "net.java.sip.communicator.impl.gui.main.contactlist." +
+                "CONTACT_MOVE_DISABLED",
+                false);
+
+        // Load the "CONTACT_RENAME_DISABLED" property.
+        isContactRenameDisabled
+            = configService.getBoolean(
+                "net.java.sip.communicator.impl.gui.main.contactlist." +
+                "CONTACT_RENAME_DISABLED",
+                false);
+        // Load the "GROUP_REMOVE_DISABLED" property.
+        isGroupRemoveDisabled
+            = configService.getBoolean(
+                "net.java.sip.communicator.impl.gui.main.contactlist." +
+                "GROUP_REMOVE_DISABLED",
+                false);
+
+        // Load the "GROUP_RENAME_DISABLED" property.
+        isGroupRenameDisabled
+            = configService.getBoolean(
+                "net.java.sip.communicator.impl.gui.main.contactlist." +
+                "GROUP_RENAME_DISABLED",
                 false);
 
         // Load the "PRESET_STATUS_MESSAGES" property.
@@ -1155,6 +1203,48 @@ public class ConfigurationUtils
     public static boolean isRemoveContactDisabled()
     {
         return isRemoveContactDisabled;
+    }
+
+    /**
+     * Returns <code>true</code> if the "CONTACT_MOVE_DISABLED" property is
+     * true, otherwise - returns <code>false</code>.
+     * @return <code>true</code> if the "CONTACT_MOVE_DISABLED" property is
+     * true, otherwise - returns <code>false</code>.
+     */
+    public static boolean isContactMoveDisabled()
+    {
+        return isContactMoveDisabled;
+    }
+    /**
+     * Returns <code>true</code> if the "CONTACT_RENAME_DISABLED" property is
+     * true, otherwise - returns <code>false</code>.
+     * @return <code>true</code> if the "CONTACT_RENAME_DISABLED" property is
+     * true, otherwise - returns <code>false</code>.
+     */
+    public static boolean isContactRenameDisabled()
+    {
+        return isContactRenameDisabled;
+    }
+
+    /**
+     * Returns <code>true</code> if the "GROUP_REMOVE_DISABLED" property is
+     * true, otherwise - returns <code>false</code>.
+     * @return <code>true</code> if the "GROUP_REMOVE_DISABLED" property is
+     * true, otherwise - returns <code>false</code>.
+     */
+    public static boolean isGroupRemoveDisabled()
+    {
+        return isGroupRemoveDisabled;
+    }
+    /**
+     * Returns <code>true</code> if the "GROUP_RENAME_DISABLED" property is
+     * true, otherwise - returns <code>false</code>.
+     * @return <code>true</code> if the "GROUP_RENAME_DISABLED" property is
+     * true, otherwise - returns <code>false</code>.
+     */
+    public static boolean isGroupRenameDisabled()
+    {
+        return isGroupRenameDisabled;
     }
 
     /**

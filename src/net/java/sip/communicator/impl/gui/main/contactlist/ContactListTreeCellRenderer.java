@@ -867,7 +867,8 @@ public class ContactListTreeCellRenderer
                     && AccountUtils.getOpSetRegisteredProviders(
                             OperationSetDesktopSharingServer.class,
                             null,
-                            null).size() > 0))
+                            null).size() > 0)
+            || hasVideoPhone)
         {
             x += addButton(desktopSharingButton, ++gridX, x, false);
         }

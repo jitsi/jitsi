@@ -528,7 +528,8 @@ public class MetaContactRightButtonMenu
                         OperationSetDesktopSharingServer.class) != null &&
                         hasContactCapabilities(contact,
                                 OperationSetDesktopSharingServer.class)
-                    || routingForDesktopEnabled)
+                    || routingForDesktopEnabled
+                    || hasVideoDetail)
                 {
                     multiContactFullShareMenu.add(
                         createMenuItem( contactAddress,
@@ -659,21 +660,27 @@ public class MetaContactRightButtonMenu
 
         addSeparator();
 
-        add(moveToMenu);
-        add(moveSubcontactMenu);
+        if (!ConfigurationUtils.isContactMoveDisabled())
+        {
+            add(moveToMenu);
+            add(moveSubcontactMenu);
 
-        addSeparator();
+            addSeparator();
+        }
 
         if (!ConfigurationUtils.isAddContactDisabled())
+        {
             add(addContactItem);
+            addSeparator();
+        }
 
-        addSeparator();
-
+        separator = false;
         if (!ConfigurationUtils.isRemoveContactDisabled())
         {
             if (metaContact.getContactCount() > 1)
             {
                 add(removeContactMenu);
+                separator = true;
             }
             else
             {
@@ -689,12 +696,20 @@ public class MetaContactRightButtonMenu
                     deleteIcon);
 
                 add(removeContactItem);
+                separator = true;
             }
         }
 
-        add(renameContactItem);
+        if (!ConfigurationUtils.isContactRenameDisabled())
+        {
+            add(renameContactItem);
+            separator = true;
+        }
 
-        addSeparator();
+        if(separator)
+        {
+            addSeparator();
+        }
 
         add(viewHistoryItem);
 
@@ -760,7 +775,8 @@ public class MetaContactRightButtonMenu
 
         if (metaContact.getDefaultContact(
             OperationSetDesktopSharingServer.class) == null
-            && !routingForDesktopEnabled)
+            && !routingForDesktopEnabled
+            && !hasVideoDetail)
         {
             fullShareMenuItem.setEnabled(false);
             regionShareMenuItem.setEnabled(false);

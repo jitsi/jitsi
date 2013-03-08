@@ -67,12 +67,20 @@ public class GroupRightButtonMenu
         this.mainFrame = mainFrame;
 
         if (!ConfigurationUtils.isAddContactDisabled())
+        {
             this.add(addContactItem);
+            this.addSeparator();
+        }
 
-        this.addSeparator();
+        if (!ConfigurationUtils.isGroupRenameDisabled())
+        {
+            this.add(renameGroupItem);
+        }
 
-        this.add(renameGroupItem);
-        this.add(removeGroupItem);
+        if (!ConfigurationUtils.isGroupRemoveDisabled())
+        {
+            this.add(removeGroupItem);
+        }
 
         this.addContactItem.setMnemonic(GuiActivator.getResources()
             .getI18nMnemonic("service.gui.ADD_CONTACT"));
