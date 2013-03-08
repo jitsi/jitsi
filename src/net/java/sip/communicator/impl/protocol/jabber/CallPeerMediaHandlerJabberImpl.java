@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.awt.*;
+import java.beans.*;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.List;
@@ -734,7 +735,7 @@ public class CallPeerMediaHandlerJabberImpl
         {
             long ssrc = ssrcs[i];
 
-            if (ssrc != -1)
+            if (ssrc != SSRC_UNKNOWN)
                 return ssrc;
         }
 
@@ -745,7 +746,7 @@ public class CallPeerMediaHandlerJabberImpl
          */
         return
             getPeer().isJitsiVideoBridge()
-                ? -1
+                ? SSRC_UNKNOWN
                 : super.getRemoteSSRC(mediaType);
     }
 
@@ -797,7 +798,9 @@ public class CallPeerMediaHandlerJabberImpl
         long ssrc = super.getRemoteSSRC(mediaType);
 
         return
-            (ssrc == -1) ? ColibriConferenceIQ.NO_SSRCS : new long[] { ssrc };
+            (ssrc == SSRC_UNKNOWN)
+                ? ColibriConferenceIQ.NO_SSRCS
+                : new long[] { ssrc };
     }
 
     /**
@@ -1146,6 +1149,33 @@ public class CallPeerMediaHandlerJabberImpl
             stream.setName(streamName);
 
         return stream;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * In the case of a telephony conference organized by the local peer/user
+     * and utilizing the Jitsi VideoBridge server-side technology, a single
+     * <tt>MediaHandler</tt> is shared by multiple
+     * <tt>CallPeerMediaHandler</tt>s in order to have a single
+     * <tt>AudioMediaStream</tt> and a single <tt>VideoMediaStream</tt>.
+     * However, <tt>CallPeerMediaHandlerJabberImpl</tt> has redefined the
+     * reading/getting the remote audio and video SSRCs. Consequently,
+     * <tt>CallPeerMediaHandlerJabberImpl</tt> has to COMPLETELY redefine the
+     * writing/setting as well i.e. it has to stop related
+     * <tt>PropertyChangeEvent</tt>s fired by the super.
+     */
+    @Override
+    protected void mediaHandlerPropertyChange(PropertyChangeEvent ev)
+    {
+        String propertyName = ev.getPropertyName();
+
+        if ((AUDIO_REMOTE_SSRC.equals(propertyName)
+                    || VIDEO_REMOTE_SSRC.equals(propertyName))
+                && getPeer().isJitsiVideoBridge())
+            return;
+
+        super.mediaHandlerPropertyChange(ev);
     }
 
     /**
