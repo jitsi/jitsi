@@ -380,6 +380,7 @@ public class MetaContactRightButtonMenu
         List<ProtocolProviderService> providers =
             CallManager.getTelephonyProviders();
         boolean hasPhones = false;
+        boolean hasVideoDetail = false;
         boolean separator = false;
         boolean routingForVideoEnabled = false;
         boolean routingForDesktopEnabled = false;
@@ -449,6 +450,7 @@ public class MetaContactRightButtonMenu
                                 }
                                 else if(d instanceof VideoDetail)
                                 {
+                                    hasVideoDetail = true;
                                     localizedType =
                                         GuiActivator.getResources().
                                             getI18NString(
@@ -512,7 +514,8 @@ public class MetaContactRightButtonMenu
                         OperationSetVideoTelephony.class) != null &&
                         hasContactCapabilities(contact,
                                 OperationSetVideoTelephony.class)
-                    || routingForVideoEnabled)
+                    || routingForVideoEnabled
+                    || hasVideoDetail)
                 {
                     videoCallMenu.add(
                         createMenuItem( contactAddress,
@@ -749,7 +752,8 @@ public class MetaContactRightButtonMenu
 
         if (metaContact.getDefaultContact(
             OperationSetVideoTelephony.class) == null
-            && !routingForVideoEnabled)
+            && !routingForVideoEnabled
+            && !hasVideoDetail)
         {
             this.videoCallItem.setEnabled(false);
         }
