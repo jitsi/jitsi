@@ -29,7 +29,9 @@ import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.account.*;
 
 import org.jitsi.service.neomedia.*;
+import org.jitsi.service.neomedia.codec.*;
 import org.jitsi.service.neomedia.device.*;
+import org.jitsi.service.neomedia.format.*;
 import org.jitsi.service.resources.*;
 
 /**
@@ -1710,6 +1712,56 @@ public class CallManager
     }
 
     /**
+     * Returns of supported/enabled list of audio formats for a provider.
+     * @param protocolProvider the provider to check.
+     * @return list of supported/enabled auido formats or empty list
+     * otherwise.
+     */
+    private static List<MediaFormat> getAudioFormats(
+        MediaDevice device,
+        ProtocolProviderService protocolProvider)
+    {
+        List<MediaFormat> res = new ArrayList<MediaFormat>();
+
+        Map<String, String> accountProperties
+           = protocolProvider.getAccountID().getAccountProperties();
+        String overrideEncodings
+           = accountProperties.get(ProtocolProviderFactory.OVERRIDE_ENCODINGS);
+
+        List<MediaFormat> formats;
+        if(Boolean.parseBoolean(overrideEncodings))
+        {
+           /*
+            * The account properties associated with account
+             * override the global EncodingConfiguration.
+            */
+           EncodingConfiguration encodingConfiguration
+               = ProtocolMediaActivator.getMediaService()
+                       .createEmptyEncodingConfiguration();
+
+           encodingConfiguration.loadProperties(
+                   accountProperties,
+                   ProtocolProviderFactory.ENCODING_PROP_PREFIX);
+
+            formats = device.getSupportedFormats(
+                       null, null, encodingConfiguration);
+        }
+        else /* The global EncodingConfiguration is in effect. */
+        {
+            formats = device.getSupportedFormats();
+        }
+
+        // skip the special telephony event
+        for(MediaFormat format : formats)
+        {
+            if(!format.getEncoding().equals(Constants.TELEPHONE_EVENT))
+                res.add(format);
+        }
+
+        return res;
+    }
+
+    /**
      * Creates a new (audio-only or video) <tt>Call</tt> to a contact specified
      * as a <tt>Contact</tt> instance or a <tt>String</tt> contact
      * address/identifier.
@@ -1777,6 +1829,45 @@ public class CallManager
         @Override
         public void run()
         {
+            if(!video)
+            {
+                // if it is not video let's check for available audio codecs
+                // and available audio devices
+                MediaService mediaService = GuiActivator.getMediaService();
+                MediaDevice dev = mediaService.getDefaultDevice(
+                   MediaType.AUDIO, MediaUseCase.CALL);
+
+                List<MediaFormat> formats = getAudioFormats(dev, protocolProvider);
+
+                String errorMsg = null;
+
+                if(!dev.getDirection().allowsSending())
+                    errorMsg = GuiActivator.getResources().getI18NString(
+                        "service.gui.CALL_NO_AUDIO_DEVICE");
+                else if(formats.isEmpty())
+                {
+                    errorMsg = GuiActivator.getResources().getI18NString(
+                        "service.gui.CALL_NO_AUDIO_CODEC");
+                }
+
+                if(errorMsg != null)
+                {
+                    if(GuiActivator.getUIService()
+                        .getPopupDialog().showConfirmPopupDialog(
+                            errorMsg + " " +
+                                GuiActivator.getResources().getI18NString(
+                                    "service.gui.CALL_NO_DEVICE_CODECS_Q"),
+                            GuiActivator.getResources().getI18NString(
+                                    "service.gui.CALL"),
+                                PopupDialog.YES_NO_OPTION,
+                                PopupDialog.QUESTION_MESSAGE)
+                        == PopupDialog.NO_OPTION)
+                    {
+                        return;
+                    }
+                }
+            }
+
             Contact contact = this.contact;
             String stringContact = this.stringContact;
 

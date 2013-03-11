@@ -828,7 +828,8 @@ public class CallPeerSipImpl
                 //we are connected from a SIP point of view (cause we sent our
                 //ACK) so make sure we set the state accordingly or the hangup
                 //method won't know how to end the call.
-                setState(CallPeerState.CONNECTED);
+                setState(CallPeerState.CONNECTED,
+                    "Error:" + exc.getLocalizedMessage());
                 hangup();
             }
             catch (Exception e)
