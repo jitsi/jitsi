@@ -1578,7 +1578,7 @@ public class CallPanel
                 PropertyChangeEvent pcev = (PropertyChangeEvent) ev;
 
                 tryStopCallTimer
-                    = (CallConference.CALLS.equals(pcev)
+                    = (CallConference.CALLS.equals(pcev.getPropertyName())
                             && (pcev.getOldValue() instanceof Call)
                             && (pcev.getNewValue() == null));
             }

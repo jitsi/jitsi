@@ -18,7 +18,6 @@ import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smackx.packet.*;
-// disambiguation
 
 /**
  * The Jabber implementation of a Persistent Presence Operation set. This class
@@ -1454,7 +1453,7 @@ public class OperationSetPersistentPresenceJabberImpl
                     defaultPacketExtension.getValue("photo");
                 // If this presence packet has a photo tag with a SHA-1 hash
                 // which differs from the current avatar SHA-1 hash, then Jitsi
-                // retreives the new avatar image and updates this contact image
+                // retrieves the new avatar image and updates this contact image
                 // in the contact list.
                 if(packetPhotoSHA1 != null
                         && !packetPhotoSHA1.equals(
@@ -1464,7 +1463,7 @@ public class OperationSetPersistentPresenceJabberImpl
                 {
                     byte[] newAvatar = null;
 
-                    // If there is an avatar image, retreives it. 
+                    // If there is an avatar image, retrieves it. 
                     if(packetPhotoSHA1.length() != 0)
                     {
                         // Retrieves the new contact avatar image.
@@ -1491,7 +1490,7 @@ public class OperationSetPersistentPresenceJabberImpl
             }
             catch(XMPPException ex)
             {
-                logger.info("Can not retrieve vCard from: " + packet.getFrom());
+                logger.info("Cannot retrieve vCard from: " + packet.getFrom());
                 if(logger.isTraceEnabled())
                     logger.trace("vCard retrieval exception was: ", ex);
             }
