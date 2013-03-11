@@ -122,7 +122,8 @@ public class HistoryWindow
         this.historyContact = historyContact;
 
         chatConvPanel = new ChatConversationPanel(this);
-
+        chatConvPanel.getChatTextPane()
+            .setTransferHandler(new ExtendedTransferHandler());
         this.progressBar = new JProgressBar(
             HistorySearchProgressListener.PROGRESS_MINIMUM_VALUE,
             HistorySearchProgressListener.PROGRESS_MAXIMUM_VALUE);
