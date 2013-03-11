@@ -216,26 +216,45 @@ public class ExtendedTransferHandler
                     Pattern p
                         = Pattern.compile(smileyHtmlPattern, Pattern.DOTALL);
                     Matcher m = p.matcher(data);
-                    if(m.find())
-                    {
-                        /*
-                         * This loop replaces the IMG tags with the value of 
-                         * the ALT attribute. The value of the ALT attribute 
-                         * is escaped to prevent illegal parsing of special
-                         * HTML chars (like "<", ">", "&") later. If the chars 
-                         * aren't escaped the parser will skip them.
-                         */
-                        int start = 0;
-                        String tempData = "";
-                        do
-                        {
-                            tempData += data.substring(start, m.start()) + 
-                                GuiUtils.escapeHTMLChars(m.group(2));
-                            start = m.end();
-                        }
-                        while(m.find());
-                        tempData += data.substring(start);
 
+                    boolean hasImg = m.find();
+
+                    Pattern pMsgHeader
+                        = Pattern.compile(
+                            "<\\s*h\\d.*?id=['\"]messageHeader['\"]", 
+                            Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+
+                    Matcher mMsgHeader = pMsgHeader.matcher(data);
+
+                    boolean hasMsgHeader = mMsgHeader.find();
+
+                    if(hasImg || hasMsgHeader)
+                    {
+                        String tempData = "";
+                        if(hasImg)
+                        {
+                            /*
+                             * This loop replaces the IMG tags with the value 
+                             * of the ALT attribute. The value of the ALT 
+                             * attribute is escaped to prevent illegal parsing 
+                             * of special HTML chars (like "<", ">", "&") 
+                             * later. If the chars aren't escaped the parser 
+                             * will skip them.
+                             */
+                            int start = 0;
+                            do
+                            {
+                                tempData += data.substring(start, m.start()) + 
+                                    GuiUtils.escapeHTMLChars(m.group(2));
+                                start = m.end();
+                            }
+                            while(m.find());
+                            tempData += data.substring(start);
+                        }
+                        else
+                        {
+                            tempData = data;
+                        }
                         /*
                          * Remove the PLAINTEXT tags because they brake the 
                          * HTML
@@ -249,6 +268,13 @@ public class ExtendedTransferHandler
                          */
                         tempData = tempData.replaceAll(
                             "<\\s*[bB][rR][^>]*>", "<a></a>");
+
+                        if(hasMsgHeader)
+                        {
+                            tempData = tempData.replaceAll(
+                                "<[/]*\\s*([tT][aA][bB][lL][eE]|[tT][rR]" +
+                                "|[tT][dD]|[hH]\\d)[^>]*?>", "");
+                        }
 
                         htmlDoc.remove(0, htmlDoc.getLength());
                         htmlKit.read(new StringReader(tempData), htmlDoc, 0);
