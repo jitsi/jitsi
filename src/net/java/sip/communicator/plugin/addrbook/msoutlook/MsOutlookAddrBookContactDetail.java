@@ -20,11 +20,6 @@ public class MsOutlookAddrBookContactDetail
     extends EditableContactDetail
 {
     /**
-     * The source contact which contains this contact detail.
-     */
-    private MsOutlookAddrBookSourceContact sourceContact;
-
-    /**
      * The list of codes used by outlook to identify the property corresponding
      * to this contact detail.
      */
@@ -53,18 +48,6 @@ public class MsOutlookAddrBookContactDetail
 
         this.outlookPropId = new Vector<Long>(1, 1);
         this.outlookPropId.add(new Long(outlookPropId));
-        this.sourceContact = null;
-    }
-
-    /**
-     * Sets the source contact that contains this contact detail.
-     *
-     * @param sourceContact The source contact that contains this contact
-     * detail.
-     */
-    public void setSourceContact(MsOutlookAddrBookSourceContact sourceContact)
-    {
-        this.sourceContact = sourceContact;
     }
 
     /**
@@ -78,7 +61,8 @@ public class MsOutlookAddrBookContactDetail
      */
     public boolean match(ContactDetail contactDetail)
     {
-        return (this.getCategory() == contactDetail.getCategory()
+        return (contactDetail != null
+                && this.getCategory() == contactDetail.getCategory()
                 && this.getDetail().equals(contactDetail.getDetail()));
     }
 
@@ -103,9 +87,11 @@ public class MsOutlookAddrBookContactDetail
     {
         super.setDetail(value);
 
-        if(this.sourceContact != null)
+        EditableSourceContact sourceContact = this.getSourceContact();
+        if(sourceContact != null
+                && sourceContact instanceof MsOutlookAddrBookSourceContact)
         {
-            this.sourceContact.save();
+            ((MsOutlookAddrBookSourceContact) sourceContact).save();
         }
     }
 }

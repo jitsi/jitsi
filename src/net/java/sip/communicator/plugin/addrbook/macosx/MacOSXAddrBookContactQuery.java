@@ -72,187 +72,187 @@ public class MacOSXAddrBookContactQuery
      * The index of the <tt>kABAIMInstantProperty</tt> <tt>ABPerson</tt>
      * property in {@link #ABPERSON_PROPERTIES}.
      */
-    private static final int kABAIMInstantProperty = 0;
+    public static final int kABAIMInstantProperty = 0;
 
     /**
      * The index of the <tt>kABEmailProperty</tt> <tt>ABPerson</tt> property in
      * {@link #ABPERSON_PROPERTIES}.
      */
-    private static final int kABEmailProperty = 1;
+    public static final int kABEmailProperty = 1;
 
     /**
      * The index of the <tt>kABFirstNameProperty</tt> <tt>ABPerson</tt> property
      * in {@link #ABPERSON_PROPERTIES}.
      */
-    private static final int kABFirstNameProperty = 2;
+    public static final int kABFirstNameProperty = 2;
 
     /**
      * The index of the <tt>kABFirstNamePhoneticProperty</tt> <tt>ABPerson</tt>
      * property in {@link #ABPERSON_PROPERTIES}.
      */
-    private static final int kABFirstNamePhoneticProperty = 3;
+    public static final int kABFirstNamePhoneticProperty = 3;
 
     /**
      * The index of the <tt>kABICQInstantProperty</tt> <tt>ABPerson</tt>
      * property in {@link #ABPERSON_PROPERTIES}.
      */
-    private static final int kABICQInstantProperty = 4;
+    public static final int kABICQInstantProperty = 4;
 
     /**
      * The index of the <tt>kABJabberInstantProperty</tt> <tt>ABPerson</tt>
      * property in {@link #ABPERSON_PROPERTIES}.
      */
-    private static final int kABJabberInstantProperty = 5;
+    public static final int kABJabberInstantProperty = 5;
 
     /**
      * The index of the <tt>kABLastNameProperty</tt> <tt>ABPerson</tt> property
      * in {@link #ABPERSON_PROPERTIES}.
      */
-    private static final int kABLastNameProperty = 6;
+    public static final int kABLastNameProperty = 6;
 
     /**
      * The index of the <tt>kABLastNamePhoneticProperty</tt> <tt>ABPerson</tt>
      * property in {@link #ABPERSON_PROPERTIES}.
      */
-    private static final int kABLastNamePhoneticProperty = 7;
+    public static final int kABLastNamePhoneticProperty = 7;
 
     /**
      * The index of the <tt>kABMiddleNameProperty</tt> <tt>ABPerson</tt>
      * property in {@link #ABPERSON_PROPERTIES}.
      */
-    private static final int kABMiddleNameProperty = 8;
+    public static final int kABMiddleNameProperty = 8;
 
     /**
      * The index of the <tt>kABMiddleNamePhoneticProperty</tt> <tt>ABPerson</tt>
      * property in {@link #ABPERSON_PROPERTIES}.
      */
-    private static final int kABMiddleNamePhoneticProperty = 9;
+    public static final int kABMiddleNamePhoneticProperty = 9;
 
     /**
      * The index of the <tt>kABMSNInstantProperty</tt> <tt>ABPerson</tt>
      * property in {@link #ABPERSON_PROPERTIES}.
      */
-    private static final int kABMSNInstantProperty = 10;
+    public static final int kABMSNInstantProperty = 10;
 
     /**
      * The index of the <tt>kABNicknameProperty</tt> <tt>ABPerson</tt> property
      * in {@link #ABPERSON_PROPERTIES}.
      */
-    private static final int kABNicknameProperty = 11;
+    public static final int kABNicknameProperty = 11;
 
     /**
      * The index of the <tt>kABOrganizationProperty</tt> <tt>ABPerson</tt>
      * property in {@link #ABPERSON_PROPERTIES}.
      */
-    private static final int kABOrganizationProperty = 15;
+    public static final int kABOrganizationProperty = 15;
 
     /**
      * The index of the <tt>kABPersonFlags</tt> <tt>ABPerson</tt> property in
      * {@link #ABPERSON_PROPERTIES}.
      */
-    private static final int kABPersonFlags = 14;
+    public static final int kABPersonFlags = 14;
 
     /**
      * The index of the <tt>kABPhoneProperty</tt> <tt>ABPerson</tt> property in
      * {@link #ABPERSON_PROPERTIES}.
      */
-    private static final int kABPhoneProperty = 12;
+    public static final int kABPhoneProperty = 12;
 
     /**
      * The flag which indicates that an <tt>ABRecord</tt> is to be displayed as
      * a company.
      */
-    private static final long kABShowAsCompany = 1;
+    public static final long kABShowAsCompany = 1;
 
     /**
      * The mask which extracts the <tt>kABShowAsXXX</tt> flag from the
      * <tt>personFlags</tt> of an <tt>ABPerson</tt>.
      */
-    private static final long kABShowAsMask = 7;
+    public static final long kABShowAsMask = 7;
 
     /**
      * The index of the <tt>kABYahooInstantProperty</tt> <tt>ABPerson</tt>
      * property in {@link #ABPERSON_PROPERTIES}.
      */
-    private static final int kABYahooInstantProperty = 13;
+    public static final int kABYahooInstantProperty = 13;
 
     /**
      * The index of the <tt>kABMaidenNameProperty</tt> <tt>ABPerson</tt>
      * property in {@link #ABPERSON_PROPERTIES}.
      */
-    private static final int kABMaidenNameProperty = 16;
+    public static final int kABMaidenNameProperty = 16;
 
     /**
      * The index of the <tt>kABBirthdayProperty</tt> <tt>ABPerson</tt>
      * property in {@link #ABPERSON_PROPERTIES}.
      */
-    private static final int kABBirthdayProperty = 17;
+    public static final int kABBirthdayProperty = 17;
 
     /**
      * The index of the <tt>kABJobTitleProperty</tt> <tt>ABPerson</tt>
      * property in {@link #ABPERSON_PROPERTIES}.
      */
-    private static final int kABJobTitleProperty = 18;
+    public static final int kABJobTitleProperty = 18;
 
     /**
      * The index of the <tt>kABHomePageProperty</tt> <tt>ABPerson</tt>
      * property in {@link #ABPERSON_PROPERTIES}.
      */
-    private static final int kABHomePageProperty = 19;
+    public static final int kABHomePageProperty = 19;
 
     /**
      * The index of the <tt>kABURLsProperty</tt> <tt>ABPerson</tt>
      * property in {@link #ABPERSON_PROPERTIES}.
      */
-    private static final int kABURLsProperty = 20;
+    public static final int kABURLsProperty = 20;
 
     /**
      * The index of the <tt>kABCalendarURIsProperty</tt> <tt>ABPerson</tt>
      * property in {@link #ABPERSON_PROPERTIES}.
      */
-    private static final int kABCalendarURIsProperty = 21;
+    public static final int kABCalendarURIsProperty = 21;
 
     /**
      * The index of the <tt>kABAddressProperty</tt> <tt>ABPerson</tt>
      * property in {@link #ABPERSON_PROPERTIES}.
      */
-    private static final int kABAddressProperty = 22;
+    public static final int kABAddressProperty = 22;
 
     /**
      * The index of the <tt>kABOtherDatesProperty</tt> <tt>ABPerson</tt>
      * property in {@link #ABPERSON_PROPERTIES}.
      */
-    private static final int kABOtherDatesProperty = 23;
+    public static final int kABOtherDatesProperty = 23;
 
     /**
      * The index of the <tt>kABRelatedNamesProperty</tt> <tt>ABPerson</tt>
      * property in {@link #ABPERSON_PROPERTIES}.
      */
-    private static final int kABRelatedNamesProperty = 24;
+    public static final int kABRelatedNamesProperty = 24;
 
     /**
      * The index of the <tt>kABDepartmentProperty</tt> <tt>ABPerson</tt>
      * property in {@link #ABPERSON_PROPERTIES}.
      */
-    private static final int kABDepartmentProperty = 25;
+    public static final int kABDepartmentProperty = 25;
 
     /**
      * The index of the <tt>kABNoteProperty</tt> <tt>ABPerson</tt>
      * property in {@link #ABPERSON_PROPERTIES}.
      */
-    private static final int kABNoteProperty = 26;
+    public static final int kABNoteProperty = 26;
 
     /**
      * The index of the <tt>kABTitleProperty</tt> <tt>ABPerson</tt>
      * property in {@link #ABPERSON_PROPERTIES}.
      */
-    private static final int kABTitleProperty = 27;
+    public static final int kABTitleProperty = 27;
 
     /**
      * The index of the <tt>kABSuffixProperty</tt> <tt>ABPerson</tt>
      * property in {@link #ABPERSON_PROPERTIES}.
      */
-    private static final int kABSuffixProperty = 28;
+    public static final int kABSuffixProperty = 28;
 
     /**
      * The regex which matches the superfluous parts of an <tt>ABMultiValue</tt>
@@ -347,6 +347,8 @@ public class MacOSXAddrBookContactQuery
      * <tt>ContactDetail</tt> instance
      * @param label an optional label to be added to the set of labels, if any,
      * determined by <tt>property</tt>
+     * @param id The id of the detail.
+     *
      * @return a new <tt>ContactDetail</tt> instance which represents the
      * specified <tt>contactAddress</tt>
      */
@@ -354,7 +356,8 @@ public class MacOSXAddrBookContactQuery
             int property,
             String contactAddress,
             Object label,
-            String additionalProperty)
+            String additionalProperty,
+            String id)
     {
         Category c;
         SubCategory sc = null;
@@ -462,12 +465,13 @@ public class MacOSXAddrBookContactQuery
         else
             subCategories = new SubCategory[]{ sc };
 
-        return new AddressBookContactDetail(
+        return new MacOSXAddrBookContactDetail(
             property,
             contactAddress,
             c,
             subCategories,
-            additionalProperty);
+            additionalProperty,
+            id);
     }
 
     /**
@@ -499,6 +503,8 @@ public class MacOSXAddrBookContactQuery
             subCategory = SubCategory.HomePage;
         else if (labelString.equalsIgnoreCase("street"))
             subCategory = SubCategory.Street;
+        else if (labelString.equalsIgnoreCase("state"))
+            subCategory = SubCategory.State;
         else if (labelString.equalsIgnoreCase("ZIP"))
             subCategory = SubCategory.PostalCode;
         else if (labelString.equalsIgnoreCase("country"))
@@ -536,10 +542,12 @@ public class MacOSXAddrBookContactQuery
      *
      * @param values the values of the <tt>ABPERSON_PROPERTIES</tt> which
      * represent the <tt>ABPerson</tt> to get the <tt>contactDetails</tt> of
+     * @param id The id of the detail.
+     *
      * @return the <tt>contactDetails</tt> to be set on a <tt>SourceContact</tt>
      * which is to represent the <tt>ABPerson</tt> specified by <tt>values</tt>
      */
-    private List<ContactDetail> getContactDetails(Object[] values)
+    private List<ContactDetail> getContactDetails(Object[] values, String id)
     {
         List<ContactDetail> contactDetails = new LinkedList<ContactDetail>();
 
@@ -564,7 +572,8 @@ public class MacOSXAddrBookContactQuery
                                             property,
                                             stringValue,
                                             null,
-                                            null),
+                                            null,
+                                            id),
                                     property));
                 }
             }
@@ -573,7 +582,8 @@ public class MacOSXAddrBookContactQuery
                 parseMultiDetails(contactDetails,
                                   (Object[]) value,
                                   property,
-                                  null);
+                                  null,
+                                  id);
             }
         }
         return contactDetails;
@@ -584,12 +594,14 @@ public class MacOSXAddrBookContactQuery
      * @param contactDetails the result list
      * @param multiValue the values to parse.
      * @param property the current property being parsed.
+     * @param id The id of the detail.
      */
     private void parseMultiDetails(
         List<ContactDetail> contactDetails,
         Object[] multiValue,
         int property,
-        String label)
+        String label,
+        String id)
     {
         if(multiValue == null)
             return;
@@ -620,7 +632,8 @@ public class MacOSXAddrBookContactQuery
                                         property,
                                         stringSubValue,
                                         l,
-                                        label),
+                                        label,
+                                        id),
                                     property));
                 }
             }
@@ -635,7 +648,8 @@ public class MacOSXAddrBookContactQuery
                 parseMultiDetails(contactDetails,
                                   (Object[]) subValue,
                                   property,
-                                  l);
+                                  l,
+                                  id);
             }
         }
     }
@@ -758,228 +772,228 @@ public class MacOSXAddrBookContactQuery
      *
      * @return the value of the <tt>kABAIMInstantProperty</tt> constant
      */
-    private static native long kABAIMInstantProperty();
+    public static native long kABAIMInstantProperty();
 
     /**
      * Gets the value of the <tt>kABEmailProperty</tt> constant.
      *
      * @return the value of the <tt>kABEmailProperty</tt> constant
      */
-    private static native long kABEmailProperty();
+    public static native long kABEmailProperty();
 
     /**
      * Gets the value of the <tt>kABFirstNameProperty</tt> constant.
      *
      * @return the value of the <tt>kABFirstNameProperty</tt> constant
      */
-    private static native long kABFirstNameProperty();
+    public static native long kABFirstNameProperty();
 
     /**
      * Gets the value of the <tt>kABFirstNamePhoneticProperty</tt> constant.
      *
      * @return the value of the <tt>kABFirstNamePhoneticProperty</tt> constant
      */
-    private static native long kABFirstNamePhoneticProperty();
+    public static native long kABFirstNamePhoneticProperty();
 
     /**
      * Gets the value of the <tt>kABICQInstantProperty</tt> constant.
      *
      * @return the value of the <tt>kABICQInstantProperty</tt> constant
      */
-    private static native long kABICQInstantProperty();
+    public static native long kABICQInstantProperty();
 
     /**
      * Gets the value of the <tt>kABJabberInstantProperty</tt> constant.
      *
      * @return the value of the <tt>kABJabberInstantProperty</tt> constant
      */
-    private static native long kABJabberInstantProperty();
+    public static native long kABJabberInstantProperty();
 
     /**
      * Gets the value of the <tt>kABLastNameProperty</tt> constant.
      *
      * @return the value of the <tt>kABLastNameProperty</tt> constant
      */
-    private static native long kABLastNameProperty();
+    public static native long kABLastNameProperty();
 
     /**
      * Gets the value of the <tt>kABLastNamePhoneticProperty</tt> constant.
      *
      * @return the value of the <tt>kABLastNamePhoneticProperty</tt> constant
      */
-    private static native long kABLastNamePhoneticProperty();
+    public static native long kABLastNamePhoneticProperty();
 
     /**
      * Gets the value of the <tt>kABMiddleNameProperty</tt> constant.
      *
      * @return the value of the <tt>kABMiddleNameProperty</tt> constant
      */
-    private static native long kABMiddleNameProperty();
+    public static native long kABMiddleNameProperty();
 
     /**
      * Gets the value of the <tt>kABMiddleNamePhoneticProperty</tt> constant.
      *
      * @return the value of the <tt>kABMiddleNamePhoneticProperty</tt> constant
      */
-    private static native long kABMiddleNamePhoneticProperty();
+    public static native long kABMiddleNamePhoneticProperty();
 
     /**
      * Gets the value of the <tt>kABMSNInstantProperty</tt> constant.
      *
      * @return the value of the <tt>kABMSNInstantProperty</tt> constant
      */
-    private static native long kABMSNInstantProperty();
+    public static native long kABMSNInstantProperty();
 
     /**
      * Gets the value of the <tt>kABNicknameProperty</tt> constant.
      *
      * @return the value of the <tt>kABNicknameProperty</tt> constant
      */
-    private static native long kABNicknameProperty();
+    public static native long kABNicknameProperty();
 
     /**
      * Gets the value of the <tt>kABOrganizationProperty</tt> constant.
      *
      * @return the value of the <tt>kABOrganizationProperty</tt> constant
      */
-    private static native long kABOrganizationProperty();
+    public static native long kABOrganizationProperty();
 
     /**
      * Gets the value of the <tt>kABPersonFlags</tt> constant.
      *
      * @return the value of the <tt>kABPersonFlags</tt> constant
      */
-    private static native long kABPersonFlags();
+    public static native long kABPersonFlags();
 
     /**
      * Gets the value of the <tt>kABPhoneProperty</tt> constant.
      *
      * @return the value of the <tt>kABPhoneProperty</tt> constant
      */
-    private static native long kABPhoneProperty();
+    public static native long kABPhoneProperty();
 
     /**
      * Gets the value of the <tt>kABYahooInstantProperty</tt> constant.
      *
      * @return the value of the <tt>kABYahooInstantProperty</tt> constant
      */
-    private static native long kABYahooInstantProperty();
+    public static native long kABYahooInstantProperty();
 
     /**
      * Gets the value of the <tt>kABMaidenNameProperty</tt> constant.
      *
      * @return the value of the <tt>kABMaidenNameProperty</tt> constant
      */
-    private static native long kABMaidenNameProperty();
+    public static native long kABMaidenNameProperty();
 
     /**
      * Gets the value of the <tt>kABBirthdayProperty</tt> constant.
      *
      * @return the value of the <tt>kABBirthdayProperty</tt> constant
      */
-    private static native long kABBirthdayProperty();
+    public static native long kABBirthdayProperty();
 
     /**
      * Gets the value of the <tt>kABJobTitleProperty</tt> constant.
      *
      * @return the value of the <tt>kABJobTitleProperty</tt> constant
      */
-    private static native long kABJobTitleProperty();
+    public static native long kABJobTitleProperty();
 
     /**
      * Gets the value of the <tt>kABHomePageProperty</tt> constant.
      *
      * @return the value of the <tt>kABHomePageProperty</tt> constant
      */
-    private static native long kABHomePageProperty();
+    public static native long kABHomePageProperty();
 
     /**
      * Gets the value of the <tt>kABURLsProperty</tt> constant.
      *
      * @return the value of the <tt>kABURLsProperty</tt> constant
      */
-    private static native long kABURLsProperty();
+    public static native long kABURLsProperty();
 
     /**
      * Gets the value of the <tt>kABCalendarURIsProperty</tt> constant.
      *
      * @return the value of the <tt>kABCalendarURIsProperty</tt> constant
      */
-    private static native long kABCalendarURIsProperty();
+    public static native long kABCalendarURIsProperty();
 
     /**
      * Gets the value of the <tt>kABAddressProperty</tt> constant.
      *
      * @return the value of the <tt>kABAddressProperty</tt> constant
      */
-    private static native long kABAddressProperty();
+    public static native long kABAddressProperty();
 
     /**
      * Gets the value of the <tt>kABOtherDatesProperty</tt> constant.
      *
      * @return the value of the <tt>kABOtherDatesProperty</tt> constant
      */
-    private static native long kABOtherDatesProperty();
+    public static native long kABOtherDatesProperty();
 
     /**
      * Gets the value of the <tt>kABRelatedNamesProperty</tt> constant.
      *
      * @return the value of the <tt>kABRelatedNamesProperty</tt> constant
      */
-    private static native long kABRelatedNamesProperty();
+    public static native long kABRelatedNamesProperty();
 
     /**
      * Gets the value of the <tt>kABDepartmentProperty</tt> constant.
      *
      * @return the value of the <tt>kABDepartmentProperty</tt> constant
      */
-    private static native long kABDepartmentProperty();
+    public static native long kABDepartmentProperty();
 
     /**
      * Gets the value of the <tt>kABInstantMessageProperty</tt> constant.
      *
      * @return the value of the <tt>kABInstantMessageProperty</tt> constant
      */
-    private static native long kABInstantMessageProperty();
+    public static native long kABInstantMessageProperty();
 
     /**
      * Gets the value of the <tt>kABNoteProperty</tt> constant.
      *
      * @return the value of the <tt>kABNoteProperty</tt> constant
      */
-    private static native long kABNoteProperty();
+    public static native long kABNoteProperty();
 
     /**
      * Gets the value of the <tt>kABTitleProperty</tt> constant.
      *
      * @return the value of the <tt>kABTitleProperty</tt> constant
      */
-    private static native long kABTitleProperty();
+    public static native long kABTitleProperty();
 
     /**
      * Gets the value of the <tt>kABSuffixProperty</tt> constant.
      *
      * @return the value of the <tt>kABSuffixProperty</tt> constant
      */
-    private static native long kABSuffixProperty();
+    public static native long kABSuffixProperty();
 
-    private static native String kABEmailWorkLabel();
-    private static native String kABEmailHomeLabel();
-    private static native String kABAddressHomeLabel();
-    private static native String kABAddressWorkLabel();
-    private static native String kABPhoneWorkLabel();
-    private static native String kABPhoneHomeLabel();
-    private static native String kABPhoneMobileLabel();
-    private static native String kABPhoneMainLabel();
-    private static native String kABPhoneWorkFAXLabel();
-    private static native String kABHomeLabel();
-    private static native String kABWorkLabel();
-    private static native String kABOtherLabel();
-    private static native String kABAddressStreetKey();
-    private static native String kABAddressCityKey();
-    private static native String kABAddressStateKey();
-    private static native String kABAddressZIPKey();
-    private static native String kABAddressCountryKey();
+    public static native String kABEmailWorkLabel();
+    public static native String kABEmailHomeLabel();
+    public static native String kABAddressHomeLabel();
+    public static native String kABAddressWorkLabel();
+    public static native String kABPhoneWorkLabel();
+    public static native String kABPhoneHomeLabel();
+    public static native String kABPhoneMobileLabel();
+    public static native String kABPhoneMainLabel();
+    public static native String kABPhoneWorkFAXLabel();
+    public static native String kABHomeLabel();
+    public static native String kABWorkLabel();
+    public static native String kABOtherLabel();
+    public static native String kABAddressStreetKey();
+    public static native String kABAddressCityKey();
+    public static native String kABAddressStateKey();
+    public static native String kABAddressZIPKey();
+    public static native String kABAddressCountryKey();
 
 
     /**
@@ -1059,22 +1073,16 @@ public class MacOSXAddrBookContactQuery
         if ((displayName.length() != 0)
             && (query.matcher(displayName).find() || matches(values)))
         {
-            List<ContactDetail> contactDetails = getContactDetails(values);
+            List<ContactDetail> contactDetails = getContactDetails(values, id);
 
             if (!contactDetails.isEmpty())
             {
-                final AddressBookSourceContact sourceContact
-                    = new AddressBookSourceContact(
+                final MacOSXAddrBookSourceContact sourceContact
+                    = new MacOSXAddrBookSourceContact(
                             getContactSource(),
                             displayName,
                             contactDetails);
                 sourceContact.setData(SourceContact.DATA_ID, id);
-
-                for(ContactDetail cd : contactDetails)
-                {
-                    if(cd instanceof AddressBookContactDetail)
-                        ((AddressBookContactDetail)cd).setId(id);
-                }
 
                 try
                 {
@@ -1202,16 +1210,21 @@ public class MacOSXAddrBookContactQuery
         SourceContact sourceContact =
             findSourceContactByID(ABRecord_uniqueId(person));
         if(sourceContact != null
-            && sourceContact instanceof AddressBookSourceContact)
+            && sourceContact instanceof MacOSXAddrBookSourceContact)
         {
             // let's update the the details
             Object[] values
                 = ABRecord_valuesForProperties(person, ABPERSON_PROPERTIES);
+            String displayName = getDisplayName(values);
+            final String id = ABRecord_uniqueId(person);
 
-            AddressBookSourceContact editableSourceContact
-                = (AddressBookSourceContact)sourceContact;
 
-            List<ContactDetail> contactDetails = getContactDetails(values);
+            MacOSXAddrBookSourceContact editableSourceContact
+                = (MacOSXAddrBookSourceContact)sourceContact;
+
+            editableSourceContact.setDisplayName(displayName);
+
+            List<ContactDetail> contactDetails = getContactDetails(values, id);
             editableSourceContact.setDetails(contactDetails);
 
             fireContactChanged(sourceContact);
@@ -1227,32 +1240,6 @@ public class MacOSXAddrBookContactQuery
 
         if(sourceContact != null)
             fireContactRemoved(sourceContact);
-    }
-
-    /**
-     * Whether the value for the category are multiline.
-     * @param category
-     * @return
-     */
-    private boolean isMultiline(Category category)
-    {
-        switch(category)
-        {
-            case Personal:
-                return false;
-            case Organization:
-                return false;
-            case Email:
-                return true;
-            case InstantMessaging:
-                return true;
-            case Phone:
-                return true;
-            case Address:
-                return true;
-            default:
-                return false;
-        }
     }
 
     /**
@@ -1361,389 +1348,5 @@ public class MacOSXAddrBookContactQuery
         }
 
         return null;
-    }
-
-    /**
-     * Our editable source contact, we store changes in the addressbook.
-     */
-    private class AddressBookSourceContact
-        extends GenericSourceContact
-        implements EditableSourceContact
-    {
-        /**
-         * Initializes a new <tt>AddrBookSourceContact</tt> instance.
-         *
-         * @param contactSource the <tt>ContactSourceService</tt> which is creating
-         * the new instance
-         * @param displayName the display name of the new instance
-         * @param contactDetails the <tt>ContactDetail</tt>s of the new instance
-         */
-        public AddressBookSourceContact(
-                ContactSourceService contactSource,
-                String displayName,
-                List<ContactDetail> contactDetails)
-        {
-            super(contactSource, displayName, contactDetails);
-
-            // let's save the parent so we can reuse it later when editing
-            // the detail
-            for(ContactDetail cd : contactDetails)
-            {
-                if(cd instanceof AddressBookContactDetail)
-                {
-                    ((AddressBookContactDetail)cd).setParent(this);
-                }
-            }
-        }
-
-        /**
-         * Adds a contact detail to the list of contact details.
-         *
-         * @param detail the <tt>ContactDetail</tt> to add
-         */
-        public void addContactDetail(ContactDetail detail)
-        {
-            String id = (String)getData(SourceContact.DATA_ID);
-
-            if(id == null)
-            {
-                logger.warn("No id or wrong ContactDetail " + detail);
-                return;
-            }
-
-            String subProperty = null;
-            int property = getProperty(
-                detail.getCategory(), detail.getSubCategories());
-
-            if(isMultiline(detail.getCategory()))
-            {
-
-
-                if(detail instanceof AddressBookContactDetail)
-                {
-                    subProperty = ((AddressBookContactDetail)detail)
-                        .getSubPropertyLabel();
-                }
-
-                if(subProperty == null && property == kABAddressProperty)
-                {
-                    if(detail.containsSubCategory(SubCategory.Home))
-                        subProperty = kABAddressHomeLabel();
-                    else
-                        subProperty = kABAddressWorkLabel();
-                }
-
-                List<String> values = getValues(
-                    detail, property, subProperty, true);
-
-                setProperty(id, ABPERSON_PROPERTIES[property], subProperty,
-                    values.toArray(new Object[values.size()]));
-            }
-            else
-            {
-                setProperty(id, ABPERSON_PROPERTIES[property], null,
-                    detail.getDetail());
-            }
-
-            // make sure we add AddressBookContactDetail
-            Collection<SubCategory> subCategories
-                = detail.getSubCategories();
-
-            contactDetails.add(
-                new AddressBookContactDetail(
-                    property,
-                    detail.getDetail(),
-                    detail.getCategory(),
-                    subCategories.toArray(
-                        new SubCategory[
-                            subCategories.size()]),
-                    subProperty));
-        }
-
-        /**
-         * Returns the list of values that will be saved.
-         * @param detail the current modified detail
-         * @param property the property we change
-         * @param subProperty the subproperty that is changed
-         * @param addDetail should we add <tt>detail</tt> to the list of values.
-         * @return the list of values to be saved.
-         */
-        private List<String> getValues(ContactDetail detail,
-                                       int property,
-                                       String subProperty,
-                                       boolean addDetail)
-        {
-            // first add existing one
-            List<String> values = new ArrayList<String>();
-
-            List<ContactDetail> details =
-                getContactDetails(detail.getCategory());
-
-            boolean isIM = (property == kABICQInstantProperty
-                        || property == kABAIMInstantProperty
-                        || property == kABYahooInstantProperty
-                        || property == kABMSNInstantProperty
-                        || property == kABJabberInstantProperty);
-
-            boolean isAddress = property == kABAddressProperty;
-            boolean isHomeAddress =
-                detail.containsSubCategory(SubCategory.Home);
-
-            for(ContactDetail cd : details)
-            {
-                if(isAddress)
-                {
-                    // lets check home and work details
-                    if((isHomeAddress
-                            && !cd.containsSubCategory(SubCategory.Home))
-                        || (!isHomeAddress
-                                && !cd.containsSubCategory(SubCategory.Work)))
-                        continue;
-                }
-
-                // if the detail exists do not added, in case of add there is
-                // sense the detail to be added twice. In case of remove
-                // we miss the detail
-                if(cd.equals(detail))
-                    continue;
-
-                String det = cd.getDetail();
-
-                for(SubCategory sub : cd.getSubCategories())
-                {
-                    // if its an im property check also if the detail
-                    // is the same subcategory (which is icq, yahoo, ...)
-                    if(isIM && !detail.getSubCategories().contains(sub))
-                        continue;
-
-                    String label = getLabel(property, sub, subProperty);
-                    if(label != null)
-                    {
-                        values.add(det);
-                        values.add(label);
-                    }
-                }
-            }
-
-            if(addDetail)
-            {
-                // now the new value to add
-                for(SubCategory sub : detail.getSubCategories())
-                {
-                    // when adding new address subcategory is used
-                    // to set work or home address, we miss that value
-                    if(isAddress
-                        && (sub == SubCategory.Home
-                            || sub == SubCategory.Work))
-                        continue;
-
-                    String label = getLabel(property, sub, subProperty);
-                    if(label != null)
-                    {
-                        values.add(detail.getDetail());
-                        values.add(label);
-                    }
-                    else
-                        logger.warn("Missing label fo prop:" + property
-                            + " and sub:" + sub);
-                }
-            }
-
-            return values;
-        }
-
-        /**
-         * Removes the given <tt>ContactDetail</tt> from the list of details for
-         * this <tt>SourceContact</tt>.
-         *
-         * @param detail the <tt>ContactDetail</tt> to remove
-         */
-        public void removeContactDetail(ContactDetail detail)
-        {
-            //remove the detail from the addressbook
-            String id = (String)getData(SourceContact.DATA_ID);
-            if(id != null && detail instanceof AddressBookContactDetail)
-            {
-                if(isMultiline(detail.getCategory()))
-                {
-                    String subProperty = null;
-
-                    if(detail instanceof AddressBookContactDetail)
-                    {
-                        subProperty = ((AddressBookContactDetail)detail)
-                            .getSubPropertyLabel();
-                    }
-
-                    List<String> values =
-                        getValues(
-                            detail,
-                            ((AddressBookContactDetail)detail).property,
-                            subProperty,
-                            false);
-
-                    setProperty(
-                        id,
-                        ABPERSON_PROPERTIES[
-                            ((AddressBookContactDetail) detail).property],
-                        subProperty,
-                        values.toArray(new Object[values.size()]));
-                }
-                else
-                    removeProperty(id, ABPERSON_PROPERTIES[
-                        ((AddressBookContactDetail) detail).property]);
-            }
-            else
-                logger.warn("No id or wrong ContactDetail " + detail);
-
-            contactDetails.remove(detail);
-        }
-
-        /**
-         * Changes the details list with the supplied one.
-         * @param details the details.
-         */
-        public void setDetails(List<ContactDetail> details)
-        {
-            contactDetails.clear();
-            contactDetails.addAll(details);
-        }
-    }
-
-    /**
-     * The editable detail, change get changed and in addressbook.
-     */
-    private class AddressBookContactDetail
-        extends EditableContactDetail
-    {
-        /**
-         * The property index for this detail.
-         */
-        private final int property;
-
-        /**
-         * The id of the detail.
-         */
-        private String id;
-
-        /**
-         * The parent contact source.
-         */
-        private AddressBookSourceContact parent;
-
-        private String subPropertyLabel;
-
-        /**
-         * Initializes a new <tt>ContactDetail</tt> instance which is to represent a
-         * specific contact address and which is to be optionally labeled with a
-         * specific set of labels.
-         *
-         * @param contactDetailValue the contact detail value to be represented by
-         * the new <tt>ContactDetail</tt> instance
-         * @param category
-         * @param subCategories the set of sub categories with which the new
-         * <tt>ContactDetail</tt> instance is to be labeled.
-         */
-        public AddressBookContactDetail(
-                int property,
-                String contactDetailValue,
-                Category category,
-                SubCategory[] subCategories,
-                String subPropertyLabel)
-        {
-            super(contactDetailValue, category, subCategories);
-            this.property = property;
-            this.subPropertyLabel = subPropertyLabel;
-        }
-
-        /**
-         * Sets the given detail value.
-         *
-         * @param value the new value of the detail
-         */
-        public void setDetail(String value)
-        {
-            //let's save in addressbook
-            if(isMultiline(getCategory()))
-            {
-                // get others
-                List<ContactDetail> details =
-                    parent.getContactDetails(getCategory());
-
-                boolean isAddress = property == kABAddressProperty;
-                boolean isHomeAddress = containsSubCategory(SubCategory.Home);
-
-                // first add existing one
-                List<String> values = new ArrayList<String>();
-                for(ContactDetail cd : details)
-                {
-                    if(isAddress)
-                    {
-                        // lets check home and work details
-                        if((isHomeAddress
-                                && !cd.containsSubCategory(SubCategory.Home))
-                            || (!isHomeAddress
-                                    && !cd.containsSubCategory(SubCategory.Work)))
-                            continue;
-                    }
-
-                    String det = cd.getDetail();
-
-                    for(SubCategory sub : cd.getSubCategories())
-                    {
-                        String label = getLabel(property, sub, subPropertyLabel);
-
-                        if(label != null)
-                        {
-                            if(getSubCategories().contains(sub))
-                                values.add(value);
-                            else
-                                values.add(det);
-
-                            values.add(label);
-                        }
-                    }
-                }
-
-                // now the real edit
-                setProperty(
-                    id,
-                    ABPERSON_PROPERTIES[property],
-                    subPropertyLabel,
-                    values.toArray(new Object[values.size()]));
-            }
-            else
-            {
-                setProperty(id, ABPERSON_PROPERTIES[property], null, value);
-            }
-
-            super.setDetail(value);
-        }
-
-        /**
-         * Sets the id of the parent contact source.
-         * @param id
-         */
-        public void setId(String id)
-        {
-            this.id = id;
-        }
-
-        /**
-         * Sets the parent source contact.
-         * @param parent the parent source contact
-         */
-        public void setParent(AddressBookSourceContact parent)
-        {
-            this.parent = parent;
-        }
-
-        /**
-         * Returns the sub property.
-         * @return
-         */
-        public String getSubPropertyLabel()
-        {
-            return subPropertyLabel;
-        }
     }
 }

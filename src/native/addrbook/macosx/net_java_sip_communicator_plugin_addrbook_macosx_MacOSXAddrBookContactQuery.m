@@ -231,20 +231,45 @@ JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_plugin_addrbook_macosx
         NSMutableDictionary *addr;
         addr = [NSMutableDictionary dictionary];
 
-        for (i = 0; i < propertyCount; i+=2)
-        {
-            jstring value = (jstring) (*jniEnv)->GetObjectArrayElement(jniEnv, arr, i);
-            jstring label = (jstring) (*jniEnv)->GetObjectArrayElement(jniEnv, arr, i+1);
-
-            //NSLog(@"key:%@, value:%@", JavaStringToNSString(jniEnv, label), JavaStringToNSString(jniEnv, value));
-            [addr setObject:JavaStringToNSString(jniEnv, value)
-                  forKey:JavaStringToNSString(jniEnv, label)];
-        }
-
         data=[[ABMutableMultiValue alloc] init];
-        [(ABMutableMultiValue *) data
-                addValue:addr
-                withLabel:JavaStringToNSString(jniEnv, subProperty)];
+        NSString *subProp = NULL;
+        NSString *lastSubProp;
+        for (i = 0; i < propertyCount; i+=3)
+        {
+            jstring value
+                = (jstring) (*jniEnv)->GetObjectArrayElement(jniEnv, arr, i);
+            jstring label
+                = (jstring) (*jniEnv)->GetObjectArrayElement(jniEnv, arr, i+1);
+            jstring tmpLastSubProp
+                = (jstring) (*jniEnv)->GetObjectArrayElement(jniEnv, arr, i+2);
+            lastSubProp = JavaStringToNSString(jniEnv, tmpLastSubProp);
+            // Initiates the first sub-property value.
+            if(i == 0)
+            {
+                subProp = lastSubProp;
+            }
+
+            // If there is a change in the sub-property, then save the actual
+            // one to the address property and create a new sub-property list
+            // (Home, Work).
+            if(![lastSubProp isEqualToString: subProp])
+            {
+                [(ABMutableMultiValue *) data addValue:addr withLabel:subProp];
+                addr = [NSMutableDictionary dictionary];
+                // Sets the new current proeperty
+                subProp = lastSubProp;
+            }
+
+            //NSLog(@"key:%@, value:%@", JavaStringToNSString(jniEnv, label),
+            //JavaStringToNSString(jniEnv, value));
+            [addr setObject:JavaStringToNSString(jniEnv, value)
+                forKey:JavaStringToNSString(jniEnv, label)];
+        }
+        // Adds the last sub-property to the address book.
+        if(i > 0)
+        {
+            [(ABMutableMultiValue *) data addValue: addr withLabel: subProp];
+        }
     }
     //else if(property == kABOtherDatesProperty)//kABMultiDateProperty
     else

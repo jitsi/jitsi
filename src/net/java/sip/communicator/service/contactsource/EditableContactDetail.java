@@ -14,9 +14,14 @@ package net.java.sip.communicator.service.contactsource;
  *
  * @author Yana Stamcheva
  */
-public class EditableContactDetail
+public abstract class EditableContactDetail
     extends ContactDetail
 {
+    /**
+     * The source contact which contains this contact detail.
+     */
+    private EditableSourceContact sourceContact = null;
+
     /**
      * Creates a <tt>ContactDetail</tt> by specifying the contact address,
      * corresponding to this detail.
@@ -48,6 +53,16 @@ public class EditableContactDetail
     }
 
     /**
+     * Returns the source contact that contains this contact detail.
+     *
+     * @return The source contact that contains this contact detail.
+     */
+    public EditableSourceContact getSourceContact()
+    {
+        return this.sourceContact;
+    }
+
+    /**
      * Sets the given detail value.
      *
      * @param value the new value of the detail
@@ -55,5 +70,16 @@ public class EditableContactDetail
     public void setDetail(String value)
     {
         contactDetailValue = value;
+    }
+
+    /**
+     * Sets the source contact that contains this contact detail.
+     *
+     * @param sourceContact The source contact that contains this contact
+     * detail.
+     */
+    public void setSourceContact(EditableSourceContact sourceContact)
+    {
+        this.sourceContact = sourceContact;
     }
 }

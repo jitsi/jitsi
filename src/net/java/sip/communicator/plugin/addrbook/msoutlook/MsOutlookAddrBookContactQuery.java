@@ -381,6 +381,7 @@ public class MsOutlookAddrBookContactQuery
         {
         case PR_GIVEN_NAME:
         case PR_MIDDLE_NAME:
+        case PR_COMPANY_NAME:
             return
                 new ContactDetail.SubCategory[]
                         {
@@ -398,9 +399,10 @@ public class MsOutlookAddrBookContactQuery
                         {
                             ContactDetail.SubCategory.Nickname
                         };
-        case PR_COMPANY_NAME:
         case PR_BUSINESS2_TELEPHONE_NUMBER:
         case PR_BUSINESS_TELEPHONE_NUMBER:
+        case dispidEmail1EmailAddress:
+        case PR_EMAIL_ADDRESS:
         //case dispidWorkAddress:
             return
                 new ContactDetail.SubCategory[]
@@ -409,6 +411,7 @@ public class MsOutlookAddrBookContactQuery
                         };
         case PR_HOME2_TELEPHONE_NUMBER:
         case PR_HOME_TELEPHONE_NUMBER:
+        case dispidEmail2EmailAddress:
         //case dispidHomeAddress:
             return
                 new ContactDetail.SubCategory[]
@@ -448,6 +451,12 @@ public class MsOutlookAddrBookContactQuery
         //                {
         //                    ContactDetail.SubCategory.Other
         //                };
+        case dispidEmail3EmailAddress:
+            return
+                new ContactDetail.SubCategory[]
+                        {
+                            ContactDetail.SubCategory.Other
+                        };
         default:
             return null;
         }
@@ -484,15 +493,21 @@ public class MsOutlookAddrBookContactQuery
             else
                 return MAPI_MAILUSER_PROP_IDS[PR_DISPLAY_NAME_PREFIX];
         case Organization:
-            if(subCategories.contains(ContactDetail.SubCategory.Work))
+            if(subCategories.contains(ContactDetail.SubCategory.Name))
                 return MAPI_MAILUSER_PROP_IDS[PR_COMPANY_NAME];
             else
                 return MAPI_MAILUSER_PROP_IDS[PR_BUSINESS_HOME_PAGE];
         case Email:
-            return MAPI_MAILUSER_PROP_IDS[dispidEmail1EmailAddress];
-            //dispidEmail2EmailAddress:
-            //dispidEmail3EmailAddress:
-            // PR_EMAIL_ADDRESS:
+            if(subCategories.contains(ContactDetail.SubCategory.Work))
+                return MAPI_MAILUSER_PROP_IDS[dispidEmail1EmailAddress];
+                // PR_EMAIL_ADDRESS:
+            else if(subCategories.contains(
+                        ContactDetail.SubCategory.Home))
+                return MAPI_MAILUSER_PROP_IDS[dispidEmail2EmailAddress];
+            else if(subCategories.contains(
+                        ContactDetail.SubCategory.Other))
+                return MAPI_MAILUSER_PROP_IDS[dispidEmail3EmailAddress];
+            break;
         case Phone:
             if(subCategories.contains(ContactDetail.SubCategory.Fax))
             {

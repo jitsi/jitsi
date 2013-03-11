@@ -35,7 +35,7 @@ public class GenericSourceContact
     /**
      * The display name of this <tt>SourceContact</tt>.
      */
-    private final String displayName;
+    private String displayName;
 
     /**
      * The display details of this contact.
@@ -122,9 +122,13 @@ public class GenericSourceContact
 
         for (ContactDetail contactDetail : getContactDetails())
         {
-            ContactDetail.Category detailCategory = contactDetail.getCategory();
-            if (detailCategory != null && detailCategory.equals(category))
-                contactDetails.add(contactDetail);
+            if(contactDetail != null)
+            {
+                ContactDetail.Category detailCategory
+                    = contactDetail.getCategory();
+                if (detailCategory != null && detailCategory.equals(category))
+                    contactDetails.add(contactDetail);
+            }
         }
         return contactDetails;
     }
@@ -172,6 +176,16 @@ public class GenericSourceContact
     public String getDisplayName()
     {
         return displayName;
+    }
+
+    /**
+     * Sets the display name of this <tt>SourceContact</tt>.
+     *
+     * @param displayName The display name of this <tt>SourceContact</tt>
+     */
+    public void setDisplayName(String displayName)
+    {
+       this.displayName = displayName;
     }
 
     /**
