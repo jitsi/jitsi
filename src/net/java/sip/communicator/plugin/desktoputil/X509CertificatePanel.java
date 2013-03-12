@@ -36,8 +36,8 @@ public class X509CertificatePanel
     public X509CertificatePanel(X509Certificate certificate)
     {
         ResourceManagementService R = DesktopUtilActivator.getResources();
-        DateFormat dateFormatter = DateFormat
-            .getDateInstance(DateFormat.MEDIUM);
+        DateFormat dateFormatter
+            = DateFormat.getDateInstance(DateFormat.MEDIUM);
 
         Insets valueInsets = new Insets(2,10,0,0);
         Insets titleInsets = new Insets(10,5,0,0);
@@ -68,25 +68,35 @@ public class X509CertificatePanel
         {
             for(Rdn name : new LdapName(subject.getName()).getRdns())
             {
+                String nameType = name.getType();
+                String lblKey = "service.gui.CERT_INFO_" + nameType;
+                String lbl = R.getI18NString(lblKey);
+
+                if ((lbl == null) || ("!" + lblKey + "!").equals(lbl))
+                    lbl = nameType;
+
                 constraints.gridy = currentRow++;
                 constraints.gridx = 0;
-                String lbl =
-                    R.getI18NString("service.gui.CERT_INFO_" + name.getType());
-                if (lbl
-                    .equals("!service.gui.CERT_INFO_" + name.getType() + "!"))
-                    lbl = name.getType();
                 add(new JLabel(lbl), constraints);
+
+                Object nameValue = name.getValue();
+
+                if (nameValue instanceof byte[])
+                {
+                    byte[] nameValueAsByteArray = (byte[]) nameValue;
+
+                    lbl
+                        = getHex(nameValueAsByteArray) + " ("
+                            + new String(nameValueAsByteArray) + ")";
+                }
+                else
+                    lbl = nameValue.toString();
+
                 constraints.gridx = 1;
-                add(
-                    new JLabel(
-                        name.getValue() instanceof byte[] ?
-                            getHex((byte[])name.getValue()) + " ("
-                                + new String((byte[]) name.getValue()) + ")"
-                                : name.getValue().toString()),
-                    constraints);
+                add(new JLabel(lbl), constraints);
             }
         }
-        catch (InvalidNameException e1)
+        catch (InvalidNameException ine)
         {
             constraints.gridy = currentRow++;
             add(new JLabel(
@@ -110,26 +120,36 @@ public class X509CertificatePanel
         {
             for(Rdn name : new LdapName(issuer.getName()).getRdns())
             {
+                String nameType = name.getType();
+                String lblKey = "service.gui.CERT_INFO_" + nameType;
+                String lbl = R.getI18NString(lblKey);
+
+                if ((lbl == null) || ("!" + lblKey + "!").equals(lbl))
+                    lbl = nameType;
+
                 constraints.gridy = currentRow++;
                 constraints.gridx = 0;
                 constraints.gridx = 0;
-                String lbl =
-                    R.getI18NString("service.gui.CERT_INFO_" + name.getType());
-                if (lbl
-                    .equals("!service.gui.CERT_INFO_" + name.getType() + "!"))
-                    lbl = name.getType();
                 add(new JLabel(lbl), constraints);
+
+                Object nameValue = name.getValue();
+
+                if (nameValue instanceof byte[])
+                {
+                    byte[] nameValueAsByteArray = (byte[]) nameValue;
+
+                    lbl
+                        = getHex(nameValueAsByteArray) + " ("
+                            + new String(nameValueAsByteArray) + ")";
+                }
+                else
+                    lbl = nameValue.toString();
+
                 constraints.gridx = 1;
-                add(
-                    new JLabel(
-                        name.getValue() instanceof byte[] ?
-                            getHex((byte[])name.getValue()) + " ("
-                                + new String((byte[]) name.getValue()) + ")"
-                                : name.getValue().toString()),
-                    constraints);
+                add(new JLabel(lbl), constraints);
             }
         }
-        catch (InvalidNameException e1)
+        catch (InvalidNameException ine)
         {
             constraints.gridy = currentRow++;
             add(new JLabel(
