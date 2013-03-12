@@ -1398,6 +1398,11 @@
             <arg value="${macosx.sign.certid}"/>
             <arg value="--keychain"/>
             <arg value="${macosx.sign.keychain}"/>
+            <arg value="--requirements"/>
+            <!-- the designated param value is taken after executing the command
+            on already installed and signed application
+            $ codesign -d -r- /Applications/Jitsi.app -->
+            <arg value="=designated => identifier &quot;org.${package.name}&quot; and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = &quot;BE8738ZVRM&quot;"/>
             <arg value="${macosx.app.dir}/${application.name}.app"/>
         </exec>
 
