@@ -204,7 +204,7 @@ public class CallPeerJabberImpl
     }
 
     /**
-     * Ends the call with for this <tt>CallPeer</tt>. Depending on the state
+     * Ends the call with this <tt>CallPeer</tt>. Depending on the state
      * of the peer the method would send a CANCEL, BYE, or BUSY_HERE message
      * and set the new state to DISCONNECTED.
      *
@@ -1258,6 +1258,12 @@ public class CallPeerJabberImpl
     {
         try
         {
+            /*
+             * We need to dispose of the transport manager before the
+             * 'call' field is set to null, because if Jitsi VideoBridge is in
+             * use, it (the call) is needed in order to expire the
+             * VideoBridge channels.
+             */
             if (CallPeerState.DISCONNECTED.equals(newState)
                     || CallPeerState.FAILED.equals(newState))
                 getMediaHandler().getTransportManager().close();

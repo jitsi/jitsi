@@ -65,6 +65,8 @@ public class RawUdpTransportManager
      * Closes a specific <tt>StreamConnector</tt> associated with a specific
      * <tt>MediaType</tt>. If this <tt>TransportManager</tt> has a reference to
      * the specified <tt>streamConnector</tt>, it remains.
+     * Also expires the <tt>ColibriConferenceIQ.Channel</tt> associated with
+     * the closed <tt>StreamConnector</tt>.
      *
      * @param mediaType the <tt>MediaType</tt> associated with the specified
      * <tt>streamConnector</tt>

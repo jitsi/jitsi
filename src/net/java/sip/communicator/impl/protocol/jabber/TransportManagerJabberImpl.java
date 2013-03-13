@@ -312,5 +312,7 @@ public abstract class TransportManagerJabberImpl
      */
     public void close()
     {
+        for (MediaType mediaType : MediaType.values())
+            closeStreamConnector(mediaType);
     }
 }
