@@ -12,6 +12,8 @@ import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
 
+import java.util.*;
+
 /**
  * Implements <code>BundleActivator</code> for the purposes of
  * protocol.jar/protocol.provider.manifest.mf and in order to register and start
@@ -36,6 +38,11 @@ public class ProtocolProviderActivator
      * this activator.
      */
     private ServiceRegistration accountManagerServiceRegistration;
+
+    /**
+     * The account manager.
+     */
+    private static AccountManager accountManager;
 
     /**
      * The <code>BundleContext</code> of the one and only
@@ -159,9 +166,10 @@ public class ProtocolProviderActivator
     {
         ProtocolProviderActivator.bundleContext = bundleContext;
 
+        accountManager = new AccountManager(bundleContext);
         accountManagerServiceRegistration =
             bundleContext.registerService(AccountManager.class.getName(),
-                new AccountManager(bundleContext), null);
+                accountManager, null);
 
         singleCallInProgressPolicy =
             new SingleCallInProgressPolicy(bundleContext);
@@ -182,6 +190,7 @@ public class ProtocolProviderActivator
         {
             accountManagerServiceRegistration.unregister();
             accountManagerServiceRegistration = null;
+            accountManager = null;
         }
 
         if (singleCallInProgressPolicy != null)
@@ -195,5 +204,51 @@ public class ProtocolProviderActivator
 
         configurationService = null;
         resourceService = null;
+    }
+
+    /**
+     * Returns all protocol providers currently registered.
+     * @return all protocol providers currently registered.
+     */
+    public static List<ProtocolProviderService>
+        getProtocolProviders()
+    {
+        ServiceReference[] serRefs = null;
+        try
+        {
+            // get all registered provider factories
+            serRefs = bundleContext.getServiceReferences(
+                ProtocolProviderService.class.getName(),
+                null);
+        }
+        catch (InvalidSyntaxException e)
+        {
+            logger.error("ProtocolProviderActivator : " + e);
+        }
+
+        List<ProtocolProviderService>
+            providersList = new ArrayList<ProtocolProviderService>();
+
+        if (serRefs != null)
+        {
+            for (ServiceReference serRef : serRefs)
+            {
+                ProtocolProviderService pp
+                    = (ProtocolProviderService)bundleContext.getService(serRef);
+
+                providersList.add(pp);
+            }
+        }
+        return providersList;
+    }
+
+    /**
+     * Get the <tt>AccountManager</tt> of the protocol.
+     *
+     * @return <tt>AccountManager</tt> of the protocol
+     */
+    public static AccountManager getAccountManager()
+    {
+        return accountManager;
     }
 }

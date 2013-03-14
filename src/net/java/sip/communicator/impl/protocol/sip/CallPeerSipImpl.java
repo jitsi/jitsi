@@ -6,9 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
-import static net.java.sip.communicator.service.protocol.OperationSetBasicTelephony.HANGUP_REASON_ENCRYPTION_REQUIRED;
-import static net.java.sip.communicator.service.protocol.OperationSetBasicTelephony.HANGUP_REASON_NORMAL_CLEARING;
-import static net.java.sip.communicator.service.protocol.OperationSetBasicTelephony.HANGUP_REASON_TIMEOUT;
+import static net.java.sip.communicator.service.protocol.OperationSetBasicTelephony.*;
 import gov.nist.javax.sip.header.*;
 
 import java.net.*;
@@ -1213,6 +1211,8 @@ public class CallPeerSipImpl
                 return Response.SESSION_NOT_ACCEPTABLE;
             case HANGUP_REASON_TIMEOUT : 
                 return Response.REQUEST_TIMEOUT;
+            case HANGUP_REASON_BUSY_HERE : 
+                return Response.BUSY_HERE;
             default : return -1;
         }
     }

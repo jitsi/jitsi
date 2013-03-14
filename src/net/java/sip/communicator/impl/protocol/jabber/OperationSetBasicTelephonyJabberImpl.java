@@ -669,6 +669,8 @@ public class OperationSetBasicTelephonyJabberImpl
                 return Reason.SECURITY_ERROR;
             case HANGUP_REASON_TIMEOUT :
                 return Reason.TIMEOUT;
+            case HANGUP_REASON_BUSY_HERE :
+                return Reason.BUSY;
             default : return null;
         }
     }
@@ -1247,11 +1249,11 @@ public class OperationSetBasicTelephonyJabberImpl
     }
 
     /**
-     * Returns a reference to the {@link ActiveCallsRepositoryJabberImpl} that
-     * we are currently using.
+     * Returns a reference to the {@link ActiveCallsRepositoryJabberGTalkImpl}
+     * that we are currently using.
      *
-     * @return a reference to the {@link ActiveCallsRepositoryJabberImpl} that
-     * we are currently using.
+     * @return a reference to the {@link ActiveCallsRepositoryJabberGTalkImpl}
+     * that we are currently using.
      */
     protected ActiveCallsRepositoryJabberGTalkImpl
         <CallJabberImpl, CallPeerJabberImpl>
@@ -1261,11 +1263,11 @@ public class OperationSetBasicTelephonyJabberImpl
     }
 
     /**
-     * Returns a reference to the {@link ActiveCallsRepositoryGTalkImpl} that
-     * we are currently using.
+     * Returns a reference to the {@link ActiveCallsRepositoryJabberGTalkImpl}
+     * that we are currently using.
      *
-     * @return a reference to the {@link ActiveCallsRepositoryGTalkImpl} that
-     * we are currently using.
+     * @return a reference to the {@link ActiveCallsRepositoryJabberGTalkImpl}
+     * that we are currently using.
      */
     protected ActiveCallsRepositoryJabberGTalkImpl
         <CallGTalkImpl, CallPeerGTalkImpl>

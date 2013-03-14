@@ -8,6 +8,8 @@ package net.java.sip.communicator.service.protocol;
 
 import java.util.*;
 
+import static net.java.sip.communicator.service.protocol.OperationSetBasicTelephony.*;
+
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
@@ -29,6 +31,38 @@ public class SingleCallInProgressPolicy
      */
     private static final String PNAME_SINGLE_CALL_IN_PROGRESS_POLICY_ENABLED
         = "net.java.sip.communicator.impl.protocol.SingleCallInProgressPolicy.enabled";
+
+    /**
+     * The name of the configuration property which specifies whether
+     * call waiting is disabled i.e. whether it should
+     * reject new incoming calls when there are other calls already in progress.
+     */
+    private static final String PNAME_CALL_WAITING_DISABLED
+        = "net.java.sip.communicator.impl.protocol.CallWaitingDisabled";
+
+    /**
+     * Account property to enable per account rejecting calls if the
+     * account presence is in DND or OnThePhone status.
+     */
+    private static final String ACCOUNT_PROPERTY_REJECT_IN_CALL_ON_DND
+        = "RejectIncomingCallsWhenDnD";
+
+    /**
+     * Global property which will enable rejecting incoming calls for
+     * all accounts, if the account is in DND or OnThePhone status.
+     */
+    private static final String PNAME_REJECT_IN_CALL_ON_DND
+        = "net.java.sip.communicator.impl.protocol."
+                + ACCOUNT_PROPERTY_REJECT_IN_CALL_ON_DND;
+
+    /**
+     * An account property to provide a connected account to check for
+     * its status. Used when the current provider need to reject calls
+     * but is missing presence operation set and need to check other
+     * provider for status.
+     */
+    private static final String CUSAX_PROVIDER_ACCOUNT_PROP
+            = "cusax.xmppAccountID";
 
     /**
      * Implements the listeners interfaces used by this policy.
@@ -298,6 +332,7 @@ public class SingleCallInProgressPolicy
      * to in order to have them or stop having them put the other existing calls
      * on hold when the former change their states to
      * <code>CallState.CALL_IN_PROGRESS</code>.
+     * Also handles call rejection via "busy here" according to the call policy.
      *
      * @param type
      *            one of {@link CallEvent#CALL_ENDED},
@@ -311,6 +346,7 @@ public class SingleCallInProgressPolicy
     private void handleCallEvent(int type, CallEvent callEvent)
     {
         Call call = callEvent.getSourceCall();
+        ProtocolProviderService provider = call.getProtocolProvider();
 
         switch (type)
         {
@@ -320,8 +356,123 @@ public class SingleCallInProgressPolicy
 
         case CallEvent.CALL_INITIATED:
         case CallEvent.CALL_RECEIVED:
+            // check whether we should hangup this call saying we are busy
+            // already on call
+            if(type == CallEvent.CALL_RECEIVED
+                && CallState.CALL_INITIALIZATION.equals(call.getCallState())
+                && ProtocolProviderActivator.getConfigurationService()
+                        .getBoolean(PNAME_CALL_WAITING_DISABLED, false))
+            {
+                synchronized (calls)
+                {
+                    for (Call otherCall : calls)
+                    {
+                        if (!call.equals(otherCall)
+                                && CallState.CALL_IN_PROGRESS
+                                    .equals(otherCall.getCallState()))
+                        {
+                            rejectCallWithBusyHere(call);
+                            return;
+                        }
+                    }
+                }
+            }
+
+            if(type == CallEvent.CALL_RECEIVED
+                    && CallState.CALL_INITIALIZATION.equals(call.getCallState())
+                    && (ProtocolProviderActivator.getConfigurationService()
+                        .getBoolean(PNAME_REJECT_IN_CALL_ON_DND,
+                                    false)
+                        || provider.getAccountID().getAccountPropertyBoolean(
+                                ACCOUNT_PROPERTY_REJECT_IN_CALL_ON_DND, false)))
+            {
+                OperationSetPresence presence
+                    = provider.getOperationSet(OperationSetPresence.class);
+
+                // if our provider has no presence op set, lets search for
+                // connected provider which will have
+                if(presence == null)
+                {
+                    // there is no presence opset let's check
+                    // the connected cusax provider if available
+                    String cusaxProviderID = provider.getAccountID()
+                        .getAccountPropertyString(CUSAX_PROVIDER_ACCOUNT_PROP);
+
+                    AccountID acc =
+                        ProtocolProviderActivator.getAccountManager()
+                            .findAccountID(cusaxProviderID);
+                    if(acc == null)
+                    {
+                        logger.warn("No connected cusax account found for "
+                            + cusaxProviderID);
+                    }
+                    else
+                    {
+                        for(ProtocolProviderService pProvider :
+                          ProtocolProviderActivator.getProtocolProviders())
+                        {
+                            if(pProvider.getAccountID().equals(acc))
+                            {
+                                // we found the provider, lets take its
+                                // presence opset
+                                presence = pProvider.getOperationSet(
+                                    OperationSetPresence.class);
+                            }
+                        }
+                    }
+                }
+
+                if(presence != null)
+                {
+                    int presenceStatus
+                        = (presence == null)
+                            ? PresenceStatus.AVAILABLE_THRESHOLD
+                            : presence.getPresenceStatus().getStatus();
+
+                    // between AVAILABLE and AWAY (>20, <= 31) are the busy
+                    // statuses as DND and On the phone
+                    if (presenceStatus > PresenceStatus.ONLINE_THRESHOLD
+                        && presenceStatus <= PresenceStatus.AWAY_THRESHOLD)
+                    {
+                        rejectCallWithBusyHere(call);
+                        return;
+                    }
+                }
+            }
+
             addCallListener(call);
             break;
+        }
+    }
+
+    /**
+     * Rejects a <tt>call</tt> with busy here code.
+     * @param call the call to reject.
+     */
+    private void rejectCallWithBusyHere(Call call)
+    {
+        // we interested in one to one incoming calls
+        if(call.getCallPeerCount() == 1)
+        {
+            CallPeer peer = call.getCallPeers().next();
+
+            OperationSetBasicTelephony<?> telephony =
+                call.getProtocolProvider().getOperationSet(
+                        OperationSetBasicTelephony.class);
+            if (telephony != null)
+            {
+                try
+                {
+                    telephony.hangupCallPeer(
+                        peer,
+                        HANGUP_REASON_BUSY_HERE,
+                        null);
+                }
+                catch (OperationFailedException ex)
+                {
+                    logger.error("Failed to reject " + peer, ex);
+                }
+            }
         }
     }
 

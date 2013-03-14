@@ -381,6 +381,71 @@ public class AccountManager
     }
 
     /**
+     * Searches for stored account with <tt>uid</tt> in stored
+     * configuration. The <tt>uid</tt> is the one generated when creating
+     * accounts with prefix <tt>ACCOUNT_UID_PREFIX</tt>.
+     *
+     * @return <tt>AccountID</tt> if there is any account stored in configuration
+     * service with <tt>uid</tt>,
+     * <tt>null</tt> otherwise.
+     */
+    public AccountID findAccountID(String uid)
+    {
+        ServiceReference[] factoryRefs = null;
+
+        try
+        {
+            factoryRefs
+                = bundleContext.getServiceReferences(
+                    ProtocolProviderFactory.class.getName(), null);
+        }
+        catch (InvalidSyntaxException ex)
+        {
+            logger.error(
+                "Failed to retrieve the registered ProtocolProviderFactories",
+                ex);
+        }
+
+        if ((factoryRefs != null) && (factoryRefs.length > 0))
+        {
+            ConfigurationService configService
+                = ProtocolProviderActivator.getConfigurationService();
+
+            for (ServiceReference factoryRef : factoryRefs)
+            {
+                ProtocolProviderFactory factory
+                    = (ProtocolProviderFactory)
+                        bundleContext.getService(factoryRef);
+
+                String factoryPackage = getFactoryImplPackageName(factory);
+                List<String> storedAccountsProps
+                    = configService
+                        .getPropertyNamesByPrefix(factoryPackage, true);
+
+                for (Iterator<String> storedAccountIter =
+                         storedAccountsProps.iterator();
+                     storedAccountIter.hasNext();)
+                {
+                    String storedAccount = storedAccountIter.next();
+                    if(!storedAccount.endsWith(uid))
+                        continue;
+
+                    String accountUID = configService.getString(
+                        storedAccount //node id
+                        + "." + ProtocolProviderFactory.ACCOUNT_UID);// propname
+
+                    for(AccountID acc : storedAccounts)
+                    {
+                        if(acc.getAccountUniqueID().equals(accountUID))
+                            return acc;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
      * Loads the accounts stored for a specific
      * <tt>ProtocolProviderFactory</tt> and notifies the registered
      * {@link #listeners} that the stored accounts of the specified
