@@ -1632,6 +1632,10 @@ public class CallManager
                         {
                             String localizedType = null;
 
+                            // skip phones which were already added
+                            if(phones.contains(pnd.getNumber()))
+                                continue;
+
                             if(d instanceof WorkPhoneDetail)
                             {
                                 localizedType =

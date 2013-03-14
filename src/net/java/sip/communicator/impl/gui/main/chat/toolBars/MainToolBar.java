@@ -28,10 +28,7 @@ import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.FaxDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.GenericDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.PagerDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.PhoneNumberDetail;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.account.*;
 import net.java.sip.communicator.util.skin.*;
@@ -401,6 +398,64 @@ public class MainToolBar
     }
 
     /**
+     * Checks for <tt>VideoDetail</tt> in the
+     * <tt>OperationSetServerStoredContactInfo</tt>.
+     *
+     * @param transports list of <tt>ChatTransport</tt>
+     * @return <tt>true</tt> if <tt>VideoDetail</tt> exists in the transports,
+     * <tt>true</tt> otherwise.
+     */
+    private boolean hasVideoDetail(
+            List<ChatTransport> transports)
+    {
+        boolean hasVideo = false;
+        for(ChatTransport transport : transports)
+        {
+            ProtocolProviderService protocolProvider
+                = transport.getProtocolProvider();
+
+            OperationSetServerStoredContactInfo infoOpSet =
+                protocolProvider.getOperationSet(
+                    OperationSetServerStoredContactInfo.class);
+            Iterator<GenericDetail> details;
+
+            if(infoOpSet != null
+                && transport.getDescriptor() instanceof Contact)
+            {
+                details = infoOpSet.requestAllDetailsForContact(
+                    (Contact)transport.getDescriptor(),
+                    new DetailsListener(
+                            this.chatSession, callButton));
+
+                if(details != null)
+                {
+                    while(details.hasNext())
+                    {
+                        GenericDetail d = details.next();
+                        if(d instanceof PhoneNumberDetail &&
+                            !(d instanceof PagerDetail) &&
+                            !(d instanceof FaxDetail))
+                        {
+                            PhoneNumberDetail pnd = (PhoneNumberDetail)d;
+                            if(pnd.getNumber() != null &&
+                                pnd.getNumber().length() > 0)
+                            {
+                                if(pnd instanceof VideoDetail)
+                                {
+                                    hasVideo = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return hasVideo;
+    }
+
+    /**
      * Implements
      * ChatSessionChangeListener#currentChatTransportChanged(ChatSession).
      * @param chatSession the <tt>ChatSession</tt>, which transport has changed
@@ -719,7 +774,12 @@ public class MainToolBar
                         pnd.getNumber().length() > 0)
                     {
                         callButton.setEnabled(true);
-                        return;
+
+                        if(pnd instanceof VideoDetail)
+                        {
+                            callVideoButton.setEnabled(true);
+                            desktopSharingButton.setEnabled(true);
+                        }
                     }
                 }
             }
@@ -908,9 +968,10 @@ public class MainToolBar
             throws
             Exception
         {
-            return getOperationSetForCapabilities(
+            return (!getOperationSetForCapabilities(
                 chatTransports,
-                OperationSetDesktopSharingServer.class).isEmpty();
+                OperationSetDesktopSharingServer.class).isEmpty())
+                || hasVideoDetail(chatTransports);
         }
 
         /**
@@ -919,7 +980,7 @@ public class MainToolBar
          */
         protected void finished()
         {
-            desktopSharingButton.setEnabled(!((Boolean)get()));
+            desktopSharingButton.setEnabled((Boolean)get());
         }
     }
 

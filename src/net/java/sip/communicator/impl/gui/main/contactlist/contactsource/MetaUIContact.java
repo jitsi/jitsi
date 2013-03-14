@@ -512,6 +512,7 @@ public class MetaUIContact
     private void fillTooltipLines(ExtendedTooltip tip,
                                   Iterator<GenericDetail> details)
     {
+        ArrayList<String> phones = new ArrayList<String>();
         while(details.hasNext())
         {
             GenericDetail d = details.next();
@@ -541,6 +542,10 @@ public class MetaUIContact
                     }
                     else if(d instanceof VideoDetail)
                     {
+                        // skip if number is already existing
+                        if(phones.contains(pnd.getNumber()))
+                            continue;
+
                         localizedType =
                             GuiActivator.getResources().
                                 getI18NString(
@@ -554,6 +559,7 @@ public class MetaUIContact
                                     "service.gui.HOME");
                     }
 
+                    phones.add(pnd.getNumber());
                     tip.addLine(null, (pnd.getNumber() +
                         " (" + localizedType + ")"));
                 }

@@ -815,8 +815,6 @@ public class ContactListTreeCellRenderer
 
                                     if(d instanceof VideoDetail)
                                         hasVideoPhone = true;
-
-                                    break;
                                 }
                              }
                         }
@@ -1644,7 +1642,7 @@ public class ContactListTreeCellRenderer
                     !(d instanceof PagerDetail) &&
                     !(d instanceof FaxDetail))
                 {
-                    PhoneNumberDetail pnd = (PhoneNumberDetail)d;
+                    final PhoneNumberDetail pnd = (PhoneNumberDetail)d;
                     if(pnd.getNumber() != null &&
                         pnd.getNumber().length() > 0)
                     {
@@ -1653,6 +1651,12 @@ public class ContactListTreeCellRenderer
                             public void run()
                             {
                                 callButton.setEnabled(true);
+
+                                if(pnd instanceof VideoDetail)
+                                {
+                                    callVideoButton.setEnabled(true);
+                                    desktopSharingButton.setEnabled(true);
+                                }
 
                                 treeContactList.refreshContact(uiContact);
                             }
