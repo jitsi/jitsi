@@ -301,6 +301,8 @@ public class SIPAccountRegistrationForm
 
         registration.setDTMFMethod(
             connectionPanel.getDTMFMethod());
+        registration.setDtmfMinimalToneDuration(
+            connectionPanel.getDtmfMinimalToneDuration());
 
         SIPAccRegWizzActivator.getUIService().getAccountRegWizardContainer()
             .setBackButtonEnabled(true);
@@ -393,6 +395,8 @@ public class SIPAccountRegistrationForm
 
         String dtmfMethod =
         accountID.getAccountPropertyString("DTMF_METHOD");
+        String dtmfMinimalToneDuration =
+        accountID.getAccountPropertyString("DTMF_MINIMAL_TONE_DURATION");
 
         String voicemailURI = accountID.getAccountPropertyString(
                     ProtocolProviderFactory.VOICEMAIL_URI);
@@ -460,6 +464,8 @@ public class SIPAccountRegistrationForm
         connectionPanel.setKeepAliveInterval(keepAliveInterval);
 
         connectionPanel.setDTMFMethod(dtmfMethod);
+        if(!StringUtils.isNullOrEmpty(dtmfMinimalToneDuration))
+            connectionPanel.setDtmfMinimalToneDuration(dtmfMinimalToneDuration);
 
         boolean mwiEnabled = accountID.getAccountPropertyBoolean(
             ProtocolProviderFactory.VOICEMAIL_ENABLED, true);

@@ -16,6 +16,8 @@ import net.java.sip.communicator.plugin.desktoputil.wizard.*;
 import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.protocol.*;
 
+import org.jitsi.util.*;
+
 /**
  * The <tt>JabberAccountRegistrationForm</tt>.
  *
@@ -312,6 +314,8 @@ public class JabberAccountRegistrationForm
             registration.setPriority(Integer.parseInt(priority));
 
         registration.setDTMFMethod(connectionPanel.getDTMFMethod());
+        registration.setDtmfMinimalToneDuration(
+            connectionPanel.getDtmfMinimalToneDuration());
 
         securityPanel.commitPanel(registration);
 
@@ -436,6 +440,10 @@ public class JabberAccountRegistrationForm
 
         connectionPanel.setDTMFMethod(
             accountID.getAccountPropertyString("DTMF_METHOD"));
+        String dtmfMinimalToneDuration =
+            accountID.getAccountPropertyString("DTMF_MINIMAL_TONE_DURATION");
+        if(!StringUtils.isNullOrEmpty(dtmfMinimalToneDuration))
+            connectionPanel.setDtmfMinimalToneDuration(dtmfMinimalToneDuration);
 
         securityPanel.loadAccount(accountID);
 

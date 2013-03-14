@@ -47,7 +47,16 @@ public class JabberAccountRegistration
      */
     public static final boolean DEFAULT_RESOURCE_AUTOGEN = true;
 
+    /**
+     * The default value for DTMF method.
+     */
     private String defaultDTMFMethod = "AUTO_DTMF";
+
+    /**
+     * The default value of minimale DTMF tone duration.
+     */
+    public static String DEFAULT_MINIMAL_DTMF_TONE_DURATION = Integer.toString(
+            OperationSetDTMF.DEFAULT_DTMF_MINIMAL_TONE_DURATION);
 
     /**
      * The user identifier.
@@ -207,6 +216,11 @@ public class JabberAccountRegistration
      * DTMF method.
      */
     private String dtmfMethod = null;
+
+    /**
+     * The minimal DTMF tone duration set.
+     */
+    private String dtmfMinimalToneDuration = DEFAULT_MINIMAL_DTMF_TONE_DURATION;
 
     /**
      * Initializes a new JabberAccountRegistration.
@@ -863,6 +877,26 @@ public class JabberAccountRegistration
     public void setDefaultDTMFMethod(String defaultDTMFMethod)
     {
         this.defaultDTMFMethod = defaultDTMFMethod;
+    }
+
+    /**
+     * Returns the minimal DTMF tone duration.
+     *
+     * @return The minimal DTMF tone duration.
+     */
+    public String getDtmfMinimalToneDuration()
+    {
+        return dtmfMinimalToneDuration;
+    }
+
+    /**
+     * Sets the minimal DTMF tone duration.
+     *
+     * @param dtmfMinimalToneDuration The minimal DTMF tone duration to set.
+     */
+    public void setDtmfMinimalToneDuration(String dtmfMinimalToneDuration)
+    {
+        this.dtmfMinimalToneDuration = dtmfMinimalToneDuration;
     }
 
     /**

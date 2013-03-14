@@ -442,6 +442,12 @@ public abstract class ProtocolProviderFactory
     public static final String KEEP_ALIVE_INTERVAL = "KEEP_ALIVE_INTERVAL";
 
     /**
+     * The minimal DTMF tone duration.
+     */
+    public static final String DTMF_MINIMAL_TONE_DURATION
+        = "DTMF_MINIMAL_TONE_DURATION";
+
+    /**
      * Paranoia mode when turned on requires all calls to be secure and
      * indicated as such.
      */

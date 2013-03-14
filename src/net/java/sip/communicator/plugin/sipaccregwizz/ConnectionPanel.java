@@ -72,6 +72,11 @@ public class ConnectionPanel
                                     "plugin.sipaccregwizz.DTMF_INBAND")
                         });
 
+    /**
+     * The text field used to change the DTMF minimal tone duration.
+     */
+    private JTextField dtmfMinimalToneDurationValue = new JTextField();
+
     private final JCheckBox mwiCheckBox;
 
     private boolean isServerOverridden = false;
@@ -376,14 +381,64 @@ public class ConnectionPanel
      */
     private Component createDTMFPanel()
     {
-        JPanel dtmfPanel = new TransparentPanel(new BorderLayout(10, 10));
+        JPanel emptyLabelPanel = new TransparentPanel();
+
+        // Labels.
+        JPanel dtmfLabels = new TransparentPanel(new GridLayout(0, 1, 5, 5));
         JLabel dtmfMethodLabel = new JLabel(
             Resources.getString("plugin.sipaccregwizz.DTMF_METHOD"));
-        dtmfPanel.add(dtmfMethodLabel, BorderLayout.WEST);
+        JLabel minimalDTMFToneDurationLabel = new JLabel(
+            Resources.getString(
+                "plugin.sipaccregwizz.DTMF_MINIMAL_TONE_DURATION"));
+        dtmfLabels.add(dtmfMethodLabel);
+        dtmfLabels.add(minimalDTMFToneDurationLabel);
+        dtmfLabels.add(emptyLabelPanel);
 
+        // Values
+        JPanel dtmfValues = new TransparentPanel(new GridLayout(0, 1, 5, 5));
+        dtmfMethodBox.addItemListener(new ItemListener()
+                {
+                    public void itemStateChanged(ItemEvent e)
+                    {
+                        boolean isEnabled = false;
+                        String selectedItem
+                            = (String) dtmfMethodBox.getSelectedItem();
+                        if(selectedItem != null
+                            && (selectedItem.equals(Resources.getString(
+                                    "plugin.sipaccregwizz.DTMF_AUTO"))
+                                || selectedItem.equals(Resources.getString(
+                                        "plugin.sipaccregwizz.DTMF_RTP")))
+                          )
+                        {
+                            isEnabled = true;
+                        }
+                        dtmfMinimalToneDurationValue.setEnabled(isEnabled);
+                    }
+                });
         dtmfMethodBox.setSelectedItem(
                 regform.getRegistration().getDefaultDTMFMethod());
-        dtmfPanel.add(dtmfMethodBox, BorderLayout.CENTER);
+        dtmfMinimalToneDurationValue
+            .setText(SIPAccountRegistration.DEFAULT_MINIMAL_DTMF_TONE_DURATION);
+        JLabel dtmfMinimalToneDurationExampleLabel = new JLabel(
+                Resources.getString(
+                    "plugin.sipaccregwizz.DTMF_MINIMAL_TONE_DURATION_INFO"));
+        dtmfMinimalToneDurationExampleLabel.setForeground(Color.GRAY);
+        dtmfMinimalToneDurationExampleLabel.setFont(
+                dtmfMinimalToneDurationExampleLabel.getFont().deriveFont(8));
+        dtmfMinimalToneDurationExampleLabel.setMaximumSize(
+                new Dimension(40, 35));
+        dtmfMinimalToneDurationExampleLabel.setBorder(
+                BorderFactory.createEmptyBorder(0, 0, 8, 0));
+        dtmfValues.add(dtmfMethodBox);
+        dtmfValues.add(dtmfMinimalToneDurationValue);
+        dtmfValues.add(dtmfMinimalToneDurationExampleLabel);
+
+        // DTMF panel
+        JPanel dtmfPanel = new TransparentPanel(new BorderLayout(10, 10));
+        dtmfPanel.setBorder(BorderFactory.createTitledBorder(
+            Resources.getString("plugin.sipaccregwizz.DTMF")));
+        dtmfPanel.add(dtmfLabels, BorderLayout.WEST);
+        dtmfPanel.add(dtmfValues, BorderLayout.CENTER);
 
         return dtmfPanel;
     }
@@ -648,6 +703,25 @@ public class ConnectionPanel
     }
 
     /**
+     * Returns the minimal DTMF tone duration.
+     *
+     * @return The minimal DTMF tone duration.
+     */
+    String getDtmfMinimalToneDuration()
+    {
+        return dtmfMinimalToneDurationValue.getText();
+    }
+
+    /**
+     * Sets the keep alive interval
+     * @param keepAliveInterval the keep alive interval
+     */
+    void setKeepAliveInterval(String keepAliveInterval)
+    {
+        keepAliveIntervalValue.setText(keepAliveInterval);
+    }
+
+    /**
      * Returns the voicemail URI.
      * @return the voicemail URI.
      */
@@ -702,12 +776,13 @@ public class ConnectionPanel
     }
 
     /**
-     * Sets the keep alive interval
-     * @param keepAliveInterval the keep alive interval
+     * Sets the minimal DTMF tone duration
+     *
+     * @param dtmfMinimalToneDuration
      */
-    void setKeepAliveInterval(String keepAliveInterval)
+    void setDtmfMinimalToneDuration(String dtmfMinimalToneDuration)
     {
-        keepAliveIntervalValue.setText(keepAliveInterval);
+        dtmfMinimalToneDurationValue.setText(dtmfMinimalToneDuration);
     }
 
     /**

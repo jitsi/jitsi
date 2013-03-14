@@ -196,6 +196,11 @@ public class JabberAccountRegistrationWizard
             Resources.getString("plugin.sipaccregwizz.DTMF_METHOD"),
             registration.getDTMFMethod());
 
+        summaryTable.put(
+            Resources.getString(
+                "plugin.sipaccregwizz.DTMF_MINIMAL_TONE_DURATION"),
+            registration.getDtmfMinimalToneDuration());
+
         return summaryTable.entrySet().iterator();
     }
 
@@ -443,6 +448,10 @@ public class JabberAccountRegistrationWizard
         else
             accountProperties.put("DTMF_METHOD",
                 registration.getDefaultDTMFMethod());
+
+        accountProperties.put(
+                ProtocolProviderFactory.DTMF_MINIMAL_TONE_DURATION,
+                registration.getDtmfMinimalToneDuration());
 
         accountProperties.put(ProtocolProviderFactory.DEFAULT_ENCRYPTION,
                 Boolean.toString(registration.isDefaultEncryption()));

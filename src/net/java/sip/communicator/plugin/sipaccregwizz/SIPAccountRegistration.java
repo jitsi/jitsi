@@ -7,6 +7,7 @@ package net.java.sip.communicator.plugin.sipaccregwizz;
 
 import java.util.*;
 
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.wizard.*;
 /**
  * The <tt>SIPAccountRegistration</tt> is used to store all user input data
@@ -32,7 +33,16 @@ public class SIPAccountRegistration
 
     public static String DEFAULT_KEEP_ALIVE_INTERVAL = "25";
 
+    /**
+     * The default value for DTMF method.
+     */
     private String defaultDTMFMethod = "AUTO_DTMF";
+
+    /**
+     * The default value of minimale DTMF tone duration.
+     */
+    public static String DEFAULT_MINIMAL_DTMF_TONE_DURATION = Integer.toString(
+            OperationSetDTMF.DEFAULT_DTMF_MINIMAL_TONE_DURATION);
 
     private String id;
 
@@ -84,7 +94,15 @@ public class SIPAccountRegistration
 
     private String keepAliveInterval = DEFAULT_KEEP_ALIVE_INTERVAL;
 
+    /**
+     * DTMF method.
+     */
     private String dtmfMethod = null;
+
+    /**
+     * The minimal DTMF tone duration set.
+     */
+    private String dtmfMinimalToneDuration = DEFAULT_MINIMAL_DTMF_TONE_DURATION;
 
     private String defaultDomain = null;
 
@@ -571,6 +589,26 @@ public class SIPAccountRegistration
     public void setDTMFMethod(String dtmfMethod)
     {
         this.dtmfMethod = dtmfMethod;
+    }
+
+    /**
+     * Returns the minimal DTMF tone duration.
+     *
+     * @return The minimal DTMF tone duration.
+     */
+    public String getDtmfMinimalToneDuration()
+    {
+        return dtmfMinimalToneDuration;
+    }
+
+    /**
+     * Sets the minimal DTMF tone duration.
+     *
+     * @param dtmfMinimalToneDuration The minimal DTMF tone duration to set.
+     */
+    public void setDtmfMinimalToneDuration(String dtmfMinimalToneDuration)
+    {
+        this.dtmfMinimalToneDuration = dtmfMinimalToneDuration;
     }
 
     /**

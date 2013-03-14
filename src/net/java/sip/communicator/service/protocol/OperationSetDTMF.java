@@ -18,6 +18,19 @@ public interface OperationSetDTMF
     extends OperationSet
 {
     /**
+     * The minimal tone duration value for RFC4733 is 70 ms.
+     */
+    public static final int DEFAULT_DTMF_MINIMAL_TONE_DURATION = 70;
+
+    /**
+     * The name of the <tt>ConfigurationService</tt> <tt>int</tt> property
+     * which indicates the minimal duration for a DTMF tone.
+     * The default value is 70 ms.
+     */
+    public static final String PROP_MINIMAL_RTP_DTMF_TONE_DURATION =
+        "net.java.sip.communicator.service.protocol.minimalRtpDtmfToneDuration";
+
+    /**
      * Sends the <tt>DTMFTone</tt> <tt>tone</tt> to <tt>callPeer</tt>.
      *
      * @param callPeer the  call peer to send <tt>tone</tt> to.

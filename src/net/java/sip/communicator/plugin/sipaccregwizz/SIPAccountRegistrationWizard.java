@@ -266,6 +266,10 @@ public class SIPAccountRegistrationWizard
         summaryTable.put(
             Resources.getString("plugin.sipaccregwizz.DTMF_METHOD"),
             registration.getDTMFMethod());
+        summaryTable.put(
+            Resources.getString(
+                "plugin.sipaccregwizz.DTMF_MINIMAL_TONE_DURATION"),
+            registration.getDtmfMinimalToneDuration());
 
         if (registration.isXCapEnable() || registration.isXiVOEnable())
         {
@@ -509,6 +513,10 @@ public class SIPAccountRegistrationWizard
         else
             accountProperties.put("DTMF_METHOD",
                 registration.getDefaultDTMFMethod());
+
+        accountProperties.put(
+                ProtocolProviderFactory.DTMF_MINIMAL_TONE_DURATION,
+                registration.getDtmfMinimalToneDuration());
         
         accountProperties.put(ProtocolProviderFactory.OVERRIDE_ENCODINGS,
                 Boolean.toString(registration.isOverrideEncodings()));

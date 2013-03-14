@@ -12,10 +12,12 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.OperationFailedException;
 import net.java.sip.communicator.util.*;
 
+import org.jitsi.service.configuration.*;
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.codec.*;
 import org.jitsi.service.neomedia.format.*;
 import org.jitsi.service.protocol.*;
+import org.jitsi.util.StringUtils; // Disambiguation
 
 /**
  * Class responsible for sending a DTMF Tone using using rfc4733 or Inband.
@@ -37,6 +39,11 @@ public class OperationSetDTMFJabberImpl
     private DTMFMethod dtmfMethod;
 
     /**
+     * The minimal tone duration.
+     */
+    private int minimalToneDuration;
+
+    /**
      * Constructor.
      *
      * @param pps the Jabber Protocol provider service
@@ -44,6 +51,7 @@ public class OperationSetDTMFJabberImpl
     public OperationSetDTMFJabberImpl(ProtocolProviderServiceJabberImpl pps)
     {
         this.dtmfMethod = this.getDTMFMethod(pps);
+        this.minimalToneDuration = this.getMinimalToneDuration(pps);
     }
 
     /**
@@ -99,7 +107,7 @@ public class OperationSetDTMFJabberImpl
         }
 
         ((AudioMediaStream)cp.getMediaHandler().getStream(MediaType.AUDIO))
-            .startSendingDTMF(tone, cpDTMFMethod);
+            .startSendingDTMF(tone, cpDTMFMethod, minimalToneDuration);
     }
 
     /**
@@ -207,5 +215,40 @@ public class OperationSetDTMFJabberImpl
         {
             return DTMFMethod.INBAND_DTMF;
         }
+    }
+
+    /**
+     * Gets the minimal DTMF tone duration for this account.
+     *
+     * @param pps the Jabber Protocol provider service
+     *
+     * @return The minimal DTMF tone duration for this account.
+     */
+    private int getMinimalToneDuration(ProtocolProviderServiceJabberImpl pps)
+    {
+        AccountID accountID = pps.getAccountID();
+        String minimalToneDurationString
+            = accountID.getAccountPropertyString("DTMF_MINIMAL_TONE_DURATION");
+        int minimalToneDuration
+            = OperationSetDTMF.DEFAULT_DTMF_MINIMAL_TONE_DURATION;
+        // Check if there is a specific value for this account.
+        if(!StringUtils.isNullOrEmpty(minimalToneDurationString))
+        {
+            minimalToneDuration = Integer.valueOf(minimalToneDurationString);
+        }
+        // Else look at the globl property.
+        else
+        {
+            ConfigurationService cfg
+                = JabberActivator.getConfigurationService();
+            // Check if there is a custom value for the minimal tone duration.
+            if(cfg != null)
+            {
+                minimalToneDuration = cfg.getInt(
+                        OperationSetDTMF.PROP_MINIMAL_RTP_DTMF_TONE_DURATION,
+                        minimalToneDuration);
+            }
+        }
+        return minimalToneDuration;
     }
 }
