@@ -189,9 +189,9 @@ public class OperationSetVideoBridgeImpl
                              * the conferenceIQ from reaching the CallJabberImpl
                              * instance which it was meant for.
                              */
-                            callJabberImpl.processColibriConferenceIQ(
-                                    conferenceIQ);
-                            break;
+                            if (callJabberImpl.processColibriConferenceIQ(
+                                    conferenceIQ))
+                                break;
                         }
                     }
                 }
