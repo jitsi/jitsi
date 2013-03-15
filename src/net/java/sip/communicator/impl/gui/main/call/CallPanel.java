@@ -749,7 +749,8 @@ public class CallPanel
         boolean videoTelephonyIsLocalVideoStreaming = false;
         boolean desktopSharing = false;
         boolean desktopSharingIsStreamed = false;
-
+        boolean allCallsConnected = true;
+        
         for (Call call : calls)
         {
             ProtocolProviderService pps = call.getProtocolProvider();
@@ -819,6 +820,11 @@ public class CallPanel
                     }
                 }
             }
+            
+            if (CallState.CALL_IN_PROGRESS != call.getCallState())
+            {
+                allCallsConnected = false;
+            }
         }
 
         conferenceButton.setEnabled(telephonyConferencing);
@@ -830,8 +836,9 @@ public class CallPanel
          * only on the state of the depicted telephony conference but also on
          * the global application state.
          */
-        videoButton.setEnabled(videoTelephony);
+        videoButton.setEnabled(allCallsConnected && videoTelephony);
         videoButton.setSelected(videoTelephonyIsLocalVideoAllowed);
+        
         /*
          * Consequently, the showHideVideoButton which depends on videoButton
          * has to be updated depending on the state of the videoButton as well.
