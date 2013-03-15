@@ -16,13 +16,13 @@ import javax.swing.event.*;
 import net.java.sip.communicator.plugin.desktoputil.event.*;
 
 /**
- * The <tt>SIPCommTextField</tt> is a <tt>JTextField</tt> that offers the
+ * The <tt>SIPCommTextArea</tt> is a <tt>JTextArea</tt> that offers the
  * possibility to specify a default (tip) text that explains what is the
  * required data.
- * @author Yana Stamcheva
+ * @author Tom Denham
  */
-public class SIPCommTextField
-    extends JTextField
+public class SIPCommTextArea
+    extends JTextArea
     implements  MouseListener,
                 FocusListener,
                 KeyListener,
@@ -61,13 +61,15 @@ public class SIPCommTextField
     private Color defaultTextColor = Color.GRAY;
 
     /**
-     * Creates an instance of <tt>SIPCommTextField</tt> by specifying the text
+     * Creates an instance of <tt>SIPCommTextArea</tt> by specifying the text
      * we would like to show by default in it.
      * @param text the text we would like to enter by default
+     * @param rows the number of rows >= 0
+     * @param columns the number of columns >= 0
      */
-    public SIPCommTextField(String text)
+    public SIPCommTextArea(String text, int rows, int columns)
     {
-        super(text);
+        super(text, rows, columns);
 
         if (text != null && text.length() > 0)
         {
