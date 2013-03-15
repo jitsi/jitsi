@@ -7,6 +7,8 @@ package net.java.sip.communicator.impl.gui.main.call;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
+import java.util.List;
 
 import javax.swing.*;
 
@@ -34,6 +36,11 @@ public abstract class PreCallDialog
     implements ActionListener,
                Skinnable
 {
+    /**
+     * List of PreCallDialog windows that are currently visible to the user.
+     */
+    private static final List<Window> visibleWindows = new ArrayList<Window>();
+
     /**
      * The call button name.
      */
@@ -337,17 +344,46 @@ public abstract class PreCallDialog
     /**
      * Shows/hides this dialog.
      *
+     * Synchronized to ensure that only one window can update the global
+     * visibleWindows datastructure at a time.
+     *
      * @param isVisible indicates if this dialog should be shown or hidden
      */
-    public void setVisible(boolean isVisible)
+    public synchronized void setVisible(boolean isVisible)
     {
         if (isVisible)
         {
             preCallWindow.pack();
-            preCallWindow.setLocationRelativeTo(null);
-        }
 
-        preCallWindow.setVisible(isVisible);
+            // Set the visibility before setting the location. This is the only
+            // reliable way of ensure that the location is respected.
+            preCallWindow.setVisible(isVisible);
+
+            if (visibleWindows.isEmpty())
+            {
+                // No existing visible windows displayed. Just center this one.
+                preCallWindow.setLocationRelativeTo(null);
+            }
+            else
+            {
+                // Get the location of last displayed window and and the
+                // height of it, so the this window appears directly underneath.
+                Window last = visibleWindows.get(visibleWindows.size() - 1);
+                int newX = last.getX();
+                int newY = last.getY() + last.getHeight();
+
+                preCallWindow.setLocation(newX, newY);
+            }
+
+            visibleWindows.add(preCallWindow);
+        }
+        else
+        {
+            // Remove the window from the list of visible windows. This also
+            // occurs in dispose()
+            visibleWindows.remove(preCallWindow);
+            preCallWindow.setVisible(isVisible);
+        }
     }
 
     /**
@@ -366,6 +402,7 @@ public abstract class PreCallDialog
      */
     public void dispose()
     {
+        visibleWindows.remove(preCallWindow);
         preCallWindow.dispose();
     }
 
@@ -460,7 +497,7 @@ public abstract class PreCallDialog
             hangupButtonPressed();
         }
 
-        preCallWindow.dispose();
+        dispose();
     }
 
     /**
