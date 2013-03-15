@@ -362,13 +362,16 @@ public class MetaContactRightButtonMenu
 
         if (metaContact.getContactCount() > 1)
         {
-            JMenuItem allItem = new JMenuItem(allContactsString);
+            Icon deleteIcon = new ImageIcon(
+                ImageLoader.getImage(ImageLoader.DELETE_16x16_ICON));
+            JMenuItem allItem = createMenuItem(
+                allContactsString,
+                removeContactPrefix + "allContacts",
+                deleteIcon);
             JMenuItem allItem1 = new JMenuItem(allContactsString);
 
-            allItem.addActionListener(this);
             allItem1.addActionListener(this);
 
-            allItem.setName(removeContactPrefix + "allContacts");
             allItem1.setName(moveSubcontactPrefix + "allContacts");
 
             this.removeContactMenu.add(allItem);
