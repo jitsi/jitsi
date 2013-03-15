@@ -31,9 +31,9 @@ public class SIPCommButton
 
     private Image bgImage;
 
-    private Image pressedImage;
+    private Image pressedBgImage;
 
-    private Image rolloverImage;
+    private Image rolloverBgImage;
 
     private Image rolloverIconImage;
 
@@ -84,8 +84,8 @@ public class SIPCommButton
         this.setBorder(null);
 
         this.bgImage = bgImage;
-        this.rolloverImage = rolloverImage;
-        this.pressedImage = pressedImage;
+        this.rolloverBgImage = rolloverImage;
+        this.pressedBgImage = pressedImage;
         this.rolloverIconImage = rolloverIconImage;
         this.pressedIconImage = pressedIconImage;
         this.iconImage = iconImage;
@@ -187,11 +187,20 @@ public class SIPCommButton
             g.fillRect(0, 0, getWidth(), getHeight());
         }
 
-        if (this.bgImage != null)
+        // Paint pressed state.
+        Image paintBgImage = null;
+        if (this.getModel().isPressed() && this.pressedBgImage != null)
+        {
+            paintBgImage = this.pressedBgImage;
+        }
+        else if (this.getModel().isRollover() && this.rolloverBgImage != null)
+        {
+            paintBgImage = this.rolloverBgImage;
+        }
+        else if (this.bgImage != null)
         {
             // If there's no icon, we make grey the backgroundImage
             // when disabled.
-            Image paintBgImage;
             if (this.iconImage == null && !isEnabled())
             {
                 paintBgImage = new ImageIcon(LightGrayFilter
@@ -199,7 +208,10 @@ public class SIPCommButton
             }
             else
                 paintBgImage = bgImage;
+        }
 
+        if (paintBgImage != null)
+        {
             g.drawImage(paintBgImage,
                         this.getWidth()/2 - paintBgImage.getWidth(null)/2,
                         this.getHeight()/2 - paintBgImage.getHeight(null)/2,
@@ -207,7 +219,7 @@ public class SIPCommButton
         }
 
         // Paint a roll over fade out.
-        if (rolloverImage == null)
+        if (rolloverBgImage == null)
         {
             FadeTracker fadeTracker = FadeTracker.getInstance();
 
@@ -227,16 +239,6 @@ public class SIPCommButton
                 g.fillRoundRect(
                     0, 0, this.getWidth(), this.getHeight(), 8, 8);
             }
-        }
-
-        // Paint pressed state.
-        if (this.getModel().isPressed() && this.pressedImage != null)
-        {
-            g.drawImage(this.pressedImage, 0, 0, this);
-        }
-        else if (this.getModel().isRollover() && this.rolloverImage != null)
-        {
-            g.drawImage(this.rolloverImage, 0, 0, this);
         }
 
         Image paintIconImage = null;
@@ -301,17 +303,17 @@ public class SIPCommButton
      */
     public void setRolloverImage(Image rolloverImage)
     {
-        this.rolloverImage = rolloverImage;
+        this.rolloverBgImage = rolloverImage;
     }
 
     /**
-     * Sets the pressed image of this button.
+     * Sets the pressed background image of this button.
      *
-     * @param pressedImage the pressed image of this button.
+     * @param pressedImage the pressed background image of this button.
      */
     public void setPressedImage(Image pressedImage)
     {
-        this.pressedImage = pressedImage;
+        this.pressedBgImage = pressedImage;
     }
 
     /**
