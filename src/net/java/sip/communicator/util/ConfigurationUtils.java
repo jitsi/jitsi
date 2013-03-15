@@ -172,6 +172,11 @@ public class ConfigurationUtils
     private static boolean isCreateGroupDisabled;
 
     /**
+     * Indicates if the create group functionality is disabled.
+     */
+    private static boolean isFlattenGroupEnabled;
+
+    /**
      * Indicates if the remove contact functionality is disabled.
      */
     private static boolean isRemoveContactDisabled;
@@ -351,7 +356,7 @@ public class ConfigurationUtils
             new ConfigurationChangeListener());
 
         // Load the "auPopupNewMessage" property.
-        String autoPopupProperty = 
+        String autoPopupProperty =
             "service.gui.AUTO_POPUP_NEW_MESSAGE";
 
         String autoPopup = configService.getString(autoPopupProperty);
@@ -388,7 +393,7 @@ public class ConfigurationUtils
         // Load the "showOffline" property.
         String showOffline = configService.getString(
             "net.java.sip.communicator.impl.gui.showOffline");
-        
+
         if(showOffline != null && showOffline.length() > 0)
         {
             isShowOffline = Boolean.parseBoolean(showOffline);
@@ -411,13 +416,13 @@ public class ConfigurationUtils
         }
 
         // Load the "sendTypingNotifications" property.
-        String isSendTypingNotifProperty = 
+        String isSendTypingNotifProperty =
             "service.gui.SEND_TYPING_NOTIFICATIONS_ENABLED";
-        String isSendTypingNotif = 
+        String isSendTypingNotif =
             configService.getString(isSendTypingNotifProperty);
 
         if(isSendTypingNotif == null)
-            isSendTypingNotif = 
+            isSendTypingNotif =
                 UtilActivator.getResources().
                     getSettingsString(isSendTypingNotifProperty);
 
@@ -447,7 +452,7 @@ public class ConfigurationUtils
             = configService.getString(isMultiChatWindowEnabledStringProperty);
 
         if(isMultiChatWindowEnabledString == null)
-            isMultiChatWindowEnabledString = 
+            isMultiChatWindowEnabledString =
                 UtilActivator.getResources().
                     getSettingsString(isMultiChatWindowEnabledStringProperty);
 
@@ -490,14 +495,14 @@ public class ConfigurationUtils
             );
 
         // Load the "isHistoryShown" property.
-        String isHistoryShownStringProperty = 
+        String isHistoryShownStringProperty =
             "service.gui.IS_MESSAGE_HISTORY_SHOWN";
 
         String isHistoryShownString
             = configService.getString(isHistoryShownStringProperty);
 
         if(isHistoryShownString == null)
-            isHistoryShownString = 
+            isHistoryShownString =
                 UtilActivator.getResources().
                     getSettingsString(isHistoryShownStringProperty);
 
@@ -515,7 +520,7 @@ public class ConfigurationUtils
             = configService.getString(chatHistorySizeStringProperty);
 
         if(chatHistorySizeString == null)
-            chatHistorySizeString = 
+            chatHistorySizeString =
                 UtilActivator.getResources().
                     getSettingsString(chatHistorySizeStringProperty);
 
@@ -532,7 +537,7 @@ public class ConfigurationUtils
             = configService.getString(chatWriteAreaSizeStringProperty);
 
         if(chatWriteAreaSizeString == null)
-            chatWriteAreaSizeString = 
+            chatWriteAreaSizeString =
                 UtilActivator.getResources().
                     getSettingsString(chatWriteAreaSizeStringProperty);
 
@@ -551,7 +556,7 @@ public class ConfigurationUtils
             = configService.getString(isTransparentWindowEnabledProperty);
 
         if(isTransparentWindowEnabledString == null)
-            isTransparentWindowEnabledString = 
+            isTransparentWindowEnabledString =
                 UtilActivator.getResources().
                     getSettingsString(isTransparentWindowEnabledProperty);
 
@@ -570,7 +575,7 @@ public class ConfigurationUtils
             = configService.getString(windowTransparencyProperty);
 
         if(windowTransparencyString == null)
-            windowTransparencyString = 
+            windowTransparencyString =
                 UtilActivator.getResources().
                     getSettingsString(windowTransparencyProperty);
 
@@ -589,7 +594,7 @@ public class ConfigurationUtils
             = configService.getString(isWindowDecoratedProperty);
 
         if(isWindowDecoratedString == null)
-            isWindowDecoratedString = 
+            isWindowDecoratedString =
                 UtilActivator.getResources().
                     getSettingsString(isWindowDecoratedProperty);
 
@@ -644,6 +649,13 @@ public class ConfigurationUtils
             = configService.getBoolean(
                 "net.java.sip.communicator.impl.gui.main.contactlist." +
                 "CREATE_GROUP_DISABLED",
+                false);
+
+        // Load the "FLATTEN_GROUP_ENABLED" property.
+        isFlattenGroupEnabled
+            = configService.getBoolean(
+                "net.java.sip.communicator.impl.gui.main.contactlist." +
+                "FLATTEN_GROUP_ENABLED",
                 false);
 
         // Load the "GO_TO_CHATROOM_DISABLED" property.
@@ -887,9 +899,9 @@ public class ConfigurationUtils
 
     /**
      * Updates the "autoPopupNewMessage" property.
-     * 
+     *
      * @param autoPopup indicates to the user interface whether new
-     * messages should be opened and bring to front. 
+     * messages should be opened and bring to front.
      **/
     public static void setAutoPopupNewMessage(boolean autoPopup)
     {
@@ -969,7 +981,7 @@ public class ConfigurationUtils
     /**
      * Updates the "sendTypingNotifications" property through the
      * <tt>ConfigurationService</tt>.
-     * 
+     *
      * @param isSendTypingNotif <code>true</code> to indicate that typing
      * notifications are enabled, <code>false</code> otherwise.
      */
@@ -1010,7 +1022,7 @@ public class ConfigurationUtils
     /**
      * Updates the "isMultiChatWindowEnabled" property through the
      * <tt>ConfigurationService</tt>.
-     * 
+     *
      * @param isEnabled indicates if the chat window could
      * contain multiple chats or only one chat.
      */
@@ -1039,7 +1051,7 @@ public class ConfigurationUtils
     /**
      * Updates the "isLeaveChatroomOnWindowClose" property through
      * the <tt>ConfigurationService</tt>.
-     * 
+     *
      * @param isLeave indicates whether to leave chat room on window close.
      */
     public static void setLeaveChatRoomOnWindowClose(boolean isLeave)
@@ -1066,7 +1078,7 @@ public class ConfigurationUtils
     /**
      * Updates the "isHistoryLoggingEnabled" property through the
      * <tt>ConfigurationService</tt>.
-     * 
+     *
      * @param isEnabled indicates if the history logging is
      * enabled.
      */
@@ -1094,7 +1106,7 @@ public class ConfigurationUtils
     /**
      * Updates the "isHistoryShown" property through the
      * <tt>ConfigurationService</tt>.
-     * 
+     *
      * @param isShown indicates if the message history is shown
      */
     public static void setHistoryShown(boolean isShown)
@@ -1127,7 +1139,7 @@ public class ConfigurationUtils
     {
         return isChatToolbarVisible;
     }
-    
+
     /**
      * Returns <code>true</code> if the "isChatStylebarVisible" property is
      * true, otherwise - returns <code>false</code>..
@@ -1181,6 +1193,17 @@ public class ConfigurationUtils
     public static boolean isCreateGroupDisabled()
     {
         return isCreateGroupDisabled;
+    }
+
+    /**
+     * Returns <code>true</code> if the "FLATTEN_GROUP_ENABLED" property is
+     * true, otherwise - returns <code>false</code>..
+     * @return <code>true</code> if the "FLATTEN_GROUP_ENABLED" property is
+     * true, otherwise - returns <code>false</code>.
+     */
+    public static boolean isFlattenGroupEnabled()
+    {
+        return isFlattenGroupEnabled;
     }
 
     /**
@@ -1345,7 +1368,7 @@ public class ConfigurationUtils
 
     /**
      * Sets the advanced account config disabled property.
-     * 
+     *
      * @param disabled the new value to set
      */
     public static void setAdvancedAccountConfigDisabled(boolean disabled)
@@ -1372,7 +1395,7 @@ public class ConfigurationUtils
     /**
      * Updates the "sendMessageCommand" property through the
      * <tt>ConfigurationService</tt>.
-     * 
+     *
      * @param newMessageCommand the command used to send a message ( it could be
      * ENTER_COMMAND or CTRL_ENTER_COMMAND)
      */
@@ -1387,8 +1410,8 @@ public class ConfigurationUtils
 
     /**
      * Return the "lastContactParent" property that was saved previously
-     * through the <tt>ConfigurationService</tt>. Indicates 
-     * the last selected group on adding new contact 
+     * through the <tt>ConfigurationService</tt>. Indicates
+     * the last selected group on adding new contact
      * @return group name of the last selected group when adding contact.
      */
     public static String getLastContactParent()
@@ -1459,7 +1482,7 @@ public class ConfigurationUtils
     /**
      * Updates the "chatHistorySize" property through the
      * <tt>ConfigurationService</tt>.
-     * 
+     *
      * @param historySize indicates if the history logging is
      * enabled.
      */
@@ -1474,7 +1497,7 @@ public class ConfigurationUtils
 
     /**
      * Returns the preferred height of the chat write area.
-     * 
+     *
      * @return the preferred height of the chat write area.
      */
     public static int getChatWriteAreaSize()
@@ -1485,7 +1508,7 @@ public class ConfigurationUtils
     /**
      * Returns <code>true</code> if transparent windows are enabled,
      * <code>false</code> otherwise.
-     * 
+     *
      * @return <code>true</code> if transparent windows are enabled,
      * <code>false</code> otherwise.
      */
@@ -1496,7 +1519,7 @@ public class ConfigurationUtils
 
     /**
      * Returns the transparency value for all transparent windows.
-     * 
+     *
      * @return the transparency value for all transparent windows.
      */
     public static int getWindowTransparency()
@@ -1506,7 +1529,7 @@ public class ConfigurationUtils
 
     /**
      * Returns the last opened directory of the send file file chooser.
-     * 
+     *
      * @return the last opened directory of the send file file chooser
      */
     public static String getSendFileLastDir()
@@ -1517,7 +1540,7 @@ public class ConfigurationUtils
     /**
      * Returns <code>true</code> if phone numbers should be normalized,
      * <code>false</code> otherwise.
-     * 
+     *
      * @return <code>true</code> if phone numbers should be normalized,
      * <code>false</code> otherwise.
      */
@@ -1672,7 +1695,7 @@ public class ConfigurationUtils
 
     /**
      * Sets the transparency value for all transparent windows.
-     * 
+     *
      * @param transparency the transparency value for all transparent windows.
      */
     public static void setWindowTransparency(int transparency)
@@ -1683,7 +1706,7 @@ public class ConfigurationUtils
     /**
      * Updates the "showOffline" property through the
      * <tt>ConfigurationService</tt>.
-     * 
+     *
      * @param isShowOffline <code>true</code> to indicate that the
      * offline users should be shown, <code>false</code> otherwise.
      */
@@ -1699,7 +1722,7 @@ public class ConfigurationUtils
     /**
      * Updates the "showCallPanel" property through the
      * <tt>ConfigurationService</tt>.
-     * 
+     *
      * @param isCallPanelShown <code>true</code> to indicate that the
      * call panel should be shown, <code>false</code> otherwise.
      */
@@ -1735,7 +1758,7 @@ public class ConfigurationUtils
     /**
      * Updates the "showAppQuitWarning" property through the
      * <tt>ConfigurationService</tt>.
-     * 
+     *
      * @param isWarningShown indicates if the message warning the user that the
      * application would not be closed if she clicks the X button would be
      * shown again.
@@ -1762,7 +1785,7 @@ public class ConfigurationUtils
      /**
      * Updates the "lastContactParent" property through the
      * <tt>ConfigurationService</tt>.
-     * 
+     *
      * @param groupName the group name of the selected group when adding
      * last contact
      */
@@ -1778,7 +1801,7 @@ public class ConfigurationUtils
     /**
      * Updates the "isMoveContactQuestionEnabled" property through the
      * <tt>ConfigurationService</tt>.
-     * 
+     *
      * @param isRequested indicates if a confirmation would be requested
      * from user during the move contact process.
      */
@@ -1794,7 +1817,7 @@ public class ConfigurationUtils
     /**
      * Updates the "isTransparentWindowEnabled" property through the
      * <tt>ConfigurationService</tt>.
-     * 
+     *
      * @param isTransparent indicates if the transparency is enabled in the
      * application.
      */
@@ -1806,17 +1829,17 @@ public class ConfigurationUtils
                 "impl.gui.IS_TRANSPARENT_WINDOW_ENABLED",
                 Boolean.toString(isTransparentWindowEnabled));
     }
-    
+
     /**
      * Updates the "isChatToolbarVisible" property through the
      * <tt>ConfigurationService</tt>.
-     * 
+     *
      * @param isVisible indicates if the chat toolbar is visible.
      */
     public static void setChatToolbarVisible(boolean isVisible)
     {
         isChatToolbarVisible = isVisible;
-        
+
         configService.setProperty(
                 "net.java.sip.communicator.impl.gui.chat.ChatWindow.showToolbar",
                 Boolean.toString(isChatToolbarVisible));
@@ -1825,7 +1848,7 @@ public class ConfigurationUtils
     /**
      * Updates the "isShowSmileys" property through the
      * <tt>ConfigurationService</tt>.
-     * 
+     *
      * @param isVisible indicates if the smileys are visible
      */
     public static void setShowSmileys(boolean isVisible)
@@ -1840,7 +1863,7 @@ public class ConfigurationUtils
     /**
      * Updates the "isChatSimpleThemeEnabled" property through the
      * <tt>ConfigurationService</tt>.
-     * 
+     *
      * @param isEnabled indicates if the chat simple theme is enabled
      */
     public static void setChatSimpleThemeEnabled(boolean isEnabled)
@@ -1855,13 +1878,13 @@ public class ConfigurationUtils
     /**
      * Updates the "isChatStylebarVisible" property through the
      * <tt>ConfigurationService</tt>.
-     * 
+     *
      * @param isVisible indicates if the chat stylebar is visible.
      */
     public static void setChatStylebarVisible(boolean isVisible)
     {
         isChatStylebarVisible = isVisible;
-        
+
         configService.setProperty(
                 "net.java.sip.communicator.impl.gui.chat.ChatWindow.showStylebar",
                 Boolean.toString(isChatStylebarVisible));
@@ -1870,7 +1893,7 @@ public class ConfigurationUtils
     /**
      * Updates the "net.java.sip.communicator.impl.gui.CHAT_WRITE_AREA_SIZE"
      * property through the <tt>ConfigurationService</tt>.
-     * 
+     *
      * @param size the new size to set
      */
     public static void setChatWriteAreaSize(int size)
@@ -1885,7 +1908,7 @@ public class ConfigurationUtils
     /**
      * Updates the "SEND_FILE_LAST_DIR"
      * property through the <tt>ConfigurationService</tt>.
-     * 
+     *
      * @param lastDir last download directory
      */
     public static void setSendFileLastDir(String lastDir)
@@ -2030,7 +2053,7 @@ public class ConfigurationUtils
 
     /**
      * Saves a chat room through the <tt>ConfigurationService</tt>.
-     * 
+     *
      * @param protocolProvider the protocol provider to which the chat room
      * belongs
      * @param oldChatRoomId the old identifier of the chat room
@@ -2101,7 +2124,7 @@ public class ConfigurationUtils
     /**
      * Updates the status of the chat room through the
      * <tt>ConfigurationService</tt>.
-     * 
+     *
      * @param protocolProvider the protocol provider to which the chat room
      * belongs
      * @param chatRoomId the identifier of the chat room to update
@@ -2197,11 +2220,11 @@ public class ConfigurationUtils
             }
         }
     }
-    
+
     /**
      * Returns the chat room property, saved through the
      * <tt>ConfigurationService</tt>.
-     * 
+     *
      * @param protocolProvider the protocol provider, to which the chat room
      * belongs
      * @param chatRoomId the identifier of the chat room
@@ -2402,7 +2425,7 @@ public class ConfigurationUtils
     private static class ConfigurationChangeListener
             implements PropertyChangeListener
     {
-        public void propertyChange(PropertyChangeEvent evt) 
+        public void propertyChange(PropertyChangeEvent evt)
         {
             // All properties we're interested in here are Strings.
             if (!(evt.getNewValue() instanceof String))

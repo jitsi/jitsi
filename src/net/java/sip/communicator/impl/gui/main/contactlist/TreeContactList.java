@@ -466,8 +466,15 @@ public class TreeContactList
         }
 
         GroupNode groupNode = null;
-        if (group == null)
+        if (group == null ||
+            (ConfigurationUtils.isFlattenGroupEnabled() &&
+                group instanceof MetaUIGroup))
+        {
+            // When contact groups are flattened, force all contacts that are
+            // in a MetaUI group into the root so they don't appear to be
+            // under a contact group.
             groupNode = treeModel.getRoot();
+        }
         else if (group instanceof UIGroupImpl)
         {
             UIGroupImpl contactImpl = (UIGroupImpl) group;
@@ -675,8 +682,14 @@ public class TreeContactList
             return;
         }
 
-        if (!(group instanceof UIGroupImpl))
+        if ((!(group instanceof UIGroupImpl)) ||
+              (ConfigurationUtils.isCreateGroupDisabled() &&
+                  group instanceof MetaUIGroup))
+        {
+            // When contact groups are disabled, don't add the MetaUIGroups to
+            // the UI.
             return;
+        }
 
         UIGroupImpl groupImpl = (UIGroupImpl) group;
 
@@ -1631,7 +1644,7 @@ public class TreeContactList
     /**
      * Adds the given contact source to the list of available contact sources.
      *
-     * @param contactSource the <tt>ContactSourceService</tt> 
+     * @param contactSource the <tt>ContactSourceService</tt>
      */
     public void addContactSource(ContactSourceService contactSource)
     {
@@ -1998,7 +2011,7 @@ public class TreeContactList
         }
         if (preferredProvider != null)
             dialog.setSelectedAccount(preferredProvider);
-        
+
         String contactAddress = contactDetail.getDetail();
         dialog.setContactAddress(contactAddress);
         if(displayName != null && !displayName.equalsIgnoreCase(contactAddress))

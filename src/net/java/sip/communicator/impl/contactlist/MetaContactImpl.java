@@ -941,7 +941,7 @@ public class MetaContactImpl
 
         List<String> values = details.get(name);
 
-        if(values == null)
+        if (values == null)
         {
             values = new ArrayList<String>();
             details.put(name, values);
@@ -963,7 +963,7 @@ public class MetaContactImpl
             return;
 
         List<String> values = details.get(name);
-        if(values == null)
+        if (values == null)
             return;
 
         values.remove(value);

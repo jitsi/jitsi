@@ -31,12 +31,12 @@ import org.w3c.dom.*;
  * the following:
  * <p>
  * 1) The MetaContactListService is started. <br>
- * 2) If no file exists for the meta contact list, create one. 3) We receive an
- * OSGI event telling us that a new ProtocolProviderService is registered or we
- * simply retrieve one that was already in the bundle 4) We look through the
- * contact list file and load groups and contacts belonging to this new
- * provider. Unresolved proto groups and contacts will be created for every one
- * of them.
+ * 2) If no file exists for the meta contact list, create one. <br>
+ * 3) We receive an OSGI event telling us that a new ProtocolProviderService is
+ * registered or we simply retrieve one that was already in the bundle <br>
+ * 4) We look through the contact list file and load groups and contacts
+ * belonging to this new provider. Unresolved proto groups and contacts will be
+ * created for every one of them.
  * <p>
  *
  * @author Emil Ivov

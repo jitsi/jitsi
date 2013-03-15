@@ -40,7 +40,7 @@ public class GroupNode
     /**
      * The corresponding <tt>UIGroup</tt>.
      */
-    private final UIGroupImpl group;
+    private final UIGroup group;
 
     /**
      * The <tt>ContactListNode</tt> <tt>Comparator</tt> used to sort the list of
