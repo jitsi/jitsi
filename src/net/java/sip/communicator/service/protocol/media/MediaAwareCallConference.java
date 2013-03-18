@@ -175,6 +175,27 @@ public class MediaAwareCallConference
     }
 
     /**
+     * {@inheritDoc}
+     *
+     * Disposes of <tt>this.videoRTPTranslator</tt> if the removed <tt>Call</tt>
+     * was the last <tt>Call</tt> in this <tt>CallConference</tt>.
+     *
+     * @param call the <tt>Call</tt> which has been removed from the list of
+     * <tt>Call</tt>s participating in this telephony conference.
+     */
+    @Override
+    protected void callRemoved(Call call)
+    {
+        super.callRemoved(call);
+
+        if (getCallCount() == 0 && videoRTPTranslator != null)
+        {
+            videoRTPTranslator.dispose();
+            videoRTPTranslator = null;
+        }
+    }
+
+    /**
      * Gets a <tt>MediaDevice</tt> which is capable of capture and/or playback
      * of media of the specified <tt>MediaType</tt> and is the default choice of
      * the user with respect to such a <tt>MediaDevice</tt>.
