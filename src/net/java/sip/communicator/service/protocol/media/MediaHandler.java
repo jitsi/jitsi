@@ -1327,11 +1327,11 @@ public class MediaHandler
     }
 
     /**
-     * Sets the last-known local SSRC of the <tt>MediaStream</tt> of a specific
+     * Sets the last-known remote SSRC of the <tt>MediaStream</tt> of a specific
      * <tt>MediaType</tt>.
      *
      * @param mediaType the <tt>MediaType</tt> of the <tt>MediaStream</tt> to
-     * set the last-known local SSRC of
+     * set the last-known remote SSRC of
      * @param remoteSSRC the last-known remote SSRC of the <tt>MediaStream</tt>
      * of the specified <tt>mediaType</tt>
      */

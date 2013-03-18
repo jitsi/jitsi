@@ -1,23 +1,23 @@
 package net.java.sip.communicator.service.protocol;
 
 /**
- * Specifies the names of some of the most popular instant messageing protocols.
+ * Specifies the names of some of the most popular instant messaging protocols.
  * These names should be used when registering an implementation of a protocol
- * with the osgi framwke. These names must be set in the properties dictionary
+ * with the osgi framework. These names must be set in the properties dictionary
  * that one specifies when registering an OSGI service. When setting one of
- * these names a protocol implementor must map it against the
+ * these names, a protocol implementor must map it against the
  * ProtocolProviderFactory.PROTOCOL_PROPERTY_NAME key.
  * @author Emil Ivov
  */
 public interface ProtocolNames
 {
     /**
-     * The SIP (and SIMPLE) protcools.
+     * The SIP (and SIMPLE) protocols.
      */
     public static final String SIP  = "SIP";
 
     /**
-     * The Jabber protcool.
+     * The Jabber protocol.
      */
     public static final String JABBER  = "Jabber";
 
@@ -52,21 +52,22 @@ public interface ProtocolNames
     public static final String MSN = "MSN";
 
     /**
-     * The Yahoo! messenger protcool.
+     * The Yahoo! messenger protocol.
      */
     public static final String YAHOO  = "Yahoo!";
 
     /**
-     * The Skype protcool.
+     * The Skype protocol.
      */
     public static final String SKYPE  = "Skype";
+
     /**
      * The SIP Communicator MOCK protocol.
      */
     public static final String SIP_COMMUNICATOR_MOCK  = "sip-communicator-mock";
 
     /**
-     * The Zeroconf protcool.
+     * The Zeroconf protocol.
      */
     public static final String ZEROCONF  = "Zeroconf";
     

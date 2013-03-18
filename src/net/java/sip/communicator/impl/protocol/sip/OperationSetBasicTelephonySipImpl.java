@@ -166,6 +166,8 @@ public class OperationSetBasicTelephonySipImpl
         throws OperationFailedException
     {
         CallSipImpl call = createOutgoingCall();
+        if (logger.isInfoEnabled())
+            logger.info("Creating outgoing call to " + calleeAddress);
 
         if (conference != null)
             call.setConference(conference);

@@ -49,7 +49,7 @@ public class CallConference
      * telephony conference-related state
      * @return the number of <tt>CallPeer</tt>s associated with the
      * <tt>Call</tt>s participating in the telephony conference-related state
-     * of the specified <tt>call</tt>
+     * of the specified <tt>Call</tt>
      */
     public static int getCallPeerCount(Call call)
     {
@@ -199,7 +199,7 @@ public class CallConference
      * The list of <tt>CallPeerConferenceListener</tt>s added to the
      * <tt>CallPeer</tt>s associated with the <tt>CallPeer</tt>s participating
      * in this telephony conference via
-     * {@link #addCallPeerConferenceListener</tt>}.
+     * {@link #addCallPeerConferenceListener}.
      */
     private final List<CallPeerConferenceListener> callPeerConferenceListeners
         = new LinkedList<CallPeerConferenceListener>();

@@ -197,7 +197,8 @@ public abstract class Call
      *
      * @param sourceCallPeer the source <tt>CallPeer</tt> for the
      * newly created event.
-     * @param eventID the ID of the event to create (see CPE member ints)
+     * @param eventID the ID of the event to create (see constants defined in
+     * <tt>CallPeerEvent</tt>)
      */
     protected void fireCallPeerEvent(CallPeer sourceCallPeer, int eventID)
     {
@@ -433,9 +434,7 @@ public abstract class Call
 
     /**
      * Creates a new <tt>CallConference</tt> instance which is to represent the
-     * telephony conference-related state of this <tt>Call</tt>. If the method
-     * returns non-<tt>null</tt> reference, this <tt>Call</tt> will add itself
-     * to the returned reference via {@link CallConference#addCall(Call)}.
+     * telephony conference-related state of this <tt>Call</tt>.
      * Allows extenders to override and customize the runtime type of the
      * <tt>CallConference</tt> to used by this <tt>Call</tt>.
      * 
@@ -480,9 +479,10 @@ public abstract class Call
 
     /**
      * Sets the telephony conference-related state of this <tt>Call</tt>. If the
-     * invocation modifies this instance, it notifies the registered
-     * <tt>CallChangeListeners</tt> with a
-     * {@link CallChangeEvent#CALL_CONFERENCE_CHANGE} event.
+     * invocation modifies this instance, it adds this <tt>Call</tt> to the
+     * newly set <tt>CallConference</tt> and fires a
+     * <tt>PropertyChangeEvent</tt> for the <tt>CONFERENCE</tt> property to its
+     * listeners.
      *
      * @param conference the <tt>CallConference</tt> instance to represent the
      * telephony conference-related state of this <tt>Call</tt>

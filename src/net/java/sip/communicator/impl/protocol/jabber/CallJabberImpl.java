@@ -58,11 +58,7 @@ public class CallJabberImpl
         colibriStreamConnectors;
 
     /**
-     * Initializes a new <tt>CallJabberImpl</tt> instance belonging to
-     * <tt>sourceProvider</tt> and associated with the jingle session with the
-     * specified <tt>jingleSID</tt>. If the new instance corresponds to an
-     * incoming jingle session, then the jingleSID would come from there.
-     * Otherwise, one could generate one using {@link JingleIQ#generateSID()}.
+     * Initializes a new <tt>CallJabberImpl</tt> instance.
      *
      * @param parentOpSet the {@link OperationSetBasicTelephonyJabberImpl}
      * instance in the context of which this call has been created.
@@ -306,7 +302,7 @@ public class CallJabberImpl
                 ColibriConferenceIQ.Content content
                     = colibri.getContent(contentName);
                 ColibriConferenceIQ.Channel localChannel = null;
-                
+
                 if ((content != null) && (content.getChannelCount() > 0))
                 {
                     localChannel = content.getChannel(0);
@@ -525,11 +521,11 @@ public class CallJabberImpl
      * <tt>PacketExtension</tt>s to be added to the <tt>session-initiate</tt>
      * {@link JingleIQ} which is to init this <tt>CallJabberImpl</tt>
      *
-     * @return the newly created <tt>Call</tt> corresponding to
+     * @return the newly created <tt>CallPeerJabberImpl</tt> corresponding to
      * <tt>calleeJID</tt>. All following state change events will be
      * delivered through this call peer.
      *
-     * @throws OperationFailedException  with the corresponding code if we fail
+     * @throws OperationFailedException with the corresponding code if we fail
      *  to create the call.
      */
     public CallPeerJabberImpl initiateSession(

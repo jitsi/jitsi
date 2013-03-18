@@ -583,6 +583,9 @@ public class VideoConferenceCallPanel
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     protected ConferenceCallPeerRenderer updateViewFromModel(
             ConferenceCallPeerRenderer callPeerPanel,
             CallPeer callPeer)

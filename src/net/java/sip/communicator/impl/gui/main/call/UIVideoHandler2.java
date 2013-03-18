@@ -185,8 +185,8 @@ public class UIVideoHandler2
     /**
      * {@inheritDoc}
      *
-     * Overrides {@link Observer#notifyObservers(Object)} to force the super to
-     * notify the added <tt>Observer</tt>s regardless of the <tt>changed</tt>
+     * Overrides {@link Observable#notifyObservers(Object)} to force the super
+     * to notify the added <tt>Observer</tt>s regardless of the <tt>changed</tt>
      * state of this <tt>Observable</tt> which <tt>UIVideoHandler2</tt> does not
      * use at the time of this writing.
      */

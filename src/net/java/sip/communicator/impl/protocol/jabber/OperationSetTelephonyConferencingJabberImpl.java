@@ -103,10 +103,10 @@ public class OperationSetTelephonyConferencingJabberImpl
     }
 
     /**
-     * Notifies all CallPeer associated with and established in a
-     * specific call has occurred
+     * Notifies a specific <tt>CallPeer</tt> about changes in the telephony
+     * conference-related information.
      *
-     * @param callPeer the <tt>CallPeer</tt>
+     * @param callPeer the <tt>CallPeer</tt> to notify.
      */
     private void notify(CallPeer callPeer)
     {
@@ -383,7 +383,7 @@ public class OperationSetTelephonyConferencingJabberImpl
      * Implements the protocol-dependent part of the logic of inviting a callee
      * to a <tt>Call</tt>. The protocol-independent part of that logic is
      * implemented by
-     * {@link AbstractOperationSetTelephonyConferencing#inviteCalleToCall(String,Call)}.
+     * {@link AbstractOperationSetTelephonyConferencing#inviteCalleeToCall(String,Call)}.
      */
     protected CallPeer doInviteCalleeToCall(
             String calleeAddress,
@@ -480,7 +480,12 @@ public class OperationSetTelephonyConferencingJabberImpl
                         sid);
 
             if (callPeer != null)
+            {
+                if (logger.isDebugEnabled())
+                    logger.debug("Processing COIN from" + coinIQ.getFrom()
+                                    + "(version=" + coinIQ.getVersion() + ")");
                 handleCoin(callPeer, coinIQ);
+            }
         }
     }
 

@@ -29,13 +29,7 @@ public abstract class AbstractCallJabberGTalkImpl
     private boolean localInputEvtAware = false;
 
     /**
-     * Initializes a new <tt>AbstractCallJabberGTalkImpl</tt> instance belonging
-     * to <tt>sourceProvider</tt> and associated with the jingle session with
-     * the specified <tt>jingleSID</tt> or <tt>sessionID</tt>. If the new
-     * instance corresponds to an incoming jingle or Google Talk session, then
-     * the jingleSID or sessionID would come from there.  Otherwise, one could
-     * generate one using {@link JingleIQ#generateSID()} or {@link
-     * SessionIQ#generateSID()}.
+     * Initializes a new <tt>AbstractCallJabberGTalkImpl</tt> instance.
      *
      * @param parentOpSet the {@link OperationSetBasicTelephonyJabberImpl}
      * instance in the context of which this call has been created.

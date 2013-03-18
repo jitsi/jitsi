@@ -155,7 +155,7 @@ public abstract class MediaAwareCall<
      * Removes <tt>callPeer</tt> from the list of peers in this call. The method
      * has no effect if there was no such peer in the call.
      *
-     * @param ev the event containing the <tt>CallPeer</tt> leaving the call and
+     * @param evt the event containing the <tt>CallPeer</tt> leaving the call and
      * the reason (if any) for the <tt>CallPeerChangeEvent</tt>. Use the event
      * as the cause for the call state change event.
      */
