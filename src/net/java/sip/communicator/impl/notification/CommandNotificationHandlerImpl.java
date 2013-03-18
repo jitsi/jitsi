@@ -16,12 +16,16 @@ import org.jitsi.util.*;
 
 /**
  * An implementation of the <tt>CommandNotificationHandler</tt> interface.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class CommandNotificationHandlerImpl
     implements CommandNotificationHandler
 {
+    /**
+     * The <tt>Logger</tt> used by this <tt>CommandNotificationHandlerImpl</tt>
+     * instance to log debugging information.
+     */
     private Logger logger
         = Logger.getLogger(CommandNotificationHandlerImpl.class);
 
@@ -34,30 +38,29 @@ public class CommandNotificationHandlerImpl
     }
 
     /**
-     * Executes the command, given by the <tt>commandDescriptor</tt> of the
-     * action.
-     * 
+     * Executes the command, given by the <tt>descriptor</tt> of a specific
+     * <tt>CommandNotificationAction</tt>.
+     *
      * @param action the action to act upon.
      * @param cmdargs command-line arguments.
      */
-    public void execute(CommandNotificationAction action,
-        Map<String,String> cmdargs)
+    public void execute(
+            CommandNotificationAction action,
+            Map<String,String> cmdargs)
     {
-        if(StringUtils.isNullOrEmpty(action.getDescriptor(), true))
+        String actionDescriptor = action.getDescriptor();
+
+        if(StringUtils.isNullOrEmpty(actionDescriptor, true))
             return;
 
-        String actionDescriptor = action.getDescriptor();
         if (cmdargs != null)
         {
-            for (Map.Entry<String, String> entry : cmdargs.entrySet())
+            for (Map.Entry<String, String> cmdarg : cmdargs.entrySet())
             {
-                if(actionDescriptor.indexOf("${" + entry.getKey() + "}") != -1)
-                {
-                    actionDescriptor = actionDescriptor.replace(
-                        "${" + entry.getKey() + "}",
-                        entry.getValue()
-                    );
-                }
+                actionDescriptor
+                    = actionDescriptor.replace(
+                            "${" + cmdarg.getKey() + "}",
+                            cmdarg.getValue());
             }
         }
 
@@ -65,10 +68,12 @@ public class CommandNotificationHandlerImpl
         {
             Runtime.getRuntime().exec(actionDescriptor);
         }
-        catch (IOException e)
+        catch (IOException ioe)
         {
-            logger.error("Failed execute the following command: "
-                + action.getDescriptor(),  e);
+            logger.error(
+                    "Failed to execute the following command: "
+                        + action.getDescriptor(),
+                    ioe);
         }
     }
 }
