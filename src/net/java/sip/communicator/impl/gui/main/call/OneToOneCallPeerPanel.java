@@ -94,6 +94,13 @@ public class OneToOneCallPeerPanel
     private Component closeLocalVisualComponentButton;
 
     /**
+     * A listener to desktop sharing granted/revoked events and to mouse and
+     * keyboard interaction with the remote video displaying the remote desktop.
+     */
+    private final DesktopSharingMouseAndKeyboardListener
+        desktopSharingMouseAndKeyboardListener;
+
+    /**
      * The indicator which determines whether {@link #dispose()} has already
      * been invoked on this instance. If <tt>true</tt>, this instance is
      * considered non-functional and is to be left to the garbage collector.
@@ -196,13 +203,6 @@ public class OneToOneCallPeerPanel
      * video-related information.
      */
     private final UIVideoHandler2 uiVideoHandler;
-
-    /**
-     * A listener to desktop sharing granted/revoked events and to mouse and
-     * keyboard interaction with the remote video displaying the remote desktop.
-     */
-    private DesktopSharingMouseAndKeyboardListener
-        desktopSharingMouseAndKeyboardListener;
 
     /**
      * The <tt>Observer</tt> which listens to changes in the video-related
@@ -314,8 +314,18 @@ public class OneToOneCallPeerPanel
                     this);
         }
 
-        desktopSharingMouseAndKeyboardListener
-            = new DesktopSharingMouseAndKeyboardListener(callPeer);
+        OperationSetDesktopSharingClient desktopSharingClient
+            = callPeer.getProtocolProvider().getOperationSet(
+                    OperationSetDesktopSharingClient.class);
+        if (desktopSharingClient != null)
+        {
+            desktopSharingMouseAndKeyboardListener
+                = new DesktopSharingMouseAndKeyboardListener(
+                        callPeer,
+                        desktopSharingClient);
+        }
+        else
+            desktopSharingMouseAndKeyboardListener = null;
 
         updateViewFromModel();
     }
@@ -1367,8 +1377,11 @@ public class OneToOneCallPeerPanel
             {
                 // Updates video component which may listen the mouse and key
                 // events.
-                desktopSharingMouseAndKeyboardListener.setVideoComponent(
-                        remoteVideo);
+                if (desktopSharingMouseAndKeyboardListener != null)
+                {
+                    desktopSharingMouseAndKeyboardListener.setVideoComponent(
+                            remoteVideo);
+                }
 
                 CallPanel callPanel = callRenderer.getCallContainer();
                 // The remote video has been added, then tries to display the

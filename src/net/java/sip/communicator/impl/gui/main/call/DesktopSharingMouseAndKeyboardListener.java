@@ -33,7 +33,7 @@ public class DesktopSharingMouseAndKeyboardListener
      * The operation set which received the granted/revoked desktop sharing
      * rights and to which, we are sending the mouse and key events.
      */
-    private final OperationSetDesktopSharingClient opSetDesktopSharingClient;
+    private final OperationSetDesktopSharingClient desktopSharingClient;
 
     /**
      * The video component displaying the remote desktop.
@@ -46,20 +46,38 @@ public class DesktopSharingMouseAndKeyboardListener
     private final Object videoComponentMutex = new Object();
 
     /**
-     * Creates a new listener of mouse and key event for a the
-     * video displaying the streamed remote desktop. The video component is null
-     * until calling the setVideoComponent function.
+     * Initializes a new <tt>DesktopSharingMouseAndKeyboardListener</tt>
+     * instance which is to handle mouse and keyboard events for the purposes of
+     * desktop sharing with a specific <tt>CallPeer</tt>.
      *
-     * @param callPeer The remote controlled call peer to which the events
-     * must be sent.
+     * @param callPeer the <tt>CallPeer</tt> which is controlled remotely and to
+     * which the mouse and keyboard events are to be sent
      */
     public DesktopSharingMouseAndKeyboardListener(CallPeer callPeer)
     {
-        this.callPeer = callPeer;
+        this(
+                callPeer,
+                callPeer.getProtocolProvider().getOperationSet(
+                        OperationSetDesktopSharingClient.class));
+    }
 
-        opSetDesktopSharingClient
-            = callPeer.getProtocolProvider().getOperationSet(
-                    OperationSetDesktopSharingClient.class);
+    /**
+     * Initializes a new <tt>DesktopSharingMouseAndKeyboardListener</tt>
+     * instance which is to handle mouse and keyboard events for the purposes of
+     * desktop sharing with a specific <tt>CallPeer</tt>.
+     *
+     * @param callPeer the <tt>CallPeer</tt> which is controlled remotely and to
+     * which the mouse and keyboard events are to be sent
+     * @param desktopSharingClient the <tt>OperationSetDesktopSharingClient</tt>
+     * instance which is to send the mouse and keyboard events to the specified
+     * <tt>callPeer</tt>
+     */
+    public DesktopSharingMouseAndKeyboardListener(
+            CallPeer callPeer,
+            OperationSetDesktopSharingClient desktopSharingClient)
+    {
+        this.callPeer = callPeer;
+        this.desktopSharingClient = desktopSharingClient;
     }
 
     /**
@@ -97,7 +115,8 @@ public class DesktopSharingMouseAndKeyboardListener
      */
     public void keyTyped(KeyEvent e)
     {
-        opSetDesktopSharingClient.sendKeyboardEvent(callPeer, e);
+        if (desktopSharingClient != null)
+            desktopSharingClient.sendKeyboardEvent(callPeer, e);
     }
 
     /**
@@ -108,10 +127,13 @@ public class DesktopSharingMouseAndKeyboardListener
      */
     public void mouseClicked(MouseEvent e)
     {
-        opSetDesktopSharingClient.sendMouseEvent(
-                callPeer,
-                e,
-                videoComponent.getSize());
+        if (desktopSharingClient != null)
+        {
+            desktopSharingClient.sendMouseEvent(
+                    callPeer,
+                    e,
+                    videoComponent.getSize());
+        }
     }
 
     /**
@@ -122,10 +144,13 @@ public class DesktopSharingMouseAndKeyboardListener
      */
     public void mouseDragged(MouseEvent e)
     {
-        opSetDesktopSharingClient.sendMouseEvent(
-                callPeer,
-                e,
-                videoComponent.getSize());
+        if (desktopSharingClient != null)
+        {
+            desktopSharingClient.sendMouseEvent(
+                    callPeer,
+                    e,
+                    videoComponent.getSize());
+        }
     }
 
 
@@ -155,10 +180,13 @@ public class DesktopSharingMouseAndKeyboardListener
      */
     public void mouseMoved(MouseEvent e)
     {
-        opSetDesktopSharingClient.sendMouseEvent(
-                callPeer,
-                e,
-                videoComponent.getSize());
+        if (desktopSharingClient != null)
+        {
+            desktopSharingClient.sendMouseEvent(
+                    callPeer,
+                    e,
+                    videoComponent.getSize());
+        }
     }
 
     /**
@@ -168,10 +196,13 @@ public class DesktopSharingMouseAndKeyboardListener
      */
     public void mousePressed(MouseEvent e)
     {
-        opSetDesktopSharingClient.sendMouseEvent(
-                callPeer,
-                e,
-                videoComponent.getSize());
+        if (desktopSharingClient != null)
+        {
+            desktopSharingClient.sendMouseEvent(
+                    callPeer,
+                    e,
+                    videoComponent.getSize());
+        }
     }
 
     /**
@@ -181,10 +212,13 @@ public class DesktopSharingMouseAndKeyboardListener
      */
     public void mouseReleased(MouseEvent e)
     {
-        opSetDesktopSharingClient.sendMouseEvent(
-                callPeer,
-                e,
-                videoComponent.getSize());
+        if (desktopSharingClient != null)
+        {
+            desktopSharingClient.sendMouseEvent(
+                    callPeer,
+                    e,
+                    videoComponent.getSize());
+        }
     }
 
     /**
@@ -232,6 +266,9 @@ public class DesktopSharingMouseAndKeyboardListener
      */
     public void setVideoComponent(Component videoComponent)
     {
+        if (desktopSharingClient == null)
+            return;
+
         synchronized(videoComponentMutex)
         {
             if(this.videoComponent == null)
@@ -239,7 +276,7 @@ public class DesktopSharingMouseAndKeyboardListener
                 // If there was no old video component and a new one is set,
                 // registers to the operation set.
                 if (videoComponent != null)
-                    opSetDesktopSharingClient.addRemoteControlListener(this);
+                    desktopSharingClient.addRemoteControlListener(this);
             }
             else
             {
@@ -249,7 +286,7 @@ public class DesktopSharingMouseAndKeyboardListener
                 {
                     // The remove remote control listener will also be called
                     // directly by the operation when the peer state change.
-                    opSetDesktopSharingClient.removeRemoteControlListener(this);
+                    desktopSharingClient.removeRemoteControlListener(this);
                 }
             }
 
