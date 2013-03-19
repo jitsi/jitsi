@@ -19,6 +19,7 @@ import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
 
+import org.jitsi.service.configuration.*;
 import org.jitsi.service.neomedia.*;
 
 /**
@@ -49,6 +50,33 @@ public class CallSipImpl
      * use when creating requests.
      */
     private final SipMessageFactory messageFactory;
+    
+    /**
+     * The name of the property under which the user may specify the number of
+     * milliseconds for the initial interval for retransmissions of response 
+     * 180.
+     */
+    private static final String RETRANSMITS_RINGING_INTERVAL 
+        = "net.java.sip.communicator.impl.protocol.sip" 
+                + ".RETRANSMITS_RINGING_INTERVAL";
+
+    /**
+    * The default amount of time (in milliseconds) for the initial interval for
+    *  retransmissions of response 180.
+    */
+    private static final int DEFAULT_RETRANSMITS_RINGING_INTERVAL = 500;
+    
+    /**
+     * Maximum number of retransmissions that will be sent.
+     */
+    private static final int MAX_RETRANSMISSIONS = 3;
+
+    /**
+    * The amount of time (in milliseconds) for the initial interval for 
+    * retransmissions of response 180.
+    */
+    private int retransmitsRingingInterval
+        = DEFAULT_RETRANSMITS_RINGING_INTERVAL;
 
     /**
      * Crates a CallSipImpl instance belonging to <tt>sourceProvider</tt> and
@@ -66,6 +94,10 @@ public class CallSipImpl
         //let's add ourselves to the calls repo. we are doing it ourselves just
         //to make sure that no one ever forgets.
         parentOpSet.getActiveCallsRepository().addCall(this);
+
+        ConfigurationService cfg = SipActivator.getConfigurationService();
+        retransmitsRingingInterval = cfg.getInt(RETRANSMITS_RINGING_INTERVAL,
+                DEFAULT_RETRANSMITS_RINGING_INTERVAL);
     }
 
     /**
@@ -376,7 +408,7 @@ public class CallSipImpl
     {
         Request invite = serverTran.getRequest();
 
-        CallPeerSipImpl peer = createCallPeerFor(serverTran, jainSipProvider);
+        final CallPeerSipImpl peer = createCallPeerFor(serverTran, jainSipProvider);
 
         //send a ringing response
         Response response = null;
@@ -386,6 +418,32 @@ public class CallSipImpl
                 logger.trace("will send ringing response: ");
             response = messageFactory.createResponse(Response.RINGING, invite);
             serverTran.sendResponse(response);
+
+            final Timer timer = new Timer();
+            CallPeerAdapter stateListener = new CallPeerAdapter()
+            {
+                public void peerStateChanged(CallPeerChangeEvent evt)
+                {
+                    if(!evt.getNewValue().equals(CallPeerState.INCOMING_CALL))
+                    {
+                        timer.cancel();
+                        peer.removeCallPeerListener(this);
+                    }
+                    
+                }
+            };
+            int interval = retransmitsRingingInterval;
+            int delay = 0;
+
+            for(int i = 0; i < MAX_RETRANSMISSIONS; i++)
+            {
+                delay += interval;
+                timer.schedule(new RingingResponseTask(response, serverTran, 
+                    peer, timer, stateListener), delay);
+                interval *= 2;
+            }
+
+            peer.addCallPeerListener(stateListener); 
             if (logger.isDebugEnabled())
                 logger.debug("sent a ringing response: " + response);
         }
@@ -399,6 +457,7 @@ public class CallSipImpl
 
         return peer;
     }
+    
 
     /**
      * Processes an incoming INVITE that is meant to replace an existing
@@ -472,5 +531,71 @@ public class CallSipImpl
     public void setInitialQualityPreferences(QualityPreset qualityPreferences)
     {
         this.initialQualityPreferences = qualityPreferences;
+    }
+
+    /**
+     * Task that will retransmit ringing response
+     */
+    private class RingingResponseTask
+        extends TimerTask
+    {
+        /**
+         * The response that will be sent
+         */
+        private final Response response;
+
+        /**
+         * The transaction containing the received request.
+         */
+        private final ServerTransaction serverTran;
+
+        /**
+         * The peer corresponding to the transaction.
+         */
+        private final CallPeerSipImpl peer;
+
+        /**
+         * The timer that starts the task.
+         */
+        private final Timer timer;
+
+        /**
+         * Listener for the state of the peer.
+         */
+        private CallPeerAdapter stateListener;
+
+        /**
+         * Create ringing response task.
+         * @param response the response.
+         * @param serverTran the transaction.
+         * @param peer the peer.
+         * @param timer the timer.
+         * @param stateListener the state listener.
+         */
+        RingingResponseTask(Response response, ServerTransaction serverTran, 
+            CallPeerSipImpl peer, Timer timer, CallPeerAdapter stateListener)
+        {
+            this.response = response;
+            this.serverTran = serverTran;
+            this.peer = peer;
+            this.timer = timer;
+            this.stateListener = stateListener;
+        }
+
+        /**
+         * Sends the ringing response.
+         */
+        public void run()
+        {
+            try
+            {
+                serverTran.sendResponse(response);
+            }
+            catch (Exception ex)
+            {
+                timer.cancel();
+                peer.removeCallPeerListener(stateListener);
+            }
+        }
     }
 }
