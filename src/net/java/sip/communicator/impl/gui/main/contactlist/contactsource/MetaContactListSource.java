@@ -707,7 +707,7 @@ public class MetaContactListSource
 
             ContactListFilter currentFilter
                 = GuiActivator.getContactList().getCurrentFilter();
-    
+
             if (currentFilter.isMatching(uiContact))
                 GuiActivator.getContactList()
                     .addContact(uiContact, newUIGroup, true, true);
@@ -1052,9 +1052,9 @@ public class MetaContactListSource
 
                     actionButton.setIconImage(
                         new ImageIcon(ca.getIcon()).getImage());
-                    actionButton.setRolloverImage(
+                    actionButton.setRolloverIcon(
                         new ImageIcon(ca.getRolloverIcon()).getImage());
-                    actionButton.setPressedImage(
+                    actionButton.setPressedIcon(
                         new ImageIcon(ca.getPressedIcon()).getImage());
 
                     actionButton.addActionListener(new ActionListener()

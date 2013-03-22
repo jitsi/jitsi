@@ -236,9 +236,9 @@ public class ExternalContactSource
 
             actionButton.setIconImage(
                 new ImageIcon(ca.getIcon()).getImage());
-            actionButton.setRolloverImage(
+            actionButton.setRolloverIcon(
                 new ImageIcon(ca.getRolloverIcon()).getImage());
-            actionButton.setPressedImage(
+            actionButton.setPressedIcon(
                 new ImageIcon(ca.getPressedIcon()).getImage());
 
             actionButton.addActionListener(new ActionListener()

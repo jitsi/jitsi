@@ -1537,16 +1537,16 @@ public class ContactListTreeCellRenderer
 
         callButton.setIconImage(ImageLoader.getImage(
                 ImageLoader.CALL_BUTTON_SMALL));
-        callButton.setRolloverImage(ImageLoader.getImage(
+        callButton.setRolloverIcon(ImageLoader.getImage(
                 ImageLoader.CALL_BUTTON_SMALL_ROLLOVER));
-        callButton.setPressedImage(ImageLoader.getImage(
+        callButton.setPressedIcon(ImageLoader.getImage(
                 ImageLoader.CALL_BUTTON_SMALL_PRESSED));
 
         chatButton.setIconImage(ImageLoader.getImage(
                 ImageLoader.CHAT_BUTTON_SMALL));
-        chatButton.setRolloverImage(ImageLoader.getImage(
+        chatButton.setRolloverIcon(ImageLoader.getImage(
             ImageLoader.CHAT_BUTTON_SMALL_ROLLOVER));
-        chatButton.setPressedImage(ImageLoader.getImage(
+        chatButton.setPressedIcon(ImageLoader.getImage(
                 ImageLoader.CHAT_BUTTON_SMALL_PRESSED));
 
         msgReceivedImage
@@ -1566,23 +1566,23 @@ public class ContactListTreeCellRenderer
 
         callVideoButton.setIconImage(
             ImageLoader.getImage(ImageLoader.CALL_VIDEO_BUTTON_SMALL));
-        callVideoButton.setRolloverImage(
+        callVideoButton.setRolloverIcon(
             ImageLoader.getImage(ImageLoader.CALL_VIDEO_BUTTON_SMALL_ROLLOVER));
-        callVideoButton.setPressedImage(
+        callVideoButton.setPressedIcon(
             ImageLoader.getImage(ImageLoader.CALL_VIDEO_BUTTON_SMALL_PRESSED));
 
         desktopSharingButton.setIconImage(
             ImageLoader.getImage(ImageLoader.DESKTOP_BUTTON_SMALL));
-        desktopSharingButton.setRolloverImage(
+        desktopSharingButton.setRolloverIcon(
             ImageLoader.getImage(ImageLoader.DESKTOP_BUTTON_SMALL_ROLLOVER));
-        desktopSharingButton.setPressedImage(
+        desktopSharingButton.setPressedIcon(
             ImageLoader.getImage(ImageLoader.DESKTOP_BUTTON_SMALL_PRESSED));
 
         addContactButton.setIconImage(
             ImageLoader.getImage(ImageLoader.ADD_CONTACT_BUTTON_SMALL));
-        addContactButton.setRolloverImage(
+        addContactButton.setRolloverIcon(
             ImageLoader.getImage(ImageLoader.ADD_CONTACT_BUTTON_SMALL_ROLLOVER));
-        addContactButton.setPressedImage(
+        addContactButton.setPressedIcon(
             ImageLoader.getImage(ImageLoader.ADD_CONTACT_BUTTON_SMALL_PRESSED));
     }
 
@@ -1751,7 +1751,7 @@ public class ContactListTreeCellRenderer
         {
                 this.setBorder(BorderFactory
                     .createEmptyBorder( TOP_BORDER,
-                                        LEFT_BORDER, 
+                                        LEFT_BORDER,
                                         BOTTOM_BORDER,
                                         RIGHT_BORDER));
         }
@@ -1759,7 +1759,7 @@ public class ContactListTreeCellRenderer
         {
             this.setBorder(BorderFactory
                 .createEmptyBorder( 0,
-                                    LEFT_BORDER, 
+                                    LEFT_BORDER,
                                     0,
                                     RIGHT_BORDER));
         }
