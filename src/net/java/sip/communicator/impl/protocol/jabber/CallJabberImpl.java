@@ -537,7 +537,7 @@ public class CallJabberImpl
         // create the session-initiate IQ
         CallPeerJabberImpl callPeer = new CallPeerJabberImpl(calleeJID, this);
 
-        callPeer.setDiscoverInfo(discoverInfo);
+        callPeer.setDiscoveryInfo(discoverInfo);
 
         addCallPeer(callPeer);
 

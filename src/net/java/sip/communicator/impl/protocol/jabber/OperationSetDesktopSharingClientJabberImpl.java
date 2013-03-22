@@ -103,7 +103,7 @@ public class OperationSetDesktopSharingClientJabberImpl
             RemoteControlExtension payload)
     {
         DiscoverInfo discoverInfo
-            = ((CallPeerJabberImpl) callPeer).getDiscoverInfo();
+            = ((CallPeerJabberImpl) callPeer).getDiscoveryInfo();
         if(this.parentProvider.getDiscoveryManager()
                 .includesFeature(InputEvtIQ.NAMESPACE_CLIENT)
                 && discoverInfo != null

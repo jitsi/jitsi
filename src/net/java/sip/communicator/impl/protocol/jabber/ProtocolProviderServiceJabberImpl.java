@@ -111,20 +111,27 @@ public class ProtocolProviderServiceJabberImpl
         = "http://jabber.org/protocol/jinglenodes";
 
     /**
-     * Jingle's Discover Info URN for "XEP-0251: Jingle Session Transfer"
+     * Jingle's Discovery Info URN for "XEP-0251: Jingle Session Transfer"
      * support.
      */
     public static final String URN_XMPP_JINGLE_TRANSFER_0
         = TransferPacketExtension.NAMESPACE;
 
     /**
-     * Jingle's Discover Info URN for "XEP-298 :Delivering Conference
+     * Jingle's Discovery Info URN for "XEP-298 :Delivering Conference
      * Information to Jingle Participants (Coin)" support.
      */
     public static final String URN_XMPP_JINGLE_COIN = "urn:xmpp:coin";
 
     /**
-     * Jingle's Discover Info URN for "XEP-0294: Jingle RTP Header Extensions
+     * Discovery Info URN for classic RFC3264-style Offer/Answer negotiation
+     * with no support for Trickle ICE and low tolerance to transport/payload
+     * separation. Defined in XEP-0176
+     */
+    public static final String URN_IETF_RFC_3264 = "urn:ietf:rfc:3264";
+
+    /**
+     * Jingle's Discovery Info URN for "XEP-0294: Jingle RTP Header Extensions
      * Negotiation" support.
      */
     public static final String URN_XMPP_JINGLE_RTP_HDREXT =
@@ -2284,7 +2291,7 @@ public class ProtocolProviderServiceJabberImpl
         catch (XMPPException e)
         {
             if (logger.isDebugEnabled())
-                logger.debug("Failed to discover info.", e);
+                logger.debug("Failed to retrive discovery info.", e);
         }
         return isFeatureListSupported;
     }

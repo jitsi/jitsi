@@ -52,7 +52,7 @@ public abstract class AbstractCallPeerJabberGTalkImpl
     protected String peerJID;
 
     /**
-     * The {@link JingleIQ} that created the session that this call represents.
+     * The {@link IQ} that created the session that this call represents.
      */
     protected V sessionInitIQ;
 
@@ -101,7 +101,7 @@ public abstract class AbstractCallPeerJabberGTalkImpl
      *
      * @return the service discovery information that we have for this peer.
      */
-    public DiscoverInfo getDiscoverInfo()
+    public DiscoverInfo getDiscoveryInfo()
     {
         return discoverInfo;
     }
@@ -149,20 +149,19 @@ public abstract class AbstractCallPeerJabberGTalkImpl
      * Retrieves the DiscoverInfo for a given peer identified by its URI.
      *
      * @param calleeURI The URI of the call peer.
-     * @param ppsJabberImpl The call protocol provider service.
      *
      * @return The retrieved DiscoverInfo, or null if not available.
      */
-    protected void retrieveDiscoverInfo(String calleeURI)
+    protected void retrieveDiscoveryInfo(String calleeURI)
     {
         try
         {
-            DiscoverInfo discoverInfo
+            DiscoverInfo discoveryInfo
                 = getProtocolProvider().getDiscoveryManager().discoverInfo(
                         calleeURI);
 
-            if(discoverInfo != null)
-                setDiscoverInfo(discoverInfo);
+            if(discoveryInfo != null)
+                setDiscoveryInfo(discoveryInfo);
         }
         catch (XMPPException xmppex)
         {
@@ -198,7 +197,7 @@ public abstract class AbstractCallPeerJabberGTalkImpl
      * @param discoverInfo the discovery information that we have obtained for
      * this peer.
      */
-    public void setDiscoverInfo(DiscoverInfo discoverInfo)
+    public void setDiscoveryInfo(DiscoverInfo discoverInfo)
     {
         this.discoverInfo = discoverInfo;
     }

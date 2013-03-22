@@ -298,13 +298,13 @@ public class CallPeerMediaHandlerJabberImpl
     {
         ContentPacketExtension content
             = JingleUtils.createDescription(
-                    ContentPacketExtension.CreatorEnum.initiator,
-                    supportedFormats.get(0).getMediaType().toString(),
-                    JingleUtils.getSenders(direction, !getPeer().isInitiator()),
-                    supportedFormats,
-                    supportedExtensions,
-                    getDynamicPayloadTypes(),
-                    getRtpExtensionsRegistry());
+            ContentPacketExtension.CreatorEnum.initiator,
+            supportedFormats.get(0).getMediaType().toString(),
+            JingleUtils.getSenders(direction, !getPeer().isInitiator()),
+            supportedFormats,
+            supportedExtensions,
+            getDynamicPayloadTypes(),
+            getRtpExtensionsRegistry());
 
         this.localContentMap.put(content.getName(), content);
         return content;
@@ -522,8 +522,7 @@ public class CallPeerMediaHandlerJabberImpl
 
         // First parse content so we know how may streams,
         // and what type of content we have
-        Map<ContentPacketExtension,
-            RtpDescriptionPacketExtension> contents
+        Map<ContentPacketExtension, RtpDescriptionPacketExtension> contents
                 = new HashMap<ContentPacketExtension,
                               RtpDescriptionPacketExtension>();
 
@@ -651,7 +650,8 @@ public class CallPeerMediaHandlerJabberImpl
     }
 
     /**
-     * Get the local content of a specific content type (like audio or video).
+     * Returns the local content of a specific content type (like audio or
+     * video).
      *
      * @param contentType content type name
      * @return remote <tt>ContentPacketExtension</tt> or null if not found
@@ -668,6 +668,16 @@ public class CallPeerMediaHandlerJabberImpl
                 return content;
         }
         return null;
+    }
+
+    /**
+     * Returns a complete list of call currently known local content-s.
+     *
+     * @return a list of {@link ContentPacketExtension} <tt>null</tt> if not found
+     */
+    public Iterable<ContentPacketExtension> getLocalContentList()
+    {
+        return localContentMap.values();
     }
 
     /**
@@ -843,7 +853,7 @@ public class CallPeerMediaHandlerJabberImpl
                     = peer.getProtocolProvider();
                 ScServiceDiscoveryManager discoveryManager
                     = protocolProvider.getDiscoveryManager();
-                DiscoverInfo peerDiscoverInfo = peer.getDiscoverInfo();
+                DiscoverInfo peerDiscoverInfo = peer.getDiscoveryInfo();
 
                 // We use Google P2P transport if both conditions are satisfied:
                 // - both peers have Google P2P transport in their features;
@@ -1137,13 +1147,13 @@ public class CallPeerMediaHandlerJabberImpl
     {
         MediaStream stream
             = super.initStream(
-                    connector,
-                    device,
-                    format,
-                    target,
-                    direction,
-                    rtpExtensions,
-                    masterStream);
+            connector,
+            device,
+            format,
+            target,
+            direction,
+            rtpExtensions,
+            masterStream);
 
         if (stream != null)
             stream.setName(streamName);
@@ -1696,6 +1706,7 @@ public class CallPeerMediaHandlerJabberImpl
     {
         if (getTransportManager().startConnectivityEstablishment(contents))
         {
+            //Emil: why the heck is this here and why is it commented?
             //wrapupConnectivityEstablishment();
         }
     }

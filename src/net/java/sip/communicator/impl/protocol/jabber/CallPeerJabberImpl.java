@@ -60,7 +60,8 @@ public class CallPeerJabberImpl
     private boolean sessionInitiateProcessed = false;
 
     /**
-     * Synchronization object.
+     * Synchronization object. Synchronization object? Wow, who would have
+     * thought! ;) Would be great to have a word on what we are syncing with it
      */
     private final Object sessionInitiateSyncRoot = new Object();
 
@@ -772,10 +773,10 @@ public class CallPeerJabberImpl
 
         // If we do not get the info about the remote peer yet. Get it right
         // now.
-        if(this.getDiscoverInfo() == null)
+        if(this.getDiscoveryInfo() == null)
         {
             String calleeURI = sessionInitIQ.getFrom();
-            retrieveDiscoverInfo(calleeURI);
+            retrieveDiscoveryInfo(calleeURI);
         }
 
         //send a ringing response
@@ -789,6 +790,22 @@ public class CallPeerJabberImpl
         {
             sessionInitiateProcessed = true;
             sessionInitiateSyncRoot.notify();
+        }
+
+        //if this is a 3264 initiator, let's give them an early peek at our
+        //answer so that they could start ICE (SIP-2-Jingle gateways won't
+        //be able to send their candidates unless they have this)
+        if(    getDiscoveryInfo() != null
+            && getDiscoveryInfo().containsFeature(
+                        ProtocolProviderServiceJabberImpl.URN_IETF_RFC_3264))
+        {
+            getProtocolProvider().getConnection().sendPacket(
+                            JinglePacketFactory.createDescriptionInfo(
+                                sessionInitIQ.getTo(),
+                                sessionInitIQ.getFrom(),
+                                sessionInitIQ.getSID(),
+                                getMediaHandler().getLocalContentList()
+                            ));
         }
     }
 

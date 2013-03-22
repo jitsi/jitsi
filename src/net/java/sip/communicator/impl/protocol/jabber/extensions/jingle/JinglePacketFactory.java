@@ -14,6 +14,9 @@ import org.jivesoftware.smack.packet.*;
  * A utility class containing methods for creating {@link JingleIQ}
  * instances for various situations.
  *
+ * @TODO a number of methods in this class have almost identical bodies. please
+ * refactor and reuse code (Emil).
+ *
  * @author Emil Ivov
  */
 public class JinglePacketFactory
@@ -217,6 +220,44 @@ public class JinglePacketFactory
             sessionAccept.addContent(content);
 
         return sessionAccept;
+    }
+
+    /**
+     * Creates a {@link JingleIQ} <tt>description-info</tt> packet with the
+     * specified <tt>from</tt>, <tt>to</tt>, <tt>sid</tt>, and <tt>content</tt>.
+     * Given our role in a conversation, we would assume that the <tt>from</tt>
+     * value should also be used for the value of the Jingle <tt>responder</tt>.
+     *
+     * @param from our JID
+     * @param to the destination JID
+     * @param sid the ID of the Jingle session that this message will be
+     * terminating.
+     * @param contentList the content elements containing media and transport
+     * descriptions.
+     *
+     * @return the newly constructed {@link JingleIQ} <tt>description-info</tt>
+     * packet.
+     */
+    public static JingleIQ createDescriptionInfo(
+                                String                           from,
+                                String                           to,
+                                String                           sid,
+                                Iterable<ContentPacketExtension> contentList)
+    {
+        JingleIQ descriptionInfo = new JingleIQ();
+
+        descriptionInfo.setTo(to);
+        descriptionInfo.setFrom(from);
+        descriptionInfo.setResponder(from);
+        descriptionInfo.setType(IQ.Type.SET);
+
+        descriptionInfo.setSID(sid);
+        descriptionInfo.setAction(JingleAction.DESCRIPTION_INFO);
+
+        for(ContentPacketExtension content : contentList)
+            descriptionInfo.addContent(content);
+
+        return descriptionInfo;
     }
 
     /**

@@ -656,7 +656,7 @@ public class OperationSetDesktopSharingServerJabberImpl
     {
         DiscoverInfo discoverInfo
             = ((AbstractCallPeerJabberGTalkImpl<?,?,?>) callPeer)
-                .getDiscoverInfo();
+                .getDiscoveryInfo();
 
         return
             parentProvider.getDiscoveryManager().includesFeature(

@@ -572,10 +572,10 @@ public class CallPeerGTalkImpl
 
         // If we do not get the info about the remote peer yet. Get it right
         // now.
-        if(this.getDiscoverInfo() == null)
+        if(this.getDiscoveryInfo() == null)
         {
             String calleeURI = sessionInitIQ.getFrom();
-            retrieveDiscoverInfo(calleeURI);
+            retrieveDiscoveryInfo(calleeURI);
         }
     }
 
