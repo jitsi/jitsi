@@ -74,19 +74,50 @@ public class ReconnectPluginActivator
      * a list of the available and up interfaces when the provider was
      * registered. When a provider is unregistered it is removed
      * from this collection.
+     * Providers REMOVED:
+     *  - When provider is removed from osgi
+     *  - When a provider is UNREGISTERED
+     * Providers ADDED:
+     *  - When a provider is REGISTERED
      */
-    private final Map<ProtocolProviderService, List<String>> autoReconnEnabledProviders
-        = new HashMap<ProtocolProviderService, List<String>>();
+    private final Map<ProtocolProviderService, List<String>>
+        autoReconnEnabledProviders = new HashMap<ProtocolProviderService, List<String>>();
 
     /**
      * Holds the currently reconnecting providers and their reconnect tasks.
      * When they get connected they are removed from this collection.
+     * Providers REMOVED:
+     *  - When provider removed from osgi.
+     *  - When interface is UP, we remove providers and schedule reconnect
+     *  for them
+     *  - When interface is DOWN, we remove all providers and schedule reconnect
+     *  - When last interface is DOWN, we remove all providers and
+     *  unregister them
+     *  - On connection failed with no interface connected
+     *  - Provider is Registered
+     *  - Provider is Unregistered and is missing in unregistered providers list
+     *  - After provider is unregistered just before reconnecting, and there
+     *  are no connected interfaces
+     * Providers ADDED:
+     *  - Before unregister (in new thread) when scheduling a reconnect task
+     *  - After provider is unregistered just before reconnecting
      */
-    private final Map<ProtocolProviderService, ReconnectTask> currentlyReconnecting
-        = new HashMap<ProtocolProviderService, ReconnectTask>();
+    private final Map<ProtocolProviderService, ReconnectTask>
+        currentlyReconnecting
+            = new HashMap<ProtocolProviderService, ReconnectTask>();
 
     /**
-     * If network is down we save here the providers which need to be reconnected.
+     * If network is down we save here the providers which need
+     * to be reconnected.
+     * Providers REMOVED:
+     * - When provider removed from osgi.
+     * - Remove all providers when interface is up and we will reconnect them
+     * Providers ADDED:
+     * - Interface is down, and there are still active interfaces, add all
+     * auto reconnect enabled and all currently reconnecting
+     * - Provider in connection failed and there are no connected interfaces
+     * - Provider is unregistered or connection failed and there are no
+     * connected interfaces.
      */
     private Set<ProtocolProviderService> needsReconnection =
         new HashSet<ProtocolProviderService>();
@@ -95,8 +126,13 @@ public class ReconnectPluginActivator
      * A list of providers on which we have called unregister. This is a
      * way to differ our unregister calls from calls coming from user, wanting
      * to stop all reconnects.
+     * Providers REMOVED:
+     * - Provider is Connection failed.
+     * - Provider is registered/unregistered
+     * Providers ADDED:
+     * - Provider is about to be unregistered
      */
-    private Set<ProtocolProviderService> unregisteredProviders
+    private Set<ProtocolProviderService> unregisteringProviders
         = new HashSet<ProtocolProviderService>();
 
     /**
@@ -525,7 +561,7 @@ public class ReconnectPluginActivator
                             final RegistrationStateChangeListener listener,
                             final ReconnectTask task)
     {
-        unregisteredProviders.add(pp);
+        unregisteringProviders.add(pp);
 
         new Thread(new Runnable()
         {
@@ -590,7 +626,7 @@ public class ReconnectPluginActivator
         logger.trace("currentlyReconnecting: "
             + currentlyReconnecting.keySet());
         logger.trace("needsReconnection: " + needsReconnection);
-        logger.trace("unregisteredProviders: " + unregisteredProviders);
+        logger.trace("unregisteringProviders: " + unregisteringProviders);
         logger.trace("----");
     }
 
@@ -684,7 +720,7 @@ public class ReconnectPluginActivator
 
                 // unregister can finish and with connection failed,
                 // the protocol is unable to unregister
-                unregisteredProviders.remove(pp);
+                unregisteringProviders.remove(pp);
 
                 if(logger.isTraceEnabled())
                 {
@@ -706,7 +742,7 @@ public class ReconnectPluginActivator
                 if(currentlyReconnecting.containsKey(pp))
                     currentlyReconnecting.remove(pp).cancel();
 
-                unregisteredProviders.remove(pp);
+                unregisteringProviders.remove(pp);
 
                 if(logger.isTraceEnabled())
                 {
@@ -718,12 +754,12 @@ public class ReconnectPluginActivator
             {
                 autoReconnEnabledProviders.remove(pp);
 
-                if(!unregisteredProviders.contains(pp)
+                if(!unregisteringProviders.contains(pp)
                     && currentlyReconnecting.containsKey(pp))
                 {
                     currentlyReconnecting.remove(pp).cancel();
                 }
-                unregisteredProviders.remove(pp);
+                unregisteringProviders.remove(pp);
 
                 if(logger.isTraceEnabled())
                 {
@@ -817,11 +853,16 @@ public class ReconnectPluginActivator
                              timer.schedule(task, task.delay);
                          }
                      }
+                     /*
+                     this unregister one way or another, and will end
+                     with unregister or connection failed
+                     if we remove listener when unregister come
+                     we will end up with unregistered provider without reconnect
                      else if(evt.getNewState().equals(
                                             RegistrationState.REGISTERED))
                      {
                          pp.removeRegistrationStateChangeListener(this);
-                     }
+                     }*/
                  }
             }
         };
