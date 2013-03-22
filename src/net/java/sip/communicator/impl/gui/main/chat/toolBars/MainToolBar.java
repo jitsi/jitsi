@@ -21,6 +21,7 @@ import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
 import net.java.sip.communicator.impl.gui.main.configforms.*;
+import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.plugin.desktoputil.SwingWorker;
@@ -28,9 +29,7 @@ import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.account.*;
 import net.java.sip.communicator.util.skin.*;
 
 /**
@@ -150,6 +149,11 @@ public class MainToolBar
      * The plug-in container contained in this tool bar.
      */
     private final PluginContainer pluginContainer;
+
+    /**
+     * The phone util used to enable/disable buttons.
+     */
+    private ContactPhoneUtil contactPhoneUtil = null;
 
     /**
      * Creates an instance and constructs the <tt>MainToolBar</tt>.
@@ -338,11 +342,7 @@ public class MainToolBar
             sendFileButton.setEnabled(
                 chatPanel.findFileTransferChatTransport() != null);
 
-            new UpdateCallButtonWorker(chatSession, contact).start();
-
-            new UpdateDesktopSharingButtonWorker(
-                    chatPanel.chatSession.getTransportsForOperationSet(
-                        OperationSetDesktopSharingServer.class)).start();
+            new UpdateCallButtonWorker(contact).start();
 
             changeHistoryButtonsState(chatPanel);
         }
@@ -395,64 +395,6 @@ public class MainToolBar
         }
 
         return list;
-    }
-
-    /**
-     * Checks for <tt>VideoDetail</tt> in the
-     * <tt>OperationSetServerStoredContactInfo</tt>.
-     *
-     * @param transports list of <tt>ChatTransport</tt>
-     * @return <tt>true</tt> if <tt>VideoDetail</tt> exists in the transports,
-     * <tt>true</tt> otherwise.
-     */
-    private boolean hasVideoDetail(
-            List<ChatTransport> transports)
-    {
-        boolean hasVideo = false;
-        for(ChatTransport transport : transports)
-        {
-            ProtocolProviderService protocolProvider
-                = transport.getProtocolProvider();
-
-            OperationSetServerStoredContactInfo infoOpSet =
-                protocolProvider.getOperationSet(
-                    OperationSetServerStoredContactInfo.class);
-            Iterator<GenericDetail> details;
-
-            if(infoOpSet != null
-                && transport.getDescriptor() instanceof Contact)
-            {
-                details = infoOpSet.requestAllDetailsForContact(
-                    (Contact)transport.getDescriptor(),
-                    new DetailsListener(
-                            this.chatSession, callButton));
-
-                if(details != null)
-                {
-                    while(details.hasNext())
-                    {
-                        GenericDetail d = details.next();
-                        if(d instanceof PhoneNumberDetail &&
-                            !(d instanceof PagerDetail) &&
-                            !(d instanceof FaxDetail))
-                        {
-                            PhoneNumberDetail pnd = (PhoneNumberDetail)d;
-                            if(pnd.getNumber() != null &&
-                                pnd.getNumber().length() > 0)
-                            {
-                                if(pnd instanceof VideoDetail)
-                                {
-                                    hasVideo = true;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        return hasVideo;
     }
 
     /**
@@ -557,54 +499,15 @@ public class MainToolBar
         }
         else if (buttonText.equals("call"))
         {
-            call(false);
+            call(false, false);
         }
         else if (buttonText.equals("callVideo"))
         {
-            call(true);
+            call(true, false);
         }
         else if (buttonText.equals("desktop"))
         {
-            ChatSession chatSession = chatPanel.getChatSession();
-
-            List<ChatTransport> desktopTransports = null;
-            if (chatSession != null)
-                desktopTransports = chatSession
-                    .getTransportsForOperationSet(
-                        OperationSetDesktopSharingServer.class);
-
-            List<ChatTransport> contactOpSetSupported =
-                getOperationSetForCapabilities(desktopTransports,
-                        OperationSetDesktopSharingServer.class);
-
-            if (desktopTransports != null)
-            {
-                if (contactOpSetSupported.size() == 1)
-                {
-                    ChatTransport transport = contactOpSetSupported.get(0);
-                    CallManager.createDesktopSharing(
-                        transport.getProtocolProvider(),
-                        transport.getName());
-                }
-                else if (contactOpSetSupported.size() > 1)
-                {
-                    ChooseCallAccountPopupMenu chooseAccountDialog
-                        = new ChooseCallAccountPopupMenu(
-                            desktopSharingButton,
-                            contactOpSetSupported,
-                            OperationSetDesktopSharingServer.class);
-
-                    Point location = new Point(callButton.getX(),
-                        desktopSharingButton.getY()
-                        + desktopSharingButton.getHeight());
-
-                    SwingUtilities.convertPointToScreen(
-                        location, this);
-
-                    chooseAccountDialog
-                        .showPopupMenu(location.x, location.y);
-                }
-            }
+            call(true, true);
         }
         else if (buttonText.equals("options"))
         {
@@ -730,258 +633,78 @@ public class MainToolBar
     }
 
     /**
-     * Listens for responses if later received deliver them.
-     * If meanwhile chat session has been changed ignore any events.
-     */
-    private class DetailsListener
-        implements OperationSetServerStoredContactInfo.DetailsResponseListener
-    {
-        private ChatSession source;
-        private JButton callButton;
-
-        /**
-         * Creates listener.
-         * @param chatSession the source chat session.
-         * @param callButton the call button.
-         */
-        DetailsListener(ChatSession chatSession, JButton callButton)
-        {
-            this.source = chatSession;
-            this.callButton = callButton;
-        }
-
-        /**
-         * Details has been retrieved.
-         * @param details the details retrieved if any.
-         */
-        public void detailsRetrieved(Iterator<GenericDetail> details)
-        {
-            if(!source.equals(chatSession))
-                return;
-
-            if(callButton.isEnabled())
-                return;
-
-            while(details.hasNext())
-            {
-                GenericDetail d = details.next();
-                if(d instanceof PhoneNumberDetail &&
-                    !(d instanceof PagerDetail) &&
-                    !(d instanceof FaxDetail))
-                {
-                    PhoneNumberDetail pnd = (PhoneNumberDetail)d;
-                    if(pnd.getNumber() != null &&
-                        pnd.getNumber().length() > 0)
-                    {
-                        callButton.setEnabled(true);
-
-                        if(pnd instanceof VideoDetail)
-                        {
-                            callVideoButton.setEnabled(true);
-                            desktopSharingButton.setEnabled(true);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    /**
      * Establishes a call.
      *
      * @param isVideo indicates if a video call should be established.
      */
-    private void call(boolean isVideo)
+    private void call(boolean isVideo, boolean isDesktopSharing)
     {
         ChatPanel chatPanel = chatContainer.getCurrentChat();
 
         ChatSession chatSession = chatPanel.getChatSession();
 
+        Class<? extends OperationSet> opSetClass;
+        if(isVideo)
+        {
+            if(isDesktopSharing)
+                opSetClass = OperationSetDesktopSharingServer.class;
+            else
+                opSetClass = OperationSetVideoTelephony.class;
+        }
+        else
+            opSetClass = OperationSetBasicTelephony.class;
+
         List<ChatTransport> telTransports = null;
         if (chatSession != null)
             telTransports = chatSession
-                .getTransportsForOperationSet(
-                    OperationSetBasicTelephony.class);
+                .getTransportsForOperationSet(opSetClass);
 
         List<ChatTransport> contactOpSetSupported;
 
-        if (isVideo)
-            contactOpSetSupported =
-                getOperationSetForCapabilities(telTransports,
-                    OperationSetVideoTelephony.class);
-        else
-            contactOpSetSupported =
-                getOperationSetForCapabilities(telTransports,
-                    OperationSetBasicTelephony.class);
+        contactOpSetSupported =
+            getOperationSetForCapabilities(telTransports, opSetClass);
 
-        MetaContact metaContact
-            = GuiActivator.getUIService().getChatContact(chatPanel);
-
-        List<UIContactDetail> phones
-            = CallManager.getAdditionalNumbers(metaContact);
-
-        if (telTransports != null || phones.size() > 0)
+        List<UIContactDetail> res = new ArrayList<UIContactDetail>();
+        for(ChatTransport ct : contactOpSetSupported)
         {
-            if (contactOpSetSupported.size() == 1 && phones.size() == 0)
+            HashMap<Class<? extends OperationSet>, ProtocolProviderService> m =
+                new HashMap<Class<? extends OperationSet>, ProtocolProviderService>();
+            m.put(opSetClass, ct.getProtocolProvider());
+
+            UIContactDetailImpl d =
+            new UIContactDetailImpl(
+                ct.getName(),
+                ct.getDisplayName(),
+                null,
+                null,
+                null,
+                m,
+                null,
+                ct.getName());
+            PresenceStatus status = ct.getStatus();
+            byte[] statusIconBytes = status.getStatusIcon();
+
+            if (statusIconBytes != null && statusIconBytes.length > 0)
             {
-                ChatTransport transport = contactOpSetSupported.get(0);
-                if (isVideo)
-                    CallManager.createVideoCall(
-                        transport.getProtocolProvider(),
-                        transport.getName());
-                else
-                    CallManager.createCall(
-                        transport.getProtocolProvider(),
-                        transport.getName());
+                d.setStatusIcon(new ImageIcon(
+                    ImageLoader.getIndexedProtocolImage(
+                        ImageUtils.getBytesInImage(statusIconBytes),
+                        ct.getProtocolProvider())));
             }
-            else if (contactOpSetSupported.size() == 0
-                        && phones.size() == 1)
-            {
-                UIContactDetail detail = phones.get(0);
 
-                ProtocolProviderService preferredProvider
-                    = detail.getPreferredProtocolProvider(
-                        OperationSetBasicTelephony.class);
-
-                List<ProtocolProviderService> providers
-                    = AccountUtils.getOpSetRegisteredProviders(
-                        OperationSetBasicTelephony.class,
-                        preferredProvider,
-                        detail.getPreferredProtocol(
-                            OperationSetBasicTelephony.class));
-
-                if (providers != null)
-                {
-                    int providersCount = providers.size();
-
-                    if (providersCount <= 0)
-                    {
-                        new ErrorDialog(null,
-                            GuiActivator.getResources().getI18NString(
-                                "service.gui.CALL_FAILED"),
-                            GuiActivator.getResources().getI18NString(
-                                "service.gui.NO_ONLINE_TELEPHONY_ACCOUNT"))
-                        .showDialog();
-                    }
-                    else if (providersCount == 1)
-                    {
-                        if (isVideo)
-                            CallManager.createVideoCall(
-                                providers.get(0), detail.getAddress());
-                        else
-                            CallManager.createCall(
-                                providers.get(0), detail.getAddress());
-                    }
-                    else if (providersCount > 1)
-                    {
-                        ChooseCallAccountPopupMenu chooseAccountDialog;
-
-                        if (isVideo)
-                            chooseAccountDialog = 
-                                new ChooseCallAccountPopupMenu(
-                                    callButton, detail.getAddress(), providers,
-                                    OperationSetVideoTelephony.class);
-                        else
-                            chooseAccountDialog = 
-                                new ChooseCallAccountPopupMenu(
-                                    callButton, detail.getAddress(), providers,
-                                    OperationSetBasicTelephony.class);
-
-                        Point location = new Point(callButton.getX(),
-                            callButton.getY() + callButton.getHeight());
-
-                        SwingUtilities.convertPointToScreen(
-                            location, this);
-
-                        chooseAccountDialog
-                            .showPopupMenu(location.x, location.y);
-                    }
-                }
-            }
-            else if ((contactOpSetSupported.size() + phones.size()) > 1)
-            {
-                List<Object> allContacts = new ArrayList<Object>();
-                for(ChatTransport t : contactOpSetSupported)
-                {
-                    allContacts.add(t);
-                }
-                for(UIContactDetail t : phones)
-                {
-                    allContacts.add(t);
-                }
-
-                ChooseCallAccountPopupMenu chooseAccountDialog;
-
-                if (isVideo)
-                    chooseAccountDialog
-                        = new ChooseCallAccountPopupMenu(
-                                            callButton,
-                                            allContacts,
-                                            OperationSetVideoTelephony.class);
-                else
-                    chooseAccountDialog
-                        = new ChooseCallAccountPopupMenu(
-                                            callButton,
-                                            allContacts,
-                                            OperationSetBasicTelephony.class);
-
-                Point location = new Point(callButton.getX(),
-                    callButton.getY() + callButton.getHeight());
-
-                SwingUtilities.convertPointToScreen(
-                    location, this);
-
-                chooseAccountDialog
-                    .showPopupMenu(location.x, location.y);
-            }
-        }
-    }
-
-    /**
-     * Check the capabilities and change the enable/disable state of the
-     * desktopSharingButton button.
-     */
-    private class UpdateDesktopSharingButtonWorker
-        extends SwingWorker
-    {
-        /**
-         * The current chat trasnports.
-         */
-        private List<ChatTransport> chatTransports;
-
-        /**
-         * Constructs worker.
-         * @param chatTransports
-         */
-        UpdateDesktopSharingButtonWorker(List<ChatTransport> chatTransports)
-        {
-            this.chatTransports = chatTransports;
+            res.add(d);
         }
 
-        /**
-         * Executes in worker thread.
-         * @return
-         * @throws Exception
-         */
-        @Override
-        protected Object construct()
-            throws
-            Exception
-        {
-            return (!getOperationSetForCapabilities(
-                chatTransports,
-                OperationSetDesktopSharingServer.class).isEmpty())
-                || hasVideoDetail(chatTransports);
-        }
+        Point location = new Point(callButton.getX(),
+            callButton.getY() + callButton.getHeight());
 
-        /**
-         * Called on the event dispatching thread (not on the worker thread)
-         * after the <code>construct</code> method has returned.
-         */
-        protected void finished()
-        {
-            desktopSharingButton.setEnabled((Boolean)get());
-        }
+        SwingUtilities.convertPointToScreen(
+            location, this);
+
+        CallManager.call(
+            contactPhoneUtil, res,
+            isVideo, isDesktopSharing,
+            callButton, location);
     }
 
     /**
@@ -992,11 +715,6 @@ public class MainToolBar
         extends SwingWorker
     {
         /**
-         * The current chat session.
-         */
-        private ChatSession chatSession;
-
-        /**
          * The current contact.
          */
         private MetaContact contact;
@@ -1004,21 +722,24 @@ public class MainToolBar
         /**
          * Has this contact any phone.
          */
-        private boolean hasPhone = false;
+        private boolean isCallEnabled = false;
 
         /**
-         * Has this contact telephone at all.
+         * Has this contact any video phone.
          */
-        private boolean hasTelephony = false;
+        private boolean isVideoCallEnabled = false;
+
+        /**
+         * Has this contact has desktop sharing enabled.
+         */
+        private boolean isDesktopSharingEnabled = false;
 
         /**
          * Creates worker.
-         * @param chatSession
          * @param contact
          */
-        UpdateCallButtonWorker(ChatSession chatSession, MetaContact contact)
+        UpdateCallButtonWorker(MetaContact contact)
         {
-            this.chatSession = chatSession;
             this.contact = contact;
         }
 
@@ -1032,58 +753,12 @@ public class MainToolBar
             throws
             Exception
         {
-            List<ChatTransport> chatTransports =
-                this.chatSession.getTransportsForOperationSet(
-                        OperationSetBasicTelephony.class);
+            contactPhoneUtil = ContactPhoneUtil.getPhoneUtil(contact);
 
-            hasTelephony =
-                !getOperationSetForCapabilities(
-                    chatTransports,
-                    OperationSetBasicTelephony.class).isEmpty();
+            isCallEnabled = contactPhoneUtil.isCallEnabled();
+            isVideoCallEnabled = contactPhoneUtil.isVideoCallEnabled();
+            isDesktopSharingEnabled = contactPhoneUtil.isDesktopSharingEnabled();
 
-            if(!hasTelephony && contact != null)
-            {
-                Iterator<Contact> contacts = contact.getContacts();
-                while(contacts.hasNext())
-                {
-                    Contact c = contacts.next();
-
-                    if(!c.getProtocolProvider().isRegistered())
-                        continue;
-
-                    OperationSetServerStoredContactInfo infoOpSet =
-                        c.getProtocolProvider().getOperationSet(
-                            OperationSetServerStoredContactInfo.class);
-                    Iterator<GenericDetail> details;
-
-                    if(infoOpSet != null)
-                    {
-                        details = infoOpSet.requestAllDetailsForContact(c,
-                            new DetailsListener(
-                                    this.chatSession, callButton));
-
-                        if(details != null)
-                        {
-                            while(details.hasNext())
-                            {
-                                GenericDetail d = details.next();
-                                if(d instanceof PhoneNumberDetail &&
-                                    !(d instanceof PagerDetail) &&
-                                    !(d instanceof FaxDetail))
-                                {
-                                    PhoneNumberDetail pnd = (PhoneNumberDetail)d;
-                                    if(pnd.getNumber() != null &&
-                                        pnd.getNumber().length() > 0)
-                                    {
-                                        hasPhone = true;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
             return null;
         }
 
@@ -1093,7 +768,10 @@ public class MainToolBar
          */
         protected void finished()
         {
-            callButton.setEnabled(hasTelephony || hasPhone);
+            callButton.setEnabled(isCallEnabled);
+            callVideoButton.setEnabled(isVideoCallEnabled);
+            desktopSharingButton.setEnabled(isDesktopSharingEnabled);
+
         }
 
     }

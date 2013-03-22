@@ -194,16 +194,8 @@ public class ChooseCallAccountPopupMenu
         {
             public void actionPerformed(ActionEvent e)
             {
-                if (opSetClass.equals(OperationSetBasicTelephony.class))
-                    CallManager.createCall( providerItem.getProtocolProvider(),
-                                            contactString);
-                else if (opSetClass.equals(OperationSetVideoTelephony.class))
-                    CallManager.createVideoCall(
-                        providerItem.getProtocolProvider(),
-                        contactString);
-                else if (opSetClass.equals(
-                    OperationSetDesktopSharingServer.class))
-                    CallManager.createDesktopSharing(
+                CallManager.createCall(
+                        opSetClass,
                         providerItem.getProtocolProvider(),
                         contactString);
 
@@ -260,22 +252,10 @@ public class ChooseCallAccountPopupMenu
                 }
                 else // providersCount == 1
                 {
-                    if (opSetClass.equals(OperationSetBasicTelephony.class))
-                    {
-                        CallManager.createCall(
-                            providers.get(0), telephonyContact.getAddress());
-                    }
-                    else if (opSetClass.equals(OperationSetVideoTelephony.class))
-                    {
-                        CallManager.createVideoCall(
-                            providers.get(0), telephonyContact.getAddress());
-                    }
-                    else if (opSetClass.equals(
-                        OperationSetDesktopSharingServer.class))
-                    {
-                        CallManager.createDesktopSharing(
-                            providers.get(0), telephonyContact.getAddress());
-                    }
+                    CallManager.createCall(
+                        opSetClass,
+                        providers.get(0),
+                        telephonyContact.getAddress());
                 }
 
                 ChooseCallAccountPopupMenu.this.setVisible(false);
@@ -353,18 +333,10 @@ public class ChooseCallAccountPopupMenu
         {
             public void actionPerformed(ActionEvent e)
             {
-                if (opSetClass.equals(OperationSetBasicTelephony.class))
-                    CallManager.createCall( telTransport.getProtocolProvider(),
-                                            telTransport.getName());
-                else if (opSetClass.equals(OperationSetVideoTelephony.class))
-                    CallManager.createVideoCall(
-                        telTransport.getProtocolProvider(),
-                        telTransport.getName());
-                else if (opSetClass.equals(
-                    OperationSetDesktopSharingServer.class))
-                    CallManager.createDesktopSharing(
-                        telTransport.getProtocolProvider(),
-                        telTransport.getName());
+                CallManager.createCall(
+                    opSetClass,
+                    telTransport.getProtocolProvider(),
+                    telTransport.getName());
 
                 ChooseCallAccountPopupMenu.this.setVisible(false);
             }

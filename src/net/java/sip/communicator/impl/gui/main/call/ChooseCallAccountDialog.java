@@ -85,34 +85,23 @@ public class ChooseCallAccountDialog
     }
 
     /**
+     * Returns the currently selected provider.
+     * @return
+     */
+    protected ProtocolProviderService getSelectedProvider()
+    {
+        return ((Account) getAccountsCombo().getSelectedItem())
+                        .getProtocolProvider();
+    }
+
+    /**
      * Calls through the selected account when the call button is pressed.
      */
     @Override
     public void callButtonPressed()
     {
-        ProtocolProviderService selectedProvider
-            = ((Account) getAccountsCombo().getSelectedItem())
-                .getProtocolProvider();
-
-        if (opSetClass.equals(OperationSetBasicTelephony.class))
-        {
-            CallManager.createCall(
-                selectedProvider,
-                contactAddress);
-        }
-        else if (opSetClass.equals(OperationSetVideoTelephony.class))
-        {
-            CallManager.createVideoCall(
-                selectedProvider,
-                contactAddress);
-        }
-        else if (opSetClass.equals(
-            OperationSetDesktopSharingServer.class))
-        {
-            CallManager.createDesktopSharing(
-                selectedProvider,
-                contactAddress);
-        }
+        CallManager.createCall(
+            opSetClass, getSelectedProvider(), contactAddress);
     }
 
     /**
@@ -137,22 +126,6 @@ public class ChooseCallAccountDialog
     @Override
     public void videoCallButtonPressed()
     {
-        ProtocolProviderService selectedProvider
-            = ((Account) getAccountsCombo().getSelectedItem())
-                .getProtocolProvider();
-
-        if (opSetClass.equals(OperationSetVideoTelephony.class))
-        {
-            CallManager.createVideoCall(
-                selectedProvider,
-                contactAddress);
-        }
-        else if (opSetClass.equals(
-            OperationSetDesktopSharingServer.class))
-        {
-            CallManager.createDesktopSharing(
-                selectedProvider,
-                contactAddress);
-        }
+        callButtonPressed();
     }
 }

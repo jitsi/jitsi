@@ -91,9 +91,8 @@ public abstract class UIContactDetail
      * @param displayName the contact display name
      * @param category the category of the underlying contact detail
      * @param labels the collection of labels associated with this detail
-     * @param statusIcon the status icon of this contact detail
-     * @param preferredProvider the preferred protocol provider
-     * @param preferredProtocol the preferred protocol if no protocol provider
+     * @param preferredProviders the preferred protocol provider
+     * @param preferredProtocols the preferred protocol if no protocol provider
      * is set
      * @param descriptor the underlying object that this class is wrapping
      */
@@ -182,7 +181,7 @@ public abstract class UIContactDetail
      *
      * @param opSetClass the <tt>OperationSet</tt> class for which we're looking
      * for protocol
-     * @param protocol the preferred protocol provider to add
+     * @param protocolProvider the preferred protocol provider to add
      */
     public void addPreferredProtocolProvider(
                                     Class<? extends OperationSet> opSetClass,

@@ -60,8 +60,8 @@ public class UIContactDetailImpl
      * @param category the category of the underlying contact detail
      * @param labels the collection of labels associated with this detail
      * @param statusIcon the status icon of this contact detail
-     * @param preferredProvider the preferred protocol provider
-     * @param preferredProtocol the preferred protocol if no protocol provider
+     * @param preferredProviders the preferred protocol providers
+     * @param preferredProtocols the preferred protocols if no protocol provider
      * is set
      * @param descriptor the underlying object that this class is wrapping
      */

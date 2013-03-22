@@ -22,7 +22,6 @@ import net.java.sip.communicator.plugin.desktoputil.transparent.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
@@ -30,6 +29,7 @@ import net.java.sip.communicator.util.account.*;
 
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.codec.*;
+import org.jitsi.service.neomedia.codec.Constants;
 import org.jitsi.service.neomedia.device.*;
 import org.jitsi.service.neomedia.format.*;
 import org.jitsi.service.resources.*;
@@ -341,19 +341,6 @@ public class CallManager
     }
 
     /**
-     * Creates a call to the contact represented by the given string.
-     *
-     * @param protocolProvider the protocol provider to which this call belongs.
-     * @param contact the contact to call to
-     */
-    public static void createCall(  ProtocolProviderService protocolProvider,
-                                    Contact contact)
-    {
-        new CreateCallThread(protocolProvider, contact, false /* audio-only */)
-            .start();
-    }
-
-    /**
      * Creates a video call to the contact represented by the given string.
      *
      * @param protocolProvider the protocol provider to which this call belongs.
@@ -361,19 +348,6 @@ public class CallManager
      */
     public static void createVideoCall(ProtocolProviderService protocolProvider,
                                         String contact)
-    {
-        new CreateCallThread(protocolProvider, contact, true /* video */)
-            .start();
-    }
-
-    /**
-     * Creates a video call to the contact represented by the given string.
-     *
-     * @param protocolProvider the protocol provider to which this call belongs.
-     * @param contact the contact to call to
-     */
-    public static void createVideoCall(ProtocolProviderService protocolProvider,
-                                        Contact contact)
     {
         new CreateCallThread(protocolProvider, contact, true /* video */)
             .start();
@@ -416,7 +390,7 @@ public class CallManager
      * @param protocolProvider the protocol provider to which this call belongs.
      * @param contact the contact to call to
      */
-    public static void createDesktopSharing(
+    private static void createDesktopSharing(
             ProtocolProviderService protocolProvider,
             String contact)
     {
@@ -459,7 +433,7 @@ public class CallManager
      * which the sharing session will be established
      * @param contact the address of the contact recipient
      */
-    public static void createRegionDesktopSharing(
+    private static void createRegionDesktopSharing(
                                     ProtocolProviderService protocolProvider,
                                     String contact)
     {
@@ -1060,9 +1034,7 @@ public class CallManager
      * in the same telephony conference as the specified <tt>Call</tt>.)
      *
      * @param callConference The <tt>CallConference</tt> which is to have its
-     * associated <tt>CallPanel</tt>, if any, closed
-     * {@link CallContainer#closeWait(CallPanel)} or <tt>false</tt> to use
-     * {@link CallContainer#close(CallPanel)}
+     * associated <tt>CallPanel</tt>, if any
      */
     private static void closeCallContainerIfNotNecessary(
             final CallConference callConference)
@@ -1081,9 +1053,8 @@ public class CallManager
      *
      * @param callConference The <tt>CallConference</tt> which is to have its
      * associated <tt>CallPanel</tt>, if any, closed
-     * @param wait <tt>true</tt> to use
-     * {@link CallContainer#closeWait(CallPanel)} or <tt>false</tt> to use
-     * {@link CallContainer#close(CallPanel)}
+     * @param wait <tt>true</tt> to set <tt>delay</tt> param of
+     * {@link CallContainer#close(CallPanel, boolean)} (CallPanel)}
      */
     private static void closeCallContainerIfNotNecessary(
             final CallConference callConference,
@@ -1589,109 +1560,6 @@ public class CallManager
 
         return CallManager.addressesAreEqual(
             conferenceMember.getAddress(), localUserAddress);
-    }
-
-    /**
-     * Searches for additional phone numbers found in contact information
-     *
-     * @param metaContact the <tt>MetaContact</tt> for which we're looking for
-     * additional numbers
-     * @return additional phone numbers found in contact information;
-     */
-    public static List<UIContactDetail> getAdditionalNumbers(
-                                                        MetaContact metaContact)
-    {
-        List<UIContactDetail> telephonyContacts
-            = new ArrayList<UIContactDetail>();
-
-        Iterator<Contact> contacts = metaContact.getContacts();
-
-        while(contacts.hasNext())
-        {
-            Contact contact = contacts.next();
-            OperationSetServerStoredContactInfo infoOpSet =
-                contact.getProtocolProvider().getOperationSet(
-                    OperationSetServerStoredContactInfo.class);
-            Iterator<GenericDetail> details;
-            ArrayList<String> phones = new ArrayList<String>();
-
-            if(infoOpSet != null)
-            {
-                details = infoOpSet.getAllDetailsForContact(contact);
-
-                while(details.hasNext())
-                {
-                    GenericDetail d = details.next();
-                    if(d instanceof PhoneNumberDetail &&
-                        !(d instanceof PagerDetail) &&
-                        !(d instanceof FaxDetail))
-                    {
-                        PhoneNumberDetail pnd = (PhoneNumberDetail)d;
-                        if(pnd.getNumber() != null &&
-                            pnd.getNumber().length() > 0)
-                        {
-                            String localizedType = null;
-
-                            // skip phones which were already added
-                            if(phones.contains(pnd.getNumber()))
-                                continue;
-
-                            if(d instanceof WorkPhoneDetail)
-                            {
-                                localizedType =
-                                    GuiActivator.getResources().
-                                        getI18NString(
-                                            "service.gui.WORK_PHONE");
-                            }
-                            else if(d instanceof MobilePhoneDetail)
-                            {
-                                localizedType =
-                                    GuiActivator.getResources().
-                                        getI18NString(
-                                            "service.gui.MOBILE_PHONE");
-                            }
-                            else if(d instanceof VideoDetail)
-                            {
-                                localizedType =
-                                    GuiActivator.getResources().
-                                        getI18NString(
-                                            "service.gui.VIDEO_PHONE");
-                            }
-                            else
-                            {
-                                localizedType =
-                                    GuiActivator.getResources().
-                                        getI18NString(
-                                            "service.gui.HOME");
-                            }
-
-                            phones.add(pnd.getNumber());
-
-                            UIContactDetail cd =
-                                new UIContactDetailImpl(
-                                    pnd.getNumber(),
-                                    pnd.getNumber() +
-                                    " (" + localizedType + ")",
-                                    null,
-                                    new ArrayList<String>(),
-                                    null,
-                                    null,
-                                    null,
-                                    pnd)
-                            {
-                                public PresenceStatus getPresenceStatus()
-                                {
-                                    return null;
-                                }
-                            };
-                            telephonyContacts.add(cd);
-                        }
-                    }
-                }
-            }
-        }
-
-        return telephonyContacts;
     }
 
     /**
@@ -2835,5 +2703,314 @@ public class CallManager
                 logger.error("A CallPanel failed to handle a CallEvent", ex);
             }
         }
+    }
+
+    /**
+     * Creates a call for the supplied operation set.
+     * @param opSetClass the operation set to use to create call.
+     * @param protocolProviderService the protocol provider
+     * @param contact the contact address to call
+     */
+    static void createCall(Class<? extends OperationSet> opSetClass,
+                    ProtocolProviderService protocolProviderService,
+                    String contact)
+    {
+        if (opSetClass.equals(OperationSetBasicTelephony.class))
+        {
+            createCall(protocolProviderService, contact);
+        }
+        else if (opSetClass.equals(OperationSetVideoTelephony.class))
+        {
+            createVideoCall(protocolProviderService, contact);
+        }
+        else if (opSetClass.equals(
+            OperationSetDesktopSharingServer.class))
+        {
+            createDesktopSharing(protocolProviderService, contact);
+        }
+    }
+
+    /**
+     * Creates a call for the default contact of the metacontact
+     *
+     * @param metaContact the metacontact that will be called.
+     * @param isVideo if <tt>true</tt> will create video call.
+     * @param isDesktop if <tt>true</tt> will share the desktop.
+     * @param shareRegion if <tt>true</tt> will share a region of the desktop.
+     */
+    public static void call(MetaContact metaContact,
+                            boolean isVideo,
+                            boolean isDesktop,
+                            boolean shareRegion)
+    {
+        Contact contact = metaContact
+            .getDefaultContact(getOperationSetForCall(isVideo, isDesktop));
+        call(contact, isVideo, isDesktop, shareRegion);
+    }
+
+    /**
+     * A particular contact has been selected no options to select
+     * will just call it.
+     * @param contact the contact to call
+     * @param isVideo is video enabled
+     * @param isDesktop is desktop sharing enabled
+     * @param shareRegion is sharing the whole desktop or just a region.
+     */
+    public static void call(Contact contact,
+                            boolean isVideo,
+                            boolean isDesktop,
+                            boolean shareRegion)
+    {
+        if(isDesktop)
+        {
+            if(shareRegion)
+            {
+                createRegionDesktopSharing(
+                    contact.getProtocolProvider(),
+                    contact.getAddress());
+            }
+            else
+                createDesktopSharing(contact.getProtocolProvider(),
+                                    contact.getAddress());
+        }
+        else
+        {
+            new CreateCallThread(
+                    contact.getProtocolProvider(), contact, isVideo).start();
+        }
+    }
+
+    /**
+     * Calls a phone showing a dialog to choose a provider.
+     * @param phone phone to call
+     * @param isVideo if <tt>true</tt> will create video call.
+     * @param isDesktop if <tt>true</tt> will share the desktop.
+     * @param shareRegion if <tt>true</tt> will share a region of the desktop.
+     */
+    public static void call(final String phone,
+                            boolean isVideo,
+                            boolean isDesktop,
+                            final boolean shareRegion)
+    {
+        List<ProtocolProviderService> providers =
+            CallManager.getTelephonyProviders();
+
+        if(providers.size() > 1)
+        {
+            ChooseCallAccountDialog chooseAccount =
+                new ChooseCallAccountDialog(
+                    phone,
+                    getOperationSetForCall(isVideo, isDesktop),
+                    providers)
+            {
+                    @Override
+                    public void callButtonPressed()
+                    {
+                        if(shareRegion)
+                        {
+                            createRegionDesktopSharing(
+                                getSelectedProvider(), phone);
+                        }
+                        else
+                            super.callButtonPressed();
+                    }
+            };
+            chooseAccount.setVisible(true);
+        }
+        else
+        {
+            CallManager.createCall(providers.get(0), phone);
+        }
+    }
+
+    /**
+     * Obtain operation set checking the params.
+     * @param isVideo if <tt>true</tt> use OperationSetVideoTelephony.
+     * @param isDesktop if <tt>true</tt> use OperationSetDesktopSharingServer.
+     * @return the operation set, default is OperationSetBasicTelephony.
+     */
+    private static Class<? extends OperationSet> getOperationSetForCall(
+        boolean isVideo, boolean isDesktop)
+    {
+        if(isVideo)
+        {
+            if(isDesktop)
+                return OperationSetDesktopSharingServer.class;
+            else
+                return OperationSetVideoTelephony.class;
+        }
+        else
+            return OperationSetBasicTelephony.class;
+    }
+
+    /**
+     * Call any of the supplied details.
+     * @param contactPhoneUtil the util (metacontact) to check what is enabled,
+     *                         available.
+     * @param uiContactDetailList the list with details to choose for calling
+     * @param isVideo if <tt>true</tt> will create video call.
+     * @param isDesktop if <tt>true</tt> will share the desktop.
+     * @param invoker the invoker component
+     * @param location the location where this was invoked.
+     */
+    public static void call(ContactPhoneUtil contactPhoneUtil,
+                            List<UIContactDetail> uiContactDetailList,
+                            boolean isVideo,
+                            boolean isDesktop,
+                            JComponent invoker,
+                            Point location)
+    {
+        ChooseCallAccountPopupMenu chooseCallAccountPopupMenu = null;
+
+        Class<? extends OperationSet> opsetClass =
+            getOperationSetForCall(isVideo, isDesktop);
+
+        if(contactPhoneUtil != null)
+        {
+            boolean addAdditionalNumbers = false;
+            if(!isVideo
+                || ConfigurationUtils
+                        .isRouteVideoAndDesktopUsingPhoneNumberEnabled())
+            {
+                addAdditionalNumbers = true;
+            }
+            else
+            {
+                if(isVideo && contactPhoneUtil != null)
+                {
+                    // lets check is video enabled in additional numbers
+                    addAdditionalNumbers =
+                        contactPhoneUtil.isVideoCallEnabled() ?
+                            isDesktop ?
+                                contactPhoneUtil.isDesktopSharingEnabled()
+                                : true
+                            : false;
+                }
+            }
+
+            if(addAdditionalNumbers)
+            {
+                uiContactDetailList.addAll(
+                    contactPhoneUtil.getAdditionalNumbers());
+            }
+        }
+
+        if (uiContactDetailList.size() == 1)
+        {
+            UIContactDetail detail = uiContactDetailList.get(0);
+
+            ProtocolProviderService preferredProvider
+                = detail.getPreferredProtocolProvider(opsetClass);
+
+            List<ProtocolProviderService> providers = null;
+            String protocolName = null;
+
+            if (preferredProvider != null)
+            {
+                if (preferredProvider.isRegistered())
+                    createCall(opsetClass,
+                               preferredProvider,
+                               detail.getAddress());
+
+                // If we have a provider, but it's not registered we try to
+                // obtain all registered providers for the same protocol as the
+                // given preferred provider.
+                else
+                {
+                    protocolName = preferredProvider.getProtocolName();
+                    providers = AccountUtils.getRegisteredProviders(protocolName,
+                        opsetClass);
+                }
+            }
+            // If we don't have a preferred provider we try to obtain a
+            // preferred protocol name and all registered providers for it.
+            else
+            {
+                protocolName = detail.getPreferredProtocol(opsetClass);
+
+                if (protocolName != null)
+                    providers
+                        = AccountUtils.getRegisteredProviders(protocolName,
+                            opsetClass);
+                else
+                    providers
+                        = AccountUtils.getRegisteredProviders(opsetClass);
+            }
+
+            // If our call didn't succeed, try to call through one of the other
+            // protocol providers obtained above.
+            if (providers != null)
+            {
+                int providersCount = providers.size();
+
+                if (providersCount <= 0)
+                {
+                    new ErrorDialog(null,
+                        GuiActivator.getResources().getI18NString(
+                            "service.gui.CALL_FAILED"),
+                        GuiActivator.getResources().getI18NString(
+                            "service.gui.NO_ONLINE_TELEPHONY_ACCOUNT"))
+                    .showDialog();
+                }
+                else if (providersCount == 1)
+                {
+                    createCall(
+                        opsetClass,
+                        providers.get(0),
+                        detail.getAddress());
+                }
+                else if (providersCount > 1)
+                {
+                    chooseCallAccountPopupMenu =
+                        new ChooseCallAccountPopupMenu(
+                            invoker, detail.getAddress(), providers,
+                            opsetClass);
+                }
+            }
+        }
+        else if (uiContactDetailList.size() > 1)
+        {
+            chooseCallAccountPopupMenu
+                = new ChooseCallAccountPopupMenu(invoker, uiContactDetailList,
+                        opsetClass);
+        }
+
+        // If the choose dialog is created we're going to show it.
+        if (chooseCallAccountPopupMenu != null)
+        {
+            chooseCallAccountPopupMenu.showPopupMenu(location.x, location.y);
+        }
+    }
+
+
+    /**
+     * Call the ui contact.
+     * @param uiContact the contact to call.
+     * @param isVideo if <tt>true</tt> will create video call.
+     * @param isDesktop if <tt>true</tt> will share the desktop.
+     * @param invoker the invoker component
+     * @param location the location where this was invoked.
+     */
+    public static void call(UIContact uiContact,
+                            boolean isVideo,
+                            boolean isDesktop,
+                            JComponent invoker,
+                            Point location)
+    {
+        ContactPhoneUtil contactPhoneUtil = null;
+        if(uiContact.getDescriptor() instanceof MetaContact)
+        {
+            contactPhoneUtil = ContactPhoneUtil.getPhoneUtil(
+                (MetaContact)uiContact.getDescriptor());
+        }
+
+        List<UIContactDetail> telephonyContacts
+            = uiContact.getContactDetailsForOperationSet(
+                getOperationSetForCall(isVideo, isDesktop));
+
+        call(contactPhoneUtil,
+            telephonyContacts,
+            isVideo, isDesktop,
+            invoker, location);
     }
 }

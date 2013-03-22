@@ -301,6 +301,11 @@ public class MetaContactRightButtonMenu
     private Contact firstUnsubscribedContact = null;
 
     /**
+     * The phone util we use to check whether to enable/disable buttons.
+     */
+    private ContactPhoneUtil contactPhoneUtil;
+
+    /**
      * Creates an instance of ContactRightButtonMenu.
      * @param contactItem The MetaContact for which the menu is opened
      */
@@ -388,11 +393,10 @@ public class MetaContactRightButtonMenu
 
         List<ProtocolProviderService> providers =
             CallManager.getTelephonyProviders();
-        boolean hasPhones = false;
-        boolean hasVideoDetail = false;
+
         boolean separator = false;
-        boolean routingForVideoEnabled = false;
-        boolean routingForDesktopEnabled = false;
+
+        contactPhoneUtil = ContactPhoneUtil.getPhoneUtil(metaContact);
 
         while (contacts.hasNext())
         {
@@ -418,98 +422,12 @@ public class MetaContactRightButtonMenu
                             + protocolProvider.getProtocolName(),
                             protocolIcon));
 
-            OperationSetServerStoredContactInfo infoOpSet =
-                contact.getProtocolProvider().getOperationSet(
-                    OperationSetServerStoredContactInfo.class);
-            Iterator<GenericDetail> details = null;
-            ArrayList<String> phones = new ArrayList<String>();
-
-            if(infoOpSet != null)
-            {
-                try
-                {
-                    details = infoOpSet.getAllDetailsForContact(contact);
-
-                    while(details.hasNext())
-                    {
-                        GenericDetail d = details.next();
-                        if(d instanceof PhoneNumberDetail &&
-                            !(d instanceof PagerDetail) &&
-                            !(d instanceof FaxDetail))
-                        {
-                            PhoneNumberDetail pnd = (PhoneNumberDetail)d;
-                            if(pnd.getNumber() != null &&
-                                pnd.getNumber().length() > 0)
-                            {
-                                String localizedType;
-
-                                if(d instanceof WorkPhoneDetail)
-                                {
-                                    localizedType =
-                                        GuiActivator.getResources().
-                                            getI18NString(
-                                                "service.gui.WORK_PHONE");
-                                }
-                                else if(d instanceof MobilePhoneDetail)
-                                {
-                                    localizedType =
-                                        GuiActivator.getResources().
-                                            getI18NString(
-                                                "service.gui.MOBILE_PHONE");
-                                }
-                                else if(d instanceof VideoDetail)
-                                {
-                                    hasVideoDetail = true;
-                                    localizedType =
-                                        GuiActivator.getResources().
-                                            getI18NString(
-                                                "service.gui.VIDEO_PHONE");
-                                }
-                                else
-                                {
-                                    localizedType =
-                                        GuiActivator.getResources().
-                                            getI18NString(
-                                                "service.gui.PHONE");
-                                }
-
-                                phones.add(pnd.getNumber()
-                                    + " (" + localizedType + ")");
-                                hasPhones = true;
-                            }
-                        }
-                    }
-                }
-                catch(Throwable t)
-                {
-                    logger.error("Error obtaining server stored contact info");
-                }
-            }
-
-            routingForVideoEnabled =
-                            ConfigurationUtils
-                                .isRouteVideoAndDesktopUsingPhoneNumberEnabled()
-                            && phones.size() > 0
-                            && AccountUtils.getOpSetRegisteredProviders(
-                                            OperationSetVideoTelephony.class,
-                                            null,
-                                            null).size() > 0;
-            routingForDesktopEnabled =
-                ConfigurationUtils
-                    .isRouteVideoAndDesktopUsingPhoneNumberEnabled()
-                && phones.size() > 0
-                && AccountUtils.getOpSetRegisteredProviders(
-                        OperationSetDesktopSharingServer.class,
-                        null,
-                        null).size() > 0;
+            List<String> phones = contactPhoneUtil.getPhones(contact);
 
             // add all the contacts that support telephony to the call menu
             if (metaContact.getContactCount() > 1 || phones.size() > 0)
             {
-                if (protocolProvider.getOperationSet(
-                        OperationSetBasicTelephony.class) != null &&
-                        hasContactCapabilities(contact,
-                                OperationSetBasicTelephony.class))
+                if (contactPhoneUtil.isCallEnabled(contact))
                 {
                     callContactMenu.add(
                         createMenuItem(contactAddress,
@@ -519,12 +437,7 @@ public class MetaContactRightButtonMenu
                     separator = true;
                 }
 
-                if (protocolProvider.getOperationSet(
-                        OperationSetVideoTelephony.class) != null &&
-                        hasContactCapabilities(contact,
-                                OperationSetVideoTelephony.class)
-                    || routingForVideoEnabled
-                    || hasVideoDetail)
+                if (contactPhoneUtil.isVideoCallEnabled(contact))
                 {
                     videoCallMenu.add(
                         createMenuItem( contactAddress,
@@ -533,12 +446,7 @@ public class MetaContactRightButtonMenu
                                         protocolIcon));
                 }
 
-                if (protocolProvider.getOperationSet(
-                        OperationSetDesktopSharingServer.class) != null &&
-                        hasContactCapabilities(contact,
-                                OperationSetDesktopSharingServer.class)
-                    || routingForDesktopEnabled
-                    || hasVideoDetail)
+                if (contactPhoneUtil.isDesktopSharingEnabled(contact))
                 {
                     multiContactFullShareMenu.add(
                         createMenuItem( contactAddress,
@@ -589,6 +497,31 @@ public class MetaContactRightButtonMenu
                 }
             }
 
+            List<String> videoPhones = contactPhoneUtil.getVideoPhones(contact);
+            for(String vphone : videoPhones)
+            {
+                String p = vphone.substring(0, vphone.lastIndexOf("(") - 1);
+                if(providers.size() > 0)
+                {
+                    JMenuItem vmenu = createMenuItem(vphone,
+                        videoCallPrefix + p,
+                        null);
+                    videoCallMenu.add(vmenu);
+
+                    JMenuItem shdmenu = createMenuItem(vphone,
+                        fullDesktopSharingPrefix + p,
+                        null);
+                    multiContactFullShareMenu.add(shdmenu);
+
+                    JMenuItem rshdmenu = createMenuItem(vphone,
+                        regionDesktopSharingPrefix + p,
+                        null);
+                    multiContactRegionShareMenu.add(rshdmenu);
+
+                    separator = true;
+                }
+            }
+
             if(separator && contacts.hasNext())
             {
                 callContactMenu.addSeparator();
@@ -624,7 +557,7 @@ public class MetaContactRightButtonMenu
         }
         else
         {
-            if((hasPhones && callContactMenu.getItemCount() > 0))
+            if(callContactMenu.getItemCount() > 0)
             {
                 JMenuItem item = callContactMenu.getItem(0);
                 this.callItem.setName(item.getName());
@@ -644,9 +577,18 @@ public class MetaContactRightButtonMenu
         }
         else
         {
-            this.add(videoCallItem);
-            this.videoCallItem.setName("videoCall");
+            if(videoCallMenu.getItemCount() > 0)
+            {
+                JMenuItem item = videoCallMenu.getItem(0);
+                this.videoCallItem.setName(item.getName());
+            }
+            else
+            {
+                this.videoCallItem.setName("videoCall");
+            }
+
             this.videoCallItem.addActionListener(this);
+            this.add(videoCallItem);
         }
 
         if (multiContactFullShareMenu.getItemCount() > 1)
@@ -656,13 +598,24 @@ public class MetaContactRightButtonMenu
         }
         else
         {
-            fullShareMenuItem.setName("shareFullScreen");
-            fullShareMenuItem.addActionListener(this);
-            add(fullShareMenuItem);
+            if(multiContactFullShareMenu.getItemCount() > 0)
+            {
+                JMenuItem item = multiContactFullShareMenu.getItem(0);
+                this.fullShareMenuItem.setName(item.getName());
 
-            regionShareMenuItem.setName("shareRegion");
-            regionShareMenuItem.addActionListener(this);
-            add(regionShareMenuItem);
+                JMenuItem ritem = multiContactRegionShareMenu.getItem(0);
+                this.regionShareMenuItem.setName(ritem.getName());
+            }
+            else
+            {
+                this.fullShareMenuItem.setName("shareFullScreen");
+                this.regionShareMenuItem.setName("shareRegion");
+            }
+
+            this.fullShareMenuItem.addActionListener(this);
+            this.regionShareMenuItem.addActionListener(this);
+            this.add(fullShareMenuItem);
+            this.add(regionShareMenuItem);
         }
 
         add(sendFileItem);
@@ -771,23 +724,17 @@ public class MetaContactRightButtonMenu
             OperationSetFileTransfer.class) == null)
             this.sendFileItem.setEnabled(false);
 
-        if (metaContact.getDefaultContact(
-            OperationSetBasicTelephony.class) == null && (!hasPhones ||
-            CallManager.getTelephonyProviders().size() == 0))
+        if (!contactPhoneUtil.isCallEnabled())
+        {
             this.callItem.setEnabled(false);
+        }
 
-        if (metaContact.getDefaultContact(
-            OperationSetVideoTelephony.class) == null
-            && !routingForVideoEnabled
-            && !hasVideoDetail)
+        if (!contactPhoneUtil.isVideoCallEnabled())
         {
             this.videoCallItem.setEnabled(false);
         }
 
-        if (metaContact.getDefaultContact(
-            OperationSetDesktopSharingServer.class) == null
-            && !routingForDesktopEnabled
-            && !hasVideoDetail)
+        if (!contactPhoneUtil.isDesktopSharingEnabled())
         {
             fullShareMenuItem.setEnabled(false);
             regionShareMenuItem.setEnabled(false);
@@ -958,35 +905,19 @@ public class MetaContactRightButtonMenu
         }
         else if (itemName.equals("call"))
         {
-            contact = metaContact.getDefaultContact(
-                    OperationSetBasicTelephony.class);
-
-            CallManager.createCall(
-                contact.getProtocolProvider(), contact);
+            call(false, false, false, null);
         }
         else if (itemName.equals("videoCall"))
         {
-            contact = metaContact.getDefaultContact(
-                    OperationSetVideoTelephony.class);
-
-            CallManager.createVideoCall(
-                contact.getProtocolProvider(), contact);
+            call(true, false, false, null);
         }
         else if (itemName.equals("shareFullScreen"))
         {
-            contact = metaContact.getDefaultContact(
-                    OperationSetVideoTelephony.class);
-
-            CallManager.createDesktopSharing(
-                contact.getProtocolProvider(), contact.getAddress());
+            call(true, true, false, null);
         }
         else if (itemName.equals("shareRegion"))
         {
-            contact = metaContact.getDefaultContact(
-                    OperationSetVideoTelephony.class);
-
-            CallManager.createRegionDesktopSharing(
-                contact.getProtocolProvider(), contact.getAddress());
+            call(true, true, true, null);
         }
         else if (itemName.equals("sendFile"))
         {
@@ -1119,36 +1050,25 @@ public class MetaContactRightButtonMenu
         }
         else if (itemName.startsWith(callContactPrefix))
         {
-            contact = getContactFromMetaContact(
-                    itemName.substring(callContactPrefix.length()));
-
-            CallManager.createCall(
-                contact.getProtocolProvider(), contact);
+            call(false, false, false,
+                itemName.substring(callContactPrefix.length()));
         }
         else if (itemName.startsWith(videoCallPrefix))
         {
-            contact = getContactFromMetaContact(
-                    itemName.substring(videoCallPrefix.length()));
-
-            CallManager.createVideoCall(contact.getProtocolProvider(),
-                                        contact.getAddress());
+            call(true, false, false,
+                        itemName.substring(videoCallPrefix.length()));
         }
         else if (itemName.startsWith(fullDesktopSharingPrefix))
         {
-            contact = getContactFromMetaContact(
-                    itemName.substring(fullDesktopSharingPrefix.length()));
+            call(true, true, false,
+                        itemName.substring(fullDesktopSharingPrefix.length()));
 
-            CallManager.createDesktopSharing(   contact.getProtocolProvider(),
-                                                contact.getAddress());
         }
         else if (itemName.startsWith(regionDesktopSharingPrefix))
         {
-            contact = getContactFromMetaContact(
+            call(true, true, true,
                     itemName.substring(regionDesktopSharingPrefix.length()));
 
-            CallManager.createRegionDesktopSharing(
-                                                contact.getProtocolProvider(),
-                                                contact.getAddress());
         }
         else if (itemName.startsWith(requestAuthPrefix))
         {
@@ -1159,23 +1079,9 @@ public class MetaContactRightButtonMenu
         }
         else if (itemName.startsWith(callPhonePrefix))
         {
-            List<ProtocolProviderService> providers =
-                CallManager.getTelephonyProviders();
             String phone = itemName.substring(callPhonePrefix.length());
 
-            if(providers.size() > 1)
-            {
-                ChooseCallAccountDialog chooseAccount =
-                    new ChooseCallAccountDialog(
-                        phone,
-                        OperationSetBasicTelephony.class,
-                        providers);
-                chooseAccount.setVisible(true);
-            }
-            else
-            {
-                CallManager.createCall(providers.get(0), phone);
-            }
+            call(false, false, false, phone);
         }
     }
 
@@ -1447,38 +1353,6 @@ public class MetaContactRightButtonMenu
     }
 
     /**
-     * Returns <tt>true</tt> if <tt>Contact</tt> supports the specified
-     * <tt>OperationSet</tt>, <tt>false</tt> otherwise.
-     *
-     * @param contact contact to check
-     * @param opSet <tt>OperationSet</tt> to search for
-     * @return Returns <tt>true</tt> if <tt>Contact</tt> supports the specified
-     * <tt>OperationSet</tt>, <tt>false</tt> otherwise.
-     */
-    private boolean hasContactCapabilities(
-            Contact contact, Class<? extends OperationSet> opSet)
-    {
-        OperationSetContactCapabilities capOpSet =
-            contact.getProtocolProvider().
-                getOperationSet(OperationSetContactCapabilities.class);
-
-        if (capOpSet == null)
-        {
-            // assume contact has OpSet capabilities
-            return true;
-        }
-        else
-        {
-            if(capOpSet.getOperationSet(contact, opSet) != null)
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
      * Requests authorization for contact.
      *
      * @param contact the contact for which we request authorization
@@ -1525,5 +1399,43 @@ public class MetaContactRightButtonMenu
                 }
             }
         }.start();
+    }
+
+    /**
+     * Calls using the CallManager
+     * @param isVideo whether video button is pressed
+     * @param isDesktopSharing whether the share desktop button is used
+     * @param shareRegion whether the user want to share region from the desktop
+     * @param contactName the phone number to call or the contact name
+     *                    selected (normally when using prefix), if null
+     *                    will call the metacontact
+     */
+    private void call(boolean isVideo,
+                      boolean isDesktopSharing,
+                      boolean shareRegion,
+                      String contactName)
+    {
+        if(contactName != null)
+        {
+            Contact contact = getContactFromMetaContact(contactName);
+
+            // we want to call particular contact
+            if(contact != null)
+            {
+                CallManager.call(
+                    contact, isVideo, isDesktopSharing, shareRegion);
+                return;
+            }
+            else
+            {
+                // we want to call a phoneNumber
+                CallManager.call(
+                    contactName, isVideo, isDesktopSharing, shareRegion);
+                return;
+            }
+        }
+
+        // just call the metacontact
+        CallManager.call(metaContact, isVideo, isDesktopSharing, shareRegion);
     }
 }

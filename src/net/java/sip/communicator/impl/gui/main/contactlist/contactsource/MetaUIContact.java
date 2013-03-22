@@ -11,6 +11,7 @@ import java.util.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
@@ -425,6 +426,9 @@ public class MetaUIContact
     {
         Iterator<Contact> i = metaContact.getContacts();
 
+        ContactPhoneUtil contactPhoneUtil =
+            ContactPhoneUtil.getPhoneUtil(metaContact);
+
         String statusMessage = null;
         Contact protocolContact;
         boolean isLoading = false;
@@ -452,47 +456,47 @@ public class MetaUIContact
 
             tip.addLine(protocolStatusIcon, contactAddress);
 
-            OperationSetServerStoredContactInfo infoOpSet =
-                protocolContact.getProtocolProvider().getOperationSet(
-                    OperationSetServerStoredContactInfo.class);
+            if(!protocolContact.getProtocolProvider().isRegistered())
+                continue;
 
-            if(infoOpSet != null
-                && protocolContact.getProtocolProvider().isRegistered())
-            {
-                Iterator<GenericDetail> details =
-                    infoOpSet.requestAllDetailsForContact(protocolContact,
-                        new OperationSetServerStoredContactInfo
-                                .DetailsResponseListener()
+            contactPhoneUtil.addDetailsResponseListener(protocolContact,
+                new OperationSetServerStoredContactInfo
+                        .DetailsResponseListener()
+                {
+                    public void detailsRetrieved(
+                        final Iterator<GenericDetail> details)
+                    {
+                        if(!SwingUtilities.isEventDispatchThread())
                         {
-                            public void detailsRetrieved(
-                                final Iterator<GenericDetail> details)
+                            SwingUtilities.invokeLater(new Runnable()
                             {
-                                if(!SwingUtilities.isEventDispatchThread())
+                                public void run()
                                 {
-                                    SwingUtilities.invokeLater(new Runnable()
-                                    {
-                                        public void run()
-                                        {
-                                            detailsRetrieved(details);
-                                        }
-                                    });
-                                    return;
+                                    detailsRetrieved(details);
                                 }
+                            });
+                            return;
+                        }
 
-                                // remove previously shown information
-                                // as it contains "Loading..." text
-                                tip.removeAllLines();
+                        // remove previously shown information
+                        // as it contains "Loading..." text
+                        tip.removeAllLines();
 
-                                // load it again
-                                loadTooltip(tip);
-                            }
-                        });
+                        // load it again
+                        loadTooltip(tip);
+                    }
+                });
 
-                if(details != null)
-                    fillTooltipLines(tip, details);
-                else
-                    isLoading = true;
+
+
+            List<String> phones = contactPhoneUtil.getPhones(protocolContact);
+
+            if(phones != null)
+            {
+                fillTooltipLines(tip, phones.iterator());
             }
+            else
+                isLoading = true;
         }
 
         if(isLoading)
@@ -507,63 +511,14 @@ public class MetaUIContact
     /**
      * Fills the tooltip with details.
      * @param tip the tooltip to fill
-     * @param details the available details.
+     * @param phones the available phone details.
      */
     private void fillTooltipLines(ExtendedTooltip tip,
-                                  Iterator<GenericDetail> details)
+                                  Iterator<String> phones)
     {
-        ArrayList<String> phones = new ArrayList<String>();
-        while(details.hasNext())
+        while(phones.hasNext())
         {
-            GenericDetail d = details.next();
-            if(d instanceof PhoneNumberDetail &&
-                !(d instanceof FaxDetail) &&
-                !(d instanceof PagerDetail))
-            {
-                PhoneNumberDetail pnd = (PhoneNumberDetail)d;
-                if(pnd.getNumber() != null &&
-                    pnd.getNumber().length() > 0)
-                {
-                    String localizedType = null;
-
-                    if(d instanceof WorkPhoneDetail)
-                    {
-                        localizedType =
-                            GuiActivator.getResources().
-                                getI18NString(
-                                    "service.gui.WORK_PHONE");
-                    }
-                    else if(d instanceof MobilePhoneDetail)
-                    {
-                        localizedType =
-                            GuiActivator.getResources().
-                                getI18NString(
-                                    "service.gui.MOBILE_PHONE");
-                    }
-                    else if(d instanceof VideoDetail)
-                    {
-                        // skip if number is already existing
-                        if(phones.contains(pnd.getNumber()))
-                            continue;
-
-                        localizedType =
-                            GuiActivator.getResources().
-                                getI18NString(
-                                    "service.gui.VIDEO_PHONE");
-                    }
-                    else
-                    {
-                        localizedType =
-                            GuiActivator.getResources().
-                                getI18NString(
-                                    "service.gui.HOME");
-                    }
-
-                    phones.add(pnd.getNumber());
-                    tip.addLine(null, (pnd.getNumber() +
-                        " (" + localizedType + ")"));
-                }
-             }
+            tip.addLine(null, phones.next());
         }
 
         tip.revalidate();

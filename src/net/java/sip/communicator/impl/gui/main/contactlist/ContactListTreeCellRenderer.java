@@ -266,7 +266,7 @@ public class ContactListTreeCellRenderer
             {
                 if (treeNode != null && treeNode instanceof ContactNode)
                 {
-                    call(treeNode);
+                    call(treeNode, callButton, false, false);
                 }
             }
         });
@@ -277,7 +277,7 @@ public class ContactListTreeCellRenderer
             {
                 if (treeNode != null && treeNode instanceof ContactNode)
                 {
-                    callVideo(treeNode);
+                    call(treeNode, callVideoButton, true, false);
                 }
             }
         });
@@ -288,7 +288,7 @@ public class ContactListTreeCellRenderer
             {
                 if (treeNode != null && treeNode instanceof ContactNode)
                 {
-                    shareDesktop(treeNode);
+                    call(treeNode, desktopSharingButton, true, true);
                 }
             }
         });
@@ -767,8 +767,7 @@ public class ContactListTreeCellRenderer
 
         // Check if contact has additional phone numbers, if yes show the
         // call button
-        boolean hasPhone = false;
-        boolean hasVideoPhone = false;
+        ContactPhoneUtil contactPhoneUtil = null;
 
         // check for phone stored in contact info only
         // if telephony contact is missing
@@ -776,50 +775,23 @@ public class ContactListTreeCellRenderer
            && uiContact.getDescriptor() instanceof MetaContact
            && telephonyContact == null)
         {
+            contactPhoneUtil = ContactPhoneUtil.getPhoneUtil(
+                (MetaContact)uiContact.getDescriptor());
+
             MetaContact metaContact =
                 (MetaContact)uiContact.getDescriptor();
             Iterator<Contact> contacts = metaContact.getContacts();
 
-            while(contacts.hasNext() && !hasPhone)
+            while(contacts.hasNext())// && !hasPhone)
             {
                 Contact contact = contacts.next();
 
                 if(!contact.getProtocolProvider().isRegistered())
                     continue;
 
-                OperationSetServerStoredContactInfo infoOpSet =
-                    contact.getProtocolProvider().getOperationSet(
-                        OperationSetServerStoredContactInfo.class);
-                Iterator<GenericDetail> details;
-
-                if(infoOpSet != null)
-                {
-                    details = infoOpSet.requestAllDetailsForContact(
-                        contact,
-                        new DetailsListener(treeNode, callButton, uiContact));
-
-                    if(details != null)
-                    {
-                        while(details.hasNext())
-                        {
-                            GenericDetail d = details.next();
-                            if(d instanceof PhoneNumberDetail &&
-                                !(d instanceof PagerDetail) &&
-                                !(d instanceof FaxDetail))
-                            {
-                                PhoneNumberDetail pnd = (PhoneNumberDetail)d;
-                                if(pnd.getNumber() != null &&
-                                    pnd.getNumber().length() > 0)
-                                {
-                                    hasPhone = true;
-
-                                    if(d instanceof VideoDetail)
-                                        hasVideoPhone = true;
-                                }
-                             }
-                        }
-                    }
-                }
+                contactPhoneUtil.addDetailsResponseListener(
+                    contact,
+                    new DetailsListener(treeNode, callButton, uiContact));
             }
         }
 
@@ -832,7 +804,8 @@ public class ContactListTreeCellRenderer
                 null);
 
         if ((telephonyContact != null && telephonyContact.getAddress() != null)
-            || (hasPhone && providers.size() > 0))
+            || (contactPhoneUtil != null && contactPhoneUtil.isCallEnabled()
+                && providers.size() > 0))
         {
             x += addButton(callButton, ++gridX, x, false);
         }
@@ -842,14 +815,8 @@ public class ContactListTreeCellRenderer
                 OperationSetVideoTelephony.class);
 
         if (videoContact != null
-            || (ConfigurationUtils
-                    .isRouteVideoAndDesktopUsingPhoneNumberEnabled()
-                    && hasPhone
-                    && AccountUtils.getOpSetRegisteredProviders(
-                                    OperationSetVideoTelephony.class,
-                                    null,
-                                    null).size() > 0)
-            || hasVideoPhone)
+            || (contactPhoneUtil != null
+                && contactPhoneUtil.isVideoCallEnabled()))
         {
             x += addButton(callVideoButton, ++gridX, x, false);
         }
@@ -859,14 +826,8 @@ public class ContactListTreeCellRenderer
                 OperationSetDesktopSharingServer.class);
 
         if (desktopContact != null
-            || (ConfigurationUtils
-                    .isRouteVideoAndDesktopUsingPhoneNumberEnabled()
-                    && hasPhone
-                    && AccountUtils.getOpSetRegisteredProviders(
-                            OperationSetDesktopSharingServer.class,
-                            null,
-                            null).size() > 0)
-            || hasVideoPhone)
+            || (contactPhoneUtil != null
+                && contactPhoneUtil.isDesktopSharingEnabled()))
         {
             x += addButton(desktopSharingButton, ++gridX, x, false);
         }
@@ -1031,332 +992,28 @@ public class ContactListTreeCellRenderer
      * Calls the given treeNode.
      * @param treeNode the <tt>TreeNode</tt> to call
      */
-    private void call(TreeNode treeNode)
+    private void call(TreeNode treeNode, JButton button,
+                      boolean isVideo, boolean isDesktopSharing)
     {
         if (!(treeNode instanceof ContactNode))
             return;
 
-        UIContactImpl contactDescriptor
+        UIContact contactDescriptor
             = ((ContactNode) treeNode).getContactDescriptor();
 
-        List<UIContactDetail> telephonyContacts
-            = contactDescriptor.getContactDetailsForOperationSet(
-                    OperationSetBasicTelephony.class);
+        Point location = new Point(button.getX(),
+            button.getY() + button.getHeight());
 
-        if(contactDescriptor.getDescriptor() instanceof MetaContact)
-        {
-            telephonyContacts.addAll(CallManager.getAdditionalNumbers(
-                (MetaContact) contactDescriptor.getDescriptor()));
-        }
+        SwingUtilities.convertPointToScreen(location, treeContactList);
 
-        ChooseCallAccountPopupMenu chooseAccountDialog = null;
+        location.y = location.y
+            + treeContactList.getPathBounds(treeContactList.getSelectionPath()).y;
+        location.x += 8;
+        location.y -= 8;
 
-        if (telephonyContacts.size() == 1)
-        {
-            UIContactDetail detail = telephonyContacts.get(0);
-
-            ProtocolProviderService preferredProvider
-                = detail.getPreferredProtocolProvider(
-                    OperationSetBasicTelephony.class);
-
-            List<ProtocolProviderService> providers
-                = AccountUtils.getOpSetRegisteredProviders(
-                    OperationSetBasicTelephony.class,
-                    preferredProvider,
-                    detail.getPreferredProtocol(
-                        OperationSetBasicTelephony.class));
-
-            if (providers != null)
-            {
-                int providersCount = providers.size();
-
-                if (providersCount <= 0)
-                {
-                    new ErrorDialog(null,
-                        GuiActivator.getResources().getI18NString(
-                            "service.gui.CALL_FAILED"),
-                        GuiActivator.getResources().getI18NString(
-                            "service.gui.NO_ONLINE_TELEPHONY_ACCOUNT"))
-                    .showDialog();
-                }
-                else if (providersCount == 1)
-                {
-                    CallManager.createCall(
-                        providers.get(0), detail.getAddress());
-                }
-                else if (providersCount > 1)
-                    chooseAccountDialog = new ChooseCallAccountPopupMenu(
-                            treeContactList, detail.getAddress(), providers);
-            }
-        }
-        else if (telephonyContacts.size() > 1)
-        {
-            chooseAccountDialog
-                = new ChooseCallAccountPopupMenu(treeContactList, telephonyContacts);
-        }
-
-        // If the choose dialog is created we're going to show it.
-        if (chooseAccountDialog != null)
-        {
-            Point location = new Point(callButton.getX(),
-                callButton.getY() + callButton.getHeight());
-
-            SwingUtilities.convertPointToScreen(location, treeContactList);
-
-            location.y = location.y
-                + treeContactList.getPathBounds(treeContactList.getSelectionPath()).y;
-
-            chooseAccountDialog.showPopupMenu(location.x + 8, location.y - 8);
-        }
-    }
-
-    /**
-     * Calls the given treeNode with video option enabled.
-     * @param treeNode the <tt>TreeNode</tt> to call
-     */
-    private void callVideo(TreeNode treeNode)
-    {
-        UIContactImpl contactDescriptor
-            = ((ContactNode) treeNode).getContactDescriptor();
-
-        List<UIContactDetail> videoContacts
-            = contactDescriptor.getContactDetailsForOperationSet(
-                    OperationSetVideoTelephony.class);
-
-        if(ConfigurationUtils.isRouteVideoAndDesktopUsingPhoneNumberEnabled()
-            && contactDescriptor.getDescriptor() instanceof MetaContact)
-        {
-            videoContacts.addAll(CallManager.getAdditionalNumbers(
-                (MetaContact) contactDescriptor.getDescriptor()));
-        }
-
-        ChooseCallAccountPopupMenu chooseAccountDialog = null;
-
-        if (videoContacts.size() == 1)
-        {
-            UIContactDetail detail = videoContacts.get(0);
-
-            ProtocolProviderService preferredProvider
-                = detail.getPreferredProtocolProvider(
-                    OperationSetVideoTelephony.class);
-
-            List<ProtocolProviderService> providers = null;
-            String protocolName = null;
-
-            if (preferredProvider != null)
-            {
-                if (preferredProvider.isRegistered())
-                    CallManager.createVideoCall(
-                        preferredProvider, detail.getAddress());
-                // If we have a provider, but it's not registered we try to
-                // obtain all registered providers for the same protocol as the
-                // given preferred provider.
-                else
-                {
-                    protocolName = preferredProvider.getProtocolName();
-                    providers = AccountUtils.getRegisteredProviders(protocolName,
-                        OperationSetVideoTelephony.class);
-                }
-            }
-            // If we don't have a preferred provider we try to obtain a
-            // preferred protocol name and all registered providers for it.
-            else
-            {
-                protocolName = detail
-                    .getPreferredProtocol(OperationSetVideoTelephony.class);
-
-                if (protocolName != null)
-                    providers
-                        = AccountUtils.getRegisteredProviders(protocolName,
-                            OperationSetVideoTelephony.class);
-                else
-                    providers
-                        = AccountUtils.getRegisteredProviders(
-                            OperationSetVideoTelephony.class);
-            }
-
-            // If our call didn't succeed, try to call through one of the other
-            // protocol providers obtained above.
-            if (providers != null)
-            {
-                int providersCount = providers.size();
-
-                if (providersCount <= 0)
-                {
-                    new ErrorDialog(null,
-                        GuiActivator.getResources().getI18NString(
-                            "service.gui.CALL_FAILED"),
-                        GuiActivator.getResources().getI18NString(
-                            "service.gui.NO_ONLINE_TELEPHONY_ACCOUNT",
-                            new String[]{protocolName}))
-                    .showDialog();
-                }
-                else if (providersCount == 1)
-                {
-                    CallManager.createVideoCall(
-                        providers.get(0), detail.getAddress());
-                }
-                else if (providersCount > 1)
-                    chooseAccountDialog = new ChooseCallAccountPopupMenu(
-                            treeContactList, detail.getAddress(), providers,
-                            OperationSetVideoTelephony.class);
-            }
-        }
-        else if (videoContacts.size() > 1)
-        {
-            chooseAccountDialog
-                = new ChooseCallAccountPopupMenu(treeContactList, videoContacts,
-                    OperationSetVideoTelephony.class);
-        }
-
-        // If the choose dialog is created we're going to show it.
-        if (chooseAccountDialog != null)
-        {
-            Point location = new Point(callVideoButton.getX(),
-                callVideoButton.getY() + callVideoButton.getHeight());
-
-            SwingUtilities.convertPointToScreen(location, treeContactList);
-
-            location.y = location.y
-                + treeContactList.getPathBounds(
-                    treeContactList.getSelectionPath()).y;
-
-            chooseAccountDialog.showPopupMenu(location.x + 8, location.y - 8);
-        }
-    }
-
-    /**
-     * Shares the user desktop with the contact contained in the given
-     * <tt>treeNode</tt>.
-     * @param treeNode the <tt>TreeNode</tt>, containing the contact to share
-     * the desktop with
-     */
-    private void shareDesktop(TreeNode treeNode)
-    {
-        UIContactImpl contactDescriptor
-            = ((ContactNode) treeNode).getContactDescriptor();
-
-        List<UIContactDetail> desktopContacts
-            = contactDescriptor.getContactDetailsForOperationSet(
-                    OperationSetDesktopSharingServer.class);
-
-        if(ConfigurationUtils.isRouteVideoAndDesktopUsingPhoneNumberEnabled()
-            && contactDescriptor.getDescriptor() instanceof MetaContact)
-        {
-            desktopContacts.addAll(CallManager.getAdditionalNumbers(
-                (MetaContact) contactDescriptor.getDescriptor()));
-        }
-
-        ChooseCallAccountPopupMenu chooseAccountDialog = null;
-
-        if (desktopContacts.size() == 1)
-        {
-            UIContactDetail detail = desktopContacts.get(0);
-
-            ProtocolProviderService preferredProvider
-                = detail.getPreferredProtocolProvider(
-                    OperationSetDesktopSharingServer.class);
-
-            List<ProtocolProviderService> providers = null;
-            String protocolName = null;
-
-            if (preferredProvider != null)
-            {
-                if (preferredProvider.isRegistered())
-                    shareDesktop(preferredProvider, detail.getAddress());
-
-                // If we have a provider, but it's not registered we try to
-                // obtain all registered providers for the same protocol as the
-                // given preferred provider.
-                else
-                {
-                    protocolName = preferredProvider.getProtocolName();
-                    providers
-                        = AccountUtils.getRegisteredProviders(protocolName,
-                            OperationSetDesktopSharingServer.class);
-                }
-            }
-            // If we don't have a preferred provider we try to obtain a
-            // preferred protocol name and all registered providers for it.
-            else
-            {
-                protocolName = detail.getPreferredProtocol(
-                        OperationSetDesktopSharingServer.class);
-
-                if (protocolName != null)
-                    providers
-                        = AccountUtils.getRegisteredProviders(protocolName,
-                            OperationSetDesktopSharingServer.class);
-                else
-                    providers
-                        = AccountUtils.getRegisteredProviders(
-                            OperationSetDesktopSharingServer.class);
-            }
-
-            // If our call didn't succeed, try to call through one of the other
-            // protocol providers obtained above.
-            if (providers != null)
-            {
-                int providersCount = providers.size();
-
-                if (providersCount <= 0)
-                {
-                    new ErrorDialog(null,
-                        GuiActivator.getResources().getI18NString(
-                            "service.gui.CALL_FAILED"),
-                        GuiActivator.getResources().getI18NString(
-                            "service.gui.NO_ONLINE_TELEPHONY_ACCOUNT",
-                            new String[]{protocolName}))
-                    .showDialog();
-                }
-                else if (providersCount == 1)
-                {
-                    shareDesktop(providers.get(0), detail.getAddress());
-                }
-                else if (providersCount > 1)
-                    chooseAccountDialog = new ChooseCallAccountPopupMenu(
-                            treeContactList, detail.getAddress(), providers,
-                            OperationSetDesktopSharingServer.class);
-            }
-        }
-        else if (desktopContacts.size() > 1)
-        {
-            chooseAccountDialog
-                = new ChooseCallAccountPopupMenu(
-                    treeContactList,
-                    desktopContacts,
-                    OperationSetDesktopSharingServer.class);
-        }
-
-        // If the choose dialog is created we're going to show it.
-        if (chooseAccountDialog != null)
-        {
-            Point location = new Point(desktopSharingButton.getX(),
-                desktopSharingButton.getY() + desktopSharingButton.getHeight());
-
-            SwingUtilities.convertPointToScreen(location, treeContactList);
-
-            location.y = location.y
-                + treeContactList.getPathBounds(
-                    treeContactList.getSelectionPath()).y;
-
-            chooseAccountDialog.showPopupMenu(location.x + 8, location.y - 8);
-        }
-    }
-
-    /**
-     * Shares the user desktop with the contact contained in the given
-     * <tt>treeNode</tt>.
-     *
-     * @param protocolProvider the protocol provider through which we make the
-     * sharing
-     * @param contactName the address of the contact with which we'd like to
-     * share our desktop
-     */
-    private void shareDesktop(  ProtocolProviderService protocolProvider,
-                                String contactName)
-    {
-        CallManager.createDesktopSharing(protocolProvider, contactName);
+        CallManager.call(contactDescriptor,
+            isVideo, isDesktopSharing,
+            treeContactList, location);
     }
 
     /**
