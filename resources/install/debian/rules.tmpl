@@ -25,9 +25,9 @@ override_dh_install-indep:
 
 override_dh_install-arch:
 ifeq ($(DEB_HOST_ARCH),amd64)
-	dh_install -p$(PACKAGE_NAME)-jni lib/native/linux-64/*.so usr/lib/jni/
+	dh_install -plib$(PACKAGE_NAME)-jni lib/native/linux-64/*.so usr/lib/jni/
 else
-	dh_install -p$(PACKAGE_NAME)-jni lib/native/linux/*.so usr/lib/jni/
+	dh_install -plib$(PACKAGE_NAME)-jni lib/native/linux/*.so usr/lib/jni/
 endif
 
 # we have folders with name *.jar which jh_manifest don't like and fails,

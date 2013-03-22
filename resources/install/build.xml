@@ -1839,10 +1839,6 @@
         <!-- copies links file only if used in the context of deb-src target -->
         <antcall target="-deb-links-file"/>
 
-        <copy file="${inst.resrc}/debian/package.lintian-overrides"
-              tofile="${debianize.dir}/${package.name}.lintian-overrides"
-              overwrite="true"/>
-
         <copy file="${inst.resrc}/debian/README.embedded-libraries"
               tofile="${debianize.dir}/README.embedded-libraries"
               overwrite="true"/>
@@ -2017,8 +2013,8 @@
                  token="override_dh_install-arch:"
                  value="override_dh_install:"/>
         <replace file="${debianize.dir}/rules"
-                 token="-jni"
-                 value=""/>
+                 token="lib$(PACKAGE_NAME)-jni"
+                 value="$(PACKAGE_NAME)"/>
         <replace file="${debianize.dir}/rules"
                  token=" usr/lib/jni/"
                  value=" usr/share/$(PACKAGE_NAME)/lib/native -Xslickless.jar -Xslick-runner.jar -X-slick.jar -X.svn"/>

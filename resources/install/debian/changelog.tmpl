@@ -1,5 +1,26 @@
 _PACKAGE_NAME_ (_VERSION_) unstable; urgency=low
 
-  * Initial release. (Closes: #627362)
+  * Renames package jitsi-jni to libjitsi-jni.
+  * Removes jar-not-in-usr-share overrides, not needed anymore.
+  * Moves files from /usr/lib to /usr/share
+  * Rename README.libraries to README.embedded-libraries.
+  * Removes embedded dnsjava package and add dependency to libdnsjava-java.
+  * Removes duplicate entry in copyright.
 
  -- Damian Minkov <damencho@jitsi.org>  _DATE_
+
+_PACKAGE_NAME_ (1.1.4407.10289-1) unstable; urgency=low
+
+  * Adds README.libraries describing the libraries embedded.
+  * Adds Homepage entry and fixes descriptions.
+  * Updates desktop shortcut, removes obsolete fields.
+  * Adds debian/watch for new source packages.
+  * Removes ffmpeg library and add dependency to libav.
+
+ -- Damian Minkov <damencho@jitsi.org>  Thu, 17 Jan 2013 16:03:58 +0200
+
+_PACKAGE_NAME_ (1.1.4365-1) unstable; urgency=low
+
+  * Initial release. (Closes: #627362)
+
+ -- Damian Minkov <damencho@jitsi.org>  Tue, 18 Dec 2012 11:47:40 +0200
