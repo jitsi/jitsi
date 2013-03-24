@@ -339,25 +339,33 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
                 srtpControls.put(key, control);
             }
 
-            String helloHash[] = ((ZrtpControl)control).getHelloHashSep();
+            ZrtpControl zcontrol = (ZrtpControl) control;
+            int versionIndex = zcontrol.getNumberSupportedVersions();
+            boolean zrtpHashSet = false;    // will become true if at least one is set
 
-            if(helloHash != null && helloHash[1].length() > 0)
+            for (int i = 0; i < versionIndex; i++)
             {
-                ZrtpHashPacketExtension hash = new ZrtpHashPacketExtension();
-                hash.setVersion(helloHash[0]);
-                hash.setValue(helloHash[1]);
-
-                EncryptionPacketExtension encryption
-                    = description.getFirstChildOfType(
-                            EncryptionPacketExtension.class);
-                if(encryption == null)
+                String helloHash[] = ((ZrtpControl) control).getHelloHashSep(i);
+                if (helloHash != null && helloHash[1].length() > 0)
                 {
-                    encryption = new EncryptionPacketExtension();
-                    description.addChildExtension(encryption);
+                    ZrtpHashPacketExtension hash =
+                        new ZrtpHashPacketExtension();
+                    hash.setVersion(helloHash[0]);
+                    hash.setValue(helloHash[1]);
+
+                    EncryptionPacketExtension encryption =
+                        description
+                            .getFirstChildOfType(EncryptionPacketExtension.class);
+                    if (encryption == null)
+                    {
+                        encryption = new EncryptionPacketExtension();
+                        description.addChildExtension(encryption);
+                    }
+                    encryption.addChildExtension(hash);
+                    zrtpHashSet = true;
                 }
-                encryption.addChildExtension(hash);
-                return true;
             }
+            return zrtpHashSet;
         }
 
         return false;

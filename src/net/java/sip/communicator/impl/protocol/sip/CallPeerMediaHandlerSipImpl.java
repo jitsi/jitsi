@@ -680,13 +680,19 @@ public class CallPeerMediaHandlerSipImpl
                 }
 
                 ZrtpControl zcontrol = (ZrtpControl) scontrol;
-                String helloHash = zcontrol.getHelloHash();
+                int versionIndex = zcontrol.getNumberSupportedVersions();
+                boolean zrtpHashSet = false;    // will become true if at least one is set
 
-                if(helloHash != null && helloHash.length() > 0)
-                {
-                    md.setAttribute(SdpUtils.ZRTP_HASH_ATTR, helloHash);
-                    return true;
+                for (int i = 0; i < versionIndex; i++) {
+                    String helloHash = zcontrol.getHelloHash(i);
+
+                    if (helloHash != null && helloHash.length() > 0)
+                    {
+                        md.setAttribute(SdpUtils.ZRTP_HASH_ATTR, helloHash);
+                        zrtpHashSet = true;
+                    }
                 }
+                return zrtpHashSet;
             }
             catch (SdpException ex)
             {
