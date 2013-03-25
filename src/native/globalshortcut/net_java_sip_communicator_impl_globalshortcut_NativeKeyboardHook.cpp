@@ -44,6 +44,31 @@ class keystrok
     int modifiers; /**< Modifiers (ALT, CTLR, ...). */
     int id; /**< ID. */
     int active; /**< If the hotkey is active. */
+    bool is_on_key_release; /**< If java object delegate should be notified
+                                 when the hotkey is released. */
+};
+
+/**
+ * \class keystroke_special
+ * \brief keystroke class for special keystrokes.
+ */
+class keystroke_special
+{
+  public:
+    int keycode; /**< Keycode. */
+    bool is_on_key_release; /**< If java object delegate should be notified
+                                 when the hotkey is released. */
+};
+/**
+ * \class hotkey_release
+ * \brief stores information about hotkey that will be realesed.
+ */
+class hotkey_release
+{
+  public:
+    std::list<DWORD> vkcodes; /**< Virtual keycode that is pressed. */
+    int java_keycode; /**< keycode of the hotkey that is pressed. */
+    int java_modifiers; /**< modifiers (ALT, CTLR, ...) of the hotkey that is pressed. */
 };
 
 /**
@@ -61,8 +86,10 @@ class keyboard_hook
     HWND hwnd; /**< Handle of the window that will receive event. */
     int hotkey_next_id; /**< Next ID to use for a  new hotkey. */ 
     std::list<keystrok> keystrokes; /**< List of keystrokes registered. */
-    std::list<int> specials; /**< List of special keystrokes registered. */
+    std::list<keystroke_special> specials; /**< List of special keystrokes registered. */
     bool detect; /**< If we are in detection mode. */
+    hotkey_release  hk_release; /**< hotkey that is pressed and it will notify 
+                                     the java object delegate on release. */
 };
 
 /**
@@ -733,11 +760,52 @@ static int convertJavaUserDefinedModifiersToWindows(int modifiers)
 }
 
 /**
+ * \brief Sets the current pressed hotkey in g_keyboard_hook.
+ * \param modifiers modifiers of the hotkey
+ * \param keycode keycode of the hotkey
+ * \param java_modifiers original modifiers which were used to call notify function
+ * \param java_keycode original keycode which wes used to call notify function
+ */
+static void setHotkeyRealese(int modifiers, DWORD keycode, int java_modifiers, int java_keycode)
+{
+
+  hotkey_release *hk_release = &(g_keyboard_hook.hk_release);
+  if(modifiers & MOD_CONTROL)
+  {
+    /* CTRL */
+    hk_release->vkcodes.push_back(VK_RCONTROL);
+    hk_release->vkcodes.push_back(VK_CONTROL);
+  }
+  if(modifiers & MOD_ALT)
+  {
+    /* ALT */
+    hk_release->vkcodes.push_back(VK_MENU);
+  }
+  if(modifiers & MOD_SHIFT)
+  {
+    /* SHIFT */
+    hk_release->vkcodes.push_back(VK_SHIFT);
+    hk_release->vkcodes.push_back(VK_LSHIFT);
+    hk_release->vkcodes.push_back(VK_RSHIFT);
+  }
+  if(modifiers & MOD_WIN)
+  {
+    /* LOGO */
+    hk_release->vkcodes.push_back(VK_LWIN);
+    hk_release->vkcodes.push_back(VK_RWIN);
+  }
+  hk_release->vkcodes.push_back(keycode);
+  hk_release->java_modifiers = java_modifiers;
+  hk_release->java_keycode = java_keycode;
+}
+
+/**
  * \brief Notify Java side about key pressed (keycode + modifiers).
  * \param keycode keycode
  * \param modifiers modifiers used (SHIFT, CTRL, ALT, LOGO)
+ * \param on_key_release true - if the hotkey is released 
  */
-static void notify(jint keycode, jint modifiers)
+static void notify(jint keycode, jint modifiers, jboolean on_key_release)
 {
   JNIEnv *jniEnv = NULL;
   jclass delegateClass = NULL;
@@ -751,18 +819,16 @@ static void notify(jint keycode, jint modifiers)
   {
     return;
   }
-
   delegateClass = jniEnv->GetObjectClass(g_keyboard_hook.delegate);
 
   if(delegateClass)
   {
     jmethodID methodid = NULL;
 
-    methodid = jniEnv->GetMethodID(delegateClass, "receiveKey", "(II)V");
-
+    methodid = jniEnv->GetMethodID(delegateClass, "receiveKey", "(IIZ)V");
     if(methodid)
     {
-      jniEnv->CallVoidMethod(g_keyboard_hook.delegate, methodid, keycode, modifiers);
+      jniEnv->CallVoidMethod(g_keyboard_hook.delegate, methodid, keycode, modifiers, on_key_release);
     }
   }
   jniEnv->ExceptionClear();
@@ -776,49 +842,53 @@ static void notify(jint keycode, jint modifiers)
  */ 
 HRESULT callback(UINT msg, WPARAM wParam, LPARAM lParam)
 {
-  keyboard_hook* keyboard = &g_keyboard_hook;
   
-  for(std::list<keystrok>::iterator it = keyboard->keystrokes.begin() ; it != keyboard->keystrokes.end() ; ++it)
-  {
-    keystrok& ks = (*it);
-    
-    if(ks.active == 0)
-    {
-      /* hotkey to add */
-      ks.active = 1;
-      
-      if(!RegisterHotKey(keyboard->hwnd, ks.id, ks.modifiers, ks.vkcode))
-      {
-        fprintf(stderr, "[LOOP] Problem with RegisterHotKey: %d\n", GetLastError());fflush(stderr);
-        ks.active = -1;
-      }
-    }
-    else if(ks.active == -1)
-    {
-      /* hotkey to remove */
-      if(!UnregisterHotKey(keyboard->hwnd, ks.id))
-      {
-        //fprintf(stderr, "[LOOP] Error when UnregisterHotKey: %d\n", GetLastError());fflush(stderr);
-      }
-      it = keyboard->keystrokes.erase(it)--;
-    }
-  }
-
   if(msg == WM_HOTKEY)
   {
+    keyboard_hook* keyboard = &g_keyboard_hook;
+    if(keyboard->hwnd)
+    {
+        for(std::list<keystrok>::iterator it = keyboard->keystrokes.begin() ; it != keyboard->keystrokes.end() ; ++it)
+        {
+            keystrok& ks = (*it);
+    
+            if(ks.active == 0)
+            {
+                /* hotkey to add */
+                ks.active = 1;
+
+                if(!RegisterHotKey(keyboard->hwnd, ks.id, ks.modifiers | MOD_NOREPEAT, ks.vkcode))
+                {
+                  fprintf(stderr, "[LOOP] Problem with RegisterHotKey: %d\n", GetLastError());fflush(stderr);
+                  ks.active = -1;
+                }
+            }
+            else if(ks.active == -1)
+            {
+                /* hotkey to remove */
+                if(!UnregisterHotKey(keyboard->hwnd, ks.id))
+                {
+                //fprintf(stderr, "[LOOP] Error when UnregisterHotKey: %d\n", GetLastError());fflush(stderr);
+                }
+                it = keyboard->keystrokes.erase(it)--;
+            }
+        }
+    }
     for(std::list<keystrok>::iterator it = g_keyboard_hook.keystrokes.begin() ; it != g_keyboard_hook.keystrokes.end() ; ++it)
     {
       keystrok ks = (*it);
-
       /* check via hotkey id */
       if(ks.id == wParam)
       {
         int javaModifiers = 0;
         int javaKeycode = 0;
-
         javaKeycode = convertWindowsKeycodeToJava(HIWORD(lParam)); //ks.vkcode);
         javaModifiers = convertWindowsModifiersToJavaUserDefined(ks.modifiers);
-        notify(javaKeycode, javaModifiers);
+        notify(javaKeycode, javaModifiers, false);
+        if(ks.is_on_key_release)
+        {
+          setHotkeyRealese(ks.modifiers, ks.vkcode, javaModifiers, javaKeycode);
+        }
         return 0;
       }
     }
@@ -852,7 +922,6 @@ LRESULT CALLBACK WndProcW(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 static void RegisterWindowClassW(HINSTANCE hInstance)
 {
   WNDCLASSEXW wcex;
-
   memset(&wcex, 0x00, sizeof(WNDCLASSEXW));
   wcex.cbSize = sizeof(WNDCLASSEXW);
   wcex.style          = CS_HREDRAW | CS_VREDRAW;
@@ -883,27 +952,50 @@ static void RegisterWindowClassW(HINSTANCE hInstance)
  */
 LRESULT CALLBACK keyHandler(int nCode, WPARAM wParam, LPARAM lParam)
 {
+
   KBDLLHOOKSTRUCT* kbd = (KBDLLHOOKSTRUCT*)lParam;
   int pressed = wParam == WM_KEYDOWN;
-
   if(pressed && kbd->vkCode > 160)
   {
     if(g_keyboard_hook.detect)
     {
-      notify(kbd->vkCode, 16367);
+      notify(kbd->vkCode, 16367, false);
     }
     else
     {
-      for(std::list<int>::const_iterator it = g_keyboard_hook.specials.begin() ; it != g_keyboard_hook.specials.end() ; ++it)
+      for(std::list<keystroke_special>::const_iterator it = g_keyboard_hook.specials.begin() ; it != g_keyboard_hook.specials.end() ; ++it)
       {
-        if((*it)== kbd->vkCode)
+        if(it->keycode == kbd->vkCode)
         {
-          notify((*it), 16367);
+          notify(it->keycode, 16367, false);
+          if(it->is_on_key_release)
+          {
+            setHotkeyRealese(0, it->keycode, 16367, it->keycode);
+          }
           break;
         }
       }
     }
   }
+  
+  if(!pressed)
+  {
+    hotkey_release* hk = &(g_keyboard_hook.hk_release);
+    for(
+      std::list<DWORD>::iterator it = hk->vkcodes.begin() ;
+      it != hk->vkcodes.end() ; 
+      ++it
+    )
+    {
+        if((*it) == kbd->vkCode)
+        {
+          notify(hk->java_keycode, hk->java_modifiers, true);
+          hk->vkcodes.clear();
+          break;
+        }
+    }
+  }
+  
   return CallNextHookEx(g_keyboard_hook.hook, nCode, wParam, lParam);
 }
 
@@ -935,6 +1027,7 @@ static unsigned WINAPI CreateWndThreadW(LPVOID pThreadParam)
     MSG msg;
 
     keyboard->hwnd = hWnd;
+    PostMessage(keyboard->hwnd, WM_HOTKEY, 0, 0);
 
     while(GetMessageW(&msg, hWnd, 0, 0))
     {
@@ -1005,11 +1098,10 @@ JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_globalshortcut_Native
 }
 
 JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_impl_globalshortcut_NativeKeyboardHook_registerShortcut
- (JNIEnv* jniEnv, jclass clazz, jlong ptr, jint keycode, jint modifiers)
+ (JNIEnv* jniEnv, jclass clazz, jlong ptr, jint keycode, jint modifiers, jboolean is_on_key_release)
 {
   keyboard_hook* keyboard = (keyboard_hook*)ptr;
-
-  if(keyboard && keyboard->hwnd)
+  if(keyboard)
   {
     int winModifiers = 0;
     int winKeycode = 0;
@@ -1022,9 +1114,14 @@ JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_impl_globalshortcut_Na
     ks.modifiers = winModifiers;
     ks.id = keyboard->hotkey_next_id;
     ks.active = 0;
+    ks.is_on_key_release = is_on_key_release;
     keyboard->keystrokes.push_back(ks);
     keyboard->hotkey_next_id++;
-    PostMessage(keyboard->hwnd, WM_HOTKEY, 0, 0);
+    if(keyboard->hwnd)
+    {
+        PostMessage(keyboard->hwnd, WM_HOTKEY, 0, 0);
+        return true;
+    }
     return true;
   }
   return false;
@@ -1056,13 +1153,16 @@ JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_globalshortcut_Native
 }
 
 JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_impl_globalshortcut_NativeKeyboardHook_registerSpecial
- (JNIEnv* jniEnv, jclass clazz, jlong ptr, jint keycode)
+ (JNIEnv* jniEnv, jclass clazz, jlong ptr, jint keycode, jboolean is_on_key_release)
 {
   struct keyboard_hook* keyboard = (struct keyboard_hook*)ptr;
 
   if(keyboard && keyboard->hook != NULL)
   {
-    keyboard->specials.push_back((int)keycode);
+    keystroke_special kss;
+    kss.keycode = keycode;
+    kss.is_on_key_release = is_on_key_release;
+    keyboard->specials.push_back(kss);
     return JNI_TRUE;
   }
   return JNI_FALSE;
@@ -1075,10 +1175,10 @@ JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_globalshortcut_Native
 
   if(keyboard)
   {
-    for(std::list<int>::iterator it = keyboard->specials.begin() ; 
+    for(std::list<keystroke_special>::iterator it = keyboard->specials.begin() ; 
         it != keyboard->specials.end() ; ++it)
     {
-      if((*it) == keycode)
+      if(it->keycode == keycode)
       {
         keyboard->specials.erase(it);
         return;

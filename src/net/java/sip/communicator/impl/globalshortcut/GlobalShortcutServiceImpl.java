@@ -114,42 +114,26 @@ public class GlobalShortcutServiceImpl
                 return;
             }
 
-            if(keystrokes != null)
+            if(keystrokes == null)
             {
-                if(keyStroke.getModifiers() != SPECIAL_KEY_MODIFIERS)
-                {
-                    ok = keyboardHook.registerShortcut(keyStroke.getKeyCode(),
-                        getModifiers(keyStroke));
-                }
-                else
-                {
-                    ok = keyboardHook.registerSpecial(keyStroke.getKeyCode());
-                }
-
-                if(ok && add)
-                {
-                    keystrokes.add(keyStroke);
-                }
+                keystrokes = new ArrayList<AWTKeyStroke>();
+            }
+            
+            if(keyStroke.getModifiers() != SPECIAL_KEY_MODIFIERS)
+            {
+                ok = keyboardHook.registerShortcut(keyStroke.getKeyCode(),
+                    getModifiers(keyStroke), keyStroke.isOnKeyRelease());
             }
             else
             {
-                keystrokes = new ArrayList<AWTKeyStroke>();
-
-                if(keyStroke.getModifiers() != SPECIAL_KEY_MODIFIERS)
-                {
-                    ok = keyboardHook.registerShortcut(keyStroke.getKeyCode(),
-                        getModifiers(keyStroke));
-                }
-                else
-                {
-                    ok = keyboardHook.registerSpecial(keyStroke.getKeyCode());
-                }
-
-                if(ok && add)
-                {
-                    keystrokes.add(keyStroke);
-                }
+                ok = keyboardHook.registerSpecial(keyStroke.getKeyCode(),
+                    keyStroke.isOnKeyRelease());
             }
+            if(ok && add)
+            {
+                keystrokes.add(keyStroke);
+            }
+           
 
             if(add)
                 mapActions.put(listener, keystrokes);
@@ -267,8 +251,10 @@ public class GlobalShortcutServiceImpl
      *
      * @param keycode keycode received
      * @param modifiers modifiers received (ALT or CTRL + letter, ...)
+     * @param isOnKeyRelease this parameter is true if the shortcut is released
      */
-    public synchronized void receiveKey(int keycode, int modifiers)
+    public synchronized void receiveKey(int keycode, int modifiers,
+        boolean onRelease)
     {
         if(keyboardHook.isSpecialKeyDetection())
         {
@@ -281,7 +267,7 @@ public class GlobalShortcutServiceImpl
             }
 
             GlobalShortcutEvent evt = new GlobalShortcutEvent(
-                specialKeyDetected);
+                specialKeyDetected, onRelease);
             List<GlobalShortcutListener> copyListeners =
                 new ArrayList<GlobalShortcutListener>(specialKeyNotifiers);
 
@@ -293,7 +279,6 @@ public class GlobalShortcutServiceImpl
             // if special key detection is enabled, disable all other shortcuts
             return;
         }
-
         synchronized(mapActions)
         {
             // compare keycode/modifiers to keystroke
@@ -310,7 +295,8 @@ public class GlobalShortcutServiceImpl
                             l.getModifiers() == modifiers)))
                     {
                         // notify corresponding listeners
-                        GlobalShortcutEvent evt = new GlobalShortcutEvent(l);
+                        GlobalShortcutEvent evt = new GlobalShortcutEvent(
+                            l, onRelease);
                         entry.getKey().shortcutReceived(evt);
                         return;
                     }
@@ -377,11 +363,23 @@ public class GlobalShortcutServiceImpl
             if(entry.getKey().equals("answer") ||
                 entry.getKey().equals("hangup") ||
                 entry.getKey().equals("answer_hangup") ||
-                entry.getKey().equals("mute"))
+                entry.getKey().equals("mute") ||
+                entry.getKey().equals("push_to_talk"))
             {
                 for(AWTKeyStroke e : entry.getValue())
                 {
-                    registerShortcut(callShortcut, e);
+                    if(entry.getKey().equals("push_to_talk"))
+                    {
+                        if(e != null)
+                            registerShortcut(callShortcut, 
+                                AWTKeyStroke.getAWTKeyStroke(
+                                    e.getKeyCode(), e.getModifiers(), true));
+                    }
+                    else
+                    {
+                        registerShortcut(callShortcut, e);
+                    }
+                    
                 }
             }
             else if(entry.getKey().equals("contactlist"))

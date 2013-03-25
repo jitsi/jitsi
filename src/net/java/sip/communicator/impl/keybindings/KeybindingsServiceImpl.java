@@ -338,7 +338,7 @@ class KeybindingsServiceImpl
         String propName = null;
         String propName2 = null;
         String names[] = new String[]{"answer", "hangup", "answer_hangup",
-            "contactlist", "mute"};
+            "contactlist", "mute", "push_to_talk"};
         Object configured = configService.getProperty(
             "net.java.sip.communicator.impl.keybinding.global.configured");
 
@@ -396,7 +396,6 @@ class KeybindingsServiceImpl
             }
             gBindings.put(name, kss);
         }
-
         return gBindings;
     }
 

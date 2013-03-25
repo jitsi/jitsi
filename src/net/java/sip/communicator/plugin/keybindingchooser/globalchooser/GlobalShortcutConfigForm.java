@@ -212,6 +212,11 @@ public class GlobalShortcutConfigForm
                 desc = Resources.getString(
                     "plugin.keybindings.globalchooser.MUTE_CALLS");
             }
+            else if(key.equals("push_to_talk"))
+            {
+                desc = Resources.getString(
+                    "plugin.keybindings.globalchooser.PUSH_TO_TALK");
+            }
             else
                 continue;
 
@@ -266,6 +271,11 @@ public class GlobalShortcutConfigForm
                 "plugin.keybindings.globalchooser.MUTE_CALLS")))
             {
                 desc = "mute";
+            }
+            else if(entry.getAction().equals(Resources.getString(
+                "plugin.keybindings.globalchooser.PUSH_TO_TALK")))
+            {
+                desc = "push_to_talk";
             }
             else
                 continue;

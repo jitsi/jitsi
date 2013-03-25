@@ -42,10 +42,10 @@ JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_globalshortcut_Native
 /*
  * Class:     net_java_sip_communicator_impl_globalshortcut_NativeKeyboardHook
  * Method:    registerShortcut
- * Signature: (JII)Z
+ * Signature: (JIIZ)Z
  */
 JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_impl_globalshortcut_NativeKeyboardHook_registerShortcut
-  (JNIEnv *, jclass, jlong, jint, jint);
+  (JNIEnv *, jclass, jlong, jint, jint, jboolean);
 
 /*
  * Class:     net_java_sip_communicator_impl_globalshortcut_NativeKeyboardHook
@@ -58,10 +58,10 @@ JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_globalshortcut_Native
 /*
  * Class:     net_java_sip_communicator_impl_globalshortcut_NativeKeyboardHook
  * Method:    registerSpecial
- * Signature: (JI)Z
+ * Signature: (JIZ)Z
  */
 JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_impl_globalshortcut_NativeKeyboardHook_registerSpecial
-  (JNIEnv *, jclass, jlong, jint);
+  (JNIEnv *, jclass, jlong, jint, jboolean);
 
 /*
  * Class:     net_java_sip_communicator_impl_globalshortcut_NativeKeyboardHook

@@ -717,7 +717,7 @@ static int convertMacModifiersToJavaUserDefined(int modifiers)
 @end
 
 @implementation KeyboardHook
--(void) notify:(int) keyCode inModifiers:(int)modifiers;
+-(void) notify:(int) keyCode inModifiers:(int)modifiers inReleased:(BOOL)released;
 {
     jobject delegate;
     JNIEnv* jniEnv = NULL;
@@ -736,10 +736,10 @@ static int convertMacModifiersToJavaUserDefined(int modifiers)
     {
         jmethodID methodid = NULL;
 
-        methodid = (*jniEnv)->GetMethodID(jniEnv, delegateClass,"receiveKey", "(II)V");
+        methodid = (*jniEnv)->GetMethodID(jniEnv, delegateClass,"receiveKey", "(IIZ)V");
         if(methodid)
         {
-            (*jniEnv)->CallVoidMethod(jniEnv, delegate, methodid, keyCode, modifiers);
+            (*jniEnv)->CallVoidMethod(jniEnv, delegate, methodid, keyCode, modifiers, released);
         }
     }
     (*jniEnv)->ExceptionClear(jniEnv);
@@ -779,7 +779,7 @@ static int convertMacModifiersToJavaUserDefined(int modifiers)
     javaKeycode = convertMacKeycodeToJava(keycode);
     javaModifiers = convertMacModifiersToJavaUserDefined(modifiers);
 
-    [self notify:javaKeycode inModifiers:javaModifiers];
+    [self notify:javaKeycode inModifiers:javaModifiers inReleased:([hotKeyEvent type] == NSKeyUp)];
 }
 
 - (id)init
@@ -798,7 +798,7 @@ static int convertMacModifiersToJavaUserDefined(int modifiers)
     [super dealloc];
 }
 
-- (int) registerKey:(int)keycode inModifiers:(int)modifiers
+- (int) registerKey:(int)keycode inModifiers:(int)modifiers inIsOnKeyRelease:(BOOL)isOnKeyRelease
 {
     NSAutoreleasePool* autoreleasePool = NULL;
     DDHotKeyCenter* c = NULL;
@@ -813,7 +813,7 @@ static int convertMacModifiersToJavaUserDefined(int modifiers)
     };
     */
 
-    if(![c registerHotKeyWithKeyCode:keycode modifierFlags:(modifiers) target:self action:@selector(hotkeyAction:inObject:) object:nil])
+    if(![c registerHotKeyWithKeyCode:keycode modifierFlags:(modifiers) target:self action:@selector(hotkeyAction:inObject:) object:nil inIsOnKeyRelease:isOnKeyRelease ])
     {
         [c release];
         [autoreleasePool release];
@@ -892,7 +892,7 @@ JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_globalshortcut_Native
 }
 
 JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_impl_globalshortcut_NativeKeyboardHook_registerShortcut
- (JNIEnv* jniEnv, jclass clazz, jlong ptr, jint keycode, jint modifiers)
+ (JNIEnv* jniEnv, jclass clazz, jlong ptr, jint keycode, jint modifiers, jboolean is_on_key_release)
 {
     KeyboardHook* keyboard = (KeyboardHook*)ptr;
 
@@ -908,7 +908,7 @@ JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_impl_globalshortcut_Na
             return JNI_FALSE;
         }
 
-        if([keyboard registerKey:macKeycode inModifiers:macModifiers])
+        if([keyboard registerKey:macKeycode inModifiers:macModifiers inIsOnKeyRelease: is_on_key_release])
         {
             return JNI_TRUE;
         }
@@ -939,7 +939,7 @@ JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_globalshortcut_Native
 }
 
 JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_impl_globalshortcut_NativeKeyboardHook_registerSpecial
- (JNIEnv* jniEnv, jclass clazz, jlong ptr, jint keycode)
+ (JNIEnv* jniEnv, jclass clazz, jlong ptr, jint keycode, jboolean is_on_key_release)
 {
   (void)jniEnv;
   (void)clazz;

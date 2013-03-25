@@ -66,6 +66,11 @@ public class CallShortcut
     private boolean mute = true;
 
     /**
+     * Push to talk state action.
+     */
+    private boolean ptt_pressed = false;
+
+    /**
      * Initializes a new <tt>CallShortcut</tt> instance.
      */
     public CallShortcut()
@@ -83,7 +88,6 @@ public class CallShortcut
     {
         AWTKeyStroke keystroke = evt.getKeyStroke();
         GlobalKeybindingSet set = keybindingsService.getGlobalBindings();
-
         for(Map.Entry<String, List<AWTKeyStroke>> entry
                 : set.getBindings().entrySet())
         {
@@ -93,7 +97,6 @@ public class CallShortcut
                     continue;
 
                 String entryKey = entry.getKey();
-
                 if(entryKey.equals("answer") &&
                     keystroke.getKeyCode() == ks.getKeyCode() &&
                     keystroke.getModifiers() == ks.getModifiers())
@@ -146,16 +149,7 @@ public class CallShortcut
                 {
                     try
                     {
-                        synchronized(incomingCalls)
-                        {
-                            for(Call c : incomingCalls)
-                                handleMute(c);
-                        }
-                        synchronized(answeredCalls)
-                        {
-                            for(Call c : answeredCalls)
-                                handleMute(c);
-                        }
+                        handleAllCallsMute(mute);
                     }
                     finally
                     {
@@ -164,8 +158,42 @@ public class CallShortcut
                         mute = !mute;
                     }
                 }
+                else if(entryKey.equals("push_to_talk") &&
+                    keystroke.getKeyCode() == ks.getKeyCode() &&
+                    keystroke.getModifiers() == ks.getModifiers() &&
+                    evt.isReleased() == ptt_pressed
+                    )
+                {
+                    try
+                    {
+                        handleAllCallsMute(ptt_pressed);
+                    }
+                    finally
+                    {
+                        ptt_pressed = !ptt_pressed;
+                    }
+                }
             }
         }
+    }
+
+    /** 
+     * Sets the mute state for all calls.
+     *
+     * @param mute the state to be set 
+     */
+    private void handleAllCallsMute(boolean mute)
+    {
+            synchronized(incomingCalls)
+            {
+                for(Call c : incomingCalls)
+                    handleMute(c, mute);
+            }
+            synchronized(answeredCalls)
+            {
+                for(Call c : answeredCalls)
+                    handleMute(c, mute);
+            }
     }
 
     /**
@@ -243,8 +271,9 @@ public class CallShortcut
      * {@link #mute}.
      *
      * @param call the <tt>Call</tt> to set the mute state of
+     * @param mute indicates if the current state is mute or unmute
      */
-    private void handleMute(Call call)
+    private void handleMute(Call call, boolean mute)
     {
         // handle only established call
         if(call.getCallState() != CallState.CALL_IN_PROGRESS)
@@ -264,6 +293,7 @@ public class CallShortcut
         }
     }
 
+    
     /**
      * Answers or puts on/off hold the given call.
      *

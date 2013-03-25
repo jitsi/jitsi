@@ -86,13 +86,15 @@ public class NativeKeyboardHook
      *
      * @param keycode keycode of the shortcut
      * @param modifiers modifiers (CTRL, ALT, ...)
+     * @param isOnKeyRelease this parameter should be true if when the shortcut
+     * is released an action should be performed. 
      * @return true if success, false otherwise
      */
     public synchronized boolean registerShortcut(int keycode,
-        int modifiers)
+        int modifiers, boolean isOnKeyRelease)
     {
         if(ptr != 0)
-            return registerShortcut(ptr, keycode, modifiers);
+            return registerShortcut(ptr, keycode, modifiers, isOnKeyRelease);
 
         return false;
     }
@@ -114,12 +116,15 @@ public class NativeKeyboardHook
      * Register a special key shortcut (for example key coming from headset).
      *
      * @param keycode keycode of the shortcut
+     * @param isOnKeyRelease this parameter should be true if when the shortcut
+     * is released an action should be performed. 
      * @return true if success, false otherwise
      */
-    public synchronized boolean registerSpecial(int keycode)
+    public synchronized boolean registerSpecial(int keycode,
+        boolean isOnKeyRelease)
     {
         if(ptr != 0)
-            return registerSpecial(ptr, keycode);
+            return registerSpecial(ptr, keycode, isOnKeyRelease);
 
         return false;
     }
@@ -195,10 +200,12 @@ public class NativeKeyboardHook
      * @param ptr native pointer
      * @param keycode keycode of the shortcut
      * @param modifiers modifiers (CTRL, ALT, ...)
+     * @param isOnKeyRelease this parameter should be true if when the shortcut
+     * is released an action should be performed. 
      * @return true if registration is successful, false otherwise
      */
     private static native boolean registerShortcut(long ptr, int keycode,
-        int modifiers);
+        int modifiers, boolean isOnKeyRelease);
 
     /**
      * Native method to unregister a shortcut.
@@ -216,9 +223,12 @@ public class NativeKeyboardHook
      *
      * @param ptr native pointer
      * @param keycode keycode of the shortcut
+     * @param isOnKeyRelease this parameter should be true if when the shortcut
+     * is released an action should be performed. 
      * @return true if registration is successful, false otherwise
      */
-    private static native boolean registerSpecial(long ptr, int keycode);
+    private static native boolean registerSpecial(long ptr, int keycode,
+        boolean isOnKeyRelease);
 
     /**
      * Native method to unregister a special key shortcut (for example key

@@ -34,6 +34,7 @@ class keystrok
     int vkcode; /**< Virtual keycode. */
     int modifiers; /**< Modifiers (ALT, CTLR, ...). */
     int active; /**< If the hotkey is active. */
+    bool onrelease; /**< If the java should be notified on release. */
 };
 
 /**
@@ -659,7 +660,7 @@ static int JavaUserDefinedModifiersToX11(int modifiers)
  * \param keycode keycode
  * \param modifiers modifiers used (SHIFT, CTRL, ALT, LOGO)
  */
-static void notify(struct keyboard_hook* keyboard, jint keycode, jint modifiers)
+static void notify(struct keyboard_hook* keyboard, jint keycode, jint modifiers, jboolean on_key_release)
 {
   JNIEnv *jniEnv = NULL;
   jclass delegateClass = NULL;
@@ -680,11 +681,11 @@ static void notify(struct keyboard_hook* keyboard, jint keycode, jint modifiers)
   {
     jmethodID methodid = NULL;
 
-    methodid = jniEnv->GetMethodID(delegateClass, "receiveKey", "(II)V");
+    methodid = jniEnv->GetMethodID(delegateClass, "receiveKey", "(IIZ)V");
 
     if(methodid)
     {
-      jniEnv->CallVoidMethod(keyboard->delegate, methodid, keycode, modifiers);
+      jniEnv->CallVoidMethod(keyboard->delegate, methodid, keycode, modifiers, on_key_release);
     }
   }
   jniEnv->ExceptionClear();
@@ -698,8 +699,7 @@ static void notify(struct keyboard_hook* keyboard, jint keycode, jint modifiers)
 static void* x11_event_loop_thread(void* arg)
 {
   struct keyboard_hook* keyboard = (struct keyboard_hook*)arg;
-
-  XSelectInput(keyboard->display, keyboard->root, KeyPressMask);
+  XSelectInput(keyboard->display, keyboard->root, KeyPressMask | KeyReleaseMask);
 
   while(keyboard->running)
   {
@@ -709,9 +709,14 @@ static void* x11_event_loop_thread(void* arg)
       switch (ev.type)
       {
         case KeyPress:
+        case KeyRelease:
           for(std::list<keystrok>::iterator it = keyboard->keystrokes.begin() ; it != keyboard->keystrokes.end() ; ++it)
           {
             keystrok& ks = (*it);
+            if(ev.type == KeyRelease && !ks.onrelease)
+            {
+              continue;
+            }
             XKeyEvent* keyEvent = (XKeyEvent*)&ev.xkey;
             unsigned long keycode = -1;
             //XKeycodeToKeysym(keyboard->display, keyEvent->keycode, 1);
@@ -723,7 +728,7 @@ static void* x11_event_loop_thread(void* arg)
            
             if(ks.vkcode == keycode && ks.modifiers == modifiers)
             {
-              notify(keyboard, ks.vkcode, ks.modifiers);
+              notify(keyboard, ks.vkcode, ks.modifiers, (ev.type == KeyRelease));
             }
           }
 
@@ -736,7 +741,7 @@ static void* x11_event_loop_thread(void* arg)
     for(std::list<keystrok>::iterator it = keyboard->keystrokes.begin() ; it != keyboard->keystrokes.end() ; ++it)
     {
       keystrok& ks = (*it);
-      
+
       if(ks.active == 0)
       {
         /* hotkey to add */
@@ -752,7 +757,6 @@ static void* x11_event_loop_thread(void* arg)
           continue;
         }
         int x11Modifiers = JavaUserDefinedModifiersToX11(ks.modifiers);
-       
         ks.active = 1;
         if(XGrabKey(keyboard->display, x11Keycode, x11Modifiers, keyboard->root, False, GrabModeAsync, GrabModeAsync) > 1)
         {
@@ -786,7 +790,6 @@ JNIEXPORT jlong JNICALL Java_net_java_sip_communicator_impl_globalshortcut_Nativ
  (JNIEnv* jniEnv, jclass clazz)
 {
   struct keyboard_hook* keyboard = NULL;
-
   (void)jniEnv;
   (void)clazz;
 
@@ -879,20 +882,19 @@ JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_globalshortcut_Native
 }
 
 JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_impl_globalshortcut_NativeKeyboardHook_registerShortcut
- (JNIEnv* jniEnv, jclass clazz, jlong ptr, jint keycode, jint modifiers)
+ (JNIEnv* jniEnv, jclass clazz, jlong ptr, jint keycode, jint modifiers, jboolean is_on_key_release)
 {
   struct keyboard_hook* keyboard = (struct keyboard_hook*)ptr;
-
   (void)jniEnv;
   (void)clazz;
 
   if(keyboard)
   {
     keystrok ks;
-
     ks.vkcode = keycode;
     ks.modifiers = modifiers;
     ks.active = 0;
+    ks.onrelease = is_on_key_release;
     keyboard->keystrokes.push_back(ks);
 
     return JNI_TRUE;
@@ -923,7 +925,7 @@ JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_globalshortcut_Native
 }
 
 JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_impl_globalshortcut_NativeKeyboardHook_registerSpecial
- (JNIEnv* jniEnv, jclass clazz, jlong ptr, jint keycode)
+ (JNIEnv* jniEnv, jclass clazz, jlong ptr, jint keycode, jboolean is_on_key_release)
 {
   (void)jniEnv;
   (void)clazz;

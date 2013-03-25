@@ -39,6 +39,7 @@ public interface NativeKeyboardHookDelegate
      *
      * @param keycode keycode received
      * @param modifiers modifiers received (ALT or CTRL + letter, ...)
+     * @param onRelease this parameter is true if the shortcut is released
      */
-    public void receiveKey(int keycode, int modifiers);
+    public void receiveKey(int keycode, int modifiers, boolean onRelease);
 }
