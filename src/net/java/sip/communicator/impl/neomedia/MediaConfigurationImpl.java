@@ -549,6 +549,11 @@ public class MediaConfigurationImpl
             resources.getI18NString(
                     "impl.media.configform.VIDEO_PACKETS_POLICY")),
             constraints);
+        constraints.gridy = 3;
+        centerPanel.add(new JLabel(
+            resources.getI18NString(
+                    "impl.media.configform.VIDEO_BITRATE")),
+            constraints);
 
         constraints.weightx = 1;
         constraints.gridx = 1;
@@ -598,21 +603,36 @@ public class MediaConfigurationImpl
         });
 
         final JSpinner videoMaxBandwidth = new JSpinner(new SpinnerNumberModel(
-            deviceConfig.getVideoMaxBandwidth(),
+            deviceConfig.getVideoRTPPacingThreshold(),
             1, Integer.MAX_VALUE, 1));
         videoMaxBandwidth.addChangeListener(new ChangeListener()
         {
             public void stateChanged(ChangeEvent e)
             {
-                deviceConfig.setVideoMaxBandwidth(
-                        ((SpinnerNumberModel)videoMaxBandwidth.getModel())
-                            .getNumber().intValue());
+                deviceConfig.setVideoRTPPacingThreshold(
+                        ((SpinnerNumberModel) videoMaxBandwidth.getModel())
+                                .getNumber().intValue());
             }
         });
         constraints.gridx = 1;
         constraints.gridy = 2;
         constraints.insets = new Insets(0, 0, 5, 5);
         centerPanel.add(videoMaxBandwidth, constraints);
+
+        final JSpinner videoBitrate = new JSpinner(new SpinnerNumberModel(
+            deviceConfig.getVideoBitrate(),
+            1, Integer.MAX_VALUE, 1));
+        videoBitrate.addChangeListener(new ChangeListener()
+        {
+            public void stateChanged(ChangeEvent e)
+            {
+                deviceConfig.setVideoBitrate(
+                        ((SpinnerNumberModel) videoBitrate.getModel())
+                                .getNumber().intValue());
+            }
+        });
+        constraints.gridy = 3;
+        centerPanel.add(videoBitrate, constraints);
 
         resetDefaultsButton.addActionListener(new ActionListener()
         {
@@ -626,7 +646,9 @@ public class MediaConfigurationImpl
                 // unlimited framerate
                 deviceConfig.setFrameRate(-1);
                 videoMaxBandwidth.setValue(
-                        DeviceConfiguration.DEFAULT_VIDEO_MAX_BANDWIDTH);
+                        DeviceConfiguration.DEFAULT_VIDEO_RTP_PACING_THRESHOLD);
+                videoBitrate.setValue(
+                        DeviceConfiguration.DEFAULT_VIDEO_BITRATE);
             }
         });
 
