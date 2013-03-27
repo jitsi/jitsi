@@ -699,11 +699,13 @@ static void notify(struct keyboard_hook* keyboard, jint keycode, jint modifiers,
 static void* x11_event_loop_thread(void* arg)
 {
   struct keyboard_hook* keyboard = (struct keyboard_hook*)arg;
+  keystrok activeHotKey;
+  bool hotKeyActivated = false;
   XSelectInput(keyboard->display, keyboard->root, KeyPressMask | KeyReleaseMask);
 
   while(keyboard->running)
   {
-    XEvent ev;
+    XEvent ev, next_ev;
     while(XCheckMaskEvent(keyboard->display, 0xFFFFFFFF, &ev))
     {
       switch (ev.type)
@@ -713,10 +715,6 @@ static void* x11_event_loop_thread(void* arg)
           for(std::list<keystrok>::iterator it = keyboard->keystrokes.begin() ; it != keyboard->keystrokes.end() ; ++it)
           {
             keystrok& ks = (*it);
-            if(ev.type == KeyRelease && !ks.onrelease)
-            {
-              continue;
-            }
             XKeyEvent* keyEvent = (XKeyEvent*)&ev.xkey;
             unsigned long keycode = -1;
             //XKeycodeToKeysym(keyboard->display, keyEvent->keycode, 1);
@@ -728,6 +726,35 @@ static void* x11_event_loop_thread(void* arg)
            
             if(ks.vkcode == keycode && ks.modifiers == modifiers)
             {
+			  if(ev.type == KeyRelease)
+			  {
+				if(hotKeyActivated && activeHotKey.vkcode == keycode && activeHotKey.modifiers == modifiers)
+				{
+					if(XEventsQueued(keyboard->display, QueuedAfterReading))
+					{
+						XPeekEvent(keyboard->display, &next_ev);
+						if(next_ev.type == KeyPress
+						     && next_ev.xkey.time == keyEvent->time
+							 && next_ev.xkey.keycode == keyEvent->keycode
+							 && next_ev.xkey.state == keyEvent->state)
+						{
+							//disable the autorepeat event from the queue and continue with next messages
+							XCheckMaskEvent(keyboard->display, 0xFFFFFFFF, &ev);
+							continue;
+						}
+					}
+					hotKeyActivated = false;
+				}
+			    if(!ks.onrelease)
+			    {
+				  continue;
+			    }
+			  }
+			  else
+			  {
+				hotKeyActivated = true;
+			    activeHotKey = *it;
+			  }
               notify(keyboard, ks.vkcode, ks.modifiers, (ev.type == KeyRelease));
             }
           }
