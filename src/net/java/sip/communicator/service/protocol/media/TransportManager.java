@@ -37,29 +37,39 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
         = Logger.getLogger(TransportManager.class);
 
     /**
-     * The minimum port number that we'd like our RTP sockets to bind upon.
+     * The port tracker that we should use when binding generic media streams.
      * <p>
      * Initialized by {@link #initializePortNumbers()}.
      * </p>
      */
-    private static int minMediaPort = -1;
+    private static PortTracker defaultPortTracker = new PortTracker(5000, 6000);
 
     /**
-     * The maximum port number that we'd like our RTP sockets to bind upon.
+     * The port tracker that we should use when binding video media streams.
      * <p>
-     * Initialized by {@link #initializePortNumbers()}.
+     * Potentially initialized by {@link #initializePortNumbers()} if the
+     * necessary properties are set.
      * </p>
      */
-    private static int maxMediaPort = -1;
+    private static PortTracker videoPortTracker = null;
 
     /**
-     * The port that we should try to bind our next media stream's RTP socket
-     * to.
+     * The port tracker that we should use when binding data channels.
      * <p>
-     * Initialized by {@link #initializePortNumbers()}.
+     * Potentially initialized by {@link #initializePortNumbers()} if the
+     * necessary properties are set
      * </p>
      */
-    private static int nextMediaPortToTry = -1;
+    private static PortTracker dataChannelPortTracker = null;
+
+    /**
+     * The port tracker that we should use when binding data media streams.
+     * <p>
+     * Potentially initialized by {@link #initializePortNumbers()} if the
+     * necessary properties are set
+     * </p>
+     */
+    private static PortTracker audioPortTracker = null;
 
     /**
      * RTP audio DSCP configuration property name.
@@ -106,7 +116,7 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
      */
     protected TransportManager(U callPeer)
     {
-        this.callPeer     = callPeer;
+        this.callPeer = callPeer;
     }
 
     /**
@@ -229,12 +239,15 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
         //make sure our port numbers reflect the configuration service settings
         initializePortNumbers();
 
+        PortTracker portTracker = getPortTracker(mediaType);
+
         //create the RTP socket.
         DatagramSocket rtpSocket = null;
         try
         {
-            rtpSocket = nam.createDatagramSocket( localHostForPeer,
-                            nextMediaPortToTry, minMediaPort, maxMediaPort);
+            rtpSocket = nam.createDatagramSocket(
+                localHostForPeer, portTracker.getPort(),
+                portTracker.getMinPort(), portTracker.getMaxPort());
         }
         catch (Exception exc)
         {
@@ -244,14 +257,16 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
         }
 
         //make sure that next time we don't try to bind on occupied ports
-        nextMediaPortToTry = rtpSocket.getLocalPort() + 1;
+        //also, refuse validation in case someone set the tracker range to 1
+        portTracker.setNextPort( rtpSocket.getLocalPort() + 1, false);
 
         //create the RTCP socket, preferably on the port following our RTP one.
         DatagramSocket rtcpSocket = null;
         try
         {
-            rtcpSocket = nam.createDatagramSocket(localHostForPeer,
-                            nextMediaPortToTry, minMediaPort, maxMediaPort);
+            rtcpSocket = nam.createDatagramSocket(
+                localHostForPeer, portTracker.getPort(),
+                portTracker.getMinPort(), portTracker.getMaxPort());
         }
         catch (Exception exc)
         {
@@ -262,76 +277,68 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
         }
 
         //make sure that next time we don't try to bind on occupied ports
-        nextMediaPortToTry = rtcpSocket.getLocalPort() + 1;
-
-        if (nextMediaPortToTry > maxMediaPort - 1)// take RTCP into account.
-            nextMediaPortToTry = minMediaPort;
+        portTracker.setNextPort( rtcpSocket.getLocalPort() + 1);
 
         return new DefaultStreamConnector(rtpSocket, rtcpSocket);
     }
 
     /**
-     * (Re)Sets the <tt>minPortNumber</tt> and <tt>maxPortNumber</tt> to their
-     * defaults or to the values specified in the <tt>ConfigurationService</tt>.
+     * (Re)Sets the all the port allocators to reflect current values specified
+     * in the <tt>ConfigurationService</tt>. Calling this method may very well
+     * result in creating new port allocators or destroying exising ones.
      */
     protected static void initializePortNumbers()
     {
-        //first reset to default values
-        minMediaPort = 5000;
-        maxMediaPort = 6000;
-
-        //then set to anything the user might have specified.
+        //try the default tracker first
         ConfigurationService configuration
             = ProtocolMediaActivator.getConfigurationService();
-        String minPortNumberStr
-            = configuration.getString(
-                    OperationSetBasicTelephony
-                        .MIN_MEDIA_PORT_NUMBER_PROPERTY_NAME);
+        String minPortNumberStr = configuration.getString(
+                OperationSetBasicTelephony.MIN_MEDIA_PORT_NUMBER_PROPERTY_NAME);
 
-        if (minPortNumberStr != null)
-        {
-            try
-            {
-                minMediaPort = Integer.parseInt(minPortNumberStr);
-            }
-            catch (NumberFormatException ex)
-            {
-                logger.warn(minPortNumberStr
-                            + " is not a valid min port number value. "
-                            + "using min port " + minMediaPort);
-            }
-        }
+        String maxPortNumberStr = configuration.getString(
+                OperationSetBasicTelephony.MAX_MEDIA_PORT_NUMBER_PROPERTY_NAME);
 
-        String maxPortNumberStr
-            = configuration.getString(
-                    OperationSetBasicTelephony
-                        .MAX_MEDIA_PORT_NUMBER_PROPERTY_NAME);
+        //try to send the specified range. If there's no specified range in
+        //configuration, we'll just leave the tracker as it is: [5000 to 6000]
+        defaultPortTracker.tryRange(minPortNumberStr, maxPortNumberStr);
 
-        if (maxPortNumberStr != null)
-        {
-            try
-            {
-                maxMediaPort = Integer.parseInt(maxPortNumberStr);
-            }
-            catch (NumberFormatException ex)
-            {
-                logger.warn(maxPortNumberStr
-                            + " is not a valid max port number value. "
-                            +"using max port " + maxMediaPort,
-                            ex);
-            }
-        }
 
-        /*
-         * Make sure that nextMediaPortToTry is within the range of minMediaPort
-         * and maxMediaPort as
-         * NetworkAddressManagerServiceImpl#createDatagramSocket(InetAddress,
-         * int, int, int) does.
-         */
-        if ((minMediaPort <= maxMediaPort)
-                && ((nextMediaPortToTry < minMediaPort)
-                        || (nextMediaPortToTry > maxMediaPort)))
-            nextMediaPortToTry = minMediaPort;
+        //try the VIDEO tracker
+        minPortNumberStr = configuration.getString(
+            OperationSetBasicTelephony.MIN_VIDEO_PORT_NUMBER_PROPERTY_NAME);
+
+        maxPortNumberStr = configuration.getString(
+            OperationSetBasicTelephony.MAX_VIDEO_PORT_NUMBER_PROPERTY_NAME);
+
+        //try to send the specified range. If there's no specified range in
+        //configuration, we'll just leave this tracker to null
+        videoPortTracker
+            = PortTracker.createTracker(minPortNumberStr, maxPortNumberStr);
+
+
+        //try the AUDIO tracker
+        minPortNumberStr = configuration.getString(
+            OperationSetBasicTelephony.MIN_AUDIO_PORT_NUMBER_PROPERTY_NAME);
+
+        maxPortNumberStr = configuration.getString(
+            OperationSetBasicTelephony.MAX_AUDIO_PORT_NUMBER_PROPERTY_NAME);
+
+        //try to send the specified range. If there's no specified range in
+        //configuration, we'll just leave this tracker to null
+        audioPortTracker
+            = PortTracker.createTracker(minPortNumberStr, maxPortNumberStr);
+
+        //try the DATA CHANNEL tracker
+        minPortNumberStr = configuration.getString(OperationSetBasicTelephony
+            .MIN_DATA_CHANNEL_PORT_NUMBER_PROPERTY_NAME);
+
+        maxPortNumberStr = configuration.getString(OperationSetBasicTelephony
+            .MAX_DATA_CHANNEL_PORT_NUMBER_PROPERTY_NAME);
+
+        //try to send the specified range. If there's no specified range in
+        //configuration, we'll just leave this tracker to null
+        dataChannelPortTracker
+            = PortTracker.createTracker(minPortNumberStr, maxPortNumberStr);
     }
 
     /**
@@ -554,29 +561,54 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
     }
 
     /**
-     * Gets the port that we should try to bind our next media stream's RTP
-     * socket to.
+     * Returns the port tracker that we are supposed to use when binding ports
+     * for the specified {@link MediaType}.
      *
-     * @return the port that we should try to bind our next media stream's RTP
-     * socket to
+     * @param mediaType the media type that we want to obtain a locator for.
+     *
+     * @return the port tracker that we are supposed to use when binding ports
+     * for the specified {@link MediaType}.
      */
-    protected static int getNextMediaPortToTry()
+    protected static PortTracker getPortTracker(MediaType mediaType)
     {
-        if (nextMediaPortToTry == -1)
-            initializePortNumbers();
-        return nextMediaPortToTry;
+        if(MediaType.AUDIO == mediaType && audioPortTracker != null)
+            return audioPortTracker;
+
+        if(MediaType.VIDEO == mediaType && videoPortTracker != null)
+            return videoPortTracker;
+
+        return defaultPortTracker;
     }
 
     /**
-     * Sets the port that we should try to bind our next media stream's RTP
-     * socket to
+     * Returns the port tracker that we are supposed to use when binding ports
+     * for the {@link MediaType} indicated by the string param. If we do not
+     * recognize the string as a valid media type, we simply return the default
+     * port tracker.
      *
-     * @param nextMediaPortToTry the port that we should try to bind our next
-     * media stream's RTP socket to
+     * @param mediaTypeStr the name of the media type that we want to obtain a
+     * locator for.
+     *
+     * @return the port tracker that we are supposed to use when binding ports
+     * for the {@link MediaType} with the specified name or the default tracker
+     * in case the name doesn't ring a bell.
      */
-    protected static void setNextMediaPortToTry(int nextMediaPortToTry)
+    protected static PortTracker getPortTracker(String mediaTypeStr)
     {
-        TransportManager.nextMediaPortToTry = nextMediaPortToTry;
+        try
+        {
+            MediaType mediaType = MediaType.parseString(mediaTypeStr);
+
+            return getPortTracker(mediaType);
+        }
+        catch (Exception exc)
+        {
+            logger.info(
+                "Returning default port tracker for unrecognized media type: "
+                + mediaTypeStr);
+
+            return defaultPortTracker;
+        }
     }
 
     /**

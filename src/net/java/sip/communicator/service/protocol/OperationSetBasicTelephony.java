@@ -30,18 +30,65 @@ public interface OperationSetBasicTelephony<T extends ProtocolProviderService>
     extends OperationSet
 {
     /**
+     * The name of the property that contains the maximum port number that we'd
+     * like our RTP managers to bind upon.
+     */
+    public static final String MAX_MEDIA_PORT_NUMBER_PROPERTY_NAME
+        = "net.java.sip.communicator.service.protocol.MAX_MEDIA_PORT_NUMBER";
+
+    /**
      * The name of the property that contains the minimum port number that we'd
      * like our RTP managers to bind upon.
      */
     public static final String MIN_MEDIA_PORT_NUMBER_PROPERTY_NAME
         = "net.java.sip.communicator.service.protocol.MIN_MEDIA_PORT_NUMBER";
 
+
+    /**
+     * The name of the property that contains the minimum port number that we'd
+     * like our Video RTP managers to bind upon.
+     */
+    public static final String MIN_VIDEO_PORT_NUMBER_PROPERTY_NAME
+        = "net.java.sip.communicator.service.protocol.MIN_VIDEO_PORT_NUMBER";
+
     /**
      * The name of the property that contains the maximum port number that we'd
-     * like our RTP managers to bind upon.
+     * like our Video RTP managers to bind upon.
      */
-    public static final String MAX_MEDIA_PORT_NUMBER_PROPERTY_NAME
-        = "net.java.sip.communicator.service.protocol.MAX_MEDIA_PORT_NUMBER";
+    public static final String MAX_VIDEO_PORT_NUMBER_PROPERTY_NAME
+        = "net.java.sip.communicator.service.protocol.MAX_VIDEO_PORT_NUMBER";
+
+
+    /**
+     * The name of the property that contains the minimum port number that we'd
+     * like our Audio RTP managers to bind upon.
+     */
+    public static final String MIN_AUDIO_PORT_NUMBER_PROPERTY_NAME
+        = "net.java.sip.communicator.service.protocol.MIN_AUDIO_PORT_NUMBER";
+
+    /**
+     * The name of the property that contains the maximum port number that we'd
+     * like our Audio RTP managers to bind upon.
+     */
+    public static final String MAX_AUDIO_PORT_NUMBER_PROPERTY_NAME
+        = "net.java.sip.communicator.service.protocol.MAX_AUDIO_PORT_NUMBER";
+
+
+    /**
+     * The name of the property that contains the minimum port number that we'd
+     * like our Data Channel (e.g. Pseudo TCP) managers to bind upon.
+     */
+    public static final String MIN_DATA_CHANNEL_PORT_NUMBER_PROPERTY_NAME
+        = "net.java.sip.communicator.service.protocol.MIN_DATA_CHANNEL_PORT_NUMBER";
+
+    /**
+     * The name of the property that contains the maximum port number that we'd
+     * like our Data Channel RTP managers to bind upon.
+     */
+    public static final String MAX_DATA_CHANNEL_PORT_NUMBER_PROPERTY_NAME
+        = "net.java.sip.communicator.service.protocol.MAX_DATA_CHANNEL_PORT_NUMBER";
+
+
 
     /**
      * Reason code used to hangup peer, indicates normal hangup.

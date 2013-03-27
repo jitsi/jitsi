@@ -745,7 +745,7 @@ public class IceUdpTransportManager
         {
             //the following call involves STUN processing so it may take a while
             stream = getNetAddrMgr().createIceStream(
-                        getNextMediaPortToTry(), media, iceAgent);
+                        getPortTracker(media).getPort(), media, iceAgent);
         }
         catch (Exception ex)
         {
@@ -761,14 +761,9 @@ public class IceUdpTransportManager
         //would simply include one more bind retry.
         try
         {
-            setNextMediaPortToTry(
-                    1
-                        + stream
-                            .getComponent(Component.RTCP)
-                                .getLocalCandidates()
-                                    .get(0)
-                                        .getTransportAddress()
-                                            .getPort());
+            getPortTracker(media).setNextPort(
+                1 + stream.getComponent(Component.RTCP).getLocalCandidates()
+                    .get(0).getTransportAddress() .getPort());
         }
         catch(Throwable t)
         {

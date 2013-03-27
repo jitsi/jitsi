@@ -847,15 +847,18 @@ public class TransportManagerGTalkImpl
      * name.
      *
      * @param media the name of the stream we'd like to create.
-     *
      * @param rtcp if true allocate an RTCP port
+     * @param portTracker the port tracker that we should use to obtain ports
+     * for this stream.
      *
      * @return the newly created {@link IceMediaStream}
      *
      * @throws OperationFailedException if binding on the specified media stream
      * fails for some reason.
      */
-    private IceMediaStream createIceStream(String media, boolean rtcp)
+    private IceMediaStream createIceStream(String      media,
+                                           boolean     rtcp,
+                                           PortTracker portTracker)
         throws OperationFailedException
     {
         IceMediaStream stream;
@@ -864,15 +867,15 @@ public class TransportManagerGTalkImpl
         {
             //the following call involves STUN processing so it may take a while
             stream = iceAgent.createMediaStream(media);
-            int rtpPort = getNextMediaPortToTry();
+            int rtpPort = portTracker.getPort();
 
             //rtp
             iceAgent.createComponent(stream, Transport.UDP, rtpPort, rtpPort,
                 rtpPort + 100);
 
             if(rtcp)
-                iceAgent.createComponent(stream, Transport.UDP,
-                                rtpPort + 1, rtpPort + 1, rtpPort + 101);
+                iceAgent.createComponent(stream, Transport.UDP, rtpPort,
+                    portTracker.getMinPort(), portTracker.getMaxPort());
         }
         catch (Exception ex)
         {
@@ -888,14 +891,10 @@ public class TransportManagerGTalkImpl
         //would simply include one more bind retry.
         try
         {
-            setNextMediaPortToTry(
-                    1
-                        + stream
-                            .getComponent(rtcp ? Component.RTCP : Component.RTP)
-                                .getLocalCandidates()
-                                    .get(0)
-                                        .getTransportAddress()
-                                            .getPort());
+            portTracker.setNextPort(1 + stream
+                .getComponent(rtcp ? Component.RTCP : Component.RTP)
+                .getLocalCandidates().get(0).getTransportAddress()
+                .getPort());
         }
         catch(Throwable t)
         {
@@ -950,15 +949,17 @@ public class TransportManagerGTalkImpl
 
             if(audio)
             {
-                IceMediaStream stream = createIceStream("rtp", video);
+                IceMediaStream stream = createIceStream(
+                    "rtp", video, getPortTracker(MediaType.AUDIO));
 
-                candidates.addAll(GTalkPacketFactory.createCandidates("rtp",
-                        stream));
+                candidates.addAll(GTalkPacketFactory.createCandidates(
+                    "rtp", stream));
             }
 
             if(video)
             {
-                IceMediaStream stream = createIceStream("video_rtp", true);
+                IceMediaStream stream = createIceStream(
+                    "video_rtp", true, getPortTracker(MediaType.VIDEO));
                 candidates.addAll(
                     GTalkPacketFactory.createCandidates("video_rtp", stream));
             }
