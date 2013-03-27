@@ -70,7 +70,13 @@ public class KeybindingsConfigPanel
                 }
             }
         });
-
+        
+        // global shortcut
+        GlobalShortcutConfigForm globalBindingPanel =
+            new GlobalShortcutConfigForm();
+        chooserPanes.addTab(KeybindingChooserActivator.getResources()
+            .getI18NString("plugin.keybindings.GLOBAL"), globalBindingPanel);
+        
         for (KeybindingSet.Category category : KeybindingSet.Category.values())
         {
             KeybindingSet bindingSet = service.getBindings(category);
@@ -93,11 +99,7 @@ public class KeybindingsConfigPanel
             this.choosers.put(bindingSet, newChooser);
         }
 
-        // global shortcut
-        GlobalShortcutConfigForm globalBindingPanel =
-            new GlobalShortcutConfigForm();
-        chooserPanes.addTab(KeybindingChooserActivator.getResources()
-            .getI18NString("plugin.keybindings.GLOBAL"), globalBindingPanel);
+        
 
         add(chooserPanes);
     }
