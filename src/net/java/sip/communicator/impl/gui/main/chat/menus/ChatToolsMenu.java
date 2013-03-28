@@ -14,7 +14,7 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
-import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.impl.gui.main.menus.*;
 import net.java.sip.communicator.util.*;
 /**
  * The <tt>OptionMenu</tt> is a menu in the chat window menu bar.
@@ -22,8 +22,8 @@ import net.java.sip.communicator.util.*;
  * @author Damien Roth
  * @author Yana Stamcheva
  */
-public class OptionsMenu
-    extends SIPCommMenu
+public class ChatToolsMenu
+    extends ToolsMenu
     implements ActionListener
 {
     private ChatWindow chatWindow = null;
@@ -46,13 +46,17 @@ public class OptionsMenu
      * Creates an instance of <tt>HelpMenu</tt>.
      * @param chatWindow The parent <tt>MainFrame</tt>.
      */
-    public OptionsMenu(ChatWindow chatWindow)
+    public ChatToolsMenu(ChatWindow chatWindow)
     {
-        super(GuiActivator.getResources().getI18NString("service.gui.TOOLS"));
+        super(true);
+
         this.chatWindow = chatWindow;
 
         this.setMnemonic(
             GuiActivator.getResources().getI18nMnemonic("service.gui.TOOLS"));
+
+        // Add a separator before adding the specific chat items.
+        this.addSeparator();
 
         this.viewToolBar.setActionCommand(ACTCMD_VIEW_TOOLBAR);
         this.viewToolBar.addActionListener(this);
@@ -91,6 +95,8 @@ public class OptionsMenu
      */
     public void actionPerformed(ActionEvent e)
     {
+        super.actionPerformed(e);
+
         String action = e.getActionCommand();
 
         if (action.equals(ACTCMD_VIEW_TOOLBAR))

@@ -24,6 +24,7 @@ import net.java.sip.communicator.service.contactlist.event.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.account.*;
 import net.java.sip.communicator.util.skin.*;
 
 /**
@@ -70,8 +71,6 @@ public class AddContactDialog
     private final JButton cancelButton = new JButton(
         GuiActivator.getResources().getI18NString("service.gui.CANCEL"));
 
-    private final MainFrame mainFrame;
-
     private MetaContact metaContact;
 
     /**
@@ -83,13 +82,11 @@ public class AddContactDialog
      * Creates an instance of <tt>AddContactDialog</tt> that represents a dialog
      * that adds a new contact to an already existing meta contact.
      * 
-     * @param mainFrame The <tt>MainFrame</tt> parent window.
+     * @param parentWindow the parent window of this dialog
      */
-    public AddContactDialog(MainFrame mainFrame)
+    public AddContactDialog(Frame parentWindow)
     {
-        super(mainFrame);
-
-        this.mainFrame = mainFrame;
+        super(parentWindow);
 
         this.setTitle(GuiActivator.getResources()
             .getI18NString("service.gui.ADD_CONTACT"));
@@ -105,7 +102,7 @@ public class AddContactDialog
      * @param parentWindow the parent window
      * @param metaContact the meta contact, to which to add the new contact
      */
-    public AddContactDialog(MainFrame parentWindow, MetaContact metaContact)
+    public AddContactDialog(Frame parentWindow, MetaContact metaContact)
     {
         this(parentWindow);
 
@@ -268,7 +265,7 @@ public class AddContactDialog
     private void initAccountCombo()
     {
         Iterator<ProtocolProviderService> providers
-            = mainFrame.getProtocolProviders();
+            = AccountUtils.getRegisteredProviders().iterator();
 
         accountCombo.addItem(GuiActivator.getResources()
             .getI18NString("service.gui.SELECT_ACCOUNT"));

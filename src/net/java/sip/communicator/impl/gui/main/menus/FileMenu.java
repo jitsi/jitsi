@@ -6,13 +6,13 @@
  */
 package net.java.sip.communicator.impl.gui.main.menus;
 
+import java.awt.*;
 import java.awt.event.*;
 import java.lang.reflect.*;
 
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.account.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
@@ -44,7 +44,7 @@ public class FileMenu
      */
     private static final Logger logger = Logger.getLogger(FileMenu.class);
 
-    private final MainFrame parentWindow;
+    private final Frame parentWindow;
 
     /**
      * Add new account menu item.
@@ -72,12 +72,32 @@ public class FileMenu
     private JMenuItem closeMenuItem;
 
     /**
+     * Indicates if this menu is shown for the chat window or the contact list
+     * window.
+     */
+    private boolean isChatMenu;
+
+    /**
      * Creates an instance of <tt>FileMenu</tt>.
      * @param parentWindow The parent <tt>ChatWindow</tt>.
      */
-    public FileMenu(MainFrame parentWindow)
+    public FileMenu(Frame parentWindow)
+    {
+        this(parentWindow, false);
+    }
+
+    /**
+     * Creates an instance of <tt>FileMenu</tt>.
+     *
+     * @param parentWindow The parent <tt>ChatWindow</tt>.
+     * @param isChatMenu indicates if this menu would be shown for a chat
+     * window
+     */
+    public FileMenu(Frame parentWindow, boolean isChatMenu)
     {
         super(GuiActivator.getResources().getI18NString("service.gui.FILE"));
+
+        this.isChatMenu = isChatMenu;
 
         ResourceManagementService resources = GuiActivator.getResources();
         createGroupItem = new JMenuItem(
@@ -114,7 +134,7 @@ public class FileMenu
             }
         }
 
-        if (!ConfigurationUtils.isAddContactDisabled())
+        if (!isChatMenu && !ConfigurationUtils.isAddContactDisabled())
         {
             addContactItem = new JMenuItem(
                 resources.getI18NString("service.gui.ADD_CONTACT") + "...");
@@ -140,7 +160,7 @@ public class FileMenu
                 endsWithSeparator = false;
         }
 
-        if (!ConfigurationUtils.isCreateGroupDisabled())
+        if (!isChatMenu && !ConfigurationUtils.isCreateGroupDisabled())
         {
             this.add(createGroupItem);
 
@@ -334,11 +354,14 @@ public class FileMenu
 
         if(addSeparator)
             this.addSeparator();
-        
-        this.add(closeMenuItem);
-        closeMenuItem.setName("close");
-        closeMenuItem.addActionListener(this);
-        closeMenuItem.setMnemonic(GuiActivator.getResources()
-            .getI18nMnemonic("service.gui.QUIT"));
+
+        if (!isChatMenu)
+        {
+            this.add(closeMenuItem);
+            closeMenuItem.setName("close");
+            closeMenuItem.addActionListener(this);
+            closeMenuItem.setMnemonic(GuiActivator.getResources()
+                .getI18nMnemonic("service.gui.QUIT"));
+        }
     }
 }

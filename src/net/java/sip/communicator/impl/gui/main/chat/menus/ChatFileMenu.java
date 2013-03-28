@@ -15,8 +15,6 @@ import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.plugin.desktoputil.*;
-import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 
 /**
@@ -26,15 +24,11 @@ import net.java.sip.communicator.util.skin.*;
  * @author Yana Stamcheva
  * @author Adam Netocny
  */
-public class FileMenu
-    extends SIPCommMenu
+public class ChatFileMenu
+    extends net.java.sip.communicator.impl.gui.main.menus.FileMenu
     implements  ActionListener,
                 Skinnable
 {
-    private JMenuItem myChatRoomsItem = new JMenuItem(
-        GuiActivator.getResources().getI18NString("service.gui.MY_CHAT_ROOMS"),
-        new ImageIcon(ImageLoader.getImage(ImageLoader.CHAT_ROOM_16x16_ICON)));
-
     private JMenuItem historyItem = new JMenuItem(
         GuiActivator.getResources().getI18NString("service.gui.HISTORY"),
         new ImageIcon(ImageLoader.getImage(ImageLoader.HISTORY_16x16_ICON)));
@@ -43,42 +37,34 @@ public class FileMenu
         GuiActivator.getResources().getI18NString("service.gui.CLOSE"),
         new ImageIcon(ImageLoader.getImage(ImageLoader.CLOSE_ICON)));
 
-    private ChatWindow parentWindow;
+    private ChatWindow chatWindow;
 
     /**
      * Creates an instance of <tt>FileMenu</tt>.
-     * @param parentWindow The parent <tt>ChatWindow</tt>.
+     *
+     * @param chatWindow The parent <tt>ChatWindow</tt>.
      */
-    public FileMenu(ChatWindow parentWindow)
+    public ChatFileMenu(ChatWindow chatWindow)
     {
-        super(GuiActivator.getResources().getI18NString("service.gui.FILE"));
+        super(chatWindow, true);
 
-        this.parentWindow = parentWindow;
+        this.chatWindow = chatWindow;
 
         this.setMnemonic(
             GuiActivator.getResources().getI18nMnemonic("service.gui.FILE"));
 
-        if (!ConfigurationUtils.isGoToChatroomDisabled())
-        {
-            this.add(myChatRoomsItem);
-        }
         this.add(historyItem);
 
         this.addSeparator();
 
         this.add(closeMenuItem);
 
-        this.myChatRoomsItem.setName("myChatRooms");
         this.historyItem.setName("history");
         this.closeMenuItem.setName("close");
 
-        this.myChatRoomsItem.addActionListener(this);
         this.historyItem.addActionListener(this);
         this.closeMenuItem.addActionListener(this);
 
-        this.myChatRoomsItem.setMnemonic(
-            GuiActivator.getResources()
-                .getI18nMnemonic("service.gui.MY_CHAT_ROOMS"));
         this.historyItem.setMnemonic(
             GuiActivator.getResources().getI18nMnemonic("service.gui.HISTORY"));
         this.closeMenuItem.setMnemonic(
@@ -92,6 +78,8 @@ public class FileMenu
      */
     public void actionPerformed(ActionEvent e)
     {
+        super.actionPerformed(e);
+
         JMenuItem menuItem = (JMenuItem) e.getSource();
         String itemText = menuItem.getName();
 
@@ -106,7 +94,7 @@ public class FileMenu
             HistoryWindowManager historyWindowManager
                 = GuiActivator.getUIService().getHistoryWindowManager();
 
-            ChatPanel chatPanel = this.parentWindow.getCurrentChat();
+            ChatPanel chatPanel = this.chatWindow.getCurrentChat();
             ChatSession chatSession = chatPanel.getChatSession();
 
             if(historyWindowManager
@@ -133,8 +121,8 @@ public class FileMenu
         }
         else if (itemText.equalsIgnoreCase("close"))
         {
-            this.parentWindow.setVisible(false);
-            this.parentWindow.dispose();
+            this.chatWindow.setVisible(false);
+            this.chatWindow.dispose();
         }
     }
 
@@ -143,13 +131,14 @@ public class FileMenu
      */
     public void loadSkin()
     {
-        myChatRoomsItem.setIcon(new ImageIcon(
-                ImageLoader.getImage(ImageLoader.CHAT_ROOM_16x16_ICON)));
+        super.loadSkin();
 
-        historyItem.setIcon(new ImageIcon(
-                ImageLoader.getImage(ImageLoader.HISTORY_ICON)));
+        if (historyItem != null)
+            historyItem.setIcon(new ImageIcon(
+                    ImageLoader.getImage(ImageLoader.HISTORY_ICON)));
 
-        closeMenuItem.setIcon(new ImageIcon(
-                ImageLoader.getImage(ImageLoader.CLOSE_ICON)));
+        if (closeMenuItem != null)
+            closeMenuItem.setIcon(new ImageIcon(
+                    ImageLoader.getImage(ImageLoader.CLOSE_ICON)));
     }
 }

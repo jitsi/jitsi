@@ -16,7 +16,6 @@ import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.event.*;
-import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.main.call.conference.*;
 import net.java.sip.communicator.impl.gui.main.configforms.*;
@@ -109,11 +108,30 @@ public class ToolsMenu
     private MenuListener videoBridgeMenuListener;
 
     /**
-     * Creates an instance of <tt>FileMenu</tt>.
-     * @param parentWindow The parent <tt>ChatWindow</tt>.
+     * Indicates if this menu is shown for the chat window or the contact list
+     * window.
      */
-    public ToolsMenu(MainFrame parentWindow)
+    private boolean isChatMenu;
+
+    /**
+     * Creates an instance of <tt>FileMenu</tt>.
+     */
+    public ToolsMenu()
     {
+        this(false);
+    }
+
+    /**
+     * Creates an instance of <tt>FileMenu</tt>, by specifying if this menu
+     * would be shown for a chat window.
+     *
+     * @param isChatMenu indicates if this menu would be shown for a chat
+     * window
+     */
+    public ToolsMenu(boolean isChatMenu)
+    {
+        this.isChatMenu = isChatMenu;
+
         ResourceManagementService r = GuiActivator.getResources();
 
         setText(r.getI18NString("service.gui.TOOLS"));
@@ -373,11 +391,15 @@ public class ToolsMenu
                             ? "service.gui.HIDE_OFFLINE_CONTACTS"
                             : "service.gui.SHOW_OFFLINE_CONTACTS";
 
-        hideOfflineMenuItem = new JMenuItem(r.getI18NString(offlineTextKey));
-        hideOfflineMenuItem.setMnemonic(r.getI18nMnemonic(offlineTextKey));
-        hideOfflineMenuItem.setName("showHideOffline");
-        hideOfflineMenuItem.addActionListener(this);
-        this.add(hideOfflineMenuItem);
+        // The hide offline menu item only makes sense in the contact list.
+        if (!isChatMenu)
+        {
+            hideOfflineMenuItem = new JMenuItem(r.getI18NString(offlineTextKey));
+            hideOfflineMenuItem.setMnemonic(r.getI18nMnemonic(offlineTextKey));
+            hideOfflineMenuItem.setName("showHideOffline");
+            hideOfflineMenuItem.addActionListener(this);
+            this.add(hideOfflineMenuItem);
+        }
 
         // Sound on/off menu item.
         String soundTextKey
@@ -675,8 +697,13 @@ public class ToolsMenu
             configMenuItem.setIcon(
                     r.getImage("service.gui.icons.CONFIGURE_ICON"));
         }
-        hideOfflineMenuItem.setIcon(
-                r.getImage("service.gui.icons.SHOW_HIDE_OFFLINE_ICON"));
+
+        // The hide offline menu item could be null if the parent window of this
+        // menu is a chat window.
+        if (hideOfflineMenuItem != null)
+            hideOfflineMenuItem.setIcon(
+                    r.getImage("service.gui.icons.SHOW_HIDE_OFFLINE_ICON"));
+
         soundMenuItem.setIcon(
                 r.getImage("service.gui.icons.SOUND_MENU_ICON"));
         if (videoBridgeMenuItem != null)

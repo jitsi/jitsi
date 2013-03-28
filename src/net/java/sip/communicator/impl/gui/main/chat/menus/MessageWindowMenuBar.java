@@ -29,11 +29,11 @@ import net.java.sip.communicator.service.gui.Container;
 public class MessageWindowMenuBar
     extends SIPCommWindowMenuBar
 {
-    private final FileMenu fileMenu;
+    private final ChatFileMenu fileMenu;
 
     private final EditMenu editMenu;
 
-    private final OptionsMenu optionsMenu;
+    private final ChatToolsMenu optionsMenu;
 
     private final HelpMenu helpMenu;
 
@@ -53,9 +53,9 @@ public class MessageWindowMenuBar
     {
         super("service.gui.CHAT_MENU_FOREGROUND");
 
-        fileMenu = new FileMenu(parentWindow);
+        fileMenu = new ChatFileMenu(parentWindow);
         editMenu = new EditMenu(parentWindow);
-        optionsMenu = new OptionsMenu(parentWindow);
+        optionsMenu = new ChatToolsMenu(parentWindow);
         helpMenu = new HelpMenu(parentWindow);
 
         this.init();

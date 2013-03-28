@@ -36,7 +36,7 @@ public class MainMenu
         super("service.gui.MAIN_MENU_FOREGROUND");
 
         addMenu(new FileMenu(mainFrame), "service.gui.FILE");
-        addMenu(new ToolsMenu(mainFrame), "service.gui.TOOLS");
+        addMenu(new ToolsMenu(), "service.gui.TOOLS");
         addMenu(new HelpMenu(mainFrame), "service.gui.HELP");
     }
 
