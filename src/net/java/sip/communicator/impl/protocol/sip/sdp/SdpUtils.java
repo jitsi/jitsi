@@ -166,7 +166,7 @@ public class SdpUtils
 
             //o
             if (userName == null)
-                userName = "sip-communicator";
+                userName = "jitsi.org";
 
             Origin o = sdpFactory.createOrigin(
                 userName, 0, 0, "IN", addrType, localAddress.getHostAddress());

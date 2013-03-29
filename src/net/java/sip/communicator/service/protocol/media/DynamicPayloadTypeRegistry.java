@@ -243,7 +243,10 @@ public class DynamicPayloadTypeRegistry
             if(alreadyMappedFmt.matches(format))
             {
                 //we already have the exact same mapping, so no need to
-                //create a new one override the old PT number.
+                //create a new one override the old PT number. However, there
+                //might be a leftover override from a previous mapping so let's
+                //remove it if this is the case.
+                payloadTypeOverrides.remove(payloadType);
                 return;
             }
             //else:
