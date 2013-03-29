@@ -210,6 +210,12 @@ public class AudioConferenceCallPanel
         mainPanel.add(callPeerPanel.getComponent(), constraints);
 
         SwingUtilities.invokeLater(scrollToBottomRunnable);
+
+        // If the parent window exists already try to adjust the size of the
+        // window to the new content. Fixes cut off conference window.
+        Window parentWindow = SwingUtilities.getWindowAncestor(mainPanel);
+        if (parentWindow != null)
+            parentWindow.pack();
     }
 
     /**
@@ -224,6 +230,12 @@ public class AudioConferenceCallPanel
          * the user interface hierarchy of this instance.
          */
         mainPanel.remove(callPeerPanel.getComponent());
+
+        // If the parent window exists already try to adjust the size of the
+        // window to the new content.
+        Window parentWindow = SwingUtilities.getWindowAncestor(mainPanel);
+        if (parentWindow != null)
+            parentWindow.pack();
     }
 
     /**
