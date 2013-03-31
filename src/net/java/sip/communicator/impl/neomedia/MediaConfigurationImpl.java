@@ -206,7 +206,8 @@ public class MediaConfigurationImpl
             {
                 cdi
                     = soundLevelIndicator.isShowing()
-                        ? audioSystem.getDevice(AudioSystem.CAPTURE_INDEX)
+                        ? audioSystem.getSelectedDevice(
+                                AudioSystem.DataFlow.CAPTURE)
                         : null;
             }
             else

@@ -174,19 +174,19 @@ public class DeviceConfigurationComboBoxModel
             audioSystem = deviceConfiguration.getAudioSystem();
             infos = (audioSystem == null)
                     ? null
-                    : audioSystem.getDevices(AudioSystem.CAPTURE_INDEX);
+                    : audioSystem.getDevices(AudioSystem.DataFlow.CAPTURE);
             break;
         case AUDIO_NOTIFY:
             audioSystem = deviceConfiguration.getAudioSystem();
             infos = (audioSystem == null)
                 ? null
-                : audioSystem.getDevices(AudioSystem.NOTIFY_INDEX);
+                : audioSystem.getDevices(AudioSystem.DataFlow.NOTIFY);
             break;
         case AUDIO_PLAYBACK:
             audioSystem = deviceConfiguration.getAudioSystem();
             infos = (audioSystem == null)
                     ? null
-                    : audioSystem.getDevices(AudioSystem.PLAYBACK_INDEX);
+                    : audioSystem.getDevices(AudioSystem.DataFlow.PLAYBACK);
             break;
         case VIDEO:
             infos = deviceConfiguration.getAvailableVideoCaptureDevices(
@@ -232,19 +232,19 @@ public class DeviceConfigurationComboBoxModel
             audioSystem = deviceConfiguration.getAudioSystem();
             info = (audioSystem == null)
                 ? null
-                : audioSystem.getDevice(AudioSystem.CAPTURE_INDEX);
+                : audioSystem.getSelectedDevice(AudioSystem.DataFlow.CAPTURE);
             break;
         case AUDIO_NOTIFY:
             audioSystem = deviceConfiguration.getAudioSystem();
             info = (audioSystem == null)
                 ? null
-                : audioSystem.getDevice(AudioSystem.NOTIFY_INDEX);
+                : audioSystem.getSelectedDevice(AudioSystem.DataFlow.NOTIFY);
             break;
         case AUDIO_PLAYBACK:
             audioSystem = deviceConfiguration.getAudioSystem();
             info = (audioSystem == null)
                 ? null
-                : audioSystem.getDevice(AudioSystem.PLAYBACK_INDEX);
+                : audioSystem.getSelectedDevice(AudioSystem.DataFlow.PLAYBACK);
             break;
         case VIDEO:
             info = deviceConfiguration.getVideoCaptureDevice(MediaUseCase.ANY);
@@ -341,8 +341,8 @@ public class DeviceConfigurationComboBoxModel
                 if (audioSystem != null)
                 {
                     audioSystem.setDevice(
-                            AudioSystem.CAPTURE_INDEX,
-                            ((ExtendedCaptureDeviceInfo) device.info),
+                            AudioSystem.DataFlow.CAPTURE,
+                            ((CaptureDeviceInfo2) device.info),
                             true);
                 }
                 break;
@@ -351,8 +351,8 @@ public class DeviceConfigurationComboBoxModel
                 if (audioSystem != null)
                 {
                     audioSystem.setDevice(
-                            AudioSystem.NOTIFY_INDEX,
-                            ((ExtendedCaptureDeviceInfo) device.info),
+                            AudioSystem.DataFlow.NOTIFY,
+                            ((CaptureDeviceInfo2) device.info),
                             true);
                 }
                 break;
@@ -361,8 +361,8 @@ public class DeviceConfigurationComboBoxModel
                 if (audioSystem != null)
                 {
                     audioSystem.setDevice(
-                            AudioSystem.PLAYBACK_INDEX,
-                            ((ExtendedCaptureDeviceInfo) device.info),
+                            AudioSystem.DataFlow.PLAYBACK,
+                            ((CaptureDeviceInfo2) device.info),
                             true);
                 }
                 break;
@@ -449,10 +449,10 @@ public class DeviceConfigurationComboBoxModel
             else
             {
                 s = info.getName();
-                if(info instanceof ExtendedCaptureDeviceInfo)
+                if(info instanceof CaptureDeviceInfo2)
                 {
                     String transportType
-                        = ((ExtendedCaptureDeviceInfo) info).getTransportType();
+                        = ((CaptureDeviceInfo2) info).getTransportType();
 
                     if(transportType != null)
                         s += " (" + transportType + ")";

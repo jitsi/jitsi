@@ -139,7 +139,8 @@ public class AudioDeviceConfigurationListener
                 if(capturePropertyChangeEvent != null)
                 {
                     CaptureDeviceInfo cdi
-                        = audioSystem.getDevice(AudioSystem.CAPTURE_INDEX);
+                        = audioSystem.getSelectedDevice(
+                                AudioSystem.DataFlow.CAPTURE);
 
                     if ((cdi != null)
                             && !cdi.equals(
@@ -158,7 +159,8 @@ public class AudioDeviceConfigurationListener
                 if(playbackPropertyChangeEvent != null)
                 {
                     CaptureDeviceInfo cdi
-                        = audioSystem.getDevice(AudioSystem.PLAYBACK_INDEX);
+                        = audioSystem.getSelectedDevice(
+                                AudioSystem.DataFlow.PLAYBACK);
 
                     if ((cdi != null)
                             && !cdi.equals(
@@ -177,7 +179,8 @@ public class AudioDeviceConfigurationListener
                 if(notifyPropertyChangeEvent != null)
                 {
                     CaptureDeviceInfo cdi
-                        = audioSystem.getDevice(AudioSystem.NOTIFY_INDEX);
+                        = audioSystem.getSelectedDevice(
+                                AudioSystem.DataFlow.NOTIFY);
 
                     if ((cdi != null)
                             && !cdi.equals(
