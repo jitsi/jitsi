@@ -438,6 +438,7 @@
       <compilerarg value="-I/usr/include/dbus-1.0" />
       <compilerarg value="-I/usr/lib/dbus-1.0/include" />
       <compilerarg value="-I/usr/lib/x86_64-linux-gnu/dbus-1.0/include" />
+      <compilerarg value="-I/usr/lib/i386-linux-gnu/dbus-1.0/include" />
       <compilerarg value="-m32" if="cross_32" />
       <compilerarg value="-m64" if="cross_64" />
       <compilerarg value="-I${system.JAVA_HOME}/include" />
@@ -650,6 +651,8 @@
         <compilerarg value="-I/usr/lib/gtk-2.0/include/" if="is.running.linux" />
         <compilerarg value="-I/usr/lib/x86_64-linux-gnu/glib-2.0/include" if="is.running.linux" />
         <compilerarg value="-I/usr/lib/x86_64-linux-gnu/gtk-2.0/include" if="is.running.linux" />
+        <compilerarg value="-I/usr/lib/i386-linux-gnu/glib-2.0/include" if="is.running.linux" />
+        <compilerarg value="-I/usr/lib/i386-linux-gnu/gtk-2.0/include" if="is.running.linux" />
 
         <compilerarg value="-m32" if="cross_32" unless="is.running.macos" />
         <compilerarg value="-m64" if="cross_64" unless="is.running.macos" />

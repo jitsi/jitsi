@@ -3,6 +3,7 @@ set -e
 
 out=`pwd`/build/linux
 prefix=$out/libs
+export JAVA_HOME=/usr/lib/jvm/default-java/
 
 mkdir -p $out
 mkdir -p $prefix
@@ -38,6 +39,6 @@ make
 make install
 
 cd $out
-gcc $out/../../src/net_java_sip_communicator_impl_dns_UnboundApi.cpp -fpic -shared -o libjunbound.so -I/usr/lib/jvm/java-6-openjdk/include -Wl,-Bstatic -L$prefix/lib -lunbound -lldns -I$prefix/include -Wl,-Bdynamic -lcrypto
+gcc $out/../../src/net_java_sip_communicator_impl_dns_UnboundApi.cpp -fpic -shared -o libjunbound.so -I$JAVA_HOME/include -Wl,-Bstatic -L$prefix/lib -lunbound -lldns -I$prefix/include -Wl,-Bdynamic -lcrypto
 strip libjunbound.so
 
