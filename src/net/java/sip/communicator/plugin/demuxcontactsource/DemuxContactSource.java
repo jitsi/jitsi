@@ -283,6 +283,8 @@ public class DemuxContactSource
                                             contactDetails);
 
             genericContact.setDisplayDetails(contactDetail.getDetail());
+            genericContact.setPresenceStatus(sourceContact.getPresenceStatus());
+            genericContact.setImage(sourceContact.getImage());
 
             return genericContact;
         }

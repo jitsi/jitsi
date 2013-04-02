@@ -44,6 +44,8 @@ public class PhoneNumberSourceContact
                 contactDetails);
 
         displayDetails = detailDisplayName;
+        setPresenceStatus(contact.getPresenceStatus());
+        setImage(contact.getImage());
     }
 
     /**
