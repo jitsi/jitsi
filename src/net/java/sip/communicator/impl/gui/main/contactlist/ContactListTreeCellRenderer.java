@@ -219,9 +219,14 @@ public class ContactListTreeCellRenderer
     private TreeContactList treeContactList;
 
     /**
-     * A list of the custom action buttons.
+     * A list of the custom action buttons for contacts UIContacts.
      */
     private List<JButton> customActionButtons;
+
+    /**
+     * A list of the custom action buttons for groups.
+     */
+    private List<JButton> customActionButtonsUIGroup;
 
     /**
      * The last added button.
@@ -477,15 +482,7 @@ public class ContactListTreeCellRenderer
             this.remove(chatButton);
             this.remove(addContactButton);
 
-            if (customActionButtons != null && customActionButtons.size() > 0)
-            {
-                Iterator<JButton> buttonsIter = customActionButtons.iterator();
-                while (buttonsIter.hasNext())
-                {
-                    remove(buttonsIter.next());
-                }
-                customActionButtons.clear();
-            }
+            clearCustomActionButtons();
 
             this.statusLabel.setIcon(
                     expanded
@@ -505,6 +502,7 @@ public class ContactListTreeCellRenderer
             }
 
             this.initDisplayDetails(groupItem.getDisplayDetails());
+            this.initButtonsPanel(groupItem);
             this.setToolTipText(groupItem.getDescriptor().toString());
         }
 
@@ -624,7 +622,11 @@ public class ContactListTreeCellRenderer
 
             preferredHeight = group.getPreferredHeight();
 
-            if (preferredHeight > 0)
+            if (isSelected
+                    && customActionButtonsUIGroup != null
+                    && !customActionButtonsUIGroup.isEmpty())
+                preferredSize.height = 70;
+            else if (preferredHeight > 0)
                 preferredSize.height = preferredHeight;
             else
                 preferredSize.height = 20;
@@ -670,6 +672,19 @@ public class ContactListTreeCellRenderer
         this.add(rightLabel, constraints);
 
         if (treeNode != null && treeNode instanceof ContactNode)
+        {
+            constraints.anchor = GridBagConstraints.WEST;
+            constraints.fill = GridBagConstraints.NONE;
+            constraints.gridx = 1;
+            constraints.gridy = 1;
+            constraints.weightx = 1f;
+            constraints.weighty = 0f;
+            constraints.gridwidth = nameLabelGridWidth;
+            constraints.gridheight = 1;
+
+            this.add(displayDetailsLabel, constraints);
+        }
+        else if (treeNode != null && treeNode instanceof GroupNode)
         {
             constraints.anchor = GridBagConstraints.WEST;
             constraints.fill = GridBagConstraints.NONE;
@@ -728,15 +743,7 @@ public class ContactListTreeCellRenderer
         this.remove(desktopSharingButton);
         this.remove(addContactButton);
 
-        if (customActionButtons != null && customActionButtons.size() > 0)
-        {
-            Iterator<JButton> buttonsIter = customActionButtons.iterator();
-            while (buttonsIter.hasNext())
-            {
-                remove(buttonsIter.next());
-            }
-            customActionButtons.clear();
-        }
+        clearCustomActionButtons();
 
         if (!isSelected)
             return;
@@ -865,6 +872,101 @@ public class ContactListTreeCellRenderer
 
         this.setBounds(0, 0, treeContactList.getWidth(),
                         getPreferredSize().height);
+    }
+
+    /**
+     * Initializes buttons panel.
+     * @param uiGroup the <tt>UIGroup</tt> for which we initialize the
+     * button panel
+     */
+    private void initButtonsPanel(UIGroup uiGroup)
+    {
+        if (!isSelected)
+            return;
+
+        int x = LEFT_BORDER + H_GAP;
+        int gridX = 0;
+
+        // The list of the actions
+        // we will create a button for every action
+        Collection<SIPCommButton> contactActions
+            = uiGroup.getCustomActionButtons();
+
+        if (contactActions != null && contactActions.size() > 0)
+        {
+            initGroupActionButtons(contactActions, ++gridX, x);
+        }
+        else
+        {
+            addLabels(gridX);
+        }
+
+        this.setBounds(0, 0, treeContactList.getWidth(),
+                        getPreferredSize().height);
+    }
+
+    /**
+     * Clears the custom action buttons.
+     */
+    private void clearCustomActionButtons()
+    {
+        if (customActionButtons != null && customActionButtons.size() > 0)
+        {
+            Iterator<JButton> buttonsIter = customActionButtons.iterator();
+            while (buttonsIter.hasNext())
+            {
+                remove(buttonsIter.next());
+            }
+            customActionButtons.clear();
+        }
+
+        if (customActionButtonsUIGroup != null
+            && customActionButtonsUIGroup.size() > 0)
+        {
+            Iterator<JButton> buttonsIter =
+                customActionButtonsUIGroup.iterator();
+            while (buttonsIter.hasNext())
+            {
+                remove(buttonsIter.next());
+            }
+            customActionButtonsUIGroup.clear();
+        }
+    }
+
+    /**
+     * Initializes custom contact action buttons.
+     *
+     * @param contactActionButtons the list of buttons to initialize
+     * @param gridX the X grid of the first button
+     * @param xBounds the x bounds of the first button
+     */
+    private void initGroupActionButtons(
+        Collection<SIPCommButton> contactActionButtons,
+        int gridX,
+        int xBounds)
+    {
+        // Reinit the labels to take the whole horizontal space.
+        addLabels(gridX + contactActionButtons.size());
+
+        Iterator<SIPCommButton> actionsIter = contactActionButtons.iterator();
+        while (actionsIter.hasNext())
+        {
+            final SIPCommButton actionButton = actionsIter.next();
+
+            // We need to explicitly remove the buttons from the tooltip manager,
+            // because we're going to manager the tooltip ourselves in the
+            // DefaultTreeContactList class. We need to do this in order to have
+            // a different tooltip for every button and for non button area.
+            ToolTipManager.sharedInstance().unregisterComponent(actionButton);
+
+            if (customActionButtonsUIGroup == null)
+                customActionButtonsUIGroup = new LinkedList<JButton>();
+
+            customActionButtonsUIGroup.add(actionButton);
+
+            xBounds
+                += addButton(actionButton, ++gridX, xBounds, false);
+        }
     }
 
     /**
