@@ -861,9 +861,10 @@ public class ContactListTreeCellRenderer
         Collection<SIPCommButton> contactActions
             = uiContact.getContactCustomActionButtons();
 
+        int lastGridX = gridX;
         if (contactActions != null && contactActions.size() > 0)
         {
-            initContactActionButtons(contactActions, ++gridX, x);
+            lastGridX = initContactActionButtons(contactActions, gridX, x);
         }
         else
         {
@@ -871,7 +872,7 @@ public class ContactListTreeCellRenderer
         }
 
         if (lastAddedButton != null)
-            setButtonBg(lastAddedButton, gridX, true);
+            setButtonBg(lastAddedButton, lastGridX, true);
 
         this.setBounds(0, 0, treeContactList.getWidth(),
                         getPreferredSize().height);
@@ -897,14 +898,18 @@ public class ContactListTreeCellRenderer
         Collection<SIPCommButton> contactActions
             = uiGroup.getCustomActionButtons();
 
+        int lastGridX = gridX;
         if (contactActions != null && contactActions.size() > 0)
         {
-            initGroupActionButtons(contactActions, ++gridX, x);
+            lastGridX = initGroupActionButtons(contactActions, gridX, x);
         }
         else
         {
             addLabels(gridX);
         }
+
+        if (lastAddedButton != null)
+            setButtonBg(lastAddedButton, lastGridX, true);
 
         this.setBounds(0, 0, treeContactList.getWidth(),
                         getPreferredSize().height);
@@ -944,8 +949,10 @@ public class ContactListTreeCellRenderer
      * @param contactActionButtons the list of buttons to initialize
      * @param gridX the X grid of the first button
      * @param xBounds the x bounds of the first button
+     *
+     * @return the new grid X coordinate after adding all the buttons
      */
-    private void initGroupActionButtons(
+    private int initGroupActionButtons(
         Collection<SIPCommButton> contactActionButtons,
         int gridX,
         int xBounds)
@@ -972,6 +979,8 @@ public class ContactListTreeCellRenderer
             xBounds
                 += addButton(actionButton, ++gridX, xBounds, false);
         }
+
+        return gridX;
     }
 
     /**
@@ -980,8 +989,10 @@ public class ContactListTreeCellRenderer
      * @param contactActionButtons the list of buttons to initialize
      * @param gridX the X grid of the first button
      * @param xBounds the x bounds of the first button
+     *
+     * @return the new grid X coordiante after adding all the buttons
      */
-    private void initContactActionButtons(
+    private int initContactActionButtons(
         Collection<SIPCommButton> contactActionButtons,
         int gridX,
         int xBounds)
@@ -1008,6 +1019,8 @@ public class ContactListTreeCellRenderer
             xBounds
                 += addButton(actionButton, ++gridX, xBounds, false);
         }
+
+        return gridX;
     }
 
     /**
