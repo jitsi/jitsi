@@ -484,6 +484,9 @@ public class ContactListTreeCellRenderer
 
             clearCustomActionButtons();
 
+            statusIcon = expanded
+                                ? openedGroupIcon
+                                : closedGroupIcon;
             this.statusLabel.setIcon(
                     expanded
                     ? openedGroupIcon
@@ -884,7 +887,9 @@ public class ContactListTreeCellRenderer
         if (!isSelected)
             return;
 
-        int x = LEFT_BORDER + H_GAP;
+        int x = (statusIcon == null ? 0 : statusIcon.getIconWidth())
+                + LEFT_BORDER
+                + H_GAP;
         int gridX = 0;
 
         // The list of the actions
@@ -1245,6 +1250,16 @@ public class ContactListTreeCellRenderer
                 button.getModel().setRollover(false);
             }
         }
+
+        if (customActionButtonsUIGroup != null)
+        {
+            Iterator<JButton> buttonsIter = customActionButtonsUIGroup.iterator();
+            while (buttonsIter.hasNext())
+            {
+                JButton button = buttonsIter.next();
+                button.getModel().setRollover(false);
+            }
+        }
     }
 
     /**
@@ -1273,6 +1288,19 @@ public class ContactListTreeCellRenderer
         if (customActionButtons != null)
         {
             Iterator<JButton> buttonsIter = customActionButtons.iterator();
+            while (buttonsIter.hasNext())
+            {
+                JButton button = buttonsIter.next();
+
+                if (!button.equals(excludeComponent))
+                    button.getModel().setRollover(false);
+            }
+        }
+
+        if (customActionButtonsUIGroup != null)
+        {
+            Iterator<JButton> buttonsIter =
+                customActionButtonsUIGroup.iterator();
             while (buttonsIter.hasNext())
             {
                 JButton button = buttonsIter.next();

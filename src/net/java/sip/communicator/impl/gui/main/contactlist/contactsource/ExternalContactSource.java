@@ -63,7 +63,7 @@ public class ExternalContactSource
     /**
      * The list of action buttons for this source service.
      */
-    private static Map<ContactAction<ContactSourceService>, SIPCommButton>
+    private Map<ContactAction<ContactSourceService>, SIPCommButton>
                                     customServiceActionButtons;
 
     private final JTree contactListTree;
