@@ -111,7 +111,7 @@ public class SourceUIContact
      */
     public int getSourceIndex()
     {
-        return -1;
+        return sourceContact.getIndex();
     }
 
     /**

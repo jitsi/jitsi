@@ -277,10 +277,12 @@ public class SearchFilter
             && (contactSource instanceof ExtendedContactSourceService)
                 || isMatching(sourceContact))
         {
+            boolean isSorted = (sourceContact.getIndex() > -1) ? true : false;
+
             sourceContactList.addContact(
                 sourceUI.createUIContact(sourceContact),
                 sourceUI.getUIGroup(),
-                false,
+                isSorted,
                 true);
         }
         else

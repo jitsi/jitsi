@@ -22,10 +22,20 @@ import net.java.sip.communicator.service.protocol.*;
 public class ProtocolContactSourceServiceImpl
     implements ContactSourceService
 {
+    /**
+     * The protocol provider, providing the contacts.
+     */
     private final ProtocolProviderService protocolProvider;
 
+    /**
+     * The operation set class, we use to filter the capabilities of the
+     * contacts.
+     */
     private final Class<? extends OperationSet> opSetClass;
 
+    /**
+     * The <tt>MetaContactListService</tt>, providing the meta contact list.
+     */
     MetaContactListService metaContactListService
         = GuiActivator.getContactListService();
 
@@ -51,22 +61,45 @@ public class ProtocolContactSourceServiceImpl
         this.opSetClass = opSetClass;
     }
 
+    /**
+     * Returns the type of this contact source.
+     *
+     * @return the type of this contact source
+     */
     public int getType()
     {
         return DEFAULT_TYPE;
     }
 
+    /**
+     * Returns a user-friendly string that identifies this contact source.
+     * 
+     * @return the display name of this contact source
+     */
     public String getDisplayName()
     {
         return GuiActivator.getResources().getI18NString("service.gui.CONTACTS")
             + " " + protocolProvider.getAccountID().getDisplayName();
     }
 
+    /**
+     * Queries this search source for the given <tt>queryString</tt>.
+     *
+     * @param queryString the string to search for
+     * @return the created query
+     */
     public ContactQuery queryContactSource(String queryString)
     {
         return queryContactSource(queryString, -1);
     }
 
+    /**
+     * Queries this search source for the given <tt>queryString</tt>.
+     *
+     * @param queryString the string to search for
+     * @param contactCount the maximum count of result contacts
+     * @return the created query
+     */
     public ContactQuery queryContactSource( String queryString,
                                             int contactCount)
     {
@@ -102,18 +135,34 @@ public class ProtocolContactSourceServiceImpl
         return contactQuery;
     }
 
+    /**
+     * The <tt>ProtocolCQuery</tt> performing the query for this contact source.
+     */
     private class ProtocolCQuery
         extends AsyncContactQuery<ProtocolContactSourceServiceImpl>
     {
+        /**
+         * The maximum number of contacts to return as result.
+         */
         private int contactCount;
 
+        /**
+         * The query string used for filtering the results.
+         */
         private final String queryString;
 
+        /**
+         * Creates an instance of <tt>ProtocolCQuery</tt>.
+         *
+         * @param queryString the query string
+         * @param contactCount the maximum number of contacts to return as
+         * result
+         */
         public ProtocolCQuery(String queryString, int contactCount)
         {
             super(ProtocolContactSourceServiceImpl.this,
                 Pattern.compile(queryString, Pattern.CASE_INSENSITIVE
-                                | Pattern.LITERAL));
+                                | Pattern.LITERAL), true);
 
             this.queryString = queryString;
             this.contactCount = contactCount;
@@ -153,7 +202,8 @@ public class ProtocolContactSourceServiceImpl
         /**
          * Adds the result for the given group.
          *
-         * @param group the group
+         * @param metaContact the metaContact, which child protocol contacts
+         * we'll be adding to the result
          */
         private void addResultContact(MetaContact metaContact)
         {
@@ -191,8 +241,9 @@ public class ProtocolContactSourceServiceImpl
 
                     contactDetails.add(contactDetail);
 
-                    GenericSourceContact sourceContact
-                        = new GenericSourceContact(
+                    SortedGenericSourceContact sourceContact
+                        = new SortedGenericSourceContact(
+                                this,
                                 ProtocolContactSourceServiceImpl.this,
                                 contactDisplayName,
                                 contactDetails);

@@ -19,7 +19,7 @@ import java.util.*;
  * @author Yana Stamcheva
  */
 public class PhoneNumberSourceContact
-    extends GenericSourceContact
+    extends SortedGenericSourceContact
 {
     /**
      * The display details of this contact.
@@ -29,17 +29,21 @@ public class PhoneNumberSourceContact
     /**
      * Creates an instance of <tt>PhoneNumberSourceContact</tt>.
      *
+     * @param parentQuery the parent contact query
      * @param contactSource the parent contact source
      * @param contact the protocol contact corresponding to this source contact
      * information about the phone number corresponding to this source contact
+     * @param contactDetails the list of <tt>ContactDetail</tt>-s
      * @param detailDisplayName the display name of the phone number detail
      */
-    public PhoneNumberSourceContact(PhoneNumberContactSource contactSource,
+    public PhoneNumberSourceContact(ContactQuery parentQuery,
+                                    PhoneNumberContactSource contactSource,
                                     Contact contact,
                                     List<ContactDetail> contactDetails,
                                     String detailDisplayName)
     {
-        super(  contactSource,
+        super(  parentQuery,
+                contactSource,
                 contact.getDisplayName(),
                 contactDetails);
 

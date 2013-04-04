@@ -204,9 +204,11 @@ public class TreeContactList
         if((contactSource instanceof ExtendedContactSourceService)
             || currentFilter.isMatching(uiContact))
         {
+            boolean isSorted = (sourceContact.getIndex() > -1) ? true : false;
+
             addContact(event.getQuerySource(),
                 uiContact,
-                sourceUI.getUIGroup(), false);
+                sourceUI.getUIGroup(), isSorted);
         }
         else
         {

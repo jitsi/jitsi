@@ -45,7 +45,7 @@ public abstract class AsyncContactQuery<T extends ContactSourceService>
     /**
      * The <tt>SourceContact</tt>s which match {@link #query}.
      */
-    private final List<SourceContact> queryResults
+    private Collection<SourceContact> queryResults
         = new LinkedList<SourceContact>();
 
     /**
@@ -53,6 +53,28 @@ public abstract class AsyncContactQuery<T extends ContactSourceService>
      * performing {@link #query}.
      */
     private Thread thread;
+
+    /**
+     * Initializes a new <tt>AsyncContactQuery</tt> instance which is to perform
+     * a specific <tt>query</tt> on behalf of a specific <tt>contactSource</tt>.
+     *
+     * @param contactSource the <tt>ContactSourceService</tt> which is to
+     * perform the new <tt>ContactQuery</tt> instance
+     * @param query the <tt>Pattern</tt> for which <tt>contactSource</tt> is
+     * being queried
+     * @param isSorted indicates if the results of this query should be sorted
+     */
+    protected AsyncContactQuery(T contactSource,
+                                Pattern query,
+                                boolean isSorted)
+    {
+        super(contactSource);
+
+        this.query = query;
+
+        if (isSorted)
+            queryResults = new TreeSet<SourceContact>();
+    }
 
     /**
      * Initializes a new <tt>AsyncContactQuery</tt> instance which is to perform

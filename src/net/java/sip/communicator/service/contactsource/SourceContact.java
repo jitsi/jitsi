@@ -137,4 +137,11 @@ public interface SourceContact
      * @return the PresenceStatus representing the state of this source contact.
      */
     public PresenceStatus getPresenceStatus();
+
+    /**
+     * Returns the index of this source contact in its parent.
+     *
+     * @return the index of this source contact in its parent
+     */
+    public int getIndex();
 }

@@ -246,4 +246,14 @@ public class GenericSourceContact
     {
         this.presenceStatus = presenceStatus;
     }
+
+    /**
+     * Returns the index of this source contact in its parent.
+     *
+     * @return the index of this source contact in its parent
+     */
+    public int getIndex()
+    {
+        return -1;
+    }
 }

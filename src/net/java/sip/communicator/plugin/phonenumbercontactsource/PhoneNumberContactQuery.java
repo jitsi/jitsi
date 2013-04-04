@@ -47,7 +47,7 @@ public class PhoneNumberContactQuery
     {
         super(contactSource,
             Pattern.compile(queryString, Pattern.CASE_INSENSITIVE
-                            | Pattern.LITERAL));
+                            | Pattern.LITERAL), true);
 
         this.queryString = queryString;
         this.contactCount = contactCount;
@@ -207,6 +207,7 @@ public class PhoneNumberContactQuery
 
                             PhoneNumberSourceContact numberSourceContact
                                 = new PhoneNumberSourceContact(
+                                    this,
                                     getContactSource(),
                                     contact,
                                     contactDetails,

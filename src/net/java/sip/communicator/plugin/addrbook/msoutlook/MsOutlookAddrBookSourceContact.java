@@ -183,4 +183,14 @@ public class MsOutlookAddrBookSourceContact
             this.save();
         }
     }
+
+    /**
+     * Returns the index of this source contact in its parent.
+     *
+     * @return the index of this source contact in its parent
+     */
+    public int getIndex()
+    {
+        return -1;
+    }
 }

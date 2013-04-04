@@ -375,4 +375,14 @@ public class MacOSXAddrBookSourceContact
             contactDetails.addAll(details);
         }
     }
+
+    /**
+     * Returns the index of this source contact in its parent.
+     *
+     * @return the index of this source contact in its parent
+     */
+    public int getIndex()
+    {
+        return -1;
+    }
 }
