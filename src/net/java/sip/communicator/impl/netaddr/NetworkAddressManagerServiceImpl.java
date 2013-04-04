@@ -524,9 +524,14 @@ public class NetworkAddressManagerServiceImpl
             catch (SocketException se)
             {
                 if (logger.isInfoEnabled())
+                {
                     logger.info(
                     "Retrying a bind because of a failure to bind to address "
-                        + laddr + " and port " + port, se);
+                        + laddr + " and port " + port);
+                    if (logger.isTraceEnabled())
+                        logger.trace("Since you seem, here's a stack:", se);
+                }
+
             }
 
             port ++;

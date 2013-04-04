@@ -105,14 +105,14 @@ public class CallPanel
     /**
      * Property to disable the info button.
      */
-    private static final String SHOW_CALL_INFO_BUTON_PROP
-        = "net.java.sip.communicator.impl.gui.main.call.SHOW_CALL_INFO_BUTTON";
+    private static final String HIDE_CALL_INFO_BUTON_PROP
+        = "net.java.sip.communicator.impl.gui.main.call.HIDE_CALL_INFO_BUTTON";
 
     /**
      * Property to disable the record button.
      */
-    private static final String SHOW_CALL_RECORD_BUTON_PROP
-        = "net.java.sip.communicator.impl.gui.main.call.SHOW_CALL_RECORD_BUTTON";
+    private static final String HIDE_CALL_RECORD_BUTON_PROP
+        = "net.java.sip.communicator.impl.gui.main.call.HIDE_CALL_RECORD_BUTTON";
 
     /**
      * The <tt>Component</tt> which is at the bottom of this view and contains
@@ -1313,9 +1313,9 @@ public class CallPanel
         fullScreenButton = new FullScreenButton(this);
         hangupButton = new HangupButton(this);
         holdButton = new HoldButton(aCall);
-        if(GuiActivator.getConfigurationService().getBoolean(
-                SHOW_CALL_INFO_BUTON_PROP,
-                true))
+        if(!GuiActivator.getConfigurationService().getBoolean(
+                HIDE_CALL_INFO_BUTON_PROP,
+                false))
         {
             infoButton
                 = new CallToolBarButton(
@@ -1331,9 +1331,9 @@ public class CallPanel
                     GuiActivator.getResources().getI18NString(
                             "service.gui.MERGE_TO_CALL"));
 
-        if(GuiActivator.getConfigurationService().getBoolean(
-            SHOW_CALL_RECORD_BUTON_PROP,
-            true))
+        if(!GuiActivator.getConfigurationService().getBoolean(
+            HIDE_CALL_RECORD_BUTON_PROP,
+            false))
         {
             recordButton = new RecordButton(aCall);
         }

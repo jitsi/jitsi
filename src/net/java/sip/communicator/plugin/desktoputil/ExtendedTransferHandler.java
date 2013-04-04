@@ -196,7 +196,7 @@ public class ExtendedTransferHandler
 
         if (startIndex != endIndex)
         {
-            Document doc = (Document)textComponent.getDocument();
+            Document doc = textComponent.getDocument();
             int selectionLength = endIndex - startIndex;
             try
             {
