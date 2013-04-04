@@ -105,8 +105,14 @@ public class CallPanel
     /**
      * Property to disable the info button.
      */
-    private static final String SHOW_CALL_INFO_BUTON_PROP =
-        "net.java.sip.communicator.impl.gui.main.call.SHOW_CALL_INFO_BUTTON";
+    private static final String SHOW_CALL_INFO_BUTON_PROP
+        = "net.java.sip.communicator.impl.gui.main.call.SHOW_CALL_INFO_BUTTON";
+
+    /**
+     * Property to disable the record button.
+     */
+    private static final String SHOW_CALL_RECORD_BUTON_PROP
+        = "net.java.sip.communicator.impl.gui.main.call.SHOW_CALL_RECORD_BUTTON";
 
     /**
      * The <tt>Component</tt> which is at the bottom of this view and contains
@@ -1191,7 +1197,8 @@ public class CallPanel
         dialButton.setIndex(0);
         conferenceButton.setIndex(1);
         holdButton.setIndex(2);
-        recordButton.setIndex(3);
+        if (recordButton != null)
+            recordButton.setIndex(3);
         mergeButton.setIndex(4);
         transferCallButton.setIndex(5);
 
@@ -1323,7 +1330,13 @@ public class CallPanel
                     MERGE_BUTTON,
                     GuiActivator.getResources().getI18NString(
                             "service.gui.MERGE_TO_CALL"));
-        recordButton = new RecordButton(aCall);
+
+        if(GuiActivator.getConfigurationService().getBoolean(
+            SHOW_CALL_RECORD_BUTON_PROP,
+            true))
+        {
+            recordButton = new RecordButton(aCall);
+        }
         showHideVideoButton = new ShowHideVideoButton(uiVideoHandler);
         transferCallButton = new TransferCallButton(aCall);
         videoButton = new LocalVideoButton(aCall);
@@ -1365,7 +1378,8 @@ public class CallPanel
         if (infoButton != null)
             settingsPanel.add(infoButton);
         settingsPanel.add(mergeButton);
-        settingsPanel.add(recordButton);
+        if (recordButton != null)
+            settingsPanel.add(recordButton);
         settingsPanel.add(showHideVideoButton);
         settingsPanel.add(transferCallButton);
         settingsPanel.add(videoButton);
@@ -1437,6 +1451,9 @@ public class CallPanel
      */
     public boolean isRecordingStarted()
     {
+        if (recordButton == null)
+            return false;
+
         return recordButton.isSelected();
     }
 
