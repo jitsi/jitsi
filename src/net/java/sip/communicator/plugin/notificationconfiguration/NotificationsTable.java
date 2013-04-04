@@ -266,7 +266,6 @@ public class NotificationsTable
     public void setSelectedRow(int row)
     {
         notifTable.setRowSelectionInterval(row, row);
-        configPanel.setNotificationEntry(getNotificationEntry(row));
     }
 
     /**

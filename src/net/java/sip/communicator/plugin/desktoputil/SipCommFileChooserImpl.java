@@ -8,6 +8,7 @@ package net.java.sip.communicator.plugin.desktoputil;
 
 import java.awt.*;
 import java.io.*;
+import java.net.*;
 
 import javax.swing.*;
 
@@ -78,8 +79,22 @@ public class SipCommFileChooserImpl
      */
     public void setStartPath(String path)
     {
-        // Passing null makes JFileChooser points to user's default dir.
-        File file = (path == null) ? null : new File(path);
+        // If the path is null, we have nothing more to do here.
+        if (path == null)
+            return;
+
+        // If the path is an URL extract the path from the URL in order to
+        // remove the "file:" part, which doesn't work with methods provided
+        // by the file chooser.
+        try
+        {
+            URL url = new URL(path);
+
+            path = url.getPath();
+        }
+        catch (MalformedURLException e) {}
+
+        File file = new File(path);
 
         setCurrentDirectory(file);
 
@@ -89,6 +104,8 @@ public class SipCommFileChooserImpl
          */
         if ((file != null) && !file.isDirectory())
             setSelectedFile(file);
+        else
+            setSelectedFile(null);
     }
 
     /**

@@ -19,6 +19,7 @@ import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.plugin.desktoputil.*;
 
 import org.jitsi.service.audionotifier.*;
+
 import org.jitsi.util.*;
 
 /**
@@ -42,21 +43,57 @@ public class NotificationConfigurationPanel
     private NotificationsTable notificationList;
 
     private final JTextField soundFileTextField = new JTextField();
-    private final JButton soundFileChooser
+
+    private final JButton soundFileButton
         = new JButton(new ImageIcon(Resources.getImageInBytes(
             "plugin.notificationconfig.FOLDER_ICON")));
+
     private final JTextField programFileTextField = new JTextField();
-    private final JButton programFileChooser
+
+    private final JButton programFileButton
         = new JButton(new ImageIcon(Resources.getImageInBytes(
             "plugin.notificationconfig.FOLDER_ICON")));
+
     private final JButton playSoundButton
         = new JButton(new ImageIcon(Resources.getImageInBytes(
             "plugin.notificationconfig.PLAY_ICON")));
+
     private final JButton restoreButton
         = new JButton(Resources.getString("plugin.notificationconfig.RESTORE"));
 
-    private SipCommFileChooser fileChooserProgram;
-    private SipCommFileChooser fileChooserSound;
+    /**
+     * The program file chooser component.
+     */
+    private SipCommFileChooser programFileChooser;
+
+    /**
+     * The sound file chooser component.
+     */
+    private SipCommFileChooser soundFileChooser;
+
+    /**
+     * The property for the last stored path from program file chooser.
+     */
+    private static final String PROGRAM_LAST_PATH_PROP
+        = "net.java.sip.communicator.plugin.notificationconfiguration."
+            + "PROGRAM_LAST_PATH";
+
+    /**
+     * The property for the last stored path from sound file chooser.
+     */
+    private static final String SOUND_LAST_PATH_PROP
+        = "net.java.sip.communicator.plugin.notificationconfiguration."
+            + "SOUND_LAST_PATH";
+
+    /**
+     * The last stored path from program file chooser.
+     */
+    private String programLastFilePath;
+
+    /**
+     * The last stored path from sound file chooser.
+     */
+    private String soundLastFilePath;
 
     /**
      * Used to suppress saving entry values while filling
@@ -72,8 +109,6 @@ public class NotificationConfigurationPanel
         super(new BorderLayout());
 
         JPanel labelsPanel = new TransparentPanel(new GridLayout(2, 1));
-
-        initNotificationsList();
 
         JLabel soundFileLabel = new JLabel(
                 Resources.getString("plugin.notificationconfig.SOUND_FILE"));
@@ -97,10 +132,10 @@ public class NotificationConfigurationPanel
 
         soundFilePanel.add(soundFileTextField);
 
-        soundFileChooser.setMinimumSize(new Dimension(30,30));
-        soundFileChooser.setPreferredSize(new Dimension(30,30));
-        soundFileChooser.addActionListener(this);
-        soundFilePanel.add(soundFileChooser);
+        soundFileButton.setMinimumSize(new Dimension(30,30));
+        soundFileButton.setPreferredSize(new Dimension(30,30));
+        soundFileButton.addActionListener(this);
+        soundFilePanel.add(soundFileButton);
 
         JPanel programFilePanel
             = new TransparentPanel(new FlowLayout(FlowLayout.LEFT));
@@ -114,11 +149,11 @@ public class NotificationConfigurationPanel
 
         programFilePanel.add(programFileTextField);
 
-        programFileChooser.setMinimumSize(new Dimension(30,30));
-        programFileChooser.setPreferredSize(new Dimension(30,30));
-        programFileChooser.addActionListener(this);
+        programFileButton.setMinimumSize(new Dimension(30,30));
+        programFileButton.setPreferredSize(new Dimension(30,30));
+        programFileButton.addActionListener(this);
 
-        programFilePanel.add(programFileChooser);
+        programFilePanel.add(programFileButton);
 
         JPanel valuesPanel = new TransparentPanel(new GridLayout(2, 1));
         valuesPanel.add(soundFilePanel);
@@ -137,16 +172,18 @@ public class NotificationConfigurationPanel
 
         add(southPanel, BorderLayout.SOUTH);
 
-        fileChooserSound =
+        soundFileChooser =
             GenericFileDialog.create(null,
                 Resources.getString("plugin.notificationconfig.BROWSE_SOUND"),
                 SipCommFileChooser.LOAD_FILE_OPERATION);
-        fileChooserProgram =
+        programFileChooser =
             GenericFileDialog.create(null,
                 Resources.getString("plugin.notificationconfig.BROWSE_PROGRAM"),
                 SipCommFileChooser.LOAD_FILE_OPERATION);
         String[] soundFormats = {SoundFileUtils.wav};
-        fileChooserSound.setFileFilter(new SoundFilter(soundFormats));
+        soundFileChooser.setFileFilter(new SoundFilter(soundFormats));
+
+        initNotificationsList();
     }
 
     /**
@@ -201,21 +238,35 @@ public class NotificationConfigurationPanel
     {
         isCurrentlyChangeEntryInTable = true;
 
-        programFileChooser.setEnabled(entry.getProgram());
+        programFileButton.setEnabled(entry.getProgram());
         programFileTextField.setEnabled(entry.getProgram());
 
         String programFile = entry.getProgramFile();
         programFileTextField.setText(
-            (programFile != null && programFile.length() > 0) ? programFile : "");
+            (programFile != null && programFile.length() > 0)
+                ? programFile
+                : "");
+        programFileChooser.setStartPath(
+            (programFile != null && programFile.length() > 0)
+                ? programFile
+                : getLastProgramPath());
 
-        soundFileChooser.setEnabled(entry.getSoundNotification()
+        soundFileButton.setEnabled(entry.getSoundNotification()
             || entry.getSoundPlayback());
         soundFileTextField.setEnabled(entry.getSoundNotification()
             || entry.getSoundPlayback());
 
         String soundFile = entry.getSoundFile();
+
         soundFileTextField.setText(
-            (soundFile != null && soundFile.length() > 0) ? soundFile : "");
+            (soundFile != null && soundFile.length() > 0)
+                ? soundFile
+                : "");
+
+        soundFileChooser.setStartPath(
+            (soundFile != null && soundFile.length() > 0)
+            ? soundFile
+            : getLastSoundPath());
 
         isCurrentlyChangeEntryInTable = false;
     }
@@ -235,7 +286,7 @@ public class NotificationConfigurationPanel
             NotificationConfigurationActivator.getNotificationService()
                 .restoreDefaults();
         }
-        else if(e.getSource() == soundFileChooser)
+        else if(e.getSource() == soundFileButton)
         {
             if (row < 0)
                 return;
@@ -243,20 +294,22 @@ public class NotificationConfigurationPanel
             NotificationEntry entry
                 = notificationList.getNotificationEntry(row);
 
-            File file = fileChooserSound.getFileFromDialog();
+            File file = soundFileChooser.getFileFromDialog();
 
             if (file != null)
             {
                 try
                 {
+                    // Store the last program file path.
+                    setLastSoundPath(file.getParent());
+
+                    String fileUri = file.toURI().toURL().toExternalForm();
                     //This is where a real application would open the file.
                     if (logger.isDebugEnabled())
-                        logger.debug("Opening: "
-                            + file.toURI().toURL().toExternalForm());
+                        logger.debug("Opening: " + fileUri);
 
-                    entry.setSoundFile(file.toURI().toURL().toExternalForm());
-                    soundFileTextField.setText(
-                        file.toURI().toURL().toExternalForm());
+                    entry.setSoundFile(fileUri);
+                    soundFileTextField.setText(fileUri);
                 }
                 catch (MalformedURLException ex)
                 {
@@ -269,7 +322,7 @@ public class NotificationConfigurationPanel
                     logger.debug("Open command cancelled by user.");
             }
         }
-        else if(e.getSource() == programFileChooser)
+        else if(e.getSource() == programFileButton)
         {
             if (row < 0)
                 return;
@@ -277,10 +330,13 @@ public class NotificationConfigurationPanel
             NotificationEntry entry
                 = notificationList.getNotificationEntry(row);
 
-            File file = fileChooserProgram.getFileFromDialog();
+            File file = programFileChooser.getFileFromDialog();
 
             if (file != null)
             {
+                // Store the last program file path.
+                setLastProgramPath(file.getParent());
+
                 //This is where a real application would open the file.
                 if (logger.isDebugEnabled())
                     logger.debug("Opening: " +file.getAbsolutePath());
@@ -385,5 +441,49 @@ public class NotificationConfigurationPanel
                             origSoundAction.isSoundPlaybackEnabled(),
                             origSoundAction.isSoundPCSpeakerEnabled()));
         }
+    }
+
+    /**
+     * Returns the last opened sound path.
+     *
+     * @return the last opened sound path
+     */
+    private String getLastSoundPath()
+    {
+        return NotificationConfigurationActivator.getConfigurationService()
+            .getString(SOUND_LAST_PATH_PROP, "");
+    }
+
+    /**
+     * Sets the last opened sound path.
+     *
+     * @param the last opened sound path
+     */
+    private void setLastSoundPath(String path)
+    {
+        NotificationConfigurationActivator.getConfigurationService()
+            .setProperty(SOUND_LAST_PATH_PROP, path);
+    }
+
+    /**
+     * Returns the last opened program path.
+     *
+     * @return the last opened program path
+     */
+    private String getLastProgramPath()
+    {
+        return NotificationConfigurationActivator.getConfigurationService()
+            .getString(PROGRAM_LAST_PATH_PROP, "");
+    }
+
+    /**
+     * Sets the last opened sound path.
+     *
+     * @param path the last opened sound path
+     */
+    private void setLastProgramPath(String path)
+    {
+        NotificationConfigurationActivator.getConfigurationService()
+            .setProperty(PROGRAM_LAST_PATH_PROP, path);
     }
 }

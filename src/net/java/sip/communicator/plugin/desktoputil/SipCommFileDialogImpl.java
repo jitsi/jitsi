@@ -8,6 +8,7 @@ package net.java.sip.communicator.plugin.desktoputil;
 
 import java.awt.*;
 import java.io.*;
+import java.net.*;
 
 import org.jitsi.util.*;
 
@@ -76,7 +77,22 @@ public class SipCommFileDialogImpl
      */
     public void setStartPath(String path) 
     {
-        File file = (path == null) ? null : new File(path);
+        // If the path is null, we have nothing more to do here.
+        if (path == null)
+            return;
+
+        // If the path is an URL extract the path from the URL in order to
+        // remove the "file:" part, which doesn't work with methods provided
+        // by the file chooser.
+        try
+        {
+            URL url = new URL(path);
+
+            path = url.getPath();
+        }
+        catch (MalformedURLException e) {}
+
+        File file = new File(path);
 
         if ((file != null) && !file.isDirectory())
         {
@@ -84,7 +100,10 @@ public class SipCommFileDialogImpl
             setFile(file.getName());
         }
         else
+        {
             setDirectory(path);
+            setFile(null);
+        }
     }
 
     /**
