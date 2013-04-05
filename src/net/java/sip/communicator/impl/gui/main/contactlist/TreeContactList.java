@@ -2319,7 +2319,7 @@ public class TreeContactList
             if (selectedContact != null)
             {
                 fireContactListEvent(
-                    selectedContact, ContactListEvent.GROUP_SELECTED, 0);
+                    selectedContact, ContactListEvent.CONTACT_SELECTED, 0);
             }
         }
     }
