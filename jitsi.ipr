@@ -250,19 +250,5 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="svn" />
   </component>
-  <component name="libraryTable">
-    <library name="jsip-src">
-      <CLASSES>
-        <root url="file://$PROJECT_DIR$/../jitsi-libsrc" />
-      </CLASSES>
-      <JAVADOC />
-      <SOURCES>
-        <root url="jar://$PROJECT_DIR$/../jitsi-libsrc/jain-sip-src-1.2.159.zip!/" />
-        <root url="file://$PROJECT_DIR$/../jitsi-libsrc" />
-        <root url="file://$PROJECT_DIR$/../libjitsi/src" />
-      </SOURCES>
-      <jarDirectory url="file://$PROJECT_DIR$/../jitsi-libsrc" recursive="false" />
-    </library>
-  </component>
 </project>
 
