@@ -36,4 +36,16 @@ public interface ContactListContainer
      * otherwise returns <tt>false</tt>
      */
     public boolean isFocused();
+
+    /**
+     * Clears the current text in the search field.
+     */
+    public void clearCurrentSearchText();
+
+    /**
+     * Returns the current search text.
+     *
+     * @return the current search text
+     */
+    public String getCurrentSearchText();
 }

@@ -93,6 +93,9 @@ public class TreeContactList
      */
     public static final PresenceFilter presenceFilter = new PresenceFilter();
 
+    /**
+     * The meta contact list source.
+     */
     public static final MetaContactListSource mclSource
         = new MetaContactListSource();
 
@@ -132,10 +135,19 @@ public class TreeContactList
     private final LinkedList<UIContactSource>
         contactSources = new LinkedList<UIContactSource>();
 
+    /**
+     * The notification contact source.
+     */
     private static NotificationContactSource notificationSource;
 
+    /**
+     * The currently used filter query.
+     */
     private UIFilterQuery currentFilterQuery;
 
+    /**
+     * The thread used to do the filtering.
+     */
     private FilterThread filterThread;
 
     /**
@@ -149,10 +161,20 @@ public class TreeContactList
     private boolean isContactButtonsVisible = true;
 
     /**
-     * Creates the <tt>TreeContactList</tt>.
+     * The container, where this contact list component is added.
      */
-    public TreeContactList()
+    private ContactListContainer parentCLContainer;
+
+    /**
+     * Creates the <tt>TreeContactList</tt>.
+     *
+     * @param clContainer the container, where this contact list component is
+     * added
+     */
+    public TreeContactList(ContactListContainer clContainer)
     {
+        parentCLContainer = clContainer;
+
         // Remove default mouse listeners and keep them locally in order to
         // be able to consume some mouse events for custom use.
         originalMouseListeners = this.getMouseListeners();
@@ -846,8 +868,7 @@ public class TreeContactList
     {
         FilterQuery filterQuery = null;
 
-        final MainFrame mainFrame = GuiActivator.getUIService().getMainFrame();
-        String currentSearchText = mainFrame.getCurrentSearchText();
+        String currentSearchText = parentCLContainer.getCurrentSearchText();
 
         if (currentSearchText != null
              && currentSearchText.length() > 0)
@@ -859,11 +880,11 @@ public class TreeContactList
                 {
                     public void run()
                     {
-                        mainFrame.clearCurrentSearchText();
+                        parentCLContainer.clearCurrentSearchText();
                     }
                 });
             else
-                mainFrame.clearCurrentSearchText();
+                parentCLContainer.clearCurrentSearchText();
         }
         else
         {

@@ -360,7 +360,7 @@ public class InviteDialog
     private Component createSrcContactListComponent()
     {
         srcContactList
-            = GuiActivator.getUIService().createContactListComponent();
+            = GuiActivator.getUIService().createContactListComponent(this);
 
         srcContactList.setDragEnabled(true);
         srcContactList.setRightButtonMenuEnabled(false);
@@ -402,7 +402,7 @@ public class InviteDialog
     private Component createDestContactListComponent()
     {
         destContactList
-            = GuiActivator.getUIService().createContactListComponent();
+            = GuiActivator.getUIService().createContactListComponent(this);
 
         destContactList.setContactButtonsVisible(false);
         destContactList.setRightButtonMenuEnabled(false);
@@ -481,5 +481,22 @@ public class InviteDialog
         if (destContactList.getComponent() instanceof JComponent)
             ((JComponent) destContactList).setTransferHandler(
                 inviteContactTransferHandler);
+    }
+
+    /**
+     * Returns the text currently shown in the search field.
+     * @return the text currently shown in the search field
+     */
+    public String getCurrentSearchText()
+    {
+        return searchField.getText();
+    }
+
+    /**
+     * Clears the current text in the search field.
+     */
+    public void clearCurrentSearchText()
+    {
+        searchField.setText("");
     }
 }

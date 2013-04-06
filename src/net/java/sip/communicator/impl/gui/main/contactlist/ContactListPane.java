@@ -89,7 +89,7 @@ public class ContactListPane
      */
     public void initList(MetaContactListService contactListService)
     {
-        this.contactList = new TreeContactList();
+        this.contactList = new TreeContactList(mainFrame);
         // We should first set the contact list to the GuiActivator, so that
         // anybody could get it from there.
         GuiActivator.setContactList(contactList);

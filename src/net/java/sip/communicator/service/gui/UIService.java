@@ -459,9 +459,11 @@ public interface UIService
     /**
      * Creates a contact list component.
      *
+     * @param clContainer the parent contact list container
      * @return the created <tt>ContactList</tt>
      */
-    public ContactList createContactListComponent();
+    public ContactList createContactListComponent(
+        ContactListContainer clContainer);
 
     /**
      * Returns a collection of all currently in progress calls.

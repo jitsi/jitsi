@@ -242,7 +242,7 @@ public class OneChoiceInviteDialog
     private Component createContactListComponent()
     {
         contactList
-            = GuiActivator.getUIService().createContactListComponent();
+            = GuiActivator.getUIService().createContactListComponent(this);
 
         contactList.setContactButtonsVisible(false);
         contactList.setRightButtonMenuEnabled(false);
@@ -301,6 +301,23 @@ public class OneChoiceInviteDialog
         {
             okButton.doClick();
         }
+    }
+
+    /**
+     * Returns the text currently shown in the search field.
+     * @return the text currently shown in the search field
+     */
+    public String getCurrentSearchText()
+    {
+        return searchField.getText();
+    }
+
+    /**
+     * Clears the current text in the search field.
+     */
+    public void clearCurrentSearchText()
+    {
+        searchField.setText("");
     }
 
     /**
