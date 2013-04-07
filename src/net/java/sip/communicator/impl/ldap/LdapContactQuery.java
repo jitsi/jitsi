@@ -140,65 +140,51 @@ public class LdapContactQuery
 
         for(String mail : mailAddresses)
         {
-            List<Class<? extends OperationSet>> supportedOpSets
-                            = new ArrayList<Class<? extends OperationSet>>(1);
+            detail = new ContactDetail(mail, ContactDetail.Category.Email);
             // can be added as contacts
-            supportedOpSets.add(OperationSetPersistentPresence.class);
-
-            detail = new ContactDetail(mail, ContactDetail.Category.Email,
-                    null);
-            detail.setSupportedOpSets(supportedOpSets);
+            detail.addSupportedOpSet(OperationSetPersistentPresence.class);
             ret.add(detail);
         }
 
         for(String homePhone : homePhones)
         {
-            List<Class<? extends OperationSet>> supportedOpSets
-                = new ArrayList<Class<? extends OperationSet>>(2);
-
-            supportedOpSets.add(OperationSetBasicTelephony.class);
-            // can be added as contacts
-            supportedOpSets.add(OperationSetPersistentPresence.class);
             homePhone = PhoneNumberI18nService.normalize(homePhone);
             detail = new ContactDetail(homePhone,
                     ContactDetail.Category.Phone,
                     new ContactDetail.SubCategory[]{
                         ContactDetail.SubCategory.Home});
-            detail.setSupportedOpSets(supportedOpSets);
+
+            detail.addSupportedOpSet(OperationSetBasicTelephony.class);
+            // can be added as contacts
+            detail.addSupportedOpSet(OperationSetPersistentPresence.class);
             ret.add(detail);
         }
 
         for(String workPhone : workPhones)
         {
-            List<Class<? extends OperationSet>> supportedOpSets
-                = new ArrayList<Class<? extends OperationSet>>(2);
-
-            supportedOpSets.add(OperationSetBasicTelephony.class);
-            // can be added as contacts
-            supportedOpSets.add(OperationSetPersistentPresence.class);
             workPhone = PhoneNumberI18nService.normalize(workPhone);
             detail = new ContactDetail(workPhone,
                 ContactDetail.Category.Phone,
                 new ContactDetail.SubCategory[]{
                     ContactDetail.SubCategory.Work});
-            detail.setSupportedOpSets(supportedOpSets);
+
+            detail.addSupportedOpSet(OperationSetBasicTelephony.class);
+            // can be added as contacts
+            detail.addSupportedOpSet(OperationSetPersistentPresence.class);
             ret.add(detail);
         }
 
         for(String mobilePhone : mobilePhones)
         {
-            List<Class<? extends OperationSet>> supportedOpSets
-                = new ArrayList<Class<? extends OperationSet>>(2);
-
-            supportedOpSets.add(OperationSetBasicTelephony.class);
-            // can be added as contacts
-            supportedOpSets.add(OperationSetPersistentPresence.class);
             mobilePhone = PhoneNumberI18nService.normalize(mobilePhone);
             detail = new ContactDetail(mobilePhone,
                 ContactDetail.Category.Phone,
                 new ContactDetail.SubCategory[]{
                     ContactDetail.SubCategory.Mobile});
-            detail.setSupportedOpSets(supportedOpSets);
+
+            detail.addSupportedOpSet(OperationSetBasicTelephony.class);
+            // can be added as contacts
+            detail.addSupportedOpSet(OperationSetPersistentPresence.class);
             ret.add(detail);
         }
 
