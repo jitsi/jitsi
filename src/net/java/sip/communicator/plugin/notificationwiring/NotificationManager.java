@@ -739,7 +739,7 @@ public class NotificationManager
                     INCOMING_FILE,
                     title,
                     request.getFileName(),
-                    null);
+                    request.getID());
         }
         catch(Throwable t)
         {

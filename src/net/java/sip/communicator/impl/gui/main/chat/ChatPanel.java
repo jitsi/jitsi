@@ -722,10 +722,13 @@ public class ChatPanel
             {
                 FileRecord fileRecord = (FileRecord) o;
 
-                FileHistoryConversationComponent component
-                    = new FileHistoryConversationComponent(fileRecord);
-
-                conversationPanel.addComponent(component);
+                if (!fileRecord.getID().equals(escapedMessageID))
+                {
+                    FileHistoryConversationComponent component
+                        = new FileHistoryConversationComponent(fileRecord);
+    
+                    conversationPanel.addComponent(component);
+                }
             }
 
             if (historyString != null)
