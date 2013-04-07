@@ -429,6 +429,21 @@ public class ContactDetail
     }
 
     /**
+     * Adds a supported OpSet to the list of supported OpSets.
+     * @param supportedOpSet the OpSet to support.
+     */
+    public void addSupportedOpSet(Class<? extends OperationSet> supportedOpSet)
+    {
+        if (this.supportedOpSets == null)
+        {
+            this.supportedOpSets
+                = new ArrayList<Class<? extends OperationSet>>(2);
+        }
+
+        this.supportedOpSets.add(supportedOpSet);
+    }
+
+    /**
      * Gets the category, if any, of this <tt>ContactQuery</tt>.
      *
      * @return the category of this <tt>ContactQuery</tt> if it has any;
