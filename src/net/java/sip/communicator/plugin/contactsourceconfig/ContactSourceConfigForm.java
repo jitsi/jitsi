@@ -160,7 +160,7 @@ public class ContactSourceConfigForm
     {
         int cIndex = form.getIndex();
 
-        if (cIndex >= contactSourceComboBox.getItemCount())
+        if (cIndex >= contactSourceComboBox.getItemCount() || cIndex == -1)
             contactSourceComboBox.addItem(form);
         else
             contactSourceComboBox.insertItemAt(form, cIndex);

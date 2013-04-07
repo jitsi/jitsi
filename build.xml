@@ -946,6 +946,7 @@
         bundle-plugin-loggingutils,
         bundle-provdisc,bundle-provdisc-dhcp,bundle-provdisc-mdns,
         bundle-provisioning,bundle-addrbook,bundle-plugin-ldap,
+        bundle-thunderbird,
         bundle-plugin-contactsourceconfig,bundle-plugin-certconfig,
         bundle-globalshortcut,bundle-plugin-msofficecomm,bundle-libjitsi,
         bundle-customcontactactions, bundle-phonenumbercontactsource,
@@ -2639,6 +2640,17 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/addrbook"
                 prefix="net/java/sip/communicator/plugin/addrbook" />
         </jar>
+    </target>
+
+    <!-- BUNDLE-PLUGIN-THUNDERBIRD -->
+    <target name="bundle-thunderbird">
+        <!-- Creates a bundle which provides support for the thunderbird Address Book. -->
+        <jar compress="false" destfile="${bundles.dest}/thunderbook.jar"
+            manifest="${src}/net/java/sip/communicator/plugin/thunderbird/thunderbird.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/thunderbird"
+                prefix="net/java/sip/communicator/plugin/thunderbird" />
+        </jar>
+        <copy file="${lib.noinst}/jmork-1.0.5-SNAPSHOT.jar" tofile="${bundles.dest}/jmork.jar"/>
     </target>
 
     <target name="bundle-certificate">

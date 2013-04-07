@@ -63,7 +63,7 @@
 			<attribute name="javadoc_location" value="http://dbus.freedesktop.org/doc/dbus-java/api/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/installer-exclude/libjitsi.jar"/>
+	<classpathentry kind="lib" path="lib/installer-exclude/libjitsi.jar" sourcepath="/libjitsi"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/log4j-1.2.8.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/mac_widgets-0.9.5.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/objenesis-1.2.jar"/>
@@ -86,6 +86,6 @@
 	<classpathentry kind="lib" path="lib/os-specific/mac/OrangeExtensions.jar"/>
 	<classpathentry kind="lib" path="lib/os-specific/solaris/jdic_stub.jar"/>
 	<classpathentry kind="lib" path="lib/os-specific/windows/jdic_stub.jar"/>
+	<classpathentry kind="lib" path="lib/installer-exclude/jmork-1.0.5-SNAPSHOT.jar" sourcepath="/jmork"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
-
