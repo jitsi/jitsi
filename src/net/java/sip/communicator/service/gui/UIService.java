@@ -374,22 +374,6 @@ public interface UIService
     public boolean useMacOSXScreenMenuBar();
 
     /**
-     * Shows or hides the "Tools &gt; Settings" configuration window.
-     * <p>
-     * The method hides the implementation-specific details of the configuration
-     * window from its clients and allows the UI to completely control, for
-     * example, how many instances of it are visible at one and the same time.
-     * <p>
-     *
-     * @param visible <tt>true</tt> to show the "Tools &gt; Settings"
-     *            configuration window; <tt>false</tt> to hide it
-     *
-     * @deprecated instead use getConfigurationContainer().setVisible(visible)
-     */
-    @Deprecated
-    public void setConfigurationWindowVisible(boolean visible);
-
-    /**
      * Returns the <tt>ConfigurationContainer</tt> associated with this
      * <tt>UIService</tt>.
      *

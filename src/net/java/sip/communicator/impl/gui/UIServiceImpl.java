@@ -1227,23 +1227,6 @@ public class UIServiceImpl
     }
 
     /**
-     * Implements UIService#setConfigurationWindowVisible(boolean). Makes sure
-     * there is only one ConfigurationFrame instance visible at one and the same
-     * time.
-     *
-     * @param visible <tt>true</tt> to show the configuration frame,
-     * <tt>false</tt> - otherwise
-     */
-    public void setConfigurationWindowVisible(boolean visible)
-    {
-        if (isVisible() && configurationFrame == null)
-            configurationFrame = new ConfigurationFrame(mainFrame);
-
-        if (configurationFrame != null)
-            configurationFrame.setVisible(visible);
-    }
-
-    /**
      * Returns the <tt>ConfigurationContainer</tt> associated with this
      * <tt>UIService</tt>.
      *
