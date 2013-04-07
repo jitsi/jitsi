@@ -68,7 +68,7 @@ public class SortedGenericSourceContact
      */
     public int compareTo(SourceContact o)
     {
-        SourceContact target = (SourceContact) o;
+        SourceContact target = o;
 
         int comparePresence = 0;
         if (getPresenceStatus() != null && target.getPresenceStatus() != null)
