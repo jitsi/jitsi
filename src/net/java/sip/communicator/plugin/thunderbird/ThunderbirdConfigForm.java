@@ -221,7 +221,6 @@ public class ThunderbirdConfigForm
 
         FileDialog fd = new FileDialog((Frame)null);
         fd.setFilenameFilter(ff);
-        fd.setMultipleMode(false);
 
         if (OSUtils.IS_WINDOWS)
         {
