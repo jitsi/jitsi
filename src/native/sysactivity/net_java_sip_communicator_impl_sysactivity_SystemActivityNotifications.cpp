@@ -9,470 +9,289 @@
 
 /**
  * \def WIN32_LEAN_AND_MEAN
- * \brief Exclude not commonly used headers from win32 API.
+ * \brief Excludes not commonly used headers from Win32 API.
  *
- * It excludes some unused stuff from windows headers and
- * by the way code compiles faster.
+ * Excludes some unused stuff from Windows headers which allows the code to
+ * compile faster.
  */
 #define WIN32_LEAN_AND_MEAN
 
-#include <winsock2.h>
-#include <ws2def.h>
-#include <ws2ipdef.h>
 #include <windows.h>
-#include <iphlpapi.h>
-#include <process.h>
-#include <tchar.h>
+#include <iphlpapi.h> /* CancelIPChangeNotify, NotifyAddrChange */
+#include <process.h> /* _beginthreadex */
+#include <stdint.h> /* uintptr_t */
 
-// cache for the JavaVM* pointer
-JavaVM *jvm;
+static void SystemActivityNotifications_notify(jint type);
+unsigned WINAPI SystemActivityNotifications_runMessageLoop(LPVOID);
+LRESULT CALLBACK SystemActivityNotifications_wndProc(HWND, UINT, WPARAM, LPARAM);
 
-// cache for the a generic pointer
-jobject delegateObject;
-
-// thread id
-UINT uThreadId;
-
-// cache for the instance handle
-HINSTANCE hInstance;
-
-void RegisterWindowClassW();
-LRESULT CALLBACK WndProcW(HWND, UINT, WPARAM, LPARAM);
-HRESULT callback(UINT Msg, WPARAM wParam, LPARAM lParam);
-
-void notify(int notificationType);
-void notifyNetwork(int family,
-                    long luidIndex,
-                    char* name,
-                    long type,
-                    bool connected);
-
-typedef void (WINAPI *NIpIfaceChange)(ADDRESS_FAMILY,
-                                    PIPINTERFACE_CHANGE_CALLBACK,
-                                    PVOID,
-                                    BOOLEAN,
-                                    HANDLE);
-typedef NETIO_STATUS (*FnConvertInterfaceLuidToNameA)(
-    const NET_LUID *,
-    PSTR,
-    SIZE_T);
-typedef NETIO_STATUS (*FnGetIpInterfaceEntry)(
-    PMIB_IPINTERFACE_ROW);
-
-OVERLAPPED overlap;
-
-/*static HHOOK hhookSysMsg;
-
-static LRESULT CALLBACK msghook(int nCode, WPARAM wParam, LPARAM lParam)
-{
-    if(nCode < 0)
-    {
-        CallNextHookEx(hhookSysMsg, nCode, wParam, lParam);
-        return 0;
-    }
-
-    LPMSG msg = (LPMSG)lParam;
-
-    if(msg->message == WM_SYSCOMMAND)
-    {
-        if(wParam == SC_SCREENSAVE)
-        {
-            notify(net_java_sip_communicator_impl_sysactivity_SystemActivityNotifications_NOTIFY_SCREENSAVER_START);
-        }
-        else if(wParam == SC_MONITORPOWER)
-        {
-            if(lParam == -1)
-            {
-                notify(net_java_sip_communicator_impl_sysactivity_SystemActivityNotifications_NOTIFY_DISPLAY_WAKE);
-            }
-            else if(lParam == 2)
-            {
-                notify(net_java_sip_communicator_impl_sysactivity_SystemActivityNotifications_NOTIFY_DISPLAY_SLEEP);
-            }
-        }
-    }
-
-    return CallNextHookEx(hhookSysMsg, nCode, wParam, lParam);
-}
-*/
-
-unsigned WINAPI CreateWndThreadW(LPVOID pThreadParam)
-{
-    hInstance = GetModuleHandle (NULL);
-    RegisterWindowClassW();
-
-    /*
-    hhookSysMsg = SetWindowsHookEx(
-                    WH_MSGFILTER,
-                    (HOOKPROC)msghook,
-                    hInstance,
-                    GetCurrentThreadId());
-    if(hhookSysMsg == NULL)
-    {
-        fprintf(stderr, "Failed to create hoook %i\n", GetLastError() );
-        fflush(stderr);
-    }
-    */
-
-    HWND hWnd = CreateWindowW( L"Jitsi Window Hook", NULL, WS_OVERLAPPEDWINDOW,
-                    CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-                    NULL, NULL, hInstance, NULL);
-    if( hWnd == NULL)
-    {
-        fprintf(stderr, "Failed to create window\n" );
-        fflush(stderr);
-
-        return( 0 );
-
-    }else
-    {
-        MSG Msg;
-
-        while(GetMessageW(&Msg, hWnd, 0, 0)) {
-
-            TranslateMessage(&Msg);
-
-            DispatchMessageW(&Msg);
-        }
-
-        return Msg.wParam;
-    }
-}
-
-/*
- * Class:     net_java_sip_communicator_impl_sysactivity_SystemActivityNotifications
- * Method:    setDelegate
- * Signature: (Lnet/java/sip/communicator/impl/sysactivity/SystemActivityNotifications/NotificationsDelegate;)V
+/**
+ * The Java object which has been set on the SystemActivityNotifications class
+ * with a call to the setDelegate method.
  */
-JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_sysactivity_SystemActivityNotifications_setDelegate
-  (JNIEnv* jniEnv, jclass clazz, jlong ptr, jobject m_delegate)
-{
-    if (delegateObject)
-    {
-        if (!jniEnv)
-            jvm->AttachCurrentThread((void **)&jniEnv, NULL);
-        jniEnv->DeleteGlobalRef(delegateObject);
-        delegateObject = NULL;
-        jvm = NULL;
-    }
+static jobject SystemActivityNotifications_delegate = NULL;
+static OVERLAPPED SystemActivityNotifications_overlapped;
+static JavaVM *SystemActivityNotifications_vm;
 
-    if (m_delegate)
+JNIEXPORT jlong JNICALL
+Java_net_java_sip_communicator_impl_sysactivity_SystemActivityNotifications_allocAndInit
+    (JNIEnv* env, jclass clazz)
+{
+    (void) env;
+    (void) clazz;
+
+    HINSTANCE hInstance = GetModuleHandle(NULL);
+
+    if (hInstance)
     {
-        m_delegate = jniEnv->NewGlobalRef(m_delegate);
-        if (m_delegate)
+        LPCWSTR lpszClassName = L"Jitsi SystemActivityNotifications Window";
+        WNDCLASSEXW wcex;
+
+        wcex.cbSize         = sizeof(WNDCLASSEXW);
+        wcex.cbClsExtra     = 0;
+        wcex.cbWndExtra     = 0;
+        wcex.hbrBackground  = (HBRUSH) (COLOR_WINDOW + 1);
+        wcex.hIcon          = 0;
+        wcex.hIconSm        = 0;
+        wcex.hCursor        = 0;
+        wcex.hInstance      = hInstance;
+        wcex.lpfnWndProc    = SystemActivityNotifications_wndProc;
+        wcex.lpszClassName  = lpszClassName;
+        wcex.lpszMenuName   = 0;
+        wcex.style          = CS_HREDRAW | CS_VREDRAW;
+
+        if (RegisterClassExW(&wcex))
         {
-            jniEnv->GetJavaVM(&(jvm));
-            delegateObject = m_delegate;
-        }
-    }
-}
+            HWND hWnd
+                = CreateWindowW(
+                        lpszClassName,
+                        /* lpWindowName*/ NULL,
+                        WS_OVERLAPPEDWINDOW,
+                        /* x */ CW_USEDEFAULT,
+                        /* y */ CW_USEDEFAULT,
+                        /* nWidth */ CW_USEDEFAULT,
+                        /* nHeight */ CW_USEDEFAULT,
+                        /* hWndParent */ NULL,
+                        /* hMenu */ NULL,
+                        hInstance,
+                        /* LPVOID */ NULL);
 
-/*
- * Class:     net_java_sip_communicator_impl_sysactivity_SystemActivityNotifications
- * Method:    allocAndInit
- * Signature: ()J
- */
-JNIEXPORT jlong JNICALL Java_net_java_sip_communicator_impl_sysactivity_SystemActivityNotifications_allocAndInit
-  (JNIEnv* jniEnv, jclass clazz)
-{
-    HANDLE hThread;
-
-    hThread = (HANDLE)_beginthreadex(NULL, 0, &CreateWndThreadW, NULL, 0, &uThreadId);
-
-    if(!hThread)
-    {
-        //throwException( env, "_beginthreadex", "initialisation failed" );
-    }
-
-    return (jlong)hThread;
-}
-
-JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_sysactivity_SystemActivityNotifications_release
-  (JNIEnv* jniEnv, jclass clazz, jlong ptr)
-{
-     if (!jniEnv)
-        jvm->AttachCurrentThread((void **)&jniEnv, NULL);
-    jniEnv->DeleteGlobalRef(delegateObject);
-    delegateObject = NULL;
-    jvm = NULL;
-}
-
-static void InterfaceChangeCallback(
-    PVOID CallerContext,
-    PMIB_IPINTERFACE_ROW  Row,
-    MIB_NOTIFICATION_TYPE NotificationType)
-{
-    if(Row)
-    {
-        FnGetIpInterfaceEntry getIpIfaceEntry;
-        getIpIfaceEntry = (FnGetIpInterfaceEntry)GetProcAddress(
-                        GetModuleHandle(TEXT("Iphlpapi.dll")),
-                        "GetIpInterfaceEntry");
-
-        if(getIpIfaceEntry && getIpIfaceEntry(Row) == NO_ERROR)
-        {
-            FnConvertInterfaceLuidToNameA convertName;
-            convertName = (FnConvertInterfaceLuidToNameA)GetProcAddress(
-                            GetModuleHandle(TEXT("Iphlpapi.dll")),
-                            "ConvertInterfaceLuidToNameA");
-
-            char interfaceName[MAX_PATH];
-            if (convertName &&
-                convertName(&(Row->InterfaceLuid),
-                            interfaceName,
-                            sizeof(interfaceName))
-                    == NO_ERROR)
+            if (hWnd)
             {
-                //fprintf( stderr, "Interface LUID Name : %s\n", interfaceName);
-            }
+                ZeroMemory(
+                        &SystemActivityNotifications_overlapped,
+                        sizeof(SystemActivityNotifications_overlapped));
 
-            notifyNetwork(
-                Row->Family,
-                Row->InterfaceLuid.Info.NetLuidIndex,
-                interfaceName,
-                Row->InterfaceLuid.Info.IfType,
-                Row->Connected);
+                uintptr_t thrdh
+                    = _beginthreadex(
+                            /* security */ NULL,
+                            /* stack_size */ 0,
+                            SystemActivityNotifications_runMessageLoop,
+                            (LPVOID) hWnd,
+                            /* initflag */ 0,
+                            /* thrdaddr */ NULL);
+
+                return (jlong) thrdh;
+            }
         }
     }
+
+    return 0;
 }
 
-/*
- * Class:     net_java_sip_communicator_impl_sysactivity_SystemActivityNotifications
- * Method:    getLastInput
- * Signature: ()J
- */
-JNIEXPORT jlong JNICALL Java_net_java_sip_communicator_impl_sysactivity_SystemActivityNotifications_getLastInput
-  (JNIEnv* jniEnv, jclass clazz)
+JNIEXPORT jlong JNICALL
+Java_net_java_sip_communicator_impl_sysactivity_SystemActivityNotifications_getLastInput
+    (JNIEnv* env, jclass clazz)
 {
-    DWORD result = 0;
+    (void) env;
+    (void) clazz;
 
     LASTINPUTINFO lii;
-    memset(&lii, 0, sizeof(lii));
+
     lii.cbSize = sizeof(LASTINPUTINFO);
-    if (GetLastInputInfo(&lii))
-    {
-        return GetTickCount() - lii.dwTime;
-    }
-
-    return -1;
+    lii.dwTime = 0;
+    return GetLastInputInfo(&lii) ? (GetTickCount() - lii.dwTime) : -1;
 }
 
-/*
- * Class:     net_java_sip_communicator_impl_sysactivity_SystemActivityNotifications
- * Method:    start
- * Signature: (J)V
- */
-JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_sysactivity_SystemActivityNotifications_start
-  (JNIEnv* jniEnv, jclass clazz, jlong ptr)
+JNIEXPORT void JNICALL
+Java_net_java_sip_communicator_impl_sysactivity_SystemActivityNotifications_release
+    (JNIEnv* env, jclass clazz, jlong ptr)
 {
-/*
-    OSVERSIONINFOEX osVersionInfoEx;
-    memset( &osVersionInfoEx, 0, sizeof(OSVERSIONINFOEX) );
-    osVersionInfoEx.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
-    GetVersionEx((OSVERSIONINFO*) &osVersionInfoEx );
+    Java_net_java_sip_communicator_impl_sysactivity_SystemActivityNotifications_setDelegate(
+            env,
+            clazz,
+            ptr,
+            NULL);
+}
 
-    if( osVersionInfoEx.dwMajorVersion == 5)
+JNIEXPORT void JNICALL
+Java_net_java_sip_communicator_impl_sysactivity_SystemActivityNotifications_setDelegate
+    (JNIEnv* env, jclass clazz, jlong ptr, jobject delegate)
+{
+    (void) clazz;
+    (void) ptr;
+
+    if (SystemActivityNotifications_delegate)
     {
-*/
-        // XP
-        while(true)
+        env->DeleteGlobalRef(SystemActivityNotifications_delegate);
+        SystemActivityNotifications_delegate = NULL;
+    }
+    if (delegate)
+    {
+        delegate = env->NewGlobalRef(delegate);
+        if (delegate)
+            SystemActivityNotifications_delegate = delegate;
+    }
+}
+
+JNIEXPORT void JNICALL
+Java_net_java_sip_communicator_impl_sysactivity_SystemActivityNotifications_start
+    (JNIEnv* env, jclass clazz, jlong ptr)
+{
+    (void) env;
+    (void) clazz;
+    (void) ptr;
+
+    do
+    {
+        HANDLE handle = NULL;
+
+        if (ERROR_IO_PENDING
+                != NotifyAddrChange(
+                        &handle,
+                        &SystemActivityNotifications_overlapped))
+            break; // Break in case of an error.
+
+        DWORD numberOfBytesTransferred;
+
+        if (!GetOverlappedResult(
+                handle,
+                &SystemActivityNotifications_overlapped,
+                &numberOfBytesTransferred,
+                /* bWait */ TRUE))
+            break; // Break in case of an error.
+
+        SystemActivityNotifications_notify(
+                net_java_sip_communicator_impl_sysactivity_SystemActivityNotifications_NOTIFY_NETWORK_CHANGE);
+    }
+    while (TRUE);
+}
+
+JNIEXPORT void JNICALL
+Java_net_java_sip_communicator_impl_sysactivity_SystemActivityNotifications_stop
+    (JNIEnv* env, jclass clazz, jlong ptr)
+{
+    (void) env;
+    (void) clazz;
+    (void) ptr;
+
+    CancelIPChangeNotify(&SystemActivityNotifications_overlapped);
+}
+
+JNIEXPORT jint JNICALL
+JNI_OnLoad(JavaVM *vm, void *reserved)
+{
+    (void) reserved;
+
+    SystemActivityNotifications_vm = vm;
+    return JNI_VERSION_1_4;
+}
+
+JNIEXPORT void JNICALL
+JNI_OnUnload(JavaVM *vm, void *reserved)
+{
+    (void) vm;
+    (void) reserved;
+
+    SystemActivityNotifications_vm = NULL;
+}
+
+static void
+SystemActivityNotifications_notify(jint type)
+{
+    jobject delegate = SystemActivityNotifications_delegate;
+
+    if (delegate)
+    {
+        JavaVM *vm = SystemActivityNotifications_vm;
+
+        if (vm)
         {
-            HANDLE hand = NULL;
-            DWORD ret, bytes;
+            JNIEnv *env;
 
-            hand = NULL;
-            ZeroMemory(&overlap, sizeof(overlap));
-            overlap.hEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
-            ret = NotifyAddrChange(&hand, &overlap);
-
-            if(ret != ERROR_IO_PENDING )
+            if (0 == vm->AttachCurrentThreadAsDaemon((void **) &env, NULL))
             {
-                //fprintf(stderr, "NotifyAddrChange returned %d,
-                //    expected ERROR_IO_PENDING \n", ret);fflush(stderr);
+                jclass clazz = env->GetObjectClass(delegate);
 
-                // break in case of error.
-                break;
+                if (clazz)
+                {
+                    jmethodID methodID
+                        = env->GetMethodID(clazz,"notify", "(I)V");
+
+                    if (methodID)
+                        env->CallVoidMethod(delegate, methodID, type);
+                }
+                env->ExceptionClear();
             }
-
-            BOOL success = GetOverlappedResult(hand, &overlap, &bytes, TRUE);
-
-            if(!success)
-                break;
-
-            notify(net_java_sip_communicator_impl_sysactivity_SystemActivityNotifications_NOTIFY_NETWORK_CHANGE);
-        }
-/*
-    }
-    else if( osVersionInfoEx.dwMajorVersion > 5)
-    {
-        // Vista, 7, ....
-        NIpIfaceChange nIpIfaceChange;
-        nIpIfaceChange = (NIpIfaceChange)GetProcAddress(
-            GetModuleHandle(TEXT("Iphlpapi.dll")),
-            "NotifyIpInterfaceChange");
-
-        if(nIpIfaceChange)
-        {
-            ADDRESS_FAMILY family = AF_UNSPEC;
-            HANDLE hNotification;
-
-            nIpIfaceChange(
-                family,
-                (PIPINTERFACE_CHANGE_CALLBACK)InterfaceChangeCallback,
-                NULL,
-                FALSE,
-                &hNotification);
         }
     }
-*/
 }
 
-/*
- * Class:     net_java_sip_communicator_impl_sysactivity_SystemActivityNotifications
- * Method:    stop
- * Signature: (J)V
- */
-JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_sysactivity_SystemActivityNotifications_stop
-  (JNIEnv* jniEnv, jclass clazz, jlong ptr)
+unsigned WINAPI
+SystemActivityNotifications_runMessageLoop(LPVOID pv)
 {
-    CancelIPChangeNotify(&overlap);
-}
+    MSG msg;
+    HWND hWnd = (HWND) pv;
 
-void RegisterWindowClassW()
-{
-    WNDCLASSEXW wcex;
-
-    wcex.cbSize = sizeof(WNDCLASSEXW);
-    wcex.style          = CS_HREDRAW | CS_VREDRAW;
-    wcex.lpfnWndProc    = WndProcW;
-    wcex.cbClsExtra     = 0;
-    wcex.cbWndExtra     = 0;
-    wcex.hInstance      = hInstance;
-    wcex.hIcon          = 0;
-    wcex.hCursor        = 0;
-    wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOW + 1);
-    wcex.lpszMenuName   = 0;
-    wcex.lpszClassName  = L"Jitsi Window Hook";
-    wcex.hIconSm        = 0;
-
-    RegisterClassExW(&wcex);
-}
-
-LRESULT CALLBACK WndProcW(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
-{
-    long res = callback( Msg, wParam, lParam );
-
-    if ( res != -1 )
+    while (GetMessageW(&msg, hWnd, 0, 0))
     {
-        return( res );
+        TranslateMessage(&msg);
+        DispatchMessageW(&msg);
     }
-
-    return DefWindowProcW(hWnd, Msg, wParam, lParam);
+    return msg.wParam;
 }
 
-HRESULT callback(UINT Msg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK
+SystemActivityNotifications_wndProc
+    (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    JNIEnv *env;
-
-    if ( jvm->AttachCurrentThread((void **)&env, NULL ))
+    switch (uMsg)
     {
-        fprintf( stderr, "failed to attach current thread to JVM\n" );fflush(stderr);
-
-        return( -1 );
-    }
-
-    jlong result = -1;
-
-    if (Msg == WM_POWERBROADCAST)
-    {
+    case WM_POWERBROADCAST:
         if (wParam == PBT_APMSUSPEND)
         {
-            notify(net_java_sip_communicator_impl_sysactivity_SystemActivityNotifications_NOTIFY_SLEEP);
+            SystemActivityNotifications_notify(
+                    net_java_sip_communicator_impl_sysactivity_SystemActivityNotifications_NOTIFY_SLEEP);
             return TRUE;
         }
         else if (wParam == PBT_APMRESUMESUSPEND)
         {
-            notify(net_java_sip_communicator_impl_sysactivity_SystemActivityNotifications_NOTIFY_WAKE);
+            SystemActivityNotifications_notify(
+                    net_java_sip_communicator_impl_sysactivity_SystemActivityNotifications_NOTIFY_WAKE);
             return TRUE;
         }
-    }
-    else if (Msg == WM_QUERYENDSESSION)
-    {
-        notify(net_java_sip_communicator_impl_sysactivity_SystemActivityNotifications_NOTIFY_QUERY_ENDSESSION);
+        break; // WM_POWERBROADCAST
+
+    case WM_QUERYENDSESSION:
+        SystemActivityNotifications_notify(
+                net_java_sip_communicator_impl_sysactivity_SystemActivityNotifications_NOTIFY_QUERY_ENDSESSION);
         return TRUE;
-    }
-    else if (Msg == WM_ENDSESSION && wParam == TRUE)
-    {
-        // we fire the message only if we are really ending the session
-        // is wParam is False means someone has canceled the shutdown/logoff
-        notify(net_java_sip_communicator_impl_sysactivity_SystemActivityNotifications_NOTIFY_ENDSESSION);
-        return TRUE;
-    }
 
-    jvm->DetachCurrentThread();
-
-    return((HRESULT)result );
-}
-
-void notify(int notificationType)
-{
-    JNIEnv *jniEnv;
-    jclass delegateClass = NULL;
-
-    if (!delegateObject)
-        return;
-
-    if (0 != jvm->AttachCurrentThreadAsDaemon( (void **)&jniEnv, NULL))
-        return;
-
-    delegateClass = jniEnv->GetObjectClass(delegateObject);
-    if(delegateClass)
-    {
-        jmethodID methodid = NULL;
-
-        methodid = jniEnv->GetMethodID(delegateClass,"notify", "(I)V");
-        if(methodid)
+    case WM_ENDSESSION:
+        // We fire the message only if we are really ending the session. If
+        // wParam is FALSE, then someone has canceled the shutdown/logoff.
+        if (wParam == TRUE)
         {
-            jniEnv->CallVoidMethod(delegateObject, methodid, notificationType);
+            SystemActivityNotifications_notify(
+                    net_java_sip_communicator_impl_sysactivity_SystemActivityNotifications_NOTIFY_ENDSESSION);
+            return TRUE;
         }
+        else
+            break; // WM_ENDSESSION
+
+    default:
+        break;
     }
-    jniEnv->ExceptionClear();
+
+    return DefWindowProcW(hWnd, uMsg, wParam, lParam);
 }
-
-void notifyNetwork(int family,
-                    long luidIndex,
-                    char* name,
-                    long type,
-                    bool connected)
-{
-    JNIEnv *jniEnv;
-    jclass delegateClass = NULL;
-
-    if (!delegateObject)
-        return;
-
-    if (0 != jvm->AttachCurrentThreadAsDaemon( (void **)&jniEnv, NULL))
-        return;
-
-    delegateClass = jniEnv->GetObjectClass(delegateObject);
-    if(delegateClass)
-    {
-        jmethodID methodid = NULL;
-
-        methodid = jniEnv->GetMethodID(delegateClass,
-        "notifyNetworkChange",
-        "(IJLjava/lang/String;JZ)V");
-
-        if(methodid)
-        {
-            jniEnv->CallVoidMethod(delegateObject, methodid,
-                family,
-                luidIndex,
-                name ? jniEnv->NewStringUTF(name) : NULL,
-                type,
-                connected);
-        }
-    }
-    jniEnv->ExceptionClear();
-}
-

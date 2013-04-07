@@ -21,8 +21,8 @@ import org.jitsi.util.*;
  * @author Damian Minkov
  */
 public class SystemActivityNotificationsServiceImpl
-    extends SystemActivityNotifications.NotificationsDelegate
-    implements SystemActivityNotificationsService,
+    implements SystemActivityNotifications.NotificationsDelegate,
+               SystemActivityNotificationsService,
                Runnable
 {
     /**
@@ -243,7 +243,6 @@ public class SystemActivityNotificationsServiceImpl
      *
      * @param type type of the notification.
      */
-    @Override
     public void notify(int type)
     {
         SystemActivityEvent evt = null;
@@ -350,7 +349,6 @@ public class SystemActivityNotificationsServiceImpl
      *                          serial bus network interface.)
      * @param connected whether interface is connected or not.
      */
-    @Override
     public void notifyNetworkChange(
             int family,
             long luidIndex,
@@ -471,18 +469,20 @@ public class SystemActivityNotificationsServiceImpl
      */
     protected void fireSystemActivityEvent(SystemActivityEvent evt)
     {
-        // add network activity info, to track wake up problems
-        if(logger.isInfoEnabled() &&
-            (evt.getEventID() == SystemActivityEvent.EVENT_NETWORK_CHANGE
-            || evt.getEventID() == SystemActivityEvent.EVENT_DNS_CHANGE))
+        int eventID = evt.getEventID();
+
+        // Add network activity info to track wake up problems.
+        if (logger.isInfoEnabled()
+                && ((eventID == SystemActivityEvent.EVENT_NETWORK_CHANGE)
+                    || (eventID == SystemActivityEvent.EVENT_DNS_CHANGE)))
         {
             logger.info("Received system activity event: " + evt);
         }
 
-        // give time to java to dispatch same
-        // event and populate its network interfaces
-        if(evt.getEventID() == SystemActivityEvent.EVENT_NETWORK_CHANGE)
+        if (eventID == SystemActivityEvent.EVENT_NETWORK_CHANGE)
         {
+            // Give time to Java to dispatch same event and populate its network
+            // interfaces.
             eventDispatcher.fireSystemActivityEvent(evt, 500);
         }
         else
@@ -559,19 +559,16 @@ public class SystemActivityNotificationsServiceImpl
     {
         if(OSUtils.IS_WINDOWS)
         {
-            if(!SystemActivityNotifications.isLoaded())
-                return false;
-
             switch(eventID)
             {
-                case SystemActivityEvent.EVENT_SLEEP:
-                case SystemActivityEvent.EVENT_WAKE:
-                case SystemActivityEvent.EVENT_NETWORK_CHANGE:
-                case SystemActivityEvent.EVENT_SYSTEM_IDLE:
-                case SystemActivityEvent.EVENT_SYSTEM_IDLE_END:
-                    return true;
-                default:
-                    return false;
+            case SystemActivityEvent.EVENT_SLEEP:
+            case SystemActivityEvent.EVENT_WAKE:
+            case SystemActivityEvent.EVENT_NETWORK_CHANGE:
+            case SystemActivityEvent.EVENT_SYSTEM_IDLE:
+            case SystemActivityEvent.EVENT_SYSTEM_IDLE_END:
+                return SystemActivityNotifications.isLoaded();
+            default:
+                return false;
             }
         }
         else if(OSUtils.IS_MAC)
@@ -582,35 +579,32 @@ public class SystemActivityNotificationsServiceImpl
         {
             switch(eventID)
             {
-                case SystemActivityEvent.EVENT_SLEEP:
-                case SystemActivityEvent.EVENT_NETWORK_CHANGE:
+            case SystemActivityEvent.EVENT_SLEEP:
+            case SystemActivityEvent.EVENT_NETWORK_CHANGE:
                 {
+                    SystemActivityManager currentRunningManager
+                        = getCurrentRunningManager();
+
                     return
-                        getCurrentRunningManager() != null ?
-                        getCurrentRunningManager().isConnected()
-                        : false;
+                        (currentRunningManager == null)
+                            ? false
+                            : currentRunningManager.isConnected();
                 }
-                case SystemActivityEvent.EVENT_SYSTEM_IDLE:
-                case SystemActivityEvent.EVENT_SYSTEM_IDLE_END:
-                {
-                    return SystemActivityNotifications.isLoaded();
-                }
-                default:
-                    return false;
+            case SystemActivityEvent.EVENT_SYSTEM_IDLE:
+            case SystemActivityEvent.EVENT_SYSTEM_IDLE_END:
+                return SystemActivityNotifications.isLoaded();
+            default:
+                return false;
             }
         }
         else if(OSUtils.IS_ANDROID)
         {
-            switch(eventID)
-            {
-                case SystemActivityEvent.EVENT_NETWORK_CHANGE:
-                    return true;
-                default:
-                    return false;
-            }
+            return (eventID == SystemActivityEvent.EVENT_NETWORK_CHANGE);
         }
         else
+        {
             return false;
+        }
     }
 
     /**

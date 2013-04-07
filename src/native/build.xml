@@ -597,18 +597,20 @@
 
     <cc outtype="shared" name="gcc" outfile="${native_install_dir}/sysactivitynotifications"
         objdir="${obj}">
-        <!-- common compiler flags -->
+        <!-- Common compiler flags -->
+        <compilerarg value="-D_JNI_IMPLEMENTATION_" />
+        <compilerarg value="-m32" if="cross_32" unless="is.running.macos" />
+        <compilerarg value="-m64" if="cross_64" unless="is.running.macos" />
+        <compilerarg value="-O2" />
         <compilerarg value="-Wall" />
         <compilerarg value="-Wextra" />
 
-        <compilerarg value="-m32" if="cross_32" unless="is.running.macos" />
-        <compilerarg value="-m64" if="cross_64" unless="is.running.macos" />
+        <!-- Common linker flags -->
         <linkerarg value="-m32" if="cross_32" unless="is.running.macos" />
         <linkerarg value="-m64" if="cross_64" unless="is.running.macos" />
 
-        <!-- Mac OS X specific flags -->
+        <!-- Mac OS X-specific flags -->
         <compilerarg value="-mmacosx-version-min=10.5" if="is.running.macos"/>
-        <compilerarg value="-O2" if="is.running.macos"/>
         <compilerarg value="-arch" if="is.running.macos"/>
         <compilerarg value="x86_64" if="is.running.macos"/>
         <compilerarg value="-arch" if="is.running.macos"/>
@@ -636,12 +638,9 @@
         <linkerarg value="-framework" if="is.running.macos" />
         <linkerarg value="IOKit" if="is.running.macos" />
 
-        <fileset dir="${src}/native/sysactivity"
-                 includes="*.m" if="is.running.macos"/>
+        <fileset dir="${src}/native/sysactivity" includes="*.m" if="is.running.macos"/>
 
-        <!-- Linux specific flags -->
-        <fileset dir="${src}/native/sysactivity" includes="*.c" if="is.running.linux" />
-
+        <!-- Linux-specific flags -->
         <compilerarg value="-I/usr/include/gtk-2.0" if="is.running.linux" />
         <compilerarg value="-I/usr/include/glib-2.0/" if="is.running.linux" />
         <compilerarg value="-I/usr/include/cairo/" if="is.running.linux" />
@@ -654,16 +653,26 @@
         <compilerarg value="-I/usr/lib/i386-linux-gnu/glib-2.0/include" if="is.running.linux" />
         <compilerarg value="-I/usr/lib/i386-linux-gnu/gtk-2.0/include" if="is.running.linux" />
 
-        <compilerarg value="-m32" if="cross_32" unless="is.running.macos" />
-        <compilerarg value="-m64" if="cross_64" unless="is.running.macos" />
         <compilerarg value="-I${system.JAVA_HOME}/include" if="is.running.linux" />
         <compilerarg value="-I${system.JAVA_HOME}/include/linux" if="is.running.linux" />
 
-        <linkerarg value="-m32" if="cross_32" unless="is.running.macos" />
-        <linkerarg value="-m64" if="cross_64" unless="is.running.macos" />
         <linkerarg value="-lgdk-x11-2.0" if="is.running.linux" />
         <linkerarg value="-lXss" if="is.running.linux" />
         <linkerarg value="-Wl,-z,relro" if="is.running.debian"/>
+
+        <fileset dir="${src}/native/sysactivity" includes="*.c" if="is.running.linux" />
+
+        <!-- Windows-specific flags -->
+        <compilerarg value="-D_WIN32_WINNT=0x0502" if="is.running.windows" />
+        <compilerarg value="-DWINVER=0x0502" if="is.running.windows" />
+        <compilerarg value="-I${system.JAVA_HOME}/include" if="is.running.windows" />
+        <compilerarg value="-I${system.JAVA_HOME}/include/win32" if="is.running.windows" />
+
+        <linkerarg value="-osysactivitynotifications.dll" if="is.running.windows" />
+        <linkerarg value="-liphlpapi" location="end" if="is.running.windows" />
+        <linkerarg value="-Wl,--kill-at" if="is.running.windows" />
+
+        <fileset dir="${src}/native/sysactivity" includes="*.cpp" if="is.running.windows" />
     </cc>
   </target>
     <!-- compile sysactivity library for Windows
