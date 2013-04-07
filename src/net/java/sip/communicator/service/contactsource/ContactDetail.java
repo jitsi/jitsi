@@ -339,6 +339,21 @@ public class ContactDetail
      * @param contactDetailValue the contact detail value to be represented by
      * the new <tt>ContactDetail</tt> instance
      * @param category
+     */
+    public ContactDetail(   String contactDetailValue,
+                            Category category)
+    {
+        this(contactDetailValue, category, null);
+    }
+
+    /**
+     * Initializes a new <tt>ContactDetail</tt> instance which is to represent a
+     * specific contact address and which is to be optionally labeled with a
+     * specific set of labels.
+     *
+     * @param contactDetailValue the contact detail value to be represented by
+     * the new <tt>ContactDetail</tt> instance
+     * @param category
      * @param subCategories the set of sub categories with which the new
      * <tt>ContactDetail</tt> instance is to be labeled.
      */
