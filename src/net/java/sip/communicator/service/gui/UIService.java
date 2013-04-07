@@ -215,6 +215,16 @@ public interface UIService
     public Chat getChat(Contact contact);
 
     /**
+     * Returns the <tt>Chat</tt> corresponding to the given <tt>Contact</tt>.
+     * 
+     * @param contact the <tt>Contact</tt> for which the searched chat is about.
+     * @param escapedMessageID the message ID of the message that should be
+     * excluded from the history when the last one is loaded in the chat
+     * @return the <tt>Chat</tt> corresponding to the given <tt>Contact</tt>.
+     */
+    public Chat getChat(Contact contact, String escapedMessageID);
+
+    /**
      * Returns the <tt>Chat</tt> corresponding to the given <tt>ChatRoom</tt>.
      * 
      * @param chatRoom the <tt>ChatRoom</tt> for which the searched chat is

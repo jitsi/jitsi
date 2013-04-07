@@ -146,7 +146,8 @@ public class NotificationManager
     public static void fireChatNotification(Object chatContact,
                                             String eventType,
                                             String messageTitle,
-                                            String message)
+                                            String message,
+                                            String messageUID)
     {
         NotificationService notificationService
             = NotificationWiringActivator.getNotificationService();
@@ -164,7 +165,7 @@ public class NotificationManager
             Contact contact = (Contact) chatContact;
 
             if(uiService != null)
-                chatPanel = uiService.getChat(contact);
+                chatPanel = uiService.getChat(contact, messageUID);
 
             contactIcon = contact.getImage();
             if(contactIcon == null)
@@ -737,7 +738,8 @@ public class NotificationManager
                     sourceContact,
                     INCOMING_FILE,
                     title,
-                    request.getFileName());
+                    request.getFileName(),
+                    null);
         }
         catch(Throwable t)
         {
@@ -1189,7 +1191,8 @@ public class NotificationManager
                     sourceChatRoom,
                     INCOMING_MESSAGE,
                     title,
-                    messageContent);
+                    messageContent,
+                    evt.getMessage().getMessageUID());
             }
         }
         catch(Throwable t)
@@ -1255,7 +1258,8 @@ public class NotificationManager
                         sourceChatRoom,
                         INCOMING_MESSAGE,
                         title,
-                        messageContent);
+                        messageContent,
+                        evt.getMessage().getMessageUID());
             }
         }
         catch(Throwable t)
@@ -1282,7 +1286,8 @@ public class NotificationManager
                     evt.getSourceContact(),
                     INCOMING_MESSAGE,
                     title,
-                    evt.getSourceMessage().getContent());
+                    evt.getSourceMessage().getContent(),
+                    evt.getSourceMessage().getMessageUID());
         }
         catch(Throwable t)
         {
@@ -1892,7 +1897,8 @@ public class NotificationManager
                     PROACTIVE_NOTIFICATION,
                     contact.getDisplayName(),
                     NotificationWiringActivator.getResources().getI18NString(
-                            "service.gui.PROACTIVE_NOTIFICATION"));
+                            "service.gui.PROACTIVE_NOTIFICATION"),
+                    null);
         }
         catch(Throwable t)
         {

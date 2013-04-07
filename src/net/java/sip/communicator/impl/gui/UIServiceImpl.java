@@ -653,6 +653,21 @@ public class UIServiceImpl
      */
     public ChatPanel getChat(Contact contact)
     {
+        return this.getChat(contact, null);
+    }
+
+    /**
+     * Implements {@link UIService#getChat(Contact)}. If a chat for the given
+     * contact exists already, returns it; otherwise, creates a new one.
+     *
+     * @param contact the contact that we'd like to retrieve a chat window for.
+     * @param escapedMessageID the message ID of the message that should be
+     * excluded from the history when the last one is loaded in the chat
+     * @return the <tt>Chat</tt> corresponding to the specified contact.
+     * @see UIService#getChat(Contact)
+     */
+    public ChatPanel getChat(Contact contact, String escapedMessageUID)
+    {
         MetaContact metaContact
             = GuiActivator.getContactListService()
                 .findMetaContactByContact(contact);
@@ -660,7 +675,10 @@ public class UIServiceImpl
         if(metaContact == null)
             return null;
 
-        return chatWindowManager.getContactChat(metaContact, true);
+        return chatWindowManager.getContactChat(
+            metaContact,
+            true,
+            escapedMessageUID);
     }
 
     /**

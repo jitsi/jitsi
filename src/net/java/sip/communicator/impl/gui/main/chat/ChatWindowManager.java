@@ -359,6 +359,40 @@ public class ChatWindowManager
     }
 
     /**
+     * Gets the <tt>ChatPanel</tt> corresponding to the specified
+     * <tt>MetaContact</tt> and optionally creates it if it does not exist.
+     *
+     * @param metaContact the <tt>MetaContact</tt> to get the corresponding
+     * <tt>ChatPanel</tt> of
+     * @param create <tt>true</tt> to create a <tt>ChatPanel</tt> corresponding
+     * to the specified <tt>MetaContact</tt> if such <tt>ChatPanel</tt> does not
+     * exist yet
+     * @param escapedMessageID the message ID of the message that should be
+     * excluded from the history when the last one is loaded in the chat
+     * @return the <tt>ChatPanel</tt> corresponding to the specified
+     * <tt>MetaContact</tt>; <tt>null</tt> if there is no such
+     * <tt>ChatPanel</tt> and <tt>create</tt> is <tt>false</tt>
+     */
+    public ChatPanel getContactChat(MetaContact metaContact, boolean create,
+        String escapedMessageID)
+    {
+        // if we are not creating a ui we don't need any execution
+        // in event dispatch thread, lets execute now
+        if(!create)
+            return getContactChat(metaContact, null, create, escapedMessageID);
+        else
+        {
+            // we may create using event dispatch thread
+            MetaContactChatCreateRunnable runnable
+                = new MetaContactChatCreateRunnable(
+                    metaContact,
+                    null,
+                    escapedMessageID);
+            return runnable.getChatPanel();
+        }
+    }
+
+    /**
      * Returns the chat panel corresponding to the given meta contact
      *
      * @param metaContact the meta contact.
@@ -386,7 +420,10 @@ public class ChatWindowManager
     {
         // we may create using event dispatch thread
         MetaContactChatCreateRunnable runnable
-            = new MetaContactChatCreateRunnable(metaContact, null, null);
+            = new MetaContactChatCreateRunnable(
+                metaContact,
+                null,
+                escapedMessageID);
         return runnable.getChatPanel();
     }
 
@@ -1449,7 +1486,11 @@ public class ChatWindowManager
          */
         protected ChatPanel createChatPanel()
         {
-            return getContactChat(metaContact, null, true, null);
+            return getContactChat(
+                metaContact,
+                null,
+                true,
+                this.escapedMessageID);
         }
     }
 
