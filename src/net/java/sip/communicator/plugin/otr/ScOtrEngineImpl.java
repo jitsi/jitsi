@@ -101,7 +101,7 @@ public class ScOtrEngineImpl
                 return;
 
             OtrActivator.uiService.getChat(contact).addMessage(
-                contact.getDisplayName(), System.currentTimeMillis(),
+                contact.getDisplayName(), new Date(),
                 Chat.SYSTEM_MESSAGE, warn,
                 OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE);
         }
@@ -137,7 +137,7 @@ public class ScOtrEngineImpl
             return;
 
         OtrActivator.uiService.getChat(contact).addMessage(
-            contact.getDisplayName(), System.currentTimeMillis(),
+            contact.getDisplayName(), new Date(),
             Chat.ERROR_MESSAGE, err,
             OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE);
     }
@@ -194,7 +194,7 @@ public class ScOtrEngineImpl
                                     });
                         OtrActivator.uiService.getChat(contact).addMessage(
                             contact.getDisplayName(),
-                            System.currentTimeMillis(), Chat.SYSTEM_MESSAGE,
+                            new Date(), Chat.SYSTEM_MESSAGE,
                             unverifiedSessionWarning,
                             OperationSetBasicInstantMessaging.HTML_MIME_TYPE);
 
@@ -225,7 +225,7 @@ public class ScOtrEngineImpl
                 }
 
                 OtrActivator.uiService.getChat(contact).addMessage(
-                    contact.getDisplayName(), System.currentTimeMillis(),
+                    contact.getDisplayName(), new Date(),
                     Chat.SYSTEM_MESSAGE, message,
                     OperationSetBasicInstantMessaging.HTML_MIME_TYPE);
 

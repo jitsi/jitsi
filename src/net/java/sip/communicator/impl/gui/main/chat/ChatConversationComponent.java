@@ -296,7 +296,7 @@ public abstract class ChatConversationComponent
      */
     public String getDateString(Date date)
     {
-        return ChatHtmlUtils.getDateString(date.getTime())
+        return ChatHtmlUtils.getDateString(date)
                 + GuiUtils.formatTime(date)
                 + " ";
     }

@@ -378,7 +378,7 @@ public class AdHocChatRoomYahooImpl
             AdHocChatRoomMessageDeliveredEvent msgDeliveredEvt
                 = new AdHocChatRoomMessageDeliveredEvent(
                     this,
-                    System.currentTimeMillis(),
+                    new Date(),
                     message,
                     ChatRoomMessageDeliveredEvent.CONVERSATION_MESSAGE_DELIVERED);
 

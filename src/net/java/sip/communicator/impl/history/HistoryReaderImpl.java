@@ -6,6 +6,10 @@
  */
 package net.java.sip.communicator.impl.history;
 
+import static
+    net.java.sip.communicator.service.history.HistoryService.DATE_FORMAT;
+
+import java.text.*;
 import java.util.*;
 import java.util.regex.*;
 
@@ -162,6 +166,7 @@ public class HistoryReaderImpl
         int leftCount = count;
         int currentFile = filelist.size() - 1;
 
+        SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
         while(leftCount > 0 && currentFile >= 0)
         {
             Document doc = this.historyImpl.
@@ -202,9 +207,17 @@ public class HistoryReaderImpl
 
                 NodeList propertyNodes = node.getChildNodes();
 
+                Date timestamp;
                 String ts = node.getAttributes().getNamedItem("timestamp")
                     .getNodeValue();
-                long timestamp = Long.parseLong(ts);
+                try
+                {
+                    timestamp = sdf.parse(ts);
+                }
+                catch (ParseException e)
+                {
+                    timestamp = new Date(Long.parseLong(ts));
+                }
 
                 ArrayList<String> nameVals = new ArrayList<String>();
 
@@ -323,6 +336,7 @@ public class HistoryReaderImpl
         int leftCount = count;
         int currentFile = 0;
 
+        SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
         while(leftCount > 0 && currentFile < filelist.size())
         {
             Document doc = this.historyImpl.
@@ -343,9 +357,17 @@ public class HistoryReaderImpl
 
                 NodeList propertyNodes = node.getChildNodes();
 
+                Date timestamp;
                 String ts = node.getAttributes().getNamedItem("timestamp")
                     .getNodeValue();
-                long timestamp = Long.parseLong(ts);
+                try
+                {
+                    timestamp = sdf.parse(ts);
+                }
+                catch (ParseException e)
+                {
+                    timestamp = new Date(Long.parseLong(ts));
+                }
 
                 if(!isInPeriod(timestamp, date, null))
                     continue;
@@ -418,6 +440,7 @@ public class HistoryReaderImpl
 
         int currentFile = filelist.size() - 1;
 
+        SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
         while(leftCount > 0 && currentFile >= 0)
         {
             Document doc = this.historyImpl.
@@ -437,9 +460,17 @@ public class HistoryReaderImpl
                 node = nodes.item(i);
                 NodeList propertyNodes = node.getChildNodes();
 
+                Date timestamp;
                 String ts = node.getAttributes().getNamedItem("timestamp")
                     .getNodeValue();
-                long timestamp = Long.parseLong(ts);
+                try
+                {
+                    timestamp = sdf.parse(ts);
+                }
+                catch (ParseException e)
+                {
+                    timestamp = new Date(Long.parseLong(ts));
+                }
 
                 if(!isInPeriod(timestamp, null, date))
                     continue;
@@ -516,6 +547,7 @@ public class HistoryReaderImpl
         fireProgressStateChanged(startDate, endDate,
             keywords, HistorySearchProgressListener.PROGRESS_MINIMUM_VALUE);
 
+        SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
         Iterator<String> fileIterator = filelist.iterator();
         while (fileIterator.hasNext())
         {
@@ -538,9 +570,17 @@ public class HistoryReaderImpl
             {
                 node = nodes.item(i);
 
+                Date timestamp;
                 String ts = node.getAttributes().getNamedItem("timestamp")
                         .getNodeValue();
-                long timestamp = Long.parseLong(ts);
+                try
+                {
+                    timestamp = sdf.parse(ts);
+                }
+                catch (ParseException e)
+                {
+                    timestamp = new Date(Long.parseLong(ts));
+                }
 
                 if(isInPeriod(timestamp, startDate, endDate))
                 {
@@ -582,23 +622,22 @@ public class HistoryReaderImpl
      * @param endDate Date the end of the period
      * @return boolean
      */
-    static boolean isInPeriod(long timestamp, Date startDate, Date endDate)
+    static boolean isInPeriod(Date timestamp, Date startDate, Date endDate)
     {
         if(startDate == null)
         {
             if(endDate == null)
                 return true;
             else
-                return timestamp < endDate.getTime();
+                return timestamp.before(endDate);
         }
         else
         {
             if(endDate == null)
-                return timestamp > startDate.getTime();
+                return timestamp.after(startDate);
             else
                 return
-                    timestamp > startDate.getTime()
-                        && timestamp < endDate.getTime();
+                    timestamp.after(startDate) && timestamp.before(endDate);
         }
     }
 
@@ -615,7 +654,7 @@ public class HistoryReaderImpl
      * @return HistoryRecord
      */
     static HistoryRecord filterByKeyword(   NodeList propertyNodes,
-                                            long timestamp,
+                                            Date timestamp,
                                             String[] keywords,
                                             String field,
                                             boolean caseSensitive)
@@ -945,14 +984,7 @@ public class HistoryReaderImpl
     {
         public int compare(HistoryRecord h1, HistoryRecord h2)
         {
-                long d = (h2.getTimestamp() - h1.getTimestamp());
-
-                if (d == 0)
-                    return 0;
-                else if (d < 0)
-                    return -1;
-                else
-                    return 1;
+            return h1.getTimestamp().compareTo(h2.getTimestamp());
         }
     }
 }

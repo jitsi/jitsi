@@ -244,7 +244,7 @@ public class OperationSetBasicInstantMessagingMsnImpl
 
             MessageReceivedEvent msgReceivedEvt
                 = new MessageReceivedEvent(
-                    newMessage, sourceContact , System.currentTimeMillis() );
+                    newMessage, sourceContact , new Date());
     
             // msgReceivedEvt = messageReceivedTransform(msgReceivedEvt);
             
@@ -283,7 +283,7 @@ public class OperationSetBasicInstantMessagingMsnImpl
 
             MessageReceivedEvent msgReceivedEvt
                 = new MessageReceivedEvent(
-                    newMessage, sourceContact , System.currentTimeMillis() );
+                    newMessage, sourceContact , new Date());
 
             fireMessageEvent(msgReceivedEvt);
         }
@@ -366,7 +366,7 @@ public class OperationSetBasicInstantMessagingMsnImpl
                  = new MessageReceivedEvent(
                      newMailMessage,
                      sourceContact,
-                     System.currentTimeMillis(),
+                     new Date(),
                      MessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED);
 
              fireMessageEvent(msgReceivedEvt);

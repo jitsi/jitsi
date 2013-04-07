@@ -459,7 +459,7 @@ public class MockChatRoom
         ChatRoomMessageDeliveredEvent evt = 
             new ChatRoomMessageDeliveredEvent(
                     this,
-                    System.currentTimeMillis(),
+                    new Date(),
                     message,
                     ChatRoomMessageDeliveredEvent
                         .CONVERSATION_MESSAGE_DELIVERED);
@@ -517,7 +517,7 @@ public class MockChatRoom
             new ChatRoomMessageReceivedEvent(
                     this,
                     fromMember,
-                    System.currentTimeMillis(),
+                    new Date(),
                     msg,
                     ChatRoomMessageReceivedEvent
                         .CONVERSATION_MESSAGE_RECEIVED);

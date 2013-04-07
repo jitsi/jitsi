@@ -765,7 +765,7 @@ public class ChatRoomJabberImpl
              ChatRoomMessageDeliveredEvent msgDeliveredEvt
                  = new ChatRoomMessageDeliveredEvent(
                      this,
-                     System.currentTimeMillis(),
+                     new Date(),
                      message,
                      ChatRoomMessageDeliveredEvent
                          .CONVERSATION_MESSAGE_DELIVERED);
@@ -1587,18 +1587,18 @@ public class ChatRoomJabberImpl
             org.jivesoftware.smack.packet.Message msg
                 = (org.jivesoftware.smack.packet.Message) packet;
 
-            long timeStamp;
+            Date timeStamp;
 
             DelayInformation delay =
                 (DelayInformation)msg.getExtension("x", "jabber:x:delay");
 
             if(delay != null)
             {
-                timeStamp = delay.getStamp().getTime();
+                timeStamp = delay.getStamp();
             }
             else
             {
-                timeStamp = System.currentTimeMillis();
+                timeStamp = new Date();
             }
 
             String msgBody = msg.getBody();
@@ -2376,7 +2376,7 @@ public class ChatRoomJabberImpl
                     = new ChatRoomMessageReceivedEvent(
                         ChatRoomJabberImpl.this,
                         member,
-                        System.currentTimeMillis(),
+                        new Date(),
                         createMessage(msgBody),
                         messageReceivedEventType);
 

@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.callhistory;
 
 import java.io.*;
+import java.text.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.callhistory.*;
@@ -380,6 +381,7 @@ public class CallHistoryServiceImpl
         // 4 - callParticipantStart
         // 5 - callParticipantEnd
 
+        SimpleDateFormat sdf = new SimpleDateFormat(HistoryService.DATE_FORMAT);
         for (int i = 0; i < hr.getPropertyNames().length; i++)
         {
             String propName = hr.getPropertyNames()[i];
@@ -388,9 +390,23 @@ public class CallHistoryServiceImpl
             if (propName.equals(STRUCTURE_NAMES[0]))
                 result.setProtocolProvider(getProtocolProvider(value));
             else if(propName.equals(STRUCTURE_NAMES[1]))
-                result.setStartTime(new Date(Long.parseLong(value)));
+                try
+                {
+                    result.setStartTime(sdf.parse(value));
+                }
+                catch (ParseException e)
+                {
+                    result.setStartTime(new Date(Long.parseLong(value)));
+                }
             else if(propName.equals(STRUCTURE_NAMES[2]))
-                result.setEndTime(new Date(Long.parseLong(value)));
+                try
+                {
+                    result.setEndTime(sdf.parse(value));
+                }
+                catch (ParseException e)
+                {
+                    result.setEndTime(new Date(Long.parseLong(value)));
+                }
             else if(propName.equals(STRUCTURE_NAMES[3]))
                 result.setDirection(value);
             else if(propName.equals(STRUCTURE_NAMES[4]))
@@ -418,8 +434,15 @@ public class CallHistoryServiceImpl
 
             if (i < callPeerStart.size())
             {
-                callPeerStartValue
-                    = new Date(Long.parseLong(callPeerStart.get(i)));
+                try
+                {
+                    callPeerStartValue = sdf.parse(callPeerStart.get(i));
+                }
+                catch (ParseException e)
+                {
+                    callPeerStartValue
+                        = new Date(Long.parseLong(callPeerStart.get(i)));
+                }
             }
             else
             {
@@ -432,8 +455,15 @@ public class CallHistoryServiceImpl
 
             if (i < callPeerEnd.size())
             {
-                callPeerEndValue
-                    = new Date(Long.parseLong(callPeerEnd.get(i)));
+                try
+                {
+                    callPeerEndValue = sdf.parse(callPeerEnd.get(i));
+                }
+                catch (ParseException e)
+                {
+                    callPeerEndValue
+                        = new Date(Long.parseLong(callPeerEnd.get(i)));
+                }
             }
             else
             {
@@ -645,6 +675,8 @@ public class CallHistoryServiceImpl
     {
         try
         {
+            SimpleDateFormat sdf
+                = new SimpleDateFormat(HistoryService.DATE_FORMAT);
             History history = this.getHistory(source, destination);
             HistoryWriter historyWriter = history.getWriter();
 
@@ -668,18 +700,16 @@ public class CallHistoryServiceImpl
 
                 callPeerIDs.append(item.getPeerAddress());
                 callPeerNames.append(item.getDisplayName());
-                callPeerStartTime.append(String.valueOf(item
-                    .getStartTime().getTime()));
-                callPeerEndTime.append(String.valueOf(item.getEndTime()
-                    .getTime()));
+                callPeerStartTime.append(sdf.format(item.getStartTime()));
+                callPeerEndTime.append(sdf.format(item.getEndTime()));
                 callPeerStates.append(item.getState().getStateString());
             }
 
             historyWriter.addRecord(new String[] {
                     callRecord.getSourceCall().getProtocolProvider()
                         .getAccountID().getAccountUniqueID(),
-                    String.valueOf(callRecord.getStartTime().getTime()),
-                    String.valueOf(callRecord.getEndTime().getTime()),
+                    sdf.format(callRecord.getStartTime()),
+                    sdf.format(callRecord.getEndTime()),
                     callRecord.getDirection(),
                     callPeerIDs.toString(),
                     callPeerStartTime.toString(),

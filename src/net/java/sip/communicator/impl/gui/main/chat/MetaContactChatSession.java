@@ -166,9 +166,9 @@ public class MetaContactChatSession
      *
      * @return the start date of the history of this chat session.
      */
-    public long getHistoryStartDate()
+    public Date getHistoryStartDate()
     {
-        long startHistoryDate = 0;
+        Date startHistoryDate = new Date(0);
 
         MetaHistoryService metaHistory
             = GuiActivator.getMetaHistoryService();
@@ -218,9 +218,9 @@ public class MetaContactChatSession
      *
      * @return the end date of the history of this chat session.
      */
-    public long getHistoryEndDate()
+    public Date getHistoryEndDate()
     {
-        long endHistoryDate = 0;
+        Date endHistoryDate = new Date(0);
 
         MetaHistoryService metaHistory
             = GuiActivator.getMetaHistoryService();

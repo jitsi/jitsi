@@ -215,6 +215,22 @@ public class GuiUtils
     }
 
     /**
+     * Compares the two dates. The comparison is based only on the day, month
+     * and year values. Returns 0 if the two dates are equals, a value < 0 if
+     * the first date is before the second one and > 0 if the first date is
+     * after the second one.
+     * @param date1 the first date to compare
+     * @param date2 the second date to compare with
+     * @return Returns 0 if the two dates are equals, a value < 0 if
+     * the first date is before the second one and > 0 if the first date is
+     * after the second one
+     */
+    public static int compareDatesOnly(Date date1, Date date2)
+    {
+        return compareDatesOnly(date1.getTime(), date2.getTime());
+    }
+
+    /**
      * Formats the given date. The result format is the following:
      * [Month] [Day], [Year]. For example: Dec 24, 2000.
      * @param date the date to format
@@ -249,6 +265,24 @@ public class GuiUtils
     public static void formatDate(long date, StringBuffer dateStrBuf)
     {
         c1.setTimeInMillis(date);
+
+        dateStrBuf.append(GuiUtils.processMonth(c1.get(Calendar.MONTH)));
+        dateStrBuf.append(' ');
+        GuiUtils.formatTime(c1.get(Calendar.DAY_OF_MONTH), dateStrBuf);
+        dateStrBuf.append(", ");
+        GuiUtils.formatTime(c1.get(Calendar.YEAR), dateStrBuf);
+    }
+
+    /**
+     * Formats the given date as: Month DD, YYYY and appends it to the given
+     * <tt>dateStrBuf</tt> string buffer.
+     * @param date the date to format
+     * @param dateStrBuf the <tt>StringBuffer</tt>, where to append the
+     * formatted date
+     */
+    public static void formatDate(Date date, StringBuffer dateStrBuf)
+    {
+        c1.setTime(date);
 
         dateStrBuf.append(GuiUtils.processMonth(c1.get(Calendar.MONTH)));
         dateStrBuf.append(' ');

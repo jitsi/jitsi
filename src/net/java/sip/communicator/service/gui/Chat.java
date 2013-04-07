@@ -7,6 +7,7 @@
 package net.java.sip.communicator.service.gui;
 
 import java.awt.event.*;
+import java.util.*;
 
 import javax.swing.event.*;
 import javax.swing.text.*;
@@ -194,7 +195,7 @@ public interface Chat
      * @param message the message text
      * @param contentType the content type
      */
-    public void addMessage(String contactName, long date, String messageType,
+    public void addMessage(String contactName, Date date, String messageType,
         String message, String contentType);
 
     /**

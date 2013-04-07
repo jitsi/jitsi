@@ -547,8 +547,10 @@ public class MainToolBar
     {
         ChatConversationPanel convPanel = chatPanel.getChatConversationPanel();
 
-        long firstMsgInHistory = chatPanel.getFirstHistoryMsgTimestamp();
-        long lastMsgInHistory = chatPanel.getLastHistoryMsgTimestamp();
+        long firstMsgInHistory = chatPanel
+            .getFirstHistoryMsgTimestamp().getTime();
+        long lastMsgInHistory = chatPanel
+            .getLastHistoryMsgTimestamp().getTime();
         Date firstMsgInPage = convPanel.getPageFirstMsgTimestamp();
         Date lastMsgInPage = convPanel.getPageLastMsgTimestamp();
 

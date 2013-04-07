@@ -203,7 +203,7 @@ public class AdHocConferenceChatSession
      *
      * @return the start date of the history of this chat session.
      */
-    public long getHistoryStartDate()
+    public Date getHistoryStartDate()
     {
         MetaHistoryService metaHistory
             = GuiActivator.getMetaHistoryService();
@@ -212,9 +212,9 @@ public class AdHocConferenceChatSession
         // here. The history could be "disabled" from the user
         // through one of the configuration forms.
         if (metaHistory == null)
-            return 0;
+            return new Date(0);
 
-        long startHistoryDate = 0;
+        Date startHistoryDate = new Date(0);
 
         Collection<Object> firstMessage = metaHistory
             .findFirstMessagesAfter(
@@ -252,7 +252,7 @@ public class AdHocConferenceChatSession
      *
      * @return the end date of the history of this chat session.
      */
-    public long getHistoryEndDate()
+    public Date getHistoryEndDate()
     {
         MetaHistoryService metaHistory
             = GuiActivator.getMetaHistoryService();
@@ -261,9 +261,9 @@ public class AdHocConferenceChatSession
         // here. The history could be "disabled" from the user
         // through one of the configuration forms.
         if (metaHistory == null)
-            return 0;
+            return new Date(0);
 
-        long endHistoryDate = 0;
+        Date endHistoryDate = new Date(0);
 
         Collection<Object> lastMessage = metaHistory
             .findLastMessagesBefore(

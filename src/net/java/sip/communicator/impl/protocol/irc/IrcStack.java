@@ -241,7 +241,7 @@ public class IrcStack
         chatRoom.fireMessageReceivedEvent(
             message,
             sourceMember,
-            System.currentTimeMillis(),
+            new Date(),
             ChatRoomMessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED);
     }
 
@@ -297,7 +297,7 @@ public class IrcStack
         chatRoom.fireMessageReceivedEvent(
             message,
             sourceMember,
-            System.currentTimeMillis(),
+            new Date(),
             ChatRoomMessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED);
     }
 
@@ -345,7 +345,7 @@ public class IrcStack
         chatRoom.fireMessageReceivedEvent(
             actionMessage,
             sourceMember,
-            System.currentTimeMillis(),
+            new Date(),
             ChatRoomMessageReceivedEvent.ACTION_MESSAGE_RECEIVED);
     }
 
@@ -666,7 +666,7 @@ public class IrcStack
         chatRoom.fireMessageReceivedEvent(
                 message,
                 sourceMember,
-                System.currentTimeMillis(),
+                new Date(),
                 ChatRoomMessageReceivedEvent.ACTION_MESSAGE_RECEIVED);
     }
 
@@ -1251,7 +1251,7 @@ public class IrcStack
             serverRoom.fireMessageReceivedEvent(
                     message,
                     serverMember,
-                    System.currentTimeMillis(),
+                    new Date(),
                     ChatRoomMessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED);
         }
     }
@@ -1830,7 +1830,7 @@ public class IrcStack
         chatRoom.fireMessageReceivedEvent(
             message,
             ircMUCOpSet.findSystemMember(),
-            System.currentTimeMillis(),
+            new Date(),
             ChatRoomMessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED);
     }
 
@@ -2057,7 +2057,7 @@ public class IrcStack
         privateChatRoom.fireMessageReceivedEvent(
             queryMessage,
             sourceMember,
-            System.currentTimeMillis(),
+            new Date(),
             ChatRoomMessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED);
     }
 }

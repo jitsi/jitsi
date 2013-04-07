@@ -117,9 +117,9 @@ public class ChatPanel
 
     public ChatSession chatSession;
 
-    private long firstHistoryMsgTimestamp;
+    private Date firstHistoryMsgTimestamp = new Date(0);
 
-    private long lastHistoryMsgTimestamp;
+    private Date lastHistoryMsgTimestamp = new Date(0);
 
     private final List<ChatFocusListener> focusListeners
         = new Vector<ChatFocusListener>();
@@ -751,7 +751,7 @@ public class ChatPanel
      * @param message the message text
      * @param contentType the content type
      */
-    public void addMessage(String contactName, long date,
+    public void addMessage(String contactName, Date date,
             String messageType, String message, String contentType)
     {
         addMessage(contactName, null, date, messageType, message, contentType,
@@ -771,7 +771,7 @@ public class ChatPanel
      * @param message the message text
      * @param contentType the content type
      */
-    public void addMessage(String contactName, String displayName, long date,
+    public void addMessage(String contactName, String displayName, Date date,
             String messageType, String message, String contentType,
             String messageUID, String correctedMessageUID)
     {
@@ -800,7 +800,7 @@ public class ChatPanel
      * @param message the message text
      * @param contentType the content type
      */
-    public void addMessage(String contactName, long date,
+    public void addMessage(String contactName, Date date,
             String messageType, String title, String message, String contentType)
     {
         ChatMessage chatMessage = new ChatMessage(contactName, date,
@@ -861,7 +861,8 @@ public class ChatPanel
     public void addErrorMessage(String contactName,
                                 String message)
     {
-        this.addMessage(contactName,  System.currentTimeMillis(),
+        this.addMessage(contactName,
+                new Date(),
                 Chat.ERROR_MESSAGE,
                 GuiActivator.getResources()
                     .getI18NString("service.gui.MSG_DELIVERY_FAILURE"),
@@ -879,7 +880,8 @@ public class ChatPanel
                                 String title,
                                 String message)
     {
-        this.addMessage(contactName,  System.currentTimeMillis(),
+        this.addMessage(contactName,
+                new Date(),
                 Chat.ERROR_MESSAGE,
                 title,
                 message, "text");
@@ -978,7 +980,7 @@ public class ChatPanel
      */
     private String processHistoryMessage(String contactName,
                                          String contactDisplayName,
-                                         long date,
+                                         Date date,
                                          String messageType,
                                          String message,
                                          String contentType)
@@ -1005,7 +1007,7 @@ public class ChatPanel
      */
     private String processHistoryMessage(String contactName,
                                          String contactDisplayName,
-                                         long date,
+                                         Date date,
                                          String messageType,
                                          String message,
                                          String contentType,
@@ -1304,7 +1306,7 @@ public class ChatPanel
         {
             addMessage(
                 chatSession.getCurrentChatTransport().getName(),
-                System.currentTimeMillis(),
+                new Date(),
                 Chat.ERROR_MESSAGE,
                 GuiActivator.getResources()
                     .getI18NString("service.gui.FILE_TOO_BIG",
@@ -1476,7 +1478,7 @@ public class ChatPanel
 
             this.addMessage(
                 smsChatTransport.getName(),
-                System.currentTimeMillis(),
+                new Date(),
                 Chat.OUTGOING_MESSAGE,
                 messageText,
                 "plain/text");
@@ -1570,7 +1572,7 @@ public class ChatPanel
 
             this.addMessage(
                 chatSession.getCurrentChatTransport().getName(),
-                System.currentTimeMillis(),
+                new Date(),
                 Chat.OUTGOING_MESSAGE,
                 messageText,
                 mimeType);
@@ -1595,7 +1597,7 @@ public class ChatPanel
 
             this.addMessage(
                 chatSession.getCurrentChatTransport().getName(),
-                System.currentTimeMillis(),
+                new Date(),
                 Chat.OUTGOING_MESSAGE,
                 messageText,
                 mimeType);
@@ -1724,13 +1726,13 @@ public class ChatPanel
 
             addMessage(
                 contact.getDisplayName(),
-                System.currentTimeMillis(),
+                new Date(),
                 Chat.OUTGOING_MESSAGE,
                 msg.getContent(), msg.getContentType());
 
             addMessage(
                     contact.getDisplayName(),
-                    System.currentTimeMillis(),
+                    new Date(),
                     Chat.ACTION_MESSAGE,
                     GuiActivator.getResources().getI18NString(
                         "service.gui.SMS_SUCCESSFULLY_SENT"),
@@ -1788,7 +1790,7 @@ public class ChatPanel
 
             addMessage(
                     metaContact.getDisplayName(),
-                    System.currentTimeMillis(),
+                    new Date(),
                     Chat.OUTGOING_MESSAGE,
                     sourceMessage.getContent(),
                     sourceMessage.getContentType());
@@ -1806,7 +1808,7 @@ public class ChatPanel
      *
      * @return the date of the first message in history for this chat.
      */
-    public long getFirstHistoryMsgTimestamp()
+    public Date getFirstHistoryMsgTimestamp()
     {
         return firstHistoryMsgTimestamp;
     }
@@ -1816,7 +1818,7 @@ public class ChatPanel
      *
      * @return the date of the last message in history for this chat.
      */
-    public long getLastHistoryMsgTimestamp()
+    public Date getLastHistoryMsgTimestamp()
     {
         return lastHistoryMsgTimestamp;
     }
@@ -1992,7 +1994,7 @@ public class ChatPanel
             // Show a status message to the user.
             this.addMessage(
                 chatTransport.getName(),
-                System.currentTimeMillis(),
+                new Date(),
                 Chat.STATUS_MESSAGE,
                 GuiActivator.getResources().getI18NString(
                     "service.gui.STATUS_CHANGED_CHAT_MESSAGE",
@@ -2183,7 +2185,7 @@ public class ChatPanel
 
         this.addMessage(
             chatContact.getName(),
-            System.currentTimeMillis(),
+            new Date(),
             Chat.STATUS_MESSAGE,
             statusMessage,
             ChatHtmlUtils.TEXT_CONTENT_TYPE);
@@ -2212,7 +2214,7 @@ public class ChatPanel
 
             this.addMessage(
                 chatSession.getChatName(),
-                System.currentTimeMillis(),
+                new Date(),
                 Chat.STATUS_MESSAGE,
                 GuiActivator.getResources().getI18NString(
                     "service.gui.CHAT_ROOM_SUBJECT_CHANGED",

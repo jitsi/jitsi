@@ -666,7 +666,7 @@ implements OperationSetAdHocMultiUserChat
                         new AdHocChatRoomMessageReceivedEvent(
                             chatRoom,
                             member,
-                            System.currentTimeMillis(),
+                            new Date(),
                             newMessage,
                             AdHocChatRoomMessageReceivedEvent
                             .CONVERSATION_MESSAGE_RECEIVED);

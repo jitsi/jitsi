@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.gui.main.chat;
 
+import java.util.*;
+
 /**
  * The <tt>ChatMessage</tt> class encapsulates message information in order to
  * provide a single object containing all data needed to display a chat message.
@@ -27,7 +29,7 @@ public class ChatMessage
     /**
      * The date and time of the message.
      */
-    private final long date;
+    private final Date date;
 
     /**
      * The type of the message.
@@ -71,7 +73,7 @@ public class ChatMessage
      * @param contentType the content type (e.g. "text", "text/html", etc.)
      */
     public ChatMessage( String contactName,
-                        long date,
+                        Date date,
                         String messageType,
                         String message,
                         String contentType)
@@ -91,7 +93,7 @@ public class ChatMessage
      * @param contentType the content type (e.g. "text", "text/html", etc.)
      */
     public ChatMessage( String contactName,
-                        long date,
+                        Date date,
                         String messageType,
                         String messageTitle,
                         String message,
@@ -113,7 +115,7 @@ public class ChatMessage
      */
     public ChatMessage( String contactName,
                         String contactDisplayName,
-                        long date,
+                        Date date,
                         String messageType,
                         String message,
                         String contentType)
@@ -136,7 +138,7 @@ public class ChatMessage
      */
     public ChatMessage( String contactName,
                         String contactDisplayName,
-                        long date,
+                        Date date,
                         String messageType,
                         String messageTitle,
                         String message,
@@ -180,7 +182,7 @@ public class ChatMessage
      * 
      * @return the date and time of the message.
      */
-    public long getDate()
+    public Date getDate()
     {
         return date;
     }

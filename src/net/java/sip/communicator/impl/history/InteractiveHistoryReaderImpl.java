@@ -6,6 +6,10 @@
  */
 package net.java.sip.communicator.impl.history;
 
+import static
+    net.java.sip.communicator.service.history.HistoryService.DATE_FORMAT;
+
+import java.text.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.history.*;
@@ -140,6 +144,7 @@ public class InteractiveHistoryReaderImpl
                                                     startDate, endDate, true);
         Iterator<String> fileIterator = filelist.iterator();
 
+        SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
         while (fileIterator.hasNext() && resultCount > 0 && !query.isCanceled())
         {
             String filename = fileIterator.next();
@@ -155,9 +160,17 @@ public class InteractiveHistoryReaderImpl
                   i--)
             {
                 Node node = nodes.item(i);
+                Date timestamp;
                 String ts = node.getAttributes().getNamedItem("timestamp")
                         .getNodeValue();
-                long timestamp = Long.parseLong(ts);
+                try
+                {
+                    timestamp = sdf.parse(ts);
+                }
+                catch (ParseException e)
+                {
+                    timestamp = new Date(Long.parseLong(ts));
+                }
 
                 if(HistoryReaderImpl.isInPeriod(timestamp, startDate, endDate))
                 {

@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.gui.main.chat;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
 
 import javax.swing.*;
 
@@ -132,7 +133,7 @@ public class SendSmsDialog
 
             chatPanel.addMessage(
                 phoneNumber,
-                System.currentTimeMillis(),
+                new Date(),
                 Chat.OUTGOING_MESSAGE,
                 message,
                 "text/plain");
@@ -150,7 +151,7 @@ public class SendSmsDialog
 
             chatPanel.addMessage(
                 phoneNumber,
-                System.currentTimeMillis(),
+                new Date(),
                 Chat.OUTGOING_MESSAGE,
                 message,
                 "text/plain");

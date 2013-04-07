@@ -186,7 +186,7 @@ public class OperationSetBasicInstantMessagingRssImpl
                 new MessageReceivedEvent(
                         createMessage(news),
                         rssContact,
-                        System.currentTimeMillis()));
+                        new Date()));
         }
         else if(userRequestedUpdate)
         {
@@ -195,7 +195,7 @@ public class OperationSetBasicInstantMessagingRssImpl
                 new MessageReceivedEvent(
                         createMessage(news),
                         rssContact,
-                        System.currentTimeMillis()));
+                        new Date()));
         }
     }
 
@@ -305,7 +305,7 @@ public class OperationSetBasicInstantMessagingRssImpl
             DEFAULT_MIME_TYPE, DEFAULT_MIME_ENCODING, null);
 
         fireMessageEvent(
-            new MessageDeliveredEvent(msg, to, System.currentTimeMillis()));
+            new MessageDeliveredEvent(msg, to, new Date()));
 
         threadedContactFeedUpdate((ContactRssImpl)to);
     }

@@ -483,7 +483,7 @@ implements OperationSetAdHocMultiUserChat
                 new AdHocChatRoomMessageReceivedEvent(
                     chatRoom,
                     participant,
-                    System.currentTimeMillis(),
+                    new Date(),
                     newMessage,
                     AdHocChatRoomMessageReceivedEvent
                     .CONVERSATION_MESSAGE_RECEIVED);

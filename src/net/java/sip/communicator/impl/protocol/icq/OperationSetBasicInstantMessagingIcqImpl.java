@@ -71,15 +71,6 @@ public class OperationSetBasicInstantMessagingIcqImpl
     private static final int MAX_MSG_LEN = 2047;
 
     /**
-     * I do not why but we sometimes receive messages with a date in the future.sdf
-     * I've decided to ignore such messages. I draw the line on
-     * currentTimeMillis() + ONE_DAY milliseconds. Anything with a date farther
-     * in the future is considered bogus and its date is replaced with current
-     * time millis.
-     */
-    private static final long ONE_DAY = 86400001;
-
-    /**
      * KeepAlive interval for sending packets
      */
     private final static long KEEPALIVE_INTERVAL = 180000l; // 3 minutes
@@ -270,10 +261,13 @@ public class OperationSetBasicInstantMessagingIcqImpl
                 //reason that I currently don't know. Until we find it
                 //(which may well be never) we are putting in an agly hack
                 //ignoring messages with a date beyond tomorrow.
-                long current = System.currentTimeMillis();
-                long msgDate = offlineMsgCmd.getDate().getTime();
+                Date current = new Date();
+                Date msgDate = offlineMsgCmd.getDate();
 
-                if( (current + ONE_DAY) > msgDate )
+                Calendar tomorrow = new GregorianCalendar();
+                tomorrow.setTime(current);
+                tomorrow.set(Calendar.DATE, tomorrow.get(Calendar.DATE) + 1);
+                if( tomorrow.after(msgDate) )
                     msgDate = current;
 
                 MessageReceivedEvent msgReceivedEvt
@@ -557,10 +551,13 @@ public class OperationSetBasicInstantMessagingIcqImpl
             //reason that I currently don't know. Until we find it
             //(which may well be never) we are putting in an agly hack
             //ignoring messages with a date beyond tomorrow.
-            long current = System.currentTimeMillis();
-            long msgDate = minfo.getTimestamp().getTime();
+            Date current = new Date();
+            Date msgDate = minfo.getTimestamp();
 
-            if ( (current + ONE_DAY) > msgDate)
+            Calendar tomorrow = new GregorianCalendar();
+            tomorrow.setTime(current);
+            tomorrow.set(Calendar.DATE, tomorrow.get(Calendar.DATE) + 1);
+            if ( tomorrow.after(msgDate))
                 msgDate = current;
 
 

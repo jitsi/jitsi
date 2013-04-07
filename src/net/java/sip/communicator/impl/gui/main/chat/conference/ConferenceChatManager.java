@@ -241,11 +241,15 @@ public class ConferenceChatManager
 
         if (evt.isHistoryMessage())
         {
-            long timeStamp = chatPanel.getChatConversationPanel()
+            Date timeStamp = chatPanel.getChatConversationPanel()
                 .getLastIncomingMsgTimestamp();
             Collection<Object> c =
                 chatPanel.getChatSession().getHistoryBeforeDate(
-                    new Date(timeStamp == 0 ? System.currentTimeMillis() - 10000 : timeStamp), 20);
+                    new Date(
+                        timeStamp.equals(new Date(0))
+                        ? System.currentTimeMillis() - 10000
+                        : timeStamp.getTime()
+                    ), 20);
             if (c.size() > 0)
             {
                 boolean isPresent = false;
@@ -391,7 +395,7 @@ public class ConferenceChatManager
 
         chatPanel.addMessage(
             destMember.getName(),
-            System.currentTimeMillis(),
+            new Date(),
             Chat.OUTGOING_MESSAGE,
             sourceMessage.getContent(),
             sourceMessage.getContentType());
@@ -1928,7 +1932,7 @@ public class ConferenceChatManager
 
         chatPanel.addMessage(
                 destParticipant.getDisplayName(),
-                System.currentTimeMillis(),
+                new Date(),
                 Chat.OUTGOING_MESSAGE,
                 sourceMessage.getContent(),
                 sourceMessage.getContentType());

@@ -32,7 +32,7 @@ public class MessageDeliveredEvent
      /**
       * A timestamp indicating the exact date when the event occurred.
       */
-     private final long timestamp;
+     private final Date timestamp;
      
      /**
       * The ID of the message being corrected, or null if this was a new message
@@ -48,7 +48,7 @@ public class MessageDeliveredEvent
       */
      public MessageDeliveredEvent(Message source, Contact to)
      {
-         this(source, to, System.currentTimeMillis());
+         this(source, to, new Date());
      }
      
      /**
@@ -62,7 +62,7 @@ public class MessageDeliveredEvent
      public MessageDeliveredEvent(Message source, Contact to,
              String correctedMessageUID)
      {
-         this(source, to, System.currentTimeMillis());
+         this(source, to, new Date());
          this.correctedMessageUID = correctedMessageUID;
      }
 
@@ -75,7 +75,7 @@ public class MessageDeliveredEvent
       * @param timestamp a date indicating the exact moment when the event
       * ocurred
       */
-     public MessageDeliveredEvent(Message source, Contact to, long timestamp)
+     public MessageDeliveredEvent(Message source, Contact to, Date timestamp)
      {
          super(source);
 
@@ -109,7 +109,7 @@ public class MessageDeliveredEvent
       * A timestamp indicating the exact date when the event occurred.
       * @return a Date indicating when the event occurred.
       */
-     public long getTimestamp()
+     public Date getTimestamp()
      {
          return timestamp;
      }

@@ -168,14 +168,14 @@ public abstract class ChatSession
      *
      * @return the start date of the history of this chat session.
      */
-    public abstract long getHistoryStartDate();
+    public abstract Date getHistoryStartDate();
 
     /**
      * Returns the end date of the history of this chat session.
      *
      * @return the end date of the history of this chat session.
      */
-    public abstract long getHistoryEndDate();
+    public abstract Date getHistoryEndDate();
 
     /**
      * Returns the default mobile number used to send sms-es in this session.

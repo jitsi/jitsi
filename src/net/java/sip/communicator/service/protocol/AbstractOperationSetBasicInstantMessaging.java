@@ -120,7 +120,7 @@ public abstract class AbstractOperationSetBasicInstantMessaging
     protected void fireMessageDelivered(Message message, Contact to)
     {
         fireMessageEvent(
-            new MessageDeliveredEvent(message, to, System.currentTimeMillis()));
+            new MessageDeliveredEvent(message, to, new Date()));
     }
 
     protected void fireMessageDeliveryFailed(
@@ -224,7 +224,7 @@ public abstract class AbstractOperationSetBasicInstantMessaging
     protected void fireMessageReceived(Message message, Contact from)
     {
         fireMessageEvent(
-            new MessageReceivedEvent(message, from, System.currentTimeMillis()));
+            new MessageReceivedEvent(message, from, new Date()));
     }
 
     /**

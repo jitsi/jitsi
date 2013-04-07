@@ -139,7 +139,7 @@ public class ChatWindowManager
         {
             if(containsChat(chatPanel))
             {
-                long lastMsgTimestamp = chatPanel.getChatConversationPanel()
+                Date lastMsgTimestamp = chatPanel.getChatConversationPanel()
                     .getLastIncomingMsgTimestamp();
 
                 if (!chatPanel.isWriteAreaEmpty())
@@ -151,7 +151,7 @@ public class ChatWindowManager
                     if (answer == JOptionPane.OK_OPTION)
                         closeChatPanel(chatPanel);
                 }
-                else if (System.currentTimeMillis() - lastMsgTimestamp
+                else if (System.currentTimeMillis() - lastMsgTimestamp.getTime()
                                                                     < 2 * 1000)
                 {
                     int answer = showWarningMessage(
@@ -276,11 +276,12 @@ public class ChatWindowManager
                             (AdHocChatRoomWrapper) adHocSession.getDescriptor());
                 }
 
-                long lastMsgTimestamp = chatPanel.getChatConversationPanel()
+                Date lastMsgTimestamp = chatPanel.getChatConversationPanel()
                                                 .getLastIncomingMsgTimestamp();
                 if (!chatPanel.isWriteAreaEmpty()
                     || chatPanel.containsActiveFileTransfers()
-                    || System.currentTimeMillis() - lastMsgTimestamp < 2 * 1000)
+                    || System.currentTimeMillis()
+                       - lastMsgTimestamp.getTime() < 2 * 1000)
                 {
                     activePanel = chatPanel;
                 }
@@ -292,7 +293,7 @@ public class ChatWindowManager
                 return;
             }
 
-            long lastMsgTimestamp = activePanel.getChatConversationPanel()
+            Date lastMsgTimestamp = activePanel.getChatConversationPanel()
                                                 .getLastIncomingMsgTimestamp();
 
             if (!activePanel.isWriteAreaEmpty())
@@ -304,7 +305,8 @@ public class ChatWindowManager
                 if (answer == JOptionPane.OK_OPTION)
                     this.closeAllChats(chatContainer);
             }
-            else if (System.currentTimeMillis() - lastMsgTimestamp < 2 * 1000)
+            else if (System.currentTimeMillis()
+                     - lastMsgTimestamp.getTime() < 2 * 1000)
             {
                 int answer = showWarningMessage(
                         "service.gui.CLOSE_CHAT_AFTER_NEW_MESSAGE",

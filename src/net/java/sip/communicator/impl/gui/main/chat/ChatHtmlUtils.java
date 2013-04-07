@@ -5,9 +5,13 @@
  */
 package net.java.sip.communicator.impl.gui.main.chat;
 
+import java.text.*;
+import java.util.*;
+
 import javax.swing.text.html.HTML.Tag;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.service.history.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -83,7 +87,7 @@ public class ChatHtmlUtils
         String contactName,
         String contactDisplayName,
         String avatarPath,
-        long date,
+        Date date,
         String message,
         String contentType,
         boolean isHistory,
@@ -129,7 +133,7 @@ public class ChatHtmlUtils
                                                     String contactName,
                                                     String contactDisplayName,
                                                     String avatarPath,
-                                                    long date,
+                                                    Date date,
                                                     String message,
                                                     String contentType,
                                                     boolean isHistory,
@@ -173,7 +177,7 @@ public class ChatHtmlUtils
                                             String contactName,
                                             String message,
                                             String contentType,
-                                            long date,
+                                            Date date,
                                             boolean isEdited,
                                             boolean isHistory,
                                             boolean isSimpleTheme)
@@ -215,15 +219,18 @@ public class ChatHtmlUtils
         String contactName,
         String contactDisplayName,
         String avatarPath,
-        long date,
+        Date date,
         String message,
         String contentType,
         boolean isHistory)
     {
         StringBuffer headerBuffer = new StringBuffer();
 
+
+        SimpleDateFormat sdf = new SimpleDateFormat(HistoryService.DATE_FORMAT);
         headerBuffer.append("<h2 id=\"" + MESSAGE_HEADER_ID + "\" ");
-        headerBuffer.append(DATE_ATTRIBUTE + "='" + date + "'" + ">");
+        headerBuffer.append(DATE_ATTRIBUTE + "='"
+            + sdf.format(date) + "'" + ">");
         headerBuffer.append("<a style=\"color:#488fe7;");
         headerBuffer.append("font-weight:bold;");
         headerBuffer.append("text-decoration:none;\" ");
@@ -278,15 +285,18 @@ public class ChatHtmlUtils
                                                     String contactName,
                                                     String contactDisplayName,
                                                     String avatarPath,
-                                                    long date,
+                                                    Date date,
                                                     String message,
                                                     String contentType,
                                                     boolean isHistory)
     {
         StringBuffer headerBuffer = new StringBuffer();
 
+
+        SimpleDateFormat sdf = new SimpleDateFormat(HistoryService.DATE_FORMAT);
         headerBuffer.append("<h3 id=\"" + MESSAGE_HEADER_ID + "\" ");
-        headerBuffer.append(DATE_ATTRIBUTE + "='" + date + "'" + ">");
+        headerBuffer.append(DATE_ATTRIBUTE + "='"
+            + sdf.format(date) + "'" + ">");
         headerBuffer.append("<a style=\"color:#535353;");
         headerBuffer.append("font-weight:bold;");
         headerBuffer.append("text-decoration:none;\" ");
@@ -342,15 +352,16 @@ public class ChatHtmlUtils
         String contactName,
         String contactDisplayName,
         String avatarPath,
-        long date,
+        Date date,
         String message,
         String contentType,
         boolean isHistory)
     {
         StringBuffer headerBuffer = new StringBuffer();
 
+        SimpleDateFormat sdf = new SimpleDateFormat(HistoryService.DATE_FORMAT);
         headerBuffer.append("<h2 id=\"" + MESSAGE_HEADER_ID + "\" ");
-        headerBuffer.append(DATE_ATTRIBUTE + "='" + date + "' ");
+        headerBuffer.append(DATE_ATTRIBUTE + "='" + sdf.format(date) + "' ");
         headerBuffer.append(IncomingMessageStyle.createHeaderStyle() + ">");
         headerBuffer.append("<a style=\"color:#488fe7;");
         headerBuffer.append("font-weight:bold;");
@@ -442,15 +453,16 @@ public class ChatHtmlUtils
                                                     String contactName,
                                                     String contactDisplayName,
                                                     String avatarPath,
-                                                    long date,
+                                                    Date date,
                                                     String message,
                                                     String contentType,
                                                     boolean isHistory)
     {
         StringBuffer headerBuffer = new StringBuffer();
 
+        SimpleDateFormat sdf = new SimpleDateFormat(HistoryService.DATE_FORMAT);
         headerBuffer.append("<h3 id=\"" + MESSAGE_HEADER_ID + "\" ");
-        headerBuffer.append(DATE_ATTRIBUTE + "='" + date + "' ");
+        headerBuffer.append(DATE_ATTRIBUTE + "='" + sdf.format(date) + "' ");
         headerBuffer.append(IncomingMessageStyle.createHeaderStyle() + ">");
         headerBuffer.append("<a style=\"color:#6a6868;");
         headerBuffer.append("font-weight:bold;");
@@ -536,7 +548,7 @@ public class ChatHtmlUtils
      * @return the message header tag
      */
     private static String createAdvancedMessageHeaderTag(String nameHeader,
-                                                        long date)
+                                                        Date date)
     {
         StringBuffer messageHeader = new StringBuffer();
 
@@ -642,16 +654,17 @@ public class ChatHtmlUtils
                                                 String contactName,
                                                 String message,
                                                 String contentType,
-                                                long date,
+                                                Date date,
                                                 boolean isEdited,
                                                 boolean isHistory)
     {
         StringBuilder messageTag = new StringBuilder();
 
+        SimpleDateFormat sdf = new SimpleDateFormat(HistoryService.DATE_FORMAT);
         messageTag.append(String.format("<div id='%s' %s = '%s' ",
                 MESSAGE_TEXT_ID + messageID, NAME_ATTRIBUTE,
                 contactName));
-        messageTag.append(DATE_ATTRIBUTE + "=\"" + date + "\" ");
+        messageTag.append(DATE_ATTRIBUTE + "=\"" + sdf.format(date) + "\" ");
         messageTag.append(String.format("%s = '%s' ",
                 ORIGINAL_MESSAGE_ATTRIBUTE, GuiUtils.escapeHTMLChars(message)));
         messageTag.append(IncomingMessageStyle
@@ -685,16 +698,17 @@ public class ChatHtmlUtils
                                                     String contactName,
                                                     String message,
                                                     String contentType,
-                                                    long date,
+                                                    Date date,
                                                     boolean isEdited,
                                                     boolean isHistory)
     {
         StringBuilder messageTag = new StringBuilder();
 
+        SimpleDateFormat sdf = new SimpleDateFormat(HistoryService.DATE_FORMAT);
         messageTag.append(String.format("<div id='%s' %s = '%s' ",
                 MESSAGE_TEXT_ID + messageID, NAME_ATTRIBUTE,
                 contactName));
-        messageTag.append(DATE_ATTRIBUTE + "=\"" + date + "\" ");
+        messageTag.append(DATE_ATTRIBUTE + "=\"" + sdf.format(date) + "\" ");
         messageTag.append(String.format("%s = '%s' ",
                 ORIGINAL_MESSAGE_ATTRIBUTE, GuiUtils.escapeHTMLChars(message)));
         messageTag.append(IncomingMessageStyle
@@ -718,9 +732,9 @@ public class ChatHtmlUtils
      * @param date the date to format
      * @return the date string to show for the given date
      */
-    public static String getDateString(long date)
+    public static String getDateString(Date date)
     {
-        if (GuiUtils.compareDatesOnly(date, System.currentTimeMillis()) <= 0)
+        if (GuiUtils.compareDatesOnly(date, new Date()) <= 0)
         {
             StringBuffer dateStrBuf = new StringBuffer();
 
@@ -738,7 +752,7 @@ public class ChatHtmlUtils
      * @param date the date of the re-edition
      * @return the newly constructed string
      */
-    private static String createEditedAt(long date)
+    private static String createEditedAt(Date date)
     {
         return "<font color=\"#b7b7b7\">(" + GuiActivator.getResources()
                     .getI18NString( "service.gui.EDITED_AT",

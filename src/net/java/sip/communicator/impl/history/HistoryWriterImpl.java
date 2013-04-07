@@ -6,8 +6,12 @@
  */
 package net.java.sip.communicator.impl.history;
 
+import static
+    net.java.sip.communicator.service.history.HistoryService.DATE_FORMAT;
+
 import java.io.*;
 import java.security.*;
+import java.text.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.history.*;
@@ -65,12 +69,12 @@ public class HistoryWriterImpl
         addRecord(
                 structPropertyNames,
                 propertyValues,
-                System.currentTimeMillis());
+                new Date());
     }
 
     public void addRecord(String[] propertyValues, Date timestamp)
             throws IOException {
-        this.addRecord(structPropertyNames, propertyValues, timestamp.getTime());
+        this.addRecord(structPropertyNames, propertyValues, timestamp);
     }
 
     /**
@@ -86,7 +90,7 @@ public class HistoryWriterImpl
      */
     private void addRecord(String[] propertyNames,
                            String[] propertyValues,
-                           long date)
+                           Date date)
         throws InvalidParameterException, IOException
     {
         // Synchronized to assure that two concurrent threads can insert records
@@ -106,7 +110,9 @@ public class HistoryWriterImpl
             synchronized (root)
             {
                 Element elem = this.currentDoc.createElement("record");
-                elem.setAttribute("timestamp", Long.toString(date));
+                SimpleDateFormat sdf
+                    = new SimpleDateFormat(DATE_FORMAT);
+                elem.setAttribute("timestamp", sdf.format(date));
 
                 for (int i = 0; i < propertyNames.length; i++)
                 {
@@ -166,7 +172,7 @@ public class HistoryWriterImpl
      * @param date Date
      * @param loadLastFile boolean
      */
-    private void createNewDoc(long date, boolean loadLastFile)
+    private void createNewDoc(Date date, boolean loadLastFile)
     {
         boolean loaded = false;
 
@@ -197,11 +203,7 @@ public class HistoryWriterImpl
 
         if (!loaded)
         {
-            this.currentFile = Long.toString(date);
-//            while (this.currentFile.length() < 8)
-//            {
-//                this.currentFile = "0" + this.currentFile;
-//            }
+            this.currentFile = Long.toString(date.getTime());
             this.currentFile += ".xml";
 
             this.currentDoc = this.historyImpl.createDocument(this.currentFile);

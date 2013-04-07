@@ -104,10 +104,10 @@ public class FileHistoryConversationComponent
 
         this.setCompletedDownloadFile(fileRecord.getFile());
 
-        long date = fileRecord.getDate();
+        Date date = fileRecord.getDate();
 
         titleLabel.setText(
-            getDateString(new Date(date)) + titleString);
+            getDateString(date) + titleString);
         fileLabel.setText(getFileLabel(fileRecord.getFile()));
     }
 
@@ -118,7 +118,7 @@ public class FileHistoryConversationComponent
      */
     public Date getDate()
     {
-        return new Date(fileRecord.getDate());
+        return fileRecord.getDate();
     }
 
     /**

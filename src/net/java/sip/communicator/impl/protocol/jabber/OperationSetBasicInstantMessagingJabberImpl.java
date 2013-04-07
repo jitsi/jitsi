@@ -751,18 +751,18 @@ public class OperationSetBasicInstantMessagingJabberImpl
                     .createVolatileContact(fromUserID);
             }
 
-            long timestamp = System.currentTimeMillis();
+            Date timestamp = new Date();
             //Check for XEP-0091 timestamp (deprecated)
             PacketExtension delay = msg.getExtension("x", "jabber:x:delay");
             if(delay != null && delay instanceof DelayInformation)
             {
-                timestamp = ((DelayInformation)delay).getStamp().getTime();
+                timestamp = ((DelayInformation)delay).getStamp();
             }
             //check for XEP-0203 timestamp
             delay = msg.getExtension("delay", "urn:xmpp:delay");
             if(delay != null && delay instanceof DelayInfo)
             {
-                timestamp = ((DelayInfo)delay).getStamp().getTime();
+                timestamp = ((DelayInfo)delay).getStamp();
             }
             MessageReceivedEvent msgReceivedEvt = new MessageReceivedEvent(
                     newMessage, sourceContact, timestamp, correctedMessageUID);
@@ -979,7 +979,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
                 newMail, HTML_MIME_TYPE, DEFAULT_MIME_ENCODING, null);
 
             MessageReceivedEvent msgReceivedEvt = new MessageReceivedEvent(
-                newMailMessage, sourceContact, System.currentTimeMillis(),
+                newMailMessage, sourceContact, new Date(),
                 MessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED);
 
             fireMessageEvent(msgReceivedEvt);

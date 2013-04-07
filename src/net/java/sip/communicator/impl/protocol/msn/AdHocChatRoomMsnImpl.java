@@ -411,7 +411,7 @@ public class AdHocChatRoomMsnImpl
         AdHocChatRoomMessageDeliveredEvent msgDeliveredEvt
             = new AdHocChatRoomMessageDeliveredEvent(
             this,
-            System.currentTimeMillis(),
+            new Date(),
             message,
             AdHocChatRoomMessageDeliveredEvent.CONVERSATION_MESSAGE_DELIVERED);
 

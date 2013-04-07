@@ -6,7 +6,11 @@
  */
 package net.java.sip.communicator.impl.filehistory;
 
+import static
+    net.java.sip.communicator.service.history.HistoryService.DATE_FORMAT;
+
 import java.io.*;
+import java.text.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.contactlist.*;
@@ -227,10 +231,11 @@ public class FileHistoryServiceImpl
     {
         String file = null;
         String dir = null;
-        long date = 0;
+        Date date = new Date(0);
         String status = null;
         String id = null;
 
+        SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
         for (int i = 0; i < hr.getPropertyNames().length; i++)
         {
             String propName = hr.getPropertyNames()[i];
@@ -243,11 +248,11 @@ public class FileHistoryServiceImpl
             {
                 try
                 {
-                    date = Long.valueOf(hr.getPropertyValues()[i]);
+                    date = sdf.parse(hr.getPropertyValues()[i]);
                 }
-                catch (NumberFormatException e)
+                catch (ParseException e)
                 {
-                    logger.error("Wrong date : " + hr.getPropertyValues()[i]);
+                    date = new Date(Long.valueOf(hr.getPropertyValues()[i]));
                 }
             }
             else if (propName.equals(STRUCTURE_NAMES[3]))
@@ -760,10 +765,12 @@ public class FileHistoryServiceImpl
             History history = getHistory(null, req.getSender());
             HistoryWriter historyWriter = history.getWriter();
 
+            SimpleDateFormat sdf
+                = new SimpleDateFormat(HistoryService.DATE_FORMAT);
             historyWriter.addRecord(new String[]{
                 req.getFileName(),
                 getDirection(FileTransfer.IN),
-                String.valueOf(event.getTimestamp().getTime()),
+                sdf.format(event.getTimestamp()),
                 FILE_TRANSFER_ACTIVE,
                 req.getID()
             });
@@ -799,10 +806,13 @@ public class FileHistoryServiceImpl
             }
             else if (fileTransfer.getDirection() == FileTransfer.OUT)
             {
+                SimpleDateFormat sdf
+                    = new SimpleDateFormat(HistoryService.DATE_FORMAT);
+
                 historyWriter.addRecord(new String[]{
                     fileTransfer.getLocalFile().getCanonicalPath(),
                     getDirection(FileTransfer.OUT),
-                    String.valueOf(event.getTimestamp().getTime()),
+                    sdf.format(event.getTimestamp()),
                     FILE_TRANSFER_ACTIVE,
                     fileTransfer.getID()
                 });
@@ -874,10 +884,10 @@ public class FileHistoryServiceImpl
     {
         public int compare(FileRecord o1, FileRecord o2)
         {
-            long date1 = o1.getDate();
-            long date2 = o2.getDate();
+            Date date1 = o1.getDate();
+            Date date2 = o2.getDate();
 
-            return (date1 < date2) ? -1 : ((date1 == date2) ? 0 : 1);
+            return date1.compareTo(date2);
         }
     }
 }

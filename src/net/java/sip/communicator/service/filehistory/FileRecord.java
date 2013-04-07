@@ -7,6 +7,7 @@
 package net.java.sip.communicator.service.filehistory;
 
 import java.io.*;
+import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
 
@@ -50,7 +51,7 @@ public class FileRecord
 
     private String direction = null;
 
-    private long date;
+    private Date date;
 
     private File file = null;
     private String status;
@@ -73,7 +74,7 @@ public class FileRecord
         String id,
         Contact contact,
         String direction,
-        long date,
+        Date date,
         File file,
         String status)
     {
@@ -98,7 +99,7 @@ public class FileRecord
      * The date of the record.
      * @return the date
      */
-    public long getDate()
+    public Date getDate()
     {
         return date;
     }

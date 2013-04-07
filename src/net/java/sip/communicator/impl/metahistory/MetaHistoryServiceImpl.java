@@ -889,9 +889,9 @@ public class MetaHistoryServiceImpl
     private static class RecordsComparator
         implements Comparator<Object>
     {
-        private long getDate(Object o)
+        private Date getDate(Object o)
         {
-            long date = 0;
+            Date date = new Date(0);
             if(o instanceof MessageDeliveredEvent)
                 date = ((MessageDeliveredEvent)o).getTimestamp();
             else if(o instanceof MessageReceivedEvent)
@@ -901,7 +901,7 @@ public class MetaHistoryServiceImpl
             else if(o instanceof ChatRoomMessageReceivedEvent)
                 date = ((ChatRoomMessageReceivedEvent)o).getTimestamp();
             else if(o instanceof CallRecord)
-                date = ((CallRecord)o).getStartTime().getTime();
+                date = ((CallRecord)o).getStartTime();
             else if(o instanceof FileRecord)
                 date = ((FileRecord)o).getDate();
 
@@ -909,10 +909,10 @@ public class MetaHistoryServiceImpl
         }
         public int compare(Object o1, Object o2)
         {
-            long date1 = getDate(o1);
-            long date2 = getDate(o2);
+            Date date1 = getDate(o1);
+            Date date2 = getDate(o2);
 
-            return (date1 < date2) ? -1 : ((date1 == date2) ? 0 : 1);
+            return date1.compareTo(date2);
         }
     }
 

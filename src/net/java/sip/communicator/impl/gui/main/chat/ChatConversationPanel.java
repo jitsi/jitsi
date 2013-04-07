@@ -11,6 +11,7 @@ import java.awt.datatransfer.*;
 import java.awt.event.*;
 import java.io.*;
 import java.net.*;
+import java.text.*;
 import java.util.*;
 import java.util.regex.*;
 
@@ -29,6 +30,7 @@ import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.plugin.desktoputil.SwingWorker;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.history.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.replacement.*;
 import net.java.sip.communicator.service.replacement.smilies.*;
@@ -136,12 +138,12 @@ public class ChatConversationPanel
     /**
      * The timestamp of the last incoming message.
      */
-    private long lastIncomingMsgTimestamp;
+    private Date lastIncomingMsgTimestamp = new Date(0);
 
     /**
      * The timestamp of the last message.
      */
-    private long lastMessageTimestamp;
+    private Date lastMessageTimestamp = new Date(0);
 
     /**
      * Indicates if this component is rendering a history conversation.
@@ -415,7 +417,7 @@ public class ChatConversationPanel
                 = contactDisplayName.replaceAll("&apos;", "&#39;");
         }
 
-        long date = chatMessage.getDate();
+        Date date = chatMessage.getDate();
         String messageType = chatMessage.getMessageType();
         String messageTitle = chatMessage.getMessageTitle();
         String message = chatMessage.getMessage();
@@ -435,7 +437,7 @@ public class ChatConversationPanel
 
         if (messageType.equals(Chat.INCOMING_MESSAGE))
         {
-            this.lastIncomingMsgTimestamp = System.currentTimeMillis();
+            this.lastIncomingMsgTimestamp = new Date();
 
             chatString = ChatHtmlUtils.createIncomingMessageTag(
                 lastMessageUID,
@@ -1227,7 +1229,7 @@ public class ChatConversationPanel
      *
      * @return The time of the last received message.
      */
-    public long getLastIncomingMsgTimestamp()
+    public Date getLastIncomingMsgTimestamp()
     {
         return lastIncomingMsgTimestamp;
     }
@@ -1428,7 +1430,15 @@ public class ChatConversationPanel
             .getAttributes().getAttribute(ChatHtmlUtils.DATE_ATTRIBUTE)
                 .toString();
 
-        return new Date(Long.parseLong(dateObject));
+        SimpleDateFormat sdf = new SimpleDateFormat(HistoryService.DATE_FORMAT);
+        try
+        {
+            return sdf.parse(dateObject);
+        }
+        catch (ParseException e)
+        {
+            return new Date(0);
+        }
     }
 
     /**
@@ -1438,7 +1448,7 @@ public class ChatConversationPanel
      */
     public Date getPageLastMsgTimestamp()
     {
-        long timestamp = 0;
+        Date timestamp = new Date(0);
 
         if (lastMessageUID != null)
         {
@@ -1452,12 +1462,21 @@ public class ChatConversationPanel
                     = lastMsgElement.getAttributes().getAttribute(
                             ChatHtmlUtils.DATE_ATTRIBUTE);
 
+                SimpleDateFormat sdf
+                    = new SimpleDateFormat(HistoryService.DATE_FORMAT);
                 if (date != null)
-                    timestamp = Long.parseLong(date.toString());
+                {
+                    try
+                    {
+                        timestamp = sdf.parse(date.toString());
+                    }
+                    catch (ParseException e)
+                    {}
+                }
             }
         }
 
-        return new Date(timestamp);
+        return timestamp;
     }
 
     /**
@@ -1596,8 +1615,10 @@ public class ChatConversationPanel
 
             style.addAttribute(StyleConstants.ComponentAttribute, wrapPanel);
             style.addAttribute(Attribute.ID, ChatHtmlUtils.MESSAGE_TEXT_ID);
+            SimpleDateFormat sdf
+                = new SimpleDateFormat(HistoryService.DATE_FORMAT);
             style.addAttribute(ChatHtmlUtils.DATE_ATTRIBUTE,
-                                component.getDate().getTime());
+                                sdf.format(component.getDate()));
 
             scrollToBottomIsPending = true;
 
@@ -1819,7 +1840,8 @@ public class ChatConversationPanel
                         .equals(Chat.HISTORY_OUTGOING_MESSAGE))
                 && contactAddress.equals(chatMessage.getContactName())
                 // And if the new message is within a minute from the last one.
-                && ((chatMessage.getDate() - lastMessageTimestamp)
+                && ((chatMessage.getDate().getTime()
+                    - lastMessageTimestamp.getTime())
                         < 60000))
         {
             lastMessageTimestamp = chatMessage.getDate();

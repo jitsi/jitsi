@@ -6,12 +6,14 @@
  */
 package net.java.sip.communicator.service.history.records;
 
+import java.util.*;
+
 /**
  * @author Alexander Pelov
  */
 public class HistoryRecord
 {
-    private final long timestamp;
+    private final Date timestamp;
     private final String[] propertyNames;
     private final String[] propertyValues;
 
@@ -29,7 +31,7 @@ public class HistoryRecord
         this(
                 entryStructure.getPropertyNames(),
                 propertyValues,
-                System.currentTimeMillis());
+                new Date());
     }
 
     /**
@@ -41,7 +43,7 @@ public class HistoryRecord
      */
     public HistoryRecord(String[] propertyNames, String[] propertyValues)
     {
-        this(propertyNames, propertyValues, System.currentTimeMillis());
+        this(propertyNames, propertyValues, new Date());
     }
 
     /**
@@ -54,7 +56,7 @@ public class HistoryRecord
      */
     public HistoryRecord(HistoryRecordStructure entryStructure,
                          String[] propertyValues,
-                         long timestamp)
+                         Date timestamp)
     {
         this(entryStructure.getPropertyNames(), propertyValues, timestamp);
     }
@@ -69,7 +71,7 @@ public class HistoryRecord
      */
     public HistoryRecord(String[] propertyNames,
                          String[] propertyValues,
-                         long timestamp)
+                         Date timestamp)
     {
         // TODO: Validate: Assert.assertNonNull(propertyNames, "The property names should be non-null.");
         // TODO: Validate: Assert.assertNonNull(propertyValues, "The property values should be non-null.");
@@ -93,7 +95,7 @@ public class HistoryRecord
         return this.propertyValues;
     }
 
-    public long getTimestamp()
+    public Date getTimestamp()
     {
         return this.timestamp;
     }

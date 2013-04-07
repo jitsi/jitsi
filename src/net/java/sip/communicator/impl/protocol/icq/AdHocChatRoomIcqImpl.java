@@ -433,7 +433,7 @@ public class AdHocChatRoomIcqImpl
             AdHocChatRoomMessageDeliveredEvent msgDeliveredEvt =
                 new AdHocChatRoomMessageDeliveredEvent(
                     this,
-                    System.currentTimeMillis(),
+                    new Date(),
                     message,
                     AdHocChatRoomMessageDeliveredEvent.CONVERSATION_MESSAGE_DELIVERED);
 
@@ -594,7 +594,7 @@ public class AdHocChatRoomIcqImpl
                 new AdHocChatRoomMessageReceivedEvent(
                     chatRoom,
                     participants.get(participantUID),
-                    System.currentTimeMillis(),
+                    new Date(),
                     newMessage,
                     AdHocChatRoomMessageReceivedEvent
                         .CONVERSATION_MESSAGE_RECEIVED);

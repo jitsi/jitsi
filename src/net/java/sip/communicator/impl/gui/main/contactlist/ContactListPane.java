@@ -275,7 +275,7 @@ public class ContactListPane
                                  final MetaContact metaContact,
                                  final Message message,
                                  final int eventType,
-                                 final long timestamp,
+                                 final Date timestamp,
                                  final String correctedMessageUID)
     {
         if(!SwingUtilities.isEventDispatchThread())
@@ -440,7 +440,7 @@ public class ContactListPane
         chatPanel.addMessage(
                 sourceContact.getAddress(),
                 metaContact.getDisplayName(),
-                System.currentTimeMillis(),
+                new Date(),
                 Chat.OUTGOING_MESSAGE,
                 sourceMessage.getContent(),
                 sourceMessage.getContentType(),

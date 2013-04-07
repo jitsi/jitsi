@@ -745,7 +745,7 @@ public class OperationSetBasicInstantMessagingSipImpl
             // fire an event
             MessageReceivedEvent msgReceivedEvt
                 = new MessageReceivedEvent(
-                        newMessage, from, System.currentTimeMillis());
+                        newMessage, from, new Date());
             fireMessageEvent(msgReceivedEvt);
 
             return true;
@@ -906,7 +906,7 @@ public class OperationSetBasicInstantMessagingSipImpl
                 // we delivered the message
                 MessageDeliveredEvent msgDeliveredEvt
                     = new MessageDeliveredEvent(
-                            newMessage, to, System.currentTimeMillis());
+                            newMessage, to, new Date());
 
                 fireMessageEvent(msgDeliveredEvt);
 

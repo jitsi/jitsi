@@ -49,7 +49,7 @@ public class MessageReceivedEvent
     /**
      * A timestamp indicating the exact date when the event occurred.
      */
-    private final long timestamp;
+    private final Date timestamp;
 
     /**
      * The type of message event that this instance represents.
@@ -71,7 +71,7 @@ public class MessageReceivedEvent
      * @param from the <tt>Contact</tt> that has sent this message.
      * @param timestamp the exact date when the event ocurred.
      */
-    public MessageReceivedEvent(Message source, Contact from, long timestamp)
+    public MessageReceivedEvent(Message source, Contact from, Date timestamp)
     {
        this(source, from, timestamp, CONVERSATION_MESSAGE_RECEIVED);
     }
@@ -89,7 +89,7 @@ public class MessageReceivedEvent
     public MessageReceivedEvent(Message source, Contact from,
             String correctedMessageUID)
     {
-       this(source, from, System.currentTimeMillis(),
+       this(source, from, new Date(),
                CONVERSATION_MESSAGE_RECEIVED);
        this.correctedMessageUID = correctedMessageUID;
     }
@@ -105,7 +105,7 @@ public class MessageReceivedEvent
      * @param correctedMessageUID The ID of the message being corrected, or null if this is a new message
      * and not a correction.
      */
-    public MessageReceivedEvent(Message source, Contact from, long timestamp,
+    public MessageReceivedEvent(Message source, Contact from, Date timestamp,
                                 String correctedMessageUID)
     {
         this(source, from, timestamp,
@@ -125,7 +125,7 @@ public class MessageReceivedEvent
      * (one of the XXX_MESSAGE_RECEIVED static fields).
      */
     public MessageReceivedEvent(Message source, Contact from,
-        long timestamp, int eventType)
+        Date timestamp, int eventType)
     {
         super(source);
 
@@ -161,7 +161,7 @@ public class MessageReceivedEvent
      *
      * @return a Date indicating when the event occurred.
      */
-    public long getTimestamp()
+    public Date getTimestamp()
     {
         return timestamp;
     }
