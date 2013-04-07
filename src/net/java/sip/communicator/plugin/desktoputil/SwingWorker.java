@@ -20,6 +20,8 @@ import java.util.concurrent.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.util.*;
+
 /**
  * Utility class based on the javax.swing.SwingWorker. <tt>SwingWorker</tt> is
  * an abstract class that you subclass to perform GUI-related work in a
@@ -33,6 +35,9 @@ import javax.swing.*;
  */
 public abstract class SwingWorker
 {
+    /** Logging instance for SwingWorker */
+    private final static Logger logger = Logger.getLogger(SwingWorker.class);
+
     /**
      * The <tt>ExecutorService</tt> which is shared by the <tt>SwingWorker</tt>
      * instances for the purposes of controlling the use of <tt>Thread</tt>s.
@@ -113,6 +118,7 @@ public abstract class SwingWorker
      */
     protected void catchException(Throwable exception)
     {
+        logger.error("unhandled exception caught", exception);
     }
 
     /** 
