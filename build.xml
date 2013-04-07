@@ -279,6 +279,7 @@
         <!--internal-target- compiles the entire project source tree -->
         <javac classpathref="compile.class.path" debug="true"
             deprecation="true" destdir="${dest}" nowarn="false"
+            includeantruntime="false"
             source="1.5" target="1.5" memoryMaximumSize="400M" fork="true">
                 <src path="${src}"/>
                 <src path="${src2}"/>
@@ -291,6 +292,7 @@
             notifying the user that a higher version of the jre is necessary.
         -->
         <javac classpathref="compile.class.path" debug="true"
+            includeantruntime="false"
             deprecation="true" destdir="${dest}" nowarn="false"
             source="1.4" target="1.4" memoryMaximumSize="400M" fork="true">
                 <src path="${src}"/>
@@ -461,7 +463,9 @@
         <delete failonerror="false">
             <fileset dir="${dest}" includes="net/java/sip/communicator/impl/version/*.class"/>
         </delete>
-        <javac classpathref="compile.class.path" destdir="${dest}" source="1.5" target="1.5">
+        <javac
+            classpathref="compile.class.path" includeantruntime="false"
+            destdir="${dest}" source="1.5" target="1.5">
             <src path="${src}"/>
             <include name="net/java/sip/communicator/impl/version/NightlyBuildID.java" />
             <include name="net/java/sip/communicator/impl/version/VersionImpl.java" />
