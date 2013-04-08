@@ -549,3 +549,62 @@ MacOSXAddrBookContactQuery_idToJObject
             (*jniEnv)->SetObjectArrayElement(jniEnv, jos, i, jo);
     }
 }
+
+JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_plugin_addrbook_macosx_MacOSXAddrBookContactQuery_deleteContact
+  (JNIEnv *jniEnv, jclass clazz, jstring id)
+{
+    ABAddressBook *addressBook;
+    ABRecord *r;
+    NSAutoreleasePool *autoreleasePool;
+
+    autoreleasePool = [[NSAutoreleasePool alloc] init];
+
+    addressBook = [ABAddressBook sharedAddressBook];
+    r = [addressBook recordForUniqueId:JavaStringToNSString(jniEnv, id)];
+
+    BOOL res = [addressBook removeRecord: r];
+
+    [addressBook save];
+
+    [autoreleasePool release];
+
+    return res;
+}
+
+JNIEXPORT jstring JNICALL Java_net_java_sip_communicator_plugin_addrbook_macosx_MacOSXAddrBookContactQuery_createContact
+  (JNIEnv *jniEnv, jclass clazz)
+{
+    ABAddressBook *addressBook;
+    NSAutoreleasePool *autoreleasePool;
+
+    autoreleasePool = [[NSAutoreleasePool alloc] init];
+
+    addressBook = [ABAddressBook sharedAddressBook];
+    ABPerson* person = [[ABPerson alloc] initWithAddressBook:addressBook];
+
+    [addressBook save];
+
+    [autoreleasePool release];
+
+    return
+        Java_net_java_sip_communicator_plugin_addrbook_macosx_MacOSXAddrBookContactQuery_ABRecord_1uniqueId(jniEnv, clazz, (jlong) person);
+}
+
+JNIEXPORT jlong JNICALL Java_net_java_sip_communicator_plugin_addrbook_macosx_MacOSXAddrBookContactQuery_getContactPointer
+  (JNIEnv *jniEnv, jclass clazz, jstring id)
+{
+    ABAddressBook *addressBook;
+    ABRecord *r;
+    NSAutoreleasePool *autoreleasePool;
+
+    autoreleasePool = [[NSAutoreleasePool alloc] init];
+
+    addressBook = [ABAddressBook sharedAddressBook];
+    r = [addressBook recordForUniqueId:JavaStringToNSString(jniEnv, id)];
+
+    [addressBook save];
+
+    [autoreleasePool release];
+
+    return (jlong) r;
+}

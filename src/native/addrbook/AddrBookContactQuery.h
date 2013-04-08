@@ -17,6 +17,9 @@ extern "C" {
 jmethodID AddrBookContactQuery_getPtrCallbackMethodID
     (JNIEnv *jniEnv, jobject callback);
 
+jmethodID AddrBookContactQuery_getStringCallbackMethodID
+    (JNIEnv *jniEnv, jobject callback);
+
 #ifdef __cplusplus
 }
 #endif /* #ifdef __cplusplus */

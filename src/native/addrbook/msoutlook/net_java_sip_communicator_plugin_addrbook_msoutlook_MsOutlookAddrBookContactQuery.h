@@ -8,6 +8,12 @@
 extern "C" {
 #endif
 
+JNIEXPORT jstring JNICALL Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactQuery_createContact
+  (JNIEnv *jniEnv, jclass clazz);
+
+JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactQuery_deleteContact
+  (JNIEnv *jniEnv, jclass clazz, jstring id);
+
 /*
  * Class:     net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactQuery
  * Method:    foreachMailUser
@@ -25,7 +31,7 @@ JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_plugin_addrbook_msoutl
  * Signature: (J[JJ)[Ljava/lang/Object;
  */
 JNIEXPORT jobjectArray JNICALL Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactQuery_IMAPIProp_1GetProps
-  (JNIEnv *, jclass, jlong, jlongArray, jlong);
+  (JNIEnv *, jclass, jstring, jlongArray, jlong);
 
 JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactQuery_IMAPIProp_1SetPropString
   (JNIEnv *, jclass, jlong, jstring, jstring);

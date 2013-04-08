@@ -32,6 +32,14 @@ public class MacOSXAddrBookSourceContact
         = Logger.getLogger(MacOSXAddrBookSourceContact.class);
 
     /**
+     * Boolean used to temporarily lock the access to a single modification
+     * source (jitsi or contact).  i.e. it can be useful if Jitsi modifies a
+     * batch of details and do not want to receive contact update notification
+     * which can produce concurrent changes of the details.
+     */
+    private Boolean locked = Boolean.FALSE;
+
+    /**
      * Initializes a new <tt>AddrBookSourceContact</tt> instance.
      *
      * @param contactSource the <tt>ContactSourceService</tt> which is creating
@@ -64,7 +72,7 @@ public class MacOSXAddrBookSourceContact
      */
     public void addContactDetail(ContactDetail detail)
     {
-        synchronized(this.contactDetails)
+        synchronized(this)
         {
             String id = (String)getData(SourceContact.DATA_ID);
 
@@ -160,6 +168,7 @@ public class MacOSXAddrBookSourceContact
             }
 
             contactDetails.add(index, contactDetail);
+            this.updated();
         }
     }
 
@@ -316,7 +325,7 @@ public class MacOSXAddrBookSourceContact
      */
     public void removeContactDetail(ContactDetail detail)
     {
-        synchronized(this.contactDetails)
+        synchronized(this)
         {
             //remove the detail from the addressbook
             String id = (String)getData(SourceContact.DATA_ID);
@@ -360,6 +369,7 @@ public class MacOSXAddrBookSourceContact
                 logger.warn("No id or wrong ContactDetail " + detail);
 
             contactDetails.remove(detail);
+            this.updated();
         }
     }
 
@@ -369,10 +379,86 @@ public class MacOSXAddrBookSourceContact
      */
     public void setDetails(List<ContactDetail> details)
     {
-        synchronized(this.contactDetails)
+        synchronized(this)
         {
             contactDetails.clear();
             contactDetails.addAll(details);
+        }
+    }
+
+    /**
+     * Function called by the native part (contact) when this contact has been
+     * updated.
+     */
+    public void updated()
+    {
+        synchronized(this)
+        {
+            waitUnlock();
+
+            String id = (String)getData(SourceContact.DATA_ID);
+            ContactSourceService sourceService = getContactSource();
+            if(id != null
+                    && sourceService instanceof
+                        MacOSXAddrBookContactSourceService)
+            {
+                MacOSXAddrBookContactSourceService macOSXSourceService
+                    = (MacOSXAddrBookContactSourceService) sourceService;
+                MacOSXAddrBookContactQuery macOSXContactQuery
+                    = macOSXSourceService.getLatestQuery();
+                if(macOSXContactQuery != null)
+                {
+                    long contactPointer
+                        = MacOSXAddrBookContactQuery.getContactPointer(id);
+                    macOSXContactQuery.updated(contactPointer);
+                    //macOSXContactQuery.contactChanged(this);
+                }
+            }
+        }
+    }
+
+    /**
+     * Locks this object before adding or removing several contact details.
+     */
+    public void lock()
+    {
+        synchronized(this)
+        {
+            locked = Boolean.TRUE;
+        }
+    }
+
+    /**
+     * Unlocks this object before after or removing several contact details.
+     */
+    public void unlock()
+    {
+        synchronized(this)
+        {
+            locked = Boolean.FALSE;
+            notify();
+        }
+    }
+
+    /**
+     * Waits to be unlocked. This object must be synchronized before calling
+     * this function.
+     */
+    private void waitUnlock()
+    {
+        boolean continueToWait = this.locked;
+
+        while(continueToWait)
+        {
+            try
+            {
+                wait();
+                continueToWait = false;
+            }
+            catch(InterruptedException ie)
+            {
+                // Nothing to do, we will wait until the notify.
+            }
         }
     }
 

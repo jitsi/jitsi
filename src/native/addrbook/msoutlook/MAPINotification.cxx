@@ -25,10 +25,6 @@ void MAPINotification_registerNotifyAllMsgStores(LPMAPISESSION mapiSession);
 
 void MAPINotification_unregisterNotifyAllMsgStores(void);
 
-
-
-
-
 /**
  * The List of events we want to retrieve.
  */
@@ -51,8 +47,8 @@ static ULONG MAPINotification_openEntryUlFlags = MAPI_BEST_ACCESS;
 static JavaVM * MAPINotification_VM = NULL;
 
 void MAPINotification_callDeletedMethod(LPSTR iUnknown);
-void MAPINotification_callInsertedMethod(LPUNKNOWN iUnknown);
-void MAPINotification_callUpdatedMethod(LPUNKNOWN iUnknown);
+void MAPINotification_callInsertedMethod(LPSTR iUnknown);
+void MAPINotification_callUpdatedMethod(LPSTR iUnknown);
 LPUNKNOWN
 MAPINotification_openEntry
     (ULONG cbEntryID, LPENTRYID lpEntryID, LPVOID lpvContext);
@@ -89,17 +85,19 @@ void MAPINotification_callDeletedMethod(LPSTR iUnknown)
  *
  * @param iUnknown A pointer to the newly created contact.
  */
-void MAPINotification_callInsertedMethod(LPUNKNOWN iUnknown)
+void MAPINotification_callInsertedMethod(LPSTR iUnknown)
 {
     JNIEnv *tmpJniEnv = NULL;
 
     if(MAPINotification_VM
             ->AttachCurrentThreadAsDaemon((void**) &tmpJniEnv, NULL) == 0)
     {
+        jstring value = tmpJniEnv->NewStringUTF(iUnknown);
+
         tmpJniEnv->CallBooleanMethod(
                 MAPINotification_notificationsDelegateObject,
                 MAPINotification_notificationsDelegateMethodIdInserted,
-                iUnknown);
+                value);
 
         MAPINotification_VM->DetachCurrentThread();
     }
@@ -110,17 +108,19 @@ void MAPINotification_callInsertedMethod(LPUNKNOWN iUnknown)
  *
  * @param iUnknown A pointer to the updated contact.
  */
-void MAPINotification_callUpdatedMethod(LPUNKNOWN iUnknown)
+void MAPINotification_callUpdatedMethod(LPSTR iUnknown)
 {
     JNIEnv *tmpJniEnv = NULL;
 
     if(MAPINotification_VM
             ->AttachCurrentThreadAsDaemon((void**) &tmpJniEnv, NULL) == 0)
     {
+        jstring value = tmpJniEnv->NewStringUTF(iUnknown);
+
         tmpJniEnv->CallBooleanMethod(
                 MAPINotification_notificationsDelegateObject,
                 MAPINotification_notificationsDelegateMethodIdUpdated,
-                iUnknown);
+                value);
 
         MAPINotification_VM->DetachCurrentThread();
     }
@@ -151,17 +151,43 @@ STDAPICALLTYPE MAPINotification_onNotify
         // A contact has been created
         if(lpNotifications[i].ulEventType == fnevObjectCreated)
         {
-            if(lpNotifications[i].info.obj.ulObjType == MAPI_MESSAGE)
+            if(lpvContext != NULL)
             {
-                MAPINotification_callInsertedMethod(iUnknown);
+                LPSTR entryIdStr = (LPSTR)::malloc(lpNotifications[i].info.obj.cbEntryID * 2 + 1);
+
+                HexFromBin(
+                        (LPBYTE) lpNotifications[i].info.obj.lpEntryID,
+                        lpNotifications[i].info.obj.cbEntryID,
+                        entryIdStr);
+
+                if(lpNotifications[i].info.obj.ulObjType == MAPI_MESSAGE)
+                {
+                    MAPINotification_callInsertedMethod(entryIdStr);
+                }
+
+                ::free(entryIdStr);
+                entryIdStr = NULL;
             }
         }
         // A contact has been Modified
         else if(lpNotifications[i].ulEventType == fnevObjectModified)
         {
-            if(lpNotifications[i].info.obj.ulObjType == MAPI_MESSAGE)
+            if(lpvContext != NULL)
             {
-                MAPINotification_callUpdatedMethod(iUnknown);
+                LPSTR entryIdStr = (LPSTR)::malloc(lpNotifications[i].info.obj.cbEntryID * 2 + 1);
+
+                HexFromBin(
+                        (LPBYTE) lpNotifications[i].info.obj.lpEntryID,
+                        lpNotifications[i].info.obj.cbEntryID,
+                        entryIdStr);
+
+                if(lpNotifications[i].info.obj.ulObjType == MAPI_MESSAGE)
+                {
+                    MAPINotification_callUpdatedMethod(entryIdStr);
+                }
+
+                ::free(entryIdStr);
+                entryIdStr = NULL;
             }
         }
         // A contact has been deleted.
@@ -311,12 +337,12 @@ MAPINotification_registerNotificationsDelegate
                 = jniEnv->GetMethodID(
                         callbackClass,
                         "inserted",
-                        "(J)V");
+                        "(Ljava/lang/String;)V");
             MAPINotification_notificationsDelegateMethodIdUpdated
                 = jniEnv->GetMethodID(
                         callbackClass,
                         "updated",
-                        "(J)V");
+                        "(Ljava/lang/String;)V");
             MAPINotification_notificationsDelegateMethodIdDeleted
                 = jniEnv->GetMethodID(
                         callbackClass,

@@ -11,10 +11,34 @@
 #include "MAPINotification.h"
 #include "MAPISession.h"
 #include "MsOutlookMAPIHResultException.h"
+#include <initguid.h>
 #include <stdio.h>
 #include <string.h>
 
+#define BODY_ENCODING_TEXT_AND_HTML	((ULONG) 0x00100000)
+#define DELETE_HARD_DELETE          ((ULONG) 0x00000010)
+#define ENCODING_PREFERENCE			((ULONG) 0x00020000)
+#define ENCODING_MIME				((ULONG) 0x00040000)
+#define OOP_DONT_LOOKUP             ((ULONG) 0x10000000)
 #define PR_ATTACHMENT_CONTACTPHOTO PROP_TAG(PT_BOOLEAN, 0x7FFF)
+
+DEFINE_OLEGUID(PSETID_Address, MAKELONG(0x2000+(0x04),0x0006),0,0);
+
+const MAPIUID MsOutlookAddrBookContactQuery_MuidOneOffEntryID =
+{
+    0x81, 0x2b, 0x1f, 0xa4,     0xbe, 0xa3, 0x10, 0x19,
+    0x9d, 0x6e, 0x00, 0xdd,     0x01, 0x0f, 0x54, 0x02
+};
+
+typedef struct MsOutlookAddrBookContactQuery_OneOffEntryID
+{
+	ULONG	ulFlags;
+	MAPIUID muid;
+	ULONG   ulBitMask;
+	BYTE    bData[];
+} ONEOFFENTRYID;
+
+typedef UNALIGNED ONEOFFENTRYID *MsOutlookAddrBookContactQuery_LPONEOFFENTRYID;
 
 typedef
     jboolean (*MsOutlookAddrBookContactQuery_ForeachRowInTableCallback)
@@ -29,6 +53,13 @@ static ULONG MsOutlookAddrBookContactQuery_openEntryUlFlags = MAPI_BEST_ACCESS;
 static HRESULT MsOutlookAddrBookContactQuery_HrGetOneProp
     (LPMAPIPROP mapiProp, ULONG propTag, LPSPropValue *prop);
 
+HRESULT MsOutlookAddrBookContactQuery_buildOneOff
+    (LPWSTR displayName, LPWSTR addressType, LPWSTR emailAddress,
+     ULONG* oneOffEntryIdLength, LPBYTE* oneOffEntryId);
+HRESULT MsOutlookAddrBookContactQuery_createEmailAddress
+    (LPMESSAGE contact, LPWSTR displayName, LPWSTR addressType,
+     LPWSTR emailAddress, LPWSTR originalDisplayName, LONG providerEmailList[],
+     LONG providerArrayType, ULONG propIds[], int nbPropId);
 static jboolean MsOutlookAddrBookContactQuery_foreachContactInMsgStoresTable
     (LPMAPISESSION mapiSession,
     JNIEnv *jniEnv,
@@ -56,12 +87,16 @@ static jboolean MsOutlookAddrBookContactQuery_foreachRowInTable
     JNIEnv *jniEnv, jstring query, jobject callback, jmethodID callbackMethodID);
 static void MsOutlookAddrBookContactQuery_freeSRowSet(LPSRowSet rows);
 static jbyteArray MsOutlookAddrBookContactQuery_getAttachmentContactPhoto
-    (LPMESSAGE message,
-    JNIEnv *jniEnv);
+    (LPMESSAGE message, JNIEnv *jniEnv);
+void MsOutlookAddrBookContactQuery_getBinaryProp
+    (LPMAPIPROP entry, ULONG propId, LPSBinary binaryProp);
 static HRESULT MsOutlookAddrBookContactQuery_getContactsFolderEntryID
     (LPMDB msgStore,
     ULONG folderEntryIDByteCount, LPENTRYID folderEntryID,
     ULONG *contactsFolderEntryIDByteCount, LPENTRYID *contactsFolderEntryID);
+LPSTR MsOutlookAddrBookContactQuery_getContactId(LPMAPIPROP contact);
+LPMAPIFOLDER MsOutlookAddrBookContactQuery_getDefaultContactFolderId(void);
+LPMDB MsOutlookAddrBookContactQuery_getDefaultMsgStores(void);
 static ULONG MsOutlookAddrBookContactQuery_getPropTagFromLid
     (LPMAPIPROP mapiProp, LONG lid);
 static jboolean MsOutlookAddrBookContactQuery_mailUserMatches
@@ -74,9 +109,124 @@ static jboolean MsOutlookAddrBookContactQuery_onForeachMailUserInContainerTableR
     (LPUNKNOWN mapiContainer,
     ULONG entryIDByteCount, LPENTRYID entryID, ULONG objType,
     JNIEnv *jniEnv, jstring query, jobject callback, jmethodID callbackMethodID);
-LPUNKNOWN MsOutlookAddrBookContactQuery_openEntryId(const char* entryId);
+LPUNKNOWN MsOutlookAddrBookContactQuery_openEntryId
+    (ULONG entryIdSize, LPENTRYID entryId);
+LPUNKNOWN MsOutlookAddrBookContactQuery_openEntryIdStr(const char* entryId);
 static jbyteArray MsOutlookAddrBookContactQuery_readAttachment
     (LPMESSAGE message, LONG method, ULONG num, JNIEnv *jniEnv, ULONG cond);
+
+/**
+ * creates a new contact from the outlook database.
+ *
+ * @param jniEnv The Java native interface environment.
+ * @param clazz A Java class Object.
+ *
+ * @return The identifer of the created outlook contact. NULL on failure.
+ */
+JNIEXPORT jstring JNICALL Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactQuery_createContact
+  (JNIEnv *jniEnv, jclass clazz)
+{
+    jstring value = NULL;
+
+    LPMAPIFOLDER parentEntry
+        = MsOutlookAddrBookContactQuery_getDefaultContactFolderId();
+
+    LPMESSAGE message;
+    if(parentEntry->CreateMessage(NULL, 0, &message) == S_OK)
+    {
+        SPropValue updateValue;
+
+        // PR_MESSAGE_CLASS_W
+        updateValue.ulPropTag = PROP_TAG(PT_UNICODE, 0x001A); 
+        updateValue.Value.lpszW = (LPWSTR) L"IPM.Contact";
+        if(((LPMAPIPROP)  message)->SetProps(
+                    1,
+                    (LPSPropValue) &updateValue,
+                    NULL) == S_OK)
+        {
+            ((LPMAPIPROP) message)->SaveChanges(
+                FORCE_SAVE | KEEP_OPEN_READWRITE);
+        }
+
+        updateValue.ulPropTag = PROP_TAG(PT_LONG, 0x1080); // PR_ICON_INDEX
+        updateValue.Value.l = 512;
+        if(((LPMAPIPROP)  message)->SetProps(
+                    1,
+                    (LPSPropValue) &updateValue,
+                    NULL) == S_OK)
+        {
+            ((LPMAPIPROP) message)->SaveChanges(
+                FORCE_SAVE | KEEP_OPEN_READWRITE);
+        }
+
+        LPSTR messageIdStr
+            = MsOutlookAddrBookContactQuery_getContactId((LPMAPIPROP) message);
+        value = jniEnv->NewStringUTF(messageIdStr);
+        ::free(messageIdStr);
+        messageIdStr = NULL;
+
+        ((LPMAPIPROP)  message)->Release();
+    }
+    parentEntry->Release();
+
+    return value;
+}
+
+/**
+ * Delete the given contact from the outlook database.
+ *
+ * @param jniEnv The Java native interface environment.
+ * @param clazz A Java class Object.
+ * @param id The identifer of the outlook contact to remove.
+ *
+ * @return JNI_TRUE if the deletion succeded. JNI_FALSE otherwise.
+ */
+JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactQuery_deleteContact
+  (JNIEnv *jniEnv, jclass clazz, jstring id)
+{
+    jboolean res = JNI_FALSE;
+
+    const char *nativeEntryId = jniEnv->GetStringUTFChars(id, NULL);
+    LPUNKNOWN mapiProp;
+    if((mapiProp = MsOutlookAddrBookContactQuery_openEntryIdStr(nativeEntryId))
+            == NULL)
+    {
+        return JNI_FALSE;
+    }
+    jniEnv->ReleaseStringUTFChars(id, nativeEntryId);
+
+    SBinary contactId;
+    contactId.cb = 0;
+    MsOutlookAddrBookContactQuery_getBinaryProp(
+            (LPMAPIPROP) mapiProp,
+            0x0FFF,
+            &contactId);
+
+    SBinary parentId;
+    parentId.cb = 0;
+    MsOutlookAddrBookContactQuery_getBinaryProp(
+            (LPMAPIPROP) mapiProp,
+            0x0E09, //PR_PARENT_ENTRYID,
+            &parentId);
+    LPUNKNOWN parentEntry = MsOutlookAddrBookContactQuery_openEntryId(
+            parentId.cb, (LPENTRYID) parentId.lpb);
+
+    SBinaryArray deleteIdArray;
+    deleteIdArray.cValues = 1;
+    deleteIdArray.lpbin = &contactId;
+    res = (((LPMAPIFOLDER) parentEntry)->DeleteMessages(
+                &deleteIdArray,
+                0,
+                NULL,
+                DELETE_HARD_DELETE) == S_OK);
+
+    ((LPMAPIPROP)  parentEntry)->Release();
+    MAPIFreeBuffer(&parentId);
+    MAPIFreeBuffer(&contactId);
+    ((LPMAPIPROP)  mapiProp)->Release();
+
+    return res;
+}
 
 JNIEXPORT void JNICALL
 Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactQuery_foreachMailUser(
@@ -96,7 +246,7 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
     }
 
     callbackMethodID
-        = AddrBookContactQuery_getPtrCallbackMethodID(jniEnv, callback);
+        = AddrBookContactQuery_getStringCallbackMethodID(jniEnv, callback);
     if (!callbackMethodID || jniEnv->ExceptionCheck())
     {
         MAPISession_unlock();
@@ -138,7 +288,7 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
 {
     const char *nativeEntryId = jniEnv->GetStringUTFChars(entryId, NULL);
     LPUNKNOWN mapiProp;
-    if((mapiProp = MsOutlookAddrBookContactQuery_openEntryId(nativeEntryId))
+    if((mapiProp = MsOutlookAddrBookContactQuery_openEntryIdStr(nativeEntryId))
             == NULL)
     {
         return JNI_FALSE;
@@ -200,17 +350,26 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
             {
                 MAPIFreeBuffer(propTagArray);
                 ((LPMAPIPROP)  mapiProp)->Release();
+
                 return JNI_TRUE;
             }
         }
         MAPIFreeBuffer(propTagArray);
         ((LPMAPIPROP)  mapiProp)->Release();
+
         return JNI_FALSE;
     }
 
     SPropTagArray propToDelete;
     propToDelete.cValues = 1;
-    propToDelete.aulPropTag[0] = PROP_TAG(PT_UNICODE, propId);
+    if(propId == 0x8062) // PidLidInstantMessagingAddress
+    {
+        propToDelete.aulPropTag[0] = 0x8046001F;
+    }
+    else
+    {
+        propToDelete.aulPropTag[0] = PROP_TAG(PT_UNICODE, propId);
+    }
 
     HRESULT hResult
         = ((LPMAPIPROP)  mapiProp)->DeleteProps(
@@ -226,10 +385,12 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
         if (HR_SUCCEEDED(hResult))
         {
             ((LPMAPIPROP)  mapiProp)->Release();
+
             return JNI_TRUE;
         }
     }
     ((LPMAPIPROP)  mapiProp)->Release();
+
     return JNI_FALSE;
 }
 
@@ -237,13 +398,22 @@ JNIEXPORT jobjectArray JNICALL
 Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactQuery_IMAPIProp_1GetProps(
         JNIEnv *jniEnv,
         jclass clazz,
-        jlong mapiProp,
+        jstring entryId,
         jlongArray propIds,
         jlong flags)
 {
     jsize propIdCount;
     LPSPropTagArray propTagArray;
     jobjectArray props = NULL;
+
+    const char *nativeEntryId = jniEnv->GetStringUTFChars(entryId, NULL);
+    LPUNKNOWN mapiProp;
+    if((mapiProp = MsOutlookAddrBookContactQuery_openEntryIdStr(nativeEntryId))
+            == NULL)
+    {
+        return NULL;
+    }
+    jniEnv->ReleaseStringUTFChars(entryId, nativeEntryId);
 
     propIdCount = jniEnv->GetArrayLength(propIds);
     if (S_OK
@@ -462,6 +632,8 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
                 MAPI_E_NOT_ENOUGH_MEMORY,
                 __FILE__, __LINE__);
     }
+    ((LPMAPIPROP)  mapiProp)->Release();
+
     return props;
 }
 
@@ -485,7 +657,7 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
 
     const char *nativeEntryId = jniEnv->GetStringUTFChars(entryId, NULL);
     LPUNKNOWN mapiProp;
-    if((mapiProp = MsOutlookAddrBookContactQuery_openEntryId(nativeEntryId))
+    if((mapiProp = MsOutlookAddrBookContactQuery_openEntryIdStr(nativeEntryId))
             == NULL)
     {
         return JNI_FALSE;
@@ -535,7 +707,7 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
             (baseGroupEntryIdProp + 2), // 0x8082 PidLidEmail1AddressType
             (baseGroupEntryIdProp + 3), // 0x8083 PidLidEmail1EmailAddress
             (baseGroupEntryIdProp + 4), // 0x8084 PidLidEmail1OriginalDisplayName
-            (baseGroupEntryIdProp + 5)  // 0x8085 PidLidEmail1OriginalEntryID
+            (baseGroupEntryIdProp + 5) // 0x8085 PidLidEmail1OriginalEntryID
         };
         ULONG propTag;
         ULONG propCount;
@@ -560,27 +732,45 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
 
         if(SUCCEEDED(hResult))
         {
+            LPWSTR addressType = (LPWSTR) L"SMTP";
+            LONG providerEmailList[1];
+            switch(propId)
+            {
+                case 0x00008083: // dispidEmail1EmailAddress
+                    providerEmailList[0] = 0x00000000;
+                    propArray[1].Value.l |= 0x00000001;
+                    break;
+                case 0x00008093: // dispidEmail2EmailAddress
+                    providerEmailList[0] = 0x00000001;
+                    propArray[1].Value.l |= 0x00000002;
+                    break;
+                case 0x000080A3: // dispidEmail3EmailAddress
+                    providerEmailList[0] = 0x00000002;
+                    propArray[1].Value.l |= 0x00000004;
+                    break;
+            }
+            propArray[0].Value.MVl.cValues = 1;
+            propArray[0].Value.MVl.lpl = providerEmailList;
+
             propArray[2].Value.lpszW = wCharValue;
+            propArray[3].Value.lpszW = addressType;
             propArray[4].Value.lpszW = wCharValue;
             propArray[5].Value.lpszW = wCharValue;
 
-            if(SUCCEEDED(hResult))
+            if(MsOutlookAddrBookContactQuery_createEmailAddress(
+                    (LPMESSAGE) mapiProp,
+                    wCharValue, // displayName
+                    addressType, // addressType
+                    wCharValue, // emailAddress
+                    wCharValue, // originalDisplayName
+                    providerEmailList,
+                    propArray[1].Value.l,
+                    propIds,
+                    7) == S_OK)
             {
-                hResult = ((LPMAPIPROP)  mapiProp)->SetProps(
-                        nbProps,
-                        propArray,
-                        NULL);
-                if(SUCCEEDED(hResult))
-                {
-                    hResult = ((LPMAPIPROP)  mapiProp)->SaveChanges(
-                                FORCE_SAVE | KEEP_OPEN_READWRITE);
-                    if (HR_SUCCEEDED(hResult))
-                    {
-                        MAPIFreeBuffer(propTagArray);
-                        ((LPMAPIPROP)  mapiProp)->Release();
-                        return JNI_TRUE;
-                    }
-                }
+                MAPIFreeBuffer(propTagArray);
+                ((LPMAPIPROP)  mapiProp)->Release();
+                return JNI_TRUE;
             }
         }
         MAPIFreeBuffer(propTagArray);
@@ -589,7 +779,14 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
     }
 
     SPropValue updateValue;
-    updateValue.ulPropTag = PROP_TAG(PT_UNICODE, propId);
+    if(propId == 0x8062) // PidLidInstantMessagingAddress
+    {
+        updateValue.ulPropTag = 0x8046001F;
+    }
+    else
+    {
+        updateValue.ulPropTag = PROP_TAG(PT_UNICODE, propId);
+    }
     updateValue.Value.lpszW = wCharValue;
 
     hResult = ((LPMAPIPROP)  mapiProp)->SetProps(
@@ -655,6 +852,179 @@ MsOutlookAddrBookContactQuery_HrGetOneProp(
             hResult = MAPI_E_NOT_FOUND;
     }
     return hResult;
+}
+
+/**
+ * Creates a One-Off entry to register an email address.
+ *
+ * @param displayName The display name corresponding to the new email address.
+ * @param addressType The address type corresponding to the new email address
+ * (SMTP).
+ * @param emailAddress The email address string.
+ * @param oneOffEntryIdLength The length of the One-Off entry id once created.
+ * @param oneOffEntriId Pointer used to store the One-Off entry id created.
+ *
+ * @return S_OK if everything was fine. MAPI_E_INVALID_PARAMETER, if there was
+ * an invalid argument. MAPI_E_CALL_FAILED otherwise.
+ */
+HRESULT MsOutlookAddrBookContactQuery_buildOneOff
+    (LPWSTR displayName, LPWSTR addressType, LPWSTR emailAddress,
+     ULONG* oneOffEntryIdLength, LPBYTE* oneOffEntryId)
+{
+	if (!displayName || !addressType || !emailAddress
+            || !oneOffEntryIdLength || !oneOffEntryId)
+    {
+        return MAPI_E_INVALID_PARAMETER;
+    }
+
+	// Calculate how large our EID will be
+	size_t cbDisplayName
+        = wcslen(displayName) * sizeof(WCHAR) + sizeof(WCHAR);
+	size_t cbAddressType
+        = wcslen(addressType) * sizeof(WCHAR) + sizeof(WCHAR);
+	size_t cbEmailAddress
+        = wcslen(emailAddress) * sizeof(WCHAR) + sizeof(WCHAR);
+	size_t cbEID = sizeof(ONEOFFENTRYID)
+        + cbDisplayName + cbAddressType + cbEmailAddress;
+
+	// Allocate our buffer
+	MsOutlookAddrBookContactQuery_LPONEOFFENTRYID lpEID
+        = (MsOutlookAddrBookContactQuery_LPONEOFFENTRYID)
+            malloc(cbEID * sizeof(BYTE));
+
+	// Populate it
+	if (lpEID)
+	{
+		memset(lpEID,0,cbEID);
+		lpEID->muid = MsOutlookAddrBookContactQuery_MuidOneOffEntryID;
+		lpEID->ulBitMask |= MAPI_UNICODE; // Set U, the unicode bit
+		lpEID->ulBitMask |= OOP_DONT_LOOKUP; // Set L, the no lookup bit
+		lpEID->ulBitMask |= MAPI_SEND_NO_RICH_INFO; // Set M, the mime bit
+        // Set the encoding format
+		lpEID->ulBitMask |=
+            ENCODING_PREFERENCE | ENCODING_MIME | BODY_ENCODING_TEXT_AND_HTML;
+
+		LPBYTE pb = lpEID->bData;
+		// this will copy the string and the NULL terminator together
+		memcpy(pb, displayName, cbDisplayName);
+		pb += cbDisplayName;
+		memcpy(pb, addressType, cbAddressType);
+		pb += cbAddressType;
+		memcpy(pb, emailAddress, cbEmailAddress);
+		pb += cbEmailAddress;
+
+		// Return it
+		*oneOffEntryIdLength = cbEID;
+		*oneOffEntryId = (LPBYTE) lpEID;
+
+		return S_OK;
+	}
+
+	return MAPI_E_CALL_FAILED;
+}
+
+/**
+ * Creates or modifies an email address.
+ *
+ * @param contact The contact to add the email address.
+ * @param displayName The display name for the email address.
+ * @param addressType the address type for the email address (SMTP).
+ * @param emailAddress The email address.
+ * @param originalDisplayName The original display name for the email address.
+ * @param providerEmailList A list of values used to define which email address
+ * is set.
+ * @param providerArrayType A bitsmask used to define which email address is
+ * set.
+ * @param propIds A list of property to set for this email address.
+ * @param nbPropId The number of properties contained in propIds.
+ *
+ * @return S_OK if the email address was created/modified. 
+ */
+HRESULT MsOutlookAddrBookContactQuery_createEmailAddress
+    (LPMESSAGE contact, LPWSTR displayName, LPWSTR addressType,
+     LPWSTR emailAddress, LPWSTR originalDisplayName, LONG providerEmailList[],
+     LONG providerArrayType, ULONG propIds[], int nbPropId)
+{
+    SBinary parentId;
+    parentId.cb = 0;
+    MsOutlookAddrBookContactQuery_getBinaryProp(
+            (LPMAPIPROP) contact,
+            0x0E09, //PR_PARENT_ENTRYID,
+            &parentId);
+    LPMAPIFOLDER parentEntry
+        = (LPMAPIFOLDER) MsOutlookAddrBookContactQuery_openEntryId(
+                parentId.cb, (LPENTRYID) parentId.lpb);
+	HRESULT hRes = S_OK;
+    MAPINAMEID  rgnmid[nbPropId];
+    LPMAPINAMEID rgpnmid[nbPropId];
+    LPSPropTagArray lpNamedPropTags = NULL;
+
+    for(int i = 0 ; i < nbPropId ; i++)
+    {
+        rgnmid[i].lpguid = (LPGUID) &PSETID_Address;
+        rgnmid[i].ulKind = MNID_ID;
+        rgnmid[i].Kind.lID = propIds[i];
+        rgpnmid[i] = &rgnmid[i];
+    }
+    hRes = parentEntry->GetIDsFromNames(
+            nbPropId,
+            (LPMAPINAMEID*) &rgpnmid,
+            0,
+            &lpNamedPropTags);
+
+    if (SUCCEEDED(hRes) && lpNamedPropTags)
+    {
+        SPropValue spvProps[nbPropId];
+        spvProps[0].ulPropTag
+            = CHANGE_PROP_TYPE(lpNamedPropTags->aulPropTag[0], PT_MV_LONG);
+        spvProps[1].ulPropTag
+            = CHANGE_PROP_TYPE(lpNamedPropTags->aulPropTag[1], PT_LONG);
+        spvProps[2].ulPropTag
+            = CHANGE_PROP_TYPE(lpNamedPropTags->aulPropTag[2], PT_UNICODE);
+        spvProps[3].ulPropTag
+            = CHANGE_PROP_TYPE(lpNamedPropTags->aulPropTag[3], PT_UNICODE);
+        spvProps[4].ulPropTag
+            = CHANGE_PROP_TYPE(lpNamedPropTags->aulPropTag[4], PT_UNICODE);
+        spvProps[5].ulPropTag
+            = CHANGE_PROP_TYPE(lpNamedPropTags->aulPropTag[5], PT_UNICODE);
+        spvProps[6].ulPropTag
+            = CHANGE_PROP_TYPE(lpNamedPropTags->aulPropTag[6], PT_BINARY);
+
+        spvProps[0].Value.MVl.cValues = 1;
+        spvProps[0].Value.MVl.lpl = providerEmailList;
+
+        spvProps[1].Value.l = providerArrayType;
+
+        spvProps[2].Value.lpszW = displayName;
+        spvProps[3].Value.lpszW = addressType;
+        spvProps[4].Value.lpszW = emailAddress;
+        spvProps[5].Value.lpszW = originalDisplayName;
+
+        hRes = MsOutlookAddrBookContactQuery_buildOneOff(
+                displayName,
+                addressType,
+                emailAddress,
+                &spvProps[6].Value.bin.cb,
+                &spvProps[6].Value.bin.lpb);
+
+        if (SUCCEEDED(hRes))
+        {
+            hRes = contact->SetProps(nbPropId, spvProps, NULL);
+            if (SUCCEEDED(hRes))
+            {
+                hRes = contact->SaveChanges(FORCE_SAVE);
+            }
+        }
+
+        if (spvProps[6].Value.bin.lpb)
+            free(spvProps[6].Value.bin.lpb);
+    }
+
+    MAPIFreeBuffer(lpNamedPropTags);
+    MAPIFreeBuffer(&parentId);
+    parentEntry->Release();
+
+	return hRes;
 }
 
 static jboolean
@@ -742,11 +1112,16 @@ MsOutlookAddrBookContactQuery_foreachMailUser
                 (LPMAPIPROP) iUnknown,
                 jniEnv, query))
         {
-            /* Report the MAPI_MAILUSER to the callback. */
+            LPSTR contactId = MsOutlookAddrBookContactQuery_getContactId(
+                    (LPMAPIPROP) iUnknown);
+            jstring value = jniEnv->NewStringUTF(contactId);
+
+            // Report the MAPI_MAILUSER to the callback.
             proceed
-                = jniEnv->CallBooleanMethod(
-                        callback, callbackMethodID,
-                        iUnknown);
+                = jniEnv->CallBooleanMethod(callback, callbackMethodID, value);
+
+            ::free(contactId);
+            contactId = NULL;
 
             /*
              * XXX When an exception is thrown in the callback, does proceed get
@@ -888,7 +1263,8 @@ MsOutlookAddrBookContactQuery_foreachRowInTable
 
                         /*
                          * We no longer need the rows at this point so free them
-                         * before we drill down the hierarchy and allocate even more rows.
+                         * before we drill down the hierarchy and allocate even
+                         * more rows.
                          */
                         MsOutlookAddrBookContactQuery_freeSRowSet(rows);
 
@@ -1037,6 +1413,38 @@ MsOutlookAddrBookContactQuery_getAttachmentContactPhoto
     return attachmentContactPhoto;
 }
 
+/**
+ * Gets a binary property for a given entry.
+ *
+ * @param entry The entry to red the property from.
+ * @param propId The property identifier.
+ * @param binaryProp A pointer to a SBinary to store the property value
+ * retrieved.
+ */
+void MsOutlookAddrBookContactQuery_getBinaryProp
+    (LPMAPIPROP entry, ULONG propId, LPSBinary binaryProp)
+{
+    SPropTagArray tagArray;
+    tagArray.cValues = 1;
+    tagArray.aulPropTag[0] = PROP_TAG(PT_BINARY, propId);
+
+    ULONG propCount;
+    LPSPropValue propArray;
+    HRESULT hResult = entry->GetProps(
+            &tagArray,
+            0x80000000, // MAPI_UNICODE.
+            &propCount,
+            &propArray);
+
+    if (HR_SUCCEEDED(hResult))
+    {
+        SPropValue prop = propArray[0];
+        binaryProp->cb = prop.Value.bin.cb;
+        binaryProp->lpb = prop.Value.bin.lpb;
+    }
+}
+
+
 static HRESULT
 MsOutlookAddrBookContactQuery_getContactsFolderEntryID
     (LPMDB msgStore,
@@ -1085,11 +1493,142 @@ MsOutlookAddrBookContactQuery_getContactsFolderEntryID
     return hResult;
 }
 
+/**
+ * Returns a pointer to the default contact folder.
+ *
+ * @return A pointer to the default contact folder. Or NULL if unavailable.
+ */
+LPMAPIFOLDER MsOutlookAddrBookContactQuery_getDefaultContactFolderId(void)
+{
+    LPMAPIFOLDER rootFolder = NULL;
+    LPMDB msgStore = MsOutlookAddrBookContactQuery_getDefaultMsgStores();
+
+    if(msgStore != NULL)
+    {
+        ULONG entryIdLength = 0;
+        LPENTRYID receiveFolderEntryID = NULL;
+
+        ULONG contactEntryIdLength = 0;
+        LPENTRYID contactsFolderEntryID = NULL;
+
+        HRESULT hResult = msgStore->GetReceiveFolder(
+                    NULL,
+                    0,
+                    &entryIdLength,
+                    &receiveFolderEntryID,
+                    NULL);
+
+        if(HR_SUCCEEDED(hResult))
+        {
+            hResult = MsOutlookAddrBookContactQuery_getContactsFolderEntryID(
+                        msgStore,
+                        entryIdLength,
+                        receiveFolderEntryID,
+                        &contactEntryIdLength,
+                        &contactsFolderEntryID);
+            MAPIFreeBuffer(receiveFolderEntryID);
+        }
+
+        ULONG objType;
+        hResult = msgStore->OpenEntry(
+                contactEntryIdLength,
+                contactsFolderEntryID,
+                NULL,
+                MsOutlookAddrBookContactQuery_openEntryUlFlags,
+                &objType,
+                (LPUNKNOWN *) &rootFolder);
+        if(contactsFolderEntryID != NULL)
+        {
+            MAPIFreeBuffer(contactsFolderEntryID);
+        }
+
+        msgStore->Release();
+    }
+
+    return rootFolder;
+}
+
+/**
+ * Open the default message store.
+ *
+ * @return The default message store. Or NULL if unavailable.
+ */
+LPMDB MsOutlookAddrBookContactQuery_getDefaultMsgStores(void)
+{
+    LPMDB msgStore = NULL;
+    LPMAPITABLE msgStoresTable;
+    LPMAPISESSION mapiSession = MAPISession_getMapiSession();
+    HRESULT hResult;
+
+    hResult = mapiSession->GetMsgStoresTable(0, &msgStoresTable);
+    if(HR_SUCCEEDED(hResult) && msgStoresTable)
+    {
+        hResult = msgStoresTable->SeekRow(BOOKMARK_BEGINNING, 0, NULL);
+        if (HR_SUCCEEDED(hResult))
+        {
+            LPSRowSet rows;
+
+            SBitMaskRestriction bitMaskRestriction;
+            bitMaskRestriction.relBMR = BMR_NEZ;
+            bitMaskRestriction.ulPropTag = PR_RESOURCE_FLAGS;
+            bitMaskRestriction.ulMask = STATUS_DEFAULT_STORE;
+
+            SRestriction defaultFolderRestriction;
+            memset(
+                    &defaultFolderRestriction,
+                    0,
+                    sizeof(defaultFolderRestriction));
+            defaultFolderRestriction.rt = RES_BITMASK;
+            defaultFolderRestriction.res.resBitMask = bitMaskRestriction;
+            hResult = HrQueryAllRows(
+                    msgStoresTable,
+                    NULL,
+                    &defaultFolderRestriction, // restriction
+                    NULL,
+                    0,
+                    &rows);
+            if (HR_SUCCEEDED(hResult) && rows->cRows == 1)
+            {
+                SRow row = rows->aRow[0];
+                SBinary entryIDBinary = { 0, NULL };
+
+                for(ULONG i = 0; i < row.cValues; ++i)
+                {
+                    LPSPropValue prop = (row.lpProps) + i;
+                    switch (prop->ulPropTag)
+                    {
+                        case PR_ENTRYID:
+                            entryIDBinary = prop->Value.bin;
+                            break;
+                    }
+                }
+
+                if(entryIDBinary.cb && entryIDBinary.lpb)
+                {
+                    hResult = mapiSession->OpenMsgStore(
+                            0,
+                            entryIDBinary.cb,
+                            (LPENTRYID) entryIDBinary.lpb,
+                            NULL,
+                            MDB_NO_MAIL
+                            | MsOutlookAddrBookContactQuery_openEntryUlFlags,
+                            &msgStore);
+                }
+            }
+            FreeProws(rows);
+        }
+        msgStoresTable->Release();
+    }
+
+    return msgStore;
+}
+
 static ULONG
 MsOutlookAddrBookContactQuery_getPropTagFromLid(LPMAPIPROP mapiProp, LONG lid)
 {
     GUID PSETID_Address
-        = {0x00062004, 0x0000, 0x0000, {0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46}};
+        = {0x00062004, 0x0000, 0x0000,
+            {0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46}};
     MAPINAMEID propName;
     LPMAPINAMEID propNamePtr;
     HRESULT hResult;
@@ -1253,35 +1792,49 @@ MsOutlookAddrBookContactQuery_onForeachMailUserInContainerTableRow
 /**
  * Opens an object based on the string representation of its entry id.
  *
+ * @param entryIdStr The identifier of the entry to open.
+ *
+ * @return A pointer to the opened entry. NULL if anything goes wrong.
+ */
+LPUNKNOWN MsOutlookAddrBookContactQuery_openEntryIdStr(const char* entryIdStr)
+{
+    LPUNKNOWN entry = NULL;
+    ULONG entryIdSize = strlen(entryIdStr) / 2;
+    LPENTRYID entryId = (LPENTRYID) malloc(entryIdSize * sizeof(char));
+
+    if(FBinFromHex((LPSTR) entryIdStr, (LPBYTE) entryId))
+    {
+       entry = MsOutlookAddrBookContactQuery_openEntryId(entryIdSize, entryId);
+    }
+
+    ::free(entryId);
+    return entry;
+}
+
+/**
+ * Opens an object based on its entry id.
+ *
+ * @param entryIdSize The size of the identifier of the entry to open.
  * @param entryId The identifier of the entry to open.
  *
  * @return A pointer to the opened entry. NULL if anything goes wrong.
  */
-LPUNKNOWN MsOutlookAddrBookContactQuery_openEntryId(const char* entryId)
+LPUNKNOWN MsOutlookAddrBookContactQuery_openEntryId
+    (ULONG entryIdSize, LPENTRYID entryId)
 {
-    ULONG tmpEntryIdSize = strlen(entryId) / 2;
-    LPENTRYID tmpEntryId = (LPENTRYID) malloc(tmpEntryIdSize * sizeof(char));
-    if(FBinFromHex((LPSTR) entryId, (LPBYTE) tmpEntryId))
-    {
-        LPMAPISESSION mapiSession = MAPISession_getMapiSession();
-        ULONG objType;
-        LPUNKNOWN iUnknown;
-        HRESULT hResult = mapiSession->OpenEntry(
-                tmpEntryIdSize,
-                tmpEntryId,
-                NULL,
-                MAPI_BEST_ACCESS,
-                &objType,
-                &iUnknown);
-        if(hResult == S_OK)
-        {
-            ::free(tmpEntryId);
-            return iUnknown;
-        }
-    }
+    LPMAPISESSION mapiSession = MAPISession_getMapiSession();
+    ULONG objType;
+    LPUNKNOWN entry = NULL;
 
-    ::free(tmpEntryId);
-    return NULL;
+    mapiSession->OpenEntry(
+            entryIdSize,
+            entryId,
+            NULL,
+            MAPI_BEST_ACCESS,
+            &objType,
+            &entry);
+
+    return entry;
 }
 
 static jbyteArray
@@ -1367,4 +1920,30 @@ MsOutlookAddrBookContactQuery_readAttachment
         }
     }
     return attachment;
+}
+
+/**
+ * Retrieves a string representation of the contact id. This string must be
+ * freed by the caller.
+ *
+ * @param contact A pointer to the instance of the contact.
+ *
+ * @return A string representation of the contact id. NULL if failed. This
+ * string must be freed by yhe caller.
+ */
+LPSTR MsOutlookAddrBookContactQuery_getContactId(LPMAPIPROP contact)
+{
+    LPSTR entryId = NULL;
+
+    SBinary binaryProp;
+    binaryProp.cb = 0;
+    MsOutlookAddrBookContactQuery_getBinaryProp(contact, 0x0FFF, &binaryProp);
+
+    if(binaryProp.cb != 0)
+    {
+        entryId = (LPSTR)::malloc(binaryProp.cb * 2 + 1);
+        HexFromBin(binaryProp.lpb, binaryProp.cb, entryId);
+    }
+
+    return entryId;
 }

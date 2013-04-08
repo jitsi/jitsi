@@ -18,6 +18,7 @@ import net.java.sip.communicator.service.contactsource.*;
  */
 public class MacOSXAddrBookContactSourceService
     extends AsyncContactSourceService
+    implements EditableContactSourceService
 {
     /**
      * the Mac OS X address book prefix.
@@ -197,6 +198,58 @@ public class MacOSXAddrBookContactSourceService
         {
             if(latestQuery != null)
                 latestQuery.deleted(id);
+        }
+    }
+
+    /**
+     * Returns the latest query created.
+     *
+     * @return the latest query created.
+     */
+    public MacOSXAddrBookContactQuery getLatestQuery()
+    {
+        return this.latestQuery;
+    }
+
+    /**
+     * Creates a new contact from the database (i.e "contacts" or
+     * "msoutlook", etc.).
+     *
+     * @return The ID of the contact to created. NULL if failed to create a new
+     * contact.
+     */
+    public String createContact()
+    {
+        return MacOSXAddrBookContactQuery.createContact();
+    }
+
+    /**
+     * Adds a new empty contact, which will be filled in later.
+     *
+     * @param id The ID of the contact to add.
+     */
+    public void addEmptyContact(String id)
+    {
+        if(id != null && latestQuery != null)
+        {
+            latestQuery.addEmptyContact(id);
+        }
+    }
+
+    /**
+     * Removes the given contact from the database (i.e "contacts" or
+     * "msoutlook", etc.).
+     *
+     * @param id The ID of the contact to remove.
+     */
+    public void deleteContact(String id)
+    {
+        if(id != null && MacOSXAddrBookContactQuery.deleteContact(id))
+        {
+            if(latestQuery != null)
+            {
+                latestQuery.deleted(id);
+            }
         }
     }
 }

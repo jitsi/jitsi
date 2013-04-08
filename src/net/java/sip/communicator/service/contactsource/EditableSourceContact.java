@@ -31,4 +31,15 @@ public interface EditableSourceContact
      * @param detail the <tt>ContactDetail</tt> to remove
      */
     public void removeContactDetail(ContactDetail detail);
+
+    /**
+     * Locks this object before adding or removing several contact details.
+     */
+    public void lock();
+
+    /**
+     * Unlocks this object before after or removing several contact details.
+     */
+    public void unlock();
+
 }

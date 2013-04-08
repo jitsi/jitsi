@@ -185,6 +185,13 @@ extends EditableContactDetail
         }
 
         super.setDetail(value);
+
+        EditableSourceContact sourceContact = getSourceContact();
+        if(sourceContact != null
+                && sourceContact instanceof MacOSXAddrBookSourceContact)
+        {
+            ((MacOSXAddrBookSourceContact) sourceContact).updated();
+        }
     }
 
     /**

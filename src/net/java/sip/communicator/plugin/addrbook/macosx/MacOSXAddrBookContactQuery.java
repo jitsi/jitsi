@@ -337,6 +337,31 @@ public class MacOSXAddrBookContactQuery
     public static native boolean removeProperty(String id, long property);
 
     /**
+     * Removes a contact from the address book.
+     *
+     * @param id the person id.
+     *
+     * @return whether the contact was successfully removed.
+     */
+    public static native boolean deleteContact(String id);
+
+    /**
+     * Creates a new address book contact.
+     *
+     * @return The identifier of the created contact. null if failed.
+     */
+    public static native String createContact();
+
+    /**
+     * Gets the pointer of the given contact.
+     *
+     * @param id the person id.
+     *
+     * @return The pointer of the given contact. Null if failed.
+     */
+    public static native long getContactPointer(String id);
+
+    /**
      * Initializes a new <tt>ContactDetail</tt> instance which is to reperesent
      * a specific contact address that is the value of a specific
      * <tt>ABPerson</tt> property and, optionally, has a specific label.
@@ -1218,7 +1243,6 @@ public class MacOSXAddrBookContactQuery
             String displayName = getDisplayName(values);
             final String id = ABRecord_uniqueId(person);
 
-
             MacOSXAddrBookSourceContact editableSourceContact
                 = (MacOSXAddrBookSourceContact)sourceContact;
 
@@ -1348,5 +1372,34 @@ public class MacOSXAddrBookContactQuery
         }
 
         return null;
+    }
+
+    /**
+     * Adds a new empty contact, which will be filled in later.
+     *
+     * @param id The ID of the contact to add.
+     */
+    public void addEmptyContact(String id)
+    {
+        if(id != null)
+        {
+            final MacOSXAddrBookSourceContact sourceContact
+                = new MacOSXAddrBookSourceContact(
+                        getContactSource(),
+                        null,
+                        new LinkedList<ContactDetail>());
+            sourceContact.setData(SourceContact.DATA_ID, id);
+            addQueryResult(sourceContact);
+        }
+    }
+
+    /**
+     * Fires a contact changed event for the given contact.
+     *
+     * @param sourceContact The contact which has changed.
+     */
+    public void contactChanged(SourceContact sourceContact)
+    {
+        fireContactChanged(sourceContact);
     }
 }

@@ -557,6 +557,15 @@ JNIEXPORT jstring JNICALL Java_net_java_sip_communicator_plugin_addrbook_macosx_
 JNIEXPORT jstring JNICALL Java_net_java_sip_communicator_plugin_addrbook_macosx_MacOSXAddrBookContactQuery_kABAddressCountryKey
   (JNIEnv *, jclass);
 
+JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_plugin_addrbook_macosx_MacOSXAddrBookContactQuery_deleteContact
+  (JNIEnv *jniEnv, jclass clazz, jstring id);
+
+JNIEXPORT jstring JNICALL Java_net_java_sip_communicator_plugin_addrbook_macosx_MacOSXAddrBookContactQuery_createContact
+  (JNIEnv *jniEnv, jclass clazz);
+
+JNIEXPORT jlong JNICALL Java_net_java_sip_communicator_plugin_addrbook_macosx_MacOSXAddrBookContactQuery_getContactPointer
+  (JNIEnv *jniEnv, jclass clazz, jstring id);
+
 #ifdef __cplusplus
 }
 #endif

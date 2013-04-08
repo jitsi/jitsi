@@ -850,7 +850,8 @@
       description="Build jmsoutlookaddrbook shared library for Windows"
       if="is.running.windows"
       depends="init-native">
-    <fail message="Outlook2010MAPIHeaders not set!" unless="Outlook2010MAPIHeaders" />
+    <!--fail message="Outlook2010MAPIHeaders not set!"
+    unless="Outlook2010MAPIHeaders" /-->
     <cc
         name="gcc"
         objdir="${obj}"
@@ -861,7 +862,7 @@
       <compilerarg value="-DWINVER=0x0502" />
       <compilerarg value="-I${system.JAVA_HOME}/include" />
       <compilerarg value="-I${system.JAVA_HOME}/include/win32" />
-      <compilerarg value="-I${Outlook2010MAPIHeaders}" />
+      <!--compilerarg value="-I${Outlook2010MAPIHeaders}" /-->
       <compilerarg value="-m32" if="cross_32" />
       <compilerarg value="-m64" if="cross_64" />
       <compilerarg value="-O2" />

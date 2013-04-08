@@ -21,6 +21,7 @@ import net.java.sip.communicator.util.*;
  */
 public class MsOutlookAddrBookContactSourceService
     extends AsyncContactSourceService
+    implements EditableContactSourceService
 {
     /**
      * The <tt>Logger</tt> used by the
@@ -195,19 +196,19 @@ public class MsOutlookAddrBookContactSourceService
         /**
          * Callback method when receiving notifications for inserted items.
          */
-        public void inserted(long person)
+        public void inserted(String id)
         {
             if(latestQuery != null)
-                latestQuery.inserted(person);
+                latestQuery.inserted(id);
         }
 
         /**
          * Callback method when receiving notifications for updated items.
          */
-        public void updated(long person)
+        public void updated(String id)
         {
             if(latestQuery != null)
-                latestQuery.updated(person);
+                latestQuery.updated(id);
         }
 
         /**
@@ -217,6 +218,48 @@ public class MsOutlookAddrBookContactSourceService
         {
             if(latestQuery != null)
                 latestQuery.deleted(id);
+        }
+    }
+
+    /**
+     * Creates a new contact from the database (i.e "contacts" or
+     * "msoutlook", etc.).
+     *
+     * @return The ID of the contact to remove. NULL if failed to create a new
+     * contact.
+     */
+    public String createContact()
+    {
+        return MsOutlookAddrBookContactQuery.createContact();
+    }
+
+    /**
+     * Adds a new empty contact, which will be filled in later.
+     *
+     * @param id The ID of the contact to add.
+     */
+    public void addEmptyContact(String id)
+    {
+        if(id != null && latestQuery != null)
+        {
+            latestQuery.addEmptyContact(id);
+        }
+    }
+
+    /**
+     * Removes the given contact from the database (i.e "contacts" or
+     * "msoutlook", etc.).
+     *
+     * @param id The ID of the contact to remove.
+     */
+    public void deleteContact(String id)
+    {
+        if(id != null && MsOutlookAddrBookContactQuery.deleteContact(id))
+        {
+            if(latestQuery != null)
+            {
+                latestQuery.deleted(id);
+            }
         }
     }
 }
