@@ -67,6 +67,11 @@ public class ContactListTransferHandler
      */
     protected Transferable createTransferable(JComponent component)
     {
+        if(ConfigurationUtils.isAddContactDisabled()
+            && (ConfigurationUtils.isContactMoveDisabled()
+                || ConfigurationUtils.isCreateGroupDisabled()))
+            return null;
+
         if (component instanceof JTree)
         {
             JTree tree = (JTree) component;
@@ -189,65 +194,79 @@ public class ContactListTransferHandler
 
                 Object dest = list.getSelectedValue();
 
-                if (transferredContact != null)
+                if (transferredContact == null)
+                    return false;
+
+                if (dest instanceof ContactNode)
                 {
-                    if (dest instanceof ContactNode)
+                    UIContact destContact
+                        = ((ContactNode) dest).getContactDescriptor();
+
+                    // We support darg&drop for MetaContacts only for now.
+                    if (!(destContact instanceof MetaUIContact))
+                        return false;
+
+                    if (transferredContact != destContact)
                     {
-                        UIContact destContact
-                            = ((ContactNode) dest).getContactDescriptor();
+                        String mergeEnabledStr =
+                            GuiActivator.getResources().getSettingsString(
+                                "impl.gui.dnd.MERGE_ENABLED");
 
-                        // We support darg&drop for MetaContacts only for now.
-                        if (!(destContact instanceof MetaUIContact))
-                            return false;
-
-                        if (transferredContact != destContact)
+                        // by default merging contacts is enabled
+                        if(mergeEnabledStr != null
+                            && !Boolean.parseBoolean(mergeEnabledStr))
                         {
-                            String mergeEnabledStr =
-                                GuiActivator.getResources().getSettingsString(
-                                    "impl.gui.dnd.MERGE_ENABLED");
+                            UIGroup destGroup =
+                                destContact.getParentGroup();
 
-                            // by default merging contacts is enabled
-                            if(mergeEnabledStr != null
-                                && !Boolean.parseBoolean(mergeEnabledStr))
-                            {
-                                UIGroup destGroup =
-                                    destContact.getParentGroup();
+                            if (destGroup == null
+                                || !(destGroup instanceof MetaUIGroup)
+                                || (ConfigurationUtils
+                                        .isContactMoveDisabled()
+                                    || ConfigurationUtils
+                                        .isCreateGroupDisabled()))
+                                return false;
 
-                                if (destGroup == null
-                                    || !(destGroup instanceof MetaUIGroup))
-                                    return false;
-
-                                MetaContactListManager.moveMetaContactToGroup(
-                                    (MetaContact) transferredContact.getDescriptor(),
-                                    (MetaContactGroup) destGroup.getDescriptor());
-                            }
-                            else
-                            {
-                                MetaContactListManager.moveMetaContactToMetaContact(
-                                    (MetaContact) transferredContact.getDescriptor(),
-                                    (MetaContact) destContact.getDescriptor());
-                            }
-                        }
-                        return true;
-                    }
-                    else if (dest instanceof GroupNode)
-                    {
-                        UIGroup destGroup
-                            = ((GroupNode) dest).getGroupDescriptor();
-
-                        // We support darg&drop for MetaContacts only for now.
-                        if (!(destGroup instanceof MetaUIGroup))
-                            return false;
-
-                        if (!transferredContact
-                                .getParentGroup().equals(destGroup))
-                        {
                             MetaContactListManager.moveMetaContactToGroup(
-                                (MetaContact) transferredContact.getDescriptor(),
-                                (MetaContactGroup) destGroup.getDescriptor());
+                                (MetaContact) transferredContact
+                                    .getDescriptor(),
+                                (MetaContactGroup) destGroup
+                                    .getDescriptor());
                         }
-                        return true;
+                        else
+                        {
+                            if(!ConfigurationUtils.isAddContactDisabled())
+                            {
+                                MetaContactListManager
+                                    .moveMetaContactToMetaContact(
+                                        (MetaContact) transferredContact
+                                            .getDescriptor(),
+                                        (MetaContact) destContact
+                                            .getDescriptor());
+                            }
+                        }
                     }
+                    return true;
+                }
+                else if (dest instanceof GroupNode)
+                {
+                    UIGroup destGroup
+                        = ((GroupNode) dest).getGroupDescriptor();
+
+                    // We support darg&drop for MetaContacts only for now.
+                    if (!(destGroup instanceof MetaUIGroup))
+                        return false;
+
+                    if (!transferredContact
+                            .getParentGroup().equals(destGroup)
+                        && !(ConfigurationUtils.isContactMoveDisabled()
+                            && ConfigurationUtils.isCreateGroupDisabled()))
+                    {
+                        MetaContactListManager.moveMetaContactToGroup(
+                            (MetaContact) transferredContact.getDescriptor(),
+                            (MetaContactGroup) destGroup.getDescriptor());
+                    }
+                    return true;
                 }
             }
         }
