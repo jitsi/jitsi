@@ -636,13 +636,10 @@ public class ProtocolProviderServiceJabberImpl
     {
         synchronized(initializationLock)
         {
-            // init the necessary objects
-            JabberLoginStrategy loginStrategy
-                    = new LoginByPasswordStrategy(this, getAccountID());
+            JabberLoginStrategy loginStrategy = createLoginStrategy();
             userCredentials = loginStrategy.prepareLogin(authority, reasonCode);
             if(!loginStrategy.loginPreparationSuccessful())
                 return;
-
 
             String serviceName
                 = StringUtils.parseServer(getAccountID().getUserID());
@@ -758,6 +755,23 @@ public class ProtocolProviderServiceJabberImpl
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * Creates the JabberLoginStrategy to use for the current account.
+     */
+    private JabberLoginStrategy createLoginStrategy()
+    {
+        String clientCertId = getAccountID().getAccountPropertyString(
+                ProtocolProviderFactory.CLIENT_TLS_CERTIFICATE);
+        if(clientCertId != null)
+        {
+            return new LoginByClientCertificateStrategy(getAccountID());
+        }
+        else
+        {
+            return new LoginByPasswordStrategy(this, getAccountID());
         }
     }
 
