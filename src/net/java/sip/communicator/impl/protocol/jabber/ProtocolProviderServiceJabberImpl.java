@@ -27,7 +27,6 @@ import net.java.sip.communicator.impl.protocol.jabber.extensions.jingleinfo.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.keepalive.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.messagecorrection.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.version.*;
-import net.java.sip.communicator.impl.protocol.jabber.sasl.*;
 import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.service.dns.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -638,11 +637,16 @@ public class ProtocolProviderServiceJabberImpl
         synchronized(initializationLock)
         {
             // init the necessary objects
+            JabberLoginStrategy loginStrategy
+                    = new LoginByPasswordStrategy(this, getAccountID());
+            userCredentials = loginStrategy.prepareLogin(authority, reasonCode);
+            if(!loginStrategy.loginPreparationSuccessful())
+                return;
+
+
             String serviceName
                 = StringUtils.parseServer(getAccountID().getUserID());
-            String password = loadPassword(authority, reasonCode);
-            if (password == null)
-                return;
+
             loadResource();
             loadProxy();
             Roster.setDefaultSubscriptionMode(Roster.SubscriptionMode.manual);
@@ -658,8 +662,8 @@ public class ProtocolProviderServiceJabberImpl
 
             if(!isServerOverriden)
             {
-                state = connectUsingSRVRecords(serviceName, password,
-                        serviceName, hadDnsSecException);
+                state = connectUsingSRVRecords(serviceName,
+                        serviceName, hadDnsSecException, loginStrategy);
                 if(hadDnsSecException[0])
                 {
                     setDnssecLoginFailure();
@@ -681,8 +685,8 @@ public class ProtocolProviderServiceJabberImpl
                     customXMPPDomain);
 
                 state = connectUsingSRVRecords(
-                            customXMPPDomain, password, serviceName,
-                            hadDnsSecException);
+                            customXMPPDomain, serviceName,
+                            hadDnsSecException, loginStrategy);
 
                 logger.info("state for connectUsingSRVRecords: " + state);
 
@@ -740,8 +744,8 @@ public class ProtocolProviderServiceJabberImpl
                 {
                     try
                     {
-                        state = connectAndLogin(isa, password,
-                            serviceName);
+                        state = connectAndLogin(isa, serviceName,
+                            loginStrategy);
                         if(state == ConnectState.ABORT_CONNECTING
                             || state == ConnectState.STOP_TRYING)
                             return;
@@ -770,16 +774,16 @@ public class ProtocolProviderServiceJabberImpl
     /**
      * Connects using the domain specified and its SRV records.
      * @param domain the domain to use
-     * @param password the password of the user
      * @param serviceName the domain name of the user's login
      * @param dnssecState state of possible received DNSSEC exceptions
+     * @param loginStrategy the login strategy to use
      * @return whether to continue trying or stop.
      */
     private ConnectState connectUsingSRVRecords(
         String domain,
-        String password,
         String serviceName,
-        boolean[] dnssecState)
+        boolean[] dnssecState,
+        JabberLoginStrategy loginStrategy)
         throws XMPPException
     {
         // check to see is there SRV records for this server domain
@@ -847,7 +851,7 @@ public class ProtocolProviderServiceJabberImpl
                         }
 
                         ConnectState state = connectAndLogin(
-                            isa, password, serviceName);
+                            isa, serviceName, loginStrategy);
                         return state;
                     }
                     catch(XMPPException ex)
@@ -878,12 +882,13 @@ public class ProtocolProviderServiceJabberImpl
      * name fails, a second attempt including the service name is made.
      *
      * @param currentAddress the IP address to connect to
-     * @param password the password of the user
      * @param serviceName the domain name of the user's login
+     * @param loginStrategy the login strategy to use
      * @throws XMPPException when a failure occurs
      */
     private ConnectState connectAndLogin(InetSocketAddress currentAddress,
-        String password, String serviceName)
+        String serviceName,
+        JabberLoginStrategy loginStrategy)
         throws XMPPException
     {
         String userID = null;
@@ -908,7 +913,7 @@ public class ProtocolProviderServiceJabberImpl
         {
             return connectAndLogin(
                 currentAddress, serviceName,
-                userID, password, resource);
+                userID, resource, loginStrategy);
         }
         catch(XMPPException ex)
         {
@@ -939,7 +944,8 @@ public class ProtocolProviderServiceJabberImpl
                     return connectAndLogin(
                         currentAddress, serviceName,
                         userID + "@" + serviceName,
-                        password, resource);
+                        resource,
+                        loginStrategy);
                 }
                 catch(XMPPException ex2)
                 {
@@ -980,71 +986,6 @@ public class ProtocolProviderServiceJabberImpl
                     resource = defaultResource;
             }
         }
-    }
-
-    /**
-     * Load the password from the account configuration or ask the user.
-     *
-     * @param authority SecurityAuthority
-     * @param reasonCode the authentication reason code. Indicates the reason of
-     *            this authentication.
-     * @return The password for the account or null if no password could be
-     *         obtained
-     */
-    private String loadPassword(SecurityAuthority authority, int reasonCode)
-    {
-        //verify whether a password has already been stored for this account
-        String password = JabberActivator.
-                getProtocolProviderFactory().loadPassword(getAccountID());
-
-        //decode
-        if (password == null)
-        {
-            //create a default credentials object
-            UserCredentials credentials = new UserCredentials();
-            credentials.setUserName(getAccountID().getUserID());
-
-            //request a password from the user
-            credentials = authority.obtainCredentials(
-                getAccountID().getDisplayName(),
-                credentials,
-                reasonCode);
-
-            // in case user has canceled the login window
-            if(credentials == null)
-            {
-                fireRegistrationStateChanged(
-                    getRegistrationState(),
-                    RegistrationState.UNREGISTERED,
-                    RegistrationStateChangeEvent.REASON_USER_REQUEST,
-                    "No credentials provided");
-                return null;
-            }
-
-            //extract the password the user passed us.
-            char[] pass = credentials.getPassword();
-
-            // the user didn't provide us a password (canceled the operation)
-            if(pass == null)
-            {
-                fireRegistrationStateChanged(
-                    getRegistrationState(),
-                    RegistrationState.UNREGISTERED,
-                    RegistrationStateChangeEvent.REASON_USER_REQUEST,
-                    "No password entered");
-                return null;
-            }
-            password = new String(pass);
-
-            if (credentials.isPasswordPersistent())
-            {
-                JabberActivator.getProtocolProviderFactory()
-                    .storePassword(getAccountID(), password);
-            }
-            else
-                userCredentials = credentials;
-        }
-        return password;
     }
 
     /**
@@ -1120,14 +1061,15 @@ public class ProtocolProviderServiceJabberImpl
      * @param address the address to connect to
      * @param serviceName the service name to use
      * @param userName the username to use
-     * @param password the password to use
      * @param resource and the resource.
+     * @param loginStrategy the login strategy to use
      * @return return the state how to continue the connect process.
      * @throws XMPPException if we cannot connect for some reason
      */
     private ConnectState connectAndLogin(
             InetSocketAddress address, String serviceName,
-            String userName, String password, String resource)
+            String userName, String resource,
+            JabberLoginStrategy loginStrategy)
         throws XMPPException
     {
         ConnectionConfiguration confConn = new ConnectionConfiguration(
@@ -1137,10 +1079,7 @@ public class ProtocolProviderServiceJabberImpl
         );
 
         confConn.setReconnectionAllowed(false);
-        // requires TLS by default (i.e. it will not connect to a non-TLS server
-        // and will not fallback to cleartext)
-        boolean tlsRequired = !accountID.getAccountPropertyBoolean(
-            ProtocolProviderFactory.IS_ALLOW_NON_SECURE, false);
+        boolean tlsRequired = loginStrategy.isTlsRequired();
 
         // user have the possibility to disable TLS but in this case, it will
         // not be able to connect to a server which requires TLS
@@ -1165,16 +1104,9 @@ public class ProtocolProviderServiceJabberImpl
                 getCertificateVerificationService();
             if(cvs != null)
             {
-                connection.setCustomTrustManager(
-                    new HostTrustManager(
-                        cvs.getTrustManager(
-                            Arrays.asList(new String[]{
-                                serviceName,
-                                "_xmpp-client." + serviceName
-                            })
-                        )
-                    )
-                );
+                SSLContext sslContext = loginStrategy.createSslContext(cvs,
+                        getTrustManager(cvs, serviceName));
+                connection.setCustomSslContext(sslContext);
             }
             else if (tlsRequired)
                 throw new XMPPException(
@@ -1255,24 +1187,7 @@ public class ProtocolProviderServiceJabberImpl
                 , RegistrationStateChangeEvent.REASON_NOT_SPECIFIED
                 , null);
 
-        SASLAuthentication.supportSASLMechanism("PLAIN", 0);
-
-        // Insert our sasl mechanism implementation
-        // in order to support some incompatible servers
-        boolean disableCustomDigestMD5
-            = accountID.getAccountPropertyBoolean(
-            "DISABLE_CUSTOM_DIGEST_MD5",
-            false);
-
-        if(!disableCustomDigestMD5)
-        {
-            SASLAuthentication.unregisterSASLMechanism("DIGEST-MD5");
-            SASLAuthentication.registerSASLMechanism("DIGEST-MD5",
-                SASLDigestMD5Mechanism.class);
-            SASLAuthentication.supportSASLMechanism("DIGEST-MD5");
-        }
-
-        connection.login(userName, password, resource);
+        loginStrategy.login(connection, userName, resource);
 
         if(connection.isAuthenticated())
         {
@@ -1314,6 +1229,28 @@ public class ProtocolProviderServiceJabberImpl
 
             return ConnectState.CONTINUE_TRYING;
         }
+    }
+
+    /**
+     * Gets the TrustManager that should be used for the specified service
+     *
+     * @param serviceName the service name
+     * @param cvs The CertificateVerificationService to retrieve the
+     *            trust manager
+     * @return the trust manager
+     */
+    private X509TrustManager getTrustManager(CertificateService cvs,
+        String serviceName)
+        throws GeneralSecurityException
+    {
+        return new HostTrustManager(
+            cvs.getTrustManager(
+                Arrays.asList(new String[]{
+                        serviceName,
+                        "_xmpp-client." + serviceName
+                })
+            )
+        );
     }
 
     /**
