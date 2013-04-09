@@ -48,8 +48,9 @@ public interface JabberLoginStrategy
      * @param connection Connection  to login
      * @param userName userName to be used for the login.
      * @param resource the XMPP resource
+     * @return true to continue connecting, false to abort
      */
-    public void login(XMPPConnection connection, String userName,
+    public boolean login(XMPPConnection connection, String userName,
             String resource)
             throws XMPPException;
 

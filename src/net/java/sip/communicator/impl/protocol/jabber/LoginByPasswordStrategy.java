@@ -74,9 +74,10 @@ public class LoginByPasswordStrategy
      * @param connection The connection on which the login is performed.
      * @param userName The username for the login.
      * @param resource The XMPP resource.
+     * @return always true.
      * @throws XMPPException
      */
-    public void login(XMPPConnection connection, String userName,
+    public boolean login(XMPPConnection connection, String userName,
             String resource)
             throws XMPPException
     {
@@ -98,6 +99,7 @@ public class LoginByPasswordStrategy
         }
 
         connection.login(userName, password, resource);
+        return true;
     }
 
     /*

@@ -1201,7 +1201,18 @@ public class ProtocolProviderServiceJabberImpl
                 , RegistrationStateChangeEvent.REASON_NOT_SPECIFIED
                 , null);
 
-        loginStrategy.login(connection, userName, resource);
+        if (!loginStrategy.login(connection, userName, resource))
+        {
+            disconnectAndCleanConnection();
+            fireRegistrationStateChanged(
+                getRegistrationState(),
+                // not auth failed, or there would be no info-popup
+                RegistrationState.CONNECTION_FAILED,
+                RegistrationStateChangeEvent.REASON_AUTHENTICATION_FAILED,
+                loginStrategy.getClass().getName() + " requests abort");
+
+            return ConnectState.ABORT_CONNECTING;
+        }
 
         if(connection.isAuthenticated())
         {
@@ -1316,7 +1327,7 @@ public class ProtocolProviderServiceJabberImpl
     /**
      * Used to disconnect current connection and clean it.
      */
-    private void disconnectAndCleanConnection()
+    public void disconnectAndCleanConnection()
     {
         if(connection != null)
         {

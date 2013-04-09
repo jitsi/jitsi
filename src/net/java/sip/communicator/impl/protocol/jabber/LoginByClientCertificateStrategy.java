@@ -9,6 +9,8 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.service.protocol.*;
+
+import org.jitsi.util.*;
 import org.jivesoftware.smack.*;
 
 import javax.net.ssl.*;
@@ -23,6 +25,8 @@ import java.security.*;
 class LoginByClientCertificateStrategy
     implements JabberLoginStrategy
 {
+    private final static Logger logger
+        = Logger.getLogger(LoginByClientCertificateStrategy.class);
     private AccountID accountID;
 
     /**
@@ -97,17 +101,33 @@ class LoginByClientCertificateStrategy
      * @param connection The connection on which the login is performed.
      * @param userName The username for the login.
      * @param resource The XMPP resource.
+     * @return true when the login succeeded, false when the certificate wasn't
+     * accepted.
      * @throws XMPPException
      */
-    public void login(XMPPConnection connection, String userName,
+    public boolean login(XMPPConnection connection, String userName,
             String resource)
         throws XMPPException
     {
         SASLAuthentication.supportSASLMechanism("EXTERNAL", 0);
 
-        // trust me, user/password MUST be empty. In fact they shouldn't be
+        // user/password MUST be empty. In fact they shouldn't be
         // necessary at all because the user name is derived from the
         // client certificate.
-        connection.login("", "", resource);
+        try
+        {
+            connection.login("", "", resource);
+            return true;
+        }
+        catch (XMPPException ex)
+        {
+            if (ex.getMessage().contains("EXTERNAL failed: not-authorized"))
+            {
+                logger.error("Certificate login failed", ex);
+                return false;
+            }
+
+            throw ex;
+        }
     }
 }
