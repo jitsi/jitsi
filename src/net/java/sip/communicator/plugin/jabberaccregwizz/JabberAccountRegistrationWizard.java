@@ -368,6 +368,19 @@ public class JabberAccountRegistrationWizard
 
         String smsServerAddress = registration.getSmsServerAddress();
 
+        String clientCertId = registration.getClientCertificateId();
+        if(clientCertId != null)
+        {
+            accountProperties.put(
+                    ProtocolProviderFactory.CLIENT_TLS_CERTIFICATE,
+                    clientCertId);
+        }
+        else
+        {
+            accountProperties.remove(
+                    ProtocolProviderFactory.CLIENT_TLS_CERTIFICATE);
+        }
+
         if (smsServerAddress != null)
         {
             accountProperties.put(  ProtocolProviderFactory.SMS_SERVER_ADDRESS,

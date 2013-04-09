@@ -223,6 +223,11 @@ public class JabberAccountRegistration
     private String dtmfMinimalToneDuration = DEFAULT_MINIMAL_DTMF_TONE_DURATION;
 
     /**
+     * The client TLS certificate ID.
+     */
+    private String clientCertificateId = null;
+
+    /**
      * Initializes a new JabberAccountRegistration.
      */
     public JabberAccountRegistration()
@@ -942,5 +947,23 @@ public class JabberAccountRegistration
     public void setEncodingProperties(Map<String, String> encodingProperties)
     {
         this.encodingProperties = encodingProperties;
+    }
+
+    /**
+     * Sets the client certificate configuration entry ID.
+     * @param clientCertificateId the client certificate configuration entry ID.
+     */
+    public void setClientCertificateId(String clientCertificateId)
+    {
+        this.clientCertificateId = clientCertificateId;
+    }
+
+    /**
+     * Gets the client certificate configuration entry ID.
+     * @returns the client certificate configuration entry ID.
+     */
+    public String getClientCertificateId()
+    {
+        return clientCertificateId;
     }
 }

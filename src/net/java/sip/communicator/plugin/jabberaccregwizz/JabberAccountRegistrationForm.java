@@ -295,6 +295,8 @@ public class JabberAccountRegistrationForm
         registration.setUserID(userID);
         registration.setPassword(new String(password));
         registration.setRememberPassword(accountPanel.isRememberPassword());
+        registration.setClientCertificateId(
+            connectionPanel.getClientTlsCertificateId());
         registration.setServerAddress(serverAddress);
         registration.setServerOverridden(connectionPanel.isServerOverridden());
         registration.setSendKeepAlive(connectionPanel.isSendKeepAlive());
@@ -392,6 +394,9 @@ public class JabberAccountRegistrationForm
         accountPanel.showChangePasswordPanel(true);
 
         connectionPanel.setServerAddress(serverAddress);
+
+        connectionPanel.setClientTlsCertificateId(
+                accountID.getAccountPropertyString(ProtocolProviderFactory.CLIENT_TLS_CERTIFICATE));
 
         String serverPort
             = accountProperties.get(ProtocolProviderFactory.SERVER_PORT);

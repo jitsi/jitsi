@@ -12,8 +12,8 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
+import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
-
 import org.jitsi.util.*;
 
 /**
@@ -105,6 +105,11 @@ public class ConnectionPanel
      */
     private JTextField dtmfMinimalToneDurationValue = new JTextField();
 
+    private final JLabel certificateLabel = new JLabel(
+            Resources.getString("plugin.sipaccregwizz.CLIENT_CERTIFICATE"));
+
+    private final JComboBox certificate = new JComboBox();
+
     private final JabberAccountRegistrationForm parentForm;
 
     /**
@@ -171,9 +176,12 @@ public class ConnectionPanel
 
         labelsAdvOpPanel.add(serverLabel);
         labelsAdvOpPanel.add(portLabel);
+        labelsAdvOpPanel.add(certificateLabel);
 
         valuesAdvOpPanel.add(serverField);
         valuesAdvOpPanel.add(portField);
+        valuesAdvOpPanel.add(certificate);
+        initCertificateAliases(null);
 
         serverOpPanel.add(serverAutoCheckBox, BorderLayout.NORTH);
         serverOpPanel.add(labelsAdvOpPanel, BorderLayout.WEST);
@@ -621,5 +629,52 @@ public class ConnectionPanel
         serverField.setEnabled(isEnable);
         portField.setEnabled(isEnable);
         parentForm.reValidateInput();
+    }
+
+    /**
+     * Sets the client TLS certificate ID.
+     * @param certificateId The ID of the TLS certificate to use or
+     * <tt>null</tt> if none should be selected.
+     */
+    public void setClientTlsCertificateId(String certificateId)
+    {
+        initCertificateAliases(certificateId);
+    }
+
+    /**
+     * Gets the ID of the selected client TLS certificate or <tt>null</tt> if no
+     * certificate is selected.
+     *
+     * @return the ID of the selected client TLS certificate or <tt>null</tt> if
+     *         no certificate is selected.
+     */
+    String getClientTlsCertificateId()
+    {
+        if(certificate.getSelectedItem() != null
+            && certificate.getSelectedItem() instanceof CertificateConfigEntry)
+            return ((CertificateConfigEntry)certificate.getSelectedItem())
+                    .getId();
+        return null;
+    }
+
+    /**
+     * Initializes the certificate combo box with certificate names
+     *
+     * @param id ID of the selected certificate
+     *           (can be null if no certificate is selected).
+     */
+    private void initCertificateAliases(String id)
+    {
+        certificate.removeAllItems();
+        certificate.insertItemAt(
+                Resources.getString("plugin.sipaccregwizz.NO_CERTIFICATE"), 0);
+        certificate.setSelectedIndex(0);
+        for(CertificateConfigEntry e : JabberAccRegWizzActivator
+                .getCertificateService().getClientAuthCertificateConfigs())
+        {
+            certificate.addItem(e);
+            if(e.getId().equals(id))
+                certificate.setSelectedItem(e);
+        }
     }
 }
