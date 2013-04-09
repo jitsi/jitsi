@@ -70,6 +70,12 @@ public class ConfigurationPanel
                                 "impl.neomedia.configform.H264.defaultProfile."
                                     + JNIEncoder.MAIN_PROFILE),
                         JNIEncoder.MAIN_PROFILE));
+        defaultProfileComboBox.addItem(
+                new NameValuePair(
+                        resources.getI18NString(
+                                "impl.neomedia.configform.H264.defaultProfile."
+                                    + JNIEncoder.HIGH_PROFILE),
+                        JNIEncoder.HIGH_PROFILE));
         gridBagConstraints.anchor = GridBagConstraints.LINE_START;
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
