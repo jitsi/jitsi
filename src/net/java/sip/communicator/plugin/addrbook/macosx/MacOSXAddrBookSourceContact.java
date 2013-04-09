@@ -168,7 +168,6 @@ public class MacOSXAddrBookSourceContact
             }
 
             contactDetails.add(index, contactDetail);
-            this.updated();
         }
     }
 
@@ -369,7 +368,6 @@ public class MacOSXAddrBookSourceContact
                 logger.warn("No id or wrong ContactDetail " + detail);
 
             contactDetails.remove(detail);
-            this.updated();
         }
     }
 
@@ -411,7 +409,6 @@ public class MacOSXAddrBookSourceContact
                     long contactPointer
                         = MacOSXAddrBookContactQuery.getContactPointer(id);
                     macOSXContactQuery.updated(contactPointer);
-                    //macOSXContactQuery.contactChanged(this);
                 }
             }
         }
@@ -437,6 +434,9 @@ public class MacOSXAddrBookSourceContact
         {
             locked = Boolean.FALSE;
             notify();
+            // Once we have set all the details, then notify the UI that the
+            // contact has been updated.
+            this.updated();
         }
     }
 
