@@ -17,7 +17,6 @@ import javax.swing.event.*;
 import javax.swing.tree.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.notifsource.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -996,6 +995,7 @@ public class TreeContactList
     public void setDefaultFilter(ContactListFilter filter)
     {
         this.defaultFilter = filter;
+        this.currentFilter = defaultFilter;
     }
 
     /**
