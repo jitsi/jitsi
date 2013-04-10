@@ -38,7 +38,7 @@ public class FileElement
                 setTimeZone(TimeZone.getTimeZone("UTC"));
             }});
 
-            // XEP-0203
+            // XEP-0082
             add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'"){{
                 setTimeZone(TimeZone.getTimeZone("UTC"));
             }});
@@ -122,8 +122,7 @@ public class FileElement
         if (getDate() != null)
         {
             buffer.append("date=\"").append(
-                DelayInformation.XEP_0091_UTC_FORMAT
-                .format(this.getDate())).append("\" ");
+                StringUtils.formatXEP0082Date(this.getDate())).append("\" ");
         }
 
         if (getHash() != null)
