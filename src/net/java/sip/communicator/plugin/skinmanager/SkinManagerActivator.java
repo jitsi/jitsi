@@ -33,11 +33,10 @@ public class SkinManagerActivator
     private static UIService uiService;
 
     /**
-     * Indicates if the skin manager configuration form should be disabled, i.e.
-     * not visible to the user.
+     * Indicates if the skin manager configuration form should be enabled
      */
-    private static final String DISABLED_PROP
-        = "net.java.sip.communicator.plugin.skinconfig.DISABLED";
+    private static final String ENABLED_PROP
+        = "net.java.sip.communicator.plugin.skinconfig.ENABLED";
 
     /**
      * Starts this bundle and adds the
@@ -52,7 +51,7 @@ public class SkinManagerActivator
         bundleContext = bc;
 
         // If the skin manager configuration form is disabled don't continue.
-        if(!getConfigService().getBoolean(DISABLED_PROP, false))
+        if(getConfigService().getBoolean(ENABLED_PROP, false))
         {
             Dictionary<String, String> properties 
                 = new Hashtable<String, String>();
