@@ -720,7 +720,7 @@ public class NetworkUtils
                 // Second tries to define the priority with the NAPTR
                 // preference.
                 int preference
-                    = Integer.parseInt(array1[4]) - Integer.parseInt(array2[4]);
+                    = Integer.parseInt(array1[3]) - Integer.parseInt(array2[3]);
                 if(preference != 0)
                 {
                     return preference;
