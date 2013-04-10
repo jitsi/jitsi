@@ -264,7 +264,8 @@ public class FileElement
                         }
                         catch (NumberFormatException e)
                         {
-                            e.printStackTrace();
+                            logger.warn("Received an invalid file size,"
+                                + " continuing with fileSize set to 0", e);
                         }
                     }
 
