@@ -251,8 +251,14 @@ public class FileElement
             else if (eventType == XmlPullParser.END_TAG)
             {
                 if (elementName.equals("si"))
+                {
                     done = true;
-                else if (elementName.equals("file"))
+                }
+                // The name-attribute is required per XEP-0096, so ignore the
+                // IQ if the name is not set to avoid exceptions. Particularly,
+                // the SI response of Empathy contains an invalid, empty
+                // file-tag. 
+                else if (elementName.equals("file") && name != null)
                 {
                     long fileSize = 0;
 
