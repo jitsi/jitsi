@@ -43,17 +43,20 @@ public class MsOutlookAddrBookSourceContact
      * instance.
      * @param id The outlook entry identifier for contacts.
      * @param displayName The display name of the new instance.
+     * @param organization The organization name of the new instance.
      * @param contactDetails The ContactDetails of the new instance.
      */
     public MsOutlookAddrBookSourceContact(
             ContactSourceService contactSource,
             String id,
             String displayName,
+            String organization,
             List<ContactDetail> contactDetails)
     {
         super(contactSource, displayName, contactDetails);
 
         this.setData(SourceContact.DATA_ID, id);
+        this.setDisplayDetails(organization);
     }
 
     /**
@@ -271,6 +274,9 @@ public class MsOutlookAddrBookSourceContact
             String displayName
                 = MsOutlookAddrBookContactQuery.getDisplayName(props);
             this.setDisplayName(displayName);
+            String organization
+                = MsOutlookAddrBookContactQuery.getOrganization(props);
+            this.setDisplayDetails(organization);
         }
     }
 

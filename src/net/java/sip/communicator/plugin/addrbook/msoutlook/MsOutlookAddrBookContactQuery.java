@@ -846,6 +846,7 @@ public class MsOutlookAddrBookContactQuery
                             getContactSource(),
                             (String) props[PR_ORIGINAL_ENTRYID],
                             displayName,
+                            getOrganization(props),
                             contactDetails);
 
                 if (MAPI_MESSAGE == objType)
@@ -1062,6 +1063,7 @@ public class MsOutlookAddrBookContactQuery
                         getContactSource(),
                         id,
                         null,
+                        null,
                         new LinkedList<ContactDetail>());
             addQueryResult(sourceContact);
         }
@@ -1074,7 +1076,7 @@ public class MsOutlookAddrBookContactQuery
      *
      * @return the <tt>displayName</tt> to be set on a <tt>SourceContact</tt>.
      */
-    static String getDisplayName(Object[] values)
+    public static String getDisplayName(Object[] values)
     {
         String displayName = (String) values[PR_NICKNAME];
 
@@ -1112,5 +1114,16 @@ public class MsOutlookAddrBookContactQuery
         }
 
         return displayName;
+    }
+    /**
+     * Gets the organization name to be set on a <tt>SourceContact</tt>.
+     *
+     * @param values the values of the contact properties.
+     *
+     * @return the organization name to be set on a <tt>SourceContact</tt>.
+     */
+    public static String getOrganization(Object[] values)
+    {
+        return (String) values[PR_COMPANY_NAME];
     }
 }
