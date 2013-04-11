@@ -823,9 +823,13 @@ public class MsOutlookAddrBookContactQuery
         int propIndex = 0;
         boolean matches = false;
 
-        for (Object prop : props)
+        Object prop;
+        for(int i = 0; i < props.length; ++i)
         {
-            if ((prop instanceof String) && matches(propIndex, (String) prop))
+            prop = props[i];
+            if ((prop instanceof String)
+                    && matches(propIndex, (String) prop)
+                    && i != PR_ORIGINAL_ENTRYID)
             {
                 matches = true;
                 break;
