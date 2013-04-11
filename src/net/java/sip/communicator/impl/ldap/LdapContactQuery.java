@@ -245,6 +245,11 @@ public class LdapContactQuery
                     // Ignore it, the image is not vital.
                 }
 
+                if (person.getOrganization() != null)
+                {
+                    sourceContact.setDisplayDetails(person.getOrganization());
+                }
+
                 addQueryResult(sourceContact);
             }
         }
