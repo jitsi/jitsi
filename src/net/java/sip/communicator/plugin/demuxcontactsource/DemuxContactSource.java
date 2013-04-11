@@ -143,6 +143,9 @@ public class DemuxContactSource
          */
         private final ContactQuery sourceQuery;
 
+        private TreeSet<SourceContact> demuxContacts
+            = new TreeSet<SourceContact>();
+
         /**
          * Creates an instance of <tt>DemuxContactQuery</tt>.
          *
@@ -153,6 +156,8 @@ public class DemuxContactSource
             super(DemuxContactSource.this);
 
             this.sourceQuery = sourceQuery;
+
+            initQueryResults();
 
             sourceQuery.addContactQueryListener(this);
         }
@@ -181,19 +186,14 @@ public class DemuxContactSource
         }
 
         /**
-         * Returns the list of <tt>SourceContact</tt>s returned by this query.
-         *
-         * @return the list of <tt>SourceContact</tt>s returned by this query
+         * Initializes the query results.
          */
-        public List<SourceContact> getQueryResults()
+        public void initQueryResults()
         {
             List<SourceContact> sourceContacts = sourceQuery.getQueryResults();
 
             if (sourceContacts == null)
-                return null;
-
-            List<SourceContact> newSourceContacts
-                = new ArrayList<SourceContact>();
+                return;
 
             Iterator<SourceContact> contactIter = sourceContacts.iterator();
             while (contactIter.hasNext())
@@ -210,14 +210,25 @@ public class DemuxContactSource
                     if (preferredProtocolProviders == null
                         || isPreferredContactDetail(detail))
                     {
-                        newSourceContacts.add(
-                            createSourceContact(sourceContact,
-                                                detail));
+                        SortedGenericSourceContact
+                            demuxContact
+                                = (SortedGenericSourceContact)
+                                    createSourceContact(sourceContact,
+                                                        detail);
+                        demuxContacts.add(demuxContact);
                     }
                 }
             }
+        }
 
-            return newSourceContacts;
+        /**
+         * Returns the list of <tt>SourceContact</tt>s returned by this query.
+         *
+         * @return the list of <tt>SourceContact</tt>s returned by this query
+         */
+        public List<SourceContact> getQueryResults()
+        {
+            return new LinkedList<SourceContact>(demuxContacts);
         }
 
         public void cancel()
@@ -256,8 +267,12 @@ public class DemuxContactSource
                 if (preferredProtocolProviders == null
                     || isPreferredContactDetail(detail))
                 {
-                    fireContactReceived(
-                        createSourceContact(sourceContact, detail));
+                    SourceContact demuxContact
+                        = createSourceContact(sourceContact, detail);
+
+                    demuxContacts.add(demuxContact);
+
+                    fireContactReceived(demuxContact);
                 }
             }
         }
@@ -277,10 +292,22 @@ public class DemuxContactSource
 
             contactDetails.add(contactDetail);
 
-            GenericSourceContact genericContact
-                = new GenericSourceContact( DemuxContactSource.this,
-                                            sourceContact.getDisplayName(),
-                                            contactDetails);
+            GenericSourceContact genericContact;
+
+            if (sourceContact instanceof SortedGenericSourceContact)
+            {
+                genericContact
+                    = new SortedGenericSourceContact(
+                                                this,
+                                                DemuxContactSource.this,
+                                                sourceContact.getDisplayName(),
+                                                contactDetails);
+            }
+            else
+                genericContact
+                    = new GenericSourceContact( DemuxContactSource.this,
+                                                sourceContact.getDisplayName(),
+                                                contactDetails);
 
             genericContact.setDisplayDetails(contactDetail.getDetail());
             genericContact.setPresenceStatus(sourceContact.getPresenceStatus());
