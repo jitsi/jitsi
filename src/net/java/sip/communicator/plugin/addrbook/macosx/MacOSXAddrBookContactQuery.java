@@ -689,7 +689,7 @@ public class MacOSXAddrBookContactQuery
      * @return the <tt>displayName</tt> to be set on a <tt>SourceContact</tt>
      * which is to represent the <tt>ABPerson</tt> specified by <tt>values</tt>
      */
-    static String getDisplayName(Object[] values)
+    private static String getDisplayName(Object[] values)
     {
         long personFlags
             = (values[kABPersonFlags] instanceof Long)
@@ -790,6 +790,32 @@ public class MacOSXAddrBookContactQuery
             }
         }
         return displayName;
+    }
+
+    /**
+     * Gets the organization name to be set on a <tt>SourceContact</tt>.
+     *
+     * @param values the values of the <tt>ABPERSON_PROPERTIES</tt> which
+     * represent the <tt>ABPerson</tt> to get the organization name of.
+     *
+     * @return The organization name to be set on a <tt>SourceContact</tt>.
+     */
+    private static String getOrganization(Object[] values)
+    {
+        String organization = "";
+        long personFlags
+            = (values[kABPersonFlags] instanceof Long)
+                ? ((Long) values[kABPersonFlags]).longValue()
+                : 0;
+
+        if ((personFlags & kABShowAsMask) != kABShowAsCompany)
+        {
+            organization = (values[kABOrganizationProperty] instanceof String)
+                ? (String) values[kABOrganizationProperty]
+                : "";
+        }
+
+        return organization;
     }
 
     /**
@@ -1108,6 +1134,7 @@ public class MacOSXAddrBookContactQuery
                             displayName,
                             contactDetails);
                 sourceContact.setData(SourceContact.DATA_ID, id);
+                sourceContact.setDisplayDetails(getOrganization(values));
 
                 try
                 {
@@ -1247,6 +1274,7 @@ public class MacOSXAddrBookContactQuery
                 = (MacOSXAddrBookSourceContact)sourceContact;
 
             editableSourceContact.setDisplayName(displayName);
+            editableSourceContact.setDisplayDetails(getOrganization(values));
 
             List<ContactDetail> contactDetails = getContactDetails(values, id);
             editableSourceContact.setDetails(contactDetails);
