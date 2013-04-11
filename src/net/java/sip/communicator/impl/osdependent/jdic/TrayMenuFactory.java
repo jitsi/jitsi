@@ -154,7 +154,11 @@ public final class TrayMenuFactory
 
         if (showOptions.booleanValue())
         {
-            add(trayMenu, createTrayMenuItem("settings", "service.gui.SETTINGS",
+            add(trayMenu, createTrayMenuItem(
+                "settings",
+                (OSUtils.IS_MAC)
+                    ? "service.gui.PREFERENCES"
+                    : "service.gui.SETTINGS",
                 "service.systray.CONFIGURE_ICON", listener, swing));
         }
 
