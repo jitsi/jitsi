@@ -172,7 +172,12 @@ public class CallJabberImpl
                 : colibri.getFrom();
 
         if ((jitsiVideoBridge == null) || (jitsiVideoBridge.length() == 0))
+        {
+            if (logger.isInfoEnabled())
+                logger.info("Failed to allocate colibri channels: no " +
+                        " videobridge found.");
             return null;
+        }
 
         ColibriConferenceIQ conferenceRequest = new ColibriConferenceIQ();
 
@@ -231,10 +236,27 @@ public class CallJabberImpl
 
         packetCollector.cancel();
 
-        if ((response == null)
-                || (response.getError() != null)
-                || !(response instanceof ColibriConferenceIQ))
+        if (response == null)
+        {
+            if (logger.isInfoEnabled())
+                logger.info("Failed to allocate colibri channels: response " +
+                        "is null");
             return null;
+        }
+        else if (response.getError() != null)
+        {
+            if (logger.isInfoEnabled())
+                logger.info("Failed to allocate colibri channels: " +
+                        response.getError());
+            return null;
+        }
+        else if (!(response instanceof ColibriConferenceIQ))
+        {
+            if (logger.isInfoEnabled())
+                logger.info("Failed to allocate colibri channels: response is" +
+                        "not a colibri conference");
+            return null;
+        }
 
         ColibriConferenceIQ conferenceResponse = (ColibriConferenceIQ) response;
         String conferenceResponseID = conferenceResponse.getID();

@@ -909,7 +909,8 @@ public class MediaHandler
         }
         else
         {
-            // this is a reinit
+            if (logger.isDebugEnabled())
+                logger.debug("Reinitializing stream: " + stream);
         }
 
         return

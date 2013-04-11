@@ -1422,6 +1422,44 @@ public class CallPeerMediaHandlerJabberImpl
         //determine the direction that we need to announce.
         MediaDirection remoteDirection
             = JingleUtils.getDirection(content, getPeer().isInitiator());
+
+        boolean checkUserPreference = true;
+        /* If we are the focus of a conference and a peer is sending video to
+         * us, we should announce at least SENDONLY, even if we are not
+         * sending video ourselves.
+         */
+        if (MediaType.VIDEO.equals(mediaType))
+        {
+            Call call = getPeer().getCall();
+            if (call != null && call.getConference().isConferenceFocus())
+            {
+                /* We don't keep per-CallPeer MediaDirections, so we use the
+                 * current direction of our video MediaStream as a hint that
+                 * one of our peers is sending video to us.
+                 */
+                MediaStream mediaStream = getStream(MediaType.VIDEO);
+                if (mediaStream != null)
+                {
+                    MediaDirection streamDirection = mediaStream.getDirection();
+                    if (streamDirection != null &&
+                            streamDirection.allowsReceiving())
+                    {
+                        checkUserPreference = false;
+                        remoteDirection
+                                = remoteDirection.or(MediaDirection.SENDONLY);
+                    }
+                }
+            }
+        }
+
+        if (checkUserPreference)
+        {
+            // Take the preference of the user with respect to streaming
+            // mediaType into account.
+            devDirection
+                    = devDirection.and(getDirectionUserPreference(mediaType));
+        }
+
         MediaDirection direction
             = devDirection.getDirectionForAnswer(remoteDirection);
 

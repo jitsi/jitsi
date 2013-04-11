@@ -472,7 +472,7 @@ public class OperationSetBasicTelephonyJabberImpl
             else
             {
                 ProtocolProviderServiceJabberImpl.throwOperationFailedException(
-                        "Failed to create a call",
+                        "Failed to create a call to " + fullCalleeURI,
                         OperationFailedException.INTERNAL_ERROR,
                         t,
                         logger);
