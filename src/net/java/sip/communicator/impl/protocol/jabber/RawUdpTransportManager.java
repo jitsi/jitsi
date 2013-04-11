@@ -15,6 +15,7 @@ import net.java.sip.communicator.impl.protocol.jabber.jinglesdp.*;
 import net.java.sip.communicator.service.protocol.*;
 
 import org.jitsi.service.neomedia.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * A {@link TransportManagerJabberImpl} implementation that would only gather a
@@ -22,6 +23,7 @@ import org.jitsi.service.neomedia.*;
  *
  * @author Emil Ivov
  * @author Lyubomir Marinov
+ * @author Hristo Terezov
  */
 public class RawUdpTransportManager
     extends TransportManagerJabberImpl
@@ -575,6 +577,21 @@ public class RawUdpTransportManager
                                 content.addChannel(channelResult);
                         }
                     }
+                }
+                else
+                {
+                    /*
+                     * The call fails if createColibriChannels method fails 
+                     * this can happen if the conference packet timeouts or 
+                     * it can't be build. 
+                     */
+                    ProtocolProviderServiceJabberImpl
+                        .throwOperationFailedException(
+                            "Failed to allocate colibri channel.",
+                            OperationFailedException.GENERAL_ERROR,
+                            null,
+                            Logger.getLogger(
+                                RawUdpTransportManager.class));
                 }
             }
         }

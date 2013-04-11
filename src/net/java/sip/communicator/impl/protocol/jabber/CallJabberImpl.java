@@ -240,7 +240,7 @@ public class CallJabberImpl
         {
             if (logger.isInfoEnabled())
                 logger.info("Failed to allocate colibri channels: response " +
-                        "is null");
+                        "is null. Maybe the response timeouted.");
             return null;
         }
         else if (response.getError() != null)
