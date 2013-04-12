@@ -37,6 +37,16 @@ public class MsOutlookAddrBookContactSourceService
     public static final String OUTLOOK_ADDR_BOOK_PREFIX
         = "net.java.sip.communicator.plugin.addrbook.OUTLOOK_ADDR_BOOK_PREFIX";
 
+    /**
+     * Boolean property that defines whether using this contact source service
+     * as result for the search field is authorized.  This is useful when an
+     * external plugin looks for result of this contact source service, but want
+     * to display the search field result from its own (avoid duplicate
+     * results).
+     */
+    public static final String PNAME_OUTLOOK_ADDR_BOOK_SEARCH_FIELD_DISABLED =
+        "net.java.sip.communicator.plugin.addrbook.OUTLOOK_ADDR_BOOK_SEARCH_FIELD_DISABLED";
+
     private static final long MAPI_INIT_VERSION = 0;
 
     private static final long MAPI_MULTITHREAD_NOTIFICATIONS = 0x00000001;
@@ -261,5 +271,20 @@ public class MsOutlookAddrBookContactSourceService
                 latestQuery.deleted(id);
             }
         }
+    }
+
+    /**
+     * Defines whether using this contact source service can be used as result
+     * for the search field. This is useful when an external plugin looks for
+     * result of this contact source service, but want to display the search
+     * field result from its own (avoid duplicate results).
+     *
+     * @return True if this contact source service can be used to perform search
+     * for contacts. False otherwise.
+     */
+    public boolean canBeUsedToSearchContacts()
+    {
+        return !AddrBookActivator.getConfigService().getBoolean(
+                    PNAME_OUTLOOK_ADDR_BOOK_SEARCH_FIELD_DISABLED, false);
     }
 }

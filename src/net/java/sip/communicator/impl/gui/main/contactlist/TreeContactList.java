@@ -1642,14 +1642,20 @@ public class TreeContactList
         for (ContactSourceService contactSource
                 : GuiActivator.getContactSources())
         {
-            ExternalContactSource extContactSource
-                = new ExternalContactSource(contactSource, this);
+            if(!(contactSource instanceof AsyncContactSourceService)
+                    || ((AsyncContactSourceService) contactSource)
+                            .canBeUsedToSearchContacts())
+            {
+                ExternalContactSource extContactSource
+                    = new ExternalContactSource(contactSource, this);
 
-            int sourceIndex = contactSource.getIndex();
-            if (sourceIndex >= 0 && contactSources.size() >= sourceIndex)
-                contactSources.add(sourceIndex, extContactSource);
-            else
-                contactSources.add(extContactSource);
+                int sourceIndex = contactSource.getIndex();
+                if (sourceIndex >= 0 && contactSources.size() >= sourceIndex)
+                    contactSources.add(sourceIndex, extContactSource);
+                else
+                    contactSources.add(extContactSource);
+            }
+
         }
         GuiActivator.bundleContext.addServiceListener(
             new ContactSourceServiceListener());
@@ -1671,7 +1677,12 @@ public class TreeContactList
      */
     public void addContactSource(ContactSourceService contactSource)
     {
-        contactSources.add(new ExternalContactSource(contactSource, this));
+        if(!(contactSource instanceof AsyncContactSourceService)
+                || ((AsyncContactSourceService) contactSource)
+                        .canBeUsedToSearchContacts())
+        {
+            contactSources.add(new ExternalContactSource(contactSource, this));
+        }
     }
 
     /**
@@ -2071,11 +2082,17 @@ public class TreeContactList
             switch (event.getType())
             {
             case ServiceEvent.REGISTERED:
-                ExternalContactSource contactSource
-                    = new ExternalContactSource(
-                        (ContactSourceService) service, TreeContactList.this);
-                contactSources.add(contactSource);
-                changed = true;
+                if(!(service instanceof AsyncContactSourceService)
+                        || ((AsyncContactSourceService) service)
+                                .canBeUsedToSearchContacts())
+                {
+                    ExternalContactSource contactSource
+                        = new ExternalContactSource(
+                                (ContactSourceService) service,
+                                TreeContactList.this);
+                    contactSources.add(contactSource);
+                    changed = true;
+                }
                 break;
             case ServiceEvent.UNREGISTERING:
                 UIContactSource cSource

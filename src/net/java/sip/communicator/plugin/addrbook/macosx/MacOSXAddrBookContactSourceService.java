@@ -26,6 +26,17 @@ public class MacOSXAddrBookContactSourceService
     public static final String MACOSX_ADDR_BOOK_PREFIX
         = "net.java.sip.communicator.plugin.addrbook.MACOSX_ADDR_BOOK_PREFIX";
 
+    /**
+     * Boolean property that defines whether using this contact source service
+     * as result for the search field is authorized.  This is useful when an
+     * external plugin looks for result of this contact source service, but want
+     * to display the search field result from its own (avoid duplicate
+     * results).
+     */
+    public static final String PNAME_MACOSX_ADDR_BOOK_SEARCH_FIELD_DISABLED =
+        "net.java.sip.communicator.plugin.addrbook.MACOSX_ADDR_BOOK_SEARCH_FIELD_DISABLED";
+
+
     static
     {
         System.loadLibrary("jmacosxaddrbook");
@@ -251,5 +262,20 @@ public class MacOSXAddrBookContactSourceService
                 latestQuery.deleted(id);
             }
         }
+    }
+
+    /**
+     * Defines whether using this contact source service can be used as result
+     * for the search field. This is useful when an external plugin looks for
+     * result of this contact source service, but want to display the search
+     * field result from its own (avoid duplicate results).
+     *
+     * @return True if this contact source service can be used to perform search
+     * for contacts. False otherwise.
+     */
+    public boolean canBeUsedToSearchContacts()
+    {
+        return !AddrBookActivator.getConfigService().getBoolean(
+                    PNAME_MACOSX_ADDR_BOOK_SEARCH_FIELD_DISABLED, false);
     }
 }

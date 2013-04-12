@@ -58,4 +58,16 @@ public abstract class AsyncContactSourceService
      * Stops this <tt>ContactSourceService</tt>.
      */
     public abstract void stop();
+
+    /**
+     * Defines whether using this contact source service (Outlook or MacOSX
+     * Contacs) can be used as result for the search field. This is
+     * useful when an external plugin looks for result of this contact source
+     * service, but want to display the search field result from its own (avoid
+     * duplicate results).
+     *
+     * @return True if this contact source service can be used to perform search
+     * for contacts. False otherwise.
+     */
+    public abstract boolean canBeUsedToSearchContacts();
 }
