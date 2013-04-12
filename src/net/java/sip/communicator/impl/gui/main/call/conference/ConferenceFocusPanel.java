@@ -26,6 +26,7 @@ import org.jitsi.service.protocol.event.*;
  *
  * @author Yana Stamcheva
  * @author Lyubomir Marinov
+ * @author Hristo Terezov
  */
 public class ConferenceFocusPanel
     extends TransparentPanel
@@ -166,6 +167,8 @@ public class ConferenceFocusPanel
         cnstrnts.gridy++;
 
         initSecuritySettings();
+        
+        packWindow();
     }
 
     /**
@@ -178,6 +181,21 @@ public class ConferenceFocusPanel
         focusPeerPanel = new ConferencePeerPanel(callRenderer, focusPeer);
         add(focusPeerPanel, cnstrnts);
         cnstrnts.gridy++;
+        
+        packWindow();
+        
+    }
+    
+    /**
+     * Resizes the window to fit the layout.
+     */
+    private void packWindow()
+    {
+        Window window
+            = SwingUtilities.getWindowAncestor(this);
+    
+        if (window != null)
+            window.pack();
     }
 
     /**
@@ -394,6 +412,8 @@ public class ConferenceFocusPanel
         {
             remove(conferenceMemberPanel);
             conferenceMemberPanel.dispose();
+            
+            packWindow();
         }
     }
 
