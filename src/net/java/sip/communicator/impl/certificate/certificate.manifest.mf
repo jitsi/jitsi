@@ -22,4 +22,5 @@ Import-Package: org.osgi.framework,
  org.apache.http.conn.ssl,
  org.bouncycastle.asn1,
  org.bouncycastle.asn1.x509,
+ org.bouncycastle.x509.extension,
  sun.security.pkcs11

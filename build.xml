@@ -2292,6 +2292,11 @@ javax.swing.event, javax.swing.border"/>
                     org.bouncycastle.crypto.modes,
                     org.bouncycastle.crypto.params,
                     org.bouncycastle.crypto.prng,
+                    org.jitsi.bccontrib.digests,
+                    org.jitsi.bccontrib.engines,
+                    org.jitsi.bccontrib.macs,
+                    org.jitsi.bccontrib.params,
+                    org.jitsi.bccontrib.prng,
                     org.bouncycastle.math.ec,
                     org.bouncycastle.util.encoders,
                     org.bouncycastle.util"/>
@@ -2349,36 +2354,13 @@ javax.swing.event, javax.swing.border"/>
                 prefix="net/java/sip/communicator/impl/metahistory" />
         </jar>
     </target>
+
     <!--BUNDLE-BOUNCYCASTLE -->
     <target name="bundle-bouncycastle">
-        <jar compress="true" destfile="${bundles.dest}/bouncycastle.jar">
-            <zipfileset src="${lib.noinst}/lcrypto-jdk16-143.jar"/>
-            <manifest>
-                <attribute name="Export-Package" value="org.bouncycastle.asn1,
-                    org.bouncycastle.asn1.nist,
-                    org.bouncycastle.asn1.pkcs,
-                    org.bouncycastle.asn1.sec,
-                    org.bouncycastle.asn1.x509,
-                    org.bouncycastle.asn1.x9,
-                    org.bouncycastle.crypto,
-                    org.bouncycastle.crypto.agreement,
-                    org.bouncycastle.crypto.digests,
-                    org.bouncycastle.crypto.engines,
-                    org.bouncycastle.crypto.generators,
-                    org.bouncycastle.crypto.macs,
-                    org.bouncycastle.crypto.modes,
-                    org.bouncycastle.crypto.params,
-                    org.bouncycastle.crypto.prng,
-                    org.bouncycastle.crypto.signers,
-                    org.bouncycastle.math.ec,
-                    org.bouncycastle.util.encoders,
-                    org.bouncycastle.util"/>
-                <attribute name="Bundle-Name" value="BouncyCastle"/>
-                <attribute name="Bundle-Version" value="1.4.3.1"/>
-                <attribute name="System-Bundle" value="yes"/>
-            </manifest>
-        </jar>
+        <copy file="${lib.noinst}/bcprov-jdk15on-148.jar" tofile="${bundles.dest}/bouncycastle.jar"/>
+    	<copy file="${lib.noinst}/bccontrib-1.0-SNAPSHOT.jar" tofile="${bundles.dest}/bccontrib.jar"/>
     </target>
+
     <!--BUNDLE-PLUGIN-OTR -->
     <target name="bundle-plugin-otr">
         <jar compress="false" destfile="${bundles.dest}/otr.jar" manifest="${src}/net/java/sip/communicator/plugin/otr/otr.manifest.mf">

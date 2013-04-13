@@ -29,6 +29,7 @@ import net.java.sip.communicator.util.Logger;
 import org.bouncycastle.asn1.*;
 import org.bouncycastle.asn1.x509.*;
 import org.bouncycastle.asn1.x509.X509Extension;
+import org.bouncycastle.x509.extension.*;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
 import org.jitsi.util.*;
@@ -826,25 +827,9 @@ public class CertificateServiceImpl
                     if (aiaBytes == null)
                         break;
 
-                    DEROctetString octs =
-                        (DEROctetString) ASN1Object.fromByteArray(aiaBytes);
-                    ASN1InputStream as = new ASN1InputStream(octs.getOctets());
-                    AuthorityInformationAccess aia;
-
-                    try
-                    {
-                        aia
-                            = AuthorityInformationAccess.getInstance(
-                                    as.readObject());
-                    }
-                    finally
-                    {
-                        /*
-                         * Practically, it is likely unnecessary. However, it
-                         * silences a compile-time warning.
-                         */
-                        as.close();
-                    }
+                    AuthorityInformationAccess aia
+                        = AuthorityInformationAccess.getInstance(
+                            X509ExtensionUtil.fromExtensionValue(aiaBytes));
 
                     // the AIA may contain different URLs and types, try all
                     // of them
