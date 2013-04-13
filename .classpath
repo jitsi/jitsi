@@ -57,7 +57,6 @@
 	<classpathentry kind="lib" path="lib/installer-exclude/json-simple-1.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/junit.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/laf-widget.jar"/>
-	<classpathentry kind="lib" path="lib/installer-exclude/lcrypto-jdk16-143.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/libdbus-java-2.7.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="http://dbus.freedesktop.org/doc/dbus-java/api/"/>
@@ -88,5 +87,6 @@
 	<classpathentry kind="lib" path="lib/installer-exclude/jmork-1.0.5-SNAPSHOT.jar" sourcepath="/jmork"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/bcprov-jdk15on-148.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/bccontrib-1.0-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="lib/installer-exclude/zrtp4j-light.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
