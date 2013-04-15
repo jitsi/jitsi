@@ -95,16 +95,35 @@ public class MacOSXAddrBookSourceContact
                         .getSubPropertyLabel();
                 }
 
-                if(subProperty == null
-                        && property
-                            == MacOSXAddrBookContactQuery.kABAddressProperty)
+                if(subProperty == null)
                 {
-                    if(detail.containsSubCategory(SubCategory.Home))
-                        subProperty
-                            = MacOSXAddrBookContactQuery.kABAddressHomeLabel();
-                    else
-                        subProperty
-                            = MacOSXAddrBookContactQuery.kABAddressWorkLabel();
+                    if(property == MacOSXAddrBookContactQuery
+                            .kABAddressProperty)
+                    {
+                        if(detail.containsSubCategory(SubCategory.Home))
+                            subProperty = MacOSXAddrBookContactQuery
+                                .kABAddressHomeLabel();
+                        else
+                            subProperty = MacOSXAddrBookContactQuery
+                                .kABAddressWorkLabel();
+                    }
+                    else if(property == MacOSXAddrBookContactQuery
+                            .kABAIMInstantProperty
+                            || property == MacOSXAddrBookContactQuery
+                                .kABICQInstantProperty
+                            || property == MacOSXAddrBookContactQuery
+                                .kABJabberInstantProperty
+                            || property == MacOSXAddrBookContactQuery
+                                .kABMSNInstantProperty
+                            || property == MacOSXAddrBookContactQuery
+                                .kABYahooInstantProperty)
+                    {
+                        subProperty = MacOSXAddrBookContactQuery
+                            .kABAddressWorkLabel();
+
+
+
+                    }
                 }
 
                 List<String> values

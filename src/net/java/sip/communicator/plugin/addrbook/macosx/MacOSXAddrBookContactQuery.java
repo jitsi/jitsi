@@ -1331,11 +1331,9 @@ public class MacOSXAddrBookContactQuery
                     return kABICQInstantProperty;
                 else if(subCategories.contains(SubCategory.MSN))
                     return kABMSNInstantProperty;
-                else if(subCategories.contains(
-                            SubCategory.Jabber))
+                else if(subCategories.contains(SubCategory.Jabber))
                     return kABJabberInstantProperty;
-                else if(subCategories.contains(
-                            SubCategory.Yahoo))
+                else if(subCategories.contains(SubCategory.Yahoo))
                     return kABYahooInstantProperty;
                 break;
             case Phone:
