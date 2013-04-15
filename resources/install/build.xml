@@ -2282,7 +2282,7 @@
         </unzip>
 
         <!-- zrtp4j -->
-        <unzip src="${sc.basedir}/../libsrc/zrtp4j-src-2.3.0.zip"
+        <unzip src="${sc.basedir}/../libsrc/zrtp4j-src-3.1.0.zip"
                dest="${debian.src.dir}/lib/src"/>
 
         <!-- joscar -->
