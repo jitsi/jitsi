@@ -1296,4 +1296,32 @@ class NotificationServiceImpl
             }
         }
     }
+
+    /**
+     * Tells if the given sound notification is currently played.
+     *
+     * @param data Additional data for the event.
+     */
+    public boolean isPlayingNotification(NotificationData data)
+    {
+        boolean isPlaying = false;
+
+        Iterable<NotificationHandler> soundHandlers
+            = getActionHandlers(NotificationAction.ACTION_SOUND);
+
+        // There could be no sound action handler for this event type
+        if (soundHandlers != null)
+        {
+            for (NotificationHandler handler : soundHandlers)
+            {
+                if (handler instanceof SoundNotificationHandler)
+                {
+                    isPlaying
+                        |= ((SoundNotificationHandler) handler).isPlaying(data);
+                }
+            }
+        }
+
+        return isPlaying;
+    }
 }

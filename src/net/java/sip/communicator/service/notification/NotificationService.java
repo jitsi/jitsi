@@ -334,4 +334,11 @@ public interface NotificationService
      * types - returns <code>false</code>.
      */
     public boolean isActive(String eventType);
+
+    /**
+     * Tells if the given sound notification is currently played.
+     *
+     * @param data Additional data for the event.
+     */
+    public boolean isPlayingNotification(NotificationData data);
 }

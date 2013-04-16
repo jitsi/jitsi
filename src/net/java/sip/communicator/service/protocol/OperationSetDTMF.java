@@ -23,12 +23,27 @@ public interface OperationSetDTMF
     public static final int DEFAULT_DTMF_MINIMAL_TONE_DURATION = 70;
 
     /**
+     * The maximal tone duration value is -1 in order to stop sending tone only
+     * when user requests to stop it.
+     */
+    public static final int DEFAULT_DTMF_MAXIMAL_TONE_DURATION = -1;
+
+    /**
      * The name of the <tt>ConfigurationService</tt> <tt>int</tt> property
      * which indicates the minimal duration for a DTMF tone.
      * The default value is 70 ms.
      */
     public static final String PROP_MINIMAL_RTP_DTMF_TONE_DURATION =
         "net.java.sip.communicator.service.protocol.minimalRtpDtmfToneDuration";
+
+    /**
+     * The name of the <tt>ConfigurationService</tt> <tt>int</tt> property
+     * which indicates the maximal duration for a DTMF tone (in ms).
+     * The default value is -1 to tell to stop DTMF tones only following user
+     * will.
+     */
+    public static final String PROP_MAXIMAL_RTP_DTMF_TONE_DURATION =
+        "net.java.sip.communicator.service.protocol.maximalRtpDtmfToneDuration";
 
     /**
      * Sends the <tt>DTMFTone</tt> <tt>tone</tt> to <tt>callPeer</tt>.

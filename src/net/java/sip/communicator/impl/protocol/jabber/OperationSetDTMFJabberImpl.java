@@ -44,6 +44,11 @@ public class OperationSetDTMFJabberImpl
     private int minimalToneDuration;
 
     /**
+     * The maximal tone duration.
+     */
+    private int maximalToneDuration;
+
+    /**
      * Constructor.
      *
      * @param pps the Jabber Protocol provider service
@@ -52,6 +57,7 @@ public class OperationSetDTMFJabberImpl
     {
         this.dtmfMethod = this.getDTMFMethod(pps);
         this.minimalToneDuration = this.getMinimalToneDuration(pps);
+        this.maximalToneDuration = this.getMaximalToneDuration();
     }
 
     /**
@@ -107,7 +113,11 @@ public class OperationSetDTMFJabberImpl
         }
 
         ((AudioMediaStream)cp.getMediaHandler().getStream(MediaType.AUDIO))
-            .startSendingDTMF(tone, cpDTMFMethod, minimalToneDuration);
+            .startSendingDTMF(
+                    tone,
+                    cpDTMFMethod,
+                    minimalToneDuration,
+                    maximalToneDuration);
     }
 
     /**
@@ -236,7 +246,7 @@ public class OperationSetDTMFJabberImpl
         {
             minimalToneDuration = Integer.valueOf(minimalToneDurationString);
         }
-        // Else look at the globl property.
+        // Else look at the global property.
         else
         {
             ConfigurationService cfg
@@ -250,5 +260,29 @@ public class OperationSetDTMFJabberImpl
             }
         }
         return minimalToneDuration;
+    }
+
+    /**
+     * Gets the maximal DTMF tone duration for this account.
+     *
+     * @return The maximal DTMF tone duration for this account.
+     */
+    private int getMaximalToneDuration()
+    {
+        int maximalToneDuration
+            = OperationSetDTMF.DEFAULT_DTMF_MAXIMAL_TONE_DURATION;
+
+        // Look at the global property.
+        ConfigurationService cfg
+            = JabberActivator.getConfigurationService();
+        // Check if there is a custom value for the maximal tone duration.
+        if(cfg != null)
+        {
+            maximalToneDuration = cfg.getInt(
+                    OperationSetDTMF.PROP_MAXIMAL_RTP_DTMF_TONE_DURATION,
+                    maximalToneDuration);
+        }
+
+        return maximalToneDuration;
     }
 }

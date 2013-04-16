@@ -28,7 +28,8 @@ import org.jitsi.service.protocol.*;
  * @author Lyubomir Marinov
  */
 public class DTMFHandler
-    implements KeyEventDispatcher
+    implements KeyEventDispatcher,
+                Runnable
 {
     /**
      * The <tt>Logger</tt> used by the <tt>DTMFHandler</tt> class and its
@@ -63,6 +64,17 @@ public class DTMFHandler
      * Default event type for DTMF tone.
      */
     public static final String DTMF_TONE_PREFIX = "DTMFTone.";
+
+    /**
+     * The list of audio DTMF tones to play.
+     */
+    private Vector<DTMFToneInfo> dmtfToneNotifications
+        = new Vector<DTMFToneInfo>(1, 1);
+
+    /**
+     * The thread which plays the audio DTMF notifications.
+     */
+    private Thread dtmfToneNotificationThread;
 
     /**
      * All available tones and its properties like images for buttons, and
@@ -411,8 +423,19 @@ public class DTMFHandler
     {
         if(info.sound != null)
         {
-            currentlyPlayingTone = GuiActivator.getNotificationService()
-                .fireNotification(DTMF_TONE_PREFIX + info.tone.getValue());
+            synchronized(dmtfToneNotifications)
+            {
+                boolean startThread = (dmtfToneNotifications.size() == 0);
+                dmtfToneNotifications.add(info);
+                if(startThread)
+                {
+                    dtmfToneNotificationThread
+                        = new Thread(
+                                this,
+                                "DTMFHandler: DTMF tone notification player");
+                    dtmfToneNotificationThread.start();
+                }
+            }
         }
 
         if (callContainer != null)
@@ -477,10 +500,6 @@ public class DTMFHandler
      */
     public synchronized void stopSendingDtmfTone()
     {
-        if(currentlyPlayingTone != null)
-            GuiActivator.getNotificationService()
-                .stopNotification(currentlyPlayingTone);
-
         if (callContainer != null)
         {
             stopSendingDtmfTone(
@@ -589,6 +608,41 @@ public class DTMFHandler
             this.macImageID = macImageID;
             this.macImageRolloverID = macImageRolloverID;
             this.sound = sound;
+        }
+    }
+
+    /**
+     * Runnable used to read all waiting DTMF tone notification.
+     */
+    public void run()
+    {
+        boolean moreToPlay = (dmtfToneNotifications.size() > 0);
+        DTMFToneInfo toneToPlay = null;
+        while(moreToPlay)
+        {
+            toneToPlay = dmtfToneNotifications.get(0);
+            if(toneToPlay.sound != null)
+            {
+                // Plays the next DTMF sond notification.
+                currentlyPlayingTone
+                    = GuiActivator.getNotificationService().fireNotification(
+                            DTMF_TONE_PREFIX + toneToPlay.tone.getValue());
+
+                // Waits for the current notification to end.
+                while(GuiActivator.getNotificationService()
+                        .isPlayingNotification(currentlyPlayingTone))
+                {
+                    Thread.yield();
+                }
+                // Removes the ended notification from the DTMF list.
+                GuiActivator.getNotificationService()
+                    .stopNotification(currentlyPlayingTone);
+                synchronized(dmtfToneNotifications)
+                {
+                    dmtfToneNotifications.remove(0);
+                    moreToPlay = (dmtfToneNotifications.size() > 0);
+                }
+            }
         }
     }
 }

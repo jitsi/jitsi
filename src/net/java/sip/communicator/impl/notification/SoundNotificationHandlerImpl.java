@@ -258,6 +258,37 @@ public class SoundNotificationHandlerImpl
     }
 
     /**
+     * Tells if the given notification sound is currently played.
+     *
+     * @param data Additional data for the event.
+     */
+    public boolean isPlaying(NotificationData data)
+    {
+        AudioNotifierService audioNotifService
+            = NotificationActivator.getAudioNotifier();
+
+        if (audioNotifService != null)
+        {
+            synchronized(playedClips)
+            {
+                Iterator<Map.Entry<SCAudioClip, NotificationData>> i
+                    = playedClips.entrySet().iterator();
+
+                while (i.hasNext())
+                {
+                    Map.Entry<SCAudioClip, NotificationData> e = i.next();
+
+                    if (e.getValue() == data)
+                    {
+                        return e.getKey().isStarted();
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
      * Beeps the PC speaker.
      */
     private static class PCSpeakerClip

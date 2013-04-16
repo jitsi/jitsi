@@ -45,4 +45,11 @@ public interface SoundNotificationHandler
      * @return TRUE if currently the sound is off, FALSE otherwise
      */
     public boolean isMute();
+
+    /**
+     * Tells if the given notification sound is currently played.
+     *
+     * @param data Additional data for the event.
+     */
+    public boolean isPlaying(NotificationData data);
 }
