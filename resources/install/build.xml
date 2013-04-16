@@ -1757,10 +1757,6 @@
  reference:file:sc-bundles/swingnotification.jar \]]></replacevalue>
         </replace>
         <replace file="${debianize.dir}/../lib/felix.client.run.properties"
-                 token="felix.auto.start.10= \">
-            <replacevalue></replacevalue>
-        </replace>
-        <replace file="${debianize.dir}/../lib/felix.client.run.properties"
                  token=" reference:file:lib/bundle/org.apache.felix.bundlerepository-1.6.4.jar">
             <replacevalue></replacevalue>
         </replace>
