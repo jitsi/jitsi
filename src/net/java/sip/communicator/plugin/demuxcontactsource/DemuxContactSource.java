@@ -309,7 +309,7 @@ public class DemuxContactSource
                                                 sourceContact.getDisplayName(),
                                                 contactDetails);
 
-            genericContact.setDisplayDetails(contactDetail.getDetail());
+            genericContact.setDisplayDetails(sourceContact.getDisplayDetails());
             genericContact.setPresenceStatus(sourceContact.getPresenceStatus());
             genericContact.setImage(sourceContact.getImage());
 
