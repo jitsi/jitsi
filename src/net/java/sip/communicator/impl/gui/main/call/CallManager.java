@@ -2240,7 +2240,7 @@ public class CallManager
                         GuiActivator.getResources().getI18NString(
                                 "service.gui.ERROR"),
                         e.getMessage(),
-                        ErrorDialog.ERROR)
+                        e)
                     .showDialog();
             }
         }
