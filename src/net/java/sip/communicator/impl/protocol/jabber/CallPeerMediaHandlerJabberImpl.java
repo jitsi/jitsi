@@ -14,6 +14,7 @@ import java.util.List;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.colibri.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.ContentPacketExtension.SendersEnum;
 import net.java.sip.communicator.impl.protocol.jabber.jinglesdp.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.media.*;
@@ -1422,42 +1423,34 @@ public class CallPeerMediaHandlerJabberImpl
         //determine the direction that we need to announce.
         MediaDirection remoteDirection
             = JingleUtils.getDirection(content, getPeer().isInitiator());
-
-        boolean checkUserPreference = true;
-        /* If we are the focus of a conference and a peer is sending video to
-         * us, we should announce at least SENDONLY, even if we are not
-         * sending video ourselves.
+        /* If we are the focus of a conference, we need to take into account
+         * the other participants.
          */
-        if (MediaType.VIDEO.equals(mediaType))
+        CallJabberImpl call = getPeer().getCall();
+        if (call != null && call.getConference().isConferenceFocus())
         {
-            Call call = getPeer().getCall();
-            if (call != null && call.getConference().isConferenceFocus())
+            for (CallPeerJabberImpl peer : call.getCallPeerList())
             {
-                /* We don't keep per-CallPeer MediaDirections, so we use the
-                 * current direction of our video MediaStream as a hint that
-                 * one of our peers is sending video to us.
-                 */
-                MediaStream mediaStream = getStream(MediaType.VIDEO);
-                if (mediaStream != null)
+                ContentPacketExtension remoteContent
+                    = peer.getMediaHandler()
+                        .getRemoteContent(mediaType.toString());
+                boolean initiator = peer.isInitiator();
+                if (remoteContent != null)
                 {
-                    MediaDirection streamDirection = mediaStream.getDirection();
-                    if (streamDirection != null &&
-                            streamDirection.allowsReceiving())
+                    SendersEnum senders = remoteContent.getSenders();
+                    //check if the direction of the jingle session we have with
+                    //this peer allows us receiving media. If senders is null,
+                    //assume the default of 'both'
+                    if (senders == null ||
+                            (SendersEnum.both == senders) ||
+                            (initiator && SendersEnum.initiator == senders) ||
+                            (!initiator && SendersEnum.responder == senders))
                     {
-                        checkUserPreference = false;
                         remoteDirection
                                 = remoteDirection.or(MediaDirection.SENDONLY);
                     }
                 }
             }
-        }
-
-        if (checkUserPreference)
-        {
-            // Take the preference of the user with respect to streaming
-            // mediaType into account.
-            devDirection
-                    = devDirection.and(getDirectionUserPreference(mediaType));
         }
 
         MediaDirection direction
