@@ -954,7 +954,8 @@
         bundle-plugin-contactsourceconfig,bundle-plugin-certconfig,
         bundle-globalshortcut,bundle-plugin-msofficecomm,bundle-libjitsi,
         bundle-customcontactactions, bundle-phonenumbercontactsource,
-        bundle-demuxcontactsource, bundle-desktoputil"/>
+        bundle-demuxcontactsource, bundle-desktoputil,
+        bundle-globaldisplaydetails"/>
 
     <!--BUNDLE-SC-LAUNCHER-->
     <target name="bundle-sc-launcher">
@@ -2760,6 +2761,18 @@ javax.swing.event, javax.swing.border"/>
                 <exclude name="dns/**"/>
             </zipfileset>
             <zipfileset src="lib/installer-exclude/laf-widget.jar" prefix=""/>
+        </jar>
+    </target>
+
+    <!--BUNDLE-GLOBALDISPLAYDETAILS-->
+    <target name="bundle-globaldisplaydetails">
+        <jar compress="false" destfile="${bundles.dest}/globaldisplaydetails.jar"
+            manifest="${src}/net/java/sip/communicator/impl/globaldisplaydetails/globaldisplaydetails.manifest.mf">
+
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/globaldisplaydetails"
+                prefix="net/java/sip/communicator/service/globaldisplaydetails"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/globaldisplaydetails"
+                prefix="net/java/sip/communicator/impl/globaldisplaydetails" />
         </jar>
     </target>
 </project>

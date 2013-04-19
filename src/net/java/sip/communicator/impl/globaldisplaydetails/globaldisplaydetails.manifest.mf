@@ -1,0 +1,16 @@
+Bundle-Activator: net.java.sip.communicator.impl.globaldisplaydetails.GlobalDisplayDetailsActivator
+Bundle-Description: A bundle that implements the global display details package.
+Bundle-Name: Global Display Details Service Provider
+Bundle-Vendor: jitsi.org
+Bundle-Version: 0.0.1
+System-Bundle: yes
+Import-Package: org.jitsi.service.resources,
+ org.jitsi.service.configuration,
+ net.java.sip.communicator.util,
+ org.osgi.framework,
+ org.jitsi.util,
+ net.java.sip.communicator.service.protocol,
+ net.java.sip.communicator.service.protocol.event,
+ net.java.sip.communicator.util.account
+Export-Package: net.java.sip.communicator.service.globaldisplaydetails,
+ net.java.sip.communicator.service.globaldisplaydetails.event

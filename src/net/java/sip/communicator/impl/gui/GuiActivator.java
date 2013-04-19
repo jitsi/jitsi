@@ -17,6 +17,7 @@ import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.customcontactactions.*;
 import net.java.sip.communicator.service.desktop.*;
+import net.java.sip.communicator.service.globaldisplaydetails.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.keybindings.*;
 import net.java.sip.communicator.service.metahistory.*;
@@ -97,6 +98,8 @@ public class GuiActivator implements BundleActivator
     private static SecurityAuthority securityAuthority;
 
     private static DemuxContactSourceService demuxContactSourceService;
+
+    private static GlobalDisplayDetailsService globalDisplayDetailsService;
 
     private static final Map<Object, ProtocolProviderFactory>
         providerFactoriesMap = new Hashtable<Object, ProtocolProviderFactory>();
@@ -519,6 +522,25 @@ public class GuiActivator implements BundleActivator
                         DemuxContactSourceService.class);
         }
         return demuxContactSourceService;
+    }
+
+    /**
+     * Returns the <tt>GlobalDisplayDetailsService</tt> obtained from the bundle
+     * context.
+     *
+     * @return the <tt>GlobalDisplayDetailsService</tt> obtained from the bundle
+     * context
+     */
+    public static GlobalDisplayDetailsService getGlobalDisplayDetailsService()
+    {
+        if (globalDisplayDetailsService == null)
+        {
+            globalDisplayDetailsService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        GlobalDisplayDetailsService.class);
+        }
+        return globalDisplayDetailsService;
     }
 
     /**

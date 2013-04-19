@@ -17,6 +17,7 @@ import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.presence.avatar.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.globaldisplaydetails.event.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.protocol.*;
@@ -25,8 +26,6 @@ import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 
 import net.java.sip.communicator.plugin.desktoputil.*;
-import net.java.sip.communicator.plugin.desktoputil.SwingWorker;
-import net.java.sip.communicator.plugin.desktoputil.TransparentPanel;
 
 import org.jitsi.util.*;
 
@@ -40,9 +39,8 @@ import org.jitsi.util.*;
 public class AccountStatusPanel
     extends TransparentPanel
     implements  RegistrationStateChangeListener,
-                ServerStoredDetailsChangeListener,
                 PluginComponentListener,
-                AvatarListener,
+                GlobalDisplayDetailsListener,
                 Skinnable
 {
     /**
@@ -112,22 +110,6 @@ public class AccountStatusPanel
      * The south plug-in container.
      */
     private final TransparentPanel southPluginPanel;
-
-    private static byte[] currentImage;
-
-    private String currentFirstName;
-
-    private String currentLastName;
-
-    private String currentDisplayName;
-
-    private String globalDisplayName;
-
-    /**
-     * Property to disable auto answer menu.
-     */
-    private static final String GLOBAL_DISPLAY_NAME_PROP =
-        "net.java.sip.communicator.impl.gui.main.presence.GLOBAL_DISPLAY_NAME";
 
     /**
      * Keep reference to plugin container or it will loose its
@@ -203,9 +185,12 @@ public class AccountStatusPanel
         loadSkin();
 
         GuiActivator.getUIService().addPluginComponentListener(this);
+        GuiActivator.getGlobalDisplayDetailsService()
+            .addGlobalDisplayDetailsListener(this);
 
-        globalDisplayName = GuiActivator.getConfigurationService().getString(
-            GLOBAL_DISPLAY_NAME_PROP, null);
+        String globalDisplayName
+            = GuiActivator.getGlobalDisplayDetailsService()
+                .getGlobalDisplayName();
 
         if(!StringUtils.isNullOrEmpty(globalDisplayName))
             accountNameLabel.setText(globalDisplayName);
@@ -382,87 +367,6 @@ public class AccountStatusPanel
     }
 
     /**
-     * Updates account information when a protocol provider is registered.
-     * @param evt the <tt>RegistrationStateChangeEvent</tt> that notified us
-     * of the change
-     */
-    public void registrationStateChanged(RegistrationStateChangeEvent evt)
-    {
-        ProtocolProviderService protocolProvider = evt.getProvider();
-
-        // There is nothing we can do when account is registering,
-        // will set only connecting state later.
-        // While dispatching the registering if the state of the provider
-        // changes to registered we may end with client logged off
-        // this may happen if registered is coming too quickly after registered
-        // Dispatching registering is doing some swing stuff which
-        // is scheduled in EDT and so can be executing when already registered
-        if (!evt.getNewState().equals(RegistrationState.REGISTERING))
-            this.updateStatus(protocolProvider);
-
-        if (evt.getNewState().equals(RegistrationState.REGISTERED))
-        {
-            /*
-             * Check the support for OperationSetServerStoredAccountInfo prior
-             * to starting the Thread because only a couple of the protocols
-             * currently support it and thus starting a Thread that is not going
-             * to do anything useful can be prevented.
-             */
-            OperationSetServerStoredAccountInfo accountInfoOpSet
-                = protocolProvider.getOperationSet(
-                        OperationSetServerStoredAccountInfo.class);
-
-            if (accountInfoOpSet != null)
-            {
-                /*
-                 * FIXME Starting a separate Thread for each
-                 * ProtocolProviderService is uncontrollable because the
-                 * application is multi-protocol and having multiple accounts is
-                 * expected so one is likely to end up with a multitude of
-                 * Threads. Besides, it not very clear when retrieving the first
-                 * and last name is to stop so one ProtocolProviderService being
-                 * able to supply both the first and the last name may be
-                 * overwritten by a ProtocolProviderService which is able to
-                 * provide just one of them.
-                 */
-                new UpdateAccountInfo(protocolProvider, accountInfoOpSet)
-                    .start();
-            }
-
-            OperationSetAvatar avatarOpSet
-                = protocolProvider.getOperationSet(OperationSetAvatar.class);
-            if (avatarOpSet != null)
-                avatarOpSet.addAvatarListener(this);
-
-            OperationSetServerStoredAccountInfo serverStoredAccountInfo
-                = protocolProvider.getOperationSet(
-                    OperationSetServerStoredAccountInfo.class);
-            if (serverStoredAccountInfo != null)
-                serverStoredAccountInfo.addServerStoredDetailsChangeListener(
-                        this);
-        }
-        else if (evt.getNewState().equals(RegistrationState.UNREGISTERING)
-                || evt.getNewState().equals(RegistrationState.CONNECTION_FAILED))
-        {
-            OperationSetAvatar avatarOpSet
-                = protocolProvider.getOperationSet(OperationSetAvatar.class);
-            if (avatarOpSet != null)
-                avatarOpSet.removeAvatarListener(this);
-
-            OperationSetServerStoredAccountInfo serverStoredAccountInfo
-                = protocolProvider.getOperationSet(
-                    OperationSetServerStoredAccountInfo.class);
-            if (serverStoredAccountInfo != null)
-                serverStoredAccountInfo.removeServerStoredDetailsChangeListener(
-                        this);
-        }
-        else if (evt.getNewState().equals(RegistrationState.REGISTERING))
-        {
-            startConnecting(protocolProvider);
-        }
-    }
-
-    /**
      * Paints this component.
      * @param g the <tt>Graphics</tt> object used for painting
      */
@@ -537,13 +441,28 @@ public class AccountStatusPanel
     }
 
     /**
-     * Returns the global account image currently shown on the top of the
-     * application window.
-     * @return the global account image
+     * Called whenever a new avatar is defined for one of the protocols that we
+     * have subscribed for.
+     *
+     * @param event the event containing the new image
      */
-    public static byte[] getGlobalAccountImage()
+    public void globalDisplayNameChanged(
+            final GlobalDisplayNameChangeEvent event)
     {
-        return currentImage;
+        if (!SwingUtilities.isEventDispatchThread())
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    globalDisplayNameChanged(event);
+                    return;
+                }
+            });
+
+        String displayName = event.getNewDisplayName();
+
+        if(!StringUtils.isNullOrEmpty(displayName))
+            accountNameLabel.setText(displayName);
     }
 
     /**
@@ -552,20 +471,50 @@ public class AccountStatusPanel
      *
      * @param event the event containing the new image
      */
-    public void avatarChanged(AvatarEvent event)
+    public void globalDisplayAvatarChanged(
+            final GlobalAvatarChangeEvent event)
     {
-        currentImage = event.getNewAvatar();
+        if (!SwingUtilities.isEventDispatchThread())
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    globalDisplayAvatarChanged(event);
+                    return;
+                }
+            });
+
+        byte[] avatarImage = event.getNewAvatar();
+
         // If there is no avatar image set, then displays the default one.
-        if(currentImage == null)
+        if(avatarImage != null)
         {
-            currentImage = ImageUtils.toByteArray(
-                    ImageLoader.getImage(ImageLoader.DEFAULT_USER_PHOTO));
+            accountImageLabel.setImageIcon(avatarImage);
         }
+    }
 
-        AvatarCacheUtils.cacheAvatar(
-            event.getSourceProvider(), currentImage);
+    /**
+     * Updates account information when a protocol provider is registered.
+     * @param evt the <tt>RegistrationStateChangeEvent</tt> that notified us
+     * of the change
+     */
+    public void registrationStateChanged(RegistrationStateChangeEvent evt)
+    {
+        ProtocolProviderService protocolProvider = evt.getProvider();
 
-        accountImageLabel.setImageIcon(currentImage);
+        // There is nothing we can do when account is registering,
+        // will set only connecting state later.
+        // While dispatching the registering if the state of the provider
+        // changes to registered we may end with client logged off
+        // this may happen if registered is coming too quickly after registered
+        // Dispatching registering is doing some swing stuff which
+        // is scheduled in EDT and so can be executing when already registered
+        if (evt.getNewState().equals(RegistrationState.REGISTERING))
+        {
+            startConnecting(protocolProvider);
+        }
+        else
+            this.updateStatus(protocolProvider);
     }
 
     /**
@@ -594,36 +543,13 @@ public class AccountStatusPanel
 
         GuiActivator.getUIService().addPluginComponentListener(this);
 
-        if(currentImage == null)
+        byte[] avatar = GuiActivator.getGlobalDisplayDetailsService()
+            .getGlobalDisplayAvatar();
+        if (avatar == null || avatar.length <= 0)
             accountImageLabel.setImageIcon(ImageLoader
                 .getImage(ImageLoader.DEFAULT_USER_PHOTO));
-    }
-
-    /**
-     * Registers a ServerStoredDetailsChangeListener with the operation sets
-     * of the providers, if a provider change its name we use it in the UI.
-     *
-     * @param evt the <tt>ServerStoredDetailsChangeEvent</tt>
-     * the event for name change.
-     */
-    public void serverStoredDetailsChanged(ServerStoredDetailsChangeEvent evt)
-    {
-        if(!StringUtils.isNullOrEmpty(globalDisplayName))
-            return;
-
-        if(evt.getNewValue() instanceof
-                ServerStoredDetails.DisplayNameDetail
-            && (evt.getEventID() == ServerStoredDetailsChangeEvent.DETAIL_ADDED
-                || evt.getEventID()
-                    == ServerStoredDetailsChangeEvent.DETAIL_REPLACED))
-        {
-            String accountName =
-                    ((ServerStoredDetails.DisplayNameDetail)evt.getNewValue())
-                        .getName();
-
-            if (accountName != null && accountName.length() > 0)
-                accountNameLabel.setText(accountName);
-        }
+        else
+            accountImageLabel.setImageIcon(avatar);
     }
 
     /**
@@ -639,148 +565,5 @@ public class AccountStatusPanel
             return uiClassID;
         else
             return super.getUIClassID();
-    }
-
-    /**
-     * Queries the operations sets to obtain names and display info.
-     * Queries are done in separate thread.
-     */
-    private class UpdateAccountInfo
-        extends SwingWorker
-    {
-        /**
-         * The protocol provider.
-         */
-        private ProtocolProviderService protocolProvider;
-
-        /**
-         * The account info operation set to query.
-         */
-        private OperationSetServerStoredAccountInfo accountInfoOpSet;
-
-        /**
-         * Constructs with provider and opset to use.
-         * @param protocolProvider the provider.
-         * @param accountInfoOpSet the opset.
-         */
-        UpdateAccountInfo(
-            ProtocolProviderService protocolProvider,
-            OperationSetServerStoredAccountInfo accountInfoOpSet)
-        {
-            this.protocolProvider = protocolProvider;
-            this.accountInfoOpSet = accountInfoOpSet;
-        }
-
-        /**
-         * Worker thread method.
-         * @return
-         * @throws Exception
-         */
-        @Override
-        protected Object construct()
-            throws
-            Exception
-        {
-            if (currentImage == null)
-            {
-                currentImage
-                    = AvatarCacheUtils
-                        .getCachedAvatar(protocolProvider);
-
-                if (currentImage == null)
-                {
-                    byte[] accountImage
-                        = AccountInfoUtils
-                            .getImage(accountInfoOpSet);
-
-                    // do not set empty images
-                    if ((accountImage != null)
-                            && (accountImage.length > 0))
-                    {
-                        currentImage = accountImage;
-
-                        AvatarCacheUtils.cacheAvatar(
-                            protocolProvider, accountImage);
-                    }
-                }
-            }
-
-            if(!StringUtils.isNullOrEmpty(globalDisplayName))
-                return null;
-
-            if (currentFirstName == null)
-            {
-                String firstName = AccountInfoUtils
-                    .getFirstName(accountInfoOpSet);
-
-                if (!StringUtils.isNullOrEmpty(firstName))
-                {
-                    currentFirstName = firstName;
-                }
-            }
-
-            if (currentLastName == null)
-            {
-                String lastName = AccountInfoUtils
-                    .getLastName(accountInfoOpSet);
-
-                if (!StringUtils.isNullOrEmpty(lastName))
-                {
-                    currentLastName = lastName;
-                }
-            }
-
-            if (currentFirstName == null && currentLastName == null)
-            {
-                String displayName = AccountInfoUtils
-                    .getDisplayName(accountInfoOpSet);
-
-                if (displayName != null)
-                    currentDisplayName = displayName;
-            }
-
-            return null;
-        }
-
-        /**
-         * Called on the event dispatching thread (not on the worker thread)
-         * after the <code>construct</code> method has returned.
-         */
-        protected void finished()
-        {
-            if ((currentImage != null) && (currentImage.length > 0))
-            {
-                accountImageLabel.setImageIcon(currentImage);
-            }
-
-            String accountName = null;
-            if (!StringUtils.isNullOrEmpty(currentFirstName))
-            {
-                accountName = currentFirstName;
-            }
-
-            if (!StringUtils.isNullOrEmpty(currentLastName))
-            {
-                /*
-                 * If accountName is null, don't use += because
-                 * it will make the accountName start with the
-                 * string "null".
-                 */
-                if ((accountName == null)
-                        || (accountName.length() == 0))
-                    accountName = currentLastName;
-                else
-                    accountName += " " + currentLastName;
-            }
-
-            if (currentFirstName == null && currentLastName == null)
-            {
-                if (currentDisplayName != null)
-                    accountName = currentDisplayName;
-            }
-
-            if (accountName != null && accountName.length() > 0)
-                    accountNameLabel.setText(accountName);
-        }
     }
 }

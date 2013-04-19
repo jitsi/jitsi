@@ -9,7 +9,7 @@ package net.java.sip.communicator.service.protocol.event;
 import java.util.*;
 
 /**
- * The listener interface for receiving geolocation events. The class that is
+ * The listener interface for receiving avatar events. The class that is
  * interested in processing a avatar event implements this interface, and the
  * object created with that class is registered with the avatar operation set,
  * using its <code>addAvatarListener</code> method. When a avatar event occurs,

@@ -14,9 +14,9 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
-import net.java.sip.communicator.impl.gui.main.presence.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.service.globaldisplaydetails.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -140,20 +140,26 @@ public class ConferencePeerPanel
         // we improve our chances to have an image, instead of looking only at
         // the protocol provider avatar, which could be null, we look for any
         // image coming from one of our accounts.
-        byte[] globalAccountImage = AccountStatusPanel.getGlobalAccountImage();
+        GlobalDisplayDetailsService displayDetailsService
+            = GuiActivator.getGlobalDisplayDetailsService();
+
+        byte[] globalAccountImage
+            = displayDetailsService.getGlobalDisplayAvatar();
 
         if ((globalAccountImage != null) && (globalAccountImage.length > 0))
             setPeerImage(globalAccountImage);
 
         ResourceManagementService resources = GuiActivator.getResources();
 
+        String globalDisplayName = displayDetailsService.getGlobalDisplayName();
         setPeerName(
-                call.getProtocolProvider().getAccountID().getUserID()
+                (globalDisplayName != null && globalDisplayName.length() > 0)
+                ? globalDisplayName
                     + " ("
-                    + resources
-                        .getI18NString("service.gui.ACCOUNT_ME")
-                            .toLowerCase()
-                    + ")");
+                    + call.getProtocolProvider().getAccountID().getUserID()
+                    + ")"
+                : call.getProtocolProvider().getAccountID().getUserID());
+
         setTitleBackground(
                 video
                     ? Color.DARK_GRAY
