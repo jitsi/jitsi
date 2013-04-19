@@ -12,6 +12,7 @@ import javax.sdp.*;
 import javax.sip.*;
 import javax.sip.address.*;
 import javax.sip.message.*;
+import gov.nist.javax.sip.stack.*;
 
 import net.java.sip.communicator.impl.protocol.sip.sdp.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -27,6 +28,7 @@ import org.jitsi.service.neomedia.*;
  * dialogs.
  *
  * @author Emil Ivov
+ * @author Hristo Terezov
  */
 public class CallSipImpl
     extends MediaAwareCall<CallPeerSipImpl,
@@ -419,31 +421,34 @@ public class CallSipImpl
             response = messageFactory.createResponse(Response.RINGING, invite);
             serverTran.sendResponse(response);
 
-            final Timer timer = new Timer();
-            CallPeerAdapter stateListener = new CallPeerAdapter()
+            if(serverTran instanceof SIPTransaction 
+                && !((SIPTransaction)serverTran).isReliable())
             {
-                public void peerStateChanged(CallPeerChangeEvent evt)
+                final Timer timer = new Timer();
+                CallPeerAdapter stateListener = new CallPeerAdapter()
                 {
-                    if(!evt.getNewValue().equals(CallPeerState.INCOMING_CALL))
+                    public void peerStateChanged(CallPeerChangeEvent evt)
                     {
-                        timer.cancel();
-                        peer.removeCallPeerListener(this);
+                        if(!evt.getNewValue()
+                                .equals(CallPeerState.INCOMING_CALL))
+                        {
+                            timer.cancel();
+                            peer.removeCallPeerListener(this);
+                        }
                     }
-                    
+                };
+                int interval = retransmitsRingingInterval;
+                int delay = 0;
+                for(int i = 0; i < MAX_RETRANSMISSIONS; i++)
+                {
+                    delay += interval;
+                    timer.schedule(new RingingResponseTask(response, 
+                        serverTran, peer, timer, stateListener), delay);
+                    interval *= 2;
                 }
-            };
-            int interval = retransmitsRingingInterval;
-            int delay = 0;
-
-            for(int i = 0; i < MAX_RETRANSMISSIONS; i++)
-            {
-                delay += interval;
-                timer.schedule(new RingingResponseTask(response, serverTran, 
-                    peer, timer, stateListener), delay);
-                interval *= 2;
+    
+                peer.addCallPeerListener(stateListener);
             }
-
-            peer.addCallPeerListener(stateListener); 
             if (logger.isDebugEnabled())
                 logger.debug("sent a ringing response: " + response);
         }
