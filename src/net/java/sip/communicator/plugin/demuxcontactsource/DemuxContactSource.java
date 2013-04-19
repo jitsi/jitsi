@@ -294,20 +294,12 @@ public class DemuxContactSource
 
             GenericSourceContact genericContact;
 
-            if (sourceContact instanceof SortedGenericSourceContact)
-            {
-                genericContact
-                    = new SortedGenericSourceContact(
-                                                this,
-                                                DemuxContactSource.this,
-                                                sourceContact.getDisplayName(),
-                                                contactDetails);
-            }
-            else
-                genericContact
-                    = new GenericSourceContact( DemuxContactSource.this,
-                                                sourceContact.getDisplayName(),
-                                                contactDetails);
+            genericContact
+                = new SortedGenericSourceContact(
+                                            this,
+                                            DemuxContactSource.this,
+                                            sourceContact.getDisplayName(),
+                                            contactDetails);
 
             genericContact.setDisplayDetails(sourceContact.getDisplayDetails());
             genericContact.setPresenceStatus(sourceContact.getPresenceStatus());
