@@ -605,7 +605,7 @@ public class MediaConfigurationImpl
 
         final JSpinner videoMaxBandwidth = new JSpinner(new SpinnerNumberModel(
             deviceConfig.getVideoRTPPacingThreshold(),
-            1, Integer.MAX_VALUE, 1));
+            1, 999, 1));
         videoMaxBandwidth.addChangeListener(new ChangeListener()
         {
             public void stateChanged(ChangeEvent e)
