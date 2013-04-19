@@ -115,10 +115,10 @@ public class OperationSetServerStoredContactInfoIcqImpl
     public Iterator<GenericDetail> getAllDetailsForContact(Contact contact)
     {
         assertConnected();
-        
+
         List<GenericDetail> res
             = infoRetreiver.getContactDetails(contact.getAddress());
-        
+
         if(contact.getImage() != null)
         {
             res.add(new ServerStoredDetails.ImageDetail(

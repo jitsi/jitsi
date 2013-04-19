@@ -135,25 +135,33 @@ public class InfoRetreiver
      */
     protected List<GenericDetail> retrieveDetails(String uin)
     {
-        int reqID = requestID++;
+        List<GenericDetail> result = null;
+        // Fixes a NumberFormatException, occurring if the uin is not a long
+        // number.
+        try
+        {
+            //retrieve the details
+            long toICQUin = Long.parseLong(uin);
 
-        //retrieve the details
-        long toICQUin = Long.parseLong(uin);
-        MetaFullInfoRequest infoRequest =
-            new MetaFullInfoRequest(
-                Long.parseLong(ownerUin),
-                reqID,
-                toICQUin);
+            int reqID = requestID++;
 
-        UserInfoResponseRetriever responseRetriever =
-            new UserInfoResponseRetriever(reqID);
+            MetaFullInfoRequest infoRequest =
+                new MetaFullInfoRequest(
+                    Long.parseLong(ownerUin),
+                    reqID,
+                    toICQUin);
 
-        icqProvider.getAimConnection().getInfoService().getOscarConnection()
-            .sendSnacRequest(infoRequest, responseRetriever);
+            UserInfoResponseRetriever responseRetriever =
+                new UserInfoResponseRetriever(reqID);
 
-        responseRetriever.waitForLastInfo(60000);
+            icqProvider.getAimConnection().getInfoService().getOscarConnection()
+                .sendSnacRequest(infoRequest, responseRetriever);
 
-        List<GenericDetail> result = responseRetriever.result;
+            responseRetriever.waitForLastInfo(60000);
+
+            result = responseRetriever.result;
+        }
+        catch(Exception e) {}
 
         if (result == null)
             result = new LinkedList<GenericDetail>();
