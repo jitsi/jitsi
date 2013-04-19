@@ -52,10 +52,25 @@ function build_lib {
     build_arch all $1
 }
 
-#build_lib expat
-#build_lib ldns
-#build_lib unbound
+build_lib expat
+build_lib ldns
+build_lib unbound
 
 cp -r ${prefix}_all/include $prefix/
+# remove all dynamic libs as we do not use them and compile is first searching
+# for them
+rm ${prefix}_all/lib/*.dylib
 cd $out
-g++ -mmacosx-version-min=10.4 -arch x86_64 -arch i386 $out/../../src/net_java_sip_communicator_impl_dns_UnboundApi.cpp -fpic -shared -o $out/libjunbound.jnilib -I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers -I${prefix}_all/include -L${prefix}_all/lib -lunbound -lldns -lcrypto
+g++ -mmacosx-version-min=10.4 -arch x86_64 -arch i386 \
+ $out/../../src/net_java_sip_communicator_impl_dns_UnboundApi.cpp \
+ -D_JNI_IMPLEMENTATION_ \
+ -fPIC -shared -O2 -Wall \
+ -I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers \
+ -I${prefix}_all/include \
+ -L${prefix}_all/lib \
+ -L/usr/lib \
+ -dynamiclib \
+ -lunbound -lldns -lcrypto \
+ -dynamic \
+ -lcrypto -lssl \
+ -o libjunbound.jnilib
