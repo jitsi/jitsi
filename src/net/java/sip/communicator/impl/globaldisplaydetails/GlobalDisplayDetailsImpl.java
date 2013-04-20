@@ -95,6 +95,9 @@ public class GlobalDisplayDetailsImpl
      */
     public String getGlobalDisplayName()
     {
+        if (!StringUtils.isNullOrEmpty(provisionedDisplayName))
+            return provisionedDisplayName;
+
         return globalDisplayName;
     }
 
@@ -350,8 +353,7 @@ public class GlobalDisplayDetailsImpl
             }
 
             if(!StringUtils.isNullOrEmpty(provisionedDisplayName)
-                || (globalDisplayName != null
-                        && globalDisplayName.length() > 0 && !isUpdate))
+                || (!StringUtils.isNullOrEmpty(globalDisplayName) && !isUpdate))
                 return;
 
             if (currentFirstName == null)
@@ -407,8 +409,7 @@ public class GlobalDisplayDetailsImpl
                  * it will make the accountName start with the
                  * string "null".
                  */
-                if ((accountName == null)
-                        || (accountName.length() == 0))
+                if (StringUtils.isNullOrEmpty(accountName))
                     accountName = currentLastName;
                 else
                     accountName += " " + currentLastName;
@@ -422,7 +423,7 @@ public class GlobalDisplayDetailsImpl
 
             globalDisplayName = accountName;
 
-            if (accountName != null && accountName.length() > 0)
+            if (!StringUtils.isNullOrEmpty(globalDisplayName))
             {
                 fireGlobalDisplayNameEvent(globalDisplayName);
             }
