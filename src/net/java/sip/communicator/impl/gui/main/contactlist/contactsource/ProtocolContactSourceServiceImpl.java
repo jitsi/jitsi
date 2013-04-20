@@ -224,9 +224,9 @@ public class ProtocolContactSourceServiceImpl
 
                 if (queryString == null
                     || queryString.length() <= 0
-                    || metaContact.getDisplayName().startsWith(queryString)
-                    || contactAddress.startsWith(queryString)
-                    || contactDisplayName.startsWith(queryString))
+                    || metaContact.getDisplayName().contains(queryString)
+                    || contactAddress.contains(queryString)
+                    || contactDisplayName.contains(queryString))
                 {
                     ContactDetail contactDetail
                         = new ContactDetail(contactAddress);
