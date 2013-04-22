@@ -508,6 +508,24 @@ public class ToolsMenu
     }
 
     /**
+     * Runs clean-up for associated resources which need explicit disposal (e.g.
+     * listeners keeping this instance alive because they were added to the
+     * model which operationally outlives this instance).
+     */
+    public void dispose()
+    {
+        GuiActivator.bundleContext.removeServiceListener(this);
+
+        GuiActivator.getUIService().removePluginComponentListener(this);
+
+        /*
+         * Let go of all Components contributed by PluginComponents because the
+         * latter will still live in the contribution store.
+         */
+        removeAll();
+    }
+
+    /**
      * Initializes the video bridge menu on Mac OSX.
      */
     private class InitVideoBridgeMenuWorkerMacOSX

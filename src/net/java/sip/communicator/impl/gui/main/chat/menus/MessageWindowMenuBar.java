@@ -116,6 +116,7 @@ public class MessageWindowMenuBar
     {
         pluginContainer.dispose();
         helpMenu.dispose();
+        optionsMenu.dispose();
     }
 
     /**
