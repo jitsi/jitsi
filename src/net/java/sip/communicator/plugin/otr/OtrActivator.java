@@ -222,14 +222,6 @@ public class OtrActivator
         bundleContext = context;
     }
 
-    private ServiceRegistration regRightClickMenu;
-
-    private ServiceRegistration regMenuBarMenu;
-
-    private ServiceRegistration regButtonBarButton;
-
-    private ServiceRegistration regConfigurationForm;
-
     private void handleProviderAdded(ProtocolProviderService provider)
     {
         OperationSetInstantMessageTransform opSetMessageTransform
@@ -283,19 +275,6 @@ public class OtrActivator
                 this.handleProviderRemoved(provider);
             }
         }
-
-        // Unregister UI
-        if (this.regButtonBarButton != null)
-            this.regButtonBarButton.unregister();
-
-        if (this.regConfigurationForm != null)
-            this.regConfigurationForm.unregister();
-
-        if (this.regMenuBarMenu != null)
-            this.regMenuBarMenu.unregister();
-
-        if (this.regRightClickMenu != null)
-            this.regRightClickMenu.unregister();
     }
 
     private void handleProviderRemoved(ProtocolProviderService provider)

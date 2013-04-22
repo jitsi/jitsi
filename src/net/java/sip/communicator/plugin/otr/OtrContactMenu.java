@@ -217,6 +217,8 @@ class OtrContactMenu
      */
     private void buildMenu()
     {
+        separateMenu.removeAll();
+
         OtrPolicy policy = OtrActivator.scOtrEngine.getContactPolicy(contact);
 
         JMenuItem endOtr = new JMenuItem();
