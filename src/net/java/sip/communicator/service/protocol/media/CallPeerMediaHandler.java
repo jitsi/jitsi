@@ -974,10 +974,6 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
      */
     public MediaStream getStream(MediaType mediaType)
     {
-        MediaHandler mediaHandler = getMediaHandler();
-        if (mediaHandler != null)
-            return mediaHandler.getStream(this, mediaType);
-
         switch (mediaType)
         {
         case AUDIO:
