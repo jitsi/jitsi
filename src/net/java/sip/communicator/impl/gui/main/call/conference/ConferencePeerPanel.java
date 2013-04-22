@@ -156,9 +156,9 @@ public class ConferencePeerPanel
                 (globalDisplayName != null && globalDisplayName.length() > 0)
                 ? globalDisplayName
                     + " ("
-                    + call.getProtocolProvider().getAccountID().getUserID()
+                    + call.getProtocolProvider().getAccountID().getDisplayName()
                     + ")"
-                : call.getProtocolProvider().getAccountID().getUserID());
+                : call.getProtocolProvider().getAccountID().getDisplayName());
 
         setTitleBackground(
                 video
