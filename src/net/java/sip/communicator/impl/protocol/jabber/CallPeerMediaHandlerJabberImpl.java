@@ -31,6 +31,7 @@ import org.jivesoftware.smackx.packet.*;
  *
  * @author Emil Ivov
  * @author Lyubomir Marinov
+ * @author Hristo Terezov
  */
 public class CallPeerMediaHandlerJabberImpl
     extends AbstractCallPeerMediaHandlerJabberGTalkImpl<CallPeerJabberImpl>
@@ -903,39 +904,16 @@ public class CallPeerMediaHandlerJabberImpl
 
                     if (call.getConference().isJitsiVideoBridge())
                     {
-                        String jitsiVideoBridge
-                            = protocolProvider.getJitsiVideoBridge();
-
-                        if ((jitsiVideoBridge != null)
-                                && (jitsiVideoBridge.length() != 0))
-                        {
-                            /*
-                             * Make the transport of the Jitsi VideoBridge the
-                             * most preferred.
-                             */
-                            String jitsiVideoBridgeTransport
-                                = ProtocolProviderServiceJabberImpl
-                                    .URN_XMPP_JINGLE_RAW_UDP_0;
-
-                            for (int i = 1; i < transports.length; i++)
-                            {
-                                if (jitsiVideoBridgeTransport.equals(
-                                        transports[i]))
-                                {
-                                    transports[i] = transports[0];
-                                    transports[0] = jitsiVideoBridgeTransport;
-                                }
-                            }
-
-                            /*
-                             * XXX If a telephony conference utilizing the Jitsi
-                             * VideoBridge server-side telephony conferencing
-                             * technology is to work, its only chance of working
-                             * is to use RAW UDP at the time of this writing.
-                             */
-                            transports
-                                = new String[] { jitsiVideoBridgeTransport };
-                        }
+                        /*
+                         * XXX If a telephony conference utilizing the Jitsi
+                         * VideoBridge server-side telephony conferencing
+                         * technology is to work, its only chance of working
+                         * is to use RAW UDP at the time of this writing.
+                         */
+                        transports
+                            = new String[] { 
+                                ProtocolProviderServiceJabberImpl
+                                    .URN_XMPP_JINGLE_RAW_UDP_0 };
                     }
 
                     /*
