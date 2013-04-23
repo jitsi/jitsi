@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.protocol.sip;
 
 import java.io.*;
+import java.text.*;
 import java.util.*;
 import java.util.regex.*;
 
@@ -236,18 +237,7 @@ public class OperationSetMessageWaitingSipImpl
 
             try
             {
-                final Address subscribeAddress;
-                String vmAddressURI = (String)provider.getAccountID()
-                    .getAccountProperty(
-                            ProtocolProviderFactory.VOICEMAIL_URI);
-
-                if(StringUtils.isNullOrEmpty(vmAddressURI))
-                    subscribeAddress = provider.getRegistrarConnection()
-                            .getAddressOfRecord();
-                else
-                    subscribeAddress = provider.parseAddressString(
-                            vmAddressURI);
-
+                final Address subscribeAddress = getSubscribeAddress();
 
                 if(subscribeAddress != null)
                 {
@@ -255,11 +245,47 @@ public class OperationSetMessageWaitingSipImpl
                             new MessageSummarySubscriber(subscribeAddress));
                 }
             }
-            catch(Exception e)
+            catch(Throwable e)
             {
-                e.printStackTrace();
+                logger.error("Error subscribing for mailbox", e);
             }
         }
+        else if (evt.getNewState().equals(RegistrationState.UNREGISTERING))
+        {
+            if(messageWaitingSubscriber != null)
+            {
+                try
+                {
+                    messageWaitingSubscriber.unsubscribe(
+                        getSubscribeAddress(), false);
+                }
+                catch(Throwable t)
+                {
+                    logger.error("Error unsubscribing mailbox", t);
+                }
+            }
+        }
+    }
+
+    /**
+     * Returns the subscribe address for current account mailbox, default
+     * or configured.
+     * @return the subscribe address for current account mailbox.
+     * @throws ParseException
+     */
+    private Address getSubscribeAddress()
+        throws ParseException
+    {
+        String vmAddressURI = (String)provider.getAccountID()
+            .getAccountProperty(
+                    ProtocolProviderFactory.VOICEMAIL_URI);
+
+        if(StringUtils.isNullOrEmpty(vmAddressURI))
+            return provider.getRegistrarConnection()
+                    .getAddressOfRecord();
+        else
+            return provider.parseAddressString(
+                    vmAddressURI);
     }
 
     /**

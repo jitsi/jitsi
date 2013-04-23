@@ -681,7 +681,10 @@ public class OperationSetPresenceSipImpl
         // must be done in last to avoid some problem when terminating a
         // subscription of a contact who is also one of our watchers
         if (status.equals(sipStatusEnum.getStatus(SipStatusEnum.OFFLINE)))
+        {
+            unsubscribeToAllEventSubscribers();
             unsubscribeToAllContact();
+        }
 
         // inform the listeners of these changes
         this.fireProviderStatusChangeEvent(oldStatus);
@@ -2883,6 +2886,28 @@ public class OperationSetPresenceSipImpl
     }
 
     /**
+     * Unsubscribe to every event we have subscribes, as it is done normally
+     * on exit or logout do it silently if it fails.
+     */
+    private void unsubscribeToAllEventSubscribers()
+    {
+        if(this.watcherInfoSubscriber != null)
+        {
+            try
+            {
+                watcherInfoSubscriber.unsubscribe(
+                    parentProvider.getRegistrarConnection()
+                        .getAddressOfRecord(), false);
+            }
+            catch (Throwable ex)
+            {
+                logger.error("Failed to send the unsubscription " +
+                        "for watcher info.", ex);
+            }
+        }
+    }
+
+    /**
      * Sets the display name for <tt>contact</tt> to be <tt>newName</tt>.
      * <p>
      * @param contact the <tt>Contact</tt> that we are renaming
@@ -3190,6 +3215,22 @@ public class OperationSetPresenceSipImpl
                         , contact.getParentContactGroup()
                         , oldContactStatus);
             }
+
+            if(this.useDistantPA)
+            {
+                try
+                {
+                    watcherInfoSubscriber.removeSubscription(
+                        parentProvider.getRegistrarConnection()
+                            .getAddressOfRecord());
+                }
+                catch (Throwable ex)
+                {
+                    logger.error("Failed to remove subscription " +
+                            "for watcher info.", ex);
+                }
+            }
+
             // stop any task associated with the timer
             cancelTimer();
             waitedCallIds.clear();
