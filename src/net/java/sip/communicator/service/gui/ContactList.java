@@ -155,6 +155,11 @@ public interface ContactList
     public void removeContact(UIContact contact);
 
     /**
+     * Removes all entries in this contact list.
+     */
+    public void removeAll();
+
+    /**
      * Returns a collection of all direct child <tt>UIContact</tt>s of the given
      * <tt>UIGroup</tt>.
      *
