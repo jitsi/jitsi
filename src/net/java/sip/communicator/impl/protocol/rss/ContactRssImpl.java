@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.protocol.rss;
 
 import java.io.*;
 import java.net.*;
+import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
 
@@ -429,6 +430,28 @@ public class ContactRssImpl
      * @return null as the protocol has no support of status messages
      */
     public String getStatusMessage()
+    {
+        return null;
+    }
+
+    /**
+     * Indicates if this contact supports resources.
+     *
+     * @return <tt>false</tt> to indicate that this contact doesn't support
+     * resources
+     */
+    public boolean supportResources()
+    {
+        return false;
+    }
+
+    /**
+     * Returns a collection of resources supported by this contact or null
+     * if it doesn't support resources.
+     *
+     * @return null, as this contact doesn't support resources 
+     */
+    public Collection<ContactResource> getResources()
     {
         return null;
     }
