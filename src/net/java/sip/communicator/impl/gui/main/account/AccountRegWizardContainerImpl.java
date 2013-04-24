@@ -160,7 +160,8 @@ public class AccountRegWizardContainerImpl
     public AccountRegistrationWizard getProtocolWizard(
                                     ProtocolProviderService protocolProvider)
     {
-        AccountRegistrationWizard res = registeredWizards.get(protocolProvider.getProtocolDisplayName());
+        AccountRegistrationWizard res
+            = registeredWizards.get(protocolProvider.getProtocolDisplayName());
 
         // compatibility check, some protocols have changed name
         // and when they have those name saved in configuration
