@@ -153,7 +153,7 @@ public class OperationSetBasicInstantMessagingGibberishImpl
     {
         return true;
     }
-    
+
     /**
      * Determines wheter the protocol supports the supplied content type
      *

@@ -12,6 +12,7 @@ import java.util.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.util.*;
@@ -36,14 +37,19 @@ public class ChatTransportSelectorBox
 
     private static final long serialVersionUID = 0L;
 
-    private final Map<ChatTransport, JMenuItem> transportMenuItems =
-        new Hashtable<ChatTransport, JMenuItem>();
+    private final Map<ChatTransport, JCheckBoxMenuItem> transportMenuItems =
+        new Hashtable<ChatTransport, JCheckBoxMenuItem>();
 
     private final SIPCommMenu menu = new SelectorMenu();
 
     private final ChatSession chatSession;
 
     private final ChatPanel chatPanel;
+
+    /**
+     * Take care for chat transport items, that only one is selected.
+     */
+    private ButtonGroup buttonGroup = new ButtonGroup();
 
     /**
      * Creates an instance of <tt>ChatTransportSelectorBox</tt>.
@@ -113,15 +119,41 @@ public class ChatTransportSelectorBox
         {
             Image img = createTransportStatusImage(chatTransport);
 
-            JMenuItem menuItem = new JMenuItem(
-                        "From: " + chatTransport.getProtocolProvider()
-                            .getAccountID().getDisplayName()
-                        + " To: " + chatTransport.getName(),
-                        new ImageIcon(img));
+            boolean isIndent = false;
+            String toString = "";
+            if (chatTransport.getResourceName() != null
+                && chatTransport.isDisplayResourceOnly())
+            {
+                toString = chatTransport.getResourceName();
+                isIndent = true;
+            }
+            else
+                toString = "<b>" + chatTransport.getName() + "</b> "
+                                    + ((chatTransport.getResourceName() == null)
+                                        ? ""
+                                        : chatTransport.getResourceName())
+                                    + " <i>("
+                                    + GuiActivator.getResources()
+                                        .getI18NString("service.gui.VIA")
+                                    + ": "
+                                    + chatTransport.getProtocolProvider()
+                                        .getAccountID().getDisplayName()
+                                    + ")</i>";
+
+            JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(
+                            "<html><font size=\"3\">"
+                            + toString
+                            + "</font></html>",
+                            new ImageIcon(img));
+
+            if (isIndent)
+                menuItem.setBorder(
+                    BorderFactory.createEmptyBorder(0, 20, 0, 0));
 
             menuItem.addActionListener(this);
             this.transportMenuItems.put(chatTransport, menuItem);
 
+            buttonGroup.add(menuItem);
             this.menu.add(menuItem);
 
             updateEnableStatus();
@@ -150,16 +182,18 @@ public class ChatTransportSelectorBox
      */
     public void actionPerformed(ActionEvent e)
     {
-        JMenuItem menuItem = (JMenuItem) e.getSource();
+        JCheckBoxMenuItem menuItem = (JCheckBoxMenuItem) e.getSource();
 
-        for (Map.Entry<ChatTransport, JMenuItem> transportMenuItem
+        for (Map.Entry<ChatTransport, JCheckBoxMenuItem> transportMenuItem
                 : transportMenuItems.entrySet())
         {
             ChatTransport chatTransport = transportMenuItem.getKey();
 
             if (transportMenuItem.getValue().equals(menuItem))
             {
-                this.setSelected(chatTransport, (ImageIcon) menuItem.getIcon());
+                this.setSelected(   menuItem,
+                                    chatTransport,
+                                    (ImageIcon) menuItem.getIcon());
 
                 return;
             }
@@ -235,26 +269,42 @@ public class ChatTransportSelectorBox
      * In the "send via" menu selects the given contact and sets the given icon
      * to the "send via" menu button.
      *
-     * @param chatTransport
+     * @param menuItem the menu item that is selected
+     * @param chatTransport the corresponding chat transport
      * @param icon
      */
-    private void setSelected(ChatTransport chatTransport, ImageIcon icon)
+    private void setSelected(   JCheckBoxMenuItem menuItem,
+                                ChatTransport chatTransport,
+                                ImageIcon icon)
     {
+        menuItem.setSelected(true);
+
         this.chatSession.setCurrentChatTransport(chatTransport);
 
         SelectedObject selectedObject = new SelectedObject(icon, chatTransport);
 
         this.menu.setSelected(selectedObject);
 
-        String tooltipText = "From: " + chatTransport.getProtocolProvider()
-            .getAccountID().getAccountAddress() + " To: ";
+        String resourceName = (chatTransport.getResourceName() != null)
+                                ? " (" + chatTransport.getResourceName() + ")"
+                                : "";
 
-        if(!chatTransport.getDisplayName()
-                .equals(chatTransport.getName()))
-            tooltipText += chatTransport.getDisplayName()
-                + " (" + chatTransport.getName() + ")";
-        else
-            tooltipText += chatTransport.getDisplayName();
+        String displayName = (!chatTransport.getDisplayName()
+                                    .equals(chatTransport.getName()))
+                                ? chatTransport.getDisplayName()
+                                    + " (" + chatTransport.getName() + ")"
+                                : chatTransport.getDisplayName();
+
+        String tooltipText = "<html><font size=\"3\"><b>"
+                                + displayName + "</b>"
+                                + resourceName
+                                + "<br/><i>"
+                                + GuiActivator.getResources()
+                                    .getI18NString("service.gui.VIA")
+                                + ": "
+                                + chatTransport.getProtocolProvider()
+                                    .getAccountID().getAccountAddress()
+                                + "</i></font></html>";
 
         this.menu.setToolTipText(tooltipText);
 
@@ -268,7 +318,14 @@ public class ChatTransportSelectorBox
      */
     public void setSelected(ChatTransport chatTransport)
     {
-        this.setSelected(chatTransport,
+        JCheckBoxMenuItem menuItem = transportMenuItems.get(chatTransport);
+
+        if (menuItem == null)
+            return;
+
+        this.setSelected(
+                menuItem,
+                chatTransport,
                 new ImageIcon(createTransportStatusImage(chatTransport)));
     }
 
@@ -300,7 +357,12 @@ public class ChatTransportSelectorBox
         return false;
     }
 
-    private class SelectorMenu extends SIPCommMenu
+    /**
+     * A custom <tt>SIPCommMenu</tt> that adds an arrow icon to the right of
+     * the menu image.
+     */
+    private class SelectorMenu
+        extends SIPCommMenu
     {
         private static final long serialVersionUID = 0L;
 

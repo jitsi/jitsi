@@ -196,7 +196,6 @@ public class OperationSetBasicInstantMessagingIcqImpl
             fireMessageEvent(msgDeliveredEvt);
     }
 
-
     /**
      * Retreives all offline Messages If any.
      * Then delete them from the server.

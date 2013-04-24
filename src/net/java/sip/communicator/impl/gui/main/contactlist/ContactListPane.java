@@ -240,6 +240,7 @@ public class ContactListPane
             + evt.getSourceContact().getAddress());
 
         Contact protocolContact = evt.getSourceContact();
+        ContactResource contactResource = evt.getContactResource();
         Message message = evt.getSourceMessage();
         int eventType = evt.getEventType();
         MetaContact metaContact = GuiActivator.getContactListService()
@@ -247,8 +248,13 @@ public class ContactListPane
 
         if(metaContact != null)
         {
-            messageReceived(protocolContact, metaContact, message, eventType,
-                    evt.getTimestamp(), evt.getCorrectedMessageUID());
+            messageReceived(protocolContact,
+                            contactResource,
+                            metaContact,
+                            message,
+                            eventType,
+                            evt.getTimestamp(),
+                            evt.getCorrectedMessageUID());
         }
         else
         {
@@ -266,12 +272,15 @@ public class ContactListPane
      * the appropriate chat panel.
      *
      * @param protocolContact the source contact of the event
+     * @param contactResource the resource from which the contact is writing
      * @param metaContact the metacontact containing <tt>protocolContact</tt>
      * @param message the message to deliver
      * @param eventType the event type
      * @param timestamp the timestamp of the event
+     * @param correctedMessageUID the identifier of the corrected message
      */
     private void messageReceived(final Contact protocolContact,
+                                 final ContactResource contactResource,
                                  final MetaContact metaContact,
                                  final Message message,
                                  final int eventType,
@@ -284,8 +293,13 @@ public class ContactListPane
             {
                 public void run()
                 {
-                    messageReceived(protocolContact, metaContact, message,
-                            eventType, timestamp, correctedMessageUID);
+                    messageReceived(protocolContact,
+                                    contactResource,
+                                    metaContact,
+                                    message,
+                                    eventType,
+                                    timestamp,
+                                    correctedMessageUID);
                 }
             });
             return;
@@ -295,6 +309,7 @@ public class ContactListPane
         final ChatPanel chatPanel
             = chatWindowManager.getContactChat( metaContact,
                                                 protocolContact,
+                                                contactResource,
                                                 message.getMessageUID());
 
         // Show an envelope on the sender contact in the contact list and
@@ -331,9 +346,13 @@ public class ContactListPane
 
         chatWindowManager.openChat(chatPanel, false);
 
+        String resourceName = (contactResource != null)
+                                ? contactResource.getResourceName()
+                                : null;
+
         ChatTransport chatTransport
             = chatPanel.getChatSession()
-                .findChatTransportForDescriptor(protocolContact);
+                .findChatTransportForDescriptor(protocolContact, resourceName);
 
         chatPanel.setSelectedChatTransport(chatTransport);
     }
@@ -587,7 +606,7 @@ public class ContactListPane
 
         ChatTransport chatTransport
             = chatPanel.getChatSession()
-                .findChatTransportForDescriptor(sourceContact);
+                .findChatTransportForDescriptor(sourceContact, null);
 
         chatPanel.setSelectedChatTransport(chatTransport);
 

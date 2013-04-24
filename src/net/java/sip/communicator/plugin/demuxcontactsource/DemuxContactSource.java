@@ -49,6 +49,8 @@ public class DemuxContactSource
     /**
      * Sets the preferred protocol provider for this contact source.
      *
+     * @param opSetClass the operation set class, for which we set a preferred
+     * provider
      * @param protocolProvider the <tt>ProtocolProviderService</tt> to set
      */
     public void setPreferredProtocolProvider(

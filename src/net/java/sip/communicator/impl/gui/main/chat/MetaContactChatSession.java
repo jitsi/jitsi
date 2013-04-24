@@ -55,10 +55,12 @@ public class MetaContactChatSession
      * @param metaContact the meta contact corresponding to the session and the
      * protocol contact.
      * @param protocolContact the protocol contact to be used as transport.
+     * @param contactResource the specific resource to be used as transport
      */
     public MetaContactChatSession(  ChatSessionRenderer sessionRenderer,
                                     MetaContact metaContact,
-                                    Contact protocolContact)
+                                    Contact protocolContact,
+                                    ContactResource contactResource)
     {
         this.sessionRenderer = sessionRenderer;
         this.metaContact = metaContact;
@@ -67,7 +69,7 @@ public class MetaContactChatSession
 
         chatParticipants.add(chatContact);
 
-        this.initChatTransports(protocolContact);
+        this.initChatTransports(protocolContact, contactResource);
 
         // Obtain the MetaContactListService and add this class to it as a
         // listener of all events concerning the contact list.
@@ -301,8 +303,12 @@ public class MetaContactChatSession
      * @param protocolContact the <tt>Contact</tt> which is to be selected into
      * this instance as the current i.e. its <tt>ChatTransport</tt> is to be
      * selected as <tt>currentChatTransport</tt>
+     * @param contactResource the <tt>ContactResource</tt>, which is to be
+     * selected into this instance as the current <tt>ChatTransport</tt> if
+     * indicated
      */
-    private void initChatTransports(Contact protocolContact)
+    private void initChatTransports(Contact protocolContact,
+                                    ContactResource contactResource)
     {
         Iterator<Contact> protocolContacts = metaContact.getContacts();
 
@@ -310,10 +316,47 @@ public class MetaContactChatSession
         {
             Contact contact = protocolContacts.next();
 
-            MetaContactChatTransport chatTransport
-                = new MetaContactChatTransport(this, contact);
+            MetaContactChatTransport chatTransport = null;
 
-            chatTransports.add(chatTransport);
+            if (contact.supportResources() && contact.getResources() != null)
+            {
+                if (contact.getResources().size() > 1)
+                {
+                    chatTransport = new MetaContactChatTransport(this, contact);
+
+                    chatTransports.add(chatTransport);
+                }
+
+                Iterator<ContactResource> resourcesIter
+                    = contact.getResources().iterator();
+
+                while (resourcesIter.hasNext())
+                {
+                    ContactResource resource = resourcesIter.next();
+                    MetaContactChatTransport resourceTransport
+                        =  new MetaContactChatTransport(
+                            this,
+                            contact,
+                            resource,
+                            (contact.getResources().size() > 1)
+                            ? true : false);
+
+                    if (chatTransport == null
+                        || (contactResource != null
+                            && contactResource.equals(resource)))
+                    {
+                        chatTransport = resourceTransport;
+                    }
+
+                    chatTransports.add(resourceTransport);
+                }
+            }
+            else
+            {
+                chatTransport = new MetaContactChatTransport(this, contact);
+
+                chatTransports.add(chatTransport);
+            }
 
             if (contact.equals(protocolContact))
                 currentChatTransport = chatTransport;
@@ -401,33 +444,26 @@ public class MetaContactChatSession
     {
         if (evt.getNewParent().equals(metaContact))
         {
-            MetaContactChatTransport chatTransport
-                = new MetaContactChatTransport( this,
-                                                evt.getProtoContact());
-
-            sessionRenderer.addChatTransport(chatTransport);
+            addChatTransport(evt.getProtoContact());
         }
     }
 
     /**
      * Implements <tt>MetaContactListListener.protoContactMoved</tt> method.
      * When a proto contact is moved, updates the "send via" selector box.
+     *
+     * @param evt the <tt>ProtoContactEvent</tt> that contains information about
+     * the old and the new parent of the contact
      */
     public void protoContactMoved(ProtoContactEvent evt)
     {
-        MetaContactChatTransport chatTransport = null;
-
         if (evt.getOldParent().equals(metaContact))
         {
             protoContactRemoved(evt);
         }
         else if (evt.getNewParent().equals(metaContact))
         {
-            chatTransport
-                = new MetaContactChatTransport( this,
-                                                evt.getProtoContact());
-
-            sessionRenderer.addChatTransport(chatTransport);
+            protoContactAdded(evt);
         }
     }
 
@@ -447,7 +483,6 @@ public class MetaContactChatSession
                         .equals(protoContact))
                 {
                     sessionRenderer.removeChatTransport(chatTransport);
-                    break;
                 }
             }
         }
@@ -611,6 +646,51 @@ public class MetaContactChatSession
         synchronized (chatTransportChangeListeners)
         {
             chatTransportChangeListeners.remove(l);
+        }
+    }
+
+    /**
+     * Adds all chat transports for the given <tt>contact</tt>.
+     *
+     * @param contact the <tt>Contact</tt>, which transports to add
+     */
+    private void addChatTransport(Contact contact)
+    {
+        MetaContactChatTransport chatTransport = null;
+
+        if (contact.supportResources() && contact.getResources() != null)
+        {
+            if (contact.getResources().size() > 1)
+            {
+                chatTransport = new MetaContactChatTransport(this, contact);
+
+                chatTransports.add(chatTransport);
+                sessionRenderer.addChatTransport(chatTransport);
+            }
+
+            Iterator<ContactResource> resourcesIter
+                = contact.getResources().iterator();
+
+            while (resourcesIter.hasNext())
+            {
+                chatTransport
+                        =  new MetaContactChatTransport(
+                            this,
+                            contact,
+                            resourcesIter.next(),
+                            (contact.getResources().size() > 1)
+                            ? true : false);
+
+                chatTransports.add(chatTransport);
+                sessionRenderer.addChatTransport(chatTransport);
+            }
+        }
+        else
+        {
+            chatTransport = new MetaContactChatTransport(this, contact);
+
+            chatTransports.add(chatTransport);
+            sessionRenderer.addChatTransport(chatTransport);
         }
     }
 }

@@ -201,7 +201,7 @@ public class PresenceFilter
     {
         Iterator<MetaContact> childContacts = metaGroup.getChildContacts();
 
-        while(childContacts.hasNext() && !query.isCanceled())
+        while (childContacts.hasNext() && !query.isCanceled())
         {
             MetaContact metaContact = childContacts.next();
 

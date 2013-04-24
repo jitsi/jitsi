@@ -373,4 +373,26 @@ public class OperationSetBasicInstantMessagingDictImpl
 
         return dix.getMessage();
     }
+
+    /**
+     * Sends the <tt>message</tt> to the destination indicated by the
+     * <tt>to</tt>. Resources are not supported by this operation set
+     * implementation.
+     *
+     * @param to the <tt>Contact</tt> to send <tt>message</tt> to
+     * @param toResource the resource to which the message should be send
+     * @param message the <tt>Message</tt> to send.
+     * @throws java.lang.IllegalStateException if the underlying ICQ stack is
+     * not registered and initialized.
+     * @throws java.lang.IllegalArgumentException if <tt>to</tt> is not an
+     * instance belonging to the underlying implementation.
+     */
+    public void sendInstantMessage( Contact to,
+                                    ContactResource toResource,
+                                    Message message)
+        throws  IllegalStateException,
+                IllegalArgumentException
+    {
+        sendInstantMessage(to, message);
+    }
 }

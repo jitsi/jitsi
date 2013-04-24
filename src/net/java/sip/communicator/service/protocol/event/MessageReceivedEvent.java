@@ -47,6 +47,11 @@ public class MessageReceivedEvent
     private Contact from = null;
 
     /**
+     * The <tt>ContactResource</tt>, from which the message was sent.
+     */
+    private ContactResource fromResource = null;
+
+    /**
      * A timestamp indicating the exact date when the event occurred.
      */
     private final Date timestamp;
@@ -71,7 +76,9 @@ public class MessageReceivedEvent
      * @param from the <tt>Contact</tt> that has sent this message.
      * @param timestamp the exact date when the event ocurred.
      */
-    public MessageReceivedEvent(Message source, Contact from, Date timestamp)
+    public MessageReceivedEvent(Message source,
+                                Contact from,
+                                Date timestamp)
     {
        this(source, from, timestamp, CONVERSATION_MESSAGE_RECEIVED);
     }
@@ -83,11 +90,13 @@ public class MessageReceivedEvent
      *
      * @param source the <tt>Message</tt> whose reception this event represents.
      * @param from the <tt>Contact</tt> that has sent this message.
-     * @param correctedMessageUID The ID of the message being corrected, or null if this is a new message
+     * @param correctedMessageUID The ID of the message being corrected, or null
+     * if this is a new message
      * and not a correction.
      */
-    public MessageReceivedEvent(Message source, Contact from,
-            String correctedMessageUID)
+    public MessageReceivedEvent(Message source,
+                                Contact from,
+                                String correctedMessageUID)
     {
        this(source, from, new Date(),
                CONVERSATION_MESSAGE_RECEIVED);
@@ -102,14 +111,48 @@ public class MessageReceivedEvent
      * @param source the <tt>Message</tt> whose reception this event represents.
      * @param from the <tt>Contact</tt> that has sent this message.
      * @param timestamp the exact date when the event occurred.
-     * @param correctedMessageUID The ID of the message being corrected, or null if this is a new message
+     * @param correctedMessageUID The ID of the message being corrected, or null
+     * if this is a new message
      * and not a correction.
      */
-    public MessageReceivedEvent(Message source, Contact from, Date timestamp,
+    public MessageReceivedEvent(Message source,
+                                Contact from,
+                                Date timestamp,
                                 String correctedMessageUID)
     {
-        this(source, from, timestamp,
+        this(   source,
+                from,
+                null,
+                timestamp,
+                correctedMessageUID);
+    }
+
+    /**
+     * Creates a <tt>MessageReceivedEvent</tt> representing reception of the
+     * <tt>source</tt> message received from the specified <tt>from</tt>
+     * contact.
+     *
+     * @param source the <tt>Message</tt> whose reception this event represents.
+     * @param from the <tt>Contact</tt> that has sent this message.
+     * @param fromResource the <tt>ContactResource</tt>, from which this message
+     * was sent
+     * @param timestamp the exact date when the event occurred.
+     * @param correctedMessageUID The ID of the message being corrected, or null
+     * if this is a new message
+     * and not a correction.
+     */
+    public MessageReceivedEvent(Message source,
+                                Contact from,
+                                ContactResource fromResource,
+                                Date timestamp,
+                                String correctedMessageUID)
+    {
+        this(   source,
+                from,
+                fromResource,
+                timestamp,
                 CONVERSATION_MESSAGE_RECEIVED);
+
         this.correctedMessageUID = correctedMessageUID;
     }
 
@@ -124,12 +167,37 @@ public class MessageReceivedEvent
      * @param eventType the type of message event that this instance represents
      * (one of the XXX_MESSAGE_RECEIVED static fields).
      */
-    public MessageReceivedEvent(Message source, Contact from,
-        Date timestamp, int eventType)
+    public MessageReceivedEvent(Message source,
+                                Contact from,
+                                Date timestamp,
+                                int eventType)
+    {
+        this(source, from, null, timestamp, eventType);
+    }
+
+    /**
+     * Creates a <tt>MessageReceivedEvent</tt> representing reception of the
+     * <tt>source</tt> message received from the specified <tt>from</tt>
+     * contact.
+     *
+     * @param source the <tt>Message</tt> whose reception this event represents.
+     * @param from the <tt>Contact</tt> that has sent this message.
+     * @param fromResource the <tt>ContactResource</tt>, from which this message
+     * was sent
+     * @param timestamp the exact date when the event occurred.
+     * @param eventType the type of message event that this instance represents
+     * (one of the XXX_MESSAGE_RECEIVED static fields).
+     */
+    public MessageReceivedEvent(Message source,
+                                Contact from,
+                                ContactResource fromResource,
+                                Date timestamp,
+                                int eventType)
     {
         super(source);
 
         this.from = from;
+        this.fromResource = fromResource;
         this.timestamp = timestamp;
         this.eventType = eventType;
     }
@@ -144,6 +212,18 @@ public class MessageReceivedEvent
     public Contact getSourceContact()
     {
         return from;
+    }
+
+    /**
+     * Returns a reference to the <tt>ContactResource</tt> that has sent the
+     * <tt>Message</tt> whose reception this event represents.
+     *
+     * @return a reference to the <tt>ContactResource</tt> that has sent the
+     * <tt>Message</tt> whose reception this event represents.
+     */
+    public ContactResource getContactResource()
+    {
+        return fromResource;
     }
 
     /**

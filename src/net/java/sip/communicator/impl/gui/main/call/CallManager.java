@@ -25,14 +25,15 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.util.account.*;
 
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.codec.*;
-import org.jitsi.service.neomedia.codec.Constants;
 import org.jitsi.service.neomedia.device.*;
 import org.jitsi.service.neomedia.format.*;
 import org.jitsi.service.resources.*;
+import org.jitsi.util.*;
 
 /**
  * The <tt>CallManager</tt> is the one that handles calls. It contains also
@@ -1641,10 +1642,24 @@ public class CallManager
     private static class CreateCallThread
         extends Thread
     {
+        /**
+         * The contact to call.
+         */
         private final Contact contact;
 
+        /**
+         * The specific contact resource to call.
+         */
+        private final ContactResource contactResource;
+
+        /**
+         * The protocol provider through which the call goes.
+         */
         private final ProtocolProviderService protocolProvider;
 
+        /**
+         * The string to call.
+         */
         private final String stringContact;
 
         /**
@@ -1656,17 +1671,26 @@ public class CallManager
         public CreateCallThread(
                 ProtocolProviderService protocolProvider,
                 Contact contact,
+                ContactResource contactResource,
                 boolean video)
         {
-            this(protocolProvider, contact, null, video);
+            this(protocolProvider, contact, contactResource, null, video);
         }
 
+        /**
+         * Creates an instance of <tt>CreateCallThread</tt>.
+         *
+         * @param protocolProvider the protocol provider through which the call
+         * is going.
+         * @param contact the contact to call
+         * @param video indicates if this is a video call
+         */
         public CreateCallThread(
                 ProtocolProviderService protocolProvider,
                 String contact,
                 boolean video)
         {
-            this(protocolProvider, null, contact, video);
+            this(protocolProvider, null, null, contact, video);
         }
 
         /**
@@ -1681,19 +1705,22 @@ public class CallManager
          *
          * @param protocolProvider the <tt>ProtocolProviderService</tt> which is
          * to perform the establishment of the new <tt>Call</tt>
-         * @param contact
-         * @param stringContact
+         * @param contact the contact to call
+         * @param contactResource the specific contact resource to call
+         * @param stringContact the string to call
          * @param video <tt>true</tt> if this instance is to create a new video
          * (as opposed to audio-only) <tt>Call</tt>
          */
         private CreateCallThread(
                 ProtocolProviderService protocolProvider,
                 Contact contact,
+                ContactResource contactResource,
                 String stringContact,
                 boolean video)
         {
             this.protocolProvider = protocolProvider;
             this.contact = contact;
+            this.contactResource = contactResource;
             this.stringContact = stringContact;
             this.video = video;
         }
@@ -1709,7 +1736,8 @@ public class CallManager
                 MediaDevice dev = mediaService.getDefaultDevice(
                    MediaType.AUDIO, MediaUseCase.CALL);
 
-                List<MediaFormat> formats = getAudioFormats(dev, protocolProvider);
+                List<MediaFormat> formats
+                    = getAudioFormats(dev, protocolProvider);
 
                 String errorMsg = null;
 
@@ -1758,32 +1786,12 @@ public class CallManager
             {
                 if (video)
                 {
-                    OperationSetVideoTelephony telephony
-                        = protocolProvider.getOperationSet(
-                                OperationSetVideoTelephony.class);
-
-                    if (telephony != null)
-                    {
-                        if (contact != null)
-                            telephony.createVideoCall(contact);
-                        else if (stringContact != null)
-                            telephony.createVideoCall(stringContact);
-                    }
+                    callVideo(protocolProvider, contact, stringContact);
                 }
                 else
                 {
-                    OperationSetBasicTelephony<?> telephony
-                        = protocolProvider.getOperationSet(
-                                OperationSetBasicTelephony.class);
-
-                    if (telephony != null)
-                    {
-                        if (contact != null)
-                            telephony.createCall(contact);
-                        else if (stringContact != null
-                                 && stringContact.length() > 0)
-                            telephony.createCall(stringContact);
-                    }
+                    call(protocolProvider, contact,
+                            stringContact, contactResource);
                 }
             }
             catch (Throwable t)
@@ -1807,6 +1815,84 @@ public class CallManager
                         t)
                     .showDialog();
             }
+        }
+    }
+
+    /**
+     * Creates a video call through the given <tt>protocolProvider</tt>.
+     *
+     * @param protocolProvider the <tt>ProtocolProviderService</tt> through
+     * which to make the call
+     * @param contact the <tt>Contact</tt> to call
+     * @param stringContact the contact string to call
+     *
+     * @throws OperationFailedException thrown if the call operation fails
+     * @throws ParseException thrown if the contact string is malformated
+     */
+    private static void callVideo(  ProtocolProviderService protocolProvider,
+                                    Contact contact,
+                                    String stringContact)
+        throws  OperationFailedException,
+                ParseException
+    {
+        OperationSetVideoTelephony telephony
+            = protocolProvider.getOperationSet(
+                    OperationSetVideoTelephony.class);
+
+        if (telephony != null)
+        {
+            if (contact != null)
+            {
+                telephony.createVideoCall(contact);
+            }
+            else if (stringContact != null)
+                telephony.createVideoCall(stringContact);
+        }
+    }
+
+    /**
+     * Creates a call through the given <tt>protocolProvider</tt>.
+     *
+     * @param protocolProvider the <tt>ProtocolProviderService</tt> through
+     * which to make the call
+     * @param contact the <tt>Contact</tt> to call
+     * @param stringContact the contact string to call
+     * @param contactResource the specific <tt>ContactResource</tt> to call
+     *
+     * @throws OperationFailedException thrown if the call operation fails
+     * @throws ParseException thrown if the contact string is malformated
+     */
+    private static void call(   ProtocolProviderService protocolProvider,
+                                Contact contact,
+                                String stringContact,
+                                ContactResource contactResource)
+        throws  OperationFailedException,
+                ParseException
+    {
+        OperationSetBasicTelephony<?> telephony
+            = protocolProvider.getOperationSet(
+                    OperationSetBasicTelephony.class);
+
+        OperationSetResourceAwareTelephony resourceTelephony
+            = protocolProvider.getOperationSet(
+                    OperationSetResourceAwareTelephony.class);
+
+        if (resourceTelephony != null && contactResource != null)
+        {
+            if (contact != null)
+                resourceTelephony.createCall(contact, contactResource);
+            else if (!StringUtils.isNullOrEmpty(stringContact))
+                resourceTelephony.createCall(
+                    stringContact, contactResource.getResourceName());
+        }
+        else if (telephony != null)
+        {
+            if (contact != null)
+            {
+                telephony.createCall(contact);
+            }
+            else if (!StringUtils.isNullOrEmpty(stringContact))
+                telephony.createCall(stringContact);
         }
     }
 
@@ -2752,6 +2838,43 @@ public class CallManager
      * A particular contact has been selected no options to select
      * will just call it.
      * @param contact the contact to call
+     * @param contactResource the specific contact resource
+     * @param isVideo is video enabled
+     * @param isDesktop is desktop sharing enabled
+     * @param shareRegion is sharing the whole desktop or just a region.
+     */
+    public static void call(Contact contact,
+                            ContactResource contactResource,
+                            boolean isVideo,
+                            boolean isDesktop,
+                            boolean shareRegion)
+    {
+        if(isDesktop)
+        {
+            if(shareRegion)
+            {
+                createRegionDesktopSharing(
+                    contact.getProtocolProvider(),
+                    contact.getAddress());
+            }
+            else
+                createDesktopSharing(contact.getProtocolProvider(),
+                                    contact.getAddress());
+        }
+        else
+        {
+            new CreateCallThread(
+                    contact.getProtocolProvider(),
+                    contact,
+                    contactResource,
+                    isVideo).start();
+        }
+    }
+
+    /**
+     * A particular contact has been selected no options to select
+     * will just call it.
+     * @param contact the contact to call
      * @param isVideo is video enabled
      * @param isDesktop is desktop sharing enabled
      * @param shareRegion is sharing the whole desktop or just a region.
@@ -2775,8 +2898,10 @@ public class CallManager
         }
         else
         {
-            new CreateCallThread(
-                    contact.getProtocolProvider(), contact, isVideo).start();
+            new CreateCallThread(   contact.getProtocolProvider(),
+                                    contact,
+                                    null,
+                                    isVideo).start();
         }
     }
 

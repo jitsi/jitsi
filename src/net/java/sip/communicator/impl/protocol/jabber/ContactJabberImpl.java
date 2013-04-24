@@ -6,10 +6,14 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
+import java.util.*;
+
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.jabberconstants.*;
 
 import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.packet.*;
+import org.jivesoftware.smack.util.*;
 
 /**
  * The Jabber implementation of the service.protocol.Contact interface.
@@ -69,6 +73,11 @@ public class ContactJabberImpl
     private String serverDisplayName = null;
 
     /**
+     * The contact resources list.
+     */
+    private List<ContactResource> resources = null;
+
+    /**
      * Creates an JabberContactImpl
      * @param rosterEntry the RosterEntry object that we will be encapsulating.
      * @param ssclCallback a reference to the ServerStoredContactListImpl
@@ -101,6 +110,7 @@ public class ContactJabberImpl
 
     /**
      * Used to create unresolved contacts with specified id.
+     *
      * @param id contact id
      * @param ssclCallback the contact list handler that creates us.
      * @param isPersistent is the contact persistent.
@@ -118,7 +128,6 @@ public class ContactJabberImpl
             ((ProtocolProviderServiceJabberImpl) getProtocolProvider())
                 .getJabberStatusEnum().getStatus(JabberStatusEnum.OFFLINE);
     }
-
 
     /**
      * Returns the Jabber Userid of this contact
@@ -448,5 +457,93 @@ public class ContactJabberImpl
     protected void setStatusMessage(String statusMessage)
     {
         this.statusMessage = statusMessage;
+    }
+
+    /**
+     * Indicates if this contact supports resources.
+     *
+     * @return <tt>false</tt> to indicate that this contact doesn't support
+     * resources
+     */
+    public boolean supportResources()
+    {
+        return true;
+    }
+
+    /**
+     * Returns an iterator over the resources supported by this contact or null
+     * if it doesn't support resources.
+     *
+     * @return null, as this contact doesn't support resources 
+     */
+    public Collection<ContactResource> getResources()
+    {
+        if (resources != null)
+            return Collections.unmodifiableCollection(resources);
+
+        return null;
+    }
+
+    /**
+     * Finds the <tt>ContactResource</tt> corresponding to the given jid.
+     *
+     * @param jid the jid for which we're looking for a resource
+     * @return the <tt>ContactResource</tt> corresponding to the given jid.
+     */
+    ContactResource findResourceFromJid(String jid)
+    {
+        Iterator<ContactResource> resourceIter = resources.iterator();
+
+        while (resourceIter.hasNext())
+        {
+            ContactResourceJabberImpl jabberResource
+                = (ContactResourceJabberImpl) resourceIter.next();
+
+            if (jabberResource.getFullJid().equals(jid))
+            {
+                return jabberResource;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Updates the resources for this contact.
+     */
+    void updateResources()
+    {
+        if (jid == null)
+            return;
+
+        resources = new LinkedList<ContactResource>();
+
+        Iterator<Presence> it
+            = ((ProtocolProviderServiceJabberImpl) getProtocolProvider())
+                .getConnection().getRoster().getPresences(jid);
+
+        // Choose the resource which has the highest priority AND supports
+        // Jingle, if we have two resources with same priority take
+        // the most available.
+        while(it.hasNext())
+        {
+            Presence presence = it.next();
+
+            String resource = StringUtils.parseResource(presence.getFrom());
+
+            if (resource != null && resource.length() > 0)
+            {
+                resources.add(new ContactResourceJabberImpl(
+                    presence.getFrom(),
+                    this,
+                    resource,
+                    OperationSetPersistentPresenceJabberImpl
+                        .jabberStatusToPresenceStatus(
+                            presence,
+                            (ProtocolProviderServiceJabberImpl)
+                                getProtocolProvider()),
+                    presence.getPriority()));
+            }
+        }
     }
 }

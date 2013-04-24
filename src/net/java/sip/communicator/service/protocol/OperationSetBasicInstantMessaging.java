@@ -56,6 +56,7 @@ public interface OperationSetBasicInstantMessaging
     /**
      * Sends the <tt>message</tt> to the destination indicated by the
      * <tt>to</tt> contact.
+     *
      * @param to the <tt>Contact</tt> to send <tt>message</tt> to
      * @param message the <tt>Message</tt> to send.
      * @throws java.lang.IllegalStateException if the underlying ICQ stack is
@@ -64,6 +65,23 @@ public interface OperationSetBasicInstantMessaging
      * instance belonging to the underlying implementation.
      */
     public void sendInstantMessage(Contact to, Message message)
+        throws IllegalStateException, IllegalArgumentException;
+
+    /**
+     * Sends the <tt>message</tt> to the destination indicated by the
+     * <tt>to</tt> contact and the specific <tt>toResource</tt>.
+     *
+     * @param to the <tt>Contact</tt> to send <tt>message</tt> to
+     * @param toResource the resource to which the message should be send
+     * @param message the <tt>Message</tt> to send.
+     * @throws java.lang.IllegalStateException if the underlying ICQ stack is
+     * not registered and initialized.
+     * @throws java.lang.IllegalArgumentException if <tt>to</tt> is not an
+     * instance belonging to the underlying implementation.
+     */
+    public void sendInstantMessage( Contact to,
+                                    ContactResource toResource,
+                                    Message message)
         throws IllegalStateException, IllegalArgumentException;
 
     /**

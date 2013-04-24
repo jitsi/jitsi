@@ -62,6 +62,28 @@ public class AdHocConferenceChatTransport
     }
 
     /**
+     * Returns the resource name of this chat transport. This is for example the
+     * name of the user agent from which the contact is logged.
+     * 
+     * @return The display name of this chat transport resource.
+     */
+    public String getResourceName()
+    {
+        return null;
+    }
+
+    /**
+     * Indicates if the display name should only show the resource.
+     *
+     * @return <tt>true</tt> if the display name shows only the resource,
+     * <tt>false</tt> - otherwise
+     */
+    public boolean isDisplayResourceOnly()
+    {
+        return false;
+    }
+
+    /**
      * Returns the presence status of this transport.
      * 
      * @return the presence status of this transport.

@@ -350,12 +350,13 @@ public class ChatWindowManager
         // if we are not creating a ui we don't need any execution
         // in event dispatch thread, lets execute now
         if(!create)
-            return getContactChat(metaContact, null, create, null);
+            return getContactChat(metaContact, null, null, create, null);
         else
         {
             // we may create using event dispatch thread
             MetaContactChatCreateRunnable runnable
-                = new MetaContactChatCreateRunnable(metaContact, null, null);
+                = new MetaContactChatCreateRunnable(
+                    metaContact, null, null, null);
             return runnable.getChatPanel();
         }
     }
@@ -381,13 +382,18 @@ public class ChatWindowManager
         // if we are not creating a ui we don't need any execution
         // in event dispatch thread, lets execute now
         if(!create)
-            return getContactChat(metaContact, null, create, escapedMessageID);
+            return getContactChat(  metaContact,
+                                    null,
+                                    null,
+                                    create,
+                                    escapedMessageID);
         else
         {
             // we may create using event dispatch thread
             MetaContactChatCreateRunnable runnable
                 = new MetaContactChatCreateRunnable(
                     metaContact,
+                    null,
                     null,
                     escapedMessageID);
             return runnable.getChatPanel();
@@ -404,7 +410,7 @@ public class ChatWindowManager
     public ChatPanel getContactChat(MetaContact metaContact,
                                     Contact protocolContact)
     {
-        return getContactChat(metaContact, protocolContact, null);
+        return getContactChat(metaContact, protocolContact, null, null);
     }
 
     /**
@@ -412,19 +418,22 @@ public class ChatWindowManager
      *
      * @param metaContact the meta contact.
      * @param protocolContact the protocol specific contact
+     * @param contactResource the resource from which the contact is writing
      * @param escapedMessageID the message ID of the message that should be
      * excluded from the history when the last one is loaded in the chat
      * @return the chat panel corresponding to the given meta contact
      */
     public ChatPanel getContactChat(MetaContact metaContact,
                                     Contact protocolContact,
+                                    ContactResource contactResource,
                                     String escapedMessageID)
     {
         // we may create using event dispatch thread
         MetaContactChatCreateRunnable runnable
             = new MetaContactChatCreateRunnable(
                 metaContact,
-                null,
+                protocolContact,
+                contactResource,
                 escapedMessageID);
         return runnable.getChatPanel();
     }
@@ -454,6 +463,7 @@ public class ChatWindowManager
     private ChatPanel getContactChat(
             MetaContact metaContact,
             Contact protocolContact,
+            ContactResource contactResource,
             boolean create,
             String escapedMessageID)
     {
@@ -466,6 +476,7 @@ public class ChatWindowManager
                     = createChat(
                         metaContact,
                         protocolContact,
+                        contactResource,
                         escapedMessageID);
             return chatPanel;
         }
@@ -1029,12 +1040,15 @@ public class ChatWindowManager
      * <tt>ChatPanel</tt>; <tt>null</tt> to select the default <tt>Contact</tt>
      * of <tt>metaContact</tt> if it is online or one of its <tt>Contact</tt>s
      * which supports offline messaging
+     * @param the <tt>ContactResource</tt>, to be selected in the newly created
+     * <tt>ChatPanel</tt>
      * @param escapedMessageID the message ID of the message that should be
      * excluded from the history when the last one is loaded in the chat.
      * @return The <code>ChatPanel</code> newly created.
      */
     private ChatPanel createChat(   MetaContact metaContact,
                                     Contact protocolContact,
+                                    ContactResource contactResource,
                                     String escapedMessageID)
     {
         if (protocolContact == null)
@@ -1046,7 +1060,8 @@ public class ChatWindowManager
         MetaContactChatSession chatSession
             = new MetaContactChatSession(   chatPanel,
                                             metaContact,
-                                            protocolContact);
+                                            protocolContact,
+                                            contactResource);
 
         chatPanel.setChatSession(chatSession);
 
@@ -1464,22 +1479,33 @@ public class ChatWindowManager
         private final Contact protocolContact;
 
         /**
+         * The contact resource, from which the message is sent.
+         */
+        private final ContactResource contactResource;
+
+        /**
          * The message ID of the message to be excluded from
          * newly created chat panel.
          */
         private final String escapedMessageID;
 
         /**
-         * Creates chat.
+         * Creates a chat.
          *
-         * @param metaContact
+         * @param metaContact the from meta contact
+         * @param protocolContact the from protocol contact
+         * @param contactResource the contact resource, from which the message
+         * is sent
+         * @param escapedMessageID the identifier of the escaped message
          */
         private MetaContactChatCreateRunnable(MetaContact metaContact,
                                               Contact protocolContact,
+                                              ContactResource contactResource,
                                               String escapedMessageID)
         {
             this.metaContact = metaContact;
             this.protocolContact = protocolContact;
+            this.contactResource = contactResource;
             this.escapedMessageID = escapedMessageID;
         }
 
@@ -1490,7 +1516,8 @@ public class ChatWindowManager
         {
             return getContactChat(
                 metaContact,
-                null,
+                protocolContact,
+                contactResource,
                 true,
                 this.escapedMessageID);
         }

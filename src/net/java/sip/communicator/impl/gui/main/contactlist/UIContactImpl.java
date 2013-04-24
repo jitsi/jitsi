@@ -10,6 +10,12 @@ import javax.swing.*;
 
 import net.java.sip.communicator.service.gui.*;
 
+/**
+ * The <tt>UIContactImpl</tt> class extends the <tt>UIContact</tt> in order to
+ * add some more methods specific the UI implementation.
+ *
+ * @author Yana Stamcheva
+ */
 public abstract class UIContactImpl
     extends UIContact
 {

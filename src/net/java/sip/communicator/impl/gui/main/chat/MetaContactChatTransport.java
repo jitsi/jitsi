@@ -43,6 +43,11 @@ public class MetaContactChatTransport
     private final Contact contact;
 
     /**
+     * The resource associated with this contact.
+     */
+    private ContactResource contactResource;
+
+    /**
      * The protocol presence operation set associated with this transport.
      */
     private final OperationSetPresence presenceOpSet;
@@ -58,6 +63,11 @@ public class MetaContactChatTransport
     private static final int THUMBNAIL_HEIGHT = 64;
 
     /**
+     * Indicates if only the resource name should be displayed.
+     */
+    private boolean isDisplayResourceOnly = false;
+
+    /**
      * Creates an instance of <tt>MetaContactChatTransport</tt> by specifying
      * the parent <tt>chatSession</tt> and the <tt>contact</tt> associated with
      * the transport.
@@ -68,8 +78,30 @@ public class MetaContactChatTransport
     public MetaContactChatTransport(ChatSession chatSession,
                                     Contact contact)
     {
+        this(chatSession, contact, null, false);
+    }
+
+    /**
+     * Creates an instance of <tt>MetaContactChatTransport</tt> by specifying
+     * the parent <tt>chatSession</tt> and the <tt>contact</tt> associated with
+     * the transport.
+     *
+     * @param chatSession the parent <tt>ChatSession</tt>
+     * @param contact the <tt>Contact</tt> associated with this transport
+     * @param contactResource the <tt>ContactResource</tt> associated with the
+     * contact
+     * @param isDisplayResourceOnly indicates if only the resource name should
+     * be displayed
+     */
+    public MetaContactChatTransport(ChatSession chatSession,
+                                    Contact contact,
+                                    ContactResource contactResource,
+                                    boolean isDisplayResourceOnly)
+    {
         this.parentChatSession = chatSession;
         this.contact = contact;
+        this.contactResource = contactResource;
+        this.isDisplayResourceOnly = isDisplayResourceOnly;
 
         presenceOpSet
             = contact
@@ -112,6 +144,7 @@ public class MetaContactChatTransport
 
     /**
      * Returns the contact associated with this transport.
+     *
      * @return the contact associated with this transport
      */
     public Contact getContact()
@@ -140,13 +173,35 @@ public class MetaContactChatTransport
     }
 
     /**
+     * Returns the resource name of this chat transport. This is for example the
+     * name of the user agent from which the contact is logged.
+     * 
+     * @return The display name of this chat transport resource.
+     */
+    public String getResourceName()
+    {
+        if (contactResource != null)
+            return contactResource.getResourceName();
+
+        return null;
+    }
+
+    public boolean isDisplayResourceOnly()
+    {
+        return isDisplayResourceOnly;
+    }
+
+    /**
      * Returns the presence status of this transport.
      * 
      * @return the presence status of this transport.
      */
     public PresenceStatus getStatus()
     {
-        return contact.getPresenceStatus();
+        if (contactResource != null)
+            return contactResource.getPresenceStatus();
+        else
+            return contact.getPresenceStatus();
     }
 
     /**
@@ -316,7 +371,11 @@ public class MetaContactChatTransport
             msg = imOpSet.createMessage(message);
         }
 
-        imOpSet.sendInstantMessage(contact, msg);
+        if (contactResource != null)
+            imOpSet.sendInstantMessage(contact, contactResource, msg);
+        else
+            imOpSet.sendInstantMessage(contact,
+                    ContactResource.BASE_RESOURCE, msg);
     }
 
     /**

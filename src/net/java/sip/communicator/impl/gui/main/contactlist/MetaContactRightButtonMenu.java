@@ -34,7 +34,6 @@ import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 
 import org.osgi.framework.*;
-// disambiguation
 
 /**
  * The ContactRightButtonMenu is the menu, opened when user clicks with the
@@ -298,6 +297,12 @@ public class MetaContactRightButtonMenu
     private ContactPhoneUtil contactPhoneUtil;
 
     /**
+     * Indicates if a separator should be added at the end of the menu
+     * initialization.
+     */
+    private boolean separator = false;
+
+    /**
      * Creates an instance of ContactRightButtonMenu.
      * @param contactItem The MetaContact for which the menu is opened
      */
@@ -383,11 +388,6 @@ public class MetaContactRightButtonMenu
             this.moveSubcontactMenu.addSeparator();
         }
 
-        List<ProtocolProviderService> providers =
-            CallManager.getTelephonyProviders();
-
-        boolean separator = false;
-
         contactPhoneUtil = ContactPhoneUtil.getPhoneUtil(metaContact);
 
         while (contacts.hasNext())
@@ -403,16 +403,16 @@ public class MetaContactRightButtonMenu
                     createContactStatusImage(contact));
 
             this.removeContactMenu.add(
-                createMenuItem( contactAddress,
-                            removeContactPrefix + contact.getAddress()
-                            + protocolProvider.getProtocolName(),
-                            protocolIcon));
+                new ContactMenuItem(contact,
+                                    contactAddress,
+                                    removeContactPrefix,
+                                    protocolIcon));
 
             this.moveSubcontactMenu.add(
-                createMenuItem( contactAddress,
-                            moveSubcontactPrefix + contact.getAddress()
-                            + protocolProvider.getProtocolName(),
-                            protocolIcon));
+                new ContactMenuItem(contact,
+                                    contactAddress,
+                                    moveSubcontactPrefix,
+                                    protocolIcon));
 
             List<String> phones = contactPhoneUtil.getPhones(contact);
 
@@ -421,38 +421,33 @@ public class MetaContactRightButtonMenu
             {
                 if (contactPhoneUtil.isCallEnabled(contact))
                 {
-                    callContactMenu.add(
-                        createMenuItem(contactAddress,
-                                       callContactPrefix + contact.getAddress()
-                                       + protocolProvider.getProtocolName(),
-                                       protocolIcon));
+                    addCallMenuContact(contact, protocolIcon);
+
                     separator = true;
                 }
 
                 if (contactPhoneUtil.isVideoCallEnabled(contact))
                 {
                     videoCallMenu.add(
-                        createMenuItem( contactAddress,
-                                        videoCallPrefix + contact.getAddress()
-                                        + protocolProvider.getProtocolName(),
-                                        protocolIcon));
+                        new ContactMenuItem(contact,
+                                            contactAddress,
+                                            videoCallPrefix,
+                                            protocolIcon));
                 }
 
                 if (contactPhoneUtil.isDesktopSharingEnabled(contact))
                 {
                     multiContactFullShareMenu.add(
-                        createMenuItem( contactAddress,
-                                        fullDesktopSharingPrefix
-                                        + contact.getAddress()
-                                        + protocolProvider.getProtocolName(),
-                                        protocolIcon));
+                        new ContactMenuItem(contact,
+                                            contactAddress,
+                                            fullDesktopSharingPrefix,
+                                            protocolIcon));
 
                     multiContactRegionShareMenu.add(
-                        createMenuItem( contactAddress,
-                                        regionDesktopSharingPrefix
-                                        + contact.getAddress()
-                                        + protocolProvider.getProtocolName(),
-                                        protocolIcon));
+                        new ContactMenuItem(contact,
+                                            contactAddress,
+                                            regionDesktopSharingPrefix,
+                                            protocolIcon));
                 }
 
                 OperationSetExtendedAuthorizations authOpSet
@@ -468,51 +463,16 @@ public class MetaContactRightButtonMenu
                         firstUnsubscribedContact = contact;
 
                     multiContactRequestAuthMenu.add(
-                        createMenuItem( contactAddress,
-                                        requestAuthPrefix
-                                        + contact.getAddress()
-                                        + protocolProvider.getProtocolName(),
-                                        protocolIcon));
+                        new ContactMenuItem(contact,
+                                            contactAddress,
+                                            requestAuthPrefix,
+                                            protocolIcon));
                 }
             }
 
-            for(String phone : phones)
-            {
-                String p = phone.substring(0, phone.lastIndexOf("(") - 1);
-                if(providers.size() > 0)
-                {
-                    JMenuItem menu = createMenuItem(phone,
-                        callPhonePrefix + p,
-                        null);
-                    callContactMenu.add(menu);
-                    separator = true;
-                }
-            }
+            addCallMenuPhones(phones);
 
-            List<String> videoPhones = contactPhoneUtil.getVideoPhones(contact);
-            for(String vphone : videoPhones)
-            {
-                String p = vphone.substring(0, vphone.lastIndexOf("(") - 1);
-                if(providers.size() > 0)
-                {
-                    JMenuItem vmenu = createMenuItem(vphone,
-                        videoCallPrefix + p,
-                        null);
-                    videoCallMenu.add(vmenu);
-
-                    JMenuItem shdmenu = createMenuItem(vphone,
-                        fullDesktopSharingPrefix + p,
-                        null);
-                    multiContactFullShareMenu.add(shdmenu);
-
-                    JMenuItem rshdmenu = createMenuItem(vphone,
-                        regionDesktopSharingPrefix + p,
-                        null);
-                    multiContactRegionShareMenu.add(rshdmenu);
-
-                    separator = true;
-                }
-            }
+            addVideoMenuPhones(contact);
 
             if(separator && contacts.hasNext())
             {
@@ -738,6 +698,153 @@ public class MetaContactRightButtonMenu
     }
 
     /**
+     * Adds call menu phone entries.
+     *
+     * @param phones the list of phones to add to menu
+     */
+    private void addCallMenuPhones(List<String> phones)
+    {
+        List<ProtocolProviderService> providers =
+            CallManager.getTelephonyProviders();
+
+        for(String phone : phones)
+        {
+            String p = phone.substring(0, phone.lastIndexOf("(") - 1);
+            if(providers.size() > 0)
+            {
+                JMenuItem menuItem = createMenuItem( phone,
+                    callPhonePrefix + p,
+                    null);
+                menuItem.setBorder(
+                    BorderFactory.createEmptyBorder(0, 20, 0, 0));
+
+                callContactMenu.add(menuItem);
+
+                separator = true;
+            }
+        }
+    }
+
+    /**
+     * Adds contact resources to call menu.
+     *
+     * @param contact the <tt>Contact</tt>, which resources to add
+     * @param protocolIcon the protocol icon
+     */
+    private void addCallMenuContact(Contact contact, Icon protocolIcon)
+    {
+        if (!contact.supportResources())
+            return;
+
+        Collection<ContactResource> resources = contact.getResources();
+
+        if (resources == null)
+            return;
+
+        String contactAddress = contact.getAddress();
+
+        if (contact.getResources().size() > 1)
+        {
+            callContactMenu.add(new ContactMenuItem(contact,
+                                                    null,
+                                                    contactAddress,
+                                                    callContactPrefix,
+                                                    protocolIcon,
+                                                    true));
+        }
+
+        Iterator<ContactResource> resourceIter
+            = contact.getResources().iterator();
+
+        while (resourceIter.hasNext())
+        {
+            ContactResource resource = resourceIter.next();
+
+            String resourceName;
+            boolean isBold = false;
+            Icon resourceIcon;
+            if (contact.getResources().size() > 1)
+            {
+                resourceName = resource.getResourceName();
+                resourceIcon
+                    = ImageLoader.getIndexedProtocolIcon(
+                        ImageUtils.getBytesInImage(
+                        resource.getPresenceStatus().getStatusIcon()),
+                        contact.getProtocolProvider());
+            }
+            else
+            {
+                resourceName = contact.getAddress()
+                                + " " + resource.getResourceName();
+                resourceIcon
+                    = ImageLoader.getIndexedProtocolIcon(
+                        ImageUtils.getBytesInImage(
+                        contact.getPresenceStatus().getStatusIcon()),
+                        contact.getProtocolProvider());
+                // If the resource is only one we don't want to pass it to
+                // call operations.
+                resource = null;
+                isBold = true;
+            }
+
+            JMenuItem menuItem = new ContactMenuItem(
+                                                contact,
+                                                resource,
+                                                resourceName,
+                                                callContactPrefix,
+                                                resourceIcon,
+                                                isBold);
+
+            if (contact.getResources().size() > 1)
+                menuItem.setBorder(
+                    BorderFactory.createEmptyBorder(0, 20, 0, 0));
+
+            callContactMenu.add(menuItem);
+        }
+    }
+
+    /**
+     * Adds video related call menu phone entries.
+     *
+     * @param contact the contact, which phones we're adding
+     */
+    private void addVideoMenuPhones(Contact contact)
+    {
+        List<ProtocolProviderService> providers =
+            CallManager.getTelephonyProviders();
+
+        List<String> videoPhones = contactPhoneUtil.getVideoPhones(contact);
+        for(String vphone : videoPhones)
+        {
+            String p = vphone.substring(0, vphone.lastIndexOf("(") - 1);
+            if(providers.size() > 0)
+            {
+                JMenuItem vmenu
+                    = createMenuItem(   vphone,
+                                        videoCallPrefix + p,
+                                        null);
+
+                videoCallMenu.add(vmenu);
+
+                JMenuItem shdmenu
+                    = createMenuItem( vphone,
+                                      fullDesktopSharingPrefix + p,
+                                      null);
+
+                multiContactFullShareMenu.add(shdmenu);
+
+                JMenuItem rshdmenu
+                    = createMenuItem(   vphone,
+                                        regionDesktopSharingPrefix + p,
+                                        null);
+                multiContactRegionShareMenu.add(rshdmenu);
+
+                separator = true;
+            }
+        }
+    }
+
+    /**
      * Initializes the call menu items.
      *
      * @param displayName the display name of the menu item
@@ -747,11 +854,12 @@ public class MetaContactRightButtonMenu
      *
      * @return the created menu item
      */
-    private JMenuItem createMenuItem(String displayName,
-                                String name,
-                                Icon icon)
+    private JMenuItem createMenuItem(   String displayName,
+                                        String name,
+                                        Icon icon)
     {
         JMenuItem menuItem = new JMenuItem(displayName);
+
         menuItem.setIcon(icon);
         menuItem.setName(name);
         menuItem.addActionListener(this);
@@ -993,12 +1101,10 @@ public class MetaContactRightButtonMenu
         }
         else if (itemName.startsWith(removeContactPrefix))
         {
-            contact = getContactFromMetaContact(
-                    itemName.substring(removeContactPrefix.length()));
-
-            if(contact != null)
+            if(menuItem instanceof ContactMenuItem)
             {
-                MetaContactListManager.removeContact(contact);
+                MetaContactListManager.removeContact(
+                    ((ContactMenuItem) menuItem).getContact());
             }
             else
             {
@@ -1007,9 +1113,6 @@ public class MetaContactRightButtonMenu
         }
         else if(itemName.startsWith(moveSubcontactPrefix))
         {
-            contact = getContactFromMetaContact(
-                    itemName.substring(moveSubcontactPrefix.length()));
-
             contactList.addContactListListener(this);
             contactList.setGroupClickConsumed(true);
 
@@ -1031,9 +1134,9 @@ public class MetaContactRightButtonMenu
                 });
             this.moveDialog.setVisible(true);
 
-            if(contact != null)
+            if(menuItem instanceof ContactMenuItem)
             {
-                this.contactToMove = contact;
+                this.contactToMove = ((ContactMenuItem) menuItem).getContact();
             }
             else
             {
@@ -1042,29 +1145,66 @@ public class MetaContactRightButtonMenu
         }
         else if (itemName.startsWith(callContactPrefix))
         {
-            call(false, false, false,
-                itemName.substring(callContactPrefix.length()));
+            if(menuItem instanceof ContactMenuItem)
+            {
+                ContactMenuItem contactItem = (ContactMenuItem) menuItem;
+
+                call(false, false, false,
+                    contactItem.getContact(), contactItem.getContactResource());
+            }
+            else
+                call(false, false, false,
+                    itemName.substring(callContactPrefix.length()));
         }
         else if (itemName.startsWith(videoCallPrefix))
         {
-            call(true, false, false,
-                        itemName.substring(videoCallPrefix.length()));
+            if(menuItem instanceof ContactMenuItem)
+            {
+                ContactMenuItem contactItem = (ContactMenuItem) menuItem;
+
+                call(true, false, false, contactItem.getContact(),
+                       contactItem.getContactResource());
+            }
+            else
+                call(true, false, false,
+                            itemName.substring(videoCallPrefix.length()));
         }
         else if (itemName.startsWith(fullDesktopSharingPrefix))
         {
-            call(true, true, false,
+            if(menuItem instanceof ContactMenuItem)
+            {
+                ContactMenuItem contactItem = (ContactMenuItem) menuItem;
+
+                call(true, true, false, contactItem.getContact(),
+                    contactItem.getContactResource());
+            }
+            else
+                call(true, true, false,
                         itemName.substring(fullDesktopSharingPrefix.length()));
 
         }
         else if (itemName.startsWith(regionDesktopSharingPrefix))
         {
-            call(true, true, true,
+            if(menuItem instanceof ContactMenuItem)
+            {
+                ContactMenuItem contactItem = (ContactMenuItem) menuItem;
+
+                call(true, true, true, contactItem.getContact(),
+                    contactItem.getContactResource());
+            }
+            else
+                call(true, true, true,
                     itemName.substring(regionDesktopSharingPrefix.length()));
 
         }
         else if (itemName.startsWith(requestAuthPrefix))
         {
-            contact = getContactFromMetaContact(
+            if(menuItem instanceof ContactMenuItem)
+            {
+                contact = ((ContactMenuItem) menuItem).getContact();
+            }
+            else
+                contact = getContactFromMetaContact(
                     itemName.substring(requestAuthPrefix.length()));
 
             requestAuthorization(contact);
@@ -1398,6 +1538,29 @@ public class MetaContactRightButtonMenu
      * @param isVideo whether video button is pressed
      * @param isDesktopSharing whether the share desktop button is used
      * @param shareRegion whether the user want to share region from the desktop
+     * @param contact the contact to call
+     * @param contactResource the specific contact resource to call
+     */
+    private void call(boolean isVideo,
+                      boolean isDesktopSharing,
+                      boolean shareRegion,
+                      Contact contact,
+                      ContactResource contactResource)
+    {
+        if (contactResource != null)
+            CallManager.call(
+                contact, contactResource,
+                isVideo, isDesktopSharing, shareRegion);
+        else
+            CallManager.call(
+                contact, isVideo, isDesktopSharing, shareRegion);
+    }
+
+    /**
+     * Calls using the CallManager
+     * @param isVideo whether video button is pressed
+     * @param isDesktopSharing whether the share desktop button is used
+     * @param shareRegion whether the user want to share region from the desktop
      * @param contactName the phone number to call or the contact name
      *                    selected (normally when using prefix), if null
      *                    will call the metacontact
@@ -1414,8 +1577,7 @@ public class MetaContactRightButtonMenu
             // we want to call particular contact
             if(contact != null)
             {
-                CallManager.call(
-                    contact, isVideo, isDesktopSharing, shareRegion);
+                call(isVideo, isDesktopSharing, shareRegion, contact, null);
                 return;
             }
             else
@@ -1429,5 +1591,89 @@ public class MetaContactRightButtonMenu
 
         // just call the metacontact
         CallManager.call(metaContact, isVideo, isDesktopSharing, shareRegion);
+    }
+
+    /**
+     * A JMenuItem corresponding to a specific protocol <tt>Contact</tt>.
+     */
+    private class ContactMenuItem
+        extends JMenuItem
+    {
+        /**
+         * The associated contact.
+         */
+        private final Contact contact;
+
+        /**
+         * The associated contact resource.
+         */
+        private ContactResource contactResource;
+
+        /**
+         * Creates an instance of <tt>ContactMenuItem</tt>.
+         *
+         * @param contact the associated protocol <tt>Contact</tt>
+         * @param displayName the text to display on the menu
+         * @param menuName the name of the menu, used by action listeners
+         * @param icon the icon associated by this menu item
+         */
+        public ContactMenuItem( Contact contact,
+                                String displayName,
+                                String menuName,
+                                Icon icon)
+        {
+            this(contact, null, displayName, menuName, icon, false);
+        }
+
+        /**
+         * Creates an instance of <tt>ContactMenuItem</tt>.
+         *
+         * @param contact the associated protocol <tt>Contact</tt>
+         * @param contactResource the associated <tt>ContactResource</tt>
+         * @param displayName the text to display on the menu
+         * @param menuName the name of the menu, used by action listeners
+         * @param icon the icon associated by this menu item
+         * @param isBold indicates if the menu should be shown in bold
+         */
+        public ContactMenuItem( Contact contact,
+                                ContactResource contactResource,
+                                String displayName,
+                                String menuName,
+                                Icon icon,
+                                boolean isBold)
+        {
+            super(displayName);
+
+            this.contact = contact;
+            this.contactResource = contactResource;
+
+            setIcon(icon);
+            setName(menuName);
+            if (isBold)
+                setFont(getFont().deriveFont(Font.BOLD));
+            addActionListener(MetaContactRightButtonMenu.this);
+        }
+
+        /**
+         * Returns the protocol <tt>Contact</tt> associated with this menu item.
+         *
+         * @return the protocol <tt>Contact</tt> associated with this menu item
+         */
+        Contact getContact()
+        {
+            return contact;
+        }
+
+        /**
+         * Returns the <tt>ContactResource</tt> associated with this menu item
+         * if such exists otherwise returns null.
+         *
+         * @return the <tt>ContactResource</tt> associated with this menu item
+         * if such exists otherwise returns null
+         */
+        ContactResource getContactResource()
+        {
+            return contactResource;
+        }
     }
 }

@@ -242,32 +242,45 @@ public abstract class AbstractOperationSetBasicInstantMessaging
         }
     }
 
-    public MessageDeliveredEvent messageDeliveryPendingTransform(MessageDeliveredEvent evt){
-        return (MessageDeliveredEvent)messageTransform(evt, MessageEventType.MessageDeliveryPending);
+    public MessageDeliveredEvent messageDeliveryPendingTransform(
+            MessageDeliveredEvent evt)
+    {
+        return (MessageDeliveredEvent) messageTransform(
+            evt, MessageEventType.MessageDeliveryPending);
     }
 
-    private EventObject messageTransform(EventObject evt, MessageEventType eventType){
+    private EventObject messageTransform(   EventObject evt,
+                                            MessageEventType eventType){
 
         ProtocolProviderService protocolProvider;
         switch (eventType){
         case MessageDelivered:
-            protocolProvider = ((MessageDeliveredEvent)evt).getDestinationContact().getProtocolProvider();
+            protocolProvider
+                = ((MessageDeliveredEvent) evt)
+                    .getDestinationContact().getProtocolProvider();
             break;
         case MessageDeliveryFailed:
-            protocolProvider = ((MessageDeliveryFailedEvent)evt).getDestinationContact().getProtocolProvider();
+            protocolProvider
+                = ((MessageDeliveryFailedEvent) evt)
+                    .getDestinationContact().getProtocolProvider();
             break;
         case MessageDeliveryPending:
-            protocolProvider = ((MessageDeliveredEvent)evt).getDestinationContact().getProtocolProvider();
+            protocolProvider
+                = ((MessageDeliveredEvent) evt)
+                    .getDestinationContact().getProtocolProvider();
             break;
         case MessageReceived:
-            protocolProvider = ((MessageReceivedEvent)evt).getSourceContact().getProtocolProvider();
+            protocolProvider
+                = ((MessageReceivedEvent) evt)
+                    .getSourceContact().getProtocolProvider();
             break;
         default:
             return evt;
         }
 
-        OperationSetInstantMessageTransformImpl opSetMessageTransform =
-            (OperationSetInstantMessageTransformImpl)protocolProvider.getOperationSet(OperationSetInstantMessageTransform.class);
+        OperationSetInstantMessageTransformImpl opSetMessageTransform
+            = (OperationSetInstantMessageTransformImpl) protocolProvider
+                .getOperationSet(OperationSetInstantMessageTransform.class);
 
         if (opSetMessageTransform == null)
             return evt;
@@ -332,5 +345,26 @@ public abstract class AbstractOperationSetBasicInstantMessaging
             return true;
 
         return false;
+    }
+
+    /**
+     * Sends the <tt>message</tt> to the destination indicated by the
+     * <tt>to</tt>. Provides a default implementation of this method.
+     *
+     * @param to the <tt>Contact</tt> to send <tt>message</tt> to
+     * @param toResource the resource to which the message should be send
+     * @param message the <tt>Message</tt> to send.
+     * @throws java.lang.IllegalStateException if the underlying ICQ stack is
+     * not registered and initialized.
+     * @throws java.lang.IllegalArgumentException if <tt>to</tt> is not an
+     * instance belonging to the underlying implementation.
+     */
+    public void sendInstantMessage( Contact to,
+                                    ContactResource toResource,
+                                    Message message)
+        throws  IllegalStateException,
+                IllegalArgumentException
+    {
+        sendInstantMessage(to, message);
     }
 }

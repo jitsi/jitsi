@@ -25,7 +25,6 @@ import org.jitsi.util.event.*;
 public interface OperationSetVideoTelephony
     extends OperationSet
 {
-
     /**
      * Adds a specific <tt>VideoListener</tt> to this telephony in order to
      * receive notifications when visual/video <tt>Component</tt>s are being
@@ -199,6 +198,23 @@ public interface OperationSetVideoTelephony
      * to create the video call.
      */
     public Call createVideoCall(Contact callee)
+        throws OperationFailedException;
+
+    /**
+     * Create a new video call and invite the specified CallPeer to it.
+     *
+     * @param callee the address of the callee that we should invite to a new
+     * call.
+     * @param calleeResource the specific callee resource to call
+     * @return CallPeer the CallPeer that will represented by the
+     * specified uri. All following state change events will be delivered
+     * through that call peer. The Call that this peer is a member
+     * of could be retrieved from the CallParticipatn instance with the use
+     * of the corresponding method.
+     * @throws OperationFailedException with the corresponding code if we fail
+     * to create the video call.
+     */
+    public Call createVideoCall(Contact callee, ContactResource calleeResource)
         throws OperationFailedException;
 
     /**

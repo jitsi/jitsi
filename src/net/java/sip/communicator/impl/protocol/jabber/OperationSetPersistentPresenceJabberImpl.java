@@ -1089,6 +1089,10 @@ public class OperationSetPersistentPresenceJabberImpl
                 // statuses may be the same and only change in status message
                 sourceContact.setStatusMessage(currentPresence.getStatus());
 
+                // When status changes this may be related to a change in the
+                // available resources.
+                sourceContact.updateResources();
+
                 PresenceStatus oldStatus
                     = sourceContact.getPresenceStatus();
                 PresenceStatus newStatus
@@ -1098,8 +1102,8 @@ public class OperationSetPersistentPresenceJabberImpl
 
                 // when old and new status are the same do nothing
                 // no change
-                if(oldStatus.equals(newStatus))
-                    return;
+//                if(oldStatus.equals(newStatus))
+//                    return;
 
                 sourceContact.updatePresenceStatus(newStatus);
 

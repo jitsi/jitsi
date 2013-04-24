@@ -186,6 +186,34 @@ public class ExtendedTooltip
     }
 
     /**
+     * Adds an icon-string list, which would appear on the right of the image
+     * panel.
+     *
+     * @param icon the icon to show
+     * @param text the name to show
+     * @param leftIndent left indent of the label
+     */
+    public void addSubLine(Icon icon,
+                        String text,
+                        int leftIndent)
+    {
+        JLabel lineLabel = new JLabel(  text,
+                                        icon,
+                                        JLabel.LEFT);
+
+        lineLabel.setBorder(
+            BorderFactory.createEmptyBorder(0, leftIndent, 0, 0));
+        lineLabel.setFont(lineLabel.getFont().deriveFont(9f));
+        lineLabel.setForeground(Color.DARK_GRAY);
+
+        linesPanel.add(lineLabel);
+
+        Dimension labelSize = calculateLabelSize(lineLabel);
+
+        recalculateTooltipSize(labelSize.width + leftIndent, labelSize.height);
+    }
+
+    /**
      * Adds the given array of labels as one line in this tool tip.
      *
      * @param labels the labels to add

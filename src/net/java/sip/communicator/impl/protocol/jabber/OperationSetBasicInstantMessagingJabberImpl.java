@@ -370,14 +370,18 @@ public class OperationSetBasicInstantMessagingJabberImpl
      * extensions attached.
      * 
      * @param to The contact to send the message to.
+     * @param toResource The resource to send the message to or null if no
+     * resource has been specified
      * @param message The message to send.
      * @param extensions The XMPP extensions that should be attached to the
      * message before sending.
      * @return The MessageDeliveryEvent that resulted after attempting to
      * send this message, so the calling function can modify it if needed.
      */
-    private MessageDeliveredEvent sendMessage(Contact to, Message message,
-            PacketExtension[] extensions)
+    private MessageDeliveredEvent sendMessage(  Contact to,
+                                                ContactResource toResource,
+                                                Message message,
+                                                PacketExtension[] extensions)
     {
         if( !(to instanceof ContactJabberImpl) )
            throw new IllegalArgumentException(
@@ -391,7 +395,15 @@ public class OperationSetBasicInstantMessagingJabberImpl
             org.jivesoftware.smack.packet.Message msg =
                 new org.jivesoftware.smack.packet.Message();
 
-            String toJID = getJidForAddress(to.getAddress());
+            String toJID = null;
+
+            if (toResource != null)
+                toJID = (toResource.equals(ContactResource.BASE_RESOURCE))
+                        ? to.getAddress()
+                        : ((ContactResourceJabberImpl) toResource).getFullJid();
+
+            if (toJID == null)
+                toJID = getJidForAddress(to.getAddress());
 
             if (toJID == null)
                 toJID = to.getAddress();
@@ -479,8 +491,30 @@ public class OperationSetBasicInstantMessagingJabberImpl
     public void sendInstantMessage(Contact to, Message message)
         throws IllegalStateException, IllegalArgumentException
     {
+        sendInstantMessage(to, null, message);
+    }
+
+    /**
+     * Sends the <tt>message</tt> to the destination indicated by the
+     * <tt>to</tt>. Provides a default implementation of this method.
+     *
+     * @param to the <tt>Contact</tt> to send <tt>message</tt> to
+     * @param toResource the resource to which the message should be send
+     * @param message the <tt>Message</tt> to send.
+     * @throws java.lang.IllegalStateException if the underlying ICQ stack is
+     * not registered and initialized.
+     * @throws java.lang.IllegalArgumentException if <tt>to</tt> is not an
+     * instance belonging to the underlying implementation.
+     */
+    public void sendInstantMessage( Contact to,
+                                    ContactResource toResource,
+                                    Message message)
+        throws  IllegalStateException,
+                IllegalArgumentException
+    {
         MessageDeliveredEvent msgDelivered =
-                sendMessage(to, message, new PacketExtension[0]);
+            sendMessage(to, toResource, message, new PacketExtension[0]);
+
         fireMessageEvent(msgDelivered);
     }
 
@@ -497,7 +531,8 @@ public class OperationSetBasicInstantMessagingJabberImpl
     {
         PacketExtension[] exts = new PacketExtension[1];
         exts[0] = new MessageCorrectionExtension(correctedMessageUID);
-        MessageDeliveredEvent msgDelivered = sendMessage(to, message, exts);
+        MessageDeliveredEvent msgDelivered
+            = sendMessage(to, null, message, exts);
         msgDelivered.setCorrectedMessageUID(correctedMessageUID);
         fireMessageEvent(msgDelivered);
     }
@@ -737,7 +772,8 @@ public class OperationSetBasicInstantMessagingJabberImpl
             putJidForAddress(fromUserID, msg.getFrom());
 
             if (logger.isTraceEnabled())
-                logger.trace("just mapped: " + fromUserID + " to " + msg.getFrom());
+                logger.trace("just mapped: " + fromUserID
+                                + " to " + msg.getFrom());
 
             // In the second condition we filter all group chat messages,
             // because they are managed by the multi user chat operation set.
@@ -764,8 +800,16 @@ public class OperationSetBasicInstantMessagingJabberImpl
             {
                 timestamp = ((DelayInfo)delay).getStamp();
             }
-            MessageReceivedEvent msgReceivedEvt = new MessageReceivedEvent(
-                    newMessage, sourceContact, timestamp, correctedMessageUID);
+
+            ContactResource resource = ((ContactJabberImpl) sourceContact)
+                .findResourceFromJid(msg.getFrom());
+
+            MessageReceivedEvent msgReceivedEvt
+                = new MessageReceivedEvent( newMessage,
+                                            sourceContact,
+                                            resource,
+                                            timestamp,
+                                            correctedMessageUID);
 
             // msgReceivedEvt = messageReceivedTransform(msgReceivedEvt);
 

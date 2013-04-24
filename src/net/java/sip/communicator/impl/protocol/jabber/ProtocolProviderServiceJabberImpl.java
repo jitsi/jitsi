@@ -1711,6 +1711,10 @@ public class ProtocolProviderServiceJabberImpl
                     OperationSetBasicAutoAnswer.class,
                     new OperationSetAutoAnswerJabberImpl(this));
 
+                addSupportedOperationSet(
+                    OperationSetResourceAwareTelephony.class,
+                    new OperationSetResAwareTelephonyJabberImpl(basicTelephony));
+
                 // Only init video bridge if enabled
                 boolean isVideoBridgeDisabled
                     = JabberActivator.getConfigurationService()

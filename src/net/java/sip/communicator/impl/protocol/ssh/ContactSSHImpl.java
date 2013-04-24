@@ -902,7 +902,30 @@ public class ContactSSHImpl
      * 
      * @return the current status message
      */
-    public String getStatusMessage() {
+    public String getStatusMessage()
+    {
         return presenceStatus.getStatusName();
+    }
+
+    /**
+     * Indicates if this contact supports resources.
+     *
+     * @return <tt>false</tt> to indicate that this contact doesn't support
+     * resources
+     */
+    public boolean supportResources()
+    {
+        return false;
+    }
+
+    /**
+     * Returns a collection of resources supported by this contact or null
+     * if it doesn't support resources.
+     *
+     * @return null, as this contact doesn't support resources 
+     */
+    public Collection<ContactResource> getResources()
+    {
+        return null;
     }
 }

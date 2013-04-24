@@ -1050,7 +1050,6 @@ public class ChatWritePanel
             {
                 transportSelectorBox.setVisible(true);
             }
-
         }
     }
 

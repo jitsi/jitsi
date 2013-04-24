@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.service.protocol;
 
+import java.util.*;
+
 /**
  * This class represents the notion of a Contact or Buddy, that is widely used
  * in instant messaging today. From a protocol point of view, a contact is
@@ -114,4 +116,21 @@ public interface Contact
      * @return the current status message
      */
     public String getStatusMessage();
+
+    /**
+     * Indicates if this contact supports resources.
+     *
+     * @return <tt>true</tt> if this contact supports resources, <tt>false</tt>
+     * otherwise
+     */
+    public boolean supportResources();
+
+    /**
+     * Returns a collection of resources supported by this contact or null
+     * if it doesn't support resources.
+     *
+     * @return a collection of resources supported by this contact or null
+     * if it doesn't support resources
+     */
+    public Collection<ContactResource> getResources();
 }

@@ -447,14 +447,16 @@ public class MetaUIContact
 
             ImageIcon protocolStatusIcon
                 = ImageLoader.getIndexedProtocolIcon(
-                        ImageUtils.getBytesInImage(
-                            protocolContact.getPresenceStatus().getStatusIcon()),
-                        protocolContact.getProtocolProvider());
+                    ImageUtils.getBytesInImage(
+                        protocolContact.getPresenceStatus().getStatusIcon()),
+                    protocolContact.getProtocolProvider());
 
             String contactAddress = protocolContact.getAddress();
             //String statusMessage = protocolContact.getStatusMessage();
 
             tip.addLine(protocolStatusIcon, contactAddress);
+
+            addContactResourceTooltipLines(tip, protocolContact);
 
             if(!protocolContact.getProtocolProvider().isRegistered())
                 continue;
@@ -487,13 +489,11 @@ public class MetaUIContact
                     }
                 });
 
-
-
             List<String> phones = contactPhoneUtil.getPhones(protocolContact);
 
             if(phones != null)
             {
-                fillTooltipLines(tip, phones.iterator());
+                addPhoneTooltipLines(tip, phones.iterator());
             }
             else
                 isLoading = true;
@@ -509,16 +509,70 @@ public class MetaUIContact
     }
 
     /**
+     * Adds resources for contact.
+     * 
+     * @param tip the tool tip
+     * @param protocolContact the protocol contact, which resources we're
+     * looking for
+     */
+    private void addContactResourceTooltipLines(
+        ExtendedTooltip tip,
+        Contact protocolContact)
+    {
+        Collection<ContactResource> contactResources
+            = protocolContact.getResources();
+
+        if (contactResources == null)
+            return;
+
+        Iterator<ContactResource> resourcesIter = contactResources.iterator();
+
+        while (resourcesIter.hasNext())
+        {
+            ContactResource contactResource = resourcesIter.next();
+
+            // We only add the status icon if we have more than one resources,
+            // otherwise it will always be identical to the contact status icon.
+            ImageIcon protocolStatusIcon = null;
+            if (contactResources.size() > 1)
+            {
+                protocolStatusIcon
+                    = ImageLoader.getIndexedProtocolIcon(
+                        ImageUtils.getBytesInImage(
+                            contactResource.getPresenceStatus().getStatusIcon()),
+                            protocolContact.getProtocolProvider());
+            }
+
+            String resourceName = (contactResource.getPriority() >= 0)
+                                    ? contactResource.getResourceName()
+                                    + " (" + contactResource.getPriority() + ")"
+                                    : contactResource.getResourceName();
+
+            if (protocolStatusIcon == null)
+                tip.addSubLine( protocolStatusIcon,
+                                resourceName,
+                                27);
+            else
+                tip.addSubLine( protocolStatusIcon,
+                                resourceName,
+                                20);
+        }
+
+        tip.revalidate();
+        tip.repaint();
+    }
+
+    /**
      * Fills the tooltip with details.
      * @param tip the tooltip to fill
      * @param phones the available phone details.
      */
-    private void fillTooltipLines(ExtendedTooltip tip,
-                                  Iterator<String> phones)
+    private void addPhoneTooltipLines(ExtendedTooltip tip,
+                                      Iterator<String> phones)
     {
         while(phones.hasNext())
         {
-            tip.addLine(null, phones.next());
+            tip.addSubLine(null, phones.next(), 27);
         }
 
         tip.revalidate();

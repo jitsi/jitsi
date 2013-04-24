@@ -37,7 +37,7 @@ public abstract class ChatSession
      * The list of <tt>ChatTransport</tt>s available in this session.
      */
     protected final List<ChatTransport> chatTransports
-        = new ArrayList<ChatTransport>();
+        = new LinkedList<ChatTransport>();
 
     /**
      * Returns the descriptor of this chat session.
@@ -201,14 +201,20 @@ public abstract class ChatSession
      * Returns the ChatTransport corresponding to the given descriptor.
      *
      * @param descriptor The descriptor of the chat transport we're looking for.
+     * @param resourceName The name of the resource if any, null otherwise
      * @return The ChatTransport corresponding to the given descriptor.
      */
-    public ChatTransport findChatTransportForDescriptor(
-        Object descriptor)
+    public ChatTransport findChatTransportForDescriptor(Object descriptor,
+                                                        String resourceName)
     {
         for (ChatTransport chatTransport : chatTransports)
         {
-            if (chatTransport.getDescriptor().equals(descriptor))
+            String transportResName = chatTransport.getResourceName();
+
+            if (chatTransport.getDescriptor().equals(descriptor)
+                && (resourceName == null
+                    || (transportResName != null
+                        && transportResName.equals(resourceName))))
                 return chatTransport;
         }
         return null;

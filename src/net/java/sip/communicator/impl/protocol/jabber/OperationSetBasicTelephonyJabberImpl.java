@@ -42,7 +42,6 @@ public class OperationSetBasicTelephonyJabberImpl
               OperationSetSecureZrtpTelephony,
               OperationSetAdvancedTelephony<ProtocolProviderServiceJabberImpl>
 {
-
     /**
      * The <tt>Logger</tt> used by the
      * <tt>OperationSetBasicTelephonyJabberImpl</tt> class and its instances for
@@ -218,6 +217,37 @@ public class OperationSetBasicTelephonyJabberImpl
             Iterable<PacketExtension> sessionInitiateExtensions)
         throws OperationFailedException
     {
+        return createOutgoingCall(call, calleeAddress, null, null);
+    }
+
+    /**
+     * Init and establish the specified call.
+     *
+     * @param call the <tt>CallJabberImpl</tt> that will be used
+     * to initiate the call
+     * @param calleeAddress the address of the callee that we'd like to connect
+     * with.
+     * @param fullCalleeURI the full Jid address, which if specified would
+     * explicitly initiate a call to this full address
+     * @param sessionInitiateExtensions a collection of additional and optional
+     * <tt>PacketExtension</tt>s to be added to the <tt>session-initiate</tt>
+     * {@link JingleIQ} which is to init the specified <tt>call</tt>
+     *
+     * @return the <tt>CallPeer</tt> that represented by the specified uri. All
+     * following state change events will be delivered through that call peer.
+     * The <tt>Call</tt> that this peer is a member of could be retrieved from
+     * the <tt>CallPeer</tt> instance with the use of the corresponding method.
+     *
+     * @throws OperationFailedException with the corresponding code if we fail
+     * to create the call.
+     */
+    AbstractCallPeer<?, ?> createOutgoingCall(
+            CallJabberImpl call,
+            String calleeAddress,
+            String fullCalleeURI,
+            Iterable<PacketExtension> sessionInitiateExtensions)
+        throws OperationFailedException
+    {
         if (logger.isInfoEnabled())
             logger.info("Creating outgoing call to " + calleeAddress);
         if (protocolProvider.getConnection() == null || call == null)
@@ -272,13 +302,6 @@ public class OperationSetBasicTelephonyJabberImpl
                                     calleeAddress.indexOf('@') + 1)))
                 || isGoogleVoice;
 
-        // we determine on which resource the remote user is connected if the
-        // resource isn't already provided
-        String fullCalleeURI = null;
-
-        DiscoverInfo di = null;
-        int bestPriority = -1;
-
         if(!getProtocolProvider().getConnection().getRoster().contains(
             StringUtils.parseBareAddress(calleeAddress)) && !alwaysCallGtalk)
         {
@@ -287,101 +310,62 @@ public class OperationSetBasicTelephonyJabberImpl
                 OperationFailedException.NOT_FOUND);
         }
 
-        Iterator<Presence> it
-            = getProtocolProvider().getConnection().getRoster().getPresences(
-                    calleeAddress);
+        // If there's no fullCalleeURI specified we'll discover the most
+        // connected one with highest priority.
+        if (fullCalleeURI == null)
+            fullCalleeURI = discoverFullJid(calleeAddress, alwaysCallGtalk);
 
-        String calleeURI = null;
-        boolean isGingle = false;
-        String gingleURI = null;
-        PresenceStatus jabberStatus = null;
+        DiscoverInfo di = null;
 
-        // Choose the resource which has the highest priority AND supports
-        // Jingle, if we have two resources with same priority take
-        // the most available.
-        while(it.hasNext())
+        try
         {
-            Presence presence = it.next();
-            int priority
-                = (presence.getPriority() == Integer.MIN_VALUE)
-                    ? 0
-                    : presence.getPriority();
-            calleeURI = presence.getFrom();
-            DiscoverInfo discoverInfo = null;
+            // check if the remote client supports telephony.
+            di = protocolProvider.getDiscoveryManager().discoverInfo(
+                    fullCalleeURI);
+        }
+        catch (XMPPException ex)
+        {
+            logger.warn("could not retrieve info for " + fullCalleeURI, ex);
+        }
 
-            try
-            {
-                // check if the remote client supports telephony.
-                discoverInfo
-                    = protocolProvider.getDiscoveryManager().discoverInfo(
-                            calleeURI);
-            }
-            catch (XMPPException ex)
-            {
-                logger.warn("could not retrieve info for " + fullCalleeURI, ex);
-            }
+        boolean hasGtalkCaps =
+            getProtocolProvider().isExtFeatureListSupported(
+                fullCalleeURI, ProtocolProviderServiceJabberImpl.
+                    CAPS_GTALK_WEB_VOICE);
 
-            boolean hasGtalkCaps =
-                getProtocolProvider().isExtFeatureListSupported(
-                    calleeURI, ProtocolProviderServiceJabberImpl.
-                        CAPS_GTALK_WEB_VOICE);
+        boolean isGingle = false;
+        if (di != null && di.containsFeature(
+            ProtocolProviderServiceJabberImpl.URN_XMPP_JINGLE))
+        {
+            isGingle = false;
+        }
+        else if (protocolProvider.isGTalkTesting() // test GTALK property
+            // see if peer supports Google Talk voice
+            && (hasGtalkCaps || alwaysCallGtalk))
+        {
+            isGingle = true;
+        }
 
-            if (discoverInfo != null && discoverInfo.containsFeature(
-                ProtocolProviderServiceJabberImpl.URN_XMPP_JINGLE))
-            {
-                if(priority > bestPriority)
-                {
-                    bestPriority = priority;
-                    di = discoverInfo;
-                    fullCalleeURI = calleeURI;
-                    isGingle = false;
-                    jabberStatus = OperationSetPersistentPresenceJabberImpl
-                        .jabberStatusToPresenceStatus(
-                                presence, protocolProvider);
-                }
-                else if(priority == bestPriority && jabberStatus != null)
-                {
-                    PresenceStatus tempStatus =
-                        OperationSetPersistentPresenceJabberImpl
-                           .jabberStatusToPresenceStatus(
-                               presence, protocolProvider);
-                    if(tempStatus.compareTo(jabberStatus) > 0)
-                    {
-                        di = discoverInfo;
-                        fullCalleeURI = calleeURI;
-                        isGingle = false;
-                        jabberStatus = tempStatus;
-                    }
-                }
-            }
-            else if (protocolProvider.isGTalkTesting() // test GTALK property
-                    // see if peer supports Google Talk voice
-                    && (hasGtalkCaps || alwaysCallGtalk))
-            {
-                if(priority > bestPriority)
-                {
-                    bestPriority = priority;
-                    isGingle = true;
-                    gingleURI = calleeURI;
-                    jabberStatus =OperationSetPersistentPresenceJabberImpl
-                        .jabberStatusToPresenceStatus(presence, protocolProvider);
-                }
-                else if(priority == bestPriority && jabberStatus != null)
-                {
-                    PresenceStatus tempStatus =
-                        OperationSetPersistentPresenceJabberImpl
-                           .jabberStatusToPresenceStatus(
-                               presence, protocolProvider);
-                    if(tempStatus.compareTo(jabberStatus) > 0)
-                    {
-                        isGingle = true;
-                        gingleURI = calleeURI;
-                        jabberStatus =OperationSetPersistentPresenceJabberImpl
-                            .jabberStatusToPresenceStatus(
-                                presence, protocolProvider);
-                    }
-                }
-            }
+        if(isGingle)
+        {
+            if(logger.isInfoEnabled())
+                logger.info(fullCalleeURI + ": Google Talk dialect supported");
+        }
+        else if(di != null)
+        {
+            if (logger.isInfoEnabled())
+                logger.info(fullCalleeURI + ": jingle supported ");
+        }
+        else
+        {
+            if (logger.isInfoEnabled())
+                logger.info(
+                    fullCalleeURI + ": jingle and Google Talk not supported?");
+
+            throw new OperationFailedException(
+                    "Failed to create OutgoingJingleSession.\n"
+                    + fullCalleeURI + " does not support jingle or Google Talk",
+                    OperationFailedException.INTERNAL_ERROR);
         }
 
         /* in case we figure that calling people without a resource id is
@@ -395,33 +379,6 @@ public class OperationSetBasicTelephonyJabberImpl
                     , OperationFailedException.INTERNAL_ERROR);
         }
         */
-
-        if(isGingle)
-        {
-            if(logger.isInfoEnabled())
-                logger.info(gingleURI + ": Google Talk dialect supported");
-            fullCalleeURI = gingleURI;
-        }
-        else if(di != null)
-        {
-            if (logger.isInfoEnabled())
-                logger.info(fullCalleeURI + ": jingle supported ");
-        }
-        else
-        {
-            if (logger.isInfoEnabled())
-                logger.info(
-                        calleeURI + ": jingle and Google Talk not supported?");
-
-            throw new OperationFailedException(
-                    "Failed to create OutgoingJingleSession.\n"
-                        + calleeURI + " does not support jingle or Google Talk",
-                    OperationFailedException.INTERNAL_ERROR);
-        }
-
-        if(logger.isInfoEnabled())
-            logger.info("Full JID for outgoing call: " + fullCalleeURI
-                            + ", priority " + bestPriority);
 
         AbstractCallPeer<?, ?> peer = null;
 
@@ -480,6 +437,123 @@ public class OperationSetBasicTelephonyJabberImpl
         }
 
         return peer;
+    }
+
+    /**
+     * Discover on which resource the remote user is connected and what are
+     * its priorities and capabilities.
+     *
+     * @param calleeAddress the address of the callee
+     * @param isAlwaysCallGtalk indicates if gtalk should be called
+     *
+     * @return the full callee URI
+     */
+    private String discoverFullJid( String calleeAddress,
+                                    boolean isAlwaysCallGtalk)
+    {
+        String fullCalleeURI = null;
+        DiscoverInfo discoverInfo = null;
+        int bestPriority = -1;
+        boolean isGingle = false;
+        String gingleURI = null;
+        PresenceStatus jabberStatus = null;
+        String calleeURI = null;
+
+        Iterator<Presence> it
+            = getProtocolProvider().getConnection().getRoster().getPresences(
+                    calleeAddress);
+
+        while(it.hasNext())
+        {
+            Presence presence = it.next();
+            int priority
+                = (presence.getPriority() == Integer.MIN_VALUE)
+                    ? 0
+                    : presence.getPriority();
+            calleeURI = presence.getFrom();
+
+            try
+            {
+                // check if the remote client supports telephony.
+                discoverInfo
+                    = protocolProvider.getDiscoveryManager().discoverInfo(
+                            calleeURI);
+            }
+            catch (XMPPException ex)
+            {
+                logger.warn("could not retrieve info for " + fullCalleeURI, ex);
+            }
+
+            boolean hasGtalkCaps =
+                getProtocolProvider().isExtFeatureListSupported(
+                    calleeURI, ProtocolProviderServiceJabberImpl.
+                        CAPS_GTALK_WEB_VOICE);
+
+            if (discoverInfo != null && discoverInfo.containsFeature(
+                ProtocolProviderServiceJabberImpl.URN_XMPP_JINGLE))
+            {
+                if(priority > bestPriority)
+                {
+                    bestPriority = priority;
+                    fullCalleeURI = calleeURI;
+                    isGingle = false;
+                    jabberStatus = OperationSetPersistentPresenceJabberImpl
+                        .jabberStatusToPresenceStatus(
+                                presence, protocolProvider);
+                }
+                else if(priority == bestPriority && jabberStatus != null)
+                {
+                    PresenceStatus tempStatus =
+                        OperationSetPersistentPresenceJabberImpl
+                           .jabberStatusToPresenceStatus(
+                               presence, protocolProvider);
+                    if(tempStatus.compareTo(jabberStatus) > 0)
+                    {
+                        fullCalleeURI = calleeURI;
+                        isGingle = false;
+                        jabberStatus = tempStatus;
+                    }
+                }
+            }
+            else if (protocolProvider.isGTalkTesting() // test GTALK property
+                    // see if peer supports Google Talk voice
+                    && (hasGtalkCaps || isAlwaysCallGtalk))
+            {
+                if(priority > bestPriority)
+                {
+                    bestPriority = priority;
+                    isGingle = true;
+                    gingleURI = calleeURI;
+                    jabberStatus =OperationSetPersistentPresenceJabberImpl
+                        .jabberStatusToPresenceStatus(  presence,
+                                                        protocolProvider);
+                }
+                else if(priority == bestPriority && jabberStatus != null)
+                {
+                    PresenceStatus tempStatus =
+                        OperationSetPersistentPresenceJabberImpl
+                           .jabberStatusToPresenceStatus(
+                               presence, protocolProvider);
+                    if(tempStatus.compareTo(jabberStatus) > 0)
+                    {
+                        isGingle = true;
+                        gingleURI = calleeURI;
+                        jabberStatus =OperationSetPersistentPresenceJabberImpl
+                            .jabberStatusToPresenceStatus(
+                                presence, protocolProvider);
+                    }
+                }
+            }
+        }
+
+        if(isGingle)
+            fullCalleeURI = gingleURI;
+
+        if(logger.isInfoEnabled())
+            logger.info("Full JID for outgoing call: " + fullCalleeURI
+                            + ", priority " + bestPriority);
+
+        return fullCalleeURI;
     }
 
     /**

@@ -127,7 +127,7 @@ public class OperationSetVideoTelephonySipImpl
     public Call createVideoCall(Contact callee)
         throws OperationFailedException
     {
-        return createVideoCall(callee, null);
+        return createVideoCall(callee, (ContactResource) null);
     }
 
     /**

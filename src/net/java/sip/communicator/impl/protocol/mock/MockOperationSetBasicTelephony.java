@@ -78,6 +78,29 @@ public class MockOperationSetBasicTelephony
         return createNewCall(callee);
     }
 
+    /**
+     * Creates a new <tt>Call</tt> and invites a specific <tt>CallPeer</tt>
+     * given by her <tt>Contact</tt> to it.
+     *
+     * @param callee the address of the callee who we should invite to a new
+     * call
+     * @param calleeResource the specific resource to which the invite should be
+     * sent
+     * @param conference the <tt>CallConference</tt> in which the newly-created
+     * <tt>Call</tt> is to participate
+     * @return a newly created <tt>Call</tt>. The specified <tt>callee</tt> is
+     * available in the <tt>Call</tt> as a <tt>CallPeer</tt>
+     * @throws OperationFailedException with the corresponding code if we fail
+     * to create the call
+     */
+    public Call createCall(Contact callee, ContactResource calleeResource,
+                            CallConference conference)
+        throws OperationFailedException
+    {
+        // We don't support callee resource.
+        return createCall(callee, conference);
+    }
+
     private Call createNewCall(String address)
     {
         MockCall newCall = new MockCall(protocolProvider);
