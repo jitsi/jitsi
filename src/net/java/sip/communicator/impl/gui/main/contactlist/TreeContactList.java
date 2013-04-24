@@ -783,6 +783,14 @@ public class TreeContactList
     }
 
     /**
+     * Removes all entries in this contact list.
+     */
+    public void removeAll()
+    {
+        treeModel.clear();
+    }
+
+    /**
      * Returns a collection of all direct child <tt>UIContact</tt>s of the given
      * <tt>UIGroup</tt>.
      *

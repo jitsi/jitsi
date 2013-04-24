@@ -404,6 +404,7 @@ public class InviteDialog
         destContactList
             = GuiActivator.getUIService().createContactListComponent(this);
 
+        destContactList.removeAllContactSources();
         destContactList.setContactButtonsVisible(false);
         destContactList.setRightButtonMenuEnabled(false);
         destContactList.setMultipleSelectionEnabled(true);

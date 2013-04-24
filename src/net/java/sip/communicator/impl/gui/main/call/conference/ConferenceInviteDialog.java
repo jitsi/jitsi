@@ -302,7 +302,7 @@ public class ConferenceInviteDialog
                             .getSelectedItem());
 
                     if (isVideoBridge)
-                        destContactList.applyDefaultFilter();
+                        destContactList.removeAll();
                 }
             }
         });
