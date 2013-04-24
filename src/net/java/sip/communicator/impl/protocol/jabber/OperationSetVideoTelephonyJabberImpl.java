@@ -66,7 +66,7 @@ public class OperationSetVideoTelephonyJabberImpl
     {
         super.setLocalVideoAllowed(call, allowed);
 
-        ((AbstractCallJabberGTalkImpl<?>) call).modifyVideoContent(allowed);
+        ((CallJabberImpl)call).modifyVideoContent(allowed);
     }
 
     /**
@@ -171,10 +171,10 @@ public class OperationSetVideoTelephonyJabberImpl
      */
     public QualityControl getQualityControl(CallPeer peer)
     {
-        return
-            (peer instanceof CallPeerJabberImpl)
-                ? ((CallPeerJabberImpl) peer).getMediaHandler()
-                        .getQualityControl()
-                : null;
+        if(peer instanceof CallPeerJabberImpl)
+            return ((CallPeerJabberImpl) peer).getMediaHandler().
+                getQualityControl();
+        else
+            return null;
     }
 }
