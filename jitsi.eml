@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component>
+	<contentEntry url="file://$MODULE_DIR$"/>
+	<lib name="felix.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/felix.jar!/"/>
+	</lib>
+	<lib name="jdic-all.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/jdic-all.jar!/"/>
+	</lib>
+	<lib name="junit.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/bundle/junit.jar!/"/>
+	</lib>
+	<lib name="aclibico-2.1.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/aclibico-2.1.jar!/"/>
+	</lib>
+	<lib name="apache-ant-1.7.0.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/apache-ant-1.7.0.jar!/"/>
+	</lib>
+	<lib name="cglib-nodep.osgi-2.1_3.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/cglib-nodep.osgi-2.1_3.jar!/"/>
+	</lib>
+	<lib name="commons-logging-1.1.1.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/commons-logging-1.1.1.jar!/"/>
+	</lib>
+	<lib name="dhcp4java-1.00.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/dhcp4java-1.00.jar!/"/>
+	</lib>
+	<lib name="dict4j.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/dict4j.jar!/"/>
+	</lib>
+	<lib name="dnsjava.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/dnsjava.jar!/"/>
+	</lib>
+	<lib name="easymock-3.1.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/easymock-3.1.jar!/"/>
+	</lib>
+	<lib name="fmj.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/fmj.jar!/"/>
+	</lib>
+	<lib name="forms-1.2.1.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/forms-1.2.1.jar!/"/>
+	</lib>
+	<lib name="gdata-client-1.0.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/gdata-client-1.0.jar!/"/>
+	</lib>
+	<lib name="gdata-client-meta-1.0.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/gdata-client-meta-1.0.jar!/"/>
+	</lib>
+	<lib name="gdata-contacts-3.0.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/gdata-contacts-3.0.jar!/"/>
+	</lib>
+	<lib name="gdata-contacts-meta-3.0.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/gdata-contacts-meta-3.0.jar!/"/>
+	</lib>
+	<lib name="gdata-core-1.0.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/gdata-core-1.0.jar!/"/>
+	</lib>
+	<lib name="google-collect-1.0-rc1.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/google-collect-1.0-rc1.jar!/"/>
+	</lib>
+	<lib name="hexdump-0.2.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/hexdump-0.2.jar!/"/>
+	</lib>
+	<lib name="httpclient-osgi-4.2.3.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/httpclient-osgi-4.2.3.jar!/"/>
+	</lib>
+	<lib name="httpcore-osgi-4.2.3.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/httpcore-osgi-4.2.3.jar!/"/>
+	</lib>
+	<lib name="ice4j.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/ice4j.jar!/"/>
+	</lib>
+	<lib name="jain-sdp.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/jain-sdp.jar!/"/>
+	</lib>
+	<lib name="jain-sip-api.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/jain-sip-api.jar!/"/>
+	</lib>
+	<lib name="jain-sip-ri.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/jain-sip-ri.jar!/"/>
+	</lib>
+	<lib name="jdic_misc.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/jdic_misc.jar!/"/>
+	</lib>
+	<lib name="jdom.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/jdom.jar!/"/>
+	</lib>
+	<lib name="jfontchooser-1.0.5.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/jfontchooser-1.0.5.jar!/"/>
+	</lib>
+	<lib name="jmdns.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/jmdns.jar!/"/>
+	</lib>
+	<lib name="jml-1.0b5.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/jml-1.0b5.jar!/"/>
+	</lib>
+	<lib name="jmyspell-core.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/jmyspell-core.jar!/"/>
+	</lib>
+	<lib name="jna.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/jna.jar!/"/>
+	</lib>
+	<lib name="jnsapi.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/jnsapi.jar!/"/>
+	</lib>
+	<lib name="joscar-client.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/joscar-client.jar!/"/>
+	</lib>
+	<lib name="joscar-common.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/joscar-common.jar!/"/>
+	</lib>
+	<lib name="joscar-protocol.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/joscar-protocol.jar!/"/>
+	</lib>
+	<lib name="jsch-0.1.36.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/jsch-0.1.36.jar!/"/>
+	</lib>
+	<lib name="jsocks-klea.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/jsocks-klea.jar!/"/>
+	</lib>
+	<lib name="json-simple-1.1.1.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/json-simple-1.1.1.jar!/"/>
+	</lib>
+	<lib name="lib/installer-exclude/junit.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/junit.jar!/"/>
+	</lib>
+	<lib name="laf-widget.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/laf-widget.jar!/"/>
+	</lib>
+	<lib name="libdbus-java-2.7.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/libdbus-java-2.7.jar!/"/>
+	</lib>
+	<lib name="libjitsi.jar" scope="COMPILE">
+		<srcroot url="file:///libjitsi"/>
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/libjitsi.jar!/"/>
+	</lib>
+	<lib name="log4j-1.2.8.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/log4j-1.2.8.jar!/"/>
+	</lib>
+	<lib name="mac_widgets-0.9.5.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/mac_widgets-0.9.5.jar!/"/>
+	</lib>
+	<lib name="objenesis-1.2.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/objenesis-1.2.jar!/"/>
+	</lib>
+	<lib name="otr4j.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/otr4j.jar!/"/>
+	</lib>
+	<lib name="pircbot.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/pircbot.jar!/"/>
+	</lib>
+	<lib name="profiler4j-1.0-beta3-SC.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/profiler4j-1.0-beta3-SC.jar!/"/>
+	</lib>
+	<lib name="rome-0.9.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/rome-0.9.jar!/"/>
+	</lib>
+	<lib name="sdes4j.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/sdes4j.jar!/"/>
+	</lib>
+	<lib name="smack.jar" scope="COMPILE">
+		<srcroot url="file://lib/installer-exclude/smack-src.jar"/>
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/smack.jar!/"/>
+	</lib>
+	<lib name="smackx.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/smackx.jar!/"/>
+	</lib>
+	<lib name="swing-worker-1.2.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/swing-worker-1.2.jar!/"/>
+	</lib>
+	<lib name="jna-platform.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/jna-platform.jar!/"/>
+	</lib>
+	<lib name="unix-0.5.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/unix-0.5.jar!/"/>
+	</lib>
+	<lib name="weupnp-0.1.2-SNAPSHOT.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/weupnp-0.1.2-SNAPSHOT.jar!/"/>
+	</lib>
+	<lib name="ymsg_network_v0_67.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/ymsg_network_v0_67.jar!/"/>
+	</lib>
+	<lib name="jdic_stub.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/os-specific/linux/jdic_stub.jar!/"/>
+	</lib>
+	<lib name="growl4j.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/os-specific/mac/growl4j.jar!/"/>
+	</lib>
+	<lib name="lib/os-specific/mac/jdic_stub.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/os-specific/mac/jdic_stub.jar!/"/>
+	</lib>
+	<lib name="OrangeExtensions.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/os-specific/mac/OrangeExtensions.jar!/"/>
+	</lib>
+	<lib name="lib/os-specific/solaris/jdic_stub.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/os-specific/solaris/jdic_stub.jar!/"/>
+	</lib>
+	<lib name="lib/os-specific/windows/jdic_stub.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/os-specific/windows/jdic_stub.jar!/"/>
+	</lib>
+	<lib name="jmork-1.0.5-SNAPSHOT.jar" scope="COMPILE">
+		<srcroot url="file:///jmork"/>
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/jmork-1.0.5-SNAPSHOT.jar!/"/>
+	</lib>
+	<lib name="bcprov-jdk15on-148.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/bcprov-jdk15on-148.jar!/"/>
+	</lib>
+	<lib name="bccontrib-1.0-SNAPSHOT.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/bccontrib-1.0-SNAPSHOT.jar!/"/>
+	</lib>
+	<lib name="zrtp4j-light.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/zrtp4j-light.jar!/"/>
+	</lib>
+</component>
