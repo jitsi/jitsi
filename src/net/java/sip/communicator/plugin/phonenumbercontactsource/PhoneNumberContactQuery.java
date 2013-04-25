@@ -194,8 +194,12 @@ public class PhoneNumberContactQuery
                             ArrayList<ContactDetail> contactDetails
                                 = new ArrayList<ContactDetail>();
 
+                            String detailDisplayName
+                                = pnd.getNumber() + "(" + localizedType + ")";
                             ContactDetail detail
-                                = new ContactDetail(pnd.getNumber());
+                                = new ContactDetail(pnd.getNumber(),
+                                                    detailDisplayName);
+
                             ArrayList<Class<? extends OperationSet>>
                                 supportedOpSets
                                 = new ArrayList<Class<? extends OperationSet>>();
@@ -211,8 +215,7 @@ public class PhoneNumberContactQuery
                                     getContactSource(),
                                     contact,
                                     contactDetails,
-                                    pnd.getNumber()
-                                    + "(" + localizedType + ")");
+                                    detailDisplayName);
 
                             addQueryResult(numberSourceContact);
                         }

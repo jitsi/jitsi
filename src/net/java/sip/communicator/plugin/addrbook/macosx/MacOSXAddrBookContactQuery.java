@@ -1204,6 +1204,7 @@ public class MacOSXAddrBookContactQuery
                     ProtocolNames.AIM);
             break;
         case kABEmailProperty:
+            supportedOpSets.add(OperationSetBasicTelephony.class);
             break;
         case kABICQInstantProperty:
             supportedOpSets.add(OperationSetBasicInstantMessaging.class);

@@ -9,6 +9,8 @@ package net.java.sip.communicator.plugin.demuxcontactsource;
 import java.util.*;
 import java.util.regex.*;
 
+import org.jitsi.util.*;
+
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.protocol.*;
 
@@ -217,7 +219,7 @@ public class DemuxContactSource
                                 = (SortedGenericSourceContact)
                                     createSourceContact(sourceContact,
                                                         detail);
-                        demuxContacts.add(demuxContact);
+                        addContact(demuxContact);
                     }
                 }
             }
@@ -230,7 +232,10 @@ public class DemuxContactSource
          */
         public List<SourceContact> getQueryResults()
         {
-            return new LinkedList<SourceContact>(demuxContacts);
+            synchronized (demuxContacts)
+            {
+                return new LinkedList<SourceContact>(demuxContacts);
+            }
         }
 
         public void cancel()
@@ -272,7 +277,7 @@ public class DemuxContactSource
                     SourceContact demuxContact
                         = createSourceContact(sourceContact, detail);
 
-                    demuxContacts.add(demuxContact);
+                    addContact(demuxContact);
 
                     fireContactReceived(demuxContact);
                 }
@@ -303,11 +308,29 @@ public class DemuxContactSource
                                             sourceContact.getDisplayName(),
                                             contactDetails);
 
-            genericContact.setDisplayDetails(sourceContact.getDisplayDetails());
+            String displayName = contactDetail.getDisplayName();
+            if (!StringUtils.isNullOrEmpty(displayName))
+                genericContact.setDisplayDetails(displayName);
+            else
+                genericContact.setDisplayDetails(contactDetail.getDetail());
+
             genericContact.setPresenceStatus(sourceContact.getPresenceStatus());
             genericContact.setImage(sourceContact.getImage());
 
             return genericContact;
+        }
+
+        /**
+         * Adds a contact to the result list.
+         *
+         * @param demuxContact the <tt>SourceContact</tt> to add
+         */
+        private void addContact(SourceContact demuxContact)
+        {
+            synchronized (demuxContacts)
+            {
+                demuxContacts.add(demuxContact);
+            }
         }
 
         /**
@@ -349,9 +372,12 @@ public class DemuxContactSource
             ProtocolProviderService preferredProvider
                 = c.getPreferredProtocolProvider(opSetClass);
 
-            if (preferredProvider == null
-                || preferredProvider.equals(
-                    preferredProtocolProviders.get(opSetClass)))
+            if (preferredProvider != null
+                && preferredProvider.equals(
+                        preferredProtocolProviders.get(opSetClass))
+                || (preferredProvider == null
+                    && c.getSupportedOperationSets() != null
+                    && c.getSupportedOperationSets().contains(opSetClass)))
             {
                 return true;
             }

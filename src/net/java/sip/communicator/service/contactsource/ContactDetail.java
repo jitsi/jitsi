@@ -8,6 +8,8 @@ package net.java.sip.communicator.service.contactsource;
 
 import java.util.*;
 
+import org.jitsi.util.*;
+
 import net.java.sip.communicator.service.protocol.*;
 
 /**
@@ -295,6 +297,11 @@ public class ContactDetail
     protected String contactDetailValue;
 
     /**
+     * The display name of this detail.
+     */
+    private String detailDisplayName;
+
+    /**
      * The set of labels of this <tt>ContactDetail</tt>. The labels may be
      * arbitrary and may include any of the standard/well-known labels defined
      * by the <tt>LABEL_XXX</tt> constants of the <tt>ContactDetail</tt> class.
@@ -328,7 +335,19 @@ public class ContactDetail
      */
     public ContactDetail(String contactDetailValue)
     {
-        this(contactDetailValue, null, null);
+        this(contactDetailValue, null, null, null);
+    }
+
+    /**
+     * Creates a <tt>ContactDetail</tt> by specifying the contact address,
+     * corresponding to this detail.
+     * @param contactDetailValue the contact detail value corresponding to this
+     * detail
+     * @param detailDisplayName the display name of this detail
+     */
+    public ContactDetail(String contactDetailValue, String detailDisplayName)
+    {
+        this(contactDetailValue, detailDisplayName, null, null);
     }
 
     /**
@@ -343,7 +362,24 @@ public class ContactDetail
     public ContactDetail(   String contactDetailValue,
                             Category category)
     {
-        this(contactDetailValue, category, null);
+        this(contactDetailValue, null, category, null);
+    }
+
+    /**
+     * Initializes a new <tt>ContactDetail</tt> instance which is to represent a
+     * specific contact address and which is to be optionally labeled with a
+     * specific set of labels.
+     *
+     * @param contactDetailValue the contact detail value to be represented by
+     * the new <tt>ContactDetail</tt> instance
+     * @param detailDisplayName the display name of this detail
+     * @param category
+     */
+    public ContactDetail(   String contactDetailValue,
+                            String detailDisplayName,
+                            Category category)
+    {
+        this(contactDetailValue, detailDisplayName, category, null);
     }
 
     /**
@@ -361,8 +397,33 @@ public class ContactDetail
                             Category category,
                             SubCategory[] subCategories)
     {
+        this(contactDetailValue, null, category, subCategories);
+    }
+
+    /**
+     * Initializes a new <tt>ContactDetail</tt> instance which is to represent a
+     * specific contact address and which is to be optionally labeled with a
+     * specific set of labels.
+     *
+     * @param contactDetailValue the contact detail value to be represented by
+     * the new <tt>ContactDetail</tt> instance
+     * @param detailDisplayName the display name of this detail
+     * @param category
+     * @param subCategories the set of sub categories with which the new
+     * <tt>ContactDetail</tt> instance is to be labeled.
+     */
+    public ContactDetail(   String contactDetailValue,
+                            String detailDisplayName,
+                            Category category,
+                            SubCategory[] subCategories)
+    {
         // the value of the detail
         this.contactDetailValue = contactDetailValue;
+
+        if (!StringUtils.isNullOrEmpty(detailDisplayName))
+            this.detailDisplayName = detailDisplayName;
+        else
+            this.detailDisplayName = contactDetailValue;
 
         // category & labels
         this.category = category;
@@ -462,6 +523,17 @@ public class ContactDetail
     public String getDetail()
     {
         return contactDetailValue;
+    }
+
+    /**
+     * Returns the display name of this detail. By default returns the detail
+     * value.
+     *
+     * @return the display name of this detail
+     */
+    public String getDisplayName()
+    {
+        return detailDisplayName;
     }
 
     /**
