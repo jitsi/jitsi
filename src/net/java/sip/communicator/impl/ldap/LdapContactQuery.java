@@ -207,6 +207,19 @@ public class LdapContactQuery
             }
         }
 
+        if (evt.getCause() == LdapEvent.LdapEventCause.SEARCH_ERROR)
+        {
+            // The status must be set to QUERY_ERROR and the thread allowed to
+            // continue, otherwise the query will still appear to be in
+            // progress.
+            setStatus(ContactQuery.QUERY_ERROR);
+
+            synchronized(objLock)
+            {
+                objLock.notify();
+            }
+        }
+
         if(evt.getCause() == LdapEvent.LdapEventCause.NEW_SEARCH_RESULT)
         {
             LdapPersonFound person = (LdapPersonFound) evt.getContent();

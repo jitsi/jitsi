@@ -77,6 +77,9 @@ public class ShowMoreContact
         this.queryResults = queryResults;
         this.maxResultCount = maxResultCount;
 
+        // The contact list is already showing a number of results.
+        this.shownResultsCount = maxResultCount;
+
         GuiActivator.getContactList().addContactListListener(this);
     }
 
@@ -294,7 +297,9 @@ public class ShowMoreContact
             shownResultsCount = maxCount;
 
             if (shownResultsCount < resultSize
-                || contactQuery.getStatus() != ContactQuery.QUERY_COMPLETED)
+                || (contactQuery.getStatus() != ContactQuery.QUERY_COMPLETED
+                && contactQuery.getStatus() != ContactQuery.QUERY_ERROR))
+            {
                 GuiActivator.getContactList().addContact(
                     contactQuery,
                     this,
@@ -302,6 +307,11 @@ public class ShowMoreContact
                         contactQuery.getContactSource()).getUIGroup(),
                     false);
 
+                // The ContactListListener was removed when the ShowMoreContact
+                // was removed from the contact list, so we need to add it
+                // again.
+                GuiActivator.getContactList().addContactListListener(this);
+            }
         }
     }
 
