@@ -802,7 +802,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
             }
 
             ContactResource resource = ((ContactJabberImpl) sourceContact)
-                .findResourceFromJid(msg.getFrom());
+                .getResourceFromJid(msg.getFrom());
 
             MessageReceivedEvent msgReceivedEvt
                 = new MessageReceivedEvent( newMessage,

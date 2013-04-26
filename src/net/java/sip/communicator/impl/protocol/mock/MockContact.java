@@ -18,7 +18,7 @@ import net.java.sip.communicator.service.protocol.*;
  * @author Emil Ivov
  */
 public class MockContact
-    implements Contact
+    extends AbstractContact
 {
     private String contactID = null;
     private boolean isPersistent = true;

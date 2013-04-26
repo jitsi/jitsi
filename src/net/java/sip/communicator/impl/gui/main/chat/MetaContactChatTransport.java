@@ -35,7 +35,7 @@ public class MetaContactChatTransport
     /**
      * The parent <tt>ChatSession</tt>, where this transport is available.
      */
-    private final ChatSession parentChatSession;
+    private final MetaContactChatSession parentChatSession;
 
     /**
      * The associated protocol <tt>Contact</tt>.
@@ -75,7 +75,7 @@ public class MetaContactChatTransport
      * @param chatSession the parent <tt>ChatSession</tt>
      * @param contact the <tt>Contact</tt> associated with this transport
      */
-    public MetaContactChatTransport(ChatSession chatSession,
+    public MetaContactChatTransport(MetaContactChatSession chatSession,
                                     Contact contact)
     {
         this(chatSession, contact, null, false);
@@ -93,7 +93,7 @@ public class MetaContactChatTransport
      * @param isDisplayResourceOnly indicates if only the resource name should
      * be displayed
      */
-    public MetaContactChatTransport(ChatSession chatSession,
+    public MetaContactChatTransport(MetaContactChatSession chatSession,
                                     Contact contact,
                                     ContactResource contactResource,
                                     boolean isDisplayResourceOnly)
@@ -685,27 +685,22 @@ public class MetaContactChatTransport
     public void contactPresenceStatusChanged(
                                         ContactPresenceStatusChangeEvent evt)
     {
-        Contact sourceContact = evt.getSourceContact();
-
-        if (sourceContact.equals(contact)
-            && (evt.getOldStatus() != evt.getNewStatus()))
+        if (evt.getSourceContact().equals(contact)
+            && !evt.getOldStatus().equals(evt.getNewStatus()))
         {
-            this.updateContactStatus(evt.getNewStatus());
+            this.updateContactStatus();
         }
     }
 
     /**
      * Updates the status of this contact with the new given status.
-     * @param newStatus The new status.
      */
-    private void updateContactStatus(PresenceStatus newStatus)
+    private void updateContactStatus()
     {
         // Update the status of the given contact in the "send via" selector
         // box.
         parentChatSession.getChatSessionRenderer()
             .updateChatTransportStatus(this);
-
-        //TODO: Update the status of the chat session.
     }
 
     /**

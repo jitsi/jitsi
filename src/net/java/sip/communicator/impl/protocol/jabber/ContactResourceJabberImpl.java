@@ -51,4 +51,14 @@ public class ContactResourceJabberImpl
     {
         return fullJid;
     }
+
+    /**
+     * Sets the new <tt>PresenceStatus</tt> of this resource.
+     *
+     * @param newStatus the new <tt>PresenceStatus</tt> to set
+     */
+    protected void setPresenceStatus(PresenceStatus newStatus)
+    {
+        this.presenceStatus = newStatus;
+    }
 }

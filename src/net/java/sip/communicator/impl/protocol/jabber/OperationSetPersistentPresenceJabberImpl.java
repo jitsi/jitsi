@@ -1102,8 +1102,8 @@ public class OperationSetPersistentPresenceJabberImpl
 
                 // when old and new status are the same do nothing
                 // no change
-//                if(oldStatus.equals(newStatus))
-//                    return;
+                if(oldStatus.equals(newStatus))
+                    return;
 
                 sourceContact.updatePresenceStatus(newStatus);
 

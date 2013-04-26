@@ -1035,8 +1035,22 @@ public class ChatWritePanel
      *
      * @param chatTransport the transport to add
      */
-    public void addChatTransport(ChatTransport chatTransport)
+    public void addChatTransport(final ChatTransport chatTransport)
     {
+        // We need to be sure that the following code is executed in the event
+        // dispatch thread.
+        if (!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    addChatTransport(chatTransport);
+                }
+            });
+            return;
+        }
+
         if (transportSelectorBox != null)
         {
             transportSelectorBox.addChatTransport(chatTransport);
@@ -1045,7 +1059,7 @@ public class ChatWritePanel
             // provider
             if(!transportSelectorBox.isVisible()
                 && ConfigurationUtils
-                                    .isHideAccountSelectionWhenPossibleEnabled()
+                           .isHideAccountSelectionWhenPossibleEnabled()
                 && transportSelectorBox.getMenu().getItemCount() > 1)
             {
                 transportSelectorBox.setVisible(true);
@@ -1058,8 +1072,22 @@ public class ChatWritePanel
      * box and notifies the user for the status change.
      * @param chatTransport the <tt>chatTransport</tt> to update
      */
-    public void updateChatTransportStatus(ChatTransport chatTransport)
+    public void updateChatTransportStatus(final ChatTransport chatTransport)
     {
+        // We need to be sure that the following code is executed in the event
+        // dispatch thread.
+        if (!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    updateChatTransportStatus(chatTransport);
+                }
+            });
+            return;
+        }
+
         if (transportSelectorBox != null)
             transportSelectorBox.updateTransportStatus(chatTransport);
     }
@@ -1079,8 +1107,22 @@ public class ChatWritePanel
      *
      * @param chatTransport the transport to remove
      */
-    public void removeChatTransport(ChatTransport chatTransport)
+    public void removeChatTransport(final ChatTransport chatTransport)
     {
+        // We need to be sure that the following code is executed in the event
+        // dispatch thread.
+        if (!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    removeChatTransport(chatTransport);
+                }
+            });
+            return;
+        }
+
         if (transportSelectorBox != null)
             transportSelectorBox.removeChatTransport(chatTransport);
 

@@ -26,7 +26,7 @@ import org.w3c.dom.*;
  * @author Grigorii Balutsel
  */
 public class ContactSipImpl
-    implements Contact
+    extends AbstractContact
 {
     /**
      * Property used for store in persistent data indicating that contact

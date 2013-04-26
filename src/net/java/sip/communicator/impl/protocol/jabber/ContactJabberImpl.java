@@ -7,8 +7,10 @@
 package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.util.*;
+import java.util.concurrent.*;
 
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.jabberconstants.*;
 
 import org.jivesoftware.smack.*;
@@ -22,7 +24,7 @@ import org.jivesoftware.smack.util.*;
  * @author Lubomir Marinov
  */
 public class ContactJabberImpl
-    implements Contact
+    extends AbstractContact
 {
     /**
      * The jid of the user entry in roster.
@@ -75,7 +77,7 @@ public class ContactJabberImpl
     /**
      * The contact resources list.
      */
-    private List<ContactResource> resources = null;
+    private Map<String, ContactResourceJabberImpl> resources = null;
 
     /**
      * Creates an JabberContactImpl
@@ -479,8 +481,7 @@ public class ContactJabberImpl
     public Collection<ContactResource> getResources()
     {
         if (resources != null)
-            return Collections.unmodifiableCollection(resources);
-
+            return new ArrayList<ContactResource>(resources.values());
         return null;
     }
 
@@ -490,22 +491,9 @@ public class ContactJabberImpl
      * @param jid the jid for which we're looking for a resource
      * @return the <tt>ContactResource</tt> corresponding to the given jid.
      */
-    ContactResource findResourceFromJid(String jid)
+    ContactResource getResourceFromJid(String jid)
     {
-        Iterator<ContactResource> resourceIter = resources.iterator();
-
-        while (resourceIter.hasNext())
-        {
-            ContactResourceJabberImpl jabberResource
-                = (ContactResourceJabberImpl) resourceIter.next();
-
-            if (jabberResource.getFullJid().equals(jid))
-            {
-                return jabberResource;
-            }
-        }
-
-        return null;
+        return resources.get(jid);
     }
 
     /**
@@ -516,7 +504,9 @@ public class ContactJabberImpl
         if (jid == null)
             return;
 
-        resources = new LinkedList<ContactResource>();
+        if (resources == null)
+            resources
+                = new ConcurrentHashMap<String, ContactResourceJabberImpl>();
 
         Iterator<Presence> it
             = ((ProtocolProviderServiceJabberImpl) getProtocolProvider())
@@ -533,16 +523,66 @@ public class ContactJabberImpl
 
             if (resource != null && resource.length() > 0)
             {
-                resources.add(new ContactResourceJabberImpl(
-                    presence.getFrom(),
-                    this,
-                    resource,
-                    OperationSetPersistentPresenceJabberImpl
+                String fullJid = presence.getFrom();
+                ContactResourceJabberImpl contactResource
+                    = resources.get(fullJid);
+
+                PresenceStatus newPresenceStatus
+                    = OperationSetPersistentPresenceJabberImpl
                         .jabberStatusToPresenceStatus(
                             presence,
                             (ProtocolProviderServiceJabberImpl)
-                                getProtocolProvider()),
-                    presence.getPriority()));
+                            getProtocolProvider());
+
+                if (contactResource == null)
+                {
+                    contactResource = new ContactResourceJabberImpl(
+                                                    fullJid,
+                                                    this,
+                                                    resource,
+                                                    newPresenceStatus,
+                                                    presence.getPriority());
+
+                    resources.put(fullJid, contactResource);
+
+                    fireContactResourceEvent(
+                        new ContactResourceEvent(this, contactResource,
+                            ContactResourceEvent.RESOURCE_ADDED));
+                }
+                else
+                {
+                    if (contactResource.getPresenceStatus().getStatus()
+                        != newPresenceStatus.getStatus())
+                    {
+                        contactResource.setPresenceStatus(newPresenceStatus);
+
+                        fireContactResourceEvent(
+                            new ContactResourceEvent(this, contactResource,
+                                ContactResourceEvent.RESOURCE_MODIFIED));
+                    }
+                }
+            }
+        }
+
+        Iterator<String> resourceIter = resources.keySet().iterator();
+        while (resourceIter.hasNext())
+        {
+            String fullJid = resourceIter.next();
+
+            if(!((ProtocolProviderServiceJabberImpl) getProtocolProvider())
+                .getConnection().getRoster().getPresenceResource(fullJid)
+                    .isAvailable())
+            {
+                ContactResource removedResource = resources.get(fullJid);
+
+                if (resources.containsKey(fullJid))
+                {
+                    resources.remove(fullJid);
+
+                    fireContactResourceEvent(
+                        new ContactResourceEvent(this, removedResource,
+                            ContactResourceEvent.RESOURCE_REMOVED));
+                }
             }
         }
     }

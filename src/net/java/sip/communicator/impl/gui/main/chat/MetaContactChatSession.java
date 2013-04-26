@@ -30,7 +30,8 @@ import net.java.sip.communicator.util.*;
  */
 public class MetaContactChatSession
     extends  ChatSession
-    implements MetaContactListListener
+    implements  MetaContactListListener,
+                ContactResourceListener
 {
     private final MetaContact metaContact;
 
@@ -77,6 +78,7 @@ public class MetaContactChatSession
 
         if (metaContactListService != null)
             metaContactListService.addMetaContactListListener(this);
+
     }
 
     /**
@@ -316,50 +318,12 @@ public class MetaContactChatSession
         {
             Contact contact = protocolContacts.next();
 
-            MetaContactChatTransport chatTransport = null;
-
-            if (contact.supportResources() && contact.getResources() != null)
-            {
-                if (contact.getResources().size() > 1)
-                {
-                    chatTransport = new MetaContactChatTransport(this, contact);
-
-                    chatTransports.add(chatTransport);
-                }
-
-                Iterator<ContactResource> resourcesIter
-                    = contact.getResources().iterator();
-
-                while (resourcesIter.hasNext())
-                {
-                    ContactResource resource = resourcesIter.next();
-                    MetaContactChatTransport resourceTransport
-                        =  new MetaContactChatTransport(
-                            this,
-                            contact,
-                            resource,
-                            (contact.getResources().size() > 1)
-                            ? true : false);
-
-                    if (chatTransport == null
-                        || (contactResource != null
-                            && contactResource.equals(resource)))
-                    {
-                        chatTransport = resourceTransport;
-                    }
-
-                    chatTransports.add(resourceTransport);
-                }
-            }
-            else
-            {
-                chatTransport = new MetaContactChatTransport(this, contact);
-
-                chatTransports.add(chatTransport);
-            }
-
-            if (contact.equals(protocolContact))
-                currentChatTransport = chatTransport;
+            addChatTransports(  contact,
+                                (contactResource != null)
+                                    ? contactResource.getResourceName()
+                                    : null,
+                                (protocolContact != null
+                                    && contact.equals(protocolContact)));
         }
     }
 
@@ -444,7 +408,7 @@ public class MetaContactChatSession
     {
         if (evt.getNewParent().equals(metaContact))
         {
-            addChatTransport(evt.getProtoContact());
+            addChatTransports(evt.getProtoContact(), null, false);
         }
     }
 
@@ -482,7 +446,7 @@ public class MetaContactChatSession
                 if(((MetaContactChatTransport) chatTransport).getContact()
                         .equals(protoContact))
                 {
-                    sessionRenderer.removeChatTransport(chatTransport);
+                    removeChatTransport(chatTransport);
                 }
             }
         }
@@ -534,7 +498,12 @@ public class MetaContactChatSession
             metaContactListService.removeMetaContactListListener(this);
 
         for (ChatTransport chatTransport : chatTransports)
+        {
+            ((Contact) chatTransport.getDescriptor())
+                .removeResourceListener(this);
+
             chatTransport.dispose();
+        }
     }
 
     /**
@@ -653,44 +622,234 @@ public class MetaContactChatSession
      * Adds all chat transports for the given <tt>contact</tt>.
      *
      * @param contact the <tt>Contact</tt>, which transports to add
+     * @param resourceName the resource to be pre-selected
      */
-    private void addChatTransport(Contact contact)
+    private void addChatTransports( Contact contact,
+                                    String resourceName,
+                                    boolean isSelectedContact)
     {
         MetaContactChatTransport chatTransport = null;
 
-        if (contact.supportResources() && contact.getResources() != null)
+        Collection<ContactResource> contactResources = contact.getResources();
+
+        if (contact.supportResources()
+            && contactResources != null
+            && contactResources.size() > 0)
         {
-            if (contact.getResources().size() > 1)
+            if (contactResources.size() > 1)
             {
                 chatTransport = new MetaContactChatTransport(this, contact);
 
-                chatTransports.add(chatTransport);
-                sessionRenderer.addChatTransport(chatTransport);
+                addChatTransport(chatTransport);
             }
 
             Iterator<ContactResource> resourcesIter
-                = contact.getResources().iterator();
+                = contactResources.iterator();
 
             while (resourcesIter.hasNext())
             {
-                chatTransport
+                ContactResource resource = resourcesIter.next();
+
+                MetaContactChatTransport resourceTransport
                         =  new MetaContactChatTransport(
                             this,
                             contact,
-                            resourcesIter.next(),
+                            resource,
                             (contact.getResources().size() > 1)
                             ? true : false);
 
-                chatTransports.add(chatTransport);
-                sessionRenderer.addChatTransport(chatTransport);
+                addChatTransport(resourceTransport);
+
+                if ((resourceName != null
+                    && resource.getResourceName().equals(resourceName))
+                    || contactResources.size() == 1)
+                {
+                    chatTransport = resourceTransport;
+                }
             }
         }
         else
         {
             chatTransport = new MetaContactChatTransport(this, contact);
 
-            chatTransports.add(chatTransport);
-            sessionRenderer.addChatTransport(chatTransport);
+            addChatTransport(chatTransport);
         }
+
+        // If this is the selected contact we set it as a selected transport.
+        if (isSelectedContact)
+        {
+            currentChatTransport = chatTransport;
+            sessionRenderer.setSelectedChatTransport(chatTransport);
+        }
+
+        // If no current transport is set we choose the first one in the list.
+        if (currentChatTransport == null)
+        {
+            currentChatTransport = chatTransports.get(0);
+            sessionRenderer.setSelectedChatTransport(currentChatTransport);
+        }
+
+        if (contact.supportResources())
+        {
+            contact.addResourceListener(this);
+        }
+    }
+
+    private void addChatTransport(ChatTransport chatTransport)
+    {
+        synchronized (chatTransports)
+        {
+            chatTransports.add(chatTransport);
+        }
+        sessionRenderer.addChatTransport(chatTransport);
+    }
+
+    /**
+     * Removes the given <tt>ChatTransport</tt>.
+     *
+     * @param chatTransport the <tt>ChatTransport</tt>.
+     */
+    private void removeChatTransport(ChatTransport chatTransport)
+    {
+        synchronized (chatTransports)
+        {
+            chatTransports.remove(chatTransport);
+        }
+        sessionRenderer.removeChatTransport(chatTransport);
+    }
+
+    /**
+     * Removes the given <tt>ChatTransport</tt>.
+     *
+     * @param contact the <tt>ChatTransport</tt>.
+     */
+    private void removeChatTransports(Contact contact)
+    {
+        List<ChatTransport> transports;
+        synchronized (chatTransports)
+        {
+            transports = new ArrayList<ChatTransport>(chatTransports);
+        }
+
+        Iterator<ChatTransport> transportsIter = transports.iterator();
+        while (transportsIter.hasNext())
+        {
+            MetaContactChatTransport metaTransport
+                = (MetaContactChatTransport) transportsIter.next();
+
+            if (metaTransport.getContact().equals(contact))
+                removeChatTransport(metaTransport);
+        }
+
+        contact.removeResourceListener(this);
+    }
+
+    /**
+     * Updates the chat transports for the given contact.
+     *
+     * @param contact the contact, which related transports to update
+     */
+    private void updateChatTransports(Contact contact)
+    {
+        MetaContactChatTransport currentTransport
+            = (MetaContactChatTransport) getCurrentChatTransport();
+
+        boolean isSelectedContact
+            = currentTransport.getContact().equals(contact);
+        boolean isResourceSelected
+            = isSelectedContact
+                && currentTransport.getResourceName() != null;
+        String resourceName
+            = currentTransport.getResourceName();
+
+        removeChatTransports(contact);
+
+        if (isResourceSelected)
+            addChatTransports(  contact,
+                                resourceName,
+                                true);
+        else
+            addChatTransports(contact, null, isSelectedContact);
+    }
+
+    /**
+     * Called when a new <tt>ContactResource</tt> has been added to the list
+     * of available <tt>Contact</tt> resources.
+     *
+     * @param event the <tt>ContactResourceEvent</tt> that notified us
+     */
+    public void contactResourceAdded(ContactResourceEvent event)
+    {
+        Contact contact = event.getContact();
+        if (metaContact.containsContact(contact))
+        {
+            updateChatTransports(contact);
+        }
+    }
+
+    /**
+     * Called when a <tt>ContactResource</tt> has been removed to the list
+     * of available <tt>Contact</tt> resources.
+     *
+     * @param event the <tt>ContactResourceEvent</tt> that notified us
+     */
+    public void contactResourceRemoved(ContactResourceEvent event)
+    {
+        Contact contact = event.getContact();
+        if (metaContact.containsContact(contact))
+        {
+            updateChatTransports(contact);
+        }
+    }
+
+    /**
+     * Called when a <tt>ContactResource</tt> in the list of available
+     * <tt>Contact</tt> resources has been modified.
+     *
+     * @param event the <tt>ContactResourceEvent</tt> that notified us
+     */
+    public void contactResourceModified(ContactResourceEvent event)
+    {
+        Contact contact = event.getContact();
+
+        if (metaContact.containsContact(contact))
+        {
+            ChatTransport transport
+                = findChatTransportForResource(event.getContactResource());
+
+            if (transport != null)
+                sessionRenderer.updateChatTransportStatus(transport);
+        }
+    }
+
+    /**
+     * Finds the <tt>ChatTransport</tt> corresponding to the given contact
+     * <tt>resource</tt>.
+     *
+     * @param resource the <tt>ContactResource</tt>, which corresponding
+     * transport we're looking for
+     * @return the <tt>ChatTransport</tt> corresponding to the given contact
+     * <tt>resource</tt>
+     */
+    private ChatTransport findChatTransportForResource(ContactResource resource)
+    {
+        List<ChatTransport> transports;
+        synchronized (chatTransports)
+        {
+            transports = new ArrayList<ChatTransport>(chatTransports);
+        }
+
+        Iterator<ChatTransport> transportsIter = transports.iterator();
+        while (transportsIter.hasNext())
+        {
+            ChatTransport chatTransport = transportsIter.next();
+
+            if (chatTransport.getDescriptor().equals(resource.getContact())
+                && chatTransport.getResourceName() != null
+                && chatTransport.getResourceName()
+                    .equals(resource.getResourceName()))
+                return chatTransport;
+        }
+        return null;
     }
 }

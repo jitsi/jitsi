@@ -64,6 +64,13 @@ public interface ChatSessionRenderer
     public void updateChatTransportStatus(ChatTransport chatTransport);
 
     /**
+     * Sets the given <tt>chatTransport</tt> to be the selected chat transport.
+     *
+     * @param chatTransport the <tt>ChatTransport</tt> to select
+     */
+    public void setSelectedChatTransport(ChatTransport chatTransport);
+
+    /**
      * Updates the status of the given chat contact.
      *
      * @param chatContact the chat contact to update.

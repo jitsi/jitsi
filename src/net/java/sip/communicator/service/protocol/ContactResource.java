@@ -36,7 +36,7 @@ public class ContactResource
     /**
      * The presence status of this contact resource.
      */
-    private PresenceStatus presenceStatus;
+    protected PresenceStatus presenceStatus;
 
     /**
      * The priority of this contact source.

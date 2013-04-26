@@ -334,8 +334,13 @@ public class ContactListPane
             messageType = Chat.SMS_MESSAGE;
         }
 
+        String contactAddress = (contactResource != null)
+            ? protocolContact.getAddress()
+                + " (" + contactResource.getResourceName() + ")"
+            : protocolContact.getAddress();
+
         chatPanel.addMessage(
-            protocolContact.getAddress(),
+            contactAddress,
             protocolContact.getDisplayName(),
             timestamp,
             messageType,

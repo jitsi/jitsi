@@ -6,6 +6,10 @@
  */
 package net.java.sip.communicator.service.protocol;
 
+import java.util.*;
+
+import net.java.sip.communicator.service.protocol.event.*;
+
 /**
  * An abstract base implementation of the {@link Contact} interface which is to
  * aid implementers.
@@ -15,6 +19,12 @@ package net.java.sip.communicator.service.protocol;
 public abstract class AbstractContact
     implements Contact
 {
+    /**
+     * The list of <tt>ContactResourceListener</tt>-s registered in this
+     * contact.
+     */
+    private Collection<ContactResourceListener> resourceListeners;
+
     @Override
     public boolean equals(Object obj)
     {
@@ -65,5 +75,98 @@ public abstract class AbstractContact
             hashCode += address.hashCode();
 
         return hashCode;
+    }
+
+    /**
+     * Indicates if this contact supports resources.
+     * <p>
+     * This default implementation indicates no support for contact resources.
+     *
+     * @return <tt>true</tt> if this contact supports resources, <tt>false</tt>
+     * otherwise
+     */
+    public boolean supportResources()
+    {
+        return false;
+    }
+
+    /**
+     * Returns a collection of resources supported by this contact or null
+     * if it doesn't support resources.
+     * <p>
+     * This default implementation indicates no support for contact resources.
+     *
+     * @return a collection of resources supported by this contact or null
+     * if it doesn't support resources
+     */
+    public Collection<ContactResource> getResources()
+    {
+        return null;
+    }
+
+    /**
+     * Adds the given <tt>ContactResourceListener</tt> to listen for events
+     * related to contact resources changes.
+     * 
+     * @param l the <tt>ContactResourceListener</tt> to add
+     */
+    public void addResourceListener(ContactResourceListener l)
+    {
+        if (resourceListeners == null)
+            resourceListeners = new ArrayList<ContactResourceListener>();
+
+        synchronized (resourceListeners)
+        {
+            resourceListeners.add(l);
+        }
+    }
+
+    /**
+     * Removes the given <tt>ContactResourceListener</tt> listening for events
+     * related to contact resources changes.
+     * 
+     * @param l the <tt>ContactResourceListener</tt> to remove
+     */
+    public void removeResourceListener(ContactResourceListener l)
+    {
+        if (resourceListeners == null)
+            return;
+
+        synchronized (resourceListeners)
+        {
+            resourceListeners.remove(l);
+        }
+    }
+
+    /**
+     * Notifies all registered <tt>ContactResourceListener</tt>s that an event
+     * has occurred.
+     *
+     * @param event the <tt>ContactResourceEvent</tt> to fire notification for
+     */
+    protected void fireContactResourceEvent(ContactResourceEvent event)
+    {
+        if (resourceListeners == null)
+            return;
+
+        Collection<ContactResourceListener> listeners;
+        synchronized (resourceListeners)
+        {
+            listeners
+                = new ArrayList<ContactResourceListener>(resourceListeners);
+        }
+
+        Iterator<ContactResourceListener> listenersIter = listeners.iterator();
+        while (listenersIter.hasNext())
+        {
+            if (event.getEventType() == ContactResourceEvent.RESOURCE_ADDED)
+                listenersIter.next().contactResourceAdded(event);
+            else if (event.getEventType()
+                        == ContactResourceEvent.RESOURCE_REMOVED)
+                listenersIter.next().contactResourceRemoved(event);
+            else if (event.getEventType()
+                        == ContactResourceEvent.RESOURCE_MODIFIED)
+                listenersIter.next().contactResourceModified(event);
+        }
     }
 }

@@ -12,10 +12,12 @@ import java.util.*;
 
 import javax.swing.*;
 
+import org.jitsi.util.*;
+
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
-import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.util.skin.*;
 
 /**
@@ -89,11 +91,16 @@ public class ChatTransportSelectorBox
         while (chatTransports.hasNext())
             this.addChatTransport(chatTransports.next());
 
-        if (this.menu.getItemCount() > 0 &&
-            (selectedChatTransport.allowsInstantMessage()
-                || selectedChatTransport.allowsSmsMessage()))
+        if (this.menu.getItemCount() > 0)
         {
-            this.setSelected(selectedChatTransport);
+            if (selectedChatTransport != null
+                && (selectedChatTransport.allowsInstantMessage()
+                || selectedChatTransport.allowsSmsMessage()))
+            {
+                this.setSelected(selectedChatTransport);
+            }
+            else
+                setSelected(menu.getItem(0));
         }
     }
 
@@ -236,16 +243,15 @@ public class ChatTransportSelectorBox
             && !chatTransport.getStatus().isOnline())
         {
             ChatTransport newChatTransport
-                = chatSession.getCurrentChatTransport();
+                = getParentContactTransport(chatTransport);
 
-            if(newChatTransport.getStatus().isOnline())
-                this.setSelected(newChatTransport);
-        }
+            ChatTransport onlineTransport = getOnlineTransport();
 
-        if (!containsOtherOnlineContacts(chatTransport)
-            && chatTransport.getStatus().isOnline())
-        {
-            this.setSelected(chatTransport);
+            if(newChatTransport != null
+                && newChatTransport.getStatus().isOnline())
+                setSelected(newChatTransport);
+            else if (onlineTransport != null)
+                setSelected(onlineTransport);
         }
 
         menuItem = transportMenuItems.get(chatTransport);
@@ -346,15 +352,34 @@ public class ChatTransportSelectorBox
      * @return TRUE if the send via combo box contains online contacts,
      * otherwise returns FALSE.
      */
-    private boolean containsOtherOnlineContacts(ChatTransport chatTransport)
+    private ChatTransport getParentContactTransport(ChatTransport chatTransport)
     {
         for (ChatTransport comboChatTransport : transportMenuItems.keySet())
         {
-            if(!comboChatTransport.equals(chatTransport)
-                && comboChatTransport.getStatus().isOnline())
-                return true;
+            if(comboChatTransport.getDescriptor()
+                .equals(chatTransport.getDescriptor())
+                && StringUtils.isNullOrEmpty(
+                    comboChatTransport.getResourceName()))
+                return comboChatTransport;
         }
-        return false;
+        return null;
+    }
+
+    /**
+     * Searches online contacts in the send via combo box.
+     *
+     * @param chatTransport the chat transport to check
+     * @return TRUE if the send via combo box contains online contacts,
+     * otherwise returns FALSE.
+     */
+    private ChatTransport getOnlineTransport()
+    {
+        for (ChatTransport comboChatTransport : transportMenuItems.keySet())
+        {
+            if(comboChatTransport.getStatus().isOnline())
+                return comboChatTransport;
+        }
+        return null;
     }
 
     /**
