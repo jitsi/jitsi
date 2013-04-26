@@ -11,13 +11,13 @@ Source0:   http://download.jitsi.org/jitsi/nightly/src/jitsi-src-1.1-4467-10442.
 BuildRoot: %{_topdir}/buildroot
 
 AutoReqProv:   no
-BuildRequires: java-devel >= 1:1.5.0
+BuildRequires: java-devel >= 0:1.5.0
 BuildRequires: ant
 BuildRequires: ant-nodeps
 BuildRequires: gzip
 BuildRequires: subversion
 
-Requires: java >= 1:1.5.0
+Requires: java >= 0:1.5.0
 
 %description
 Jitsi is an audio/video Internet phone and instant messenger that
@@ -121,6 +121,9 @@ sed -i -e "s/\/launchutils.jar//" $RPM_BUILD_ROOT/usr/bin/jitsi
 %doc %{_mandir}/man*/*
 
 %changelog
+* Mon Mar 11 2013 Pavel Tankov <ptankov@bluejimp.com>
+- Now depends on java >= 0:1.5.0.
+
 * Thu Jan 31 2013 Damian Minkov <damencho@jitsi.org>
 - Fixed startup script. 
 - Add felix.framework and felix.main dependencies.
