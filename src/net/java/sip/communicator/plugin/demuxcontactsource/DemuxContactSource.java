@@ -26,6 +26,11 @@ public class DemuxContactSource
     implements ProtocolAwareContactSourceService
 {
     /**
+     * The logger for this class.
+     */
+    private final Logger logger = Logger.getLogger(DemuxContactSource.class);
+
+    /**
      * The underlying contact source service.
      */
     private final ContactSourceService contactSource;
@@ -96,7 +101,15 @@ public class DemuxContactSource
      */
     public ContactQuery queryContactSource(String queryString)
     {
+        if (logger.isDebugEnabled())
+            logger.debug("Demux query contact source: " + contactSource
+                + " for string " + queryString);
+
+        if (queryString == null)
+            queryString = "";
+
         if (contactSource instanceof ExtendedContactSourceService)
+        {
             return new DemuxContactQuery(
                 ((ExtendedContactSourceService) contactSource)
                     .queryContactSource(Pattern.compile(
@@ -104,6 +117,7 @@ public class DemuxContactSource
                         Pattern.MULTILINE
                             | Pattern.CASE_INSENSITIVE
                             | Pattern.UNICODE_CASE)));
+        }
         else
             return new DemuxContactQuery(
                 contactSource.queryContactSource(queryString));
