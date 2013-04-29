@@ -584,7 +584,8 @@ public class MetaContactRightButtonMenu
             addSeparator();
         }
 
-        if (!ConfigurationUtils.isAddContactDisabled())
+        if (!ConfigurationUtils.isAddContactDisabled() &&
+            !ConfigurationUtils.isMergeContactDisabled())
         {
             add(addContactItem);
             addSeparator();
