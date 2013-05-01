@@ -999,7 +999,11 @@ public class Update
                 if(UpdateActivator.getUIService()
                         .getPopupDialog().showConfirmPopupDialog(
                                 resources.getI18NString(
-                                        "plugin.updatechecker.DIALOG_WARN"),
+                                        "plugin.updatechecker.DIALOG_WARN",
+                                        new String[]{
+                                            resources.getSettingsString(
+                                                "service.gui.APPLICATION_NAME")
+                                            }),
                                 resources.getI18NString(
                                         "plugin.updatechecker.DIALOG_TITLE"),
                                 PopupDialog.YES_NO_OPTION,
