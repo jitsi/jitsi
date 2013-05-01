@@ -56,15 +56,6 @@ public class SingleCallInProgressPolicy
                 + ACCOUNT_PROPERTY_REJECT_IN_CALL_ON_DND;
 
     /**
-     * An account property to provide a connected account to check for
-     * its status. Used when the current provider need to reject calls
-     * but is missing presence operation set and need to check other
-     * provider for status.
-     */
-    private static final String CUSAX_PROVIDER_ACCOUNT_PROP
-            = "cusax.xmppAccountID";
-
-    /**
      * Implements the listeners interfaces used by this policy.
      */
     private class SingleCallInProgressPolicyListener
@@ -396,7 +387,8 @@ public class SingleCallInProgressPolicy
                     // there is no presence opset let's check
                     // the connected cusax provider if available
                     String cusaxProviderID = provider.getAccountID()
-                        .getAccountPropertyString(CUSAX_PROVIDER_ACCOUNT_PROP);
+                        .getAccountPropertyString(
+                            ProtocolProviderFactory.CUSAX_PROVIDER_ACCOUNT_PROP);
 
                     AccountID acc =
                         ProtocolProviderActivator.getAccountManager()
