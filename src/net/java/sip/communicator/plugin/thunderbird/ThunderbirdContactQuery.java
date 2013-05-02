@@ -50,77 +50,87 @@ public class ThunderbirdContactQuery
     @Override
     protected void run()
     {
-        String file = super.getContactSource().getFilename();
+        String filename = super.getContactSource().getFilename();
+        File file = new File(filename);
         try
         {
-            // parse the Thunderbird Mork database
-            InputStreamReader sr =
-                new InputStreamReader(new FileInputStream(file));
-            MorkDocument md = new MorkDocument(sr);
-            sr.close();
-
-            // We now have rows in their tables and additional rows at
-            // transaction level. Put the to a better format:
-            // DB -> Tables -> Rows
-            Map<String, Map<String, Row>> db =
-                new HashMap<String, Map<String, Row>>();
-            for (Table t : md.getTables())
+            if (file.lastModified() > getContactSource().lastDatabaseFileChange)
             {
-                String tableId = t.getTableId() + "/" + t.getScopeName();
-                Map<String, Row> table = db.get(tableId);
-                if (table == null)
+                // parse the Thunderbird Mork database
+                InputStreamReader sr =
+                    new InputStreamReader(new FileInputStream(filename));
+                MorkDocument md = new MorkDocument(sr);
+                sr.close();
+    
+                // We now have rows in their tables and additional rows at
+                // transaction level. Put the to a better format:
+                // DB -> Tables -> Rows
+                Map<String, Map<String, Row>> db =
+                    new HashMap<String, Map<String, Row>>();
+                for (Table t : md.getTables())
                 {
-                    table = new HashMap<String, Row>();
-                    db.put(tableId, table);
+                    String tableId = t.getTableId() + "/" + t.getScopeName();
+                    Map<String, Row> table = db.get(tableId);
+                    if (table == null)
+                    {
+                        table = new HashMap<String, Row>();
+                        db.put(tableId, table);
+                    }
+    
+                    for (Row r : t.getRows())
+                    {
+                        String scope = r.getScopeName();
+                        if (scope == null)
+                        {
+                            scope = t.getScopeName();
+                        }
+    
+                        table.put(r.getRowId() + "/" + scope, r);
+                    }
                 }
-
-                for (Row r : t.getRows())
+    
+                // The additional rows at the root-level update/replace the ones
+                // in the tables. There's usually neither a table nor a scope
+                // defined, so lets just use the default.
+                String defaultScope = md.getDicts().get(0).dereference("^80");
+                for (Row r : md.getRows())
                 {
                     String scope = r.getScopeName();
                     if (scope == null)
                     {
-                        scope = t.getScopeName();
+                        scope = defaultScope;
                     }
-
-                    table.put(r.getRowId() + "/" + scope, r);
-                }
-            }
-
-            // The additional rows at the root-level update/replace the ones in
-            // the tables. There's usually neither a table nor a scope defined,
-            // so lets just use the default.
-            String defaultScope = md.getDicts().get(0).dereference("^80");
-            for (Row r : md.getRows())
-            {
-                String scope = r.getScopeName();
-                if (scope == null)
-                {
-                    scope = defaultScope;
-                }
-
-                String tableId = "1/" + scope;
-                Map<String, Row> table = db.get(tableId);
-                if (table == null)
-                {
-                    table = new HashMap<String, Row>();
-                    db.put(tableId, table);
+    
+                    String tableId = "1/" + scope;
+                    Map<String, Row> table = db.get(tableId);
+                    if (table == null)
+                    {
+                        table = new HashMap<String, Row>();
+                        db.put(tableId, table);
+                    }
+    
+                    String rowId = r.getRowId() + "/" + scope;
+                    if (rowId.startsWith("-"))
+                    {
+                        rowId = rowId.substring(1);
+                    }
+    
+                    table.put(rowId, r);
                 }
 
-                String rowId = r.getRowId() + "/" + scope;
-                if (rowId.startsWith("-"))
-                {
-                    rowId = rowId.substring(1);
-                }
-
-                table.put(rowId, r);
+                super.getContactSource().database = db;
+                super.getContactSource().defaultScope = defaultScope;
+                super.getContactSource().lastDatabaseFileChange =
+                    file.lastModified();
             }
 
             // okay, "transactions" are applied, now perform the search
-            for (Entry<String, Map<String, Row>> table : db.entrySet())
+            for (Entry<String, Map<String, Row>> table
+                : super.getContactSource().database.entrySet())
             {
                 for (Map.Entry<String, Row> e : table.getValue().entrySet())
                 {
-                    if (e.getKey().endsWith(defaultScope))
+                    if (e.getKey().endsWith(getContactSource().defaultScope))
                     {
                         readEntry(e.getValue());
                     }
