@@ -110,7 +110,8 @@ public class ThunderbirdActivator
             <ThunderbirdContactSourceService, ServiceRegistration>();
         for (String cfg : configs)
         {
-            if (cfg.endsWith(config.getString(cfg)))
+            String value = config.getString(cfg);
+            if (value != null && cfg.endsWith(value))
             {
                 add(cfg);
             }
