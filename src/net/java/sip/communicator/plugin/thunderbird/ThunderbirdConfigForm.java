@@ -82,6 +82,7 @@ public class ThunderbirdConfigForm
         pnl.add(lblPrefix);
 
         txtPrefix = new JTextField();
+        txtPrefix.getDocument().addDocumentListener(this);
         pnl.add(txtPrefix);
 
         List<ThunderbirdContactSourceService> activeServices
@@ -309,7 +310,9 @@ public class ThunderbirdConfigForm
      * DocumentEvent)
      */
     public void insertUpdate(DocumentEvent e)
-    {}
+    {
+        changedUpdate(e);
+    }
 
     /*
      * (non-Javadoc)
@@ -318,7 +321,9 @@ public class ThunderbirdConfigForm
      * DocumentEvent)
      */
     public void removeUpdate(DocumentEvent e)
-    {}
+    {
+        changedUpdate(e);
+    }
 
     /*
      * (non-Javadoc)
