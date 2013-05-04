@@ -85,6 +85,7 @@ public class ThunderbirdActivator
         registrations.get(service).unregister();
         registrations.remove(service);
         ConfigurationService config = getConfigService();
+        config.removeProperty(service.getBaseConfigProperty());
         for (String prop : config.getPropertyNamesByPrefix(
             service.getBaseConfigProperty(), false))
         {
@@ -110,7 +111,8 @@ public class ThunderbirdActivator
             <ThunderbirdContactSourceService, ServiceRegistration>();
         for (String cfg : configs)
         {
-            if (cfg.endsWith(config.getString(cfg)))
+            String value = config.getString(cfg);
+            if (value != null && cfg.endsWith(value))
             {
                 add(cfg);
             }

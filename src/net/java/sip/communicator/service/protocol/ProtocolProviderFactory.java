@@ -464,6 +464,15 @@ public abstract class ProtocolProviderFactory
     public static final String ENCODING_PROP_PREFIX = "Encodings";
 
     /**
+     * An account property to provide a connected account to check for
+     * its status. Used when the current provider need to reject calls
+     * but is missing presence operation set and need to check other
+     * provider for status.
+     */
+    public static final String CUSAX_PROVIDER_ACCOUNT_PROP
+        = "cusax.XMPP_ACCOUNT_ID";
+
+    /**
      * The <code>BundleContext</code> containing (or to contain) the service
      * registration of this factory.
      */

@@ -6,10 +6,12 @@
  */
 package net.java.sip.communicator.plugin.thunderbird;
 
+import java.util.Map;
 import java.util.regex.*;
 
 import org.jitsi.service.configuration.*;
 
+import mork.Row;
 import net.java.sip.communicator.service.contactsource.*;
 
 /**
@@ -71,6 +73,19 @@ public class ThunderbirdContactSourceService
 
     /** Value of property {@link #PNAME_PREFIX} */
     private String prefix;
+
+    /** Date/time when the Thunderbird database file was last changed. */
+    long lastDatabaseFileChange = 0;
+
+    /**
+     * The parsed Thunderbird database. This field is used as a cache and set by
+     * the query. It is re-set when the file date is newer than
+     * {@link #lastDatabaseFileChange}
+     */
+    Map<String, Map<String, Row>> database;
+
+    /** Name of the default namespace in the Thunderbird database. */
+    String defaultScope;
 
     /**
      * Creates a new instance of this class.
