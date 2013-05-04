@@ -605,7 +605,7 @@ public abstract class MediaAwareCallPeer
 
     /**
      * Determines whether we are currently streaming video toward whoever this
-     * <tt>CallPeerSipImpl</tt> represents.
+     * <tt>MediaAwareCallPeer</tt> represents.
      *
      * @return <tt>true</tt> if we are currently streaming video toward this
      *  <tt>CallPeer</tt> and  <tt>false</tt> otherwise.
