@@ -29,6 +29,7 @@ import org.jivesoftware.smackx.packet.*;
  *
  * @author Emil Ivov
  * @author Lyubomir Marinov
+ * @author Boris Grozev
  */
 public class CallJabberImpl
     extends AbstractCallJabberGTalkImpl<CallPeerJabberImpl>
@@ -603,26 +604,23 @@ public class CallJabberImpl
     }
 
     /**
-     * Sends a <tt>content-modify</tt> message to each of the current
-     * <tt>CallPeer</tt>s to reflect a possible change in the media setup
-     * related to video.
+     * Updates the Jingle sessions for the <tt>CallPeer</tt>s of this
+     * <tt>Call</tt>, to reflect the current state of the the video contents of
+     * this <tt>Call</tt>. Sends a <tt>content-modify</tt>, <tt>content-add</tt>
+     * or <tt>content-remove</tt> message to each of the current
+     * <tt>CallPeer</tt>s.
      *
-     * @param allowed <tt>true</tt> if the streaming of the local video to the
-     * remote peer is allowed; otherwise, <tt>false</tt>
      * @throws OperationFailedException if a problem occurred during message
      * generation or there was a network problem
      */
-    public void modifyVideoContent(boolean allowed)
+    public void modifyVideoContent()
         throws OperationFailedException
     {
-        if (logger.isInfoEnabled())
-        {
-            logger.info(
-                    (allowed ? "Start" : "Stop") + " local video streaming");
-        }
+        if (logger.isDebugEnabled())
+            logger.debug("Updating video content for " + this);
 
         for (CallPeerJabberImpl peer : getCallPeerList())
-            peer.sendModifyVideoContent(allowed);
+            peer.sendModifyVideoContent();
     }
 
     /**

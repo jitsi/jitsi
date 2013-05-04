@@ -66,7 +66,7 @@ public class OperationSetVideoTelephonyJabberImpl
     {
         super.setLocalVideoAllowed(call, allowed);
 
-        ((CallJabberImpl)call).modifyVideoContent(allowed);
+        ((CallJabberImpl)call).modifyVideoContent();
     }
 
     /**

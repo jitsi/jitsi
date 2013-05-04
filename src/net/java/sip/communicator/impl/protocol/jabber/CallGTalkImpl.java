@@ -224,11 +224,10 @@ public class CallGTalkImpl
      * Send a <tt>content-modify</tt> message for all current <tt>CallPeer</tt>
      * to reflect possible video change in media setup.
      *
-     * @param allowed if the local video is allowed or not
      * @throws OperationFailedException if problem occurred during message
      * generation or network problem
      */
-    public void modifyVideoContent(boolean allowed)
+    public void modifyVideoContent()
         throws OperationFailedException
     {
         // GTalk is not able to use a "content-modify", thereby this function

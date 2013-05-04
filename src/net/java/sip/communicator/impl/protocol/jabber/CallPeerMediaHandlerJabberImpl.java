@@ -32,6 +32,7 @@ import org.jivesoftware.smackx.packet.*;
  * @author Emil Ivov
  * @author Lyubomir Marinov
  * @author Hristo Terezov
+ * @author Boris Grozev
  */
 public class CallPeerMediaHandlerJabberImpl
     extends AbstractCallPeerMediaHandlerJabberGTalkImpl<CallPeerJabberImpl>
@@ -115,6 +116,24 @@ public class CallPeerMediaHandlerJabberImpl
      * and <tt>notify</tt>) related to {@link #transportManager}.
      */
     private final Object transportManagerSyncRoot = new Object();
+
+    /**
+     * The current value of the 'senders' field of the audio content in the
+     * Jingle session with the <tt>CallPeer</tt> associated with this
+     * <tt>CallPeerMediaHandlerJabberImpl</tt>.
+     * <tt>null</tt> should be interpreted as 'both', which is the default in
+     * Jingle if the XML attribute is missing.
+     */
+    private SendersEnum audioSenders = SendersEnum.none;
+
+    /**
+     * The current value of the 'senders' field of the video content in the
+     * Jingle session with the <tt>CallPeer</tt> associated with this
+     * <tt>CallPeerMediaHandlerJabberImpl</tt>.
+     * <tt>null</tt> should be interpreted as 'both', which is the default in
+     * Jingle if the XML attribute is missing.
+     */
+    private SendersEnum videoSenders = SendersEnum.none;
 
     /**
      * Creates a new handler that will be managing media streams for
@@ -1196,6 +1215,8 @@ public class CallPeerMediaHandlerJabberImpl
         for (ContentPacketExtension content : answer)
         {
             remoteContentMap.put(content.getName(), content);
+            setSenders(MediaType.parseString(content.getName()),
+                    content.getSenders());
 
             boolean masterStream = false;
             // if we have more than one stream, lets the audio be the master
@@ -1409,24 +1430,19 @@ public class CallPeerMediaHandlerJabberImpl
         {
             for (CallPeerJabberImpl peer : call.getCallPeerList())
             {
-                ContentPacketExtension remoteContent
-                    = peer.getMediaHandler()
-                        .getRemoteContent(mediaType.toString());
+                SendersEnum senders
+                        = peer.getMediaHandler().getSenders(mediaType);
                 boolean initiator = peer.isInitiator();
-                if (remoteContent != null)
+                //check if the direction of the jingle session we have with
+                //this peer allows us receiving media. If senders is null,
+                //assume the default of 'both'
+                if (senders == null ||
+                        (SendersEnum.both == senders) ||
+                        (initiator && SendersEnum.initiator == senders) ||
+                        (!initiator && SendersEnum.responder == senders))
                 {
-                    SendersEnum senders = remoteContent.getSenders();
-                    //check if the direction of the jingle session we have with
-                    //this peer allows us receiving media. If senders is null,
-                    //assume the default of 'both'
-                    if (senders == null ||
-                            (SendersEnum.both == senders) ||
-                            (initiator && SendersEnum.initiator == senders) ||
-                            (!initiator && SendersEnum.responder == senders))
-                    {
-                        remoteDirection
-                                = remoteDirection.or(MediaDirection.SENDONLY);
-                    }
+                    remoteDirection
+                            = remoteDirection.or(MediaDirection.SENDONLY);
                 }
             }
         }
@@ -1796,6 +1812,7 @@ public class CallPeerMediaHandlerJabberImpl
 
         if(ext != null)
         {
+            setSenders(MediaType.parseString(name), content.getSenders());
             if(modify)
             {
                 processContent(content, modify, false);
@@ -1845,6 +1862,7 @@ public class CallPeerMediaHandlerJabberImpl
      */
     public void removeContent(String name)
     {
+        setSenders(MediaType.parseString(name), SendersEnum.none);
         removeContent(localContentMap, name);
         removeContent(remoteContentMap, name);
         getTransportManager().removeContent(name);
@@ -2037,5 +2055,44 @@ public class CallPeerMediaHandlerJabberImpl
                 stream.setTarget(transportManager.getStreamTarget(mediaType));
             }
         }
+    }
+
+    /**
+     * Get the current value of the <tt>senders</tt> field of the content with
+     * name <tt>mediaType</tt> in the Jingle session with the <tt>CallPeer</tt>
+     * associated with this <tt>CallPeerMediaHandlerJabberImpl</tt>.
+     * @param mediaType the <tt>MediaType</tt> for which to get the current
+     * value of the <tt>senders</tt> field.
+     * @return the current value of the <tt>senders</tt> field of the content
+     * with name <tt>mediaType</tt> in the Jingle session with the
+     * <tt>CallPeer</tt> associated with this
+     * <tt>CallPeerMediaHandlerJabberImpl</tt>
+     */
+    public SendersEnum getSenders(MediaType mediaType)
+    {
+        if (MediaType.AUDIO.equals(mediaType))
+            return audioSenders;
+        else if (MediaType.VIDEO.equals(mediaType))
+            return videoSenders;
+        else
+            throw new IllegalArgumentException("mediaType");
+    }
+
+    /**
+     * Set the current value of the <tt>senders</tt> field of the content with
+     * name <tt>mediaType</tt> in the Jingle session with the <tt>CallPeer</tt>
+     * associated with this <tt>CallPeerMediaHandlerJabberImpl</tt>.
+     * @param mediaType the <tt>MediaType</tt> for which to get the current
+     * value of the <tt>senders</tt> field.
+     * @param senders the value to set
+     */
+    public void setSenders(MediaType mediaType, SendersEnum senders)
+    {
+        if (MediaType.AUDIO.equals(mediaType))
+            this.audioSenders = senders;
+        else if (MediaType.VIDEO.equals(mediaType))
+            this.videoSenders = senders;
+        else
+            throw new IllegalArgumentException("mediaType");
     }
 }

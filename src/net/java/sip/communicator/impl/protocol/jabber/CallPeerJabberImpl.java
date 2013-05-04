@@ -27,6 +27,7 @@ import org.jivesoftware.smack.util.*;
  *
  * @author Emil Ivov
  * @author Lyubomir Marinov
+ * @author Boris Grozev
  */
 public class CallPeerJabberImpl
     extends AbstractCallPeerJabberGTalkImpl
@@ -523,6 +524,9 @@ public class CallPeerJabberImpl
                         this.peerJID,
                         getSID(),
                         answerContents);
+            for (ContentPacketExtension c : answerContents)
+                mediaHandler.setSenders(MediaType.parseString(c.getName()),
+                        c.getSenders());
         }
 
         getProtocolProvider().getConnection().sendPacket(contentIQ);
@@ -543,7 +547,7 @@ public class CallPeerJabberImpl
             {
                 try
                 {
-                    getCall().modifyVideoContent(true);
+                    getCall().modifyVideoContent();
                 }
                 catch (OperationFailedException ofe)
                 {
@@ -570,6 +574,8 @@ public class CallPeerJabberImpl
                     != null);
 
             getMediaHandler().reinitContent(ext.getName(), ext, modify);
+            if (MediaType.VIDEO.toString().equals(ext.getName()))
+                getCall().modifyVideoContent();
         }
         catch(Exception e)
         {
@@ -619,6 +625,7 @@ public class CallPeerJabberImpl
      * peer wants to be removed
      */
     public void processContentRemove(JingleIQ content)
+        throws OperationFailedException
     {
         List<ContentPacketExtension> contents = content.getContentList();
 
@@ -637,6 +644,7 @@ public class CallPeerJabberImpl
              * void).
              */
         }
+        getCall().modifyVideoContent();
     }
 
     /**
@@ -820,7 +828,7 @@ public class CallPeerJabberImpl
         String reasonStr = "Call ended by remote side.";
         ReasonPacketExtension reasonExt = jingleIQ.getReason();
 
-        if(reasonStr != null)
+        if(reasonExt != null)
         {
             Reason reason = reasonExt.getReason();
 
@@ -1045,85 +1053,133 @@ public class CallPeerJabberImpl
     }
 
     /**
-     * Send a <tt>content</tt> message to reflect change in video setup (start
-     * or stop). Message can be content-modify if video content exists,
-     * content-add if we start video but video is not enabled on the peer or
-     * content-remove if we stop video and video is not enabled on the peer.
+     * Returns the <tt>MediaDirection</tt> that should be used for the content
+     * of type <tt>mediaType</tt> in the Jingle session for this
+     * <tt>CallPeer</tt>.
+     * If we are the focus of a conference and are doing RTP translation,
+     * takes into account the other <tt>CallPeer</tt>s in the <tt>Call</tt>.
      *
-     * @param allowed if the local video is allowed or not
+     * @param mediaType the <tt>MediaType</tt> for which to return the
+     * <tt>MediaDirection</tt>
+     * @return the <tt>MediaDirection</tt> that should be used for the content
+     * of type <tt>mediaType</tt> in the Jingle session for this
+     * <tt>CallPeer</tt>.
      */
-    public void sendModifyVideoContent(boolean allowed)
+    private MediaDirection getJingleDirection(MediaType mediaType)
     {
+        MediaDirection direction = MediaDirection.INACTIVE;
         CallPeerMediaHandlerJabberImpl mediaHandler = getMediaHandler();
 
-        /*
-         * If the local peer is the focus of a video conference, it should not
-         * remove content and should rather add/modify content in order to
-         * perform RTP translation.
-         */
-        if (!allowed && mediaHandler.isRTPTranslationEnabled(MediaType.VIDEO))
-            allowed = true;
+        // If we are streaming media, the direction should allow sending
+        if ( (MediaType.AUDIO == mediaType &&
+                mediaHandler.isLocalAudioTransmissionEnabled()) ||
+             (MediaType.VIDEO == mediaType &&
+                isLocalVideoStreaming()))
+            direction = direction.or(MediaDirection.SENDONLY);
+
+        // If we are receiving media from this CallPeer, the direction should
+        // allow receiving
+        SendersEnum senders = mediaHandler.getSenders(mediaType);
+        if (senders == null || senders == SendersEnum.both ||
+                    (isInitiator() && senders == SendersEnum.initiator) ||
+                    (!isInitiator() && senders == SendersEnum.responder))
+            direction = direction.or(MediaDirection.RECVONLY);
+
+        // If RTP translation is enabled and we are receiving media from another
+        // CallPeer in the same Call, the direction should allow sending
+        if (mediaHandler.isRTPTranslationEnabled(mediaType))
+        {
+            for (CallPeerJabberImpl peer : getCall().getCallPeerList())
+            {
+                if (peer != this)
+                {
+                    senders = peer.getMediaHandler().getSenders(mediaType);
+                    if (senders == null || senders == SendersEnum.both ||
+                            (peer.isInitiator()
+                                    && senders == SendersEnum.initiator) ||
+                            (!peer.isInitiator()
+                                    && senders == SendersEnum.responder))
+                    {
+                        direction = direction.or(MediaDirection.SENDONLY);
+                        break;
+                    }
+                }
+            }
+        }
+
+        return direction;
+    }
+
+    /**
+     * Send a <tt>content</tt> message to reflect change in video setup (start
+     * or stop). Message can be content-modify if video content exists,
+     * content-add if we start video, but video is not enabled for the
+     * <tt>CallPeer</tt>, or content-remove if we stop video and video is
+     * enabled for the <tt>CallPeer</tt>.
+     *
+     */
+    public void sendModifyVideoContent()
+    {
+        CallPeerMediaHandlerJabberImpl mediaHandler = getMediaHandler();
+        MediaDirection direction = getJingleDirection(MediaType.VIDEO);
 
         ContentPacketExtension remoteContent
-            = mediaHandler.getRemoteContent(MediaType.VIDEO.toString());
+            = mediaHandler.getLocalContent(MediaType.VIDEO.toString());
 
         if (remoteContent == null)
         {
-            if (allowed)
-                sendAddVideoContent();
-            return;
-        }
-
-        SendersEnum senders = remoteContent.getSenders();
-
-        if (!allowed)
-        {
-            boolean initiator = isInitiator();
-
-            if ((!initiator && (senders == SendersEnum.initiator))
-                    || (initiator && (senders == SendersEnum.responder)))
+            if (direction == MediaDirection.INACTIVE)
             {
-                sendRemoveVideoContent();
+                // no video content, none needed
                 return;
-            }
-        }
-
-        /* adjust the senders attribute depending on current value and if we
-         * allowed or not local video streaming
-         */
-        if (allowed)
-        {
-            if (senders == SendersEnum.none)
-            {
-                senders
-                    = isInitiator()
-                        ? SendersEnum.responder
-                        : SendersEnum.initiator;
             }
             else
             {
-                senders = SendersEnum.both;
+                if (logger.isInfoEnabled())
+                    logger.info("Adding video content for " + this);
+                sendAddVideoContent();
+                return;
             }
         }
         else
         {
-            if ((senders == SendersEnum.both) || (senders == null))
+            if (direction == MediaDirection.INACTIVE)
             {
-                senders
-                    = isInitiator()
-                        ? SendersEnum.initiator
-                        : SendersEnum.responder;
-            }
-            else
-            {
-                senders = SendersEnum.none;
+                // We could send a content-remove in this case, but instead
+                // we just set senders=none
+                //sendRemoveVideoContent();
+                //return;
             }
         }
 
+        SendersEnum senders = mediaHandler.getSenders(MediaType.VIDEO);
+        if (senders == null)
+            senders = SendersEnum.both;
+
+        SendersEnum newSenders = SendersEnum.none;
+        if (MediaDirection.SENDRECV == direction)
+            newSenders = SendersEnum.both;
+        else if (MediaDirection.RECVONLY == direction)
+            newSenders = isInitiator()
+                    ? SendersEnum.initiator : SendersEnum.responder;
+        else if (MediaDirection.SENDONLY == direction)
+            newSenders = isInitiator()
+                    ? SendersEnum.responder : SendersEnum.initiator;
+
+        // no change is necessary
+        if (newSenders == senders)
+            return;
+
+        /*
+         * Send Content-Modify
+         */
+        if (logger.isInfoEnabled())
+            logger.info("Sending content modify, senders: "
+                    + senders + "->" + newSenders);
         ContentPacketExtension ext = new ContentPacketExtension();
         String remoteContentName = remoteContent.getName();
 
-        ext.setSenders(senders);
+        ext.setSenders(newSenders);
         ext.setCreator(remoteContent.getCreator());
         ext.setName(remoteContentName);
 
@@ -1230,6 +1286,7 @@ public class CallPeerJabberImpl
 
         protocolProvider.getConnection().sendPacket(contentIQ);
         mediaHandler.removeContent(remoteContentName);
+        mediaHandler.setSenders(MediaType.VIDEO, SendersEnum.none);
     }
 
     /**

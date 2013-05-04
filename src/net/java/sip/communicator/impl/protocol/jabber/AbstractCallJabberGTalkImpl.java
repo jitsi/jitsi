@@ -68,11 +68,10 @@ public abstract class AbstractCallJabberGTalkImpl
      * Send a <tt>content-modify</tt> message for all current <tt>CallPeer</tt>
      * to reflect possible video change in media setup.
      *
-     * @param allowed if the local video is allowed or not
      * @throws OperationFailedException if problem occurred during message
      * generation or network problem
      */
-    public abstract void modifyVideoContent(boolean allowed)
+    public abstract void modifyVideoContent()
         throws OperationFailedException;
 
     /**

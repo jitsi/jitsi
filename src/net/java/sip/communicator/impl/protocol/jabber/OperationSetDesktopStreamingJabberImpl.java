@@ -211,7 +211,7 @@ public class OperationSetDesktopStreamingJabberImpl
             = (mediaDeviceFormat == null)
                 ? null
                 : ((VideoMediaFormat) mediaDeviceFormat).getSize();
-        callImpl.modifyVideoContent(allowed);
+        callImpl.modifyVideoContent();
         origin = getOriginForMediaDevice(mediaDevice);
     }
 
