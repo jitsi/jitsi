@@ -625,7 +625,6 @@ public class CallPeerJabberImpl
      * peer wants to be removed
      */
     public void processContentRemove(JingleIQ content)
-        throws OperationFailedException
     {
         List<ContentPacketExtension> contents = content.getContentList();
 
@@ -644,7 +643,14 @@ public class CallPeerJabberImpl
              * void).
              */
         }
-        getCall().modifyVideoContent();
+        try
+        {
+            getCall().modifyVideoContent();
+        }
+        catch (Exception e)
+        {
+            logger.warn("Failed to update Jingle sessions");
+        }
     }
 
     /**
