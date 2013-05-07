@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
+import gov.nist.javax.sip.address.*;
 import gov.nist.javax.sip.header.*;
 import gov.nist.javax.sip.header.extensions.*;
 import gov.nist.javax.sip.message.*;
@@ -792,6 +793,36 @@ public class SipMessageFactory
                 "Failed to create invite Request!",
                 OperationFailedException.INTERNAL_ERROR, ex, logger);
         }
+
+        // Call-info header
+        CallInfoHeader callInfoHeader = null;
+        try
+        {
+            ProtocolProviderService cusaxProvider
+                = protocolProvider.getLinkedCusaxProvider();
+
+            String alternativeImppAddress = null;
+
+            if (cusaxProvider != null)
+                alternativeImppAddress
+                    = cusaxProvider.getAccountID().getAccountAddress();
+
+            if (alternativeImppAddress != null)
+            {
+               callInfoHeader
+                   = headerFactory.createCallInfoHeader(
+                       new GenericURI("xmpp:" + alternativeImppAddress));
+
+               callInfoHeader.setParameter("purpose", "impp");
+            }
+        }
+        catch (ParseException e)
+        {
+            e.printStackTrace();
+        }
+
+        if (callInfoHeader != null)
+            invite.setHeader(callInfoHeader);
 
         // Add the ReplacesHeader if any.
         if (replacesHeader != null)

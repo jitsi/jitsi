@@ -186,6 +186,15 @@ public interface CallPeer
     public String getDisplayName();
 
     /**
+     * Returns an alternative IMPP address corresponding to this
+     * <tt>CallPeer</tt>.
+     *
+     * @return a string representing an alternative IMPP address corresponding
+     * to this <tt>CallPeer</tt>
+     */
+    public String getAlternativeIMPPAddress();
+
+    /**
      * The method returns an image representation of the call peer (e.g.
      * a photo). Generally, the image representation is acquired from the
      * underlying telephony protocol and is transferred over the network during

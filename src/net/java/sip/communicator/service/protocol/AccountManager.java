@@ -427,6 +427,7 @@ public class AccountManager
                      storedAccountIter.hasNext();)
                 {
                     String storedAccount = storedAccountIter.next();
+
                     if(!storedAccount.endsWith(uid))
                         continue;
 

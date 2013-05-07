@@ -22,6 +22,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.OperationSetExtendedAuthorizations.*;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.call.*;
 
 /**
  * The <tt>MetaUIContact</tt> is the implementation of the UIContact interface
@@ -277,6 +278,17 @@ public class MetaUIContact
     }
 
     /**
+     * Gets the avatar of a specific <tt>UIContact</tt> in the form of an
+     * <tt>ImageIcon</tt> value.
+     *
+     * @return a byte array representing the avatar of this <tt>UIContact</tt>
+     */
+    public byte[] getAvatar()
+    {
+        return metaContact.getAvatar();
+    }
+
+    /**
      * Gets the avatar of a specific <tt>MetaContact</tt> in the form of an
      * <tt>ImageIcon</tt> value.
      *
@@ -286,7 +298,7 @@ public class MetaUIContact
      * @return an <tt>ImageIcon</tt> which represents the avatar of the
      * specified <tt>MetaContact</tt>
      */
-    public ImageIcon getAvatar(
+    public ImageIcon getScaledAvatar(
         boolean isSelected, int width, int height)
     {
         byte[] avatarBytes = metaContact.getAvatar(true);
@@ -426,8 +438,8 @@ public class MetaUIContact
     {
         Iterator<Contact> i = metaContact.getContacts();
 
-        ContactPhoneUtil contactPhoneUtil =
-            ContactPhoneUtil.getPhoneUtil(metaContact);
+        MetaContactPhoneUtil contactPhoneUtil =
+            MetaContactPhoneUtil.getPhoneUtil(metaContact);
 
         String statusMessage = null;
         Contact protocolContact;
@@ -461,35 +473,34 @@ public class MetaUIContact
             if(!protocolContact.getProtocolProvider().isRegistered())
                 continue;
 
-            contactPhoneUtil.addDetailsResponseListener(protocolContact,
-                new OperationSetServerStoredContactInfo
-                        .DetailsResponseListener()
-                {
-                    public void detailsRetrieved(
-                        final Iterator<GenericDetail> details)
-                    {
-                        if(!SwingUtilities.isEventDispatchThread())
+            List<String> phones = contactPhoneUtil
+                    .getPhones( protocolContact,
+                        new OperationSetServerStoredContactInfo
+                                .DetailsResponseListener()
                         {
-                            SwingUtilities.invokeLater(new Runnable()
+                            public void detailsRetrieved(
+                                final Iterator<GenericDetail> details)
                             {
-                                public void run()
+                                if(!SwingUtilities.isEventDispatchThread())
                                 {
-                                    detailsRetrieved(details);
+                                    SwingUtilities.invokeLater(new Runnable()
+                                    {
+                                        public void run()
+                                        {
+                                            detailsRetrieved(details);
+                                        }
+                                    });
+                                    return;
                                 }
-                            });
-                            return;
-                        }
-
-                        // remove previously shown information
-                        // as it contains "Loading..." text
-                        tip.removeAllLines();
-
-                        // load it again
-                        loadTooltip(tip);
-                    }
-                });
-
-            List<String> phones = contactPhoneUtil.getPhones(protocolContact);
+        
+                                // remove previously shown information
+                                // as it contains "Loading..." text
+                                tip.removeAllLines();
+        
+                                // load it again
+                                loadTooltip(tip);
+                            }
+                        }, true);
 
             if(phones != null)
             {

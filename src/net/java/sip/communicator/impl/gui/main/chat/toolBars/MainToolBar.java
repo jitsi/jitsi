@@ -22,6 +22,7 @@ import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
 import net.java.sip.communicator.impl.gui.main.configforms.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
+import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.plugin.desktoputil.SwingWorker;
@@ -30,6 +31,7 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.call.*;
 import net.java.sip.communicator.util.skin.*;
 
 /**
@@ -153,7 +155,7 @@ public class MainToolBar
     /**
      * The phone util used to enable/disable buttons.
      */
-    private ContactPhoneUtil contactPhoneUtil = null;
+    private MetaContactPhoneUtil contactPhoneUtil = null;
 
     /**
      * Creates an instance and constructs the <tt>MainToolBar</tt>.
@@ -638,6 +640,8 @@ public class MainToolBar
      * Establishes a call.
      *
      * @param isVideo indicates if a video call should be established.
+     * @param isDesktopSharing indicates if a desktopSharing should be
+     * established.
      */
     private void call(boolean isVideo, boolean isDesktopSharing)
     {
@@ -670,19 +674,19 @@ public class MainToolBar
         for(ChatTransport ct : contactOpSetSupported)
         {
             HashMap<Class<? extends OperationSet>, ProtocolProviderService> m =
-                new HashMap<Class<? extends OperationSet>, ProtocolProviderService>();
+                new HashMap<Class<? extends OperationSet>,
+                            ProtocolProviderService>();
             m.put(opSetClass, ct.getProtocolProvider());
 
-            UIContactDetailImpl d =
-            new UIContactDetailImpl(
-                ct.getName(),
-                ct.getDisplayName(),
-                null,
-                null,
-                null,
-                m,
-                null,
-                ct.getName());
+            UIContactDetailImpl d = new UIContactDetailImpl(
+                                                ct.getName(),
+                                                ct.getDisplayName(),
+                                                null,
+                                                null,
+                                                null,
+                                                m,
+                                                null,
+                                                ct.getName());
             PresenceStatus status = ct.getStatus();
             byte[] statusIconBytes = status.getStatusIcon();
 
@@ -703,10 +707,19 @@ public class MainToolBar
         SwingUtilities.convertPointToScreen(
             location, this);
 
+        MetaContact metaContact
+            = GuiActivator.getUIService().getChatContact(chatPanel);
+        UIContactImpl uiContact = null;
+        if (metaContact != null)
+            uiContact = MetaContactListSource.getUIContact(metaContact);
+
         CallManager.call(
-            contactPhoneUtil, res,
-            isVideo, isDesktopSharing,
-            callButton, location);
+            res,
+            uiContact,
+            isVideo,
+            isDesktopSharing,
+            callButton,
+            location);
     }
 
     /**
@@ -755,7 +768,7 @@ public class MainToolBar
             throws
             Exception
         {
-            contactPhoneUtil = ContactPhoneUtil.getPhoneUtil(contact);
+            contactPhoneUtil = MetaContactPhoneUtil.getPhoneUtil(contact);
 
             isCallEnabled = contactPhoneUtil.isCallEnabled();
             isVideoCallEnabled = contactPhoneUtil.isVideoCallEnabled();

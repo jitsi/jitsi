@@ -4,12 +4,9 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.main.call;
+package net.java.sip.communicator.util.call;
 
-import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.service.contactlist.*;
-import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.OperationSetServerStoredContactInfo.*;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
@@ -18,20 +15,21 @@ import net.java.sip.communicator.util.account.*;
 
 import java.util.*;
 
-
 /**
- * Utility class that is obtained per metacontact. Used to check is a telephony
- * service, video calls and desktop sharing are enabled per contact from the
- * metacontact, or globally for the metacontct.
+ * Utility class used to check if there is a telephony service, video calls and
+ * desktop sharing enabled for a protocol specific <tt>MetaContact</tt>.
+ *
  * @author Damian Minkov
+ * @author Yana Stamcheva
  */
-public class ContactPhoneUtil
+public class MetaContactPhoneUtil
 {
     /**
      * The <tt>Logger</tt> used by the <tt>CallManager</tt> class and its
      * instances for logging output.
      */
-    private static final Logger logger = Logger.getLogger(ContactPhoneUtil.class);
+    private static final Logger logger
+        = Logger.getLogger(MetaContactPhoneUtil.class);
 
     /**
      * The metacontcat we are working on.
@@ -43,14 +41,6 @@ public class ContactPhoneUtil
      */
     private Hashtable<Contact,List<String>> phones =
         new Hashtable<Contact, List<String>>();
-
-    /**
-     * Response listeners, when set and there is no currently available (cached)
-     * information for the phones, we request such information and discontinue
-     * current invocation and when result is available inform the listeners.
-     */
-    private Hashtable<Contact,DetailsResponseListener> responseListeners =
-                new Hashtable<Contact, DetailsResponseListener>();
 
     /**
      * True if there is any phone found for the metacontact.
@@ -72,22 +62,21 @@ public class ContactPhoneUtil
      */
     private boolean routingForDesktopEnabled = false;
 
-
     /**
      * Obtains the util for <tt>metaContact</tt>
      * @param metaContact the metaconctact.
      * @return ContactPhoneUtil for the <tt>metaContact</tt>.
      */
-    public static ContactPhoneUtil getPhoneUtil(MetaContact metaContact)
+    public static MetaContactPhoneUtil getPhoneUtil(MetaContact metaContact)
     {
-        return new ContactPhoneUtil(metaContact);
+        return new MetaContactPhoneUtil(metaContact);
     }
 
     /**
      * Creates utility instance for <tt>metaContact</tt>.
      * @param metaContact the metacontact checked in the utility.
      */
-    private ContactPhoneUtil(MetaContact metaContact)
+    protected MetaContactPhoneUtil(MetaContact metaContact)
     {
         this.metaContact = metaContact;
     }
@@ -102,18 +91,6 @@ public class ContactPhoneUtil
     }
 
     /**
-     * Adds response listener that will be informed when data is available.
-     * This in case there is no currently cached data.
-     * @param contact the contact which details will be checked.
-     * @param listener the listener.
-     */
-    public void addDetailsResponseListener(
-        Contact contact, DetailsResponseListener listener)
-    {
-        responseListeners.put(contact, listener);
-    }
-
-    /**
      * Returns localized addition phones list for contact, if any.
      * Return null if we have stopped searching and a listener is available
      * and will be used to inform for results.
@@ -122,7 +99,7 @@ public class ContactPhoneUtil
      */
     public List<String> getPhones(Contact contact)
     {
-        return getPhones(contact, true);
+        return getPhones(contact, null, true);
     }
 
     /**
@@ -130,19 +107,25 @@ public class ContactPhoneUtil
      * Return null if we have stopped searching and a listener is available
      * and will be used to inform for results.
      * @param contact the contact to check for video phones.
+     * @param listener the <tt>DetailsResponseListener</tt> to listen for result
+     * details
      * @return list of video phones for <tt>contact</tt>, localized.
      */
-    public List<String> getVideoPhones(Contact contact)
+    public List<String> getVideoPhones( Contact contact,
+                                        DetailsResponseListener listener)
     {
         if(!this.metaContact.containsContact(contact))
         {
             return new ArrayList<String>();
         }
 
-        List<String> phonesList =  getPhonesFromOpSet(contact, true, true);
+        List<String> phonesList = ContactPhoneUtil.getContactAdditionalPhones(
+                contact, listener, true, true);
 
         if(phonesList == null)
             return null;
+        else if (phonesList.size() > 0)
+            hasVideoDetail = true;
 
         return phonesList;
     }
@@ -153,10 +136,14 @@ public class ContactPhoneUtil
      * Return null if we have stopped searching and a listener is available
      * and will be used to inform for results.
      * @param contact the contact to check for video phones.
+     * @param listener the <tt>DetailsResponseListener</tt> to listen for result
+     * details
      * @param localized whether to localize the phones, put a description text.
      * @return list of phones for contact.
      */
-    public List<String> getPhones(Contact contact, boolean localized)
+    public List<String> getPhones(  Contact contact,
+                                    DetailsResponseListener listener,
+                                    boolean localized)
     {
         if(!this.metaContact.containsContact(contact))
         {
@@ -168,10 +155,14 @@ public class ContactPhoneUtil
             return phones.get(contact);
         }
 
-        List<String> phonesList = getPhonesFromOpSet(contact, false, localized);
+        List<String> phonesList
+            = ContactPhoneUtil.getContactAdditionalPhones(
+                contact, listener, false, localized);
 
         if(phonesList == null)
             return null;
+        else if (phonesList.size() > 0)
+            hasPhones = true;
 
         phones.put(contact, phonesList);
 
@@ -179,107 +170,34 @@ public class ContactPhoneUtil
     }
 
     /**
-     * Searches for phones for the contact.
-     * Return null if we have stopped searching and a listener is available
-     * and will be used to inform for results.
-     * @param contact the contact to check.
-     * @param onlyVideo whether to include only video phones.
-     * @param localized whether to localize phones.
-     * @return list of phones, or null if we will use the listeners
-     * for the result.
-     */
-    private List<String> getPhonesFromOpSet(
-        Contact contact,
-        boolean onlyVideo,
-        boolean localized)
-    {
-        OperationSetServerStoredContactInfo infoOpSet =
-            contact.getProtocolProvider().getOperationSet(
-                OperationSetServerStoredContactInfo.class);
-        Iterator<GenericDetail> details;
-        ArrayList<String> phonesList = new ArrayList<String>();
-
-        if(infoOpSet != null)
-        {
-            try
-            {
-                DetailsResponseListener listener
-                    = responseListeners.get(contact);
-
-                if(listener != null)
-                {
-                    details = infoOpSet.requestAllDetailsForContact(
-                        contact, listener);
-
-                    if(details == null)
-                        return null;
-                }
-                else
-                {
-                    details = infoOpSet.getAllDetailsForContact(contact);
-                }
-
-                ArrayList<String> phoneNumbers = new ArrayList<String>();
-                while(details.hasNext())
-                {
-                    GenericDetail d = details.next();
-
-                    if(d instanceof PhoneNumberDetail &&
-                        !(d instanceof PagerDetail) &&
-                        !(d instanceof FaxDetail))
-                    {
-                        PhoneNumberDetail pnd = (PhoneNumberDetail)d;
-                        String number = pnd.getNumber();
-                        if(number != null &&
-                            number.length() > 0)
-                        {
-                            hasPhones = true;
-                            if(d instanceof VideoDetail)
-                                hasVideoDetail = true;
-                            else if(onlyVideo)
-                                continue;
-
-                            // skip duplicate numbers
-                            if(phoneNumbers.contains(number))
-                                continue;
-                            phoneNumbers.add(number);
-
-                            if(!localized)
-                            {
-                                phonesList.add(number);
-                                continue;
-                            }
-
-                            phonesList.add(number
-                                + " (" + getLocalizedPhoneNumber(d) + ")");
-                        }
-                    }
-                }
-            }
-            catch(Throwable t)
-            {
-                logger.error("Error obtaining server stored contact info");
-            }
-        }
-
-        return phonesList;
-    }
-
-    /**
      * Is video called is enabled for metaContact. If any of the child
      * contacts has video enabled.
+     *
+     * @param listener the <tt>DetailsResponseListener</tt> to listen for result
+     * details
      * @return is video called is enabled for metaContact.
      */
-    public boolean isVideoCallEnabled()
+    public boolean isVideoCallEnabled(DetailsResponseListener listener)
     {
         // make sure children are checked
-        if(!checkMetaContactPhones())
+        if(!checkMetaContactPhones(listener))
             return false;
 
         return metaContact.getDefaultContact(
                     OperationSetVideoTelephony.class) != null
                || routingForVideoEnabled
                || hasVideoDetail;
+    }
+
+    /**
+     * Is video called is enabled for metaContact. If any of the child
+     * contacts has video enabled.
+     *
+     * @return is video called is enabled for metaContact.
+     */
+    public boolean isVideoCallEnabled()
+    {
+        return isVideoCallEnabled((DetailsResponseListener) null);
     }
 
     /**
@@ -317,18 +235,30 @@ public class ContactPhoneUtil
     /**
      * Is desktop sharing enabled for metaContact. If any of the child
      * contacts has desktop sharing enabled.
+     * @param listener the <tt>DetailsResponseListener</tt> to listen for result
+     * details
      * @return is desktop share is enabled for metaContact.
      */
-    public boolean isDesktopSharingEnabled()
+    public boolean isDesktopSharingEnabled(DetailsResponseListener listener)
     {
         // make sure children are checked
-        if(!checkMetaContactPhones())
+        if(!checkMetaContactPhones(listener))
             return false;
 
         return metaContact.getDefaultContact(
             OperationSetDesktopSharingServer.class) != null
             || routingForDesktopEnabled
             || hasVideoDetail;
+    }
+
+    /**
+     * Is desktop sharing enabled for metaContact. If any of the child
+     * contacts has desktop sharing enabled.
+     * @return is desktop share is enabled for metaContact.
+     */
+    public boolean isDesktopSharingEnabled()
+    {
+        return isDesktopSharingEnabled((DetailsResponseListener) null);
     }
 
     /**
@@ -365,18 +295,31 @@ public class ContactPhoneUtil
     /**
      * Is call enabled for metaContact. If any of the child
      * contacts has call enabled.
+     * @param listener the <tt>DetailsResponseListener</tt> to listen for result
+     * details
      * @return is call enabled for metaContact.
      */
-    public boolean isCallEnabled()
+    public boolean isCallEnabled(DetailsResponseListener listener)
     {
         // make sure children are checked
-        if(!checkMetaContactPhones())
+        if(!checkMetaContactPhones(listener))
             return false;
 
         return metaContact.getDefaultContact(
                     OperationSetBasicTelephony.class) != null
                || (hasPhones
-                    && CallManager.getTelephonyProviders().size() > 0);
+                    && AccountUtils.getRegisteredProviders(
+                        OperationSetBasicTelephony.class).size() > 0);
+    }
+
+    /**
+     * Is call enabled for metaContact. If any of the child
+     * contacts has call enabled.
+     * @return is call enabled for metaContact.
+     */
+    public boolean isCallEnabled()
+    {
+        return isCallEnabled((DetailsResponseListener) null);
     }
 
     /**
@@ -406,6 +349,22 @@ public class ContactPhoneUtil
      */
     private boolean checkMetaContactPhones()
     {
+        return checkMetaContactPhones(null);
+    }
+
+    /**
+     * Checking all contacts for the metacontact.
+     * Return <tt>false</tt> if there are listeners added for a contact
+     * and we need to stop executions cause listener will be used to be informed
+     * for result.
+     *
+     * @param l the <tt>DetailsResponseListener</tt> to listen for further
+     * details
+     * @return whether to continue or listeners present and will be informed
+     * for result.
+     */
+    private boolean checkMetaContactPhones(DetailsResponseListener l)
+    {
         Iterator<Contact> contactIterator = metaContact.getContacts();
         while(contactIterator.hasNext())
         {
@@ -413,7 +372,7 @@ public class ContactPhoneUtil
             if(phones.containsKey(contact))
                 continue;
 
-            List<String> phones = getPhones(contact);
+            List<String> phones = getPhones(contact, l, true);
             if(phones == null)
                 return false;
         }
@@ -481,103 +440,35 @@ public class ContactPhoneUtil
 
     /**
      * Returns localized phone number.
+     *
      * @param d the detail.
      * @return the localized phone number.
      */
-    private String getLocalizedPhoneNumber(GenericDetail d)
+    protected String getLocalizedPhoneNumber(GenericDetail d)
     {
         if(d instanceof WorkPhoneDetail)
         {
-            return GuiActivator.getResources().
+            return UtilActivator.getResources().
                 getI18NString(
                     "service.gui.WORK_PHONE");
         }
         else if(d instanceof MobilePhoneDetail)
         {
-            return GuiActivator.getResources().
+            return UtilActivator.getResources().
                 getI18NString(
                     "service.gui.MOBILE_PHONE");
         }
         else if(d instanceof VideoDetail)
         {
-            return GuiActivator.getResources().
+            return UtilActivator.getResources().
                 getI18NString(
                     "service.gui.VIDEO_PHONE");
         }
         else
         {
-            return GuiActivator.getResources().
+            return UtilActivator.getResources().
                 getI18NString(
                     "service.gui.HOME");
         }
-    }
-
-    /**
-     * Searches for additional phone numbers found in contact information
-     *
-     * @return additional phone numbers found in contact information;
-     */
-    public List<UIContactDetail> getAdditionalNumbers()
-    {
-        List<UIContactDetail> telephonyContacts
-            = new ArrayList<UIContactDetail>();
-
-        Iterator<Contact> contacts = metaContact.getContacts();
-
-        while(contacts.hasNext())
-        {
-            Contact contact = contacts.next();
-            OperationSetServerStoredContactInfo infoOpSet =
-                contact.getProtocolProvider().getOperationSet(
-                    OperationSetServerStoredContactInfo.class);
-            Iterator<GenericDetail> details;
-            ArrayList<String> phones = new ArrayList<String>();
-
-            if(infoOpSet != null)
-            {
-                details = infoOpSet.getAllDetailsForContact(contact);
-
-                while(details.hasNext())
-                {
-                    GenericDetail d = details.next();
-                    if(d instanceof PhoneNumberDetail &&
-                        !(d instanceof PagerDetail) &&
-                        !(d instanceof FaxDetail))
-                    {
-                        PhoneNumberDetail pnd = (PhoneNumberDetail)d;
-                        if(pnd.getNumber() != null &&
-                            pnd.getNumber().length() > 0)
-                        {
-                            // skip phones which were already added
-                            if(phones.contains(pnd.getNumber()))
-                                continue;
-
-                            phones.add(pnd.getNumber());
-
-                            UIContactDetail cd =
-                                new UIContactDetailImpl(
-                                    pnd.getNumber(),
-                                    pnd.getNumber() +
-                                    " (" + getLocalizedPhoneNumber(d) + ")",
-                                    null,
-                                    new ArrayList<String>(),
-                                    null,
-                                    null,
-                                    null,
-                                    pnd)
-                            {
-                                public PresenceStatus getPresenceStatus()
-                                {
-                                    return null;
-                                }
-                            };
-                            telephonyContacts.add(cd);
-                        }
-                    }
-                }
-            }
-        }
-
-        return telephonyContacts;
     }
 }

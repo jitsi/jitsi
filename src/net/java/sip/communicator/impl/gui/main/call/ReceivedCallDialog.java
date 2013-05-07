@@ -91,7 +91,7 @@ public class ReceivedCallDialog
             if (peersIter.hasNext())
             {
                 textDisplayName = callLabel[1].getText()
-                    + getPeerDisplayName(peer) + ", ";
+                    + CallManager.getPeerDisplayName(peer) + ", ";
 
                 String peerAddress = getPeerDisplayAddress(peer);
 
@@ -105,7 +105,7 @@ public class ReceivedCallDialog
             else
             {
                 textDisplayName = callLabel[1].getText()
-                    + getPeerDisplayName(peer)
+                    + CallManager.getPeerDisplayName(peer)
                     + " "
                     + GuiActivator.getResources()
                         .getI18NString("service.gui.IS_CALLING");
@@ -225,22 +225,6 @@ public class ReceivedCallDialog
     public void hangupButtonPressed()
     {
         CallManager.hangupCall(incomingCall);
-    }
-
-    /**
-     * A informative text to show for the peer. If display name is missing
-     * return the address.
-     * @param peer the peer.
-     * @return the text contain display name.
-     */
-    private String getPeerDisplayName(CallPeer peer)
-    {
-        String displayName = peer.getDisplayName();
-
-        return
-            StringUtils.isNullOrEmpty(displayName, true)
-                ? peer.getAddress()
-                : displayName;
     }
 
     /**
