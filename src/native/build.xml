@@ -879,6 +879,10 @@
       <fileset dir="${src}/native/addrbook/msoutlook" includes="*.cxx" />
       <fileset dir="${src}/native/addrbook/msoutlook/com/" includes="*.cxx" />
     </cc>
+    <exec executable="strip">
+      <arg value="-x"/>
+      <arg value="${native_install_dir}/jmsoutlookaddrbook.dll"/>
+    </exec>
   </target>
 
   <!-- compile msoutlookaddrbookserver executable for Windows -->
@@ -887,28 +891,25 @@
       description="Build jmsoutlookaddrbookcomserver executable for Windows"
       if="is.running.windows"
       depends="init-native">
+    <fail message="Outlook2010MAPIHeaders not set!"
+        unless="Outlook2010MAPIHeaders" />
     <exec executable="cp">
       <arg value="${src}/native/addrbook/msoutlook/com/*.tlb"/>
       <arg value="${native_install_dir}/"/>
     </exec>
-    <fail message="Outlook2010MAPIHeaders not set!"
-        unless="Outlook2010MAPIHeaders" />
     <cc
         name="g++"
         objdir="${obj}"
-        outfile="${native_install_dir}/jmsoutlookaddrbookcomserver">
+        outfile="${native_install_dir}/jmsoutlookaddrbookcomserver32">
       <compilerarg value="-I${system.JAVA_HOME}/include" />
       <compilerarg value="-I${system.JAVA_HOME}/include/win32" />
       <compilerarg value="-I${Outlook2010MAPIHeaders}" />
-      <compilerarg value="-m32" if="cross_64" /> <!-- inverse cross compil /-->
-      <compilerarg value="-m64" if="cross_32" /> <!-- inverse cross compil /-->
-
+      <compilerarg value="-m32" />
       <compilerarg value="-O2" />
       <compilerarg value="-Wall" />
 
-      <linkerarg value="-ojmsoutlookaddrbookcomserver.exe" />
-      <linkerarg value="-m32" if="cross_64" /> <!-- inverse cross compil /-->
-      <linkerarg value="-m64" if="cross_32" /> <!-- inverse cross compil /-->
+      <linkerarg value="-ojmsoutlookaddrbookcomserver32.exe" />
+      <linkerarg value="-m32" />
       <libset libs="uuid, ole32, oleaut32, msi, stdc++" />
 
       <fileset dir="${src}/native/addrbook/msoutlook" includes="*.cxx" />
@@ -916,5 +917,33 @@
       <fileset dir="${src}/native/addrbook/msoutlook/com/server"
           includes="*.cxx" />
     </cc>
+    <exec executable="strip">
+      <arg value="-x"/>
+      <arg value="${native_install_dir}/jmsoutlookaddrbookcomserver32.exe"/>
+    </exec>
+    <cc
+        name="g++"
+        objdir="${obj}"
+        outfile="${native_install_dir}/jmsoutlookaddrbookcomserver64">
+      <compilerarg value="-I${system.JAVA_HOME}/include" />
+      <compilerarg value="-I${system.JAVA_HOME}/include/win32" />
+      <compilerarg value="-I${Outlook2010MAPIHeaders}" />
+      <compilerarg value="-m64" />
+      <compilerarg value="-O2" />
+      <compilerarg value="-Wall" />
+
+      <linkerarg value="-ojmsoutlookaddrbookcomserver64.exe" />
+      <linkerarg value="-m64" />
+      <libset libs="uuid, ole32, oleaut32, msi, stdc++" />
+
+      <fileset dir="${src}/native/addrbook/msoutlook" includes="*.cxx" />
+      <fileset dir="${src}/native/addrbook/msoutlook/com" includes="*.cxx" />
+      <fileset dir="${src}/native/addrbook/msoutlook/com/server"
+          includes="*.cxx" />
+    </cc>
+    <exec executable="strip">
+      <arg value="-x"/>
+      <arg value="${native_install_dir}/jmsoutlookaddrbookcomserver64.exe"/>
+    </exec>
   </target>
 </project>

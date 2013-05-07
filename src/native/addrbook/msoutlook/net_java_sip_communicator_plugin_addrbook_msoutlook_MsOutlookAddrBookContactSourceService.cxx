@@ -24,16 +24,7 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
       jniEnv,
       notificationsDelegate);
 
-    if(MAPIBitness_isOutlookBitnessCompatible())
-    {
-        hr = MsOutlookAddrBookContactSourceService_MAPIInitialize(
-                version,
-                flags);
-    }
-    else
-    {
-        hr = MsOutlookAddrBookContactSourceService_MAPIInitializeCOMServer();
-    }
+    hr = MsOutlookAddrBookContactSourceService_MAPIInitializeCOMServer();
 
     if (HR_FAILED(hr))
     {
@@ -51,6 +42,6 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
 {
     MAPINotification_unregisterJniNotificationsDelegate(jniEnv);
 
-    MsOutlookAddrBookContactSourceService_MAPIUninitialize();
+    MsOutlookAddrBookContactSourceService_MAPIUninitializeCOMServer();
 }
 

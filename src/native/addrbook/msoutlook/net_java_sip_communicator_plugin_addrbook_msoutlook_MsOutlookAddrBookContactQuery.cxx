@@ -31,22 +31,15 @@ JNIEXPORT jstring JNICALL Java_net_java_sip_communicator_plugin_addrbook_msoutlo
     jstring value = NULL;
     char* messageIdStr = NULL;
 
-    if(MAPIBitness_isOutlookBitnessCompatible())
+    IMsOutlookAddrBookServer * iServer = ComClient_getIServer();
+    if(iServer)
     {
-        messageIdStr = MsOutlookAddrBookContactQuery_createContact();
-    }
-    else
-    {
-        IMsOutlookAddrBookServer * iServer = ComClient_getIServer();
-        if(iServer)
+        BSTR id;
+        iServer->createContact(&id);
+        if(id != NULL)
         {
-            BSTR id;
-            iServer->createContact(&id);
-            if(id != NULL)
-            {
-                messageIdStr = StringUtils::WideCharToMultiByte(id);
-                SysFreeString(id);
-            }
+            messageIdStr = StringUtils::WideCharToMultiByte(id);
+            SysFreeString(id);
         }
     }
 
@@ -75,24 +68,18 @@ JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_plugin_addrbook_msoutl
     const char *nativeEntryId = jniEnv->GetStringUTFChars(id, NULL);
     jboolean res = JNI_FALSE;
 
-    if(MAPIBitness_isOutlookBitnessCompatible())
+    IMsOutlookAddrBookServer * iServer = ComClient_getIServer();
+    if(iServer)
     {
-        res = (MsOutlookAddrBookContactQuery_deleteContact(nativeEntryId) == 1);
-    }
-    else
-    {
-        IMsOutlookAddrBookServer * iServer = ComClient_getIServer();
-        if(iServer)
-        {
-            LPWSTR unicodeId = StringUtils::MultiByteToWideChar(nativeEntryId);
-            BSTR comId = SysAllocString(unicodeId);
+        LPWSTR unicodeId = StringUtils::MultiByteToWideChar(nativeEntryId);
+        BSTR comId = SysAllocString(unicodeId);
 
-            res = (iServer->deleteContact(comId) == S_OK);
+        res = (iServer->deleteContact(comId) == S_OK);
 
-            SysFreeString(comId);
-            free(unicodeId);
-        }
+        SysFreeString(comId);
+        free(unicodeId);
     }
+
     jniEnv->ReleaseStringUTFChars(id, nativeEntryId);
 
     return res;
@@ -107,25 +94,15 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
 {
     const char *nativeQuery = jniEnv->GetStringUTFChars(query, NULL);
 
-    if(MAPIBitness_isOutlookBitnessCompatible())
+    IMsOutlookAddrBookServer * iServer = ComClient_getIServer();
+    if(iServer)
     {
-        MsOutlookAddrBookContactQuery_foreachMailUser(
-                nativeQuery,
-                (void *) MAPINotification_callCallbackMethod,
-                (void *) callback);
-    }
-    else
-    {
-        IMsOutlookAddrBookServer * iServer = ComClient_getIServer();
-        if(iServer)
-        {
-            LPWSTR unicodeQuery = StringUtils::MultiByteToWideChar(nativeQuery);
-            BSTR comQuery = SysAllocString(unicodeQuery);
+        LPWSTR unicodeQuery = StringUtils::MultiByteToWideChar(nativeQuery);
+        BSTR comQuery = SysAllocString(unicodeQuery);
 
-            iServer->foreachMailUser(comQuery);
-            SysFreeString(comQuery);
-            free(unicodeQuery);
-        }
+        iServer->foreachMailUser(comQuery);
+        SysFreeString(comQuery);
+        free(unicodeQuery);
     }
 
     jniEnv->ReleaseStringUTFChars(query, nativeQuery);
@@ -149,25 +126,16 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
 
     const char *nativeEntryId = jniEnv->GetStringUTFChars(entryId, NULL);
 
-    if(MAPIBitness_isOutlookBitnessCompatible())
+    IMsOutlookAddrBookServer * iServer = ComClient_getIServer();
+    if(iServer)
     {
-        res = (MsOutlookAddrBookContactQuery_IMAPIProp_1DeleteProp(
-                    propId,
-                    nativeEntryId) == 1);
-    }
-    else
-    {
-        IMsOutlookAddrBookServer * iServer = ComClient_getIServer();
-        if(iServer)
-        {
-            LPWSTR unicodeId = StringUtils::MultiByteToWideChar(nativeEntryId);
-            BSTR comId = SysAllocString(unicodeId);
+        LPWSTR unicodeId = StringUtils::MultiByteToWideChar(nativeEntryId);
+        BSTR comId = SysAllocString(unicodeId);
 
-            res = (iServer->IMAPIProp_DeleteProp(propId, comId) == S_OK);
+        res = (iServer->IMAPIProp_DeleteProp(propId, comId) == S_OK);
 
-            SysFreeString(comId);
-            free(unicodeId);
-        }
+        SysFreeString(comId);
+        free(unicodeId);
     }
 
     jniEnv->ReleaseStringUTFChars(entryId, nativeEntryId);
@@ -195,30 +163,22 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
     const char *nativeEntryId = jniEnv->GetStringUTFChars(entryId, NULL);
     const char *nativeValue = jniEnv->GetStringUTFChars(value, NULL);
 
-    if(MAPIBitness_isOutlookBitnessCompatible())
+    IMsOutlookAddrBookServer * iServer = ComClient_getIServer();
+    if(iServer)
     {
-        res = (MsOutlookAddrBookContactQuery_IMAPIProp_1SetPropString
-                (propId, nativeValue, nativeEntryId) == 1);
-    }
-    else
-    {
-        IMsOutlookAddrBookServer * iServer = ComClient_getIServer();
-        if(iServer)
-        {
-            LPWSTR unicodeValue
-                = StringUtils::MultiByteToWideChar(nativeValue);
-            BSTR comValue = SysAllocString(unicodeValue);
-            LPWSTR unicodeId = StringUtils::MultiByteToWideChar(nativeEntryId);
-            BSTR comId = SysAllocString(unicodeId);
+        LPWSTR unicodeValue
+            = StringUtils::MultiByteToWideChar(nativeValue);
+        BSTR comValue = SysAllocString(unicodeValue);
+        LPWSTR unicodeId = StringUtils::MultiByteToWideChar(nativeEntryId);
+        BSTR comId = SysAllocString(unicodeId);
 
-            res = (iServer->IMAPIProp_SetPropString(propId, comValue, comId)
-                    == S_OK);
+        res = (iServer->IMAPIProp_SetPropString(propId, comValue, comId)
+                == S_OK);
 
-            SysFreeString(comId);
-            free(unicodeId);
-            SysFreeString(comValue);
-            free(unicodeValue);
-        }
+        SysFreeString(comId);
+        free(unicodeId);
+        SysFreeString(comValue);
+        free(unicodeValue);
     }
 
     jniEnv->ReleaseStringUTFChars(entryId, nativeEntryId);
@@ -267,78 +227,64 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
             if((propsType = (char*) malloc(propIdCount * sizeof(char)))
                     != NULL)
             {
-                if(MAPIBitness_isOutlookBitnessCompatible())
+                IMsOutlookAddrBookServer * iServer = ComClient_getIServer();
+                if(iServer)
                 {
-                    hr = MsOutlookAddrBookContactQuery_IMAPIProp_1GetProps(
-                            nativeEntryId,
+                    LPWSTR unicodeEntryId
+                        = StringUtils::MultiByteToWideChar(nativeEntryId);
+                    BSTR comEntryId = SysAllocString(unicodeEntryId);
+
+                    LPSAFEARRAY comPropIds
+                        = SafeArrayCreateVector(VT_I4, 0, propIdCount);
+                    SafeArrayLock(comPropIds);
+                    comPropIds->pvData = nativePropIds;
+                    SafeArrayUnlock(comPropIds);
+
+                    LPSAFEARRAY comProps;
+                    LPSAFEARRAY comPropsLength;
+                    LPSAFEARRAY comPropsType;
+
+                    hr = iServer->IMAPIProp_GetProps(
+                            comEntryId,
                             propIdCount,
-                            nativePropIds,
+                            comPropIds,
                             flags,
-                            props,
+                            &comProps,
+                            &comPropsLength,
+                            &comPropsType);
+
+                    SafeArrayLock(comPropsType);
+                    memcpy(
+                            propsType,
+                            comPropsType->pvData,
+                            propIdCount * sizeof(char));
+                    SafeArrayUnlock(comPropsType);
+                    SafeArrayDestroy(comPropsType);
+
+                    SafeArrayLock(comPropsLength);
+                    memcpy(
                             propsLength,
-                            propsType);
-                }
-                else
-                {
-                    IMsOutlookAddrBookServer * iServer = ComClient_getIServer();
-                    if(iServer)
+                            comPropsLength->pvData,
+                            propIdCount * sizeof(unsigned long));
+                    SafeArrayUnlock(comPropsLength);
+                    SafeArrayDestroy(comPropsLength);
+
+                    SafeArrayLock(comProps);
+                    byte * data = (byte*) comProps->pvData;
+                    for(int j = 0; j < propIdCount; ++j)
                     {
-                        LPWSTR unicodeEntryId
-                            = StringUtils::MultiByteToWideChar(nativeEntryId);
-                        BSTR comEntryId = SysAllocString(unicodeEntryId);
-
-                        LPSAFEARRAY comPropIds
-                            = SafeArrayCreateVector(VT_I4, 0, propIdCount);
-                        SafeArrayLock(comPropIds);
-                        comPropIds->pvData = nativePropIds;
-                        SafeArrayUnlock(comPropIds);
-
-                        LPSAFEARRAY comProps;
-                        LPSAFEARRAY comPropsLength;
-                        LPSAFEARRAY comPropsType;
-
-                        hr = iServer->IMAPIProp_GetProps(
-                                comEntryId,
-                                propIdCount,
-                                comPropIds,
-                                flags,
-                                &comProps,
-                                &comPropsLength,
-                                &comPropsType);
-
-                        SafeArrayLock(comPropsType);
-                        memcpy(
-                                propsType,
-                                comPropsType->pvData,
-                                propIdCount * sizeof(char));
-                        SafeArrayUnlock(comPropsType);
-                        SafeArrayDestroy(comPropsType);
-
-                        SafeArrayLock(comPropsLength);
-                        memcpy(
-                                propsLength,
-                                comPropsLength->pvData,
-                                propIdCount * sizeof(unsigned long));
-                        SafeArrayUnlock(comPropsLength);
-                        SafeArrayDestroy(comPropsLength);
-
-                        SafeArrayLock(comProps);
-                        byte * data = (byte*) comProps->pvData;
-                        for(int j = 0; j < propIdCount; ++j)
+                        if((props[j] = malloc(propsLength[j])) != NULL)
                         {
-                            if((props[j] = malloc(propsLength[j])) != NULL)
-                            {
-                                memcpy(props[j], data, propsLength[j]);
-                                data += propsLength[j];
-                            }
+                            memcpy(props[j], data, propsLength[j]);
+                            data += propsLength[j];
                         }
-                        SafeArrayUnlock(comProps);
-                        SafeArrayDestroy(comProps);
-
-                        SafeArrayDestroy(comPropIds);
-                        SysFreeString(comEntryId);
-                        free(unicodeEntryId);
                     }
+                    SafeArrayUnlock(comProps);
+                    SafeArrayDestroy(comProps);
+
+                    SafeArrayDestroy(comPropIds);
+                    SysFreeString(comEntryId);
+                    free(unicodeEntryId);
                 }
 
                 if(HR_SUCCEEDED(hr))

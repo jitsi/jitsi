@@ -19,26 +19,6 @@
  */
 
 /**
- * Returns the bitness of the current executable.
- *
- * @return 64 if the current executable is 64 bits. 32 otherwise.
- */
-int MAPIBitness_getExecutableBitnessVersion(void)
-{
-    char executable[FILENAME_MAX];
-    GetModuleFileName(NULL, executable, FILENAME_MAX);
-
-    DWORD type;
-    GetBinaryType(executable, &type);
-
-    if(type == SCS_64BIT_BINARY)
-    {
-        return 64;
-    }
-    return 32;
-}
-
-/**
  * Returns the bitness of the Outlook installation.
  *
  * @return 64 if Outlook 64 bits version is installed. 32 if Outlook 32 bits
@@ -81,19 +61,4 @@ int MAPIBitness_getOutlookBitnessVersion(void)
     }
 
     return -1;
-}
-
-/**
- * Tests if the bitness of the Outlook installation is identical to the current
- * executable.
- *
- * Returns 1 if the bitness of the Outlook installation is identical to the
- * current executable. 0 otherwise.
- */
-int MAPIBitness_isOutlookBitnessCompatible(void)
-{
-    int outlookVersion = MAPIBitness_getOutlookBitnessVersion();
-    int executableVersion = MAPIBitness_getExecutableBitnessVersion();
-
-    return (outlookVersion == executableVersion);
 }

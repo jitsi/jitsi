@@ -440,12 +440,11 @@ HRESULT MsOutlookAddrBookContactSourceService_MAPIInitialize
 }
 
 /**
- * Starts the COM server if the bitness of Jitsi is different from the Outlook
- * one (mapi32.dll).
+ * Starts the COM server.
  *
  * @return S_OK if eveything was fine. E_FAIL otherwise.
  */
-HRESULT MsOutlookAddrBookContactSourceService_MAPIInitializeCOMServer()
+HRESULT MsOutlookAddrBookContactSourceService_MAPIInitializeCOMServer(void)
 {
     HRESULT hr = E_FAIL;
 
@@ -464,50 +463,52 @@ HRESULT MsOutlookAddrBookContactSourceService_MAPIInitializeCOMServer()
 void MsOutlookAddrBookContactSourceService_MAPIUninitialize(void)
 {
     MAPISession_lock();
-    if(MAPIBitness_isOutlookBitnessCompatible())
+
+    LPMAPISESSION mapiSession = MAPISession_getMapiSession();
+    if(mapiSession != NULL)
     {
-        LPMAPISESSION mapiSession = MAPISession_getMapiSession();
-        if(mapiSession != NULL)
-        {
-            MAPINotification_unregisterNotifyAllMsgStores();
-            mapiSession->Logoff(0, 0, 0);
-            mapiSession->Release();
-            MAPISession_setMapiSession(NULL);
-        }
-
-        if(MsOutlookAddrBookContactSourceService_hMapiLib)
-        {
-            MsOutlookAddrBookContactSourceService_mapiUninitialize();
-
-            MsOutlookAddrBookContactSourceService_mapiInitialize = NULL;
-            MsOutlookAddrBookContactSourceService_mapiUninitialize = NULL;
-            MsOutlookAddrBookContactSourceService_mapiAllocateBuffer = NULL;
-            MsOutlookAddrBookContactSourceService_mapiFreeBuffer = NULL;
-            MsOutlookAddrBookContactSourceService_mapiLogonEx = NULL;
-            MsOutlookAddrBookContactSourceService_fBinFromHex = NULL;
-            MsOutlookAddrBookContactSourceService_freeProws = NULL;
-            MsOutlookAddrBookContactSourceService_hexFromBin = NULL;
-            MsOutlookAddrBookContactSourceService_hrAllocAdviseSink = NULL;
-            MsOutlookAddrBookContactSourceService_hrQueryAllRows = NULL;
-            ::FreeLibrary(MsOutlookAddrBookContactSourceService_hMapiLib);
-            MsOutlookAddrBookContactSourceService_hMapiLib = NULL;
-        }
+        MAPINotification_unregisterNotifyAllMsgStores();
+        mapiSession->Logoff(0, 0, 0);
+        mapiSession->Release();
+        MAPISession_setMapiSession(NULL);
     }
-    else
-    {
-        if(MsOutlookAddrBookContactSourceService_comServerHandle != NULL)
-        {
-            TerminateProcess(
-                    MsOutlookAddrBookContactSourceService_comServerHandle,
-                    1);
 
-            CloseHandle(MsOutlookAddrBookContactSourceService_comServerHandle);
-            MsOutlookAddrBookContactSourceService_comServerHandle = NULL;
-        }
-        ComClient_stop();
+    if(MsOutlookAddrBookContactSourceService_hMapiLib)
+    {
+        MsOutlookAddrBookContactSourceService_mapiUninitialize();
+
+        MsOutlookAddrBookContactSourceService_mapiInitialize = NULL;
+        MsOutlookAddrBookContactSourceService_mapiUninitialize = NULL;
+        MsOutlookAddrBookContactSourceService_mapiAllocateBuffer = NULL;
+        MsOutlookAddrBookContactSourceService_mapiFreeBuffer = NULL;
+        MsOutlookAddrBookContactSourceService_mapiLogonEx = NULL;
+        MsOutlookAddrBookContactSourceService_fBinFromHex = NULL;
+        MsOutlookAddrBookContactSourceService_freeProws = NULL;
+        MsOutlookAddrBookContactSourceService_hexFromBin = NULL;
+        MsOutlookAddrBookContactSourceService_hrAllocAdviseSink = NULL;
+        MsOutlookAddrBookContactSourceService_hrQueryAllRows = NULL;
+        ::FreeLibrary(MsOutlookAddrBookContactSourceService_hMapiLib);
+        MsOutlookAddrBookContactSourceService_hMapiLib = NULL;
     }
 
     MAPISession_unlock();
+}
+
+/**
+ * Stops the COM server.
+ */
+void MsOutlookAddrBookContactSourceService_MAPIUninitializeCOMServer(void)
+{
+    if(MsOutlookAddrBookContactSourceService_comServerHandle != NULL)
+    {
+        TerminateProcess(
+                MsOutlookAddrBookContactSourceService_comServerHandle,
+                1);
+
+        CloseHandle(MsOutlookAddrBookContactSourceService_comServerHandle);
+        MsOutlookAddrBookContactSourceService_comServerHandle = NULL;
+    }
+    ComClient_stop();
 }
 
 /**
@@ -535,7 +536,7 @@ HRESULT MsOutlookAddrBookContactSourceService_NativeMAPIInitialize
     return MsOutlookAddrBookContactSourceService_MAPIInitialize(version, flags);
 }
 
-void MsOutlookAddrBookContactSourceService_NativeMAPIUninitialize()
+void MsOutlookAddrBookContactSourceService_NativeMAPIUninitialize(void)
 {
     MAPINotification_unregisterNativeNotificationsDelegate();
 
@@ -588,7 +589,13 @@ MsOutlookAddrBookContactSourceService_isValidDefaultMailClient
 HRESULT MsOutlookAddrBookContactSourceService_startComServer(void)
 {
     // Start COM service
-    char applicationName[] = "jmsoutlookaddrbookcomserver.exe";
+    char applicationName32[] = "jmsoutlookaddrbookcomserver32.exe";
+    char applicationName64[] = "jmsoutlookaddrbookcomserver64.exe";
+    char * applicationName = applicationName32;
+    if(MAPIBitness_getOutlookBitnessVersion() == 64)
+    {
+        applicationName = applicationName64;
+    }
     int applicationNameLength = strlen(applicationName);
     char currentDirectory[FILENAME_MAX - applicationNameLength - 8];
     GetCurrentDirectory(

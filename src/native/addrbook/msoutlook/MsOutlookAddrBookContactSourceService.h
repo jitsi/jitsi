@@ -47,14 +47,16 @@ HRESULT MsOutlookAddrBook_mapiLogonEx
 HRESULT MsOutlookAddrBookContactSourceService_MAPIInitialize
     (jlong version, jlong flags);
 
-HRESULT MsOutlookAddrBookContactSourceService_MAPIInitializeCOMServer();
+HRESULT MsOutlookAddrBookContactSourceService_MAPIInitializeCOMServer(void);
 
 void MsOutlookAddrBookContactSourceService_MAPIUninitialize(void);
+
+void MsOutlookAddrBookContactSourceService_MAPIUninitializeCOMServer(void);
 
 HRESULT MsOutlookAddrBookContactSourceService_NativeMAPIInitialize
     (jlong version, jlong flags,
      void * deletedMethod, void * insertedMethod, void * updatedMethod);
 
-void MsOutlookAddrBookContactSourceService_NativeMAPIUninitialize();
+void MsOutlookAddrBookContactSourceService_NativeMAPIUninitialize(void);
 
 #endif

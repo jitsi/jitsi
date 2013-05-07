@@ -14,8 +14,6 @@
  * @author Vincent Lucas
  */
 
-int MAPIBitness_getExecutableBitnessVersion(void);
 int MAPIBitness_getOutlookBitnessVersion(void);
-int MAPIBitness_isOutlookBitnessCompatible(void);
 
 #endif
