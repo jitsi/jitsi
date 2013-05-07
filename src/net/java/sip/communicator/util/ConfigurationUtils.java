@@ -267,7 +267,7 @@ public class ConfigurationUtils
     /**
      * whether to show the status changed message in chat history area.
      */
-    private static boolean showStatusChangedInChat = true;
+    private static boolean showStatusChangedInChat = false;
 
     /**
      * When enabled, allow to use the additional phone numbers
