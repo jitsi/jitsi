@@ -244,6 +244,9 @@ public class InitialAccountRegistrationFrame
                 logger.error("GuiActivator : ", ex);
             }
         }
+
+        SimpleAccountRegistrationActivator.bundleContext
+            .addServiceListener(this);
     }
 
     /**
@@ -291,6 +294,12 @@ public class InitialAccountRegistrationFrame
             super(new BorderLayout(5, 5));
 
             this.wizard = accountWizard;
+
+            // Obtain the simple form in order to initialize all predefined
+            // values.
+            // TODO: Use the simple form instead of creating new fields and
+            // panels here.
+            wizard.getSimpleForm(false);
 
             JLabel protocolLabel = new JLabel();
             JPanel inputRegisterPanel = new JPanel(new BorderLayout());
@@ -497,7 +506,7 @@ public class InitialAccountRegistrationFrame
      */
     private void addAccountRegistrationForm(AccountRegistrationWizard wizard)
     {
-     // We don't need to add wizards that are not interested in a
+        // We don't need to add wizards that are not interested in a
         // simple sign in form.
         if (!wizard.isSimpleFormEnabled())
             return;
