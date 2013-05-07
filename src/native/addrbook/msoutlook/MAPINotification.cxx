@@ -9,6 +9,7 @@
 #include "MAPISession.h"
 #include "net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService.h"
 #include "net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactQuery.h"
+#include "MsOutlookAddrBookContactSourceService.h"
 
 #include <mapidefs.h>
 #include <stdio.h>
@@ -20,10 +21,6 @@
  *
  * @author Vincent Lucas
  */
-
-void MAPINotification_registerNotifyAllMsgStores(LPMAPISESSION mapiSession);
-
-void MAPINotification_unregisterNotifyAllMsgStores(void);
 
 /**
  * The List of events we want to retrieve.
@@ -46,15 +43,70 @@ static jobject MAPINotification_notificationsDelegateObject = NULL;
 static ULONG MAPINotification_openEntryUlFlags = MAPI_BEST_ACCESS;
 static JavaVM * MAPINotification_VM = NULL;
 
-void MAPINotification_callDeletedMethod(LPSTR iUnknown);
-void MAPINotification_callInsertedMethod(LPSTR iUnknown);
-void MAPINotification_callUpdatedMethod(LPSTR iUnknown);
+void (*MAPINotification_callDeletedMethod)(LPSTR iUnknown) = NULL;
+void (*MAPINotification_callInsertedMethod)(LPSTR iUnknown) = NULL;
+void (*MAPINotification_callUpdatedMethod)(LPSTR iUnknown) = NULL;
+
 LPUNKNOWN
 MAPINotification_openEntry
     (ULONG cbEntryID, LPENTRYID lpEntryID, LPVOID lpvContext);
+ULONG MAPINotification_registerNotifyMessageDataBase(LPMDB iUnknown);
 ULONG MAPINotification_registerNotifyTable(LPMAPITABLE iUnknown);
 LONG STDAPICALLTYPE MAPINotification_tableChanged
     (LPVOID lpvContext, ULONG cNotifications, LPNOTIFICATION lpNotifications);
+
+/**
+ * Calls back the java side to list a contact.
+ *
+ * @param iUnknown The string representation of the entry id of the contact.
+ * @param object The Java object used to call the callback method. If NULL, then
+ * call the inserted notification method.
+ *
+ * @return True everything works fine and that we must continue to list the
+ * other contacts. False otherwise.
+ */
+boolean MAPINotification_callCallbackMethod(LPSTR iUnknown, void * object)
+{
+    if(object == NULL)
+    {
+        MAPINotification_jniCallInsertedMethod(iUnknown);
+        return true;
+    }
+
+    boolean proceed = false;
+    JNIEnv *tmpJniEnv = NULL;
+
+    if(MAPINotification_VM
+            ->AttachCurrentThreadAsDaemon((void**) &tmpJniEnv, NULL) == 0)
+    {
+        if(object != NULL)
+        {
+            jclass callbackClass = tmpJniEnv->GetObjectClass((jobject) object);
+            if(callbackClass)
+            {
+                jmethodID ptrOutlookContactCallbackMethodIdCallback
+                    = tmpJniEnv->GetMethodID(
+                            callbackClass,
+                            "callback",
+                            "(Ljava/lang/String;)Z");
+
+                if(ptrOutlookContactCallbackMethodIdCallback)
+                {
+                    jstring value = tmpJniEnv->NewStringUTF(iUnknown);
+
+                    // Report the MAPI_MAILUSER to the callback.
+                    proceed = tmpJniEnv->CallBooleanMethod(
+                            (jobject) object,
+                            ptrOutlookContactCallbackMethodIdCallback,
+                            value);
+                }
+            }
+        }
+        MAPINotification_VM->DetachCurrentThread();
+    }
+
+    return proceed;
+}
 
 /**
  * Calls back the java side when a contact is deleted.
@@ -62,7 +114,7 @@ LONG STDAPICALLTYPE MAPINotification_tableChanged
  * @param iUnknown The string representation of the entry id of the deleted
  * contact.
  */
-void MAPINotification_callDeletedMethod(LPSTR iUnknown)
+void MAPINotification_jniCallDeletedMethod(LPSTR iUnknown)
 {
     JNIEnv *tmpJniEnv = NULL;
 
@@ -85,7 +137,7 @@ void MAPINotification_callDeletedMethod(LPSTR iUnknown)
  *
  * @param iUnknown A pointer to the newly created contact.
  */
-void MAPINotification_callInsertedMethod(LPSTR iUnknown)
+void MAPINotification_jniCallInsertedMethod(LPSTR iUnknown)
 {
     JNIEnv *tmpJniEnv = NULL;
 
@@ -108,7 +160,7 @@ void MAPINotification_callInsertedMethod(LPSTR iUnknown)
  *
  * @param iUnknown A pointer to the updated contact.
  */
-void MAPINotification_callUpdatedMethod(LPSTR iUnknown)
+void MAPINotification_jniCallUpdatedMethod(LPSTR iUnknown)
 {
     JNIEnv *tmpJniEnv = NULL;
 
@@ -153,14 +205,16 @@ STDAPICALLTYPE MAPINotification_onNotify
         {
             if(lpvContext != NULL)
             {
-                LPSTR entryIdStr = (LPSTR)::malloc(lpNotifications[i].info.obj.cbEntryID * 2 + 1);
+                LPSTR entryIdStr = (LPSTR)
+                    ::malloc(lpNotifications[i].info.obj.cbEntryID * 2 + 1);
 
                 HexFromBin(
                         (LPBYTE) lpNotifications[i].info.obj.lpEntryID,
                         lpNotifications[i].info.obj.cbEntryID,
                         entryIdStr);
 
-                if(lpNotifications[i].info.obj.ulObjType == MAPI_MESSAGE)
+                if(lpNotifications[i].info.obj.ulObjType == MAPI_MESSAGE
+                        && MAPINotification_callInsertedMethod != NULL)
                 {
                     MAPINotification_callInsertedMethod(entryIdStr);
                 }
@@ -174,14 +228,16 @@ STDAPICALLTYPE MAPINotification_onNotify
         {
             if(lpvContext != NULL)
             {
-                LPSTR entryIdStr = (LPSTR)::malloc(lpNotifications[i].info.obj.cbEntryID * 2 + 1);
+                LPSTR entryIdStr = (LPSTR)
+                    ::malloc(lpNotifications[i].info.obj.cbEntryID * 2 + 1);
 
                 HexFromBin(
                         (LPBYTE) lpNotifications[i].info.obj.lpEntryID,
                         lpNotifications[i].info.obj.cbEntryID,
                         entryIdStr);
 
-                if(lpNotifications[i].info.obj.ulObjType == MAPI_MESSAGE)
+                if(lpNotifications[i].info.obj.ulObjType == MAPI_MESSAGE
+                        && MAPINotification_callUpdatedMethod != NULL)
                 {
                     MAPINotification_callUpdatedMethod(entryIdStr);
                 }
@@ -195,14 +251,16 @@ STDAPICALLTYPE MAPINotification_onNotify
         {
             if(lpvContext != NULL)
             {
-                LPSTR entryIdStr = (LPSTR)::malloc(lpNotifications[i].info.obj.cbEntryID * 2 + 1);
+                LPSTR entryIdStr = (LPSTR)
+                    ::malloc(lpNotifications[i].info.obj.cbEntryID * 2 + 1);
 
                 HexFromBin(
                         (LPBYTE) lpNotifications[i].info.obj.lpEntryID,
                         lpNotifications[i].info.obj.cbEntryID,
                         entryIdStr);
 
-                if(lpNotifications[i].info.obj.ulObjType == MAPI_MESSAGE)
+                if(lpNotifications[i].info.obj.ulObjType == MAPI_MESSAGE
+                        && MAPINotification_callDeletedMethod != NULL)
                 {
                     MAPINotification_callDeletedMethod(entryIdStr);
                 }
@@ -216,14 +274,14 @@ STDAPICALLTYPE MAPINotification_onNotify
         {
             if(lpvContext != NULL)
             {
-                LPSTR entryIdStr
-                    = (LPSTR)::malloc(lpNotifications[i].info.obj.cbEntryID * 2 + 1);
+                LPSTR entryIdStr = (LPSTR)
+                    ::malloc(lpNotifications[i].info.obj.cbEntryID * 2 + 1);
                 HexFromBin(
                         (LPBYTE) lpNotifications[i].info.obj.lpEntryID,
                         lpNotifications[i].info.obj.cbEntryID,
                         entryIdStr);
-                LPSTR parentEntryIdStr
-                    = (LPSTR)::malloc(lpNotifications[i].info.obj.cbParentID * 2 + 1);
+                LPSTR parentEntryIdStr = (LPSTR)
+                    ::malloc(lpNotifications[i].info.obj.cbParentID * 2 + 1);
                 HexFromBin(
                         (LPBYTE) lpNotifications[i].info.obj.lpParentID,
                         lpNotifications[i].info.obj.cbParentID,
@@ -250,7 +308,8 @@ STDAPICALLTYPE MAPINotification_onNotify
 
 
                 if(lpNotifications[i].info.obj.ulObjType == MAPI_MESSAGE
-                        && strcmp(parentEntryIdStr, wasteBasketEntryIdStr) == 0)
+                        && strcmp(parentEntryIdStr, wasteBasketEntryIdStr) == 0
+                        && MAPINotification_callDeletedMethod != NULL)
                 {
                     MAPINotification_callDeletedMethod(entryIdStr);
                 }
@@ -307,13 +366,12 @@ MAPINotification_openEntry
  * updated.
  *
  * @param jniEnv The Java native interface environment.
- * @param mapiSession The current MAPI session.
  * @param notificationsDelegate The object called when a notification is fired
  * (contact updated, inserted or deleted).
  */
 void
-MAPINotification_registerNotificationsDelegate
-    (JNIEnv *jniEnv, LPMAPISESSION mapiSession, jobject notificationsDelegate)
+MAPINotification_registerJniNotificationsDelegate
+    (JNIEnv *jniEnv, jobject notificationsDelegate)
 {
     if(jniEnv->GetJavaVM(&MAPINotification_VM) < 0)
     {
@@ -323,9 +381,9 @@ MAPINotification_registerNotificationsDelegate
 
     // If this function is called once again, then check first to unregister
     // previous notification advises.
-    MAPINotification_unregisterNotificationsDelegate(jniEnv);
+    MAPINotification_unregisterJniNotificationsDelegate(jniEnv);
 
-    if(notificationsDelegate != NULL && mapiSession != NULL)
+    if(notificationsDelegate != NULL)
     {
         MAPINotification_notificationsDelegateObject
             = jniEnv->NewGlobalRef(notificationsDelegate);
@@ -348,15 +406,42 @@ MAPINotification_registerNotificationsDelegate
                         callbackClass,
                         "deleted",
                         "(Ljava/lang/String;)V");
-            // Register the notification of contact changed, created and
-            // deleted.
-            MAPINotification_registerNotifyAllMsgStores(mapiSession);
+
+            MAPINotification_callDeletedMethod
+                = MAPINotification_jniCallDeletedMethod;
+            MAPINotification_callInsertedMethod
+                = MAPINotification_jniCallInsertedMethod;
+            MAPINotification_callUpdatedMethod
+                = MAPINotification_jniCallUpdatedMethod;
         }
     }
 }
 
 /**
+ * Registers C callback functions when a contact is deleted, inserted or
+ * updated.
+ *
+ * @param deletedMethod The method to call when a contact has been deleted.
+ * @param insertedMethod The method to call when a contact has been inserted.
+ * @param updatedMethod The method to call when a contact has been updated.
+ */
+void
+MAPINotification_registerNativeNotificationsDelegate
+    (void * deletedMethod, void * insertedMethod, void *updatedMethod)
+{
+    // If this function is called once again, then check first to unregister
+    // previous notification advises.
+    MAPINotification_unregisterNativeNotificationsDelegate();
+
+    MAPINotification_callDeletedMethod = (void (*)(char*)) deletedMethod;
+    MAPINotification_callInsertedMethod = (void (*)(char*)) insertedMethod;
+    MAPINotification_callUpdatedMethod = (void (*)(char*)) updatedMethod;
+}
+
+/**
  * Opens all the message store and register to notifications.
+ *
+ * @param mapiSession The current MAPI session.
  */
 void MAPINotification_registerNotifyAllMsgStores(LPMAPISESSION mapiSession)
 {
@@ -525,9 +610,8 @@ STDAPICALLTYPE MAPINotification_tableChanged
  *
  * @param jniEnv The Java native interface environment.
  */
-void MAPINotification_unregisterNotificationsDelegate(JNIEnv *jniEnv)
+void MAPINotification_unregisterJniNotificationsDelegate(JNIEnv *jniEnv)
 {
-    MAPINotification_unregisterNotifyAllMsgStores();
     if(MAPINotification_notificationsDelegateObject != NULL)
     {
         jniEnv->DeleteGlobalRef(MAPINotification_notificationsDelegateObject);
@@ -536,6 +620,14 @@ void MAPINotification_unregisterNotificationsDelegate(JNIEnv *jniEnv)
         MAPINotification_notificationsDelegateMethodIdUpdated = NULL;
         MAPINotification_notificationsDelegateMethodIdDeleted = NULL;
     }
+}
+
+/**
+ * Unregisters C callback functions when a contact is deleted, inserted or
+ * updated.
+ */
+void MAPINotification_unregisterNativeNotificationsDelegate()
+{
 }
 
 /**

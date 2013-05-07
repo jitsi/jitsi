@@ -44,41 +44,6 @@ AddrBookContactQuery_getPtrCallbackMethodID(JNIEnv *jniEnv, jobject callback)
     return callbackMethodID;
 }
 
-jmethodID
-AddrBookContactQuery_getStringCallbackMethodID(
-        JNIEnv *jniEnv, jobject callback)
-{
-    jclass callbackClass;
-    jmethodID callbackMethodID = 0;
-
-    /*
-     * Make sure that the specified arguments are valid. For example, check
-     * whether callback exists and has the necessary signature.
-     */
-    if (callback)
-    {
-        callbackClass = (*jniEnv)->GetObjectClass(jniEnv, callback);
-        if (callbackClass)
-        {
-            callbackMethodID
-                = (*jniEnv)->GetMethodID(
-                        jniEnv,
-                        callbackClass, "callback", "(Ljava/lang/String;)Z");
-            if (!callbackMethodID)
-            {
-                Exception_throwNew(
-                    jniEnv, "java/lang/IllegalArgumentException", "callback");
-            }
-        }
-    }
-    else
-    {
-        Exception_throwNew(
-            jniEnv, "java/lang/NullPointerException", "callback");
-    }
-    return callbackMethodID;
-}
-
 static void
 Exception_throwNew(JNIEnv *jniEnv, const char *className, const char *message)
 {

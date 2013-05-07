@@ -12,22 +12,39 @@
 extern "C" {
 #endif
 
-#include "MsOutlookMAPI.h"
-
 #include <jni.h>
 #include <mapidefs.h>
+#include <mapix.h>
+
+/**
+ * Manages notification for the message data base (used to get the list of
+ * contact).
+ *
+ * @author Vincent Lucas
+ */
+
+boolean MAPINotification_callCallbackMethod(LPSTR iUnknown, void * object);
+
+void MAPINotification_jniCallDeletedMethod(LPSTR iUnknown);
+void MAPINotification_jniCallInsertedMethod(LPSTR iUnknown);
+void MAPINotification_jniCallUpdatedMethod(LPSTR iUnknown);
 
 LONG
 STDAPICALLTYPE MAPINotification_onNotify
     (LPVOID lpvContext, ULONG cNotifications, LPNOTIFICATION lpNotifications);
 
 void
-MAPINotification_registerNotificationsDelegate
-    (JNIEnv *jniEnv, LPMAPISESSION, jobject);
+MAPINotification_registerJniNotificationsDelegate
+    (JNIEnv *jniEnv, jobject notificationsDelegate);
+void
+MAPINotification_registerNativeNotificationsDelegate
+    (void * deletedMethod, void * insertedMethod, void *updatedMethod);
+void MAPINotification_registerNotifyAllMsgStores(LPMAPISESSION mapiSession);
 
-ULONG MAPINotification_registerNotifyMessageDataBase (LPMDB iUnknown);
+void MAPINotification_unregisterJniNotificationsDelegate(JNIEnv *jniEnv);
+void MAPINotification_unregisterNativeNotificationsDelegate();
+void MAPINotification_unregisterNotifyAllMsgStores(void);
 
-void MAPINotification_unregisterNotificationsDelegate (JNIEnv *jniEnv);
 
 #ifdef __cplusplus
 }

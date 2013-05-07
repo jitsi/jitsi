@@ -850,7 +850,8 @@
       description="Build jmsoutlookaddrbook shared library for Windows"
       if="is.running.windows"
       depends="init-native">
-    <fail message="Outlook2010MAPIHeaders not set!" unless="Outlook2010MAPIHeaders" />
+    <fail message="Outlook2010MAPIHeaders not set!"
+        unless="Outlook2010MAPIHeaders" />
     <cc
         name="gcc"
         objdir="${obj}"
@@ -872,10 +873,48 @@
       <linkerarg value="-m64" if="cross_64" />
       <linkerarg value="-Wl,--kill-at" />
       <linkerarg value="-Wl,--subsystem,windows" />
-      <libset libs="advapi32,uuid" />
+      <libset libs="advapi32, uuid, ole32, oleaut32, msi, stdc++" />
 
       <fileset dir="${src}/native/addrbook" includes="*.c" />
       <fileset dir="${src}/native/addrbook/msoutlook" includes="*.cxx" />
+      <fileset dir="${src}/native/addrbook/msoutlook/com/" includes="*.cxx" />
+    </cc>
+  </target>
+
+  <!-- compile msoutlookaddrbookserver executable for Windows -->
+  <target
+      name="msoutlookaddrbookcomserver"
+      description="Build jmsoutlookaddrbookcomserver executable for Windows"
+      if="is.running.windows"
+      depends="init-native">
+    <exec executable="cp">
+      <arg value="${src}/native/addrbook/msoutlook/com/*.tlb"/>
+      <arg value="${native_install_dir}/"/>
+    </exec>
+    <fail message="Outlook2010MAPIHeaders not set!"
+        unless="Outlook2010MAPIHeaders" />
+    <cc
+        name="g++"
+        objdir="${obj}"
+        outfile="${native_install_dir}/jmsoutlookaddrbookcomserver">
+      <compilerarg value="-I${system.JAVA_HOME}/include" />
+      <compilerarg value="-I${system.JAVA_HOME}/include/win32" />
+      <compilerarg value="-I${Outlook2010MAPIHeaders}" />
+      <compilerarg value="-m32" if="cross_64" /> <!-- inverse cross compil /-->
+      <compilerarg value="-m64" if="cross_32" /> <!-- inverse cross compil /-->
+
+      <compilerarg value="-O2" />
+      <compilerarg value="-Wall" />
+
+      <linkerarg value="-ojmsoutlookaddrbookcomserver.exe" />
+      <linkerarg value="-m32" if="cross_64" /> <!-- inverse cross compil /-->
+      <linkerarg value="-m64" if="cross_32" /> <!-- inverse cross compil /-->
+      <libset libs="uuid, ole32, oleaut32, msi, stdc++" />
+
+      <fileset dir="${src}/native/addrbook/msoutlook" includes="*.cxx" />
+      <fileset dir="${src}/native/addrbook/msoutlook/com" includes="*.cxx" />
+      <fileset dir="${src}/native/addrbook/msoutlook/com/server"
+          includes="*.cxx" />
     </cc>
   </target>
 </project>

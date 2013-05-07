@@ -19,7 +19,8 @@ JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_plugin_addrbook_msoutl
  * Method:    foreachMailUser
  * Signature: (Ljava/lang/String;Lnet/java/sip/communicator/plugin/addrbook/PtrCallback;)V
  */
-JNIEXPORT void JNICALL Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactQuery_foreachMailUser
+JNIEXPORT void JNICALL
+    Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactQuery_foreachMailUser
   (JNIEnv *, jclass, jstring, jobject);
 
 JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactQuery_IMAPIProp_1DeleteProp

@@ -1,0 +1,35 @@
+import "Unknwn.idl", "oaidl.idl";
+
+[
+    object,
+    uuid(D579E840-B1A6-11E2-9E96-0800200C9A66),
+    dual,
+    oleautomation
+]
+
+interface IMsOutlookAddrBookClient : IUnknown
+{
+    HRESULT foreachMailUserCallback(
+            [in] BSTR id);
+
+    HRESULT deleted(
+            [in] BSTR id);
+    HRESULT inserted(
+            [in] BSTR id);
+    HRESULT updated(
+            [in] BSTR id);
+};
+
+
+
+[
+    uuid(e361a5b0-b1c4-11e2-9e96-0800200c9a66),
+    version(1.0),
+    helpstring("IMsOutlookAddrBookClient Type Library"),
+]
+
+library IMsOutlookAddrBookClientTypeLib
+{
+    importlib("stdole32.tlb");
+    interface IMsOutlookAddrBookClient;
+};

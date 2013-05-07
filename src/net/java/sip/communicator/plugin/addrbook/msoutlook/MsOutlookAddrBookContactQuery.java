@@ -968,18 +968,27 @@ public class MsOutlookAddrBookContactQuery
      */
     public void inserted(String id)
     {
-        try
+        SourceContact sourceContact = findSourceContactByID(id);
+        if(sourceContact != null
+                && sourceContact instanceof MsOutlookAddrBookSourceContact)
         {
-            onMailUser(id);
+            updated(id);
         }
-        catch (MsOutlookMAPIHResultException e)
+        else
         {
-            if (logger.isDebugEnabled())
+            try
             {
-                logger.debug(
-                        MsOutlookAddrBookContactQuery.class.getSimpleName()
-                        + "#onMailUser(String)",
-                        e);
+                onMailUser(id);
+            }
+            catch (MsOutlookMAPIHResultException e)
+            {
+                if (logger.isDebugEnabled())
+                {
+                    logger.debug(
+                            MsOutlookAddrBookContactQuery.class.getSimpleName()
+                            + "#onMailUser(String)",
+                            e);
+                }
             }
         }
     }
@@ -991,8 +1000,7 @@ public class MsOutlookAddrBookContactQuery
      */
     public void updated(String id)
     {
-        SourceContact sourceContact
-            = findSourceContactByID(id);
+        SourceContact sourceContact = findSourceContactByID(id);
         if(sourceContact != null
                 && sourceContact instanceof MsOutlookAddrBookSourceContact)
         {

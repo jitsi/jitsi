@@ -4,28 +4,10 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
+#ifndef _NET_JAVA_SIP_COMMUNICATOR_PLUGIN_ADDRBOOK_MSOUTLOOK_MSOUTLOOKADDRBOOKCONTACTSOURCESERVICE_H_
+#define _NET_JAVA_SIP_COMMUNICATOR_PLUGIN_ADDRBOOK_MSOUTLOOK_MSOUTLOOKADDRBOOKCONTACTSOURCESERVICE_H_
 
-#ifndef _NET_JAVA_SIP_COMMUNICATOR_PLUGIN_ADDRBOOK_MSOUTLOOK_MSOUTLOOKMAPI_H_
-#define _NET_JAVA_SIP_COMMUNICATOR_PLUGIN_ADDRBOOK_MSOUTLOOK_MSOUTLOOKMAPI_H_
-
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-
-#ifndef __in
-#define __in
-#endif /* #ifndef __in */
-#ifndef __in_opt
-#define __in_opt
-#endif /* #ifndef __in_opt */
-#ifndef __out
-#define __out
-#endif /* #ifndef __out */
-
-#if defined(_WINBASE_H) && !defined(_WINBASE_)
-#define _tagCY_DEFINED
-#define _WINBASE_
-#endif
-#include <mapitags.h>
+#include <jni.h>
 #include <mapix.h>
 
 BOOL MsOutlookAddrBook_fBinFromHex(LPSTR lpsz, LPBYTE lpb);
@@ -61,4 +43,18 @@ HRESULT MsOutlookAddrBook_mapiLogonEx
     LPMAPISESSION FAR *mapiSession);
 #define MAPILogonEx MsOutlookAddrBook_mapiLogonEx
 
-#endif /* #ifndef _NET_JAVA_SIP_COMMUNICATOR_PLUGIN_ADDRBOOK_MSOUTLOOK_MSOUTLOOKMAPI_H_ */
+
+HRESULT MsOutlookAddrBookContactSourceService_MAPIInitialize
+    (jlong version, jlong flags);
+
+HRESULT MsOutlookAddrBookContactSourceService_MAPIInitializeCOMServer();
+
+void MsOutlookAddrBookContactSourceService_MAPIUninitialize(void);
+
+HRESULT MsOutlookAddrBookContactSourceService_NativeMAPIInitialize
+    (jlong version, jlong flags,
+     void * deletedMethod, void * insertedMethod, void * updatedMethod);
+
+void MsOutlookAddrBookContactSourceService_NativeMAPIUninitialize();
+
+#endif

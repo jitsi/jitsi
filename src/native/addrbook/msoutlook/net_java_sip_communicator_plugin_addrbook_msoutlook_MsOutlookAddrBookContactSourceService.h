@@ -8,14 +8,13 @@
 extern "C" {
 #endif
 
-#include "MsOutlookMAPI.h"
-
 /*
  * Class:     net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService
  * Method:    MAPIInitialize
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService_MAPIInitialize
+JNIEXPORT void JNICALL
+    Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService_MAPIInitialize
   (JNIEnv *, jclass, jlong, jlong, jobject);
 
 /*
