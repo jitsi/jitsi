@@ -48,6 +48,7 @@ int MAPIBitness_getOutlookBitnessVersion(void)
 {
     int nbOutlookRegister = 3;
     TCHAR outlookRegister[][MAX_PATH] = {
+        TEXT("{E83B4360-C208-4325-9504-0D23003A74A5}"), // Outlook 2013
         TEXT("{1E77DE88-BCAB-4C37-B9E5-073AF52DFD7A}"), // Outlook 2010
         TEXT("{24AAE126-0911-478F-A019-07B875EB9996}"), // Outlook 2007
         TEXT("{BC174BAD-2F53-4855-A1D5-0D575C19B1EA}")  // Outlook 2003
