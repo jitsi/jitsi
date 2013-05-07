@@ -38,6 +38,7 @@ static HMODULE MsOutlookAddrBookContactSourceService_hMapiLib = NULL;
 static jboolean
 MsOutlookAddrBookContactSourceService_isValidDefaultMailClient
     (LPCTSTR name, DWORD nameLength);
+HRESULT MsOutlookAddrBookContactSourceService_startComServer(void);
 
 HRESULT MsOutlookAddrBookContactSourceService_MAPIInitialize
     (jlong version, jlong flags)
@@ -451,35 +452,7 @@ HRESULT MsOutlookAddrBookContactSourceService_MAPIInitializeCOMServer()
     MAPISession_lock();
 
     // Start COM service
-    char applicationName[] = "native/jmsoutlookaddrbookcomserver.exe";
-    int applicationNameLength = strlen(applicationName);
-    char currentDirectory[FILENAME_MAX - applicationNameLength];
-    GetCurrentDirectory(
-            FILENAME_MAX - applicationNameLength,
-            currentDirectory);
-    char comServer[FILENAME_MAX];
-    sprintf(comServer, "%s/%s", currentDirectory, applicationName);
-
-    STARTUPINFO startupInfo;
-    PROCESS_INFORMATION processInfo;
-    memset(&startupInfo, 0, sizeof(startupInfo));
-    memset(&processInfo, 0, sizeof(processInfo));
-    startupInfo.dwFlags = STARTF_USESHOWWINDOW;
-    startupInfo.wShowWindow = SW_HIDE;
-
-    // Create the COM server
-    if(CreateProcess(
-                NULL,
-                comServer,
-                NULL, NULL, false, 0, NULL, NULL,
-                &startupInfo,
-                &processInfo))
-    {
-        MsOutlookAddrBookContactSourceService_comServerHandle
-            = processInfo.hProcess;
-        hr = S_OK;
-    }
-
+    hr = MsOutlookAddrBookContactSourceService_startComServer();
     // Start COM client
     ComClient_start();
 
@@ -605,6 +578,54 @@ MsOutlookAddrBookContactSourceService_isValidDefaultMailClient
         }
     }
     return validDefaultMailClient;
+}
+
+/**
+ * Starts the COM server.
+ *
+ * @param S_OK if the server started correctly. E_FAIL otherwise.
+ */
+HRESULT MsOutlookAddrBookContactSourceService_startComServer(void)
+{
+    // Start COM service
+    char applicationName[] = "jmsoutlookaddrbookcomserver.exe";
+    int applicationNameLength = strlen(applicationName);
+    char currentDirectory[FILENAME_MAX - applicationNameLength - 8];
+    GetCurrentDirectory(
+            FILENAME_MAX - applicationNameLength - 8,
+            currentDirectory);
+    char comServer[FILENAME_MAX];
+    sprintf(comServer, "%s/native/%s", currentDirectory, applicationName);
+
+    STARTUPINFO startupInfo;
+    PROCESS_INFORMATION processInfo;
+    memset(&startupInfo, 0, sizeof(startupInfo));
+    memset(&processInfo, 0, sizeof(processInfo));
+    startupInfo.dwFlags = STARTF_USESHOWWINDOW;
+    startupInfo.wShowWindow = SW_HIDE;
+
+    // Test 2 files: 0 for the build version, 1 for the git source version.
+    char * serverExec[2];
+    serverExec[0] = comServer;
+    serverExec[1] = applicationName;
+    for(int i = 0; i < 2; ++i)
+    {
+        // Create the COM server
+        if(CreateProcess(
+                    NULL,
+                    serverExec[i],
+                    NULL, NULL, false, 0, NULL, NULL,
+                    &startupInfo,
+                    &processInfo))
+        {
+            MsOutlookAddrBookContactSourceService_comServerHandle
+                = processInfo.hProcess;
+
+            return S_OK;
+        }
+    }
+
+    return E_FAIL;
 }
 
 BOOL MsOutlookAddrBook_fBinFromHex(LPSTR lpsz, LPBYTE lpb)

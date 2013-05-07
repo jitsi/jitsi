@@ -38,28 +38,35 @@ LPTYPELIB TypeLib_loadRegTypeLib(WCHAR* path)
     free(applicationName);
     LPWSTR libPathW = StringUtils::MultiByteToWideChar(libPath);
 
-    if(SUCCEEDED(::LoadTypeLibEx(libPathW, REGKIND_NONE, &iTypeLib)))
+    // Test 2 files: 0 for the build version, 1 for the git source version.
+    LPWSTR libPathList[2];
+    libPathList[0] = libPathW;
+    libPathList[1] = path;
+    for(int i = 0; i < 2 && iTypeLib == NULL; ++i)
     {
-        HMODULE oleaut32 = ::GetModuleHandle(_T("oleaut32.dll"));
-
-        if (oleaut32)
+        if(SUCCEEDED(::LoadTypeLibEx(libPathList[i], REGKIND_NONE, &iTypeLib)))
         {
-            typedef HRESULT (WINAPI *RTLFU)(LPTYPELIB,LPOLESTR,LPOLESTR);
-            RTLFU registerTypeLibForUser
-                = (RTLFU) ::GetProcAddress(oleaut32, "RegisterTypeLibForUser");
+            HMODULE oleaut32 = ::GetModuleHandle(_T("oleaut32.dll"));
 
-            if (registerTypeLibForUser)
+            if (oleaut32)
             {
-                registerTypeLibForUser(iTypeLib, libPathW, NULL);
+                typedef HRESULT (WINAPI *RTLFU)(LPTYPELIB,LPOLESTR,LPOLESTR);
+                RTLFU registerTypeLibForUser = (RTLFU)
+                    ::GetProcAddress(oleaut32, "RegisterTypeLibForUser");
+
+                if (registerTypeLibForUser)
+                {
+                    registerTypeLibForUser(iTypeLib, libPathList[i], NULL);
+                }
+                else
+                {
+                    iTypeLib = NULL;
+                }
             }
             else
             {
                 iTypeLib = NULL;
             }
-        }
-        else
-        {
-            iTypeLib = NULL;
         }
     }
     free(libPathW);
