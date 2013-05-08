@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.gui.main.call;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
@@ -96,7 +97,8 @@ public class UIPhoneUtil
                                     " (" + getLocalizedPhoneNumber(d) + ")",
                                     null,
                                     new ArrayList<String>(),
-                                    null,
+                                    GuiActivator.getResources().getImage(
+                                        "service.gui.icons.EXTERNAL_PHONE"),
                                     null,
                                     null,
                                     pnd)

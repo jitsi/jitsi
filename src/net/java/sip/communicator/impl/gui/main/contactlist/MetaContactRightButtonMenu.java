@@ -715,7 +715,8 @@ public class MetaContactRightButtonMenu
             {
                 JMenuItem menuItem = createMenuItem( phone,
                     callPhonePrefix + p,
-                    null);
+                    GuiActivator.getResources().getImage(
+                        "service.gui.icons.EXTERNAL_PHONE"));
                 menuItem.setBorder(
                     BorderFactory.createEmptyBorder(0, 20, 0, 0));
 
