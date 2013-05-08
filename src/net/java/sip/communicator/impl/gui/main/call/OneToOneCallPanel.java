@@ -145,7 +145,8 @@ public class OneToOneCallPanel
             peerPanel = new OneToOneCallPeerPanel(this, peer, uiVideoHandler);
 
             /* Create the main Components of the UI. */
-            nameLabel.setText(getPeerDisplayText(peer, peer.getDisplayName()));
+            nameLabel.setText(
+                getPeerDisplayText(peer, CallManager.getPeerDisplayName(peer)));
 
             topBar = createTopComponent();
             topBar.setVisible(!isFullScreen());

@@ -1311,7 +1311,15 @@ public class CallManager
      */
     public static String getPeerDisplayName(CallPeer peer)
     {
-        String displayName = peer.getDisplayName();
+        String displayName = null;
+
+        // We try to find the <tt>UIContact</tt>, to which the call was
+        // created if this was an outgoing call.
+        UIContactImpl uiContact
+            = CallManager.getCallUIContact(peer.getCall());
+
+        if (uiContact != null)
+            displayName = uiContact.getDisplayName();
 
         // We search for a contact corresponding to this call peer and
         // try to get its display name.
@@ -1319,17 +1327,6 @@ public class CallManager
             && peer.getContact() != null)
         {
             displayName = peer.getContact().getDisplayName();
-        }
-
-        // We try to find the <tt>UIContact</tt>, to which the call was
-        // created if this was an outgoing call.
-        if (StringUtils.isNullOrEmpty(displayName, true))
-        {
-            UIContactImpl uiContact
-                = CallManager.getCallUIContact(peer.getCall());
-
-            if (uiContact != null)
-                displayName = uiContact.getDisplayName();
         }
 
         // We try to find the an alternative peer address.
@@ -1371,7 +1368,10 @@ public class CallManager
         }
 
         if (StringUtils.isNullOrEmpty(displayName, true))
-            displayName = peer.getAddress();
+            displayName = (!StringUtils.isNullOrEmpty
+                            (peer.getDisplayName(), true))
+                            ? peer.getDisplayName()
+                            : peer.getAddress();
 
         return displayName;
     }
