@@ -202,6 +202,10 @@ public class ChatTransportSelectorBox
                                     chatTransport,
                                     (ImageIcon) menuItem.getIcon());
 
+                chatSession.getChatSessionRenderer()
+                    .setChatIcon(new ImageIcon(
+                        Constants.getStatusIcon(chatTransport.getStatus())));
+
                 return;
             }
         }

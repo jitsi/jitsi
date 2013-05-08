@@ -1989,6 +1989,9 @@ public class ChatPanel
 
         writeMessagePanel.updateChatTransportStatus(chatTransport);
 
+        if (!chatTransport.equals(chatSession.getCurrentChatTransport()))
+            return;
+
         if(ConfigurationUtils.isShowStatusChangedInChat())
         {
             // Show a status message to the user.
@@ -2002,13 +2005,22 @@ public class ChatPanel
                     "text/plain");
         }
 
+        setChatIcon(new ImageIcon(
+            Constants.getStatusIcon(chatTransport.getStatus())));
+    }
+
+    /**
+     * Sets the chat icon.
+     *
+     * @param icon the chat icon to set
+     */
+    public void setChatIcon(Icon icon)
+    {
         if(ConfigurationUtils.isMultiChatWindowEnabled())
         {
             if (getChatContainer().getChatCount() > 0)
             {
-                getChatContainer().setChatIcon(this,
-                    new ImageIcon(
-                        Constants.getStatusIcon(chatTransport.getStatus())));
+                getChatContainer().setChatIcon(this, icon);
             }
         }
     }
