@@ -301,15 +301,36 @@ public class MetaContactPhoneUtil
      */
     public boolean isCallEnabled(DetailsResponseListener listener)
     {
+        return isCallEnabled(listener, true);
+    }
+
+    /**
+     * Is call enabled for metaContact. If any of the child
+     * contacts has call enabled.
+     * @param listener the <tt>DetailsResponseListener</tt> to listen for result
+     * details
+     * @param checkForTelephonyOpSet whether we should check for registered
+     * telephony operation sets that can be used to dial out, can be used
+     * in plugins dialing out using methods outside the provider.
+     * @return is call enabled for metaContact.
+     */
+    public boolean isCallEnabled(DetailsResponseListener listener,
+                                 boolean checkForTelephonyOpSet)
+    {
         // make sure children are checked
         if(!checkMetaContactPhones(listener))
             return false;
 
+         boolean hasPhoneCheck = hasPhones;
+
+         if(checkForTelephonyOpSet)
+             hasPhoneCheck =
+                 hasPhones && AccountUtils.getRegisteredProviders(
+                     OperationSetBasicTelephony.class).size() > 0;
+
         return metaContact.getDefaultContact(
                     OperationSetBasicTelephony.class) != null
-               || (hasPhones
-                    && AccountUtils.getRegisteredProviders(
-                        OperationSetBasicTelephony.class).size() > 0);
+               || hasPhoneCheck;
     }
 
     /**
@@ -319,7 +340,21 @@ public class MetaContactPhoneUtil
      */
     public boolean isCallEnabled()
     {
-        return isCallEnabled((DetailsResponseListener) null);
+        return isCallEnabled(null, true);
+    }
+
+    /**
+     * Is call enabled for metaContact. If any of the child
+     * contacts has call enabled.
+     * @param checkForTelephonyOpSet whether we should check for registered
+     * telephony operation sets that can be used to dial out, can be used
+     * in plugins dialing out using methods outside the provider.
+     * @return is call enabled for metaContact.
+     */
+    public boolean isCallEnabled(boolean checkForTelephonyOpSet)
+    {
+        return isCallEnabled(null,
+            checkForTelephonyOpSet);
     }
 
     /**
