@@ -72,4 +72,57 @@ public interface AlertUIService
     public void showAlertDialog(String title,
                                 String message,
                                 int type);
+    
+    /**
+     * Shows an notification pop-up which can be clicked. An error dialog is 
+     * shown when the notification is clicked.
+     *
+     * @param title the title of the error dialog and the notification pop-up
+     * @param message the message to be displayed in the error dialog and the 
+     * pop-up
+     */
+    public void showPopUpNotification(String title, String message);
+    
+    /**
+     * Shows an notification pop-up which can be clicked. An error dialog is 
+     * shown when the notification is clicked.
+     *
+     * @param title the title of the error dialog and the notification pop-up
+     * @param message the message to be displayed in the error dialog and the 
+     * pop-up
+     * @param e the exception that can be shown in the error dialog
+     */
+    public void showPopUpNotification(String title, String message, 
+                                        Throwable e);
+    
+    /**
+     * Shows an notification pop-up which can be clicked. An error dialog is 
+     * shown when the notification is clicked.
+     *
+     * @param title the title of the notification pop-up
+     * @param message the message of the pop-up
+     * @param errorDialogTitle the title of the error dialog
+     * @param errorDialogMessage the message of the error dialog
+     */
+    public void showPopUpNotification(String title, String message, 
+        String errorDialogTitle, String errorDialogMessage);
+    
+    /**
+     * Shows an notification pop-up which can be clicked. An error dialog is 
+     * shown when the notification is clicked.
+     *
+     * @param title the title of the notification pop-up
+     * @param message the message of the pop-up
+     * @param errorDialogTitle the title of the error dialog
+     * @param errorDialogMessage the message of the error dialog
+     * @param e the exception that can be shown in the error dialog
+     */
+    public void showPopUpNotification(String title, String message, 
+        String errorDialogTitle, String errorDialogMessage, Throwable e);
+    
+    /**
+     * Releases the resources acquired by this instance throughout its lifetime
+     * and removes the listeners.
+     */
+    public void dispose();
 }

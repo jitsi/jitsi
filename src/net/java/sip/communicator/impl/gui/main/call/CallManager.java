@@ -2849,6 +2849,14 @@ public class CallManager
                     logger.error(
                         "Failed to toggle the streaming of local video.",
                         ex);
+                    ResourceManagementService resources
+                        = GuiActivator.getResources();
+                    String title = resources.getI18NString(
+                        "service.gui.LOCAL_VIDEO_ERROR_TITLE");
+                    String message = resources.getI18NString(
+                        "service.gui.LOCAL_VIDEO_ERROR_MESSAGE");
+                    GuiActivator.getAlertUIService().showPopUpNotification(
+                        title, message, ex);
                 }
             }
 
