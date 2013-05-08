@@ -97,7 +97,9 @@ public class AudioConferenceCallPanel
         scrollPane = new JScrollPane();
         scrollPane.setHorizontalScrollBarPolicy(
                 JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        scrollPane.setViewport(new MyViewport());
+//        Temporarily disables the custom viewport, as we believe the issues it
+//        was fixing are now fixed by calling pack() on the parent window.
+//        scrollPane.setViewport(new MyViewport());
         scrollPane.setViewportView(mainPanel);
 
         scrollPane.setOpaque(false);
