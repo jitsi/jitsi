@@ -9,6 +9,8 @@ package net.java.sip.communicator.service.protocol;
 import java.net.*;
 import java.util.*;
 
+import org.jitsi.util.*;
+
 /**
  * The ServerStoredDetails class contains a relatively large set of details that
  * various protocols may support storing online. Each detail is represented by
@@ -129,12 +131,14 @@ public class ServerStoredDetails
                && other.getDetailDisplayName() != null
                && this.detailDisplayName.equals(other.getDetailDisplayName()) &&
 
-               ((this.value != null // equals not null values
+               // equals not null values
+               ((this.value != null
                && other.getDetailValue() != null
                && this.value.equals(other.getDetailValue()))
                ||
-               (this.value == null // or both values are null
-                && other.getDetailValue() == null)))
+               // or both values are null / empty
+               (StringUtils.isNullOrEmpty((String)this.value)
+                && StringUtils.isNullOrEmpty((String)other.getDetailValue()))))
                 return true;
             else
                 return false;
