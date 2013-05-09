@@ -165,7 +165,8 @@ public class AESCrypto
         try
         {
             decryptCipher.init(Cipher.DECRYPT_MODE, key);
-            return new String(decryptCipher.doFinal(Base64.decode(ciphertext)));
+            return new String(decryptCipher.doFinal(Base64.decode(ciphertext)),
+                "UTF-8");
         }
         catch (BadPaddingException e)
         {
