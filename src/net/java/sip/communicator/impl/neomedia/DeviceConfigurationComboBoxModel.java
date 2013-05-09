@@ -145,11 +145,7 @@ public class DeviceConfigurationComboBoxModel
         if (type != AUDIO)
             throw new IllegalStateException("type");
 
-        // This must updated at each call to allows hotplug device system to be
-        // enabled (if the number of devices change to someting greater than 0)
-        // or disabled (if the number of available device changes to 0).
         audioSystems = deviceConfiguration.getAvailableAudioSystems();
-
         return audioSystems;
     }
 
@@ -288,11 +284,12 @@ public class DeviceConfigurationComboBoxModel
      */
     public void propertyChange(final PropertyChangeEvent ev)
     {
-        if(DeviceConfiguration.PROP_AUDIO_SYSTEM_DEVICES.equals(
+        if (DeviceConfiguration.PROP_AUDIO_SYSTEM_DEVICES.equals(
                 ev.getPropertyName()))
         {
-            if(SwingUtilities.isEventDispatchThread())
+            if (SwingUtilities.isEventDispatchThread())
             {
+                audioSystems = null;
                 devices = null;
                 fireContentsChanged(0, getSize() - 1);
             }

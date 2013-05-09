@@ -72,7 +72,7 @@ public class AudioDeviceConfigurationListener
          * The list of available capture, notification and/or playback devices
          * has changes.
          */
-        if(DeviceConfiguration.PROP_AUDIO_SYSTEM_DEVICES.equals(propertyName))
+        if (DeviceConfiguration.PROP_AUDIO_SYSTEM_DEVICES.equals(propertyName))
         {
             @SuppressWarnings("unchecked")
             List<CaptureDeviceInfo> oldDevices
