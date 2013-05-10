@@ -339,6 +339,11 @@ public class ColibriConferenceIQ
             if (payloadType == null)
                 throw new NullPointerException("payloadType");
 
+            // Make sure that the COLIBRI namespace is used.
+            payloadType.setNamespace(null);
+            for (ParameterPacketExtension p : payloadType.getParameters())
+                p.setNamespace(null);
+
             return
                 payloadTypes.contains(payloadType)
                     ? false
