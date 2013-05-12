@@ -1172,16 +1172,9 @@ public class CallPeerJabberImpl
             newSenders = isInitiator()
                     ? SendersEnum.responder : SendersEnum.initiator;
 
-        // no change is necessary
-        if (newSenders == senders)
-            return;
-
         /*
          * Send Content-Modify
          */
-        if (logger.isInfoEnabled())
-            logger.info("Sending content modify, senders: "
-                    + senders + "->" + newSenders);
         ContentPacketExtension ext = new ContentPacketExtension();
         String remoteContentName = remoteContent.getName();
 
@@ -1189,16 +1182,22 @@ public class CallPeerJabberImpl
         ext.setCreator(remoteContent.getCreator());
         ext.setName(remoteContentName);
 
-        ProtocolProviderServiceJabberImpl protocolProvider
-            = getProtocolProvider();
-        JingleIQ contentIQ
-            = JinglePacketFactory.createContentModify(
-                    protocolProvider.getOurJID(),
-                    this.peerJID,
-                    getSID(),
-                    ext);
+        if (newSenders != senders)
+        {
+            if (logger.isInfoEnabled())
+                logger.info("Sending content modify, senders: "
+                        + senders + "->" + newSenders);
+            ProtocolProviderServiceJabberImpl protocolProvider
+                = getProtocolProvider();
+            JingleIQ contentIQ
+                = JinglePacketFactory.createContentModify(
+                        protocolProvider.getOurJID(),
+                        this.peerJID,
+                        getSID(),
+                        ext);
 
-        protocolProvider.getConnection().sendPacket(contentIQ);
+            protocolProvider.getConnection().sendPacket(contentIQ);
+        }
 
         try
         {
