@@ -529,20 +529,53 @@ public class NetworkUtils
     /**
      * Returns array of hosts from the SRV record of the specified domain.
      * The records are ordered against the SRV record priority
+     *
      * @param domain the name of the domain we'd like to resolve (_proto._tcp
      * included).
+     *
      * @return an array of SRVRecord containing records returned by the DNS
      * server - address and port .
+     *
      * @throws ParseException if <tt>domain</tt> is not a valid domain name.
      * @throws DnssecException when a DNSSEC validation failure occurred.
      */
     public static SRVRecord[] getSRVRecords(String domain)
         throws ParseException, DnssecException
     {
+        return getSRVRecords(domain, true);
+    }
+
+    /**
+     * Returns array of hosts from the SRV record of the specified domain.
+     * The records are ordered against the SRV record priority
+     *
+     * @param domain the name of the domain we'd like to resolve (_proto._tcp
+     * included).
+     * @param useDNSCache Tells the lookup to use (or not) the DNS cache to
+     * resolve the domain requested. i.e. it is useful to disable the DNS cache
+     * when doing requests for testing DNS connectivity.
+     *
+     * @return an array of SRVRecord containing records returned by the DNS
+     * server - address and port .
+     *
+     * @throws ParseException if <tt>domain</tt> is not a valid domain name.
+     * @throws DnssecException when a DNSSEC validation failure occurred.
+     */
+    public static SRVRecord[] getSRVRecords(
+            String domain,
+            boolean useDNSCache)
+        throws ParseException, DnssecException
+    {
         Record[] records = null;
         try
         {
             Lookup lookup = createLookup(domain, Type.SRV);
+            // Disables the DNS cache: i.e. useful when testing DNS
+            // connectivity.
+            if(!useDNSCache)
+            {
+                lookup.setCache(new Cache());
+            }
             records = lookup.run();
         }
         catch (TextParseException tpe)
@@ -605,7 +638,8 @@ public class NetworkUtils
     {
         SRVRecord[] records = getSRVRecords("_" + service
                                                  + "._" + proto
-                                                 + "."  + domain);
+                                                 + "."  + domain,
+                                             true);
 
         if(records == null || records.length == 0)
             return null;
@@ -621,6 +655,9 @@ public class NetworkUtils
      * @param domain the name of the domain we'd like to resolve.
      * @param service the service that we are trying to get a record for.
      * @param proto the protocol that we'd like <tt>service</tt> on.
+     * @param useDNSCache Tells the lookup to use (or not) the DNS cache to
+     * resolve the domain requested. i.e. it is useful to disable the DNS cache
+     * when doing requests for testing DNS connectivity.
      *
      * @return the InetSocketAddress[] containing records returned by the
      * DNS server - address and port .
@@ -632,9 +669,36 @@ public class NetworkUtils
                                                    String domain)
         throws ParseException, DnssecException
     {
+        return getSRVRecords(service, proto, domain, true);
+    }
+
+    /**
+     * Returns an <tt>InetSocketAddress</tt> representing the first SRV
+     * record available for the specified domain or <tt>null</tt> if there are
+     * not SRV records for <tt>domain</tt>.
+     *
+     * @param domain the name of the domain we'd like to resolve.
+     * @param service the service that we are trying to get a record for.
+     * @param proto the protocol that we'd like <tt>service</tt> on.
+     * @param useDNSCache Tells the lookup to use (or not) the DNS cache to
+     * resolve the domain requested. i.e. it is useful to disable the DNS cache
+     * when doing requests for testing DNS connectivity.
+     *
+     * @return the InetSocketAddress[] containing records returned by the
+     * DNS server - address and port .
+     * @throws ParseException if <tt>domain</tt> is not a valid domain name.
+     * @throws DnssecException when a DNSSEC validation failure occurred.
+     */
+    public static SRVRecord[] getSRVRecords(String service,
+                                                   String proto,
+                                                   String domain,
+                                                   boolean useDNSCache)
+        throws ParseException, DnssecException
+    {
         SRVRecord[] records = getSRVRecords("_" + service
                                                  + "._" + proto
-                                                 + "."  + domain);
+                                                 + "."  + domain,
+                                             useDNSCache);
 
         if(records == null || records.length == 0)
             return null;

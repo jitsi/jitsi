@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.gui.main.chat;
 
+import javax.swing.*;
+
 /**
  * The <tt>ChatSessionRenderer</tt> is the connector between the
  * <tt>ChatSession</tt> and the <tt>ChatPanel</tt>, which represents the UI
@@ -85,4 +87,11 @@ public interface ChatSessionRenderer
      * @param subject the new subject to set.
      */
     public void setChatSubject(String subject);
+
+    /**
+     * Sets the chat icon.
+     *
+     * @param icon the chat icon to set
+     */
+    public void setChatIcon(Icon icon);
 }

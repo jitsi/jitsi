@@ -54,6 +54,24 @@ public abstract class UIContactImpl
      * @return an <tt>ImageIcon</tt> which represents the avatar of the
      * specified <tt>MetaContact</tt>
      */
-    public abstract ImageIcon getAvatar(
+    public abstract ImageIcon getScaledAvatar(
         boolean isSelected, int width, int height);
+
+    /**
+     * Gets the avatar of a specific <tt>UIContact</tt> in the form of an
+     * <tt>ImageIcon</tt> value.
+     *
+     * @return a byte array representing the avatar of this <tt>UIContact</tt>
+     */
+    public byte[] getAvatar()
+    {
+        return null;
+    }
+
+    /**
+     * Returns the display name of this <tt>UIContact</tt>.
+     *
+     * @return the display name of this <tt>UIContact</tt>
+     */
+    public abstract String getDisplayName();
 }

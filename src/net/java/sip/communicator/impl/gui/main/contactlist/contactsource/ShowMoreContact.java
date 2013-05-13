@@ -133,7 +133,7 @@ public class ShowMoreContact
      * @param height avatar height
      * @return null
      */
-    public ImageIcon getAvatar(boolean isSelected, int width, int height)
+    public ImageIcon getScaledAvatar(boolean isSelected, int width, int height)
     {
         return null;
     }

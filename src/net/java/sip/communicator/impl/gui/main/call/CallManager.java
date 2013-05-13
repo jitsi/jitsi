@@ -67,6 +67,11 @@ public class CallManager
         = new HashMap<CallConference, CallPanel>();
 
     /**
+     * A map of active outgoing calls per <tt>UIContactImpl</tt>.
+     */
+    private static Map<Call, UIContactImpl> uiContactCalls;
+
+    /**
      * The group of notifications dedicated to missed calls.
      */
     private static UINotificationGroup missedCallGroup;
@@ -342,6 +347,21 @@ public class CallManager
     }
 
     /**
+     * Creates a call to the contact represented by the given string.
+     *
+     * @param protocolProvider the protocol provider to which this call belongs.
+     * @param contact the contact to call to
+     * @param uiContact the meta contact we're calling
+     */
+    public static void createCall(  ProtocolProviderService protocolProvider,
+                                    String contact,
+                                    UIContactImpl uiContact)
+    {
+        new CreateCallThread(protocolProvider, null, null, uiContact,
+            contact, false /* audio-only */).start();
+    }
+
+    /**
      * Creates a video call to the contact represented by the given string.
      *
      * @param protocolProvider the protocol provider to which this call belongs.
@@ -352,6 +372,21 @@ public class CallManager
     {
         new CreateCallThread(protocolProvider, contact, true /* video */)
             .start();
+    }
+
+    /**
+     * Creates a video call to the contact represented by the given string.
+     *
+     * @param protocolProvider the protocol provider to which this call belongs.
+     * @param contact the contact to call to
+     * @param uiContact the <tt>UIContactImpl</tt> we're calling
+     */
+    public static void createVideoCall( ProtocolProviderService protocolProvider,
+                                        String contact,
+                                        UIContactImpl uiContact)
+    {
+        new CreateCallThread(protocolProvider, null, null, uiContact,
+            contact, true /* video */).start();
     }
 
     /**
@@ -390,10 +425,12 @@ public class CallManager
      *
      * @param protocolProvider the protocol provider to which this call belongs.
      * @param contact the contact to call to
+     * @param uiContact the <tt>UIContactImpl</tt> we're calling
      */
     private static void createDesktopSharing(
             ProtocolProviderService protocolProvider,
-            String contact)
+            String contact,
+            UIContactImpl uiContact)
     {
         // If the user presses cancel on the desktop sharing warning then we
         // have nothing more to do here.
@@ -410,6 +447,7 @@ public class CallManager
             createDesktopSharing(
                     protocolProvider,
                     contact,
+                    uiContact,
                     desktopDevices.get(0));
         }
         else if (deviceNumber > 1)
@@ -422,6 +460,7 @@ public class CallManager
                 createDesktopSharing(
                         protocolProvider,
                         contact,
+                        uiContact,
                         selectDialog.getSelectedDevice());
         }
     }
@@ -433,15 +472,18 @@ public class CallManager
      * @param protocolProvider the <tt>ProtocolProviderService</tt>, through
      * which the sharing session will be established
      * @param contact the address of the contact recipient
+     * @param uiContact the <tt>UIContactImpl</tt> we're calling
      */
     private static void createRegionDesktopSharing(
                                     ProtocolProviderService protocolProvider,
-                                    String contact)
+                                    String contact,
+                                    UIContactImpl uiContact)
     {
         if (showDesktopSharingWarning())
         {
-            TransparentFrame frame = DesktopSharingFrame.createTransparentFrame(
-                    protocolProvider, contact, true);
+            TransparentFrame frame = DesktopSharingFrame
+                .createTransparentFrame(
+                    protocolProvider, contact, uiContact, true);
 
             frame.setLocationRelativeTo(null);
             frame.setVisible(true);
@@ -454,6 +496,7 @@ public class CallManager
      *
      * @param protocolProvider the protocol provider to which this call belongs.
      * @param contact the contact to call to
+     * @param uiContact the <tt>MetaContact</tt> we're calling
      * @param x the x coordinate of the shared region
      * @param y the y coordinated of the shared region
      * @param width the width of the shared region
@@ -462,6 +505,7 @@ public class CallManager
     public static void createRegionDesktopSharing(
                                     ProtocolProviderService protocolProvider,
                                     String contact,
+                                    UIContactImpl uiContact,
                                     int x,
                                     int y,
                                     int width,
@@ -479,6 +523,7 @@ public class CallManager
             createDesktopSharing(
                     protocolProvider,
                     contact,
+                    uiContact,
                     mediaService.getMediaDeviceForPartialDesktopStreaming(
                         width,
                         height,
@@ -493,15 +538,18 @@ public class CallManager
      *
      * @param protocolProvider the protocol provider to which this call belongs.
      * @param contact the contact to call to
+     * @param uiContact the <tt>UIContactImpl</tt> we're calling
      * @param mediaDevice the media device corresponding to the screen to share
      */
     private static void createDesktopSharing(
                                     ProtocolProviderService protocolProvider,
                                     String contact,
+                                    UIContactImpl uiContact,
                                     MediaDevice mediaDevice)
     {
         new CreateDesktopSharingThread( protocolProvider,
                                         contact,
+                                        uiContact,
                                         mediaDevice).start();
     }
 
@@ -1233,7 +1281,6 @@ public class CallManager
     /**
      * Returns a collection of all currently in progress calls. A call is active
      * if it is in progress so the method merely delegates to
-     * {@link #getActiveCalls()}.
      *
      * @return a collection of all currently in progress calls.
      */
@@ -1257,6 +1304,79 @@ public class CallManager
     }
 
     /**
+     * A informative text to show for the peer. If display name is missing
+     * return the address.
+     * @param peer the peer.
+     * @return the text contain display name.
+     */
+    public static String getPeerDisplayName(CallPeer peer)
+    {
+        String displayName = null;
+
+        // We try to find the <tt>UIContact</tt>, to which the call was
+        // created if this was an outgoing call.
+        UIContactImpl uiContact
+            = CallManager.getCallUIContact(peer.getCall());
+
+        if (uiContact != null)
+            displayName = uiContact.getDisplayName();
+
+        // We search for a contact corresponding to this call peer and
+        // try to get its display name.
+        if (StringUtils.isNullOrEmpty(displayName, true)
+            && peer.getContact() != null)
+        {
+            displayName = peer.getContact().getDisplayName();
+        }
+
+        // We try to find the an alternative peer address.
+        if (StringUtils.isNullOrEmpty(displayName, true))
+        {
+            String imppAddress = peer.getAlternativeIMPPAddress();
+
+            if (!StringUtils.isNullOrEmpty(imppAddress))
+            {
+                int protocolPartIndex = imppAddress.indexOf(":");
+
+                imppAddress = (protocolPartIndex >= 0)
+                        ? imppAddress.substring(protocolPartIndex + 1)
+                        : imppAddress;
+
+                        Collection<ProtocolProviderService> cusaxProviders
+                        = AccountUtils.getRegisteredProviders(
+                            OperationSetCusaxUtils.class);
+
+                    if (cusaxProviders != null && cusaxProviders.size() > 0)
+                    {
+                        Contact contact  = getPeerContact(
+                                                peer,
+                                                cusaxProviders.iterator().next(),
+                                                imppAddress);
+
+                        displayName = (contact != null)
+                                        ? contact.getDisplayName() : null;
+                    }
+                    else
+                    {
+                        MetaContact metaContact
+                            = getPeerMetaContact(peer, imppAddress);
+
+                        displayName = (metaContact != null)
+                                        ? metaContact.getDisplayName() : null;
+                    }
+            }
+        }
+
+        if (StringUtils.isNullOrEmpty(displayName, true))
+            displayName = (!StringUtils.isNullOrEmpty
+                            (peer.getDisplayName(), true))
+                            ? peer.getDisplayName()
+                            : peer.getAddress();
+
+        return displayName;
+    }
+
+    /**
      * Returns the image corresponding to the given <tt>peer</tt>.
      *
      * @param peer the call peer, for which we're returning an image
@@ -1269,10 +1389,55 @@ public class CallManager
         // try to get its image.
         if (peer.getContact() != null)
         {
-            MetaContact metaContact = GuiActivator.getContactListService()
-                .findMetaContactByContact(peer.getContact());
+            image = getContactImage(peer.getContact());
+        }
 
-            image = metaContact.getAvatar();
+        // We try to find the <tt>UIContact</tt>, to which the call was
+        // created if this was an outgoing call.
+        if (image == null || image.length == 0)
+        {
+            UIContactImpl uiContact
+                = CallManager.getCallUIContact(peer.getCall());
+
+            if (uiContact != null)
+                image = uiContact.getAvatar();
+        }
+
+        // We try to find the an alternative peer address.
+        if (image == null || image.length == 0)
+        {
+            String imppAddress = peer.getAlternativeIMPPAddress();
+
+            if (!StringUtils.isNullOrEmpty(imppAddress))
+            {
+                int protocolPartIndex = imppAddress.indexOf(":");
+
+                imppAddress = (protocolPartIndex >= 0)
+                        ? imppAddress.substring(protocolPartIndex + 1)
+                        : imppAddress;
+
+                Collection<ProtocolProviderService> cusaxProviders
+                    = AccountUtils.getRegisteredProviders(
+                        OperationSetCusaxUtils.class);
+
+                if (cusaxProviders != null && cusaxProviders.size() > 0)
+                {
+                    Contact contact  = getPeerContact(
+                                            peer,
+                                            cusaxProviders.iterator().next(),
+                                            imppAddress);
+
+                    image = (contact != null) ? getContactImage(contact) : null;
+                }
+                else
+                {
+                    MetaContact metaContact
+                        = getPeerMetaContact(peer, imppAddress);
+
+                    image = (metaContact != null)
+                                ? metaContact.getAvatar() : null;
+                }
+            }
         }
 
         // If the icon is still null we try to get an image from the call
@@ -1282,6 +1447,107 @@ public class CallManager
             image = peer.getImage();
 
         return image;
+    }
+
+    /**
+     * Returns the image for the given contact.
+     *
+     * @param contact the <tt>Contact</tt>, which image we're looking for
+     * @return the array of bytes representing the image for the given contact
+     * or null if such image doesn't exist
+     */
+    private static byte[] getContactImage(Contact contact)
+    {
+        MetaContact metaContact = GuiActivator.getContactListService()
+            .findMetaContactByContact(contact);
+
+        if (metaContact != null)
+            return metaContact.getAvatar();
+
+        return null;
+    }
+
+    /**
+     * Returns the image for the given <tt>alternativePeerAddress</tt> by
+     * checking the if the <tt>callPeer</tt> exists as a detail in the given
+     * <tt>cusaxProvider</tt>.
+     *
+     * @param callPeer the <tt>CallPeer</tt> to check in the cusax provider
+     * details
+     * @param cusaxProvider the linked cusax <tt>ProtocolProviderService</tt>
+     * @param alternativePeerAddress the alternative peer address to obtain the
+     * image from
+     * @return the protocol <tt>Contact</tt> corresponding to the given
+     * <tt>alternativePeerAddress</tt>
+     */
+    private static Contact getPeerContact( CallPeer callPeer,
+                                        ProtocolProviderService cusaxProvider,
+                                        String alternativePeerAddress)
+    {
+        OperationSetPresence presenceOpSet
+            = cusaxProvider.getOperationSet(OperationSetPresence.class);
+
+        if (presenceOpSet == null)
+            return null;
+
+        Contact contact = presenceOpSet.findContactByID(alternativePeerAddress);
+
+        if (contact == null)
+            return null;
+
+        OperationSetCusaxUtils cusaxOpSet
+            = cusaxProvider.getOperationSet(OperationSetCusaxUtils.class);
+
+        if (cusaxOpSet != null && cusaxOpSet.doesDetailBelong(
+                contact, callPeer.getAddress()))
+            return contact;
+
+        return null;
+    }
+
+    /**
+     * Returns the image for the given <tt>alternativePeerAddress</tt> by
+     * checking the if the <tt>callPeer</tt> exists as a detail in one of the
+     * contacts in our contact list.
+     *
+     * @param callPeer the <tt>CallPeer</tt> to check in contact details
+     * @param alternativePeerAddress the alternative peer address to obtain the
+     * image from
+     * @return the <tt>MetaContact</tt> corresponding to the given
+     * <tt>alternativePeerAddress</tt>
+     */
+    private static MetaContact getPeerMetaContact(
+                                            CallPeer callPeer,
+                                            String alternativePeerAddress)
+    {
+        Iterator<MetaContact> metaContacts
+            = GuiActivator.getContactListService()
+                .findAllMetaContactsForAddress(alternativePeerAddress);
+
+        while (metaContacts.hasNext())
+        {
+            MetaContact metaContact = metaContacts.next();
+
+            UIPhoneUtil phoneUtil
+                = UIPhoneUtil.getPhoneUtil(metaContact);
+
+            List<UIContactDetail> additionalNumbers
+                = phoneUtil.getAdditionalNumbers();
+
+            if (additionalNumbers == null || additionalNumbers.size() > 0)
+                continue;
+
+            Iterator<UIContactDetail> numbersIter
+                = additionalNumbers.iterator();
+            while (numbersIter.hasNext())
+            {
+                if (numbersIter.next().getAddress()
+                    .equals(callPeer.getAddress()))
+                    return metaContact;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -1586,6 +1852,8 @@ public class CallManager
 
     /**
      * Returns of supported/enabled list of audio formats for a provider.
+     * @param device the <tt>MediaDevice</tt>, which audio formats we're
+     * looking for
      * @param protocolProvider the provider to check.
      * @return list of supported/enabled auido formats or empty list
      * otherwise.
@@ -1653,6 +1921,11 @@ public class CallManager
         private final ContactResource contactResource;
 
         /**
+         * The <tt>UIContactImpl</tt> we're calling.
+         */
+        private final UIContactImpl uiContact;
+
+        /**
          * The protocol provider through which the call goes.
          */
         private final ProtocolProviderService protocolProvider;
@@ -1668,13 +1941,23 @@ public class CallManager
          */
         private final boolean video;
 
+        /**
+         * Creates an instance of <tt>CreateCallThread</tt>.
+         *
+         * @param protocolProvider the protocol provider through which the call
+         * is going.
+         * @param contact the contact to call
+         * @param contactResource the specific <tt>ContactResource</tt> we're
+         * calling
+         * @param video indicates if this is a video call
+         */
         public CreateCallThread(
                 ProtocolProviderService protocolProvider,
                 Contact contact,
                 ContactResource contactResource,
                 boolean video)
         {
-            this(protocolProvider, contact, contactResource, null, video);
+            this(protocolProvider, contact, contactResource, null, null, video);
         }
 
         /**
@@ -1690,7 +1973,7 @@ public class CallManager
                 String contact,
                 boolean video)
         {
-            this(protocolProvider, null, null, contact, video);
+            this(protocolProvider, null, null, null, contact, video);
         }
 
         /**
@@ -1707,20 +1990,23 @@ public class CallManager
          * to perform the establishment of the new <tt>Call</tt>
          * @param contact the contact to call
          * @param contactResource the specific contact resource to call
+         * @param uiContact the ui contact we're calling
          * @param stringContact the string to call
          * @param video <tt>true</tt> if this instance is to create a new video
          * (as opposed to audio-only) <tt>Call</tt>
          */
-        private CreateCallThread(
+        public CreateCallThread(
                 ProtocolProviderService protocolProvider,
                 Contact contact,
                 ContactResource contactResource,
+                UIContactImpl uiContact,
                 String stringContact,
                 boolean video)
         {
             this.protocolProvider = protocolProvider;
             this.contact = contact;
             this.contactResource = contactResource;
+            this.uiContact = uiContact;
             this.stringContact = stringContact;
             this.video = video;
         }
@@ -1786,12 +2072,18 @@ public class CallManager
             {
                 if (video)
                 {
-                    callVideo(protocolProvider, contact, stringContact);
+                    internalCallVideo(  protocolProvider,
+                                        contact,
+                                        uiContact,
+                                        stringContact);
                 }
                 else
                 {
-                    call(protocolProvider, contact,
-                            stringContact, contactResource);
+                    internalCall(   protocolProvider,
+                                    contact,
+                                    stringContact,
+                                    contactResource,
+                                    uiContact);
                 }
             }
             catch (Throwable t)
@@ -1824,13 +2116,16 @@ public class CallManager
      * @param protocolProvider the <tt>ProtocolProviderService</tt> through
      * which to make the call
      * @param contact the <tt>Contact</tt> to call
+     * @param uiContact the <tt>UIContactImpl</tt> we're calling
      * @param stringContact the contact string to call
      *
      * @throws OperationFailedException thrown if the call operation fails
      * @throws ParseException thrown if the contact string is malformated
      */
-    private static void callVideo(  ProtocolProviderService protocolProvider,
+    private static void internalCallVideo(
+                                    ProtocolProviderService protocolProvider,
                                     Contact contact,
+                                    UIContactImpl uiContact,
                                     String stringContact)
         throws  OperationFailedException,
                 ParseException
@@ -1839,15 +2134,19 @@ public class CallManager
             = protocolProvider.getOperationSet(
                     OperationSetVideoTelephony.class);
 
+        Call createdCall = null;
         if (telephony != null)
         {
             if (contact != null)
             {
-                telephony.createVideoCall(contact);
+                createdCall = telephony.createVideoCall(contact);
             }
             else if (stringContact != null)
-                telephony.createVideoCall(stringContact);
+                createdCall = telephony.createVideoCall(stringContact);
         }
+
+        if (uiContact != null && createdCall != null)
+            addUIContactCall(uiContact, createdCall);
     }
 
     /**
@@ -1858,14 +2157,17 @@ public class CallManager
      * @param contact the <tt>Contact</tt> to call
      * @param stringContact the contact string to call
      * @param contactResource the specific <tt>ContactResource</tt> to call
+     * @param uiContact the <tt>UIContactImpl</tt> we're calling
      *
      * @throws OperationFailedException thrown if the call operation fails
      * @throws ParseException thrown if the contact string is malformated
      */
-    private static void call(   ProtocolProviderService protocolProvider,
+    private static void internalCall(
+                                ProtocolProviderService protocolProvider,
                                 Contact contact,
                                 String stringContact,
-                                ContactResource contactResource)
+                                ContactResource contactResource,
+                                UIContactImpl uiContact)
         throws  OperationFailedException,
                 ParseException
     {
@@ -1877,23 +2179,60 @@ public class CallManager
             = protocolProvider.getOperationSet(
                     OperationSetResourceAwareTelephony.class);
 
+        Call createdCall = null;
+
         if (resourceTelephony != null && contactResource != null)
         {
             if (contact != null)
-                resourceTelephony.createCall(contact, contactResource);
+                createdCall
+                    = resourceTelephony.createCall(contact, contactResource);
             else if (!StringUtils.isNullOrEmpty(stringContact))
-                resourceTelephony.createCall(
+                createdCall = resourceTelephony.createCall(
                     stringContact, contactResource.getResourceName());
         }
         else if (telephony != null)
         {
             if (contact != null)
             {
-                telephony.createCall(contact);
+                createdCall = telephony.createCall(contact);
             }
             else if (!StringUtils.isNullOrEmpty(stringContact))
-                telephony.createCall(stringContact);
+                createdCall = telephony.createCall(stringContact);
         }
+
+        if (uiContact != null && createdCall != null)
+            addUIContactCall(uiContact, createdCall);
+    }
+
+    /**
+     * Returns the <tt>MetaContact</tt>, to which the given <tt>Call</tt>
+     * was initially created.
+     *
+     * @param call the <tt>Call</tt>, which corresponding <tt>MetaContact</tt>
+     * we're looking for
+     * @return the <tt>UIContactImpl</tt>, to which the given <tt>Call</tt>
+     * was initially created
+     */
+    public static UIContactImpl getCallUIContact(Call call)
+    {
+        if (uiContactCalls != null)
+            return uiContactCalls.get(call);
+        return null;
+    }
+
+    /**
+     * Adds a call for a <tt>metaContact</tt>.
+     *
+     * @param uiContact the <tt>UIContact</tt> corresponding to the call
+     * @param call the <tt>Call</tt> corresponding to the <tt>MetaContact</tt>
+     */
+    private static void addUIContactCall( UIContactImpl uiContact,
+                                          Call call)
+    {
+        if (uiContactCalls == null)
+            uiContactCalls = new WeakHashMap<Call, UIContactImpl>();
+
+        uiContactCalls.put(call, uiContact);
     }
 
     /**
@@ -1919,21 +2258,30 @@ public class CallManager
         private final MediaDevice mediaDevice;
 
         /**
+         * The <tt>UIContactImpl</tt> we're calling.
+         */
+        private final UIContactImpl uiContact;
+
+        /**
          * Creates a desktop sharing session thread.
          *
          * @param protocolProvider protocol provider through which we share our
          * desktop
          * @param contact the contact to share the desktop with
+         * @param uiContact the <tt>UIContact</tt>, which initiated the desktop
+         * sharing session
          * @param mediaDevice the media device corresponding to the screen we
          * would like to share
          */
         public CreateDesktopSharingThread(
                                     ProtocolProviderService protocolProvider,
                                     String contact,
+                                    UIContactImpl uiContact,
                                     MediaDevice mediaDevice)
         {
             this.protocolProvider = protocolProvider;
             this.stringContact = contact;
+            this.uiContact = uiContact;
             this.mediaDevice = mediaDevice;
         }
 
@@ -1955,16 +2303,18 @@ public class CallManager
 
             Throwable exception = null;
 
+            Call createdCall = null;
             try
             {
                 if (mediaDevice != null)
                 {
-                    desktopSharingOpSet.createVideoCall(
+                    createdCall = desktopSharingOpSet.createVideoCall(
                             stringContact,
                             mediaDevice);
                 }
                 else
-                    desktopSharingOpSet.createVideoCall(stringContact);
+                    createdCall
+                        = desktopSharingOpSet.createVideoCall(stringContact);
             }
             catch (OperationFailedException e)
             {
@@ -1986,6 +2336,9 @@ public class CallManager
                         ErrorDialog.ERROR)
                     .showDialog();
             }
+
+            if (uiContact != null && createdCall != null)
+                addUIContactCall(uiContact, createdCall);
         }
     }
 
@@ -2496,6 +2849,14 @@ public class CallManager
                     logger.error(
                         "Failed to toggle the streaming of local video.",
                         ex);
+                    ResourceManagementService resources
+                        = GuiActivator.getResources();
+                    String title = resources.getI18NString(
+                        "service.gui.LOCAL_VIDEO_ERROR_TITLE");
+                    String message = resources.getI18NString(
+                        "service.gui.LOCAL_VIDEO_ERROR_MESSAGE");
+                    GuiActivator.getAlertUIService().showPopUpNotification(
+                        title, message, ex);
                 }
             }
 
@@ -2801,18 +3162,35 @@ public class CallManager
                     ProtocolProviderService protocolProviderService,
                     String contact)
     {
+        createCall(opSetClass, protocolProviderService, contact, null);
+    }
+
+    /**
+     * Creates a call for the supplied operation set.
+     * @param opSetClass the operation set to use to create call.
+     * @param protocolProviderService the protocol provider
+     * @param contact the contact address to call
+     *  @param uiContact the <tt>MetaContact</tt> we're calling
+     */
+    static void createCall(
+                    Class<? extends OperationSet> opSetClass,
+                    ProtocolProviderService protocolProviderService,
+                    String contact,
+                    UIContactImpl uiContact)
+    {
         if (opSetClass.equals(OperationSetBasicTelephony.class))
         {
-            createCall(protocolProviderService, contact);
+            createCall(protocolProviderService, contact, uiContact);
         }
         else if (opSetClass.equals(OperationSetVideoTelephony.class))
         {
-            createVideoCall(protocolProviderService, contact);
+            createVideoCall(protocolProviderService, contact, uiContact);
         }
         else if (opSetClass.equals(
             OperationSetDesktopSharingServer.class))
         {
-            createDesktopSharing(protocolProviderService, contact);
+            createDesktopSharing(
+                protocolProviderService, contact, uiContact);
         }
     }
 
@@ -2831,6 +3209,7 @@ public class CallManager
     {
         Contact contact = metaContact
             .getDefaultContact(getOperationSetForCall(isVideo, isDesktop));
+
         call(contact, isVideo, isDesktop, shareRegion);
     }
 
@@ -2855,11 +3234,13 @@ public class CallManager
             {
                 createRegionDesktopSharing(
                     contact.getProtocolProvider(),
-                    contact.getAddress());
+                    contact.getAddress(),
+                    null);
             }
             else
                 createDesktopSharing(contact.getProtocolProvider(),
-                                    contact.getAddress());
+                                    contact.getAddress(),
+                                    null);
         }
         else
         {
@@ -2890,11 +3271,13 @@ public class CallManager
             {
                 createRegionDesktopSharing(
                     contact.getProtocolProvider(),
-                    contact.getAddress());
+                    contact.getAddress(),
+                    null);
             }
             else
                 createDesktopSharing(contact.getProtocolProvider(),
-                                    contact.getAddress());
+                                    contact.getAddress(),
+                                    null);
         }
         else
         {
@@ -2917,6 +3300,23 @@ public class CallManager
                             boolean isDesktop,
                             final boolean shareRegion)
     {
+        call(phone, null, isVideo, isDesktop, shareRegion);
+    }
+
+    /**
+     * Calls a phone showing a dialog to choose a provider.
+     * @param phone phone to call
+     * @param uiContact the <tt>UIContactImpl</tt> we're calling
+     * @param isVideo if <tt>true</tt> will create video call.
+     * @param isDesktop if <tt>true</tt> will share the desktop.
+     * @param shareRegion if <tt>true</tt> will share a region of the desktop.
+     */
+    public static void call(final String phone,
+                            final UIContactImpl uiContact,
+                            boolean isVideo,
+                            boolean isDesktop,
+                            final boolean shareRegion)
+    {
         List<ProtocolProviderService> providers =
             CallManager.getTelephonyProviders();
 
@@ -2934,17 +3334,18 @@ public class CallManager
                         if(shareRegion)
                         {
                             createRegionDesktopSharing(
-                                getSelectedProvider(), phone);
+                                getSelectedProvider(), phone, uiContact);
                         }
                         else
                             super.callButtonPressed();
                     }
             };
+            chooseAccount.setUIContact(uiContact);
             chooseAccount.setVisible(true);
         }
         else
         {
-            CallManager.createCall(providers.get(0), phone);
+            createCall(providers.get(0), phone, uiContact);
         }
     }
 
@@ -2970,16 +3371,17 @@ public class CallManager
 
     /**
      * Call any of the supplied details.
-     * @param contactPhoneUtil the util (metacontact) to check what is enabled,
-     *                         available.
+     *
      * @param uiContactDetailList the list with details to choose for calling
+     * @param uiContact the <tt>UIContactImpl</tt> to check what is enabled,
+     * available.
      * @param isVideo if <tt>true</tt> will create video call.
      * @param isDesktop if <tt>true</tt> will share the desktop.
      * @param invoker the invoker component
      * @param location the location where this was invoked.
      */
-    public static void call(ContactPhoneUtil contactPhoneUtil,
-                            List<UIContactDetail> uiContactDetailList,
+    public static void call(List<UIContactDetail> uiContactDetailList,
+                            UIContactImpl uiContact,
                             boolean isVideo,
                             boolean isDesktop,
                             JComponent invoker,
@@ -2989,6 +3391,12 @@ public class CallManager
 
         Class<? extends OperationSet> opsetClass =
             getOperationSetForCall(isVideo, isDesktop);
+
+        UIPhoneUtil contactPhoneUtil = null;
+        if (uiContact != null
+            && uiContact.getDescriptor() instanceof MetaContact)
+            contactPhoneUtil = UIPhoneUtil
+                .getPhoneUtil((MetaContact) uiContact.getDescriptor());
 
         if(contactPhoneUtil != null)
         {
@@ -3033,9 +3441,12 @@ public class CallManager
             if (preferredProvider != null)
             {
                 if (preferredProvider.isRegistered())
+                {
                     createCall(opsetClass,
                                preferredProvider,
-                               detail.getAddress());
+                               detail.getAddress(),
+                               uiContact);
+                }
 
                 // If we have a provider, but it's not registered we try to
                 // obtain all registered providers for the same protocol as the
@@ -3082,7 +3493,8 @@ public class CallManager
                     createCall(
                         opsetClass,
                         providers.get(0),
-                        detail.getAddress());
+                        detail.getAddress(),
+                        uiContact);
                 }
                 else if (providersCount > 1)
                 {
@@ -3103,6 +3515,9 @@ public class CallManager
         // If the choose dialog is created we're going to show it.
         if (chooseCallAccountPopupMenu != null)
         {
+            if (uiContact != null)
+                chooseCallAccountPopupMenu.setUIContact(uiContact);
+
             chooseCallAccountPopupMenu.showPopupMenu(location.x, location.y);
         }
     }
@@ -3110,6 +3525,7 @@ public class CallManager
 
     /**
      * Call the ui contact.
+     *
      * @param uiContact the contact to call.
      * @param isVideo if <tt>true</tt> will create video call.
      * @param isDesktop if <tt>true</tt> will share the desktop.
@@ -3122,20 +3538,21 @@ public class CallManager
                             JComponent invoker,
                             Point location)
     {
-        ContactPhoneUtil contactPhoneUtil = null;
-        if(uiContact.getDescriptor() instanceof MetaContact)
+        UIContactImpl uiContactImpl = null;
+        if(uiContact instanceof UIContactImpl)
         {
-            contactPhoneUtil = ContactPhoneUtil.getPhoneUtil(
-                (MetaContact)uiContact.getDescriptor());
+            uiContactImpl = (UIContactImpl) uiContact;
         }
 
         List<UIContactDetail> telephonyContacts
             = uiContact.getContactDetailsForOperationSet(
                 getOperationSetForCall(isVideo, isDesktop));
 
-        call(contactPhoneUtil,
-            telephonyContacts,
-            isVideo, isDesktop,
-            invoker, location);
+        call(   telephonyContacts,
+                uiContactImpl,
+                isVideo,
+                isDesktop,
+                invoker,
+                location);
     }
 }

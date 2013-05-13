@@ -53,6 +53,11 @@ public class ChooseCallAccountPopupMenu
     private CallInterfaceListener callInterfaceListener;
 
     /**
+     * The <tt>MetaContact</tt> we're calling.
+     */
+    private UIContactImpl uiContact;
+
+    /**
      * Creates this dialog.
      *
      * @param invoker the invoker of this pop up menu
@@ -194,7 +199,14 @@ public class ChooseCallAccountPopupMenu
         {
             public void actionPerformed(ActionEvent e)
             {
-                CallManager.createCall(
+                if (uiContact != null)
+                    CallManager.createCall(
+                        opSetClass,
+                        providerItem.getProtocolProvider(),
+                        contactString,
+                        uiContact);
+                else
+                    CallManager.createCall(
                         opSetClass,
                         providerItem.getProtocolProvider(),
                         contactString);
@@ -246,16 +258,30 @@ public class ChooseCallAccountPopupMenu
                 }
                 else if (providers.size() > 1)
                 {
-                    new ChooseCallAccountDialog(
-                        telephonyContact.getAddress(), opSetClass, providers)
-                    .setVisible(true);
+                    ChooseCallAccountDialog callAccountDialog
+                        = new ChooseCallAccountDialog(
+                        telephonyContact.getAddress(), opSetClass, providers);
+
+                    if (uiContact != null)
+                        callAccountDialog.setUIContact(uiContact);
+                    callAccountDialog.setVisible(true);
                 }
                 else // providersCount == 1
                 {
-                    CallManager.createCall(
-                        opSetClass,
-                        providers.get(0),
-                        telephonyContact.getAddress());
+                    ProtocolProviderService provider = providers.get(0);
+                    String contactAddress = telephonyContact.getAddress();
+
+                    if (uiContact != null)
+                        CallManager.createCall(
+                            opSetClass,
+                            provider,
+                            contactAddress,
+                            uiContact);
+                    else
+                        CallManager.createCall(
+                            opSetClass,
+                            provider,
+                            contactAddress);
                 }
 
                 ChooseCallAccountPopupMenu.this.setVisible(false);
@@ -333,10 +359,16 @@ public class ChooseCallAccountPopupMenu
         {
             public void actionPerformed(ActionEvent e)
             {
-                CallManager.createCall(
-                    opSetClass,
-                    telTransport.getProtocolProvider(),
-                    telTransport.getName());
+                ProtocolProviderService provider
+                    = telTransport.getProtocolProvider();
+                String contactAddress = telTransport.getName();
+
+                if (uiContact != null)
+                    CallManager.createCall(
+                        opSetClass, provider, contactAddress, uiContact);
+                else
+                    CallManager.createCall(
+                        opSetClass, provider, contactAddress);
 
                 ChooseCallAccountPopupMenu.this.setVisible(false);
             }
@@ -369,6 +401,16 @@ public class ChooseCallAccountPopupMenu
             .convertPointToScreen(location, invoker.getParent());
         setLocation(location);
         setVisible(true);
+    }
+
+    /**
+     * Sets the <tt>UIContactImpl</tt> we're currently calling.
+     *
+     * @param uiContact the <tt>UIContactImpl</tt> we're currently calling
+     */
+    public void setUIContact(UIContactImpl uiContact)
+    {
+        this.uiContact = uiContact;
     }
 
     /**

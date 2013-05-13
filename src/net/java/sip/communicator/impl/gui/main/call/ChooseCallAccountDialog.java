@@ -12,6 +12,7 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.account.*;
+import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
@@ -32,6 +33,11 @@ public class ChooseCallAccountDialog
      * The operation set class that specifies the operation we're going to make.
      */
     private final Class<? extends OperationSet> opSetClass;
+
+    /**
+     * The <tt>UIContactImpl</tt> we're calling.
+     */
+    private UIContactImpl uiContact;
 
     /**
      * Creates an instance of <tt>ChooseCallAccountDialog</tt>.
@@ -100,8 +106,12 @@ public class ChooseCallAccountDialog
     @Override
     public void callButtonPressed()
     {
-        CallManager.createCall(
-            opSetClass, getSelectedProvider(), contactAddress);
+        if (uiContact != null)
+            CallManager.createCall(
+                opSetClass, getSelectedProvider(), contactAddress, uiContact);
+        else
+            CallManager.createCall(
+                opSetClass, getSelectedProvider(), contactAddress);
     }
 
     /**
@@ -127,5 +137,15 @@ public class ChooseCallAccountDialog
     public void videoCallButtonPressed()
     {
         callButtonPressed();
+    }
+
+    /**
+     * Sets the <tt>UIContactImpl</tt> we're currently calling.
+     *
+     * @param uiContact the <tt>UIContactImpl</tt> we're currently calling
+     */
+    public void setUIContact(UIContactImpl uiContact)
+    {
+        this.uiContact = uiContact;
     }
 }

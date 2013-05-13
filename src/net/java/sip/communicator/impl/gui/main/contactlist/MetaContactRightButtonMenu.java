@@ -31,6 +31,7 @@ import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.OperationSetExtendedAuthorizations.SubscriptionStatus;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.call.*;
 import net.java.sip.communicator.util.skin.*;
 
 import org.osgi.framework.*;
@@ -294,7 +295,7 @@ public class MetaContactRightButtonMenu
     /**
      * The phone util we use to check whether to enable/disable buttons.
      */
-    private ContactPhoneUtil contactPhoneUtil;
+    private MetaContactPhoneUtil contactPhoneUtil;
 
     /**
      * Indicates if a separator should be added at the end of the menu
@@ -304,16 +305,16 @@ public class MetaContactRightButtonMenu
 
     /**
      * Creates an instance of ContactRightButtonMenu.
-     * @param contactItem The MetaContact for which the menu is opened
+     * @param metaContact The MetaContact for which the menu is opened
      */
-    public MetaContactRightButtonMenu(  MetaContact contactItem)
+    public MetaContactRightButtonMenu(  MetaContact metaContact)
     {
         super();
 
         this.mainFrame = GuiActivator.getUIService().getMainFrame();
         this.contactList = GuiActivator.getContactList();
 
-        this.metaContact = contactItem;
+        this.metaContact = metaContact;
 
         this.setLocation(getLocation());
 
@@ -388,7 +389,7 @@ public class MetaContactRightButtonMenu
             this.moveSubcontactMenu.addSeparator();
         }
 
-        contactPhoneUtil = ContactPhoneUtil.getPhoneUtil(metaContact);
+        contactPhoneUtil = MetaContactPhoneUtil.getPhoneUtil(metaContact);
 
         while (contacts.hasNext())
         {
@@ -584,7 +585,8 @@ public class MetaContactRightButtonMenu
             addSeparator();
         }
 
-        if (!ConfigurationUtils.isAddContactDisabled())
+        if (!ConfigurationUtils.isAddContactDisabled() &&
+            !ConfigurationUtils.isMergeContactDisabled())
         {
             add(addContactItem);
             addSeparator();
@@ -714,7 +716,8 @@ public class MetaContactRightButtonMenu
             {
                 JMenuItem menuItem = createMenuItem( phone,
                     callPhonePrefix + p,
-                    null);
+                    GuiActivator.getResources().getImage(
+                        "service.gui.icons.EXTERNAL_PHONE"));
                 menuItem.setBorder(
                     BorderFactory.createEmptyBorder(0, 20, 0, 0));
 
@@ -813,7 +816,8 @@ public class MetaContactRightButtonMenu
         List<ProtocolProviderService> providers =
             CallManager.getTelephonyProviders();
 
-        List<String> videoPhones = contactPhoneUtil.getVideoPhones(contact);
+        List<String> videoPhones
+            = contactPhoneUtil.getVideoPhones(contact, null);
         for(String vphone : videoPhones)
         {
             String p = vphone.substring(0, vphone.lastIndexOf("(") - 1);
@@ -1584,7 +1588,8 @@ public class MetaContactRightButtonMenu
             {
                 // we want to call a phoneNumber
                 CallManager.call(
-                    contactName, isVideo, isDesktopSharing, shareRegion);
+                    contactName, MetaContactListSource.getUIContact(metaContact),
+                    isVideo, isDesktopSharing, shareRegion);
                 return;
             }
         }

@@ -35,6 +35,36 @@ public class SipAccountID
     }
 
     /**
+     * Extracts the user id part from the given <tt>sipUri</tt>.
+     *
+     * @param sipUri the initial SIP URI from which we would like to extract
+     * the user id part
+     * @return the user id part String from the given <tt>sipUri</tt>
+     */
+    static String sipUriToUserID(String sipUri)
+    {
+        int index = sipUri.indexOf("sip:");
+        String userID = (index > -1) ? sipUri.substring(4) : sipUri;
+
+        return stripServerNameFromUserID(userID);
+    }
+
+    /**
+     * Extracts the user address part from the given <tt>sipUri</tt>.
+     *
+     * @param sipUri the initial SIP URI from which we would like to extract
+     * the user id part
+     * @return the user address part String from the given <tt>sipUri</tt>
+     */
+    static String sipUriToUserAddress(String sipUri)
+    {
+        int index = sipUri.indexOf("sip:");
+        String userAddress = (index > -1) ? sipUri.substring(4) : sipUri;
+
+        return userAddress;
+    }
+
+    /**
      * Creates a SIP account id from the specified ide and account properties.
      *
      * @param userID the user id part of the SIP uri identifying this contact.

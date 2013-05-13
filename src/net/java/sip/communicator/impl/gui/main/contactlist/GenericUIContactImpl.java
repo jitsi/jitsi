@@ -390,7 +390,7 @@ public class GenericUIContactImpl
      * specified <tt>MetaContact</tt>
      */
     @Override
-    public ImageIcon getAvatar(boolean isSelected, int width, int height)
+    public ImageIcon getScaledAvatar(boolean isSelected, int width, int height)
     {
         if (avatarIcon != null
             && (avatarIcon.getIconWidth() > width

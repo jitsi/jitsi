@@ -117,6 +117,11 @@ public abstract class AbstractCallPeer<T extends Call,
     private CallPeerState state = CallPeerState.UNKNOWN;
 
     /**
+     * 
+     */
+    private String alternativeIMPPAddress;
+
+    /**
      * An unmodifiable view of {@link #conferenceMembers}. The list of
      * <tt>ConferenceMember</tt>s participating in the conference managed by
      * this instance is implemented as a copy-on-write storage in order to
@@ -134,6 +139,30 @@ public abstract class AbstractCallPeer<T extends Call,
         conferenceMembers = Collections.emptyList();
         unmodifiableConferenceMembers
             = Collections.unmodifiableList(conferenceMembers);
+    }
+
+    /**
+     * Returns an alternative IMPP address corresponding to this
+     * <tt>CallPeer</tt>.
+     *
+     * @return a string representing an alternative IMPP address corresponding
+     * to this <tt>CallPeer</tt>
+     */
+    public String getAlternativeIMPPAddress()
+    {
+        return alternativeIMPPAddress;
+    }
+
+    /**
+     * Returns an alternative IMPP address corresponding to this
+     * <tt>CallPeer</tt>.
+     *
+     * @param address an alternative IMPP address corresponding to this
+     * <tt>CallPeer</tt>
+     */
+    public void setAlternativeIMPPAddress(String address)
+    {
+        alternativeIMPPAddress = address;
     }
 
     /**

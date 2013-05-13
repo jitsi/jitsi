@@ -191,25 +191,41 @@ public class LogsCollector
             JAVA_ERROR_LOG_PREFIX,
             out);
 
+        String homeDir = System.getProperty("user.home");
+
         // If we don't have permissions to write to working directory
         // the crash logs maybe in the temp directory,
         // or on the Desktop if its windows
         if(OSUtils.IS_WINDOWS)
         {
             // check Desktop
-            File[] desktopFiles = new File(System.getProperty(
-                    "user.home") + File.separator + "Desktop").listFiles();
+            File[] desktopFiles =
+                new File(homeDir + File.separator + "Desktop").listFiles();
             addCrashFilesToArchive(desktopFiles, JAVA_ERROR_LOG_PREFIX, out);
         }
 
         if(OSUtils.IS_MAC)
         {
-            // ~/Library/Logs/CrashReporter
-            addCrashFilesToArchive(
-                new File("./Library/Logs/CrashReporter").listFiles(),null, out);
-            // /Library/Logs/CrashReporter
-            addCrashFilesToArchive(
-                new File("/Library/Logs/CrashReporter").listFiles(), null, out);
+            String logDir = "/Library/Logs/";
+
+            // Look in the following directories:
+            // /Library/Logs/CrashReporter (OSX 10.4, 10.5)
+            // ~/Library/Logs/CrashReporter (OSX 10.4, 10.5)
+            // ~/Library/Logs/DiagnosticReports (OSX 10.6, 10.7, 10.8)
+            //
+            // Note that for 10.6, there are aliases in
+            // ~/Library/Logs/CrashReporter for the crash files in
+            // ~/Library/Logs/DiagnosticReports, but the code won't load the
+            // aliases so we shouldn't get duplicates.
+            String[] locations = {logDir + "CrashReporter",
+                                  homeDir + logDir + "CrashReporter",
+                                  homeDir + logDir + "DiagnosticReports"};
+
+            for (String location : locations)
+            {
+                File[] crashLogs = new File(location).listFiles();
+                addCrashFilesToArchive(crashLogs, null, out);
+            }
         }
         else
         {
@@ -242,7 +258,7 @@ public class LogsCollector
         for(File f: files)
         {
             if(filterStartsWith != null
-                && !f.getName().startsWith(JAVA_ERROR_LOG_PREFIX))
+                && !f.getName().startsWith(filterStartsWith))
             {
                 continue;
             }

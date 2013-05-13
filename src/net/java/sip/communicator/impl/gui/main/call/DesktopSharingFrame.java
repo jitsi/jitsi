@@ -15,6 +15,7 @@ import java.util.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.plugin.desktoputil.transparent.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -80,6 +81,8 @@ public class DesktopSharingFrame
      * @param protocolProvider the protocol provider, through which the desktop
      * sharing will pass
      * @param contactAddress the address of the contact to call
+     * @param uiContact the <tt>UIContactImpl</tt> for which we create a
+     * desktop sharing frame
      * @param initialFrame indicates if this is the frame which initiates the
      * desktop sharing
      * @return the created desktop sharing frame
@@ -87,6 +90,7 @@ public class DesktopSharingFrame
     public static TransparentFrame createTransparentFrame(
                                     ProtocolProviderService protocolProvider,
                                     String contactAddress,
+                                    UIContactImpl uiContact,
                                     boolean initialFrame)
     {
         TransparentFrame frame = TransparentFrame.createTransparentFrame();
@@ -99,7 +103,7 @@ public class DesktopSharingFrame
 
         JPanel buttonPanel = initButtons(
             frame, sharingRegion, initialFrame, null,
-            protocolProvider, contactAddress);
+            protocolProvider, contactAddress, uiContact);
 
         frame.getContentPane().add(buttonPanel, BorderLayout.SOUTH);
         frame.pack();
@@ -128,7 +132,7 @@ public class DesktopSharingFrame
         frame.getContentPane().add(sharingRegion, BorderLayout.NORTH);
 
         JPanel buttonPanel = initButtons(
-            frame, sharingRegion, initialFrame, call, null, null);
+            frame, sharingRegion, initialFrame, call, null, null, null);
 
         frame.getContentPane().add(buttonPanel, BorderLayout.SOUTH);
 
@@ -370,6 +374,8 @@ public class DesktopSharingFrame
      * @param call the current call, if we're in a call
      * @param protocolProvider the protocol provider
      * @param contact the contact, which is the receiver of the call
+     * @param uiContact the <tt>UIContactImpl</tt> for which we create the
+     * desktop sharing frame
      *
      * @return the created button panel
      */
@@ -379,7 +385,8 @@ public class DesktopSharingFrame
                                 boolean initialFrame,
                                 final Call call,
                                 final ProtocolProviderService protocolProvider,
-                                final String contact)
+                                final String contact,
+                                final UIContactImpl uiContact)
     {
         JPanel buttonPanel = new JPanel(new GridBagLayout())
         {
@@ -517,6 +524,7 @@ public class DesktopSharingFrame
                         CallManager.createRegionDesktopSharing(
                                 protocolProvider,
                                 contact,
+                                uiContact,
                                 location.x,
                                 location.y,
                                 sharingRegionWidth,

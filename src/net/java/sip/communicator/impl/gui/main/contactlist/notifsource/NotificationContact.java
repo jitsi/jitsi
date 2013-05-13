@@ -229,7 +229,7 @@ public class NotificationContact
      * @param height the height of the avatar
      * @return  the avatar of this contact
      */
-    public ImageIcon getAvatar(boolean isSelected, int width, int height)
+    public ImageIcon getScaledAvatar(boolean isSelected, int width, int height)
     {
         ImageIcon avatarIcon = null;
         if (messageType.equals(MessageType.VOICE))
@@ -280,7 +280,7 @@ public class NotificationContact
     {
         ExtendedTooltip tip = new ExtendedTooltip(true);
 
-        ImageIcon avatarImage = getAvatar(true, 64, 64);
+        ImageIcon avatarImage = getScaledAvatar(true, 64, 64);
 
         if (avatarImage != null)
             tip.setImage(avatarImage);

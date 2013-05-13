@@ -11,7 +11,9 @@ import java.util.*;
 import javax.sdp.*;
 import javax.sip.*;
 import javax.sip.address.*;
+import javax.sip.header.*;
 import javax.sip.message.*;
+
 import gov.nist.javax.sip.stack.*;
 
 import net.java.sip.communicator.impl.protocol.sip.sdp.*;
@@ -22,6 +24,7 @@ import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.neomedia.*;
+import org.jitsi.service.neomedia.MediaType;
 
 /**
  * A SIP implementation of the abstract <tt>Call</tt> class encapsulating SIP
@@ -410,7 +413,24 @@ public class CallSipImpl
     {
         Request invite = serverTran.getRequest();
 
-        final CallPeerSipImpl peer = createCallPeerFor(serverTran, jainSipProvider);
+        final CallPeerSipImpl peer
+            = createCallPeerFor(serverTran, jainSipProvider);
+
+        CallInfoHeader infoHeader
+            = (CallInfoHeader) invite.getHeader(CallInfoHeader.NAME);
+
+        // Sets an alternative impp address if such is available in the
+        // call-info header.
+        String alternativeIMPPAddress = null;
+        if (infoHeader != null
+            && infoHeader.getParameter("purpose") != null
+            && infoHeader.getParameter("purpose").equals("impp"))
+        {
+            alternativeIMPPAddress = infoHeader.getInfo().toString();
+        }
+
+        if (alternativeIMPPAddress != null)
+            peer.setAlternativeIMPPAddress(alternativeIMPPAddress);
 
         //send a ringing response
         Response response = null;

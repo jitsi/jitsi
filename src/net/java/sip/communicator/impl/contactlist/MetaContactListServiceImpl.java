@@ -1584,6 +1584,77 @@ public class MetaContactListServiceImpl
     }
 
     /**
+     * Returns a list of all <tt>MetaContact</tt>s containing a protocol contact
+     * corresponding to the given <tt>contactAddress</tt> string.
+     * 
+     * @param contactAddress the contact address for which we're looking for
+     * a parent <tt>MetaContact</tt>.
+     * @return a list of all <tt>MetaContact</tt>s containing a protocol contact
+     * corresponding to the given <tt>contactAddress</tt> string.
+     */
+    public Iterator<MetaContact> findAllMetaContactsForAddress(
+        String contactAddress)
+    {
+        List<MetaContact> resultList = new LinkedList<MetaContact>();
+
+        findAllMetaContactsForAddress(rootMetaGroup, contactAddress, resultList);
+
+        return resultList.iterator();
+    }
+
+    /**
+     * Returns a list of all <tt>MetaContact</tt>s containing a protocol contact
+     * corresponding to the given <tt>contactAddress</tt> string.
+     * 
+     * @param contactAddress the contact address for which we're looking for
+     * a parent <tt>MetaContact</tt>.
+     * @param metaContactGroup the parent group.
+     * @param resultList the list containing the result of the search.
+     */
+    private void findAllMetaContactsForAddress(
+        MetaContactGroup metaContactGroup,
+        String contactAddress,
+        List<MetaContact> resultList)
+    {
+        Iterator<MetaContact> childContacts
+            = metaContactGroup.getChildContacts();
+
+        while (childContacts.hasNext())
+        {
+            MetaContact metaContact = childContacts.next();
+
+            Iterator<Contact> protocolContacts = metaContact.getContacts();
+
+            while (protocolContacts.hasNext())
+            {
+                Contact protocolContact = protocolContacts.next();
+
+                if (protocolContact.getAddress().equals(contactAddress)
+                    || protocolContact.getDisplayName().equals(contactAddress))
+                    resultList.add(metaContact);
+            }
+        }
+
+        Iterator<MetaContactGroup> subGroups
+            = metaContactGroup.getSubgroups();
+
+        while (subGroups.hasNext())
+        {
+            MetaContactGroup subGroup = subGroups.next();
+
+            Iterator<ContactGroup> protocolSubgroups
+                = subGroup.getContactGroups();
+
+            if (protocolSubgroups.hasNext())
+            {
+                this.findAllMetaContactsForAddress( subGroup,
+                                                    contactAddress,
+                                                    resultList);
+            }
+        }
+    }
+
+    /**
      * Returns a list of all <tt>MetaContact</tt>s contained in the given group
      * and containing a protocol contact from the given
      * <tt>ProtocolProviderService</tt>.

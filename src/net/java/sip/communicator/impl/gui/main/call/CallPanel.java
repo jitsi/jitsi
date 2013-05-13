@@ -348,7 +348,8 @@ public class CallPanel
      * @param callWindow the parent window in which the new instance will be
      * added
      */
-    public CallPanel(CallConference callConference, CallContainer callWindow)
+    public CallPanel(   CallConference callConference,
+                        CallContainer callWindow)
     {
         super(new BorderLayout());
 

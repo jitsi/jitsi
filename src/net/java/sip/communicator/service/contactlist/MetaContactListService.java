@@ -173,6 +173,18 @@ public interface MetaContactListService
         MetaContactGroup metaContactGroup);
 
     /**
+     * Returns a list of all <tt>MetaContact</tt>s containing a protocol contact
+     * corresponding to the given <tt>contactAddress</tt> string.
+     * 
+     * @param contactAddress the contact address for which we're looking for
+     * a parent <tt>MetaContact</tt>.
+     * @return a list of all <tt>MetaContact</tt>s containing a protocol contact
+     * corresponding to the given <tt>contactAddress</tt> string.
+     */
+    public Iterator<MetaContact> findAllMetaContactsForAddress(
+        String contactAddress);
+
+    /**
      * Adds a listener for <tt>MetaContactListChangeEvent</tt>s posted after
      * the tree changes.
      *

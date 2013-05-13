@@ -130,6 +130,17 @@ public class SourceUIContact
     }
 
     /**
+     * Gets the avatar of a specific <tt>UIContact</tt> in the form of an
+     * <tt>ImageIcon</tt> value.
+     *
+     * @return a byte array representing the avatar of this <tt>UIContact</tt>
+     */
+    public byte[] getAvatar()
+    {
+        return sourceContact.getImage();
+    }
+
+    /**
      * Returns the image corresponding to the underlying <tt>SourceContact</tt>.
      * @param isSelected indicates if the contact is currently selected in the
      * contact list component
@@ -137,7 +148,7 @@ public class SourceUIContact
      * @param height the desired image height
      * @return the image
      */
-    public ImageIcon getAvatar(boolean isSelected, int width, int height)
+    public ImageIcon getScaledAvatar(boolean isSelected, int width, int height)
     {
         byte[] image = sourceContact.getImage();
 
@@ -381,7 +392,7 @@ public class SourceUIContact
      */
     public JPopupMenu getRightButtonMenu()
     {
-        return new SourceContactRightButtonMenu(sourceContact);
+        return new SourceContactRightButtonMenu(this);
     }
 
     /**

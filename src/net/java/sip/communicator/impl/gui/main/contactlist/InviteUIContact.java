@@ -129,11 +129,11 @@ public class InviteUIContact
      * @param height avatar preferred height
      */
     @Override
-    public ImageIcon getAvatar(boolean isSelected, int width, int height)
+    public ImageIcon getScaledAvatar(boolean isSelected, int width, int height)
     {
         if (sourceUIContact instanceof UIContactImpl)
             return ((UIContactImpl) sourceUIContact)
-                .getAvatar(isSelected, width, height);
+                .getScaledAvatar(isSelected, width, height);
 
         return null;
     }

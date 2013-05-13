@@ -41,6 +41,11 @@ public class SourceContactRightButtonMenu
     private static final long serialVersionUID = 0L;
 
     /**
+     * The source UI contact.
+     */
+    private final SourceUIContact sourceUIContact;
+
+    /**
      * The source contact.
      */
     private final SourceContact sourceContact;
@@ -62,13 +67,15 @@ public class SourceContactRightButtonMenu
 
     /**
      * Creates an instance of <tt>SourceContactRightButtonMenu</tt> by
-     * specifying the <tt>SourceContact</tt>, for which this menu is created.
-     * @param sourceContact the <tt>SourceContact</tt>, for which this menu is
-     * created
+     * specifying the <tt>SourceUIContact</tt>, for which this menu is created.
+     * @param sourceUIContact the <tt>SourceUIContact</tt>, for which this menu
+     * is created
      */
-    public SourceContactRightButtonMenu(SourceContact sourceContact)
+    public SourceContactRightButtonMenu(SourceUIContact sourceUIContact)
     {
-        this.sourceContact = sourceContact;
+        this.sourceUIContact = sourceUIContact;
+
+        this.sourceContact = (SourceContact)sourceUIContact.getDescriptor();
 
         this.initItems();
     }
@@ -143,15 +150,19 @@ public class SourceContactRightButtonMenu
                     }
                     else if (providersCount > 1)
                     {
-                        new ChooseCallAccountDialog(
-                            detail.getDetail(),
-                            OperationSetBasicTelephony.class, providers)
-                        .setVisible(true);
+                        ChooseCallAccountDialog dialog
+                            = new ChooseCallAccountDialog(
+                                detail.getDetail(),
+                                OperationSetBasicTelephony.class, providers);
+                        dialog.setUIContact(sourceUIContact);
+                        dialog.setVisible(true);
                     }
                     else // providersCount == 1
                     {
                         CallManager.createCall(
-                            providers.get(0), detail.getDetail());
+                            providers.get(0),
+                            detail.getDetail(),
+                            sourceUIContact);
                     }
                 }
             });

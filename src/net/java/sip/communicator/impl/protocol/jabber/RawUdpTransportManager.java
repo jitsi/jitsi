@@ -515,7 +515,7 @@ public class RawUdpTransportManager
          */
         if (call.getConference().isJitsiVideoBridge())
         {
-            List<RtpDescriptionPacketExtension> mediaTypes
+            List<RtpDescriptionPacketExtension> descriptions
                 = new ArrayList<RtpDescriptionPacketExtension>();
 
             for (ContentPacketExtension cpe : cpes)
@@ -533,24 +533,24 @@ public class RawUdpTransportManager
                 if ((colibri == null)
                         || (colibri.getContent(mediaType.toString()) == null))
                 {
-                    if (!mediaTypes.contains(rtpDesc))
-                        mediaTypes.add(rtpDesc);
+                    if (!descriptions.contains(rtpDesc))
+                        descriptions.add(rtpDesc);
                 }
             }
-            if (!mediaTypes.isEmpty())
+            if (!descriptions.isEmpty())
             {
                 /*
-                 * We are about to request the channel allocations for
-                 * mediaTypes. Regardless of the response, we do not want to
-                 * repeat these requests.
+                 * We are about to request the channel allocations for the
+                 * media types found in 'descriptions'. Regardless of the
+                 * response, we do not want to repeat these requests.
                  */
                 if (colibri == null)
                     colibri = new ColibriConferenceIQ();
-                for (RtpDescriptionPacketExtension mediaType : mediaTypes)
-                    colibri.getOrCreateContent(mediaType.getMedia());
+                for (RtpDescriptionPacketExtension description : descriptions)
+                    colibri.getOrCreateContent(description.getMedia());
 
                 ColibriConferenceIQ conferenceResult
-                    = call.createColibriChannels(peer, mediaTypes);
+                    = call.createColibriChannels(peer, descriptions);
 
                 if (conferenceResult != null)
                 {

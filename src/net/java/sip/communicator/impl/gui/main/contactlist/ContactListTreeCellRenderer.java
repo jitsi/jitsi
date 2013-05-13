@@ -25,9 +25,11 @@ import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.OperationSetServerStoredContactInfo.*;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.account.*;
+import net.java.sip.communicator.util.call.*;
 import net.java.sip.communicator.util.skin.*;
 
 /**
@@ -442,7 +444,7 @@ public class ContactListTreeCellRenderer
             }
 
             Icon avatar
-                = contact.getAvatar(isSelected, avatarWidth, avatarHeight);
+                = contact.getScaledAvatar(isSelected, avatarWidth, avatarHeight);
 
             if (avatar != null)
             {
@@ -777,7 +779,8 @@ public class ContactListTreeCellRenderer
 
         // Check if contact has additional phone numbers, if yes show the
         // call button
-        ContactPhoneUtil contactPhoneUtil = null;
+        MetaContactPhoneUtil contactPhoneUtil = null;
+        DetailsResponseListener detailsListener = null;
 
         // check for phone stored in contact info only
         // if telephony contact is missing
@@ -785,24 +788,11 @@ public class ContactListTreeCellRenderer
            && uiContact.getDescriptor() instanceof MetaContact
            && telephonyContact == null)
         {
-            contactPhoneUtil = ContactPhoneUtil.getPhoneUtil(
+            contactPhoneUtil = MetaContactPhoneUtil.getPhoneUtil(
                 (MetaContact)uiContact.getDescriptor());
 
-            MetaContact metaContact =
-                (MetaContact)uiContact.getDescriptor();
-            Iterator<Contact> contacts = metaContact.getContacts();
-
-            while(contacts.hasNext())// && !hasPhone)
-            {
-                Contact contact = contacts.next();
-
-                if(!contact.getProtocolProvider().isRegistered())
-                    continue;
-
-                contactPhoneUtil.addDetailsResponseListener(
-                    contact,
-                    new DetailsListener(treeNode, callButton, uiContact));
-            }
+            detailsListener
+                = new DetailsListener(treeNode, callButton, uiContact);
         }
 
         // for SourceContact in history that do not support telephony, we
@@ -814,7 +804,8 @@ public class ContactListTreeCellRenderer
                 null);
 
         if ((telephonyContact != null && telephonyContact.getAddress() != null)
-            || (contactPhoneUtil != null && contactPhoneUtil.isCallEnabled()
+            || (contactPhoneUtil != null
+                && contactPhoneUtil.isCallEnabled(detailsListener)
                 && providers.size() > 0))
         {
             x += addButton(callButton, ++gridX, x, false);
@@ -826,7 +817,7 @@ public class ContactListTreeCellRenderer
 
         if (videoContact != null
             || (contactPhoneUtil != null
-                && contactPhoneUtil.isVideoCallEnabled()))
+                && contactPhoneUtil.isVideoCallEnabled(detailsListener)))
         {
             x += addButton(callVideoButton, ++gridX, x, false);
         }
@@ -837,7 +828,7 @@ public class ContactListTreeCellRenderer
 
         if (desktopContact != null
             || (contactPhoneUtil != null
-                && contactPhoneUtil.isDesktopSharingEnabled()))
+                && contactPhoneUtil.isDesktopSharingEnabled(detailsListener)))
         {
             x += addButton(desktopSharingButton, ++gridX, x, false);
         }

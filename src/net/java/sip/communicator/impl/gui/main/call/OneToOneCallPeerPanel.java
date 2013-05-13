@@ -259,7 +259,7 @@ public class OneToOneCallPeerPanel
         this.callPeer = callPeer;
         this.uiVideoHandler = uiVideoHandler;
 
-        peerName = callPeer.getDisplayName();
+        peerName = CallManager.getPeerDisplayName(callPeer);
         securityPanel = SecurityPanel.create(this, callPeer, null);
 
         photoLabel = new JLabel(getPhotoLabelIcon());
@@ -774,6 +774,8 @@ public class OneToOneCallPeerPanel
 
     /**
      * Indicates that the security has gone off.
+     *
+     * @param evt the <tt>CallPeerSecurityOffEvent</tt> that notified us
      */
     public void securityOff(final CallPeerSecurityOffEvent evt)
     {
@@ -871,7 +873,7 @@ public class OneToOneCallPeerPanel
 
         // Display ZRTP panel in case SAS was not verified or a AOR mismtach
         // was detected during creation of ZrtpSecurityPanel.
-	    // Don't show panel if user does not care about security at all.
+        // Don't show panel if user does not care about security at all.
         if (srtpControl instanceof ZrtpControl
             && !isSecurityLowPriority
             && (!((ZrtpControl) srtpControl).isSecurityVerified() 
@@ -1067,6 +1069,8 @@ public class OneToOneCallPeerPanel
      */
     public void setPeerImage(byte[] image)
     {
+        // If the image is still null we try to obtain it from one of the
+        // available contact sources.
         if (image == null || image.length <= 0)
         {
             GuiActivator.getContactList().setSourceContactImage(

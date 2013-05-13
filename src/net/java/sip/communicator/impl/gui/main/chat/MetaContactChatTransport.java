@@ -686,7 +686,10 @@ public class MetaContactChatTransport
                                         ContactPresenceStatusChangeEvent evt)
     {
         if (evt.getSourceContact().equals(contact)
-            && !evt.getOldStatus().equals(evt.getNewStatus()))
+            && !evt.getOldStatus().equals(evt.getNewStatus())
+            && contactResource == null) // If the contact source is set then the
+                                        // status will be updated from the
+                                        // MetaContactChatSession.
         {
             this.updateContactStatus();
         }
