@@ -12,7 +12,6 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.util.skin.*;
 
 /**
@@ -42,30 +41,9 @@ public class SecurityStatusLabel
     private static Icon securityOnIcon;
 
     /**
-     * The background used to indicate that the call is secured.
+     * The icon used for the security pending state.
      */
-    private final static Color securityOnBackground
-        = new Color(GuiActivator.getResources()
-            .getColor("service.gui.SECURITY_ON"));
-
-    /**
-     * The background used to indicate that the call is not secured.
-     */
-    private final static Color securityOffBackground
-        = new Color(GuiActivator.getResources()
-            .getColor("service.gui.SECURITY_OFF"));
-
-    /**
-     * The background used to indicate that the call is not secured.
-     */
-    private final static Color goingSecureBackground
-        = new Color(GuiActivator.getResources()
-            .getColor("service.gui.GOING_SECURE"));
-
-    /**
-     * Indicates security status.
-     */
-    private boolean isSecure = false;
+    private static Icon securityPendingIcon;
 
     /**
      * Creates an instance of <tt>SecurityStatusLabel</tt> by specifying the
@@ -83,47 +61,11 @@ public class SecurityStatusLabel
     }
 
     /**
-     * Paints a custom background to better indicate security state.
-     *
-     * @param g the <tt>Graphics</tt> object
-     */
-    public void paintComponent(Graphics g)
-    {
-        g = g.create();
-
-        try
-        {
-            AntialiasingManager.activateAntialiasing(g);
-            g.setColor(getBackground());
-
-            if (getIcon() != null)
-            {
-                if (isSecure)
-                    g.fillRoundRect(
-                        0, 0, this.getWidth(), this.getHeight(), 20, 20);
-                else
-                    g.fillRoundRect(
-                        0, 0, this.getWidth(), this.getHeight(), 20, 20);
-            }
-
-            g.setColor(getForeground());
-
-            super.paintComponent(g);
-        }
-        finally
-        {
-            g.dispose();
-        }
-    }
-
-    /**
      * Sets the audio security on or off.
      */
     public void setSecurityOn()
     {
-        isSecure = true;
         setIcon(securityOnIcon);
-        setBackground(securityOnBackground);
         setToolTipText(GuiActivator.getResources().getI18NString(
             "service.gui.security.CALL_SECURED_TOOLTIP"));
     }
@@ -133,9 +75,7 @@ public class SecurityStatusLabel
      */
     public void setSecurityOff()
     {
-        isSecure = false;
         setIcon(securityOffIcon);
-        setBackground(securityOffBackground);
         this.setToolTipText(GuiActivator.getResources().getI18NString(
             "service.gui.security.CALL_NOT_SECURED_TOOLTIP"));
     }
@@ -145,9 +85,7 @@ public class SecurityStatusLabel
      */
     public void setSecurityPending()
     {
-        isSecure = false;
-        setIcon(securityOnIcon);
-        setBackground(goingSecureBackground);
+        setIcon(securityPendingIcon);
         this.setToolTipText(GuiActivator.getResources().getI18NString(
             "service.gui.security.CALL_SECURED_COMPARE_TOOLTIP"));
     }
@@ -173,5 +111,8 @@ public class SecurityStatusLabel
 
         securityOnIcon = new ImageIcon(ImageLoader
             .getImage(ImageLoader.SECURE_BUTTON_ON));
+
+        securityPendingIcon = new ImageIcon(ImageLoader
+            .getImage(ImageLoader.SECURE_BUTTON_PENDING));
     }
 }

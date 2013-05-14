@@ -59,7 +59,7 @@ public class CallTitlePanel
             AntialiasingManager.activateAntialiasing(g);
 
             g.setColor(backgroundColor);
-            g.fillRoundRect(0, 0, this.getWidth(), this.getHeight(), 20, 20);
+            g.fillRoundRect(0, 0, this.getWidth(), this.getHeight(), 10, 10);
         }
         finally
         {

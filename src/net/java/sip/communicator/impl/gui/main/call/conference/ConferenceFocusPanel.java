@@ -557,6 +557,27 @@ public class ConferenceFocusPanel
     }
 
     /**
+     * Enables or disabled video indicator in this conference participant
+     * panel.
+     *
+     * @param confMember the <tt>ConferenceMember</tt>, which video indicator
+     * we'd like to update
+     * @param enable <tt>true</tt> to enable video indicator, <tt>false</tt> -
+     * otherwise
+     */
+    public void enableVideoIndicator(   ConferenceMember confMember,
+                                        boolean enable)
+    {
+        if (!conferenceMemberPanels.containsKey(confMember))
+            return;
+
+        ConferenceMemberPanel confMemberPanel
+            = conferenceMemberPanels.get(confMember);
+
+        confMemberPanel.enableVideoIndicator(enable);
+    }
+
+    /**
      * Implements the listeners which get notified about events related to the
      * <tt>CallPeer</tt> depicted by this <tt>ConferenceFocusPanel</tt> and
      * which may cause a need to update this view from its model.

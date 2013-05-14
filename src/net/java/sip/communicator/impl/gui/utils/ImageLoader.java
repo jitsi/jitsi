@@ -757,32 +757,38 @@ public class ImageLoader
     /**
      * A call-transfer button icon. The icon shown in the CallPeer panel.
      */
-    public static final ImageID TRANSFER_CALL_BUTTON =
-        new ImageID("service.gui.buttons.TRANSFER_CALL_BUTTON");
+    public static final ImageID TRANSFER_CALL_BUTTON
+        = new ImageID("service.gui.buttons.TRANSFER_CALL_BUTTON");
 
     /**
      * The secure button on icon. The icon shown in the CallPeer panel.
      */
-    public static final ImageID SECURE_BUTTON_ON =
-        new ImageID("service.gui.buttons.SECURE_BUTTON_ON");
+    public static final ImageID SECURE_BUTTON_ON
+        = new ImageID("service.gui.buttons.SECURE_BUTTON_ON");
 
     /**
      * The secure button off icon. The icon shown in the CallPeer panel.
      */
-    public static final ImageID SECURE_BUTTON_OFF =
-        new ImageID("service.gui.buttons.SECURE_BUTTON_OFF");
+    public static final ImageID SECURE_BUTTON_OFF
+        = new ImageID("service.gui.buttons.SECURE_BUTTON_OFF");
+
+    /**
+     * The secure button pending icon.
+     */
+    public static final ImageID SECURE_BUTTON_PENDING
+        = new ImageID("service.gui.buttons.SECURE_BUTTON_PENDING");
 
     /**
      * The conference secure button off icon.
      */
-    public static final ImageID SECURE_OFF_CONF_CALL =
-        new ImageID("service.gui.buttons.SECURE_OFF_CONF_CALL");
+    public static final ImageID SECURE_OFF_CONF_CALL
+        = new ImageID("service.gui.buttons.SECURE_OFF_CONF_CALL");
 
     /**
      * The secure button on icon. The icon shown in the CallPeer panel.
      */
-    public static final ImageID SECURE_AUDIO_ON =
-        new ImageID("service.gui.buttons.SECURE_AUDIO_ON");
+    public static final ImageID SECURE_AUDIO_ON
+        = new ImageID("service.gui.buttons.SECURE_AUDIO_ON");
 
     /**
      * The secure button off icon. The icon shown in the CallPeer panel.
@@ -1030,6 +1036,12 @@ public class ImageLoader
      */
     public static final ImageID DIAL_PAD_CALL_BUTTON_BG
         = new ImageID("service.gui.buttons.DIAL_PAD_CALL_BUTTON_BG");
+
+    /**
+     * The conference video indicator.
+     */
+    public static final ImageID CONFERENCE_VIDEO_INDICATOR
+        = new ImageID("service.gui.icons.CONFERENCE_VIDEO_INDICATOR");
 
     /*
      * =======================================================================
@@ -1512,9 +1524,17 @@ public class ImageLoader
      */
     public static Image getImage(Image bgImage, Image topImage, int x, int y)
     {
+        int width = (x + topImage.getWidth(null) > bgImage.getWidth(null))
+                        ? x + topImage.getWidth(null)
+                        : bgImage.getWidth(null);
+
+        int height = (y + topImage.getHeight(null) > bgImage.getHeight(null))
+                        ? y + topImage.getHeight(null)
+                        : bgImage.getHeight(null);
+
         BufferedImage buffImage
-            = new BufferedImage(bgImage.getWidth(null),
-                                bgImage.getHeight(null),
+            = new BufferedImage(width,
+                                height,
                                 BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = (Graphics2D) buffImage.getGraphics();
 

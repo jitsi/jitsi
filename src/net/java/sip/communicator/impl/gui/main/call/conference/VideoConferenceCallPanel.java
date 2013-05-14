@@ -81,6 +81,11 @@ public class VideoConferenceCallPanel
     private final Set<Component> videos = new HashSet<Component>();
 
     /**
+     * The thumbnail container.
+     */
+    private final ThumbnailConferenceCallPanel thumbnailContainer;
+
+    /**
      * Initializes a new <tt>VideoConferenceCallPanel</tt> instance which is to
      * be used by a specific <tt>CallPanel</tt> to depict a specific
      * <tt>CallConference</tt>. The new instance will depict both the
@@ -101,6 +106,11 @@ public class VideoConferenceCallPanel
         super(callPanel, callConference);
 
         this.uiVideoHandler = uiVideoHandler;
+
+        thumbnailContainer
+            = new ThumbnailConferenceCallPanel( callPanel,
+                                                callConference,
+                                                uiVideoHandler);
 
         videoContainer = createVideoContainer();
 
@@ -249,15 +259,13 @@ public class VideoConferenceCallPanel
     private VideoContainer createVideoContainer()
     {
         VideoContainer videoContainer = new VideoContainer(null, true);
-        GridBagConstraints videoContainerGridBagConstraints
-            = new GridBagConstraints();
 
-        videoContainerGridBagConstraints.fill = GridBagConstraints.BOTH;
-        videoContainerGridBagConstraints.gridx = 0;
-        videoContainerGridBagConstraints.gridy = 0;
-        videoContainerGridBagConstraints.weightx = 1;
-        videoContainerGridBagConstraints.weighty = 1;
-        add(videoContainer, videoContainerGridBagConstraints);
+        JPanel thumbnailPanel = new JPanel(new BorderLayout());
+        thumbnailPanel.setBackground(Color.DARK_GRAY);
+        thumbnailPanel.add(thumbnailContainer, BorderLayout.NORTH);
+
+        add(thumbnailPanel, BorderLayout.EAST);
+        add(videoContainer, BorderLayout.CENTER);
 
         return videoContainer;
     }
@@ -930,6 +938,24 @@ public class VideoConferenceCallPanel
         private final VideoContainer videoContainer;
 
         /**
+         * The <tt>CallPeer</tt> associated with this container, if it has been
+         * created to represent a <tt>CallPeer</tt>.
+         */
+        private CallPeer callPeer;
+
+        /**
+         * The <tt>conferenceMember</tt> associated with this container, if it
+         * has been created to represent a <tt>conferenceMember</tt>.
+         */
+        private ConferenceMember conferenceMember;
+
+        /**
+         * Indicates that this container contains information for the local
+         * user.
+         */
+        private boolean isLocalUser;
+
+        /**
          * Initializes a new <tt>ConferenceParticipantContainer</tt> instance
          * which is to depict the local peer/user.
          *
@@ -946,28 +972,36 @@ public class VideoConferenceCallPanel
                     new ConferencePeerPanel(
                             VideoConferenceCallPanel.this,
                             call,
-                            true));
+                            true),
+                    null, null, true);
         }
 
         public ConferenceParticipantContainer(
                 CallPeer callPeer,
                 Component video)
         {
-            this(
-                    createDefaultPhotoPanel(callPeer),
+            this(   createDefaultPhotoPanel(callPeer),
                     video,
                     new ConferencePeerPanel(
                             VideoConferenceCallPanel.this,
                             callPeer,
-                            true));
+                            true),
+                    callPeer, null, false);
         }
 
         private ConferenceParticipantContainer(
                 Component noVideo,
                 Component video,
-                BasicConferenceParticipantPanel<?> toolBar)
+                BasicConferenceParticipantPanel<?> toolBar,
+                CallPeer callPeer,
+                ConferenceMember conferenceMember,
+                boolean isLocalUser)
         {
             super(new BorderLayout());
+
+            this.callPeer = callPeer;
+            this.conferenceMember = conferenceMember;
+            this.isLocalUser = isLocalUser;
 
             videoContainer = new VideoContainer(noVideo, false);
             add(videoContainer, BorderLayout.CENTER);
@@ -977,7 +1011,11 @@ public class VideoConferenceCallPanel
                 add(this.toolBar, BorderLayout.SOUTH);
 
             if (video != null)
+            {
                 setVideo(video);
+            }
+            else
+                setVisible(false);
         }
 
         public ConferenceParticipantContainer(
@@ -990,7 +1028,8 @@ public class VideoConferenceCallPanel
                     new ConferenceMemberPanel(
                             VideoConferenceCallPanel.this,
                             conferenceMember,
-                            true));
+                            true),
+                    null, conferenceMember, false);
         }
 
         public void dispose()
@@ -1319,7 +1358,26 @@ public class VideoConferenceCallPanel
                 this.video = video;
 
                 if (this.video != null)
+                {
+                    setVisible(true);
                     videoContainer.add(this.video, VideoLayout.CENTER_REMOTE);
+                }
+                else
+                    setVisible(false);
+
+                // Update thumbnails container according to video status.
+                if (thumbnailContainer != null)
+                {
+                    if (conferenceMember != null)
+                        thumbnailContainer
+                            .updateThumbnail(conferenceMember, (video != null));
+                    else if (callPeer != null)
+                        thumbnailContainer
+                            .updateThumbnail(callPeer, (video != null));
+                    else if (isLocalUser)
+                        thumbnailContainer
+                            .updateThumbnail((video != null));
+                }
             }
         }
     }

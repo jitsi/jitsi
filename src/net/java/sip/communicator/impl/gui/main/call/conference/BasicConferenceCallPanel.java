@@ -13,7 +13,6 @@ import java.util.List;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.main.call.*;
-import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 
@@ -24,7 +23,7 @@ import net.java.sip.communicator.service.protocol.event.*;
  * @author Lyubomir Marinov
  */
 public abstract class BasicConferenceCallPanel
-    extends TransparentPanel
+    extends JPanel
     implements SwingCallRenderer
 {
     /**
@@ -101,7 +100,7 @@ public abstract class BasicConferenceCallPanel
             CallPanel callPanel,
             CallConference callConference)
     {
-        super(new GridBagLayout());
+        super(new BorderLayout());
 
         this.callPanel = callPanel;
         this.callConference = callConference;

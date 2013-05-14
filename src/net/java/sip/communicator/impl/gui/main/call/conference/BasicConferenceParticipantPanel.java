@@ -46,7 +46,7 @@ public abstract class BasicConferenceParticipantPanel<T>
     /**
      * Background color.
      */
-    private static final Color bgColor = new Color(255, 255, 255);
+    private static final Color bgColor = new Color(110, 110, 110);
 
     /**
      * Serial version UID.
@@ -139,6 +139,7 @@ public abstract class BasicConferenceParticipantPanel<T>
      */
     private SoundLevelIndicator soundIndicator;
 
+    
     /**
      * The status bar of the participant panel.
      */
@@ -155,6 +156,16 @@ public abstract class BasicConferenceParticipantPanel<T>
      * The panel containing the title of the participant.
      */
     private final JPanel titleBar = new CallTitlePanel(new GridBagLayout());
+
+    /**
+     * Indicates if video indicator is enabled for this participant.
+     */
+    private boolean isVideoIndicatorEnabled = false;
+
+    /**
+     * The image of the participant
+     */
+    private Image participantImage;
 
     /**
      * Initializes a new <tt>BasicConferenceParticipantPanel</tt> instance which
@@ -198,6 +209,8 @@ public abstract class BasicConferenceParticipantPanel<T>
     {
         nameBarConstraints.gridx = nameBarConstraints.gridx + 1;
         nameBarConstraints.weightx = 0f;
+        nameBarConstraints.insets = new Insets(0, 5, 0, 0);
+
         this.nameBar.add(component, nameBarConstraints);
     }
 
@@ -266,11 +279,13 @@ public abstract class BasicConferenceParticipantPanel<T>
                     SoundLevelChangeEvent.MIN_LEVEL,
                     SoundLevelChangeEvent.MAX_LEVEL);
 
+        soundIndicator.setPreferredSize(new Dimension(80, 30));
+
         securityStatusLabel = new SecurityStatusLabel();
         securityStatusLabel.setSecurityOff();
 
         this.setLayout(new GridBagLayout());
-        this.setBorder(BorderFactory.createEmptyBorder(7, 7, 7, 7));
+        this.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         this.initTitleBar();
 
@@ -298,26 +313,17 @@ public abstract class BasicConferenceParticipantPanel<T>
      */
     private void initPeerDetailsPanel()
     {
-        ImageIcon avatarIcon
-            = new ImageIcon(
-                    ImageLoader
-                        .getImage(ImageLoader.DEFAULT_USER_PHOTO)
-                            .getScaledInstance(
-                                    AVATAR_WIDTH,
-                                    AVATAR_HEIGHT,
-                                    Image.SCALE_SMOOTH));
-
         peerDetailsPanel.setLayout(new GridBagLayout());
         peerDetailsPanel.setBackground(new Color(255, 255, 255));
 
-        imageLabel.setIcon(avatarIcon);
+        setParticipantIcon(null, false);
 
         constraints.fill = GridBagConstraints.NONE;
         constraints.gridx = 0;
         constraints.gridy = 0;
         constraints.weightx = 0;
         constraints.weighty = 0;
-        constraints.insets = new Insets(5, 10, 5, 0);
+        constraints.insets = new Insets(5, 8, 5, 0);
 
         peerDetailsPanel.add(imageLabel, constraints);
 
@@ -326,7 +332,7 @@ public abstract class BasicConferenceParticipantPanel<T>
         constraints.gridy = 0;
         constraints.weightx = 1f;
         constraints.weighty = 0;
-        constraints.insets = new Insets(5, 20, 5, 20);
+        constraints.insets = new Insets(5, 10, 5, 10);
 
         rightDetailsPanel.add(soundIndicator);
         peerDetailsPanel.add(rightDetailsPanel, constraints);
@@ -339,6 +345,7 @@ public abstract class BasicConferenceParticipantPanel<T>
     {
         titleBar.setBorder(BorderFactory.createEmptyBorder(2, 8, 2, 8));
 
+        nameLabel.setForeground(Color.WHITE);
         nameBar.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
         nameBarConstraints.gridx = 0;
         nameBarConstraints.gridy = 0;
@@ -346,6 +353,7 @@ public abstract class BasicConferenceParticipantPanel<T>
         nameBar.add(nameLabel, nameBarConstraints);
 
         statusBar.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
+        callStatusLabel.setForeground(Color.WHITE);
         statusBarConstraints.gridx = 0;
         statusBarConstraints.gridy = 0;
         statusBarConstraints.weightx = 1f;
@@ -398,15 +406,7 @@ public abstract class BasicConferenceParticipantPanel<T>
     {
         if(!iconChanged)
         {
-            ImageIcon avatarIcon
-                = new ImageIcon(
-                        ImageLoader.getImage(ImageLoader.DEFAULT_USER_PHOTO)
-                                .getScaledInstance(
-                                        AVATAR_WIDTH,
-                                        AVATAR_HEIGHT,
-                                        Image.SCALE_SMOOTH));
-
-            imageLabel.setIcon(avatarIcon);
+            setParticipantIcon(null, false);
         }
 
         securityStatusLabel.setIcon(
@@ -435,7 +435,7 @@ public abstract class BasicConferenceParticipantPanel<T>
 
             g.setColor(bgColor);
             g.fillRoundRect(
-                5, 5, this.getWidth() - 10, this.getHeight() - 10, 20, 20);
+                5, 5, this.getWidth() - 10, this.getHeight() - 10, 10, 10);
         }
         finally
         {
@@ -555,15 +555,7 @@ public abstract class BasicConferenceParticipantPanel<T>
      */
     public void setParticipantImage(byte[] image)
     {
-        ImageIcon icon = ImageUtils.getScaledRoundedIcon(image,
-                                                        AVATAR_WIDTH,
-                                                        AVATAR_HEIGHT);
-
-        if (icon != null)
-        {
-            iconChanged = true;
-            imageLabel.setIcon(icon);
-        }
+        setParticipantIcon(image, true);
     }
 
     /**
@@ -613,5 +605,68 @@ public abstract class BasicConferenceParticipantPanel<T>
     {
         if (soundIndicator != null)
             soundIndicator.updateSoundLevel(soundLevel);
+    }
+
+    /**
+     * Enables or disabled video indicator in this conference participant
+     * panel.
+     *
+     * @param enable <tt>true</tt> to enable video indicator, <tt>false</tt> -
+     * otherwise
+     */
+    public void enableVideoIndicator(boolean enable)
+    {
+        isVideoIndicatorEnabled = enable;
+
+        setParticipantIcon(null, true);
+    }
+
+    /**
+     * Sets the participant icon.
+     *
+     * @param image the image to set as an icon. If null will use the last set
+     * image or the default one
+     * @param changed indicates if this is a change of the icon
+     */
+    private void setParticipantIcon(byte[] image, boolean changed)
+    {
+        if (image != null && image.length > 0)
+            participantImage
+                = ImageUtils.getScaledRoundedIcon(  image,
+                                                    AVATAR_WIDTH,
+                                                    AVATAR_HEIGHT).getImage();
+        else if (participantImage == null)
+            participantImage
+                = ImageLoader.getImage(ImageLoader.DEFAULT_USER_PHOTO)
+                    .getScaledInstance(
+                            AVATAR_WIDTH,
+                            AVATAR_HEIGHT,
+                            Image.SCALE_SMOOTH);
+
+        Image videoIndicatorImage = null;
+
+        if (isVideoIndicatorEnabled)
+            videoIndicatorImage
+                = ImageLoader.getImage(ImageLoader.CONFERENCE_VIDEO_INDICATOR);
+
+        Icon avatarIcon = null;
+        if (videoIndicatorImage != null && participantImage != null)
+            avatarIcon = new ImageIcon(ImageLoader.getImage(
+                participantImage,
+                videoIndicatorImage,
+                participantImage.getWidth(null)
+                    - videoIndicatorImage.getWidth(null) + 5,
+                participantImage.getHeight(null)
+                    - videoIndicatorImage.getHeight(null) + 5));
+        else if (participantImage != null)
+            avatarIcon = new ImageIcon(participantImage);
+
+        if (avatarIcon != null)
+        {
+            imageLabel.setIcon(avatarIcon);
+
+            if (changed)
+                iconChanged = true;
+        }
     }
 }

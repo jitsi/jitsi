@@ -115,15 +115,7 @@ public class AudioConferenceCallPanel
          * because the video may already be flowing between the CallPeers.
          * Otherwise, the videos of the remote CallPeers will not be shown.
          */
-        GridBagConstraints scrollPaneGridBagConstraints
-            = new GridBagConstraints();
-
-        scrollPaneGridBagConstraints.fill = GridBagConstraints.BOTH;
-        scrollPaneGridBagConstraints.gridx = 1;
-        scrollPaneGridBagConstraints.gridy = 0;
-        scrollPaneGridBagConstraints.weightx = 1;
-        scrollPaneGridBagConstraints.weighty = 1;
-        add(scrollPane, scrollPaneGridBagConstraints);
+        add(scrollPane, BorderLayout.CENTER);
 
         constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.BOTH;
