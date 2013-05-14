@@ -166,8 +166,18 @@ public final class TrayMenuFactory
             "service.gui.ADD_CONTACT",
             "service.gui.icons.ADD_CONTACT_16x16_ICON", listener, swing));
         addSeparator(trayMenu);
-        add(trayMenu, new StatusSubMenu(swing).getMenu());
-        addSeparator(trayMenu);
+
+        Boolean chatPresenceDisabled
+            = OsDependentActivator.getConfigurationService().getBoolean(
+                "net.java.sip.communicator.impl.gui.main.presence."
+                + "CHAT_PRESENCE_DISABLED",
+                false);
+
+        if (!chatPresenceDisabled.booleanValue())
+        {
+            add(trayMenu, new StatusSubMenu(swing).getMenu());
+            addSeparator(trayMenu);
+        }
 
         String showHideName;
         String showHideTextId;

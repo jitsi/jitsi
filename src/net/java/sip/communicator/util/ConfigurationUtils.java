@@ -162,6 +162,11 @@ public class ConfigurationUtils
     private static boolean isAddContactDisabled;
 
     /**
+     * Indicates if the merge contact functionality is disabled.
+     */
+    private static boolean isMergeContactDisabled;
+
+    /**
      * Indicates if the go to chatroom functionality is disabled.
      */
     private static boolean isGoToChatroomDisabled;
@@ -642,6 +647,13 @@ public class ConfigurationUtils
             = configService.getBoolean(
                 "net.java.sip.communicator.impl.gui.main.contactlist." +
                 "CONTACT_ADD_DISABLED",
+                false);
+
+        // Load the "MERGE_CONTACT_DISABLED" property.
+        isMergeContactDisabled
+            = configService.getBoolean(
+                "net.java.sip.communicator.impl.gui.main.contactlist." +
+                "CONTACT_MERGE_DISABLED",
                 false);
 
         // Load the "CREATE_GROUP_DISABLED" property.
@@ -1182,6 +1194,17 @@ public class ConfigurationUtils
     public static boolean isAddContactDisabled()
     {
         return isAddContactDisabled;
+    }
+
+    /**
+     * Returns <code>true</code> if the "MERGE_CONTACT_DISABLED" property is
+     * true, otherwise - returns <code>false</code>.
+     * @return <code>true</code> if the "MERGE_CONTACT_DISABLED" property is
+     * true, otherwise - returns <code>false</code>.
+     */
+    public static boolean isMergeContactDisabled()
+    {
+        return isMergeContactDisabled;
     }
 
     /**

@@ -446,13 +446,6 @@ public class MediaConfigurationImpl
     }
 
     /**
-     * The name of the property which specifies if the audio system interface
-     * is disabled.
-     */
-    private static final String AUDIO_SYSTEM_DISABLED_PROP
-        = "net.java.sip.communicator.impl.neomedia.audiosystem.DISABLED";
-
-    /**
      * Indicates if the Devices settings configuration tab
      * should be disabled, i.e. not visible to the user.
      */
@@ -1138,7 +1131,7 @@ public class MediaConfigurationImpl
         final boolean isAudioSystemComboDisabled
             = (type == DeviceConfigurationComboBoxModel.AUDIO)
                 && NeomediaActivator.getConfigurationService().getBoolean(
-                        AUDIO_SYSTEM_DISABLED_PROP,
+                        MediaServiceImpl.DISABLE_SET_AUDIO_SYSTEM_PNAME,
                         false);
 
         // For audio configuration form first check if the audio system
@@ -1296,16 +1289,16 @@ public class MediaConfigurationImpl
             compCount++;
             devicesComponent = createBasicControls(type);
         }
-
         if (cfg == null || !cfg.getBoolean(ENCODINGS_DISABLED_PROP, false))
         {
             compCount++;
             encodingsComponent = createEncodingControls(type, null);
         }
-
-        if (type == DeviceConfigurationComboBoxModel.VIDEO
-            && (cfg == null
-                || !cfg.getBoolean(VIDEO_MORE_SETTINGS_DISABLED_PROP, false)))
+        if ((type == DeviceConfigurationComboBoxModel.VIDEO)
+                && ((cfg == null)
+                    || !cfg.getBoolean(
+                            VIDEO_MORE_SETTINGS_DISABLED_PROP,
+                            false)))
         {
             compCount++;
             videoComponent = createVideoAdvancedSettings();
@@ -1314,8 +1307,8 @@ public class MediaConfigurationImpl
         ResourceManagementService res = NeomediaActivator.getResources();
         Container container;
 
-        // If we only have one configuration form we don't need to create
-        // a tabbed pane.
+        // If we only have one configuration form we don't need to create a
+        // tabbed pane.
         if (compCount < 2)
         {
             container = new TransparentPanel(new BorderLayout());
@@ -1332,46 +1325,40 @@ public class MediaConfigurationImpl
             container = new SIPCommTabbedPane();
 
             SIPCommTabbedPane tabbedPane = (SIPCommTabbedPane) container;
-
             int index = 0;
 
             if (devicesComponent != null)
             {
                 tabbedPane.insertTab(
-                    res.getI18NString("impl.media.configform.DEVICES"),
-                    null,
-                    devicesComponent,
-                    null,
-                    index);
-
+                        res.getI18NString("impl.media.configform.DEVICES"),
+                        null,
+                        devicesComponent,
+                        null,
+                        index);
                 index = 1;
             }
-
             if (encodingsComponent != null)
             {
                 if (tabbedPane.getTabCount() >= 1)
                     index = 1;
-
                 tabbedPane.insertTab(
-                    res.getI18NString("impl.media.configform.ENCODINGS"),
-                    null,
-                    encodingsComponent,
-                    null,
-                    index);
+                        res.getI18NString("impl.media.configform.ENCODINGS"),
+                        null,
+                        encodingsComponent,
+                        null,
+                        index);
             }
-
             if (videoComponent != null)
             {
                 if (tabbedPane.getTabCount() >= 2)
                     index = 2;
-
                 tabbedPane.insertTab(
-                    res.getI18NString(
-                        "impl.media.configform.VIDEO_MORE_SETTINGS"),
-                    null,
-                    videoComponent,
-                    null,
-                    index);
+                        res.getI18NString(
+                            "impl.media.configform.VIDEO_MORE_SETTINGS"),
+                        null,
+                        videoComponent,
+                        null,
+                        index);
             }
         }
 
@@ -1575,12 +1562,11 @@ public class MediaConfigurationImpl
         {
             AudioSystem audioSystem = null;
 
-            // If the Audio System combo box is disabled we're looking for the
+            // If the Audio System combo box is disabled, we're looking for the
             // default device configuration.
-            if (NeomediaActivator.getConfigurationService()
-                    .getBoolean(AUDIO_SYSTEM_DISABLED_PROP, false)
-                && mediaService.getDeviceConfiguration().getAudioSystem()
-                    != null)
+            if (NeomediaActivator.getConfigurationService().getBoolean(
+                    MediaServiceImpl.DISABLE_SET_AUDIO_SYSTEM_PNAME,
+                    false))
             {
                 audioSystem
                     = mediaService.getDeviceConfiguration().getAudioSystem();
@@ -1593,34 +1579,39 @@ public class MediaConfigurationImpl
                     audioSystem = (AudioSystem) selectedItem;
             }
 
-            if (audioSystem != null
-                && !NoneAudioSystem.LOCATOR_PROTOCOL.equalsIgnoreCase(
-                    audioSystem.getLocatorProtocol()))
+            if ((audioSystem != null)
+                    && !NoneAudioSystem.LOCATOR_PROTOCOL.equalsIgnoreCase(
+                            audioSystem.getLocatorProtocol()))
             {
                 preview = new TransparentPanel(new GridBagLayout());
                 createAudioSystemControls(audioSystem, preview);
             }
             else
             {
-                AudioSystem[] availableAudioSystems
-                    = AudioSystem.getAudioSystems();
-                AudioSystem[] activeAudioSystems = mediaService
-                    .getDeviceConfiguration().getAvailableAudioSystems();
+                /*
+                 * If there are AudioSystems other than "None" and they have all
+                 * not been reported as available, then each of them failed to
+                 * detect any devices whatsoever.
+                 */
+                AudioSystem[] audioSystems = AudioSystem.getAudioSystems();
 
-                // If the only one active audio system which is "None" and there
-                // is(are) other(s) available audio system(s), then it means
-                // that the other(s) audio system(s) do(es) not have detected
-                // any device.
-                if(availableAudioSystems != null
-                        && availableAudioSystems.length > 1
-                        && activeAudioSystems != null
-                        && activeAudioSystems.length == 1)
+                if ((audioSystems != null) && (audioSystems.length != 1))
                 {
-                    String noAvailableAudioDevice
-                        = NeomediaActivator.getResources().getI18NString(
-                            "impl.media.configform.NO_AVAILABLE_AUDIO_DEVICE");
-                    preview = new TransparentPanel(new GridBagLayout());
-                    preview.add(new JLabel(noAvailableAudioDevice));
+                    AudioSystem[] availableAudioSystems
+                        = mediaService
+                            .getDeviceConfiguration()
+                                .getAvailableAudioSystems();
+
+                    if ((availableAudioSystems != null)
+                            && (availableAudioSystems.length == 1))
+                    {
+                        String noAvailableAudioDevice
+                            = NeomediaActivator.getResources().getI18NString(
+                                    "impl.media.configform.NO_AVAILABLE_AUDIO_DEVICE");
+
+                        preview = new TransparentPanel(new GridBagLayout());
+                        preview.add(new JLabel(noAvailableAudioDevice));
+                    }
                 }
             }
         }

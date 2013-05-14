@@ -873,6 +873,7 @@
       <linkerarg value="-m64" if="cross_64" />
       <linkerarg value="-Wl,--kill-at" />
       <linkerarg value="-Wl,--subsystem,windows" />
+      <linkerarg value="-Wl,-Bstatic" location="end" if="is.running.windows" />
       <libset libs="advapi32, uuid, ole32, oleaut32, msi, stdc++" />
 
       <fileset dir="${src}/native/addrbook" includes="*.c" />
@@ -910,6 +911,7 @@
 
       <linkerarg value="-ojmsoutlookaddrbookcomserver32.exe" />
       <linkerarg value="-m32" />
+      <linkerarg value="-Wl,-Bstatic" location="end" if="is.running.windows" />
       <libset libs="uuid, ole32, oleaut32, msi, stdc++" />
 
       <fileset dir="${src}/native/addrbook/msoutlook" includes="*.cxx" />
@@ -934,6 +936,7 @@
 
       <linkerarg value="-ojmsoutlookaddrbookcomserver64.exe" />
       <linkerarg value="-m64" />
+      <linkerarg value="-Wl,-Bstatic" location="end" if="is.running.windows" />
       <libset libs="uuid, ole32, oleaut32, msi, stdc++" />
 
       <fileset dir="${src}/native/addrbook/msoutlook" includes="*.cxx" />

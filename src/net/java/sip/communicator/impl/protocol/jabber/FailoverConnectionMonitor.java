@@ -237,10 +237,13 @@ public class FailoverConnectionMonitor
                 // moved to first place, go out of failover state
                 SRVRecord[] currentRecords =
                     NetworkUtils.getSRVRecords(
-                        "xmpp-client", "tcp", serviceName);
+                        "xmpp-client", "tcp", serviceName, false);
 
                 if(isConnectedToPrimary(currentRecords))
                     return;
+
+                // Clear DNS cache.
+                NetworkUtils.clearDefaultDNSCache();
 
                 SRVRecord srv = getPrimaryServerRecord(currentRecords);
 

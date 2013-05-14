@@ -125,13 +125,11 @@ public class LoginManager
                 (ProtocolProviderService) UtilActivator.bundleContext
                     .getService(serRef);
 
-            // check whether we have already loaded this provider
-            if(loginRenderer.containsProtocolProviderUI(protocolProvider))
-                continue;
-
-            protocolProvider.addRegistrationStateChangeListener(this);
-
-            loginRenderer.addProtocolProviderUI(protocolProvider);
+            if(!loginRenderer.containsProtocolProviderUI(protocolProvider))
+            {
+                protocolProvider.addRegistrationStateChangeListener(this);
+                loginRenderer.addProtocolProviderUI(protocolProvider);
+            }
 
             Object status =
                 AccountStatusUtils

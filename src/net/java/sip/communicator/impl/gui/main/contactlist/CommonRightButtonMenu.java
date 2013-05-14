@@ -49,7 +49,8 @@ public class CommonRightButtonMenu
     {
         this.mainFrame = mainFrame;
 
-        if (!ConfigurationUtils.isAddContactDisabled())
+        if (!ConfigurationUtils.isAddContactDisabled() &&
+            !ConfigurationUtils.isMergeContactDisabled())
             this.add(addContactItem);
 
         if (!ConfigurationUtils.isCreateGroupDisabled())
