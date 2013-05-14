@@ -1462,4 +1462,13 @@ public class NetworkUtils
             }
         }
     }
+
+    /**
+     * Clears the default DNS cache.
+     */
+    public static void clearDefaultDNSCache()
+    {
+        Cache defaultCache = Lookup.getDefaultCache(DClass.IN);
+        defaultCache.clearCache();
+    }
 }

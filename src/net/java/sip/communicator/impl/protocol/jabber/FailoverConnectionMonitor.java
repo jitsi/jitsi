@@ -242,6 +242,9 @@ public class FailoverConnectionMonitor
                 if(isConnectedToPrimary(currentRecords))
                     return;
 
+                // Clear DNS cache.
+                NetworkUtils.clearDefaultDNSCache();
+
                 SRVRecord srv = getPrimaryServerRecord(currentRecords);
 
                 ConnectionConfiguration confConn = new ConnectionConfiguration(
