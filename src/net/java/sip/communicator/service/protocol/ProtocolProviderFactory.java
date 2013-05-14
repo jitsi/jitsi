@@ -78,14 +78,12 @@ public abstract class ProtocolProviderFactory
     public static final String USER_ID = "USER_ID";
 
     /**
-     * The name that should be displayed to others when we are calling or
-     * writing them.
+     * The name to present to others when calling or writing them.
      */
     public static final String DISPLAY_NAME = "DISPLAY_NAME";
 
     /**
-     * The name that should be displayed to the user on call via and chat via
-     * lists.
+     * The Jitsi account name to use in UI.
      */
     public static final String ACCOUNT_DISPLAY_NAME = "ACCOUNT_DISPLAY_NAME";
 
@@ -265,6 +263,11 @@ public abstract class ProtocolProviderFactory
      * The name of the property under which we store if the presence is enabled.
      */
     public static final String IS_PRESENCE_ENABLED = "IS_PRESENCE_ENABLED";
+
+    /**
+     * Stores the SIMPLE IM mode: Paged or Session (== MSRP)
+     */
+    public static final String IS_MSRP_ENABLED = "MSRP_ENABLED";
 
     /**
      * The name of the property under which we store if the p2p mode for SIMPLE

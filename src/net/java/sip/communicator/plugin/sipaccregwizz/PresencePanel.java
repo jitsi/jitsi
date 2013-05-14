@@ -56,6 +56,8 @@ public class PresencePanel
 
     private final JCheckBox enablePresOpButton;
 
+    private final JCheckBox sessionModeOpButton;
+
     private final JCheckBox forceP2PPresOpButton;
 
     private JLabel pollPeriodLabel = new JLabel(
@@ -101,6 +103,9 @@ public class PresencePanel
         this.enablePresOpButton = new SIPCommCheckBox(
             Resources.getString("plugin.sipaccregwizz.ENABLE_PRESENCE"),
             regform.getRegistration().isEnablePresence());
+        this.sessionModeOpButton = new SIPCommCheckBox(
+            Resources.getString("plugin.sipaccregwizz.SESSION_MODE"),
+            regform.getRegistration().isMsrpEnabled());
         this.forceP2PPresOpButton = new SIPCommCheckBox(
             Resources.getString("plugin.sipaccregwizz.FORCE_P2P_PRESENCE"),
             regform.getRegistration().isForceP2PMode());
@@ -130,6 +135,7 @@ public class PresencePanel
         valuesPresOpPanel.add(subscribeExpiresField);
 
         buttonsPresOpPanel.add(enablePresOpButton);
+        buttonsPresOpPanel.add(sessionModeOpButton);
         buttonsPresOpPanel.add(forceP2PPresOpButton);
 
         presenceOpPanel.add(buttonsPresOpPanel, BorderLayout.NORTH);
@@ -232,6 +238,7 @@ public class PresencePanel
      */
     void setPresenceOptionsEnabled(boolean isEnabled)
     {
+        sessionModeOpButton.setEnabled(isEnabled);
         forceP2PPresOpButton.setEnabled(isEnabled);
         pollPeriodField.setEnabled(isEnabled);
         subscribeExpiresField.setEnabled(isEnabled);
@@ -312,6 +319,24 @@ public class PresencePanel
     void setForcePeerToPeerMode(boolean forceP2P)
     {
         forceP2PPresOpButton.setSelected(forceP2P);
+    }
+
+    /**
+     * @return  whether SIMPLE is used in page or session mode.
+     *          <tt>true</tt> means session mode
+     */
+    boolean isSessionMode()
+    {
+        return sessionModeOpButton.isSelected();
+    }
+
+    /**
+     * Enable/disable session mode.
+     * @param mode  <tt>true</tt> = enable
+     */
+    void setSessionMode(boolean mode)
+    {
+        sessionModeOpButton.setSelected(mode);
     }
 
     /**
