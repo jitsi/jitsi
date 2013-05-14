@@ -810,10 +810,17 @@ public class MsOutlookAddrBookContactQuery
                     id,
                     MAPI_MAILUSER_PROP_IDS,
                     MAPI_UNICODE);
-        long objType
-            = (props[PR_OBJECT_TYPE] instanceof Long)
-                ? ((Long) props[PR_OBJECT_TYPE]).longValue()
-                : 0;
+        long objType = 0;
+        if(props != null
+                && props[PR_OBJECT_TYPE] != null
+                && props[PR_OBJECT_TYPE] instanceof Long)
+        {
+            objType = ((Long) props[PR_OBJECT_TYPE]).longValue();
+        }
+        else
+        {
+            return false;
+        }
 
         // If we have results from the Contacts folder(s), don't read from the
         // Address Book because there may be duplicates.
