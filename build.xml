@@ -1522,6 +1522,9 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/impl/protocol/sip/sip.provider.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/sip"
                 prefix="net/java/sip/communicator/impl/protocol/sip"/>
+            <zipfileset src="${lib.noinst}/msrp.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/slf4j-api-1.5.8.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/slf4j-jdk14-1.5.8.jar" prefix=""/>
         </jar>
     </target>
 

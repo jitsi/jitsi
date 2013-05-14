@@ -685,10 +685,29 @@ public class ProtocolProviderServiceSipImpl
 
             if (!isMessagingDisabled)
             {
+                    boolean isMsrpEnabled
+                        = accountID.getAccountPropertyBoolean(
+                                ProtocolProviderFactory.IS_MSRP_ENABLED, false);
                 // init instant messaging
-                this.opSetBasicIM =
-                    new OperationSetBasicInstantMessagingSipImpl(this);
-
+                    OperationSetBasicInstantMessagingSipImpl opSetBasicIM;
+                    if (isMsrpEnabled)
+                    {
+                        opSetBasicIM =
+                            new OperationSetBasicInstantMessagingMsrpImpl(this);
+                        OperationSetFileTransferMsrpImpl opSetFileTransfer =
+                            new OperationSetFileTransferMsrpImpl(this);
+                        addSupportedOperationSet(
+                            OperationSetFileTransfer.class, opSetFileTransfer);
+//                        OperationSetAdHocMultiUserChatSipImpl opsetMUC =
+//                            new OperationSetAdHocMultiUserChatSipImpl(this);
+//                        addSupportedOperationSet(
+//                            OperationSetAdHocMultiUserChat.class, opsetMUC);
+                    }
+                    else
+                    {
+                        opSetBasicIM =
+                            new OperationSetBasicInstantMessagingSipImpl(this);
+                    }
                 addSupportedOperationSet(
                     OperationSetBasicInstantMessaging.class,
                     opSetBasicIM);
@@ -2766,7 +2785,7 @@ public class ProtocolProviderServiceSipImpl
     protected void notifyConnectionFailed()
     {
         if(getRegistrationState().equals(RegistrationState.REGISTERED)
-            && sipRegistrarConnection != null)
+            && sipRegistrarConnection != null && !sipRegistrarConnection.isRegistrarless())
             sipRegistrarConnection.setRegistrationState(
                 RegistrationState.CONNECTION_FAILED,
                 RegistrationStateChangeEvent.REASON_NOT_SPECIFIED,
