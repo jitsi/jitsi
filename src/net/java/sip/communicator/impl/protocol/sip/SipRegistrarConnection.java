@@ -186,7 +186,7 @@ public class SipRegistrarConnection
         this.sipProvider = sipProviderCallback;
 
         //init expiration timeout
-        this.registrationsExpiration = 
+        this.registrationsExpiration =
             SipActivator.getConfigurationService().getInt(
                 REGISTRATION_EXPIRATION,
                 DEFAULT_REGISTRATION_EXPIRATION);
@@ -1209,7 +1209,8 @@ public class SipRegistrarConnection
             if(registrarPort != ListeningPoint.PORT_5060)
                 registrarURI.setPort(registrarPort);
 
-            if(!registrationTransport.equals(ListeningPoint.UDP))
+            if(!(registrationTransport.equals(ListeningPoint.UDP) ||
+                (registrationTransport.equals(ListeningPoint.TLS))))
                 registrarURI.setTransportParam(registrationTransport);
         }
         return registrarURI;
