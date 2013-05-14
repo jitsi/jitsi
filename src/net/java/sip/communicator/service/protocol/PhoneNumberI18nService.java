@@ -30,7 +30,7 @@ public abstract class PhoneNumberI18nService
      * normalized it.
      */
     private static final Pattern removedCharactersToNormalizedPhoneNumber
-        = Pattern.compile("[-\\(\\)\\. ]");
+        = Pattern.compile("[-\\(\\)\\.\\\\\\/ ]");
 
     /**
      * Characters which have to be removed from a number (which is not a phone
