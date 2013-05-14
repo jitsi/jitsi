@@ -1532,7 +1532,7 @@ public class ProtocolProviderServiceSipImpl
         this.sipRegistrarConnection = new SipRegistrarConnection(
             registrarAddressStr
             , registrarPort
-            , getDefaultTransport()
+            , getRegistrarTransport()
             , this);
     }
 
@@ -1546,29 +1546,44 @@ public class ProtocolProviderServiceSipImpl
         throws IllegalArgumentException
     {
         //registrar transport
-        String registrarTransport =
-            accountID
-                .getAccountPropertyString(ProtocolProviderFactory.PREFERRED_TRANSPORT);
+        String registrarTransport = getRegistrarTransport();
 
-        if(registrarTransport != null && registrarTransport.length() > 0)
+        //Initialize our connection with the registrar
+        this.sipRegistrarConnection
+               = new SipRegistrarlessConnection(this, registrarTransport);
+    }
+
+    /**
+     * Returns the registrar transport from this account's configuration or
+     * the default transport if no specific transport has been configured for
+     * this account's registrar.
+     *
+     * @return the value if the {@link ProtocolProviderFactory#SERVER_TRANSPORT}
+     * account property or the  {@link #DEFAULT_TRANSPORT} configuration
+     * property if the former is <tt>null<tt/>.
+     */
+    private String getRegistrarTransport()
+    {
+        String registrarTransport = accountID.getAccountPropertyString(
+            ProtocolProviderFactory.SERVER_TRANSPORT);
+
+        if(!StringUtils.isNullOrEmpty(registrarTransport))
         {
             if( ! registrarTransport.equals(ListeningPoint.UDP)
                 && !registrarTransport.equals(ListeningPoint.TCP)
                 && !registrarTransport.equals(ListeningPoint.TLS))
             {
                 throw new IllegalArgumentException(registrarTransport
-                    + " is not a valid transport protocol. Transport must be "
-                    +"left blanc or set to TCP, UDP or TLS.");
+                    + " is not a valid transport protocol. SERVER_TRANSPORT "
+                    + "must be left blank or set to TCP, UDP or TLS.");
             }
         }
         else
         {
-            registrarTransport = ListeningPoint.UDP;
+            registrarTransport = getDefaultTransport();
         }
 
-        //Initialize our connection with the registrar
-        this.sipRegistrarConnection
-               = new SipRegistrarlessConnection(this, registrarTransport);
+        return registrarTransport;
     }
 
     /**
