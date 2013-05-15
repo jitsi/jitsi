@@ -6,12 +6,11 @@
  */
 package net.java.sip.communicator.impl.gui;
 
-import java.util.*;
-
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.service.notification.*;
+import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.service.systray.event.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>AlertUIServiceImpl</tt> is an implementation of the
@@ -23,21 +22,17 @@ public class AlertUIServiceImpl
     implements AlertUIService
 {
     /**
-     * The event type name for the notification pop-ups.
-     */
-    private static final String NOTIFICATION_EVENT_TYPE = "AlertUI";
-    
-    /**
-     * A boolean used to verify that this listener registers only once to
-     * the popup message notification handler.
-     */
-    private boolean isRegisteredToPopupMessageListener = false;
-    
-    /**
      * The pop-up notification listener which handles the clicking on the 
      * pop-up notification.
      */
     private SystrayPopupMessageListener listener = null;
+    
+    /**
+     * The <tt>Logger</tt> used by the <tt>AlertUIServiceImpl</tt> class and
+     * its instances for logging output.
+     */
+    private static final Logger logger
+        = Logger.getLogger(AlertUIServiceImpl.class);
     
     /**
      * Shows an alert dialog with the given title and message.
@@ -91,9 +86,9 @@ public class AlertUIServiceImpl
      * @param message the message to be displayed in the error dialog and the 
      * pop-up
      */
-    public void showPopUpNotification(String title, String message)
+    public void showAlertPopup(String title, String message)
     {
-        showPopUpNotification(title, message, title, message, null);
+        showAlertPopup(title, message, title, message, null);
     }
     
     /**
@@ -105,9 +100,9 @@ public class AlertUIServiceImpl
      * pop-up
      * @param e the exception that can be shown in the error dialog
      */
-    public void showPopUpNotification(String title, String message, Throwable e)
+    public void showAlertPopup(String title, String message, Throwable e)
     {
-        showPopUpNotification(title, message, title, message, e);
+        showAlertPopup(title, message, title, message, e);
     }
     
     /**
@@ -119,10 +114,10 @@ public class AlertUIServiceImpl
      * @param errorDialogTitle the title of the error dialog
      * @param errorDialogMessage the message of the error dialog
      */
-    public void showPopUpNotification(String title, String message, 
+    public void showAlertPopup(String title, String message, 
         String errorDialogTitle, String errorDialogMessage)
     {
-        showPopUpNotification(title, message, errorDialogTitle, 
+        showAlertPopup(title, message, errorDialogTitle, 
             errorDialogMessage, null);
     }
     
@@ -136,101 +131,49 @@ public class AlertUIServiceImpl
      * @param errorDialogMessage the message of the error dialog
      * @param e the exception that can be shown in the error dialog
      */
-    public void showPopUpNotification(String title, String message, 
+    public void showAlertPopup(String title, String message, 
         String errorDialogTitle, String errorDialogMessage, Throwable e)
     {
-        NotificationService notificationService
-            = GuiActivator.getNotificationService();
-
-        if(notificationService == null)
-            return;
-        
-        // Registers only once to the popup message notification
-        // handler.
-        if(!isRegisteredToPopupMessageListener )
+        SystrayService systray = GuiActivator.getSystrayService();
+        if(systray == null)
         {
-            notificationService.registerDefaultNotificationForEvent(
-                  NOTIFICATION_EVENT_TYPE,
-                  NotificationAction.ACTION_POPUP_MESSAGE,
-                  null, null);
-            isRegisteredToPopupMessageListener = true;
-            addOrRemovePopupMessageListener(true);
+            logger.warn("SystrayService not available.");
+            return;
         }
 
-        // Fires the popup notification.
-        Map<String,Object> extras = new HashMap<String,Object>();
-
-        extras.put(NotificationData.POPUP_MESSAGE_HANDLER_TAG_EXTRA,
-                new ErrorDialogParams(title, message, e));
-        notificationService.fireNotification(NOTIFICATION_EVENT_TYPE, title,
-                message, null, extras);
-        
-    }
-    
-    /**
-     * Adds/removes the listener instance as a <tt>PopupMessageListener</tt> 
-     * to/from the<tt>NotificationService</tt> in order to be able to detect 
-     * when the user clicks on a pop-up notification displayed by this instance
-     *
-     * @param add <tt>true</tt> to add the listener instance as a
-     * <tt>PopupMessageListener</tt> to the <tt>NotificationService</tt> or
-     * <tt>false</tt> to remove it
-     */
-    private void addOrRemovePopupMessageListener(boolean add)
-    {
-        Iterable<NotificationHandler> popupHandlers 
-            = GuiActivator.getNotificationService()
-                .getActionHandlers(NotificationAction.ACTION_POPUP_MESSAGE);
-
-        for(NotificationHandler popupHandler : popupHandlers)
+        if(listener == null)
         {
-            if(!(popupHandler instanceof PopupMessageNotificationHandler))
-                continue;
-            
-            PopupMessageNotificationHandler popupMessageNotificationHandler
-                = (PopupMessageNotificationHandler) popupHandler;
-            
-            if(listener == null)
+            listener = new SystrayPopupMessageListener()
             {
-                listener = new SystrayPopupMessageListener()
+                public void popupMessageClicked(SystrayPopupMessageEvent evt)
                 {
-                    public void popupMessageClicked(
-                        SystrayPopupMessageEvent evt)
+                    Object tag = evt.getTag();
+                    if(tag instanceof ErrorDialogParams)
                     {
-                        Object tag = evt.getTag();
-                        if(tag instanceof ErrorDialogParams)
+                        ErrorDialogParams params = (ErrorDialogParams)tag;
+                        Throwable e = params.getEx();
+                        if(e != null)
                         {
-                            ErrorDialogParams params = (ErrorDialogParams)tag;
-                            if(params.getEx() != null)
-                            {
-                                showAlertDialog(params.getTitle(), 
-                                    params.getMessage(), params.getEx());
-                            }
-                            else
-                            {
-                                showAlertDialog(params.getTitle(), 
-                                    params.getMessage());
-                            }
+                            showAlertDialog(params.getTitle(), 
+                                params.getMessage(), e);
                         }
-                        
+                        else
+                        {
+                            showAlertDialog(params.getTitle(), 
+                                params.getMessage());
+                        }
                     }
                     
-                };
-            }
-            
-            if(add)
-            {
-                popupMessageNotificationHandler.addPopupMessageListener(
-                    listener);
-            }
-            else
-            {
-                popupMessageNotificationHandler.removePopupMessageListener(
-                    listener);
-            }
-            
+                }
+                
+            };
+            systray.addPopupMessageListener(listener);
         }
         
+        systray.showPopupMessage(
+                new PopupMessage(title, message, null, 
+                    new ErrorDialogParams(errorDialogTitle, 
+                        errorDialogMessage, e)));
     }
     
     /**
@@ -239,7 +182,13 @@ public class AlertUIServiceImpl
      */
     public void dispose()
     {
-        addOrRemovePopupMessageListener(false);
+        SystrayService systray = GuiActivator.getSystrayService();
+        if(systray == null)
+        {
+            logger.warn("SystrayService not available.");
+            return;
+        }
+        systray.removePopupMessageListener(listener);
     }
     
     /**

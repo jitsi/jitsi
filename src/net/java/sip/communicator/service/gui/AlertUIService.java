@@ -81,7 +81,7 @@ public interface AlertUIService
      * @param message the message to be displayed in the error dialog and the 
      * pop-up
      */
-    public void showPopUpNotification(String title, String message);
+    public void showAlertPopup(String title, String message);
     
     /**
      * Shows an notification pop-up which can be clicked. An error dialog is 
@@ -92,7 +92,7 @@ public interface AlertUIService
      * pop-up
      * @param e the exception that can be shown in the error dialog
      */
-    public void showPopUpNotification(String title, String message, 
+    public void showAlertPopup(String title, String message, 
                                         Throwable e);
     
     /**
@@ -104,7 +104,7 @@ public interface AlertUIService
      * @param errorDialogTitle the title of the error dialog
      * @param errorDialogMessage the message of the error dialog
      */
-    public void showPopUpNotification(String title, String message, 
+    public void showAlertPopup(String title, String message, 
         String errorDialogTitle, String errorDialogMessage);
     
     /**
@@ -117,7 +117,7 @@ public interface AlertUIService
      * @param errorDialogMessage the message of the error dialog
      * @param e the exception that can be shown in the error dialog
      */
-    public void showPopUpNotification(String title, String message, 
+    public void showAlertPopup(String title, String message, 
         String errorDialogTitle, String errorDialogMessage, Throwable e);
     
     /**

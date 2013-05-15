@@ -2855,7 +2855,7 @@ public class CallManager
                         "service.gui.LOCAL_VIDEO_ERROR_TITLE");
                     String message = resources.getI18NString(
                         "service.gui.LOCAL_VIDEO_ERROR_MESSAGE");
-                    GuiActivator.getAlertUIService().showPopUpNotification(
+                    GuiActivator.getAlertUIService().showAlertPopup(
                         title, message, ex);
                 }
             }
