@@ -1501,6 +1501,26 @@ int MsOutlookAddrBookContactQuery_IMAPIProp_1SetPropString
     {
         updateValue.ulPropTag = 0x8046001F;
     }
+    else if(propId == 0x8045) // business address - street
+    {
+        updateValue.ulPropTag = 0x805F001F;
+    }
+    else if(propId == 0x8046) // business address - city
+    {
+        updateValue.ulPropTag = 0x8060001F;
+    }
+    else if(propId == 0x8047) // business address - state
+    {
+        updateValue.ulPropTag = 0x8061001F;
+    }
+    else if(propId == 0x8048) // business address - zip
+    {
+        updateValue.ulPropTag = 0x8062001F;
+    }
+    else if(propId == 0x8049) // business address - country
+    {
+        updateValue.ulPropTag = 0x8063001F;
+    }
     else
     {
         updateValue.ulPropTag = PROP_TAG(PT_UNICODE, propId);
