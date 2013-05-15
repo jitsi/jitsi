@@ -75,12 +75,11 @@ public class MsOutlookAddrBookContactQuery
             0x3A51 /* PR_BUSINESS_HOME_PAGE */,
             0x3A17 /* PR_TITLE */,
             0x00008062 /* dispidInstMsg */,
-            0x3A27, // PR_BUSINESS_ADDRESS_CITY
-            0x3A26, // PR_BUSINESS_ADDRESS_COUNTRY
-            0x3A2A, // PR_BUSINESS_ADDRESS_POSTAL_CODE
-            0x3A28, // PR_BUSINESS_ADDRESS_STATE_OR_PROVINCE
-            0x3A29, // PR_BUSINESS_ADDRESS_STREET
-
+            0x00008046, // PR_BUSINESS_ADDRESS_CITY
+            0x00008049, // PR_BUSINESS_ADDRESS_COUNTRY
+            0x00008048, // PR_BUSINESS_ADDRESS_POSTAL_CODE
+            0x00008047, // PR_BUSINESS_ADDRESS_STATE_OR_PROVINCE
+            0x00008045, // PR_BUSINESS_ADDRESS_STREET
             0x3A59, // PR_HOME_ADDRESS_CITY
             0x3A5A, // PR_HOME_ADDRESS_COUNTRY
             0x3A5B, // PR_HOME_ADDRESS_POSTAL_CODE
@@ -810,10 +809,17 @@ public class MsOutlookAddrBookContactQuery
                     id,
                     MAPI_MAILUSER_PROP_IDS,
                     MAPI_UNICODE);
-        long objType
-            = (props[PR_OBJECT_TYPE] instanceof Long)
-                ? ((Long) props[PR_OBJECT_TYPE]).longValue()
-                : 0;
+        long objType = 0;
+        if(props != null
+                && props[PR_OBJECT_TYPE] != null
+                && props[PR_OBJECT_TYPE] instanceof Long)
+        {
+            objType = ((Long) props[PR_OBJECT_TYPE]).longValue();
+        }
+        else
+        {
+            return false;
+        }
 
         // If we have results from the Contacts folder(s), don't read from the
         // Address Book because there may be duplicates.
