@@ -43,6 +43,13 @@ public class MetaContactPhoneUtil
         new Hashtable<Contact, List<String>>();
 
     /**
+     * The video phones that have been discovered
+     * for metacontact child contacts.
+     */
+    private Hashtable<Contact,List<String>> videoPhones =
+        new Hashtable<Contact, List<String>>();
+
+    /**
      * True if there is any phone found for the metacontact.
      */
     private boolean hasPhones = false;
@@ -119,6 +126,11 @@ public class MetaContactPhoneUtil
             return new ArrayList<String>();
         }
 
+        if(videoPhones.containsKey(contact))
+        {
+            return videoPhones.get(contact);
+        }
+
         List<String> phonesList = ContactPhoneUtil.getContactAdditionalPhones(
                 contact, listener, true, true);
 
@@ -126,6 +138,8 @@ public class MetaContactPhoneUtil
             return null;
         else if (phonesList.size() > 0)
             hasVideoDetail = true;
+
+        videoPhones.put(contact, phonesList);
 
         return phonesList;
     }
@@ -180,7 +194,7 @@ public class MetaContactPhoneUtil
     public boolean isVideoCallEnabled(DetailsResponseListener listener)
     {
         // make sure children are checked
-        if(!checkMetaContactPhones(listener))
+        if(!checkMetaContactVideoPhones(listener))
             return false;
 
         return metaContact.getDefaultContact(
@@ -242,7 +256,7 @@ public class MetaContactPhoneUtil
     public boolean isDesktopSharingEnabled(DetailsResponseListener listener)
     {
         // make sure children are checked
-        if(!checkMetaContactPhones(listener))
+        if(!checkMetaContactVideoPhones(listener))
             return false;
 
         return metaContact.getDefaultContact(
@@ -407,7 +421,35 @@ public class MetaContactPhoneUtil
             if(phones.containsKey(contact))
                 continue;
 
-            List<String> phones = getPhones(contact, l, true);
+            List<String> phones = getPhones(contact, l, false);
+            if(phones == null)
+                return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Checking all contacts for the metacontact.
+     * Return <tt>false</tt> if there are listeners added for a contact
+     * and we need to stop executions cause listener will be used to be informed
+     * for result.
+     *
+     * @param l the <tt>DetailsResponseListener</tt> to listen for further
+     * details
+     * @return whether to continue or listeners present and will be informed
+     * for result.
+     */
+    private boolean checkMetaContactVideoPhones(DetailsResponseListener l)
+    {
+        Iterator<Contact> contactIterator = metaContact.getContacts();
+        while(contactIterator.hasNext())
+        {
+            Contact contact = contactIterator.next();
+            if(videoPhones.containsKey(contact))
+                continue;
+
+            List<String> phones = getVideoPhones(contact, l);
             if(phones == null)
                 return false;
         }
