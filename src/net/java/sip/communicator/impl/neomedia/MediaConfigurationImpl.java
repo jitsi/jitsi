@@ -33,6 +33,9 @@ import org.jitsi.service.resources.*;
 import org.jitsi.util.swing.*;
 
 /**
+ * Implements <tt>MediaConfigurationService</tt> i.e. represents a factory of
+ * user interface which allows the user to configure the media-related
+ * functionality of the application.
  *
  * @author Lyubomir Marinov
  * @author Damian Minkov
@@ -189,7 +192,7 @@ public class MediaConfigurationImpl
         /**
          * Refresh combo box when the user click on it.
          *
-         * @param ev The click on the  combo box.
+         * @param ev The click on the combo box.
          */
         public void actionPerformed(ActionEvent ev)
         {
@@ -907,11 +910,11 @@ public class MediaConfigurationImpl
             AudioSystem audioSystem,
             JComponent container)
     {
-        GridBagConstraints constraints = new GridBagConstraints();
+        GridBagConstraints cnstrnts = new GridBagConstraints();
 
-        constraints.anchor = GridBagConstraints.NORTHWEST;
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.weighty = 0;
+        cnstrnts.anchor = GridBagConstraints.NORTHWEST;
+        cnstrnts.fill = GridBagConstraints.HORIZONTAL;
+        cnstrnts.weighty = 0;
 
         int audioSystemFeatures = audioSystem.getFeatures();
         boolean featureNotifyAndPlaybackDevices
@@ -919,26 +922,26 @@ public class MediaConfigurationImpl
                     & AudioSystem.FEATURE_NOTIFY_AND_PLAYBACK_DEVICES)
                 != 0);
 
-        constraints.gridx = 0;
-        constraints.insets = new Insets(3, 0, 3, 3);
-        constraints.weightx = 0;
+        cnstrnts.gridx = 0;
+        cnstrnts.insets = new Insets(3, 0, 3, 3);
+        cnstrnts.weightx = 0;
 
-        constraints.gridy = 0;
+        cnstrnts.gridy = 0;
         container.add(new JLabel(getLabelText(
-            DeviceConfigurationComboBoxModel.AUDIO_CAPTURE)), constraints);
+            DeviceConfigurationComboBoxModel.AUDIO_CAPTURE)), cnstrnts);
         if (featureNotifyAndPlaybackDevices)
         {
-            constraints.gridy = 2;
+            cnstrnts.gridy = 2;
             container.add(new JLabel(getLabelText(
-                DeviceConfigurationComboBoxModel.AUDIO_PLAYBACK)), constraints);
-            constraints.gridy = 3;
+                DeviceConfigurationComboBoxModel.AUDIO_PLAYBACK)), cnstrnts);
+            cnstrnts.gridy = 3;
             container.add(new JLabel(getLabelText(
-                DeviceConfigurationComboBoxModel.AUDIO_NOTIFY)), constraints);
+                DeviceConfigurationComboBoxModel.AUDIO_NOTIFY)), cnstrnts);
         }
 
-        constraints.gridx = 1;
-        constraints.insets = new Insets(3, 3, 3, 0);
-        constraints.weightx = 1;
+        cnstrnts.gridx = 1;
+        cnstrnts.insets = new Insets(3, 3, 3, 0);
+        cnstrnts.weightx = 1;
 
         JComboBox captureCombo = null;
 
@@ -948,25 +951,24 @@ public class MediaConfigurationImpl
             captureCombo.setEditable(false);
             captureCombo.setModel(
                     new DeviceConfigurationComboBoxModel(
-                            captureCombo,
                             mediaService.getDeviceConfiguration(),
                             DeviceConfigurationComboBoxModel.AUDIO_CAPTURE));
-            constraints.gridy = 0;
-            container.add(captureCombo, constraints);
+            cnstrnts.gridy = 0;
+            container.add(captureCombo, cnstrnts);
         }
 
-        int anchor = constraints.anchor;
+        int anchor = cnstrnts.anchor;
         SoundLevelIndicator capturePreview
             = new SoundLevelIndicator(
                     SimpleAudioLevelListener.MIN_LEVEL,
                     SimpleAudioLevelListener.MAX_LEVEL);
 
-        constraints.anchor = GridBagConstraints.CENTER;
-        constraints.gridy = (captureCombo == null) ? 0 : 1;
-        container.add(capturePreview, constraints);
-        constraints.anchor = anchor;
+        cnstrnts.anchor = GridBagConstraints.CENTER;
+        cnstrnts.gridy = (captureCombo == null) ? 0 : 1;
+        container.add(capturePreview, cnstrnts);
+        cnstrnts.anchor = anchor;
 
-        constraints.gridy = GridBagConstraints.RELATIVE;
+        cnstrnts.gridy = GridBagConstraints.RELATIVE;
 
         if (featureNotifyAndPlaybackDevices)
         {
@@ -974,21 +976,19 @@ public class MediaConfigurationImpl
             playbackCombo.setEditable(false);
             playbackCombo.setModel(
                     new DeviceConfigurationComboBoxModel(
-                            captureCombo,
                             mediaService.getDeviceConfiguration(),
                             DeviceConfigurationComboBoxModel.AUDIO_PLAYBACK));
             playbackCombo.addActionListener(this);
-            container.add(playbackCombo, constraints);
+            container.add(playbackCombo, cnstrnts);
 
             notifyCombo = new JComboBox();
             notifyCombo.setEditable(false);
             notifyCombo.setModel(
                     new DeviceConfigurationComboBoxModel(
-                            captureCombo,
                             mediaService.getDeviceConfiguration(),
                             DeviceConfigurationComboBoxModel.AUDIO_NOTIFY));
             notifyCombo.addActionListener(this);
-            container.add(notifyCombo, constraints);
+            container.add(notifyCombo, cnstrnts);
         }
 
         if ((AudioSystem.FEATURE_ECHO_CANCELLATION & audioSystemFeatures) != 0)
@@ -1014,7 +1014,7 @@ public class MediaConfigurationImpl
                                     echoCancelCheckBox.isSelected());
                         }
                     });
-            container.add(echoCancelCheckBox, constraints);
+            container.add(echoCancelCheckBox, cnstrnts);
         }
 
         if ((AudioSystem.FEATURE_DENOISE & audioSystemFeatures) != 0)
@@ -1040,18 +1040,18 @@ public class MediaConfigurationImpl
                                     denoiseCheckBox.isSelected());
                         }
                     });
-            container.add(denoiseCheckBox, constraints);
+            container.add(denoiseCheckBox, cnstrnts);
         }
 
         // Adds the play buttons for testing playback and notification devices.
-        constraints.gridx = 2;
-        constraints.insets = new Insets(3, 3, 3, 0);
-        constraints.weightx = 0;
+        cnstrnts.gridx = 2;
+        cnstrnts.insets = new Insets(3, 3, 3, 0);
+        cnstrnts.weightx = 0;
 
         if (featureNotifyAndPlaybackDevices)
         {
             // Playback play sound button.
-            constraints.gridy = 2;
+            cnstrnts.gridy = 2;
             playbackPlaySoundButton
                 = new JButton(new ImageIcon(NeomediaActivator.getResources()
                             .getImageInBytes(
@@ -1065,10 +1065,10 @@ public class MediaConfigurationImpl
             }
             playbackPlaySoundButton.setOpaque(false);
             playbackPlaySoundButton.addActionListener(this);
-            container.add(playbackPlaySoundButton, constraints);
+            container.add(playbackPlaySoundButton, cnstrnts);
 
             // Notification play sound button.
-            constraints.gridy = 3;
+            cnstrnts.gridy = 3;
             notificationPlaySoundButton
                 = new JButton(new ImageIcon(NeomediaActivator.getResources()
                             .getImageInBytes(
@@ -1082,15 +1082,16 @@ public class MediaConfigurationImpl
             }
             notificationPlaySoundButton.setOpaque(false);
             notificationPlaySoundButton.addActionListener(this);
-            container.add(notificationPlaySoundButton, constraints);
+            container.add(notificationPlaySoundButton, cnstrnts);
         }
 
-        if(audioLevelListenerThread == null)
+        if (audioLevelListenerThread == null)
         {
-            audioLevelListenerThread = new AudioLevelListenerThread(
-                    audioSystem,
-                    captureCombo,
-                    capturePreview);
+            audioLevelListenerThread
+                = new AudioLevelListenerThread(
+                        audioSystem,
+                        captureCombo,
+                        capturePreview);
         }
         else
         {
@@ -1109,35 +1110,36 @@ public class MediaConfigurationImpl
      */
     private Component createBasicControls(final int type)
     {
-        final JComboBox deviceComboBox = new JComboBox();
-
-        deviceComboBox.setEditable(false);
-        deviceComboBox.setModel(
-                new DeviceConfigurationComboBoxModel(
-                        deviceComboBox,
-                        mediaService.getDeviceConfiguration(),
-                        type));
-
-        JLabel deviceLabel = new JLabel(getLabelText(type));
-
-        deviceLabel.setDisplayedMnemonic(getDisplayedMnemonic(type));
-        deviceLabel.setLabelFor(deviceComboBox);
-
-        final Container devicePanel
-            = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
-
-        devicePanel.setMaximumSize(new Dimension(WIDTH, 25));
-
-        final boolean isAudioSystemComboDisabled
+        final boolean setAudioSystemIsDisabled
             = (type == DeviceConfigurationComboBoxModel.AUDIO)
                 && NeomediaActivator.getConfigurationService().getBoolean(
                         MediaServiceImpl.DISABLE_SET_AUDIO_SYSTEM_PNAME,
                         false);
+        final JComboBox deviceComboBox;
+        final Container devicePanel;
 
-        // For audio configuration form first check if the audio system
-        // property is disabled.
-        if (!isAudioSystemComboDisabled)
+        if (setAudioSystemIsDisabled)
         {
+            deviceComboBox = null;
+            devicePanel = null;
+        }
+        else
+        {
+            deviceComboBox = new JComboBox();
+            deviceComboBox.setEditable(false);
+            deviceComboBox.setModel(
+                    new DeviceConfigurationComboBoxModel(
+                            mediaService.getDeviceConfiguration(),
+                            type));
+
+            JLabel deviceLabel = new JLabel(getLabelText(type));
+
+            deviceLabel.setDisplayedMnemonic(getDisplayedMnemonic(type));
+            deviceLabel.setLabelFor(deviceComboBox);
+
+            devicePanel
+                = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
+            devicePanel.setMaximumSize(new Dimension(WIDTH, 25));
             devicePanel.add(deviceLabel);
             devicePanel.add(deviceComboBox);
         }
@@ -1150,7 +1152,7 @@ public class MediaConfigurationImpl
         {
         case DeviceConfigurationComboBoxModel.AUDIO:
             preferredDeviceAndPreviewPanelHeight
-                = isAudioSystemComboDisabled ? 180 : 225;
+                = (devicePanel == null) ? 180 : 225;
             break;
         case DeviceConfigurationComboBoxModel.VIDEO:
             preferredDeviceAndPreviewPanelHeight = 305;
@@ -1164,31 +1166,13 @@ public class MediaConfigurationImpl
             deviceAndPreviewPanel.setPreferredSize(
                     new Dimension(WIDTH, preferredDeviceAndPreviewPanelHeight));
         }
-        deviceAndPreviewPanel.add(devicePanel, BorderLayout.NORTH);
-
-        // For audio configuration if the audio system combo is disabled we're
-        // going to look directly in the device configuration and show the
-        // preview panel, which in this case contains audio configuration
-        // components.
-        if (isAudioSystemComboDisabled)
-        {
-            Component preview = null;
-            if (mediaService.getDeviceConfiguration().getAudioSystem() != null)
-            {
-                preview = createPreview(type, deviceComboBox,
-                                deviceAndPreviewPanel.getPreferredSize());
-            }
-
-            if (preview != null)
-            {
-                deviceAndPreviewPanel.add(preview, BorderLayout.CENTER);
-            }
-        }
+        if (devicePanel != null)
+            deviceAndPreviewPanel.add(devicePanel, BorderLayout.NORTH);
 
         final ActionListener deviceComboBoxActionListener
             = new ActionListener()
             {
-                public void actionPerformed(ActionEvent event)
+                public void actionPerformed(ActionEvent ev)
                 {
                     boolean revalidateAndRepaint = false;
 
@@ -1207,9 +1191,9 @@ public class MediaConfigurationImpl
 
                     Component preview = null;
 
-                    if ((deviceComboBox.getSelectedItem() != null)
-                            && (deviceComboBox.isShowing()
-                                || isAudioSystemComboDisabled))
+                    if ((deviceComboBox == null)
+                            || ((deviceComboBox.getSelectedItem() != null)
+                                    && deviceComboBox.isShowing()))
                     {
                         preview
                             = createPreview(
@@ -1232,18 +1216,19 @@ public class MediaConfigurationImpl
                 }
             };
 
-        deviceComboBox.addActionListener(deviceComboBoxActionListener);
+        if (deviceComboBox != null)
+            deviceComboBox.addActionListener(deviceComboBoxActionListener);
 
         /*
-         * We have to initialize the controls to reflect the configuration
-         * at the time of creating this instance. Additionally, because the
-         * video preview will stop when it and its associated controls
-         * become unnecessary, we have to restart it when the mentioned
-         * controls become necessary again. We'll address the two goals
-         * described by pretending there's a selection in the video combo
-         * box when the combo box in question becomes displayable.
+         * We have to initialize the controls to reflect the configuration at
+         * the time of creating this instance. Additionally, because the 
+         * preview will stop when it and its associated controls become
+         * unnecessary, we have to restart it when the mentioned controls become
+         * necessary again. We'll address the two goals described by pretending
+         * there's a selection in the combo box when user interface becomes
+         * displayable.
          */
-        deviceComboBox.addHierarchyListener(
+        deviceAndPreviewPanel.addHierarchyListener(
                 new HierarchyListener()
                 {
                     public void hierarchyChanged(HierarchyEvent event)
@@ -1545,15 +1530,25 @@ public class MediaConfigurationImpl
     }
 
     /**
-     * Create preview component.
-     * @param type type
-     * @param comboBox the options.
-     * @param prefSize the preferred size
-     * @return the component.
+     * Initializes a new <tt>Component</tt> which.is to preview and/or allow
+     * detailed configuration of an audio or video <tt>DeviceSystem</tt>.
+     *
+     * @param type either {@link DeviceConfigurationComboBoxModel#AUDIO} or
+     * {@link DeviceConfigurationComboBoxModel#VIDEO}
+     * @param comboBox the <tt>JComboBox</tt> which lists the available
+     * alternatives and the selection which is to be previewed. May be
+     * <tt>null</tt> in the case of audio in which case it is assumed that the
+     * user is not allowed to set the <tt>AudioSystem</tt> to be used and the
+     * selection is determined by the <tt>DeviceConfiguration</tt> of the
+     * <tt>MediaService</tt>.
+     * @param prefSize the preferred size to be applied to the preview
+     * @return a new <tt>Component</tt> which is to preview and/or allow
+     * detailed configuration of the <tt>DeviceSystem</tt> identified by
+     * <tt>type</tt> and <tt>comboBox</tt>
      */
     private Component createPreview(
             int type,
-            final JComboBox comboBox,
+            JComboBox comboBox,
             Dimension prefSize)
     {
         JComponent preview = null;
@@ -1562,11 +1557,13 @@ public class MediaConfigurationImpl
         {
             AudioSystem audioSystem = null;
 
-            // If the Audio System combo box is disabled, we're looking for the
-            // default device configuration.
-            if (NeomediaActivator.getConfigurationService().getBoolean(
-                    MediaServiceImpl.DISABLE_SET_AUDIO_SYSTEM_PNAME,
-                    false))
+            /*
+             * If the Audio System combo box is disabled (i.e. the user is not
+             * allowed to set the AudioSystem to be used), the current
+             * AudioSystem (specified by the DeviceConfiguration of the
+             * MediaService) is to be configured.
+             */
+            if ((comboBox == null) || !comboBox.isEnabled())
             {
                 audioSystem
                     = mediaService.getDeviceConfiguration().getAudioSystem();
@@ -1576,7 +1573,21 @@ public class MediaConfigurationImpl
                 Object selectedItem = comboBox.getSelectedItem();
 
                 if (selectedItem instanceof AudioSystem)
+                {
                     audioSystem = (AudioSystem) selectedItem;
+
+                    AudioSystem mediaServiceDeviceConfigurationAudioSystem
+                        = mediaService
+                            .getDeviceConfiguration()
+                                .getAudioSystem();
+
+                    if (audioSystem
+                            != mediaServiceDeviceConfigurationAudioSystem)
+                    {
+                        logger.warn(
+                                "JComboBox.selectedItem is not identical to MediaService.deviceConfiguration.audioSystem!");
+                    }
+                }
             }
 
             if ((audioSystem != null)
@@ -1655,9 +1666,8 @@ public class MediaConfigurationImpl
             if (exception != null)
             {
                 logger.error(
-                    "Failed to create preview for device " + device,
-                    exception);
-                device = null;
+                        "Failed to create preview for device " + device,
+                        exception);
             }
         }
 

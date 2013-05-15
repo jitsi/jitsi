@@ -6,10 +6,8 @@
  */
 package net.java.sip.communicator.impl.neomedia;
 
-import java.awt.*;
 import java.beans.*;
 import java.util.*;
-import java.util.List;
 
 import javax.media.*;
 import javax.swing.*;
@@ -85,7 +83,6 @@ public class DeviceConfigurationComboBoxModel
      * @param type the device - audio/video
      */
     public DeviceConfigurationComboBoxModel(
-            Component parent,
             DeviceConfiguration deviceConfiguration,
             int type)
     {
