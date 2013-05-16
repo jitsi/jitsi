@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.notification;
 
+import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -27,7 +28,7 @@ public class SoundNotificationHandlerImpl
     /**
      * The logger that will be used to log messages.
      */
-    private Logger logger
+    private static Logger logger
         = Logger.getLogger(SoundNotificationHandlerImpl.class);
 
     /**
@@ -115,7 +116,8 @@ public class SoundNotificationHandlerImpl
             break;
 
         case PC_SPEAKER:
-            audio = new PCSpeakerClip();
+            if(!OSUtils.IS_ANDROID)
+                audio = new PCSpeakerClip();
             break;
         }
 
@@ -295,11 +297,36 @@ public class SoundNotificationHandlerImpl
         extends AbstractSCAudioClip
     {
         /**
+         * The beep method.
+         */
+        private Method beepMethod = null;
+
+        /**
+         * The toolkit.
+         */
+        private Object toolkit = null;
+
+        /**
          * Initializes a new <tt>PCSpeakerClip</tt> instance.
          */
         public PCSpeakerClip()
         {
             super(null, NotificationActivator.getAudioNotifier());
+
+            // load the method java.awt.Toolkit.getDefaultToolkit().beep();
+            // use reflection to be sure it will not throw exception in Android
+            try
+            {
+                Method getDefaultToolkitMethod =
+                    Class.forName("java.awt.Toolkit")
+                        .getMethod("getDefaultToolkit");
+                toolkit = getDefaultToolkitMethod.invoke(null);
+                beepMethod = toolkit.getClass().getMethod("beep");
+            }
+            catch(Throwable t)
+            {
+                logger.error("Cannot load awt.Toolkit", t);
+            }
         }
 
         /**
@@ -312,7 +339,9 @@ public class SoundNotificationHandlerImpl
         {
             try
             {
-                java.awt.Toolkit.getDefaultToolkit().beep();
+                if(beepMethod != null)
+                    beepMethod.invoke(toolkit);
+
                 return true;
             }
             catch (Throwable t)
