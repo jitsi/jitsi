@@ -17,6 +17,7 @@ import org.jitsi.service.configuration.*;
 import org.jitsi.service.fileaccess.*;
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.resources.*;
+import org.jitsi.util.*;
 import org.osgi.framework.*;
 
 /**
@@ -67,12 +68,29 @@ public class UtilActivator
     public void start(BundleContext context)
         throws Exception
     {
-        if (logger.isTraceEnabled())
-            logger.trace("Setting default uncaught exception handler.");
-
         bundleContext = context;
 
+        if(OSUtils.IS_ANDROID)
+            loadLoggingConfig();
+
+        if (logger.isTraceEnabled())
+            logger.trace("Setting default uncaught exception handler.");
         Thread.setDefaultUncaughtExceptionHandler(this);
+    }
+
+    /**
+     * Loads logging config if any. Need to be loaded in order to activate
+     * logging and need to be activated after bundle context is initialized.
+     */
+    private void loadLoggingConfig()
+    {
+        try
+        {
+            Class.forName(
+                    "net.java.sip.communicator.util.JavaUtilLoggingConfig")
+                .newInstance();
+        }
+        catch(Throwable t){}
     }
 
     /**
