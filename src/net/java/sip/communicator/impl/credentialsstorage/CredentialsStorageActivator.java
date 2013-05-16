@@ -90,4 +90,14 @@ public class CredentialsStorageActivator
     {
         return bundleContext.getService(serviceReference);
     }
+
+    /**
+     * Returns service to show master password input dialog.
+     * @return return master password service to display input dialog.
+     */
+    public static MasterPasswordInputService getMasterPasswordInputService()
+    {
+        return ServiceUtils.getService(
+            bundleContext, MasterPasswordInputService.class);
+    }
 }

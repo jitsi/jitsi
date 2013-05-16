@@ -8,7 +8,6 @@ package net.java.sip.communicator.impl.credentialsstorage;
 
 import java.util.*;
 
-import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.util.*;
 
@@ -466,9 +465,18 @@ public class CredentialsStorageServiceImpl
         // cancel button is pressed and null returned
         boolean correct = true;
 
+        MasterPasswordInputService masterPasswordInputService
+            = CredentialsStorageActivator.getMasterPasswordInputService();
+
+        if(masterPasswordInputService == null)
+        {
+            logger.error("Missing MasterPasswordInputService to show input dialog");
+            return null;
+        }
+
         do
         {
-            master = MasterPasswordInputDialog.showInput(correct);
+            master = masterPasswordInputService.showInputDialog(correct);
             if (master == null)
                 return null;
             correct = ((master.length() != 0) && verifyMasterPassword(master));

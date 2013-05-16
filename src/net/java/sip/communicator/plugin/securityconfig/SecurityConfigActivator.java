@@ -312,4 +312,14 @@ public class SecurityConfigActivator
         String className = providerFactory.getClass().getName();
         return className.substring(0, className.lastIndexOf('.'));
     }
+
+    /**
+     * Returns service to show master password input dialog.
+     * @return return master password service to display input dialog.
+     */
+    public static MasterPasswordInputService getMasterPasswordInputService()
+    {
+        return ServiceUtils.getService(
+            bundleContext, MasterPasswordInputService.class);
+    }
 }

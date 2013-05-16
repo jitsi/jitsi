@@ -8,6 +8,7 @@ import javax.imageio.*;
 
 import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.service.certificate.*;
+import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.keybindings.*;
 import net.java.sip.communicator.service.resources.*;
@@ -58,6 +59,17 @@ public class DesktopUtilActivator
         bundleContext.registerService(
             VerifyCertificateDialogService.class.getName(),
             this,
+            null);
+
+        bundleContext.registerService(
+            MasterPasswordInputService.class.getName(),
+            new MasterPasswordInputService()
+            {
+                public String showInputDialog(boolean prevSuccess)
+                {
+                    return MasterPasswordInputDialog.showInput(prevSuccess);
+                }
+            },
             null);
     }
 

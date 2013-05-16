@@ -22,6 +22,7 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 
+import net.java.sip.communicator.util.*;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
 // disambiguation
@@ -34,6 +35,12 @@ import org.jitsi.service.resources.*;
 public class SavedPasswordsDialog
     extends SIPCommDialog
 {
+    /**
+     * The logger.
+     */
+    private static Logger logger
+        = Logger.getLogger(SavedPasswordsDialog.class);
+
     /**
      * Serial version UID.
      */
@@ -551,9 +558,18 @@ public class SavedPasswordsDialog
             String master;
             boolean correct = true;
 
+            MasterPasswordInputService masterPasswordInputService
+                = SecurityConfigActivator.getMasterPasswordInputService();
+
+            if(masterPasswordInputService == null)
+            {
+                logger.error("Missing MasterPasswordInputService to show input dialog");
+                return;
+            }
+
             do
             {
-                master = MasterPasswordInputDialog.showInput(correct);
+                master = masterPasswordInputService.showInputDialog(correct);
                 if (master == null)
                     return;
                 correct
