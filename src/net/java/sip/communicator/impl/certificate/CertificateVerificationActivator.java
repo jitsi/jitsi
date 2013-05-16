@@ -43,6 +43,11 @@ public class CertificateVerificationActivator
     private static CredentialsStorageService credService;
 
     /**
+     * The service to create and show dialogs for user interaction.
+     */
+    private static VerifyCertificateDialogService certificateDialogService;
+
+    /**
      * Called when this bundle is started.
      *
      * @param bc The execution context of the bundle being started.
@@ -129,5 +134,24 @@ public class CertificateVerificationActivator
                         CredentialsStorageService.class);
         }
         return credService;
+    }
+
+    /**
+     * Returns the <tt>VerifyCertificateDialogService</tt>, through which we
+     * will use to create dialogs.
+     *
+     * @return the <tt>VerifyCertificateDialogService</tt>, through which we
+     * will use to create dialogs.
+     */
+    public static VerifyCertificateDialogService getCertificateDialogService()
+    {
+        if (certificateDialogService == null)
+        {
+            certificateDialogService
+                = ServiceUtils.getService(
+                    bundleContext,
+                    VerifyCertificateDialogService.class);
+        }
+        return certificateDialogService;
     }
 }

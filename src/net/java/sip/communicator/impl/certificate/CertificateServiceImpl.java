@@ -18,7 +18,6 @@ import java.util.*;
 
 import javax.net.ssl.*;
 import javax.security.auth.callback.*;
-import javax.swing.*;
 
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.certificate.*;
@@ -39,6 +38,7 @@ import org.jitsi.util.*;
  * certificate when the automatic verification fails.
  *
  * @author Ingo Bauersachs
+ * @author Damian Minkov
  */
 public class CertificateServiceImpl
     implements CertificateService, PropertyChangeListener
@@ -990,29 +990,22 @@ public class CertificateServiceImpl
         if(config.getBoolean(PNAME_NO_USER_INTERACTION, false))
             return DO_NOT_TRUST;
 
-        final VerifyCertificateDialog dialog =
-            new VerifyCertificateDialog(chain, null, message);
-        try
+        if(CertificateVerificationActivator
+                .getCertificateDialogService() == null)
         {
-            // show the dialog in the swing thread and wait for the user
-            // choice
-            SwingUtilities.invokeAndWait(new Runnable()
-            {
-                public void run()
-                {
-                    dialog.setVisible(true);
-                }
-            });
-        }
-        catch (Exception e)
-        {
-            logger.error("Cannot show certificate verification dialog", e);
+            logger.error("Missing CertificateDialogService by default " +
+                "will not trust!");
             return DO_NOT_TRUST;
         }
 
-        if(!dialog.isTrusted)
+        VerifyCertificateDialogService.VerifyCertificateDialog dialog =
+            CertificateVerificationActivator.getCertificateDialogService()
+                .createDialog(chain, null, message);
+        dialog.setVisible(true);
+
+        if(!dialog.isTrusted())
             return DO_NOT_TRUST;
-        else if(dialog.alwaysTrustCheckBox.isSelected())
+        else if(dialog.isAlwaysTrustSelected())
             return TRUST_ALWAYS;
         else
             return TRUST_THIS_SESSION_ONLY;

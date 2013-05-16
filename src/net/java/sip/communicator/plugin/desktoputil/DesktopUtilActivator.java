@@ -2,10 +2,12 @@ package net.java.sip.communicator.plugin.desktoputil;
 
 import java.awt.image.*;
 import java.net.*;
+import java.security.cert.*;
 
 import javax.imageio.*;
 
 import net.java.sip.communicator.service.browserlauncher.*;
+import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.keybindings.*;
 import net.java.sip.communicator.service.resources.*;
@@ -16,7 +18,8 @@ import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
 
 public class DesktopUtilActivator
-    implements BundleActivator
+    implements BundleActivator,
+               VerifyCertificateDialogService
 {
     /**
      * The <tt>Logger</tt> used by the <tt>SwingUtilActivator</tt> class and its
@@ -50,6 +53,12 @@ public class DesktopUtilActivator
     public void start(BundleContext context) throws Exception
     {
         bundleContext = context;
+
+        // register the VerifyCertificateDialogService
+        bundleContext.registerService(
+            VerifyCertificateDialogService.class.getName(),
+            this,
+            null);
     }
 
     /**
@@ -173,5 +182,19 @@ public class DesktopUtilActivator
         if (uiService == null)
             uiService = ServiceUtils.getService(bundleContext, UIService.class);
         return uiService;
+    }
+
+    /**
+     * Creates the dialog.
+     *
+     * @param certs the certificates list
+     * @param title The title of the dialog; when null the resource
+     * <tt>service.gui.CERT_DIALOG_TITLE</tt> is loaded and used.
+     * @param message A text that describes why the verification failed.
+     */
+    public VerifyCertificateDialog createDialog(
+        Certificate[] certs, String title, String message)
+    {
+        return new VerifyCertificateDialogImpl(certs, title, message);
     }
 }
