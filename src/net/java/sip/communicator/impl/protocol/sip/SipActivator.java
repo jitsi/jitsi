@@ -176,6 +176,10 @@ public class SipActivator
             ServiceReference hidReference =
                 bundleContext.getServiceReference(
                         HIDService.class.getName());
+
+            if(hidReference == null)
+                return null;
+
             hidService = (HIDService)bundleContext.getService(hidReference);
         }
         return hidService;

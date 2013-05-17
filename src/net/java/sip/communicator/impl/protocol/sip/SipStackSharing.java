@@ -22,6 +22,8 @@ import net.java.sip.communicator.service.netaddr.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.Logger;
+import org.jitsi.util.*;
 
 /**
  * This class is the <tt>SipListener</tt> for all JAIN-SIP
@@ -105,7 +107,16 @@ public class SipStackSharing
         try
         {
             SipFactory sipFactory = SipFactory.getInstance();
-            sipFactory.setPathName("gov.nist");
+
+            /**
+             * In android jsip libs exist in core android devices and
+             * use different version as the one used in jitsi
+             * We change jsip package name in order to use our libs.
+             */
+            if(OSUtils.IS_ANDROID)
+                sipFactory.setPathName("org.jitsi.gov.nist");
+            else
+                sipFactory.setPathName("gov.nist");
 
             Properties sipStackProperties = new SipStackProperties();
 
