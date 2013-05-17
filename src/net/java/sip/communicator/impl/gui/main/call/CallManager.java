@@ -20,6 +20,7 @@ import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.plugin.desktoputil.transparent.*;
 import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -1368,10 +1369,19 @@ public class CallManager
         }
 
         if (StringUtils.isNullOrEmpty(displayName, true))
+        {
             displayName = (!StringUtils.isNullOrEmpty
                             (peer.getDisplayName(), true))
                             ? peer.getDisplayName()
                             : peer.getAddress();
+
+            // Try to resolve the display name
+            String resolvedName = resolveContactSource(displayName);
+            if(resolvedName != null)
+            {
+                displayName = resolvedName;
+            }
+        }
 
         return displayName;
     }
@@ -3554,5 +3564,82 @@ public class CallManager
                 isDesktop,
                 invoker,
                 location);
+    }
+
+    /**
+     * Tries to resolves a peer address into a display name, by reqesting the
+     * <tt>ContactSourceService</tt>s. This function returns only the
+     * first match.
+     *
+     * @param peerAddress The peer address.
+     *
+     * @return The corresponding display name, if there is a match. Null
+     * otherwise.
+     */
+    private static String resolveContactSource(String peerAddress)
+    {
+        String displayName = null;
+
+        if(!StringUtils.isNullOrEmpty(peerAddress))
+        {
+            Vector<ResolveAddressToDisplayNameContactQueryListener> resolvers
+                = new Vector<ResolveAddressToDisplayNameContactQueryListener>
+                    (1, 1);
+
+            // Queries all available resolvers
+            for(ContactSourceService contactSourceService:
+                    GuiActivator.getContactSources())
+            {
+                ContactQuery query
+                    = contactSourceService.queryContactSource(peerAddress, 1);
+                resolvers.add(
+                        new ResolveAddressToDisplayNameContactQueryListener(
+                            query));
+            }
+
+            long startTime = System.currentTimeMillis();
+            long currentTime = startTime;
+            // The detault timeout is set to 500ms.
+            long timeout = 500;
+            // Loops until we found a valid display name, or waits for timeout.
+            while(displayName == null
+                    && currentTime - startTime < timeout)
+            {
+                for(int i = 0; i < resolvers.size() && displayName == null; ++i)
+                {
+                    ResolveAddressToDisplayNameContactQueryListener resolver
+                        = resolvers.get(i);
+                    if(!resolver.isRunning())
+                    {
+                        if(resolver.isFound())
+                        {
+                            displayName = resolver.getResolvedName();
+                            // If this is the same result as the peer address,
+                            // then that is not what we are looking for. Then,
+                            // continue the search.
+                            if(displayName.equals(peerAddress))
+                            {
+                                displayName = null;
+                            }
+                        }
+                    }
+                }
+                Thread.yield();
+                currentTime = System.currentTimeMillis();
+            }
+
+            // Free lasting resolvers.
+            for(int i = 0; i < resolvers.size(); ++i)
+            {
+                ResolveAddressToDisplayNameContactQueryListener resolver
+                    = resolvers.get(i);
+                if(resolver.isRunning())
+                {
+                    resolver.stop();
+                }
+            }
+        }
+
+        return displayName;
     }
 }

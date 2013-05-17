@@ -126,6 +126,11 @@ public class AddrBookActivator
     public void start(BundleContext bundleContext)
         throws Exception
     {
+        if (logger.isInfoEnabled())
+            logger.info("Address book \""
+                    + "plugin.addrbook.ADDRESS_BOOKS"
+                    + "\" ... [STARTED]");
+
         AddrBookActivator.bundleContext = bundleContext;
 
         Dictionary<String, String> properties = new Hashtable<String, String>();
@@ -159,6 +164,11 @@ public class AddrBookActivator
     public void stop(BundleContext bundleContext)
         throws Exception
     {
+        if (logger.isInfoEnabled())
+            logger.info("Address book \""
+                    + "plugin.addrbook.ADDRESS_BOOKS"
+                    + "\" ... [STOPPED]");
+
         stopService();
     }
 
@@ -221,6 +231,13 @@ public class AddrBookActivator
                     ((AsyncContactSourceService) css).stop();
                 css = null;
             }
+            else
+            {
+                if (logger.isInfoEnabled())
+                    logger.info("Address book \""
+                            + css.getDisplayName()
+                            + "\" ... [REGISTERED]");
+            }
         }
     }
 
@@ -243,6 +260,12 @@ public class AddrBookActivator
             {
                 if (css instanceof AsyncContactSourceService)
                     ((AsyncContactSourceService) css).stop();
+
+                if (logger.isInfoEnabled())
+                    logger.info("Address book \""
+                            + css.getDisplayName()
+                            + "\" ... [UNREGISTERED]");
+
                 css = null;
             }
         }
