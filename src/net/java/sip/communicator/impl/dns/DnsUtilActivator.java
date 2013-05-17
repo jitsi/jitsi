@@ -6,7 +6,6 @@
  */
 package net.java.sip.communicator.impl.dns;
 
-import net.java.sip.communicator.impl.dns.dnsconfig.*;
 import net.java.sip.communicator.service.dns.*;
 import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.netaddr.event.*;
@@ -45,7 +44,6 @@ public class DnsUtilActivator
     private static NotificationService notificationService;
     private static ResourceManagementService resourceService;
     private static BundleContext bundleContext;
-    private static DnsConfigActivator dnsConfigActivator;
 
     /**
      * The address of the backup resolver we would use by default.
@@ -130,8 +128,6 @@ public class DnsUtilActivator
             logger.info("DnssecResolver ... [REGISTERED]");
         }
 
-        dnsConfigActivator = new DnsConfigActivator();
-        dnsConfigActivator.start(context);
         logger.info("DNS service ... [STARTED]");
     }
 
@@ -208,8 +204,6 @@ public class DnsUtilActivator
     public void stop(BundleContext context)
         throws Exception
     {
-        if (dnsConfigActivator != null)
-            dnsConfigActivator.stop(context);
     }
 
     /**

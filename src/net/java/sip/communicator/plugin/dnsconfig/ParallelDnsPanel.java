@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.dns.dnsconfig;
+package net.java.sip.communicator.plugin.dnsconfig;
 
 import static net.java.sip.communicator.impl.dns.DnsUtilActivator.*;
 import static net.java.sip.communicator.service.dns.CustomResolver.*;

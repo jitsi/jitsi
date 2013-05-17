@@ -903,7 +903,8 @@
     <!-- - - - - - - - - - - - - - BUNDLE BUILDING TARGETS - - - - - - - -       -->
     <!--ALL BUNDLES-->
     <target name="bundles"
-        depends="bundle-sc-launcher,bundle-util,bundle-service-dns,bundle-impl-dns,
+        depends="bundle-sc-launcher,bundle-util,bundle-service-dns,
+        bundle-impl-dns,bundle-dns-config,
         bundle-configuration,bundle-configuration-slick,
         bundle-history,bundle-history-slick,bundle-messagehistory, bundle-msghistory-slick,
         bundle-callhistory, bundle-callhistory-slick, bundle-popupmessagehandler-slick,
@@ -1089,6 +1090,15 @@
             manifest="${src}/net/java/sip/communicator/impl/dns/dns.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/dns"
                 prefix="net/java/sip/communicator/impl/dns"/>
+        </jar>
+    </target>
+    <!--BUNDLE-DNS-CONFIG-->
+    <target name="bundle-dns-config">
+        <!-- Create the dnsconfig.jar-->
+        <jar compress="true" destfile="${bundles.dest}/dnsconfig.jar"
+            manifest="${src}/net/java/sip/communicator/plugin/dnsconfig/dnsconfig.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/dnsconfig"
+                prefix="net/java/sip/communicator/plugin/dnsconfig"/>
         </jar>
     </target>
 
