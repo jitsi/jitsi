@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.gui.main.contactlist;
 
 import java.awt.*;
 import java.awt.event.*;
+import javax.swing.*;
 
 import javax.swing.text.*;
 
@@ -46,16 +47,24 @@ public class ContactListSearchKeyDispatcher
     private final ContactListContainer contactListContainer;
 
     /**
+     * The menu bar of the parent window.
+     */
+    private final JMenuBar menuBar;
+    
+    /**
      * Creates an instance of <tt>MainKeyDispatcher</tt>.
      * @param keyManager the parent <tt>KeyboardFocusManager</tt>
+     * @param menuBar of the parent window or null if none is used.
      */
     public ContactListSearchKeyDispatcher(  KeyboardFocusManager keyManager,
                                             SearchField searchField,
-                                            ContactListContainer container)
+                                            ContactListContainer container,
+                                            JMenuBar menuBar)
     {
         this.keyManager = keyManager;
         this.searchField = searchField;
         this.contactListContainer = container;
+        this.menuBar = menuBar;
     }
 
     /**
@@ -78,9 +87,10 @@ public class ContactListSearchKeyDispatcher
     public boolean dispatchKeyEvent(KeyEvent e)
     {
         Component focusOwner = keyManager.getFocusOwner();
-
+        
         // If this window is not the focus window  or if the event is not
         // of type PRESSED we have nothing more to do here.
+        // Also don't re-dispatch any events if the menu is active.
         if (!contactListContainer.isFocused()
             || (e.getID() != KeyEvent.KEY_PRESSED
                 && e.getID() != KeyEvent.KEY_TYPED)
@@ -90,7 +100,8 @@ public class ContactListSearchKeyDispatcher
                     .getSingleWindowContainer().containsFocus()
             || (focusOwner != null
                 && !searchField.isFocusOwner()
-                && focusOwner instanceof JTextComponent))
+                && focusOwner instanceof JTextComponent)
+            || (menuBar != null && menuBar.isSelected()))
             return false;
 
         // Ctrl-Enter || Cmd-Enter typed when this window is the focused
