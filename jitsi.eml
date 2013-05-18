@@ -19,8 +19,8 @@
 	<lib name="cglib-nodep.osgi-2.1_3.jar" scope="COMPILE">
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/cglib-nodep.osgi-2.1_3.jar!/"/>
 	</lib>
-	<lib name="commons-logging-1.1.1.jar" scope="COMPILE">
-		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/commons-logging-1.1.1.jar!/"/>
+	<lib name="commons-logging-1.1.2.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/commons-logging-1.1.2.jar!/"/>
 	</lib>
 	<lib name="dhcp4java-1.00.jar" scope="COMPILE">
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/dhcp4java-1.00.jar!/"/>
