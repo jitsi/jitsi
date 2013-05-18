@@ -29,6 +29,19 @@ public class LoginByPasswordStrategy
     private String password;
 
     /**
+     * Disables use of custom digest md5 per account.
+     */
+    private String DISABLE_CUSTOM_DIGEST_MD5_ACCOUNT_PROP =
+        "DISABLE_CUSTOM_DIGEST_MD5";
+
+    /**
+     * Disables use of custom digest md5.
+     */
+    private String DISABLE_CUSTOM_DIGEST_MD5_CONFIG_PROP =
+        "net.java.sip.communicator.impl.protocol" +
+            ".jabber.DISABLE_CUSTOM_DIGEST_MD5";
+
+    /**
      * Create a login strategy that logs in using user credentials (username
      * and password)
      * @param protocolProvider  protocol provider service to fire registration
@@ -87,8 +100,10 @@ public class LoginByPasswordStrategy
         // in order to support some incompatible servers
         boolean disableCustomDigestMD5
             = accountID.getAccountPropertyBoolean(
-            "DISABLE_CUSTOM_DIGEST_MD5",
-            false);
+            DISABLE_CUSTOM_DIGEST_MD5_ACCOUNT_PROP,
+            false)
+            || JabberActivator.getConfigurationService().getBoolean(
+                DISABLE_CUSTOM_DIGEST_MD5_CONFIG_PROP, false);
 
         if(!disableCustomDigestMD5)
         {

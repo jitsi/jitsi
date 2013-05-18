@@ -34,7 +34,9 @@ import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.jabberconstants.*;
 import net.java.sip.communicator.util.*;
 
+import net.java.sip.communicator.util.Logger;
 import org.jitsi.service.configuration.*;
+import org.jitsi.util.*;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
@@ -393,6 +395,13 @@ public class ProtocolProviderServiceJabberImpl
      * The version manager.
      */
     private VersionManager versionManager = null;
+
+    // load xmpp manager classes
+    static
+    {
+        if(OSUtils.IS_ANDROID)
+            loadJabberServiceClasses();
+    }
 
     /**
      * Returns the state of the registration of this protocol provider
@@ -2746,5 +2755,38 @@ public class ProtocolProviderServiceJabberImpl
         }
 
         return null;
+    }
+
+    /**
+     * Load jabber service class, their static context will register
+     * what is needed. Used in android as when using the other jars
+     * these services are loaded from the jar manifest.
+     */
+    private static void loadJabberServiceClasses()
+    {
+        if(!OSUtils.IS_ANDROID)
+            return;
+
+        try
+        {
+            // pre-configure smack in android
+            // just to load class to init their static blocks
+            SmackConfiguration.getVersion();
+            Class.forName(ServiceDiscoveryManager.class.getName());
+
+            Class.forName(DelayInformation.class.getName());
+            Class.forName(org.jivesoftware.smackx
+                .provider.DelayInformationProvider.class.getName());
+            Class.forName(org.jivesoftware.smackx
+                .bytestreams.socks5.Socks5BytestreamManager.class.getName());
+            Class.forName(XHTMLManager.class.getName());
+            Class.forName(org.jivesoftware.smackx
+                .bytestreams.ibb.InBandBytestreamManager.class.getName());
+
+        }
+        catch(ClassNotFoundException e)
+        {
+            logger.error("Error loading classes in smack", e);
+        }
     }
 }

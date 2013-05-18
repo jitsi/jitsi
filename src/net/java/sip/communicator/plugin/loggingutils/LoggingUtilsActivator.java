@@ -59,7 +59,7 @@ public class LoggingUtilsActivator
      * Indicates if the logging configuration form should be disabled, i.e.
      * not visible to the user.
      */
-    private static final String DISABLED_PROP
+    protected static final String DISABLED_PROP
         = "net.java.sip.communicator.plugin.loggingconfig.DISABLED";
 
     /**
@@ -86,7 +86,8 @@ public class LoggingUtilsActivator
             bundleContext.registerService(
                     ConfigurationForm.class.getName(),
                     new LazyConfigurationForm(
-                            LoggingConfigForm.class.getName(),
+                            "net.java.sip.communicator.plugin.loggingutils" +
+                                ".LoggingConfigForm",
                             getClass().getClassLoader(),
                             null,
                             "plugin.loggingutils.PACKET_LOGGING_CONFIG",
