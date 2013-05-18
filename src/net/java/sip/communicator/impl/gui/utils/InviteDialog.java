@@ -235,7 +235,8 @@ public class InviteDialog
         ContactListSearchKeyDispatcher clKeyDispatcher
                         = new ContactListSearchKeyDispatcher(   keyManager,
                                                                 searchField,
-                                                                this);
+                                                                this,
+                                                                null);
 
         clKeyDispatcher.setContactList(srcContactList);
 

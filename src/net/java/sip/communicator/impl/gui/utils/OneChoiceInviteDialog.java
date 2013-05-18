@@ -138,7 +138,8 @@ public class OneChoiceInviteDialog
         ContactListSearchKeyDispatcher clKeyDispatcher
                         = new ContactListSearchKeyDispatcher(   keyManager,
                                                                 searchField,
-                                                                this);
+                                                                this,
+                                                                null);
 
         clKeyDispatcher.setContactList(contactList);
 

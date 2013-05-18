@@ -225,7 +225,8 @@ public class MainFrame
 
         clKeyDispatcher = new ContactListSearchKeyDispatcher(   keyManager,
                                                                 searchField,
-                                                                this);
+                                                                this,
+                                                                menu);
         keyManager.addKeyEventDispatcher(clKeyDispatcher);
 
         /*
