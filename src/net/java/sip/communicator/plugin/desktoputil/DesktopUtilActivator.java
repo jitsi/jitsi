@@ -5,6 +5,7 @@ import java.net.*;
 import java.security.cert.*;
 
 import javax.imageio.*;
+import javax.swing.*;
 
 import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.service.certificate.*;
@@ -68,6 +69,43 @@ public class DesktopUtilActivator
                 public String showInputDialog(boolean prevSuccess)
                 {
                     return MasterPasswordInputDialog.showInput(prevSuccess);
+                }
+            },
+            null);
+
+        bundleContext.registerService(
+            AuthenticationWindowService.class.getName(),
+            new AuthenticationWindowService()
+            {
+                public AuthenticationWindow create(
+                            String userName,
+                            char[] password,
+                            String server,
+                            boolean isUserNameEditable,
+                            boolean isRememberPassword,
+                            Object icon,
+                            String windowTitle,
+                            String windowText,
+                            String usernameLabelText,
+                            String passwordLabelText,
+                            String errorMessage,
+                            String signupLink)
+                {
+                    ImageIcon imageIcon = null;
+
+                    if(icon instanceof ImageIcon)
+                        imageIcon = (ImageIcon)icon;
+
+                    return new net.java.sip.communicator.plugin.desktoputil
+                        .AuthenticationWindow(
+                            userName, password,
+                            server,
+                            isUserNameEditable, isRememberPassword,
+                            imageIcon,
+                            windowTitle, windowText,
+                            usernameLabelText, passwordLabelText,
+                            errorMessage,
+                            signupLink);
                 }
             },
             null);

@@ -14,7 +14,7 @@ import java.util.*;
 import javax.net.ssl.*;
 
 import net.java.sip.communicator.util.Logger;
-import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.service.gui.*;
 
 import org.apache.http.*;
 import org.apache.http.Header;
@@ -24,7 +24,6 @@ import org.apache.http.client.methods.*;
 import org.apache.http.client.params.*;
 import org.apache.http.client.utils.*;
 import org.apache.http.conn.scheme.*;
-import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.entity.*;
 import org.apache.http.entity.mime.*;
 import org.apache.http.entity.mime.content.*;
@@ -524,11 +523,11 @@ public class HttpUtils
      * in the new client
      * @param address the address we will be connecting to
      */
-    private static DefaultHttpClient getHttpClient(
+    public static DefaultHttpClient getHttpClient(
         String usernamePropertyName,
         String passwordPropertyName,
         final String address,
-        HTTPCredentialsProvider credentialsProvider)
+        CredentialsProvider credentialsProvider)
         throws IOException
     {
         HttpParams params = new BasicHttpParams();
@@ -559,12 +558,16 @@ public class HttpUtils
         // note to any reviewer concerned about ALLOW_ALL_HOSTNAME_VERIFIER:
         // the SSL context obtained from the certificate service takes care of
         // certificate validation
-        Scheme sch =
-            new Scheme("https", 443, new SSLSocketFactory(sslCtx,
-                SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER));
-        httpClient.getConnectionManager().getSchemeRegistry().register(sch);
-        //TODO: wrap the SSLSocketFactory to use our own DNS resolution
-        //TODO: register socketfactory for http to use our own DNS resolution
+        try
+        {
+            Scheme sch =
+                new Scheme("https", 443, new SSLSocketFactoryEx(sslCtx));
+            httpClient.getConnectionManager().getSchemeRegistry().register(sch);
+        }
+        catch(Throwable t)
+        {
+            logger.error("Error creating ssl socket factory", t);
+        }
 
         // set proxy from default jre settings
         ProxySelectorRoutePlanner routePlanner = new ProxySelectorRoutePlanner(
@@ -679,11 +682,24 @@ public class HttpUtils
             // if password is not saved ask user for credentials
             if(pass == null)
             {
-                
-                AuthenticationWindow authWindow =
-                    new AuthenticationWindow(
+                AuthenticationWindowService authenticationWindowService =
+                    HttpUtilActivator.getAuthenticationWindowService();
+
+                if(authenticationWindowService == null)
+                {
+                    logger.error(
+                        "No AuthenticationWindowService implementation");
+                    return null;
+                }
+
+                AuthenticationWindowService.AuthenticationWindow authWindow =
+                    authenticationWindowService.create(
                         authUsername, null,
-                        authscope.getHost(), true, null, errorMessage,
+                        authscope.getHost(),
+                        true,
+                        false,
+                        null, null, null, null, null,
+                        errorMessage,
                         HttpUtilActivator.getResources().getSettingsString(
                             "plugin.provisioning.SIGN_UP_LINK"));
                 authWindow.setVisible(true);

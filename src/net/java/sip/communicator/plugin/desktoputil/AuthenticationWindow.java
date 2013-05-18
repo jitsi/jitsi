@@ -11,6 +11,7 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.util.Logger;
 
 import org.jitsi.util.*;
@@ -23,7 +24,8 @@ import org.jitsi.util.*;
  */
 public class AuthenticationWindow
     extends SIPCommDialog
-    implements ActionListener
+    implements ActionListener,
+               AuthenticationWindowService.AuthenticationWindow
 {
     private static final long serialVersionUID = 1L;
 
@@ -172,7 +174,7 @@ public class AuthenticationWindow
      * the user that something went wrong
      * @param signupLink an URL that allows the user to sign up
      */
-    private AuthenticationWindow(String userName,
+    AuthenticationWindow(String userName,
                                 char[] password,
                                 String server,
                                 boolean isUserNameEditable,

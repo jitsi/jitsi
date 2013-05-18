@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.certificate;
 
 import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.service.credentialsstorage.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.configuration.*;
@@ -153,5 +154,15 @@ public class CertificateVerificationActivator
                     VerifyCertificateDialogService.class);
         }
         return certificateDialogService;
+    }
+
+    /**
+     * Returns service to show authentication window.
+     * @return return service to show authentication window.
+     */
+    public static AuthenticationWindowService getAuthenticationWindowService()
+    {
+        return ServiceUtils.getService(
+            bundleContext, AuthenticationWindowService.class);
     }
 }

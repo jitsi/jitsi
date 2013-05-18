@@ -10,7 +10,6 @@ import java.io.*;
 import java.net.*;
 import java.net.URI;
 
-import javax.net.ssl.*;
 import javax.sip.address.*;
 
 import net.java.sip.communicator.impl.protocol.sip.*;
@@ -19,17 +18,15 @@ import net.java.sip.communicator.impl.protocol.sip.xcap.model.xcaperror.*;
 import net.java.sip.communicator.impl.protocol.sip.xcap.utils.*;
 import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.httputil.*;
 import net.java.sip.communicator.util.*;
 
 import org.apache.http.*;
 import org.apache.http.auth.*;
+import org.apache.http.client.*;
 import org.apache.http.client.methods.*;
-import org.apache.http.conn.*;
-import org.apache.http.conn.scheme.*;
-import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.entity.*;
 import org.apache.http.impl.client.*;
-import org.apache.http.params.*;
 import org.osgi.framework.*;
 
 /**
@@ -69,11 +66,6 @@ public abstract class BaseHttpXCapClient implements HttpXCapClient
             = "application/xcap-error+xml";
 
     /**
-     * The default timeout (10 seconds)
-     */
-    private static int DEFAULT_TIMEOUT = 10 * 1000;
-
-    /**
      * Current server uri.
      */
     protected URI uri;
@@ -99,11 +91,6 @@ public abstract class BaseHttpXCapClient implements HttpXCapClient
     private boolean connected;
 
     /**
-     * How many seconds should the client wait for HTTP response.
-     */
-    private int timeout;
-
-    /**
      * The service we use to interact with user regarding certificates.
      */
     private CertificateService certificateVerification;
@@ -113,8 +100,6 @@ public abstract class BaseHttpXCapClient implements HttpXCapClient
      */
     public BaseHttpXCapClient()
     {
-        timeout = DEFAULT_TIMEOUT;
-
         ServiceReference guiVerifyReference
             = SipActivator.getBundleContext().getServiceReference(
                 CertificateService.class.getName());
@@ -194,15 +179,13 @@ public abstract class BaseHttpXCapClient implements HttpXCapClient
     protected XCapHttpResponse get(URI uri)
             throws XCapException
     {
-        DefaultHttpClient httpClient = createHttpClient();
+        DefaultHttpClient httpClient = null;
         try
         {
+            httpClient = createHttpClient();
+
             HttpGet getMethod = new HttpGet(uri);
             getMethod.setHeader("Connection", "close");
-            Credentials credentials =
-                    new UsernamePasswordCredentials(getUserName(), password);
-            httpClient.getCredentialsProvider().
-                    setCredentials(AuthScope.ANY, credentials);
 
             HttpResponse response = httpClient.execute(getMethod);
             XCapHttpResponse result = createResponse(response);
@@ -246,7 +229,8 @@ public abstract class BaseHttpXCapClient implements HttpXCapClient
         }
         finally
         {
-            httpClient.getConnectionManager().shutdown();
+            if(httpClient != null)
+                httpClient.getConnectionManager().shutdown();
         }
     }
 
@@ -292,9 +276,11 @@ public abstract class BaseHttpXCapClient implements HttpXCapClient
     public XCapHttpResponse put(XCapResource resource)
             throws XCapException
     {
-        DefaultHttpClient httpClient = createHttpClient();
+        DefaultHttpClient httpClient = null;
         try
         {
+            httpClient = createHttpClient();
+
             URI resourceUri = getResourceURI(resource.getId());
             HttpPut putMethod = new HttpPut(resourceUri);
             putMethod.setHeader("Connection", "close");
@@ -302,10 +288,7 @@ public abstract class BaseHttpXCapClient implements HttpXCapClient
             stringEntity.setContentType(resource.getContentType());
             stringEntity.setContentEncoding("UTF-8");
             putMethod.setEntity(stringEntity);
-            Credentials credentials =
-                    new UsernamePasswordCredentials(getUserName(), password);
-            httpClient.getCredentialsProvider().
-                    setCredentials(AuthScope.ANY, credentials);
+
             if (logger.isDebugEnabled())
             {
                 String logMessage = String.format(
@@ -327,7 +310,8 @@ public abstract class BaseHttpXCapClient implements HttpXCapClient
         }
         finally
         {
-            httpClient.getConnectionManager().shutdown();
+            if(httpClient != null)
+                httpClient.getConnectionManager().shutdown();
         }
     }
 
@@ -343,16 +327,15 @@ public abstract class BaseHttpXCapClient implements HttpXCapClient
             throws XCapException
     {
         assertConnected();
-        DefaultHttpClient httpClient = createHttpClient();
+        DefaultHttpClient httpClient = null;
         try
         {
+            httpClient = createHttpClient();
+
             URI resourceUri = getResourceURI(resourceId);
             HttpDelete deleteMethod = new HttpDelete(resourceUri);
             deleteMethod.setHeader("Connection", "close");
-            Credentials credentials =
-                    new UsernamePasswordCredentials(getUserName(), password);
-            httpClient.getCredentialsProvider().
-                    setCredentials(AuthScope.ANY, credentials);
+
             if (logger.isDebugEnabled())
             {
                 String logMessage = String.format(
@@ -373,7 +356,8 @@ public abstract class BaseHttpXCapClient implements HttpXCapClient
         }
         finally
         {
-            httpClient.getConnectionManager().shutdown();
+            if(httpClient != null)
+                httpClient.getConnectionManager().shutdown();
         }
     }
 
@@ -395,26 +379,6 @@ public abstract class BaseHttpXCapClient implements HttpXCapClient
     public URI getUri()
     {
         return uri;
-    }
-
-    /**
-     * Gets operation timeout.The deffault value is 10 seconds.
-     *
-     * @return operation timeout.
-     */
-    public int getTimeout()
-    {
-        return timeout;
-    }
-
-    /**
-     * Sets operation timeout. The deffault value is 10 seconds.
-     *
-     * @param timeout operation timeout.
-     */
-    public void setTimeout(int timeout)
-    {
-        this.timeout = timeout;
     }
 
     /**
@@ -456,32 +420,16 @@ public abstract class BaseHttpXCapClient implements HttpXCapClient
      * @return the HTTP client.
      */
     private DefaultHttpClient createHttpClient()
+        throws IOException
     {
-        //TODO: move to HttpUtil
-        DefaultHttpClient httpClient = new DefaultHttpClient();
-        try
-        {
-            // make sure we use Certificate Verification Service if
-            // for some reason the certificate needs to be shown to user
-            // for approval
-            ClientConnectionManager ccm = httpClient.getConnectionManager();
-            SchemeRegistry sr = ccm.getSchemeRegistry();
-            SSLContext ctx =
-                certificateVerification.getSSLContext(
-                    certificateVerification.getTrustManager(uri.getHost()));
-            org.apache.http.conn.ssl.SSLSocketFactory ssf =
-                new org.apache.http.conn.ssl.SSLSocketFactory(ctx,
-                    SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
-            sr.register(new Scheme("https", 443, ssf));
-        }
-        catch(Throwable e)
-        {
-            logger.error("Cannot add our trust manager to httpClient", e);
-        }
-        HttpParams httpParams = httpClient.getParams();
-        HttpConnectionParams.setConnectionTimeout(httpParams, timeout);
-        HttpConnectionParams.setSoTimeout(httpParams, timeout);
-        return httpClient;
+        XCapCredentialsProvider credentialsProvider
+            = new XCapCredentialsProvider();
+        credentialsProvider.setCredentials(
+            AuthScope.ANY,
+            new UsernamePasswordCredentials(getUserName(), password));
+
+        return HttpUtils.getHttpClient(
+            null , null, uri.getHost(), credentialsProvider);
     }
 
     /**
@@ -582,6 +530,47 @@ public abstract class BaseHttpXCapClient implements HttpXCapClient
         {
             logger.error("XCapError cannot be parsed.");
             return null;
+        }
+    }
+
+    /**
+     * Our credentials provider simple impl.
+     */
+    private class XCapCredentialsProvider
+        implements CredentialsProvider
+    {
+        /**
+         * The credentials to use.
+         */
+        private Credentials credentials;
+
+        /**
+         * Sets credentials no matter of the scope.
+         * @param authscope the scope is not used.
+         * @param credentials the credentials to use
+         */
+        public void setCredentials(AuthScope authscope,
+                                   Credentials credentials)
+        {
+            this.credentials = credentials;
+        }
+
+        /**
+         * Returns the credentials no matter of the scope.
+         * @param authscope not important
+         * @return the credentials.
+         */
+        public Credentials getCredentials(AuthScope authscope)
+        {
+            return credentials;
+        }
+
+        /**
+         * Clears credentials.
+         */
+        public void clear()
+        {
+            credentials = null;
         }
     }
 }

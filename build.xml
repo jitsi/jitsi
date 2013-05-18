@@ -921,7 +921,8 @@
         bundle-plugin-icqaccregwizz,bundle-plugin-jabberaccregwizz,
         bundle-plugin-msnaccregwizz,bundle-plugin-sipaccregwizz,
         bundle-plugin-yahooaccregwizz,bundle-plugin-aimaccregwizz,
-        bundle-commons-codec,bundle-httputil,bundle-plugin-spellcheck,
+        bundle-commons-codec,bundle-commons-logging,
+        bundle-httputil,bundle-plugin-spellcheck,
         bundle-version-impl,bundle-shutdown-timeout,bundle-windows-clean-shutdown,
         bundle-growlnotification,bundle-swingnotification,bundle-galagonotification,
         bundle-sparkle, bundle-plugin-branding,
@@ -1964,20 +1965,8 @@ javax.swing.event, javax.swing.border"/>
 
     <!--BUNDLE-COMMONS-LOGGING -->
     <target name="bundle-commons-logging">
-        <jar compress="true" destfile="lib/bundle/commons-logging.jar"
-                filesetmanifest="merge">
-            <zipfileset src="${lib.noinst}/commons-logging-1.1.1.jar"
-                prefix=""/>
-            <manifest>
-                <attribute name="Export-Package"
-                    value="org.apache.commons.logging"/>
-                <attribute name="Bundle-Name"
-                    value="Apache Commons Logging"/>
-                <attribute name="Bundle-Description"
-                    value="An ultra-thin bridge between different logging implementations."/>
-                <attribute name="System-Bundle" value="yes"/>
-            </manifest>
-        </jar>
+        <copy file="${lib.noinst}/commons-logging-1.1.2.jar"
+              tofile="${bundles.dest}/commons-logging.jar"/>
     </target>
 
     <!--BUNDLE-COMMONS-CODEC -->
@@ -1999,9 +1988,21 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/service/httputil/httputil.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/service/httputil"
                 prefix="net/java/sip/communicator/service/httputil"/>
-            <zipfileset src="${lib.noinst}/httpclient-osgi-4.2.3.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/httpcore-osgi-4.2.3.jar" prefix=""/>
         </jar>
+        <!--
+            Re-packaging into new bundle as original having wrong paths in osgi
+            bundle manifest and getting exceptions
+            'No paths specified in header' while loading
+         -->
+        <jar
+            compress="false" destfile="${bundles.dest}/httpclient.jar"
+            manifest="${lib.noinst}/httpclient.manifest.mf">
+            <zipfileset src="${lib.noinst}/httpclient-osgi-4.2.3.jar"
+                        prefix=""/>
+            <zipfileset src="${lib.noinst}/httpcore-osgi-4.2.3.jar"
+                        prefix=""/>
+        </jar>
+
     </target>
 
     <!-- BUNDLE-NOTIFICATION -->
@@ -2369,7 +2370,7 @@ javax.swing.event, javax.swing.border"/>
     <!--BUNDLE-BOUNCYCASTLE -->
     <target name="bundle-bouncycastle">
         <copy file="${lib.noinst}/bcprov-jdk15on-148.jar" tofile="${bundles.dest}/bouncycastle.jar"/>
-    	<copy file="${lib.noinst}/bccontrib-1.0-SNAPSHOT.jar" tofile="${bundles.dest}/bccontrib.jar"/>
+        <copy file="${lib.noinst}/bccontrib-1.0-SNAPSHOT.jar" tofile="${bundles.dest}/bccontrib.jar"/>
     </target>
 
     <!--BUNDLE-PLUGIN-OTR -->

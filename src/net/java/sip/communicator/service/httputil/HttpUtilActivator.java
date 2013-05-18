@@ -2,6 +2,7 @@ package net.java.sip.communicator.service.httputil;
 
 import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.service.credentialsstorage.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
@@ -145,5 +146,15 @@ public class HttpUtilActivator
                 ConfigurationService.class);
         }
         return configurationService;
+    }
+
+    /**
+     * Returns service to show authentication window.
+     * @return return service to show authentication window.
+     */
+    public static AuthenticationWindowService getAuthenticationWindowService()
+    {
+        return ServiceUtils.getService(
+            bundleContext, AuthenticationWindowService.class);
     }
 }

@@ -13,7 +13,7 @@
 	<classpathentry kind="lib" path="lib/installer-exclude/aclibico-2.1.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/apache-ant-1.7.0.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/cglib-nodep.osgi-2.1_3.jar"/>
-	<classpathentry kind="lib" path="lib/installer-exclude/commons-logging-1.1.1.jar"/>
+	<classpathentry kind="lib" path="lib/installer-exclude/commons-logging-1.1.2.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/dhcp4java-1.00.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/dict4j.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/dnsjava.jar">

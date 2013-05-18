@@ -89,19 +89,4 @@ public interface HttpXCapClient
      * @return server location.
      */
     public URI getUri();
-
-    /**
-     * Gets operation timeout.
-     *
-     * @return operation timeout.
-     */
-    public int getTimeout();
-
-    /**
-     * Sets operation timeout.
-     *
-     * @param timeout operation timeout.
-     */
-    public void setTimeout(int timeout);
-
 }

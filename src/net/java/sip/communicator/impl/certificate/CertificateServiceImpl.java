@@ -19,9 +19,9 @@ import java.util.*;
 import javax.net.ssl.*;
 import javax.security.auth.callback.*;
 
-import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.service.credentialsstorage.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.httputil.*;
 import net.java.sip.communicator.util.Logger;
 
@@ -430,14 +430,29 @@ public class CertificateServiceImpl
                             }
                             else
                             {
-                                AuthenticationWindow aw =
-                                    new AuthenticationWindow(
-                                        f.getName(),
-                                        null,
-                                        kt.getName(),
-                                        false,
-                                        null
-                                    );
+                                AuthenticationWindowService
+                                    authenticationWindowService =
+                                        CertificateVerificationActivator
+                                            .getAuthenticationWindowService();
+
+                                if(authenticationWindowService == null)
+                                {
+                                    logger.error(
+                                        "No AuthenticationWindowService " +
+                                            "implementation");
+                                    throw new IOException("User cancel");
+                                }
+
+                                AuthenticationWindowService.AuthenticationWindow
+                                    aw = authenticationWindowService.create(
+                                            f.getName(),
+                                            null,
+                                            kt.getName(),
+                                            false,
+                                            false,
+                                            null, null, null, null,
+                                            null, null, null);
+
                                 aw.setAllowSavePassword(false);
                                 aw.setVisible(true);
                                 if (!aw.isCanceled())
