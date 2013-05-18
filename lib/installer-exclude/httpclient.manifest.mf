@@ -4,6 +4,7 @@ Bundle-Vendor: jitsi.org
 Bundle-Version: 4.2.3
 System-Bundle: yes
 Import-Package: org.apache.commons.logging,
+ javax.security.auth.x500,
  javax.net.ssl
 Export-Package: org.apache.http,
  org.apache.http.entity,
