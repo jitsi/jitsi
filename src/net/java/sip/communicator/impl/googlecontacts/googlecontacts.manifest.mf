@@ -8,6 +8,7 @@ Import-Package: org.osgi.framework,
  org.jitsi.service.configuration,
  net.java.sip.communicator.service.credentialsstorage,
  net.java.sip.communicator.service.contactsource,
+ net.java.sip.communicator.service.googlecontacts,
  net.java.sip.communicator.service.gui,
  org.jitsi.service.resources, net.java.sip.communicator.service.resources,
  net.java.sip.communicator.service.protocol,
@@ -23,4 +24,3 @@ Import-Package: org.osgi.framework,
  javax.swing.table,
  javax.swing.tree,
  javax.swing.text
-Export-Package: net.java.sip.communicator.service.googlecontacts

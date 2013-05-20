@@ -16,6 +16,7 @@ Import-Package: net.java.sip.communicator.service.credentialsstorage,
  org.osgi.framework
 Export-Package: net.java.sip.communicator.service.protocol,
  net.java.sip.communicator.service.protocol.aimconstants,
+ net.java.sip.communicator.service.customavatar,
  net.java.sip.communicator.service.protocol.event,
  net.java.sip.communicator.service.protocol.globalstatus,
  net.java.sip.communicator.service.protocol.icqconstants,

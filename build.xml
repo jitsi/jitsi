@@ -910,7 +910,9 @@
         bundle-callhistory, bundle-callhistory-slick, bundle-popupmessagehandler-slick,
         bundle-netaddr,bundle-netaddr-slick,bundle-slickless,
         bundle-slick-runner,bundle-sip,bundle-sip-slick,bundle-fileaccess,
-        bundle-fileaccess-slick,bundle-neomedia,bundle-hid,bundle-ldap,bundle-googlecontacts,
+        bundle-fileaccess-slick,bundle-neomedia,bundle-ldap,
+        bundle-googlecontacts-service,bundle-googlecontacts,
+        bundle-hid-service,bundle-hid,
         bundle-resource-manager,bundle-resources-defaultpack,
         bundle-protocol,bundle-protocol-media,bundle-icq,
         bundle-icq-slick,bundle-mock,bundle-smacklib,bundle-jmdnslib,
@@ -1189,11 +1191,19 @@
     <target name="bundle-hid">
         <jar compress="false" destfile="${bundles.dest}/hid.jar"
             manifest="${src}/net/java/sip/communicator/impl/hid/hid.manifest.mf">
-
             <zipfileset dir="${dest}/net/java/sip/communicator/service/hid"
                 prefix="net/java/sip/communicator/service/hid"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/hid"
                 prefix="net/java/sip/communicator/impl/hid" />
+        </jar>
+    </target>
+
+    <!--BUNDLE-HID-SERVICE -->
+    <target name="bundle-hid-service">
+        <jar compress="false" destfile="${bundles.dest}/hid-service.jar"
+            manifest="${src}/net/java/sip/communicator/service/hid/hid.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/hid"
+                prefix="net/java/sip/communicator/service/hid"/>
         </jar>
     </target>
 
@@ -1222,6 +1232,14 @@
             <zipfileset src="${lib.noinst}/gdata-contacts-meta-3.0.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/gdata-client-1.0.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/gdata-client-meta-1.0.jar" prefix=""/>
+        </jar>
+    </target>
+    <!--BUNDLE-GOOGLECONTACTS-SERVICE-->
+    <target name="bundle-googlecontacts-service">
+        <jar compress="false" destfile="${bundles.dest}/googlecontacts-service.jar"
+            manifest="${src}/net/java/sip/communicator/service/googlecontacts/googlecontacts.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/googlecontacts"
+                prefix="net/java/sip/communicator/service/googlecontacts"/>
         </jar>
     </target>
 
@@ -1323,6 +1341,8 @@ javax.swing.event, javax.swing.border"/>
         <!-- Creates a bundle containing the protocol provider interfaces.-->
         <jar compress="false" destfile="${bundles.dest}/protocol.jar"
             manifest="${src}/net/java/sip/communicator/service/protocol/protocol.provider.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/customavatar"
+                prefix="net/java/sip/communicator/service/customavatar" />
             <zipfileset dir="${dest}/net/java/sip/communicator/service/protocol"
                 prefix="net/java/sip/communicator/service/protocol"/>
             <zipfileset dir="${resources}/images"
@@ -2446,8 +2466,6 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/plugin/nimbuzzavatars/nimbuzzavatars.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/nimbuzzavatars"
                 prefix="net/java/sip/communicator/plugin/nimbuzzavatars" />
-            <zipfileset dir="${dest}/net/java/sip/communicator/service/customavatar"
-                prefix="net/java/sip/communicator/service/customavatar" />
         </jar>
     </target>
 

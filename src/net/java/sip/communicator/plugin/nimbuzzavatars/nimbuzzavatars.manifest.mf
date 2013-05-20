@@ -4,5 +4,5 @@ Bundle-Description: Custom Nimbuzz Avatars plugin
 Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
-Export-Package: net.java.sip.communicator.service.customavatar
-Import-Package: org.osgi.framework
+Import-Package: org.osgi.framework,
+ net.java.sip.communicator.service.customavatar
