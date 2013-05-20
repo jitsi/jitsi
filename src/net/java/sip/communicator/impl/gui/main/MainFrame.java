@@ -225,8 +225,7 @@ public class MainFrame
 
         clKeyDispatcher = new ContactListSearchKeyDispatcher(   keyManager,
                                                                 searchField,
-                                                                this,
-                                                                menu);
+                                                                this);
         keyManager.addKeyEventDispatcher(clKeyDispatcher);
 
         /*
@@ -1063,6 +1062,10 @@ public class MainFrame
         return (opSet instanceof OperationSetMultiUserChat)
             ? (OperationSetMultiUserChat) opSet
             : null;
+    }
+
+    public boolean isMenuSelected() {
+        return menu.isSelected();
     }
 
     /**

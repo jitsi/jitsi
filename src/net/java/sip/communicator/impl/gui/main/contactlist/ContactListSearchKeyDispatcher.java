@@ -8,7 +8,6 @@ package net.java.sip.communicator.impl.gui.main.contactlist;
 
 import java.awt.*;
 import java.awt.event.*;
-import javax.swing.*;
 
 import javax.swing.text.*;
 
@@ -45,26 +44,18 @@ public class ContactListSearchKeyDispatcher
      * The container of the contact list.
      */
     private final ContactListContainer contactListContainer;
-
-    /**
-     * The menu bar of the parent window.
-     */
-    private final JMenuBar menuBar;
     
     /**
      * Creates an instance of <tt>MainKeyDispatcher</tt>.
      * @param keyManager the parent <tt>KeyboardFocusManager</tt>
-     * @param menuBar of the parent window or null if none is used.
      */
     public ContactListSearchKeyDispatcher(  KeyboardFocusManager keyManager,
                                             SearchField searchField,
-                                            ContactListContainer container,
-                                            JMenuBar menuBar)
+                                            ContactListContainer container)
     {
         this.keyManager = keyManager;
         this.searchField = searchField;
         this.contactListContainer = container;
-        this.menuBar = menuBar;
     }
 
     /**
@@ -101,7 +92,7 @@ public class ContactListSearchKeyDispatcher
             || (focusOwner != null
                 && !searchField.isFocusOwner()
                 && focusOwner instanceof JTextComponent)
-            || (menuBar != null && menuBar.isSelected()))
+            || contactListContainer.isMenuSelected())
             return false;
 
         // Ctrl-Enter || Cmd-Enter typed when this window is the focused

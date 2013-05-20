@@ -138,8 +138,7 @@ public class OneChoiceInviteDialog
         ContactListSearchKeyDispatcher clKeyDispatcher
                         = new ContactListSearchKeyDispatcher(   keyManager,
                                                                 searchField,
-                                                                this,
-                                                                null);
+                                                                this);
 
         clKeyDispatcher.setContactList(contactList);
 
@@ -327,4 +326,9 @@ public class OneChoiceInviteDialog
      * depending on the current state of the contained contact list.
      */
     public void ctrlEnterKeyTyped() {}
+
+    public boolean isMenuSelected() {
+        // This dialog has no menu bar so it will never be selected
+        return false;
+    }
 }
