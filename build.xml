@@ -13,6 +13,7 @@
     <property name="bundles.dest.lin" value="${bundles.dest}/os-specific/linux"/>
     <property name="bundles.dest.sol" value="${bundles.dest}/os-specific/solaris"/>
     <property name="bundles.dest.freebsd" value="${bundles.dest}/os-specific/freebsd"/>
+    <property name="bundles.dest.android" value="${bundles.dest}/os-specific/android"/>
     <property name="doc" value="doc"/>
     <property name="java.doc" value="${doc}/api"/>
     <property name="lib" value="${sc.basedir}/lib"/>
@@ -502,6 +503,7 @@
         <mkdir dir="${bundles.dest.win}"/>
         <mkdir dir="${bundles.dest.freebsd}"/>
         <mkdir dir="${bundles.dest.sol}"/>
+        <mkdir dir="${bundles.dest.android}"/>
 
         <mkdir dir="${test.reports.dir}"/>
         <mkdir dir="${test.reports.dir}/html"/>
@@ -2255,6 +2257,13 @@ javax.swing.event, javax.swing.border"/>
             <!-- Include skinresourcepack folder. -->
             <zipfileset dir="${resources}/skinresourcepack"
                     prefix="resources/skinresourcepack"/>
+        </jar>
+        <!-- Creates a bundle for the default resource pack classes.
+            Used in android.-->
+        <jar
+            compress="false" destfile="${bundles.dest.android}/defaultresources.jar">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/defaultresourcepack"
+                    prefix="net/java/sip/communicator/plugin/defaultresourcepack"/>
         </jar>
     </target>
 
