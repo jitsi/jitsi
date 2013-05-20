@@ -11,6 +11,7 @@ import java.util.*;
 import net.java.sip.communicator.impl.gui.main.account.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.main.presence.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.service.callhistory.*;
 import net.java.sip.communicator.service.contactlist.*;
@@ -146,6 +147,11 @@ public class GuiActivator implements BundleActivator
             // Registers an implementation of the AlertUIService.
             bundleContext.registerService(  AlertUIService.class.getName(),
                                             alertUIService,
+                                            null);
+
+            // Registers an implementation of the ImageLoaderService.
+            bundleContext.registerService(  ImageLoaderService.class.getName(),
+                                            new ImageLoaderServiceImpl(),
                                             null);
 
             // Create the ui service

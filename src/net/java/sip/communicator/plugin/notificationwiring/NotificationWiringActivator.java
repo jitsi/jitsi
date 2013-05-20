@@ -33,6 +33,11 @@ public class NotificationWiringActivator
     private static UIService uiService = null;
     private static MediaService mediaService;
 
+    /**
+     * The image loader service.
+     */
+    private static ImageLoaderService imageLoaderService;
+
     public void start(BundleContext bc) throws Exception
     {
         bundleContext = bc;
@@ -121,5 +126,22 @@ public class NotificationWiringActivator
                 = ServiceUtils.getService(bundleContext, MediaService.class);
         }
         return mediaService;
+    }
+
+    /**
+     * Returns an instance of the <tt>ImageLoaderService</tt> obtained from the
+     * bundle context.
+     * @return an instance of the <tt>ImageLoaderService</tt> obtained from the
+     * bundle context
+     */
+    public static ImageLoaderService getImageLoaderService()
+    {
+        if (imageLoaderService == null)
+        {
+            imageLoaderService
+                = ServiceUtils.getService(
+                        bundleContext, ImageLoaderService.class);
+        }
+        return imageLoaderService;
     }
 }

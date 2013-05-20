@@ -10,13 +10,12 @@ import java.awt.*;
 import java.awt.image.*;
 import java.io.*;
 import java.net.*;
-import java.util.*;
 
-import javax.imageio.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
@@ -37,10 +36,9 @@ public class ImageLoader
     private static final Logger logger = Logger.getLogger(ImageLoader.class);
 
     /**
-     * Stores all already loaded images.
+     * The image loader service implementation.
      */
-    private static final Map<ImageID, BufferedImage> loadedImages =
-        new Hashtable<ImageID, BufferedImage>();
+    private static ImageLoaderServiceImpl imageLoaderService = null;
 
     /**
      * The SIP Communicator logo 16x16 icon.
@@ -1354,6 +1352,23 @@ public class ImageLoader
                 = new ImageID("service.gui.icons.AUTO_ANSWER_CHECK");
 
     /**
+     * Returns the imageLoaderService instance, if missing query osgi for it.
+     * @return the imageLoaderService.
+     */
+    private static ImageLoaderServiceImpl getImageLoaderService()
+    {
+        if(imageLoaderService == null)
+        {
+            imageLoaderService = (ImageLoaderServiceImpl)
+                ServiceUtils.getService(
+                    GuiActivator.bundleContext,
+                    ImageLoaderService.class);
+        }
+
+        return imageLoaderService;
+    }
+
+    /**
      * Loads an image from a given image identifier.
      *
      * @param imageID The identifier of the image.
@@ -1361,32 +1376,7 @@ public class ImageLoader
      */
     public static BufferedImage getImage(ImageID imageID)
     {
-        BufferedImage image = null;
-
-        if (loadedImages.containsKey(imageID))
-        {
-            image = loadedImages.get(imageID);
-        }
-        else
-        {
-            URL path = GuiActivator.getResources().getImageURL(imageID.getId());
-
-            if (path != null)
-            {
-                try
-                {
-                    image = ImageIO.read(path);
-
-                    loadedImages.put(imageID, image);
-                }
-                catch (Exception ex)
-                {
-                    logger.error("Failed to load image: " + path, ex);
-                }
-            }
-        }
-
-        return image;
+        return getImageLoaderService().getImage(imageID);
     }
 
     /**
@@ -1623,7 +1613,7 @@ public class ImageLoader
      */
     public static void clearCache()
     {
-        loadedImages.clear();
+        getImageLoaderService().clearCache();
     }
 
     /**

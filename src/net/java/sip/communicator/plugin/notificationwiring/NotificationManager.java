@@ -6,15 +6,10 @@
  */
 package net.java.sip.communicator.plugin.notificationwiring;
 
-import java.awt.image.*;
 import java.lang.ref.*;
-import java.net.*;
 import java.util.*;
 import java.util.concurrent.*;
 
-import javax.imageio.*;
-
-import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.notification.*;
@@ -86,14 +81,6 @@ public class NotificationManager
      * Default event type for hanging up calls.
      */
     public static final String HANG_UP = "HangUp";
-
-    /**
-     * The cache of <tt>BufferedImage</tt> instances which we have already
-     * loaded by <tt>ImageID</tt> and which we store so that we do not have to
-     * load them again.
-     */
-    private static final Map<ImageID, BufferedImage> images
-        = new Hashtable<ImageID, BufferedImage>();
 
     /**
      * Default event type for receiving calls (incoming calls).
@@ -171,7 +158,8 @@ public class NotificationManager
             if(contactIcon == null)
             {
                 contactIcon =
-                    ImageUtils.toByteArray(getImage(DEFAULT_USER_PHOTO));
+                    NotificationWiringActivator.getImageLoaderService()
+                        .getImageBytes(DEFAULT_USER_PHOTO);
             }
         }
         else if (chatContact instanceof ChatRoom)
@@ -344,43 +332,6 @@ public class NotificationManager
                         null,
                         extras);
         }
-    }
-
-    /**
-     * Loads an image from a given image identifier.
-     *
-     * @param imageID The identifier of the image.
-     * @return The image for the given identifier.
-     */
-    public static BufferedImage getImage(ImageID imageID)
-    {
-        /*
-         * If we were mapping ImageID to null, we would be using the method
-         * Map.containsKey. However, that does not seem to be the case.
-         */
-        BufferedImage image = images.get(imageID);
-
-        if (image == null)
-        {
-            URL path
-                = NotificationWiringActivator.getResources().getImageURL(
-                        imageID.getId());
-
-            if (path != null)
-            {
-                try
-                {
-                    image = ImageIO.read(path);
-                    images.put(imageID, image);
-                }
-                catch (Exception ex)
-                {
-                    logger.error("Failed to load image: " + path, ex);
-                }
-            }
-        }
-
-        return image;
     }
 
     /**
