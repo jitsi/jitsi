@@ -6,7 +6,6 @@
  */
 package net.java.sip.communicator.service.gui;
 
-import javax.swing.*;
 
 /**
  * Creates and show authentication window, normally to fill in username and

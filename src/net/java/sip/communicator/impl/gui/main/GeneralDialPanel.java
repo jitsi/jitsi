@@ -19,6 +19,7 @@ import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.skin.*;
 
+import org.jitsi.service.resources.*;
 import org.jitsi.util.*;
 
 /**
@@ -27,12 +28,18 @@ import org.jitsi.util.*;
  *
  * @author Yana Stamcheva
  * @author Adam Netocny
+ * @author Lyubomir Marinov
  */
 public class GeneralDialPanel
     extends TransparentPanel
-    implements  MouseListener,
-                Skinnable
+    implements MouseListener,
+               Skinnable
 {
+    /**
+     * The parent dial pad dialog.
+     */
+    private final GeneralDialPadDialog dialPadDialog;
+
     /**
      * The dial panel.
      */
@@ -46,12 +53,7 @@ public class GeneralDialPanel
     /**
      * Handles DTMFs.
      */
-    private DTMFHandler dtmfHandler;
-
-    /**
-     * The parent dial pad dialog.
-     */
-    private final GeneralDialPadDialog dialPadDialog;
+    private final DTMFHandler dtmfHandler;
 
     /**
      * Creates an instance of <tt>DialPanel</tt> for a specific call, by
@@ -70,6 +72,53 @@ public class GeneralDialPanel
     }
 
     /**
+     * Creates DTMF button.
+     *
+     * @param bgImage
+     * @param iconImage
+     * @param name
+     * @return the created dial button
+     */
+    private JButton createDialButton(Image bgImage, ImageID iconImage,
+        String name)
+    {
+        JButton button
+            = new SIPCommButton(bgImage, ImageLoader.getImage(iconImage));
+
+        button.setAlignmentY(JButton.LEFT_ALIGNMENT);
+        button.setName(name);
+        button.setOpaque(false);
+        button.addMouseListener(this);
+        return button;
+    }
+
+    /**
+     * Initializes a new dial button which is to be used on Mac OS X.
+     *
+     * @param imageID
+     * @param rolloverImageID
+     * @param name
+     * @return the newly-initialized dial button
+     */
+    private JButton createMacOSXDialButton( ImageID imageID,
+                                            ImageID rolloverImageID,
+                                            String name)
+    {
+        JButton button
+            = new SIPCommButton(
+                    ImageLoader.getImage(imageID),
+                    ImageLoader.getImage(rolloverImageID),
+                    ImageLoader.getImage(rolloverImageID),
+                    null,
+                    null,
+                    null);
+
+        button.setName(name);
+        button.addMouseListener(this);
+        return button;
+    }
+
+    /**
      * Initializes this panel by adding all dial buttons to it.
      */
     public void init()
@@ -84,50 +133,33 @@ public class GeneralDialPanel
     }
 
     /**
-     * Creates DTMF button.
-     *
-     * @param bgImage
-     * @param iconImage
-     * @param name
-     * @return the created dial button
+     * Reloads dial buttons.
      */
-    private JButton createDialButton(Image bgImage, ImageID iconImage,
-        String name)
+    public void loadSkin()
     {
-        JButton button =
-            new SIPCommButton(bgImage, ImageLoader.getImage(iconImage));
+        dialPadPanel.removeAll();
 
-        button.setAlignmentY(JButton.LEFT_ALIGNMENT);
-        button.setName(name);
-        button.setOpaque(false);
-        button.addMouseListener(this);
-        return button;
-    }
+        Image bgImage = ImageLoader.getImage(ImageLoader.DIAL_BUTTON_BG);
 
-    /**
-     * Creates DTMF button.
-     *
-     * @param bgImage
-     * @param iconImage
-     * @param name
-     * @return the created dial button
-     */
-    private JButton createMacOSXDialButton( ImageID imageID,
-                                            ImageID rolloverImageID,
-                                            String name)
-    {
-        JButton button = new SIPCommButton(
-            ImageLoader.getImage(imageID),
-            ImageLoader.getImage(rolloverImageID),
-            ImageLoader.getImage(rolloverImageID),
-            null,
-            null,
-            null);
+        for (DTMFHandler.DTMFToneInfo info : DTMFHandler.AVAILABLE_TONES)
+        {
+            // We only add buttons with images.
+            if (info.imageID == null)
+                continue;
 
-        button.setName(name);
-        button.addMouseListener(this);
+            JComponent c
+                = OSUtils.IS_MAC
+                    ? createMacOSXDialButton(
+                            info.macImageID,
+                            info.macImageRolloverID,
+                            info.tone.getValue())
+                    : createDialButton(
+                            bgImage,
+                            info.imageID,
+                            info.tone.getValue());
 
-        return button;
+            dialPadPanel.add(c);
+        }
     }
 
     public void mouseClicked(MouseEvent e) {}
@@ -164,16 +196,13 @@ public class GeneralDialPanel
      *
      * @param g the <tt>Graphics</tt> object used for painting
      */
+    @Override
     public void paintComponent(Graphics g)
     {
-     // do the superclass behavior first
+        // do the superclass behavior first
         super.paintComponent(g);
 
         Graphics2D g2 = (Graphics2D) g;
-
-        boolean isTextureBackground
-            = Boolean.parseBoolean(GuiActivator.getResources()
-            .getSettingsString("impl.gui.IS_CONTACT_LIST_TEXTURE_BG_ENABLED"));
 
         BufferedImage bgImage
             = ImageLoader.getImage(ImageLoader.MAIN_WINDOW_BACKGROUND);
@@ -181,66 +210,36 @@ public class GeneralDialPanel
         // paint the image
         if (bgImage != null)
         {
+            ResourceManagementService r = GuiActivator.getResources();
+            boolean isTextureBackground
+                = Boolean.parseBoolean(
+                        r.getSettingsString(
+                                "impl.gui.IS_CONTACT_LIST_TEXTURE_BG_ENABLED"));
+            int width = getWidth();
+            int height = getHeight();
+
             if (isTextureBackground)
             {
                 Rectangle rect
                     = new Rectangle(0, 0,
                             bgImage.getWidth(null),
                             bgImage.getHeight(null));
-
                 TexturePaint texture = new TexturePaint(bgImage, rect);
 
                 g2.setPaint(texture);
-
-                g2.fillRect(0, 0, this.getWidth(), this.getHeight());
+                g2.fillRect(0, 0, width, height);
             }
             else
             {
-                g.setColor(new Color(
-                    GuiActivator.getResources()
-                        .getColor("contactListBackground")));
-
-                // paint the background with the choosen color
-                g.fillRect(0, 0, getWidth(), getHeight());
-
-                g2.drawImage(bgImage,
-                        this.getWidth() - bgImage.getWidth(),
-                        this.getHeight() - bgImage.getHeight(),
+                g.setColor(new Color(r.getColor("contactListBackground")));
+                // Paint the background with the chosen color.
+                g.fillRect(0, 0, width, height);
+                g2.drawImage(
+                        bgImage,
+                        width - bgImage.getWidth(),
+                        height - bgImage.getHeight(),
                         this);
             }
-        }
-    }
-
-    /**
-     * Reloads dial buttons.
-     */
-    public void loadSkin()
-    {
-        dialPadPanel.removeAll();
-
-        Image bgImage = ImageLoader.getImage(ImageLoader.DIAL_BUTTON_BG);
-        DTMFHandler.DTMFToneInfo[] availableTones = DTMFHandler.AVAILABLE_TONES;
-
-        for (int i = 0; i < availableTones.length; i++)
-        {
-            DTMFHandler.DTMFToneInfo info = availableTones[i];
-
-            // we add only buttons having image
-            if(info.imageID == null)
-                continue;
-
-            JComponent c
-                = OSUtils.IS_MAC
-                    ? createMacOSXDialButton(
-                            info.macImageID,
-                            info.macImageRolloverID,
-                            info.tone.getValue())
-                    : createDialButton(
-                            bgImage,
-                            info.imageID,
-                            info.tone.getValue());
-
-            dialPadPanel.add(c);
         }
     }
 }

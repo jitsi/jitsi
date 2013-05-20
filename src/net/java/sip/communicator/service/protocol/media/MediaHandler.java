@@ -658,7 +658,7 @@ public class MediaHandler
         stream.setDirection(direction);
         stream.setFormat(format);
 
-        MediaAwareCall<?, ?, ?> call = callPeerMediaHandler.getPeer().getCall();
+        MediaAwareCall<?,?,?> call = callPeerMediaHandler.getPeer().getCall();
         MediaType mediaType
             = (stream instanceof AudioMediaStream)
                 ? MediaType.AUDIO
@@ -669,7 +669,16 @@ public class MediaHandler
         switch (mediaType)
         {
         case AUDIO:
-            setAudioStream((AudioMediaStream) stream);
+            AudioMediaStream audioStream = (AudioMediaStream) stream;
+
+            /*
+             * The volume (level) of the audio played back in calls should be
+             * call-specific i.e. it should be able to change the volume (level)
+             * of a call without affecting any other simultaneous calls.
+             */
+            setOutputVolumeControl(audioStream, call);
+
+            setAudioStream(audioStream);
             break;
 
         case VIDEO:
@@ -1324,6 +1333,43 @@ public class MediaHandler
             }
             if (property != null)
                 firePropertyChange(property, oldValue, localSSRC);
+        }
+    }
+
+    /**
+     * Sets the <tt>VolumeControl</tt> which is to control the volume (level) of
+     * the audio received in/by a specific <tt>AudioMediaStream</tt> and played
+     * back in order to achieve call-specific volume (level).
+     * <p>
+     * <b>Note</b>: The implementation makes the volume (level) telephony
+     * conference-specific.
+     * </p>
+     *
+     * @param audioStream the <tt>AudioMediaStream</tt> on which a
+     * <tt>VolumeControl</tt> from the specified <tt>call</tt> is to be set
+     * @param call the <tt>MediaAwareCall</tt> which provides the
+     * <tt>VolumeControl</tt> to be set on the specified <tt>audioStream</tt>
+     */
+    private void setOutputVolumeControl(
+            AudioMediaStream audioStream,
+            MediaAwareCall<?,?,?> call)
+    {
+        /*
+         * The volume (level) of the audio played back in calls should be
+         * call-specific i.e. it should be able to change the volume (level) of
+         * a call without affecting any other simultaneous calls. The
+         * implementation makes the volume (level) telephony
+         * conference-specific.
+         */
+        MediaAwareCallConference conference = call.getConference();
+
+        if (conference != null)
+        {
+            VolumeControl outputVolumeControl
+                = conference.getOutputVolumeControl();
+
+            if (outputVolumeControl != null)
+                audioStream.setOutputVolumeControl(outputVolumeControl);
         }
     }
 

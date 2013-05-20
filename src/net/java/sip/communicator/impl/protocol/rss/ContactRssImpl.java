@@ -8,7 +8,6 @@ package net.java.sip.communicator.impl.protocol.rss;
 
 import java.io.*;
 import java.net.*;
-import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
 

@@ -51,6 +51,15 @@ public class MediaAwareCallConference
     private final MediaDevice[] mixers;
 
     /**
+     * The <tt>VolumeControl</tt> implementation which is to control the volume
+     * (level) of the audio played back the telephony conference represented by
+     * this instance.
+     */
+    private final VolumeControl outputVolumeControl
+        = new BasicVolumeControl(
+                VolumeControl.PLAYBACK_VOLUME_LEVEL_PROPERTY_NAME);
+
+    /**
      * The <tt>PropertyChangeListener</tt> which listens to sources of
      * <tt>PropertyChangeEvent</tt>s on behalf of this instance.
      */
@@ -188,7 +197,7 @@ public class MediaAwareCallConference
     {
         super.callRemoved(call);
 
-        if (getCallCount() == 0 && videoRTPTranslator != null)
+        if (getCallCount() == 0 && (videoRTPTranslator != null))
         {
             videoRTPTranslator.dispose();
             videoRTPTranslator = null;
@@ -263,6 +272,20 @@ public class MediaAwareCallConference
         }
 
         return device;
+    }
+
+    /**
+     * Gets the <tt>VolumeControl</tt> which controls the volume (level) of the
+     * audio played back in the telephony conference represented by this
+     * instance.
+     *
+     * @return the <tt>VolumeControl</tt> which controls the volume (level) of
+     * the audio played back in the telephony conference represented by this
+     * instance
+     */
+    public VolumeControl getOutputVolumeControl()
+    {
+        return outputVolumeControl;
     }
 
     /**

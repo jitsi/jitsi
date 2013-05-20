@@ -361,7 +361,11 @@ public class OneToOneCallPeerPanel
                     false,
                     false);
         remoteLevel
-            = new OutputVolumeControlButton(ImageLoader.HEADPHONE, false, false)
+            = new OutputVolumeControlButton(
+                    call.getConference(),
+                    ImageLoader.HEADPHONE,
+                    false,
+                    false)
                 .getComponent();
 
         final SoundLevelIndicator localLevelIndicator

@@ -1290,7 +1290,7 @@ public class CallPanel
          * buttons which accept a Call as an argument should be changed to take
          * into account the whole CallConference.
          */
-        Call aCall = this.callConference.getCalls().get(0);
+        Call aCall = callConference.getCalls().get(0);
 
         chatButton
             = new CallToolBarButton(
@@ -1351,6 +1351,7 @@ public class CallPanel
                     false);
         remoteLevel
             = new OutputVolumeControlButton(
+                    callConference,
                     ImageLoader.VOLUME_CONTROL_BUTTON,
                     false,
                     true)
