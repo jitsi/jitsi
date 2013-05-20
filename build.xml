@@ -929,7 +929,7 @@
         bundle-growlnotification,bundle-swingnotification,bundle-galagonotification,
         bundle-sparkle, bundle-plugin-branding,
         bundle-systemactivitynotifications,
-        bundle-osdependent,bundle-browserlauncher,
+        bundle-osdependent,bundle-browserlauncher,bundle-systray-service,
         bundle-pluginmanager,bundle-skinmanager,
         bundle-notification-service,bundle-notification-handlers,
         bundle-notification-wiring,bundle-notification-config,
@@ -1852,6 +1852,17 @@ javax.swing.event, javax.swing.border"/>
                 prefix="net/java/sip/communicator/service/desktop"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/osdependent"
                 prefix="net/java/sip/communicator/impl/osdependent"/>
+        </jar>
+    </target>
+
+    <!--BUNDLE-OSDEPENDENT-->
+    <target name="bundle-systray-service">
+        <!-- Creates a bundle for the systray service."-->
+        <jar
+            compress="false" destfile="${bundles.dest}/systray-service.jar"
+            manifest="${src}/net/java/sip/communicator/service/systray/systray.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/systray"
+                prefix="net/java/sip/communicator/service/systray"/>
         </jar>
     </target>
 
