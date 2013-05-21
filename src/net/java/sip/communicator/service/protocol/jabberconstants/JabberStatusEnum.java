@@ -11,6 +11,7 @@ import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+import org.jitsi.service.resources.*;
 
 /**
  * The <tt>JabberStatusEnum</tt> gives access to presence states for the Sip
@@ -327,7 +328,11 @@ public class JabberStatusEnum
                  */
             }
         }
-        return clazz.getClassLoader().getResourceAsStream(name);
+
+        ResourceManagementService resourcesService
+                = ProtocolProviderActivator.getResourceService();
+
+        return resourcesService.getImageInputStreamForPath(name);
     }
 
     /**
