@@ -38,6 +38,15 @@ public interface ContactListContainer
     public boolean isFocused();
 
     /**
+     * Returns <tt>true</tt> if there's any currently selected menu related to
+     * this <tt>ContactListContainer</tt>, <tt>false</tt> - otherwise.
+     *
+     * @return <tt>true</tt> if there's any currently selected menu related to
+     * this <tt>ContactListContainer</tt>, <tt>false</tt> - otherwise
+     */
+    public boolean isMenuSelected();
+
+    /**
      * Clears the current text in the search field.
      */
     public void clearCurrentSearchText();

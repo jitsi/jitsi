@@ -235,8 +235,7 @@ public class InviteDialog
         ContactListSearchKeyDispatcher clKeyDispatcher
                         = new ContactListSearchKeyDispatcher(   keyManager,
                                                                 searchField,
-                                                                this,
-                                                                null);
+                                                                this);
 
         clKeyDispatcher.setContactList(srcContactList);
 
@@ -500,5 +499,18 @@ public class InviteDialog
     public void clearCurrentSearchText()
     {
         searchField.setText("");
+    }
+
+    /**
+     * Returns <tt>true</tt> if there's any currently selected menu related to
+     * this <tt>ContactListContainer</tt>, <tt>false</tt> - otherwise.
+     *
+     * @return <tt>true</tt> if there's any currently selected menu related to
+     * this <tt>ContactListContainer</tt>, <tt>false</tt> - otherwise
+     */
+    public boolean isMenuSelected()
+    {
+        // This dialog has no menu bar so it will never be selected
+        return false;
     }
 }

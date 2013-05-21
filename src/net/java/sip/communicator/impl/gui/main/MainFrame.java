@@ -225,8 +225,7 @@ public class MainFrame
 
         clKeyDispatcher = new ContactListSearchKeyDispatcher(   keyManager,
                                                                 searchField,
-                                                                this,
-                                                                menu);
+                                                                this);
         keyManager.addKeyEventDispatcher(clKeyDispatcher);
 
         /*
@@ -1063,6 +1062,18 @@ public class MainFrame
         return (opSet instanceof OperationSetMultiUserChat)
             ? (OperationSetMultiUserChat) opSet
             : null;
+    }
+
+    /**
+     * Returns <tt>true</tt> if there's any currently selected menu related to
+     * this <tt>ContactListContainer</tt>, <tt>false</tt> - otherwise.
+     *
+     * @return <tt>true</tt> if there's any currently selected menu related to
+     * this <tt>ContactListContainer</tt>, <tt>false</tt> - otherwise
+     */
+    public boolean isMenuSelected()
+    {
+        return menu.isSelected();
     }
 
     /**
