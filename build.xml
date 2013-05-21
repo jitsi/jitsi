@@ -281,7 +281,7 @@
         <javac classpathref="compile.class.path" debug="true"
             deprecation="true" destdir="${dest}" nowarn="false"
             includeantruntime="false"
-            source="1.5" target="1.5" memoryMaximumSize="400M" fork="true">
+            source="1.6" target="1.6" memoryMaximumSize="400M" fork="true">
                 <src path="${src}"/>
                 <src path="${src2}"/>
                 <include name="**/*.java" />
@@ -394,7 +394,7 @@
         description="Generates project javadoc.">
         <javadoc author="true" destdir="${java.doc}" package="true"
             version="true" use="true" windowtitle="Jitsi API"
-            classpathref="compile.class.path" source="1.5+" maxmemory="256m">
+            classpathref="compile.class.path" source="1.6+" maxmemory="256m">
             <packageset dir="${src}">
                 <exclude name="net/java/sip/communicator/impl/version/**"/>
                 <include name="**"/>
@@ -466,7 +466,7 @@
         </delete>
         <javac
             classpathref="compile.class.path" includeantruntime="false"
-            destdir="${dest}" source="1.5" target="1.5">
+            destdir="${dest}" source="1.6" target="1.6">
             <src path="${src}"/>
             <include name="net/java/sip/communicator/impl/version/NightlyBuildID.java" />
             <include name="net/java/sip/communicator/impl/version/VersionImpl.java" />

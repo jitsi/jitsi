@@ -6,8 +6,6 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
-import ch.imvs.sdes4j.srtp.*;
-
 import java.net.*;
 import java.util.*;
 
@@ -23,6 +21,8 @@ import org.jitsi.service.configuration.*;
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.device.*;
 import org.jitsi.service.neomedia.format.*;
+
+import ch.imvs.sdes4j.srtp.*;
 
 /**
  * The media handler class handles all media management for a single
