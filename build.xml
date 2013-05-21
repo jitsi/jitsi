@@ -948,7 +948,7 @@
         bundle-contactsource,bundle-plugin-reconnect,bundle-plugin-securityconfig,
         bundle-plugin-advancedconfig,
         bundle-credentialsstorage,bundle-credentialsstorage-slick,
-        bundle-plugin-nimbuzzavatar,
+        bundle-plugin-nimbuzzavatar,bundle-custom-avatar,
         bundle-replacement,bundle-youtube,bundle-dailymotion,bundle-smiley,
         bundle-vimeo,bundle-vbox7,bundle-metacafe,bundle-flickr,bundle-hulu,
         bundle-twitpic,bundle-directimage,bundle-bliptv,bundle-viddler,
@@ -1193,8 +1193,6 @@
     <target name="bundle-hid">
         <jar compress="false" destfile="${bundles.dest}/hid.jar"
             manifest="${src}/net/java/sip/communicator/impl/hid/hid.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/service/hid"
-                prefix="net/java/sip/communicator/service/hid"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/hid"
                 prefix="net/java/sip/communicator/impl/hid" />
         </jar>
@@ -1343,8 +1341,6 @@ javax.swing.event, javax.swing.border"/>
         <!-- Creates a bundle containing the protocol provider interfaces.-->
         <jar compress="false" destfile="${bundles.dest}/protocol.jar"
             manifest="${src}/net/java/sip/communicator/service/protocol/protocol.provider.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/service/customavatar"
-                prefix="net/java/sip/communicator/service/customavatar" />
             <zipfileset dir="${dest}/net/java/sip/communicator/service/protocol"
                 prefix="net/java/sip/communicator/service/protocol"/>
             <zipfileset dir="${resources}/images"
@@ -2486,6 +2482,15 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/plugin/nimbuzzavatars/nimbuzzavatars.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/nimbuzzavatars"
                 prefix="net/java/sip/communicator/plugin/nimbuzzavatars" />
+        </jar>
+    </target>
+
+    <!-- BUNDLE-CUSTOM-AVATAR -->
+    <target name="bundle-custom-avatar">
+        <jar compress="false" destfile="${bundles.dest}/customavatar-service.jar"
+            manifest="${src}/net/java/sip/communicator/service/customavatar/customavatar.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/customavatar"
+                prefix="net/java/sip/communicator/service/customavatar" />
         </jar>
     </target>
 

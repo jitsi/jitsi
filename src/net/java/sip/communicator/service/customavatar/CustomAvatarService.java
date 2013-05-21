@@ -17,8 +17,8 @@ public interface CustomAvatarService
 {
     /**
      * Returns the avatar bytes for the given contact address.
-     * @param address the address to search for its avatar.
+     * @param contactAddress the address of a contact to search for its avatar.
      * @return image bytes.
      */
-    public byte[] getAvatar(String address);
+    public byte[] getAvatar(String contactAddress);
 }
