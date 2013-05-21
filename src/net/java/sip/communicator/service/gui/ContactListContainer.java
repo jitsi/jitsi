@@ -38,6 +38,15 @@ public interface ContactListContainer
     public boolean isFocused();
 
     /**
+     * Returns <tt>true</tt> if the menu bar is selected,
+     * otherwise returns <tt>false</tt>.
+     *
+     * @return <tt>true</tt> if the menu bar is selected,
+     * otherwise returns <tt>false</tt>.
+     */
+    public boolean isMenuSelected();
+
+    /**
      * Clears the current text in the search field.
      */
     public void clearCurrentSearchText();

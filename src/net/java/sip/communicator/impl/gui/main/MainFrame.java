@@ -1064,6 +1064,10 @@ public class MainFrame
             : null;
     }
 
+    public boolean isMenuSelected() {
+        return menu.isSelected();
+    }
+
     /**
      * Listens for all providerStatusChanged and providerStatusMessageChanged
      * events in order to refresh the account status panel, when a status is

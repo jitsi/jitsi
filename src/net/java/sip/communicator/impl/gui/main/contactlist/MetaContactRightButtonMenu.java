@@ -7,6 +7,8 @@
 package net.java.sip.communicator.impl.gui.main.contactlist;
 
 import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.*;
 import java.io.*;
 import java.util.*;
@@ -188,6 +190,10 @@ public class MetaContactRightButtonMenu
     private final JMenuItem renameContactItem
         = new JMenuItem(GuiActivator.getResources()
             .getI18NString("service.gui.RENAME_CONTACT"));
+    
+    private final JMenuItem copyContactAddressItem
+        = new JMenuItem(GuiActivator.getResources()
+            .getI18NString("service.gui.COPY_CONTACT_ADDRESS"));
 
     /**
      * The view history menu item.
@@ -623,6 +629,8 @@ public class MetaContactRightButtonMenu
             add(renameContactItem);
             separator = true;
         }
+        
+        add(copyContactAddressItem);
 
         if(separator)
         {
@@ -665,11 +673,13 @@ public class MetaContactRightButtonMenu
         moveToMenu.setName("moveToGroup");
         addContactItem.setName("addContact");
         renameContactItem.setName("renameContact");
+        copyContactAddressItem.setName("copyContactAddress");
         viewHistoryItem.setName("viewHistory");
 
         sendMessageItem.addActionListener(this);
         sendFileItem.addActionListener(this);
         renameContactItem.addActionListener(this);
+        copyContactAddressItem.addActionListener(this);
         viewHistoryItem.addActionListener(this);
         addContactItem.addActionListener(this);
 
@@ -963,6 +973,8 @@ public class MetaContactRightButtonMenu
             .getI18nMnemonic("service.gui.REMOVE_CONTACT"));
         this.renameContactItem.setMnemonic(GuiActivator.getResources()
             .getI18nMnemonic("service.gui.RENAME_CONTACT"));
+        this.copyContactAddressItem.setMnemonic(GuiActivator.getResources()
+            .getI18nMnemonic("service.gui.COPY_CONTACT_ADDRESS"));
         this.viewHistoryItem.setMnemonic(GuiActivator.getResources()
             .getI18nMnemonic("service.gui.VIEW_HISTORY"));
         this.moveSubcontactMenu.setMnemonic(GuiActivator.getResources()
@@ -979,7 +991,7 @@ public class MetaContactRightButtonMenu
         JMenuItem menuItem = (JMenuItem) e.getSource();
         String itemName = menuItem.getName();
         Contact contact;
-
+        
         if (itemName.equals(addContactItem.getName()))
         {
             AddContactDialog dialog
@@ -1218,6 +1230,13 @@ public class MetaContactRightButtonMenu
             String phone = itemName.substring(callPhonePrefix.length());
 
             call(false, false, false, phone);
+        }
+        else if (itemName.equals("copyContactAddress"))
+        {
+            String address = metaContact.getDefaultContact().getAddress();
+            StringSelection selection = new StringSelection(address);
+            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            clipboard.setContents(selection, selection);
         }
     }
 

@@ -500,4 +500,9 @@ public class InviteDialog
     {
         searchField.setText("");
     }
+
+    public boolean isMenuSelected() {
+        // This dialog has no menu bar so it will never be selected
+        return false;
+    }
 }

@@ -326,4 +326,9 @@ public class OneChoiceInviteDialog
      * depending on the current state of the contained contact list.
      */
     public void ctrlEnterKeyTyped() {}
+
+    public boolean isMenuSelected() {
+        // This dialog has no menu bar so it will never be selected
+        return false;
+    }
 }
