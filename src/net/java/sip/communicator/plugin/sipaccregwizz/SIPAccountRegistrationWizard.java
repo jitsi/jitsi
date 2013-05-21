@@ -13,6 +13,7 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.Logger;
 
+import net.java.sip.communicator.util.wizard.*;
 import org.jitsi.util.*;
 import org.osgi.framework.*;
 
@@ -223,7 +224,10 @@ public class SIPAccountRegistrationWizard
                 Resources.getString("service.gui.NO"));
         }
 
-        if (registration.isDefaultEncryption())
+        SecurityAccountRegistration securityReg
+                = registration.getSecurityAccountRegistration();
+
+        if (securityReg.isDefaultEncryption())
         {
             summaryTable.put(Resources.getString(
                 "plugin.sipaccregwizz.ENABLE_DEFAULT_ENCRYPTION"),
@@ -236,7 +240,7 @@ public class SIPAccountRegistrationWizard
                 Resources.getString("service.gui.NO"));
         }
 
-        if (registration.isSipZrtpAttribute())
+        if (securityReg.isSipZrtpAttribute())
         {
             summaryTable.put(Resources.getString(
                 "plugin.sipaccregwizz.ENABLE_SIPZRTP_ATTRIBUTE"),
@@ -368,240 +372,14 @@ public class SIPAccountRegistrationWizard
         HashMap<String, String> accountProperties
             = new HashMap<String, String>();
 
-        accountProperties.put(ProtocolProviderFactory.PROTOCOL, getProtocol());
         String protocolIconPath = getProtocolIconPath();
-        if (protocolIconPath != null)
-            accountProperties.put(  ProtocolProviderFactory.PROTOCOL_ICON_PATH,
-                                    protocolIconPath);
-
         String accountIconPath = getAccountIconPath();
-        if (accountIconPath != null)
-            accountProperties.put(  ProtocolProviderFactory.ACCOUNT_ICON_PATH,
-                                    accountIconPath);
 
-        if(registration.isRememberPassword())
-        {
-            accountProperties.put(ProtocolProviderFactory.PASSWORD, passwd);
-        }
-        else
-        {
-            // clear password if requested
-            registration.setPassword(null);
-        }
-
-        String serverAddress = null;
-        String serverFromUsername =
-            SIPAccountRegistrationForm.getServerFromUserName(userName);
-
-        if (registration.getServerAddress() != null)
-            serverAddress = registration.getServerAddress();
-
-        if(serverFromUsername == null
-            && registration.getDefaultDomain() != null)
-        {
-            // we have only a username and we want to add
-            // a default domain
-            userName = userName + "@" + registration.getDefaultDomain();
-
-            if(serverAddress == null)
-                serverAddress = registration.getDefaultDomain();
-        }
-        else if(serverAddress == null &&
-            serverFromUsername != null)
-        {
-            serverAddress = serverFromUsername;
-        }
-
-        if (serverAddress != null)
-        {
-            accountProperties.put(ProtocolProviderFactory.SERVER_ADDRESS,
-                serverAddress);
-
-            if (userName.indexOf(serverAddress) < 0)
-                accountProperties.put(
-                    ProtocolProviderFactory.IS_SERVER_OVERRIDDEN,
-                    Boolean.toString(true));
-        }
-
-        accountProperties.put(ProtocolProviderFactory.DISPLAY_NAME,
-            registration.getDisplayName());
-
-        accountProperties.put(ProtocolProviderFactory.AUTHORIZATION_NAME,
-            registration.getAuthorizationName());
-
-        accountProperties.put(ProtocolProviderFactory.SERVER_PORT,
-            registration.getServerPort());
-
-        if(registration.isProxyAutoConfigure())
-        {
-            accountProperties.put(ProtocolProviderFactory.PROXY_AUTO_CONFIG,
-                    Boolean.TRUE.toString());
-        }
-        else
-        {
-            accountProperties.put(ProtocolProviderFactory.PROXY_AUTO_CONFIG,
-                    Boolean.FALSE.toString());
-
-            accountProperties.put(ProtocolProviderFactory.PROXY_ADDRESS,
-                registration.getProxy());
-
-            accountProperties.put(ProtocolProviderFactory.PROXY_PORT,
-                registration.getProxyPort());
-
-            accountProperties.put(ProtocolProviderFactory.PREFERRED_TRANSPORT,
-                registration.getPreferredTransport());
-        }
-
-        accountProperties.put(ProtocolProviderFactory.IS_PRESENCE_ENABLED,
-                Boolean.toString(registration.isEnablePresence()));
-
-        // when we are creating registerless account make sure that
-        // we don't use PA
-        if(serverAddress != null)
-        {
-            accountProperties.put(ProtocolProviderFactory.FORCE_P2P_MODE,
-                Boolean.toString(registration.isForceP2PMode()));
-        }
-        else
-        {
-            accountProperties.put(ProtocolProviderFactory.FORCE_P2P_MODE,
-                Boolean.TRUE.toString());
-        }
-
-        accountProperties.put(ProtocolProviderFactory.DEFAULT_ENCRYPTION,
-                Boolean.toString(registration.isDefaultEncryption()));
-
-        // Sets the ordered list of encryption protocols.
-        registration.addEncryptionProtocolsToProperties(
+        registration.storeProperties(
+                userName, passwd,
+                protocolIconPath, accountIconPath,
+                isModification(),
                 accountProperties);
-
-        // Sets the list of encryption protocol status.
-        registration.addEncryptionProtocolStatusToProperties(
-                accountProperties);
-
-        accountProperties.put(ProtocolProviderFactory.DEFAULT_SIPZRTP_ATTRIBUTE,
-                Boolean.toString(registration.isSipZrtpAttribute()));
-
-        accountProperties.put(ProtocolProviderFactory.SAVP_OPTION,
-            Integer.toString(registration.getSavpOption()));
-
-        accountProperties.put(ProtocolProviderFactory.SDES_CIPHER_SUITES,
-            registration.getSDesCipherSuites());
-
-        accountProperties.put(ProtocolProviderFactory.POLLING_PERIOD,
-                registration.getPollingPeriod());
-
-        accountProperties.put(ProtocolProviderFactory.SUBSCRIPTION_EXPIRATION,
-                registration.getSubscriptionExpiration());
-
-        accountProperties.put(ProtocolProviderFactory.CLIENT_TLS_CERTIFICATE,
-                registration.getTlsClientCertificate());
-
-        if(registration.getKeepAliveMethod() != null)
-            accountProperties.put(ProtocolProviderFactory.KEEP_ALIVE_METHOD,
-                registration.getKeepAliveMethod());
-        else
-            accountProperties.put(ProtocolProviderFactory.KEEP_ALIVE_METHOD,
-                registration.getDefaultKeepAliveMethod());
-
-        accountProperties.put(ProtocolProviderFactory.KEEP_ALIVE_INTERVAL,
-            registration.getKeepAliveInterval());
-
-        if(registration.getDTMFMethod() != null)
-            accountProperties.put("DTMF_METHOD",
-                registration.getDTMFMethod());
-        else
-            accountProperties.put("DTMF_METHOD",
-                registration.getDefaultDTMFMethod());
-
-        accountProperties.put(
-                ProtocolProviderFactory.DTMF_MINIMAL_TONE_DURATION,
-                registration.getDtmfMinimalToneDuration());
-        
-        accountProperties.put(ProtocolProviderFactory.OVERRIDE_ENCODINGS,
-                Boolean.toString(registration.isOverrideEncodings()));
-        accountProperties.putAll(registration.getEncodingProperties());
-        
-        accountProperties.put("XIVO_ENABLE",
-                Boolean.toString(registration.isXiVOEnable()));
-        accountProperties.put("XCAP_ENABLE",
-            Boolean.toString(registration.isXCapEnable()));
-
-        if(registration.isXCapEnable())
-        {
-            accountProperties.put("XCAP_USE_SIP_CREDETIALS",
-                Boolean.toString(registration.isClistOptionUseSipCredentials()));
-            if (registration.getClistOptionServerUri() != null)
-            {
-                accountProperties.put(
-                    "XCAP_SERVER_URI",
-                    registration.getClistOptionServerUri());
-            }
-            if (registration.getClistOptionUser() != null)
-            {
-                accountProperties
-                    .put("XCAP_USER", registration.getClistOptionUser());
-            }
-            if (registration.getClistOptionPassword() != null)
-            {
-                accountProperties
-                    .put("XCAP_PASSWORD", registration.getClistOptionPassword());
-            }
-        }
-        else if(registration.isXiVOEnable())
-        {
-            accountProperties.put("XIVO_USE_SIP_CREDETIALS",
-                Boolean.toString(registration.isClistOptionUseSipCredentials()));
-            if (registration.getClistOptionServerUri() != null)
-            {
-                accountProperties.put(
-                    "XIVO_SERVER_URI",
-                    registration.getClistOptionServerUri());
-            }
-            if (registration.getClistOptionUser() != null)
-            {
-                accountProperties
-                    .put("XIVO_USER", registration.getClistOptionUser());
-            }
-            if (registration.getClistOptionPassword() != null)
-            {
-                accountProperties
-                    .put("XIVO_PASSWORD", registration.getClistOptionPassword());
-            }
-        }
-
-        if(registration.isMessageWaitingIndicationsEnabled())
-        {
-            if(!StringUtils.isNullOrEmpty(registration.getVoicemailURI(), true))
-                accountProperties.put(
-                    ProtocolProviderFactory.VOICEMAIL_URI,
-                    registration.getVoicemailURI());
-            else if(isModification())
-                accountProperties.put(ProtocolProviderFactory.VOICEMAIL_URI, "");
-
-            if(!StringUtils.isNullOrEmpty(
-                    registration.getVoicemailCheckURI(), true))
-                accountProperties.put(
-                    ProtocolProviderFactory.VOICEMAIL_CHECK_URI,
-                    registration.getVoicemailCheckURI());
-            else if(isModification())
-                accountProperties.put(
-                    ProtocolProviderFactory.VOICEMAIL_CHECK_URI, "");
-
-            if(isModification())
-            {
-                // remove the property as true is by default,
-                // and null removes property
-                accountProperties.put(ProtocolProviderFactory.VOICEMAIL_ENABLED,
-                                      null);
-            }
-        }
-        else if(isModification())
-        {
-            accountProperties.put(ProtocolProviderFactory.VOICEMAIL_ENABLED,
-                                  Boolean.FALSE.toString());
-        }
-
 
         if(isModification())
         {

@@ -15,7 +15,6 @@ import javax.swing.border.*;
 import javax.swing.table.*;
 import javax.swing.event.*;
 
-import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.wizard.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
@@ -60,11 +59,6 @@ public class SecurityPanel
      * protocols and to choose their priority order.
      */
     private PriorityTable encryptionProtocolPreferences;
-
-    /**
-     * The encryption protocols managed by this SecurityPanel. 
-     */
-    private static final String[] ENCRYPTION_PROTOCOLS = {"ZRTP", "SDES"};
 
     /**
      * Boolean used to display or not the SAVP options (only useful for SIP, not
@@ -315,7 +309,8 @@ public class SecurityPanel
         c.gridy++;
         pnlAdvancedSettings.add(lblEncryptionProtocolPreferences, c);
 
-        int nbEncryptionProtocols = ENCRYPTION_PROTOCOLS.length;
+        int nbEncryptionProtocols
+                = SecurityAccountRegistration.ENCRYPTION_PROTOCOLS.length;
         String[] encryptions = new String[nbEncryptionProtocols];
         boolean[] selectedEncryptions = new boolean[nbEncryptionProtocols];
 
@@ -442,39 +437,28 @@ public class SecurityPanel
 
     /**
      * Loads the account with the given identifier.
-     * @param accountID the account identifier
+     * @param securityAccReg the account identifier
      */
-    public void loadAccount(AccountID accountID)
+    public void loadAccount(SecurityAccountRegistration securityAccReg)
     {
         enableDefaultEncryption.setSelected(
-                accountID.getAccountPropertyBoolean(
-                        ProtocolProviderFactory.DEFAULT_ENCRYPTION,
-                        true));
+                securityAccReg.isDefaultEncryption());
 
         Map<String, Integer> encryptionProtocols
-            = accountID.getIntegerPropertiesByPrefix(
-                    ProtocolProviderFactory.ENCRYPTION_PROTOCOL,
-                    true);
+                = securityAccReg.getEncryptionProtocols();
         Map<String, Boolean> encryptionProtocolStatus
-            = accountID.getBooleanPropertiesByPrefix(
-                    ProtocolProviderFactory.ENCRYPTION_PROTOCOL_STATUS,
-                    true,
-                    false);
+                = securityAccReg.getEncryptionProtocolStatus();
+
         this.loadEncryptionProtocols(
                 encryptionProtocols,
                 encryptionProtocolStatus);
 
-        enableSipZrtpAttribute.setSelected(
-                accountID.getAccountPropertyBoolean(
-                        ProtocolProviderFactory.DEFAULT_SIPZRTP_ATTRIBUTE,
-                        true));
-        cboSavpOption.setSelectedIndex(
-                accountID.getAccountPropertyInt(
-                        ProtocolProviderFactory.SAVP_OPTION,
-                        ProtocolProviderFactory.SAVP_OFF));
-        cipherModel.loadData(
-                accountID.getAccountPropertyString(
-                        ProtocolProviderFactory.SDES_CIPHER_SUITES));
+        enableSipZrtpAttribute.setSelected(securityAccReg.isSipZrtpAttribute());
+
+        cboSavpOption.setSelectedIndex(securityAccReg.getSavpOption());
+
+        cipherModel.loadData(securityAccReg.getSDesCipherSuites());
+
         loadStates();
     }
 
@@ -526,85 +510,16 @@ public class SecurityPanel
             Map<String, Integer> encryptionProtocols,
             Map<String, Boolean> encryptionProtocolStatus)
     {
-        int nbEncryptionProtocols = ENCRYPTION_PROTOCOLS.length;
-        String[] encryptions = new String[nbEncryptionProtocols];
-        boolean[] selectedEncryptions = new boolean[nbEncryptionProtocols];
+        Object[] result = SecurityAccountRegistration
+                .loadEncryptionProtocols(
+                        encryptionProtocols,
+                        encryptionProtocolStatus);
 
-        // Load stored values.
-        int prefixeLength
-            = ProtocolProviderFactory.ENCRYPTION_PROTOCOL.length() + 1;
-        String encryptionProtocolPropertyName;
-        String name;
-        int index;
-        boolean enabled;
-        Iterator<String> encryptionProtocolNames
-            = encryptionProtocols.keySet().iterator();
-        while(encryptionProtocolNames.hasNext())
-        {
-            encryptionProtocolPropertyName = encryptionProtocolNames.next();
-            index = encryptionProtocols.get(encryptionProtocolPropertyName);
-            // If the property is set.
-            if(index != -1)
-            {
-                name = encryptionProtocolPropertyName.substring(prefixeLength);
-                if (isExistingEncryptionProtocol(name))
-                {
-                    enabled = encryptionProtocolStatus.get(
-                            ProtocolProviderFactory.ENCRYPTION_PROTOCOL_STATUS
-                            + "."
-                            + name);
-                    encryptions[index] = name;
-                    selectedEncryptions[index] = enabled;
-                }
-            }
-        }
-
-        // Load default values.
-        String encryptionProtocol;
-        boolean set;
-        int j = 0;
-        for(int i = 0; i < ENCRYPTION_PROTOCOLS.length; ++i)
-        {
-            encryptionProtocol = ENCRYPTION_PROTOCOLS[i];
-            // Specify a default value only if there is no specific value set.
-            if(!encryptionProtocols.containsKey(
-                        ProtocolProviderFactory.ENCRYPTION_PROTOCOL
-                            + "."
-                            + encryptionProtocol))
-            {
-                set = false;
-                // Search for the first empty element.
-                while(j < encryptions.length && !set)
-                {
-                    if(encryptions[j] == null)
-                    {
-                        encryptions[j] = encryptionProtocol;
-                        // By default only ZRTP is set to true.
-                        selectedEncryptions[j]
-                            = encryptionProtocol.equals("ZRTP");
-                        set = true;
-                    }
-                    ++j;
-                }
-
-            }
-        }
+        String[] encryptions = (String[]) result[0];
+        boolean[] selectedEncryptions = (boolean[]) result[1];
 
         this.encryptionConfigurationTableModel.init(
                 encryptions,
                 selectedEncryptions);
-    }
-
-    private boolean isExistingEncryptionProtocol(String protocol)
-    {
-        for (String key : ENCRYPTION_PROTOCOLS)
-        {
-            if (key.equals(protocol))
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

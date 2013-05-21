@@ -8,7 +8,14 @@ package net.java.sip.communicator.plugin.sipaccregwizz;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.wizard.*;
+
+import org.jitsi.service.neomedia.*;
+import org.jitsi.util.*;
+
+import org.osgi.framework.*;
+
 /**
  * The <tt>SIPAccountRegistration</tt> is used to store all user input data
  * through the <tt>SIPAccountRegistrationWizard</tt>.
@@ -18,8 +25,6 @@ import net.java.sip.communicator.util.wizard.*;
  * @author Boris Grozev
  */
 public class SIPAccountRegistration
-    extends SecurityAccountRegistration
-    implements EncodingsRegistration
 {
     public static String DEFAULT_PORT = "5060";
 
@@ -132,17 +137,43 @@ public class SIPAccountRegistration
      * Whether message waiting indications is enabled.
      */
     private boolean messageWaitingIndications = true;
-    
-     /**
-     * Whether to override global encoding settings.
-     */
-    private boolean overrideEncodingSettings = false;
-    
+
     /**
-     * Encoding properties associated with this account.
+     * Flag holding info if server was overriden.
      */
-    private Map<String, String> encodingProperties 
-            = new HashMap<String, String>();
+    private boolean isServerOverriden;
+
+    /**
+     * The encodings registration object.
+     */
+    private EncodingsRegistrationUtil encodingsRegistration
+            = new EncodingsRegistrationUtil();
+
+    /**
+     * The security registration object.
+     */
+    private SecurityAccountRegistration securityAccountRegistration
+            = new SecurityAccountRegistration()
+    {
+        /**
+         * Sets the method used for RTP/SAVP indication.
+         */
+        @Override
+        public void setSavpOption(int savpOption)
+        {
+            SIPAccountRegistration.this.savpOption = savpOption;
+        }
+
+        /**
+         * Returns the method used for RTP/SAVP indication.
+         * @return the method used for RTP/SAVP indication.
+         */
+        @Override
+        public int getSavpOption()
+        {
+            return savpOption;
+        }
+    };
 
     /**
      * Initializes a new SIPAccountRegistration.
@@ -910,39 +941,431 @@ public class SIPAccountRegistration
         this.messageWaitingIndications = messageWaitingIndications;
     }
 
-   /**
-    * Whether override encodings is enabled
-    * @return Whether override encodings is enabled
-    */
-    public boolean isOverrideEncodings()
-    {
-        return overrideEncodingSettings;
-    }
-    
     /**
-    * Set the override encodings setting to <tt>override</tt>
-    * @param override The value to set the override ecoding settings to.
-    */
-    public void setOverrideEncodings(boolean override)
+     * Returns <tt>true</tt> if server was overriden.
+     * @return <tt>true</tt> if server was overriden.
+     */
+    public boolean isServerOverriden()
     {
-        overrideEncodingSettings = override;
+        return isServerOverriden;
     }
-    
+
     /**
-    * Get the stored encoding properties
-    * @return The stored encoding properties.
-    */
-    public Map<String, String> getEncodingProperties()
+     * Returns encoding registration object holding encodings configuration.
+     * @return encoding registration object holding encodings configuration.
+     */
+    public EncodingsRegistrationUtil getEncodingsRegistration()
     {
-        return encodingProperties;
+        return encodingsRegistration;
     }
-    
+
     /**
-    * Set the encoding properties
-    * @param encodingProperties The encoding properties to set.
-    */
-    public void setEncodingProperties(Map<String, String> encodingProperties)
+     * Returns security registration object holding security configuration.
+     * @return <tt>SecurityAccountRegistration</tt> object holding security
+     * configuration.
+     */
+    public SecurityAccountRegistration getSecurityAccountRegistration()
     {
-        this.encodingProperties = encodingProperties;
+        return securityAccountRegistration;
+    }
+
+    /**
+     * Loads configuration properties from given <tt>accountID</tt>.
+     * @param accountID the account identifier that will be used.
+     * @param bundleContext the OSGI bundle context required for some
+     * operations.
+     */
+    public void loadAccount(AccountID accountID, BundleContext bundleContext)
+    {
+        String password = SIPAccRegWizzActivator.getSIPProtocolProviderFactory()
+                .loadPassword(accountID);
+
+        String serverAddress = accountID.getAccountPropertyString(
+                ProtocolProviderFactory.SERVER_ADDRESS);
+
+        String displayName = accountID.getAccountPropertyString(
+                ProtocolProviderFactory.DISPLAY_NAME);
+
+        String authName = accountID.getAccountPropertyString(
+                ProtocolProviderFactory.AUTHORIZATION_NAME);
+
+        String serverPort = accountID.getAccountPropertyString(
+                ProtocolProviderFactory.SERVER_PORT);
+
+        String proxyAddress = accountID.getAccountPropertyString(
+                ProtocolProviderFactory.PROXY_ADDRESS);
+
+        String proxyPort = accountID.getAccountPropertyString(
+                ProtocolProviderFactory.PROXY_PORT);
+
+        String preferredTransport = accountID.getAccountPropertyString(
+                ProtocolProviderFactory.PREFERRED_TRANSPORT);
+
+        boolean enablePresence = accountID.getAccountPropertyBoolean(
+                ProtocolProviderFactory.IS_PRESENCE_ENABLED, false);
+
+        boolean forceP2P = accountID.getAccountPropertyBoolean(
+                ProtocolProviderFactory.FORCE_P2P_MODE, false);
+
+        String clientTlsCertificateId = accountID.getAccountPropertyString(
+                ProtocolProviderFactory.CLIENT_TLS_CERTIFICATE);
+
+        boolean proxyAutoConfigureEnabled = accountID.getAccountPropertyBoolean(
+                ProtocolProviderFactory.PROXY_AUTO_CONFIG, false);
+
+        String pollingPeriod = accountID.getAccountPropertyString(
+                ProtocolProviderFactory.POLLING_PERIOD);
+
+        String subscriptionPeriod = accountID.getAccountPropertyString(
+                ProtocolProviderFactory.SUBSCRIPTION_EXPIRATION);
+
+        String keepAliveMethod =
+                accountID.getAccountPropertyString(
+                        ProtocolProviderFactory.KEEP_ALIVE_METHOD);
+
+        String keepAliveInterval =
+                accountID.getAccountPropertyString(
+                        ProtocolProviderFactory.KEEP_ALIVE_INTERVAL);
+
+        String dtmfMethod =
+                accountID.getAccountPropertyString("DTMF_METHOD");
+        String dtmfMinimalToneDuration =
+                accountID.getAccountPropertyString("DTMF_MINIMAL_TONE_DURATION");
+
+        String voicemailURI = accountID.getAccountPropertyString(
+                ProtocolProviderFactory.VOICEMAIL_URI);
+        String voicemailCheckURI = accountID.getAccountPropertyString(
+                ProtocolProviderFactory.VOICEMAIL_CHECK_URI);
+
+        boolean xCapEnable = accountID
+                .getAccountPropertyBoolean("XCAP_ENABLE", false);
+        boolean xivoEnable = accountID
+                .getAccountPropertyBoolean("XIVO_ENABLE", false);
+
+        boolean isServerOverridden = accountID.getAccountPropertyBoolean(
+                ProtocolProviderFactory.IS_SERVER_OVERRIDDEN, false);
+
+        this.isServerOverriden = isServerOverridden;
+
+        String userID = (serverAddress == null) ? accountID.getUserID()
+                : accountID.getAccountPropertyString(
+                        ProtocolProviderFactory.USER_ID);
+        setUserID(userID);
+
+        if (password != null)
+        {
+            setPassword(password);
+            setRememberPassword(true);
+        }
+        else
+        {
+            setRememberPassword(false);
+        }
+
+        setServerAddress(serverAddress);
+
+        setDisplayName(displayName);
+
+        setAuthorizationName(authName);
+        setTlsClientCertificate(clientTlsCertificateId);
+
+        setProxyAutoConfigure(proxyAutoConfigureEnabled);
+        setServerPort(serverPort);
+        setProxy(proxyAddress);
+
+        // The order of the next two fields is important, as a change listener
+        // of the transportCombo sets the proxyPortField to its default
+        setPreferredTransport(preferredTransport);
+        setProxyPort(proxyPort);
+
+        securityAccountRegistration.loadAccount(accountID);
+
+        setEnablePresence(enablePresence);
+        setForceP2PMode(forceP2P);
+        setPollingPeriod(pollingPeriod);
+        setSubscriptionExpiration(subscriptionPeriod);
+
+        setKeepAliveMethod(keepAliveMethod);
+        setKeepAliveInterval(keepAliveInterval);
+
+        setDTMFMethod(dtmfMethod);
+        setDtmfMinimalToneDuration(dtmfMinimalToneDuration);
+
+        boolean mwiEnabled = accountID.getAccountPropertyBoolean(
+                ProtocolProviderFactory.VOICEMAIL_ENABLED, true);
+        setMessageWaitingIndications(mwiEnabled);
+
+        setVoicemailURI(voicemailURI);
+
+        setVoicemailCheckURI(voicemailCheckURI);
+
+        if(xCapEnable)
+        {
+            boolean xCapUseSipCredentials = accountID
+                    .getAccountPropertyBoolean("XCAP_USE_SIP_CREDETIALS", true);
+            setXCapEnable(xCapEnable);
+            setClistOptionUseSipCredentials(
+                    xCapUseSipCredentials);
+            setClistOptionServerUri(
+                    accountID.getAccountPropertyString("XCAP_SERVER_URI"));
+            setClistOptionUser(
+                    accountID.getAccountPropertyString("XCAP_USER"));
+            setClistOptionPassword(
+                    accountID.getAccountPropertyString("XCAP_PASSWORD"));
+        }
+        else if(xivoEnable)
+        {
+            boolean xCapUseSipCredentials = accountID
+                    .getAccountPropertyBoolean("XIVO_USE_SIP_CREDETIALS", true);
+
+            setXiVOEnable(xivoEnable);
+            setClistOptionUseSipCredentials(
+                    xCapUseSipCredentials);
+            setClistOptionServerUri(
+                    accountID.getAccountPropertyString("XIVO_SERVER_URI"));
+            setClistOptionUser(
+                    accountID.getAccountPropertyString("XIVO_USER"));
+            setClistOptionPassword(
+                    accountID.getAccountPropertyString("XIVO_PASSWORD"));
+        }
+
+        encodingsRegistration.loadAccount(
+                accountID,
+                ServiceUtils.getService(bundleContext, MediaService.class));
+    }
+
+    /**
+     * Stores configuration properties held by this object into given
+     * <tt>accountProperties</tt> map.
+     * @param userName the user name that will be used.
+     * @param passwd the password that will be used.
+     * @param protocolIconPath the path to the protocol icon is used
+     * @param accountIconPath the path to the account icon if used
+     * @param isModification flag indication if it's modification process(has
+     * impact on some properties).
+     * @param accountProperties the map that will hold the configuration.
+     */
+    public void storeProperties(String userName, String passwd,
+                                String protocolIconPath,
+                                String accountIconPath,
+                                Boolean isModification,
+                                Map<String, String> accountProperties)
+    {
+        accountProperties.put(
+                ProtocolProviderFactory.PROTOCOL,
+                ProtocolNames.SIP);
+
+        if (protocolIconPath != null)
+            accountProperties.put(  ProtocolProviderFactory.PROTOCOL_ICON_PATH,
+                                    protocolIconPath);
+
+        if (accountIconPath != null)
+            accountProperties.put(  ProtocolProviderFactory.ACCOUNT_ICON_PATH,
+                                    accountIconPath);
+
+        if(isRememberPassword())
+        {
+            accountProperties.put(ProtocolProviderFactory.PASSWORD, passwd);
+        }
+        else
+        {
+            // clear password if requested
+            setPassword(null);
+        }
+
+        String serverAddress = null;
+        String serverFromUsername =
+                SIPAccountRegistrationForm.getServerFromUserName(userName);
+
+        if (getServerAddress() != null)
+            serverAddress = getServerAddress();
+
+        if(serverFromUsername == null
+                && getDefaultDomain() != null)
+        {
+            // we have only a username and we want to add
+            // a default domain
+            userName = userName + "@" + getDefaultDomain();
+
+            if(serverAddress == null)
+                serverAddress = getDefaultDomain();
+        }
+        else if(serverAddress == null &&
+                serverFromUsername != null)
+        {
+            serverAddress = serverFromUsername;
+        }
+
+        if (serverAddress != null)
+        {
+            accountProperties.put(ProtocolProviderFactory.SERVER_ADDRESS,
+                                  serverAddress);
+
+            if (userName.indexOf(serverAddress) < 0)
+                accountProperties.put(
+                        ProtocolProviderFactory.IS_SERVER_OVERRIDDEN,
+                        Boolean.toString(true));
+        }
+
+        accountProperties.put(ProtocolProviderFactory.DISPLAY_NAME,
+                              getDisplayName());
+
+        accountProperties.put(ProtocolProviderFactory.AUTHORIZATION_NAME,
+                              getAuthorizationName());
+
+        accountProperties.put(ProtocolProviderFactory.SERVER_PORT,
+                              getServerPort());
+
+        if(isProxyAutoConfigure())
+        {
+            accountProperties.put(ProtocolProviderFactory.PROXY_AUTO_CONFIG,
+                                  Boolean.TRUE.toString());
+        }
+        else
+        {
+            accountProperties.put(ProtocolProviderFactory.PROXY_AUTO_CONFIG,
+                                  Boolean.FALSE.toString());
+
+            accountProperties.put(ProtocolProviderFactory.PROXY_ADDRESS,
+                                  getProxy());
+
+            accountProperties.put(ProtocolProviderFactory.PROXY_PORT,
+                                  getProxyPort());
+
+            accountProperties.put(ProtocolProviderFactory.PREFERRED_TRANSPORT,
+                                  getPreferredTransport());
+        }
+
+        accountProperties.put(ProtocolProviderFactory.IS_PRESENCE_ENABLED,
+                              Boolean.toString(isEnablePresence()));
+
+        // when we are creating registerless account make sure that
+        // we don't use PA
+        if(serverAddress != null)
+        {
+            accountProperties.put(ProtocolProviderFactory.FORCE_P2P_MODE,
+                                  Boolean.toString(isForceP2PMode()));
+        }
+        else
+        {
+            accountProperties.put(ProtocolProviderFactory.FORCE_P2P_MODE,
+                                  Boolean.TRUE.toString());
+        }
+
+        securityAccountRegistration.storeProperties(accountProperties);
+
+        accountProperties.put(ProtocolProviderFactory.POLLING_PERIOD,
+                              getPollingPeriod());
+
+        accountProperties.put(ProtocolProviderFactory.SUBSCRIPTION_EXPIRATION,
+                              getSubscriptionExpiration());
+
+        accountProperties.put(ProtocolProviderFactory.CLIENT_TLS_CERTIFICATE,
+                              getTlsClientCertificate());
+
+        if(getKeepAliveMethod() != null)
+            accountProperties.put(ProtocolProviderFactory.KEEP_ALIVE_METHOD,
+                                  getKeepAliveMethod());
+        else
+            accountProperties.put(ProtocolProviderFactory.KEEP_ALIVE_METHOD,
+                                  getDefaultKeepAliveMethod());
+
+        accountProperties.put(ProtocolProviderFactory.KEEP_ALIVE_INTERVAL,
+                              getKeepAliveInterval());
+
+        if(getDTMFMethod() != null)
+            accountProperties.put("DTMF_METHOD",
+                                  getDTMFMethod());
+        else
+            accountProperties.put("DTMF_METHOD",
+                                  getDefaultDTMFMethod());
+
+        accountProperties.put(
+                ProtocolProviderFactory.DTMF_MINIMAL_TONE_DURATION,
+                getDtmfMinimalToneDuration());
+
+        encodingsRegistration.storeProperties(accountProperties);
+
+        accountProperties.put("XIVO_ENABLE",
+                              Boolean.toString(isXiVOEnable()));
+        accountProperties.put("XCAP_ENABLE",
+                              Boolean.toString(isXCapEnable()));
+
+        if(isXCapEnable())
+        {
+            accountProperties.put(
+                    "XCAP_USE_SIP_CREDETIALS",
+                    Boolean.toString(isClistOptionUseSipCredentials()));
+            if (getClistOptionServerUri() != null)
+            {
+                accountProperties.put(
+                        "XCAP_SERVER_URI",
+                        getClistOptionServerUri());
+            }
+            if (getClistOptionUser() != null)
+            {
+                accountProperties
+                        .put("XCAP_USER", getClistOptionUser());
+            }
+            if (getClistOptionPassword() != null)
+            {
+                accountProperties
+                        .put("XCAP_PASSWORD", getClistOptionPassword());
+            }
+        }
+        else if(isXiVOEnable())
+        {
+            accountProperties.put(
+                    "XIVO_USE_SIP_CREDETIALS",
+                    Boolean.toString(isClistOptionUseSipCredentials()));
+            if (getClistOptionServerUri() != null)
+            {
+                accountProperties.put(
+                        "XIVO_SERVER_URI",
+                        getClistOptionServerUri());
+            }
+            if (getClistOptionUser() != null)
+            {
+                accountProperties
+                        .put("XIVO_USER", getClistOptionUser());
+            }
+            if (getClistOptionPassword() != null)
+            {
+                accountProperties
+                        .put("XIVO_PASSWORD", getClistOptionPassword());
+            }
+        }
+
+        if(isMessageWaitingIndicationsEnabled())
+        {
+            if(!StringUtils.isNullOrEmpty(getVoicemailURI(), true))
+                accountProperties.put(
+                        ProtocolProviderFactory.VOICEMAIL_URI,
+                        getVoicemailURI());
+            else if(isModification)
+                accountProperties.put(ProtocolProviderFactory.VOICEMAIL_URI, "");
+
+            if(!StringUtils.isNullOrEmpty(
+                    getVoicemailCheckURI(), true))
+                accountProperties.put(
+                        ProtocolProviderFactory.VOICEMAIL_CHECK_URI,
+                        getVoicemailCheckURI());
+            else if(isModification)
+                accountProperties.put(
+                        ProtocolProviderFactory.VOICEMAIL_CHECK_URI, "");
+
+            if(isModification)
+            {
+                // remove the property as true is by default,
+                // and null removes property
+                accountProperties.put(ProtocolProviderFactory.VOICEMAIL_ENABLED,
+                                      null);
+            }
+        }
+        else if(isModification)
+        {
+            accountProperties.put(ProtocolProviderFactory.VOICEMAIL_ENABLED,
+                                  Boolean.FALSE.toString());
+        }
     }
 }

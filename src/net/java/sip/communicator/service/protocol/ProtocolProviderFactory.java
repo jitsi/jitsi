@@ -1199,4 +1199,37 @@ public abstract class ProtocolProviderFactory
 
         return (AccountManager) bundleContext.getService(serviceReference);
     }
+
+
+    /**
+     * Finds registered <tt>ProtocolProviderFactory</tt> for given
+     * <tt>protocolName</tt>.
+     * @param bundleContext the OSGI bundle context that will be used.
+     * @param protocolName the protocol name.
+     * @return Registered <tt>ProtocolProviderFactory</tt> for given protocol
+     * name or <tt>null</tt> if no provider was found.
+     */
+    static public ProtocolProviderFactory getProtocolProviderFactory(
+            BundleContext bundleContext,
+            String protocolName)
+    {
+        ServiceReference[] serRefs = null;
+
+        String osgiFilter =
+            "(" + ProtocolProviderFactory.PROTOCOL + "=" + protocolName + ")";
+
+        try
+        {
+            serRefs =
+                bundleContext.getServiceReferences(
+                        ProtocolProviderFactory.class.getName(), osgiFilter);
+        }
+        catch (InvalidSyntaxException ex)
+        {
+            logger.error(ex);
+            return null;
+        }
+
+        return (ProtocolProviderFactory) bundleContext.getService(serRefs[0]);
+    }
 }

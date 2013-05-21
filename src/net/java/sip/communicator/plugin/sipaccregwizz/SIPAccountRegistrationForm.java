@@ -6,7 +6,6 @@ import java.util.List;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.plugin.desktoputil.wizard.*;
 
@@ -59,7 +58,9 @@ public class SIPAccountRegistrationForm
 
         accountPanel = new AccountPanel(this);
         connectionPanel = new ConnectionPanel(this);
-        securityPanel = new SecurityPanel(this.getRegistration(), true);
+        securityPanel = new SecurityPanel(
+                this.getRegistration().getSecurityAccountRegistration(),
+                true);
         presencePanel = new PresencePanel(this);
         
         encodingsPanel = new EncodingsPanel();
@@ -307,7 +308,8 @@ public class SIPAccountRegistrationForm
         SIPAccRegWizzActivator.getUIService().getAccountRegWizardContainer()
             .setBackButtonEnabled(true);
 
-        securityPanel.commitPanel(registration);
+        securityPanel.commitPanel(
+                registration.getSecurityAccountRegistration());
 
         if(xcapRoot != null)
         {
@@ -332,91 +334,64 @@ public class SIPAccountRegistrationForm
         registration.setVoicemailURI(connectionPanel.getVoicemailURI());
         registration.setVoicemailCheckURI(connectionPanel.getVoicemailCheckURI());
 
-        encodingsPanel.commitPanel(registration);
+        encodingsPanel.commitPanel(registration.getEncodingsRegistration());
         
         return true;
     }
 
     /**
-     * Loads the account with the given identifier.
-     * @param accountID the account identifier
+     * Loads given account registration object.
+     * @param sipAccReg the account registration object to load.
      */
-    public void loadAccount(AccountID accountID)
+    public void loadAccount(SIPAccountRegistration sipAccReg)
     {
-        String password = SIPAccRegWizzActivator.getSIPProtocolProviderFactory()
-            .loadPassword(accountID);
+        String password = sipAccReg.getPassword();
 
-        String serverAddress = accountID.getAccountPropertyString(
-                    ProtocolProviderFactory.SERVER_ADDRESS);
+        String serverAddress = sipAccReg.getServerAddress();
 
-        String displayName = accountID.getAccountPropertyString(
-                    ProtocolProviderFactory.DISPLAY_NAME);
+        String displayName = sipAccReg.getDisplayName();
 
-        String authName = accountID.getAccountPropertyString(
-                    ProtocolProviderFactory.AUTHORIZATION_NAME);
+        String authName = sipAccReg.getAuthorizationName();
 
-        String serverPort = accountID.getAccountPropertyString(
-                    ProtocolProviderFactory.SERVER_PORT);
+        String serverPort = sipAccReg.getServerPort();
 
-        String proxyAddress = accountID.getAccountPropertyString(
-                    ProtocolProviderFactory.PROXY_ADDRESS);
+        String proxyAddress = sipAccReg.getProxy();
 
-        String proxyPort = accountID.getAccountPropertyString(
-                    ProtocolProviderFactory.PROXY_PORT);
+        String proxyPort = sipAccReg.getProxyPort();
 
-        String preferredTransport = accountID.getAccountPropertyString(
-                    ProtocolProviderFactory.PREFERRED_TRANSPORT);
+        String preferredTransport = sipAccReg.getPreferredTransport();
 
-        boolean enablePresence = accountID.getAccountPropertyBoolean(
-                    ProtocolProviderFactory.IS_PRESENCE_ENABLED, false);
+        boolean enablePresence = sipAccReg.isEnablePresence();
 
-        boolean forceP2P = accountID.getAccountPropertyBoolean(
-                    ProtocolProviderFactory.FORCE_P2P_MODE, false);
+        boolean forceP2P = sipAccReg.isForceP2PMode();
 
-        String clientTlsCertificateId = accountID.getAccountPropertyString(
-                    ProtocolProviderFactory.CLIENT_TLS_CERTIFICATE);
+        String clientTlsCertificateId = sipAccReg.getTlsClientCertificate();
 
-        boolean proxyAutoConfigureEnabled = accountID.getAccountPropertyBoolean(
-                    ProtocolProviderFactory.PROXY_AUTO_CONFIG, false);
+        boolean proxyAutoConfigureEnabled = sipAccReg.isProxyAutoConfigure();
 
-        String pollingPeriod = accountID.getAccountPropertyString(
-                    ProtocolProviderFactory.POLLING_PERIOD);
+        String pollingPeriod = sipAccReg.getPollingPeriod();
 
-        String subscriptionPeriod = accountID.getAccountPropertyString(
-                    ProtocolProviderFactory.SUBSCRIPTION_EXPIRATION);
+        String subscriptionPeriod = sipAccReg.getSubscriptionExpiration();
 
-        String keepAliveMethod =
-        accountID.getAccountPropertyString(
-            ProtocolProviderFactory.KEEP_ALIVE_METHOD);
+        String keepAliveMethod = sipAccReg.getKeepAliveMethod();
 
-        String keepAliveInterval =
-        accountID.getAccountPropertyString(
-            ProtocolProviderFactory.KEEP_ALIVE_INTERVAL);
+        String keepAliveInterval = sipAccReg.getKeepAliveInterval();
 
-        String dtmfMethod =
-        accountID.getAccountPropertyString("DTMF_METHOD");
-        String dtmfMinimalToneDuration =
-        accountID.getAccountPropertyString("DTMF_MINIMAL_TONE_DURATION");
+        String dtmfMethod = sipAccReg.getDTMFMethod();
+        String dtmfMinimalToneDuration = sipAccReg.getDtmfMinimalToneDuration();
 
-        String voicemailURI = accountID.getAccountPropertyString(
-                    ProtocolProviderFactory.VOICEMAIL_URI);
-        String voicemailCheckURI = accountID.getAccountPropertyString(
-                    ProtocolProviderFactory.VOICEMAIL_CHECK_URI);
+        String voicemailURI = sipAccReg.getVoicemailURI();
+        String voicemailCheckURI = sipAccReg.getVoicemailCheckURI();
 
-        boolean xCapEnable = accountID
-                .getAccountPropertyBoolean("XCAP_ENABLE", false);
-        boolean xivoEnable = accountID
-                .getAccountPropertyBoolean("XIVO_ENABLE", false);
+        boolean xCapEnable = sipAccReg.isXCapEnable();
+        boolean xivoEnable = sipAccReg.isXiVOEnable();
 
-        boolean isServerOverridden = accountID.getAccountPropertyBoolean(
-                ProtocolProviderFactory.IS_SERVER_OVERRIDDEN, false);
+        boolean isServerOverridden = sipAccReg.isServerOverriden();
 
         connectionPanel.setServerOverridden(isServerOverridden);
 
         accountPanel.setUserIDEnabled(false);
-        accountPanel.setUserID((serverAddress == null) ? accountID.getUserID()
-            : accountID.getAccountPropertyString(
-                ProtocolProviderFactory.USER_ID));
+        accountPanel.setUserID(sipAccReg.getId());
 
         if (password != null)
         {
@@ -447,7 +422,7 @@ public class SIPAccountRegistrationForm
         connectionPanel.setSelectedTransport(preferredTransport);
         connectionPanel.setProxyPort(proxyPort);
 
-        securityPanel.loadAccount(accountID);
+        securityPanel.loadAccount(sipAccReg.getSecurityAccountRegistration());
 
         presencePanel.reinit();
         presencePanel.setPresenceEnabled(enablePresence);
@@ -467,8 +442,7 @@ public class SIPAccountRegistrationForm
         if(!StringUtils.isNullOrEmpty(dtmfMinimalToneDuration))
             connectionPanel.setDtmfMinimalToneDuration(dtmfMinimalToneDuration);
 
-        boolean mwiEnabled = accountID.getAccountPropertyBoolean(
-            ProtocolProviderFactory.VOICEMAIL_ENABLED, true);
+        boolean mwiEnabled = sipAccReg.isMessageWaitingIndicationsEnabled();
         connectionPanel.setMessageWaitingIndications(mwiEnabled);
 
         if(!StringUtils.isNullOrEmpty(voicemailURI))
@@ -479,42 +453,30 @@ public class SIPAccountRegistrationForm
 
         if(xCapEnable)
         {
-            boolean xCapUseSipCredentials = accountID
-                .getAccountPropertyBoolean("XCAP_USE_SIP_CREDETIALS", true);
-
             presencePanel.setXCapEnable(xCapEnable);
             presencePanel.setClistOptionEnableEnabled(xCapEnable);
-            presencePanel.setClistOptionUseSipCredentials(
-                    xCapUseSipCredentials);
-            presencePanel.setClistOptionUseSipCredentialsEnabled(
-                    xCapUseSipCredentials);
-            presencePanel.setClistOptionServerUri(
-                    accountID.getAccountPropertyString("XCAP_SERVER_URI"));
-            presencePanel.setClistOptionUser(
-                    accountID.getAccountPropertyString("XCAP_USER"));
-            presencePanel.setClistOptionPassword(
-                    accountID.getAccountPropertyString("XCAP_PASSWORD"));
         }
         else if(xivoEnable)
         {
-            boolean xCapUseSipCredentials = accountID
-                .getAccountPropertyBoolean("XIVO_USE_SIP_CREDETIALS", true);
-
             presencePanel.setXiVOEnable(xivoEnable);
             presencePanel.setClistOptionEnableEnabled(xivoEnable);
-            presencePanel.setClistOptionUseSipCredentials(
-                    xCapUseSipCredentials);
-            presencePanel.setClistOptionUseSipCredentialsEnabled(
-                    xCapUseSipCredentials);
-            presencePanel.setClistOptionServerUri(
-                    accountID.getAccountPropertyString("XIVO_SERVER_URI"));
-            presencePanel.setClistOptionUser(
-                    accountID.getAccountPropertyString("XIVO_USER"));
-            presencePanel.setClistOptionPassword(
-                    accountID.getAccountPropertyString("XIVO_PASSWORD"));
         }
+
+        boolean clistUseSipCredentials
+                = sipAccReg.isClistOptionUseSipCredentials();
+
+        presencePanel.setClistOptionUseSipCredentials(
+                clistUseSipCredentials);
+        presencePanel.setClistOptionUseSipCredentialsEnabled(
+                clistUseSipCredentials);
+        presencePanel.setClistOptionServerUri(
+                sipAccReg.getClistOptionServerUri());
+        presencePanel.setClistOptionUser(
+                sipAccReg.getClistOptionUser());
+        presencePanel.setClistOptionPassword(
+                sipAccReg.getClistOptionPassword());
         
-        encodingsPanel.loadAccount(accountID.getAccountProperties());
+        encodingsPanel.loadAccount(sipAccReg.getEncodingsRegistration());
     }
 
     /**

@@ -19,6 +19,11 @@ import java.util.*;
 public abstract class SecurityAccountRegistration
 {
     /**
+     * The encryption protocols managed by this SecurityPanel.
+     */
+    public static final String[] ENCRYPTION_PROTOCOLS = {"ZRTP", "SDES"};
+
+    /**
      * Enables support to encrypt calls.
      */
     private boolean defaultEncryption = true;
@@ -57,13 +62,9 @@ public abstract class SecurityAccountRegistration
     {
         // Sets the default values.
         this.encryptionProtocols = new HashMap<String, Integer>(1);
-        this.encryptionProtocols.put(
-                ProtocolProviderFactory.ENCRYPTION_PROTOCOL + ".ZRTP",
-                0);
+        this.encryptionProtocols.put("ZRTP", 0);
         this.encryptionProtocolStatus = new HashMap<String, Boolean>(1);
-        this.encryptionProtocolStatus.put(
-                ProtocolProviderFactory.ENCRYPTION_PROTOCOL_STATUS + ".ZRTP",
-                true);
+        this.encryptionProtocolStatus.put("ZRTP", true);
     }
 
     /**
@@ -155,6 +156,12 @@ public abstract class SecurityAccountRegistration
     public abstract void setSavpOption(int savpOption);
 
     /**
+     * Returns the method used for RTP/SAVP indication.
+     * @return the method used for RTP/SAVP indication.
+     */
+    public abstract int getSavpOption();
+
+    /**
      * Returns the map between the encryption protocols and their priority
      * order.
      *
@@ -169,7 +176,7 @@ public abstract class SecurityAccountRegistration
     /**
      * Sets the map between the encryption protocols and their priority order.
      *
-     * @param encryptionProtools The map between the encryption protocols and
+     * @param encryptionProtocols The map between the encryption protocols and
      * their priority order.
      */
     public void setEncryptionProtocols(
@@ -191,7 +198,7 @@ public abstract class SecurityAccountRegistration
     /**
      * Sets the map between the encryption protocols and their status.
      *
-     * @param encryptionProtools The map between the encryption protocols and
+     * @param encryptionProtocols The map between the encryption protocols and
      * their status.
      */
     public void setEncryptionProtocolStatus(
@@ -206,7 +213,7 @@ public abstract class SecurityAccountRegistration
      *
      * @param properties The property list to fill in.
      */
-    public void addEncryptionProtocolsToProperties(
+    private void addEncryptionProtocolsToProperties(
             Map<String, String> properties)
     {
         Map<String, Integer> encryptionProtocols
@@ -231,7 +238,7 @@ public abstract class SecurityAccountRegistration
      *
      * @param properties The property list to fill in.
      */
-    public void addEncryptionProtocolStatusToProperties(
+    private void addEncryptionProtocolStatusToProperties(
             Map<String, String> properties)
     {
         Map<String, Boolean> encryptionProtocolStatus
@@ -250,4 +257,170 @@ public abstract class SecurityAccountRegistration
                         .toString());
         }
     }
+
+    /**
+     * Stores security properties held by this registration object into given
+     * properties map.
+     * @param propertiesMap the map that will be used for storing security
+     * properties held by this object.
+     */
+    public void storeProperties(Map<String, String> propertiesMap)
+    {
+        propertiesMap.put(ProtocolProviderFactory.DEFAULT_ENCRYPTION,
+                          Boolean.toString(isDefaultEncryption()));
+
+        // Sets the ordered list of encryption protocols.
+        addEncryptionProtocolsToProperties(propertiesMap);
+
+        // Sets the list of encryption protocol status.
+        addEncryptionProtocolStatusToProperties(propertiesMap);
+
+        propertiesMap.put(ProtocolProviderFactory.DEFAULT_SIPZRTP_ATTRIBUTE,
+                          Boolean.toString(isSipZrtpAttribute()));
+
+        propertiesMap.put(ProtocolProviderFactory.SAVP_OPTION,
+                          Integer.toString(getSavpOption()));
+
+        propertiesMap.put(ProtocolProviderFactory.SDES_CIPHER_SUITES,
+                          getSDesCipherSuites());
+    }
+
+    /**
+     * Loads security properties from the account with the given identifier.
+     * @param accountID the account identifier.
+     */
+    public void loadAccount(AccountID accountID)
+    {
+        setDefaultEncryption(
+                accountID.getAccountPropertyBoolean(
+                        ProtocolProviderFactory.DEFAULT_ENCRYPTION,
+                        true));
+
+        encryptionProtocols
+                = accountID.getIntegerPropertiesByPrefix(
+                        ProtocolProviderFactory.ENCRYPTION_PROTOCOL, true);
+        encryptionProtocolStatus
+                = accountID.getBooleanPropertiesByPrefix(
+                    ProtocolProviderFactory.ENCRYPTION_PROTOCOL_STATUS,
+                            true,
+                            false);
+
+        setSipZrtpAttribute(
+                accountID.getAccountPropertyBoolean(
+                        ProtocolProviderFactory.DEFAULT_SIPZRTP_ATTRIBUTE,
+                        true));
+
+        setSavpOption(
+                accountID.getAccountPropertyInt(
+                        ProtocolProviderFactory.SAVP_OPTION,
+                        ProtocolProviderFactory.SAVP_OFF));
+
+        setSDesCipherSuites(
+                accountID.getAccountPropertyString(
+                        ProtocolProviderFactory.SDES_CIPHER_SUITES));
+    }
+
+    /**
+     * Loads the list of enabled and disabled encryption protocols with their
+     * priority into array of <tt>String</tt> and array of <tt>Boolean</tt>.
+     * The protocols are positioned in the array by the priority and the
+     * <tt>Boolean</tt> array holds the enabled flag on the corresponding index.
+     *
+     * @param encryptionProtocols The map of encryption protocols with their
+     * priority available for this account.
+     * @param encryptionProtocolStatus The map of encryption protocol statuses.
+     * @return <tt>Object[]</tt> array holding:<br/>
+     * - at [0] <tt>String[]</tt> the list of extracted protocol names<br/>
+     * - at [1] <tt>boolean[]</tt> the list of of protocol status flags
+     */
+    public static Object[] loadEncryptionProtocols(
+            Map<String, Integer> encryptionProtocols,
+            Map<String, Boolean> encryptionProtocolStatus)
+    {
+        int nbEncryptionProtocols = ENCRYPTION_PROTOCOLS.length;
+        String[] encryptions = new String[nbEncryptionProtocols];
+        boolean[] selectedEncryptions = new boolean[nbEncryptionProtocols];
+
+        // Load stored values.
+        int prefixeLength
+                = ProtocolProviderFactory.ENCRYPTION_PROTOCOL.length() + 1;
+        String encryptionProtocolPropertyName;
+        String name;
+        int index;
+        boolean enabled;
+        Iterator<String> encryptionProtocolNames
+                = encryptionProtocols.keySet().iterator();
+        while(encryptionProtocolNames.hasNext())
+        {
+            encryptionProtocolPropertyName = encryptionProtocolNames.next();
+            index = encryptionProtocols.get(encryptionProtocolPropertyName);
+            // If the property is set.
+            if(index != -1)
+            {
+                name = encryptionProtocolPropertyName.substring(prefixeLength);
+                if (isExistingEncryptionProtocol(name))
+                {
+                    enabled = encryptionProtocolStatus.get(
+                            ProtocolProviderFactory.ENCRYPTION_PROTOCOL_STATUS
+                                    + "."
+                                    + name);
+                    encryptions[index] = name;
+                    selectedEncryptions[index] = enabled;
+                }
+            }
+        }
+
+        // Load default values.
+        String encryptionProtocol;
+        boolean set;
+        int j = 0;
+        for(int i = 0; i < ENCRYPTION_PROTOCOLS.length; ++i)
+        {
+            encryptionProtocol = ENCRYPTION_PROTOCOLS[i];
+            // Specify a default value only if there is no specific value set.
+            if(!encryptionProtocols.containsKey(
+                    ProtocolProviderFactory.ENCRYPTION_PROTOCOL
+                            + "."
+                            + encryptionProtocol))
+            {
+                set = false;
+                // Search for the first empty element.
+                while(j < encryptions.length && !set)
+                {
+                    if(encryptions[j] == null)
+                    {
+                        encryptions[j] = encryptionProtocol;
+                        // By default only ZRTP is set to true.
+                        selectedEncryptions[j]
+                                = encryptionProtocol.equals("ZRTP");
+                        set = true;
+                    }
+                    ++j;
+                }
+
+            }
+        }
+
+        return new Object[]{ encryptions, selectedEncryptions};
+    }
+
+    /**
+     * Checks if given <tt>protocol</tt> is on supported protocols list.
+     * @param protocol the protocol name
+     * @return <tt>true</tt> if encryption protocol with given protocol name is
+     * supported.
+     */
+    private static boolean isExistingEncryptionProtocol(String protocol)
+    {
+        for (String key : ENCRYPTION_PROTOCOLS)
+        {
+            if (key.equals(protocol))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 }

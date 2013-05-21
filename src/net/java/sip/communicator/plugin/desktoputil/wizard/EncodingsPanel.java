@@ -158,9 +158,9 @@ public class EncodingsPanel
 
     /**
      * Saves the settings we hold in <tt>registration</tt>
-     * @param registration the <tt>EncodingsRegistration</tt> to use
+     * @param registration the <tt>EncodingsRegistrationUtil</tt> to use
      */
-    public void commitPanel(EncodingsRegistration registration)
+    public void commitPanel(EncodingsRegistrationUtil registration)
     {
         registration.setOverrideEncodings(overrideCheckBox.isSelected());
         
@@ -171,23 +171,18 @@ public class EncodingsPanel
     }
 
     /**
-     * Checks the given <tt>accountProperties</tt> for encoding configuration
-     * and loads it.
-     * @param accountProperties the properties to use.
+     * Loads encoding configuration from given <tt>encodingsReg</tt> object.
+     *
+     * @param encodingsReg the encoding registration object to use.
      */
-    public void loadAccount(Map<String, String> accountProperties)
+    public void loadAccount(EncodingsRegistrationUtil encodingsReg)
     {
-        String overrideEncodings = accountProperties.get(
-                ProtocolProviderFactory.OVERRIDE_ENCODINGS);
-        boolean isOverrideEncodings = Boolean.parseBoolean(overrideEncodings);
-        overrideCheckBox.setSelected(isOverrideEncodings);
+        overrideCheckBox.setSelected(encodingsReg.isOverrideEncodings());
 
-        encodingConfiguration = mediaConfiguration.getMediaService()
-                .createEmptyEncodingConfiguration();
-        encodingConfiguration.loadProperties(accountProperties,
-                ProtocolProviderFactory.ENCODING_PROP_PREFIX);
-        encodingConfiguration.storeProperties(encodingProperties,
-                ProtocolProviderFactory.ENCODING_PROP_PREFIX+".");
+        encodingConfiguration
+                = encodingsReg.createEncodingConfig(
+                mediaConfiguration.getMediaService());
+        encodingConfiguration.storeProperties(encodingProperties);
 
         resetTables();
 

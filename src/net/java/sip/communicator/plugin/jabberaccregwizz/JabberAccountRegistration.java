@@ -8,8 +8,15 @@ package net.java.sip.communicator.plugin.jabberaccregwizz;
 
 import java.util.*;
 
+import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.wizard.*;
+
+import org.jitsi.service.neomedia.*;
+import org.jitsi.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * The <tt>JabberAccountRegistration</tt> is used to store all user input data
@@ -19,13 +26,21 @@ import net.java.sip.communicator.util.wizard.*;
  * @author Boris Grozev
  */
 public class JabberAccountRegistration
-    extends SecurityAccountRegistration
-    implements EncodingsRegistration
 {
     /**
      * The default value of server port for jabber accounts.
      */
     public static final String DEFAULT_PORT = "5222";
+
+    /**
+     * Account suffix for Google service.
+     */
+    private static final String GOOGLE_USER_SUFFIX = "gmail.com";
+
+    /**
+     * XMPP server for Google service.
+     */
+    private static final String GOOGLE_CONNECT_SRV = "talk.google.com";
 
     /**
      * The default value of the priority property.
@@ -228,23 +243,46 @@ public class JabberAccountRegistration
     private String clientCertificateId = null;
 
     /**
+     * The encodings registration object
+     */
+    private EncodingsRegistrationUtil encodingsRegistration
+            = new EncodingsRegistrationUtil();
+
+    /**
+     * The security registration object
+     */
+    private SecurityAccountRegistration securityRegistration
+            = new SecurityAccountRegistration()
+    {
+        /**
+         * Sets the method used for RTP/SAVP indication.
+         */
+        @Override
+        public void setSavpOption(int savpOption)
+        {
+            // SAVP option is not useful for XMPP account.
+            // Thereby, do nothing.
+        }
+
+        /**
+         * RTP/SAVP is disabled for Jabber protocol.
+         *
+         * @return Always <tt>ProtocolProviderFactory.SAVP_OFF</tt>.
+         */
+        @Override
+        public int getSavpOption()
+        {
+            return ProtocolProviderFactory.SAVP_OFF;
+        }
+    };
+
+    /**
      * Initializes a new JabberAccountRegistration.
      */
     public JabberAccountRegistration()
     {
         super();
     }
-
-     /**
-      *  Whether to override global encoding settings.
-      */
-	 private boolean overrideEncodingSettings = false;
-	 /**
-	  * Encoding properties associated with this account.
-	  */
-    private Map<String, String> encodingProperties
-	    = new HashMap<String, String>();
-
 
     /**
      * Returns the password of the jabber registration account.
@@ -905,48 +943,25 @@ public class JabberAccountRegistration
     }
 
     /**
-     * Sets the method used for RTP/SAVP indication.
+     * Returns <tt>EncodingsRegistrationUtil</tt> object which stores encodings
+     * configuration.
+     * @return <tt>EncodingsRegistrationUtil</tt> object which stores encodings
+     * configuration.
      */
-    public void setSavpOption(int savpOption)
+    public EncodingsRegistrationUtil getEncodingsRegistration()
     {
-        // SAVP option is not useful for XMPP account.
-        // Thereby, do nothing.
+        return encodingsRegistration;
     }
 
     /**
-    * Whether override encodings is enabled
-    * @return Whether override encodings is enabled
-    */
-    public boolean isOverrideEncodings()
+     * Returns <tt>SecurityAccountRegistration</tt> object which stores security
+     * settings.
+     * @return <tt>SecurityAccountRegistration</tt> object which stores security
+     * settings.
+     */
+    public SecurityAccountRegistration getSecurityRegistration()
     {
-        return overrideEncodingSettings;
-    }
-    
-    /**
-    * Set the override encodings setting to <tt>override</tt>
-    * @param override The value to set the override ecoding settings to.
-    */
-    public void setOverrideEncodings(boolean override)
-    {
-        overrideEncodingSettings = override;
-    }
-    
-    /**
-    * Get the stored encoding properties
-    * @return The stored encoding properties.
-    */
-    public Map<String, String> getEncodingProperties()
-    {
-        return encodingProperties;
-    }
-    
-    /**
-    * Set the encoding properties
-    * @param encodingProperties The encoding properties to set.
-    */
-    public void setEncodingProperties(Map<String, String> encodingProperties)
-    {
-        this.encodingProperties = encodingProperties;
+        return securityRegistration;
     }
 
     /**
@@ -965,5 +980,505 @@ public class JabberAccountRegistration
     public String getClientCertificateId()
     {
         return clientCertificateId;
+    }
+
+    /**
+     * Stores Jabber account configuration held by this registration object into
+     * given<tt>accountProperties</tt> map.
+     *
+     * @param userName the user name that will be used.
+     * @param passwd the password for this account.
+     * @param protocolIconPath the path to protocol icon if used, or
+     * <tt>null</tt> otherwise.
+     * @param accountIconPath the path to account icon if used, or
+     * <tt>null</tt> otherwise.
+     * @param accountProperties the map used for storings account properties.
+     *
+     * @throws OperationFailedException if properties are invalid.
+     */
+    public void storeProperties(String userName, String passwd,
+                                String protocolIconPath,
+                                String accountIconPath,
+                                Map<String, String> accountProperties)
+            throws OperationFailedException
+    {
+        if (protocolIconPath != null)
+            accountProperties.put(  ProtocolProviderFactory.PROTOCOL_ICON_PATH,
+                                    protocolIconPath);
+
+        if (accountIconPath != null)
+            accountProperties.put(  ProtocolProviderFactory.ACCOUNT_ICON_PATH,
+                                    accountIconPath);
+
+        if (isRememberPassword())
+        {
+            accountProperties.put(ProtocolProviderFactory.PASSWORD, passwd);
+        }
+
+        //accountProperties.put("SEND_KEEP_ALIVE",
+        //                      String.valueOf(isSendKeepAlive()));
+
+        accountProperties.put("GMAIL_NOTIFICATIONS_ENABLED",
+                              String.valueOf(isGmailNotificationEnabled()));
+        accountProperties.put("GOOGLE_CONTACTS_ENABLED",
+                              String.valueOf(isGoogleContactsEnabled()));
+
+        String serverName = null;
+        if (getServerAddress() != null
+                && getServerAddress().length() > 0)
+        {
+            serverName = getServerAddress();
+        }
+        else
+        {
+            serverName = getServerFromUserName(userName);
+        }
+
+        if(isServerOverridden())
+        {
+            accountProperties.put(
+                    ProtocolProviderFactory.IS_SERVER_OVERRIDDEN,
+                    Boolean.toString(true));
+        }
+        else
+        {
+            accountProperties.put(
+                    ProtocolProviderFactory.IS_SERVER_OVERRIDDEN,
+                    Boolean.toString(false));
+        }
+
+        if (serverName == null || serverName.length() <= 0)
+            throw new OperationFailedException(
+                    "Should specify a server for user name " + userName + ".",
+                    OperationFailedException.SERVER_NOT_SPECIFIED);
+
+        if(userName.indexOf('@') < 0 && getDefaultUserSufix() != null)
+            userName = userName + '@' + getDefaultUserSufix();
+
+        if(getOverridePhoneSuffix() != null)
+        {
+            accountProperties.put("OVERRIDE_PHONE_SUFFIX",
+                                  getOverridePhoneSuffix());
+        }
+
+        accountProperties.put(
+                ProtocolProviderFactory.IS_CALLING_DISABLED_FOR_ACCOUNT,
+                Boolean.toString(isJingleDisabled()));
+
+        accountProperties.put("BYPASS_GTALK_CAPABILITIES",
+                              String.valueOf(getBypassGtalkCaps()));
+
+        if(getTelephonyDomainBypassCaps() != null)
+        {
+            accountProperties.put("TELEPHONY_BYPASS_GTALK_CAPS",
+                                  getTelephonyDomainBypassCaps());
+        }
+
+        accountProperties.put(ProtocolProviderFactory.SERVER_ADDRESS,
+                              serverName);
+
+        String smsServerAddress = getSmsServerAddress();
+
+        String clientCertId = getClientCertificateId();
+        if(clientCertId != null)
+        {
+            accountProperties.put(
+                    ProtocolProviderFactory.CLIENT_TLS_CERTIFICATE,
+                    clientCertId);
+        }
+        else
+        {
+            accountProperties.remove(
+                    ProtocolProviderFactory.CLIENT_TLS_CERTIFICATE);
+        }
+
+        if (smsServerAddress != null)
+        {
+            accountProperties.put(  ProtocolProviderFactory.SMS_SERVER_ADDRESS,
+                                    smsServerAddress);
+        }
+
+        accountProperties.put(ProtocolProviderFactory.SERVER_PORT,
+                              String.valueOf(getPort()));
+
+        accountProperties.put(ProtocolProviderFactory.AUTO_GENERATE_RESOURCE,
+                              String.valueOf(isResourceAutogenerated()));
+
+        accountProperties.put(ProtocolProviderFactory.RESOURCE,
+                              getResource());
+
+        accountProperties.put(ProtocolProviderFactory.RESOURCE_PRIORITY,
+                              String.valueOf(getPriority()));
+
+        accountProperties.put(ProtocolProviderFactory.IS_USE_ICE,
+                              String.valueOf(isUseIce()));
+
+        accountProperties.put(ProtocolProviderFactory.IS_USE_GOOGLE_ICE,
+                              String.valueOf(isUseGoogleIce()));
+
+        accountProperties.put(ProtocolProviderFactory.AUTO_DISCOVER_STUN,
+                              String.valueOf(isAutoDiscoverStun()));
+
+        accountProperties.put(ProtocolProviderFactory.USE_DEFAULT_STUN_SERVER,
+                              String.valueOf(isUseDefaultStunServer()));
+
+        String accountDisplayName = getAccountDisplayName();
+
+        if (accountDisplayName != null && accountDisplayName.length() > 0)
+            accountProperties.put(  ProtocolProviderFactory.ACCOUNT_DISPLAY_NAME,
+                                    accountDisplayName);
+
+        List<StunServerDescriptor> stunServers = getAdditionalStunServers();
+
+        int serverIndex = -1;
+
+        for(StunServerDescriptor stunServer : stunServers)
+        {
+            serverIndex ++;
+
+            stunServer.storeDescriptor(
+                    accountProperties,
+                    ProtocolProviderFactory.STUN_PREFIX + serverIndex);
+        }
+
+        accountProperties.put(ProtocolProviderFactory.IS_USE_JINGLE_NODES,
+                              String.valueOf(isUseJingleNodes()));
+
+        accountProperties.put(
+                ProtocolProviderFactory.AUTO_DISCOVER_JINGLE_NODES,
+                String.valueOf(isAutoDiscoverJingleNodes()));
+
+        List<JingleNodeDescriptor> jnRelays = getAdditionalJingleNodes();
+
+        serverIndex = -1;
+        for(JingleNodeDescriptor jnRelay : jnRelays)
+        {
+            serverIndex ++;
+
+            jnRelay.storeDescriptor(accountProperties,
+                                    JingleNodeDescriptor.JN_PREFIX + serverIndex);
+        }
+
+        accountProperties.put(ProtocolProviderFactory.IS_USE_UPNP,
+                              String.valueOf(isUseUPNP()));
+
+        accountProperties.put(ProtocolProviderFactory.IS_ALLOW_NON_SECURE,
+                              String.valueOf(isAllowNonSecure()));
+
+        if(getDTMFMethod() != null)
+            accountProperties.put("DTMF_METHOD",
+                                  getDTMFMethod());
+        else
+            accountProperties.put("DTMF_METHOD",
+                                  getDefaultDTMFMethod());
+
+        accountProperties.put(
+                ProtocolProviderFactory.DTMF_MINIMAL_TONE_DURATION,
+                getDtmfMinimalToneDuration());
+
+        securityRegistration.storeProperties(accountProperties);
+
+        encodingsRegistration.storeProperties(accountProperties);
+    }
+
+    /**
+     * Fills this registration object with configuration properties from given
+     * <tt>account</tt>.
+     * @param account the account object that will be used.
+     * @param bundleContext the OSGi bundle context required for some
+     * operations.
+     */
+    public void loadAccount(AccountID account, BundleContext bundleContext)
+    {
+        Map<String, String> accountProperties = account.getAccountProperties();
+
+        String password
+            = ProtocolProviderFactory.getProtocolProviderFactory(
+                    bundleContext,
+                    ProtocolNames.JABBER).loadPassword(account);
+
+        setRememberPassword(false);
+        setUserID(account.getUserID());
+
+        if (password != null)
+        {
+            setPassword(password);
+            setRememberPassword(true);
+        }
+
+        String serverAddress
+                = accountProperties.get(ProtocolProviderFactory.SERVER_ADDRESS);
+
+        setServerAddress(serverAddress);
+
+        setClientCertificateId(
+                account.getAccountPropertyString(
+                        ProtocolProviderFactory.CLIENT_TLS_CERTIFICATE));
+
+        String serverPort
+                = accountProperties.get(ProtocolProviderFactory.SERVER_PORT);
+
+        if(StringUtils.isNullOrEmpty(serverPort))
+            serverPort = JabberAccountRegistration.DEFAULT_PORT;
+
+        setPort(new Integer(serverPort));
+
+        boolean keepAlive
+            = Boolean.parseBoolean(accountProperties.get("SEND_KEEP_ALIVE"));
+
+        setSendKeepAlive(keepAlive);
+
+        boolean gmailNotificationEnabled
+                = Boolean.parseBoolean(
+                        accountProperties.get("GMAIL_NOTIFICATIONS_ENABLED"));
+
+        setGmailNotificationEnabled(gmailNotificationEnabled);
+
+        String useGC = accountProperties.get("GOOGLE_CONTACTS_ENABLED");
+
+        boolean googleContactsEnabled = Boolean.parseBoolean(
+                (useGC != null && useGC.length() != 0) ? useGC : "true");
+
+        setGoogleContactsEnabled(googleContactsEnabled);
+
+        String resource
+                = accountProperties.get(ProtocolProviderFactory.RESOURCE);
+
+        setResource(resource);
+
+        String autoGenerateResourceValue = accountProperties.get(
+                ProtocolProviderFactory.AUTO_GENERATE_RESOURCE);
+
+        boolean autoGenerateResource =
+                JabberAccountRegistration.DEFAULT_RESOURCE_AUTOGEN;
+
+        if(autoGenerateResourceValue != null)
+            autoGenerateResource = Boolean.parseBoolean(
+                autoGenerateResourceValue);
+
+        setResourceAutogenerated(autoGenerateResource);
+
+        String priority
+            = accountProperties.get(ProtocolProviderFactory.RESOURCE_PRIORITY);
+
+        if(StringUtils.isNullOrEmpty(priority))
+            priority = JabberAccountRegistration.DEFAULT_PRIORITY;
+
+        setPriority(new Integer(priority));
+
+        String dtmfMethod = account.getAccountPropertyString("DTMF_METHOD");
+
+        setDTMFMethod(dtmfMethod);
+
+        String dtmfMinimalToneDuration
+            = account.getAccountPropertyString("DTMF_MINIMAL_TONE_DURATION");
+        setDtmfMinimalToneDuration(dtmfMinimalToneDuration);
+
+        //Security properties
+        securityRegistration.loadAccount(account);
+
+        // ICE
+        String useIce =
+            accountProperties.get(ProtocolProviderFactory.IS_USE_ICE);
+        boolean isUseIce = Boolean.parseBoolean(
+                (useIce != null && useIce.length() != 0) ? useIce : "true");
+
+        setUseIce(isUseIce);
+
+        String useGoogleIce =
+            accountProperties.get(ProtocolProviderFactory.IS_USE_GOOGLE_ICE);
+        boolean isUseGoogleIce = Boolean.parseBoolean(
+                (useGoogleIce != null && useGoogleIce.length() != 0) ?
+                    useGoogleIce : "true");
+
+        setUseGoogleIce(isUseGoogleIce);
+
+        String useAutoDiscoverStun
+                = accountProperties.get(
+                        ProtocolProviderFactory.AUTO_DISCOVER_STUN);
+        boolean isUseAutoDiscoverStun = Boolean.parseBoolean(
+                (useAutoDiscoverStun != null &&
+                        useAutoDiscoverStun.length() != 0) ?
+                                useAutoDiscoverStun : "true");
+
+        setAutoDiscoverStun(isUseAutoDiscoverStun);
+
+        String useDefaultStun
+                = accountProperties.get(
+                ProtocolProviderFactory.USE_DEFAULT_STUN_SERVER);
+        boolean isUseDefaultStun = Boolean.parseBoolean(
+                (useDefaultStun != null &&
+                        useDefaultStun.length() != 0) ?
+                                useDefaultStun : "true");
+
+        setUseDefaultStunServer(isUseDefaultStun);
+
+        this.additionalStunServers.clear();
+        for (int i = 0; i < StunServerDescriptor.MAX_STUN_SERVER_COUNT; i ++)
+        {
+            StunServerDescriptor stunServer
+                    = StunServerDescriptor.loadDescriptor(
+                    accountProperties, ProtocolProviderFactory.STUN_PREFIX + i);
+
+            // If we don't find a stun server with the given index, it means
+            // that there're no more servers left in the table so we've nothing
+            // more to do here.
+            if (stunServer == null)
+                break;
+
+            String stunPassword = loadStunPassword(
+                    bundleContext,
+                    account,
+                    ProtocolProviderFactory.STUN_PREFIX + i);
+
+            if(stunPassword != null)
+            {
+                stunServer.setPassword(stunPassword);
+            }
+
+            addStunServer(stunServer);
+        }
+
+        String useJN =
+            accountProperties.get(ProtocolProviderFactory.IS_USE_JINGLE_NODES);
+        boolean isUseJN = Boolean.parseBoolean(
+            (useJN != null && useJN.length() != 0) ? useJN : "true");
+
+        setUseJingleNodes(isUseJN);
+
+        String useAutoDiscoverJN
+                = accountProperties.get(
+                        ProtocolProviderFactory.AUTO_DISCOVER_JINGLE_NODES);
+        boolean isUseAutoDiscoverJN = Boolean.parseBoolean(
+                (useAutoDiscoverJN != null &&
+                        useAutoDiscoverJN.length() != 0) ?
+                                useAutoDiscoverJN : "true");
+
+        setAutoDiscoverJingleNodes(isUseAutoDiscoverJN);
+
+        this.additionalJingleNodes.clear();
+        for (int i = 0; i < JingleNodeDescriptor.MAX_JN_RELAY_COUNT ; i ++)
+        {
+            JingleNodeDescriptor jn
+                = JingleNodeDescriptor.loadDescriptor(
+                    accountProperties, JingleNodeDescriptor.JN_PREFIX + i);
+
+            // If we don't find a stun server with the given index, it means
+            // that there're no more servers left in the table so we've nothing
+            // more to do here.
+            if (jn == null)
+                break;
+
+            addJingleNodes(jn);
+        }
+
+        String useUPNP =
+                accountProperties.get(ProtocolProviderFactory.IS_USE_UPNP);
+        boolean isUseUPNP = Boolean.parseBoolean(
+                (useUPNP != null && useUPNP.length() != 0) ? useUPNP : "true");
+
+        setUseUPNP(isUseUPNP);
+
+        String allowNonSecure =
+            accountProperties.get(ProtocolProviderFactory.IS_ALLOW_NON_SECURE);
+        boolean isAllowNonSecure = Boolean.parseBoolean(
+                (allowNonSecure != null && allowNonSecure.length() != 0)
+                ? allowNonSecure : "false");
+
+        setAllowNonSecure(isAllowNonSecure);
+
+        boolean isServerOverriden =
+                account.getAccountPropertyBoolean(
+                        ProtocolProviderFactory.IS_SERVER_OVERRIDDEN,
+                        false);
+
+        setServerOverridden(isServerOverriden);
+
+        boolean disabledJingle = Boolean.parseBoolean(accountProperties.get(
+                ProtocolProviderFactory.IS_CALLING_DISABLED_FOR_ACCOUNT));
+        setDisableJingle(disabledJingle);
+
+        String overridePhoneSuffix =
+                accountProperties.get("OVERRIDE_PHONE_SUFFIX");
+        setOverridePhoneSufix(overridePhoneSuffix);
+
+        String bypassCapsDomain = accountProperties.get(
+                "TELEPHONY_BYPASS_GTALK_CAPS");
+        setTelephonyDomainBypassCaps(bypassCapsDomain);
+
+        // Encodings
+        encodingsRegistration.loadAccount(
+                account,
+                ServiceUtils.getService(bundleContext, MediaService.class));
+    }
+
+    /**
+     * Load password for this STUN descriptor.
+     *
+     * @param accountID account ID
+     * @param namePrefix name prefix
+     * @return password or null if empty
+     */
+    private static String loadStunPassword(BundleContext bundleContext,
+                                           AccountID accountID,
+                                           String namePrefix)
+    {
+        ProtocolProviderFactory providerFactory
+                = ProtocolProviderFactory.getProtocolProviderFactory(
+                        bundleContext,
+                        ProtocolNames.JABBER);
+
+        String password = null;
+        String className = providerFactory.getClass().getName();
+        String packageSourceName
+                = className.substring(0, className.lastIndexOf('.'));
+
+        String accountPrefix = ProtocolProviderFactory.findAccountPrefix(
+                bundleContext,
+                accountID, packageSourceName);
+
+        CredentialsStorageService credentialsService
+                = ServiceUtils.getService(
+                bundleContext,
+                CredentialsStorageService.class);
+
+        try
+        {
+            password = credentialsService.
+                    loadPassword(accountPrefix + "." + namePrefix);
+        }
+        catch(Exception e)
+        {
+            return null;
+        }
+
+        return password;
+    }
+
+    /**
+     * Parse the server part from the jabber id and set it to server as default
+     * value. If Advanced option is enabled Do nothing.
+     *
+     * @param userName the full JID that we'd like to parse.
+     *
+     * @return returns the server part of a full JID
+     */
+    protected String getServerFromUserName(String userName)
+    {
+        int delimIndex = userName.indexOf("@");
+        if (delimIndex != -1)
+        {
+            String newServerAddr = userName.substring(delimIndex + 1);
+            if (newServerAddr.equals(GOOGLE_USER_SUFFIX))
+            {
+                return GOOGLE_CONNECT_SRV;
+            }
+            else
+            {
+                return newServerAddr;
+            }
+        }
+
+        return null;
     }
 }

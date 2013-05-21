@@ -146,7 +146,14 @@ public class FirstWizardPage
     public void loadAccount(ProtocolProviderService protocolProvider)
     {
         registrationForm.setModification(wizard.isModification());
-        registrationForm.loadAccount(protocolProvider.getAccountID());
+
+        // Loads account properties into registration object
+        JabberAccountRegistration accountReg = new JabberAccountRegistration();
+        accountReg.loadAccount(protocolProvider.getAccountID(),
+                               JabberAccRegWizzActivator.bundleContext);
+
+        // Initialize registration form
+        registrationForm.loadAccount(accountReg);
     }
 
     /**
