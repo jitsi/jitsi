@@ -445,6 +445,9 @@
             <fileset dir="${sc.basedir}/lib">
                 <include name="felix.client.run.properties" />
             </fileset>
+            <fileset dir="${sc.basedir}/lib">
+                <include name="jitsi-defaults.properties" />
+            </fileset>
             <fileset dir="${sc.basedir}/resources/install">
                 <include name="logging.properties" />
             </fileset>
@@ -951,6 +954,7 @@
     <available file="${macosx.resrc.dir}/logging.properties" property="macResourcesExist"/>
     <target name="clean-macosx" if="macResourcesExist">
 
+        <delete failonerror="false" file="${macosx.resrc.dir}/jitsi-defaults.properties"/>
         <delete failonerror="false" file="${macosx.resrc.dir}/logging.properties"/>
         <delete failonerror="false" file="${macosx.resrc.dir}/felix.client.run.properties"/>
         <symlink action="delete" failonerror="false"
@@ -1016,6 +1020,12 @@
       <copy file="${lib}/felix.client.run.properties"
             tofile="${macosx.resrc.dir}/felix.client.run.properties"
             overwrite="true"/>
+
+      <!-- Prepare the jitsi-defaults.properties file for macosx -->
+      <copy file="${lib}/jitsi-defaults.properties"
+            tofile="${macosx.resrc.dir}/jitsi-defaults.properties"
+            overwrite="true"
+            failonerror="false"/>
 
       <replace file="${macosx.resrc.dir}/felix.client.run.properties"
             token="swingnotification.jar">
@@ -1090,7 +1100,7 @@
                   infostring="${application.name}"
                   bundleid="org.${package.name}"
                   stubfile="${macosx.app.dir}/tmp/${macosx.stub.filename}"
-                  extraclasspath="/System/Library/Java"
+                  extraclasspath="/System/Library/Java,$JAVAROOT"
                   workingdirectory="$APP_PACKAGE/Contents/Resources/Java"
                   vmoptions="-agentlib:AEGetURLEventHandlerAgent ${jvmarg}">
 
@@ -1131,6 +1141,8 @@
                       files="logging.properties"/>
         <javafilelist dir="${macosx.resrc.dir}"
                       files="felix.client.run.properties"/>
+        <javafilelist dir="${macosx.resrc.dir}"
+                      files="jitsi-defaults.properties"/>
       </jarbundler>
 
       <!-- Install the Growl Framework in the application package -->
@@ -1764,6 +1776,11 @@
                  token=" reference:file:sc-bundles/os-specific/macosx/growlnotification.jar \${line.separator}">
             <replacevalue></replacevalue>
         </replace>
+
+        <copy file="${lib}/jitsi-defaults.properties"
+              tofile="${debianize.dir}/../lib/jitsi-defaults.properties"
+              overwrite="true"
+              failonerror="false"/>
 
         <!-- Put correct version in the sip-communicator executable file -->
         <copy file="${inst.resrc}/debian/jitsi.sh.tmpl"

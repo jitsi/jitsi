@@ -637,6 +637,12 @@
             <env key="DYLD_LIBRARY_PATH" path="${dyld.library.path}"/>
             <env key="DISPLAY" path=":0"/>
 
+            <!-- Disable audio support when running test, audio is not used
+                and the test machine has no audio device
+            -->
+            <sysproperty key="net.java.sip.communicator.service.media.DISABLE_AUDIO_SUPPORT"
+                         value="true"/>
+
         </java>
 
         <!-- Generate the html report.
