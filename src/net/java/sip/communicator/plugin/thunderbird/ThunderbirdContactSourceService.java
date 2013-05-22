@@ -143,8 +143,23 @@ public class ThunderbirdContactSourceService
      */
     public ContactQuery queryContactSource(String queryString)
     {
-        return new ThunderbirdContactQuery(this, Pattern.compile(queryString,
-            Pattern.CASE_INSENSITIVE));
+        Pattern pattern = null;
+        try
+        {
+            pattern = Pattern.compile(queryString, Pattern.CASE_INSENSITIVE);
+        }
+        catch(PatternSyntaxException pse)
+        {
+            pattern = Pattern.compile(
+                    Pattern.quote(queryString),
+                    Pattern.CASE_INSENSITIVE);
+        }
+
+        if(pattern != null)
+        {
+            return queryContactSource(pattern);
+        }
+        return null;
     }
 
     /*
@@ -156,8 +171,9 @@ public class ThunderbirdContactSourceService
      */
     public ContactQuery queryContactSource(String queryString, int contactCount)
     {
-        return new ThunderbirdContactQuery(this, Pattern.compile(queryString,
-            Pattern.CASE_INSENSITIVE));
+        // XXX: The ThunderbirdContactQuery does not tqke a contactCount
+        // argument yet. Thus, call the default queryContactSource function.
+        return queryContactSource(queryString);
     }
 
     /*

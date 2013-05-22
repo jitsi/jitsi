@@ -336,8 +336,8 @@ public class GoogleContactsSourceService
     public ContactQuery queryContactSource(String query)
     {
         return queryContactSource(
-            Pattern.compile(query),
-            GoogleContactsQuery.GOOGLECONTACTS_MAX_RESULTS);
+                query,
+                GoogleContactsQuery.GOOGLECONTACTS_MAX_RESULTS);
     }
 
     /**
@@ -349,7 +349,22 @@ public class GoogleContactsSourceService
      */
     public ContactQuery queryContactSource(String query, int contactCount)
     {
-        return queryContactSource(Pattern.compile(query), contactCount);
+        Pattern pattern = null;
+        try
+        {
+            pattern = Pattern.compile(query);
+        }
+        catch(PatternSyntaxException pse)
+        {
+            pattern = Pattern.compile(
+                    Pattern.quote(query));
+        }
+
+        if(pattern != null)
+        {
+            return queryContactSource(pattern, contactCount);
+        }
+        return null;
     }
 
     /**
