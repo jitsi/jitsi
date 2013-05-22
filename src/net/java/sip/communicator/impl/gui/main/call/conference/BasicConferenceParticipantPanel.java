@@ -546,7 +546,13 @@ public abstract class BasicConferenceParticipantPanel<T>
         errorMessageComponent.setText(reason);
 
         if (isVisible())
+        {
+            Window parentWindow = SwingUtilities.getWindowAncestor(errorMessageComponent);
+            if (parentWindow != null)
+                parentWindow.pack();
             errorMessageComponent.repaint();
+        }
+        
     }
 
     /**

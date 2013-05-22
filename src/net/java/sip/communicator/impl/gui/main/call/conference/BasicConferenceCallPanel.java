@@ -7,11 +7,14 @@
 package net.java.sip.communicator.impl.gui.main.call.conference;
 
 import java.awt.*;
+import java.awt.event.*;
 import java.util.*;
 import java.util.List;
 
 import javax.swing.*;
+import javax.swing.Timer;
 
+import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -53,13 +56,26 @@ public abstract class BasicConferenceCallPanel
      */
     private final Map<CallPeer, ConferenceCallPeerRenderer> callPeerPanels
         = new HashMap<CallPeer, ConferenceCallPeerRenderer>();
-
+    
+    /**
+     * List of call peers that should be removed with delay.
+     */
+    private Map<CallPeer, Timer> delayedCallPeers 
+        = new HashMap<CallPeer, Timer>();
+    
     /**
      * The indicator which determines whether {@link #dispose()} has already
      * been invoked on this instance. If <tt>true</tt>, this instance is
      * considered non-functional and is to be left to the garbage collector.
      */
     private boolean disposed = false;
+
+    /**
+     * List of conference peer panel listeners that will be notified for adding 
+     * or removing peer panels.
+     */
+    private List<ConferencePeerViewListener> peerViewListeners 
+        = new ArrayList<ConferencePeerViewListener>();
 
     /**
      * The <tt>Runnable</tt> which is scheduled by
@@ -107,6 +123,47 @@ public abstract class BasicConferenceCallPanel
     }
 
     /**
+     * Creates a timer for the call peer and adds the timer and the call peer to
+     * <tt>delayedCallPeers</tt> list.
+     * 
+     * @param peer the peer to be added.
+     */
+    public void addDelayedCallPeer(final CallPeer peer)
+    {
+        Timer timer
+            = new Timer(
+                5000,
+                new ActionListener()
+                {
+                    public void actionPerformed(ActionEvent event)
+                    {
+                        removeDelayedCallPeer(peer, false);
+                        updateViewFromModel();
+                    }
+                });
+
+        synchronized (delayedCallPeers)
+        {
+            delayedCallPeers.put(peer, timer);
+        }
+        
+        timer.setRepeats(false);
+        timer.start();
+    }
+
+    /**
+     * Adds new <tt>ConferencePeerViewListener</tt> listener if the listener 
+     * is not already added.
+     *  
+     * @param listener the listener to be added.
+     */
+    public void addPeerViewlListener(ConferencePeerViewListener listener)
+    {
+        if(!peerViewListeners.contains(listener))
+            peerViewListeners.add(listener);
+    }
+
+    /**
      * Notifies this instance that a <tt>CallPeer</tt> was added to a
      * <tt>Call</tt> participating in the telephony conference depicted by this
      * instance.
@@ -129,7 +186,20 @@ public abstract class BasicConferenceCallPanel
      */
     protected void callPeerRemoved(CallPeerEvent ev)
     {
-        updateViewFromModel();
+        final CallPeer peer = ev.getSourceCallPeer();
+        if(ev.isDelayed())
+        {
+            addDelayedCallPeer(peer);
+        }
+        else
+        {
+            if(delayedCallPeers.containsKey(peer))
+            {
+                removeDelayedCallPeer(peer, false);
+            }
+            updateViewFromModel();
+        }
+        
     }
 
     /**
@@ -209,6 +279,28 @@ public abstract class BasicConferenceCallPanel
     }
 
     /**
+     * Creates and fires <tt>ConferencePeerViewEvent</tt> event. The method 
+     * notifies all listeners added by {@link #addPeerViewlListener} method.
+     * 
+     * @param eventID the ID of this event which may be
+     * {@link ConferencePeerViewEvent#CONFERENCE_PEER_VIEW_ADDED} or
+     * {@link ConferencePeerViewEvent#CONFERENCE_PEER_VIEW_REMOVED}
+     * @param callPeer the call peer associated with the event.
+     * @param callPeerView the peer view associated with the event.     
+     */
+    public void fireConferencePeerViewEvent(int eventID, CallPeer callPeer,
+        ConferenceCallPeerRenderer callPeerView)
+    {
+        for(ConferencePeerViewListener listener : 
+            peerViewListeners)
+        {
+            listener.peerViewRemoved(
+                new ConferencePeerViewEvent(eventID, callPeer, callPeerView));
+        }
+        
+    }
+    
+    /**
      * {@inheritDoc}
      *
      * <tt>BasicConferenceCallPanel</tt> always returns <tt>null</tt> because it
@@ -238,6 +330,17 @@ public abstract class BasicConferenceCallPanel
     public SwingCallPeerRenderer getCallPeerRenderer(CallPeer callPeer)
     {
         return callPeerPanels.get(callPeer);
+    }
+
+    /**
+     * Check if the list with the delayed call peers is empty.
+     * 
+     * @return <tt>true</tt> if the list is not empty and <tt>false</tt> if the 
+     * list is empty.
+     */
+    public boolean hasDelayedCallPeers()
+    {
+        return !delayedCallPeers.isEmpty();
     }
 
     /**
@@ -315,6 +418,38 @@ public abstract class BasicConferenceCallPanel
         default:
             throw new IllegalArgumentException("CallPeerEvent.getEventID");
         }
+    }
+
+    /**
+     * Removes a call peer from <tt>delayedCallPeers</tt> list.
+     * 
+     * @param peer a call peer to be removed.
+     * @param stopTimer if <tt>true</tt> the timer for the peer will be stopped 
+     * before the removal.
+     */
+    public void removeDelayedCallPeer(CallPeer peer, boolean stopTimer)
+    {
+        if(stopTimer)
+        {
+            Timer timer = delayedCallPeers.get(peer);
+            if(timer != null)
+                timer.stop();
+        }
+        
+        synchronized (delayedCallPeers)
+        {
+            delayedCallPeers.remove(peer);
+        }
+    }
+
+    /**
+     * Removes <tt>ConferencePeerViewListener</tt> listener.
+     * 
+     * @param listener the listener to be removed.
+     */
+    public void removePeerViewListener(ConferencePeerViewListener listener)
+    {
+        peerViewListeners.remove(listener);
     }
 
     /**
@@ -448,11 +583,17 @@ public abstract class BasicConferenceCallPanel
                 = entryIter.next();
             CallPeer callPeer = entry.getKey();
 
-            if ((callPeer != null) && !callPeers.contains(callPeer))
+            if ((callPeer != null) && !callPeers.contains(callPeer) 
+                    && !delayedCallPeers.containsKey(callPeer))
             {
                 ConferenceCallPeerRenderer callPeerPanel = entry.getValue();
 
                 entryIter.remove();
+                
+                fireConferencePeerViewEvent(
+                    ConferencePeerViewEvent.CONFERENCE_PEER_VIEW_REMOVED, 
+                    callPeer, callPeerPanel);
+                
                 try
                 {
                     viewForModelRemoved(callPeerPanel, callPeer);

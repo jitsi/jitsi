@@ -60,12 +60,14 @@ import org.osgi.framework.*;
  * @author Yana Stamcheva
  * @author Adam Netocny
  * @author Lyubomir Marinov
+ * @author Hristo Terezov
  */
 public class CallPanel
     extends TransparentPanel
     implements ActionListener,
                PluginComponentListener,
-               Skinnable
+               Skinnable,
+               ConferencePeerViewListener
 {
     /**
      * The chat button name.
@@ -674,7 +676,15 @@ public class CallPanel
                 callConferenceListener);
 
         if (callPanel != null)
+        {
+            if(callPanel instanceof BasicConferenceCallPanel)
+            {
+                ((BasicConferenceCallPanel) callPanel)
+                    .removePeerViewListener(this);
+            }
             ((CallRenderer) callPanel).dispose();
+        }
+            
     }
 
     /**
@@ -947,7 +957,19 @@ public class CallPanel
                                 callPeer);
                 }
                 else
-                    removeCallPanel = true;
+                {
+                    if( (callPanel instanceof BasicConferenceCallPanel) &&
+                        ((BasicConferenceCallPanel) callPanel)
+                            .hasDelayedCallPeers())
+                    {
+                        removeCallPanel = false;
+                    }
+                    else
+                    {
+                        removeCallPanel = true;
+                    }
+                        
+                }
             }
             if (removeCallPanel)
             {
@@ -980,6 +1002,9 @@ public class CallPanel
                     callPanel
                         = new AudioConferenceCallPanel(this, callConference);
                 }
+                
+                ((BasicConferenceCallPanel) callPanel)
+                    .addPeerViewlListener(this);
             }
             else
             {
@@ -1671,8 +1696,24 @@ public class CallPanel
             settingsPanel.repaint();
         }
     }
+    
+    /**
+     * Indicates that the peer panel was added.
+     * 
+     * @param ev the event.
+     */
+    public void peerViewAdded(ConferencePeerViewEvent ev) {}
 
-
+    /**
+     * Indicates that the peer panel was removed.
+     * 
+     * @param ev the event.
+     */
+    public void peerViewRemoved(ConferencePeerViewEvent ev)
+    {
+        updateViewFromModel();
+    }
+    
     /**
      * {@inheritDoc}
      *

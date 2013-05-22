@@ -225,7 +225,7 @@ public class ConferencePeerPanel
         // We initialize the status bar for call peers only.
         initStatusBar(callPeer);
 
-        callPeerMenu = new CallPeerMenu(callPeer);
+        callPeerMenu = new CallPeerMenu(callPeer, callRenderer);
 
         SIPCommMenuBar menuBar = new SIPCommMenuBar();
 

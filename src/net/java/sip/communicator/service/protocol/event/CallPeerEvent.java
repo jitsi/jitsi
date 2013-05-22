@@ -43,6 +43,11 @@ public class CallPeerEvent
      * The id indicating the type of this event.
      */
     private final int eventID;
+    
+    /**
+     * Indicates if adding/removing peer should be delayed or not.
+     */
+    private final boolean delayed;
 
     /**
      * Creates a call peer event instance indicating that an event with
@@ -59,11 +64,43 @@ public class CallPeerEvent
                          Call     sourceCall,
                          int      eventID)
     {
+        this(sourceCallPeer, sourceCall, eventID, false);
+    }
+
+    /**
+     * Creates a call peer event instance indicating that an event with
+     * id <tt>eventID</tt> has happened to <tt>sourceCallPeer</tt> in
+     * <tt>sourceCall</tt>
+     * @param sourceCallPeer the call peer that this event is
+     * about.
+     * @param sourceCall the call that the source call peer is associated
+     * with.
+     * @param eventID one of the CALL_PEER_XXX member ints indicating
+     * the type of this event.
+     * @param delayed initial value for <tt>delayed</tt> property. If the value is 
+     * true adding/removing peer from GUI will be delayed. 
+     */
+    public CallPeerEvent(CallPeer sourceCallPeer,
+                         Call     sourceCall,
+                         int      eventID,
+                         boolean  delayed)
+    {
         super(sourceCallPeer);
         this.sourceCall = sourceCall;
         this.eventID = eventID;
+        this.delayed = delayed;
     }
 
+    /**
+     * Checks whether the adding/removing of the peer should be delayed or not.
+     * @return true if the adding/removing should be delayed from the GUI and 
+     * false if not.
+     */
+    public boolean isDelayed()
+    {
+        return delayed;
+    }
+    
     /**
      * Returns one of the CALL_PEER_XXX member ints indicating
      * the type of this event.

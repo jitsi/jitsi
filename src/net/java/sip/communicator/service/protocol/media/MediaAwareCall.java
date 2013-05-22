@@ -191,7 +191,8 @@ public abstract class MediaAwareCall<
 
         try
         {
-            fireCallPeerEvent(callPeer, CallPeerEvent.CALL_PEER_REMOVED);
+            fireCallPeerEvent(callPeer, CallPeerEvent.CALL_PEER_REMOVED, 
+                (evt.getReasonString() != null));
         }
         finally
         {

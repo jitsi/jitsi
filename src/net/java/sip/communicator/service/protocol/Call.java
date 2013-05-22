@@ -191,6 +191,21 @@ public abstract class Call
     }
 
     /**
+    * Creates a <tt>CallPeerEvent</tt> with
+    * <tt>sourceCallPeer</tt> and <tt>eventID</tt> and dispatches it on
+    * all currently registered listeners.
+    *
+    * @param sourceCallPeer the source <tt>CallPeer</tt> for the
+    * newly created event.
+    * @param eventID the ID of the event to create (see constants defined in
+    * <tt>CallPeerEvent</tt>)
+    */
+    protected void fireCallPeerEvent(CallPeer sourceCallPeer, int eventID)
+    {
+        fireCallPeerEvent(sourceCallPeer, eventID, false);
+    }
+    
+    /**
      * Creates a <tt>CallPeerEvent</tt> with
      * <tt>sourceCallPeer</tt> and <tt>eventID</tt> and dispatches it on
      * all currently registered listeners.
@@ -199,11 +214,15 @@ public abstract class Call
      * newly created event.
      * @param eventID the ID of the event to create (see constants defined in
      * <tt>CallPeerEvent</tt>)
+     * @param delayed <tt>true</tt> if the adding/removing of the peer from the 
+     * GUI should be delayed and <tt>false</tt> if not.
      */
-    protected void fireCallPeerEvent(CallPeer sourceCallPeer, int eventID)
+    protected void fireCallPeerEvent(CallPeer sourceCallPeer, 
+                                     int eventID, 
+                                     boolean delayed)
     {
         CallPeerEvent event
-            = new CallPeerEvent(sourceCallPeer, this, eventID);
+            = new CallPeerEvent(sourceCallPeer, this, eventID, delayed);
 
         if (logger.isDebugEnabled())
         {
