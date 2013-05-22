@@ -33,7 +33,7 @@
 	<classpathentry kind="lib" path="lib/installer-exclude/hexdump-0.2.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/httpclient-osgi-4.2.3.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/httpcore-osgi-4.2.3.jar"/>
-	<classpathentry kind="lib" path="lib/installer-exclude/ice4j.jar"/>
+	<classpathentry kind="lib" path="lib/installer-exclude/ice4j.jar" sourcepath="../ice4j/src"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/jain-sdp.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="https://hudson.jboss.org/jenkins/job/jain-sip/lastStableBuild/artifact/javadoc/"/>
