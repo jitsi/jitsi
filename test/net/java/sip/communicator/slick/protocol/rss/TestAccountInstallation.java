@@ -34,6 +34,7 @@ public class TestAccountInstallation
     /**
      * JUnit setup method.
      */
+    @Override
     protected void setUp() throws Exception
     {
         super.setUp();
@@ -42,6 +43,7 @@ public class TestAccountInstallation
     /**
      * JUnit cleanup method.
      */
+    @Override
     protected void tearDown() throws Exception
     {
         super.tearDown();

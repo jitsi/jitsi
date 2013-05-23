@@ -3,11 +3,11 @@
  *
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
- * 
+ *
  * Based on the 3rd version of SwingWorker (also known as SwingWorker 3), an
  * abstract class that you subclass to perform GUI-related work in a dedicated
  * thread. For instructions on using this class, see:
- * 
+ *
  * http://java.sun.com/docs/books/tutorial/uiswing/misc/threads.html
  *
  * Note that the API changed slightly in the 3rd version:
@@ -113,7 +113,7 @@ public abstract class SwingWorker
     /**
      * Called on the event dispatching thread (not on the worker thread)
      * if an exception has occurred during the <code>construct</code> method.
-     * 
+     *
      * @param exception the exception that has occurred
      */
     protected void catchException(Throwable exception)
@@ -121,8 +121,8 @@ public abstract class SwingWorker
         logger.error("unhandled exception caught", exception);
     }
 
-    /** 
-     * Computes the value to be returned by {@link #get()}. 
+    /**
+     * Computes the value to be returned by {@link #get()}.
      */
     protected abstract Object construct()
         throws Exception;
@@ -136,10 +136,10 @@ public abstract class SwingWorker
     }
 
     /**
-     * Return the value created by the <code>construct</code> method.  
+     * Return the value created by the <code>construct</code> method.
      * Returns null if either the constructing thread or the current
      * thread was interrupted before a value was produced.
-     * 
+     *
      * @return the value created by the <code>construct</code> method
      */
     public Object get()

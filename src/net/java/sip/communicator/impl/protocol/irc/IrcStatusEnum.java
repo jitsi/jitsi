@@ -91,12 +91,12 @@ public class IrcStatusEnum
     /**
      * Returns the byte representation of the image corresponding to the given
      * identifier.
-     * 
+     *
      * @param imageID the identifier of the image
      * @return the byte representation of the image corresponding to the given
      * identifier.
      */
-    private static byte[] getImageInBytes(String imageID) 
+    private static byte[] getImageInBytes(String imageID)
     {
         return ProtocolIconIrcImpl.getImageInBytes(imageID);
     }

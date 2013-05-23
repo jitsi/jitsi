@@ -133,6 +133,7 @@ public class SavedPasswordsDialog
         this.add(closeButton, c);
     }
 
+    @Override
     protected void close(boolean isEscaped)
     {
         closeButton.doClick();
@@ -196,6 +197,7 @@ public class SavedPasswordsDialog
              * @param column the column index
              * @return the column name for the given index
              */
+            @Override
             public String getColumnName(int column)
             {
                 String key;

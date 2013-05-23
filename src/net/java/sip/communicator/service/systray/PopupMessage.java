@@ -19,7 +19,7 @@ import javax.swing.*;
 public class PopupMessage
 {
 
-    /** 
+    /**
      * Message to show in the popup.
      */
     private String message;
@@ -79,7 +79,7 @@ public class PopupMessage
     /**
      * Creates a new <tt>PopupMessage</tt> with the given title, message and
      * icon.
-     * 
+     *
      * @param title the title of the message
      * @param message message to show in the systray
      * @param imageIcon an incon to show in the popup message.
@@ -139,7 +139,7 @@ public class PopupMessage
 
     /**
      * Returns the message contained in this popup.
-     * 
+     *
      * @return the message contained in this popup
      */
     public String getMessage()
@@ -149,7 +149,7 @@ public class PopupMessage
 
     /**
      * Sets the message to show in the popup.
-     * 
+     *
      * @param message the message to show in the popup
      */
     public void setMessage(String message)
@@ -159,7 +159,7 @@ public class PopupMessage
 
     /**
      * Returns the title of this popup message.
-     * 
+     *
      * @return the title of this popup message
      */
     public String getMessageTitle()
@@ -169,7 +169,7 @@ public class PopupMessage
 
     /**
      * Sets the title of this popup message.
-     * 
+     *
      * @param messageTitle the title to set
      */
     public void setMessageTitle(String messageTitle)
@@ -179,7 +179,7 @@ public class PopupMessage
 
     /**
      * Returns the component contained in this popup message.
-     * 
+     *
      * @return the component contained in this popup message.
      */
     public JComponent getComponent()
@@ -189,7 +189,7 @@ public class PopupMessage
 
     /**
      * Sets the component to be showed in this popup message.
-     * 
+     *
      * @param component the component to set
      */
     public void setComponent(JComponent component)
@@ -199,7 +199,7 @@ public class PopupMessage
 
     /**
      * Returns the icon of this popup message.
-     * 
+     *
      * @return the icon of this popup message
      */
     public byte[] getIcon()
@@ -209,7 +209,7 @@ public class PopupMessage
 
     /**
      * Sets the icon of this popup message.
-     * 
+     *
      * @param imageIcon the icon to set
      */
     public void setIcon(byte[] imageIcon)
@@ -219,7 +219,7 @@ public class PopupMessage
 
     /**
      * Returns the type of this popup message.
-     * 
+     *
      * @return the type of this popup message.
      */
     public int getMessageType()
@@ -229,7 +229,7 @@ public class PopupMessage
 
     /**
      * Sets the type of this popup message.
-     * 
+     *
      * @param messageType the type to set
      */
     public void setMessageType(int messageType)
@@ -239,7 +239,7 @@ public class PopupMessage
 
     /**
      * Returns the object used to tag this <tt>PopupMessage</tt>.
-     * 
+     *
      * @return the object used to tag this <tt>PopupMessage</tt>
      */
     public Object getTag()
@@ -249,7 +249,7 @@ public class PopupMessage
 
     /**
      * Sets the object used to tag this popup message.
-     * 
+     *
      * @param tag the object to set
      */
     public void setTag(Object tag)

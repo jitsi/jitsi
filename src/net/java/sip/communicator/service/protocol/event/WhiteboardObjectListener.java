@@ -30,7 +30,7 @@ public interface WhiteboardObjectListener
      *Called when a deleted <tt>WhiteboardObject</tt> has been received.
      *
      * @param evt the <tt>WhiteboardObjectDeletedEvent</tt> containing
-     * the identification of the deleted WhiteboardObject, its sender and 
+     * the identification of the deleted WhiteboardObject, its sender and
      * other details.
      */
     public void whiteboardObjectDeleted (WhiteboardObjectDeletedEvent evt);

@@ -22,18 +22,18 @@ public class AlertUIServiceImpl
     implements AlertUIService
 {
     /**
-     * The pop-up notification listener which handles the clicking on the 
+     * The pop-up notification listener which handles the clicking on the
      * pop-up notification.
      */
     private SystrayPopupMessageListener listener = null;
-    
+
     /**
      * The <tt>Logger</tt> used by the <tt>AlertUIServiceImpl</tt> class and
      * its instances for logging output.
      */
     private static final Logger logger
         = Logger.getLogger(AlertUIServiceImpl.class);
-    
+
     /**
      * Shows an alert dialog with the given title and message.
      *
@@ -77,26 +77,26 @@ public class AlertUIServiceImpl
             message,
             type).showDialog();
     }
-    
+
     /**
-     * Shows an notification pop-up which can be clicked. An error dialog is 
+     * Shows an notification pop-up which can be clicked. An error dialog is
      * shown when the notification is clicked.
      *
      * @param title the title of the error dialog and the notification pop-up
-     * @param message the message to be displayed in the error dialog and the 
+     * @param message the message to be displayed in the error dialog and the
      * pop-up
      */
     public void showAlertPopup(String title, String message)
     {
         showAlertPopup(title, message, title, message, null);
     }
-    
+
     /**
-     * Shows an notification pop-up which can be clicked. An error dialog is 
+     * Shows an notification pop-up which can be clicked. An error dialog is
      * shown when the notification is clicked.
      *
      * @param title the title of the error dialog and the notification pop-up
-     * @param message the message to be displayed in the error dialog and the 
+     * @param message the message to be displayed in the error dialog and the
      * pop-up
      * @param e the exception that can be shown in the error dialog
      */
@@ -104,9 +104,9 @@ public class AlertUIServiceImpl
     {
         showAlertPopup(title, message, title, message, e);
     }
-    
+
     /**
-     * Shows an notification pop-up which can be clicked. An error dialog is 
+     * Shows an notification pop-up which can be clicked. An error dialog is
      * shown when the notification is clicked.
      *
      * @param title the title of the notification pop-up
@@ -114,15 +114,15 @@ public class AlertUIServiceImpl
      * @param errorDialogTitle the title of the error dialog
      * @param errorDialogMessage the message of the error dialog
      */
-    public void showAlertPopup(String title, String message, 
+    public void showAlertPopup(String title, String message,
         String errorDialogTitle, String errorDialogMessage)
     {
-        showAlertPopup(title, message, errorDialogTitle, 
+        showAlertPopup(title, message, errorDialogTitle,
             errorDialogMessage, null);
     }
-    
+
     /**
-     * Shows an notification pop-up which can be clicked. An error dialog is 
+     * Shows an notification pop-up which can be clicked. An error dialog is
      * shown when the notification is clicked.
      *
      * @param title the title of the notification pop-up
@@ -131,7 +131,7 @@ public class AlertUIServiceImpl
      * @param errorDialogMessage the message of the error dialog
      * @param e the exception that can be shown in the error dialog
      */
-    public void showAlertPopup(String title, String message, 
+    public void showAlertPopup(String title, String message,
         String errorDialogTitle, String errorDialogMessage, Throwable e)
     {
         SystrayService systray = GuiActivator.getSystrayService();
@@ -154,28 +154,28 @@ public class AlertUIServiceImpl
                         Throwable e = params.getEx();
                         if(e != null)
                         {
-                            showAlertDialog(params.getTitle(), 
+                            showAlertDialog(params.getTitle(),
                                 params.getMessage(), e);
                         }
                         else
                         {
-                            showAlertDialog(params.getTitle(), 
+                            showAlertDialog(params.getTitle(),
                                 params.getMessage());
                         }
                     }
-                    
+
                 }
-                
+
             };
             systray.addPopupMessageListener(listener);
         }
-        
+
         systray.showPopupMessage(
-                new PopupMessage(title, message, null, 
-                    new ErrorDialogParams(errorDialogTitle, 
+                new PopupMessage(title, message, null,
+                    new ErrorDialogParams(errorDialogTitle,
                         errorDialogMessage, e)));
     }
-    
+
     /**
      * Releases the resources acquired by this instance throughout its lifetime
      * and removes the listeners.
@@ -190,9 +190,9 @@ public class AlertUIServiceImpl
         }
         systray.removePopupMessageListener(listener);
     }
-    
+
     /**
-     * The ErrorDialogParams class is holder for the parameters needed by the 
+     * The ErrorDialogParams class is holder for the parameters needed by the
      * error dialog to be shown.
      */
     class ErrorDialogParams
@@ -201,24 +201,24 @@ public class AlertUIServiceImpl
          * The title parameter.
          */
         private String title;
-        
+
         /**
          * The message parameter.
          */
         private String message;
-        
+
         /**
          * The exception parameter.
          */
         private Throwable e;
-        
+
         public ErrorDialogParams(String title, String message, Throwable e)
         {
             this.title = title;
             this.message = message;
             this.e = e;
         }
-        
+
         /**
          * @return the title
          */
@@ -226,7 +226,7 @@ public class AlertUIServiceImpl
         {
             return title;
         }
-        
+
         /**
          * @return the message
          */
@@ -234,7 +234,7 @@ public class AlertUIServiceImpl
         {
             return message;
         }
-        
+
         /**
          * @return the exception
          */

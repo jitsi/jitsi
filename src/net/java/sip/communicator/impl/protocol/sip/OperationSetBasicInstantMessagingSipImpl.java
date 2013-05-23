@@ -130,6 +130,7 @@ public class OperationSetBasicInstantMessagingSipImpl
         }
     }
 
+    @Override
     public Message createMessage(String content, String contentType,
         String encoding, String subject)
     {
@@ -338,7 +339,7 @@ public class OperationSetBasicInstantMessagingSipImpl
             synchronized (this)
             {
                 cSeqHeader = this.sipProvider.getHeaderFactory()
-                    .createCSeqHeader(seqN++, Request.MESSAGE);                
+                    .createCSeqHeader(seqN++, Request.MESSAGE);
             }
         }
         catch (InvalidArgumentException ex)
@@ -707,7 +708,7 @@ public class OperationSetBasicInstantMessagingSipImpl
                 if (fromHeader.getAddress().getDisplayName() != null)
                 {
                     from = opSetPersPresence.createVolatileContact(
-                        fromHeader.getAddress().getURI().toString(), 
+                        fromHeader.getAddress().getURI().toString(),
                         fromHeader.getAddress().getDisplayName().toString());
                 }
                 else

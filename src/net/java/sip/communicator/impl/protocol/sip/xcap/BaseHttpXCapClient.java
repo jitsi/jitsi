@@ -209,7 +209,7 @@ public abstract class BaseHttpXCapClient implements HttpXCapClient
                 );
                 logger.debug(logMessage);
             }
-            return result; 
+            return result;
         }
         catch(UnknownHostException uhe)
         {

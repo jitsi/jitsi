@@ -43,6 +43,7 @@ public class BrandingActivator
      */
     private WelcomeWindow welcomeWindow;
 
+    @Override
     public void start(BundleContext bc) throws Exception
     {
         super.start(bc);
@@ -110,6 +111,7 @@ public class BrandingActivator
      *
      * @param context the context to set.
      */
+    @Override
     public void setBundleContext(BundleContext context)
     {
         bundleContext = context;
@@ -119,6 +121,7 @@ public class BrandingActivator
      * This activator depends on UIService.
      * @return the class name of uiService.
      */
+    @Override
     public Class<?> getDependentServiceClass()
     {
         return UIService.class;
@@ -128,6 +131,7 @@ public class BrandingActivator
      * The dependent service is available and the bundle will start.
      * @param dependentService the UIService this activator is waiting.
      */
+    @Override
     public void start(Object dependentService)
     {
         // UI-Service started.

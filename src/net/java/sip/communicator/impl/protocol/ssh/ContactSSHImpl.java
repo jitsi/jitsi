@@ -30,66 +30,66 @@ public class ContactSSHImpl
 {
     private static final Logger logger
             = Logger.getLogger(ContactSSHImpl.class);
-    
+
     /**
      * This acts as a separator between details stored in persistent data
      */
-    private final String separator = 
+    private final String separator =
         Resources.getString("impl.protocol.ssh.DETAILS_SEPARATOR");
-    
+
     /**
      * The identifier for SSH Stack
      * Java Secure Channel JSch
      */
     private JSch jsch;
-    
+
     /**
      * Interface for user to provide details about machine
      */
     private SSHContactInfo sshConfigurationForm;
-    
+
     /**
      * A Timer Daemon to update the status of this contact
      */
     private Timer timer = new Timer(true);
-    
+
     /**
      * A Daemon to retrieve and fire messages received from remote machine
      */
     private SSHReaderDaemon contactSSHReaderDaemon;
-    
+
     /**
      * The id of the contact.
      */
     private String contactID = null;
-    
+
     /**
      * The persistentData of the contact.
      */
     private String persistentData = null;
-    
+
 //    /**
 //     * This stores the prompt string of shell
 //     */
 //    private String sshPrompt;
-    
+
     /**
      * The provider that created us.
      */
     private ProtocolProviderServiceSSHImpl parentProvider = null;
-    
+
     /**
      * The identifier of the type of message received from server
      */
     private int messageType;
-    
-    
-    
+
+
+
     /**
      * The identifier for SSH Session with the remote server
      */
     private Session sshSession = null;
-    
+
     /**
      * The identifier for a sshShellChannel with the remote server is of type
      * shell - for an interactive SSH Session with the remote machine
@@ -100,67 +100,67 @@ public class ContactSSHImpl
      * direct-tcpip - stream forwarding
      */
     private Channel sshShellChannel = null;
-    
+
     /**
      * The identifier for the Shell Input Stream associated with SSH Sesion
      */
     private InputStream shellInputStream = null;
-    
+
     /**
      * The identifier for the Shell Output Stream associated with SSH Sesion
      */
     private OutputStream shellOutputStream = null;
-    
+
     /**
      * Higher wrapper for shellInputStream
      */
     private InputStreamReader shellReader = null;
-    
+
     /**
      * Higher wrapper for shellOutputStream
      */
     private PrintWriter shellWriter = null;
-    
+
     /**
      * The group that belong to.
      */
     private ContactGroupSSHImpl parentGroup = null;
-    
+
     /**
      * The presence status of the contact.
      */
     private PresenceStatus presenceStatus = SSHStatusEnum.NOT_AVAILABLE;
-    
+
     /**
      * Determines whether this contact is persistent, i.e. member of the contact
      * list or whether it is here only temporarily.
      */
     private boolean isPersistent = false;
-    
+
     /**
      * Determines whether the contact has been resolved (i.e. we have a
      * confirmation that it is still on the server contact list).
      */
     private boolean isResolved = true;
-    
+
     /**
      * Determines whether an connection attempt to remote server is already
      * underway
      */
     private boolean isConnectionInProgress = false;
-    
+
     /**
      * Determines whether the message received from remote machine is as a
      * result of command sent to it
      */
     private boolean commandSent = false;
-    
+
     /**
      * A lock to synchronize the access of commandSent boolean object
      * with the reader thread.
      */
     private final Object lock = new Object();
-    
+
     /**
      * Creates an instance of a meta contact with the specified string used
      * as a name and identifier.
@@ -174,13 +174,13 @@ public class ContactSSHImpl
     {
         this.contactID = id;
         this.parentProvider = parentProvider;
-        
+
         this.sshConfigurationForm =
                 new SSHContactInfo(this);
 
         this.savePersistentDetails();
     }
-    
+
     /**
      * Initializes the reader and writers associated with shell of this contact
      *
@@ -195,13 +195,13 @@ public class ContactSSHImpl
         this.shellOutputStream = shellOutputStream;
         shellReader = new InputStreamReader(shellInputStream);
         shellWriter = new PrintWriter(shellOutputStream);
-        
+
         contactSSHReaderDaemon = new SSHReaderDaemon(this);
         contactSSHReaderDaemon.setDaemon(true);
         contactSSHReaderDaemon.isActive(true);
         contactSSHReaderDaemon.start();
     }
-    
+
     /**
      * Closes the readers and writer associated with shell of this contact
      */
@@ -214,7 +214,7 @@ public class ContactSSHImpl
         }
         catch(IOException ex)
         {}
-        
+
         try
         {
             shellWriter.close();
@@ -222,26 +222,26 @@ public class ContactSSHImpl
         }
         catch(IOException ex)
         {}
-        
+
         shellInputStream = null;
-        
+
         shellReader = null;
-        
+
         shellOutputStream = null;
-        
+
         shellWriter = null;
-        
+
         try
         {
             sshShellChannel.disconnect();
         }
         catch(Exception e)
         {}
-        
+
         // Removing the reference to current channel
         // a new shell channel will be created for the next message
         sshShellChannel = null;
-        
+
         // remove the reference of session if it were also disconnected
         // like in the case of exit command
         if(!sshSession.isConnected())
@@ -249,12 +249,12 @@ public class ContactSSHImpl
             sshSession = null;
             jsch = null;
         }
-        
+
         ((OperationSetPersistentPresenceSSHImpl)
         getParentPresenceOperationSet()).
                 changeContactPresenceStatus(this, SSHStatusEnum.ONLINE);
     }
-    
+
     /**
      * Sends a message a line to remote machine via the Shell Writer
      *
@@ -267,7 +267,7 @@ public class ContactSSHImpl
         shellWriter.println(message);
         shellWriter.flush();
     }
-    
+
     /**
      * Reads a line from the remote machine via the Shell Reader
      *
@@ -279,7 +279,7 @@ public class ContactSSHImpl
 //        String line = shellReader.readLine();
 ////        logger.debug("SSH FROM: " + this.contactID + ": " +  line);
 //
-//        // null is never returned normally, the reading attempt returs a 
+//        // null is never returned normally, the reading attempt returs a
 //        // string
 //        // or blocks until one line is available
 //        if(line == null)
@@ -291,7 +291,7 @@ public class ContactSSHImpl
 //        }
 //        return line;
 //    }
-    
+
     /**
      * Starts the timer and its task to periodically update the status of
      * remote machine
@@ -301,7 +301,7 @@ public class ContactSSHImpl
         timer.scheduleAtFixedRate(new ContactTimerSSHImpl(this),
                 2000, sshConfigurationForm.getUpdateInterval()*1000);
     }
-    
+
     /**
      * Stops the timer and its task to stop updating the status of
      * remote machine
@@ -310,8 +310,8 @@ public class ContactSSHImpl
     {
         timer.cancel();
     }
-    
-    
+
+
     /**
      * Saves the details of contact in persistentData seperated by
      * separator
@@ -332,7 +332,7 @@ public class ContactSSHImpl
                 separator +
                 sshConfigurationForm.getUpdateInterval();
     }
-    
+
     /**
      * Stores persistent data in fields of the contact seperated by
      * separator.
@@ -391,7 +391,7 @@ public class ContactSSHImpl
             logger.error("Error setting persistent data!", ex);
         }
     }
-    
+
     /**
      * Determines whether a connection to a remote server is already underway
      *
@@ -401,7 +401,7 @@ public class ContactSSHImpl
     {
         return this.isConnectionInProgress;
     }
-    
+
     /**
      * Sets the status of connection attempt to remote server
      * This method is synchronized
@@ -413,17 +413,17 @@ public class ContactSSHImpl
     {
         this.isConnectionInProgress = isConnectionInProgress;
     }
-    
+
     /**
      * Returns the SSHContactInfo associated with this contact
-     * 
+     *
      * @return sshConfigurationForm
      */
     public SSHContactInfo getSSHConfigurationForm()
     {
         return this.sshConfigurationForm;
     }
-    
+
     /**
      * Returns the JSch Stack identified associated with this contact
      *
@@ -433,7 +433,7 @@ public class ContactSSHImpl
     {
         return this.jsch;
     }
-    
+
     /**
      * Sets the JSch Stack identified associated with this contact
      *
@@ -443,7 +443,7 @@ public class ContactSSHImpl
     {
         this.jsch = jsch;
     }
-    
+
     /**
      * This method is only called when the contact is added to a new
      * <tt>ContactGroupSSHImpl</tt> by the
@@ -456,7 +456,7 @@ public class ContactSSHImpl
     {
         this.parentGroup = newParentGroup;
     }
-    
+
     /**
      * Returns the Hostname associated with this contact
      *
@@ -466,7 +466,7 @@ public class ContactSSHImpl
     {
         return sshConfigurationForm.getHostName();
     }
-    
+
     /**
      * Returns a String that can be used for identifying the contact.
      *
@@ -476,7 +476,7 @@ public class ContactSSHImpl
     {
         return contactID;
     }
-    
+
     /**
      * Returns a String that could be used by any user interacting modules
      * for referring to this contact.
@@ -488,7 +488,7 @@ public class ContactSSHImpl
     {
         return contactID;
     }
-    
+
     /**
      * Returns a byte array containing an image (most often a photo or an
      * avatar) that the contact uses as a representation.
@@ -499,7 +499,7 @@ public class ContactSSHImpl
     {
         return null;
     }
-    
+
     /**
      * Returns true if a command has been sent whos reply was not received yet
      * false otherwise
@@ -510,7 +510,7 @@ public class ContactSSHImpl
     {
         return this.commandSent;
     }
-    
+
     /**
      * Set the state of commandSent variable which determines whether a reply
      * to a command sent is awaited
@@ -522,7 +522,7 @@ public class ContactSSHImpl
             this.commandSent = commandSent;
         }
     }
-    
+
     /**
      * Return the type of message received from remote server
      *
@@ -532,7 +532,7 @@ public class ContactSSHImpl
     {
         return this.messageType;
     }
-    
+
     /**
      * Sets the type of message received from remote server
      *
@@ -542,7 +542,7 @@ public class ContactSSHImpl
     {
         this.messageType = messageType;
     }
-    
+
     /**
      * Returns the status of the contact.
      *
@@ -552,7 +552,7 @@ public class ContactSSHImpl
     {
         return this.presenceStatus;
     }
-    
+
     /**
      * Sets <tt>sshPresenceStatus</tt> as the PresenceStatus that this
      * contact is currently in.
@@ -563,7 +563,7 @@ public class ContactSSHImpl
     {
         this.presenceStatus = sshPresenceStatus;
     }
-    
+
     /**
      * Returns a reference to the protocol provider that created the contact.
      *
@@ -573,7 +573,7 @@ public class ContactSSHImpl
     {
         return parentProvider;
     }
-    
+
     /**
      * Determines whether or not this contact represents our own identity.
      *
@@ -583,7 +583,7 @@ public class ContactSSHImpl
     {
         return true;
     }
-    
+
     /**
      * Returns the group that contains this contact.
      * @return a reference to the <tt>ContactGroupSSHImpl</tt> that
@@ -593,22 +593,23 @@ public class ContactSSHImpl
     {
         return this.parentGroup;
     }
-    
+
     /**
      * Returns a string representation of this contact, containing most of its
      * representative details.
      *
      * @return  a string representation of this contact.
      */
+    @Override
     public String toString()
     {
         StringBuffer buff
                 = new StringBuffer("ContactSSHImpl[ DisplayName=")
                 .append(getDisplayName()).append("]");
-        
+
         return buff.toString();
     }
-    
+
     /**
      * Determines whether or not this contact is being stored by the server.
      * Non persistent contacts are common in the case of simple, non-persistent
@@ -625,7 +626,7 @@ public class ContactSSHImpl
     {
         return isPersistent;
     }
-    
+
     /**
      * Specifies whether or not this contact is being stored by the server.
      * Non persistent contacts are common in the case of simple, non-persistent
@@ -643,8 +644,8 @@ public class ContactSSHImpl
     {
         this.isPersistent = isPersistent;
     }
-    
-    
+
+
     /**
      * Returns persistent data of the contact.
      *
@@ -654,7 +655,7 @@ public class ContactSSHImpl
     {
         return persistentData;
     }
-    
+
     /**
      * Determines whether or not this contact has been resolved against the
      * server. Unresolved contacts are used when initially loading a contact
@@ -669,7 +670,7 @@ public class ContactSSHImpl
     {
         return isResolved;
     }
-    
+
     /**
      * Makes the contact resolved or unresolved.
      *
@@ -695,9 +696,9 @@ public class ContactSSHImpl
             parentProvider
                 .getOperationSet(OperationSetPersistentPresence.class);
     }
-    
+
     /**
-     * Returns the BasicInstant Messaging operation set that this contact 
+     * Returns the BasicInstant Messaging operation set that this contact
      * belongs to.
      *
      * @return the <tt>OperationSetBasicInstantMessagingSSHImpl</tt> that
@@ -710,7 +711,7 @@ public class ContactSSHImpl
             parentProvider
                 .getOperationSet(OperationSetBasicInstantMessaging.class);
     }
-    
+
     /**
      * Returns the File Transfer operation set that this contact belongs
      * to.
@@ -723,8 +724,8 @@ public class ContactSSHImpl
     {
         return parentProvider.getOperationSet(OperationSetFileTransfer.class);
     }
-    
-    
+
+
     /**
      * Returns the SSH Session associated with this contact
      *
@@ -734,7 +735,7 @@ public class ContactSSHImpl
     {
         return this.sshSession;
     }
-    
+
     /**
      * Sets the SSH Session associated with this contact
      *
@@ -744,7 +745,7 @@ public class ContactSSHImpl
     {
         this.sshSession = sshSession;
     }
-    
+
     /**
      * Returns the SSH Shell Channel associated with this contact
      *
@@ -754,7 +755,7 @@ public class ContactSSHImpl
     {
         return this.sshShellChannel;
     }
-    
+
     /**
      * Sets the SSH Shell channel associated with this contact
      *
@@ -764,7 +765,7 @@ public class ContactSSHImpl
     {
         this.sshShellChannel = sshShellChannel;
     }
-    
+
     /**
      * Returns the Input Stream associated with SSH Channel of this contact
      *
@@ -774,18 +775,18 @@ public class ContactSSHImpl
     {
         return this.shellInputStream;
     }
-    
+
 //    /**
 //     * Sets the Input Stream associated with SSH Channel of this contact
 //     *
-//     * @param shellInputStream to be associated with SSH Channel of 
+//     * @param shellInputStream to be associated with SSH Channel of
 //     * this contact
 //     */
 //    public void setShellInputStream(InputStream shellInputStream)
 //    {
 //        this.shellInputStream = shellInputStream;
 //    }
-    
+
     /**
      * Returns the Output Stream associated with SSH Channel of this contact
      *
@@ -795,7 +796,7 @@ public class ContactSSHImpl
     {
         return this.shellOutputStream;
     }
-    
+
 //    /**
 //     * Sets the Output Stream associated with SSH Channel of this contact
 //     *
@@ -805,7 +806,7 @@ public class ContactSSHImpl
 //    {
 //        this.shellOutputStream = shellOutputStream;
 //    }
-    
+
     /**
      * Returns the BufferedReader associated with SSH Channel of this contact
      *
@@ -815,7 +816,7 @@ public class ContactSSHImpl
     {
         return this.shellReader;
     }
-    
+
 //    /**
 //     * Sets the BufferedReader associated with SSH Channel of this contact
 //     *
@@ -825,7 +826,7 @@ public class ContactSSHImpl
 //    {
 //        this.shellReader = shellReader;
 //    }
-    
+
     /**
      * Returns the PrintWriter associated with SSH Channel of this contact
      *
@@ -835,7 +836,7 @@ public class ContactSSHImpl
     {
         return this.shellWriter;
     }
-    
+
 //    /**
 //     * Sets the PrintWriter associated with SSH Channel of this contact
 //     *
@@ -845,7 +846,7 @@ public class ContactSSHImpl
 //    {
 //        this.shellWriter = shellWriter;
 //    }
-    
+
     /**
      * Returns the userName associated with SSH Channel of this contact
      *
@@ -855,7 +856,7 @@ public class ContactSSHImpl
     {
         return sshConfigurationForm.getUserName();
     }
-    
+
     /**
      * Returns the password associated with SSH Channel of this contact
      *
@@ -865,7 +866,7 @@ public class ContactSSHImpl
     {
         return sshConfigurationForm.getPassword();
     }
-    
+
     /**
      * Sets the Password associated with this contact
      *
@@ -876,7 +877,7 @@ public class ContactSSHImpl
         this.sshConfigurationForm.setPasswordField(password);
         savePersistentDetails();
     }
-    
+
 //    /**
 //     * Sets the PS1 prompt of the current shell of Contact
 //     *
@@ -899,7 +900,7 @@ public class ContactSSHImpl
 
     /**
      * Return the current status message of this contact.
-     * 
+     *
      * @return the current status message
      */
     public String getStatusMessage()

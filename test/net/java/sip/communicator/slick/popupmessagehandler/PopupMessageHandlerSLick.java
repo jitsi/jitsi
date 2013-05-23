@@ -38,7 +38,7 @@ public class PopupMessageHandlerSLick extends TestSuite implements BundleActivat
         Hashtable<String, String> properties = new Hashtable<String, String>();
 
         properties.put("service.pid", getName());
-        
+
         addTest(TestPopupMessageHandler.suite());
 
         bundleContext.registerService(getClass().getName(), this, properties);
@@ -47,5 +47,5 @@ public class PopupMessageHandlerSLick extends TestSuite implements BundleActivat
     /** implements BundleActivator.stop() */
     public void stop(BundleContext bc) throws Exception
     {}
-    
+
 }

@@ -224,7 +224,7 @@ public class OperationSetMultiUserChatIrcImpl
 
     /**
      * Returns the private room corresponding to the given nick name.
-     * 
+     *
      * @param nickIdentifier the nickName of the person for which the private
      * room is.
      * @return the private room corresponding to the given nick name
@@ -262,11 +262,11 @@ public class OperationSetMultiUserChatIrcImpl
     /**
      * Delivers a <tt>ChatRoomInvitationReceivedEvent</tt> to all
      * registered <tt>ChatRoomInvitationListener</tt>s.
-     * 
+     *
      * @param targetChatRoom the room that invitation refers to
      * @param inviter the inviter that sent the invitation
      * @param reason the reason why the inviter sent the invitation
-     * @param password the password to use when joining the room 
+     * @param password the password to use when joining the room
      */
     protected void fireInvitationEvent(ChatRoom targetChatRoom,
                                     String inviter,
@@ -284,7 +284,7 @@ public class OperationSetMultiUserChatIrcImpl
 
     /**
      * Returns the room corresponding to the server channel.
-     * 
+     *
      * @return the room corresponding to the server channel
      */
     protected ChatRoomIrcImpl findSystemRoom()
@@ -308,7 +308,7 @@ public class OperationSetMultiUserChatIrcImpl
 
     /**
      * Returns the system room member.
-     * 
+     *
      * @return the system room member.
      */
     protected ChatRoomMemberIrcImpl findSystemMember()

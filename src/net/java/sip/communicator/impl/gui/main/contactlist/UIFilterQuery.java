@@ -94,6 +94,7 @@ public class UIFilterQuery
      * Adds the given <tt>contactQuery</tt> to the list of filterQueries.
      * @param contactQuery the <tt>ContactQuery</tt> to add
      */
+    @Override
     public void addContactQuery(Object contactQuery)
     {
         synchronized (filterQueries)
@@ -134,6 +135,7 @@ public class UIFilterQuery
      * Sets the <tt>isSucceeded</tt> property.
      * @param isSucceeded indicates if this query has succeeded
      */
+    @Override
     public void setSucceeded(boolean isSucceeded)
     {
         this.isSucceeded = isSucceeded;
@@ -144,6 +146,7 @@ public class UIFilterQuery
      * @return <tt>true</tt> if this query has succeeded, <tt>false</tt> -
      * otherwise
      */
+    @Override
     public boolean isSucceeded()
     {
         return isSucceeded;
@@ -153,6 +156,7 @@ public class UIFilterQuery
      * Indicates if this query is canceled.
      * @return <tt>true</tt> if this query is canceled, <tt>false</tt> otherwise
      */
+    @Override
     public boolean isCanceled()
     {
         synchronized (filterQueries)
@@ -166,6 +170,7 @@ public class UIFilterQuery
      *
      * @return <tt>true</tt> if this query is canceled, <tt>false</tt> otherwise
      */
+    @Override
     public boolean isRunning()
     {
         synchronized (filterQueries)
@@ -177,6 +182,7 @@ public class UIFilterQuery
     /**
      * Cancels this filter query.
      */
+    @Override
     public void cancel()
     {
         synchronized(filterQueries)
@@ -194,6 +200,7 @@ public class UIFilterQuery
      * Closes this query to indicate that no more contact sub-queries would be
      * added to it.
      */
+    @Override
     public void close()
     {
         isClosed = true;
@@ -206,6 +213,7 @@ public class UIFilterQuery
      * Sets the given <tt>FilterQueryListener</tt>.
      * @param l the <tt>FilterQueryListener</tt> to set
      */
+    @Override
     public void setQueryListener(FilterQueryListener l)
     {
         filterQueryListener = l;
@@ -249,6 +257,7 @@ public class UIFilterQuery
      * and notifies interested parties if this was the last query to process.
      * @param query the <tt>ContactQuery</tt> to remove.
      */
+    @Override
     public void removeQuery(ContactQuery query)
     {
         // First set the isSucceeded property.
@@ -334,6 +343,7 @@ public class UIFilterQuery
      * @return <tt>true</tt> if the given <tt>query</tt> is contained in this
      * filter query, <tt>false</tt> - otherwise
      */
+    @Override
     public boolean containsQuery(Object query)
     {
         return filterQueries.containsKey(query);

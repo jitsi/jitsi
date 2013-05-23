@@ -89,7 +89,7 @@ public class SASLDigestMD5Mechanism
      * @throws IOException if an exception sending the response occurs.
      */
     @Override
-    public void challengeReceived(String challenge) 
+    public void challengeReceived(String challenge)
         throws IOException
     {
         byte response[];

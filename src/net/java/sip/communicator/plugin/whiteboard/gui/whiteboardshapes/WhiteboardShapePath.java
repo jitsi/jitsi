@@ -33,7 +33,7 @@ public class WhiteboardShapePath
      * WhiteboardShapePath constructor.
      *
      * @param id String that uniquely identifies this WhiteboardObject
-     * @param t number of pixels that this object (its border) 
+     * @param t number of pixels that this object (its border)
      * should be thick.
      * @param c WhiteboardShapePath's color (or rather it's border)
      * @param points list of WhiteboardPoint.
@@ -45,12 +45,12 @@ public class WhiteboardShapePath
         setColor (c.getRGB ());
         this.points = new ArrayList<WhiteboardPoint>(points);
     }
-    
+
     /**
      * WhiteboardShapePath constructor.
      *
      * @param id String that uniquely identifies this WhiteboardObject
-     * @param t number of pixels that this object (its border) 
+     * @param t number of pixels that this object (its border)
      * @param c WhiteboardShapePath's color (it's border)
      * @param points list of points
      * @param v2w 2D affine transform
@@ -61,7 +61,7 @@ public class WhiteboardShapePath
         super (id);
         this.setThickness (t);
         setColor (c.getRGB ());
-        
+
         this.points = new ArrayList<WhiteboardPoint>();
         for (WhiteboardPoint p : points)
         {
@@ -70,7 +70,7 @@ public class WhiteboardShapePath
             this.points.add (new WhiteboardPoint (w.getX (), w.getY ()));
         }
     }
-    
+
     /**
      * Returns a list of all the <tt>WhiteboardPoint</tt> instances that this
      * <tt>WhiteboardObject</tt> is composed of.
@@ -81,12 +81,13 @@ public class WhiteboardShapePath
     {
         return points;
     }
-    
+
     /**
      * Returns the list of selected points.
      *
      * @return list of selected points
      */
+    @Override
     public List<WhiteboardPoint> getSelectionPoints ()
     {
         List<WhiteboardPoint> list = new ArrayList<WhiteboardPoint>();
@@ -95,12 +96,13 @@ public class WhiteboardShapePath
             list.add (new WhiteboardPoint (p.getX (), p.getY ()));
         return list;
     }
-    
+
     /**
      * Code to paint the specific shape
      * @param g graphics context
      * @param t 2D affine transform
      */
+    @Override
     public void paintShape (Graphics2D g, AffineTransform t)
     {
         g.setStroke (new BasicStroke (this.getThickness (),
@@ -115,12 +117,12 @@ public class WhiteboardShapePath
               new Point2D.Double (startX, startY), null);
             Point2D p1 = t.transform (
               new Point2D.Double (point.getX (), point.getY ()), null);
-            
+
             int x0 = (int) p0.getX ();
             int y0 = (int) p0.getY ();
             int x1 = (int) p1.getX ();
             int y1 = (int) p1.getY ();
-            
+
             if (i > 0)
             {
                 g.drawLine (x0, y0, x1, y1);
@@ -131,13 +133,14 @@ public class WhiteboardShapePath
             startY = point.getY ();
         }
     }
-    
+
     /**
      * Tests if the shape contains a point.
      *
      * @param p coord point
      * @return true if shape contains p
      */
+    @Override
     public boolean contains (Point2D p)
     {
         double startX = -1;
@@ -146,7 +149,7 @@ public class WhiteboardShapePath
         for (int i = 0; i < size; i++)
         {
             WhiteboardPoint point = points.get (i);
-            
+
             if (i > 0)
             {
                 Line2D line = new Line2D.Double (
@@ -163,7 +166,7 @@ public class WhiteboardShapePath
         }
         return false;
     }
-    
+
     /**
      * Sets the list of <tt>WhiteboardPoint</tt> instances that this
      * <tt>WhiteboardObject</tt> is composed of.
@@ -175,13 +178,14 @@ public class WhiteboardShapePath
     {
         this.points = new ArrayList<WhiteboardPoint>(points);
     }
-    
+
     /**
      * Translates the shape.
      *
      * @param deltaX x coordinate
      * @param deltaY y coordinate
      */
+    @Override
     public void translate (double deltaX, double deltaY)
     {
         WhiteboardPoint point;
@@ -193,13 +197,14 @@ public class WhiteboardShapePath
               point.getX () + deltaX, point.getY () + deltaY));
         }
     }
-    
+
     /**
      * Translates a point from the shape.
      *
      * @param deltaX x coordinate
      * @param deltaY y coordinate
      */
+    @Override
     public void translateSelectedPoint (double deltaX, double deltaY)
     {
         if (getModifyPoint() == null)
@@ -223,13 +228,14 @@ public class WhiteboardShapePath
             }
         }
     }
-    
+
     /**
      * Tests if a point p is over a selection point.
-     * 
+     *
      * @param p point
      * @return nearest selection point
      */
+    @Override
     public WhiteboardPoint getSelectionPoint (Point2D p)
     {
         for (WhiteboardPoint point : points)

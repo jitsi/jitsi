@@ -211,6 +211,7 @@ public class EncodingConfigurationTableModel
      * @param up true to move up, false to move down
      * @return the next row index
      */
+    @Override
     public int move(int rowIndex, boolean up)
     {
         if (up)

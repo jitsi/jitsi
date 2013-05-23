@@ -14,7 +14,7 @@ import org.osgi.framework.*;
 /**
  * The <tt>NotificationActivator</tt> is the activator of the notification
  * bundle.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class NotificationServiceActivator

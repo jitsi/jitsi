@@ -116,7 +116,7 @@ public class JingleNodesCandidateDatagramSocket extends DatagramSocket
                 super.getLocalAddress(),
                 super.getLocalPort());
     }
-    
+
     /**
      * Receives a <tt>DatagramPacket</tt> from this socket. The DatagramSocket
      * is overridden to log the received packet into the "pcap" (packet capture)

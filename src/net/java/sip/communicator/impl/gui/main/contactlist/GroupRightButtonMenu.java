@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.impl.gui.main.contactlist;
@@ -57,7 +57,7 @@ public class GroupRightButtonMenu
 
     /**
      * Creates an instance of GroupRightButtonMenu.
-     * 
+     *
      * @param mainFrame The parent <tt>MainFrame</tt> window.
      * @param group The <tt>MetaContactGroup</tt> for which the menu is opened.
      */
@@ -149,7 +149,7 @@ public class GroupRightButtonMenu
      * to an account, where the new contact will be added. We obtain here the
      * protocol provider corresponding to the chosen account and show the
      * dialog, where the user could add the contact.
-     * 
+     *
      * @param e the <tt>ActionEvent</tt> that notified us
      */
     public void actionPerformed(ActionEvent e)
@@ -187,13 +187,13 @@ public class GroupRightButtonMenu
 
     /**
      * Indicates that a plugin component has been added to this container.
-     * 
+     *
      * @param event the <tt>PluginComponentEvent</tt> that notified us
      */
     /**
      * Indicates that a new plugin component has been added. Adds it to this
      * container if it belongs to it.
-     * 
+     *
      * @param event the <tt>PluginComponentEvent</tt> that notified us
      */
     public void pluginComponentAdded(PluginComponentEvent event)
@@ -214,7 +214,7 @@ public class GroupRightButtonMenu
     /**
      * Indicates that a new plugin component has been removed. Removes it to
      * from this container if it belongs to it.
-     * 
+     *
      * @param event the <tt>PluginComponentEvent</tt> that notified us
      */
     public void pluginComponentRemoved(PluginComponentEvent event)

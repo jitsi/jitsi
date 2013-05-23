@@ -61,6 +61,7 @@ public class ContactPhotoPanel extends JLayeredPane
 
         this.addContactButton.addMouseListener(new MouseAdapter()
         {
+            @Override
             public void mousePressed(MouseEvent e)
             {
                 if(chatSession != null)
@@ -86,7 +87,7 @@ public class ContactPhotoPanel extends JLayeredPane
     /**
      * Sets the given <tt>chatSession</tt> parameters to this contact
      * photo label.
-     * 
+     *
      * @param chatSession The <tt>ChatSession</tt> to set.
      */
     public void setChatSession(ChatSession chatSession)
@@ -137,6 +138,7 @@ public class ContactPhotoPanel extends JLayeredPane
      * Creates a tooltip.
      * @return the created tool tip
      */
+    @Override
     public JToolTip createToolTip()
     {
         ExtendedTooltip tip = new ExtendedTooltip(true);
@@ -177,10 +179,11 @@ public class ContactPhotoPanel extends JLayeredPane
      * don't really use this string, but we need to return different string
      * each time in order to make the TooltipManager change the tooltip over
      * the different cells in the JList.
-     * 
+     *
      * @param event the <tt>MouseEvent</tt>
      * @return the string to be used as the tooltip for <i>event</i>.
      */
+    @Override
     public String getToolTipText(MouseEvent event)
     {
         return chatSession.getChatName();

@@ -8,7 +8,7 @@ package net.java.sip.communicator.service.notification;
 
 /**
  * An implementation of the <tt>PopupMessageNotificationHandler</tt> interface.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class PopupMessageNotificationAction
@@ -19,7 +19,7 @@ public class PopupMessageNotificationAction
     /**
      * Creates an instance of <tt>PopupMessageNotificationHandlerImpl</tt> by
      * specifying the default message to use if no message is specified.
-     * 
+     *
      * @param defaultMessage the default message to use if no message is
      * specified
      */
@@ -31,7 +31,7 @@ public class PopupMessageNotificationAction
 
     /**
      * Return the default message to use if no message is specified.
-     * 
+     *
      * @return the default message to use if no message is specified.
      */
     public String getDefaultMessage()

@@ -26,22 +26,22 @@ import net.java.sip.communicator.service.protocol.event.*;
 public class OperationSetBasicInstantMessagingSSHImpl
     extends AbstractOperationSetBasicInstantMessaging
 {
-    
+
     /**
      * The currently valid persistent presence operation set..
      */
     private OperationSetPersistentPresenceSSHImpl opSetPersPresence = null;
-    
+
     /**
      * The currently valid file transfer operation set
      */
     private OperationSetFileTransferSSHImpl fileTransfer;
-    
+
     /**
      * The protocol provider that created us.
      */
     private ProtocolProviderServiceSSHImpl parentProvider = null;
-    
+
     /**
      * Creates an instance of this operation set keeping a reference to the
      * parent protocol provider and presence operation set.
@@ -52,13 +52,14 @@ public class OperationSetBasicInstantMessagingSSHImpl
             ProtocolProviderServiceSSHImpl        provider)
     {
         this.parentProvider = provider;
-        
+
         this.opSetPersPresence
                 = (OperationSetPersistentPresenceSSHImpl)
                     provider
                         .getOperationSet(OperationSetPersistentPresence.class);
     }
 
+    @Override
     public Message createMessage(String content, String contentType,
         String encoding, String subject)
     {
@@ -88,9 +89,9 @@ public class OperationSetBasicInstantMessagingSSHImpl
             throw new IllegalArgumentException(
                     "The specified contact is not a SSH contact."
                     + to);
-        
+
         ContactSSH sshContact = (ContactSSH)to;
-        
+
         // making sure no messages are sent and no new threads are triggered,
         // until a thread trying to connect to remote server returns
         if(sshContact.isConnectionInProgress())
@@ -100,10 +101,10 @@ public class OperationSetBasicInstantMessagingSSHImpl
                     (ContactSSHImpl)to);
             return;
         }
-        
+
         if( !parentProvider.isShellConnected(sshContact) )
         {
-            
+
             try
             {
                 /**
@@ -113,7 +114,7 @@ public class OperationSetBasicInstantMessagingSSHImpl
                  * - network problems
                  */
                 parentProvider.connectShell(sshContact, message);
-                
+
                 //the first message is ignored
                 return;
             }
@@ -122,13 +123,13 @@ public class OperationSetBasicInstantMessagingSSHImpl
                 throw new IllegalStateException(ex.getMessage());
             }
         }
-        
+
         if(wrappedMessage(message.getContent(), sshContact))
         {
             fireMessageDelivered(message, to);
             return;
         }
-        
+
         try
         {
             sshContact.sendLine(message.getContent());
@@ -138,13 +139,13 @@ public class OperationSetBasicInstantMessagingSSHImpl
         {
             // Closing IO Streams
             sshContact.closeShellIO();
-            
+
             throw new IllegalStateException(ex.getMessage());
         }
-        
+
         fireMessageDelivered(message, to);
     }
-    
+
     /**
      * Check the message for wrapped Commands
      * All commands begin with /
@@ -169,7 +170,7 @@ public class OperationSetBasicInstantMessagingSSHImpl
                         null,
                         message.substring(message.indexOf(' ', firstSpace+1) + 1),
                         message.substring(
-                            firstSpace+1, 
+                            firstSpace+1,
                             message.indexOf(' ', firstSpace+1)));
             }
             catch (Exception e)
@@ -188,7 +189,7 @@ public class OperationSetBasicInstantMessagingSSHImpl
                 sshContact.getFileTransferOperationSet().sendFile(
                     null,
                     sshContact,
-                    message.substring(firstSpace+1, message.indexOf(' ', 
+                    message.substring(firstSpace+1, message.indexOf(' ',
                                                                 firstSpace+1)),
                     message.substring(message.indexOf(' ', firstSpace+1) + 1));
             }
@@ -216,7 +217,7 @@ public class OperationSetBasicInstantMessagingSSHImpl
             ContactSSH to)
     {
         String userID = to.getAddress();
-        
+
         //if the user id is owr own id, then this message is being routed to us
         //from another instance of the ssh provider.
         if (userID.equals(this.parentProvider.getAccountID().getUserID()))
@@ -224,16 +225,16 @@ public class OperationSetBasicInstantMessagingSSHImpl
             //check who is the provider sending the message
             String sourceUserID
                     = to.getProtocolProvider().getAccountID().getUserID();
-            
+
             //check whether they are in our contact list
             Contact from = opSetPersPresence.findContactByID(sourceUserID);
-            
+
             //and if not - add them there as volatile.
             if(from == null)
             {
                 from = opSetPersPresence.createVolatileContact(sourceUserID);
             }
-            
+
             //and now fire the message received event.
             fireMessageReceived(message, from);
         }
@@ -264,10 +265,11 @@ public class OperationSetBasicInstantMessagingSSHImpl
     /**
      * Notifies all registered message listeners that a message has been
      * received.
-     * 
+     *
      * @param message the <tt>Message</tt> that has been received.
      * @param from the <tt>Contact</tt> that <tt>message</tt> was received from.
      */
+    @Override
     protected void fireMessageReceived(Message message, Contact from)
     {
         fireMessageEvent(
@@ -277,7 +279,7 @@ public class OperationSetBasicInstantMessagingSSHImpl
                     new Date(),
                     ((ContactSSH) from).getMessageType()));
     }
-    
+
     /**
      * Determines whether the SSH protocol provider supports
      * sending and receiving offline messages.
@@ -288,7 +290,7 @@ public class OperationSetBasicInstantMessagingSSHImpl
     {
         return false;
     }
-    
+
     /**
      * Determines wheter the protocol supports the supplied content type
      *
@@ -300,5 +302,5 @@ public class OperationSetBasicInstantMessagingSSHImpl
     {
         return MessageSSHImpl.contentType.equals(contentType);
     }
-    
+
 }

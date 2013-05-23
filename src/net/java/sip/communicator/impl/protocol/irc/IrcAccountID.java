@@ -12,7 +12,7 @@ import net.java.sip.communicator.service.protocol.*;
 
 /**
  * The IRC implementation of a sip-communicator AccountID.
- * 
+ *
  * @author Stephane Remy
  * @author Loic Kempf
  */
@@ -32,13 +32,13 @@ public class IrcAccountID
                 ProtocolNames.IRC,
                 getServiceName(accountProperties));
     }
-    
+
     /**
      * Returns the service name - the server we are logging to
      * if it is null which is not supposed to be - we return for compatibility
      * the string we used in the first release for creating AccountID
      * (Using this string is wrong, but used for compatibility for now)
-     * 
+     *
      * @param accountProperties Map the properties table configuring the account
      * @return String the service name
      */

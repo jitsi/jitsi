@@ -8,7 +8,7 @@ package net.java.sip.communicator.service.protocol;
 
 /**
  * Marker interface to indicate that a protocol supports SDES encryption.
- * 
+ *
  * @author Ingo Bauersachs
  */
 public interface OperationSetSecureSDesTelephony

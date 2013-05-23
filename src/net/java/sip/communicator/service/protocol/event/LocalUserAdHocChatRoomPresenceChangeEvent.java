@@ -49,7 +49,7 @@ public class LocalUserAdHocChatRoomPresenceChangeEvent
      * The <tt>AdHocChatRoom</tt> to which the change is related.
      */
     private AdHocChatRoom adHocChatRoom = null;
-    
+
     /**
      * The type of this event.
      */
@@ -62,8 +62,8 @@ public class LocalUserAdHocChatRoomPresenceChangeEvent
     private String reason = null;
 
     /**
-     * Creates an <tt>AdHocChatRoomLocalUserPresenceChangeEvent</tt> 
-     * representing that a change in local participant presence in the source 
+     * Creates an <tt>AdHocChatRoomLocalUserPresenceChangeEvent</tt>
+     * representing that a change in local participant presence in the source
      * ad-hoc chat room has occurred.
      *
      * @param source the <tt>OperationSetAdHocMultiUserChat</tt>, which
@@ -96,7 +96,7 @@ public class LocalUserAdHocChatRoomPresenceChangeEvent
     {
         return (OperationSetAdHocMultiUserChat) getSource();
     }
-    
+
     /**
      * Returns the <tt>AdHocChatRoom</tt>, that this event is about.
      *
@@ -122,7 +122,7 @@ public class LocalUserAdHocChatRoomPresenceChangeEvent
      * Returns the type of this event which could be one of the LOCAL_USER_XXX
      * member fields.
      *
-     * @return one of the LOCAL_USER_XXX fields indicating the type of this 
+     * @return one of the LOCAL_USER_XXX fields indicating the type of this
      * event.
      */
     public String getEventType()
@@ -132,9 +132,10 @@ public class LocalUserAdHocChatRoomPresenceChangeEvent
 
     /**
      * Returns a String representation of this event.
-     * 
+     *
      * @return a <tt>String</tt> for representing this event.
      */
+    @Override
     public String toString()
     {
         return "AdHocChatRoomLocalUserPresenceChangeEvent[type="

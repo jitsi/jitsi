@@ -34,7 +34,7 @@ public class Container
         = new Container("CONTAINER_VIEW_MENU");
     /**
      * Main application window "help menu" container.
-     */    
+     */
     public static final Container CONTAINER_HELP_MENU
         = new Container("CONTAINER_HELP_MENU");
     /**
@@ -45,14 +45,14 @@ public class Container
     /**
      * Main application window main toolbar container.
      */
-    public static final Container CONTAINER_MAIN_TOOL_BAR 
+    public static final Container CONTAINER_MAIN_TOOL_BAR
         = new Container("CONTAINER_MAIN_TOOL_BAR");
 
     /**
      * The container added on the south of the account panel above the
      * contact list.
      */
-    public static final Container CONTAINER_ACCOUNT_SOUTH 
+    public static final Container CONTAINER_ACCOUNT_SOUTH
         = new Container("CONTAINER_ACCOUNT_SOUTH");
 
     /**
@@ -63,14 +63,14 @@ public class Container
     /**
      * Chat window toolbar container.
      */
-    public static final Container CONTAINER_CHAT_TOOL_BAR 
+    public static final Container CONTAINER_CHAT_TOOL_BAR
             = new Container("CONTAINER_CHAT_TOOL_BAR");
     /**
      * Main application window "right button menu" over a contact container.
      */
     public static final Container CONTAINER_CONTACT_RIGHT_BUTTON_MENU
             = new Container("CONTAINER_CONTACT_RIGHT_BUTTON_MENU");
-    
+
     /**
      * Main application window "right button menu" over a group container.
      */
@@ -85,23 +85,23 @@ public class Container
     /**
      * Chat window "file menu" container.
      */
-    public static final Container CONTAINER_CHAT_FILE_MENU 
+    public static final Container CONTAINER_CHAT_FILE_MENU
             = new Container("CONTAINER_CHAT_FILE_MENU");
     /**
      * Chat window "edit menu" container.
      */
-    public static final Container CONTAINER_CHAT_EDIT_MENU 
+    public static final Container CONTAINER_CHAT_EDIT_MENU
             = new Container("CONTAINER_CHAT_EDIT_MENU");
     /**
      * Chat window "settings menu" container.
      */
-    public static final Container CONTAINER_CHAT_SETTINGS_MENU 
+    public static final Container CONTAINER_CHAT_SETTINGS_MENU
             = new Container("CONTAINER_CHAT_SETTINGS_MENU");
 
     /**
      * Chat window "help menu" container.
      */
-    public static final Container CONTAINER_CHAT_HELP_MENU 
+    public static final Container CONTAINER_CHAT_HELP_MENU
             = new Container("CONTAINER_CHAT_HELP_MENU");
 
     /**
@@ -186,7 +186,7 @@ public class Container
 
     /**
      * Creates a <tt>Container</tt> from the given container name.
-     * 
+     *
      * @param containerName the name of the container.
      */
     public Container(String containerName)
@@ -196,7 +196,7 @@ public class Container
 
     /**
      * Returns the String identifier of this <tt>Container</tt>.
-     * 
+     *
      * @return the String identifier of this <tt>Container</tt>.
      */
     public String getID()
@@ -214,6 +214,7 @@ public class Container
      * the <code>obj</code> argument or if the object argument is the id of this
      * container.
      */
+    @Override
     public boolean equals(Object obj)
     {
         if (obj == null)

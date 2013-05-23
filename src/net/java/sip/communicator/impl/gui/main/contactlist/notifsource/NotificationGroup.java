@@ -68,6 +68,7 @@ public class NotificationGroup
      *
      * @return the descriptor of the group
      */
+    @Override
     public Object getDescriptor()
     {
         return groupName;
@@ -79,6 +80,7 @@ public class NotificationGroup
      *
      * @return the display name of the group
      */
+    @Override
     public String getDisplayName()
     {
         return groupName;
@@ -90,6 +92,7 @@ public class NotificationGroup
      *
      * @return the index of this group in its source
      */
+    @Override
     public int getSourceIndex()
     {
         return 0;
@@ -100,6 +103,7 @@ public class NotificationGroup
      *
      * @return null
      */
+    @Override
     public UIGroup getParentGroup()
     {
         return null;
@@ -110,6 +114,7 @@ public class NotificationGroup
      *
      * @return <tt>false</tt>
      */
+    @Override
     public boolean isGroupCollapsed()
     {
         return false;
@@ -120,6 +125,7 @@ public class NotificationGroup
      *
      * @return the count of online child contacts
      */
+    @Override
     public int countOnlineChildContacts()
     {
         return contacts.size();
@@ -130,6 +136,7 @@ public class NotificationGroup
      *
      * @return child contacts count
      */
+    @Override
     public int countChildContacts()
     {
         return contacts.size();
@@ -140,6 +147,7 @@ public class NotificationGroup
      *
      * @return the identifier of this group
      */
+    @Override
     public String getId()
     {
         return null;
@@ -151,6 +159,7 @@ public class NotificationGroup
      *
      * @return the <tt>GroupNode</tt> corresponding to this <tt>UIGroup</tt>
      */
+    @Override
     public GroupNode getGroupNode()
     {
         return groupNode;
@@ -162,6 +171,7 @@ public class NotificationGroup
      * @param groupNode the <tt>GroupNode</tt> to set. The is the actual
      * node used in the contact list component data model.
      */
+    @Override
     public void setGroupNode(GroupNode groupNode)
     {
         this.groupNode = groupNode;
@@ -173,6 +183,7 @@ public class NotificationGroup
      *
      * @return null
      */
+    @Override
     public JPopupMenu getRightButtonMenu()
     {
         return null;

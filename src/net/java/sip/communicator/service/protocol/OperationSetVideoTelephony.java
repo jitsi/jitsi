@@ -266,7 +266,7 @@ public interface OperationSetVideoTelephony
      * telephony conference with a specific <tt>CallPeer</tt> as its focus and
      * which is sending a video content/RTP stream displayed in a specific
      * visual <tt>Component</tt>.
-     * 
+     *
      * @param peer the <tt>CallPeer</tt> which is the conference focus of the
      * telephony conference to be examined in order to locate the
      * <tt>ConferenceMember</tt> which is sending the video content/RTP stream

@@ -37,6 +37,7 @@ public class OperationSetAutoAnswerJabberImpl
     /**
      * Saves values to account properties.
      */
+    @Override
     protected void save()
     {
         AccountID acc = protocolProvider.getAccountID();
@@ -63,6 +64,7 @@ public class OperationSetAutoAnswerJabberImpl
      * @return <tt>true</tt> if the call satisfy the auto answer conditions.
      * <tt>False</tt> otherwise.
      */
+    @Override
     protected boolean satisfyAutoAnswerConditions(Call call)
     {
         // Nothing to do here, as long as the jabber account does not implements

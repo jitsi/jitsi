@@ -10,7 +10,7 @@ import java.awt.*;
 import java.awt.event.*;
 
 /**
- * 
+ *
  * @author Yana Stamcheva
  */
 public class ComponentMover

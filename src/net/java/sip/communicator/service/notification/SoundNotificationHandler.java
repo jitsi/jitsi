@@ -10,7 +10,7 @@ package net.java.sip.communicator.service.notification;
  * The <tt>SoundNotificationHandler</tt> interface is meant to be
  * implemented by the notification bundle in order to provide handling of
  * sound actions.
- * 
+ *
  * @author Yana Stamcheva
  */
 public interface SoundNotificationHandler
@@ -24,7 +24,7 @@ public interface SoundNotificationHandler
      * @param data Additional data for the event.
      */
     public void start(SoundNotificationAction action, NotificationData data);
-    
+
     /**
      * Stops playing the sound pointing by <tt>getDescriptor</tt>. This method
      * is meant to be used to stop sounds that are played in loop.

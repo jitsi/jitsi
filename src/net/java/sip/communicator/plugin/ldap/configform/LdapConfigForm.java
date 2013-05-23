@@ -374,6 +374,7 @@ public class LdapConfigForm
         /**
          * Thread entry point.
          */
+        @Override
         public void run()
         {
             LdapService service = LdapActivator.getLdapService();

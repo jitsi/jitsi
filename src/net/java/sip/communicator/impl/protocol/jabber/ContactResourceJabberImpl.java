@@ -9,7 +9,7 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
- * 
+ *
  * @author Yana Stamcheva
  */
 public class ContactResourceJabberImpl
@@ -22,7 +22,7 @@ public class ContactResourceJabberImpl
      * <tt>resourceName</tt>, the <tt>presenceStatus</tt> and the
      * <tt>priority</tt>.
      *
-     * @param fullJid the full jid corresponding to this contact resource 
+     * @param fullJid the full jid corresponding to this contact resource
      * @param contact
      * @param resourceName
      * @param presenceStatus

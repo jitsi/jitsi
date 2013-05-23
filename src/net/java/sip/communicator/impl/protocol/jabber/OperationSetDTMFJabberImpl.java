@@ -200,7 +200,7 @@ public class OperationSetDTMFJabberImpl
 
         String dtmfString = accountID.getAccountPropertyString("DTMF_METHOD");
 
-        
+
         // Verifies that the DTMF_METHOD property string is correctly set.
         // If not, sets this account to the "auto" DTMF method and corrects the
         // property string.

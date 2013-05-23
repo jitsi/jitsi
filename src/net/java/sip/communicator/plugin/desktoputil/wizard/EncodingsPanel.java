@@ -22,7 +22,7 @@ import org.jitsi.service.resources.*;
 
 /**
  * The encodings configuration panel (used in the account configuration wizards)
- * 
+ *
  * @author Boris Grozev
  */
 public class EncodingsPanel
@@ -89,7 +89,7 @@ public class EncodingsPanel
     public EncodingsPanel()
     {
         super(new BorderLayout());
-                
+
         overrideCheckBox = new SIPCommCheckBox(resourceService.
             getI18NString("plugin.jabberaccregwizz.OVERRIDE_ENCODINGS"),
                 false);
@@ -101,7 +101,7 @@ public class EncodingsPanel
             }
         });
 
-        mediaConfiguration 
+        mediaConfiguration
                 = UtilActivator.getMediaConfiguration();
 
         //by default (on account creation) use an <tt>EncodingConfiguration</tt>
@@ -145,12 +145,12 @@ public class EncodingsPanel
         audioPanel.setBorder(BorderFactory.createTitledBorder(
                resourceService.getI18NString("plugin.jabberaccregwizz.AUDIO")));
         audioPanel.add(audioControls);
-        
+
         videoPanel = new TransparentPanel(new BorderLayout(10, 10));
         videoPanel.setBorder(BorderFactory.createTitledBorder(
                resourceService.getI18NString("plugin.jabberaccregwizz.VIDEO")));
         videoPanel.add(videoControls);
-              
+
         mainPanel.add(checkBoxPanel);
         mainPanel.add(audioPanel);
         mainPanel.add(videoPanel);
@@ -163,7 +163,7 @@ public class EncodingsPanel
     public void commitPanel(EncodingsRegistrationUtil registration)
     {
         registration.setOverrideEncodings(overrideCheckBox.isSelected());
-        
+
         encodingConfiguration.storeProperties(encodingProperties,
                 ProtocolProviderFactory.ENCODING_PROP_PREFIX+".");
 

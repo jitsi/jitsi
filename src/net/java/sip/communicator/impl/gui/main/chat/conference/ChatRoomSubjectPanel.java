@@ -23,7 +23,7 @@ import org.jitsi.service.resources.*;
 /**
  * The panel containing the subject of the chat room and the configuration
  * button.
- * 
+ *
  * @author Yana Stamcheva
  * @author Lubomir Marinov
  * @author Adam Netocny
@@ -114,7 +114,7 @@ public class ChatRoomSubjectPanel
     /**
      * Sets the (chat room) subject to be displayed in this
      * <tt>ChatRoomSubjectPanel</tt>.
-     * 
+     *
      * @param subject the (chat room) subject to be displayed in this
      * <tt>ChatRoomSubjectPanel</tt>
      */

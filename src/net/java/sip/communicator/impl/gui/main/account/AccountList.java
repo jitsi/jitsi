@@ -506,6 +506,7 @@ public class AccountList
          * Called on the event dispatching thread (not on the worker thread)
          * after the <code>construct</code> method has returned.
          */
+        @Override
         protected void finished()
         {
             AccountList.this.repaint();

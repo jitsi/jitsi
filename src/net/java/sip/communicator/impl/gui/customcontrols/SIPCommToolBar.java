@@ -55,6 +55,7 @@ public class SIPCommToolBar
      * Adds a separator to this toolbar. The separator is added after
      * the last component in the toolbar.
      */
+    @Override
     public void addSeparator()
     {
         JToolBar.Separator s = new JToolBar.Separator(new Dimension(8, 22));
@@ -72,6 +73,7 @@ public class SIPCommToolBar
      * Overrides the <code>paintBorder</code> method of <tt>JToolBar</tt>
      * to paint the drag icon in the beginning of the toolbar.
      */
+    @Override
     protected void paintBorder(Graphics g) {
 
         Graphics2D g2 = (Graphics2D) g;
@@ -90,6 +92,7 @@ public class SIPCommToolBar
      * @see JComponent#getUIClassID
      * @see UIDefaults#getUI
      */
+    @Override
     public String getUIClassID()
     {
         return uiClassID;

@@ -25,6 +25,7 @@ public class TrimTextField
      * Returns the trimmed value of the text contained in the field.
      * @return the trimmed value of the field.
      */
+    @Override
     public String getText()
     {
         String txt = super.getText();

@@ -20,7 +20,7 @@ public class StyledHTMLEditorPane
     private final Logger logger = Logger.getLogger(StyledHTMLEditorPane.class);
 
     private final HTMLDocument document;
-    
+
     public StyledHTMLEditorPane()
     {
         this.setContentType("text/html");
@@ -37,7 +37,7 @@ public class StyledHTMLEditorPane
     {
         Element root = document.getDefaultRootElement();
         try
-        {   
+        {
             document.insertAfterEnd(root
                 .getElement(root.getElementCount() - 1), text);
         }
@@ -50,11 +50,11 @@ public class StyledHTMLEditorPane
             logger.error("Insert in the HTMLDocument failed.", e);
         }
     }
-    
+
     public void insertAfterStart(String text)
     {
         Element root = this.document.getDefaultRootElement();
-        
+
         try {
             this.document.insertBeforeStart(root
                     .getElement(0), text);

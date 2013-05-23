@@ -173,7 +173,7 @@ public class JingleUtils
             = formatFactory.createMediaFormat(
                     pt,
                     payloadType.getName(),
-                    (double)payloadType.getClockrate(),
+                    payloadType.getClockrate(),
                     payloadType.getChannels(),
                     -1,
                     paramsMap,

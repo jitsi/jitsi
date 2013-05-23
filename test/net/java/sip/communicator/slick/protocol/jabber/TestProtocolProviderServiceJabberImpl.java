@@ -17,7 +17,7 @@ import net.java.sip.communicator.util.*;
 /**
  * Performs testing on protocol provider methods.
  * @todo add more detailed docs once the tests are written.
- * 
+ *
  * @author Emil Ivov
  * @author Valentin Martinet
  */
@@ -40,7 +40,7 @@ public class TestProtocolProviderServiceJabberImpl
      */
     public RegistrationEventCollector regEvtCollector2
         = new RegistrationEventCollector();
-    
+
     /**
      * An event adapter that would collec registation state change events
      */
@@ -60,6 +60,7 @@ public class TestProtocolProviderServiceJabberImpl
      * Initializes the fixture.
      * @throws Exception if super.setUp() throws one.
      */
+    @Override
     protected void setUp() throws Exception
     {
         super.setUp();
@@ -70,6 +71,7 @@ public class TestProtocolProviderServiceJabberImpl
      * Tears the fixture down.
      * @throws Exception if fixture.tearDown() fails.
      */
+    @Override
     protected void tearDown() throws Exception
     {
         fixture.tearDown();
@@ -97,7 +99,7 @@ public class TestProtocolProviderServiceJabberImpl
         fixture.provider1.addRegistrationStateChangeListener(regEvtCollector1);
         fixture.provider2.addRegistrationStateChangeListener(regEvtCollector2);
         fixture.provider3.addRegistrationStateChangeListener(regEvtCollector3);
-        
+
         //register our three providers
         fixture.provider1.register(new SecurityAuthorityImpl(
             System.getProperty(
@@ -144,7 +146,7 @@ public class TestProtocolProviderServiceJabberImpl
             +"All events were: " + regEvtCollector2.collectedNewStates
             ,regEvtCollector2.collectedNewStates
                 .contains(RegistrationState.REGISTERED));
-        
+
       //now the same for provider 3
         assertTrue(
             "No events were dispatched during the registration process "

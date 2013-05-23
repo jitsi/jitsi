@@ -20,7 +20,7 @@ import net.java.sip.communicator.service.protocol.*;
 /**
  * Represents a <tt>Dialog</tt> which allows specifying the target contact
  * address of a transfer-call operation.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class TransferCallDialog

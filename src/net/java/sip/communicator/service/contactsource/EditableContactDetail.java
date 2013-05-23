@@ -7,7 +7,7 @@
 package net.java.sip.communicator.service.contactsource;
 
 /**
- * The <tt>EditableContactDetail</tt> is a <tt>ContactDetail</tt> that allows 
+ * The <tt>EditableContactDetail</tt> is a <tt>ContactDetail</tt> that allows
  * editing.
  *
  * @see ContactDetail

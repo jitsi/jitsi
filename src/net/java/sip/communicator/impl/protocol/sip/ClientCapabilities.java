@@ -74,6 +74,7 @@ public class ClientCapabilities
      * @return <tt>true</tt> if request has been successfully processed,
      * <tt>false</tt> otherwise
      */
+    @Override
     public boolean processRequest(RequestEvent requestEvent)
     {
         Response optionsOK = null;
@@ -178,6 +179,7 @@ public class ClientCapabilities
     private class KeepAliveTask
         extends TimerTask
     {
+        @Override
         public void run()
         {
             try

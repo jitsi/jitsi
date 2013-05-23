@@ -19,7 +19,7 @@ import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
- * 
+ *
  * @author Yana Stamcheva
  */
 public class ShowMoreContact
@@ -88,6 +88,7 @@ public class ShowMoreContact
      *
      * @return the descriptor of this contact
      */
+    @Override
     public Object getDescriptor()
     {
         return showMoreString;
@@ -99,6 +100,7 @@ public class ShowMoreContact
      *
      * @return an empty string
      */
+    @Override
     public String getDisplayName()
     {
         return "";
@@ -109,6 +111,7 @@ public class ShowMoreContact
      *
      * @return null
      */
+    @Override
     public String getDisplayDetails()
     {
         return null;
@@ -120,6 +123,7 @@ public class ShowMoreContact
      *
      * @return Integer.MAX_VALUE
      */
+    @Override
     public int getSourceIndex()
     {
         return Integer.MAX_VALUE;
@@ -133,6 +137,7 @@ public class ShowMoreContact
      * @param height avatar height
      * @return null
      */
+    @Override
     public ImageIcon getScaledAvatar(boolean isSelected, int width, int height)
     {
         return null;
@@ -143,6 +148,7 @@ public class ShowMoreContact
      *
      * @return null
      */
+    @Override
     public ImageIcon getStatusIcon()
     {
         return null;
@@ -153,6 +159,7 @@ public class ShowMoreContact
      *
      * @return the created tooltip
      */
+    @Override
     public ExtendedTooltip getToolTip()
     {
         ExtendedTooltip tooltip = new ExtendedTooltip(false);
@@ -168,6 +175,7 @@ public class ShowMoreContact
      *
      * @return null
      */
+    @Override
     public JPopupMenu getRightButtonMenu()
     {
         return null;
@@ -178,6 +186,7 @@ public class ShowMoreContact
      *
      * @return the parent group of this contact
      */
+    @Override
     public UIGroup getParentGroup()
     {
         return parentGroup;
@@ -188,6 +197,7 @@ public class ShowMoreContact
      *
      * @param parentGroup the parent group of this contact
      */
+    @Override
     public void setParentGroup(UIGroup parentGroup)
     {
         this.parentGroup = parentGroup;
@@ -198,6 +208,7 @@ public class ShowMoreContact
      *
      * @return null
      */
+    @Override
     public Iterator<String> getSearchStrings()
     {
         return null;
@@ -208,6 +219,7 @@ public class ShowMoreContact
      *
      * @return the corresponding contact node
      */
+    @Override
     public ContactNode getContactNode()
     {
         return contactNode;
@@ -218,6 +230,7 @@ public class ShowMoreContact
      *
      * @param contactNode the contact node to set
      */
+    @Override
     public void setContactNode(ContactNode contactNode)
     {
         this.contactNode = contactNode;
@@ -237,6 +250,7 @@ public class ShowMoreContact
      * looking for
      * @return null
      */
+    @Override
     public UIContactDetail getDefaultContactDetail(
         Class<? extends OperationSet> opSetClass)
     {
@@ -248,6 +262,7 @@ public class ShowMoreContact
      *
      * @return null
      */
+    @Override
     public List<UIContactDetail> getContactDetails()
     {
         return null;
@@ -260,6 +275,7 @@ public class ShowMoreContact
      * looking for
      * @return null
      */
+    @Override
     public List<UIContactDetail> getContactDetailsForOperationSet(
         Class<? extends OperationSet> opSetClass)
     {
@@ -332,6 +348,7 @@ public class ShowMoreContact
      *
      * @return a list of all custom action buttons for this meta contact
      */
+    @Override
     public Collection<SIPCommButton> getContactCustomActionButtons()
     {
         return null;

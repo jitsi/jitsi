@@ -21,10 +21,10 @@ public class MockMultiUserChat
      * The protocol provider that created us.
      */
     private MockProvider provider = null;
-    
+
     private final List<ChatRoom> existingChatRooms = new Vector<ChatRoom>();
     private final List<ChatRoom> joinedChatRooms = new Vector<ChatRoom>();
-    
+
     /**
      * Creates an instance of this operation set keeping a reference to the
      * parent protocol provider and presence operation set.
@@ -35,7 +35,7 @@ public class MockMultiUserChat
     {
         this.provider = provider;
     }
-    
+
     /**
      * Returns the <tt>List</tt> of <tt>String</tt>s indicating chat rooms
      * currently available on the server that this protocol provider is
@@ -50,8 +50,8 @@ public class MockMultiUserChat
      * @throws OperationNotSupportedException if the server does not support
      * multi user chat
      */
-    public List<String> getExistingChatRooms() 
-        throws OperationFailedException, 
+    public List<String> getExistingChatRooms()
+        throws OperationFailedException,
                OperationNotSupportedException
     {
         List<String> existingChatRoomNames
@@ -61,7 +61,7 @@ public class MockMultiUserChat
             existingChatRoomNames.add(existingChatRoom.getName());
         return existingChatRoomNames;
     }
-    
+
     /**
      * Returns a list of the chat rooms that we have joined and are currently
      * active in.
@@ -73,7 +73,7 @@ public class MockMultiUserChat
     {
         return joinedChatRooms;
     }
-    
+
     /**
      * Returns a list of the chat rooms that <tt>chatRoomMember</tt> has joined
      * and is currently active in.
@@ -88,8 +88,8 @@ public class MockMultiUserChat
      * @throws OperationNotSupportedException if the server does not support
      * multi user chat
      */
-    public List<String> getCurrentlyJoinedChatRooms(ChatRoomMember chatRoomMember) 
-        throws OperationFailedException, 
+    public List<String> getCurrentlyJoinedChatRooms(ChatRoomMember chatRoomMember)
+        throws OperationFailedException,
                OperationNotSupportedException
     {
         List<String> result = new Vector<String>();
@@ -99,7 +99,7 @@ public class MockMultiUserChat
                 result.add(elem.getName());
         return result;
     }
-    
+
     /**
      * Creates a room with the named <tt>roomName</tt> and according to the
      * specified <tt>roomProperties</tt> on the server that this protocol
@@ -120,15 +120,15 @@ public class MockMultiUserChat
      */
     public ChatRoom createChatRoom(
             String roomName,
-            Map<String, Object> roomProperties) 
-        throws OperationFailedException, 
+            Map<String, Object> roomProperties)
+        throws OperationFailedException,
                OperationNotSupportedException
     {
         MockChatRoom room = new MockChatRoom(provider, this, roomName);
         existingChatRooms.add(room);
         return room;
     }
-    
+
     /**
      * Returns a reference to a chatRoom named <tt>roomName</tt> or null if no
      * such room exists.
@@ -142,8 +142,8 @@ public class MockMultiUserChat
      * @throws OperationNotSupportedException if the server does not support
      * multi user chat
      */
-    public ChatRoom findRoom(String roomName) 
-        throws OperationFailedException, 
+    public ChatRoom findRoom(String roomName)
+        throws OperationFailedException,
                OperationNotSupportedException
     {
         for (ChatRoom elem : existingChatRooms)
@@ -151,7 +151,7 @@ public class MockMultiUserChat
                 return elem;
         return null;
     }
-    
+
     /**
      * Informs the sender of an invitation that we decline their invitation.
      *
@@ -165,7 +165,7 @@ public class MockMultiUserChat
             provider.getAccountID().getUserID(),
             invitation.getReason());
     }
-    
+
     /**
      * Returns true if <tt>contact</tt> supports multi user chat sessions.
      *

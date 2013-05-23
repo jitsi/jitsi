@@ -11,6 +11,7 @@ import java.util.*;
 import junit.framework.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.slick.protocol.generic.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -65,6 +66,7 @@ public class TestOperationSetPersistentPresence
         return suite;
     }
 
+    @Override
     protected void setUp() throws Exception
     {
         super.setUp();
@@ -116,6 +118,7 @@ public class TestOperationSetPersistentPresence
                 + "Operation Sets");
     }
 
+    @Override
     protected void tearDown() throws Exception
     {
         fixture.tearDown();
@@ -131,7 +134,7 @@ public class TestOperationSetPersistentPresence
         throws Exception
     {
         waitFor(5000);
-        
+
         ContactGroup rootGroup
             = opSetPersPresence1.getServerStoredContactListRoot();
 
@@ -143,7 +146,7 @@ public class TestOperationSetPersistentPresence
                      + "Printing rootGroupContents=\n"+rootGroup.toString());
 
         Hashtable<String, List<String>> expectedContactList
-            = fixture.preInstalledBuddyList;
+            = AdHocMultiUserChatSlickFixture.preInstalledBuddyList;
 
         logger.debug("============== Expected Contact List ===================");
         logger.debug(expectedContactList);
@@ -427,7 +430,7 @@ public class TestOperationSetPersistentPresence
             logger.debug("Will add group " + groupName);
 
             groupChangeCollector.collectedEvents.clear();
-            
+
             opSetPersPresence1.createServerStoredContactGroup(
                 opSetPersPresence1.getServerStoredContactListRoot(), groupName);
 

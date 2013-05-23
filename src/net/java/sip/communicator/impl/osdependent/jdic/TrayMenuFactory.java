@@ -212,6 +212,7 @@ public final class TrayMenuFactory
                 /**
                  * Invoked when a window is activated.
                  */
+                @Override
                 public void windowActivated(WindowEvent e)
                 {
                     changeTrayMenuItem( showHideMenuItem,
@@ -223,6 +224,7 @@ public final class TrayMenuFactory
                 /**
                  * Invoked when a window is de-activated.
                  */
+                @Override
                 public void windowDeactivated(WindowEvent e)
                 {
                     changeTrayMenuItem( showHideMenuItem,
@@ -258,7 +260,7 @@ public final class TrayMenuFactory
         Object trayMenuItem;
         if (swing)
         {
-            JMenuItem menuItem = 
+            JMenuItem menuItem =
                 new JMenuItem(text, Resources.getImage(iconID));
             menuItem.setName(name);
             menuItem.addActionListener(listener);

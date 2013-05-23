@@ -35,6 +35,7 @@ public class TestOperationSetInstantMessageTransformJabberImpl
         super(name);
     }
 
+    @Override
     protected void setUp() throws Exception
     {
         super.setUp();
@@ -130,6 +131,7 @@ public class TestOperationSetInstantMessageTransformJabberImpl
 
     }
 
+    @Override
     protected void tearDown() throws Exception
     {
         super.tearDown();

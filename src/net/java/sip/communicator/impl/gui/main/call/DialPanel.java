@@ -134,6 +134,7 @@ public class DialPanel
      *
      * @param g the <tt>Graphics</tt> object used for painting
      */
+    @Override
     public void paintComponent(Graphics g)
     {
         // do the superclass behavior first

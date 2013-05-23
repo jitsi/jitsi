@@ -79,7 +79,7 @@ public class JabberAccountRegistrationForm
         iceConfigPanel = new IceConfigPanel();
 
         telephonyConfigPanel = new TelephonyConfigPanel();
-        
+
         encodingsPanel = new EncodingsPanel();
     }
 
@@ -119,7 +119,7 @@ public class JabberAccountRegistrationForm
             if (telephonyConfigPanel.getParent() != tabbedPane)
                 tabbedPane.addTab(Resources.getString("service.gui.TELEPHONY"),
                                     telephonyConfigPanel);
-            
+
             if (encodingsPanel.getParent() != tabbedPane)
                 tabbedPane.addTab(Resources.getString(""
                         + "plugin.jabberaccregwizz.ENCODINGS"),
@@ -363,7 +363,7 @@ public class JabberAccountRegistrationForm
             telephonyConfigPanel.getTelephonyDomainBypassCaps());
         registration.setOverridePhoneSufix(
             telephonyConfigPanel.getTelephonyDomain());
-        
+
         encodingsPanel.commitPanel(registration.getEncodingsRegistration());
         return true;
     }
@@ -381,7 +381,7 @@ public class JabberAccountRegistrationForm
             accountPanel.setPassword(password);
             accountPanel.setRememberPassword(true);
         }
-        
+
         String serverAddress = accountReg.getServerAddress();
 
         accountPanel.showChangePasswordPanel(true);
@@ -464,7 +464,7 @@ public class JabberAccountRegistrationForm
 
         telephonyConfigPanel.setTelephonyDomainBypassCaps(
                 accountReg.getTelephonyDomainBypassCaps());
-      
+
         encodingsPanel.loadAccount(accountReg.getEncodingsRegistration());
 }
 
@@ -624,7 +624,7 @@ public class JabberAccountRegistrationForm
 
         return password;
     }
-    
+
     /**
      * Returns the wizard that created the form
      * @return The form wizard

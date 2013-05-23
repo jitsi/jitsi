@@ -32,6 +32,7 @@ public class SIPCommPopupMenu
         // Hides the popup menu when the parent window loses focus.
         addComponentListener(new ComponentAdapter()
         {
+            @Override
             public void componentResized(ComponentEvent evt)
             {
                 final Window parentWindow;
@@ -53,6 +54,7 @@ public class SIPCommPopupMenu
 
                     parentWindow.addWindowListener(new WindowAdapter()
                     {
+                        @Override
                         public void windowDeactivated(WindowEvent e)
                         {
                             if (SIPCommPopupMenu.this != null

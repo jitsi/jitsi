@@ -277,6 +277,7 @@ public class DesktopSharingFrame
              */
             public static final long serialVersionUID = 0L;
 
+            @Override
             protected void paintComponent(Graphics g)
             {
                 super.paintComponent(g);
@@ -289,7 +290,7 @@ public class DesktopSharingFrame
 
                     Graphics2D g2d = (Graphics2D)g;
 
-                    g2d.setStroke(new BasicStroke((float) 4));
+                    g2d.setStroke(new BasicStroke(4));
 
                     if (TransparentFrame.isTranslucencySupported)
                     {
@@ -395,6 +396,7 @@ public class DesktopSharingFrame
              */
             public static final long serialVersionUID = 0L;
 
+            @Override
             public void paintComponent(Graphics g)
             {
                 // We experience some problems making this component
@@ -591,6 +593,7 @@ public class DesktopSharingFrame
 
         resizeLabel.addMouseMotionListener(new MouseMotionAdapter()
         {
+            @Override
             public void mouseDragged(MouseEvent e)
             {
                 Point p = e.getPoint();

@@ -13,7 +13,7 @@ import javax.swing.text.html.*;
 
 /**
  * All look and feel related constants are stored here.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class Constants
@@ -47,7 +47,7 @@ public class Constants
 
     /**
      * Temporary method to load the css style used in the chat window.
-     * 
+     *
      * @param style
      */
     public static void loadSimpleStyle(StyleSheet style)

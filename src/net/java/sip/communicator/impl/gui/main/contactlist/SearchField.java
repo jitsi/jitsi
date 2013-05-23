@@ -141,6 +141,7 @@ public class SearchField
      * Do not need this for the moment.
      * @param e the <tt>DocumentEvent</tt> that notified us
      */
+    @Override
     public void changedUpdate(DocumentEvent e) {}
 
     /**
@@ -259,6 +260,7 @@ public class SearchField
      * @see JComponent#getUIClassID
      * @see UIDefaults#getUI
      */
+    @Override
     public String getUIClassID()
     {
         return uiClassID;

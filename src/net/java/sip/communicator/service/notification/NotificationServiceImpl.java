@@ -26,7 +26,7 @@ import org.jitsi.service.configuration.*;
 
 /**
  * The implementation of the <tt>NotificationService</tt>.
- * 
+ *
  * @author Yana Stamcheva
  * @author Ingo Bauersachs
  */
@@ -74,7 +74,7 @@ class NotificationServiceImpl
 
     /**
      * Creates an instance of <tt>NotificationServiceImpl</tt> by loading all
-     * previously saved notifications. 
+     * previously saved notifications.
      */
     NotificationServiceImpl()
     {
@@ -85,7 +85,7 @@ class NotificationServiceImpl
     /**
      * Adds an object that executes the actual action of a notification action.
      * If the same action type is added twice, the last added wins.
-     * 
+     *
      * @param handler The handler that executes the action.
      */
     public void addActionHandler(NotificationHandler handler)
@@ -109,7 +109,7 @@ class NotificationServiceImpl
 
     /**
      * Adds the given <tt>listener</tt> to the list of change listeners.
-     * 
+     *
      * @param listener the listener that we'd like to register to listen for
      * changes in the event notifications stored by this service.
      */
@@ -279,10 +279,10 @@ class NotificationServiceImpl
      * If there is a registered event notification of the given
      * <tt>eventType</tt> and the event notification is currently activated, we
      * go through the list of registered actions and execute them.
-     * 
+     *
      * @param eventType the type of the event that we'd like to fire a
      *            notification for.
-     * 
+     *
      * @return An object referencing the notification. It may be used to stop a
      *         still running notification. Can be null if the eventType is
      *         unknown or the notification is not active.
@@ -296,7 +296,7 @@ class NotificationServiceImpl
      * If there is a registered event notification of the given
      * <tt>eventType</tt> and the event notification is currently activated, the
      * list of registered actions is executed.
-     * 
+     *
      * @param eventType the type of the event that we'd like to fire a
      *            notification for.
      * @param title the title of the given message
@@ -304,7 +304,7 @@ class NotificationServiceImpl
      *            systray or log notification.)
      * @param icon the icon to show in the notification if and where appropriate
      * @param tag additional info to be used by the notification handler
-     * 
+     *
      * @return An object referencing the notification. It may be used to stop a
      *         still running notification. Can be null if the eventType is
      *         unknown or the notification is not active.
@@ -322,7 +322,7 @@ class NotificationServiceImpl
      * If there is a registered event notification of the given
      * <tt>eventType</tt> and the event notification is currently activated, the
      * list of registered actions is executed.
-     * 
+     *
      * @param eventType the type of the event that we'd like to fire a
      *            notification for.
      * @param title the title of the given message
@@ -333,7 +333,7 @@ class NotificationServiceImpl
      * to be provided to the firing of the specified notification(s). The
      * well-known keys are defined by the <tt>NotificationData</tt>
      * <tt>XXX_EXTRA</tt> constants.
-     * 
+     *
      * @return An object referencing the notification. It may be used to stop a
      *         still running notification. Can be null if the eventType is
      *         unknown or the notification is not active.
@@ -365,7 +365,7 @@ class NotificationServiceImpl
     /**
      * Notifies all registered <tt>NotificationChangeListener</tt>s that a
      * <tt>NotificationActionTypeEvent</tt> has occurred.
-     * 
+     *
      * @param eventType the type of the event, which is one of ACTION_XXX
      * constants declared in the <tt>NotificationActionTypeEvent</tt> class.
      * @param sourceEventType the <tt>eventType</tt>, which is the parent of the
@@ -404,7 +404,7 @@ class NotificationServiceImpl
     /**
      * Notifies all registered <tt>NotificationChangeListener</tt>s that a
      * <tt>NotificationEventTypeEvent</tt> has occurred.
-     * 
+     *
      * @param eventType the type of the event, which is one of EVENT_TYPE_XXX
      * constants declared in the <tt>NotificationEventTypeEvent</tt> class.
      * @param sourceEventType the <tt>eventType</tt>, for which this event is
@@ -436,7 +436,7 @@ class NotificationServiceImpl
 
     /**
      * Gets a list of handler for the specified action type.
-     * 
+     *
      * @param actionType the type for which the list of handlers should be
      *            retrieved or <tt>null</tt> if all handlers shall be returned.
      */
@@ -460,7 +460,7 @@ class NotificationServiceImpl
     /**
      * Returns the notification action corresponding to the given
      * <tt>eventType</tt> and <tt>actionType</tt>.
-     * 
+     *
      * @param eventType the type of the event that we'd like to retrieve.
      * @param actionType the type of the action that we'd like to retrieve a
      * descriptor for.
@@ -543,7 +543,7 @@ class NotificationServiceImpl
      * notification service. Each line in the returned list consists of
      * a String, representing the name of the event (as defined by the plugin
      * that registered it).
-     *   
+     *
      * @return an iterator over a list of all events registered in this
      * notifications service
      */
@@ -556,7 +556,7 @@ class NotificationServiceImpl
     /**
      * Finds the <tt>EventNotification</tt> corresponding to the given
      * <tt>eventType</tt> and returns its isActive status.
-     * 
+     *
      * @param eventType the name of the event (as defined by the plugin that's
      * registered it) that we are checking.
      * @return <code>true</code> if actions for the specified <tt>eventType</tt>
@@ -600,10 +600,10 @@ class NotificationServiceImpl
                 if(!aType.equals(actionType))
                     continue;
 
-                Object isDefaultdObj = 
+                Object isDefaultdObj =
                     configService.getProperty(actionPropName + ".default");
 
-                // if setting is missing we accept it is true 
+                // if setting is missing we accept it is true
                 // this way we override old saved settings
                 if(isDefaultdObj == null)
                     return true;
@@ -618,7 +618,7 @@ class NotificationServiceImpl
     {
         Object isEnabledObj = configService.getProperty(configProperty);
 
-        // if setting is missing we accept it is true 
+        // if setting is missing we accept it is true
         // this way we not affect old saved settings
         if(isEnabledObj == null)
             return true;
@@ -636,7 +636,7 @@ class NotificationServiceImpl
 
         for (String eventTypeRootPropName : eventTypes)
         {
-            boolean isEventActive = 
+            boolean isEventActive =
                 isEnabled(eventTypeRootPropName + ".active");
 
             String eventType
@@ -727,7 +727,7 @@ class NotificationServiceImpl
     /**
      * Creates a new default <tt>EventNotification</tt> or obtains the
      * corresponding existing one and registers a new action in it.
-     * 
+     *
      * @param eventType the name of the event (as defined by the plugin that's
      * registering it) that we are setting an action for.
      * @param action the <tt>NotificationAction</tt> to register
@@ -738,7 +738,7 @@ class NotificationServiceImpl
     {
         if(isDefault(eventType, action.getActionType()))
         {
-            NotificationAction h = 
+            NotificationAction h =
                 getEventNotificationAction(eventType,
                     action.getActionType());
 
@@ -786,7 +786,7 @@ class NotificationServiceImpl
         else
         {
             notification = new Notification(eventType);
-            
+
             defaultNotifications.put(eventType, notification);
         }
 
@@ -796,7 +796,7 @@ class NotificationServiceImpl
     /**
      * Creates a new default <tt>EventNotification</tt> or obtains the corresponding
      * existing one and registers a new action in it.
-     * 
+     *
      * @param eventType the name of the event (as defined by the plugin that's
      * registering it) that we are setting an action for.
      * @param actionType the type of the action that is to be executed when the
@@ -818,7 +818,7 @@ class NotificationServiceImpl
 
         if(isDefault(eventType, actionType))
         {
-            NotificationAction action = 
+            NotificationAction action =
                 getEventNotificationAction(eventType, actionType);
             boolean isNew = false;
 
@@ -908,11 +908,11 @@ class NotificationServiceImpl
     /**
      * Creates a new <tt>EventNotification</tt> or obtains the corresponding
      * existing one and registers a new action in it.
-     * 
+     *
      * @param eventType the name of the event (as defined by the plugin that's
      * registering it) that we are setting an action for.
      * @param action the <tt>NotificationAction</tt> responsible for
-     * handling the given <tt>actionType</tt> 
+     * handling the given <tt>actionType</tt>
      */
     public void registerNotificationForEvent(   String eventType,
                                                 NotificationAction action)
@@ -959,7 +959,7 @@ class NotificationServiceImpl
     /**
      * Creates a new <tt>EventNotification</tt> or obtains the corresponding
      * existing one and registers a new action in it.
-     * 
+     *
      * @param eventType the name of the event (as defined by the plugin that's
      * registering it) that we are setting an action for.
      * @param actionType the type of the action that is to be executed when the
@@ -976,7 +976,7 @@ class NotificationServiceImpl
                                                 String defaultMessage)
     {
         if (logger.isDebugEnabled())
-            logger.debug("Registering event " + eventType + "/" + 
+            logger.debug("Registering event " + eventType + "/" +
             actionType + "/" + actionDescriptor + "/" + defaultMessage);
 
         if (actionType.equals(ACTION_SOUND))
@@ -1026,14 +1026,14 @@ class NotificationServiceImpl
     /**
      * Removes the <tt>EventNotification</tt> corresponding to the given
      * <tt>eventType</tt> from the table of registered event notifications.
-     * 
+     *
      * @param eventType the name of the event (as defined by the plugin that's
      * registering it) to be removed.
      */
     public void removeEventNotification(String eventType)
     {
         notifications.remove(eventType);
-        
+
         this.fireNotificationEventTypeEvent(
             EVENT_TYPE_REMOVED, eventType);
     }
@@ -1041,7 +1041,7 @@ class NotificationServiceImpl
     /**
      * Removes the given actionType from the list of actions registered for the
      * given <tt>eventType</tt>.
-     * 
+     *
      * @param eventType the name of the event (as defined by the plugin that's
      * registering it) for which we'll remove the notification.
      * @param actionType the type of the action that is to be executed when the
@@ -1052,21 +1052,21 @@ class NotificationServiceImpl
     {
         Notification notification
             = notifications.get(eventType);
-        
+
         if(notification == null)
             return;
 
         NotificationAction action = notification.getAction(actionType);
-        
+
         if(action == null)
             return;
 
         notification.removeAction(actionType);
 
         saveNotification(
-            eventType, 
-            action, 
-            false, 
+            eventType,
+            action,
+            false,
             false);
 
         fireNotificationActionTypeEvent(
@@ -1077,7 +1077,7 @@ class NotificationServiceImpl
 
     /**
      * Removes the given <tt>listener</tt> from the list of change listeners.
-     * 
+     *
      * @param listener the listener that we'd like to remove
      */
     public void removeNotificationChangeListener(
@@ -1090,7 +1090,7 @@ class NotificationServiceImpl
     }
 
     /**
-     * Deletes all registered events and actions 
+     * Deletes all registered events and actions
      * and registers and saves the default events as current.
      */
     public void restoreDefaults()
@@ -1120,7 +1120,7 @@ class NotificationServiceImpl
     /**
      * Saves the event notification given by these parameters through the
      * <tt>ConfigurationService</tt>.
-     * 
+     *
      * @param eventType the name of the event
      * @param action the notification action to change
      * @param isActive is the event active
@@ -1149,9 +1149,9 @@ class NotificationServiceImpl
         if(eventTypeNodeName == null)
         {
             eventTypeNodeName = NOTIFICATIONS_PREFIX
-                                + ".eventType" 
+                                + ".eventType"
                                 + Long.toString(System.currentTimeMillis());
-            
+
             configService.setProperty(eventTypeNodeName, eventType);
         }
 
@@ -1257,9 +1257,9 @@ class NotificationServiceImpl
     /**
      * Finds the <tt>EventNotification</tt> corresponding to the given
      * <tt>eventType</tt> and marks it as activated/deactivated.
-     * 
+     *
      * @param eventType the name of the event, which actions should be activated
-     * /deactivated. 
+     * /deactivated.
      * @param isActive indicates whether to activate or deactivate the actions
      * related to the specified <tt>eventType</tt>.
      */

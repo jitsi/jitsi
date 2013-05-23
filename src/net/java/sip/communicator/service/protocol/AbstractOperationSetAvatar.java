@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.service.protocol;
@@ -16,7 +16,7 @@ import net.java.sip.communicator.util.*;
  * Represents a default implementation of {@link OperationSetAvatar} in order to
  * make it easier for implementers to provide complete solutions while focusing
  * on implementation-specific details.
- * 
+ *
  * @author Damien Roth
  */
 public abstract class AbstractOperationSetAvatar<T extends ProtocolProviderService>
@@ -63,7 +63,7 @@ public abstract class AbstractOperationSetAvatar<T extends ProtocolProviderServi
     {
         this.parentProvider = parentProvider;
         this.accountInfoOpSet = accountInfoOpSet;
-        
+
         this.maxWidth = maxWidth;
         this.maxHeight = maxHeight;
         this.maxSize = maxSize;
@@ -135,7 +135,7 @@ public abstract class AbstractOperationSetAvatar<T extends ProtocolProviderServi
 
     /**
      * Notifies all registered listeners of the new event.
-     * 
+     *
      * @param newAvatar
      *            the new avatar
      */

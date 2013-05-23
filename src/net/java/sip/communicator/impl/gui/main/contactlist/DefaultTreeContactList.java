@@ -82,6 +82,7 @@ public class DefaultTreeContactList
         // on Mac Leopard.
         addMouseListener(new MouseAdapter()
         {
+            @Override
             public void mouseReleased(MouseEvent e)
             {
                 if(myCachedSelectionEvent == null)
@@ -152,6 +153,7 @@ public class DefaultTreeContactList
      *
      * @return The customized tooltip.
      */
+    @Override
     public JToolTip createToolTip()
     {
         Point currentMouseLocation = MouseInfo.getPointerInfo().getLocation();
@@ -282,6 +284,7 @@ public class DefaultTreeContactList
      * @see JComponent#getUIClassID
      * @see UIDefaults#getUI
      */
+    @Override
     public String getUIClassID()
     {
         return uiClassID;

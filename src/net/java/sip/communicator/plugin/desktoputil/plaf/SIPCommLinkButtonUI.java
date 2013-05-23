@@ -27,12 +27,13 @@ public class SIPCommLinkButtonUI
     {
         return ui;
     }
-    
+
+    @Override
     protected void paintText(
             Graphics g, JComponent com, Rectangle rect, String s)
     {
         SIPCommLinkButton bn = (SIPCommLinkButton) com;
-        
+
         ButtonModel bnModel = bn.getModel();
         if (bnModel.isEnabled())
         {
@@ -48,15 +49,15 @@ public class SIPCommLinkButtonUI
             if (bn.getDisabledLinkColor() != null)
                 bn.setForeground(bn.getDisabledLinkColor());
         }
-    
+
         super.paintText(g, com, rect, s);
         int behaviour = bn.getLinkBehavior();
-        
+
         if (!(behaviour == SIPCommLinkButton.HOVER_UNDERLINE
                 && bnModel.isRollover())
             && behaviour != SIPCommLinkButton.ALWAYS_UNDERLINE)
                 return;
-            
+
         FontMetrics fm = g.getFontMetrics();
         int x = rect.x + getTextShiftOffset();
         int y = (rect.y + fm.getAscent()

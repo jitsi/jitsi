@@ -117,7 +117,7 @@ public class GibberishActivator
         if (logger.isInfoEnabled())
             logger.info("Gibberish protocol implementation [STOPPED].");
     }
-    
+
     public static ResourceManagementService getResources()
     {
         if (resourceService == null)

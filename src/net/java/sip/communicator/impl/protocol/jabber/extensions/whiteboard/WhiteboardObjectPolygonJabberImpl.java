@@ -74,7 +74,7 @@ public class WhiteboardObjectPolygonJabberImpl
             builder = factory.newDocumentBuilder ();
             InputStream in = new ByteArrayInputStream (xml.getBytes ());
             Document doc = builder.parse (in);
-            
+
             Element e = doc.getDocumentElement ();
             String elementName = e.getNodeName ();
             if (elementName.equals ("polygon"))
@@ -85,7 +85,7 @@ public class WhiteboardObjectPolygonJabberImpl
                 String stroke = e.getAttribute ("stroke");
                 String stroke_width = e.getAttribute ("stroke-width");
                 String fill = e.getAttribute ("fill");
-                
+
                 this.setID (id);
                 this.setThickness (Integer.parseInt (stroke_width));
                 this.setColor (Color.decode (stroke).getRGB ());
@@ -137,7 +137,7 @@ public class WhiteboardObjectPolygonJabberImpl
      * Converts a String in a "1,3 4,5 5,5 6,6" format into
      * List of <tt>WhiteboardPoint</tt>.
      *
-     * @param points the String to be converted to a 
+     * @param points the String to be converted to a
      * List of <tt>WhiteboardPoint</tt>.
      * @return a List of the String points parameter
      */
@@ -148,22 +148,22 @@ public class WhiteboardObjectPolygonJabberImpl
         {
             return list;
         }
-        
+
         StringTokenizer tokenizer = new StringTokenizer (points);
         while (tokenizer.hasMoreTokens ())
         {
             String token = tokenizer.nextToken ();
-            
+
             String[] coords = token.split (",");
             WhiteboardPoint p = new WhiteboardPoint (
               Double.parseDouble (coords[0]),
               Double.parseDouble (coords[1]));
             list.add (p);
         }
-        
+
         return list;
     }
-    
+
     /**
      * Returns the fill state of the WhiteboardObject.
      *
@@ -173,7 +173,7 @@ public class WhiteboardObjectPolygonJabberImpl
     {
         return this.fill;
     }
-    
+
     /**
      * Sets the fill state of the WhiteboardObject.
      * True is filled, false is unfilled.
@@ -184,7 +184,7 @@ public class WhiteboardObjectPolygonJabberImpl
     {
         this.fill = fill;
     }
-    
+
     /**
      * Specifies the background color for this object. The color parameter
      * must be encoded with standard RGB encoding: bits 24-31 are alpha, 16-23
@@ -197,7 +197,7 @@ public class WhiteboardObjectPolygonJabberImpl
     {
         this.backColor = backColor;
     }
-    
+
     /**
      * Returns an integer representing the background color of this object. The
      * return value uses standard RGB encoding: bits 24-31 are alpha, 16-23 are
@@ -209,7 +209,7 @@ public class WhiteboardObjectPolygonJabberImpl
     {
         return this.backColor;
     }
-    
+
     /**
      * Returns the XML representation of the PacketExtension.
      *
@@ -217,6 +217,7 @@ public class WhiteboardObjectPolygonJabberImpl
      * @todo Implement this org.jivesoftware.smack.packet.PacketExtension
      *   method
      */
+    @Override
     public String toXML ()
     {
         String s = "<polygon id=\"#i\" points=\"#p\" " +
@@ -225,9 +226,9 @@ public class WhiteboardObjectPolygonJabberImpl
         s = s.replaceAll ("#s",  colorToHex (getColor ()));
         s = s.replaceAll ("#w", ""+getThickness ());
         s = s.replaceAll ("#f", ((isFill ())?colorToHex (getColor ()):"none"));
-        
+
         StringBuilder sb = new StringBuilder ();
-        
+
         for (int i = 0; i < listPoints.size (); i++)
         {
             WhiteboardPoint point = listPoints.get (i);

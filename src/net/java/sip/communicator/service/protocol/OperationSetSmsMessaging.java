@@ -58,7 +58,7 @@ public interface OperationSetSmsMessaging
      */
     public void sendSmsMessage(Contact to, Message message)
         throws IllegalStateException, IllegalArgumentException;
-    
+
     /**
      * Sends the <tt>message</tt> to the destination indicated by the
      * <tt>to</tt> parameter.

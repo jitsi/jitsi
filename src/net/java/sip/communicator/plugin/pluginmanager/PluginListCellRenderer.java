@@ -231,6 +231,7 @@ public class PluginListCellRenderer
      * when a cell is selected.
      * @param g the <tt>Graphics</tt> object used for painting
      */
+    @Override
     public void paintComponent(Graphics g)
     {
         super.paintComponent(g);

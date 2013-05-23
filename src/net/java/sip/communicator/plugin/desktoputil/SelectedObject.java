@@ -12,7 +12,7 @@ import javax.swing.*;
  * A convenience class used to store combobox complex objects.
  * The <tt>SelectedObject</tt> is used for all account and status combo boxes
  * throughout this gui implementation.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class SelectedObject
@@ -26,7 +26,7 @@ public class SelectedObject
     /**
      * Creates an instance of <tt>SelectedObject</tt> by specifying the text,
      * icon and object associated with it.
-     * 
+     *
      * @param text The text.
      * @param icon The icon.
      * @param object The object.
@@ -41,7 +41,7 @@ public class SelectedObject
     /**
      * Creates an instance of <tt>SelectedObject</tt> by specifying the
      * icon and object associated with it.
-     * 
+     *
      * @param icon The icon.
      * @param object The object.
      */

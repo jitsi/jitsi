@@ -18,7 +18,7 @@ import net.java.sip.communicator.util.skin.*;
 
 /**
  * The default editor for SIPCommunicator editable combo boxes.
- * 
+ *
  * @author Yana Stamcheva
  * @author Adam Netocny
  */
@@ -44,13 +44,13 @@ public class SIPCommComboBoxEditor
     /**
      * The editor border insets.
      */
-    protected static final Insets editorBorderInsets 
+    protected static final Insets editorBorderInsets
         = new Insets(2, 2, 2, 0);
 
     /**
      * The default editor border insets.
      */
-    private static final Insets SAFE_EDITOR_BORDER_INSETS 
+    private static final Insets SAFE_EDITOR_BORDER_INSETS
         = new Insets(2, 2, 2, 0);
 
     /**
@@ -59,6 +59,7 @@ public class SIPCommComboBoxEditor
     private static class EditorBorder
         extends AbstractBorder
     {
+        @Override
         public void paintBorder(Component c, Graphics g, int x, int y, int w,
                 int h)
         {
@@ -108,6 +109,7 @@ public class SIPCommComboBoxEditor
             g2d.translate(-x, -y);
         }
 
+        @Override
         public Insets getBorderInsets( Component c )
         {
             if (System.getSecurityManager() != null)

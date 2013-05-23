@@ -74,6 +74,7 @@ public class ShutdownTimeout
     {
         Thread shutdownTimeoutThread = new Thread()
         {
+            @Override
             public void run()
             {
                 synchronized(this)

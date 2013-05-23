@@ -24,7 +24,7 @@ public final class ResourceManagementServiceUtils
      * identifier which can either be a two-letter language code or contain a
      * two-letter language code and a two-letter country code in the form
      * <tt>&lt;language&gt;_&lt;country&gt;</tt>.
-     * 
+     *
      * @param localeId the locale identifier describing the new <tt>Locale</tt>
      * instance to be created
      * @return a new <tt>Locale</tt> instance with language and country (if
@@ -52,7 +52,7 @@ public final class ResourceManagementServiceUtils
     /**
      * Gets the <tt>ResourceManagementService</tt> instance registered in a
      * specific <tt>BundleContext</tt> (if any).
-     * 
+     *
      * @param bundleContext the <tt>BundleContext</tt> to be checked for a
      * registered <tt>ResourceManagementService</tt>
      * @return a <tt>ResourceManagementService</tt> instance registered in

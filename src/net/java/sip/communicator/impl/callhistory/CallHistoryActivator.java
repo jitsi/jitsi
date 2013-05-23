@@ -50,7 +50,7 @@ public class CallHistoryActivator
     private static ResourceManagementService resourcesService;
 
     /**
-     * The map containing all registered 
+     * The map containing all registered
      */
     private static final Map<Object, ProtocolProviderFactory>
         providerFactoriesMap = new Hashtable<Object, ProtocolProviderFactory>();
@@ -143,7 +143,7 @@ public class CallHistoryActivator
     /**
      * Returns all <tt>ProtocolProviderFactory</tt>s obtained from the bundle
      * context.
-     * 
+     *
      * @return all <tt>ProtocolProviderFactory</tt>s obtained from the bundle
      *         context
      */
@@ -164,9 +164,9 @@ public class CallHistoryActivator
             logger.error("LoginManager : " + e);
         }
 
-        if (serRefs != null) 
+        if (serRefs != null)
         {
-            for (ServiceReference serRef : serRefs) 
+            for (ServiceReference serRef : serRefs)
             {
                 ProtocolProviderFactory providerFactory
                     = (ProtocolProviderFactory)

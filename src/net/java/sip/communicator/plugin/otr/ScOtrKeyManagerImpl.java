@@ -90,7 +90,7 @@ public class ScOtrKeyManagerImpl
     {
         if (contact == null)
             return false;
-        
+
         return this.configurator.getPropertyBoolean(contact.getAddress()
             + ".publicKey.verified", false);
     }
@@ -183,7 +183,7 @@ public class ScOtrKeyManagerImpl
     {
         if (account == null)
             return null;
-        
+
         String accountID = account.getAccountUniqueID();
         // Load Private Key.
         byte[] b64PrivKey =
@@ -231,7 +231,7 @@ public class ScOtrKeyManagerImpl
     {
         if (account == null)
             return;
-        
+
         String accountID = account.getAccountUniqueID();
         KeyPair keyPair;
         try

@@ -15,14 +15,14 @@ import net.java.sip.communicator.util.*;
 /**
  * Represents the MSN protocol icon. Implements the <tt>ProtocolIcon</tt>
  * interface in order to provide a MSN icon image in two different sizes.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class ProtocolIconMsnImpl
     implements ProtocolIcon
-{    
-    private static Logger logger = Logger.getLogger(ProtocolIconMsnImpl.class); 
-    
+{
+    private static Logger logger = Logger.getLogger(ProtocolIconMsnImpl.class);
+
     /**
      * A hash table containing the protocol icon in different sizes.
      */
@@ -84,7 +84,7 @@ public class ProtocolIconMsnImpl
     {
         return iconsTable.containsKey(iconSize);
     }
-    
+
     /**
      * Returns the icon image in the given size.
      * @param iconSize the icon size; one of ICON_SIZE_XXX constants
@@ -112,16 +112,16 @@ public class ProtocolIconMsnImpl
     {
         return getImageInBytes("msnConnectingIcon");
     }
-    
+
     /**
      * Returns the byte representation of the image corresponding to the given
      * identifier.
-     * 
+     *
      * @param imageID the identifier of the image
      * @return the byte representation of the image corresponding to the given
      * identifier.
      */
-    private static byte[] getImageInBytes(String imageID) 
+    private static byte[] getImageInBytes(String imageID)
     {
         InputStream in = MsnActivator.getResources().
             getImageInputStream(imageID);
@@ -129,13 +129,13 @@ public class ProtocolIconMsnImpl
         if (in == null)
             return null;
         byte[] image = null;
-        try 
+        try
         {
             image = new byte[in.available()];
 
             in.read(image);
         }
-        catch (IOException e) 
+        catch (IOException e)
         {
             logger.error("Failed to load image:" + imageID, e);
         }

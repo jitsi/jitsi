@@ -48,6 +48,7 @@ public class TestOperationSetPresence
         super(name);
     }
 
+    @Override
     protected void setUp() throws Exception
     {
         super.setUp();
@@ -78,6 +79,7 @@ public class TestOperationSetPresence
         }
     }
 
+    @Override
     protected void tearDown() throws Exception
     {
         super.tearDown();
@@ -262,14 +264,14 @@ public class TestOperationSetPresence
         //test event notification.
         statusEventCollector.waitForPresEvent(10000);
         statusEventCollector.waitForStatMsgEvent(10000);
-        
-        // sometimes we don't get response from the server for the 
-        // changed status. we will query it once again. 
+
+        // sometimes we don't get response from the server for the
+        // changed status. we will query it once again.
         // and wait for the response
         if(statusEventCollector.collectedPresEvents.size() == 0)
         {
             logger.trace("Will query again status as we haven't received one");
-            operationSetPresence.queryContactStatus(fixture.icqAccountID.getUserID());
+            operationSetPresence.queryContactStatus(IcqSlickFixture.icqAccountID.getUserID());
             statusEventCollector.waitForPresEvent(10000);
         }
 
@@ -294,8 +296,8 @@ public class TestOperationSetPresence
             newStatus,
             operationSetPresence.getPresenceStatus());
 
-        IcqStatusEnum actualStatus = fixture.testerAgent.getBuddyStatus(
-                                    fixture.icqAccountID.getUserID());
+        IcqStatusEnum actualStatus = IcqSlickFixture.testerAgent.getBuddyStatus(
+                                    IcqSlickFixture.icqAccountID.getUserID());
         assertEquals("The underlying implementation did not switch to the "
                      +"requested presence status.",
                      newStatus,
@@ -414,7 +416,7 @@ public class TestOperationSetPresence
                                           PresenceStatus expectedReturn)
         throws Exception
     {
-        if ( !fixture.testerAgent.enterStatus(taStatusLong) ){
+        if ( !IcqSlickFixture.testerAgent.enterStatus(taStatusLong) ){
             throw new RuntimeException(
                 "Tester UserAgent Failed to switch to the "
                 + expectedReturn.getStatusName() + " state.");
@@ -422,7 +424,7 @@ public class TestOperationSetPresence
 
         PresenceStatus actualReturn
             = operationSetPresence.queryContactStatus(
-                fixture.testerAgent.getIcqUIN());
+                IcqSlickFixture.testerAgent.getIcqUIN());
         assertEquals("Querying a "
                      + expectedReturn.getStatusName()
                      + " state did not return as expected"
@@ -453,10 +455,10 @@ public class TestOperationSetPresence
         {
             authEventCollector.authorizationRequestReason =
                 "Please deny my request!";
-            fixture.testerAgent.getAuthCmdFactory().responseReasonStr =
+            IcqSlickFixture.testerAgent.getAuthCmdFactory().responseReasonStr =
                 "First authorization I will Deny!!!";
-            fixture.testerAgent.getAuthCmdFactory().ACCEPT = false;
-            operationSetPresence.subscribe(fixture.testerAgent.getIcqUIN());
+            IcqSlickFixture.testerAgent.getAuthCmdFactory().ACCEPT = false;
+            operationSetPresence.subscribe(IcqSlickFixture.testerAgent.getIcqUIN());
 
             // this one collects event that the buddy has been added
             // to the list as awaiting
@@ -467,15 +469,15 @@ public class TestOperationSetPresence
             logger.debug("Waiting for authorization error and authorization response...");
             authEventCollector.waitForAuthResponse(15000);
             assertTrue("Error adding buddy not recieved or the buddy(" +
-                       fixture.testerAgent.getIcqUIN() +
+                       IcqSlickFixture.testerAgent.getIcqUIN() +
                        ") doesn't require authorization",
                        authEventCollector.isAuthorizationRequestSent);
 
             assertNotNull("Agent haven't received any reason for authorization",
-                       fixture.testerAgent.getAuthCmdFactory().requestReasonStr);
+                       IcqSlickFixture.testerAgent.getAuthCmdFactory().requestReasonStr);
             assertEquals("Error sent request reason is not as the received one",
                          authEventCollector.authorizationRequestReason,
-                         fixture.testerAgent.getAuthCmdFactory().requestReasonStr
+                         IcqSlickFixture.testerAgent.getAuthCmdFactory().requestReasonStr
                 );
 
             logger.debug("authEventCollector.isAuthorizationResponseReceived " +
@@ -487,13 +489,13 @@ public class TestOperationSetPresence
             boolean isAcceptedAuthReuest =
                 authEventCollector.response.getResponseCode().equals(AuthorizationResponse.ACCEPT);
             assertEquals("Response is not as the sent one",
-                         fixture.testerAgent.getAuthCmdFactory().ACCEPT,
+                         IcqSlickFixture.testerAgent.getAuthCmdFactory().ACCEPT,
                          isAcceptedAuthReuest);
             assertNotNull("We didn't receive any reason! ",
                        authEventCollector.authorizationResponseString);
 
             assertEquals("The sent response reason is not as the received one",
-                         fixture.testerAgent.getAuthCmdFactory().responseReasonStr,
+                         IcqSlickFixture.testerAgent.getAuthCmdFactory().responseReasonStr,
                          authEventCollector.authorizationResponseString);
 
             // here we must wait for server to move the awaiting buddy
@@ -505,7 +507,7 @@ public class TestOperationSetPresence
             }
 
             Contact c = operationSetPresence.findContactByID(
-                    fixture.testerAgent.getIcqUIN());
+                    IcqSlickFixture.testerAgent.getIcqUIN());
             logger.debug("I will remove " + c +
                          " from group : " + c.getParentContactGroup());
 
@@ -527,9 +529,9 @@ public class TestOperationSetPresence
             // so we haven't asserted so everithing is fine lets try to be authorized
             authEventCollector.authorizationRequestReason =
                 "Please accept my request!";
-            fixture.testerAgent.getAuthCmdFactory().responseReasonStr =
+            IcqSlickFixture.testerAgent.getAuthCmdFactory().responseReasonStr =
                 "Second authorization I will Accept!!!";
-            fixture.testerAgent.getAuthCmdFactory().ACCEPT = true;
+            IcqSlickFixture.testerAgent.getAuthCmdFactory().ACCEPT = true;
 
             // clear some things
             authEventCollector.isAuthorizationRequestSent = false;
@@ -537,29 +539,29 @@ public class TestOperationSetPresence
             authEventCollector.authorizationResponseString = null;
 
             logger.debug("I will add buddy does it exists ?  " +
-                         (operationSetPresence.findContactByID(fixture.testerAgent.getIcqUIN()) != null));
+                         (operationSetPresence.findContactByID(IcqSlickFixture.testerAgent.getIcqUIN()) != null));
             // add the listener beacuse now our authorization will be accepted
             // and so the buddy will be finally added to the list
             operationSetPresence.addSubscriptionListener(subEvtCollector);
             // subscribe again so we can trigger again the authorization procedure
-            operationSetPresence.subscribe(fixture.testerAgent.getIcqUIN());
+            operationSetPresence.subscribe(IcqSlickFixture.testerAgent.getIcqUIN());
 
             logger.debug("Waiting ... Subscribe must fail and the authorization process " +
                          "to be trigered again so waiting for auth response ...");
             authEventCollector.waitForAuthResponse(15000);
 
             assertTrue("Error adding buddy not recieved or the buddy(" +
-                       fixture.testerAgent.getIcqUIN() +
+                       IcqSlickFixture.testerAgent.getIcqUIN() +
                        ") doesn't require authorization",
                        authEventCollector.isAuthorizationRequestSent);
 
             assertNotNull("Agent haven't received any reason for authorization",
-                       fixture.testerAgent.getAuthCmdFactory().requestReasonStr);
+                       IcqSlickFixture.testerAgent.getAuthCmdFactory().requestReasonStr);
 
             // not working for now
             assertEquals("Error sent request reason",
                          authEventCollector.authorizationRequestReason,
-                         fixture.testerAgent.getAuthCmdFactory().requestReasonStr
+                         IcqSlickFixture.testerAgent.getAuthCmdFactory().requestReasonStr
                 );
 
             // wait for authorization process to be finnished
@@ -580,13 +582,13 @@ public class TestOperationSetPresence
 
         // after adding awaitingAuthorization group here are catched 3 events
         // 1 - creating unresolved contact
-        // 2 - move of the contact to awaitingAuthorization group 
+        // 2 - move of the contact to awaitingAuthorization group
         // 3 - move of the contact from awaitingAuthorization group to original group
         assertTrue("Subscription event dispatching failed."
                      , subEvtCollector.collectedEvents.size() > 0);
 
         EventObject evt = null;
-        
+
         Iterator<EventObject> events
             = subEvtCollector.collectedEvents.iterator();
         while (events.hasNext())
@@ -594,9 +596,9 @@ public class TestOperationSetPresence
             EventObject elem = events.next();
             if(elem instanceof SubscriptionEvent)
             {
-                if(((SubscriptionEvent)elem).getEventID() 
+                if(((SubscriptionEvent)elem).getEventID()
                     == SubscriptionEvent.SUBSCRIPTION_CREATED)
-                    evt = (SubscriptionEvent)elem;
+                    evt = elem;
             }
         }
 
@@ -617,10 +619,10 @@ public class TestOperationSetPresence
         }
 
         assertEquals("SubscriptionEvent Source:",
-                     fixture.testerAgent.getIcqUIN(),
+                     IcqSlickFixture.testerAgent.getIcqUIN(),
                      ((Contact)source).getAddress());
         assertEquals("SubscriptionEvent Source Contact:",
-                     fixture.testerAgent.getIcqUIN(),
+                     IcqSlickFixture.testerAgent.getIcqUIN(),
                      srcContact.getAddress());
         assertSame("SubscriptionEvent Source Provider:",
                      fixture.provider,
@@ -632,7 +634,7 @@ public class TestOperationSetPresence
         // notified
         logger.debug("Testing presence notifications.");
         IcqStatusEnum testerAgentOldStatus
-            = fixture.testerAgent.getPresneceStatus();
+            = IcqSlickFixture.testerAgent.getPresneceStatus();
         IcqStatusEnum testerAgentNewStatus = IcqStatusEnum.FREE_FOR_CHAT;
         long testerAgentNewStatusLong = FullUserInfo.ICQSTATUS_FFC;
 
@@ -646,12 +648,12 @@ public class TestOperationSetPresence
         //now do the actual status notification testing
         ContactPresenceEventCollector contactPresEvtCollector
             = new ContactPresenceEventCollector(
-                    fixture.testerAgent.getIcqUIN(), testerAgentNewStatus);
+                    IcqSlickFixture.testerAgent.getIcqUIN(), testerAgentNewStatus);
         operationSetPresence.addContactPresenceStatusListener(
             contactPresEvtCollector);
 
         synchronized (contactPresEvtCollector){
-            if (!fixture.testerAgent.enterStatus(testerAgentNewStatusLong))
+            if (!IcqSlickFixture.testerAgent.enterStatus(testerAgentNewStatusLong))
             {
                 throw new RuntimeException(
                     "Tester UserAgent Failed to switch to the "
@@ -665,14 +667,14 @@ public class TestOperationSetPresence
 
         if(contactPresEvtCollector.collectedEvents.size() == 0)
         {
-            logger.info("PROBLEM. Authorisation process doesn't have finnished " + 
+            logger.info("PROBLEM. Authorisation process doesn't have finnished " +
                 "Server doesn't report us for changing authorization flag! Will try to authorize once again");
 
-            fixture.testerAgent.sendAuthorizationReplay(
-                fixture.icqAccountID.getUserID(), 
-                fixture.testerAgent.getAuthCmdFactory().responseReasonStr,
-                fixture.testerAgent.getAuthCmdFactory().ACCEPT);
-            
+            IcqSlickFixture.testerAgent.sendAuthorizationReplay(
+                IcqSlickFixture.icqAccountID.getUserID(),
+                IcqSlickFixture.testerAgent.getAuthCmdFactory().responseReasonStr,
+                IcqSlickFixture.testerAgent.getAuthCmdFactory().ACCEPT);
+
             Object obj = new Object();
             synchronized(obj)
             {
@@ -680,8 +682,8 @@ public class TestOperationSetPresence
                 obj.wait(10000);
                 logger.debug("Stop waiting!");
             }
-            
-            testerAgentOldStatus = fixture.testerAgent.getPresneceStatus();
+
+            testerAgentOldStatus = IcqSlickFixture.testerAgent.getPresneceStatus();
             testerAgentNewStatusLong = FullUserInfo.ICQSTATUS_FFC;
 
             //in case we are by any chance already in a FREE_FOR_CHAT status, we'll
@@ -689,15 +691,15 @@ public class TestOperationSetPresence
             if(testerAgentOldStatus.equals(testerAgentNewStatus)){
                 testerAgentNewStatus = IcqStatusEnum.OCCUPIED;
                 testerAgentNewStatusLong = FullUserInfo.ICQSTATUS_OCCUPIED;
-            }   
-            
+            }
+
             contactPresEvtCollector = new ContactPresenceEventCollector(
-                    fixture.testerAgent.getIcqUIN(), testerAgentNewStatus);
+                    IcqSlickFixture.testerAgent.getIcqUIN(), testerAgentNewStatus);
             operationSetPresence.addContactPresenceStatusListener(
                 contactPresEvtCollector);
 
             synchronized (contactPresEvtCollector){
-                if (!fixture.testerAgent.enterStatus(testerAgentNewStatusLong))
+                if (!IcqSlickFixture.testerAgent.enterStatus(testerAgentNewStatusLong))
                 {
                     throw new RuntimeException(
                         "Tester UserAgent Failed to switch to the "
@@ -710,7 +712,7 @@ public class TestOperationSetPresence
             }
         }
 
-        
+
         assertEquals("Presence Notif. event dispatching failed."
                      , 1, contactPresEvtCollector.collectedEvents.size());
         ContactPresenceStatusChangeEvent presEvt =
@@ -718,10 +720,10 @@ public class TestOperationSetPresence
                 contactPresEvtCollector.collectedEvents.get(0);
 
         assertEquals("Presence Notif. event  Source:",
-                     fixture.testerAgent.getIcqUIN(),
+                     IcqSlickFixture.testerAgent.getIcqUIN(),
                      ((Contact)presEvt.getSource()).getAddress());
         assertEquals("Presence Notif. event  Source Contact:",
-                     fixture.testerAgent.getIcqUIN(),
+                     IcqSlickFixture.testerAgent.getIcqUIN(),
                      presEvt.getSourceContact().getAddress());
         assertSame("Presence Notif. event  Source Provider:",
                      fixture.provider,
@@ -740,7 +742,7 @@ public class TestOperationSetPresence
 
         /** @todo tester agent changes status message we see the new message */
         /** @todo we should see the alias of the tester agent. */
-        
+
         Object obj = new Object();
         synchronized(obj)
         {
@@ -768,7 +770,7 @@ public class TestOperationSetPresence
         operationSetPresence.addSubscriptionListener(subEvtCollector);
 
         Contact icqTesterAgentContact = operationSetPresence
-            .findContactByID(fixture.testerAgent.getIcqUIN());
+            .findContactByID(IcqSlickFixture.testerAgent.getIcqUIN());
 
         assertNotNull(
             "Failed to find an existing subscription for the tester agent"
@@ -803,7 +805,7 @@ public class TestOperationSetPresence
         // get notifications as we're now unsubscribed.
         logger.debug("Testing (lack of) presence notifications.");
         IcqStatusEnum testerAgentOldStatus
-            = fixture.testerAgent.getPresneceStatus();
+            = IcqSlickFixture.testerAgent.getPresneceStatus();
         IcqStatusEnum testerAgentNewStatus = IcqStatusEnum.FREE_FOR_CHAT;
         long testerAgentNewStatusLong = FullUserInfo.ICQSTATUS_FFC;
 
@@ -818,13 +820,13 @@ public class TestOperationSetPresence
         //now do the actual status notification testing
         ContactPresenceEventCollector contactPresEvtCollector
             = new ContactPresenceEventCollector(
-                        fixture.testerAgent.getIcqUIN(), null);
+                        IcqSlickFixture.testerAgent.getIcqUIN(), null);
         operationSetPresence.addContactPresenceStatusListener(
             contactPresEvtCollector);
 
         synchronized (contactPresEvtCollector)
         {
-            if (!fixture.testerAgent.enterStatus(testerAgentNewStatusLong))
+            if (!IcqSlickFixture.testerAgent.enterStatus(testerAgentNewStatusLong))
             {
                 throw new RuntimeException(
                     "Tester UserAgent Failed to switch to the "
@@ -1277,6 +1279,7 @@ public class TestOperationSetPresence
             }
         }
 
+        @Override
         public void subscriptionRemoved(SubscriptionEvent evt)
         {
             synchronized(this)
@@ -1303,14 +1306,14 @@ public class TestOperationSetPresence
         logger.debug("authEventCollector " + authEventCollector);
         authEventCollector.isAuthorizationRequestReceived = false;
         authEventCollector.authorizationRequestReason = null;
-        fixture.testerAgent.getAuthCmdFactory().requestReasonStr = "Deny my first request!";
-        fixture.testerAgent.getAuthCmdFactory().isErrorAddingReceived = false;
-        fixture.testerAgent.getAuthCmdFactory().responseReasonStr = null;
-        fixture.testerAgent.getAuthCmdFactory().isRequestAccepted = false;
+        IcqSlickFixture.testerAgent.getAuthCmdFactory().requestReasonStr = "Deny my first request!";
+        IcqSlickFixture.testerAgent.getAuthCmdFactory().isErrorAddingReceived = false;
+        IcqSlickFixture.testerAgent.getAuthCmdFactory().responseReasonStr = null;
+        IcqSlickFixture.testerAgent.getAuthCmdFactory().isRequestAccepted = false;
 
         // be sure buddy is not already in the list
-        fixture.testerAgent.deleteBuddy(fixture.ourUserID);
-        fixture.testerAgent.addBuddy(fixture.ourUserID);
+        IcqSlickFixture.testerAgent.deleteBuddy(fixture.ourUserID);
+        IcqSlickFixture.testerAgent.addBuddy(fixture.ourUserID);
 
         // wait agent to receive error and to request us for our authorization
         authEventCollector.waitForAuthRequest(25000);
@@ -1319,7 +1322,7 @@ public class TestOperationSetPresence
         assertTrue("Error adding buddy not recieved or the buddy(" +
                        fixture.ourUserID +
                        ") doesn't require authorization 1",
-                       fixture.testerAgent.getAuthCmdFactory().isErrorAddingReceived);
+                       IcqSlickFixture.testerAgent.getAuthCmdFactory().isErrorAddingReceived);
 
         assertTrue("We haven't received any authorization request ",
                        authEventCollector.isAuthorizationRequestReceived);
@@ -1328,7 +1331,7 @@ public class TestOperationSetPresence
                       authEventCollector.authorizationRequestReason);
 
         assertEquals("Error sent request reason is not as the received one",
-                     fixture.testerAgent.getAuthCmdFactory().requestReasonStr,
+                     IcqSlickFixture.testerAgent.getAuthCmdFactory().requestReasonStr,
                      authEventCollector.authorizationRequestReason
         );
 
@@ -1348,18 +1351,18 @@ public class TestOperationSetPresence
                       authEventCollector.authorizationRequestReason);
 
         assertEquals("Received auth response from agent is not as the sent one",
-                     fixture.testerAgent.getAuthCmdFactory().responseReasonStr,
+                     IcqSlickFixture.testerAgent.getAuthCmdFactory().responseReasonStr,
                      firstRequestResponse);
 
         boolean isAcceptedAuthReuest =
                 authEventCollector.responseToRequest.getResponseCode().equals(AuthorizationResponse.ACCEPT);
         assertEquals("Agent received Response is not as the sent one",
-                     fixture.testerAgent.getAuthCmdFactory().isRequestAccepted,
+                     IcqSlickFixture.testerAgent.getAuthCmdFactory().isRequestAccepted,
                      isAcceptedAuthReuest);
 
         // delete us from his list
         // be sure buddy is not already in the list
-        fixture.testerAgent.deleteBuddy(fixture.ourUserID);
+        IcqSlickFixture.testerAgent.deleteBuddy(fixture.ourUserID);
 
         // set second response isAccepted and responseString
         // the second test is the same as first, but this time we accept
@@ -1369,13 +1372,13 @@ public class TestOperationSetPresence
             new AuthorizationResponse(AuthorizationResponse.ACCEPT, secondRequestResponse);
         authEventCollector.isAuthorizationRequestReceived = false;
         authEventCollector.authorizationRequestReason = null;
-        fixture.testerAgent.getAuthCmdFactory().requestReasonStr = "Accept my second request!";
-        fixture.testerAgent.getAuthCmdFactory().isErrorAddingReceived = false;
-        fixture.testerAgent.getAuthCmdFactory().responseReasonStr = null;
-        fixture.testerAgent.getAuthCmdFactory().isRequestAccepted = false;
+        IcqSlickFixture.testerAgent.getAuthCmdFactory().requestReasonStr = "Accept my second request!";
+        IcqSlickFixture.testerAgent.getAuthCmdFactory().isErrorAddingReceived = false;
+        IcqSlickFixture.testerAgent.getAuthCmdFactory().responseReasonStr = null;
+        IcqSlickFixture.testerAgent.getAuthCmdFactory().isRequestAccepted = false;
 
         // add us to his list again
-        fixture.testerAgent.addBuddy(fixture.ourUserID);
+        IcqSlickFixture.testerAgent.addBuddy(fixture.ourUserID);
 
         // wait agent to receive error and to request us for our authorization
         authEventCollector.waitForAuthRequest(25000);
@@ -1384,7 +1387,7 @@ public class TestOperationSetPresence
         assertTrue("Error adding buddy not recieved or the buddy(" +
                               fixture.ourUserID +
                               ") doesn't require authorization 2",
-                              fixture.testerAgent.getAuthCmdFactory().isErrorAddingReceived);
+                              IcqSlickFixture.testerAgent.getAuthCmdFactory().isErrorAddingReceived);
 
        assertTrue("We haven't received any authorization request ",
                       authEventCollector.isAuthorizationRequestReceived);
@@ -1393,7 +1396,7 @@ public class TestOperationSetPresence
                      authEventCollector.authorizationRequestReason);
 
        assertEquals("Error sent request reason is not as the received one",
-                    fixture.testerAgent.getAuthCmdFactory().requestReasonStr,
+                    IcqSlickFixture.testerAgent.getAuthCmdFactory().requestReasonStr,
                     authEventCollector.authorizationRequestReason
         );
         // wait agent to receive our response
@@ -1409,13 +1412,13 @@ public class TestOperationSetPresence
                               authEventCollector.authorizationRequestReason);
 
         assertEquals("Received auth response from agent is not as the sent one",
-                     fixture.testerAgent.getAuthCmdFactory().responseReasonStr,
+                     IcqSlickFixture.testerAgent.getAuthCmdFactory().responseReasonStr,
                      secondRequestResponse);
 
         isAcceptedAuthReuest =
                 authEventCollector.responseToRequest.getResponseCode().equals(AuthorizationResponse.ACCEPT);
         assertEquals("Agent received Response is not as the sent one",
-                     fixture.testerAgent.getAuthCmdFactory().isRequestAccepted,
+                     IcqSlickFixture.testerAgent.getAuthCmdFactory().isRequestAccepted,
              isAcceptedAuthReuest);
     }
 }

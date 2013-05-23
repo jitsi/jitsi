@@ -86,7 +86,7 @@ public class CallJabberImpl
      * Closes a specific <tt>ColibriStreamConnector</tt> which is associated with
      * a <tt>MediaStream</tt> of a specific <tt>MediaType</tt> upon request from
      * a specific <tt>CallPeer</tt>.
-     * 
+     *
      * @param peer the <tt>CallPeer</tt> which requests the closing of the
      * specified <tt>colibriStreamConnector</tt>
      * @param mediaType the <tt>MediaType</tt> of the <tt>MediaStream</tt> with
@@ -107,7 +107,7 @@ public class CallJabberImpl
      *
      * Sends a <tt>content</tt> message to each of the <tt>CallPeer</tt>s
      * associated with this <tt>CallJabberImpl</tt> in order to include/exclude
-     * the &quot;isfocus&quot; attribute. 
+     * the &quot;isfocus&quot; attribute.
      */
     @Override
     protected void conferenceFocusChanged(boolean oldValue, boolean newValue)
@@ -613,6 +613,7 @@ public class CallJabberImpl
      * @throws OperationFailedException if a problem occurred during message
      * generation or there was a network problem
      */
+    @Override
     public void modifyVideoContent()
         throws OperationFailedException
     {

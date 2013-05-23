@@ -44,7 +44,7 @@ public class VideoConferenceCallPanel
      * The compile-time flag which indicates whether each video displayed by
      * <tt>VideoConferenceCallPanel</tt> is to be depicted with an associated
      * tool bar showing information and controls related to the (local or
-     * remote) peer sending the respective video. 
+     * remote) peer sending the respective video.
      */
     private static final boolean SHOW_TOOLBARS = true;
 
@@ -96,7 +96,7 @@ public class VideoConferenceCallPanel
      * @param callConference the <tt>CallConference</tt> to be depicted by the
      * new instance
      * @param uiVideoHandler the utility which is to aid the new instance in
-     * dealing with the video-related information 
+     * dealing with the video-related information
      */
     public VideoConferenceCallPanel(
             CallPanel callPanel,
@@ -325,7 +325,7 @@ public class VideoConferenceCallPanel
      * (local) accounts. That's why the implementation determines whether the
      * address of the specified <tt>conferenceMember</tt> identifies the address
      * of a (local) accounts involved in the telephony conference depicted by
-     * this instance.  
+     * this instance.
      *
      * @param conferenceMember the <tt>ConferenceMember</tt> to be checked
      * whether it represents the local peer/user
@@ -389,7 +389,7 @@ public class VideoConferenceCallPanel
      * retrieved the specified <tt>videos</tt> from the <tt>CallPeer</tt>
      * depicted by <tt>cpc</tt>. While the <tt>CallPeer</tt> could be queried
      * for it, such a query would waste more resources at run time given that
-     * the invoker has it already. 
+     * the invoker has it already.
      */
     private void updateConferenceMemberContainers(
             ConferenceParticipantContainer cpc,
@@ -594,6 +594,7 @@ public class VideoConferenceCallPanel
     /**
      * {@inheritDoc}
      */
+    @Override
     protected ConferenceCallPeerRenderer updateViewFromModel(
             ConferenceCallPeerRenderer callPeerPanel,
             CallPeer callPeer)
@@ -1346,7 +1347,7 @@ public class VideoConferenceCallPanel
          * with the participant depicted by this instance.
          *
          * @param video the visual <tt>Component</tt> displaying video which is
-         * to be associated with the participant depicted by this instance 
+         * to be associated with the participant depicted by this instance
          */
         void setVideo(Component video)
         {

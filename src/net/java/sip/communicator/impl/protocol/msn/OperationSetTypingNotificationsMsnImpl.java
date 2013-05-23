@@ -98,7 +98,7 @@ public class OperationSetTypingNotificationsMsnImpl
     /**
      * Sets the messenger instance impl of the lib which communicates with the
      * server
-     * 
+     *
      * @param messenger
      *            MsnMessenger
      */
@@ -122,6 +122,7 @@ public class OperationSetTypingNotificationsMsnImpl
          * @param message
          * @param contact
          */
+        @Override
         public void controlMessageReceived(MsnSwitchboard switchboard,
                                                MsnControlMessage message,
                                                MsnContact contact)

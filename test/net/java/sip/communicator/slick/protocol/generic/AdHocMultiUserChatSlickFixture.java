@@ -15,10 +15,10 @@ import org.osgi.framework.*;
 
 /**
  * Generic Slick fixture for ad-hoc multi-user chat.
- * 
+ *
  * @author Valentin Martinet
  */
-public abstract class AdHocMultiUserChatSlickFixture extends TestCase 
+public abstract class AdHocMultiUserChatSlickFixture extends TestCase
 {
     /**
      * To be set by the slick itself upon activation.
@@ -110,15 +110,15 @@ public abstract class AdHocMultiUserChatSlickFixture extends TestCase
     }
 
     /**
-     * 
-     * 
+     *
+     *
      * @throws IllegalArgumentException
      * @throws IllegalStateException
      * @throws OperationFailedException
      */
-    public void clearProvidersLists() 
-    throws IllegalArgumentException, 
-    IllegalStateException, 
+    public void clearProvidersLists()
+    throws IllegalArgumentException,
+    IllegalStateException,
     OperationFailedException
     {
         Map<String, OperationSet> supportedOperationSets1 =
@@ -231,17 +231,17 @@ public abstract class AdHocMultiUserChatSlickFixture extends TestCase
 
     /**
      * Delete all groups and contacts for the given persistent presence op. set.
-     * 
+     *
      * @param opSetPersPresence
      * @throws IllegalArgumentException
      * @throws IllegalStateException
      * @throws OperationFailedException
      */
-    public void deleteGroups(OperationSetPersistentPresence opSetPersPresence) 
-    throws IllegalArgumentException, IllegalStateException, 
+    public void deleteGroups(OperationSetPersistentPresence opSetPersPresence)
+    throws IllegalArgumentException, IllegalStateException,
     OperationFailedException
     {
-        ContactGroup rootGroup = 
+        ContactGroup rootGroup =
             opSetPersPresence.getServerStoredContactListRoot();
 
         // first delete the groups
@@ -276,16 +276,18 @@ public abstract class AdHocMultiUserChatSlickFixture extends TestCase
     /**
      * JUnit setUp
      */
-    public void setUp() throws Exception 
+    @Override
+    public void setUp() throws Exception
     {
         super.setUp();
-    }   
+    }
 
     /**
      * JUnit tearDown method.
      * Unget service references used in here.
      */
-    public void tearDown() throws Exception 
+    @Override
+    public void tearDown() throws Exception
     {
         bc.ungetService(provider1ServiceRef);
         bc.ungetService(provider2ServiceRef);

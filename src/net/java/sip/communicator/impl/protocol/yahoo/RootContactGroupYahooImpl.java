@@ -114,7 +114,7 @@ public class RootContactGroupYahooImpl
      */
     public ContactGroup getGroup(int index)
     {
-        return (ContactGroupYahooImpl) subGroups.get(index);
+        return subGroups.get(index);
     }
 
     /**
@@ -190,6 +190,7 @@ public class RootContactGroupYahooImpl
      *
      * @return  a string representation of this root contact group.
      */
+    @Override
     public String toString()
     {
         StringBuffer buff = new StringBuffer(getGroupName());

@@ -146,6 +146,7 @@ public class SubscriptionEvent
      *
      * @return  A a String representation of this <tt>SubscriptionEvent</tt>.
      */
+    @Override
     public String toString()
     {
         StringBuffer buff

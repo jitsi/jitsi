@@ -18,7 +18,7 @@ import java.text.*;
 import java.util.*;
 
 /**
- * The abstract class for ResourceManagementService. It listens for 
+ * The abstract class for ResourceManagementService. It listens for
  * {@link ResourcePack} that are registered and exposes them later for use by
  * subclasses. It implements default behaviour for most methods.
  */
@@ -392,7 +392,7 @@ public abstract class AbstractResourcesService
 
     /**
      * Returns the string for given <tt>key</tt> for specified <tt>locale</tt>.
-     * It's the real process of retrieving string for specified locale. 
+     * It's the real process of retrieving string for specified locale.
      * The result is used in other methods that operate on localized strings.
      *
      * @param key the key name for the string
@@ -459,9 +459,9 @@ public abstract class AbstractResourcesService
     }
 
     /**
-     * Does the additional processing on the resource string. It removes "&" 
+     * Does the additional processing on the resource string. It removes "&"
      * marks used for mnemonics and other characters.
-     * 
+     *
      * @param resourceString the resource string to be processed
      * @return the processed string
      */

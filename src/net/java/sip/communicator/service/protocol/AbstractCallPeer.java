@@ -117,7 +117,7 @@ public abstract class AbstractCallPeer<T extends Call,
     private CallPeerState state = CallPeerState.UNKNOWN;
 
     /**
-     * 
+     *
      */
     private String alternativeIMPPAddress;
 

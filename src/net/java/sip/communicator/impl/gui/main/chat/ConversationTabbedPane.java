@@ -21,7 +21,7 @@ import net.java.sip.communicator.util.skin.*;
  * The <tt>ConversationTabbedPane</tt> is a <tt>SIPCommTabbedPane</tt> that
  * takes into account the number of unread messages received in a certain tab
  * and shows this information to the user.
- * 
+ *
  * @author Yana Stamcheva
  * @author Adam Netocny
  */
@@ -78,9 +78,10 @@ public class ConversationTabbedPane
     /**
      * Overrides setSelectedIndex in SIPCommTabbedPane in order to remove the
      * indicator of number of unread messages previously set.
-     * 
+     *
      * @param tabIndex the index of the tab to be selected
      */
+    @Override
     public void setSelectedIndex(int tabIndex)
     {
         if (tabIndex < 0)
@@ -135,6 +136,7 @@ public class ConversationTabbedPane
     /**
      * Reloads status icons.
      */
+    @Override
     public void loadSkin()
     {
         super.loadSkin();

@@ -479,7 +479,7 @@ class OtrContactMenu
 
         /**
          * The <tt>OtrContactMenu</tt> which is associated with this instance
-         * and which is to listen to {@link #engine} and {@link #keyManager}. 
+         * and which is to listen to {@link #engine} and {@link #keyManager}.
          */
         private final WeakReference<OtrContactMenu> listener;
 

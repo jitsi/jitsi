@@ -21,7 +21,7 @@ import net.java.sip.communicator.util.skin.*;
  * The <tt>ChatRightButtonMenu</tt> appears when the user makes a right button
  * click on the chat window conversation area (where sent and received messages
  * are displayed).
- *  
+ *
  * @author Yana Stamcheva
  * @author Adam Netocny
  */
@@ -42,7 +42,7 @@ public class ChatRightButtonMenu
 
     /**
      * Creates an instance of <tt>ChatRightButtonMenu</tt>.
-     *  
+     *
      * @param chatConvPanel The conversation panel, where this menu will apear.
      */
     public ChatRightButtonMenu(ChatConversationPanel chatConvPanel)

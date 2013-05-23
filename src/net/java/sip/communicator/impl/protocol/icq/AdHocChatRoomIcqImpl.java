@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.impl.protocol.icq;
@@ -17,7 +17,7 @@ import net.kano.joustsim.oscar.oscar.service.chatrooms.*;
 /**
  * Represents an ad-hoc chat room, where multiple chat users could communicate
  * in a many-to-many fashion.
- * 
+ *
  * @author Valentin Martinet
  */
 public class AdHocChatRoomIcqImpl
@@ -102,7 +102,7 @@ public class AdHocChatRoomIcqImpl
     /**
      * Constructor for chat room instances, with a given chat room invitation.
      * If this constructor is used the user was invited to a chat room.
-     * 
+     *
      * @param chatInvitation Chat room invitation that the user received from
      *            the ICQ network
      * @param icqProvider The ICQ provider
@@ -122,7 +122,7 @@ public class AdHocChatRoomIcqImpl
 
     /**
      * Constructor for chat room instances.
-     * 
+     *
      * @param roomName The name of the chat room.
      * @param chatRoomSession Chat room session from the icq network
      * @param icqProvider The icq provider
@@ -148,7 +148,7 @@ public class AdHocChatRoomIcqImpl
     /**
      * Adds a listener that will be notified of changes in our status in the
      * room such as us being kicked, banned, or granted admin permissions.
-     * 
+     *
      * @param listener a participant status listener.
      */
     public void addParticipantPresenceListener(
@@ -164,7 +164,7 @@ public class AdHocChatRoomIcqImpl
     /**
      * Registers <tt>listener</tt> so that it would receive events every time a
      * new message is received on this chat room.
-     * 
+     *
      * @param listener a <tt>MessageListener</tt> that would be notified every
      *            time a new message is received on this chat room.
      */
@@ -179,7 +179,7 @@ public class AdHocChatRoomIcqImpl
 
     /**
      * Create a Message instance for sending arbitrary MIME-encoding content.
-     * 
+     *
      * @param content content value
      * @param contentType the MIME-type for <tt>content</tt>
      * @param contentEncoding encoding used for <tt>content</tt>
@@ -197,7 +197,7 @@ public class AdHocChatRoomIcqImpl
     /**
      * Create a Message instance for sending a simple text messages with default
      * (text/plain) content type and encoding.
-     * 
+     *
      * @param messageText the string content of the message.
      * @return Message the newly created message
      */
@@ -213,7 +213,7 @@ public class AdHocChatRoomIcqImpl
 
     /**
      * Returns the identifier of this <tt>AdHocChatRoom</tt>.
-     * 
+     *
      * @return a <tt>String</tt> containing the identifier of this
      *         <tt>AdHocChatRoom</tt>.
      */
@@ -225,7 +225,7 @@ public class AdHocChatRoomIcqImpl
     /**
      * Returns a <tt>List</tt> of <tt>Contact</tt>s corresponding to all
      * participants currently participating in this room.
-     * 
+     *
      * @return a <tt>List</tt> of <tt>Contact</tt> corresponding to all room
      *         participants.
      */
@@ -236,7 +236,7 @@ public class AdHocChatRoomIcqImpl
 
     /**
      * Returns the number of participants that are currently in this chat room.
-     * 
+     *
      * @return the number of <tt>Contact</tt>s, currently participating in this
      *         room.
      */
@@ -247,7 +247,7 @@ public class AdHocChatRoomIcqImpl
 
     /**
      * Returns the name of this <tt>AdHocChatRoom</tt>.
-     * 
+     *
      * @return a <tt>String</tt> containing the name of this <tt>ChatRoom</tt>.
      */
     public String getName()
@@ -257,7 +257,7 @@ public class AdHocChatRoomIcqImpl
 
     /**
      * Returns the protocol provider service that created us.
-     * 
+     *
      * @return the protocol provider service that created us.
      */
     public ProtocolProviderService getParentProvider()
@@ -272,7 +272,7 @@ public class AdHocChatRoomIcqImpl
      * To be notified every time the room's subject change you should add a
      * <tt>ChatRoomPropertyChangelistener</tt> to this room.
      * <p>
-     * 
+     *
      * @return the room subject or <tt>null</tt> if the user hasn't joined the
      *         room or the room does not have a subject yet.
      */
@@ -284,7 +284,7 @@ public class AdHocChatRoomIcqImpl
     /**
      * Returns the local user's nickname in the context of this chat room or
      * <tt>null</tt> if not currently joined.
-     * 
+     *
      * @return the nickname currently being used by the local user in the
      *         context of the local chat room.
      */
@@ -301,7 +301,7 @@ public class AdHocChatRoomIcqImpl
     /**
      * Invites another user to this room. If we're not joined nothing will
      * happen.
-     * 
+     *
      * @param userAddress the address of the user (email address) to invite to
      *            the room.(one may also invite users not on their contact
      *            list).
@@ -323,7 +323,7 @@ public class AdHocChatRoomIcqImpl
     /**
      * Joins this chat room with the nickname of the local user so that the user
      * would start receiving events and messages for it.
-     * 
+     *
      * @throws OperationFailedException with the corresponding code if an error
      *             occurs while joining the room.
      */
@@ -387,7 +387,7 @@ public class AdHocChatRoomIcqImpl
     /**
      * Removes a listener that was being notified of changes in the status of
      * other ad-hoc chat room participants.
-     * 
+     *
      * @param listener a participant status listener.
      */
     public void removeParticipantPresenceListener(
@@ -402,7 +402,7 @@ public class AdHocChatRoomIcqImpl
     /**
      * Removes <tt>listener</tt> so that it won't receive any further message
      * events from this room.
-     * 
+     *
      * @param listener the <tt>MessageListener</tt> to remove from this room
      */
     public void removeMessageListener(AdHocChatRoomMessageListener listener)
@@ -416,7 +416,7 @@ public class AdHocChatRoomIcqImpl
     /**
      * Sends the <tt>message</tt> to the destination indicated by the
      * <tt>to</tt> contact.
-     * 
+     *
      * @param message The <tt>Message</tt> to send.
      * @throws OperationFailedException if the underlying stack is not
      *             registered or initialized or if the chat room is not joined.
@@ -454,7 +454,7 @@ public class AdHocChatRoomIcqImpl
      * <tt>ChatRoomMessageDeliveredEvent</tt>,
      * <tt>ChatRoomMessageReceivedEvent</tt> or a
      * <tt>ChatRoomMessageDeliveryFailedEvent</tt> has been fired.
-     * 
+     *
      * @param evt The specific event
      */
     public void fireMessageEvent(EventObject evt)
@@ -493,7 +493,7 @@ public class AdHocChatRoomIcqImpl
      * Creates the corresponding AdHocChatRoomParticipantPresenceChangeEvent and
      * notifies all <tt>AdHocChatRoomParticipantPresenceListener</tt>s that a
      * Contact has joined or left this <tt>AdHocChatRoom</tt>.
-     * 
+     *
      * @param member the <tt>Contact</tt> that this
      * @param eventID the identifier of the event
      * @param eventReason the reason of the event
@@ -528,7 +528,7 @@ public class AdHocChatRoomIcqImpl
     /**
      * Our listener for all events for this chat room, e.g. incoming messages or
      * users that leave or join the chat room.
-     * 
+     *
      */
 
     private class AdHocChatRoomSessionListenerImpl
@@ -541,7 +541,7 @@ public class AdHocChatRoomIcqImpl
 
         /**
          * Constructor for this listener, needed to set the chatRoom.
-         * 
+         *
          * @param room The containing chat room.
          */
         public AdHocChatRoomSessionListenerImpl(AdHocChatRoomIcqImpl room)
@@ -551,7 +551,7 @@ public class AdHocChatRoomIcqImpl
 
         /**
          * Handles incoming messages for the specified chat room.
-         * 
+         *
          * @param chatRoomSession Specific chat room session
          * @param chatRoomUser The User who sends the message
          * @param chatMessage The message
@@ -665,7 +665,7 @@ public class AdHocChatRoomIcqImpl
     /**
      * Updates the member list, if the given boolean is true given members will
      * be added, if it is false the given members will be removed.
-     * 
+     *
      * @param chatRoomUserSet New members or members to remove
      * @param removeMember True if members should be removed, False if members
      *            should be added.
@@ -715,7 +715,7 @@ public class AdHocChatRoomIcqImpl
     /**
      * Utility method throwing an exception if the stack is not properly
      * initialized.
-     * 
+     *
      * @throws java.lang.IllegalStateException if the underlying stack is not
      *             registered and initialized.
      */
@@ -733,7 +733,7 @@ public class AdHocChatRoomIcqImpl
 
     /**
      * Finds the member of this chat room corresponding to the given nick name.
-     * 
+     *
      * @param nickName the nick name to search for.
      * @return the member of this chat room corresponding to the given nick
      *         name.

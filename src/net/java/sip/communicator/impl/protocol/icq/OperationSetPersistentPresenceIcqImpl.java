@@ -876,6 +876,7 @@ public class OperationSetPersistentPresenceIcqImpl
             private boolean ran = false;
             private long status = -1;
 
+            @Override
             public void handleResponse(SnacResponseEvent e) {
                 SnacCommand snac = e.getSnacCommand();
 
@@ -919,6 +920,7 @@ public class OperationSetPersistentPresenceIcqImpl
 
             }
 
+            @Override
             public void handleTimeout(SnacRequestTimeoutEvent event) {
                 synchronized(this) {
                     if (ran) return;
@@ -964,6 +966,7 @@ public class OperationSetPersistentPresenceIcqImpl
      * @param listener a ServerStoredGroupChangeListener impl that would receive
      * events upong group changes.
      */
+    @Override
     public void addServerStoredGroupChangeListener(
         ServerStoredGroupListener listener)
     {
@@ -975,6 +978,7 @@ public class OperationSetPersistentPresenceIcqImpl
      * any further events.
      * @param listener the ServerStoredGroupChangeListener to remove
      */
+    @Override
     public void removeServerStoredGroupChangeListener(
         ServerStoredGroupListener listener)
     {
@@ -983,7 +987,7 @@ public class OperationSetPersistentPresenceIcqImpl
 
     /**
      * Notify all provider presence listeners of the corresponding event change
-     * 
+     *
      * @param oldStatusL
      *            the status our icq stack had so far
      * @param newStatusL
@@ -1362,6 +1366,7 @@ public class OperationSetPersistentPresenceIcqImpl
      * Apart from login - does nothing so far.
      */
     private class GlobalBuddyInfoListener extends GlobalBuddyInfoAdapter{
+        @Override
         public void receivedStatusUpdate(BuddyInfoManager manager,
                                          Screenname buddy, BuddyInfo info)
         {
@@ -1552,6 +1557,7 @@ public class OperationSetPersistentPresenceIcqImpl
     private class AwaitingAuthorizationContactsPresenceTimer
         extends TimerTask
     {
+        @Override
         public void run()
         {
             if (logger.isTraceEnabled())

@@ -43,7 +43,7 @@ public class IcqActivator
 
         Hashtable<String, String> icqHashtable = new Hashtable<String, String>();
         icqHashtable.put(ProtocolProviderFactory.PROTOCOL, ProtocolNames.ICQ);
-        
+
         Hashtable<String, String> aimHashtable = new Hashtable<String, String>();
         aimHashtable.put(ProtocolProviderFactory.PROTOCOL, ProtocolNames.AIM);
 
@@ -55,7 +55,7 @@ public class IcqActivator
                     ProtocolProviderFactory.class.getName(),
                     icqProviderFactory,
                     icqHashtable);
-        
+
         aimPpFactoryServReg =  context.registerService(
                     ProtocolProviderFactory.class.getName(),
                     aimProviderFactory,
@@ -132,10 +132,10 @@ public class IcqActivator
 
         aimPpFactoryServReg.unregister();
     }
-    
+
     /**
      * Returns an instance of the <tt>ResourceManagementService<tt>.
-     * 
+     *
      * @return an instance of the <tt>ResourceManagementService<tt>.
      */
     public static ResourceManagementService getResources()

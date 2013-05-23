@@ -213,7 +213,7 @@ public class FailoverConnectionMonitor
                 checkTimer.cancel();
                 checkTimer = null;
             }
-            
+
             if(task != null)
             {
                 task.cancel();

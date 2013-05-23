@@ -13,7 +13,7 @@ import net.java.sip.communicator.service.replacement.smilies.*;
 
 /**
  * The <tt>Smiley</tt> is used to store a smiley.
- * 
+ *
  * @author Yana Stamcheva
  * @author Lubomir Marinov
  */
@@ -63,7 +63,7 @@ public class SmileyImpl
 
     /**
      * Returns the description of this smiley.
-     * 
+     *
      * @return the description of this smiley.
      */
     public String getDescription()
@@ -82,7 +82,7 @@ public class SmileyImpl
     }
 
     /**
-     * Returns the identifier of the image corresponding to this smiley. 
+     * Returns the identifier of the image corresponding to this smiley.
      * @return the identifier of the image corresponding to this smiley.
      */
     public String getImageID()
@@ -94,7 +94,7 @@ public class SmileyImpl
      * Returns the path of the image corresponding to this smiley.
      * @return the path of the image corresponding to this smiley.
      */
-    public String getImagePath() 
+    public String getImagePath()
     {
         URL url = SmileyActivator.getResources().getImageURL(imageID);
 

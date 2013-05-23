@@ -90,6 +90,7 @@ public class CallPeerMediaHandlerGTalkImpl
      * @throws OperationFailedException the exception that we wanted this method
      * to throw.
      */
+    @Override
     protected void throwOperationFailedException(
             String message,
             int errorCode,
@@ -229,7 +230,7 @@ public class CallPeerMediaHandlerGTalkImpl
         List<PayloadTypePacketExtension> lst = localContentMap.get("audio");
 
         description.setNamespace(SessionIQProvider.GTALK_AUDIO_NAMESPACE);
-        
+
         boolean masterStreamSet = false;
         for(MediaType mediaType : MediaType.values())
         {
@@ -413,6 +414,7 @@ public class CallPeerMediaHandlerGTalkImpl
      * management
      * @see CallPeerMediaHandler#getTransportManager()
      */
+    @Override
     protected synchronized TransportManagerGTalkImpl getTransportManager()
     {
         if (transportManager == null)
@@ -801,6 +803,7 @@ public class CallPeerMediaHandlerGTalkImpl
      * the change
      * @param newValue the value of the property with the specified name after
      */
+    @Override
     protected void firePropertyChange(
                 String property,
                 Object oldValue,

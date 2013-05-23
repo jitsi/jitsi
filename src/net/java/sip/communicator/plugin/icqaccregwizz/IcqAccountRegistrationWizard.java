@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.plugin.icqaccregwizz;
@@ -18,7 +18,7 @@ import org.osgi.framework.*;
  * The <tt>IcqAccountRegistrationWizard</tt> is an implementation of the
  * <tt>AccountRegistrationWizard</tt> for the ICQ protocol. It should allow
  * the user to create and configure a new ICQ account.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class IcqAccountRegistrationWizard
@@ -38,7 +38,7 @@ public class IcqAccountRegistrationWizard
 
     /**
      * Creates an instance of <tt>IcqAccountRegistrationWizard</tt>.
-     * 
+     *
      * @param wizardContainer the wizard container, where this wizard is added
      */
     public IcqAccountRegistrationWizard(WizardContainer wizardContainer)
@@ -52,9 +52,10 @@ public class IcqAccountRegistrationWizard
     /**
      * Returns the protocol icon that will be shown on the left of the protocol
      * name in the list, where user will choose the protocol to register to.
-     * 
+     *
      * @return a short description of the protocol.
      */
+    @Override
     public byte[] getIcon()
     {
         return Resources.getImage(Resources.ICQ_LOGO);
@@ -63,9 +64,10 @@ public class IcqAccountRegistrationWizard
     /**
      * Implements the <code>AccountRegistrationWizard.getPageImage</code>
      * method. Returns the image used to decorate the wizard page
-     * 
+     *
      * @return byte[] the image used to decorate the wizard page
      */
+    @Override
     public byte[] getPageImage()
     {
         return Resources.getImage(Resources.PAGE_IMAGE);
@@ -74,9 +76,10 @@ public class IcqAccountRegistrationWizard
     /**
      * Returns the protocol name that will be shown in the list, where user
      * will choose the protocol to register to.
-     * 
+     *
      * @return the protocol name.
      */
+    @Override
     public String getProtocolName()
     {
         return Resources.getString("plugin.icqaccregwizz.PROTOCOL_NAME");
@@ -86,9 +89,10 @@ public class IcqAccountRegistrationWizard
      * Returns a short description of the protocol that will be shown on the
      * right of the protocol name in the list, where user will choose the
      * protocol to register to.
-     * 
+     *
      * @return a short description of the protocol.
      */
+    @Override
     public String getProtocolDescription()
     {
         return Resources.getString("plugin.icqaccregwizz.PROTOCOL_DESCRIPTION");
@@ -96,11 +100,12 @@ public class IcqAccountRegistrationWizard
 
     /**
      * Returns the set of <tt>WizardPage</tt>-s for this
-     * wizard. 
-     * 
+     * wizard.
+     *
      * @return the set of <tt>WizardPage</tt>-s for this
-     * wizard. 
+     * wizard.
      */
+    @Override
     public Iterator<WizardPage> getPages()
     {
         java.util.List<WizardPage> pages = new ArrayList<WizardPage>();
@@ -114,10 +119,11 @@ public class IcqAccountRegistrationWizard
     /**
      * Returns a set of key-value pairs that will represent the summary for
      * this wizard.
-     * 
+     *
      * @return a set of key-value pairs that will represent the summary for
-     * this wizard. 
+     * this wizard.
      */
+    @Override
     public Iterator<Map.Entry<String,String>> getSummary()
     {
         Map<String, String> summaryTable
@@ -133,11 +139,12 @@ public class IcqAccountRegistrationWizard
 
     /**
      * Installs the account created through this wizard.
-     * 
+     *
      * @return the <tt>ProtocolProviderService</tt> for the newly created
      * account.
-     * @throws OperationFailedException 
+     * @throws OperationFailedException
      */
+    @Override
     public ProtocolProviderService signin()
         throws OperationFailedException
     {
@@ -157,6 +164,7 @@ public class IcqAccountRegistrationWizard
      * new account
      * @throws OperationFailedException if the operation didn't succeed
      */
+    @Override
     public ProtocolProviderService signin(String userName, String password)
         throws OperationFailedException
     {
@@ -168,13 +176,13 @@ public class IcqAccountRegistrationWizard
 
     /**
      * Creates an account for the given user and password.
-     * 
+     *
      * @param providerFactory the ProtocolProviderFactory which will create the
      *            account
      * @param user the user identifier
      * @param passwd the password
      * @return the <tt>ProtocolProviderService</tt> for the new account.
-     * @throws OperationFailedException 
+     * @throws OperationFailedException
      */
     public ProtocolProviderService installAccount(
         ProtocolProviderFactory providerFactory,
@@ -238,10 +246,11 @@ public class IcqAccountRegistrationWizard
     /**
      * Fills the UIN and Password fields in this panel with the data coming
      * from the given protocolProvider.
-     * 
+     *
      * @param protocolProvider The <tt>ProtocolProviderService</tt> to load
      *            the data from.
      */
+    @Override
     public void loadAccount(ProtocolProviderService protocolProvider)
     {
         setModification(true);
@@ -256,7 +265,7 @@ public class IcqAccountRegistrationWizard
     /**
      * Returns the registration object, which will store all the data through
      * the wizard.
-     * 
+     *
      * @return the registration object, which will store all the data through
      * the wizard
      */
@@ -269,15 +278,17 @@ public class IcqAccountRegistrationWizard
      * Returns the size of this wizard.
      * @return the size of this wizard
      */
+    @Override
     public Dimension getSize()
     {
         return new Dimension(600, 500);
     }
-    
+
     /**
      * Returns the identifier of the page to show first in the wizard.
      * @return the identifier of the page to show first in the wizard.
      */
+    @Override
     public Object getFirstPageIdentifier()
     {
         return firstWizardPage.getIdentifier();
@@ -287,6 +298,7 @@ public class IcqAccountRegistrationWizard
      * Returns the identifier of the page to show last in the wizard.
      * @return the identifier of the page to show last in the wizard.
      */
+    @Override
     public Object getLastPageIdentifier()
     {
         return firstWizardPage.getIdentifier();
@@ -298,6 +310,7 @@ public class IcqAccountRegistrationWizard
      * @return an example string, which should indicate to the user how the
      * user name should look like.
      */
+    @Override
     public String getUserNameExample()
     {
         return FirstWizardPage.USER_NAME_EXAMPLE;
@@ -306,6 +319,7 @@ public class IcqAccountRegistrationWizard
     /**
      * Opens the browser on the account registration page.
      */
+    @Override
     public void webSignup()
     {
         IcqAccRegWizzActivator.getBrowserLauncher().openURL(
@@ -318,6 +332,7 @@ public class IcqAccountRegistrationWizard
      * @return <code>true</code> if the web sign up is supported by the current
      * implementation, <code>false</code> - otherwise
      */
+    @Override
     public boolean isWebSignupSupported()
     {
         return true;
@@ -328,10 +343,11 @@ public class IcqAccountRegistrationWizard
      * shown to the user. Only if the user needs more settings she'll choose
      * to open the advanced wizard, consisted by all pages.
      *
-     * @param isCreateAccount indicates if the simple form should be opened as 
+     * @param isCreateAccount indicates if the simple form should be opened as
      * a create account form or as a login form
      * @return a simple account registration form
      */
+    @Override
     public Object getSimpleForm(boolean isCreateAccount)
     {
         firstWizardPage = new FirstWizardPage(this);

@@ -51,7 +51,7 @@ public class SmileyActivator
 
     /**
      * Starts the Smiley replacement source bundle
-     * 
+     *
      * @param context the <tt>BundleContext</tt> as provided from the OSGi
      * framework
      * @throws Exception if anything goes wrong

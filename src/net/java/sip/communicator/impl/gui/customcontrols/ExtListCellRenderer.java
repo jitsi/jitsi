@@ -20,15 +20,15 @@ public class ExtListCellRenderer
     extends JPanel
     implements ListCellRenderer
 {
-    
+
     private static final long serialVersionUID = 1L;
     private final JLabel label = new JLabel();
     private boolean isSelected;
-    
+
     public ExtListCellRenderer()
     {
         super(new BorderLayout());
-        
+
         this.add(label);
     }
 
@@ -40,13 +40,14 @@ public class ExtListCellRenderer
     {
         this.label.setText(value.toString());
         this.isSelected = isSelect;
-        
+
         return this;
     }
-    
+
     /**
      * Paint a round background for all selected cells.
      */
+    @Override
     public void paintComponent(Graphics g)
     {
         super.paintComponent(g);

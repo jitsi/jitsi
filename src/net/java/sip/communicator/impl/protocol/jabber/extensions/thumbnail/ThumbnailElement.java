@@ -275,7 +275,7 @@ public class ThumbnailElement
     /**
      * Creates the cid attrubte value for the given <tt>contactJabberAddress</tt>
      * and <tt>thumbnailData</tt>.
-     * 
+     *
      * @param serverAddress the Jabber server address
      * @param thumbnailData the byte array containing the data
      * @return the cid attrubte value for the thumbnail extension

@@ -240,6 +240,7 @@ public class IceConfigPanel
             /**
              * {@inheritDoc}
              */
+            @Override
             public void mouseClicked(MouseEvent evt)
             {
                 if (evt.getComponent().isEnabled() &&
@@ -609,6 +610,7 @@ public class IceConfigPanel
          *
          * @param c set the foreground color to this value
          */
+        @Override
         public void setForeground(Color c)
         {
             super.setForeground(c);
@@ -621,6 +623,7 @@ public class IceConfigPanel
          *
          * @param c set the background color to this value
          */
+        @Override
         public void setBackground(Color c)
         {
             super.setBackground(c);
@@ -639,6 +642,7 @@ public class IceConfigPanel
          *
          * @return the cell renderer
          */
+        @Override
         public Component getTableCellRendererComponent( JTable table,
                                                         Object value,
                                                         boolean isSelected,
@@ -718,6 +722,7 @@ public class IceConfigPanel
          * @param columnIndex  the column being queried
          * @return the class of objects contained in the column
          */
+        @Override
         public Class<?> getColumnClass(int columnIndex)
         {
             return getValueAt(0, columnIndex).getClass();
@@ -731,6 +736,7 @@ public class IceConfigPanel
          * @param column the column whose value is to be queried
          * @return false
          */
+        @Override
         public boolean isCellEditable(int row, int column)
         {
             return false;
@@ -922,6 +928,7 @@ public class IceConfigPanel
          * @return <tt>true</tt> when valid, <tt>false</tt> when invalid or when
          * <tt>input</tt> is not a {@link JTextField} instance.
          */
+        @Override
         public boolean verify(JComponent input)
         {
             if ( !( input instanceof JTextField ) )
@@ -1036,6 +1043,7 @@ public class IceConfigPanel
             /**
              * {@inheritDoc}
              */
+            @Override
             public void mouseClicked(MouseEvent evt)
             {
                 if (evt.getComponent().isEnabled() &&

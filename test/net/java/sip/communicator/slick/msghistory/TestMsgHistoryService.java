@@ -34,7 +34,7 @@ public class TestMsgHistoryService
 
     static final String TEST_CONTACT_NAME_1 = "Mincho_Penchev_the_fisrt";
     static final String TEST_CONTACT_NAME_2 = "Mincho_Penchev_the_second";
-    
+
     static final String TEST_ROOM_NAME = "test_room";
 
     /**
@@ -94,10 +94,12 @@ public class TestMsgHistoryService
         return suite;
     }
 
+    @Override
     protected void setUp() throws Exception
     {
     }
 
+    @Override
     protected void tearDown() throws Exception
     {
     }
@@ -121,7 +123,7 @@ public class TestMsgHistoryService
         mockBImOpSet =
             (MockBasicInstantMessaging) supportedOperationSets.get(
                 OperationSetBasicInstantMessaging.class.getName());
-        
+
         mockMultiChat =
             (MockMultiUserChat) supportedOperationSets.get(
                 OperationSetMultiUserChat.class.getName());
@@ -164,8 +166,8 @@ public class TestMsgHistoryService
 
        testMetaContact = metaClService.getRoot().
             getMetaContact(mockProvider, TEST_CONTACT_NAME_1);
-       
-       // add one more contact as specific problems may happen only when 
+
+       // add one more contact as specific problems may happen only when
        // more than one contact is in the metacontact
         metaClService.addNewContactToMetaContact(
             mockProvider, testMetaContact, TEST_CONTACT_NAME_2);
@@ -194,7 +196,7 @@ public class TestMsgHistoryService
         mockBImOpSet.deliverMessage(TEST_CONTACT_NAME_1, messagesToSend[0]);
         mockBImOpSet.deliverMessage(TEST_CONTACT_NAME_2, messagesToSend[0]);
 
-        this.controlDate1 = new Date();
+        TestMsgHistoryService.controlDate1 = new Date();
 
         Object lock = new Object();
         synchronized (lock)
@@ -213,7 +215,7 @@ public class TestMsgHistoryService
 
         mockBImOpSet.deliverMessage(TEST_CONTACT_NAME_2, messagesToSend[2]);
 
-        this.controlDate2 = new Date();
+        TestMsgHistoryService.controlDate2 = new Date();
         synchronized (lock)
         {
             // wait a moment
@@ -389,21 +391,21 @@ public class TestMsgHistoryService
         assertTrue("Message no found",
                    msgs.contains(messagesToSend[2].getContent()));
     }
-    
+
     public void writeRecordsToMultiChat()
     {
         try
         {
             ChatRoom room = mockMultiChat.createChatRoom("test_room", null);
-            room.join();  
+            room.join();
 
 //            ChatRoom room = mockMultiChat.findRoom(TEST_ROOM_NAME);
 //            room.joinAs(TEST_CONTACT_NAME);
-            
+
             // First deliver message, so they are stored by the message history service
             room.sendMessage(messagesToSend[0]);
 
-            this.controlDate1 = new Date();
+            TestMsgHistoryService.controlDate1 = new Date();
 
             Object lock = new Object();
             synchronized (lock)
@@ -422,7 +424,7 @@ public class TestMsgHistoryService
 
             room.sendMessage(messagesToSend[2]);
 
-            this.controlDate2 = new Date();
+            TestMsgHistoryService.controlDate2 = new Date();
             synchronized (lock)
             {
                 // wait a moment
@@ -450,18 +452,18 @@ public class TestMsgHistoryService
             logger.error("Failed to create room", ex);
         }
     }
-    
+
     /**
      * tests all read methods (finders)
      */
     public void readRecordsFromMultiChat()
     {
         ChatRoom room = null;
-    
+
         try
         {
             room = mockMultiChat.findRoom(TEST_ROOM_NAME);
-            
+
         }catch(Exception ex)
         {
             fail("Cannot find room!" + ex.getMessage());
@@ -643,7 +645,7 @@ public class TestMsgHistoryService
 
         return result;
     }
-    
+
     private List<String> getChatMessages(Collection<EventObject> rs)
     {
         List<String> result = new Vector<String>();

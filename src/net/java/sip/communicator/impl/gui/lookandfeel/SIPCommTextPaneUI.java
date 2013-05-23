@@ -16,7 +16,7 @@ import net.java.sip.communicator.plugin.desktoputil.*;
 
 /**
  * SIPCommTextPaneUI implementation.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class SIPCommTextPaneUI
@@ -27,6 +27,7 @@ public class SIPCommTextPaneUI
         return new SIPCommTextPaneUI();
     }
 
+    @Override
     protected void paintSafely(Graphics g)
     {
         AntialiasingManager.activateAntialiasing(g);

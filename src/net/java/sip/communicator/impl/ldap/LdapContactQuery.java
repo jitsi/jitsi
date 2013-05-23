@@ -276,6 +276,7 @@ public class LdapContactQuery
             /* show authentication window to obtain new credentials */
             new Thread()
             {
+                @Override
                 public void run()
                 {
                     LdapDirectorySettingsImpl ldapSettings =

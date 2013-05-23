@@ -85,6 +85,7 @@ public class AvatarEvent
      *
      * @return a <tt>String</tt> representation of this <tt>AvatarEvent</tt>.
      */
+    @Override
     public String toString()
     {
         return "AvatarEvent-[ Provider=" + getSourceProvider() + "]";

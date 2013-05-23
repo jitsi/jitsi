@@ -95,6 +95,7 @@ public class ChatTransferHandler
      * otherwise
      * @throws NullPointerException if <code>support</code> is {@code null}
      */
+    @Override
     public boolean canImport(JComponent comp, DataFlavor flavor[])
     {
         for(DataFlavor f: flavor)
@@ -116,6 +117,7 @@ public class ChatTransferHandler
      * @return  true if the data was inserted into the component and false
      * otherwise
      */
+    @Override
     @SuppressWarnings("unchecked") //the case is taken care of
     public boolean importData(JComponent comp, Transferable t)
     {

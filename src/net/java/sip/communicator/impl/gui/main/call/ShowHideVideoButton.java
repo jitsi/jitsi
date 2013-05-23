@@ -73,6 +73,7 @@ public class ShowHideVideoButton
      * Toggles the display of the visual <tt>Component</tt> which depicts the
      * video streaming from the local peer/user to the remote peer(s).
      */
+    @Override
     public void buttonPressed()
     {
         uiVideoHandler.setLocalVideoVisible(

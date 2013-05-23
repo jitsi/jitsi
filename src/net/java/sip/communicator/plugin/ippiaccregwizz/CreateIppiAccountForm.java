@@ -149,6 +149,7 @@ public class CreateIppiAccountForm
         infoLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
         infoLabel.addMouseListener(new MouseAdapter()
         {
+            @Override
             public void mousePressed(MouseEvent e)
             {
                 IppiAccRegWizzActivator.getBrowserLauncher()

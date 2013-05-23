@@ -22,7 +22,7 @@ public class ComponentTools {
    * <code>
    * JButton button = new JButton(text) {
    *   private static final long serialVersionUID = 0;
-   *   
+   *
    *   public void paintComponent(Graphics g) {
    *     Graphics2D g2 = (Graphics2D) g;
    *     g2.setPaint(applyThemedScheme(this, reference, getModel().isArmed()));
@@ -46,7 +46,7 @@ public class ComponentTools {
     Color lightened = new Color(getValidRgb(r + 75), getValidRgb(g + 75), getValidRgb(b + 75));
     Color darkened = new Color(getValidRgb(r - 75), getValidRgb(g - 75), getValidRgb(b - 75));
     boolean isVeryDark = (r + g + b) / 3 < 25; // If contrast should be provided by lightening
-    
+
     if (isPressed) {
       if (isVeryDark) {
         reference = reference.brighter();
@@ -58,21 +58,21 @@ public class ComponentTools {
         darkened = darkened.darker();
       }
     }
-    
+
     if (component != null) {
       int borderType = !isPressed ? BevelBorder.RAISED : BevelBorder.LOWERED;
       Border border = BorderFactory.createBevelBorder(borderType, lightened, darkened);
       component.setBorder(border);
-      
+
       Color foreground = isVeryDark ? new Color(224, 224, 224) : Color.BLACK;
       component.setForeground(foreground);
     }
-    
+
     Point p1 = new Point(0, 20);
     Point p2 = new Point(0, 5);
     return new GradientPaint(p1, reference, p2, lightened, false);
   }
-  
+
   /**
    * Provides a visually customized button utilizing the applyThemedScheme method that will update
    * its theme accordingly when pressed. Any content is anti-aliased.
@@ -83,8 +83,9 @@ public class ComponentTools {
   public static JButton makeThemedButton(String text, final Color reference) {
     JButton button = new JButton(text) {
       private static final long serialVersionUID = 0;
-      
-      public void paintComponent(Graphics g) {
+
+      @Override
+    public void paintComponent(Graphics g) {
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setPaint(applyThemedScheme(this, reference, getModel().isArmed()));
@@ -95,7 +96,7 @@ public class ComponentTools {
     button.setContentAreaFilled(false); // Disables default background
     return button;
   }
-  
+
   /**
    * Centers a window within the center of the screen.
    * @param mover window to be centered
@@ -107,7 +108,7 @@ public class ComponentTools {
     int y = (screenSize.height - moverSize.height) / 2;
     mover.setLocation(x, y);
   }
-  
+
   /**
    * Moves a window to be concentric with another.
    * @param mover window to be centered
@@ -122,7 +123,7 @@ public class ComponentTools {
     y += target.getLocation().y;
     mover.setLocation(x, y);
   }
-  
+
   /**
    * Binds a given keystroke to click the button when the button's in the focused window.
    * @param button button to be bound to keystroke
@@ -133,13 +134,13 @@ public class ComponentTools {
     button.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(event, eventName);
     button.getActionMap().put(eventName, new AbstractAction() {
       private static final long serialVersionUID = 0;
-      
+
       public void actionPerformed(ActionEvent event) {
         ((JButton) event.getSource()).doClick();
       }
     });
   }
-  
+
   /**
    * Generates a modal dialog capable of having either a Frame or Dialog parent.
    * @param parent the parent component of the dialog
@@ -156,7 +157,7 @@ public class ComponentTools {
     else if (parent instanceof Frame) return new JDialog((Frame) parent, title, true);
     else return new JDialog((Dialog) parent, title, true);
   }
-  
+
   /**
    * This is a helper method to recursively find the first instance of a Frame or Dialog within the
    * component's hierarchy.
@@ -169,7 +170,7 @@ public class ComponentTools {
     if (parent != null) return findParent(parent);
     else return null;
   }
-  
+
   // Provides an rgb value within valid bounds (0-255).
   private static int getValidRgb(int value) {
     value = Math.max(value, 0);

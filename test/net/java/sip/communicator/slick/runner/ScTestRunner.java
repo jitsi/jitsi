@@ -60,21 +60,25 @@ public class ScTestRunner extends BaseTestRunner {
      * Always use the StandardTestSuiteLoader. Overridden from
      * BaseTestRunner.
      */
+    @Override
     public TestSuiteLoader getLoader()
     {
         return new StandardTestSuiteLoader();
     }
 
+    @Override
     public void testFailed(int status, Test test, Throwable t)
     {
         logger.debug("test " + test.toString() + " failed.");
     }
 
+    @Override
     public void testStarted(String testName)
     {
         logger.debug("started testName"+testName);
     }
 
+    @Override
     public void testEnded(String testName)
     {
         logger.debug("ended testName"+testName);
@@ -156,6 +160,7 @@ public class ScTestRunner extends BaseTestRunner {
         }
     }
 
+    @Override
     protected void runFailed(String message)
     {
         System.err.println(message);

@@ -40,17 +40,17 @@ public interface SystrayService
      * Image type corresponding to the sip-communicator icon
      */
     public static final int SC_IMG_TYPE = 0;
-    
+
     /**
      * Image type corresponding to the sip-communicator offline icon
      */
     public static final int SC_IMG_OFFLINE_TYPE = 2;
-    
+
     /**
      * Image type corresponding to the sip-communicator away icon
      */
     public static final int SC_IMG_AWAY_TYPE = 3;
-    
+
     /**
      * Image type corresponding to the sip-communicator free for chat icon
      */
@@ -104,7 +104,7 @@ public interface SystrayService
 
     /**
      * Sets a new icon to the systray.
-     * 
+     *
      * @param imageType the type of the image to set
      */
     public void setSystrayIcon(int imageType);

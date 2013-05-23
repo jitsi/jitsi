@@ -18,7 +18,7 @@ import org.osgi.framework.*;
  * Implementation for generic file transfer.
  * @author Damian Minkov
  */
-public class TestOperationSetFileTransferImpl 
+public class TestOperationSetFileTransferImpl
     extends TestOperationSetFileTransfer
 {
     private static final Logger logger =
@@ -35,6 +35,7 @@ public class TestOperationSetFileTransferImpl
     private static Contact contact1 = null;
     private static Contact contact2 = null;
 
+    @Override
     public Contact getContact1()
     {
         if(contact1 == null)
@@ -45,6 +46,7 @@ public class TestOperationSetFileTransferImpl
         return contact1;
     }
 
+    @Override
     public Contact getContact2()
     {
         if(contact2 == null)
@@ -55,6 +57,7 @@ public class TestOperationSetFileTransferImpl
         return contact2;
     }
 
+    @Override
     public void start()
         throws Exception
     {
@@ -130,6 +133,7 @@ public class TestOperationSetFileTransferImpl
         prepareContactList();
     }
 
+    @Override
     public void stop()
         throws Exception
     {
@@ -190,21 +194,25 @@ public class TestOperationSetFileTransferImpl
         }
     }
 
+    @Override
     public OperationSetFileTransfer getOpSetFilTransfer1()
     {
         return opSetFT1;
     }
 
+    @Override
     public OperationSetFileTransfer getOpSetFilTransfer2()
     {
         return opSetFT2;
     }
 
+    @Override
     public BundleContext getContext()
     {
-        return fixture.bc;
+        return AdHocMultiUserChatSlickFixture.bc;
     }
 
+    @Override
     public boolean enableTestSendAndReceive()
     {
         // as this is the first test to be executed
@@ -218,21 +226,25 @@ public class TestOperationSetFileTransferImpl
         return true;
     }
 
+    @Override
     public boolean enableTestSenderCancelBeforeAccepted()
     {
         return true;
     }
 
+    @Override
     public boolean enableTestReceiverDecline()
     {
         return true;
     }
 
+    @Override
     public boolean enableTestReceiverCancelsWhileTransfering()
     {
         return true;
     }
 
+    @Override
     public boolean enableTestSenderCancelsWhileTransfering()
     {
         return true;

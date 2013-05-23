@@ -98,6 +98,7 @@ public class ContactIcqImpl
      *
      * @return  a string representation of this contact.
      */
+    @Override
     public String toString()
     {
         StringBuffer buff =  new StringBuffer("IcqContact[ uin=");

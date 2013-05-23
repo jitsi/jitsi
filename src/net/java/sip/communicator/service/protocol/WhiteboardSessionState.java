@@ -94,6 +94,7 @@ public class WhiteboardSessionState
      * for loggin/debugging purposes.
      * @return a string representation of this object.
      */
+    @Override
     public String toString()
     {
         return getClass().getName()+":"+getStateString();

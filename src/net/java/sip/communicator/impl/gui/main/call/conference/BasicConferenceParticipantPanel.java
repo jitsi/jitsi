@@ -139,7 +139,7 @@ public abstract class BasicConferenceParticipantPanel<T>
      */
     private SoundLevelIndicator soundIndicator;
 
-    
+
     /**
      * The status bar of the participant panel.
      */
@@ -552,7 +552,7 @@ public abstract class BasicConferenceParticipantPanel<T>
                 parentWindow.pack();
             errorMessageComponent.repaint();
         }
-        
+
     }
 
     /**

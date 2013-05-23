@@ -110,6 +110,7 @@ public class ContactListPane
         this.contactList.addContactListListener(this);
         this.addMouseListener(new MouseAdapter()
         {
+            @Override
             public void mousePressed(MouseEvent e)
             {
                 if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0)

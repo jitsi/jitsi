@@ -227,6 +227,7 @@ public class CallGTalkImpl
      * @throws OperationFailedException if problem occurred during message
      * generation or network problem
      */
+    @Override
     public void modifyVideoContent()
         throws OperationFailedException
     {

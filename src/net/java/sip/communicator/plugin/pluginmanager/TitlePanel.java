@@ -83,6 +83,7 @@ public class TitlePanel extends JPanel
      * Overrides the <code>paintComponent</code> method of <tt>JPanel</tt>
      * to paint a gradient background of this panel.
      */
+    @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
 

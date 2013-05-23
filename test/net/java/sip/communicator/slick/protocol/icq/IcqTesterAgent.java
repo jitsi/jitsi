@@ -512,6 +512,7 @@ public class IcqTesterAgent
             public Object waitingForResponseLock = new Object();
 
 
+            @Override
             public void handleResponse(SnacResponseEvent e) {
                 SnacCommand snac = e.getSnacCommand();
                 logger.debug("Received a response to our status request: " + snac);
@@ -571,6 +572,7 @@ public class IcqTesterAgent
 
             }
 
+            @Override
             public void handleTimeout(SnacRequestTimeoutEvent event) {
                 synchronized(this) {
                     if (ran) return;
@@ -1176,7 +1178,7 @@ public class IcqTesterAgent
     {
         conn.sendSnac(new OfflineSnacCmd(buddy, body));
     }
-    
+
     void sendAuthorizationReplay(String uin, String reasonStr, boolean isAccpeted)
     {
         conn.sendSnac(new AuthReplyCmd(uin, reasonStr, isAccpeted));
@@ -1191,6 +1193,7 @@ public class IcqTesterAgent
             super(sn, message);
         }
 
+        @Override
         protected void writeChannelData(OutputStream out)
                 throws IOException
         {
@@ -1237,6 +1240,7 @@ public class IcqTesterAgent
             this.accepted = accepted;
         }
 
+        @Override
         public void writeData(OutputStream out)
             throws IOException
         {
@@ -1285,9 +1289,11 @@ public class IcqTesterAgent
             this.SUPPORTED_TYPES = DefensiveTools.getUnmodifiable(tempTypes);
         }
 
+        @Override
         public List<CmdType> getSupportedTypes()
         {return SUPPORTED_TYPES;}
 
+        @Override
         public SnacCommand genSnacCommand(SnacPacket packet)
         {
             int command = packet.getCommand();
@@ -1308,12 +1314,12 @@ public class IcqTesterAgent
                 }
 
                 logger.trace("sending authorization " + ACCEPT);
-                
+
                 sendAuthorizationReplay(
                     String.valueOf(cmd.uin),
                     responseReasonStr,
                     ACCEPT);
-                
+
                 return cmd;
             }
             else if (command == 27) // auth reply
@@ -1423,6 +1429,7 @@ public class IcqTesterAgent
                 OscarTools.getString(messageData.subBlock(offset, reasonLen), "US-ASCII");
         }
 
+        @Override
         public void writeData(OutputStream out) throws IOException
         {
             byte[] uinBytes = BinaryTools.getAsciiBytes(uin);
@@ -1499,6 +1506,7 @@ public class IcqTesterAgent
     {
         Hashtable<String, Object> info = null;
 
+        @Override
         public void handleResponse(SnacResponseEvent e)
         {
             if(e.getSnacCommand() instanceof FullUserInfoCmd)
@@ -1531,6 +1539,7 @@ public class IcqTesterAgent
             this.originalItem = originalItem;
         }
 
+        @Override
         public void write(OutputStream out) throws IOException
         {
             byte[] namebytes = BinaryTools.getAsciiBytes(originalItem.getName());

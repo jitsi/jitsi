@@ -19,7 +19,7 @@ import org.xbill.DNS.*;
 /**
  * Implementation of the {@link Resolver} interface, wrapping the native NLnet
  * Labs Unbound resolver. Only the basic methods for queries are supported.
- * 
+ *
  * @author Ingo Bauersachs
  */
 public class UnboundResolver
@@ -85,7 +85,7 @@ public class UnboundResolver
 
     /**
      * Sets a list of forwarders to use instead of the system default.
-     * 
+     *
      * @param forwarders list of servers to use for our queries.
      */
     public void setForwarders(String[] forwarders)
@@ -103,7 +103,7 @@ public class UnboundResolver
 
     /**
      * Adds a DNSSEC trust anchor validation of the DNSKEYs.
-     * 
+     *
      * @param anchor trust anchor in the form of
      *            "'zone' IN DS 'key tag' 'algorithm' 'digest type' 'digest'"
      */
@@ -124,7 +124,7 @@ public class UnboundResolver
             {
                 if(logger.isDebugEnabled())
                     logger.debug(query);
-    
+
                 SecureMessage secureMessage = null;
                 final long context = prepareContext();
                 try
@@ -173,7 +173,7 @@ public class UnboundResolver
     /**
      * Method to allow overriders to inspect the message. This class'
      * implementation does nothing.
-     * 
+     *
      * @param msg The message to inspect.
      * @throws DnssecRuntimeException if the inspector does not want the code to
      *             continue normal processing of the answer.
@@ -186,7 +186,7 @@ public class UnboundResolver
     /**
      * Prepares a unbound session context initialized with forwarders and trust
      * anchors.
-     * 
+     *
      * @return The context id
      */
     private long prepareContext()
@@ -215,7 +215,7 @@ public class UnboundResolver
 
     /**
      * Cleans up an Unbound session context.
-     * 
+     *
      * @param cbData The helper object of the asynchronous call.
      * @param cancelAsync Whether an outstanding asynchronous unbound query
      *            should be canceled.
@@ -241,7 +241,7 @@ public class UnboundResolver
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.xbill.DNS.Resolver#sendAsync(org.xbill.DNS.Message,
      * org.xbill.DNS.ResolverListener)
      */
@@ -390,7 +390,7 @@ public class UnboundResolver
         timeout = secs * 1000 + msecs;
     }
 
-    /** 
+    /**
      * Does nothing.
      */
     public void reset()

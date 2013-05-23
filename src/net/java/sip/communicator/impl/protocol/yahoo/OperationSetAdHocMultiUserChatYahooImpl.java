@@ -69,7 +69,7 @@ implements OperationSetAdHocMultiUserChat
     /**
      * Instantiates the user operation set with a currently valid instance of
      * the Yahoo protocol provider.
-     * 
+     *
      * @param yahooProvider a currently valid instance of
      *            ProtocolProviderServiceYahooImpl.
      */
@@ -88,7 +88,7 @@ implements OperationSetAdHocMultiUserChat
 
     /**
      * Adds a listener to invitation notifications.
-     * 
+     *
      * @param listener An invitation listener.
      */
     public void addInvitationListener(AdHocChatRoomInvitationListener listener)
@@ -103,7 +103,7 @@ implements OperationSetAdHocMultiUserChat
     /**
      * Removes a listener that was being notified of changes in our status in a
      * room such as us being kicked, banned or dropped.
-     * 
+     *
      * @param listener the <tt>LocalUserAdHocChatRoomPresenceListener</tt>.
      */
     public void removeInvitationListener(
@@ -118,7 +118,7 @@ implements OperationSetAdHocMultiUserChat
     /**
      * Subscribes <tt>listener</tt> so that it would receive events indicating
      * rejection of a multi user chat invitation that we've sent earlier.
-     * 
+     *
      * @param listener the listener that we'll subscribe for invitation
      *            rejection events.
      */
@@ -136,7 +136,7 @@ implements OperationSetAdHocMultiUserChat
     /**
      * Removes <tt>listener</tt> from the list of invitation listeners
      * registered to receive invitation rejection events.
-     * 
+     *
      * @param listener the invitation listener to remove.
      */
     public void removeInvitationRejectionListener(
@@ -151,7 +151,7 @@ implements OperationSetAdHocMultiUserChat
     /**
      * Adds a listener that will be notified of changes in our status in a chat
      * room such as us being kicked, banned or dropped.
-     * 
+     *
      * @param listener the <tt>LocalUserAdHocChatRoomPresenceListener</tt>.
      */
     public void addPresenceListener(
@@ -167,7 +167,7 @@ implements OperationSetAdHocMultiUserChat
     /**
      * Removes a listener that was being notified of changes in our status in a
      * room such as us being kicked, banned or dropped.
-     * 
+     *
      * @param listener the <tt>LocalUserChatRoomPresenceListener</tt>.
      */
     public void removePresenceListener(
@@ -185,16 +185,16 @@ implements OperationSetAdHocMultiUserChat
      * provider is currently connected to. Note the roomProperties also contain
      * users that we like to invite to the chatRoom, this is required in the
      * yahoo protocol.
-     * 
+     *
      * @param roomName the name of the <tt>AdHocChatRoom</tt> to create.
      * @param roomProperties properties specifying how the room should be
      *            created.
-     * 
+     *
      * @throws OperationFailedException if the room couldn't be created for some
      *             reason (e.g. room already exists; user already joined to an
      *             existent room or user has no permissions to create a chat
      *             room).
-     * 
+     *
      * @return ChatRoom the chat room that we've just created.
      */
     public AdHocChatRoom createAdHocChatRoom(String roomName,
@@ -234,11 +234,11 @@ implements OperationSetAdHocMultiUserChat
      * Creates an ad-hoc room with the named <tt>adHocRoomName</tt> and in
      * including to the specified <tt>contacts</tt>. When the method returns the
      * ad-hoc room the local user will have joined it.
-     * 
+     *
      * @param roomName name of the chatroom
      * @param invitedContacts contacts to be invited to this room
      * @param reason reason of this invitation
-     * @return AdHocChatRoom the ad-hoc room that has been just created 
+     * @return AdHocChatRoom the ad-hoc room that has been just created
      * @throws OperationFailedException
      */
     private AdHocChatRoom createAdHocChatRoom(
@@ -279,9 +279,9 @@ implements OperationSetAdHocMultiUserChat
     /**
      * Creates a <tt>AdHocChatRoom</tt> instance from the specified Yahoo
      * conference.
-     * 
+     *
      * @param yahooConference The chat room model from the yahoo lib.
-     * 
+     *
      * @return AdHocChatRoom the chat room that we've just created.
      */
     private AdHocChatRoomYahooImpl createLocalChatRoomInstance(
@@ -299,12 +299,12 @@ implements OperationSetAdHocMultiUserChat
     }
 
     /**
-     * Creates a <tt>AdHocChatRoom</tt> instance (where the inviter is 
+     * Creates a <tt>AdHocChatRoom</tt> instance (where the inviter is
      * represented by inviterID parameter) from the specified Yahoo conference.
-     * 
+     *
      * @param yahooConference The chat room model from the yahoo lib.
      * @param inviterID inviter's Yahoo ID which has to be added as room member
-     * 
+     *
      * @return AdHocChatRoom the chat room that we've just created.
      */
     private AdHocChatRoomYahooImpl createLocalChatRoomInstance(
@@ -315,7 +315,7 @@ implements OperationSetAdHocMultiUserChat
             AdHocChatRoomYahooImpl newChatRoom
             = new AdHocChatRoomYahooImpl(yahooConference, yahooProvider);
 
-            OperationSetPersistentPresenceYahooImpl opSetPresence  = 
+            OperationSetPersistentPresenceYahooImpl opSetPresence  =
                 (OperationSetPersistentPresenceYahooImpl) yahooProvider
                 .getOperationSet(OperationSetPersistentPresence.class);
 
@@ -353,7 +353,7 @@ implements OperationSetAdHocMultiUserChat
 
     /**
      * Informs the sender of an invitation that we decline their invitation.
-     * 
+     *
      * @param invitation the connection to use for sending the rejection.
      * @param rejectReason the reason to reject the given invitation
      */
@@ -378,7 +378,7 @@ implements OperationSetAdHocMultiUserChat
     /**
      * Delivers a <tt>AdHocChatRoomInvitationReceivedEvent</tt> to all
      * registered <tt>AdHocChatRoomInvitationListener</tt>s.
-     * 
+     *
      * @param targetChatRoom the room that invitation refers to
      * @param inviter the inviter that sent the invitation
      * @param reason the reason why the inviter sent the invitation
@@ -409,7 +409,7 @@ implements OperationSetAdHocMultiUserChat
     /**
      * Delivers a <tt>AdHocChatRoomInvitationRejectedEvent</tt> to all
      * registered <tt>AdHocChatRoomInvitationRejectionListener</tt>s.
-     * 
+     *
      * @param sourceChatRoom the room that invitation refers to
      * @param invitee the name of the invitee that rejected the invitation
      * @param reason the reason of the rejection
@@ -419,7 +419,7 @@ implements OperationSetAdHocMultiUserChat
     {
         AdHocChatRoomInvitationRejectedEvent evt =
             new AdHocChatRoomInvitationRejectedEvent(
-                (OperationSetAdHocMultiUserChat) this, sourceChatRoom, invitee,
+                this, sourceChatRoom, invitee,
                 reason, new Date(System.currentTimeMillis()));
 
         Iterable<AdHocChatRoomInvitationRejectionListener> listeners;
@@ -437,7 +437,7 @@ implements OperationSetAdHocMultiUserChat
     /**
      * Delivers a <tt>LocalUserAdHocChatRoomPresenceChangeEvent</tt> to all
      * registered <tt>LocalUserAdHocChatRoomPresenceListener</tt>s.
-     * 
+     *
      * @param chatRoom the <tt>ChatRoom</tt> which has been joined, left, etc.
      * @param eventType the type of this event; one of LOCAL_USER_JOINED,
      *            LOCAL_USER_LEFT, etc.
@@ -448,7 +448,7 @@ implements OperationSetAdHocMultiUserChat
     {
         LocalUserAdHocChatRoomPresenceChangeEvent evt =
             new LocalUserAdHocChatRoomPresenceChangeEvent(
-                (OperationSetAdHocMultiUserChat) this, chatRoom, eventType,
+                this, chatRoom, eventType,
                 reason);
 
         Iterable<LocalUserAdHocChatRoomPresenceListener> listeners;
@@ -465,7 +465,7 @@ implements OperationSetAdHocMultiUserChat
 
     /**
      * Create a Message instance for sending arbitrary MIME-encoding content.
-     * 
+     *
      * @param content content value
      * @param contentType the MIME-type for <tt>content</tt>
      * @param contentEncoding encoding used for <tt>content</tt>
@@ -484,7 +484,7 @@ implements OperationSetAdHocMultiUserChat
 
     /**
      * Creates a message by a given message text.
-     * 
+     *
      * @param messageText The message text.
      * @return the newly created message.
      */
@@ -497,7 +497,7 @@ implements OperationSetAdHocMultiUserChat
 
     /**
      * Our listener that will tell us when we're registered to yahoo network.
-     * 
+     *
      */
     private class RegistrationStateListener
     implements RegistrationStateChangeListener
@@ -506,7 +506,7 @@ implements OperationSetAdHocMultiUserChat
          * The method is called by a ProtocolProvider implementation whenever a
          * change in the registration state of the corresponding provider had
          * occurred.
-         * 
+         *
          * @param evt ProviderStatusChangeEvent the event describing the status
          *            change.
          */
@@ -523,12 +523,13 @@ implements OperationSetAdHocMultiUserChat
     /**
      * Our group chat message listener, it extends the SessionAdapter from the
      * the Yahoo library.
-     * 
+     *
      */
     private class YahooMessageListener
     extends SessionAdapter
     {
 
+        @Override
         public void conferenceInviteDeclinedReceived(SessionConferenceEvent ev)
         {
             if (logger.isDebugEnabled())
@@ -548,6 +549,7 @@ implements OperationSetAdHocMultiUserChat
             }
         }
 
+        @Override
         public void conferenceInviteReceived(SessionConferenceEvent ev)
         {
             if (logger.isDebugEnabled())
@@ -559,7 +561,7 @@ implements OperationSetAdHocMultiUserChat
 
                 if (chatRoom == null)
                 {
-                    chatRoom = 
+                    chatRoom =
                         createLocalChatRoomInstance(ev.getRoom(), ev.getFrom());
 
                     fireInvitationEvent(
@@ -574,6 +576,7 @@ implements OperationSetAdHocMultiUserChat
             }
         }
 
+        @Override
         public void conferenceLogoffReceived(SessionConferenceEvent ev)
         {
             if (logger.isDebugEnabled())
@@ -599,6 +602,7 @@ implements OperationSetAdHocMultiUserChat
             }
         }
 
+        @Override
         public void conferenceLogonReceived(SessionConferenceEvent ev)
         {
             if (logger.isDebugEnabled())
@@ -629,6 +633,7 @@ implements OperationSetAdHocMultiUserChat
             }
         }
 
+        @Override
         public void conferenceMessageReceived(SessionConferenceEvent ev)
         {
             if (logger.isDebugEnabled())
@@ -683,6 +688,7 @@ implements OperationSetAdHocMultiUserChat
 
         }
 
+        @Override
         public void connectionClosed(SessionEvent ev)
         {
             if (logger.isDebugEnabled())

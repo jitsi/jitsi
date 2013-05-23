@@ -896,6 +896,7 @@ public class EventPackageSubscriber
      * inform the provider.
      * Implements MethodProcessor#processTimeout(TimeoutEvent).
      */
+    @Override
     public boolean processTimeout(TimeoutEvent timeoutEvent)
     {
         protocolProvider.notifyConnectionFailed();
@@ -1280,6 +1281,7 @@ public class EventPackageSubscriber
          * Refreshes the <tt>Subscription</tt> associated with this
          * <tt>TimerTask</tt>.
          */
+        @Override
         public void run()
         {
             Dialog dialog = subscription.getDialog();

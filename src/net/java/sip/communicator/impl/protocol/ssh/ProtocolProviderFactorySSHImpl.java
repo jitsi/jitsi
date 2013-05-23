@@ -46,7 +46,8 @@ public class ProtocolProviderFactorySSHImpl
      *   specific properties defining the new account.
      * @return the AccountID of the newly created account.
      */
-    public AccountID installAccount( 
+    @Override
+    public AccountID installAccount(
             String userIDStr,
             Map<String, String> accountProperties)
     {
@@ -54,39 +55,39 @@ public class ProtocolProviderFactorySSHImpl
         if (context == null)
             throw new NullPointerException("The specified BundleContext was " +
                     "null");
-        
+
         if (userIDStr == null)
             throw new NullPointerException("The specified AccountID was null");
-        
+
         if (accountProperties == null)
             throw new NullPointerException("The specified property map was" +
                     " null");
-        
+
         accountProperties.put(USER_ID, userIDStr);
-        
+
         AccountID accountID = new SSHAccountID(userIDStr, accountProperties);
-        
+
         //make sure we haven't seen this account id before.
         if (registeredAccounts.containsKey(accountID))
             throw new IllegalStateException(
                     "An account for id " + userIDStr + " was already" +
                             " installed!");
-        
+
         //first store the account and only then load it as the load generates
         //an osgi event, the osgi event triggers (through the UI) a call to the
         //ProtocolProviderService.register() method and it needs to acces
         //the configuration service and check for a stored password.
         this.storeAccount(accountID, false);
-        
+
         accountID = loadAccount(accountProperties);
-        
+
 /*        ServiceReference ppServiceRef = context
                 .getServiceReference(ProtocolProviderService.class.getName());
 
         ProtocolProviderService ppService = (ProtocolProviderService)
         context.getService(ppServiceRef);
 
-        OperationSetPersistentPresence operationSetPersistentPresence = 
+        OperationSetPersistentPresence operationSetPersistentPresence =
             (OperationSetPersistentPresence) ppService.getOperationSet(
                 OperationSetPersistentPresence.class);
 
@@ -100,15 +101,17 @@ public class ProtocolProviderFactorySSHImpl
         {
             ex.printStackTrace();
         }
-*/        
+*/
         return accountID;
     }
 
+    @Override
     protected AccountID createAccountID(String userID, Map<String, String> accountProperties)
     {
         return new SSHAccountID(userID, accountProperties);
     }
 
+    @Override
     protected ProtocolProviderService createService(String userID,
         AccountID accountID)
     {
@@ -134,11 +137,11 @@ public class ProtocolProviderFactorySSHImpl
 //    public void storePassword(AccountID accountID, String passwd)
 //    throws IllegalArgumentException
 //    {
-//        super.storePassword(SSHActivator.getBundleContext(), 
-//                accountID, 
+//        super.storePassword(SSHActivator.getBundleContext(),
+//                accountID,
 //                String.valueOf(Base64.encode(passwd.getBytes())));
 //    }
-//    
+//
 //    /**
 //     * Returns the password last saved for the specified account.
 //     *
@@ -164,7 +167,7 @@ public class ProtocolProviderFactorySSHImpl
         throws NullPointerException
     {
         // TODO Auto-generated method stub
-        
+
     }
-    
+
 }

@@ -61,6 +61,7 @@ public class ZeroconfAccountRegistrationWizard
      * Returns the icon to be used for this wizard.
      * @return byte[]
      */
+    @Override
     public byte[] getIcon()
     {
         return Resources.getImage(Resources.ZEROCONF_LOGO);
@@ -69,19 +70,21 @@ public class ZeroconfAccountRegistrationWizard
     /**
      * Implements the <code>AccountRegistrationWizard.getPageImage</code> method.
      * Returns the image used to decorate the wizard page
-     * 
+     *
      * @return byte[] the image used to decorate the wizard page
      */
+    @Override
     public byte[] getPageImage()
     {
         return Resources.getImage(Resources.PAGE_IMAGE);
     }
-    
+
     /**
      * Implements the <code>AccountRegistrationWizard.getProtocolName</code>
      * method. Returns the protocol name for this wizard.
      * @return String
      */
+    @Override
     public String getProtocolName()
     {
         return Resources.getString("plugin.zeroaccregwizz.PROTOCOL_NAME");
@@ -92,6 +95,7 @@ public class ZeroconfAccountRegistrationWizard
      * </code> method. Returns the description of the protocol for this wizard.
      * @return String
      */
+    @Override
     public String getProtocolDescription()
     {
         return Resources.getString("plugin.zeroaccregwizz.PROTOCOL_DESCRIPTION");
@@ -101,6 +105,7 @@ public class ZeroconfAccountRegistrationWizard
      * Returns the set of pages contained in this wizard.
      * @return Iterator
      */
+    @Override
     public Iterator<WizardPage> getPages()
     {
         java.util.List<WizardPage> pages = new ArrayList<WizardPage>();
@@ -122,6 +127,7 @@ public class ZeroconfAccountRegistrationWizard
      * Returns the set of data that user has entered through this wizard.
      * @return Iterator
      */
+    @Override
     public Iterator<Map.Entry<String, String>> getSummary()
     {
         Hashtable<String, String> summaryTable = new Hashtable<String, String>();
@@ -130,9 +136,9 @@ public class ZeroconfAccountRegistrationWizard
         summaryTable.put("First Name", registration.getFirst());
         summaryTable.put("Last Name", registration.getLast());
         summaryTable.put("Mail Address", registration.getMail());
-        summaryTable.put("Remember Bonjour contacts?", 
+        summaryTable.put("Remember Bonjour contacts?",
                 Boolean.toString(registration.isRememberContacts()));
-        
+
         return summaryTable.entrySet().iterator();
     }
 
@@ -144,6 +150,7 @@ public class ZeroconfAccountRegistrationWizard
      * new account
      * @throws OperationFailedException if the operation didn't succeed
      */
+    @Override
     public ProtocolProviderService signin()
         throws OperationFailedException
     {
@@ -162,6 +169,7 @@ public class ZeroconfAccountRegistrationWizard
      * new account
      * @throws OperationFailedException if the operation didn't succeed
      */
+    @Override
     public ProtocolProviderService signin(String userName, String password)
         throws OperationFailedException
     {
@@ -174,7 +182,7 @@ public class ZeroconfAccountRegistrationWizard
 
     /**
      * Creates an account for the given user and password.
-     * 
+     *
      * @return the <tt>ProtocolProviderService</tt> for the new account.
      * @param providerFactory the ProtocolProviderFactory which will create
      * the account
@@ -199,7 +207,7 @@ public class ZeroconfAccountRegistrationWizard
             ProtocolProviderFactory.NO_PASSWORD_REQUIRED,
             new Boolean(true).toString());
 
-        accountProperties.put("rememberContacts", 
+        accountProperties.put("rememberContacts",
             new Boolean(registration.isRememberContacts()).toString());
 
         if (isModification())
@@ -248,6 +256,7 @@ public class ZeroconfAccountRegistrationWizard
      * @param protocolProvider The <tt>ProtocolProviderService</tt> to load the
      * data from.
      */
+    @Override
     public void loadAccount(ProtocolProviderService protocolProvider)
     {
         setModification(true);
@@ -262,7 +271,7 @@ public class ZeroconfAccountRegistrationWizard
     /**
      * Returns the registration object, which will store all the data through
      * the wizard.
-     * 
+     *
      * @return the registration object, which will store all the data through
      * the wizard
      */
@@ -275,15 +284,17 @@ public class ZeroconfAccountRegistrationWizard
      * Returns the size of this wizard.
      * @return the size of this wizard
      */
+    @Override
     public Dimension getSize()
     {
         return new Dimension(600, 500);
     }
-    
+
     /**
      * Returns the identifier of the page to show first in the wizard.
      * @return the identifier of the page to show first in the wizard.
      */
+    @Override
     public Object getFirstPageIdentifier()
     {
         return firstWizardPage.getIdentifier();
@@ -293,6 +304,7 @@ public class ZeroconfAccountRegistrationWizard
      * Returns the identifier of the page to show last in the wizard.
      * @return the identifier of the page to show last in the wizard.
      */
+    @Override
     public Object getLastPageIdentifier()
     {
         return firstWizardPage.getIdentifier();
@@ -310,7 +322,7 @@ public class ZeroconfAccountRegistrationWizard
     /**
      * Returns the user name label for the simplified account registration
      * form.
-     * 
+     *
      * @return the user name label for the simplified account registration
      * form.
      */
@@ -325,6 +337,7 @@ public class ZeroconfAccountRegistrationWizard
      * @return an example string, which should indicate to the user how the
      * user name should look like.
      */
+    @Override
     public String getUserNameExample()
     {
         return null;
@@ -339,6 +352,7 @@ public class ZeroconfAccountRegistrationWizard
      * @return <code>true</code> if the simple "Sign in" form is enabled or
      * <code>false</code> otherwise.
      */
+    @Override
     public boolean isSimpleFormEnabled()
     {
         return false;
@@ -349,10 +363,11 @@ public class ZeroconfAccountRegistrationWizard
      * shown to the user. Only if the user needs more settings she'll choose
      * to open the advanced wizard, consisted by all pages.
      *
-     * @param isCreateAccount indicates if the simple form should be opened as 
+     * @param isCreateAccount indicates if the simple form should be opened as
      * a create account form or as a login form
      * @return a simple account registration form
      */
+    @Override
     public Object getSimpleForm(boolean isCreateAccount)
     {
         // when creating first wizard page, create and new

@@ -80,7 +80,7 @@ public class CallPeerChangeEvent
     private final String reason;
 
     /**
-     * Reason code, if any, for the peer state change. 
+     * Reason code, if any, for the peer state change.
      */
     private final int reasonCode;
 
@@ -134,7 +134,7 @@ public class CallPeerChangeEvent
      * @param reason a string containing a human readable explanation for the
      * reason that triggered this event (may be null).
      * @param reasonCode a code for the reason that triggered this
-     * event (may be -1 as not specified). 
+     * event (may be -1 as not specified).
      */
     public CallPeerChangeEvent(CallPeer source,
                                       String type,
@@ -164,6 +164,7 @@ public class CallPeerChangeEvent
      *
      * @return  A a String representation of this CallPeerChangeEvent.
      */
+    @Override
     public String toString()
     {
 

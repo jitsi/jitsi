@@ -17,7 +17,7 @@ import net.java.sip.communicator.service.protocol.*;
  * Instances of a MetaContact are read-only objects that cannot be modified
  * directly but only through the corresponding MetaContactListService.
  * </p>
- * 
+ *
  * @author Emil Ivov
  * @author Lubomir Marinov
  */
@@ -35,7 +35,7 @@ public interface MetaContact
     /**
      * Returns the default protocol specific <tt>Contact</tt> to use with this
      * <tt>MetaContact</tt> for a precise operation (IM, call, ...).
-     * 
+     *
      * @param operationSet the operation for which the default contact is needed
      * @return the default contact for the specified operation.
      */

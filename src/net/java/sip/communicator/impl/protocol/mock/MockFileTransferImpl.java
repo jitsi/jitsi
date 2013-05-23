@@ -35,6 +35,7 @@ public class MockFileTransferImpl
      * Notifies all status listeners that a new
      * <tt>FileTransferStatusChangeEvent</tt> occured.
      */
+    @Override
     public void fireStatusChangeEvent(int newStatus)
     {
         super.fireStatusChangeEvent(newStatus);

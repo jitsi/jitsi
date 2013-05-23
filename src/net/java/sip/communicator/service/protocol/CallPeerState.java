@@ -124,7 +124,7 @@ public class CallPeerState
      * This constant value indicates that the state of the incoming call peer
      * is CONNECTING - which means that a network connection to that peer
      * is currently being established and during the process before hearing
-     * the other peer we can still can hear media coming from the 
+     * the other peer we can still can hear media coming from the
      * server for example.
      */
     public static final CallPeerState CONNECTING_INCOMING_CALL_WITH_MEDIA
@@ -377,6 +377,7 @@ public class CallPeerState
      * and are meant to be used for logging/debugging purposes.
      * @return a string representation of this object.
      */
+    @Override
     public String toString()
     {
         return getClass().getName()+":"+getStateString();

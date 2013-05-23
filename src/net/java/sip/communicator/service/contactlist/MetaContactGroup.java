@@ -295,7 +295,7 @@ public interface MetaContactGroup
 
     /**
      * Gets the user data associated with this instance and a specific key.
-     * 
+     *
      * @param key
      *            the key of the user data associated with this instance to be
      *            retrieved
@@ -320,7 +320,7 @@ public interface MetaContactGroup
      * The storage of the user data is implementation-specific and is thus not
      * guaranteed to be optimized for execution time and memory use.
      * </p>
-     * 
+     *
      * @param key
      *            the key to associate in this instance with the specified value
      * @param value

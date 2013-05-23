@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.plugin.spellcheck;
@@ -10,7 +10,7 @@ import java.text.*;
 /**
  * Immutable representation of a word in the context of a document, bundling the
  * bounds with the text.
- * 
+ *
  * @author Damian Johnson
  */
 class Word
@@ -21,13 +21,13 @@ class Word
     private final int start;
 
     private final String text;
-    
+
     private final int end;
 
     /**
      * Provides the word before or after a given index. No bounds checking is
      * performed.
-     * 
+     *
      * @param text text to be checked
      * @param index index in which to begin search (inclusive)
      * @param before search is before index if true, after otherwise
@@ -79,6 +79,7 @@ class Word
         return this.text;
     }
 
+    @Override
     public String toString()
     {
         return this.text;

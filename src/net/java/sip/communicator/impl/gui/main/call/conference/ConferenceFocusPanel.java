@@ -167,7 +167,7 @@ public class ConferenceFocusPanel
         cnstrnts.gridy++;
 
         initSecuritySettings();
-        
+
         packWindow();
     }
 
@@ -181,11 +181,11 @@ public class ConferenceFocusPanel
         focusPeerPanel = new ConferencePeerPanel(callRenderer, focusPeer);
         add(focusPeerPanel, cnstrnts);
         cnstrnts.gridy++;
-        
+
         packWindow();
-        
+
     }
-    
+
     /**
      * Resizes the window to fit the layout.
      */
@@ -193,7 +193,7 @@ public class ConferenceFocusPanel
     {
         Window window
             = SwingUtilities.getWindowAncestor(this);
-    
+
         if (window != null)
             window.pack();
     }
@@ -202,7 +202,7 @@ public class ConferenceFocusPanel
      * Releases the resources acquired by this instance which require explicit
      * disposal (e.g. any listeners added to the depicted <tt>CallPeer</tt>.
      * Invoked by <tt>BasicConferenceCallPanel</tt> when it determines that this
-     * <tt>ConferenceFocusPanel</tt> is no longer necessary. 
+     * <tt>ConferenceFocusPanel</tt> is no longer necessary.
      */
     public void dispose()
     {
@@ -412,7 +412,7 @@ public class ConferenceFocusPanel
         {
             remove(conferenceMemberPanel);
             conferenceMemberPanel.dispose();
-            
+
             packWindow();
         }
     }

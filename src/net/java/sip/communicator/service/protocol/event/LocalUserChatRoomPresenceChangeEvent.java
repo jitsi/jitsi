@@ -144,6 +144,7 @@ public class LocalUserChatRoomPresenceChangeEvent
      *
      * @return String representation of this event
      */
+    @Override
     public String toString()
     {
         return "ChatRoomLocalUserPresenceChangeEvent[type="

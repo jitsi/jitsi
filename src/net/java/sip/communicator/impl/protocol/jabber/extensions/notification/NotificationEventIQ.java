@@ -55,7 +55,7 @@ public class NotificationEventIQ
 
     /**
      * Current notification event source.
-     */ 
+     */
     private String eventSource;
 
     /**
@@ -131,7 +131,7 @@ public class NotificationEventIQ
 
     /**
      * Current notification event source.
-     * @return the current notification event source. 
+     * @return the current notification event source.
      */
     public String getEventSource()
     {

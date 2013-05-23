@@ -97,6 +97,7 @@ public class ReferenceURLStreamHandlerService
      * @return an <tt>URLConnection</tt> instance for the specified <tt>URL</tt>
      * @throws IOException if an I/O error occurs while opening the connection
      */
+    @Override
     public URLConnection openConnection(URL url)
         throws IOException
     {

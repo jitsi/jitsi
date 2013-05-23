@@ -18,14 +18,14 @@ public interface ConferencePeerViewListener
 {
     /**
      * Indicates that the peer panel was added.
-     * 
+     *
      * @param ev the event.
      */
     public void peerViewAdded(ConferencePeerViewEvent ev);
-    
+
     /**
      * Indicates that the peer panel was removed.
-     * 
+     *
      * @param ev the event.
      */
     public void peerViewRemoved(ConferencePeerViewEvent ev);

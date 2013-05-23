@@ -14,7 +14,7 @@ import javax.swing.filechooser.*;
 /**
  * Utility class that allows to check if a given file is an image or to obtain
  * the file thumbnail icon.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class FileUtils
@@ -27,7 +27,7 @@ public class FileUtils
     /**
      * Returns <code>true</code> if the file given by <tt>fileName</tt> is an
      * image, <tt>false</tt> - otherwise.
-     * 
+     *
      * @param fileName the name of the file to check
      * @return <code>true</code> if the file is an image, <tt>false</tt> -
      * otherwise.

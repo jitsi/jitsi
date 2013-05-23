@@ -19,7 +19,7 @@ import net.java.sip.communicator.util.skin.*;
 
 /**
  * The SIPCommChatSelectorMenuUI implementation.
- * 
+ *
  * @author Yana Stamcheva
  * @author Adam Netocny
  */
@@ -43,12 +43,13 @@ public class SIPCommChatSelectorMenuUI
 
     /**
      * Draws the background of the menu item.
-     * 
+     *
      * @param g the paint graphics
      * @param menuItem menu item to be painted
      * @param bgColor selection background color
      * @since 1.4
      */
+    @Override
     protected void paintBackground( Graphics g,
                                     JMenuItem menuItem,
                                     Color bgColor)

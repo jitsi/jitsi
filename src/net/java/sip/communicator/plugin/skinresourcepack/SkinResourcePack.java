@@ -120,7 +120,7 @@ public class SkinResourcePack
      * @return a <tt>Map</tt>, containing all [key, value] pairs for image
      * resource pack.
      */
-    public Map<String, String> getImageResources() 
+    public Map<String, String> getImageResources()
     {
         if(imageResources != null)
         {

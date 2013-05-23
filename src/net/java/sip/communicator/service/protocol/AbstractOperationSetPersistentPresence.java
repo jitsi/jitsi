@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.service.protocol;
@@ -16,7 +16,7 @@ import net.java.sip.communicator.util.*;
  * <tt>OperationSetPersistentPresence</tt> in order to make it easier for
  * implementers to provide complete solutions while focusing on
  * implementation-specific details.
- * 
+ *
  * @author Lubomir Marinov
  */
 public abstract class AbstractOperationSetPersistentPresence<T extends ProtocolProviderService>
@@ -64,7 +64,7 @@ public abstract class AbstractOperationSetPersistentPresence<T extends ProtocolP
     /**
      * Initializes a new <tt>AbstractOperationSetPersistentPresence</tt>
      * instance created by a specific <tt>ProtocolProviderService</tt> .
-     * 
+     *
      * @param parentProvider the <tt>ProtocolProviderService</tt> which created
      *            the new instance
      */
@@ -92,7 +92,7 @@ public abstract class AbstractOperationSetPersistentPresence<T extends ProtocolP
     /**
      * Adds a listener that would receive events upon changes of the provider
      * presence status.
-     * 
+     *
      * @param listener
      *            the listener to register for changes in our PresenceStatus.
      */
@@ -109,7 +109,7 @@ public abstract class AbstractOperationSetPersistentPresence<T extends ProtocolP
     /**
      * Registers a listener that would receive events upon changes in server
      * stored groups.
-     * 
+     *
      * @param listener
      *            a ServerStoredGroupChangeListener impl that would receive
      *            events upon group changes.
@@ -194,7 +194,7 @@ public abstract class AbstractOperationSetPersistentPresence<T extends ProtocolP
     /**
      * Notify all subscription listeners of the corresponding contact property
      * change event.
-     * 
+     *
      * @param eventID the String ID of the event to dispatch
      * @param source the ContactJabberImpl instance that this event is
      *            pertaining to.
@@ -230,7 +230,7 @@ public abstract class AbstractOperationSetPersistentPresence<T extends ProtocolP
 
     /**
      * Notifies all registered listeners of the new event.
-     * 
+     *
      * @param oldValue
      *            the presence status we were in before the change.
      */
@@ -241,7 +241,7 @@ public abstract class AbstractOperationSetPersistentPresence<T extends ProtocolP
 
     /**
      * Notify all provider presence listeners of the corresponding event change
-     * 
+     *
      * @param oldValue
      *            the status our stack had so far
      * @param newValue
@@ -281,7 +281,7 @@ public abstract class AbstractOperationSetPersistentPresence<T extends ProtocolP
     /**
      * Notify all provider presence listeners that a new status message has been
      * set.
-     * 
+     *
      * @param oldStatusMessage
      *            the status message our stack had so far
      * @param newStatusMessage
@@ -359,7 +359,7 @@ public abstract class AbstractOperationSetPersistentPresence<T extends ProtocolP
 
     /**
      * Notifies all registered listeners of the new event.
-     * 
+     *
      * @param source the contact that has caused the event.
      * @param parentGroup the group that contains the source contact.
      * @param eventID an identifier of the event to dispatch.
@@ -414,7 +414,7 @@ public abstract class AbstractOperationSetPersistentPresence<T extends ProtocolP
 
     /**
      * Notifies all registered listeners of the new event.
-     * 
+     *
      * @param source the contact that has been moved..
      * @param oldParent the group where the contact was located before being
      *            moved.
@@ -460,7 +460,7 @@ public abstract class AbstractOperationSetPersistentPresence<T extends ProtocolP
     /**
      * Unregisters the specified listener so that it does not receive further
      * events upon changes in local presence status.
-     * 
+     *
      * @param listener
      *            ProviderPresenceStatusListener
      */
@@ -490,7 +490,7 @@ public abstract class AbstractOperationSetPersistentPresence<T extends ProtocolP
 
     /**
      * Removes the specified subscription listener.
-     * 
+     *
      * @param listener the listener to remove.
      */
     public void removeSubscriptionListener(SubscriptionListener listener)

@@ -28,6 +28,7 @@ public class ExtendedTreeUI
      * @param path the <tt>TreePath</tt> to select
      * @param event the <tt>MouseEvent</tt> that provoked the select
      */
+    @Override
     protected void selectPathForEvent(TreePath path, MouseEvent event)
     {
         Object lastComponent = path.getLastPathComponent();

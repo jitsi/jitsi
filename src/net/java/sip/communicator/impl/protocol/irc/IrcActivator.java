@@ -102,7 +102,7 @@ public class IrcActivator
 
     /**
      * Returns the <tt>ResourceManagementService</tt>.
-     * 
+     *
      * @return the <tt>ResourceManagementService</tt>.
      */
     public static ResourceManagementService getResources()

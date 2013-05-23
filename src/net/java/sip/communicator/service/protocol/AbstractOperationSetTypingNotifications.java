@@ -16,7 +16,7 @@ import net.java.sip.communicator.util.*;
  * <tt>OperationSetTypingNotifications</tt> in order to make it easier for
  * implementers to provide complete solutions while focusing on
  * implementation-specific details.
- * 
+ *
  * @param <T> the type of the <tt>ProtocolProviderService</tt> implementation
  * providing the <tt>AbstractOperationSetTypingNotifications</tt> implementation
  *
@@ -47,7 +47,7 @@ public abstract class AbstractOperationSetTypingNotifications<T extends Protocol
     /**
      * Initializes a new <tt>AbstractOperationSetTypingNotifications</tt>
      * instance created by a specific <tt>ProtocolProviderService</tt> instance.
-     * 
+     *
      * @param parentProvider the <tt>ProtocolProviderService</tt> which creates
      * the new instance
      */
@@ -78,7 +78,7 @@ public abstract class AbstractOperationSetTypingNotifications<T extends Protocol
     /**
      * Utility method throwing an exception if the stack is not properly
      * initialized.
-     * 
+     *
      * @throws IllegalStateException if the underlying stack is not registered
      * and initialized
      */
@@ -99,7 +99,7 @@ public abstract class AbstractOperationSetTypingNotifications<T extends Protocol
 
     /**
      * Delivers a <tt>TypingNotificationEvent</tt> to all registered listeners.
-     * 
+     *
      * @param sourceContact the contact who has sent the notification
      * @param evtCode the code of the event to deliver
      */

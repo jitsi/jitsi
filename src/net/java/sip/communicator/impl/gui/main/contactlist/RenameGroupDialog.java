@@ -18,8 +18,8 @@ import net.java.sip.communicator.service.contactlist.*;
 
 /**
  * The <tt>RenameGroupDialog</tt> is the dialog containing the form for
- * renaming a group. 
- * 
+ * renaming a group.
+ *
  * @author Yana Stamcheva
  */
 public class RenameGroupDialog
@@ -46,7 +46,7 @@ public class RenameGroupDialog
 
     /**
      * Creates an instance of <tt>RenameGroupDialog</tt>.
-     * 
+     *
      * @param mainFrame The main application window.
      * @param metaGroup The <tt>MetaContactGroup</tt> to rename.
      */
@@ -111,6 +111,7 @@ public class RenameGroupDialog
             if (metaGroup != null)
             {
                 new Thread() {
+                    @Override
                     public void run() {
                         clist.renameMetaContactGroup(
                                 metaGroup, renameGroupPanel.getNewName());
@@ -132,6 +133,7 @@ public class RenameGroupDialog
         this.renameGroupPanel.requestFocusInField();
     }
 
+    @Override
     protected void close(boolean isEscaped)
     {
         this.cancelButton.doClick();

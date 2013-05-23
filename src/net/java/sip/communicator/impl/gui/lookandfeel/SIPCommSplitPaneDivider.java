@@ -30,13 +30,13 @@ class SIPCommSplitPaneDivider
     /**
      * The horizontal divider.
      */
-    private BufferedImage horizontalDivider 
+    private BufferedImage horizontalDivider
         = ImageLoader.getImage(ImageLoader.SPLITPANE_HORIZONTAL);
 
     /**
      * The vertical divider.
      */
-    private BufferedImage verticalDivider 
+    private BufferedImage verticalDivider
         = ImageLoader.getImage(ImageLoader.SPLITPANE_VERTICAL);
 
     /**
@@ -56,12 +56,13 @@ class SIPCommSplitPaneDivider
      *
      * @param g the <tt>Graphics</tt> object used for painting
      */
+    @Override
     public void paint(Graphics g)
     {
         Rectangle clip = g.getClipBounds();
 
         if(getOrientationFromSuper() == JSplitPane.VERTICAL_SPLIT)
-            g.drawImage(horizontalDivider, 
+            g.drawImage(horizontalDivider,
                 (getWidth() - horizontalDivider.getWidth(null))/2 ,
                 clip.y + (getHeight() - horizontalDivider.getHeight(null))/2,
                 horizontalDivider.getWidth(null),
@@ -71,7 +72,7 @@ class SIPCommSplitPaneDivider
             g.drawImage(verticalDivider,
                 clip.x + (getWidth() - verticalDivider.getWidth(null))/2 ,
                 (getHeight() - verticalDivider.getHeight(null))/2,
-                verticalDivider.getWidth(null), 
+                verticalDivider.getWidth(null),
                 verticalDivider.getHeight(null),
                 null);
 
@@ -84,6 +85,7 @@ class SIPCommSplitPaneDivider
     *
     * @return the created button
     */
+    @Override
     protected JButton createLeftOneTouchButton()
     {
         JButton b = new JButton()
@@ -95,8 +97,10 @@ class SIPCommSplitPaneDivider
                           {2, 1, 1, 1, 1, 1, 1, 1, 0},
                           {0, 3, 3, 3, 3, 3, 3, 3, 3}};
 
+            @Override
             public void setBorder(Border b) {}
 
+            @Override
             public void paint(Graphics g)
             {
                 JSplitPane splitPane = getSplitPaneFromSuper();
@@ -187,6 +191,7 @@ class SIPCommSplitPaneDivider
     * Creates and return an instance of JButton that can be used to
     * collapse the right component in the metal split pane.
     */
+    @Override
     protected JButton createRightOneTouchButton()
     {
         JButton b = new JButton()
@@ -198,8 +203,10 @@ class SIPCommSplitPaneDivider
                           {0, 0, 0, 1, 1, 3, 0, 0},
                           {0, 0, 0, 0, 3, 0, 0, 0}};
 
+        @Override
         public void setBorder(Border border) {}
 
+            @Override
             public void paint(Graphics g)
             {
                 JSplitPane splitPane = getSplitPaneFromSuper();
@@ -315,18 +322,18 @@ class SIPCommSplitPaneDivider
 
                     if (orientation == JSplitPane.VERTICAL_SPLIT)
                     {
-                        int blockSize = getDividerSize() 
+                        int blockSize = getDividerSize()
                             - (insets.left + insets.right);
                         int y = (c.getHeight() - blockSize) / 2;
-                        leftButton.setBounds(insets.left + leftSize.width, y, 
+                        leftButton.setBounds(insets.left + leftSize.width, y,
                                 leftSize.width, leftSize.height);
-                        rightButton.setBounds((insets.left * 2) + leftSize.width 
-                                + rightSize.width, y, rightSize.width, 
+                        rightButton.setBounds((insets.left * 2) + leftSize.width
+                                + rightSize.width, y, rightSize.width,
                                 rightSize.height);
                     }
                     else
                     {
-                        int blockSize = getDividerSize() 
+                        int blockSize = getDividerSize()
                             - (insets.top + insets.bottom);
                         int x = (c.getWidth() - blockSize) / 2;
                         leftButton.setBounds(x, insets.top + leftSize.height,

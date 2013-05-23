@@ -17,7 +17,7 @@ public interface Crypto
 {
     /**
      * Decrypts the cipher text and returns the result.
-     * 
+     *
      * @param ciphertext base64 encoded encrypted data
      * @return decrypted data
      * @throws CryptoException when the ciphertext cannot be decrypted with the
@@ -27,7 +27,7 @@ public interface Crypto
 
     /**
      * Encrypts the plain text and returns the result.
-     * 
+     *
      * @param plaintext data to be encrypted
      * @return base64 encoded encrypted data
      * @throws CryptoException on encryption error

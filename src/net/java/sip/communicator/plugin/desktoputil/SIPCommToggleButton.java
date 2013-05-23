@@ -142,6 +142,7 @@ public class SIPCommToggleButton
      * @param g the Graphics object
      */
 
+    @Override
     public void paintComponent(Graphics g)
     {
         g = g.create();

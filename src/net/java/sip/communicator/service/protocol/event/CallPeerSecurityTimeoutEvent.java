@@ -27,7 +27,7 @@ public class CallPeerSecurityTimeoutEvent
 
     /**
      * The event constructor
-     * 
+     *
      * @param callPeer the call peer associated with this event
      * @param sessionType the type of the session, either
      *            {@link CallPeerSecurityStatusEvent#AUDIO_SESSION} or

@@ -19,7 +19,7 @@ import org.jitsi.util.*;
 
 /**
  * An implementation of the <tt>SoundNotificationHandler</tt> interface.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class SoundNotificationHandlerImpl
@@ -335,6 +335,7 @@ public class SoundNotificationHandlerImpl
          * @return <tt>true</tt> if the playback was successful; otherwise,
          * <tt>false</tt>
          */
+        @Override
         protected boolean runOnceInPlayThread()
         {
             try

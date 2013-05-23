@@ -44,12 +44,12 @@ public class WritePanelRightButtonMenu
         new ImageIcon(ImageLoader.getImage(ImageLoader.PASTE_ICON)));
 
     private JMenuItem closeMenuItem = new JMenuItem(
-        GuiActivator.getResources().getI18NString("service.gui.CLOSE"), 
+        GuiActivator.getResources().getI18NString("service.gui.CLOSE"),
         new ImageIcon(ImageLoader.getImage(ImageLoader.CLOSE_ICON)));
 
     /**
      * Creates an instance of <tt>WritePanelRightButtonMenu</tt>.
-     *  
+     *
      * @param chatContainer The window owner of this popup menu.
      */
     public WritePanelRightButtonMenu(ChatContainer chatContainer)
@@ -152,32 +152,32 @@ public class WritePanelRightButtonMenu
         closeMenuItem.setIcon(new ImageIcon(
                 ImageLoader.getImage(ImageLoader.CLOSE_ICON)));
     }
-    
+
     /**
      * Provides a popup menu with custom entries followed by default
      * operation entries ( copy, paste ,close)
-     * 
+     *
      * @param entries custom menu entries to be added
      * @return right click menu
      */
     public JPopupMenu makeMenu(List <JMenuItem> entries) {
-        
+
         JPopupMenu rightMenu = new JPopupMenu();
-        
+
         for(JMenuItem entry : entries) {
             rightMenu.add(entry);
         }
-        
+
         if(!entries.isEmpty()) rightMenu.addSeparator();
-        
+
         rightMenu.add(copyMenuItem);
         rightMenu.add(cutMenuItem);
         rightMenu.add(pasteMenuItem);
-        
+
         rightMenu.addSeparator();
-        
+
         rightMenu.add(closeMenuItem);
-        
+
         return rightMenu;
     }
 }

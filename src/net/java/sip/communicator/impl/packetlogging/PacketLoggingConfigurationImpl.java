@@ -63,6 +63,7 @@ public class PacketLoggingConfigurationImpl
      * Change whether packet logging is enabled and save it in configuration.
      * @param enabled <tt>true</tt> if we enable it.
      */
+    @Override
     public void setGlobalLoggingEnabled(boolean enabled)
     {
         super.setGlobalLoggingEnabled(enabled);
@@ -76,6 +77,7 @@ public class PacketLoggingConfigurationImpl
      * and save it in configuration.
      * @param enabled <tt>true</tt> if we enable it.
      */
+    @Override
     public void setSipLoggingEnabled(boolean enabled)
     {
         super.setSipLoggingEnabled(enabled);
@@ -90,6 +92,7 @@ public class PacketLoggingConfigurationImpl
      * and save it in configuration.
      * @param enabled <tt>true</tt> if we enable it.
      */
+    @Override
     public void setJabberLoggingEnabled(boolean enabled)
     {
         super.setJabberLoggingEnabled(enabled);
@@ -104,6 +107,7 @@ public class PacketLoggingConfigurationImpl
      * and save it in configuration.
      * @param enabled <tt>true</tt> if we enable it.
      */
+    @Override
     public void setRTPLoggingEnabled(boolean enabled)
     {
         super.setRTPLoggingEnabled(enabled);
@@ -118,6 +122,7 @@ public class PacketLoggingConfigurationImpl
      * and save it in configuration.
      * @param enabled <tt>true</tt> if we enable it.
      */
+    @Override
     public void setIce4JLoggingEnabled(boolean enabled)
     {
         super.setIce4JLoggingEnabled(enabled);
@@ -131,6 +136,7 @@ public class PacketLoggingConfigurationImpl
      * Changes the file size limit.
      * @param limit the new limit size.
      */
+    @Override
     public void setLimit(long limit)
     {
         super.setLimit(limit);
@@ -144,6 +150,7 @@ public class PacketLoggingConfigurationImpl
      * Changes file count.
      * @param logfileCount the new file count.
      */
+    @Override
     public void setLogfileCount(int logfileCount)
     {
         super.setLogfileCount(logfileCount);

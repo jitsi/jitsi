@@ -16,7 +16,7 @@ import org.jitsi.service.packetlogging.*;
 /**
  * Packet Logging Service implementation dumping logs in
  * pcap(tcpdump/wireshark) format file.
- * 
+ *
  * @author Damian Minkov
  */
 public class PacketLoggingServiceImpl
@@ -44,7 +44,7 @@ public class PacketLoggingServiceImpl
     private PacketLoggingConfiguration packetLoggingConfiguration = null;
 
     /**
-     * The fake ethernet header we use as template. 
+     * The fake ethernet header we use as template.
      */
     private final static byte[] fakeEthernetHeader =
         new byte[]{
@@ -55,7 +55,7 @@ public class PacketLoggingServiceImpl
         };
 
     /**
-     * The fake ipv4 header we use as template. 
+     * The fake ipv4 header we use as template.
      */
     private final static byte[] ipHeaderTemplate =
         new byte[]{
@@ -134,7 +134,7 @@ public class PacketLoggingServiceImpl
     private long dstCount = 1;
 
     /**
-     * A counter watching how much has been written to the file. 
+     * A counter watching how much has been written to the file.
      */
     private long written = 0;
 
@@ -326,7 +326,7 @@ public class PacketLoggingServiceImpl
 
     /**
      * Log a packet with all the required information.
-     * 
+     *
      * @param protocol the source protocol that logs this packet.
      * @param sourceAddress the source address of the packet.
      * @param sourcePort the source port of the packet.
@@ -414,7 +414,7 @@ public class PacketLoggingServiceImpl
     {
         // if one of the addresses is ipv4 we are using ipv4,
         // local udp addresses come as 0.0.0.0.0....0.0.0 when
-        // ipv6 is enabled in the underlying os 
+        // ipv6 is enabled in the underlying os
         boolean isIPv4 = packet.sourceAddress.length == 4
                 || packet.destinationAddress.length == 4;
 
@@ -703,7 +703,7 @@ public class PacketLoggingServiceImpl
         int packetLength;
 
         /**
-         * Creates a packet with the needed data. 
+         * Creates a packet with the needed data.
          * @param protocol the source protocol that logs this packet.
          * @param sourceAddress The source address of the packet.
          * @param sourcePort The source port of the packet.
@@ -762,6 +762,7 @@ public class PacketLoggingServiceImpl
          * Sends instant messages in separate thread so we don't block
          * our calling thread.
          */
+        @Override
         public void run()
         {
             stopped = false;

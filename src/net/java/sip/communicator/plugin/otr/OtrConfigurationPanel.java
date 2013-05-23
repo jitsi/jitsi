@@ -19,7 +19,7 @@ import net.java.sip.communicator.plugin.desktoputil.*;
 
 /**
  * A special {@link Panel} that manages the OTR configuration.
- * 
+ *
  * @author George Politis
  */
 @SuppressWarnings("serial")
@@ -36,7 +36,7 @@ public class OtrConfigurationPanel
 
     /**
      * A special {@link Panel} for Private Keys display.
-     * 
+     *
      * @author George Politis
      */
     private static class PrivateKeysPanel
@@ -59,7 +59,7 @@ public class OtrConfigurationPanel
 
         /**
          * A special {@link JComboBox} for {@link AccountID} enumeration.
-         * 
+         *
          * @author George Politis
          */
         private static class AccountsComboBox
@@ -68,7 +68,7 @@ public class OtrConfigurationPanel
             /**
              * A class hosted in an {@link AccountsComboBox} that holds a single
              * {@link AccountID}.
-             * 
+             *
              * @author George Politis
              */
             private static class AccountsComboBoxItem
@@ -80,6 +80,7 @@ public class OtrConfigurationPanel
                     this.accountID = accountID;
                 }
 
+                @Override
                 public String toString()
                 {
                     return accountID.getDisplayName();
@@ -100,7 +101,7 @@ public class OtrConfigurationPanel
             /**
              * Gets the selected {@link AccountID} for this
              * {@link AccountsComboBox}.
-             * 
+             *
              * @return the selected account id
              */
             public AccountID getSelectedAccountID()
@@ -116,7 +117,7 @@ public class OtrConfigurationPanel
         /**
          * Sets up the {@link PrivateKeysPanel} components so that they reflect
          * the {@link AccountID} param.
-         * 
+         *
          * @param account the {@link AccountID} to setup the components for.
          */
         private void openAccount(AccountID account)
@@ -216,7 +217,7 @@ public class OtrConfigurationPanel
 
     /**
      * A special {@link Panel} for OTR policy display.
-     * 
+     *
      * @author George Politis
      */
     private static class DefaultOtrPolicyPanel
@@ -232,7 +233,7 @@ public class OtrConfigurationPanel
         /**
          * Sets up the {@link DefaultOtrPolicyPanel} components so that they
          * reflect the global OTR policy.
-         * 
+         *
          */
         public void loadPolicy()
         {

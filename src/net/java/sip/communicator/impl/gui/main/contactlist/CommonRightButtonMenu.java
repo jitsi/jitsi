@@ -22,7 +22,7 @@ import net.java.sip.communicator.util.skin.*;
  * The GroupRightButtonMenu is the menu, opened when user clicks with the
  * right mouse button on a group in the contact list. Through this menu the
  * user could add a contact to a group.
- * 
+ *
  * @author Yana Stamcheva
  * @author Adam Netocny
  */
@@ -42,7 +42,7 @@ public class CommonRightButtonMenu
 
     /**
      * Creates an instance of GroupRightButtonMenu.
-     * 
+     *
      * @param mainFrame The parent <tt>MainFrame</tt> window.
      */
     public CommonRightButtonMenu(MainFrame mainFrame)

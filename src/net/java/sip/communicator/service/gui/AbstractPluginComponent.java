@@ -13,7 +13,7 @@ import net.java.sip.communicator.service.protocol.*;
  * Provides an abstract base implementation of <code>PluginComponent</code> in
  * order to take care of the implementation boilerplate and let implementers
  * focus on the specifics of their plug-in.
- * 
+ *
  * @author Lyubomir Marinov
  */
 public abstract class AbstractPluginComponent
@@ -28,7 +28,7 @@ public abstract class AbstractPluginComponent
     /**
      * Initializes a new <code>AbstractPluginComponent</code> which is to be
      * added to a specific <code>Container</code>.
-     * 
+     *
      * @param container the container in which the component of the new plug-in
      * is to be added
      */
@@ -61,7 +61,7 @@ public abstract class AbstractPluginComponent
      *
      * @return <tt>-1</tt> which indicates that the position of this
      * <tt>AbstractPluginComponent</tt> within its <tt>Container</tt> is of no
-     * importance 
+     * importance
      * @see PluginComponent#getPositionIndex()
      */
     public int getPositionIndex()

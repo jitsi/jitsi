@@ -47,6 +47,7 @@ public class MockBasicInstantMessaging
         this.parentProvider = provider;
     }
 
+    @Override
     public Message createMessage(String content, String contentType,
         String encoding, String subject)
     {
@@ -56,7 +57,7 @@ public class MockBasicInstantMessaging
     /**
      * Sends the <tt>message</tt> to the destination indicated by the
      * <tt>to</tt> contact.
-     * 
+     *
      * @param to the <tt>Contact</tt> to send <tt>message</tt> to
      * @param message the <tt>Message</tt> to send.
      * @throws IllegalStateException if the underlying ICQ stack is not
@@ -90,7 +91,7 @@ public class MockBasicInstantMessaging
     {
         return true;
     }
-    
+
     /**
      * Determines whether the protocol supports the supplied content type
      *
@@ -105,7 +106,7 @@ public class MockBasicInstantMessaging
 
     /**
      * Methods for manipulating mock operation set as deliver(receive) messageop
-     * 
+     *
      * @param to the address of the contact whom we are to deliver the message.
      * @param msg the message that we are to deliver.
      */

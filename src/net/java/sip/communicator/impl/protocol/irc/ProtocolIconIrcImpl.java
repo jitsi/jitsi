@@ -15,7 +15,7 @@ import net.java.sip.communicator.util.*;
 /**
  * Represents the IRC protocol icon. Implements the <tt>ProtocolIcon</tt>
  * interface in order to provide an IRC icon image in two different sizes.
- * 
+ *
  * @author Stephane Remy
  * @author Loic Kempf
  * @author Lubomir Marinov
@@ -29,7 +29,7 @@ public class ProtocolIconIrcImpl
      */
     private static final Logger logger
         = Logger.getLogger(ProtocolIconIrcImpl.class);
-    
+
     /**
      * A hash table containing the protocol icon in different sizes.
      */
@@ -91,7 +91,7 @@ public class ProtocolIconIrcImpl
     {
         return iconsTable.containsKey(iconSize);
     }
-    
+
     /**
      * Returns the icon image in the given size.
      * @param iconSize the icon size; one of ICON_SIZE_XXX constants
@@ -119,16 +119,16 @@ public class ProtocolIconIrcImpl
     {
         return getImageInBytes("ircConnectingIcon");
     }
-    
+
     /**
      * Returns the byte representation of the image corresponding to the given
      * identifier.
-     * 
+     *
      * @param imageID the identifier of the image
      * @return the byte representation of the image corresponding to the given
      * identifier.
      */
-    static byte[] getImageInBytes(String imageID) 
+    static byte[] getImageInBytes(String imageID)
     {
         InputStream in
             = IrcActivator.getResources().getImageInputStream(imageID);
@@ -136,13 +136,13 @@ public class ProtocolIconIrcImpl
 
         if (in != null)
         {
-            try 
+            try
             {
                 image = new byte[in.available()];
-    
+
                 in.read(image);
             }
-            catch (IOException e) 
+            catch (IOException e)
             {
                 logger.error("Failed to load image:" + imageID, e);
             }

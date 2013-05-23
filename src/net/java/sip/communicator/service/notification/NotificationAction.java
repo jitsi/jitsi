@@ -8,7 +8,7 @@ package net.java.sip.communicator.service.notification;
 
 /**
  * Base class for actions of a notification.
- * 
+ *
  * @author Ingo Bauersachs
  */
 public abstract class NotificationAction
@@ -76,7 +76,7 @@ public abstract class NotificationAction
      * otherwise. While the notification handler for the sound action type is
      * disabled no sounds will be played when the <tt>fireNotification</tt>
      * method is called.
-     * 
+     *
      * @return TRUE if this notification action handler is enabled and FALSE
      * otherwise
      */
@@ -89,7 +89,7 @@ public abstract class NotificationAction
      * Enables or disables this notification handler. While the notification
      * handler for the sound action type is disabled no sounds will be played
      * when the <tt>fireNotification</tt> method is called.
-     * 
+     *
      * @param isEnabled TRUE to enable this notification handler, FALSE to
      * disable it.
      */

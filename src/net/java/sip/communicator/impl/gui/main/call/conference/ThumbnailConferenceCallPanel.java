@@ -32,7 +32,7 @@ public class ThumbnailConferenceCallPanel
      * @param callConference the <tt>CallConference</tt> to be depicted by the
      * new instance
      * @param uiVideoHandler the utility which is to aid the new instance in
-     * dealing with the video-related information 
+     * dealing with the video-related information
      */
     public ThumbnailConferenceCallPanel(CallPanel callPanel,
                                         CallConference callConference,

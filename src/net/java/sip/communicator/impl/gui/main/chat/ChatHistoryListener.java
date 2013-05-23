@@ -9,7 +9,7 @@ package net.java.sip.communicator.impl.gui.main.chat;
 /**
  * The <tt>ChatHistoryListener</tt> is notified each time the chat history of
  * a <tt>ChatPanel</tt> changes.
- * 
+ *
  * @author Yana Stamcheva
  */
 public interface ChatHistoryListener

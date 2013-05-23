@@ -46,7 +46,7 @@ public class ChatRoomTableUI
 
     /**
      * Creates the scroll panel containing the chat rooms list.
-     * 
+     *
      * @param parentDialog Currently not used
      */
     public ChatRoomTableUI(ChatRoomTableDialog parentDialog)
@@ -100,7 +100,7 @@ public class ChatRoomTableUI
         if(chatRoomList.getSelectedRow() == -1)
             return;
 
-        ChatRoomWrapper chatRoomWrapper = 
+        ChatRoomWrapper chatRoomWrapper =
             chatRoomsTableModel.getValueAt(chatRoomList.getSelectedRow());
 
         ConferenceChatManager conferenceManager = GuiActivator.getUIService()
@@ -264,7 +264,7 @@ public class ChatRoomTableUI
 
         Object o = this.chatRoomsTableModel.getValueAt(
             this.chatRoomList.getSelectedRow());
-        
+
         Point selectedCellPoint = e.getPoint();
 
         SwingUtilities.convertPointToScreen(selectedCellPoint, chatRoomList);
@@ -321,7 +321,7 @@ public class ChatRoomTableUI
             boolean isSelected, boolean hasFocus, int row, int column)
         {
             ChatRoomWrapper chatRoom = (ChatRoomWrapper)value;
-            
+
 
             this.setText(chatRoom.getChatRoomName());
 
@@ -397,6 +397,6 @@ public class ChatRoomTableUI
                 this.setBackground(UIManager.getColor("Table.background"));
 
             return this;
-        }        
+        }
     }
 }

@@ -80,7 +80,7 @@ public class AddContactDialog
     /**
      * Creates an instance of <tt>AddContactDialog</tt> that represents a dialog
      * that adds a new contact to an already existing meta contact.
-     * 
+     *
      * @param parentWindow the parent window of this dialog
      */
     public AddContactDialog(Frame parentWindow)
@@ -663,6 +663,7 @@ public class AddContactDialog
         GuiActivator.getContactListService().addMetaContactListListener(
             new MetaContactListAdapter()
             {
+                @Override
                 public void metaContactAdded(MetaContactEvent evt)
                 {
                     if (evt.getSourceMetaContact().getContact(
@@ -672,6 +673,7 @@ public class AddContactDialog
                     }
                 }
 
+                @Override
                 public void protoContactAdded(ProtoContactEvent evt)
                 {
                     if (metaContact != null

@@ -21,7 +21,7 @@ import org.jitsi.service.resources.*;
  * modifying the menuBackground.png in the resources/images/impl/gui/common
  * folder.
  * </p>
- * 
+ *
  * @author Yana Stamcheva
  * @author Lubomir Marinov
  */

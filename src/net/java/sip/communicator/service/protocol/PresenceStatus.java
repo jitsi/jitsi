@@ -13,17 +13,17 @@ package net.java.sip.communicator.service.protocol;
  * might go through states like, CONNECTING, ON-LINE, AWAY, etc, A status
  * instance is represented by an integer varying from 0 to 100, a Status Name
  * and a Status Description.
- * 
+ *
  * The integer status variable is used so that the users of the service get the
  * notion of whether or not a given Status instance represents a state that
  * allows communication (above 20) and so that it could compare instances
  * between themselves (e.g. for sorting a ContactList for example).
- * 
+ *
  * A state may not be created by the user. User may request a status change
  * giving parameters requested by the ProtocolProvider. Once a statue is
  * successfully entered by the provider, a ConnectivityStatus instance is
  * conveyed to the user through a notification event.
- * 
+ *
  * @author Emil Ivov
  */
 public class PresenceStatus
@@ -37,7 +37,7 @@ public class PresenceStatus
 
     /**
      * An integer above which all values of the status coefficient indicate both
-     * connectivity and availability but the person is away from the computer. 
+     * connectivity and availability but the person is away from the computer.
      */
     public static final int AWAY_THRESHOLD = 31;
 
@@ -83,7 +83,7 @@ public class PresenceStatus
 
     /**
      * Creates an instance of this class using the specified parameters.
-     * 
+     *
      * @param status the status variable representing the new instance
      * @param statusName the name of this PresenceStatus
      */
@@ -94,7 +94,7 @@ public class PresenceStatus
 
     /**
      * Creates an instance of this class using the specified parameters.
-     * 
+     *
      * @param status the status variable representing the new instance
      * @param statusName the name of this PresenceStatus
      * @param statusIcon an image that graphically represents the status or null
@@ -110,7 +110,7 @@ public class PresenceStatus
     /**
      * Returns an integer representing the presence status on a scale from 0 to
      * 100.
-     * 
+     *
      * @return a short indicating the level of availability corresponding to
      *         this status object.
      */
@@ -121,7 +121,7 @@ public class PresenceStatus
 
     /**
      * Returns the name of this status (such as Away, On-line, Invisible, etc).
-     * 
+     *
      * @return a String variable containing the name of this status instance.
      */
     public String getStatusName()
@@ -133,9 +133,10 @@ public class PresenceStatus
      * Returns a string representation of this provider status. Strings returned
      * by this method have the following format: PresenceStatus:<STATUS_STRING>:
      * <STATUS_MESSAGE> and are meant to be used for logging/debugging purposes.
-     * 
+     *
      * @return a string representation of this object.
      */
+    @Override
     public String toString()
     {
         return "PresenceStatus:" + getStatusName();
@@ -143,7 +144,7 @@ public class PresenceStatus
 
     /**
      * Indicates whether the user is Online (can be reached) or not.
-     * 
+     *
      * @return true if the the status coefficient is higher than the
      *         ONLINE_THRESHOLD and false otherwise
      */
@@ -155,7 +156,7 @@ public class PresenceStatus
     /**
      * Indicates whether the user is both Online and avaliable (can be reached
      * and is likely to respond) or not.
-     * 
+     *
      * @return true if the the status coefficient is higher than the
      *         AVAILABLE_THRESHOLD and false otherwise
      */
@@ -168,7 +169,7 @@ public class PresenceStatus
      * Indicates whether the user is Online, available and eager to communicate
      * (can be reached and is likely to become annoyingly talkative if
      * contacted).
-     * 
+     *
      * @return true if the the status coefficient is higher than the
      *         EAGER_TO_COMMUNICATE_THRESHOLD and false otherwise
      */
@@ -183,11 +184,11 @@ public class PresenceStatus
      * considered to represent less, as much, or more availability than the one
      * specified by the parameter.
      * <p>
-     * 
+     *
      * @param target the <code>PresenceStatus</code> to be compared.
      * @return a negative integer, zero, or a positive integer as this object is
      *         less than, equal to, or greater than the specified object.
-     * 
+     *
      * @throws ClassCastException if the specified object's type prevents it
      *             from being compared to this Object.
      * @throws NullPointerException if o is null
@@ -204,11 +205,12 @@ public class PresenceStatus
      * PresenceStatus instances are considered equal if and only if both their
      * connectivity coefficient and their name are equal.
      * <p>
-     * 
+     *
      * @param obj the reference object with which to compare.
      * @return <tt>true</tt> if this presence status instance is equal to the
      *         <code>obj</code> argument; <tt>false</tt> otherwise.
      */
+    @Override
     public boolean equals(Object obj)
     {
         if (obj == null || !(obj instanceof PresenceStatus))
@@ -225,10 +227,11 @@ public class PresenceStatus
      * the benefit of hashtables such as those provided by
      * <tt>java.util.Hashtable</tt>.
      * <p>
-     * 
+     *
      * @return a hash code value for this object (which is actually the result
      *         of the getStatusName().hashCode()).
      */
+    @Override
     public int hashCode()
     {
         return getStatusName().hashCode();
@@ -236,7 +239,7 @@ public class PresenceStatus
 
     /**
      * Returns an image that graphically represents the status.
-     * 
+     *
      * @return a byte array containing the image that graphically represents the
      *         status or null if no such image is available.
      */

@@ -673,7 +673,7 @@ public class SIPAccountRegistration
      * If default domain is set this means we cannot create registerless
      * accounts through this wizard. And every time we write only the username,
      * will will end up with username@defaultDomain.
-     * 
+     *
      * @param defaultDomain the defaultDomain to set
      */
     public void setDefaultDomain(String defaultDomain)

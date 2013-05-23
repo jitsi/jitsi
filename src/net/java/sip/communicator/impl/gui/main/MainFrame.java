@@ -237,6 +237,7 @@ public class MainFrame
             /**
              * Invoked when a window has been closed.
              */
+            @Override
             public void windowClosed(WindowEvent event)
             {
                 MainFrame.this.windowClosed(event);
@@ -245,6 +246,7 @@ public class MainFrame
             /**
              * Invoked when a window has been opened.
              */
+            @Override
             public void windowOpened(WindowEvent e)
             {
                 Window focusedWindow = keyManager.getFocusedWindow();
@@ -282,6 +284,7 @@ public class MainFrame
             /**
              * Invoked when a window has been closed.
              */
+            @Override
             public void windowClosed(WindowEvent event)
             {
                 event.getWindow().removeWindowListener(this);
@@ -854,7 +857,7 @@ public class MainFrame
             this.protocolProviders.put(protocolProvider,
                     initiateProviderIndex(protocolProvider));
         }
-        
+
         if (logger.isTraceEnabled())
             logger.trace("Add the following protocol provider to the gui: "
                 + protocolProvider.getAccountID().getAccountAddress());
@@ -1290,6 +1293,7 @@ public class MainFrame
      * @param isEscaped indicates if this window has been closed by pressing
      * the escape key
      */
+    @Override
     protected void close(boolean isEscaped)
     {
         TreeContactList contactList = GuiActivator.getContactList();
@@ -1852,6 +1856,7 @@ public class MainFrame
      * application will not quit.
      * @param event the <tt>WindowEvent</tt> that notified us
      */
+    @Override
     protected void windowClosing(WindowEvent event)
     {
         super.windowClosing(event);

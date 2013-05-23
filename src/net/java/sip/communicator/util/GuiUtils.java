@@ -321,11 +321,11 @@ public class GuiUtils
         GuiUtils.formatTime(c1.get(Calendar.SECOND), timeStrBuf);
         return timeStrBuf.toString();
     }
-    
+
     /**
      * Formats the time period duration for the given start date and end date.
      * The result format is the following:
-     * [Hour]:[Minute]:[Second]. For example: 12:25:30. 
+     * [Hour]:[Minute]:[Second]. For example: 12:25:30.
      * @param startDate the start date
      * @param endDate the end date
      * @return the formatted hour string
@@ -464,7 +464,7 @@ public class GuiUtils
         }
         return resultId;
     }
-    
+
     /**
      * Escapes special HTML characters such as &lt;, &gt;, &amp; and &quot; in
      * the specified message.

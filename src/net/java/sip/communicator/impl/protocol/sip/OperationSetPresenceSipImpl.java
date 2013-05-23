@@ -322,6 +322,7 @@ public class OperationSetPresenceSipImpl
                      * @param fromAddress our AOR
                      * @param eventId the event id to use.
                      */
+                    @Override
                     protected Subscription createSubscription(
                                 Address fromAddress, String eventId)
                     {
@@ -379,6 +380,7 @@ public class OperationSetPresenceSipImpl
      * @param listener a ServerStoredGroupChangeListener impl that would receive
      *                 events upong group changes.
      */
+    @Override
     public void addServerStoredGroupChangeListener(
             ServerStoredGroupListener listener)
     {
@@ -391,6 +393,7 @@ public class OperationSetPresenceSipImpl
      *
      * @param listener the ServerStoredGroupChangeListener to remove
      */
+    @Override
     public void removeServerStoredGroupChangeListener(
             ServerStoredGroupListener listener)
     {
@@ -1810,7 +1813,7 @@ public class OperationSetPresenceSipImpl
      *
      * @param contactAddress the address of the volatile contact we'd like to
      * create.
-     * 
+     *
      * @return the newly created volatile contact.
      */
     public ContactSipImpl createVolatileContact(String contactAddress)
@@ -2916,6 +2919,7 @@ public class OperationSetPresenceSipImpl
      * @throws IllegalArgumentException if <tt>contact</tt> is not an
      * instance that belongs to the underlying implementation.
      */
+    @Override
     public void setDisplayName(Contact contact, String newName)
         throws IllegalArgumentException
     {
@@ -2966,7 +2970,8 @@ public class OperationSetPresenceSipImpl
          /**
           * Send a new PUBLISH request to refresh the publication
           */
-         public void run()
+         @Override
+        public void run()
          {
              Request req = null;
              try
@@ -3020,7 +3025,8 @@ public class OperationSetPresenceSipImpl
          /**
           * Check if we can't subscribe to this contact now
           */
-         public void run()
+         @Override
+        public void run()
          {
              // send a subscription for every contact
              Iterator<Contact> rootContactsIter
@@ -3384,6 +3390,7 @@ public class OperationSetPresenceSipImpl
          *
          * @return the String bytes of the newly created content.
          */
+        @Override
         protected byte[] createNotifyContent(String subscriptionState,
                         String reason)
         {
@@ -3431,6 +3438,7 @@ public class OperationSetPresenceSipImpl
          * EventPackageSubscriber.Subscription#processActiveRequest(RequestEvent
          * , byte[]).
          */
+        @Override
         protected void processActiveRequest(
             RequestEvent requestEvent,
             byte[] rawContent)
@@ -3475,6 +3483,7 @@ public class OperationSetPresenceSipImpl
          * EventPackageSubscriber.Subscription#processFailureResponse(
          * ResponseEvent, int).
          */
+        @Override
         protected void processFailureResponse(
             ResponseEvent responseEvent,
             int statusCode)
@@ -3497,6 +3506,7 @@ public class OperationSetPresenceSipImpl
          * EventPackageSubscriber.Subscription#processSuccessResponse(
          * ResponseEvent, int).
          */
+        @Override
         protected void processSuccessResponse(
             ResponseEvent responseEvent,
             int statusCode)
@@ -3549,6 +3559,7 @@ public class OperationSetPresenceSipImpl
          * terminated.
          * @param reasonCode a String indicating the reason of the termination.
          */
+        @Override
         protected void processTerminatedRequest(
                             RequestEvent requestEvent, String reasonCode)
         {

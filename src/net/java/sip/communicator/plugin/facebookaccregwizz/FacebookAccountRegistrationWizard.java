@@ -56,6 +56,7 @@ public class FacebookAccountRegistrationWizard
      * Returns the set of pages contained in this wizard.
      * @return Iterator
      */
+    @Override
     public Iterator<WizardPage> getPages()
     {
         JabberAccountRegistration reg = new JabberAccountRegistration();
@@ -70,10 +71,11 @@ public class FacebookAccountRegistrationWizard
      * shown to the user. Only if the user needs more settings she'll choose
      * to open the advanced wizard, consisted by all pages.
      *
-     * @param isCreateAccount indicates if the simple form should be opened as 
+     * @param isCreateAccount indicates if the simple form should be opened as
      * a create account form or as a login form
      * @return a simple account registration form
      */
+    @Override
     public Object getSimpleForm(boolean isCreateAccount)
     {
         JabberAccountRegistration reg = new JabberAccountRegistration();
@@ -101,18 +103,20 @@ public class FacebookAccountRegistrationWizard
      * Returns the icon to be used for this wizard.
      * @return byte[]
      */
+    @Override
     public byte[] getIcon()
     {
         return FacebookAccRegWizzActivator.getResources()
             .getImageInBytes(PROTOCOL_ICON);
     }
-    
+
     /**
      * Implements the <code>AccountRegistrationWizard.getPageImage</code> method.
      * Returns the image used to decorate the wizard page
-     * 
+     *
      * @return byte[] the image used to decorate the wizard page
      */
+    @Override
     public byte[] getPageImage()
     {
         return FacebookAccRegWizzActivator.getResources()
@@ -124,6 +128,7 @@ public class FacebookAccountRegistrationWizard
      * method. Returns the protocol name for this wizard.
      * @return String
      */
+    @Override
     public String getProtocolName()
     {
         return FacebookAccRegWizzActivator.getResources()
@@ -135,6 +140,7 @@ public class FacebookAccountRegistrationWizard
      * </code> method. Returns the description of the protocol for this wizard.
      * @return String
      */
+    @Override
     public String getProtocolDescription()
     {
         return FacebookAccRegWizzActivator.getResources()
@@ -147,6 +153,7 @@ public class FacebookAccountRegistrationWizard
      * @return an example string, which should indicate to the user how the
      * user name should look like.
      */
+    @Override
     public String getUserNameExample()
     {
         return "Ex: username";
@@ -156,6 +163,7 @@ public class FacebookAccountRegistrationWizard
      * Returns the display label used for the sip id field.
      * @return the sip id display label string.
      */
+    @Override
     protected String getUsernameLabel()
     {
         return FacebookAccRegWizzActivator.getResources()
@@ -166,6 +174,7 @@ public class FacebookAccountRegistrationWizard
      * Return the string for add existing account button.
      * @return the string for add existing account button.
      */
+    @Override
     protected String getCreateAccountButtonLabel()
     {
         return null;
@@ -175,6 +184,7 @@ public class FacebookAccountRegistrationWizard
      * Return the string for create new account button.
      * @return the string for create new account button.
      */
+    @Override
     protected String getCreateAccountLabel()
     {
         return FacebookAccRegWizzActivator.getResources().getI18NString(
@@ -186,6 +196,7 @@ public class FacebookAccountRegistrationWizard
      * of the service.
      * @return the protocol name
      */
+    @Override
     public String getProtocol()
     {
         return PROTOCOL;
@@ -195,6 +206,7 @@ public class FacebookAccountRegistrationWizard
      * Returns the protocol icon path.
      * @return the protocol icon path
      */
+    @Override
     public String getProtocolIconPath()
     {
         return "resources/images/protocol/facebook";
@@ -204,14 +216,16 @@ public class FacebookAccountRegistrationWizard
      * Returns the account icon path.
      * @return the account icon path
      */
+    @Override
     public String getAccountIconPath()
     {
         return "resources/images/protocol/facebook/logo32x32.png";
     }
 
     /**
-     * Opens a browser on the sign up page. 
+     * Opens a browser on the sign up page.
      */
+    @Override
     public void webSignup() {}
 
     /**
@@ -220,6 +234,7 @@ public class FacebookAccountRegistrationWizard
      * @return <code>true</code> if the web sign up is supported by the current
      * implementation, <code>false</code> - otherwise
      */
+    @Override
     public boolean isWebSignupSupported()
     {
         return false;
@@ -235,6 +250,7 @@ public class FacebookAccountRegistrationWizard
      * @return the <tt>ProtocolProviderService</tt> for the new account.
      * @throws OperationFailedException if the operation didn't succeed
      */
+    @Override
     protected ProtocolProviderService installAccount(
                                         ProtocolProviderFactory providerFactory,
                                         String userName,
@@ -254,6 +270,7 @@ public class FacebookAccountRegistrationWizard
      * specific protocol provider wizards.
      * @return an instance of <tt>CreateAccountService</tt>
      */
+    @Override
     protected JabberAccountCreationFormService getCreateAccountService()
     {
         return null;

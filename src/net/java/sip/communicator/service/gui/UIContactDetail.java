@@ -101,7 +101,7 @@ public abstract class UIContactDetail
         String displayName,
         String category,
         Collection<String> labels,
-        Map<Class<? extends OperationSet>, ProtocolProviderService> 
+        Map<Class<? extends OperationSet>, ProtocolProviderService>
                                                             preferredProviders,
         Map<Class<? extends OperationSet>, String> preferredProtocols,
         Object descriptor)

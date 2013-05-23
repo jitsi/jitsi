@@ -325,6 +325,7 @@ public class AccountRegWizardContainerImpl
     /**
      * Implements the <tt>SIPCommDialog</tt> close method.
      */
+    @Override
     protected void close(boolean isEscaped)
     {
         summaryPage.dispose();

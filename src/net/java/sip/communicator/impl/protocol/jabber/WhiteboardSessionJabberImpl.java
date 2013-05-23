@@ -705,6 +705,7 @@ public class WhiteboardSessionJabberImpl
      * @return true in case both objects are pertaining to the same whiteboard
      * and false otherwise.
      */
+    @Override
     public boolean equals(Object obj)
     {
         if (obj == null || !(obj instanceof WhiteboardSession))
@@ -722,6 +723,7 @@ public class WhiteboardSessionJabberImpl
      *
      * @return  a hash code value for this whiteboard.
      */
+    @Override
     public int hashCode()
     {
         return getWhiteboardID().hashCode();
@@ -732,6 +734,7 @@ public class WhiteboardSessionJabberImpl
      *
      * @return  a string representation of the object.
      */
+    @Override
     public String toString()
     {
         return "Whiteboard: id=" + getWhiteboardID() + " participants="

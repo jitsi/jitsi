@@ -25,7 +25,7 @@ import net.java.sip.communicator.util.*;
  * we want run in a specific order like for example - postTestSubscribe() and
  * postTestUnsubscribe().
  * <p>
- * 
+ *
  * @author Benoit Pradelle
  */
 public class TestOperationSetPresence
@@ -44,6 +44,7 @@ public class TestOperationSetPresence
         super(name);
     }
 
+    @Override
     protected void setUp() throws Exception
     {
         super.setUp();
@@ -77,7 +78,7 @@ public class TestOperationSetPresence
         Map<String, OperationSet> supportedOperationSets2 =
             this.fixture.provider2.getSupportedOperationSets();
 
-        if (supportedOperationSets2 == null 
+        if (supportedOperationSets2 == null
                 || supportedOperationSets2.size() < 1)
             throw new NullPointerException(
                 "No OperationSet implementations are supported by "
@@ -99,6 +100,7 @@ public class TestOperationSetPresence
         }
     }
 
+    @Override
     protected void tearDown() throws Exception
     {
         super.tearDown();
@@ -176,11 +178,11 @@ public class TestOperationSetPresence
     {
         logger.trace(" --=== beginning state transition test ===--");
 
-        PresenceStatus oldStatus = 
+        PresenceStatus oldStatus =
             this.operationSetPresence2.getPresenceStatus();
-        String oldStatusMessage = 
+        String oldStatusMessage =
             this.operationSetPresence2.getCurrentStatusMessage();
-        String newStatusMessage = 
+        String newStatusMessage =
             this.statusMessageRoot + newStatus;
 
         logger.debug(   "old status is=" + oldStatus.getStatusName()
@@ -231,12 +233,12 @@ public class TestOperationSetPresence
             lock.wait(5000);
         }
 
-        PresenceStatus actualStatus = 
+        PresenceStatus actualStatus =
             this.operationSetPresence1.queryContactStatus(this.fixture.userID2);
 
         // in case of switching to the OFFLINE state, the contact will appear
         // in the unknown state, not offline
-        if (newStatus.getStatus() != 0) { 
+        if (newStatus.getStatus() != 0) {
             assertEquals("The underlying implementation did not switch to the "
                      +"requested presence status.",
                      newStatus,
@@ -284,7 +286,7 @@ public class TestOperationSetPresence
             logger.debug("Pausing between state changes was interrupted", ex);
         }
     }
-    
+
     /**
      * Verifies that querying status works fine. The tester agent would
      * change status and the operation set would have to return the right status
@@ -330,7 +332,7 @@ public class TestOperationSetPresence
         PresenceStatus actualReturn
             = this.operationSetPresence1.queryContactStatus(
                     this.fixture.userID2);
-        // in the case of setting the contact offline, it may appear in the 
+        // in the case of setting the contact offline, it may appear in the
         // UNKNOWN state until the next poll
         if (status.getStatus() != 0) {
             assertEquals("Querying a "
@@ -386,7 +388,7 @@ public class TestOperationSetPresence
                      subEvt.getSourceProvider());
 
         subEvtCollector.collectedEvents.clear();
-        
+
         // wait the resolution of the contact before continuing
         synchronized (subEvtCollector)
         {
@@ -396,7 +398,7 @@ public class TestOperationSetPresence
         }
 
         subEvtCollector.collectedEvents.clear();
-        
+
         // wait to be sure that every responses for the subscribe have been
         // received
         Object lock = new Object();
@@ -405,11 +407,11 @@ public class TestOperationSetPresence
             logger.info("Will wait all subscription events to be received");
             lock.wait(10000);
         }
-        
+
         // make the user agent tester change its states and make sure we are
         // notified
         logger.debug("Testing presence notifications.");
-        PresenceStatus oldStatus = 
+        PresenceStatus oldStatus =
             this.operationSetPresence2.getPresenceStatus();
 
         PresenceStatus newStatus = getSampleStatus1();
@@ -419,7 +421,7 @@ public class TestOperationSetPresence
         if(oldStatus.equals(newStatus)){
             newStatus = getSampleStatus2();
         }
-        
+
         logger.debug("trying to set status " + newStatus + " for contact 2");
 
         //now do the actual status notification testing
@@ -497,7 +499,7 @@ public class TestOperationSetPresence
             logger.info("Stopped waiting");
         }
     }
-    
+
     /**
      * Returns the online status with a highest connectivity index.
      *
@@ -556,7 +558,7 @@ public class TestOperationSetPresence
                                         secondMostConnectedPresenceStatusInt)
             {
                 secondMostConnectedPresenceStatus = supportedStatus;
-                secondMostConnectedPresenceStatusInt = 
+                secondMostConnectedPresenceStatusInt =
                     supportedStatus.getStatus();
             }
         }
@@ -617,9 +619,9 @@ public class TestOperationSetPresence
         // make the user agent tester change its states and make sure we don't
         // get notifications as we're now unsubscribed.
         logger.debug("Testing (lack of) presence notifications.");
-        PresenceStatus oldStatus = 
+        PresenceStatus oldStatus =
             this.operationSetPresence2.getPresenceStatus();
-        
+
         PresenceStatus newStatus = getSampleStatus1();
 
         //in case we are by any chance already in that status, we'll
@@ -677,7 +679,7 @@ public class TestOperationSetPresence
         {
             synchronized(this)
             {
-                logger.debug("Collected evt(" + this.collectedPresEvents.size() 
+                logger.debug("Collected evt(" + this.collectedPresEvents.size()
                         + ")= " + evt);
                 this.collectedPresEvents.add(evt);
                 notifyAll();
@@ -708,7 +710,7 @@ public class TestOperationSetPresence
             synchronized(this)
             {
                 if(this.collectedPresEvents.size() > 0){
-                    logger.trace("Change already received. " + 
+                    logger.trace("Change already received. " +
                             this.collectedPresEvents);
                     return;
                 }
@@ -804,7 +806,7 @@ public class TestOperationSetPresence
         {
             synchronized(this)
             {
-                logger.debug("Collected evt(" + this.collectedEvents.size() + 
+                logger.debug("Collected evt(" + this.collectedEvents.size() +
                         ")= " + evt);
                 this.collectedEvents.add(evt);
                 notifyAll();
@@ -820,7 +822,7 @@ public class TestOperationSetPresence
         {
             synchronized(this)
             {
-                logger.debug("Collected evt(" + this.collectedEvents.size() + 
+                logger.debug("Collected evt(" + this.collectedEvents.size() +
                         ")= " + evt);
                 this.collectedEvents.add(evt);
                 notifyAll();
@@ -853,7 +855,7 @@ public class TestOperationSetPresence
         {
             synchronized(this)
             {
-                logger.debug("Collected evt(" + this.collectedEvents.size() 
+                logger.debug("Collected evt(" + this.collectedEvents.size()
                         + ")= " + evt);
                 this.collectedEvents.add(evt);
                 notifyAll();
@@ -869,7 +871,7 @@ public class TestOperationSetPresence
         {
             synchronized(this)
             {
-                logger.debug("Collected evt(" + this.collectedEvents.size() 
+                logger.debug("Collected evt(" + this.collectedEvents.size()
                         + ")= " + evt);
                 this.collectedEvents.add(evt);
                 notifyAll();
@@ -885,7 +887,7 @@ public class TestOperationSetPresence
         {
             synchronized(this)
             {
-                logger.debug("Collected evt(" + this.collectedEvents.size() 
+                logger.debug("Collected evt(" + this.collectedEvents.size()
                         + ")= " + evt);
                 this.collectedEvents.add(evt);
                 notifyAll();
@@ -957,7 +959,7 @@ public class TestOperationSetPresence
                     && this.status != evt.getNewStatus())
                     return;
 
-                logger.debug("Collected evt(" + this.collectedEvents.size() 
+                logger.debug("Collected evt(" + this.collectedEvents.size()
                         + ")= " + evt);
                 this.collectedEvents.add(evt);
                 notifyAll();

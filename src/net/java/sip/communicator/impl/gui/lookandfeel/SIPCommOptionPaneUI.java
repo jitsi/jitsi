@@ -16,7 +16,7 @@ import net.java.sip.communicator.plugin.desktoputil.*;
 
 /**
  * The SIPCommOptionPaneUI implementation.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class SIPCommOptionPaneUI extends BasicOptionPaneUI {
@@ -29,7 +29,8 @@ public class SIPCommOptionPaneUI extends BasicOptionPaneUI {
        return new SIPCommOptionPaneUI();
    }
 
-   public void paint(Graphics g, JComponent c)
+   @Override
+public void paint(Graphics g, JComponent c)
    {
        AntialiasingManager.activateAntialiasing(g);
        super.paint(g, c);

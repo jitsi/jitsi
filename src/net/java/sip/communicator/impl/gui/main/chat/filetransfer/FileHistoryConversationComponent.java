@@ -13,7 +13,7 @@ import net.java.sip.communicator.service.filehistory.*;
 /**
  * The component used to show a file transfer history record in the chat or
  * history window.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class FileHistoryConversationComponent
@@ -113,9 +113,10 @@ public class FileHistoryConversationComponent
 
     /**
      * Returns the date of the component event.
-     * 
+     *
      * @return the date of the component event
      */
+    @Override
     public Date getDate()
     {
         return fileRecord.getDate();
@@ -123,9 +124,10 @@ public class FileHistoryConversationComponent
 
     /**
      * We don't have progress label in history.
-     * 
+     *
      * @return empty string
      */
+    @Override
     protected String getProgressLabel(String bytesString)
     {
         return "";

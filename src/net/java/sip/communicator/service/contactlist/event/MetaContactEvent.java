@@ -93,6 +93,7 @@ public class MetaContactEvent
      * @return  A String representation of this
      * MetaContactListEvent.
      */
+    @Override
     public String toString()
     {
         StringBuffer buff

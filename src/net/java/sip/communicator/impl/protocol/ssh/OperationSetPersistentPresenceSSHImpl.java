@@ -38,17 +38,17 @@ public class OperationSetPersistentPresenceSSHImpl
      * The root of the ssh contact list.
      */
     private ContactGroupSSHImpl contactListRoot = null;
-    
+
     /**
      * The currently active status message.
      */
     private String statusMessage = "Online";
-    
+
     /**
      * Our default presence status.
      */
     private PresenceStatus presenceStatus = SSHStatusEnum.ONLINE;
-    
+
     /**
      * Creates an instance of this operation set keeping a reference to the
      * specified parent <tt>provider</tt>.
@@ -61,12 +61,12 @@ public class OperationSetPersistentPresenceSSHImpl
         super(provider);
 
         contactListRoot = new ContactGroupSSHImpl("RootGroup", provider);
-        
+
         //add our unregistration listener
         parentProvider.addRegistrationStateChangeListener(
                 new UnregistrationListener());
     }
-    
+
     /**
      * This function changes the status of contact as well as that of the
      * provider
@@ -75,7 +75,7 @@ public class OperationSetPersistentPresenceSSHImpl
      * @param newStatus new status of the contact
      */
     public void changeContactPresenceStatus(
-            ContactSSH sshContact, 
+            ContactSSH sshContact,
             PresenceStatus newStatus)
     {
         PresenceStatus oldStatus = sshContact.getPresenceStatus();
@@ -100,13 +100,13 @@ public class OperationSetPersistentPresenceSSHImpl
     {
         ContactGroupSSHImpl newGroup
                 = new ContactGroupSSHImpl(groupName, parentProvider);
-        
+
         ((ContactGroupSSHImpl)parent).addSubgroup(newGroup);
-        
+
         this.fireServerStoredGroupEvent(
                 newGroup, ServerStoredGroupEvent.GROUP_CREATED_EVENT);
     }
-    
+
     /**
      * A SSH Provider method to use for fast filling of a contact list.
      *
@@ -116,7 +116,7 @@ public class OperationSetPersistentPresenceSSHImpl
     {
         contactListRoot.addSubgroup(contactGroup);
     }
-    
+
     /**
      * A SSH Provider method to use for fast filling of a contact list.
      * This method would add both the group and fire an event.
@@ -125,16 +125,16 @@ public class OperationSetPersistentPresenceSSHImpl
      * @param contactGroup the group to add
      */
     public void addSSHGroupAndFireEvent(
-            ContactGroupSSHImpl parent, 
+            ContactGroupSSHImpl parent,
             ContactGroupSSHImpl contactGroup)
     {
         parent.addSubgroup(contactGroup);
-        
+
         this.fireServerStoredGroupEvent(
                 contactGroup, ServerStoredGroupEvent.GROUP_CREATED_EVENT);
     }
-    
-    
+
+
     /**
      * Returns a reference to the contact with the specified ID in case we
      * have a subscription for it and null otherwise/
@@ -149,7 +149,7 @@ public class OperationSetPersistentPresenceSSHImpl
     {
         return contactListRoot.findContactByID(contactID);
     }
-    
+
     /**
      * Sets the specified status message.
      * @param statusMessage a String containing the new status message.
@@ -158,7 +158,7 @@ public class OperationSetPersistentPresenceSSHImpl
     {
         this.statusMessage = statusMessage;
     }
-    
+
     /**
      * Returns the status message that was last set through
      * setCurrentStatusMessage.
@@ -170,7 +170,7 @@ public class OperationSetPersistentPresenceSSHImpl
     {
         return statusMessage;
     }
-    
+
     /**
      * Returns the protocol specific contact instance representing the local
      * user.
@@ -182,7 +182,7 @@ public class OperationSetPersistentPresenceSSHImpl
     {
         return null;
     }
-    
+
     /**
      * Returns a PresenceStatus instance representing the state this provider
      * is currently in.
@@ -193,7 +193,7 @@ public class OperationSetPersistentPresenceSSHImpl
     {
         return presenceStatus;
     }
-    
+
     /**
      * Returns the root group of the server stored contact list.
      *
@@ -204,7 +204,7 @@ public class OperationSetPersistentPresenceSSHImpl
     {
         return contactListRoot;
     }
-    
+
     /**
      * Returns the set of PresenceStatus objects that a user of this service
      * may request the provider to enter.
@@ -216,7 +216,7 @@ public class OperationSetPersistentPresenceSSHImpl
     {
         return SSHStatusEnum.supportedStatusSet();
     }
-    
+
     /**
      * Removes the specified contact from its current parent and places it
      * under <tt>newParent</tt>.
@@ -231,12 +231,12 @@ public class OperationSetPersistentPresenceSSHImpl
     {
         ContactSSHImpl sshContact
                 = (ContactSSHImpl)contactToMove;
-        
+
         ContactGroupSSHImpl parentSSHGroup
                 = findContactParent(sshContact);
-        
+
         parentSSHGroup.removeContact(sshContact);
-        
+
         //if this is a volatile contact then we haven't really subscribed to
         //them so we'd need to do so here
         if(!sshContact.isPersistent())
@@ -245,12 +245,12 @@ public class OperationSetPersistentPresenceSSHImpl
             fireSubscriptionEvent(sshContact
                     , parentSSHGroup
                     , SubscriptionEvent.SUBSCRIPTION_REMOVED);
-            
+
             try
             {
                 //now subscribe
                 this.subscribe(newParent, contactToMove.getAddress());
-                
+
                 //now tell everyone that we've added the contact
                 fireSubscriptionEvent(sshContact
                         , newParent
@@ -267,13 +267,13 @@ public class OperationSetPersistentPresenceSSHImpl
         {
             ( (ContactGroupSSHImpl) newParent)
             .addContact(sshContact);
-            
+
             fireSubscriptionMovedEvent(contactToMove
                     , parentSSHGroup
                     , newParent);
         }
     }
-    
+
     /**
      * Requests the provider to enter into a status corresponding to the
      * specified paramters.
@@ -289,17 +289,17 @@ public class OperationSetPersistentPresenceSSHImpl
      */
     public void publishPresenceStatus(
             PresenceStatus status,
-            String statusMessage) 
-            throws IllegalArgumentException, 
+            String statusMessage)
+            throws IllegalArgumentException,
                    IllegalStateException
     {
         PresenceStatus oldPresenceStatus = this.presenceStatus;
         this.presenceStatus = status;
         this.statusMessage = statusMessage;
-        
+
         this.fireProviderStatusChangeEvent(oldPresenceStatus);
-        
-        
+
+
 //        //since we are not a real protocol, we set the contact presence status
 //        //ourselves and make them have the same status as ours.
 //        changePresenceStatusForAllContacts( getServerStoredContactListRoot()
@@ -325,9 +325,9 @@ public class OperationSetPersistentPresenceSSHImpl
 //
 //        }
     }
-    
-    
-    
+
+
+
     /**
      * Get the PresenceStatus for a particular contact.
      *
@@ -343,14 +343,14 @@ public class OperationSetPersistentPresenceSSHImpl
      *   retrieving the status fails due to errors experienced during
      *   network communication
      */
-    public PresenceStatus queryContactStatus(String contactIdentifier) 
-            throws IllegalArgumentException, 
+    public PresenceStatus queryContactStatus(String contactIdentifier)
+            throws IllegalArgumentException,
                    IllegalStateException,
                    OperationFailedException
     {
         return findContactByID(contactIdentifier).getPresenceStatus();
     }
-    
+
     /**
      * Sets the presence status of <tt>contact</tt> to <tt>newStatus</tt>.
      *
@@ -359,16 +359,16 @@ public class OperationSetPersistentPresenceSSHImpl
      * @param newStatus the new status we'd like to set to <tt>contact</tt>.
      */
     private void changePresenceStatusForContact(
-            ContactSSH contact,  
+            ContactSSH contact,
             PresenceStatus newStatus)
     {
         PresenceStatus oldStatus = contact.getPresenceStatus();
         contact.setPresenceStatus(newStatus);
-        
+
         fireContactPresenceStatusChangeEvent(
                 contact, findContactParent(contact), oldStatus);
     }
-    
+
     /**
      * Sets the presence status of all <tt>contact</tt>s in our contact list
      * (except those that  correspond to another provider registered with SC)
@@ -384,12 +384,12 @@ public class OperationSetPersistentPresenceSSHImpl
     {
         //first set the status for contacts in this group
         Iterator<Contact> childContacts = parent.contacts();
-        
+
         while(childContacts.hasNext())
         {
             ContactSSHImpl contact
                     = (ContactSSHImpl)childContacts.next();
-            
+
             if(findProviderForSSHUserID(contact.getAddress()) != null)
             {
                 //this is a contact corresponding to another SIP Communicator
@@ -398,14 +398,14 @@ public class OperationSetPersistentPresenceSSHImpl
             }
             PresenceStatus oldStatus = contact.getPresenceStatus();
             contact.setPresenceStatus(newStatus);
-            
+
             fireContactPresenceStatusChangeEvent(
                     contact, parent, oldStatus);
         }
-        
+
         //now call this method recursively for all subgroups
         Iterator<ContactGroup> subgroups = parent.subgroups();
-        
+
         while(subgroups.hasNext())
         {
             ContactGroup subgroup = subgroups.next();
@@ -425,7 +425,7 @@ public class OperationSetPersistentPresenceSSHImpl
     {
         return contactListRoot.findGroupParent(sshGroup);
     }
-    
+
     /**
      * Returns the group that is parent of the specified sshContact  or
      * null if no parent was found.
@@ -439,8 +439,8 @@ public class OperationSetPersistentPresenceSSHImpl
         return (ContactGroupSSHImpl)sshContact
                 .getParentContactGroup();
     }
-    
-    
+
+
     /**
      * Removes the specified group from the server stored contact list.
      *
@@ -454,9 +454,9 @@ public class OperationSetPersistentPresenceSSHImpl
     {
         ContactGroupSSHImpl sshGroup
                 = (ContactGroupSSHImpl)group;
-        
+
         ContactGroupSSHImpl parent = findGroupParent(sshGroup);
-        
+
         if(parent == null)
         {
             throw new IllegalArgumentException(
@@ -464,9 +464,9 @@ public class OperationSetPersistentPresenceSSHImpl
                     + " does not seem to belong to this protocol's contact "
                     + "list.");
         }
-        
+
         parent.removeSubGroup(sshGroup);
-        
+
         this.fireServerStoredGroupEvent(
                 sshGroup, ServerStoredGroupEvent.GROUP_REMOVED_EVENT);
     }
@@ -482,13 +482,13 @@ public class OperationSetPersistentPresenceSSHImpl
             String newName)
     {
         ((ContactGroupSSHImpl)group).setGroupName(newName);
-        
+
         this.fireServerStoredGroupEvent(
-                (ContactGroupSSHImpl)group, ServerStoredGroupEvent
+                group, ServerStoredGroupEvent
                     .GROUP_RENAMED_EVENT);
     }
-    
-    
+
+
     /**
      * Persistently adds a subscription for the presence status of the
      * contact corresponding to the specified contactIdentifier and indicates
@@ -509,63 +509,63 @@ public class OperationSetPersistentPresenceSSHImpl
      *   communication
      */
     public void subscribe(
-            ContactGroup parent, 
-            String contactIdentifier) 
-            throws IllegalArgumentException, 
+            ContactGroup parent,
+            String contactIdentifier)
+            throws IllegalArgumentException,
                    IllegalStateException,
                    OperationFailedException
     {
         ContactSSH sshContact = new ContactSSHImpl(contactIdentifier,
                 parentProvider);
-        
+
 /*        ProtocolProviderServiceSSHImpl.getUIService().getConfigurationWindow()
                                                         .setVisible(true);
 */
         sshContact.setParentGroup((ContactGroupSSHImpl)parent);
         sshContact.getSSHConfigurationForm().setVisible(true);
-        
-        
 
-/*        Gets the domain name or IP address of the sshContact machine via the 
+
+
+/*        Gets the domain name or IP address of the sshContact machine via the
  *        UI Service Interface
           sshContact.setPersistentData(ProtocolProviderServiceSSHImpl
               .getUIService().getPopupDialog()
               .showInputPopupDialog("Enter Domain Name or IP Address of "
               + sshContact.getDisplayName()));
-        
-        // contact is added to list later after the user has provided 
+
+        // contact is added to list later after the user has provided
         // details in SSHConfigurationForm
-         
+
         // addContactToList method is called
-*/        
+*/
     }
-    
+
     /**
      * Add a contact to the specified group
-     *  
+     *
      * @param parent the group
      * @param sshContact the contact
      */
     public void addContactToList(
-            ContactGroup parent, 
+            ContactGroup parent,
             ContactSSH sshContact)
     {
         // Adds the sshContact to the sshContact list
-        
+
         ((ContactGroupSSHImpl)parent).addContact(sshContact);
-        
+
         fireSubscriptionEvent(sshContact,
                 parent,
                 SubscriptionEvent.SUBSCRIPTION_CREATED);
-        
+
         //notify presence listeners for the status change.
         fireContactPresenceStatusChangeEvent(sshContact
                 , parent
                 , SSHStatusEnum.NOT_AVAILABLE);
-        
+
         sshContact.startTimerTask();
     }
-    
+
     /**
      * Adds a subscription for the presence status of the contact
      * corresponding to the specified contactIdentifier.
@@ -581,14 +581,14 @@ public class OperationSetPersistentPresenceSSHImpl
      *   communication
      */
     public void subscribe(String contactIdentifier) throws
-            IllegalArgumentException, 
+            IllegalArgumentException,
             IllegalStateException,
             OperationFailedException
     {
         subscribe(contactListRoot, contactIdentifier);
-        
+
     }
-    
+
     /**
      * Removes a subscription for the presence status of the specified
      * contact.
@@ -603,22 +603,22 @@ public class OperationSetPersistentPresenceSSHImpl
      *   unsubscribing fails due to errors experienced during network
      *   communication
      */
-    public void unsubscribe(Contact contact) throws 
+    public void unsubscribe(Contact contact) throws
             IllegalArgumentException,
-            IllegalStateException, 
+            IllegalStateException,
             OperationFailedException
     {
         ContactGroupSSHImpl parentGroup
                 = (ContactGroupSSHImpl)((ContactSSHImpl)contact)
                 .getParentContactGroup();
-        
+
         parentGroup.removeContact((ContactSSHImpl)contact);
-        
-        fireSubscriptionEvent((ContactSSHImpl)contact,
+
+        fireSubscriptionEvent(contact,
                 ((ContactSSHImpl)contact).getParentContactGroup()
                 , SubscriptionEvent.SUBSCRIPTION_REMOVED);
     }
-    
+
     /**
      * Creates and returns a unresolved contact from the specified
      * <tt>address</tt> and <tt>persistentData</tt>. The method will not try
@@ -642,7 +642,7 @@ public class OperationSetPersistentPresenceSSHImpl
                 , persistentData
                 , getServerStoredContactListRoot());
     }
-    
+
     /**
      * Creates and returns a unresolved contact from the specified
      * <tt>address</tt> and <tt>persistentData</tt>. The method will not try
@@ -672,25 +672,25 @@ public class OperationSetPersistentPresenceSSHImpl
 
         contact.setPersistentData(persistentData);
         contact.startTimerTask();
-        
+
         // SSH Contacts are resolved by default
         contact.setResolved(true);
-        
+
         ( (ContactGroupSSHImpl) parent).addContact(contact);
-        
+
         fireSubscriptionEvent(contact,
                 parent,
                 SubscriptionEvent.SUBSCRIPTION_CREATED);
-        
+
         //since we don't have any server, we'll simply resolve the contact
         //ourselves as if we've just received an event from the server telling
         //us that it has been resolved.
         fireSubscriptionEvent(
                 contact, parent, SubscriptionEvent.SUBSCRIPTION_RESOLVED);
-        
+
         return contact;
     }
-    
+
     /**
      * Looks for a ssh protocol provider registered for a user id matching
      * <tt>sshUserID</tt>.
@@ -705,14 +705,14 @@ public class OperationSetPersistentPresenceSSHImpl
             findProviderForSSHUserID(String sshUserID)
     {
         BundleContext bc = SSHActivator.getBundleContext();
-        
+
         String osgiQuery = "(&"
                 + "(" + ProtocolProviderFactory.PROTOCOL
                 + "=" + ProtocolNames.SSH + ")"
                 + "(" + ProtocolProviderFactory.USER_ID
                 + "=" + sshUserID + ")"
                 + ")";
-        
+
         ServiceReference[] refs = null;
         try
         {
@@ -726,15 +726,15 @@ public class OperationSetPersistentPresenceSSHImpl
                     + osgiQuery
                     , ex);
         }
-        
+
         if(refs != null && refs.length > 0)
         {
             return (ProtocolProviderServiceSSHImpl)bc.getService(refs[0]);
         }
-        
+
         return null;
     }
-    
+
     /**
      * Looks for ssh protocol providers that have added us to their
      * contact list and returns list of all contacts representing us in these
@@ -747,11 +747,11 @@ public class OperationSetPersistentPresenceSSHImpl
     {
         List<Contact> contacts = new LinkedList<Contact>();
         BundleContext bc = SSHActivator.getBundleContext();
-        
+
         String osgiQuery =
                 "(" + ProtocolProviderFactory.PROTOCOL
                 + "=SSH)";
-        
+
         ServiceReference[] refs = null;
         try
         {
@@ -765,27 +765,27 @@ public class OperationSetPersistentPresenceSSHImpl
                     + osgiQuery
                     , ex);
         }
-        
+
         for (int i =0; refs != null && i < refs.length; i++)
         {
             ProtocolProviderServiceSSHImpl gibProvider
                     = (ProtocolProviderServiceSSHImpl)bc.getService(refs[i]);
-            
+
             OperationSetPersistentPresenceSSHImpl opSetPersPresence
                     = (OperationSetPersistentPresenceSSHImpl)gibProvider
                     .getOperationSet(OperationSetPersistentPresence.class);
-            
+
             Contact contact = opSetPersPresence.findContactByID(
                     parentProvider.getAccountID().getUserID());
-            
+
             if (contact != null)
                 contacts.add(contact);
         }
-        
+
         return contacts;
     }
-    
-    
+
+
     /**
      * Creates and returns a unresolved contact group from the specified
      * <tt>address</tt> and <tt>persistentData</tt>. The method will not try
@@ -806,7 +806,7 @@ public class OperationSetPersistentPresenceSSHImpl
      */
     public ContactGroup createUnresolvedContactGroup(
             String groupUID,
-            String persistentData, 
+            String persistentData,
             ContactGroup parentGroup)
     {
         ContactGroupSSHImpl newGroup
@@ -814,19 +814,19 @@ public class OperationSetPersistentPresenceSSHImpl
                 ContactGroupSSHImpl.createNameFromUID(groupUID)
                 , parentProvider);
         newGroup.setResolved(false);
-        
+
         //if parent is null then we're adding under root.
         if(parentGroup == null)
             parentGroup = getServerStoredContactListRoot();
-        
+
         ((ContactGroupSSHImpl)parentGroup).addSubgroup(newGroup);
-        
+
         this.fireServerStoredGroupEvent(
                 newGroup, ServerStoredGroupEvent.GROUP_CREATED_EVENT);
-        
+
         return newGroup;
     }
-    
+
     private class UnregistrationListener
             implements RegistrationStateChangeListener
     {
@@ -849,7 +849,7 @@ public class OperationSetPersistentPresenceSSHImpl
             {
                 return;
             }
-            
+
             //send event notifications saying that all our buddies are
             //offline. The icq protocol does not implement top level buddies
             //nor subgroups for top level groups so a simple nested loop
@@ -860,20 +860,20 @@ public class OperationSetPersistentPresenceSSHImpl
             {
                 ContactGroup group = groupsIter.next();
                 Iterator<Contact> contactsIter = group.contacts();
-                
+
                 while (contactsIter.hasNext())
                 {
                     ContactSSHImpl contact
                             = (ContactSSHImpl) contactsIter.next();
-                    
+
                     PresenceStatus oldContactStatus
                             = contact.getPresenceStatus();
-                    
+
                     if (!oldContactStatus.isOnline())
                         continue;
-                    
+
                     contact.setPresenceStatus(SSHStatusEnum.OFFLINE);
-                    
+
                     fireContactPresenceStatusChangeEvent(
                             contact
                             , contact.getParentContactGroup()
@@ -882,7 +882,7 @@ public class OperationSetPersistentPresenceSSHImpl
             }
         }
     }
-    
+
     /**
      * Returns the volatile group or null if this group has not yet been
      * created.
@@ -899,15 +899,15 @@ public class OperationSetPersistentPresenceSSHImpl
             ContactGroupSSHImpl gr =
                     (ContactGroupSSHImpl)getServerStoredContactListRoot()
                     .getGroup(i);
-            
+
             if(!gr.isPersistent())
                 return gr;
         }
-        
+
         return null;
     }
-    
-    
+
+
     /**
      * Creates a non persistent contact for the specified address. This would
      * also create (if necessary) a group for volatile contacts that would not
@@ -924,15 +924,15 @@ public class OperationSetPersistentPresenceSSHImpl
         ContactSSHImpl newVolatileContact = new ContactSSHImpl(
                 contactAddress,
                 this.parentProvider);
-        
+
         newVolatileContact.setPersistent(false);
-        
-        
+
+
         //Check whether a volatile group already exists and if not create
         //one
         ContactGroupSSHImpl theVolatileGroup = getNonPersistentGroup();
-        
-        
+
+
         //if the parent volatile group is null then we create it
         if (theVolatileGroup == null)
         {
@@ -943,22 +943,22 @@ public class OperationSetPersistentPresenceSSHImpl
             theVolatileGroup.setResolved(false);
             theVolatileGroup.setPersistent(false);
             theVolatileGroup.addContact(newVolatileContact);
-            
+
             this.contactListRoot.addSubgroup(theVolatileGroup);
-            
+
             fireServerStoredGroupEvent(theVolatileGroup
                     , ServerStoredGroupEvent.GROUP_CREATED_EVENT);
         }
-        
+
         //now add the volatile contact instide it
         theVolatileGroup.addContact(newVolatileContact);
         fireSubscriptionEvent(newVolatileContact
                 , theVolatileGroup
                 , SubscriptionEvent.SUBSCRIPTION_CREATED);
-        
+
         return newVolatileContact;
     }
-    
+
     /**
      * DUMMY METHOD
      * Handler for incoming authorization requests.
@@ -970,5 +970,5 @@ public class OperationSetPersistentPresenceSSHImpl
     public void setAuthorizationHandler(AuthorizationHandler handler)
     {
     }
-    
+
 }

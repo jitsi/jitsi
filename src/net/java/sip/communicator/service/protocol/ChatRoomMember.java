@@ -57,7 +57,7 @@ public interface ChatRoomMember
     /**
      * Returns the avatar of this member, that can be used when including it in
      * user interface.
-     * 
+     *
      * @return an avatar (e.g. user photo) of this member.
      */
     public byte[] getAvatar();
@@ -67,7 +67,7 @@ public interface ChatRoomMember
      * list. The contact returned here could be used by the user interface to
      * check if this member is contained in our contact list and in function of
      * this to show additional information add additional functionality.
-     * 
+     *
      * @return the protocol contact corresponding to this member in our contact
      * list.
      */

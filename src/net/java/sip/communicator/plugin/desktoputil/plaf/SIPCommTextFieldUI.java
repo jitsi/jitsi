@@ -136,6 +136,7 @@ public class SIPCommTextFieldUI
      * Adds the custom mouse listeners defined in this class to the installed
      * listeners.
      */
+    @Override
     protected void installListeners()
     {
         super.installListeners();
@@ -148,6 +149,7 @@ public class SIPCommTextFieldUI
     /**
      * Uninstalls listeners for the UI.
      */
+    @Override
     protected void uninstallListeners()
     {
         super.uninstallListeners();
@@ -329,6 +331,7 @@ public class SIPCommTextFieldUI
      * rectangle in order to leave place for the delete button.
      * @return the visible editor rectangle
      */
+    @Override
     protected Rectangle getVisibleEditorRect()
     {
         if (!isDeleteIconVisible)

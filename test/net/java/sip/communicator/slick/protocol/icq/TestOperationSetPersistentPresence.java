@@ -70,6 +70,7 @@ public class TestOperationSetPersistentPresence
         return suite;
     }
 
+    @Override
     protected void setUp() throws Exception
     {
         super.setUp();
@@ -98,6 +99,7 @@ public class TestOperationSetPersistentPresence
                 + "Operation Sets");
     }
 
+    @Override
     protected void tearDown() throws Exception
     {
         fixture.tearDown();
@@ -122,7 +124,7 @@ public class TestOperationSetPersistentPresence
                      + "Printing rootGroupContents=\n"+rootGroup.toString());
 
         Hashtable<String, List<String>> expectedContactList
-            = fixture.preInstalledBuddyList;
+            = IcqSlickFixture.preInstalledBuddyList;
 
         logger.debug("============== Expected Contact List ===================");
         logger.debug(expectedContactList);
@@ -220,7 +222,7 @@ public class TestOperationSetPersistentPresence
             group,  ((SubscriptionEvent)evtCollector.collectedEvents.get(0))
                       .getParentGroup());
 
-        Contact contact = group.getContact(fixture.testerAgent.getIcqUIN());
+        Contact contact = group.getContact(IcqSlickFixture.testerAgent.getIcqUIN());
 
         //make sure that the contact appears in the new group.
         assertNotNull("Couldn't find contact where we created it", contact);
@@ -246,7 +248,7 @@ public class TestOperationSetPersistentPresence
         ContactGroup group = opSetPersPresence.getServerStoredContactListRoot()
             .getGroup(testGroupName);
 
-        Contact contact = group.getContact(fixture.testerAgent.getIcqUIN());
+        Contact contact = group.getContact(IcqSlickFixture.testerAgent.getIcqUIN());
 
         //register a subscription event listener
         SubscriptionEventCollector evtCollector
@@ -274,7 +276,7 @@ public class TestOperationSetPersistentPresence
             group,  ((SubscriptionEvent)evtCollector.collectedEvents.get(0))
                       .getParentGroup());
 
-        contact = group.getContact(fixture.testerAgent.getIcqUIN());
+        contact = group.getContact(IcqSlickFixture.testerAgent.getIcqUIN());
 
         //make sure that the contact is not in the group any more.
         assertNull("A contact was still present after removing its "

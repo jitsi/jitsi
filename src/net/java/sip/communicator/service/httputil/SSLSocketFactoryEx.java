@@ -60,6 +60,7 @@ public class SSLSocketFactoryEx
      * @return
      * @throws IOException
      */
+    @Override
     public Socket createSocket(final HttpParams params)
         throws
         IOException
@@ -70,6 +71,7 @@ public class SSLSocketFactoryEx
     /**
      * @since 4.2
      */
+    @Override
     public Socket createLayeredSocket(
         final Socket socket,
         final String host,
@@ -89,6 +91,7 @@ public class SSLSocketFactoryEx
     /**
      * @since 4.1
      */
+    @Override
     public Socket connectSocket(
         final Socket socket,
         final InetSocketAddress remoteAddress,

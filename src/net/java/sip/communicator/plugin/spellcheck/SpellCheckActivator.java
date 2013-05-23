@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.plugin.spellcheck;
@@ -17,7 +17,7 @@ import javax.swing.*;
 
 /**
  * Enabling and disabling osgi functionality for the spell checker.
- * 
+ *
  * @author Damian Johnson
  */
 public class SpellCheckActivator
@@ -35,7 +35,7 @@ public class SpellCheckActivator
 
     /**
      * Called when this bundle is started.
-     * 
+     *
      * @param context The execution context of the bundle being started.
      */
     public void start(BundleContext context) throws Exception
@@ -74,7 +74,7 @@ public class SpellCheckActivator
 
     /**
      * Returns the <tt>UIService</tt>.
-     * 
+     *
      * @return the <tt>UIService</tt>
      */
     public static UIService getUIService()
@@ -93,7 +93,7 @@ public class SpellCheckActivator
 
     /**
      * Returns the <tt>FileAccessService</tt>.
-     * 
+     *
      * @return the <tt>FileAccessService</tt>
      */
     public static FileAccessService getFileAccessService()
@@ -112,7 +112,7 @@ public class SpellCheckActivator
 
     /**
      * Returns the <tt>ConfigurationService</tt>.
-     * 
+     *
      * @return the <tt>ConfigurationService</tt>
      */
     public static ConfigurationService getConfigService()

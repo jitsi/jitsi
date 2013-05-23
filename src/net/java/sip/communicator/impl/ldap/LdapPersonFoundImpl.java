@@ -116,7 +116,7 @@ public class LdapPersonFoundImpl
      */
     public LdapDirectory getServer()
     {
-        return (LdapDirectory) this.server;
+        return this.server;
     }
 
     /**
@@ -359,6 +359,7 @@ public class LdapPersonFoundImpl
      *
      * @return a printable String
      */
+    @Override
     public String toString()
     {
         return this.getDisplayName();
@@ -384,6 +385,7 @@ public class LdapPersonFoundImpl
      *
      * @return true if the two objects are equal, false otherwise
      */
+    @Override
     public boolean equals(Object o)
     {
         if(!(o instanceof LdapPersonFound) || o == null)

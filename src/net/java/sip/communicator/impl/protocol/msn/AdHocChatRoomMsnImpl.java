@@ -537,7 +537,7 @@ public class AdHocChatRoomMsnImpl
                this.participants.put(msnContact.getId(), contact);
 
                 fireParticipantPresenceEvent(
-                    (Contact) contact,
+                    contact,
                     AdHocChatRoomParticipantPresenceChangeEvent.CONTACT_JOINED,
                     null);
             }

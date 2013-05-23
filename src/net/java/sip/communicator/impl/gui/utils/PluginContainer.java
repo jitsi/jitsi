@@ -22,7 +22,7 @@ import org.osgi.framework.*;
 /**
  * Provides capabilities to a specific <code>JComponent</code> to contain
  * <code>PluginComponent</code>s, track when they are added and removed.
- * 
+ *
  * @author Lyubomir Marinov
  */
 public class PluginContainer
@@ -59,7 +59,7 @@ public class PluginContainer
      * provide capabilities to a specific <code>JComponent</code> container with
      * a specific <code>Container</code> id to contain
      * <code>PluginComponent</code> and track when they are added and removed.
-     * 
+     *
      * @param container
      *            the <code>JComponent</code> container the new instance is to
      *            provide its capabilities to
@@ -79,7 +79,7 @@ public class PluginContainer
      * Adds a specific <tt>Component</tt> to a specific <tt>JComponent</tt>
      * container. Allows extenders to apply custom logic to the exact placement
      * of the specified <tt>Component</tt> in the specified container.
-     * 
+     *
      * @param component the <tt>Component</tt> to be added to the specified
      * <tt>JComponent</tt> container
      * @param container the <tt>JComponent</tt> container to add the specified
@@ -103,7 +103,7 @@ public class PluginContainer
     /**
      * Adds the component of a specific <tt>PluginComponent</tt> to the
      * associated <tt>Container</tt>.
-     * 
+     *
      * @param c the <tt>PluginComponent</tt> which is to have its component
      * added to the <tt>Container</tt> associated with this
      * <tt>PluginContainer</tt>
@@ -296,7 +296,7 @@ public class PluginContainer
     /**
      * Removes the component of a specific <code>PluginComponent</code> from
      * this <code>PluginContainer</code>.
-     * 
+     *
      * @param c
      *            the <code>PluginComponent</code> which is to have its
      *            component removed from this <code>PluginContainer</code>

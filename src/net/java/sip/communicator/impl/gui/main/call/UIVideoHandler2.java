@@ -84,7 +84,7 @@ public class UIVideoHandler2
      * <tt>callConference</tt>. Adding or removing <tt>Call</tt>s modifies the
      * list of <tt>CallPeer</tt>s associated with <tt>callConference</tt> which
      * in turn may result in the adding or removing of visual
-     * <tt>Component</tt>s depicting video. 
+     * <tt>Component</tt>s depicting video.
      *
      * @param ev a <tt>PropertyChangeEvent</tt> which specifies the
      * <tt>Call</tt> which was added to or removed from the list of
@@ -246,7 +246,7 @@ public class UIVideoHandler2
      * peer(s) is to be made visible in the user interface. The indicator does
      * not determine whether the local peer/user is actually streaming video to
      * the remote peer(s).
-     * 
+     *
      * @param localVideoVisible <tt>true</tt> to have the visual
      * <tt>Component</tt> depicting the video of the local peer/user streaming
      * to the remote peer(s) visible in the user interface; otherwise,

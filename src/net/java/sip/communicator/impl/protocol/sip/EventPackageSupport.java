@@ -20,7 +20,7 @@ import net.java.sip.communicator.util.*;
  * Provides the base for implementations of RFC 3265
  * "Session Initiation Protocol (SIP)-Specific Event Notification" and thus
  * eases the creation of event package-specific implementations.
- * 
+ *
  * @author Lyubomir Marinov
  */
 public class EventPackageSupport
@@ -81,7 +81,7 @@ public class EventPackageSupport
      * provide support according to RFC 3265 to a specific SIP
      * <code>ProtocolProviderService</code> implementation for a specific event
      * package.
-     * 
+     *
      * @param protocolProvider
      *            the SIP <code>ProtocolProviderService</code> implementation
      *            for which the new instance is to provide support for a
@@ -173,7 +173,7 @@ public class EventPackageSupport
      * <code>TransactionAlreadyExistsException</code> and
      * <code>TransactionUnavailableException</code> but rather logs these
      * exceptions if they occur and returns <tt>null</tt>.
-     * 
+     *
      * @param requestEvent
      *            the <code>RequestEvent</code> to get the associated
      *            <code>ServerTransaction</code> of
@@ -284,7 +284,7 @@ public class EventPackageSupport
     /**
      * Attempts to re-generate a <code>Request</code> within a specific
      * <code>ClientTransaction</code> with the proper authorization headers.
-     * 
+     *
      * @param clientTransaction
      *            the <code>ClientTransaction</code> which was challenged to
      *            authenticate
@@ -311,7 +311,7 @@ public class EventPackageSupport
     /**
      * Attempts to re-generate a <code>Request</code> within a specific
      * <code>ClientTransaction</code> with the proper authorization headers.
-     * 
+     *
      * @param protocolProvider
      *            the SIP <code>ProtocolProviderService</code> implementation
      *            which received the authentication challenge and which is to
@@ -508,7 +508,7 @@ public class EventPackageSupport
      * "Session Initiation Protocol (SIP)-Specific Event Notification" and its
      * signaling characteristics such as Request URI, id tag value of its Event
      * header.
-     * 
+     *
      * @author Lubomir Marinov
      */
     protected static class Subscription
@@ -546,7 +546,7 @@ public class EventPackageSupport
          * Initializes a new <code>Subscription</code> instance with a specific
          * subscription <code>Address</code>/Request URI and a specific id tag
          * of the associated Event headers.
-         * 
+         *
          * @param address
          *            the subscription <code>Address</code>/Request URI which is
          *            to be the target of the SUBSCRIBE requests associated with
@@ -571,7 +571,7 @@ public class EventPackageSupport
          * Determines whether the <tt>Address</tt>/Request URI of this
          * <tt>Subscription</tt> is equal to a specific <tt>Address</tt> in the
          * sense of identifying one and the same resource.
-         * 
+         *
          * @param address the <tt>Address</tt> to be checked for value equality
          * to the <tt>Address</tt>/Request URI of this <tt>Subscription</tt>
          * @return <tt>true</tt> if the <tt>Address</tt>/Request URI of this
@@ -587,7 +587,7 @@ public class EventPackageSupport
          * Determines whether this <tt>Subscription</tt> is identified by a
          * specific subscription <tt>Address</tt>/Request URI and a specific id
          * tag of Event headers.
-         * 
+         *
          * @param address the subscription <tt>Address</tt>/Request URI to be
          * compared to the respective property of this <tt>Subscription</tt>
          * @param eventId the id tag of Event headers to be compared to the
@@ -615,7 +615,7 @@ public class EventPackageSupport
          * with this instance and the target of the SUBSCRIBE requests being
          * created as descriptions of this instance or of the NOTIFY requests
          * being sent.
-         * 
+         *
          * @return the subscription <code>Address</code>/Request URI associated
          *         with this instance and the target of the SUBSCRIBE requests
          *         being created as descriptions of this instance or of the
@@ -630,7 +630,7 @@ public class EventPackageSupport
          * Gets the <code>Dialog</code> which was created by the SUBSCRIBE
          * request associated with this <code>Subscription</code> or which was
          * used to send that request in.
-         * 
+         *
          * @return the <code>Dialog</code> which was created by the SUBSCRIBE
          *         request associated with this <code>Subscription</code> or
          *         which was used to send that request in; <tt>null</tt> if the
@@ -650,7 +650,7 @@ public class EventPackageSupport
          * to the Event headers when they are created during the generation of
          * <code>Request</code>s or <code>Response</code>s describing this
          * <code>Subscription</code> instance.
-         * 
+         *
          * @return the id tag to be present in Event headers in order to have
          *         this <code>Subscription</code> associated with a specific
          *         <code>Request</code> or <code>Response</code>
@@ -675,7 +675,7 @@ public class EventPackageSupport
          * Sets the <code>Dialog</code> which was created by the SUBSCRIBE
          * request associated with this <code>Subscription</code> or which was
          * used to send that request in.
-         * 
+         *
          * @param dialog
          *            the <code>Dialog</code> which was created by the SUBSCRIBE
          *            request associated with this <code>Subscription</code> or
@@ -691,7 +691,7 @@ public class EventPackageSupport
          * <code>Subscription</code>. If this <code>Subscription</code> already
          * knows of a different <code>TimerTask</code>, that different one is
          * first canceled before remembering the specified new one.
-         * 
+         *
          * @param timerTask
          *            a <code>TimerTask</code> to be associated with this
          *            <code>Subscription</code>

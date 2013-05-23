@@ -93,7 +93,7 @@ public class MessageDeliveryFailedEvent
      {
          this(source, to, errorCode, System.currentTimeMillis(), null);
      }
-     
+
      /**
       * Constructor.
       *
@@ -216,7 +216,7 @@ public class MessageDeliveryFailedEvent
 
     /**
      * Sets the ID of the message being corrected to the passed ID.
-     * 
+     *
      * @param correctedMessageUID The ID of the message being corrected.
      */
     public String getCorrectedMessageUID()

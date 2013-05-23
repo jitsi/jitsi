@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.impl.replacement.bliptv;
@@ -16,7 +16,7 @@ import org.json.simple.*;
 /**
  * Implements the {@link ReplacementService} to provide previews for Blip.tv
  * links.
- * 
+ *
  * @author Purvesh Sahoo
  */
 public class ReplacementServiceBliptvImpl
@@ -36,7 +36,7 @@ public class ReplacementServiceBliptvImpl
         + "\\/file\\/(\\d+)([?&\\?]\\w+=[\\w-]+)*)(?=</A>)";
 
     /**
-     * Configuration label shown in the config form. 
+     * Configuration label shown in the config form.
      */
     public static final String BLIPTV_CONFIG_LABEL = "Blip.tv";
 
@@ -98,7 +98,7 @@ public class ReplacementServiceBliptvImpl
 
     /**
      * Returns the source name
-     * 
+     *
      * @return the source name
      */
     public String getSourceName()
@@ -108,7 +108,7 @@ public class ReplacementServiceBliptvImpl
 
     /**
      * Returns the pattern of the source
-     * 
+     *
      * @return the source pattern
      */
     public String getPattern()

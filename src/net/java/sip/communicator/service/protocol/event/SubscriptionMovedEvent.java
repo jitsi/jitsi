@@ -102,6 +102,7 @@ public class SubscriptionMovedEvent
      * @return A a String representation of this
      * SubscriptionMovedEvent.
      */
+    @Override
     public String toString()
     {
         StringBuffer buff

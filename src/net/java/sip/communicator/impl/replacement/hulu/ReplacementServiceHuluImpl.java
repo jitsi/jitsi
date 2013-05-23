@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.impl.replacement.hulu;
@@ -15,7 +15,7 @@ import org.json.simple.*;
 
 /**
  * Implements the {@link ReplacementService} to provide previews for Hulu links.
- * 
+ *
  * @author Purvesh Sahoo
  */
 public class ReplacementServiceHuluImpl
@@ -35,7 +35,7 @@ public class ReplacementServiceHuluImpl
         + "\\/watch\\/([a-zA-Z0-9_\\-]+))(\\/([^\\\"\\<]*)*)(?=<\\/A>)";
 
     /**
-     * Configuration label shown in the config form. 
+     * Configuration label shown in the config form.
      */
     public static final String HULU_CONFIG_LABEL = "Hulu";
 
@@ -45,7 +45,7 @@ public class ReplacementServiceHuluImpl
     public static final String SOURCE_NAME = "HULU";
 
     /**
-     * Constructor for <tt>ReplacementServiceHuluImpl</tt>. 
+     * Constructor for <tt>ReplacementServiceHuluImpl</tt>.
      */
     public ReplacementServiceHuluImpl()
     {
@@ -96,7 +96,7 @@ public class ReplacementServiceHuluImpl
 
     /**
      * Returns the source name
-     * 
+     *
      * @return the source name
      */
     public String getSourceName()
@@ -106,7 +106,7 @@ public class ReplacementServiceHuluImpl
 
     /**
      * Returns the pattern of the source
-     * 
+     *
      * @return the source pattern
      */
     public String getPattern()

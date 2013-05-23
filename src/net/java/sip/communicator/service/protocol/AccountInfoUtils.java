@@ -78,7 +78,7 @@ public class AccountInfoUtils
 
         return lastName.getString();
     }
-    
+
     /**
      * Returns the display name of the account, to which the given
      * accountInfoOpSet belongs.

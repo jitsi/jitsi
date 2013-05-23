@@ -28,7 +28,7 @@ public class YahooActivator
     private static ConfigurationService configurationService  = null;
 
     private static ProtocolProviderFactoryYahooImpl yahooProviderFactory = null;
-    
+
     private static ResourceManagementService resourcesService;
 
     /**
@@ -114,7 +114,7 @@ public class YahooActivator
         yahooProviderFactory.stop();
         yahooPpFactoryServReg.unregister();
     }
-    
+
     public static ResourceManagementService getResources()
     {
         if (resourcesService == null)

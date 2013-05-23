@@ -17,7 +17,7 @@ import net.java.sip.communicator.plugin.desktoputil.*;
 
 /**
  * The SIPCommPasswordFieldUI implementation.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class SIPCommPasswordFieldUI extends BasicPasswordFieldUI {
@@ -27,12 +27,14 @@ public class SIPCommPasswordFieldUI extends BasicPasswordFieldUI {
         return new SIPCommPasswordFieldUI();
     }
 
+    @Override
     protected void paintSafely(Graphics g)
     {
         AntialiasingManager.activateAntialiasing(g);
         super.paintSafely(g);
     }
 
+    @Override
     protected void paintBackground(Graphics g)
     {
         JTextComponent c = this.getComponent();

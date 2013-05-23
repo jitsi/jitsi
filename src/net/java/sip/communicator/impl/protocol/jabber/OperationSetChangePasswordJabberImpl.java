@@ -38,7 +38,7 @@ public class OperationSetChangePasswordJabberImpl
     {
         this.protocolProvider = protocolProvider;
     }
-    
+
     /**
      * Changes the jabber account password of protocolProvider to newPass.
      * @param newPass the new password.
@@ -52,7 +52,7 @@ public class OperationSetChangePasswordJabberImpl
         org.jivesoftware.smack.AccountManager accountManager
                 = new org.jivesoftware.smack.AccountManager(
                                         protocolProvider.getConnection());
-                
+
         try
         {
             accountManager.changePassword(newPass);
@@ -66,12 +66,12 @@ public class OperationSetChangePasswordJabberImpl
             }
 
             throw new OperationFailedException("In-band password changes not"
-                    + " supported", 
+                    + " supported",
                     OperationFailedException.NOT_SUPPORTED_OPERATION,
                     e);
         }
     }
-    
+
     /**
      * Returns true if the server supports password changes. Checks for
      * XEP-0077 (inband registrations) support via disco#info.

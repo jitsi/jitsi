@@ -11,7 +11,7 @@ import java.util.*;
 /**
  * A listener that will be notified of changes in our presence in the chat
  * room such as us being kicked, join, left.
- * 
+ *
  * @author Emil Ivov
  */
 public interface LocalUserChatRoomPresenceListener

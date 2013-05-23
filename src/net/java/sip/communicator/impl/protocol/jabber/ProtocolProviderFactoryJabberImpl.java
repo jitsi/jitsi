@@ -38,6 +38,7 @@ public class ProtocolProviderFactoryJabberImpl
      *
      * @param accountID the account identifier.
      */
+    @Override
     protected void storeAccount(AccountID accountID)
     {
         super.storeAccount(accountID);
@@ -55,6 +56,7 @@ public class ProtocolProviderFactoryJabberImpl
      *   specific properties defining the new account.
      * @return the AccountID of the newly created account
      */
+    @Override
     public AccountID installAccount( String userIDStr,
                                      Map<String, String> accountProperties)
     {
@@ -117,12 +119,14 @@ public class ProtocolProviderFactoryJabberImpl
      * @param accountProperties the properties associated with the user ID
      * @return new <tt>AccountID</tt>
      */
+    @Override
     protected AccountID createAccountID(String userID,
             Map<String, String> accountProperties)
     {
         return new JabberAccountID(userID, accountProperties);
     }
 
+    @Override
     protected ProtocolProviderService createService(String userID,
         AccountID accountID)
     {

@@ -43,6 +43,7 @@ public class TransportManagerSipImpl extends TransportManager<CallPeerSipImpl>
      * @throws IllegalArgumentException if <tt>destination</tt> is not a valid
      * host/ip/fqdn
      */
+    @Override
     protected InetAddress getIntendedDestination(CallPeerSipImpl peer)
     {
         return peer.getProtocolProvider()
@@ -58,6 +59,7 @@ public class TransportManagerSipImpl extends TransportManager<CallPeerSipImpl>
      * @return The extended type of the candidate selected if this transport
      * manager is using ICE. Otherwise, returns null.
      */
+    @Override
     public String getICECandidateExtendedType(String streamName)
     {
         return null;
@@ -68,6 +70,7 @@ public class TransportManagerSipImpl extends TransportManager<CallPeerSipImpl>
      *
      * @return the current state of ICE processing.
      */
+    @Override
     public String getICEState()
     {
         return null;
@@ -81,6 +84,7 @@ public class TransportManagerSipImpl extends TransportManager<CallPeerSipImpl>
      * @return the ICE local host address if this transport
      * manager is using ICE. Otherwise, returns null.
      */
+    @Override
     public InetSocketAddress getICELocalHostAddress(String streamName)
     {
         return null;
@@ -94,6 +98,7 @@ public class TransportManagerSipImpl extends TransportManager<CallPeerSipImpl>
      * @return the ICE remote host address if this transport
      * manager is using ICE. Otherwise, returns null.
      */
+    @Override
     public InetSocketAddress getICERemoteHostAddress(String streamName)
     {
         return null;
@@ -108,6 +113,7 @@ public class TransportManagerSipImpl extends TransportManager<CallPeerSipImpl>
      * manager is not using ICE or if there is no reflexive address for the
      * local candidate used.
      */
+    @Override
     public InetSocketAddress getICELocalReflexiveAddress(String streamName)
     {
         return null;
@@ -122,6 +128,7 @@ public class TransportManagerSipImpl extends TransportManager<CallPeerSipImpl>
      * manager is not using ICE or if there is no reflexive address for the
      * remote candidate used.
      */
+    @Override
     public InetSocketAddress getICERemoteReflexiveAddress(String streamName)
     {
         return null;
@@ -136,6 +143,7 @@ public class TransportManagerSipImpl extends TransportManager<CallPeerSipImpl>
      * manager is not using ICE or if there is no relayed address for the
      * local candidate used.
      */
+    @Override
     public InetSocketAddress getICELocalRelayedAddress(String streamName)
     {
         return null;
@@ -150,6 +158,7 @@ public class TransportManagerSipImpl extends TransportManager<CallPeerSipImpl>
      * manager is not using ICE or if there is no relayed address for the
      * remote candidate used.
      */
+    @Override
     public InetSocketAddress getICERemoteRelayedAddress(String streamName)
     {
         return null;
@@ -161,6 +170,7 @@ public class TransportManagerSipImpl extends TransportManager<CallPeerSipImpl>
      * @return The total harvesting time (in ms) for all the harvesters.  0 if
      * the ICE agent is null, or if the agent has nevers harvested.
      */
+    @Override
     public long getTotalHarvestingTime()
     {
         return 0;
@@ -175,6 +185,7 @@ public class TransportManagerSipImpl extends TransportManager<CallPeerSipImpl>
      * 0 if this harvester does not exists, if the ICE agent is null, or if the
      * agent has never harvested with this harvester.
      */
+    @Override
     public long getHarvestingTime(String harvesterName)
     {
         return 0;
@@ -185,6 +196,7 @@ public class TransportManagerSipImpl extends TransportManager<CallPeerSipImpl>
      *
      * @return The number of harvesting for this agent.
      */
+    @Override
     public int getNbHarvesting()
     {
         return 0;
@@ -199,6 +211,7 @@ public class TransportManagerSipImpl extends TransportManager<CallPeerSipImpl>
      * @return The number of harvesting time for the harvester given in
      * parameter.
      */
+    @Override
     public int getNbHarvesting(String harvesterName)
     {
         return 0;

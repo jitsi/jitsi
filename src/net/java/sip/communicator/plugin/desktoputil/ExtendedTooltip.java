@@ -413,6 +413,7 @@ public class ExtendedTooltip
      * @see JComponent#getUIClassID
      * @see UIDefaults#getUI
      */
+    @Override
     public String getUIClassID()
     {
         return uiClassID;

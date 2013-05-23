@@ -18,7 +18,7 @@ import javax.swing.tree.*;
 
 /**
  * SIPCommTreeUI implementation.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class SIPCommTreeUI
@@ -51,6 +51,7 @@ public class SIPCommTreeUI
      * Installs this UI to the given component.
      * @param c the component to which to install this UI
      */
+    @Override
     public void installUI(JComponent c)
     {
         if ( c == null )
@@ -90,6 +91,7 @@ public class SIPCommTreeUI
      * On uninstalling the ui remove the listeners.
      * @param c
      */
+    @Override
     public void uninstallUI(JComponent c)
     {
         tree.getSelectionModel().clearSelection();
@@ -127,12 +129,13 @@ public class SIPCommTreeUI
     /**
      * Installs the defaults of this UI.
      */
+    @Override
     protected void installDefaults()
     {
         if(tree.getBackground() == null ||
            tree.getBackground() instanceof UIResource) {
             tree.setBackground(UIManager.getColor("Tree.background"));
-        } 
+        }
         if(getHashColor() == null || getHashColor() instanceof UIResource) {
             setHashColor(UIManager.getColor("Tree.hash"));
         }
@@ -172,6 +175,7 @@ public class SIPCommTreeUI
      * well as the size of nodes.
      * @return the created layout cache
      */
+    @Override
     protected AbstractLayoutCache createLayoutCache()
     {
         layoutCache = new VariableLayoutCache();
@@ -184,6 +188,7 @@ public class SIPCommTreeUI
      * @param path the <tt>TreePath</tt> to select
      * @param event the <tt>MouseEvent</tt> that provoked the select
      */
+    @Override
     protected void selectPathForEvent(TreePath path, MouseEvent event)
     {
         super.selectPathForEvent(path, event);
@@ -201,6 +206,7 @@ public class SIPCommTreeUI
          * @param placeIn the initial rectangle of the path
          * @return the bounds of the path
          */
+        @Override
         public Rectangle getBounds(TreePath path, Rectangle placeIn)
         {
             Rectangle rect =  super.getBounds(path, placeIn);

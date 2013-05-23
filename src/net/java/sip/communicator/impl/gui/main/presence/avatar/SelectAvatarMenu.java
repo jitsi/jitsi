@@ -22,7 +22,7 @@ import net.java.sip.communicator.util.account.*;
 /**
  * The dialog used as menu.
  *
- * @author Damian Minkov 
+ * @author Damian Minkov
  */
 public class SelectAvatarMenu
     extends SIPCommPopupMenu
@@ -81,7 +81,7 @@ public class SelectAvatarMenu
     private int nextImageIndex = 0;
 
     /**
-     * The parent button using us. 
+     * The parent button using us.
      */
     private FramedImageWithMenu avatarImage;
 
@@ -142,7 +142,7 @@ public class SelectAvatarMenu
         TransparentPanel buttonsPanel = new TransparentPanel();
         buttonsPanel.setLayout(new GridLayout(0, 1));
 
-        // we use this menu item just to get its foreground color. 
+        // we use this menu item just to get its foreground color.
         Color linkColor = new JMenuItem().getForeground();
 
         addActionButton(buttonsPanel, this,
@@ -176,7 +176,7 @@ public class SelectAvatarMenu
      * @param linkColor the color of the link.
      */
     private static void addActionButton(
-            TransparentPanel buttonsPanel, ActionListener listener, 
+            TransparentPanel buttonsPanel, ActionListener listener,
             String text, String name, Color linkColor)
     {
         SIPCommLinkButton button = new SIPCommLinkButton(text);
@@ -263,6 +263,7 @@ public class SelectAvatarMenu
         // Use separate thread to be sure we don't block UI thread.
         new Thread()
         {
+            @Override
             public void run()
             {
                 AccountManager accountManager

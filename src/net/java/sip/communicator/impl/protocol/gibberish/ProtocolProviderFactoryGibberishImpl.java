@@ -40,6 +40,7 @@ public class ProtocolProviderFactoryGibberishImpl
      *   specific properties defining the new account.
      * @return the AccountID of the newly created account.
      */
+    @Override
     public AccountID installAccount( String userIDStr,
                                      Map<String, String> accountProperties)
     {
@@ -82,9 +83,10 @@ public class ProtocolProviderFactoryGibberishImpl
      *
      * @param accountProperties a set of protocol (or implementation) specific
      * properties defining the new account.
-     * 
+     *
      * @throws java.lang.NullPointerException if any of the arguments is null.
      */
+    @Override
     public void modifyAccount(  ProtocolProviderService protocolProvider,
                                 Map<String, String> accountProperties)
     {
@@ -151,11 +153,13 @@ public class ProtocolProviderFactoryGibberishImpl
         registeredAccounts.put(accountID, registration);
     }
 
+    @Override
     protected AccountID createAccountID(String userID, Map<String, String> accountProperties)
     {
         return new GibberishAccountID(userID, accountProperties);
     }
 
+    @Override
     protected ProtocolProviderService createService(String userID,
         AccountID accountID)
     {

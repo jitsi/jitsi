@@ -43,7 +43,7 @@ public class ChatRoomServerRightButtonMenu
 
     /**
      * Creates an instance of <tt>ChatRoomsListRightButtonMenu</tt>.
-     * 
+     *
      * @param chatRoomProvider the wrapper protocol provider corresponding to
      * the multi user chat server
      */
@@ -66,17 +66,17 @@ public class ChatRoomServerRightButtonMenu
     {
         this.add(createChatRoomItem);
         this.add(joinChannelItem);
-        
+
         this.createChatRoomItem.setName("createChatRoom");
         this.joinChannelItem.setName("joinChatRoom");
-        
+
         this.createChatRoomItem.setMnemonic(
             GuiActivator.getResources()
                 .getI18nMnemonic("service.gui.CREATE_CHAT_ROOM"));
         this.joinChannelItem.setMnemonic(
             GuiActivator.getResources()
                 .getI18nMnemonic("service.gui.JOIN_CHAT_ROOM"));
-        
+
         this.createChatRoomItem.addActionListener(this);
         this.joinChannelItem.addActionListener(this);
     }

@@ -148,7 +148,7 @@ public class SipCommFileChooserImpl
 
     /**
      * Sets a file filter to this dialog.
-     * 
+     *
      * @param filter the filter to add
      */
     public void setFileFilter(SipCommFileFilter filter)

@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.impl.gui.lookandfeel;
@@ -20,7 +20,7 @@ import net.java.sip.communicator.util.skin.*;
 
 /**
  * SipCommunicator default theme.
- * 
+ *
  * @author Yana Stamcheva
  * @author Adam Netocny
  */
@@ -372,7 +372,7 @@ public class SIPCommDefaultTheme
             "ctrl H", DefaultEditorKit.deletePrevCharAction,
             "DELETE", DefaultEditorKit.deleteNextCharAction,
             "RIGHT", DefaultEditorKit.forwardAction,
-            "LEFT", DefaultEditorKit.backwardAction, 
+            "LEFT", DefaultEditorKit.backwardAction,
             "KP_RIGHT", DefaultEditorKit.forwardAction,
             "KP_LEFT", DefaultEditorKit.backwardAction,
             "TAB", DefaultEditorKit.insertTabAction,
@@ -398,8 +398,9 @@ public class SIPCommDefaultTheme
     /**
      * Adds a list of entries in the given defaults <tt>table</tt>.
      *
-     * @param table the table of user interface defaults 
+     * @param table the table of user interface defaults
      */
+    @Override
     public void addCustomEntriesToTable(UIDefaults table)
     {
         List<Object> buttonGradient
@@ -534,6 +535,7 @@ public class SIPCommDefaultTheme
      *
      * @return the name of this theme
      */
+    @Override
     public String getName()
     {
         return "SipCommunicator";
@@ -544,6 +546,7 @@ public class SIPCommDefaultTheme
      *
      * @return the primary control dark shadow color resource
      */
+    @Override
     protected ColorUIResource getPrimary1()
     {
         return PRIMARY_CONTROL_DARK_SHADOW;
@@ -554,6 +557,7 @@ public class SIPCommDefaultTheme
      *
      * @return the primary control shadow color resource
      */
+    @Override
     protected ColorUIResource getPrimary2()
     {
         return PRIMARY_CONTROL_SHADOW;
@@ -564,6 +568,7 @@ public class SIPCommDefaultTheme
      *
      * @return the primary control color resource
      */
+    @Override
     protected ColorUIResource getPrimary3()
     {
         return PRIMARY_CONTROL_COLOR;
@@ -574,6 +579,7 @@ public class SIPCommDefaultTheme
      *
      * @return the control dark shadow color resource
      */
+    @Override
     protected ColorUIResource getSecondary1()
     {
         return CONTROL_DARK_SHADOW;
@@ -584,6 +590,7 @@ public class SIPCommDefaultTheme
      *
      * @return the control shadow color resource
      */
+    @Override
     protected ColorUIResource getSecondary2()
     {
         return CONTROL_SHADOW;
@@ -594,6 +601,7 @@ public class SIPCommDefaultTheme
      *
      * @return the control color resource
      */
+    @Override
     protected ColorUIResource getSecondary3()
     {
         return CONTROL_COLOR;
@@ -604,6 +612,7 @@ public class SIPCommDefaultTheme
      *
      * @return the control text color resource
      */
+    @Override
     protected ColorUIResource getBlack()
     {
         return CONTROL_TEXT_COLOR;
@@ -614,6 +623,7 @@ public class SIPCommDefaultTheme
      *
      * @return the desktop color resource
      */
+    @Override
     public ColorUIResource getDesktopColor()
     {
         return DESKTOP_BACKGROUND_COLOR;
@@ -624,6 +634,7 @@ public class SIPCommDefaultTheme
      *
      * @return the window background color resource
      */
+    @Override
     public ColorUIResource getWindowBackground()
     {
         return getWhite();
@@ -634,6 +645,7 @@ public class SIPCommDefaultTheme
      *
      * @return the desktop background color resource
      */
+    @Override
     public ColorUIResource getControl()
     {
         return DESKTOP_BACKGROUND_COLOR;
@@ -644,6 +656,7 @@ public class SIPCommDefaultTheme
      *
      * @return the window background color resource
      */
+    @Override
     public ColorUIResource getMenuBackground()
     {
         return DESKTOP_BACKGROUND_COLOR;
@@ -654,6 +667,7 @@ public class SIPCommDefaultTheme
      *
      * @return the inactive control text color resource
      */
+    @Override
     public ColorUIResource getInactiveControlTextColor()
     {
         return INACTIVE_CONTROL_TEXT_COLOR;
@@ -664,6 +678,7 @@ public class SIPCommDefaultTheme
      *
      * @return the menu disabled foreground color resource
      */
+    @Override
     public ColorUIResource getMenuDisabledForeground()
     {
         return MENU_DISABLED_FOREGROUND;
@@ -674,6 +689,7 @@ public class SIPCommDefaultTheme
      *
      * @return the control text font color resource
      */
+    @Override
     public FontUIResource getControlTextFont()
     {
         return BASIC_FONT;
@@ -684,6 +700,7 @@ public class SIPCommDefaultTheme
      *
      * @return the system text font color resource
      */
+    @Override
     public FontUIResource getSystemTextFont()
     {
         return BASIC_FONT;
@@ -694,6 +711,7 @@ public class SIPCommDefaultTheme
      *
      * @return the user text font color resource
      */
+    @Override
     public FontUIResource getUserTextFont()
     {
         return BASIC_FONT;
@@ -704,6 +722,7 @@ public class SIPCommDefaultTheme
      *
      * @return the menu text font color resource
      */
+    @Override
     public FontUIResource getMenuTextFont()
     {
         return BASIC_FONT;
@@ -714,6 +733,7 @@ public class SIPCommDefaultTheme
      *
      * @return the window title font color resource
      */
+    @Override
     public FontUIResource getWindowTitleFont()
     {
         return BASIC_FONT;
@@ -724,6 +744,7 @@ public class SIPCommDefaultTheme
      *
      * @return the window title font color resource
      */
+    @Override
     public FontUIResource getSubTextFont()
     {
         return BASIC_FONT;

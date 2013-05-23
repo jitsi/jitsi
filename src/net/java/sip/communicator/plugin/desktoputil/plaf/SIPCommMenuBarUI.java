@@ -24,6 +24,7 @@ public class SIPCommMenuBarUI
         return new SIPCommMenuBarUI();
     }
 
+    @Override
     protected void installDefaults()
     {
         super.installDefaults();

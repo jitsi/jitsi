@@ -186,7 +186,7 @@ public class SipRegistrarConnection
         this.sipProvider = sipProviderCallback;
 
         //init expiration timeout
-        this.registrationsExpiration = 
+        this.registrationsExpiration =
             SipActivator.getConfigurationService().getInt(
                 REGISTRATION_EXPIRATION,
                 DEFAULT_REGISTRATION_EXPIRATION);
@@ -692,6 +692,7 @@ public class SipRegistrarConnection
         /**
         * Simply calls the register method.
         */
+        @Override
         public void run()
         {
             try
@@ -834,6 +835,7 @@ public class SipRegistrarConnection
     *         processor and shouldn't be offered to other processors registered
     *         for the same method; <tt>false</tt>, otherwise
     */
+    @Override
     public boolean processResponse(ResponseEvent responseEvent)
     {
         ClientTransaction clientTransaction = responseEvent
@@ -1014,6 +1016,7 @@ public class SipRegistrarConnection
     *         processor and shouldn't be offered to other processors registered
     *         for the same method; <tt>false</tt>, otherwise
     */
+    @Override
     public boolean processRequest(RequestEvent requestEvent)
     {
         /** @todo send not implemented */
@@ -1030,6 +1033,7 @@ public class SipRegistrarConnection
     *         processor and shouldn't be offered to other processors registered
     *         for the same method; <tt>false</tt>, otherwise
     */
+    @Override
     public boolean processTimeout(TimeoutEvent timeoutEvent)
     {
         if(sipProvider.registerUsingNextAddress())
@@ -1054,6 +1058,7 @@ public class SipRegistrarConnection
     *         processor and shouldn't be offered to other processors registered
     *         for the same method; <tt>false</tt>, otherwise
     */
+    @Override
     public boolean processIOException(IOExceptionEvent exceptionEvent)
     {
         setRegistrationState(
@@ -1123,6 +1128,7 @@ public class SipRegistrarConnection
     * <p>
     * @return  a string representation of this operation set.
     */
+    @Override
     public String toString()
     {
         String className = getClass().getName();

@@ -32,7 +32,7 @@ public class CallPeerSecurityOnEvent
 
     /**
      * The event constructor
-     * 
+     *
      * @param callPeer the call peer associated with this event
      * @param sessionType the type of the session, either
      *            {@link CallPeerSecurityStatusEvent#AUDIO_SESSION} or
@@ -62,7 +62,7 @@ public class CallPeerSecurityOnEvent
 
     /**
      * Gets the security controller that caused this event.
-     * 
+     *
      * @return the security controller that caused this event.
      */
     public SrtpControl getSecurityController()

@@ -148,7 +148,7 @@ public class OsDependentActivator
      * The returned reference to <code>ShutdownService</code> is not being
      * cached.
      * </p>
-     * 
+     *
      * @return reference to a <code>ShutdownService</code> implementation
      *         currently registered in the bundle context of the active
      *         <code>OsDependentActivator</code> instance
@@ -161,7 +161,7 @@ public class OsDependentActivator
                     bundleContext.getServiceReference(
                         ShutdownService.class.getName()));
     }
-    
+
     /**
      * Returns the <tt>UIService</tt> obtained from the bundle
      * context.

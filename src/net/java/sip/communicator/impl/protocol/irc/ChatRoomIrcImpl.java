@@ -16,7 +16,7 @@ import net.java.sip.communicator.util.*;
 /**
  * Represents a chat channel/room, where multiple chat users could rally and
  * communicate in a many-to-many fashion.
- * 
+ *
  * @author Stephane Remy
  * @author Loic Kempf
  * @author Yana Stamcheva
@@ -65,7 +65,7 @@ public class ChatRoomIrcImpl
      */
     private final Vector<ChatRoomMemberRoleListener> memberRoleListeners
         = new Vector<ChatRoomMemberRoleListener>();
-    
+
     /**
      * Listeners that will be notified of changes in local user role in the
      * room such as member being granted administrator permissions, or revoked
@@ -93,17 +93,17 @@ public class ChatRoomIrcImpl
      * a chat room member property has been changed.
      */
     private final Vector<ChatRoomMemberPropertyChangeListener>
-        memberPropChangeListeners 
+        memberPropChangeListeners
             = new Vector<ChatRoomMemberPropertyChangeListener>();
 
     /**
      * The table containing all banned members.
      */
-    private ArrayList<ChatRoomMember> bannedMembers 
+    private ArrayList<ChatRoomMember> bannedMembers
         = new ArrayList<ChatRoomMember>();
 
     /**
-     * Indicates if this chat room is a private one (i.e. created with the 
+     * Indicates if this chat room is a private one (i.e. created with the
      * query command ).
      */
     private final boolean isPrivate;
@@ -122,7 +122,7 @@ public class ChatRoomIrcImpl
     /**
      * Creates an instance of <tt>ChatRoomIrcImpl</tt>, by specifying the room
      * name and the protocol provider.
-     *  
+     *
      * @param chatRoomName the name of the chat room
      * @param parentProvider the protocol provider
      */
@@ -136,7 +136,7 @@ public class ChatRoomIrcImpl
      * Creates an instance of <tt>ChatRoomIrcImpl</tt>, by specifying the room
      * name, the protocol provider and the isPrivate property. Private chat
      * rooms are one-to-one chat rooms.
-     *  
+     *
      * @param chatRoomName the name of the chat room
      * @param parentProvider the protocol provider
      * @param isPrivate indicates if this chat room is a private one
@@ -155,17 +155,17 @@ public class ChatRoomIrcImpl
 
     /**
      * Returns the name of this <tt>ChatRoom</tt>.
-     * 
+     *
      * @return a <tt>String</tt> containing the name of this <tt>ChatRoom</tt>.
      */
     public String getName()
     {
         return chatRoomName;
     }
-    
+
     /**
      * Returns the identifier of this <tt>ChatRoom</tt>.
-     * 
+     *
      * @return a <tt>String</tt> containing the identifier of this
      * <tt>ChatRoom</tt>.
      */
@@ -177,7 +177,7 @@ public class ChatRoomIrcImpl
     /**
      * Joins this chat room with the nickname of the local user so that the user
      * would start receiving events and messages for it.
-     * 
+     *
      * @throws OperationFailedException with the corresponding code if an error
      *             occurs while joining the room.
      */
@@ -200,7 +200,7 @@ public class ChatRoomIrcImpl
      * Joins this chat room so that the user would start receiving events and
      * messages for it. The method uses the nickname of the local user and the
      * specified password in order to enter the chatroom.
-     * 
+     *
      * @param password the password to use when authenticating on the chatroom.
      * @throws OperationFailedException with the corresponding code if an error
      *             occurs while joining the room.
@@ -215,7 +215,7 @@ public class ChatRoomIrcImpl
      * start receiving events and messages for it. If the chat room already
      * contains a user with this nickname, the method would throw an
      * OperationFailedException with code IDENTIFICATION_CONFLICT.
-     * 
+     *
      * @param nickname the nickname to use.
      * @throws OperationFailedException with the corresponding code if an error
      *             occurs while joining the room.
@@ -231,7 +231,7 @@ public class ChatRoomIrcImpl
      * user would start receiving events and messages for it. If the chatroom
      * already contains a user with this nickname, the method would throw an
      * OperationFailedException with code IDENTIFICATION_CONFLICT.
-     * 
+     *
      * @param nickname the nickname to use.
      * @param password a password necessary to authenticate when joining the
      *            room.
@@ -248,7 +248,7 @@ public class ChatRoomIrcImpl
     /**
      * Returns true if the local user is currently in the multi user chat (after
      * calling one of the {@link #join()} methods).
-     * 
+     *
      * @return true if currently we're currently in this chat room and false
      *         otherwise.
      */
@@ -272,7 +272,7 @@ public class ChatRoomIrcImpl
     /**
      * Returns the list of banned chat room members.
      * @return the list of banned chat room members.
-     * 
+     *
      * @throws OperationFailedException if we are not joined or we don't have
      * enough privileges to obtain the ban list.
      */
@@ -284,9 +284,9 @@ public class ChatRoomIrcImpl
 
     /**
      * Bans the given <tt>ChatRoomMember</tt>.
-     * 
+     *
      * @param chatRoomMember the chat room member to ban
-     * @param reason the reason of the ban 
+     * @param reason the reason of the ban
      * @throws OperationFailedException if we are not joined or we don't have
      * enough privileges to ban a participant.
      */
@@ -299,9 +299,9 @@ public class ChatRoomIrcImpl
 
     /**
      * Kicks the given <tt>ChatRoomMember</tt>.
-     * 
+     *
      * @param chatRoomMember the chat room member to kick
-     * @param reason the reason of the kick 
+     * @param reason the reason of the kick
      * @throws OperationFailedException if we are not joined or we don't have
      * enough privileges to kick a participant.
      */
@@ -316,8 +316,8 @@ public class ChatRoomIrcImpl
      * Returns the <tt>ChatRoomConfigurationForm</tt> containing all
      * configuration properties for this chat room. If the user doesn't have
      * permissions to see and change chat room configuration an
-     * <tt>OperationFailedException</tt> is thrown. 
-     * 
+     * <tt>OperationFailedException</tt> is thrown.
+     *
      * @return the <tt>ChatRoomConfigurationForm</tt> containing all
      * configuration properties for this chat room
      * @throws OperationFailedException if the user doesn't have
@@ -325,17 +325,17 @@ public class ChatRoomIrcImpl
      */
     public ChatRoomConfigurationForm getConfigurationForm()
         throws OperationFailedException
-    {   
+    {
         throw new OperationFailedException(
             "The configuration form is not yet implemented for irc.",
             OperationFailedException.GENERAL_ERROR);
     }
-    
+
     /**
      * Adds <tt>listener</tt> to the list of listeners registered to receive
      * events upon modification of chat room properties such as its subject for
      * example.
-     * 
+     *
      * @param listener ChatRoomChangeListener
      */
     public void addPropertyChangeListener(
@@ -351,7 +351,7 @@ public class ChatRoomIrcImpl
     /**
      * Removes <tt>listener</tt> from the list of listeners current
      * registered for chat room modification events.
-     * 
+     *
      * @param listener the <tt>ChatRoomChangeListener</tt> to remove.
      */
     public void removePropertyChangeListener(
@@ -362,7 +362,7 @@ public class ChatRoomIrcImpl
             propertyChangeListeners.remove(listener);
         }
     }
-    
+
     /**
      * Adds the given <tt>listener</tt> to the list of listeners registered to
      * receive events upon modification of chat room member properties such as
@@ -400,7 +400,7 @@ public class ChatRoomIrcImpl
     /**
      * Adds a listener that will be notified of changes of a member role in the
      * room such as being granted operator.
-     * 
+     *
      * @param listener a member role listener.
      */
     public void addMemberRoleListener(ChatRoomMemberRoleListener listener)
@@ -415,7 +415,7 @@ public class ChatRoomIrcImpl
     /**
      * Removes a listener that was being notified of changes of a member role in
      * this chat room such as us being granded operator.
-     * 
+     *
      * @param listener a member role listener.
      */
     public void removeMemberRoleListener(ChatRoomMemberRoleListener listener)
@@ -426,11 +426,11 @@ public class ChatRoomIrcImpl
                 memberRoleListeners.remove(listener);
         }
     }
-    
+
     /**
      * Adds a listener that will be notified of changes in our role in the room
      * such as us being granded operator.
-     * 
+     *
      * @param listener a local user role listener.
      */
     public void addLocalUserRoleListener(ChatRoomLocalUserRoleListener listener)
@@ -445,7 +445,7 @@ public class ChatRoomIrcImpl
     /**
      * Removes a listener that was being notified of changes in our role in this
      * chat room such as us being granted operator.
-     * 
+     *
      * @param listener a local user role listener.
      */
     public void removelocalUserRoleListener(
@@ -465,9 +465,9 @@ public class ChatRoomIrcImpl
      * To be notified every time the room's subject change you should add a
      * <tt>ChatRoomPropertyChangelistener</tt> to this room.
      * <p>
-     * 
+     *
      * To change the room's subject use {@link #setSubject(String)}.
-     * 
+     *
      * @return the room subject or <tt>null</tt> if the user hasn't joined the
      *         room or the room does not have a subject yet.
      */
@@ -481,7 +481,7 @@ public class ChatRoomIrcImpl
      * to change the room subject, or the protocol does not support this, or the
      * operation fails for some other reason, the method throws an
      * <tt>OperationFailedException</tt> with the corresponding code.
-     * 
+     *
      * @param subject the new subject that we'd like this room to have
      * @throws OperationFailedException thrown if the user is not joined to the
      * channel or if he/she doesn't have enough privileges to change the
@@ -496,7 +496,7 @@ public class ChatRoomIrcImpl
     /**
      * Returns the local user's nickname in the context of this chat room or
      * <tt>null</tt> if not currently joined.
-     * 
+     *
      * @return the nickname currently being used by the local user in the
      *         context of the local chat room.
      */
@@ -512,9 +512,9 @@ public class ChatRoomIrcImpl
      * Changes the the local user's nickname in the context of this chat room.
      * If the operation is not supported by the underlying implementation, the
      * method throws an OperationFailedException with the corresponding code.
-     * 
+     *
      * @param nickName the new nickname within the room.
-     * 
+     *
      * @throws OperationFailedException if the setting the new nickname changes
      *             for some reason.
      */
@@ -527,7 +527,7 @@ public class ChatRoomIrcImpl
     /**
      * Adds a listener that will be notified of changes in our status in the
      * room such as us being kicked, banned, or granted admin permissions.
-     * 
+     *
      * @param listener a participant status listener.
      */
     public void addMemberPresenceListener(
@@ -544,7 +544,7 @@ public class ChatRoomIrcImpl
      * Removes a listener that was being notified of changes in the status of
      * other chat room participants such as users being kicked, banned, or
      * granted admin permissions.
-     * 
+     *
      * @param listener a participant status listener.
      */
     public void removeMemberPresenceListener(
@@ -559,7 +559,7 @@ public class ChatRoomIrcImpl
     /**
      * Registers <tt>listener</tt> so that it would receive events every time
      * a new message is received on this chat room.
-     * 
+     *
      * @param listener a <tt>MessageListener</tt> that would be notified every
      *            time a new message is received on this chat room.
      */
@@ -575,7 +575,7 @@ public class ChatRoomIrcImpl
     /**
      * Removes <tt>listener</tt> so that it won't receive any further message
      * events from this room.
-     * 
+     *
      * @param listener the <tt>MessageListener</tt> to remove from this room
      */
     public void removeMessageListener(ChatRoomMessageListener listener)
@@ -590,7 +590,7 @@ public class ChatRoomIrcImpl
 
     /**
      * Adds a <tt>ChatRoomMember</tt> to the list of members of this chat room.
-     * 
+     *
      * @param memberID the identifier of the member
      * @param member the <tt>ChatRoomMember</tt> to add.
      */
@@ -602,7 +602,7 @@ public class ChatRoomIrcImpl
     /**
      * Removes a <tt>ChatRoomMember</tt> from the list of members of this chat
      * room.
-     * 
+     *
      * @param memberID the name of the <tt>ChatRoomMember</tt> to remove.
      */
     protected void removeChatRoomMember(String memberID)
@@ -613,7 +613,7 @@ public class ChatRoomIrcImpl
     /**
      * Returns the <tt>ChatRoomMember</tt> corresponding to the given member id.
      * If no member is found for the given id, returns NULL.
-     * 
+     *
      * @param memberID the identifier of the member
      * @return the <tt>ChatRoomMember</tt> corresponding to the given member id.
      */
@@ -636,7 +636,7 @@ public class ChatRoomIrcImpl
     /**
      * Invites another user to this room. If we're not joined nothing will
      * happen.
-     * 
+     *
      * @param userAddress the address of the user to invite to the room.(one may
      *            also invite users not on their contact list).
      * @param reason a reason, subject, or welcome message that would tell the
@@ -651,7 +651,7 @@ public class ChatRoomIrcImpl
     /**
      * Returns a <tt>List</tt> of <tt>ChatRoomMembers</tt>s corresponding to all
      * members currently participating in this room.
-     * 
+     *
      * @return a <tt>List</tt> of <tt>Contact</tt> corresponding to all room
      *         members.
      */
@@ -662,7 +662,7 @@ public class ChatRoomIrcImpl
 
     /**
      * Returns the number of participants that are currently in this chat room.
-     * 
+     *
      * @return the number of <tt>Contact</tt>s, currently participating in this
      * room.
      */
@@ -673,7 +673,7 @@ public class ChatRoomIrcImpl
 
     /**
      * Create a Message instance for sending arbitrary MIME-encoding content.
-     * 
+     *
      * @param content content value
      * @param contentType the MIME-type for <tt>content</tt>
      * @param contentEncoding encoding used for <tt>content</tt>
@@ -697,7 +697,7 @@ public class ChatRoomIrcImpl
     /**
      * Create a Message instance for sending a simple text messages with default
      * (text/plain) content type and encoding.
-     * 
+     *
      * @param messageText the string content of the message.
      * @return Message the newly created message
      */
@@ -708,14 +708,14 @@ public class ChatRoomIrcImpl
             OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE,
             OperationSetBasicInstantMessaging.DEFAULT_MIME_ENCODING,
             null);
-        
+
         return mess;
     }
 
     /**
      * Sends the <tt>message</tt> to the destination indicated by the
      * <tt>to</tt> contact.
-     * 
+     *
      * @param message the <tt>Message</tt> to send.
      * @throws OperationFailedException if the underlying stack is not
      * registered or initialized or if the chat room is not joined.
@@ -758,7 +758,7 @@ public class ChatRoomIrcImpl
 
     /**
      * Returns the protocol provider service that created us.
-     * 
+     *
      * @return the protocol provider service that created us.
      */
     public ProtocolProviderService getParentProvider()
@@ -783,12 +783,12 @@ public class ChatRoomIrcImpl
                 "The provider must be signed on the service before "
                 +"being able to communicate.");
     }
-    
+
     /**
      * Notifies all interested listeners that a
      * <tt>ChatRoomMessageDeliveredEvent</tt> has been fired.
-     * 
-     * @param message the delivered message 
+     *
+     * @param message the delivered message
      */
     private void fireMessageDeliveredEvent(Message message)
     {
@@ -819,22 +819,22 @@ public class ChatRoomIrcImpl
             listeners
                 = new ArrayList<ChatRoomMessageListener>(messageListeners);
         }
-    
+
         for (ChatRoomMessageListener listener : listeners)
             listener.messageDelivered(msgDeliveredEvt);
     }
-    
+
     /**
      * Notifies all interested listeners that a
      * <tt>ChatRoomMessageReceivedEvent</tt> has been fired.
-     * 
-     * @param message the received message 
+     *
+     * @param message the received message
      * @param fromMember the <tt>ChatRoomMember</tt>, which is the sender of the
      * message
      * @param date the time at which the message has been received
      * @param eventType the type of the received event. One of the
-     * XXX_MESSAGE_RECEIVED constants declared in the 
-     * <tt>ChatRoomMessageReceivedEvent</tt> class. 
+     * XXX_MESSAGE_RECEIVED constants declared in the
+     * <tt>ChatRoomMessageReceivedEvent</tt> class.
      */
     public void fireMessageReceivedEvent(   Message message,
                                             ChatRoomMember fromMember,
@@ -858,10 +858,10 @@ public class ChatRoomIrcImpl
         for (ChatRoomMessageListener listener : listeners)
             listener.messageReceived(event);
     }
-    
+
     /**
      * Delivers the specified event to all registered property change listeners.
-     * 
+     *
      * @param evt the <tt>PropertyChangeEvent</tt> that we'd like delivered to
      * all registered property change listeners.
      */
@@ -892,7 +892,7 @@ public class ChatRoomIrcImpl
 
     /**
      * Delivers the specified event to all registered property change listeners.
-     * 
+     *
      * @param evt the <tt>ChatRoomMemberPropertyChangeEvent</tt> that we'd like
      * deliver to all registered member property change listeners.
      */
@@ -916,7 +916,7 @@ public class ChatRoomIrcImpl
      * all <tt>ChatRoomMemberPresenceListener</tt>s that a ChatRoomMember has
      * joined or left this <tt>ChatRoom</tt>.
      *
-     * @param member the <tt>ChatRoomMember</tt> that this event is about 
+     * @param member the <tt>ChatRoomMember</tt> that this event is about
      * @param actorMember a member that act in the event (for example the kicker
      * in a member kicked event)
      * @param eventID the identifier of the event
@@ -954,7 +954,7 @@ public class ChatRoomIrcImpl
      * all <tt>ChatRoomMemberRoleListener</tt>s that a ChatRoomMember has
      * changed his role in this <tt>ChatRoom</tt>.
      *
-     * @param member the <tt>ChatRoomMember</tt> that this event is about 
+     * @param member the <tt>ChatRoomMember</tt> that this event is about
      * @param newRole the new role of the given member
      */
     public void fireMemberRoleEvent(   ChatRoomMember member,
@@ -968,10 +968,10 @@ public class ChatRoomIrcImpl
                                                 member,
                                                 previousRole,
                                                 newRole);
-        
+
         if (logger.isTraceEnabled())
             logger.trace("Will dispatch the following ChatRoom event: " + evt);
-    
+
         Iterable<ChatRoomMemberRoleListener> listeners;
         synchronized (memberRoleListeners)
         {
@@ -979,7 +979,7 @@ public class ChatRoomIrcImpl
                 = new ArrayList<ChatRoomMemberRoleListener>(
                         memberRoleListeners);
         }
-    
+
         for (ChatRoomMemberRoleListener listener : listeners)
             listener.memberRoleChanged(evt);
     }
@@ -987,7 +987,7 @@ public class ChatRoomIrcImpl
     /**
      * Indicates if this chat room is a private one or not. Private chat rooms
      * are created with the query command.
-     * 
+     *
      * @return <code>true</code> if this chat room is private and
      * <code>false</code> otherwise.
      */
@@ -999,7 +999,7 @@ public class ChatRoomIrcImpl
     /**
      * Indicates whether or not this chat room is corresponding to a server
      * channel.
-     * 
+     *
      * @return <code>true</code> to indicate that this chat room is
      * corresponding to a server channel, <code>false</code> - otherwise.
      */
@@ -1011,7 +1011,7 @@ public class ChatRoomIrcImpl
     /**
      * Sets whether or not this chat room is corresponding to a server
      * channel.
-     * 
+     *
      * @param isSystem <code>true</code> to indicate that this chat room is
      * corresponding to a server channel, <code>false</code> - otherwise.
      */
@@ -1022,7 +1022,7 @@ public class ChatRoomIrcImpl
 
     /**
      * Sets the nickName for this chat room.
-     * 
+     *
      * @param nickName the nick name to set
      */
     protected void setNickName(String nickName)

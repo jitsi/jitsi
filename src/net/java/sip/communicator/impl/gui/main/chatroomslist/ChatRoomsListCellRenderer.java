@@ -19,19 +19,19 @@ import net.java.sip.communicator.service.protocol.*;
  * The <tt>ChatRoomsListCellRenderer</tt> is the custom cell renderer used in the
  * Jitsi's <tt>ChatRoomsList</tt>. It extends JPanel instead of JLabel,
  * which allows adding different buttons and icons to the contact cell.
- * The cell border and background are repainted. 
- * 
+ * The cell border and background are repainted.
+ *
  * @author Yana Stamcheva
  */
-public class ChatRoomsListCellRenderer extends JPanel 
+public class ChatRoomsListCellRenderer extends JPanel
     implements ListCellRenderer {
-      
+
     private JLabel nameLabel = new JLabel();
-    
+
     private boolean isSelected = false;
 
     private boolean isLeaf = true;
-    
+
     /**
      * Initialize the panel containing the node.
      */
@@ -42,17 +42,17 @@ public class ChatRoomsListCellRenderer extends JPanel
         this.setOpaque(false);
 
         this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        
+
         this.nameLabel.setIconTextGap(2);
-        
+
         this.nameLabel.setPreferredSize(new Dimension(10, 17));
-        
+
         this.add(nameLabel, BorderLayout.CENTER);
     }
 
     /**
      * Implements the <tt>ListCellRenderer</tt> method.
-     * 
+     *
      * Returns this panel that has been configured to display the meta contact
      * and meta contact group cells.
      */
@@ -71,18 +71,18 @@ public class ChatRoomsListCellRenderer extends JPanel
 
             Image chatRoomImage = ImageLoader
                 .getImage(ImageLoader.CHAT_ROOM_16x16_ICON);
-            
+
             if(chatRoomWrapper.getChatRoom() == null ||
                 !chatRoomWrapper.getChatRoom().isJoined())
             {
                 chatRoomImage
                     = LightGrayFilter.createDisabledImage(chatRoomImage);
             }
-            
+
             this.nameLabel.setIcon(new ImageIcon(chatRoomImage));
-                
+
             this.nameLabel.setFont(this.getFont().deriveFont(Font.PLAIN));
-            
+
             this.setBorder(BorderFactory.createEmptyBorder(1, 8, 1, 1));
 
             // We should set the bounds of the cell explicitly in order to
@@ -113,35 +113,36 @@ public class ChatRoomsListCellRenderer extends JPanel
             // We should set the bounds of the cell explicitly in order to
             // make getComponentAt work properly.
             this.setBounds(0, 0, list.getWidth() - 2, 20);
-            
+
             JLabel groupContentIndicator = new JLabel();
             /*
             if(chatRoomsList.isChatServerClosed(pps))
                 groupContentIndicator.setIcon(new ImageIcon(ImageLoader
                     .getImage(ImageLoader.CLOSED_GROUP)));
-            else 
+            else
                 groupContentIndicator.setIcon(new ImageIcon(ImageLoader
                     .getImage(ImageLoader.OPENED_GROUP)));
                     */
-            //the width is fixed in 
+            //the width is fixed in
             //order all the icons to be with the same size
             groupContentIndicator.setBounds(0, 0, 12, 12);
-            
+
             this.isLeaf = false;
         }
 
         toolTipText += "</html>";
         this.setToolTipText(toolTipText);
-        
+
         this.isSelected = isSelected;
 
         return this;
     }
-    
+
     /**
      * Paint a background for all groups and a round blue border and background
-     * when a cell is selected. 
+     * when a cell is selected.
      */
+    @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
 
@@ -170,7 +171,7 @@ public class ChatRoomsListCellRenderer extends JPanel
                     this.getHeight(),
                     Constants.GRADIENT_LIGHT_COLOR);
 
-            g2.setPaint(p);            
+            g2.setPaint(p);
             g2.fillRoundRect(1, 1, this.getWidth(), this.getHeight() - 1, 7, 7);
         }
 

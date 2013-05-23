@@ -1328,6 +1328,7 @@ public class TransportManagerGTalkImpl
      * @return The extended type of the candidate selected if this transport
      * manager is using ICE. Otherwise, returns null.
      */
+    @Override
     public String getICECandidateExtendedType(String streamName)
     {
         return TransportManager.getICECandidateExtendedType(
@@ -1340,6 +1341,7 @@ public class TransportManagerGTalkImpl
      *
      * @return the current state of ICE processing.
      */
+    @Override
     public String getICEState()
     {
         return iceAgent.getState().name();
@@ -1353,6 +1355,7 @@ public class TransportManagerGTalkImpl
      * @return the ICE local host address if this transport
      * manager is using ICE. Otherwise, returns null.
      */
+    @Override
     public InetSocketAddress getICELocalHostAddress(String streamName)
     {
         if(iceAgent != null)
@@ -1375,6 +1378,7 @@ public class TransportManagerGTalkImpl
      * @return the ICE remote host address if this transport
      * manager is using ICE. Otherwise, returns null.
      */
+    @Override
     public InetSocketAddress getICERemoteHostAddress(String streamName)
     {
         if(iceAgent != null)
@@ -1398,6 +1402,7 @@ public class TransportManagerGTalkImpl
      * manager is not using ICE or if there is no reflexive address for the
      * local candidate used.
      */
+    @Override
     public InetSocketAddress getICELocalReflexiveAddress(String streamName)
     {
         if(iceAgent != null)
@@ -1421,6 +1426,7 @@ public class TransportManagerGTalkImpl
      * manager is not using ICE or if there is no reflexive address for the
      * remote candidate used.
      */
+    @Override
     public InetSocketAddress getICERemoteReflexiveAddress(String streamName)
     {
         if(iceAgent != null)
@@ -1444,6 +1450,7 @@ public class TransportManagerGTalkImpl
      * manager is not using ICE or if there is no relayed address for the
      * local candidate used.
      */
+    @Override
     public InetSocketAddress getICELocalRelayedAddress(String streamName)
     {
         if(iceAgent != null)
@@ -1467,6 +1474,7 @@ public class TransportManagerGTalkImpl
      * manager is not using ICE or if there is no relayed address for the
      * remote candidate used.
      */
+    @Override
     public InetSocketAddress getICERemoteRelayedAddress(String streamName)
     {
         if(iceAgent != null)
@@ -1487,6 +1495,7 @@ public class TransportManagerGTalkImpl
      * @return The total harvesting time (in ms) for all the harvesters.  0 if
      * the ICE agent is null, or if the agent has nevers harvested.
      */
+    @Override
     public long getTotalHarvestingTime()
     {
         if(iceAgent != null)
@@ -1505,6 +1514,7 @@ public class TransportManagerGTalkImpl
      * 0 if this harvester does not exists, if the ICE agent is null, or if the
      * agent has never harvested with this harvester.
      */
+    @Override
     public long getHarvestingTime(String harvesterName)
     {
         if(iceAgent != null)
@@ -1519,6 +1529,7 @@ public class TransportManagerGTalkImpl
      *
      * @return The number of harvesting for this agent.
      */
+    @Override
     public int getNbHarvesting()
     {
         if(iceAgent != null)
@@ -1537,6 +1548,7 @@ public class TransportManagerGTalkImpl
      * @return The number of harvesting time for the harvester given in
      * parameter.
      */
+    @Override
     public int getNbHarvesting(String harvesterName)
     {
         if(iceAgent != null)

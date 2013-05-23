@@ -469,6 +469,7 @@ public class ExternalContactSource
          * and can be added directly to the root group.
          * @return null
          */
+        @Override
         public UIGroup getParentGroup()
         {
             return null;
@@ -478,6 +479,7 @@ public class ExternalContactSource
          * Returns -1 to indicate that this group doesn't have a source index.
          * @return -1
          */
+        @Override
         public int getSourceIndex()
         {
             int sourceIndex = contactSource.getIndex();
@@ -495,6 +497,7 @@ public class ExternalContactSource
          * Returns <tt>false</tt> to indicate that this group is always opened.
          * @return false
          */
+        @Override
         public boolean isGroupCollapsed()
         {
             return false;
@@ -504,6 +507,7 @@ public class ExternalContactSource
          * Returns the display name of this group.
          * @return the display name of this group
          */
+        @Override
         public String getDisplayName()
         {
             return displayName;
@@ -513,6 +517,7 @@ public class ExternalContactSource
          * Returns -1 to indicate that the child count is unknown.
          * @return -1
          */
+        @Override
         public int countChildContacts()
         {
             return -1;
@@ -522,6 +527,7 @@ public class ExternalContactSource
          * Returns -1 to indicate that the child count is unknown.
          * @return -1
          */
+        @Override
         public int countOnlineChildContacts()
         {
             return -1;
@@ -531,6 +537,7 @@ public class ExternalContactSource
          * Returns the display name of the group.
          * @return the display name of the group
          */
+        @Override
         public Object getDescriptor()
         {
             return contactSource;
@@ -540,6 +547,7 @@ public class ExternalContactSource
          * Returns null to indicate that this group doesn't have an identifier.
          * @return null
          */
+        @Override
         public String getId()
         {
             return null;
@@ -549,6 +557,7 @@ public class ExternalContactSource
          * Returns the corresponding <tt>GroupNode</tt>.
          * @return the corresponding <tt>GroupNode</tt>
          */
+        @Override
         public GroupNode getGroupNode()
         {
             return groupNode;
@@ -558,6 +567,7 @@ public class ExternalContactSource
          * Sets the given <tt>groupNode</tt>.
          * @param groupNode the <tt>GroupNode</tt> to set
          */
+        @Override
         public void setGroupNode(GroupNode groupNode)
         {
             this.groupNode = groupNode;
@@ -567,6 +577,7 @@ public class ExternalContactSource
          * Returns the right button menu for this group.
          * @return null
          */
+        @Override
         public JPopupMenu getRightButtonMenu()
         {
             return null;
@@ -577,6 +588,7 @@ public class ExternalContactSource
          *
          * @return a list of all custom action buttons for this group
          */
+        @Override
         public Collection<SIPCommButton> getCustomActionButtons()
         {
             if (customServiceActionButtons == null)

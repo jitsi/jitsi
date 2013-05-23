@@ -233,6 +233,7 @@ public class ConfigurationFrame
      *
      * @param isVisible specifies whether the frame is to be visible or not.
      */
+    @Override
     public void setVisible(final boolean isVisible)
     {
         if(!SwingUtilities.isEventDispatchThread())
@@ -261,6 +262,7 @@ public class ConfigurationFrame
      * @param isEscaped specifies whether the close was triggered by pressing
      *            the escape key.
      */
+    @Override
     protected void close(boolean isEscaped)
     {
         this.setVisible(false);

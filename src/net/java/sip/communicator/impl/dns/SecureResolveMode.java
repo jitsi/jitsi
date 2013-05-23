@@ -8,7 +8,7 @@ package net.java.sip.communicator.impl.dns;
 
 /**
  * Defines how DNSSEC validation errors should be handled.
- * 
+ *
  * @author Ingo Bauersachs
  */
 public enum SecureResolveMode

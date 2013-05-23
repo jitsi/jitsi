@@ -52,7 +52,7 @@ public class DictActivator
         throws Exception
     {
         bundleContext = context;
-        
+
         Hashtable<String,String> hashtable = new Hashtable<String,String>();
         hashtable.put(ProtocolProviderFactory.PROTOCOL, ProtocolNames.DICT);
 
@@ -91,14 +91,14 @@ public class DictActivator
     public void stop(BundleContext context)
         throws Exception
     {
-        
+
         dictProviderFactory.stop();
         dictPpFactoryServReg.unregister();
-        
+
         if (logger.isInfoEnabled())
             logger.info("DICT protocol implementation [STOPPED].");
     }
-    
+
     /**
      * Returns a reference to the protocol provider factory that we have
      * registered.
@@ -109,11 +109,11 @@ public class DictActivator
     {
         return dictProviderFactory;
     }
-    
+
 
     /**
      * Returns the <tt>ResourceManagementService</tt>.
-     * 
+     *
      * @return the <tt>ResourceManagementService</tt>.
      */
     public static ResourceManagementService getResources()

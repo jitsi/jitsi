@@ -7,7 +7,7 @@
 package net.java.sip.communicator.impl.gui.main.chatroomslist;
 
 /**
- * 
+ *
  * @author Yana Stamcheva
  */
 public interface ChatRoomListChangeListener

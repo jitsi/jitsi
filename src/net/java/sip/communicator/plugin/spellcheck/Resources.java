@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.plugin.spellcheck;
@@ -19,7 +19,7 @@ import org.osgi.framework.*;
 /**
  * The <tt>Resources</tt> class manages the access to the internationalization
  * properties files and the image resources used in this plugin.
- * 
+ *
  * @author Damian Johnson
  * @author Yana Stamcheva
  */
@@ -64,7 +64,7 @@ public class Resources
 
     /**
      * Returns an internationalized string corresponding to the given key.
-     * 
+     *
      * @param key The key of the string.
      * @return An internationalized string corresponding to the given key.
      */
@@ -75,7 +75,7 @@ public class Resources
 
     /**
      * Loads an image from a given image identifier.
-     * 
+     *
      * @param imageID The identifier of the image.
      * @return The image for the given identifier.
      */
@@ -86,7 +86,7 @@ public class Resources
 
     /**
      * Loads a flag image from a given image identifier.
-     * 
+     *
      * @param resource iso code for flag to be retrieved.
      * @return icon reflecting iso code
      * @throws IOException if no such resource is available
@@ -106,7 +106,7 @@ public class Resources
 
     /**
      * Loads an image from a given image identifier.
-     * 
+     *
      * @param imageID The identifier of the image.
      * @return The image for the given identifier.
      */
@@ -118,7 +118,7 @@ public class Resources
     /**
      * Returns the <tt>ResourceManagementService</tt> through which we obtain
      * resources like images and localized texts.
-     * 
+     *
      * @return the <tt>ResourceManagementService</tt>
      */
     public static ResourceManagementService getResources()

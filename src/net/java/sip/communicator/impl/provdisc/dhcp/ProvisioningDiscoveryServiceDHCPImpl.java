@@ -44,6 +44,7 @@ public class ProvisioningDiscoveryServiceDHCPImpl
      *
      * @return method name
      */
+    @Override
     public String getMethodName()
     {
         return METHOD_NAME;
@@ -72,6 +73,7 @@ public class ProvisioningDiscoveryServiceDHCPImpl
      *
      * @return provisioning URL
      */
+    @Override
     public String discoverURL()
     {
         if(discover != null)
@@ -89,6 +91,7 @@ public class ProvisioningDiscoveryServiceDHCPImpl
      * This method is asynchronous, the response will be notified to any
      * <tt>ProvisioningListener</tt> registered.
      */
+    @Override
     public void startDiscovery()
     {
         if(discover != null)

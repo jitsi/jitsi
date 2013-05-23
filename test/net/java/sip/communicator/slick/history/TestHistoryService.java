@@ -47,6 +47,7 @@ public class TestHistoryService extends TestCase {
         return suite;
     }
 
+    @Override
     protected void setUp()
         throws Exception
     {
@@ -69,6 +70,7 @@ public class TestHistoryService extends TestCase {
         }
     }
 
+    @Override
     protected void tearDown()
         throws Exception
     {

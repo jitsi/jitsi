@@ -43,6 +43,7 @@ public class TestOperationSetBasicInstantMessaging
      * Get a reference to the basic IM operation set.
      * @throws Exception if this is not a good day.
      */
+    @Override
     protected void setUp() throws Exception
     {
         super.setUp();
@@ -85,6 +86,7 @@ public class TestOperationSetBasicInstantMessaging
 
     }
 
+    @Override
     protected void tearDown() throws Exception
     {
         super.tearDown();
@@ -134,7 +136,7 @@ public class TestOperationSetBasicInstantMessaging
         //msg from the tester agent.
         opSetBasicIM.addMessageListener(evtCollector);
 
-        fixture.testerAgent.sendMessage(fixture.ourUserID, body);
+        IcqSlickFixture.testerAgent.sendMessage(fixture.ourUserID, body);
 
         evtCollector.waitForEvent(10000);
 
@@ -155,7 +157,7 @@ public class TestOperationSetBasicInstantMessaging
             = (MessageReceivedEvent)evtCollector.collectedEvents.get(0);
         assertEquals("message sender "
                      , evt.getSourceContact().getAddress()
-                     , fixture.testerAgent.getIcqUIN());
+                     , IcqSlickFixture.testerAgent.getIcqUIN());
 
         //assert messageBody == body
         assertEquals("message body", body, evt.getSourceMessage().getContent());
@@ -181,18 +183,18 @@ public class TestOperationSetBasicInstantMessaging
         //register a listener in the tester agent
         JoustSimMessageEventCollector jsEvtCollector
             = new JoustSimMessageEventCollector();
-        fixture.testerAgent.addConversationListener( fixture.ourUserID
+        IcqSlickFixture.testerAgent.addConversationListener( fixture.ourUserID
                                                      , jsEvtCollector);
 
         Contact testerAgentContact
-            = opSetPresence.findContactByID(fixture.testerAgent.getIcqUIN());
+            = opSetPresence.findContactByID(IcqSlickFixture.testerAgent.getIcqUIN());
 
         opSetBasicIM.sendInstantMessage(testerAgentContact, msg);
 
         imEvtCollector.waitForEvent(10000);
         jsEvtCollector.waitForEvent(10000);
 
-        fixture.testerAgent.removeConversationListener( fixture.ourUserID
+        IcqSlickFixture.testerAgent.removeConversationListener( fixture.ourUserID
                                                         , jsEvtCollector);
         opSetBasicIM.removeMessageListener(imEvtCollector);
 
@@ -209,7 +211,7 @@ public class TestOperationSetBasicInstantMessaging
             = (MessageDeliveredEvent)imEvtCollector.collectedEvents.get(0);
         assertEquals("message destination "
                      , evt.getDestinationContact().getAddress()
-                     , fixture.testerAgent.getIcqUIN());
+                     , IcqSlickFixture.testerAgent.getIcqUIN());
 
         assertSame("source message", msg, evt.getSourceMessage());
 
@@ -475,7 +477,7 @@ public class TestOperationSetBasicInstantMessaging
 
         while(tokenizer.hasMoreTokens())
         {
-            fixture.testerAgent.sendMessage(tokenizer.nextToken(), message);
+            IcqSlickFixture.testerAgent.sendMessage(tokenizer.nextToken(), message);
         }
     }
 
@@ -486,9 +488,9 @@ public class TestOperationSetBasicInstantMessaging
     public void testReceiveOfflineMessages()
     {
         String messageText =
-            fixture.offlineMsgCollector.getMessageText();
+            IcqSlickFixture.offlineMsgCollector.getMessageText();
 
-        Message receiveMessage = fixture.offlineMsgCollector.getReceivedMessage();
+        Message receiveMessage = IcqSlickFixture.offlineMsgCollector.getReceivedMessage();
 
         assertNotNull("No Offline messages have been received", receiveMessage);
         assertEquals("message body", messageText, receiveMessage.getContent());

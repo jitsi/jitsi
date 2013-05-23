@@ -66,6 +66,7 @@ public class CloseLocalVisualComponentButton
         addMouseListener(this);
     }
 
+    @Override
     public void paint(Graphics g)
     {
         g.setColor(Color.GRAY);

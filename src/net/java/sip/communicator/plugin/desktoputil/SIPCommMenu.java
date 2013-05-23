@@ -19,7 +19,7 @@ import org.jvnet.lafwidget.animation.*;
  * popup menu is opened, containing a list of icon-text pairs from which the
  * user could choose one item. When user selects the desired item, the icon of
  * the selected item is set to the main component label.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class SIPCommMenu
@@ -55,7 +55,7 @@ public class SIPCommMenu
     /**
      * Creates an instance of <tt>SIPCommMenu</tt> by specifying the
      * initialy selected item.
-     * 
+     *
      * @param text The item that is initialy selected.
      */
     public SIPCommMenu(String text)
@@ -74,6 +74,7 @@ public class SIPCommMenu
         // Hides the popup menu when the parent window loses focus.
         getPopupMenu().addComponentListener(new ComponentAdapter()
         {
+            @Override
             public void componentResized(ComponentEvent evt)
             {
                 Window parentWindow;
@@ -95,7 +96,8 @@ public class SIPCommMenu
 
                 parentWindow.addWindowListener(new WindowAdapter()
                 {
-                    public void windowDeactivated(WindowEvent e) 
+                    @Override
+                    public void windowDeactivated(WindowEvent e)
                     {
                         JPopupMenu popupMenu = getPopupMenu();
 
@@ -109,7 +111,7 @@ public class SIPCommMenu
 
     /**
      * Adds an item to the "choice list" of this selector box.
-     * 
+     *
      * @param text The text of the item.
      * @param icon The icon of the item.
      * @param actionListener The <tt>ActionListener</tt>, which handles the
@@ -126,7 +128,7 @@ public class SIPCommMenu
 
     /**
      * Selects the given item.
-     * 
+     *
      * @param selectedObject The object to select.
      */
     public void setSelected(SelectedObject selectedObject)
@@ -143,7 +145,7 @@ public class SIPCommMenu
 
     /**
      * Selects the given object.
-     * 
+     *
      * @param o The <tt>Object</tt> to select.
      */
     public void setSelectedObject(Object o)
@@ -153,7 +155,7 @@ public class SIPCommMenu
 
     /**
      * Returns the selected object.
-     * 
+     *
      * @return the selected object.
      */
     public Object getSelectedObject()
@@ -163,7 +165,7 @@ public class SIPCommMenu
 
     /**
      * Sets the isMouseOver property value and repaints this component.
-     * 
+     *
      * @param isMouseOver <code>true</code> to indicate that the mouse is over
      * this component, <code>false</code> - otherwise.
      */
@@ -176,6 +178,7 @@ public class SIPCommMenu
      * Paints this component.
      * @param g the <tt>Graphics</tt> object used for painting
      */
+    @Override
     public void paintComponent(Graphics g)
     {
         Graphics g2 = g.create();

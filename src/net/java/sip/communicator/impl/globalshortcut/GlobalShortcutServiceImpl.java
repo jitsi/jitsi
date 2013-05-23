@@ -118,7 +118,7 @@ public class GlobalShortcutServiceImpl
             {
                 keystrokes = new ArrayList<AWTKeyStroke>();
             }
-            
+
             if(keyStroke.getModifiers() != SPECIAL_KEY_MODIFIERS)
             {
                 ok = keyboardHook.registerShortcut(keyStroke.getKeyCode(),
@@ -133,7 +133,7 @@ public class GlobalShortcutServiceImpl
             {
                 keystrokes.add(keyStroke);
             }
-           
+
 
             if(add)
                 mapActions.put(listener, keystrokes);
@@ -371,7 +371,7 @@ public class GlobalShortcutServiceImpl
                     if(entry.getKey().equals("push_to_talk"))
                     {
                         if(e != null)
-                            registerShortcut(callShortcut, 
+                            registerShortcut(callShortcut,
                                 AWTKeyStroke.getAWTKeyStroke(
                                     e.getKeyCode(), e.getModifiers(), true));
                     }
@@ -379,7 +379,7 @@ public class GlobalShortcutServiceImpl
                     {
                         registerShortcut(callShortcut, e);
                     }
-                    
+
                 }
             }
             else if(entry.getKey().equals("contactlist"))

@@ -48,7 +48,7 @@ public interface ContactAction<T>
     /**
      * Returns the tool tip text of the component to create for this contact
      * action.
-     * 
+     *
      * @return the tool tip text of the component to create for this contact
      * action
      */

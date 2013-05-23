@@ -41,10 +41,10 @@ public class ChatRoomMemberIrcImpl
      * Creates an instance of <tt>ChatRoomMemberIrcImpl</tt>, by specifying the
      * protocol provider, the corresponding chat room, where this member is
      * joined, the identifier of the contact (the nickname), the login, the
-     * host name and finally the role that this contact has in the chat room. 
-     * 
+     * host name and finally the role that this contact has in the chat room.
+     *
      * @param parentProvider the protocol provider, to which the corresponding
-     * chat room belongs 
+     * chat room belongs
      * @param chatRoom the chat room, where this member is joined
      * @param contactID the nickname of the member
      * @param chatRoomMemberRole the role that this member has in the
@@ -84,7 +84,7 @@ public class ChatRoomMemberIrcImpl
     }
 
     /**
-     * Returns the contact identifier representing this contact. For IRC 
+     * Returns the contact identifier representing this contact. For IRC
      * this method returns the same as getName().
      *
      * @return a String (contact address), uniquely representing the contact
@@ -122,7 +122,7 @@ public class ChatRoomMemberIrcImpl
 
     /**
      * Sets a new member role to this <tt>ChatRoomMember</tt>.
-     * 
+     *
      * @param chatRoomMemberRole the role to be set
      */
     public void setRole(ChatRoomMemberRole chatRoomMemberRole)
@@ -133,7 +133,7 @@ public class ChatRoomMemberIrcImpl
     /**
      * Returns null to indicate that there's no avatar attached to the IRC
      * member.
-     * 
+     *
      * @return null
      */
      public byte[] getAvatar()
@@ -144,7 +144,7 @@ public class ChatRoomMemberIrcImpl
      /**
       * Returns null to indicate that there's no contact corresponding to the
       * IRC member.
-      * 
+      *
       * @return null
       */
      public Contact getContact()

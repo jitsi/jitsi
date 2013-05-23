@@ -13,7 +13,7 @@ import net.java.sip.communicator.service.protocol.*;
 /**
  * <tt>AdHocChatRoomInvitationReceivedEvent</tt>s indicate reception of an
  * invitation to join an ad-hoc chat room.
- * 
+ *
  * @author Valentin Martinet
  */
 @SuppressWarnings("serial")
@@ -35,7 +35,7 @@ public class AdHocChatRoomInvitationReceivedEvent
      * the <tt>source</tt> invitation received from the specified
      * <tt>from</tt> ad-hoc chat room participant.
      *
-     * @param adHocMultiUserChatOpSet the 
+     * @param adHocMultiUserChatOpSet the
      * <tt>OperationSetAdHocMultiUserChat</tt>, which dispatches this event
      * @param invitation the <tt>AdHocChatRoomInvitation</tt> that this event is
      * for
@@ -53,10 +53,10 @@ public class AdHocChatRoomInvitationReceivedEvent
     }
 
     /**
-     * Returns the ad-hoc multi user chat operation set that dispatches this 
+     * Returns the ad-hoc multi user chat operation set that dispatches this
      * event.
-     * 
-     * @return the ad-hoc multi user chat operation set that dispatches this 
+     *
+     * @return the ad-hoc multi user chat operation set that dispatches this
      * event.
      */
     public OperationSetAdHocMultiUserChat getSourceOperationSet()

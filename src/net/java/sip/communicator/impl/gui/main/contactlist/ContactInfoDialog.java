@@ -18,7 +18,7 @@ import net.java.sip.communicator.service.contactlist.*;
 /**
  * The <tt>ContactInfoPanel</tt> is a popup dialog containing the contact
  * detailed info.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class ContactInfoDialog
@@ -32,7 +32,7 @@ public class ContactInfoDialog
 
     /**
      * Creates an instance of the <tt>ContactInfoPanel</tt>.
-     * 
+     *
      * @param owner The frame owner of this dialog.
      * @param contactItem The <tt>MetaContact</tt> for the info.
      */
@@ -71,22 +71,22 @@ public class ContactInfoDialog
     {
         /*
          * String[] protocolList = this.contactItem.getC();
-         * 
+         *
          * if(protocolsPanel.getComponentCount() == 0){ for(int i = 0; i <
          * protocolList.length; i ++){
-         * 
+         *
          * JLabel protocolLabel = new JLabel(protocolList[i], new
          * ImageIcon(Constants.getProtocolIcon(protocolList[i])), JLabel.LEFT);
-         * 
+         *
          * this.protocolsPanel.add(protocolLabel); } }
-         * 
+         *
          * this.bg.add(protocolsPanel, BorderLayout.CENTER);
          */
     }
 
     /**
      * Returns the panel containing all contact protocols' information.
-     * 
+     *
      * @return the panel containing all contact protocols' information.
      */
     public JPanel getProtocolsPanel()
@@ -111,6 +111,7 @@ public class ContactInfoDialog
         this.bg.updateBackground(x, y);
     }
 
+    @Override
     protected void close(boolean isEscaped)
     {
         this.setVisible(false);

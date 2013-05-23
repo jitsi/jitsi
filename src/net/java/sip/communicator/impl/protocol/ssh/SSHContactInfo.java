@@ -339,6 +339,7 @@ class SSHContactInfo
         this.portField.setText(port);
     }
 
+    @Override
     protected void close(boolean isEscaped)
     {
     }

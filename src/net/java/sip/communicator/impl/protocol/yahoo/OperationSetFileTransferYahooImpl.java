@@ -391,7 +391,7 @@ public class OperationSetFileTransferYahooImpl
         }
 
         FileTransferImpl ft = (FileTransferImpl)ftObj;
-        
+
         if( newState == SessionFileTransferEvent.IN_PROGRESS)
         {
             // if we start sending progress fire that we are in progress

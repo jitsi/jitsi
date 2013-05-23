@@ -183,6 +183,7 @@ public class InvitationReceivedDialog
         this.dispose();
     }
 
+    @Override
     protected void close(boolean isEscaped)
     {
         rejectButton.doClick();

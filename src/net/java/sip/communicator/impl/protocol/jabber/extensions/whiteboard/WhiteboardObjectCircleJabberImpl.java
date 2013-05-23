@@ -33,7 +33,7 @@ public class WhiteboardObjectCircleJabberImpl
 {
     private static final Logger logger =
         Logger.getLogger(WhiteboardObjectCircleJabberImpl.class);
-    
+
     /**
      * True is filled, false is unfilled.
      */
@@ -50,7 +50,7 @@ public class WhiteboardObjectCircleJabberImpl
      * The number of pixels for the radius.
      */
     private double radius;
-    
+
     /**
      * Default WhiteboardObjectCircleJabberImpl constructor.
      */
@@ -58,7 +58,7 @@ public class WhiteboardObjectCircleJabberImpl
     {
         super();
     }
-    
+
     /**
      * WhiteboardObjectCircleJabberImpl constructor.
      *
@@ -74,7 +74,7 @@ public class WhiteboardObjectCircleJabberImpl
             builder = factory.newDocumentBuilder ();
             InputStream in = new ByteArrayInputStream (xml.getBytes ());
             Document doc = builder.parse (in);
-            
+
             Element e = doc.getDocumentElement ();
             String elementName = e.getNodeName ();
             if (elementName.equals ("circle"))
@@ -87,7 +87,7 @@ public class WhiteboardObjectCircleJabberImpl
                 String stroke = e.getAttribute ("stroke");
                 String stroke_width = e.getAttribute ("stroke-width");
                 String fill = e.getAttribute ("fill");
-                
+
                 this.setID (id);
                 this.setWhiteboardPoint (new WhiteboardPoint (cx,cy));
                 this.setRadius (r);
@@ -112,7 +112,7 @@ public class WhiteboardObjectCircleJabberImpl
                 logger.debug ("Problem WhiteboardObject : "+xml);
         }
     }
-    
+
      /**
      * Returns the coordinates of this whiteboard object.
      *
@@ -122,7 +122,7 @@ public class WhiteboardObjectCircleJabberImpl
     {
         return whiteboardPoint;
     }
-    
+
     /**
      * Sets the coordinates of this whiteboard object.
      *
@@ -132,7 +132,7 @@ public class WhiteboardObjectCircleJabberImpl
     {
         this.whiteboardPoint = whiteboardPoint;
     }
-    
+
     /**
      * Returns the radius (in pixels) of this whiteboard circle.
      *
@@ -142,7 +142,7 @@ public class WhiteboardObjectCircleJabberImpl
     {
         return this.radius;
     }
-    
+
     /**
      * Sets the radius (in pixels) of this whiteboard circle.
      *
@@ -152,17 +152,17 @@ public class WhiteboardObjectCircleJabberImpl
     {
         this.radius = radius;
     }
-    
+
     /**
      * Returns the fill state of the WhiteboardObject.
-     * 
-     * @return True is filled, false is unfilled. 
+     *
+     * @return True is filled, false is unfilled.
      */
     public boolean isFill ()
     {
         return this.fill;
     }
-    
+
     /**
      * Sets the fill state of the WhiteboardObject.
      * True is filled, false is unfilled.
@@ -173,7 +173,7 @@ public class WhiteboardObjectCircleJabberImpl
     {
         this.fill = fill;
     }
-    
+
     /**
      * Specifies the background color for this object. The color parameter
      * must be encoded with standard RGB encoding: bits 24-31 are alpha, 16-23
@@ -186,7 +186,7 @@ public class WhiteboardObjectCircleJabberImpl
     {
         this.bgColor = backColor;
     }
-    
+
     /**
      * Returns an integer representing the background color of this object. The
      * return value uses standard RGB encoding: bits 24-31 are alpha, 16-23 are
@@ -198,7 +198,7 @@ public class WhiteboardObjectCircleJabberImpl
     {
         return this.bgColor;
     }
-    
+
     /**
      * Returns the XML reppresentation of the PacketExtension.
      *
@@ -206,6 +206,7 @@ public class WhiteboardObjectCircleJabberImpl
      * @todo Implement this org.jivesoftware.smack.packet.PacketExtension
      *   method
      */
+    @Override
     public String toXML ()
     {
         String s = "<circle id=\"#i\" cx=\"#cx\" cy=\"#cy\" r=\"#r\" " +

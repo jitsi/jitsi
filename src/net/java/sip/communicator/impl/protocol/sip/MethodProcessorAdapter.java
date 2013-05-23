@@ -12,7 +12,7 @@ import javax.sip.*;
  * Provides a default implementation of <code>MethodProcessor</code> which does
  * no processing and exists only as a convenience to extenders so that they can
  * override the methods of interest.
- * 
+ *
  * @author Lyubomir Marinov
  */
 public class MethodProcessorAdapter

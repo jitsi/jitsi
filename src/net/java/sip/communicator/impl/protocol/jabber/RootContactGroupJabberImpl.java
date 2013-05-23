@@ -143,7 +143,7 @@ public class RootContactGroupJabberImpl
      */
     public ContactGroup getGroup(int index)
     {
-        return (ContactGroupJabberImpl)subGroups.get(index);
+        return subGroups.get(index);
     }
 
     /**
@@ -232,6 +232,7 @@ public class RootContactGroupJabberImpl
      *
      * @return  a string representation of this root contact group.
      */
+    @Override
     public String toString()
     {
         StringBuffer buff = new StringBuffer(getGroupName());

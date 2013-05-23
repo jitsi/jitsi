@@ -129,11 +129,13 @@ public class InputVolumeControlButton
         addMouseListener(new MouseAdapter()
         {
             TimerTask timerTask;
+            @Override
             public void mousePressed(MouseEvent mouseevent)
             {
                 Timer timer = new Timer();
                 timerTask = new TimerTask()
                 {
+                    @Override
                     public void run()
                     {
                         showSliderMenu();
@@ -143,6 +145,7 @@ public class InputVolumeControlButton
                 timer.schedule(timerTask, 1000);
             }
 
+            @Override
             public void mouseReleased(MouseEvent mouseevent)
             {
                 if (!sliderMenuIsVisible)

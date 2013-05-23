@@ -7,7 +7,7 @@
 package net.java.sip.communicator.service.gui;
 
 /**
- * 
+ *
  * @author Yana Stamcheva
  */
 public interface CreateAccountWindow

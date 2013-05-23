@@ -107,6 +107,7 @@ public class ServerStoredContactListXivoImpl
      * Initializes the server stored list. Synchronize server stored groups and
      * contacts with the local groups and contacts.
      */
+    @Override
     public void init()
     {
         try
@@ -186,6 +187,7 @@ public class ServerStoredContactListXivoImpl
     /**
      * Destroys the server stored list.
      */
+    @Override
     public void destroy()
     {
         stopped = true;
@@ -270,6 +272,7 @@ public class ServerStoredContactListXivoImpl
      * @return the pres-content image uri.
      * @throws IllegalStateException if the user has not been connected.
      */
+    @Override
     public URI getImageUri()
     {
         return null;
@@ -281,6 +284,7 @@ public class ServerStoredContactListXivoImpl
      * @param imageUri the image uri.
      * @return the image.
      */
+    @Override
     public byte[] getImage(URI imageUri)
     {
         return new byte[0];
@@ -300,6 +304,7 @@ public class ServerStoredContactListXivoImpl
      *                                  CONTACT_GROUP_ALREADY_EXISTS if contact
      *                                  group with such name already exists.
      */
+    @Override
     public ContactGroupSipImpl createGroup(
             ContactGroupSipImpl parentGroup,
             String groupName,
@@ -316,6 +321,7 @@ public class ServerStoredContactListXivoImpl
      * @param group   the group to rename.
      * @param newName the new name of the group.
      */
+    @Override
     public void renameGroup(ContactGroupSipImpl group, String newName)
     {
 
@@ -332,6 +338,7 @@ public class ServerStoredContactListXivoImpl
      *                                  operation if failed during network
      *                                  communication.
      */
+    @Override
     public void moveContactToGroup(
             ContactSipImpl contact, ContactGroupSipImpl newParentGroup)
         throws OperationFailedException
@@ -345,6 +352,7 @@ public class ServerStoredContactListXivoImpl
      *
      * @param group the group to delete.
      */
+    @Override
     public void removeGroup(ContactGroupSipImpl group)
     {
     }
@@ -364,6 +372,7 @@ public class ServerStoredContactListXivoImpl
      *                                  operation if failed during network
      *                                  communication.
      */
+    @Override
     public ContactSipImpl createContact(
             ContactGroupSipImpl parentGroup,
             String contactId,
@@ -384,6 +393,7 @@ public class ServerStoredContactListXivoImpl
      *                                  operation if failed during network
      *                                  communication.
      */
+    @Override
     public void removeContact(ContactSipImpl contact)
         throws OperationFailedException
     {
@@ -397,6 +407,7 @@ public class ServerStoredContactListXivoImpl
      * @param contact the contact to be renamed.
      * @param newName the new contact name.
      */
+    @Override
     public void renameContact(ContactSipImpl contact, String newName)
     {
     }
@@ -405,6 +416,7 @@ public class ServerStoredContactListXivoImpl
      * The user accepted authorization request for <tt>contact</tt>
      * @param contact the user has accepted.
      */
+    @Override
     public void authorizationAccepted(ContactSipImpl contact)
     {
     }
@@ -413,6 +425,7 @@ public class ServerStoredContactListXivoImpl
      * The user rejected authorization request for <tt>contact</tt>
      * @param contact the user has rejected.
      */
+    @Override
     public void authorizationRejected(ContactSipImpl contact)
     {
     }
@@ -421,6 +434,7 @@ public class ServerStoredContactListXivoImpl
      * The user ignored authorization request for <tt>contact</tt>
      * @param contact the user has ignored.
      */
+    @Override
     public void authorizationIgnored(ContactSipImpl contact)
     {
     }
@@ -429,6 +443,7 @@ public class ServerStoredContactListXivoImpl
      * Get current account image from server if any.
      * @return the account image.
      */
+    @Override
     public ServerStoredDetails.ImageDetail getAccountImage()
         throws OperationFailedException
     {
@@ -439,6 +454,7 @@ public class ServerStoredContactListXivoImpl
     /**
      * Deletes current account image from server.
      */
+    @Override
     public void deleteAccountImage()
         throws OperationFailedException
     {
@@ -450,6 +466,7 @@ public class ServerStoredContactListXivoImpl
      * Change the image of the account on server.
      * @param newImageBytes the new image.
      */
+    @Override
     public void setAccountImage(byte[] newImageBytes)
         throws OperationFailedException
     {
@@ -461,6 +478,7 @@ public class ServerStoredContactListXivoImpl
      * Whether current contact list supports account image.
      * @return does current contact list supports account image.
      */
+    @Override
     public boolean isAccountImageSupported()
     {
         return false;

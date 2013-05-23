@@ -32,7 +32,7 @@ public class UINotificationGroup
     private final String groupDisplayName;
 
     /**
-     * 
+     *
      * @param groupName the name of the group to which this notification belongs
      * @param groupDisplayName the display name of the group to which this
      */

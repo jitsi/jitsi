@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.impl.replacement.vimeo;
@@ -14,7 +14,7 @@ import org.osgi.framework.*;
 
 /**
  * Activator for the Vimeo source bundle.
- * 
+ *
  * @author Purvesh Sahoo
  */
 public class VimeoActivator
@@ -37,7 +37,7 @@ public class VimeoActivator
 
     /**
      * Starts the Vimeo replacement source bundle
-     * 
+     *
      * @param context the <tt>BundleContext</tt> as provided from the OSGi
      *            framework
      * @throws Exception if anything goes wrong
@@ -58,7 +58,7 @@ public class VimeoActivator
 
     /**
      * Unregisters the Vimeo replacement service.
-     * 
+     *
      * @param context BundleContext
      * @throws Exception if anything goes wrong
      */

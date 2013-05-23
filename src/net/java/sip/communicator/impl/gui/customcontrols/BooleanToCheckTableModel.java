@@ -23,10 +23,12 @@ public class BooleanToCheckTableModel extends DefaultTableModel {
      * then the first column in the wizard would contain text
      * ("true"/"false"), rather than a check box.
      */
+    @Override
     public Class<?> getColumnClass(int c) {
         return getValueAt(0, c).getClass();
     }
 
+    @Override
     public boolean isCellEditable(int row, int col)
     {
         return (col < 1);

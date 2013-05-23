@@ -23,18 +23,20 @@ public class RadioButtonCellEditor
         super(checkBox);
     }
 
+    @Override
     public Component getTableCellEditorComponent(JTable table, Object value,
         boolean isSelected, int row, int column)
     {
         if (value == null)
             return null;
-        
+
         button = (JRadioButton) value;
         button.addItemListener(this);
-        
+
         return (Component) value;
     }
 
+    @Override
     public Object getCellEditorValue()
     {
         button.removeItemListener(this);

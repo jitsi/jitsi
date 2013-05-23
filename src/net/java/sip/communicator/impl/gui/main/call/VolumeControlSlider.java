@@ -126,6 +126,7 @@ public class VolumeControlSlider
      * Makes this Component displayable by connecting it to a native screen
      * resource. Starts the thread loop to change volume.
      */
+    @Override
     public void addNotify()
     {
         super.addNotify();
@@ -150,6 +151,7 @@ public class VolumeControlSlider
      *  Makes this Component undisplayable by destroying it native screen
      *  resource. Stops the thread loop to change volume.
      */
+    @Override
     public void removeNotify()
     {
         super.removeNotify();
@@ -207,6 +209,7 @@ public class VolumeControlSlider
         /**
          * Updates and sets the volume if changed.
          */
+        @Override
         public void run()
         {
             while(this.run)

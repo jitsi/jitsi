@@ -111,7 +111,7 @@ public class AuthorizationRequestedDialog
 
         infoTextArea.setText(
             GuiActivator.getResources().getI18NString(
-                "service.gui.AUTHORIZATION_REQUESTED_INFO", 
+                "service.gui.AUTHORIZATION_REQUESTED_INFO",
                 new String[]{contact.getDisplayName()}));
 
         this.infoTextArea.setFont(infoTextArea.getFont().deriveFont(Font.BOLD));
@@ -280,6 +280,7 @@ public class AuthorizationRequestedDialog
      * @param isEscaped indicates if the window was closed by pressing the Esc
      * key
      */
+    @Override
     protected void close(boolean isEscaped)
     {
         this.ignoreButton.doClick();

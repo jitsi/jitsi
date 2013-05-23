@@ -28,7 +28,7 @@ public abstract class ProtocolProviderFactorySSH
      * a ProtocolProviderFactory.
      */
     public static final String IDENTITY_FILE = "IDENTITY_FILE";
-    
+
     /**
      * The name of a property representing the KNOWN_HOSTS_FILE of the protocol
      * for a ProtocolProviderFactory.

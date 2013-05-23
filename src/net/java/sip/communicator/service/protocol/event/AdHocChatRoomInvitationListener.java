@@ -7,7 +7,7 @@
 package net.java.sip.communicator.service.protocol.event;
 
 /**
- * A listener that dispatches events notifying that an invitation to join an 
+ * A listener that dispatches events notifying that an invitation to join an
  * ad-hoc MUC room is received.
  *
  * @author Valentin Martinet
@@ -15,10 +15,10 @@ package net.java.sip.communicator.service.protocol.event;
 public interface AdHocChatRoomInvitationListener
 {
     /**
-     * Called when we receive an invitation to join an existing 
+     * Called when we receive an invitation to join an existing
      * <tt>AdHocChatRoom</tt>.
      * <p>
-     * @param evt the <tt>AdHocChatRoomInvitationReceivedEvent</tt> that 
+     * @param evt the <tt>AdHocChatRoomInvitationReceivedEvent</tt> that
      * contains the newly received invitation and its source provider.
      */
     public abstract void invitationReceived(

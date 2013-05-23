@@ -198,6 +198,7 @@ public class MetaContactListSource
 
         new Thread()
         {
+            @Override
             public void run()
             {
                 int resultCount = 0;

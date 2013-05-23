@@ -476,6 +476,7 @@ public class LdapDirectorySettingsImpl
      *
      * @see java.lang.Object#hashCode
      */
+    @Override
     public int hashCode()
     {
         /* enabled is not in the hashcode on purpose */
@@ -919,6 +920,7 @@ public class LdapDirectorySettingsImpl
      *
      * @return a string description of this instance
      */
+    @Override
     public String toString()
     {
         return "LdapDirectorySettings: {\n " +
@@ -933,6 +935,7 @@ public class LdapDirectorySettingsImpl
             this.getGlobalPhonePrefix() + " \n}";
     }
 
+    @Override
     public LdapDirectorySettings clone()
     {
         return new LdapDirectorySettingsImpl(this);

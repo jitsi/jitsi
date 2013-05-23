@@ -76,7 +76,7 @@ public class WhiteboardShapeText
 
         this.initShape(color, point, size, text);
     }
-    
+
     /**
      * WhiteboardShapeText constructor.
      *
@@ -135,23 +135,25 @@ public class WhiteboardShapeText
      * @param g graphics context
      * @param t 2D affine transform
      */
+    @Override
     public void paintShape (Graphics2D g, AffineTransform t)
     {
         g.setFont (getFont ());
         Point2D p = t.transform (
           new Point2D.Double (point.getX (), point.getY ()), null);
         g.drawString (text, (int) p.getX (), (int) p.getY ());
-        
+
         FontMetrics fontMetrics = g.getFontMetrics ();
         textWidth = fontMetrics.stringWidth (text);
         textActualHeight = fontMetrics.getAscent () - fontMetrics.getDescent ();
     }
-    
+
     /**
      * Gets the list of selected points.
      *
      * @return list of selected points
      */
+    @Override
     public List<WhiteboardPoint> getSelectionPoints ()
     {
         List<WhiteboardPoint> list = new ArrayList<WhiteboardPoint>();
@@ -159,8 +161,8 @@ public class WhiteboardShapeText
 
         return list;
     }
-    
-    
+
+
     /**
      * Returns the WhiteboardObjectText's text.
      *
@@ -170,7 +172,7 @@ public class WhiteboardShapeText
     {
         return text;
     }
-    
+
     /**
      * Sets the WhiteboardObjectText's text.
      *
@@ -180,7 +182,7 @@ public class WhiteboardShapeText
     {
         this.text = text;
     }
-    
+
     /**
      * Returns the current WhiteboardObjectText's font.
      *
@@ -190,13 +192,14 @@ public class WhiteboardShapeText
     {
         return new Font (getFontName (), Font.BOLD, getFontSize ());
     }
-    
+
     /**
      * Tests if the shape contains a point.
      *
      * @param p coord point
      * @return true if shape contains p
      */
+    @Override
     public boolean contains (Point2D p)
     {
         Rectangle2D rect = new Rectangle2D.Double (
@@ -204,13 +207,14 @@ public class WhiteboardShapeText
           textWidth, textActualHeight);
         return rect.contains (p);
     }
-    
+
     /**
      * Translates the shape.
      *
      * @param deltaX x coordinate
      * @param deltaY y coordinate
      */
+    @Override
     public void translate (double deltaX, double deltaY)
     {
         double x = point.getX ();
@@ -219,14 +223,15 @@ public class WhiteboardShapeText
         y += deltaY;
         this.point = new WhiteboardPoint (x, y);
     }
-    
-    
+
+
     /**
      * Translates a point from the shape.
      *
      * @param deltaX x coordinate
      * @param deltaY y coordinate
      */
+    @Override
     public void translateSelectedPoint (double deltaX, double deltaY)
     {
         if (getModifyPoint() == null)
@@ -243,10 +248,11 @@ public class WhiteboardShapeText
 
     /**
      * Tests if a point p is over a selection point.
-     * 
+     *
      * @param p point
      * @return nearest selection point
      */
+    @Override
     public WhiteboardPoint getSelectionPoint (Point2D p)
     {
         WhiteboardPoint givenPoint = new WhiteboardPoint(p.getX(), p.getY());
@@ -256,7 +262,7 @@ public class WhiteboardShapeText
 
         return null;
     }
-    
+
     /**
      * Returns the coordinates of this whiteboard object.
      *
@@ -266,7 +272,7 @@ public class WhiteboardShapeText
     {
         return this.point;
     }
-    
+
     /**
      * Sets the coordinates of this whiteboard object.
      *
@@ -276,7 +282,7 @@ public class WhiteboardShapeText
     {
         this.point = whiteboardPoint;
     }
-    
+
     /**
      * Returns the WhiteboardObjectText's font size.
      *
@@ -286,7 +292,7 @@ public class WhiteboardShapeText
     {
         return this.fontSize;
     }
-    
+
     /**
      * Sets the WhiteboardObjectText's font size.
      *
@@ -296,7 +302,7 @@ public class WhiteboardShapeText
     {
         this.fontSize = fontSize;
     }
-    
+
     /**
      * Returns the WhiteboardObjectText's font name.
      * (By default Dialog)
@@ -307,7 +313,7 @@ public class WhiteboardShapeText
     {
         return this.fontName;
     }
-    
+
     /**
      * Sets the WhiteboardObjectText's font name.
      *

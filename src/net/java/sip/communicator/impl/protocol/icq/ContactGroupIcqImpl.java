@@ -114,7 +114,7 @@ public class ContactGroupIcqImpl
                 {
                     continue;
                 }
-    
+
                 /*
                  * Here we are not checking for AwaitingAuthorization buddies as
                  * we are creating group with list of buddies these checks must
@@ -265,6 +265,7 @@ public class ContactGroupIcqImpl
      *
      * @return  a hash code value for this ContactGroup.
      */
+    @Override
     public int hashCode()
     {
         return getGroupName().hashCode();
@@ -289,6 +290,7 @@ public class ContactGroupIcqImpl
      * @return  <tt>true</tt> if this object is the same as the obj
      *          argument; <tt>false</tt> otherwise.
      */
+    @Override
     public boolean equals(Object obj)
     {
         if(    obj == this )
@@ -322,6 +324,7 @@ public class ContactGroupIcqImpl
      * IcqGroup.GroupName[size]{ buddy1.toString(), buddy2.toString(), ...}.
      * @return  a String representation of the object.
      */
+    @Override
     public String toString()
     {
         StringBuffer buff = new StringBuffer("IcqGroup.");

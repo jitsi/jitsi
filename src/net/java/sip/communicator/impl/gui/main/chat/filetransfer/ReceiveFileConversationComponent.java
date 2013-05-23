@@ -24,7 +24,7 @@ import net.java.sip.communicator.plugin.desktoputil.SwingWorker;
 /**
  * The <tt>ReceiveFileConversationComponent</tt> is the component shown in the
  * conversation area of the chat window to display a incoming file transfer.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class ReceiveFileConversationComponent
@@ -144,7 +144,7 @@ public class ReceiveFileConversationComponent
 
     /**
      * Creates the file to download.
-     * 
+     *
      * @return the file to download.
      */
     private File createFile(IncomingFileTransferRequest fileTransferRequest)
@@ -307,9 +307,10 @@ public class ReceiveFileConversationComponent
 
     /**
      * Returns the date of the component event.
-     * 
+     *
      * @return the date of the component event
      */
+    @Override
     public Date getDate()
     {
         return date;
@@ -329,6 +330,7 @@ public class ReceiveFileConversationComponent
             this.downloadFile = downloadFile;
         }
 
+        @Override
         public Object construct()
         {
             fileTransfer = fileTransferRequest.acceptFile(downloadFile);
@@ -351,6 +353,7 @@ public class ReceiveFileConversationComponent
             return "";
         }
 
+        @Override
         public void finished()
         {
             if (fileTransfer != null)
@@ -362,10 +365,11 @@ public class ReceiveFileConversationComponent
 
     /**
      * Returns the label to show on the progress bar.
-     * 
+     *
      * @param bytesString the bytes that have been transfered
      * @return the label to show on the progress bar
      */
+    @Override
     protected String getProgressLabel(String bytesString)
     {
         return bytesString

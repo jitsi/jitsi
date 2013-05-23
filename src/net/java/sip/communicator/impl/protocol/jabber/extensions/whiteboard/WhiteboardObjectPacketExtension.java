@@ -116,11 +116,11 @@ public class WhiteboardObjectPacketExtension implements PacketExtension
             builder = factory.newDocumentBuilder ();
             InputStream in = new ByteArrayInputStream (xml.getBytes ());
             Document doc = builder.parse (in);
-            
+
             Element e = doc.getDocumentElement ();
             String elementName = e.getNodeName ();
             this.action = WhiteboardObjectPacketExtension.ACTION_DRAW;
-            
+
             if (elementName.equals ("rect"))
             {
                 //we have a rectangle
@@ -186,7 +186,7 @@ public class WhiteboardObjectPacketExtension implements PacketExtension
             if (logger.isDebugEnabled())
                 logger.debug ("Problem WhiteboardObject : " + xml, ex);
         }
-        
+
     }
 
     /**
@@ -225,7 +225,7 @@ public class WhiteboardObjectPacketExtension implements PacketExtension
         }
         else
             s = getWhiteboardObject ().toXML ();
-        
+
         return "<" + WhiteboardObjectPacketExtension.ELEMENT_NAME +
           " xmlns=\"" + WhiteboardObjectPacketExtension.NAMESPACE +
           "\">"+s+"</" + WhiteboardObjectPacketExtension.ELEMENT_NAME + ">";

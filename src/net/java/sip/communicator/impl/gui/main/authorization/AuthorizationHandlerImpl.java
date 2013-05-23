@@ -20,7 +20,7 @@ import javax.swing.*;
  * status, or whenever a subscription request has failed for a particular
  * contact because we need to first generate an authorization request demanding
  * permission to subscibe.
- * 
+ *
  * @author Yana Stamcheva
  * @author Damian Minkov
  */
@@ -28,11 +28,11 @@ public class AuthorizationHandlerImpl
     implements AuthorizationHandler {
 
     private MainFrame mainFrame;
-    
+
     public AuthorizationHandlerImpl(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
     }
-    
+
     /**
      * Implements the <tt>AuthorizationHandler.processAuthorisationRequest</tt>
      * method.
@@ -157,7 +157,7 @@ public class AuthorizationHandlerImpl
         }
 
         int returnCode = dialog.getReturnCode();
-        
+
         if(returnCode == RequestAuthorizationDialog.OK_RETURN_CODE) {
             request.setReason(dialog.getRequestReason());
         }
@@ -206,9 +206,9 @@ public class AuthorizationHandlerImpl
             return;
         }
 
-        AuthorizationResponseDialog dialog 
+        AuthorizationResponseDialog dialog
             = new AuthorizationResponseDialog(mainFrame, sourceContact, response);
-        
+
         dialog.setVisible(true);
     }
 

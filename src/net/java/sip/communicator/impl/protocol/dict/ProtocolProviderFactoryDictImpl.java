@@ -46,6 +46,7 @@ public class ProtocolProviderFactoryDictImpl
      *   specific properties defining the new account.
      * @return the AccountID of the newly created account.
      */
+    @Override
     public AccountID installAccount( String userIDStr,
                                      Map<String, String> accountProperties)
     {
@@ -80,7 +81,7 @@ public class ProtocolProviderFactoryDictImpl
         this.storeAccount(accountID, false);
 
         accountID = loadAccount(accountProperties);
-        
+
         // Creates the dict contact group.
         this.createGroup();
         // Creates the default conatct for this dict server.
@@ -89,11 +90,13 @@ public class ProtocolProviderFactoryDictImpl
         return accountID;
     }
 
+    @Override
     protected AccountID createAccountID(String userID, Map<String, String> accountProperties)
     {
         return new DictAccountID(userID, accountProperties);
     }
 
+    @Override
     protected ProtocolProviderService createService(String userID,
         AccountID accountID)
     {
@@ -116,12 +119,12 @@ public class ProtocolProviderFactoryDictImpl
 
         MetaContactListService mcl = (MetaContactListService)
             bundleContext.getService(mfcServiceRef);
-        
+
         try
         {
             String groupName = DictActivator.getResources()
                 .getI18NString("service.protocol.DICTIONARIES");
-            
+
             mcl.createMetaContactGroup(mcl.getRoot(), groupName);
         }
         catch (MetaContactListException ex)
@@ -153,16 +156,16 @@ public class ProtocolProviderFactoryDictImpl
         ProtocolProviderService protocolProvider
             = (ProtocolProviderService) DictActivator.getBundleContext()
                 .getService(serRef);
-        
+
         // Gets group name
         String groupName = DictActivator.getResources()
             .getI18NString("service.protocol.DICTIONARIES");
-        
+
         // Gets contact name
         String contactName = DictActivator.getResources()
             .getI18NString("plugin.dictaccregwizz.ANY_DICTIONARY_FORM",
                 new String[] {accountID.getUserID()});
-        
+
         // Gets the MetaContactGroup for the "dictionaries" group.
         MetaContactGroup group = mcl.getRoot().getMetaContactSubgroup(groupName);
 

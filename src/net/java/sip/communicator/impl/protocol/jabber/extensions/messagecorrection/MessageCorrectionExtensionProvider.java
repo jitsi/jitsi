@@ -22,7 +22,7 @@ public class MessageCorrectionExtensionProvider
 
     /**
      * Creates a new correction extension by parsing an XML element.
-     * 
+     *
      * @param parser An XML parser.
      * @return A new MesssageCorrectionExtension parsed from the XML.
      * @throws Exception if an error occurs parsing the XML.

@@ -19,7 +19,7 @@ import net.java.sip.communicator.util.*;
 /**
  * The single chat implementation of the <tt>ChatTransport</tt> interface that
  * provides abstraction to protocol provider access.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class MetaContactChatTransport
@@ -154,7 +154,7 @@ public class MetaContactChatTransport
 
     /**
      * Returns the contact address corresponding to this chat transport.
-     * 
+     *
      * @return The contact address corresponding to this chat transport.
      */
     public String getName()
@@ -164,7 +164,7 @@ public class MetaContactChatTransport
 
     /**
      * Returns the display name corresponding to this chat transport.
-     * 
+     *
      * @return The display name corresponding to this chat transport.
      */
     public String getDisplayName()
@@ -175,7 +175,7 @@ public class MetaContactChatTransport
     /**
      * Returns the resource name of this chat transport. This is for example the
      * name of the user agent from which the contact is logged.
-     * 
+     *
      * @return The display name of this chat transport resource.
      */
     public String getResourceName()
@@ -193,7 +193,7 @@ public class MetaContactChatTransport
 
     /**
      * Returns the presence status of this transport.
-     * 
+     *
      * @return the presence status of this transport.
      */
     public PresenceStatus getStatus()
@@ -207,7 +207,7 @@ public class MetaContactChatTransport
     /**
      * Returns the <tt>ProtocolProviderService</tt>, corresponding to this chat
      * transport.
-     * 
+     *
      * @return the <tt>ProtocolProviderService</tt>, corresponding to this chat
      * transport.
      */
@@ -219,7 +219,7 @@ public class MetaContactChatTransport
     /**
      * Returns <code>true</code> if this chat transport supports instant
      * messaging, otherwise returns <code>false</code>.
-     * 
+     *
      * @return <code>true</code> if this chat transport supports instant
      * messaging, otherwise returns <code>false</code>.
      */
@@ -248,7 +248,7 @@ public class MetaContactChatTransport
     /**
      * Returns <code>true</code> if this chat transport supports message
      * corrections and false otherwise.
-     * 
+     *
      * @return <code>true</code> if this chat transport supports message
      * corrections and false otherwise.
      */
@@ -272,7 +272,7 @@ public class MetaContactChatTransport
     /**
      * Returns <code>true</code> if this chat transport supports sms
      * messaging, otherwise returns <code>false</code>.
-     * 
+     *
      * @return <code>true</code> if this chat transport supports sms
      * messaging, otherwise returns <code>false</code>.
      */
@@ -302,7 +302,7 @@ public class MetaContactChatTransport
     /**
      * Returns <code>true</code> if this chat transport supports typing
      * notifications, otherwise returns <code>false</code>.
-     * 
+     *
      * @return <code>true</code> if this chat transport supports typing
      * notifications, otherwise returns <code>false</code>.
      */
@@ -320,7 +320,7 @@ public class MetaContactChatTransport
     /**
      * Returns <code>true</code> if this chat transport supports file transfer,
      * otherwise returns <code>false</code>.
-     * 
+     *
      * @return <code>true</code> if this chat transport supports file transfer,
      * otherwise returns <code>false</code>.
      */
@@ -382,7 +382,7 @@ public class MetaContactChatTransport
      * Sends <tt>message</tt> as a message correction through this transport,
      * specifying the mime type (html or plain text) and the id of the
      * message to replace.
-     * 
+     *
      * @param message The message to send.
      * @param mimeType The mime type of the message to send: text/html or
      * text/plain.
@@ -593,7 +593,7 @@ public class MetaContactChatTransport
     /**
      * Returns the parent session of this chat transport. A <tt>ChatSession</tt>
      * could contain more than one transports.
-     * 
+     *
      * @return the parent session of this chat transport
      */
     public ChatSession getParentChatSession()

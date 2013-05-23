@@ -20,7 +20,7 @@ import org.jitsi.util.*;
  * The <tt>Desktop</tt> class handles desktop operations through the default
  * desktop implementation. It choose which implementation to use depending on
  * what is currently available (java 6 or Jdic).
- * 
+ *
  * @author Yana Stamcheva
  */
 public class Desktop
@@ -32,7 +32,7 @@ public class Desktop
     /**
      * Returns the default <tt>Desktop</tt> instance depending on the operating
      * system and java version availability.
-     * 
+     *
      * @return the default <tt>Desktop</tt> instance
      * @throws UnsupportedOperationException if the operation is not supported
      * @throws HeadlessException
@@ -88,7 +88,7 @@ public class Desktop
     /**
      * Creates a Desktop instance by specifying the underlying <tt>peer</tt> to
      * use for the implementation.
-     * 
+     *
      * @param peer the implementation peer
      */
     private Desktop(DesktopPeer peer)
@@ -98,7 +98,7 @@ public class Desktop
 
     /**
      * Returns the currently used peer.
-     * 
+     *
      * @return the currently used peer
      */
     DesktopPeer getPeer()

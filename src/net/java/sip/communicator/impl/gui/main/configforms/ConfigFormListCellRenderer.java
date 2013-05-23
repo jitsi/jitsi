@@ -19,14 +19,14 @@ import net.java.sip.communicator.plugin.desktoputil.*;
  * cell.
  * <br>
  * The cell border and background are repainted.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class ConfigFormListCellRenderer
     extends TransparentPanel
     implements ListCellRenderer
 {
-    
+
     /**
      * The size of the gradient used for painting the selected background of
      * some components.
@@ -60,7 +60,7 @@ public class ConfigFormListCellRenderer
 
     /**
      * Implements the <tt>ListCellRenderer</tt> method.
-     * 
+     *
      * Returns this panel that has been configured to display the meta contact
      * and meta contact group cells.
      */
@@ -70,7 +70,7 @@ public class ConfigFormListCellRenderer
         ConfigFormDescriptor cfDescriptor = (ConfigFormDescriptor) value;
 
         ImageIcon icon = cfDescriptor.getConfigFormIcon();
-        if(icon != null)            
+        if(icon != null)
             iconLabel.setIcon(icon);
 
         String title = cfDescriptor.getConfigFormTitle();
@@ -88,6 +88,7 @@ public class ConfigFormListCellRenderer
      * painted when the panel is selected and when the mouse is over it.
      * @param g the <tt>Graphics</tt> object
      */
+    @Override
     public void paintComponent(Graphics g)
     {
         super.paintComponent(g);

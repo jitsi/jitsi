@@ -16,7 +16,7 @@ import net.java.sip.communicator.plugin.desktoputil.*;
 
 /**
  * Component allowing the user to easily crop an image
- * 
+ *
  * @author Damien Roth
  * @author Damian Minkov
  */
@@ -61,7 +61,7 @@ public class ImageClipper
      * The zone that we will crop later from the image.
      */
     private Rectangle cropZoneRect;
-    
+
     /**
      * Used for mouse dragging.
      * This is every time the initial X coordinate of the mouse
@@ -78,7 +78,7 @@ public class ImageClipper
 
     /**
      * Construct an new image cropper
-     * 
+     *
      * @param cropZoneWidth the width of the crop zone
      * @param cropZoneHeight the height of the crop zone
      */
@@ -96,7 +96,7 @@ public class ImageClipper
         this.addMouseListener(this);
         this.addMouseMotionListener(this);
     }
-    
+
     /**
      * Compute static values of the cropping zone
      */
@@ -107,10 +107,10 @@ public class ImageClipper
         this.cropZoneRect.y =
             (this.getHeight() / 2) - (this.cropZoneRect.height / 2);
     }
-    
+
     /**
      * Defines the image to be cropped
-     * 
+     *
      * @param image the image to be cropped
      */
     public void setImage(BufferedImage image)
@@ -128,7 +128,7 @@ public class ImageClipper
         this.lastComponentWidth = this.getWidth();
 
         updateImagePoints();
-        
+
         this.repaint();
     }
 
@@ -149,20 +149,20 @@ public class ImageClipper
             lastComponentHeight = this.getHeight();
         }
     }
-    
+
     /**
      * Returns the cropped area of the image
-     * 
+     *
      * @return the cropped area
      */
     public Rectangle getCroppedArea()
     {
         Rectangle croppedArea = new Rectangle();
-        
+
         croppedArea.setSize(this.cropZoneRect.getSize());
         croppedArea.x = this.cropZoneRect.x - this.imageRect.x;
         croppedArea.y = this.cropZoneRect.y - this.imageRect.y;
-        
+
         return croppedArea;
     }
 
@@ -200,17 +200,17 @@ public class ImageClipper
         g.drawRoundRect(this.imageRect.x-1, this.imageRect.y-1,
                 this.imageRect.width+1, this.imageRect.height+1, 2, 2);
     }
-    
+
     /**
      * Draw an overlay over the parts of the images
      * which are not in the crop zone
-     * 
+     *
      * @param g the Graphics used to draw
      */
     private void drawImageOverlay(Graphics g)
     {
         int width, height;
-        
+
         g.setColor(IMAGE_OVERLAY_COLOR);
 
         // left vertical non cropped part

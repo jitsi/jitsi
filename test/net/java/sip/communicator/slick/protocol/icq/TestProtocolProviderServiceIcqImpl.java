@@ -63,6 +63,7 @@ public class TestProtocolProviderServiceIcqImpl extends TestCase
      * Initializes the fixture.
      * @throws Exception if super.setUp() throws one.
      */
+    @Override
     protected void setUp() throws Exception
     {
         super.setUp();
@@ -73,6 +74,7 @@ public class TestProtocolProviderServiceIcqImpl extends TestCase
      * Tears the fixture down.
      * @throws Exception if fixture.tearDown() fails.
      */
+    @Override
     protected void tearDown() throws Exception
     {
         fixture.tearDown();
@@ -148,7 +150,7 @@ public class TestProtocolProviderServiceIcqImpl extends TestCase
         // in TestOperationSetBasicInstantMessaging.testReceiveOfflineMessages()
         OperationSetBasicInstantMessaging opSetBasicIM =
             fixture.provider.getOperationSet(OperationSetBasicInstantMessaging.class);
-        fixture.offlineMsgCollector.register(opSetBasicIM);
+        IcqSlickFixture.offlineMsgCollector.register(opSetBasicIM);
 
         //give time for the AIM server to notify everyone of our arrival
         //simply waitinf is really not a reliable way of doing things but I
@@ -168,7 +170,7 @@ public class TestProtocolProviderServiceIcqImpl extends TestCase
         assertTrue(
             "The tested ICQ implementation on-line status was OFFLINE",
             !IcqStatusEnum.OFFLINE.equals(
-                fixture.testerAgent.getBuddyStatus(fixture.ourUserID))
+                IcqSlickFixture.testerAgent.getBuddyStatus(fixture.ourUserID))
         );
 
         //make sure that the registration process trigerred the corresponding
@@ -192,7 +194,7 @@ public class TestProtocolProviderServiceIcqImpl extends TestCase
     public void testIsRegistered()
     {
         if (!IcqStatusEnum.OFFLINE.equals(
-                fixture.testerAgent.getBuddyStatus(fixture.ourUserID)))
+                IcqSlickFixture.testerAgent.getBuddyStatus(fixture.ourUserID)))
             assertTrue(
                    "provider.isRegistered() returned false while registered"
                    ,fixture.provider.isRegistered());
@@ -211,7 +213,7 @@ public class TestProtocolProviderServiceIcqImpl extends TestCase
     public void testGetRegistrationState()
     {
         if (!IcqStatusEnum.OFFLINE.equals(
-                fixture.testerAgent.getBuddyStatus(fixture.ourUserID)))
+                IcqSlickFixture.testerAgent.getBuddyStatus(fixture.ourUserID)))
             assertEquals(
                 "a provider was not in a REGISTERED state while registered."
                     ,RegistrationState.REGISTERED
@@ -343,18 +345,18 @@ public class TestProtocolProviderServiceIcqImpl extends TestCase
         /**
          * Sets the userNameEditable property, which should indicate if the
          * user name could be changed by user or not.
-         * 
+         *
          * @param isUserNameEditable indicates if the user name could be changed
          */
         public void setUserNameEditable(boolean isUserNameEditable)
         {
             this.isUserNameEditable = isUserNameEditable;
         }
-        
+
         /**
          * Indicates if the user name is currently editable, i.e. could be changed
          * by user or not.
-         * 
+         *
          * @return <code>true</code> if the user name could be changed,
          * <code>false</code> - otherwise.
          */

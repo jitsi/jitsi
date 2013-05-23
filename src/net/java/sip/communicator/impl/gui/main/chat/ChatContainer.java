@@ -25,14 +25,14 @@ public interface ChatContainer
 
     /**
      * Adds a given <tt>ChatPanel</tt> to this chat window.
-     * 
+     *
      * @param chatPanel The <tt>ChatPanel</tt> to add.
      */
     public void addChat(ChatPanel chatPanel);
 
     /**
      * Removes a given <tt>ChatPanel</tt> from this chat window.
-     * 
+     *
      * @param chatPanel The <tt>ChatPanel</tt> to remove.
      */
     public void removeChat(ChatPanel chatPanel);
@@ -44,7 +44,7 @@ public interface ChatContainer
 
     /**
      * Returns the number of all open chats.
-     * 
+     *
      * @return the number of all open chats
      */
     public int getChatCount();
@@ -69,14 +69,14 @@ public interface ChatContainer
 
     /**
      * Returns the currently selected chat panel.
-     * 
+     *
      * @return the currently selected chat panel.
      */
     public ChatPanel getCurrentChat();
 
     /**
      * Selects the chat tab which corresponds to the given <tt>MetaContact</tt>.
-     * 
+     *
      * @param chatPanel The <tt>ChatPanel</tt> to select.
      */
     public void setCurrentChat(ChatPanel chatPanel);
@@ -98,8 +98,8 @@ public interface ChatContainer
     public void setChatIcon(ChatPanel chatPanel, Icon icon);
 
     /**
-     * Shows or hides the Toolbar depending on the value of parameter b. 
-     * 
+     * Shows or hides the Toolbar depending on the value of parameter b.
+     *
      * @param b if true, makes the Toolbar visible, otherwise hides the Toolbar
      */
     public void setToolbarVisible(boolean b);

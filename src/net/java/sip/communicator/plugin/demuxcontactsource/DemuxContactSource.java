@@ -85,7 +85,7 @@ public class DemuxContactSource
     /**
      * Returns a user-friendly string that identifies the underlying contact
      * source.
-     * 
+     *
      * @return the display name of this contact source
      */
     public String getDisplayName()
@@ -188,6 +188,7 @@ public class DemuxContactSource
          * <tt>ContactQuery</tt>
          * @see ContactQuery#getContactSource()
          */
+        @Override
         public ContactSourceService getContactSource()
         {
             return DemuxContactSource.this;
@@ -252,6 +253,7 @@ public class DemuxContactSource
             }
         }
 
+        @Override
         public void cancel()
         {
             sourceQuery.cancel();
@@ -263,6 +265,7 @@ public class DemuxContactSource
          *
          * @return the status of this query
          */
+        @Override
         public int getStatus()
         {
             return sourceQuery.getStatus();

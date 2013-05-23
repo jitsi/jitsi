@@ -93,6 +93,7 @@ public class WhiteboardPanel
      * @see #paint
      * @see ComponentUI
      */
+    @Override
     public void paintComponent(Graphics g)
     {
         super.paintComponent(g);
@@ -201,11 +202,13 @@ public class WhiteboardPanel
 
         addMouseListener(new java.awt.event.MouseAdapter()
         {
+            @Override
             public void mousePressed(java.awt.event.MouseEvent evt)
             {
                 formMousePressed(evt);
             }
 
+            @Override
             public void mouseReleased(java.awt.event.MouseEvent evt)
             {
                 formMouseReleased(evt);

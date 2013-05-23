@@ -488,6 +488,7 @@ public class ProtocolProviderServiceYahooImpl
      * @param reason a String further explaining the reason code or null if
      * no such explanation is necessary.
      */
+    @Override
     public void fireRegistrationStateChanged( RegistrationState oldState,
                                                RegistrationState newState,
                                                int               reasonCode,
@@ -514,6 +515,7 @@ public class ProtocolProviderServiceYahooImpl
          *
          * @param ev the event
          */
+        @Override
         public void connectionClosed(SessionEvent ev)
         {
             if(isRegistered())
@@ -527,6 +529,7 @@ public class ProtocolProviderServiceYahooImpl
          * Some exception has occurred in stack.
          * @param ev
          */
+        @Override
         public void inputExceptionThrown(SessionExceptionEvent ev)
         {
             if(ev.getException() instanceof YMSG9BadFormatException)

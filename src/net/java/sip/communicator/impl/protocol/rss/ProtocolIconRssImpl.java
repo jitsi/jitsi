@@ -18,14 +18,14 @@ import org.osgi.framework.*;
 /**
  * Represents the Rss protocol icon. Implements the <tt>ProtocolIcon</tt>
  * interface in order to provide a Rss logo image in two different sizes.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class ProtocolIconRssImpl
     implements ProtocolIcon
 {
     private static Logger logger
-        = Logger.getLogger(ProtocolIconRssImpl.class); 
+        = Logger.getLogger(ProtocolIconRssImpl.class);
 
     private static ResourceManagementService resourcesService;
 
@@ -86,7 +86,7 @@ public class ProtocolIconRssImpl
     {
         return iconsTable.containsKey(iconSize);
     }
-    
+
     /**
      * Returns the icon image in the given size.
      * @param iconSize the icon size; one of ICON_SIZE_XXX constants
@@ -114,16 +114,16 @@ public class ProtocolIconRssImpl
     {
         return getImageInBytes("protocolIconRss");
     }
-    
+
     /**
      * Returns the byte representation of the image corresponding to the given
      * identifier.
-     * 
+     *
      * @param imageID the identifier of the image
      * @return the byte representation of the image corresponding to the given
      * identifier.
      */
-    public static byte[] getImageInBytes(String imageID) 
+    public static byte[] getImageInBytes(String imageID)
     {
         InputStream in = getResources().
             getImageInputStream(imageID);
@@ -131,13 +131,13 @@ public class ProtocolIconRssImpl
         if (in == null)
             return null;
         byte[] image = null;
-        try 
+        try
         {
             image = new byte[in.available()];
 
             in.read(image);
         }
-        catch (IOException e) 
+        catch (IOException e)
         {
             logger.error("Failed to load image:" + imageID, e);
         }

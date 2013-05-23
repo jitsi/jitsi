@@ -21,7 +21,7 @@ import net.java.sip.communicator.plugin.desktoputil.*;
  * The dialog containing a list of all chat rooms ever joined by the user and
  * also interface for create a new chat room, join a chat room, search all
  * chat rooms, etc.
- * 
+ *
  * @author Yana Stamcheva
  * @author Lubomir Marinov
  */
@@ -38,7 +38,7 @@ public class ChatRoomListDialog
     /**
      * The key for the string containing the name of the Create button.
      */
-    private static final String CREATE_CHAT_ROOM 
+    private static final String CREATE_CHAT_ROOM
         = "service.gui.CREATE_CHAT_ROOM";
 
     /**
@@ -50,7 +50,7 @@ public class ChatRoomListDialog
      * The key for the string containing the name of the "My Chat Rooms" title.
      */
     private static final String MY_CHAT_ROOMS = "service.gui.MY_CHAT_ROOMS";
-    
+
     /**
      * The global/shared <code>ChatRoomListDialog</code> currently showing.
      */
@@ -78,6 +78,7 @@ public class ChatRoomListDialog
              */
             chatRoomListDialog.addWindowListener(new WindowAdapter()
             {
+                @Override
                 public void windowClosed(WindowEvent e)
                 {
                     if (chatRoomListDialog == e.getWindow())
@@ -93,7 +94,7 @@ public class ChatRoomListDialog
     /**
      * Creates an instance of <tt>MyChatRoomsDialog</tt> by specifying the
      * parent window.
-     * 
+     *
      * @param parentWindow the parent window of this dialog
      */
     public ChatRoomListDialog(MainFrame parentWindow)

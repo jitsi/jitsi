@@ -33,7 +33,7 @@ public class WhiteboardObjectImageJabberImpl
 {
     private static final Logger logger =
       Logger.getLogger (WhiteboardObjectImageJabberImpl.class);
-    
+
     /**
      * The height value of this object (in pixel)
      */
@@ -51,7 +51,7 @@ public class WhiteboardObjectImageJabberImpl
      * displayed as the object background.
      */
     private byte[] background;
-    
+
     /**
      * Default WhiteboardObjectImageJabberImpl constructor.
      */
@@ -59,7 +59,7 @@ public class WhiteboardObjectImageJabberImpl
     {
         super ();
     }
-    
+
     /**
      * WhiteboardObjectImageJabberImpl constructor.
      *
@@ -75,7 +75,7 @@ public class WhiteboardObjectImageJabberImpl
             builder = factory.newDocumentBuilder ();
             InputStream in = new ByteArrayInputStream (xml.getBytes ());
             Document doc = builder.parse (in);
-            
+
             Element e = doc.getDocumentElement ();
             String elementName = e.getNodeName ();
             if (elementName.equals ("image"))
@@ -87,7 +87,7 @@ public class WhiteboardObjectImageJabberImpl
                 double width = Double.parseDouble (e.getAttribute ("width"));
                 double height = Double.parseDouble (e.getAttribute ("height"));
                 String img = e.getTextContent ();
-                
+
                 this.setID (id);
                 this.setWhiteboardPoint (new WhiteboardPoint (x, y));
                 this.setWidth (width);
@@ -111,7 +111,7 @@ public class WhiteboardObjectImageJabberImpl
                 logger.debug ("Problem WhiteboardObject : "+xml);
         }
     }
-    
+
     /**
      * Returns the height (in pixels) of the WhiteboardObject.
      *
@@ -121,7 +121,7 @@ public class WhiteboardObjectImageJabberImpl
     {
         return this.height;
     }
-    
+
     /**
      * Returns the width (in pixels) of the WhiteboardObject.
      *
@@ -131,7 +131,7 @@ public class WhiteboardObjectImageJabberImpl
     {
         return this.width;
     }
-    
+
     /**
      * Returns the coordinates of this whiteboard object.
      *
@@ -141,7 +141,7 @@ public class WhiteboardObjectImageJabberImpl
     {
         return whiteboardPoint;
     }
-    
+
     /**
      * Sets the coordinates of this whiteboard object.
      *
@@ -151,7 +151,7 @@ public class WhiteboardObjectImageJabberImpl
     {
         this.whiteboardPoint = whiteboardPoint;
     }
-    
+
     /**
      * Sets the width (in pixels) of the WhiteboardObject.
      *
@@ -161,7 +161,7 @@ public class WhiteboardObjectImageJabberImpl
     {
         this.height = height;
     }
-    
+
     /**
      * Sets the width (in pixels) of the WhiteboardObject.
      *
@@ -171,7 +171,7 @@ public class WhiteboardObjectImageJabberImpl
     {
         this.width = width;
     }
-    
+
     /**
      * Specifies an image that should be displayed as the background of this
      * object.
@@ -183,7 +183,7 @@ public class WhiteboardObjectImageJabberImpl
     {
         this.background = background;
     }
-    
+
     /**
      * Returns a binary array containing the image that should be displayed as
      * the background of this <tt>WhiteboardObject</tt>.
@@ -195,7 +195,7 @@ public class WhiteboardObjectImageJabberImpl
     {
         return this.background;
     }
-    
+
     /**
      * Returns the XML reppresentation of the PacketExtension.
      *
@@ -203,6 +203,7 @@ public class WhiteboardObjectImageJabberImpl
      * @todo Implement this org.jivesoftware.smack.packet.PacketExtension
      *   method
      */
+    @Override
     public String toXML ()
     {
         String s
@@ -217,7 +218,7 @@ public class WhiteboardObjectImageJabberImpl
         s = s.replaceAll ("#h", ""+getHeight ());
         String img = new String (Base64.encode (getBackgroundImage ()));
         s = s.replaceAll ("#img", img);
-        
+
         return s;
     }
 }

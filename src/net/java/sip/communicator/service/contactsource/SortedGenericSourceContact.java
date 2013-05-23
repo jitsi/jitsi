@@ -106,6 +106,7 @@ public class SortedGenericSourceContact
      *
      * @return the index of this contact in its parent
      */
+    @Override
     public int getIndex()
     {
         return parentQuery.getQueryResults().indexOf(this);

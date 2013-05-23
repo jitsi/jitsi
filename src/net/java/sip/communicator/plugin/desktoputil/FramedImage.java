@@ -125,6 +125,7 @@ public class FramedImage
      *
      * Overrides {@link JComponent#paintComponent(Graphics)}.
      */
+    @Override
     public void paintComponent(Graphics g)
     {
         if (icon != null)

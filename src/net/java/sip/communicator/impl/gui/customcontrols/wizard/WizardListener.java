@@ -11,7 +11,7 @@ import java.util.*;
 /**
  * Listens for <tt>WizardEvent</tt>s triggered when a wizard is closed and
  * finished.
- * 
+ *
  * @author Yana Stamcheva
  */
 public interface WizardListener extends EventListener

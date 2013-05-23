@@ -1159,6 +1159,7 @@ public class MacOSXAddrBookContactQuery
      *
      * @see AsyncContactQuery#run()
      */
+    @Override
     protected void run()
     {
         foreachPerson(

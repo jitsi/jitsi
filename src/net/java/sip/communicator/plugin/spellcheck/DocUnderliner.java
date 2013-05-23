@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.plugin.spellcheck;
@@ -17,7 +17,7 @@ import net.java.sip.communicator.util.*;
  * Notifies subclasses when words are changed and lets them decide if text
  * should be underlined with a red squiggle. Text appended to the end isn't
  * formatted until the word's completed.
- * 
+ *
  * @author Damian Johnson
  */
 abstract class DocUnderliner
@@ -40,6 +40,7 @@ abstract class DocUnderliner
         UNDERLINER =
             new DefaultHighlighter.DefaultHighlightPainter(UNDERLINE_COLOR)
             {
+                @Override
                 public Shape paintLayer(Graphics g, int offs0, int offs1,
                     Shape area, JTextComponent comp, View view)
                 {
@@ -128,7 +129,7 @@ abstract class DocUnderliner
      * Queries to see if a word should be underlined. This is called on every
      * internal change and whenever a word's completed so it should be a
      * lightweight process.
-     * 
+     *
      * @param word word to be checked
      * @return true if the word should be underlined, false otherwise
      */
@@ -136,7 +137,7 @@ abstract class DocUnderliner
 
     /**
      * Provides the index of the character the cursor is in front of.
-     * 
+     *
      * @return index of caret
      */
     abstract int getCaretPosition();
@@ -158,16 +159,19 @@ abstract class DocUnderliner
         final DocUnderliner formatter =
             new DocUnderliner(editorPane.getHighlighter())
             {
+                @Override
                 boolean getFormatting(String word)
                 {
                     return word.contains("foo");
                 }
 
+                @Override
                 int getCaretPosition()
                 {
                     return editorPane.getCaretPosition();
                 }
 
+                @Override
                 void promptRepaint()
                 {
                     editorPane.repaint();
@@ -317,7 +321,7 @@ abstract class DocUnderliner
     /**
      * Provides a listener that prompts the last word to be checked when the
      * cursor moves away from it.
-     * 
+     *
      * @return listener for caret position that formats last word when
      *         appropriate
      */
@@ -328,7 +332,7 @@ abstract class DocUnderliner
 
     /**
      * Formats the word with the appropriate underlining (or lack thereof).
-     * 
+     *
      * @param word word to be formatted
      */
     public void format(Word word)
@@ -347,7 +351,7 @@ abstract class DocUnderliner
 
     /**
      * Sets a range in the editor to be underlined.
-     * 
+     *
      * @param start start of range to be underlined
      * @param end end of range to be underlined
      */
@@ -372,7 +376,7 @@ abstract class DocUnderliner
      * Clears any underlining that spans to include the given range. Since
      * formatting is defined by ranges this will likely clear more than the
      * defined range.
-     * 
+     *
      * @param start start of range in which to clear underlining
      * @param end end of range in which to clear underlining
      */
@@ -413,7 +417,7 @@ abstract class DocUnderliner
 
     /**
      * Clears underlining and re-evaluates message's contents
-     * 
+     *
      * @param message textual contents of document
      */
     public void reset(String message)

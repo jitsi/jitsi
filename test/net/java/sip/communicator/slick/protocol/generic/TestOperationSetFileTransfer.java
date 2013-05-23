@@ -39,6 +39,7 @@ public abstract class TestOperationSetFileTransfer
     {
     }
 
+    @Override
     protected void setUp()
         throws Exception
     {
@@ -46,6 +47,7 @@ public abstract class TestOperationSetFileTransfer
         start();
     }
 
+    @Override
     protected void tearDown() throws Exception
     {
         stop();
@@ -242,7 +244,7 @@ public abstract class TestOperationSetFileTransfer
     /**
      * Sender sends file transfer request and cancel it before the remote side
      * accept it. (This is not supported by all protocols)
-     * 
+     *
      * @throws Exception
      */
     public void testSenderCancelBeforeAccepted()
@@ -266,7 +268,7 @@ public abstract class TestOperationSetFileTransfer
             new FileTransferEventCollector("Sender", senderStatusListener);
         ftOpSet1.addFileTransferListener(senderFTListerner);
 
-        FileTransferEventCollector receiverFTListerner = 
+        FileTransferEventCollector receiverFTListerner =
             new FileTransferEventCollector("Receiver", null);
         ftOpSet2.addFileTransferListener(receiverFTListerner);
 
@@ -383,7 +385,7 @@ public abstract class TestOperationSetFileTransfer
             new FileTransferEventCollector("Sender", senderStatusListener);
         ftOpSet1.addFileTransferListener(senderFTListerner);
 
-        FileTransferEventCollector receiverFTListerner = 
+        FileTransferEventCollector receiverFTListerner =
             new FileTransferEventCollector("Receiver", null);
         ftOpSet2.addFileTransferListener(receiverFTListerner);
 
@@ -671,7 +673,7 @@ public abstract class TestOperationSetFileTransfer
             new FileTransferEventCollector("Sender", senderStatusListener);
         ftOpSet1.addFileTransferListener(senderFTListerner);
 
-        FileTransferEventCollector receiverFTListerner = 
+        FileTransferEventCollector receiverFTListerner =
             new FileTransferEventCollector("Receiver", null);
         ftOpSet2.addFileTransferListener(receiverFTListerner);
 
@@ -1091,6 +1093,6 @@ public abstract class TestOperationSetFileTransfer
             eventsNum = 1;
         }
 
-        
+
     }
 }

@@ -191,7 +191,7 @@ public abstract class MediaAwareCall<
 
         try
         {
-            fireCallPeerEvent(callPeer, CallPeerEvent.CALL_PEER_REMOVED, 
+            fireCallPeerEvent(callPeer, CallPeerEvent.CALL_PEER_REMOVED,
                 (evt.getReasonString() != null));
         }
         finally
@@ -314,6 +314,7 @@ public abstract class MediaAwareCall<
      * @return <tt>true</tt> if the local peer represented by this <tt>Call</tt>
      * is acting as a conference focus; otherwise, <tt>false</tt>
      */
+    @Override
     public boolean isConferenceFocus()
     {
         return getConference().isConferenceFocus();
@@ -353,6 +354,7 @@ public abstract class MediaAwareCall<
      *
      * @param l the <tt>SoundLevelListener</tt> to add
      */
+    @Override
     public void addLocalUserSoundLevelListener(SoundLevelListener l)
     {
         synchronized (localUserAudioLevelListenersSyncRoot)
@@ -401,6 +403,7 @@ public abstract class MediaAwareCall<
      *
      * @param l the <tt>SoundLevelListener</tt> to remove
      */
+    @Override
     public void removeLocalUserSoundLevelListener(SoundLevelListener l)
     {
         synchronized (localUserAudioLevelListenersSyncRoot)
@@ -888,6 +891,7 @@ public abstract class MediaAwareCall<
      * Listens to the changes in the values of the properties of this
      * <tt>Call</tt>.
      */
+    @Override
     protected void firePropertyChange(
             String property,
             Object oldValue, Object newValue)
@@ -927,8 +931,9 @@ public abstract class MediaAwareCall<
      * <tt>MediaAwareCall</tt> is represented by a
      * <tt>MediaAwareCallConference</tt> instance.
      */
+    @Override
     public void setConference(CallConference conference)
     {
-        super.setConference((MediaAwareCallConference) conference);
+        super.setConference(conference);
     }
 }

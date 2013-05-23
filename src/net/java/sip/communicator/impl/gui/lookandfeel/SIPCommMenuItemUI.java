@@ -16,7 +16,7 @@ import net.java.sip.communicator.plugin.desktoputil.*;
 
 /**
  * The SIPCommMenuItemUI implementation.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class SIPCommMenuItemUI
@@ -58,6 +58,7 @@ public class SIPCommMenuItemUI
         }
     }
 
+    @Override
     protected void paintMenuItem (Graphics g, JComponent c, Icon
         checkIcon, Icon arrowIcon, Color background,
         Color foreground, int defaultTextIconGap)
@@ -67,6 +68,7 @@ public class SIPCommMenuItemUI
         this.internalPaintRollover(g, menuItem);
     }
 
+    @Override
     protected void paintText (Graphics g, JMenuItem menuItem, Rectangle
         textRect, String text)
     {

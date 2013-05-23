@@ -104,7 +104,7 @@ public class TrayIcon
         implements TrayIconPeer
     {
         private final Method addActionListener;
-        
+
         private final Method addMouseListener;
 
         private final Method displayMessage;
@@ -220,7 +220,7 @@ public class TrayIcon
                     : cause);
             }
         }
-        
+
         public void addMouseListener(MouseListener listener)
         {
             try
@@ -383,14 +383,14 @@ public class TrayIcon
             getImpl().setIconAutoSize(autoSize);
         }
     }
-    
+
     /**
      * Extended mouse adapter to show the JPopupMenu in Java 6
      * Based on : http://weblogs.java.net/blog/ixmal/archive/2006/05/using_jpopupmen.html
      * And : http://weblogs.java.net/blog/alexfromsun/archive/2008/02/jtrayicon_updat.html
      *
      * Use a hidden JWindow (JDialog for Windows) to manage the JPopupMenu.
-     * 
+     *
      * @author Damien Roth
      */
     private static class AWTMouseAdapter
@@ -398,7 +398,7 @@ public class TrayIcon
     {
         private JPopupMenu popup = null;
         private Window hiddenWindow = null;
-    
+
         public AWTMouseAdapter(JPopupMenu p)
         {
             this.popup = p;
@@ -426,19 +426,19 @@ public class TrayIcon
                 }
             });
         }
-        
+
         @Override
         public void mouseReleased(MouseEvent e)
         {
             showPopupMenu(e);
         }
-        
+
         @Override
         public void mousePressed(MouseEvent e)
         {
             showPopupMenu(e);
         }
-        
+
         private void showPopupMenu(MouseEvent e)
         {
             if (e.isPopupTrigger() && popup != null)
@@ -452,7 +452,7 @@ public class TrayIcon
                     }
                     else
                         hiddenWindow = new JWindow((Frame) null);
-                    
+
                     hiddenWindow.setAlwaysOnTop(true);
                     Dimension size = popup.getPreferredSize();
 

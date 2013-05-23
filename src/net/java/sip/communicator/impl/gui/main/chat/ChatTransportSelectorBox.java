@@ -397,6 +397,7 @@ public class ChatTransportSelectorBox
 
         Image image = ImageLoader.getImage(ImageLoader.DOWN_ARROW_ICON);
 
+        @Override
         public void paintComponent(Graphics g)
         {
             super.paintComponent(g);

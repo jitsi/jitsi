@@ -473,6 +473,7 @@ public class UriHandlerSipImpl
             {
                 Thread uriRehandleThread = new Thread()
                 {
+                    @Override
                     public void run()
                     {
                         handleUri(uri);

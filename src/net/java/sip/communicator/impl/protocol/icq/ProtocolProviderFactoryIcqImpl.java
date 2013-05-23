@@ -49,6 +49,7 @@ public class ProtocolProviderFactoryIcqImpl
      *   specific properties defining the new account.
      * @return the AccountID of the newly created account
      */
+    @Override
     public AccountID installAccount( String userIDStr,
                                      Map<String, String> accountProperties)
     {
@@ -89,11 +90,12 @@ public class ProtocolProviderFactoryIcqImpl
      * Initializes and creates an account corresponding to the specified
      * accountProperties and registers the resulting ProtocolProvider in the
      * <tt>context</tt> BundleContext parameter.
-     * 
+     *
      * @param accountProperties a set of protocol (or implementation) specific
      *            properties defining the new account.
      * @return the AccountID of the newly created account
      */
+    @Override
     public AccountID loadAccount(Map<String, String> accountProperties)
     {
         // there are two factories - one for icq accounts and one for aim ones.
@@ -114,11 +116,12 @@ public class ProtocolProviderFactoryIcqImpl
      * registers it in the bundle context. This method has a persistent
      * effect. Once created the resulting account will remain installed until
      * removed through the uninstallAccount method.
-     * 
+     *
      * @param accountID the account identifier
      * @return <tt>true</tt> if the account with the given <tt>accountID</tt> is
      * successfully loaded, otherwise returns <tt>false</tt>
      */
+    @Override
     public boolean loadAccount(AccountID accountID)
     {
         // there are two factories - one for icq accounts and one for aim ones.
@@ -137,11 +140,12 @@ public class ProtocolProviderFactoryIcqImpl
     /**
      * Initializes and creates an account corresponding to the specified
      * accountProperties.
-     * 
+     *
      * @param accountProperties a set of protocol (or implementation) specific
      * properties defining the new account.
      * @return the AccountID of the newly created account
      */
+    @Override
     public AccountID createAccount(Map<String, String> accountProperties)
     {
         // there are two factories - one for icq accounts and one for aim ones.
@@ -158,11 +162,13 @@ public class ProtocolProviderFactoryIcqImpl
         return super.createAccount(accountProperties);
     }
 
+    @Override
     protected AccountID createAccountID(String userID, Map<String, String> accountProperties)
     {
         return new IcqAccountID(userID, accountProperties);
     }
 
+    @Override
     protected ProtocolProviderService createService(String userID,
         AccountID accountID)
     {

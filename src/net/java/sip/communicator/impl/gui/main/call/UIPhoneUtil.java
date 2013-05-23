@@ -103,6 +103,7 @@ public class UIPhoneUtil
                                     null,
                                     pnd)
                             {
+                                @Override
                                 public PresenceStatus getPresenceStatus()
                                 {
                                     return null;

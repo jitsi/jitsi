@@ -38,7 +38,7 @@ public class CredentialsStorageActivator
 
     /**
      * Starts the credentials storage service
-     * 
+     *
      * @param bundleContext the <tt>BundleContext</tt> as provided from the OSGi
      * framework
      * @throws Exception if anything goes wrong
@@ -50,7 +50,7 @@ public class CredentialsStorageActivator
             logger.debug(
                     "Service Impl: " + getClass().getName() + " [  STARTED ]");
         }
-        
+
         CredentialsStorageActivator.bundleContext = bundleContext;
 
         impl = new CredentialsStorageServiceImpl();
@@ -68,7 +68,7 @@ public class CredentialsStorageActivator
 
     /**
      * Unregisters the credentials storage service.
-     * 
+     *
      * @param bundleContext BundleContext
      * @throws Exception if anything goes wrong
      */

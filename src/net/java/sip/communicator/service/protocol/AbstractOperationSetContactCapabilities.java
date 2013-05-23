@@ -16,7 +16,7 @@ import net.java.sip.communicator.util.*;
  * <tt>OperationSetContactCapabilities</tt> which attempts to make it easier for
  * implementers to provide complete solutions while focusing on
  * implementation-specific functionality.
- * 
+ *
  * @param <T> the type of the <tt>ProtocolProviderService</tt> implementation
  * providing the <tt>AbstractOperationSetContactCapabilities</tt> implementation
  *
@@ -157,7 +157,7 @@ public abstract class AbstractOperationSetContactCapabilities<
      *
      * @param <U> the type extending <tt>OperationSet</tt> for which the
      * specified <tt>contact</tt> is to be checked whether it possesses it as a
-     * capability 
+     * capability
      * @param contact the <tt>Contact</tt> for which the <tt>opsetClass</tt>
      * capability is to be queried
      * @param opsetClass the <tt>OperationSet</tt> <tt>Class</tt> for which the
@@ -193,7 +193,7 @@ public abstract class AbstractOperationSetContactCapabilities<
      *
      * @param <U> the type extending <tt>OperationSet</tt> for which the
      * specified <tt>contact</tt> is to be checked whether it possesses it as a
-     * capability 
+     * capability
      * @param contact the <tt>Contact</tt> for which the <tt>opsetClass</tt>
      * capability is to be queried
      * @param opsetClass the <tt>OperationSet</tt> <tt>Class</tt> for which the

@@ -10,7 +10,7 @@ import org.osgi.framework.*;
 
 /**
  * The Activator of the Contact Info bundle.
- * 
+ *
  * @author Adam Goldstein
  * @author Yana Stamcheva
  */

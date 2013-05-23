@@ -77,7 +77,7 @@ public class AccountStatusUtils
 
     /**
      * Returns the last contact status saved in the configuration.
-     * 
+     *
      * @param protocolProvider the protocol provider to which the status
      *            corresponds
      * @return the last contact status saved in the configuration.

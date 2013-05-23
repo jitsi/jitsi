@@ -208,7 +208,7 @@ public class OperationSetTypingNotificationsSipImpl
             if (fromHeader.getAddress().getDisplayName() != null)
             {
                 from = opSetPersPresence.createVolatileContact(
-                    fromHeader.getAddress().getURI().toString(), 
+                    fromHeader.getAddress().getURI().toString(),
                     fromHeader.getAddress().getDisplayName().toString());
             }
             else
@@ -298,7 +298,7 @@ public class OperationSetTypingNotificationsSipImpl
             if(task != null)
             {
                 typingTasks.remove(task);
-                task.cancel();                
+                task.cancel();
             }
 
             // when a task is canceled it cannot be
@@ -576,6 +576,7 @@ public class OperationSetTypingNotificationsSipImpl
             this.contact = contact;
         }
 
+        @Override
         public void run()
         {
             typingTasks.remove(this);

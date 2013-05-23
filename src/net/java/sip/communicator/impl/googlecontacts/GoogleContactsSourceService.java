@@ -251,8 +251,7 @@ public class GoogleContactsSourceService
 
                         if(ret == 1)
                         {
-                            cnx = (GoogleContactsConnectionImpl)
-                                settings.getConnection();
+                            cnx = settings.getConnection();
                             GoogleContactsActivator.getGoogleContactsService().
                                 saveConfig(cnx);
                         }
@@ -284,8 +283,7 @@ public class GoogleContactsSourceService
 
                     if(ret == 1)
                     {
-                        cnx = (GoogleContactsConnectionImpl)
-                            settings.getConnection();
+                        cnx = settings.getConnection();
                         GoogleContactsActivator.getGoogleContactsService().
                             saveConfig(cnx);
                     }

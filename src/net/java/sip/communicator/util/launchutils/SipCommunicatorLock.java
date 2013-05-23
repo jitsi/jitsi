@@ -671,6 +671,7 @@ public class SipCommunicatorLock extends Thread
          * Simply collects everything that we read from the InputStream that
          * this <tt>InterInstanceCommunicationClient</tt> was created with.
          */
+        @Override
         public void run()
         {
             try
@@ -727,6 +728,7 @@ public class SipCommunicatorLock extends Thread
             this.lockSocket = serverSocket;
         }
 
+        @Override
         public void run()
         {
             try
@@ -774,6 +776,7 @@ public class SipCommunicatorLock extends Thread
         /**
          * Starts reading messages arriving through the connection socket.
          */
+        @Override
         public void run()
         {
             InputStream is;

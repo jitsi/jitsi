@@ -17,8 +17,8 @@ import org.jitsi.util.*;
  *
  * @author Valentin Martinet
  */
-public class SipCommFileDialogImpl 
-    extends FileDialog 
+public class SipCommFileDialogImpl
+    extends FileDialog
     implements SipCommFileChooser
 {
     /**
@@ -37,7 +37,7 @@ public class SipCommFileDialogImpl
 
     /**
      * Constructor
-     * 
+     *
      * @param parent the parent frame of this dialog
      * @param title the title for this dialog
      */
@@ -48,7 +48,7 @@ public class SipCommFileDialogImpl
 
     /**
      * Constructor
-     * 
+     *
      * @param parent the parent frame of this dialog
      * @param title the title for this dialog
      * @param fileOperation request a 'load file' or 'save file' dialog
@@ -60,10 +60,10 @@ public class SipCommFileDialogImpl
 
     /**
      * Returns the selected file by the user from the dialog.
-     * 
+     *
      * @return File the selected file from the dialog
      */
-    public File getApprovedFile() 
+    public File getApprovedFile()
     {
         String file = getFile();
 
@@ -72,10 +72,10 @@ public class SipCommFileDialogImpl
 
     /**
      * Sets the default path to be considered for browsing among files.
-     * 
+     *
      * @param path the default start path for this dialog
      */
-    public void setStartPath(String path) 
+    public void setStartPath(String path)
     {
         // If the path is null, we have nothing more to do here.
         if (path == null)
@@ -108,7 +108,7 @@ public class SipCommFileDialogImpl
 
     /**
      * Shows the dialog and returns the selected file.
-     * 
+     *
      * @return File the selected file in this dialog
      */
     public File getFileFromDialog()
@@ -120,17 +120,17 @@ public class SipCommFileDialogImpl
 
     /**
      * Adds a file filter to this dialog.
-     * 
+     *
      * @param filter the filter to add
      */
-    public void addFilter(SipCommFileFilter filter) 
+    public void addFilter(SipCommFileFilter filter)
     {
         this.setFilenameFilter(filter);
     }
 
     /**
      * Sets a file filter to this dialog.
-     * 
+     *
      * @param filter the filter to add
      */
     public void setFileFilter(SipCommFileFilter filter)
@@ -165,6 +165,7 @@ public class SipCommFileDialogImpl
      * @param b  if <code>true</code>, shows the dialog;
      * otherwise, hides it
      */
+    @Override
     public void setVisible(boolean b)
     {
         // workaround to make sure we choose only folders on macosx

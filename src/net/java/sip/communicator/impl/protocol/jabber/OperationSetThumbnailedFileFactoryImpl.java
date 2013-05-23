@@ -15,7 +15,7 @@ import net.java.sip.communicator.service.protocol.*;
  * bundles interested in making files with thumbnails. For example the user
  * interface can be interested in sending files with thumbnails through the
  * <tt>OperationSetFileTransfer</tt>.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class OperationSetThumbnailedFileFactoryImpl

@@ -1178,7 +1178,7 @@ public class MetaContactListServiceImpl
         if (opSetPresence == null)
         {
             opSetPresence =
-                (OperationSetPresence) contact.getProtocolProvider()
+                contact.getProtocolProvider()
                     .getOperationSet(OperationSetPersistentPresence.class);
 
             if (opSetPresence == null)
@@ -1586,7 +1586,7 @@ public class MetaContactListServiceImpl
     /**
      * Returns a list of all <tt>MetaContact</tt>s containing a protocol contact
      * corresponding to the given <tt>contactAddress</tt> string.
-     * 
+     *
      * @param contactAddress the contact address for which we're looking for
      * a parent <tt>MetaContact</tt>.
      * @return a list of all <tt>MetaContact</tt>s containing a protocol contact
@@ -1605,7 +1605,7 @@ public class MetaContactListServiceImpl
     /**
      * Returns a list of all <tt>MetaContact</tt>s containing a protocol contact
      * corresponding to the given <tt>contactAddress</tt> string.
-     * 
+     *
      * @param contactAddress the contact address for which we're looking for
      * a parent <tt>MetaContact</tt>.
      * @param metaContactGroup the parent group.

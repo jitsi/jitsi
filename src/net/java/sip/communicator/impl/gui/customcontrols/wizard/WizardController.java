@@ -20,7 +20,7 @@ import net.java.sip.communicator.service.gui.*;
  * of the three buttons, 'Next', 'Previous', and 'Cancel.' Based on what
  * button is pressed, the controller will update the model to show a new panel
  * and reset the state of the buttons as necessary.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class WizardController implements ActionListener

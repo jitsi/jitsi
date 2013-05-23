@@ -14,7 +14,7 @@ import net.java.sip.communicator.service.protocol.event.*;
  * Represents a default implementation of <code>OperationSetMultiUserChat</code>
  * in order to make it easier for implementers to provide complete solutions
  * while focusing on implementation-specific details.
- * 
+ *
  * @author Lubomir Marinov
  */
 public abstract class AbstractOperationSetMultiUserChat
@@ -88,7 +88,7 @@ public abstract class AbstractOperationSetMultiUserChat
      * Fires a new <code>ChatRoomInvitationReceivedEvent</code> to all currently
      * registered <code>ChatRoomInvitationListener</code>s to notify about the
      * receipt of a specific <code>ChatRoomInvitation</code>.
-     * 
+     *
      * @param invitation
      *            the <code>ChatRoomInvitation</code> which has been received
      */
@@ -151,7 +151,7 @@ public abstract class AbstractOperationSetMultiUserChat
     /**
      * Delivers a <tt>LocalUserChatRoomPresenceChangeEvent</tt> to all
      * registered <tt>LocalUserChatRoomPresenceListener</tt>s.
-     * 
+     *
      * @param chatRoom
      *            the <tt>ChatRoom</tt> which has been joined, left, etc.
      * @param eventType

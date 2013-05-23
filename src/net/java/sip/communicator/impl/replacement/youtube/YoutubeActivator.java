@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.impl.replacement.youtube;
@@ -14,7 +14,7 @@ import org.osgi.framework.*;
 
 /**
  * Activator for the Youtube source bundle.
- * 
+ *
  * @author Purvesh Sahoo
  */
 public class YoutubeActivator
@@ -58,7 +58,7 @@ public class YoutubeActivator
 
     /**
      * Unregisters the Youtube replacement service.
-     * 
+     *
      * @param context BundleContext
      * @throws Exception if anything goes wrong
      */

@@ -34,13 +34,13 @@ public class SIPCommLinkButton
         UIManager.getDefaults().put(UIClassID,
             SIPCommLinkButtonUI.class.getName());
     }
-    
+
     public static final int ALWAYS_UNDERLINE = 0;
 
     public static final int HOVER_UNDERLINE = 1;
 
     public static final int NEVER_UNDERLINE = 2;
-    
+
     private int linkBehavior;
 
     private Color linkColor;
@@ -64,7 +64,7 @@ public class SIPCommLinkButton
     }
 
     /**
-     * Created Link Button with text. 
+     * Created Link Button with text.
      * @param text
      */
     public SIPCommLinkButton(String text)
@@ -91,21 +91,22 @@ public class SIPCommLinkButton
         super(text);
 
         linkBehavior = SIPCommLinkButton.HOVER_UNDERLINE;
-        
+
         linkColor = Color.blue;
         colorPressed = Color.red;
         visitedLinkColor = new Color(128, 0, 128);
-        
+
         if (text == null && url != null)
           this.setText(url.toExternalForm());
         setLinkURL(url);
-        
+
         this.setBorderPainted(false);
         this.setContentAreaFilled(false);
         this.setRolloverEnabled(true);
         this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
     }
 
+    @Override
     public String getUIClassID()
     {
         return SIPCommLinkButton.UIClassID;
@@ -125,14 +126,14 @@ public class SIPCommLinkButton
     /**
      * Changes link behaviour.
      * @param bnew the new behaviour. One of ALWAYS_UNDERLINE, HOVER_UNDERLINE
-     *        and NEVER_UNDERLINE. 
+     *        and NEVER_UNDERLINE.
      */
     public void setLinkBehavior(int bnew)
     {
         if (bnew != ALWAYS_UNDERLINE && bnew != HOVER_UNDERLINE
                 && bnew != NEVER_UNDERLINE)
             throw new IllegalArgumentException("Not a legal LinkBehavior");
-        
+
         int old = linkBehavior;
         linkBehavior = bnew;
         firePropertyChange("linkBehavior", old, bnew);
@@ -249,7 +250,7 @@ public class SIPCommLinkButton
 
     /**
      * Returns the url.
-     * @return the link url. 
+     * @return the link url.
      */
     public URL getLinkURL()
     {

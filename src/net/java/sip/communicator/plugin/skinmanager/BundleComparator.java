@@ -22,7 +22,7 @@ public class BundleComparator
      * Compares the bundles using their "Bundle-Name"s.
      * @param arg0 the first bundle to compare
      * @param arg1 the second bundle to compare
-     * @return the result of the string comparison between the names of the two 
+     * @return the result of the string comparison between the names of the two
      * bundles
      */
     public int compare(Bundle arg0, Bundle arg1)
@@ -38,7 +38,7 @@ public class BundleComparator
         {
             n2 = "unknown";
         }
-        
+
         return n1.compareTo(n2);
     }
 }

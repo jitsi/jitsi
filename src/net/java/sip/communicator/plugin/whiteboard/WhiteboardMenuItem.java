@@ -51,15 +51,17 @@ public class WhiteboardMenuItem
             Resources.getImage ("plugin.whiteboard.MPEN_ICON"));
     }
 
+    @Override
     public void setCurrentContact (Contact contact)
     {
     }
-    
+
     /**
      * Sets the current meta contact.
      *
      * @param metaContact the current meta contact
      */
+    @Override
     public void setCurrentContact (MetaContact metaContact)
     {
         this.metaContact = metaContact;
@@ -100,6 +102,7 @@ public class WhiteboardMenuItem
      *
      * @param metaGroup the current meta contact group
      */
+    @Override
     public void setCurrentContactGroup (MetaContactGroup metaGroup)
     {
     }

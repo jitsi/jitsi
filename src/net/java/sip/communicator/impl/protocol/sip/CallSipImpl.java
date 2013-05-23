@@ -55,14 +55,14 @@ public class CallSipImpl
      * use when creating requests.
      */
     private final SipMessageFactory messageFactory;
-    
+
     /**
      * The name of the property under which the user may specify the number of
-     * milliseconds for the initial interval for retransmissions of response 
+     * milliseconds for the initial interval for retransmissions of response
      * 180.
      */
-    private static final String RETRANSMITS_RINGING_INTERVAL 
-        = "net.java.sip.communicator.impl.protocol.sip" 
+    private static final String RETRANSMITS_RINGING_INTERVAL
+        = "net.java.sip.communicator.impl.protocol.sip"
                 + ".RETRANSMITS_RINGING_INTERVAL";
 
     /**
@@ -70,14 +70,14 @@ public class CallSipImpl
     *  retransmissions of response 180.
     */
     private static final int DEFAULT_RETRANSMITS_RINGING_INTERVAL = 500;
-    
+
     /**
      * Maximum number of retransmissions that will be sent.
      */
     private static final int MAX_RETRANSMISSIONS = 3;
 
     /**
-    * The amount of time (in milliseconds) for the initial interval for 
+    * The amount of time (in milliseconds) for the initial interval for
     * retransmissions of response 180.
     */
     private int retransmitsRingingInterval
@@ -110,7 +110,7 @@ public class CallSipImpl
      *
      * Re-INVITEs the <tt>CallPeer</tt>s associated with this
      * <tt>CallSipImpl</tt> in order to include/exclude the &quot;isfocus&quot;
-     * parameter in the Contact header. 
+     * parameter in the Contact header.
      */
     @Override
     protected void conferenceFocusChanged(boolean oldValue, boolean newValue)
@@ -441,12 +441,13 @@ public class CallSipImpl
             response = messageFactory.createResponse(Response.RINGING, invite);
             serverTran.sendResponse(response);
 
-            if(serverTran instanceof SIPTransaction 
+            if(serverTran instanceof SIPTransaction
                 && !((SIPTransaction)serverTran).isReliable())
             {
                 final Timer timer = new Timer();
                 CallPeerAdapter stateListener = new CallPeerAdapter()
                 {
+                    @Override
                     public void peerStateChanged(CallPeerChangeEvent evt)
                     {
                         if(!evt.getNewValue()
@@ -462,11 +463,11 @@ public class CallSipImpl
                 for(int i = 0; i < MAX_RETRANSMISSIONS; i++)
                 {
                     delay += interval;
-                    timer.schedule(new RingingResponseTask(response, 
+                    timer.schedule(new RingingResponseTask(response,
                         serverTran, peer, timer, stateListener), delay);
                     interval *= 2;
                 }
-    
+
                 peer.addCallPeerListener(stateListener);
             }
             if (logger.isDebugEnabled())
@@ -482,7 +483,7 @@ public class CallSipImpl
 
         return peer;
     }
-    
+
 
     /**
      * Processes an incoming INVITE that is meant to replace an existing
@@ -597,7 +598,7 @@ public class CallSipImpl
          * @param timer the timer.
          * @param stateListener the state listener.
          */
-        RingingResponseTask(Response response, ServerTransaction serverTran, 
+        RingingResponseTask(Response response, ServerTransaction serverTran,
             CallPeerSipImpl peer, Timer timer, CallPeerAdapter stateListener)
         {
             this.response = response;
@@ -610,6 +611,7 @@ public class CallSipImpl
         /**
          * Sends the ringing response.
          */
+        @Override
         public void run()
         {
             try

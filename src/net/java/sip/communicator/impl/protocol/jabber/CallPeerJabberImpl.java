@@ -188,6 +188,7 @@ public class CallPeerJabberImpl
      *
      * @return the session ID of the Jingle session associated with this call.
      */
+    @Override
     public String getSID()
     {
         return sessionInitIQ != null ? sessionInitIQ.getSID() : null;
@@ -381,7 +382,7 @@ public class CallPeerJabberImpl
          * CallPeerJabberImpl does not itself/directly know the specifics
          * related to the channels allocated on the Jitsi VideoBridge server.
          * The channels contain transport and media-related information so
-         * forward the notification to CallPeerMediaHandlerJabberImpl. 
+         * forward the notification to CallPeerMediaHandlerJabberImpl.
          */
         getMediaHandler().processColibriConferenceIQ(conferenceIQ);
     }

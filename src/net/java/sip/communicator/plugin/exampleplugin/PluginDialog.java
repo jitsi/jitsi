@@ -98,6 +98,7 @@ public class PluginDialog
      * the Esc key; otherwise, <tt>false</tt>
      * @see SIPCommDialog#close(boolean)
      */
+    @Override
     protected void close(boolean escaped)
     {
     }

@@ -127,6 +127,7 @@ public class MacOSXAddrBookContactSourceService
      *
      * @see AsyncContactSourceService#stop()
      */
+    @Override
     public synchronized void stop()
     {
         if (0 != ptr)
@@ -273,6 +274,7 @@ public class MacOSXAddrBookContactSourceService
      * @return True if this contact source service can be used to perform search
      * for contacts. False otherwise.
      */
+    @Override
     public boolean canBeUsedToSearchContacts()
     {
         return !AddrBookActivator.getConfigService().getBoolean(

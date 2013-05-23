@@ -14,7 +14,7 @@ import net.java.sip.communicator.plugin.desktoputil.*;
  * The <tt>BoxPopupMenu</tt> is a <tt>JPopupMenu</tt>, which orders its
  * components in a grid, where the column and row count are determined from
  * the total items count in order to have a grid closest to square.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class BoxPopupMenu
@@ -34,7 +34,7 @@ public class BoxPopupMenu
 
     /**
      * Creates an instance of <tt>BoxPopupMenu</tt>.
-     * 
+     *
      * @param itemsCount The count of components that will be added to
      * the grid.
      */
@@ -67,7 +67,7 @@ public class BoxPopupMenu
     /**
      * Returns the location of the popup depending on the invoking component
      * coordinates.
-     * 
+     *
      * @return the location of the popup depending on the invoking component
      * coordinates.
      */
@@ -94,7 +94,7 @@ public class BoxPopupMenu
 
     /**
      * Sets the count of components that will be added to the grid.
-     * 
+     *
      * @param itemsCount the count of components that will be added to the grid.
      */
     public void setItemsCount(int itemsCount) {

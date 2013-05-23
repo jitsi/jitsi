@@ -17,7 +17,7 @@ import org.osgi.framework.*;
  * Creates and registers Packet Logging service into OSGi.
  * Also handles saving and retrieving configuration options for
  * the service and is used from the configuration form.
- * 
+ *
  * @author Damian Minkov
  */
 public class PacketLoggingActivator
@@ -30,7 +30,7 @@ public class PacketLoggingActivator
         = Logger.getLogger(PacketLoggingActivator.class);
 
     /**
-     * The OSGI bundle context. 
+     * The OSGI bundle context.
      */
     private static BundleContext        bundleContext         = null;
 

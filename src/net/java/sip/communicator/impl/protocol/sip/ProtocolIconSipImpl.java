@@ -17,7 +17,7 @@ import org.jitsi.service.resources.*;
 /**
  * Represents the Sip protocol icon. Implements the <tt>ProtocolIcon</tt>
  * interface in order to provide an sip icon image in two different sizes.
- * 
+ *
  * @author Yana Stamcheva
  * @author Lubomir Marinov
  */
@@ -46,7 +46,7 @@ public class ProtocolIconSipImpl
     /**
      * Creates an instance of this class by passing to it the path, where all
      * protocol icons are placed.
-     * 
+     *
      * @param iconPath the protocol icon path
      */
     public ProtocolIconSipImpl(String iconPath)
@@ -67,7 +67,7 @@ public class ProtocolIconSipImpl
     /**
      * Returns <code>true</code> if an icon with the given size is supported,
      * <code>false</code> - otherwise.
-     * 
+     *
      * @param iconSize the size of the icon to search for. One of ICON_SIZE_XXX
      * constants.
      * @return <code>true</code> if an icon with the given size is supported,
@@ -80,7 +80,7 @@ public class ProtocolIconSipImpl
 
     /**
      * Returns the icon image in the given size.
-     * 
+     *
      * @param iconSize the size of the icon we're looking for. One of
      * ICON_SIZE_XXX constants.
      * @return the byte array representing the icon.
@@ -126,7 +126,7 @@ public class ProtocolIconSipImpl
 
     /**
      * Returns the icon image used to represent the protocol connecting state.
-     * 
+     *
      * @return the icon image used to represent the protocol connecting state.
      */
     public byte[] getConnectingIcon()
@@ -173,7 +173,7 @@ public class ProtocolIconSipImpl
 
     /**
      * Loads an image from a given image path.
-     * 
+     *
      * @param imagePath The identifier of the image.
      * @return The image for the given identifier.
      */

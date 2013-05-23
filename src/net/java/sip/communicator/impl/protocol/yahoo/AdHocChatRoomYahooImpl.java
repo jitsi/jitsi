@@ -15,9 +15,9 @@ import net.java.sip.communicator.util.*;
 import ymsg.network.*;
 
 /**
- * Represents a Yahoo ad-hoc chat room, where multiple chat users could 
+ * Represents a Yahoo ad-hoc chat room, where multiple chat users could
  * communicate in a many-to-many fashion.
- * 
+ *
  * @author Rupert Burchardi
  * @author Valentin Martinet
  */
@@ -31,14 +31,14 @@ public class AdHocChatRoomYahooImpl
      * Listeners that will be notified of changes in member status in the room
      *   such as member joined, left or being kicked or dropped.
      */
-    private Vector<AdHocChatRoomParticipantPresenceListener> memberListeners 
+    private Vector<AdHocChatRoomParticipantPresenceListener> memberListeners
         = new Vector<AdHocChatRoomParticipantPresenceListener>();
 
     /**
      * Listeners that will be notified every time a new message is received on
      * this ad-hoc chat room.
      */
-    private Vector<AdHocChatRoomMessageListener> messageListeners 
+    private Vector<AdHocChatRoomMessageListener> messageListeners
         = new Vector<AdHocChatRoomMessageListener>();
 
     /**
@@ -63,14 +63,14 @@ public class AdHocChatRoomYahooImpl
     private String nickname;
 
     /**
-     * The yahoo conference model of this ad-hoc chat room, its the 
+     * The yahoo conference model of this ad-hoc chat room, its the
      * representation of an ad-hoc chat room in the lib for this protocol.
      */
     private YahooConference yahooConference = null;
 
     /**
      * Creates an instance of a chat room that has been.
-     * 
+     *
      * @param multiUserChat
      *            MultiUserChat
      * @param provider
@@ -88,8 +88,8 @@ public class AdHocChatRoomYahooImpl
     /**
      * Registers <tt>listener</tt> so that it would receive events every time a
      * new message is received on this chat room.
-     * 
-     * @param listener A <tt>MessageListener</tt> that would be notified every 
+     *
+     * @param listener A <tt>MessageListener</tt> that would be notified every
      *                 time a new message is received on this chat room.
      */
     public void addMessageListener(AdHocChatRoomMessageListener listener)
@@ -104,7 +104,7 @@ public class AdHocChatRoomYahooImpl
     /**
      * Removes <tt>listener</tt> so that it won't receive any further message
      * events from this room.
-     * 
+     *
      * @param listener The <tt>MessageListener</tt> to remove from this room
      */
     public void removeMessageListener(AdHocChatRoomMessageListener listener)
@@ -149,7 +149,7 @@ public class AdHocChatRoomYahooImpl
     /**
      * Create a Message instance for sending a simple text messages with default
      * (text/plain) content type and encoding.
-     * 
+     *
      * @param messageText
      *            the string content of the message.
      * @return Message the newly created message
@@ -176,7 +176,7 @@ public class AdHocChatRoomYahooImpl
 
     /**
      * Updates the member list of the chat room.
-     * 
+     *
      */
     public void updateParticipantsList()
     {
@@ -226,7 +226,7 @@ public class AdHocChatRoomYahooImpl
     /**
      * Returns the name of this <tt>AdHocChatRoom</tt>.
      *
-     * @return a <tt>String</tt> containing the name of this 
+     * @return a <tt>String</tt> containing the name of this
      * <tt>AdHocChatRoom</tt>.
      */
     public String getName()
@@ -247,7 +247,7 @@ public class AdHocChatRoomYahooImpl
     /**
      * Returns the local user's nickname in the context of this chat room or
      * <tt>null</tt> if not currently joined.
-     * 
+     *
      * @return the nickname currently being used by the local user in the
      * context of the local ad-hoc chat room.
      */
@@ -286,7 +286,7 @@ public class AdHocChatRoomYahooImpl
     /**
      * Indicates whether or not this chat room is corresponding to a server
      * channel. Note: Returns always <code>false</code>.
-     * 
+     *
      * @return Always <code>false</code> since system chat room can't be joined
      * with current yahoo library.
      */
@@ -335,7 +335,7 @@ public class AdHocChatRoomYahooImpl
         {
             provider.getYahooSession().leaveConference(yahooConference);
 
-            Iterator< Map.Entry<String, Contact>> membersSet 
+            Iterator< Map.Entry<String, Contact>> membersSet
                 = participants.entrySet().iterator();
 
             while (membersSet.hasNext())
@@ -431,9 +431,9 @@ public class AdHocChatRoomYahooImpl
 
     /**
      * Creates the corresponding AdHocChatRoomParticipantPresenceChangeEvent and
-     * notifies all <tt>AdHocChatRoomParticipantPresenceListener</tt>s that a 
+     * notifies all <tt>AdHocChatRoomParticipantPresenceListener</tt>s that a
      * Contact has joined or left this <tt>AdHocChatRoom</tt>.
-     * 
+     *
      * @param participant the <tt>Contact</tt> that this
      * @param eventID the identifier of the event
      * @param eventReason the reason of the event
@@ -466,7 +466,7 @@ public class AdHocChatRoomYahooImpl
     }
 
     /**
-     * Finds the participant of this ad-hoc chat room corresponding to the 
+     * Finds the participant of this ad-hoc chat room corresponding to the
      * given address.
      *
      * @param address the address to search for.
@@ -510,7 +510,7 @@ public class AdHocChatRoomYahooImpl
 
     /**
      * Adds a participant to the ad-hoc chat room participant list.
-     * @param participant The participant, who should be added to the ad-hoc 
+     * @param participant The participant, who should be added to the ad-hoc
      * chat room participant list.
      */
     public void addChatRoomParticipant(Contact participant)
@@ -560,7 +560,7 @@ public class AdHocChatRoomYahooImpl
      * file or not. If the chat room is persistent it still will be shown after a
      * restart in the chat room list. A non-persistent chat room will be only in
      * the chat room list until the the program is running.
-     * 
+     *
      * @return true if this chat room is persistent, false otherwise
      */
     public boolean isPersistent()

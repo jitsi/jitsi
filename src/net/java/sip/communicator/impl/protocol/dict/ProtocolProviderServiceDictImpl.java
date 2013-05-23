@@ -45,7 +45,7 @@ public class ProtocolProviderServiceDictImpl
      * Indicates whether or not the provider is initialized and ready for use.
      */
     private boolean isInitialized = false;
-    
+
     /**
      * The logo corresponding to the gibberish protocol.
      */
@@ -92,7 +92,7 @@ public class ProtocolProviderServiceDictImpl
         synchronized(initializationLock)
         {
             this.accountID = (DictAccountID) accountID;
-            
+
             this.dictConnection = new DictConnection(this.accountID.getHost(),
                     this.accountID.getPort());
             this.dictConnection.setClientName(getSCVersion());
@@ -139,7 +139,7 @@ public class ProtocolProviderServiceDictImpl
     {
         return this.dictConnection;
     }
-    
+
     /**
      * Returns the AccountID that uniquely identifies the account represented
      * by this instance of the ProtocolProviderService.
@@ -164,7 +164,7 @@ public class ProtocolProviderServiceDictImpl
     {
         return DICT_PROTOCOL_NAME;
     }
-    
+
     /**
      * Returns the dict protocol icon.
      * @return the dict protocol icon
@@ -200,7 +200,7 @@ public class ProtocolProviderServiceDictImpl
     {
         // Try to connect to the server
         boolean connected = connect();
-        
+
         if (connected)
         {
             fireRegistrationStateChanged(
@@ -220,7 +220,7 @@ public class ProtocolProviderServiceDictImpl
             currentRegistrationState = RegistrationState.UNREGISTERED;
         }
     }
-    
+
     /**
      * Checks if the connection to the dict server is open
      * @return TRUE if the connection is open - FALSE otherwise
@@ -231,7 +231,7 @@ public class ProtocolProviderServiceDictImpl
         {
             return true;
         }
-        
+
         try
         {
             return this.dictConnection.isAvailable();
@@ -241,7 +241,7 @@ public class ProtocolProviderServiceDictImpl
             if (logger.isInfoEnabled())
                 logger.info(dx);
         }
-        
+
         return false;
     }
 
@@ -259,7 +259,7 @@ public class ProtocolProviderServiceDictImpl
         if (logger.isTraceEnabled())
             logger.trace("Killing the Dict Protocol Provider for account "
                     + this.accountID.getUserID());
-        
+
         closeConnection();
 
         if(isRegistered())
@@ -294,7 +294,7 @@ public class ProtocolProviderServiceDictImpl
         throws OperationFailedException
     {
         closeConnection();
-        
+
         fireRegistrationStateChanged(
                 getRegistrationState(),
                 RegistrationState.UNREGISTERED,
@@ -322,7 +322,7 @@ public class ProtocolProviderServiceDictImpl
     }
 
     /**
-     * Close the connection to the server 
+     * Close the connection to the server
      */
     private void closeConnection()
     {
@@ -336,7 +336,7 @@ public class ProtocolProviderServiceDictImpl
                 logger.info(dx);
         }
     }
-    
+
     /**
      * Returns the current version of SIP-Communicator
      * @return the current version of SIP-Communicator
@@ -345,9 +345,9 @@ public class ProtocolProviderServiceDictImpl
     {
         BundleContext bc = DictActivator.getBundleContext();
         ServiceReference vsr = bc.getServiceReference(VersionService.class.getName());
-        
+
         VersionService vs = (VersionService) bc.getService(vsr);
         return vs.getCurrentVersion().toString();
-        
+
     }
 }

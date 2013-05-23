@@ -93,6 +93,7 @@ public class GeneralConfigPluginActivator
     /**
      * Starts this bundle.
      */
+    @Override
     public void start(Object dependentService)
     {
         uiService = (UIService)dependentService;

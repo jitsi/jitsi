@@ -120,6 +120,7 @@ public class OperationSetDesktopSharingClientSipImpl
                     DesktopSharingProtocolSipImpl.CONTENT_SUB_TYPE,
                     this.timer)
             {
+                @Override
                 protected Subscription createSubscription(
                         Address fromAddress,
                         String eventId)
@@ -155,6 +156,7 @@ public class OperationSetDesktopSharingClientSipImpl
                     return ret;
                 }
 
+                @Override
                 protected void removeSubscription(
                     Response response,
                     String eventId,
@@ -391,6 +393,7 @@ public class OperationSetDesktopSharingClientSipImpl
          * @see EventPackageNotifier.Subscription#createNotifyContent(String,
          * String)
          */
+        @Override
         protected byte[] createNotifyContent(
                 String subscriptionState,
                 String reason)

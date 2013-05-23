@@ -21,12 +21,12 @@ public class ProtocolProviderServiceIrcImpl
 {
     private static final Logger logger
         = Logger.getLogger(ProtocolProviderServiceIrcImpl.class);
-    
+
     /**
      * The irc server.
      */
     private IrcStack ircStack;
-    
+
     /**
      * The id of the account that this protocol provider represents.
      */
@@ -46,12 +46,12 @@ public class ProtocolProviderServiceIrcImpl
      * Indicates whether or not the provider is initialized and ready for use.
      */
     private boolean isInitialized = false;
-    
+
     /**
      * The icon corresponding to the irc protocol.
      */
     private final ProtocolIconIrcImpl ircIcon = new ProtocolIconIrcImpl();
-    
+
     /**
      * Keeps our current registration state.
      */
@@ -175,7 +175,7 @@ public class ProtocolProviderServiceIrcImpl
         boolean passwordRequired =
             accountID.getAccountPropertyBoolean(
                 ProtocolProviderFactory.NO_PASSWORD_REQUIRED, true);
-            
+
         //if we don't - retrieve it from the user through the security authority
         if (serverPassword == null && passwordRequired)
         {
@@ -279,7 +279,7 @@ public class ProtocolProviderServiceIrcImpl
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see net.java.sip.communicator.service.protocol.ProtocolProviderService#
      * isSignallingTransportSecure()
      */
@@ -301,7 +301,7 @@ public class ProtocolProviderServiceIrcImpl
 
     /**
      * Returns the icon for this protocol.
-     * 
+     *
      * @return the icon for this protocol
      */
     public ProtocolIcon getProtocolIcon()
@@ -311,7 +311,7 @@ public class ProtocolProviderServiceIrcImpl
 
     /**
      * Returns the IRC stack implementation.
-     * 
+     *
      * @return the IRC stack implementation.
      */
     public IrcStack getIrcStack()
@@ -321,7 +321,7 @@ public class ProtocolProviderServiceIrcImpl
 
     /**
      * Returns the current registration state of this protocol provider.
-     * 
+     *
      * @return the current registration state of this protocol provider
      */
     protected RegistrationState getCurrentRegistrationState()
@@ -331,7 +331,7 @@ public class ProtocolProviderServiceIrcImpl
 
     /**
      * Sets the current registration state of this protocol provider.
-     * 
+     *
      * @param regState the new registration state to set
      */
     protected void setCurrentRegistrationState(

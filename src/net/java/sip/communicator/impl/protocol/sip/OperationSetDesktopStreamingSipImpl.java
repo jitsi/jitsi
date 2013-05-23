@@ -224,6 +224,7 @@ public class OperationSetDesktopStreamingSipImpl
      * @return <tt>true</tt> if the streaming of local video for the specified
      * <tt>Call</tt> is allowed; otherwise, <tt>false</tt>
      */
+    @Override
     public boolean isLocalVideoAllowed(Call call)
     {
         return ((CallSipImpl)call).isLocalVideoAllowed(MediaUseCase.DESKTOP);

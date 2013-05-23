@@ -29,7 +29,7 @@ import org.jitsi.util.*;
  * The dialog containing a list of all chat rooms of the user and
  * also interface for create a new chat room, join a chat room, search all
  * chat rooms, etc.
- * 
+ *
  * @author Yana Stamcheva
  * @author Lyubomir Marinov
  * @author Damian Minkov
@@ -149,7 +149,7 @@ public class ChatRoomTableDialog
     /**
      * Creates an instance of <tt>MyChatRoomsDialog</tt> by specifying the
      * parent window.
-     * 
+     *
      * @param parentWindow the parent window of this dialog
      */
     public ChatRoomTableDialog(MainFrame parentWindow)
@@ -175,7 +175,7 @@ public class ChatRoomTableDialog
         northPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 5, 15));
 
         JPanel labels = new TransparentPanel(new GridLayout(2, 2, 5, 5));
-        
+
         labels.add(new JLabel(GuiActivator.getResources()
             .getI18NString("service.gui.ACCOUNT")));
         labels.add(new JLabel(GuiActivator.getResources()
@@ -297,7 +297,7 @@ public class ChatRoomTableDialog
                     }
                     else
                         removeButton.setEnabled(false);
-                }                
+                }
             }
         });
 
@@ -309,7 +309,7 @@ public class ChatRoomTableDialog
 
     /**
      * Creates the providers combobox and filling its content.
-     * @return 
+     * @return
      */
     private JComboBox createProvidersCombobox()
     {
@@ -335,7 +335,7 @@ public class ChatRoomTableDialog
         if(sourceButton.equals(addButton))
         {
             String chatRoomName = editor.getText();
-            
+
             if(StringUtils.isNullOrEmpty(chatRoomName))
                 return;
 
@@ -391,7 +391,7 @@ public class ChatRoomTableDialog
                             "",
                             false,
                             false);
-                    
+
                     String nickName = null;
 
                     ChatOperationReasonDialog reasonDialog =
@@ -418,7 +418,7 @@ public class ChatRoomTableDialog
 
                     GuiActivator.getUIService().getConferenceChatManager()
                         .joinChatRoom(chatRoomWrapper);
-                    
+
                     ChatWindowManager chatWindowManager =
                         GuiActivator.getUIService().getChatWindowManager();
                     ChatPanel chatPanel =
@@ -446,7 +446,7 @@ public class ChatRoomTableDialog
                     else
                         chatRoomsTableUI.openChatForSelection();
                 }
-                else 
+                else
                 {
                     // this is not a server persistent room we must create it
                     // and join
@@ -498,7 +498,7 @@ public class ChatRoomTableDialog
                     else
                         GuiActivator.getUIService().getConferenceChatManager()
                             .joinChatRoom(chatRoomWrapper,savedNick,null);
-                    
+
                 }
             }
 
@@ -626,7 +626,7 @@ public class ChatRoomTableDialog
 
             setText(provider.getProtocolProvider()
                 .getAccountID().getAccountAddress());
-            
+
             setIcon(new ImageIcon(provider.getProtocolProvider()
                     .getProtocolIcon().getIcon(ProtocolIcon.ICON_SIZE_16x16)));
 

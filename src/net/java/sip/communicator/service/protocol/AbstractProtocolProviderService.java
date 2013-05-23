@@ -305,6 +305,7 @@ public abstract class AbstractProtocolProviderService
      * A clear display for ProtocolProvider when its printed in logs.
      * @return the class name and the currently handled account.
      */
+    @Override
     public String toString()
     {
         return getClass().getSimpleName() + "("

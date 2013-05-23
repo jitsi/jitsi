@@ -38,11 +38,12 @@ public class ProtocolProviderFactoryIrcImpl
      *   specific properties defining the new account.
      * @return the AccountID of the newly created account.
      */
+    @Override
     public AccountID installAccount( String userIDStr,
                                      Map<String, String> accountProperties)
     {
         BundleContext context = IrcActivator.bundleContext;
-        
+
         if (context == null)
             throw new NullPointerException(
                 "The specified BundleContext was null");
@@ -75,6 +76,7 @@ public class ProtocolProviderFactoryIrcImpl
         return accountID;
     }
 
+    @Override
     protected AccountID createAccountID(
         String userID,
         Map<String, String> accountProperties)
@@ -82,6 +84,7 @@ public class ProtocolProviderFactoryIrcImpl
         return new IrcAccountID(userID, accountProperties);
     }
 
+    @Override
     protected ProtocolProviderService createService(String userID,
         AccountID accountID)
     {
@@ -92,6 +95,7 @@ public class ProtocolProviderFactoryIrcImpl
         return service;
     }
 
+    @Override
     public void modifyAccount(  ProtocolProviderService protocolProvider,
                                 Map<String, String> accountProperties)
     {

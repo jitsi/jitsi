@@ -17,7 +17,7 @@ import org.osgi.framework.*;
 
 /**
  * OSGi bundle activator for the parallel DNS configuration form.
- * 
+ *
  * @author Ingo Bauersachs
  */
 public class DnsConfigActivator

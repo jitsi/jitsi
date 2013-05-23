@@ -18,16 +18,16 @@ import org.osgi.framework.*;
 /**
  * Represents the Aim protocol icon. Implements the <tt>ProtocolIcon</tt>
  * interface in order to provide an aim icon image in two different sizes.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class ProtocolIconAimImpl
     implements ProtocolIcon
-{    
-    private static Logger logger = Logger.getLogger(ProtocolIconAimImpl.class); 
-    
+{
+    private static Logger logger = Logger.getLogger(ProtocolIconAimImpl.class);
+
     private static ResourceManagementService resourcesService;
-    
+
     /**
      * A hash table containing the protocol icon in different sizes.
      */
@@ -80,14 +80,14 @@ public class ProtocolIconAimImpl
 
     /**
      * Returns TRUE if a icon with the given size is supported, FALSE-otherwise.
-     * 
+     *
      * @return TRUE if a icon with the given size is supported, FALSE-otherwise.
      */
     public boolean isSizeSupported(String iconSize)
     {
         return iconsTable.containsKey(iconSize);
     }
-    
+
     /**
      * Returns the icon image in the given size.
      * @param iconSize the icon size; one of ICON_SIZE_XXX constants
@@ -115,16 +115,16 @@ public class ProtocolIconAimImpl
     {
         return getImageInBytes("aimConnectingIcon");
     }
-    
+
     /**
      * Returns the byte representation of the image corresponding to the given
      * identifier.
-     * 
+     *
      * @param imageID the identifier of the image
      * @return the byte representation of the image corresponding to the given
      * identifier.
      */
-    private static byte[] getImageInBytes(String imageID) 
+    private static byte[] getImageInBytes(String imageID)
     {
         InputStream in = getResources().
             getImageInputStream(imageID);
@@ -132,13 +132,13 @@ public class ProtocolIconAimImpl
         if (in == null)
             return null;
         byte[] image = null;
-        try 
+        try
         {
             image = new byte[in.available()];
 
             in.read(image);
         }
-        catch (IOException e) 
+        catch (IOException e)
         {
             logger.error("Failed to load image:" + imageID, e);
         }

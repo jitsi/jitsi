@@ -131,6 +131,7 @@ public class SIPCommTextField
      * Returns the text contained in this field.
      * @return the text contained in this field
      */
+    @Override
     public String getText()
     {
         if (!super.getText().equals(defaultText))
@@ -143,6 +144,7 @@ public class SIPCommTextField
      * Sets the text of this text field.
      * @param text the text to show in this text field
      */
+    @Override
     public void setText(String text)
     {
         if ((text == null || text.length() == 0) && !isFocusOwner())

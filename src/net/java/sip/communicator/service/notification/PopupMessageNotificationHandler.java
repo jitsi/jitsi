@@ -6,13 +6,13 @@
  */
 package net.java.sip.communicator.service.notification;
 
-import net.java.sip.communicator.service.systray.event.*; 
+import net.java.sip.communicator.service.systray.event.*;
 
 /**
  * The <tt>PopupMessageNotificationHandler</tt> interface is meant to be
  * implemented by the notification bundle in order to provide handling of
  * popup message actions.
- * 
+ *
  * @author Yana Stamcheva
  */
 public interface PopupMessageNotificationHandler
@@ -20,7 +20,7 @@ public interface PopupMessageNotificationHandler
 {
     /**
      * Shows the given <tt>PopupMessage</tt>
-     * 
+     *
      * @param action the action to act upon
      * @param title the title of the given message
      * @param message the message to use if and where appropriate (e.g. with

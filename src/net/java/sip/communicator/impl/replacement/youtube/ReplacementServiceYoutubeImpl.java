@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.impl.replacement.youtube;
@@ -36,7 +36,7 @@ public class ReplacementServiceYoutubeImpl
         + "\\/watch\\?v=([a-zA-Z0-9_\\-]+))([?&]\\w+=[\\w-]+)*(?=</A>)";
 
     /**
-     * Configuration label shown in the config form. 
+     * Configuration label shown in the config form.
      */
     public static final String YOUTUBE_CONFIG_LABEL = "YouTube";
 
@@ -46,7 +46,7 @@ public class ReplacementServiceYoutubeImpl
     public static final String SOURCE_NAME = "YOUTUBE";
 
     /**
-     * Constructor for <tt>ReplacementServiceYoutubeImpl</tt>. 
+     * Constructor for <tt>ReplacementServiceYoutubeImpl</tt>.
      */
     public ReplacementServiceYoutubeImpl()
     {
@@ -96,7 +96,7 @@ public class ReplacementServiceYoutubeImpl
 
     /**
      * Returns the source name
-     * 
+     *
      * @return the source name
      */
     public String getSourceName()
@@ -106,7 +106,7 @@ public class ReplacementServiceYoutubeImpl
 
     /**
      * Returns the pattern of the source
-     * 
+     *
      * @return the source pattern
      */
     public String getPattern()

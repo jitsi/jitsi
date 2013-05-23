@@ -215,10 +215,10 @@ public class FirstWizardPage
             public void actionPerformed(ActionEvent event)
             {
                 identityFileChooser = GenericFileDialog.create(
-                    null, "Select Identify File", 
+                    null, "Select Identify File",
                     SipCommFileChooser.LOAD_FILE_OPERATION);
                 File f = identityFileChooser.getFileFromDialog();
-               
+
                 if(f != null)
                     identityFileField.setText(f.getAbsolutePath());
             }
@@ -233,7 +233,7 @@ public class FirstWizardPage
                     null, "Select SSH Known Hosts File",
                     SipCommFileChooser.LOAD_FILE_OPERATION);
                 File f = knownHostsFileChooser.getFileFromDialog();
-                
+
                 if(f != null)
                     knownHostsFileField.setText(f.getAbsolutePath());
             }

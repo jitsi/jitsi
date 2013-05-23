@@ -510,6 +510,7 @@ public class LoggingConfigForm
              * @param escaped <tt>true</tt> if this dialog has been
              * closed by pressing
              */
+            @Override
             protected void close(boolean escaped)
             {}
         };

@@ -128,7 +128,7 @@ class EmptyAccountRegistrationForm
 
     /**
      * Returns the advanced registration form.
-     * 
+     *
      * @return the advanced registration form
      */
     public Component getAdvancedForm()

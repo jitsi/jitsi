@@ -177,6 +177,7 @@ public class SIPCommTabbedPane
              */
             private static final long serialVersionUID = 0L;
 
+            @Override
             protected void close(boolean isEscaped)
             {
                 if (isEscaped)

@@ -50,6 +50,7 @@ public class MetaUIGroup
      * Returns the underlying <tt>MetaContactGroup</tt>.
      * @return the underlying <tt>MetaContactGroup</tt>
      */
+    @Override
     public Object getDescriptor()
     {
         return metaGroup;
@@ -60,6 +61,7 @@ public class MetaUIGroup
      * <tt>MetaContactListService</tt> parent group.
      * @return the source index of the underlying <tt>MetaContactGroup</tt>
      */
+    @Override
     public int getSourceIndex()
     {
         return metaGroup.getParentMetaContactGroup().indexOf(metaGroup);
@@ -69,6 +71,7 @@ public class MetaUIGroup
      * Returns the parent <tt>UIGroup</tt>.
      * @return the parent <tt>UIGroup</tt>
      */
+    @Override
     public UIGroup getParentGroup()
     {
         MetaContactGroup parentGroup = metaGroup.getParentMetaContactGroup();
@@ -86,6 +89,7 @@ public class MetaUIGroup
      * @return <tt>true</tt> to indicate that this group has been collapsed,
      * <tt>false</tt> - otherwise
      */
+    @Override
     public boolean isGroupCollapsed()
     {
         return ConfigurationUtils
@@ -96,6 +100,7 @@ public class MetaUIGroup
      * Returns the display name of the underlying <tt>MetaContactGroup</tt>.
      * @return the display name of the underlying <tt>MetaContactGroup</tt>
      */
+    @Override
     public String getDisplayName()
     {
         return metaGroup.getGroupName();
@@ -106,6 +111,7 @@ public class MetaUIGroup
      * <tt>MetaContactGroup</tt>.
      * @return the count of child contacts
      */
+    @Override
     public int countChildContacts()
     {
         return metaGroup.countChildContacts();
@@ -116,6 +122,7 @@ public class MetaUIGroup
      * <tt>MetaContactGroup</tt>.
      * @return the count of online child contacts
      */
+    @Override
     public int countOnlineChildContacts()
     {
         return metaGroup.countOnlineChildContacts();
@@ -125,6 +132,7 @@ public class MetaUIGroup
      * Returns the identifier of the underlying <tt>MetaContactGroup</tt>.
      * @return the identifier of the underlying <tt>MetaContactGroup</tt>
      */
+    @Override
     public String getId()
     {
         return metaGroup.getMetaUID();
@@ -134,6 +142,7 @@ public class MetaUIGroup
      * Returns the corresponding <tt>GroupNode</tt>.
      * @return the corresponding <tt>GroupNode</tt>
      */
+    @Override
     public GroupNode getGroupNode()
     {
         return groupNode;
@@ -144,6 +153,7 @@ public class MetaUIGroup
      * @param groupNode the corresponding <tt>GroupNoe</tt> in the contact list
      * component data model
      */
+    @Override
     public void setGroupNode(GroupNode groupNode)
     {
         this.groupNode = groupNode;
@@ -157,6 +167,7 @@ public class MetaUIGroup
      * @return the <tt>JPopupMenu</tt> opened on a right button click over this
      * group in the contact list
      */
+    @Override
     public JPopupMenu getRightButtonMenu()
     {
         return new GroupRightButtonMenu(

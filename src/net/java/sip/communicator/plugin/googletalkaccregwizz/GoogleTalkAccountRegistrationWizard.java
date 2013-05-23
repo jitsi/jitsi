@@ -53,6 +53,7 @@ public class GoogleTalkAccountRegistrationWizard
      * Returns the set of pages contained in this wizard.
      * @return Iterator
      */
+    @Override
     public Iterator<WizardPage> getPages()
     {
         JabberAccountRegistration reg = new JabberAccountRegistration();
@@ -67,10 +68,11 @@ public class GoogleTalkAccountRegistrationWizard
      * shown to the user. Only if the user needs more settings she'll choose
      * to open the advanced wizard, consisted by all pages.
      *
-     * @param isCreateAccount indicates if the simple form should be opened as 
+     * @param isCreateAccount indicates if the simple form should be opened as
      * a create account form or as a login form
      * @return a simple account registration form
      */
+    @Override
     public Object getSimpleForm(boolean isCreateAccount)
     {
         JabberAccountRegistration reg = new JabberAccountRegistration();
@@ -98,18 +100,20 @@ public class GoogleTalkAccountRegistrationWizard
      * Returns the icon to be used for this wizard.
      * @return byte[]
      */
+    @Override
     public byte[] getIcon()
     {
         return GoogleTalkAccRegWizzActivator.getResources()
             .getImageInBytes(PROTOCOL_ICON);
     }
-    
+
     /**
      * Implements the <code>AccountRegistrationWizard.getPageImage</code> method.
      * Returns the image used to decorate the wizard page
-     * 
+     *
      * @return byte[] the image used to decorate the wizard page
      */
+    @Override
     public byte[] getPageImage()
     {
         return GoogleTalkAccRegWizzActivator.getResources()
@@ -121,6 +125,7 @@ public class GoogleTalkAccountRegistrationWizard
      * method. Returns the protocol name for this wizard.
      * @return String
      */
+    @Override
     public String getProtocolName()
     {
         return GoogleTalkAccRegWizzActivator.getResources()
@@ -132,6 +137,7 @@ public class GoogleTalkAccountRegistrationWizard
      * </code> method. Returns the description of the protocol for this wizard.
      * @return String
      */
+    @Override
     public String getProtocolDescription()
     {
         return GoogleTalkAccRegWizzActivator.getResources()
@@ -144,6 +150,7 @@ public class GoogleTalkAccountRegistrationWizard
      * @return an example string, which should indicate to the user how the
      * user name should look like.
      */
+    @Override
     public String getUserNameExample()
     {
         return "Ex: johnsmith@gmail.com or johnsmith";
@@ -153,6 +160,7 @@ public class GoogleTalkAccountRegistrationWizard
      * Returns the display label used for the sip id field.
      * @return the sip id display label string.
      */
+    @Override
     protected String getUsernameLabel()
     {
         return GoogleTalkAccRegWizzActivator.getResources()
@@ -163,6 +171,7 @@ public class GoogleTalkAccountRegistrationWizard
      * Return the string for add existing account button.
      * @return the string for add existing account button.
      */
+    @Override
     protected String getCreateAccountButtonLabel()
     {
         return GoogleTalkAccRegWizzActivator.getResources().getI18NString(
@@ -173,6 +182,7 @@ public class GoogleTalkAccountRegistrationWizard
      * Return the string for create new account button.
      * @return the string for create new account button.
      */
+    @Override
     protected String getCreateAccountLabel()
     {
         return GoogleTalkAccRegWizzActivator.getResources().getI18NString(
@@ -184,6 +194,7 @@ public class GoogleTalkAccountRegistrationWizard
      * of the service.
      * @return the protocol name
      */
+    @Override
     public String getProtocol()
     {
         return PROTOCOL;
@@ -193,6 +204,7 @@ public class GoogleTalkAccountRegistrationWizard
      * Returns the protocol icon path.
      * @return the protocol icon path
      */
+    @Override
     public String getProtocolIconPath()
     {
         return "resources/images/protocol/googletalk";
@@ -202,14 +214,16 @@ public class GoogleTalkAccountRegistrationWizard
      * Returns the account icon path.
      * @return the account icon path
      */
+    @Override
     public String getAccountIconPath()
     {
         return "resources/images/protocol/googletalk/logo32x32.png";
     }
 
     /**
-     * Opens a browser on the sign up page. 
+     * Opens a browser on the sign up page.
      */
+    @Override
     public void webSignup()
     {
         GoogleTalkAccRegWizzActivator.getBrowserLauncher()
@@ -222,6 +236,7 @@ public class GoogleTalkAccountRegistrationWizard
      * @return <code>true</code> if the web sign up is supported by the current
      * implementation, <code>false</code> - otherwise
      */
+    @Override
     public boolean isWebSignupSupported()
     {
         return true;
@@ -233,6 +248,7 @@ public class GoogleTalkAccountRegistrationWizard
      * specific protocol provider wizards.
      * @return an instance of <tt>CreateAccountService</tt>
      */
+    @Override
     protected JabberAccountCreationFormService getCreateAccountService()
     {
         return null;

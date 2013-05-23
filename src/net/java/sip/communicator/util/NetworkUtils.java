@@ -909,7 +909,7 @@ public class NetworkUtils
     /**
      * Returns array of hosts from the A and AAAA records of the specified
      * domain. The records are ordered against the IPv4/IPv6 protocol priority
-     * 
+     *
      * @param domain the name of the domain we'd like to resolve.
      * @param port the port number of the returned <tt>InetSocketAddress</tt>
      * @return an array of InetSocketAddress containing records returned by the
@@ -1080,7 +1080,7 @@ public class NetworkUtils
      * @return an array of InetSocketAddress containing records returned by the
      * DNS server - address and port .
      * @throws ParseException if <tt>domain</tt> is not a valid domain name.
-     * @throws DnssecException 
+     * @throws DnssecException
      */
     public static InetSocketAddress getAAAARecord(String domain, int port)
         throws ParseException, DnssecException

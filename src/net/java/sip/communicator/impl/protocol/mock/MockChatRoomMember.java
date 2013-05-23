@@ -33,7 +33,7 @@ public class MockChatRoomMember
      * contact list
      * @param avatar the avatar of the member
      */
-    public MockChatRoomMember(String name, ChatRoom chatRoom, 
+    public MockChatRoomMember(String name, ChatRoom chatRoom,
         ChatRoomMemberRole role, Contact contact, byte[] avatar)
     {
         this.chatRoom = chatRoom;
@@ -42,7 +42,7 @@ public class MockChatRoomMember
         this.contact = contact;
         this.avatar = avatar;
     }
- 
+
     /**
      * Returns the chat room that this member is participating in.
      *
@@ -116,7 +116,7 @@ public class MockChatRoomMember
     /**
      * Returns the avatar of this member, that can be used when including it in
      * user interface.
-     * 
+     *
      * @return an avatar (e.g. user photo) of this member.
      */
     public byte[] getAvatar()
@@ -126,7 +126,7 @@ public class MockChatRoomMember
 
     /**
      * Returns the protocol contact corresponding to this member in our contact
-     * list. 
+     * list.
      * @return the protocol contact corresponding to this member in our contact
      * list.
      */

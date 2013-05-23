@@ -29,7 +29,7 @@ public class ZrtpConfigurePanel
 {
     /**
      * The width and height of the margin to be applied to UI containers created
-     * by <tt>ZrtpConfigurePanel</tt>. 
+     * by <tt>ZrtpConfigurePanel</tt>.
      */
     private static final int MARGIN = 5;
 

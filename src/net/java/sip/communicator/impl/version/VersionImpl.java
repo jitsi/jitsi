@@ -219,6 +219,7 @@ public class VersionImpl
      * @return true if and only the version param references the same
      * Jitsi version as this Version instance and false otherwise.
      */
+    @Override
     public boolean equals(Object version)
     {
         //simply compare the version strings
@@ -237,6 +238,7 @@ public class VersionImpl
      * @return a major.minor[.build] String containing the complete
      * Jitsi version.
      */
+    @Override
     public String toString()
     {
         StringBuffer versionStringBuff = new StringBuffer();

@@ -87,6 +87,7 @@ public class ConferenceChatManager
         // Loads the chat rooms list in a separate thread.
         new Thread()
         {
+            @Override
             public void run()
             {
                 chatRoomList.loadList();
@@ -109,10 +110,10 @@ public class ConferenceChatManager
     }
 
     /**
-     * Returns all chat room providers currently contained in the ad-hoc chat 
+     * Returns all chat room providers currently contained in the ad-hoc chat
      * room list.
-     * 
-     * @return  all chat room providers currently contained in the ad-hoc chat 
+     *
+     * @return  all chat room providers currently contained in the ad-hoc chat
      * room list.
      */
     public AdHocChatRoomList getAdHocChatRoomList()
@@ -267,7 +268,7 @@ public class ConferenceChatManager
                     }
                     else if(o instanceof ChatRoomMessageReceivedEvent)
                     {
-                        ChatRoomMessageReceivedEvent ev = 
+                        ChatRoomMessageReceivedEvent ev =
                             (ChatRoomMessageReceivedEvent) o;
                         if (evt.getTimestamp() == ev.getTimestamp())
                         {
@@ -299,7 +300,7 @@ public class ConferenceChatManager
      * heuristic is used as a workaround: (1) a system <code>ChatRoom</code> is
      * obviously not private and (2) a <code>ChatRoom</code> is private if it
      * has only one <code>ChatRoomMember</code> who is not the local user.
-     * 
+     *
      * @param chatRoom
      *            the <code>ChatRoom</code> to be determined as private or not
      * @return <tt>true</tt> if the specified <code>ChatRoom</code> is private;
@@ -411,7 +412,7 @@ public class ConferenceChatManager
      * Implements the
      * <tt>LocalUserAdHocChatRoomPresenceListener.localUserPresenceChanged</tt>
      * method
-     * 
+     *
      * @param evt the <tt>LocalUserAdHocChatRoomPresenceChangeEvent</tt> that
      * notified us of a presence change
      */
@@ -460,7 +461,7 @@ public class ConferenceChatManager
                 GuiActivator.getResources().getI18NString("service.gui.ERROR"),
                 GuiActivator.getResources().getI18NString(
                         "service.gui.FAILED_TO_JOIN_CHAT_ROOM",
-                        new String[]{sourceAdHocChatRoom.getName()}) 
+                        new String[]{sourceAdHocChatRoom.getName()})
                         + evt.getReason())
             .showDialog();
         }
@@ -620,7 +621,7 @@ public class ConferenceChatManager
      * @param invitation the invitation to reject
      * @param reason the reason for the rejection
      */
-    public void rejectInvitation(  
+    public void rejectInvitation(
             OperationSetAdHocMultiUserChat     multiUserChatAdHocOpSet,
             AdHocChatRoomInvitation         invitation,
             String                             reason)
@@ -660,12 +661,12 @@ public class ConferenceChatManager
 
     /**
      * Creates a chat room, by specifying the chat room name, the parent
-     * protocol provider and eventually, the contacts invited to participate in 
+     * protocol provider and eventually, the contacts invited to participate in
      * this chat room.
      *
      * @param protocolProvider the parent protocol provider.
      * @param contacts the contacts invited when creating the chat room.
-     * @param reason 
+     * @param reason
      * @return the <tt>ChatRoomWrapper</tt> corresponding to the created room
      */
     public ChatRoomWrapper createChatRoom(
@@ -699,7 +700,7 @@ public class ConferenceChatManager
 
     /**
      * Creates a chat room, by specifying the chat room name, the parent
-     * protocol provider and eventually, the contacts invited to participate in 
+     * protocol provider and eventually, the contacts invited to participate in
      * this chat room.
      *
      * @param roomName the name of the room
@@ -735,7 +736,7 @@ public class ConferenceChatManager
             if(join)
             {
                 chatRoom.join();
-            
+
                 for(String contact : contacts)
                     chatRoom.invite(contact, reason);
             }
@@ -794,7 +795,7 @@ public class ConferenceChatManager
 
     /**
      * Creates an ad-hoc chat room, by specifying the ad-hoc chat room name, the
-     * parent protocol provider and eventually, the contacts invited to 
+     * parent protocol provider and eventually, the contacts invited to
      * participate in this ad-hoc chat room.
      *
      * @param protocolProvider the parent protocol provider.
@@ -826,7 +827,7 @@ public class ConferenceChatManager
 
             for(String address : contacts)
                 members.add(address);
-            
+
             chatRoom = groupChatOpSet.createAdHocChatRoom(
                 "chatroom-" + new Date().getTime(), members, reason);
         }
@@ -979,7 +980,7 @@ public class ConferenceChatManager
                 chatWindowManager.getMultiChat(chatRoomWrapper, true),
                 true);
     }
-    
+
     /**
      * Joins the given chat room and manages all the exceptions that could
      * occur during the join process.
@@ -997,7 +998,7 @@ public class ConferenceChatManager
             = adHocChatRoomList.findServerWrapperFromProvider(
                 chatRoom.getParentProvider());
 
-            chatRoomWrapper = 
+            chatRoomWrapper =
                 new AdHocChatRoomWrapper(parentProvider, chatRoom);
 
             adHocChatRoomList.addAdHocChatRoom(chatRoomWrapper);
@@ -1326,7 +1327,7 @@ public class ConferenceChatManager
      * chat room
      * @param eventID the identifier of the event
      */
-    private void fireAdHocChatRoomListChangedEvent(  
+    private void fireAdHocChatRoomListChangedEvent(
                                     AdHocChatRoomWrapper adHocChatRoomWrapper,
                                     int                  eventID)
     {
@@ -1358,7 +1359,7 @@ public class ConferenceChatManager
     }
 
     /**
-     * Closes the chat corresponding to the given ad-hoc chat room wrapper, if 
+     * Closes the chat corresponding to the given ad-hoc chat room wrapper, if
      * such exists.
      *
      * @param chatRoomWrapper the ad-hoc chat room wrapper for which we search a
@@ -1475,6 +1476,7 @@ public class ConferenceChatManager
          * all asynchronous tasks.
          * @return SUCCESS if success, otherwise the error code
          */
+        @Override
         public String doInBackground()
         {
             ChatRoom chatRoom = chatRoomWrapper.getChatRoom();
@@ -1516,6 +1518,7 @@ public class ConferenceChatManager
          * @override {@link SwingWorker}{@link #done()} to perform UI changes
          * after the chat room join task has finished.
          */
+        @Override
         protected void done()
         {
             String returnCode = null;
@@ -1581,7 +1584,7 @@ public class ConferenceChatManager
             }
         }
     }
-    
+
     /**
      * Joins an ad-hoc chat room in an asynchronous way.
      */
@@ -1617,6 +1620,7 @@ public class ConferenceChatManager
          * all asynchronous tasks.
          * @return SUCCESS if success, otherwise the error code
          */
+        @Override
         public String doInBackground()
         {
             AdHocChatRoom chatRoom = adHocChatRoomWrapper.getAdHocChatRoom();
@@ -1653,6 +1657,7 @@ public class ConferenceChatManager
          * @override {@link SwingWorker}{@link #done()} to perform UI changes
          * after the ad-hoc chat room join task has finished.
          */
+        @Override
         protected void done()
         {
             String returnCode = null;
@@ -1706,7 +1711,7 @@ public class ConferenceChatManager
             }
         }
     }
-    
+
     /**
      * Finds a chat room in asynchronous way.
      */
@@ -1729,6 +1734,7 @@ public class ConferenceChatManager
          * all asynchronous tasks.
          * @return the chat room
          */
+        @Override
         public ChatRoom doInBackground()
         {
             OperationSetMultiUserChat groupChatOpSet
@@ -1767,6 +1773,7 @@ public class ConferenceChatManager
          * all asynchronous tasks.
          * @return a list of existing chat rooms
          */
+        @Override
         public List<String> doInBackground()
         {
             ProtocolProviderService protocolProvider
@@ -1823,7 +1830,7 @@ public class ConferenceChatManager
     }
 
      /**
-     * Implements the <tt>AdHocChatRoomMessageListener.messageDelivered</tt> 
+     * Implements the <tt>AdHocChatRoomMessageListener.messageDelivered</tt>
      * method.
      * <br>
      * Shows the message in the conversation area and clears the write message

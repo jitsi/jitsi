@@ -111,6 +111,7 @@ public class ParanoiaTimerSecurityPanel<T extends SrtpControl>
      *
      * @param evt the security event of which we're notified
      */
+    @Override
     public void securityOn(CallPeerSecurityOnEvent evt)
     {
         timer.cancel();
@@ -121,6 +122,7 @@ public class ParanoiaTimerSecurityPanel<T extends SrtpControl>
      *
      * @param evt the security event of which we're notified
      */
+    @Override
     public void securityOff(CallPeerSecurityOffEvent evt) {}
 
     /**
@@ -128,6 +130,7 @@ public class ParanoiaTimerSecurityPanel<T extends SrtpControl>
      * other end.
      * @param evt Details about the event that caused this message.
      */
+    @Override
     public void securityTimeout(CallPeerSecurityTimeoutEvent evt)
     {
         timer.cancel();

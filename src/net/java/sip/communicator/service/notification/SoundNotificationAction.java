@@ -8,7 +8,7 @@ package net.java.sip.communicator.service.notification;
 
 /**
  * An implementation of the <tt>SoundNotificationHandlerImpl</tt> interface.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class SoundNotificationAction
@@ -61,7 +61,7 @@ public class SoundNotificationAction
     /**
      * Creates an instance of <tt>SoundNotification</tt> by
      * specifying the sound file descriptor and the loop interval.
-     * 
+     *
      * @param soundDescriptor the sound file descriptor
      * @param loopInterval the loop interval
      * @param isSoundNotificationEnabled True if this sound is activated. False Otherwise.
@@ -86,8 +86,8 @@ public class SoundNotificationAction
      * Returns the loop interval. This is the interval of milliseconds to wait
      * before repeating the sound, when playing a sound in loop. By default this
      * method returns -1.
-     * 
-     * @return the loop interval 
+     *
+     * @return the loop interval
      */
     public int getLoopInterval()
     {
@@ -107,7 +107,7 @@ public class SoundNotificationAction
 
     /**
      * Returns the descriptor pointing to the sound to be played.
-     * 
+     *
      * @return the descriptor pointing to the sound to be played.
      */
     public String getDescriptor()

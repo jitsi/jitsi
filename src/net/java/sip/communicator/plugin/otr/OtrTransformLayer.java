@@ -13,7 +13,7 @@ import net.java.sip.communicator.service.protocol.event.*;
 
 /**
  * The Off-the-Record {@link TransformLayer} implementation.
- * 
+ *
  * @author George Politis
  */
 public class OtrTransformLayer
@@ -25,7 +25,7 @@ public class OtrTransformLayer
     public MessageDeliveredEvent messageDelivered(MessageDeliveredEvent evt)
     {
         Contact contact = evt.getDestinationContact();
-        
+
         OtrPolicy policy = OtrActivator.scOtrEngine.getContactPolicy(contact);
         SessionStatus sessionStatus =
             OtrActivator.scOtrEngine.getSessionStatus(contact);

@@ -215,7 +215,7 @@ public class UtilActivator
      */
     public static MediaConfigurationService getMediaConfiguration()
     {
-        return ServiceUtils.getService(bundleContext, 
+        return ServiceUtils.getService(bundleContext,
                 MediaConfigurationService.class);
     }
 

@@ -37,7 +37,7 @@ public class JoinChatRoomWindow
     /**
      * The list of providers who support chat rooms.
      */
-    private Vector<ChatRoomProviderWrapper> chatRoomProviders 
+    private Vector<ChatRoomProviderWrapper> chatRoomProviders
         = new Vector<ChatRoomProviderWrapper>();
 
     /**
@@ -46,7 +46,7 @@ public class JoinChatRoomWindow
     private JComboBox jcb_chatRoomProviders;
 
     /**
-     * An editable JComboBox which will allow to set a room name, and gives 
+     * An editable JComboBox which will allow to set a room name, and gives
      * suggestions regarding to its content.
      */
     private JComboBox jcb_roomName = new JComboBox();
@@ -97,17 +97,17 @@ public class JoinChatRoomWindow
     public JoinChatRoomWindow(ChatRoomProviderWrapper chatRoomProvider)
     {
         super();
-        
-        Iterator<ChatRoomProviderWrapper> providers = 
+
+        Iterator<ChatRoomProviderWrapper> providers =
             GuiActivator.getUIService().getConferenceChatManager()
                 .getChatRoomList().getChatRoomProviders();
-        
+
         while(providers.hasNext())
         {
             chatRoomProviders.add(providers.next());
-            ChatRoomProviderWrapper provider = 
+            ChatRoomProviderWrapper provider =
                 chatRoomProviders.get(chatRoomProviders.size()-1);
-           
+
             if(provider.getProtocolProvider().getRegistrationState()
                     == RegistrationState.REGISTERED)
             {
@@ -117,7 +117,7 @@ public class JoinChatRoomWindow
                     .getProtocolIcon().getIcon(ProtocolIcon.ICON_SIZE_16x16)));
             }
         }
-        
+
         buildGUI();
         setVisible(true);
         loadProviderRooms();
@@ -139,29 +139,29 @@ public class JoinChatRoomWindow
             "service.gui.JOIN_CHAT_ROOM_TITLE");
         this.setLayout(new BorderLayout());
         this.setTitle(title);
-        
+
         jcb_chatRoomProviders = new JComboBox(providerNames);
         jcb_chatRoomProviders.setRenderer(new ComboBoxRenderer());
         jcb_roomName.setEditable(true);
         jcb_roomName.setPreferredSize(jcb_chatRoomProviders.getPreferredSize());
 
-        // Initialization of the south panel, contains an 'Ok' button and 
+        // Initialization of the south panel, contains an 'Ok' button and
         // 'Undo' button:
-        JPanel jp_buttons = 
+        JPanel jp_buttons =
             new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
         final JButton jb_join = new JButton(
             GuiActivator.getResources().getI18NString("service.gui.JOIN"));
         JButton jb_back = new JButton(
             GuiActivator.getResources().getI18NString("service.gui.CANCEL"));
-        
+
         jp_buttons.add(jb_back);
         jp_buttons.add(jb_join);
-        
+
         jb_back.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e)
             { dispose(); }
         });
-        
+
         jb_join.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e)
             {
@@ -170,7 +170,7 @@ public class JoinChatRoomWindow
                 dispose();
             }
         });
-        
+
         editor = ((JTextField)jcb_roomName.getEditor().getEditorComponent());
         editor.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e)
@@ -178,13 +178,14 @@ public class JoinChatRoomWindow
                 handleChange();
             }
         });
-        
+
         jcb_chatRoomProviders.addItemListener(new ItemListener(){
             public void itemStateChanged(ItemEvent e)
             {
                 if(e.getStateChange() == ItemEvent.SELECTED)
-                    
+
                     new Thread(){
+                        @Override
                         public void run()
                         {
                             jb_join.setEnabled(false);
@@ -198,26 +199,26 @@ public class JoinChatRoomWindow
                     }.start();
             }
         });
-        
+
         // Initialization of the main panel which contains the account field and
         // the room name field:
         JPanel jp_formFields = new TransparentPanel();
-        JPanel jp_accountField = 
+        JPanel jp_accountField =
             new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
-        JPanel jp_roomField = 
+        JPanel jp_roomField =
             new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
-        JPanel jp_indication = 
+        JPanel jp_indication =
             new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
-        
+
         jp_formFields.setLayout(new BoxLayout(jp_formFields, BoxLayout.Y_AXIS));
         jp_accountField.setBorder(BorderFactory.createEmptyBorder(7, 7, 7, 7));
         jp_roomField.setBorder(BorderFactory.createEmptyBorder(0, 7, 0, 7));
-        
+
         jp_accountField.add(new JLabel(
             GuiActivator.getResources().getI18NString("service.gui.ACCOUNT")
                 + ": "));
         jp_accountField.add(jcb_chatRoomProviders);
-        
+
         jp_roomField.add(new JLabel(GuiActivator.getResources().getI18NString(
             "service.gui.CHAT_ROOM_NAME") + ": "));
         jp_roomField.add(jcb_roomName);
@@ -227,29 +228,29 @@ public class JoinChatRoomWindow
            jl_searchState.getFont().deriveFont(Font.ITALIC, 11));
         jl_searchState.setForeground(Color.DARK_GRAY);
         jl_searchState.setVisible(false);
-        
+
         JLabel jl_indication = new JLabel(GuiActivator.getResources()
             .getI18NString("service.gui.PRESS_ENTER_FOR_SUGGESTIONS"));
         jl_indication.setFont(jl_searchState.getFont());
         jl_indication.setForeground(jl_searchState.getForeground());
         jl_indication.setBorder(BorderFactory.createEmptyBorder(0, 0, 7, 8));
         jp_indication.add(jl_indication);
-        
+
         jp_formFields.add(jl_searchState);
         jp_formFields.add(jp_accountField);
         jp_formFields.add(jp_roomField);
         jp_formFields.add(jp_indication);
         this.add(jp_formFields, BorderLayout.CENTER);
         this.add(jp_buttons, BorderLayout.SOUTH);
-        
+
         // Size and position:
         this.setSize(new Dimension(415, 190));
         this.setResizable(false);
         this.setLocationRelativeTo(null);
     }
-    
+
     /**
-     * Updates the chat rooms list when a key change is performed in the search 
+     * Updates the chat rooms list when a key change is performed in the search
      * field. The new chat rooms list will contain all the chat rooms whose name
      * start with search fields text value.
      * @param match search for.
@@ -258,12 +259,12 @@ public class JoinChatRoomWindow
     public Vector<String> getChatRoomList(String match)
     {
         Vector<String> rooms = new Vector<String>();
-        
+
         if(serverRooms != null)
             for(String room : serverRooms)
                 if(room.startsWith(match))
                    rooms.add(room);
-        
+
         Collections.sort(rooms);
         return rooms;
     }
@@ -282,7 +283,7 @@ public class JoinChatRoomWindow
 
     /**
      * Returns the selected provider in the providers combo box.
-     * 
+     *
      * @return the selected provider
      */
     public ChatRoomProviderWrapper getSelectedProvider()
@@ -296,10 +297,10 @@ public class JoinChatRoomWindow
                 return crp;
             }
         }
-        
+
         return null;
     }
-    
+
     /**
      * Loads the rooms hosted on the selected provider.
      */
@@ -308,12 +309,12 @@ public class JoinChatRoomWindow
         serverRooms = GuiActivator.getUIService().getConferenceChatManager()
             .getExistingChatRooms(getSelectedProvider());
     }
-    
+
     /**
      * Cell renderer for the providers combo box: displays the protocol name
      * with its associated icon.
      */
-    class ComboBoxRenderer extends JLabel implements ListCellRenderer 
+    class ComboBoxRenderer extends JLabel implements ListCellRenderer
     {
         /**
          * The renderer.
@@ -329,7 +330,7 @@ public class JoinChatRoomWindow
         /**
          * Returns the cell renderer component for the given <tt>list</tt> and
          * <tt>value</tt>.
-         * 
+         *
          * @param list the parent list
          * @param value the value to render
          * @param index the index of the rendered cell in the list
@@ -338,16 +339,16 @@ public class JoinChatRoomWindow
          * @return the rendering component
          */
         public Component getListCellRendererComponent(JList list, Object value,
-            int index, boolean isSelected, boolean cellHasFocus) 
+            int index, boolean isSelected, boolean cellHasFocus)
         {
             String label = (String)value;
 
-            if (isSelected) 
+            if (isSelected)
             {
                 setBackground(list.getSelectionBackground());
                 setForeground(list.getSelectionForeground());
-            } 
-            else 
+            }
+            else
             {
                 setBackground(list.getBackground());
                 setForeground(list.getForeground());
@@ -363,21 +364,21 @@ public class JoinChatRoomWindow
             return this;
         }
     }
-    
+
     /**
-     * Performs changes in the room name combo box when its editor content has 
+     * Performs changes in the room name combo box when its editor content has
      * changed.
      */
     public void handleChange()
     {
         final String match = editor.getText();
-        
+
         SwingUtilities.invokeLater(new Runnable(){
             public void run()
             {
                 for(int i=0; i< jcb_roomName.getItemCount(); i++)
                     jcb_roomName.removeItemAt(i);
-                
+
                 for(String room : getChatRoomList(match))
                     jcb_roomName.addItem(room);
 
@@ -393,7 +394,7 @@ public class JoinChatRoomWindow
     public void loadSkin()
     {
         providerIcons.clear();
-        
+
         for(ChatRoomProviderWrapper provider : chatRoomProviders)
         {
             if(provider.getProtocolProvider().getRegistrationState()

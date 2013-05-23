@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.impl.protocol.irc;
@@ -9,7 +9,7 @@ import net.java.sip.communicator.service.protocol.*;
 
 /**
  * Very simple message implementation for the IRC protocol.
- * 
+ *
  * @author Stephane Remy
  * @author Loic Kempf
  * @author Lubomir Marinov
@@ -30,7 +30,7 @@ public class MessageIrcImpl
 
     /**
      * Creates a message instance according to the specified parameters.
-     * 
+     *
      * @param content the message body
      * @param contentType message content type or null for text/plain
      * @param contentEncoding message encoding or null for UTF8
@@ -45,7 +45,7 @@ public class MessageIrcImpl
     /**
      * Checks if this message is a command. In IRC all messages that start with
      * the '/' character are commands.
-     * 
+     *
      * @return TRUE if this <tt>Message</tt> is a command, FALSE otherwise
      */
     public boolean isCommand()
@@ -56,7 +56,7 @@ public class MessageIrcImpl
     /**
      * Checks if this message is an action. All message starting with '/me' are
      * actions.
-     * 
+     *
      * @return TRUE if this message is an action, FALSE otherwise
      */
     public boolean isAction()
@@ -67,9 +67,10 @@ public class MessageIrcImpl
     /**
      * Sets the content to this <tt>Message</tt>. Used to change the content,
      * before showing action messages to the user.
-     * 
+     *
      * @param messageContent the new message content
      */
+    @Override
     protected void setContent(String messageContent)
     {
         super.setContent(messageContent);

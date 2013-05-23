@@ -23,17 +23,17 @@ public class DictAccountRegistration
      * The hostname of the DICT server.
      */
     private String host;
-    
+
     /**
      * The port of the DICT server.
      */
     private int port;
-    
+
     /**
      * The strategy selected for the matching of words in dictionaries.
      */
     private Strategy strategy;
-    
+
     /**
      * Returns the User ID of the dict registration account.
      * @return the User ID of the dict registration account.

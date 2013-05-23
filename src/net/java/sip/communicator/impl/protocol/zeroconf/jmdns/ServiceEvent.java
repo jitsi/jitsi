@@ -12,10 +12,10 @@ import java.util.logging.*;
  * @author Werner Randelshofer, Rick Blair
  * @version %I%, %G%
  */
-public class ServiceEvent 
+public class ServiceEvent
     extends EventObject
 {
-    private static Logger logger = 
+    private static Logger logger =
         Logger.getLogger(ServiceEvent.class.toString());
     /**
      * The type name of the service.
@@ -38,7 +38,7 @@ public class ServiceEvent
      * @param source the JmDNS instance which originated the event.
      * @param type   the type name of the service.
      * @param name   the instance name of the service.
-     * @param info   the service info record, or null if the 
+     * @param info   the service info record, or null if the
      *      service could be be resolved.
      */
     public ServiceEvent(JmDNS source, String type, String name, ServiceInfo info)
@@ -47,10 +47,10 @@ public class ServiceEvent
         this.type = type;
         this.name = name;
         this.info = info;
-        
+
         String SLevel = System.getProperty("jmdns.debug");
         if (SLevel == null) SLevel = "INFO";
-        logger.setLevel(Level.parse(SLevel)); 
+        logger.setLevel(Level.parse(SLevel));
     }
 
     /**
@@ -92,6 +92,7 @@ public class ServiceEvent
         return info;
     }
 
+    @Override
     public String toString()
     {
         StringBuffer buf = new StringBuffer();

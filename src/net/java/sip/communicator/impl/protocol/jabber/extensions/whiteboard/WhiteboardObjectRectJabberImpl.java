@@ -33,7 +33,7 @@ public class WhiteboardObjectRectJabberImpl
 {
     private static final Logger logger =
       Logger.getLogger (WhiteboardObjectRectJabberImpl.class);
-    
+
     /**
      * The height value of this object (in pixel)
      */
@@ -54,7 +54,7 @@ public class WhiteboardObjectRectJabberImpl
      * The background color of this object
      */
     private int backColor;
-    
+
     /**
      * Default WhiteboardObjectRectJabberImpl constructor.
      */
@@ -67,8 +67,8 @@ public class WhiteboardObjectRectJabberImpl
      * WhiteboardObjectRectJabberImpl constructor.
      *
      * @param id String that uniquely identifies this WhiteboardObject
-     * @param thickness number of pixels that this object (or its border) 
-     * should be thick 
+     * @param thickness number of pixels that this object (or its border)
+     * should be thick
      * @param color WhiteboardObjectRectJabberImpl's color (or rather it's border)
      * @param backColor background color of this WhiteboardObjectRectJabberImpl
      * @param whiteboardPoint coordinates of this object.
@@ -108,7 +108,7 @@ public class WhiteboardObjectRectJabberImpl
             builder = factory.newDocumentBuilder ();
             InputStream in = new ByteArrayInputStream (xml.getBytes ());
             Document doc = builder.parse (in);
-            
+
             Element e = doc.getDocumentElement ();
             String elementName = e.getNodeName ();
             if (elementName.equals ("rect"))
@@ -122,7 +122,7 @@ public class WhiteboardObjectRectJabberImpl
                 String stroke = e.getAttribute ("stroke");
                 String stroke_width = e.getAttribute ("stroke-width");
                 String fill = e.getAttribute ("fill");
-                
+
                 this.setID (id);
                 this.setWhiteboardPoint (new WhiteboardPoint (x, y));
                 this.setWidth (width);
@@ -148,7 +148,7 @@ public class WhiteboardObjectRectJabberImpl
                 logger.debug ("Problem WhiteboardObject : "+xml);
         }
     }
-    
+
     /**
      * Gets the height (in pixels) of the WhiteboardShapeRect.
      *
@@ -158,7 +158,7 @@ public class WhiteboardObjectRectJabberImpl
     {
         return this.height;
     }
-    
+
     /**
      * Gets the width (in pixels) of the WhiteboardObject.
      *
@@ -168,7 +168,7 @@ public class WhiteboardObjectRectJabberImpl
     {
         return this.width;
     }
-    
+
     /**
      * Returns the fill state of the WhiteboardShapeRect.
      *
@@ -178,7 +178,7 @@ public class WhiteboardObjectRectJabberImpl
     {
         return this.fill;
     }
-    
+
     /**
      * Sets the fill state of the WhiteboardShapeRect.
      * True is filled, false is unfilled.
@@ -189,7 +189,7 @@ public class WhiteboardObjectRectJabberImpl
     {
         this.fill = fill;
     }
-    
+
     /**
      * Returns the coordinates of this whiteboard object.
      *
@@ -199,17 +199,17 @@ public class WhiteboardObjectRectJabberImpl
     {
         return whiteboardPoint;
     }
-    
+
     /**
      * Sets the coordinates of this whiteboard object.
      *
      * @param whiteboardPoint the coordinates of this object.
-     */    
+     */
     public void setWhiteboardPoint (WhiteboardPoint whiteboardPoint)
     {
         this.whiteboardPoint = whiteboardPoint;
     }
-    
+
     /**
      * Sets the width (in pixels) of the WhiteboardShapeRect.
      *
@@ -219,7 +219,7 @@ public class WhiteboardObjectRectJabberImpl
     {
         this.height = height;
     }
-    
+
     /**
      * Sets the width (in pixels) of the WhiteboardObject.
      *
@@ -229,7 +229,7 @@ public class WhiteboardObjectRectJabberImpl
     {
         this.width = width;
     }
-    
+
     /**
      * Specifies the background color for this object. The color parameter
      * must be encoded with standard RGB encoding: bits 24-31 are alpha, 16-23
@@ -242,7 +242,7 @@ public class WhiteboardObjectRectJabberImpl
     {
         this.backColor = backColor;
     }
-    
+
     /**
      * Returns an integer representing the background color of this object. The
      * return value uses standard RGB encoding: bits 24-31 are alpha, 16-23 are
@@ -254,7 +254,7 @@ public class WhiteboardObjectRectJabberImpl
     {
         return this.backColor;
     }
-    
+
     /**
      * Returns the XML reppresentation of the PacketExtension.
      *
@@ -262,11 +262,12 @@ public class WhiteboardObjectRectJabberImpl
      * @todo Implement this org.jivesoftware.smack.packet.PacketExtension
      *   method
      */
+    @Override
     public String toXML ()
     {
         String s = "<rect id=\"#i\" x=\"#x\" y=\"#y\" width=\"#w\" height=\"#h\" " +
           "fill=\"#f\" stroke=\"#s\" stroke-width=\"#ow\"/>";
-        
+
         s = s.replaceAll ("#i", getID ());
         s = s.replaceAll ("#s",  colorToHex (getColor ()));
         s = s.replaceAll ("#ow", ""+getThickness ());
@@ -276,7 +277,7 @@ public class WhiteboardObjectRectJabberImpl
         s = s.replaceAll ("#w", ""+getWidth ());
         s = s.replaceAll ("#h", ""+getHeight ());
         s = s.replaceAll ("#f", ((isFill ())?(""+getColor ()):"none"));
-        
+
         return s;
     }
 }

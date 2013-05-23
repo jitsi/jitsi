@@ -15,7 +15,7 @@ import java.util.logging.*;
  */
 public abstract class DNSRecord extends DNSEntry
 {
-    private static Logger logger = 
+    private static Logger logger =
         Logger.getLogger(DNSRecord.class.toString());
     int ttl;
     private long created;
@@ -28,16 +28,17 @@ public abstract class DNSRecord extends DNSEntry
         super(name, type, clazz);
         this.ttl = ttl;
         this.created = System.currentTimeMillis();
-        
+
         String SLevel = System.getProperty("jmdns.debug");
         if (SLevel == null) SLevel = "INFO";
-        logger.setLevel(Level.parse(SLevel)); 
+        logger.setLevel(Level.parse(SLevel));
     }
 
     /**
      * True if this record is the same as some other record.
      * @param other obj to be compared to.
      */
+    @Override
     public boolean equals(Object other)
     {
         return (other instanceof DNSRecord) && sameAs((DNSRecord) other);
@@ -83,8 +84,8 @@ public abstract class DNSRecord extends DNSEntry
     /**
      * Adds this as an answer to the provided outgoing datagram.
      */
-    abstract DNSOutgoing addAnswer(JmDNS dns, DNSIncoming in, InetAddress addr, 
-                                   int port, DNSOutgoing out) 
+    abstract DNSOutgoing addAnswer(JmDNS dns, DNSIncoming in, InetAddress addr,
+                                   int port, DNSOutgoing out)
         throws IOException;
 
     /**
@@ -105,7 +106,7 @@ public abstract class DNSRecord extends DNSEntry
         }
         catch (ArrayIndexOutOfBoundsException e)
         {
-            logger.log(Level.WARNING, 
+            logger.log(Level.WARNING,
                 "suppressedBy() message " + msg + " exception ", e);
             // msg.print(true);
             return false;
@@ -179,7 +180,7 @@ public abstract class DNSRecord extends DNSEntry
      */
     static class Address extends DNSRecord
     {
-        private static Logger logger = 
+        private static Logger logger =
             Logger.getLogger(Address.class.toString());
         InetAddress addr;
 
@@ -187,10 +188,10 @@ public abstract class DNSRecord extends DNSEntry
         {
             super(name, type, clazz, ttl);
             this.addr = addr;
-            
+
             String SLevel = System.getProperty("jmdns.debug");
             if (SLevel == null) SLevel = "INFO";
-            logger.setLevel(Level.parse(SLevel)); 
+            logger.setLevel(Level.parse(SLevel));
         }
 
         Address(String name, int type, int clazz, int ttl, byte[] rawAddress)
@@ -206,6 +207,7 @@ public abstract class DNSRecord extends DNSEntry
             }
         }
 
+        @Override
         void write(DNSOutgoing out) throws IOException
         {
             if (addr != null)
@@ -213,7 +215,7 @@ public abstract class DNSRecord extends DNSEntry
                 byte[] buffer = addr.getAddress();
                 if (DNSConstants.TYPE_A == type)
                 {
-                    // If we have a type A records we should 
+                    // If we have a type A records we should
                     // answer with a IPv4 address
                     if (addr instanceof Inet4Address)
                     {
@@ -229,7 +231,7 @@ public abstract class DNSRecord extends DNSEntry
                 }
                 else
                 {
-                    // If we have a type AAAA records we should 
+                    // If we have a type AAAA records we should
                     // answer with a IPv6 address
                     if (addr instanceof Inet4Address)
                     {
@@ -263,6 +265,7 @@ public abstract class DNSRecord extends DNSEntry
             return name.equalsIgnoreCase(((Address) other).name);
         }
 
+        @Override
         boolean sameValue(DNSRecord other)
         {
             return addr.equals(((Address) other).getAddress());
@@ -312,8 +315,8 @@ public abstract class DNSRecord extends DNSEntry
         {
             byte[] thisBytes = this.toByteArray();
             byte[] thatBytes = that.toByteArray();
-            for (   int i = 0, n = Math.min(thisBytes.length, thatBytes.length); 
-                    i < n; 
+            for (   int i = 0, n = Math.min(thisBytes.length, thatBytes.length);
+                    i < n;
                     i++)
             {
                 if (thisBytes[i] > thatBytes[i])
@@ -334,19 +337,20 @@ public abstract class DNSRecord extends DNSEntry
         /**
          * Does the necessary actions, when this as a query.
          */
+        @Override
         boolean handleQuery(JmDNS dns, long expirationTime)
         {
-            DNSRecord.Address dnsAddress = 
+            DNSRecord.Address dnsAddress =
                 dns.getLocalHost().getDNSAddressRecord(this);
             if (dnsAddress != null)
             {
-                if (dnsAddress.sameType(this) && 
-                    dnsAddress.sameName(this) && 
+                if (dnsAddress.sameType(this) &&
+                    dnsAddress.sameName(this) &&
                     (!dnsAddress.sameValue(this)))
                 {
                     logger.finer(
-                        "handleQuery() Conflicting probe detected. dns state " + 
-                        dns.getState() + 
+                        "handleQuery() Conflicting probe detected. dns state " +
+                        dns.getState() +
                         " lex compare " + lexCompare(dnsAddress));
                     // Tie-breaker test
                     if (dns.getState().isProbing() && lexCompare(dnsAddress) >= 0)
@@ -367,14 +371,15 @@ public abstract class DNSRecord extends DNSEntry
         /**
          * Does the necessary actions, when this as a response.
          */
+        @Override
         boolean handleResponse(JmDNS dns)
         {
-            DNSRecord.Address dnsAddress = 
+            DNSRecord.Address dnsAddress =
                 dns.getLocalHost().getDNSAddressRecord(this);
             if (dnsAddress != null)
             {
-                if (dnsAddress.sameType(this) && 
-                    dnsAddress.sameName(this) && 
+                if (dnsAddress.sameType(this) &&
+                    dnsAddress.sameName(this) &&
                     (!dnsAddress.sameValue(this)))
                 {
                     logger.finer("handleResponse() Denial detected");
@@ -393,19 +398,21 @@ public abstract class DNSRecord extends DNSEntry
             return false;
         }
 
-        DNSOutgoing addAnswer(JmDNS dns, 
-                              DNSIncoming in, 
-                              InetAddress addr, 
-                              int port, 
-                              DNSOutgoing out) 
+        @Override
+        DNSOutgoing addAnswer(JmDNS dns,
+                              DNSIncoming in,
+                              InetAddress addr,
+                              int port,
+                              DNSOutgoing out)
             throws IOException
         {
             return out;
         }
 
+        @Override
         public String toString()
         {
-            return toString(" address '" + 
+            return toString(" address '" +
                 (addr != null ? addr.getHostAddress() : "null") + "'");
         }
 
@@ -416,7 +423,7 @@ public abstract class DNSRecord extends DNSEntry
      */
     static class Pointer extends DNSRecord
     {
-        private static Logger logger = 
+        private static Logger logger =
             Logger.getLogger(Pointer.class.toString());
         String alias;
 
@@ -424,30 +431,34 @@ public abstract class DNSRecord extends DNSEntry
         {
             super(name, type, clazz, ttl);
             this.alias = alias;
-            
+
             String SLevel = System.getProperty("jmdns.debug");
             if (SLevel == null) SLevel = "INFO";
-            logger.setLevel(Level.parse(SLevel)); 
+            logger.setLevel(Level.parse(SLevel));
         }
 
+        @Override
         void write(DNSOutgoing out) throws IOException
         {
             out.writeName(alias);
         }
 
+        @Override
         boolean sameValue(DNSRecord other)
         {
             return alias.equals(((Pointer) other).alias);
         }
 
+        @Override
         boolean handleQuery(JmDNS dns, long expirationTime)
         {
             // Nothing to do (?)
-            // I think there is no possibility 
+            // I think there is no possibility
             // for conflicts for this record type?
             return false;
         }
 
+        @Override
         boolean handleResponse(JmDNS dns)
         {
             // Nothing to do (?)
@@ -460,16 +471,18 @@ public abstract class DNSRecord extends DNSEntry
             return alias;
         }
 
-        DNSOutgoing addAnswer(JmDNS dns, 
-                            DNSIncoming in, 
-                            InetAddress addr, 
-                            int port, 
-                            DNSOutgoing out) 
+        @Override
+        DNSOutgoing addAnswer(JmDNS dns,
+                            DNSIncoming in,
+                            InetAddress addr,
+                            int port,
+                            DNSOutgoing out)
             throws IOException
         {
             return out;
         }
 
+        @Override
         public String toString()
         {
             return toString(alias);
@@ -478,7 +491,7 @@ public abstract class DNSRecord extends DNSEntry
 
     static class Text extends DNSRecord
     {
-        private static Logger logger = 
+        private static Logger logger =
             Logger.getLogger(Text.class.toString());
         byte text[];
 
@@ -486,17 +499,19 @@ public abstract class DNSRecord extends DNSEntry
         {
             super(name, type, clazz, ttl);
             this.text = text;
-            
+
             String SLevel = System.getProperty("jmdns.debug");
             if (SLevel == null) SLevel = "INFO";
-            logger.setLevel(Level.parse(SLevel)); 
+            logger.setLevel(Level.parse(SLevel));
         }
 
+        @Override
         void write(DNSOutgoing out) throws IOException
         {
             out.writeBytes(text, 0, text.length);
         }
 
+        @Override
         boolean sameValue(DNSRecord other)
         {
             Text txt = (Text) other;
@@ -514,6 +529,7 @@ public abstract class DNSRecord extends DNSEntry
             return true;
         }
 
+        @Override
         boolean handleQuery(JmDNS dns, long expirationTime)
         {
             // Nothing to do (?)
@@ -521,15 +537,16 @@ public abstract class DNSRecord extends DNSEntry
             return false;
         }
 
+        @Override
         boolean handleResponse(JmDNS dns)
         {
             // Nothing to do (?)
             // Shouldn't we care if we get a conflict at this level?
             /*
                 ServiceInfo info = (ServiceInfo) dns.services.get(name.toLowerCase());
-                if (info != null) 
+                if (info != null)
                 {
-                    if (! Arrays.equals(text,info.text)) 
+                    if (! Arrays.equals(text,info.text))
                     {
                         info.revertState();
                         return true;
@@ -539,20 +556,22 @@ public abstract class DNSRecord extends DNSEntry
             return false;
         }
 
-        DNSOutgoing addAnswer(JmDNS dns, 
-                              DNSIncoming in, 
-                              InetAddress addr, 
-                              int port, 
+        @Override
+        DNSOutgoing addAnswer(JmDNS dns,
+                              DNSIncoming in,
+                              InetAddress addr,
+                              int port,
                               DNSOutgoing out)
             throws IOException
         {
             return out;
         }
 
+        @Override
         public String toString()
         {
-            return toString((text.length > 10) ? 
-                    new String(text, 0, 7) + "..." : 
+            return toString((text.length > 10) ?
+                    new String(text, 0, 7) + "..." :
                     new String(text));
         }
     }
@@ -562,20 +581,20 @@ public abstract class DNSRecord extends DNSEntry
      */
     static class Service extends DNSRecord
     {
-        private static Logger logger = 
+        private static Logger logger =
             Logger.getLogger(Service.class.toString());
         int priority;
         int weight;
         int port;
         String server;
 
-        Service(String name, 
-                int type, 
-                int clazz, 
-                int ttl, 
-                int priority, 
-                int weight, 
-                int port, 
+        Service(String name,
+                int type,
+                int clazz,
+                int ttl,
+                int priority,
+                int weight,
+                int port,
                 String server)
         {
             super(name, type, clazz, ttl);
@@ -583,12 +602,13 @@ public abstract class DNSRecord extends DNSEntry
             this.weight = weight;
             this.port = port;
             this.server = server;
-            
+
             String SLevel = System.getProperty("jmdns.debug");
             if (SLevel == null) SLevel = "INFO";
-            logger.setLevel(Level.parse(SLevel)); 
+            logger.setLevel(Level.parse(SLevel));
         }
 
+        @Override
         void write(DNSOutgoing out) throws IOException
         {
             out.writeShort(priority);
@@ -624,8 +644,8 @@ public abstract class DNSRecord extends DNSEntry
         {
             byte[] thisBytes = this.toByteArray();
             byte[] thatBytes = that.toByteArray();
-            for (int i = 0, n = Math.min(thisBytes.length, thatBytes.length); 
-                i < n; 
+            for (int i = 0, n = Math.min(thisBytes.length, thatBytes.length);
+                i < n;
                 i++)
             {
                 if (thisBytes[i] > thatBytes[i])
@@ -643,34 +663,36 @@ public abstract class DNSRecord extends DNSEntry
             return thisBytes.length - thatBytes.length;
         }
 
+        @Override
         boolean sameValue(DNSRecord other)
         {
             Service s = (Service) other;
-            return (priority == s.priority) && 
-                (weight == s.weight) && 
-                (port == s.port) && 
+            return (priority == s.priority) &&
+                (weight == s.weight) &&
+                (port == s.port) &&
                 server.equals(s.server);
         }
 
+        @Override
         boolean handleQuery(JmDNS dns, long expirationTime)
         {
             ServiceInfo info = dns.services.get(name.toLowerCase());
-            if (info != null && 
-                (port != info.port || 
+            if (info != null &&
+                (port != info.port ||
                 !server.equalsIgnoreCase(dns.getLocalHost().getName())))
             {
                 logger.finer("handleQuery() Conflicting probe detected");
 
                 // Tie breaker test
-                if (info.getState().isProbing() && 
+                if (info.getState().isProbing() &&
                     lexCompare(new DNSRecord.Service(
-                        info.getQualifiedName(), 
+                        info.getQualifiedName(),
                         DNSConstants.TYPE_SRV,
                         DNSConstants.CLASS_IN | DNSConstants.CLASS_UNIQUE,
-                        DNSConstants.DNS_TTL, 
+                        DNSConstants.DNS_TTL,
                         info.priority,
-                        info.weight, 
-                        info.port, 
+                        info.weight,
+                        info.port,
                         dns.getLocalHost().getName())) >= 0)
                 {
                     // We lost the tie break
@@ -689,10 +711,11 @@ public abstract class DNSRecord extends DNSEntry
             return false;
         }
 
+        @Override
         boolean handleResponse(JmDNS dns)
         {
             ServiceInfo info = dns.services.get(name.toLowerCase());
-            if (info != null && 
+            if (info != null &&
                 (port != info.port || !server.equalsIgnoreCase(dns.getLocalHost().getName())))
             {
                 logger.finer("handleResponse() Denial detected");
@@ -713,11 +736,12 @@ public abstract class DNSRecord extends DNSEntry
             return false;
         }
 
-        DNSOutgoing addAnswer(JmDNS dns, 
-                              DNSIncoming in, 
-                              InetAddress addr, 
-                              int port, 
-                              DNSOutgoing out) 
+        @Override
+        DNSOutgoing addAnswer(JmDNS dns,
+                              DNSIncoming in,
+                              InetAddress addr,
+                              int port,
+                              DNSOutgoing out)
             throws IOException
         {
             ServiceInfo info = dns.services.get(name.toLowerCase());
@@ -727,19 +751,20 @@ public abstract class DNSRecord extends DNSEntry
                 {
                     return dns.addAnswer(in, addr, port, out,
                         new DNSRecord.Service(
-                                info.getQualifiedName(), 
+                                info.getQualifiedName(),
                                 DNSConstants.TYPE_SRV,
                                 DNSConstants.CLASS_IN | DNSConstants.CLASS_UNIQUE,
-                                DNSConstants.DNS_TTL, 
+                                DNSConstants.DNS_TTL,
                                 info.priority,
-                                info.weight, 
-                                info.port, 
+                                info.weight,
+                                info.port,
                                 dns.getLocalHost().getName()));
                 }
             }
             return out;
         }
 
+        @Override
         public String toString()
         {
             return toString(server + ":" + port);
@@ -748,8 +773,8 @@ public abstract class DNSRecord extends DNSEntry
 
     public String toString(String other)
     {
-        return toString("record", ttl + "/" + 
-            getRemainingTTL(System.currentTimeMillis()) 
+        return toString("record", ttl + "/" +
+            getRemainingTTL(System.currentTimeMillis())
 //            + "," + other
             );
     }

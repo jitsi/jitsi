@@ -36,6 +36,7 @@ public class SIPCommCallComboBoxUI extends SIPCommComboBoxUI
      * @return an instance of <code>ComboPopup</code>
      * @see ComboPopup
      */
+    @Override
     protected ComboPopup createPopup()
     {
         SIPCommComboPopup popup = new SIPCommComboPopup( comboBox );
@@ -54,9 +55,10 @@ public class SIPCommCallComboBoxUI extends SIPCommComboBoxUI
         }
 
         /**
-         * Makes the popup visible if it is hidden and makes it hidden if it is 
+         * Makes the popup visible if it is hidden and makes it hidden if it is
          * visible.
          */
+        @Override
         protected void togglePopup()
         {
             if ( isVisible() )
@@ -76,6 +78,7 @@ public class SIPCommCallComboBoxUI extends SIPCommComboBoxUI
          * Configures the popup portion of the combo box. This method is called
          * when the UI class is created.
          */
+        @Override
         protected void configurePopup() {
             setLayout( new BoxLayout( this, BoxLayout.Y_AXIS ) );
             setBorderPainted( true );
@@ -87,10 +90,10 @@ public class SIPCommCallComboBoxUI extends SIPCommComboBoxUI
         }
 
         /**
-         * Sets the list selection index to the selectedIndex. This 
-         * method is used to synchronize the list selection with the 
+         * Sets the list selection index to the selectedIndex. This
+         * method is used to synchronize the list selection with the
          * combo box selection.
-         * 
+         *
          * @param selectedIndex the index to set the list
          */
         private void setListSelection(int selectedIndex)
@@ -144,6 +147,7 @@ public class SIPCommCallComboBoxUI extends SIPCommComboBoxUI
      * aggregate combo box. This method is called as part of the UI
      * installation process.
      */
+    @Override
     protected void installComponents()
     {
         if (arrowButton != null)
@@ -159,6 +163,7 @@ public class SIPCommCallComboBoxUI extends SIPCommComboBoxUI
      * Returns the area that is reserved for drawing the currently selected item.
      * @return the rectangle
      */
+    @Override
     protected Rectangle rectangleForCurrentValue()
     {
         int width = comboBox.getWidth();

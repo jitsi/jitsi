@@ -13,7 +13,7 @@ import net.java.sip.communicator.service.gui.*;
 
 /**
  * The list containing all <tt>ConfigurationForm</tt>s.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class ConfigFormList
@@ -42,7 +42,7 @@ public class ConfigFormList
     }
 
     /**
-     * Adds a new <tt>ConfigurationForm</tt> to this list. 
+     * Adds a new <tt>ConfigurationForm</tt> to this list.
      * @param configForm The <tt>ConfigurationForm</tt> to add.
      */
     public void addConfigForm(ConfigurationForm configForm)
@@ -65,7 +65,7 @@ public class ConfigFormList
     }
 
     /**
-     * Removes a <tt>ConfigurationForm</tt> from this list. 
+     * Removes a <tt>ConfigurationForm</tt> from this list.
      * @param configForm The <tt>ConfigurationForm</tt> to remove.
      */
     public void removeConfigForm(ConfigurationForm configForm)

@@ -118,7 +118,7 @@ public class NotificationsTable
             }
             else
             {
-                tmp.setHeaderValue((String)columns[i]);
+                tmp.setHeaderValue(columns[i]);
             }
 
             if(i < columns.length - 1)
@@ -301,6 +301,7 @@ public class NotificationsTable
      * Adding a mouse listener on the table.
      * @param l the <tt>MouseListener</tt> to add
      */
+    @Override
     public void addMouseListener(MouseListener l)
     {
        notifTable.addMouseListener(l);
@@ -396,6 +397,7 @@ public class NotificationsTable
          * Creates the default table header.
          * @return the table header
          */
+        @Override
         protected JTableHeader createDefaultTableHeader()
         {
             return new JTableHeader(columnModel)
@@ -405,6 +407,7 @@ public class NotificationsTable
                  */
                 private static final long serialVersionUID = 0L;
 
+                @Override
                 public String getToolTipText(MouseEvent e)
                 {
                     java.awt.Point p = e.getPoint();
@@ -443,11 +446,13 @@ public class NotificationsTable
          * @param c the column number
          * @return  the class of the given column
          */
+        @Override
         public Class<?> getColumnClass(int c)
         {
             return getValueAt(0, c).getClass();
         }
 
+        @Override
         public boolean isCellEditable(int row, int col)
         {
             if (col == 0)
@@ -467,6 +472,7 @@ public class NotificationsTable
          * and released) on a component.
          * @param e the <tt>MouseEvent</tt> that notified us
          */
+        @Override
         public void mouseClicked(MouseEvent e)
         {
             int row = notifTable.rowAtPoint(e.getPoint());

@@ -44,6 +44,7 @@ public class ChatBuffer<E> extends ArrayList<E> {
      * @return <code>true</code> (as per the general contract of the
      * Collection.add)
      */
+    @Override
     public boolean add(E o) {
         this.recalculateBuffer();
 

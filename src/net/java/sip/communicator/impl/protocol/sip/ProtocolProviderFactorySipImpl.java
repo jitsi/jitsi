@@ -38,6 +38,7 @@ public class ProtocolProviderFactorySipImpl
      *
      * @param accountID the account identifier.
      */
+    @Override
     protected void storeAccount(AccountID accountID)
     {
         storeXCapPassword(accountID);
@@ -90,6 +91,7 @@ public class ProtocolProviderFactorySipImpl
      *   installed.
      * @throws NullPointerException if any of the arguments is null.
      */
+    @Override
     public AccountID installAccount( String userIDStr,
                                  Map<String, String> accountProperties)
     {
@@ -149,6 +151,7 @@ public class ProtocolProviderFactorySipImpl
      *
      * @throws java.lang.NullPointerException if any of the arguments is null.
      */
+    @Override
     public void modifyAccount(  ProtocolProviderService protocolProvider,
                                 Map<String, String> accountProperties)
     {

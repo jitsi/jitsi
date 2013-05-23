@@ -548,6 +548,7 @@ public class UriHandlerJabberImpl
             {
                 Thread uriRehandleThread = new Thread()
                 {
+                    @Override
                     public void run()
                     {
                         handleUri(uri);

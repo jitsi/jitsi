@@ -18,7 +18,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.skin.*;
 
 /**
- * 
+ *
  * @author Yana Stamcheva
  */
 public class CallButton

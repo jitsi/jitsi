@@ -33,6 +33,7 @@ public class ImageCanvas
         setImage(image);
     }
 
+    @Override
     protected void paintComponent(Graphics g)
     {
         super.paintComponent(g);

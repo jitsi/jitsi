@@ -191,6 +191,7 @@ public class CallPeerGTalkImpl
      *
      * @return the session ID of the Jingle session associated with this call.
      */
+    @Override
     public String getSID()
     {
         return sessionInitIQ != null ? sessionInitIQ.getID() : sid;
@@ -425,6 +426,7 @@ public class CallPeerGTalkImpl
                 // possibly delay others candidates messages.
                 new Thread()
                 {
+                    @Override
                     public void run()
                     {
                         processSessionAccept(sess);

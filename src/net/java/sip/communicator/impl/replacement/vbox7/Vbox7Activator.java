@@ -38,7 +38,7 @@ public class Vbox7Activator
 
     /**
      * Starts the Vbox7 replacement source bundle
-     * 
+     *
      * @param context the <tt>BundleContext</tt> as provided from the OSGi
      *            framework
      * @throws Exception if anything goes wrong

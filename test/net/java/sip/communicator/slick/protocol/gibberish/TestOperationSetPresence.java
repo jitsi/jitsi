@@ -18,7 +18,7 @@ import net.java.sip.communicator.util.*;
  * Tests Gibberish implementations of a Presence Operation Set. Tests in this
  * class verify functionality such as: Changing local (our own) status and
  * corresponding event dispatching; Querying status of contacts, Subscribing
- * for presence notifications upong status changes of specific contacts.
+ * for presence notifications upon status changes of specific contacts.
  * <p>
  * Using a custom suite() method, we make sure that apart from standard test
  * methods (those with a <tt>test</tt> prefix) we also execute those that
@@ -46,6 +46,7 @@ public class TestOperationSetPresence
         super(name);
     }
 
+    @Override
     protected void setUp() throws Exception
     {
         super.setUp();
@@ -102,6 +103,7 @@ public class TestOperationSetPresence
 
     }
 
+    @Override
     protected void tearDown() throws Exception
     {
         super.tearDown();

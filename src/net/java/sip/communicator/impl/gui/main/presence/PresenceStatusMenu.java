@@ -149,6 +149,7 @@ public class PresenceStatusMenu
      * @param actionListener The <tt>ActionListener</tt>, which handles the
      * case, when the item is selected.
      */
+    @Override
     public void addItem(String text, Icon icon, ActionListener actionListener)
     {
         JCheckBoxMenuItem item = new JCheckBoxMenuItem(text, icon);

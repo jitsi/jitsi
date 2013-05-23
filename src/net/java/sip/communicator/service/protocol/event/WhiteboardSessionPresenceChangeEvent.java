@@ -143,6 +143,7 @@ public class WhiteboardSessionPresenceChangeEvent
      *
      * @return String representation of this event
      */
+    @Override
     public String toString()
     {
         return "WhiteboardSessionPresenceChangeEvent[type="

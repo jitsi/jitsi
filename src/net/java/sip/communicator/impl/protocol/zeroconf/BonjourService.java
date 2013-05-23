@@ -128,6 +128,7 @@ public class BonjourService extends Thread
     /**
      * Walk?
      */
+    @Override
     public void run()
     {
         if (logger.isDebugEnabled())
@@ -328,6 +329,7 @@ public class BonjourService extends Thread
             this.start();
         }
 
+        @Override
         public void run()
         {
             ServiceInfo service = null;

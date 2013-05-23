@@ -107,6 +107,7 @@ public class ContactMsnImpl
      *
      * @return  a string representation of this contact.
      */
+    @Override
     public String toString()
     {
         StringBuffer buff =  new StringBuffer("MsnContact[ id=");

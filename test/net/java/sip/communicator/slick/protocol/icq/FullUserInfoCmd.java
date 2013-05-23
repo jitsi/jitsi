@@ -132,6 +132,7 @@ public class FullUserInfoCmd
      * @param out the stream to which to write the SNAC data
      * @throws IOException if an I/O error occurs
      */
+    @Override
     public void writeData(OutputStream out)
             throws IOException
     {
@@ -668,10 +669,10 @@ public class FullUserInfoCmd
             return -1;
         }
 
-        return ( ( (long) data.get(pos + 3) & 0xffL) << 24)
-            | ( ( (long) data.get(pos + 2) & 0xffL) << 16)
-            | ( ( (long) data.get(pos + 1) & 0xffL) << 8)
-            | ( (long) data.get(pos) & 0xffL);
+        return ( ( data.get(pos + 3) & 0xffL) << 24)
+            | ( ( data.get(pos + 2) & 0xffL) << 16)
+            | ( ( data.get(pos + 1) & 0xffL) << 8)
+            | ( data.get(pos) & 0xffL);
     }
 
     /**
@@ -810,6 +811,7 @@ public class FullUserInfoCmd
          * @param out OutputStream
          * @throws IOException
          */
+        @Override
         public void writeData(OutputStream out) throws IOException
         {
             ByteArrayOutputStream icqout = new ByteArrayOutputStream();

@@ -20,7 +20,7 @@ import net.java.sip.communicator.util.skin.*;
 /**
  * The <tt>EditMenu</tt> is the menu in the chat window menu bar, which contains
  * cut, copy and paste.
- * 
+ *
  * @author Yana Stamcheva
  * @author Adam Netocny
  */

@@ -39,7 +39,7 @@ public class OperationSetServerStoredContactInfoJabberImpl
     {
         this.infoRetreiver = infoRetreiver;
     }
-    
+
     /**
      * returns the user details from the specified class or its descendants
      * the class is one from the

@@ -22,10 +22,10 @@ public class IcqAccountID
      * Then name of a property which represenstots is this account icq or aim.
      */
     public static final String IS_AIM = "IS_AIM";
-    
+
     /**
      * Creates an icq account id from the specified uin and account properties.
-     * If property IS_AIM is set to true then this is an AIM account, else 
+     * If property IS_AIM is set to true then this is an AIM account, else
      * an Icq one.
      * @param uin the uin identifying this account
      * @param accountProperties any other properties necessary for the account.
@@ -38,7 +38,7 @@ public class IcqAccountID
             isAIM(accountProperties) ? ProtocolNames.AIM : ProtocolNames.ICQ,
             isAIM(accountProperties) ? "aim.com" : "icq.com");
     }
-    
+
     /**
      * Checks whether the specified set of account properties describes an AIM
      * account.

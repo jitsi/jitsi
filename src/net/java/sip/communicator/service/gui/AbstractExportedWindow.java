@@ -39,7 +39,7 @@ public abstract class AbstractExportedWindow<T extends Window>
     /**
      * Creates the <code>Window</code> instance to be wrapped by this instance
      * and to which <code>ExportedWindow</code> capabilities are provided.
-     * 
+     *
      * @return the <code>Window</code> instance to be wrapped by this instance
      *         and to which <code>ExportedWindow</code> capabilities are
      *         provided
@@ -57,7 +57,7 @@ public abstract class AbstractExportedWindow<T extends Window>
     /**
      * Gets the <code>Window</code> wrapped by this instance and to which
      * <code>ExportedWindow</code> capabilities are provided.
-     * 
+     *
      * @return the <code>Window</code> wrapped by this instance and to which
      *         <code>ExportedWindow</code> capabilities are provided
      */
@@ -95,7 +95,7 @@ public abstract class AbstractExportedWindow<T extends Window>
 
                 visible
                     = (frame.getExtendedState() & Frame.ICONIFIED)
-                        != Frame.ICONIFIED; 
+                        != Frame.ICONIFIED;
             }
         }
         return visible;
@@ -135,7 +135,7 @@ public abstract class AbstractExportedWindow<T extends Window>
 
     /**
      * Implements {@link ExportedWindow#setParams(Object[])}. Does nothing.
-     * 
+     *
      * @param windowParams
      *            the parameters to set to the <code>Window</code> wrapped in
      *            this instance

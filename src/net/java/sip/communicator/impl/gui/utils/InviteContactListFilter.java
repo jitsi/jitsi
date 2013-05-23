@@ -35,6 +35,7 @@ public class InviteContactListFilter
      * Applies this filter to the default contact source.
      * @param filterQuery the query that tracks this filter.
      */
+    @Override
     public void applyFilter(FilterQuery filterQuery)
     {
         filterQuery.setMaxResultShown(-1);

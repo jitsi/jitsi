@@ -22,7 +22,6 @@ import net.java.sip.communicator.util.*;
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.MediaType;
 import org.jitsi.service.neomedia.format.*;
-// disambiguates MediaType
 
 /**
  * The class contains a number of utility methods that are meant to facilitate
@@ -378,7 +377,7 @@ public class SdpUtils
         try
         {
             formatStrings
-                = (Vector<String>)mediaDesc.getMedia().getMediaFormats(true);
+                = mediaDesc.getMedia().getMediaFormats(true);
         }
         catch (SdpParseException exc)
         {

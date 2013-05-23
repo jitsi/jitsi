@@ -423,6 +423,7 @@ public class LoginManager
          * Registers the contained protocol provider and process all possible
          * errors that may occur during the registration process.
          */
+        @Override
         public void run()
         {
             try
@@ -546,6 +547,7 @@ public class LoginManager
          * Unregisters the contained protocol provider and process all possible
          * errors that may occur during the un-registration process.
          */
+        @Override
         public void run()
         {
             try

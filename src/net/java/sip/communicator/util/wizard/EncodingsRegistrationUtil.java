@@ -15,7 +15,7 @@ import org.jitsi.service.neomedia.codec.*;
 
 /**
  * An interface to get/set settings in the encodings panel.
- * 
+ *
  * @author Boris Grozev
  * @author Pawel Domas
  */

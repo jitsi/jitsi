@@ -98,6 +98,7 @@ public class ColibriConferenceIQ
      *
      * @return an XML <tt>String</tt> representation of this <tt>IQ</tt>
      */
+    @Override
     public String getChildElementXML()
     {
         StringBuilder xml = new StringBuilder();
@@ -783,7 +784,7 @@ public class ColibriConferenceIQ
          * <tt>Content</tt> to be returned
          * @return the <tt>Channel</tt> which is included into this
          * <tt>Content</tt> and which has the specified <tt>channelID</tt> if
-         * such a <tt>Channel</tt> exists; otherwise, <tt>null</tt> 
+         * such a <tt>Channel</tt> exists; otherwise, <tt>null</tt>
          */
         public Channel getChannel(String channelID)
         {

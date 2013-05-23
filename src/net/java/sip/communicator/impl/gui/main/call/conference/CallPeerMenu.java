@@ -38,12 +38,12 @@ public class CallPeerMenu
     private static final long serialVersionUID = 0L;
 
     private final CallPeer callPeer;
-    
+
     /**
      * The conference panel associated with the menu.
      */
     private BasicConferenceCallPanel conferenceCallPanel;
-    
+
     private final String onHoldText = GuiActivator.getResources()
         .getI18NString("service.gui.PUT_ON_HOLD");
     private final String offHoldText = GuiActivator.getResources()
@@ -81,7 +81,7 @@ public class CallPeerMenu
             {
                 public void actionPerformed(ActionEvent e)
                 {
-                    if(callPeer.getState() == CallPeerState.DISCONNECTED 
+                    if(callPeer.getState() == CallPeerState.DISCONNECTED
                         || callPeer.getState() == CallPeerState.FAILED)
                     {
                         conferenceCallPanel
@@ -164,11 +164,11 @@ public class CallPeerMenu
         {
             holdMenuItem.setText(offHoldText);
         }
-        
-        
-        holdMenuItem.setEnabled((CallPeerState.DISCONNECTED != newState 
+
+
+        holdMenuItem.setEnabled((CallPeerState.DISCONNECTED != newState
             && CallPeerState.FAILED != newState));
-        
+
     }
 
     public void peerAddressChanged(CallPeerChangeEvent evt) {}

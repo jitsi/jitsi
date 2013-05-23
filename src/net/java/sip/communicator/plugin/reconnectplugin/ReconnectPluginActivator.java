@@ -906,6 +906,7 @@ public class ReconnectPluginActivator
         /**
          * Reconnects the provider.
          */
+        @Override
         public void run()
         {
             if(thread == null || !Thread.currentThread().equals(thread))

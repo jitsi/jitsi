@@ -90,7 +90,7 @@ public class TestPopupMessageHandler
     {
         serviceReference = bc.getServiceReference(
                 SystrayService.class.getName());
-        
+
         systrayService = (SystrayService) bc.getService(serviceReference);
 
         systrayService.setActivePopupMessageHandler(handler1);
@@ -152,7 +152,7 @@ public class TestPopupMessageHandler
             // is it the expected handler which is handling it ?
             assertEquals(handler2, this);
         }
-        
+
         /**
          * implements <tt>getPreferenceIndex</tt> from <tt>PopupMessageHandler</tt>
          */

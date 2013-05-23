@@ -91,7 +91,7 @@ public class SRVRecord
     /**
      * Returns the toString of the org.xbill.DNS.SRVRecord that was passed to
      * the constructor.
-     * 
+     *
      * @return the toString of the org.xbill.DNS.SRVRecord that was passed to
      *         the constructor.
      */

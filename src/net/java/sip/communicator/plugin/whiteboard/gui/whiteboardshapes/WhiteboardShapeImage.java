@@ -57,7 +57,7 @@ public class WhiteboardShapeImage
      * Stores all selection points for this shape.
      */
     private ArrayList<WhiteboardPoint> selectionPoints = new ArrayList<WhiteboardPoint>();
-    
+
     /**
      * WhiteboardShapImage constructor
      *
@@ -84,13 +84,14 @@ public class WhiteboardShapeImage
 
         this.recalculateSelectionPoints();
     }
-    
+
     /**
      * Code to paint this specific shape.
      *
      * @param g graphics context
      * @param t 2D affine transform
      */
+    @Override
     public void paintShape (Graphics2D g, AffineTransform t)
     {
         Point2D w0 = new Point2D.Double (   whiteboardPoint.getX (),
@@ -100,7 +101,7 @@ public class WhiteboardShapeImage
         int ix = (int) v0.getX ();
         int iy = (int) v0.getY ();
 
-        Point2D w1 = new Point2D.Double (   whiteboardPoint.getX () + width, 
+        Point2D w1 = new Point2D.Double (   whiteboardPoint.getX () + width,
                                             whiteboardPoint.getY () + height);
         Point2D v1 = t.transform (w1, null);
 
@@ -112,23 +113,25 @@ public class WhiteboardShapeImage
             g.drawImage (image, ix, iy, iwidth, iheight, null);
         }
     }
-    
+
     /**
      * Returns the list of selected points.
      *
      * @return list of selected points
      */
+    @Override
     public List<WhiteboardPoint> getSelectionPoints ()
     {
         return selectionPoints;
     }
-    
+
     /**
      * Tests if the shape contains a point.
      *
      * @param p coord point
      * @return true if shape contains p
      */
+    @Override
     public boolean contains (Point2D p)
     {
         double x = whiteboardPoint.getX ();
@@ -136,7 +139,7 @@ public class WhiteboardShapeImage
         Rectangle2D rect = new Rectangle2D.Double (x, y, width, height);
         return rect.contains (p);
     }
-    
+
     /**
      * Returns the width (in pixels) of the WhiteboardObject.
      *
@@ -146,7 +149,7 @@ public class WhiteboardShapeImage
     {
         return width;
     }
-    
+
     /**
      * Sets the width (in pixels) of the WhiteboardObject.
      *
@@ -156,7 +159,7 @@ public class WhiteboardShapeImage
     {
         this.width = width;
     }
-    
+
     /**
      * Returns the height (in pixels) of the WhiteboardObject.
      *
@@ -166,7 +169,7 @@ public class WhiteboardShapeImage
     {
         return height;
     }
-    
+
     /**
      * Sets the width (in pixels) of the WhiteboardObject.
      *
@@ -176,13 +179,14 @@ public class WhiteboardShapeImage
     {
         this.height = height;
     }
-    
+
     /**
      * Translates the shape.
      *
      * @param deltaX x coord
      * @param deltaY y coord
      */
+    @Override
     public void translate (double deltaX, double deltaY)
     {
         double cx = whiteboardPoint.getX ();
@@ -193,13 +197,14 @@ public class WhiteboardShapeImage
 
         this.recalculateSelectionPoints();
     }
-    
+
     /**
      * Translates a point from the shape.
      *
      * @param deltaX x coordinate
      * @param deltaY y coordinate
      */
+    @Override
     public void translateSelectedPoint (double deltaX, double deltaY)
     {
         WhiteboardPoint modifyPoint = getModifyPoint();
@@ -254,10 +259,11 @@ public class WhiteboardShapeImage
 
     /**
      * Tests if a point p is over a selection point.
-     * 
+     *
      * @param p point
      * @return nearest selection point
      */
+    @Override
     public WhiteboardPoint getSelectionPoint (Point2D p)
     {
         WhiteboardPoint givenPoint = new WhiteboardPoint(p.getX(), p.getY());
@@ -267,7 +273,7 @@ public class WhiteboardShapeImage
                 return point;
         return null;
     }
-    
+
     /**
      * Returns the coordinates of this whiteboard object.
      *
@@ -277,7 +283,7 @@ public class WhiteboardShapeImage
     {
         return whiteboardPoint;
     }
-    
+
     /**
      * Sets the coordinates of this whiteboard object.
      *
@@ -287,7 +293,7 @@ public class WhiteboardShapeImage
     {
         this.whiteboardPoint = whiteboardPoint;
     }
-    
+
     /**
      * Specifies an image that should be displayed as the background of this
      * object.
@@ -296,12 +302,12 @@ public class WhiteboardShapeImage
      * displayed as the object background.
      */
     public void setBackgroundImage (byte[] background)
-    {       
+    {
         this.bytes = background;
         ImageIcon ii = new ImageIcon (this.bytes);
         this.image = ii.getImage ();
     }
-    
+
     /**
      * Returns a binary array containing the image that should be displayed as
      * the background of this <tt>WhiteboardObject</tt>.

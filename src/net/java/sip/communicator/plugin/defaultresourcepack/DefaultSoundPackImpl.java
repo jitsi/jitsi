@@ -12,7 +12,7 @@ import net.java.sip.communicator.service.resources.*;
 
 /**
  * The default sound resource pack.
- * 
+ *
  * @author Damian Minkov
  * @author Yana Stamcheva
  */
@@ -25,7 +25,7 @@ public class DefaultSoundPackImpl
     /**
      * Returns a <tt>Map</tt>, containing all [key, value] pairs for this
      * resource pack.
-     * 
+     *
      * @return a <tt>Map</tt>, containing all [key, value] pairs for this
      * resource pack.
      */
@@ -45,7 +45,7 @@ public class DefaultSoundPackImpl
 
     /**
      * Returns the name of this resource pack.
-     * 
+     *
      * @return the name of this resource pack.
      */
     public String getName()
@@ -55,7 +55,7 @@ public class DefaultSoundPackImpl
 
     /**
      * Returns the description of this resource pack.
-     * 
+     *
      * @return the description of this resource pack.
      */
     public String getDescription()
@@ -68,7 +68,7 @@ public class DefaultSoundPackImpl
      * given <tt>ResourceBundle</tt>. This method will look in the properties
      * files for references to other properties files and will include in the
      * final map data from all referenced files.
-     * 
+     *
      * @param resourceBundle The initial <tt>ResourceBundle</tt>, corresponding
      * to the "main" properties file.
      * @param resources A <tt>Map</tt> that would store the data.

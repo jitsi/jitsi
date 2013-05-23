@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.impl.gui.main.chat;
@@ -11,7 +11,7 @@ import net.java.sip.communicator.service.contactlist.*;
 /**
  * The <tt>MetaContactChatContact</tt> represents a <tt>ChatContact</tt> in a
  * user-to-user chat.
- * 
+ *
  * @author Yana Stamcheva
  * @author Lubomir Marinov
  */
@@ -34,6 +34,7 @@ public class MetaContactChatContact
     /*
      * Implements ChatContact#getAvatarBytes(). Delegates to metaContact.
      */
+    @Override
     public byte[] getAvatarBytes()
     {
         return descriptor.getAvatar();
@@ -44,6 +45,7 @@ public class MetaContactChatContact
      *
      * @return the contact name
      */
+    @Override
     public String getName()
     {
         String name = descriptor.getDisplayName();
@@ -60,6 +62,7 @@ public class MetaContactChatContact
      * Implements ChatContact#getUID(). Delegates to MetaContact#getMetaUID()
      * because it's known to be unique.
      */
+    @Override
     public String getUID()
     {
         return descriptor.getMetaUID();

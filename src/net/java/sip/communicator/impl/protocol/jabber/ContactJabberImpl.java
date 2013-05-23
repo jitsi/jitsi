@@ -467,6 +467,7 @@ public class ContactJabberImpl
      * @return <tt>false</tt> to indicate that this contact doesn't support
      * resources
      */
+    @Override
     public boolean supportResources()
     {
         return true;
@@ -476,8 +477,9 @@ public class ContactJabberImpl
      * Returns an iterator over the resources supported by this contact or null
      * if it doesn't support resources.
      *
-     * @return null, as this contact doesn't support resources 
+     * @return null, as this contact doesn't support resources
      */
+    @Override
     public Collection<ContactResource> getResources()
     {
         if (resources != null)

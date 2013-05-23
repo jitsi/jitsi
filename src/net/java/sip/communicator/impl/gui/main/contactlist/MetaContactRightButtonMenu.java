@@ -1510,6 +1510,7 @@ public class MetaContactRightButtonMenu
 
         new Thread()
         {
+            @Override
             public void run()
             {
                 int returnCode = dialog.getReturnCode();

@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.impl.replacement.flickr;
@@ -17,7 +17,7 @@ import org.json.simple.*;
 /**
  * Implements the {@link ReplacementService} to provide previews for Flickr
  * links.
- * 
+ *
  * @author Purvesh Sahoo
  */
 public class ReplacementServiceFlickrImpl
@@ -42,17 +42,17 @@ public class ReplacementServiceFlickrImpl
     public static final String API_KEY = "8b5d9cee22f0f5154bf4e9846c025484";
 
     /**
-     * Configuration label shown in the config form. 
+     * Configuration label shown in the config form.
      */
     public static final String FLICKR_CONFIG_LABEL = "Flickr Images";
-    
+
     /**
      * Source name; also used as property label.
      */
     public static final String SOURCE_NAME = "FLICKR";
 
     /**
-     * Constructor for <tt>ReplacementServiceFlickrImpl</tt>. 
+     * Constructor for <tt>ReplacementServiceFlickrImpl</tt>.
      */
     public ReplacementServiceFlickrImpl()
     {
@@ -129,7 +129,7 @@ public class ReplacementServiceFlickrImpl
 
     /**
      * Returns the source name
-     * 
+     *
      * @return the source name
      */
     public String getSourceName()
@@ -139,7 +139,7 @@ public class ReplacementServiceFlickrImpl
 
     /**
      * Returns the pattern of the source
-     * 
+     *
      * @return the source pattern
      */
     public String getPattern()

@@ -82,7 +82,7 @@ public class AdHocChatRoomList
             = new AdHocChatRoomProviderWrapper(pps);
 
         providersList.add(chatRoomProvider);
-        
+
         ConfigurationService configService
             = GuiActivator.getConfigurationService();
 
@@ -124,13 +124,13 @@ public class AdHocChatRoomList
     /**
      * Removes the corresponding server and all related ad-hoc chat rooms from
      * this list.
-     * 
+     *
      * @param pps the <tt>ProtocolProviderService</tt> corresponding to the
      *            server to remove
      */
     public void removeChatProvider(ProtocolProviderService pps)
     {
-        AdHocChatRoomProviderWrapper wrapper = 
+        AdHocChatRoomProviderWrapper wrapper =
             findServerWrapperFromProvider(pps);
 
         if (wrapper != null)
@@ -138,9 +138,9 @@ public class AdHocChatRoomList
     }
 
     /**
-     * Removes the corresponding server and all related ad-hoc chat rooms from 
+     * Removes the corresponding server and all related ad-hoc chat rooms from
      * this list.
-     * 
+     *
      * @param adHocChatRoomProvider the <tt>AdHocChatRoomProviderWrapper</tt>
      *            corresponding to the server to remove
      */
@@ -196,9 +196,9 @@ public class AdHocChatRoomList
     }
 
     /**
-     * Removes the given <tt>AdHocChatRoom</tt> from the list of all ad-hoc 
+     * Removes the given <tt>AdHocChatRoom</tt> from the list of all ad-hoc
      * chat rooms.
-     * 
+     *
      * @param adHocChatRoomWrapper the <tt>AdHocChatRoomWrapper</tt> to remove
      */
     public void removeChatRoom(AdHocChatRoomWrapper adHocChatRoomWrapper)
@@ -216,7 +216,7 @@ public class AdHocChatRoomList
      * Returns the <tt>AdHocChatRoomWrapper</tt> that correspond to the given
      * <tt>AdHocChatRoom</tt>. If the list of ad-hoc chat rooms doesn't contain
      * a corresponding wrapper - returns null.
-     *  
+     *
      * @param adHocChatRoom the <tt>ChatRoom</tt> that we're looking for
      * @return the <tt>ChatRoomWrapper</tt> object corresponding to the given
      * <tt>ChatRoom</tt>
@@ -250,7 +250,7 @@ public class AdHocChatRoomList
      * Returns the <tt>AdHocChatRoomProviderWrapper</tt> that correspond to the
      * given <tt>ProtocolProviderService</tt>. If the list doesn't contain a
      * corresponding wrapper - returns null.
-     *  
+     *
      * @param protocolProvider the protocol provider that we're looking for
      * @return the <tt>AdHocChatRoomProvider</tt> object corresponding to
      * the given <tt>ProtocolProviderService</tt>

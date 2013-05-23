@@ -14,9 +14,9 @@ import java.beans.*;
 
 /**
  * Preferences for the Status Update
- * 
+ *
  * @author Thomas Hofer
- * 
+ *
  */
 public final class Preferences
 {

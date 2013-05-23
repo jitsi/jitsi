@@ -141,6 +141,7 @@ public class MclSlickFixture
      * Find a reference of the meta contact list service and set the
      * corresponding field.
      */
+    @Override
     public void setUp()
     {
         //find a reference to the meta contaact list service.
@@ -154,6 +155,7 @@ public class MclSlickFixture
     /**
      *
      */
+    @Override
     public void tearDown()
     {
     }

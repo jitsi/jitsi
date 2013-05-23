@@ -15,9 +15,9 @@ import java.util.logging.*;
  */
 final class DNSOutgoing
 {
-    private static Logger logger = 
+    private static Logger logger =
         Logger.getLogger(DNSOutgoing.class.toString());
-    
+
     int id;
     int flags;
     private boolean multicast;
@@ -37,7 +37,7 @@ final class DNSOutgoing
     DNSOutgoing(int flags)
     {
         this(flags, true);
-        
+
     }
 
     /**
@@ -47,8 +47,8 @@ final class DNSOutgoing
     {
         String SLevel = System.getProperty("jmdns.debug");
         if (SLevel == null) SLevel = "INFO";
-        logger.setLevel(Level.parse(SLevel)); 
-        
+        logger.setLevel(Level.parse(SLevel));
+
         this.flags = flags;
         this.multicast = multicast;
         names = new Hashtable<String, Integer>();
@@ -253,7 +253,7 @@ final class DNSOutgoing
 
                 if (val > off)
                 {
-                    logger.log(Level.WARNING, 
+                    logger.log(Level.WARNING,
                         "DNSOutgoing writeName failed val=" + val + " name=" + name);
                 }
 
@@ -285,7 +285,7 @@ final class DNSOutgoing
         {
             writeName(rec.name);
             writeShort(rec.type);
-            writeShort(rec.clazz | 
+            writeShort(rec.clazz |
                 ((rec.unique && multicast) ? DNSConstants.CLASS_UNIQUE : 0));
             writeInt((now == 0) ? rec.ttl : rec.getRemainingTTL(now));
             writeShort(0);
@@ -321,7 +321,7 @@ final class DNSOutgoing
 
     boolean isQuery()
     {
-        return (flags & DNSConstants.FLAGS_QR_MASK) == 
+        return (flags & DNSConstants.FLAGS_QR_MASK) ==
             DNSConstants.FLAGS_QR_QUERY;
     }
 
@@ -332,6 +332,7 @@ final class DNSOutgoing
     }
 
 
+    @Override
     public String toString()
     {
         StringBuffer buf = new StringBuffer();

@@ -111,10 +111,10 @@ public interface Contact
      * establishing network connectivity or null if no such data is required.
      */
     public String getPersistentData();
-    
+
     /**
      * Return the current status message of this contact.
-     * 
+     *
      * @return the current status message
      */
     public String getStatusMessage();
@@ -139,7 +139,7 @@ public interface Contact
     /**
      * Adds the given <tt>ContactResourceListener</tt> to listen for events
      * related to contact resources changes.
-     * 
+     *
      * @param l the <tt>ContactResourceListener</tt> to add
      */
     public void addResourceListener(ContactResourceListener l);
@@ -147,7 +147,7 @@ public interface Contact
     /**
      * Removes the given <tt>ContactResourceListener</tt> listening for events
      * related to contact resources changes.
-     * 
+     *
      * @param l the <tt>ContactResourceListener</tt> to rmove
      */
     public void removeResourceListener(ContactResourceListener l);

@@ -37,7 +37,7 @@ public interface JabberLoginStrategy
     /**
      * Determines whether the login preparation was successful and the strategy
      * is ready to start connecting.
-     * 
+     *
      * @return true if prepareLogin was successful.
      */
     public boolean loginPreparationSuccessful();

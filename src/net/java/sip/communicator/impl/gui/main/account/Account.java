@@ -186,7 +186,7 @@ public class Account
 
     /**
      * Returns the current presence status of the given protocol provider.
-     * 
+     *
      * @param protocolProvider the protocol provider which status we're looking
      * for.
      * @return the current presence status of the given protocol provider.
@@ -299,6 +299,7 @@ public class Account
      *
      * @return the string representation of this account
      */
+    @Override
     public String toString()
     {
         return protocolProvider.getAccountID().getDisplayName();

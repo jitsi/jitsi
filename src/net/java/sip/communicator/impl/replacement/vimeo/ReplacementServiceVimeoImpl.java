@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.impl.replacement.vimeo;
@@ -17,7 +17,7 @@ import org.json.simple.*;
 /**
  * Implements the {@link ReplacementService} to provide previews for Vimeo
  * links.
- * 
+ *
  * @author Purvesh Sahoo
  */
 public class ReplacementServiceVimeoImpl
@@ -37,17 +37,17 @@ public class ReplacementServiceVimeoImpl
         + "\\/([a-zA-Z0-9_\\-]+))(?=</A>)";
 
     /**
-     * Configuration label shown in the config form. 
+     * Configuration label shown in the config form.
      */
     public static final String VIMEO_CONFIG_LABEL = "Vimeo";
-    
+
     /**
      * Source name; also used as property label.
      */
     public static final String SOURCE_NAME = "VIMEO";
 
     /**
-     * Constructor for <tt>ReplacementServiceVimeoImpl</tt>. 
+     * Constructor for <tt>ReplacementServiceVimeoImpl</tt>.
      */
     public ReplacementServiceVimeoImpl()
     {
@@ -56,7 +56,7 @@ public class ReplacementServiceVimeoImpl
 
     /**
      * Returns the thumbnail URL of the video link provided.
-     * 
+     *
      * @param sourceString the original video link.
      * @return the thumbnail image link; the original link in case of no match.
      */
@@ -109,7 +109,7 @@ public class ReplacementServiceVimeoImpl
 
     /**
      * Returns the source name
-     * 
+     *
      * @return the source name
      */
     public String getSourceName()
@@ -119,7 +119,7 @@ public class ReplacementServiceVimeoImpl
 
     /**
      * Returns the pattern of the source
-     * 
+     *
      * @return the source pattern
      */
     public String getPattern()

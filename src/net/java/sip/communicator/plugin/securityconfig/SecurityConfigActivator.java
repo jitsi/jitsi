@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.plugin.securityconfig;
@@ -202,7 +202,7 @@ public class SecurityConfigActivator
 
     /**
      * Gets all the available accounts in SIP Communicator.
-     * 
+     *
      * @return a {@link List} of {@link AccountID}.
      */
     public static List<AccountID> getAllAccountIDs()
@@ -269,7 +269,7 @@ public class SecurityConfigActivator
      * Finds all accounts with saved encrypted passwords.
      *
      * @return a {@link List} of {@link AccountID} with the saved encrypted
-     * password. 
+     * password.
      */
     public static Map<AccountID, String> getAccountIDsWithSavedPasswords()
     {

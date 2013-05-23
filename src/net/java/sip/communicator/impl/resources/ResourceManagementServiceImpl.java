@@ -73,11 +73,11 @@ public class ResourceManagementServiceImpl
 
     /**
      * Gets a reference to the <tt>UIService</tt> when this one is registered.
-     * 
+     *
      * @param event the <tt>ServiceEvent</tt> that has notified us
      */
     @Override
-    public void serviceChanged(ServiceEvent event) 
+    public void serviceChanged(ServiceEvent event)
     {
         super.serviceChanged(event);
 
@@ -103,6 +103,7 @@ public class ResourceManagementServiceImpl
     /**
      * Repaints the whole UI when a skin pack has changed.
      */
+    @Override
     protected void onSkinPackChanged()
     {
         UIService serv = getUIService();
@@ -242,7 +243,7 @@ public class ResourceManagementServiceImpl
                 return skinPack.getClass().getClassLoader().getResource(path);
             }
         }
-        
+
         ImagePack imagePack = getImagePack();
         return imagePack.getClass().getClassLoader().getResource(path);
     }
@@ -283,6 +284,7 @@ public class ResourceManagementServiceImpl
      * @param imageID The identifier of the image.
      * @return The image for the given identifier.
      */
+    @Override
     public byte[] getImageInBytes(String imageID)
     {
         InputStream in = getImageInputStream(imageID);
@@ -311,6 +313,7 @@ public class ResourceManagementServiceImpl
      * @param imageID The identifier of the image.
      * @return The image for the given identifier.
      */
+    @Override
     public ImageIcon getImage(String imageID)
     {
         URL imageURL = getImageURL(imageID);

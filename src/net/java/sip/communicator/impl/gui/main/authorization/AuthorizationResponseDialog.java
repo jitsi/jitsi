@@ -168,6 +168,7 @@ public class AuthorizationResponseDialog
      * @param isEscaped indicates if the window was closed by pressing the Esc
      * key
      */
+    @Override
     protected void close(boolean isEscaped)
     {
         this.dispose();

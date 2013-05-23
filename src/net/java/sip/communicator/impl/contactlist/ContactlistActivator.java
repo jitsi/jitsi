@@ -75,7 +75,7 @@ public class ContactlistActivator
 
     /**
      * Returns the <tt>FileAccessService</tt> obtained from the bundle context.
-     * 
+     *
      * @return the <tt>FileAccessService</tt> obtained from the bundle context
      */
     public static FileAccessService getFileAccessService()

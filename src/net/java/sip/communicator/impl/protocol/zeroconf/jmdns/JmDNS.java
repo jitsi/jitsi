@@ -1270,6 +1270,7 @@ public class JmDNS
                             DNSConstants.RECORD_REAPER_INTERVAL);
         }
 
+        @Override
         public void run()
         {
             synchronized (JmDNS.this)
@@ -1385,6 +1386,7 @@ public class JmDNS
             }
         }
 
+        @Override
         public boolean cancel()
         {
             // Remove association from host name to this
@@ -1410,6 +1412,7 @@ public class JmDNS
             return super.cancel();
         }
 
+        @Override
         public void run()
         {
             synchronized (ioLock)
@@ -1563,6 +1566,7 @@ public class JmDNS
                 DNSConstants.ANNOUNCE_WAIT_INTERVAL);
         }
 
+        @Override
         public boolean cancel()
         {
             // Remove association from host to this
@@ -1588,6 +1592,7 @@ public class JmDNS
             return super.cancel();
         }
 
+        @Override
         public void run()
         {
             DNSOutgoing out = null;
@@ -1736,6 +1741,7 @@ public class JmDNS
                 DNSConstants.ANNOUNCED_RENEWAL_TTL_INTERVAL);
         }
 
+        @Override
         public boolean cancel()
         {
             // Remove association from host to this
@@ -1761,6 +1767,7 @@ public class JmDNS
             return super.cancel();
         }
 
+        @Override
         public void run()
         {
             DNSOutgoing out = null;
@@ -1933,6 +1940,7 @@ public class JmDNS
             timer.schedule(this, delay);
         }
 
+        @Override
         public void run()
         {
             synchronized (ioLock)
@@ -2229,6 +2237,7 @@ public class JmDNS
          */
         int count = 0;
 
+        @Override
         public void run()
         {
             try
@@ -2308,6 +2317,7 @@ public class JmDNS
                            DNSConstants.QUERY_WAIT_INTERVAL);
         }
 
+        @Override
         public void run()
         {
             try
@@ -2402,6 +2412,7 @@ public class JmDNS
                            DNSConstants.QUERY_WAIT_INTERVAL);
         }
 
+        @Override
         public void run()
         {
             try
@@ -2533,6 +2544,7 @@ public class JmDNS
             timer.schedule(this, 0, DNSConstants.ANNOUNCE_WAIT_INTERVAL);
         }
 
+        @Override
         public void run()
         {
             try
@@ -2702,6 +2714,7 @@ public class JmDNS
             logger.info(toString());
     }
 
+    @Override
     public String toString()
     {
         StringBuffer aLog = new StringBuffer();
@@ -2887,6 +2900,7 @@ public class JmDNS
             }
         }
 
+        @Override
         public String toString()
         {
             StringBuffer aLog = new StringBuffer();

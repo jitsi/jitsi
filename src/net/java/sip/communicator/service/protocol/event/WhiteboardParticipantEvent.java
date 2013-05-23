@@ -109,6 +109,7 @@ public class WhiteboardParticipantEvent
      * @return  a String representation of this
      * <tt>WhiteboardParticipantEvent</tt>.
      */
+    @Override
     public String toString()
     {
         return "WhiteboardParticipantEvent: ID=" + getEventID()

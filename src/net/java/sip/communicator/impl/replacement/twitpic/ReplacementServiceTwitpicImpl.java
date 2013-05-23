@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.impl.replacement.twitpic;
@@ -13,7 +13,7 @@ import net.java.sip.communicator.util.*;
 /**
  * Implements the {@link ReplacementService} to provide previews for Twitpic
  * links.
- * 
+ *
  * @author Purvesh Sahoo
  */
 public class ReplacementServiceTwitpicImpl
@@ -32,7 +32,7 @@ public class ReplacementServiceTwitpicImpl
         "(?<=>)http:\\/\\/(?:www\\.)?twitpic\\.com\\/([^\\/<]*)(?=</A>)";
 
     /**
-     * Configuration label shown in the config form. 
+     * Configuration label shown in the config form.
      */
     public static final String TWITPIC_CONFIG_LABEL = "TwitPic";
 
@@ -75,7 +75,7 @@ public class ReplacementServiceTwitpicImpl
 
     /**
      * Returns the source name
-     * 
+     *
      * @return the source name
      */
     public String getSourceName()
@@ -85,8 +85,8 @@ public class ReplacementServiceTwitpicImpl
 
     /**
      * Returns the pattern of the source
-     * 
-     * @return the source pattern 
+     *
+     * @return the source pattern
      */
     public String getPattern()
     {

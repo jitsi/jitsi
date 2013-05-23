@@ -13,7 +13,7 @@ package net.java.sip.communicator.impl.protocol.sip.xcap;
  *
  * @author Grigorii Balutsel
  */
-public interface XCapClient extends HttpXCapClient, 
+public interface XCapClient extends HttpXCapClient,
         XCapCapsClient, ResourceListsClient,
         PresRulesClient, PresContentClient
 {

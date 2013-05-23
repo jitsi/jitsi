@@ -246,6 +246,7 @@ public class SipCommunicatorSlickRunner
             {
                 obj = new TestCase("No id=" + id)
                 {
+                    @Override
                     public void runTest()
                     {
                         throw new IllegalArgumentException("No test with id=" +
@@ -257,6 +258,7 @@ public class SipCommunicatorSlickRunner
             {
                 obj = new TestCase("Multiple id=" + id)
                 {
+                    @Override
                     public void runTest()
                     {
                         throw new IllegalArgumentException(
@@ -273,6 +275,7 @@ public class SipCommunicatorSlickRunner
         {
             obj = new TestCase("Bad filter syntax id=" + id)
             {
+                @Override
                 public void runTest()
                 {
                     throw new IllegalArgumentException("Bad syntax id=" + id);
@@ -285,6 +288,7 @@ public class SipCommunicatorSlickRunner
             final Object oldObj = obj;
             obj = new TestCase("ClassCastException")
             {
+                @Override
                 public void runTest()
                 {
                     throw new ClassCastException("Service implements " +

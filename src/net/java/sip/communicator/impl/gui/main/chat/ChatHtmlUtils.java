@@ -15,7 +15,7 @@ import net.java.sip.communicator.service.history.*;
 import net.java.sip.communicator.util.*;
 
 /**
- * 
+ *
  * @author Yana Stamcheva
  */
 public class ChatHtmlUtils
@@ -426,7 +426,7 @@ public class ChatHtmlUtils
         messageBuff.append("<td "
             + IncomingMessageStyle.createTableBubbleBrStyle() + "></td>");
         messageBuff.append("</tr>");
-    
+
         messageBuff.append("</table>");
         messageBuff.append("</td>");
         messageBuff.append("</tr>");
@@ -611,7 +611,7 @@ public class ChatHtmlUtils
      *  (Edited at ...).
      * If <tt>date < 0</tt>, returns an empty tag that serves as a placeholder
      * for future corrections of this message.
-     * 
+     *
      * @param messageUID The ID of the edited message.
      * @param date The date when the message was last edited, or -1 to generate
      * an empty tag.
@@ -728,7 +728,7 @@ public class ChatHtmlUtils
 
     /**
      * Returns the date string to show for the given date.
-     * 
+     *
      * @param date the date to format
      * @return the date string to show for the given date
      */

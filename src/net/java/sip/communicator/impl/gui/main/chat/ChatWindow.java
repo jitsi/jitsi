@@ -166,6 +166,7 @@ public class ChatWindow
     /**
      * @see SIPCommFrame#dispose()
      */
+    @Override
     public void dispose()
     {
         try
@@ -665,6 +666,7 @@ public class ChatWindow
     public class ChatWindowAdapter
         extends WindowAdapter
     {
+        @Override
         public void windowDeiconified(WindowEvent e)
         {
             String title = getTitle();
@@ -673,6 +675,7 @@ public class ChatWindow
                 setTitle(title.substring(1, title.length()));
         }
 
+        @Override
         public void windowOpened(WindowEvent e)
         {
             if (keyManager == null)
@@ -702,6 +705,7 @@ public class ChatWindow
      * @param isEscaped indicates if this window was closed by pressing the esc
      * button
      */
+    @Override
     protected void close(boolean isEscaped)
     {
         if(isEscaped)
@@ -1068,6 +1072,7 @@ public class ChatWindow
             loadSkin();
         }
 
+        @Override
         public void paintComponent(Graphics g)
         {
             super.paintComponent(g);

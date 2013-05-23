@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.impl.gui.main.chat.menus;
@@ -22,7 +22,7 @@ import net.java.sip.communicator.service.gui.Container;
 /**
  * The <tt>MessageWindowMenuBar</tt> is the menu bar in the chat window where
  * all menus are added.
- * 
+ *
  * @author Yana Stamcheva
  * @author Lyubomir Marinov
  */
@@ -45,7 +45,7 @@ public class MessageWindowMenuBar
 
     /**
      * Initializes a new <tt>MessageWindowMenuBar</tt> instance.
-     * 
+     *
      * @param parentWindow the ChatWindow which is to be the parent of the new
      * instance
      */

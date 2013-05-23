@@ -105,6 +105,7 @@ public class HistoryRecord
      *
      * @return the String representation of this HistoryRecord
      */
+    @Override
     public String toString()
     {
         StringBuilder s = new StringBuilder("History Record: ");

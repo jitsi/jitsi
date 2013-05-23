@@ -93,6 +93,7 @@ public class ChatToolsMenu
      * selected.
      * @param e the <tt>ActionEvent</tt> that notified us
      */
+    @Override
     public void actionPerformed(ActionEvent e)
     {
         super.actionPerformed(e);

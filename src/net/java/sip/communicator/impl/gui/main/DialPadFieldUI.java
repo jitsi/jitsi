@@ -39,6 +39,7 @@ public class DialPadFieldUI
      * Adds the custom mouse listeners defined in this class to the installed
      * listeners.
      */
+    @Override
     protected void installListeners()
     {
         super.installListeners();
@@ -48,6 +49,7 @@ public class DialPadFieldUI
      * Implements parent paintSafely method and enables antialiasing.
      * @param g the <tt>Graphics</tt> object that notified us
      */
+    @Override
     protected void paintSafely(Graphics g)
     {
         customPaintBackground(g);
@@ -58,6 +60,7 @@ public class DialPadFieldUI
      * Paints the background of the associated component.
      * @param g the <tt>Graphics</tt> object used for painting
      */
+    @Override
     protected void customPaintBackground(Graphics g)
     {
         Graphics2D g2 = (Graphics2D) g.create();
@@ -79,6 +82,7 @@ public class DialPadFieldUI
      * rectangle in order to leave place for the delete button.
      * @return the visible editor rectangle
      */
+    @Override
     protected Rectangle getVisibleEditorRect()
     {
         Rectangle rect = super.getVisibleEditorRect();

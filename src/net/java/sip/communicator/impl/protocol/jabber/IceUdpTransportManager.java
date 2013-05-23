@@ -272,7 +272,7 @@ public class IceUdpTransportManager
         }
 
         long stopGatheringHarvesterTime = System.currentTimeMillis();
-        long  gatheringHarvesterTime 
+        long  gatheringHarvesterTime
             = stopGatheringHarvesterTime - startGatheringHarvesterTime;
         if (logger.isInfoEnabled())
             logger.info("End gathering harvester within "
@@ -423,6 +423,7 @@ public class IceUdpTransportManager
      * of the <tt>MediaStream</tt> with the specified <tt>MediaType</tt>
      * @see TransportManagerJabberImpl#getStreamTarget(MediaType)
      */
+    @Override
     public MediaStreamTarget getStreamTarget(MediaType mediaType)
     {
         IceMediaStream stream = iceAgent.getStream(mediaType.toString());
@@ -477,6 +478,7 @@ public class IceUdpTransportManager
      * <tt>TransportManagerJabberImpl</tt>
      * @see TransportManagerJabberImpl#getXmlNamespace()
      */
+    @Override
     public String getXmlNamespace()
     {
         return ProtocolProviderServiceJabberImpl.URN_XMPP_JINGLE_ICE_UDP_1;
@@ -628,6 +630,7 @@ public class IceUdpTransportManager
      * {@link #wrapupCandidateHarvest()}.
      * @throws OperationFailedException in case we fail allocating ports
      */
+    @Override
     public void startCandidateHarvest(
             List<ContentPacketExtension> ourOffer,
             TransportInfoSender transportInfoSender)
@@ -782,6 +785,7 @@ public class IceUdpTransportManager
      * @return the list of local candidates that we gathered during the harvest
      * @see TransportManagerJabberImpl#wrapupCandidateHarvest()
      */
+    @Override
     public List<ContentPacketExtension> wrapupCandidateHarvest()
     {
         return cpeList;
@@ -1181,6 +1185,7 @@ public class IceUdpTransportManager
      * <tt>TransportManagerJabberImpl</tt>
      * @see TransportManagerJabberImpl#removeContent(String)
      */
+    @Override
     public void removeContent(String name)
     {
         ContentPacketExtension content = removeContent(cpeList, name);
@@ -1226,6 +1231,7 @@ public class IceUdpTransportManager
      * @return The extended type of the candidate selected if this transport
      * manager is using ICE. Otherwise, returns null.
      */
+    @Override
     public String getICECandidateExtendedType(String streamName)
     {
         return TransportManager.getICECandidateExtendedType(
@@ -1238,6 +1244,7 @@ public class IceUdpTransportManager
      *
      * @return the current state of ICE processing.
      */
+    @Override
     public String getICEState()
     {
         return iceAgent.getState().toString();
@@ -1251,6 +1258,7 @@ public class IceUdpTransportManager
      * @return the ICE local host address if this transport
      * manager is using ICE. Otherwise, returns null.
      */
+    @Override
     public InetSocketAddress getICELocalHostAddress(String streamName)
     {
         if(iceAgent != null)
@@ -1273,6 +1281,7 @@ public class IceUdpTransportManager
      * @return the ICE remote host address if this transport
      * manager is using ICE. Otherwise, returns null.
      */
+    @Override
     public InetSocketAddress getICERemoteHostAddress(String streamName)
     {
         if(iceAgent != null)
@@ -1296,6 +1305,7 @@ public class IceUdpTransportManager
      * manager is not using ICE or if there is no reflexive address for the
      * local candidate used.
      */
+    @Override
     public InetSocketAddress getICELocalReflexiveAddress(String streamName)
     {
         if(iceAgent != null)
@@ -1319,6 +1329,7 @@ public class IceUdpTransportManager
      * manager is not using ICE or if there is no reflexive address for the
      * remote candidate used.
      */
+    @Override
     public InetSocketAddress getICERemoteReflexiveAddress(String streamName)
     {
         if(iceAgent != null)
@@ -1342,6 +1353,7 @@ public class IceUdpTransportManager
      * manager is not using ICE or if there is no relayed address for the
      * local candidate used.
      */
+    @Override
     public InetSocketAddress getICELocalRelayedAddress(String streamName)
     {
         if(iceAgent != null)
@@ -1365,6 +1377,7 @@ public class IceUdpTransportManager
      * manager is not using ICE or if there is no relayed address for the
      * remote candidate used.
      */
+    @Override
     public InetSocketAddress getICERemoteRelayedAddress(String streamName)
     {
         if(iceAgent != null)
@@ -1385,6 +1398,7 @@ public class IceUdpTransportManager
      * @return The total harvesting time (in ms) for all the harvesters. 0 if
      * the ICE agent is null, or if the agent has nevers harvested.
      */
+    @Override
     public long getTotalHarvestingTime()
     {
         if(iceAgent != null)
@@ -1403,6 +1417,7 @@ public class IceUdpTransportManager
      * 0 if this harvester does not exists, if the ICE agent is null, or if the
      * agent has never harvested with this harvester.
      */
+    @Override
     public long getHarvestingTime(String harvesterName)
     {
         if(iceAgent != null)
@@ -1417,6 +1432,7 @@ public class IceUdpTransportManager
      *
      * @return The number of harvesting for this agent.
      */
+    @Override
     public int getNbHarvesting()
     {
         if(iceAgent != null)
@@ -1435,6 +1451,7 @@ public class IceUdpTransportManager
      * @return The number of harvesting time for the harvester given in
      * parameter.
      */
+    @Override
     public int getNbHarvesting(String harvesterName)
     {
         if(iceAgent != null)

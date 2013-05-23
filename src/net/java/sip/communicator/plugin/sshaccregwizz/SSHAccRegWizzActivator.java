@@ -89,7 +89,7 @@ public class SSHAccRegWizzActivator
     public void stop(BundleContext bundleContext) throws Exception
     {
     }
-    
+
     /**
      * Returns the <tt>ProtocolProviderFactory</tt> for the SSH protocol.
      * @return the <tt>ProtocolProviderFactory</tt> for the SSH protocol
@@ -130,7 +130,7 @@ public class SSHAccRegWizzActivator
 
     /**
      * Returns the <tt>UIService</tt>.
-     * 
+     *
      * @return the <tt>UIService</tt>
      */
     public static UIService getUIService()

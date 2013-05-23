@@ -21,11 +21,11 @@ public class AdHocChatRoomProviderWrapper
         = new LinkedList<AdHocChatRoomWrapper>();
 
     /**
-     * Creates an instance of <tt>AdHocChatRoomProviderWrapper</tt> by 
-     * specifying the protocol provider, corresponding to the ad-hoc multi user 
+     * Creates an instance of <tt>AdHocChatRoomProviderWrapper</tt> by
+     * specifying the protocol provider, corresponding to the ad-hoc multi user
      * chat account.
      *
-     * @param protocolProvider protocol provider, corresponding to the ad-hoc 
+     * @param protocolProvider protocol provider, corresponding to the ad-hoc
      * multi user chat account.
      */
     public AdHocChatRoomProviderWrapper(
@@ -65,7 +65,7 @@ public class AdHocChatRoomProviderWrapper
     /**
      * Returns the protocol provider service corresponding to this server
      * wrapper.
-     * 
+     *
      * @return the protocol provider service corresponding to this server
      * wrapper.
      */
@@ -76,7 +76,7 @@ public class AdHocChatRoomProviderWrapper
 
     /**
      * Adds the given ad-hoc chat room to this chat room provider.
-     * 
+     *
      * @param adHocChatRoom the ad-hoc chat room to add.
      */
     public void addAdHocChatRoom(AdHocChatRoomWrapper adHocChatRoom)
@@ -86,7 +86,7 @@ public class AdHocChatRoomProviderWrapper
 
     /**
      * Removes the given ad-hoc chat room from this provider.
-     * 
+     *
      * @param adHocChatRoom the ad-hoc chat room to remove.
      */
     public void removeChatRoom(AdHocChatRoomWrapper adHocChatRoom)
@@ -95,11 +95,11 @@ public class AdHocChatRoomProviderWrapper
     }
 
     /**
-     * Returns <code>true</code> if the given ad-hoc chat room is contained in 
+     * Returns <code>true</code> if the given ad-hoc chat room is contained in
      * this provider, otherwise - returns <code>false</code>.
-     * 
+     *
      * @param adHocChatRoom the ad-hoc chat room to search for.
-     * @return <code>true</code> if the given ad-hoc chat room is contained in 
+     * @return <code>true</code> if the given ad-hoc chat room is contained in
      * this provider, otherwise - returns <code>false</code>.
      */
     public boolean containsAdHocChatRoom(AdHocChatRoomWrapper adHocChatRoom)
@@ -111,17 +111,17 @@ public class AdHocChatRoomProviderWrapper
     }
 
     /**
-     * Returns the ad-hoc chat room wrapper contained in this provider that 
+     * Returns the ad-hoc chat room wrapper contained in this provider that
      * corresponds to the given ad-hoc chat room.
-     * 
+     *
      * @param adHocChatRoom the ad-hoc chat room we're looking for.
-     * @return the ad-hoc chat room wrapper contained in this provider that 
+     * @return the ad-hoc chat room wrapper contained in this provider that
      * corresponds to the given ad-hoc chat room.
      */
     public AdHocChatRoomWrapper findChatRoomWrapperForAdHocChatRoom(
             AdHocChatRoom adHocChatRoom)
     {
-        // compare ids, cause saved ad-hoc chatrooms don't have AdHocChatRoom 
+        // compare ids, cause saved ad-hoc chatrooms don't have AdHocChatRoom
         // object but Id's are the same
         for (AdHocChatRoomWrapper chatRoomWrapper : chatRoomsOrderedCopy)
         {
@@ -137,7 +137,7 @@ public class AdHocChatRoomProviderWrapper
 
     /**
      * Returns the number of ad-hoc chat rooms contained in this provider.
-     * 
+     *
      * @return the number of ad-hoc chat rooms contained in this provider.
      */
     public int countAdHocChatRooms()
@@ -152,9 +152,9 @@ public class AdHocChatRoomProviderWrapper
 
     /**
      * Returns the index of the given chat room in this provider.
-     * 
+     *
      * @param chatRoomWrapper the chat room to search for.
-     * 
+     *
      * @return the index of the given chat room in this provider.
      */
     public int indexOf(AdHocChatRoomWrapper chatRoomWrapper)

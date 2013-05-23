@@ -143,6 +143,7 @@ public class ContactInfoContactPanel
          * @param cellHasFocus indicates if the rendered object is in a focused
          * cell
          */
+        @Override
         public Component getListCellRendererComponent(  JList list,
                                                         Object value,
                                                         int index,
@@ -166,6 +167,7 @@ public class ContactInfoContactPanel
         /**
          * Paint a round blue border and background when a cell is selected.
          */
+        @Override
         public void paintComponent(Graphics g)
         {
             if (this.isSelected)

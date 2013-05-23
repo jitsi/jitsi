@@ -37,7 +37,7 @@ public class TestOperationSetPresence
     private YahooSlickFixture fixture = new YahooSlickFixture();
     private OperationSetPresence operationSetPresence1 = null;
     private OperationSetPresence operationSetPresence2 = null;
-    
+
     private AuthHandler authHandler1 = null;
     private AuthHandler authHandler2 = null;
 
@@ -46,6 +46,7 @@ public class TestOperationSetPresence
         super(name);
     }
 
+    @Override
     protected void setUp() throws Exception
     {
         super.setUp();
@@ -99,13 +100,13 @@ public class TestOperationSetPresence
                 + "implementation of at least the one of the Presence "
                 + "Operation Sets");
         }
-        
+
         if(authHandler1 == null)
         {
             authHandler1 = new AuthHandler(operationSetPresence1);
             operationSetPresence1.setAuthorizationHandler(authHandler1);
         }
-        
+
         if(authHandler2 == null)
         {
             authHandler2 = new AuthHandler(operationSetPresence2);
@@ -113,6 +114,7 @@ public class TestOperationSetPresence
         }
     }
 
+    @Override
     protected void tearDown() throws Exception
     {
         super.tearDown();
@@ -350,7 +352,7 @@ public class TestOperationSetPresence
         logger.debug("Testing Subscription and Subscription Event Dispatch.");
 
         dumplists();
-        
+
         SubscriptionEventCollector subEvtCollector
             = new SubscriptionEventCollector();
         operationSetPresence1.addSubscriptionListener(subEvtCollector);
@@ -410,15 +412,15 @@ public class TestOperationSetPresence
                 .removeContactPresenceStatusListener(contactPresEvtCollector);
         }
 
-        // something happened. the friend is not added correctly will 
+        // something happened. the friend is not added correctly will
         // try to remove it and add it again
         if(contactPresEvtCollector.collectedEvents.size() == 0)
         {
             logger.info("ATTENTION: Yahoo friend not added correctly will remove and add him again");
-            
+
             // remove it
             operationSetPresence1.unsubscribe(subEvt.getSourceContact());
-            
+
             // wait remove to be finished
             Object lock = new Object();
             synchronized(lock){
@@ -426,7 +428,7 @@ public class TestOperationSetPresence
                     lock.wait(3000);
                 }catch (Exception e){}
             }
-            
+
             // add it
             operationSetPresence1.addSubscriptionListener(subEvtCollector);
             subEvtCollector.collectedEvents.clear();
@@ -437,13 +439,13 @@ public class TestOperationSetPresence
                 operationSetPresence1.removeSubscriptionListener(subEvtCollector);
             }
             subEvtCollector.collectedEvents.clear();
-            
+
             if(newStatus.equals(YahooStatusEnum.BUSY)){
                 newStatus = YahooStatusEnum.OUT_TO_LUNCH;
             }
             else
                 newStatus = YahooStatusEnum.BUSY;
-            
+
             // query it again for the status
             contactPresEvtCollector = new ContactPresenceEventCollector(
                     fixture.userID2, newStatus);
@@ -600,12 +602,12 @@ public class TestOperationSetPresence
         {
             o.wait(2000);
         }
-        
+
         // wait for a moment
         // give time the impl to get the lists
         logger.debug("start clearing");
         fixture.clearProvidersLists();
-        
+
         synchronized(o)
         {
             o.wait(3000);
@@ -915,7 +917,7 @@ public class TestOperationSetPresence
     /**
      * AuthorizationHandler which accepts all requests!
      */
-    private class AuthHandler 
+    private class AuthHandler
         implements AuthorizationHandler
     {
         private OperationSetPresence opset = null;
@@ -923,7 +925,7 @@ public class TestOperationSetPresence
         {
             this.opset = opset;
         }
-        
+
         public AuthorizationResponse processAuthorisationRequest(
                 AuthorizationRequest req, Contact sourceContact)
         {
@@ -941,7 +943,7 @@ public class TestOperationSetPresence
         public void processAuthorizationResponse(
                 AuthorizationResponse response, Contact sourceContact){}
     }
-    
+
     private void dumplists()
     {
         // just wait a little all modification events to be received
@@ -949,11 +951,11 @@ public class TestOperationSetPresence
         synchronized(o)
         {
             try{o.wait(3000);}catch (InterruptedException ex){}
-        }        
-        
+        }
+
         OperationSetPersistentPresence op1 = (OperationSetPersistentPresence)operationSetPresence1;
         OperationSetPersistentPresence op2 = (OperationSetPersistentPresence)operationSetPresence2;
-        
+
         logger.info("------------ START DUMP LIST " + fixture.userID1 + " ------------");
         ContactGroup rootGroup = op1.getServerStoredContactListRoot();
         Iterator<ContactGroup> groups = rootGroup.subgroups();
@@ -961,7 +963,7 @@ public class TestOperationSetPresence
         {
             ContactGroup group = groups.next();
             logger.info("group " + group.getGroupName());
-            
+
             Iterator<Contact> contactsIter = group.contacts();
             while(contactsIter.hasNext())
             {
@@ -969,8 +971,8 @@ public class TestOperationSetPresence
             }
         }
         logger.info("------------ END DUMP LIST " + fixture.userID1 + " ------------");
-        
-        
+
+
         logger.info("------------ START DUMP LIST " + fixture.userID2 + " ------------");
         rootGroup = op2.getServerStoredContactListRoot();
         groups = rootGroup.subgroups();
@@ -978,7 +980,7 @@ public class TestOperationSetPresence
         {
             ContactGroup group = groups.next();
             logger.info("group " + group.getGroupName());
-            
+
             Iterator<Contact> contactsIter = group.contacts();
             while(contactsIter.hasNext())
             {

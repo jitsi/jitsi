@@ -43,6 +43,7 @@ public class TestOperationSetPresence
         super(name);
     }
 
+    @Override
     protected void setUp() throws Exception
     {
         super.setUp();
@@ -98,6 +99,7 @@ public class TestOperationSetPresence
         }
     }
 
+    @Override
     protected void tearDown() throws Exception
     {
         super.tearDown();
@@ -284,9 +286,9 @@ public class TestOperationSetPresence
 
         //test provider event notification.
         statusEventCollector.waitForPresEvent(10000);
-        
+
         // wait for status change in other provider
-        // as later its not actually queryed but the last received 
+        // as later its not actually queryed but the last received
         // status is returned
         contactStatusEventCollector.waitForEvent(10000);
 
@@ -314,10 +316,10 @@ public class TestOperationSetPresence
             operationSetPresence1.getPresenceStatus());
 
         logger.trace("will query for contact(" + fixture.userID1 + ") status!");
-        
+
         MsnStatusEnum actualStatus = (MsnStatusEnum)
             operationSetPresence2.queryContactStatus(fixture.userID1);
-        
+
         assertEquals("The underlying implementation did not switch to the "
                      +"requested presence status.",
                      newStatus,
@@ -402,28 +404,28 @@ public class TestOperationSetPresence
         logger.trace("will query for contact("+ fixture.userID2 + ") status!");
         PresenceStatus actualReturn
             = operationSetPresence1.queryContactStatus(fixture.userID2);
-        
+
         // sometimes happens that no status are received
         // will change the status and try again
         if(!actualReturn.equals(expectedReturn))
         {
-            logger.info("subtestQueryContactStatus for " + status + 
+            logger.info("subtestQueryContactStatus for " + status +
                 " Failed - trying again!");
-            
+
             // reset the status so we can change it once again
             operationSetPresence2.publishPresenceStatus(status, "status message");
-            
+
             pauseAfterStateChanges();
-            
+
             // now try again
             operationSetPresence2.publishPresenceStatus(status, "status message");
 
             pauseAfterStateChanges();
-            
+
             actualReturn
                 = operationSetPresence1.queryContactStatus(fixture.userID2);
         }
-        
+
         assertEquals("Querying a "
                      + expectedReturn.getStatusName()
                      + " state did not return as expected"
@@ -454,7 +456,7 @@ public class TestOperationSetPresence
             subEvtCollector.waitForEvent(10000);
             operationSetPresence1.removeSubscriptionListener(subEvtCollector);
         }
-        
+
         SubscriptionEventCollector subEvtCollector2
             = new SubscriptionEventCollector();
         operationSetPresence2.addSubscriptionListener(subEvtCollector2);
@@ -560,7 +562,7 @@ public class TestOperationSetPresence
         {
             // happens if the user is already subscribed
         }
-        
+
         Object lock = new Object();
         synchronized(lock)
         {

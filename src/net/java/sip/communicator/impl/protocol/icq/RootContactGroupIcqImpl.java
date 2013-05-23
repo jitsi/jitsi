@@ -141,7 +141,7 @@ public class RootContactGroupIcqImpl
      */
     public ContactGroup getGroup(int index)
     {
-        return (ContactGroupIcqImpl)subGroups.get(index);
+        return subGroups.get(index);
     }
 
     /**
@@ -216,6 +216,7 @@ public class RootContactGroupIcqImpl
      *
      * @return  a string representation of this root contact group.
      */
+    @Override
     public String toString()
     {
         StringBuffer buff = new StringBuffer(getGroupName());

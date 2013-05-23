@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.plugin.chatconfig;
@@ -22,7 +22,7 @@ import org.osgi.framework.*;
 
 /**
  * The chat configuration form activator.
- * 
+ *
  * @author Purvesh Sahoo
  */
 public class ChatConfigActivator
@@ -64,7 +64,7 @@ public class ChatConfigActivator
 
     /**
      * Starts this bundle.
-     * 
+     *
      * @param bc the BundleContext
      * @throws Exception if some of the operations executed in the start method
      *             fails
@@ -92,7 +92,7 @@ public class ChatConfigActivator
 
     /**
      * Stops this bundle.
-     * 
+     *
      * @param bc the bundle context
      * @throws Exception if something goes wrong
      */
@@ -100,7 +100,7 @@ public class ChatConfigActivator
 
     /**
      * Gets the service giving access to all application resources.
-     * 
+     *
      * @return the service giving access to all application resources.
      */
     public static ResourceManagementService getResources()
@@ -113,7 +113,7 @@ public class ChatConfigActivator
 
     /**
      * Creates a config section label from the given text.
-     * 
+     *
      * @param labelText the text of the label.
      * @return the created label
      */
@@ -134,7 +134,7 @@ public class ChatConfigActivator
     /**
      * Returns the <tt>ConfigurationService</tt> obtained from the bundle
      * context.
-     * 
+     *
      * @return the <tt>ConfigurationService</tt> obtained from the bundle
      *         context
      */
@@ -157,7 +157,7 @@ public class ChatConfigActivator
     /**
      * Returns all <tt>ReplacementService</tt>s obtained from the bundle
      * context.
-     * 
+     *
      * @return all <tt>ReplacementService</tt> implementation obtained from the
      *         bundle context
      */

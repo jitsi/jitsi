@@ -130,6 +130,7 @@ public class EncryptionPacketExtension
      *
      * @param childExtension the extension we'd like to add here.
      */
+    @Override
     public void addChildExtension(PacketExtension childExtension)
     {
         super.addChildExtension(childExtension);

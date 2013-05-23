@@ -20,7 +20,7 @@ import org.osgi.framework.*;
 /**
  * Periodically checks the current network interfaces to track changes
  * and fire events on those changes.
- * 
+ *
  * @author Damian Minkov
  */
 public class NetworkConfigurationWatcher

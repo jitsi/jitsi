@@ -85,6 +85,7 @@ public class MetaUIContact
      * Returns the underlying <tt>MetaContact</tt>.
      * @return the underlying <tt>MetaContact</tt>
      */
+    @Override
     public Object getDescriptor()
     {
         return metaContact;
@@ -94,6 +95,7 @@ public class MetaUIContact
      * Returns the display name of this <tt>MetaUIContact</tt>.
      * @return the display name of this <tt>MetaUIContact</tt>
      */
+    @Override
     public String getDisplayName()
     {
         String displayName = metaContact.getDisplayName();
@@ -147,6 +149,7 @@ public class MetaUIContact
      * <tt>MetaContactListService</tt> parent group.
      * @return the source index of the underlying <tt>MetaContact</tt>
      */
+    @Override
     public int getSourceIndex()
     {
         MetaContactGroup parentMetaContactGroup =
@@ -161,6 +164,7 @@ public class MetaUIContact
      * to find this contact.
      * @return an <tt>Iterator</tt> over a list of search strings
      */
+    @Override
     public Iterator<String> getSearchStrings()
     {
         return searchStrings.iterator();
@@ -175,6 +179,7 @@ public class MetaUIContact
      * @return PresenceStatus The most "available" status from all
      * sub-contact statuses.
      */
+    @Override
     public ImageIcon getStatusIcon()
     {
         PresenceStatus status = null;
@@ -201,6 +206,7 @@ public class MetaUIContact
      * Returns the parent <tt>UIGroup</tt>.
      * @return the parent <tt>UIGroup</tt>
      */
+    @Override
     public UIGroup getParentGroup()
     {
         return parentUIGroup;
@@ -211,6 +217,7 @@ public class MetaUIContact
      * of this <tt>MetaUIContact</tt>.
      * @param parentGroup the parent <tt>UIGroup</tt> to set
      */
+    @Override
     public void setParentGroup(UIGroup parentGroup)
     {
         parentUIGroup = parentGroup;
@@ -223,6 +230,7 @@ public class MetaUIContact
      * @return the default <tt>ContactDetail</tt> to use for any operations
      * depending to the given <tt>OperationSet</tt> class
      */
+    @Override
     public UIContactDetail getDefaultContactDetail(
         Class<? extends OperationSet> opSetClass)
     {
@@ -239,6 +247,7 @@ public class MetaUIContact
      * @return a list of <tt>UIContactDetail</tt>s supporting the given
      * <tt>OperationSet</tt> class
      */
+    @Override
     public List<UIContactDetail> getContactDetailsForOperationSet(
         Class<? extends OperationSet> opSetClass)
     {
@@ -262,6 +271,7 @@ public class MetaUIContact
      * @return a list of all <tt>UIContactDetail</tt>s within this
      * <tt>UIContact</tt>
      */
+    @Override
     public List<UIContactDetail> getContactDetails()
     {
         List<UIContactDetail> resultList
@@ -282,6 +292,7 @@ public class MetaUIContact
      *
      * @return a byte array representing the avatar of this <tt>UIContact</tt>
      */
+    @Override
     public byte[] getAvatar()
     {
         return metaContact.getAvatar();
@@ -297,6 +308,7 @@ public class MetaUIContact
      * @return an <tt>ImageIcon</tt> which represents the avatar of the
      * specified <tt>MetaContact</tt>
      */
+    @Override
     public ImageIcon getScaledAvatar(
         boolean isSelected, int width, int height)
     {
@@ -355,6 +367,7 @@ public class MetaUIContact
      * Returns the display details for the underlying <tt>MetaContact</tt>.
      * @return the display details for the underlying <tt>MetaContact</tt>
      */
+    @Override
     public String getDisplayDetails()
     {
         String displayDetails = null;
@@ -413,6 +426,7 @@ public class MetaUIContact
      * Returns the tool tip opened on mouse over.
      * @return the tool tip opened on mouse over
      */
+    @Override
     public ExtendedTooltip getToolTip()
     {
         ExtendedTooltip tip = new ExtendedTooltip(true);
@@ -491,11 +505,11 @@ public class MetaUIContact
                                     });
                                     return;
                                 }
-        
+
                                 // remove previously shown information
                                 // as it contains "Loading..." text
                                 tip.removeAllLines();
-        
+
                                 // load it again
                                 loadTooltip(tip);
                             }
@@ -520,7 +534,7 @@ public class MetaUIContact
 
     /**
      * Adds resources for contact.
-     * 
+     *
      * @param tip the tool tip
      * @param protocolContact the protocol contact, which resources we're
      * looking for
@@ -594,6 +608,7 @@ public class MetaUIContact
      * component data model.
      * @return the corresponding <tt>ContactNode</tt>
      */
+    @Override
     public ContactNode getContactNode()
     {
         return contactNode;
@@ -604,6 +619,7 @@ public class MetaUIContact
      * @param contactNode the corresponding <tt>ContactNode</tt> in the contact
      * list component data model
      */
+    @Override
     public void setContactNode(ContactNode contactNode)
     {
         this.contactNode = contactNode;
@@ -678,6 +694,7 @@ public class MetaUIContact
          * @return the presence status of the underlying protocol
          * <tt>Contact</tt>
          */
+        @Override
         public PresenceStatus getPresenceStatus()
         {
             return contact.getPresenceStatus();
@@ -688,6 +705,7 @@ public class MetaUIContact
      * Returns the right button menu component.
      * @return the right button menu component
      */
+    @Override
     public JPopupMenu getRightButtonMenu()
     {
         return new MetaContactRightButtonMenu(metaContact);
@@ -698,6 +716,7 @@ public class MetaUIContact
      *
      * @return a list of all custom action buttons for this meta contact
      */
+    @Override
     public Collection<SIPCommButton> getContactCustomActionButtons()
     {
         return MetaContactListSource.getContactCustomActionButtons(this);

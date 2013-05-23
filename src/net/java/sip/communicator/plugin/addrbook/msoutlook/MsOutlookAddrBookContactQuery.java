@@ -223,7 +223,7 @@ public class MsOutlookAddrBookContactQuery
      * The index of the job title.
      */
     private static final int PR_TITLE = 24;
-    
+
     /**
      * The index of the instant messaging address.
      */
@@ -515,76 +515,76 @@ public class MsOutlookAddrBookContactQuery
                             ContactDetail.SubCategory.Other
                         };
         case PR_TITLE:
-            return 
+            return
                 new ContactDetail.SubCategory[]
                         {
                             ContactDetail.SubCategory.JobTitle
                         };
         case PR_BUSINESS_ADDRESS_CITY:
-            return 
+            return
                 new ContactDetail.SubCategory[]
                         {
                             ContactDetail.SubCategory.Work,
                             ContactDetail.SubCategory.City
                         };
         case PR_BUSINESS_ADDRESS_COUNTRY:
-            return 
+            return
                 new ContactDetail.SubCategory[]
                         {
                             ContactDetail.SubCategory.Work,
                             ContactDetail.SubCategory.Country
                         };
         case PR_BUSINESS_ADDRESS_POSTAL_CODE:
-            return 
+            return
                 new ContactDetail.SubCategory[]
                         {
                             ContactDetail.SubCategory.Work,
                             ContactDetail.SubCategory.PostalCode
                         };
         case PR_BUSINESS_ADDRESS_STATE_OR_PROVINCE:
-            return 
+            return
                 new ContactDetail.SubCategory[]
                         {
                             ContactDetail.SubCategory.Work,
                             ContactDetail.SubCategory.State
                         };
         case PR_BUSINESS_ADDRESS_STREET:
-            return 
+            return
                 new ContactDetail.SubCategory[]
                         {
                             ContactDetail.SubCategory.Work,
                             ContactDetail.SubCategory.Street
                         };
         case PR_HOME_ADDRESS_CITY:
-            return 
+            return
                 new ContactDetail.SubCategory[]
                         {
                             ContactDetail.SubCategory.Home,
                             ContactDetail.SubCategory.City
                         };
         case PR_HOME_ADDRESS_COUNTRY:
-            return 
+            return
                 new ContactDetail.SubCategory[]
                         {
                             ContactDetail.SubCategory.Home,
                             ContactDetail.SubCategory.Country
                         };
         case PR_HOME_ADDRESS_POSTAL_CODE:
-            return 
+            return
                 new ContactDetail.SubCategory[]
                         {
                             ContactDetail.SubCategory.Home,
                             ContactDetail.SubCategory.PostalCode
                         };
         case PR_HOME_ADDRESS_STATE_OR_PROVINCE:
-            return 
+            return
                 new ContactDetail.SubCategory[]
                         {
                             ContactDetail.SubCategory.Home,
                             ContactDetail.SubCategory.State
                         };
         case PR_HOME_ADDRESS_STREET:
-            return 
+            return
                 new ContactDetail.SubCategory[]
                         {
                             ContactDetail.SubCategory.Home,
@@ -948,7 +948,7 @@ public class MsOutlookAddrBookContactQuery
                 }
             }
         }
-        
+
         return contactDetails;
     }
 
@@ -957,6 +957,7 @@ public class MsOutlookAddrBookContactQuery
      *
      * @see AsyncContactQuery#run()
      */
+    @Override
     protected void run()
     {
         synchronized (MsOutlookAddrBookContactQuery.class)

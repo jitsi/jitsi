@@ -24,15 +24,15 @@ import java.util.*;
 
 /**
  * Chat Alerter plugin.
- * 
+ *
  * Sends alerts to the user when new message arrives and the application is not
  * in the foreground. On Mac OS X this will bounce the dock icon until the user
  * selects the chat windows. On Windows, Gnome and KDE this will flash the
  * taskbar button/icon until the user selects the chat window.
- * 
+ *
  * @author Damian Minkov
  */
-public class ChatAlerterActivator 
+public class ChatAlerterActivator
     implements  BundleActivator,
                 ServiceListener,
                 MessageListener,
@@ -47,12 +47,12 @@ public class ChatAlerterActivator
      * The logger for this class.
      */
     private static Logger logger = Logger.getLogger(ChatAlerterActivator.class);
-    
+
     /**
      * The BundleContext that we got from the OSGI bus.
      */
     private BundleContext bundleContext = null;
-    
+
     /**
      * UIService reference.
      */
@@ -66,7 +66,7 @@ public class ChatAlerterActivator
     /**
      * Starts this bundle.
      * @param bc bundle context.
-     * @throws Exception 
+     * @throws Exception
      */
     public void start(BundleContext bc) throws Exception
     {
@@ -90,7 +90,7 @@ public class ChatAlerterActivator
         catch (Exception exception)
         {
             if (logger.isInfoEnabled())
-                logger.info("The Alerter not supported or problem loading it!", 
+                logger.info("The Alerter not supported or problem loading it!",
                 exception);
             return;
         }
@@ -197,7 +197,7 @@ public class ChatAlerterActivator
 
         this.started = false;
     }
-    
+
     /**
      * Used to attach the Alerter plugin to existing or
      * just registered protocol provider. Checks if the provider has implementation
@@ -224,7 +224,7 @@ public class ChatAlerterActivator
             if (logger.isTraceEnabled())
                 logger.trace("Service did not have a im op. set.");
         }
-        
+
         // check whether the provider has a sms operation set
         OperationSetSmsMessaging opSetSms
             = provider.getOperationSet(OperationSetSmsMessaging.class);
@@ -238,7 +238,7 @@ public class ChatAlerterActivator
             if (logger.isTraceEnabled())
                 logger.trace("Service did not have a sms op. set.");
         }
-        
+
         OperationSetMultiUserChat opSetMultiUChat
             = provider.getOperationSet(OperationSetMultiUserChat.class);
 
@@ -246,7 +246,7 @@ public class ChatAlerterActivator
         {
             for (ChatRoom room : opSetMultiUChat.getCurrentlyJoinedChatRooms())
                 room.addMessageListener(this);
-            
+
             opSetMultiUChat.addPresenceListener(this);
         }
         else
@@ -287,7 +287,7 @@ public class ChatAlerterActivator
         {
             opSetSms.removeMessageListener(this);
         }
-        
+
         OperationSetMultiUserChat opSetMultiUChat
             = provider.getOperationSet(OperationSetMultiUserChat.class);
 
@@ -412,7 +412,7 @@ public class ChatAlerterActivator
             = bundleContext.getService(serviceEvent.getServiceReference());
 
         if (logger.isTraceEnabled())
-            logger.trace("Received a service event for: " + 
+            logger.trace("Received a service event for: " +
             sService.getClass().getName());
 
         // we don't care if the source service is not a protocol provider
@@ -433,7 +433,7 @@ public class ChatAlerterActivator
         }
     }
 
-    public void messageDelivered(AdHocChatRoomMessageDeliveredEvent evt) 
+    public void messageDelivered(AdHocChatRoomMessageDeliveredEvent evt)
     {
         // do nothing
     }
@@ -444,7 +444,7 @@ public class ChatAlerterActivator
         // do nothing
     }
 
-    public void messageReceived(AdHocChatRoomMessageReceivedEvent evt) 
+    public void messageReceived(AdHocChatRoomMessageReceivedEvent evt)
     {
         alertChatWindow();
     }
@@ -453,12 +453,12 @@ public class ChatAlerterActivator
      * Called to notify interested parties that a change in our presence in
      * an ad-hoc chat room has occurred. Changes may include us being join,
      * left.
-     * @param ev the <tt>LocalUserAdHocChatRoomPresenceChangeEvent</tt> 
-     * instance containing the ad-hoc chat room and the type, and reason of the 
+     * @param ev the <tt>LocalUserAdHocChatRoomPresenceChangeEvent</tt>
+     * instance containing the ad-hoc chat room and the type, and reason of the
      * change
      */
     public void localUserAdHocPresenceChanged(
-            LocalUserAdHocChatRoomPresenceChangeEvent ev) 
+            LocalUserAdHocChatRoomPresenceChangeEvent ev)
     {
         AdHocChatRoom adHocChatRoom = ev.getAdHocChatRoom();
 

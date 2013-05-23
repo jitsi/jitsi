@@ -70,6 +70,7 @@ public class HoldButton
     /**
      * Holds on or off the associated <tt>Call</tt> when this button is clicked.
      */
+    @Override
     public void buttonPressed()
     {
         if (call != null)

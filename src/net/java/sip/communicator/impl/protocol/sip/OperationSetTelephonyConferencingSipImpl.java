@@ -201,6 +201,7 @@ public class OperationSetTelephonyConferencingSipImpl
                         CONTENT_SUB_TYPE,
                         this.timer)
                 {
+                    @Override
                     protected Subscription createSubscription(
                             Address fromAddress,
                             String eventId)
@@ -235,6 +236,7 @@ public class OperationSetTelephonyConferencingSipImpl
      * @param event a <tt>CallPeerEvent</tt> which specifies the
      * <tt>CallPeer</tt> which has been added to a <tt>Call</tt>
      */
+    @Override
     public void callPeerAdded(CallPeerEvent event)
     {
         super.callPeerAdded(event);
@@ -252,6 +254,7 @@ public class OperationSetTelephonyConferencingSipImpl
      * @param event a <tt>CallPeerEvent</tt> which specifies the
      * <tt>CallPeer</tt> which has been removed from a <tt>Call</tt>
      */
+    @Override
     public void callPeerRemoved(CallPeerEvent event)
     {
         CallPeer callPeer = event.getSourceCallPeer();
@@ -270,6 +273,7 @@ public class OperationSetTelephonyConferencingSipImpl
      * be invited by this <tt>OperationSetTelephonyConferencing</tt>
      * @throws OperationFailedException if anything goes wrong
      */
+    @Override
     protected CallSipImpl createOutgoingCall()
         throws OperationFailedException
     {
@@ -550,6 +554,7 @@ public class OperationSetTelephonyConferencingSipImpl
      * implemented by
      * {@link AbstractOperationSetTelephonyConferencing#inviteCalleToCall(String,Call)}.
      */
+    @Override
     protected CallPeerSipImpl doInviteCalleeToCall(
             Address calleeAddress,
             CallSipImpl call)
@@ -636,6 +641,7 @@ public class OperationSetTelephonyConferencingSipImpl
      * @param call the <tt>Call</tt> whose <tt>CallPeer</tt>s are to be notified
      * about changes in the telephony conference-related information
      */
+    @Override
     protected void notifyCallPeers(Call call)
     {
         notifyAll(SubscriptionStateHeader.ACTIVE, null, call);
@@ -697,6 +703,7 @@ public class OperationSetTelephonyConferencingSipImpl
      * @throws OperationFailedException if parsing the specified
      * <tt>calleeAddressString</tt> fails
      */
+    @Override
     protected Address parseAddressString(String calleeAddressString)
         throws OperationFailedException
     {
@@ -822,6 +829,7 @@ public class OperationSetTelephonyConferencingSipImpl
          * @see EventPackageNotifier.Subscription#createNotifyContent(String,
          * String)
          */
+        @Override
         protected byte[] createNotifyContent(
                 String subscriptionState,
                 String reason)
@@ -983,6 +991,7 @@ public class OperationSetTelephonyConferencingSipImpl
          * @see EventPackageSubscriber.Subscription#processActiveRequest(
          * RequestEvent, byte[])
          */
+        @Override
         protected void processActiveRequest(
                 RequestEvent requestEvent,
                 byte[] rawContent)
@@ -1015,6 +1024,7 @@ public class OperationSetTelephonyConferencingSipImpl
          * @see EventPackageSubscriber.Subscription#processFailureResponse(
          * ResponseEvent, int)
          */
+        @Override
         protected void processFailureResponse(
                 ResponseEvent responseEvent ,
                 int statusCode)
@@ -1044,6 +1054,7 @@ public class OperationSetTelephonyConferencingSipImpl
          * @see EventPackageSubscriber.Subscription#processSuccessResponse(
          * ResponseEvent, int)
          */
+        @Override
         protected void processSuccessResponse(
                 ResponseEvent responseEvent,
                 int statusCode)
@@ -1077,6 +1088,7 @@ public class OperationSetTelephonyConferencingSipImpl
          * @see EventPackageSubscriber.Subscription#processTerminatedRequest(
          * RequestEvent, String)
          */
+        @Override
         protected void processTerminatedRequest(
                 RequestEvent requestEvent,
                 String reasonCode)

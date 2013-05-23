@@ -16,7 +16,7 @@ import net.java.sip.communicator.plugin.desktoputil.*;
 
 /**
  * SIPCommTextAreaUI implementation.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class SIPCommTextAreaUI
@@ -27,7 +27,8 @@ public class SIPCommTextAreaUI
         c.setOpaque(false);
         return new SIPCommTextAreaUI();
     }
-    
+
+    @Override
     protected void paintSafely(Graphics g)
     {
         AntialiasingManager.activateAntialiasing(g);

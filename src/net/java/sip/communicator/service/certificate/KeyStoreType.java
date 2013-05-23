@@ -9,7 +9,7 @@ package net.java.sip.communicator.service.certificate;
 /**
  * Data object for KeyStore configurations. Primarily used during adding/
  * editing client certificate configurations.
- * 
+ *
  * @author Ingo Bauersachs
  */
 public class KeyStoreType

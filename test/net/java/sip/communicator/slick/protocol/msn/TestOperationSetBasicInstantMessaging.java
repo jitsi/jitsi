@@ -44,6 +44,7 @@ public class TestOperationSetBasicInstantMessaging
      * Get a reference to the basic IM operation set.
      * @throws Exception if this is not a good day.
      */
+    @Override
     protected void setUp() throws Exception
     {
         super.setUp();
@@ -116,6 +117,7 @@ public class TestOperationSetBasicInstantMessaging
 
     }
 
+    @Override
     protected void tearDown() throws Exception
     {
         super.tearDown();

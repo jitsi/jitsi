@@ -22,7 +22,7 @@ public class AdHocConferenceChatContact
 {
 
     /**
-     * Creates an instance of <tt>AdHocConferenceChatContact</tt> by passing to 
+     * Creates an instance of <tt>AdHocConferenceChatContact</tt> by passing to
      * it the <tt>Contact</tt> for which it is created.
      *
      * @param participant the <tt>Contact</tt> for which this
@@ -33,6 +33,7 @@ public class AdHocConferenceChatContact
         super(participant);
     }
 
+    @Override
     protected byte[] getAvatarBytes()
     {
         return descriptor.getImage();
@@ -43,6 +44,7 @@ public class AdHocConferenceChatContact
      *
      * @return the contact name
      */
+    @Override
     public String getName()
     {
         String name = descriptor.getDisplayName();
@@ -58,6 +60,7 @@ public class AdHocConferenceChatContact
      * Implements ChatContact#getUID(). Delegates to
      * Contact#getAddress() because it's supposed to be unique.
      */
+    @Override
     public String getUID()
     {
         return descriptor.getAddress();

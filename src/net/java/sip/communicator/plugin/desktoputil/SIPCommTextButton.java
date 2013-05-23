@@ -108,6 +108,7 @@ public class SIPCommTextButton extends JButton
      *
      * @param g The Graphics object.
      */
+    @Override
     protected void paintComponent(Graphics g)
     {
         Graphics2D g1 = (Graphics2D) g.create();
@@ -182,7 +183,8 @@ public class SIPCommTextButton extends JButton
     * @see JComponent#getUIClassID
     * @see UIDefaults#getUI
     */
-   public String getUIClassID()
+   @Override
+public String getUIClassID()
    {
        return UIClassID;
    }

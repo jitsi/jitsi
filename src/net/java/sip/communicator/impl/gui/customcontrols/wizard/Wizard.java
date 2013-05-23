@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.impl.gui.customcontrols.wizard;
@@ -121,7 +121,7 @@ public class Wizard
     /**
      * This method accepts a java.awt.Dialog object as the javax.swing.JDialog's
      * parent.
-     * 
+     *
      * @param owner The java.awt.Dialog object that is the owner of this dialog.
      */
     public Wizard(Dialog owner)
@@ -134,7 +134,7 @@ public class Wizard
     /**
      * This method accepts a java.awt.Frame object as the javax.swing.JDialog's
      * parent.
-     * 
+     *
      * @param owner The java.awt.Frame object that is the owner of the
      *            javax.swing.JDialog.
      */
@@ -149,7 +149,7 @@ public class Wizard
      * Returns an instance of the JDialog that this class created.This is useful
      * in the event that you want to change any of the JDialog parameters
      * manually.
-     * 
+     *
      * @return The JDialog instance that this class created.
      */
     public JDialog getDialog()
@@ -160,7 +160,7 @@ public class Wizard
     /**
      * Convenience method that displays a modal wizard dialog and blocks until
      * the dialog has completed.
-     * 
+     *
      * @param modal whether to show a modal dialog
      */
     public void showDialog(boolean modal)
@@ -174,7 +174,7 @@ public class Wizard
 
     /**
      * Returns the current model of the wizard dialog.
-     * 
+     *
      * @return A WizardModel instance, which serves as the model for the wizard
      *         dialog.
      */
@@ -187,7 +187,7 @@ public class Wizard
      * Adds the given WizardPage in this wizard. Each WizardPage is identified
      * by a unique Object-based identifier (often a String), which can be used
      * by the setCurrentPanel() method to display the panel at runtime.
-     * 
+     *
      * @param id An Object-based identifier used to identify the WizardPage
      *            object
      * @param page The WizardPage object to register in this wizard
@@ -207,7 +207,7 @@ public class Wizard
     /**
      * Removes from the wizard the <tt>WizardPage</tt> corresponding to the
      * given identifier.
-     * 
+     *
      * @param id The identifier of the wizard page.
      */
     public void unregisterWizardPage(Object id)
@@ -224,7 +224,7 @@ public class Wizard
 
     /**
      * Checks whether a page with the given id exists in the wizard.
-     * 
+     *
      * @param id the identifier of the searched page
      * @return TRUE if the page with the given id exists in the wizard, FALSE
      *         otherwise.
@@ -237,7 +237,7 @@ public class Wizard
     /**
      * Displays the panel identified by the object passed in. This is the same
      * Object-based identified used when registering the panel.
-     * 
+     *
      * @param id The Object-based identifier of the panel to be displayed.
      */
     public void setCurrentPage(Object id)
@@ -270,7 +270,7 @@ public class Wizard
     /**
      * Method used to listen for property change events from the model and
      * update the dialog's graphical components as necessary.
-     * 
+     *
      * @param evt PropertyChangeEvent passed from the model to signal that one
      *            of its properties has changed value.
      */
@@ -323,7 +323,7 @@ public class Wizard
 
     /**
      * Mirrors the WizardModel method of the same name.
-     * 
+     *
      * @return A boolean indicating if the button is enabled.
      */
     public boolean isBackButtonEnabled()
@@ -333,7 +333,7 @@ public class Wizard
 
     /**
      * Mirrors the WizardModel method of the same name.
-     * 
+     *
      * @param newValue The new enabled status of the button.
      */
     public void setBackButtonEnabled(boolean newValue)
@@ -344,7 +344,7 @@ public class Wizard
 
     /**
      * Mirrors the WizardModel method of the same name.
-     * 
+     *
      * @return A boolean indicating if the button is enabled.
      */
     public boolean isNextFinishButtonEnabled()
@@ -354,7 +354,7 @@ public class Wizard
 
     /**
      * Mirrors the WizardModel method of the same name.
-     * 
+     *
      * @param newValue The new enabled status of the button.
      */
     public void setNextFinishButtonEnabled(boolean newValue)
@@ -364,7 +364,7 @@ public class Wizard
 
     /**
      * Mirrors the WizardModel method of the same name.
-     * 
+     *
      * @return A boolean indicating if the button is enabled.
      */
     public boolean isCancelButtonEnabled()
@@ -374,7 +374,7 @@ public class Wizard
 
     /**
      * Mirrors the WizardModel method of the same name.
-     * 
+     *
      * @param newValue The new enabled status of the button.
      */
     public void setCancelButtonEnabled(boolean newValue)
@@ -384,7 +384,7 @@ public class Wizard
 
     /**
      * Closes the dialog and sets the return code to the integer parameter.
-     * 
+     *
      * @param code The return code.
      */
     void close(int code)
@@ -487,7 +487,7 @@ public class Wizard
     /**
      * If the user presses the close box on the dialog's window, treat it as a
      * cancel.
-     * 
+     *
      * @param e The event passed in from AWT.
      */
     public void windowClosing(WindowEvent e)
@@ -547,6 +547,7 @@ public class Wizard
     /**
      * Implements the <tt>SIPCommDialog</tt> close method.
      */
+    @Override
     protected void close(boolean isEscaped)
     {
         if(isCurrentlySigningIn)
@@ -569,7 +570,7 @@ public class Wizard
 
     /**
      * Returns the next wizard button.
-     * 
+     *
      * @return the next wizard button
      */
     public JButton getNextButton()
@@ -579,7 +580,7 @@ public class Wizard
 
     /**
      * Returns the back wizard button.
-     * 
+     *
      * @return the back wizard button
      */
     public JButton getBackButton()
@@ -598,7 +599,7 @@ public class Wizard
 
     /**
      * Returns the default text of the back wizard button.
-     * 
+     *
      * @return the default text of the back wizard button
      */
     public String getBackButtonDefaultText()
@@ -608,7 +609,7 @@ public class Wizard
 
     /**
      * Sets the back button default text.
-     * 
+     *
      * @param backButtonDefaultText the text to set
      */
     void setBackButtonDefaultText(String backButtonDefaultText)
@@ -618,7 +619,7 @@ public class Wizard
 
     /**
      * Returns the default text of the next wizard button.
-     * 
+     *
      * @return the default text of the next wizard button.
      */
     public String getNextButtonDefaultText()
@@ -628,7 +629,7 @@ public class Wizard
 
     /**
      * Sets the next button default text.
-     * 
+     *
      * @param nextButtonDefaultText the text to set
      */
     void setNextButtonDefaultText(String nextButtonDefaultText)
@@ -638,7 +639,7 @@ public class Wizard
 
     /**
      * Returns the default text of the finish wizard button.
-     * 
+     *
      * @return the default text of the finish wizard button.
      */
     public String getFinishButtonDefaultText()
@@ -648,7 +649,7 @@ public class Wizard
 
     /**
      * Sets the finish button default text.
-     * 
+     *
      * @param finishButtonDefaultText the text to set
      */
     void setFinishButtonDefaultText(String finishButtonDefaultText)
@@ -658,7 +659,7 @@ public class Wizard
 
     /**
      * Returns the default text of the cancel wizard button.
-     * 
+     *
      * @return the default text of the cancel wizard button.
      */
     public String getCancelButtonDefaultText()
@@ -668,7 +669,7 @@ public class Wizard
 
     /**
      * Sets the cancel button default text.
-     * 
+     *
      * @param cancelButtonDefaultText the text to set
      */
     void setCancelButtonDefaultText(String cancelButtonDefaultText)
@@ -678,7 +679,7 @@ public class Wizard
 
     /**
      * Sets the text label of the "Finish" wizard button.
-     * 
+     *
      * @param text the new label of the button
      */
     public void setFinishButtonText(String text)

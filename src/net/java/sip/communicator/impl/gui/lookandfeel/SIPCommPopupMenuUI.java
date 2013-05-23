@@ -12,7 +12,7 @@ import javax.swing.plaf.basic.*;
 
 /**
  *  SIPCommPopupMenuUI implementation.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class SIPCommPopupMenuUI extends BasicPopupMenuUI

@@ -84,6 +84,7 @@ public class OperationSetTelephonyConferencingJabberImpl
      * @param call the <tt>Call</tt> whose <tt>CallPeer</tt>s are to be notified
      * about changes in the telephony conference-related information
      */
+    @Override
     protected void notifyCallPeers(Call call)
     {
         if (call.isConferenceFocus())
@@ -371,6 +372,7 @@ public class OperationSetTelephonyConferencingJabberImpl
      * be invited by this <tt>OperationSetTelephonyConferencing</tt>
      * @throws OperationFailedException if anything goes wrong
      */
+    @Override
     protected CallJabberImpl createOutgoingCall()
         throws OperationFailedException
     {
@@ -385,6 +387,7 @@ public class OperationSetTelephonyConferencingJabberImpl
      * implemented by
      * {@link AbstractOperationSetTelephonyConferencing#inviteCalleeToCall(String,Call)}.
      */
+    @Override
     protected CallPeer doInviteCalleeToCall(
             String calleeAddress,
             CallJabberImpl call)
@@ -415,6 +418,7 @@ public class OperationSetTelephonyConferencingJabberImpl
      * @throws OperationFailedException if parsing the specified
      * <tt>calleeAddressString</tt> fails
      */
+    @Override
     protected String parseAddressString(String calleeAddressString)
         throws OperationFailedException
     {
@@ -496,7 +500,7 @@ public class OperationSetTelephonyConferencingJabberImpl
      * @param callPeer the <tt>CallPeer</tt> from which the specified
      * <tt>CoinIQ</tt> was sent
      * @param coinIQ the <tt>CoinIQ</tt> which was sent from the specified
-     * <tt>callPeer</tt> 
+     * <tt>callPeer</tt>
      */
     private void handleCoin(CallPeerJabberImpl callPeer, CoinIQ coinIQ)
     {

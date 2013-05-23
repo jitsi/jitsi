@@ -351,6 +351,7 @@ public class StunServerDescriptor
      *
      * @return a <tt>String</tt> representation of this descriptor.
      */
+    @Override
     public String toString()
     {
         return "StunServerDesc: " + getAddress() + "/"

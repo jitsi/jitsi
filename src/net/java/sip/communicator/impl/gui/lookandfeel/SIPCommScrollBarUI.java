@@ -71,6 +71,7 @@ public class SIPCommScrollBarUI
      * @param c the component to paint a track for
      * @param trackBounds the bounds of the track to paint
      */
+    @Override
     protected void paintTrack( Graphics g, JComponent c, Rectangle trackBounds)
     {
         g.translate( trackBounds.x, trackBounds.y );
@@ -129,6 +130,7 @@ public class SIPCommScrollBarUI
      * @param c the component to paint a thumb for
      * @param thumbBounds the bounds of the thumb to paint
      */
+    @Override
     protected void paintThumb(Graphics g, JComponent c, Rectangle thumbBounds)
     {
         if (!c.isEnabled()) {
@@ -158,30 +160,30 @@ public class SIPCommScrollBarUI
             imgWidth = verticalThumb.getWidth();
             imgHeight = verticalThumb.getHeight();
 
-            Image topImage 
-                = verticalThumb.getSubimage(0, 0, 
-                                            imgWidth, 
+            Image topImage
+                = verticalThumb.getSubimage(0, 0,
+                                            imgWidth,
                                             indentWidth);
-            Image middleImage 
-                = verticalThumb.getSubimage(0, indentWidth, 
-                                            imgWidth, 
+            Image middleImage
+                = verticalThumb.getSubimage(0, indentWidth,
+                                            imgWidth,
                                             imgHeight-2*indentWidth);
-            Image bottomImage 
-                = verticalThumb.getSubimage(0, imgHeight-indentWidth, 
+            Image bottomImage
+                = verticalThumb.getSubimage(0, imgHeight-indentWidth,
                                             imgWidth, indentWidth);
 
-            g.drawImage(topImage, 0, 0, 
+            g.drawImage(topImage, 0, 0,
                     thumbBounds.width-2, indentWidth , null);
 
-            g.drawImage(middleImage, thumbBounds.x, indentWidth, 
-                    thumbBounds.width-2, 
+            g.drawImage(middleImage, thumbBounds.x, indentWidth,
+                    thumbBounds.width-2,
                     thumbBounds.height-indentWidth , null);
 
             g.drawImage(bottomImage, thumbBounds.x,
                     thumbBounds.height-indentWidth,
                     thumbBounds.width-2, indentWidth, null);
 
-            g.drawImage(verticalThumbHandle, 
+            g.drawImage(verticalThumbHandle,
                         thumbBounds.width/2-verticalThumbHandle.getWidth()/2,
                         thumbBounds.height/2-verticalThumbHandle.getHeight()/2,
                         verticalThumbHandle.getWidth(),
@@ -204,29 +206,29 @@ public class SIPCommScrollBarUI
             imgWidth = horizontalThumb.getWidth();
             imgHeight = horizontalThumb.getHeight();
 
-            Image leftImage 
+            Image leftImage
                 = horizontalThumb.getSubimage(0, 0,
                                             indentWidth, imgHeight);
-            Image middleImage 
-                = horizontalThumb.getSubimage(indentWidth, 0, 
-                                            imgWidth-2*indentWidth, 
+            Image middleImage
+                = horizontalThumb.getSubimage(indentWidth, 0,
+                                            imgWidth-2*indentWidth,
                                             imgHeight);
-            Image rightImage 
-                = horizontalThumb.getSubimage(imgWidth-indentWidth, 0, 
-                                            indentWidth, 
+            Image rightImage
+                = horizontalThumb.getSubimage(imgWidth-indentWidth, 0,
+                                            indentWidth,
                                             imgHeight);
 
-            g.drawImage(leftImage, 0, 0, 
+            g.drawImage(leftImage, 0, 0,
                     indentWidth, thumbBounds.height-2, null);
 
-            g.drawImage(middleImage, indentWidth, thumbBounds.y, 
-                    thumbBounds.width-indentWidth, 
+            g.drawImage(middleImage, indentWidth, thumbBounds.y,
+                    thumbBounds.width-indentWidth,
                     thumbBounds.height-2 , null);
 
             g.drawImage(rightImage, thumbBounds.width-indentWidth, thumbBounds.y,
                     indentWidth, thumbBounds.height-2, null);
 
-            g.drawImage(horizontalThumbHandle, 
+            g.drawImage(horizontalThumbHandle,
                     thumbBounds.width/2-horizontalThumbHandle.getWidth()/2,
                     thumbBounds.height/2-horizontalThumbHandle.getHeight()/2,
                     horizontalThumbHandle.getWidth(),
@@ -243,6 +245,7 @@ public class SIPCommScrollBarUI
      *
      * @return the minimum scroll thumb size
      */
+    @Override
     protected Dimension getMinimumThumbSize()
     {
         if(scrollbar.getOrientation() == JScrollBar.VERTICAL)

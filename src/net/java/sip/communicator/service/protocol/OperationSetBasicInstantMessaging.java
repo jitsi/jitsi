@@ -33,7 +33,7 @@ public interface OperationSetBasicInstantMessaging
 
     /**
      * Create a Message instance for sending arbitrary MIME-encoding content.
-     * 
+     *
      * @param content content value
      * @param contentType the MIME-type for <tt>content</tt>
      * @param contentEncoding encoding used for <tt>content</tt>

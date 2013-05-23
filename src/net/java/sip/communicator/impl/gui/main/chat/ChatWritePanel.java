@@ -197,6 +197,7 @@ public class ChatWritePanel
 
         smsNumberLabel = new JLabel(String.valueOf(smsNumberCount))
         {
+            @Override
             public void paintComponent(Graphics g)
             {
                 AntialiasingManager.activateAntialiasing(g);
@@ -287,6 +288,7 @@ public class ChatWritePanel
 
         smsLabel.addMouseListener(new MouseAdapter()
         {
+            @Override
             public void mousePressed(MouseEvent mouseevent)
             {
                 Point location = new Point(smsLabel.getX(),
@@ -600,7 +602,7 @@ public class ChatWritePanel
             while(iter.hasNext())
             {
                 ChatContact<?> c = iter.next();
-                if(c.getName().length() >= (index-position) && 
+                if(c.getName().length() >= (index-position) &&
                     c.getName().substring(0,index-position).equals(sequence))
                 {
                     message.replace(position, index, c.getName()
@@ -644,7 +646,7 @@ public class ChatWritePanel
 
                 Iterator<String> contactIter = contacts.iterator();
                 String contactList = "<DIV align='left'><h5>";
-                while(contactIter.hasNext()) 
+                while(contactIter.hasNext())
                 {
                     contactList += contactIter.next() + " ";
                 }
@@ -662,9 +664,9 @@ public class ChatWritePanel
 
             try
             {
-                ((JEditorPane)e.getSource()).getDocument().remove(0, 
+                ((JEditorPane)e.getSource()).getDocument().remove(0,
                     ((JEditorPane)e.getSource()).getDocument().getLength());
-                ((JEditorPane)e.getSource()).getDocument().insertString(0, 
+                ((JEditorPane)e.getSource()).getDocument().insertString(0,
                     message.toString(), null);
             }
             catch (BadLocationException ex)
@@ -946,7 +948,7 @@ public class ChatWritePanel
     }
 
     /**
-     * 
+     *
      * @param isVisible
      */
     public void setTransportSelectorBoxVisible(boolean isVisible)
@@ -1135,7 +1137,7 @@ public class ChatWritePanel
 
     /**
      * Show the sms menu.
-     * @param isVisible <tt>true</tt> to show the sms menu, <tt>false</tt> - 
+     * @param isVisible <tt>true</tt> to show the sms menu, <tt>false</tt> -
      * otherwise
      */
     public void setSmsLabelVisible(boolean isVisible)
@@ -1364,7 +1366,7 @@ public class ChatWritePanel
 
     /**
      * Sets the background of the write area to the specified color.
-     * 
+     *
      * @param color The color to set the background to.
      */
     public void setEditorPaneBackground(Color color)

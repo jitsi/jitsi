@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.plugin.spellcheck;
@@ -23,7 +23,7 @@ import javax.swing.*;
  * Model for spell checking capabilities. This allows for the on-demand
  * retrieval of dictionaries in other languages which are cached with the user's
  * configurations.
- * 
+ *
  * @author Damian Johnson
  * @author Lyubomir Marinov
  */
@@ -72,7 +72,7 @@ class SpellChecker
     /**
      * Associates spell checking capabilities with all chats. This doesn't do
      * anything if this is already running.
-     * 
+     *
      * @param bc execution context of the bundle
      * @throws Exception
      */
@@ -82,7 +82,7 @@ class SpellChecker
             = SpellCheckActivator.getConfigService().getBoolean(
                     "plugin.spellcheck.ENABLE",
                     true);
-        
+
         FileAccessService faService =
             SpellCheckActivator.getFileAccessService();
 
@@ -291,7 +291,7 @@ class SpellChecker
     /**
      * Writes custom dictionary and updates spell checker to utilize new
      * listing.
-     * 
+     *
      * @param words words to be ignored by the spell checker
      */
     void setPersonalWords(List<String> words)
@@ -338,7 +338,7 @@ class SpellChecker
     /**
      * Provides the locale of the dictionary currently being used by the spell
      * checker.
-     * 
+     *
      * @return locale of current dictionary
      */
     Parameters.Locale getLocale()
@@ -353,7 +353,7 @@ class SpellChecker
      * Resets spell checker to use a different locale's dictionary. This uses
      * the local copy of the dictionary if available, otherwise it's downloaded
      * and saved for future use.
-     * 
+     *
      * @param locale locale of dictionary to be used
      * @throws Exception problem occurring in utilizing locale's dictionary
      */
@@ -401,7 +401,7 @@ class SpellChecker
     /**
      * Removes the dictionary from the system, and sets the default locale
      * dictionary as the current dictionary
-     * 
+     *
      * @param locale locale to be removed
      */
     void removeLocale(Parameters.Locale locale) throws Exception
@@ -425,10 +425,10 @@ class SpellChecker
             setLocale(loc);
         }
     }
-    
+
     /**
      * Determines if locale's dictionary is locally available or not.
-     * 
+     *
      * @param locale locale to be checked
      * @return true if local resources for dictionary are available and
      *         accessible, false otherwise
@@ -493,7 +493,7 @@ class SpellChecker
      * Determines if spell checker dictionary works. Backend API often fails
      * when used so this tests that the current dictionary is able to process
      * words.
-     * 
+     *
      * @return true if current dictionary can check words, false otherwise
      */
     private boolean isDictionaryValid(SpellDictionary dict)

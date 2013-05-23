@@ -110,7 +110,7 @@ public class MediaConfigurationImpl
                 public void run()
                 {
                     AudioMediaDeviceSession deviceSession = null;
-                    boolean deviceSessionIsNull = false; 
+                    boolean deviceSessionIsNull = false;
 
                     synchronized (AudioLevelListenerThread.this)
                     {
@@ -854,7 +854,7 @@ public class MediaConfigurationImpl
         {
             AudioNotifierService audioNotifServ
                 = NeomediaActivator.getAudioNotifierService();
-            String testSoundFilename 
+            String testSoundFilename
                 = NeomediaActivator.getConfigurationService()
                     .getString(
                             TEST_SOUND_FILENAME_PROP,
@@ -1221,7 +1221,7 @@ public class MediaConfigurationImpl
 
         /*
          * We have to initialize the controls to reflect the configuration at
-         * the time of creating this instance. Additionally, because the 
+         * the time of creating this instance. Additionally, because the
          * preview will stop when it and its associated controls become
          * unnecessary, we have to restart it when the mentioned controls become
          * necessary again. We'll address the two goals described by pretending
@@ -1490,7 +1490,7 @@ public class MediaConfigurationImpl
      * Returns a component for encodings configuration for the given
      * <tt>mediaType</tt>
      *
-     * @param mediaType Either <tt>MediaType.AUDIO</tt> or 
+     * @param mediaType Either <tt>MediaType.AUDIO</tt> or
      * <tt>MediaType.VIDEO</tt>
      * @param encodingConfiguration The <tt>EncodingConfiguration</tt> instance
      * to use. If null, it will use the current encoding configuration from

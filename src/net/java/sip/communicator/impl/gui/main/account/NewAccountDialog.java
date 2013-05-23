@@ -26,7 +26,7 @@ import org.osgi.framework.*;
 /**
  * The <tt>NewAccountDialog</tt> is the dialog containing the form used to
  * create a new account.
- * 
+ *
  * @author Yana Stamcheva
  * @author Lyubomir Marinov
  */
@@ -251,7 +251,7 @@ public class NewAccountDialog
                 networkComboBox.insertItemAt(emptyWizard, 0);
                 networkComboBox.setSelectedItem(emptyWizard);
 
-                //disable the advanced and add buttons so that it would be 
+                //disable the advanced and add buttons so that it would be
                 //clear for the user that they need to choose a network first
                 advancedButton.setEnabled(false);
                 addAccountButton.setEnabled(false);
@@ -454,6 +454,7 @@ public class NewAccountDialog
      * Remove the newAccountDialog, when the window is closed.
      * @param isEscaped indicates if the dialog has been escaped
      */
+    @Override
     protected void close(boolean isEscaped)
     {
         if(isCurrentlySigningIn)
@@ -465,6 +466,7 @@ public class NewAccountDialog
     /**
      * Remove the newAccountDialog on dispose.
      */
+    @Override
     public void dispose()
     {
         if(isCurrentlySigningIn)

@@ -61,7 +61,7 @@ public class OperationSetPersistentPresenceZeroconfImpl
      */
     public OperationSetPersistentPresenceZeroconfImpl(
             ProtocolProviderServiceZeroconfImpl        provider)
-    {        
+    {
         super(provider);
 
         contactListRoot = new ContactGroupZeroconfImpl("RootGroup", provider);
@@ -260,8 +260,8 @@ public class OperationSetPersistentPresenceZeroconfImpl
      *   publishing the status fails due to a network error.
      */
     public void publishPresenceStatus(PresenceStatus status,
-                                      String statusMessage) 
-        throws IllegalArgumentException, 
+                                      String statusMessage)
+        throws IllegalArgumentException,
                IllegalStateException,
                OperationFailedException
     {
@@ -271,7 +271,7 @@ public class OperationSetPersistentPresenceZeroconfImpl
 
         //ICI: changer le statut du plugin Zeroconf!!
         parentProvider.getBonjourService().changeStatus(status);
-        
+
         this.fireProviderStatusChangeEvent(oldPresenceStatus);
 
     }
@@ -291,8 +291,8 @@ public class OperationSetPersistentPresenceZeroconfImpl
      *   retrieving the status fails due to errors experienced during
      *   network communication
      */
-    public PresenceStatus queryContactStatus(String contactIdentifier) 
-        throws IllegalArgumentException, 
+    public PresenceStatus queryContactStatus(String contactIdentifier)
+        throws IllegalArgumentException,
                IllegalStateException,
                OperationFailedException
     {
@@ -306,7 +306,7 @@ public class OperationSetPersistentPresenceZeroconfImpl
      * to set.
      * @param newStatus the new status we'd like to set to <tt>contact</tt>.
      */
-    public void changePresenceStatusForContact(ContactZeroconfImpl contact,  
+    public void changePresenceStatusForContact(ContactZeroconfImpl contact,
                                                PresenceStatus newStatus)
     {
         PresenceStatus oldStatus = contact.getPresenceStatus();
@@ -427,7 +427,7 @@ public class OperationSetPersistentPresenceZeroconfImpl
         ((ContactGroupZeroconfImpl)group).setGroupName(newName);
 
         this.fireServerStoredGroupEvent(
-            (ContactGroupZeroconfImpl)group, 
+            group,
             ServerStoredGroupEvent.GROUP_RENAMED_EVENT);
     }
 
@@ -462,8 +462,8 @@ public class OperationSetPersistentPresenceZeroconfImpl
      *   subscribing fails due to errors experienced during network
      *   communication
      */
-    public void subscribe(ContactGroup parent, String contactIdentifier) 
-        throws  IllegalArgumentException, 
+    public void subscribe(ContactGroup parent, String contactIdentifier)
+        throws  IllegalArgumentException,
                 IllegalStateException,
                 OperationFailedException
     {
@@ -505,7 +505,7 @@ public class OperationSetPersistentPresenceZeroconfImpl
     */}
 
 
- 
+
     /**
      * Adds a subscription for the presence status of the contact
      * corresponding to the specified contactIdentifier.
@@ -520,8 +520,8 @@ public class OperationSetPersistentPresenceZeroconfImpl
      *   subscribing fails due to errors experienced during network
      *   communication
      */
-    public void subscribe(String contactIdentifier) 
-        throws IllegalArgumentException, 
+    public void subscribe(String contactIdentifier)
+        throws IllegalArgumentException,
                IllegalStateException,
                OperationFailedException
     {
@@ -542,26 +542,26 @@ public class OperationSetPersistentPresenceZeroconfImpl
      *   unsubscribing fails due to errors experienced during network
      *   communication
      */
-    public void unsubscribe(Contact contact) 
+    public void unsubscribe(Contact contact)
         throws IllegalArgumentException,
-               IllegalStateException, 
+               IllegalStateException,
                OperationFailedException
     {
         String name = contact.getAddress();
-        
+
         ContactGroupZeroconfImpl parentGroup
             = (ContactGroupZeroconfImpl)((ContactZeroconfImpl)contact)
             .getParentContactGroup();
 
         //parentGroup.removeContact((ContactZeroconfImpl)contact);
-        
-        BonjourService service = 
+
+        BonjourService service =
                 ((ProtocolProviderServiceZeroconfImpl)contact.getProtocolProvider())
                             .getBonjourService();
         //TODO: better check with IP
         service.removeContact(name,null);
 
-        fireSubscriptionEvent((ContactZeroconfImpl)contact,
+        fireSubscriptionEvent(contact,
              ((ContactZeroconfImpl)contact).getParentContactGroup()
            , SubscriptionEvent.SUBSCRIPTION_REMOVED);
     }
@@ -610,8 +610,8 @@ public class OperationSetPersistentPresenceZeroconfImpl
     public Contact createUnresolvedContact(String address,
                                            String persistentData,
                                            ContactGroup parent)
-    {  
-        return null;        
+    {
+        return null;
     }
 
     /**
@@ -711,12 +711,12 @@ public class OperationSetPersistentPresenceZeroconfImpl
          */
         public void registrationStateChanged(RegistrationStateChangeEvent evt)
         {
-            
+
             if (logger.isDebugEnabled())
                 logger.debug("ZEROCONF : The Zeroconf provider changed state from: "
                          + evt.getOldState()
                          + " to: " + evt.getNewState());
-            
+
             //send event notifications saying that all our buddies are
             //offline. The Zeroconf protocol does not implement top level buddies
             //nor subgroups for top level groups so a simple nested loop
@@ -735,13 +735,13 @@ public class OperationSetPersistentPresenceZeroconfImpl
 
                     PresenceStatus oldContactStatus
                         = contact.getPresenceStatus();
-                    
+
                     /* We set contacts to OFFLINE and send an event so that external listeners
                      * can be aware that the contacts are reachable anymore. Dunno if that's
                      * a good idea. Can be erased if not. Contacts clean is directly done by the
                      * contact status change handler.
                      */
-                    if (!oldContactStatus.isOnline()) 
+                    if (!oldContactStatus.isOnline())
                     {
                         //contact.setPresenceStatus(ZeroconfStatusEnum.OFFLINE);
                         fireContactPresenceStatusChangeEvent(
@@ -792,15 +792,15 @@ public class OperationSetPersistentPresenceZeroconfImpl
      * @param contactAddress the address of the volatile contact we'd like to
      * create.
      */
-    public ContactZeroconfImpl createVolatileContact(String contactAddress, 
-                                                     BonjourService bonjourService, 
-                                                     String name, 
-                                                     InetAddress ip, 
+    public ContactZeroconfImpl createVolatileContact(String contactAddress,
+                                                     BonjourService bonjourService,
+                                                     String name,
+                                                     InetAddress ip,
                                                      int port)
     {
         //First create the new volatile contact;
         ContactZeroconfImpl newVolatileContact
-            = new ContactZeroconfImpl(contactAddress, 
+            = new ContactZeroconfImpl(contactAddress,
                 this.parentProvider, bonjourService, name, ip, port);
         newVolatileContact.setPersistent(false);
 

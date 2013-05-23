@@ -785,6 +785,7 @@ public class TreeContactList
     /**
      * Removes all entries in this contact list.
      */
+    @Override
     public void removeAll()
     {
         treeModel.clear();
@@ -948,6 +949,7 @@ public class TreeContactList
             this.filter = filter;
         }
 
+        @Override
         public void run()
         {
             while (true)

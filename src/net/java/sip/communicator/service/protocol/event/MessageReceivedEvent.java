@@ -60,7 +60,7 @@ public class MessageReceivedEvent
      * The type of message event that this instance represents.
      */
     private int eventType = -1;
-    
+
     /**
      * The ID of the message being corrected, or null if this is a new message
      * and not a correction.
@@ -262,7 +262,7 @@ public class MessageReceivedEvent
     /**
      * Returns the correctedMessageUID The ID of the message being corrected,
      * or null if this is a new message and not a correction.
-     * 
+     *
      * @return the correctedMessageUID The ID of the message being corrected,
      * or null if this is a new message and not a correction.
      */

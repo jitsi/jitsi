@@ -144,6 +144,7 @@ public class MetaContactGroupEvent
      * @return  A String representation of this
      * MetaContactGroupEvent.
      */
+    @Override
     public String toString()
     {
         StringBuffer buff

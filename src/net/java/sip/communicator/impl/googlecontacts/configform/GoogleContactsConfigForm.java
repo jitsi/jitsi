@@ -340,6 +340,7 @@ public class GoogleContactsConfigForm
         /**
          * Thread entry point.
          */
+        @Override
         public void run()
         {
             if(oldCnx != null)

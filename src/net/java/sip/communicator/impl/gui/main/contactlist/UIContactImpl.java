@@ -73,5 +73,6 @@ public abstract class UIContactImpl
      *
      * @return the display name of this <tt>UIContact</tt>
      */
+    @Override
     public abstract String getDisplayName();
 }

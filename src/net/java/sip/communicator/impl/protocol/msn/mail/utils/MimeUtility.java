@@ -190,7 +190,7 @@ public class MimeUtility
         {
             /*
              * Without knowing whether it is practically necessary, it
-             * technically silences a compile-time warning. 
+             * technically silences a compile-time warning.
              */
             if (is != null)
                 is.close();

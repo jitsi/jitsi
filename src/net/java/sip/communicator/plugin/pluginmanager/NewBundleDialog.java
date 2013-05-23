@@ -144,7 +144,7 @@ public class NewBundleDialog
         else if (sourceButton.equals(fileChooserButton))
         {
             SipCommFileChooser chooser = GenericFileDialog.create(
-                null, "New bundle...", 
+                null, "New bundle...",
                 SipCommFileChooser.LOAD_FILE_OPERATION);
 
             File newBundleFile
@@ -171,6 +171,7 @@ public class NewBundleDialog
      * Presses programatically the cancel button, when Esc key is pressed.
      * @param isEscaped indicates if the Esc button was pressed on close
      */
+    @Override
     protected void close(boolean isEscaped)
     {
         cancelButton.doClick();

@@ -8,6 +8,7 @@ package net.java.sip.communicator.slick.protocol.yahoo;
 
 import junit.framework.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.slick.protocol.generic.*;
 
 import org.osgi.framework.*;
 
@@ -39,6 +40,7 @@ public class TestAccountUninstallation
      * JUnit setup method.
      * @throws Exception in case anything goes wrong.
      */
+    @Override
     protected void setUp() throws Exception
     {
         super.setUp();
@@ -49,6 +51,7 @@ public class TestAccountUninstallation
      * JUnit teardown method.
      * @throws Exception in case anything goes wrong.
      */
+    @Override
     protected void tearDown() throws Exception
     {
         fixture.tearDown();
@@ -83,7 +86,7 @@ public class TestAccountUninstallation
     public void testInstallationPersistency() throws Exception
     {
         Bundle providerBundle
-            = fixture.findProtocolProviderBundle(fixture.provider1);
+            = AdHocMultiUserChatSlickFixture.findProtocolProviderBundle(fixture.provider1);
 
         //set the global providerBundle reference that we will be using
         //in the last series of tests (Account uninstallation persistency)
@@ -108,7 +111,7 @@ public class TestAccountUninstallation
         ServiceReference[] yahooProviderRefs = null;
         try
         {
-            yahooProviderRefs = fixture.bc.getServiceReferences(
+            yahooProviderRefs = AdHocMultiUserChatSlickFixture.bc.getServiceReferences(
                 ProtocolProviderService.class.getName(),
                 "(&"
                 + "(" + ProtocolProviderFactory.PROTOCOL
@@ -139,7 +142,7 @@ public class TestAccountUninstallation
               == null);
 
         //Now reinstall the bundle
-        providerBundle = fixture.bc.installBundle(providerBundle.getLocation());
+        providerBundle = AdHocMultiUserChatSlickFixture.bc.installBundle(providerBundle.getLocation());
 
         //set the global providerBundle reference that we will be using
         //in the last series of tests (Account uninstallation persistency)
@@ -148,7 +151,7 @@ public class TestAccountUninstallation
         assertEquals("Couldn't re-install protocol provider bundle."
                      , Bundle.INSTALLED, providerBundle.getState());
 
-        AccountManagerUtils.startBundleAndWaitStoredAccountsLoaded(fixture.bc,
+        AccountManagerUtils.startBundleAndWaitStoredAccountsLoaded(AdHocMultiUserChatSlickFixture.bc,
             providerBundle, ProtocolNames.YAHOO);
         assertEquals("Couldn't re-start protocol provider bundle."
                      , Bundle.ACTIVE, providerBundle.getState());
@@ -157,7 +160,7 @@ public class TestAccountUninstallation
         //verify that the provider is no longer available
         try
         {
-            yahooProviderRefs = fixture.bc.getServiceReferences(
+            yahooProviderRefs = AdHocMultiUserChatSlickFixture.bc.getServiceReferences(
                 ProtocolProviderService.class.getName(),
                 "(&"
                 + "(" + ProtocolProviderFactory.PROTOCOL
@@ -179,7 +182,7 @@ public class TestAccountUninstallation
         ServiceReference[] yahooFactoryRefs = null;
         try
         {
-            yahooFactoryRefs = fixture.bc.getServiceReferences(
+            yahooFactoryRefs = AdHocMultiUserChatSlickFixture.bc.getServiceReferences(
                 ProtocolProviderFactory.class.getName(),
                 "(" + ProtocolProviderFactory.PROTOCOL
                       + "=" +ProtocolNames.YAHOO + ")");
@@ -192,9 +195,9 @@ public class TestAccountUninstallation
         //we're the ones who've reinstalled the factory so it's our
         //responsibility to update the fixture.
         fixture.providerFactory
-            = (ProtocolProviderFactory)fixture.bc.getService(yahooFactoryRefs[0]);
+            = (ProtocolProviderFactory)AdHocMultiUserChatSlickFixture.bc.getService(yahooFactoryRefs[0]);
         fixture.provider1
-            = (ProtocolProviderService)fixture.bc.getService(yahooProviderRefs[0]);
+            = (ProtocolProviderService)AdHocMultiUserChatSlickFixture.bc.getService(yahooProviderRefs[0]);
 
 
         //verify that the provider is also restored in the provider factory
@@ -243,7 +246,7 @@ public class TestAccountUninstallation
         ServiceReference[] yahooProviderRefs = null;
         try
         {
-            yahooProviderRefs = fixture.bc.getServiceReferences(
+            yahooProviderRefs = AdHocMultiUserChatSlickFixture.bc.getServiceReferences(
                 ProtocolProviderService.class.getName(),
                 "(" + ProtocolProviderFactory.PROTOCOL
                       + "=" +ProtocolNames.YAHOO + ")");

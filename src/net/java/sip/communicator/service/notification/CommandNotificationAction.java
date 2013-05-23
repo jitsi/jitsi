@@ -8,7 +8,7 @@ package net.java.sip.communicator.service.notification;
 
 /**
  * An implementation of the <tt>CommandNotificationHandler</tt> interface.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class CommandNotificationAction
@@ -20,7 +20,7 @@ public class CommandNotificationAction
      * Creates an instance of <tt>CommandNotification</tt> by
      * specifying the <tt>commandDescriptor</tt>, which will point us to the
      * command to execute.
-     * 
+     *
      * @param commandDescriptor a String that should point us to the command to
      * execute
      */
@@ -32,7 +32,7 @@ public class CommandNotificationAction
 
     /**
      * Returns the command descriptor.
-     * 
+     *
      * @return the command descriptor
      */
     public String getDescriptor()

@@ -13,7 +13,7 @@ import net.java.sip.communicator.service.protocol.*;
 
 /**
  * SSH implementation of the <tt>AbstractFileTransfer</tt>.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class FileTransferSSHImpl
@@ -25,7 +25,7 @@ public class FileTransferSSHImpl
 
     /**
      * Creates an SSH implementation of the file transfer interface.
-     * 
+     *
      * @param fileTransfer the SSH file transfer
      * @param date the initial date of the transfer
      */
@@ -40,6 +40,7 @@ public class FileTransferSSHImpl
      * Cancels this file transfer. When this method is called transfer should
      * be interrupted.
      */
+    @Override
     public void cancel()
     {
         // TODO: Implement cancel() for SSH file transfer.
@@ -47,9 +48,10 @@ public class FileTransferSSHImpl
 
     /**
      * Returns the number of bytes already transfered through this file transfer.
-     * 
+     *
      * @return the number of bytes already transfered through this file transfer
      */
+    @Override
     public long getTransferedBytes()
     {
         // TODO: Implement getTransferedBytes() for SSH file transfer.

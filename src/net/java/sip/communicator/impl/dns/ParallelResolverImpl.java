@@ -501,6 +501,7 @@ public class ParallelResolverImpl
         /**
          * Sends this collector's query to the default resolver.
          */
+        @Override
         public void run()
         {
             Message localResponse = null;
@@ -543,6 +544,7 @@ public class ParallelResolverImpl
             //and i do want to keep code simple to read ... this whole parallel
             //resolving is complicated enough as it is.
             new Thread(){
+                @Override
                 public void run()
                 {
                     synchronized(ParallelResolution.this)

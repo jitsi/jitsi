@@ -58,7 +58,7 @@ public class CallHistoryButton
     private boolean isNotificationsView = false;
 
     /**
-     * The tool tip shown by default over the history button. 
+     * The tool tip shown by default over the history button.
      */
     private final static String callHistoryToolTip
         = GuiActivator.getResources().getI18NString(

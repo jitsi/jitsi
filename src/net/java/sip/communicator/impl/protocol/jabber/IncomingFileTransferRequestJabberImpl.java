@@ -23,7 +23,7 @@ import org.jivesoftware.smackx.filetransfer.*;
 
 /**
  * Jabber implementation of the incoming file transfer request
- * 
+ *
  * @author Nicolas Riegel
  * @author Yana Stamcheva
  */
@@ -56,7 +56,7 @@ public class IncomingFileTransferRequestJabberImpl
     /**
      * Creates an <tt>IncomingFileTransferRequestJabberImpl</tt> based on the
      * given <tt>fileTransferRequest</tt>, coming from the Jabber protocol.
-     * 
+     *
      * @param jabberProvider the protocol provider
      * @param fileTransferOpSet file transfer operation set
      * @param fileTransferRequest the request coming from the Jabber protocol
@@ -86,7 +86,7 @@ public class IncomingFileTransferRequestJabberImpl
 
     /**
      * Returns the <tt>Contact</tt> making this request.
-     * 
+     *
      * @return the <tt>Contact</tt> making this request
      */
     public Contact getSender()
@@ -96,7 +96,7 @@ public class IncomingFileTransferRequestJabberImpl
 
     /**
      * Returns the description of the file corresponding to this request.
-     * 
+     *
      * @return the description of the file corresponding to this request
      */
     public String getFileDescription()
@@ -106,7 +106,7 @@ public class IncomingFileTransferRequestJabberImpl
 
     /**
      * Returns the name of the file corresponding to this request.
-     * 
+     *
      * @return the name of the file corresponding to this request
      */
     public String getFileName()
@@ -116,7 +116,7 @@ public class IncomingFileTransferRequestJabberImpl
 
     /**
      * Returns the size of the file corresponding to this request.
-     * 
+     *
      * @return the size of the file corresponding to this request
      */
     public long getFileSize()
@@ -126,7 +126,7 @@ public class IncomingFileTransferRequestJabberImpl
 
     /**
      * Accepts the file and starts the transfer.
-     * 
+     *
      * @return a boolean : <code>false</code> if the transfer fails,
      * <code>true</code> otherwise
      */

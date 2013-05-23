@@ -15,7 +15,7 @@ import net.java.sip.communicator.service.history.event.*;
 import net.java.sip.communicator.service.history.records.*;
 
 /**
- * 
+ *
  * @author Yana Stamcheva
  */
 public class CallHistoryQueryImpl

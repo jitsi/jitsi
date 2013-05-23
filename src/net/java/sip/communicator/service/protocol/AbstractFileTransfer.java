@@ -17,13 +17,13 @@ import net.java.sip.communicator.util.*;
  * protocol specific methods abstract. A protocol specific implementation could
  * extend this class and implement only <tt>cancel()</tt> and
  * <tt>getTransferredBytes()</tt>.
- * 
+ *
  * @author Yana Stamcheva
  */
 public abstract class AbstractFileTransfer
     implements FileTransfer
 {
-    private static final Logger logger = 
+    private static final Logger logger =
         Logger.getLogger(AbstractFileTransfer.class);
 
     /**
@@ -48,7 +48,7 @@ public abstract class AbstractFileTransfer
 
     /**
      * Returns the number of bytes already transfered through this file transfer.
-     * 
+     *
      * @return the number of bytes already transfered through this file transfer
      */
     abstract public long getTransferedBytes();
@@ -56,7 +56,7 @@ public abstract class AbstractFileTransfer
     /**
      * Adds the given <tt>FileTransferProgressListener</tt> to listen for
      * status changes on this file transfer.
-     * 
+     *
      * @param listener the listener to add
      */
     public void addProgressListener(FileTransferProgressListener listener)
@@ -73,7 +73,7 @@ public abstract class AbstractFileTransfer
     /**
      * Adds the given <tt>FileTransferStatusListener</tt> to listen for
      * status changes on this file transfer.
-     * 
+     *
      * @param listener the listener to add
      */
     public void addStatusListener(FileTransferStatusListener listener)
@@ -89,7 +89,7 @@ public abstract class AbstractFileTransfer
 
     /**
      * Removes the given <tt>FileTransferProgressListener</tt>.
-     * 
+     *
      * @param listener the listener to remove
      */
     public void removeProgressListener(FileTransferProgressListener listener)
@@ -102,7 +102,7 @@ public abstract class AbstractFileTransfer
 
     /**
      * Removes the given <tt>FileTransferStatusListener</tt>.
-     * 
+     *
      * @param listener the listener to remove
      */
     public void removeStatusListener(FileTransferStatusListener listener)
@@ -117,7 +117,7 @@ public abstract class AbstractFileTransfer
      * Returns the current status of the transfer. This information could be
      * used from the user interface to show a progress bar indicating the
      * file transfer status.
-     * 
+     *
      * @return the current status of the transfer
      */
     public int getStatus()

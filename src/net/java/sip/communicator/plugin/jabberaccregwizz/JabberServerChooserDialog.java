@@ -303,6 +303,7 @@ public class JabberServerChooserDialog
         }
     }
 
+    @Override
     protected void close(boolean isEscaped)
     {
         cancelButton.doClick();
@@ -365,6 +366,7 @@ public class JabberServerChooserDialog
             return servers.size();
         }
 
+        @Override
         public String getColumnName(int col)
         {
             return columnNames[col];

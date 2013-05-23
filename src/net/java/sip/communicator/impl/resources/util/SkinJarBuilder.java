@@ -143,7 +143,7 @@ public class SkinJarBuilder
         Enumeration<? extends ZipEntry> e = archive.entries();
         while (e.hasMoreElements())
         {
-            ZipEntry entry = (ZipEntry) e.nextElement();
+            ZipEntry entry = e.nextElement();
             File file = new File(dest, entry.getName());
             if (entry.isDirectory() && !file.exists())
             {
@@ -212,7 +212,7 @@ public class SkinJarBuilder
      * @param directory Path to the dir with the data to be stored.
      * @param base Base path for cutting paths into zip entries.
      * @param zos Opened <tt>ZipOutputStream</tt> in which will be information
-     * stored. 
+     * stored.
      * @throws IOException Is thrown if a file operation goes wrong.
      */
     private static final void zip(File directory, File base, ZipOutputStream zos)

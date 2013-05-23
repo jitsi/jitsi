@@ -38,6 +38,7 @@ public class GlobalShortcutTableModel
      *
      * @see javax.swing.table.AbstractTableModel#getColumnName
      */
+    @Override
     public String getColumnName(int column)
     {
         switch(column)
@@ -135,6 +136,7 @@ public class GlobalShortcutTableModel
      *
      * @return whether the cell is editable
      */
+    @Override
     public boolean isCellEditable(int row, int col)
     {
         return false;
@@ -148,6 +150,7 @@ public class GlobalShortcutTableModel
      * @param columnIndex index of the column
      * @return Column class
      */
+    @Override
     public Class<?> getColumnClass(int columnIndex)
     {
         Object o = getValueAt(0, columnIndex);

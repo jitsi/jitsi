@@ -20,11 +20,11 @@ public interface OperationSetAdHocMultiUserChat
     extends OperationSet
 {
     /**
-     * Creates an ad-hoc room with the named <tt>adHocRoomName</tt> and 
+     * Creates an ad-hoc room with the named <tt>adHocRoomName</tt> and
      * according to the specified <tt>adHocRoomProperties</tt>. When the method
      * returns the ad-hoc room the local user will have joined it.
      * <p>
-     * 
+     *
      * @param adHocRoomName
      *            the name of the <tt>AdHocChatRoom</tt> to create.
      * @param adHocRoomProperties
@@ -35,20 +35,20 @@ public interface OperationSetAdHocMultiUserChat
      *             if the ad-hoc room couldn't be created for some reason.
      * @throws OperationNotSupportedException
      *             if chat room creation is not supported by this server
-     * 
+     *
      * @return the newly created <tt>AdHocChatRoom</tt> named <tt>roomName</tt>.
      */
-    public AdHocChatRoom createAdHocChatRoom(String adHocRoomName, 
+    public AdHocChatRoom createAdHocChatRoom(String adHocRoomName,
                                    Map<String, Object> adHocRoomProperties)
         throws OperationFailedException, OperationNotSupportedException;
 
     /**
-     * Creates an ad-hoc room with the named <tt>adHocRoomName</tt> and in 
+     * Creates an ad-hoc room with the named <tt>adHocRoomName</tt> and in
      * including to the specified <tt>contacts</tt> for the given <tt>reason
-     * </tt>. When the method returns the ad-hoc room the local user will have 
+     * </tt>. When the method returns the ad-hoc room the local user will have
      * joined it.
      * <p>
-     * 
+     *
      * @param adHocRoomName
      *            the name of the <tt>AdHocChatRoom</tt> to create.
      * @param contacts
@@ -59,10 +59,10 @@ public interface OperationSetAdHocMultiUserChat
      *             if the ad-hoc room couldn't be created for some reason.
      * @throws OperationNotSupportedException
      *             if chat room creation is not supported by this server
-     * 
+     *
      * @return the newly created <tt>AdHocChatRoom</tt> named <tt>roomName</tt>.
      */
-    public AdHocChatRoom createAdHocChatRoom(String adHocRoomName, 
+    public AdHocChatRoom createAdHocChatRoom(String adHocRoomName,
                                    List<String> contacts, String reason)
         throws OperationFailedException, OperationNotSupportedException;
 
@@ -85,7 +85,7 @@ public interface OperationSetAdHocMultiUserChat
     /**
      * Removes a listener that was being notified of changes in our
      * participation in an ad-hoc room such as us being joined, left.
-     * 
+     *
      * @param listener a local user participation listener.
      */
     public void removePresenceListener(

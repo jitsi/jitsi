@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.impl.gui.lookandfeel;
@@ -18,7 +18,7 @@ import net.java.sip.communicator.util.skin.*;
 
 /**
  * SIPCommToggleButtonUI implementation.
- * 
+ *
  * @author Yana Stamcheva
  * @author Adam Netocny
  */
@@ -69,6 +69,7 @@ public class SIPCommToggleButtonUI
      *
      * @param b the button, for which we're installing the defaults
      */
+    @Override
     public void installDefaults(AbstractButton b)
     {
         super.installDefaults(b);
@@ -83,6 +84,7 @@ public class SIPCommToggleButtonUI
      *
      * @param b the button, for which we're uninstalling the defaults
      */
+    @Override
     public void uninstallDefaults(AbstractButton b)
     {
         super.uninstallDefaults(b);
@@ -98,6 +100,7 @@ public class SIPCommToggleButtonUI
      * @param g the <tt>Graphics</tt> object used for painting
      * @param c the <tt>Component</tt> to paint
      */
+    @Override
     public void paint(Graphics g, JComponent c)
     {
         AbstractButton button = (AbstractButton) c;

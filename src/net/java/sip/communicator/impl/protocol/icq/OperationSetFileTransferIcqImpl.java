@@ -230,7 +230,7 @@ public class OperationSetFileTransferIcqImpl
                     icqProvider.getOperationSet(
                         OperationSetPersistentPresence.class);
 
-            Contact sender = 
+            Contact sender =
                 opSetPersPresence.findContactByID(
                     transfer.getBuddyScreenname().getFormatted());
 

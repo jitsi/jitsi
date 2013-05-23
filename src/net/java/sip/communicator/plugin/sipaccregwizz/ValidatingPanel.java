@@ -8,14 +8,14 @@ package net.java.sip.communicator.plugin.sipaccregwizz;
 /**
  * <tt>ValidatingPanel</tt> validate values in panel and give access of
  * the validation to the registration form.
- * 
+ *
  * @author Damian Minkov
  */
 public interface ValidatingPanel
 {
     /**
      * Whether current inserted values into the panel are valid and enough
-     * to continue with account creation/modification. 
+     * to continue with account creation/modification.
      * @return whether the input values are ok to continue with account
      * creation/modification.
      */

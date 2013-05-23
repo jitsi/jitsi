@@ -12,7 +12,7 @@ import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
- * Allows to determine which icon should be chosen for the chat contact 
+ * Allows to determine which icon should be chosen for the chat contact
  * currently participating in a chatroom, regarding to his associated role.
  *
  * @author Valentin Martinet

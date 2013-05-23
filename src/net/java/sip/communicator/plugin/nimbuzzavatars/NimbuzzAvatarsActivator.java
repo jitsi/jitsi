@@ -15,7 +15,7 @@ import org.osgi.framework.*;
 
 /**
  * OSGi bundle activator for the Nimbuzz custom avatars service.
- * 
+ *
  * @author Damian Minkov
  */
 public class NimbuzzAvatarsActivator

@@ -531,6 +531,7 @@ public class ToolsMenu
     private class InitVideoBridgeMenuWorkerMacOSX
         extends SwingWorker
     {
+        @Override
         protected Object construct()
         {
             Boolean enableMenu = true;
@@ -565,6 +566,7 @@ public class ToolsMenu
          * Called on the event dispatching thread (not on the worker thread)
          * after the <code>construct</code> method has returned.
          */
+        @Override
         protected void finished()
         {
             Boolean enabled = (Boolean) get();
@@ -583,6 +585,7 @@ public class ToolsMenu
     {
         private ResourceManagementService r = GuiActivator.getResources();
 
+        @Override
         protected Object construct() //throws Exception
         {
             return getVideoBridgeProviders();
@@ -639,6 +642,7 @@ public class ToolsMenu
             return newMenuItem;
         }
 
+        @Override
         @SuppressWarnings("unchecked")
         protected void finished()
         {

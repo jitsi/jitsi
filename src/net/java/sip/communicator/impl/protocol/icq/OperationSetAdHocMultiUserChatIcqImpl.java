@@ -192,11 +192,11 @@ public class OperationSetAdHocMultiUserChatIcqImpl
      * Creates an ad-hoc room with the named <tt>adHocRoomName</tt> and inviting
      * the specified list of <tt>contacts</tt>.
      *
-     * @param adHocRoomName the name of the ad-hoc room 
-     * (however, it won't/does not have to be used since the only way to create 
-     * an ICQ room is having a room name which begins by the "chat" prefix 
+     * @param adHocRoomName the name of the ad-hoc room
+     * (however, it won't/does not have to be used since the only way to create
+     * an ICQ room is having a room name which begins by the "chat" prefix
      * followed by a random number (this is what is used in the ICQ 7 software).
-     * 
+     *
      * @param contacts the list of contacts ID
      * @param reason the reason to be sent with the invitation for contacts.
      *

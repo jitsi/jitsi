@@ -14,10 +14,10 @@ import net.java.sip.communicator.service.protocol.*;
 
 /**
  * Listener receiving events for incoming messages that need processing.
- * 
+ *
  * @author Damian Minkov
  */
-public interface SipMessageProcessor 
+public interface SipMessageProcessor
 {
     /**
      * Process the incoming message
@@ -25,7 +25,7 @@ public interface SipMessageProcessor
      * @return whether this message needs further processing(true) or no(false)
      */
     public boolean processMessage(RequestEvent requestEvent);
-    
+
     /**
      * Process the responses of sent messages
      * @param responseEvent the incoming event holding the response
@@ -34,7 +34,7 @@ public interface SipMessageProcessor
      */
     public boolean processResponse(ResponseEvent responseEvent,
                                    Map<String, Message> sentMessages);
-    
+
     /**
      * Processes a retransmit or expiration Timeout of an underlying
      * {@link Transaction}handled by this SipListener. This Event notifies the

@@ -17,7 +17,7 @@ import org.jitsi.service.resources.*;
  * properties files.
  * @author Yana Stamcheva
  */
-public class Resources 
+public class Resources
 {
     /**
      * Returns an internationalized string corresponding to the given key.

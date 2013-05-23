@@ -258,6 +258,7 @@ public class WelcomeWindow extends JDialog
         // Close the splash screen on simple click or Esc.
         this.getGlassPane().addMouseListener(new MouseAdapter()
         {
+            @Override
             public void mouseClicked(MouseEvent e)
             {
                 WelcomeWindow.this.close();
@@ -356,6 +357,7 @@ public class WelcomeWindow extends JDialog
             }
         }
 
+        @Override
         protected void paintComponent(Graphics g)
         {
             super.paintComponent(g);

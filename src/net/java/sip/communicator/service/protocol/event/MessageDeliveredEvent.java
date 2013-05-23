@@ -33,7 +33,7 @@ public class MessageDeliveredEvent
       * A timestamp indicating the exact date when the event occurred.
       */
      private final Date timestamp;
-     
+
      /**
       * The ID of the message being corrected, or null if this was a new message
       * and not a message correction.
@@ -50,7 +50,7 @@ public class MessageDeliveredEvent
      {
          this(source, to, new Date());
      }
-     
+
      /**
       * Creates a <tt>MessageDeliveredEvent</tt> representing delivery of the
       * <tt>source</tt> message to the specified <tt>to</tt> contact.
@@ -125,10 +125,10 @@ public class MessageDeliveredEvent
     {
         return correctedMessageUID;
     }
-    
+
     /**
      * Sets the ID of the message being corrected to the passed ID.
-     * 
+     *
      * @param correctedMessageUID The ID of the message being corrected.
      */
     public void setCorrectedMessageUID(String correctedMessageUID)

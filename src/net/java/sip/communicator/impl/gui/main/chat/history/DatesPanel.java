@@ -110,7 +110,7 @@ public class DatesPanel
             return nextDate;
         }
     }
-    
+
     /**
      * Adds the given date to the list of dates.
      * @param date the date to add
@@ -142,7 +142,7 @@ public class DatesPanel
 
     /**
      * Removes all dates contained in this list.
-     */    
+     */
     public void removeAllDates()
     {
         synchronized (listModel)
@@ -165,13 +165,13 @@ public class DatesPanel
             return listModel.contains(date);
         }
     }
-    
+
     /**
      * Implements the <tt>ListSelectionListener.valueChanged</tt>.
      * Shows all history records for the selected date.
      */
     public void valueChanged(ListSelectionEvent e)
-    {   
+    {
         synchronized (listModel)
         {
             int selectedIndex = this.datesList.getSelectedIndex();

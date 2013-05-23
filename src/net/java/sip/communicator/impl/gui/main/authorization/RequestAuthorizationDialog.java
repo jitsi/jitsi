@@ -21,7 +21,7 @@ import net.java.sip.communicator.util.skin.*;
 /**
  * The <tt>RequestAuthorisationDialog</tt> is a <tt>JDialog</tt> that is
  * shown when user is trying to add a contact, which requires authorization.
- * 
+ *
  * @author Yana Stamcheva
  * @author Adam Netocny
  */
@@ -101,7 +101,7 @@ public class RequestAuthorizationDialog
         this.mainPanel.setPreferredSize(new Dimension(400, 230));
 
         infoTextArea.setText(GuiActivator.getResources().getI18NString(
-            "service.gui.REQUEST_AUTHORIZATION_MSG", 
+            "service.gui.REQUEST_AUTHORIZATION_MSG",
             new String[]{contact.getDisplayName()}));
 
         this.infoTextArea.setFont(Constants.FONT.deriveFont(Font.BOLD, 12f));
@@ -221,6 +221,7 @@ public class RequestAuthorizationDialog
      * @param isEscaped indicates if the window was closed by pressing the Esc
      * key
      */
+    @Override
     protected void close(boolean isEscaped)
     {
         this.cancelButton.doClick();

@@ -19,7 +19,7 @@ import net.java.sip.communicator.service.protocol.event.*;
 /**
  * The <tt>SendFileConversationComponent</tt> is the component added in the
  * chat conversation when user sends a file.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class SendFileConversationComponent
@@ -40,7 +40,7 @@ public class SendFileConversationComponent
      * Creates a <tt>SendFileConversationComponent</tt> by specifying the parent
      * chat panel, where this component is added, the destination contact of
      * the transfer and file to transfer.
-     * 
+     *
      * @param chatPanel the parent chat panel, where this component is added
      * @param toContactName the name of the destination contact
      * @param file the file to transfer
@@ -90,7 +90,7 @@ public class SendFileConversationComponent
     /**
      * Sets the <tt>FileTransfer</tt> object received from the protocol and
      * corresponding to the file transfer process associated with this panel.
-     * 
+     *
      * @param fileTransfer the <tt>FileTransfer</tt> object associated with this
      * panel
      */
@@ -240,9 +240,10 @@ public class SendFileConversationComponent
 
     /**
      * Returns the date of the component event.
-     * 
+     *
      * @return the date of the component event
      */
+    @Override
     public Date getDate()
     {
         return date;
@@ -250,10 +251,11 @@ public class SendFileConversationComponent
 
     /**
      * Returns the label to show on the progress bar.
-     * 
+     *
      * @param bytesString the bytes that have been transfered
      * @return the label to show on the progress bar
      */
+    @Override
     protected String getProgressLabel(String bytesString)
     {
         return bytesString

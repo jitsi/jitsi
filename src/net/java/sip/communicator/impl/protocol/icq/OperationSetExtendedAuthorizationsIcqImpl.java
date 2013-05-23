@@ -16,7 +16,7 @@ import net.kano.joustsim.*;
  *
  * @author Damian Minkov
  */
-public class OperationSetExtendedAuthorizationsIcqImpl 
+public class OperationSetExtendedAuthorizationsIcqImpl
     implements OperationSetExtendedAuthorizations
 {
 
@@ -24,14 +24,14 @@ public class OperationSetExtendedAuthorizationsIcqImpl
      * A callback to the ICQ provider that created us.
      */
     private ProtocolProviderServiceIcqImpl icqProvider = null;
-    
-    
-    /** 
-     * Creates a new instance of OperationSetExtendedAuthorizationsIcqImpl 
+
+
+    /**
+     * Creates a new instance of OperationSetExtendedAuthorizationsIcqImpl
      * @param icqProvider IcqProtocolProviderServiceImpl
      */
     public OperationSetExtendedAuthorizationsIcqImpl(
-        ProtocolProviderServiceIcqImpl icqProvider) 
+        ProtocolProviderServiceIcqImpl icqProvider)
     {
         this.icqProvider = icqProvider;
     }
@@ -39,7 +39,7 @@ public class OperationSetExtendedAuthorizationsIcqImpl
     /**
      * Send an authorization request, requesting <tt>contact</tt> to add them
      * to our contact list?
-     * 
+     *
      * @param request the <tt>AuthorizationRequest</tt> that we'd like the
      * protocol provider to send to <tt>contact</tt>.
      * @param contact the <tt>Contact</tt> who we'd be asking for an
@@ -47,17 +47,17 @@ public class OperationSetExtendedAuthorizationsIcqImpl
      * @throws OperationFailedException if we fail sending the authorization
      * request.
      */
-    public void reRequestAuthorization(AuthorizationRequest request, Contact contact) 
-        throws OperationFailedException 
+    public void reRequestAuthorization(AuthorizationRequest request, Contact contact)
+        throws OperationFailedException
     {
         assertConnected();
 
         if(! (contact instanceof ContactIcqImpl) )
             throw new IllegalArgumentException(
                 "Argument is not an icq contact (contact=" + contact + ")");
-        
+
         icqProvider.getAimConnection().getSsiService().requestBuddyAuthorization(
-            new Screenname(contact.getAddress()), 
+            new Screenname(contact.getAddress()),
             request.getReason());
     }
 
@@ -65,25 +65,25 @@ public class OperationSetExtendedAuthorizationsIcqImpl
      * Send a positive authorization to <tt>contact</tt> thus allowing them to
      * add us to their contact list without needing to first request an
      * authorization.
-     * 
+     *
      * @param contact the <tt>Contact</tt> whom we're granting authorization
      * prior to receiving a request.
      * @throws OperationFailedException if we fail sending the authorization.
      */
-    public void explicitAuthorize(Contact contact) 
-        throws OperationFailedException 
+    public void explicitAuthorize(Contact contact)
+        throws OperationFailedException
     {
         assertConnected();
 
         if(! (contact instanceof ContactIcqImpl) )
             throw new IllegalArgumentException(
                 "Argument is not an icq contact (contact=" + contact + ")");
-        
+
         icqProvider.getAimConnection().getSsiService().sendFutureBuddyAuthorization(
-            new Screenname(contact.getAddress()), 
+            new Screenname(contact.getAddress()),
             "");
     }
-    
+
     /**
      * Utility method throwing an exception if the icq stack is not properly
      * initialized.

@@ -1194,6 +1194,7 @@ public class CallPeerMediaHandlerSipImpl
      * @throws OperationFailedException the exception that we wanted this method
      * to throw.
      */
+    @Override
     protected void throwOperationFailedException( String    message,
                                                   int       errorCode,
                                                   Throwable cause)
@@ -1208,6 +1209,7 @@ public class CallPeerMediaHandlerSipImpl
      *
      * @return the transport manager that is handling our address management.
      */
+    @Override
     protected TransportManagerSipImpl getTransportManager()
     {
         return transportManager;
@@ -1348,6 +1350,7 @@ public class CallPeerMediaHandlerSipImpl
      * handler having first seen a media description or having generated an
      * offer.
      */
+    @Override
     public void start()
         throws IllegalStateException
     {

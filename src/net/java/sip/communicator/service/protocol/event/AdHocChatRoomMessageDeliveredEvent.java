@@ -76,7 +76,7 @@ public class AdHocChatRoomMessageDeliveredEvent
 
      /**
       * Returns the received message.
-      * 
+      *
       * @return the <tt>Message</tt> that triggered this event.
       */
      public Message getMessage()
@@ -86,7 +86,7 @@ public class AdHocChatRoomMessageDeliveredEvent
 
      /**
       * A timestamp indicating the exact date when the event occurred.
-      * 
+      *
       * @return a Date indicating when the event occurred.
       */
      public Date getTimestamp()
@@ -96,7 +96,7 @@ public class AdHocChatRoomMessageDeliveredEvent
 
      /**
       * Returns the <tt>AdHocChatRoom</tt> that triggered this event.
-      * 
+      *
       * @return the <tt>AdHocChatRoom</tt> that triggered this event.
       */
      public AdHocChatRoom getSourceAdHocChatRoom()
@@ -108,7 +108,7 @@ public class AdHocChatRoomMessageDeliveredEvent
       * Returns the type of message event represented by this event instance.
       * Message event type is one of the XXX_MESSAGE_DELIVERED fields of this
       * class.
-      * 
+      *
       * @return one of the XXX_MESSAGE_DELIVERED fields of this
       * class indicating the type of this event.
       */

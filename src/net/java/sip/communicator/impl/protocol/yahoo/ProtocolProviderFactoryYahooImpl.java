@@ -40,6 +40,7 @@ public class ProtocolProviderFactoryYahooImpl
      *   specific properties defining the new account.
      * @return the AccountID of the newly created account
      */
+    @Override
     public AccountID installAccount( String userIDStr,
                                      Map<String, String> accountProperties)
     {
@@ -74,11 +75,13 @@ public class ProtocolProviderFactoryYahooImpl
         return accountID;
     }
 
+    @Override
     protected AccountID createAccountID(String userID, Map<String, String> accountProperties)
     {
         return new YahooAccountID(userID, accountProperties);
     }
 
+    @Override
     protected ProtocolProviderService createService(String userID,
         AccountID accountID)
     {

@@ -19,7 +19,7 @@ public interface ResourceListsClient
 {
     /**
      * Resource-lists uri format.
-     */    
+     */
     public static String DOCUMENT_FORMAT = "resource-lists/users/%2s/index";
 
     /**

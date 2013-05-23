@@ -48,6 +48,7 @@ public class ProviderRegistration
     /**
      * Start the thread which will register to the provider
      */
+    @Override
     public void run()
     {
         try

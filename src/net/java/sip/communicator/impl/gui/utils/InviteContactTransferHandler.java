@@ -133,6 +133,7 @@ public class InviteContactTransferHandler
      * otherwise
      * @throws NullPointerException if <code>support</code> is {@code null}
      */
+    @Override
     public boolean canImport(JComponent comp, DataFlavor flavor[])
     {
         // Dropping is only enabled in the destination contact list.
@@ -163,6 +164,7 @@ public class InviteContactTransferHandler
      * @return  true if the data was inserted into the component and false
      * otherwise
      */
+    @Override
     public boolean importData(JComponent comp, Transferable t)
     {
         if (t.isDataFlavorSupported(uiContactDataFlavor))

@@ -12,7 +12,7 @@ import org.osgi.framework.*;
 
 /**
  * Provides utilities to aid the manipulation of {@link AccountManager}.
- * 
+ *
  * @author Lubomir Marinov
  */
 public final class AccountManagerUtils
@@ -31,7 +31,7 @@ public final class AccountManagerUtils
      * <code>AccountManager</code> available in a specific
      * <code>BundleContext</code> to load the stored accounts of a
      * <code>ProtocolProviderFactory</code> with a specific protocol name.
-     * 
+     *
      * @param bundleContextWithAccountManager
      *            the <code>BundleContext</code> in which an
      *            <code>AccountManager</code> service is registered

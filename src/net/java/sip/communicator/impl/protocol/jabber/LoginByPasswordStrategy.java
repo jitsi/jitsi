@@ -17,7 +17,7 @@ import java.security.*;
 
 /**
  * Login to Jabber using username & password.
- * 
+ *
  * @author Stefan Sieber
  */
 public class LoginByPasswordStrategy
@@ -58,7 +58,7 @@ public class LoginByPasswordStrategy
 
     /**
      * Loads the account passwords as preparation for the login.
-     * 
+     *
      * @param authority SecurityAuthority to obtain the password
      * @param reasonCode reason why we're preparing for login
      * @return UserCredentials in case they need to be cached for this session
@@ -72,7 +72,7 @@ public class LoginByPasswordStrategy
 
     /**
      * Determines whether the strategy is ready to perform the login.
-     * 
+     *
      * @return True when the password was sucessfully loaded.
      */
     public boolean loginPreparationSuccessful()
@@ -83,7 +83,7 @@ public class LoginByPasswordStrategy
 
     /**
      * Performs the login on an XMPP connection using SASL PLAIN.
-     * 
+     *
      * @param connection The connection on which the login is performed.
      * @param userName The username for the login.
      * @param resource The XMPP resource.
@@ -119,7 +119,7 @@ public class LoginByPasswordStrategy
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see net.java.sip.communicator.impl.protocol.jabber.JabberLoginStrategy#
      * isTlsRequired()
      */
@@ -133,7 +133,7 @@ public class LoginByPasswordStrategy
 
     /**
      * Prepares an SSL Context that is customized SSL context.
-     * 
+     *
      * @param cs The certificate service that provides the context.
      * @param trustManager The TrustManager to use within the context.
      * @return An initialized context for the current provider.

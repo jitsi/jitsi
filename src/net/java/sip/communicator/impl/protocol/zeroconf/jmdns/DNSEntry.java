@@ -32,22 +32,23 @@ public class DNSEntry
         this.type = type;
         this.clazz = clazz & DNSConstants.CLASS_MASK;
         this.unique = (clazz & DNSConstants.CLASS_UNIQUE) != 0;
-        
+
         String SLevel = System.getProperty("jmdns.debug");
         if (SLevel == null) SLevel = "INFO";
-        logger.setLevel(Level.parse(SLevel)); 
+        logger.setLevel(Level.parse(SLevel));
     }
 
     /**
      * Check if two entries have exactly the same name, type, and class.
      */
+    @Override
     public boolean equals(Object obj)
     {
         if (obj instanceof DNSEntry)
         {
             DNSEntry other = (DNSEntry) obj;
-            return name.equals(other.name) && 
-                   type == other.type && 
+            return name.equals(other.name) &&
+                   type == other.type &&
                    clazz == other.clazz;
         }
         return false;
@@ -63,21 +64,22 @@ public class DNSEntry
         return type;
     }
 
-    public int getClazz() 
+    public int getClazz()
     {
         return clazz;
     }
-    
-    
-    public boolean isUnique() 
+
+
+    public boolean isUnique()
     {
         return unique;
     }
-    
+
     /**
      * Overriden, to return a value which is consistent with the value returned
      * by equals(Object).
      */
+    @Override
     public int hashCode()
     {
         return name.hashCode() + type + clazz;
@@ -159,9 +161,9 @@ public class DNSEntry
 
     public String toString(String hdr, String other)
     {
-        return hdr + "[" + getType(type) + "," + 
-                            getClazz(clazz) + (unique ? "-unique," : ",") + 
-                            name + ((other != null) ? "," + 
+        return hdr + "[" + getType(type) + "," +
+                            getClazz(clazz) + (unique ? "-unique," : ",") +
+                            name + ((other != null) ? "," +
                             other + "]" : "]");
     }
 }

@@ -28,14 +28,15 @@ public class MsnSlickFixture
     {
         super();
     }
-    
+
     /**
      * Initializes protocol provider references and whatever else there is to
      * initialize.
-     * 
+     *
      * @throws InvalidSyntaxException  in case we meet problems while retrieving
      * protocol providers through OSGI
      */
+    @Override
     public void setUp() throws InvalidSyntaxException
     {
         // first obtain a reference to the provider factory
@@ -67,7 +68,7 @@ public class MsnSlickFixture
             System.getProperty(
                 MsnProtocolProviderServiceLick.ACCOUNT_2_PREFIX
                 + ProtocolProviderFactory.USER_ID);
-        
+
         userID3 =
             System.getProperty(
                 MsnProtocolProviderServiceLick.ACCOUNT_3_PREFIX
@@ -105,7 +106,7 @@ public class MsnSlickFixture
                       , msnProvider2Refs);
         assertTrue("No Protocol Provider was found for msn account2:"+ userID2,
                      msnProvider2Refs.length > 0);
-        
+
         ServiceReference[] msnProvider3Refs
         = bc.getServiceReferences(
             ProtocolProviderService.class.getName(),

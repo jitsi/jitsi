@@ -99,7 +99,7 @@ public class EncryptionConfigurationTableModel
         if ((columnIndex == 0) && (value instanceof Boolean))
         {
             this.encryptionProtocolStatus[rowIndex]
-                = ((Boolean) value).booleanValue(); 
+                = ((Boolean) value).booleanValue();
 
             // We fire the update event before setting the configuration
             // property in order to have more reactive user interface.
@@ -114,6 +114,7 @@ public class EncryptionConfigurationTableModel
      * @param up true to move up, false to move down
      * @return the next row index
      */
+    @Override
     public int move(int rowIndex, boolean up)
     {
         int toRowIndex;

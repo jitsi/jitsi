@@ -47,7 +47,7 @@ public interface OperationSetContactCapabilities
      *
      * @param <T> the type extending <tt>OperationSet</tt> for which the
      * specified <tt>contact</tt> is to be checked whether it possesses it as a
-     * capability 
+     * capability
      * @param contact the <tt>Contact</tt> for which the <tt>opsetClass</tt>
      * capability is to be queried
      * @param opsetClass the <tt>OperationSet</tt> <tt>Class</tt> for which the

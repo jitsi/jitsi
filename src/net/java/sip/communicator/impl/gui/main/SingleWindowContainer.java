@@ -105,7 +105,7 @@ public class SingleWindowContainer
 
     /**
      * Adds a given <tt>ChatPanel</tt> to this chat window.
-     * 
+     *
      * @param chatPanel The <tt>ChatPanel</tt> to add.
      */
     public void addChat(ChatPanel chatPanel)
@@ -240,7 +240,7 @@ public class SingleWindowContainer
 
     /**
      * Returns the number of all open chats.
-     * 
+     *
      * @return the number of all open chats
      */
     public int getChatCount()
@@ -277,7 +277,7 @@ public class SingleWindowContainer
 
     /**
      * Returns the currently selected chat panel.
-     * 
+     *
      * @return the currently selected chat panel.
      */
     public ChatPanel getCurrentChat()
@@ -292,7 +292,7 @@ public class SingleWindowContainer
 
     /**
      * Returns the currently selected chat panel.
-     * 
+     *
      * @return the currently selected chat panel.
      */
     private Component getCurrentConversation()
@@ -315,7 +315,7 @@ public class SingleWindowContainer
 
     /**
      * Highlights the corresponding tab for the given chat panel.
-     * 
+     *
      * @param chatPanel the chat panel which corresponds to the tab to highlight
      */
     private void highlightTab(ChatPanel chatPanel)
@@ -415,7 +415,7 @@ public class SingleWindowContainer
 
     /**
      * Removes a given <tt>ChatPanel</tt> from this chat window.
-     * 
+     *
      * @param chatPanel The <tt>ChatPanel</tt> to remove.
      */
     public void removeChat(ChatPanel chatPanel)
@@ -441,7 +441,7 @@ public class SingleWindowContainer
 
     /**
      * Removes a given <tt>ChatPanel</tt> from this chat window.
-     * 
+     *
      * @param c the conversation component
      */
     private void removeConversation(Component c)
@@ -465,7 +465,7 @@ public class SingleWindowContainer
 
     /**
      * Selects the chat tab which corresponds to the given <tt>MetaContact</tt>.
-     * 
+     *
      * @param chatPanel The <tt>ChatPanel</tt> to select.
      */
     public void setCurrentChat(ChatPanel chatPanel)
@@ -503,7 +503,7 @@ public class SingleWindowContainer
 
     /**
      * Sets the given icon to the tab opened for the given chat panel.
-     * 
+     *
      * @param chatPanel the chat panel, which corresponds the tab
      * @param icon the icon to be set
      */
@@ -533,7 +533,7 @@ public class SingleWindowContainer
     /**
      * Shows/hides the toolbar.
      *
-     * @param isVisible 
+     * @param isVisible
      */
     public void setToolbarVisible(boolean isVisible)
     {

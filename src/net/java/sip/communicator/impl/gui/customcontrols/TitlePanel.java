@@ -16,7 +16,7 @@ import net.java.sip.communicator.plugin.desktoputil.*;
  * The <tt>TitlePanel</tt> is a decorated panel, that could be used for a header
  * or a title area. This panel is used for example in the
  * <tt>ConfigurationFrame</tt>.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class TitlePanel
@@ -41,7 +41,7 @@ public class TitlePanel
     /**
      * Creates an instance of <tt>TitlePanel</tt> by specifying the title
      * String.
-     * 
+     *
      * @param title A String title.
      */
     public TitlePanel(String title)
@@ -61,6 +61,7 @@ public class TitlePanel
      * Overrides the <code>paintComponent</code> method of <tt>JPanel</tt> to
      * paint a gradient background of this panel.
      */
+    @Override
     public void paintComponent(Graphics g)
     {
         Graphics2D g2 = (Graphics2D) g;
@@ -85,7 +86,7 @@ public class TitlePanel
 
     /**
      * Sets the title String.
-     * 
+     *
      * @param title The title String.
      */
     public void setTitleText(String title)

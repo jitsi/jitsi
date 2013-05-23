@@ -109,6 +109,7 @@ public class GenericEvent
      *
      * @return  A a String representation of this GenericEvent.
      */
+    @Override
     public String toString()
     {
         return "GenericEvent from:" + from + " - eventName:"+ eventName

@@ -14,14 +14,14 @@ import org.jitsi.service.configuration.*;
  * configuration is properly written when <tt>XMLConfigurationStore</tt> is
  * used. Can be seen as a proxy between the {@link ConfigurationService} and the
  * OTR Plugin.
- * 
+ *
  * @author George Politis
  */
 public class OtrConfigurator
 {
     /**
      * Gets an XML tag friendly {@link String} from a {@link String}.
-     * 
+     *
      * @param s a {@link String}
      * @return an XML friendly {@link String}
      */
@@ -50,7 +50,7 @@ public class OtrConfigurator
     /**
      * Puts a given property ID under the OTR namespace and makes sure it is XML
      * tag friendly.
-     * 
+     *
      * @param id the property ID.
      * @return the namespaced ID.
      */
@@ -64,7 +64,7 @@ public class OtrConfigurator
      * Returns the value of the property with the specified name or null if no
      * such property exists ({@link ConfigurationService#getProperty(String)}
      * proxy).
-     * 
+     *
      * @param id of the property that is being queried.
      * @return the <tt>byte[]</tt> value of the property with the specified
      *         name.
@@ -79,7 +79,7 @@ public class OtrConfigurator
     /**
      * Gets the value of a specific property as a boolean (
      * {@link ConfigurationService#getBoolean(String, boolean)} proxy).
-     * 
+     *
      * @param id of the property that is being queried.
      * @param defaultValue the value to be returned if the specified property
      *            name is not associated with a value.
@@ -96,7 +96,7 @@ public class OtrConfigurator
      * Sets the property with the specified name to the specified value (
      * {@link ConfigurationService#setProperty(String, Object)} proxy). The
      * value is Base64 encoded.
-     * 
+     *
      * @param id the name of the property to change.
      * @param value the new value of the specified property.
      */
@@ -110,7 +110,7 @@ public class OtrConfigurator
     /**
      * Sets the property with the specified name to the specified value (
      * {@link ConfigurationService#setProperty(String, Object)} proxy).
-     * 
+     *
      * @param id the name of the property to change.
      * @param value the new value of the specified property.
      */
@@ -122,7 +122,7 @@ public class OtrConfigurator
     /**
      * Removes the property with the specified name (
      * {@link ConfigurationService#removeProperty(String)} proxy).
-     * 
+     *
      * @param id the name of the property to change.
      */
     public void removeProperty(String id)
@@ -132,7 +132,7 @@ public class OtrConfigurator
 
     /**
      * Gets the value of a specific property as a signed decimal integer.
-     * 
+     *
      * @param id the name of the property to change.
      * @param defaultValue the value to be returned if the specified property
      *            name is not associated with a value.

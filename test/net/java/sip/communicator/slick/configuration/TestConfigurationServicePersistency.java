@@ -109,6 +109,7 @@ public class TestConfigurationServicePersistency extends TestCase
      * Generic JUnit setUp method.
      * @throws Exception if anything goes wrong.
      */
+    @Override
     protected void setUp() throws Exception
     {
         String confDirLocation
@@ -154,6 +155,7 @@ public class TestConfigurationServicePersistency extends TestCase
      * Generic JUnit tearDown method.
      * @throws Exception if anything goes wrong.
      */
+    @Override
     protected void tearDown() throws Exception
     {
         //delete the temp conf file

@@ -38,6 +38,7 @@ public class TestAccountUninstallation
      * JUnit setup method.
      * @throws Exception in case anything goes wrong.
      */
+    @Override
     public void setUp() throws Exception
     {
         super.setUp();
@@ -48,6 +49,7 @@ public class TestAccountUninstallation
      * JUnit teardown method.
      * @throws Exception in case anything goes wrong.
      */
+    @Override
     public void tearDown() throws Exception
     {
         fixture.tearDown();
@@ -82,7 +84,7 @@ public class TestAccountUninstallation
     public void testInstallationPersistence() throws Exception
     {
         Bundle providerBundle =
-            fixture.findProtocolProviderBundle(fixture.provider);
+            RssSlickFixture.findProtocolProviderBundle(fixture.provider);
 
         //set the global providerBundle reference that we will be using
             //in the last series of tests (Account uninstallation persistency)
@@ -104,7 +106,7 @@ public class TestAccountUninstallation
         //verify that the provider is no longer available
         ServiceReference providerRefs[] = null;
         try {
-            providerRefs = fixture.bc.getServiceReferences(
+            providerRefs = RssSlickFixture.bc.getServiceReferences(
                 ProtocolProviderService.class.getName(),
                 "(&(" + ProtocolProviderFactory.PROTOCOL + "="
                     + ProtocolNames.RSS + "))");
@@ -124,21 +126,21 @@ public class TestAccountUninstallation
                 fixture.provider.getAccountID()) == null);
 
         //reinstall provider
-        providerBundle = fixture.bc.installBundle(providerBundle.getLocation());
+        providerBundle = RssSlickFixture.bc.installBundle(providerBundle.getLocation());
         RssSlickFixture.providerBundle = providerBundle;
 
         assertTrue("Couldn't reinstall provider bundle",
             providerBundle.getState() == Bundle.INSTALLED);
 
 
-        AccountManagerUtils.startBundleAndWaitStoredAccountsLoaded(fixture.bc,
+        AccountManagerUtils.startBundleAndWaitStoredAccountsLoaded(RssSlickFixture.bc,
             providerBundle, ProtocolNames.RSS);
         assertTrue("Couldn't start provider",
             providerBundle.getState() == Bundle.ACTIVE);
 
         providerRefs = null;
         try {
-            providerRefs = fixture.bc.getServiceReferences(
+            providerRefs = RssSlickFixture.bc.getServiceReferences(
                 ProtocolProviderService.class.getName(),
                 "(&(" + ProtocolProviderFactory.PROTOCOL + "="
                     + ProtocolNames.RSS + "))");
@@ -152,7 +154,7 @@ public class TestAccountUninstallation
 
         ServiceReference factoryRefs[] = null;
         try {
-            factoryRefs = fixture.bc.getServiceReferences(
+            factoryRefs = RssSlickFixture.bc.getServiceReferences(
                 ProtocolProviderFactory.class.getName(),
                 "(" + ProtocolProviderFactory.PROTOCOL + "=RSS)");
         } catch (InvalidSyntaxException ise)
@@ -161,9 +163,9 @@ public class TestAccountUninstallation
         }
 
         fixture.providerFactory =
-            (ProtocolProviderFactory) fixture.bc.getService(factoryRefs[0]);
+            (ProtocolProviderFactory) RssSlickFixture.bc.getService(factoryRefs[0]);
         fixture.provider =
-            (ProtocolProviderService) fixture.bc.getService(providerRefs[0]);
+            (ProtocolProviderService) RssSlickFixture.bc.getService(providerRefs[0]);
 
         assertFalse("RSS provider did not restore its own reference to the"
             + " provider that we just reinstalled.",
@@ -190,7 +192,7 @@ public class TestAccountUninstallation
 
         ServiceReference[] providerRefs = null;
         try {
-            providerRefs = fixture.bc.getServiceReferences(
+            providerRefs = RssSlickFixture.bc.getServiceReferences(
                 ProtocolProviderService.class.getName(),
                 "(" + ProtocolProviderFactory.PROTOCOL + "=" + ProtocolNames.RSS
                     + ")");

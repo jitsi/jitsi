@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.impl.replacement.vbox7;
@@ -13,7 +13,7 @@ import net.java.sip.communicator.util.*;
 /**
  * Implements the {@link ReplacementService} to provide previews for Vbox7
  * links.
- * 
+ *
  * @author Purvesh Sahoo
  */
 public class ReplacementServiceVbox7Impl
@@ -33,7 +33,7 @@ public class ReplacementServiceVbox7Impl
         + "\\/play\\:([a-zA-Z0-9_\\-]+))([?&]\\w+=[\\w-]*)*(?=</A>)";
 
     /**
-     * Configuration label shown in the config form. 
+     * Configuration label shown in the config form.
      */
     public static final String VBOX7_CONFIG_LABEL = "Vbox7";
 
@@ -41,7 +41,7 @@ public class ReplacementServiceVbox7Impl
      * Source name; also used as property label.
      */
     public static final String SOURCE_NAME = "VBOX7";
-    
+
     /**
      * Constructor for <tt>ReplacementServiceVbox7Impl</tt>.
      */
@@ -74,7 +74,7 @@ public class ReplacementServiceVbox7Impl
 
     /**
      * Returns the source name
-     * 
+     *
      * @return the source name
      */
     public String getSourceName()
@@ -84,7 +84,7 @@ public class ReplacementServiceVbox7Impl
 
     /**
      * Returns the pattern of the source
-     * 
+     *
      * @return the source pattern
      */
     public String getPattern()

@@ -10,9 +10,9 @@ import javax.swing.*;
 
 /**
  * The <tt>SIPCommMsgTextArea</tt> is a text area defined specially for warning
- * messages. It defines an area with a fixed number of columns and wraps the 
+ * messages. It defines an area with a fixed number of columns and wraps the
  * text within it.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class SIPCommMsgTextArea
@@ -24,9 +24,9 @@ public class SIPCommMsgTextArea
     {
         init();
     }
-    
-    /** 
-     * Creates a text area with a fixed number of columns and wraps the 
+
+    /**
+     * Creates a text area with a fixed number of columns and wraps the
      * text within it.
      * @param text The text to insert in this text area.
      */
@@ -42,7 +42,7 @@ public class SIPCommMsgTextArea
         this.setLineWrap(true);
         this.setWrapStyleWord(true);
         this.setOpaque(false);
-        
+
         int col = 40;
         this.setColumns(col);
         int docLen = this.getDocument().getLength();

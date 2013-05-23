@@ -242,6 +242,7 @@ public class ContactGroupYahooImpl
      *
      * @return  a hash code value for this ContactGroup.
      */
+    @Override
     public int hashCode()
     {
         return getGroupName().hashCode();
@@ -254,6 +255,7 @@ public class ContactGroupYahooImpl
      * @return  <tt>true</tt> if this object is the same as the obj
      *          argument; <tt>false</tt> otherwise.
      */
+    @Override
     public boolean equals(Object obj)
     {
         if(    obj == this )
@@ -287,6 +289,7 @@ public class ContactGroupYahooImpl
      * YahooGroup.GroupName[size]{ buddy1.toString(), buddy2.toString(), ...}.
      * @return  a String representation of the object.
      */
+    @Override
     public String toString()
     {
         StringBuffer buff = new StringBuffer("YahooGroup.");

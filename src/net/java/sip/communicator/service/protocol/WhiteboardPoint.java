@@ -73,7 +73,7 @@ public class WhiteboardPoint implements Cloneable
 
     /**
      * Sets a new value to the x coordinate.
-     * 
+     *
      * @param x the new value of the x coordinate
      */
     public void setX(double x)
@@ -83,7 +83,7 @@ public class WhiteboardPoint implements Cloneable
 
     /**
      * Sets a new value to the y coordinate.
-     * 
+     *
      * @param y the new value of the y coordinate
      */
     public void setY(double y)
@@ -103,6 +103,7 @@ public class WhiteboardPoint implements Cloneable
      * <tt>WhiteboardPoint</tt> and has the same values; <tt>false</tt>
      * otherwise.
      */
+    @Override
     public boolean equals(Object obj)
     {
         if (obj instanceof WhiteboardPoint)
@@ -124,6 +125,7 @@ public class WhiteboardPoint implements Cloneable
      *
      * @return a string representation of this point
      */
+    @Override
     public String toString()
     {
         return getClass().getName() + "[x=" + x + ",y=" + y + "]";
@@ -134,6 +136,7 @@ public class WhiteboardPoint implements Cloneable
      *
      * @return     a clone of this <tt>WhiteboardPoint</tt> instance.
      */
+    @Override
     protected Object clone()
     {
         return new WhiteboardPoint(this);
@@ -141,7 +144,7 @@ public class WhiteboardPoint implements Cloneable
 
     /**
      * Calculates the distance from this point the given point.
-     * 
+     *
      * @param p the point to which to calculate the distance
      * @return the distance between this point and the given point
      */

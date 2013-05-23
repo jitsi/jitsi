@@ -151,6 +151,7 @@ public class AboutWindow
              * @see JComponent#getUIClassID
              * @see UIDefaults#getUI
              */
+            @Override
             public String getUIClassID()
             {
                 return uiClassID;

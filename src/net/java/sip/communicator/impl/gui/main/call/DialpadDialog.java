@@ -88,6 +88,7 @@ public class DialpadDialog
          *
          * @param g a reference to the currently valid <tt>Graphics</tt> object
          */
+        @Override
         public void paintComponent(Graphics g)
         {
             super.paintComponent(g);

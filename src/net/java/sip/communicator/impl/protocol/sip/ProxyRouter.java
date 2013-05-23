@@ -22,7 +22,7 @@ import net.java.sip.communicator.util.*;
  * An implementation of the <tt>Router</tt> interface wrapping around JAIN-SIP
  * RI <tt>DefaultRouter</tt> in order to be able to change the outbound proxy
  * depending on the account which sent the request.
- * 
+ *
  * @author Sebastien Mazy
  */
 public class ProxyRouter

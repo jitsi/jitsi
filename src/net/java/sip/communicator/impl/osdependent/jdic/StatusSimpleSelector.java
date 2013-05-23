@@ -19,7 +19,7 @@ import net.java.sip.communicator.service.protocol.globalstatus.*;
 /**
  * The <tt>StatusSimpleSelector</tt> is a submenu which allow to select a status
  * for a protocol provider which does not support the OperationSetPresence
- * 
+ *
  * @author Nicolas Chamouard
  * @author Lubomir Marinov
  */
@@ -37,7 +37,7 @@ public class StatusSimpleSelector
 
     /**
      * Creates an instance of <tt>StatusSimpleSelector</tt>
-     * 
+     *
      * @param protocolProvider the protocol provider
      * @param swing
      */

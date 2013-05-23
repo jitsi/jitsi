@@ -58,6 +58,7 @@ public class PhoneNumberSourceContact
      *
      * @return the display details of the search contact
      */
+    @Override
     public String getDisplayDetails()
     {
         return displayDetails;

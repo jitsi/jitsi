@@ -101,6 +101,7 @@ public class OutgoingFileTransferJabberImpl
     /**
      * Cancels the file transfer.
      */
+    @Override
     public void cancel()
     {
         this.jabberTransfer.cancel();
@@ -111,6 +112,7 @@ public class OutgoingFileTransferJabberImpl
      *
      * @return the number of bytes already sent to the recipient.
      */
+    @Override
     public long getTransferedBytes()
     {
         return jabberTransfer.getBytesSent();

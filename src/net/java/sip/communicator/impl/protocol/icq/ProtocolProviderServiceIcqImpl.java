@@ -419,7 +419,7 @@ public class ProtocolProviderServiceIcqImpl
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see net.java.sip.communicator.service.protocol.ProtocolProviderService#
      * isSignallingTransportSecure()
      */
@@ -462,6 +462,7 @@ public class ProtocolProviderServiceIcqImpl
      * @return a String containing the display name of the protocol this service
      * is implementing
      */
+    @Override
     public String getProtocolDisplayName()
     {
         if(USING_ICQ)
@@ -494,7 +495,7 @@ public class ProtocolProviderServiceIcqImpl
                     USING_ICQ = false;
 
             addSupportedOperationSet(
-                OperationSetInstantMessageTransform.class, 
+                OperationSetInstantMessageTransform.class,
                 new OperationSetInstantMessageTransformImpl());
 
             //initialize the presence operationset
@@ -544,7 +545,7 @@ public class ProtocolProviderServiceIcqImpl
                     OperationSetServerStoredAccountInfo.class,
                     serverStoredAccountInfoOpSet);
 
-//                Currently disabled as when we send avatar 
+//                Currently disabled as when we send avatar
 //                we receive an error from server
 //                addSupportedOperationSet(
 //                    OperationSetAvatar.class,
@@ -664,6 +665,7 @@ public class ProtocolProviderServiceIcqImpl
      * @param reason a String further explaining the reason code or null if
      * no such explanation is necessary.
      */
+    @Override
     public void fireRegistrationStateChanged( RegistrationState oldState,
                                                RegistrationState newState,
                                                int               reasonCode,
@@ -848,6 +850,7 @@ public class ProtocolProviderServiceIcqImpl
      */
     private class RegisteredEventThread extends Thread
     {
+        @Override
         public void run()
         {
             Object w = new Object();

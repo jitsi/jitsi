@@ -358,7 +358,7 @@ public class Messenger
         else if (phoneNumber instanceof WorkPhoneDetail)
             return MPHONE_TYPE_WORK;
         else
-            return MPHONE_TYPE_CUSTOM; 
+            return MPHONE_TYPE_CUSTOM;
     }
 
     /**

@@ -174,6 +174,7 @@ public class XmlFormatter extends ResultPrinter implements XMLConstants {
      *
      * <p>A new Test is started.
      */
+    @Override
     public void startTest(Test test)
     {
         testStarts.put(test, new Long(System.currentTimeMillis()));
@@ -184,6 +185,7 @@ public class XmlFormatter extends ResultPrinter implements XMLConstants {
      *
      * <p>A Test is finished.
      */
+    @Override
     public void endTest(Test test)
     {
         // Fix for bug #5637 - if a junit.extensions.TestSetup is
@@ -239,6 +241,7 @@ public class XmlFormatter extends ResultPrinter implements XMLConstants {
      *
      * <p>A Test failed.
      */
+    @Override
     public void addFailure(Test test, AssertionFailedError t)
     {
         addFailure(test, (Throwable) t);
@@ -249,6 +252,7 @@ public class XmlFormatter extends ResultPrinter implements XMLConstants {
      *
      * <p>An error occurred while running the test.
      */
+    @Override
     public void addError(Test test, Throwable t)
     {
         formatError(ERROR, test, t);

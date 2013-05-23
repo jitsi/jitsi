@@ -64,6 +64,7 @@ public class TestNetworkAddressManagerService
      *
      * @throws Exception if anything goes wrong.
      */
+    @Override
     protected void setUp()
         throws Exception
     {
@@ -86,6 +87,7 @@ public class TestNetworkAddressManagerService
      *
      * @throws Exception if anything goes wrong.
      */
+    @Override
     protected void tearDown()
         throws Exception
     {

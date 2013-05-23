@@ -50,6 +50,7 @@ public class FadeInBalloonPanel
      *
      * @param g The Graphics object.
      */
+    @Override
     protected void paintComponent(Graphics g)
     {
         g = g.create();
@@ -109,7 +110,7 @@ public class FadeInBalloonPanel
                                 beginPoint.y + beginPointShift,
                                 beginPoint.y + beginPointShift};
 
-            GeneralPath polygon = 
+            GeneralPath polygon =
                     new GeneralPath(GeneralPath.WIND_EVEN_ODD,
                                     x1Points.length);
 
@@ -168,6 +169,7 @@ public class FadeInBalloonPanel
      * @param isVisible <tt>true</tt> to show this panel, <tt>false</tt> to
      * hide it
      */
+    @Override
     public void setVisible(boolean isVisible)
     {
         FadeTracker fadeTracker = FadeTracker.getInstance();

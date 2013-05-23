@@ -128,7 +128,7 @@ public class ChatRoomRightButtonMenu
             if (nickName != null)
                 conferenceManager.joinChatRoom(chatRoomWrapper, nickName, null);
             else
-                conferenceManager.joinChatRoom(chatRoomWrapper);    
+                conferenceManager.joinChatRoom(chatRoomWrapper);
         }
         else if (itemName.equals("openChatRoom"))
         {
@@ -265,7 +265,7 @@ public class ChatRoomRightButtonMenu
 
         return menuItem;
     }
-    
+
     private String getNickname()
     {
         String nickName = null;

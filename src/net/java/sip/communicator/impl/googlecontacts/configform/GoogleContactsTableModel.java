@@ -87,6 +87,7 @@ public class GoogleContactsTableModel
      *
      * @see javax.swing.table.AbstractTableModel#getColumnName
      */
+    @Override
     public String getColumnName(int column)
     {
         switch(column)
@@ -177,6 +178,7 @@ public class GoogleContactsTableModel
      *
      * @return whether the cell is editable
      */
+    @Override
     public boolean isCellEditable(int row, int col)
     {
         if(col == 1)
@@ -193,6 +195,7 @@ public class GoogleContactsTableModel
      * @param columnIndex index of the column
      * @return Column class
      */
+    @Override
     public Class<?> getColumnClass(int columnIndex)
     {
         return getValueAt(0, columnIndex).getClass();
@@ -202,6 +205,7 @@ public class GoogleContactsTableModel
      * Sets a value in an editable cell, that is to say
      * an enable/disable chekbox in colum 0
      */
+    @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex)
     {
         if(columnIndex != 0 && columnIndex != 2)

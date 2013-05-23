@@ -88,6 +88,7 @@ public class TestXMLUtils extends TestCase
      * Create a XML Document that will be used as a fixture in later testing.
      * @throws Exception if sth goes nuts
      */
+    @Override
     protected void setUp() throws Exception
     {
         factory =
@@ -107,6 +108,7 @@ public class TestXMLUtils extends TestCase
      * Standard JUnit tear down
      * @throws Exception ... don't know when
      */
+    @Override
     protected void tearDown() throws Exception
     {
         super.tearDown();

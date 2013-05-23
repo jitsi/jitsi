@@ -8,7 +8,7 @@ package net.java.sip.communicator.service.certificate;
 
 /**
  * Data object for client certificate configuration entries.
- * 
+ *
  * @author Ingo Bauersachs
  */
 public class CertificateConfigEntry
@@ -29,7 +29,7 @@ public class CertificateConfigEntry
     // ------------------------------------------------------------------------
     /**
      * Sets the key store type.
-     * 
+     *
      * @param keyStoreType the new key store type
      */
     public void setKeyStoreType(KeyStoreType keyStoreType)
@@ -39,7 +39,7 @@ public class CertificateConfigEntry
 
     /**
      * Gets the key store type.
-     * 
+     *
      * @return the key store type
      */
     public KeyStoreType getKeyStoreType()
@@ -49,7 +49,7 @@ public class CertificateConfigEntry
 
     /**
      * Sets the key store password.
-     * 
+     *
      * @param keyStorePassword the new key store password
      */
     public void setKeyStorePassword(String keyStorePassword)
@@ -59,7 +59,7 @@ public class CertificateConfigEntry
 
     /**
      * Gets the key store password.
-     * 
+     *
      * @return the key store password
      */
     public String getKeyStorePassword()
@@ -69,7 +69,7 @@ public class CertificateConfigEntry
 
     /**
      * Sets the display name.
-     * 
+     *
      * @param displayName the new display name
      */
     public void setDisplayName(String displayName)
@@ -79,7 +79,7 @@ public class CertificateConfigEntry
 
     /**
      * Gets the display name.
-     * 
+     *
      * @return the display name
      */
     public String getDisplayName()
@@ -89,7 +89,7 @@ public class CertificateConfigEntry
 
     /**
      * Sets the alias.
-     * 
+     *
      * @param alias the new alias
      */
     public void setAlias(String alias)
@@ -99,7 +99,7 @@ public class CertificateConfigEntry
 
     /**
      * Gets the alias.
-     * 
+     *
      * @return the alias
      */
     public String getAlias()
@@ -109,7 +109,7 @@ public class CertificateConfigEntry
 
     /**
      * Sets the id.
-     * 
+     *
      * @param id the new id
      */
     public void setId(String id)
@@ -119,7 +119,7 @@ public class CertificateConfigEntry
 
     /**
      * Gets the id.
-     * 
+     *
      * @return the id
      */
     public String getId()
@@ -129,7 +129,7 @@ public class CertificateConfigEntry
 
     /**
      * Sets the key store.
-     * 
+     *
      * @param keyStore the new key store
      */
     public void setKeyStore(String keyStore)
@@ -139,7 +139,7 @@ public class CertificateConfigEntry
 
     /**
      * Gets the key store.
-     * 
+     *
      * @return the key store
      */
     public String getKeyStore()
@@ -149,7 +149,7 @@ public class CertificateConfigEntry
 
     /**
      * Sets the save password.
-     * 
+     *
      * @param savePassword the new save password
      */
     public void setSavePassword(boolean savePassword)
@@ -159,7 +159,7 @@ public class CertificateConfigEntry
 
     /**
      * Checks if is save password.
-     * 
+     *
      * @return true, if is save password
      */
     public boolean isSavePassword()

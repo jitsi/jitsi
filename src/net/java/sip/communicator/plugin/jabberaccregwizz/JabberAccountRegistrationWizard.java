@@ -70,6 +70,7 @@ public class JabberAccountRegistrationWizard
      * Returns the icon to be used for this wizard.
      * @return byte[]
      */
+    @Override
     public byte[] getIcon()
     {
         return Resources.getImage(Resources.PROTOCOL_ICON);
@@ -81,6 +82,7 @@ public class JabberAccountRegistrationWizard
      *
      * @return byte[] the image used to decorate the wizard page
      */
+    @Override
     public byte[] getPageImage()
     {
         return Resources.getImage(Resources.PAGE_IMAGE);
@@ -91,6 +93,7 @@ public class JabberAccountRegistrationWizard
      * method. Returns the protocol name for this wizard.
      * @return String
      */
+    @Override
     public String getProtocolName()
     {
         return Resources.getString("plugin.jabberaccregwizz.PROTOCOL_NAME");
@@ -101,6 +104,7 @@ public class JabberAccountRegistrationWizard
      * </code> method. Returns the description of the protocol for this wizard.
      * @return String
      */
+    @Override
     public String getProtocolDescription()
     {
         return Resources
@@ -111,6 +115,7 @@ public class JabberAccountRegistrationWizard
      * Returns the set of pages contained in this wizard.
      * @return Iterator
      */
+    @Override
     public Iterator<WizardPage> getPages()
     {
         return getPages(new JabberAccountRegistration());
@@ -136,7 +141,7 @@ public class JabberAccountRegistrationWizard
             firstWizardPage = new FirstWizardPage(this);
 
         pages.add(firstWizardPage);
-       
+
         return pages.iterator();
     }
 
@@ -144,6 +149,7 @@ public class JabberAccountRegistrationWizard
      * Returns the set of data that user has entered through this wizard.
      * @return Iterator
      */
+    @Override
     public Iterator<Map.Entry<String,String>> getSummary()
     {
         Hashtable<String,String> summaryTable = new Hashtable<String,String>();
@@ -199,6 +205,7 @@ public class JabberAccountRegistrationWizard
      * new account
      * @throws OperationFailedException if the operation didn't succeed
      */
+    @Override
     public ProtocolProviderService signin()
         throws OperationFailedException
     {
@@ -217,6 +224,7 @@ public class JabberAccountRegistrationWizard
      * new account
      * @throws OperationFailedException if the operation didn't succeed
      */
+    @Override
     public ProtocolProviderService signin(String userName, String password)
         throws OperationFailedException
     {
@@ -351,6 +359,7 @@ public class JabberAccountRegistrationWizard
      * @param protocolProvider The <tt>ProtocolProviderService</tt> to load the
      * data from.
      */
+    @Override
     public void loadAccount(ProtocolProviderService protocolProvider)
     {
         setModification(true);
@@ -381,6 +390,7 @@ public class JabberAccountRegistrationWizard
      * Returns the size of this wizard.
      * @return the size of this wizard
      */
+    @Override
     public Dimension getSize()
     {
         return new Dimension(300, 480);
@@ -390,6 +400,7 @@ public class JabberAccountRegistrationWizard
      * Returns the identifier of the page to show first in the wizard.
      * @return the identifier of the page to show first in the wizard.
      */
+    @Override
     public Object getFirstPageIdentifier()
     {
         return firstWizardPage.getIdentifier();
@@ -399,6 +410,7 @@ public class JabberAccountRegistrationWizard
      * Returns the identifier of the page to show last in the wizard.
      * @return the identifier of the page to show last in the wizard.
      */
+    @Override
     public Object getLastPageIdentifier()
     {
         return firstWizardPage.getIdentifier();
@@ -410,6 +422,7 @@ public class JabberAccountRegistrationWizard
      * @return an example string, which should indicate to the user how the
      * user name should look like.
      */
+    @Override
     public String getUserNameExample()
     {
         return "Ex: johnsmith@jabber.org";
@@ -418,6 +431,7 @@ public class JabberAccountRegistrationWizard
     /**
      * Opens the Gmail signup URI in the OS's default browser.
      */
+    @Override
     public void webSignup()
     {
     }
@@ -428,6 +442,7 @@ public class JabberAccountRegistrationWizard
      * @return <code>true</code> if the web sign up is supported by the current
      * implementation, <code>false</code> - otherwise
      */
+    @Override
     public boolean isWebSignupSupported()
     {
         return false;
@@ -442,6 +457,7 @@ public class JabberAccountRegistrationWizard
      * a create account form or as a login form
      * @return a simple account registration form
      */
+    @Override
     public Object getSimpleForm(boolean isCreateAccount)
     {
         // when creating first wizard page, create and new

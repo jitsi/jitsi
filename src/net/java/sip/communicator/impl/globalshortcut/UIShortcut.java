@@ -94,6 +94,7 @@ public class UIShortcut
     {
         new Thread()
         {
+            @Override
             public void run()
             {
                 if(!visible)

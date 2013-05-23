@@ -53,6 +53,7 @@ public class ContactListTreeModel
      * Returns the root group node.
      * @return the root group node
      */
+    @Override
     public GroupNode getRoot()
     {
         return rootGroupNode;
@@ -125,6 +126,7 @@ public class ContactListTreeModel
      * represented in the tree.
      * @param node the node that has changed
      */
+    @Override
     public void nodeChanged(final TreeNode node)
     {
         SwingUtilities.invokeLater(new Runnable()
@@ -170,6 +172,7 @@ public class ContactListTreeModel
          * Returns null to indicate that this group has no parent.
          * @return null
          */
+        @Override
         public UIGroup getParentGroup()
         {
             return null;
@@ -180,6 +183,7 @@ public class ContactListTreeModel
          * first index.
          * @return 0
          */
+        @Override
         public int getSourceIndex()
         {
             return 0;
@@ -189,6 +193,7 @@ public class ContactListTreeModel
          * This group should never be collapsed.
          * @return false
          */
+        @Override
         public boolean isGroupCollapsed()
         {
             return false;
@@ -198,6 +203,7 @@ public class ContactListTreeModel
          * Returns null to indicate that this group has no display name.
          * @return null
          */
+        @Override
         public String getDisplayName()
         {
             return null;
@@ -208,6 +214,7 @@ public class ContactListTreeModel
          * contacts.
          * @return 0
          */
+        @Override
         public int countChildContacts()
         {
             return 0;
@@ -218,6 +225,7 @@ public class ContactListTreeModel
          * contacts.
          * @return 0
          */
+        @Override
         public int countOnlineChildContacts()
         {
             return 0;
@@ -227,6 +235,7 @@ public class ContactListTreeModel
          * Returns the descriptor of this group, just a string.
          * @return the descriptor of this group
          */
+        @Override
         public Object getDescriptor()
         {
             return "RootGroup";
@@ -236,6 +245,7 @@ public class ContactListTreeModel
          * Returns null to indicate that this group has no identifier.
          * @return null
          */
+        @Override
         public String getId()
         {
             return null;
@@ -245,6 +255,7 @@ public class ContactListTreeModel
          * Returns the corresponding <tt>GroupNode</tt>.
          * @return the corresponding <tt>GroupNode</tt>
          */
+        @Override
         public GroupNode getGroupNode()
         {
             return groupNode;
@@ -254,6 +265,7 @@ public class ContactListTreeModel
          * Sets the corresponding <tt>GroupNode</tt>.
          * @param groupNode the <tt>GroupNode</tt> to set
          */
+        @Override
         public void setGroupNode(GroupNode groupNode)
         {
             this.groupNode = groupNode;
@@ -263,6 +275,7 @@ public class ContactListTreeModel
          * This group is not visible to the user.
          * @return null
          */
+        @Override
         public JPopupMenu getRightButtonMenu()
         {
             return null;

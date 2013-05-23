@@ -39,7 +39,7 @@ public interface ContactSourceService
 
     /**
      * Returns a user-friendly string that identifies this contact source.
-     * 
+     *
      * @return the display name of this contact source
      */
     public String getDisplayName();

@@ -26,6 +26,7 @@ public class TestMetaContactListPersistence extends TestCase
         super(name);
     }
 
+    @Override
     protected void setUp() throws Exception
     {
         super.setUp();
@@ -33,6 +34,7 @@ public class TestMetaContactListPersistence extends TestCase
         fixture.setUp();
     }
 
+    @Override
     protected void tearDown() throws Exception
     {
         fixture.tearDown();
@@ -81,18 +83,21 @@ public class TestMetaContactListPersistence extends TestCase
     public void testCreateAndMoveMetaContact()
     {
         String newContactID ="testCreateAndMoveMetaContact.ContactID";
-        MetaContactGroup parentMetaGroup = fixture.metaClService.getRoot()
-            .getMetaContactSubgroup(MetaContactListServiceLick.topLevelGroupName);
+        MetaContactGroup parentMetaGroup
+            = fixture.metaClService.getRoot().getMetaContactSubgroup(
+                    MetaContactListServiceLick.topLevelGroupName);
 
         //create a new metacontact and, hence mock contact, in the meta
         //"SomePeople" non-toplevel group
-        fixture.metaClService.createMetaContact(fixture.mockProvider
+        fixture.metaClService.createMetaContact(MclSlickFixture.mockProvider
             , parentMetaGroup
             , newContactID);
 
         //check that the contact has been successfully created in the meta cl
-        MetaContact newMetaContact  =
-            parentMetaGroup.getMetaContact(fixture.mockProvider, newContactID);
+        MetaContact newMetaContact
+            = parentMetaGroup.getMetaContact(
+                    MclSlickFixture.mockProvider,
+                    newContactID);
 
         assertNotNull("create failed. couldn't find the new contact."
             , newMetaContact);
@@ -118,7 +123,7 @@ public class TestMetaContactListPersistence extends TestCase
             // wait other operations to finish before reloading
             o.wait(1000);
         }
-        
+
         Bundle metaClBundle = findMetaClBundle();
 
         //uninstall the meta contact list service
@@ -140,17 +145,17 @@ public class TestMetaContactListPersistence extends TestCase
                      , Bundle.UNINSTALLED, metaClBundle.getState());
 
         //unregister all mock providers
-        fixture.mockPrServiceRegistration.unregister();
-        fixture.mockP1ServiceRegistration.unregister();
-        fixture.mockP2ServiceRegistration.unregister();
+        MclSlickFixture.mockPrServiceRegistration.unregister();
+        MclSlickFixture.mockP1ServiceRegistration.unregister();
+        MclSlickFixture.mockP2ServiceRegistration.unregister();
 
         //remove existing mock providers.
-        fixture.replacementMockPr = new MockProvider(
-            fixture.mockProvider.getAccountID().getUserID());
-        fixture.replacementMockP1 = new MockProvider(
-            fixture.mockP1.getAccountID().getUserID());
-        fixture.replacementMockP2 = new MockProvider(
-            fixture.mockP2.getAccountID().getUserID());
+        MclSlickFixture.replacementMockPr = new MockProvider(
+            MclSlickFixture.mockProvider.getAccountID().getUserID());
+        MclSlickFixture.replacementMockP1 = new MockProvider(
+            MclSlickFixture.mockP1.getAccountID().getUserID());
+        MclSlickFixture.replacementMockP2 = new MockProvider(
+            MclSlickFixture.mockP2.getAccountID().getUserID());
 
         //reinstall only one of the existing mock providers
         //we will reinstall the other mock providers later. our purpose is to
@@ -158,11 +163,11 @@ public class TestMetaContactListPersistence extends TestCase
         //re-registered mock provider upon startup and that it would later
         //complete its list with the rest of the mock providers once we
         //reregister them.
-        fixture.mockPrServiceRegistration = MetaContactListServiceLick
-            .registerMockProviderService(fixture.replacementMockPr);
+        MclSlickFixture.mockPrServiceRegistration = MetaContactListServiceLick
+            .registerMockProviderService(MclSlickFixture.replacementMockPr);
 
         //reinstall the metacontactlist bundle
-        metaClBundle = fixture.bundleContext.installBundle(
+        metaClBundle = MclSlickFixture.bundleContext.installBundle(
                         metaClBundle.getLocation());
 
         assertEquals("Couldn't re-install meta cl bundle."
@@ -172,9 +177,11 @@ public class TestMetaContactListPersistence extends TestCase
         assertEquals("Couldn't re-start meta cl bundle."
                      , Bundle.ACTIVE, metaClBundle.getState());
 
-        fixture.metaClService = (MetaContactListService)fixture.bundleContext
-            .getService( fixture.bundleContext.getServiceReference(
-                            MetaContactListService.class.getName()));
+        fixture.metaClService
+            = (MetaContactListService)
+                MclSlickFixture.bundleContext.getService(
+                        MclSlickFixture.bundleContext.getServiceReference(
+                                MetaContactListService.class.getName()));
 
         assertNotNull("The meta contact list service was not re-registered "
                       +"after reinstalling its bundle."
@@ -191,11 +198,11 @@ public class TestMetaContactListPersistence extends TestCase
         //verify that contents of the meta contact list matches contents of
         //the mock provider we removed.
         ContactGroup oldProtoRoot =
-            fixture.mockProvider
+            MclSlickFixture.mockProvider
                 .getOperationSet(OperationSetPersistentPresence.class)
                 .getServerStoredContactListRoot();
 
-        fixture.assertGroupEquals(
+        MclSlickFixture.assertGroupEquals(
             (MockContactGroup)oldProtoRoot
             , fixture.metaClService.getRoot()
             , true);//we might have trailing empty meta groups here remaining
@@ -204,7 +211,7 @@ public class TestMetaContactListPersistence extends TestCase
         //verify that the new mock provider has created unresolved contacts
         //for all contacts in the meta cl.
         ContactGroup newProtoRoot =
-            fixture.replacementMockPr
+            MclSlickFixture.replacementMockPr
                 .getOperationSet(OperationSetPersistentPresence.class)
                 .getServerStoredContactListRoot();
 
@@ -233,20 +240,20 @@ public class TestMetaContactListPersistence extends TestCase
     {
         //reinstall remaining mock providers
         //we will reinstall the other mock providers later. our purpose is to
-        fixture.mockP1ServiceRegistration = MetaContactListServiceLick
-            .registerMockProviderService(fixture.replacementMockP1);
+        MclSlickFixture.mockP1ServiceRegistration = MetaContactListServiceLick
+            .registerMockProviderService(MclSlickFixture.replacementMockP1);
 
-        fixture.mockP2ServiceRegistration = MetaContactListServiceLick
-            .registerMockProviderService(fixture.replacementMockP2);
+        MclSlickFixture.mockP2ServiceRegistration = MetaContactListServiceLick
+            .registerMockProviderService(MclSlickFixture.replacementMockP2);
 
         //Get references to the root groups of the 2 providers we removed
         ContactGroup oldProtoMockP1Root =
-            fixture.mockP1
+            MclSlickFixture.mockP1
                 .getOperationSet(OperationSetPersistentPresence.class)
                 .getServerStoredContactListRoot();
 
         ContactGroup oldProtoMockP2Root =
-            fixture.mockP2
+            MclSlickFixture.mockP2
                 .getOperationSet(OperationSetPersistentPresence.class)
                 .getServerStoredContactListRoot();
 
@@ -254,7 +261,7 @@ public class TestMetaContactListPersistence extends TestCase
         //inside that the replacement mock providers match those in the
         //providers we removed.
         ContactGroup newProtoMockP1Root =
-            fixture.replacementMockP1
+            MclSlickFixture.replacementMockP1
                 .getOperationSet(OperationSetPersistentPresence.class)
                 .getServerStoredContactListRoot();
 
@@ -263,7 +270,7 @@ public class TestMetaContactListPersistence extends TestCase
                      , newProtoMockP1Root);
 
         ContactGroup newProtoMockP2Root =
-            fixture.replacementMockP2
+            MclSlickFixture.replacementMockP2
                 .getOperationSet(OperationSetPersistentPresence.class)
                 .getServerStoredContactListRoot();
 
@@ -338,7 +345,7 @@ public class TestMetaContactListPersistence extends TestCase
      */
     private Bundle findMetaClBundle()
     {
-        Bundle[] bundles = fixture.bundleContext.getBundles();
+        Bundle[] bundles = MclSlickFixture.bundleContext.getBundles();
 
         for (int i = 0; i < bundles.length; i++)
         {
@@ -351,7 +358,8 @@ public class TestMetaContactListPersistence extends TestCase
             for (int j = 0; j < registeredServices.length; j++)
             {
                 Object service
-                    = fixture.bundleContext.getService(registeredServices[j]);
+                    = MclSlickFixture.bundleContext.getService(
+                            registeredServices[j]);
                 if(service == fixture.metaClService)
                     return bundles[i];
             }

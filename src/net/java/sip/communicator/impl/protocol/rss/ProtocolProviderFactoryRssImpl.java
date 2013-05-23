@@ -61,6 +61,7 @@ public class ProtocolProviderFactoryRssImpl
      *   specific properties defining the new account.
      * @return the AccountID of the newly created account.
      */
+    @Override
     public AccountID installAccount( String userIDStr,
                                      Map<String, String> accountProperties)
     {
@@ -95,6 +96,7 @@ public class ProtocolProviderFactoryRssImpl
         return accountID;
     }
 
+    @Override
     protected AccountID createAccountID(
             String userID,
             Map<String, String> accountProperties)
@@ -102,6 +104,7 @@ public class ProtocolProviderFactoryRssImpl
         return new RssAccountID(userID, accountProperties);
     }
 
+    @Override
     protected ProtocolProviderService createService(String userID,
         AccountID accountID)
     {

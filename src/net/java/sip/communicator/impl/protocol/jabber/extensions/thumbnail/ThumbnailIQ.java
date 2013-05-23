@@ -15,7 +15,7 @@ import org.xmlpull.v1.*;
 /**
  * The <tt>ThumbnailIQ</tt> is an IQ packet that is meant to be used for
  * thumbnail requests and responses.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class ThumbnailIQ
@@ -45,7 +45,7 @@ public class ThumbnailIQ
     private String cid;
 
     private String mimeType;
- 
+
     private byte[] data;
 
     /**
@@ -78,7 +78,7 @@ public class ThumbnailIQ
      * Creates a <tt>ThumbnailIQ</tt> packet, by specifying the source, the
      * destination, the content-ID, the type of data and the data of the
      * thumbnail. We also precise the type of the packet to create.
-     * 
+     *
      * @param from the source of the packet
      * @param to the destination of the packet
      * @param cid the content-ID used to identify this packet in the destination
@@ -126,6 +126,7 @@ public class ThumbnailIQ
     /**
      * Returns the xml representing the data element in this <tt>IQ</tt> packet.
      */
+    @Override
     public String getChildElementXML()
     {
         StringBuffer buf = new StringBuffer();

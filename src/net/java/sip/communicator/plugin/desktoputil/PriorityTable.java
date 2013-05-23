@@ -17,7 +17,7 @@ import org.jitsi.service.resources.*;
 /**
  * Creates a component containing a table and two buttons for the encodings of
  * type(AUDIO or VIDEO) or to sort the priority of the encryption protocols.
- * 
+ *
  * @author Vincent Lucas
  */
 public class PriorityTable

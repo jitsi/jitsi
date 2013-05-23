@@ -285,6 +285,7 @@ public class ActiveCallsRepositorySipImpl
      * that necessitated a new <tt>CallEvent</tt> to be fired
      * @see ActiveCallsRepository#fireCallEvent(int, Call, CallChangeEvent)
      */
+    @Override
     protected void fireCallEvent(
             int eventID,
             Call sourceCall,

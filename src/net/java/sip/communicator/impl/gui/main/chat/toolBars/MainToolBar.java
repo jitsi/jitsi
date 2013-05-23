@@ -532,7 +532,7 @@ public class MainToolBar
 
     /**
      * Get the smileys box.
-     * 
+     *
      * @return the smileys box
      */
     public SmileysSelectorBox getSmileysBox()
@@ -781,6 +781,7 @@ public class MainToolBar
          * Called on the event dispatching thread (not on the worker thread)
          * after the <code>construct</code> method has returned.
          */
+        @Override
         protected void finished()
         {
             callButton.setEnabled(isCallEnabled);

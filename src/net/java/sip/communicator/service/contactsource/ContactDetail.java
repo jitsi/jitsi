@@ -593,7 +593,7 @@ public class ContactDetail
      * contains a specific label. The labels may be arbitrary and may include
      * any of the standard/well-known labels defined by the <tt>LABEL_XXX</tt>
      * constants of the <tt>ContactDetail</tt> class.
-     * 
+     *
      * @param subCategory the subCategory to be determined whether
      * it is contained in this <tt>ContactDetail</tt>
      * @return <tt>true</tt> if the specified <tt>label</tt> is contained in the

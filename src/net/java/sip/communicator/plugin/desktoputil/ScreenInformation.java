@@ -10,7 +10,7 @@ import java.awt.*;
 
 /**
  * A class which reads the screen bounds and provides this information.
- * 
+ *
  * @author Ingo Bauersachs
  */
 public class ScreenInformation
@@ -19,7 +19,7 @@ public class ScreenInformation
      * Calculates the bounding box of all available screens. This method is
      * highly inaccurate when screens of different sizes are used or not evenly
      * aligned. A correct implementation should generate a polygon.
-     * 
+     *
      * @return A polygon of the usable screen area.
      */
     public static Rectangle getScreenBounds()
@@ -39,7 +39,7 @@ public class ScreenInformation
     /**
      * Checks whether the top edge of the rectangle is contained in any of the
      * available screens.
-     * 
+     *
      * @param window The bounding box of the window.
      * @return True when the top edge is in a visible screen area; false
      *         otherwise

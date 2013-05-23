@@ -59,10 +59,10 @@ public class SelectAccountPanel
 
     private final Iterator<ChatRoomProviderWrapper> chatRoomProvidersList;
 
-    private final JPanel labelsPanel 
+    private final JPanel labelsPanel
         = new TransparentPanel(new GridLayout(0, 1));
 
-    private final JPanel rightPanel 
+    private final JPanel rightPanel
         = new TransparentPanel(new BorderLayout(5, 5));
 
     private final JLabel iconLabel = new JLabel(new ImageIcon(ImageLoader
@@ -74,19 +74,19 @@ public class SelectAccountPanel
 
     private final JLabel infoTitleLabel = new JLabel(
         GuiActivator.getResources()
-            .getI18NString("service.gui.SELECT_ACCOUNT"), 
+            .getI18NString("service.gui.SELECT_ACCOUNT"),
         JLabel.CENTER);
 
     /**
      * Creates and initializes the <tt>SelectAccountPanel</tt>.
-     * 
+     *
      * @param joinChatRoom an object that collects all user choices through the
      * wizard
-     * @param chatRoomProviders The list of available 
+     * @param chatRoomProviders The list of available
      * <tt>ChatRoomProviderWrapper</tt>s, from which the user could select.
      */
     public SelectAccountPanel(
-        NewChatRoom joinChatRoom, 
+        NewChatRoom joinChatRoom,
         Iterator<ChatRoomProviderWrapper> chatRoomProviders)
     {
         super(new BorderLayout());
@@ -121,6 +121,7 @@ public class SelectAccountPanel
              */
             private static final long serialVersionUID = 6321836989166142791L;
 
+            @Override
             public void tableChanged(TableModelEvent e)
             {
               super.tableChanged(e);
@@ -130,7 +131,7 @@ public class SelectAccountPanel
 
         this.tableInit();
     }
-    
+
     /**
      * Initializes the accounts table.
      */
@@ -167,7 +168,7 @@ public class SelectAccountPanel
         accountsTable.getColumnModel().getColumn(ACCOUNT_COLUMN_INDEX)
             .setCellRenderer(new LabelTableCellRenderer());
         accountsTable.getColumnModel()
-            .getColumn(PROTOCOL_COLUMN_INDEX).sizeWidthToFit();        
+            .getColumn(PROTOCOL_COLUMN_INDEX).sizeWidthToFit();
         accountsTable.getColumnModel().getColumn(PROTOCOL_COLUMN_INDEX)
             .setCellRenderer(new LabelTableCellRenderer());
         accountsTable.getColumnModel()
@@ -192,7 +193,7 @@ public class SelectAccountPanel
     /**
      * Adds a <tt>ListSelectionListener</tt> to the list of accounts, which will
      * listen for events triggered by user clicks on the rows in the table.
-     * 
+     *
      * @param listener the <tt>ListSelectionListener</tt> to add
      */
     public void addListSelectionListener(ListSelectionListener listener)
@@ -202,7 +203,7 @@ public class SelectAccountPanel
 
     /**
      * Checks whether there is a selected row in the table.
-     * 
+     *
      * @return <tt>true</tt> if a row is selected and <tt>false</tt> otherwise.
      */
     public boolean isRowSelected()
@@ -211,7 +212,7 @@ public class SelectAccountPanel
     }
 
     /**
-     * Determine the selected account, which will be used in the rest of the 
+     * Determine the selected account, which will be used in the rest of the
      * wizard.
      */
     public void initSelectedAccount()
@@ -221,11 +222,11 @@ public class SelectAccountPanel
         int selectedRow = accountsTable.getSelectedRow();
         if(selectedRow != -1)
         {
-            joinChatRoom.setChatRoomProvider((ChatRoomProviderWrapper) 
+            joinChatRoom.setChatRoomProvider((ChatRoomProviderWrapper)
                         model.getValueAt(selectedRow, ACCOUNT_COLUMN_INDEX));
         }
     }
-    
+
     /**
      * The table model that we use for the accounts table. The only reason we
      * need a model is to make sure our table is not editable.
@@ -246,14 +247,14 @@ public class SelectAccountPanel
          * @return                  false
          */
         @Override
-        public boolean isCellEditable(int row, int column) 
+        public boolean isCellEditable(int row, int column)
         {
             return false;
         }
     }
 
     /**
-     * 
+     *
      */
     public void loadSkin()
     {

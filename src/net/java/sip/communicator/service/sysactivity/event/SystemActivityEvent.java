@@ -132,6 +132,7 @@ public class SystemActivityEvent
      *
      * @return  A a String representation of this SystemActivityEvent object.
      */
+    @Override
     public String toString() {
         return getClass().getName() + "[eventID=" + eventID + "]";
     }

@@ -387,6 +387,7 @@ public abstract class BindingPanel
     private class MouseTracker
         extends MouseInputAdapter
     {
+        @Override
         public void mousePressed(MouseEvent event)
         {
             Point loc = event.getPoint();

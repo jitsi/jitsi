@@ -155,6 +155,7 @@ public class BindingChooser
         // Adds listener that closes dialog when pressing 'enter' or 'escape'
         dialog.addKeyListener(new KeyAdapter()
         {
+            @Override
             public void keyPressed(KeyEvent event)
             {
                 if (display.selectedEntry == null)
@@ -186,6 +187,7 @@ public class BindingChooser
      * Visual changes to the entry
      * Component validation
      */
+    @Override
     protected void onUpdate(int index, BindingEntry entry, boolean isNew)
     {
         this.indentStyle.apply(entry, index);
@@ -194,6 +196,7 @@ public class BindingChooser
     /**
      * Invoked on click.
      */
+    @Override
     protected void onClick(MouseEvent event, BindingEntry entry,
         BindingEntry.Field field)
     {

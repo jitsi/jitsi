@@ -184,6 +184,7 @@ public class SIPCommTabbedPaneUI
             actionPopupMenu.add(closeItem);
     }
 
+    @Override
     protected int calculateTabWidth(int tabPlacement, int tabIndex,
             FontMetrics metrics)
     {
@@ -204,12 +205,14 @@ public class SIPCommTabbedPaneUI
         return super.calculateTabWidth(tabPlacement, tabIndex, metrics) + delta;
     }
 
+    @Override
     protected int calculateTabHeight(int tabPlacement, int tabIndex,
             int fontHeight)
     {
         return super.calculateTabHeight(tabPlacement, tabIndex, fontHeight + 4);
     }
 
+    @Override
     protected void layoutLabel(int tabPlacement, FontMetrics metrics,
             int tabIndex, String title, Icon icon, Rectangle tabRect,
             Rectangle iconRect, Rectangle textRect, boolean isSelected)
@@ -221,7 +224,7 @@ public class SIPCommTabbedPaneUI
             tabPane.putClientProperty("html", v);
         }
 
-        SwingUtilities.layoutCompoundLabel((JComponent) tabPane,
+        SwingUtilities.layoutCompoundLabel(tabPane,
                                             metrics,
                                             title,
                                             icon,
@@ -250,6 +253,7 @@ public class SIPCommTabbedPaneUI
             textRect.x = textRect.x + 8;
     }
 
+    @Override
     protected MouseListener createMouseListener()
     {
         return new MyMouseHandler();
@@ -350,6 +354,7 @@ public class SIPCommTabbedPaneUI
      *
      * @see javax.swing.JTabbedPane#getTabLayoutPolicy
      */
+    @Override
     protected LayoutManager createLayoutManager()
     {
         return new TabbedPaneScrollLayout();
@@ -368,6 +373,7 @@ public class SIPCommTabbedPaneUI
      *
      * @since 1.4
      */
+    @Override
     protected void installComponents()
     {
         if (tabScroller == null)
@@ -385,6 +391,7 @@ public class SIPCommTabbedPaneUI
      *
      * @since 1.4
      */
+    @Override
     protected void uninstallComponents()
     {
         tabPane.remove(tabScroller.viewport);
@@ -393,6 +400,7 @@ public class SIPCommTabbedPaneUI
         tabScroller = null;
     }
 
+    @Override
     protected void installListeners()
     {
         if ((propertyChangeListener = createPropertyChangeListener()) != null)
@@ -430,6 +438,7 @@ public class SIPCommTabbedPaneUI
 
     }
 
+    @Override
     protected void uninstallListeners()
     {
         if (mouseListener != null)
@@ -474,11 +483,13 @@ public class SIPCommTabbedPaneUI
 
     }
 
+    @Override
     protected ChangeListener createChangeListener()
     {
         return new TabSelectionHandler();
     }
 
+    @Override
     protected void installKeyboardActions()
     {
         InputMap km
@@ -533,6 +544,7 @@ public class SIPCommTabbedPaneUI
         return map;
     }
 
+    @Override
     protected void uninstallKeyboardActions()
     {
         SwingUtilities.replaceUIActionMap(tabPane, null);
@@ -605,6 +617,7 @@ public class SIPCommTabbedPaneUI
 
     // UI Rendering
 
+    @Override
     public void paint(Graphics g, JComponent c)
     {
         int tc = tabPane.getTabCount();
@@ -623,6 +636,7 @@ public class SIPCommTabbedPaneUI
         paintContentBorder(g, tabPlacement, selectedIndex);
     }
 
+    @Override
     protected void paintTab(Graphics g, int tabPlacement, Rectangle[] rects,
             int tabIndex, Rectangle iconRect, Rectangle textRect)
     {
@@ -811,6 +825,7 @@ public class SIPCommTabbedPaneUI
      * @since 1.4
      */
 
+    @Override
     protected Rectangle getTabBounds(int tabIndex, Rectangle dest)
     {
         dest.width = rects[tabIndex].width;
@@ -1116,16 +1131,19 @@ public class SIPCommTabbedPaneUI
         extends TabbedPaneLayout
     {
 
+        @Override
         protected int preferredTabAreaHeight(int tabPlacement, int width)
         {
             return calculateMaxTabHeight(tabPlacement);
         }
 
+        @Override
         protected int preferredTabAreaWidth(int tabPlacement, int height)
         {
             return calculateMaxTabWidth(tabPlacement);
         }
 
+        @Override
         public void layoutContainer(Container parent)
         {
             int tabPlacement = tabPane.getTabPlacement();
@@ -1283,6 +1301,7 @@ public class SIPCommTabbedPaneUI
             }
         }
 
+        @Override
         protected void calculateTabRects(int tabPlacement, int tabCount)
         {
             FontMetrics metrics = getFontMetrics();;
@@ -1441,6 +1460,7 @@ public class SIPCommTabbedPaneUI
 
         }
 
+        @Override
         public String toString()
         {
             return new String("viewport.viewSize=" + viewport.getViewSize()
@@ -1478,6 +1498,7 @@ public class SIPCommTabbedPaneUI
             setLayout(null);
         }
 
+        @Override
         public void paintComponent(Graphics g)
         {
             super.paintComponent(g);
@@ -1647,6 +1668,7 @@ public class SIPCommTabbedPaneUI
 
     private class MyMouseHandler extends MouseHandler
     {
+        @Override
         public void mousePressed(MouseEvent e)
         {
             if (closeIndexStatus == OVER)
@@ -1665,6 +1687,7 @@ public class SIPCommTabbedPaneUI
             }
         }
 
+        @Override
         public void mouseClicked(MouseEvent e)
         {
             if (e.getClickCount() > 1 && overTabIndex != -1)
@@ -1674,6 +1697,7 @@ public class SIPCommTabbedPaneUI
             }
         }
 
+        @Override
         public void mouseReleased(MouseEvent e)
         {
             updateOverTab(e.getX(), e.getY());
@@ -1717,6 +1741,7 @@ public class SIPCommTabbedPaneUI
                 ((SIPCommTabbedPane) tabPane).fireCloseTabEvent(e, overTabIndex);
         }
 
+        @Override
         public void mouseExited(MouseEvent e)
         {
             if (!mousePressed)
@@ -1751,6 +1776,7 @@ public class SIPCommTabbedPaneUI
     /**
      * We don't want to have a content border.
      */
+    @Override
     protected void paintContentBorder(  Graphics g,
                                         int tabPlacement,
                                         int selectedIndex)

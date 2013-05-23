@@ -12,7 +12,7 @@ import org.jitsi.service.resources.*;
 
 /**
  * Manages the access to the properties file containing all sounds paths.
- * 
+ *
  * @author Yana Stamcheva
  */
 public final class SoundProperties

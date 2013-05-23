@@ -34,7 +34,7 @@ public class OperationSetServerStoredContactInfoIcqImpl
     private Hashtable<String, List<DetailsResponseListener>>
         listenersForDetails =
             new Hashtable<String, List<DetailsResponseListener>>();
-    
+
     /**
      * The icq provider that created us.
      */
@@ -61,7 +61,7 @@ public class OperationSetServerStoredContactInfoIcqImpl
         Class<T> detailClass)
     {
         assertConnected();
-        
+
         if(detailClass.equals(ImageDetail.class)
                 && (contact.getImage() != null))
         {
@@ -93,14 +93,14 @@ public class OperationSetServerStoredContactInfoIcqImpl
         Class<? extends GenericDetail> detailClass)
     {
         assertConnected();
-        
-        if(detailClass.equals(ServerStoredDetails.ImageDetail.class) && 
+
+        if(detailClass.equals(ServerStoredDetails.ImageDetail.class) &&
             contact.getImage() != null)
         {
             List<GenericDetail> res = new Vector<GenericDetail>();
             res.add(new ServerStoredDetails.ImageDetail(
                 "Image", contact.getImage()));
-            return res.iterator();    
+            return res.iterator();
         }
         return infoRetreiver.getDetails(contact.getAddress(), detailClass);
     }
@@ -127,7 +127,7 @@ public class OperationSetServerStoredContactInfoIcqImpl
 
         return res.iterator();
     }
-    
+
     /**
      * Utility method throwing an exception if the icq stack is not properly
      * initialized.
@@ -157,9 +157,9 @@ public class OperationSetServerStoredContactInfoIcqImpl
     {
         assertConnected();
 
-        List<GenericDetail> res = 
+        List<GenericDetail> res =
             infoRetreiver.getCachedContactDetails(contact.getAddress());
-        
+
         if(res != null)
         {
             if(contact.getImage() != null)

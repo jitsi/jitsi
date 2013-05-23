@@ -79,6 +79,7 @@ public class OperationSetAutoAnswerSipImpl
     /**
      * Load values from account properties.
      */
+    @Override
     protected void load()
     {
         super.load();
@@ -99,6 +100,7 @@ public class OperationSetAutoAnswerSipImpl
     /**
      * Saves values to account properties.
      */
+    @Override
     protected void save()
     {
         AccountID acc = protocolProvider.getAccountID();
@@ -193,6 +195,7 @@ public class OperationSetAutoAnswerSipImpl
     /**
      * Clear local settings.
      */
+    @Override
     protected void clearLocal()
     {
         super.clearLocal();
@@ -284,6 +287,7 @@ public class OperationSetAutoAnswerSipImpl
      * @return <tt>true</tt> if the call satisfy the auto answer conditions.
      * <tt>False</tt> otherwise.
      */
+    @Override
     protected boolean satisfyAutoAnswerConditions(Call call)
     {
         Iterator<? extends CallPeer> peers = call.getCallPeers();

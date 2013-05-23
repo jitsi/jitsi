@@ -102,6 +102,7 @@ public class ServerStoredDetails
          * @return a String representation of the detail using both its value
          * and display name.
          */
+        @Override
         public String toString()
         {
             return value == null ? "": value.toString();
@@ -115,6 +116,7 @@ public class ServerStoredDetails
          * @return <tt>true</tt> if this object has the same display name and
          * value as <tt>obj</tt> and false otherwise
          */
+        @Override
         public boolean equals(Object obj)
         {
             if(!(obj instanceof GenericDetail))

@@ -18,7 +18,7 @@ import org.osgi.framework.*;
 /**
  * The <tt>NotificationActivator</tt> is the activator of the notification
  * bundle.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class NotificationActivator
@@ -123,7 +123,7 @@ public class NotificationActivator
 
     /**
      * Returns the <tt>SystrayService</tt> obtained from the bundle context.
-     * 
+     *
      * @return the <tt>SystrayService</tt> obtained from the bundle context
      */
     public static SystrayService getSystray()

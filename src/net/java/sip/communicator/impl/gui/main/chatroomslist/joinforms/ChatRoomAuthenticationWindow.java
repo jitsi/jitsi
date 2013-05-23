@@ -211,6 +211,7 @@ public class ChatRoomAuthenticationWindow
             this.bgImage = bgImage;
         }
 
+        @Override
         protected void paintComponent(Graphics g)
         {
             super.paintComponent(g);
@@ -255,6 +256,7 @@ public class ChatRoomAuthenticationWindow
         imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "close");
     }
 
+    @Override
     protected void close(boolean isEscaped)
     {
         this.cancelButton.doClick();
@@ -266,6 +268,7 @@ public class ChatRoomAuthenticationWindow
      * @param isVisible specifies whether we should be showing or hiding the
      * window.
      */
+    @Override
     public void setVisible(boolean isVisible)
     {
         this.pack();
@@ -274,7 +277,7 @@ public class ChatRoomAuthenticationWindow
 
         if(isVisible)
         {
-            this.passwdField.requestFocus(); 
+            this.passwdField.requestFocus();
         }
     }
 

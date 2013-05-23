@@ -554,6 +554,7 @@ public class OperationSetFileTransferJabberImpl
         /**
          * Thread entry point.
          */
+        @Override
         public void run()
         {
             int status;

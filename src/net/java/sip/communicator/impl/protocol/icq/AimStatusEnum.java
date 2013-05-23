@@ -20,7 +20,7 @@ import net.java.sip.communicator.util.*;
 public class AimStatusEnum
     extends PresenceStatus
 {
-    
+
     private static Logger logger = Logger.getLogger(AimStatusEnum.class);
 
     /**
@@ -59,7 +59,7 @@ public class AimStatusEnum
     /**
      * The minimal set of states that any AIM implementation must support.
      */
-    public static final ArrayList<AimStatusEnum> aimStatusSet 
+    public static final ArrayList<AimStatusEnum> aimStatusSet
         = new ArrayList<AimStatusEnum>();
     static{
             aimStatusSet.add(ONLINE);
@@ -82,12 +82,12 @@ public class AimStatusEnum
     /**
      * Returns the byte representation of the image corresponding to the given
      * identifier.
-     * 
+     *
      * @param imageID the identifier of the image
      * @return the byte representation of the image corresponding to the given
      * identifier.
      */
-    private static byte[] getImageInBytes(String imageID) 
+    private static byte[] getImageInBytes(String imageID)
     {
         InputStream in = IcqActivator.getResources().
             getImageInputStream(imageID);
@@ -95,13 +95,13 @@ public class AimStatusEnum
         if (in == null)
             return null;
         byte[] image = null;
-        try 
+        try
         {
             image = new byte[in.available()];
 
             in.read(image);
         }
-        catch (IOException e) 
+        catch (IOException e)
         {
             logger.error("Failed to load image:" + imageID, e);
         }

@@ -19,7 +19,7 @@ import net.java.sip.communicator.service.protocol.*;
  * "Create chat room" wizard. Contains the <tt>SelectAccountPanel</tt>, where
  * the user should select the account, for which the new chat room will be
  * created.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class CreateChatRoomWizardPage1
@@ -27,21 +27,21 @@ public class CreateChatRoomWizardPage1
                     CellEditorListener
 {
     public static final String IDENTIFIER = "SELECT_ACCOUNT_PANEL";
-    
+
     private SelectAccountPanel selectAccountPanel;
-    
+
     private WizardContainer wizard;
-    
+
     /**
      * Creates an instance of <tt>CreateChatRoomWizardPage1</tt>.
      * @param wizard the parent wizard container
      * @param newChatRoom the object that will collect the information through
-     * the wizard 
-     * @param protocolProvidersList The list of available 
+     * the wizard
+     * @param protocolProvidersList The list of available
      * <tt>ProtocolProviderServices</tt>, from which the user could select.
      */
     public CreateChatRoomWizardPage1(WizardContainer wizard,
-            NewChatRoom newChatRoom, 
+            NewChatRoom newChatRoom,
             Iterator<ProtocolProviderService> protocolProvidersList)
     {
         this.wizard = wizard;
@@ -51,19 +51,19 @@ public class CreateChatRoomWizardPage1
 
         selectAccountPanel.addCheckBoxCellListener(this);
     }
-    
+
     /**
      * Before the panel is displayed checks the selections and enables the
-     * next button if a checkbox is already selected or disables it if 
+     * next button if a checkbox is already selected or disables it if
      * nothing is selected.
      */
     public void pageShowing()
     {
         setNextButtonAccordingToCheckBox();
-    }    
-    
+    }
+
     /**
-     * Enables the next button when the user makes a choise and disables it 
+     * Enables the next button when the user makes a choise and disables it
      * if nothing is selected.
      */
     private void setNextButtonAccordingToCheckBox()
@@ -117,7 +117,7 @@ public class CreateChatRoomWizardPage1
     }
 
     /**
-     * Returns the form contained in this wizard page. In this case 
+     * Returns the form contained in this wizard page. In this case
      */
     public Object getWizardForm()
     {

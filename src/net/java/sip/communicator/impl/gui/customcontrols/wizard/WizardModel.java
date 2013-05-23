@@ -18,70 +18,70 @@ import net.java.sip.communicator.service.gui.*;
  * enabled state of each of the buttons, as well as the current panel that
  * is displayed. Note that the model, in its current form, is not intended
  * to be sub-classed.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class WizardModel
 {
     /**
      * Identification string for the current panel.
-     */    
+     */
     public static final String CURRENT_PAGE_PROPERTY
         = "currentPageProperty";
-    
+
     /**
      * Property identification String for the Back button's text
-     */    
+     */
     public static final String BACK_BUTTON_TEXT_PROPERTY
         = "backButtonTextProperty";
     /**
      * Property identification String for the Back button's icon
-     */    
+     */
     public static final String BACK_BUTTON_ICON_PROPERTY
         = "backButtonIconProperty";
     /**
      * Property identification String for the Back button's enabled state
-     */    
+     */
     public static final String BACK_BUTTON_ENABLED_PROPERTY
         = "backButtonEnabledProperty";
 
     /**
      * Property identification String for the Next button's text
-     */    
+     */
     public static final String NEXT_FINISH_BUTTON_TEXT_PROPERTY
         = "nextButtonTextProperty";
     /**
      * Property identification String for the Next button's icon
-     */    
+     */
     public static final String NEXT_FINISH_BUTTON_ICON_PROPERTY
         = "nextButtonIconProperty";
     /**
      * Property identification String for the Next button's enabled state
-     */    
+     */
     public static final String NEXT_FINISH_BUTTON_ENABLED_PROPERTY
         = "nextButtonEnabledProperty";
-    
+
     /**
      * Property identification String for the Cancel button's text
-     */    
+     */
     public static final String CANCEL_BUTTON_TEXT_PROPERTY
         = "cancelButtonTextProperty";
     /**
      * Property identification String for the Cancel button's icon
-     */    
+     */
     public static final String CANCEL_BUTTON_ICON_PROPERTY
         = "cancelButtonIconProperty";
     /**
      * Property identification String for the Cancel button's enabled state
-     */    
+     */
     public static final String CANCEL_BUTTON_ENABLED_PROPERTY
         = "cancelButtonEnabledProperty";
-    
+
     private WizardPage currentPanel;
-        
+
     private final Map<Object, WizardPage> panelHashmap
         = new HashMap<Object, WizardPage>();
-    
+
     private final Map<String, Object> buttonTextHashmap
         = new HashMap<String, Object>();
 
@@ -95,7 +95,7 @@ public class WizardModel
 
     /**
      * Default constructor.
-     */    
+     */
     public WizardModel()
     {
         propertyChangeSupport = new PropertyChangeSupport(this);
@@ -104,7 +104,7 @@ public class WizardModel
     /**
      * Returns the currently displayed WizardPage.
      * @return The currently displayed WizardPage
-     */    
+     */
     WizardPage getCurrentWizardPage()
     {
         return currentPanel;
@@ -115,7 +115,7 @@ public class WizardModel
      * Object-identifier specified.
      * @param id Object-based identifier
      * @param page WizardPage that describes the panel
-     */    
+     */
     void registerPage(Object id, WizardPage page)
     {
         panelHashmap.put(id, page);
@@ -123,7 +123,7 @@ public class WizardModel
 
      /**
       * Unregisters the <tt>WizardPage</tt> corresponding to the given id.
-      * 
+      *
       * @param id The id of the <tt>WizardPage</tt>.
       */
     void unregisterPage(Object id)
@@ -150,7 +150,7 @@ public class WizardModel
      * Sets the current panel to that identified by the Object passed in.
      * @param id Object-based panel identifier
      * @return boolean indicating success or failure
-     */    
+     */
      boolean setCurrentPanel(Object id)
      {
         //  First, get the hashtable reference to the panel that should
@@ -360,7 +360,7 @@ public class WizardModel
                     oldValue, newValue);
         }
     }
-    
+
     /**
      * Checks if the Cancel button is enabled.
      * @return <code>true</code> if the Cancel button is enabled,

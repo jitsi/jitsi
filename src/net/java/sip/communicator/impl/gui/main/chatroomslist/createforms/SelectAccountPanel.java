@@ -21,54 +21,54 @@ import net.java.sip.communicator.service.protocol.*;
 /**
  * The <tt>SelectAccountPanel</tt> is where the user should select the account,
  * for which the new chat room will be created.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class SelectAccountPanel
     extends TransparentPanel
 {
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = 7709876019954774312L;
 
     private final JScrollPane tablePane = new JScrollPane(
         JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
         JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-    
+
     private final JTable accountsTable;
-    
+
     private final DefaultTableModel tableModel = new DefaultTableModel();
-    
+
     private final NewChatRoom newChatRoom;
-    
+
     private final Iterator<ProtocolProviderService> protocolProvidersList;
-    
-    private final JPanel labelsPanel 
+
+    private final JPanel labelsPanel
             = new TransparentPanel(new GridLayout(0, 1));
-    
-    private final JPanel rightPanel 
+
+    private final JPanel rightPanel
             = new TransparentPanel(new BorderLayout(10, 10));
-    
+
     private final SIPCommMsgTextArea infoLabel = new SIPCommMsgTextArea(
         GuiActivator.getResources()
             .getI18NString("service.gui.SELECT_PROVIDERS_FOR_CHAT_ROOM"));
-    
+
     private final JLabel infoTitleLabel = new JLabel(
-        GuiActivator.getResources().getI18NString("service.gui.SELECT_ACCOUNT"), 
+        GuiActivator.getResources().getI18NString("service.gui.SELECT_ACCOUNT"),
         JLabel.CENTER);
-    
+
     private final ButtonGroup radioButtonGroup = new ButtonGroup();
-    
+
     /**
      * Creates and initializes the <tt>SelectAccountPanel</tt>.
-     * 
+     *
      * @param newChatRoom an object that collects all user choices through the
      * wizard
-     * @param protocolProvidersList The list of available 
+     * @param protocolProvidersList The list of available
      * <tt>ProtocolProviderServices</tt>, from which the user could select.
      */
-    public SelectAccountPanel(NewChatRoom newChatRoom, 
+    public SelectAccountPanel(NewChatRoom newChatRoom,
             Iterator<ProtocolProviderService> protocolProvidersList)
     {
         super(new BorderLayout());
@@ -98,9 +98,10 @@ public class SelectAccountPanel
         this.rightPanel.add(tablePane, BorderLayout.CENTER);
 
         this.add(rightPanel, BorderLayout.CENTER);
-        
+
         accountsTable = new JTable(tableModel)
         {
+            @Override
             public void tableChanged(TableModelEvent e)
             {
               super.tableChanged(e);
@@ -110,7 +111,7 @@ public class SelectAccountPanel
 
         this.tableInit();
     }
-    
+
     /**
      * Initializes the accounts table.
      */
@@ -185,7 +186,7 @@ public class SelectAccountPanel
      * Adds a <tt>CellEditorListener</tt> to the list of account, which will
      * listen for events triggered by user clicks on the check boxes in the
      * first column of the accounts table.
-     * 
+     *
      * @param l the <tt>CellEditorListener</tt> to add
      */
     public void addCheckBoxCellListener(CellEditorListener l)
@@ -204,19 +205,19 @@ public class SelectAccountPanel
     public boolean isRadioSelected()
     {
         TableModel model = accountsTable.getModel();
-        
+
         for (int i = 0; i < accountsTable.getRowCount(); i ++) {
             Object value = model.getValueAt(i, 0);
-            
+
             if (value instanceof JRadioButton)
             {
                 JRadioButton radioButton = (JRadioButton) value;
-                
+
                 if(radioButton.isSelected())
                     return true;
             }
         }
-        
+
         return false;
     }
 
@@ -229,7 +230,7 @@ public class SelectAccountPanel
 
         for (int i = 0; i < accountsTable.getRowCount(); i ++) {
             Object value = model.getValueAt(i, 0);
-            
+
             if (value instanceof JRadioButton) {
                 JRadioButton radioButton = (JRadioButton)value;
                 if(radioButton.isSelected()){

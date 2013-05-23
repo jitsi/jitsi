@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.impl.replacement.directimage;
@@ -11,7 +11,7 @@ import net.java.sip.communicator.util.*;
 /**
  * Implements the {@link ReplacementService} to provide previews for direct
  * image links.
- * 
+ *
  * @author Purvesh Sahoo
  */
 public class ReplacementServiceDirectImageImpl
@@ -30,7 +30,7 @@ public class ReplacementServiceDirectImageImpl
         "[^<>]+\\.(?:jpg|png|gif)[^<>]*(?=</a>)";
 
     /**
-     * Configuration label shown in the config form. 
+     * Configuration label shown in the config form.
      */
     public static final String DIRECT_IMAGE_CONFIG_LABEL = "Direct Image Link";
 
@@ -40,7 +40,7 @@ public class ReplacementServiceDirectImageImpl
     public static final String SOURCE_NAME = "DIRECTIMAGE";
 
     /**
-     * Constructor for <tt>ReplacementServiceDirectImageImpl</tt>. 
+     * Constructor for <tt>ReplacementServiceDirectImageImpl</tt>.
      */
     public ReplacementServiceDirectImageImpl()
     {
@@ -60,7 +60,7 @@ public class ReplacementServiceDirectImageImpl
 
     /**
      * Returns the source name
-     * 
+     *
      * @return the source name
      */
     public String getSourceName()
@@ -70,8 +70,8 @@ public class ReplacementServiceDirectImageImpl
 
     /**
      * Returns the pattern of the source
-     * 
-     * @return the source pattern 
+     *
+     * @return the source pattern
      */
     public String getPattern()
     {

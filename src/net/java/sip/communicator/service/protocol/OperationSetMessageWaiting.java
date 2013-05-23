@@ -47,6 +47,7 @@ public interface OperationSetMessageWaiting
          *
          * @return the message type.
          */
+        @Override
         public String toString()
         {
             return type;
@@ -56,7 +57,7 @@ public interface OperationSetMessageWaiting
          * Returns MessageType by its type name.
          *
          * @param type the type.
-         * @return the corresponding MessageType. 
+         * @return the corresponding MessageType.
          */
         public static MessageType valueOfByType(String type)
         {

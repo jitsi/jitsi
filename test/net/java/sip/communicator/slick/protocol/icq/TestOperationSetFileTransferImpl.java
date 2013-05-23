@@ -45,16 +45,18 @@ public class TestOperationSetFileTransferImpl
         super(name);
     }
 
+    @Override
     public Contact getContact1()
     {
         if(contact1 == null)
         {
-            contact1 = opSetPresence1.findContactByID(fixture.testerAgent.getIcqUIN());
+            contact1 = opSetPresence1.findContactByID(IcqSlickFixture.testerAgent.getIcqUIN());
         }
 
         return contact1;
     }
 
+    @Override
     public Contact getContact2()
     {
         if(contact2 == null)
@@ -65,6 +67,7 @@ public class TestOperationSetFileTransferImpl
         return contact2;
     }
 
+    @Override
     public void start()
         throws Exception
     {
@@ -81,7 +84,7 @@ public class TestOperationSetFileTransferImpl
         fixture.setUp();
 
         // make sure tester agent is turned off
-        fixture.testerAgent.unregister();
+        IcqSlickFixture.testerAgent.unregister();
 
         Map<String, OperationSet> supportedOperationSets1 =
             fixture.provider.getSupportedOperationSets();
@@ -141,7 +144,7 @@ public class TestOperationSetFileTransferImpl
             bc.getService(serRefs[0]);
 
         // fisrt install the account
-        String USER_ID = fixture.testerAgent.getIcqUIN();
+        String USER_ID = IcqSlickFixture.testerAgent.getIcqUIN();
         final String PASSWORD = System.getProperty(
             IcqProtocolProviderSlick.TESTED_IMPL_PWD_PROP_NAME, null);
         Hashtable<String,String> props = new Hashtable<String,String>();
@@ -154,7 +157,7 @@ public class TestOperationSetFileTransferImpl
         catch (Exception e) // Exception if account exists
         {}
 
-        String secondProviderID = fixture.testerAgent.getIcqUIN();
+        String secondProviderID = IcqSlickFixture.testerAgent.getIcqUIN();
 
         //find the protocol provider service
         ServiceReference[] icqProviderRefs
@@ -333,6 +336,7 @@ public class TestOperationSetFileTransferImpl
         providerFactory.uninstallAccount(secondProviderAccount);
     }
 
+    @Override
     public void stop()
         throws Exception
     {
@@ -357,7 +361,7 @@ public class TestOperationSetFileTransferImpl
             try
             {
                 opSetPresence1.setAuthorizationHandler(new AuthHandler());
-                opSetPresence1.subscribe(fixture.testerAgent.getIcqUIN());
+                opSetPresence1.subscribe(IcqSlickFixture.testerAgent.getIcqUIN());
             }
             catch (OperationFailedException ex)
             {
@@ -386,26 +390,31 @@ public class TestOperationSetFileTransferImpl
         }
     }
 
+    @Override
     public OperationSetFileTransfer getOpSetFilTransfer1()
     {
         return opSetFT1;
     }
 
+    @Override
     public OperationSetFileTransfer getOpSetFilTransfer2()
     {
         return opSetFT2;
     }
 
+    @Override
     public BundleContext getContext()
     {
-        return fixture.bc;
+        return IcqSlickFixture.bc;
     }
 
+    @Override
     public boolean enableTestSendAndReceive()
     {
         return true;
     }
 
+    @Override
     public boolean enableTestSenderCancelBeforeAccepted()
     {
         return true;
@@ -417,16 +426,19 @@ public class TestOperationSetFileTransferImpl
      * Its canceled cause its the same event comming from the stack
      * as when while transfering one of the parties cancel the transfer.
      */
+    @Override
     public boolean enableTestReceiverDecline()
     {
         return false;
     }
 
+    @Override
     public boolean enableTestReceiverCancelsWhileTransfering()
     {
         return true;
     }
 
+    @Override
     public boolean enableTestSenderCancelsWhileTransfering()
     {
         return true;

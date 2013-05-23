@@ -147,7 +147,7 @@ public interface MetaContactListService
     /**
      * Returns a list of all <tt>MetaContact</tt>s containing a protocol contact
      * from the given <tt>ProtocolProviderService</tt>.
-     * 
+     *
      * @param protocolProvider the <tt>ProtocolProviderService</tt> whose
      * contacts we're looking for.
      * @return a list of all <tt>MetaContact</tt>s containing a protocol contact
@@ -160,11 +160,11 @@ public interface MetaContactListService
      * Returns a list of all <tt>MetaContact</tt>s contained in the given group
      * and containing a protocol contact from the given
      * <tt>ProtocolProviderService</tt>.
-     * 
+     *
      * @param protocolProvider the <tt>ProtocolProviderService</tt> whose
      * contacts we're looking for.
      * @param metaContactGroup the parent group.
-     * 
+     *
      * @return a list of all <tt>MetaContact</tt>s containing a protocol contact
      * from the given <tt>ProtocolProviderService</tt>.
      */
@@ -175,7 +175,7 @@ public interface MetaContactListService
     /**
      * Returns a list of all <tt>MetaContact</tt>s containing a protocol contact
      * corresponding to the given <tt>contactAddress</tt> string.
-     * 
+     *
      * @param contactAddress the contact address for which we're looking for
      * a parent <tt>MetaContact</tt>.
      * @return a list of all <tt>MetaContact</tt>s containing a protocol contact
@@ -222,8 +222,8 @@ public interface MetaContactListService
      * Makes the specified <tt>contact</tt> a child of the
      * <tt>newParent</tt> MetaContactGroup. If <tt>contact</tt> was
      * previously a child of a meta contact, it will be removed from its
-     * old parent and to a newly created one even if they both are in the same 
-     * group. If the specified contact was the only child of its previous 
+     * old parent and to a newly created one even if they both are in the same
+     * group. If the specified contact was the only child of its previous
      * parent, then the meta contact will also be moved.
      *
      * @param contact the <tt>Contact</tt> to move to the

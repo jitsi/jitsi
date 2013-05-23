@@ -87,7 +87,7 @@ public class GlobalProxyPluginActivator implements BundleActivator
     public void stop(BundleContext bc) throws Exception
     {
     }
-    
+
     /**
      * Returns the <tt>ConfigurationService</tt> obtained from the bundle
      * context.
@@ -251,6 +251,7 @@ public class GlobalProxyPluginActivator implements BundleActivator
          * @return The PasswordAuthentication collected from the
          *		user, or null if none is provided.
          */
+        @Override
         protected PasswordAuthentication getPasswordAuthentication()
         {
             if(getRequestingProtocol().startsWith(type)

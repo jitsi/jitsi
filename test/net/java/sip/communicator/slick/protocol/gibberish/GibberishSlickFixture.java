@@ -95,6 +95,7 @@ public class GibberishSlickFixture
      * @throws java.lang.Exception in case we meet problems while retriving
      * protocol providers through OSGI
      */
+    @Override
     public void setUp()
         throws Exception
     {
@@ -173,6 +174,7 @@ public class GibberishSlickFixture
     /**
      * Un get service references used in here.
      */
+    @Override
     public void tearDown()
     {
         bc.ungetService(provider1ServiceRef);

@@ -14,7 +14,7 @@ import org.jivesoftware.smackx.filetransfer.*;
 
 /**
  * The Jabber protocol extension of the <tt>AbstractFileTransfer</tt>.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class IncomingFileTransferJabberImpl
@@ -33,7 +33,7 @@ public class IncomingFileTransferJabberImpl
 
     /**
      * Creates an <tt>IncomingFileTransferJabberImpl</tt>.
-     * 
+     *
      * @param id the identifier of this transfer
      * @param sender the sender of the file
      * @param file the file
@@ -53,6 +53,7 @@ public class IncomingFileTransferJabberImpl
     /**
      * Cancels the file transfer.
      */
+    @Override
     public void cancel()
     {
         this.jabberTransfer.cancel();
@@ -60,9 +61,10 @@ public class IncomingFileTransferJabberImpl
 
     /**
      * Returns the number of bytes already received from the recipient.
-     * 
+     *
      * @return the number of bytes already received from the recipient
      */
+    @Override
     public long getTransferedBytes()
     {
         return jabberTransfer.getAmountWritten();
@@ -70,7 +72,7 @@ public class IncomingFileTransferJabberImpl
 
     /**
      * The direction is incoming.
-     * 
+     *
      * @return IN
      */
     public int getDirection()
@@ -80,7 +82,7 @@ public class IncomingFileTransferJabberImpl
 
     /**
      * Returns the sender of the file.
-     * 
+     *
      * @return the sender of the file
      */
     public Contact getContact()
@@ -90,7 +92,7 @@ public class IncomingFileTransferJabberImpl
 
     /**
      * Returns the identifier of this file transfer.
-     * 
+     *
      * @return the identifier of this file transfer
      */
     public String getID()

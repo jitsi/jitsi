@@ -15,11 +15,11 @@ import org.jitsi.util.*;
 
 /**
  * Filter to display only the sound files in the filechooser.
- * 
+ *
  * @author Alexandre Maillard
  * @author Vincent Lucas
  */
-public class SoundFilter 
+public class SoundFilter
     extends SipCommFileFilter
 {
     /**
@@ -67,6 +67,7 @@ public class SoundFilter
      * @return boolean true if the File is a Directory or a sound file. And
      * return false in the other cases.
      */
+    @Override
     public boolean accept(File f)
     {
         // Tests if the file passed in argument is a directory.
@@ -87,6 +88,7 @@ public class SoundFilter
      *
      * @return String which is displayed in the sound file chooser.
      */
+    @Override
     public String getDescription()
     {
         String desc = "Sound File (";

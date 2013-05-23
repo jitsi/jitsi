@@ -39,6 +39,7 @@ public class TestOperationSetTypingNotifications
             super(name);
     }
 
+    @Override
     protected void setUp() throws Exception
     {
         super.setUp();
@@ -166,6 +167,7 @@ public class TestOperationSetTypingNotifications
         }
     }
 
+    @Override
     protected void tearDown() throws Exception
     {
         super.tearDown();
@@ -253,10 +255,10 @@ public class TestOperationSetTypingNotifications
         assertTrue("Number of typing events received was zero."
             , evtCollector.collectedEvents.size() > 0);
 
-        logger.trace("We have collected " + evtCollector.collectedEvents.size() 
+        logger.trace("We have collected " + evtCollector.collectedEvents.size()
             + " typing notifications.");
         logger.trace("Notifications: " + evtCollector.collectedEvents);
-        
+
         evt = (TypingNotificationEvent)evtCollector.collectedEvents.get(0);
 
         assertEquals("Source of the typing notification event"

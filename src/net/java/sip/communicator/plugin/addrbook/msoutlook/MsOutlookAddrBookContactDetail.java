@@ -83,6 +83,7 @@ public class MsOutlookAddrBookContactDetail
      *
      * @param value the new value of the detail
      */
+    @Override
     public void setDetail(String value)
     {
         super.setDetail(value);

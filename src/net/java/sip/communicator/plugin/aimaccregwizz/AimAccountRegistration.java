@@ -56,7 +56,7 @@ public class AimAccountRegistration
     /**
      * Returns <tt>true</tt> if password has to remembered, <tt>false</tt>
      * otherwise.
-     * 
+     *
      * @return <tt>true</tt> if password has to remembered, <tt>false</tt>
      *         otherwise
      */
@@ -67,7 +67,7 @@ public class AimAccountRegistration
 
     /**
      * Sets the rememberPassword value of this aim account registration.
-     * 
+     *
      * @param rememberPassword
      *            <tt>true</tt> if password has to remembered, <tt>false</tt>
      *            otherwise

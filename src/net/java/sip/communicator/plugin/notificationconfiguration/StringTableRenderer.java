@@ -41,6 +41,7 @@ class StringTableRenderer
      * @param column the cell column
      * @return the rendering component
      */
+    @Override
     public Component getTableCellRendererComponent(
             JTable table,
             Object value,

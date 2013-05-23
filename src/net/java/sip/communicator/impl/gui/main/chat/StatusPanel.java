@@ -15,7 +15,7 @@ import net.java.sip.communicator.plugin.desktoputil.*;
 /**
  * The <tt>StatusPanel</tt> is the panel shown on the bottom of the chat
  * window and containing the typing notification messages.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class StatusPanel
@@ -78,7 +78,7 @@ public class StatusPanel
 
     /**
      * Returns the height of the default status label font.
-     * 
+     *
      * @return the height of the default status label font.
      */
     private int getFontHeight()

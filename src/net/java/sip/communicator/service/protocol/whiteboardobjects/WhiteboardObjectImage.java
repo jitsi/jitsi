@@ -21,49 +21,49 @@ public interface WhiteboardObjectImage extends WhiteboardObject
      * A type string constant indicating that an object is of type circle.
      */
     public static final String NAME = "WHITEBOARDOBJECTIMAGE";
-    
+
     /**
      * Returns the coordinates of this whiteboard object.
      *
      * @return the coordinates of this object.
      */
     public WhiteboardPoint getWhiteboardPoint();
-    
+
     /**
      * Sets the coordinates of this whiteboard object.
      *
      * @param whiteboardPoint the coordinates of this object.
      */
     public void setWhiteboardPoint(WhiteboardPoint whiteboardPoint);
-    
+
     /**
-     * Returns the height (in pixels) of the WhiteboardObject. 
+     * Returns the height (in pixels) of the WhiteboardObject.
      *
      * @return The height.
      */
     public double getHeight();
-    
+
     /**
-     * Returns the width (in pixels) of the WhiteboardObject. 
+     * Returns the width (in pixels) of the WhiteboardObject.
      *
      * @return The width.
      */
     public double getWidth();
-    
+
     /**
      * Sets the width (in pixels) of the WhiteboardObject.
      *
      * @param height The new height.
      */
     public void setHeight(double height);
-    
+
     /**
      * Sets the width (in pixels) of the WhiteboardObject.
      *
-     * @param width The new width. 
+     * @param width The new width.
      */
     public void setWidth(double width);
-    
+
     /**
      * Specifies an image that should be displayed as the background of this
      * object.
@@ -72,7 +72,7 @@ public interface WhiteboardObjectImage extends WhiteboardObject
      * displayed as the object background.
      */
     public void setBackgroundImage(byte[] background);
-    
+
     /**
      * Returns a binary array containing the image that should be displayed as
      * the background of this <tt>WhiteboardObject</tt>.

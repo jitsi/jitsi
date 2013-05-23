@@ -13,7 +13,7 @@ import net.java.sip.communicator.service.protocol.CallPeer;
 
 /**
  * Represents an event fired by a <tt>BasicConferenceCallPanel</tt> to notify
- * interested <tt>ConferencePeerPanelListener</tt>s about adding or removing 
+ * interested <tt>ConferencePeerPanelListener</tt>s about adding or removing
  * peer panel in conference call.
  *
  * @author Hristo Terezov.
@@ -37,20 +37,20 @@ public class ConferencePeerViewEvent
      * for removing of peer panels in conference call.
      */
     public static final int CONFERENCE_PEER_VIEW_REMOVED = 2;
-    
+
     /**
      * The ID of the event.
      */
     private int eventID;
-    
+
     /**
      * The call peer view associated with the event.
      */
     private ConferenceCallPeerRenderer callPeerView;
-    
+
     /**
      * Initializes a new <tt>ConferencePeerPanelEvent</tt> which is to
-     * be fired by a specific <tt>BasicConferenceCallPanel</tt> and notifies 
+     * be fired by a specific <tt>BasicConferenceCallPanel</tt> and notifies
      * about adding or removing of peer panels in conference call.
      *
      * @param eventID the ID of this event which may be
@@ -66,10 +66,10 @@ public class ConferencePeerViewEvent
         this.eventID = eventID;
         this.callPeerView = callPeerView;
     }
-    
+
     /**
      * Gets the ID of this event which may be one of
-     * {@link #CONFERENCE_PEER_VIEW_ADDED} and 
+     * {@link #CONFERENCE_PEER_VIEW_ADDED} and
      * {@link #CONFERENCE_PEER_VIEW_REMOVED}.
      *
      * @return the ID of this event which may be one of
@@ -80,7 +80,7 @@ public class ConferencePeerViewEvent
     {
         return eventID;
     }
-    
+
     /**
      * Returns the call peer associated with the event.
      * @return the call peer.
@@ -89,7 +89,7 @@ public class ConferencePeerViewEvent
     {
         return (CallPeer) getSource();
     }
-    
+
     /**
      * Returns the call peer view associated with the event.
      * @return the call peer view.

@@ -23,7 +23,7 @@ import org.jitsi.util.*;
 
 /**
  * Advanced configuration form to define client TLS certificate templates.
- * 
+ *
  * @author Ingo Bauersachs
  */
 public class CertConfigPanel

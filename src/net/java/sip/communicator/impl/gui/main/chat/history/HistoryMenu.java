@@ -16,7 +16,7 @@ import net.java.sip.communicator.plugin.desktoputil.*;
 
 /**
  * The <tt>HistoryMenu</tt> is the main menu in the history window.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class HistoryMenu

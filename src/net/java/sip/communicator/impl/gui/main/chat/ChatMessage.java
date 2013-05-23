@@ -11,7 +11,7 @@ import java.util.*;
 /**
  * The <tt>ChatMessage</tt> class encapsulates message information in order to
  * provide a single object containing all data needed to display a chat message.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class ChatMessage
@@ -51,12 +51,12 @@ public class ChatMessage
      * The content type of the message.
      */
     private final String contentType;
-    
+
     /**
      * A unique identifier for this message.
      */
     private String messageUID;
-    
+
     /**
      * The unique identifier of the message that this message should replace,
      * or <tt>null</tt> if this is a new message.
@@ -159,7 +159,7 @@ public class ChatMessage
 
     /**
      * Returns the name of the contact sending the message.
-     * 
+     *
      * @return the name of the contact sending the message.
      */
     public String getContactName()
@@ -179,7 +179,7 @@ public class ChatMessage
 
     /**
      * Returns the date and time of the message.
-     * 
+     *
      * @return the date and time of the message.
      */
     public Date getDate()
@@ -189,7 +189,7 @@ public class ChatMessage
 
     /**
      * Returns the type of the message.
-     * 
+     *
      * @return the type of the message.
      */
     public String getMessageType()
@@ -199,7 +199,7 @@ public class ChatMessage
 
     /**
      * Returns the title of the message.
-     * 
+     *
      * @return the title of the message.
      */
     public String getMessageTitle()
@@ -209,7 +209,7 @@ public class ChatMessage
 
     /**
      * Returns the content of the message.
-     * 
+     *
      * @return the content of the message.
      */
     public String getMessage()
@@ -219,7 +219,7 @@ public class ChatMessage
 
     /**
      * Sets the content of the message.
-     * 
+     *
      * @param message the new content
      */
     public void setMessage(String message)
@@ -229,17 +229,17 @@ public class ChatMessage
 
     /**
      * Returns the content type (e.g. "text", "text/html", etc.).
-     * 
+     *
      * @return the content type
      */
     public String getContentType()
     {
         return contentType;
     }
-    
+
     /**
      * Returns the UID of this message.
-     * 
+     *
      * @return the UID of this message.
      */
     public String getMessageUID()
@@ -250,7 +250,7 @@ public class ChatMessage
     /**
      * Returns the UID of the message that this message replaces, or
      * <tt>null</tt> if this is a new message.
-     * 
+     *
      * @return the UID of the message that this message replaces, or
      * <tt>null</tt> if this is a new message.
      */

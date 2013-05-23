@@ -14,7 +14,7 @@ import java.util.*;
  * construction time. It also allows the currently scheduled
  * <code>TimerTask</code>s to be canceled while still being able to schedule new
  * <code>TimerTask</code>s later on.
- * 
+ *
  * @author Lubomir Marinov
  */
 public class TimerScheduler
@@ -40,7 +40,7 @@ public class TimerScheduler
     /**
      * Gets the timer which handles all scheduled tasks. If it still doesn't
      * exists, a new <tt>Timer</tt> is created.
-     * 
+     *
      * @return the <tt>Timer</tt> which handles all scheduled tasks
      */
     private synchronized Timer getTimer()
@@ -53,7 +53,7 @@ public class TimerScheduler
     /**
      * Schedules the specified <code>TimerTask</code> for execution after the
      * specified delay.
-     * 
+     *
      * @param task
      *            the <code>TimerTask</code> to be executed after the specified
      *            delay
@@ -71,7 +71,7 @@ public class TimerScheduler
      * execution, beginning after the specified delay. Subsequent executions
      * take place at approximately regular intervals separated by the specified
      * period.
-     * 
+     *
      * @param task
      *            the <code>TimerTask</code> to be scheduled
      * @param delay

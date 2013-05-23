@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.impl.gui.main.contactlist;
@@ -18,7 +18,7 @@ import net.java.sip.communicator.util.skin.*;
 /**
  * The <tt>RenameGroupPanel</tt> is where the user could change the name of a
  * meta contact group.
- * 
+ *
  * @author Yana Stamcheva
  * @author Adam Netocny
  */
@@ -88,7 +88,7 @@ public class RenameGroupPanel
 
     /**
      * Returns the new name entered by the user.
-     * 
+     *
      * @return the new name entered by the user.
      */
     public String getNewName()

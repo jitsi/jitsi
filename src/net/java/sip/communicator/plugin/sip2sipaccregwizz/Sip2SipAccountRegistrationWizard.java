@@ -56,6 +56,7 @@ public class Sip2SipAccountRegistrationWizard
      * Returns the set of pages contained in this wizard.
      * @return Iterator
      */
+    @Override
     public Iterator<WizardPage> getPages()
     {
         SIPAccountRegistration reg = new SIPAccountRegistration();
@@ -70,10 +71,11 @@ public class Sip2SipAccountRegistrationWizard
      * shown to the user. Only if the user needs more settings she'll choose
      * to open the advanced wizard, consisted by all pages.
      *
-     * @param isCreateAccount indicates if the simple form should be opened as 
+     * @param isCreateAccount indicates if the simple form should be opened as
      * a create account form or as a login form
      * @return a simple account registration form
      */
+    @Override
     public Object getSimpleForm(boolean isCreateAccount)
     {
         SIPAccountRegistration reg = new SIPAccountRegistration();
@@ -105,6 +107,7 @@ public class Sip2SipAccountRegistrationWizard
      * Returns the icon to be used for this wizard.
      * @return byte[]
      */
+    @Override
     public byte[] getIcon()
     {
         return Sip2SipAccRegWizzActivator.getResources()
@@ -117,6 +120,7 @@ public class Sip2SipAccountRegistrationWizard
      *
      * @return byte[] the image used to decorate the wizard page
      */
+    @Override
     public byte[] getPageImage()
     {
         return Sip2SipAccRegWizzActivator.getResources()
@@ -128,6 +132,7 @@ public class Sip2SipAccountRegistrationWizard
      * method. Returns the protocol name for this wizard.
      * @return String
      */
+    @Override
     public String getProtocolName()
     {
         return Resources.getString(
@@ -139,6 +144,7 @@ public class Sip2SipAccountRegistrationWizard
      * </code> method. Returns the description of the protocol for this wizard.
      * @return String
      */
+    @Override
     public String getProtocolDescription()
     {
         return Resources.getString(
@@ -151,6 +157,7 @@ public class Sip2SipAccountRegistrationWizard
      * @return an example string, which should indicate to the user how the
      * user name should look like.
      */
+    @Override
     public String getUserNameExample()
     {
         return "Ex: myusername or myusername@sip2sip.info";
@@ -161,6 +168,7 @@ public class Sip2SipAccountRegistrationWizard
      * of the service.
      * @return the protocol name
      */
+    @Override
     public String getProtocol()
     {
         return PROTOCOL;
@@ -170,6 +178,7 @@ public class Sip2SipAccountRegistrationWizard
      * Returns the protocol icon path.
      * @return the protocol icon path
      */
+    @Override
     public String getProtocolIconPath()
     {
         return "resources/images/protocol/sip2sip";
@@ -179,6 +188,7 @@ public class Sip2SipAccountRegistrationWizard
      * Returns the account icon path.
      * @return the account icon path
      */
+    @Override
     public String getAccountIconPath()
     {
         return "resources/images/protocol/sip2sip/sip32x32.png";
@@ -187,6 +197,7 @@ public class Sip2SipAccountRegistrationWizard
     /**
      * Opens the browser on the page sign up
      */
+    @Override
     public void webSignup()
     {
         Sip2SipAccRegWizzActivator.getBrowserLauncher()
@@ -197,6 +208,7 @@ public class Sip2SipAccountRegistrationWizard
      * Returns the name of the web sign up link.
      * @return the name of the web sign up link
      */
+    @Override
     public String getWebSignupLinkName()
     {
         return Resources.getString("plugin.sip2sipaccregwizz.NEW_ACCOUNT_TITLE");
@@ -208,6 +220,7 @@ public class Sip2SipAccountRegistrationWizard
      * specific protocol provider wizards.
      * @return an instance of <tt>CreateAccountService</tt>
      */
+    @Override
     protected SIPAccountCreationFormService getCreateAccountService()
     {
         return createAccountForm;
@@ -217,6 +230,7 @@ public class Sip2SipAccountRegistrationWizard
      * Returns the display label used for the sip id field.
      * @return the sip id display label string.
      */
+    @Override
     protected String getUsernameLabel()
     {
         return Resources.getString("plugin.sip2sipaccregwizz.USERNAME");
@@ -226,6 +240,7 @@ public class Sip2SipAccountRegistrationWizard
      * Return the string for add existing account button.
      * @return the string for add existing account button.
      */
+    @Override
     protected String getExistingAccountLabel()
     {
         return Resources.getString("plugin.sip2sipaccregwizz.EXISTING_ACCOUNT");
@@ -235,6 +250,7 @@ public class Sip2SipAccountRegistrationWizard
      * Return the string for create new account button.
      * @return the string for create new account button.
      */
+    @Override
     protected String getCreateAccountLabel()
     {
         return Resources.getString("plugin.sip2sipaccregwizz.CREATE_ACCOUNT");

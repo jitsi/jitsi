@@ -21,7 +21,7 @@ public interface ContactCapabilitiesListener
     /**
      * Notifies this listener that the list of the <tt>OperationSet</tt>
      * capabilities of a <tt>Contact</tt> has changed.
-     * 
+     *
      * @param event a <tt>ContactCapabilitiesEvent</tt> with ID
      * {@link ContactCapabilitiesEvent#SUPPORTED_OPERATION_SETS_CHANGED} which
      * specifies the <tt>Contact</tt> whose list of <tt>OperationSet</tt>

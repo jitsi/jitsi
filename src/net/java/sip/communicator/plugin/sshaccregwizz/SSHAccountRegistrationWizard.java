@@ -69,6 +69,7 @@ public class SSHAccountRegistrationWizard
      * Returns the icon to be used for this wizard.
      * @return byte[]
      */
+    @Override
     public byte[] getIcon()
     {
         return Resources.getImage(Resources.SSH_LOGO);
@@ -81,6 +82,7 @@ public class SSHAccountRegistrationWizard
      *
      * @return byte[] the image used to decorate the wizard page
      */
+    @Override
     public byte[] getPageImage()
     {
         return Resources.getImage(Resources.PAGE_IMAGE);
@@ -91,6 +93,7 @@ public class SSHAccountRegistrationWizard
      * method. Returns the protocol name for this wizard.
      * @return String
      */
+    @Override
     public String getProtocolName()
     {
         return Resources.getString("plugin.sshaccregwizz.PROTOCOL_NAME");
@@ -101,6 +104,7 @@ public class SSHAccountRegistrationWizard
      * </code> method. Returns the description of the protocol for this wizard.
      * @return String
      */
+    @Override
     public String getProtocolDescription()
     {
         return Resources.getString("plugin.sshaccregwizz.PROTOCOL_DESCRIPTION");
@@ -110,6 +114,7 @@ public class SSHAccountRegistrationWizard
      * Returns the set of pages contained in this wizard.
      * @return Iterator
      */
+    @Override
     public Iterator<WizardPage> getPages()
     {
         java.util.List<WizardPage> pages = new ArrayList<WizardPage>();
@@ -125,12 +130,13 @@ public class SSHAccountRegistrationWizard
      * Returns the set of data that user has entered through this wizard.
      * @return Iterator
      */
+    @Override
     public Iterator<Map.Entry<String, String>> getSummary() {
         Hashtable<String, String> summaryTable
             = new Hashtable<String, String>();
 
         /*
-         * Hashtable arranges the entries alphabetically so the order 
+         * Hashtable arranges the entries alphabetically so the order
          * of appearance is
          * - Computer Name / IP
          * - Port
@@ -150,6 +156,7 @@ public class SSHAccountRegistrationWizard
      * new account
      * @throws OperationFailedException if the operation didn't succeed
      */
+    @Override
     public ProtocolProviderService signin()
         throws OperationFailedException
     {
@@ -168,6 +175,7 @@ public class SSHAccountRegistrationWizard
      * new account
      * @throws OperationFailedException if the operation didn't succeed
      */
+    @Override
     public ProtocolProviderService signin(String userName, String password)
         throws OperationFailedException
     {
@@ -239,13 +247,14 @@ public class SSHAccountRegistrationWizard
 
         return protocolProvider;
     }
-    
+
     /**
      * Fills the UserID and Password fields in this panel with the data comming
      * from the given protocolProvider.
      * @param protocolProvider The <tt>ProtocolProviderService</tt> to load the
      * data from.
      */
+    @Override
     public void loadAccount(ProtocolProviderService protocolProvider)
     {
         this.protocolProvider = protocolProvider;
@@ -259,6 +268,7 @@ public class SSHAccountRegistrationWizard
      * Returns the size of this wizard.
      * @return the size of this wizard
      */
+    @Override
     public Dimension getSize()
     {
         return new Dimension(600, 500);
@@ -271,11 +281,13 @@ public class SSHAccountRegistrationWizard
      *
      * @return the identifier of the first account registration wizard page
      */
+    @Override
     public Object getFirstPageIdentifier()
     {
         return firstWizardPage.getIdentifier();
     }
 
+    @Override
     public Object getLastPageIdentifier()
     {
         return firstWizardPage.getIdentifier();
@@ -287,6 +299,7 @@ public class SSHAccountRegistrationWizard
      * @return an example string, which should indicate to the user how the
      * user name should look like.
      */
+    @Override
     public String getUserNameExample()
     {
         return null;
@@ -301,6 +314,7 @@ public class SSHAccountRegistrationWizard
      * @return <code>true</code> if the simple "Sign in" form is enabled or
      * <code>false</code> otherwise.
      */
+    @Override
     public boolean isSimpleFormEnabled()
     {
         return false;
@@ -311,10 +325,11 @@ public class SSHAccountRegistrationWizard
      * shown to the user. Only if the user needs more settings she'll choose
      * to open the advanced wizard, consisted by all pages.
      *
-     * @param isCreateAccount indicates if the simple form should be opened as 
+     * @param isCreateAccount indicates if the simple form should be opened as
      * a create account form or as a login form
      * @return a simple account registration form
      */
+    @Override
     public Object getSimpleForm(boolean isCreateAccount)
     {
         firstWizardPage = new FirstWizardPage(registration, getWizardContainer());

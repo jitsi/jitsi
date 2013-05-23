@@ -19,7 +19,7 @@ import org.w3c.dom.*;
 
 /**
  * A simple, straightforward implementation of a SIP Contact.
- * 
+ *
  * @author Emil Ivov
  * @author Benoit Pradelle
  * @author Lubomir Marinov
@@ -188,7 +188,7 @@ public class ContactSipImpl
             return this.entry.getDisplayName().getValue();
         }
 
-        // If we didn't find a display name we return the user name. 
+        // If we didn't find a display name we return the user name.
         SipURI sipURI = (SipURI) sipAddress.getURI();
         String sipUserName = sipURI.getUser();
 
@@ -355,6 +355,7 @@ public class ContactSipImpl
      *
      * @return  a string representation of this contact.
      */
+    @Override
     public String toString()
     {
         StringBuffer buff
@@ -513,6 +514,7 @@ public class ContactSipImpl
      * @return  <code>true</code> if this contact has the same id as that of the
      * <code>obj</code> argument.
      */
+    @Override
     public boolean equals(Object obj)
     {
         if (obj == null
@@ -594,6 +596,7 @@ public class ContactSipImpl
      * @return <tt>false</tt> to indicate that this contact doesn't support
      * resources
      */
+    @Override
     public boolean supportResources()
     {
         return false;
@@ -603,8 +606,9 @@ public class ContactSipImpl
      * Returns a collection of resources supported by this contact or null
      * if it doesn't support resources.
      *
-     * @return null, as this contact doesn't support resources 
+     * @return null, as this contact doesn't support resources
      */
+    @Override
     public Collection<ContactResource> getResources()
     {
         return null;

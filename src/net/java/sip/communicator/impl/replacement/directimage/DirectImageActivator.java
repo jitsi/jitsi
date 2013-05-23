@@ -39,7 +39,7 @@ public class DirectImageActivator
 
     /**
      * Starts the Direct image links replacement source bundle
-     * 
+     *
      * @param context the <tt>BundleContext</tt> as provided from the OSGi
      *            framework
      * @throws Exception if anything goes wrong

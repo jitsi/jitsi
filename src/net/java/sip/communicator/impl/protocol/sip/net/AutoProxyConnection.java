@@ -24,7 +24,7 @@ import net.java.sip.communicator.util.*;
 /**
  * Implementation of the autodetect proxy connection. Tries to resolve a SIP-
  * server by querying DNS in this order: NAPTR-SRV-A; SRV-A; A.
- * 
+ *
  * @author Ingo Bauersachs
  */
 public class AutoProxyConnection
@@ -110,7 +110,7 @@ public class AutoProxyConnection
 
     /**
      * Creates a new instance of this class. Uses the server from the account.
-     * 
+     *
      * @param account the account of this SIP protocol instance
      * @param defaultTransport the default transport to use when DNS does not
      *            provide a protocol through NAPTR or SRV
@@ -125,7 +125,7 @@ public class AutoProxyConnection
     /**
      * Creates a new instance of this class. Uses the supplied address instead
      * of the server address from the account.
-     * 
+     *
      * @param account the account of this SIP protocol instance
      * @param address the domain on which to perform autodetection
      * @param defaultTransport the default transport to use when DNS does not
@@ -151,10 +151,11 @@ public class AutoProxyConnection
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see net.java.sip.communicator.impl.protocol.sip.net.ProxyConnection#
      * getNextAddressFromDns()
      */
+    @Override
     protected boolean getNextAddressFromDns()
         throws DnssecException
     {
@@ -172,7 +173,7 @@ public class AutoProxyConnection
 
     /**
      * Gets the next address from DNS.
-     * 
+     *
      * @throws DnssecException When a DNSSEC failure occured during the lookup.
      * @throws ParseException When a domain name (possibly returned from DNS
      *             itself) is invalid.
@@ -360,7 +361,7 @@ public class AutoProxyConnection
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * net.java.sip.communicator.impl.protocol.sip.net.ProxyConnection#reset()
      */

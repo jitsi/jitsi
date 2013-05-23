@@ -13,13 +13,13 @@ public class Sha1Crypto
 {
     /**
      * Encodes the given text with the SHA-1 algorithm.
-     * 
+     *
      * @param text the text to encode
      * @return the encoded text
      * @throws NoSuchAlgorithmException
      * @throws UnsupportedEncodingException
      */
-    public static String encode(String text) 
+    public static String encode(String text)
         throws  NoSuchAlgorithmException,
                 UnsupportedEncodingException
     {
@@ -34,13 +34,13 @@ public class Sha1Crypto
 
     /**
      * Encodes the given text with the SHA-1 algorithm.
-     * 
+     *
      * @param byteArray the byte array to encode
      * @return the encoded text
      * @throws NoSuchAlgorithmException
      * @throws UnsupportedEncodingException
      */
-    public static String encode(byte[] byteArray) 
+    public static String encode(byte[] byteArray)
         throws  NoSuchAlgorithmException,
                 UnsupportedEncodingException
     {
@@ -55,7 +55,7 @@ public class Sha1Crypto
 
     /**
      * Converts the given byte data into Hex string.
-     * 
+     *
      * @param data the byte array to convert
      * @return the Hex string representation of the given byte array
      */

@@ -18,10 +18,10 @@ public interface HistoryWriter {
 
     /**
      * Stores the passed record complying with the historyRecordStructure.
-     * 
+     *
      * @param record
      *            The record to be added.
-     * 
+     *
      * @throws IOException
      */
     void addRecord(HistoryRecord record) throws IOException;
@@ -29,10 +29,10 @@ public interface HistoryWriter {
     /**
      * Stores the passed propertyValues complying with the
      * historyRecordStructure.
-     * 
+     *
      * @param propertyValues
      *            The values of the record.
-     * 
+     *
      * @throws IOException
      */
     void addRecord(String[] propertyValues) throws IOException;
@@ -40,12 +40,12 @@ public interface HistoryWriter {
     /**
      * Stores the passed propertyValues complying with the
      * historyRecordStructure.
-     * 
+     *
      * @param propertyValues
      *            The values of the record.
      * @param timestamp
      *            The timestamp of the record.
-     * 
+     *
      * @throws IOException
      */
     void addRecord(String[] propertyValues, Date timestamp) throws IOException;

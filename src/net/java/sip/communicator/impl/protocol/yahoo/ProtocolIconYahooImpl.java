@@ -18,13 +18,13 @@ import org.osgi.framework.*;
 /**
  * Represents the Yahoo protocol icon. Implements the <tt>ProtocolIcon</tt>
  * interface in order to provide an Yahoo icon image in two different sizes.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class ProtocolIconYahooImpl
     implements ProtocolIcon
 {
-    private static Logger logger = Logger.getLogger(ProtocolIconYahooImpl.class); 
+    private static Logger logger = Logger.getLogger(ProtocolIconYahooImpl.class);
 
     private static ResourceManagementService resourcesService;
 
@@ -85,7 +85,7 @@ public class ProtocolIconYahooImpl
     {
         return iconsTable.containsKey(iconSize);
     }
-    
+
     /**
      * Returns the icon image in the given size.
      * @param iconSize the icon size; one of ICON_SIZE_XXX constants
@@ -113,29 +113,29 @@ public class ProtocolIconYahooImpl
     {
         return getImageInBytes("yahooConnectingIcon");
     }
-    
+
     /**
      * Returns the byte representation of the image corresponding to the given
      * identifier.
-     * 
+     *
      * @param imageID the identifier of the image
      * @return the byte representation of the image corresponding to the given
      * identifier.
      */
-    public static byte[] getImageInBytes(String imageID) 
+    public static byte[] getImageInBytes(String imageID)
     {
         InputStream in = getResources().getImageInputStream(imageID);
 
         if (in == null)
             return null;
         byte[] image = null;
-        try 
+        try
         {
             image = new byte[in.available()];
 
             in.read(image);
         }
-        catch (IOException e) 
+        catch (IOException e)
         {
             logger.error("Failed to load image:" + imageID, e);
         }
@@ -153,7 +153,7 @@ public class ProtocolIconYahooImpl
             if(serviceReference == null)
                 return null;
 
-            resourcesService = (ResourceManagementService) 
+            resourcesService = (ResourceManagementService)
                 YahooActivator.getBundleContext().getService(serviceReference);
         }
 

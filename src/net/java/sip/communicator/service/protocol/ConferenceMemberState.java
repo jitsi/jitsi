@@ -9,7 +9,7 @@ package net.java.sip.communicator.service.protocol;
 /**
  * Represents the state of the device and signaling session of
  * <code>ConferenceMember</code> in the conference it is participating in.
- * 
+ *
  * @author Lubomir Marinov
  * @author Yana Stamcheva
  */

@@ -394,6 +394,7 @@ public class WhiteboardParticipantJabberImpl
      *
      * @return a string representation of the participant and its state.
      */
+    @Override
     public String toString()
     {
         return getDisplayName();

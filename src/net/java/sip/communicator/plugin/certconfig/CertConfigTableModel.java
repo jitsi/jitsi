@@ -75,6 +75,7 @@ public class CertConfigTableModel
         return model.get(rowIndex);
     }
 
+    @Override
     public String getColumnName(int column)
     {
         switch(column)

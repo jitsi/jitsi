@@ -16,7 +16,7 @@ import net.java.sip.communicator.service.protocol.event.*;
 /**
  * The conference implementation of the <tt>ChatTransport</tt> interface that
  * provides abstraction to access to protocol providers.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class ConferenceChatTransport
@@ -29,7 +29,7 @@ public class ConferenceChatTransport
     /**
      * Creates an instance of <tt>ConferenceChatTransport</tt> by specifying the
      * parent chat session and the chat room associated with this transport.
-     * 
+     *
      * @param chatSession the parent chat session.
      * @param chatRoom the chat room associated with this conference transport.
      */
@@ -42,7 +42,7 @@ public class ConferenceChatTransport
 
     /**
      * Returns the contact address corresponding to this chat transport.
-     * 
+     *
      * @return The contact address corresponding to this chat transport.
      */
     public String getName()
@@ -52,7 +52,7 @@ public class ConferenceChatTransport
 
     /**
      * Returns the display name corresponding to this chat transport.
-     * 
+     *
      * @return The display name corresponding to this chat transport.
      */
     public String getDisplayName()
@@ -63,7 +63,7 @@ public class ConferenceChatTransport
     /**
      * Returns the resource name of this chat transport. This is for example the
      * name of the user agent from which the contact is logged.
-     * 
+     *
      * @return The display name of this chat transport resource.
      */
     public String getResourceName()
@@ -84,7 +84,7 @@ public class ConferenceChatTransport
 
     /**
      * Returns the presence status of this transport.
-     * 
+     *
      * @return the presence status of this transport.
      */
     public PresenceStatus getStatus()
@@ -95,7 +95,7 @@ public class ConferenceChatTransport
     /**
      * Returns the <tt>ProtocolProviderService</tt>, corresponding to this chat
      * transport.
-     * 
+     *
      * @return the <tt>ProtocolProviderService</tt>, corresponding to this chat
      * transport.
      */
@@ -107,7 +107,7 @@ public class ConferenceChatTransport
     /**
      * Returns <code>true</code> if this chat transport supports instant
      * messaging, otherwise returns <code>false</code>.
-     * 
+     *
      * @return <code>true</code> if this chat transport supports instant
      * messaging, otherwise returns <code>false</code>.
      */
@@ -119,7 +119,7 @@ public class ConferenceChatTransport
     /**
      * Returns <code>true</code> if this chat transport supports sms
      * messaging, otherwise returns <code>false</code>.
-     * 
+     *
      * @return <code>true</code> if this chat transport supports sms
      * messaging, otherwise returns <code>false</code>.
      */
@@ -131,7 +131,7 @@ public class ConferenceChatTransport
     /**
      * Returns <code>true</code> if this chat transport supports typing
      * notifications, otherwise returns <code>false</code>.
-     * 
+     *
      * @return <code>true</code> if this chat transport supports typing
      * notifications, otherwise returns <code>false</code>.
      */
@@ -149,7 +149,7 @@ public class ConferenceChatTransport
     /**
      * Sends the given instant message trough this chat transport, by specifying
      * the mime type (html or plain text).
-     * 
+     *
      * @param messageText The message to send.
      * @param mimeType The mime type of the message to send: text/html or
      * text/plain.
@@ -212,7 +212,7 @@ public class ConferenceChatTransport
      */
     public FileTransfer sendFile(File file)
         throws Exception
-    { 
+    {
         return null;
     }
 
@@ -227,7 +227,7 @@ public class ConferenceChatTransport
 
     /**
      * Invites the given contact in this chat conference.
-     * 
+     *
      * @param contactAddress the address of the contact to invite
      * @param reason the reason for the invitation
      */
@@ -240,7 +240,7 @@ public class ConferenceChatTransport
     /**
      * Returns the parent session of this chat transport. A <tt>ChatSession</tt>
      * could contain more than one transports.
-     * 
+     *
      * @return the parent session of this chat transport
      */
     public ChatSession getParentChatSession()
@@ -250,7 +250,7 @@ public class ConferenceChatTransport
 
     /**
      * Adds an sms message listener to this chat transport.
-     * 
+     *
      * @param l The message listener to add.
      */
     public void addSmsMessageListener(MessageListener l)
@@ -270,7 +270,7 @@ public class ConferenceChatTransport
 
     /**
      * Adds an instant message listener to this chat transport.
-     * 
+     *
      * @param l The message listener to add.
      */
     public void addInstantMessageListener(MessageListener l)
@@ -290,7 +290,7 @@ public class ConferenceChatTransport
 
     /**
      * Removes the given sms message listener from this chat transport.
-     * 
+     *
      * @param l The message listener to remove.
      */
     public void removeSmsMessageListener(MessageListener l)
@@ -310,7 +310,7 @@ public class ConferenceChatTransport
 
     /**
      * Removes the instant message listener from this chat transport.
-     * 
+     *
      * @param l The message listener to remove.
      */
     public void removeInstantMessageListener(MessageListener l)
@@ -333,7 +333,7 @@ public class ConferenceChatTransport
 
     /**
      * Returns the descriptor of this chat transport.
-     * 
+     *
      * @return the descriptor of this chat transport
      */
     public Object getDescriptor()
@@ -345,7 +345,7 @@ public class ConferenceChatTransport
      * Sends <tt>message</tt> as a message correction through this transport,
      * specifying the mime type (html or plain text) and the id of the
      * message to replace.
-     * 
+     *
      * @param message The message to send.
      * @param mimeType The mime type of the message to send: text/html or
      * text/plain.
@@ -359,7 +359,7 @@ public class ConferenceChatTransport
     /**
      * Returns <code>true</code> if this chat transport supports message
      * corrections and false otherwise.
-     * 
+     *
      * @return <code>true</code> if this chat transport supports message
      * corrections and false otherwise.
      */

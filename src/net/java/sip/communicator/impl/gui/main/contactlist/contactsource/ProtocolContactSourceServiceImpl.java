@@ -15,7 +15,7 @@ import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
- * The <tt>ProtocolContactSourceServiceImpl</tt> 
+ * The <tt>ProtocolContactSourceServiceImpl</tt>
  *
  * @author Yana Stamcheva
  */
@@ -73,7 +73,7 @@ public class ProtocolContactSourceServiceImpl
 
     /**
      * Returns a user-friendly string that identifies this contact source.
-     * 
+     *
      * @return the display name of this contact source
      */
     public String getDisplayName()
@@ -179,6 +179,7 @@ public class ProtocolContactSourceServiceImpl
             return false;
         }
 
+        @Override
         public void run()
         {
             Iterator<MetaContact> contactListIter

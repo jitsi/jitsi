@@ -198,9 +198,9 @@ public interface MessageHistoryService
     * @param listener HistorySearchProgressListener
     */
    public void removeSearchProgressListener(MessageHistorySearchProgressListener listener);
-   
+
    /**
-     * Returns all the messages exchanged in the supplied 
+     * Returns all the messages exchanged in the supplied
      * chat room after the given date
      *
      * @param room The chat room
@@ -212,7 +212,7 @@ public interface MessageHistoryService
         throws RuntimeException;
 
     /**
-     * Returns all the messages exchanged 
+     * Returns all the messages exchanged
      * in the supplied chat room before the given date
      *
      * @param room The chat room
@@ -224,7 +224,7 @@ public interface MessageHistoryService
         throws RuntimeException;
 
     /**
-     * Returns all the messages exchanged 
+     * Returns all the messages exchanged
      * in the supplied chat room between the given dates
      *
      * @param room The chat room
@@ -237,7 +237,7 @@ public interface MessageHistoryService
         throws RuntimeException;
 
     /**
-     * Returns all the messages exchanged 
+     * Returns all the messages exchanged
      * in the supplied chat room between the given dates and having the given
      * keywords
      *
@@ -248,12 +248,12 @@ public interface MessageHistoryService
      * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
      * @throws RuntimeException
      */
-    public Collection<EventObject> findByPeriod(ChatRoom room, 
+    public Collection<EventObject> findByPeriod(ChatRoom room,
             Date startDate, Date endDate, String[] keywords)
         throws RuntimeException;
 
     /**
-     * Returns all the messages exchanged 
+     * Returns all the messages exchanged
      * in the supplied chat room between the given dates and having the given
      * keywords
      *
@@ -270,7 +270,7 @@ public interface MessageHistoryService
         throws RuntimeException;
 
     /**
-     * Returns all the messages exchanged 
+     * Returns all the messages exchanged
      * in the supplied room having the given keyword
      *
      * @param room The Chat room
@@ -282,7 +282,7 @@ public interface MessageHistoryService
         throws RuntimeException;
 
     /**
-     * Returns all the messages exchanged 
+     * Returns all the messages exchanged
      * in the supplied chat room having the given keyword
      *
      * @param room The chat room
@@ -291,12 +291,12 @@ public interface MessageHistoryService
      * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
      * @throws RuntimeException
      */
-    Collection<EventObject> findByKeyword(ChatRoom room, String keyword, 
+    Collection<EventObject> findByKeyword(ChatRoom room, String keyword,
             boolean caseSensitive)
         throws RuntimeException;
 
     /**
-     * Returns all the messages exchanged 
+     * Returns all the messages exchanged
      * in the supplied chat room having the given keywords
      *
      * @param room The chat room
@@ -308,7 +308,7 @@ public interface MessageHistoryService
         throws RuntimeException;
 
     /**
-     * Returns all the messages exchanged 
+     * Returns all the messages exchanged
      * in the supplied chat room having the given keywords
      *
      * @param room The chat room
@@ -317,12 +317,12 @@ public interface MessageHistoryService
      * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
      * @throws RuntimeException
      */
-    public Collection<EventObject> findByKeywords(ChatRoom room, String[] keywords, 
+    public Collection<EventObject> findByKeywords(ChatRoom room, String[] keywords,
             boolean caseSensitive)
         throws RuntimeException;
 
     /**
-     * Returns the supplied number of recent messages exchanged 
+     * Returns the supplied number of recent messages exchanged
      * in the supplied chat room
      *
      * @param room The chat room

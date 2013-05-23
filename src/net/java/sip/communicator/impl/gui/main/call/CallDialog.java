@@ -34,7 +34,7 @@ public class CallDialog
      * Finds a <tt>Container</tt> which is an ancestor of a specific
      * <tt>Component</tt>, has a set <tt>preferredSize</tt> and is closest to
      * the specified <tt>Component</tt> up the ancestor hierarchy.
-     * 
+     *
      * @param component the <tt>Component</tt> whose ancestor hierarchy is to be
      * searched upwards
      * @return a <tt>Container</tt>, if any, which is an ancestor of the
@@ -201,6 +201,7 @@ public class CallDialog
      * <tt>CallDialog</tt> prepares the <tt>CallPanel</tt> it contains for
      * garbage collection.
      */
+    @Override
     public void dispose()
     {
         super.dispose();
@@ -454,6 +455,7 @@ public class CallDialog
      * needed.
      * @return minimum size.
      */
+    @Override
     public Dimension getMinimumSize()
     {
         Dimension minSize = super.getMinimumSize();

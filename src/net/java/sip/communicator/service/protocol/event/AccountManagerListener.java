@@ -12,7 +12,7 @@ import net.java.sip.communicator.service.protocol.*;
 
 /**
  * Represents a listener receiving notifications from {@link AccountManager}.
- * 
+ *
  * @author Lubomir Marinov
  */
 public interface AccountManagerListener
@@ -22,7 +22,7 @@ public interface AccountManagerListener
     /**
      * Notifies this listener about an event fired by a specific
      * <code>AccountManager</code>.
-     * 
+     *
      * @param event the <code>AccountManagerEvent</code> describing the
      *            <code>AccountManager</code> firing the notification and the
      *            other details of the specific notification.

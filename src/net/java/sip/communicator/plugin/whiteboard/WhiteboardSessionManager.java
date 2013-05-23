@@ -83,6 +83,7 @@ public class WhiteboardSessionManager
 
         new Thread ()
         {
+            @Override
             public void run()
             {
                 try

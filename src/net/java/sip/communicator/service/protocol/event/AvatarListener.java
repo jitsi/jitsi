@@ -14,9 +14,9 @@ import java.util.*;
  * object created with that class is registered with the avatar operation set,
  * using its <code>addAvatarListener</code> method. When a avatar event occurs,
  * that object's <code>avatarChanged</code> method is invoked.
- * 
+ *
  * @see AvatarEvent
- * 
+ *
  * @author Damien Roth
  */
 public interface AvatarListener
@@ -25,7 +25,7 @@ public interface AvatarListener
     /**
      * Called whenever a new avatar is defined for one of the protocols that we
      * have subscribed for.
-     * 
+     *
      * @param event the event containing the new image
      */
     public void avatarChanged(AvatarEvent event);

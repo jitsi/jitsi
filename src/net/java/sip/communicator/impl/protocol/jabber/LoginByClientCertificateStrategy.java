@@ -31,7 +31,7 @@ class LoginByClientCertificateStrategy
 
     /**
      * Creates a new instance of this class.
-     * 
+     *
      * @param accountID The account to use for the strategy.
      */
     public LoginByClientCertificateStrategy(AccountID accountID)
@@ -41,7 +41,7 @@ class LoginByClientCertificateStrategy
 
     /**
      * Does nothing.
-     * 
+     *
      * @param authority unused
      * @param reasonCode unused
      * @return always <tt>null</tt>
@@ -55,7 +55,7 @@ class LoginByClientCertificateStrategy
 
     /**
      * Does nothing.
-     * 
+     *
      * @return always <tt>true</tt>
      */
     public boolean loginPreparationSuccessful()
@@ -66,7 +66,7 @@ class LoginByClientCertificateStrategy
     /**
      * Always true as the authentication occurs with the TLS client
      * certificate.
-     * 
+     *
      * @return always <tt>true</tt>
      */
     public boolean isTlsRequired()
@@ -78,7 +78,7 @@ class LoginByClientCertificateStrategy
      * Creates the SSLContext for the XMPP connection configured with a
      * customized TrustManager and a KeyManager based on the selected client
      * certificate.
-     * 
+     *
      * @param certificateService  certificate service to retrieve the
      *                            SSL context
      * @param trustManager Trust manager to use for the context
@@ -97,7 +97,7 @@ class LoginByClientCertificateStrategy
     /**
      * Performs the login on the XMPP connection using the SASL EXTERNAL
      * mechanism.
-     * 
+     *
      * @param connection The connection on which the login is performed.
      * @param userName The username for the login.
      * @param resource The XMPP resource.

@@ -51,6 +51,7 @@ public class IptelAccountRegistrationWizard
      * Returns the set of pages contained in this wizard.
      * @return Iterator
      */
+    @Override
     public Iterator<WizardPage> getPages()
     {
         SIPAccountRegistration reg = new SIPAccountRegistration();
@@ -65,10 +66,11 @@ public class IptelAccountRegistrationWizard
      * shown to the user. Only if the user needs more settings she'll choose
      * to open the advanced wizard, consisted by all pages.
      *
-     * @param isCreateAccount indicates if the simple form should be opened as 
+     * @param isCreateAccount indicates if the simple form should be opened as
      * a create account form or as a login form
      * @return a simple account registration form
      */
+    @Override
     public Object getSimpleForm(boolean isCreateAccount)
     {
         SIPAccountRegistration reg = new SIPAccountRegistration();
@@ -94,6 +96,7 @@ public class IptelAccountRegistrationWizard
      * Returns the icon to be used for this wizard.
      * @return byte[]
      */
+    @Override
     public byte[] getIcon()
     {
         return IptelAccRegWizzActivator.getResources()
@@ -106,6 +109,7 @@ public class IptelAccountRegistrationWizard
      *
      * @return byte[] the image used to decorate the wizard page
      */
+    @Override
     public byte[] getPageImage()
     {
         return IptelAccRegWizzActivator.getResources()
@@ -118,6 +122,7 @@ public class IptelAccountRegistrationWizard
      * method. Returns the protocol name for this wizard.
      * @return String
      */
+    @Override
     public String getProtocolName()
     {
         return Resources.getString(
@@ -129,6 +134,7 @@ public class IptelAccountRegistrationWizard
      * </code> method. Returns the description of the protocol for this wizard.
      * @return String
      */
+    @Override
     public String getProtocolDescription()
     {
         return Resources.getString(
@@ -141,6 +147,7 @@ public class IptelAccountRegistrationWizard
      * @return an example string, which should indicate to the user how the
      * user name should look like.
      */
+    @Override
     public String getUserNameExample()
     {
         return "Ex: myusername or myusername@iptel.org";
@@ -151,6 +158,7 @@ public class IptelAccountRegistrationWizard
      * of the service.
      * @return the protocol name
      */
+    @Override
     public String getProtocol()
     {
         return PROTOCOL;
@@ -160,6 +168,7 @@ public class IptelAccountRegistrationWizard
      * Returns the protocol icon path.
      * @return the protocol icon path
      */
+    @Override
     public String getProtocolIconPath()
     {
         return "resources/images/protocol/iptel";
@@ -169,6 +178,7 @@ public class IptelAccountRegistrationWizard
      * Returns the account icon path.
      * @return the account icon path
      */
+    @Override
     public String getAccountIconPath()
     {
         return "resources/images/protocol/iptel/sip32x32.png";
@@ -177,6 +187,7 @@ public class IptelAccountRegistrationWizard
     /**
      * Opens the browser on the page sign up
      */
+    @Override
     public void webSignup()
     {
         IptelAccRegWizzActivator.getBrowserLauncher()
@@ -187,6 +198,7 @@ public class IptelAccountRegistrationWizard
      * Returns the name of the web sign up link.
      * @return the name of the web sign up link
      */
+    @Override
     public String getWebSignupLinkName()
     {
         return IptelAccRegWizzActivator.getResources().getI18NString(

@@ -146,6 +146,7 @@ public class CallGibberishImpl
      * @return <tt>true</tt> if the local peer represented by this <tt>Call</tt>
      * is acting as a conference focus; otherwise, <tt>false</tt>
      */
+    @Override
     public boolean isConferenceFocus()
     {
         return true;
@@ -158,6 +159,7 @@ public class CallGibberishImpl
      *
      * @param l the <tt>SoundLevelListener</tt> to add
      */
+    @Override
     public void addLocalUserSoundLevelListener(SoundLevelListener l)
     {
     }
@@ -169,6 +171,7 @@ public class CallGibberishImpl
      *
      * @param l the <tt>SoundLevelListener</tt> to remove
      */
+    @Override
     public void removeLocalUserSoundLevelListener(SoundLevelListener l)
     {
     }

@@ -86,6 +86,7 @@ public class MetaContactChatSession
      *
      * @return the name of this chat
      */
+    @Override
     public String getChatName()
     {
         String displayName = metaContact.getDisplayName();
@@ -102,6 +103,7 @@ public class MetaContactChatSession
      * @param count The number of messages from history to return.
      * @return a collection of the last N number of messages given by count.
      */
+    @Override
     public Collection<Object> getHistory(int count)
     {
         final MetaHistoryService metaHistory
@@ -126,6 +128,7 @@ public class MetaContactChatSession
      * @param count The number of messages from history to return.
      * @return a collection of the last N number of messages given by count.
      */
+    @Override
     public Collection<Object> getHistoryBeforeDate(Date date, int count)
     {
         final MetaHistoryService metaHistory
@@ -149,6 +152,7 @@ public class MetaContactChatSession
      * @param count The number of messages from history to return.
      * @return a collection of the last N number of messages given by count.
      */
+    @Override
     public Collection<Object> getHistoryAfterDate(Date date, int count)
     {
         final MetaHistoryService metaHistory
@@ -170,6 +174,7 @@ public class MetaContactChatSession
      *
      * @return the start date of the history of this chat session.
      */
+    @Override
     public Date getHistoryStartDate()
     {
         Date startHistoryDate = new Date(0);
@@ -222,6 +227,7 @@ public class MetaContactChatSession
      *
      * @return the end date of the history of this chat session.
      */
+    @Override
     public Date getHistoryEndDate()
     {
         Date endHistoryDate = new Date(0);
@@ -274,6 +280,7 @@ public class MetaContactChatSession
      *
      * @return the default mobile number used to send sms-es in this session.
      */
+    @Override
     public String getDefaultSmsNumber()
     {
         String smsNumber = null;
@@ -294,6 +301,7 @@ public class MetaContactChatSession
      * @param smsPhoneNumber The default mobile number used to send sms-es in
      * this session.
      */
+    @Override
     public void setDefaultSmsNumber(String smsPhoneNumber)
     {
         metaContact.addDetail("mobile", smsPhoneNumber);
@@ -334,6 +342,7 @@ public class MetaContactChatSession
      * @return the currently used transport for all operation within this chat
      * session.
      */
+    @Override
     public ChatTransport getCurrentChatTransport()
     {
         return currentChatTransport;
@@ -346,6 +355,7 @@ public class MetaContactChatSession
      * @param chatTransport The transport to set as a default transport for this
      * session.
      */
+    @Override
     public void setCurrentChatTransport(ChatTransport chatTransport)
     {
         this.currentChatTransport = chatTransport;
@@ -492,6 +502,7 @@ public class MetaContactChatSession
     /**
      * Disposes this chat session.
      */
+    @Override
     public void dispose()
     {
         if (metaContactListService != null)
@@ -512,6 +523,7 @@ public class MetaContactChatSession
      *
      * @return The <tt>ChatSessionRenderer</tt>.
      */
+    @Override
     public ChatSessionRenderer getChatSessionRenderer()
     {
         return sessionRenderer;
@@ -522,6 +534,7 @@ public class MetaContactChatSession
      *
      * @return the descriptor of this chat session.
      */
+    @Override
     public Object getDescriptor()
     {
         return metaContact;
@@ -533,6 +546,7 @@ public class MetaContactChatSession
      * @return <code>true</code> if this contact is persistent, otherwise
      * returns <code>false</code>.
      */
+    @Override
     public boolean isDescriptorPersistent()
     {
         if(metaContact == null)
@@ -572,6 +586,7 @@ public class MetaContactChatSession
      *
      * @return the status icon corresponding to this chat room
      */
+    @Override
     public ImageIcon getChatStatusIcon()
     {
         PresenceStatus status
@@ -585,6 +600,7 @@ public class MetaContactChatSession
      *
      * @return the avatar icon of this chat session.
      */
+    @Override
     public byte[] getChatAvatar()
     {
         return metaContact.getAvatar();
@@ -596,11 +612,13 @@ public class MetaContactChatSession
     /**
      *  Implements ChatSession#isContactListSupported().
      */
+    @Override
     public boolean isContactListSupported()
     {
         return false;
     }
 
+    @Override
     public void addChatTransportChangeListener(ChatSessionChangeListener l)
     {
         synchronized (chatTransportChangeListeners)
@@ -610,6 +628,7 @@ public class MetaContactChatSession
         }
     }
 
+    @Override
     public void removeChatTransportChangeListener(ChatSessionChangeListener l)
     {
         synchronized (chatTransportChangeListeners)

@@ -37,6 +37,7 @@ public class TestOperationSetTypingNotifications
             super(name);
     }
 
+    @Override
     protected void setUp() throws Exception
     {
         super.setUp();
@@ -79,6 +80,7 @@ public class TestOperationSetTypingNotifications
 
     }
 
+    @Override
     protected void tearDown() throws Exception
     {
         super.tearDown();
@@ -120,7 +122,7 @@ public class TestOperationSetTypingNotifications
 
         opSetTypingNotifs.addTypingNotificationsListener(evtCollector);
 
-        fixture.testerAgent.sendTypingNotification(
+        IcqSlickFixture.testerAgent.sendTypingNotification(
             fixture.ourUserID, TypingState.TYPING);
 
         evtCollector.waitForEvent(10000);
@@ -135,7 +137,7 @@ public class TestOperationSetTypingNotifications
                                                     .collectedEvents.get(0);
 
         assertEquals("Source of the typing notification event"
-                     , fixture.testerAgent.getIcqUIN()
+                     , IcqSlickFixture.testerAgent.getIcqUIN()
                      , evt.getSourceContact().getAddress() );
 
         assertEquals("Source of the typing notification event"
@@ -155,15 +157,15 @@ public class TestOperationSetTypingNotifications
             = new JoustSimTypingEventCollector();
 
         Contact contactToNotify = opSetPresence.findContactByID(
-                                            fixture.testerAgent.getIcqUIN());
+                                            IcqSlickFixture.testerAgent.getIcqUIN());
 
-        fixture.testerAgent.addTypingStateInfoListenerForBuddy(
+        IcqSlickFixture.testerAgent.addTypingStateInfoListenerForBuddy(
             contactToNotify.getAddress(), evtCollector);
 
         opSetTypingNotifs.sendTypingNotification(
             contactToNotify, OperationSetTypingNotifications.STATE_TYPING);
 
-        fixture.testerAgent.removeTypingStateInfoListenerForBuddy(
+        IcqSlickFixture.testerAgent.removeTypingStateInfoListenerForBuddy(
             contactToNotify.getAddress(), evtCollector);
     }
 

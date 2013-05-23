@@ -138,7 +138,7 @@ public class ProtocolProviderServiceMsnImpl
     /**
      * Connects and logins to the server
      * @param authority SecurityAuthority
-     * @param reasonCode 
+     * @param reasonCode
      * @throws  OperationFailedException if login parameters
      *          as server port are not correct
      */
@@ -251,7 +251,7 @@ public class ProtocolProviderServiceMsnImpl
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see net.java.sip.communicator.service.protocol.ProtocolProviderService#
      * isSignallingTransportSecure()
      */
@@ -431,6 +431,7 @@ public class ProtocolProviderServiceMsnImpl
      * @param reason a String further explaining the reason code or null if
      * no such explanation is necessary.
      */
+    @Override
     public void fireRegistrationStateChanged(RegistrationState oldState,
                                              RegistrationState newState,
                                              int reasonCode,

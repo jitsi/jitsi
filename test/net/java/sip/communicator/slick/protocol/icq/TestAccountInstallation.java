@@ -44,6 +44,7 @@ public class TestAccountInstallation extends TestCase
      * JUnit setup method.
      * @throws Exception in case anything goes wrong.
      */
+    @Override
     protected void setUp() throws Exception
     {
         super.setUp();
@@ -53,6 +54,7 @@ public class TestAccountInstallation extends TestCase
      * JUnit teardown method.
      * @throws Exception in case anything goes wrong.
      */
+    @Override
     protected void tearDown() throws Exception
     {
         super.tearDown();
@@ -539,7 +541,7 @@ public class TestAccountInstallation extends TestCase
          * <p>
          * @param realm The realm that the credentials are needed for.
          * @param defaultValues the values to propose the user by default
-         * 
+         *
          * @return The credentials associated with the specified realm or null if
          * none could be obtained.
          */
@@ -553,18 +555,18 @@ public class TestAccountInstallation extends TestCase
         /**
          * Sets the userNameEditable property, which should indicate if the
          * user name could be changed by user or not.
-         * 
+         *
          * @param isUserNameEditable indicates if the user name could be changed
          */
         public void setUserNameEditable(boolean isUserNameEditable)
         {
             this.isUserNameEditable = isUserNameEditable;
         }
-        
+
         /**
          * Indicates if the user name is currently editable, i.e. could be changed
          * by user or not.
-         * 
+         *
          * @return <code>true</code> if the user name could be changed,
          * <code>false</code> - otherwise.
          */

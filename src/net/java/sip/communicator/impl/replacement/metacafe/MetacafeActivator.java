@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.impl.replacement.metacafe;
@@ -14,7 +14,7 @@ import org.osgi.framework.*;
 
 /**
  * Activator for the Metacafe source bundle.
- * 
+ *
  * @author Purvesh Sahoo
  */
 public class MetacafeActivator

@@ -92,7 +92,7 @@ public class SipActivator
         if (logger.isDebugEnabled())
             logger.debug("SIP Protocol Provider Factory ... [REGISTERED]");
     }
-    
+
     /**
      * Creates the ProtocolProviderFactory for this protocol.
      * @return The created factory.
@@ -305,7 +305,7 @@ public class SipActivator
         }
         return packetLoggingService;
     }
-    
+
     /**
      * Return the file access service impl.
      * @return the FileAccess Service.

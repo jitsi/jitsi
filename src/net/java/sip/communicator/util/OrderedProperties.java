@@ -58,6 +58,7 @@ public class OrderedProperties
      * @param key key
      * @return previous value pointed by key if any, null otherwise
      */
+    @Override
     public Object remove(Object key)
     {
         return linkedMap.remove(key);
@@ -110,6 +111,7 @@ public class OrderedProperties
      *
      * @return number of elements
      */
+    @Override
     public int size()
     {
         return linkedMap.size();

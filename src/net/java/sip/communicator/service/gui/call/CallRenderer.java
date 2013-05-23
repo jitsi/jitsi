@@ -21,7 +21,7 @@ public interface CallRenderer
      * disposal (e.g. any listeners added to the depicted
      * <tt>CallConference</tt>, the participating <tt>Call</tt>s, and their
      * associated <tt>CallPeer</tt>s). Invoked by <tt>CallPanel</tt> when it
-     * determines that this <tt>CallRenderer</tt> is no longer necessary. 
+     * determines that this <tt>CallRenderer</tt> is no longer necessary.
      */
     public void dispose();
 

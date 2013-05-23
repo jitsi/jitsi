@@ -352,6 +352,7 @@ public class ConfigurableDnssecResolver
     /**
      * Reloads the configuration of forwarders and trust anchors.
      */
+    @Override
     public void reset()
     {
         String forwarders = DnsUtilActivator.getConfigurationService()

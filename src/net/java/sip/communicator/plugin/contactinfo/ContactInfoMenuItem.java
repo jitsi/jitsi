@@ -16,7 +16,7 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 
 /**
- * 
+ *
  * @author Adam Goldstein
  */
 public class ContactInfoMenuItem
@@ -39,6 +39,7 @@ public class ContactInfoMenuItem
      * Sets the currently selected <tt>MetaContact</tt>.
      * @param metaContact the currently selected meta contact
      */
+    @Override
     public void setCurrentContact(MetaContact metaContact)
     {
         this.metaContact = metaContact;

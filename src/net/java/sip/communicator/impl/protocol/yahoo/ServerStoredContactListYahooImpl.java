@@ -910,6 +910,7 @@ public class ServerStoredContactListYahooImpl
          * group - name of group added to
          * @param ev fired event
          */
+        @Override
         public void friendAddedReceived(SessionFriendEvent ev)
         {
             if (logger.isTraceEnabled())
@@ -1037,6 +1038,7 @@ public class ServerStoredContactListYahooImpl
          * group - name of group removed from
          * @param ev fired event
          */
+        @Override
         public void friendRemovedReceived(SessionFriendEvent ev)
         {
             if (logger.isTraceEnabled())
@@ -1093,6 +1095,7 @@ public class ServerStoredContactListYahooImpl
          * message - the request message text
          * @param ev fired event
          */
+        @Override
         public void contactRequestReceived(SessionEvent ev)
         {
             if (logger.isInfoEnabled())
@@ -1128,6 +1131,7 @@ public class ServerStoredContactListYahooImpl
          * message - rejection message text
          * @param ev fired event
          */
+        @Override
         public void contactRejectionReceived(SessionEvent ev)
         {
             if (logger.isInfoEnabled())
@@ -1148,6 +1152,7 @@ public class ServerStoredContactListYahooImpl
          * Invoked on picture received.
          * @param ev fired event
          */
+        @Override
         public void pictureReceived(SessionPictureEvent ev)
         {
             ContactYahooImpl contact = findContactById(ev.getFrom());
@@ -1166,6 +1171,7 @@ public class ServerStoredContactListYahooImpl
          * Process Authorization responses
          * @param ev the event to process
          */
+        @Override
         public void authorizationReceived(SessionAuthorizationEvent ev)
         {
             if(ev.isAuthorizationAccepted())

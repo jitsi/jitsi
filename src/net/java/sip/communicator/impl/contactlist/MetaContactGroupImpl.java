@@ -182,7 +182,7 @@ public class MetaContactGroupImpl
     {
         return childContacts.size();
     }
-    
+
     /**
      * Returns the number of online <tt>MetaContact</tt>s that this group
      * contains.
@@ -193,7 +193,7 @@ public class MetaContactGroupImpl
     public int countOnlineChildContacts()
     {
         int onlineContactsNumber = 0;
-        try 
+        try
         {
             Iterator<MetaContact> itr = getChildContacts();
             while(itr.hasNext())
@@ -202,14 +202,14 @@ public class MetaContactGroupImpl
 
                 if(contact == null)
                     continue;
-                
+
                 if(contact.getPresenceStatus().isOnline())
                 {
                     onlineContactsNumber++;
                 }
             }
-        } 
-        catch(Exception e) 
+        }
+        catch(Exception e)
         {
             if (logger.isDebugEnabled())
                 logger.debug("Failed to count online contacts.", e);
@@ -886,7 +886,8 @@ public class MetaContactGroupImpl
      * contains (may turn out to be a relatively long string).
      * @return a String representing this group and its child contacts.
      */
-     public String toString()
+     @Override
+    public String toString()
      {
 
         StringBuffer buff = new StringBuffer(getGroupName());

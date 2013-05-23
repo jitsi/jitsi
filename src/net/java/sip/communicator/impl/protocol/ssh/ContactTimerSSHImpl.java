@@ -49,6 +49,7 @@ public class ContactTimerSSHImpl
      *
      * Presently only ONLINE and OFFILINE status are checked
      */
+    @Override
     public void run()
     {
         try

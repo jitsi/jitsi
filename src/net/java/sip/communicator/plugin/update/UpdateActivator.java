@@ -254,6 +254,7 @@ public class UpdateActivator
      *
      * @param context the context to set.
      */
+    @Override
     public void setBundleContext(BundleContext context)
     {
         bundleContext = context;

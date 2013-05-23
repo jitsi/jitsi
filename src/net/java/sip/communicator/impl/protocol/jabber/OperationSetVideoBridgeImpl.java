@@ -62,7 +62,7 @@ public class OperationSetVideoBridgeImpl
      * interested in a specific {@link Packet}.
      * <tt>OperationSetVideoBridgeImpl</tt> returns <tt>true</tt> if the
      * specified <tt>packet</tt> is a {@link ColibriConferenceIQ}; otherwise,
-     * <tt>false</tt>. 
+     * <tt>false</tt>.
      *
      * @param packet the <tt>Packet</tt> to be determined whether this instance
      * is interested in it
@@ -245,7 +245,7 @@ public class OperationSetVideoBridgeImpl
                  * care whether the current Thread has been interrupted - we
                  * caught the InterruptedException because we want to swallow
                  * any Throwable. Consequently, we should better restore the
-                 * interrupted state.  
+                 * interrupted state.
                  */
                 interrupted = true;
             }

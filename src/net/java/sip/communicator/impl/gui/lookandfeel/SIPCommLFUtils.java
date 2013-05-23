@@ -12,7 +12,7 @@ import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 
 /**
- * The <tt>SIPCommLFUtils</tt> is an utility class helping in drawing some 
+ * The <tt>SIPCommLFUtils</tt> is an utility class helping in drawing some
  *
  * @author Yana Stamcheva
  */
@@ -44,7 +44,7 @@ public class SIPCommLFUtils
             g2.dispose();
         }
     }
-   
+
    /**
      * Draws the "Round Disabled Border" which is used throughout the SIPComm
      * L&F.

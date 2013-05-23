@@ -41,7 +41,7 @@ public class NetworkAddressManagerServiceLick
      */
     public void start(BundleContext bundleContext) throws Exception
     {
-        this.bc = bundleContext;
+        NetworkAddressManagerServiceLick.bc = bundleContext;
         setName("NetworkAddressManagerServiceLick");
         Hashtable<String, String> properties = new Hashtable<String, String>();
         properties.put("service.pid", getName());

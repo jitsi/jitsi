@@ -459,7 +459,7 @@ public class OperationSetPersistentPresenceRssImpl
         ((ContactGroupRssImpl)group).setGroupName(newName);
 
         this.fireServerStoredGroupEvent(
-            (ContactGroupRssImpl)group,
+            group,
             ServerStoredGroupEvent.GROUP_RENAMED_EVENT);
     }
 
@@ -627,7 +627,7 @@ public class OperationSetPersistentPresenceRssImpl
 
         parentGroup.removeContact((ContactRssImpl)contact);
 
-        fireSubscriptionEvent((ContactRssImpl)contact,
+        fireSubscriptionEvent(contact,
              ((ContactRssImpl)contact).getParentContactGroup(),
              SubscriptionEvent.SUBSCRIPTION_REMOVED);
     }

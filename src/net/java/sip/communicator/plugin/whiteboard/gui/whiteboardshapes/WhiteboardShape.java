@@ -347,6 +347,7 @@ public abstract class WhiteboardShape implements WhiteboardObject
      * @return <code>true</code> if this object is the same as the obj
      * argument; <code>false</code> otherwise.
      */
+    @Override
     public boolean equals (Object obj)
     {
         if(obj == null

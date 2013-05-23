@@ -25,7 +25,7 @@ import net.java.sip.communicator.service.protocol.whiteboardobjects.*;
 public class WhiteboardShapePolygon
   extends WhiteboardShape implements WhiteboardObjectPolygon
 {
-    
+
     /**
      * list of WhiteboardPoint
      */
@@ -38,12 +38,12 @@ public class WhiteboardShapePolygon
      * The background color of this object
      */
     private Color backgroundColor;
-    
+
     /**
      * WhiteboardShapePolygon constructor.
      *
      * @param id  String that uniquely identifies this WhiteboardObject
-     * @param thickness number of pixels that this object (or its border) 
+     * @param thickness number of pixels that this object (or its border)
      * should be thick
      * @param color WhiteboardShapePolygon's color (or rather it's border)
      * @param points list of WhiteboardPoint
@@ -59,12 +59,12 @@ public class WhiteboardShapePolygon
 
         this.initShape(thickness, color, points, fill);
     }
-    
+
     /**
      * WhiteboardShapePolygon constructor.
      *
      * @param id String that uniquely identifies this WhiteboardObject
-     * @param t number of pixels that this object (or its border) 
+     * @param t number of pixels that this object (or its border)
      * should be thick
      * @param c WhiteboardShapePolygon's color (or rather it's border)
      * @param m_points list of WhiteboardPoint
@@ -96,7 +96,7 @@ public class WhiteboardShapePolygon
     /**
      * Initializes this shape.
      *
-     * @param thickness number of pixels that this object (or its border) 
+     * @param thickness number of pixels that this object (or its border)
      * should be thick
      * @param color WhiteboardShapePolygon's color (or rather it's border)
      * @param points list of WhiteboardPoint
@@ -123,7 +123,7 @@ public class WhiteboardShapePolygon
     {
         return fill;
     }
-    
+
     /**
      * Sets the fill state of the WhiteboardObject.
      * True is filled, false is unfilled.
@@ -134,13 +134,14 @@ public class WhiteboardShapePolygon
     {
         this.fill = fill;
     }
-    
+
     /**
      * Code to paint the WhiteboardShapePolygon.
      *
      * @param g graphics context
      * @param t 2D affine transform
      */
+    @Override
     public void paintShape (Graphics2D g, AffineTransform t)
     {
         g.setStroke (new BasicStroke (this.getThickness (),
@@ -154,12 +155,13 @@ public class WhiteboardShapePolygon
             g.draw (createPoly (t));
         }
     }
-    
+
     /**
      * Returns the list of selected WhiteboardPoints.
      *
      * @return list of selected WhiteboardPoints
      */
+    @Override
     public List<WhiteboardPoint> getSelectionPoints ()
     {
         return points;
@@ -171,11 +173,12 @@ public class WhiteboardShapePolygon
      * @param p coord point
      * @return true if shape contains p
      */
+    @Override
     public boolean contains (Point2D p)
     {
         return createPolyWorld ().contains (p);
     }
-    
+
     /**
      * Creates a GeneralPath with all the WhiteboardPoint.
      * This GeneralPath is used for display.
@@ -189,12 +192,12 @@ public class WhiteboardShapePolygon
           GeneralPath.WIND_EVEN_ODD, points.size ());
         if(points.size ()<=0)
             return polygon;
-        
+
         WhiteboardPoint start = points.get (0);
         Point2D w = new Point2D.Double (start.getX (), start.getY ());
         Point2D v = w2v.transform (w, null);
         polygon.moveTo ((int) v.getX (), (int) v.getY ());
-        
+
         WhiteboardPoint p;
         for (int i =0; i<points.size ();i++)
         {
@@ -203,11 +206,11 @@ public class WhiteboardShapePolygon
             v = w2v.transform (w, null);
             polygon.lineTo ((int) v.getX (), (int) v.getY ());
         }
-        
+
         polygon.closePath ();
         return polygon;
     }
-    
+
     /**
      * Creates a GeneralPath with all the WhiteboardPoint.
      * This GeneralPath is used for the contains test.
@@ -220,21 +223,21 @@ public class WhiteboardShapePolygon
           GeneralPath.WIND_EVEN_ODD, points.size ());
         if(points.size ()<=0)
             return polygon;
-        
+
         WhiteboardPoint start = points.get (0);
         polygon.moveTo ((float) start.getX (), (float) start.getY ());
-        
+
         WhiteboardPoint p;
         for (int i =0; i<points.size ();i++)
         {
             p = points.get (i);
             polygon.lineTo ((float) p.getX (), (float) p.getY ());
         }
-        
+
         polygon.closePath ();
         return polygon;
     }
-    
+
     /**
      * Returns a list of all the <tt>WhiteboardPoint</tt> instances that this
      * <tt>WhiteboardObject</tt> is composed of.
@@ -245,7 +248,7 @@ public class WhiteboardShapePolygon
     {
         return points;
     }
-    
+
     /**
      * Sets the list of <tt>WhiteboardPoint</tt> instances that this
      * <tt>WhiteboardObject</tt> is composed of.
@@ -257,13 +260,14 @@ public class WhiteboardShapePolygon
     {
         this.points = new ArrayList<WhiteboardPoint>(points);
     }
-    
+
     /**
      * Translates the shape.
      *
      * @param deltaX x coord
      * @param deltaY y coord
      */
+    @Override
     public void translate (double deltaX, double deltaY)
     {
         WhiteboardPoint point ;
@@ -275,13 +279,14 @@ public class WhiteboardShapePolygon
               point.getY () + deltaY));
         }
     }
-    
+
     /**
      * Translates a point from the shape.
      *
      * @param deltaX x coord
      * @param deltaY y coord
      */
+    @Override
     public void translateSelectedPoint (double deltaX, double deltaY)
     {
         if (getModifyPoint() == null)
@@ -307,10 +312,11 @@ public class WhiteboardShapePolygon
 
     /**
      * Tests if a point p is over a selection point.
-     * 
+     *
      * @param p point
      * @return nearest selection point
      */
+    @Override
     public WhiteboardPoint getSelectionPoint (Point2D p)
     {
         WhiteboardPoint point;
@@ -339,7 +345,7 @@ public class WhiteboardShapePolygon
     {
         this.backgroundColor = Color.getColor ("", backColor);
     }
-    
+
     /**
      * Returns an integer representing the background color of this object. The
      * return value uses standard RGB encoding: bits 24-31 are alpha, 16-23 are

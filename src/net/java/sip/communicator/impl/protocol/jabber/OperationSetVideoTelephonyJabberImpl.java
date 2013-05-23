@@ -169,6 +169,7 @@ public class OperationSetVideoTelephonyJabberImpl
      * @param peer the peer which this control operates on.
      * @return the implemented quality control.
      */
+    @Override
     public QualityControl getQualityControl(CallPeer peer)
     {
         if(peer instanceof CallPeerJabberImpl)

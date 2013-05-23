@@ -53,7 +53,7 @@ public class SkinManagerActivator
         // If the skin manager configuration form is disabled don't continue.
         if(getConfigService().getBoolean(ENABLED_PROP, false))
         {
-            Dictionary<String, String> properties 
+            Dictionary<String, String> properties
                 = new Hashtable<String, String>();
             properties.put( ConfigurationForm.FORM_TYPE,
                             ConfigurationForm.ADVANCED_TYPE);
@@ -101,7 +101,7 @@ public class SkinManagerActivator
      * Returns a reference to a ConfigurationService implementation currently
      * registered in the bundle context or null if no such implementation was
      * found.
-     * 
+     *
      * @return a currently valid implementation of the ConfigurationService.
      */
     public static ConfigurationService getConfigService()

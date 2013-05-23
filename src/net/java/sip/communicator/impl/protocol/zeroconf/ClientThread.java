@@ -267,7 +267,7 @@ public class ClientThread
 
                 opSetBasicIM.fireMessageReceived(msg, contact);
 
-                opSetTyping.fireTypingNotificationsEvent((Contact)contact,
+                opSetTyping.fireTypingNotificationsEvent(contact,
                     OperationSetTypingNotificationsZeroconfImpl.STATE_STOPPED);
                 break;
 
@@ -280,7 +280,7 @@ public class ClientThread
                 if (contact == null)
                     //TODO: Parse contact id to double-check
                     contact = bonjourService.getContact(null, remoteIPAddress);
-                opSetTyping.fireTypingNotificationsEvent((Contact)contact,
+                opSetTyping.fireTypingNotificationsEvent(contact,
                     OperationSetTypingNotificationsZeroconfImpl.STATE_TYPING);
 
                 /* TODO: code a private runnable class to be used as timeout
@@ -441,6 +441,7 @@ public class ClientThread
     /**
      * Walk?
      */
+    @Override
     public void run()
     {
         if (logger.isDebugEnabled())

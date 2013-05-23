@@ -21,14 +21,14 @@ import net.java.sip.communicator.util.*;
 /**
  * Represents the SSH protocol icon. Implements the <tt>ProtocolIcon</tt>
  * interface in order to provide a SSH logo image in two different sizes.
- * 
+ *
  * @author Shobhit Jindal
  */
 public class ProtocolIconSSHImpl
     implements ProtocolIcon
 {
     private static Logger logger
-        = Logger.getLogger(ProtocolIconSSHImpl.class); 
+        = Logger.getLogger(ProtocolIconSSHImpl.class);
 
     /**
      * A hash table containing the protocol icon in different sizes.
@@ -84,14 +84,14 @@ public class ProtocolIconSSHImpl
 
     /**
      * Returns TRUE if a icon with the given size is supported, FALSE-otherwise.
-     * 
+     *
      * @return TRUE if a icon with the given size is supported, FALSE otherwise
      */
     public boolean isSizeSupported(String iconSize)
     {
         return iconsTable.containsKey(iconSize);
     }
-    
+
     /**
      * Returns the icon image in the given size.
      * @param iconSize the icon size; one of ICON_SIZE_XXX constants
@@ -120,16 +120,16 @@ public class ProtocolIconSSHImpl
     {
         return getImageInBytes("protocolIconSsh");
     }
-    
+
     /**
      * Returns the byte representation of the image corresponding to the given
      * identifier.
-     * 
+     *
      * @param imageID the identifier of the image
      * @return the byte representation of the image corresponding to the given
      * identifier.
      */
-    public static byte[] getImageInBytes(String imageID) 
+    public static byte[] getImageInBytes(String imageID)
     {
         InputStream in = SSHActivator.getResources().
             getImageInputStream(imageID);
@@ -137,13 +137,13 @@ public class ProtocolIconSSHImpl
         if (in == null)
             return null;
         byte[] image = null;
-        try 
+        try
         {
             image = new byte[in.available()];
 
             in.read(image);
         }
-        catch (IOException e) 
+        catch (IOException e)
         {
             logger.error("Failed to load image:" + imageID, e);
         }

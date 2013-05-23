@@ -44,6 +44,7 @@ public class TestOperationSetBasicInstantMessaging
      * Get a reference to the basic IM operation set.
      * @throws Exception if this is not a good day.
      */
+    @Override
     protected void setUp() throws Exception
     {
         super.setUp();
@@ -116,6 +117,7 @@ public class TestOperationSetBasicInstantMessaging
 
     }
 
+    @Override
     protected void tearDown() throws Exception
     {
         super.tearDown();
@@ -255,25 +257,25 @@ public class TestOperationSetBasicInstantMessaging
         ContactGroup rootGroup1
             = ((OperationSetPersistentPresence)opSetPresence1).
             getServerStoredContactListRoot();
-        
+
         logger.debug("=========== Server Stored Contact List 1 =================");
 
         logger.debug("rootGroup="+rootGroup1.getGroupName()
                      +" rootGroup.childContacts="+rootGroup1.countContacts()
                      + "rootGroup.childGroups="+rootGroup1.countSubgroups()
                      + "Printing rootGroupContents=\n"+rootGroup1.toString());
-        
+
         ContactGroup rootGroup2
             = ((OperationSetPersistentPresence)opSetPresence2).
             getServerStoredContactListRoot();
-        
+
         logger.debug("=========== Server Stored Contact List 2 =================");
 
         logger.debug("rootGroup="+rootGroup2.getGroupName()
                      +" rootGroup.childContacts="+rootGroup2.countContacts()
                      + "rootGroup.childGroups="+rootGroup2.countSubgroups()
                      + "Printing rootGroupContents=\n"+rootGroup2.toString());
-        
+
         String body = "This is an IM coming from the tested implementation"
             + " on " + new Date().toString();
 
@@ -321,12 +323,12 @@ public class TestOperationSetBasicInstantMessaging
         //verify that the message has successfully arived at the destination
         assertTrue( "No messages received by the tester agent"
                     , imEvtCollector2.collectedEvents.size() > 0);
-        
-        
-        assertFalse( "Message was unable to deliver !", 
-            imEvtCollector2.collectedEvents.get(0) 
+
+
+        assertFalse( "Message was unable to deliver !",
+            imEvtCollector2.collectedEvents.get(0)
             instanceof MessageDeliveryFailedEvent);
-        
+
         String receivedBody =
             ((MessageReceivedEvent)imEvtCollector2.collectedEvents
                                .get(0)).getSourceMessage().getContent();

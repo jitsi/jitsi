@@ -13,18 +13,18 @@ import net.java.sip.communicator.service.protocol.event.*;
 /**
  * Represents an ad-hoc rendez-vous point where multiple chat users could
  * communicate together. This interface describes the main methods used by some
- * protocols for multi user chat, without useless methods (such as kicking a 
+ * protocols for multi user chat, without useless methods (such as kicking a
  * participant) which aren't supported by these protocols (MSN, ICQ, Yahoo!,
  * etc.).
  *
  * <tt>AdHocChatRoom</tt> acts like a simplified <tt>ChatRoom</tt>.
- * 
+ *
  * @author Valentin Martinet
  */
 public interface AdHocChatRoom
 {
     /**
-     * Returns the name of this <tt>AdHocChatRoom</tt>. The name can't be 
+     * Returns the name of this <tt>AdHocChatRoom</tt>. The name can't be
      * changed until the <tt>AdHocChatRoom</tt> is ended.
      *
      * @return a <tt>String</tt> containing the name
@@ -32,7 +32,7 @@ public interface AdHocChatRoom
     public String getName();
 
     /**
-     * Returns the identifier of this <tt>AdHocChatRoom</tt>. The identifier of 
+     * Returns the identifier of this <tt>AdHocChatRoom</tt>. The identifier of
      * the ad-hoc chat room would have the following syntax:
      * [adHocChatRoomName]@[adHocChatRoomServer]@[accountID]
      *
@@ -44,7 +44,7 @@ public interface AdHocChatRoom
     /**
      * Adds a listener that will be notified of changes in our participation in
      * the ad-hoc room such as us being join, left...
-     * 
+     *
      * @param listener a member participation listener.
      */
     public void addParticipantPresenceListener(
@@ -52,7 +52,7 @@ public interface AdHocChatRoom
 
     /**
      * Removes a participant presence listener.
-     * 
+     *
      * @param listener a member participation listener.
      */
     public void removeParticipantPresenceListener(
@@ -61,7 +61,7 @@ public interface AdHocChatRoom
     /**
      * Registers <tt>listener</tt> so that it would receive events every time a
      * new message is received on this ad-hoc chat room.
-     * 
+     *
      * @param listener a <tt>MessageListener</tt> that would be notified every
      * time a new message is received on this ad-hoc chat room.
      */
@@ -70,18 +70,18 @@ public interface AdHocChatRoom
     /**
      * Removes <tt>listener</tt> so that it won't receive any further message
      * events from this ad-hoc room.
-     * 
-     * @param listener the <tt>MessageListener</tt> to remove from this ad-hoc 
+     *
+     * @param listener the <tt>MessageListener</tt> to remove from this ad-hoc
      * room
      */
     public void removeMessageListener(AdHocChatRoomMessageListener listener);
 
     /**
      * Invites another <tt>Contact</tt> to this ad-hoc chat room.
-     * 
-     * @param userAddress the address of the <tt>Contact</tt> of the user to 
+     *
+     * @param userAddress the address of the <tt>Contact</tt> of the user to
      * invite to the ad-hoc room.
-     * @param reason a reason, subject, or welcome message that would tell 
+     * @param reason a reason, subject, or welcome message that would tell
      * users why they are being invited.
      */
     public void invite(String userAddress, String reason);
@@ -96,7 +96,7 @@ public interface AdHocChatRoom
     public List<Contact> getParticipants();
 
     /**
-     * Returns the number of participants that are currently in this ad-hoc 
+     * Returns the number of participants that are currently in this ad-hoc
      * chat room.
      * @return int the number of <tt>Contact</tt>s, currently participating in
      * this ad-hoc room.
@@ -104,7 +104,7 @@ public interface AdHocChatRoom
     public int getParticipantsCount();
 
     /**
-     * Create a <tt>Message</tt> instance for sending a simple text messages 
+     * Create a <tt>Message</tt> instance for sending a simple text messages
      * with default (text/plain) content type and encoding.
      *
      * @param messageText the string content of the message.
@@ -114,7 +114,7 @@ public interface AdHocChatRoom
 
     /**
      * Sends the <tt>Message</tt> to this ad-hoc chat room.
-     * 
+     *
      * @param message the <tt>Message</tt> to send.
      * @throws OperationFailedException if sending the message fails for some
      * reason.

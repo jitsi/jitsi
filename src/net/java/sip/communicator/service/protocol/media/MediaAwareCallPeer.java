@@ -525,6 +525,7 @@ public abstract class MediaAwareCallPeer
      *
      * @return a reference to the call containing this peer.
      */
+    @Override
     public T getCall()
     {
         return call;
@@ -575,6 +576,7 @@ public abstract class MediaAwareCallPeer
      * @return a reference to the <tt>ProtocolProviderService</tt> that this
      * peer belongs to.
      */
+    @Override
     public V getProtocolProvider()
     {
         return protocolProvider;

@@ -29,7 +29,7 @@ public class AdHocChatRoomInvitationMsnImpl
    /**
     * Creates an instance of the <tt>AdHocChatRoomInvitationMsnImpl</tt> by
     * specifying the targetChatRoom, the inviter, the reason and the password.
-    * 
+    *
     * @param targetChatRoom the <tt>AdHocChatRoom</tt> for which the invitation
     * is
     * @param inviter the contact, which sent the invitation

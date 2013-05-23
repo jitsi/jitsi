@@ -15,7 +15,7 @@ public class StringTools {
    */
   public static String getReadableConstant(String input) {
     char[] name = input.toCharArray();
-    
+
     boolean isStartOfWord = true;
     for (int i = 0; i < name.length; ++i) {
       char chr = name[i];
@@ -24,7 +24,7 @@ public class StringTools {
       else name[i] = Character.toLowerCase(chr);
       isStartOfWord = chr == '_';
     }
-    
+
     return new String(name);
   }
 }

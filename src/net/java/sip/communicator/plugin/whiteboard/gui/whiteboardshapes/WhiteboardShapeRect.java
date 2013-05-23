@@ -58,7 +58,7 @@ public class WhiteboardShapeRect
      * WhiteboardShapeRect constructor.
      *
      * @param id String that uniquely identifies this WhiteboardObject
-     * @param thickness number of pixels that this object (or its border) 
+     * @param thickness number of pixels that this object (or its border)
      * should be thick
      * @param color WhiteboardShapeRect's color (or rather it's border)
      * @param point coordinates of this object.
@@ -78,12 +78,12 @@ public class WhiteboardShapeRect
 
         this.initShape(thickness, color, point, width, height, fill);
     }
-    
+
     /**
      * WhiteboardShapeRect constructor.
-     * 
+     *
      * @param id String that uniquely identifies this WhiteboardShapeRect
-     * @param thickness number of pixels that this object (or its border) 
+     * @param thickness number of pixels that this object (or its border)
      * should be thick
      * @param color WhiteboardShapeRect's color (or rather it's border)
      * @param point coordinates of this object.
@@ -121,11 +121,11 @@ public class WhiteboardShapeRect
         this.initShape(thickness, color, point,
             transformedWidth, transformedHeight, fill);
     }
-    
+
     /**
      * Initializes this shape.
      *
-     * @param thickness number of pixels that this object (or its border) 
+     * @param thickness number of pixels that this object (or its border)
      * should be thick
      * @param color WhiteboardShapeRect's color (or rather it's border)
      * @param point coordinates of this object.
@@ -159,7 +159,7 @@ public class WhiteboardShapeRect
     {
         return height;
     }
-    
+
     /**
      * Sets the width (in pixels) of the WhiteboardShapeRect.
      *
@@ -169,7 +169,7 @@ public class WhiteboardShapeRect
     {
         this.height = height;
     }
-    
+
     /**
      * Returns the fill state of the WhiteboardShapeRect.
      *
@@ -179,7 +179,7 @@ public class WhiteboardShapeRect
     {
         return fill;
     }
-    
+
     /**
      * Sets the fill state of the WhiteboardShapeRect.
      * True is filled, false is unfilled.
@@ -190,13 +190,14 @@ public class WhiteboardShapeRect
     {
         this.fill = fill;
     }
-    
+
     /**
      * Code to paint the WhiteboardShapeRect.
      *
      * @param g graphics context
      * @param t 2D affine transformation
      */
+    @Override
     public void paintShape (Graphics2D g, AffineTransform t)
     {
         double x = point.getX ();
@@ -227,12 +228,13 @@ public class WhiteboardShapeRect
             g.drawRect (x0, y0, xWidth, yHeight);
         }
     }
-    
+
     /**
      * Returns the list of selected points.
      *
      * @return list of selected points
      */
+    @Override
     public List<WhiteboardPoint> getSelectionPoints ()
     {
         return selectionPoints;
@@ -243,20 +245,22 @@ public class WhiteboardShapeRect
      * @param p coord point
      * @return true if shape contains p
      */
+    @Override
     public boolean contains (Point2D p)
     {
         Rectangle2D rect = new Rectangle2D.Double (
           point.getX (), point.getY (), width, height);
         return rect.contains (p);
     }
-    
-    
+
+
     /**
      * Translates the shape.
      *
      * @param deltaX x coordinate
      * @param deltaY y coordinate
      */
+    @Override
     public void translate (double deltaX, double deltaY)
     {
         double x = point.getX ();
@@ -269,13 +273,14 @@ public class WhiteboardShapeRect
 
         this.recalculateSelectionPoints();
     }
-    
+
     /**
      * Translates a point from the shape.
      *
      * @param deltaX x coordinate
      * @param deltaY y coordinate
      */
+    @Override
     public void translateSelectedPoint (double deltaX, double deltaY)
     {
         WhiteboardPoint modifyPoint = getModifyPoint();
@@ -327,13 +332,14 @@ public class WhiteboardShapeRect
         this.setModifyPoint(modifyPoint);
         this.recalculateSelectionPoints();
     }
-    
+
     /**
      * Tests if a point p is over a selection point.
-     * 
+     *
      * @param p point
      * @return nearest selection point
      */
+    @Override
     public WhiteboardPoint getSelectionPoint (Point2D p)
     {
         WhiteboardPoint givenPoint = new WhiteboardPoint(p.getX(), p.getY());
@@ -343,7 +349,7 @@ public class WhiteboardShapeRect
                 return point;
         return null;
     }
-    
+
     /**
      * Returns the coordinates of this whiteboard object.
      *
@@ -353,7 +359,7 @@ public class WhiteboardShapeRect
     {
         return this.point;
     }
-    
+
     /**
      * Sets the coordinates of this whiteboard object.
      *
@@ -363,7 +369,7 @@ public class WhiteboardShapeRect
     {
         this.point = whiteboardPoint;
     }
-    
+
     /**
      * Gets the width (in pixels) of the WhiteboardObject.
      *
@@ -373,7 +379,7 @@ public class WhiteboardShapeRect
     {
         return this.width;
     }
-    
+
     /**
      * Sets the width (in pixels) of the WhiteboardObject.
      *
@@ -383,7 +389,7 @@ public class WhiteboardShapeRect
     {
         this.width  = width;
     }
-    
+
     /**
      * Specifies the background color for this object. The color parameter
      * must be encoded with standard RGB encoding: bits 24-31 are alpha, 16-23
@@ -396,7 +402,7 @@ public class WhiteboardShapeRect
     {
         this.backgroundColor = Color.getColor ("", color);
     }
-    
+
     /**
      * Returns an integer representing the background color of this object. The
      * return value uses standard RGB encoding: bits 24-31 are alpha, 16-23 are

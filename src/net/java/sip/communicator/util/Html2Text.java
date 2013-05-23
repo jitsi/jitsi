@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
@@ -14,7 +14,7 @@ import javax.swing.text.html.parser.*;
 /**
  * A utility class that allows to extract the text content of an HTML page
  * stripped from all formatting tags.
- * 
+ *
  * @author Emil Ivov <emcho at sip-communicator.org>
  * @author Yana Stamcheva
  * @author Lubomir Marinov
@@ -35,10 +35,10 @@ public class Html2Text
     private static HTMLParserCallback parser;
 
     /**
-     * A utility method that allows to extract the text content of an HTML page 
-     * stripped from all formatting tags. Method is synchronized to avoid 
+     * A utility method that allows to extract the text content of an HTML page
+     * stripped from all formatting tags. Method is synchronized to avoid
      * concurrent access to the underlying <tt>HTMLEditorKit</tt>.
-     * 
+     *
      * @param html the HTML string that we will extract the text from.
      * @return the text content of the <tt>html</tt> parameter.
      */
@@ -85,7 +85,7 @@ public class Html2Text
 
         /**
          * Parses the text contained in the given reader.
-         * 
+         *
          * @param in the reader to parse.
          * @return the parsed text
          * @throws IOException thrown if we fail to parse the reader.

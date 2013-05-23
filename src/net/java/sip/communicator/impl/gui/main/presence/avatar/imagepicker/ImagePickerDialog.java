@@ -30,18 +30,18 @@ public class ImagePickerDialog
     implements ActionListener
 {
     private EditPanel editPanel;
-    
+
     private JButton okButton, cancelButton;
     private JButton selectFileButton, webcamButton;
-    
+
     private boolean editCanceled = false;
-    
+
     public ImagePickerDialog(int clipperZoneWidth, int clipperZoneHeight)
     {
         super();
         this.initComponents(clipperZoneWidth, clipperZoneHeight);
         this.initDialog();
-        
+
         this.pack();
         this.setLocationRelativeTo(null);
     }
@@ -55,9 +55,9 @@ public class ImagePickerDialog
                 .getI18NString("service.gui.avatar.imagepicker.IMAGE_PICKER"));
         this.setModal(true);
         this.setResizable(true);
-        
+
         this.setLayout(new BorderLayout());
-        
+
         TransparentPanel editButtonsPanel = new TransparentPanel();
         editButtonsPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
         editButtonsPanel.add(this.selectFileButton);
@@ -72,10 +72,10 @@ public class ImagePickerDialog
         buttonsPanel.setLayout(new BorderLayout());
         buttonsPanel.add(editButtonsPanel, BorderLayout.WEST);
         buttonsPanel.add(okCancelPanel, BorderLayout.CENTER);
-        
+
         this.add(this.editPanel, BorderLayout.CENTER);
         this.add(buttonsPanel, BorderLayout.SOUTH);
-        
+
         this.pack();
 
     }
@@ -86,26 +86,26 @@ public class ImagePickerDialog
      * @param clipperZoneHeight
      */
     private void initComponents(int clipperZoneWidth, int clipperZoneHeight)
-    {        
+    {
         // Edit panel
         this.editPanel = new EditPanel(clipperZoneWidth, clipperZoneHeight);
-        
+
         // Buttons
         this.okButton = new JButton(GuiActivator.getResources()
                 .getI18NString("service.gui.avatar.imagepicker.SET"));
         this.okButton.addActionListener(this);
         this.okButton.setName("okButton");
-        
+
         this.cancelButton = new JButton(GuiActivator.getResources()
                 .getI18NString("service.gui.avatar.imagepicker.CANCEL"));
         this.cancelButton.addActionListener(this);
         this.cancelButton.setName("cancelButton");
-        
+
         this.selectFileButton = new JButton(GuiActivator.getResources()
                 .getI18NString("service.gui.avatar.imagepicker.CHOOSE_FILE"));
         this.selectFileButton.addActionListener(this);
         this.selectFileButton.setName("selectFileButton");
-        
+
         this.webcamButton = new JButton(GuiActivator.getResources()
                 .getI18NString("service.gui.avatar.imagepicker.TAKE_PHOTO"));
 
@@ -124,7 +124,7 @@ public class ImagePickerDialog
             this.editPanel.setImage(ImageUtils.getBufferedImage(image));
 
         this.setVisible(true);
-        
+
         if (this.editCanceled)
             return null;
         else
@@ -191,6 +191,7 @@ public class ImagePickerDialog
      * Closes the dialog.
      * @param isEscaped
      */
+    @Override
     protected void close(boolean isEscaped)
     {
         dispose();
@@ -201,6 +202,7 @@ public class ImagePickerDialog
      */
     class ImageFileFilter extends SipCommFileFilter
     {
+        @Override
         public boolean accept(File f)
         {
             String path = f.getAbsolutePath().toLowerCase();
@@ -212,6 +214,7 @@ public class ImagePickerDialog
                 return false;
         }
 
+        @Override
         public String getDescription()
         {
             return GuiActivator.getResources()

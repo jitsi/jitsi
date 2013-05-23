@@ -273,7 +273,7 @@ public class FirstWizardPage
         ProtocolProviderFactory factory
             = RssAccRegWizzActivator.getRssProtocolProviderFactory();
 
-        ArrayList<AccountID> registeredAccounts 
+        ArrayList<AccountID> registeredAccounts
             = factory.getRegisteredAccounts();
 
         for (int i = 0; i < registeredAccounts.size(); i++)

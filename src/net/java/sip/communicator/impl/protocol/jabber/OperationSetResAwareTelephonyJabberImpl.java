@@ -11,7 +11,7 @@ import org.jitsi.util.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
- * 
+ *
  * @author Yana Stamcheva
  */
 public class OperationSetResAwareTelephonyJabberImpl

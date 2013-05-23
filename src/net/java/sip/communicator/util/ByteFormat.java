@@ -55,6 +55,7 @@ public class ByteFormat
      * @return A formatted string representing the given bytes in more
      * human-readable form.
      */
+    @Override
     public StringBuffer format(Object obj, StringBuffer buf, FieldPosition pos)
     {
         if (obj instanceof Long)
@@ -69,13 +70,13 @@ public class ByteFormat
             {
                 DecimalFormat formatter = new DecimalFormat("#,##0.0");
                 buf.append(
-                    formatter.format((double)numBytes / 1024.0)).append(" K");
+                    formatter.format(numBytes / 1024.0)).append(" K");
             }
             else if (numBytes < 1024 * 1024 * 1024)
             {
                 DecimalFormat formatter = new DecimalFormat("#,##0.0");
                 buf.append(
-                    formatter.format((double)numBytes / (1024.0 * 1024.0)))
+                    formatter.format(numBytes / (1024.0 * 1024.0)))
                         .append(" MB");
             }
             else
@@ -83,7 +84,7 @@ public class ByteFormat
                 DecimalFormat formatter = new DecimalFormat("#,##0.0");
                 buf.append(
                     formatter.format(
-                        (double)numBytes / (1024.0 * 1024.0 * 1024.0)))
+                        numBytes / (1024.0 * 1024.0 * 1024.0)))
                             .append(" GB");
             }
         }
@@ -97,6 +98,7 @@ public class ByteFormat
      * @param pos Position to parse from.
      * @return returns null in this implementation.
      */
+    @Override
     public Object parseObject(String source, ParsePosition pos)
     {
         return null;

@@ -20,13 +20,13 @@ public class ContactDictImpl
     extends AbstractContact
 {
     private Logger logger = Logger.getLogger(ContactDictImpl.class);
-    
+
     /**
      * Icon
      */
     private static byte[] icon = DictActivator.getResources()
         .getImageInBytes("service.protocol.dict.DICT_64x64");
-    
+
     /**
      * The id of the contact.
      */
@@ -58,7 +58,7 @@ public class ContactDictImpl
      * confirmation that it is still on the server contact list).
      */
     private boolean isResolved = true;
-    
+
     /**
      * The string in a "humain readable and understandable representation" of
      * the dictionnaire. In brief this is a short description of the dictionary.
@@ -102,7 +102,7 @@ public class ContactDictImpl
     {
         return contactID;
     }
-    
+
     /**
      * Returns a String that can be used for identifying the contact.
      *
@@ -145,7 +145,7 @@ public class ContactDictImpl
                 {
                     logger.error("Error while getting dictionary long name", dx);
                 }
-                
+
                 if (this.dictName == null)
                     this.dictName = this.contactID;
             }
@@ -223,6 +223,7 @@ public class ContactDictImpl
      *
      * @return  a string representation of this contact.
      */
+    @Override
     public String toString()
     {
         StringBuffer buff
@@ -293,10 +294,10 @@ public class ContactDictImpl
     {
         return isResolved;
     }
-    
+
     /**
      * Return the current status message of this contact.
-     * 
+     *
      * @return null as the protocol has currently no support of status messages
      */
     public String getStatusMessage()

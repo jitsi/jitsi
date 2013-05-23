@@ -65,5 +65,5 @@ public class ProxyInfo
      * Stores in the configuration the connection proxy password.
      */
     public final static String CONNECTON_PROXY_PASSWORD_PROPERTY_NAME =
-        "net.java.sip.communicator.service.connectionProxyPassword";                            
+        "net.java.sip.communicator.service.connectionProxyPassword";
 }

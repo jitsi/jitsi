@@ -92,7 +92,7 @@ public class ChatRoomCommonRightButtonMenu
         this.createChatRoomItem.addActionListener(this);
         this.searchForChatRoomsItem.addActionListener(this);
     }
-    
+
     /**
      * Adds all already registered plugin components to this menu.
      */
@@ -133,7 +133,7 @@ public class ChatRoomCommonRightButtonMenu
 
         GuiActivator.getUIService().addPluginComponentListener(this);
     }
-    
+
     /**
      * Handles the <tt>ActionEvent</tt>. Determines which menu item was
      * selected and makes the appropriate operations.
@@ -159,8 +159,8 @@ public class ChatRoomCommonRightButtonMenu
 
             joinChatRoomDialog.showDialog();
         }
-    }   
-    
+    }
+
     /**
      * Implements the <tt>PluginComponentListener.pluginComponentAdded</tt>
      * method, in order to add the given plugin component in this container.

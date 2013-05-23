@@ -49,6 +49,7 @@ class KeybindingSetImpl
      * @return mapping of keystrokes to the string representation of the actions
      *         they perform
      */
+    @Override
     public LinkedHashMap<KeyStroke, String> getBindings()
     {
         return new LinkedHashMap<KeyStroke, String>(this.bindings);
@@ -60,6 +61,7 @@ class KeybindingSetImpl
      *
      * @param newBindings new keybindings to be held
      */
+    @Override
     public void setBindings(Map<KeyStroke, String> newBindings)
     {
         if (!this.bindings.equals(newBindings))
@@ -75,6 +77,7 @@ class KeybindingSetImpl
      *
      * @return binding category
      */
+    @Override
     public Category getCategory()
     {
         return this.category;

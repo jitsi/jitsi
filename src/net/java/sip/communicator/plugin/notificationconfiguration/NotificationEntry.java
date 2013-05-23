@@ -7,10 +7,10 @@
 package net.java.sip.communicator.plugin.notificationconfiguration;
 
 /**
- * The <tt>NotificationEntry</tt> is a class which defines the different 
+ * The <tt>NotificationEntry</tt> is a class which defines the different
  * entries in the <tt>NotificationConfiguration<tt> JTable. It stores the
  * configuration parameters of an entry.
- * 
+ *
  * @author Alexandre Maillard
  */
 public class NotificationEntry
@@ -60,7 +60,7 @@ public class NotificationEntry
      */
     private String event;
 
-    /** 
+    /**
      * Empty class constructor.
      * Creates a new instance of NotificationsTableEntry.
      */
@@ -94,7 +94,7 @@ public class NotificationEntry
      * @param event assigns the value of _event to this.event.
      */
     public NotificationEntry(
-            boolean enabled, boolean program, 
+            boolean enabled, boolean program,
             String programFile, boolean popup,
             boolean soundNotification, boolean soundPlayback,
             boolean soundPCSpeaker,
@@ -202,7 +202,7 @@ public class NotificationEntry
     }
 
     /**
-     * Method which set a boolean to true if a program is executed for the 
+     * Method which set a boolean to true if a program is executed for the
      * notification.
      * @param program boolean for the program's presence.
      */
@@ -221,7 +221,7 @@ public class NotificationEntry
     }
 
     /**
-     * Method which set a boolean to true if a systray popup is executed for the 
+     * Method which set a boolean to true if a systray popup is executed for the
      * notification.
      * @param popup boolean for the presence of popup.
      */
@@ -231,7 +231,7 @@ public class NotificationEntry
     }
 
     /**
-     * Method which set a boolean to true a sound is playing for the 
+     * Method which set a boolean to true a sound is playing for the
      * notification.
      * @param sound boolean for the presence of a sound for notification device.
      */

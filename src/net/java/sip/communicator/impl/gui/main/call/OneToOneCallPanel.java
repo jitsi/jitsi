@@ -257,7 +257,7 @@ public class OneToOneCallPanel
              * Set the background color of the center panel. However, that color
              * depends on whether this view is displayed on full-screen or
              * windowed mode (because it is common for full-screen mode to have
-             * a black background). 
+             * a black background).
              */
             peerPanel.setOpaque(!isFullScreen());
             peerPanel.setBackground(macPanelBackground);

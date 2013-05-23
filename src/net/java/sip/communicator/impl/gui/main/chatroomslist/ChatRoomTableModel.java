@@ -57,7 +57,7 @@ public class ChatRoomTableModel
 
     /**
      * Creates new model for the supplied table.
-     * 
+     *
      * @param parentTable the parent table.
      */
     public ChatRoomTableModel(JTable parentTable)
@@ -70,7 +70,7 @@ public class ChatRoomTableModel
         /*
          * XXX The chatRoomList instance will surely outlive this instance so it
          * is essential to call the removeChatRoomProviderWrapperListener method
-         * on it in order to prevent this instance from leaking. 
+         * on it in order to prevent this instance from leaking.
          */
         chatRoomList.addChatRoomProviderWrapperListener(this);
 
@@ -154,7 +154,7 @@ public class ChatRoomTableModel
     }
 
     /**
-     * Returns the number of columns in the model. 
+     * Returns the number of columns in the model.
      *
      * @return the number of columns in the model
      */

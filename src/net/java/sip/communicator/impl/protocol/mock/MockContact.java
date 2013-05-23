@@ -148,7 +148,7 @@ public class MockContact
 
     /**
      * Return the current status message of this contact.
-     * 
+     *
      * @return null as the protocol has currently no support of status messages
      */
     public String getStatusMessage()
@@ -262,6 +262,7 @@ public class MockContact
      *
      * @return  a string representation of this contact.
      */
+    @Override
     public String toString()
     {
         StringBuffer buff = new StringBuffer("MockContact[ DisplayName=")
@@ -276,6 +277,7 @@ public class MockContact
      * @return <tt>false</tt> to indicate that this contact doesn't support
      * resources
      */
+    @Override
     public boolean supportResources()
     {
         return false;
@@ -285,8 +287,9 @@ public class MockContact
      * Returns a collection of resources supported by this contact or null
      * if it doesn't support resources.
      *
-     * @return null, as this contact doesn't support resources 
+     * @return null, as this contact doesn't support resources
      */
+    @Override
     public Collection<ContactResource> getResources()
     {
         return null;

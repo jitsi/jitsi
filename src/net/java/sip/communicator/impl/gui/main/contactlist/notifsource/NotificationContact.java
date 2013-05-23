@@ -129,6 +129,7 @@ public class NotificationContact
      *
      * @return the descriptor of this contact
      */
+    @Override
     public Object getDescriptor()
     {
         return protocolProvider;
@@ -139,6 +140,7 @@ public class NotificationContact
      *
      * @return the display name of this contact
      */
+    @Override
     public String getDisplayName()
     {
         if (notificationMessage != null)
@@ -155,6 +157,7 @@ public class NotificationContact
      *
      * @return the display details of this contact
      */
+    @Override
     public String getDisplayDetails()
     {
         String displayDetails;
@@ -216,6 +219,7 @@ public class NotificationContact
      *
      * @return the source index
      */
+    @Override
     public int getSourceIndex()
     {
         return -1;
@@ -229,6 +233,7 @@ public class NotificationContact
      * @param height the height of the avatar
      * @return  the avatar of this contact
      */
+    @Override
     public ImageIcon getScaledAvatar(boolean isSelected, int width, int height)
     {
         ImageIcon avatarIcon = null;
@@ -248,6 +253,7 @@ public class NotificationContact
      * @return the status icon of this contact or null if no status is
      * available
      */
+    @Override
     public ImageIcon getStatusIcon()
     {
         OperationSetPresence presence = protocolProvider
@@ -276,6 +282,7 @@ public class NotificationContact
      * Returns the tool tip opened on mouse over.
      * @return the tool tip opened on mouse over
      */
+    @Override
     public ExtendedTooltip getToolTip()
     {
         ExtendedTooltip tip = new ExtendedTooltip(true);
@@ -304,6 +311,7 @@ public class NotificationContact
      *
      * @return null
      */
+    @Override
     public JPopupMenu getRightButtonMenu()
     {
         return null;
@@ -314,6 +322,7 @@ public class NotificationContact
      *
      * @return the parent group
      */
+    @Override
     public UIGroup getParentGroup()
     {
         return parentGroup;
@@ -325,6 +334,7 @@ public class NotificationContact
      *
      * @param parentGroup the parent <tt>UIGroup</tt> of this contact
      */
+    @Override
     public void setParentGroup(UIGroup parentGroup)
     {
         if (!(parentGroup instanceof NotificationGroup))
@@ -338,6 +348,7 @@ public class NotificationContact
      *
      * @return null
      */
+    @Override
     public Iterator<String> getSearchStrings()
     {
         return null;
@@ -349,6 +360,7 @@ public class NotificationContact
      *
      * @return the corresponding <tt>ContactNode</tt>
      */
+    @Override
     public ContactNode getContactNode()
     {
         return contactNode;
@@ -361,6 +373,7 @@ public class NotificationContact
      * @param contactNode the <tt>ContactNode</tt> that corresponds to this
      * <tt>UIGroup</tt>
      */
+    @Override
     public void setContactNode(ContactNode contactNode)
     {
         this.contactNode = contactNode;
@@ -374,6 +387,7 @@ public class NotificationContact
      * @return the default <tt>ContactDetail</tt> to use for any operations
      * depending to the given <tt>OperationSet</tt> class
      */
+    @Override
     public UIContactDetail getDefaultContactDetail(
         Class<? extends OperationSet> opSetClass)
     {
@@ -388,6 +402,7 @@ public class NotificationContact
      *
      * @return a list of all contained <tt>UIContactDetail</tt>s
      */
+    @Override
     public List<UIContactDetail> getContactDetails()
     {
         List<UIContactDetail> resultList = new LinkedList<UIContactDetail>();
@@ -405,6 +420,7 @@ public class NotificationContact
      * @return a list of <tt>UIContactDetail</tt>s supporting the given
      * <tt>OperationSet</tt> class
      */
+    @Override
     public List<UIContactDetail> getContactDetailsForOperationSet(
         Class<? extends OperationSet> opSetClass)
     {
@@ -534,6 +550,7 @@ public class NotificationContact
          * Returns null to indicate that this detail doesn't support presence.
          * @return null
          */
+        @Override
         public PresenceStatus getPresenceStatus()
         {
             return null;
@@ -578,6 +595,7 @@ public class NotificationContact
      *
      * @return a list of all custom action buttons for this notification contact
      */
+    @Override
     public Collection<SIPCommButton> getContactCustomActionButtons()
     {
         if (notificationMessage != null)

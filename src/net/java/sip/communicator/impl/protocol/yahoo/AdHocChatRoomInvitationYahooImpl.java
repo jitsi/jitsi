@@ -10,7 +10,7 @@ import net.java.sip.communicator.service.protocol.*;
 
 /**
  * The Yahoo implementation of the <tt>AdHocChatRoomInvitation</tt> interface.
- * 
+ *
  * @author Rupert Burchardi
  * @author Valentin Martinet
  */
@@ -25,7 +25,7 @@ public class AdHocChatRoomInvitationYahooImpl
     * The name of the inviter
     */
    private String inviter;
-   
+
    /**
     * The invitation reason.
     */
@@ -35,8 +35,8 @@ public class AdHocChatRoomInvitationYahooImpl
    /**
     * Creates an instance of the <tt>ChatRoomInvitationMsnImpl</tt> by
     * specifying the targetChatRoom, the inviter, the reason.
-    * 
-    * @param targetChatRoom The <tt>AdHocChatRoom</tt> for which the invitation 
+    *
+    * @param targetChatRoom The <tt>AdHocChatRoom</tt> for which the invitation
     * is
     * @param inviter The <tt>Contact</tt>, which sent the invitation
     * @param reason The Reason for the invitation

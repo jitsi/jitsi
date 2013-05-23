@@ -17,7 +17,7 @@ import com.sun.syndication.feed.synd.*;
  * The <code>RssItemKey</code> is used to encapsulate information pertaining to
  * the last item retrieved from a RSS feed. It can be used with both feeds that
  * provide and that don't provide a date for their contents.
- * 
+ *
  * @author Mihai Balan
  * @author Vincent Lucas
  */
@@ -28,15 +28,15 @@ public class RssItemKey
                 Logger.getLogger(OperationSetPersistentPresenceRssImpl.class);
 
     /**
-     * Date of the last show post. If it cannot be used, it's null. 
+     * Date of the last show post. If it cannot be used, it's null.
      */
     private Date itemDate;
-    
+
     /**
      * URI (link) of the last shown post. If it's not used, it's null.
      */
     private String itemUri;
-    
+
     /**
      * Flag to mark whether date is used to mark items (<code>true</code>) or
      * URI (<code>false</code>)
@@ -46,9 +46,9 @@ public class RssItemKey
     /**
      * Sets the date format for serializing and deserialiazing.
      */
-    private static SimpleDateFormat formatter = 
+    private static SimpleDateFormat formatter =
        new SimpleDateFormat("yyyy.MM.dd-HH:mm:ss");
-    
+
     /**
      * Creates a RssContactSettings object that uses date if possible or at
      * least URI to identify feed items.
@@ -91,14 +91,14 @@ public class RssItemKey
         this.itemDate = null;
         this.usesDate = false;
     }
-    
+
     /**
      * Determines if the current key uses <code>Date</code> as a means of
      * identification or not. Usually if true is returned this also implies that
      * <code>getItemUri() == null</code> so this should be used with care.
      * Similarly, if <code>false</code> is returned, one should assume that
      * <code>getItemDate() == null</code>.
-     * 
+     *
      * @return <code>true</code> if date is used for identification,
      * <code>false</code> otherwise.
      * @see #getItemDate()
@@ -108,11 +108,11 @@ public class RssItemKey
     {
         return this.usesDate;
     }
-    
+
     /**
      * Returns the date that is used as a key. Note that null can also be
      * returned in case <code>usesDate() == false</code>.
-     * 
+     *
      * @return date field of the key.
      * @see #usesDate()
      */
@@ -120,11 +120,11 @@ public class RssItemKey
     {
         return this.itemDate;
     }
-    
+
     /**
      * Returns the URI that is used as a key. Note that null can also be
      * returned in case <code>usesDate() == true</code>.
-     * 
+     *
      * @return URI field of the key.
      * @see #usesDate()
      */
@@ -214,7 +214,7 @@ public class RssItemKey
                 }
             }
         }
-        
+
         // If the initialization was good, we create a new RssItemKey.
         if(useInitialized)
         {
@@ -233,13 +233,13 @@ public class RssItemKey
 
     /**
      * Serializes current key to a textual representation.
-     * 
+     *
      * @return String containing the textual representation of the current key.
      */
     public String serialize()
     {
         StringBuffer result = new StringBuffer();
-        
+
         // Create the date item for the persistentData.
         result.append("itemDate=");
         result.append(
@@ -265,14 +265,15 @@ public class RssItemKey
     /**
      * Returns the textual representation of the settings object. This can
      * be easily de-serialized with a call to <code>deserialize()</code>.
-     * 
+     *
      * @see #deserialize(String)
      */
+    @Override
     public String toString()
     {
         return this.serialize();
     }
-    
+
     /**
      * Compare 2 RssItemKey. Compare items with date or with uri, but return
      * always 1 when we can't say anything about order (one is date, the other

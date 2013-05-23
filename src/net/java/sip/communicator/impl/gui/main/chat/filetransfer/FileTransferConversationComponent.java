@@ -24,7 +24,7 @@ import net.java.sip.communicator.util.skin.*;
 /**
  * The <tt>FileTransferConversationComponent</tt> is the parent of all file
  * conversation components - for incoming, outgoing and history file transfers.
- * 
+ *
  * @author Yana Stamcheva
  * @author Adam Netocny
  */
@@ -371,7 +371,7 @@ public abstract class FileTransferConversationComponent
 
     /**
      * Sets a custom style for the given text area.
-     * 
+     *
      * @param textArea the text area to style
      */
     private void setTextAreaStyle(JTextArea textArea)
@@ -383,9 +383,10 @@ public abstract class FileTransferConversationComponent
 
     /**
      * Shows the given error message in the error area of this component.
-     * 
+     *
      * @param message the message to show
      */
+    @Override
     protected void showErrorMessage(String message)
     {
         errorArea.setText(message);
@@ -395,7 +396,7 @@ public abstract class FileTransferConversationComponent
 
     /**
      * Sets the download file.
-     * 
+     *
      * @param file the file that has been downloaded or sent
      */
     protected void setCompletedDownloadFile(File file)
@@ -409,6 +410,7 @@ public abstract class FileTransferConversationComponent
 
         imageLabel.addMouseListener(new MouseAdapter()
         {
+            @Override
             public void mouseClicked(MouseEvent e)
             {
                 if (e.getClickCount() > 1)
@@ -576,7 +578,7 @@ public abstract class FileTransferConversationComponent
 
     /**
      * Returns the string, showing information for the given file.
-     * 
+     *
      *
      * @param file the file
      * @return the name of the given file
@@ -594,7 +596,7 @@ public abstract class FileTransferConversationComponent
 
     /**
      * Returns the string, showing information for the given file.
-     * 
+     *
      * @param fileName the name of the file
      * @param fileSize the size of the file
      * @return the name of the given file
@@ -619,7 +621,7 @@ public abstract class FileTransferConversationComponent
 
     /**
      * Returns the label to show on the progress bar.
-     * 
+     *
      * @param bytesString the bytes that have been transfered
      * @return the label to show on the progress bar
      */
@@ -640,7 +642,7 @@ public abstract class FileTransferConversationComponent
 
     /**
      * Returns the estimated transfer time left.
-     * 
+     *
      * @param speed the speed of the transfer
      * @param bytesLeft the size of the file
      * @return the estimated transfer time left
@@ -653,6 +655,7 @@ public abstract class FileTransferConversationComponent
     /**
      * Reload images and colors.
      */
+    @Override
     public void loadSkin()
     {
         errorIconLabel.setIcon(new ImageIcon(

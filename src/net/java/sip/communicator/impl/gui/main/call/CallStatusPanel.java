@@ -36,6 +36,7 @@ public class CallStatusPanel
      * Custom paint for the call status panel.
      * @param g the <tt>Graphics</tt> object
      */
+    @Override
     public void paintComponent(Graphics g)
     {
         super.paintComponent(g);

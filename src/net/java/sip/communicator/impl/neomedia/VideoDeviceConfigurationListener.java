@@ -45,6 +45,7 @@ public class VideoDeviceConfigurationListener
      * property whose value has changed and the old and new values of that
      * property
      */
+    @Override
     public void propertyChange(PropertyChangeEvent ev)
     {
         // If a new video device has been selected.

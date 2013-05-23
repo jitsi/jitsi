@@ -1233,7 +1233,7 @@ public class ChatWindowManager
      *
      * @param chat the <tt>Chat</tt> which has been closed and which the
      * <tt>ChatListener</tt>s registered with this instance are to be notified
-     * about 
+     * about
      */
     private void fireChatClosed(Chat chat)
     {
@@ -1250,7 +1250,7 @@ public class ChatWindowManager
      *
      * @param chat the <tt>Chat</tt> which has been created and which the
      * <tt>ChatListener</tt>s registered with this instance are to be notified
-     * about 
+     * about
      */
     private void fireChatCreated(Chat chat)
     {
@@ -1512,6 +1512,7 @@ public class ChatWindowManager
         /**
          * Runs on event dispatch thread.
          */
+        @Override
         protected ChatPanel createChatPanel()
         {
             return getContactChat(
@@ -1546,6 +1547,7 @@ public class ChatWindowManager
         /**
          * Runs on event dispatch thread.
          */
+        @Override
         protected ChatPanel createChatPanel()
         {
             return getMultiChatInternal(chatRoomWrapper, true);
@@ -1576,6 +1578,7 @@ public class ChatWindowManager
         /**
          * Runs on event dispatch thread.
          */
+        @Override
         protected ChatPanel createChatPanel()
         {
             return getMultiChatInternal(chatRoomWrapper, true);
@@ -1609,6 +1612,7 @@ public class ChatWindowManager
         /**
          * Runs on event dispatch thread.
          */
+        @Override
         protected ChatPanel createChatPanel()
         {
             return getMultiChatInternal(chatRoom, true, escapedMessageID);
@@ -1642,6 +1646,7 @@ public class ChatWindowManager
         /**
          * Runs on event dispatch thread.
          */
+        @Override
         protected ChatPanel createChatPanel()
         {
             return getMultiChatInternal(adHocChatRoom, true, escapedMessageID);

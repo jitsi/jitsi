@@ -943,7 +943,7 @@ public class MetaHistoryServiceImpl
                 endDate,
                 keywords);
 
-            double part1 = (double)origProgress/
+            double part1 = origProgress/
                 ((double)maxVal*count);
             double convProgress =
                 part1*HistorySearchProgressListener.PROGRESS_MAXIMUM_VALUE +

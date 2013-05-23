@@ -52,7 +52,7 @@ public interface ContactList
     /**
      * Adds the given contact source to the list of available contact sources.
      *
-     * @param contactSource the <tt>ContactSourceService</tt> 
+     * @param contactSource the <tt>ContactSourceService</tt>
      */
     public void addContactSource(ContactSourceService contactSource);
 

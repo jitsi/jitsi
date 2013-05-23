@@ -68,7 +68,7 @@ public class CredentialsStorageServiceImpl
      * Initializes the credentials service by fetching the configuration service
      * reference from the bundle context. Encrypts and moves all passwords to
      * new properties.
-     * 
+     *
      * @param bc bundle context
      */
     void start(BundleContext bc)
@@ -104,7 +104,7 @@ public class CredentialsStorageServiceImpl
      * (<tt>createCrypto</tt> method). This instance will be used later by all
      * other threads.
      *
-     * @param accountPrefix account prefix 
+     * @param accountPrefix account prefix
      * @param password the password to store
      * @return <tt>true</tt> if the specified <tt>password</tt> was successfully
      * stored; otherwise, <tt>false</tt>
@@ -137,12 +137,12 @@ public class CredentialsStorageServiceImpl
     /**
      * Loads the password for the specified account. If the password is stored
      * encrypted, decrypts it with the master password.
-     * 
+     *
      * Many threads can call this method at the same time, and the first thread
      * may present the user with the master password prompt and create a
      * <tt>Crypto</tt> instance based on the input (<tt>createCrypto</tt>
      * method). This instance will be used later by all other threads.
-     * 
+     *
      * @param accountPrefix account prefix
      * @return the loaded password for the <tt>accountPrefix</tt>
      * @see CredentialsStorageServiceImpl#createCrypto()
@@ -168,11 +168,11 @@ public class CredentialsStorageServiceImpl
     /**
      * Removes the password for the account that starts with the given prefix by
      * setting its value in the configuration to null.
-     * 
+     *
      * @param accountPrefix account prefix
      * @return <tt>true</tt> if the password for the specified
      * <tt>accountPrefix</tt> was successfully removed; otherwise,
-     * <tt>false</tt> 
+     * <tt>false</tt>
      */
     public boolean removePassword(String accountPrefix)
     {
@@ -300,7 +300,7 @@ public class CredentialsStorageServiceImpl
     /**
      * Moves all password properties from unencrypted
      * {@link #ACCOUNT_UNENCRYPTED_PASSWORD} to the corresponding encrypted
-     * {@link #ACCOUNT_ENCRYPTED_PASSWORD}. 
+     * {@link #ACCOUNT_ENCRYPTED_PASSWORD}.
      */
     private void moveAllPasswordProperties()
     {

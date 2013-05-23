@@ -176,7 +176,7 @@ public class ChatRoomMemberJabberImpl
     /**
      * Returns the current role without trying to query it in the stack.
      * Mostly used for event creating on member role change.
-     * 
+     *
      * @return the current role of this member.
      */
     ChatRoomMemberRole getCurrentRole()
@@ -196,7 +196,7 @@ public class ChatRoomMemberJabberImpl
     /**
      * Returns the avatar of this member, that can be used when including it in
      * user interface.
-     * 
+     *
      * @return an avatar (e.g. user photo) of this member.
      */
      public byte[] getAvatar()
@@ -206,7 +206,7 @@ public class ChatRoomMemberJabberImpl
 
      /**
       * Sets the avatar for this member.
-      * 
+      *
       * @param avatar the avatar to set.
       */
      public void setAvatar(byte[] avatar)
@@ -219,7 +219,7 @@ public class ChatRoomMemberJabberImpl
      * list. The contact returned here could be used by the user interface to
      * check if this member is contained in our contact list and in function of
      * this to show additional information add additional functionality.
-     * 
+     *
      * @return the protocol contact corresponding to this member in our contact
      * list.
      */
@@ -230,7 +230,7 @@ public class ChatRoomMemberJabberImpl
 
     /**
      * Sets the given contact to this member.
-     * 
+     *
      * @param contact the contact to set.
      */
      public void setContact(Contact contact)

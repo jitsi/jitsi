@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.plugin.spellcheck;
@@ -22,7 +22,7 @@ import org.jitsi.service.resources.*;
 /**
  * Wrapper for handling the multiple listeners associated with chats for the
  * spell checker.
- * 
+ *
  * @author Damian Johnson
  * @author Purvesh Sahoo
  */
@@ -50,7 +50,7 @@ class ChatAttachments
 
     private final ResourceManagementService resources = Resources
         .getResources();
-    
+
     private SpellCheckerConfigDialog dialog;
 
     public ChatAttachments(Chat chat, final SpellDictionary dict)
@@ -60,6 +60,7 @@ class ChatAttachments
 
         this.docListener = new DocUnderliner(chat.getHighlighter())
         {
+            @Override
             boolean getFormatting(String word)
             {
                 try
@@ -75,11 +76,13 @@ class ChatAttachments
                 }
             }
 
+            @Override
             int getCaretPosition()
             {
                 return ChatAttachments.this.chat.getCaretPosition();
             }
 
+            @Override
             void promptRepaint()
             {
                 ChatAttachments.this.chat.promptRepaint();
@@ -245,7 +248,7 @@ class ChatAttachments
                 correctionEntries.add(addWord);
 
             }
-            
+
             JMenuItem spellCheck =
                 new JMenuItem(
                     resources.getI18NString("plugin.spellcheck.MENU"));

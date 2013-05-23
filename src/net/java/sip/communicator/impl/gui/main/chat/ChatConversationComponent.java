@@ -143,11 +143,13 @@ public abstract class ChatConversationComponent
 
             this.addMouseListener(new MouseAdapter()
             {
+                @Override
                 public void mouseEntered(MouseEvent e)
                 {
                     setCursor(new Cursor(Cursor.HAND_CURSOR));
                 }
 
+                @Override
                 public void mouseExited(MouseEvent e)
                 {
                     setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
@@ -170,7 +172,7 @@ public abstract class ChatConversationComponent
     /**
      * Updates the background color to catch user attention if anything
      * unexpected has happened.
-     * 
+     *
      * @param isWarningStyle <code>true</code> to indicate that the warning
      * style should be set, <code>false</code> - otherwise.
      */
@@ -189,6 +191,7 @@ public abstract class ChatConversationComponent
      *
      * @param g the <tt>Graphics</tt> object used for painting
      */
+    @Override
     public void paintComponent(Graphics g)
     {
         super.paintComponent(g);
@@ -206,7 +209,7 @@ public abstract class ChatConversationComponent
 
     /**
      * Paints a round background for this component.
-     * 
+     *
      * @param g the Graphics object
      */
     private void internalPaintComponent(Graphics g)
@@ -222,7 +225,7 @@ public abstract class ChatConversationComponent
 
     /**
      * Opens the given file through the <tt>DesktopService</tt>.
-     * 
+     *
      * @param downloadFile the file to open
      */
     protected void openFile(File downloadFile)
@@ -303,7 +306,7 @@ public abstract class ChatConversationComponent
 
     /**
      * Returns the date of the component event.
-     * 
+     *
      * @return the date of the component event
      */
     public abstract Date getDate();
@@ -312,7 +315,7 @@ public abstract class ChatConversationComponent
      * Shows the given error message to the user. This method is made abstract
      * in order to allow extension classes to provide custom implementations
      * of how errors are shown to the users.
-     * 
+     *
      * @param errorMessage the error message to show
      */
     protected abstract void showErrorMessage(String errorMessage);

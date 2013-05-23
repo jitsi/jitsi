@@ -396,6 +396,7 @@ public class GeneralDialPadDialog
          * @see JComponent#getUIClassID
          * @see UIDefaults#getUI
          */
+        @Override
         public String getUIClassID()
         {
             return uiClassID;

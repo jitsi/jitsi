@@ -82,7 +82,7 @@ public class OperationSetBasicInstantMessagingMsnImpl
     {
         return true;
     }
-    
+
     /**
      * Determines whether the protocol supports the supplied content type
      *
@@ -95,6 +95,7 @@ public class OperationSetBasicInstantMessagingMsnImpl
         return DEFAULT_MIME_TYPE.equals(contentType);
     }
 
+    @Override
     public Message createMessage(String content, String contentType,
         String encoding, String subject)
     {
@@ -220,6 +221,7 @@ public class OperationSetBasicInstantMessagingMsnImpl
         extends MsnMessageAdapter
         implements MsnEmailListener
     {
+        @Override
         public void instantMessageReceived(MsnSwitchboard switchboard,
                                            MsnInstantMessage message,
                                            MsnContact contact)
@@ -245,23 +247,23 @@ public class OperationSetBasicInstantMessagingMsnImpl
             MessageReceivedEvent msgReceivedEvt
                 = new MessageReceivedEvent(
                     newMessage, sourceContact , new Date());
-    
+
             // msgReceivedEvt = messageReceivedTransform(msgReceivedEvt);
-            
+
             if (msgReceivedEvt != null)
                 fireMessageEvent(msgReceivedEvt);
         }
-        
+
         /**
          * Received offline text message.
-         * 
+         *
          * @param body of message
          * @param contentType of message
          * @param encoding of message
          * @param contact the user who sent this message
          */
         public void offlineMessageReceived(String body,
-                                           String contentType, 
+                                           String contentType,
                                            String encoding,
                                            MsnContact contact)
         {
@@ -289,7 +291,7 @@ public class OperationSetBasicInstantMessagingMsnImpl
         }
 
         public void initialEmailNotificationReceived(MsnSwitchboard switchboard,
-                                                     MsnEmailInitMessage message, 
+                                                     MsnEmailInitMessage message,
                                                      MsnContact contact)
         {
         }
@@ -383,7 +385,7 @@ public class OperationSetBasicInstantMessagingMsnImpl
      * Sends instant messages in separate thread so we don't block
      * our calling thread.
      * When sending offline messages msn uses soap
-     * and http and xml exchange can be time consuming. 
+     * and http and xml exchange can be time consuming.
      */
     private class SenderThread
         extends Thread
@@ -403,6 +405,7 @@ public class OperationSetBasicInstantMessagingMsnImpl
          * Sends instant messages in separate thread so we don't block
          * our calling thread.
          */
+        @Override
         public void run()
         {
             stopped = false;
@@ -472,7 +475,7 @@ public class OperationSetBasicInstantMessagingMsnImpl
         }
 
         /**
-         * Structure used to store data to be sent. 
+         * Structure used to store data to be sent.
          */
         private class MessageToSend
         {

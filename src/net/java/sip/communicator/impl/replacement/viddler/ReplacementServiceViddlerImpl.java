@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.impl.replacement.viddler;
@@ -14,7 +14,7 @@ import net.java.sip.communicator.util.*;
 /**
  * Implements the {@link ReplacementService} to provide previews for Viddler
  * links.
- * 
+ *
  * @author Purvesh Sahoo
  */
 public class ReplacementServiceViddlerImpl
@@ -47,7 +47,7 @@ public class ReplacementServiceViddlerImpl
         + API_KEY;
 
     /**
-     * Configuration label shown in the config form. 
+     * Configuration label shown in the config form.
      */
     public static final String VIDDLER_CONFIG_LABEL = "Viddler";
 
@@ -57,7 +57,7 @@ public class ReplacementServiceViddlerImpl
     public static final String SOURCE_NAME = "VIDDLER";
 
     /**
-     * Constructor for <tt>ReplacementServiceViddlerImpl</tt>. 
+     * Constructor for <tt>ReplacementServiceViddlerImpl</tt>.
      */
     public ReplacementServiceViddlerImpl()
     {
@@ -114,7 +114,7 @@ public class ReplacementServiceViddlerImpl
 
     /**
      * Returns the source name
-     * 
+     *
      * @return the source name
      */
     public String getSourceName()
@@ -124,8 +124,8 @@ public class ReplacementServiceViddlerImpl
 
     /**
      * Returns the pattern of the source
-     * 
-     * @return the source pattern 
+     *
+     * @return the source pattern
      */
     public String getPattern()
     {

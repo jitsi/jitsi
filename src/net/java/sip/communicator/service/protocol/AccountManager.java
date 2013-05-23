@@ -160,7 +160,7 @@ public class AccountManager
 
                 //strip the package prefix
                 property = property.substring(storedAccount.length() + 1);
-                
+
                 if (ProtocolProviderFactory.IS_ACCOUNT_DISABLED.equals(property))
                     disabled = Boolean.parseBoolean(value);
                 // Decode passwords.

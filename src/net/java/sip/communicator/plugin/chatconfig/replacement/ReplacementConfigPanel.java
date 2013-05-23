@@ -239,6 +239,7 @@ public class ReplacementConfigPanel
          */
         private static final long serialVersionUID = 0L;
 
+        @Override
         public Component getTableCellRendererComponent(JTable table, Object value,
             boolean selected, boolean focused, int row, int column)
         {

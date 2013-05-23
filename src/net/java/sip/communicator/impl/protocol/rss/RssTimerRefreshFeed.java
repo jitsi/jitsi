@@ -40,6 +40,7 @@ public class RssTimerRefreshFeed
      * In facts, it launch a new thread responsible for starting one or more
      * rss queries
      */
+    @Override
     public void run()
     {
         if (logger.isTraceEnabled())

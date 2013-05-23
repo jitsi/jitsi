@@ -92,6 +92,7 @@ extends EditableContactDetail
      *
      * @param value the new value of the detail
      */
+    @Override
     public void setDetail(String value)
     {
         //let's save in addressbook
@@ -198,7 +199,7 @@ extends EditableContactDetail
 
     /**
      * Returns the property index for this detail.
-     * 
+     *
      * @return The property index for this detail.
      */
     public final int getProperty()

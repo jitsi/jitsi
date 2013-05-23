@@ -136,11 +136,13 @@ public class MediaAwareCallConference
                 mediaServicePropertyChangeListener
                     = new WeakPropertyChangeListener()
                     {
+                        @Override
                         protected void addThisToNotifier()
                         {
                             mediaService.addPropertyChangeListener(this);
                         }
 
+                        @Override
                         protected void removeThisFromNotifier()
                         {
                             mediaService.removePropertyChangeListener(this);
@@ -160,7 +162,7 @@ public class MediaAwareCallConference
      *
      * If this telephony conference switches from being a conference focus to
      * not being such, disposes of the mixers used by this instance when it was
-     * a conference focus 
+     * a conference focus
      */
     @Override
     protected void conferenceFocusChanged(boolean oldValue, boolean newValue)
@@ -337,7 +339,7 @@ public class MediaAwareCallConference
      * example, this instance listens to changes of the value of
      * {@link MediaService#DEFAULT_DEVICE} which represents the user's choice
      * with respect to the default audio device.
-     * 
+     *
      * @param ev a <tt>PropertyChangeEvent</tt> which specifies the name of the
      * property which had its value changed and the old and new values of that
      * property

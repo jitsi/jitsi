@@ -30,7 +30,7 @@ public class PasswordChangeDialog
      * Serial version UID.
      */
     private static final long serialVersionUID = 0L;
-    
+
     /**
      * The <tt>ResourceManagementService</tt> used by this instance to access
      * the localized and internationalized resources of the application.
@@ -43,12 +43,12 @@ public class PasswordChangeDialog
      */
     private PasswordQualityMeter passwordMeter =
         new PasswordQualityMeter();
-    
+
     /**
      * Whether to show a current password field or not
      */
     private boolean showCurrentPassword = false;
-    
+
     /**
      * UI components.
      */
@@ -72,18 +72,18 @@ public class PasswordChangeDialog
     {
         this(false);
     }
-    
+
     /**
      * Builds the dialog.
-     * 
+     *
      * @param showCurrentPassword Whether to show a "current password" field
      */
     public PasswordChangeDialog(boolean showCurrentPassword)
     {
         super(false);
-        
+
         this.showCurrentPassword = showCurrentPassword;
-        
+
         initComponents();
 
         this.setTitle(resources
@@ -157,7 +157,7 @@ public class PasswordChangeDialog
                     okButton.doClick();
             }
         };
-        
+
         if(showCurrentPassword)
         {
             currentPasswdField = new JPasswordField(15);
@@ -255,6 +255,7 @@ public class PasswordChangeDialog
                 PopupDialog.INFORMATION_MESSAGE);
     }
 
+    @Override
     protected void close(boolean isEscaped)
     {
         cancelButton.doClick();
@@ -324,41 +325,41 @@ public class PasswordChangeDialog
 
         return wrapIconPanel;
     }
-    
+
     /**
      * Return a reference to the "ok" button.
-     * 
+     *
      * @return a reference to the "ok" button.
      */
     protected JButton getOkButton()
     {
         return okButton;
     }
-    
+
     /**
      * Return a reference to the "cancel" button.
-     * 
+     *
      * @return a reference to the "cancel" button.
      */
     protected JButton getCancelButton()
     {
         return cancelButton;
     }
-    
+
     /**
      * Return the string entered in the password field.
-     * 
+     *
      * @return the string entered in the password field.
      */
     protected String getNewPassword()
     {
         return new String(newPasswordField.getPassword());
     }
-    
+
     /**
      * Return the string entered in the "current password" field, or null if
      * that field is not shown.
-     * 
+     *
      * @return the string entered in the "current password" field.
      */
     protected String getCurrentPassword()
@@ -372,7 +373,7 @@ public class PasswordChangeDialog
             return new String(currentPasswdField.getPassword());
         }
     }
-    
+
     /**
      * Sets the descriptional text that is displayed
      * @param infoText the new text to display.
@@ -381,5 +382,5 @@ public class PasswordChangeDialog
     {
         infoTextArea.setText(infoText);
     }
-    
+
 }

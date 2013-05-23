@@ -40,14 +40,15 @@ public class TestMetaContactGroup extends TestCase
         super(name);
     }
 
+    @Override
     protected void setUp() throws Exception
     {
         super.setUp();
         fixture.setUp();
 
-        OperationSetPersistentPresence opSetPresence =
-            fixture.mockProvider
-                .getOperationSet(OperationSetPersistentPresence.class);
+        OperationSetPersistentPresence opSetPresence
+            = MclSlickFixture.mockProvider.getOperationSet(
+                    OperationSetPersistentPresence.class);
 
         mockGroup = (MockContactGroup)opSetPresence
                                             .getServerStoredContactListRoot();
@@ -61,6 +62,7 @@ public class TestMetaContactGroup extends TestCase
 
     }
 
+    @Override
     protected void tearDown() throws Exception
     {
         fixture.tearDown();
@@ -115,8 +117,10 @@ public class TestMetaContactGroup extends TestCase
      */
     public void testGetContactGroup()
     {
-        ContactGroup actualReturn = metaGroup.getContactGroup(
-                                mockGroup.getGroupName(), fixture.mockProvider);
+        ContactGroup actualReturn
+            = metaGroup.getContactGroup(
+                    mockGroup.getGroupName(),
+                    MclSlickFixture.mockProvider);
 
         assertNotNull("getContactGroup() return null.", actualReturn);
 
@@ -228,18 +232,19 @@ public class TestMetaContactGroup extends TestCase
             .findMetaContactGroupByContactGroup(MetaContactListServiceLick
                                       .topLevelMockGroup);
 
-        MetaContact metaContact = metaContactGroup1.getMetaContact(
-                            fixture.mockProvider
-                            , MetaContactListServiceLick.subLevelContactName);
+        MetaContact metaContact
+            = metaContactGroup1.getMetaContact(
+                    MclSlickFixture.mockProvider,
+                    MetaContactListServiceLick.subLevelContactName);
 
         //do as best as we can to determine whether this is the right meta
         //contact
         assertNotNull(
-            "getMetaCont(prov, contactID) returned a MetaC that didn't "
-            + "contain our contact"
-            , metaContact.getContact(
-                            MetaContactListServiceLick.subLevelContactName
-                            , fixture.mockProvider));
+                "getMetaCont(prov, contactID) returned a MetaC that didn't "
+                    + "contain our contact",
+                metaContact.getContact(
+                        MetaContactListServiceLick.subLevelContactName,
+                        MclSlickFixture.mockProvider));
 
         assertEquals(
             "getMetaCont(prov, contactID) returned a MetaC with a wrong name "

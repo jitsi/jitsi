@@ -64,9 +64,9 @@ public class ChatOperationReasonDialog extends MessageDialog
      * @param title the title of this dialog
      * @param message the message shown in this dialog
      * @param okButtonName the custom name of the ok button
-     * @param showReasonLabel specify if we want the "Reason:" label 
+     * @param showReasonLabel specify if we want the "Reason:" label
      */
-    public ChatOperationReasonDialog(Frame chatWindow, String title, 
+    public ChatOperationReasonDialog(Frame chatWindow, String title,
         String message, String okButtonName, boolean showReasonLabel)
     {
         super(chatWindow, title, message, okButtonName, false);

@@ -42,6 +42,7 @@ public class QualityControlWrapper
      * @param preset the desired video settings
      * @throws OperationFailedException
      */
+    @Override
     public void setPreferredRemoteSendMaxPreset(QualityPreset preset)
         throws OperationFailedException
     {

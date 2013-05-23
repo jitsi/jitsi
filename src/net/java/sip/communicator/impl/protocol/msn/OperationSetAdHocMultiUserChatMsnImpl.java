@@ -456,6 +456,7 @@ implements OperationSetAdHocMultiUserChat
          * @param message the message
          * @param contact the contact sending the message
          */
+        @Override
         public void instantMessageReceived( MsnSwitchboard switchboard,
             MsnInstantMessage message,
             MsnContact contact)
@@ -536,6 +537,7 @@ implements OperationSetAdHocMultiUserChat
          * @param switchboard the switchboard
          * @param msnContact the contact that has joined
          */
+        @Override
         public void contactJoinSwitchboard( MsnSwitchboard switchboard,
             MsnContact msnContact)
         {
@@ -583,6 +585,7 @@ implements OperationSetAdHocMultiUserChat
          * @param switchboard the switchboard
          * @param contact the contact that has left
          */
+        @Override
         public void contactLeaveSwitchboard(MsnSwitchboard switchboard,
             MsnContact contact)
         {
@@ -610,6 +613,7 @@ implements OperationSetAdHocMultiUserChat
          * Indicates that a switchboard has been closed.
          * @param switchboard the switchboard that has been closed
          */
+        @Override
         public void switchboardClosed(MsnSwitchboard switchboard)
         {
             AdHocChatRoomMsnImpl adHocChatRoom
@@ -632,6 +636,7 @@ implements OperationSetAdHocMultiUserChat
          * Indicates that a switchboard has been started.
          * @param switchboard the switchboard that has been started
          */
+        @Override
         public void switchboardStarted(MsnSwitchboard switchboard)
         {
             Object switchboardID = switchboard.getAttachment();

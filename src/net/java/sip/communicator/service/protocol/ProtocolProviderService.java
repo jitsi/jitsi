@@ -198,7 +198,7 @@ public interface ProtocolProviderService
     /**
      * Indicate if the signaling transport of this protocol instance uses a
      * secure (e.g. via TLS) connection.
-     * 
+     *
      * @return True when the connection is secured, false otherwise.
      */
     public boolean isSignalingTransportSecure();

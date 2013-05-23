@@ -108,7 +108,7 @@ public class SystrayServiceJdicImpl
      * The dock Icons used only in Mac version
      */
     private URL dockIconOnline;
-    
+
     private URL dockIconOffline;
 
     private URL dockIconAway;
@@ -266,7 +266,7 @@ public class SystrayServiceJdicImpl
                 "service.systray.DOCK_ICON_AWAY");
             dockIconFFC =
                     Resources.getImageURL("service.systray.DOCK_ICON_FFC");
-            dockIconDND = 
+            dockIconDND =
                     Resources.getImageURL("service.systray.DOCK_ICON_DND");
         }
 
@@ -282,7 +282,7 @@ public class SystrayServiceJdicImpl
                             = uiService.getExportedWindow(
                                     ExportedWindow.MAIN_WINDOW);
                         boolean setIsVisible = !mainWindow.isVisible();
-        
+
                         uiService.setVisible(setIsVisible);
                     }
                 });
@@ -396,7 +396,7 @@ public class SystrayServiceJdicImpl
                     }
                 }
             }
-            
+
             if (configuredHandler == null)
                 selectBestPopupMessageHandler();
         }
@@ -629,7 +629,7 @@ public class SystrayServiceJdicImpl
     {
         return activePopupHandler;
     }
-    
+
     /**
      * Sets activePopupHandler to be the one with the highest preference index.
      */
@@ -721,8 +721,8 @@ public class SystrayServiceJdicImpl
                                 || (handler.getPreferenceIndex()
                                     > activePopupHandler.getPreferenceIndex())))
                     {
-                        // The user doesn't have a preferred handler set and new 
-                        // handler with better preference index has arrived, 
+                        // The user doesn't have a preferred handler set and new
+                        // handler with better preference index has arrived,
                         // thus setting it as active.
                         setActivePopupMessageHandler(handler);
                     }
@@ -746,7 +746,7 @@ public class SystrayServiceJdicImpl
                         activePopupHandler.removePopupMessageListener(
                             popupMessageListener);
                         activePopupHandler = null;
-                        
+
                         // We just lost our default handler, so we replace it
                         // with the one that has the highest preference index.
                         selectBestPopupMessageHandler();

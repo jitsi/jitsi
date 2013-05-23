@@ -31,7 +31,7 @@ import org.xbill.DNS.*;
 /**
  * Page inside the advanced configuration options that allow the user to
  * modify the settings of the DNS parallel resolver.
- * 
+ *
  * @author Ingo Bauersachs
  */
 public class ParallelDnsPanel

@@ -284,6 +284,7 @@ public class LanguageMenuBar
         return Container.CONTAINER_CHAT_TOOL_BAR;
     }
 
+    @Override
     public String getName()
     {
         return "Spell Checker Toggle";
@@ -427,6 +428,7 @@ public class LanguageMenuBar
         Image image = Resources.getImage("service.gui.icons.DOWN_ARROW_ICON")
             .getImage();
 
+        @Override
         public void paintComponent(Graphics g)
         {
             super.paintComponent(g);
@@ -579,6 +581,7 @@ public class LanguageMenuBar
         /**
          * Download the dictionary.
          */
+        @Override
         public Object construct() throws Exception
         {
             try
@@ -638,6 +641,7 @@ public class LanguageMenuBar
          */
         private static final long serialVersionUID = 0L;
 
+        @Override
         public Component getListCellRendererComponent(JList list,
             Object value, int index, boolean isSelected,
             boolean cellHasFocus)

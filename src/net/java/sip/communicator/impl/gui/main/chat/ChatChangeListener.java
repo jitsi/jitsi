@@ -12,7 +12,7 @@ package net.java.sip.communicator.impl.gui.main.chat;
  *
  * @author Damian Minkov
  */
-public interface ChatChangeListener 
+public interface ChatChangeListener
 {
     /**
      * @param panel the current visible chat panel

@@ -24,7 +24,7 @@ import org.osgi.framework.*;
 /**
  * The <tt>StatusSubMenu</tt> provides a menu which allow to select the status
  * for each of the protocol providers registered when the menu appears
- * 
+ *
  * @author Nicolas Chamouard
  * @author Lyubomir Marinov
  */
@@ -163,7 +163,7 @@ public class StatusSubMenu
     /**
      * Adds the account corresponding to the given protocol provider to this
      * menu.
-     * 
+     *
      * @param protocolProvider the protocol provider corresponding to the
      *            account to add
      */
@@ -211,7 +211,7 @@ public class StatusSubMenu
     /**
      * Removes the account corresponding to the given protocol provider from
      * this menu.
-     * 
+     *
      * @param protocolProvider the protocol provider corresponding to the
      *            account to remove.
      */
@@ -309,15 +309,15 @@ public class StatusSubMenu
     /**
      * Fired when an account has changed its status. We update the icon
      * in the menu.
-     * 
+     *
      * @param evt
      */
     public void providerStatusChanged(ProviderPresenceStatusChangeEvent evt)
     {
         ProtocolProviderService pps = evt.getProvider();
-        StatusSelector selectorBox 
+        StatusSelector selectorBox
             = (StatusSelector) accountSelectors.get(pps.getAccountID());
-    
+
         if (selectorBox != null)
             selectorBox.updateStatus(evt.getNewStatus());
 
@@ -340,9 +340,9 @@ public class StatusSubMenu
     public void registrationStateChanged(RegistrationStateChangeEvent evt)
     {
         ProtocolProviderService pps = evt.getProvider();
-        StatusSimpleSelector selectorBox 
+        StatusSimpleSelector selectorBox
             = (StatusSimpleSelector) accountSelectors.get(pps.getAccountID());
-    
+
         if (selectorBox != null)
             selectorBox.updateStatus();
 

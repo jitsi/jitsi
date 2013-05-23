@@ -69,6 +69,7 @@ public class SIPCommButtonUI
      *
      * @param b the button, for which we're installing the defaults
      */
+    @Override
     public void installDefaults(AbstractButton b)
     {
         super.installDefaults(b);
@@ -84,6 +85,7 @@ public class SIPCommButtonUI
      *
      * @param b the button, for which we're uninstalling the defaults
      */
+    @Override
     public void uninstallDefaults(AbstractButton b)
     {
         super.uninstallDefaults(b);
@@ -100,6 +102,7 @@ public class SIPCommButtonUI
      * @param g the <tt>Graphics</tt> object used for painting
      * @param c the <tt>Component</tt> to paint
      */
+    @Override
     public void paint(Graphics g, JComponent c)
     {
         AbstractButton button = (AbstractButton)c;
@@ -176,6 +179,7 @@ public class SIPCommButtonUI
      * @param textRect the rectangle indicating the bounds of the text
      * @param iconRect the rectangle indicating the bounds of the icon
      */
+    @Override
     protected void paintFocus(Graphics g, AbstractButton b,
             Rectangle viewRect, Rectangle textRect, Rectangle iconRect)
     {
@@ -217,6 +221,7 @@ public class SIPCommButtonUI
     /**
      * Overriden to do nothing.
      */
+    @Override
     protected void paintButtonPressed(Graphics g, AbstractButton b)
     {
         if ( b.isContentAreaFilled() )

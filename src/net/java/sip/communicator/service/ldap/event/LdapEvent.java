@@ -116,6 +116,7 @@ public class LdapEvent
      *
      * @return the LdapEventManager which sent the LdapEvent
      */
+    @Override
     public LdapEventManager getSource()
     {
         return (LdapEventManager) super.getSource();

@@ -40,7 +40,7 @@ public class ViddlerActivator
 
     /**
      * Starts this bundle.
-     * 
+     *
      * @param context bundle context.
      * @throws Exception
      */

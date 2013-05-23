@@ -74,6 +74,7 @@ public class JingleNodesHarvester
      * @return  the <tt>LocalCandidate</tt>s gathered by this
      * <tt>CandidateHarvester</tt>
      */
+    @Override
     public synchronized Collection<LocalCandidate> harvest(Component component)
     {
         logger.info("harvest Jingle Nodes");

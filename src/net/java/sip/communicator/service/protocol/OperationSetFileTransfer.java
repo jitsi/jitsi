@@ -24,12 +24,12 @@ public interface OperationSetFileTransfer
      * Sends a file transfer request to the given <tt>toContact</tt> by
      * specifying the local and remote file path and the <tt>fromContact</tt>,
      * sending the file.
-     * 
+     *
      * @param toContact the contact that should receive the file
      * @param file the file to send
-     * 
+     *
      * @return the transfer object
-     * 
+     *
      * @throws IllegalStateException if the protocol provider is not registered
      * or connected
      * @throws IllegalArgumentException if some of the arguments doesn't fit the
@@ -47,14 +47,14 @@ public interface OperationSetFileTransfer
      * Sends a file transfer request to the given <tt>toContact</tt> by
      * specifying the local and remote file path and the <tt>fromContact</tt>,
      * sending the file.
-     * 
+     *
      * @param toContact the contact that should receive the file
      * @param fromContact the contact sending the file
      * @param remotePath the remote file path
      * @param localPath the local file path
-     * 
+     *
      * @return the transfer object
-     * 
+     *
      * @throws IllegalStateException if the protocol provider is not registered
      * or connected
      * @throws IllegalArgumentException if some of the arguments doesn't fit the
@@ -62,7 +62,7 @@ public interface OperationSetFileTransfer
      * @throws OperationNotSupportedException if the given contact client or
      * server does not support file transfers.
      */
-    public FileTransfer sendFile(   Contact toContact, 
+    public FileTransfer sendFile(   Contact toContact,
                                     Contact fromContact,
                                     String remotePath,
                                     String localPath)
@@ -73,7 +73,7 @@ public interface OperationSetFileTransfer
     /**
      * Adds the given <tt>FileTransferListener</tt> that would listen for
      * file transfer requests and created file transfers.
-     * 
+     *
      * @param listener the <tt>FileTransferListener</tt> to add
      */
     public void addFileTransferListener(
@@ -82,7 +82,7 @@ public interface OperationSetFileTransfer
     /**
      * Removes the given <tt>FileTransferListener</tt> that listens for
      * file transfer requests and created file transfers.
-     * 
+     *
      * @param listener the <tt>FileTransferListener</tt> to remove
      */
     public void removeFileTransferListener(

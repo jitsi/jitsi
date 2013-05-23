@@ -177,10 +177,10 @@ public class CallShortcut
         }
     }
 
-    /** 
+    /**
      * Sets the mute state for all calls.
      *
-     * @param mute the state to be set 
+     * @param mute the state to be set
      */
     private void handleAllCallsMute(boolean mute)
     {
@@ -293,7 +293,7 @@ public class CallShortcut
         }
     }
 
-    
+
     /**
      * Answers or puts on/off hold the given call.
      *
@@ -306,6 +306,7 @@ public class CallShortcut
     {
         new Thread()
         {
+            @Override
             public void run()
             {
                 try

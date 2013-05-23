@@ -24,7 +24,7 @@ import org.jitsi.service.resources.*;
 /**
  * The <tt>VolumeControlButton</tt> is the button shown in the call window,
  * which allows to adjust the playback volume of your call.
- * 
+ *
  * @author Yana Stamcheva
  * @author Damian Minkov
  * @author Lyubomir Marinov
@@ -96,7 +96,7 @@ public class OutputVolumeControlButton
                     try
                     {
                         AntialiasingManager.activateAntialiasing(g);
-    
+
                         g.setColor(bgColor);
                         g.fillRoundRect(
                                 0, 0, getWidth() - 1, getHeight() - 1,
@@ -170,8 +170,8 @@ public class OutputVolumeControlButton
                         SwingUtilities.convertPointToScreen(
                                 location,
                                 volumeControlButton.getParent());
-        
-                        sliderMenu.setLocation(location);        
+
+                        sliderMenu.setLocation(location);
                         sliderMenu.setVisible(!sliderMenu.isVisible());
                     }
                 });

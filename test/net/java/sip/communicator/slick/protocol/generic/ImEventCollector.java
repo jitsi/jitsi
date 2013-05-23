@@ -24,7 +24,7 @@ public class ImEventCollector
 
     /**
      * Called when a new incoming <tt>Message</tt> has been received.
-     * 
+     *
      * @param evt the <tt>MessageReceivedEvent</tt> containing the newly
      *            received message, its sender and other details.
      */
@@ -42,7 +42,7 @@ public class ImEventCollector
     /**
      * Called to indicated that delivery of a message sent earlier has failed.
      * Reason code and phrase are contained by the <tt>MessageFailedEvent</tt>
-     * 
+     *
      * @param evt the <tt>MessageFailedEvent</tt> containing the ID of the
      *            message whose delivery has failed.
      */
@@ -61,7 +61,7 @@ public class ImEventCollector
      * Called when the underlying implementation has received an indication that
      * a message, sent earlier has been successfully received by the
      * destination.
-     * 
+     *
      * @param evt the MessageDeliveredEvent containing the id of the message
      *            that has caused the event.
      */
@@ -79,7 +79,7 @@ public class ImEventCollector
     /**
      * Blocks until at least one event is received or until waitFor miliseconds
      * pass (whichever happens first).
-     * 
+     *
      * @param waitFor the number of miliseconds that we should be waiting for an
      *            event before simply bailing out.
      */

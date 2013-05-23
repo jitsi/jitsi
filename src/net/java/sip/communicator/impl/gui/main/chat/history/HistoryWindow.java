@@ -178,7 +178,7 @@ public class HistoryWindow
             chatRoom.addMessageListener(this);
         }
     }
-    
+
     /**
      * Constructs the window, by adding all components and panels.
      */
@@ -384,6 +384,7 @@ public class HistoryWindow
      * closing.
      * @param e the <tt>WindowEvent</tt> that notified us
      */
+    @Override
     protected void windowClosing(WindowEvent e)
     {
         super.windowClosing(e);
@@ -413,7 +414,7 @@ public class HistoryWindow
      * Returns the next date from the history.
      * When <tt>date</tt> is the last one, we return the current date,
      * means we are loading today messages (till now).
-     * 
+     *
      * @param date The date which indicates where to start.
      * @return the date after the given date
      */
@@ -478,6 +479,7 @@ public class HistoryWindow
      */
     private class DatesLoader extends Thread
     {
+        @Override
         public void run()
         {
             Collection<Object> msgList = null;
@@ -486,7 +488,7 @@ public class HistoryWindow
             {
                 msgList = history.findByEndDate(
                     HISTORY_FILTER,
-                    (MetaContact) historyContact,
+                    historyContact,
                     new Date(System.currentTimeMillis()));
             }
             else if(historyContact instanceof ChatRoomWrapper)
@@ -535,7 +537,7 @@ public class HistoryWindow
                     FileRecord fileRecord = (FileRecord) o;
                     date = fileRecord.getDate();
                 }
- 
+
                 boolean containsDate = false;
                 Iterator<Date> iterator = datesDisplayed.iterator();
                 while(iterator.hasNext())
@@ -590,7 +592,7 @@ public class HistoryWindow
         /**
          * Creates a MessageLoader thread charged to load history messages in
          * the right panel.
-         * 
+         *
          * @param startDate the start date of the history to load
          * @param endDate the end date of the history to load
          */
@@ -600,6 +602,7 @@ public class HistoryWindow
             this.endDate = endDate;
         }
 
+        @Override
         public void run()
         {
             final Collection<Object> msgList;
@@ -608,7 +611,7 @@ public class HistoryWindow
             {
                 msgList = history.findByPeriod(
                     HISTORY_FILTER,
-                    (MetaContact) historyContact,
+                    historyContact,
                     startDate, endDate);
             }
             else if (historyContact instanceof ChatRoomWrapper)
@@ -654,7 +657,7 @@ public class HistoryWindow
         /**
          * Creates a KeywordDatesLoader thread charged to load a list of dates
          * of messages found by the given keyword.
-         * 
+         *
          * @param keyword the keyword to search for
          */
         public KeywordDatesLoader(String keyword)
@@ -662,6 +665,7 @@ public class HistoryWindow
             this.keyword = keyword;
         }
 
+        @Override
         public void run()
         {
             Collection<Object> msgList = null;
@@ -670,7 +674,7 @@ public class HistoryWindow
             {
                 msgList = history.findByKeyword(
                     HISTORY_FILTER,
-                    (MetaContact) historyContact, keyword);
+                    historyContact, keyword);
             }
             else if (historyContact instanceof ChatRoomWrapper)
             {
@@ -724,14 +728,14 @@ public class HistoryWindow
                         for(int i = 0; i < keywordDatesVector.size(); i++)
                         {
                             date = keywordDatesVector.get(i);
-                            
+
                             /* I have tried to remove and add dates in the
                              * datesList. A lot of problems occured because
                              * it seems that the list generates selection events
                              * when removing elements. This was solved but after
                              * that a problem occured when one and the same
                              * selection was done twice.
-                             *  
+                             *
                              * if(!keywordDatesVector.contains(date)) {
                              *    datesPanel.removeDate(date);
                              * }
@@ -767,6 +771,7 @@ public class HistoryWindow
      * @param isEscaped indicates if the window has been closed by pressing the
      * Esc key
      */
+    @Override
     protected void close(boolean isEscaped)
     {
         if(chatConvPanel.getRightButtonMenu().isVisible())
@@ -788,7 +793,7 @@ public class HistoryWindow
             this.dispose();
         }
     }
-    
+
     /**
      * Removes the "Ready" label and adds the progress bar in the bottom of the
      * history window.
@@ -842,7 +847,7 @@ public class HistoryWindow
 
     /**
      * Processes the message given by the parameters.
-     * 
+     *
      * @param contact the message source or destination contact
      * @param timestamp the timestamp of the message
      * @param messageType INCOMING or OUTGOING
@@ -908,7 +913,7 @@ public class HistoryWindow
             }
         }
     }
-    
+
     /**
      * Appends the given string at the end of the given html document.
      *

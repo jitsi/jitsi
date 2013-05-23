@@ -47,7 +47,7 @@ public class JoinChatRoomDialog
 
     /**
      * Creates an instance of <tt>JoinChatRoomDialog</tt>.
-     * 
+     *
      * @param provider the <tt>ChatRoomProviderWrapper</tt>, which will be the chat
      * server for the newly created chat room
      */
@@ -83,7 +83,7 @@ public class JoinChatRoomDialog
         this.getContentPane().add(searchPanel, BorderLayout.CENTER);
         this.getContentPane().add(buttonsPanel, BorderLayout.SOUTH);
     }
-    
+
     /**
      * Handles the <tt>ActionEvent</tt>. Depending on the user choice creates
      * the desired chat room in a separate thread.
@@ -111,6 +111,7 @@ public class JoinChatRoomDialog
      * @param escaped indicates if the window was closed by pressing the Esc
      * key
      */
+    @Override
     protected void close(boolean escaped)
     {
         this.cancelButton.doClick();

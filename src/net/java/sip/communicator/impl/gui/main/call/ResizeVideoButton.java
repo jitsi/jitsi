@@ -104,6 +104,7 @@ public class ResizeVideoButton
     /**
      * Shares the desktop with the peers in the current call.
      */
+    @Override
     public void buttonPressed()
     {
         if (call != null)

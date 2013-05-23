@@ -350,6 +350,7 @@ public class ErrorDialog
      * @param isEscaped Specifies whether the close was triggered by pressing
      * the escape key.
      */
+    @Override
     protected void close(boolean isEscaped)
     {
         this.okButton.doClick();

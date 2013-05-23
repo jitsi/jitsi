@@ -60,6 +60,7 @@ public class RssAccountRegistrationWizard
      * Returns the icon to be used for this wizard.
      * @return byte[]
      */
+    @Override
     public byte[] getIcon()
     {
         return Resources.getImage(Resources.RSS_LOGO);
@@ -71,6 +72,7 @@ public class RssAccountRegistrationWizard
      *
      * @return byte[] the image used to decorate the wizard page
      */
+    @Override
     public byte[] getPageImage()
     {
         return Resources.getImage(Resources.PAGE_IMAGE);
@@ -81,6 +83,7 @@ public class RssAccountRegistrationWizard
      * method. Returns the protocol name for this wizard.
      * @return String
      */
+    @Override
     public String getProtocolName()
     {
         return Resources.getString("plugin.rssaccregwizz.PROTOCOL_NAME");
@@ -91,6 +94,7 @@ public class RssAccountRegistrationWizard
      * </code> method. Returns the description of the protocol for this wizard.
      * @return String
      */
+    @Override
     public String getProtocolDescription()
     {
         return Resources.getString("plugin.rssaccregwizz.PROTICOL_DESCRIPTION");
@@ -100,6 +104,7 @@ public class RssAccountRegistrationWizard
      * Returns the set of pages contained in this wizard.
      * @return Iterator
      */
+    @Override
     public Iterator<WizardPage> getPages()
     {
         java.util.List<WizardPage> pages = new ArrayList<WizardPage>();
@@ -115,9 +120,10 @@ public class RssAccountRegistrationWizard
      * Returns the set of data that user has entered through this wizard.
      * @return Iterator
      */
+    @Override
     public Iterator<Map.Entry<String, String>> getSummary()
     {
-        Hashtable<String, String> summaryTable 
+        Hashtable<String, String> summaryTable
             = new Hashtable<String, String>();
 
         summaryTable.put("User ID", registration.getUserID());
@@ -132,6 +138,7 @@ public class RssAccountRegistrationWizard
      * new account
      * @throws OperationFailedException if the operation didn't succeed
      */
+    @Override
     public ProtocolProviderService signin()
         throws OperationFailedException
     {
@@ -150,6 +157,7 @@ public class RssAccountRegistrationWizard
      * new account
      * @throws OperationFailedException if the operation didn't succeed
      */
+    @Override
     public ProtocolProviderService signin(String userName, String password)
         throws OperationFailedException
     {
@@ -172,7 +180,7 @@ public class RssAccountRegistrationWizard
         String user)
         throws OperationFailedException
     {
-        Hashtable<String, String> accountProperties 
+        Hashtable<String, String> accountProperties
             = new Hashtable<String, String>();
 
         accountProperties.put(ProtocolProviderFactory.ACCOUNT_ICON_PATH,
@@ -221,6 +229,7 @@ public class RssAccountRegistrationWizard
      * data from.
      */
 
+    @Override
     public void loadAccount(ProtocolProviderService protocolProvider)
     {
         this.protocolProvider = protocolProvider;
@@ -232,15 +241,17 @@ public class RssAccountRegistrationWizard
      * Returns the size of this wizard.
      * @return the size of this wizard
      */
+    @Override
     public Dimension getSize()
     {
         return new Dimension(600, 500);
     }
-    
+
     /**
      * Returns the identifier of the page to show first in the wizard.
      * @return the identifier of the page to show first in the wizard.
      */
+    @Override
     public Object getFirstPageIdentifier()
     {
         return firstWizardPage.getIdentifier();
@@ -248,9 +259,10 @@ public class RssAccountRegistrationWizard
 
     /**
      * Returns the identifier of the page to show last in the wizard.
-     * 
+     *
      * @return the identifier of the page to show last in the wizard.
      */
+    @Override
     public Object getLastPageIdentifier()
     {
         return firstWizardPage.getIdentifier();
@@ -262,6 +274,7 @@ public class RssAccountRegistrationWizard
      * @return an example string, which should indicate to the user how the
      * user name should look like.
      */
+    @Override
     public String getUserNameExample()
     {
         return null;
@@ -276,6 +289,7 @@ public class RssAccountRegistrationWizard
      * @return <code>true</code> if the simple "Sign in" form is enabled or
      * <code>false</code> otherwise.
      */
+    @Override
     public boolean isSimpleFormEnabled()
     {
         return false;
@@ -286,10 +300,11 @@ public class RssAccountRegistrationWizard
      * shown to the user. Only if the user needs more settings she'll choose
      * to open the advanced wizard, consisted by all pages.
      *
-     * @param isCreateAccount indicates if the simple form should be opened as 
+     * @param isCreateAccount indicates if the simple form should be opened as
      * a create account form or as a login form
      * @return a simple account registration form
      */
+    @Override
     public Object getSimpleForm(boolean isCreateAccount)
     {
         firstWizardPage

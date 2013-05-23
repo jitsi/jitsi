@@ -13,7 +13,7 @@ import net.java.sip.communicator.service.desktop.*;
 
 /**
  * Implementation of the <tt>DesktopService</tt>.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class DesktopServiceImpl
@@ -32,7 +32,7 @@ public class DesktopServiceImpl
 
     /**
      * Invokes the default desktop browse method.
-     * 
+     *
      * @see DesktopService#browse(URI)
      */
     public void browse(URI uri)
@@ -47,7 +47,7 @@ public class DesktopServiceImpl
 
     /**
      * Invokes the default desktop edit method.
-     * 
+     *
      * @see DesktopService#edit(File)
      */
     public void edit(File file)
@@ -62,7 +62,7 @@ public class DesktopServiceImpl
 
     /**
      * Invokes the default desktop open method.
-     * 
+     *
      * @see DesktopService#open(File)
      */
     public void open(File file)
@@ -77,7 +77,7 @@ public class DesktopServiceImpl
 
     /**
      * Invokes the default desktop print method.
-     * 
+     *
      * @see DesktopService#print(File)
      */
     public void print(File file)

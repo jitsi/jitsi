@@ -17,7 +17,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.util.*;
 
 /**
- * Take cares of storing(deleting, moving) images with the given indexes. 
+ * Take cares of storing(deleting, moving) images with the given indexes.
  */
 public class AvatarStackManager
 {
@@ -32,7 +32,7 @@ public class AvatarStackManager
      */
     private static final String STORE_DIR = "avatarcache" + File.separator
         + "userimages" + File.separator;
-    
+
     /**
      * Deletes the stored image.
      * @param index of the image to delete.
@@ -46,7 +46,7 @@ public class AvatarStackManager
             File imageFile
                 = GuiActivator.getFileAccessService().getPrivatePersistentFile(
                         fileName);
-            
+
             if (imageFile.exists() && !imageFile.delete())
                 logger.error("Failed to delete stored image at index " + index);
         }
@@ -65,11 +65,11 @@ public class AvatarStackManager
     public static BufferedImage loadImage(int index)
     {
         File imageFile;
-        
+
         try
         {
             String imagePath = STORE_DIR + index + ".png";
-            
+
             imageFile
                 = GuiActivator.getFileAccessService().getPrivatePersistentFile(
                         imagePath);
@@ -78,12 +78,12 @@ public class AvatarStackManager
         {
             logger.error("Unable to access stored image at index " + index, e);
             return null;
-        }    
-        
+        }
+
         // If the file don't exists, there is no more images to get
         if (!imageFile.exists())
             return null;
-        
+
         try
         {
             return ImageIO.read(imageFile);
@@ -104,12 +104,12 @@ public class AvatarStackManager
     {
         String oldImagePath = STORE_DIR + oldIndex + ".png";
         String newImagePath = STORE_DIR + newIndex + ".png";
-        
+
         try
         {
             FileAccessService fas = GuiActivator.getFileAccessService();
             File oldFile = fas.getPrivatePersistentFile(oldImagePath);
-            
+
             if (oldFile.exists())
             {
                 File newFile = fas.getPrivatePersistentFile(newImagePath);
@@ -143,7 +143,7 @@ public class AvatarStackManager
     public static void storeImage(BufferedImage image, int index)
     {
         String imagePath = STORE_DIR + index + ".png";
-        
+
         try
         {
             FileAccessService fas = GuiActivator.getFileAccessService();

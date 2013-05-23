@@ -87,16 +87,19 @@ public class HistoryID
         return this.id;
     }
 
+    @Override
     public String toString()
     {
         return this.stringRepresentation;
     }
 
+    @Override
     public int hashCode()
     {
         return this.hashCode;
     }
 
+    @Override
     public boolean equals(Object obj)
     {
         boolean eq = false;

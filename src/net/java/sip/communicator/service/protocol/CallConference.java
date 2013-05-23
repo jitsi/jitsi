@@ -120,10 +120,10 @@ public class CallConference
      * Determines whether a <tt>CallConference</tt> is to report the local
      * peer/user as a conference focus judging by a specific list of
      * <tt>Call</tt>s.
-     * 
+     *
      * @param calls the list of <tt>Call</tt> which are to be judged whether
      * the local peer/user that they represent is to be considered as a
-     * conference focus 
+     * conference focus
      * @return <tt>true</tt> if the local peer/user represented by the specified
      * <tt>calls</tt> is judged to be a conference focus; otherwise,
      * <tt>false</tt>
@@ -501,7 +501,7 @@ public class CallConference
      * Gets the list of <tt>CallChangeListener</tt>s added to the <tt>Call</tt>s
      * participating in this telephony conference via
      * {@link #addCallChangeListener(CallChangeListener)}.
-     * 
+     *
      * @return the list of <tt>CallChangeListener</tt>s added to the
      * <tt>Call</tt>s participating in this telephony conference via
      * {@link #addCallChangeListener(CallChangeListener)}
@@ -536,7 +536,7 @@ public class CallConference
      * <tt>CallPeer</tt>s associated with the <tt>Call</tt>s participating in
      * this telephony conference via
      * {@link #addCallPeerConferenceListener(CallPeerConferenceListener)}.
-     * 
+     *
      * @return the list of <tt>CallPeerConferenceListener</tt>s added to the
      * <tt>CallPeer</tt>s associated with the <tt>Call</tt>s participating in
      * this telephony conference via

@@ -7,7 +7,7 @@
 package net.java.sip.communicator.service.protocol.event;
 
 /**
- * A listener that dispatches events notifying that an invitation to join a 
+ * A listener that dispatches events notifying that an invitation to join a
  * white board is received.
  *
  * @author Yana Stamcheva

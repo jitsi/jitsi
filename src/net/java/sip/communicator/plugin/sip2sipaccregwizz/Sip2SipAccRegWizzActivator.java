@@ -58,7 +58,7 @@ public class Sip2SipAccRegWizzActivator
         System.setProperty(
             "http.agent",
             System.getProperty("sip-communicator.application.name")
-                + "/" 
+                + "/"
                 + System.getProperty("sip-communicator.version"));
 
         uiService =
@@ -85,7 +85,7 @@ public class Sip2SipAccRegWizzActivator
 
     /**
      * Returns the <tt>UIService</tt>.
-     * 
+     *
      * @return the <tt>UIService</tt>
      */
     public static UIService getUIService()

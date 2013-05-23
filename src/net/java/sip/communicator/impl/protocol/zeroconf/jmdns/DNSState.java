@@ -12,10 +12,10 @@ import java.util.logging.*;
  * @author Werner Randelshofer, Rick Blair
  * @version 1.0  May 23, 2004  Created.
  */
-public class DNSState 
+public class DNSState
     implements Comparable<DNSState>
 {
-    private static Logger logger = 
+    private static Logger logger =
         Logger.getLogger(DNSState.class.toString());
 
     private final String name;
@@ -33,19 +33,20 @@ public class DNSState
      * The sequence is consistent with the ordinal of a state.
      * This is used for advancing through states.
      */
-    private final static ArrayList<DNSState> sequence 
+    private final static ArrayList<DNSState> sequence
         = new ArrayList<DNSState>();
 
     private DNSState(String name)
     {
         this.name = name;
         sequence.add(this);
-        
+
         String SLevel = System.getProperty("jmdns.debug");
         if (SLevel == null) SLevel = "INFO";
-        logger.setLevel(Level.parse(SLevel)); 
+        logger.setLevel(Level.parse(SLevel));
     }
 
+    @Override
     public final String toString()
     {
         return name;
@@ -68,8 +69,8 @@ public class DNSState
      */
     public final DNSState advance()
     {
-        return (isProbing() || isAnnouncing()) ? 
-            sequence.get(ordinal + 1) : 
+        return (isProbing() || isAnnouncing()) ?
+            sequence.get(ordinal + 1) :
             this;
     }
 

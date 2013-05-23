@@ -108,6 +108,7 @@ public class TestConfigurationService extends TestCase
      * Generic JUnit setUp method.
      * @throws Exception if anything goes wrong.
      */
+    @Override
     protected void setUp() throws Exception
     {
         configurationService.setProperty(propertyName, null);
@@ -119,6 +120,7 @@ public class TestConfigurationService extends TestCase
      * Generic JUnit tearDown method.
      * @throws Exception if anything goes wrong.
      */
+    @Override
     protected void tearDown() throws Exception
     {
         //first remove any remaining listeners

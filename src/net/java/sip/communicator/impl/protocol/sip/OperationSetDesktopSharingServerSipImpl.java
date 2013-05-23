@@ -474,6 +474,7 @@ public class OperationSetDesktopSharingServerSipImpl
          * @see EventPackageSubscriber.Subscription#processActiveRequest(
          * RequestEvent, byte[])
          */
+        @Override
         protected void processActiveRequest(RequestEvent requestEvent,
                 byte[] rawContent)
         {
@@ -546,6 +547,7 @@ public class OperationSetDesktopSharingServerSipImpl
          * @see EventPackageSubscriber.Subscription#processFailureResponse(
          * ResponseEvent, int)
          */
+        @Override
         protected void processFailureResponse(ResponseEvent responseEvent,
                 int statusCode)
         {
@@ -572,6 +574,7 @@ public class OperationSetDesktopSharingServerSipImpl
          * @see EventPackageSubscriber.Subscription#processSuccessResponse(
          * ResponseEvent, int)
          */
+        @Override
         protected void processSuccessResponse(ResponseEvent responseEvent,
                 int statusCode)
         {
@@ -602,6 +605,7 @@ public class OperationSetDesktopSharingServerSipImpl
          * @see EventPackageSubscriber.Subscription#processTerminatedRequest(
          * RequestEvent, String)
          */
+        @Override
         protected void processTerminatedRequest(RequestEvent requestEvent,
                 String reasonCode)
         {

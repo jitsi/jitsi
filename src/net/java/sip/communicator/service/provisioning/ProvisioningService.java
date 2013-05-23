@@ -8,7 +8,7 @@ package net.java.sip.communicator.service.provisioning;
 
 /**
  * Provisioning service.
- * 
+ *
  * @author Sebastien Vincent
  */
 public interface ProvisioningService
@@ -20,7 +20,7 @@ public interface ProvisioningService
      * otherwise
      */
     public String getProvisioningMethod();
-    
+
     /**
      * Enables the provisioning with the given method. If the provisioningMethod
      * is null disables the provisioning.
@@ -28,21 +28,21 @@ public interface ProvisioningService
      * @param provisioningMethod the provisioning method
      */
     public void setProvisioningMethod(String provisioningMethod);
-    
+
     /**
      * Returns provisioning username if any.
-     * 
+     *
      * @return provisioning username
      */
     public String getProvisioningUsername();
-    
+
     /**
      * Returns provisioning password if any.
-     * 
+     *
      * @return provisioning password
      */
     public String getProvisioningPassword();
-    
+
     /**
      * Returns the provisioning URI.
      *

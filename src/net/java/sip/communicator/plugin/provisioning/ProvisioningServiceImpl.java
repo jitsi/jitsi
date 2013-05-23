@@ -23,7 +23,7 @@ import org.osgi.framework.*;
 
 /**
  * Provisioning service.
- * 
+ *
  * @author Sebastien Vincent
  */
 public class ProvisioningServiceImpl
@@ -34,13 +34,13 @@ public class ProvisioningServiceImpl
      */
     private static final Logger logger
         = Logger.getLogger(ProvisioningServiceImpl.class);
-    
+
     /**
      * Name of the UUID property.
      */
     public static final String PROVISIONING_UUID_PROP
         = "net.java.sip.communicator.UUID";
-    
+
     /**
      * Name of the provisioning URL in the configuration service.
      */
@@ -104,28 +104,28 @@ public class ProvisioningServiceImpl
      * Authentication password.
      */
      private static String provPassword = null;
-     
+
      /**
       * Constructor.
       */
      public ProvisioningServiceImpl()
      {
-         // check if UUID is already configured         
+         // check if UUID is already configured
          String uuid = (String)ProvisioningActivator.getConfigurationService().
              getProperty(PROVISIONING_UUID_PROP);
-         
+
          if(uuid == null || uuid.equals(""))
          {
              uuid = UUID.randomUUID().toString();
              ProvisioningActivator.getConfigurationService().setProperty(
                  PROVISIONING_UUID_PROP, uuid);
          }
-    
+
      }
-     
+
      /**
       * Starts provisioning.
-      * 
+      *
       * @param url provisioning URL
       */
      void start(String url)
@@ -152,7 +152,7 @@ public class ProvisioningServiceImpl
              }
          }
      }
-     
+
      /**
       * Indicates if the provisioning has been enabled.
       *
@@ -189,7 +189,7 @@ public class ProvisioningServiceImpl
          ProvisioningActivator.getConfigurationService().setProperty(
              PROVISIONING_METHOD_PROP, provisioningMethod);
      }
-     
+
      /**
       * Returns the provisioning URI.
       *
@@ -223,10 +223,10 @@ public class ProvisioningServiceImpl
          ProvisioningActivator.getConfigurationService().setProperty(
              PROPERTY_PROVISIONING_URL, uri);
      }
-     
+
     /**
      * Returns provisioning username.
-     * 
+     *
      * @return provisioning username
      */
     public String getProvisioningUsername()
@@ -236,13 +236,13 @@ public class ProvisioningServiceImpl
 
     /**
      * Returns provisioning password.
-     * 
+     *
      * @return provisioning password
      */
     public String getProvisioningPassword()
     {
         return provPassword;
-    } 
+    }
 
     /**
      * Retrieve configuration file from provisioning URL.
@@ -266,7 +266,7 @@ public class ProvisioningServiceImpl
             tmpFile = temp;
 
             URL u = new URL(url);
-            InetAddress ipaddr = 
+            InetAddress ipaddr =
                 ProvisioningActivator.getNetworkAddressManagerService().
                     getLocalHost(InetAddress.getByName(u.getHost()));
 
@@ -316,7 +316,7 @@ public class ProvisioningServiceImpl
 
             if(url.indexOf("${uuid}") != -1)
             {
-                url = url.replace("${uuid}", 
+                url = url.replace("${uuid}",
                     (String)ProvisioningActivator.getConfigurationService()
                         .getProperty(PROVISIONING_UUID_PROP));
             }
@@ -528,14 +528,14 @@ public class ProvisioningServiceImpl
                 // if canceled, lets check whether provisioning is
                 // mandatory
                 boolean provisioningMandatory = false;
-                
+
                 String defaultSettingsProp =
                     ProvisioningActivator.getResourceService()
                         .getSettingsString(PROPERTY_PROVISIONING_MANDATORY);
                 if(defaultSettingsProp != null
                     && Boolean.parseBoolean(defaultSettingsProp))
                     provisioningMandatory = true;
-                
+
                 if(ProvisioningActivator.getConfigurationService().getBoolean(
                     PROPERTY_PROVISIONING_MANDATORY, provisioningMandatory))
                 {
@@ -810,7 +810,7 @@ public class ProvisioningServiceImpl
      */
     private void checkEnforcePrefix(String enforcePrefix)
     {
-        ConfigurationService config = 
+        ConfigurationService config =
             ProvisioningActivator.getConfigurationService();
         String prefixes[] = null;
 

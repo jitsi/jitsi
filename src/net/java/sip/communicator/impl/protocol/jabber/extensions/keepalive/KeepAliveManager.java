@@ -119,7 +119,7 @@ public class KeepAliveManager
                 SmackConfiguration.getKeepAliveInterval();
             if(keepAliveCheckInterval == 0)
                 keepAliveCheckInterval = 30000;
-            
+
             keepAliveTimer = new Timer("Jabber keepalive timer for <"
                 + parentProvider.getAccountID() + ">", true);
             keepAliveTimer.scheduleAtFixedRate(
@@ -189,6 +189,7 @@ public class KeepAliveManager
         /**
          * Sends a single <tt>KeepAliveEvent</tt>.
          */
+        @Override
         public void run()
         {
             // if we are not registered do nothing

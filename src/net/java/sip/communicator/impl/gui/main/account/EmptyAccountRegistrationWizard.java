@@ -55,6 +55,7 @@ class EmptyAccountRegistrationWizard
      *
      * @return the ID of our only page
      */
+    @Override
     public Object getFirstPageIdentifier()
     {
         return page.getIdentifier();
@@ -66,6 +67,7 @@ class EmptyAccountRegistrationWizard
      *
      * @return <tt>null</tt>;
      */
+    @Override
     public byte[] getIcon()
     {
         return null;
@@ -76,6 +78,7 @@ class EmptyAccountRegistrationWizard
      *
      * @return the id of our last (and only) page.
      */
+    @Override
     public Object getLastPageIdentifier()
     {
         return EmptyAccountRegistrationWizardPage.FIRST_PAGE_IDENTIFIER;
@@ -87,6 +90,7 @@ class EmptyAccountRegistrationWizard
      *
      * return an empty byte[] array.
      */
+    @Override
     public byte[] getPageImage()
     {
         return null;
@@ -97,6 +101,7 @@ class EmptyAccountRegistrationWizard
      *
      * @return an iterator over a list containing our only page.
      */
+    @Override
     public Iterator<WizardPage> getPages()
     {
         return pages.iterator();
@@ -107,6 +112,7 @@ class EmptyAccountRegistrationWizard
      *
      * @return a string containing a dummy protocol description.
      */
+    @Override
     public String getProtocolDescription()
     {
         return GuiActivator.getResources()
@@ -119,6 +125,7 @@ class EmptyAccountRegistrationWizard
      *
      * @return a string prompting the user to select a network.
      */
+    @Override
     public String getProtocolName()
     {
         return GuiActivator.getResources()
@@ -130,10 +137,11 @@ class EmptyAccountRegistrationWizard
      * shown to the user. Only if the user needs more settings she'll choose
      * to open the advanced wizard, consisted by all pages.
      *
-     * @param isCreateAccount indicates if the simple form should be opened as 
+     * @param isCreateAccount indicates if the simple form should be opened as
      * a create account form or as a login form
      * @return a simple account registration form
      */
+    @Override
     public Object getSimpleForm(boolean isCreateAccount)
     {
         return page.getSimpleForm();
@@ -152,6 +160,7 @@ class EmptyAccountRegistrationWizard
      *
      * @return an Empty iterator.
      */
+    @Override
     public Iterator<Entry<String, String>> getSummary()
     {
         return new java.util.LinkedList<Entry<String, String>>().iterator();
@@ -162,6 +171,7 @@ class EmptyAccountRegistrationWizard
      *
      * @return an empty string as we never use this method.
      */
+    @Override
     public String getUserNameExample()
     {
         return "";
@@ -171,6 +181,7 @@ class EmptyAccountRegistrationWizard
      * Empty interface method implementation, unused in the case of the
      * {@link EmptyAccountRegistrationWizard}
      */
+    @Override
     public void loadAccount(ProtocolProviderService protocolProvider)
     {
     }
@@ -179,6 +190,7 @@ class EmptyAccountRegistrationWizard
      * Empty interface method implementation, unused in the case of the
      * {@link EmptyAccountRegistrationWizard}
      */
+    @Override
     public ProtocolProviderService signin() throws OperationFailedException
     {
         return null;
@@ -188,6 +200,7 @@ class EmptyAccountRegistrationWizard
      * Empty interface method implementation, unused in the case of the
      * {@link EmptyAccountRegistrationWizard}
      */
+    @Override
     public ProtocolProviderService signin(String userName, String password)
                     throws OperationFailedException
     {

@@ -13,7 +13,7 @@ import org.osgi.framework.*;
 import javax.swing.*;
 
 /**
- * 
+ *
  * @author Yana Stamcheva
  */
 public class AdvancedConfigActivator

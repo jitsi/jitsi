@@ -131,6 +131,7 @@ public class OperationSetPersistentPresenceJabberImpl
      * @param listener a ServerStoredGroupChangeListener impl that would
      *   receive events upon group changes.
      */
+    @Override
     public void addServerStoredGroupChangeListener(ServerStoredGroupListener
         listener)
     {
@@ -489,6 +490,7 @@ public class OperationSetPersistentPresenceJabberImpl
      *
      * @param listener the ServerStoredGroupChangeListener to remove
      */
+    @Override
     public void removeServerStoredGroupChangeListener(ServerStoredGroupListener
         listener)
     {
@@ -729,6 +731,7 @@ public class OperationSetPersistentPresenceJabberImpl
      * @param oldStatus old status
      * @param newStatus new status
      */
+    @Override
     public void fireProviderStatusChangeEvent(
         PresenceStatus oldStatus,
         PresenceStatus newStatus)
@@ -812,6 +815,7 @@ public class OperationSetPersistentPresenceJabberImpl
      * @throws IllegalArgumentException if <tt>contact</tt> is not an
      * instance that belongs to the underlying implementation.
      */
+    @Override
     public void setDisplayName(Contact contact, String newName)
         throws IllegalArgumentException
     {
@@ -1400,7 +1404,7 @@ public class OperationSetPersistentPresenceJabberImpl
         // Registers the listener.
         parentProvider.getConnection().addPacketListener(
             new PacketListener()
-            { 
+            {
                 public void processPacket(Packet packet)
                 {
                     // Calls the parser to manages this presence packet.
@@ -1467,7 +1471,7 @@ public class OperationSetPersistentPresenceJabberImpl
                 {
                     byte[] newAvatar = null;
 
-                    // If there is an avatar image, retrieves it. 
+                    // If there is an avatar image, retrieves it.
                     if(packetPhotoSHA1.length() != 0)
                     {
                         // Retrieves the new contact avatar image.

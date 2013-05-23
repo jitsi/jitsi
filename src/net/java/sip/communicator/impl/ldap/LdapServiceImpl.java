@@ -132,7 +132,7 @@ public class LdapServiceImpl
     /**
      * Gets the <tt>CertificateService</tt> to be used by the functionality of
      * the addrbook plug-in.
-     * 
+     *
      * @return the <tt>CertificateService</tt> to be used by the functionality
      *         of the addrbook plug-in.
      */

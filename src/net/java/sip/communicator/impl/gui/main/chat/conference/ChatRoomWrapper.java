@@ -13,7 +13,7 @@ import net.java.sip.communicator.util.*;
  * The <tt>ChatRoomWrapper</tt> is the representation of the <tt>ChatRoom</tt>
  * in the GUI. It stores the information for the chat room even when the
  * corresponding protocol provider is not connected.
- * 
+ *
  * @author Yana Stamcheva
  * @author Damian Minkov
  */
@@ -60,7 +60,7 @@ public class ChatRoomWrapper
     /**
      * Creates a <tt>ChatRoomWrapper</tt> by specifying the protocol provider,
      * the identifier and the name of the chat room.
-     * 
+     *
      * @param parentProvider the protocol provider to which the corresponding
      * chat room belongs
      * @param chatRoomID the identifier of the corresponding chat room
@@ -78,7 +78,7 @@ public class ChatRoomWrapper
     /**
      * Creates a <tt>ChatRoomWrapper</tt> by specifying the corresponding chat
      * room.
-     * 
+     *
      * @param parentProvider the protocol provider to which the corresponding
      * chat room belongs
      * @param chatRoom the chat room to which this wrapper corresponds.
@@ -95,7 +95,7 @@ public class ChatRoomWrapper
 
     /**
      * Returns the <tt>ChatRoom</tt> that this wrapper represents.
-     * 
+     *
      * @return the <tt>ChatRoom</tt> that this wrapper represents.
      */
     public ChatRoom getChatRoom()
@@ -105,7 +105,7 @@ public class ChatRoomWrapper
 
     /**
      * Sets the <tt>ChatRoom</tt> that this wrapper represents.
-     * 
+     *
      * @param chatRoom the chat room
      */
     public void setChatRoom(ChatRoom chatRoom)
@@ -115,7 +115,7 @@ public class ChatRoomWrapper
 
     /**
      * Returns the chat room name.
-     * 
+     *
      * @return the chat room name
      */
     public String getChatRoomName()
@@ -125,7 +125,7 @@ public class ChatRoomWrapper
 
     /**
      * Returns the identifier of the chat room.
-     * 
+     *
      * @return the identifier of the chat room
      */
     public String getChatRoomID()
@@ -135,7 +135,7 @@ public class ChatRoomWrapper
 
     /**
      * Returns the parent protocol provider.
-     * 
+     *
      * @return the parent protocol provider
      */
     public ChatRoomProviderWrapper getParentProvider()
@@ -146,7 +146,7 @@ public class ChatRoomWrapper
     /**
      * Returns <code>true</code> if the chat room is persistent,
      * otherwise - returns <code>false</code>.
-     * 
+     *
      * @return <code>true</code> if the chat room is persistent,
      * otherwise - returns <code>false</code>.
      */

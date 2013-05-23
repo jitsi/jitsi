@@ -11,7 +11,7 @@ import java.util.*;
 /**
  * A listener that will be notified of changes in our presence in the
  * white-board, such as joined, left, dropped, etc.
- * 
+ *
  * @author Yana Stamcheva
  */
 public interface WhiteboardSessionPresenceListener

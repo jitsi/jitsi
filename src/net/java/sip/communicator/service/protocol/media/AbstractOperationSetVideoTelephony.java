@@ -135,7 +135,7 @@ public abstract class AbstractOperationSetVideoTelephony<
     /**
      * Returns the <tt>ConferenceMember</tt> corresponding to the given
      * <tt>visualComponent</tt>.
-     * 
+     *
      * @param peer the parent <tt>CallPeer</tt>
      * @param visualComponent the visual <tt>Component</tt>, which corresponding
      * <tt>ConferenceMember</tt> we're looking for

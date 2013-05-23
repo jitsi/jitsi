@@ -147,6 +147,7 @@ public class AdHocChatRoomParticipantPresenceChangeEvent
      *
      * @return string representation of this event
      */
+    @Override
     public String toString()
     {
         return "AdHocChatRoomParticipantPresenceChangeEvent[type="

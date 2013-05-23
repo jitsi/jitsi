@@ -18,12 +18,12 @@ public interface ChatRoomPropertyChangeListener
 {
     /**
      * Called to indicate that a chat room property has been modified.
-     * 
+     *
      * @param event the ChatRoomPropertyChangeEvent containing the name of the
      * property that has just changed, as well as its old and new values.
      */
     public void chatRoomPropertyChanged(ChatRoomPropertyChangeEvent event);
-    
+
     /**
      * Called to indicate that a change of a chat room property has failed.
      * The modification of a property could fail, because the implementation

@@ -12,9 +12,9 @@ import java.util.*;
  * A listener that will be notified of changes in the role of the local
  * user participant in a particular chat room. Changes could be us being granted
  * any of the roles defined in <tt>ChatRoomMemberRole</tt>.
- * 
+ *
  * @see net.java.sip.communicator.service.protocol.ChatRoomMemberRole
- * 
+ *
  * @author Stephane Remy
  */
 public interface ChatRoomLocalUserRoleListener

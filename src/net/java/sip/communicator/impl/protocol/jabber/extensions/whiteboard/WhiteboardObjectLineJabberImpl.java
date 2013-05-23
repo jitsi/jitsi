@@ -42,7 +42,7 @@ public class WhiteboardObjectLineJabberImpl
      * The end coordinates for this line.
      */
     private WhiteboardPoint whiteboardPointEnd = new WhiteboardPoint(0, 0);
-    
+
     /**
      * Default WhiteboardObjectLineJabberImpl constructor.
      */
@@ -50,7 +50,7 @@ public class WhiteboardObjectLineJabberImpl
     {
         super ();
     }
-    
+
     /**
      * WhiteboardObjectLineJabberImpl constructor.
      *
@@ -66,7 +66,7 @@ public class WhiteboardObjectLineJabberImpl
             builder = factory.newDocumentBuilder ();
             InputStream in = new ByteArrayInputStream (xml.getBytes ());
             Document doc = builder.parse (in);
-            
+
             Element e = doc.getDocumentElement ();
             String elementName = e.getNodeName ();
             if (elementName.equals ("line"))
@@ -79,7 +79,7 @@ public class WhiteboardObjectLineJabberImpl
                 double y2 = Double.parseDouble (e.getAttribute ("y2"));
                 String stroke = e.getAttribute ("stroke");
                 String stroke_width = e.getAttribute ("stroke-width");
-                
+
                 this.setID (id);
                 this.setThickness (Integer.parseInt (stroke_width));
                 this.setColor (Color.decode (stroke).getRGB ());
@@ -103,7 +103,7 @@ public class WhiteboardObjectLineJabberImpl
                 logger.debug ("Problem WhiteboardObject : " + xml, ex);
         }
     }
-    
+
     /**
      * Returns the coordinates of  start point for the line
      *
@@ -113,7 +113,7 @@ public class WhiteboardObjectLineJabberImpl
     {
         return this.whiteboardPointStart;
     }
-    
+
     /**
      * Returns the coordinates of  end point for the line
      *
@@ -123,7 +123,7 @@ public class WhiteboardObjectLineJabberImpl
     {
         return this.whiteboardPointEnd;
     }
-    
+
     /**
      * Sets the coordinates of start point for the line
      *
@@ -133,7 +133,7 @@ public class WhiteboardObjectLineJabberImpl
     {
         this.whiteboardPointStart = whiteboardPointStart;
     }
-    
+
     /**
      * Sets the coordinates of end point for the line
      *
@@ -150,6 +150,7 @@ public class WhiteboardObjectLineJabberImpl
      * @todo Implement this org.jivesoftware.smack.packet.PacketExtension
      *   method
      */
+    @Override
     public String toXML ()
     {
         String s

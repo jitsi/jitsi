@@ -217,6 +217,7 @@ public class OtrActivator
      * The bundle context to use.
      * @param context the context to set.
      */
+    @Override
     public void setBundleContext(BundleContext context)
     {
         bundleContext = context;
@@ -324,7 +325,7 @@ public class OtrActivator
 
     /**
      * Gets all the available accounts in SIP Communicator.
-     * 
+     *
      * @return a {@link List} of {@link AccountID}.
      */
     public static List<AccountID> getAllAccountIDs()
@@ -350,7 +351,7 @@ public class OtrActivator
 
     /**
      * Gets an {@link AccountID} by its UID.
-     * 
+     *
      * @param uid The {@link AccountID} UID.
      * @return The {@link AccountID} with the requested UID or null.
      */

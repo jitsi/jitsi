@@ -17,7 +17,7 @@ import net.java.sip.communicator.plugin.desktoputil.*;
  * @author Julien Waechter
  */
 public class WhiteboardFileFilter extends SipCommFileFilter {
-    
+
     /**
      * file extension
      */
@@ -26,7 +26,7 @@ public class WhiteboardFileFilter extends SipCommFileFilter {
      * file description
      */
     private String description;
-    
+
     /**
      * WhiteboardFileFilter constructor
      * @param ext extension
@@ -36,7 +36,7 @@ public class WhiteboardFileFilter extends SipCommFileFilter {
         this.ext = ext;
         this.description = description;
     }
-    
+
     /**
      * Tests the specified file,
      * returning true if the file is accepted, false otherwise.
@@ -46,6 +46,7 @@ public class WhiteboardFileFilter extends SipCommFileFilter {
      * @param f file
      * @return true if file is accepted
      */
+    @Override
     public boolean accept (File f) {
         if (f != null) {
             if (f.isDirectory ()) {
@@ -58,11 +59,12 @@ public class WhiteboardFileFilter extends SipCommFileFilter {
         }
         return false;
     }
-    
+
     /**
      * The description of this filter. For example: "JPG and GIF Images"
      * @return description
      */
+    @Override
     public String getDescription () {
         return description;
     }
@@ -73,7 +75,7 @@ public class WhiteboardFileFilter extends SipCommFileFilter {
     public String getExtension () {
         return ext;
     }
-    
+
     /**
      * The extension of the file"
      * @param f File

@@ -62,7 +62,7 @@ public class SlicklessTests
     public void stop(BundleContext bundlecontext) throws Exception
     {
     }
-    
+
     /**
      * allow these tests to be run directly under jUnit
      */

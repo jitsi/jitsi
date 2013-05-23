@@ -93,7 +93,7 @@ public class PNContactSourceActivator
     /**
      * Returns a list of all currently registered server stored contact info
      * providers.
-     * 
+     *
      * @return a list of all currently registered server stored contact info
      * providers
      */

@@ -29,7 +29,7 @@ public class RssAccRegWizzActivator
      * A currently valid bundle context.
      */
     public static BundleContext bundleContext;
-    
+
     private static UIService uiService;
 
     /**
@@ -112,10 +112,10 @@ public class RssAccRegWizzActivator
                 : (ProtocolProviderFactory)
                     bundleContext.getService(serRefs[0]);
     }
-    
+
      /**
      * Returns the <tt>UIService</tt>.
-     * 
+     *
      * @return the <tt>UIService</tt>
      */
     public static UIService getUIService()

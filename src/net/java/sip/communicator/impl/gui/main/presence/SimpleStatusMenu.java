@@ -21,7 +21,7 @@ import net.java.sip.communicator.service.protocol.globalstatus.*;
  * The <tt>SimpleStatusSelectorBox</tt> is a <tt>SIPCommMenu</tt> that contains
  * two statuses ONLINE and OFFLINE. It's used to represent the status of a
  * protocol provider which doesn't support presence operation set.
- * 
+ *
  * @author Yana Stamcheva
  * @author Lubomir Marinov
  * @author Adam Netocny
@@ -41,7 +41,7 @@ public class SimpleStatusMenu
 
     /**
      * Creates an instance of <tt>SimpleStatusMenu</tt>.
-     * 
+     *
      * @param protocolProvider the protocol provider
      */
     public SimpleStatusMenu(ProtocolProviderService protocolProvider)
@@ -135,6 +135,7 @@ public class SimpleStatusMenu
     /**
      * Stops the timer that manages the connecting animated icon.
      */
+    @Override
     public void updateStatus()
     {
         String tooltip = this.getToolTipText();

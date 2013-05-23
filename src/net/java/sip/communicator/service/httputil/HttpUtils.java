@@ -872,6 +872,7 @@ public class HttpUtils
          *
          * @exception  IOException  if an I/O error occurs.
          */
+        @Override
         public void close()
             throws IOException
         {

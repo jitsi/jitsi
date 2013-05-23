@@ -32,6 +32,7 @@ public class SIPCommBorders
 
         private static final Insets insets = new Insets(2, 2, 2, 2);
 
+        @Override
         public void paintBorder(Component c, Graphics g, int x, int y, int w,
             int h)
         {
@@ -45,11 +46,13 @@ public class SIPCommBorders
             }
         }
 
+        @Override
         public Insets getBorderInsets(Component c)
         {
             return insets;
         }
 
+        @Override
         public Insets getBorderInsets(Component c, Insets newInsets)
         {
             newInsets.top = insets.top;
@@ -88,17 +91,20 @@ public class SIPCommBorders
 
         private static final Insets insets = new Insets(2, 2, 2, 2);
 
+        @Override
         public void paintBorder(Component c, Graphics g, int x, int y, int w,
             int h)
         {
             SIPCommLFUtils.drawBoldRoundBorder(g, x, y, w, h, 8, 8);
         }
 
+        @Override
         public Insets getBorderInsets(Component c)
         {
             return insets;
         }
 
+        @Override
         public Insets getBorderInsets(Component c, Insets newInsets)
         {
             newInsets.top = insets.top;
@@ -151,6 +157,7 @@ public class SIPCommBorders
     {
         private static final long serialVersionUID = 0L;
 
+        @Override
         public void paintBorder(Component c,
                                 Graphics g,
                                 int x,

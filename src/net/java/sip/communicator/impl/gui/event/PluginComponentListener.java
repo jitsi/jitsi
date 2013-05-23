@@ -10,10 +10,10 @@ import java.util.*;
 
 /**
  * Listens for all events caused by adding or removing of a plugin component.
- * 
+ *
  * @author Yana Stamcheva
  */
-public interface PluginComponentListener 
+public interface PluginComponentListener
     extends EventListener
 {
     /**

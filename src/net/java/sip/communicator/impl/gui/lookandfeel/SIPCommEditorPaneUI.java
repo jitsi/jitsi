@@ -16,7 +16,7 @@ import net.java.sip.communicator.plugin.desktoputil.*;
 
 /**
  * The SIPCommEditorPaneUI implementation.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class SIPCommEditorPaneUI extends BasicEditorPaneUI {
@@ -29,6 +29,7 @@ public class SIPCommEditorPaneUI extends BasicEditorPaneUI {
         return new SIPCommEditorPaneUI();
     }
 
+    @Override
     public void paintSafely(Graphics g)
     {
         AntialiasingManager.activateAntialiasing(g);

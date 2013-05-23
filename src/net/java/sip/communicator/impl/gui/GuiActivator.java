@@ -101,7 +101,7 @@ public class GuiActivator implements BundleActivator
     private static DemuxContactSourceService demuxContactSourceService;
 
     private static GlobalDisplayDetailsService globalDisplayDetailsService;
-    
+
     private static AlertUIService alertUIService;
 
     private static final Map<Object, ProtocolProviderFactory>
@@ -142,7 +142,7 @@ public class GuiActivator implements BundleActivator
             bundleContext.registerService(GlobalStatusService.class.getName(),
                                           new GlobalStatusServiceImpl(),
                                           null);
-            
+
             alertUIService = new AlertUIServiceImpl();
             // Registers an implementation of the AlertUIService.
             bundleContext.registerService(  AlertUIService.class.getName(),
@@ -415,7 +415,7 @@ public class GuiActivator implements BundleActivator
     {
         return uiService;
     }
-    
+
     /**
      * Returns the implementation of the <tt>AlertUIService</tt>.
      * @return the implementation of the <tt>AlertUIService</tt>

@@ -38,6 +38,7 @@ public class TestAccountUninstallation
      * JUnit setup method.
      * @throws Exception in case anything goes wrong.
      */
+    @Override
     protected void setUp() throws Exception
     {
         super.setUp();
@@ -48,6 +49,7 @@ public class TestAccountUninstallation
      * JUnit teardown method.
      * @throws Exception in case anything goes wrong.
      */
+    @Override
     protected void tearDown() throws Exception
     {
         fixture.tearDown();
@@ -107,7 +109,7 @@ public class TestAccountUninstallation
         ServiceReference[] jabberProviderRefs = null;
         try
         {
-            jabberProviderRefs = fixture.bc.getServiceReferences(
+            jabberProviderRefs = JabberSlickFixture.bc.getServiceReferences(
                 ProtocolProviderService.class.getName(),
                 "(&"
                 + "(" + ProtocolProviderFactory.PROTOCOL
@@ -138,7 +140,7 @@ public class TestAccountUninstallation
               == null);
 
         //Now reinstall the bundle
-        providerBundle = fixture.bc.installBundle(providerBundle.getLocation());
+        providerBundle = JabberSlickFixture.bc.installBundle(providerBundle.getLocation());
 
         //set the global providerBundle reference that we will be using
         //in the last series of tests (Account uninstallation persistency)
@@ -156,7 +158,7 @@ public class TestAccountUninstallation
         //verify that the provider is no longer available
         try
         {
-            jabberProviderRefs = fixture.bc.getServiceReferences(
+            jabberProviderRefs = JabberSlickFixture.bc.getServiceReferences(
                 ProtocolProviderService.class.getName(),
                 "(&"
                 + "(" + ProtocolProviderFactory.PROTOCOL
@@ -178,7 +180,7 @@ public class TestAccountUninstallation
         ServiceReference[] jabberFactoryRefs = null;
         try
         {
-            jabberFactoryRefs = fixture.bc.getServiceReferences(
+            jabberFactoryRefs = JabberSlickFixture.bc.getServiceReferences(
                 ProtocolProviderFactory.class.getName(),
                 "(" + ProtocolProviderFactory.PROTOCOL
                       + "=" +ProtocolNames.JABBER + ")");
@@ -191,9 +193,9 @@ public class TestAccountUninstallation
         //we're the ones who've reinstalled the factory so it's our
         //responsibility to update the fixture.
         fixture.providerFactory
-            = (ProtocolProviderFactory)fixture.bc.getService(jabberFactoryRefs[0]);
+            = (ProtocolProviderFactory)JabberSlickFixture.bc.getService(jabberFactoryRefs[0]);
         fixture.provider1
-            = (ProtocolProviderService)fixture.bc.getService(jabberProviderRefs[0]);
+            = (ProtocolProviderService)JabberSlickFixture.bc.getService(jabberProviderRefs[0]);
 
 
         //verify that the provider is also restored in the provider factory
@@ -242,7 +244,7 @@ public class TestAccountUninstallation
         ServiceReference[] jabberProviderRefs = null;
         try
         {
-            jabberProviderRefs = fixture.bc.getServiceReferences(
+            jabberProviderRefs = JabberSlickFixture.bc.getServiceReferences(
                 ProtocolProviderService.class.getName(),
                 "(" + ProtocolProviderFactory.PROTOCOL
                       + "=" +ProtocolNames.JABBER + ")");

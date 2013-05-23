@@ -19,7 +19,7 @@ import net.java.sip.communicator.service.gui.*;
  * "Create chat room" wizard. Contains the <tt>SelectAccountPanel</tt>, where
  * the user should select the account, for which the new chat room will be
  * created.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class JoinChatRoomWizardPage1
@@ -37,11 +37,11 @@ public class JoinChatRoomWizardPage1
 
     /**
      * Creates an instance of <tt>JoinChatRoomWizardPage1</tt>.
-     * 
+     *
      * @param wizard the parent wizard container
      * @param joinChatRoom the object that will collect the information through
-     * the wizard 
-     * @param chatRoomProviders The list of available installed 
+     * the wizard
+     * @param chatRoomProviders The list of available installed
      * <tt>ChatRoomProviderWrapper</tt>, from which the user could select.
      */
     public JoinChatRoomWizardPage1(
@@ -56,10 +56,10 @@ public class JoinChatRoomWizardPage1
 
         selectAccountPanel.addListSelectionListener(this);
     }
-    
+
     /**
      * Before the panel is displayed checks the selections and enables the
-     * next button if a check box is already selected or disables it if 
+     * next button if a check box is already selected or disables it if
      * nothing is selected.
      */
     public void pageShowing()
@@ -68,7 +68,7 @@ public class JoinChatRoomWizardPage1
     }
 
     /**
-     * Enables the next button when the user makes a choice and disables it 
+     * Enables the next button when the user makes a choice and disables it
      * if nothing is selected.
      */
     private void setNextButtonAccordingToRowSelection()
@@ -82,7 +82,7 @@ public class JoinChatRoomWizardPage1
     /**
      * Listens for selection evens so that we would only enable the next button
      * if an account has actually been chosen.
-     * 
+     *
      * @param e the <tt>ListSelectionEvent</tt> that has just occurred.
      */
     public void valueChanged(ListSelectionEvent e)
@@ -92,7 +92,7 @@ public class JoinChatRoomWizardPage1
 
     /**
      * Returns the identifier of this wizard page.
-     * 
+     *
      * @return  the identifier of this wizard page
      */
     public Object getIdentifier()
@@ -102,7 +102,7 @@ public class JoinChatRoomWizardPage1
 
     /**
      * Returns the identifier of the next wizard page.
-     * 
+     *
      * @return the identifier of the next wizard page
      */
     public Object getNextPageIdentifier()
@@ -112,7 +112,7 @@ public class JoinChatRoomWizardPage1
 
     /**
      * Returns the identifier of the back wizard page.
-     * 
+     *
      * @return the identifier of the back wizard page
      */
     public Object getBackPageIdentifier()
@@ -122,7 +122,7 @@ public class JoinChatRoomWizardPage1
 
     /**
      * Returns the form contained in this wizard page.
-     * 
+     *
      * @return the form contained in this wizard page
      */
     public Object getWizardForm()

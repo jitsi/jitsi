@@ -115,6 +115,7 @@ public class ContactPresenceStatusChangeEvent extends PropertyChangeEvent
      * @return  A a String representation of this
      * ContactPresenceStatusChangeEvent.
      */
+    @Override
     public String toString()
     {
         StringBuffer buff

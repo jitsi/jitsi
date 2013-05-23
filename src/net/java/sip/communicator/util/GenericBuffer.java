@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.util;
@@ -26,7 +26,7 @@ public class GenericBuffer<T>
 
     /**
      * Sole constructor.
-     * 
+     *
      * @param bufferSize The buffer size. Adding data to a full buffer will
      *            cause the oldest data present in the buffer to be overwritten;
      */
@@ -41,7 +41,7 @@ public class GenericBuffer<T>
     /**
      * Adds a value to the buffer. If the buffer is full, the oldest value in
      * the buffer will be overwritten by this new value.
-     * 
+     *
      * @param value The value to add. Can't be null.
      * @param context The context for which this value is valid. This basically
      *            represents the current value of all the variables which
@@ -87,7 +87,7 @@ public class GenericBuffer<T>
     /**
      * Retrieves the value in the buffer corresponding to the context if it
      * exists.
-     * 
+     *
      * @param context The context of the searched value. The context represents
      *            all the variables values for which this value is correct.
      * @return The bufferized value with the searched context if it exists or

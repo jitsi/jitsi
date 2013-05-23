@@ -70,12 +70,12 @@ public interface ProtocolNames
      * The Zeroconf protocol.
      */
     public static final String ZEROCONF  = "Zeroconf";
-    
+
     /**
      * The RSS protocol.
      */
     public static final String RSS = "RSS";
-    
+
     /**
      * The SSH protocol.
      */
@@ -90,7 +90,7 @@ public interface ProtocolNames
      * The Dict protocol.
      */
     public static final String DICT = "Dict";
-     
+
     /**
      * The Facebook protocol.
      */

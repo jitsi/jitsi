@@ -11,7 +11,7 @@ import java.util.*;
 /**
  * Object to cache fired notifications before all handler implementations are
  * ready registered.
- * 
+ *
  * @author Ingo Bauersachs
  */
 public class NotificationData
@@ -58,7 +58,7 @@ public class NotificationData
 
     /**
      * Creates a new instance of this class.
-     * 
+     *
      * @param eventType the type of the event that we'd like to fire a
      * notification for.
      * @param title the title of the given message
@@ -67,7 +67,7 @@ public class NotificationData
      * @param icon the icon to show in the notification if and where appropriate
      * @param extras additional/extra {@link NotificationHandler}-specific data
      * to be provided by the new instance to the various
-     * <tt>NotificationHandler</tt>s 
+     * <tt>NotificationHandler</tt>s
      */
     NotificationData(
             String eventType,
@@ -85,7 +85,7 @@ public class NotificationData
 
     /**
      * Gets the type of the event that we'd like to fire a notification for
-     * 
+     *
      * @return the eventType
      */
     public String getEventType()
@@ -123,7 +123,7 @@ public class NotificationData
 
     /**
      * Gets the icon to show in the notification if and where appropriate.
-     * 
+     *
      * @return the icon
      */
     byte[] getIcon()
@@ -134,7 +134,7 @@ public class NotificationData
     /**
      * Gets the message to use if and where appropriate (e.g. with systray or
      * log notification).
-     * 
+     *
      * @return the message
      */
     String getMessage()
@@ -144,7 +144,7 @@ public class NotificationData
 
     /**
      * Gets the title of the given message.
-     * 
+     *
      * @return the title
      */
     String getTitle()

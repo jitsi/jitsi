@@ -23,18 +23,18 @@ package net.java.sip.communicator.plugin.sshaccregwizz;
 public class SSHAccountRegistration
 {
     private String accountID;
-    
+
     /**
      * Stored public keys[SSH] of remote server
      */
     private String knownHostsFile;
-    
+
     /**
-     * Identity file is a private[default] key of the user which is one 
+     * Identity file is a private[default] key of the user which is one
      * of the methods of authentication
      */
     private String identityFile;
-    
+
     /**
      * Returns the Account ID of the ssh registration account.
      * @return accountID
@@ -43,37 +43,37 @@ public class SSHAccountRegistration
     {
         return accountID;
     }
-    
+
     /**
      * Sets the Account ID of the ssh registration account.
-     * 
+     *
      * @param accountID the accountID of the ssh registration account.
      */
     public void setUserID(String accountID)
     {
         this.accountID = accountID;
     }
-    
+
     /**
      * Returns the Known Hosts of the ssh registration account.
-     * 
+     *
      * @return knownHostsFile
      */
     public String getKnownHostsFile()
     {
         return knownHostsFile;
     }
-    
+
     /**
      * Sets the Known Hosts of the ssh registration account.
-     * 
+     *
      * @param knownHostsFile
      */
     public void setKnownHostsFile(String knownHostsFile)
     {
         this.knownHostsFile = knownHostsFile;
     }
-    
+
     /**
      * Returns the Identity File of the ssh registration account.
      *
@@ -83,10 +83,10 @@ public class SSHAccountRegistration
     {
         return identityFile;
     }
-    
+
     /**
      * Sets the Machine Port of the ssh registration account.
-     * 
+     *
      * @param machinePort
      */
     public void setIdentityFile(String machinePort)

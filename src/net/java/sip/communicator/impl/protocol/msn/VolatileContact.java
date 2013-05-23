@@ -26,7 +26,7 @@ public class VolatileContact
         this.email = email;
         this.displayName = displayName;
     }
-    
+
     VolatileContact(String id)
     {
         this(id, null, id);
@@ -70,6 +70,6 @@ public class VolatileContact
     public MsnUserStatus getOldStatus(){return null;}
 
     public String getPersonalMessage(){return "";}
-    
+
     public MsnObject getAvatar(){return null;}
 }

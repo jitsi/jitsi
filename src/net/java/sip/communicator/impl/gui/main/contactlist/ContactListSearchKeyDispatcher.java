@@ -44,7 +44,7 @@ public class ContactListSearchKeyDispatcher
      * The container of the contact list.
      */
     private final ContactListContainer contactListContainer;
-    
+
     /**
      * Creates an instance of <tt>MainKeyDispatcher</tt>.
      * @param keyManager the parent <tt>KeyboardFocusManager</tt>

@@ -17,11 +17,11 @@ import java.util.logging.*;
  */
 public class ServiceInfo implements DNSListener
 {
-    private static Logger logger = 
+    private static Logger logger =
         Logger.getLogger(ServiceInfo.class.toString());
     public final static byte[] NO_VALUE = new byte[0];
     JmDNS dns;
-    
+
     // State machine
     /**
      * The state of this service info.
@@ -31,14 +31,14 @@ public class ServiceInfo implements DNSListener
      * changed only using methods advanceState(), revertState() and cancel().
      */
     private DNSState state = DNSState.PROBING_1;
-    
+
     /**
      * Task associated to this service info.
      * Possible tasks are JmDNS.Prober, JmDNS.Announcer, JmDNS.Responder,
      * JmDNS.Canceler.
      */
     TimerTask task;
-    
+
     String type;
     private String name;
     String server;
@@ -48,14 +48,14 @@ public class ServiceInfo implements DNSListener
     byte text[];
     private Map<String, Object> props;
     InetAddress addr;
-    
-    
+
+
     /**
      * Construct a service description for registrating with JmDNS.
      *
-     * @param type fully qualified service type name, 
+     * @param type fully qualified service type name,
      *      such as <code>_http._tcp.local.</code>.
-     * @param name unqualified service instance name, 
+     * @param name unqualified service instance name,
      *      such as <code>foobar</code>
      * @param port the local port on which the service runs
      * @param text string describing the service
@@ -64,21 +64,21 @@ public class ServiceInfo implements DNSListener
     {
         this(type, name, port, 0, 0, text);
     }
-    
+
     /**
      * Construct a service description for registrating with JmDNS.
      *
-     * @param type     fully qualified service type name, 
+     * @param type     fully qualified service type name,
      *      such as <code>_http._tcp.local.</code>.
-     * @param name     unqualified service instance name, 
+     * @param name     unqualified service instance name,
      *      such as <code>foobar</code>
      * @param port     the local port on which the service runs
      * @param weight   weight of the service
      * @param priority priority of the service
      * @param text     string describing the service
      */
-    public ServiceInfo(String type, String name, 
-                       int port, int weight, 
+    public ServiceInfo(String type, String name,
+                       int port, int weight,
                        int priority, String text)
     {
         this(type, name, port, weight, priority, (byte[]) null);
@@ -93,7 +93,7 @@ public class ServiceInfo implements DNSListener
             throw new RuntimeException("unexpected exception: " + e);
         }
     }
-    
+
     /**
      * Construct a service description for registrating with JmDNS. The properties hashtable must
      * map property names to either Strings or byte arrays describing the property values.
@@ -105,8 +105,8 @@ public class ServiceInfo implements DNSListener
      * @param priority priority of the service
      * @param props    properties describing the service
      */
-    public ServiceInfo(String type, String name, 
-                       int port, int weight, 
+    public ServiceInfo(String type, String name,
+                       int port, int weight,
                        int priority, Map<String, Object> props)
     {
         this(type, name, port, weight, priority, new byte[0]);
@@ -155,21 +155,21 @@ public class ServiceInfo implements DNSListener
             }
         }
     }
-    
+
     /**
      * Construct a service description for registrating with JmDNS.
      *
-     * @param type     fully qualified service type name, 
+     * @param type     fully qualified service type name,
      *      such as <code>_http._tcp.local.</code>.
-     * @param name     unqualified service instance name, 
+     * @param name     unqualified service instance name,
      *      such as <code>foobar</code>
      * @param port     the local port on which the service runs
      * @param weight   weight of the service
      * @param priority priority of the service
      * @param text     bytes describing the service
      */
-    public ServiceInfo(String type, String name, 
-                       int port, int weight, 
+    public ServiceInfo(String type, String name,
+                       int port, int weight,
                        int priority, byte text[])
     {
         this.type = type;
@@ -178,12 +178,12 @@ public class ServiceInfo implements DNSListener
         this.weight = weight;
         this.priority = priority;
         this.text = text;
-        
+
         String SLevel = System.getProperty("jmdns.debug");
         if (SLevel == null) SLevel = "INFO";
-        logger.setLevel(Level.parse(SLevel)); 
+        logger.setLevel(Level.parse(SLevel));
     }
-    
+
     /**
      * Construct a service record during service discovery.
      */
@@ -194,11 +194,11 @@ public class ServiceInfo implements DNSListener
             throw new IllegalArgumentException(
                 "type must be fully qualified DNS name ending in '.': " + type);
         }
-        
+
         this.type = type;
         this.name = name;
     }
-    
+
     /**
      * During recovery we need to duplicate service info to reregister them
      */
@@ -214,9 +214,9 @@ public class ServiceInfo implements DNSListener
             this.text = info.text;
         }
     }
-    
+
     /**
-     * Fully qualified service type name, 
+     * Fully qualified service type name,
      * such as <code>_http._tcp.local.</code> .
      * @return Returns fully qualified service type name.
      */
@@ -224,9 +224,9 @@ public class ServiceInfo implements DNSListener
     {
         return type;
     }
-    
+
     /**
-     * Unqualified service instance name, 
+     * Unqualified service instance name,
      * such as <code>foobar</code> .
      * @return Returns unqualified service instance name.
      */
@@ -234,20 +234,20 @@ public class ServiceInfo implements DNSListener
     {
         return name;
     }
-    
+
     /**
      * Sets the service instance name.
      *
-     * @param name unqualified service instance name, 
+     * @param name unqualified service instance name,
      * such as <code>foobar</code>
      */
     void setName(String name)
     {
         this.name = name;
     }
-    
+
     /**
-     * Fully qualified service name, 
+     * Fully qualified service name,
      * such as <code>foobar._http._tcp.local.</code> .
      * @return Returns fully qualified service name.
      */
@@ -255,7 +255,7 @@ public class ServiceInfo implements DNSListener
     {
         return name + "." + type;
     }
-    
+
     /**
      * Get the name of the server.
      * @return Returns name of the server.
@@ -264,7 +264,7 @@ public class ServiceInfo implements DNSListener
     {
         return server;
     }
-    
+
     /**
      * Get the host address of the service (ie X.X.X.X).
      * @return Returns host address of the service.
@@ -273,12 +273,12 @@ public class ServiceInfo implements DNSListener
     {
         return (addr != null ? addr.getHostAddress() : "");
     }
-    
+
     public InetAddress getAddress()
     {
         return addr;
     }
-    
+
     /**
      * Get the InetAddress of the service.
      * @return Returns the InetAddress of the service.
@@ -287,7 +287,7 @@ public class ServiceInfo implements DNSListener
     {
         return addr;
     }
-    
+
     /**
      * Get the port for the service.
      * @return Returns port for the service.
@@ -296,7 +296,7 @@ public class ServiceInfo implements DNSListener
     {
         return port;
     }
-    
+
     /**
      * Get the priority of the service.
      * @return Returns the priority of the service.
@@ -305,7 +305,7 @@ public class ServiceInfo implements DNSListener
     {
         return priority;
     }
-    
+
     /**
      * Get the weight of the service.
      * @return Returns the weight of the service.
@@ -314,7 +314,7 @@ public class ServiceInfo implements DNSListener
     {
         return weight;
     }
-    
+
     /**
      * Get the text for the serivce as raw bytes.
      * @return Returns the text for the serivce as raw bytes.
@@ -323,7 +323,7 @@ public class ServiceInfo implements DNSListener
     {
         return text;
     }
-    
+
     /**
      * Get the text for the service. This will interpret the text bytes
      * as a UTF8 encoded string. Will return null if the bytes are not
@@ -332,15 +332,15 @@ public class ServiceInfo implements DNSListener
      */
     public String getTextString()
     {
-        if ((text == null) || 
-            (text.length == 0) || 
+        if ((text == null) ||
+            (text.length == 0) ||
             ((text.length == 1) && (text[0] == 0)))
         {
             return null;
         }
         return readUTF(text, 0, text.length);
     }
-    
+
     /**
      * Get the URL for this service. An http URL is created by
      * combining the address, port, and path properties.
@@ -350,11 +350,11 @@ public class ServiceInfo implements DNSListener
     {
         return getURL("http");
     }
-    
+
     /**
      * Get the URL for this service. An URL is created by
      * combining the protocol, address, port, and path properties.
-     * @param protocol 
+     * @param protocol
      * @return Returns URL for this service.
      */
     public String getURL(String protocol)
@@ -374,25 +374,25 @@ public class ServiceInfo implements DNSListener
         }
         return url;
     }
-    
+
     /**
      * Get a property of the service. This involves decoding the
      * text bytes into a property list. Returns null if the property
      * is not found or the text data could not be decoded correctly.
-     * @param name 
+     * @param name
      * @return Returns property of the service as bytes.
      */
     public synchronized byte[] getPropertyBytes(String name)
     {
         return (byte[]) getProperties().get(name);
     }
-    
+
     /**
      * Get a property of the service. This involves decoding the
      * text bytes into a property list. Returns null if the property
      * is not found, the text data could not be decoded correctly, or
      * the resulting bytes are not a valid UTF8 string.
-     * @param name 
+     * @param name
      * @return Returns property of the service as string.
      */
     public synchronized String getPropertyString(String name)
@@ -411,7 +411,7 @@ public class ServiceInfo implements DNSListener
 
         return res;
     }
-    
+
     /**
      * Iterator<String> of the property names.
      * @return Iterator<String> of the property names.
@@ -423,7 +423,7 @@ public class ServiceInfo implements DNSListener
             = (properties != null) ? properties.keySet() : new Vector<String>();
         return propertyNames.iterator();
     }
-    
+
     /**
      * Write a UTF string with a length to a stream.
      */
@@ -452,7 +452,7 @@ public class ServiceInfo implements DNSListener
             }
         }
     }
-    
+
     /**
      * Read data bytes as a UTF stream.
      */
@@ -489,8 +489,8 @@ public class ServiceInfo implements DNSListener
                         return null;
                     }
                     // 1110 xxxx  10xx xxxx  10xx xxxx
-                    ch = ((ch & 0x0f) << 12) | 
-                        ((data[off++] & 0x3F) << 6) | 
+                    ch = ((ch & 0x0f) << 12) |
+                        ((data[off++] & 0x3F) << 6) |
                         (data[off++] & 0x3F);
                     break;
                 default:
@@ -506,7 +506,7 @@ public class ServiceInfo implements DNSListener
         }
         return buf.toString();
     }
-    
+
     synchronized Map<String, Object> getProperties()
     {
         if ((props == null) && (text != null))
@@ -528,7 +528,7 @@ public class ServiceInfo implements DNSListener
                 {
                     ;
                 }
-                
+
                 // get the property name
                 String name = readUTF(text, off, i);
                 if (name == null)
@@ -552,14 +552,14 @@ public class ServiceInfo implements DNSListener
         }
         return props;
     }
-    
+
 
     /**
      * JmDNS callback to update a DNS record.
-     * @param rec 
+     * @param rec
      */
     public void updateRecord(JmDNS jmdns, long now, DNSRecord rec)
-    {     
+    {
         if ((rec != null) && !rec.isExpired(now))
         {
             switch (rec.type)
@@ -569,7 +569,7 @@ public class ServiceInfo implements DNSListener
                     if (rec.name.equals(server))
                     {
                         addr = ((DNSRecord.Address) rec).getAddress();
-                        
+
                     }
                     break;
                 case DNSConstants.TYPE_SRV:
@@ -583,18 +583,18 @@ public class ServiceInfo implements DNSListener
                         addr = null;
                         // changed to use getCache() instead - jeffs
                         // updateRecord(jmdns, now, (DNSRecord)jmdns.cache.get(server, TYPE_A, CLASS_IN));
-                        updateRecord(jmdns, 
-                                     now, 
+                        updateRecord(jmdns,
+                                     now,
                                      (DNSRecord) jmdns.getCache().get(
-                                        server, 
-                                        DNSConstants.TYPE_A, 
+                                        server,
+                                        DNSConstants.TYPE_A,
                                         DNSConstants.CLASS_IN));
                     }
                     break;
                 case DNSConstants.TYPE_TXT:
                     if (rec.name.equals(getQualifiedName()))
                     {
-                        DNSRecord.Text txt = (DNSRecord.Text) rec;                        
+                        DNSRecord.Text txt = (DNSRecord.Text) rec;
                         text = txt.text;
                     }
                     break;
@@ -613,7 +613,7 @@ public class ServiceInfo implements DNSListener
             }
         }
     }
-    
+
     /**
      * Returns true if the service info is filled with data.
      */
@@ -621,8 +621,8 @@ public class ServiceInfo implements DNSListener
     {
         return server != null && addr != null && text != null;
     }
-    
-    
+
+
     // State machine
     /**
      * Sets the state and notifies all objects that wait on the ServiceInfo.
@@ -632,7 +632,7 @@ public class ServiceInfo implements DNSListener
         state = state.advance();
         notifyAll();
     }
-    
+
     /**
      * Sets the state and notifies all objects that wait on the ServiceInfo.
      */
@@ -641,7 +641,7 @@ public class ServiceInfo implements DNSListener
         state = state.revert();
         notifyAll();
     }
-    
+
     /**
      * Sets the state and notifies all objects that wait on the ServiceInfo.
      */
@@ -650,7 +650,7 @@ public class ServiceInfo implements DNSListener
         state = DNSState.CANCELED;
         notifyAll();
     }
-    
+
     /**
      * Returns the current state of this info.
      */
@@ -658,19 +658,21 @@ public class ServiceInfo implements DNSListener
     {
         return state;
     }
-    
-    
+
+
+    @Override
     public int hashCode()
     {
         return getQualifiedName().hashCode();
     }
-    
+
+    @Override
     public boolean equals(Object obj)
     {
-        return (obj instanceof ServiceInfo) && 
+        return (obj instanceof ServiceInfo) &&
             getQualifiedName().equals(((ServiceInfo) obj).getQualifiedName());
     }
-    
+
     public String getNiceTextString()
     {
         StringBuffer buf = new StringBuffer();
@@ -694,7 +696,8 @@ public class ServiceInfo implements DNSListener
         }
         return buf.toString();
     }
-    
+
+    @Override
     public String toString()
     {
         StringBuffer buf = new StringBuffer();
@@ -709,7 +712,7 @@ public class ServiceInfo implements DNSListener
         buf.append(']');
         return buf.toString();
     }
-    
+
     /**
      * SC-Bonjour Implementation: Method used to set the properties of an existing ServiceInfo.
      * This is used in the implementation of Bonjour in SIP Communicator to be able to replace
@@ -728,7 +731,7 @@ public class ServiceInfo implements DNSListener
                 {
                     String key = prop.getKey();
                     Object val = prop.getValue();
-                   
+
                     ByteArrayOutputStream out2 = new ByteArrayOutputStream(100);
                     writeUTF(out2, key);
                     if (val instanceof String)
@@ -764,5 +767,5 @@ public class ServiceInfo implements DNSListener
                 throw new RuntimeException("unexpected exception: " + e);
             }
         }
-    }    
+    }
 }

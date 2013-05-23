@@ -17,7 +17,7 @@ import net.java.sip.communicator.plugin.desktoputil.*;
 
 /**
  * The <tt>CreateGroupPanel</tt> is the form for creating a group.
- *  
+ *
  * @author Yana Stamcheva
  * @author Adam Netocny
  */
@@ -105,13 +105,13 @@ public class CreateGroupPanel
 
     /**
      * Shows an error message below the create group text field.
-     * 
+     *
      * @param msg the message to show
      */
     public void showErrorMessage(String msg)
     {
         errorLabel.setText("*" + msg);
-        
+
         errorLabel.setVisible(true);
     }
 

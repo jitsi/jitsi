@@ -16,7 +16,7 @@ import net.java.sip.communicator.service.protocol.*;
  * A <tt>Runnable</tt> which permanently looks at the mouse position. If the
  * mouse is not moved, all accounts are set to &quot;Away&quot; or similar
  * states.
- * 
+ *
  * @author Thomas Hofer
  */
 public class StatusUpdateThread
@@ -28,7 +28,7 @@ public class StatusUpdateThread
 
     /**
      * Finds the Away-Status of the protocols
-     * 
+     *
      * @param presence
      * @return
      */

@@ -118,6 +118,7 @@ public class PluginTableModel
     /**
      * Returns FALSE for all cells in this table.
      */
+    @Override
     public boolean isCellEditable(int row, int column)
     {
         return false;

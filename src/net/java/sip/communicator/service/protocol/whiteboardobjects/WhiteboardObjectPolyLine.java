@@ -22,7 +22,7 @@ public interface WhiteboardObjectPolyLine extends WhiteboardObject
      * A type string constant indicating that an object is of type polyline.
      */
     public static final String NAME = "WHITEBOARDOBJECTPOLYLINE";
-    
+
     /**
      * Returns a list of all the <tt>WhiteboardPoint</tt> instances that this
      * <tt>WhiteboardObject</tt> is composed of.
@@ -30,7 +30,7 @@ public interface WhiteboardObjectPolyLine extends WhiteboardObject
      * @return the list of <tt>WhiteboardPoint</tt>s composing this object.
      */
     public List<WhiteboardPoint> getPoints ();
-    
+
     /**
      * Sets the list of <tt>WhiteboardPoint</tt> instances that this
      * <tt>WhiteboardObject</tt> is composed of.

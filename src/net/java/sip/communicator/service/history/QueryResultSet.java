@@ -9,16 +9,16 @@ package net.java.sip.communicator.service.history;
 import java.util.*;
 
 /**
- * 
+ *
  * @author Alexander Pelov
  */
 public interface QueryResultSet<T> extends BidirectionalIterator<T> {
 
     /**
      * A strongly-typed variant of <tt>next()</tt>.
-     * 
+     *
      * @return the next history record.
-     * 
+     *
      * @throws NoSuchElementException
      *             iteration has no more elements.
      */
@@ -26,9 +26,9 @@ public interface QueryResultSet<T> extends BidirectionalIterator<T> {
 
     /**
      * A strongly-typed variant of <tt>prev()</tt>.
-     * 
+     *
      * @return the previous history record.
-     * 
+     *
      * @throws NoSuchElementException
      *             iteration has no more elements.
      */

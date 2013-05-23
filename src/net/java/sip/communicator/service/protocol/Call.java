@@ -133,6 +133,7 @@ public abstract class Call
      * @return true in case both objects are pertaining to the same call and
      * false otherwise.
      */
+    @Override
     public boolean equals(Object obj)
     {
         if ((obj == null) || !(obj instanceof Call))
@@ -204,7 +205,7 @@ public abstract class Call
     {
         fireCallPeerEvent(sourceCallPeer, eventID, false);
     }
-    
+
     /**
      * Creates a <tt>CallPeerEvent</tt> with
      * <tt>sourceCallPeer</tt> and <tt>eventID</tt> and dispatches it on
@@ -214,11 +215,11 @@ public abstract class Call
      * newly created event.
      * @param eventID the ID of the event to create (see constants defined in
      * <tt>CallPeerEvent</tt>)
-     * @param delayed <tt>true</tt> if the adding/removing of the peer from the 
+     * @param delayed <tt>true</tt> if the adding/removing of the peer from the
      * GUI should be delayed and <tt>false</tt> if not.
      */
-    protected void fireCallPeerEvent(CallPeer sourceCallPeer, 
-                                     int eventID, 
+    protected void fireCallPeerEvent(CallPeer sourceCallPeer,
+                                     int eventID,
                                      boolean delayed)
     {
         CallPeerEvent event
@@ -456,7 +457,7 @@ public abstract class Call
      * telephony conference-related state of this <tt>Call</tt>.
      * Allows extenders to override and customize the runtime type of the
      * <tt>CallConference</tt> to used by this <tt>Call</tt>.
-     * 
+     *
      * @return a new <tt>CallConference</tt> instance which is to represent the
      * telephony conference-related state of this <tt>Call</tt>
      */
@@ -529,7 +530,7 @@ public abstract class Call
      * Adds a specific <tt>PropertyChangeListener</tt> to the list of listeners
      * interested in and notified about changes in the values of the properties
      * of this <tt>Call</tt>.
-     * 
+     *
      * @param listener a <tt>PropertyChangeListener</tt> to be notified about
      * changes in the values of the properties of this <tt>Call</tt>. If the
      * specified listener is already in the list of interested listeners (i.e.
@@ -543,7 +544,7 @@ public abstract class Call
      * <tt>PropertyChangeListener</tt>s registered with this <tt>Call</tt> in
      * order to notify about a change in the value of a specific property which
      * had its old value modified to a specific new value.
-     * 
+     *
      * @param property the name of the property of this <tt>Call</tt> which had
      * its value changed
      * @param oldValue the value of the property with the specified name before
@@ -559,7 +560,7 @@ public abstract class Call
      * Removes a specific <tt>PropertyChangeListener</tt> from the list of
      * listeners interested in and notified about changes in the values of the
      * properties of this <tt>Call</tt>.
-     * 
+     *
      * @param listener a <tt>PropertyChangeListener</tt> to no longer be
      * notified about changes in the values of the properties of this <tt>Call</tt>
      */

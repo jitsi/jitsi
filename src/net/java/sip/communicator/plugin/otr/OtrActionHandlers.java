@@ -12,14 +12,14 @@ import net.java.sip.communicator.service.protocol.*;
 
 /**
  * Class for storing OTR functions used by the menus, buttons, links, etc.
- * 
+ *
  * @author Daniel Perren
  */
 class OtrActionHandlers
 {
     /**
      * Opening the standard authorisation dialog for OTR fingerprints.
-     * 
+     *
      * @param contact the contact you would like to authenticate.
      */
     static void openAuthDialog(Contact contact)

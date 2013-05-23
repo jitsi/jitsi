@@ -16,7 +16,7 @@ import net.java.sip.communicator.plugin.desktoputil.*;
 
 /**
  * SIPCommCheckBoxUI implementation.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class SIPCommCheckBoxUI extends MetalCheckBoxUI
@@ -29,6 +29,7 @@ public class SIPCommCheckBoxUI extends MetalCheckBoxUI
         return new SIPCommCheckBoxUI();
     }
 
+    @Override
     public void paint(Graphics g, JComponent c)
     {
         AntialiasingManager.activateAntialiasing(g);

@@ -9,7 +9,7 @@ package net.java.sip.communicator.impl.gui.main.chat.conference;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
- * The <tt>AdHocChatRoomWrapper</tt> is the representation of the 
+ * The <tt>AdHocChatRoomWrapper</tt> is the representation of the
  * <tt>AdHocChatRoom</tt> in the GUI. It stores the information for the ad-hoc
  * chat room even when the corresponding protocol provider is not connected.
  *
@@ -26,12 +26,12 @@ public class AdHocChatRoomWrapper
     private final String adHocChatRoomID;
 
     /**
-     * Creates a <tt>AdHocChatRoomWrapper</tt> by specifying the protocol 
+     * Creates a <tt>AdHocChatRoomWrapper</tt> by specifying the protocol
      * provider, the identifier and the name of the ad-hoc chat room.
-     * 
+     *
      * @param parentProvider the protocol provider to which the corresponding
      * ad-hoc chat room belongs
-     * @param adHocChatRoomID the identifier of the corresponding ad-hoc chat 
+     * @param adHocChatRoomID the identifier of the corresponding ad-hoc chat
      * room
      * @param adHocChatRoomName the name of the corresponding  ad-hoc chat room
      */
@@ -47,7 +47,7 @@ public class AdHocChatRoomWrapper
     /**
      * Creates a <tt>ChatRoomWrapper</tt> by specifying the corresponding chat
      * room.
-     * 
+     *
      * @param adHocChatRoom the chat room to which this wrapper corresponds.
      */
     public AdHocChatRoomWrapper( AdHocChatRoomProviderWrapper parentProvider,
@@ -62,7 +62,7 @@ public class AdHocChatRoomWrapper
 
     /**
      * Returns the <tt>AdHocChatRoom</tt> that this wrapper represents.
-     * 
+     *
      * @return the <tt>AdHocChatRoom</tt> that this wrapper represents.
      */
     public AdHocChatRoom getAdHocChatRoom()
@@ -72,7 +72,7 @@ public class AdHocChatRoomWrapper
 
     /**
      * Sets the <tt>AdHocChatRoom</tt> that this wrapper represents.
-     * 
+     *
      * @param adHocChatRoom the ad-hoc chat room
      */
     public void setAdHocChatRoom(AdHocChatRoom adHocChatRoom)
@@ -82,7 +82,7 @@ public class AdHocChatRoomWrapper
 
     /**
      * Returns the ad-hoc chat room name.
-     * 
+     *
      * @return the ad-hoc chat room name
      */
     public String getAdHocChatRoomName()
@@ -92,7 +92,7 @@ public class AdHocChatRoomWrapper
 
     /**
      * Returns the identifier of the ad-hoc chat room.
-     * 
+     *
      * @return the identifier of the ad-hoc chat room
      */
     public String getAdHocChatRoomID()
@@ -102,7 +102,7 @@ public class AdHocChatRoomWrapper
 
     /**
      * Returns the parent protocol provider.
-     * 
+     *
      * @return the parent protocol provider
      */
     public AdHocChatRoomProviderWrapper getParentProvider()

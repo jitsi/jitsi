@@ -18,9 +18,9 @@ public interface DesktopService
 {
     /**
      * Launches the associated application to open the file.
-     * 
+     *
      * @param file the file to be opened
-     * 
+     *
      * @throws NullPointerException if file is null
      * @throws IllegalArgumentException if the specified file dosen't exist
      * @throws UnsupportedOperationException if the current platform does not
@@ -38,13 +38,13 @@ public interface DesktopService
                 UnsupportedOperationException,
                 IOException,
                 SecurityException;
-    
+
     /**
      * Prints a file with the native desktop printing facility, using the
      * associated application's print command.
-     * 
+     *
      * @param file the file to be opened
-     * 
+     *
      * @throws NullPointerException if file is null
      * @throws IllegalArgumentException if the specified file dosen't exist
      * @throws UnsupportedOperationException if the current platform does not
@@ -65,9 +65,9 @@ public interface DesktopService
 
     /**
      * Launches the associated editor application and opens a file for editing.
-     * 
+     *
      * @param file the file to open for editing
-     * 
+     *
      * @throws NullPointerException if file is null
      * @throws IllegalArgumentException if the specified file dosen't exist
      * @throws UnsupportedOperationException if the current platform does not
@@ -85,12 +85,12 @@ public interface DesktopService
                 UnsupportedOperationException,
                 IOException,
                 SecurityException;
-    
+
     /**
      * Launches the default browser to display a URI.
-     * 
+     *
      * @param uri the URI to be displayed in the user default browser
-     * 
+     *
      * @throws NullPointerException if file is null
      * @throws IllegalArgumentException if the specified file dosen't exist
      * @throws UnsupportedOperationException if the current platform does not

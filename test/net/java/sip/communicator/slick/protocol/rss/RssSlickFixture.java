@@ -65,6 +65,7 @@ public class RssSlickFixture
      * @throws java.lang.Exception in case we meet problems while retriving
      * protocol providers through OSGI
      */
+    @Override
     public void setUp()
         throws Exception
     {
@@ -107,6 +108,7 @@ public class RssSlickFixture
     /**
      * Un get service references used in here.
      */
+    @Override
     public void tearDown()
     {
         bc.ungetService(providerServiceReference);

@@ -62,6 +62,7 @@ public class XCapClientImpl extends BaseHttpXCapClient implements XCapClient
      * @param password    the user password.
      * @throws XCapException if there is some error during operation.
      */
+    @Override
     public void connect(URI uri, Address userAddress, String username, String password)
             throws XCapException
     {
@@ -95,6 +96,7 @@ public class XCapClientImpl extends BaseHttpXCapClient implements XCapClient
     /**
      * Disconnects user from the XCAP server.
      */
+    @Override
     public void disconnect()
     {
         super.disconnect();

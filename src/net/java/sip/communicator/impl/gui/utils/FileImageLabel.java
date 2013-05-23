@@ -19,7 +19,7 @@ import net.java.sip.communicator.util.*;
  * The <tt>FileImageLabel</tt> is a <tt>JLabel</tt> associated with a file. It
  * can be dragged to the file system or some other drop area. It also has an
  * extended tooltip that can show a file preview or any other image.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class FileImageLabel
@@ -33,7 +33,7 @@ public class FileImageLabel
 
     /**
      * Sets the icon to show in the tool tip.
-     * 
+     *
      * @param icon the icon to show in the tool tip.
      */
     public void setToolTipImage(ImageIcon icon)
@@ -43,9 +43,10 @@ public class FileImageLabel
 
     /**
      * Sets the text of the tool tip.
-     * 
+     *
      * @param text the text to set
      */
+    @Override
     public void setToolTipText(String text)
     {
         super.setToolTipText("");
@@ -56,6 +57,7 @@ public class FileImageLabel
     /**
      * Create tool tip.
      */
+    @Override
     public JToolTip createToolTip()
     {
         ExtendedTooltip tip = new ExtendedTooltip(false);
@@ -73,9 +75,10 @@ public class FileImageLabel
 
     /**
      * Sets the file associated with this file drag label.
-     * 
+     *
      * @param file the file associated with this file drag label
      */
+    @Override
     public void setFile(File file)
     {
         super.setFile(file);
@@ -88,9 +91,10 @@ public class FileImageLabel
      * don't really use this string, but we need to return different string
      * each time in order to make the TooltipManager change the tooltip over
      * the different cells in the JList.
-     * 
+     *
      * @return the string to be used as the tooltip for <i>event</i>.
      */
+    @Override
     public String getToolTipText(MouseEvent event)
     {
         if (tooltipIcon != null)
@@ -101,7 +105,7 @@ public class FileImageLabel
 
     /**
      * Sets the icon for the given file.
-     * 
+     *
      * @param file the file to set an icon for
      */
     private void setFileIcon(File file)

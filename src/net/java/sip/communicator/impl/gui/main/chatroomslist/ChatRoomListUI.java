@@ -38,7 +38,7 @@ public class ChatRoomListUI
 
     /**
      * Creates the scroll panel containing the chat rooms list.
-     * 
+     *
      * @param parentDialog Currently not used
      */
     public ChatRoomListUI(ChatRoomListDialog parentDialog)
@@ -132,7 +132,7 @@ public class ChatRoomListUI
 
     public void mouseExited(MouseEvent e)
     {}
-    
+
     public void mouseReleased(MouseEvent e)
     {}
 

@@ -27,7 +27,7 @@ import org.osgi.framework.*;
  */
 public class ProvisioningActivator
     implements BundleActivator
-{    
+{
     /**
      * Logger of this class
      */
@@ -66,7 +66,7 @@ public class ProvisioningActivator
      * The resource service.
      */
     private static ResourceManagementService resourceService;
-    
+
     /**
      * Provisioning service.
      */
@@ -92,7 +92,7 @@ public class ProvisioningActivator
 
         ProvisioningActivator.bundleContext = bundleContext;
         String url = null;
-        
+
         provisioningService = new ProvisioningServiceImpl();
 
         // Show/hide provisioning configuration form.
@@ -143,9 +143,9 @@ public class ProvisioningActivator
                 }
             }
         }
-        
+
         provisioningService.start(url);
-        
+
         bundleContext.registerService(
             ProvisioningService.class.getName(), provisioningService, null);
 
@@ -273,10 +273,10 @@ public class ProvisioningActivator
         }
         return netaddrService;
     }
-    
+
     /**
      * Returns a reference to a <tt>ProvisioningService</tt> implementation.
-     * 
+     *
      * @return a currently valid implementation of <tt>ProvisioningService</tt>
      */
     public static ProvisioningServiceImpl getProvisioningService()

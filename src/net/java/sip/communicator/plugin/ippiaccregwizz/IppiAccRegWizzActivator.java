@@ -52,6 +52,7 @@ public class IppiAccRegWizzActivator
     /**
      * Starts this bundle.
      */
+    @Override
     public void start(final Object dependentService)
     {
         if(!SwingUtilities.isEventDispatchThread())
@@ -71,7 +72,7 @@ public class IppiAccRegWizzActivator
         System.setProperty(
             "http.agent",
             System.getProperty("sip-communicator.application.name")
-                + "/" 
+                + "/"
                 + System.getProperty("sip-communicator.version"));
 
         IppiAccountRegistrationWizard wizard
@@ -114,7 +115,7 @@ public class IppiAccRegWizzActivator
 
     /**
      * Returns the <tt>UIService</tt>.
-     * 
+     *
      * @return the <tt>UIService</tt>
      */
     public static UIService getUIService()

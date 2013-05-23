@@ -390,7 +390,8 @@ public class ContactGroupSSHImpl
      * contains (may turn out to be a relatively long string).
      * @return a String representing this group and its child contacts.
      */
-     public String toString()
+     @Override
+    public String toString()
      {
         StringBuffer buff = new StringBuffer(getGroupName());
         buff.append(".subGroups=" + countSubgroups() + ":\n");
@@ -526,6 +527,7 @@ public class ContactGroupSSHImpl
      * @return  <code>true</code> if this contact group has the equal child
      * contacts and subgroups to those of the <code>obj</code> argument.
      */
+    @Override
     public boolean equals(Object obj)
     {
         if(obj == null

@@ -16,7 +16,7 @@ import net.java.sip.communicator.service.contactsource.*;
 
 /**
  * Query creator for an instance of a Thunderbird address book.
- * 
+ *
  * @author Ingo Bauersachs
  */
 public class ThunderbirdContactSourceService
@@ -89,7 +89,7 @@ public class ThunderbirdContactSourceService
 
     /**
      * Creates a new instance of this class.
-     * 
+     *
      * @param baseConfigProperty The base property name of the config for this
      *            instance
      */
@@ -115,7 +115,7 @@ public class ThunderbirdContactSourceService
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see net.java.sip.communicator.service.contactsource
      * .ContactSourceService#getType()
      */
@@ -126,7 +126,7 @@ public class ThunderbirdContactSourceService
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see net.java.sip.communicator.service.contactsource
      * .ContactSourceService#getDisplayName()
      */
@@ -137,7 +137,7 @@ public class ThunderbirdContactSourceService
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see net.java.sip.communicator.service.contactsource
      * .ContactSourceService#queryContactSource(java.lang.String)
      */
@@ -164,7 +164,7 @@ public class ThunderbirdContactSourceService
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * net.java.sip.communicator.service.contactsource.ContactSourceService#
      * queryContactSource(java.lang.String, int)
@@ -178,7 +178,7 @@ public class ThunderbirdContactSourceService
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * net.java.sip.communicator.service.contactsource.ExtendedContactSourceService
      * #queryContactSource(java.util.regex.Pattern)
@@ -190,7 +190,7 @@ public class ThunderbirdContactSourceService
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * net.java.sip.communicator.service.contactsource.ContactSourceService#
      * getIndex()
@@ -202,7 +202,7 @@ public class ThunderbirdContactSourceService
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * net.java.sip.communicator.service.contactsource.ExtendedContactSourceService
      * #getPhoneNumberPrefix()
@@ -226,7 +226,7 @@ public class ThunderbirdContactSourceService
     /**
      * Gets the filename to the address book database processed by this
      * ContactSource.
-     * 
+     *
      * @return The filename to the address book database.
      */
     String getFilename()

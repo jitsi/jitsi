@@ -66,6 +66,7 @@ public class TypingNotificationEvent
      *
      * @return  A a String representation of this EventObject.
      */
+    @Override
     public String toString()
     {
         return new StringBuffer("TypingNotificationEvent[from=")

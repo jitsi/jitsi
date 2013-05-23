@@ -321,7 +321,7 @@ public class MockPersistentPresenceOperationSet
         ((MockContactGroup)group).setGroupName(newName);
 
         this.fireServerStoredGroupEvent(
-            (MockContactGroup)group, ServerStoredGroupEvent.GROUP_RENAMED_EVENT);
+            group, ServerStoredGroupEvent.GROUP_RENAMED_EVENT);
     }
 
     /**
@@ -421,7 +421,7 @@ public class MockPersistentPresenceOperationSet
 
         parentGroup.removeContact((MockContact)contact);
 
-        fireSubscriptionEvent((MockContact)contact,
+        fireSubscriptionEvent(contact,
                                        ((MockContact)contact).getParentContactGroup(),
                                        SubscriptionEvent.SUBSCRIPTION_REMOVED);
     }

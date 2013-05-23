@@ -27,11 +27,11 @@ class HostInfo
     public HostInfo(InetAddress address, String name)
     {
         super();
-        
+
         String SLevel = System.getProperty("jmdns.debug");
         if (SLevel == null) SLevel = "INFO";
-        logger.setLevel(Level.parse(SLevel)); 
-        
+        logger.setLevel(Level.parse(SLevel));
+
         this.address = address;
         this.name = name;
         if (address != null)
@@ -43,7 +43,7 @@ class HostInfo
             catch (Exception exception)
             {
                 // FIXME Shouldn't we take an action here?
-                logger.log(Level.WARNING, 
+                logger.log(Level.WARNING,
                     "LocalHostInfo() exception ", exception);
             }
         }
@@ -69,7 +69,7 @@ class HostInfo
         hostNameCount++;
         int plocal = name.indexOf(".local.");
         int punder = name.lastIndexOf("-");
-        name = name.substring(0, (punder == -1 ? plocal : punder)) + "-" + 
+        name = name.substring(0, (punder == -1 ? plocal : punder)) + "-" +
             hostNameCount + ".local.";
         return name;
     }
@@ -82,7 +82,7 @@ class HostInfo
             InetAddress from = packet.getAddress();
             if (from != null)
             {
-                if (from.isLinkLocalAddress() && 
+                if (from.isLinkLocalAddress() &&
                     (!getAddress().isLinkLocalAddress()))
                 {
                     // Ignore linklocal packets on regular interfaces, unless this is
@@ -91,7 +91,7 @@ class HostInfo
                     // of the interface on which the packet was received.
                     result = true;
                 }
-                if (from.isLoopbackAddress() && 
+                if (from.isLoopbackAddress() &&
                     (!getAddress().isLoopbackAddress()))
                 {
                     // Ignore loopback packets on a regular interface unless this is
@@ -105,8 +105,8 @@ class HostInfo
 
     DNSRecord.Address getDNSAddressRecord(DNSRecord.Address address)
     {
-        return (DNSConstants.TYPE_AAAA == address.type ? 
-            getDNS6AddressRecord() : 
+        return (DNSConstants.TYPE_AAAA == address.type ?
+            getDNS6AddressRecord() :
             getDNS4AddressRecord());
     }
 
@@ -114,12 +114,12 @@ class HostInfo
     {
         if ((getAddress() != null) &&
             ((getAddress() instanceof Inet4Address) ||
-            ((getAddress() instanceof Inet6Address) && 
+            ((getAddress() instanceof Inet6Address) &&
             (((Inet6Address) getAddress()).isIPv4CompatibleAddress()))))
         {
-            return new DNSRecord.Address(getName(), 
-                DNSConstants.TYPE_A, 
-                DNSConstants.CLASS_IN, 
+            return new DNSRecord.Address(getName(),
+                DNSConstants.TYPE_A,
+                DNSConstants.CLASS_IN,
                 DNSConstants.DNS_TTL, getAddress());
         }
         return null;
@@ -130,27 +130,28 @@ class HostInfo
         if ((getAddress() != null) && (getAddress() instanceof Inet6Address))
         {
             return new DNSRecord.Address(
-                getName(), 
-                DNSConstants.TYPE_AAAA, 
-                DNSConstants.CLASS_IN, 
-                DNSConstants.DNS_TTL, 
+                getName(),
+                DNSConstants.TYPE_AAAA,
+                DNSConstants.CLASS_IN,
+                DNSConstants.DNS_TTL,
                 getAddress());
         }
         return null;
     }
 
+    @Override
     public String toString()
     {
         StringBuffer buf = new StringBuffer();
         buf.append("local host info[");
         buf.append(getName() != null ? getName() : "no name");
         buf.append(", ");
-        buf.append(getInterface() != null ? 
-            getInterface().getDisplayName() : 
+        buf.append(getInterface() != null ?
+            getInterface().getDisplayName() :
             "???");
         buf.append(":");
-        buf.append(getAddress() != null ? 
-            getAddress().getHostAddress() : 
+        buf.append(getAddress() != null ?
+            getAddress().getHostAddress() :
             "no address");
         buf.append("]");
         return buf.toString();

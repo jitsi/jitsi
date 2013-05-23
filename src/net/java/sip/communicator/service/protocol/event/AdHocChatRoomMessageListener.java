@@ -20,7 +20,7 @@ public interface AdHocChatRoomMessageListener
 {
     /**
      * Called when a new incoming <tt>Message</tt> has been received.
-     * @param evt the <tt>AdHocChatRoomMessageReceivedEvent</tt> containing the 
+     * @param evt the <tt>AdHocChatRoomMessageReceivedEvent</tt> containing the
      * newly received message, its sender and other details.
      */
     public void messageReceived(AdHocChatRoomMessageReceivedEvent evt);
@@ -38,7 +38,7 @@ public interface AdHocChatRoomMessageListener
      * Called to indicate that delivery of a message sent earlier to the chat
      * room has failed. Reason code and phrase are contained by the
      * <tt>MessageFailedEvent</tt>
-     * @param evt the <tt>AdHocChatroomMessageDeliveryFailedEvent</tt> 
+     * @param evt the <tt>AdHocChatroomMessageDeliveryFailedEvent</tt>
      * containing the ID of the message whose delivery has failed.
      */
     public void messageDeliveryFailed(

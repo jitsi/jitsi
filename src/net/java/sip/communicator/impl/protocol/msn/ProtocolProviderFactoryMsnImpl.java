@@ -40,6 +40,7 @@ public class ProtocolProviderFactoryMsnImpl
      *   specific properties defining the new account.
      * @return the AccountID of the newly created account
      */
+    @Override
     public AccountID installAccount( String userIDStr,
                                      Map<String, String> accountProperties)
     {
@@ -74,11 +75,13 @@ public class ProtocolProviderFactoryMsnImpl
         return accountID;
     }
 
+    @Override
     protected AccountID createAccountID(String userID, Map<String, String> accountProperties)
     {
         return new MsnAccountID(userID, accountProperties);
     }
 
+    @Override
     protected ProtocolProviderService createService(String userID,
         AccountID accountID)
     {

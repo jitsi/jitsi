@@ -65,6 +65,7 @@ public class TestMetaContactList
      * Initialize the environment.
      * @throws Exception if anything goes wrong.
      */
+    @Override
     protected void setUp() throws Exception
     {
         super.setUp();
@@ -75,6 +76,7 @@ public class TestMetaContactList
      * Finalization
      * @throws Exception in case sth goes wrong.
      */
+    @Override
     protected void tearDown() throws Exception
     {
         fixture.tearDown();
@@ -87,8 +89,9 @@ public class TestMetaContactList
      */
     public void testContactListRetrieving()
     {
-        MockContactGroup expectedRoot = (MockContactGroup)fixture.mockPresOpSet
-                                            .getServerStoredContactListRoot();
+        MockContactGroup expectedRoot
+            = (MockContactGroup)
+                MclSlickFixture.mockPresOpSet.getServerStoredContactListRoot();
 
         logger.debug("============== Predefined contact List ==============");
 
@@ -127,9 +130,9 @@ public class TestMetaContactList
         //change a status
         fixture.metaClService.addMetaContactListListener(evtCollector);
 
-        fixture.mockPresOpSet.changePresenceStatusForContact(
-            MetaContactListServiceLick.mockContactToReorder,
-            MockStatusEnum.MOCK_STATUS_100);
+        MclSlickFixture.mockPresOpSet.changePresenceStatusForContact(
+                MetaContactListServiceLick.mockContactToReorder,
+                MockStatusEnum.MOCK_STATUS_100);
 
         fixture.metaClService.removeMetaContactListListener(evtCollector);
 
@@ -152,9 +155,9 @@ public class TestMetaContactList
         assertContactsOrder(fixture.metaClService.getRoot());
 
         //restore the contacts original status
-        fixture.mockPresOpSet.changePresenceStatusForContact(
-            MetaContactListServiceLick.mockContactToReorder,
-            MockStatusEnum.MOCK_STATUS_00);
+        MclSlickFixture.mockPresOpSet.changePresenceStatusForContact(
+                MetaContactListServiceLick.mockContactToReorder,
+                MockStatusEnum.MOCK_STATUS_00);
 
 
         //repeat order tests but this time after changing the display name of a
@@ -166,7 +169,7 @@ public class TestMetaContactList
 
         fixture.metaClService.removeMetaContactListListener(evtCollector);
 
-        //check whether a reordered event is dispatchect
+        //check whether a reordered event is dispatched
         assertEquals("Number of evts dispatched after a contact changed its "
                      +"display name"
                      , 1
@@ -395,7 +398,7 @@ public class TestMetaContactList
         //problems.
         actualMetaContactGroup = fixture.metaClService
             .findMetaContactGroupByContactGroup(
-                    fixture.mockPresOpSet.getServerStoredContactListRoot());
+                    MclSlickFixture.mockPresOpSet.getServerStoredContactListRoot());
 
         assertSame("find failed for root contact group "
                    , root, actualMetaContactGroup);
@@ -415,12 +418,12 @@ public class TestMetaContactList
         MclEventCollector mclEvtCollector = new MclEventCollector();
 
         fixture.metaClService.addMetaContactListListener(mclEvtCollector);
-        fixture.mockPresOpSet.subscribe(newSubscriptionName);
+        MclSlickFixture.mockPresOpSet.subscribe(newSubscriptionName);
 
         fixture.metaClService.removeMetaContactListListener(mclEvtCollector);
 
         //first check that the newly created contact was really added
-        MockContact newProtoContact = (MockContact)fixture.mockPresOpSet
+        MockContact newProtoContact = (MockContact)MclSlickFixture.mockPresOpSet
                                         .findContactByID(newSubscriptionName);
         MetaContact newMetaContact = fixture.metaClService
             .findMetaContactByContact(newProtoContact);
@@ -448,7 +451,7 @@ public class TestMetaContactList
 
         fixture.metaClService.addMetaContactListListener(mclEvtCollector);
 
-        fixture.mockPresOpSet.unsubscribe(newProtoContact);
+        MclSlickFixture.mockPresOpSet.unsubscribe(newProtoContact);
 
         fixture.metaClService.removeMetaContactListListener(mclEvtCollector);
 
@@ -492,16 +495,16 @@ public class TestMetaContactList
         MclEventCollector mclEvtCollector = new MclEventCollector();
 
         MockContactGroup newContactGroup
-            = new MockContactGroup(newGroupName, fixture.mockProvider);
+            = new MockContactGroup(newGroupName, MclSlickFixture.mockProvider);
         MockContactGroup newInnerContactGroup
-            = new MockContactGroup(newInnerGroupName, fixture.mockProvider);
+            = new MockContactGroup(newInnerGroupName, MclSlickFixture.mockProvider);
 
         newContactGroup.addSubgroup(newInnerContactGroup);
 
         fixture.metaClService.addMetaContactListListener(mclEvtCollector);
-        fixture.mockPresOpSet.addMockGroupAndFireEvent(
+        MclSlickFixture.mockPresOpSet.addMockGroupAndFireEvent(
             (MockContactGroup)
-                fixture.mockPresOpSet.getServerStoredContactListRoot(),
+                MclSlickFixture.mockPresOpSet.getServerStoredContactListRoot(),
             newContactGroup);
 
         fixture.metaClService.removeMetaContactListListener(mclEvtCollector);
@@ -527,7 +530,7 @@ public class TestMetaContactList
                     , newContactGroup
                     , newMetaGroup.getContactGroup(
                                             newContactGroup.getGroupName()
-                                            , fixture.mockProvider));
+                                            , MclSlickFixture.mockProvider));
 
         assertEquals("Subgroups were not imported in the MetaContactList."
                     , newContactGroup.countSubgroups()
@@ -535,10 +538,10 @@ public class TestMetaContactList
 
         //first check that the newly created group was really added
         assertEquals("Source provider for the add event."
-                     , fixture.mockProvider, evt.getSourceProvider());
+                     , MclSlickFixture.mockProvider, evt.getSourceProvider());
 
         ContactGroup newProtoGroup = newMetaGroup.getContactGroup(
-                                            newGroupName, fixture.mockProvider);
+                                            newGroupName, MclSlickFixture.mockProvider);
 
         assertNotNull("The new meta contact group did not contain a proto group"
                     , newProtoGroup);
@@ -551,12 +554,12 @@ public class TestMetaContactList
         assertEquals("The new meta contact group did not seem to contain "
                      + "the right protocol contact group."
                      , newProtoGroup.getProtocolProvider()
-                     , fixture.mockProvider);
+                     , MclSlickFixture.mockProvider);
 
         //rename the group and see that the corresponding events are handled
         //properly
         fixture.metaClService.addMetaContactListListener(mclEvtCollector);
-        fixture.mockPresOpSet.renameServerStoredContactGroup(
+        MclSlickFixture.mockPresOpSet.renameServerStoredContactGroup(
                                             newProtoGroup, renamedGroupName);
 
         fixture.metaClService.removeMetaContactListListener(mclEvtCollector);
@@ -578,11 +581,11 @@ public class TestMetaContactList
                     , evt.getSourceMetaContactGroup());
 
         assertEquals("Source provider for the remove event."
-                     , fixture.mockProvider, evt.getSourceProvider());
+                     , MclSlickFixture.mockProvider, evt.getSourceProvider());
 
         //check whether the group was indeed renamed.
         Iterator<ContactGroup> groupsIter = evt.getSourceMetaContactGroup()
-            .getContactGroupsForProvider(fixture.mockProvider);
+            .getContactGroupsForProvider(MclSlickFixture.mockProvider);
 
         assertTrue("A proto group was unexplicably removed after renaming.",
                    groupsIter.hasNext());
@@ -593,7 +596,7 @@ public class TestMetaContactList
 
         //remove the group and check for the event.
         fixture.metaClService.addMetaContactListListener(mclEvtCollector);
-        fixture.mockPresOpSet.removeServerStoredContactGroup(newProtoGroup);
+        MclSlickFixture.mockPresOpSet.removeServerStoredContactGroup(newProtoGroup);
 
         fixture.metaClService.removeMetaContactListListener(mclEvtCollector);
 
@@ -615,7 +618,7 @@ public class TestMetaContactList
                     , evt.getSourceMetaContactGroup());
 
         assertEquals("Source provider for the remove event."
-                     , fixture.mockProvider, evt.getSourceProvider());
+                     , MclSlickFixture.mockProvider, evt.getSourceProvider());
     }
 
     /**
@@ -636,7 +639,7 @@ public class TestMetaContactList
 
         //add a new mock contact to a meta contact
         fixture.metaClService.addNewContactToMetaContact(
-            fixture.mockProvider
+            MclSlickFixture.mockProvider
             , metaContact
             , newContactID);
 
@@ -649,7 +652,7 @@ public class TestMetaContactList
                      , metaContact.getContactCount());
 
         MockContact newContact = (MockContact)metaContact
-                                .getContact(newContactID, fixture.mockProvider);
+                                .getContact(newContactID, MclSlickFixture.mockProvider);
 
         assertNotNull("newContact", newContact);
 
@@ -657,7 +660,7 @@ public class TestMetaContactList
         //and that it is the same as the one added in the MetaContact
         assertSame("Proto specific contact in mock contact list."
                    , newContact
-                   , fixture.mockPresOpSet.getServerStoredContactListRoot()
+                   , MclSlickFixture.mockPresOpSet.getServerStoredContactListRoot()
                             .getContact(newContactID));
 
         //verify that events have been properly delivered.
@@ -671,7 +674,7 @@ public class TestMetaContactList
                      , newContact , event.getProtoContact());
 
         assertSame ( "Source provider in ProtoContactEvent gen. upon add."
-             , fixture.mockProvider
+             , MclSlickFixture.mockProvider
              , event.getProtoContact().getProtocolProvider());
 
         assertEquals ( "Event ID in MetaContactEvent gen. upon add."
@@ -698,7 +701,7 @@ public class TestMetaContactList
                      , dstMetaContact.getContactCount());
 
         newContact = (MockContact)dstMetaContact
-                                .getContact(newContactID, fixture.mockProvider);
+                                .getContact(newContactID, MclSlickFixture.mockProvider);
 
         assertNotNull("newContact", newContact);
 
@@ -715,7 +718,7 @@ public class TestMetaContactList
                    , dstMetaContact, event.getParent());
 
         assertSame("Source provider in ProtoContactEvent gen. upon move."
-                   , fixture.mockProvider
+                   , MclSlickFixture.mockProvider
                    , event.getProtoContact().getProtocolProvider());
 
         assertEquals("Event ID in ProtoContactEvent gen. upon add."
@@ -738,7 +741,7 @@ public class TestMetaContactList
         //verify that it is no more in the mock contact list
         assertNull( "The MetaContactList did not remove a contact from the "
                     + "MockList on del."
-                    , fixture.mockPresOpSet.getServerStoredContactListRoot()
+                    , MclSlickFixture.mockPresOpSet.getServerStoredContactListRoot()
                         .getContact(newContactID));
 
         //verify that events have been properly delivered.
@@ -755,7 +758,7 @@ public class TestMetaContactList
                      , dstMetaContact, event.getParent());
 
         assertSame ( "Source provider in ProtoContactEvent gen. upon remove."
-                     , fixture.mockProvider
+                     , MclSlickFixture.mockProvider
                      , event.getProtoContact().getProtocolProvider());
 
         assertEquals ( "Event ID in ProtoContactEvent gen. upon remove."
@@ -777,7 +780,7 @@ public class TestMetaContactList
         fixture.metaClService.addMetaContactListListener(evtCollector);
         //create a new metacontact and, hence mock contact, in the meta
         //"SomePeople" non-toplevel group
-        fixture.metaClService.createMetaContact(fixture.mockProvider
+        fixture.metaClService.createMetaContact(MclSlickFixture.mockProvider
             , parentMetaGroup
             , newContactID);
 
@@ -785,7 +788,7 @@ public class TestMetaContactList
 
         //check that the contact has been successfully created in the meta cl
         MetaContact newMetaContact  =
-            parentMetaGroup.getMetaContact(fixture.mockProvider, newContactID);
+            parentMetaGroup.getMetaContact(MclSlickFixture.mockProvider, newContactID);
 
         assertNotNull("create failed. couldn't find the new contact."
             , newMetaContact);
@@ -839,7 +842,7 @@ public class TestMetaContactList
                    + newMetaContact.getDisplayName()
                    + " was not moved to its new location after its "
                    +"encapsulating meta contact was."
-                   ,fixture.mockPresOpSet.getServerStoredContactListRoot()
+                   ,MclSlickFixture.mockPresOpSet.getServerStoredContactListRoot()
                         .getContact(newContactID));
 
         //verify that events have been properly delivered.
@@ -853,7 +856,7 @@ public class TestMetaContactList
                      , newMetaContact, movedEvent.getSourceMetaContact());
 
         assertEquals ( "Event Property Name in MetaContactEvent gen. upon move."
-                       , MetaContactMovedEvent.META_CONTACT_MOVED
+                       , MetaContactPropertyChangeEvent.META_CONTACT_MOVED
                        , movedEvent.getPropertyName());
 
         assertEquals ( "Old Parent in MetaContactEvent gen. upon move."
@@ -882,7 +885,7 @@ public class TestMetaContactList
         assertNull("The mock contact corresponding to: "
                    + newMetaContact.getDisplayName()
                    + " was not removed after its encapsulating meta contact was."
-                   ,fixture.mockPresOpSet.getServerStoredContactListRoot()
+                   ,MclSlickFixture.mockPresOpSet.getServerStoredContactListRoot()
                         .getContact(newContactID));
 
         //verify that events have been properly delivered.
@@ -922,15 +925,15 @@ public class TestMetaContactList
 
         assertNull(
             "createMetaContactGroup tried to create a proto group too early."
-            ,fixture.mockPresOpSet.getServerStoredContactListRoot()
+            ,MclSlickFixture.mockPresOpSet.getServerStoredContactListRoot()
                 .getGroup(newGroupName));
 
         //create a mock contcat through the meta contact list.
         fixture.metaClService.createMetaContact(
-            fixture.mockProvider, newMetaGroup, newContactID);
+            MclSlickFixture.mockProvider, newMetaGroup, newContactID);
 
         //check that the mock group was created and added to the right meta grp.
-        MockContactGroup newMockGroup = (MockContactGroup)fixture.mockPresOpSet
+        MockContactGroup newMockGroup = (MockContactGroup)MclSlickFixture.mockPresOpSet
             .getServerStoredContactListRoot().getGroup(newGroupName);
 
         assertNotNull(
@@ -941,11 +944,11 @@ public class TestMetaContactList
             "createMetaContact created a proto group but did not add it to the "
             + "right meta contact group."
             , newMockGroup
-            , newMetaGroup.getContactGroup(newGroupName, fixture.mockProvider));
+            , newMetaGroup.getContactGroup(newGroupName, MclSlickFixture.mockProvider));
 
         //check that the contact was added
         MetaContact newMetaContact = newMetaGroup
-            .getMetaContact(fixture.mockProvider, newContactID);
+            .getMetaContact(MclSlickFixture.mockProvider, newContactID);
 
         assertNotNull("createMetaContact failed", newMetaContact);
 
@@ -975,7 +978,7 @@ public class TestMetaContactList
         //check that the mock group is removed
         assertNull(
             "removeMetaContact did not remove the corresp. proto group."
-            , fixture.mockPresOpSet.getServerStoredContactListRoot()
+            , MclSlickFixture.mockPresOpSet.getServerStoredContactListRoot()
                                                     .getGroup(newGroupName));
     }
 
@@ -1045,7 +1048,7 @@ public class TestMetaContactList
                      , contactToRename, event.getSourceMetaContact());
 
         assertEquals ( "Event ID in MetaContactEvent gen. upon remove."
-                       , MetaContactRenamedEvent.META_CONTACT_RENAMED
+                       , MetaContactPropertyChangeEvent.META_CONTACT_RENAMED
                        , event.getPropertyName());
 
         //check that the meta contact has been renamed
@@ -1228,8 +1231,8 @@ public class TestMetaContactList
         /**
          * Indicates that the order under which the child contacts were ordered
          * inside the source group has changed.
-         * @param evt the <tt>MetaContactGroupEvent</tt> containind details of this
-         * event.
+         * @param evt the <tt>MetaContactGroupEvent</tt> containing details of
+         * this event.
          */
         public void childContactsReordered(MetaContactGroupEvent evt)
         {

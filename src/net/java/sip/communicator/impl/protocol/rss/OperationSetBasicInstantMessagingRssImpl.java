@@ -95,16 +95,18 @@ public class OperationSetBasicInstantMessagingRssImpl
     /**
      * Create a Message instance for sending a simple text messages with default
      * (text/html) content type and encoding.
-     * 
+     *
      * @param messageText the string content of the message.
      * @return Message the newly created message
      */
+    @Override
     public Message createMessage(String messageText)
     {
         return createMessage(messageText, HTML_MIME_TYPE,
             DEFAULT_MIME_ENCODING, null);
     }
 
+    @Override
     public Message createMessage(String content, String contentType,
         String encoding, String subject)
     {
@@ -433,6 +435,7 @@ public class OperationSetBasicInstantMessagingRssImpl
          * Queries the user as to whether or not the specified
          * contact should be removed and removes it if necessary.
          */
+        @Override
         public void run()
         {
             //do not bother the user with offline contacts

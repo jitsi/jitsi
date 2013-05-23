@@ -13,7 +13,7 @@ import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 /**
  * Parent class for gui chat room events indicating addition and removal of
  * chat rooms in the gui chat rooms list.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class ChatRoomListChangeEvent
@@ -67,6 +67,7 @@ public class ChatRoomListChangeEvent
      *
      * @return  A String representation of this <tt>GuiChatRoomEvent</tt>.
      */
+    @Override
     public String toString()
     {
         StringBuffer buff

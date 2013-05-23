@@ -314,6 +314,7 @@ public class MessageDialog
      * @param isEscaped indicates if the window was close by pressing the escape
      * button
      */
+    @Override
     protected void close(boolean isEscaped)
     {
         this.cancelButton.doClick();

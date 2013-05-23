@@ -43,7 +43,7 @@ public class CallPeerEvent
      * The id indicating the type of this event.
      */
     private final int eventID;
-    
+
     /**
      * Indicates if adding/removing peer should be delayed or not.
      */
@@ -77,8 +77,8 @@ public class CallPeerEvent
      * with.
      * @param eventID one of the CALL_PEER_XXX member ints indicating
      * the type of this event.
-     * @param delayed initial value for <tt>delayed</tt> property. If the value is 
-     * true adding/removing peer from GUI will be delayed. 
+     * @param delayed initial value for <tt>delayed</tt> property. If the value is
+     * true adding/removing peer from GUI will be delayed.
      */
     public CallPeerEvent(CallPeer sourceCallPeer,
                          Call     sourceCall,
@@ -93,14 +93,14 @@ public class CallPeerEvent
 
     /**
      * Checks whether the adding/removing of the peer should be delayed or not.
-     * @return true if the adding/removing should be delayed from the GUI and 
+     * @return true if the adding/removing should be delayed from the GUI and
      * false if not.
      */
     public boolean isDelayed()
     {
         return delayed;
     }
-    
+
     /**
      * Returns one of the CALL_PEER_XXX member ints indicating
      * the type of this event.
@@ -138,6 +138,7 @@ public class CallPeerEvent
      *
      * @return  a String representation of this <tt>CallPeerEvent</tt>.
      */
+    @Override
     public String toString()
     {
         return "CallPeerEvent: ID=" + getEventID()

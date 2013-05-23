@@ -9,9 +9,9 @@ package net.java.sip.communicator.impl.protocol.icq;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
- * The ICQ implementation of the <tt>ChatRoomInvitation</tt> interface for 
+ * The ICQ implementation of the <tt>ChatRoomInvitation</tt> interface for
  * ad-hoc chat rooms.
- * 
+ *
  * @author Valentin Martinet
  */
 public class AdHocChatRoomInvitationIcqImpl
@@ -33,23 +33,23 @@ public class AdHocChatRoomInvitationIcqImpl
    private String reason;
 
    /**
-    * The password. 
+    * The password.
     */
    private byte[] password;
 
    /**
     * Creates an instance of the <tt>AdHocChatRoomInvitationIcqImpl</tt> by
     * specifying the targetChatRoom, the inviter, the reason and the password.
-    * 
+    *
     * @param targetChatRoom The <tt>AdHocChatRoom</tt> for which the invitation
     * is
     * @param inviter The <tt>Contact</tt>, which sent the invitation
     * @param reason The Reason for the invitation
     * @param password The password
     */
-   public AdHocChatRoomInvitationIcqImpl(AdHocChatRoom     targetChatRoom, 
+   public AdHocChatRoomInvitationIcqImpl(AdHocChatRoom     targetChatRoom,
                                             String         inviter,
-                                            String         reason, 
+                                            String         reason,
                                             byte[]         password)
    {
        this.chatRoom = targetChatRoom;

@@ -73,6 +73,7 @@ public class LocalVideoButton
     /**
      * Enables or disables local video when the button is toggled/untoggled.
      */
+    @Override
     public void buttonPressed()
     {
         /*

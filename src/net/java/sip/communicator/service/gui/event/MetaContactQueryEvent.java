@@ -25,7 +25,7 @@ public class MetaContactQueryEvent
     private final MetaContact metaContact;
 
     /**
-     * Creates an instance of <tt>MetaGroupQueryEvent</tt> by specifying the 
+     * Creates an instance of <tt>MetaGroupQueryEvent</tt> by specifying the
      * <tt>source</tt> query this event comes from and the <tt>metaContact</tt>
      * this event is about.
      *

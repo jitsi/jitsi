@@ -16,7 +16,7 @@ import org.osgi.framework.*;
 /**
  * The <tt>ExamplePluginActivator</tt> is the entering point for the example
  * plugin bundle.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class ExamplePluginActivator

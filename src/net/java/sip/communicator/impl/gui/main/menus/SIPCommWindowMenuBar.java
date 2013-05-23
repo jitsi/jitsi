@@ -109,7 +109,7 @@ public class SIPCommWindowMenuBar
 
     /**
      * Paints the MENU_BACKGROUND image on the background of this container.
-     * 
+     *
      * @param g the <tt>Graphics</tt> object that does the painting
      */
     @Override

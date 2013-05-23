@@ -366,7 +366,7 @@ public class ChatConversationPanel
                     " does not have original_message attribute");
             return null;
         }
-        
+
         String res = original_message.toString();
         // Remove all newline characters that were inserted to make copying
         // newlines from the conversation panel work.
@@ -838,6 +838,7 @@ public class ChatConversationPanel
              * Called on the event dispatching thread (not on the worker thread)
              * after the <code>construct</code> method has returned.
              */
+            @Override
             public void finished()
             {
                 String newMessage = (String) get();
@@ -865,6 +866,7 @@ public class ChatConversationPanel
                 }
             }
 
+            @Override
             public Object construct() throws Exception
             {
                 ConfigurationService cfg
@@ -1125,7 +1127,7 @@ public class ChatConversationPanel
 
             if (processHTMLChars)
             {
-                fromPrevEndToStart = 
+                fromPrevEndToStart =
                     GuiUtils.escapeHTMLChars(fromPrevEndToStart);
             }
             msgBuffer.append(fromPrevEndToStart);
@@ -1664,6 +1666,7 @@ public class ChatConversationPanel
     /**
      * Reloads images.
      */
+    @Override
     public void loadSkin()
     {
         openLinkItem.setIcon(
@@ -1856,6 +1859,7 @@ public class ChatConversationPanel
      * Releases the resources allocated by this instance throughout its lifetime
      * and prepares it for garbage collection.
      */
+    @Override
     public void dispose()
     {
         super.dispose();

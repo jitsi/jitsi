@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.impl.gui.main.chat.conference;
@@ -12,7 +12,7 @@ import net.java.sip.communicator.service.protocol.*;
 /**
  * The <tt>ConferenceChatContact</tt> represents a <tt>ChatContact</tt> in a
  * conference chat.
- * 
+ *
  * @author Yana Stamcheva
  * @author Lubomir Marinov
  */
@@ -35,6 +35,7 @@ public class ConferenceChatContact
     /**
      * Implements ChatContact#getAvatarBytes(). Delegates to chatRoomMember.
      */
+    @Override
     public byte[] getAvatarBytes()
     {
         return descriptor.getAvatar();
@@ -45,6 +46,7 @@ public class ConferenceChatContact
      *
      * @return the contact name
      */
+    @Override
     public String getName()
     {
         String name = descriptor.getName();
@@ -65,6 +67,7 @@ public class ConferenceChatContact
      * Implements ChatContact#getUID(). Delegates to
      * ChatRoomMember#getContactAddress() because it's supposed to be unique.
      */
+    @Override
     public String getUID()
     {
         return descriptor.getContactAddress();

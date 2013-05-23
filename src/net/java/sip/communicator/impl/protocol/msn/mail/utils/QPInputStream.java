@@ -1,19 +1,19 @@
 /*
  * QPInputStream.java
  * Copyright(C) 2002 The Free Software Foundation
- * 
+ *
  * This file is part of GNU JavaMail, a library.
- * 
+ *
  * GNU JavaMail is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  *(at your option) any later version.
- * 
+ *
  * GNU JavaMail is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
@@ -63,7 +63,8 @@ public class QPInputStream
   /**
    * Read a character from the stream.
    */
-  public int read()
+  @Override
+public int read()
     throws IOException
   {
     if (spaceCount>0)
@@ -71,11 +72,11 @@ public class QPInputStream
       spaceCount--;
       return SPACE;
     }
-    
+
     int c = in.read();
     if (c==SPACE)
     {
-      while ((c = in.read())==SPACE) 
+      while ((c = in.read())==SPACE)
         spaceCount++;
       if (c==LF || c==CR || c==-1)
         spaceCount = 0;
@@ -100,7 +101,7 @@ public class QPInputStream
       }
       if (c2==-1)
         return c2;
-      
+
       buf[0] = (byte)c2;
       buf[1] = (byte)in.read();
       try
@@ -120,7 +121,8 @@ public class QPInputStream
   /**
    * Reads from the underlying stream into the specified byte array.
    */
-  public int read(byte[] bytes, int off, int len)
+  @Override
+public int read(byte[] bytes, int off, int len)
     throws IOException
   {
     int pos = 0;
@@ -150,7 +152,8 @@ public class QPInputStream
   /**
    * Mark is not supported.
    */
-  public boolean markSupported()
+  @Override
+public boolean markSupported()
   {
     return false;
   }
@@ -158,10 +161,11 @@ public class QPInputStream
   /**
    * Returns the number of bytes that can be read without blocking.
    */
-  public int available()
+  @Override
+public int available()
     throws IOException
   {
     return in.available();
   }
-  
+
 }

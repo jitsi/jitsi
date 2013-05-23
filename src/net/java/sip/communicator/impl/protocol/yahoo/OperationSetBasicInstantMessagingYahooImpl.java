@@ -33,9 +33,9 @@ public class OperationSetBasicInstantMessagingYahooImpl
      */
     private static final Logger logger =
         Logger.getLogger(OperationSetBasicInstantMessagingYahooImpl.class);
-    
+
     /**
-     * Yahoo has limit of message length. If exceeded 
+     * Yahoo has limit of message length. If exceeded
      * message is not delivered and no notification is received for that.
      */
     private static final int MAX_MESSAGE_LENGTH = 800; // 949
@@ -49,7 +49,7 @@ public class OperationSetBasicInstantMessagingYahooImpl
      * A list of filters registered for message events.
      */
     private final List<EventFilter> eventFilters = new ArrayList<EventFilter>();
-    
+
     /**
      * The provider that created us.
      */
@@ -155,10 +155,10 @@ public class OperationSetBasicInstantMessagingYahooImpl
                     message, to, new Date());
 
             msgDeliveryPendingEvt = messageDeliveryPendingTransform(msgDeliveryPendingEvt);
-            
+
             if (msgDeliveryPendingEvt == null)
                 return;
-            
+
             byte[] msgBytesToBeSent = msgDeliveryPendingEvt.getSourceMessage().
                 getContent().trim().getBytes("UTF-8");
 
@@ -169,16 +169,16 @@ public class OperationSetBasicInstantMessagingYahooImpl
                 if(msgBytesToBeSent.length > MAX_MESSAGE_LENGTH)
                 {
                     byte[] tmp1 = new byte[MAX_MESSAGE_LENGTH];
-                    System.arraycopy(msgBytesToBeSent, 
+                    System.arraycopy(msgBytesToBeSent,
                         0, tmp1, 0, MAX_MESSAGE_LENGTH);
-                    
-                    byte[] tmp2 = 
+
+                    byte[] tmp2 =
                         new byte[msgBytesToBeSent.length - MAX_MESSAGE_LENGTH];
-                    System.arraycopy(msgBytesToBeSent, 
+                    System.arraycopy(msgBytesToBeSent,
                         MAX_MESSAGE_LENGTH, tmp2, 0, tmp2.length);
-                    
+
                     msgBytesToBeSent = tmp2;
-                    
+
                     yahooProvider.getYahooSession().sendMessage(
                         toUserID,
                         new String(tmp1, "UTF-8"));
@@ -189,13 +189,13 @@ public class OperationSetBasicInstantMessagingYahooImpl
                         toUserID,
                         new String(msgBytesToBeSent, "UTF-8"));
                 }
-                
+
                 MessageDeliveredEvent msgDeliveredEvt
                 = new MessageDeliveredEvent(
                         message, to, new Date());
-                
+
                 // msgDeliveredEvt = messageDeliveredTransform(msgDeliveredEvt);
-                
+
                 if (msgDeliveredEvt != null)
                     fireMessageEvent(msgDeliveredEvt);
             }
@@ -209,9 +209,9 @@ public class OperationSetBasicInstantMessagingYahooImpl
                     message,
                     to,
                     MessageDeliveryFailedEvent.NETWORK_FAILURE);
-            
+
             // evt = messageDeliveryFailedTransform(evt);
-            
+
             if (evt != null)
                 fireMessageEvent(evt);
         }
@@ -292,14 +292,14 @@ public class OperationSetBasicInstantMessagingYahooImpl
                     filtered = true;
                 }
             }
-            catch(Exception exc) 
+            catch(Exception exc)
             {
-                logger.error("An exception occurred while filtering an event.", 
+                logger.error("An exception occurred while filtering an event.",
                              exc);
             }
         }
-        
-        if (filtered) 
+
+        if (filtered)
         {
             if (logger.isTraceEnabled())
                 logger.trace("Message event filtered.");
@@ -339,7 +339,7 @@ public class OperationSetBasicInstantMessagingYahooImpl
         {
             handleNewMessage(ev);
         }
- 
+
         /**
          * Overrides <tt>newMailReceived</tt> from <tt>SessionAdapter</tt>,
          * called when yahoo alert us that there is a new message in our mailbox.
@@ -489,7 +489,7 @@ public class OperationSetBasicInstantMessagingYahooImpl
     /**
      * Format links in the given message. Skips all links, which are already in
      * HTML format and converts all other links.
-     * 
+     *
      * @param message The source message string.
      * @return The message string with properly formatted links.
      */
@@ -529,7 +529,7 @@ public class OperationSetBasicInstantMessagingYahooImpl
 
     /**
      * Replaces some chars that are special in a regular expression.
-     * 
+     *
      * @param text The initial text.
      * @return the formatted text
      */
@@ -545,8 +545,8 @@ public class OperationSetBasicInstantMessagingYahooImpl
      * replaced by <a href="http://jitsi.org/">
      * http://jitsi.org/</a>. The same is true for all strings
      * starting with "www".
-     * 
-     * @param text the text on which the regular expression would be performed 
+     *
+     * @param text the text on which the regular expression would be performed
      * @return the initial text containing only HTML links
      */
     private static String formatLinksToHTML(String text)
@@ -606,9 +606,9 @@ public class OperationSetBasicInstantMessagingYahooImpl
 
         return linkBuffer.toString();
     }
-    
+
     /**
-     * Registers an <tt>EventFilter</tt> with this operation set so that 
+     * Registers an <tt>EventFilter</tt> with this operation set so that
      * events, that do not need processing, are filtered out.
      *
      * @param filter the <tt>EventFilter</tt> to register.
@@ -625,7 +625,7 @@ public class OperationSetBasicInstantMessagingYahooImpl
     }
 
     /**
-     * Unregisteres an <tt>EventFilter</tt> so that it won't check any more 
+     * Unregisteres an <tt>EventFilter</tt> so that it won't check any more
      * if an event should be filtered out.
      *
      * @param filter the <tt>EventFilter</tt> to unregister.

@@ -393,6 +393,7 @@ final class DNSIncoming
         return buf.toString();
     }
 
+    @Override
     public String toString()
     {
         StringBuffer buf = new StringBuffer();

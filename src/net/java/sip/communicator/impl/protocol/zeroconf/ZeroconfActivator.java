@@ -59,7 +59,7 @@ public class ZeroconfActivator
         throws Exception
     {
 //        logger.setLevelAll();
-        
+
         bundleContext = context;
 
         Hashtable<String, String> hashtable = new Hashtable<String, String>();
@@ -72,7 +72,7 @@ public class ZeroconfActivator
                     ProtocolProviderFactory.class.getName(),
                     zeroconfProviderFactory,
                     hashtable);
-        
+
         if (logger.isInfoEnabled())
             logger.info("Zeroconf protocol implementation [STARTED].");
     }
@@ -114,7 +114,7 @@ public class ZeroconfActivator
     {
         zeroconfProviderFactory.stop();
         zeroconfPpFactoryServReg.unregister();
-        
+
         if (logger.isInfoEnabled())
             logger.info("Zeroconf protocol implementation [STOPPED].");
     }

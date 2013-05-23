@@ -56,6 +56,7 @@ public class DnssecTableModel
     /**
      * {@inheritDoc}
      */
+    @Override
     public int getRowCount()
     {
         if(data == null)
@@ -66,6 +67,7 @@ public class DnssecTableModel
     /**
      * {@inheritDoc}
      */
+    @Override
     public int getColumnCount()
     {
         return 2;
@@ -74,6 +76,7 @@ public class DnssecTableModel
     /**
      * {@inheritDoc}
      */
+    @Override
     public String getColumnName(int columnIndex)
     {
         switch(columnIndex)
@@ -89,6 +92,7 @@ public class DnssecTableModel
     /**
      * {@inheritDoc}
      */
+    @Override
     public Class<?> getColumnClass(int columnIndex)
     {
         if(columnIndex < 1)
@@ -99,6 +103,7 @@ public class DnssecTableModel
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isCellEditable(int rowIndex, int columnIndex)
     {
         return columnIndex == 1;
@@ -107,6 +112,7 @@ public class DnssecTableModel
     /**
      * {@inheritDoc}
      */
+    @Override
     public Object getValueAt(int rowIndex, int columnIndex)
     {
         switch(columnIndex)
@@ -125,6 +131,7 @@ public class DnssecTableModel
     /**
      * {@inheritDoc}
      */
+    @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex)
     {
         if(aValue == null)

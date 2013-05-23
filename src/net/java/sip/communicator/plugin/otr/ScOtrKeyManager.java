@@ -11,7 +11,7 @@ import java.security.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
- * 
+ *
  * @author George Politis
  *
  */

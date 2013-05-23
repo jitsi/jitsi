@@ -359,7 +359,7 @@ public class SimpleAccountRegistrationActivator
      * Returns a reference to a ConfigurationService implementation currently
      * registered in the bundle context or null if no such implementation was
      * found.
-     * 
+     *
      * @return a currently valid implementation of the ConfigurationService.
      */
     public static ConfigurationService getConfigService()

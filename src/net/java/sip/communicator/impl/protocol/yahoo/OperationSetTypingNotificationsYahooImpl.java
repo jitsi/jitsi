@@ -84,6 +84,7 @@ public class OperationSetTypingNotificationsYahooImpl
     private class TypingListener
         extends SessionAdapter
     {
+        @Override
         public void notifyReceived(SessionNotifyEvent evt)
         {
             if(evt.isTyping())

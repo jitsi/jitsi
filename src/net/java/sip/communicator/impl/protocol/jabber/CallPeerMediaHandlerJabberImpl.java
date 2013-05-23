@@ -362,7 +362,7 @@ public class CallPeerMediaHandlerJabberImpl
                  * In the case of RTP translation performed by the conference
                  * focus, the conference focus is not required to capture media.
                  */
-                if (!(MediaType.VIDEO.equals(mediaType) 
+                if (!(MediaType.VIDEO.equals(mediaType)
                         && isRTPTranslationEnabled(mediaType)))
                 {
                     direction
@@ -842,6 +842,7 @@ public class CallPeerMediaHandlerJabberImpl
      * management
      * @see CallPeerMediaHandler#getTransportManager()
      */
+    @Override
     protected synchronized TransportManagerJabberImpl getTransportManager()
     {
         if (transportManager == null)
@@ -930,7 +931,7 @@ public class CallPeerMediaHandlerJabberImpl
                          * is to use RAW UDP at the time of this writing.
                          */
                         transports
-                            = new String[] { 
+                            = new String[] {
                                 ProtocolProviderServiceJabberImpl
                                     .URN_XMPP_JINGLE_RAW_UDP_0 };
                     }
@@ -1093,7 +1094,7 @@ public class CallPeerMediaHandlerJabberImpl
         }
 
         long stopCandidateHarvestTime = System.currentTimeMillis();
-        long  candidateHarvestTime 
+        long  candidateHarvestTime
             = stopCandidateHarvestTime - startCandidateHarvestTime;
         if (logger.isInfoEnabled())
             logger.info("End candidate harvest within "
@@ -1265,7 +1266,7 @@ public class CallPeerMediaHandlerJabberImpl
          * as the remote SSRCs). An design/implementation choice has to be made
          * though and the present one is to have this CallPeerMediaHandler
          * transparently (with respect to the TransportManager) store the media
-         * information inside the TransportManager. 
+         * information inside the TransportManager.
          */
         TransportManagerJabberImpl transportManager = this.transportManager;
 
@@ -1578,7 +1579,7 @@ public class CallPeerMediaHandlerJabberImpl
             // intersect the MediaFormats of our device with remote ones
             List<MediaFormat> mutuallySupportedFormats
                 = intersectFormats(remoteFormats, getLocallySupportedFormats(dev));
-            
+
             // check whether we will be exchanging any RTP extensions.
             List<RTPExtension> offeredRTPExtensions
                     = JingleUtils.extractRTPExtensions(
@@ -2015,6 +2016,7 @@ public class CallPeerMediaHandlerJabberImpl
      * @throws OperationFailedException the exception that we wanted this method
      * to throw.
      */
+    @Override
     protected void throwOperationFailedException(
             String message,
             int errorCode,

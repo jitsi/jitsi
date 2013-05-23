@@ -19,7 +19,7 @@ import net.java.sip.communicator.util.*;
  * The <tt>DatesListRenderer</tt> is a <tt>ListCellRenderer</tt>, specialized
  * to show dates. It's meant to be used in the history window in order to
  * represent the list of history dates.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class DatesListRenderer
@@ -50,10 +50,11 @@ public class DatesListRenderer
 
         return this;
     }
-    
+
     /**
      * Paint a round background for all selected cells.
      */
+    @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
 
@@ -80,5 +81,5 @@ public class DatesListRenderer
         {
             g.dispose();
         }
-    }   
+    }
 }

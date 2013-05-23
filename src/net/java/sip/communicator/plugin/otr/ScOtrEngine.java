@@ -13,7 +13,7 @@ import net.java.sip.communicator.service.protocol.*;
 /**
  * This interface must be implemented by classes that provide the Off-the-Record
  * functionality.
- * 
+ *
  * @author George Politis
  */
 public interface ScOtrEngine
@@ -22,7 +22,7 @@ public interface ScOtrEngine
 
     /**
      * Transforms an outgoing message.
-     * 
+     *
      * @param contact the destination {@link Contact}.
      * @param content the original message content.
      * @return the transformed message content.
@@ -31,7 +31,7 @@ public interface ScOtrEngine
 
     /**
      * Transforms an incoming message.
-     * 
+     *
      * @param contact the source {@link Contact}.
      * @param content the original message content.
      * @return the transformed message content.
@@ -41,7 +41,7 @@ public interface ScOtrEngine
     /**
      * Starts the Off-the-Record session for the given {@link Contact}, if it's
      * not already started.
-     * 
+     *
      * @param contact the {@link Contact} with whom we want to start an OTR
      *            session.
      */
@@ -50,7 +50,7 @@ public interface ScOtrEngine
     /**
      * Ends the Off-the-Record session for the given {@link Contact}, if it is
      * not already started.
-     * 
+     *
      * @param contact the {@link Contact} with whom we want to end the OTR
      *            session.
      */
@@ -59,7 +59,7 @@ public interface ScOtrEngine
     /**
      * Refreshes the Off-the-Record session for the given {@link Contact}. If
      * the session does not exist, a new session is established.
-     * 
+     *
      * @param contact the {@link Contact} with whom we want to refresh the OTR
      *            session.
      */
@@ -67,7 +67,7 @@ public interface ScOtrEngine
 
     /**
      * Gets the {@link SessionStatus} for the given {@link Contact}.
-     * 
+     *
      * @param contact the {@link Contact} whose {@link SessionStatus} we are
      *            interested in.
      * @return the {@link SessionStatus}.
@@ -89,14 +89,14 @@ public interface ScOtrEngine
 
     /**
      * Registers an {@link ScOtrEngineListener}.
-     * 
+     *
      * @param listener the {@link ScOtrEngineListener} to register.
      */
     public abstract void addListener(ScOtrEngineListener listener);
 
     /**
      * Unregisters an {@link ScOtrEngineListener}.
-     * 
+     *
      * @param listener the {@link ScOtrEngineListener} to unregister.
      */
     public abstract void removeListener(ScOtrEngineListener listener);
@@ -111,7 +111,7 @@ public interface ScOtrEngine
 
     /**
      * Gets a {@link Contact} specific policy.
-     * 
+     *
      * @param contact the {@link Contact} whose policy we want.
      * @return The {@link Contact} specific OTR policy. If the specified
      *         {@link Contact} has no policy, the global policy is returned.
@@ -120,14 +120,14 @@ public interface ScOtrEngine
 
     /**
      * Sets the global policy.
-     * 
+     *
      * @param policy the global policy
      */
     public abstract void setGlobalPolicy(OtrPolicy policy);
 
     /**
      * Sets the contact specific policy
-     * 
+     *
      * @param contact the {@link Contact} whose policy we want to set
      * @param policy the {@link OtrPolicy}
      */

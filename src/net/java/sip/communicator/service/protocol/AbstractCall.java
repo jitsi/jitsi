@@ -77,6 +77,7 @@ public abstract class AbstractCall<T extends CallPeer,
      *
      * Delegates to {@link #propertyChangeSupport}.
      */
+    @Override
     public void addPropertyChangeListener(PropertyChangeListener listener)
     {
         propertyChangeSupport.addPropertyChangeListener(listener);
@@ -178,6 +179,7 @@ public abstract class AbstractCall<T extends CallPeer,
      *
      * Delegates to {@link #propertyChangeSupport}.
      */
+    @Override
     protected void firePropertyChange(
             String property,
             Object oldValue, Object newValue)
@@ -191,6 +193,7 @@ public abstract class AbstractCall<T extends CallPeer,
      * @return an <tt>int</tt> indicating the number of peers currently
      * associated with this call.
      */
+    @Override
     public int getCallPeerCount()
     {
         return getCallPeerList().size();
@@ -220,6 +223,7 @@ public abstract class AbstractCall<T extends CallPeer,
      * @return an <tt>Iterator</tt> over the (list of) <tt>CallPeer</tt>s of
      * this <tt>Call</tt>
      */
+    @Override
     public Iterator<T> getCallPeers()
     {
         return getCallPeerList().iterator();
@@ -231,6 +235,7 @@ public abstract class AbstractCall<T extends CallPeer,
      *
      * @return the <tt>ProtocolProviderService</tt> that created this call.
      */
+    @Override
     @SuppressWarnings("unchecked")
     public U getProtocolProvider()
     {
@@ -242,6 +247,7 @@ public abstract class AbstractCall<T extends CallPeer,
      *
      * Delegates to {@link #propertyChangeSupport}.
      */
+    @Override
     public void removePropertyChangeListener(PropertyChangeListener listener)
     {
         propertyChangeSupport.removePropertyChangeListener(listener);

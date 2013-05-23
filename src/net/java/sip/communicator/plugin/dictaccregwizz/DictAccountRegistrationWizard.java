@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.plugin.dictaccregwizz;
@@ -18,7 +18,7 @@ import org.osgi.framework.*;
  * The <tt>DictAccountRegistrationWizard</tt> is an implementation of the
  * <tt>AccountRegistrationWizard</tt> for the Dict protocol. It should allow
  * the user to create and configure a new Dict account.
- * 
+ *
  * @author ROTH Damien
  * @author LITZELMANN Cedric
  */
@@ -45,7 +45,7 @@ public class DictAccountRegistrationWizard
 
     /**
      * Creates an instance of <tt>DictAccountRegistrationWizard</tt>.
-     * 
+     *
      * @param wizardContainer the wizard container, where this wizard is added
      */
     public DictAccountRegistrationWizard(WizardContainer wizardContainer)
@@ -57,6 +57,7 @@ public class DictAccountRegistrationWizard
      * Implements the <code>AccountRegistrationWizard.getIcon</code> method.
      * @return Returns the icon to be used for this wizard.
      */
+    @Override
     public byte[] getIcon()
     {
         return Resources.getImage(Resources.DICT_LOGO);
@@ -65,9 +66,10 @@ public class DictAccountRegistrationWizard
     /**
      * Implements the <code>AccountRegistrationWizard.getPageImage</code>
      * method. Returns the image used to decorate the wizard page
-     * 
+     *
      * @return byte[] the image used to decorate the wizard page
      */
+    @Override
     public byte[] getPageImage()
     {
         return Resources.getImage(Resources.PAGE_IMAGE);
@@ -78,6 +80,7 @@ public class DictAccountRegistrationWizard
      * method.
      * @return Returns the protocol name for this wizard.
      */
+    @Override
     public String getProtocolName()
     {
         return Resources.getString("plugin.dictaccregwizz.PROTOCOL_NAME");
@@ -88,6 +91,7 @@ public class DictAccountRegistrationWizard
      * </code> method.
      * @return Returns the description of the protocol for this wizard.
      */
+    @Override
     public String getProtocolDescription()
     {
         return Resources.getString("plugin.dictaccregwizz.PROTOCOL_DESCRIPTION");
@@ -98,6 +102,7 @@ public class DictAccountRegistrationWizard
      *
      * @return Returns the set of pages contained in this wizard.
      */
+    @Override
     public Iterator<WizardPage> getPages()
     {
         java.util.List<WizardPage> pages = new ArrayList<WizardPage>();
@@ -110,6 +115,7 @@ public class DictAccountRegistrationWizard
      * Returns the set of data that user has entered through this wizard.
      * @return Returns the set of data that user has entered through this wizard.
      */
+    @Override
     public Iterator<Map.Entry<String, String>> getSummary()
     {
         Map<String, String> summaryTable = new LinkedHashMap<String, String>();
@@ -128,6 +134,7 @@ public class DictAccountRegistrationWizard
      * new account
      * @throws OperationFailedException if the operation didn't succeed
      */
+    @Override
     public ProtocolProviderService signin()
         throws OperationFailedException
     {
@@ -146,6 +153,7 @@ public class DictAccountRegistrationWizard
      * new account
      * @throws OperationFailedException if the operation didn't succeed
      */
+    @Override
     public ProtocolProviderService signin(String userName, String password)
         throws OperationFailedException
     {
@@ -159,7 +167,7 @@ public class DictAccountRegistrationWizard
 
     /**
      * Creates an account for the given user and password.
-     * 
+     *
      * @param providerFactory the ProtocolProviderFactory which will create the
      * account.
      * @param host The hostname of the DICT server.
@@ -175,13 +183,13 @@ public class DictAccountRegistrationWizard
         String strategy)
         throws OperationFailedException
     {
-        Hashtable<String, String> accountProperties 
+        Hashtable<String, String> accountProperties
             = new Hashtable<String, String>();
 
         accountProperties.put(  ProtocolProviderFactory.ACCOUNT_ICON_PATH,
             "resources/images/protocol/dict/dict-32x32.png");
 
-        // Set this property to indicate that Dict account does not require 
+        // Set this property to indicate that Dict account does not require
         // authentication.
         accountProperties.put(
             ProtocolProviderFactory.NO_PASSWORD_REQUIRED,
@@ -239,10 +247,11 @@ public class DictAccountRegistrationWizard
     /**
      * Fills the UIN and Password fields in this panel with the data coming
      * from the given protocolProvider.
-     * 
+     *
      * @param protocolProvider The <tt>ProtocolProviderService</tt> to load
      *            the data from.
      */
+    @Override
     public void loadAccount(ProtocolProviderService protocolProvider)
     {
         setModification(true);
@@ -257,7 +266,7 @@ public class DictAccountRegistrationWizard
     /**
      * Returns the registration object, which will store all the data through
      * the wizard.
-     * 
+     *
      * @return the registration object, which will store all the data through
      * the wizard
      */
@@ -270,15 +279,17 @@ public class DictAccountRegistrationWizard
      * Returns the size of this wizard.
      * @return the size of this wizard
      */
+    @Override
     public Dimension getSize()
     {
         return new Dimension(300, 150);
     }
-    
+
     /**
      * Returns the identifier of the page to show first in the wizard.
      * @return the identifier of the page to show first in the wizard.
      */
+    @Override
     public Object getFirstPageIdentifier()
     {
         return firstWizardPage.getIdentifier();
@@ -288,11 +299,12 @@ public class DictAccountRegistrationWizard
      * Returns the identifier of the page to show last in the wizard.
      * @return the identifier of the page to show last in the wizard.
      */
+    @Override
     public Object getLastPageIdentifier()
     {
         return firstWizardPage.getIdentifier();
     }
-    
+
     /**
      * Generate the UID for the acount
      * @return the new UID
@@ -316,10 +328,10 @@ public class DictAccountRegistrationWizard
         {
             uid = host + ":" + this.registration.getPort();
         }
-            
+
         return uid;
     }
-    
+
     /**
      * Returns the number of accounts stored for the protocol
      * @return the number of accounts stored for the protocol
@@ -342,7 +354,7 @@ public class DictAccountRegistrationWizard
         ProtocolProviderFactory factory =
             DictAccRegWizzActivator.getDictProtocolProviderFactory();
 
-        ArrayList<AccountID> registeredAccounts 
+        ArrayList<AccountID> registeredAccounts
             = factory.getRegisteredAccounts();
         int total = 0;
 
@@ -365,6 +377,7 @@ public class DictAccountRegistrationWizard
      * @return an example string, which should indicate to the user how the
      * user name should look like.
      */
+    @Override
     public String getUserNameExample()
     {
         return null;
@@ -379,6 +392,7 @@ public class DictAccountRegistrationWizard
      * @return <code>true</code> if the simple "Sign in" form is enabled or
      * <code>false</code> otherwise.
      */
+    @Override
     public boolean isSimpleFormEnabled()
     {
         return false;
@@ -389,10 +403,11 @@ public class DictAccountRegistrationWizard
      * shown to the user. Only if the user needs more settings she'll choose
      * to open the advanced wizard, consisted by all pages.
      *
-     * @param isCreateAccount indicates if the simple form should be opened as 
+     * @param isCreateAccount indicates if the simple form should be opened as
      * a create account form or as a login form
      * @return a simple account registration form
      */
+    @Override
     public Object getSimpleForm(boolean isCreateAccount)
     {
         firstWizardPage = new FirstWizardPage(this);

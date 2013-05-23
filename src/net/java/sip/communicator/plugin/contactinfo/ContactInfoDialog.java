@@ -84,6 +84,7 @@ public class ContactInfoDialog
         this.detailsPanel.loadContactDetails(contact);
     }
 
+    @Override
     protected void close(boolean isEscaped)
     {
     }

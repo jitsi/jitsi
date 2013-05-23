@@ -197,6 +197,7 @@ public class InfoRetreiver
             this.requestID = requestID;
         }
 
+        @Override
         public void handleResponse(SnacResponseEvent e)
         {
             SnacCommand snac = e.getSnacCommand();
@@ -281,6 +282,7 @@ public class InfoRetreiver
     {
         String nickname = null;
 
+        @Override
         public void handleResponse(SnacResponseEvent e)
         {
             SnacCommand snac = e.getSnacCommand();

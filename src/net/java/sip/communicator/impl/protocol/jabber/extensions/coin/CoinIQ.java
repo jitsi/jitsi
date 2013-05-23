@@ -75,6 +75,7 @@ public class CoinIQ
      *
      * @return the child element section of the IQ XML.
      */
+    @Override
     public String getChildElementXML()
     {
         StringBuilder bldr = new StringBuilder("<");

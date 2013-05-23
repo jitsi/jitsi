@@ -15,19 +15,19 @@ import org.jitsi.util.*;
 
 /**
  * This class is the entry point for creating a file dialog regarding to the OS.
- * 
+ *
  * If the current operating system is Apple Mac OS X, we create an AWT
- * FileDialog (user interface is more practical under Mac OS than a 
+ * FileDialog (user interface is more practical under Mac OS than a
  * JFileChooser), else, a Swing JFileChooser.
- * 
+ *
  * @author Valentin Martinet
  */
-public class GenericFileDialog 
+public class GenericFileDialog
 {
     /**
-     * Creates a file dialog (AWT's FileDialog or Swing's JFileChooser) 
+     * Creates a file dialog (AWT's FileDialog or Swing's JFileChooser)
      * regarding to user's operating system.
-     * 
+     *
      * @param parent the parent Frame/JFrame of this dialog
      * @param title dialog's title
      * @param fileOperation
@@ -80,7 +80,7 @@ public class GenericFileDialog
     /**
      * Creates a file dialog (AWT FileDialog or Swing JFileChooser) regarding to
      * user's operating system.
-     * 
+     *
      * @param parent the parent Frame/JFrame of this dialog
      * @param title dialog's title
      * @param fileOperation
@@ -90,7 +90,7 @@ public class GenericFileDialog
     public static SipCommFileChooser create(
         Frame parent, String title, int fileOperation, String path)
     {
-        SipCommFileChooser scfc 
+        SipCommFileChooser scfc
             = GenericFileDialog.create(parent, title, fileOperation);
 
         if(path != null)

@@ -11,9 +11,9 @@ import java.util.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 
 /**
- * Parent class for gui ad-hoc chat room events indicating addition and removal 
+ * Parent class for gui ad-hoc chat room events indicating addition and removal
  * of ad-hoc chat rooms in the gui ad-hoc chat rooms list.
- * 
+ *
  * @author Valentin Martinet
  */
 public class AdHocChatRoomListChangeEvent
@@ -40,9 +40,9 @@ public class AdHocChatRoomListChangeEvent
     public static final int AD_HOC_CHAT_ROOM_CHANGED = 3;
 
     /**
-     * Creates a new <tt>AdHocChatRoom</tt> event according to the specified 
+     * Creates a new <tt>AdHocChatRoom</tt> event according to the specified
      * parameters.
-     * 
+     *
      * @param source the <tt>AdHocChatRoom</tt> instance that is added to the
      * AdHocChatRoomsList
      * @param eventID one of the AD_HOC_CHAT_ROOM_XXX static fields indicating
@@ -69,6 +69,7 @@ public class AdHocChatRoomListChangeEvent
      *
      * @return  A String representation of this <tt>GuiAdHocChatRoomEvent</tt>.
      */
+    @Override
     public String toString()
     {
         StringBuffer buff

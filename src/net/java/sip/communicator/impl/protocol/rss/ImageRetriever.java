@@ -59,6 +59,7 @@ public class ImageRetriever extends Thread
      * Updates all contacts that we add to this retriever, and gets back to
      * sleep if there aren't any.
      */
+    @Override
     public void run()
     {
         try

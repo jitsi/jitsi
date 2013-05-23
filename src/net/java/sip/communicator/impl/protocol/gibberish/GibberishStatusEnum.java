@@ -150,12 +150,12 @@ public class GibberishStatusEnum
     /**
      * Returns the byte representation of the image corresponding to the given
      * identifier.
-     * 
+     *
      * @param imageID the identifier of the image
      * @return the byte representation of the image corresponding to the given
      * identifier.
      */
-    private static byte[] getImageInBytes(String imageID) 
+    private static byte[] getImageInBytes(String imageID)
     {
         InputStream in = GibberishActivator.getResources().
             getImageInputStream(imageID);
@@ -163,13 +163,13 @@ public class GibberishStatusEnum
         if (in == null)
             return null;
         byte[] image = null;
-        try 
+        try
         {
             image = new byte[in.available()];
 
             in.read(image);
         }
-        catch (IOException e) 
+        catch (IOException e)
         {
             logger.error("Failed to load image:" + imageID, e);
         }

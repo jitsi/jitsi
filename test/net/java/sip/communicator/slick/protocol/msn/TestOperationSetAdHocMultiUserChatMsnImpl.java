@@ -14,15 +14,15 @@ import net.java.sip.communicator.slick.protocol.generic.*;
 
 /**
  * Tests for the MSN ad-hoc multi-user chat operation set.
- * 
+ *
  * @author Valentin Martinet
  */
-public class TestOperationSetAdHocMultiUserChatMsnImpl 
-extends TestOperationSetAdHocMultiUserChat  
+public class TestOperationSetAdHocMultiUserChatMsnImpl
+extends TestOperationSetAdHocMultiUserChat
 {
     /**
      * Creates the test with the specified method name.
-     * 
+     *
      * @param name the name of the method to execute.
      */
     public TestOperationSetAdHocMultiUserChatMsnImpl(String name)
@@ -62,18 +62,19 @@ extends TestOperationSetAdHocMultiUserChat
                         System.getProperty(
                             MsnProtocolProviderServiceLick.ACCOUNT_3_PREFIX
                             + ProtocolProviderFactory.PASSWORD).toCharArray()));
-            
-            assertEquals(fixture.provider3.getRegistrationState(), 
+
+            assertEquals(fixture.provider3.getRegistrationState(),
                 RegistrationState.REGISTERED);
     }
-    
-    public void start() throws Exception 
+
+    @Override
+    public void start() throws Exception
     {
         fixture = new MsnSlickFixture();
         fixture.setUp();
 
         // Supported operation sets by each protocol provider.
-        Map<String, OperationSet> 
+        Map<String, OperationSet>
         supportedOpSets1, supportedOpSets2, supportedOpSets3;
 
         supportedOpSets1 = fixture.provider1.getSupportedOperationSets();
@@ -101,7 +102,7 @@ extends TestOperationSetAdHocMultiUserChat
 
         if (opSetPresence1 == null)
             throw new NullPointerException(
-                "An implementation of the service must provide an " + 
+                "An implementation of the service must provide an " +
             "implementation of at least one of the PresenceOperationSets");
 
 
@@ -111,7 +112,7 @@ extends TestOperationSetAdHocMultiUserChat
 
         if (supportedOpSets2 == null || supportedOpSets2.size() < 1)
             throw new NullPointerException(
-                "No OperationSet implementations are supported by " + 
+                "No OperationSet implementations are supported by " +
             "this implementation. ");
 
         opSetAHMUC2 = (OperationSetAdHocMultiUserChat) supportedOpSets2.get(
@@ -126,7 +127,7 @@ extends TestOperationSetAdHocMultiUserChat
 
         if (opSetPresence2 == null)
             throw new NullPointerException(
-                "An implementation of the service must provide an " + 
+                "An implementation of the service must provide an " +
             "implementation of at least one of the PresenceOperationSets");
 
 
@@ -136,7 +137,7 @@ extends TestOperationSetAdHocMultiUserChat
 
         if (supportedOpSets3 == null || supportedOpSets3.size() < 1)
             throw new NullPointerException(
-                "No OperationSet implementations are supported by " + 
+                "No OperationSet implementations are supported by " +
             "this implementation. ");
 
         opSetAHMUC3 = (OperationSetAdHocMultiUserChat) supportedOpSets3.get(
@@ -151,7 +152,7 @@ extends TestOperationSetAdHocMultiUserChat
 
         if (opSetPresence3 == null)
             throw new NullPointerException(
-                "An implementation of the service must provide an " + 
+                "An implementation of the service must provide an " +
             "implementation of at least one of the PresenceOperationSets");
     }
 }

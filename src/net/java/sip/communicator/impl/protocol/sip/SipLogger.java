@@ -149,7 +149,7 @@ public class SipLogger
             return true;
         if (logLevel == TRACE_NONE)
             return false;
-        
+
         return true;
     }
 

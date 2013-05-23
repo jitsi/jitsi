@@ -66,6 +66,7 @@ public class ExtendedEtchedBorder
      * @param width the width of the painted border
      * @param height the height of the painted border
      */
+    @Override
     public void paintBorder(Component c,
                             Graphics g,
                             int x,

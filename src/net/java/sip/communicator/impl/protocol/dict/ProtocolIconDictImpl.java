@@ -13,7 +13,7 @@ import net.java.sip.communicator.service.protocol.*;
 /**
  * Represents the Dict protocol icon. Implements the <tt>ProtocolIcon</tt>
  * interface in order to provide a Dict logo image in two different sizes.
- * 
+ *
  * @author ROTH Damien
  * @author LITZELMANN Cedric
  */

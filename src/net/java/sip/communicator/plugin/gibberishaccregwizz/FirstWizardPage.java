@@ -28,7 +28,7 @@ public class FirstWizardPage
     /**
      * Serial version UID.
      */
-    private static final long serialVersionUID = 0L;    
+    private static final long serialVersionUID = 0L;
 
     public static final String FIRST_PAGE_IDENTIFIER = "FirstPageIdentifier";
 

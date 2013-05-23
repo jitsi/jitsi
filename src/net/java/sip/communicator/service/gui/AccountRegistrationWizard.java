@@ -25,7 +25,7 @@ import net.java.sip.communicator.service.protocol.*;
  * <p>
  * It depends on the wizard implementation in the UI for whether or not a
  * summary will be shown to the user before "Finish".
- * 
+ *
  * @author Yana Stamcheva
  */
 public abstract class AccountRegistrationWizard
@@ -43,7 +43,7 @@ public abstract class AccountRegistrationWizard
     /**
      * Returns the protocol icon that will be shown on the left of the protocol
      * name in the list, where user will choose the protocol to register to.
-     * 
+     *
      * @return a short description of the protocol.
      */
     public abstract byte[] getIcon();
@@ -57,7 +57,7 @@ public abstract class AccountRegistrationWizard
     /**
      * Returns the protocol display name that will be shown in the list,
      * where user will choose the protocol to register to.
-     * 
+     *
      * @return the protocol name.
      */
     public abstract String getProtocolName();
@@ -66,7 +66,7 @@ public abstract class AccountRegistrationWizard
      * Returns a short description of the protocol that will be shown on the
      * right of the protocol name in the list, where user will choose the
      * protocol to register to.
-     * 
+     *
      * @return a short description of the protocol.
      */
     public abstract String getProtocolDescription();
@@ -83,7 +83,7 @@ public abstract class AccountRegistrationWizard
      * Loads all data concerning the given <tt>ProtocolProviderService</tt>.
      * This method is meant to be used when a modification in an already
      * created account is needed.
-     * 
+     *
      * @param protocolProvider The <tt>ProtocolProviderService</tt> to
      * load data from.
      */
@@ -91,10 +91,10 @@ public abstract class AccountRegistrationWizard
 
     /**
      * Returns the set of <tt>WizardPage</tt>-s for this
-     * wizard. 
-     * 
+     * wizard.
+     *
      * @return the set of <tt>WizardPage</tt>-s for this
-     * wizard. 
+     * wizard.
      */
     public abstract Iterator<WizardPage> getPages();
 
@@ -102,7 +102,7 @@ public abstract class AccountRegistrationWizard
      * Returns the identifier of the first account registration wizard page.
      * This method is meant to be used by the wizard container to determine,
      * which is the first page to show to the user.
-     * 
+     *
      * @return the identifier of the first account registration wizard page
      */
     public abstract Object getFirstPageIdentifier();
@@ -111,7 +111,7 @@ public abstract class AccountRegistrationWizard
      * Returns the identifier of the last account registration wizard page. This
      * method is meant to be used by the wizard container to determine which is
      * the page to show before the summary page (of course if there's a summary).
-     * 
+     *
      * @return the identifier of the last account registration wizard page
      */
     public abstract Object getLastPageIdentifier();
@@ -119,9 +119,9 @@ public abstract class AccountRegistrationWizard
     /**
      * Returns a set of key-value pairs that will represent the summary for
      * this wizard.
-     * 
+     *
      * @return a set of key-value pairs that will represent the summary for
-     * this wizard. 
+     * this wizard.
      */
     public abstract Iterator<Map.Entry<String, String>> getSummary();
 
@@ -201,7 +201,7 @@ public abstract class AccountRegistrationWizard
      * shown to the user. Only if the user needs more settings she'll choose
      * to open the advanced wizard, consisted by all pages.
      *
-     * @param isCreateAccount indicates if the simple form should be opened as 
+     * @param isCreateAccount indicates if the simple form should be opened as
      * a create account form or as a login form
      * @return a simple account registration form
      */
@@ -210,9 +210,9 @@ public abstract class AccountRegistrationWizard
     /**
      * Sets the modification property to indicate if this wizard is opened for
      * a modification.
-     * 
+     *
      * @param isModification indicates if this wizard is opened for modification
-     * or for creating a new account. 
+     * or for creating a new account.
      */
     public void setModification(boolean isModification)
     {
@@ -222,7 +222,7 @@ public abstract class AccountRegistrationWizard
     /**
      * Indicates if this wizard is modifying an existing account or is creating
      * a new one.
-     * 
+     *
      * @return <code>true</code> to indicate that this wizard is currently in
      * modification mode, <code>false</code> - otherwise.
      */
@@ -247,7 +247,7 @@ public abstract class AccountRegistrationWizard
 
     /**
      * Returns the wizard container, where all pages are added.
-     * 
+     *
      * @return the wizard container, where all pages are added
      */
     public WizardContainer getWizardContainer()
@@ -257,7 +257,7 @@ public abstract class AccountRegistrationWizard
 
     /**
      * Sets the wizard container, where all pages are added.
-     * 
+     *
      * @param wizardContainer the wizard container, where all pages are added
      */
     protected void setWizardContainer(WizardContainer wizardContainer)

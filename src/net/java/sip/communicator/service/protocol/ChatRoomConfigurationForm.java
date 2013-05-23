@@ -18,25 +18,25 @@ import java.util.*;
  * The <tt>ChatRoomConfigurationForm</tt> contains a list of
  * <tt>ChatRoomConfigurationFormField</tt>s. Each field corresponds to a chat
  * room configuration property.
- * 
+ *
  * @author Yana Stamcheva
  */
 public interface ChatRoomConfigurationForm
-{   
+{
     /**
      * Returns an Iterator over a set of <tt>ChatRoomConfigurationFormField</tt>s,
      * containing the current configuration of the chat room. This method is
      * meant to be used by bundles interested showing and changing the current
      * chat room configuration.
-     * 
+     *
      * @return a list of <tt>ChatRoomConfigurationFormField</tt>s, containing
      * the current configuration of the chat room
      */
     public Iterator<ChatRoomConfigurationFormField> getConfigurationSet();
-    
+
     /**
      * Submits the information in this configuration form to the server.
-     * 
+     *
      * @throws OperationFailedException if the submit opeation do not succeed
      * for some reason (e.g. a wrong value is provided for a property)
      */

@@ -10,7 +10,7 @@ package net.java.sip.communicator.service.protocol.event;
  * The <tt>ContactResourceListener</tt> listens for events related to
  * <tt>ContactResource</tt>-s. It is notified each time a
  * <tt>ContactResource</tt> has been added, removed or modified.
- * 
+ *
  * @author Yana Stamcheva
  */
 public interface ContactResourceListener

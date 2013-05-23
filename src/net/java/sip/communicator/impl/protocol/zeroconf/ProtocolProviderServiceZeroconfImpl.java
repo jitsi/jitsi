@@ -260,7 +260,7 @@ public class ProtocolProviderServiceZeroconfImpl
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see net.java.sip.communicator.service.protocol.ProtocolProviderService#
      * isSignallingTransportSecure()
      */

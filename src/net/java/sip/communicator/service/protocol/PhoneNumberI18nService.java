@@ -117,7 +117,7 @@ public abstract class PhoneNumberI18nService
      * Normalizes a <tt>String</tt> phone number by converting alpha characters
      * to their respective digits on a keypad and then stripping non-digit
      * characters.
-     * 
+     *
      * @param phoneNumber a <tt>String</tt> which represents a phone number to
      * normalize
      *

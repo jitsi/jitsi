@@ -46,6 +46,7 @@ public class SIPCommHTMLEditorKit extends HTMLEditorKit
      *
      * @return the extended view factory
      */
+    @Override
     public ViewFactory getViewFactory()
     {
         return new HTMLFactoryX();
@@ -59,6 +60,7 @@ public class SIPCommHTMLEditorKit extends HTMLEditorKit
     private class HTMLFactoryX extends HTMLFactory
         implements ViewFactory
     {
+        @Override
         public View create(Element elem)
         {
             View view = super.create(elem);
@@ -105,6 +107,7 @@ public class SIPCommHTMLEditorKit extends HTMLEditorKit
          *           The parent may choose to resize or break the view.
          * @exception IllegalArgumentException for an invalid axis
          */
+        @Override
         public float getPreferredSpan(int axis)
         {
             if ((axis != X_AXIS) && (axis != Y_AXIS))
@@ -139,6 +142,7 @@ public class SIPCommHTMLEditorKit extends HTMLEditorKit
          *           The parent may choose to resize or break the view.
          * @exception IllegalArgumentException for an invalid axis
          */
+        @Override
         public float getMaximumSpan(int axis)
         {
             if ((axis != X_AXIS) && (axis != Y_AXIS))
@@ -191,6 +195,7 @@ public class SIPCommHTMLEditorKit extends HTMLEditorKit
          * @param sizeRequirements the initial size requirements
          * @return the recalculated size requirements for the given axis
          */
+        @Override
         protected SizeRequirements calculateMinorAxisRequirements (
                 int axis, SizeRequirements sizeRequirements)
         {

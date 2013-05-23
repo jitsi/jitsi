@@ -347,6 +347,7 @@ public abstract class AccountID
      * @see     java.lang.Object#equals(java.lang.Object)
      * @see     java.util.Hashtable
      */
+    @Override
     public int hashCode()
     {
         return (accountUID == null)? 0 : accountUID.hashCode();
@@ -378,6 +379,7 @@ public abstract class AccountID
      *
      * @return  a string representation of this account id.
      */
+    @Override
     public String toString()
     {
         return getAccountUniqueID();

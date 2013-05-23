@@ -11,7 +11,7 @@ import net.java.sip.communicator.service.protocol.whiteboardobjects.*;
 
 /**
  * The Jabber implementation of the <tt>WhiteboardInvitation</tt> interface.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class WhiteboardInvitationJabberImpl
@@ -30,7 +30,7 @@ public class WhiteboardInvitationJabberImpl
     /**
      * Creates an invitation for the given <tt>targetWhiteboard</tt>, from the
      * given <tt>inviter</tt>.
-     * 
+     *
      * @param targetWhiteboard the <tt>WhiteboardSession</tt> for which the
      * invitation is
      * @param firstWhiteboardObject the white-board object that inviter send
@@ -57,7 +57,7 @@ public class WhiteboardInvitationJabberImpl
 
     /**
      * Returns the <tt>WhiteboardSession</tt>, that this invitation is about.
-     * 
+     *
      * @return the <tt>WhiteboardSession</tt>, that this invitation is about
      */
     public WhiteboardSession getTargetWhiteboard()
@@ -67,7 +67,7 @@ public class WhiteboardInvitationJabberImpl
 
     /**
      * Returns the inviter, who sent this invitation.
-     * 
+     *
      * @return the inviter, who sent this invitation
      */
     public String getInviter()
@@ -77,7 +77,7 @@ public class WhiteboardInvitationJabberImpl
 
     /**
      * Returns the reason of the invitation.
-     * 
+     *
      * @return the reason of the invitation
      */
     public String getReason()
@@ -88,7 +88,7 @@ public class WhiteboardInvitationJabberImpl
     /**
      * Returns the password to use in order to join the white-board, that this
      * invitation is about.
-     * 
+     *
      * @return the password to use in order to join the white-board, that this
      * invitation is about.
      */
@@ -101,7 +101,7 @@ public class WhiteboardInvitationJabberImpl
      * Returns the first white-board object that the inviter would like to
      * exchange with the user. If the user accepts this invitation he/she
      * should see this object on his white-board.
-     * 
+     *
      * @return the first white-board object
      */
     public WhiteboardObject getWhiteboardInitialObject()

@@ -33,10 +33,10 @@ public class SSHStatusEnum
             "Offline",
             ProtocolIconSSHImpl
                 .getImageInBytes("service.protocol.ssh.OFFLINE_STATUS_ICON"));
-    
+
     /**
      * The Not Available status. Indicates that the user has connectivity
-     * but might not be able to immediately act (i.e. even less immediately 
+     * but might not be able to immediately act (i.e. even less immediately
      * than when in an Away status ;-P ) upon initiation of communication.
      *
      */
@@ -46,7 +46,7 @@ public class SSHStatusEnum
             "Not Available",
             ProtocolIconSSHImpl
                 .getImageInBytes("service.protocol.ssh.NA_STATUS_ICON"));
-    
+
     /**
      * The Connecting status. Indicate that the user is connecting to remote
      * server
@@ -57,7 +57,7 @@ public class SSHStatusEnum
             "Connecting",
             ProtocolIconSSHImpl
                 .getImageInBytes("service.protocol.ssh.CONNECTING_ICON"));
-    
+
     /**
      * The Online status. Indicate that the user is able and willing to
      * communicate.
@@ -80,7 +80,7 @@ public class SSHStatusEnum
             "Connecting",
             ProtocolIconSSHImpl
                 .getImageInBytes("service.protocol.ssh.CONNECTED_ICON"));
-    
+
     /**
      * The File Transfer status. Indicate that the user is transfering a file
      * to/from a remote server
@@ -91,7 +91,7 @@ public class SSHStatusEnum
             "Transfering File",
             ProtocolIconSSHImpl
                 .getImageInBytes("service.protocol.ssh.FILE_TRANSFER_ICON"));
-    
+
     /**
      * Initialize the list of supported status states.
      */
@@ -103,7 +103,7 @@ public class SSHStatusEnum
         supportedStatusSet.add(ONLINE);
 //        supportedStatusSet.add(CONNECTING);
     }
-    
+
     /**
      * Creates an instance of <tt>SSHPresneceStatus</tt> with the
      * specified parameters.
@@ -117,7 +117,7 @@ public class SSHStatusEnum
     {
         super(status, statusName, statusIcon);
     }
-    
+
     /**
      * Returns an iterator over all status instances supproted by the ssh
      * provider.

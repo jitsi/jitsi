@@ -16,7 +16,7 @@ import net.java.sip.communicator.plugin.desktoputil.*;
 
 /**
  * <tt>SIPCommListUI</tt> is an implementation of the <tt>BasicListUI</tt>.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class SIPCommListUI extends BasicListUI {
@@ -29,6 +29,7 @@ public class SIPCommListUI extends BasicListUI {
         return new SIPCommListUI();
     }
 
+    @Override
     public void paint(Graphics g, JComponent c)
     {
         AntialiasingManager.activateAntialiasing(g);

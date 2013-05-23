@@ -170,6 +170,7 @@ public class InitialAccountRegistrationFrame
 
         provisioningLabel.addMouseListener(new MouseAdapter()
         {
+            @Override
             public void mousePressed(MouseEvent e)
             {
                 ConfigurationContainer configContainer
@@ -338,6 +339,7 @@ public class InitialAccountRegistrationFrame
                         "plugin.simpleaccregwizz.SPECIAL_SIGNUP"));
                 signupLabel.addMouseListener(new MouseAdapter()
                 {
+                    @Override
                     public void mousePressed(MouseEvent e)
                     {
                         try
@@ -438,6 +440,7 @@ public class InitialAccountRegistrationFrame
             }
         }
 
+        @Override
         public void paintComponent(Graphics g)
         {
             // do the superclass behavior first

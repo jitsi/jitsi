@@ -14,7 +14,7 @@ import java.util.*;
  * could support different sizes: 16x16, 32x32, etc.
  * The ICON_SIZE_XXX constats are meant to be used to specify the size of the
  * icon, in order to enable other bundles to obtain the exact image they need.
- * 
+ *
  * @author Yana Stamcheva
  */
 public interface ProtocolIcon
@@ -45,7 +45,7 @@ public interface ProtocolIcon
      * method is meant to be implemented by a protocol implementation in order
      * to allow other bundles to obtain information about the number of sizes
      * in which this icon is exported.
-     *       
+     *
      * @return Iterator an iterator over a set containing different predefined
      * icon sizes. Each icon size in the set is one of the ICON_SIZE_XXX
      * constants.
@@ -56,7 +56,7 @@ public interface ProtocolIcon
      * Checks if the given icon size is supported by the current protocol
      * implementation. If the given <tt>iconSize</tt> is contained in the list of
      * supported sizes - returns TRUE, otherwise - FALSE.
-     * 
+     *
      * @param iconSize the size of the protocol icon; one of the ICON_SIZE_XXX
      * constants
      * @return TRUE - if the given icon size is supported by the current
@@ -82,7 +82,7 @@ public interface ProtocolIcon
     /**
      * Returns the icon that should be used when the protocol provider is in
      * a connecting state.
-     * 
+     *
      * @return the icon that should be used when the protocol provider is in
      * a connecting state
      */

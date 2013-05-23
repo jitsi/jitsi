@@ -55,7 +55,7 @@ public class ContactListEvent
      * @param eventID one of the XXX_SELECTED static fields indicating the
      * nature of the event.
      * @param clickCount the number of clicks that was produced when clicking
-     * over the contact list 
+     * over the contact list
      */
     public ContactListEvent(Object source, int eventID, int clickCount)
     {
@@ -86,7 +86,7 @@ public class ContactListEvent
 
         return null;
     }
-    
+
     /**
      * Returns the <tt>UIGroupDescriptor</tt> for which this event occured.
      * @return the <tt>UIGroupDescriptor</tt> for which this event occured

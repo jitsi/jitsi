@@ -15,23 +15,23 @@ import net.java.sip.communicator.service.gui.*;
  * The <tt>JoinChatRoomWizardPage2</tt> is the second page of the
  * "Join chat room" wizard. Contains the <tt>SearchChatRoomPanel</tt>,
  * where the user should specify the chat room to join.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class JoinChatRoomWizardPage2
         implements WizardPage
 {
     public static final String IDENTIFIER = "SEARCH_CHAT_ROOM_PANEL";
-    
+
     private SearchChatRoomPanel searchChatRoomPanel;
-    
+
     private WizardContainer wizard;
-    
+
     private NewChatRoom joinChatRoom;
 
     /**
      * Creates an instance of <tt>JoinChatRoomWizardPage2</tt>.
-     * 
+     *
      * @param wizard the parent wizard container
      * @param joinChatRoom the object that collects all information for the
      * chat room, collected throughout the wizard
@@ -52,25 +52,25 @@ public class JoinChatRoomWizardPage2
     /**
      * Implements the <tt>WizardPanelDescriptor</tt> method to return the
      * identifier of the next wizard page.
-     * 
+     *
      * @return the identifier of the next wizard page
      */
     public Object getNextPageIdentifier()
     {
         return WizardPage.FINISH_PAGE_IDENTIFIER;
     }
-    
+
     /**
      * Implements the <tt>WizardPanelDescriptor</tt> method to return the
      * identifier of the previous wizard page.
-     * 
+     *
      * @return the identifier of the previous wizard page
      */
     public Object getBackPageIdentifier()
     {
         return JoinChatRoomWizardPage1.IDENTIFIER;
     }
-    
+
     /**
      * Before finishing the wizard sets the identifier entered by the user
      * to the <tt>NewChatRoom</tt> object.
@@ -83,7 +83,7 @@ public class JoinChatRoomWizardPage2
     /**
      * Implements the <tt>WizardPanelDescriptor</tt> method to return the
      * identifier of this page.
-     * 
+     *
      * @return the identifier of this page
      */
     public Object getIdentifier()
@@ -94,7 +94,7 @@ public class JoinChatRoomWizardPage2
     /**
      * Returns the form contained in this wizard page. In this case it's the
      * <tt>ChatRoomNamePanel</tt>.
-     * 
+     *
      * @return the form contained in this wizard page
      */
     public Object getWizardForm()

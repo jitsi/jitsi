@@ -90,6 +90,7 @@ public class SipAccountID
      * should be able to parse into a meaningful address and use it to
      * communicate with us.
      */
+    @Override
     public String getAccountAddress()
     {
         StringBuffer accountAddress = new StringBuffer();
@@ -116,6 +117,7 @@ public class SipAccountID
      * @return A String that can be showed to users when referring to this
      * account.
      */
+    @Override
     public String getDisplayName()
     {
         String protocolName =
@@ -173,6 +175,7 @@ public class SipAccountID
      * for
      * @return the account property string corresponding to the given key
      */
+    @Override
     public String getAccountPropertyString(Object key)
     {
         if(key.equals(ServerStoredContactListSipImpl.XCAP_PASSWORD))

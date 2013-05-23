@@ -24,7 +24,7 @@ import net.java.sip.communicator.util.skin.*;
  * tries to move a subcontact in the contact list. It is meant to inform the
  * user that she should select another meta contact, where the previously
  * choosen contact will be moved.
- * 
+ *
  * @author Yana Stamcheva
  * @author Adam Netocny
  */
@@ -64,7 +64,7 @@ public class MoveSubcontactMessageDialog
      * Creates an instance of MoveSubcontactMessageDialog and constructs
      * all panels contained in this dialog.
      * @param parentWindow the main application window
-     * @param listener the listener that deals with moved contacts 
+     * @param listener the listener that deals with moved contacts
      */
     public MoveSubcontactMessageDialog(MainFrame parentWindow,
             ContactListListener listener)
@@ -150,6 +150,7 @@ public class MoveSubcontactMessageDialog
      * @param isEscaped indicates if the dialog has been closed by pressing the
      * Esc key
      */
+    @Override
     protected void close(boolean isEscaped)
     {
         this.cancelButton.doClick();
@@ -161,6 +162,7 @@ public class MoveSubcontactMessageDialog
      *
      * @param isVisible indicates if the component should be visible or not
      */
+    @Override
     public void setVisible(boolean isVisible)
     {
         super.setVisible(isVisible);

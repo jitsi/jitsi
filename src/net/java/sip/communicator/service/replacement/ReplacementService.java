@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.service.replacement;
@@ -8,7 +8,7 @@ package net.java.sip.communicator.service.replacement;
 /**
  * A service used to provide substitution for any text in chat messages, like
  * smileys, video and image previews, etc.
- * 
+ *
  * @author Purvesh Sahoo
  */
 public interface ReplacementService
@@ -30,14 +30,14 @@ public interface ReplacementService
 
     /**
      * Returns the name of the replacement source.
-     * 
+     *
      * @return the replacement source name
      */
     public String getSourceName();
 
     /**
      * Returns the pattern used to match the source URL.
-     * 
+     *
      * @return the pattern of the source
      */
     public String getPattern();

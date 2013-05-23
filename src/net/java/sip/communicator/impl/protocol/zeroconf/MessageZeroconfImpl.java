@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.impl.protocol.zeroconf;
@@ -9,7 +9,7 @@ import net.java.sip.communicator.service.protocol.*;
 
 /**
  * Very simple message implementation for the Zeroconf protocol.
- * 
+ *
  * @author Christian Vincenot
  * @author Maxime Catelin
  * @author Jonathan Martin
@@ -83,7 +83,7 @@ public class MessageZeroconfImpl
 
     /**
      * Creates a message instance according to the specified parameters.
-     * 
+     *
      * @param content the message body
      * @param contentEncoding message encoding or null for UTF8
      * @param contentType of the message
@@ -99,7 +99,7 @@ public class MessageZeroconfImpl
 
     /**
      * Creates a message instance according to the specified parameters.
-     * 
+     *
      * @param type Type of message
      * @param content the message body
      * @param contentEncoding message encoding or null for UTF8
@@ -112,7 +112,7 @@ public class MessageZeroconfImpl
 
     /**
      * Returns the type of message. Always text/plain for Zeroconf, so null.
-     * 
+     *
      * @return null
      */
     public int getType()
@@ -122,7 +122,7 @@ public class MessageZeroconfImpl
 
     /**
      * Gets the baloon color declared in messages sent by iChat-like clients
-     * 
+     *
      * @return baloon color
      */
     public int getBaloonColor()
@@ -132,7 +132,7 @@ public class MessageZeroconfImpl
 
     /**
      * Sets the baloon color declared in messages sent by iChat-like clients
-     * 
+     *
      * @param baloonColor baloon color
      */
     public void setBaloonColor(int baloonColor)
@@ -142,7 +142,7 @@ public class MessageZeroconfImpl
 
     /**
      * Returns the text color
-     * 
+     *
      * @return Text color
      */
     public int getTextColor()
@@ -152,7 +152,7 @@ public class MessageZeroconfImpl
 
     /**
      * Sets the text color
-     * 
+     *
      * @param textColor Text color
      */
     public void setTextColor(int textColor)
@@ -162,7 +162,7 @@ public class MessageZeroconfImpl
 
     /**
      * Returns the text font
-     * 
+     *
      * @return Text font
      */
     public String getTextFont()
@@ -172,7 +172,7 @@ public class MessageZeroconfImpl
 
     /**
      * Sets the text color
-     * 
+     *
      * @param textFont Text font
      */
     public void setTextFont(String textFont)
@@ -182,7 +182,7 @@ public class MessageZeroconfImpl
 
     /**
      * Returns the text size
-     * 
+     *
      * @return Text size
      */
     public int getTextSize()
@@ -192,7 +192,7 @@ public class MessageZeroconfImpl
 
     /**
      * Sets the text size
-     * 
+     *
      * @param textSize Text size
      */
     public void setTextSize(int textSize)
@@ -202,7 +202,7 @@ public class MessageZeroconfImpl
 
     /**
      * Returns the contact's ID
-     * 
+     *
      * @return String representing the contact's ID
      */
     public String getContactID()
@@ -212,7 +212,7 @@ public class MessageZeroconfImpl
 
     /**
      * Sets the contact's ID
-     * 
+     *
      * @param contactID String representing the contact's ID
      */
     public void setContactID(String contactID)

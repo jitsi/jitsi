@@ -370,6 +370,7 @@ public class AccountStatusPanel
      * Paints this component.
      * @param g the <tt>Graphics</tt> object used for painting
      */
+    @Override
     public void paintComponent(Graphics g)
     {
         super.paintComponent(g);
@@ -559,6 +560,7 @@ public class AccountStatusPanel
      * @see JComponent#getUIClassID
      * @see UIDefaults#getUI
      */
+    @Override
     public String getUIClassID()
     {
         if(ConfigurationUtils.isTransparentWindowEnabled())

@@ -54,14 +54,14 @@ public class AccountPanel
      */
     private final JPanel changePasswordPanel
             = new TransparentPanel(new BorderLayout(10,10));
-    
+
     /**
      * "Change password" button
      */
-    private final JButton changePasswordButton 
+    private final JButton changePasswordButton
         = new JButton(Resources.getString(
             "plugin.jabberaccregwizz.CHANGE_PASSWORD"));
-    
+
     /**
      * A pane to show a message in the "change password" panel
      */
@@ -145,7 +145,7 @@ public class AccountPanel
         }
 
         userIDPassPanel.add(southPanel, BorderLayout.SOUTH);
-        
+
         changePasswordPanel.setBorder(BorderFactory.createTitledBorder(
                 Resources.getString(
                     "plugin.jabberaccregwizz.CHANGE_PASSWORD")));
@@ -164,13 +164,13 @@ public class AccountPanel
         changePasswordMessagePane.setBorder(BorderFactory.
                 createEmptyBorder(0, 5, 10, 0));
         changePasswordMessagePane.setEditable(false);
-        
+
         changePasswordPanel.add(changePasswordMessagePane, BorderLayout.NORTH);
         changePasswordPanel.add(changePasswordButton, BorderLayout.SOUTH);
 
         //we only show that when showChangePasswordPanel is called
         changePasswordPanel.setVisible(false);
-        
+
         this.add(mainPanel, BorderLayout.NORTH);
     }
     /**
@@ -251,6 +251,7 @@ public class AccountPanel
                 "plugin.simpleaccregwizz.SPECIAL_SIGNUP"));
         homeLinkLabel.addMouseListener(new MouseAdapter()
         {
+            @Override
             public void mousePressed(MouseEvent e)
             {
                 try
@@ -519,9 +520,9 @@ public class AccountPanel
     }
     /**
      * Shows or hides the "change password" panel
-     */   
+     */
     public void showChangePasswordPanel(boolean show)
-    {      
+    {
         if(!show)
         {
             changePasswordPanel.setVisible(false);
@@ -531,8 +532,8 @@ public class AccountPanel
         {
             ProtocolProviderService protocolProvider =
                         parentForm.getWizard().getProtocolProvider();
-            
-            //the button will only be enabled if our preliminary checks (the 
+
+            //the button will only be enabled if our preliminary checks (the
             //account is logged in the server supports inband registers) succeed
             changePasswordButton.setEnabled(false);
             if (protocolProvider == null)
@@ -560,29 +561,29 @@ public class AccountPanel
                 changePasswordMessagePane.setVisible(false);
                 changePasswordButton.setEnabled(true);
             }
-        
+
             changePasswordPanel.setVisible(true);
         }
     }
-    
+
     /**
      * A "change password" dialog.
      */
     private class JabberPasswordChangeDialog extends PasswordChangeDialog
     {
-        
+
         /**
          * Default constructor.
          */
         public JabberPasswordChangeDialog()
         {
             super(false);
-                    
+
             setTitle(Resources.
                        getString("plugin.jabberaccregwizz.CHANGE_PASSWORD"));
             setInfoText(Resources.
                        getString("plugin.jabberaccregwizz.ENTER_NEW_PASSWORD"));
-            
+
             this.getOkButton().addActionListener(okButtonListener);
         }
 
@@ -620,7 +621,7 @@ public class AccountPanel
                     return;
                 }
                 else if (protocolProvider.getTransportProtocol()
-                        != TransportProtocol.TLS) 
+                        != TransportProtocol.TLS)
                 {
                     //XEP-0077 advices agains changing password unless
                     //the underlying stream is encrypted
@@ -658,7 +659,7 @@ public class AccountPanel
                                     logger.info("Storing new password for"
                                             + " account " + protocolProvider.
                                             getAccountID().getAccountAddress());
-                                
+
                                 storeNewPassword(newPass);
                             }
                             catch (IllegalArgumentException ex)
@@ -678,8 +679,8 @@ public class AccountPanel
                         //now update the password field in AccountPanel,
                         //because it still has the old pass and if the user
                         //completes the wizard it will store it.
-                        passField.setText(newPass);                            
-                        
+                        passField.setText(newPass);
+
                         displayPopupInfo(Resources.getString(
                                 "plugin.jabberaccregwizz.PASSWORD_CHANGED"));
                         dispose();
@@ -712,7 +713,7 @@ public class AccountPanel
                     getAccountID();
             ProtocolProviderFactory protocolProviderFactory =
                 JabberAccRegWizzActivator.getJabberProtocolProviderFactory();
-            
+
             protocolProviderFactory.storePassword(accountID, newPass);
         }
     }

@@ -188,7 +188,7 @@ public class SkinSelectionListener implements ActionListener
             {
                 if (f.isDirectory())
                     return true;
-    
+
                 boolean good = true;
                 try
                 {
@@ -198,14 +198,14 @@ public class SkinSelectionListener implements ActionListener
                 {
                     good = false;
                 }
-    
+
                 if (!f.getName().toLowerCase().endsWith(".zip"))
                 {
                     good = false;
                 }
                 return good;
             }
-    
+
             @Override
             public String getDescription()
             {

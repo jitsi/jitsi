@@ -40,6 +40,7 @@ public class SipCommunicatorVersionTask
      *
      * @exception BuildException if something goes wrong with the build
      */
+    @Override
     public void execute()
         throws BuildException
     {

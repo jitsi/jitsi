@@ -172,6 +172,7 @@ public class RegistrationStateChangeEvent extends PropertyChangeEvent
      * @return a String containing the name of the event as well as the names
      * of the old and new <tt>RegistrationState</tt>s
      */
+    @Override
     public String toString()
     {
         return "RegistrationStateChangeEvent[ oldState="

@@ -35,7 +35,7 @@ public class SipProtocolProviderServiceLick
      */
     public static final String ACCOUNT_2_PREFIX
         = "accounts.sip.account2.";
-    
+
     /**
      * The name of the property that indicates whether the user would like to
      * only run the offline tests.
@@ -69,14 +69,14 @@ public class SipProtocolProviderServiceLick
         properties.put("service.pid", getName());
 
         SipSlickFixture.bc = context;
-        
+
         // verify whether the user wants to avoid online testing
         String offlineMode = System.getProperty(
             DISABLE_ONLINE_TESTS_PROPERTY_NAME, null);
 
         if (offlineMode != null && offlineMode.equalsIgnoreCase("true"))
             SipSlickFixture.onlineTestingDisabled = true;
-        
+
         // xcap parsing tests
         addTest(TestXCapParse.suite());
 
@@ -90,7 +90,7 @@ public class SipProtocolProviderServiceLick
         //This must remain second as that's where the protocol would be
         //made to login/authenticate/signon its service provider.
         addTestSuite(TestProtocolProviderServiceSipImpl.class);
-        
+
         // presence tests
         addTest(TestOperationSetPresence.suite());
 
@@ -99,10 +99,10 @@ public class SipProtocolProviderServiceLick
         {
             // persistent presence
             addTest(TestOperationSetPersistentPresence.suite());
-            
+
             //IM test
             addTest(TestOperationSetBasicInstantMessaging.suite());
-    
+
             // telephony
             addTestSuite(TestOperationSetBasicTelephonySipImpl.class);
 

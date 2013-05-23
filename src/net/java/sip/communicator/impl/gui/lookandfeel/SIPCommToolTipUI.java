@@ -16,7 +16,7 @@ import net.java.sip.communicator.plugin.desktoputil.*;
 
 /**
  * SIPCommToolTipUI implementation.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class SIPCommToolTipUI
@@ -28,6 +28,7 @@ public class SIPCommToolTipUI
         return new SIPCommToolTipUI();
     }
 
+    @Override
     public void paint(Graphics g, JComponent c)
     {
         AntialiasingManager.activateAntialiasing(g);

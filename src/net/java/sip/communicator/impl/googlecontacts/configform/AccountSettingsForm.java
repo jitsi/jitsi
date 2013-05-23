@@ -290,6 +290,7 @@ public class AccountSettingsForm
      * @param escaped <tt>true</tt> if this dialog has been closed by pressing
      * the Esc key; otherwise, <tt>false</tt>
      */
+    @Override
     protected void close(boolean escaped)
     {
         cancelBtn.doClick();

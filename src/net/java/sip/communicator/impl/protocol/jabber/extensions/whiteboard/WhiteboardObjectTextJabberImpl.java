@@ -33,7 +33,7 @@ public class WhiteboardObjectTextJabberImpl
 {
     private static final Logger logger =
       Logger.getLogger (WhiteboardObjectTextJabberImpl.class);
-    
+
      /**
      * The WhiteboardObjectTextJabberImpl's text size
      */
@@ -50,7 +50,7 @@ public class WhiteboardObjectTextJabberImpl
      * The coordinates of this object.
      */
     private WhiteboardPoint whiteboardPoint;
-    
+
     /**
      * Default WhiteboardObjectTextJabberImpl constructor.
      */
@@ -63,7 +63,7 @@ public class WhiteboardObjectTextJabberImpl
         this.setFontSize (fontSize);
         this.setText (text);
     }
-    
+
     /**
      * WhiteboardObjectTextJabberImpl constructor.
      *
@@ -79,7 +79,7 @@ public class WhiteboardObjectTextJabberImpl
             builder = factory.newDocumentBuilder ();
             InputStream in = new ByteArrayInputStream (xml.getBytes ());
             Document doc = builder.parse (in);
-            
+
             Element e = doc.getDocumentElement ();
             String elementName = e.getNodeName ();
             if (elementName.equals ("text"))
@@ -92,14 +92,14 @@ public class WhiteboardObjectTextJabberImpl
                 String fontFamily = e.getAttribute ("font-family");
                 int fontSize = Integer.parseInt (e.getAttribute ("font-size"));
                 String text = e.getTextContent ();
-                
+
                 this.setID (id);
                 this.setWhiteboardPoint (new WhiteboardPoint (x, y));
                 this.setFontName (fontFamily);
                 this.setFontSize (fontSize);
                 this.setText (text);
                 this.setColor (Color.decode (fill).getRGB ());
-                
+
             }
         }
         catch (ParserConfigurationException ex)
@@ -118,7 +118,7 @@ public class WhiteboardObjectTextJabberImpl
                 logger.debug ("Problem WhiteboardObject : "+xml);
         }
     }
-    
+
     /**
      * Returns the coordinates of this whiteboard object.
      *
@@ -128,7 +128,7 @@ public class WhiteboardObjectTextJabberImpl
     {
         return this.whiteboardPoint;
     }
-    
+
     /**
      * Sets the coordinates of this whiteboard object.
      *
@@ -138,7 +138,7 @@ public class WhiteboardObjectTextJabberImpl
     {
         this.whiteboardPoint = whiteboardPoint;
     }
-    
+
     /**
      * Returns the WhiteboardObjectTextJabberImpl's text.
      *
@@ -148,7 +148,7 @@ public class WhiteboardObjectTextJabberImpl
     {
         return this.text;
     }
-    
+
     /**
      * Sets the WhiteboardObjectTextJabberImpl's text.
      *
@@ -158,7 +158,7 @@ public class WhiteboardObjectTextJabberImpl
     {
         this.text = text;
     }
-    
+
     /**
      * Returns the WhiteboardObjectTextJabberImpl's font size.
      *
@@ -168,7 +168,7 @@ public class WhiteboardObjectTextJabberImpl
     {
         return this.fontSize;
     }
-    
+
     /**
      * Sets the WhiteboardObjectTextJabberImpl's font size.
      *
@@ -178,7 +178,7 @@ public class WhiteboardObjectTextJabberImpl
     {
         this.fontSize = fontSize;
     }
-    
+
     /**
      * Returns the WhiteboardObjectTextJabberImpl's font name.
      * (By default Dialog)
@@ -189,7 +189,7 @@ public class WhiteboardObjectTextJabberImpl
     {
         return this.fontName;
     }
-    
+
     /**
      * Sets the WhiteboardObjectTextJabberImpl's font name.
      *
@@ -199,7 +199,7 @@ public class WhiteboardObjectTextJabberImpl
     {
         this.fontName = fontName;
     }
-    
+
     /**
      * Returns the XML reppresentation of the PacketExtension.
      *
@@ -207,6 +207,7 @@ public class WhiteboardObjectTextJabberImpl
      * @todo Implement this org.jivesoftware.smack.packet.PacketExtension
      *   method
      */
+    @Override
     public String toXML ()
     {
         String s = "<text id=\"#i\" x=\"#x\" y=\"#y\" " +
@@ -221,5 +222,5 @@ public class WhiteboardObjectTextJabberImpl
         s = s.replaceAll ("#t", getText ());
         return s;
     }
-    
+
 }

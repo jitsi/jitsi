@@ -22,7 +22,7 @@ public interface WhiteboardObjectPath extends WhiteboardObject
      * A type string constant indicating that an object is of type path.
      */
     public static final String NAME = "WHITEBOARDOBJECTPATH";
-    
+
     /**
      * Returns a list of all the <tt>WhiteboardPoint</tt> instances that this
      * <tt>WhiteboardObject</tt> is composed of.
@@ -30,7 +30,7 @@ public interface WhiteboardObjectPath extends WhiteboardObject
      * @return the list of <tt>WhiteboardPoint</tt>s composing this object.
      */
     public List<WhiteboardPoint> getPoints();
-    
+
     /**
      * Sets the list of <tt>WhiteboardPoint</tt> instances that this
      * <tt>WhiteboardObject</tt> is composed of.

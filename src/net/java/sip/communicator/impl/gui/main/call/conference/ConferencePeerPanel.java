@@ -325,6 +325,7 @@ public class ConferencePeerPanel
             /**
              * Invoked when a mouse button has been pressed on a component.
              */
+            @Override
             public void mousePressed(MouseEvent e)
             {
                 setSecurityPanelVisible(
@@ -363,7 +364,7 @@ public class ConferencePeerPanel
      * Determines whether the indicator which depicts the sound/audio levels (of
      * the local or remote peer in a call) is to be enabled. For example, the
      * indicator may be disabled for performance-related reasons.
-     * 
+     *
      * @return <tt>true</tt> if the indicator which depicts the sound/audio
      * levels (of the local or remote peer in a call) is to be enabled;
      * otherwise, <tt>false</tt>
@@ -380,6 +381,7 @@ public class ConferencePeerPanel
     /**
      * Reloads style information.
      */
+    @Override
     public void loadSkin()
     {
         setTitleBackground(
@@ -558,6 +560,7 @@ public class ConferencePeerPanel
     /**
      * Indicates that the security status is pending confirmation.
      */
+    @Override
     public void securityPending()
     {
         super.securityPending();
@@ -598,6 +601,7 @@ public class ConferencePeerPanel
      * display this reason to the user.
      * @param reason the reason to display
      */
+    @Override
     public void setErrorReason(String reason)
     {
         super.setErrorReason(reason);
@@ -756,6 +760,7 @@ public class ConferencePeerPanel
                     /**
                      * Invoked when the component's size changes.
                      */
+                    @Override
                     public void componentResized(ComponentEvent e)
                     {
                         if (glassPane.isVisible())

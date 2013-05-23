@@ -12,7 +12,7 @@ import org.xbill.DNS.*;
 
 /**
  * DNS Message that adds DNSSEC validation information.
- * 
+ *
  * @author Ingo Bauersachs
  */
 public class SecureMessage
@@ -25,7 +25,7 @@ public class SecureMessage
     /**
      * Creates a new instance of this class based on data received from an
      * Unbound resolve.
-     * 
+     *
      * @param msg The answer of the Unbound resolver.
      * @throws IOException
      */
@@ -48,7 +48,7 @@ public class SecureMessage
 
     /**
      * Indicates if there was a validation failure.
-     * 
+     *
      * @return If the result was not secure (secure == false), and this result
      *         is due to a security failure, bogus is true.
      */
@@ -59,7 +59,7 @@ public class SecureMessage
 
     /**
      * If the result is bogus this contains a string that describes the failure.
-     * 
+     *
      * @return string that describes the failure.
      */
     public String getBogusReason()

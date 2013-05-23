@@ -34,8 +34,8 @@ import net.java.sip.communicator.plugin.desktoputil.*;
  * <p>
  * Note that the effect of transparence is gone when behind there is an
  * application which shows dynamic images or something the moves, like
- * a movie for example. 
- * 
+ * a movie for example.
+ *
  * @author Yana Stamcheva
  */
 public class TransparentBackground extends JComponent {
@@ -51,7 +51,7 @@ public class TransparentBackground extends JComponent {
      * Creates an instance of <tt>TransparentBackground</tt> by specifying
      * the parent <tt>Window</tt> - this is the window that should be made
      * transparent.
-     * 
+     *
      * @param window The parent <tt>Window</tt>
      */
     public TransparentBackground(Window window) {
@@ -70,7 +70,7 @@ public class TransparentBackground extends JComponent {
     /**
      * Updates the background. Makes a new screen capture at the given
      * coordiantes.
-     * 
+     *
      * @param x The x coordinate.
      * @param y The y coordinate.
      */
@@ -84,6 +84,7 @@ public class TransparentBackground extends JComponent {
      * Overrides the <code>paintComponent</code> method in <tt>JComponent</tt>
      * to paint the screen capture image as a background of this component.
      */
+    @Override
     protected void paintComponent(Graphics g)
     {
         g = g.create();

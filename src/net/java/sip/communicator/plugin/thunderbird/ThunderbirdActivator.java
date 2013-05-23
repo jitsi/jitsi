@@ -18,7 +18,7 @@ import org.osgi.framework.*;
 
 /**
  * Bundle-Activator for the Thunderbird address book contact source plug-in.
- * 
+ *
  * @author Ingo Bauersachs
  */
 public class ThunderbirdActivator
@@ -77,7 +77,7 @@ public class ThunderbirdActivator
     /**
      * Stops an address book service and deletes the corresponding configuration
      * data.
-     * 
+     *
      * @param service the address book instance to remove.
      */
     static void remove(ThunderbirdContactSourceService service)

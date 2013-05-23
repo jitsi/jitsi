@@ -107,7 +107,7 @@ public abstract class AbstractContact
     /**
      * Adds the given <tt>ContactResourceListener</tt> to listen for events
      * related to contact resources changes.
-     * 
+     *
      * @param l the <tt>ContactResourceListener</tt> to add
      */
     public void addResourceListener(ContactResourceListener l)
@@ -124,7 +124,7 @@ public abstract class AbstractContact
     /**
      * Removes the given <tt>ContactResourceListener</tt> listening for events
      * related to contact resources changes.
-     * 
+     *
      * @param l the <tt>ContactResourceListener</tt> to remove
      */
     public void removeResourceListener(ContactResourceListener l)

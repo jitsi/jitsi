@@ -212,6 +212,7 @@ public class SIPCommDialog
          * Invoked when this window is in the process of being closed.
          * @param e the <tt>WindowEvent</tt> that notified us
          */
+        @Override
         public void windowClosing(WindowEvent e)
         {
             if(isSaveSizeAndLocation)
@@ -397,6 +398,7 @@ public class SIPCommDialog
      * position of this window before showing it.
      * @param isVisible indicates if the dialog should be visible
      */
+    @Override
     public void setVisible(boolean isVisible)
     {
         if(isVisible)
@@ -425,6 +427,7 @@ public class SIPCommDialog
      * Overwrites the dispose method in order to save the size and the position
      * of this window before closing it.
      */
+    @Override
     public void dispose()
     {
         if(isSaveSizeAndLocation)

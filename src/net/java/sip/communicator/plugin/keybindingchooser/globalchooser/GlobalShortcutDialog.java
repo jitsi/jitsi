@@ -436,6 +436,7 @@ public class GlobalShortcutDialog
          * Adds the custom mouse listeners defined in this class to the installed
          * listeners.
          */
+        @Override
         protected void installListeners()
         {
             super.installListeners();
@@ -444,6 +445,7 @@ public class GlobalShortcutDialog
         /**
          * {@inheritDoc}
          */
+        @Override
         protected void updateDeleteIcon(MouseEvent evt)
         {
             super.updateDeleteIcon(evt);
@@ -460,6 +462,7 @@ public class GlobalShortcutDialog
          * Implements parent paintSafely method and enables antialiasing.
          * @param g the <tt>Graphics</tt> object that notified us
          */
+        @Override
         protected void paintSafely(Graphics g)
         {
             customPaintBackground(g);
@@ -470,6 +473,7 @@ public class GlobalShortcutDialog
          * Paints the background of the associated component.
          * @param g the <tt>Graphics</tt> object used for painting
          */
+        @Override
         protected void customPaintBackground(Graphics g)
         {
             Graphics2D g2 = (Graphics2D) g.create();

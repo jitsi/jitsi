@@ -32,7 +32,7 @@ import net.java.sip.communicator.util.account.*;
  * <p>
  * By default the <tt>GlobalStatusSelectorBox</tt> will show the most connected
  * status of all registered accounts.
- * 
+ *
  * @author Yana Stamcheva
  * @author Lubomir Marinov
  * @author Adam Netocny
@@ -448,7 +448,7 @@ public class GlobalStatusSelectorBox
 
     /**
      * Sets the systray icon corresponding to the given status.
-     * 
+     *
      * @param status the status, for which we're setting the systray icon.
      */
     private void setSystrayIcon(int status)
@@ -636,6 +636,7 @@ public class GlobalStatusSelectorBox
      * @see JComponent#getUIClassID
      * @see UIDefaults#getUI
      */
+    @Override
     public String getUIClassID()
     {
         return uiClassID;

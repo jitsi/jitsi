@@ -36,7 +36,7 @@ public class MsnProtocolProviderServiceLick
      */
     public static final String ACCOUNT_2_PREFIX
         = "accounts.msn.account2.";
-    
+
     /**
      * The prefix used for property names containing settings for our third
      * testing account.
@@ -92,7 +92,7 @@ public class MsnProtocolProviderServiceLick
             addTest(TestOperationSetPersistentPresence.suite());
 
             addTest(TestOperationSetBasicInstantMessaging.suite());
-            
+
             addTest(TestOperationSetInstantMessageTransformMsnImpl.suite());
 
             addTest(TestOperationSetTypingNotifications.suite());

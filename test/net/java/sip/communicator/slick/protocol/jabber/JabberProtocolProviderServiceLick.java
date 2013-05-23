@@ -36,7 +36,7 @@ public class JabberProtocolProviderServiceLick
      */
     public static final String ACCOUNT_2_PREFIX
         = "accounts.jabber.account2.";
-    
+
     /**
      * The prefix used for property names containing settings for our third
      * testing account.
@@ -102,7 +102,7 @@ public class JabberProtocolProviderServiceLick
             addTest(TestOperationSetBasicInstantMessaging.suite());
 
             addTest(TestOperationSetInstantMessageTransformJabberImpl.suite());
-            
+
             addTest(TestOperationSetTypingNotifications.suite());
 
             //tests currently fails due to jingle lib bugs.

@@ -15,7 +15,7 @@ import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
 
 /**
- * 
+ *
  * @author Yana Stamcheva
  */
 public class GlobalDisplayDetailsActivator

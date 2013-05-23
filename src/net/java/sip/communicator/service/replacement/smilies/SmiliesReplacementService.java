@@ -11,7 +11,7 @@ import java.util.*;
 import net.java.sip.communicator.service.replacement.*;
 
 /**
- * 
+ *
  * @author Yana Stamcheva
  * @author Adam Netocny
  */

@@ -17,16 +17,16 @@ import org.jitsi.service.resources.*;
 /**
  * The Messages class manages the access to the internationalization
  * properties files.
- * 
+ *
  * @author Nicolas Chamouard
  */
-public class Resources 
-{    
+public class Resources
+{
     private static ResourceManagementService resourcesService;
-    
+
     /**
      * Returns an internationalized string corresponding to the given key.
-     * 
+     *
      * @param key The key of the string.
      * @return An internationalized string corresponding to the given key.
      */
@@ -37,7 +37,7 @@ public class Resources
 
     /**
      * Returns an internationalized string corresponding to the given key.
-     * 
+     *
      * @param key The key of the string.
      * @return An internationalized string corresponding to the given key.
      */
@@ -48,7 +48,7 @@ public class Resources
 
     /**
      * Loads an image from a given image identifier.
-     * 
+     *
      * @param imageID The identifier of the image.
      * @return The image for the given identifier.
      */
@@ -56,10 +56,10 @@ public class Resources
     {
         return getResources().getImage(imageID);
     }
-    
+
     /**
      * Loads an image url from a given image identifier.
-     * 
+     *
      * @param imageID The identifier of the image.
      * @return The image url for the given identifier.
      */
@@ -78,7 +78,7 @@ public class Resources
     {
         return getResources().getSettingsString(key);
     }
-    
+
     public static ResourceManagementService getResources()
     {
         if (resourcesService == null)

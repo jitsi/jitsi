@@ -18,7 +18,7 @@ import net.java.sip.communicator.util.skin.*;
 /**
  * The <tt>NewStatusMessageDialog</tt> is the dialog containing the form for
  * changing the status message for a protocol provider.
- * 
+ *
  * @author Yana Stamcheva
  * @author Adam Netocny
  */
@@ -66,7 +66,7 @@ public class NewStatusMessageDialog
 
     /**
      * Creates an instance of <tt>NewStatusMessageDialog</tt>.
-     * 
+     *
      * @param protocolProvider the <tt>ProtocolProviderService</tt>.
      */
     public NewStatusMessageDialog (ProtocolProviderService protocolProvider,
@@ -237,6 +237,7 @@ public class NewStatusMessageDialog
      * Artificially clicks the cancel button when this panel is escaped.
      * @param isEscaped indicates if this dialog is closed by the Esc shortcut
      */
+    @Override
     protected void close(boolean isEscaped)
     {
         if (isEscaped)

@@ -11,7 +11,7 @@ import java.util.*;
 /**
  * The <tt>CommandNotificationHandler</tt> interface is meant to be implemented
  * by the notification bundle in order to provide handling of command actions.
- *  
+ *
  * @author Yana Stamcheva
  */
 public interface CommandNotificationHandler

@@ -8,9 +8,9 @@ package net.java.sip.communicator.service.gui;
 
 /**
  * A window that could be shown, hidden, resized, moved, etc. Meant to be used
- * from other services to show an application window, like for example a 
+ * from other services to show an application window, like for example a
  * "Configuration" or "Add contact" window.
- * 
+ *
  * @author Yana Stamcheva
  */
 public interface ExportedWindow
@@ -42,14 +42,14 @@ public interface ExportedWindow
     /**
      * Returns the WindowID corresponding to this window. The window id should
      * be one of the defined in this class XXX_WINDOW constants.
-     *   
+     *
      * @return the WindowID corresponding to this window
      */
     public WindowID getIdentifier();
 
     /**
      * Returns TRUE if the component is visible and FALSE otherwise.
-     * 
+     *
      * @return <code>true</code> if the component is visible and
      * <code>false</code> otherwise.
      */
@@ -76,7 +76,7 @@ public interface ExportedWindow
 
     /**
      * Resizes the window with the given width and height.
-     * 
+     *
      * @param width The new width.
      * @param height The new height.
      */
@@ -84,7 +84,7 @@ public interface ExportedWindow
 
     /**
      * Moves the window to the given coordinates.
-     * 
+     *
      * @param x The x coordinate.
      * @param y The y coordinate.
      */
@@ -111,7 +111,7 @@ public interface ExportedWindow
      * method will be automatically called by
      * {@link UIService#getExportedWindow(WindowID, Object[])} in order to set
      * the parameters passed.
-     * 
+     *
      * @param windowParams the parameters to pass.
      */
     public void setParams(Object[] windowParams);

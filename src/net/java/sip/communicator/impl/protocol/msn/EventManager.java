@@ -107,6 +107,7 @@ public class EventManager
      * @param message Message
      * @throws Exception
      */
+    @Override
     public void messageSent(Session session, Message message) throws Exception
     {
         if (logger.isTraceEnabled())
@@ -120,6 +121,7 @@ public class EventManager
      * @param message Message
      * @throws Exception
      */
+    @Override
     public void messageReceived(Session session, Message message)
         throws Exception
     {
@@ -166,6 +168,7 @@ public class EventManager
      * @param socketSession
      * @throws Exception
      */
+    @Override
     public void sessionTimeout(Session socketSession) throws Exception
     {
         Timer connectionTimer;
@@ -183,6 +186,7 @@ public class EventManager
 
         connectionTimer.schedule(new TimerTask()
         {
+            @Override
             public void run()
             {
                 if(!connected && msnProvider.isRegistered())

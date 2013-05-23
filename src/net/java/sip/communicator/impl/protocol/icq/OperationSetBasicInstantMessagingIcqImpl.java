@@ -124,6 +124,7 @@ public class OperationSetBasicInstantMessagingIcqImpl
         icqProvider.addRegistrationStateChangeListener(providerRegListener);
     }
 
+    @Override
     public Message createMessage(String content, String contentType,
         String encoding, String subject)
     {
@@ -159,7 +160,7 @@ public class OperationSetBasicInstantMessagingIcqImpl
         /*
          * FIXME Does the fact that messageContent is not used mean that HTML
          * messages are not correctly constructed?
-         */ 
+         */
         String messageContent;
         if (message.getContentType().equals(HTML_MIME_TYPE)
                 && !message.getContent().startsWith(HTML_START_TAG))
@@ -170,14 +171,14 @@ public class OperationSetBasicInstantMessagingIcqImpl
 
         MessageDeliveredEvent msgDeliveryPendingEvt
             = new MessageDeliveredEvent(message, to);
-        
+
         msgDeliveryPendingEvt = this.messageDeliveryPendingTransform(msgDeliveryPendingEvt);
-        
+
         if (msgDeliveryPendingEvt == null)
             return;
-        
+
         String transformedContent = msgDeliveryPendingEvt.getSourceMessage().getContent();
-        
+
         if (to.getPresenceStatus().isOnline())
         {
             //do not add the conversation listener in here. we'll add it
@@ -191,7 +192,7 @@ public class OperationSetBasicInstantMessagingIcqImpl
             = new MessageDeliveredEvent(message, to);
 
         // msgDeliveredEvt = this.messageDeliveredTransform(msgDeliveredEvt);
-        
+
         if (msgDeliveredEvt != null)
             fireMessageEvent(msgDeliveredEvt);
     }
@@ -231,6 +232,7 @@ public class OperationSetBasicInstantMessagingIcqImpl
             this.requestID = requestID;
         }
 
+        @Override
         public void handleResponse(SnacResponseEvent evt)
         {
             SnacCommand snac = evt.getSnacCommand();
@@ -276,7 +278,7 @@ public class OperationSetBasicInstantMessagingIcqImpl
                         msgDate);
 
                 // msgReceivedEvt = messageReceivedTransform(msgReceivedEvt);
-                
+
                 if (msgReceivedEvt != null)
                 {
                     if (logger.isDebugEnabled())
@@ -560,7 +562,7 @@ public class OperationSetBasicInstantMessagingIcqImpl
                 msgDate = current;
 
 
-            MessageReceivedEvent msgReceivedEvt = 
+            MessageReceivedEvent msgReceivedEvt =
                 new MessageReceivedEvent(newMessage, sourceContact, msgDate);
 
             // msgReceivedEvt = messageReceivedTransform(msgReceivedEvt);
@@ -617,6 +619,7 @@ public class OperationSetBasicInstantMessagingIcqImpl
     private class KeepAliveSendTask
         extends TimerTask
     {
+        @Override
         public void run()
         {
             try
@@ -658,6 +661,7 @@ public class OperationSetBasicInstantMessagingIcqImpl
     private class KeepAliveCheckTask
         extends TimerTask
     {
+        @Override
         public void run()
         {
             try

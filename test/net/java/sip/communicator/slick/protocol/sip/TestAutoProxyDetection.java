@@ -23,7 +23,7 @@ import net.java.sip.communicator.util.*;
 
 /**
  * Tests all variations of automatic proxy detection through (simulated) DNS.
- * 
+ *
  * @author Ingo Bauersachs
  */
 public class TestAutoProxyDetection
@@ -64,6 +64,7 @@ public class TestAutoProxyDetection
     private InetAddress ia4;
     private TestedAutoProxyDetection apd;
 
+    @Override
     public void setUp()
     {
         account = createMock(SipAccountID.class);

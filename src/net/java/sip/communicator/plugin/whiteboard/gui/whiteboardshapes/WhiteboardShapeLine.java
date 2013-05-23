@@ -34,7 +34,7 @@ public class WhiteboardShapeLine
      * The end coordinates for this line.
      */
     private WhiteboardPoint endPoint;
-    
+
     /**
      * WhiteboardShapeLine constructor.
      *
@@ -55,7 +55,7 @@ public class WhiteboardShapeLine
         this.endPoint = endPoint;
         this.startPoint = startPoint;
     }
-    
+
     /**
      * WhiteboardShapeLine constructor
      * @param id String that uniquely identifies this WhiteboardObject.
@@ -71,23 +71,24 @@ public class WhiteboardShapeLine
         super (id);
         this.setThickness (t);
         setColor (c);
-        
+
         Point2D v0 = new Point2D.Double (startPoint.getX (), startPoint.getY ());
         Point2D w0 = v2w.transform (v0, null);
-        
+
         this.startPoint = new WhiteboardPoint (w0.getX (), w0.getY ());
-        
+
         Point2D v1 = new Point2D.Double (endPoint.getX (), endPoint.getY ());
         Point2D w1 = v2w.transform (v1, null);
-        
+
         this.endPoint = new WhiteboardPoint (w1.getX (), w1.getY ());
     }
-    
+
     /**
      * Code to paint the specific shape
      * @param w2v 2D affine transform
      * @param g graphics context
      */
+    @Override
     public void paintShape (Graphics2D g, AffineTransform w2v)
     {
         double x = startPoint.getX ();
@@ -106,13 +107,14 @@ public class WhiteboardShapeLine
 
         g.drawLine (ix, iy, (int)v1.getX (), (int)v1.getY ());
     }
-    
+
     /**
      * Tests if the shape contains a point.
      *
      * @param p coord point
      * @return true if shape contains p
      */
+    @Override
     public boolean contains (Point2D p)
     {
         double x = startPoint.getX ();
@@ -125,12 +127,13 @@ public class WhiteboardShapeLine
 
         return line.intersects (p.getX (), p.getY (), 10, 10);
     }
-    
+
     /**
      * Returns the list of selected points.
      *
      * @return list of selected points
      */
+    @Override
     public List<WhiteboardPoint> getSelectionPoints ()
     {
         ArrayList<WhiteboardPoint> selectionPoints = new ArrayList<WhiteboardPoint>();
@@ -140,13 +143,14 @@ public class WhiteboardShapeLine
 
         return selectionPoints;
     }
-    
+
     /**
      * Translates the shape.
      *
      * @param deltaX x coordinate
      * @param deltaY y coordinate
      */
+    @Override
     public void translate (double deltaX, double deltaY)
     {
         double x = startPoint.getX ();
@@ -160,13 +164,14 @@ public class WhiteboardShapeLine
         startPoint = new WhiteboardPoint (x, y);
         endPoint = new WhiteboardPoint (xEnd, yEnd);
     }
-    
+
     /**
      * Translates a point from the shape.
      *
      * @param deltaX x coordinate
      * @param deltaY y coordinate
      */
+    @Override
     public void translateSelectedPoint (double deltaX, double deltaY)
     {
         if (getModifyPoint() == null)
@@ -187,13 +192,14 @@ public class WhiteboardShapeLine
             this.setModifyPoint(endPoint);
         }
     }
-    
+
     /**
      * Tests if a point p is over a selection point.
-     * 
+     *
      * @param p point
      * @return nearest selection point
      */
+    @Override
     public WhiteboardPoint getSelectionPoint (Point2D p)
     {
         WhiteboardPoint givenPoint = new WhiteboardPoint(p.getX(), p.getY());
@@ -215,7 +221,7 @@ public class WhiteboardShapeLine
     {
         return this.startPoint;
     }
-    
+
     /**
      * Returns the coordinates of  end point for the line
      *
@@ -225,7 +231,7 @@ public class WhiteboardShapeLine
     {
         return this.endPoint;
     }
-    
+
     /**
      * Sets the coordinates of start point for the line
      *
@@ -235,7 +241,7 @@ public class WhiteboardShapeLine
     {
         this.startPoint = whiteboardPointStart;
     }
-    
+
     /**
      * Sets the coordinates of end point for the line
      *

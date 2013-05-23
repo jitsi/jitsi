@@ -61,11 +61,11 @@ public class OperationSetTypingNotificationsZeroconfImpl
         ClientThread thread = to.getClientThread();
         if (thread == null) return;/*throw new IllegalStateException(
                "No communication channel opened to chat with this contact");*/
-        
-        if (typingState != STATE_TYPING) 
+
+        if (typingState != STATE_TYPING)
             return;
-        
-        MessageZeroconfImpl message = 
+
+        MessageZeroconfImpl message =
                 new MessageZeroconfImpl("",null, MessageZeroconfImpl.TYPING);
         thread.sendMessage(message);
     }

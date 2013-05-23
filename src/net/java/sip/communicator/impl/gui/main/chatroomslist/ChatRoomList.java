@@ -134,7 +134,7 @@ public class ChatRoomList
     /**
      * Removes the corresponding server and all related chat rooms from this
      * list.
-     * 
+     *
      * @param pps the <tt>ProtocolProviderService</tt> corresponding to the
      *            server to remove
      */
@@ -149,7 +149,7 @@ public class ChatRoomList
     /**
      * Removes the corresponding server and all related chat rooms from this
      * list.
-     * 
+     *
      * @param chatRoomProvider the <tt>ChatRoomProviderWrapper</tt>
      *            corresponding to the server to remove
      */
@@ -222,7 +222,7 @@ public class ChatRoomList
 
     /**
      * Removes the given <tt>ChatRoom</tt> from the list of all chat rooms.
-     * 
+     *
      * @param chatRoomWrapper the <tt>ChatRoomWrapper</tt> to remove
      */
     public void removeChatRoom(ChatRoomWrapper chatRoomWrapper)
@@ -249,7 +249,7 @@ public class ChatRoomList
      * Returns the <tt>ChatRoomWrapper</tt> that correspond to the given
      * <tt>ChatRoom</tt>. If the list of chat rooms doesn't contain a
      * corresponding wrapper - returns null.
-     *  
+     *
      * @param chatRoom the <tt>ChatRoom</tt> that we're looking for
      * @return the <tt>ChatRoomWrapper</tt> object corresponding to the given
      * <tt>ChatRoom</tt>
@@ -299,7 +299,7 @@ public class ChatRoomList
      * Returns the <tt>ChatRoomProviderWrapper</tt> that correspond to the
      * given <tt>ProtocolProviderService</tt>. If the list doesn't contain a
      * corresponding wrapper - returns null.
-     *  
+     *
      * @param protocolProvider the protocol provider that we're looking for
      * @return the <tt>ChatRoomProvider</tt> object corresponding to
      * the given <tt>ProtocolProviderService</tt>
@@ -327,7 +327,7 @@ public class ChatRoomList
      * @param protocolProvider the protocol provider for the account to
      * synchronize
      * @param opSet the multi user chat operation set, which give us access to
-     * chat room server 
+     * chat room server
      */
     public void synchronizeOpSetWithLocalContactList(
         ProtocolProviderService protocolProvider,
@@ -344,7 +344,7 @@ public class ChatRoomList
 
     /**
      * Returns an iterator to the list of chat room providers.
-     * 
+     *
      * @return an iterator to the list of chat room providers.
      */
     public Iterator<ChatRoomProviderWrapper> getChatRoomProviders()

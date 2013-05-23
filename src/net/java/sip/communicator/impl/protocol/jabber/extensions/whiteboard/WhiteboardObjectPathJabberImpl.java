@@ -65,7 +65,7 @@ public class WhiteboardObjectPathJabberImpl
             builder = factory.newDocumentBuilder ();
             InputStream in = new ByteArrayInputStream (xml.getBytes ());
             Document doc = builder.parse (in);
-            
+
             Element e = doc.getDocumentElement ();
             String elementName = e.getNodeName ();
             if (elementName.equals ("path"))
@@ -75,7 +75,7 @@ public class WhiteboardObjectPathJabberImpl
                 String d = e.getAttribute ("d");
                 String stroke = e.getAttribute ("stroke");
                 String stroke_width = e.getAttribute ("stroke-width");
-                
+
                 this.setID (id);
                 this.setThickness (Integer.parseInt (stroke_width));
                 this.setColor (Color.decode (stroke).getRGB ());
@@ -138,7 +138,7 @@ public class WhiteboardObjectPathJabberImpl
             return list;
         }
         String patternStr = "[ML]\\S+ \\S+ ";
-        
+
         Pattern pattern = Pattern.compile (patternStr);
         Matcher matcher = pattern.matcher (points);
         while (matcher.find ())
@@ -149,7 +149,7 @@ public class WhiteboardObjectPathJabberImpl
               Double.parseDouble (coords[1]));
             list.add (point);
         }
-        
+
         return list;
     }
 
@@ -160,6 +160,7 @@ public class WhiteboardObjectPathJabberImpl
      * @todo Implement this org.jivesoftware.smack.packet.PacketExtension
      *   method
      */
+    @Override
     public String toXML ()
     {
         String s

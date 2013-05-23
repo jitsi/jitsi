@@ -62,7 +62,7 @@ public class SIPAccountRegistrationForm
                 this.getRegistration().getSecurityAccountRegistration(),
                 true);
         presencePanel = new PresencePanel(this);
-        
+
         encodingsPanel = new EncodingsPanel();
     }
 
@@ -96,12 +96,12 @@ public class SIPAccountRegistrationForm
             if (presencePanel.getParent() != tabbedPane)
                 tabbedPane.addTab(Resources.getString("service.gui.PRESENCE"),
                                     presencePanel);
-            
+
             if (encodingsPanel.getParent() != tabbedPane)
                 tabbedPane.addTab(
                       Resources.getString("plugin.jabberaccregwizz.ENCODINGS"),
                       encodingsPanel);
-            
+
 
             if (tabbedPane.getParent() != this)
                 this.add(tabbedPane, BorderLayout.NORTH);
@@ -335,7 +335,7 @@ public class SIPAccountRegistrationForm
         registration.setVoicemailCheckURI(connectionPanel.getVoicemailCheckURI());
 
         encodingsPanel.commitPanel(registration.getEncodingsRegistration());
-        
+
         return true;
     }
 
@@ -475,7 +475,7 @@ public class SIPAccountRegistrationForm
                 sipAccReg.getClistOptionUser());
         presencePanel.setClistOptionPassword(
                 sipAccReg.getClistOptionPassword());
-        
+
         encodingsPanel.loadAccount(sipAccReg.getEncodingsRegistration());
     }
 

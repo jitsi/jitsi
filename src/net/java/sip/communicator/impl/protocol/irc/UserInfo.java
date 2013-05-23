@@ -10,7 +10,7 @@ import java.util.*;
 
 /**
  * Represents the informations we get from a user when we use WHOIS
- * 
+ *
  * @author Stephane Remy
  */
 public class UserInfo
@@ -19,39 +19,39 @@ public class UserInfo
      * The nickname of this user.
      */
     private final String nickName;
-    
+
     /**
      * The login of this user.
      */
     private final String login;
-    
+
     /**
      * The hostname of this user.
      */
     private final String hostname;
-    
+
     /**
      * A list of the chat rooms this user is in.
      */
     private final List<String> joinedChatRoom = new LinkedList<String>();
-    
+
     /**
      * Information about the server.
      */
     private String serverInfo = null;
-    
+
     /**
      * Indicates if this user is an IRC operator.
      */
     private boolean isIrcOp = false;
-    
+
     /**
      * Indicates if this user is idle.
      */
     private long idle = 0;
 
     /**
-     * 
+     *
      * @param nickName
      * @param login
      * @param hostname
@@ -65,7 +65,7 @@ public class UserInfo
 
     /**
      * Adds a chat room to the list of chat rooms joined by this user.
-     * 
+     *
      * @param chatRoom the name of the chat room we want to add to the list
      */
     public void addJoinedChatRoom(String chatRoom)
@@ -78,7 +78,7 @@ public class UserInfo
 
     /**
      * Removes a chat room from the list of joined chat rooms.
-     * 
+     *
      * @param chatRoom the chat room we want to remove.
      */
     public void removeJoinedChatRoom(String chatRoom)
@@ -102,7 +102,7 @@ public class UserInfo
 
     /**
      * Returns the host name of this user.
-     * 
+     *
      * @return the hostname of this user
      */
     public String getHostname()
@@ -112,7 +112,7 @@ public class UserInfo
 
     /**
      * Returns the time from which this user is idle.
-     * 
+     *
      * @return the idle time of this user
      */
     public long getIdle()
@@ -122,7 +122,7 @@ public class UserInfo
 
     /**
      * The list of chat rooms that this user has joined.
-     * 
+     *
      * @return a list of the joined chat rooms of this user
      */
     public List<String> getJoinedChatRooms()
@@ -132,7 +132,7 @@ public class UserInfo
 
     /**
      * Returns the login of this user.
-     * 
+     *
      * @return the login of this user
      */
     public String getLogin()
@@ -142,7 +142,7 @@ public class UserInfo
 
     /**
      * Returns the nickname of this user.
-     *  
+     *
      * @return the nickname of this user
      */
     public String getNickName()
@@ -152,7 +152,7 @@ public class UserInfo
 
     /**
      * Returns TRUE if this user is an IRC operator and false otherwise.
-     * 
+     *
      * @return true if this user is an IRCOP or false otherwise
      */
     public boolean isIrcOp()
@@ -162,8 +162,8 @@ public class UserInfo
 
     /**
      * Returns the server info.
-     * 
-     * @return a string server information 
+     *
+     * @return a string server information
      */
     public String getServerInfo()
     {
@@ -172,17 +172,17 @@ public class UserInfo
 
     /**
      * Set the idle time for this user.
-     * 
+     *
      * @param idle the idle time of this user
      */
     protected void setIdle(long idle)
     {
         this.idle = idle;
     }
-    
+
     /**
      * Set if this user is an IRC operator.
-     * 
+     *
      * @param isIrcOp TRUE to indicate that the user is an IRC operator and
      * FALSE otherwise
      */
@@ -190,10 +190,10 @@ public class UserInfo
     {
         this.isIrcOp = isIrcOp;
     }
-    
+
     /**
      * Set the information for the server
-     * 
+     *
      * @param serverInfo the information for the server
      */
     protected void setServerInfo(String serverInfo)

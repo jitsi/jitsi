@@ -69,6 +69,7 @@ public class ChatRoomPropertyChangeEvent
      *
      * @return String representation of this event
      */
+    @Override
     public String toString()
     {
         return "ChatRoomPropertyChangeEvent[type="

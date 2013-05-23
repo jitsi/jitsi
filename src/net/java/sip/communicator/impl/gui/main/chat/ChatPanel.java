@@ -137,13 +137,13 @@ public class ChatPanel
      */
     private final Hashtable<String, Object> activeFileTransfers
         = new Hashtable<String, Object>();
-    
+
     /**
      * The ID of the message being corrected, or <tt>null</tt> if
      * not correcting any message.
      */
     private String correctedMessageUID = null;
-    
+
     /**
      * The ID of the last sent message in this chat.
      */
@@ -546,7 +546,7 @@ public class ChatPanel
     /**
      * Returns the ID of the last message sent in this chat, or <tt>null</tt>
      * if no messages have been sent yet.
-     * 
+     *
      * @return the ID of the last message sent in this chat, or <tt>null</tt>
      * if no messages have been sent yet.
      */
@@ -564,6 +564,7 @@ public class ChatPanel
     private class TabSelectionComponentListener
         extends ComponentAdapter
     {
+        @Override
         public void componentShown(ComponentEvent evt)
         {
             Component component = evt.getComponent();
@@ -726,7 +727,7 @@ public class ChatPanel
                 {
                     FileHistoryConversationComponent component
                         = new FileHistoryConversationComponent(fileRecord);
-    
+
                     conversationPanel.addComponent(component);
                 }
             }
@@ -1136,6 +1137,7 @@ public class ChatPanel
         {
             new Thread()
             {
+                @Override
                 public void run()
                 {
                     sendMessage();
@@ -1323,6 +1325,7 @@ public class ChatPanel
 
         SwingWorker worker = new SwingWorker()
         {
+            @Override
             public Object construct()
                 throws Exception
             {
@@ -1341,6 +1344,7 @@ public class ChatPanel
                 return "";
             }
 
+            @Override
             public void catchException(Throwable ex)
             {
                 logger.error("Failed to send file.", ex);
@@ -1633,7 +1637,7 @@ public class ChatPanel
     /**
      * Enters editing mode for the message with the specified id - puts the
      * message contents in the write panel and changes the background.
-     * 
+     *
      * @param correctedMessageUID The ID of the message being corrected.
      */
     public void startMessageCorrection(String correctedMessageUID)
@@ -1695,7 +1699,7 @@ public class ChatPanel
 
     /**
      * Returns whether a message is currently being edited.
-     * 
+     *
      * @return <tt>true</tt> if a message is currently being edited,
      * <tt>false</tt> otherwise.
      */
@@ -1835,6 +1839,7 @@ public class ChatPanel
         {
             private Collection<Object> historyList;
 
+            @Override
             public Object construct() throws Exception
             {
                 // Load the history period, which initializes the
@@ -1854,6 +1859,7 @@ public class ChatPanel
              * Called on the event dispatching thread (not on the worker thread)
              * after the <code>construct</code> method has returned.
              */
+            @Override
             public void finished()
             {
                 if(historyList != null && historyList.size() > 0)
@@ -2042,6 +2048,7 @@ public class ChatPanel
 
         SwingWorker worker = new SwingWorker()
         {
+            @Override
             public Object construct() throws Exception
             {
                 ChatConversationPanel conversationPanel
@@ -2068,6 +2075,7 @@ public class ChatPanel
                 return "";
             }
 
+            @Override
             public void finished()
             {
                 getChatContainer().updateHistoryButtonState(ChatPanel.this);
@@ -2093,6 +2101,7 @@ public class ChatPanel
 
         SwingWorker worker = new SwingWorker()
         {
+            @Override
             public Object construct() throws Exception
             {
                 Date lastMsgDate
@@ -2113,6 +2122,7 @@ public class ChatPanel
                 return "";
             }
 
+            @Override
             public void finished()
             {
                 getChatContainer().updateHistoryButtonState(ChatPanel.this);
@@ -2690,7 +2700,7 @@ public class ChatPanel
     {
         this.getChatWritePanel().addChatEditorMenuListener(l);
     }
-    
+
     /**
      * Adds the given {@link CaretListener} to this <tt>Chat</tt>.
      * The <tt>CaretListener</tt> is used to inform other bundles when a user has
@@ -2893,7 +2903,7 @@ public class ChatPanel
 
     /**
      * Add a new ChatLinkClickedListener
-     * 
+     *
      * @param listener ChatLinkClickedListener
      */
     public void addChatLinkClickedListener(ChatLinkClickedListener listener)
@@ -2903,7 +2913,7 @@ public class ChatPanel
 
     /**
      * Remove existing ChatLinkClickedListener
-     * 
+     *
      * @param listener ChatLinkClickedListener
      */
     public void removeChatLinkClickedListener(ChatLinkClickedListener listener)

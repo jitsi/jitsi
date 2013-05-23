@@ -10,7 +10,7 @@ import java.util.*;
 
 /**
  * Represents an event notification.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class Notification
@@ -31,7 +31,7 @@ public class Notification
     /**
      * Creates an instance of <tt>EventNotification</tt> by specifying the
      * event type as declared by the bundle registering it.
-     * 
+     *
      * @param eventType the name of the event
      */
     public Notification(String eventType)
@@ -43,9 +43,9 @@ public class Notification
      * notifications.
      * @param action the the handler that will process the given action
      * type.
-     *  
+     *
      * @return the previous value of the actionHandler for the given actionType,
-     * if one existed, NULL if the actionType is a new one  
+     * if one existed, NULL if the actionType is a new one
      */
     public Object addAction(NotificationAction action)
     {
@@ -54,7 +54,7 @@ public class Notification
 
     /**
      * Removes the action corresponding to the given <tt>actionType</tt>.
-     * 
+     *
      * @param actionType one of NotificationService.ACTION_XXX constants
      */
     public void removeAction(String actionType)
@@ -64,20 +64,20 @@ public class Notification
 
     /**
      * Returns the set of actions registered for this event notification.
-     * 
+     *
      * @return the set of actions registered for this event notification
      */
     public Map<String, NotificationAction> getActions()
-    {   
+    {
         return actionsTable;
     }
 
     /**
      * Returns the <tt>Action</tt> corresponding to the given
      * <tt>actionType</tt>.
-     * 
+     *
      * @param actionType one of NotificationService.ACTION_XXX constants
-     * 
+     *
      * @return the <tt>Action</tt> corresponding to the given
      * <tt>actionType</tt>
      */
@@ -88,7 +88,7 @@ public class Notification
 
     /**
      * Indicates if this event notification is currently active.
-     * 
+     *
      * @return true if this event notification is active, false otherwise.
      */
     public boolean isActive()
@@ -98,7 +98,7 @@ public class Notification
 
     /**
      * Activates or deactivates this event notification.
-     * 
+     *
      * @param isActive indicates if this event notification is active
      */
     public void setActive(boolean isActive)

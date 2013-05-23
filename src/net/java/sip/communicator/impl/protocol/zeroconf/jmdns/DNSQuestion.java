@@ -11,25 +11,25 @@ import java.util.logging.*;
  * @version %I%, %G%
  * @author  Arthur van Hoff
  */
-public final class DNSQuestion 
+public final class DNSQuestion
     extends DNSEntry
 {
-    private static Logger logger = 
+    private static Logger logger =
         Logger.getLogger(DNSQuestion.class.toString());
 
     /**
      * Create a question.
-     * @param name 
-     * @param type 
-     * @param clazz 
+     * @param name
+     * @param type
+     * @param clazz
      */
     public DNSQuestion(String name, int type, int clazz)
     {
         super(name, type, clazz);
-        
+
         String SLevel = System.getProperty("jmdns.debug");
         if (SLevel == null) SLevel = "INFO";
-        logger.setLevel(Level.parse(SLevel)); 
+        logger.setLevel(Level.parse(SLevel));
     }
 
     /**
@@ -37,8 +37,8 @@ public final class DNSQuestion
      */
     boolean answeredBy(DNSRecord rec)
     {
-        return (clazz == rec.clazz) && 
-            ((type == rec.type) || 
+        return (clazz == rec.clazz) &&
+            ((type == rec.type) ||
             (type == DNSConstants.TYPE_ANY)) &&
             name.equals(rec.name);
     }
@@ -46,6 +46,7 @@ public final class DNSQuestion
     /**
      * For debugging only.
      */
+    @Override
     public String toString()
     {
         return toString("question", null);

@@ -76,7 +76,7 @@ public class OtrMetaContactMenu
     /**
      * Creates an {@link OtrContactMenu} for each {@link Contact} contained in
      * the <tt>metaContact</tt>.
-     * 
+     *
      * @param metaContact The {@link MetaContact} this
      *            {@link OtrMetaContactMenu} refers to.
      */
@@ -118,7 +118,7 @@ public class OtrMetaContactMenu
     /**
      * Gets the <tt>JMenu</tt> which is the component of this plug-in. If it
      * still doesn't exist, it's created.
-     * 
+     *
      * @return the <tt>JMenu</tt> which is the component of this plug-in
      */
     private JMenu getMenu()
@@ -196,6 +196,7 @@ public class OtrMetaContactMenu
     /*
      * Implements PluginComponent#setCurrentContact(MetaContact).
      */
+    @Override
     public void setCurrentContact(MetaContact metaContact)
     {
         if (this.currentContact != metaContact)

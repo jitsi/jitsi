@@ -66,6 +66,7 @@ public class ChooseCallAccountDialog
         {
             private static final long serialVersionUID = 0L;
 
+            @Override
             public Component getListCellRendererComponent(
                 JList jlist, Object obj, int i,
                 boolean flag, boolean flag1)
@@ -117,6 +118,7 @@ public class ChooseCallAccountDialog
     /**
      * Indicates that the conference call button has been pressed.
      */
+    @Override
     public void mergeCallButtonPressed()
     {
     }

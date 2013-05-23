@@ -100,6 +100,7 @@ public class SIPCommTabbedPaneEnhancedUI
         return new SIPCommTabbedPaneEnhancedUI();
     }
 
+    @Override
     protected void paintFocusIndicator(Graphics g, int tabPlacement,
             Rectangle[] rects, int tabIndex, Rectangle iconRect,
             Rectangle textRect, boolean isSelected) {}
@@ -107,9 +108,11 @@ public class SIPCommTabbedPaneEnhancedUI
     /**
      * Overriden to paint nothing.
      */
+    @Override
     protected void paintTabBorder(Graphics g, int tabPlacement, int tabIndex,
             int x, int y, int w, int h, boolean isSelected) {}
 
+    @Override
     protected void paintContentBorderTopEdge(Graphics g, int tabPlacement,
             int selectedIndex, int x, int y, int w, int h)
     {
@@ -120,6 +123,7 @@ public class SIPCommTabbedPaneEnhancedUI
         g.drawLine(x, y, x + w - 2, y);
     }
 
+    @Override
     protected void paintContentBorderLeftEdge(Graphics g, int tabPlacement,
             int selectedIndex, int x, int y, int w, int h)
     {
@@ -131,6 +135,7 @@ public class SIPCommTabbedPaneEnhancedUI
         g.drawLine(x, y, x, y + h - 3);
     }
 
+    @Override
     protected void paintContentBorderBottomEdge(Graphics g, int tabPlacement,
             int selectedIndex, int x, int y, int w, int h)
     {
@@ -145,6 +150,7 @@ public class SIPCommTabbedPaneEnhancedUI
 
     }
 
+    @Override
     protected void paintContentBorderRightEdge(Graphics g, int tabPlacement,
             int selectedIndex, int x, int y, int w, int h)
     {
@@ -160,6 +166,7 @@ public class SIPCommTabbedPaneEnhancedUI
 
     }
 
+    @Override
     protected void paintTabBackground(Graphics g, int tabPlacement,
         int tabIndex, int x, int y, int w, int h, boolean isSelected)
     {
@@ -227,6 +234,7 @@ public class SIPCommTabbedPaneEnhancedUI
         g2.drawImage(rightImg, x + w - rightImg.getWidth() + tabOverlap, y, null);
     }
 
+    @Override
     protected void paintText(Graphics g, int tabPlacement, Font font,
             FontMetrics metrics, int tabIndex, String title,
             Rectangle textRect, boolean isSelected)
@@ -323,11 +331,13 @@ public class SIPCommTabbedPaneEnhancedUI
             setRolloverEnabled(true);
         }
 
+        @Override
         public Dimension getPreferredSize()
         {
             return new Dimension(16, calculateMaxTabHeight(0));
         }
 
+        @Override
         public void paint(Graphics g)
         {
             Color origColor;
@@ -415,6 +425,7 @@ public class SIPCommTabbedPaneEnhancedUI
 
     }
 
+    @Override
     protected SIPCommTabbedPaneUI.ScrollableTabButton createScrollableTabButton(
             int direction)
     {
@@ -422,6 +433,7 @@ public class SIPCommTabbedPaneEnhancedUI
     }
 
 
+    @Override
     protected int calculateTabWidth(int tabPlacement, int tabIndex,
             FontMetrics metrics)
     {
@@ -463,6 +475,7 @@ public class SIPCommTabbedPaneEnhancedUI
     /**
      * Reloads color info.
      */
+    @Override
     public void loadSkin()
     {
         super.loadSkin();

@@ -59,7 +59,7 @@ public class PluginComponentEvent
     /**
      * Returns the ID of this event which is one of
      * {@link #PLUGIN_COMPONENT_ADDED} and {@link #PLUGIN_COMPONENT_REMOVED}.
-     * 
+     *
      * @return the ID of this event which is one of the
      * <tt>PLUGIN_COMPONENT_XXX</tt> constants defined by the
      * <tt>PluginComponentEvent</tt> class

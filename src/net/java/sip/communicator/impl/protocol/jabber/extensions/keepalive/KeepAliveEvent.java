@@ -56,6 +56,7 @@ public class KeepAliveEvent
      *
      * @return the packet as XML.
      */
+    @Override
     public String getChildElementXML()
     {
         StringBuffer buf = new StringBuffer();

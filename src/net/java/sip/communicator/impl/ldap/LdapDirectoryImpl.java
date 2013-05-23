@@ -347,6 +347,7 @@ public class LdapDirectoryImpl
         {
             int cancelState = 0;
 
+            @Override
             public void run()
             {
                 logger.trace("starting search for " + realQueryString +
@@ -395,7 +396,7 @@ public class LdapDirectoryImpl
                         LdapEvent resultEvent =
                             new LdapEvent(LdapDirectoryImpl.this,
                                     LdapEvent.LdapEventCause.NEW_SEARCH_RESULT,
-                                    (Object) person);
+                                    person);
                         fireLdapEvent(resultEvent, caller);
                     }
 
@@ -778,6 +779,7 @@ public class LdapDirectoryImpl
      * @return a printable string
      *
      */
+    @Override
     public String toString()
     {
         return this.settings.getName();
@@ -800,6 +802,7 @@ public class LdapDirectoryImpl
      * should not exist in the same LdapDirectorySet,
      * thus this function
      */
+    @Override
     public boolean equals(Object anObject)
     {
         if(anObject instanceof LdapDirectory)
@@ -815,6 +818,7 @@ public class LdapDirectoryImpl
      * We override the equals method so we also do for
      * hashCode to keep consistent behavior
      */
+    @Override
     public int hashCode()
     {
         return this.settings.getName().hashCode();

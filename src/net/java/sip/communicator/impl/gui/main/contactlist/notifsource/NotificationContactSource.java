@@ -319,6 +319,7 @@ public class NotificationContactSource
         {
             new Thread()
             {
+                @Override
                 public void run()
                 {
                     try

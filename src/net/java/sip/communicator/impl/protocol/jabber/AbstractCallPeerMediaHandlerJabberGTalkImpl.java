@@ -417,7 +417,7 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
             String ciphers
                 = accountID.getAccountPropertyString(
                         ProtocolProviderFactory.SDES_CIPHER_SUITES);
-            
+
              if (ciphers == null)
             {
                 ciphers =

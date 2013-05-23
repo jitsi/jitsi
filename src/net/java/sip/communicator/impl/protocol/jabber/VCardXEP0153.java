@@ -29,6 +29,7 @@ public class VCardXEP0153
      *
      * @param bytes the bytes of the avatar.
      */
+    @Override
     public void setAvatar(byte[] bytes)
     {
         this.setAvatar(bytes, "image/jpeg");
@@ -40,6 +41,7 @@ public class VCardXEP0153
      * @param bytes the bytes of the avatar.
      * @param mimeType the mime type of the avatar.
      */
+    @Override
     public void setAvatar(byte[] bytes, String mimeType)
     {
         // Remove avatar (if any) from mappings

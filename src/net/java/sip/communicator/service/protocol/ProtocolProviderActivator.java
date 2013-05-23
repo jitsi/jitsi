@@ -73,7 +73,7 @@ public class ProtocolProviderActivator
     /**
      * Gets the <code>ConfigurationService</code> to be used by the classes in
      * the bundle represented by <code>ProtocolProviderActivator</code>.
-     * 
+     *
      * @return the <code>ConfigurationService</code> to be used by the classes
      *         in the bundle represented by
      *         <code>ProtocolProviderActivator</code>
@@ -94,7 +94,7 @@ public class ProtocolProviderActivator
     /**
      * Gets the <code>ResourceManagementService</code> to be used by the classes
      * in the bundle represented by <code>ProtocolProviderActivator</code>.
-     * 
+     *
      * @return the <code>ResourceManagementService</code> to be used by the
      *          classes in the bundle represented by
      *          <code>ProtocolProviderActivator</code>

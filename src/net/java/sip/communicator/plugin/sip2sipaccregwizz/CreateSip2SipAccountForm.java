@@ -158,6 +158,7 @@ public class CreateSip2SipAccountForm
         infoLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
         infoLabel.addMouseListener(new MouseAdapter()
         {
+            @Override
             public void mousePressed(MouseEvent e)
             {
                 Sip2SipAccRegWizzActivator.getBrowserLauncher()

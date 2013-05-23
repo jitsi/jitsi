@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.plugin.msnaccregwizz;
@@ -18,7 +18,7 @@ import org.osgi.framework.*;
  * The <tt>MsnAccountRegistrationWizard</tt> is an implementation of the
  * <tt>AccountRegistrationWizard</tt> for the Msn protocol. It should allow
  * the user to create and configure a new Msn account.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class MsnAccountRegistrationWizard
@@ -35,7 +35,7 @@ public class MsnAccountRegistrationWizard
 
     /**
      * Creates an instance of <tt>MsnAccountRegistrationWizard</tt>.
-     * 
+     *
      * @param wizardContainer the wizard container, where this wizard is added
      */
     public MsnAccountRegistrationWizard(WizardContainer wizardContainer)
@@ -49,9 +49,10 @@ public class MsnAccountRegistrationWizard
     /**
      * Implements the <code>AccountRegistrationWizard.getIcon</code> method.
      * Returns the icon to be used for this wizard.
-     * 
+     *
      * @return byte[]
      */
+    @Override
     public byte[] getIcon()
     {
         return Resources.getImage(Resources.MSN_LOGO);
@@ -60,9 +61,10 @@ public class MsnAccountRegistrationWizard
     /**
      * Implements the <code>AccountRegistrationWizard.getPageImage</code>
      * method. Returns the image used to decorate the wizard page
-     * 
+     *
      * @return byte[] the image used to decorate the wizard page
      */
+    @Override
     public byte[] getPageImage()
     {
         return Resources.getImage(Resources.PAGE_IMAGE);
@@ -71,9 +73,10 @@ public class MsnAccountRegistrationWizard
     /**
      * Implements the <code>AccountRegistrationWizard.getProtocolName</code>
      * method. Returns the protocol name for this wizard.
-     * 
+     *
      * @return String
      */
+    @Override
     public String getProtocolName()
     {
         return Resources.getString("plugin.msnaccregwizz.PROTOCOL_NAME");
@@ -83,9 +86,10 @@ public class MsnAccountRegistrationWizard
      * Implements the <code>AccountRegistrationWizard.getProtocolDescription
      * </code>
      * method. Returns the description of the protocol for this wizard.
-     * 
+     *
      * @return String
      */
+    @Override
     public String getProtocolDescription()
     {
         return Resources.getString("plugin.msnaccregwizz.PROTOCOL_DESCRIPTION");
@@ -93,9 +97,10 @@ public class MsnAccountRegistrationWizard
 
     /**
      * Returns the set of pages contained in this wizard.
-     * 
+     *
      * @return Iterator
      */
+    @Override
     public Iterator<WizardPage> getPages()
     {
         java.util.List<WizardPage> pages = new ArrayList<WizardPage>();
@@ -108,9 +113,10 @@ public class MsnAccountRegistrationWizard
 
     /**
      * Returns the set of data that user has entered through this wizard.
-     * 
+     *
      * @return Iterator
      */
+    @Override
     public Iterator<Map.Entry<String, String>> getSummary()
     {
         Hashtable<String,String> summaryTable = new Hashtable<String,String>();
@@ -130,6 +136,7 @@ public class MsnAccountRegistrationWizard
      * new account
      * @throws OperationFailedException if the operation didn't succeed
      */
+    @Override
     public ProtocolProviderService signin()
         throws OperationFailedException
     {
@@ -149,6 +156,7 @@ public class MsnAccountRegistrationWizard
      * new account
      * @throws OperationFailedException if the operation didn't succeed
      */
+    @Override
     public ProtocolProviderService signin(String userName, String password)
         throws OperationFailedException
     {
@@ -162,7 +170,7 @@ public class MsnAccountRegistrationWizard
 
     /**
      * Creates an account for the given user and password.
-     * 
+     *
      * @param providerFactory the ProtocolProviderFactory which will create the
      *            account
      * @param user the user identifier
@@ -174,7 +182,7 @@ public class MsnAccountRegistrationWizard
         throws OperationFailedException
     {
 
-        Hashtable<String,String> accountProperties 
+        Hashtable<String,String> accountProperties
             = new Hashtable<String,String>();
 
         accountProperties.put(ProtocolProviderFactory.ACCOUNT_ICON_PATH,
@@ -230,10 +238,11 @@ public class MsnAccountRegistrationWizard
     /**
      * Fills the UIN and Password fields in this panel with the data coming
      * from the given protocolProvider.
-     * 
+     *
      * @param protocolProvider The <tt>ProtocolProviderService</tt> to load
      *            the data from.
      */
+    @Override
     public void loadAccount(ProtocolProviderService protocolProvider)
     {
         setModification(true);
@@ -248,7 +257,7 @@ public class MsnAccountRegistrationWizard
     /**
      * Returns the registration object, which will store all the data through
      * the wizard.
-     * 
+     *
      * @return the registration object, which will store all the data through
      * the wizard
      */
@@ -261,6 +270,7 @@ public class MsnAccountRegistrationWizard
      * Returns the size of this wizard.
      * @return the size of this wizard
      */
+    @Override
     public Dimension getSize()
     {
         return new Dimension(600, 500);
@@ -270,6 +280,7 @@ public class MsnAccountRegistrationWizard
      * Returns the identifier of the page to show first in the wizard.
      * @return the identifier of the page to show first in the wizard.
      */
+    @Override
     public Object getFirstPageIdentifier()
     {
         return firstWizardPage.getIdentifier();
@@ -279,6 +290,7 @@ public class MsnAccountRegistrationWizard
      * Returns the identifier of the page to show last in the wizard.
      * @return the identifier of the page to show last in the wizard.
      */
+    @Override
     public Object getLastPageIdentifier()
     {
         return firstWizardPage.getIdentifier();
@@ -290,6 +302,7 @@ public class MsnAccountRegistrationWizard
      * @return an example string, which should indicate to the user how the
      * user name should look like.
      */
+    @Override
     public String getUserNameExample()
     {
         return FirstWizardPage.USER_NAME_EXAMPLE;
@@ -298,6 +311,7 @@ public class MsnAccountRegistrationWizard
     /**
      * Opens the browser on the registration page for MSN.
      */
+    @Override
     public void webSignup()
     {
         MsnAccRegWizzActivator.getBrowserLauncher()
@@ -310,6 +324,7 @@ public class MsnAccountRegistrationWizard
      * @return <code>true</code> if the web sign up is supported by the current
      * implementation, <code>false</code> - otherwise
      */
+    @Override
     public boolean isWebSignupSupported()
     {
         return true;
@@ -320,10 +335,11 @@ public class MsnAccountRegistrationWizard
      * shown to the user. Only if the user needs more settings she'll choose
      * to open the advanced wizard, consisted by all pages.
      *
-     * @param isCreateAccount indicates if the simple form should be opened as 
+     * @param isCreateAccount indicates if the simple form should be opened as
      * a create account form or as a login form
      * @return a simple account registration form
      */
+    @Override
     public Object getSimpleForm(boolean isCreateAccount)
     {
         firstWizardPage = new FirstWizardPage(this);

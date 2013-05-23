@@ -199,6 +199,7 @@ public class RtpDescriptionPacketExtension
      *
      * @param childExtension the extension we'd like to add here.
      */
+    @Override
     public void addChildExtension(PacketExtension childExtension)
     {
         if(childExtension instanceof PayloadTypePacketExtension)

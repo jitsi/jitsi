@@ -30,6 +30,7 @@ public class SIPCommLookAndFeel
      *
      * @return <tt>false</tt> to indicate that this is not a native look&feel
      */
+    @Override
     public boolean isNativeLookAndFeel()
     {
         return false;
@@ -40,6 +41,7 @@ public class SIPCommLookAndFeel
      *
      * @return <tt>false</tt> to indicate that this look&feel is supported
      */
+    @Override
     public boolean isSupportedLookAndFeel()
     {
         return true;
@@ -50,6 +52,7 @@ public class SIPCommLookAndFeel
      *
      * @return the description of this look&feel
      */
+    @Override
     public String getDescription()
     {
         return "The Jitsi look and feel.";
@@ -60,6 +63,7 @@ public class SIPCommLookAndFeel
      *
      * @return the identifier of this look&feel
      */
+    @Override
     public String getID()
     {
         return "SIPCommunicator";
@@ -70,6 +74,7 @@ public class SIPCommLookAndFeel
      *
      * @return  the name of this look&feel
      */
+    @Override
     public String getName()
     {
         return "SIPCommLookAndFeel";
@@ -80,6 +85,7 @@ public class SIPCommLookAndFeel
      *
      * @param table the default user interface configurations table
      */
+    @Override
     protected void initClassDefaults(UIDefaults table)
     {
         super.initClassDefaults(table);
@@ -122,6 +128,7 @@ public class SIPCommLookAndFeel
      *
      * @return the created icon
      */
+    @Override
     public Icon getDisabledIcon(JComponent component, Icon icon)
     {
         if (icon instanceof ImageIcon)

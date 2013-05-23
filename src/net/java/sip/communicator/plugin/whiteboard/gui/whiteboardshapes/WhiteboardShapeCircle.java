@@ -47,7 +47,7 @@ public class WhiteboardShapeCircle
      * Stores all selection points for this shape.
      */
     private ArrayList<WhiteboardPoint> selectionPoints = new ArrayList<WhiteboardPoint>();
-    
+
     /**
      * WhiteboardShapeCircle constructor
      *
@@ -71,7 +71,7 @@ public class WhiteboardShapeCircle
      * WhiteboardShapeCircle constructor
      *
      * @param id String that uniquely identifies this WhiteboardObject.
-     * @param thickness number of pixels that this object (or its border) 
+     * @param thickness number of pixels that this object (or its border)
      * should be thick.
      * @param color WhiteboardShape's color (or rather it's border)
      * @param whiteboardPoint coordinates of this object.
@@ -144,17 +144,17 @@ public class WhiteboardShapeCircle
         Point2D wy0 = new Point2D.Double (cx, cy - r);
         Point2D wx1 = new Point2D.Double (cx + r, cy);
         Point2D wy1 = new Point2D.Double (cx, cy + r);
-        
+
         Point2D vx0 = w2v.transform (wx0, null);
         Point2D vy0 = w2v.transform (wy0, null);
         Point2D vx1 = w2v.transform (wx1, null);
         Point2D vy1 = w2v.transform (wy1, null);
-        
+
         int ix = (int) vx0.getX ();
         int iy = (int) vy0.getY ();
         int iwidth = (int) vx1.getX () - ix;
         int iheight = (int) vy1.getY () - iy ;
-        
+
         return new int[] {ix, iy, iwidth, iheight};
     }
 
@@ -164,12 +164,13 @@ public class WhiteboardShapeCircle
      * @param g graphics context
      * @param t 2D affine transform
      */
+    @Override
     public void paintShape (Graphics2D g, AffineTransform t)
     {
         g.setStroke (new BasicStroke (this.getThickness (),
           BasicStroke.CAP_ROUND,BasicStroke.CAP_ROUND));
         int[] view = getViewRect (t);
-        
+
         if (fill)
         {
             g.fillOval (view[0], view[1], view[2], view[3]);
@@ -186,6 +187,7 @@ public class WhiteboardShapeCircle
      * @param p coord point
      * @return true if shape contains p
      */
+    @Override
     public boolean contains (Point2D p)
     {
         double cx = getWhiteboardPoint ().getX ();
@@ -196,10 +198,11 @@ public class WhiteboardShapeCircle
     }
     /**
      * Tests if a point p is on a selection point.
-     * 
+     *
      * @param p point
      * @return the nearest selection point
      */
+    @Override
     public WhiteboardPoint getSelectionPoint (Point2D p)
     {
         WhiteboardPoint givenPoint = new WhiteboardPoint(p.getX(), p.getY());
@@ -214,6 +217,7 @@ public class WhiteboardShapeCircle
      *
      * @return list of selected points
      */
+    @Override
     public List<WhiteboardPoint> getSelectionPoints ()
     {
         return selectionPoints;
@@ -224,6 +228,7 @@ public class WhiteboardShapeCircle
      * @param deltaX x coordinates
      * @param deltaY y coordinates
      */
+    @Override
     public void translate (double deltaX, double deltaY)
     {
         double cx = getWhiteboardPoint ().getX ();
@@ -234,14 +239,15 @@ public class WhiteboardShapeCircle
 
         this.recalculateSelectionPoints();
     }
-    
-    
+
+
     /**
      * Translates a point from the shape
      *
      * @param deltaX x coordinate
      * @param deltaY y coordinate
      */
+    @Override
     public void translateSelectedPoint (double deltaX, double deltaY)
     {
         WhiteboardPoint modifyPoint = getModifyPoint();
@@ -279,7 +285,7 @@ public class WhiteboardShapeCircle
         this.setModifyPoint(modifyPoint);
         this.recalculateSelectionPoints();
     }
-    
+
     /**
      * Returns the coordinates of this whiteboard object.
      *
@@ -289,7 +295,7 @@ public class WhiteboardShapeCircle
     {
         return whiteboardPoint;
     }
-    
+
     /**
      * Sets the coordinates of this whiteboard object.
      *
@@ -299,7 +305,7 @@ public class WhiteboardShapeCircle
     {
         this.whiteboardPoint = whiteboardPoint;
     }
-    
+
     /**
      * Returns the radius (in pixels) of this whiteboard circle.
      *
@@ -309,7 +315,7 @@ public class WhiteboardShapeCircle
     {
         return this.radius;
     }
-    
+
     /**
      * Sets the radius (in pixels) of this whiteboard circle.
      *
@@ -319,7 +325,7 @@ public class WhiteboardShapeCircle
     {
         this.radius = radius;
     }
-    
+
     /**
      * Returns the fill state of the WhiteboardObject.
      *
@@ -329,7 +335,7 @@ public class WhiteboardShapeCircle
     {
         return this.fill;
     }
-    
+
     /**
      * Sets the fill state of the WhiteboardObject.
      * True is filled, false is unfilled.
@@ -340,7 +346,7 @@ public class WhiteboardShapeCircle
     {
         this.fill = fill;
     }
-    
+
     /**
      * Specifies the background color for this object. The color parameter
      * must be encoded with standard RGB encoding: bits 24-31 are alpha, 16-23
@@ -353,7 +359,7 @@ public class WhiteboardShapeCircle
     {
         this.backColor = backColor;
     }
-    
+
     /**
      * Returns an integer representing the background color of this object. The
      * return value uses standard RGB encoding: bits 24-31 are alpha, 16-23 are

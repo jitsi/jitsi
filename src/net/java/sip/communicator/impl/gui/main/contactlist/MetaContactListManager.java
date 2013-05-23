@@ -138,6 +138,7 @@ public class MetaContactListManager
             this.destMetaContact = destMetaContact;
         }
 
+        @Override
         @SuppressWarnings("fallthrough") //intentional
         public void run()
         {
@@ -194,6 +195,7 @@ public class MetaContactListManager
             this.destMetaContact = destMetaContact;
         }
 
+        @Override
         @SuppressWarnings("fallthrough") //intentional
         public void run()
         {
@@ -265,6 +267,7 @@ public class MetaContactListManager
             this.destGroup = destGroup;
         }
 
+        @Override
         public void run()
         {
             if (!ConfigurationUtils.isMoveContactConfirmationRequested())
@@ -321,6 +324,7 @@ public class MetaContactListManager
             this.destGroup = destGroup;
         }
 
+        @Override
         @SuppressWarnings("fallthrough")
         public void run()
         {
@@ -334,7 +338,7 @@ public class MetaContactListManager
                 }
                 catch (MetaContactListException e)
                 {
-                    
+
                 }
 
                 return;
@@ -367,7 +371,7 @@ public class MetaContactListManager
             }
         }
     }
-    
+
     /**
      * Removes a contact from a meta contact in a separate thread.
      */
@@ -379,6 +383,7 @@ public class MetaContactListManager
             this.contact = contact;
         }
 
+        @Override
         public void run()
         {
             if (!contact.getProtocolProvider().isRegistered())
@@ -452,6 +457,7 @@ public class MetaContactListManager
             this.metaContact = contact;
         }
 
+        @Override
         public void run()
         {
             if(Constants.REMOVE_CONTACT_ASK)
@@ -502,6 +508,7 @@ public class MetaContactListManager
         {
             this.group = group;
         }
+        @Override
         public void run()
         {
             try

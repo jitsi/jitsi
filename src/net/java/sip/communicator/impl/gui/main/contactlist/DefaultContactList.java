@@ -117,6 +117,7 @@ public class DefaultContactList
      *
      * @return The customized tooltip.
      */
+    @Override
     public JToolTip createToolTip()
     {
         Point currentMouseLocation = MouseInfo.getPointerInfo().getLocation();
@@ -210,6 +211,7 @@ public class DefaultContactList
      * @param event the <tt>MouseEvent</tt> that notified us
      * @return the string to be used as the tooltip for <i>event</i>.
      */
+    @Override
     public String getToolTipText(MouseEvent event)
     {
         Point currentMouseLocation = event.getPoint();
@@ -260,6 +262,7 @@ public class DefaultContactList
      * @return the index of the next list element that starts with the prefix;
      *         otherwise -1
      */
+    @Override
     public int getNextMatch(String prefix, int startIndex, Position.Bias bias)
     {
         int max = getModel().getSize();
@@ -318,6 +321,7 @@ public class DefaultContactList
      * @param lastIndex the last selected index
      * @param isAdjusting true if multiple changes are being made
      */
+    @Override
     protected void fireSelectionValueChanged(int firstIndex, int lastIndex,
                                             boolean isAdjusting)
     {
@@ -348,6 +352,7 @@ public class DefaultContactList
      * on Mac Leopard.
      * @param event the <tt>MouseEvent</tt> to process
      */
+    @Override
     protected void processMouseEvent(MouseEvent event)
     {
         if ((event.getModifiersEx() & MouseEvent.BUTTON1_DOWN_MASK) != 0)

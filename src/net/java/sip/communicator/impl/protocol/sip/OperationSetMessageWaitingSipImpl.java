@@ -354,7 +354,7 @@ public class OperationSetMessageWaitingSipImpl
     /**
      * Sends a {@link Response#NOT_IMPLEMENTED} <tt>Response</tt> to a specific
      * {@link Request#SUBSCRIBE} <tt>Request</tt> with <tt>message-summary</tt>
-     * event type . 
+     * event type .
      *
      * @param requestEvent the <tt>Request</tt> to process
      * @return <tt>true</tt> if the specified <tt>Request</tt> has been

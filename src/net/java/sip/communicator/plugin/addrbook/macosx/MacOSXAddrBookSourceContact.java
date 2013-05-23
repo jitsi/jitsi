@@ -141,7 +141,7 @@ public class MacOSXAddrBookSourceContact
                  MacOSXAddrBookContactQuery.setProperty(
                          id,
                          MacOSXAddrBookContactQuery.ABPERSON_PROPERTIES[
-                             property], 
+                             property],
                          null,
                          detail.getDetail());
             }
@@ -161,7 +161,7 @@ public class MacOSXAddrBookSourceContact
                         subProperty,
                         id);
             contactDetail.setSourceContact(this);
-       
+
             // Add the detail at the right index : group multiline properties
             // together , such as home/work address fields.
             boolean added = false;
@@ -486,6 +486,7 @@ public class MacOSXAddrBookSourceContact
      *
      * @return the index of this source contact in its parent
      */
+    @Override
     public int getIndex()
     {
         return -1;

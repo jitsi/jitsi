@@ -84,7 +84,7 @@ public class DTMFInfo
     /**
      * Saves the tone we need to send and its start time. With start time we
      * can compute the duration later when we need to send the DTMF.
-     * 
+     *
      * @param callPeer the call peer.
      * @param tone the tone to transmit.
      * @throws OperationFailedException
@@ -274,7 +274,7 @@ public class DTMFInfo
 
                             if (statusCode == 200)
                             {
-                                if (logger.isDebugEnabled())   
+                                if (logger.isDebugEnabled())
                                     logger.debug(
                                             "DTMF send succeeded: "
                                                 + statusCode);
@@ -292,6 +292,7 @@ public class DTMFInfo
     /*
      * Receives dtmf info requests.
      */
+    @Override
     public boolean processRequest(RequestEvent requestEvent)
     {
         Request request = requestEvent.getRequest();
@@ -326,15 +327,15 @@ public class DTMFInfo
 
                 String signal = prop.getProperty("Signal");
                 String durationStr = prop.getProperty("Duration");
-                
+
                 DTMFTone tone = DTMFTone.getDTMFTone(signal);
-                
+
                 if(tone == null)
                 {
                     logger.warn("Unknown tone received: " + tone);
                     return false;
                 }
-                
+
                 long duration = 0;
                 try
                 {

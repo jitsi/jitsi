@@ -52,6 +52,7 @@ public abstract class AbstractAddrBookContactQuery<T extends ContactSourceServic
      * which the registered <tt>ContactQueryListener</tt>s are to be notified
      * about
      */
+    @Override
     protected void fireContactReceived(SourceContact contact)
     {
         synchronized (sourceContacts)
@@ -71,6 +72,7 @@ public abstract class AbstractAddrBookContactQuery<T extends ContactSourceServic
      * which the registered <tt>ContactQueryListener</tt>s are to be notified
      * about
      */
+    @Override
     protected void fireContactRemoved(SourceContact contact)
     {
         synchronized (sourceContacts)

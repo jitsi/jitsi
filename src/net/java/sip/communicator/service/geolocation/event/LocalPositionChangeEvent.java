@@ -81,6 +81,7 @@ public class LocalPositionChangeEvent extends PropertyChangeEvent
      *
      * @return A a String representation of this LocalPositionChangeEvent.
      */
+    @Override
     public String toString()
     {
         StringBuffer buff = new StringBuffer("LocalPositionChangeEvent-[");

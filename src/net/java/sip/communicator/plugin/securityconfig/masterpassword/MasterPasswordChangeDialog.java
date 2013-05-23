@@ -38,12 +38,12 @@ public class MasterPasswordChangeDialog
          */
         public boolean execute(String masterPassword, String newMasterPassword);
     }
-    
+
      /**
      * Callback to execute on password change.
      */
     private MasterPasswordExecutable callback;
-    
+
     /**
      * Dialog instance of this class.
      */
@@ -56,12 +56,12 @@ public class MasterPasswordChangeDialog
     {
         super(SecurityConfigActivator.getCredentialsStorageService()
                     .isUsingMasterPassword());
-        
+
         setTitle(resources.getI18NString(
                         "plugin.securityconfig.masterpassword.MP_TITLE"));
         setInfoText(resources.getI18NString(
                         "plugin.securityconfig.masterpassword.INFO_TEXT"));
-        
+
         getOkButton().addActionListener(this);
     }
 
@@ -100,7 +100,7 @@ public class MasterPasswordChangeDialog
         {
             close = callback.execute(oldMasterPassword, getNewPassword());
         }
-        
+
         if (close)
         {
             dialog = null;
@@ -117,7 +117,7 @@ public class MasterPasswordChangeDialog
             dialog = new MasterPasswordChangeDialog();
         return dialog;
     }
-    
+
      /**
      * @param callbackInstance callback instance.
      */

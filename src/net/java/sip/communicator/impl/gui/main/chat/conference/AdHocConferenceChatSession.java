@@ -65,6 +65,7 @@ public class AdHocConferenceChatSession
      *
      * @return the descriptor of this chat session.
      */
+    @Override
     public Object getDescriptor()
     {
         return chatRoomWrapper;
@@ -73,6 +74,7 @@ public class AdHocConferenceChatSession
     /**
      * Disposes this chat session.
      */
+    @Override
     public void dispose()
     {
         AdHocChatRoom chatRoom = chatRoomWrapper.getAdHocChatRoom();
@@ -84,6 +86,7 @@ public class AdHocConferenceChatSession
      *
      * @return the name of the ad-hoc chat room.
      */
+    @Override
     public String getChatName()
     {
         return chatRoomWrapper.getAdHocChatRoomName();
@@ -109,6 +112,7 @@ public class AdHocConferenceChatSession
      * @return the currently used transport for all operation within this chat
      * session.
      */
+    @Override
     public ChatTransport getCurrentChatTransport()
     {
         return currentChatTransport;
@@ -120,6 +124,7 @@ public class AdHocConferenceChatSession
      *
      * @return the default mobile number used to send sms-es in this session.
      */
+    @Override
     public String getDefaultSmsNumber()
     {
         return null;
@@ -131,6 +136,7 @@ public class AdHocConferenceChatSession
      * @param count The number of messages from history to return.
      * @return a collection of the last N number of messages given by count.
      */
+    @Override
     public Collection<Object> getHistory(int count)
     {
         final MetaHistoryService metaHistory
@@ -155,6 +161,7 @@ public class AdHocConferenceChatSession
      * @param count The number of messages from history to return.
      * @return a collection of the last N number of messages given by count.
      */
+    @Override
     public Collection<Object> getHistoryBeforeDate(Date date, int count)
     {
         final MetaHistoryService metaHistory
@@ -180,6 +187,7 @@ public class AdHocConferenceChatSession
      * @param count The number of messages from history to return.
      * @return a collection of the last N number of messages given by count.
      */
+    @Override
     public Collection<Object> getHistoryAfterDate(Date date, int count)
     {
         final MetaHistoryService metaHistory
@@ -203,6 +211,7 @@ public class AdHocConferenceChatSession
      *
      * @return the start date of the history of this chat session.
      */
+    @Override
     public Date getHistoryStartDate()
     {
         MetaHistoryService metaHistory
@@ -252,6 +261,7 @@ public class AdHocConferenceChatSession
      *
      * @return the end date of the history of this chat session.
      */
+    @Override
     public Date getHistoryEndDate()
     {
         MetaHistoryService metaHistory
@@ -302,6 +312,7 @@ public class AdHocConferenceChatSession
      * @param chatTransport The transport to set as a default transport for this
      * session.
      */
+    @Override
     public void setCurrentChatTransport(ChatTransport chatTransport)
     {
         this.currentChatTransport = chatTransport;
@@ -313,6 +324,7 @@ public class AdHocConferenceChatSession
      * @param smsPhoneNumber The default mobile number used to send sms-es in
      * this session.
      */
+    @Override
     public void setDefaultSmsNumber(String smsPhoneNumber)
     {}
 
@@ -322,6 +334,7 @@ public class AdHocConferenceChatSession
      *
      * @return The <tt>ChatSessionRenderer</tt>.
      */
+    @Override
     public ChatSessionRenderer getChatSessionRenderer()
     {
         return sessionRenderer;
@@ -333,6 +346,7 @@ public class AdHocConferenceChatSession
      * @return <code>true</code> if this contact is persistent, otherwise
      * returns <code>false</code>.
      */
+    @Override
     public boolean isDescriptorPersistent()
     {
         return false;
@@ -358,6 +372,7 @@ public class AdHocConferenceChatSession
      *
      * @return the status icon corresponding to this ad-hoc chat room
      */
+    @Override
     public ImageIcon getChatStatusIcon()
     {
         PresenceStatus status = GlobalStatusEnum.OFFLINE;
@@ -373,6 +388,7 @@ public class AdHocConferenceChatSession
      *
      * @return the avatar icon of this chat session.
      */
+    @Override
     public byte[] getChatAvatar()
     {
         return null;
@@ -395,6 +411,7 @@ public class AdHocConferenceChatSession
     }
 
     /* Implements ChatSession#isContactListSupported(). */
+    @Override
     public boolean isContactListSupported()
     {
         return true;
@@ -481,10 +498,12 @@ public class AdHocConferenceChatSession
         }
     }
 
+    @Override
     public void addChatTransportChangeListener(ChatSessionChangeListener l)
     {
     }
 
+    @Override
     public void removeChatTransportChangeListener(ChatSessionChangeListener l)
     {
     }

@@ -86,6 +86,7 @@ public class ConferenceChatSession
      *
      * @return the descriptor of this chat session.
      */
+    @Override
     public Object getDescriptor()
     {
         return chatRoomWrapper;
@@ -94,6 +95,7 @@ public class ConferenceChatSession
     /**
      * Disposes this chat session.
      */
+    @Override
     public void dispose()
     {
         if(ConfigurationUtils.isLeaveChatRoomOnWindowCloseEnabled())
@@ -110,6 +112,7 @@ public class ConferenceChatSession
      *
      * @return the name of the chat room.
      */
+    @Override
     public String getChatName()
     {
         return chatRoomWrapper.getChatRoomName();
@@ -145,6 +148,7 @@ public class ConferenceChatSession
      * @return the currently used transport for all operation within this chat
      * session.
      */
+    @Override
     public ChatTransport getCurrentChatTransport()
     {
         return currentChatTransport;
@@ -156,6 +160,7 @@ public class ConferenceChatSession
      *
      * @return the default mobile number used to send sms-es in this session.
      */
+    @Override
     public String getDefaultSmsNumber()
     {
         return null;
@@ -167,6 +172,7 @@ public class ConferenceChatSession
      * @param count The number of messages from history to return.
      * @return a collection of the last N number of messages given by count.
      */
+    @Override
     public Collection<Object> getHistory(int count)
     {
         final MetaHistoryService metaHistory
@@ -191,6 +197,7 @@ public class ConferenceChatSession
      * @param count The number of messages from history to return.
      * @return a collection of the last N number of messages given by count.
      */
+    @Override
     public Collection<Object> getHistoryBeforeDate(Date date, int count)
     {
         final MetaHistoryService metaHistory
@@ -216,6 +223,7 @@ public class ConferenceChatSession
      * @param count The number of messages from history to return.
      * @return a collection of the last N number of messages given by count.
      */
+    @Override
     public Collection<Object> getHistoryAfterDate(Date date, int count)
     {
         final MetaHistoryService metaHistory
@@ -239,6 +247,7 @@ public class ConferenceChatSession
      *
      * @return the start date of the history of this chat session.
      */
+    @Override
     public Date getHistoryStartDate()
     {
         MetaHistoryService metaHistory
@@ -288,6 +297,7 @@ public class ConferenceChatSession
      *
      * @return the end date of the history of this chat session.
      */
+    @Override
     public Date getHistoryEndDate()
     {
         MetaHistoryService metaHistory
@@ -338,6 +348,7 @@ public class ConferenceChatSession
      * @param chatTransport The transport to set as a default transport for this
      * session.
      */
+    @Override
     public void setCurrentChatTransport(ChatTransport chatTransport)
     {
         this.currentChatTransport = chatTransport;
@@ -353,6 +364,7 @@ public class ConferenceChatSession
      * @param smsPhoneNumber The default mobile number used to send sms-es in
      * this session.
      */
+    @Override
     public void setDefaultSmsNumber(String smsPhoneNumber) {}
 
     /**
@@ -361,6 +373,7 @@ public class ConferenceChatSession
      *
      * @return The <tt>ChatSessionRenderer</tt>.
      */
+    @Override
     public ChatSessionRenderer getChatSessionRenderer()
     {
         return sessionRenderer;
@@ -482,6 +495,7 @@ public class ConferenceChatSession
      * @return <code>true</code> if this contact is persistent, otherwise
      * returns <code>false</code>.
      */
+    @Override
     public boolean isDescriptorPersistent()
     {
         return true;
@@ -524,6 +538,7 @@ public class ConferenceChatSession
      *
      * @return the status icon corresponding to this chat room
      */
+    @Override
     public ImageIcon getChatStatusIcon()
     {
         PresenceStatus status = GlobalStatusEnum.OFFLINE;
@@ -540,6 +555,7 @@ public class ConferenceChatSession
      *
      * @return the avatar icon of this chat session.
      */
+    @Override
     public byte[] getChatAvatar()
     {
         return null;
@@ -563,6 +579,7 @@ public class ConferenceChatSession
      * @return <tt>true</tt> to indicate that the contact list is supported,
      * <tt>false</tt> otherwise.
      */
+    @Override
     public boolean isContactListSupported()
     {
         ChatRoom chatRoom = chatRoomWrapper.getChatRoom();
@@ -577,6 +594,7 @@ public class ConferenceChatSession
      * transport listeners.
      * @param l the listener to add
      */
+    @Override
     public void addChatTransportChangeListener(ChatSessionChangeListener l)
     {
         synchronized (chatTransportChangeListeners)
@@ -591,6 +609,7 @@ public class ConferenceChatSession
      * transport listeners.
      * @param l the listener to remove
      */
+    @Override
     public void removeChatTransportChangeListener(ChatSessionChangeListener l)
     {
         synchronized (chatTransportChangeListeners)

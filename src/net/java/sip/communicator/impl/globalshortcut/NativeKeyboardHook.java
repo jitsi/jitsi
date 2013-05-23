@@ -87,7 +87,7 @@ public class NativeKeyboardHook
      * @param keycode keycode of the shortcut
      * @param modifiers modifiers (CTRL, ALT, ...)
      * @param isOnKeyRelease this parameter should be true if when the shortcut
-     * is released an action should be performed. 
+     * is released an action should be performed.
      * @return true if success, false otherwise
      */
     public synchronized boolean registerShortcut(int keycode,
@@ -117,7 +117,7 @@ public class NativeKeyboardHook
      *
      * @param keycode keycode of the shortcut
      * @param isOnKeyRelease this parameter should be true if when the shortcut
-     * is released an action should be performed. 
+     * is released an action should be performed.
      * @return true if success, false otherwise
      */
     public synchronized boolean registerSpecial(int keycode,
@@ -201,7 +201,7 @@ public class NativeKeyboardHook
      * @param keycode keycode of the shortcut
      * @param modifiers modifiers (CTRL, ALT, ...)
      * @param isOnKeyRelease this parameter should be true if when the shortcut
-     * is released an action should be performed. 
+     * is released an action should be performed.
      * @return true if registration is successful, false otherwise
      */
     private static native boolean registerShortcut(long ptr, int keycode,
@@ -224,7 +224,7 @@ public class NativeKeyboardHook
      * @param ptr native pointer
      * @param keycode keycode of the shortcut
      * @param isOnKeyRelease this parameter should be true if when the shortcut
-     * is released an action should be performed. 
+     * is released an action should be performed.
      * @return true if registration is successful, false otherwise
      */
     private static native boolean registerSpecial(long ptr, int keycode,

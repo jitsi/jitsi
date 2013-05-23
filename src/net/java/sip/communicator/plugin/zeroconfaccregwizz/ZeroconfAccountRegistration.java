@@ -7,10 +7,10 @@
 package net.java.sip.communicator.plugin.zeroconfaccregwizz;
 
 /**
- * The <tt>ZeroconfAccountRegistration</tt> is used to store 
- * all user input data 
+ * The <tt>ZeroconfAccountRegistration</tt> is used to store
+ * all user input data
  * through the <tt>ZeroconfAccountRegistrationWizard</tt>.
- * 
+ *
  * @author Christian Vincenot
  * @author Maxime Catelin
  */
@@ -71,7 +71,7 @@ public class ZeroconfAccountRegistration
 
     /**
      * Sets the rememberPassword value of this Zeroconf account registration.
-     * @param rememberContacts true if we want to remember the 
+     * @param rememberContacts true if we want to remember the
      *        contacts we meet, false otherwise
      */
     public void setRememberContacts(boolean rememberContacts)
@@ -114,6 +114,6 @@ public class ZeroconfAccountRegistration
     {
         this.mail = mail;
     }
-    
+
 
 }

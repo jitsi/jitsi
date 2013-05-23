@@ -26,7 +26,7 @@ import net.java.sip.communicator.service.protocol.whiteboardobjects.*;
 public abstract class WhiteboardObjectJabberImpl
     implements WhiteboardObject
 {
-    
+
     /**
      * An integer indicating the thickness (represented as number of
      * pixels) of this whiteboard object (or its border).
@@ -40,7 +40,7 @@ public abstract class WhiteboardObjectJabberImpl
      * The RGB value of the color of this object.
      */
     private int color;
-    
+
     /**
      * Default WhiteboardObjectJabberImpl constructor
      */
@@ -61,7 +61,7 @@ public abstract class WhiteboardObjectJabberImpl
         this.setColor (color);
         this.setThickness (thickness);
     }
-    
+
     /**
      * Generate a String uniquely identifying this WhiteboardObject.
      *
@@ -90,7 +90,7 @@ public abstract class WhiteboardObjectJabberImpl
     {
         this.ID = ID;
     }
-    
+
     /**
      * Returns an integer indicating the thickness (represented as number of
      * pixels) of this whiteboard object (or its border).
@@ -101,13 +101,14 @@ public abstract class WhiteboardObjectJabberImpl
     {
         return thickness;
     }
-    
+
     /**
      * Indicates whether some other WhiteboardObject is "equal to" this one.
      * @param obj the reference object with which to compare.
      * @return <code>true</code> if this object is the same as the obj
      * argument; <code>false</code> otherwise.
      */
+    @Override
     public boolean equals (Object obj)
     {
         if(obj == null
@@ -116,10 +117,10 @@ public abstract class WhiteboardObjectJabberImpl
         if (obj == this
           || ((WhiteboardObject)obj).getID ().equals ( getID () ))
             return true;
-        
+
         return false;
     }
-    
+
     /**
      * Returns an integer representing the color of this object. The return
      * value uses standard RGB encoding: bits 24-31 are alpha, 16-23 are red,

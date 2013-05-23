@@ -114,17 +114,20 @@ public class ZrtpConfigureTableModel<T extends Enum<T>>
         }
     }
 
+    @Override
     public boolean isCellEditable(int rowIndex, int columnIndex)
     {
         return (columnIndex == 0);
     }
 
+    @Override
     public Class<?> getColumnClass(int columnIndex)
     {
         return (columnIndex == 0) ? Boolean.class : super
             .getColumnClass(columnIndex);
     }
 
+    @Override
     public void setValueAt(Object value, int row, int column)
     {
         if ((column == 0) && (value instanceof Boolean))

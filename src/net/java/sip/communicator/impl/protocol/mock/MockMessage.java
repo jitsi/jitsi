@@ -10,7 +10,7 @@ import net.java.sip.communicator.service.protocol.*;
 
 /**
  * Message Impl.
- * 
+ *
  * @author Damian Minkov
  * @author Lubomir Marinov
  */

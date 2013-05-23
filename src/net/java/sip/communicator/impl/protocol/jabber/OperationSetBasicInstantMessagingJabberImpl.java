@@ -162,6 +162,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
      *
      * @return the newly created message.
      */
+    @Override
     public Message createMessage(String content, String contentType,
         String encoding, String subject)
     {
@@ -217,6 +218,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
      * @return <tt>true</tt> if the contact supports it and
      * <tt>false</tt> otherwise.
      */
+    @Override
     public boolean isContentTypeSupported(String contentType, Contact contact)
     {
         // by default we support default mime type, for other mimetypes
@@ -368,7 +370,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
     /**
      * Helper function used to send a message to a contact, with the given
      * extensions attached.
-     * 
+     *
      * @param to The contact to send the message to.
      * @param toResource The resource to send the message to or null if no
      * resource has been specified
@@ -455,7 +457,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
                 // this is plain text so keep it as it is.
                 msg.setBody(content);
             }
-            
+
             //msg.addExtension(new Version());
 
             MessageEventManager.
@@ -506,6 +508,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
      * @throws java.lang.IllegalArgumentException if <tt>to</tt> is not an
      * instance belonging to the underlying implementation.
      */
+    @Override
     public void sendInstantMessage( Contact to,
                                     ContactResource toResource,
                                     Message message)
@@ -521,7 +524,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
     /**
      * Replaces the message with ID <tt>correctedMessageUID</tt> sent to
      * the contact <tt>to</tt> with the message <tt>message</tt>
-     * 
+     *
      * @param to The contact to send the message to.
      * @param message The new message.
      * @param correctedMessageUID The ID of the message being replaced.

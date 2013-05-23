@@ -299,6 +299,7 @@ public class ContactRssImpl
      *
      * @return  a string representation of this contact.
      */
+    @Override
     public String toString()
     {
         StringBuffer buff

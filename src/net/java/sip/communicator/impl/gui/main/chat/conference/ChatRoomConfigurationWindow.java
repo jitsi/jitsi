@@ -199,7 +199,7 @@ public class ChatRoomConfigurationWindow
                 ChatRoomConfigurationFormField.TYPE_TEXT_FIXED))
             {
                 field = new JLabel();
-                
+
                 if(values.hasNext())
                 {
                     String value = values.next().toString();
@@ -303,7 +303,7 @@ public class ChatRoomConfigurationWindow
 
             // If the field is not fixed (i.e. could be changed) we would like
             // to save it in a list in order to use it later when user saves
-            // the configuration data.            
+            // the configuration data.
             if(!fieldType.equals(
                 ChatRoomConfigurationFormField.TYPE_TEXT_FIXED))
             {
@@ -320,7 +320,7 @@ public class ChatRoomConfigurationWindow
             {
                 JPanel fieldPanel = new JPanel(new GridLayout(1,2));
                 fieldPanel.setOpaque(false);
-                
+
                 if(!(field instanceof JLabel))
                     fieldPanel.setBorder(
                         BorderFactory.createEmptyBorder(0, 0, 10, 0));
@@ -338,7 +338,7 @@ public class ChatRoomConfigurationWindow
 
     /**
      * Computes the maximum width of a label in the configuration form.
-     * 
+     *
      * @param configForm the configuration form containing all labels.
      * @return the maximum width of a label in the configuration form
      */
@@ -458,6 +458,7 @@ public class ChatRoomConfigurationWindow
         this.dispose();
     }
 
+    @Override
     protected void close(boolean isEscaped)
     {
         this.dispose();

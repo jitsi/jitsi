@@ -70,18 +70,18 @@ public class SecurityAuthorityImpl
     /**
      * Sets the userNameEditable property, which should indicate if the
      * user name could be changed by user or not.
-     * 
+     *
      * @param isUserNameEditable indicates if the user name could be changed
      */
     public void setUserNameEditable(boolean isUserNameEditable)
     {
         this.isUserNameEditable = isUserNameEditable;
     }
-    
+
     /**
      * Indicates if the user name is currently editable, i.e. could be changed
      * by user or not.
-     * 
+     *
      * @return <code>true</code> if the user name could be changed,
      * <code>false</code> - otherwise.
      */

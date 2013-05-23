@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.service.protocol;
@@ -14,7 +14,7 @@ import net.java.sip.communicator.util.*;
  * Represents a default implementation of {@link Message} in order to make it
  * easier for implementers to provide complete solutions while focusing on
  * implementation-specific details.
- * 
+ *
  * @author Lubomir Marinov
  */
 public abstract class AbstractMessage
@@ -84,7 +84,7 @@ public abstract class AbstractMessage
      * The implementation is final because it caches the raw data of the
      * content.
      * </p>
-     * 
+     *
      * @return a String containing the content of this message or null if the
      *         message does not contain data representable in text form.
      */
@@ -95,7 +95,7 @@ public abstract class AbstractMessage
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see net.java.sip.communicator.service.protocol.Message#getContentType()
      */
     public String getContentType()
@@ -109,7 +109,7 @@ public abstract class AbstractMessage
      * The implementation is final because of the presumption it can set the
      * encoding.
      * </p>
-     * 
+     *
      * @return a String indicating the MIME encoding of this message.
      */
     public final String getEncoding()
@@ -119,7 +119,7 @@ public abstract class AbstractMessage
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see net.java.sip.communicator.service.protocol.Message#getMessageUID()
      */
     public String getMessageUID()
@@ -129,7 +129,7 @@ public abstract class AbstractMessage
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see net.java.sip.communicator.service.protocol.Message#getRawData()
      */
     public byte[] getRawData()
@@ -166,7 +166,7 @@ public abstract class AbstractMessage
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see net.java.sip.communicator.service.protocol.Message#getSize()
      */
     public int getSize()
@@ -176,7 +176,7 @@ public abstract class AbstractMessage
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see net.java.sip.communicator.service.protocol.Message#getSubject()
      */
     public String getSubject()

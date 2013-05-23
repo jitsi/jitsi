@@ -123,6 +123,7 @@ public class WhiteboardParticipantChangeEvent
      * @return  A a String representation of
      * this WhiteboardParticipantChangeEvent.
      */
+    @Override
     public String toString()
     {
         return "WhiteboardParticipantChangeEvent: type="+getEventType()

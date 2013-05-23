@@ -18,7 +18,7 @@ class VolatileBuddy
     implements Buddy
 {
     private Screenname screenname = null;
-    
+
     /**
      *  Use when creating unresolved contact during authorization process
      *  to display contact in the group with awaiting authorization contacts
@@ -63,7 +63,7 @@ class VolatileBuddy
     public boolean isActive(){return false;}
     public void removeBuddyListener(BuddyListener listener){}
     public boolean isAwaitingAuthorization(){return isAwaitingAuthorization;}
-    
+
     public void setAwaitingAuthorization(boolean value)
     {
         this.isAwaitingAuthorization = value;

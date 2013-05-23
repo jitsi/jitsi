@@ -13,17 +13,17 @@ import net.java.sip.communicator.util.*;
 
 /**
  * Class manager the thread called for searching the strategies' list
- * 
+ *
  * @author ROTH Damien
  */
 public class ThreadManager
 {
     protected static Logger logger = Logger.getLogger(ThreadManager.class);
     public static int NB_STEPS = 4;
-    
+
     private StrategyThread thread = null;
     private FirstWizardPage wizard = null;
-    
+
     /**
      * Create an instance of <tt>ThreadManager</tt>
      * @param wiz Wizard
@@ -32,7 +32,7 @@ public class ThreadManager
     {
         this.wizard = wiz;
     }
-    
+
     /**
      * Submit a request to launch the thread
      * @param host Server host
@@ -45,13 +45,13 @@ public class ThreadManager
         {
             return false;
         }
-        
+
         this.thread = new StrategyThread(this.wizard, host, port);
         this.thread.start();
-        
+
         return true;
     }
-    
+
     /**
      * Stop the thread
      */
@@ -63,7 +63,7 @@ public class ThreadManager
             this.thread = null;
         }
     }
-    
+
     /**
      * Wait for the searching thread to stop
      * @return true if success, false otherwise
@@ -74,7 +74,7 @@ public class ThreadManager
         {
             return false;
         }
-        
+
         try
         {
             this.thread.join();
@@ -87,10 +87,10 @@ public class ThreadManager
         }
         return true;
     }
-    
+
     /**
      * Thread used to search the strategies
-     * 
+     *
      * @author ROTH Damien, LITZELMANN Cedric
      */
     static class StrategyThread
@@ -99,7 +99,7 @@ public class ThreadManager
         private final FirstWizardPage wizard;
         private final String host;
         private final int port;
-        
+
         /**
          * Informations messages
          */
@@ -117,7 +117,7 @@ public class ThreadManager
                 Resources.getString(
                     "plugin.dictaccregwizz.CLOSING_CONNECTION")
         };
-        
+
         /**
          * Create an instance of the thread
          * @param wizard The wizard who started the thread
@@ -130,13 +130,14 @@ public class ThreadManager
             this.host = host;
             this.port = port;
         }
-        
+
+        @Override
         public void run()
         {
             List<Strategy> strategies = null;
-            
+
             DictConnection dictConnection = new DictConnection(host, port);
-            
+
             // Open the connection to the server
             this.wizard.progressMessage(messages[0]);
             try
@@ -148,7 +149,7 @@ public class ThreadManager
                 this.wizard.strategiesSearchFailure(this.messages[1], e);
                 return;
             }
-            
+
             // Get the strategies
             this.wizard.progressMessage(messages[2]);
             try
@@ -160,12 +161,12 @@ public class ThreadManager
                 this.wizard.strategiesSearchFailure(this.messages[3], e);
                 return;
             }
-            
+
             // Store the strategies
             this.wizard.progressMessage(messages[4]);
             this.wizard.setStrategies(strategies);
             this.wizard.autoSelectStrategy();
-            
+
             // Close the connection
             this.wizard.progressMessage(messages[5]);
             try
@@ -179,7 +180,7 @@ public class ThreadManager
                 ThreadManager.logger.info("DICT search strategies thread : " +
                         "Error while closing connection", e);
             }
-            
+
             // End of the search
             this.wizard.strategiesSearchComplete();
         }

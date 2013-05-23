@@ -226,6 +226,7 @@ public class OperationSetDesktopStreamingJabberImpl
      * @return <tt>true</tt> if the streaming of local video for the specified
      * <tt>Call</tt> is allowed; otherwise, <tt>false</tt>
      */
+    @Override
     public boolean isLocalVideoAllowed(Call call)
     {
         return
@@ -298,9 +299,8 @@ public class OperationSetDesktopStreamingJabberImpl
         AbstractCallJabberGTalkImpl<?> callImpl
             = (AbstractCallJabberGTalkImpl<?>) call;
         AbstractCallPeerJabberGTalkImpl<?,?,?> callPeerImpl
-            = (AbstractCallPeerJabberGTalkImpl<?,?,?>)
-                callImpl.getCallPeers().next();
-        VideoMediaStream videoStream 
+            = callImpl.getCallPeers().next();
+        VideoMediaStream videoStream
             = (VideoMediaStream)
                 callPeerImpl.getMediaHandler().getStream(MediaType.VIDEO);
 

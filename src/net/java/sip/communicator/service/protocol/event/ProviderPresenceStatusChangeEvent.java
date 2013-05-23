@@ -78,6 +78,7 @@ public class ProviderPresenceStatusChangeEvent extends PropertyChangeEvent
      * @return  A a String representation of this
      * ProviderPresenceStatusChangeEvent.
      */
+    @Override
     public String toString()
     {
         StringBuffer buff

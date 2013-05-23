@@ -46,7 +46,7 @@ public class WhiteboardObjectJabberProvider
         {
             int eventType = parser.next ();
 
-            if (eventType == XmlPullParser.START_TAG 
+            if (eventType == XmlPullParser.START_TAG
                 && !parser.getName ().equals (
                     WhiteboardObjectPacketExtension.ELEMENT_NAME)
                 && !parser.getName ().equals (

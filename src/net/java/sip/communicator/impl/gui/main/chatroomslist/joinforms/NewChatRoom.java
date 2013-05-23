@@ -12,7 +12,7 @@ import net.java.sip.communicator.impl.gui.main.chat.conference.*;
  * The <tt>NewChatRoom</tt> is meant to be used from the
  * <tt>JoinChatRoomWizard</tt>, to collect information concerning the chat
  * room to join.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class NewChatRoom
@@ -23,7 +23,7 @@ public class NewChatRoom
 
     /**
      * Returns the name of the chat room.
-     * 
+     *
      * @return the name of the chat room
      */
     public String getChatRoomName()
@@ -33,7 +33,7 @@ public class NewChatRoom
 
     /**
      * Sets the name of the chat room.
-     * 
+     *
      * @param chatRoomName the name of the chat room
      */
     public void setChatRoomName(String chatRoomName)
@@ -43,7 +43,7 @@ public class NewChatRoom
 
     /**
      * Returns the chat room provider corresponding to the chosen account.
-     * 
+     *
      * @return the chat room provider corresponding to the chosen account
      */
     public ChatRoomProviderWrapper getChatRoomProvider()
@@ -53,7 +53,7 @@ public class NewChatRoom
 
     /**
      * Sets the chat room provider corresponding to the chosen account.
-     * 
+     *
      * @param provider the chat room provider corresponding to
      * the chosen account
      */

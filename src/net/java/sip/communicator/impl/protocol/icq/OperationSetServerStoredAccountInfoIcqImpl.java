@@ -92,7 +92,7 @@ public class OperationSetServerStoredAccountInfoIcqImpl
      * Our image.
      */
     private ImageDetail accountImage = null;
-    
+
     /**
      * Listener waiting for our image.
      */
@@ -128,7 +128,7 @@ public class OperationSetServerStoredAccountInfoIcqImpl
         GenericDetail img = getImage();
         if(img != null)
             ds.add(img);
-        
+
         return ds.iterator();
     }
 
@@ -145,7 +145,7 @@ public class OperationSetServerStoredAccountInfoIcqImpl
         Class<? extends GenericDetail> detailClass)
     {
         assertConnected();
-        
+
         if(detailClass.equals(ImageDetail.class))
         {
             List<GenericDetail> res = new Vector<GenericDetail>();
@@ -182,7 +182,7 @@ public class OperationSetServerStoredAccountInfoIcqImpl
 
             return tIt;
         }
-        
+
         return infoRetreiver.getDetailsAndDescendants(uin, detailClass);
     }
 
@@ -802,14 +802,14 @@ public class OperationSetServerStoredAccountInfoIcqImpl
     {
         if(accountImage != null)
             return accountImage;
-        
+
         if(iconListener == null)
         {
             iconListener = new IconUpdateListener();
-            
+
             this.icqProvider.getAimConnection().getExternalServiceManager().
             getIconServiceArbiter().addIconRequestListener(
-                new IconUpdateListener());        
+                new IconUpdateListener());
         }
 
         ExtraInfoData infoData =

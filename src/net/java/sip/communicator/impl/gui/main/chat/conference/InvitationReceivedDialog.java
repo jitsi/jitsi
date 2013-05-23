@@ -20,7 +20,7 @@ import net.java.sip.communicator.util.skin.*;
 
 /**
  * The dialog that pops up when a chat room invitation is received.
- *  
+ *
  * @author Yana Stamcheva
  * @author Valentin Martinet
  * @author Adam Netocny
@@ -96,7 +96,7 @@ public class InvitationReceivedDialog
 
     /**
      * Constructs the <tt>ChatInviteDialog</tt>.
-     * 
+     *
      * @param multiUserChatManager the <tt>MultiUserChatManager</tt> is the one
      * that deals with invitation events
      * @param multiUserChatOpSet the operation set that would handle the
@@ -154,7 +154,7 @@ public class InvitationReceivedDialog
     /**
      * Constructs the <tt>ChatInviteDialog</tt>, in case of an
      * <tt>AdHocChatRoom</tt>.
-     * 
+     *
      * @param multiUserChatManager the <tt>MultiUserChatManager</tt> is the one
      * that deals with invitation events
      * @param multiUserChatAdHocOpSet the operation set that would handle the
@@ -199,7 +199,7 @@ public class InvitationReceivedDialog
 
             this.dataPanel.add(invitationReasonTextArea, BorderLayout.CENTER);
         }
-        
+
         this.initGUI();
     }
 
@@ -268,11 +268,11 @@ public class InvitationReceivedDialog
             if(invitationAdHoc == null)
                 multiUserChatManager.acceptInvitation(invitation);
             else
-                try 
+                try
                 {
                     multiUserChatManager.acceptInvitation(
                             invitationAdHoc, multiUserChatAdHocOpSet);
-                } catch (OperationFailedException e1) 
+                } catch (OperationFailedException e1)
                 {
                     e1.printStackTrace();
                 }
@@ -296,6 +296,7 @@ public class InvitationReceivedDialog
      * @param isEscaped indicates if the dialog was close by pressing the Esc
      * key
      */
+    @Override
     protected void close(boolean isEscaped)
     {
         this.dispose();

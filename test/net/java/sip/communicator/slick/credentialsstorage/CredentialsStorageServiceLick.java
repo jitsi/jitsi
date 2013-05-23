@@ -17,9 +17,9 @@ import org.osgi.framework.*;
 /**
  * @author Dmitri Melnikov
  */
-public class CredentialsStorageServiceLick 
-    extends TestSuite 
-    implements BundleActivator 
+public class CredentialsStorageServiceLick
+    extends TestSuite
+    implements BundleActivator
 {
     private Logger logger = Logger.getLogger(getClass().getName());
 

@@ -459,7 +459,7 @@ public class OperationSetPersistentPresenceDictImpl
         ((ContactGroupDictImpl)group).setGroupName(newName);
 
         this.fireServerStoredGroupEvent(
-            (ContactGroupDictImpl)group, ServerStoredGroupEvent.GROUP_RENAMED_EVENT);
+            group, ServerStoredGroupEvent.GROUP_RENAMED_EVENT);
     }
 
     /**
@@ -684,7 +684,7 @@ public class OperationSetPersistentPresenceDictImpl
                                            String persistentData,
                                            ContactGroup parent)
     {
-        
+
         ContactDictImpl contact = new ContactDictImpl(
             address
             , parentProvider);

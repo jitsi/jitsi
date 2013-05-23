@@ -252,6 +252,7 @@ public class UnknownContactPanel
      *
      * @param isVisible indicates if this panel should be shown or hidden
      */
+    @Override
     public void setVisible(boolean isVisible)
     {
         if (isVisible)

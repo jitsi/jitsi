@@ -11,7 +11,7 @@ import java.util.*;
 /**
  * Listens for <tt>SystrayPopupMessageEvent</tt>s posted when user
  * clicks on the system tray popup message.
- * 
+ *
  * @author Yana Stamcheva
  */
 public interface SystrayPopupMessageListener
@@ -19,7 +19,7 @@ public interface SystrayPopupMessageListener
 {
     /**
      * Indicates that user has clicked on the systray popup message.
-     * 
+     *
      * @param evt the event triggered when user clicks on the systray popup
      * message
      */

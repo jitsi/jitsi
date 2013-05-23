@@ -40,6 +40,7 @@ public class LdapTableModel
      *
      * @see javax.swing.table.AbstractTableModel#getColumnName
      */
+    @Override
     public String getColumnName(int column)
     {
         switch(column)
@@ -136,6 +137,7 @@ public class LdapTableModel
      *
      * @return whether the cell is editable
      */
+    @Override
     public boolean isCellEditable(int row, int col)
     {
         if(col == 0)
@@ -152,6 +154,7 @@ public class LdapTableModel
      * @param columnIndex index of the column
      * @return Column class
      */
+    @Override
     public Class<?> getColumnClass(int columnIndex)
     {
         Object o = getValueAt(0, columnIndex);
@@ -164,6 +167,7 @@ public class LdapTableModel
      * Sets a value in an editable cell, that is to say
      * an enable/disable chekboxin colum 0
      */
+    @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex)
     {
         if(columnIndex != 0)

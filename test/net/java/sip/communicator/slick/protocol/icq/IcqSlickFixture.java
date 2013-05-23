@@ -71,6 +71,7 @@ public class IcqSlickFixture extends TestCase
      */
     public static boolean onlineTestingDisabled = false;
 
+    @Override
     public void setUp() throws Exception
     {
         // first obtain a reference to the provider factory
@@ -120,6 +121,7 @@ public class IcqSlickFixture extends TestCase
         provider = (ProtocolProviderService)bc.getService(icqServiceRef);
     }
 
+    @Override
     public void tearDown()
     {
         bc.ungetService(icqServiceRef);

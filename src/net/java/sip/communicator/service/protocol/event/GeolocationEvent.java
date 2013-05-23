@@ -108,6 +108,7 @@ public class GeolocationEvent
      * @return A a <tt>java.lang.String</tt> representation of this
      * ContactPresenceStatusChangeEvent.
      */
+    @Override
     public String toString()
     {
         StringBuffer buff = new StringBuffer

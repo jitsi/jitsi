@@ -42,6 +42,7 @@ public class AEGetURLEventHandler
                 {
                     new Thread()
                     {
+                        @Override
                         public void run()
                         {
                             AEGetURLEventHandler.this.launchArgHandler.

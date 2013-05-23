@@ -456,6 +456,7 @@ public class ChatContactRightButtonMenu
             this.reason = reason;
         }
 
+        @Override
         public void run()
         {
             try
@@ -526,6 +527,7 @@ public class ChatContactRightButtonMenu
             this.reason = reason;
         }
 
+        @Override
         public void run()
         {
             try

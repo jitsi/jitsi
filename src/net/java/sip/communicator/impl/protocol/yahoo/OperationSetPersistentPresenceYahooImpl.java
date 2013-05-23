@@ -142,6 +142,7 @@ public class OperationSetPersistentPresenceYahooImpl
      * @param listener a ServerStoredGroupChangeListener impl that would
      *   receive events upong group changes.
      */
+    @Override
     public void addServerStoredGroupChangeListener(ServerStoredGroupListener
         listener)
     {
@@ -464,6 +465,7 @@ public class OperationSetPersistentPresenceYahooImpl
      *
      * @param listener the ServerStoredGroupChangeListener to remove
      */
+    @Override
     public void removeServerStoredGroupChangeListener(ServerStoredGroupListener
         listener)
     {
@@ -651,12 +653,13 @@ public class OperationSetPersistentPresenceYahooImpl
 
     /**
      * Notify all provider presence listeners of the corresponding event change
-     * 
+     *
      * @param oldStatus
      *            the status our stack had so far
      * @param newStatus
      *            the status we have from now on
      */
+    @Override
     protected void fireProviderStatusChangeEvent(
         PresenceStatus oldStatus,
         PresenceStatus newStatus)
@@ -853,6 +856,7 @@ public class OperationSetPersistentPresenceYahooImpl
     private class StatusChangedListener
         extends SessionAdapter
     {
+        @Override
         public void friendsUpdateReceived(SessionFriendEvent evt)
         {
             if (logger.isDebugEnabled())
@@ -877,6 +881,7 @@ public class OperationSetPersistentPresenceYahooImpl
     private class StatusUpdater
         extends SubscriptionAdapter
     {
+        @Override
         public void subscriptionCreated(SubscriptionEvent evt)
         {
             ContactYahooImpl contact =
@@ -910,6 +915,7 @@ public class OperationSetPersistentPresenceYahooImpl
             this.yahooSession.addSessionListener(this);
         }
 
+        @Override
         public void authorizationReceived(SessionAuthorizationEvent ev)
         {
             if(ev.isAuthorizationRequest())

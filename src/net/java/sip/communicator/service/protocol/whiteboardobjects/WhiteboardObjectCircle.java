@@ -21,42 +21,42 @@ public interface WhiteboardObjectCircle extends WhiteboardObject
      * A type string constant indicating that an object is of type circle.
      */
     public static final String NAME = "WHITEBOARDOBJECTCIRCLE";
-    
+
     /**
      * Returns the coordinates of this whiteboard object.
      *
      * @return the coordinates of this object.
      */
     public WhiteboardPoint getWhiteboardPoint ();
-    
+
     /**
      * Sets the coordinates of this whiteboard object.
      *
      * @param whiteboardPoint the coordinates of this object.
      */
     public void setWhiteboardPoint (WhiteboardPoint whiteboardPoint);
-    
+
     /**
      * Returns the radius (in pixels) of this whiteboard circle.
      *
      * @return the number of pixels for the radius.
      */
     public double getRadius ();
-    
+
     /**
      * Sets the radius (in pixels) of this whiteboard circle.
      *
      * @param radius the number of pixels for the radius.
      */
     public void setRadius (double radius);
-    
+
     /**
      * Returns the fill state of the WhiteboardObject.
-     * 
-     * @return True is filled, false is unfilled. 
+     *
+     * @return True is filled, false is unfilled.
      */
     public boolean isFill ();
-    
+
     /**
      * Sets the fill state of the WhiteboardObject.
      * True is filled, false is unfilled.
@@ -64,7 +64,7 @@ public interface WhiteboardObjectCircle extends WhiteboardObject
      * @param fill The new fill state.
      */
     public void setFill (boolean fill);
-    
+
     /**
      * Specifies the background color for this object. The color parameter
      * must be encoded with standard RGB encoding: bits 24-31 are alpha, 16-23
@@ -74,7 +74,7 @@ public interface WhiteboardObjectCircle extends WhiteboardObject
      * <tt>WhiteboardObject</tt> (using standard RGB encoding).
      */
     public void setBackgroundColor (int color);
-    
+
     /**
      * Returns an integer representing the background color of this object. The
      * return value uses standard RGB encoding: bits 24-31 are alpha, 16-23 are

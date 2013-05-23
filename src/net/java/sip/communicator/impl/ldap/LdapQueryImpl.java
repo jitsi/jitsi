@@ -70,6 +70,7 @@ public class LdapQueryImpl
      *
      * @see net.java.sip.communicator.service.ldap.LdapQuery#toString
      */
+    @Override
     public String toString()
     {
         return this.query;

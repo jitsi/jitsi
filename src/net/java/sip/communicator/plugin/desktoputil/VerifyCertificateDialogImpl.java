@@ -106,7 +106,7 @@ class VerifyCertificateDialogImpl
     {
         super(false);
 
-        setTitle(title != null ? title : 
+        setTitle(title != null ? title :
             R.getI18NString("service.gui.CERT_DIALOG_TITLE"));
         setModal(true);
 
@@ -288,6 +288,7 @@ class VerifyCertificateDialogImpl
      * Called when dialog closed or escape pressed.
      * @param isEscaped is escape button pressed.
      */
+    @Override
     protected void close(boolean isEscaped)
     {
         actionCancel();
@@ -317,6 +318,7 @@ class VerifyCertificateDialogImpl
      * Shows or hides the dialog and waits for user response.
      * @param isVisible whether we should show or hide the dialog.
      */
+    @Override
     public void setVisible(boolean isVisible)
     {
         try

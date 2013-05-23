@@ -342,7 +342,7 @@ public class AutoAnswerMenu
         for(int i = 0; i < parentMenu.getItemCount(); i++)
         {
             JMenuItem c = parentMenu.getItem(i);
-            
+
             if (!(c instanceof AutoAnswerMenuItem))
                 continue;
 
@@ -938,6 +938,7 @@ public class AutoAnswerMenu
          * @param isEscaped indicates if this frame has been closed by
          * pressing the escape
          */
+        @Override
         protected void close(boolean isEscaped)
         {
             dispose();
@@ -953,7 +954,7 @@ public class AutoAnswerMenu
                 .getOperationSet(OperationSetBasicAutoAnswer.class);
             OperationSetAdvancedAutoAnswer opSetAdvanced = providerService
                 .getOperationSet(OperationSetAdvancedAutoAnswer.class);
-            
+
             if(opset == null)
                 return;
 

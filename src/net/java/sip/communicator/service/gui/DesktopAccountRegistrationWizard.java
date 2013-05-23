@@ -24,7 +24,7 @@ import java.awt.*;
  * <p>
  * It depends on the wizard implementation in the UI for whether or not a
  * summary will be shown to the user before "Finish".
- * 
+ *
  * @author Yana Stamcheva
  */
 public abstract class DesktopAccountRegistrationWizard
@@ -32,7 +32,7 @@ public abstract class DesktopAccountRegistrationWizard
 {
     /**
      * Returns the preferred dimensions of this wizard.
-     * 
+     *
      * @return the preferred dimensions of this wizard.
      */
     public abstract Dimension getSize();

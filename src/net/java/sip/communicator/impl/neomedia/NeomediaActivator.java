@@ -243,7 +243,7 @@ public class NeomediaActivator
     {
         return mediaConfiguration;
     }
-    
+
     /**
      * Gets the <tt>MediaService</tt> implementation instance registered by the
      * neomedia bundle.
@@ -385,7 +385,7 @@ public class NeomediaActivator
                 null);
         if (logger.isDebugEnabled())
             logger.debug("Media Service ... [REGISTERED]");
-        
+
         mediaConfiguration = new MediaConfigurationImpl();
         bundleContext.registerService(
                 MediaConfigurationService.class.getName(),
@@ -393,7 +393,7 @@ public class NeomediaActivator
                 null);
         if (logger.isDebugEnabled())
             logger.debug("Media Configuration ... [REGISTERED]");
-        
+
         ConfigurationService cfg = NeomediaActivator.getConfigurationService();
         Dictionary<String, String> mediaProps = new Hashtable<String, String>();
 
@@ -547,9 +547,9 @@ public class NeomediaActivator
                             CallRecordingConfigForm.class.getName(),
                             getClass().getClassLoader(),
                             null,
-                            "plugin.callrecordingconfig.CALL_RECORDING_CONFIG", 
+                            "plugin.callrecordingconfig.CALL_RECORDING_CONFIG",
                             1100,
-                            true), 
+                            true),
                     callRecordingProps);
         }
     }

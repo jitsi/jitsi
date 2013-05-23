@@ -91,6 +91,7 @@ public class TestOperationSetMultiUserChat
      * JUnit setup method.
      * @throws Exception in case anything goes wrong.
      */
+    @Override
     protected void setUp() throws Exception
     {
         super.setUp();
@@ -168,6 +169,7 @@ public class TestOperationSetMultiUserChat
      *
      * @throws Exception in case anything goes wrong.
      */
+    @Override
     protected void tearDown() throws Exception
     {
         super.tearDown();

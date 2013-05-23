@@ -118,6 +118,7 @@ public class SearchFieldUI
      * Implements parent paintSafely method and enables antialiasing.
      * @param g the <tt>Graphics</tt> object that notified us
      */
+    @Override
     protected void paintSafely(Graphics g)
     {
         customPaintBackground(g);
@@ -128,6 +129,7 @@ public class SearchFieldUI
      * Paints the background of the associated component.
      * @param g the <tt>Graphics</tt> object used for painting
      */
+    @Override
     protected void customPaintBackground(Graphics g)
     {
         Graphics2D g2 = (Graphics2D) g.create();
@@ -184,6 +186,7 @@ public class SearchFieldUI
      * rectangle in order to leave place for the delete button.
      * @return the visible editor rectangle
      */
+    @Override
     protected Rectangle getVisibleEditorRect()
     {
         Rectangle rect = super.getVisibleEditorRect();
@@ -211,6 +214,7 @@ public class SearchFieldUI
      * Updates the call button when the mouse was clicked.
      * @param e the <tt>MouseEvent</tt> that notified us of the click
      */
+    @Override
     public void mouseClicked(MouseEvent e)
     {
         super.mouseClicked(e);
@@ -223,6 +227,7 @@ public class SearchFieldUI
      * Updates the call button when the mouse is enters the component area.
      * @param e the <tt>MouseEvent</tt> that notified us
      */
+    @Override
     public void mouseEntered(MouseEvent e)
     {
         super.mouseEntered(e);
@@ -235,6 +240,7 @@ public class SearchFieldUI
      * Updates the call button when the mouse exits the component area.
      * @param e the <tt>MouseEvent</tt> that notified us
      */
+    @Override
     public void mouseExited(MouseEvent e)
     {
         super.mouseExited(e);
@@ -243,6 +249,7 @@ public class SearchFieldUI
             updateCallIcon(e);
     }
 
+    @Override
     public void mousePressed(MouseEvent e)
     {
         super.mousePressed(e);
@@ -251,6 +258,7 @@ public class SearchFieldUI
             updateCallIcon(e);
     }
 
+    @Override
     public void mouseReleased(MouseEvent e)
     {
         super.mouseReleased(e);
@@ -263,6 +271,7 @@ public class SearchFieldUI
      * Updates the delete icon when the mouse is dragged over.
      * @param e the <tt>MouseEvent</tt> that notified us
      */
+    @Override
     public void mouseDragged(MouseEvent e)
     {
         super.mouseDragged(e);
@@ -275,6 +284,7 @@ public class SearchFieldUI
      * Updates the delete icon when the mouse is moved over.
      * @param e the <tt>MouseEvent</tt> that notified us
      */
+    @Override
     public void mouseMoved(MouseEvent e)
     {
         super.mouseMoved(e);
@@ -372,6 +382,7 @@ public class SearchFieldUI
     /**
      * Reloads UI icons.
      */
+    @Override
     public void loadSkin()
     {
         super.loadSkin();

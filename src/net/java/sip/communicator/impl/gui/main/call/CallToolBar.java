@@ -74,7 +74,7 @@ public class CallToolBar
         setBorder(
                 BorderFactory.createEmptyBorder(
                         TOOL_BAR_BORDER,
-                        TOOL_BAR_BORDER, 
+                        TOOL_BAR_BORDER,
                         TOOL_BAR_BORDER,
                         TOOL_BAR_BORDER));
         setLayout(new FlowLayout(FlowLayout.CENTER, TOOL_BAR_X_GAP, 0));
@@ -83,7 +83,7 @@ public class CallToolBar
     /**
      * Determines whether this <tt>CallToolBar</tt> is displayed in full-screen
      * or windowed mode.
-     * 
+     *
      * @return <tt>true</tt> if this <tt>CallToolBar</tt> is displayed in
      * full-screen mode or <tt>false</tt> for windowed mode
      */

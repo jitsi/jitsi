@@ -65,6 +65,7 @@ public class ContactListTransferHandler
      * <tt>Transferable</tt>
      * @return the created <tt>Transferable</tt>
      */
+    @Override
     protected Transferable createTransferable(JComponent component)
     {
         if(ConfigurationUtils.isAddContactDisabled()
@@ -96,6 +97,7 @@ public class ContactListTransferHandler
      * otherwise
      * @throws NullPointerException if <code>support</code> is {@code null}
      */
+    @Override
     public boolean canImport(JComponent comp, DataFlavor flavor[])
     {
         for (int i = 0, n = flavor.length; i < n; i++)
@@ -120,6 +122,7 @@ public class ContactListTransferHandler
      * <tt>false</tt>, otherwise
      * @see TransferHandler#importData(JComponent, Transferable)
      */
+    @Override
     @SuppressWarnings("unchecked") //taken care of
     public boolean importData(JComponent comp, Transferable t)
     {
@@ -283,6 +286,7 @@ public class ContactListTransferHandler
      * created by the <code>createTransferable</code> method
      * @return the icon to show when dragging
      */
+    @Override
     public Icon getVisualRepresentation(Transferable t)
     {
         Icon icon = null;

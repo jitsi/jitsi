@@ -14,9 +14,9 @@ import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 
 /**
- * The <tt>AccountListCellRenderer</tt> is the cell renderer used from the 
+ * The <tt>AccountListCellRenderer</tt> is the cell renderer used from the
  * {@link AccountList}.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class AccountListCellRenderer
@@ -155,6 +155,7 @@ public class AccountListCellRenderer
      * when a cell is selected.
      * @param g the <tt>Graphics</tt> object
      */
+    @Override
     public void paintComponent(Graphics g)
     {
         super.paintComponent(g);

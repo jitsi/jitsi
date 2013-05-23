@@ -18,32 +18,32 @@ import net.java.sip.communicator.plugin.desktoputil.*;
 /**
  * The <tt>ChatRoomNamePanel</tt> is the form, where we should enter the chat
  * room name.
- *  
+ *
  * @author Yana Stamcheva
  */
 @SuppressWarnings("serial")
 public class ChatRoomNamePanel
     extends TransparentPanel
-{    
+{
     private JLabel chatRoomLabel = new JLabel(
         GuiActivator.getResources().getI18NString("service.gui.CHAT_ROOM_NAME"));
-    
+
     private JTextField textField = new JTextField();
-    
+
     private JPanel dataPanel = new TransparentPanel(new BorderLayout(5, 5));
-    
+
     private SIPCommMsgTextArea infoLabel = new SIPCommMsgTextArea(
         GuiActivator.getResources()
             .getI18NString("service.gui.JOIN_CHAT_ROOM_NAME"));
-    
+
     private JLabel infoTitleLabel = new JLabel(
         GuiActivator.getResources()
             .getI18NString("service.gui.JOIN_CHAT_ROOM_TITLE"));
-    
+
     private JPanel labelsPanel = new TransparentPanel(new GridLayout(0, 1));
-    
+
     private JPanel rightPanel = new TransparentPanel(new BorderLayout());
-        
+
     /**
      * Creates and initializes the <tt>ChatRoomNamePanel</tt>.
      */
@@ -71,7 +71,7 @@ public class ChatRoomNamePanel
 
         this.add(rightPanel, BorderLayout.CENTER);
     }
-    
+
     /**
      * Returns the chat room name entered by user.
      * @return the chat room name entered by user
@@ -83,7 +83,7 @@ public class ChatRoomNamePanel
 
     /**
      * Sets the given chat room name to the text field, contained in this panel.
-     * 
+     *
      * @param chatRoomName the chat room name to set to the text field
      */
     public void setChatRoomName(String chatRoomName)
@@ -102,18 +102,18 @@ public class ChatRoomNamePanel
     /**
      * Adds a <tt>DocumentListener</tt> to the text field containing the chosen
      * chat room.
-     * 
+     *
      * @param l the <tt>DocumentListener</tt> to add
      */
     public void addChatRoomNameListener(DocumentListener l)
     {
         this.textField.getDocument().addDocumentListener(l);
     }
-    
+
     /**
-     * Removess a <tt>DocumentListener</tt> to the text field containing the 
+     * Removess a <tt>DocumentListener</tt> to the text field containing the
      * chosen chat room.
-     * 
+     *
      * @param l the <tt>DocumentListener</tt> to add
      */
     public void removeChatRoomNameListener(DocumentListener l)

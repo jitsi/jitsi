@@ -83,6 +83,7 @@ public class SourceUIContact
      * Returns the display name of the underlying <tt>SourceContact</tt>.
      * @return the display name
      */
+    @Override
     public String getDisplayName()
     {
         return sourceContact.getDisplayName();
@@ -92,6 +93,7 @@ public class SourceUIContact
      * Returns the parent <tt>UIGroup</tt>.
      * @return the parent <tt>UIGroup</tt>
      */
+    @Override
     public UIGroup getParentGroup()
     {
         return uiGroup;
@@ -102,6 +104,7 @@ public class SourceUIContact
      *
      * @param parentGroup the parent group to set
      */
+    @Override
     public void setParentGroup(UIGroup parentGroup) {}
 
     /**
@@ -109,6 +112,7 @@ public class SourceUIContact
      * <tt>SourceContact</tt> is unknown.
      * @return -1
      */
+    @Override
     public int getSourceIndex()
     {
         return sourceContact.getIndex();
@@ -119,6 +123,7 @@ public class SourceUIContact
      * <tt>SourceContact</tt>.
      * @return null
      */
+    @Override
     public ImageIcon getStatusIcon()
     {
         PresenceStatus status = sourceContact.getPresenceStatus();
@@ -135,6 +140,7 @@ public class SourceUIContact
      *
      * @return a byte array representing the avatar of this <tt>UIContact</tt>
      */
+    @Override
     public byte[] getAvatar()
     {
         return sourceContact.getImage();
@@ -148,6 +154,7 @@ public class SourceUIContact
      * @param height the desired image height
      * @return the image
      */
+    @Override
     public ImageIcon getScaledAvatar(boolean isSelected, int width, int height)
     {
         byte[] image = sourceContact.getImage();
@@ -177,6 +184,7 @@ public class SourceUIContact
      * @return the default <tt>ContactDetail</tt> to use for any operations
      * depending to the given <tt>OperationSet</tt> class
      */
+    @Override
     public UIContactDetail getDefaultContactDetail(
         Class<? extends OperationSet> opSetClass)
     {
@@ -192,6 +200,7 @@ public class SourceUIContact
      * Returns the underlying <tt>SourceContact</tt> this abstraction is about.
      * @return the underlying <tt>SourceContact</tt>
      */
+    @Override
     public Object getDescriptor()
     {
         return sourceContact;
@@ -201,6 +210,7 @@ public class SourceUIContact
      * Returns the display details for the underlying <tt>SourceContact</tt>.
      * @return the display details for the underlying <tt>SourceContact</tt>
      */
+    @Override
     public String getDisplayDetails()
     {
         return sourceContact.getDisplayDetails();
@@ -211,6 +221,7 @@ public class SourceUIContact
      *
      * @return a list of all contained <tt>UIContactDetail</tt>s
      */
+    @Override
     public List<UIContactDetail> getContactDetails()
     {
         List<UIContactDetail> resultList
@@ -240,6 +251,7 @@ public class SourceUIContact
      * @return a list of <tt>UIContactDetail</tt>s supporting the given
      * <tt>OperationSet</tt> class
      */
+    @Override
     public List<UIContactDetail> getContactDetailsForOperationSet(
         Class<? extends OperationSet> opSetClass)
     {
@@ -276,6 +288,7 @@ public class SourceUIContact
      * to find this contact.
      * @return an <tt>Iterator</tt> over a list of search strings
      */
+    @Override
     public Iterator<String> getSearchStrings()
     {
         return searchStrings.iterator();
@@ -286,6 +299,7 @@ public class SourceUIContact
      * component.
      * @return the corresponding <tt>ContactNode</tt>
      */
+    @Override
     public ContactNode getContactNode()
     {
         return contactNode;
@@ -295,6 +309,7 @@ public class SourceUIContact
      * Sets the corresponding <tt>ContactNode</tt>.
      * @param contactNode the corresponding <tt>ContactNode</tt>
      */
+    @Override
     public void setContactNode(ContactNode contactNode)
     {
         this.contactNode = contactNode;
@@ -378,6 +393,7 @@ public class SourceUIContact
          * Returns null to indicate that this detail doesn't support presence.
          * @return null
          */
+        @Override
         public PresenceStatus getPresenceStatus()
         {
             return null;
@@ -390,6 +406,7 @@ public class SourceUIContact
      * @return the <tt>JPopupMenu</tt> opened on a right button click over this
      * <tt>SourceUIContact</tt>
      */
+    @Override
     public JPopupMenu getRightButtonMenu()
     {
         return new SourceContactRightButtonMenu(this);
@@ -399,6 +416,7 @@ public class SourceUIContact
      * Returns the tool tip opened on mouse over.
      * @return the tool tip opened on mouse over
      */
+    @Override
     public ExtendedTooltip getToolTip()
     {
         ExtendedTooltip tip = new ExtendedTooltip(true);
@@ -652,6 +670,7 @@ public class SourceUIContact
      *
      * @return a list of all custom action buttons for this notification contact
      */
+    @Override
     public Collection<SIPCommButton> getContactCustomActionButtons()
     {
         if (sourceContact != null)

@@ -1,19 +1,19 @@
 /*
  * Base64InputStream.java
  * Copyright(C) 2002 The Free Software Foundation
- * 
+ *
  * This file is part of GNU JavaMail, a library.
- * 
+ *
  * GNU JavaMail is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  *(at your option) any later version.
- * 
+ *
  * GNU JavaMail is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
@@ -53,18 +53,18 @@ public class Base64InputStream
 
   private static final char[] src =
   {
-    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 
-    'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 
-    'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 
-    'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 
-    'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 
-    'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', 
+    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
+    'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
+    'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd',
+    'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
+    'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x',
+    'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7',
     '8', '9', '+', '/'
   };
   private static final byte[] dst;
-  
+
   private static final int LF = 10, CR = 13, EQ = 61;
-  
+
   static
   {
     dst = new byte[256];
@@ -72,9 +72,9 @@ public class Base64InputStream
       dst[i] = -1;
     for (int i = 0; i<src.length; i++)
       dst[src[i]] = (byte)i;
-    
+
   }
-  
+
   /**
    * Constructs an input stream that decodes an underlying Base64-encoded
    * stream.
@@ -86,11 +86,12 @@ public class Base64InputStream
     decodeBuf = new byte[4];
     buffer = new byte[3];
   }
-  
+
   /**
    * Reads the next byte of data from the input stream.
    */
-  public int read()
+  @Override
+public int read()
     throws IOException
   {
     if (index>=buflen)
@@ -102,12 +103,13 @@ public class Base64InputStream
     }
     return buffer[index++] & 0xff;
   }
-  
+
   /**
-   * Reads up to len bytes of data from the input stream into an array of 
+   * Reads up to len bytes of data from the input stream into an array of
    * bytes.
    */
-  public int read(byte[] b, int off, int len)
+  @Override
+public int read(byte[] b, int off, int len)
     throws IOException
   {
     try
@@ -134,15 +136,16 @@ public class Base64InputStream
 
   /**
    * Returns the number of bytes that can be read(or skipped over) from this
-   * input stream without blocking by the next caller of a method for this 
+   * input stream without blocking by the next caller of a method for this
    * input stream.
    */
-  public int available()
+  @Override
+public int available()
     throws IOException
   {
     return (in.available()*3)/4+(buflen-index);
   }
-  
+
   private void decode()
     throws IOException
   {
@@ -163,7 +166,7 @@ public class Base64InputStream
         throw new IOException("Base64 encoding error");
       j -= l;
     }
-    
+
     byte b0 = dst[decodeBuf[0] & 0xff];
     byte b2 = dst[decodeBuf[1] & 0xff];
     buffer[buflen++] = (byte)(b0<<2 & 0xfc | b2>>>4 & 0x3);

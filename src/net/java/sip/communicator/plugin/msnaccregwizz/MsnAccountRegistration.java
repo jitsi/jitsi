@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.plugin.msnaccregwizz;
@@ -8,7 +8,7 @@ package net.java.sip.communicator.plugin.msnaccregwizz;
 /**
  * The <tt>MsnAccountRegistration</tt> is used to store all user input data
  * through the <tt>MsnAccountRegistrationWizard</tt>.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class MsnAccountRegistration
@@ -21,7 +21,7 @@ public class MsnAccountRegistration
 
     /**
      * Returns the password of the msn registration account.
-     * 
+     *
      * @return the password of the msn registration account.
      */
     public String getPassword()
@@ -31,7 +31,7 @@ public class MsnAccountRegistration
 
     /**
      * Sets the password of the msn registration account.
-     * 
+     *
      * @param password the password of the msn registration account.
      */
     public void setPassword(String password)
@@ -41,7 +41,7 @@ public class MsnAccountRegistration
 
     /**
      * Returns TRUE if password has to remembered, FALSE otherwise.
-     * 
+     *
      * @return TRUE if password has to remembered, FALSE otherwise
      */
     public boolean isRememberPassword()
@@ -51,7 +51,7 @@ public class MsnAccountRegistration
 
     /**
      * Sets the rememberPassword value of this msn account registration.
-     * 
+     *
      * @param rememberPassword TRUE if password has to remembered, FALSE
      *            otherwise
      */
@@ -62,7 +62,7 @@ public class MsnAccountRegistration
 
     /**
      * Returns the identifier of the MSN registration account.
-     * 
+     *
      * @return the identifier of the MSN registration account.
      */
     public String getId()
@@ -72,7 +72,7 @@ public class MsnAccountRegistration
 
     /**
      * Sets the identifier of the MSN registration account.
-     * 
+     *
      * @param id the identifier of the MSN registration account.
      */
     public void setUserID(String id)

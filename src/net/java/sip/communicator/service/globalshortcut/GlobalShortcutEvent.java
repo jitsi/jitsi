@@ -21,7 +21,7 @@ public class GlobalShortcutEvent
     private final AWTKeyStroke keyStroke;
 
     /**
-     * Shows the event type: 
+     * Shows the event type:
      * pressed is false
      * released is true
      */

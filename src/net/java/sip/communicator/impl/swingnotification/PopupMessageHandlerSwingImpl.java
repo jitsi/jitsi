@@ -285,11 +285,11 @@ public class PopupMessageHandlerSwingImpl
             } while (height < 0);
         }
     }
-    
+
     /**
      * Returns the appropriate popup message height, according to the currently
      * used font and the size of the message.
-     * 
+     *
      * @param c the component used to show the message
      * @param message the message
      * @return the appropriate popup message height
@@ -310,8 +310,8 @@ public class PopupMessageHandlerSwingImpl
     }
 
     /**
-     * Implements <tt>getPreferenceIndex</tt> from <tt>PopupMessageHandler</tt>. 
-     * This handler is able to show images, detect clicks, match a click to a 
+     * Implements <tt>getPreferenceIndex</tt> from <tt>PopupMessageHandler</tt>.
+     * This handler is able to show images, detect clicks, match a click to a
      * message, thus the preference index is 3.
      * @return a preference index
      */

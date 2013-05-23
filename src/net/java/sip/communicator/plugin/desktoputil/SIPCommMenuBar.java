@@ -64,7 +64,8 @@ public class SIPCommMenuBar
     * @see JComponent#getUIClassID
     * @see UIDefaults#getUI
     */
-   public String getUIClassID()
+   @Override
+public String getUIClassID()
    {
        return UIClassID;
    }

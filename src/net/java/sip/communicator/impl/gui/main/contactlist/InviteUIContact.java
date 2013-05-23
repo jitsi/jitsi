@@ -59,6 +59,7 @@ public class InviteUIContact
      * @return a list of <tt>UIContactDetail</tt>s supporting the given
      * <tt>OperationSet</tt> class
      */
+    @Override
     public List<UIContactDetail> getContactDetailsForOperationSet(
         Class<? extends OperationSet> opSetClass)
     {
@@ -102,6 +103,7 @@ public class InviteUIContact
      *
      * @return a list of all contained <tt>UIContactDetail</tt>s
      */
+    @Override
     public List<UIContactDetail> getContactDetails()
     {
         return sourceUIContact.getContactDetails();
@@ -115,6 +117,7 @@ public class InviteUIContact
      * @return the default <tt>ContactDetail</tt> to use for any operations
      * depending to the given <tt>OperationSet</tt> class
      */
+    @Override
     public UIContactDetail getDefaultContactDetail(
         Class<? extends OperationSet> opSetClass)
     {

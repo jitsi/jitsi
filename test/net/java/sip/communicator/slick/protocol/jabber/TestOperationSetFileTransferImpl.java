@@ -35,6 +35,7 @@ public class TestOperationSetFileTransferImpl
     private static Contact contact1 = null;
     private static Contact contact2 = null;
 
+    @Override
     public Contact getContact1()
     {
         if(contact1 == null)
@@ -45,6 +46,7 @@ public class TestOperationSetFileTransferImpl
         return contact1;
     }
 
+    @Override
     public Contact getContact2()
     {
         if(contact2 == null)
@@ -55,6 +57,7 @@ public class TestOperationSetFileTransferImpl
         return contact2;
     }
 
+    @Override
     public void start()
         throws Exception
     {
@@ -130,6 +133,7 @@ public class TestOperationSetFileTransferImpl
         prepareContactList();
     }
 
+    @Override
     public void stop()
         throws Exception
     {
@@ -188,21 +192,25 @@ public class TestOperationSetFileTransferImpl
         }
     }
 
+    @Override
     public OperationSetFileTransfer getOpSetFilTransfer1()
     {
         return opSetFT1;
     }
 
+    @Override
     public OperationSetFileTransfer getOpSetFilTransfer2()
     {
         return opSetFT2;
     }
 
+    @Override
     public BundleContext getContext()
     {
-        return fixture.bc;
+        return JabberSlickFixture.bc;
     }
 
+    @Override
     public boolean enableTestSendAndReceive()
     {
         return true;
@@ -212,11 +220,13 @@ public class TestOperationSetFileTransferImpl
      * Its not implemented and its not available in jabber.
      * @return
      */
+    @Override
     public boolean enableTestSenderCancelBeforeAccepted()
     {
         return false;
     }
 
+    @Override
     public boolean enableTestReceiverDecline()
     {
         return true;
@@ -227,11 +237,13 @@ public class TestOperationSetFileTransferImpl
      * canceled.
      * @return
      */
+    @Override
     public boolean enableTestReceiverCancelsWhileTransfering()
     {
         return false;
     }
 
+    @Override
     public boolean enableTestSenderCancelsWhileTransfering()
     {
         return true;

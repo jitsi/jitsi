@@ -68,6 +68,7 @@ public class TestOperationSetPersistentPresence
         return suite;
     }
 
+    @Override
     protected void setUp() throws Exception
     {
         super.setUp();
@@ -119,6 +120,7 @@ public class TestOperationSetPersistentPresence
                 + "Operation Sets");
     }
 
+    @Override
     protected void tearDown() throws Exception
     {
         fixture.tearDown();
@@ -143,7 +145,7 @@ public class TestOperationSetPersistentPresence
                      + "Printing rootGroupContents=\n"+rootGroup.toString());
 
         Hashtable<String, List<String>> expectedContactList
-            = fixture.preInstalledBuddyList;
+            = GibberishSlickFixture.preInstalledBuddyList;
 
         logger.debug("============== Expected Contact List ===================");
         logger.debug(expectedContactList);

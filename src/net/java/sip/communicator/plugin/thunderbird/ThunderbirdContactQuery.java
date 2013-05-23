@@ -21,7 +21,7 @@ import net.java.sip.communicator.util.*;
 
 /**
  * Queries a Thunderbird address book for contacts matching the given pattern.
- * 
+ *
  * @author Ingo Bauersachs
  */
 public class ThunderbirdContactQuery
@@ -33,7 +33,7 @@ public class ThunderbirdContactQuery
 
     /**
      * Creates a new instance of this class.
-     * 
+     *
      * @param owner The contact source that created this query.
      * @param query The pattern to match against the contacts database.
      */
@@ -61,7 +61,7 @@ public class ThunderbirdContactQuery
                     new InputStreamReader(new FileInputStream(filename));
                 MorkDocument md = new MorkDocument(sr);
                 sr.close();
-    
+
                 // We now have rows in their tables and additional rows at
                 // transaction level. Put the to a better format:
                 // DB -> Tables -> Rows
@@ -76,7 +76,7 @@ public class ThunderbirdContactQuery
                         table = new HashMap<String, Row>();
                         db.put(tableId, table);
                     }
-    
+
                     for (Row r : t.getRows())
                     {
                         String scope = r.getScopeName();
@@ -84,11 +84,11 @@ public class ThunderbirdContactQuery
                         {
                             scope = t.getScopeName();
                         }
-    
+
                         table.put(r.getRowId() + "/" + scope, r);
                     }
                 }
-    
+
                 // The additional rows at the root-level update/replace the ones
                 // in the tables. There's usually neither a table nor a scope
                 // defined, so lets just use the default.
@@ -100,7 +100,7 @@ public class ThunderbirdContactQuery
                     {
                         scope = defaultScope;
                     }
-    
+
                     String tableId = "1/" + scope;
                     Map<String, Row> table = db.get(tableId);
                     if (table == null)
@@ -108,13 +108,13 @@ public class ThunderbirdContactQuery
                         table = new HashMap<String, Row>();
                         db.put(tableId, table);
                     }
-    
+
                     String rowId = r.getRowId() + "/" + scope;
                     if (rowId.startsWith("-"))
                     {
                         rowId = rowId.substring(1);
                     }
-    
+
                     table.put(rowId, r);
                 }
 
@@ -152,7 +152,7 @@ public class ThunderbirdContactQuery
     /**
      * Processes a database row by matching it against the query and adding it
      * to the result set if it matched.
-     * 
+     *
      * @param r The database row representing a contact.
      */
     private void readEntry(Row r)
@@ -218,7 +218,7 @@ public class ThunderbirdContactQuery
 
     /**
      * Adds a "Phone" {@link ContactDetail} to a query contact.
-     * 
+     *
      * @param details The {@link List} of {@link ContactDetail}s to which the
      *            details is added.
      * @param r The source database row of the contact.
@@ -248,7 +248,7 @@ public class ThunderbirdContactQuery
 
     /**
      * Gets a set of non-empty properties from the source database row.
-     * 
+     *
      * @param r The source database row to process.
      * @param properties The property-names to extract.
      * @return A set of non-empty properties from the source database row.

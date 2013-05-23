@@ -15,9 +15,9 @@ public interface ChatSessionChangeListener
     /**
      * Called when the current {@link ChatTransport} has
      * changed.
-     * 
-     * @param chatSession the {@link ChatSession} it's current 
-     * {@link ChatTransport} has changed 
+     *
+     * @param chatSession the {@link ChatSession} it's current
+     * {@link ChatTransport} has changed
      */
     public void currentChatTransportChanged(ChatSession chatSession);
 }

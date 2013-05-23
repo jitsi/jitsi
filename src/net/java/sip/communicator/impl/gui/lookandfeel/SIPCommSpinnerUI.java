@@ -19,6 +19,7 @@ public class SIPCommSpinnerUI
         return new SIPCommSpinnerUI();
     }
 
+    @Override
     protected Component createNextButton()
     {
         Component c = createArrowButton(SwingConstants.NORTH);
@@ -26,6 +27,7 @@ public class SIPCommSpinnerUI
             return c;
     }
 
+    @Override
     protected Component createPreviousButton()
     {
         Component c = createArrowButton(SwingConstants.SOUTH);

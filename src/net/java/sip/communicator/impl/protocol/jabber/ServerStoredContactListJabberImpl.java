@@ -1415,6 +1415,7 @@ public class ServerStoredContactListJabberImpl
         /**
          * Thread entry point.
          */
+        @Override
         public void run()
         {
             try

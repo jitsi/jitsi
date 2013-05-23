@@ -13,7 +13,7 @@ import java.io.*;
  * bundles interested in making files with thumbnails. For example the user
  * interface can be interested in sending files with thumbnails through the
  * <tt>OperationSetFileTransfer</tt>.
- * 
+ *
  * @author Yana Stamcheva
  */
 public interface OperationSetThumbnailedFileFactory

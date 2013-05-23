@@ -10,7 +10,7 @@ package net.java.sip.communicator.slick.protocol.sip;
  * Contains data for server stored info tests.
  *
  * @author Grigorii Balutsel
- */                             
+ */
 public class TestOperationSetServerStoredInfoData
 {
     /**

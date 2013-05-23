@@ -61,7 +61,7 @@ public class SipSlickFixture
      * The tested protocol provider factory.
      */
     public ProtocolProviderFactory providerFactory = null;
-    
+
     /**
      * Indicates whether the user has requested for online tests not to be run.
      * (e.g. due to lack of network connectivity or ... time constraints ;)).
@@ -74,7 +74,7 @@ public class SipSlickFixture
      * the account uninstallation persistence testing.
      */
     public static Bundle providerBundle = null;
-    
+
     /**
      * A Hashtable containing group names mapped against array lists of buddy
      * screen names. This is a snapshot of the server stored buddy list for
@@ -92,6 +92,7 @@ public class SipSlickFixture
      * @throws java.lang.Exception in case we meet problems while retrieving
      * protocol providers through OSGI
      */
+    @Override
     public void setUp()
         throws Exception
     {
@@ -168,6 +169,7 @@ public class SipSlickFixture
     /**
      * Un get service references used in here.
      */
+    @Override
     public void tearDown()
     {
         bc.ungetService(provider1ServiceRef);

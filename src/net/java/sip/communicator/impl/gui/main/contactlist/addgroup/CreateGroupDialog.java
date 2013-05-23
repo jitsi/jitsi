@@ -52,7 +52,7 @@ public class CreateGroupDialog
     /**
      * Creates an instance of <tt>CreateGroupDialog</tt> that represents a dialog
      * that creates a new contact group.
-     * 
+     *
      * @param parentWindow the parent dialog
      */
     public CreateGroupDialog(Dialog parentWindow)
@@ -63,7 +63,7 @@ public class CreateGroupDialog
     /**
      * Creates an instance of <tt>CreateGroupDialog</tt> that represents a dialog
      * that creates a new contact group.
-     * 
+     *
      * @param parentWindow the parent frame
      */
     public CreateGroupDialog(Frame parentWindow)
@@ -257,6 +257,7 @@ public class CreateGroupDialog
      * @param isEscaped indicates if the window has been closed by pressing the
      * Esc button.
      */
+    @Override
     protected void close(boolean isEscaped)
     {
         this.cancelButton.doClick();

@@ -20,25 +20,25 @@ public class MessageCorrectionExtension
      * The XMPP namespace that this extension belongs to.
      */
     public static final String NAMESPACE = "urn:xmpp:message-correct:0";
-    
+
     /**
      * The XMPP namespace that Swift IM use to send message corrections.
      * Temporary until they start using the standard one.
      */
     public static final String SWIFT_NAMESPACE =
             "http://swift.im/protocol/replace";
-    
+
     /**
      * The XML element name of this extension.
      */
     public static final String ELEMENT_NAME = "replace";
-    
+
     /**
      * Name of the attribute that specifies the ID of the message
      * being corrected.
      */
     public static final String ID_ATTRIBUTE_NAME = "id";
-  
+
     /**
      * The ID of the message being corrected.
      */
@@ -47,7 +47,7 @@ public class MessageCorrectionExtension
     /**
      * Creates a new message correction extension that corrects the
      * message specified by the passed ID.
-     * 
+     *
      * @param correctedMessageUID The ID of the message being corrected.
      */
     public MessageCorrectionExtension(String correctedMessageUID)
@@ -57,7 +57,7 @@ public class MessageCorrectionExtension
 
     /**
      * Returns the XML element name of this extension.
-     * 
+     *
      * @return The XML element name of this extension.
      */
     public String getElementName()
@@ -67,7 +67,7 @@ public class MessageCorrectionExtension
 
     /**
      * Returns the XML namespace this extension belongs to.
-     * 
+     *
      * @return The XML namespace this extension belongs to.
      */
     public String getNamespace()
@@ -78,7 +78,7 @@ public class MessageCorrectionExtension
     /**
      * Construct an XML element representing this extension;
      * has the form '<replace id="..." xmlns="...">'.
-     * 
+     *
      * @return An XML representation of this extension.
      */
     public String toXML()
@@ -89,7 +89,7 @@ public class MessageCorrectionExtension
 
     /**
      * Returns the correctedMessageUID The UID of the message being corrected.
-     * 
+     *
      * @return the correctedMessageUID The UID of the message being corrected.
      */
     public String getCorrectedMessageUID()
@@ -99,7 +99,7 @@ public class MessageCorrectionExtension
 
     /**
      * Sets the UID of the message being corrected.
-     * 
+     *
      * @param correctedMessageUID The UID of the message being corrected.
      */
     public void setCorrectedMessageUID(String correctedMessageUID)

@@ -528,7 +528,7 @@ public class ContactListModel
         while (subgroups.hasNext())
         {
             MetaContactGroup subgroup = subgroups.next();
-            
+
             this.initGroupsStatus(subgroup);
         }
     }

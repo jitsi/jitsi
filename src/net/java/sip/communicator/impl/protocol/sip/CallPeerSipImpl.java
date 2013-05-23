@@ -1209,9 +1209,9 @@ public class CallPeerSipImpl
                 return Response.ACCEPTED;
             case HANGUP_REASON_ENCRYPTION_REQUIRED :
                 return Response.SESSION_NOT_ACCEPTABLE;
-            case HANGUP_REASON_TIMEOUT : 
+            case HANGUP_REASON_TIMEOUT :
                 return Response.REQUEST_TIMEOUT;
-            case HANGUP_REASON_BUSY_HERE : 
+            case HANGUP_REASON_BUSY_HERE :
                 return Response.BUSY_HERE;
             default : return -1;
         }

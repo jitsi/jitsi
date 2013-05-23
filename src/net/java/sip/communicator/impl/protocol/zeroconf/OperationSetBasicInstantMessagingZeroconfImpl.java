@@ -50,6 +50,7 @@ public class OperationSetBasicInstantMessagingZeroconfImpl
         this.parentProvider = provider;
     }
 
+    @Override
     public Message createMessage(String content, String contentType,
         String encoding, String subject)
     {
@@ -141,6 +142,7 @@ public class OperationSetBasicInstantMessagingZeroconfImpl
      * @param message the <tt>Message</tt> that has been received.
      * @param from the <tt>Contact</tt> that <tt>message</tt> was received from.
      */
+    @Override
     public void fireMessageReceived(Message message, Contact from)
     {
         super.fireMessageReceived(message, from);

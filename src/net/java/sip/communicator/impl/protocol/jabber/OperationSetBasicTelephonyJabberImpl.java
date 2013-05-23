@@ -397,7 +397,7 @@ public class OperationSetBasicTelephonyJabberImpl
                  * The specified call is being replaced by callGTalk as its
                  * runtime representation. Make sure that they do not exist as
                  * two separate Call instances= Otherwise, they would, for
-                 * example, appear to be in a telephony conference. 
+                 * example, appear to be in a telephony conference.
                  */
                 call.setConference(null);
                 callGTalk.setConference(conference);

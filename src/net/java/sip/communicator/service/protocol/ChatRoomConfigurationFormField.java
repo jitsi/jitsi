@@ -28,8 +28,8 @@ import java.util.*;
  * <li>TYPE_UNDEFINED - undefined type</li>
  * </ul>
  * The type of the field will help the GUI to determine the component to use to
- * represent the given field. 
- * 
+ * represent the given field.
+ *
  * @author Yana Stamcheva
  */
 public interface ChatRoomConfigurationFormField
@@ -39,45 +39,45 @@ public interface ChatRoomConfigurationFormField
      * don't know the type of the configuration property.
      */
     public static final String TYPE_UNDEFINED = "Undefined";
-    
+
     /**
      * The fixed text type means that the value of this field is a text, that
      * could not be changed. This type is meant to be used for adding additional
-     * information helping the user to complete the form. 
+     * information helping the user to complete the form.
      */
     public static final String TYPE_TEXT_FIXED = "FixedText";
-    
+
     /**
      * The private text type indicates that the text, contained in this field
      * should not be shown to the user in clear text, instead if should be
      * protected by showing '*'. This type is used for passwords.
      */
     public static final String TYPE_TEXT_PRIVATE = "PrivateText";
-    
+
     /**
      * The boolean type means that the value of this field is of type Boolean.
      */
     public static final String TYPE_BOOLEAN = "Boolean";
-    
+
     /**
      * The multi lines text type means that the value of this field is a text
      * represented on multiple lines.
      */
     public static final String TYPE_TEXT_MULTI = "MultipleLinesText";
-    
+
     /**
      * The single line text type means that the value of this field is a text
      * represented on one line.
      */
     public static final String TYPE_TEXT_SINGLE = "SingleLineText";
-    
+
     /**
      * The list multi type means that the value of this field is a list that
      * allows multiple choice (i.e. multiple lines could be selected at the
      * same time).
      */
     public static final String TYPE_LIST_MULTI = "ListMultiChoice";
-    
+
     /**
      * The list single type means that the value of this field is a list that
      * allows only one line to be selected at a time.
@@ -116,7 +116,7 @@ public interface ChatRoomConfigurationFormField
      * @return Iterator for the available options.
      */
     public Iterator<String> getOptions();
-    
+
     /**
      * Returns true if the question must be answered in order to complete the
      * questionnaire
@@ -125,12 +125,12 @@ public interface ChatRoomConfigurationFormField
      * questionnaire.
      */
     public boolean isRequired();
-    
+
 
     /**
      * Returns an indicative of the format for the data to answer. The valid
      * types are all TYPE_XXX constants defined in this class.
-     * 
+     *
      * @return format for the data to answer.
      */
     public String getType();
@@ -144,7 +144,7 @@ public interface ChatRoomConfigurationFormField
      * field
      */
     public Iterator<?> getValues();
-    
+
     /**
      * Adds the given value to the values of this field.
      *
@@ -157,5 +157,5 @@ public interface ChatRoomConfigurationFormField
      *
      * @param newValues the values of this field
      */
-    public void setValues(Object[] newValues);    
+    public void setValues(Object[] newValues);
 }

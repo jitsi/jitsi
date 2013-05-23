@@ -30,6 +30,7 @@ public class TestBase64 extends TestCase
      * Initializes the fixture.
      * @throws Exception if anything goes wrong.
      */
+    @Override
     protected void setUp() throws Exception
     {
         super.setUp();
@@ -39,6 +40,7 @@ public class TestBase64 extends TestCase
      * Finalization
      * @throws Exception if anything goes wrong.
      */
+    @Override
     protected void tearDown() throws Exception
     {
         super.tearDown();

@@ -93,6 +93,7 @@ public class KnownFingerprintsTableModel
     /**
      * Implements AbstractTableModel#getColumnName(int).
      */
+    @Override
     public String getColumnName(int column)
     {
         switch (column)

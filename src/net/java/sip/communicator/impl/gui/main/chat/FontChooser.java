@@ -20,7 +20,7 @@ import org.jitsi.service.resources.*;
 
 /**
  * The <tt>FontChooserDialog</tt> is a dialog for font selection
- * 
+ *
  * @author Damien Roth
  */
 public class FontChooser
@@ -308,7 +308,7 @@ public class FontChooser
     /**
      * Returns the family name of the selected font
      * @return the family name of the selected font
-     * 
+     *
      * @see #setFontFamily
      */
     public String getFontFamily()
@@ -319,7 +319,7 @@ public class FontChooser
     /**
      * Returns the size of the selected font
      * @return the size of the selected font
-     * 
+     *
      * @see #setFontSize
      */
     public int getFontSize()
@@ -365,6 +365,7 @@ public class FontChooser
 
     private static class ColorLabel extends JLabel
     {
+        @Override
         public void paintComponent(Graphics g)
         {
             g = g.create();

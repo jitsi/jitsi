@@ -13,7 +13,7 @@ import net.java.sip.communicator.service.notification.event.*;
 /**
  * The <tt>NotificationChangeListener</tt> is notified any time an action
  * type or an event type is added, removed or changed.
- * 
+ *
  * @author Emil Ivov
  * @author Yana Stamcheva
  */
@@ -23,7 +23,7 @@ public interface NotificationChangeListener
     /**
      * This method gets called when a new notification action has been defined
      * for a particular event type.
-     * 
+     *
      * @param event the <tt>NotificationActionTypeEvent</tt>, which is
      * dispatched when a new action has been added.
      */
@@ -32,17 +32,17 @@ public interface NotificationChangeListener
     /**
      * This method gets called when a notification action for a particular event
      * type has been removed.
-     * 
+     *
      * @param event the <tt>NotificationActionTypeEvent</tt>, which is
      * dispatched when an action has been removed.
      */
     public void actionRemoved(NotificationActionTypeEvent event);
-    
+
     /**
      * This method gets called when a notification action for a particular event
      * type has been changed (for example the corresponding descriptor has
      * changed).
-     * 
+     *
      * @param event the <tt>NotificationActionTypeEvent</tt>, which is
      * dispatched when an action has been changed.
      */
@@ -50,7 +50,7 @@ public interface NotificationChangeListener
 
     /**
      * This method gets called when a new event type has been added.
-     * 
+     *
      * @param event the <tt>NotificationEventTypeEvent</tt>, which is dispatched
      * when a new event type has been added
      */
@@ -58,7 +58,7 @@ public interface NotificationChangeListener
 
     /**
      * This method gets called when an event type has been removed.
-     * 
+     *
      * @param event the <tt>NotificationEventTypeEvent</tt>, which is dispatched
      * when an event type has been removed.
      */

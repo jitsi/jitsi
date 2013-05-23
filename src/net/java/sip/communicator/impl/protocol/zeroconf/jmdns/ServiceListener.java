@@ -36,7 +36,7 @@ public interface ServiceListener extends EventListener
      * ServiceInfo record.
      *
      * @param event The ServiceEvent providing the name, the fully qualified
-     *              type of the service, and the service info record, 
+     *              type of the service, and the service info record,
      *              or null if the service could not be resolved.
      */
 

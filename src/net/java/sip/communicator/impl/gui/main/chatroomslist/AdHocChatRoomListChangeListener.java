@@ -8,7 +8,7 @@ package net.java.sip.communicator.impl.gui.main.chatroomslist;
 
 /**
  * Listener that dispatches events coming from the ad-hoc chat room list.
- * 
+ *
  * @author Valentin Martinet
  */
 public interface AdHocChatRoomListChangeListener

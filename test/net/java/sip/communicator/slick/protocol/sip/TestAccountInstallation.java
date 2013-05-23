@@ -31,6 +31,7 @@ public class TestAccountInstallation
      * JUnit setup method.
      * @throws Exception in case anything goes wrong.
      */
+    @Override
     protected void setUp() throws Exception
     {
         super.setUp();
@@ -40,6 +41,7 @@ public class TestAccountInstallation
      * JUnit teardown method.
      * @throws Exception in case anything goes wrong.
      */
+    @Override
     protected void tearDown() throws Exception
     {
         super.tearDown();
@@ -257,7 +259,7 @@ public class TestAccountInstallation
                     xCapServerUri);
         }
 
-        table.put(ProtocolProviderFactory.FORCE_P2P_MODE, 
+        table.put(ProtocolProviderFactory.FORCE_P2P_MODE,
             Boolean.FALSE.toString());
 
         return table;

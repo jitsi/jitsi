@@ -9,7 +9,7 @@ package net.java.sip.communicator.service.protocol;
 /**
  * A notification message that is used to deliver notifications for an waiting
  * server message.
- * 
+ *
  * @see MessageWaitingListener, MessageWaitingEvent
  *
  * @author Yana Stamcheva

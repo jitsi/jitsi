@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.impl.gui.lookandfeel;
@@ -15,7 +15,7 @@ import net.java.sip.communicator.plugin.desktoputil.*;
 
 /**
  * SIPCommComboBoxUI implementation.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class SIPCommComboBoxUI
@@ -36,6 +36,7 @@ public class SIPCommComboBoxUI
      * @param g the <tt>Graphics</tt> object used for painting
      * @param c the component to paint
      */
+    @Override
     public void paint(Graphics g, JComponent c)
     {
         AntialiasingManager.activateAntialiasing(g);
@@ -46,6 +47,7 @@ public class SIPCommComboBoxUI
      * Creates the editor of the combo box related to this UI.
      * @return the created combo box editor
      */
+    @Override
     protected ComboBoxEditor createEditor()
     {
         return new SIPCommComboBoxEditor.UIResource();

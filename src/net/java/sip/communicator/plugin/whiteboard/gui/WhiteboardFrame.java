@@ -218,7 +218,7 @@ public class WhiteboardFrame
     /**
      * List of WhiteboardShape
      */
-    private List<WhiteboardShape> displayList = 
+    private List<WhiteboardShape> displayList =
         new CopyOnWriteArrayList<WhiteboardShape>();
 
     /**
@@ -1223,21 +1223,21 @@ public class WhiteboardFrame
     {
 
         SipCommFileChooser chooser = GenericFileDialog.create(
-            WhiteboardFrame.this, 
-            "Save file...", 
+            WhiteboardFrame.this,
+            "Save file...",
             SipCommFileChooser.SAVE_FILE_OPERATION);
-        
+
         //chooser.removeChoosableFileFilter(chooser.getAcceptAllFileFilter());
         WhiteboardFileFilter filterJpg =
             new WhiteboardFileFilter("jpg", "JPEG Files (*.jpg)");
         WhiteboardFileFilter filterPng =
             new WhiteboardFileFilter("png", "PNG Files (*.png)");
-        
+
         chooser.addFilter(filterJpg);
         chooser.addFilter(filterPng);
-        
+
         File file = chooser.getFileFromDialog();
-        
+
         if (file != null)
         {
             try
@@ -1655,8 +1655,8 @@ public class WhiteboardFrame
      *
      * @param e
      */
-    /* not sure why this is here but it's never used. i am not deleting it 
-     * though in case we decide to revive the whiteboard one day. and this 
+    /* not sure why this is here but it's never used. i am not deleting it
+     * though in case we decide to revive the whiteboard one day. and this
      * appears necessary
     private void ellipseOperation(MouseEvent e)
     {
@@ -2050,16 +2050,16 @@ public class WhiteboardFrame
         doneDrawing = true;
 
         SipCommFileChooser chooser = GenericFileDialog.create(
-            WhiteboardFrame.this, 
+            WhiteboardFrame.this,
             "Choose image...",
             SipCommFileChooser.LOAD_FILE_OPERATION);
-        
+
         File file = chooser.getFileFromDialog();
         WhiteboardFileFilter filter =
             new WhiteboardFileFilter("jpg", "JPEG Files (*.jpg)");
-        
+
         chooser.addFilter(filter);
-        
+
         if (file != null)
         {
             try
@@ -2173,7 +2173,7 @@ public class WhiteboardFrame
 
         String t =
             (String) JOptionPane.showInputDialog(this,
-                "Please enter your text", "plugin.whiteboard.TEXT", 
+                "Please enter your text", "plugin.whiteboard.TEXT",
                 JOptionPane.QUESTION_MESSAGE,
                 null, null, "plugin.whiteboard.TEXT");
 
@@ -2577,6 +2577,7 @@ public class WhiteboardFrame
         return this.session;
     }
 
+    @Override
     protected void close(boolean isEscaped)
     {
     }

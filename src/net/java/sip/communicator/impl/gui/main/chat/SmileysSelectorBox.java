@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.impl.gui.main.chat;
@@ -22,7 +22,7 @@ import net.java.sip.communicator.util.skin.*;
 /**
  * The <tt>SmileysSelectorBox</tt> is the component where user could choose a
  * smiley icon to send.
- * 
+ *
  * @author Yana Stamcheva
  * @author Lubomir Marinov
  * @author Adam Netocny
@@ -97,7 +97,7 @@ public class SmileysSelectorBox
 
     /**
      * In order to have a popup which is at the form closest to square.
-     * 
+     *
      * @param itemsCount the count of items that will be laid out.
      * @return the dimensions of the grid
      */
@@ -126,7 +126,7 @@ public class SmileysSelectorBox
 
     /**
      * Returns TRUE if the selector box is opened, otherwise returns FALSE.
-     * 
+     *
      * @return TRUE if the selector box is opened, otherwise returns FALSE
      */
     public boolean isMenuSelected()
@@ -180,7 +180,7 @@ public class SmileysSelectorBox
         /**
          * Initializes a new <tt>SmileyMenuItem</tt> instance which is to depict
          * a specific <tt>Smiley</tt>.
-         * 
+         *
          * @param smiley the <tt>Smiley</tt> to be depicted by the new instance
          */
         public SmileyMenuItem(Smiley smiley)
@@ -197,6 +197,7 @@ public class SmileysSelectorBox
          * @see JComponent#getUIClassID
          * @see UIDefaults#getUI
          */
+        @Override
         public String getUIClassID()
         {
             return uiClassID;
@@ -243,7 +244,7 @@ public class SmileysSelectorBox
      * Clears all mouse over effects for the given smiley item. This method
      * should be invoked when the mouse has exited the smiley area or when
      * a smiley has been selected and the popup menu is closed.
-     * 
+     *
      * @param smileyItem the item for which we clear mouse over effects.
      */
     private void clearMouseOverEffects(SmileyMenuItem smileyItem)

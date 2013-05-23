@@ -73,7 +73,7 @@ public class FileElement
     /**
      * Creates a <tt>FileElement</tt> by specifying a base file and a thumbnail
      * to extend it with.
-     * 
+     *
      * @param baseFile the file used as a base
      * @param thumbnail the thumbnail to add
      */
@@ -87,7 +87,7 @@ public class FileElement
     /**
      * Creates a <tt>FileElement</tt> by specifying the name and the size of the
      * file.
-     * 
+     *
      * @param name the name of the file
      * @param size the size of the file
      */
@@ -98,9 +98,10 @@ public class FileElement
 
     /**
      * Represents this <tt>FileElement</tt> in an XML.
-     * 
+     *
      * @see File#toXML()
      */
+    @Override
     public String toXML()
     {
         StringBuilder buffer = new StringBuilder();
@@ -257,7 +258,7 @@ public class FileElement
                 // The name-attribute is required per XEP-0096, so ignore the
                 // IQ if the name is not set to avoid exceptions. Particularly,
                 // the SI response of Empathy contains an invalid, empty
-                // file-tag. 
+                // file-tag.
                 else if (elementName.equals("file") && name != null)
                 {
                     long fileSize = 0;

@@ -80,6 +80,7 @@ public class XCapResourceId
      *
      * @return the XCAP resource identifier object as single string.
      */
+    @Override
     public String toString()
     {
         StringBuilder builder = new StringBuilder(document);

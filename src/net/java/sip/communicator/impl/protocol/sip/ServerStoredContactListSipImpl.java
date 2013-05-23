@@ -145,6 +145,7 @@ public class ServerStoredContactListSipImpl
      *                                  operation if failed during network
      *                                  communication.
      */
+    @Override
     synchronized public ContactSipImpl createContact(
             ContactGroupSipImpl parentGroup,
             String contactId,
@@ -265,6 +266,7 @@ public class ServerStoredContactListSipImpl
      *                                  operation if failed during network
      *                                  communication.
      */
+    @Override
     synchronized public void removeContact(ContactSipImpl contact)
             throws OperationFailedException
     {
@@ -328,6 +330,7 @@ public class ServerStoredContactListSipImpl
      *                                  operation if failed during network
      *                                  communication.
      */
+    @Override
     public void moveContactToGroup(
             ContactSipImpl contact,
             ContactGroupSipImpl newParentGroup)
@@ -413,6 +416,7 @@ public class ServerStoredContactListSipImpl
      * @param contact the contact to be renamed.
      * @param newName the new contact name.
      */
+    @Override
     synchronized public void renameContact(
             ContactSipImpl contact,
             String newName)
@@ -463,6 +467,7 @@ public class ServerStoredContactListSipImpl
      *                                  CONTACT_GROUP_ALREADY_EXISTS if contact
      *                                  group with such name already exists.
      */
+    @Override
     synchronized public ContactGroupSipImpl createGroup(
             ContactGroupSipImpl parentGroup, String groupName,
             boolean persistent)
@@ -516,6 +521,7 @@ public class ServerStoredContactListSipImpl
      *
      * @param group the group to delete.
      */
+    @Override
     synchronized public void removeGroup(ContactGroupSipImpl group)
     {
         if (group == null)
@@ -568,6 +574,7 @@ public class ServerStoredContactListSipImpl
      * @param group   the group to rename.
      * @param newName the new name of the group.
      */
+    @Override
     synchronized public void renameGroup(
             ContactGroupSipImpl group,
             String newName)
@@ -614,6 +621,7 @@ public class ServerStoredContactListSipImpl
      * Initializes the server stored list. Synchronize server stored groups and
      * contacts with the local groups and contacts.
      */
+    @Override
     synchronized public void init()
     {
         try
@@ -789,6 +797,7 @@ public class ServerStoredContactListSipImpl
      * @return the pres-content image uri.
      * @throws IllegalStateException if the user has not been connected.
      */
+    @Override
     public URI getImageUri()
     {
         if (xCapClient.isConnected() && xCapClient.isPresContentSupported())
@@ -805,6 +814,7 @@ public class ServerStoredContactListSipImpl
      * @param imageUri the image uri.
      * @return the image.
      */
+    @Override
     public byte[] getImage(URI imageUri)
     {
         if(xCapClient.isConnected())
@@ -829,6 +839,7 @@ public class ServerStoredContactListSipImpl
     /**
      * Destroys the server stored list.
      */
+    @Override
     synchronized public void destroy()
     {
         xCapClient.disconnect();
@@ -1414,6 +1425,7 @@ public class ServerStoredContactListSipImpl
      * The user accepted authorization request for <tt>contact</tt>
      * @param contact the user has accepted.
      */
+    @Override
     public void authorizationAccepted(ContactSipImpl contact)
     {
         try
@@ -1431,6 +1443,7 @@ public class ServerStoredContactListSipImpl
      * The user rejected authorization request for <tt>contact</tt>
      * @param contact the user has rejected.
      */
+    @Override
     public void authorizationRejected(ContactSipImpl contact)
     {
         try
@@ -1448,6 +1461,7 @@ public class ServerStoredContactListSipImpl
      * The user ignored authorization request for <tt>contact</tt>
      * @param contact the user has ignored.
      */
+    @Override
     public void authorizationIgnored(ContactSipImpl contact)
     {
         try
@@ -1465,6 +1479,7 @@ public class ServerStoredContactListSipImpl
      * Get current account image from server if any.
      * @return the account image content.
      */
+    @Override
     public ImageDetail getAccountImage()
         throws OperationFailedException
     {
@@ -1502,6 +1517,7 @@ public class ServerStoredContactListSipImpl
     /**
      * Deletes current account image from server.
      */
+    @Override
     public void deleteAccountImage()
         throws OperationFailedException
     {
@@ -1520,6 +1536,7 @@ public class ServerStoredContactListSipImpl
      * Whether current contact list supports account image.
      * @return does current contact list supports account image.
      */
+    @Override
     public boolean isAccountImageSupported()
     {
         return xCapClient != null &&
@@ -1531,6 +1548,7 @@ public class ServerStoredContactListSipImpl
      * Change the image of the account on server.
      * @param newImageBytes the new image.
      */
+    @Override
     public void setAccountImage(byte[] newImageBytes)
         throws OperationFailedException
     {

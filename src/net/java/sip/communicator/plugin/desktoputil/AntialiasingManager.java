@@ -13,7 +13,7 @@ import java.awt.*;
  * antialiasing mechanism when painting. The method that do the job is
  * the <code>activateAntialiasing</code> method. It takes a <tt>Graphics</tt>
  * object and activates the antialiasing for it.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class AntialiasingManager

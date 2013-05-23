@@ -70,8 +70,8 @@ public class MockChatRoom
      * @param parentOpSet the corresponding <tt>OperationSetMultiUserChat</tt>
      * @param roomName the name of the room
      */
-    public MockChatRoom(MockProvider provider, 
-                        MockMultiUserChat parentOpSet, 
+    public MockChatRoom(MockProvider provider,
+                        MockMultiUserChat parentOpSet,
                         String roomName)
     {
         this.provider = provider;
@@ -150,20 +150,20 @@ public class MockChatRoom
     {
         if(nickname == null)
             nickname = getParentProvider().getAccountID().getUserID();
-        
+
         this.nickname = nickname;
         this.joined = true;
-        
+
         Contact mockContact = new MockContact(nickname,
             (MockProvider) getParentProvider());
 
-        MockChatRoomMember newMember = 
+        MockChatRoomMember newMember =
             new MockChatRoomMember( nickname,
-                                    this, 
+                                    this,
                                     ChatRoomMemberRole.MEMBER,
                                     mockContact,
                                     null);
-        
+
         members.add(newMember);
 
         parentOpSet
@@ -194,7 +194,7 @@ public class MockChatRoom
      */
     public void leave()
     {
-        
+
     }
 
     /**
@@ -261,7 +261,7 @@ public class MockChatRoom
     /**
      * Adds a listener that will be notified of changes in our participation in
      * the room such as us being kicked, join, left...
-     * 
+     *
      * @param listener a member participation listener.
      */
     public void addMemberPresenceListener(
@@ -275,7 +275,7 @@ public class MockChatRoom
      * Removes a listener that was being notified of changes in the
      * participation of other chat room participants such as users being kicked,
      * join, left.
-     * 
+     *
      * @param listener a member participation listener.
      */
     public void removeMemberPresenceListener(
@@ -287,7 +287,7 @@ public class MockChatRoom
     /**
      * Adds a listener that will be notified of changes in our role in the room
      * such as us being granded operator.
-     * 
+     *
      * @param listener a local user role listener.
      */
     public void addLocalUserRoleListener(ChatRoomLocalUserRoleListener listener)
@@ -299,7 +299,7 @@ public class MockChatRoom
     /**
      * Removes a listener that was being notified of changes in our role in this
      * chat room such as us being granded operator.
-     * 
+     *
      * @param listener a local user role listener.
      */
     public void removelocalUserRoleListener(
@@ -311,7 +311,7 @@ public class MockChatRoom
     /**
      * Adds a listener that will be notified of changes of a member role in the
      * room such as being granded operator.
-     * 
+     *
      * @param listener a member role listener.
      */
     public void addMemberRoleListener(ChatRoomMemberRoleListener listener)
@@ -323,7 +323,7 @@ public class MockChatRoom
     /**
      * Removes a listener that was being notified of changes of a member role in
      * this chat room such as us being granded operator.
-     * 
+     *
      * @param listener a member role listener.
      */
     public void removeMemberRoleListener(ChatRoomMemberRoleListener listener)
@@ -334,7 +334,7 @@ public class MockChatRoom
     /**
      * Adds a listener that will be notified of changes in the property of the
      * room such as the subject being change or the room state being changed.
-     * 
+     *
      * @param listener a property change listener.
      */
     public void addPropertyChangeListener(
@@ -348,7 +348,7 @@ public class MockChatRoom
      * Removes a listener that was being notified of changes in the property of
      * the chat room such as the subject being change or the room state being
      * changed.
-     * 
+     *
      * @param listener a property change listener.
      */
     public void removePropertyChangeListener(
@@ -371,7 +371,7 @@ public class MockChatRoom
      */
     public void invite(String userAddress, String reason)
     {
-        
+
     }
 
     /**
@@ -430,7 +430,7 @@ public class MockChatRoom
     public Message createMessage(byte[] content, String contentType,
                                  String contentEncoding, String subject)
     {
-        return new MockMessage(new String(content), contentType, 
+        return new MockMessage(new String(content), contentType,
             contentEncoding, subject);
     }
 
@@ -456,14 +456,14 @@ public class MockChatRoom
     public void sendMessage(Message message)
         throws OperationFailedException
     {
-        ChatRoomMessageDeliveredEvent evt = 
+        ChatRoomMessageDeliveredEvent evt =
             new ChatRoomMessageDeliveredEvent(
                     this,
                     new Date(),
                     message,
                     ChatRoomMessageDeliveredEvent
                         .CONVERSATION_MESSAGE_DELIVERED);
-        
+
         for (ChatRoomMessageListener elem : messageListeners)
             elem.messageDelivered(evt);
     }
@@ -483,14 +483,14 @@ public class MockChatRoom
      * Returns an Iterator over a set of ban masks for this chat room. The ban
      * mask defines a group of users that will be banned. The ban list is a list
      * of all such ban masks defined for this chat room.
-     * 
+     *
      * @return an Iterator over a set of ban masks for this chat room
      */
     public Iterator<ChatRoomMember> getBanList()
     {
         return new Vector<ChatRoomMember>().iterator();
     }
-    
+
     /**
      * Methods for manipulating mock operation set as
      * deliver(receive) messageop
@@ -512,8 +512,8 @@ public class MockChatRoom
 
         if(fromMember == null)
             return;
-        
-        ChatRoomMessageReceivedEvent evt = 
+
+        ChatRoomMessageReceivedEvent evt =
             new ChatRoomMessageReceivedEvent(
                     this,
                     fromMember,
@@ -596,7 +596,7 @@ public class MockChatRoom
     /**
      * Adds a listener that will be notified of changes in the property of a
      * room member such as the nickname being changed.
-     * 
+     *
      * @param listener a room member property change listener.
      */
     public void addMemberPropertyChangeListener(
@@ -608,7 +608,7 @@ public class MockChatRoom
     /**
      * Removes a listener that was being notified of changes in the property of
      * a chat room member such as the nickname being changed.
-     * 
+     *
      * @param listener a room member property change listener.
      */
     public void removeMemberPropertyChangeListener(
@@ -618,10 +618,10 @@ public class MockChatRoom
     }
 
     /**
-     * Returns <code>true</code> if this chat room is a system room and 
+     * Returns <code>true</code> if this chat room is a system room and
      * <code>false</code> otherwise.
-     * 
-     * @return <code>true</code> if this chat room is a system room and 
+     *
+     * @return <code>true</code> if this chat room is a system room and
      * <code>false</code> otherwise.
      */
     public boolean isSystem()
@@ -634,7 +634,7 @@ public class MockChatRoom
      * file or not. If the chat room is persistent it still will be shown after a
      * restart in the chat room list. A non-persistent chat room will be only in
      * the chat room list until the the program is running.
-     * 
+     *
      * @return true if this chat room is persistent, false otherwise
      */
     public boolean isPersistent()

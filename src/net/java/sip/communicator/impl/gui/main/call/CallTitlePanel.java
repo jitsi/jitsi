@@ -14,7 +14,7 @@ import net.java.sip.communicator.plugin.desktoputil.*;
  * The panel, containing the title name of the call peer or member. It defines
  * its background color depending on the specified in initialization background
  * color.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class CallTitlePanel
@@ -39,6 +39,7 @@ public class CallTitlePanel
      * Sets the background color of this panel.
      * @param bgColor the background color of this panel
      */
+    @Override
     public void setBackground(Color bgColor)
     {
         this.backgroundColor = bgColor;
@@ -49,6 +50,7 @@ public class CallTitlePanel
      * the background color previously set.
      * @param g the <tt>Graphics</tt> object to use for painting
      */
+    @Override
     public void paintComponent(Graphics g)
     {
         super.paintComponent(g);

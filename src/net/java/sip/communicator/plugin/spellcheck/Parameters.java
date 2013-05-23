@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.plugin.spellcheck;
@@ -18,7 +18,7 @@ import org.xml.sax.*;
 
 /**
  * Information provided via the spellchecer's xml parameters.
- * 
+ *
  * @author Damian Johnson
  */
 class Parameters
@@ -106,7 +106,7 @@ class Parameters
 
     /**
      * Retrieves default values from xml.
-     * 
+     *
      * @param list the configuration list
      */
     private static void parseDefaults(NodeList list)
@@ -131,7 +131,7 @@ class Parameters
 
     /**
      * Populates LOCALES list with contents of xml.
-     * 
+     *
      * @param list the configuration list
      */
     private static void parseLocales(NodeList list)
@@ -159,7 +159,7 @@ class Parameters
 
     /**
      * Provides the value of a particular default field, null if undefined.
-     * 
+     *
      * @param field default field to retrieve
      * @return value corresponding to default field
      */
@@ -170,7 +170,7 @@ class Parameters
 
     /**
      * Provides locale with a given iso code. Null if undefined.
-     * 
+     *
      * @param isoCode iso code of locale to be retrieved
      * @return locale with corresponding iso code
      */
@@ -187,7 +187,7 @@ class Parameters
 
     /**
      * Provides locales in which dictionary resources are available.
-     * 
+     *
      * @return locations with dictionary resources
      */
     public static ArrayList<Locale> getLocales()
@@ -217,7 +217,7 @@ class Parameters
 
         /**
          * Provides user readable name of language.
-         * 
+         *
          * @return name of language presented to user
          */
         public String getLabel()
@@ -228,7 +228,7 @@ class Parameters
         /**
          * Provides ISO code as defined by:<br />
          * http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
-         * 
+         *
          * @return iso code
          */
         public String getIsoCode()
@@ -239,7 +239,7 @@ class Parameters
         /**
          * Provides the url where the dictionary resource can be found for this
          * language.
-         * 
+         *
          * @return url of dictionary resource
          */
         public URL getDictUrl()
@@ -293,7 +293,7 @@ class Parameters
 
         /**
          * Returns the enum representation of a string. This is case sensitive.
-         * 
+         *
          * @param str toString representation of a default field
          * @return default field associated with a string
          * @throws IllegalArgumentException if argument is not represented by a

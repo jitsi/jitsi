@@ -40,6 +40,7 @@ public class FileTransferImpl
      * Cancels this file transfer. When this method is called transfer should
      * be interrupted.
      */
+    @Override
     public void cancel()
     {
         fileTransfer.cancel();
@@ -50,6 +51,7 @@ public class FileTransferImpl
      *
      * @return the number of bytes already transfered through this file transfer
      */
+    @Override
     public long getTransferedBytes()
     {
         return transferedBytes;

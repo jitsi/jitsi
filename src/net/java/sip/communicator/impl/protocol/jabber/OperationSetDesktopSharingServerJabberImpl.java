@@ -303,6 +303,7 @@ public class OperationSetDesktopSharingServerJabberImpl
      *
      * @throws OperationFailedException if initializing local video fails.
      */
+    @Override
     public void setLocalVideoAllowed(Call call,
                                      MediaDevice mediaDevice,
                                      boolean allowed)
@@ -572,7 +573,7 @@ public class OperationSetDesktopSharingServerJabberImpl
                     PacketCollector collector
                         = connection.createPacketCollector(
                             new PacketIDFilter(inputIQ.getPacketID()));
-                    
+
                     connection.sendPacket(inputIQ);
                     Packet p = collector.nextResult(
                             SmackConfiguration.getPacketReplyTimeout());

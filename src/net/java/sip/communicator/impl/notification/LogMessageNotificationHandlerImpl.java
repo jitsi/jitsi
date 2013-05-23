@@ -14,7 +14,7 @@ import net.java.sip.communicator.util.*;
 
 /**
  * An implementation of the <tt>LogMessageNotificationHandler</tt> interface.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class LogMessageNotificationHandlerImpl
@@ -36,7 +36,7 @@ public class LogMessageNotificationHandlerImpl
 
     /**
      * Logs a message through the sip communicator Logger.
-     * 
+     *
      * @param action the action to act upon
      * @param message the message coming from the event
      */

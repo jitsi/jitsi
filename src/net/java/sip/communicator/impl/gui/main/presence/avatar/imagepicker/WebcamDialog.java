@@ -21,7 +21,7 @@ import org.jitsi.service.audionotifier.*;
 import org.jitsi.service.neomedia.*;
 
 /**
- * A dialog showing the webcam and allowing the user to grap a snapshot 
+ * A dialog showing the webcam and allowing the user to grap a snapshot
  *
  * @author Damien Roth
  * @author Damian Minkov
@@ -41,9 +41,9 @@ public class WebcamDialog
     private JButton grabSnapshot;
 
     private byte[] grabbedImage = null;
-    
+
     private TimerImage[] timerImages = new TimerImage[3];
-    
+
     /**
      * Construct a <tt>WebcamDialog</tt>
      * @param parent the ImagePickerDialog
@@ -54,7 +54,7 @@ public class WebcamDialog
         this.setTitle(GuiActivator.getResources()
                 .getI18NString("service.gui.avatar.imagepicker.TAKE_PHOTO"));
         this.setModal(true);
-        
+
         init();
 
         this.setSize(320, 240);
@@ -76,29 +76,29 @@ public class WebcamDialog
                 .getI18NString("service.gui.avatar.imagepicker.CANCEL"));
         cancelButton.setName("cancel");
         cancelButton.addActionListener(this);
-        
+
         initAccessWebcam();
 
         // Timer Panel
         TransparentPanel timerPanel = new TransparentPanel();
         timerPanel.setLayout(new GridLayout(0, timerImages.length));
-        
+
         TransparentPanel tp;
         for (int i = 0; i < this.timerImages.length; i++)
         {
             this.timerImages[i] = new TimerImage("" + (timerImages.length - i));
-            
+
             tp = new TransparentPanel();
             tp.add(this.timerImages[i], BorderLayout.CENTER);
-            
+
             timerPanel.add(tp);
         }
-        
+
         TransparentPanel buttonsPanel
                 = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
         buttonsPanel.add(this.grabSnapshot);
         buttonsPanel.add(cancelButton);
-        
+
         // South Panel
         TransparentPanel southPanel = new TransparentPanel(new BorderLayout());
         southPanel.add(timerPanel, BorderLayout.CENTER);
@@ -132,7 +132,7 @@ public class WebcamDialog
                         240);
         this.grabSnapshot.setEnabled(true);
     }
-    
+
     /**
      * Grab the current image of the webcam through the MediaService
      */
@@ -158,17 +158,17 @@ public class WebcamDialog
         close(false);
         this.setVisible(false);
     }
-    
+
     /**
      * Return the grabbed snapshot as a byte array
-     * 
+     *
      * @return the grabbed snapshot
      */
     public byte[] getGrabbedImage()
     {
         return this.grabbedImage;
     }
-    
+
     /**
      * Play a snapshot sound
      */
@@ -176,10 +176,10 @@ public class WebcamDialog
     {
         String soundKey = GuiActivator.getResources()
             .getSoundPath("WEBCAM_SNAPSHOT");
-        
+
         SCAudioClip audio = GuiActivator.getAudioNotifier()
             .createAudio(soundKey);
-        
+
         audio.play();
     }
 
@@ -187,6 +187,7 @@ public class WebcamDialog
      * Invoked when a window is closed. Dispose dialog.
      * @param isEscaped
      */
+    @Override
     protected void close(boolean isEscaped)
     {
         this.videoContainer = null;
@@ -200,7 +201,7 @@ public class WebcamDialog
     public void actionPerformed(ActionEvent e)
     {
         String actName = ((JButton) e.getSource()).getName();
-        
+
         if (actName.equals("grab"))
         {
             this.grabSnapshot.setEnabled(false);
@@ -218,12 +219,12 @@ public class WebcamDialog
      */
     private class SnapshotTimer
         extends Thread
-    {        
+    {
         @Override
         public void run()
         {
             int i;
-            
+
             for (i=0; i < timerImages.length; i++)
             {
                 timerImages[i].setElapsed();
@@ -236,10 +237,10 @@ public class WebcamDialog
                     logger.error("", e);
                 }
             }
-            
+
             playSound();
             grabSnapshot();
-            
+
             WebcamDialog.this.setVisible(false);
             WebcamDialog.this.dispose();
 
@@ -276,20 +277,20 @@ public class WebcamDialog
          * The string that will be shown in the image.
          */
         private String second;
-        
+
         public TimerImage(String second)
         {
             Dimension d = new Dimension(WIDTH, HEIGHT);
             this.setPreferredSize(d);
             this.setMinimumSize(d);
-            
-            
+
+
             this.textFont = new Font("Sans", Font.BOLD, 20);
             this.second = second;
         }
 
         /**
-         * Is current image elapsed. 
+         * Is current image elapsed.
          */
         public void setElapsed()
         {
@@ -306,14 +307,14 @@ public class WebcamDialog
         {
             Graphics2D g2d = (Graphics2D) g;
             AntialiasingManager.activateAntialiasing(g);
-        
+
             Color c = (isElapsed)
                     ? Color.RED
                     : new Color(150, 0, 0);
-        
+
             g2d.setColor(c);
             g2d.fillOval(0, 0, WIDTH, HEIGHT);
-            
+
             g2d.setColor(Color.WHITE);
             g2d.setFont(textFont);
             g2d.drawString(this.second, 7, 21);

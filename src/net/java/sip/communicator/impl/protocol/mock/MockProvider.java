@@ -67,7 +67,7 @@ public class MockProvider
         this.supportedOperationSets.put(
                 OperationSetBasicInstantMessaging.class.getName(),
                 mockBImOpSet);
-        
+
         this.supportedOperationSets.put(
                 OperationSetMultiUserChat.class.getName(),
                 new MockMultiUserChat(this));
@@ -243,7 +243,7 @@ public class MockProvider
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see net.java.sip.communicator.service.protocol.ProtocolProviderService#
      * isSignallingTransportSecure()
      */

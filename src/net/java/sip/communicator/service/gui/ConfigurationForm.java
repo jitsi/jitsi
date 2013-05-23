@@ -14,7 +14,7 @@ package net.java.sip.communicator.service.gui;
  * <p>
  * The <tt>ConfigurationDialog</tt> for the current ui implementation could
  * be obtained by invoking <code>UIService.getConfigurationDialog</code> method.
- * 
+ *
  * @author Yana Stamcheva
  */
 public interface ConfigurationForm
@@ -54,7 +54,7 @@ public interface ConfigurationForm
      * Returns the icon of this configuration form. It depends on the
      * UI implementation, how this icon will be used and where it will be
      * placed.
-     * 
+     *
      * @return the icon of this configuration form
      */
     public byte[] getIcon();

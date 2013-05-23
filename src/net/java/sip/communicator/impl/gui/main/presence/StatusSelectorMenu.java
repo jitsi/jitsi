@@ -18,10 +18,10 @@ import net.java.sip.communicator.util.skin.*;
 
 /**
  * A parent class for all status selector boxes.
- * 
+ *
  * @see SimpleStatusMenu
  * @see GlobalStatusSelectorBox
- * 
+ *
  * @author Yana Stamcheva
  * @author Adam Netocny
  */
@@ -80,14 +80,14 @@ public abstract class StatusSelectorMenu
     /**
      * Returns the account index (In case of more than one account for one and
      * the same protocol).
-     * 
+     *
      * @return the account index
      */
     public int getAccountIndex(){return -1;}
 
     /**
      * Sets the account index.
-     * 
+     *
      * @param index
      */
     public void setAccountIndex(int index){}
@@ -98,6 +98,7 @@ public abstract class StatusSelectorMenu
      *
      * @param g the <tt>Graphics</tt> object used for painting
      */
+    @Override
     public void paintComponent(Graphics g)
     {
         AntialiasingManager.activateAntialiasing(g);
@@ -144,6 +145,7 @@ public abstract class StatusSelectorMenu
      * @return <tt>true</tt> if the image has been updated, <tt>false</tt>
      * otherwise
      */
+    @Override
     public boolean imageUpdate(Image img, int infoflags,
                                 int x, int y,
                                 int w, int h)

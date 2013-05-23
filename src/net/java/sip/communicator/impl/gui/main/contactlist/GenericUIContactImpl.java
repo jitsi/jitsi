@@ -342,6 +342,7 @@ public class GenericUIContactImpl
      * component.
      * @return the corresponding <tt>ContactNode</tt>
      */
+    @Override
     public ContactNode getContactNode()
     {
         return contactNode;
@@ -351,6 +352,7 @@ public class GenericUIContactImpl
      * Sets the corresponding <tt>ContactNode</tt>.
      * @param contactNode the corresponding <tt>ContactNode</tt>
      */
+    @Override
     public void setContactNode(ContactNode contactNode)
     {
         this.contactNode = contactNode;

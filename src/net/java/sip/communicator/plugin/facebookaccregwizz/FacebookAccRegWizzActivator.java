@@ -61,6 +61,7 @@ public class FacebookAccRegWizzActivator
     /**
      * Starts this bundle.
      */
+    @Override
     public void start(Object dependentService)
     {
         if (logger.isInfoEnabled())

@@ -141,7 +141,7 @@ public class ScOtrEngineImpl
             Chat.ERROR_MESSAGE, err,
             OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE);
     }
-    
+
     public ScOtrEngineImpl()
     {
         this.otrEngine.addOtrEngineListener(new OtrEngineListener()

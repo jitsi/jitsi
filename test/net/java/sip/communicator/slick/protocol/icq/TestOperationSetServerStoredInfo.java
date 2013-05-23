@@ -43,6 +43,7 @@ public class TestOperationSetServerStoredInfo
      * Get a reference to the contact and account info operation sets.
      * @throws Exception if this is not a good day.
      */
+    @Override
     protected void setUp() throws Exception
     {
         super.setUp();
@@ -94,6 +95,7 @@ public class TestOperationSetServerStoredInfo
         }
     }
 
+    @Override
     protected void tearDown() throws Exception
     {
         super.tearDown();
@@ -135,7 +137,7 @@ public class TestOperationSetServerStoredInfo
         int suffix = (int)(Math.random()*100);
         String lastName = "TesterAgent" + String.valueOf(suffix);
 
-        fixture.testerAgent.setUserInfoLastName(lastName);
+        IcqSlickFixture.testerAgent.setUserInfoLastName(lastName);
 
         // give the server time to change things
         synchronized(lock)
@@ -147,7 +149,7 @@ public class TestOperationSetServerStoredInfo
 
         // make the phonenumber also random
         String phoneNumber = "+3591234" + suffix;
-        fixture.testerAgent.setUserInfoPhoneNumber(phoneNumber);
+        IcqSlickFixture.testerAgent.setUserInfoPhoneNumber(phoneNumber);
 
         // give the server time to change things
         synchronized(lock)
@@ -164,7 +166,7 @@ public class TestOperationSetServerStoredInfo
         int lang3 =  1 + (int)(Math.random() * 72);
 
         // setting this languages as spoken languages
-        fixture.testerAgent.setUserInfoLanguage(lang1, lang2, lang3);
+        IcqSlickFixture.testerAgent.setUserInfoLanguage(lang1, lang2, lang3);
 
         // give the server time to change things
         synchronized(lock)
@@ -179,7 +181,7 @@ public class TestOperationSetServerStoredInfo
         int countryRandom =  0 + (int)(Math.random() * 232);
         int countryCode = ((Integer)countryIndexToLocaleString[countryRandom][0]).intValue();
         String countryAbr = (String)countryIndexToLocaleString[countryRandom][1];
-        fixture.testerAgent.setUserInfoHomeCountry(countryCode);
+        IcqSlickFixture.testerAgent.setUserInfoHomeCountry(countryCode);
 
         // give the server time to change things
         synchronized(lock)
@@ -190,7 +192,7 @@ public class TestOperationSetServerStoredInfo
         }
 
         Contact testerAgentContact
-            = opSetPresence.findContactByID(fixture.testerAgent.getIcqUIN());
+            = opSetPresence.findContactByID(IcqSlickFixture.testerAgent.getIcqUIN());
 
         // Get the last name info
         Iterator<GenericDetail> iter =
@@ -489,7 +491,7 @@ public class TestOperationSetServerStoredInfo
         logger.trace("Proceeding to Testing values!");
         // make the tests here
 
-        Hashtable<String, Object> userInfo = fixture.testerAgent.getUserInfo(fixture.ourUserID);
+        Hashtable<String, Object> userInfo = IcqSlickFixture.testerAgent.getUserInfo(fixture.ourUserID);
 
         assertEquals("The LastName we set is not set or not read properly"
                      , newLastName

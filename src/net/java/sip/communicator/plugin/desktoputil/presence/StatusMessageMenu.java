@@ -23,7 +23,7 @@ import org.jitsi.util.*;
 /**
  * The <tt>StatusMessageMenu<tt> is added to every status selector box in order
  * to enable the user to choose a status message.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class StatusMessageMenu
@@ -106,7 +106,7 @@ public class StatusMessageMenu
     /**
      * Creates an instance of <tt>StatusMessageMenu</tt>, by specifying the
      * <tt>ProtocolProviderService</tt> to which this menu belongs.
-     * 
+     *
      * @param protocolProvider the protocol provider service to which this
      * menu belongs
      */
@@ -1026,6 +1026,7 @@ public class StatusMessageMenu
             this.saveIfNewMessage = saveIfNewMessage;
         }
 
+        @Override
         public void run()
         {
             try
@@ -1046,7 +1047,7 @@ public class StatusMessageMenu
             }
             catch (OperationFailedException e1)
             {
-                
+
                 if (e1.getErrorCode()
                     == OperationFailedException.GENERAL_ERROR)
                 {
@@ -1057,16 +1058,16 @@ public class StatusMessageMenu
                 }
                 else if (e1.getErrorCode()
                         == OperationFailedException
-                            .NETWORK_FAILURE) 
+                            .NETWORK_FAILURE)
                 {
                     logger.error(
                         "Network failure occured while "
                         + "publishing presence status.",
                         e1);
-                } 
+                }
                 else if (e1.getErrorCode()
                         == OperationFailedException
-                            .PROVIDER_NOT_REGISTERED) 
+                            .PROVIDER_NOT_REGISTERED)
                 {
                     logger.error(
                         "Protocol provider must be"

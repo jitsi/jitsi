@@ -16,7 +16,7 @@ import org.osgi.framework.*;
 
 /**
  * Registers the <tt>ZeroconfAccountRegistrationWizard</tt> in the UI Service.
- * 
+ *
  * @author Christian Vincenot
  * @author Maxime Catelin
  */
@@ -126,7 +126,7 @@ public class ZeroconfAccRegWizzActivator
 
     /**
      * Returns the <tt>UIService</tt>.
-     * 
+     *
      * @return the <tt>UIService</tt>
      */
     public static UIService getUIService()

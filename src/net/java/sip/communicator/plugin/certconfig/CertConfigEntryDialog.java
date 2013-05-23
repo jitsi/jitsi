@@ -227,6 +227,7 @@ public class CertConfigEntryDialog
     // ------------------------------------------------------------------------
     // Event handling
     // ------------------------------------------------------------------------
+    @Override
     protected void close(boolean escaped)
     {
         cmdCancel.doClick();
@@ -316,6 +317,7 @@ public class CertConfigEntryDialog
                     setLocationRelativeTo(cmdShowCert);
                 }
 
+                @Override
                 protected void close(boolean escaped)
                 {
                     cmdClose.doClick();
@@ -344,12 +346,14 @@ public class CertConfigEntryDialog
         dlg.setSelectionMode(SipCommFileChooser.FILES_ONLY);
         dlg.addFilter(new SipCommFileFilter()
         {
+            @Override
             public String getDescription()
             {
                 return R
                     .getI18NString("plugin.certconfig.FILE_TYPE_DESCRIPTION");
             }
 
+            @Override
             public boolean accept(File f)
             {
                 for(KeyStoreType kt : cs.getSupportedKeyStoreTypes())

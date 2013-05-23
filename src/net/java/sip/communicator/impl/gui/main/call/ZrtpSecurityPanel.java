@@ -137,7 +137,7 @@ public class ZrtpSecurityPanel
 
     private String zidString;
     private String zidNameKey;
-    private ConfigurationService configService; 
+    private ConfigurationService configService;
     private String zidNameValue;
     private String zidAorKey;
     private String zidAorValue;
@@ -179,7 +179,7 @@ public class ZrtpSecurityPanel
         zidNameValue = configService.getString(zidNameKey);
         zidAorValue = configService.getString(zidAorKey);
 
-        if (zidAorValue != null && 
+        if (zidAorValue != null &&
             !zidAorValue.equalsIgnoreCase(callPeer.getAddress()))
         {
             zidAorMismatch = true;
@@ -383,9 +383,9 @@ public class ZrtpSecurityPanel
             if (zidNameValue != null)
             {
                 /*
-                 * Reduce length of ZID name to fit the security status label. 
+                 * Reduce length of ZID name to fit the security status label.
                  * The security status label's tooltip contains the full name
-                 * including an explanatory text. 
+                 * including an explanatory text.
                  */
                 String label = zidNameValue;
                 if (zidNameValue.length() > 6)
@@ -398,7 +398,7 @@ public class ZrtpSecurityPanel
                         "service.gui.ZID_NAME_SET") + " '" + zidNameValue + "'";
             }
         }
-        
+
         if (securityStatusLabel != null)
         {
             securityStatusLabel.setText(statusLabel);
@@ -436,7 +436,7 @@ public class ZrtpSecurityPanel
                 // confirmed).
                 if (!sasVerified)
                     return;
-                
+
                 if (zidNameDialogThread == null)
                 {
                     zidNameDialogThread = new ZidToNameThread();
@@ -451,6 +451,7 @@ public class ZrtpSecurityPanel
      *
      * @param evt the security event of which we're notified
      */
+    @Override
     public void securityOn(CallPeerSecurityOnEvent evt)
     {
         switch (evt.getSessionType())
@@ -494,6 +495,7 @@ public class ZrtpSecurityPanel
     /**
      * Indicates that the security has gone off.
      */
+    @Override
     public void securityOff(CallPeerSecurityOffEvent evt)
     {
         switch (evt.getSessionType())
@@ -510,6 +512,7 @@ public class ZrtpSecurityPanel
         repaint();
     }
 
+    @Override
     public void securityTimeout(CallPeerSecurityTimeoutEvent ev) {}
 
     /**
@@ -732,7 +735,7 @@ public class ZrtpSecurityPanel
         @Override
         public void run()
         {
-            String message = zidAorMismatch ? 
+            String message = zidAorMismatch ?
                 GuiActivator.getResources()
                     .getI18NString("service.gui.ZID_NAME_UNEXPECTED") :
                 GuiActivator.getResources()

@@ -64,6 +64,7 @@ public class WhiteboardChangeEvent
      *
      * @return  A a String representation of this WhiteboardChangeEvent.
      */
+    @Override
     public String toString()
     {
         return "WhiteboardChangeEvent: type="+getEventType()

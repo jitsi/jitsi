@@ -150,6 +150,7 @@ public class AudioConferenceCallPanel
      * which are not conference focuses are depicted by
      * <tt>ConferencePeerPanel</tt>s.
      */
+    @Override
     protected ConferenceCallPeerRenderer updateViewFromModel(
             ConferenceCallPeerRenderer callPeerPanel,
             CallPeer callPeer)
@@ -192,13 +193,14 @@ public class AudioConferenceCallPanel
     /**
      * {@inheritDoc}
      */
+    @Override
     protected void viewForModelAdded(
             ConferenceCallPeerRenderer callPeerPanel,
             CallPeer callPeer)
     {
         /*
          * Add the Component which is widget equivalent to the specified
-         * callPeerPanel to the user interface hierarchy of this instance. 
+         * callPeerPanel to the user interface hierarchy of this instance.
          */
         constraints.gridy = (callPeer == null) ? 0 : (constraints.gridy + 1);
         mainPanel.add(callPeerPanel.getComponent(), constraints);
@@ -215,6 +217,7 @@ public class AudioConferenceCallPanel
     /**
      * {@inheritDoc}
      */
+    @Override
     protected void viewForModelRemoved(
             ConferenceCallPeerRenderer callPeerPanel,
             CallPeer callPeer)

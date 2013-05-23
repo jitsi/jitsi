@@ -22,7 +22,7 @@ import net.java.sip.communicator.util.*;
  * href="http://tools.ietf.org/html/rfc5922#section-7.1">RFC5922, Section
  * 7.1</a> and compares them with the rules from Section 7.2 and 7.3.
  * @see #PNAME_STRICT_RFC5922 for wildcard handling; the default is false
- * 
+ *
  * @author Ingo Bauersachs
  */
 public class RFC5922Matcher
@@ -53,7 +53,7 @@ public class RFC5922Matcher
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * net.java.sip.communicator.service.certificate.CertificateMatcher#verify
      * (java.lang.Iterable, java.security.cert.X509Certificate)
@@ -85,10 +85,10 @@ public class RFC5922Matcher
                     if(!strict
                         // is a wildcard name
                         && dnsName.startsWith("*.")
-                        // contains at least two dots (*.example.com) 
+                        // contains at least two dots (*.example.com)
                         && identity.indexOf(".") < identity.lastIndexOf(".")
                         // compare *.example.com stripped to example.com with
-                        // - foo.example.com stripped to example.com 
+                        // - foo.example.com stripped to example.com
                         // - foo.bar.example.com to bar.example.com
                         && NetworkUtils.compareDnsNames(
                             dnsName.substring(2),

@@ -99,7 +99,7 @@ public abstract class AbstractDeviceConfigurationListener
 
     /**
      * Indicates that user has clicked on the systray popup message.
-     * 
+     *
      * @param ev the event triggered when user clicks on the systray popup
      * message
      */

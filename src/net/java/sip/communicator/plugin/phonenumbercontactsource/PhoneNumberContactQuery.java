@@ -16,7 +16,7 @@ import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
 /**
  * The <tt>PhoneNumberContactQuery</tt> is a query over the
  * <tt>PhoneNumberContactSource</tt>.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class PhoneNumberContactQuery
@@ -56,6 +56,7 @@ public class PhoneNumberContactQuery
     /**
      * Do all the work in different thread.
      */
+    @Override
     public void run()
     {
         Iterator<ProtocolProviderService> providers
@@ -230,6 +231,7 @@ public class PhoneNumberContactQuery
         return null;
     }
 
+    @Override
     protected boolean phoneNumberMatches(String phoneNumber)
     {
         return false;

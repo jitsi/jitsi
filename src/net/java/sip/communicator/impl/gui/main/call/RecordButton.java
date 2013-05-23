@@ -52,7 +52,7 @@ public class RecordButton
      */
     private static final ResourceManagementService resources
         = GuiActivator.getResources();
-    
+
     /**
      * Maximum allowed file name length.
      */
@@ -117,6 +117,7 @@ public class RecordButton
     /**
      * Starts/stops the recording of the call when this button is pressed.
      */
+    @Override
     public void buttonPressed()
     {
         if (call != null)
@@ -352,11 +353,13 @@ public class RecordButton
                 callFileChooser.addFilter(
                         new SipCommFileFilter()
                         {
+                            @Override
                             public boolean accept(File f)
                             {
                                 return f.isDirectory() || isSupportedFormat(f);
                             }
 
+                            @Override
                             public String getDescription()
                             {
                                 StringBuilder description = new StringBuilder();

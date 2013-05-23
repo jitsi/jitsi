@@ -21,7 +21,7 @@ import net.java.sip.communicator.util.*;
 /**
  * Implementation of the manually configured SIP proxy connection. IP Address
  * lookups are performed using the account's proxy address.
- * 
+ *
  * @author Ingo Bauersachs
  */
 public class ManualProxyConnection
@@ -38,7 +38,7 @@ public class ManualProxyConnection
 
     /**
      * Creates a new instance of this class. Uses the server from the account.
-     * 
+     *
      * @param account the account of this SIP protocol instance
      */
     public ManualProxyConnection(SipAccountID account)
@@ -49,7 +49,7 @@ public class ManualProxyConnection
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see net.java.sip.communicator.impl.protocol.sip.net.ProxyConnection#
      * getNextAddress()
      */
@@ -98,7 +98,7 @@ public class ManualProxyConnection
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * net.java.sip.communicator.impl.protocol.sip.net.ProxyConnection#reset()
      */

@@ -45,6 +45,7 @@ public class TestAccountUninstallation
      * JUnit setup method.
      * @throws Exception in case anything goes wrong.
      */
+    @Override
     protected void setUp() throws Exception
     {
         super.setUp();
@@ -55,6 +56,7 @@ public class TestAccountUninstallation
      * JUnit teardown method.
      * @throws Exception in case anything goes wrong.
      */
+    @Override
     protected void tearDown() throws Exception
     {
         fixture.tearDown();
@@ -138,7 +140,7 @@ public class TestAccountUninstallation
     public void testInstallationPersistency() throws Exception
     {
         Bundle providerBundle
-            = fixture.findProtocolProviderBundle(fixture.provider1);
+            = SipSlickFixture.findProtocolProviderBundle(fixture.provider1);
 
         //set the global providerBundle reference that we will be using
         //in the last series of tests (Account uninstallation persistence)
@@ -163,7 +165,7 @@ public class TestAccountUninstallation
         ServiceReference[] sipProviderRefs = null;
         try
         {
-            sipProviderRefs = fixture.bc.getServiceReferences(
+            sipProviderRefs = SipSlickFixture.bc.getServiceReferences(
                 ProtocolProviderService.class.getName(),
                 "(&"
                 + "(" + ProtocolProviderFactory.PROTOCOL
@@ -194,7 +196,7 @@ public class TestAccountUninstallation
               == null);
 
         //Now reinstall the bundle
-        providerBundle = fixture.bc.installBundle(providerBundle.getLocation());
+        providerBundle = SipSlickFixture.bc.installBundle(providerBundle.getLocation());
 
         //set the global providerBundle reference that we will be using
         //in the last series of tests (Account uninstallation persistency)
@@ -203,7 +205,7 @@ public class TestAccountUninstallation
         assertEquals("Couldn't re-install protocol provider bundle."
                      , Bundle.INSTALLED, providerBundle.getState());
 
-        AccountManagerUtils.startBundleAndWaitStoredAccountsLoaded(fixture.bc,
+        AccountManagerUtils.startBundleAndWaitStoredAccountsLoaded(SipSlickFixture.bc,
             providerBundle, ProtocolNames.SIP);
         assertEquals("Couldn't re-start protocol provider bundle."
                      , Bundle.ACTIVE, providerBundle.getState());
@@ -212,7 +214,7 @@ public class TestAccountUninstallation
         //verify that the provider is no longer available
         try
         {
-            sipProviderRefs = fixture.bc.getServiceReferences(
+            sipProviderRefs = SipSlickFixture.bc.getServiceReferences(
                 ProtocolProviderService.class.getName(),
                 "(&"
                 + "(" + ProtocolProviderFactory.PROTOCOL
@@ -234,7 +236,7 @@ public class TestAccountUninstallation
         ServiceReference[] sipFactoryRefs = null;
         try
         {
-            sipFactoryRefs = fixture.bc.getServiceReferences(
+            sipFactoryRefs = SipSlickFixture.bc.getServiceReferences(
                 ProtocolProviderFactory.class.getName(),
                 "(" + ProtocolProviderFactory.PROTOCOL
                       + "=" +ProtocolNames.SIP + ")");
@@ -247,9 +249,9 @@ public class TestAccountUninstallation
         //we're the ones who've reinstalled the factory so it's our
         //responsibility to update the fixture.
         fixture.providerFactory
-            = (ProtocolProviderFactory)fixture.bc.getService(sipFactoryRefs[0]);
+            = (ProtocolProviderFactory)SipSlickFixture.bc.getService(sipFactoryRefs[0]);
         fixture.provider1
-            = (ProtocolProviderService)fixture.bc.getService(sipProviderRefs[0]);
+            = (ProtocolProviderService)SipSlickFixture.bc.getService(sipProviderRefs[0]);
 
 
         //verify that the provider is also restored in the provider factory
@@ -293,7 +295,7 @@ public class TestAccountUninstallation
         ServiceReference[] sipProviderRefs = null;
         try
         {
-            sipProviderRefs = fixture.bc.getServiceReferences(
+            sipProviderRefs = SipSlickFixture.bc.getServiceReferences(
                 ProtocolProviderService.class.getName(),
                 "(" + ProtocolProviderFactory.PROTOCOL
                       + "=" +ProtocolNames.SIP + ")");

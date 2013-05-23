@@ -21,7 +21,7 @@ import net.java.sip.communicator.service.gui.Container;
  * interface allows us to add this menu item in the user interface bundle by
  * registering it through the the bundle context
  * (see {@link ExamplePluginActivator#start(org.osgi.framework.BundleContext)}).
- * 
+ *
  * @author Yana Stamcheva
  */
 public class ExamplePluginMenuItem
@@ -80,13 +80,14 @@ public class ExamplePluginMenuItem
 
     /**
      * Sets the current <tt>MetaContact</tt>. This in the case of the contact
-     * right button menu container would be the underlying contact in the 
+     * right button menu container would be the underlying contact in the
      * contact list.
-     * 
+     *
      * @param metaContact the <tt>MetaContact</tt> to set.
-     * 
+     *
      * @see PluginComponent#setCurrentContact(MetaContact)
      */
+    @Override
     public void setCurrentContact(MetaContact metaContact)
     {
         this.metaContact = metaContact;

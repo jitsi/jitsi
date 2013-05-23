@@ -16,7 +16,7 @@ import net.java.sip.communicator.plugin.desktoputil.*;
 
 /**
  * The SIPCommLabelUI implementation.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class SIPCommLabelUI extends MetalLabelUI {
@@ -29,6 +29,7 @@ public class SIPCommLabelUI extends MetalLabelUI {
         return new SIPCommLabelUI();
     }
 
+    @Override
     public void paint(Graphics g, JComponent c)
     {
         AntialiasingManager.activateAntialiasing(g);

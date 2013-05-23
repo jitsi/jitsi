@@ -231,7 +231,7 @@ public abstract class AbstractOperationSetBasicAutoAnswer
             {
                 peer.addCallPeerListener(this);
             }
-                
+
         }
 
         /**

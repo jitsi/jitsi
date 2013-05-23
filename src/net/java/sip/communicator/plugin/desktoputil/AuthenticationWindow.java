@@ -159,7 +159,7 @@ public class AuthenticationWindow
         this(null, null, server, isUserNameEditable, false,
              icon, null, null, null, null, null, null);
     }
-    
+
     /**
      * Creates an instance of the <tt>LoginWindow</tt>.
      *
@@ -239,6 +239,7 @@ public class AuthenticationWindow
          */
         this.addWindowListener(new WindowAdapter()
         {
+            @Override
             public void windowOpened(WindowEvent e)
             {
                 pack();
@@ -260,7 +261,7 @@ public class AuthenticationWindow
 
         if (password != null)
             passwdField.setText(new String(password));
-        
+
         if(errorMessage != null)
         {
             this.infoTextArea.setForeground(Color.RED);
@@ -620,6 +621,7 @@ public class AuthenticationWindow
         if(isVisible)
         {
             addWindowFocusListener(new WindowAdapter() {
+                @Override
                 public void windowGainedFocus(WindowEvent e)
                 {
                     removeWindowFocusListener(this);
@@ -720,6 +722,7 @@ public class AuthenticationWindow
                 "plugin.simpleaccregwizz.SPECIAL_SIGNUP"));
         subscribeLabel.addMouseListener(new MouseAdapter()
         {
+            @Override
             public void mousePressed(MouseEvent e)
             {
                 try

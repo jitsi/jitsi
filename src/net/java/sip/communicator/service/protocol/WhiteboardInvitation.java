@@ -28,18 +28,18 @@ public interface WhiteboardInvitation
 
     /**
      * Returns the password to use when joining the whiteboard.
-     * 
+     *
      * @return the password to use when joining the whiteboard
      */
     public byte[] getWhiteboardPassword();
-    
+
     /**
      * Returns the <tt>WhiteboardParticipant</tt> that sent this invitation.
-     * 
+     *
      * @return the <tt>WhiteboardParticipant</tt> that sent this invitation.
      */
     public String getInviter();
-    
+
     /**
      * Returns the reason of this invitation, or null if there is no reason
      * specified.

@@ -11,7 +11,7 @@ import java.io.*;
 
 /**
  * Used for incoming file transfer request.
- * 
+ *
  * @author Nicolas Riegel
  * @author Yana Stamcheva
  */
@@ -28,7 +28,7 @@ public interface IncomingFileTransferRequest
     /**
      * Returns a String that represents the name of the file that is being
      * received.
-     * If there is no name, returns null. 
+     * If there is no name, returns null.
      * @return a String that represents the name of the file
      */
     public String getFileName();
@@ -37,7 +37,7 @@ public interface IncomingFileTransferRequest
      * Returns a String that represents the description of the file that is
      * being received.
      * If there is no description available, returns null.
-     * 
+     *
      * @return a String that represents the description of the file
      */
     public String getFileDescription();
@@ -46,7 +46,7 @@ public interface IncomingFileTransferRequest
      * Returns a long that represents the size of the file that is being
      * received.
      * If there is no file size available, returns null.
-     * 
+     *
      * @return a long that represents the size of the file
      */
     public long getFileSize();
@@ -55,7 +55,7 @@ public interface IncomingFileTransferRequest
      * Returns a String that represents the name of the sender of the file
      * being received.
      * If there is no sender name available, returns null.
-     * 
+     *
      * @return a String that represents the name of the sender
      */
     public Contact getSender();

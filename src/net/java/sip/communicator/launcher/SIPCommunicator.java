@@ -265,7 +265,7 @@ public class SIPCommunicator
             System.setProperty(PNAME_SC_HOME_DIR_LOCATION, location);
             System.setProperty(PNAME_SC_HOME_DIR_NAME, name);
         }
- 
+
         // when we end up with the home dirs, make sure we have log dir
         new File(location, name + File.separator + "log").mkdirs();
     }

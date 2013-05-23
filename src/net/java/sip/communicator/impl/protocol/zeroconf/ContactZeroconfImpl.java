@@ -29,7 +29,7 @@ public class ContactZeroconfImpl
     private static final Logger logger
         = Logger.getLogger(ContactZeroconfImpl.class);
 
-    
+
     /**
      * The id of the contact.
      */
@@ -40,7 +40,7 @@ public class ContactZeroconfImpl
      * with him.
      */
     private ClientThread thread = null;
- 
+
     /*
      * Type of Client.
      */
@@ -61,21 +61,21 @@ public class ContactZeroconfImpl
      */
     public static final int SIPCOM = 4;
     private int clientType = XMPP;
-    
-    
+
+
     /**
      * The provider that created us.
      */
     private ProtocolProviderServiceZeroconfImpl parentProvider = null;
 
-    
+
     /*
      * The Bonjour Service who discovered this contact.
      * TODO: This could probably be avoided using only the
      * Protocol Provider.
      */
     private BonjourService bonjourService;
-    
+
     /**
      * The group that belong to.
      */
@@ -87,7 +87,7 @@ public class ContactZeroconfImpl
     private PresenceStatus presenceStatus = ZeroconfStatusEnum.OFFLINE;
 
     /**
-     * Determines whether this contact is persistent, 
+     * Determines whether this contact is persistent,
      * i.e. member of the contact list or whether it is here only temporarily.
      * Chris: should be set to false here
      */
@@ -103,28 +103,28 @@ public class ContactZeroconfImpl
      * IP Address
      */
     private InetAddress ipAddress;
-    
+
     /**
      * Port on which Bonjour is listening.
      */
     private int port;
-    
+
     /**
      * Name announced by Bonjour.
      */
     private String name;
-    
+
     /**
      * Contact personal message
      */
     private String message;
 
-    
+
     /**
      * Creates an instance of a meta contact with the specified string used
      * as a name and identifier.
      * @param bonjourId ID of the contact
-     * @param bonjourService BonjourService responsible for handling chat with 
+     * @param bonjourService BonjourService responsible for handling chat with
      * this contact
      * @param name Display name of this contact
      * @param ipAddress IP address of this contact
@@ -165,27 +165,27 @@ public class ContactZeroconfImpl
      * Return the BonjourService
      * @return BonjourService
      */
-    public BonjourService getBonjourService() 
+    public BonjourService getBonjourService()
     {
         return bonjourService;
     }
 
     /**
      * Return the ClientThread responsible for handling with this contact
-     * @return ClientThread corresponding to the chat with this contact or null 
+     * @return ClientThread corresponding to the chat with this contact or null
      * if no chat was started
      */
-    protected ClientThread getClientThread() 
+    protected ClientThread getClientThread()
     {
         return thread;
     }
 
     /**
      * Set the ClientThread responsible for handling with this contact
-     * @param thread ClientThread corresponding to the chat with this contact 
+     * @param thread ClientThread corresponding to the chat with this contact
      * or null if the chat is over
      */
-    protected void setClientThread(ClientThread thread) 
+    protected void setClientThread(ClientThread thread)
     {
         this.thread = thread;
     }
@@ -194,7 +194,7 @@ public class ContactZeroconfImpl
      * Return the type of client
      * @return Type of client used by this contact
      */
-    public int getClientType() 
+    public int getClientType()
     {
         return clientType;
     }
@@ -203,11 +203,11 @@ public class ContactZeroconfImpl
      * Sets the type of client
      * @param clientType Type of client used by this contact
      */
-    public void setClientType(int clientType) 
+    public void setClientType(int clientType)
     {
         this.clientType = clientType;
     }
-    
+
     /**
      * Returns a String that can be used for identifying the contact.
      *
@@ -234,7 +234,7 @@ public class ContactZeroconfImpl
      * Returns the IP address declared by this Contact
      * @return IP address declared by this Contact
      */
-    public InetAddress getIpAddress() 
+    public InetAddress getIpAddress()
     {
         return ipAddress;
     }
@@ -243,7 +243,7 @@ public class ContactZeroconfImpl
      * Returns the TCP port declared by this Contact for direct chat
      * @return the TCP port declared by this Contact for direct chat
      */
-    public int getPort() 
+    public int getPort()
     {
         return port;
     }
@@ -253,16 +253,16 @@ public class ContactZeroconfImpl
      * Returns the status/private message displayed by this contact
      * @return the status/private message displayed by this contact
      */
-    public String getMessage() 
+    public String getMessage()
     {
         return message;
     }
-    
+
     /**
      * Sets the status/private message displayed by this contact
      * @param message the status/private message displayed by this contact
      */
-    public void setMessage(String message) 
+    public void setMessage(String message)
     {
         this.message = message;
     }
@@ -298,13 +298,13 @@ public class ContactZeroconfImpl
     public void setPresenceStatus(PresenceStatus zeroconfPresenceStatus)
     {
         this.presenceStatus = zeroconfPresenceStatus;
-        
+
         if (zeroconfPresenceStatus == ZeroconfStatusEnum.OFFLINE) {
-            try 
+            try
             {
-                bonjourService.opSetPersPresence.unsubscribe((Contact)this);
+                bonjourService.opSetPersPresence.unsubscribe(this);
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 logger.error(ex);
             }
@@ -348,6 +348,7 @@ public class ContactZeroconfImpl
      *
      * @return  a string representation of this contact.
      */
+    @Override
     public String toString()
     {
         StringBuffer buff
@@ -446,7 +447,7 @@ public class ContactZeroconfImpl
 
     /**
      * Return the current status message of this contact.
-     * 
+     *
      * @return null as the protocol has currently no support of status messages
      */
     public String getStatusMessage()

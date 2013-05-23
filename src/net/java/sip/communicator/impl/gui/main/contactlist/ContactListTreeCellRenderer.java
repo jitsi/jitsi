@@ -599,6 +599,7 @@ public class ContactListTreeCellRenderer
      * Returns the preferred size of this component.
      * @return the preferred size of this component
      */
+    @Override
     public Dimension getPreferredSize()
     {
         Dimension preferredSize = new Dimension();

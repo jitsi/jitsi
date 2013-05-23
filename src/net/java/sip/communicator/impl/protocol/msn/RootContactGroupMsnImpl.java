@@ -130,7 +130,7 @@ public class RootContactGroupMsnImpl
      */
     public ContactGroup getGroup(int index)
     {
-        return (ContactGroupMsnImpl) subGroups.get(index);
+        return subGroups.get(index);
     }
 
     /**
@@ -206,6 +206,7 @@ public class RootContactGroupMsnImpl
      *
      * @return  a string representation of this root contact group.
      */
+    @Override
     public String toString()
     {
         StringBuffer buff = new StringBuffer(getGroupName());

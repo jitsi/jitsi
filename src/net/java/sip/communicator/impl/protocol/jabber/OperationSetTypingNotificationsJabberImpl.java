@@ -188,6 +188,7 @@ public class OperationSetTypingNotificationsJabberImpl
      * @throws java.lang.IllegalStateException
      *             if the underlying stack is not registered and initialized.
      */
+    @Override
     protected void assertConnected()
         throws IllegalStateException
     {

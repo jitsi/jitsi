@@ -78,6 +78,7 @@ public class GoogleContactsServiceImpl
     {
         new Thread()
         {
+            @Override
             public void run()
             {
                 loadConfig();

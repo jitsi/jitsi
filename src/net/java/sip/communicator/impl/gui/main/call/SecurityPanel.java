@@ -15,7 +15,7 @@ import org.jitsi.service.neomedia.*;
 
 /**
  * Base class for security panels that show encryption specific UI controls.
- * 
+ *
  * @author Ingo Bauersachs
  */
 public abstract class SecurityPanel<T extends SrtpControl>
@@ -57,7 +57,7 @@ public abstract class SecurityPanel<T extends SrtpControl>
     /**
      * Creates the security panel depending on the concrete implementation of
      * the passed security controller.
-     * 
+     *
      * @param srtpControl the security controller that provides the information
      *            to be shown on the UI
      * @return An instance of a {@link SecurityPanel} for the security
@@ -84,10 +84,13 @@ public abstract class SecurityPanel<T extends SrtpControl>
                 {
                     public void loadSkin() {}
 
+                    @Override
                     public void securityOn(CallPeerSecurityOnEvent evt) {}
 
+                    @Override
                     public void securityOff(CallPeerSecurityOffEvent evt) {}
 
+                    @Override
                     public void securityTimeout(
                             CallPeerSecurityTimeoutEvent evt) {}
                 };
@@ -107,7 +110,7 @@ public abstract class SecurityPanel<T extends SrtpControl>
      * @param evt details about the event that caused this message.
      */
     public abstract void securityOff(CallPeerSecurityOffEvent evt);
-    
+
     /**
      * Indicates that the security is timeouted, is not supported by the
      * other end.

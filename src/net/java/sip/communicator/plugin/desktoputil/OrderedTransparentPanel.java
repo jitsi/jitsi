@@ -21,7 +21,7 @@ public class OrderedTransparentPanel
     private static final long serialVersionUID = 0L;
 
     @Override
-    public Component add(Component comp) 
+    public Component add(Component comp)
     {
         if(comp instanceof OrderedComponent)
             return addOrdered(comp);

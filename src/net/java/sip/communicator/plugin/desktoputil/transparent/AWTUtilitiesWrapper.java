@@ -3,7 +3,7 @@
  *
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
- * 
+ *
  * Based on the code of Anthony Petrov
  * http://java.sun.com/developer/technicalArticles/GUI/translucent_shaped_windows/
  */
@@ -20,7 +20,7 @@ import net.java.sip.communicator.util.*;
  */
 public class AWTUtilitiesWrapper
 {
-    private static final Logger logger  
+    private static final Logger logger
         = Logger.getLogger(AWTUtilitiesWrapper.class);
 
     private static Class<?> awtUtilitiesClass;

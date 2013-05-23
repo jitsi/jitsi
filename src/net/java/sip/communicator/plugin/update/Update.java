@@ -161,7 +161,7 @@ public class Update
      * <tt>tempFile</tt> and not open it or <tt>false</tt> to generate a
      * <tt>File</tt> in <tt>tempFile</tt> and open it
      * @param tempFile a <tt>File</tt> array of at least one element which is to
-     * receive the created <tt>File</tt> instance at index zero (if successful) 
+     * receive the created <tt>File</tt> instance at index zero (if successful)
      * @return the newly created <tt>FileOutputStream</tt>
      * @throws IOException if anything goes wrong while creating the new
      * <tt>FileOutputStream</tt>
@@ -330,7 +330,7 @@ public class Update
                         /*
                          * Ignore it because we've already downloaded the setup
                          * and that's what matters most.
-                         */ 
+                         */
                     }
                 }
             }
@@ -541,6 +541,7 @@ public class Update
         {
             private static final long serialVersionUID = 0L;
 
+            @Override
             protected void close(boolean escaped)
             {
                 synchronized (exitCheckForUpdates)
@@ -691,6 +692,7 @@ public class Update
         {
             private static final long serialVersionUID = 0L;
 
+            @Override
             protected void close(boolean escaped)
             {
                 synchronized (exitCheckForUpdates)
@@ -854,7 +856,7 @@ public class Update
 
         dialog.pack();
 
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize(); 
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         dialog.setLocation(
                 screenSize.width/2 - dialog.getWidth()/2,
                 screenSize.height/2 - dialog.getHeight()/2);

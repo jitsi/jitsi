@@ -15,7 +15,7 @@ import org.osgi.framework.*;
  * Contains fields and methods used by most or all tests in the yahoo slick.
  *
  * @author Damian Minkov
- * @author Valentin Martinet 
+ * @author Valentin Martinet
  */
 public class YahooSlickFixture
     extends AdHocMultiUserChatSlickFixture
@@ -27,14 +27,15 @@ public class YahooSlickFixture
     {
         super();
     }
-    
+
     /**
      * Initializes protocol provider references and whatever else there is to
      * initialize.
-     * 
+     *
      * @throws InvalidSyntaxException in case we meet problems while retrieving
      * protocol providers through OSGI
      */
+    @Override
     public void setUp() throws InvalidSyntaxException
     {
         // first obtain a reference to the provider factory
@@ -66,7 +67,7 @@ public class YahooSlickFixture
             System.getProperty(
                 YahooProtocolProviderServiceLick.ACCOUNT_2_PREFIX
                 + ProtocolProviderFactory.USER_ID);
-        
+
         userID3 =
             System.getProperty(
                 YahooProtocolProviderServiceLick.ACCOUNT_3_PREFIX
@@ -104,7 +105,7 @@ public class YahooSlickFixture
                       , yahooProvider2Refs);
         assertTrue("No Protocol Provider was found for yahoo account2:"+userID2,
                      yahooProvider2Refs.length > 0);
-        
+
         ServiceReference[] yahooProvider3Refs
         = bc.getServiceReferences(
             ProtocolProviderService.class.getName(),

@@ -1008,6 +1008,7 @@ public abstract class EventPackageNotifier
          * <tt>Subscription</tt> and removes the associated
          * <tt>Subscription</tt>.
          */
+        @Override
         public void run()
         {
             Dialog dialog = subscription.getDialog();

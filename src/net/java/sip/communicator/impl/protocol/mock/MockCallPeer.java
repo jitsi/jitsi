@@ -67,6 +67,7 @@ public class MockCallPeer
      *
      * @return a reference to the call containing this peer.
      */
+    @Override
     public MockCall getCall()
     {
         return call;
@@ -123,6 +124,7 @@ public class MockCallPeer
      * @return a reference to the ProtocolProviderService that this peer
      * belongs to.
      */
+    @Override
     public MockProvider getProtocolProvider()
     {
         return this.call.getProtocolProvider();

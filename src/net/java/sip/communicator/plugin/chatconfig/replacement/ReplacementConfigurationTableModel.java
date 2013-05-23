@@ -54,6 +54,7 @@ public class ReplacementConfigurationTableModel
      * @param columnIndex
      * @return the Class of the column. <tt>Boolean</tt> for the first column.
      */
+    @Override
     public Class<?> getColumnClass(int columnIndex)
     {
         return (columnIndex == 0) ? Boolean.class : super
@@ -111,6 +112,7 @@ public class ReplacementConfigurationTableModel
      *
      * @return boolean; true for first column false otherwise
      */
+    @Override
     public boolean isCellEditable(int rowIndex, int columnIndex)
     {
         return (columnIndex == 0);
@@ -125,6 +127,7 @@ public class ReplacementConfigurationTableModel
      * @param rowIndex
      * @param columnIndex
      */
+    @Override
     public void setValueAt(Object value, int rowIndex, int columnIndex)
     {
         if ((columnIndex == 0) && (value instanceof Boolean))

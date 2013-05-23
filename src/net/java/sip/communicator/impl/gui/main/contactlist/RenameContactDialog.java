@@ -18,8 +18,8 @@ import net.java.sip.communicator.service.contactlist.*;
 
 /**
  * The <tt>RenameContactDialog</tt> is the dialog containing the form for
- * renaming a contact. 
- * 
+ * renaming a contact.
+ *
  * @author Yana Stamcheva
  */
 public class RenameContactDialog
@@ -50,7 +50,7 @@ public class RenameContactDialog
 
     /**
      * Creates an instance of <tt>RenameContactDialog</tt>.
-     * 
+     *
      * @param mainFrame The main application window.
      * @param metaContact The <tt>MetaContact</tt> to rename.
      */
@@ -127,11 +127,12 @@ public class RenameContactDialog
         String name = button.getName();
 
         if (name.equals("rename"))
-        {   
+        {
             if (metaContact != null)
             {
                 new Thread()
                 {
+                    @Override
                     public void run()
                     {
                         clist.renameMetaContact(
@@ -156,6 +157,7 @@ public class RenameContactDialog
         this.renameContactPanel.requestFocusInField();
     }
 
+    @Override
     protected void close(boolean isEscaped)
     {
         this.cancelButton.doClick();

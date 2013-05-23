@@ -166,6 +166,7 @@ public class MsOutlookAddrBookContactSourceService
      *
      * @see AsyncContactSourceService#stop()
      */
+    @Override
     public void stop()
     {
         if(latestQuery != null)
@@ -282,6 +283,7 @@ public class MsOutlookAddrBookContactSourceService
      * @return True if this contact source service can be used to perform search
      * for contacts. False otherwise.
      */
+    @Override
     public boolean canBeUsedToSearchContacts()
     {
         return !AddrBookActivator.getConfigService().getBoolean(

@@ -44,6 +44,7 @@ public class TestOperationSetBasicTelephonySipImpl
      * JUnit setup method.
      * @throws Exception in case anything goes wrong.
      */
+    @Override
     protected void setUp() throws Exception
     {
         super.setUp();
@@ -54,6 +55,7 @@ public class TestOperationSetBasicTelephonySipImpl
      * JUnit teardown method.
      * @throws Exception in case anything goes wrong.
      */
+    @Override
     protected void tearDown() throws Exception
     {
         fixture.tearDown();
@@ -886,6 +888,7 @@ public class TestOperationSetBasicTelephonySipImpl
          *
          * @param event the event containing the source call.
          */
+        @Override
         public void peerStateChanged(CallPeerChangeEvent event)
         {
             synchronized(this)
@@ -1009,6 +1012,7 @@ public class TestOperationSetBasicTelephonySipImpl
          *
          * @param event the event containing the source call.
          */
+        @Override
         public void callStateChanged(CallChangeEvent event)
         {
             synchronized(this)

@@ -12,8 +12,8 @@ import net.java.sip.communicator.impl.gui.main.*;
 
 /**
  * The <tt>CreateChatRoomWizard</tt> is the wizard through which the user could
- * create its own chat room. 
- * 
+ * create its own chat room.
+ *
  * @author Yana Stamcheva
  */
 public class CreateChatRoomWizard
@@ -28,7 +28,7 @@ public class CreateChatRoomWizard
 
     /**
      * Creates an instance of <tt>CreateChatRoomWizard</tt>.
-     *  
+     *
      * @param mainFrame the main application window
      */
     public CreateChatRoomWizard(MainFrame mainFrame)

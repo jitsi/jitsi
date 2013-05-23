@@ -124,6 +124,7 @@ public class CallPeerGibberishImpl
      *
      * @return a reference to the call containing this peer.
      */
+    @Override
     public CallGibberishImpl getCall()
     {
         return call;
@@ -180,6 +181,7 @@ public class CallPeerGibberishImpl
      * @return a reference to the ProtocolProviderService that this peer
      * belongs to.
      */
+    @Override
     public ProtocolProviderServiceGibberishImpl getProtocolProvider()
     {
         return call.getProtocolProvider();

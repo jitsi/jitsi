@@ -14,7 +14,7 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
- * The <tt>UIContactDetail</tt> implementation 
+ * The <tt>UIContactDetail</tt> implementation
  *
  * @author Yana Stamcheva
  */
@@ -71,7 +71,7 @@ public class UIContactDetailImpl
         String category,
         Collection<String> labels,
         ImageIcon statusIcon,
-        Map<Class<? extends OperationSet>, ProtocolProviderService> 
+        Map<Class<? extends OperationSet>, ProtocolProviderService>
                                                         preferredProviders,
         Map<Class<? extends OperationSet>, String> preferredProtocols,
         Object descriptor)

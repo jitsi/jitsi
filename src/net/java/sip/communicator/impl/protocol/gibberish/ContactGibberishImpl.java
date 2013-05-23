@@ -173,6 +173,7 @@ public class ContactGibberishImpl
      *
      * @return  a string representation of this contact.
      */
+    @Override
     public String toString()
     {
         StringBuffer buff
@@ -243,10 +244,10 @@ public class ContactGibberishImpl
     {
         return isResolved;
     }
-    
+
     /**
      * Return the current status message of this contact.
-     * 
+     *
      * @return null as the protocol has currently no support of status messages
      */
     public String getStatusMessage()

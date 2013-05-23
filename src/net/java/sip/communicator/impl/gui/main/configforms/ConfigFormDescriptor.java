@@ -18,7 +18,7 @@ import net.java.sip.communicator.util.*;
  * <tt>ConfigurationForm</tt>. When a <tt>ConfigurationForm</tt> is added in the
  * <tt>ConfigurationWindow</tt> we create the corresponding descriptor and load
  * all the data we need in order to show this configuration form.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class ConfigFormDescriptor
@@ -35,7 +35,7 @@ public class ConfigFormDescriptor
 
     /**
      * Loads the given <tt>ConfigurationForm</tt>.
-     * 
+     *
      * @param configForm the <tt>ConfigurationForm</tt> to load
      */
     public ConfigFormDescriptor(ConfigurationForm configForm)
@@ -61,7 +61,7 @@ public class ConfigFormDescriptor
 
     /**
      * Returns the icon of the corresponding <tt>ConfigurationForm</tt>.
-     * 
+     *
      * @return the icon of the corresponding <tt>ConfigurationForm</tt>
      */
     public ImageIcon getConfigFormIcon()
@@ -71,7 +71,7 @@ public class ConfigFormDescriptor
 
     /**
      * Returns the form of the corresponding <tt>ConfigurationForm</tt>.
-     * 
+     *
      * @return the form of the corresponding <tt>ConfigurationForm</tt>
      */
     public Component getConfigFormPanel()
@@ -92,7 +92,7 @@ public class ConfigFormDescriptor
 
     /**
      * Returns the title of the corresponding <tt>ConfigurationForm</tt>.
-     * 
+     *
      * @return the title of the corresponding <tt>ConfigurationForm</tt>
      */
     public String getConfigFormTitle()
@@ -102,7 +102,7 @@ public class ConfigFormDescriptor
 
     /**
      * Returns the corresponding <tt>ConfigurationForm</tt>.
-     * 
+     *
      * @return the corresponding <tt>ConfigurationForm</tt>
      */
     public ConfigurationForm getConfigForm()

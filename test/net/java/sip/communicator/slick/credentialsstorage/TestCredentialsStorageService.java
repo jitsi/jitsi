@@ -23,31 +23,31 @@ public class TestCredentialsStorageService
      * The service we are testing.
      */
     private CredentialsStorageService credentialsService = null;
-    
+
     /**
      * Prefix for the test account.
      */
     private static final String accountPrefix = "my.account.prefix";
-    
+
     /**
      * Password for the test account.
      */
     private static final String accountPassword = "pa$$W0rt123.";
-    
+
     /**
      * The master password.
      */
     private static final String masterPassword = "MasterPazz321";
 
     /**
-     * Another master password. 
+     * Another master password.
      */
     private static final String otherMasterPassword = "123$ecretPSWRD";
-    
-    
+
+
     /**
      * Generic JUnit Constructor.
-     * 
+     *
      * @param name the name of the test
      */
     public TestCredentialsStorageService(String name)
@@ -60,11 +60,12 @@ public class TestCredentialsStorageService
         credentialsService =
             (CredentialsStorageService) context.getService(ref);
     }
-    
+
     /**
      * Generic JUnit setUp method.
      * @throws Exception if anything goes wrong.
      */
+    @Override
     protected void setUp() throws Exception
     {
         // set the master password
@@ -77,11 +78,12 @@ public class TestCredentialsStorageService
         credentialsService.storePassword(accountPrefix, accountPassword);
         super.setUp();
     }
-    
+
     /**
      * Generic JUnit tearDown method.
      * @throws Exception if anything goes wrong.
      */
+    @Override
     protected void tearDown() throws Exception
     {
         // remove the password
@@ -103,20 +105,20 @@ public class TestCredentialsStorageService
         boolean verify1 =
             credentialsService.verifyMasterPassword(otherMasterPassword);
         assertFalse("Wrong password cannot be correct", verify1);
-        
+
         // try to verify a correct password
         boolean verify2 =
             credentialsService.verifyMasterPassword(masterPassword);
         assertTrue("Correct password cannot be wrong", verify2);
     }
-    
+
     /**
      * Tests whether the loaded password is the same as the stored one.
      */
     public void testLoadPassword()
     {
         String loadedPassword = credentialsService.loadPassword(accountPrefix);
-        
+
         assertEquals("Loaded and stored passwords do not match", accountPassword,
             loadedPassword);
     }
@@ -127,7 +129,7 @@ public class TestCredentialsStorageService
     public void testIsUsingMasterPassword()
     {
         boolean isUsing = credentialsService.isUsingMasterPassword();
-        
+
         assertTrue("Master password is used, true expected", isUsing);
     }
 
@@ -141,12 +143,12 @@ public class TestCredentialsStorageService
             credentialsService.changeMasterPassword(masterPassword,
                 otherMasterPassword);
         assertTrue("Changing master password failed", change1);
-        
+
         // account passwords must remain the same
         String loadedPassword = credentialsService.loadPassword(accountPrefix);
         assertEquals("Account passwords must not differ", loadedPassword,
             accountPassword);
-        
+
         // change MP back
         boolean change2 =
             credentialsService.changeMasterPassword(otherMasterPassword,
@@ -172,11 +174,11 @@ public class TestCredentialsStorageService
     {
         // remove the saved password
         credentialsService.removePassword(accountPrefix);
-        
+
         // try to load the password
         String loadedPassword = credentialsService.loadPassword(accountPrefix);
         assertNull("Password was not removed", loadedPassword);
-        
+
         // save it back again
         credentialsService.storePassword(accountPrefix, accountPassword);
     }

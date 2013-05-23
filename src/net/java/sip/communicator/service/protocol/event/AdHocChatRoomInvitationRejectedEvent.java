@@ -48,13 +48,13 @@ public class AdHocChatRoomInvitationRejectedEvent
      * @param source the <tt>OperationSetAdHocMultiUserChat</tt> that dispatches
      * this
      * event
-     * @param adHocChatRoom the <tt>AdHocChatRoom</tt> for which the initial 
+     * @param adHocChatRoom the <tt>AdHocChatRoom</tt> for which the initial
      * invitation was
      * @param invitee the name of the invitee that rejected the invitation
      * @param reason the reason of the rejection
      * @param timestamp the exact date when the event ocurred
      */
-    public AdHocChatRoomInvitationRejectedEvent( 
+    public AdHocChatRoomInvitationRejectedEvent(
                                         OperationSetAdHocMultiUserChat source,
                                         AdHocChatRoom adHocChatRoom,
                                         String invitee,
@@ -70,10 +70,10 @@ public class AdHocChatRoomInvitationRejectedEvent
     }
 
     /**
-     * Returns the ad-hoc multi user chat operation set that dispatches this 
+     * Returns the ad-hoc multi user chat operation set that dispatches this
      * event.
-     * 
-     * @return the ad-hoc multi user chat operation set that dispatches this 
+     *
+     * @return the ad-hoc multi user chat operation set that dispatches this
      * event
      */
     public OperationSetAdHocMultiUserChat getSourceOperationSet()
@@ -83,7 +83,7 @@ public class AdHocChatRoomInvitationRejectedEvent
 
     /**
      * Returns the <tt>AdHocChatRoom</tt> for which the initial invitation was.
-     * 
+     *
      * @return the <tt>AdHocChatRoom</tt> for which the initial invitation was
      */
     public AdHocChatRoom getChatRoom()
@@ -102,10 +102,10 @@ public class AdHocChatRoomInvitationRejectedEvent
     }
 
     /**
-     * Returns the reason for which the <tt>AdHocChatRoomInvitation</tt> is 
+     * Returns the reason for which the <tt>AdHocChatRoomInvitation</tt> is
      * rejected.
      *
-     * @return the reason for which the <tt>AdHocChatRoomInvitation</tt> is 
+     * @return the reason for which the <tt>AdHocChatRoomInvitation</tt> is
      * rejected.
      */
     public String getReason()

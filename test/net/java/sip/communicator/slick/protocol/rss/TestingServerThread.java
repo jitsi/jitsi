@@ -57,6 +57,7 @@ public class TestingServerThread
      * connections on <code>serverSocket</code>, and upon a successful request
      * serves the file according to the <code>launcher</code>'s settings.
      */
+    @Override
     public void run()
     {
         if (launcher.isActive())

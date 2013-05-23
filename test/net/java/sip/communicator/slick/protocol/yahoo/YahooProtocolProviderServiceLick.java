@@ -36,7 +36,7 @@ public class YahooProtocolProviderServiceLick
      */
     public static final String ACCOUNT_2_PREFIX
         = "accounts.yahoo.account2.";
-    
+
     /**
      * The prefix used for property names containing settings for our third
      * testing account.
@@ -96,7 +96,7 @@ public class YahooProtocolProviderServiceLick
             addTest(TestOperationSetTypingNotifications.suite());
 
             addTestSuite(TestOperationSetFileTransferImpl.class);
-            
+
             //addTest(TestOperationSetAdHocMultiUserChatYahooImpl.suite());
         }
 

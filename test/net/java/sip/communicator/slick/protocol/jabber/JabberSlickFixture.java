@@ -58,7 +58,7 @@ public class JabberSlickFixture
      * The user ID associated with testing account 2.
      */
     public String userID2 = null;
-    
+
     /**
      * An osgi service reference for the protocol provider corresponding to our
      * third testing account.
@@ -117,6 +117,7 @@ public class JabberSlickFixture
      * @throws java.lang.Exception in case we meet problems while retrieving
      * protocol providers through OSGI
      */
+    @Override
     public void setUp()
         throws Exception
     {
@@ -149,7 +150,7 @@ public class JabberSlickFixture
            = System.getProperty(
                 JabberProtocolProviderServiceLick.ACCOUNT_2_PREFIX
                 + ProtocolProviderFactory.USER_ID);
-        
+
         userID3
         = System.getProperty(
              JabberProtocolProviderServiceLick.ACCOUNT_3_PREFIX
@@ -189,7 +190,7 @@ public class JabberSlickFixture
                       + userID2, jabberProvider2Refs);
         assertTrue("No Protocol Provider was found for Jabber account2:"+
             userID2, jabberProvider2Refs.length > 0);
-        
+
         ServiceReference[] jabberProvider3Refs
         = bc.getServiceReferences(
             ProtocolProviderService.class.getName(),
@@ -202,16 +203,16 @@ public class JabberSlickFixture
         //again make sure we found a service.
         assertNotNull("No Protocol Provider was found for Jabber account3:"
                       + userID3, jabberProvider3Refs);
-        assertTrue("No Protocol Provider was found for Jabber account3:"+ 
+        assertTrue("No Protocol Provider was found for Jabber account3:"+
             userID3, jabberProvider3Refs.length > 0);
 
         //save the service for other tests to use.
         provider1ServiceRef = jabberProvider1Refs[0];
         provider1 = (ProtocolProviderService)bc.getService(provider1ServiceRef);
-        
+
         provider2ServiceRef = jabberProvider2Refs[0];
         provider2 = (ProtocolProviderService)bc.getService(provider2ServiceRef);
-        
+
         provider3ServiceRef = jabberProvider3Refs[0];
         provider3 = (ProtocolProviderService)bc.getService(provider3ServiceRef);
     }
@@ -219,6 +220,7 @@ public class JabberSlickFixture
     /**
      * Un get service references used in here.
      */
+    @Override
     public void tearDown()
     {
         bc.ungetService(provider1ServiceRef);
@@ -263,7 +265,7 @@ public class JabberSlickFixture
 
     /**
      * Clears all the providers of this fixture.
-     * 
+     *
      * @throws Exception
      */
     public void clearProvidersLists()
@@ -273,20 +275,20 @@ public class JabberSlickFixture
         clearProvider(provider2);
         clearProvider(provider3);
     }
-    
-    
+
+
     /**
      * Clears the given <tt>provider</tt>. It means delete existing contacts,
      * existing groups.
-     * 
+     *
      * @param provider
      * @throws IllegalArgumentException
      * @throws IllegalStateException
      * @throws OperationFailedException
      */
-    public void clearProvider(ProtocolProviderService provider) 
-    throws  IllegalArgumentException, 
-            IllegalStateException, 
+    public void clearProvider(ProtocolProviderService provider)
+    throws  IllegalArgumentException,
+            IllegalStateException,
             OperationFailedException
     {
         Map<String, OperationSet> supportedOperationSets =
@@ -310,25 +312,25 @@ public class JabberSlickFixture
                 "An implementation of the Jabber service must provide an "
                 + "implementation of at least the one of the Presence "
                 + "Operation Sets");
-        
+
         deleteGroups(opSetPersPresence);
     }
-    
-    
+
+
     /**
      * Delete all groups and contacts for the given persistent presence op. set.
-     * 
+     *
      * @param opSetPersPresence
      * @throws IllegalArgumentException
      * @throws IllegalStateException
      * @throws OperationFailedException
      */
-    public void deleteGroups(OperationSetPersistentPresence opSetPersPresence) 
-    throws  IllegalArgumentException, 
-            IllegalStateException, 
+    public void deleteGroups(OperationSetPersistentPresence opSetPersPresence)
+    throws  IllegalArgumentException,
+            IllegalStateException,
             OperationFailedException
     {
-        ContactGroup rootGroup = 
+        ContactGroup rootGroup =
             opSetPersPresence.getServerStoredContactListRoot();
 
         // first delete the groups

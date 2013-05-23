@@ -11,7 +11,7 @@ import java.util.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
- * <tt>AdHocChatRoomMessageDeliveredEvent</tt>s confirm successful delivery of 
+ * <tt>AdHocChatRoomMessageDeliveredEvent</tt>s confirm successful delivery of
  * an instant message.
  *
  * @author Valentin Martinet
@@ -106,7 +106,7 @@ public class AdHocChatRoomMessageDeliveryFailedEvent
      {
          return to;
      }
-     
+
      /**
       * Returns the received message.
       * @return the <tt>Message</tt> that triggered this event.

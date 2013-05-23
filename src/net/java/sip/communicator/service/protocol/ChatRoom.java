@@ -26,7 +26,7 @@ public interface ChatRoom
      * @return a <tt>String</tt> containing the name of this <tt>ChatRoom</tt>.
      */
     public String getName();
-    
+
     /**
      * Returns the identifier of this <tt>ChatRoom</tt>. The identifier of the
      * chat room would have the following syntax:
@@ -163,7 +163,7 @@ public interface ChatRoom
 
     /**
      * Changes the the local user's nickname in the context of this chatroom.
-     * 
+     *
      * @param nickname the new nickname within the room.
      *
      * @throws OperationFailedException if the new nickname already exist in
@@ -175,7 +175,7 @@ public interface ChatRoom
     /**
      * Adds a listener that will be notified of changes in our participation in
      * the room such as us being kicked, join, left...
-     * 
+     *
      * @param listener a member participation listener.
      */
     public void addMemberPresenceListener(
@@ -185,7 +185,7 @@ public interface ChatRoom
      * Removes a listener that was being notified of changes in the
      * participation of other chat room participants such as users being kicked,
      * join, left.
-     * 
+     *
      * @param listener a member participation listener.
      */
     public void removeMemberPresenceListener(
@@ -194,7 +194,7 @@ public interface ChatRoom
     /**
      * Adds a listener that will be notified of changes in our role in the room
      * such as us being granded operator.
-     * 
+     *
      * @param listener a local user role listener.
      */
     public void addLocalUserRoleListener(ChatRoomLocalUserRoleListener listener);
@@ -202,7 +202,7 @@ public interface ChatRoom
     /**
      * Removes a listener that was being notified of changes in our role in this
      * chat room such as us being granded operator.
-     * 
+     *
      * @param listener a local user role listener.
      */
     public void removelocalUserRoleListener(
@@ -211,7 +211,7 @@ public interface ChatRoom
     /**
      * Adds a listener that will be notified of changes of a member role in the
      * room such as being granded operator.
-     * 
+     *
      * @param listener a member role listener.
      */
     public void addMemberRoleListener(ChatRoomMemberRoleListener listener);
@@ -219,7 +219,7 @@ public interface ChatRoom
     /**
      * Removes a listener that was being notified of changes of a member role in
      * this chat room such as us being granded operator.
-     * 
+     *
      * @param listener a member role listener.
      */
     public void removeMemberRoleListener(ChatRoomMemberRoleListener listener);
@@ -227,7 +227,7 @@ public interface ChatRoom
     /**
      * Adds a listener that will be notified of changes in the property of the
      * room such as the subject being change or the room state being changed.
-     * 
+     *
      * @param listener a property change listener.
      */
     public void addPropertyChangeListener(
@@ -237,7 +237,7 @@ public interface ChatRoom
      * Removes a listener that was being notified of changes in the property of
      * the chat room such as the subject being change or the room state being
      * changed.
-     * 
+     *
      * @param listener a property change listener.
      */
     public void removePropertyChangeListener(
@@ -246,7 +246,7 @@ public interface ChatRoom
     /**
      * Adds a listener that will be notified of changes in the property of a
      * room member such as the nickname being changed.
-     * 
+     *
      * @param listener a room member property change listener.
      */
     public void addMemberPropertyChangeListener(
@@ -255,7 +255,7 @@ public interface ChatRoom
     /**
      * Removes a listener that was being notified of changes in the property of
      * a chat room member such as the nickname being changed.
-     * 
+     *
      * @param listener a room member property change listener.
      */
     public void removeMemberPropertyChangeListener(
@@ -329,7 +329,7 @@ public interface ChatRoom
 
     /**
      * Sends the <tt>message</tt> to this chat room.
-     * 
+     *
      * @param message the <tt>Message</tt> to send.
      * @throws OperationFailedException if sending the message fails for some
      * reason.
@@ -349,7 +349,7 @@ public interface ChatRoom
      * Returns an Iterator over a set of ban masks for this chat room. The ban
      * mask defines a group of users that will be banned. The ban list is a list
      * of all such ban masks defined for this chat room.
-     * 
+     *
      * @return an Iterator over a set of ban masks for this chat room
      * @throws OperationFailedException if an error occured while performing the
      * request to the server or you don't have enough privileges to get this
@@ -395,8 +395,8 @@ public interface ChatRoom
      * Returns the <tt>ChatRoomConfigurationForm</tt> containing all
      * configuration properties for this chat room. If the user doesn't have
      * permissions to see and change chat room configuration an
-     * <tt>OperationFailedException</tt> is thrown. 
-     * 
+     * <tt>OperationFailedException</tt> is thrown.
+     *
      * @return the <tt>ChatRoomConfigurationForm</tt> containing all
      * configuration properties for this chat room
      * @throws OperationFailedException if the user doesn't have
@@ -406,10 +406,10 @@ public interface ChatRoom
         throws OperationFailedException;
 
     /**
-     * Returns <code>true</code> if this chat room is a system room and 
+     * Returns <code>true</code> if this chat room is a system room and
      * <code>false</code> otherwise.
-     * 
-     * @return <code>true</code> if this chat room is a system room and 
+     *
+     * @return <code>true</code> if this chat room is a system room and
      * <code>false</code> otherwise.
      */
     public boolean isSystem();
@@ -419,7 +419,7 @@ public interface ChatRoom
      * file or not. If the chat room is persistent it still will be shown after a
      * restart in the chat room list. A non-persistent chat room will be only in
      * the chat room list until the the program is running.
-     * 
+     *
      * @return true if this chat room is persistent, false otherwise
      */
     public boolean isPersistent();

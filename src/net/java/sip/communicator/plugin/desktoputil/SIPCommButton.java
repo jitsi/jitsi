@@ -154,6 +154,7 @@ public class SIPCommButton
      *
      * @param g The Graphics object.
      */
+    @Override
     protected void paintComponent(Graphics g)
     {
         g = g.create();

@@ -22,27 +22,27 @@ public class ZeroconfAccountID
     private String first = null;
     private String last = null;
     private String mail = null;
-    
+
     private boolean rememberContacts = false;
-    
+
     /**
-     * Creates a zeroconf account id from the specified id and account 
+     * Creates a zeroconf account id from the specified id and account
      * properties.
      * @param userID id identifying this account
      * @param accountProperties any other properties necessary for the account.
      */
     ZeroconfAccountID(String userID, Map<String, String> accountProperties)
     {
-        super(userID, 
-              accountProperties, 
+        super(userID,
+              accountProperties,
               ProtocolNames.ZEROCONF,
               "zeroconf.org");
-        
+
         first = accountProperties.get("first");
         last = accountProperties.get("last");
         mail = accountProperties.get("mail");
-        
-        rememberContacts = 
+
+        rememberContacts =
             new Boolean(accountProperties.get("rememberContacts"))
                 .booleanValue();
     }

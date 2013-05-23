@@ -20,9 +20,9 @@ import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.gui.*;
 
 /**
- * This panel allows to search chat rooms on the considered provider, and to 
+ * This panel allows to search chat rooms on the considered provider, and to
  * join them.
- * 
+ *
  * @author Yana Stamcheva
  * @author Valentin Martinet
  */
@@ -32,33 +32,33 @@ public class SearchChatRoomPanel
     implements ActionListener, DocumentListener
 {
     private final ChatRoomNamePanel namePanel = new ChatRoomNamePanel();
-    
+
     private final JPanel mainPanel = new TransparentPanel();
 
     private final JPanel searchPanel = new TransparentPanel(new GridLayout(0, 1));
-    
+
     private final JTextArea searchTextArea = new JTextArea(
         GuiActivator.getResources()
             .getI18NString("service.gui.SEARCH_FOR_CHAT_ROOMS_MSG"));
-    
+
     private final JButton searchButton = new JButton(
         GuiActivator.getResources().getI18NString("service.gui.SEARCH"));
-    
+
     private final JPanel buttonPanel = new TransparentPanel(
         new FlowLayout(FlowLayout.CENTER));
-    
+
     private final JList chatRoomsList = new JList();
-    
+
     private final JScrollPane chatRoomsScrollPane = new JScrollPane();
 
     private final WizardContainer wizardContainer;
 
     private ChatRoomProviderWrapper chatRoomProvider;
-    
+
     List<String> serverRooms = null;
-    
+
     /**
-     * Creates a <tt>SearchChatRoomPanel</tt> instance without specifying 
+     * Creates a <tt>SearchChatRoomPanel</tt> instance without specifying
      * neither the parent window, nor the protocol provider.
      */
     public SearchChatRoomPanel(WizardContainer wizardContainer)
@@ -70,7 +70,7 @@ public class SearchChatRoomPanel
 
     /**
      * Creates an instance of <tt>SearchChatRoomPanel</tt>.
-     * 
+     *
      * @param provider the chat room provider wrapper corresponding to the
      * account for which the search panel is created
      */
@@ -78,7 +78,7 @@ public class SearchChatRoomPanel
     {
         this.chatRoomProvider = provider;
         this.wizardContainer = null;
-        
+
         this.init();
     }
 
@@ -92,9 +92,9 @@ public class SearchChatRoomPanel
         this.searchTextArea.setEditable(false);
         this.searchTextArea.setLineWrap(true);
         this.searchTextArea.setWrapStyleWord(true);
-        
+
         this.namePanel.addChatRoomNameListener(this);
-        
+
         this.searchPanel.add(searchTextArea);
         this.searchPanel.add(buttonPanel);
 
@@ -150,7 +150,7 @@ public class SearchChatRoomPanel
             chatRoomsList.setListData(new Vector<String>(serverRooms));
             chatRoomsList.setBorder(
                     BorderFactory.createLineBorder(Color.LIGHT_GRAY));
-            
+
             chatRoomsScrollPane.setPreferredSize(new Dimension(500, 250));
             chatRoomsScrollPane.setOpaque(false);
 
@@ -181,10 +181,10 @@ public class SearchChatRoomPanel
          */
         public void valueChanged(ListSelectionEvent e)
         {
-            if(e.getValueIsAdjusting() 
+            if(e.getValueIsAdjusting()
                 || chatRoomsList.getSelectedIndex() == -1)
                 return;
-            
+
             // The listener has to be removed while the textfield he's listening
             // is being changed:
             namePanel.removeChatRoomNameListener(SearchChatRoomPanel.this);
@@ -205,7 +205,7 @@ public class SearchChatRoomPanel
 
     /**
      * Sets the given chat room name to the text field, contained in this panel.
-     * 
+     *
      * @param chatRoomName the chat room name to set to the text field
      */
     public void setChatRoomName(String chatRoomName)
@@ -224,7 +224,7 @@ public class SearchChatRoomPanel
     /**
      * Sets the protocol provider that have been chosen by user on the first
      * page of the join chat room wizard.
-     * 
+     *
      * @param provider the chat room provider wrapper for which we'd search a
      * chat room
      */
@@ -238,7 +238,7 @@ public class SearchChatRoomPanel
     /**
      * Adds a <tt>DocumentListener</tt> to the text field containing the chosen
      * chat room.
-     * 
+     *
      * @param l the <tt>DocumentListener</tt> to add
      */
     public void addChatRoomNameListener(DocumentListener l)
@@ -247,26 +247,26 @@ public class SearchChatRoomPanel
     }
 
     /**
-     * Updates the chat rooms list when a key change is performed in the search 
+     * Updates the chat rooms list when a key change is performed in the search
      * field. The new chat rooms list will contain all the chat rooms whose name
      * start with search field's text value.
      */
     public void updateChatRoomList()
-    {        
+    {
         if(namePanel.getChatRoomName().length() > 0)
         {
             Vector<String> newCRL = new Vector<String>();
-            
+
             if(serverRooms != null)
                 for(String s : serverRooms)
                     if(s.startsWith(namePanel.getChatRoomName())) newCRL.add(s);
-            
+
             chatRoomsList.setListData(newCRL);
         }
-        else 
+        else
             chatRoomsList.setListData(new Vector<String>(serverRooms));
     }
-    
+
     public void changedUpdate(DocumentEvent e)
     {
         updateChatRoomList();

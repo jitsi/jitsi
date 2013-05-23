@@ -10,14 +10,14 @@ import java.util.*;
 
 /**
  * The <tt>Smiley</tt> interface used to represent a smiley
- * 
+ *
  * @author Yana Stamcheva
  */
 public interface Smiley
 {
     /**
      * Returns the description of this smiley.
-     * 
+     *
      * @return the description of this smiley.
      */
     public String getDescription();
@@ -36,7 +36,7 @@ public interface Smiley
     public String getDefaultString();
 
     /**
-     * Returns the identifier of the image corresponding to this smiley. 
+     * Returns the identifier of the image corresponding to this smiley.
      * @return the identifier of the image corresponding to this smiley.
      */
     public String getImageID();

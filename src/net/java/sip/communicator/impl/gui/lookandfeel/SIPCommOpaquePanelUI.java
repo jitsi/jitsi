@@ -23,6 +23,7 @@ public class SIPCommOpaquePanelUI
         return new SIPCommOpaquePanelUI();
     }
 
+    @Override
     public void paint(Graphics g, JComponent c)
     {
         super.paint(g, c);

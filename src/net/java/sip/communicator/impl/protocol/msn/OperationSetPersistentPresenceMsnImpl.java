@@ -120,6 +120,7 @@ public class OperationSetPersistentPresenceMsnImpl
      * @param listener a ServerStoredGroupChangeListener impl that would
      *   receive events upon group changes.
      */
+    @Override
     public void addServerStoredGroupChangeListener(ServerStoredGroupListener
         listener)
     {
@@ -458,6 +459,7 @@ public class OperationSetPersistentPresenceMsnImpl
      *
      * @param listener the ServerStoredGroupChangeListener to remove
      */
+    @Override
     public void removeServerStoredGroupChangeListener(ServerStoredGroupListener
         listener)
     {
@@ -633,12 +635,13 @@ public class OperationSetPersistentPresenceMsnImpl
 
     /**
      * Notify all provider presence listeners of the corresponding event change
-     * 
+     *
      * @param oldStatus
      *            the status our stack had so far
      * @param newStatus
      *            the status we have from now on
      */
+    @Override
     protected void fireProviderStatusChangeEvent(
         PresenceStatus oldStatus,
         PresenceStatus newStatus)
@@ -659,6 +662,7 @@ public class OperationSetPersistentPresenceMsnImpl
      * @throws IllegalArgumentException if <tt>contact</tt> is not an
      * instance that belongs to the underlying implementation.
      */
+    @Override
     public void setDisplayName(Contact contact, String newName)
         throws IllegalArgumentException
     {
@@ -844,6 +848,7 @@ public class OperationSetPersistentPresenceMsnImpl
          * Indicates that owner status changed
          * @param messenger the messenger changing the status
          */
+        @Override
         public void ownerStatusChanged(MsnMessenger messenger)
         {
             if (logger.isTraceEnabled())
@@ -859,6 +864,7 @@ public class OperationSetPersistentPresenceMsnImpl
          * @param messenger MsnMessenger
          * @param contact MsnContact
          */
+        @Override
         public void contactStatusChanged(   MsnMessenger messenger,
                                             MsnContact contact)
         {

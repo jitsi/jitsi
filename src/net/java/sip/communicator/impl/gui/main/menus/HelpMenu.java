@@ -18,12 +18,12 @@ import org.jitsi.service.resources.*;
 
 /**
  * The <tt>HelpMenu</tt> is a menu in the main application menu bar.
- * 
+ *
  * @author Yana Stamcheva
  * @author Thomas Hofer
  * @author Lyubomir Marinov
  */
-public class HelpMenu 
+public class HelpMenu
     extends SIPCommMenu
     implements ActionListener
 {
@@ -36,7 +36,7 @@ public class HelpMenu
 
     /**
      * Creates an instance of <tt>HelpMenu</tt>.
-     * 
+     *
      * @param mainFrame the parent window
      */
     public HelpMenu(MainFrame mainFrame)

@@ -180,6 +180,7 @@ public class ChatRoomMemberPresenceChangeEvent
      *
      * @return String representation of this event
      */
+    @Override
     public String toString()
     {
         return "ChatRoomMemberPresenceChangeEvent[type="

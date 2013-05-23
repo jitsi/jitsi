@@ -177,6 +177,7 @@ public class JingleNodeDescriptor
      *
      * @return a <tt>String</tt> representation of this descriptor.
      */
+    @Override
     public String toString()
     {
         return "JingleNodesDesc: " + getJID() + " relay:"

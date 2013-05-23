@@ -168,7 +168,7 @@ public class ThunderbirdConfigForm
                 if (txtFilename.getText() != null)
                 {
                     String bprop = PNAME_BASE_THUNDERBIRD_CONFIG + ".1";
-    
+
                     ConfigurationService config
                         = ThunderbirdActivator.getConfigService();
                     config.setProperty(bprop, "1");
@@ -305,7 +305,7 @@ public class ThunderbirdConfigForm
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see javax.swing.event.DocumentListener#insertUpdate(javax.swing.event.
      * DocumentEvent)
      */
@@ -316,7 +316,7 @@ public class ThunderbirdConfigForm
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see javax.swing.event.DocumentListener#removeUpdate(javax.swing.event.
      * DocumentEvent)
      */
@@ -327,7 +327,7 @@ public class ThunderbirdConfigForm
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see javax.swing.event.DocumentListener#changedUpdate(javax.swing.event.
      * DocumentEvent)
      */

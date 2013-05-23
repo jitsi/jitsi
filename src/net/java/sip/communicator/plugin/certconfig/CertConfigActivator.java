@@ -19,7 +19,7 @@ import org.osgi.framework.*;
 
 /**
  * OSGi Activator for the Certificate Configuration Advanced Form.
- * 
+ *
  * @author Ingo Bauersachs
  */
 public class CertConfigActivator
@@ -73,7 +73,7 @@ public class CertConfigActivator
      * Returns a reference to a ConfigurationService implementation currently
      * registered in the bundle context or null if no such implementation was
      * found.
-     * 
+     *
      * @return a currently valid implementation of the ConfigurationService.
      */
     public static ConfigurationService getConfigService()
@@ -86,7 +86,7 @@ public class CertConfigActivator
      * Returns a reference to a CertificateService implementation currently
      * registered in the bundle context or null if no such implementation was
      * found.
-     * 
+     *
      * @return a currently valid implementation of the CertificateService.
      */
     public static CertificateService getCertService()
@@ -98,7 +98,7 @@ public class CertConfigActivator
      * Returns a reference to a UIService implementation currently
      * registered in the bundle context or null if no such implementation was
      * found.
-     * 
+     *
      * @return a currently valid implementation of the UIService.
      */
     public static UIService getUIService()
@@ -110,7 +110,7 @@ public class CertConfigActivator
      * Returns a reference to a CredentialsStorageService implementation
      * currently registered in the bundle context or null if no such
      * implementation was found.
-     * 
+     *
      * @return a currently valid implementation of the
      *         CredentialsStorageService.
      */

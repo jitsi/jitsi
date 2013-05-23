@@ -10,7 +10,7 @@ import net.java.sip.communicator.service.protocol.*;
  * contactlist, which corresponds to a specific protocol contact. This
  * button allows opening a chat for a given "meta contact" by specifing
  * the exact protocol contact to use for the chat.
- *  
+ *
  * @author Yana Stamcheva
  */
 public class ContactProtocolButton
@@ -18,7 +18,7 @@ public class ContactProtocolButton
 {
 
     private Contact protocolContact;
-    
+
     /**
      * Creates an instance of ContactProtocolButton.
      * @param bgImage The background image of the button.

@@ -12,7 +12,7 @@ import net.java.otr4j.session.*;
 
 /**
  * Class used to associate a random UUID to an OTR4J SessionID.
- * 
+ *
  * @author Daniel Perren
  */
 public class ScSessionID

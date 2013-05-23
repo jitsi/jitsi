@@ -39,7 +39,7 @@ public class TestProtocolProviderServiceMsnImpl
      */
     public RegistrationEventCollector regEvtCollector2
         = new RegistrationEventCollector();
-    
+
     /**
      * An event adapter that would collec registation state change events
      */
@@ -59,6 +59,7 @@ public class TestProtocolProviderServiceMsnImpl
      * Initializes the fixture.
      * @throws Exception if super.setUp() throws one.
      */
+    @Override
     protected void setUp() throws Exception
     {
         super.setUp();
@@ -69,6 +70,7 @@ public class TestProtocolProviderServiceMsnImpl
      * Tears the fixture down.
      * @throws Exception if fixture.tearDown() fails.
      */
+    @Override
     protected void tearDown() throws Exception
     {
         fixture.tearDown();
@@ -135,7 +137,7 @@ public class TestProtocolProviderServiceMsnImpl
             +"All events were: " + regEvtCollector2.collectedNewStates
             ,regEvtCollector2.collectedNewStates
                 .contains(RegistrationState.REGISTERED));
-        
+
       //now the same for provider 3
 //        assertTrue(
 //            "No events were dispatched during the registration process "

@@ -208,6 +208,7 @@ public class MsOutlookAddrBookSourceContact
      *
      * @param displayName The new display name for this contact.
      */
+    @Override
     public void setDisplayName(String displayName)
     {
         if(displayName != null && !displayName.equals(this.getDisplayName()))
@@ -330,6 +331,7 @@ public class MsOutlookAddrBookSourceContact
      *
      * @return the index of this source contact in its parent
      */
+    @Override
     public int getIndex()
     {
         return -1;

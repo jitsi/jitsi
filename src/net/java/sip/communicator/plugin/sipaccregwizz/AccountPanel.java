@@ -305,6 +305,7 @@ public class AccountPanel
             Resources.getString("plugin.simpleaccregwizz.SPECIAL_SIGNUP"));
         subscribeLabel.addMouseListener(new MouseAdapter()
         {
+            @Override
             public void mousePressed(MouseEvent e)
             {
                 try
@@ -342,6 +343,7 @@ public class AccountPanel
             Resources.getString("plugin.simpleaccregwizz.FORGOT_PASSWORD"));
         subscribeLabel.addMouseListener(new MouseAdapter()
         {
+            @Override
             public void mousePressed(MouseEvent e)
             {
                 try

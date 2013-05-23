@@ -20,7 +20,7 @@ import net.java.sip.communicator.plugin.desktoputil.*;
  * adding a chat room. It is different from the "Create chat room" wizard. The
  * <tt>CreateChatRoomDialog</tt> is used when a new chat room
  * is added to an already existing server in the list.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class CreateChatRoomDialog
@@ -28,24 +28,24 @@ public class CreateChatRoomDialog
     implements ActionListener
 {
     private ChatRoomNamePanel chatRoomPanel = new ChatRoomNamePanel();
-    
+
     private JButton addButton = new JButton(
         GuiActivator.getResources().getI18NString("service.gui.CREATE"));
-    
+
     private JButton cancelButton = new JButton(
         GuiActivator.getResources().getI18NString("service.gui.CANCEL"));
-    
+
     private JPanel buttonsPanel =
         new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
-    
+
     private JPanel mainPanel = new TransparentPanel(new BorderLayout());
-    
+
     private ChatRoomProviderWrapper chatRoomProvider;
-    
+
     /**
      * Creates an instance of <tt>CreateChatRoomDialog</tt> that represents a
      * dialog that adds a new chat room to an already existing server.
-     * 
+     *
      * @param provider The <tt>ChatRoomProviderWrapper</tt>.
      */
     public CreateChatRoomDialog(ChatRoomProviderWrapper provider)
@@ -91,7 +91,7 @@ public class CreateChatRoomDialog
     }
 
     /**
-     * 
+     *
      */
     public void actionPerformed(ActionEvent e)
     {
@@ -104,13 +104,14 @@ public class CreateChatRoomDialog
 
             GuiActivator.getUIService().getConferenceChatManager()
                 .createChatRoom(chatRoomName,
-                                chatRoomProvider.getProtocolProvider(), 
-                                null, 
+                                chatRoomProvider.getProtocolProvider(),
+                                null,
                                 "");
         }
         this.dispose();
     }
 
+    @Override
     protected void close(boolean isEscaped)
     {
         this.cancelButton.doClick();

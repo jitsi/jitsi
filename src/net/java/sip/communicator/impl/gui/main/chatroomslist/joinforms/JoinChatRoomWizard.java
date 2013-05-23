@@ -15,8 +15,8 @@ import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 
 /**
  * The <tt>JoinChatRoomWizard</tt> is the wizard through which the user could
- * join a chat room. 
- * 
+ * join a chat room.
+ *
  * @author Yana Stamcheva
  */
 public class JoinChatRoomWizard
@@ -24,14 +24,14 @@ public class JoinChatRoomWizard
     implements  WizardListener
 {
     private NewChatRoom newChatRoom = new NewChatRoom();
-    
+
     private JoinChatRoomWizardPage1 page1;
-    
+
     private JoinChatRoomWizardPage2 page2;
-    
+
     /**
      * Creates an instance of <tt>CreateChatRoomWizard</tt>.
-     *  
+     *
      * @param mainFrame the main application window
      */
     public JoinChatRoomWizard(MainFrame mainFrame)

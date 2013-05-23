@@ -66,6 +66,7 @@ public class ExtendedTransferHandler
      * @return {@code COPY} if the transfer property can be found,
      *          otherwise returns <code>NONE</code>
      */
+    @Override
     public int getSourceActions(JComponent c)
     {
         return TransferHandler.COPY;
@@ -83,6 +84,7 @@ public class ExtendedTransferHandler
      * otherwise
      * @throws NullPointerException if <code>support</code> is {@code null}
      */
+    @Override
     public boolean canImport(JComponent comp, DataFlavor flavor[])
     {
         for (int i = 0, n = flavor.length; i < n; i++)
@@ -116,6 +118,7 @@ public class ExtendedTransferHandler
      * <tt>Transferable</tt>
      * @return the created <tt>Transferable</tt>
      */
+    @Override
     protected Transferable createTransferable(JComponent component)
     {
         if ((component instanceof JTextPane
@@ -131,7 +134,7 @@ public class ExtendedTransferHandler
      * Handles transport (cut and copy) from the chat panel to
      * <tt>clipboard</tt>. This method will only transfer plain text and would
      * explicitly ignore any formatting.
-     * If the selected text is HTML the images will be replaced with the 
+     * If the selected text is HTML the images will be replaced with the
      * content of the alt attribute.
      * <p>
      * @param comp  the component holding the data to be transferred;
@@ -146,6 +149,7 @@ public class ExtendedTransferHandler
      * @throws IllegalStateException if the clipboard is currently unavailable
      * @see Clipboard#setContents(Transferable, ClipboardOwner)
      */
+    @Override
     public void exportToClipboard(JComponent comp,
                                   Clipboard clipboard,
                                   int action)
@@ -181,9 +185,9 @@ public class ExtendedTransferHandler
             }
         }
     }
-    
+
     /**
-     * Gets the selected text and if the text is HTML replaces the images with 
+     * Gets the selected text and if the text is HTML replaces the images with
      * the content in ALT attribute.
      * @param textComponent the component which contains the selected data
      * @return selected text
@@ -205,7 +209,7 @@ public class ExtendedTransferHandler
                     JTextPane textPaneComponent = (JTextPane)textComponent;
 
                     StringWriter stringWriter = new StringWriter();
-                    textPaneComponent.getEditorKit().write(stringWriter, 
+                    textPaneComponent.getEditorKit().write(stringWriter,
                         doc, startIndex, selectionLength);
                     String data = stringWriter.toString();
 
@@ -221,7 +225,7 @@ public class ExtendedTransferHandler
 
                     Pattern pMsgHeader
                         = Pattern.compile(
-                            "<\\s*h\\d.*?id=['\"]messageHeader['\"]", 
+                            "<\\s*h\\d.*?id=['\"]messageHeader['\"]",
                             Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
 
                     Matcher mMsgHeader = pMsgHeader.matcher(data);
@@ -234,17 +238,17 @@ public class ExtendedTransferHandler
                         if(hasImg)
                         {
                             /*
-                             * This loop replaces the IMG tags with the value 
-                             * of the ALT attribute. The value of the ALT 
-                             * attribute is escaped to prevent illegal parsing 
-                             * of special HTML chars (like "<", ">", "&") 
-                             * later. If the chars aren't escaped the parser 
+                             * This loop replaces the IMG tags with the value
+                             * of the ALT attribute. The value of the ALT
+                             * attribute is escaped to prevent illegal parsing
+                             * of special HTML chars (like "<", ">", "&")
+                             * later. If the chars aren't escaped the parser
                              * will skip them.
                              */
                             int start = 0;
                             do
                             {
-                                tempData += data.substring(start, m.start()) + 
+                                tempData += data.substring(start, m.start()) +
                                     GuiUtils.escapeHTMLChars(m.group(2));
                                 start = m.end();
                             }
@@ -256,14 +260,14 @@ public class ExtendedTransferHandler
                             tempData = data;
                         }
                         /*
-                         * Remove the PLAINTEXT tags because they brake the 
+                         * Remove the PLAINTEXT tags because they brake the
                          * HTML
                          */
                         tempData = tempData.replaceAll(
                             "<[/]*PLAINTEXT>.*<[/]*PLAINTEXT>", "");
 
                         /*
-                         * The getText method ignores the BR tag, 
+                         * The getText method ignores the BR tag,
                          * empty A tag is replaced with \n
                          */
                         tempData = tempData.replaceAll(
@@ -359,7 +363,7 @@ public class ExtendedTransferHandler
             {
                 throw new UnsupportedFlavorException(flavor);
             }
-            
+
             String data = getSelectedTextFromComponent(textComponent);
             return ((data == null)? "" : data);
         }
@@ -375,6 +379,7 @@ public class ExtendedTransferHandler
      * created by the <code>createTransferable</code> method
      * @return the icon to show when dragging
      */
+    @Override
     public Icon getVisualRepresentation(Transferable t)
     {
         Icon icon = null;
@@ -440,6 +445,7 @@ public class ExtendedTransferHandler
         /**
          * Registers this DragGestureRecognizer's Listeners with the Component.
          */
+        @Override
         protected void registerListeners() {}
 
         /**
@@ -447,6 +453,7 @@ public class ExtendedTransferHandler
          * <p/>
          * Subclasses must override this method.
          */
+        @Override
         protected void unregisterListeners() {}
     }
 
@@ -463,6 +470,7 @@ public class ExtendedTransferHandler
      * be a value of either <code>COPY</code> or <code>MOVE</code>;
      * the value may be changed during the course of the drag operation
      */
+    @Override
     public void exportAsDrag(JComponent comp, InputEvent e, int action)
     {
         int srcActions = getSourceActions(comp);

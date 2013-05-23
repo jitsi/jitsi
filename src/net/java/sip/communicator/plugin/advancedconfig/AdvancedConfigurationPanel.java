@@ -291,6 +291,7 @@ public class AdvancedConfigurationPanel
          * @param cellHasFocus indicates if the cell has the focus
          * @return the component representing the cell
          */
+        @Override
         public Component getListCellRendererComponent(  JList list,
                                                         Object value,
                                                         int index,
@@ -310,6 +311,7 @@ public class AdvancedConfigurationPanel
          * background when a cell is selected.
          * @param g the <tt>Graphics</tt> object
          */
+        @Override
         public void paintComponent(Graphics g)
         {
             Graphics g2 = g.create();

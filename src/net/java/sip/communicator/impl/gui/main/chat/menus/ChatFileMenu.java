@@ -20,7 +20,7 @@ import net.java.sip.communicator.util.skin.*;
 /**
  * The <tt>FileMenu</tt> is the menu in the chat window menu bar that contains
  * my chat rooms, history and close.
- * 
+ *
  * @author Yana Stamcheva
  * @author Adam Netocny
  */
@@ -76,6 +76,7 @@ public class ChatFileMenu
      *
      * @param e the <tt>ActionEvent</tt> that notified us
      */
+    @Override
     public void actionPerformed(ActionEvent e)
     {
         super.actionPerformed(e);
@@ -129,6 +130,7 @@ public class ChatFileMenu
     /**
      * Reloads menu icons.
      */
+    @Override
     public void loadSkin()
     {
         super.loadSkin();

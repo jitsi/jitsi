@@ -23,7 +23,7 @@ import net.java.sip.communicator.plugin.desktoputil.*;
 /**
  * A {@link AbstractPluginComponent} that registers the Off-the-Record button in
  * the main chat toolbar.
- * 
+ *
  * @author George Politis
  */
 public class OtrMetaContactButton
@@ -95,7 +95,7 @@ public class OtrMetaContactButton
     /**
      * Gets the <code>SIPCommButton</code> which is the component of this
      * plugin. If the button doesn't exist, it's created.
-     * 
+     *
      * @return the <code>SIPCommButton</code> which is the component of this
      *         plugin
      */
@@ -158,6 +158,7 @@ public class OtrMetaContactButton
     /*
      * Implements PluginComponent#setCurrentContact(Contact).
      */
+    @Override
     public void setCurrentContact(Contact contact)
     {
         if (this.contact == contact)
@@ -179,6 +180,7 @@ public class OtrMetaContactButton
     /*
      * Implements PluginComponent#setCurrentContact(MetaContact).
      */
+    @Override
     public void setCurrentContact(MetaContact metaContact)
     {
         setCurrentContact((metaContact == null) ? null : metaContact
@@ -188,7 +190,7 @@ public class OtrMetaContactButton
     /**
      * Sets the button enabled status according to the passed in
      * {@link OtrPolicy}.
-     * 
+     *
      * @param contactPolicy the {@link OtrPolicy}.
      */
     private void setPolicy(OtrPolicy contactPolicy)
@@ -199,7 +201,7 @@ public class OtrMetaContactButton
 
     /**
      * Sets the button icon according to the passed in {@link SessionStatus}.
-     * 
+     *
      * @param status the {@link SessionStatus}.
      */
     private void setStatus(SessionStatus status)

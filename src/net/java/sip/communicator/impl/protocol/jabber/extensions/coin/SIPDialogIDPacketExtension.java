@@ -83,6 +83,7 @@ public class SIPDialogIDPacketExtension
      *
      * @return an XML representation of this extension.
      */
+    @Override
     public String toXML()
     {
         StringBuilder bldr = new StringBuilder();

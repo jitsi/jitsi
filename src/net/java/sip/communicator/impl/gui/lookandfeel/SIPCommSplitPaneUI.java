@@ -13,7 +13,7 @@ import javax.swing.plaf.metal.*;
 
 /**
  * Jitsi split pane.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class SIPCommSplitPaneUI extends MetalSplitPaneUI {
@@ -22,11 +22,12 @@ public class SIPCommSplitPaneUI extends MetalSplitPaneUI {
      */
    public static ComponentUI createUI(JComponent x) {
     return new SIPCommSplitPaneUI();
-   }  
+   }
    /**
      * Creates the default divider.
      */
-   public BasicSplitPaneDivider createDefaultDivider() {       
+   @Override
+public BasicSplitPaneDivider createDefaultDivider() {
        return new SIPCommSplitPaneDivider(this);
-   }  
+   }
 }

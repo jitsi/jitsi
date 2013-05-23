@@ -24,7 +24,7 @@ public class IrcAccountRegistration
 
     /**
      * Returns the User ID of the IRC registration account.
-     * 
+     *
      * @return the User ID of the IRC registration account.
      */
     public String getUserID()
@@ -34,7 +34,7 @@ public class IrcAccountRegistration
 
     /**
      * Sets the user ID of the IRC registration account.
-     * 
+     *
      * @param userID the userID of the IRC registration account.
      */
     public void setUserID(String userID)
@@ -64,7 +64,7 @@ public class IrcAccountRegistration
 
     /**
      * Returns the server address.
-     * 
+     *
      * @return the server address.
      */
     public String getServer()
@@ -74,7 +74,7 @@ public class IrcAccountRegistration
 
     /**
      * Sets the server address.
-     * 
+     *
      * @param server the address of the server
      */
     public void setServer(String server)
@@ -84,7 +84,7 @@ public class IrcAccountRegistration
 
     /**
      * Returns the port to use.
-     * 
+     *
      * @return the port to use
      */
     public String getPort()
@@ -94,7 +94,7 @@ public class IrcAccountRegistration
 
     /**
      * Sets the port to use.
-     * 
+     *
      * @param port the port to use
      */
     public void setPort(String port)
@@ -117,7 +117,7 @@ public class IrcAccountRegistration
     /**
      * Indicates if the nick should be changed automatically in case of nick
      * collision.
-     * 
+     *
      * @return <code>true</code> if the nick should be changed,
      * <code>false</code> - otherwise.
      */
@@ -128,7 +128,7 @@ public class IrcAccountRegistration
 
     /**
      * Sets the property indicating if the nick should be changed automatically
-     * in case of nick collision. 
+     * in case of nick collision.
      * @param autoChangeNick <code>true</code> to indicate that the nick could
      * be changed, <code>false</code> - otherwise.
      */
@@ -138,7 +138,7 @@ public class IrcAccountRegistration
     }
 
     /**
-     * Indicates if the password is required or not. 
+     * Indicates if the password is required or not.
      * @return <code>true</code> to indicate that the password is required,*
      * <code>false</code> - otherwise.
      */
@@ -149,7 +149,7 @@ public class IrcAccountRegistration
 
     /**
      * Sets the <tt>isRequiredPassword</tt> property.
-     * 
+     *
      * @param isRequiredPassword <code>true</code> to indicate that the password
      * is required, <code>false</code> - otherwise.
      */

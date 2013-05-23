@@ -684,7 +684,7 @@ public class CallPanel
             }
             ((CallRenderer) callPanel).dispose();
         }
-            
+
     }
 
     /**
@@ -767,7 +767,7 @@ public class CallPanel
         boolean desktopSharing = false;
         boolean desktopSharingIsStreamed = false;
         boolean allCallsConnected = true;
-        
+
         for (Call call : calls)
         {
             ProtocolProviderService pps = call.getProtocolProvider();
@@ -837,7 +837,7 @@ public class CallPanel
                     }
                 }
             }
-            
+
             if (CallState.CALL_IN_PROGRESS != call.getCallState())
             {
                 allCallsConnected = false;
@@ -855,7 +855,7 @@ public class CallPanel
          */
         videoButton.setEnabled(allCallsConnected && videoTelephony);
         videoButton.setSelected(videoTelephonyIsLocalVideoAllowed);
-        
+
         /*
          * Consequently, the showHideVideoButton which depends on videoButton
          * has to be updated depending on the state of the videoButton as well.
@@ -968,7 +968,7 @@ public class CallPanel
                     {
                         removeCallPanel = true;
                     }
-                        
+
                 }
             }
             if (removeCallPanel)
@@ -1002,7 +1002,7 @@ public class CallPanel
                     callPanel
                         = new AudioConferenceCallPanel(this, callConference);
                 }
-                
+
                 ((BasicConferenceCallPanel) callPanel)
                     .addPeerViewlListener(this);
             }
@@ -1696,24 +1696,24 @@ public class CallPanel
             settingsPanel.repaint();
         }
     }
-    
+
     /**
      * Indicates that the peer panel was added.
-     * 
+     *
      * @param ev the event.
      */
     public void peerViewAdded(ConferencePeerViewEvent ev) {}
 
     /**
      * Indicates that the peer panel was removed.
-     * 
+     *
      * @param ev the event.
      */
     public void peerViewRemoved(ConferencePeerViewEvent ev)
     {
         updateViewFromModel();
     }
-    
+
     /**
      * {@inheritDoc}
      *

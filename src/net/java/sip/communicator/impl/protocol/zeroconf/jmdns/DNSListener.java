@@ -17,9 +17,9 @@ public interface DNSListener
 {
     /**
      * Update a DNS record.
-     * @param jmdns 
-     * @param now 
-     * @param record 
+     * @param jmdns
+     * @param now
+     * @param record
      */
     public void updateRecord(JmDNS jmdns, long now, DNSRecord record);
 }

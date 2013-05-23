@@ -77,7 +77,7 @@ public interface SecurityAuthority
      * Sets the userNameEditable property, which should indicate to the
      * implementations of this interface if the user name could be changed by
      * user or not.
-     * 
+     *
      * @param isUserNameEditable indicates if the user name could be changed by
      * user in the implementation of this interface.
      */
@@ -86,7 +86,7 @@ public interface SecurityAuthority
     /**
      * Indicates if the user name is currently editable, i.e. could be changed
      * by user or not.
-     * 
+     *
      * @return <code>true</code> if the user name could be changed,
      * <code>false</code> - otherwise.
      */

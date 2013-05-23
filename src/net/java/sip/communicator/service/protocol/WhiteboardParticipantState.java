@@ -180,6 +180,7 @@ public class WhiteboardParticipantState
      *
      * @return a string representation of this object.
      */
+    @Override
     public String toString()
     {
         return getClass().getName()+":"+getStateString();

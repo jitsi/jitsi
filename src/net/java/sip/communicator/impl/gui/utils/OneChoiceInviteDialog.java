@@ -114,6 +114,7 @@ public class OneChoiceInviteDialog
              * Removes all other selections.
              * @param e the <tt>FocusEvent</tt> that notified us
              */
+            @Override
             public void focusGained(FocusEvent e)
             {
                 contactList.removeSelection();
@@ -213,6 +214,7 @@ public class OneChoiceInviteDialog
      * @param isEscaped indicates if this <tt>close</tt> is provoked by an
      * escape
      */
+    @Override
     protected void close(boolean isEscaped)
     {
         this.cancelButton.doClick();

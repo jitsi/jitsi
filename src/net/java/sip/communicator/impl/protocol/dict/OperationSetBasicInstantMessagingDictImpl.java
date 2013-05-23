@@ -32,7 +32,7 @@ public class OperationSetBasicInstantMessagingDictImpl
      * The protocol provider that created us.
      */
     private ProtocolProviderServiceDictImpl parentProvider = null;
-    
+
     private DictAccountID accountID;
 
     /**
@@ -54,12 +54,14 @@ public class OperationSetBasicInstantMessagingDictImpl
         parentProvider.addRegistrationStateChangeListener(this);
     }
 
+    @Override
     public Message createMessage(String content)
     {
         return new MessageDictImpl(content, HTML_MIME_TYPE,
                 DEFAULT_MIME_ENCODING, null);
     }
-    
+
+    @Override
     public Message createMessage(String content, String contentType,
         String encoding, String subject)
     {
@@ -87,10 +89,10 @@ public class OperationSetBasicInstantMessagingDictImpl
                "The specified contact is not a Dict contact."
                + to);
         }
-        
+
         // Remove all html tags from the message
         message = createMessage(Html2Text.extractText(message.getContent()));
-        
+
         // Display the queried word
         fireMessageDelivered(message, to);
 
@@ -165,26 +167,26 @@ public class OperationSetBasicInstantMessagingDictImpl
      */
     public void registrationStateChanged(RegistrationStateChangeEvent evt)
     {
-        
+
     }
 
-    
+
     /**
      * Create, execute and display a query to a dictionary (ContactDictImpl)
-     * 
+     *
      * @param dictContact the contact containing the database name
      * @param message the message containing the word
      */
     private void submitDictQuery(ContactDictImpl dictContact, Message message)
     {
         Message msg = this.createMessage("");
-        
+
         String database = dictContact.getContactID();
         DictConnection conn = this.parentProvider.getConnection();
         boolean doMatch = false;
-        
+
         String word;
-        
+
         // Formatting the query message, if the word as one or more spaces we
         // put it between quotes to prevent errors
         word = message.getContent().replace("\"", "").trim();
@@ -192,7 +194,7 @@ public class OperationSetBasicInstantMessagingDictImpl
         {
             word = "\"" + word + "\"";
         }
-        
+
         // Try to get the definition of the work
         try
         {
@@ -210,7 +212,7 @@ public class OperationSetBasicInstantMessagingDictImpl
                 msg = this.createMessage(manageException(dx, database));
             }
         }
-        
+
         if (doMatch)
         {
             // Trying the match command
@@ -225,14 +227,14 @@ public class OperationSetBasicInstantMessagingDictImpl
                 msg = this.createMessage(manageException(dx, database));
             }
         }
-        
+
         // Send message
         fireMessageReceived(msg, dictContact);
     }
-    
+
     /**
      * Generate the display of the results of the Define command
-     * 
+     *
      * @param data the result of the Define command
      * @param word the queried word
      * @return the formatted result
@@ -245,7 +247,7 @@ public class OperationSetBasicInstantMessagingDictImpl
         for (int i=0; i<data.size(); i++)
         {
             def = data.get(i);
-            
+
             if(i != 0 && data.size() > 0)
             {
                 res.append("<hr>");
@@ -255,13 +257,13 @@ public class OperationSetBasicInstantMessagingDictImpl
                 .append(def.getDictionary())
                 .append("</font></div>");
         }
-        
+
         String result = res.toString();
         result = formatResult(result, "\\\\", "<em>", "</em>");
         result = formatResult(result, "[\\[\\]]", "<cite>", "</cite>");
         result = formatResult(result, "[\\{\\}]", "<strong>", "</strong>");
         result = formatWordDefined(result, word);
-        
+
         return result;
     }
 
@@ -314,10 +316,10 @@ public class OperationSetBasicInstantMessagingDictImpl
         }
         return res;
     }
-    
+
     /**
      * Generate the display of the results of the Match command
-     * 
+     *
      * @param data the result of the Match command
      * @param word the queried word
      * @return the formatted result
@@ -326,26 +328,26 @@ public class OperationSetBasicInstantMessagingDictImpl
     {
         StringBuffer result = new StringBuffer();
         boolean isStart = true;
-        
+
         result.append(DictActivator.getResources()
             .getI18NString("plugin.dictaccregwizz.MATCH_RESULT", new String[] {word}));
-        
+
         for (int i=0; i<data.size(); i++)
         {
             if (isStart)
                 isStart = false;
             else
                 result.append(", ");
-            
+
             result.append(data.get(i).getWord());
         }
-        
+
         return result.toString();
     }
 
     /**
      * Manages the return exception of a dict query.
-     * 
+     *
      * @param dix The exception returned by the adapter
      * @param database The dictionary used
      * @return Exception message
@@ -387,6 +389,7 @@ public class OperationSetBasicInstantMessagingDictImpl
      * @throws java.lang.IllegalArgumentException if <tt>to</tt> is not an
      * instance belonging to the underlying implementation.
      */
+    @Override
     public void sendInstantMessage( Contact to,
                                     ContactResource toResource,
                                     Message message)

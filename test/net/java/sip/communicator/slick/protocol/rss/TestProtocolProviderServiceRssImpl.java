@@ -55,6 +55,7 @@ public class TestProtocolProviderServiceRssImpl
      *
      * @throws Exception if <code>super.setUp()</code> throws one.
      */
+    @Override
     public void setUp() throws Exception
     {
         super.setUp();
@@ -66,6 +67,7 @@ public class TestProtocolProviderServiceRssImpl
      *
      * @throws Exception if <code>fixture.tearDown()</code> fails.
      */
+    @Override
     public void tearDown() throws Exception
     {
         fixture.tearDown();

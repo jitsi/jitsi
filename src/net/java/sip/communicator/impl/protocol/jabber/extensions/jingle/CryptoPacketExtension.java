@@ -305,6 +305,7 @@ public class CryptoPacketExtension
      * all fields (crypto-suite, key-params, session-params and tag)
      * corresponding to the current one. False, otherwsise.
      */
+    @Override
     public boolean equals(Object obj)
     {
         if(obj instanceof CryptoPacketExtension)

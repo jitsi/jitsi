@@ -93,6 +93,7 @@ public class CallTransferHandler
      * otherwise
      * @throws NullPointerException if <code>support</code> is {@code null}
      */
+    @Override
     public boolean canImport(JComponent comp, DataFlavor[] flavor)
     {
         for (DataFlavor f : flavor)
@@ -116,6 +117,7 @@ public class CallTransferHandler
      * @return  true if the data was inserted into the component and false
      * otherwise
      */
+    @Override
     public boolean importData(JComponent comp, Transferable t)
     {
         String callee = null;

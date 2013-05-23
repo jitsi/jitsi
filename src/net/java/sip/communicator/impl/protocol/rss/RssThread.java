@@ -29,7 +29,7 @@ public class RssThread
     {
         this.opSet = opSet;
         this.rssContact = rssContact;
-        
+
         this.setDaemon(true);
     }
 
@@ -38,6 +38,7 @@ public class RssThread
      * If no rss contact given as parameter, the query is launched for all
      * contacts
      */
+    @Override
     public void run()
     {
         this.opSet.refreshRssFeed(this.rssContact);
