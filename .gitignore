@@ -8,3 +8,4 @@ jitsi.iml
 test-reports
 sip-communicator.utest.bin
 release
+lib/accounts.properties
