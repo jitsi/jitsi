@@ -132,7 +132,7 @@ public abstract class BasicConferenceParticipantPanel<T>
     /**
      * The security status of the peer
      */
-    protected SecurityStatusLabel securityStatusLabel;
+    protected SecurityStatusLabel securityStatusLabel = null;
 
     /**
      * The component showing the sound level of the participant.
@@ -281,9 +281,6 @@ public abstract class BasicConferenceParticipantPanel<T>
 
         soundIndicator.setPreferredSize(new Dimension(80, 30));
 
-        securityStatusLabel = new SecurityStatusLabel();
-        securityStatusLabel.setSecurityOff();
-
         this.setLayout(new GridBagLayout());
         this.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
@@ -339,6 +336,16 @@ public abstract class BasicConferenceParticipantPanel<T>
     }
 
     /**
+     * Creates <tt>SecurityStatusLabel</tt> and adds it to status bar.
+     */
+    public void initSecurityStatusLabel()
+    {
+        securityStatusLabel = new SecurityStatusLabel();
+        securityStatusLabel.setSecurityOff();
+        addToStatusBar(securityStatusLabel);
+    }
+    
+    /**
      * Initializes the title bar.
      */
     private void initTitleBar()
@@ -358,9 +365,6 @@ public abstract class BasicConferenceParticipantPanel<T>
         statusBarConstraints.gridy = 0;
         statusBarConstraints.weightx = 1f;
         statusBar.add(callStatusLabel, statusBarConstraints);
-
-        if (!(participant instanceof Call))
-            addToStatusBar(securityStatusLabel);
 
         GridBagConstraints constraints = new GridBagConstraints();
 
@@ -382,9 +386,6 @@ public abstract class BasicConferenceParticipantPanel<T>
      */
     private void initVideoConferencePanel()
     {
-        securityStatusLabel = new SecurityStatusLabel();
-        securityStatusLabel.setSecurityOff();
-
         this.setLayout(new GridBagLayout());
         this.setBorder(BorderFactory.createEmptyBorder(7, 7, 7, 7));
 
@@ -408,9 +409,12 @@ public abstract class BasicConferenceParticipantPanel<T>
         {
             setParticipantIcon(null, false);
         }
-
-        securityStatusLabel.setIcon(
-                new ImageIcon(ImageLoader.getImage(securityImageID)));
+        
+        if(securityStatusLabel != null)
+        {
+            securityStatusLabel.setIcon(
+                    new ImageIcon(ImageLoader.getImage(securityImageID)));
+        }
     }
 
     /**
@@ -450,6 +454,8 @@ public abstract class BasicConferenceParticipantPanel<T>
      */
     public void securityOff(CallPeerSecurityOffEvent evt)
     {
+        if(securityStatusLabel == null)
+            return;
         securityStatusLabel.setText("");
         securityStatusLabel.setSecurityOff();
         if (securityStatusLabel.getBorder() == null)
@@ -467,6 +473,8 @@ public abstract class BasicConferenceParticipantPanel<T>
      */
     public void securityOn(CallPeerSecurityOnEvent evt)
     {
+        if(securityStatusLabel == null)
+            return;
         // If the securityOn is called without a specific event, we'll just set
         // the security label status to on.
         if (evt == null)

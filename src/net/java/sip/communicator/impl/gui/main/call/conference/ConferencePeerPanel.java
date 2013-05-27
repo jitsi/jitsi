@@ -342,6 +342,7 @@ public class ConferencePeerPanel
      */
     private void initStatusBar(CallPeer callPeer)
     {
+        initSecurityStatusLabel();
         this.setParticipantState(callPeer.getState().getLocalizedStateString());
 
         this.addToStatusBar(holdStatusLabel);
