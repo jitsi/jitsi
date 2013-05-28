@@ -43,7 +43,8 @@ void ComClient_start(void)
 {
     HRESULT hr = E_FAIL;
 
-    if(CoInitializeEx(NULL, COINIT_MULTITHREADED) == S_OK)
+    if((hr = CoInitializeEx(NULL, COINIT_MULTITHREADED)) == S_OK
+            || hr == S_FALSE)
     {
         // The server may be long to start, then retry 10 times with 1s pause
         // between each try.

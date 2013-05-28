@@ -375,6 +375,10 @@ public class MsOutlookAddrBookContactQuery
             Pattern query)
     {
         super(msoabcss, query);
+        if(logger.isDebugEnabled())
+        {
+            logger.debug("Creating new query: " + query.toString());
+        }
     }
 
     /**
@@ -804,6 +808,10 @@ public class MsOutlookAddrBookContactQuery
     private boolean onMailUser(String id)
         throws MsOutlookMAPIHResultException
     {
+        if(logger.isDebugEnabled())
+        {
+            logger.debug("Found contact id: " + id);
+        }
         Object[] props
             = IMAPIProp_GetProps(
                     id,
@@ -842,8 +850,14 @@ public class MsOutlookAddrBookContactQuery
             }
             propIndex++;
         }
+
         if (matches)
         {
+            if(logger.isDebugEnabled())
+            {
+                logger.debug("Contact matches: " + id
+                        + ", displayName: " + getDisplayName(props));
+            }
             List<ContactDetail> contactDetails = getContactDetails(props);
 
             // What's the point of showing a contact who has no contact details?
@@ -960,6 +974,10 @@ public class MsOutlookAddrBookContactQuery
     @Override
     protected void run()
     {
+        if(logger.isDebugEnabled())
+        {
+            logger.debug("run query: " + query.toString());
+        }
         synchronized (MsOutlookAddrBookContactQuery.class)
         {
             foreachMailUser(
@@ -1134,6 +1152,7 @@ public class MsOutlookAddrBookContactQuery
 
         return displayName;
     }
+
     /**
      * Gets the organization name to be set on a <tt>SourceContact</tt>.
      *
