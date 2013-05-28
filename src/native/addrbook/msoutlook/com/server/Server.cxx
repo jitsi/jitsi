@@ -29,7 +29,8 @@ int main(int argc, char** argv)
 {
     HRESULT hr = E_FAIL;
 
-    if(::CoInitializeEx(NULL, COINIT_MULTITHREADED) != S_OK)
+    if((hr = ::CoInitializeEx(NULL, COINIT_MULTITHREADED)) != S_OK
+            && hr != S_FALSE)
     {
         return hr;
     }
