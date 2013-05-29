@@ -189,6 +189,7 @@ HRESULT STDMETHODCALLTYPE MsOutlookAddrBookServer::IMAPIProp_GetProps(
 
     if((localProps = (void**) malloc(nbPropIds * sizeof(void*))) != NULL)
     {
+        memset(localProps, 0, nbPropIds * sizeof(void*));
         if((localPropsLength = (unsigned long*) malloc(
                         nbPropIds * sizeof(unsigned long))) != NULL)
         {

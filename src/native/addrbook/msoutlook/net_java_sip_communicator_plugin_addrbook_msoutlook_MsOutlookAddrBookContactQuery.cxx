@@ -221,6 +221,7 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
 
     if((props = (void**) malloc(propIdCount * sizeof(void*))) != NULL)
     {
+        memset(props, 0, propIdCount * sizeof(void*));
         if((propsLength = (unsigned long*) malloc(
                         propIdCount * sizeof(unsigned long))) != NULL)
         {
@@ -253,101 +254,66 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
                             &comPropsLength,
                             &comPropsType);
 
-                    SafeArrayLock(comPropsType);
-                    memcpy(
-                            propsType,
-                            comPropsType->pvData,
-                            propIdCount * sizeof(char));
-                    SafeArrayUnlock(comPropsType);
-                    SafeArrayDestroy(comPropsType);
-
-                    SafeArrayLock(comPropsLength);
-                    memcpy(
-                            propsLength,
-                            comPropsLength->pvData,
-                            propIdCount * sizeof(unsigned long));
-                    SafeArrayUnlock(comPropsLength);
-                    SafeArrayDestroy(comPropsLength);
-
-                    SafeArrayLock(comProps);
-                    byte * data = (byte*) comProps->pvData;
-                    for(int j = 0; j < propIdCount; ++j)
+                    if(HR_SUCCEEDED(hr))
                     {
-                        if((props[j] = malloc(propsLength[j])) != NULL)
-                        {
-                            memcpy(props[j], data, propsLength[j]);
-                            data += propsLength[j];
-                        }
-                    }
-                    SafeArrayUnlock(comProps);
-                    SafeArrayDestroy(comProps);
+                        SafeArrayLock(comPropsType);
+                        memcpy(
+                                propsType,
+                                comPropsType->pvData,
+                                propIdCount * sizeof(char));
+                        SafeArrayUnlock(comPropsType);
 
-                    SafeArrayDestroy(comPropIds);
-                    SysFreeString(comEntryId);
-                    free(unicodeEntryId);
-                }
+                        SafeArrayLock(comPropsLength);
+                        memcpy(
+                                propsLength,
+                                comPropsLength->pvData,
+                                propIdCount * sizeof(unsigned long));
+                        SafeArrayUnlock(comPropsLength);
 
-                if(HR_SUCCEEDED(hr))
-                {
-                    // Decode properties to java
-                    jclass objectClass = jniEnv->FindClass("java/lang/Object");
-                    if (objectClass)
-                    {
-                        javaProps = jniEnv->NewObjectArray(
-                                propIdCount,
-                                objectClass,
-                                NULL);
+                        SafeArrayLock(comProps);
+                        byte * data = (byte*) comProps->pvData;
                         for(int j = 0; j < propIdCount; ++j)
                         {
-                            // byte array
-                            if(propsType[j] == 'b' && props[j] != NULL)
+                            if((props[j] = malloc(propsLength[j])) != NULL)
                             {
-                                jbyteArray value = jniEnv->NewByteArray(
-                                            (jsize) propsLength[j]);
-                                if(value)
-                                {
-                                    jbyte *bytes
-                                        = jniEnv->GetByteArrayElements(
-                                                value, NULL);
-
-                                    if (bytes)
-                                    {
-                                        memcpy(bytes, props[j], propsLength[j]);
-                                        jniEnv->ReleaseByteArrayElements(
-                                                value,
-                                                bytes,
-                                                0);
-                                        jniEnv->SetObjectArrayElement(
-                                                javaProps,
-                                                j,
-                                                value);
-                                    }
-                                }
+                                memcpy(props[j], data, propsLength[j]);
+                                data += propsLength[j];
                             }
-                            // long
-                            else if(propsType[j] == 'l' && props[j] != NULL)
+                        }
+                        SafeArrayUnlock(comProps);
+
+                        // Decode properties to java
+                        jclass objectClass
+                            = jniEnv->FindClass("java/lang/Object");
+                        if (objectClass)
+                        {
+                            javaProps = jniEnv->NewObjectArray(
+                                    propIdCount,
+                                    objectClass,
+                                    NULL);
+                            for(int j = 0; j < propIdCount; ++j)
                             {
-                                jclass longClass
-                                    = jniEnv->FindClass("java/lang/Long");
-                                if (longClass)
+                                // byte array
+                                if(propsType[j] == 'b' && props[j] != NULL)
                                 {
-                                    jmethodID longMethodID
-                                        = jniEnv->GetMethodID(
-                                            longClass,
-                                            "<init>",
-                                            "(J)V");
-
-                                    if (longMethodID)
+                                    jbyteArray value = jniEnv->NewByteArray(
+                                                (jsize) propsLength[j]);
+                                    if(value)
                                     {
-                                        jlong l;
-                                        memcpy(&l, props[j], propsLength[j]);
-                                        jobject value = jniEnv->NewObject(
-                                                longClass,
-                                                longMethodID,
-                                                l);
+                                        jbyte *bytes
+                                            = jniEnv->GetByteArrayElements(
+                                                    value, NULL);
 
-                                        if (value)
+                                        if (bytes)
                                         {
+                                            memcpy(
+                                                    bytes,
+                                                    props[j],
+                                                    propsLength[j]);
+                                            jniEnv->ReleaseByteArrayElements(
+                                                    value,
+                                                    bytes,
+                                                    0);
                                             jniEnv->SetObjectArrayElement(
                                                     javaProps,
                                                     j,
@@ -355,47 +321,86 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
                                         }
                                     }
                                 }
-                            }
-                            // 8 bits string
-                            else if(propsType[j] == 's' && props[j] != NULL)
-                            {
-                                jstring value = jniEnv->NewStringUTF(
-                                        (const char*) props[j]);
-                                if (value)
+                                // long
+                                else if(propsType[j] == 'l' && props[j] != NULL)
                                 {
-                                    jniEnv->SetObjectArrayElement(
-                                            javaProps,
-                                            j,
-                                            value);
-                                }
-                            }
-                            // 16 bits string
-                            else if(propsType[j] == 'u' && props[j] != NULL)
-                            {
-                                jstring value
-                                    = jniEnv->NewString(
-                                        (const jchar *) props[j],
-                                        wcslen((const wchar_t *) props[j]));
-                                if (value)
-                                {
-                                    jniEnv->SetObjectArrayElement(
-                                            javaProps,
-                                            j,
-                                            value);
-                                }
-                            }
+                                    jclass longClass
+                                        = jniEnv->FindClass("java/lang/Long");
+                                    if (longClass)
+                                    {
+                                        jmethodID longMethodID
+                                            = jniEnv->GetMethodID(
+                                                longClass,
+                                                "<init>",
+                                                "(J)V");
 
-                            if(jniEnv->ExceptionCheck())
-                                javaProps = NULL;
+                                        if (longMethodID)
+                                        {
+                                            jlong l;
+                                            memcpy(&l, props[j], propsLength[j]);
+                                            jobject value = jniEnv->NewObject(
+                                                    longClass,
+                                                    longMethodID,
+                                                    l);
+
+                                            if (value)
+                                            {
+                                                jniEnv->SetObjectArrayElement(
+                                                        javaProps,
+                                                        j,
+                                                        value);
+                                            }
+                                        }
+                                    }
+                                }
+                                // 8 bits string
+                                else if(propsType[j] == 's' && props[j] != NULL)
+                                {
+                                    jstring value = jniEnv->NewStringUTF(
+                                            (const char*) props[j]);
+                                    if (value)
+                                    {
+                                        jniEnv->SetObjectArrayElement(
+                                                javaProps,
+                                                j,
+                                                value);
+                                    }
+                                }
+                                // 16 bits string
+                                else if(propsType[j] == 'u' && props[j] != NULL)
+                                {
+                                    jstring value
+                                        = jniEnv->NewString(
+                                            (const jchar *) props[j],
+                                            wcslen((const wchar_t *) props[j]));
+                                    if (value)
+                                    {
+                                        jniEnv->SetObjectArrayElement(
+                                                javaProps,
+                                                j,
+                                                value);
+                                    }
+                                }
+
+                                if(jniEnv->ExceptionCheck())
+                                    javaProps = NULL;
+                            }
                         }
                     }
-                }
-                else
-                {
-                    MsOutlookMAPIHResultException_throwNew(
-                            jniEnv,
-                            hr,
-                            __FILE__, __LINE__);
+                    else
+                    {
+                        MsOutlookMAPIHResultException_throwNew(
+                                jniEnv,
+                                hr,
+                                __FILE__, __LINE__);
+                    }
+
+                    SafeArrayDestroy(comPropsType);
+                    SafeArrayDestroy(comPropsLength);
+                    SafeArrayDestroy(comProps);
+                    SafeArrayDestroy(comPropIds);
+                    SysFreeString(comEntryId);
+                    free(unicodeEntryId);
                 }
 
 
