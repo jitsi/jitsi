@@ -578,6 +578,17 @@ public class ConferenceFocusPanel
     }
 
     /**
+     * Enables or disabled video indicator of the <tt>focusPeerPanel</tt>.
+     *
+     * @param enable <tt>true</tt> to enable video indicator, <tt>false</tt> -
+     * otherwise
+     */
+    public void enableVideoIndicator(boolean enable)
+    {
+        focusPeerPanel.enableVideoIndicator(enable);
+    }
+
+    /**
      * Implements the listeners which get notified about events related to the
      * <tt>CallPeer</tt> depicted by this <tt>ConferenceFocusPanel</tt> and
      * which may cause a need to update this view from its model.

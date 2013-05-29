@@ -60,6 +60,12 @@ public class ThumbnailConferenceCallPanel
             ((ConferencePeerPanel) peerRenderer)
                 .enableVideoIndicator(isVideo);
         }
+        
+        if (peerRenderer instanceof ConferenceFocusPanel)
+        {
+            ((ConferenceFocusPanel) peerRenderer)
+                .enableVideoIndicator(isVideo);
+        }
     }
 
     /**
