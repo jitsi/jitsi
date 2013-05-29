@@ -320,7 +320,6 @@ public class JinglePacketFactory
 
         contentAdd.setTo(to);
         contentAdd.setFrom(from);
-        contentAdd.setInitiator(from);
         contentAdd.setType(IQ.Type.SET);
 
         contentAdd.setSID(sid);
@@ -355,7 +354,6 @@ public class JinglePacketFactory
 
         contentAccept.setTo(to);
         contentAccept.setFrom(from);
-        contentAccept.setInitiator(from);
         contentAccept.setType(IQ.Type.SET);
 
         contentAccept.setSID(sid);
@@ -390,7 +388,6 @@ public class JinglePacketFactory
 
         contentReject.setTo(to);
         contentReject.setFrom(from);
-        contentReject.setInitiator(from);
         contentReject.setType(IQ.Type.SET);
 
         contentReject.setSID(sid);
@@ -428,7 +425,6 @@ public class JinglePacketFactory
 
         contentModify.setTo(to);
         contentModify.setFrom(from);
-        contentModify.setInitiator(from);
         contentModify.setType(IQ.Type.SET);
 
         contentModify.setSID(sid);
@@ -462,7 +458,6 @@ public class JinglePacketFactory
 
         contentRemove.setTo(to);
         contentRemove.setFrom(from);
-        contentRemove.setInitiator(from);
         contentRemove.setType(IQ.Type.SET);
 
         contentRemove.setSID(sid);
