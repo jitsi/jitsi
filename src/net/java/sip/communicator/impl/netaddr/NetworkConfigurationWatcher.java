@@ -6,7 +6,6 @@
  */
 package net.java.sip.communicator.impl.netaddr;
 
-import java.lang.reflect.*;
 import java.net.*;
 import java.util.*;
 
@@ -117,12 +116,12 @@ public class NetworkConfigurationWatcher
             {
                 NetworkInterface networkInterface = e.nextElement();
 
-                if(isInterfaceLoopback(networkInterface))
+                if(networkInterface.isLoopback())
                     continue;
 
                 // if interface is up and has some valid(non-local) address
                 // add it to currently active
-                if(isInterfaceUp(networkInterface))
+                if(networkInterface.isUp())
                 {
                     Enumeration<InetAddress> as =
                         networkInterface.getInetAddresses();
@@ -262,66 +261,6 @@ public class NetworkConfigurationWatcher
     }
 
     /**
-     * Determines whether or not the <tt>iface</tt> interface is a loopback
-     * interface. We use this method as a replacement to the
-     * <tt>NetworkInterface.isLoopback()</tt> method that only comes with
-     * java 1.6.
-     *
-     * @param iface the interface that we'd like to determine as loopback or not.
-     *
-     * @return true if <tt>iface</tt> contains at least one loopback address
-     * and <tt>false</tt> otherwise.
-     */
-    public static boolean isInterfaceLoopback(NetworkInterface iface)
-    {
-        try
-        {
-            Method method = iface.getClass().getMethod("isLoopback");
-
-            return ((Boolean)method.invoke(iface, new Object[]{}))
-                        .booleanValue();
-        }
-        catch(Throwable t)
-        {
-            //apparently we are not running in a JVM that supports the
-            //is Loopback method. we'll try another approach.
-        }
-        Enumeration<InetAddress> addresses = iface.getInetAddresses();
-
-        return addresses.hasMoreElements()
-            && addresses.nextElement().isLoopbackAddress();
-    }
-
-    /**
-     * Determines, if possible, whether or not the <tt>iface</tt> interface is
-     * up. We use this method so that we could use {@link
-     * java.net.NetworkInterface}'s <tt>isUp()</tt> when running a JVM that
-     * supports it and return a default value otherwise.
-     *
-     * @param iface the interface that we'd like to determine as Up or Down.
-     *
-     * @return <tt>false</tt> if <tt>iface</tt> is known to be down and
-     * <tt>true</tt> if the <tt>iface</tt> is Up or in case we couldn't
-     * determine.
-     */
-    public static boolean isInterfaceUp(NetworkInterface iface)
-    {
-        try
-        {
-            Method method = iface.getClass().getMethod("isUp");
-
-            return ((Boolean)method.invoke(iface)).booleanValue();
-        }
-        catch(Throwable t)
-        {
-            //apparently we are not running in a JVM that supports the
-            //isUp method. returning default value.
-        }
-
-        return true;
-    }
-
-    /**
      * This method gets called when a notification action for a particular event
      * type has been changed. We are interested in sleep and network
      * changed events.
@@ -405,12 +344,12 @@ public class NetworkConfigurationWatcher
         {
             NetworkInterface networkInterface = e.nextElement();
 
-            if(isInterfaceLoopback(networkInterface))
+            if(networkInterface.isLoopback())
                 continue;
 
             // if interface is up and has some valid(non-local) address
             // add it to currently active
-            if(isInterfaceUp(networkInterface))
+            if(networkInterface.isUp())
             {
                 List<InetAddress> addresses =
                     new ArrayList<InetAddress>();
