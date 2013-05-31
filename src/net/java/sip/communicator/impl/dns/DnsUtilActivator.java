@@ -147,6 +147,7 @@ public class DnsUtilActivator
         public void configurationChanged(ChangeEvent event)
         {
             if((event.getType() == ChangeEvent.IFACE_UP
+                || event.getType() == ChangeEvent.IFACE_DOWN
                 || event.getType() == ChangeEvent.DNS_CHANGE)
                 && !event.isInitial())
             {
