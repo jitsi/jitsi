@@ -10,6 +10,7 @@ import java.beans.*;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.util.concurrent.*;
 
 import net.java.sip.communicator.service.dns.*;
 import net.java.sip.communicator.util.*;
@@ -43,13 +44,13 @@ public class ParallelResolverImpl
      * class and its instances for logging output.
      */
     private static final Logger logger = Logger
-                    .getLogger(ParallelResolverImpl.class.getName());
+                    .getLogger(ParallelResolverImpl.class);
 
     /**
      * Indicates whether we are currently in a mode where all DNS queries are
      * sent to both the primary and the backup DNS servers.
      */
-    private static boolean redundantMode = false;
+    private volatile static boolean redundantMode = false;
 
     /**
      * The currently configured number of milliseconds that we need to wait
@@ -87,11 +88,15 @@ public class ParallelResolverImpl
      */
     private ExtendedResolver backupResolver;
 
+    /** Thread pool that processes the backup queries. */
+    private ExecutorService backupQueriesPool;
+
     /**
      * Creates a new instance of this class.
      */
     ParallelResolverImpl()
     {
+        backupQueriesPool = Executors.newCachedThreadPool();
         DnsUtilActivator.getConfigurationService()
             .addPropertyChangeListener(this);
         initProperties();
@@ -117,9 +122,9 @@ public class ParallelResolverImpl
         }
         catch(UnknownHostException exc)
         {
-            logger.warn("Oh! Seems like our primary DNS is down!"
-                        + "Don't panic! We'll try to fall back to "
-                        + customResolverIP);
+            logger
+                .warn("Seems like the primary DNS is down, trying fallback to "
+                    + customResolverIP);
         }
 
         if(resolverAddress == null)
@@ -178,7 +183,7 @@ public class ParallelResolverImpl
             //this shouldn't be thrown since we don't do any DNS querying
             //in here. this is why we take an InetSocketAddress as a param.
             throw new IllegalStateException("The impossible just happened: "
-                        +"we could not initialize our backup DNS resolver");
+                        + "we could not initialize our backup DNS resolver");
         }
     }
 
@@ -193,23 +198,12 @@ public class ParallelResolverImpl
     public Message send(Message query)
         throws IOException
     {
-
         ParallelResolution resolution = new ParallelResolution(query);
-
         resolution.sendFirstQuery();
-
-        //make a copy of the redundant mode variable in case we are currently
-        //completed a redemption that started earlier.
-        boolean redundantModeCopy;
-
-        synchronized(redemptionLock)
-        {
-            redundantModeCopy = redundantMode;
-        }
 
         //if we are not in redundant mode we should wait a bit and see how this
         //goes. if we get a reply we could return bravely.
-        if(!redundantModeCopy)
+        if(!redundantMode)
         {
             if(resolution.waitForResponse(currentDnsPatience))
             {
@@ -222,16 +216,17 @@ public class ParallelResolverImpl
                 {
                     redundantMode = true;
                     redemptionStatus = currentDnsRedemption;
-                    logger.info("Primary DNS seems laggy as we got no "
-                                +"response for " + currentDnsPatience + "ms. "
-                                + "Enabling redundant mode.");
+                    logger.info("Primary DNS seems laggy: "
+                        + "no response for " + query.getQuestion().getName()
+                        + "/" + Type.string(query.getQuestion().getType())
+                        + " after " + currentDnsPatience + "ms. "
+                        + "Enabling redundant mode.");
                 }
             }
         }
 
         //we are definitely in redundant mode now
         resolution.sendBackupQueries();
-
         resolution.waitForResponse(0);
 
         //check if it is time to end redundant mode.
@@ -270,7 +265,7 @@ public class ParallelResolverImpl
      */
     public Object sendAsync(final Message query, final ResolverListener listener)
     {
-        return null;
+        throw new UnsupportedOperationException("Not implemented");
     }
 
     /**
@@ -448,7 +443,7 @@ public class ParallelResolverImpl
      * our default and backup servers and returns as soon as we get one or until
      * our default resolver fails.
      */
-    private class ParallelResolution extends Thread
+    private class ParallelResolution implements Runnable
     {
         /**
          * The query that we have sent to the default and backup DNS servers.
@@ -459,7 +454,7 @@ public class ParallelResolverImpl
          * The field where we would store the first incoming response to our
          * query.
          */
-        public Message response;
+        private volatile Message response;
 
         /**
          * The field where we would store the first error we receive from a DNS
@@ -470,12 +465,12 @@ public class ParallelResolverImpl
         /**
          * Indicates whether we are still waiting for an answer from someone
          */
-        private boolean done = false;
+        private volatile boolean done = false;
 
         /**
          * Indicates that a response was received from the primary resolver.
          */
-        private boolean primaryResolverRespondedFirst = true;
+        private volatile boolean primaryResolverRespondedFirst = true;
 
         /**
          * Creates a {@link ParallelResolution} for the specified <tt>query</tt>
@@ -485,7 +480,6 @@ public class ParallelResolverImpl
          */
         public ParallelResolution(final Message query)
         {
-            super("ParallelResolutionThread");
             this.query = query;
         }
 
@@ -495,7 +489,7 @@ public class ParallelResolverImpl
          */
         public void sendFirstQuery()
         {
-            start();
+            ParallelResolverImpl.this.backupQueriesPool.execute(this);
         }
 
         /**
@@ -509,19 +503,24 @@ public class ParallelResolverImpl
             {
                 localResponse = defaultResolver.send(query);
             }
-            catch (Throwable exc)
+            catch (SocketTimeoutException exc)
             {
-                logger.info("Exception occurred during parallel DNS resolving" +
-                        exc, exc);
+                logger.info("Default DNS resolver timed out.");
                 this.exception = exc;
             }
+            catch (Throwable exc)
+            {
+                logger.info("Default DNS resolver failed", exc);
+                this.exception = exc;
+            }
+
+            //if the backup resolvers had already replied we ignore the
+            //reply of the primary one whatever it was.
+            if(done)
+                return;
+
             synchronized(this)
             {
-                //if the backup resolvers had already replied we ignore the
-                //reply of the primary one whatever it was.
-                if(done)
-                    return;
-
                 //if there was a response we're only done if it is satisfactory
                 if(    localResponse != null
                     && isResponseSatisfactory(localResponse))
@@ -529,6 +528,7 @@ public class ParallelResolverImpl
                     response = localResponse;
                     done = true;
                 }
+
                 notify();
             }
         }
@@ -538,47 +538,58 @@ public class ParallelResolverImpl
          */
         public void sendBackupQueries()
         {
-            logger.info("Send DNS queries to backup resolvers");
-
             //yes. a second thread in the thread ... it's ugly but it works
             //and i do want to keep code simple to read ... this whole parallel
             //resolving is complicated enough as it is.
-            new Thread(){
+            backupQueriesPool.execute(new Runnable(){
                 @Override
                 public void run()
                 {
+                    if (done)
+                    {
+                        return;
+                    }
+
+                    Message localResponse = null;
+                    try
+                    {
+                        logger.info("Sending query for "
+                            + query.getQuestion().getName() + "/"
+                            + Type.string(query.getQuestion().getType())
+                            + " to backup resolvers");
+                        localResponse = backupResolver.send(query);
+                    }
+                    catch (Throwable exc)
+                    {
+                        logger.info("Exception occurred during backup "
+                                    +"DNS resolving" + exc);
+
+                        //keep this so that we can rethrow it
+                        exception = exc;
+                    }
+                    //if the default resolver has already replied we
+                    //ignore the reply of the backup ones.
+                    if(done)
+                    {
+                        return;
+                    }
+
                     synchronized(ParallelResolution.this)
                     {
-                        if (done)
-                            return;
-                        Message localResponse = null;
-                        try
-                        {
-                            localResponse = backupResolver.send(query);
-                        }
-                        catch (Throwable exc)
-                        {
-                            logger.info("Exception occurred during backup "
-                                        +"DNS resolving" + exc);
-
-                            //keep this so that we can rethrow it
-                            exception = exc;
-                        }
-                        //if the default resolver has already replied we
-                        //ignore the reply of the backup ones.
-                        if(done)
-                            return;
-
                         //contrary to responses from the  primary resolver,
                         //in this case we don't care whether the response is
                         //satisfying: if it isn't, there's nothing we can do
-                        response = localResponse;
-                        done = true;
+                        if (response == null)
+                        {
+                            response = localResponse;
+                            primaryResolverRespondedFirst = false;
+                        }
 
+                        done = true;
                         ParallelResolution.this.notify();
                     }
                 }
-            }.start();
+            });
         }
 
         /**
@@ -636,6 +647,11 @@ public class ParallelResolverImpl
             {
                 return response;
             }
+            else if (exception instanceof SocketTimeoutException)
+            {
+                logger.warn("DNS resolver timed out");
+                throw (IOException) exception;
+            }
             else if (exception instanceof IOException)
             {
                 logger.warn("IO exception while using DNS resolver", exception);
@@ -664,6 +680,7 @@ public class ParallelResolverImpl
     @SuppressWarnings("serial")
     private final Set<String> configNames = new HashSet<String>(5)
     {{
+        add(DnsUtilActivator.PNAME_BACKUP_RESOLVER_ENABLED);
         add(DnsUtilActivator.PNAME_BACKUP_RESOLVER);
         add(DnsUtilActivator.PNAME_BACKUP_RESOLVER_FALLBACK_IP);
         add(DnsUtilActivator.PNAME_BACKUP_RESOLVER_PORT);
