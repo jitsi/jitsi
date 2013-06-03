@@ -10,6 +10,7 @@ import java.util.*;
 
 import net.java.sip.communicator.plugin.sipaccregwizz.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.protocol.sip.*;
 
 /**
  * The <tt>IppiAccountRegistrationWizard</tt> is an implementation of the
@@ -94,12 +95,12 @@ public class IppiAccountRegistrationWizard
     private void setPredefinedProperties(SIPAccountRegistration reg)
     {
         // set properties common for ippi
-        reg.setDefaultServerAddress("ippi.fr");
-        reg.setDefaultServerPort("5060");
-        reg.setDefaultProxyAutoConfigure(false);
-        reg.setDefaultProxy("ippi.fr");
-        reg.setDefaultProxyPort("5060");
-        reg.setDefaultTransport("TCP");
+        reg.setServerAddress("ippi.fr");
+        reg.setServerPort("5060");
+        reg.setProxyAutoConfigure(false);
+        reg.setProxy("ippi.fr");
+        reg.setProxyPort("5060");
+        reg.setPreferredTransport("TCP");
         reg.setDefaultDomain("ippi.fr");
     }
 

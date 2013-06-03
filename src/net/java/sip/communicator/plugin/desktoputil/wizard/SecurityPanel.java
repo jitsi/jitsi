@@ -15,8 +15,8 @@ import javax.swing.border.*;
 import javax.swing.table.*;
 import javax.swing.event.*;
 
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.wizard.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 
 import org.jitsi.service.neomedia.*;

@@ -14,11 +14,14 @@ import javax.swing.event.*;
 
 import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.jabber.*;
 import org.jitsi.util.*;
 
 /**
  *
  * @author Yana Stamcheva
+ * @author Pawel Domas
  */
 public class ConnectionPanel
     extends TransparentPanel
@@ -58,18 +61,23 @@ public class ConnectionPanel
         = new JLabel(Resources.getString("plugin.jabberaccregwizz.RESOURCE"));
 
     private final JTextField resourceField
-        = new JTextField(JabberAccountRegistration.DEFAULT_RESOURCE);
+            = new JTextField(
+                    JabberAccountID.getDefaultStr(
+                            ProtocolProviderFactory.RESOURCE));
 
     private final JLabel priorityLabel = new JLabel(
         Resources.getString("plugin.jabberaccregwizz.PRIORITY"));
 
     private final JTextField priorityField
-        = new JTextField(JabberAccountRegistration.DEFAULT_PRIORITY);
+            = new JTextField(
+                    JabberAccountID.getDefaultStr(
+                            ProtocolProviderFactory.RESOURCE_PRIORITY));
 
     private final JCheckBox serverAutoCheckBox = new SIPCommCheckBox(
             Resources.getString(
                 "plugin.jabberaccregwizz.OVERRIDE_SERVER_DEFAULT_OPTIONS"),
-                JabberAccountRegistration.DEFAULT_RESOURCE_AUTOGEN);
+                 JabberAccountID.getDefaultBool(
+                         ProtocolProviderFactory.IS_SERVER_OVERRIDDEN));
 
     private final JLabel serverLabel
         = new JLabel(Resources.getString("plugin.jabberaccregwizz.SERVER"));
@@ -80,15 +88,19 @@ public class ConnectionPanel
         = new JLabel(Resources.getString("service.gui.PORT"));
 
     private final JTextField portField
-        = new JTextField(JabberAccountRegistration.DEFAULT_PORT);
+        = new JTextField(
+                JabberAccountID.getDefaultStr(
+                        ProtocolProviderFactory.SERVER_PORT));
 
     private final JCheckBox autoGenerateResource = new SIPCommCheckBox(
             Resources.getString("plugin.jabberaccregwizz.AUTORESOURCE"),
-                JabberAccountRegistration.DEFAULT_RESOURCE_AUTOGEN);
+            JabberAccountID.getDefaultBool(
+                    ProtocolProviderFactory.AUTO_GENERATE_RESOURCE));
 
     JCheckBox allowNonSecureBox = new SIPCommCheckBox(
             Resources.getString("plugin.jabberaccregwizz.ALLOW_NON_SECURE"),
-            false);
+            JabberAccountID.getDefaultBool(
+                    ProtocolProviderFactory.IS_ALLOW_NON_SECURE));
 
     private JComboBox dtmfMethodBox = new JComboBox(new Object []
     {
@@ -263,28 +275,24 @@ public class ConnectionPanel
         // Values
         JPanel dtmfValues = new TransparentPanel(new GridLayout(0, 1, 5, 5));
         dtmfMethodBox.addItemListener(new ItemListener()
+        {
+            public void itemStateChanged(ItemEvent e)
+            {
+                boolean isEnabled = false;
+                String selectedItem
+                        = (String) dtmfMethodBox.getSelectedItem();
+                if (selectedItem != null
+                        && (selectedItem.equals(Resources.getString(
+                        "plugin.sipaccregwizz.DTMF_AUTO"))
+                        || selectedItem.equals(Resources.getString(
+                        "plugin.sipaccregwizz.DTMF_RTP")))
+                        )
                 {
-                    public void itemStateChanged(ItemEvent e)
-                    {
-                        boolean isEnabled = false;
-                        String selectedItem
-                            = (String) dtmfMethodBox.getSelectedItem();
-                        if(selectedItem != null
-                            && (selectedItem.equals(Resources.getString(
-                                    "plugin.sipaccregwizz.DTMF_AUTO"))
-                                || selectedItem.equals(Resources.getString(
-                                        "plugin.sipaccregwizz.DTMF_RTP")))
-                          )
-                        {
-                            isEnabled = true;
-                        }
-                        dtmfMinimalToneDurationValue.setEnabled(isEnabled);
-                    }
-                });
-        dtmfMethodBox.setSelectedItem(
-                parentForm.getRegistration().getDefaultDTMFMethod());
-        dtmfMinimalToneDurationValue.setText(
-                JabberAccountRegistration.DEFAULT_MINIMAL_DTMF_TONE_DURATION);
+                    isEnabled = true;
+                }
+                dtmfMinimalToneDurationValue.setEnabled(isEnabled);
+            }
+        });
         JLabel dtmfMinimalToneDurationExampleLabel = new JLabel(
                 Resources.getString(
                     "plugin.sipaccregwizz.DTMF_MINIMAL_TONE_DURATION_INFO"));
@@ -486,6 +494,7 @@ public class ConnectionPanel
     void setAutogenerateResource(boolean value)
     {
         autoGenerateResource.setSelected(value);
+        resourceField.setEnabled(!value);
     }
 
     /**

@@ -366,7 +366,8 @@ public class TransportManagerGTalkImpl
         List<StunServerDescriptor> servers = null;
         boolean atLeastOneStunServer = false;
 
-        JabberAccountID accID = (JabberAccountID)provider.getAccountID();
+        JabberAccountIDImpl accID
+                = (JabberAccountIDImpl)provider.getAccountID();
 
         agent.setControlling(controlling);
 

@@ -10,6 +10,7 @@ import java.util.*;
 
 import junit.framework.*;
 
+import net.java.sip.communicator.service.protocol.sip.*;
 import org.osgi.framework.*;
 
 /**
@@ -53,7 +54,8 @@ public class SipProtocolProviderServiceLick
     /**
      * The name of the property the value of which is XCAP server uri.
      */
-    public static final String XCAP_SERVER_PROPERTY_NAME = "XCAP_SERVER";
+    public static final String XCAP_SERVER_PROPERTY_NAME
+            = SipAccountID.OPT_CLIST_SERVER_URI;
 
     /**
      * Initializes and registers all tests that we'll run as a part of this

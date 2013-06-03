@@ -3,10 +3,9 @@
  *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
-package net.java.sip.communicator.util.wizard;
+package net.java.sip.communicator.service.protocol;
 
-import net.java.sip.communicator.service.protocol.*;
-
+import java.io.*;
 import java.util.*;
 
 /**
@@ -15,8 +14,10 @@ import java.util.*;
  * SecurityPanel.
  *
  * @author Vincent Lucas
+ * @author Pawel Domas
  */
 public abstract class SecurityAccountRegistration
+    implements Serializable
 {
     /**
      * The encryption protocols managed by this SecurityPanel.
@@ -142,8 +143,8 @@ public abstract class SecurityAccountRegistration
     /**
      * Sets the list of cipher suites enabled for SDES.
      *
-     * @param The list of cipher suites enabled for SDES. Null if no cipher
-     * suite is enabled.
+     * @param cipherSuites The list of cipher suites enabled for SDES.
+     *                     Null if no cipher suite is enabled.
      */
     public void setSDesCipherSuites(String cipherSuites)
     {
@@ -198,8 +199,8 @@ public abstract class SecurityAccountRegistration
     /**
      * Sets the map between the encryption protocols and their status.
      *
-     * @param encryptionProtocols The map between the encryption protocols and
-     * their status.
+     * @param encryptionProtocolStatus The map between the encryption protocols
+     *                                 and their status.
      */
     public void setEncryptionProtocolStatus(
             Map<String, Boolean> encryptionProtocolStatus)

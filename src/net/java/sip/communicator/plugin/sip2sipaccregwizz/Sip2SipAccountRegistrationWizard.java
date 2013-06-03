@@ -10,6 +10,7 @@ import java.util.*;
 
 import net.java.sip.communicator.plugin.sipaccregwizz.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.protocol.sip.*;
 
 /**
  * The <tt>Sip2SipAccountRegistrationWizard</tt> is an implementation of the
@@ -94,7 +95,6 @@ public class Sip2SipAccountRegistrationWizard
     {
         // set properties common for sip2sip
         reg.setKeepAliveMethod("NONE");
-        reg.setDefaultKeepAliveMethod("NONE");
         reg.setDefaultDomain("sip2sip.info");
         reg.setXCapEnable(true);
         reg.setClistOptionServerUri(

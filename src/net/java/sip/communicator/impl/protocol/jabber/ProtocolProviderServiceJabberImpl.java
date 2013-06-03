@@ -2510,7 +2510,7 @@ public class ProtocolProviderServiceJabberImpl
     public void startJingleNodesDiscovery()
     {
         // Jingle Nodes Service Initialization
-        final JabberAccountID accID = (JabberAccountID)getAccountID();
+        final JabberAccountIDImpl accID = (JabberAccountIDImpl)getAccountID();
         final SmackServiceNode service = new SmackServiceNode(connection,
                 60000);
         // make sure SmackServiceNode will clean up when connection is closed

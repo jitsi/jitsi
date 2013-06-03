@@ -94,7 +94,8 @@ public class ProtocolProviderFactoryJabberImpl
                                   "5222");
         }
 
-        AccountID accountID = new JabberAccountID(userIDStr, accountProperties);
+        AccountID accountID
+                = new JabberAccountIDImpl(userIDStr, accountProperties);
 
         //make sure we haven't seen this account id before.
         if( registeredAccounts.containsKey(accountID) )
@@ -123,7 +124,7 @@ public class ProtocolProviderFactoryJabberImpl
     protected AccountID createAccountID(String userID,
             Map<String, String> accountProperties)
     {
-        return new JabberAccountID(userID, accountProperties);
+        return new JabberAccountIDImpl(userID, accountProperties);
     }
 
     @Override
@@ -160,8 +161,8 @@ public class ProtocolProviderFactoryJabberImpl
             throw new NullPointerException(
                 "The specified Protocol Provider was null");
 
-        JabberAccountID accountID
-            = (JabberAccountID) protocolProvider.getAccountID();
+        JabberAccountIDImpl accountID
+            = (JabberAccountIDImpl) protocolProvider.getAccountID();
 
         // If the given accountID doesn't correspond to an existing account
         // we return.

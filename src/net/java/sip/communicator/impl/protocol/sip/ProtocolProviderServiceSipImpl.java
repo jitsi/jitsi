@@ -355,7 +355,7 @@ public class ProtocolProviderServiceSipImpl
      * @see net.java.sip.communicator.service.protocol.AccountID
      */
     protected void initialize(String    sipAddress,
-                              SipAccountID accountID)
+                              SipAccountIDImpl accountID)
         throws OperationFailedException, IllegalArgumentException
     {
         synchronized (initializationLock)
@@ -2346,7 +2346,7 @@ public class ProtocolProviderServiceSipImpl
         else
         {
             ProxyConnection tempConn = new AutoProxyConnection(
-                (SipAccountID)getAccountID(),
+                (SipAccountIDImpl)getAccountID(),
                 host,
                 getDefaultTransport());
             try

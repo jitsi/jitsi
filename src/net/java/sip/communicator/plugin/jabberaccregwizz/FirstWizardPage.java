@@ -11,6 +11,7 @@ import java.awt.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.jabber.*;
 
 /**
  * The <tt>FirstWizardPage</tt> is the page, where user could enter the user

@@ -19,13 +19,13 @@ public abstract class ProxyConnection
 
     protected String transport;
     protected InetSocketAddress socketAddress;
-    protected final SipAccountID account;
+    protected final SipAccountIDImpl account;
 
     /**
      * Creates a new instance of this class.
      * @param account the account of this SIP protocol instance
      */
-    protected ProxyConnection(SipAccountID account)
+    protected ProxyConnection(SipAccountIDImpl account)
     {
         this.account = account;
     }
@@ -155,9 +155,9 @@ public abstract class ProxyConnection
     {
         if (pps.getAccountID().getAccountPropertyBoolean(PROXY_AUTO_CONFIG,
             true))
-            return new AutoProxyConnection((SipAccountID) pps.getAccountID(),
+            return new AutoProxyConnection((SipAccountIDImpl) pps.getAccountID(),
                 pps.getDefaultTransport());
         else
-            return new ManualProxyConnection((SipAccountID) pps.getAccountID());
+            return new ManualProxyConnection((SipAccountIDImpl) pps.getAccountID());
     }
 }

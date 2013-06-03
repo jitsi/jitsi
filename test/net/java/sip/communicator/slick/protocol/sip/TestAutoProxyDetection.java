@@ -31,7 +31,7 @@ public class TestAutoProxyDetection
 {
     private static class TestedAutoProxyDetection extends AutoProxyConnection
     {
-        public TestedAutoProxyDetection(SipAccountID account,
+        public TestedAutoProxyDetection(SipAccountIDImpl account,
             String defaultTransport)
         {
             super(account, defaultTransport);
@@ -48,7 +48,7 @@ public class TestAutoProxyDetection
         }
     }
 
-    private SipAccountID account;
+    private SipAccountIDImpl account;
     private TestedAutoProxyDetection.NetworkUtils nu;
     private SRVRecord srv1;
     private SRVRecord srv2;
@@ -67,7 +67,7 @@ public class TestAutoProxyDetection
     @Override
     public void setUp()
     {
-        account = createMock(SipAccountID.class);
+        account = createMock(SipAccountIDImpl.class);
         expect(account.getAccountPropertyString(USER_ID))
             .andReturn("unit@" + DOMAIN);
         replay(account);

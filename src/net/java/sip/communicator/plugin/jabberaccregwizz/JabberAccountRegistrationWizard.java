@@ -11,6 +11,7 @@ import java.util.*;
 
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.jabber.*;
 import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
@@ -160,7 +161,7 @@ public class JabberAccountRegistrationWizard
 
         summaryTable.put(
             Resources.getString("service.gui.REMEMBER_PASSWORD"),
-            Boolean.toString(registration.isRememberPassword()));
+            Boolean.toString(registration.getPassword() != null));
 
         summaryTable.put(
             Resources.getString("plugin.jabberaccregwizz.SERVER"),
@@ -168,7 +169,7 @@ public class JabberAccountRegistrationWizard
 
         summaryTable.put(
             Resources.getString("service.gui.PORT"),
-            String.valueOf(registration.getPort()));
+            String.valueOf(registration.getServerPort()));
 
         summaryTable.put(
             Resources.getString("plugin.jabberaccregwizz.ENABLE_KEEP_ALIVE"),

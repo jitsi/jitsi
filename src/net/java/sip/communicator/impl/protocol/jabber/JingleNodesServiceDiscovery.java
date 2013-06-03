@@ -62,7 +62,7 @@ public class JingleNodesServiceDiscovery
     /**
      * Our account.
      */
-    private final JabberAccountID accountID;
+    private final JabberAccountIDImpl accountID;
 
     /**
      * Creates discovery
@@ -73,7 +73,7 @@ public class JingleNodesServiceDiscovery
      */
     JingleNodesServiceDiscovery(SmackServiceNode service,
                                 XMPPConnection connection,
-                                JabberAccountID accountID,
+                                JabberAccountIDImpl accountID,
                                 Object syncRoot)
     {
         this.jingleNodesSyncRoot = syncRoot;

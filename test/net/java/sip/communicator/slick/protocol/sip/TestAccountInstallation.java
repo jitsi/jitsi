@@ -9,9 +9,9 @@ package net.java.sip.communicator.slick.protocol.sip;
 import java.util.*;
 
 import junit.framework.*;
-import net.java.sip.communicator.impl.protocol.sip.*;
 import net.java.sip.communicator.service.protocol.*;
 
+import net.java.sip.communicator.service.protocol.sip.*;
 import org.osgi.framework.*;
 
 public class TestAccountInstallation
@@ -249,13 +249,13 @@ public class TestAccountInstallation
                 SipProtocolProviderServiceLick.XCAP_SERVER_PROPERTY_NAME, null);
         if (xCapServerUri != null)
         {
-            table.put(ServerStoredContactListSipImpl.XCAP_ENABLE,
+            table.put(SipAccountID.XCAP_ENABLE,
                     Boolean.TRUE.toString());
-            table.put(ServerStoredContactListSipImpl.XCAP_USE_SIP_CREDETIALS,
+            table.put(SipAccountID.OPT_CLIST_USE_SIP_CREDETIALS,
                     Boolean.TRUE.toString());
-            table.put(ServerStoredContactListSipImpl.XCAP_USE_SIP_CREDETIALS,
+            table.put(SipAccountID.OPT_CLIST_USER,
                     Boolean.TRUE.toString());
-            table.put(ServerStoredContactListSipImpl.XCAP_SERVER_URI,
+            table.put(SipAccountID.OPT_CLIST_SERVER_URI,
                     xCapServerUri);
         }
 

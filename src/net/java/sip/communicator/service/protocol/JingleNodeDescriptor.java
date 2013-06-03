@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.service.protocol;
 
+import java.io.*;
 import java.util.*;
 
 /**
@@ -20,6 +21,7 @@ import java.util.*;
  * @author Sebastien Vincent
  */
 public class JingleNodeDescriptor
+    implements Serializable
 {
     /**
      * JingleNodes prefix to store configuration.

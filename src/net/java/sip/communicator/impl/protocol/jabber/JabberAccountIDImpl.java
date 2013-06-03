@@ -10,6 +10,7 @@ import java.util.*;
 
 import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.jabber.*;
 
 /**
  * The Jabber implementation of a sip-communicator AccountID
@@ -17,19 +18,17 @@ import net.java.sip.communicator.service.protocol.*;
  * @author Damian Minkov
  * @author Sebastien Vincent
  */
-public class JabberAccountID
-    extends AccountID
+public class JabberAccountIDImpl
+    extends JabberAccountID
 {
     /**
      * Creates an account id from the specified id and account properties.
      * @param id the id identifying this account
      * @param accountProperties any other properties necessary for the account.
      */
-    JabberAccountID(String id, Map<String, String> accountProperties )
+    JabberAccountIDImpl(String id, Map<String, String> accountProperties)
     {
-        super(  id, accountProperties,
-                ProtocolNames.JABBER,
-                getServiceName(accountProperties));
+        super( id, accountProperties );
     }
 
     /**

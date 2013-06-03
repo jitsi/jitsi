@@ -78,7 +78,7 @@ public class ProtocolProviderActivator
      *         in the bundle represented by
      *         <code>ProtocolProviderActivator</code>
      */
-    static ConfigurationService getConfigurationService()
+    public static ConfigurationService getConfigurationService()
     {
         if (configurationService == null)
         {

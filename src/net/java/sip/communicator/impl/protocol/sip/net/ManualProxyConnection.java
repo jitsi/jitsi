@@ -41,7 +41,7 @@ public class ManualProxyConnection
      *
      * @param account the account of this SIP protocol instance
      */
-    public ManualProxyConnection(SipAccountID account)
+    public ManualProxyConnection(SipAccountIDImpl account)
     {
         super(account);
         reset();

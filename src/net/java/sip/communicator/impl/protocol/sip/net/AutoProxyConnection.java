@@ -115,7 +115,8 @@ public class AutoProxyConnection
      * @param defaultTransport the default transport to use when DNS does not
      *            provide a protocol through NAPTR or SRV
      */
-    public AutoProxyConnection(SipAccountID account, String defaultTransport)
+    public AutoProxyConnection( SipAccountIDImpl account,
+                                String defaultTransport )
     {
         super(account);
         this.defaultTransport = defaultTransport;
@@ -131,8 +132,8 @@ public class AutoProxyConnection
      * @param defaultTransport the default transport to use when DNS does not
      *            provide a protocol through NAPTR or SRV
      */
-    public AutoProxyConnection(SipAccountID account, String address,
-        String defaultTransport)
+    public AutoProxyConnection( SipAccountIDImpl account, String address,
+                                String defaultTransport )
     {
         super(account);
         this.defaultTransport = defaultTransport;
