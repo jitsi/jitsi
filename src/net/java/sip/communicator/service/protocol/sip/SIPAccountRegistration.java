@@ -5,6 +5,7 @@
  */
 package net.java.sip.communicator.service.protocol.sip;
 
+import java.io.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
@@ -25,8 +26,14 @@ import org.osgi.framework.*;
  */
 public class SIPAccountRegistration
     extends SipAccountID
+    implements Serializable
 {
     private String defaultDomain = null;
+
+    /**
+     * Indicates if the password should be remembered.
+     */
+    private boolean rememberPassword = true;
 
     /**
      * The encodings registration object.
@@ -70,6 +77,25 @@ public class SIPAccountRegistration
     public SIPAccountRegistration()
     {
         super();
+    }
+
+    /**
+     * Returns TRUE if password has to remembered, FALSE otherwise.
+     * @return TRUE if password has to remembered, FALSE otherwise
+     */
+    public boolean isRememberPassword()
+    {
+        return rememberPassword;
+    }
+
+    /**
+     * Sets the rememberPassword value of this jabber account registration.
+     * @param rememberPassword TRUE if password has to remembered, FALSE
+     * otherwise
+     */
+    public void setRememberPassword(boolean rememberPassword)
+    {
+        this.rememberPassword = rememberPassword;
     }
 
     /**
@@ -163,7 +189,10 @@ public class SIPAccountRegistration
                                 Boolean isModification,
                                 Map<String, String> accountProperties)
     {
-        setPassword(passwd);
+        if(rememberPassword)
+            setPassword(passwd);
+        else
+            setPassword(null);
 
         String serverAddress = null;
         String serverFromUsername = getServerFromUserName(userName);

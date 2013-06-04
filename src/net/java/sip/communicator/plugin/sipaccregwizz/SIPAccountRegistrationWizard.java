@@ -153,7 +153,7 @@ public class SIPAccountRegistrationWizard
         LinkedHashMap<String, String> summaryTable
             = new LinkedHashMap<String, String>();
 
-        boolean rememberPswd = registration.getPassword() != null;
+        boolean rememberPswd = registration.isRememberPassword();
         String rememberPswdString = Resources.getString(
                 rememberPswd ? "service.gui.YES" : "service.gui.NO");
         String displayName = registration.getAccountDisplayName();

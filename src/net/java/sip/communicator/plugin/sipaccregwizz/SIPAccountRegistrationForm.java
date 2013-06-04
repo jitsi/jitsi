@@ -262,11 +262,9 @@ public class SIPAccountRegistrationForm
 
         registration.setUserID(userID);
 
-        if(!accountPanel.isRememberPassword())
-            password = null;
+        registration.setRememberPassword(accountPanel.isRememberPassword());
 
-        registration.setPassword(
-                password != null ? new String(password) : null );
+        registration.setPassword(new String(password));
 
         registration.setServerAddress(serverAddress);
 
@@ -407,6 +405,7 @@ public class SIPAccountRegistrationForm
         }
         else
         {
+            accountPanel.setPassword("");
             accountPanel.setRememberPassword(false);
         }
 

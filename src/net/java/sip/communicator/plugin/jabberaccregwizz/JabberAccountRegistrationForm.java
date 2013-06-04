@@ -297,11 +297,8 @@ public class JabberAccountRegistrationForm
 
         registration.setUserID(userID);
 
-        if(accountPanel.isRememberPassword())
-            registration.setPassword(new String(password));
-        else
-            registration.setPassword(null);
-
+        registration.setRememberPassword(accountPanel.isRememberPassword());
+        registration.setPassword(new String(password));
         registration.setTlsClientCertificate(
             connectionPanel.getClientTlsCertificateId());
         registration.setServerAddress(serverAddress);

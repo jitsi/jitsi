@@ -161,7 +161,7 @@ public class JabberAccountRegistrationWizard
 
         summaryTable.put(
             Resources.getString("service.gui.REMEMBER_PASSWORD"),
-            Boolean.toString(registration.getPassword() != null));
+            Boolean.toString(registration.isRememberPassword()));
 
         summaryTable.put(
             Resources.getString("plugin.jabberaccregwizz.SERVER"),

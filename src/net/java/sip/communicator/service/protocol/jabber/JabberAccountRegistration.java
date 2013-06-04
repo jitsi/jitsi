@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.service.protocol.jabber;
 
+import java.io.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.credentialsstorage.*;
@@ -25,11 +26,17 @@ import org.osgi.framework.*;
  */
 public class JabberAccountRegistration
     extends JabberAccountID
+    implements Serializable
 {
     /**
      * The default domain.
      */
     private String defaultUserSufix;
+
+    /**
+     * Indicates if the password should be remembered.
+     */
+    private boolean rememberPassword = true;
 
     /**
      * The list of additional STUN servers entered by user.
@@ -124,6 +131,25 @@ public class JabberAccountRegistration
     }
 
     /**
+     * Returns TRUE if password has to remembered, FALSE otherwise.
+     * @return TRUE if password has to remembered, FALSE otherwise
+     */
+    public boolean isRememberPassword()
+    {
+        return rememberPassword;
+    }
+
+    /**
+     * Sets the rememberPassword value of this jabber account registration.
+     * @param rememberPassword TRUE if password has to remembered, FALSE
+     * otherwise
+     */
+    public void setRememberPassword(boolean rememberPassword)
+    {
+        this.rememberPassword = rememberPassword;
+    }
+
+    /**
      * Adds the given <tt>stunServer</tt> to the list of additional stun servers.
      *
      * @param stunServer the <tt>StunServer</tt> to add
@@ -209,7 +235,10 @@ public class JabberAccountRegistration
                                 Map<String, String> accountProperties)
             throws OperationFailedException
     {
-        setPassword(passwd);
+        if(rememberPassword)
+            setPassword(passwd);
+        else
+            setPassword(null);
 
         String serverName = null;
         if (getServerAddress() != null
