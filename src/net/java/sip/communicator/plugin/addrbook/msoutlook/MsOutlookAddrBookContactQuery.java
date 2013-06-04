@@ -361,6 +361,12 @@ public class MsOutlookAddrBookContactQuery
     private int mapiMessageCount;
 
     /**
+     * Boolea used to defined if we already get and logged a read contact
+     * property error. 
+     */
+    private boolean firstIMAPIPropGetPropFailureLogged = false;
+
+    /**
      * Initializes a new <tt>MsOutlookAddrBookContactQuery</tt> instance to
      * be performed by a specific
      * <tt>MsOutlookAddrBookContactSourceService</tt>.
@@ -812,11 +818,27 @@ public class MsOutlookAddrBookContactQuery
         {
             logger.debug("Found contact id: " + id);
         }
-        Object[] props
-            = IMAPIProp_GetProps(
-                    id,
-                    MAPI_MAILUSER_PROP_IDS,
-                    MAPI_UNICODE);
+
+        Object[] props = null;
+        try
+        {
+            props
+                = IMAPIProp_GetProps(id, MAPI_MAILUSER_PROP_IDS, MAPI_UNICODE);
+        }
+        catch(MsOutlookMAPIHResultException ex)
+        {
+            if(ex.getHResult() == 0x80070057 // E_INVALIDARG
+                    && firstIMAPIPropGetPropFailureLogged == false)
+            {
+                firstIMAPIPropGetPropFailureLogged = true;
+                throw ex;
+            }
+            else if(ex.getHResult() != 0x80070057) // NOT E_INVALIDARG
+            {
+                throw ex;
+            }
+        }
+
         long objType = 0;
         if(props != null
                 && props[PR_OBJECT_TYPE] != null
