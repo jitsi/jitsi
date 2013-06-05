@@ -126,8 +126,7 @@ public class LdapContactSourceService
      */
     public ContactQuery queryContactSource(String query)
     {
-        return queryContactSource(
-            Pattern.compile(query), LdapContactQuery.LDAP_MAX_RESULTS);
+        return queryContactSource(query, LdapContactQuery.LDAP_MAX_RESULTS);
     }
 
     /**
@@ -139,7 +138,21 @@ public class LdapContactSourceService
      */
     public ContactQuery queryContactSource(String query, int contactCount)
     {
-        return queryContactSource(Pattern.compile(query), contactCount);
+        Pattern pattern = null;
+        try
+        {
+            pattern = Pattern.compile(query);
+        }
+        catch (PatternSyntaxException pse)
+        {
+            pattern = Pattern.compile(Pattern.quote(query));
+        }
+
+        if(pattern != null)
+        {
+            return queryContactSource(pattern, contactCount);
+        }
+        return null;
     }
 
     /**

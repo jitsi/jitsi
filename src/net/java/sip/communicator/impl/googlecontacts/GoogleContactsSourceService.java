@@ -352,7 +352,7 @@ public class GoogleContactsSourceService
         {
             pattern = Pattern.compile(query);
         }
-        catch(PatternSyntaxException pse)
+        catch (PatternSyntaxException pse)
         {
             pattern = Pattern.compile(
                     Pattern.quote(query));
