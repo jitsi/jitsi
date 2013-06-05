@@ -827,16 +827,17 @@ public class MsOutlookAddrBookContactQuery
         }
         catch(MsOutlookMAPIHResultException ex)
         {
-            if(ex.getHResult() == 0x80070057 // E_INVALIDARG
+            if(ex.getHresultString().equals("MAPI_E_0x57")
                     && firstIMAPIPropGetPropFailureLogged == false)
             {
                 firstIMAPIPropGetPropFailureLogged = true;
                 throw ex;
             }
-            else if(ex.getHResult() != 0x80070057) // NOT E_INVALIDARG
+            else if(!ex.getHresultString().equals("MAPI_E_0x57"))
             {
                 throw ex;
             }
+            return true;
         }
 
         long objType = 0;

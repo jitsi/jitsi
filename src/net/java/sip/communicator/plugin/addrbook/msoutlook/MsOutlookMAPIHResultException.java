@@ -99,4 +99,14 @@ public class MsOutlookMAPIHResultException
             return s.toString();
         }
     }
+
+    /**
+     * Returns the string representation for the current hResult code.
+     *
+     * @return The string representation for the current hResult code.
+     */
+    public String getHresultString()
+    {
+        return MsOutlookMAPIHResultException.toString(this.getHResult());
+    }
 }
