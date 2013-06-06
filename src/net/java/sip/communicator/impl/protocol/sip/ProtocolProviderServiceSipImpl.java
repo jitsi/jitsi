@@ -114,7 +114,7 @@ public class ProtocolProviderServiceSipImpl
         = "net.java.sip.communicator.impl.protocol.sip.DESKTOP_STREAMING_DISABLED";
 
     /**
-     * The name of the property under which the user may specify if the video
+     * The name of the property under which the user may specify if audio/video
      * calls should be disabled.
      */
     private static final String IS_CALLING_DISABLED

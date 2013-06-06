@@ -193,7 +193,7 @@ public class ProtocolProviderServiceJabberImpl
             "DESKTOP_STREAMING_DISABLED";
 
     /**
-     * The name of the property under which the user may specify if the video
+     * The name of the property under which the user may specify if audio/video
      * calls should be disabled.
      */
     private static final String IS_CALLING_DISABLED
@@ -1313,7 +1313,19 @@ public class ProtocolProviderServiceJabberImpl
                     supportedFeatures.toArray(
                             new String[supportedFeatures.size()]));
 
-        if(isGTalkTesting())
+        boolean isCallingDisabled
+                = JabberActivator.getConfigurationService()
+                .getBoolean(IS_CALLING_DISABLED, false);
+
+        boolean isCallingDisabledForAccount = false;
+        if (accountID != null && accountID.getAccountPropertyBoolean(
+                ProtocolProviderFactory.IS_CALLING_DISABLED_FOR_ACCOUNT,
+                false))
+            isCallingDisabled = true;
+
+        if(isGTalkTesting()
+                && !isCallingDisabled
+                && !isCallingDisabledForAccount)
         {
             // Add Google Talk "ext" capabilities
             discoveryManager.addExtFeature(CAPS_GTALK_WEB_VOICE);

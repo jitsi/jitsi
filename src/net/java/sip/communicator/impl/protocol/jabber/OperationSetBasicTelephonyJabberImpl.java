@@ -339,7 +339,7 @@ public class OperationSetBasicTelephonyJabberImpl
         {
             isGingle = false;
         }
-        else if (protocolProvider.isGTalkTesting() // test GTALK property
+        else if (protocolProvider.isGTalkTesting() // GTalk enabled locally
             // see if peer supports Google Talk voice
             && (hasGtalkCaps || alwaysCallGtalk))
         {
@@ -515,7 +515,7 @@ public class OperationSetBasicTelephonyJabberImpl
                     }
                 }
             }
-            else if (protocolProvider.isGTalkTesting() // test GTALK property
+            else if (protocolProvider.isGTalkTesting() // GTalk enabled locally
                     // see if peer supports Google Talk voice
                     && (hasGtalkCaps || isAlwaysCallGtalk))
             {
