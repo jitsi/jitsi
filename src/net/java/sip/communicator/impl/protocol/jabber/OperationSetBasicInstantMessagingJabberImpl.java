@@ -1079,4 +1079,14 @@ public class OperationSetBasicInstantMessagingJabberImpl
             jabberProvider.getConnection().sendPacket(mailboxQueryIQ);
         }
     }
+
+    /**
+     * Returns the inactivity timeout in milliseconds.
+     *
+     * @return The inactivity timeout in milliseconds. Or -1 if undefined
+     */
+    public long getInactivityTimeout()
+    {
+        return JID_INACTIVITY_TIMEOUT;
+    }
 }

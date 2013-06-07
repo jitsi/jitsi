@@ -69,8 +69,16 @@ public interface ChatSessionRenderer
      * Sets the given <tt>chatTransport</tt> to be the selected chat transport.
      *
      * @param chatTransport the <tt>ChatTransport</tt> to select
+     * @param isMessageOrFileTransferReceived Boolean telling us if this change
+     * of the chat transport correspond to an effective switch to this new
+     * transform (a mesaage received from this transport, or a file transfer
+     * request received, or if the resource timeouted), or just a status update
+     * telling us a new chatTransport is now available (i.e. another device has
+     * startup).
      */
-    public void setSelectedChatTransport(ChatTransport chatTransport);
+    public void setSelectedChatTransport(
+            ChatTransport chatTransport,
+            boolean isMessageOrFileTransferReceived);
 
     /**
      * Updates the status of the given chat contact.

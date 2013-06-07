@@ -367,4 +367,14 @@ public abstract class AbstractOperationSetBasicInstantMessaging
     {
         sendInstantMessage(to, message);
     }
+
+    /**
+     * Returns the inactivity timeout in milliseconds.
+     *
+     * @return The inactivity timeout in milliseconds. Or -1 if undefined
+     */
+    public long getInactivityTimeout()
+    {
+        return -1;
+    }
 }
