@@ -360,7 +360,7 @@ public class ContactListPane
             = chatPanel.getChatSession()
                 .findChatTransportForDescriptor(protocolContact, resourceName);
 
-        chatPanel.setSelectedChatTransport(chatTransport);
+        chatPanel.setSelectedChatTransport(chatTransport, true);
     }
 
     /**
@@ -614,7 +614,7 @@ public class ContactListPane
             = chatPanel.getChatSession()
                 .findChatTransportForDescriptor(sourceContact, null);
 
-        chatPanel.setSelectedChatTransport(chatTransport);
+        chatPanel.setSelectedChatTransport(chatTransport, true);
 
         // Opens the chat panel with the new message in the UI thread.
         chatWindowManager.openChat(chatPanel, false);

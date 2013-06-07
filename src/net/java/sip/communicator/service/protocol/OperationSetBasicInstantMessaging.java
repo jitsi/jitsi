@@ -138,4 +138,11 @@ public interface OperationSetBasicInstantMessaging
      * <tt>false</tt> otherwise.
      */
     public boolean isContentTypeSupported(String contentType, Contact contact);
+
+    /**
+     * Returns the inactivity timeout in milliseconds.
+     *
+     * @return The inactivity timeout in milliseconds. Or -1 if undefined
+     */
+    public long getInactivityTimeout();
 }

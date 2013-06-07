@@ -698,14 +698,15 @@ public class MetaContactChatSession
         if (isSelectedContact)
         {
             currentChatTransport = chatTransport;
-            sessionRenderer.setSelectedChatTransport(chatTransport);
+            sessionRenderer.setSelectedChatTransport(chatTransport, false);
         }
 
         // If no current transport is set we choose the first one in the list.
         if (currentChatTransport == null)
         {
             currentChatTransport = chatTransports.get(0);
-            sessionRenderer.setSelectedChatTransport(currentChatTransport);
+            sessionRenderer
+                .setSelectedChatTransport(currentChatTransport, false);
         }
 
         if (contact.supportResources())
