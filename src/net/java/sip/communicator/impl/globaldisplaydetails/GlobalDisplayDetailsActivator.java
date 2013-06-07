@@ -7,7 +7,9 @@
 package net.java.sip.communicator.impl.globaldisplaydetails;
 
 import net.java.sip.communicator.service.globaldisplaydetails.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.globalstatus.*;
 import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.configuration.*;
@@ -38,6 +40,16 @@ public class GlobalDisplayDetailsActivator
     private static ConfigurationService configService;
 
     /**
+     * The alert UI service.
+     */
+    private static AlertUIService alertUIService;
+
+    /**
+     * The UI service.
+     */
+    private static UIService uiService;
+
+    /**
      * The display details implementation.
      */
     static GlobalDisplayDetailsImpl displayDetailsImpl;
@@ -60,6 +72,11 @@ public class GlobalDisplayDetailsActivator
         bundleContext.registerService(
                 GlobalDisplayDetailsService.class.getName(),
                 displayDetailsImpl,
+                null);
+
+        bundleContext.registerService(
+                GlobalStatusService.class.getName(),
+                new GlobalStatusServiceImpl(),
                 null);
     }
 
@@ -109,6 +126,42 @@ public class GlobalDisplayDetailsActivator
                         ConfigurationService.class);
         }
         return configService;
+    }
+
+    /**
+     * Returns the <tt>AlertUIService</tt> obtained from the bundle
+     * context.
+     * @return the <tt>AlertUIService</tt> obtained from the bundle
+     * context
+     */
+    public static AlertUIService getAlertUIService()
+    {
+        if(alertUIService == null)
+        {
+            alertUIService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        AlertUIService.class);
+        }
+        return alertUIService;
+    }
+
+    /**
+     * Returns the <tt>UIService</tt> obtained from the bundle
+     * context.
+     * @return the <tt>UIService</tt> obtained from the bundle
+     * context
+     */
+    public static UIService getUIService()
+    {
+        if(uiService == null)
+        {
+            uiService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        UIService.class);
+        }
+        return uiService;
     }
 
     /**

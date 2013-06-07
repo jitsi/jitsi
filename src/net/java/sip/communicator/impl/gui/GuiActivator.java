@@ -10,7 +10,6 @@ import java.util.*;
 
 import net.java.sip.communicator.impl.gui.main.account.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
-import net.java.sip.communicator.impl.gui.main.presence.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.service.callhistory.*;
@@ -136,13 +135,6 @@ public class GuiActivator implements BundleActivator
 
         try
         {
-            if (logger.isInfoEnabled())
-                logger.info("GlobalStatus Service ...[REGISTERED]");
-
-            bundleContext.registerService(GlobalStatusService.class.getName(),
-                                          new GlobalStatusServiceImpl(),
-                                          null);
-
             alertUIService = new AlertUIServiceImpl();
             // Registers an implementation of the AlertUIService.
             bundleContext.registerService(  AlertUIService.class.getName(),

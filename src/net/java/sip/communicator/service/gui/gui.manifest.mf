@@ -8,6 +8,7 @@ Import-Package: org.osgi.framework,
  org.jitsi.service.resources,
  net.java.sip.communicator.service.resources,
  net.java.sip.communicator.util,
+ net.java.sip.communicator.util.account,
  net.java.sip.communicator.service.contactsource,
  net.java.sip.communicator.service.contactlist,
  net.java.sip.communicator.service.protocol
