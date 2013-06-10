@@ -90,6 +90,20 @@ public class ChatWritePanel
     private boolean smsMode = false;
 
     /**
+     * A timer used to reset the transport resource to the bare ID if there was
+     * no activity from this resource since a buch a time.
+     */
+    private java.util.Timer outdatedResourceTimer = null;
+
+    /**
+     * Tells if the current resource is outdated. A timer has already been
+     * triggered, but when there is only a single resource there is no bare ID
+     * avaialble. Thus, flag this resource as outdated to switch to the bare ID
+     * when available.
+     */
+    private boolean isOutdatedResource = true;
+
+    /**
      * Creates an instance of <tt>ChatWritePanel</tt>.
      *
      * @param panel The parent <tt>ChatPanel</tt>.
@@ -1008,9 +1022,17 @@ public class ChatWritePanel
     /**
      * Selects the given chat transport in the send via box.
      *
-     * @param chatTransport the chat transport to be selected
+     * @param chatTransport The chat transport to be selected.
+     * @param isMessageOrFileTransferReceived Boolean telling us if this change
+     * of the chat transport correspond to an effective switch to this new
+     * transform (a mesaage received from this transport, or a file transfer
+     * request received, or if the resource timeouted), or just a status update
+     * telling us a new chatTransport is now available (i.e. another device has
+     * startup).
      */
-    public void setSelectedChatTransport(final ChatTransport chatTransport)
+    public void setSelectedChatTransport(
+            final ChatTransport chatTransport,
+            final boolean isMessageOrFileTransferReceived)
     {
         // We need to be sure that the following code is executed in the event
         // dispatch thread.
@@ -1020,13 +1042,64 @@ public class ChatWritePanel
             {
                 public void run()
                 {
-                    setSelectedChatTransport(chatTransport);
+                    setSelectedChatTransport(
+                        chatTransport,
+                        isMessageOrFileTransferReceived);
                 }
             });
             return;
         }
 
-        if (transportSelectorBox != null)
+        // Check if this contact provider can manages several resources and thus
+        // provides a resource timeout via the basic IM operation set.
+        long timeout = -1;
+        OperationSetBasicInstantMessaging opSetBasicIM
+            = chatTransport.getProtocolProvider().getOperationSet(
+                    OperationSetBasicInstantMessaging.class);
+        if(opSetBasicIM != null)
+        {
+            timeout = opSetBasicIM.getInactivityTimeout();
+        }
+
+        if(isMessageOrFileTransferReceived)
+        {
+            isOutdatedResource = false;
+        }
+
+        // If this contact supports several resources, then schedule the timer:
+        // - If the resource is outdated, then trigger the timer now (to try to
+        // switch to the bare ID if now available).
+        // - If the new reousrce transport is really effective (i.e. we have
+        // received a message from this resource).
+        if(timeout != -1
+                && (isMessageOrFileTransferReceived || isOutdatedResource))
+        {
+            // If there was already a timeout, but the bare ID was not available
+            // (i.e. a single resource present). Then call the timeout procedure
+            // now in order to switch to the bare ID.
+            if(isOutdatedResource)
+            {
+                timeout = 0;
+            }
+            // Cancels the preceding timer.
+            if(outdatedResourceTimer != null)
+            {
+                outdatedResourceTimer.cancel();
+                outdatedResourceTimer.purge();
+            }
+            // Schedules the timer.
+            if(chatTransport.getResourceName() != null)
+            {
+                OutdatedResourceTimerTask task 
+                    = new OutdatedResourceTimerTask();
+                outdatedResourceTimer = new java.util.Timer();
+                outdatedResourceTimer.schedule(task, timeout);
+            }
+        }
+
+        // Sets the new reousrce transport is really effective (i.e. we have
+        // received a message from this resource).
+        if(transportSelectorBox != null && isMessageOrFileTransferReceived)
         {
             transportSelectorBox.setSelected(chatTransport);
         }
@@ -1373,5 +1446,45 @@ public class ChatWritePanel
     {
         this.centerPanel.setBackground(color);
         this.editorPane.setBackground(color);
+    }
+
+
+    /**
+     * The task called when the current transport resource timed-out (no
+     * acitivty since a long time). Then this task resets the destination to the
+     * bare id.
+     */
+    private class OutdatedResourceTimerTask
+        extends TimerTask
+    {
+        /**
+         * The action to be performed by this timer task.
+         */
+        public void run()
+        {
+            outdatedResourceTimer = null;
+
+            ChatTransport transport = null;
+
+            Iterator<ChatTransport> transports
+                = chatPanel.getChatSession().getChatTransports();
+
+            while(transports.hasNext())
+            {
+                transport = transports.next();
+
+                // We found the bare ID, then set it as the current resource
+                // transport.
+                if(transport.getResourceName() == null)
+                {
+                    isOutdatedResource = false;
+                    setSelectedChatTransport(transport, true);
+                    return;
+                }
+            }
+            // If there is no bare ID avaialalbe, then set the current resource
+            // transport as outdated.
+            isOutdatedResource = true;
+        }
     }
 }

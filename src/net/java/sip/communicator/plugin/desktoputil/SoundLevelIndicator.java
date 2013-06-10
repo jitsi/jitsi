@@ -56,6 +56,20 @@ public class SoundLevelIndicator
         = "service.gui.soundlevel.SOUND_LEVEL_INACTIVE_RIGHT";
 
     /**
+     * A runnable that will be used to update the sound level.
+     */
+    private final LevelUpdate levelUpdate = new LevelUpdate();
+
+    /**
+     * The <tt>Runnable</tt> which schedules the execution of
+     * {@link #levelUpdate}. Introduced to better the garbage collection profile
+     * of the utilization of <tt>LowPriorityEventQueue</tt>.
+     *
+     * @see LowPriorityEventQueue#createRepetitiveInvokeLater(Runnable)
+     */
+    private Runnable levelUpdateScheduler;
+
+    /**
      * The maximum possible sound level.
      */
     private final int maxSoundLevel;
@@ -117,11 +131,6 @@ public class SoundLevelIndicator
     private ImageIcon soundLevelInactiveImageRight;
 
     /**
-     * A runnable that will be used to update the sound level.
-     */
-    private LevelUpdate levelUpdate = new LevelUpdate();
-
-    /**
      * Initializes a new <tt>SoundLevelIndicator</tt> instance.
      *
      * @param minSoundLevel the minimum possible sound level
@@ -139,6 +148,131 @@ public class SoundLevelIndicator
     }
 
     /**
+     * Returns the number of sound level bars that we could currently show in
+     * this panel.
+     *
+     * @param width the current width of the call window
+     * @return the number of sound level bars that we could currently show in
+     * this panel
+     */
+    private int getSoundBarCount(int width)
+    {
+        int soundBarWidth = soundLevelActiveImageLeft.getIconWidth();
+
+        return width / soundBarWidth;
+    }
+
+    /**
+     * Reloads icons.
+     */
+    public void loadSkin()
+    {
+        ResourceManagementService resources = DesktopUtilActivator.getResources();
+
+        soundLevelActiveImageLeft
+            = resources.getImage(SOUND_LEVEL_ACTIVE_LEFT);
+        soundLevelActiveImageLeftGradient
+            = resources.getImage(SOUND_LEVEL_ACTIVE_LEFT_GRADIENT);
+        soundLevelActiveImageMiddle
+            = resources.getImage(SOUND_LEVEL_ACTIVE_MIDDLE);
+        soundLevelActiveImageRight
+            = resources.getImage(SOUND_LEVEL_ACTIVE_RIGHT);
+        soundLevelActiveImageRightGradient
+            = resources.getImage(SOUND_LEVEL_ACTIVE_RIGHT_GRADIENT);
+
+        soundLevelInactiveImageLeft
+            = resources.getImage(SOUND_LEVEL_INACTIVE_LEFT);
+        soundLevelInactiveImageMiddle
+            = resources.getImage(SOUND_LEVEL_INACTIVE_MIDDLE);
+        soundLevelInactiveImageRight
+            = resources.getImage(SOUND_LEVEL_INACTIVE_RIGHT);
+
+        if (!isPreferredSizeSet())
+        {
+            int preferredHeight = 0;
+            int preferredWidth = 0;
+
+            if (soundLevelActiveImageLeft != null)
+            {
+                int height = soundLevelActiveImageLeft.getIconHeight();
+                int width = soundLevelActiveImageLeft.getIconWidth();
+
+                if (preferredHeight < height)
+                    preferredHeight = height;
+                if (preferredWidth < width)
+                    preferredWidth = width;
+            }
+            if (soundLevelInactiveImageLeft != null)
+            {
+                int height = soundLevelInactiveImageLeft.getIconHeight();
+                int width = soundLevelInactiveImageLeft.getIconWidth();
+
+                if (preferredHeight < height)
+                    preferredHeight = height;
+                if (preferredWidth < width)
+                    preferredWidth = width;
+            }
+            if ((preferredHeight > 0) && (preferredWidth > 0))
+                setPreferredSize(
+                        new Dimension(
+                                10 * preferredWidth,
+                                preferredHeight));
+        }
+
+        updateSoundLevel(soundLevel);
+    }
+
+    public void resetSoundLevel()
+    {
+        soundLevel = minSoundLevel;
+        updateSoundLevel(minSoundLevel);
+    }
+
+    @Override
+    public void setBounds(int x, int y, int width, int height)
+    {
+        super.setBounds(x, y, width, height);
+
+        int newSoundBarCount = getSoundBarCount(getWidth());
+
+        if (newSoundBarCount > 0)
+        {
+            while (newSoundBarCount < soundBarCount)
+            {
+                for (int i = getComponentCount() - 1; i >= 0; i--)
+                {
+                    Component c = getComponent(i);
+
+                    if (c instanceof JLabel)
+                    {
+                        remove(c);
+                        soundBarCount--;
+                        break;
+                    }
+                }
+            }
+            while (soundBarCount < newSoundBarCount)
+            {
+                JLabel soundBar;
+                if (soundBarCount == 0)
+                    soundBar = new JLabel(soundLevelInactiveImageLeft);
+                else if (soundBarCount == newSoundBarCount - 1)
+                    soundBar = new JLabel(soundLevelInactiveImageRight);
+                else
+                    soundBar = new JLabel(soundLevelInactiveImageMiddle);
+
+                soundBar.setVerticalAlignment(JLabel.CENTER);
+                add(soundBar);
+                soundBarCount++;
+            }
+        }
+
+        updateSoundLevel(soundLevel);
+        revalidate();
+        repaint();
+    }
+
+    /**
      * Update the sound level indicator component to fit the given values.
      *
      * @param soundLevel the sound level to show
@@ -146,7 +280,21 @@ public class SoundLevelIndicator
     public void updateSoundLevel(int soundLevel)
     {
         levelUpdate.setSoundLevel(soundLevel);
-        LowPriorityEventQueue.invokeLater(levelUpdate);
+
+        Runnable levelUpdateScheduler;
+
+        synchronized (this)
+        {
+            if (this.levelUpdateScheduler == null)
+            {
+                this.levelUpdateScheduler
+                    = LowPriorityEventQueue.createRepetitiveInvokeLater(
+                            levelUpdate);
+            }
+            levelUpdateScheduler = this.levelUpdateScheduler;
+        }
+
+        levelUpdateScheduler.run();
     }
 
     /**
@@ -243,132 +391,7 @@ public class SoundLevelIndicator
         }
 
         repaint();
-    }
-
-    public void resetSoundLevel()
-    {
-        soundLevel = minSoundLevel;
-        updateSoundLevel(minSoundLevel);
-    }
-
-    @Override
-    public void setBounds(int x, int y, int width, int height)
-    {
-        super.setBounds(x, y, width, height);
-
-        int newSoundBarCount = getSoundBarCount(getWidth());
-
-        if (newSoundBarCount > 0)
-        {
-            while (newSoundBarCount < soundBarCount)
-            {
-                for (int i = getComponentCount() - 1; i >= 0; i--)
-                {
-                    Component c = getComponent(i);
-
-                    if (c instanceof JLabel)
-                    {
-                        remove(c);
-                        soundBarCount--;
-                        break;
-                    }
-                }
-            }
-            while (soundBarCount < newSoundBarCount)
-            {
-                JLabel soundBar;
-                if (soundBarCount == 0)
-                    soundBar = new JLabel(soundLevelInactiveImageLeft);
-                else if (soundBarCount == newSoundBarCount - 1)
-                    soundBar = new JLabel(soundLevelInactiveImageRight);
-                else
-                    soundBar = new JLabel(soundLevelInactiveImageMiddle);
-
-                soundBar.setVerticalAlignment(JLabel.CENTER);
-                add(soundBar);
-                soundBarCount++;
-            }
-        }
-
-        updateSoundLevel(soundLevel);
-        revalidate();
-        repaint();
-    }
-
-    /**
-     * Returns the number of sound level bars that we could currently show in
-     * this panel.
-     *
-     * @param width the current width of the call window
-     * @return the number of sound level bars that we could currently show in
-     * this panel
-     */
-    private int getSoundBarCount(int width)
-    {
-        int soundBarWidth = soundLevelActiveImageLeft.getIconWidth();
-
-        return width / soundBarWidth;
-    }
-
-    /**
-     * Reloads icons.
-     */
-    public void loadSkin()
-    {
-        ResourceManagementService resources = DesktopUtilActivator.getResources();
-
-        soundLevelActiveImageLeft
-            = resources.getImage(SOUND_LEVEL_ACTIVE_LEFT);
-        soundLevelActiveImageLeftGradient
-            = resources.getImage(SOUND_LEVEL_ACTIVE_LEFT_GRADIENT);
-        soundLevelActiveImageMiddle
-            = resources.getImage(SOUND_LEVEL_ACTIVE_MIDDLE);
-        soundLevelActiveImageRight
-            = resources.getImage(SOUND_LEVEL_ACTIVE_RIGHT);
-        soundLevelActiveImageRightGradient
-            = resources.getImage(SOUND_LEVEL_ACTIVE_RIGHT_GRADIENT);
-
-        soundLevelInactiveImageLeft
-            = resources.getImage(SOUND_LEVEL_INACTIVE_LEFT);
-        soundLevelInactiveImageMiddle
-            = resources.getImage(SOUND_LEVEL_INACTIVE_MIDDLE);
-        soundLevelInactiveImageRight
-            = resources.getImage(SOUND_LEVEL_INACTIVE_RIGHT);
-
-        if (!isPreferredSizeSet())
-        {
-            int preferredHeight = 0;
-            int preferredWidth = 0;
-
-            if (soundLevelActiveImageLeft != null)
-            {
-                int height = soundLevelActiveImageLeft.getIconHeight();
-                int width = soundLevelActiveImageLeft.getIconWidth();
-
-                if (preferredHeight < height)
-                    preferredHeight = height;
-                if (preferredWidth < width)
-                    preferredWidth = width;
-            }
-            if (soundLevelInactiveImageLeft != null)
-            {
-                int height = soundLevelInactiveImageLeft.getIconHeight();
-                int width = soundLevelInactiveImageLeft.getIconWidth();
-
-                if (preferredHeight < height)
-                    preferredHeight = height;
-                if (preferredWidth < width)
-                    preferredWidth = width;
-            }
-            if ((preferredHeight > 0) && (preferredWidth > 0))
-                setPreferredSize(
-                        new Dimension(
-                                10 * preferredWidth,
-                                preferredHeight));
-        }
-
-        updateSoundLevel(soundLevel);
-    }
+    };
 
     /**
      * Runnable used to update sound levels.
@@ -397,5 +420,5 @@ public class SoundLevelIndicator
         {
             this.soundLevel = soundLevel;
         }
-    };
+    }
 }

@@ -14,6 +14,7 @@ import java.util.List;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.account.*;
 
 /**
  * The <tt>UIService</tt> offers generic access to the graphical user interface
@@ -465,4 +466,11 @@ public interface UIService
      * @return a collection of all currently in progress calls.
      */
     public Collection<Call> getInProgressCalls();
+
+    /**
+     * Returns the login manager used by the current UI implementation.
+     *
+     * @return the login manager used by the current UI implementation
+     */
+    public LoginManager getLoginManager();
 }

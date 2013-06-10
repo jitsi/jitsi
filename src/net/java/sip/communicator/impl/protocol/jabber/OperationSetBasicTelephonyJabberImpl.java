@@ -315,6 +315,13 @@ public class OperationSetBasicTelephonyJabberImpl
         if (fullCalleeURI == null)
             fullCalleeURI = discoverFullJid(calleeAddress, alwaysCallGtalk);
 
+        if (fullCalleeURI == null)
+            throw new OperationFailedException(
+                    "Failed to create outgoing call to " + calleeAddress
+                            + ". Could not find a resource which supports " +
+                            "Jingle or Google Talk",
+                    OperationFailedException.INTERNAL_ERROR);
+
         DiscoverInfo di = null;
 
         try
@@ -339,7 +346,7 @@ public class OperationSetBasicTelephonyJabberImpl
         {
             isGingle = false;
         }
-        else if (protocolProvider.isGTalkTesting() // test GTALK property
+        else if (protocolProvider.isGTalkTesting() // GTalk enabled locally
             // see if peer supports Google Talk voice
             && (hasGtalkCaps || alwaysCallGtalk))
         {
@@ -363,7 +370,7 @@ public class OperationSetBasicTelephonyJabberImpl
                     fullCalleeURI + ": jingle and Google Talk not supported?");
 
             throw new OperationFailedException(
-                    "Failed to create OutgoingJingleSession.\n"
+                    "Failed to create an outgoing call.\n"
                     + fullCalleeURI + " does not support jingle or Google Talk",
                     OperationFailedException.INTERNAL_ERROR);
         }
@@ -440,8 +447,8 @@ public class OperationSetBasicTelephonyJabberImpl
     }
 
     /**
-     * Discover on which resource the remote user is connected and what are
-     * its priorities and capabilities.
+     * Discovers the resource for <tt>calleeAddress</tt> with the highest
+     * priority which supports either Jingle or Gtalk. Returns the full JID.
      *
      * @param calleeAddress the address of the callee
      * @param isAlwaysCallGtalk indicates if gtalk should be called
@@ -515,7 +522,7 @@ public class OperationSetBasicTelephonyJabberImpl
                     }
                 }
             }
-            else if (protocolProvider.isGTalkTesting() // test GTALK property
+            else if (protocolProvider.isGTalkTesting() // GTalk enabled locally
                     // see if peer supports Google Talk voice
                     && (hasGtalkCaps || isAlwaysCallGtalk))
             {

@@ -506,7 +506,7 @@ public abstract class AbstractOperationSetTelephonyConferencing<
         }
         else
             remoteDirection = null;
-        return null;
+        return remoteDirection;
     }
 
     /**

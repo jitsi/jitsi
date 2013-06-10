@@ -3,10 +3,8 @@
  *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.main.presence;
+package net.java.sip.communicator.impl.globaldisplaydetails;
 
-import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.globalstatus.*;
 import net.java.sip.communicator.util.*;
@@ -45,6 +43,8 @@ public class GlobalStatusServiceImpl
     {
         String lastStatus = getLastStatusString(protocolProvider);
 
+        PresenceStatus status = null;
+
         if (lastStatus != null)
         {
             OperationSetPresence presence
@@ -54,16 +54,62 @@ public class GlobalStatusServiceImpl
                 return null;
 
             Iterator<PresenceStatus> i = presence.getSupportedStatusSet();
-            PresenceStatus status;
 
+            // Check if there's such status in the supported presence status
+            // set.
             while (i.hasNext())
             {
-                status = i.next();
-                if (status.getStatusName().equals(lastStatus))
-                    return status;
+                PresenceStatus nextStatus = i.next();
+
+                if (nextStatus.getStatusName().equals(lastStatus))
+                    status = nextStatus;
+            }
+
+            // If we haven't found the last status in the protocol provider
+            // supported status set, we'll have a look for a corresponding
+            // global status and its protocol representation.
+            if (status == null)
+            {
+                if (lastStatus.equals(GlobalStatusEnum.ONLINE_STATUS))
+                {
+                    status = getPresenceStatus(
+                        protocolProvider,
+                        PresenceStatus.AVAILABLE_THRESHOLD,
+                        PresenceStatus.EAGER_TO_COMMUNICATE_THRESHOLD);
+                }
+                else if (lastStatus.equals(GlobalStatusEnum.AWAY_STATUS))
+                {
+                    status = getPresenceStatus(
+                        protocolProvider,
+                        PresenceStatus.AWAY_THRESHOLD,
+                        PresenceStatus.AVAILABLE_THRESHOLD);
+                }
+                else if (lastStatus
+                            .equals(GlobalStatusEnum.DO_NOT_DISTURB_STATUS))
+                {
+                    status = getPresenceStatus(
+                            protocolProvider,
+                            PresenceStatus.ONLINE_THRESHOLD,
+                            PresenceStatus.AWAY_THRESHOLD);
+                }
+                else if (lastStatus
+                            .equals(GlobalStatusEnum.FREE_FOR_CHAT_STATUS))
+                {
+                    status = getPresenceStatus(
+                            protocolProvider,
+                            PresenceStatus.AVAILABLE_THRESHOLD,
+                            PresenceStatus.MAX_STATUS_VALUE);
+                }
+                else if (lastStatus.equals(GlobalStatusEnum.OFFLINE_STATUS))
+                {
+                    status = getPresenceStatus(
+                            protocolProvider,
+                            0,
+                            GlobalStatusEnum.ONLINE_THRESHOLD);
+                }
             }
         }
-        return null;
+        return status;
     }
 
     /**
@@ -79,7 +125,7 @@ public class GlobalStatusServiceImpl
         String lastStatus = null;
 
         ConfigurationService configService
-            = GuiActivator.getConfigurationService();
+            = GlobalDisplayDetailsActivator.getConfigurationService();
         String prefix = "net.java.sip.communicator.impl.gui.accounts";
         List<String> accounts
             = configService.getPropertyNamesByPrefix(prefix, true);
@@ -121,7 +167,7 @@ public class GlobalStatusServiceImpl
                 = protocolProvider.getOperationSet(OperationSetPresence.class);
 
         LoginManager loginManager
-            = GuiActivator.getUIService().getLoginManager();
+            = GlobalDisplayDetailsActivator.getUIService().getLoginManager();
         RegistrationState registrationState
             = protocolProvider.getRegistrationState();
 
@@ -147,7 +193,7 @@ public class GlobalStatusServiceImpl
             && registrationState != RegistrationState.AUTHENTICATING
             && status.isOnline())
         {
-            GuiActivator.getUIService().getLoginManager()
+            GlobalDisplayDetailsActivator.getUIService().getLoginManager()
                 .login(protocolProvider);
         }
         else if (!status.isOnline()
@@ -176,12 +222,11 @@ public class GlobalStatusServiceImpl
         String itemName = globalStatus.getStatusName();
 
         Iterator<ProtocolProviderService> pProviders
-            = GuiActivator.getUIService().getMainFrame().getProtocolProviders();
+            = AccountUtils.getRegisteredProviders().iterator();
 
         while (pProviders.hasNext())
         {
-            ProtocolProviderService protocolProvider
-                = pProviders.next();
+            ProtocolProviderService protocolProvider = pProviders.next();
 
             if(itemName.equals(GlobalStatusEnum.ONLINE_STATUS))
             {
@@ -189,8 +234,8 @@ public class GlobalStatusServiceImpl
                 {
                     saveStatusInformation(protocolProvider, itemName);
 
-                    GuiActivator.getUIService().getLoginManager()
-                        .login(protocolProvider);
+                    GlobalDisplayDetailsActivator.getUIService()
+                        .getLoginManager().login(protocolProvider);
                 }
                 else
                 {
@@ -282,27 +327,51 @@ public class GlobalStatusServiceImpl
             }
             else if (itemName.equals(GlobalStatusEnum.FREE_FOR_CHAT_STATUS))
             {
-                // we search for highest available status here
-                publishStatus(
-                        protocolProvider,
-                        PresenceStatus.AVAILABLE_THRESHOLD,
-                        PresenceStatus.MAX_STATUS_VALUE);
+                if(!protocolProvider.isRegistered())
+                {
+                    saveStatusInformation(protocolProvider, itemName);
+
+                    GlobalDisplayDetailsActivator.getUIService()
+                        .getLoginManager().login(protocolProvider);
+                }
+                else
+                    // we search for highest available status here
+                    publishStatus(
+                            protocolProvider,
+                            PresenceStatus.AVAILABLE_THRESHOLD,
+                            PresenceStatus.MAX_STATUS_VALUE);
             }
             else if (itemName.equals(GlobalStatusEnum.DO_NOT_DISTURB_STATUS))
             {
-                // status between online and away is DND
-                publishStatus(
-                        protocolProvider,
-                        PresenceStatus.ONLINE_THRESHOLD,
-                        PresenceStatus.AWAY_THRESHOLD);
+                if(!protocolProvider.isRegistered())
+                {
+                    saveStatusInformation(protocolProvider, itemName);
+
+                    GlobalDisplayDetailsActivator.getUIService()
+                        .getLoginManager().login(protocolProvider);
+                }
+                else
+                    // status between online and away is DND
+                    publishStatus(
+                            protocolProvider,
+                            PresenceStatus.ONLINE_THRESHOLD,
+                            PresenceStatus.AWAY_THRESHOLD);
             }
             else if (itemName.equals(GlobalStatusEnum.AWAY_STATUS))
             {
-                // a status in the away interval
-                publishStatus(
-                        protocolProvider,
-                        PresenceStatus.AWAY_THRESHOLD,
-                        PresenceStatus.AVAILABLE_THRESHOLD);
+                if(!protocolProvider.isRegistered())
+                {
+                    saveStatusInformation(protocolProvider, itemName);
+
+                    GlobalDisplayDetailsActivator.getUIService()
+                        .getLoginManager().login(protocolProvider);
+                }
+                else
+                    // a status in the away interval
+                    publishStatus(
+                            protocolProvider,
+                            PresenceStatus.AWAY_THRESHOLD,
+                            PresenceStatus.AVAILABLE_THRESHOLD);
             }
         }
     }
@@ -323,12 +392,35 @@ public class GlobalStatusServiceImpl
         if (!protocolProvider.isRegistered())
             return;
 
+        PresenceStatus status = getPresenceStatus(  protocolProvider,
+                                                    floorStatusValue,
+                                                    ceilStatusValue);
+
+        if (status != null)
+        {
+            OperationSetPresence presence
+                = protocolProvider
+                    .getOperationSet(OperationSetPresence.class);
+
+            new PublishPresenceStatusThread(protocolProvider, presence, status)
+                .start();
+
+            this.saveStatusInformation( protocolProvider,
+                                        status.getStatusName());
+        }
+    }
+
+    private PresenceStatus getPresenceStatus(
+        ProtocolProviderService protocolProvider,
+        int floorStatusValue,
+        int ceilStatusValue)
+    {
         OperationSetPresence presence
             = protocolProvider
                 .getOperationSet(OperationSetPresence.class);
 
         if (presence == null)
-            return;
+            return null;
 
         Iterator<PresenceStatus> statusSet
             = presence.getSupportedStatusSet();
@@ -357,14 +449,7 @@ public class GlobalStatusServiceImpl
             }
         }
 
-        if (status != null)
-        {
-            new PublishPresenceStatusThread(protocolProvider, presence, status)
-                .start();
-
-            this.saveStatusInformation( protocolProvider,
-                status.getStatusName());
-        }
+        return status;
     }
 
     /**
@@ -380,7 +465,7 @@ public class GlobalStatusServiceImpl
             String statusName)
     {
         ConfigurationService configService
-            = GuiActivator.getConfigurationService();
+            = GlobalDisplayDetailsActivator.getConfigurationService();
 
         String prefix = "net.java.sip.communicator.impl.gui.accounts";
 
@@ -473,46 +558,55 @@ public class GlobalStatusServiceImpl
                     == OperationFailedException.GENERAL_ERROR)
                 {
                     String msgText =
-                        GuiActivator.getResources().getI18NString(
+                        GlobalDisplayDetailsActivator.getResources()
+                            .getI18NString(
                             "service.gui.STATUS_CHANGE_GENERAL_ERROR",
                             new String[]{
                                 protocolProvider.getAccountID().getUserID(),
                                 protocolProvider.getAccountID().getService()});
 
-                    new ErrorDialog(null,
-                        GuiActivator.getResources().getI18NString(
-                        "service.gui.GENERAL_ERROR"), msgText, e1)
-                    .showDialog();
+                    GlobalDisplayDetailsActivator.getAlertUIService()
+                        .showAlertDialog(
+                            GlobalDisplayDetailsActivator.getResources()
+                                .getI18NString("service.gui.GENERAL_ERROR"),
+                            msgText,
+                            e1);
                 }
                 else if (e1.getErrorCode()
                     == OperationFailedException.NETWORK_FAILURE)
                 {
                     String msgText =
-                        GuiActivator.getResources().getI18NString(
+                        GlobalDisplayDetailsActivator.getResources()
+                            .getI18NString(
                             "service.gui.STATUS_CHANGE_NETWORK_FAILURE",
                             new String[]{
                                 protocolProvider.getAccountID().getUserID(),
                                 protocolProvider.getAccountID().getService()});
 
-                    new ErrorDialog(null, msgText,
-                        GuiActivator.getResources().getI18NString(
-                            "service.gui.NETWORK_FAILURE"), e1)
-                    .showDialog();
+                    GlobalDisplayDetailsActivator.getAlertUIService()
+                        .showAlertDialog(
+                            msgText,
+                            GlobalDisplayDetailsActivator.getResources()
+                                .getI18NString("service.gui.NETWORK_FAILURE"),
+                            e1);
                 }
                 else if (e1.getErrorCode()
                         == OperationFailedException.PROVIDER_NOT_REGISTERED)
                 {
                     String msgText =
-                        GuiActivator.getResources().getI18NString(
+                        GlobalDisplayDetailsActivator.getResources()
+                            .getI18NString(
                             "service.gui.STATUS_CHANGE_NETWORK_FAILURE",
                             new String[]{
                                 protocolProvider.getAccountID().getUserID(),
                                 protocolProvider.getAccountID().getService()});
 
-                    new ErrorDialog(null,
-                        GuiActivator.getResources().getI18NString(
-                        "service.gui.NETWORK_FAILURE"), msgText, e1)
-                    .showDialog();
+                    GlobalDisplayDetailsActivator.getAlertUIService()
+                    .showAlertDialog(
+                        GlobalDisplayDetailsActivator.getResources()
+                            .getI18NString("service.gui.NETWORK_FAILURE"),
+                        msgText,
+                        e1);
                 }
                 logger.error("Error - changing status", e1);
             }

@@ -1196,7 +1196,7 @@ public abstract class ProtocolProviderFactory
      *
      * @return <tt>AccountManager</tt> of the protocol
      */
-    private AccountManager getAccountManager()
+    protected AccountManager getAccountManager()
     {
         BundleContext bundleContext = getBundleContext();
         ServiceReference serviceReference =

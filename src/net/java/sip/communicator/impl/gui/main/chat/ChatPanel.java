@@ -1302,7 +1302,7 @@ public class ChatPanel
         final ChatTransport sendFileTransport
             = this.findFileTransferChatTransport();
 
-        this.setSelectedChatTransport(sendFileTransport);
+        this.setSelectedChatTransport(sendFileTransport, true);
 
         if(file.length() > sendFileTransport.getMaximumFileLength())
         {
@@ -1968,10 +1968,20 @@ public class ChatPanel
      * Selects the given chat transport in the send via box.
      *
      * @param chatTransport the chat transport to be selected
+     * @param isMessageOrFileTransferReceived Boolean telling us if this change
+     * of the chat transport correspond to an effective switch to this new
+     * transform (a mesaage received from this transport, or a file transfer
+     * request received, or if the resource timeouted), or just a status update
+     * telling us a new chatTransport is now available (i.e. another device has
+     * startup).
      */
-    public void setSelectedChatTransport(ChatTransport chatTransport)
+    public void setSelectedChatTransport(
+            ChatTransport chatTransport,
+            boolean isMessageOrFileTransferReceived)
     {
-        writeMessagePanel.setSelectedChatTransport(chatTransport);
+        writeMessagePanel.setSelectedChatTransport(
+                chatTransport,
+                isMessageOrFileTransferReceived);
     }
 
     /**

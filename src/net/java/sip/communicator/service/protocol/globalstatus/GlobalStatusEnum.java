@@ -34,12 +34,12 @@ public class GlobalStatusEnum
     /**
      * Indicates that the user is connected and eager to communicate.
      */
-    public static final String FREE_FOR_CHAT_STATUS = "FreeForChat";
+    public static final String FREE_FOR_CHAT_STATUS = "Free For Chat";
 
     /**
      * Indicates that the user is connected and eager to communicate.
      */
-    public static final String DO_NOT_DISTURB_STATUS = "DoNotDisturb";
+    public static final String DO_NOT_DISTURB_STATUS = "Do Not Disturb";
 
     /**
      * The Online status. Indicate that the user is able and willing to

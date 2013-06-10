@@ -247,7 +247,7 @@ public class AccountManager
      * @param factory the factory which package will be returned.
      * @return the package name of the <tt>factory</tt>.
      */
-    private String getFactoryImplPackageName(ProtocolProviderFactory factory)
+    public String getFactoryImplPackageName(ProtocolProviderFactory factory)
     {
         String className = factory.getClass().getName();
 
@@ -660,30 +660,7 @@ public class AccountManager
             = ProtocolProviderActivator.getConfigurationService();
         String factoryPackage = getFactoryImplPackageName(factory);
 
-        // First check if such accountID already exists in the configuration.
-        List<String> storedAccounts =
-            configurationService.getPropertyNamesByPrefix(factoryPackage, true);
-        String accountUID = accountID.getAccountUniqueID();
-        String accountNodeName = null;
-
-        for (Iterator<String> storedAccountIter = storedAccounts.iterator();
-             storedAccountIter.hasNext();)
-        {
-            String storedAccount = storedAccountIter.next();
-
-            // If the property is not related to an account we skip it.
-            int dotIndex = storedAccount.lastIndexOf(".");
-            if (!storedAccount.substring(dotIndex + 1)
-                    .startsWith(ACCOUNT_UID_PREFIX))
-                continue;
-
-            String storedAccountUID =
-                configurationService.getString(storedAccount + "."
-                    + ProtocolProviderFactory.ACCOUNT_UID);
-
-            if (storedAccountUID.equals(accountUID))
-                accountNodeName = configurationService.getString(storedAccount);
-        }
+       String accountNodeName = getAccountNodeName(factory, accountID);
 
         Map<String, Object> configurationProperties
             = new HashMap<String, Object>();
@@ -780,6 +757,49 @@ public class AccountManager
         if (logger.isDebugEnabled())
             logger.debug("Stored account for id " + accountID.getAccountUniqueID()
                     + " for package " + factoryPackage);
+    }
+
+    /**
+     * Gets account node name under which account configuration properties are
+     * stored.
+     *
+     * @param factory account's protocol provider factory
+     * @param accountID account for which the prefix will be returned
+     * @return configuration prefix for given <tt>accountID</tt> if exists or
+     *         <tt>null</tt> otherwise
+     */
+    public String getAccountNodeName( ProtocolProviderFactory factory,
+                                      AccountID accountID )
+    {
+        ConfigurationService configurationService
+                = ProtocolProviderActivator.getConfigurationService();
+        String factoryPackage = getFactoryImplPackageName(factory);
+
+        // First check if such accountID already exists in the configuration.
+        List<String> storedAccounts =
+            configurationService.getPropertyNamesByPrefix(factoryPackage, true);
+        String accountUID = accountID.getAccountUniqueID();
+        String accountNodeName = null;
+
+        for (Iterator<String> storedAccountIter = storedAccounts.iterator();
+             storedAccountIter.hasNext();)
+        {
+            String storedAccount = storedAccountIter.next();
+
+            // If the property is not related to an account we skip it.
+            int dotIndex = storedAccount.lastIndexOf(".");
+            if (!storedAccount.substring(dotIndex + 1)
+                    .startsWith(ACCOUNT_UID_PREFIX))
+                continue;
+
+            String storedAccountUID
+                = configurationService.getString(
+                    storedAccount + "." + ProtocolProviderFactory.ACCOUNT_UID);
+
+            if (storedAccountUID.equals(accountUID))
+                accountNodeName = configurationService.getString(storedAccount);
+        }
+        return accountNodeName;
     }
 
     /**
