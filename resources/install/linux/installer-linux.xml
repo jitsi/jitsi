@@ -74,10 +74,10 @@
                     <fileset  targetdir="$INSTALL_PATH/lib" dir="lib" override="true">
                         <include name="*.jar"/>
                     </fileset>
-                    <fileset  targetdir="$INSTALL_PATH/lib" dir="lib/os-specific/linux" override="true">
+                    <!--fileset  targetdir="$INSTALL_PATH/lib" dir="lib/os-specific/linux" override="true">
                         <include name="*.jar"/>
                         <exclude name="jmf.jar"/>
-                    </fileset>
+                    </fileset-->
                     <fileset targetdir="$INSTALL_PATH/lib/bundle" dir="lib/bundle" override="true">
                         <include name="*.jar"/>
                         <exclude name="junit.jar"/>
