@@ -355,6 +355,36 @@ public class SipAccountID
     }
 
     /**
+     * Gets the property related to XCAP/XIVO in old properties compatibility
+     * mode. If there is no value under new key then old keys are selected
+     * based on whether XCAP or XIVO is currently enabled.
+     *
+     * @param newKey currently used property key
+     * @param oldKeyXcap old XCAP property key
+     * @param oldKeyXivo old XIVO property key
+     * @return XIVO/XCAP property value
+     */
+    private String getXcapCompatible( String newKey,
+                                      String oldKeyXcap,
+                                      String oldKeyXivo )
+    {
+        String value = getAccountPropertyString(newKey);
+        if(value == null)
+        {
+            String oldKey = isXCapEnable() ? oldKeyXcap : oldKeyXivo;
+            value = getAccountPropertyString(oldKey);
+            if(value != null)
+            {
+                // remove old
+                accountProperties.remove(oldKey);
+                // store under new property key
+                accountProperties.put(newKey, value);
+            }
+        }
+        return value;
+    }
+
+    /**
      * Checks if contact list has to use SIP account credentials.
      *
      * @return <tt>true</tt> if contact list has to use SIP account credentials
@@ -362,7 +392,14 @@ public class SipAccountID
      */
     public boolean isClistOptionUseSipCredentials()
     {
-        return getAccountPropertyBoolean(OPT_CLIST_USE_SIP_CREDETIALS, true);
+        String val = getXcapCompatible( OPT_CLIST_USE_SIP_CREDETIALS,
+                                        "XCAP_USE_SIP_CREDETIALS",
+                                        "XIVO_USE_SIP_CREDETIALS" );
+
+        if(val == null)
+            getDefaultString(OPT_CLIST_USE_SIP_CREDETIALS);
+
+        return Boolean.parseBoolean(val);
     }
 
     /**
@@ -383,7 +420,9 @@ public class SipAccountID
      */
     public String getClistOptionServerUri()
     {
-        return getAccountPropertyString(OPT_CLIST_SERVER_URI);
+        return getXcapCompatible( OPT_CLIST_SERVER_URI,
+                                  "XCAP_SERVER_URI",
+                                  "XIVO_SERVER_URI"  );
     }
 
     /**
@@ -393,7 +432,7 @@ public class SipAccountID
      */
     public void setClistOptionServerUri(String clistOptionServerUri)
     {
-        placePropertyIfNotNull(OPT_CLIST_SERVER_URI, clistOptionServerUri);
+        setOrRemoveIfNull(OPT_CLIST_SERVER_URI, clistOptionServerUri);
     }
 
     /**
@@ -403,19 +442,7 @@ public class SipAccountID
      */
     public String getClistOptionUser()
     {
-        String clistUser = getAccountPropertyString(OPT_CLIST_USER);
-        if(clistUser == null)
-        {
-            String oldKey = isXCapEnable() ? "XCAP_USER" : "XIVO_USER";
-            clistUser = getAccountPropertyString(oldKey);
-            if(clistUser != null)
-            {
-                accountProperties.remove(oldKey);
-                // store under new property key
-                setClistOptionUser(clistUser);
-            }
-        }
-        return clistUser;
+        return getXcapCompatible(OPT_CLIST_USER, "XCAP_USER", "XIVO_USER");
     }
 
     /**
@@ -425,7 +452,7 @@ public class SipAccountID
      */
     public void setClistOptionUser(String clistOptionUser)
     {
-        placePropertyIfNotNull(OPT_CLIST_USER, clistOptionUser);
+        setOrRemoveIfNull(OPT_CLIST_USER, clistOptionUser);
     }
 
     /**
@@ -435,19 +462,9 @@ public class SipAccountID
      */
     public String getClistOptionPassword()
     {
-        String clistPass = getAccountPropertyString(OPT_CLIST_PASSWORD);
-        if(clistPass == null)
-        {
-            String oldKey = isXCapEnable() ? "XCAP_PASSWORD" : "XIVO_PASSWORD";
-            clistPass = getAccountPropertyString(oldKey);
-            if(clistPass != null)
-            {
-                accountProperties.remove(oldKey);
-                // store under new property key
-                setClistOptionUser(clistPass);
-            }
-        }
-        return clistPass;
+        return getXcapCompatible( OPT_CLIST_PASSWORD,
+                                  "XCAP_PASSWORD",
+                                  "XIVO_PASSWORD"  );
     }
 
     /**
@@ -457,7 +474,7 @@ public class SipAccountID
      */
     public void setClistOptionPassword(String clistOptionPassword)
     {
-        placePropertyIfNotNull(OPT_CLIST_PASSWORD, clistOptionPassword);
+        setOrRemoveIfEmpty(OPT_CLIST_PASSWORD, clistOptionPassword);
     }
 
     /**
