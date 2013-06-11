@@ -60,7 +60,10 @@
     </condition>
 
     <condition property="os.lib.home" value="${lib.win}">
-        <isset property="is.running.windows"/>
+        <and>
+            <isset property="is.running.windows"/>
+            <available file="${lib.win}" type="dir"/>
+        </and>
     </condition>
 
     <!-- Make sure we use the windows-64 natives if this is 64-bit Windows -->
@@ -91,7 +94,10 @@
     </condition>
 
     <condition property="os.lib.home" value="${lib.lin}">
-        <isset property="is.running.linux"/>
+        <and>
+            <isset property="is.running.linux"/>
+            <available file="${lib.lin}" type="dir"/>
+        </and>
     </condition>
 
     <!-- make sure we use the linux-64 natives if this is a 64 bit system-->
@@ -122,7 +128,10 @@
     </condition>
 
     <condition property="os.lib.home" value="${lib}/os-specific/solaris">
-        <isset property="is.running.solaris"/>
+        <and>
+            <isset property="is.running.solaris"/>
+            <available file="${lib}/os-specific/solaris" type="dir"/>
+        </and>
     </condition>
 
     <condition property="ld.library.path"
@@ -140,7 +149,10 @@
     </condition>
 
     <condition property="os.lib.home" value="${lib}/os-specific/mac">
-        <isset property="is.running.macos"/>
+        <and>
+            <isset property="is.running.macos"/>
+            <available file="${lib}/os-specific/mac" type="dir"/>
+        </and>
     </condition>
 
     <condition property="dyld.library.path"
@@ -172,7 +184,10 @@
     </condition>
 
     <condition property="os.lib.home" value="${lib}/os-specific/freebsd">
-        <isset property="is.running.freebsd"/>
+        <and>
+            <isset property="is.running.freebsd"/>
+            <available file="${lib}/os-specific/freebsd" type="dir"/>
+        </and>
     </condition>
 
     <condition property="ld.library.path"
