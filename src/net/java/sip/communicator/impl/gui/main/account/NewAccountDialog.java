@@ -631,6 +631,7 @@ public class NewAccountDialog
             }
             catch (Exception e)
             {
+                logger.error("Error creating account: "+e.getMessage(), e);
                 // make sure buttons don't stay disabled
                 SwingUtilities.invokeLater(new Runnable()
                 {
