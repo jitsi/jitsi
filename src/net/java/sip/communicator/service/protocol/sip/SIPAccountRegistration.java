@@ -158,11 +158,12 @@ public class SIPAccountRegistration
         setUserID(userID);
 
         setPassword(password);
-        // The order of the next two fields is important, as a change listener
-        // of the transportCombo sets the proxyPortField to its default
-        // TODO: have to check why is that(Pawel)
-        //setPreferredTransport(preferredTransport);
-        //setProxyPort(proxyPort);
+
+        rememberPassword = password != null;
+
+        // Password must be copied from credentials storage
+        setClistOptionPassword(
+                accountID.getAccountPropertyString(OPT_CLIST_PASSWORD));
 
         securityAccountRegistration.loadAccount(accountID);
 
@@ -241,6 +242,12 @@ public class SIPAccountRegistration
         }
 
         securityAccountRegistration.storeProperties(this.accountProperties);
+
+        ensureDefaultValuePresent(ProtocolProviderFactory.PROXY_AUTO_CONFIG);
+
+        ensureDefaultValuePresent(ProtocolProviderFactory.IS_PRESENCE_ENABLED);
+
+        ensureDefaultValuePresent(ProtocolProviderFactory.FORCE_P2P_MODE);
 
         ensureDefaultValuePresent(ProtocolProviderFactory.KEEP_ALIVE_METHOD);
 
