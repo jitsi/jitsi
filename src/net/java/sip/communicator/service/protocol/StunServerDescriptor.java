@@ -12,6 +12,7 @@ import static net.java.sip.communicator.service.protocol.ProtocolProviderFactory
 import static net.java.sip.communicator.service.protocol.ProtocolProviderFactory.STUN_PORT;
 import static net.java.sip.communicator.service.protocol.ProtocolProviderFactory.STUN_USERNAME;
 
+import java.io.*;
 import java.util.*;
 
 import org.jitsi.util.*;
@@ -27,6 +28,7 @@ import org.jitsi.util.*;
  * @author Emil Ivov
  */
 public class StunServerDescriptor
+    implements Serializable
 {
     /**
      * The maximum number of stun servers that we would allow.
