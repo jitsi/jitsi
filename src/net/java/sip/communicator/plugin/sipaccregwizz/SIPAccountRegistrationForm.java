@@ -297,10 +297,7 @@ public class SIPAccountRegistrationForm
         registration.setSubscriptionExpiration(
             presencePanel.getSubscriptionExpiration());
 
-        // set the keepalive method only if its not already set by some custom
-        // extending wizard like sip2sip
-        if(registration.getKeepAliveMethod() == null)
-            registration.setKeepAliveMethod(
+        registration.setKeepAliveMethod(
                 connectionPanel.getKeepAliveMethod());
 
         registration.setKeepAliveInterval(
