@@ -65,7 +65,7 @@
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/httpcore-osgi-4.2.3.jar!/"/>
 	</lib>
 	<lib name="ice4j.jar" scope="COMPILE">
-		<srcroot url="file://../ice4j/src"/>
+		<srcroot url="file://$MODULE_DIR$/../ice4j/src"/>
 		<srcroot bind="false" url="file://$MODULE_DIR$/../ice4j/test"/>
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/ice4j.jar!/"/>
 	</lib>
