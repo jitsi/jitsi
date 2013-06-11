@@ -377,16 +377,10 @@ public class JabberAccountRegistrationForm
     public void loadAccount(JabberAccountRegistration accountReg)
     {
         accountPanel.setUsername(accountReg.getUserID());
+
         String password = accountReg.getPassword();
-        if (password != null)
-        {
-            accountPanel.setPassword(password);
-            accountPanel.setRememberPassword(true);
-        }
-        else
-        {
-            accountPanel.setPassword(null);
-        }
+        accountPanel.setPassword(password);
+        accountPanel.setRememberPassword(password != null);
 
         String serverAddress = accountReg.getServerAddress();
 
