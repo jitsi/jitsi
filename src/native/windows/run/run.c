@@ -510,8 +510,6 @@ Run_getJavaVMOptionStrings
         LPCTSTR classpath[]
             = {
                 _T("lib\\felix.jar"),
-                _T("lib\\jdic-all.jar"),
-                _T("lib\\jdic_stub.jar"),
                 _T("lib\\bcprovider.jar"),
                 _T("sc-bundles\\sc-launcher.jar"),
                 _T("sc-bundles\\util.jar"),

@@ -1929,9 +1929,9 @@
         <copy todir="${debianize.dir}/source">
             <fileset dir="${inst.resrc}/debian/source"/>
         </copy>
-        <!--copy todir="${debianize.dir}/patches">
+        <copy todir="${debianize.dir}/patches">
             <fileset dir="${inst.resrc}/debian/patches"/>
-        </copy-->
+        </copy>
     </target>
 
     <!-- sets custom build target or a custom one -->
@@ -2036,7 +2036,16 @@
             and libjdic.so to deb and i386 package fail to build -->
         <replace file="${debianize.dir}/rules"
                  token="get-orig-source:"
-                 value="override_dh_shlibdeps:&#010;&#009;dh_shlibdeps -Xlibmozembed-linux-gtk1.2.so -Xlibjdic.so -Xlibjunbound.so -Xlibsysactivitynotifications.so&#010;&#010;get-orig-source:"/>
+                 value="override_dh_shlibdeps:&#010;&#009;dh_shlibdeps -Xlibjunbound.so -Xlibsysactivitynotifications.so&#010;&#010;get-orig-source:"/>
+
+        <!-- removes the rule override_dh_auto_clean -->
+        <replace file="${debianize.dir}/rules"
+                         token="override_dh_auto_clean"
+                         value="#override_dh_auto_clean"/>
+        <replace file="${debianize.dir}/rules"
+                         token="&#009;dh_auto_clean --"
+                         value="#&#009;dh_auto_clean --"/>
+
     </target>
     <!-- copies links file only if used in the context of deb-src target -->
     <target name="-deb-links-file"
@@ -2054,7 +2063,7 @@
         <concat destfile="${debianize.dir}/${package.name}.install"
                 append="true"
                 eol="lf"
-                fixlastline="true">lib/*.jar usr/share/${package.name}/lib/&#010;lib/os-specific/linux/*.jar usr/share/${package.name}/lib/&#010;</concat>
+                fixlastline="true">lib/*.jar usr/share/${package.name}/lib/&#010;</concat>
         <concat destfile="${debianize.dir}/${package.name}.install"
                 append="true"
                 eol="lf"
@@ -2063,9 +2072,6 @@
     <!-- updates the startup scritp only if called from deb target -->
     <target name="-deb-sh-file-update"
             unless="debianize.src.pkg">
-        <replace file="${debianize.dir}/sh/${package.name}"
-                 token="/usr/share/java/jdic.jar"
-                 value="$LIBPATH/jdic_stub.jar:$LIBPATH/jdic-all.jar"/>
         <replace file="${debianize.dir}/sh/${package.name}"
                  token="/usr/share/java/org.apache.felix.framework.jar:/usr/share/java/org.apache.felix.main.jar"
                  value="$LIBPATH/felix.jar"/>
@@ -2263,7 +2269,6 @@
                 <exclude name="**/.svn"/>
             </patternset>
         </unzip>
-        <mkdir dir="${debian.src.dir}/lib/src/sdes4j/lib"/>
 
         <!-- jsip -->
         <unzip src="${sc.basedir}/../libsrc/jsip.zip"
@@ -2308,14 +2313,12 @@
         </unzip>
         <unzip src="${debian.src.dir}/lib/src/joscar/lib/annotations.zip"
                dest="${debian.src.dir}/lib/src/joscar/lib/annotations"/>
-        <mkdir dir="${debian.src.dir}/lib/src/joscar/lib/annotations/classes"/>
         <unzip src="${sc.basedir}/../libsrc/jsocks.zip"
                dest="${debian.src.dir}/lib/src"/>
-        <mkdir dir="${debian.src.dir}/lib/src/jsocks/classes"/>
 
-        <!-- lcrypto -->
-        <unzip src="${sc.basedir}/../libsrc/lcrypto.zip"
-               dest="${debian.src.dir}/lib/src">
+        <!-- bccontrib -->
+        <unzip src="${sc.basedir}/../libsrc/bccontrib.zip"
+               dest="${debian.src.dir}/lib/src/">
             <patternset>
                 <exclude name="**/*.jar"/>
                 <exclude name="**/*.class"/>
@@ -2342,14 +2345,10 @@
         <!-- jingle nodes -->
         <unzip src="${sc.basedir}/../libsrc/jnsapi_src.zip"
                dest="${debian.src.dir}/lib/src/jnsapi"/>
-        <mkdir dir="${debian.src.dir}/lib/src/jnsapi/classes"/>
-        <mkdir dir="${debian.src.dir}/lib/src/jnsapi/lib"/>
 
         <!-- java-jml-->
         <unzip src="${sc.basedir}/../libsrc/java-jml.zip"
                dest="${debian.src.dir}/lib/src"/>
-        <mkdir dir="${debian.src.dir}/lib/src/java-jml/classes"/>
-        <mkdir dir="${debian.src.dir}/lib/src/java-jml/lib"/>
 
         <!-- jymsg -->
         <unzip src="${sc.basedir}/../libsrc/jymsg.zip"
@@ -2358,7 +2357,6 @@
         <!-- dhcp4j -->
         <unzip src="${sc.basedir}/../libsrc/dhcp4java-1.00.src.zip"
                dest="${debian.src.dir}/lib/src/dhcp4java"/>
-        <mkdir dir="${debian.src.dir}/lib/src/dhcp4java/classes"/>
 
         <!-- otr4j -->
         <unzip src="${sc.basedir}/../libsrc/otr4j.zip"
@@ -2367,12 +2365,10 @@
         <!-- myspell-->
         <unzip src="${sc.basedir}/../libsrc/jmyspell-core-src.zip"
                dest="${debian.src.dir}/lib/src/jmyspell"/>
-        <mkdir dir="${debian.src.dir}/lib/src/jmyspell/classes"/>
 
         <!-- jfontchooser -->
         <unzip src="${sc.basedir}/../libsrc/jfontchooser-src.zip"
                        dest="${debian.src.dir}/lib/src/jfontchooser"/>
-        <mkdir dir="${debian.src.dir}/lib/src/jfontchooser/classes"/>
 
         <!-- gdata -->
         <unzip src="${sc.basedir}/../libsrc/gdata-src.java-1.43.0.zip"
@@ -2383,6 +2379,10 @@
                 </patternset>
         </unzip>
 
+        <!-- jmork -->
+        <unzip src="${sc.basedir}/../libsrc/jmork-1.0.5-SNAPSHOT-sources.jar"
+               dest="${debian.src.dir}/lib/src/jmork"/>
+
         <!-- native -->
         <mkdir dir="${debian.src.dir}/lib/native/linux"/>
         <mkdir dir="${debian.src.dir}/lib/native/linux-64"/>
@@ -2392,19 +2392,130 @@
                dest="${debian.src.dir}/lib/src/">
             <patternset>
                 <exclude name="**/*.log"/>
-                <exclude name="**/*.status"/>
                 <exclude name="**/*.orig"/>
                 <exclude name="**/bindings/**"/>
                 <exclude name="**/macosx/**"/>
                 <exclude name="**/windows/**"/>
             </patternset>
         </unzip>
+        <exec   dir="${debian.src.dir}/lib/src/portaudio"
+                executable="make"
+                failonerror="true">
+            <arg value="distclean" />
+        </exec>
 
         <!-- pack as original sources -->
         <tar destfile="${debian.dir}/${package.name}_${sip-communicator.version}.orig.tar.gz"
              compression="gzip"
              basedir="${debian.src.dir}"/>
-        <delete dir="${debian.tmp.dir}"/>
+        <!--delete dir="${debian.tmp.dir}"/-->
+    </target>
+
+    <!-- clean for debuild -->
+    <target name="clean-debuild" depends="load-properties">
+        <property name="debian.src.dir" value="." />
+
+        <!-- libjitsi clean -->
+        <ant dir="${debian.src.dir}/lib/src/weupnp"
+             inheritAll="false"
+             target="clean"/>
+        <ant dir="${debian.src.dir}/lib/src/ice4j"
+             inheritAll="false"
+             target="clean"/>
+        <ant dir="${debian.src.dir}/lib/src/sdes4j"
+             inheritAll="false"
+             target="clean"/>
+        <ant dir="${debian.src.dir}/lib/src/jsip"
+             inheritAll="false"
+             target="clean"/>
+        <exec   dir="${debian.src.dir}/lib/src/bccontrib"
+                executable="mvn"
+                failonerror="false">
+            <arg value="clean" />
+            <arg value="-Dmaven.repo.local=/tmp" />
+        </exec>
+        <ant dir="${debian.src.dir}/lib/src/fmj"
+             inheritAll="false"
+             target="clean"/>
+        <ant dir="${debian.src.dir}/lib/src/zrtp4j"
+             inheritAll="false"
+             target="clean"/>
+        <ant dir="${debian.src.dir}/lib/src/libjitsi"
+             inheritAll="false"
+             target="clean"/>
+
+        <!-- main build of jitsi -->
+        <ant dir="${debian.src.dir}/lib/src/swingworker"
+             inheritAll="false"
+             target="clean"/>
+        <exec   dir="${debian.src.dir}/lib/src/joscar"
+                executable="ant"
+                failonerror="false">
+            <arg value="clean" />
+        </exec>
+        <delete dir="${debian.src.dir}/lib/src/jsocks/classes"
+                failonerror="false"/>
+        <delete dir="${debian.src.dir}/lib/src/joscar/lib/annotations/classes"
+                failonerror="false"/>
+        <exec   dir="${debian.src.dir}/lib/src/smack_src_3_2_2/build"
+                executable="ant"
+                failonerror="false">
+            <arg value="clean" />
+        </exec>
+        <delete dir="${debian.src.dir}/lib/src/jnsapi/classes"
+                failonerror="false"/>
+        <delete dir="${debian.src.dir}/lib/src/java-jml/classes"
+                failonerror="false"/>
+        <ant dir="${debian.src.dir}/lib/src/misc"
+            inheritAll="true"
+            inheritRefs="true"
+            target="clean"/>
+        <ant dir="${debian.src.dir}/lib/src/jymsg"
+            inheritAll="false"
+            target="clean"/>
+        <delete dir="${debian.src.dir}/lib/src/dhcp4java/classes"
+                failonerror="false"/>
+        <ant dir="${debian.src.dir}/lib/src/otr4j"
+            inheritAll="false"
+            target="clean"/>
+        <delete dir="${debian.src.dir}/lib/src/jmyspell/classes"
+                failonerror="false"/>
+        <delete dir="${debian.src.dir}/lib/src/jfontchooser/classes"
+                failonerror="false"/>
+        <delete dir="${debian.src.dir}/lib/src/OrangeExtensions/classes"
+                failonerror="false"/>
+        <ant dir="${debian.src.dir}/lib/src/gdata-java-client/java"
+            inheritAll="false"
+            target="clean"
+            antfile="build-src.xml"/>
+        <delete dir="${debian.src.dir}/lib/src/gdata-java-client/java/classes"
+                failonerror="false"/>
+        <delete dir="${debian.src.dir}/lib/src/gdata-java-client/java/genfiles"
+                failonerror="false"/>
+        <delete dir="${debian.src.dir}/lib/src/jmork/classes"
+                failonerror="false"/>
+
+        <!-- delete all jars -->
+        <delete failonerror="false">
+            <fileset dir="${debian.src.dir}/lib">
+                <include name="**/*.jar"/>
+                <include name="**/*.so"/>
+                <include name="**/*.zip"/>
+                <include name="**/history.xml"/>
+            </fileset>
+        </delete>
+
+        <!-- deletes the symbolic links left as delete target skips them
+         if if removeNotFollowedSymlinks is set -->
+        <exec   dir="${debian.src.dir}/lib"
+                executable="find"
+                failonerror="false">
+            <arg value="." />
+            <arg value="-name" />
+            <arg value="*.jar" />
+            <arg value="-delete" />
+        </exec>
+
     </target>
 
     <!-- this target is dependent of deb-src-rebuild and
@@ -2412,8 +2523,9 @@
     <target name="deb-src-build-libjitsi" depends="load-properties">
 
         <dirname property="current.basedir" file="${ant.file.jitsi}"/>
-        <property name="debian.src.dir"
-          value="${current.basedir}" />
+        <property name="debian.src.dir" value="${current.basedir}" />
+
+        <mkdir dir="${debian.src.dir}/lib/src/libjitsi/lib"/>
 
         <!-- weupnp -->
         <ant dir="${debian.src.dir}/lib/src/weupnp"
@@ -2437,6 +2549,7 @@
                  link="${debian.src.dir}/lib/src/libjitsi/lib"/>
 
         <!-- sdes -->
+        <mkdir dir="${debian.src.dir}/lib/src/sdes4j/lib"/>
         <symlink resource="/usr/share/java/commons-codec.jar"
                  overwrite="true"
                  link="${debian.src.dir}/lib/src/sdes4j/lib/commons-codec.jar"/>
@@ -2475,11 +2588,16 @@
                  overwrite="true"
                  link="${debian.src.dir}/lib/src/libjitsi/lib/jain-sdp.jar"/>
 
-        <!-- lcrypto -->
-        <ant dir="${debian.src.dir}/lib/src/lcrypto"
-             inheritAll="false"
-             target="jar">
-        </ant>
+        <!-- compile and pack bccontrib -->
+        <exec   dir="${debian.src.dir}/lib/src/bccontrib"
+                executable="mvn"
+                resolveexecutable="true"
+                failonerror="true">
+            <arg value="package" />
+        </exec>
+        <symlink resource="../../bccontrib/target/bccontrib-1.0-SNAPSHOT.jar"
+                 overwrite="true"
+                 link="${debian.src.dir}/lib/src/libjitsi/lib"/>
 
         <!-- compile and pack fmj -->
         <property name="fmj.src.folder" value="${debian.src.dir}/lib/src/fmj"/>
@@ -2533,9 +2651,12 @@
 
         <!-- zrtp -->
         <mkdir dir="${debian.src.dir}/lib/src/zrtp4j/lib"/>
-        <symlink resource="../../lcrypto/bin/jar/lcrypto-jdk16-143.jar"
+        <symlink resource="../../bccontrib/target/bccontrib-1.0-SNAPSHOT.jar"
                  overwrite="true"
                  link="${debian.src.dir}/lib/src/zrtp4j/lib"/>
+        <symlink resource="/usr/share/java/bcprov.jar"
+                 overwrite="true"
+                 link="${debian.src.dir}/lib/src/zrtp4j/lib/bcprov-jdk15on-148.jar"/>
         <!-- its not error zrtp build expects jmf.jar -->
         <symlink resource="../../fmj/fmj.jar"
                  overwrite="true"
@@ -2552,7 +2673,10 @@
         <symlink resource="../../zrtp4j/dist/zrtp4j-light.jar"
                  overwrite="true"
                  link="${debian.src.dir}/lib/src/libjitsi/lib"/>
-        <symlink resource="../../lcrypto/bin/jar/lcrypto-jdk16-143.jar"
+        <symlink resource="../../bccontrib/target/bccontrib-1.0-SNAPSHOT.jar"
+                 overwrite="true"
+                 link="${debian.src.dir}/lib/src/libjitsi/lib"/>
+        <symlink resource="/usr/share/java/bcprov.jar"
                  overwrite="true"
                  link="${debian.src.dir}/lib/src/libjitsi/lib"/>
         <ant dir="${debian.src.dir}/lib/src/libjitsi"
@@ -2560,6 +2684,10 @@
              target="jar">
         </ant>
         <symlink resource="../src/libjitsi/libjitsi.jar"
+                 overwrite="true"
+                 link="${debian.src.dir}/lib/installer-exclude"/>
+
+        <symlink resource="/usr/share/java/ant.jar"
                  overwrite="true"
                  link="${debian.src.dir}/lib/installer-exclude"/>
     </target>
@@ -2581,6 +2709,7 @@
              link="${debian.src.dir}/lib/installer-exclude/swing-worker-1.2.jar"/>
 
         <!-- joscar -->
+        <mkdir dir="${debian.src.dir}/lib/src/jsocks/classes"/>
         <javac debug="true"
             deprecation="true" destdir="${debian.src.dir}/lib/src/jsocks/classes"
             nowarn="false"
@@ -2597,6 +2726,7 @@
         <symlink resource="../../jsocks/jsocks.jar"
              overwrite="true"
              link="${debian.src.dir}/lib/src/joscar/lib/jsocks.jar"/>
+        <mkdir dir="${debian.src.dir}/lib/src/joscar/lib/annotations/classes"/>
         <javac classpathref="compile.class.path" debug="true"
             deprecation="true" destdir="${debian.src.dir}/lib/src/joscar/lib/annotations/classes"
             nowarn="false"
@@ -2604,7 +2734,7 @@
                 <src path="${debian.src.dir}/lib/src/joscar/lib/annotations"/>
                 <include name="**/*.java" />
         </javac>
-        <symlink resource="/usr/share/java/bcmail.jar"
+        <symlink resource="/usr/share/java/bcpkix.jar"
              overwrite="true"
              link="${debian.src.dir}/lib/src/joscar/lib"/>
         <symlink resource="/usr/share/java/bcprov.jar"
@@ -2660,12 +2790,14 @@
              link="${debian.src.dir}/lib/installer-exclude"/>
 
         <!-- jinglenodes -->
+        <mkdir dir="${debian.src.dir}/lib/src/jnsapi/lib"/>
         <symlink resource="../../smack_src_3_2_2/target/smack.jar"
              overwrite="true"
              link="${debian.src.dir}/lib/src/jnsapi/lib"/>
         <symlink resource="../../smack_src_3_2_2/target/smackx.jar"
              overwrite="true"
              link="${debian.src.dir}/lib/src/jnsapi/lib"/>
+        <mkdir dir="${debian.src.dir}/lib/src/jnsapi/classes"/>
         <javac debug="true"
             deprecation="true" destdir="${debian.src.dir}/lib/src/jnsapi/classes"
             nowarn="false"
@@ -2690,12 +2822,14 @@
              link="${debian.src.dir}/lib/installer-exclude/dnsjava.jar"/>
 
         <!-- java-jml needs libcommons-logging-java -->
+        <mkdir dir="${debian.src.dir}/lib/src/java-jml/lib"/>
         <symlink resource="/usr/share/java/httpcore.jar"
              overwrite="true"
              link="${debian.src.dir}/lib/src/java-jml/lib"/>
         <symlink resource="/usr/share/java/commons-logging.jar"
              overwrite="true"
              link="${debian.src.dir}/lib/src/java-jml/lib"/>
+        <mkdir dir="${debian.src.dir}/lib/src/java-jml/classes"/>
         <javac debug="true"
             deprecation="true" destdir="${debian.src.dir}/lib/src/java-jml/classes"
             nowarn="false"
@@ -2745,6 +2879,7 @@
                  link="${debian.src.dir}/lib/installer-exclude"/>
 
         <!-- dhcp4j -->
+        <mkdir dir="${debian.src.dir}/lib/src/dhcp4java/classes"/>
         <javac debug="true"
             deprecation="true" destdir="${debian.src.dir}/lib/src/dhcp4java/classes"
             nowarn="false"
@@ -2765,7 +2900,7 @@
                  link="${debian.src.dir}/lib/installer-exclude"/>
 
         <!-- otr4j -->
-        <symlink resource="../../lcrypto/bin/jar/lcrypto-jdk16-143.jar"
+        <symlink resource="/usr/share/java/bcprov.jar"
              overwrite="true"
              link="${debian.src.dir}/lib/src/otr4j/lib"/>
         <ant dir="${debian.src.dir}/lib/src/otr4j"
@@ -2778,6 +2913,7 @@
                  link="${debian.src.dir}/lib/installer-exclude"/>
 
         <!-- jmyspell -->
+        <mkdir dir="${debian.src.dir}/lib/src/jmyspell/classes"/>
         <javac debug="true"
             deprecation="true" destdir="${debian.src.dir}/lib/src/jmyspell/classes"
             nowarn="false"
@@ -2794,6 +2930,7 @@
              link="${debian.src.dir}/lib/installer-exclude"/>
 
         <!-- jfontchooser -->
+        <mkdir dir="${debian.src.dir}/lib/src/jfontchooser/classes"/>
         <javac debug="true"
             deprecation="true" destdir="${debian.src.dir}/lib/src/jfontchooser/classes"
             nowarn="false"
@@ -2813,6 +2950,10 @@
         <symlink resource="/usr/share/java/commons-codec.jar"
                  overwrite="true"
                  link="${debian.src.dir}/lib/installer-exclude/commons-codec-1.4.jar"/>
+        <!-- libcommons-logging-java -->
+        <symlink resource="/usr/share/java/commons-logging.jar"
+                 overwrite="true"
+                 link="${debian.src.dir}/lib/installer-exclude/commons-logging-1.1.2.jar"/>
         <!-- liblog4j1.2-java -->
         <symlink resource="/usr/share/java/log4j-1.2.jar"
                  overwrite="true"
@@ -2826,9 +2967,12 @@
                  overwrite="true"
                  link="${debian.src.dir}/lib/os-specific/mac/"/>
 
-        <symlink resource="../src/lcrypto/bin/jar/lcrypto-jdk16-143.jar"
+        <symlink resource="../src/bccontrib/target/bccontrib-1.0-SNAPSHOT.jar"
                  overwrite="true"
                  link="${debian.src.dir}/lib/installer-exclude"/>
+        <symlink resource="/usr/share/java/bcprov.jar"
+                 overwrite="true"
+                 link="${debian.src.dir}/lib/installer-exclude/bcprov-jdk15on-148.jar"/>
 
         <!-- liblaf-widget-java -->
         <symlink resource="/usr/share/java/laf-widget.jar"
@@ -2875,6 +3019,40 @@
              overwrite="true"
              link="${debian.src.dir}/lib/installer-exclude/google-collect-1.0-rc1.jar"/>
 
+        <!-- compile and pack jmork -->
+        <property name="jmork.src.folder" value="${debian.src.dir}/lib/src/jmork"/>
+        <mkdir dir="${jmork.src.folder}/classes" />
+        <javac debug="false" optimize="true"
+            destdir="${jmork.src.folder}/classes"
+            nowarn="false"
+            source="1.5" target="1.5" fork="true">
+            <src path="${jmork.src.folder}"/>
+        </javac>
+        <jar compress="true" destfile="${jmork.src.folder}/jmork-1.0.5-SNAPSHOT.jar">
+            <fileset dir="${jmork.src.folder}/classes">
+            </fileset>
+            <manifest>
+                <attribute name="Bundle-Name" value="Java Mork"/>
+                <attribute name="Bundle-Description"
+                           value="A Java implementation of the Mork database format"/>
+                <attribute name="Bundle-SymbolicName"
+                           value="jmork"/>
+                <attribute name="Bundle-Version" value="1.0.5.SNAPSHOT"/>
+
+                <attribute name="Import-Package"
+                    value="javax.swing,javax.swing.filechooser"/>
+                <attribute name="Export-Package"
+                    value="mork,mork.gui,mozilla.thunderbird"/>
+            </manifest>
+        </jar>
+        <symlink resource="../src/jmork/jmork-1.0.5-SNAPSHOT.jar"
+                 overwrite="true"
+                 link="${debian.src.dir}/lib/installer-exclude"/>
+
+        <symlink resource="/usr/share/java/junit.jar"
+             overwrite="true"
+             link="${debian.src.dir}/lib/installer-exclude"/>
+
         <!-- mac_widgets -->
         <symlink
              resource="/usr/share/java/mac_widgets.jar"
@@ -2901,10 +3079,6 @@
              link="${debian.src.dir}/lib/installer-exclude"/>
         <!-- zrtp -->
         <symlink resource="../src/zrtp4j/dist/zrtp4j-light.jar"
-             overwrite="true"
-             link="${debian.src.dir}/lib/installer-exclude"/>
-        <!-- libjdic-java -->
-        <symlink resource="/usr/share/java/jdic.jar"
              overwrite="true"
              link="${debian.src.dir}/lib/installer-exclude"/>
         <!-- sdes -->
@@ -2986,12 +3160,6 @@
             <param name="speex.dynamic" value="true"/>
         </antcall>
 
-        <!-- portaudio -->
-        <exec   dir="${debian.src.dir}/lib/src/portaudio"
-                executable="make"
-                failonerror="false">
-            <arg value="distclean" />
-        </exec>
         <chmod file="${debian.src.dir}/lib/src/portaudio/configure" perm="+x"/>
         <exec   dir="${debian.src.dir}/lib/src/portaudio"
                 executable="configure"
@@ -3004,9 +3172,7 @@
         </exec>
         <exec   dir="${debian.src.dir}/lib/src/portaudio"
                 executable="make"
-                failonerror="true">
-            <arg value="lib/libportaudio.la" />
-        </exec>
+                failonerror="true"/>
         <ant dir="${debian.src.dir}/lib/src/libjitsi" inheritAll="false"
              target="portaudio">
             <property name="portaudio" value="${debian.src.dir}/lib/src/portaudio"/>
@@ -3424,6 +3590,31 @@
             append="true"
             eol="crlf"
             fixlastline="true">Bundle-ClassPath: .,jmdns.jar&#013;&#010;&#013;&#010;</concat>
+    </target>
+
+    <!-- target to rebuild the bouncycastle bundle reusing
+        debian package adding it osgi manifest entries -->
+    <target name="deb-bundle-bouncycastle">
+
+        <delete file="${debian.bundles.dest}/bouncycastle.jar"/>
+        <mkdir dir="${debian.bundles.dest}/bouncycastle.jar/META-INF"/>
+
+        <copy file="${lib.noinst}/bcprov.manifest.mf"
+              tofile="${debian.bundles.dest}/bouncycastle.jar/META-INF/MANIFEST.MF"/>
+        <symlink resource="../../../../share/java/bcprov.jar"
+             link="${debian.bundles.dest}/bouncycastle.jar/"/>
+
+        <!-- Removes the last empty line -->
+        <replaceregexp
+            file="${debian.bundles.dest}/bouncycastle.jar/META-INF/MANIFEST.MF"
+            match="^\r\n$"
+            flags="m"
+            replace=""/>
+        <concat
+            destfile="${debian.bundles.dest}/bouncycastle.jar/META-INF/MANIFEST.MF"
+            append="true"
+            eol="crlf"
+            fixlastline="true">Bundle-ClassPath: .,bcprov.jar&#013;&#010;&#013;&#010;</concat>
     </target>
 
 </project>

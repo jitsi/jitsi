@@ -84,9 +84,10 @@ License: public-domain
  not limited to the correctness, accuracy, reliability or usefulness of
  this software.
 
-Files: lib/src/lcrypto/*
+Files: lib/src/bccontrib/*
 Copyright:
- 2000 - 2008 The Legion Of The Bouncy Castle
+ 2010 Alberto Fajardo and Werner Dittmann
+ 2004, 2006 Free Software Foundation, Inc.
 License: MIT
 
 Files: lib/src/portaudio/*

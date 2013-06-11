@@ -12,7 +12,6 @@ import java.lang.reflect.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.osdependent.TrayIcon.AWTTrayIconPeer;
-import net.java.sip.communicator.impl.osdependent.TrayIcon.JdicTrayIconPeer;
 import net.java.sip.communicator.impl.osdependent.TrayIcon.TrayIconPeer;
 import net.java.sip.communicator.util.*;
 
@@ -61,16 +60,12 @@ public class SystemTray
                 // We'll try org.jdesktop.jdic.tray then.
             }
         if (peer == null)
-            try
-            {
-                peer = new JdicSystemTrayPeer();
-            }
-            catch (Exception ex)
-            {
-                logger.error(
-                "Failed to initialize the org.jdesktop.jdic.tray implementation.",
-                ex);
-            }
+        {
+            logger.error(
+                "Failed to initialize the desktop.tray implementation.");
+            throw new UnsupportedOperationException(
+                "Failed to initialize the desktop.tray implementation.");
+        }
         return (defaultSystemTray = new SystemTray(peer));
     }
 
@@ -204,33 +199,6 @@ public class SystemTray
         public boolean isSwing()
         {
             return false;
-        }
-    }
-
-    private static class JdicSystemTrayPeer
-        implements SystemTrayPeer
-    {
-        private final org.jdesktop.jdic.tray.SystemTray impl;
-
-        public JdicSystemTrayPeer()
-        {
-            impl = org.jdesktop.jdic.tray.SystemTray.getDefaultSystemTray();
-        }
-
-        public void addTrayIcon(TrayIconPeer trayIconPeer)
-        {
-            impl.addTrayIcon(((JdicTrayIconPeer) trayIconPeer).getImpl());
-        }
-
-        public TrayIconPeer createTrayIcon(ImageIcon icon, String tooltip,
-            Object popup)
-        {
-            return new JdicTrayIconPeer(icon, tooltip, (JPopupMenu) popup);
-        }
-
-        public boolean isSwing()
-        {
-            return true;
         }
     }
 }

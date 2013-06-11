@@ -13,13 +13,9 @@ import java.net.*;
 
 import net.java.sip.communicator.util.Logger;
 
-import org.jdesktop.jdic.desktop.*;
-import org.jitsi.util.*;
-
 /**
  * The <tt>Desktop</tt> class handles desktop operations through the default
- * desktop implementation. It choose which implementation to use depending on
- * what is currently available (java 6 or Jdic).
+ * desktop implementation.
  *
  * @author Yana Stamcheva
  */
@@ -70,16 +66,12 @@ public class Desktop
                 // We'll try org.jdesktop.jdic.desktop then.
             }
         if (peer == null)
-            try
-            {
-                peer = new JdicDesktopPeer();
-            }
-            catch (Exception ex)
-            {
-                logger.error(
-                "Failed to initialize the org.jdesktop.jdic.tray implementation.",
-                ex);
-            }
+        {
+            logger.error(
+                "Failed to initialize the desktop.tray implementation.");
+            throw new UnsupportedOperationException(
+                "Failed to initialize the desktop.tray implementation.");
+        }
         return (defaultDesktop = new Desktop(peer));
     }
 
@@ -318,146 +310,6 @@ public class Desktop
                     throw (SecurityException) cause;
                 else
                     throw new UndeclaredThrowableException(cause);
-            }
-        }
-    }
-
-    /**
-     * An implementation of <tt>DesktopPeer</tt> based on the Jdic library
-     * Desktop class.
-     */
-    private static class JdicDesktopPeer
-        implements DesktopPeer
-    {
-        /**
-         * Opens a file.
-         */
-        public void open(final File file) throws IOException
-        {
-            try
-            {
-                // Use browse(URL) instead of open(file) if we're on Mac OS,
-                // because of a Java VM crash when open(file) is invoked.
-                if (!OSUtils.IS_MAC)
-                    org.jdesktop.jdic.desktop.Desktop.open(file);
-                else if (!file.isDirectory())
-                    org.jdesktop.jdic.desktop.Desktop.browse(
-                            file.toURI().toURL());
-                else
-                    Runtime.getRuntime().exec(
-                            "open " + file.getCanonicalPath());
-            }
-            catch (DesktopException ex)
-            {
-                ex.printStackTrace();
-
-                Throwable cause = ex.getCause();
-
-                if (cause == null)
-                    throw new UndeclaredThrowableException(ex);
-                else if (cause instanceof NullPointerException)
-                    throw (NullPointerException) cause;
-                else if (cause instanceof IllegalArgumentException)
-                    throw (IllegalArgumentException) cause;
-                else if (cause instanceof UnsupportedOperationException)
-                    throw (UnsupportedOperationException) cause;
-                else if (cause instanceof IOException)
-                    throw (IOException) cause;
-                else if (cause instanceof SecurityException)
-                    throw (SecurityException) cause;
-                else
-                    throw new UndeclaredThrowableException(cause);
-            }
-        }
-
-        /**
-         * Prints a file.
-         */
-        public void print(File file) throws IOException
-        {
-            try
-            {
-                org.jdesktop.jdic.desktop.Desktop.print(file);
-            }
-            catch (org.jdesktop.jdic.desktop.DesktopException ex)
-            {
-                Throwable cause = ex.getCause();
-                if (cause == null)
-                    throw new UndeclaredThrowableException(ex);
-                else if (cause instanceof NullPointerException)
-                    throw (NullPointerException) cause;
-                else if (cause instanceof IllegalArgumentException)
-                    throw (IllegalArgumentException) cause;
-                else if (cause instanceof UnsupportedOperationException)
-                    throw (UnsupportedOperationException) cause;
-                else if (cause instanceof IOException)
-                    throw (IOException) cause;
-                else if (cause instanceof SecurityException)
-                    throw (SecurityException) cause;
-                else
-                    throw new UndeclaredThrowableException(cause);
-            }
-        }
-
-        /**
-         * Edits the given file.
-         */
-        public void edit(File file) throws IOException
-        {
-            try
-            {
-                org.jdesktop.jdic.desktop.Desktop.edit(file);
-            }
-            catch (org.jdesktop.jdic.desktop.DesktopException ex)
-            {
-                Throwable cause = ex.getCause();
-                if (cause == null)
-                    throw new UndeclaredThrowableException(ex);
-                else if (cause instanceof NullPointerException)
-                    throw (NullPointerException) cause;
-                else if (cause instanceof IllegalArgumentException)
-                    throw (IllegalArgumentException) cause;
-                else if (cause instanceof UnsupportedOperationException)
-                    throw (UnsupportedOperationException) cause;
-                else if (cause instanceof IOException)
-                    throw (IOException) cause;
-                else if (cause instanceof SecurityException)
-                    throw (SecurityException) cause;
-                else
-                    throw new UndeclaredThrowableException(cause);
-            }
-        }
-
-        /**
-         * Opens a browser with given uri.
-         */
-        public void browse(URI uri) throws IOException
-        {
-            try
-            {
-                org.jdesktop.jdic.desktop.Desktop.browse(uri.toURL());
-            }
-            catch (org.jdesktop.jdic.desktop.DesktopException ex)
-            {
-                Throwable cause = ex.getCause();
-                if (cause == null)
-                    throw new UndeclaredThrowableException(ex);
-                else if (cause instanceof NullPointerException)
-                    throw (NullPointerException) cause;
-                else if (cause instanceof IllegalArgumentException)
-                    throw (IllegalArgumentException) cause;
-                else if (cause instanceof UnsupportedOperationException)
-                    throw (UnsupportedOperationException) cause;
-                else if (cause instanceof IOException)
-                    throw (IOException) cause;
-                else if (cause instanceof SecurityException)
-                    throw (SecurityException) cause;
-                else
-                    throw new UndeclaredThrowableException(cause);
-            }
-            catch (MalformedURLException ex)
-            {
-                throw new IllegalArgumentException(ex);
             }
         }
     }

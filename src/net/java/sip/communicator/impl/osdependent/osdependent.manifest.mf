@@ -6,8 +6,6 @@ Bundle-Version: 0.0.1
 System-Bundle: yes
 Export-Package: net.java.sip.communicator.service.desktop
 Import-Package: org.osgi.framework,
- org.jdesktop.jdic.desktop,
- org.jdesktop.jdic.tray,
  com.apple.cocoa.application,
  com.apple.cocoa.foundation,
  com.apple.eawt,

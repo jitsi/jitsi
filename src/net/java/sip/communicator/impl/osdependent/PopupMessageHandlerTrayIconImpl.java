@@ -56,7 +56,7 @@ public class PopupMessageHandlerTrayIconImpl
         trayIcon.displayMessage(
                 messageTitle,
                 messageContent,
-                TrayIcon.NONE_MESSAGE_TYPE);
+                java.awt.TrayIcon.MessageType.NONE);
     }
 
     /**

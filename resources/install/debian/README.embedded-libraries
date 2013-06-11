@@ -92,10 +92,11 @@ It is a SOCKS server written entirely in Java,
 which supports both SOCKS4 and SOCKS5 protocols.
 Reason: No Debian package.
 
-- lcrypto http://www.bouncycastle.org/
-A lightweight cryptography API for Java.
-Reason: We are using a modified version based on 1.43 with changes needed for SSL Certificate validation, Skein and also a modified Big Number module better suited for security functions. Discussions on the subject:
-http://java.net/projects/jitsi/lists/dev/archive/2012-07/message/192
+- bccontrib https://github.com/jitsi/bccontrib
+This project contains the Skein hash function, the Threefish encryption
+function and the Fortuna random generator as a Java implementation. The API is
+designed to be compatible to BouncyCastle.
+Reason: No Debian package.
 
 - misc http://java.net/projects/jdic
 Using the desktop window alerter (for windows, mac and linux).

@@ -22,18 +22,6 @@ import org.jitsi.util.*;
  */
 public class TrayIcon
 {
-    public static final int ERROR_MESSAGE_TYPE =
-        org.jdesktop.jdic.tray.TrayIcon.ERROR_MESSAGE_TYPE;
-
-    public static final int INFO_MESSAGE_TYPE =
-        org.jdesktop.jdic.tray.TrayIcon.INFO_MESSAGE_TYPE;
-
-    public static final int NONE_MESSAGE_TYPE =
-        org.jdesktop.jdic.tray.TrayIcon.NONE_MESSAGE_TYPE;
-
-    public static final int WARNING_MESSAGE_TYPE =
-        org.jdesktop.jdic.tray.TrayIcon.WARNING_MESSAGE_TYPE;
-
     private final TrayIconPeer peer;
 
     public TrayIcon(ImageIcon icon, String tooltip, Object popup)
@@ -62,7 +50,8 @@ public class TrayIcon
             peer.addBalloonActionListener(listener);
     }
 
-    public void displayMessage(String caption, String text, int messageType)
+    public void displayMessage(String caption, String text,
+                               java.awt.TrayIcon.MessageType messageType)
         throws NullPointerException
     {
         if (peer != null)
@@ -92,7 +81,8 @@ public class TrayIcon
 
         void addBalloonActionListener(ActionListener listener);
 
-        void displayMessage(String caption, String text, int messageType)
+        void displayMessage(String caption, String text,
+                            java.awt.TrayIcon.MessageType messageType)
             throws NullPointerException;
 
         void setIcon(ImageIcon icon) throws NullPointerException;
@@ -244,13 +234,14 @@ public class TrayIcon
             // java.awt.TrayIcon doesn't support addBalloonActionListener()
         }
 
-        public void displayMessage(String caption, String text, int messageType)
+        public void displayMessage(String caption, String text,
+                                   java.awt.TrayIcon.MessageType messageType)
             throws NullPointerException
         {
             try
             {
                 displayMessage.invoke(getImpl(), new Object[]
-                { caption, text, getMessageType(messageType) });
+                { caption, text, messageType.name() });
             }
             catch (IllegalAccessException ex)
             {
@@ -269,36 +260,6 @@ public class TrayIcon
         public Object getImpl()
         {
             return impl;
-        }
-
-        private Object getMessageType(int messageType)
-        {
-            Object[] constants = messageTypeClass.getEnumConstants();
-            String name;
-            switch (messageType)
-            {
-            case ERROR_MESSAGE_TYPE:
-                name = "ERROR";
-                break;
-            case INFO_MESSAGE_TYPE:
-                name = "INFO";
-                break;
-            case NONE_MESSAGE_TYPE:
-                name = "NONE";
-                break;
-            case WARNING_MESSAGE_TYPE:
-                name = "WARNING";
-                break;
-            default:
-                throw new IllegalArgumentException("messageType");
-            }
-            for (int i = 0; i < constants.length; i++)
-            {
-                Object constant = constants[i];
-                if (name.equals(constant.toString()))
-                    return constant;
-            }
-            throw new IllegalArgumentException("messageType");
         }
 
         public void setIcon(ImageIcon icon) throws NullPointerException
@@ -339,48 +300,6 @@ public class TrayIcon
                 throw new UndeclaredThrowableException((cause == null) ? ex
                     : cause);
             }
-        }
-    }
-
-    static class JdicTrayIconPeer
-        implements TrayIconPeer
-    {
-        private final org.jdesktop.jdic.tray.TrayIcon impl;
-
-        public JdicTrayIconPeer(ImageIcon icon, String tooltip, JPopupMenu popup)
-        {
-            impl = new org.jdesktop.jdic.tray.TrayIcon(icon, tooltip, popup);
-        }
-
-        public void addActionListener(ActionListener listener)
-        {
-            getImpl().addActionListener(listener);
-        }
-
-        public void addBalloonActionListener(ActionListener listener)
-        {
-            getImpl().addBalloonActionListener(listener);
-        }
-
-        public void displayMessage(String caption, String text, int messageType)
-            throws NullPointerException
-        {
-            getImpl().displayMessage(caption, text, messageType);
-        }
-
-        org.jdesktop.jdic.tray.TrayIcon getImpl()
-        {
-            return impl;
-        }
-
-        public void setIcon(ImageIcon icon)
-        {
-            getImpl().setIcon(icon);
-        }
-
-        public void setIconAutoSize(boolean autoSize)
-        {
-            getImpl().setIconAutoSize(autoSize);
         }
     }
 

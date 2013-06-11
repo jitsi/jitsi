@@ -4,9 +4,6 @@
 	<lib name="felix.jar" scope="COMPILE">
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/felix.jar!/"/>
 	</lib>
-	<lib name="jdic-all.jar" scope="COMPILE">
-		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/jdic-all.jar!/"/>
-	</lib>
 	<lib name="junit.jar" scope="COMPILE">
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/bundle/junit.jar!/"/>
 	</lib>
@@ -19,8 +16,8 @@
 	<lib name="cglib-nodep.osgi-2.1_3.jar" scope="COMPILE">
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/cglib-nodep.osgi-2.1_3.jar!/"/>
 	</lib>
-	<lib name="commons-logging-1.1.2.jar" scope="COMPILE">
-		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/commons-logging-1.1.2.jar!/"/>
+	<lib name="commons-logging.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/bundle/commons-logging.jar!/"/>
 	</lib>
 	<lib name="dhcp4java-1.00.jar" scope="COMPILE">
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/dhcp4java-1.00.jar!/"/>
@@ -68,7 +65,7 @@
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/httpcore-osgi-4.2.3.jar!/"/>
 	</lib>
 	<lib name="ice4j.jar" scope="COMPILE">
-		<srcroot url="file://$MODULE_DIR$/../ice4j/src"/>
+		<srcroot url="file://../ice4j/src"/>
 		<srcroot bind="false" url="file://$MODULE_DIR$/../ice4j/test"/>
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/ice4j.jar!/"/>
 	</lib>
@@ -133,7 +130,6 @@
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/libdbus-java-2.7.jar!/"/>
 	</lib>
 	<lib name="libjitsi.jar" scope="COMPILE">
-		<srcroot url="file:///libjitsi"/>
 		<srcroot url="file://$MODULE_DIR$/../libjitsi/src"/>
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/libjitsi.jar!/"/>
 	</lib>
@@ -183,23 +179,11 @@
 	<lib name="ymsg_network_v0_67.jar" scope="COMPILE">
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/ymsg_network_v0_67.jar!/"/>
 	</lib>
-	<lib name="jdic_stub.jar" scope="COMPILE">
-		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/os-specific/linux/jdic_stub.jar!/"/>
-	</lib>
 	<lib name="growl4j.jar" scope="COMPILE">
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/os-specific/mac/growl4j.jar!/"/>
 	</lib>
-	<lib name="lib/os-specific/mac/jdic_stub.jar" scope="COMPILE">
-		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/os-specific/mac/jdic_stub.jar!/"/>
-	</lib>
 	<lib name="OrangeExtensions.jar" scope="COMPILE">
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/os-specific/mac/OrangeExtensions.jar!/"/>
-	</lib>
-	<lib name="lib/os-specific/solaris/jdic_stub.jar" scope="COMPILE">
-		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/os-specific/solaris/jdic_stub.jar!/"/>
-	</lib>
-	<lib name="lib/os-specific/windows/jdic_stub.jar" scope="COMPILE">
-		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/os-specific/windows/jdic_stub.jar!/"/>
 	</lib>
 	<lib name="jmork-1.0.5-SNAPSHOT.jar" scope="COMPILE">
 		<srcroot url="file:///jmork"/>

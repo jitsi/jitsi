@@ -187,8 +187,6 @@
     <!-- set the os.lib.home here in case it was not set before -->
     <property name="os.lib.home" value="${lib}"/>
 
-    <property name="jdic_stub.jar" value="${os.lib.home}/jdic_stub.jar"/>
-
     <property name="profiler.args" value="" />
     <property name="profiler.bootdelegation" value="" />
     <property name="profiler.autostart" value="" />
@@ -931,8 +929,7 @@
         bundle-plugin-icqaccregwizz,bundle-plugin-jabberaccregwizz,
         bundle-plugin-msnaccregwizz,bundle-plugin-sipaccregwizz,
         bundle-plugin-yahooaccregwizz,bundle-plugin-aimaccregwizz,
-        bundle-commons-codec,bundle-commons-logging,
-        bundle-httputil,bundle-plugin-spellcheck,
+        bundle-commons-codec,bundle-httputil,bundle-plugin-spellcheck,
         bundle-version-impl,bundle-shutdown-timeout,bundle-windows-clean-shutdown,
         bundle-growlnotification,bundle-swingnotification,bundle-galagonotification,
         bundle-sparkle, bundle-plugin-branding,
@@ -1996,12 +1993,6 @@ javax.swing.event, javax.swing.border"/>
                 <attribute name="System-Bundle" value="yes"/>
             </manifest>
         </jar>
-    </target>
-
-    <!--BUNDLE-COMMONS-LOGGING -->
-    <target name="bundle-commons-logging">
-        <copy file="${lib.noinst}/commons-logging-1.1.2.jar"
-              tofile="${bundles.dest}/commons-logging.jar"/>
     </target>
 
     <!--BUNDLE-COMMONS-CODEC -->
