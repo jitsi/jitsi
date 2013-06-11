@@ -680,7 +680,7 @@ public class JabberAccountID
      */
     public static boolean getDefaultBool(String key)
     {
-        return Boolean.getBoolean(getDefaultStr(key));
+        return Boolean.parseBoolean(getDefaultStr(key));
     }
 
 
