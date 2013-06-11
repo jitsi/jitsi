@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.slick.popupmessagehandler;
 
+import java.awt.*;
 import java.util.*;
 
 import junit.framework.*;
