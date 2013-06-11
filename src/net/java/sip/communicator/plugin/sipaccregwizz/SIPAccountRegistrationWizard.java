@@ -389,6 +389,8 @@ public class SIPAccountRegistrationWizard
                 isModification(),
                 accountProperties);
 
+        accountProperties.put(ProtocolProviderFactory.PROTOCOL, getProtocol());
+
         if(isModification())
         {
             accountProperties.put(ProtocolProviderFactory.USER_ID, userName);
