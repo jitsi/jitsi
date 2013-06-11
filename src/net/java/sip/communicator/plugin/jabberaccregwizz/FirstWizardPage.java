@@ -149,12 +149,12 @@ public class FirstWizardPage
         registrationForm.setModification(wizard.isModification());
 
         // Loads account properties into registration object
-        JabberAccountRegistration accountReg = new JabberAccountRegistration();
-        accountReg.loadAccount(protocolProvider.getAccountID(),
+        wizard.getRegistration()
+                .loadAccount(protocolProvider.getAccountID(),
                                JabberAccRegWizzActivator.bundleContext);
 
         // Initialize registration form
-        registrationForm.loadAccount(accountReg);
+        registrationForm.loadAccount(wizard.getRegistration());
     }
 
     /**
