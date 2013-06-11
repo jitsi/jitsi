@@ -6,10 +6,10 @@
  */
 package net.java.sip.communicator.slick.popupmessagehandler;
 
-import java.awt.*;
 import java.util.*;
 
 import junit.framework.*;
+import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
@@ -30,11 +30,6 @@ public class PopupMessageHandlerSLick extends TestSuite implements BundleActivat
     /** implements BundleActivator.start() */
     public void start(BundleContext bc) throws Exception
     {
-        // if we are running in headless mode we will miss the systray service
-        // as the corresponding classes are not available, skip it
-        if(GraphicsEnvironment.isHeadless())
-            return;
-
         logger.info("starting popup message test ");
 
         bundleContext = bc;
@@ -45,7 +40,12 @@ public class PopupMessageHandlerSLick extends TestSuite implements BundleActivat
 
         properties.put("service.pid", getName());
 
-        addTest(TestPopupMessageHandler.suite());
+        // we maybe are running on machine without WM and systray
+        // (test server machine), skip tests
+        if(ServiceUtils.getService(bc, SystrayService.class) != null)
+        {
+            addTest(TestPopupMessageHandler.suite());
+        }
 
         bundleContext.registerService(getClass().getName(), this, properties);
     }
