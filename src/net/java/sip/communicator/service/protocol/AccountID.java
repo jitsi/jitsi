@@ -986,7 +986,7 @@ public abstract class AccountID
      * @param key the property key
      * @param value the property value
      */
-    public void placePropertyIfNotNull(String key, String value)
+    public void setOrRemoveIfNull(String key, String value)
     {
         if(value != null)
         {
@@ -1043,8 +1043,6 @@ public abstract class AccountID
                                  String accountIconPath,
                                  Map<String, String> accountProperties )
     {
-        putAccountProperty(ProtocolProviderFactory.PROTOCOL, getProtocolName());
-
         if(protocolIconPath != null)
             setProtocolIconPath(protocolIconPath);
 
@@ -1057,6 +1055,10 @@ public abstract class AccountID
                 ProtocolProviderFactory.DTMF_MINIMAL_TONE_DURATION);
 
         mergeProperties(this.accountProperties, accountProperties);
+
+        // Removes encrypted password property, as it will be restored during
+        // account storage, but only if the password property is present.
+        accountProperties.remove("ENCRYPTED_PASSWORD");
     }
 
     /**
