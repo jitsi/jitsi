@@ -29,6 +29,11 @@ public class PopupMessageHandlerSLick extends TestSuite implements BundleActivat
     /** implements BundleActivator.start() */
     public void start(BundleContext bc) throws Exception
     {
+        // if we are running in headless mode we will miss the systray service
+        // as the corresponding classes are not available, skip it
+        if(GraphicsEnvironment.isHeadless())
+            return;
+
         logger.info("starting popup message test ");
 
         bundleContext = bc;
