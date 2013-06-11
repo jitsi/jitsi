@@ -251,4 +251,13 @@ public class ProtocolProviderActivator
     {
         return accountManager;
     }
+
+    /**
+     * Returns OSGI bundle context.
+     * @return OSGI bundle context.
+     */
+    public static BundleContext getBundleContext()
+    {
+        return bundleContext;
+    }
 }

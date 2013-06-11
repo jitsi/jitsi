@@ -13,6 +13,7 @@ import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
+import org.jitsi.service.configuration.*;
 import org.jitsi.service.neomedia.*;
 
 import org.osgi.framework.*;
@@ -37,6 +38,11 @@ public class JabberAccountRegistration
      * Indicates if the password should be remembered.
      */
     private boolean rememberPassword = true;
+
+    /**
+     * UID of edited account
+     */
+    private String editedAccUID;
 
     /**
      * The list of additional STUN servers entered by user.
@@ -90,6 +96,15 @@ public class JabberAccountRegistration
     public JabberAccountRegistration()
     {
         super(null, new HashMap<String, String>());
+    }
+
+    /**
+     * Overrides to return UID loaded from edited AccountID.
+     * @return UID of edited account.
+     */
+    public String getAccountUniqueID()
+    {
+        return editedAccUID;
     }
 
     /**
@@ -256,8 +271,52 @@ public class JabberAccountRegistration
                     "Should specify a server for user name " + userName + ".",
                     OperationFailedException.SERVER_NOT_SPECIFIED);
 
-        if(userName.indexOf('@') < 0 && getDefaultUserSufix() != null)
-            userName = userName + '@' + getDefaultUserSufix();
+        // Remove additional STUN servers and Jingle Nodes properties,
+        // before entering new from lists
+        BundleContext bContext = ProtocolProviderActivator.getBundleContext();
+        ProtocolProviderFactory jbfFactory
+                = ProtocolProviderFactory
+                        .getProtocolProviderFactory( bContext,
+                                                     ProtocolNames.JABBER );
+        AccountManager accManager =
+                ProtocolProviderActivator.getAccountManager();
+        String accountNodeName =
+                accManager.getAccountNodeName(jbfFactory, editedAccUID);
+        // Only if the account is stored in config
+        if(accountNodeName != null)
+        {
+            ConfigurationService configSrvc =
+                    ProtocolProviderActivator.getConfigurationService();
+            String factoryPackage =
+                    accManager.getFactoryImplPackageName(jbfFactory);
+            String accountPrefix = factoryPackage + "." + accountNodeName;
+
+            List<String> allProperties = configSrvc.getAllPropertyNames();
+            String stunPrefix
+                    = accountPrefix+"."+ProtocolProviderFactory.STUN_PREFIX;
+            String jinglePrefix
+                    = accountPrefix+"."+JingleNodeDescriptor.JN_PREFIX;
+            for(String property : allProperties)
+            {
+                if( property.startsWith(stunPrefix)
+                        || property.startsWith(jinglePrefix) )
+                {
+                    configSrvc.removeProperty(property);
+                }
+            }
+            // Also from this instance
+            String[] accKeys
+                    = this.accountProperties.keySet().toArray(
+                            new String[accountProperties.size()]);
+            for(String property : accKeys)
+            {
+                if(property.startsWith(ProtocolProviderFactory.STUN_PREFIX)
+                        || property.startsWith(JingleNodeDescriptor.JN_PREFIX))
+                {
+                    this.accountProperties.remove(property);
+                }
+            }
+        }
 
         List<StunServerDescriptor> stunServers = getAdditionalStunServers();
 
@@ -268,27 +327,26 @@ public class JabberAccountRegistration
             serverIndex ++;
 
             stunServer.storeDescriptor(
-                    accountProperties,
+                    this.accountProperties,
                     ProtocolProviderFactory.STUN_PREFIX + serverIndex);
         }
 
         List<JingleNodeDescriptor> jnRelays = getAdditionalJingleNodes();
-
         serverIndex = -1;
         for(JingleNodeDescriptor jnRelay : jnRelays)
         {
             serverIndex ++;
 
-            jnRelay.storeDescriptor(accountProperties,
-                                    JingleNodeDescriptor.JN_PREFIX + serverIndex);
+            jnRelay.storeDescriptor(this.accountProperties,
+                                    JingleNodeDescriptor.JN_PREFIX+serverIndex);
         }
 
-        securityRegistration.storeProperties(accountProperties);
+        securityRegistration.storeProperties(this.accountProperties);
 
-        encodingsRegistration.storeProperties(accountProperties);
+        encodingsRegistration.storeProperties(this.accountProperties);
 
         super.storeProperties(
-                accountIconPath, protocolIconPath, accountProperties);
+                protocolIconPath, accountIconPath, accountProperties);
     }
 
     /**
@@ -309,7 +367,11 @@ public class JabberAccountRegistration
 
         setUserID(account.getUserID());
 
+        editedAccUID = account.getAccountUniqueID();
+
         setPassword(password);
+
+        rememberPassword = password != null;
 
         //Security properties
         securityRegistration.loadAccount(account);
