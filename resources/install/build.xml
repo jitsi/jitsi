@@ -2409,7 +2409,7 @@
         <tar destfile="${debian.dir}/${package.name}_${sip-communicator.version}.orig.tar.gz"
              compression="gzip"
              basedir="${debian.src.dir}"/>
-        <!--delete dir="${debian.tmp.dir}"/-->
+        <delete dir="${debian.tmp.dir}"/>
     </target>
 
     <!-- clean for debuild -->
