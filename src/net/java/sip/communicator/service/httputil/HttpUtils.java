@@ -581,6 +581,13 @@ public class HttpUtils
                         usernamePropertyName, passwordPropertyName);
         httpClient.setCredentialsProvider(credentialsProvider);
 
+        // enable retry connecting with default retry handler
+        // when connecting has prompted for authentication
+        // connection can be disconnected nefore user answers and
+        // we need to retry connection, using the credentials provided
+        httpClient.setHttpRequestRetryHandler(
+            new DefaultHttpRequestRetryHandler(3, true));
+
         return httpClient;
     }
 
