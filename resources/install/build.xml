@@ -437,7 +437,8 @@
             <fileset dir="${sc.basedir}/lib">
                 <include name="*.jar" />
             </fileset>
-            <fileset dir="${sc.basedir}/lib/os-specific/windows">
+            <fileset dir="${sc.basedir}/lib/os-specific/windows"
+                     erroronmissingdir="false">
                 <include name="*.jar" />
                 <exclude name="jmf.jar"/>
                 <exclude name="sound.jar"/>
