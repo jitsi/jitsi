@@ -195,6 +195,9 @@ public class ToolsMenu
         JMenuItem menuItem = (JMenuItem) e.getSource();
         String itemName = menuItem.getName();
 
+        if (itemName == null)
+            return;
+
         if (itemName.equalsIgnoreCase("config"))
         {
             configActionPerformed();
