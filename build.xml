@@ -348,8 +348,8 @@
          recreates them -->
     <target name="clean-bundle-repositories">
         <delete failonerror="false" includeemptydirs="true">
-            <fileset dir="${bin}"/>
-            <fileset dir="${utest.bin}"/>
+            <fileset dir="${bin}" erroronmissingdir="false"/>
+            <fileset dir="${utest.bin}" erroronmissingdir="false"/>
         </delete>
     </target>
 
