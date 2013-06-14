@@ -1016,6 +1016,10 @@ public class MsOutlookAddrBookContactQuery
      */
     public void inserted(String id)
     {
+        if(logger.isDebugEnabled())
+        {
+            logger.debug("inserted: " + id);
+        }
         SourceContact sourceContact = findSourceContactByID(id);
         if(sourceContact != null
                 && sourceContact instanceof MsOutlookAddrBookSourceContact)
@@ -1048,6 +1052,10 @@ public class MsOutlookAddrBookContactQuery
      */
     public void updated(String id)
     {
+        if(logger.isDebugEnabled())
+        {
+            logger.debug("updated: " + id);
+        }
         SourceContact sourceContact = findSourceContactByID(id);
         if(sourceContact != null
                 && sourceContact instanceof MsOutlookAddrBookSourceContact)
@@ -1064,6 +1072,10 @@ public class MsOutlookAddrBookContactQuery
      */
     public void deleted(String id)
     {
+        if(logger.isDebugEnabled())
+        {
+            logger.debug("deleted: " + id);
+        }
         if(id != null)
         {
             SourceContact sourceContact = findSourceContactByID(id);
@@ -1116,6 +1128,10 @@ public class MsOutlookAddrBookContactQuery
      */
     public void addEmptyContact(String id)
     {
+        if(logger.isDebugEnabled())
+        {
+            logger.debug("Add empty contact: " + id);
+        }
         if(id != null)
         {
             final MsOutlookAddrBookSourceContact sourceContact
