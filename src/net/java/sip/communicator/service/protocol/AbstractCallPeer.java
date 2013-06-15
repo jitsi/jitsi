@@ -132,6 +132,19 @@ public abstract class AbstractCallPeer<T extends Call,
     private List<ConferenceMember> unmodifiableConferenceMembers;
 
     /**
+     * The last Conference Information (RFC4575) document sent to this
+     * <tt>CallPeer</tt>
+     */
+    private ConferenceInfoDocument lastConferenceInfoSent = null;
+
+    /**
+     * The time (as obtained by <tt>System.currentTimeMillis()</tt> at which
+     * a Conference Information (RFC4575) document was last sent to this
+     * <tt>CallPeer</tt>.
+     */
+    private long lastConferenceInfoSentTimestamp = -1;
+
+    /**
      * Initializes a new <tt>AbstractCallPeer</tt> instance.
      */
     protected AbstractCallPeer()

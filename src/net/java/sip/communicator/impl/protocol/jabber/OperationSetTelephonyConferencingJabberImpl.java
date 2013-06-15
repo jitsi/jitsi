@@ -27,6 +27,7 @@ import org.jivesoftware.smackx.packet.*;
  *
  * @author Lyubomir Marinov
  * @author Sebastien Vincent
+ * @author Boris Grozev
  */
 public class OperationSetTelephonyConferencingJabberImpl
     extends AbstractOperationSetTelephonyConferencing<
@@ -505,5 +506,43 @@ public class OperationSetTelephonyConferencingJabberImpl
     private void handleCoin(CallPeerJabberImpl callPeer, CoinIQ coinIQ)
     {
         setConferenceInfoXML(callPeer, -1, coinIQ.getChildElementXML());
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * For COINs (XEP-0298), we use the attributes of the
+     * <tt>conference-info</tt> element to piggyback a Jingle SID. This is
+     * temporary and should be removed once we choose a better way to pass the
+     * SID.
+     */
+    protected ConferenceInfoDocument getCurrentConferenceInfo(CallPeer callPeer)
+    {
+        ConferenceInfoDocument confInfo
+                = super.getCurrentConferenceInfo(callPeer);
+
+        if (callPeer instanceof CallPeerJabberImpl)
+        {
+            confInfo.setSid(((CallPeerJabberImpl)callPeer).getSID());
+        }
+        return confInfo;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected String getLocalEntity(CallPeer callPeer)
+    {
+        return "xmpp:" + parentProvider.getOurJID();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected String getLocalDisplayName()
+    {
+        return null;
     }
 }

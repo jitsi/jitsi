@@ -33,6 +33,7 @@ import org.xml.sax.*;
  * @param <CalleeAddressT>
  *
  * @author Lyubomir Marinov
+ * @author Boris Grozev
  */
 public abstract class AbstractOperationSetTelephonyConferencing<
         ProtocolProviderServiceT extends ProtocolProviderService,
@@ -992,5 +993,176 @@ public abstract class AbstractOperationSetTelephonyConferencing<
                 address = address.substring(0, parametersBeginIndex);
         }
         return address;
+    }
+
+    /**
+     * Creates a <tt>ConferenceInfoDocument</tt> which describes the current
+     * state of the conference in which <tt>callPeer</tt> participates.
+     *
+     * @return a <tt>ConferenceInfoDocument</tt> which describes the current
+     * state of the conference in which this <tt>CallPeer</tt> participates.
+     */
+    protected ConferenceInfoDocument getCurrentConferenceInfo(CallPeer callPeer)
+    {
+        ConferenceInfoDocument confInfo;
+        try
+        {
+           confInfo = new ConferenceInfoDocument();
+        }
+        catch (Exception e)
+        {
+            return null;
+        }
+        confInfo.setState(ConferenceInfoDocument.State.FULL);
+        confInfo.setEntity(getLocalEntity(callPeer));
+
+        Call call = callPeer.getCall();
+        List<CallPeer> conferenceCallPeers = CallConference.getCallPeers(call);
+        confInfo.setUserCount(
+                1 /* the local peer/user */ + conferenceCallPeers.size());
+
+        /* The local user */
+        addPeerToConferenceInfo(confInfo, callPeer, false);
+
+        /* Remote users */
+        for (CallPeer conferenceCallPeer : conferenceCallPeers)
+            addPeerToConferenceInfo(confInfo, conferenceCallPeer, true);
+
+        return null;
+    }
+
+    /**
+     * Adds a <tt>user</tt> element to <tt>confInfo</tt> which describes
+     * <tt>callPeer</tt>, or the local peer if <tt>remote</tt> is <tt>false</tt>.
+     *
+     * @param confInfo the <tt>ConferenceInformationDocument</tt> to which to
+     * add a <tt>user</tt> element
+     * @param callPeer the <tt>CallPeer</tt> which should be described
+     * @param remote <tt>true</tt> to describe <tt>callPeer</tt>, or
+     * <tt>false</tt> to describe the local peer.
+     */
+    private void addPeerToConferenceInfo(
+            ConferenceInfoDocument confInfo,
+            CallPeer callPeer,
+            boolean remote)
+    {
+        String entity
+                = remote
+                ? callPeer.getURI()
+                : getLocalEntity(callPeer);
+        ConferenceInfoDocument.User user = confInfo.addNewUser(entity);
+
+        String displayName
+                = remote
+                ? callPeer.getDisplayName()
+                : getLocalDisplayName();
+        user.setDisplayText(displayName);
+
+        ConferenceInfoDocument.Endpoint endpoint
+                = user.addNewEndpoint(entity);
+
+        endpoint.setStatus(
+                remote
+                ? getEndpointStatus(callPeer)
+                : ConferenceInfoDocument.EndpointStatusType.connected);
+
+        if (callPeer instanceof MediaAwareCallPeer<?,?,?>)
+        {
+            MediaAwareCallPeer<?,?,?> mediaAwarePeer
+                    = (MediaAwareCallPeer<?,?,?>) callPeer;
+            CallPeerMediaHandler<?> mediaHandler
+                    = mediaAwarePeer.getMediaHandler();
+            int id = 1;
+
+            for (MediaType mediaType : MediaType.values())
+            {
+                MediaStream stream = mediaHandler.getStream(mediaType);
+                if (stream != null)
+                {
+                    ConferenceInfoDocument.Media media
+                            = endpoint.addNewMedia(Integer.toString(id));
+                    long srcId
+                            = remote
+                            ? getRemoteSourceID(mediaAwarePeer, mediaType)
+                            : stream.getLocalSourceID();
+
+                    if (srcId != -1)
+                        media.setSrcId(Long.toString(srcId));
+
+                    media.setType(mediaType.toString());
+
+                    MediaDirection direction
+                            = remote
+                            ? getRemoteDirection(mediaAwarePeer, mediaType)
+                            : stream.getDirection();
+
+                    if (direction == null)
+                        direction = MediaDirection.INACTIVE;
+
+                    media.setStatus(direction.toString());
+                    id++;
+                }
+            }
+        }
+    }
+
+    /**
+     * Returns a string to be used for the <tt>entity</tt> attribute of the
+     * <tt>user</tt> element for the local peer, in a Conference Information
+     * document to be sent to <tt>callPeer</tt>
+     *
+     * @param callPeer The <tt>CallPeer</tt> for which we are creating a
+     * Conference Information document.
+     * @return a string to be used for the <tt>entity</tt> attribute of the
+     * <tt>user</tt> element for the local peer, in a Conference Information
+     * document to be sent to <tt>callPeer</tt>
+     */
+    protected abstract String getLocalEntity(CallPeer callPeer);
+
+    /**
+     * Returns the display name for the local peer, which is to be used when
+     * we send Conference Information.
+     * @return the display name for the local peer, which is to be used when
+     * we send Conference Information.
+     */
+    protected abstract String getLocalDisplayName();
+
+    /**
+     * Gets the <tt>EndpointStatusType</tt> to use when describing
+     * <tt>callPeer</tt> in a Conference Information document.
+     *
+     * @param callPeer the <tt>CallPeer</tt> which is to get its state described
+     * in a <tt>status</tt> XML element of an <tt>endpoint</tt> XML element
+     * @return the <tt>EndpointStatusType</tt> to use when describing
+     * <tt>callPeer</tt> in a Conference Information document.
+     */
+    private ConferenceInfoDocument.EndpointStatusType getEndpointStatus(
+        CallPeer callPeer)
+    {
+        CallPeerState callPeerState = callPeer.getState();
+
+        if (CallPeerState.ALERTING_REMOTE_SIDE.equals(callPeerState))
+            return ConferenceInfoDocument.EndpointStatusType.alerting;
+        if (CallPeerState.CONNECTING.equals(callPeerState)
+                || CallPeerState
+                .CONNECTING_WITH_EARLY_MEDIA.equals(callPeerState))
+            return ConferenceInfoDocument.EndpointStatusType.pending;
+        if (CallPeerState.DISCONNECTED.equals(callPeerState))
+            return ConferenceInfoDocument.EndpointStatusType.disconnected;
+        if (CallPeerState.INCOMING_CALL.equals(callPeerState))
+            return ConferenceInfoDocument.EndpointStatusType.dialing_in;
+        if (CallPeerState.INITIATING_CALL.equals(callPeerState))
+            return ConferenceInfoDocument.EndpointStatusType.dialing_out;
+
+        /*
+         * he/she is neither "hearing" the conference mix nor is his/her
+         * media being mixed in the conference
+         */
+        if (CallPeerState.ON_HOLD_LOCALLY.equals(callPeerState)
+                || CallPeerState.ON_HOLD_MUTUALLY.equals(callPeerState))
+            return ConferenceInfoDocument.EndpointStatusType.on_hold;
+        if (CallPeerState.CONNECTED.equals(callPeerState))
+            return ConferenceInfoDocument.EndpointStatusType.connected;
+        return null;
     }
 }

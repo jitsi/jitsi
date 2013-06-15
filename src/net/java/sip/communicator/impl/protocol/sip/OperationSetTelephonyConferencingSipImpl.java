@@ -30,6 +30,7 @@ import org.jitsi.util.xml.*;
  * Implements <tt>OperationSetTelephonyConferencing</tt> for SIP.
  *
  * @author Lyubomir Marinov
+ * @author Boris Grozev
  */
 public class OperationSetTelephonyConferencingSipImpl
     extends AbstractOperationSetTelephonyConferencing<
@@ -552,7 +553,7 @@ public class OperationSetTelephonyConferencingSipImpl
      * Implements the protocol-dependent part of the logic of inviting a callee
      * to a <tt>Call</tt>. The protocol-independent part of that logic is
      * implemented by
-     * {@link AbstractOperationSetTelephonyConferencing#inviteCalleToCall(String,Call)}.
+     * {@link AbstractOperationSetTelephonyConferencing#inviteCalleeToCall(String,Call)}.
      */
     @Override
     protected CallPeerSipImpl doInviteCalleeToCall(
@@ -1107,5 +1108,36 @@ public class OperationSetTelephonyConferencingSipImpl
                             ofe);
                 }
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected String getLocalEntity(CallPeer callPeer)
+    {
+        if (callPeer instanceof CallPeerSipImpl)
+        {
+            Dialog dialog = ((CallPeerSipImpl)callPeer).getDialog();
+
+            if (dialog != null)
+            {
+                Address localPartyAddress = dialog.getLocalParty();
+
+                if (localPartyAddress != null)
+                    return stripParametersFromAddress(
+                            localPartyAddress.getURI().toString());
+            }
+        }
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected String getLocalDisplayName()
+    {
+        return parentProvider.getOurDisplayName();
     }
 }
