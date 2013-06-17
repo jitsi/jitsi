@@ -33,6 +33,7 @@ import org.jitsi.service.neomedia.event.*;
  *
  * @author Emil Ivov
  * @author Lyubomir Marinov
+ * @author Boris Grozev
  */
 public abstract class MediaAwareCallPeer
                           <T extends MediaAwareCall<?, ?, V>,
@@ -122,10 +123,24 @@ public abstract class MediaAwareCallPeer
         = new LinkedList<PropertyChangeListener>();
 
     /**
+     * Represents the last Conference Information (RFC4575) document sent to
+     * this <tt>CallPeer</tt>. This is always a document with state "full", even
+     * if the last document actually sent was a "partial"
+     */
+    private ConferenceInfoDocument lastConferenceInfoSent = null;
+
+    /**
+     * The time (as obtained by <tt>System.currentTimeMillis()</tt>) at which
+     * a Conference Information (RFC4575) document was last sent to this
+     * <tt>CallPeer</tt>.
+     */
+    private long lastConferenceInfoSentTimestamp = -1;
+    /**
      * Creates a new call peer with address <tt>peerAddress</tt>.
      *
      * @param owningCall the call that contains this call peer.
      */
+
     public MediaAwareCallPeer(T owningCall)
     {
         this.call = owningCall;
@@ -1002,5 +1017,25 @@ public abstract class MediaAwareCallPeer
                     mediaHandler.close();
             }
         }
+    }
+
+    public ConferenceInfoDocument getLastConferenceInfoSent()
+    {
+        return lastConferenceInfoSent;
+    }
+
+    public void setLastConferenceInfoSent(ConferenceInfoDocument confInfo)
+    {
+        lastConferenceInfoSent = confInfo;
+    }
+
+    public long getLastConferenceInfoSentTimestamp()
+    {
+        return lastConferenceInfoSentTimestamp;
+    }
+
+    public void setLastConferenceInfoSentTimestamp(long newTimestamp)
+    {
+        lastConferenceInfoSentTimestamp = newTimestamp;
     }
 }

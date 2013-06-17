@@ -997,7 +997,9 @@ public abstract class AbstractOperationSetTelephonyConferencing<
 
     /**
      * Creates a <tt>ConferenceInfoDocument</tt> which describes the current
-     * state of the conference in which <tt>callPeer</tt> participates.
+     * state of the conference in which <tt>callPeer</tt> participates. The
+     * created document contains a "full" description (as opposed to a partial
+     * description, see RFC4575).
      *
      * @return a <tt>ConferenceInfoDocument</tt> which describes the current
      * state of the conference in which this <tt>CallPeer</tt> participates.
@@ -1165,4 +1167,13 @@ public abstract class AbstractOperationSetTelephonyConferencing<
             return ConferenceInfoDocument.EndpointStatusType.connected;
         return null;
     }
+
+    //to and from need to be "full"
+    protected ConferenceInfoDocument getConferenceInfoDiff(
+            ConferenceInfoDocument from,
+            ConferenceInfoDocument to)
+    {
+        return to;
+    }
+
 }
