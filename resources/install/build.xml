@@ -2429,12 +2429,8 @@
         <ant dir="${debian.src.dir}/lib/src/jsip"
              inheritAll="false"
              target="clean"/>
-        <exec   dir="${debian.src.dir}/lib/src/bccontrib"
-                executable="mvn"
-                failonerror="false">
-            <arg value="clean" />
-            <arg value="-Dmaven.repo.local=/tmp" />
-        </exec>
+        <delete dir="${debian.src.dir}/lib/src/bccontrib/target"
+            failonerror="false"/>
         <ant dir="${debian.src.dir}/lib/src/fmj"
              inheritAll="false"
              target="clean"/>
@@ -2590,12 +2586,40 @@
                  link="${debian.src.dir}/lib/src/libjitsi/lib/jain-sdp.jar"/>
 
         <!-- compile and pack bccontrib -->
-        <exec   dir="${debian.src.dir}/lib/src/bccontrib"
-                executable="mvn"
-                resolveexecutable="true"
-                failonerror="true">
-            <arg value="package" />
-        </exec>
+        <mkdir dir="${debian.src.dir}/lib/src/bccontrib/target/classes"/>
+        <javac debug="false" optimize="true"
+            destdir="${debian.src.dir}/lib/src/bccontrib/target/classes"
+            nowarn="false"
+            source="1.5" target="1.5" fork="true">
+            <src path="${debian.src.dir}/lib/src/bccontrib/src/main/java"/>
+            <classpath>
+                <pathelement location="/usr/share/java/bcprov.jar"/>
+            </classpath>
+        </javac>
+        <jar compress="true"
+             destfile="${debian.src.dir}/lib/src/bccontrib/target/bccontrib-1.0-SNAPSHOT.jar">
+            <fileset dir="${debian.src.dir}/lib/src/bccontrib/target/classes"/>
+            <manifest>
+                <attribute name="Bundle-Name" value="bccontrib"/>
+                <attribute name="Bundle-SymbolicName"
+                           value="org.jitsi.bccontrib"/>
+                <attribute name="Bundle-Version" value="1.0.5.SNAPSHOT"/>
+
+                <attribute name="Import-Package"
+                    value="org.bouncycastle.crypto,
+org.bouncycastle.crypto.digests,
+org.bouncycastle.crypto.engines,
+org.bouncycastle.crypto.params,
+org.bouncycastle.crypto.prng"/>
+                <attribute name="Export-Package"
+                    value="org.jitsi.bccontrib.digests,
+org.jitsi.bccontrib.engines,
+org.jitsi.bccontrib.macs,
+org.jitsi.bccontrib.params,
+org.jitsi.bccontrib.prng,
+org.jitsi.bccontrib.util"/>
+            </manifest>
+        </jar>
         <symlink resource="../../bccontrib/target/bccontrib-1.0-SNAPSHOT.jar"
                  overwrite="true"
                  link="${debian.src.dir}/lib/src/libjitsi/lib"/>
