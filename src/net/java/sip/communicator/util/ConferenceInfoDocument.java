@@ -402,9 +402,12 @@ public class ConferenceInfoDocument
          */
         public void setDisplayText(String text)
         {
-            Element displayText = document.createElement("display-text");
-            displayText.setTextContent(text);
-            user.appendChild(displayText);
+            if (text != null)
+            {
+                Element displayText = document.createElement("display-text");
+                displayText.setTextContent(text);
+                user.appendChild(displayText);
+            }
         }
     }
 
@@ -501,9 +504,12 @@ public class ConferenceInfoDocument
          */
         public void setSrcId(String srcId)
         {
-            Element element = document.createElement("src-id");
-            element.setTextContent(srcId);
-            media.appendChild(element);
+            if (srcId != null)
+            {
+                Element element = document.createElement("src-id");
+                element.setTextContent(srcId);
+                media.appendChild(element);
+            }
         }
 
         /**
@@ -513,9 +519,12 @@ public class ConferenceInfoDocument
          */
         public void setType(String type)
         {
-            Element element = document.createElement("type");
-            element.setTextContent(type);
-            media.appendChild(element);
+            if (type != null)
+            {
+                Element element = document.createElement("type");
+                element.setTextContent(type);
+                media.appendChild(element);
+            }
         }
 
         /**
@@ -525,9 +534,12 @@ public class ConferenceInfoDocument
          */
         public void setStatus(String status)
         {
-            Element element = document.createElement("status");
-            element.setTextContent(status);
-            media.appendChild(element);
+            if (status != null)
+            {
+                Element element = document.createElement("status");
+                element.setTextContent(status);
+                media.appendChild(element);
+            }
         }
     }
 

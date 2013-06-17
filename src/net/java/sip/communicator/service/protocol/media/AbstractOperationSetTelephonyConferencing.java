@@ -1030,7 +1030,7 @@ public abstract class AbstractOperationSetTelephonyConferencing<
         for (CallPeer conferenceCallPeer : conferenceCallPeers)
             addPeerToConferenceInfo(confInfo, conferenceCallPeer, true);
 
-        return null;
+        return confInfo;
     }
 
     /**

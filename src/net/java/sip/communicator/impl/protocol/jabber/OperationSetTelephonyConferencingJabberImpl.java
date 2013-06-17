@@ -149,14 +149,18 @@ public class OperationSetTelephonyConferencingJabberImpl
             diff.setVersion(newVersion);
 
             IQ iq = getConferenceInfo(callPeerJabber, diff);
-            parentProvider.getConnection().sendPacket(iq);
 
-            // We save currentConfInfo, because it is of state "full", while
-            // diff could be a partial
-            currentConfInfo.setVersion(newVersion);
-            callPeerJabber.setLastConferenceInfoSent(currentConfInfo);
-            callPeerJabber.setLastConferenceInfoSentTimestamp(
-                    System.currentTimeMillis());
+            if (iq != null)
+            {
+                parentProvider.getConnection().sendPacket(iq);
+
+                // We save currentConfInfo, because it is of state "full", while
+                // diff could be a partial
+                currentConfInfo.setVersion(newVersion);
+                callPeerJabber.setLastConferenceInfoSent(currentConfInfo);
+                callPeerJabber.setLastConferenceInfoSentTimestamp(
+                        System.currentTimeMillis());
+            }
         }
     }
 
