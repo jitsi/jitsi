@@ -188,14 +188,11 @@ public class OperationSetTelephonyConferencingJabberImpl
             }
         };
 
-
         CallJabberImpl call = callPeer.getCall();
 
         iq.setFrom(call.getProtocolProvider().getOurJID());
         iq.setTo(callPeer.getAddress());
         iq.setType(Type.SET);
-
-
 
         return iq;
     }

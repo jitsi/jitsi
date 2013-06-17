@@ -284,99 +284,44 @@ public class OperationSetTelephonyConferencingSipImpl
     /**
      * Generates the conference-info XML to be sent to a specific
      * <tt>CallPeer</tt> in order to notify it of the current state of the
-     * conference managed by the local peer.
+     * conference managed by the local peer. Return <tt>null</tt> if
+     * conference-info XML does not need to be sent to <tt>callPeer</tt>.
      *
      * @param callPeer the <tt>CallPeer</tt> to generate conference-info XML for
-     * @param version the value of the version attribute of the
      * <tt>conference-info</tt> root element of the conference-info XML to be
      * generated
      * @return the conference-info XML to be sent to the specified
      * <tt>callPeer</tt> in order to notify it of the current state of the
-     * conference managed by the local peer
+     * conference managed by the local peer. Return <tt>null</tt> if
+     * conference-info XML does not need to be sent to <tt>callPeer</tt>.
      */
-    private String getConferenceInfoXML(CallPeerSipImpl callPeer, int version)
+    private String getConferenceInfoXML(CallPeerSipImpl callPeer)
     {
-        Dialog dialog = callPeer.getDialog();
-        String localParty = null;
+        ConferenceInfoDocument currentConfInfo
+                = getCurrentConferenceInfo(callPeer);
+        ConferenceInfoDocument lastSentConfInfo
+                = callPeer.getLastConferenceInfoSent();
+        ConferenceInfoDocument diff
+                = getConferenceInfoDiff(lastSentConfInfo, currentConfInfo);
 
-        if (dialog != null)
+        if (diff == null)
+            return null;
+        else
         {
-            Address localPartyAddress = dialog.getLocalParty();
+            int newVersion
+                    = lastSentConfInfo == null
+                    ? 1
+                    : lastSentConfInfo.getVersion() + 1;
+            diff.setVersion(newVersion);
+            currentConfInfo.setVersion(newVersion);
 
-            if (localPartyAddress != null)
-                localParty
-                    = stripParametersFromAddress(
-                        localPartyAddress.getURI().toString());
+            // We save currentConfInfo, because it is of state "full", while
+            // diff could be a partial
+            callPeer.setLastConferenceInfoSent(currentConfInfo);
+            callPeer.setLastConferenceInfoSentTimestamp(
+                    System.currentTimeMillis());
+            return diff.toString();
         }
-
-        StringBuffer xml = new StringBuffer();
-
-        xml.append( "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n");
-        // <conference-info>
-        append(xml, "<", ELEMENT_CONFERENCE_INFO);
-        // entity
-        append(xml, " entity=\"", domElementWriter.encode(localParty), "\"");
-        // state
-        xml.append(" state=\"full\"");
-        // version
-        append(xml, " version=\"", Integer.toString(version), "\">");
-        // <conference-description/>
-        append(xml, "<", ELEMENT_CONFERENCE_DESCRIPTION, "/>");
-        // <conference-state>
-        append(xml, "<", ELEMENT_CONFERENCE_STATE, ">");
-        // <user-count>
-        append(xml, "<", ELEMENT_USER_COUNT, ">");
-
-        CallSipImpl call = callPeer.getCall();
-        List<CallPeer> conferenceCallPeers = CallConference.getCallPeers(call);
-
-        xml.append(1 /* the local peer/user */ + conferenceCallPeers.size());
-        // </user-count>
-        append(xml, "</", ELEMENT_USER_COUNT, ">");
-        // </conference-state>
-        append(xml, "</", ELEMENT_CONFERENCE_STATE, ">");
-        // <users>
-        append(xml, "<", ELEMENT_USERS, ">");
-
-        // <user>
-        append(xml, "<", ELEMENT_USER);
-        // entity
-        append(xml, " entity=\"", domElementWriter.encode(localParty), "\"");
-        // state
-        xml.append(" state=\"full\">");
-
-        String ourDisplayName = parentProvider.getOurDisplayName();
-
-        if (ourDisplayName != null)
-        {
-            // <display-text>
-            append(xml, "<", ELEMENT_DISPLAY_TEXT, ">");
-            xml.append(domElementWriter.encode(ourDisplayName));
-            // </display-text>
-            append(xml, "</", ELEMENT_DISPLAY_TEXT, ">");
-        }
-        // <endpoint>
-        append(xml, "<", ELEMENT_ENDPOINT, ">");
-        // <status>
-        append(xml, "<", ELEMENT_STATUS, ">");
-        // We are the conference focus so we're connected to the conference.
-        xml.append(AbstractConferenceMember.CONNECTED);
-        // </status>
-        append(xml, "</", ELEMENT_STATUS, ">");
-        getMediaXML(callPeer, false, xml);
-        // </endpoint>
-        append(xml, "</", ELEMENT_ENDPOINT, ">");
-        // </user>
-        append(xml, "</", ELEMENT_USER, ">");
-
-        for (CallPeer conferenceCallPeer : conferenceCallPeers)
-            getUserXML(conferenceCallPeer, xml);
-
-        // </users>
-        append(xml, "</", ELEMENT_USERS, ">");
-        // </conference-info>
-        append(xml, "</", ELEMENT_CONFERENCE_INFO, ">");
-        return xml.toString();
     }
 
     /**
@@ -417,134 +362,6 @@ public class OperationSetTelephonyConferencingSipImpl
         if (CallPeerState.CONNECTED.equals(callPeerState))
             return AbstractConferenceMember.CONNECTED;
         return null;
-    }
-
-    /**
-     * Appends to a specific <tt>StringBuffer</tt> <tt>media</tt> XML element
-     * trees which describe the state of the media streaming between a specific
-     * <tt>CallPeer</tt> and its local peer represented by an associated
-     * <tt>Call</tt>.
-     *
-     * @param callPeer the <tt>CallPeer</tt> which is to get its media streaming
-     * state described in <tt>media</tt> XML element trees appended to the
-     * specified <tt>StringBuffer</tt>
-     * @param remote <tt>true</tt> if the streaming from the <tt>callPeer</tt>
-     * to the local peer is to be described or <tt>false</tt> if the streaming
-     * from the local peer to the remote <tt>callPeer</tt> is to be described
-     * @param xml the <tt>StringBuffer</tt> to append the <tt>media</tt> XML
-     * trees describing the media streaming state of the specified
-     * <tt>callPeer</tt>
-     */
-    private void getMediaXML(
-            MediaAwareCallPeer<?,?,?> callPeer,
-            boolean remote,
-            StringBuffer xml)
-    {
-        CallPeerMediaHandler<?> mediaHandler = callPeer.getMediaHandler();
-
-        for (MediaType mediaType : MediaType.values())
-        {
-            MediaStream stream = mediaHandler.getStream(mediaType);
-
-            if (stream != null)
-            {
-                // <media>
-                append(xml, "<", ELEMENT_MEDIA, ">");
-                // <type>
-                append(xml, "<", ELEMENT_TYPE, ">");
-                xml.append(mediaType.toString());
-                // </type>
-                append(xml, "</", ELEMENT_TYPE, ">");
-
-                long srcId
-                    = remote
-                        ? getRemoteSourceID(callPeer, mediaType)
-                        : stream.getLocalSourceID();
-
-                if (srcId != -1)
-                {
-                    // <src-id>
-                    append(xml, "<", ELEMENT_SRC_ID, ">");
-                    xml.append(srcId);
-                    // </src-id>
-                    append(xml, "</", ELEMENT_SRC_ID, ">");
-                }
-
-                MediaDirection direction
-                    = remote
-                        ? getRemoteDirection(callPeer, mediaType)
-                        : stream.getDirection();
-
-                if (direction == null)
-                    direction = MediaDirection.INACTIVE;
-
-                // <status>
-                append(xml, "<", ELEMENT_STATUS, ">");
-                xml.append(direction.toString());
-                // </status>
-                append(xml, "</", ELEMENT_STATUS, ">");
-                // </media>
-                append(xml, "</", ELEMENT_MEDIA, ">");
-            }
-        }
-    }
-
-    /**
-     * Appends to a specific <tt>StringBuffer</tt> a <tt>user</tt> XML element
-     * tree which describes the participation of a specific <tt>CallPeer</tt> in
-     * a conference managed by the local peer represented by its associated
-     * <tt>Call</tt>.
-     *
-     * @param callPeer the <tt>CallPeer</tt> which is to get its conference
-     * participation describes in a <tt>user</tt> XML element tree appended to
-     * the specified <tt>StringBuffer</tt>
-     * @param xml the <tt>StringBuffer</tt> to append the <tt>user</tt> XML
-     * tree describing the conference participation of the specified
-     * <tt>callPeer</tt> to
-     */
-    private void getUserXML(CallPeer callPeer, StringBuffer xml)
-    {
-        // <user>
-        append(xml, "<", ELEMENT_USER);
-        // entity
-        append(
-                xml,
-                " entity=\"",
-                domElementWriter.encode(
-                        stripParametersFromAddress(callPeer.getURI())),
-                "\"");
-        // state
-        xml.append(" state=\"full\">");
-
-        String displayName = callPeer.getDisplayName();
-
-        if (displayName != null)
-        {
-            // <display-text>
-            append(xml, "<", ELEMENT_DISPLAY_TEXT, ">");
-            xml.append(domElementWriter.encode(displayName));
-            // </display-text>
-            append(xml, "</", ELEMENT_DISPLAY_TEXT, ">");
-        }
-        // <endpoint>
-        append(xml, "<", ELEMENT_ENDPOINT, ">");
-
-        String status = getEndpointStatusXML(callPeer);
-
-        if (status != null)
-        {
-            // <status>
-            append(xml, "<", ELEMENT_STATUS, ">");
-            xml.append(status);
-            // </status>
-            append(xml, "</", ELEMENT_STATUS, ">");
-        }
-        if (callPeer instanceof MediaAwareCallPeer<?,?,?>)
-            getMediaXML((MediaAwareCallPeer<?,?,?>) callPeer, true, xml);
-        // </endpoint>
-        append(xml, "</", ELEMENT_ENDPOINT, ">");
-        // </user>
-        append(xml, "</", ELEMENT_USER, ">");
     }
 
     /**
@@ -846,7 +663,7 @@ public class OperationSetTelephonyConferencingSipImpl
                 return null;
             }
 
-            String conferenceInfoXML = getConferenceInfoXML(callPeer, version);
+            String conferenceInfoXML = getConferenceInfoXML(callPeer);
             byte[] notifyContent;
 
             if (conferenceInfoXML == null)
