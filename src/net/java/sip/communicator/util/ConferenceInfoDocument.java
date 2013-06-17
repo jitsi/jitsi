@@ -254,8 +254,20 @@ public class ConferenceInfoDocument
         return ret;
     }
 
-    public Document getDocument() {
-        return document;
+    /**
+     * Returns the XML representation of the document.
+     * @return the XML representation of the document.
+     */
+    public String toString()
+    {
+        try
+        {
+            return XMLUtils.createXml(document);
+        }
+        catch (Exception e)
+        {
+            return null;
+        }
     }
 
     public User addNewUser(String entity)
@@ -269,52 +281,104 @@ public class ConferenceInfoDocument
         return user;
     }
 
+    /**
+     * Represents the possible value for the <tt>state</tt> attribute (see
+     * RFC4575)
+     */
     public enum State
     {
+        /**
+         * State <tt>full</tt>
+         */
         FULL("full"),
+
+        /**
+         * State <tt>partial</tt>
+         */
         PARTIAL("partial"),
+
+        /**
+         * State <tt>deleted</tt>
+         */
         DELETED("deleted");
 
+        /**
+         * The name of this <tt>State</tt>
+         */
         private String name;
 
+        /**
+         * Creates a <tt>State</tt> instance with the specified name.
+         * @param name
+         */
         private State(String name)
         {
             this.name = name;
         }
 
+        /**
+         * Returns the name of this <tt>State</tt>
+         * @return the name of this <tt>State</tt>
+         */
         @Override
         public String toString()
         {
             return name;
         }
 
-        public static State parseString(String s)
+        /**
+         * Returns a <tt>State</tt> value corresponding to the specified
+         * <tt>name</tt>
+         */
+        public static State parseString(String name)
         {
-            if (FULL.toString().equals(s))
+            if (FULL.toString().equals(name))
                 return FULL;
-            else if(PARTIAL.toString().equals(s))
+            else if(PARTIAL.toString().equals(name))
                 return PARTIAL;
-            else if(DELETED.toString().equals(s))
+            else if(DELETED.toString().equals(name))
                 return DELETED;
             else
                 return null;
         }
     }
 
+    /**
+     * Wraps around an <tt>Element</tt> and represents a <tt>user</tt>
+     * element (child of the <tt>users</tt> element). See RFC4575.
+     */
     public class User
     {
+        /**
+         * The underlying <tt>Element</tt>.
+         */
         Element user;
 
+        /**
+         * Creates a new <tt>User</tt> instance with the specified
+         * <tt>Element</tt> as its underlying element.
+         * @param user the <tt>Element</tt> to use
+         */
         private User(Element user)
         {
             this.user = user;
         }
 
+        /**
+         * Sets the <tt>entity</tt> attribute of this <tt>User</tt> to
+         * <tt>entity</tt>
+         * @param entity the value to set for the <tt>entity</tt> attribute.
+         */
         public void setEntity(String entity)
         {
             user.setAttribute(ENTITY_ATTR_NAME, entity);
         }
 
+        /**
+         * Sets the <tt>state</tt> attribute of this <tt>User</tt> to
+         * <tt>state</tt>
+         * @param state the value to set for the <tt>state</tt> attribute.
+         */
         public void setState(State state)
         {
             user.setAttribute(STATE_ATTR_NAME, state.toString());
@@ -331,6 +395,11 @@ public class ConferenceInfoDocument
             return endpoint;
         }
 
+        /**
+         * Adds a <tt>display-text</tt> child element to this <tt>User</tt>
+         * @param text the text content to use for the <tt>display-text</tt>
+         * element.
+         */
         public void setDisplayText(String text)
         {
             Element displayText = document.createElement("display-text");
@@ -339,20 +408,42 @@ public class ConferenceInfoDocument
         }
     }
 
+    /**
+     * Wraps around an <tt>Element</tt> and represents an <tt>endpoint</tt>
+     * element. See RFC4575.
+     */
     public class Endpoint
     {
+        /**
+         * The underlying <tt>Element</tt>.
+         */
         private Element endpoint;
 
+        /**
+         * Creates a new <tt>Endpoint</tt> instance with the specified
+         * <tt>Element</tt> as its underlying element.
+         * @param endpoint the <tt>Element</tt> to use
+         */
         private Endpoint(Element endpoint)
         {
             this.endpoint = endpoint;
         }
 
+        /**
+         * Sets the <tt>entity</tt> attribute of this <tt>Endpoint</tt> to
+         * <tt>entity</tt>
+         * @param entity the value to set for the <tt>entity</tt> attribute.
+         */
         public void setEntity(String entity)
         {
             endpoint.setAttribute("entity", entity);
         }
 
+        /**
+         * Adds a <tt>status</tt> child element to this <tt>Endpoint</tt>
+         * @param status the value to be used for the text content of the
+         * added child.
+         */
         public void setStatus(EndpointStatusType status)
         {
             Element statusElement = document.createElement("status");
@@ -370,23 +461,44 @@ public class ConferenceInfoDocument
 
             return media;
         }
-
     }
 
+    /**
+     * Wraps around an <tt>Element</tt> and represents a <tt>media</tt>
+     * element. See RFC4575.
+     */
     public class Media
     {
+        /**
+         * The underlying <tt>Element</tt>.
+         */
         Element media;
 
+        /**
+         * Creates a new <tt>Media</tt> instance with the specified
+         * <tt>Element</tt> as its underlying element.
+         * @param media the <tt>Element</tt> to use
+         */
         private Media(Element media)
         {
             this.media = media;
         }
 
+        /**
+         * Sets the <tt>id</tt> attribute of this <tt>Media</tt> to
+         * <tt>id</tt>
+         * @param id the value to set for the <tt>id</tt> attribute.
+         */
         public void setId(String id)
         {
             media.setAttribute("id", id);
         }
 
+        /**
+         * Adds a <tt>src-id</tt> child element to this <tt>Media</tt>
+         * @param srcId the value to be used in the text content of the
+         * added child.
+         */
         public void setSrcId(String srcId)
         {
             Element element = document.createElement("src-id");
@@ -394,6 +506,11 @@ public class ConferenceInfoDocument
             media.appendChild(element);
         }
 
+        /**
+         * Adds a <tt>type</tt> child element to this <tt>Media</tt>
+         * @param type the value to be used in the text content of the
+         * added child.
+         */
         public void setType(String type)
         {
             Element element = document.createElement("type");
@@ -401,6 +518,11 @@ public class ConferenceInfoDocument
             media.appendChild(element);
         }
 
+        /**
+         * Adds a <tt>status</tt> child element to this <tt>Media</tt>
+         * @param status the value to be used in the text content of the
+         * added child.
+         */
         public void setStatus(String status)
         {
             Element element = document.createElement("status");
