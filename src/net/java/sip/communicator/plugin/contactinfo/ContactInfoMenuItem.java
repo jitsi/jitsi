@@ -11,9 +11,12 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.resources.*;
 
 /**
  *
@@ -23,16 +26,29 @@ public class ContactInfoMenuItem
     extends AbstractPluginComponent
     implements ActionListener
 {
-    private JMenuItem menuItem = null;
+    private AbstractButton menuItem = null;
 
     private MetaContact metaContact;
+
+    /**
+     * The button index, for now placed on last position.
+     */
+    private final static int CONTACT_INFO_BUTTON_IX = 50;
 
     /**
      * Creates a <tt>ContactInfoMenuItem</tt>.
      */
     public ContactInfoMenuItem()
     {
-        super(Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU);
+        this(Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU);
+    }
+
+    /**
+     * Creates a <tt>ContactInfoMenuItem</tt>.
+     */
+    public ContactInfoMenuItem(Container container)
+    {
+        super(container);
     }
 
     /**
@@ -45,11 +61,32 @@ public class ContactInfoMenuItem
         this.metaContact = metaContact;
     }
 
+    /*
+     * Implements PluginComponent#setCurrentContact(Contact).
+     * @param contact the currently selected contact
+     */
+    @Override
+    public void setCurrentContact(Contact contact)
+    {
+        if(metaContact == null)
+        {
+            // search for the metacontact
+            MetaContactListService mcs =
+                ContactInfoActivator.getContactListService();
+
+            metaContact =
+                mcs.findMetaContactByContact(contact);
+        }
+    }
+
     /**
      * Initializes and shows the contact details dialog.
      */
     public void actionPerformed(ActionEvent e)
     {
+        if(metaContact == null)
+            return;
+
         ContactInfoDialog cinfoDialog = new ContactInfoDialog(metaContact);
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
@@ -69,14 +106,59 @@ public class ContactInfoMenuItem
         return getMenuItem().getText();
     }
 
-    private JMenuItem getMenuItem()
+    private AbstractButton getMenuItem()
     {
         if(menuItem == null)
         {
-            menuItem =
-                new JMenuItem(Resources.getString("service.gui.CONTACT_INFO"),
-                    new ImageIcon(Resources.getImage(
-                        "plugin.contactinfo.CONTACT_INFO_ICON")));
+            if(getContainer().equals(Container.CONTAINER_CHAT_TOOL_BAR))
+            {
+                menuItem =
+                    new SIPCommButton(null,
+                            (Image)ContactInfoActivator.getImageLoaderService()
+                                .getImage(new ImageID(
+                                    "plugin.contactinfo.CONTACT_INFO_TOOLBAR")))
+                    {
+                        /**
+                         * Returns the button index.
+                         * @return the button index.
+                         */
+                        public int getIndex()
+                        {
+                            return CONTACT_INFO_BUTTON_IX;
+                        }
+                    };
+
+                menuItem.setPreferredSize(new Dimension(25, 25));
+                menuItem.setToolTipText(
+                    Resources.getString("service.gui.CONTACT_INFO"));
+            }
+            else if(getContainer().equals(Container.CONTAINER_CALL_DIALOG))
+            {
+                menuItem =
+                    new SIPCommButton(null,
+                            (Image)ContactInfoActivator.getImageLoaderService()
+                                .getImage(new ImageID(
+                                    "plugin.contactinfo.CONTACT_INFO_CALL_WINDOW")))
+                    {
+                        /**
+                         * Returns the button index.
+                         * @return the button index.
+                         */
+                        public int getIndex()
+                        {
+                            return CONTACT_INFO_BUTTON_IX;
+                        }
+                    };
+                menuItem.setPreferredSize(new Dimension(44, 38));
+                menuItem.setToolTipText(
+                    Resources.getString("service.gui.CONTACT_INFO"));
+            }
+            else
+                menuItem =
+                    new JMenuItem(
+                            Resources.getString("service.gui.CONTACT_INFO"),
+                            new ImageIcon(Resources.getImage(
+                                "plugin.contactinfo.CONTACT_INFO_ICON")));
             menuItem.addActionListener(this);
         }
 
