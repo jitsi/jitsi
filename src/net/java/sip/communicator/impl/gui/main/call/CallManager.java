@@ -1460,6 +1460,52 @@ public class CallManager
     }
 
     /**
+     * Searches the cusax enabled providers for a contact with
+     * the detail (address) of the call peer if found and the contact
+     * is provided by a provider which is IM capable, return the contact.
+     * @param peer the peer we are calling.
+     * @return the im capable contact corresponding the <tt>peer</tt>.
+     */
+    public static Contact getIMCapableCusaxContact(CallPeer peer)
+    {
+        // We try to find the an alternative peer address.
+        String imppAddress = peer.getAlternativeIMPPAddress();
+
+        if (!StringUtils.isNullOrEmpty(imppAddress))
+        {
+            int protocolPartIndex = imppAddress.indexOf(":");
+
+            imppAddress = (protocolPartIndex >= 0)
+                    ? imppAddress.substring(protocolPartIndex + 1)
+                    : imppAddress;
+
+            Collection<ProtocolProviderService> cusaxProviders
+                = AccountUtils.getRegisteredProviders(
+                    OperationSetCusaxUtils.class);
+
+            if (cusaxProviders != null && cusaxProviders.size() > 0)
+            {
+                ProtocolProviderService cusaxProvider
+                    = cusaxProviders.iterator().next();
+
+                Contact contact  = getPeerContact(
+                                        peer,
+                                        cusaxProvider,
+                                        imppAddress);
+
+                if(contact != null
+                    && cusaxProvider.getOperationSet(
+                        OperationSetBasicInstantMessaging.class) != null)
+                {
+                    return contact;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Returns the image for the given contact.
      *
      * @param contact the <tt>Contact</tt>, which image we're looking for
@@ -1511,6 +1557,58 @@ public class CallManager
         if (cusaxOpSet != null && cusaxOpSet.doesDetailBelong(
                 contact, callPeer.getAddress()))
             return contact;
+
+        return null;
+    }
+
+    /**
+     * Returns the metacontact for the given <tt>CallPeer</tt> by
+     * checking the if the <tt>callPeer</tt> contact exists, if not checks the
+     * contacts in our contact list that are provided by cusax enabled
+     * providers.
+     *
+     * @param peer the <tt>CallPeer</tt> to check in contact details
+     * @return the <tt>MetaContact</tt> corresponding to the given
+     * <tt>peer</tt>.
+     */
+    public static MetaContact getPeerMetaContact(CallPeer peer)
+    {
+        if(peer == null)
+            return null;
+
+        if(peer.getContact() != null)
+            return GuiActivator.getContactListService()
+                .findMetaContactByContact(peer.getContact());
+
+        String imppAddress = peer.getAlternativeIMPPAddress();
+
+        if (!StringUtils.isNullOrEmpty(imppAddress))
+        {
+            int protocolPartIndex = imppAddress.indexOf(":");
+
+            imppAddress = (protocolPartIndex >= 0)
+                    ? imppAddress.substring(protocolPartIndex + 1)
+                    : imppAddress;
+
+                    Collection<ProtocolProviderService> cusaxProviders
+                    = AccountUtils.getRegisteredProviders(
+                        OperationSetCusaxUtils.class);
+
+                if (cusaxProviders != null && cusaxProviders.size() > 0)
+                {
+                    Contact contact  = getPeerContact(
+                                            peer,
+                                            cusaxProviders.iterator().next(),
+                                            imppAddress);
+
+                    return GuiActivator.getContactListService()
+                        .findMetaContactByContact(contact);
+                }
+                else
+                {
+                    return getPeerMetaContact(peer, imppAddress);
+                }
+        }
 
         return null;
     }

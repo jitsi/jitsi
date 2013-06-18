@@ -1186,12 +1186,19 @@ public class CallPanel
                 Contact contact = callPeer.getContact();
 
                 if (contact != null)
+                    contacts.add(contact);
+            }
+            else
+            {
+                Contact contact = CallManager.getIMCapableCusaxContact(callPeer);
+                if (contact != null)
                 {
                     contacts.add(contact);
-                    if (contacts.size() >= limit)
-                        break;
                 }
             }
+
+            if (contacts.size() >= limit)
+                break;
         }
         return contacts;
     }
@@ -1281,7 +1288,11 @@ public class CallPanel
                     = (PluginComponent)
                         GuiActivator.bundleContext.getService(serRef);
 
-                this.add((Component) component.getComponent());
+                component.setCurrentContact(
+                    CallManager.getPeerMetaContact(
+                        callConference.getCallPeers().get(0)));
+
+                settingsPanel.add((Component) component.getComponent());
             }
         }
 
@@ -1682,6 +1693,10 @@ public class CallPanel
                             .CONTAINER_CALL_DIALOG)
                 && ((c = pc.getComponent()) instanceof Component))
         {
+            pc.setCurrentContact(
+                CallManager.getPeerMetaContact(
+                    callConference.getCallPeers().get(0)));
+
             switch (ev.getEventID())
             {
             case PluginComponentEvent.PLUGIN_COMPONENT_ADDED:
