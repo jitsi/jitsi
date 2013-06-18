@@ -369,7 +369,7 @@ public class OperationSetTelephonyConferencingJabberImpl
      */
     private void handleCoin(CallPeerJabberImpl callPeer, CoinIQ coinIQ)
     {
-        setConferenceInfoXML(callPeer, -1, coinIQ.getChildElementXML());
+        setConferenceInfoXML(callPeer, coinIQ.getChildElementXML());
     }
 
     /**

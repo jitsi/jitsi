@@ -604,13 +604,6 @@ public class OperationSetTelephonyConferencingSipImpl
     private class ConferenceNotifierSubscription
         extends EventPackageNotifier.Subscription
     {
-
-        /**
-         * The value of the <tt>version</tt> attribute to be specified in the
-         * outgoing <tt>conference-info</tt> root XML elements.
-         */
-        private int version = 1;
-
         /**
          * Initializes a new <tt>ConferenceNotifierSubscription</tt> instance
          * with a specific subscription <tt>Address</tt>/Request URI and a
@@ -683,7 +676,6 @@ public class OperationSetTelephonyConferencingSipImpl
                             uee);
                     notifyContent = conferenceInfoXML.getBytes();
                 }
-                ++ version;
             }
             return notifyContent;
         }
@@ -816,14 +808,9 @@ public class OperationSetTelephonyConferencingSipImpl
         {
             if (rawContent != null)
             {
-                int contentVersion
-                    = setConferenceInfoXML(
+                setConferenceInfoXML(
                         callPeer,
-                        version,
                         SdpUtils.getContentAsString(requestEvent.getRequest()));
-
-                if (contentVersion >= version)
-                    version = contentVersion;
             }
         }
 
