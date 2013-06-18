@@ -8,6 +8,10 @@ package net.java.sip.communicator.util;
 
 import org.jitsi.util.xml.*;
 import org.w3c.dom.*;
+import org.xml.sax.*;
+
+import javax.xml.parsers.*;
+import java.io.*;
 
 /**
  * A class that represents a Conference Information XML document as defined in
@@ -121,28 +125,58 @@ public class ConferenceInfoDocument
      */
     public ConferenceInfoDocument(String xml) throws Exception
     {
+        byte[] bytes;
+
         try
         {
-            document = XMLUtils.createDocument(xml);
+            bytes = xml.getBytes("UTF-8");
         }
-        catch (Exception e)
+        catch (UnsupportedEncodingException uee)
         {
-            logger.error("Failed to create a new document.", e);
+            logger.warn(
+                    "Failed to gets bytes from String for the UTF-8 charset",
+                    uee);
+            bytes = xml.getBytes();
         }
 
-        //XXX this is not tested yet. do we need to set a namespace?
         try
         {
-            conferenceInfo = document.getElementById("conference-info");
-            conferenceDescription = XMLUtils.findChild(conferenceInfo, "conference-description");
-            conferenceState = XMLUtils.findChild(conferenceInfo, "conference-state");
-            userCount = XMLUtils.findChild(conferenceState, "user-count");
-            users = XMLUtils.findChild(conferenceInfo, "users");
+            document
+                    = DocumentBuilderFactory.newInstance().newDocumentBuilder()
+                    .parse(new ByteArrayInputStream(bytes));
         }
         catch (Exception e)
         {
-            logger.warn("Failed to parse document: " + xml);
+            logger.error("Failed to parse conference-info XML", e);
             throw(e);
+        }
+
+        conferenceInfo = document.getElementById("conference-info");
+        if (conferenceInfo == null)
+        {
+            throw(new Exception("Could not parse conference-info document,"
+                    + " conference-info element not found"));
+        }
+
+        conferenceDescription
+            = XMLUtils.findChild(conferenceInfo, "conference-description");
+        //conference-description is mandatory
+        if (conferenceDescription == null)
+        {
+            throw(new Exception("Could not parse conference-info document,"
+                    + " conference-description element not found"));
+        }
+
+        conferenceState
+            = XMLUtils.findChild(conferenceInfo, "conference-state");
+        if (conferenceState != null)
+            userCount = XMLUtils.findChild(conferenceState, "user-count");
+
+        users = XMLUtils.findChild(conferenceInfo, "users");
+        if (users == null)
+        {
+            throw(new Exception("Could not parse conference-info document,"
+                    + " users element not found"));
         }
     }
 
@@ -279,6 +313,11 @@ public class ConferenceInfoDocument
         users.appendChild(user.user);
 
         return user;
+    }
+
+    public Document getDocument()
+    {
+        return document;
     }
 
     /**

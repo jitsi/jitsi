@@ -135,6 +135,9 @@ public abstract class MediaAwareCallPeer
      * <tt>CallPeer</tt>.
      */
     private long lastConferenceInfoSentTimestamp = -1;
+
+    private ConferenceInfoDocument conferenceState = null;
+
     /**
      * Creates a new call peer with address <tt>peerAddress</tt>.
      *
@@ -1037,5 +1040,22 @@ public abstract class MediaAwareCallPeer
     public void setLastConferenceInfoSentTimestamp(long newTimestamp)
     {
         lastConferenceInfoSentTimestamp = newTimestamp;
+    }
+
+    public ConferenceInfoDocument getConferenceState()
+    {
+        return conferenceState;
+    }
+
+    public void setConferenceState(ConferenceInfoDocument confInfo)
+    {
+        conferenceState = confInfo;
+    }
+
+    public int getConferenceStateVersion()
+    {
+        return (conferenceState == null)
+                ? -1
+                : conferenceState.getVersion();
     }
 }

@@ -749,21 +749,21 @@ public abstract class AbstractOperationSetTelephonyConferencing<
     /**
      * Updates the conference-related properties of a specific <tt>CallPeer</tt>
      * such as <tt>conferenceFocus</tt> and <tt>conferenceMembers</tt> with
-     * information received from it as a conference focus in the form of a
-     * conference-info XML document.
+     * the information described in <tt>confInfo</tt>.
+     * <tt>confInfo</tt> must be a document with "full" state.
      *
      * @param callPeer the <tt>CallPeer</tt> which is a conference focus and has
      * sent the specified conference-info XML document
-     * @param conferenceInfoDocument the conference-info XML document sent by
-     * <tt>callPeer</tt> in order to update the conference-related information
-     * of the local peer represented by the associated <tt>Call</tt>
+     * @param confInfo the conference-info XML document to use to update
+     * the conference-related information of the local peer represented
+     * by the associated <tt>Call</tt>. It must have a "full" state.
      */
-    private void setConferenceInfoDocument(
+    private int setConferenceInfoDocument(
             MediaAwareCallPeerT callPeer,
-            Document conferenceInfoDocument)
+            ConferenceInfoDocument confInfo)
     {
         NodeList usersList
-            = conferenceInfoDocument.getElementsByTagName(ELEMENT_USERS);
+            = confInfo.getDocument().getElementsByTagName(ELEMENT_USERS);
         ConferenceMember[] toRemove
             = callPeer.getConferenceMembers().toArray(
                     AbstractCallPeer.NO_CONFERENCE_MEMBERS);
@@ -889,6 +889,8 @@ public abstract class AbstractOperationSetTelephonyConferencing<
 
         if (changed)
             notifyAll(callPeer.getCall());
+
+        return confInfo.getVersion();
     }
 
     /**
@@ -899,9 +901,6 @@ public abstract class AbstractOperationSetTelephonyConferencing<
      *
      * @param callPeer the <tt>CallPeer</tt> which is a conference focus and has
      * sent the specified conference-info XML document
-     * @param version the value of the <tt>version</tt> attribute of the
-     * <tt>conference-info</tt> XML element currently represented in the
-     * specified <tt>callPeer</tt>
      * @param conferenceInfoXML the conference-info XML document sent by
      * <tt>callPeer</tt> in order to update the conference-related information
      * of the local peer represented by the associated <tt>Call</tt>
@@ -912,66 +911,51 @@ public abstract class AbstractOperationSetTelephonyConferencing<
      */
     protected int setConferenceInfoXML(
             MediaAwareCallPeerT callPeer,
-            int version,
             String conferenceInfoXML)
     {
-        byte[] bytes;
+        ConferenceInfoDocument confInfo = null;
 
         try
         {
-            bytes = conferenceInfoXML.getBytes("UTF-8");
+             confInfo = new ConferenceInfoDocument(conferenceInfoXML);
         }
-        catch (UnsupportedEncodingException uee)
+        catch (Exception e)
         {
-            logger
-                .warn(
-                    "Failed to gets bytes from String for the UTF-8 charset",
-                    uee);
-            bytes = conferenceInfoXML.getBytes();
+            logger.error("Failed to parse conference-info XML", e);
+            return -1;
         }
 
-        Document doc = null;
-        Throwable exception = null;
+        /*
+         * The CallPeer sent conference-info XML so we're sure it's a
+         * conference focus.
+         */
+        callPeer.setConferenceFocus(true);
 
-        try
+        int documentVersion = confInfo.getVersion();
+        int ourVersion = callPeer.getConferenceStateVersion();
+
+        if (ourVersion == -1)
         {
-            doc
-                = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-                        .parse(new ByteArrayInputStream(bytes));
+            if (confInfo.getState() == ConferenceInfoDocument.State.FULL)
+            {
+                return setConferenceInfoDocument(callPeer, confInfo);
+            }
+            else
+                return -1;
         }
-        catch (IOException ioe)
+        else if (documentVersion <= ourVersion)
         {
-            exception = ioe;
+            return -1;
         }
-        catch (ParserConfigurationException pce)
-        {
-            exception = pce;
-        }
-        catch (SAXException saxe)
-        {
-            exception = saxe;
-        }
-        if (exception != null)
-            logger.error("Failed to parse conference-info XML", exception);
         else
         {
-            /*
-             * The CallPeer sent conference-info XML so we're sure it's a
-             * conference focus.
-             */
-            callPeer.setConferenceFocus(true);
-
-            int documentVersion
-                = Integer.parseInt(
-                        doc.getDocumentElement().getAttribute("version"));
-
-            if ((version == -1) || (documentVersion >= version))
-            {
-                setConferenceInfoDocument(callPeer, doc);
-                return documentVersion;
-            }
+            if (confInfo.getState() == ConferenceInfoDocument.State.FULL)
+                return setConferenceInfoDocument(callPeer, confInfo);
+            else if (documentVersion == ourVersion+1)
+                return updateConferenceInfoDocument(callPeer, confInfo);
+            else
+                return -1;
         }
-        return -1;
     }
 
     /**
@@ -1173,5 +1157,18 @@ public abstract class AbstractOperationSetTelephonyConferencing<
     {
         return to;
     }
+
+    private int updateConferenceInfoDocument(
+            MediaAwareCallPeerT callPeer,
+            ConferenceInfoDocument diff)
+    {
+        logger.warn("Received a conference-info partial notification, which we" +
+                " can't handle. Sending peer: " + callPeer);
+        return -1;
+        // TODO: generate a new full conf info by applying 'diff' to
+        // callPeer.getConferenceState
+        // return setConferenceInfoDocument(callPeer, newFullConfInfo);
+    }
+
 
 }
