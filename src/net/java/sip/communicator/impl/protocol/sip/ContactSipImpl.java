@@ -522,9 +522,7 @@ public class ContactSipImpl
         if(obj instanceof String)
         {
             String sobj = (String)obj;
-
-            if(sobj.startsWith("sip:"))
-                sobj = sobj.substring(4);
+            sobj = stripScheme(stripAddress(sobj));
 
             if(getAddress().equalsIgnoreCase(sobj))
                 return true;
@@ -540,6 +538,38 @@ public class ContactSipImpl
         ContactSipImpl sipContact = (ContactSipImpl) obj;
 
         return this.getAddress().equals(sipContact.getAddress());
+    }
+
+    /**
+     * Get rid of any parameters, ports etc. within a sip contact
+     * @param address   the address to strip
+     * @return          [sip[s]:]user@host without any params or port numbers.
+     */
+    static String stripAddress(String address)
+    {
+        if (address != null && address.length() > 0)
+        {
+            int idx = address.indexOf(':', 5);
+            if (idx > -1)
+                address = address.substring(0, idx);
+            idx = address.indexOf(';');
+            if (idx > -1)
+                address = address.substring(0, idx);
+        }
+        return address;
+    }
+
+    /**
+     * @param from  address to strip
+     * @return the address, stripped from either "sip:" or "sips:"
+     */
+    public static String stripScheme(String from)
+    {
+        int i = from.substring(0, 5).indexOf(':');
+
+        if(from.startsWith("sip") && i > 0)
+            return from.substring(i + 1);
+        return from;
     }
 
     /**

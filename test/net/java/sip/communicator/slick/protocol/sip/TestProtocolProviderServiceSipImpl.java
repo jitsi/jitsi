@@ -8,7 +8,9 @@ package net.java.sip.communicator.slick.protocol.sip;
 
 import java.util.*;
 
+import javax.sip.address.*;
 import junit.framework.*;
+import net.java.sip.communicator.impl.protocol.sip.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -137,7 +139,7 @@ public class TestProtocolProviderServiceSipImpl
 
 
     /**
-     * Verifies that all operation sets have the type they are declarded to
+     * Verifies that all operation sets have the type they are declared to
      * have.
      *
      * @throws java.lang.Exception if a class indicated in one of the keys
@@ -159,6 +161,27 @@ public class TestProtocolProviderServiceSipImpl
             assertTrue(opSet + " was not an instance of " + setName
                 + " as declared", Class.forName(setName).isInstance(opSet));
         }
+    }
+
+    /**
+     * Tests the <tt>equals()</tt> implementation of the SIP Contact class
+     */
+    public void testContactSipImpl() throws Exception
+    {
+        ProtocolProviderServiceSipImpl provider =
+            (ProtocolProviderServiceSipImpl) fixture.provider1;
+        Address reference =
+            provider.parseAddressString("sip:User@Host");
+        Contact referenceContact = new ContactSipImpl(reference, provider);
+
+        assertTrue("Cannot find user-only part in a SIP Contact compare",
+            referenceContact.equals("User"));
+        assertTrue("Cannot find SIP Contact using strings",
+            referenceContact.equals("sip:User@Host"));
+        assertTrue("Cannot find SIP Contact when protocol is secure",
+            referenceContact.equals("sips:User@Host"));
+        assertTrue("Cannot find SIP Contact when port is specified",
+            referenceContact.equals("sip:User@Host:5060"));
     }
 
     /**
