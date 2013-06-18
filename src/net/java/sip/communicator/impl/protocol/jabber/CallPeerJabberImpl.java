@@ -72,6 +72,17 @@ public class CallPeerJabberImpl
     private final Object sidSyncRoot = new Object();
 
     /**
+     * Whether a COIN has been scheduled to be sent to this
+     * <tt>CallPeerJabberImpl</tt>
+     */
+    private boolean coinScheduled = false;
+
+    /**
+     * Synchronization object for coinScheduled
+     */
+    private final Object coinScheduledSyncRoot = new Object();
+
+    /**
      * Creates a new call peer with address <tt>peerAddress</tt>.
      *
      * @param peerAddress the Jabber address of the new call peer.
@@ -1451,6 +1462,22 @@ public class CallPeerJabberImpl
                 new ReasonPacketExtension(Reason.SUCCESS,
                     message,
                     new TransferredPacketExtension()));
+        }
+    }
+
+    public boolean isCoinScheduled()
+    {
+        synchronized (coinScheduledSyncRoot)
+        {
+            return coinScheduled;
+        }
+    }
+
+    public void setCoinScheduled(boolean coinScheduled)
+    {
+        synchronized (coinScheduledSyncRoot)
+        {
+            this.coinScheduled = coinScheduled;
         }
     }
 }

@@ -50,6 +50,12 @@ public class OperationSetTelephonyConferencingJabberImpl
         = Logger.getLogger(OperationSetTelephonyConferencingJabberImpl.class);
 
     /**
+     * The minimum interval in milliseconds between COINs sent to a single
+     * <tt>CallPeer</tt>.
+     */
+    private static final int COIN_MIN_INTERVAL = 200;
+
+    /**
      * Synchronization object.
      */
     private final Object lock = new Object();
@@ -107,7 +113,34 @@ public class OperationSetTelephonyConferencingJabberImpl
         if(!(callPeer instanceof CallPeerJabberImpl))
             return;
 
-        CallPeerJabberImpl callPeerJabber = (CallPeerJabberImpl)callPeer;
+        final CallPeerJabberImpl callPeerJabber = (CallPeerJabberImpl)callPeer;
+
+        final long timeSinceLastCoin = System.currentTimeMillis()
+                - callPeerJabber.getLastConferenceInfoSentTimestamp();
+        if (timeSinceLastCoin < COIN_MIN_INTERVAL)
+        {
+            if (callPeerJabber.isCoinScheduled())
+                return;
+
+            logger.info("Scheduling to send a COIN to " + callPeerJabber);
+            callPeerJabber.setCoinScheduled(true);
+            new Thread(new Runnable(){
+                @Override
+                public void run()
+                {
+                    try
+                    {
+                        Thread.sleep(1 + COIN_MIN_INTERVAL - timeSinceLastCoin);
+                    }
+                    catch (InterruptedException ie) {}
+
+                    OperationSetTelephonyConferencingJabberImpl.this
+                            .notify(callPeerJabber);
+                }
+            }).start();
+
+            return;
+        }
 
         // check that callPeer supports COIN before sending him a
         // conference-info
@@ -124,6 +157,7 @@ public class OperationSetTelephonyConferencingJabberImpl
                     ProtocolProviderServiceJabberImpl.URN_XMPP_JINGLE_COIN))
             {
                 logger.info(callPeer.getAddress() + " does not support COIN");
+                callPeerJabber.setCoinScheduled(false);
                 return;
             }
         }
@@ -162,6 +196,7 @@ public class OperationSetTelephonyConferencingJabberImpl
                         System.currentTimeMillis());
             }
         }
+        callPeerJabber.setCoinScheduled(false);
     }
 
     /**
