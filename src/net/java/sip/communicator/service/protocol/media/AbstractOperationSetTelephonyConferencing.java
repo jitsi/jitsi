@@ -1074,7 +1074,6 @@ public abstract class AbstractOperationSetTelephonyConferencing<
                     = (MediaAwareCallPeer<?,?,?>) callPeer;
             CallPeerMediaHandler<?> mediaHandler
                     = mediaAwarePeer.getMediaHandler();
-            int id = 1;
 
             for (MediaType mediaType : MediaType.values())
             {
@@ -1082,7 +1081,7 @@ public abstract class AbstractOperationSetTelephonyConferencing<
                 if (stream != null)
                 {
                     ConferenceInfoDocument.Media media
-                            = endpoint.addNewMedia(Integer.toString(id));
+                            = endpoint.addNewMedia(mediaType.toString());
                     long srcId
                             = remote
                             ? getRemoteSourceID(mediaAwarePeer, mediaType)
@@ -1102,7 +1101,6 @@ public abstract class AbstractOperationSetTelephonyConferencing<
                         direction = MediaDirection.INACTIVE;
 
                     media.setStatus(direction.toString());
-                    id++;
                 }
             }
         }
