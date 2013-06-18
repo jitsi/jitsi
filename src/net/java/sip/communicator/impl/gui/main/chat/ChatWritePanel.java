@@ -98,7 +98,7 @@ public class ChatWritePanel
     /**
      * Tells if the current resource is outdated. A timer has already been
      * triggered, but when there is only a single resource there is no bare ID
-     * avaialble. Thus, flag this resource as outdated to switch to the bare ID
+     * available. Thus, flag this resource as outdated to switch to the bare ID
      * when available.
      */
     private boolean isOutdatedResource = true;
@@ -1464,25 +1464,28 @@ public class ChatWritePanel
         {
             outdatedResourceTimer = null;
 
-            ChatTransport transport = null;
-
-            Iterator<ChatTransport> transports
-                = chatPanel.getChatSession().getChatTransports();
-
-            while(transports.hasNext())
+            if(chatPanel.getChatSession() != null)
             {
-                transport = transports.next();
+                Iterator<ChatTransport> transports
+                    = chatPanel.getChatSession().getChatTransports();
 
-                // We found the bare ID, then set it as the current resource
-                // transport.
-                if(transport.getResourceName() == null)
+                ChatTransport transport = null;
+                while(transports.hasNext())
                 {
-                    isOutdatedResource = false;
-                    setSelectedChatTransport(transport, true);
-                    return;
+                    transport = transports.next();
+
+                    // We found the bare ID, then set it as the current resource
+                    // transport.
+                    if(transport.getResourceName() == null)
+                    {
+                        isOutdatedResource = false;
+                        setSelectedChatTransport(transport, true);
+                        return;
+                    }
                 }
             }
-            // If there is no bare ID avaialalbe, then set the current resource
+
+            // If there is no bare ID available, then set the current resource
             // transport as outdated.
             isOutdatedResource = true;
         }
