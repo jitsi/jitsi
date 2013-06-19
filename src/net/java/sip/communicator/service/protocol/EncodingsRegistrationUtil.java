@@ -75,10 +75,9 @@ public class EncodingsRegistrationUtil
     /**
      * Loads encoding properties from given <tt>accountID</tt> into this
      * encodings registration object.
-     *
      * @param accountID the <tt>AccountID</tt> to be loaded.
      * @param mediaService the <tt>MediaService</tt> that will be used to create
-     *                     <tt>EncodingConfiguration</tt>.
+     * <tt>EncodingConfiguration</tt>.
      */
     public void loadAccount(AccountID accountID, MediaService mediaService)
     {
@@ -118,9 +117,9 @@ public class EncodingsRegistrationUtil
      * Creates new instance of <tt>EncodingConfiguration</tt> reflecting this
      * object's encoding configuration state.
      * @param mediaService the <tt>MediaService</tt> that will be used to create
-     *                     new instance of <tt>EncodingConfiguration</tt>.
+     * new instance of <tt>EncodingConfiguration</tt>.
      * @return <tt>EncodingConfiguration</tt> reflecting this object's encoding
-     *         configuration state.
+     * configuration state.
      */
     public EncodingConfiguration createEncodingConfig(MediaService mediaService)
     {
