@@ -67,6 +67,8 @@
 	<lib name="ice4j.jar" scope="COMPILE">
 		<srcroot url="file://$MODULE_DIR$/../ice4j/src"/>
 		<srcroot bind="false" url="file://$MODULE_DIR$/../ice4j/test"/>
+		<relative-module-src project-related="file://$PROJECT_DIR$/../ice4j/src"/>
+		<relative-module-src project-related="file://$PROJECT_DIR$/../ice4j/test"/>
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/ice4j.jar!/"/>
 	</lib>
 	<lib name="jain-sdp.jar" scope="COMPILE">
@@ -131,6 +133,7 @@
 	</lib>
 	<lib name="libjitsi.jar" scope="COMPILE">
 		<srcroot url="file://$MODULE_DIR$/../libjitsi/src"/>
+		<relative-module-src project-related="file://$PROJECT_DIR$/../libjitsi/src"/>
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/libjitsi.jar!/"/>
 	</lib>
 	<lib name="log4j-1.2.8.jar" scope="COMPILE">
