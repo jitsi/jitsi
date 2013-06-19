@@ -180,6 +180,15 @@
       </item>
     </group>
   </component>
+  <component name="ProjectCodeStyleSettingsManager">
+    <option name="PER_PROJECT_SETTINGS">
+      <value>
+        <XML>
+          <option name="XML_LEGACY_SETTINGS_IMPORTED" value="true" />
+        </XML>
+      </value>
+    </option>
+  </component>
   <component name="ProjectInspectionProfilesVisibleTreeState">
     <entry key="Project Default">
       <profile-state />
@@ -187,7 +196,9 @@
   </component>
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/../ice4j/ice4j.iml" filepath="$PROJECT_DIR$/../ice4j/ice4j.iml" />
       <module fileurl="file://$PROJECT_DIR$/jitsi.iml" filepath="$PROJECT_DIR$/jitsi.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../libjitsi/libjitsi.iml" filepath="$PROJECT_DIR$/../libjitsi/libjitsi.iml" />
     </modules>
   </component>
   <component name="ProjectResources">
@@ -246,7 +257,58 @@
     <option name="mySupportsUserInfoFilter" value="true" />
   </component>
   <component name="VcsDirectoryMappings">
+    <mapping directory="$PROJECT_DIR$/../ice4j" vcs="svn" />
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../libjitsi" vcs="Git" />
+  </component>
+  <component name="libraryTable">
+    <library name="cpptasks">
+      <CLASSES>
+        <root url="jar://$PROJECT_DIR$/../libjitsi/lib/installer-exclude/cpptasks.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES />
+    </library>
+    <library name="ice4j">
+      <CLASSES>
+        <root url="jar://$PROJECT_DIR$/../ice4j/ice4j.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES />
+    </library>
+    <library name="lib">
+      <CLASSES>
+        <root url="jar://$PROJECT_DIR$/../ice4j/lib/jain-sdp.jar!/" />
+        <root url="jar://$PROJECT_DIR$/../ice4j/lib/xalan-2.6.0.jar!/" />
+        <root url="jar://$PROJECT_DIR$/../ice4j/lib/junit.jar!/" />
+        <root url="jar://$PROJECT_DIR$/../ice4j/lib/weupnp-0.1.2-SNAPSHOT.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES />
+    </library>
+    <library name="lib">
+      <CLASSES>
+        <root url="jar://$PROJECT_DIR$/../libjitsi/lib/osgi.core.jar!/" />
+        <root url="jar://$PROJECT_DIR$/../libjitsi/lib/sdes4j.jar!/" />
+        <root url="jar://$PROJECT_DIR$/../libjitsi/lib/jain-sdp.jar!/" />
+        <root url="jar://$PROJECT_DIR$/../libjitsi/lib/fmj.jar!/" />
+        <root url="jar://$PROJECT_DIR$/../libjitsi/lib/bccontrib-1.0-SNAPSHOT.jar!/" />
+        <root url="jar://$PROJECT_DIR$/../libjitsi/lib/jspeex.jar!/" />
+        <root url="jar://$PROJECT_DIR$/../libjitsi/lib/json-simple-1.1.1.jar!/" />
+        <root url="jar://$PROJECT_DIR$/../libjitsi/lib/ice4j.jar!/" />
+        <root url="jar://$PROJECT_DIR$/../libjitsi/lib/bcprov-jdk15on-148.jar!/" />
+        <root url="jar://$PROJECT_DIR$/../libjitsi/lib/zrtp4j-light.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES />
+    </library>
+    <library name="libjitsi">
+      <CLASSES>
+        <root url="jar://$PROJECT_DIR$/../libjitsi/libjitsi.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES />
+    </library>
   </component>
 </project>
 
