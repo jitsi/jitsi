@@ -51,11 +51,9 @@ public class PresencePanel
     private JLabel subscribeExpiresLabel = new JLabel(
             Resources.getString("plugin.sipaccregwizz.SUBSCRIPTION_EXPIRATION"));
 
-    private JTextField pollPeriodField
-            = new JTextField(SIPAccountRegistration.DEFAULT_POLL_PERIOD);
+    private JTextField pollPeriodField = new JTextField();
 
-    private JTextField subscribeExpiresField =
-            new JTextField(SIPAccountRegistration.DEFAULT_SUBSCRIBE_EXPIRES);
+    private JTextField subscribeExpiresField = new JTextField();
 
     private JTextField clistOptionServerUriValue = new JTextField();
 

@@ -442,6 +442,11 @@ public abstract class ProtocolProviderFactory
     public static final String KEEP_ALIVE_INTERVAL = "KEEP_ALIVE_INTERVAL";
 
     /**
+     * The name of the property holding DTMF method.
+     */
+    public static final String DTMF_METHOD = "DTMF_METHOD";
+
+    /**
      * The minimal DTMF tone duration.
      */
     public static final String DTMF_MINIMAL_TONE_DURATION
@@ -1191,7 +1196,7 @@ public abstract class ProtocolProviderFactory
      *
      * @return <tt>AccountManager</tt> of the protocol
      */
-    protected AccountManager getAccountManager()
+    private AccountManager getAccountManager()
     {
         BundleContext bundleContext = getBundleContext();
         ServiceReference serviceReference =

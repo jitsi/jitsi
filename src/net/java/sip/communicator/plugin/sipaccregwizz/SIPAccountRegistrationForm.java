@@ -1,3 +1,9 @@
+/*
+ * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.plugin.sipaccregwizz;
 
 import java.awt.*;
@@ -9,6 +15,7 @@ import javax.swing.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.plugin.desktoputil.wizard.*;
 
+import net.java.sip.communicator.service.protocol.sip.*;
 import org.jitsi.util.*;
 
 /**
@@ -16,6 +23,7 @@ import org.jitsi.util.*;
  *
  * @author Yana Stamcheva
  * @author Grogorii Balutsel
+ * @author Pawel Domas
  */
 public class SIPAccountRegistrationForm
     extends TransparentPanel
@@ -59,7 +67,7 @@ public class SIPAccountRegistrationForm
         accountPanel = new AccountPanel(this);
         connectionPanel = new ConnectionPanel(this);
         securityPanel = new SecurityPanel(
-                this.getRegistration().getSecurityAccountRegistration(),
+                this.getRegistration().getSecurityRegistration(),
                 true);
         presencePanel = new PresencePanel(this);
 
@@ -120,7 +128,7 @@ public class SIPAccountRegistrationForm
      */
     String setServerFieldAccordingToUIN(String userName)
     {
-        String serverAddress = getServerFromUserName(userName);
+        String serverAddress = SipAccountID.getServerFromUserName(userName);
 
         connectionPanel.setServerFieldAccordingToUIN(serverAddress);
 
@@ -235,8 +243,7 @@ public class SIPAccountRegistrationForm
         else
         {
             userID = accountPanel.getUserID();
-
-            if(getServerFromUserName(userID) == null
+            if(SipAccountID.getServerFromUserName(userID) == null
                 && registration.getDefaultDomain() != null)
             {
                 // we have only a username and we want to add
@@ -255,17 +262,16 @@ public class SIPAccountRegistrationForm
 
         registration.setUserID(userID);
 
-        if (password != null)
-            registration.setPassword(new String(password));
-
         registration.setRememberPassword(accountPanel.isRememberPassword());
+
+        registration.setPassword(new String(password));
 
         registration.setServerAddress(serverAddress);
 
         registration.setProxy(proxyAddress);
 
         String displayName = accountPanel.getDisplayName();
-        registration.setDisplayName(displayName);
+        registration.setAccountDisplayName(displayName);
 
         String authName = connectionPanel.getAuthenticationName();
         if(authName != null && authName.length() > 0)
@@ -291,10 +297,7 @@ public class SIPAccountRegistrationForm
         registration.setSubscriptionExpiration(
             presencePanel.getSubscriptionExpiration());
 
-        // set the keepalive method only if its not already set by some custom
-        // extending wizard like sip2sip
-        if(registration.getKeepAliveMethod() == null)
-            registration.setKeepAliveMethod(
+        registration.setKeepAliveMethod(
                 connectionPanel.getKeepAliveMethod());
 
         registration.setKeepAliveInterval(
@@ -308,8 +311,7 @@ public class SIPAccountRegistrationForm
         SIPAccRegWizzActivator.getUIService().getAccountRegWizardContainer()
             .setBackButtonEnabled(true);
 
-        securityPanel.commitPanel(
-                registration.getSecurityAccountRegistration());
+        securityPanel.commitPanel(registration.getSecurityRegistration());
 
         if(xcapRoot != null)
         {
@@ -349,7 +351,7 @@ public class SIPAccountRegistrationForm
 
         String serverAddress = sipAccReg.getServerAddress();
 
-        String displayName = sipAccReg.getDisplayName();
+        String displayName = sipAccReg.getAccountDisplayName();
 
         String authName = sipAccReg.getAuthorizationName();
 
@@ -386,7 +388,7 @@ public class SIPAccountRegistrationForm
         boolean xCapEnable = sipAccReg.isXCapEnable();
         boolean xivoEnable = sipAccReg.isXiVOEnable();
 
-        boolean isServerOverridden = sipAccReg.isServerOverriden();
+        boolean isServerOverridden = sipAccReg.isServerOverridden();
 
         connectionPanel.setServerOverridden(isServerOverridden);
 
@@ -400,6 +402,7 @@ public class SIPAccountRegistrationForm
         }
         else
         {
+            accountPanel.setPassword("");
             accountPanel.setRememberPassword(false);
         }
 
@@ -422,7 +425,7 @@ public class SIPAccountRegistrationForm
         connectionPanel.setSelectedTransport(preferredTransport);
         connectionPanel.setProxyPort(proxyPort);
 
-        securityPanel.loadAccount(sipAccReg.getSecurityAccountRegistration());
+        securityPanel.loadAccount(sipAccReg.getSecurityRegistration());
 
         presencePanel.reinit();
         presencePanel.setPresenceEnabled(enablePresence);
@@ -439,8 +442,7 @@ public class SIPAccountRegistrationForm
         connectionPanel.setKeepAliveInterval(keepAliveInterval);
 
         connectionPanel.setDTMFMethod(dtmfMethod);
-        if(!StringUtils.isNullOrEmpty(dtmfMinimalToneDuration))
-            connectionPanel.setDtmfMinimalToneDuration(dtmfMinimalToneDuration);
+        connectionPanel.setDtmfMinimalToneDuration(dtmfMinimalToneDuration);
 
         boolean mwiEnabled = sipAccReg.isMessageWaitingIndicationsEnabled();
         connectionPanel.setMessageWaitingIndications(mwiEnabled);

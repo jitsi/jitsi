@@ -40,36 +40,6 @@ public class ServerStoredContactListXivoImpl
             Logger.getLogger(ServerStoredContactListXivoImpl.class);
 
     /**
-     * The name of the property under which the user may specify whether to use
-     * or not xivo.
-     */
-    public static final String XIVO_ENABLE = "XIVO_ENABLE";
-
-    /**
-     * The name of the property under which the user may specify whether to use
-     * original sip credentials for the xivo.
-     */
-    public static final String XIVO_USE_SIP_CREDETIALS =
-            "XIVO_USE_SIP_CREDETIALS";
-
-    /**
-     * The name of the property under which the user may specify the xivo server
-     * address.
-     */
-    public static final String XIVO_SERVER_ADDRESS = "XIVO_SERVER_URI";
-
-    /**
-     * The name of the property under which the user may specify the xivo user.
-     */
-    public static final String XIVO_USER = "XIVO_USER";
-
-    /**
-     * The name of the property under which the user may specify the xivo user
-     * password.
-     */
-    public static final String XIVO_PASSWORD = "XIVO_PASSWORD";
-
-    /**
      * The connection to the xivo server.
      */
     private Socket connection;
@@ -112,18 +82,16 @@ public class ServerStoredContactListXivoImpl
     {
         try
         {
-            AccountID accountID = sipProvider.getAccountID();
-            boolean enableXivo =
-                accountID.getAccountPropertyBoolean(XIVO_ENABLE, true);
+            SipAccountIDImpl accountID
+                    = (SipAccountIDImpl) sipProvider.getAccountID();
 
-            if(!enableXivo)
+            if(!accountID.isXiVOEnable())
                 return;
 
-            boolean useSipCredentials =
-                accountID.getAccountPropertyBoolean(
-                                            XIVO_USE_SIP_CREDETIALS, true);
-            String serverAddress =
-                accountID.getAccountPropertyString(XIVO_SERVER_ADDRESS);
+            boolean useSipCredentials
+                    = accountID.isClistOptionUseSipCredentials();
+
+            String serverAddress = accountID.getClistOptionServerUri();
             String username = accountID.getAccountPropertyString(
                               ProtocolProviderFactory.USER_ID);
             Address userAddress = sipProvider.parseAddressString(username);
@@ -134,7 +102,7 @@ public class ServerStoredContactListXivoImpl
             }
             else
             {
-                username = accountID.getAccountPropertyString(XIVO_USER);
+                username = accountID.getClistOptionUser();
             }
 
             try
@@ -511,10 +479,12 @@ public class ServerStoredContactListXivoImpl
             }
             else if (classField.equals("login_id_ok"))
             {
-                AccountID accountID = sipProvider.getAccountID();
-                boolean useSipCredentials =
-                    accountID.getAccountPropertyBoolean(
-                                            XIVO_USE_SIP_CREDETIALS, true);
+                SipAccountIDImpl accountID
+                        = (SipAccountIDImpl) sipProvider.getAccountID();
+
+                boolean useSipCredentials
+                        = accountID.isClistOptionUseSipCredentials();
+
                 String password;
                 if (useSipCredentials)
                 {
@@ -523,7 +493,7 @@ public class ServerStoredContactListXivoImpl
                 }
                 else
                 {
-                    password = accountID.getAccountPropertyString(XIVO_PASSWORD);
+                    password = accountID.getClistOptionPassword();
                 }
 
                 if(!authorize((String)incomingObject.get("sessionid"), password))

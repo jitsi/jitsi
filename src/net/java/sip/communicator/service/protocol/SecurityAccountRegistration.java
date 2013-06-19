@@ -3,10 +3,12 @@
  *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
-package net.java.sip.communicator.util.wizard;
+package net.java.sip.communicator.service.protocol;
 
-import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
+import org.jitsi.service.neomedia.*;
 
+import java.io.*;
 import java.util.*;
 
 /**
@@ -15,8 +17,10 @@ import java.util.*;
  * SecurityPanel.
  *
  * @author Vincent Lucas
+ * @author Pawel Domas
  */
 public abstract class SecurityAccountRegistration
+    implements Serializable
 {
     /**
      * The encryption protocols managed by this SecurityPanel.
@@ -65,6 +69,9 @@ public abstract class SecurityAccountRegistration
         this.encryptionProtocols.put("ZRTP", 0);
         this.encryptionProtocolStatus = new HashMap<String, Boolean>(1);
         this.encryptionProtocolStatus.put("ZRTP", true);
+        sdesCipherSuites
+                = UtilActivator.getResources()
+                        .getSettingsString(SDesControl.SDES_CIPHER_SUITES);
     }
 
     /**
@@ -142,8 +149,8 @@ public abstract class SecurityAccountRegistration
     /**
      * Sets the list of cipher suites enabled for SDES.
      *
-     * @param The list of cipher suites enabled for SDES. Null if no cipher
-     * suite is enabled.
+     * @param cipherSuites The list of cipher suites enabled for SDES.
+     *                     Null if no cipher suite is enabled.
      */
     public void setSDesCipherSuites(String cipherSuites)
     {
@@ -198,8 +205,8 @@ public abstract class SecurityAccountRegistration
     /**
      * Sets the map between the encryption protocols and their status.
      *
-     * @param encryptionProtocols The map between the encryption protocols and
-     * their status.
+     * @param encryptionProtocolStatus The map between the encryption protocols
+     *                                 and their status.
      */
     public void setEncryptionProtocolStatus(
             Map<String, Boolean> encryptionProtocolStatus)
@@ -296,14 +303,39 @@ public abstract class SecurityAccountRegistration
                         ProtocolProviderFactory.DEFAULT_ENCRYPTION,
                         true));
 
-        encryptionProtocols
+        encryptionProtocols = new HashMap<String, Integer>();
+        encryptionProtocolStatus = new HashMap<String, Boolean>();
+
+        Map<String, Integer> srcEncryptionProtocols
                 = accountID.getIntegerPropertiesByPrefix(
                         ProtocolProviderFactory.ENCRYPTION_PROTOCOL, true);
-        encryptionProtocolStatus
+        Map<String, Boolean> srcEncryptionProtocolStatus
                 = accountID.getBooleanPropertiesByPrefix(
                     ProtocolProviderFactory.ENCRYPTION_PROTOCOL_STATUS,
                             true,
                             false);
+        // Load stored values.
+        int prefixeLength
+                = ProtocolProviderFactory.ENCRYPTION_PROTOCOL.length() + 1;
+        String name;
+        boolean enabled;
+        for(String protocolPropertyName : srcEncryptionProtocols.keySet())
+        {
+            name = protocolPropertyName.substring(prefixeLength);
+            if (isExistingEncryptionProtocol(name))
+            {
+                // Copies the priority
+                encryptionProtocols.put(
+                        name,
+                        srcEncryptionProtocols.get(protocolPropertyName));
+                // Extracts the status
+                enabled = srcEncryptionProtocolStatus.get(
+                        ProtocolProviderFactory.ENCRYPTION_PROTOCOL_STATUS
+                                + "."
+                                + name);
+                encryptionProtocolStatus.put(name, enabled);
+            }
+        }
 
         setSipZrtpAttribute(
                 accountID.getAccountPropertyBoolean(
@@ -342,30 +374,22 @@ public abstract class SecurityAccountRegistration
         boolean[] selectedEncryptions = new boolean[nbEncryptionProtocols];
 
         // Load stored values.
-        int prefixeLength
-                = ProtocolProviderFactory.ENCRYPTION_PROTOCOL.length() + 1;
-        String encryptionProtocolPropertyName;
         String name;
         int index;
-        boolean enabled;
         Iterator<String> encryptionProtocolNames
                 = encryptionProtocols.keySet().iterator();
         while(encryptionProtocolNames.hasNext())
         {
-            encryptionProtocolPropertyName = encryptionProtocolNames.next();
-            index = encryptionProtocols.get(encryptionProtocolPropertyName);
+            name = encryptionProtocolNames.next();
+            index = encryptionProtocols.get(name);
             // If the property is set.
             if(index != -1)
             {
-                name = encryptionProtocolPropertyName.substring(prefixeLength);
                 if (isExistingEncryptionProtocol(name))
                 {
-                    enabled = encryptionProtocolStatus.get(
-                            ProtocolProviderFactory.ENCRYPTION_PROTOCOL_STATUS
-                                    + "."
-                                    + name);
                     encryptions[index] = name;
-                    selectedEncryptions[index] = enabled;
+                    selectedEncryptions[index]
+                            = encryptionProtocolStatus.get(name);
                 }
             }
         }
@@ -378,10 +402,7 @@ public abstract class SecurityAccountRegistration
         {
             encryptionProtocol = ENCRYPTION_PROTOCOLS[i];
             // Specify a default value only if there is no specific value set.
-            if(!encryptionProtocols.containsKey(
-                    ProtocolProviderFactory.ENCRYPTION_PROTOCOL
-                            + "."
-                            + encryptionProtocol))
+            if(!encryptionProtocols.containsKey(encryptionProtocol))
             {
                 set = false;
                 // Search for the first empty element.

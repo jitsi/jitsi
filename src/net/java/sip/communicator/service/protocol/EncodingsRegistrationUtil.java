@@ -4,11 +4,10 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.util.wizard;
+package net.java.sip.communicator.service.protocol;
 
+import java.io.*;
 import java.util.*;
-
-import net.java.sip.communicator.service.protocol.*;
 
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.codec.*;
@@ -20,6 +19,7 @@ import org.jitsi.service.neomedia.codec.*;
  * @author Pawel Domas
  */
 public class EncodingsRegistrationUtil
+    implements Serializable
 {
     /**
      *  Whether to override global encoding settings.
@@ -75,9 +75,10 @@ public class EncodingsRegistrationUtil
     /**
      * Loads encoding properties from given <tt>accountID</tt> into this
      * encodings registration object.
+     *
      * @param accountID the <tt>AccountID</tt> to be loaded.
      * @param mediaService the <tt>MediaService</tt> that will be used to create
-     * <tt>EncodingConfiguration</tt>.
+     *                     <tt>EncodingConfiguration</tt>.
      */
     public void loadAccount(AccountID accountID, MediaService mediaService)
     {
@@ -117,9 +118,9 @@ public class EncodingsRegistrationUtil
      * Creates new instance of <tt>EncodingConfiguration</tt> reflecting this
      * object's encoding configuration state.
      * @param mediaService the <tt>MediaService</tt> that will be used to create
-     * new instance of <tt>EncodingConfiguration</tt>.
+     *                     new instance of <tt>EncodingConfiguration</tt>.
      * @return <tt>EncodingConfiguration</tt> reflecting this object's encoding
-     * configuration state.
+     *         configuration state.
      */
     public EncodingConfiguration createEncodingConfig(MediaService mediaService)
     {

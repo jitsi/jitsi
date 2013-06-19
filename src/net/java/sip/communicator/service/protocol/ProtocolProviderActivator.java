@@ -78,7 +78,7 @@ public class ProtocolProviderActivator
      *         in the bundle represented by
      *         <code>ProtocolProviderActivator</code>
      */
-    static ConfigurationService getConfigurationService()
+    public static ConfigurationService getConfigurationService()
     {
         if (configurationService == null)
         {
@@ -250,5 +250,14 @@ public class ProtocolProviderActivator
     public static AccountManager getAccountManager()
     {
         return accountManager;
+    }
+
+    /**
+     * Returns OSGI bundle context.
+     * @return OSGI bundle context.
+     */
+    public static BundleContext getBundleContext()
+    {
+        return bundleContext;
     }
 }

@@ -11,6 +11,7 @@ import java.awt.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.jabber.*;
 
 /**
  * The <tt>FirstWizardPage</tt> is the page, where user could enter the user
@@ -148,12 +149,12 @@ public class FirstWizardPage
         registrationForm.setModification(wizard.isModification());
 
         // Loads account properties into registration object
-        JabberAccountRegistration accountReg = new JabberAccountRegistration();
-        accountReg.loadAccount(protocolProvider.getAccountID(),
+        wizard.getRegistration()
+                .loadAccount(protocolProvider.getAccountID(),
                                JabberAccRegWizzActivator.bundleContext);
 
         // Initialize registration form
-        registrationForm.loadAccount(accountReg);
+        registrationForm.loadAccount(wizard.getRegistration());
     }
 
     /**

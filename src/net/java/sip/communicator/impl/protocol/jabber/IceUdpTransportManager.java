@@ -111,7 +111,8 @@ public class IceUdpTransportManager
         agent.setControlling(!peer.isInitiator());
 
         //we will now create the harvesters
-        JabberAccountID accID = (JabberAccountID)provider.getAccountID();
+        JabberAccountIDImpl accID
+                = (JabberAccountIDImpl)provider.getAccountID();
 
         if (accID.isStunServerDiscoveryEnabled())
         {

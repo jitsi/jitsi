@@ -10,6 +10,7 @@ import java.util.*;
 
 import net.java.sip.communicator.plugin.sipaccregwizz.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.protocol.sip.*;
 
 /**
  * The <tt>IptelAccountRegistrationWizard</tt> is an implementation of the
@@ -88,7 +89,7 @@ public class IptelAccountRegistrationWizard
     private void setPredefinedProperties(SIPAccountRegistration reg)
     {
         reg.setDefaultDomain("iptel.org");
-        reg.setDefaultTransport("TCP");
+        reg.setPreferredTransport("TCP");
     }
 
     /**

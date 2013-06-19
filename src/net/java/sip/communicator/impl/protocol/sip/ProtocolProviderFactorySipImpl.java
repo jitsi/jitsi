@@ -10,6 +10,7 @@ import java.util.*;
 
 import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.sip.*;
 import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
@@ -34,7 +35,7 @@ public class ProtocolProviderFactorySipImpl
     }
 
     /**
-     * Ovverides the original in order not to save the XCAP_PASSWORD field.
+     * Overrides the original in order not to save the OPT_CLIST_PASSWORD field.
      *
      * @param accountID the account identifier.
      */
@@ -46,7 +47,7 @@ public class ProtocolProviderFactorySipImpl
     }
 
     /**
-     * Stores XCAP_PASSWORD property.
+     * Stores OPT_CLIST_PASSWORD property.
      *
      * @param accountID the account identifier.
      */
@@ -57,8 +58,8 @@ public class ProtocolProviderFactorySipImpl
         // property in the account properties provided.
         // if xcap password property exist, store it through credentialsStorage
         // service
-        Object password = accountID.getAccountProperty(
-                ServerStoredContactListSipImpl.XCAP_PASSWORD);
+        Object password
+                = accountID.getAccountProperty(SipAccountID.OPT_CLIST_PASSWORD);
         if (password != null)
         {
             CredentialsStorageService credentialsStorage
@@ -69,7 +70,7 @@ public class ProtocolProviderFactorySipImpl
             credentialsStorage.storePassword(accountPrefix, (String)password);
             // remove unsecured property
             accountID.removeAccountProperty(
-                    ServerStoredContactListSipImpl.XCAP_PASSWORD);
+                    SipAccountIDImpl.OPT_CLIST_PASSWORD);
         }
     }
 
@@ -166,7 +167,8 @@ public class ProtocolProviderFactorySipImpl
             throw new NullPointerException(
                 "The specified Protocol Provider was null");
 
-        SipAccountID accountID = (SipAccountID) protocolProvider.getAccountID();
+        SipAccountIDImpl accountID
+                = (SipAccountIDImpl) protocolProvider.getAccountID();
 
         // If the given accountID doesn't correspond to an existing account
         // we return.
@@ -260,7 +262,7 @@ public class ProtocolProviderFactorySipImpl
     }
 
     /**
-     * Creates a new <code>SipAccountID</code> instance with a specific user
+     * Creates a new <code>SipAccountIDImpl</code> instance with a specific user
      * ID to represent a given set of account properties.
      *
      * @param userID the user ID of the new instance
@@ -275,7 +277,7 @@ public class ProtocolProviderFactorySipImpl
         // serverAddress == null is OK because of registrarless support
         String serverAddress = accountProperties.get(SERVER_ADDRESS);
 
-        return new SipAccountID(userID, accountProperties, serverAddress);
+        return new SipAccountIDImpl(userID, accountProperties, serverAddress);
     }
 
     /**
@@ -298,7 +300,7 @@ public class ProtocolProviderFactorySipImpl
 
         try
         {
-            service.initialize(userID, (SipAccountID) accountID);
+            service.initialize(userID, (SipAccountIDImpl) accountID);
 
             // We store again the account in order to store all properties added
             // during the protocol provider initialization.

@@ -129,14 +129,8 @@ public class FirstWizardPage
     {
         registrationForm.setModification(wizard.isModification());
 
-        // Loads account properties into registration object
-        SIPAccountRegistration sipAccReg = new SIPAccountRegistration();
-        sipAccReg.loadAccount(
-                protocolProvider.getAccountID(),
-                SIPAccRegWizzActivator.bundleContext);
-
         // Initialize registration form
-        registrationForm.loadAccount(sipAccReg);
+        registrationForm.loadAccount(wizard.getRegistration());
     }
 
     /**

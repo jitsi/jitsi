@@ -740,6 +740,102 @@
         </junit>
     </target>
 
+    <!--DEBUG-JITSI -->
+    <target name="debug" depends="deploy-os-specific-bundles"
+            description="Starts jitsi and wait for debugger to connect on port 5432">
+
+        <!-- we allow users to pass command line args using the "args" system
+             property. However we need to manually set tha prop to an empty
+             string here or otherwise the application would get an argument with
+             the value ${args}-->
+        <property name="args" value=""/>
+
+        <!-- Jitsi on Mac OS X uses a JVMTI agent to handle kAEGetURL
+             AppleScript events. -->
+        <condition property="jvmarg.line"
+                   value="-agentlib:AEGetURLEventHandlerAgent -Xdock:name='Jitsi' -Xdock:icon='resources/images/logo/sc_logo_128x128.icns'"
+                   else="">
+            <isset property="is.running.macos"/>
+        </condition>
+
+        <condition property="jvm.maxheapsize"
+                   value="-Xmx256m"
+                   else="" >
+            <os arch="i386" />
+        </condition>
+
+        <!-- forking prevents from debugging -->
+        <java classname="net.java.sip.communicator.launcher.SIPCommunicator"
+              fork="true"
+              failonerror="true"
+              classpathref="project.class.path">
+
+            <!-- Sets the charset for the messages -->
+            <!--sysproperty key="icq.custom.message.charset" value="windows-1252"/-->
+
+            <!-- Tell felix to run Jitsi -->
+            <sysproperty key="felix.config.properties"
+                         value="file:${lib}/felix.client.run.properties"/>
+
+            <!-- Tell java.util.logging about our logging preferences -->
+            <sysproperty key="java.util.logging.config.file"
+                         value="${lib}/logging.properties"/>
+
+            <sysproperty key="java.net.preferIPv6Addresses"
+                         value="${java.net.preferIPv6Addresses}"/>
+
+            <sysproperty key="gtalktesting" value="${gtalktesting}"/>
+
+            <!--sysproperty key="net.java.sip.communicator.SC_HOME_DIR_LOCATION"
+                value="${user.home}"/>
+            <sysproperty key="net.java.sip.communicator.SC_HOME_DIR_NAME"
+                value="schome"/-->
+
+            <sysproperty key="smack.debugEnabled"
+                         value="${smack.debugEnabled}"/>
+            <!--sysproperty key="smack.debuggerClass"
+                value="org.jivesoftware.smack.debugger.ConsoleDebugger"/-->
+
+            <!-- Setting properties necessary for dependencies on native libs.-->
+            <sysproperty key="java.library.path"
+                         path="${ld.library.path}:${path}:${dyld.library.path}"/>
+            <sysproperty key="jna.library.path"
+                         path="${ld.library.path}:${path}:${dyld.library.path}"/>
+
+            <env key="LD_LIBRARY_PATH" path="${ld.library.path}"/>
+            <env key="PATH" path="${path}"/>
+            <env key="DYLD_LIBRARY_PATH" path="${dyld.library.path}"/>
+
+            <!-- pass l10n properties from ant call for
+                 easy translation debugging -->
+            <sysproperty key="user.language" value="${user.language}" />
+            <sysproperty key="user.country" value="${user.country}" />
+            <sysproperty key="user.variant" value="${user.variant}" />
+
+            <!-- make sure that we automatically enable system.out when running
+                 Jitsi from Ant-->
+            <arg line="--debug"/>
+            <!-- pass to SC args that have been specified by the user -->
+            <arg line="${args}"/>
+
+            <sysproperty key="org.osgi.framework.bootdelegation"
+                         value="${profiler.bootdelegation}" />
+            <sysproperty key="felix.auto.start.68"
+                         value="${profiler.autostart}" />
+
+            <jvmarg value="-Xdebug" />
+            <jvmarg value="-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5432" />
+
+
+            <!-- add some eventual profiler args, prevent server-class
+                 detection because -server uses much more memory for 32-bit OS
+                 (64-bit always used -server) -->
+            <jvmarg line="${profiler.args} ${jvmarg.line}
+              -client ${jvm.maxheapsize}"/>
+
+            <sysproperty key="apple.laf.useScreenMenuBar" value="true" />
+        </java>
+    </target>
 
     <!--RUN-JITSI -->
     <target name="run" depends="deploy-os-specific-bundles"

@@ -660,7 +660,9 @@ public class AccountManager
             = ProtocolProviderActivator.getConfigurationService();
         String factoryPackage = getFactoryImplPackageName(factory);
 
-       String accountNodeName = getAccountNodeName(factory, accountID);
+       String accountNodeName
+               = getAccountNodeName( factory,
+                                     accountID.getAccountUniqueID() );
 
         Map<String, Object> configurationProperties
             = new HashMap<String, Object>();
@@ -764,12 +766,12 @@ public class AccountManager
      * stored.
      *
      * @param factory account's protocol provider factory
-     * @param accountID account for which the prefix will be returned
+     * @param accountUID account for which the prefix will be returned
      * @return configuration prefix for given <tt>accountID</tt> if exists or
      *         <tt>null</tt> otherwise
      */
     public String getAccountNodeName( ProtocolProviderFactory factory,
-                                      AccountID accountID )
+                                      String accountUID )
     {
         ConfigurationService configurationService
                 = ProtocolProviderActivator.getConfigurationService();
@@ -778,7 +780,6 @@ public class AccountManager
         // First check if such accountID already exists in the configuration.
         List<String> storedAccounts =
             configurationService.getPropertyNamesByPrefix(factoryPackage, true);
-        String accountUID = accountID.getAccountUniqueID();
         String accountNodeName = null;
 
         for (Iterator<String> storedAccountIter = storedAccounts.iterator();

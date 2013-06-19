@@ -10,14 +10,15 @@ import java.util.*;
 
 import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.sip.*;
 import net.java.sip.communicator.util.*;
 
 /**
  * A SIP extension of the account ID property.
  * @author Emil Ivov
  */
-public class SipAccountID
-    extends AccountID
+public class SipAccountIDImpl
+    extends SipAccountID
 {
     /**
      * Removes the server part from a sip user id if there is one. Used when
@@ -71,12 +72,11 @@ public class SipAccountID
      * @param accountProperties any other properties necessary for the account.
      * @param serverName the name of the server that the user belongs to.
      */
-    protected SipAccountID(String userID, Map<String, String> accountProperties,
-        String serverName)
+    protected SipAccountIDImpl( String userID,
+                                Map<String, String> accountProperties,
+                                String serverName )
     {
-        super(stripServerNameFromUserID(userID), accountProperties,
-            ProtocolNames.SIP,
-            serverName);
+        super(stripServerNameFromUserID(userID), accountProperties, serverName);
     }
 
     /**
@@ -161,10 +161,10 @@ public class SipAccountID
         // service name can be null when using registerless accounts
         // if its null ignore it.
         return super.equals(obj)
-                && ((SipAccountID)obj).getProtocolName().equals(
+                && ((SipAccountIDImpl)obj).getProtocolName().equals(
                     getProtocolName())
                 && (getService() != null ?
-                    getService().equals(((SipAccountID)obj).getService()) : true);
+                    getService().equals(((SipAccountIDImpl)obj).getService()) : true);
     }
 
     /**
@@ -178,7 +178,7 @@ public class SipAccountID
     @Override
     public String getAccountPropertyString(Object key)
     {
-        if(key.equals(ServerStoredContactListSipImpl.XCAP_PASSWORD))
+        if(key.equals(SipAccountID.OPT_CLIST_PASSWORD))
         {
             CredentialsStorageService credentialsStorage
                 = ServiceUtils.getService(SipActivator.getBundleContext(),

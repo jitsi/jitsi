@@ -10,6 +10,7 @@ import java.util.*;
 
 import net.java.sip.communicator.plugin.jabberaccregwizz.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.protocol.jabber.*;
 
 /**
  * The <tt>GoogleTalkAccountRegistrationWizard</tt> is an implementation of the

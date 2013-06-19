@@ -11,6 +11,7 @@ import java.util.*;
 
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.jabber.*;
 import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
@@ -168,7 +169,7 @@ public class JabberAccountRegistrationWizard
 
         summaryTable.put(
             Resources.getString("service.gui.PORT"),
-            String.valueOf(registration.getPort()));
+            String.valueOf(registration.getServerPort()));
 
         summaryTable.put(
             Resources.getString("plugin.jabberaccregwizz.ENABLE_KEEP_ALIVE"),
@@ -231,15 +232,14 @@ public class JabberAccountRegistrationWizard
         // if firstWizardPage is null we are requested sign-in from
         // initial account registration form we must init
         // firstWizardPage in order to init default values
-        if(firstWizardPage == null)
-        {
-            firstWizardPage = new FirstWizardPage(this);
-            AccountPanel accPanel =
+        // Pawel: firstWizardPage is never null, and commitPage fails
+        // with no user ID provided for simple account wizard.
+        // Now userName and password are reentered here
+        AccountPanel accPanel =
                     (AccountPanel)firstWizardPage.getSimpleForm();
-            accPanel.setUsername(userName);
-            accPanel.setPassword(password);
-            accPanel.setRememberPassword(true);
-        }
+        accPanel.setUsername(userName);
+        accPanel.setPassword(password);
+        accPanel.setRememberPassword(password != null);
 
         if(!firstWizardPage.isCommitted())
             firstWizardPage.commitPage();
@@ -282,10 +282,6 @@ public class JabberAccountRegistrationWizard
         Hashtable<String, String> accountProperties
             = new Hashtable<String, String>();
 
-        accountProperties.put(ProtocolProviderFactory.IS_PREFERRED_PROTOCOL,
-            Boolean.toString(isPreferredProtocol()));
-        accountProperties.put(ProtocolProviderFactory.PROTOCOL, getProtocol());
-
         String protocolIconPath = getProtocolIconPath();
 
         String accountIconPath = getAccountIconPath();
@@ -294,6 +290,10 @@ public class JabberAccountRegistrationWizard
                 userName, passwd,
                 protocolIconPath, accountIconPath,
                 accountProperties);
+
+        accountProperties.put(ProtocolProviderFactory.IS_PREFERRED_PROTOCOL,
+                              Boolean.toString(isPreferredProtocol()));
+        accountProperties.put(ProtocolProviderFactory.PROTOCOL, getProtocol());
 
         if (isModification())
         {

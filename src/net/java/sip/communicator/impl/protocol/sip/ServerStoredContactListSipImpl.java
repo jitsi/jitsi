@@ -44,36 +44,6 @@ public class ServerStoredContactListSipImpl
             Logger.getLogger(ServerStoredContactListSipImpl.class);
 
     /**
-     * The name of the property under which the user may specify whether to use
-     * or not XCAP.
-     */
-    public static final String XCAP_ENABLE = "XCAP_ENABLE";
-
-    /**
-     * The name of the property under which the user may specify whether to use
-     * original sip credentials for the XCAP.
-     */
-    public static final String XCAP_USE_SIP_CREDETIALS =
-            "XCAP_USE_SIP_CREDETIALS";
-
-    /**
-     * The name of the property under which the user may specify the XCAP server
-     * uri.
-     */
-    public static final String XCAP_SERVER_URI = "XCAP_SERVER_URI";
-
-    /**
-     * The name of the property under which the user may specify the XCAP user.
-     */
-    public static final String XCAP_USER = "XCAP_USER";
-
-    /**
-     * The name of the property under which the user may specify the XCAP user
-     * password.
-     */
-    public static final String XCAP_PASSWORD = "XCAP_PASSWORD";
-
-    /**
      * Presence content for image.
      */
     public static final String PRES_CONTENT_IMAGE_NAME = "sip_communicator";
@@ -626,19 +596,19 @@ public class ServerStoredContactListSipImpl
     {
         try
         {
-            AccountID accountID = sipProvider.getAccountID();
-            boolean enableXCap =
-                accountID.getAccountPropertyBoolean(XCAP_ENABLE, true);
-            boolean useSipCredentials =
-                accountID.getAccountPropertyBoolean(
-                                            XCAP_USE_SIP_CREDETIALS, true);
-            String serverUri =
-                accountID.getAccountPropertyString(XCAP_SERVER_URI);
+            SipAccountIDImpl accountID
+                    = (SipAccountIDImpl) sipProvider.getAccountID();
+
+            if(!accountID.isXCapEnable())
+                return;
+
+            String serverUri = accountID.getClistOptionServerUri();
+
             String username = accountID.getAccountPropertyString(
                               ProtocolProviderFactory.USER_ID);
             Address userAddress = sipProvider.parseAddressString(username);
             String password;
-            if (useSipCredentials)
+            if (accountID.isClistOptionUseSipCredentials())
             {
                 username = ((SipUri)userAddress.getURI()).getUser();
                 password = SipActivator.getProtocolProviderFactory().
@@ -646,11 +616,11 @@ public class ServerStoredContactListSipImpl
             }
             else
             {
-                username = accountID.getAccountPropertyString(XCAP_USER);
-                password = accountID.getAccountPropertyString(XCAP_PASSWORD);
+                username = accountID.getClistOptionUser();
+                password = accountID.getClistOptionPassword();
             }
             // Connect to xcap server
-            if(enableXCap && serverUri != null)
+            if(serverUri != null)
             {
                 URI uri = new URI(serverUri.trim());
                 if(uri.getHost() != null && uri.getPath() != null)

@@ -11,9 +11,9 @@ import java.util.*;
 
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.sip.*;
 import net.java.sip.communicator.util.Logger;
 
-import net.java.sip.communicator.util.wizard.*;
 import org.jitsi.util.*;
 import org.osgi.framework.*;
 
@@ -115,7 +115,7 @@ public class SIPAccountRegistrationWizard
     @Override
     public Iterator<WizardPage> getPages()
     {
-        // create new registration, our container needs the pages
+        // create new accountID, our container needs the pages
         // this means this is a new wizard and we must reset all data
         // it will be invoked and when the wizard cleans and unregister
         // our pages, but this fix don't hurt in this situation.
@@ -156,7 +156,7 @@ public class SIPAccountRegistrationWizard
         boolean rememberPswd = registration.isRememberPassword();
         String rememberPswdString = Resources.getString(
                 rememberPswd ? "service.gui.YES" : "service.gui.NO");
-        String displayName = registration.getDisplayName();
+        String displayName = registration.getAccountDisplayName();
         if(displayName != null && displayName.length() > 0)
             summaryTable.put(
                         Resources.getString("plugin.sipaccregwizz.DISPLAY_NAME"),
@@ -231,7 +231,7 @@ public class SIPAccountRegistrationWizard
         }
 
         SecurityAccountRegistration securityReg
-                = registration.getSecurityAccountRegistration();
+                = registration.getSecurityRegistration();
 
         if (securityReg.isDefaultEncryption())
         {
@@ -389,6 +389,8 @@ public class SIPAccountRegistrationWizard
                 isModification(),
                 accountProperties);
 
+        accountProperties.put(ProtocolProviderFactory.PROTOCOL, getProtocol());
+
         if(isModification())
         {
             accountProperties.put(ProtocolProviderFactory.USER_ID, userName);
@@ -446,6 +448,17 @@ public class SIPAccountRegistrationWizard
         this.protocolProvider = protocolProvider;
 
         setRegistration(new SIPAccountRegistration());
+
+        AccountID currentAccountID = protocolProvider.getAccountID();
+
+        String password = SIPAccRegWizzActivator.getSIPProtocolProviderFactory()
+                .loadPassword(currentAccountID);
+
+        // Loads account properties into accountID object
+        registration.loadAccount(
+                protocolProvider.getAccountID(),
+                password,
+                SIPAccRegWizzActivator.bundleContext);
 
         this.firstWizardPage.loadAccount(protocolProvider);
     }

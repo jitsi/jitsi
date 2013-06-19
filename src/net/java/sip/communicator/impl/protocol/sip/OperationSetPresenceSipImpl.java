@@ -17,6 +17,7 @@ import javax.sip.message.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.service.protocol.sip.*;
 import net.java.sip.communicator.util.*;
 
 import org.jitsi.util.xml.XMLUtils;
@@ -274,7 +275,7 @@ public class OperationSetPresenceSipImpl
         // and enable xcap, it will check and see its not configure and will
         // silently do nothing and leave local storage
         if(provider.getAccountID().getAccountPropertyBoolean(
-                ServerStoredContactListXivoImpl.XIVO_ENABLE, false))
+                SipAccountID.XIVO_ENABLE, false))
         {
             this.ssContactList = new ServerStoredContactListXivoImpl(
                     provider, this);

@@ -95,7 +95,8 @@ public class ProtocolProviderFactoryJabberImpl
                                   "5222");
         }
 
-        AccountID accountID = new JabberAccountID(userIDStr, accountProperties);
+        AccountID accountID
+                = new JabberAccountIDImpl(userIDStr, accountProperties);
 
         //make sure we haven't seen this account id before.
         if( registeredAccounts.containsKey(accountID) )
@@ -124,7 +125,7 @@ public class ProtocolProviderFactoryJabberImpl
     protected AccountID createAccountID(String userID,
             Map<String, String> accountProperties)
     {
-        return new JabberAccountID(userID, accountProperties);
+        return new JabberAccountIDImpl(userID, accountProperties);
     }
 
     @Override
@@ -161,8 +162,8 @@ public class ProtocolProviderFactoryJabberImpl
             throw new NullPointerException(
                 "The specified Protocol Provider was null");
 
-        JabberAccountID accountID
-            = (JabberAccountID) protocolProvider.getAccountID();
+        JabberAccountIDImpl accountID
+            = (JabberAccountIDImpl) protocolProvider.getAccountID();
 
         // If the given accountID doesn't correspond to an existing account
         // we return.
@@ -213,32 +214,6 @@ public class ProtocolProviderFactoryJabberImpl
             accountProperties.put(PROTOCOL, ProtocolNames.JABBER);
 
         accountID.setAccountProperties(accountProperties);
-
-        // Remove additional STUN servers and Jingle Nodes properties.
-        // This is required because there is no check if some of them were
-        // removed during account edit process. Those that are valid will be
-        // restored during account storage process.
-        AccountManager accManager = getAccountManager();
-        ConfigurationService configSrvc
-                = JabberActivator.getConfigurationService();
-        String accountNodeName
-                = getAccountManager().getAccountNodeName(this, accountID);
-        String factoryPackage = accManager.getFactoryImplPackageName(this);
-        String accountPrefix = factoryPackage + "." + accountNodeName;
-
-        List<String> allProperties = configSrvc.getAllPropertyNames();
-        String stunPrefix
-                = accountPrefix+"."+ProtocolProviderFactory.STUN_PREFIX;
-        String jinglePrefix
-                = accountPrefix+"."+JingleNodeDescriptor.JN_PREFIX;
-        for(String property : allProperties)
-        {
-            if( property.startsWith(stunPrefix)
-                || property.startsWith(jinglePrefix) )
-            {
-                configSrvc.removeProperty(property);
-            }
-        }
 
         // First store the account and only then load it as the load generates
         // an osgi event, the osgi event triggers (trhgough the UI) a call to

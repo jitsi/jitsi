@@ -20,6 +20,7 @@ import org.jitsi.util.*;
  * The panel containing information about the connection.
  *
  * @author Yana Stamcheva
+ * @author Pawel Domas
  */
 public class ConnectionPanel
     extends TransparentPanel
@@ -113,7 +114,7 @@ public class ConnectionPanel
         this.transportCombo.addItemListener(this);
 
         transportCombo.setSelectedItem(
-            regform.getRegistration().getDefaultTransport());
+            regform.getRegistration().getPreferredTransport());
 
         JPanel mainPanel = new TransparentPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
@@ -143,14 +144,8 @@ public class ConnectionPanel
         labelsPanel.add(authNameLabel);
         labelsPanel.add(certLabel);
 
-        if(!StringUtils.isNullOrEmpty(
-                regform.getRegistration().getDefaultServerAddress()))
-            serverField.setText(regform.getRegistration()
-                .getDefaultServerAddress());
-        if(!StringUtils.isNullOrEmpty(
-                regform.getRegistration().getDefaultServerPort()))
-            serverPortField.setText(regform.getRegistration()
-                .getDefaultServerPort());
+        serverField.setText(regform.getRegistration().getServerAddress());
+        serverPortField.setText(regform.getRegistration().getServerPort());
 
         JPanel serverPanel = new TransparentPanel(new BorderLayout(5, 5));
         serverPanel.add(serverField, BorderLayout.CENTER);
@@ -173,15 +168,13 @@ public class ConnectionPanel
         mainPanel.add(registrarMainPanel);
 
         proxyAutoCheckBox.setSelected(
-            regform.getRegistration().isDefaultProxyAutoConfigure());
+            regform.getRegistration().isProxyAutoConfigure());
         if(!StringUtils.isNullOrEmpty(
-                regform.getRegistration().getDefaultProxy()))
-            proxyField.setText(regform.getRegistration()
-                .getDefaultProxy());
+                regform.getRegistration().getProxy()))
+            proxyField.setText(regform.getRegistration().getProxy());
         if(!StringUtils.isNullOrEmpty(
-                regform.getRegistration().getDefaultProxyPort()))
-            proxyPortField.setText(regform.getRegistration()
-                .getDefaultProxyPort());
+                regform.getRegistration().getProxyPort()))
+            proxyPortField.setText(regform.getRegistration().getProxyPort());
 
         JLabel proxyLabel
             = new JLabel(Resources.getString("plugin.sipaccregwizz.PROXY"));
@@ -356,12 +349,6 @@ public class ConnectionPanel
         keepAliveIntervalExampleLabel
             .setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
 
-        keepAliveIntervalValue
-            .setText(SIPAccountRegistration.DEFAULT_KEEP_ALIVE_INTERVAL);
-
-        keepAliveMethodBox.setSelectedItem(
-            regform.getRegistration().getDefaultKeepAliveMethod());
-
         keepAliveValues.add(keepAliveMethodBox);
         keepAliveValues.add(keepAliveIntervalValue);
         keepAliveValues.add(keepAliveIntervalExampleLabel);
@@ -416,9 +403,9 @@ public class ConnectionPanel
                     }
                 });
         dtmfMethodBox.setSelectedItem(
-                regform.getRegistration().getDefaultDTMFMethod());
+                regform.getRegistration().getDTMFMethod());
         dtmfMinimalToneDurationValue
-            .setText(SIPAccountRegistration.DEFAULT_MINIMAL_DTMF_TONE_DURATION);
+            .setText(regform.getRegistration().getDtmfMinimalToneDuration());
         JLabel dtmfMinimalToneDurationExampleLabel = new JLabel(
                 Resources.getString(
                     "plugin.sipaccregwizz.DTMF_MINIMAL_TONE_DURATION_INFO"));

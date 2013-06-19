@@ -30,6 +30,7 @@ import net.java.sip.communicator.util.*;
  *
  * @author Emil Ivov
  * @author Lubomir Marinov
+ * @author Pawel Domas
  */
 public abstract class AccountID
 {
@@ -38,6 +39,12 @@ public abstract class AccountID
      * instances for logging output.
      */
     private static final Logger logger = Logger.getLogger(AccountID.class);
+
+    /**
+     * The default properties key prefix used in lib/jitsi-defaults.properties
+     */
+    protected static final String DEFAULTS_PREFIX
+            = "net.java.sip.communicator.service.protocol.";
 
     /**
      * The protocol display name. In the case of overridden protocol name this
@@ -262,6 +269,8 @@ public abstract class AccountID
     public boolean getAccountPropertyBoolean(Object key, boolean defaultValue)
     {
         String value = getAccountPropertyString(key);
+        if(value == null)
+            value = getDefaultString(key.toString());
         return (value == null) ? defaultValue : Boolean.parseBoolean(value);
     }
 
@@ -290,6 +299,11 @@ public abstract class AccountID
         String stringValue = getAccountPropertyString(key);
         int intValue = defaultValue;
 
+        if ((stringValue == null) || (stringValue.isEmpty()))
+        {
+            stringValue = getDefaultString(key.toString());
+        }
+
         if ((stringValue != null) && (stringValue.length() > 0))
         {
             try
@@ -314,8 +328,24 @@ public abstract class AccountID
      */
     public String getAccountPropertyString(Object key)
     {
+        return getAccountPropertyString(key, null);
+    }
+
+    /**
+     * Returns the account property string corresponding to the given key.
+     *
+     * @param key the key, corresponding to the property string we're looking
+     *        for
+     * @param defValue the default value returned when given <tt>key</tt>
+     *        is not present
+     * @return the account property string corresponding to the given key
+     */
+    public String getAccountPropertyString(Object key, String defValue)
+    {
         Object value = getAccountProperty(key);
-        return (value == null) ? null : value.toString();
+        if(value == null)
+            value = getDefaultString(key.toString());
+        return (value == null) ? defValue : value.toString();
     }
 
     /**
@@ -327,6 +357,17 @@ public abstract class AccountID
     public void putAccountProperty(String key, String value)
     {
         accountProperties.put(key, value);
+    }
+
+    /**
+     * Adds property to the map of properties for this account
+     * identifier.
+     * @param key the key of the property
+     * @param value the property value
+     */
+    public void putAccountProperty(String key, Object value)
+    {
+        accountProperties.put(key, String.valueOf(value));
     }
 
     /**
@@ -429,6 +470,245 @@ public abstract class AccountID
     }
 
     /**
+     * The address of the server we will use for this account
+     *
+     * @return String
+     */
+    public String getServerAddress()
+    {
+        return getAccountPropertyString(ProtocolProviderFactory.SERVER_ADDRESS);
+    }
+
+    /**
+     * Get the {@link ProtocolProviderFactory#ACCOUNT_DISPLAY_NAME} property.
+     *
+     * @return the {@link ProtocolProviderFactory#ACCOUNT_DISPLAY_NAME}
+     *         property value.
+     */
+    public String getAccountDisplayName()
+    {
+        return getAccountPropertyString(
+                ProtocolProviderFactory.ACCOUNT_DISPLAY_NAME);
+    }
+
+    /**
+     * Sets {@link ProtocolProviderFactory#ACCOUNT_DISPLAY_NAME} property value.
+     *
+     * @param displayName the account display name value to set.
+     */
+    public void setAccountDisplayName(String displayName)
+    {
+        setOrRemoveIfEmpty(ProtocolProviderFactory.ACCOUNT_DISPLAY_NAME,
+                displayName);
+    }
+
+    /**
+     * Returns the password of the account.
+     *
+     * @return the password of the account.
+     */
+    public String getPassword()
+    {
+        return getAccountPropertyString(ProtocolProviderFactory.PASSWORD);
+    }
+
+    /**
+     * Sets the password of the account.
+     *
+     * @param password the password of the account.
+     */
+    public void setPassword(String password)
+    {
+        setOrRemoveIfEmpty(ProtocolProviderFactory.PASSWORD, password);
+    }
+
+    /**
+     * The authorization name
+     *
+     * @return String auth name
+     */
+    public String getAuthorizationName()
+    {
+        return getAccountPropertyString(
+                ProtocolProviderFactory.AUTHORIZATION_NAME);
+    }
+
+    /**
+     * Sets authorization name.
+     *
+     * @param authName String
+     */
+    public void setAuthorizationName(String authName)
+    {
+        setOrRemoveIfEmpty(
+                ProtocolProviderFactory.AUTHORIZATION_NAME,
+                authName);
+    }
+
+    /**
+     * The port on the specified server
+     *
+     * @return int
+     */
+    public String getServerPort()
+    {
+        return getAccountPropertyString(ProtocolProviderFactory.SERVER_PORT);
+    }
+
+    /**
+     * Sets the server port.
+     *
+     * @param port int
+     */
+    public void setServerPort(String port)
+    {
+        setOrRemoveIfEmpty(ProtocolProviderFactory.SERVER_PORT, port);
+    }
+
+    /**
+     * Sets the server
+     *
+     * @param serverAddress String
+     */
+    public void setServerAddress(String serverAddress)
+    {
+        setOrRemoveIfEmpty(ProtocolProviderFactory.SERVER_ADDRESS,
+                serverAddress);
+    }
+
+    /**
+     * Returns <tt>true</tt> if server was overriden.
+     * @return <tt>true</tt> if server was overriden.
+     */
+    public boolean isServerOverridden()
+    {
+        return getAccountPropertyBoolean(
+                ProtocolProviderFactory.IS_SERVER_OVERRIDDEN, false);
+    }
+
+    /**
+     * Sets <tt>isServerOverridden</tt> property.
+     * @param isServerOverridden indicates if the server is overridden
+     */
+    public void setServerOverridden(boolean isServerOverridden)
+    {
+        putAccountProperty(
+                ProtocolProviderFactory.IS_SERVER_OVERRIDDEN,
+                isServerOverridden);
+    }
+
+    /**
+     * Returns the protocol icon path stored under
+     * {@link ProtocolProviderFactory#PROTOCOL_ICON_PATH} key.
+     *
+     * @return the protocol icon path.
+     */
+    public String getProtocolIconPath()
+    {
+        return getAccountPropertyString(
+                ProtocolProviderFactory.PROTOCOL_ICON_PATH);
+    }
+
+    /**
+     * Sets the protocl icon path that will be held under
+     * {@link ProtocolProviderFactory#PROTOCOL_ICON_PATH} key.
+     *
+     * @param iconPath a path to the protocol icon to set.
+     */
+    public void setProtocolIconPath(String iconPath)
+    {
+        putAccountProperty(
+                ProtocolProviderFactory.PROTOCOL_ICON_PATH,
+                iconPath);
+    }
+
+    /**
+     * Returns the protocol icon path stored under
+     * {@link ProtocolProviderFactory#ACCOUNT_ICON_PATH} key.
+     *
+     * @return the protocol icon path.
+     */
+    public String getAccountIconPath()
+    {
+        return getAccountPropertyString(
+                ProtocolProviderFactory.ACCOUNT_ICON_PATH);
+    }
+
+    /**
+     * Sets the account icon path that will be held under
+     * {@link ProtocolProviderFactory#ACCOUNT_ICON_PATH} key.
+     *
+     * @param iconPath a path to the account icon to set.
+     */
+    public void setAccountIconPath(String iconPath)
+    {
+        putAccountProperty(
+                ProtocolProviderFactory.ACCOUNT_ICON_PATH,
+                iconPath);
+    }
+
+    /**
+     * Returns the DTMF method.
+     *
+     * @return the DTMF method.
+     */
+    public String getDTMFMethod()
+    {
+        return getAccountPropertyString(ProtocolProviderFactory.DTMF_METHOD);
+    }
+
+    /**
+     * Sets the DTMF method.
+     *
+     * @param dtmfMethod the DTMF method to set
+     */
+    public void setDTMFMethod(String dtmfMethod)
+    {
+        putAccountProperty(ProtocolProviderFactory.DTMF_METHOD, dtmfMethod);
+    }
+
+    /**
+     * Returns the minimal DTMF tone duration.
+     *
+     * @return The minimal DTMF tone duration.
+     */
+    public String getDtmfMinimalToneDuration()
+    {
+        return getAccountPropertyString(
+                ProtocolProviderFactory.DTMF_MINIMAL_TONE_DURATION);
+    }
+
+    /**
+     * Sets the minimal DTMF tone duration.
+     *
+     * @param dtmfMinimalToneDuration The minimal DTMF tone duration to set.
+     */
+    public void setDtmfMinimalToneDuration(String dtmfMinimalToneDuration)
+    {
+        putAccountProperty( ProtocolProviderFactory.DTMF_MINIMAL_TONE_DURATION,
+                            dtmfMinimalToneDuration );
+    }
+
+    /**
+     * Gets the ID of the client certificate configuration.
+     * @return the ID of the client certificate configuration.
+     */
+    public String getTlsClientCertificate()
+    {
+        return getAccountPropertyString(
+                ProtocolProviderFactory.CLIENT_TLS_CERTIFICATE);
+    }
+
+    /**
+     * Sets the ID of the client certificate configuration.
+     * @param id the client certificate configuration template ID.
+     */
+    public void setTlsClientCertificate(String id)
+    {
+        setOrRemoveIfEmpty(ProtocolProviderFactory.CLIENT_TLS_CERTIFICATE, id);
+    }
+
+    /**
      * Set the account properties.
      *
      * @param accountProperties the properties of the account
@@ -470,9 +750,9 @@ public abstract class AccountID
                     true);
         Map<String, Boolean> encryptionProtocolStatus
             = getBooleanPropertiesByPrefix(
-                    ProtocolProviderFactory.ENCRYPTION_PROTOCOL_STATUS,
-                    true,
-                    false);
+                ProtocolProviderFactory.ENCRYPTION_PROTOCOL_STATUS,
+                true,
+                false);
 
         // If the account is not yet configured, then ZRTP is activated by
         // default.
@@ -697,5 +977,142 @@ public abstract class AccountID
         }
 
         return resultKeySet;
+    }
+
+    /**
+     * Sets the property a new value, but only if it's not <tt>null</tt> or
+     * the property is removed from the map.
+     *
+     * @param key the property key
+     * @param value the property value
+     */
+    public void setOrRemoveIfNull(String key, String value)
+    {
+        if(value != null)
+        {
+            putAccountProperty(key, value);
+        }
+        else
+        {
+            removeAccountProperty(key);
+        }
+    }
+
+    /**
+     * Puts the new property value if it's not <tt>null</tt> nor empty.
+     * @param key the property key
+     * @param value the property value
+     */
+    public void setOrRemoveIfEmpty(String key, String value)
+    {
+        setOrRemoveIfEmpty(key, value, false);
+    }
+
+    /**
+     * Puts the new property value if it's not <tt>null</tt> nor empty. If
+     * <tt>trim</tt> parameter is set to <tt>true</tt> the string will be
+     * trimmed, before checked for emptiness.
+     *
+     * @param key the property key
+     * @param value the property value
+     * @param trim <tt>true</tt> if the value  will be trimmed, before
+     *             <tt>isEmpty()</tt> is called.
+     */
+    public void setOrRemoveIfEmpty(String key, String value, boolean trim)
+    {
+        if( value != null
+            && (trim ? !value.trim().isEmpty() : !value.isEmpty()) )
+        {
+            putAccountProperty(key, value);
+        }
+        else
+        {
+            removeAccountProperty(key);
+        }
+    }
+
+    /**
+     * Stores configuration properties held by this object into given
+     * <tt>accountProperties</tt> map.
+     *
+     * @param protocolIconPath  the path to the protocol icon is used
+     * @param accountIconPath   the path to the account icon if used
+     * @param accountProperties output properties map
+     */
+    public void storeProperties( String protocolIconPath,
+                                 String accountIconPath,
+                                 Map<String, String> accountProperties )
+    {
+        if(protocolIconPath != null)
+            setProtocolIconPath(protocolIconPath);
+
+        if(accountIconPath != null)
+            setAccountIconPath(accountIconPath);
+
+        ensureDefaultValuePresent(ProtocolProviderFactory.DTMF_METHOD);
+
+        ensureDefaultValuePresent(
+                ProtocolProviderFactory.DTMF_MINIMAL_TONE_DURATION);
+
+        mergeProperties(this.accountProperties, accountProperties);
+
+        // Removes encrypted password property, as it will be restored during
+        // account storage, but only if the password property is present.
+        accountProperties.remove("ENCRYPTED_PASSWORD");
+    }
+
+    /**
+     * Ensures that there is value bound to given property key. If there isn't
+     * the default one will be used.
+     *
+     * @param key the property key
+     */
+    public void ensureDefaultValuePresent(String key)
+    {
+        String value = accountProperties.get(key);
+
+        if(value != null && value.trim().isEmpty())
+            value = null;
+
+        if(value == null)
+            accountProperties.put(key, getDefaultString(key));
+    }
+
+    /**
+     * Gets default property value for given <tt>key</tt>.
+     *
+     * @param key the property key
+     * @return default property value for given<tt>key</tt>
+     */
+    protected String getDefaultString(String key)
+    {
+        return getDefaultStr(key);
+    }
+
+    /**
+     * Gets default property value for given <tt>key</tt>.
+     *
+     * @param key the property key
+     * @return default property value for given<tt>key</tt>
+     */
+    public static String getDefaultStr(String key)
+    {
+        return ProtocolProviderActivator
+                .getConfigurationService()
+                .getString(DEFAULTS_PREFIX +key);
+    }
+
+    /**
+     * Copies all properties from <tt>input</tt> map to <tt>output</tt> map.
+     * @param input source properties map
+     * @param output destination properties map
+     */
+    public static void mergeProperties( Map<String, String> input,
+                                        Map<String, String> output )
+    {
+        for(String key : input.keySet())
+        {
+            output.put(key, input.get(key));
+        }
     }
 }
