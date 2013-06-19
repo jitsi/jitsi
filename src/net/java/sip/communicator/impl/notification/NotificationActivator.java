@@ -130,11 +130,8 @@ public class NotificationActivator
     {
         if (systrayService == null)
         {
-            ServiceReference serviceReference = bundleContext
-                .getServiceReference(SystrayService.class.getName());
-
-            systrayService = (SystrayService) bundleContext
-                .getService(serviceReference);
+            systrayService = ServiceUtils.getService( bundleContext,
+                                                      SystrayService.class );
         }
 
         return systrayService;
