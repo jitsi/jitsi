@@ -6,11 +6,7 @@
  */
 package net.java.sip.communicator.service.notification;
 
-import static net.java.sip.communicator.service.notification.NotificationAction.ACTION_COMMAND;
-import static net.java.sip.communicator.service.notification.NotificationAction.ACTION_LOG_MESSAGE;
-import static net.java.sip.communicator.service.notification.NotificationAction.ACTION_POPUP_MESSAGE;
-import static net.java.sip.communicator.service.notification.NotificationAction.ACTION_SOUND;
-import static net.java.sip.communicator.service.notification.NotificationAction.NUM_ACTIONS;
+import static net.java.sip.communicator.service.notification.NotificationAction.*;
 import static net.java.sip.communicator.service.notification.event.NotificationActionTypeEvent.ACTION_ADDED;
 import static net.java.sip.communicator.service.notification.event.NotificationActionTypeEvent.ACTION_CHANGED;
 import static net.java.sip.communicator.service.notification.event.NotificationActionTypeEvent.ACTION_REMOVED;
@@ -35,6 +31,14 @@ class NotificationServiceImpl
 {
     private static final String NOTIFICATIONS_PREFIX
         = "net.java.sip.communicator.impl.notifications";
+
+    /**
+     * Defines the number of actions that have to be registered before cached
+     * notifications are fired.
+     *
+     * Current value = 4 (vibrate action excluded).
+     */
+    public static final int NUM_ACTIONS = 4;
 
     /**
      * A list of all registered <tt>NotificationChangeListener</tt>s.
@@ -271,6 +275,11 @@ class NotificationServiceImpl
                 ((CommandNotificationHandler) handler).execute(
                         (CommandNotificationAction) action,
                         cmdargs);
+            }
+            else if(actionType.equals(ACTION_VIBRATE))
+            {
+                ((VibrateNotificationHandler) handler).vibrate(
+                        (VibrateNotificationAction) action );
             }
         }
     }
@@ -707,6 +716,42 @@ class NotificationServiceImpl
                             actionPropName + ".commandDescriptor");
 
                     action = new CommandNotificationAction(commandDescriptor);
+                }
+                else if(actionType.equals(ACTION_VIBRATE))
+                {
+                    String descriptor
+                        = configService.getString(
+                            actionPropName + ".descriptor");
+
+                    int patternLen
+                        = configService.getInt(
+                            actionPropName + ".patternLength", -1);
+                    if(patternLen == -1)
+                    {
+                        logger.error("Invalid pattern length: "+patternLen);
+                        continue;
+                    }
+
+                    long[] pattern = new long[patternLen];
+                    for(int pIdx=0; pIdx<patternLen; pIdx++)
+                    {
+                        pattern[pIdx]
+                            = configService.getLong(
+                                actionPropName+".patternItem"+pIdx, -1);
+
+                        if(pattern[pIdx] == -1)
+                        {
+                            logger.error("Invalid pattern interval: "+pattern);
+                            continue;
+                        }
+                    }
+
+                    int repeat = configService.getInt(
+                            actionPropName + ".repeat", -1);
+
+                    action
+                        = new VibrateNotificationAction(
+                            descriptor, pattern, repeat);
                 }
 
                 action.setEnabled(isEnabled(actionPropName + ".enabled"));
@@ -1242,6 +1287,30 @@ class NotificationServiceImpl
                 actionTypeNodeName + ".commandDescriptor",
                 commandAction.getDescriptor());
         }
+        else if(action instanceof VibrateNotificationAction)
+        {
+            VibrateNotificationAction vibrateAction
+                    = (VibrateNotificationAction) action;
+
+            configProperties.put(actionTypeNodeName + ".descriptor",
+                                 vibrateAction.getDescriptor());
+
+            long[] pattern = vibrateAction.getPattern();
+
+            configProperties.put(
+                actionTypeNodeName + ".patternLength",
+                pattern.length);
+
+            for(int pIdx = 0; pIdx < pattern.length; pIdx++)
+            {
+                configProperties.put(
+                    actionTypeNodeName + ".patternItem" + pIdx,
+                    pattern[pIdx]);
+            }
+
+            configProperties.put(actionTypeNodeName + ".repeat",
+                                 vibrateAction.getRepeat());
+        }
 
         configProperties.put(
             actionTypeNodeName + ".enabled",
@@ -1293,6 +1362,17 @@ class NotificationServiceImpl
             {
                 if (handler instanceof SoundNotificationHandler)
                     ((SoundNotificationHandler) handler).stop(data);
+            }
+        }
+
+        Iterable<NotificationHandler> vibrateHandlers
+            = getActionHandlers(NotificationAction.ACTION_VIBRATE);
+
+        if(vibrateHandlers != null)
+        {
+            for(NotificationHandler handler : vibrateHandlers)
+            {
+                ((VibrateNotificationHandler)handler).cancel();
             }
         }
     }

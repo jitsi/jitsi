@@ -39,9 +39,10 @@ public abstract class NotificationAction
     public static final String ACTION_COMMAND = "CommandAction";
 
     /**
-     * Defines the number of actions.
+     * The vibrate action type indicates that the device will vibrate,
+     * when a notification is fired.
      */
-    public static final int NUM_ACTIONS = 4;
+    public static final String ACTION_VIBRATE = "VibrateAction";
 
     /**
      * Indicates if this handler is enabled.
