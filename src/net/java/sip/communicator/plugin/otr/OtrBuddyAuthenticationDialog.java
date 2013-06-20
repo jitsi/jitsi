@@ -299,8 +299,8 @@ public class OtrBuddyAuthenticationDialog
             txtRemoteFingerprintComparison.setBackground(Color.white);
             return;
         }
-        if(txtRemoteFingerprintComparison.getText().contains(
-            OtrActivator.scOtrKeyManager.getRemoteFingerprint(contact)))
+        if(txtRemoteFingerprintComparison.getText().toLowerCase().contains(
+            OtrActivator.scOtrKeyManager.getRemoteFingerprint(contact).toLowerCase()))
         {
             txtRemoteFingerprintComparison.setBackground(Color.green);
             cbAction.setSelectedItem(actionIHave);
