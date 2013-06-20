@@ -10,7 +10,6 @@ import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
 
-import org.jitsi.service.configuration.*;
 import org.jivesoftware.smack.util.*;
 import org.osgi.framework.*;
 
