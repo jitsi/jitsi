@@ -15,9 +15,7 @@ import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.plugin.desktoputil.wizard.*;
 import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.protocol.*;
-
 import net.java.sip.communicator.service.protocol.jabber.*;
-import org.jitsi.util.*;
 
 /**
  * The <tt>JabberAccountRegistrationForm</tt>.
