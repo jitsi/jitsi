@@ -105,6 +105,16 @@ public class JabberAccountID
     }
 
     /**
+     * Returns the actual name of this protocol: {@link ProtocolNames#JABBER}.
+     *
+     * @return Jabber: the name of this protocol.
+     */
+    public String getSystemProtocolName()
+    {
+        return ProtocolNames.JABBER;
+    }
+
+    /**
      * Returns the alwaysCallWithGtalk value.
      *
      * @return the alwaysCallWithGtalk value
@@ -513,21 +523,6 @@ public class JabberAccountID
     private static String getServiceName(Map<String, String> accountProperties)
     {
         return accountProperties.get(ProtocolProviderFactory.SERVER_ADDRESS);
-    }
-
-    /**
-     * Determines whether this account's provider is supposed to auto discover
-     * STUN and TURN servers.
-     *
-     * @return <tt>true</tt> if this provider would need to discover STUN/TURN
-     * servers and false otherwise.
-     */
-    public boolean isStunServerDiscoveryEnabled()
-    {
-        return
-            getAccountPropertyBoolean(
-                    ProtocolProviderFactory.AUTO_DISCOVER_STUN,
-                    true);
     }
 
     /**

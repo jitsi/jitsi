@@ -9,6 +9,8 @@ package net.java.sip.communicator.service.protocol;
 import java.util.*;
 
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.service.credentialsstorage.*;
+import org.osgi.framework.*;
 
 /**
  * The AccountID is an account identifier that, uniquely represents a specific
@@ -733,6 +735,121 @@ public abstract class AccountID
                     + "."
                     + encryptionProtocolName,
                 defaultValue);
+    }
+
+    /**
+     * Returns the list of STUN servers that this account is currently
+     * configured to use.
+     *
+     * @return the list of STUN servers that this account is currently
+     * configured to use.
+     */
+    public List<StunServerDescriptor> getStunServers(
+                                                    BundleContext bundleContext)
+    {
+        Map<String, String> accountProperties = getAccountProperties();
+        List<StunServerDescriptor> stunServerList
+            = new ArrayList<StunServerDescriptor>();
+
+        for (int i = 0; i < StunServerDescriptor.MAX_STUN_SERVER_COUNT; i ++)
+        {
+            StunServerDescriptor stunServer
+                = StunServerDescriptor.loadDescriptor(
+                        accountProperties,
+                        ProtocolProviderFactory.STUN_PREFIX + i);
+
+            // If we don't find a stun server with the given index, it means
+            // there are no more servers left in the table so we've nothing
+            // more to do here.
+            if (stunServer == null)
+                break;
+
+            String password = this.loadStunPassword(
+                                bundleContext,
+                                this,
+                                ProtocolProviderFactory.STUN_PREFIX + i);
+
+            if(password != null)
+                stunServer.setPassword(password);
+
+            stunServerList.add(stunServer);
+        }
+
+        return stunServerList;
+    }
+
+    /**
+     * Returns the password for the STUN server with the specified prefix.
+     *
+     * @param bundleContext the OSGi bundle context that we are currently
+     * running in.
+     * @param accountID account ID
+     * @param namePrefix name prefix
+     *
+     * @return password or null if empty
+     */
+    protected static String loadStunPassword(BundleContext bundleContext,
+                                             AccountID     accountID,
+                                             String        namePrefix)
+    {
+        ProtocolProviderFactory providerFactory
+                = ProtocolProviderFactory.getProtocolProviderFactory(
+                        bundleContext,
+                        accountID.getSystemProtocolName());
+
+        String password = null;
+        String className = providerFactory.getClass().getName();
+        String packageSourceName
+                = className.substring(0, className.lastIndexOf('.'));
+
+        String accountPrefix = ProtocolProviderFactory.findAccountPrefix(
+                bundleContext,
+                accountID, packageSourceName);
+
+        CredentialsStorageService credentialsService
+                = ServiceUtils.getService(
+                bundleContext,
+                CredentialsStorageService.class);
+
+        try
+        {
+            password = credentialsService.
+                    loadPassword(accountPrefix + "." + namePrefix);
+        }
+        catch(Exception e)
+        {
+            return null;
+        }
+
+        return password;
+    }
+
+    /**
+     * Determines whether this account's provider is supposed to auto discover
+     * STUN and TURN servers.
+     *
+     * @return <tt>true</tt> if this provider would need to discover STUN/TURN
+     * servers and false otherwise.
+     */
+    public boolean isStunServerDiscoveryEnabled()
+    {
+        return getAccountPropertyBoolean(
+                    ProtocolProviderFactory.AUTO_DISCOVER_STUN,
+                    true);
+    }
+
+    /**
+     * Returns the actual name of the protocol used rather than a branded
+     * variant. The method is primarily meant for open protocols such as SIP
+     * or XMPP so that it would always return SIP or XMPP even in branded
+     * protocols who otherwise return things like GTalk and ippi for
+     * PROTOCOL_NAME.
+     *
+     * @return the real non-branded name of the protocol.
+     */
+    public String getSystemProtocolName()
+    {
+        return getProtocolName();
     }
 
     /**

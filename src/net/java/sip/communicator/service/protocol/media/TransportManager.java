@@ -12,7 +12,10 @@ import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
+import org.ice4j.*;
 import org.ice4j.ice.*;
+import org.ice4j.ice.harvest.*;
+import org.ice4j.security.*;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.neomedia.*;
 
@@ -609,6 +612,238 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
 
             return defaultPortTracker;
         }
+    }
+
+    /**
+     * Creates the ICE agent that we would be using in this transport manager
+     * for all negotiation.
+     *
+     * @param isControlling specifies if the newly created agent was the one
+     * who initiated ICE processing (controlling) or the one who's responding
+     * (controlled).
+     *
+     * @return the ICE agent to use for all the ICE negotiation that this
+     * transport manager would be going through
+     */
+    protected Agent createIceAgent(boolean                 isControlling,
+                                   ProtocolProviderFactory factory)
+    {
+        long startGatheringHarvesterTime = System.currentTimeMillis();
+        CallPeer peer = getCallPeer();
+        ProtocolProviderService provider = peer.getProtocolProvider();
+        NetworkAddressManagerService namSer
+                    = ProtocolMediaActivator.getNetworkAddressManagerService();
+        boolean atLeastOneStunServer = false;
+        Agent agent = namSer.createIceAgent();
+
+        /*
+         * XEP-0176:  the initiator MUST include the ICE-CONTROLLING attribute,
+         * the responder MUST include the ICE-CONTROLLED attribute.
+         */
+        agent.setControlling(isControlling);
+
+        //we will now create the harvesters
+        AccountID accID = provider.getAccountID();
+
+        if (accID.isStunServerDiscoveryEnabled())
+        {
+            //the default server is supposed to use the same user name and
+            //password as the account itself.
+            String username = accID org.jivesoftware.smack.util.StringUtils.parseName(
+                    provider.getOurJID());
+            String password = factory.loadPassword(accID);
+
+            if(provider.getUserCredentials() != null)
+                password = provider.getUserCredentials().getPasswordAsString();
+
+            // ask for password if not saved
+            if (password == null)
+            {
+                //create a default credentials object
+                UserCredentials credentials = new UserCredentials();
+                credentials.setUserName(accID.getUserID());
+
+                //request a password from the user
+                credentials = provider.getAuthority().obtainCredentials(
+                    accID.getDisplayName(),
+                    credentials,
+                    SecurityAuthority.AUTHENTICATION_REQUIRED);
+
+                // in case user has canceled the login window
+                if(credentials == null)
+                {
+                    return null;
+                }
+
+                //extract the password the user passed us.
+                char[] pass = credentials.getPassword();
+
+                // the user didn't provide us a password (canceled the operation)
+                if(pass == null)
+                {
+                    return null;
+                }
+                password = new String(pass);
+
+                if (credentials.isPasswordPersistent())
+                {
+                    JabberActivator.getProtocolProviderFactory()
+                        .storePassword(accID, password);
+                }
+            }
+
+            StunCandidateHarvester autoHarvester
+                = namSer.discoverStunServer(
+                        accID.getService(),
+                        StringUtils.getUTF8Bytes(username),
+                        StringUtils.getUTF8Bytes(password));
+
+            if (logger.isInfoEnabled())
+                logger.info("Auto discovered harvester is " + autoHarvester);
+
+            if (autoHarvester != null)
+            {
+                atLeastOneStunServer = true;
+                agent.addCandidateHarvester(autoHarvester);
+            }
+        }
+
+        //now create stun server descriptors for whatever other STUN/TURN
+        //servers the user may have set.
+        for(StunServerDescriptor desc : accID.getStunServers())
+        {
+            TransportAddress addr = new TransportAddress(
+                            desc.getAddress(), desc.getPort(), Transport.UDP);
+
+            // if we get STUN server from automatic discovery, it may just
+            // be server name (i.e. stun.domain.org) and it may be possible that
+            // it cannot be resolved
+            if(addr.getAddress() == null)
+            {
+                logger.info("Unresolved address for " + addr);
+                continue;
+            }
+
+            StunCandidateHarvester harvester;
+
+            if(desc.isTurnSupported())
+            {
+                //Yay! a TURN server
+                harvester
+                    = new TurnCandidateHarvester(
+                            addr,
+                            new LongTermCredential(
+                                    desc.getUsername(),
+                                    desc.getPassword()));
+            }
+            else
+            {
+                //this is a STUN only server
+                harvester = new StunCandidateHarvester(addr);
+            }
+
+            if (logger.isInfoEnabled())
+                logger.info("Adding pre-configured harvester " + harvester);
+
+            atLeastOneStunServer = true;
+            agent.addCandidateHarvester(harvester);
+        }
+
+        if(!atLeastOneStunServer)
+        {
+            /* we have no configured or discovered STUN server so takes the
+             * default provided by us if user allows it
+             */
+            if(accID.isUseDefaultStunServer())
+            {
+                TransportAddress addr = new TransportAddress(
+                        DEFAULT_STUN_SERVER_ADDRESS,
+                        DEFAULT_STUN_SERVER_PORT,
+                        Transport.UDP);
+                StunCandidateHarvester harvester =
+                    new StunCandidateHarvester(addr);
+
+                if(harvester != null)
+                {
+                    agent.addCandidateHarvester(harvester);
+                }
+            }
+        }
+
+        /* Jingle nodes candidate */
+        if(accID.isJingleNodesRelayEnabled())
+        {
+            /* this method is blocking until Jingle Nodes auto-discovery (if
+             * enabled) finished
+             */
+            SmackServiceNode serviceNode =
+                peer.getProtocolProvider().getJingleNodesServiceNode();
+
+            if(serviceNode != null)
+            {
+                JingleNodesHarvester harvester = new JingleNodesHarvester(
+                        serviceNode);
+
+                if(harvester != null)
+                {
+                    agent.addCandidateHarvester(harvester);
+                }
+            }
+        }
+
+        if(accID.isUPNPEnabled())
+        {
+            UPNPHarvester harvester = new UPNPHarvester();
+
+            if(harvester != null)
+            {
+                agent.addCandidateHarvester(harvester);
+            }
+        }
+
+        long stopGatheringHarvesterTime = System.currentTimeMillis();
+        long  gatheringHarvesterTime
+            = stopGatheringHarvesterTime - startGatheringHarvesterTime;
+        if (logger.isInfoEnabled())
+            logger.info("End gathering harvester within "
+                    + gatheringHarvesterTime + " ms");
+        return agent;
+    }
+
+    /**
+     * Load password for this STUN descriptor.
+     *
+     * @param namePrefix name prefix
+     * @return password or null if empty
+     */
+    private String loadStunPassword(
+                                    String                  namePrefix,
+                                    ProtocolProviderService provider)
+    {
+
+        String password = null;
+        String className = provider.getClass().getName();
+        String packageSourceName = className.substring(0,
+                className.lastIndexOf('.'));
+
+        String accountPrefix = ProtocolProviderFactory.findAccountPrefix(
+                JabberActivator.bundleContext,
+                this, packageSourceName);
+
+        CredentialsStorageService credentialsService =
+            JabberActivator.getCredentialsStorageService();
+
+        try
+        {
+            password = credentialsService.
+                loadPassword(accountPrefix + "." + namePrefix);
+        }
+        catch(Exception e)
+        {
+            return null;
+        }
+
+        return password;
     }
 
     /**

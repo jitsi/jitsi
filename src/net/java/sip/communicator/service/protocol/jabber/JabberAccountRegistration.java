@@ -426,49 +426,6 @@ public class JabberAccountRegistration
     }
 
     /**
-     * Load password for this STUN descriptor.
-     *
-     * @param accountID account ID
-     * @param namePrefix name prefix
-     * @return password or null if empty
-     */
-    private static String loadStunPassword(BundleContext bundleContext,
-                                           AccountID accountID,
-                                           String namePrefix)
-    {
-        ProtocolProviderFactory providerFactory
-                = ProtocolProviderFactory.getProtocolProviderFactory(
-                        bundleContext,
-                        ProtocolNames.JABBER);
-
-        String password = null;
-        String className = providerFactory.getClass().getName();
-        String packageSourceName
-                = className.substring(0, className.lastIndexOf('.'));
-
-        String accountPrefix = ProtocolProviderFactory.findAccountPrefix(
-                bundleContext,
-                accountID, packageSourceName);
-
-        CredentialsStorageService credentialsService
-                = ServiceUtils.getService(
-                bundleContext,
-                CredentialsStorageService.class);
-
-        try
-        {
-            password = credentialsService.
-                    loadPassword(accountPrefix + "." + namePrefix);
-        }
-        catch(Exception e)
-        {
-            return null;
-        }
-
-        return password;
-    }
-
-    /**
      * Parse the server part from the jabber id and set it to server as default
      * value. If Advanced option is enabled Do nothing.
      *
