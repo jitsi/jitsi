@@ -66,6 +66,11 @@ public class OneToOneCallPeerPanel
     private final CallPeer callPeer;
 
     /**
+     * The <tt>Call</tt>, which is rendered in this panel.
+     */
+    private final Call call;
+
+    /**
      * The <tt>CallPeerAdapter</tt> which implements common
      * <tt>CallPeer</tt>-related listeners on behalf of this instance.
      */
@@ -257,6 +262,9 @@ public class OneToOneCallPeerPanel
     {
         this.callRenderer = callRenderer;
         this.callPeer = callPeer;
+        // we need to obtain call as soon as possible
+        // cause if it fails too quickly we may fail to show it
+        this.call = callPeer.getCall();
         this.uiVideoHandler = uiVideoHandler;
 
         peerName = CallManager.getPeerDisplayName(callPeer);
@@ -351,7 +359,6 @@ public class OneToOneCallPeerPanel
             = new TransparentPanel(new BorderLayout(5, 0));
         TransparentPanel remoteLevelPanel
             = new TransparentPanel(new BorderLayout(5, 0));
-        Call call = callPeer.getCall();
 
         localLevel
             = new InputVolumeControlButton(
