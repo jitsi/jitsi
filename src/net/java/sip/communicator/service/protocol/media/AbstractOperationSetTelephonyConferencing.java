@@ -1150,11 +1150,32 @@ public abstract class AbstractOperationSetTelephonyConferencing<
         return null;
     }
 
-    //to and from need to be "full"
+    /**
+     * @param from A document with state <tt>full</tt> from which to generate a
+     * "diff".
+     * @param to A document with state <tt>full</tt> to which to generate a
+     * "diff"
+     * @return a <tt>ConferenceInfoDocument</tt>, such that when it is applied
+     * to <tt>from</tt> using the procedure defined in section 4.6 of RFC4575,
+     * the result is <tt>to</tt>. May return <tt>null</tt> if <tt>from</tt> and
+     * <tt>to</tt> are not found to be different (that is, in case no document
+     * needs to be sent)
+     */
     protected ConferenceInfoDocument getConferenceInfoDiff(
             ConferenceInfoDocument from,
             ConferenceInfoDocument to)
+        throws IllegalArgumentException
     {
+        if (from.getState() != ConferenceInfoDocument.State.FULL)
+            throw new IllegalArgumentException("The 'from' document needs to"
+                    + "have state=full");
+        if (to.getState() != ConferenceInfoDocument.State.FULL)
+            throw new IllegalArgumentException("The 'to' document needs to"
+                    + "have state=full");
+
+        if (conferenceInfoDocumentsMatch(from, to))
+            return null;
+
         return to;
     }
 
@@ -1162,13 +1183,162 @@ public abstract class AbstractOperationSetTelephonyConferencing<
             MediaAwareCallPeerT callPeer,
             ConferenceInfoDocument diff)
     {
-        logger.warn("Received a conference-info partial notification, which we" +
-                " can't handle. Sending peer: " + callPeer);
+        logger.warn("Received a conference-info partial notification, which we"
+                + " can't handle. Sending peer: " + callPeer);
         return -1;
         // TODO: generate a new full conf info by applying 'diff' to
         // callPeer.getConferenceState
         // return setConferenceInfoDocument(callPeer, newFullConfInfo);
     }
 
+    /**
+     * @param a A document with state <tt>full</tt> which to compare to
+     * <tt>b</tt>
+     * @param b A document with state <tt>full</tt> which to compare to
+     * <tt>a</tt>
+     * @return <tt>false</tt> if the two documents are found to be different,
+     * <tt>true</tt> otherwise (that is, it can return true for non-identical
+     * documents).
+     */
+    private boolean conferenceInfoDocumentsMatch(
+            ConferenceInfoDocument a,
+            ConferenceInfoDocument b)
+    {
+        if (a.getState() != ConferenceInfoDocument.State.FULL)
+            throw new IllegalArgumentException("The 'a' document needs to"
+                    + "have state=full");
+        if (b.getState() != ConferenceInfoDocument.State.FULL)
+            throw new IllegalArgumentException("The 'b' document needs to"
+                    + "have state=full");
+
+        if (stringsMatch(a.getEntity(), b.getEntity()))
+            return false;
+        else if (a.getUserCount() != b.getUserCount())
+            return false;
+        else if (a.getUsers().size() != b.getUsers().size())
+            return false;
+
+        for(ConferenceInfoDocument.User aUser : a.getUsers())
+        {
+            if (!usersMatch(aUser, b.getUser(aUser.getEntity())))
+                return false;
+        }
+        return true;
+    }
+
+    /**
+     * Checks whether two <tt>ConferenceInfoDocument.User</tt> instances
+     * match according to the needs of our implementation. Can return
+     * <tt>true</tt> for users which are not identical.
+     *
+     * @param a A <tt>ConferenceInfoDocument.User</tt> to compare
+     * @param b A <tt>ConferenceInfoDocument.User</tt> to compare
+     * @return <tt>false</tt> if <tt>a</tt> and <tt>b</tt> are found to be
+     * different in a way that is significant for our needs, <tt>true</tt>
+     * otherwise.
+     */
+    private boolean usersMatch(
+            ConferenceInfoDocument.User a,
+            ConferenceInfoDocument.User b)
+    {
+        if (a == null && b == null)
+            return true;
+        else if (a == null || b == null)
+            return false;
+        else if (!stringsMatch(a.getEntity(), b.getEntity()))
+            return false;
+        else if (!stringsMatch(a.getDisplayText(), b.getDisplayText()))
+            return false;
+        else if (a.getEndpoints().size() != b.getEndpoints().size())
+            return false;
+
+        for (ConferenceInfoDocument.Endpoint aEndpoint : a.getEndpoints())
+        {
+            if (!endpointsMatch(aEndpoint, b.getEndpoint(aEndpoint.getEntity())))
+                return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Checks whether two <tt>ConferenceInfoDocument.Endpoint</tt> instances
+     * match according to the needs of our implementation. Can return
+     * <tt>true</tt> for endpoints which are not identical.
+     *
+     * @param a A <tt>ConferenceInfoDocument.Endpoint</tt> to compare
+     * @param b A <tt>ConferenceInfoDocument.Endpoint</tt> to compare
+     * @return <tt>false</tt> if <tt>a</tt> and <tt>b</tt> are found to be
+     * different in a way that is significant for our needs, <tt>true</tt>
+     * otherwise.
+     */
+    private boolean endpointsMatch(
+            ConferenceInfoDocument.Endpoint a,
+            ConferenceInfoDocument.Endpoint b)
+    {
+        if (a == null && b == null)
+            return true;
+        else if (a == null || b == null)
+            return false;
+        else if (!stringsMatch(a.getEntity(), b.getEntity()))
+            return false;
+        else if (a.getStatus() != b.getStatus())
+            return false;
+        else if (a.getMedias().size() != b.getMedias().size())
+            return false;
+
+        for (ConferenceInfoDocument.Media aMedia : a.getMedias())
+        {
+            if (!mediasMatch(aMedia, b.getMedia(aMedia.getId())))
+                return false;
+        }
+        return true;
+    }
+
+    /**
+     * Checks whether two <tt>ConferenceInfoDocument.Media</tt> instances
+     * match according to the needs of our implementation. Can return
+     * <tt>true</tt> for endpoints which are not identical.
+     *
+     * @param a A <tt>ConferenceInfoDocument.Media</tt> to compare
+     * @param b A <tt>ConferenceInfoDocument.Media</tt> to compare
+     * @return <tt>false</tt> if <tt>a</tt> and <tt>b</tt> are found to be
+     * different in a way that is significant for our needs, <tt>true</tt>
+     * otherwise.
+     */
+    private boolean mediasMatch(
+            ConferenceInfoDocument.Media a,
+            ConferenceInfoDocument.Media b)
+    {
+        if (a == null && b == null)
+            return true;
+        else if (a == null || b == null)
+            return false;
+        else if (!stringsMatch(a.getId(), b.getId()))
+            return false;
+        else if (!stringsMatch(a.getSrcId(), b.getSrcId()))
+            return false;
+        else if (!stringsMatch(a.getType(), b.getType()))
+            return false;
+        else if (!stringsMatch(a.getStatus(), b.getStatus()))
+            return false;
+
+        return true;
+    }
+
+    /**
+     * @param a A <tt>String</tt> to compare to <tt>b</tt>
+     * @param b A <tt>String</tt> to compare to <tt>a</tt>
+     * @return <tt>true</tt> if and only if <tt>a</tt> and <tt>b</tt> are both
+     * <tt>null</tt>, or they are equal as <tt>String</tt>s
+     */
+    private boolean stringsMatch(String a, String b)
+    {
+        if (a == null && b == null)
+            return true;
+        else if (a == null || b == null)
+            return false;
+        return a.equals(b);
+    }
 
 }
