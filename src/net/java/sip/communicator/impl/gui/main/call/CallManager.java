@@ -10,6 +10,7 @@ import java.awt.*;
 import java.text.*;
 import java.util.*;
 import java.util.List;
+import java.util.regex.*;
 
 import javax.swing.*;
 
@@ -3684,12 +3685,29 @@ public class CallManager
                 = new Vector<ResolveAddressToDisplayNameContactQueryListener>
                     (1, 1);
 
+            // will strip the @server-address part, as the regular expression
+            // will match it
+            int index = peerAddress.indexOf("@");
+            String peerUserID =
+                (index > -1) ? peerAddress.substring(0, index) : peerAddress;
+
+            // searches for the whole number/username or with the @serverpart
+            Pattern p = Pattern.compile(
+                "^(" + peerUserID + "|" + peerUserID + "@.*)$");
+
             // Queries all available resolvers
             for(ContactSourceService contactSourceService:
                     GuiActivator.getContactSources())
             {
+                if(!(contactSourceService
+                        instanceof ExtendedContactSourceService))
+                    continue;
+
+                // use the pattern method of (ExtendedContactSourceService)
                 ContactQuery query
-                    = contactSourceService.queryContactSource(peerAddress, 1);
+                    = ((ExtendedContactSourceService)contactSourceService)
+                            .queryContactSource(p);
+
                 resolvers.add(
                         new ResolveAddressToDisplayNameContactQueryListener(
                             query));
