@@ -11,8 +11,6 @@ import java.util.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.contactlist.event.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.GenericDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.PhoneNumberDetail;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -25,14 +23,6 @@ public class MetaContactImpl
     extends DataObject
     implements MetaContact
 {
-  /**
-   * A property that determines which contact type the display name should be
-   * taken from (if that type is present in the MetaContact's list of
-   * contacts).
-   */
-    static final String PROPERTY_DEFAULT_CONTACT_PROTOCOL =
-                           "net.java.sip.communicator.PERSONAL_CONTACT_STORE";
-
     /**
      * Logger for <tt>MetaContactImpl</tt>.
      */
@@ -104,12 +94,6 @@ public class MetaContactImpl
      * Whether user has renamed this meta contact.
      */
     private boolean isDisplayNameUserDefined = false;
-
-    /**
-     * Which contact type the display name should be taken from (if that type
-     * is present in the MetaContact's list of contacts).
-     */
-    private String defaultContactProtocol = "";
 
     /**
      * Creates new meta contact with a newly generated meta contact UID.
@@ -291,59 +275,6 @@ public class MetaContactImpl
         }
 
         return null;
-    }
-
-    /**
-     * Returns a list of all contacts that match the given username and
-     * account ID.
-     *
-     * @param userName the username to search for
-     * @return a list of contacts that match the given username and account ID.
-     */
-    public List<Contact> getContactByUserName(String userName)
-    {
-        List<Contact> contactList = new LinkedList<Contact>();
-
-        for (Contact contact : protoContacts)
-        {
-            try
-            {
-                // Get the Server Stored Contact Info operation set for this
-                // contact
-                OperationSetServerStoredContactInfo contactInfoOpSet =
-                                contact.getProtocolProvider().getOperationSet(
-                                    OperationSetServerStoredContactInfo.class);
-
-                Iterator<GenericDetail> contactInfo =
-                         contactInfoOpSet.getAllDetailsForContact(contact);
-
-                // Search through each server stored phone number detail for a
-                // match with userName
-                while (contactInfo.hasNext())
-                {
-                    GenericDetail detail = contactInfo.next();
-
-
-                    if (detail instanceof PhoneNumberDetail)
-                    {
-                        if (userName.equalsIgnoreCase(detail.toString()))
-                        {
-                            // Found a contact match, add this to the list of
-                            // contact matches
-                            contactList.add(contact);
-                            break;
-                        }
-                    }
-                }
-            }
-            catch(Exception e)
-            {
-                logger.warn("Could not get server stored details for" +
-                                     "contact" + contact.getDisplayName(), e);
-            }
-        }
-
-        return contactList;
     }
 
     /**
@@ -560,6 +491,7 @@ public class MetaContactImpl
      *
      * @return  a string representation of this contact.
      */
+    @Override
     public String toString()
     {
         StringBuffer buff = new StringBuffer("MetaContact[ DisplayName=")
@@ -743,11 +675,6 @@ public class MetaContactImpl
             // Re-init the default contact.
             defaultContact = null;
 
-            // Get the default contact protocol from the config
-            defaultContactProtocol = ContactlistActivator
-                              .getConfigurationService()
-                              .getString(PROPERTY_DEFAULT_CONTACT_PROTOCOL, "");
-
             // if this is our first contact and we don't already have a display
             // name, use theirs.
             if (this.protoContacts.size() == 1
@@ -757,33 +684,6 @@ public class MetaContactImpl
                 // be careful not to use setDisplayName() here cause this will
                 // bring us into a deadlock.
                 this.displayName = contact.getDisplayName();
-            }
-            else if (defaultContactProtocol.trim().length() != 0)
-            {
-                // A default contact protocol has been specified, so look for
-                // a contact using this protocol and use its display name
-                Iterator<Contact> subContacts = this.getContacts();
-
-                // Loop through the subcontacts and extract the first one using
-                // the specified protocol
-                while (subContacts.hasNext())
-                {
-                    Contact subContact = subContacts.next();
-
-                    if (subContact.getProtocolProvider()
-                        .getProtocolName()
-                        .equalsIgnoreCase(defaultContactProtocol))
-                    {
-                        // Found a contact - stop searching
-                        String contactDisplayName = subContact.getDisplayName();
-                        if(contactDisplayName != null
-                                && contactDisplayName.trim().length() != 0)
-                        {
-                            this.displayName = contactDisplayName;
-                        }
-                        break;
-                    }
-                }
             }
 
             if (parentGroup != null)
