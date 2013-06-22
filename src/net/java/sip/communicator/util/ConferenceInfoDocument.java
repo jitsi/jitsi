@@ -188,7 +188,7 @@ public class ConferenceInfoDocument
         setUserCount(0);
 
         users = document.createElement(USERS_ELEMENT_NAME);
-        conferenceState.appendChild(users);
+        conferenceInfo.appendChild(users);
     }
 
     /**
