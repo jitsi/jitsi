@@ -508,6 +508,37 @@ public class ConferenceInfoDocument
     }
 
     /**
+     * Sets the <tt>status</tt> child element of <tt>element</tt>. If
+     * <tt>statusString</tt> is <tt>null</tt>, the child element is removed
+     * if present.
+     * @param element the <tt>Element</tt> for which to set the <tt>status</tt>
+     * child element.
+     * @param statusString the <tt>String</tt> to use for the text content of
+     * the <tt>status</tt> element
+     */
+    private void setStatus(Element element, String statusString)
+    {
+        Element statusElement
+                = XMLUtils.findChild(element, STATUS_ELEMENT_NAME);
+        if (statusString == null)
+        {
+            if(statusElement == null)
+                return;
+            else
+                element.removeChild(statusElement);
+        }
+        else
+        {
+            if (statusElement == null)
+            {
+                statusElement = document.createElement(STATUS_ELEMENT_NAME);
+                element.appendChild(statusElement);
+            }
+            statusElement.setTextContent(statusString);
+        }
+    }
+
+    /**
      * Represents the possible values for the <tt>state</tt> attribute (see
      * RFC4575)
      */
@@ -820,14 +851,10 @@ public class ConferenceInfoDocument
          */
         public void setStatus(EndpointStatusType status)
         {
-            Element statusElement
-                    = XMLUtils.findChild(endpointElement, STATUS_ELEMENT_NAME);
-            if (statusElement == null)
-            {
-                statusElement = document.createElement(STATUS_ELEMENT_NAME);
-                endpointElement.appendChild(statusElement);
-            }
-            statusElement.setTextContent(status.toString());
+            ConferenceInfoDocument.this.setStatus(endpointElement,
+                    status == null
+                    ? null
+                    : status.toString());
         }
 
         /**
@@ -1019,14 +1046,7 @@ public class ConferenceInfoDocument
          */
         public void setStatus(String status)
         {
-            Element statusElement
-                    = XMLUtils.findChild(mediaElement, STATUS_ELEMENT_NAME);
-            if (statusElement == null)
-            {
-                statusElement = document.createElement(STATUS_ELEMENT_NAME);
-                mediaElement.appendChild(statusElement);
-            }
-            statusElement.setTextContent(status);
+            ConferenceInfoDocument.this.setStatus(mediaElement, status);
         }
 
         /**
