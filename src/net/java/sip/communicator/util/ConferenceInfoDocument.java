@@ -228,7 +228,7 @@ public class ConferenceInfoDocument
             throw(e);
         }
 
-        conferenceInfo = document.getElementById(CONFERENCE_INFO_ELEMENT_NAME);
+        conferenceInfo = document.getDocumentElement();
         if (conferenceInfo == null)
         {
             throw(new Exception("Could not parse conference-info document,"
