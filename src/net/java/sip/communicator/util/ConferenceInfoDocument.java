@@ -10,6 +10,9 @@ import org.jitsi.util.xml.*;
 import org.w3c.dom.*;
 
 import javax.xml.parsers.*;
+import javax.xml.transform.*;
+import javax.xml.transform.dom.*;
+import javax.xml.transform.stream.*;
 import java.io.*;
 import java.util.*;
 
@@ -319,7 +322,7 @@ public class ConferenceInfoDocument
      */
     public void setState(State state)
     {
-        conferenceInfo.setAttribute(STATE_ATTR_NAME, state.toString());
+        setState(conferenceInfo, state);
     }
 
    /**
@@ -409,19 +412,40 @@ public class ConferenceInfoDocument
     }
 
     /**
-     * Returns the XML representation of the document.
-     * @return the XML representation of the document.
+     * @return the XML representation of the <tt>conference-info</tt> tree,
+     * or <tt>null</tt> if an error occurs while trying to get it.
      */
-    public String toString()
+    public String toXml()
     {
         try
         {
-            return XMLUtils.createXml(document);
+            Transformer transformer
+                    = TransformerFactory.newInstance().newTransformer();
+            StringWriter buffer = new StringWriter();
+            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION,
+                    "yes");
+            transformer.transform(new DOMSource(conferenceInfo),
+                    new StreamResult(buffer));
+            return buffer.toString();
         }
         catch (Exception e)
         {
             return null;
         }
+    }
+
+    /**
+     * @return the XML representation of the document (from the
+     * <tt>conference-info</tt> element down), or an error string in case the
+     * XML cannot be generated for some reason.
+     */
+    @Override
+    public String toString()
+    {
+        String s = toXml();
+        return s == null
+                ? "Could not get conference-info XML"
+                : s;
     }
 
    /**
@@ -505,6 +529,25 @@ public class ConferenceInfoDocument
         return state == null
                 ? State.FULL
                 : state;
+    }
+
+    /**
+     * Sets the "state" attribute of <tt>element</tt> to <tt>state</tt>.
+     * If <tt>state</tt> is <tt>State.FULL</tt> removes the "state" attribute,
+     * because this is the default value.
+     * @param element The <tt>Element</tt> for which to set the "state"
+     * attribute of.
+     * @param state the <tt>State</tt> which to set.
+     */
+    private void setState(Element element, State state)
+    {
+        if (element != null)
+        {
+            if (state == State.FULL)
+                element.removeAttribute(STATE_ATTR_NAME);
+            else
+                element.setAttribute(STATE_ATTR_NAME, state.toString());
+        }
     }
 
     /**
@@ -661,7 +704,7 @@ public class ConferenceInfoDocument
          */
         public void setState(State state)
         {
-            userElement.setAttribute(STATE_ATTR_NAME, state.toString());
+            ConferenceInfoDocument.this.setState(userElement, state);
         }
 
         /**
@@ -683,13 +726,23 @@ public class ConferenceInfoDocument
         {
             Element displayText
                     = XMLUtils.findChild(userElement, DISPLAY_TEXT_ELEMENT_NAME);
-            if (displayText == null)
+            if (text == null || text.equals(""))
             {
-                displayText = document.createElement(DISPLAY_TEXT_ELEMENT_NAME);
-                userElement.appendChild(displayText);
+                if (displayText == null)
+                    return;
+                else
+                    userElement.removeChild(displayText);
             }
-
-            displayText.setTextContent(text);
+            else
+            {
+                if (displayText == null)
+                {
+                    displayText
+                            = document.createElement(DISPLAY_TEXT_ELEMENT_NAME);
+                    userElement.appendChild(displayText);
+                }
+                displayText.setTextContent(text);
+            }
         }
 
         /**
@@ -831,7 +884,7 @@ public class ConferenceInfoDocument
          */
         public void setState(State state)
         {
-            endpointElement.setAttribute(STATE_ATTR_NAME, state.toString());
+            ConferenceInfoDocument.this.setState(endpointElement, state);
         }
 
         /**

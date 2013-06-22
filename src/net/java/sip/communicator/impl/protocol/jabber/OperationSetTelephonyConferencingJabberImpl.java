@@ -227,7 +227,7 @@ public class OperationSetTelephonyConferencingJabberImpl
             @Override
             public String getChildElementXML()
             {
-                return confInfo.toString();
+                return confInfo.toXml();
             }
         };
 
