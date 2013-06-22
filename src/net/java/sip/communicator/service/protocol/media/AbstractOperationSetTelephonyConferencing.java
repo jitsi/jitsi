@@ -931,30 +931,69 @@ public abstract class AbstractOperationSetTelephonyConferencing<
          */
         callPeer.setConferenceFocus(true);
 
+        /*
+         * The following implements the procedure outlined in section 4.6 of
+         * RFC4575 - Constructing Coherent State
+         */
         int documentVersion = confInfo.getVersion();
         int ourVersion = callPeer.getConferenceStateVersion();
+        ConferenceInfoDocument.State documentState = confInfo.getState();
 
         if (ourVersion == -1)
         {
-            if (confInfo.getState() == ConferenceInfoDocument.State.FULL)
+            if (documentState == ConferenceInfoDocument.State.FULL)
             {
                 return setConferenceInfoDocument(callPeer, confInfo);
             }
             else
+            {
+                logger.warn("Received a conference-info document with state '"
+                    + documentState + "'. Cannot apply it, because we haven't"
+                    + "initialized a local document yet. Sending peer: "
+                    + callPeer);
                 return -1;
+            }
         }
         else if (documentVersion <= ourVersion)
         {
+            if (logger.isInfoEnabled())
+            {
+                logger.info("Received a stale conference-info document. Local "
+                    + "version " + ourVersion + ", document version "
+                    + documentVersion + ". Sending peer: " + callPeer);
+            }
             return -1;
         }
-        else
+        else //ourVersion != -1 && ourVersion < documentVersion
         {
-            if (confInfo.getState() == ConferenceInfoDocument.State.FULL)
+            if (documentState == ConferenceInfoDocument.State.FULL)
                 return setConferenceInfoDocument(callPeer, confInfo);
-            else if (documentVersion == ourVersion+1)
-                return updateConferenceInfoDocument(callPeer, confInfo);
-            else
+            else if (documentState == ConferenceInfoDocument.State.DELETED)
+            {
+                logger.warn("Received a conference-info document with state" +
+                        "'deleted', can't handle. Sending peer: " + callPeer);
                 return -1;
+            }
+            else if (documentState == ConferenceInfoDocument.State.PARTIAL)
+            {
+                if (documentVersion == ourVersion+1)
+                    return updateConferenceInfoDocument(callPeer, confInfo);
+                else
+                {
+                    /*
+                     * According to RFC4575 we "MUST generate a subscription
+                     * refresh request to trigger a full state notification".
+                     */
+                    logger.warn("Received a Conference Information document "
+                        + "with state '" + documentState + "' and version "
+                        + documentVersion + ". Cannon apply it, because local "
+                        + "version is " + ourVersion + ". Sending peer: "
+                        + callPeer);
+                    return -1;
+                }
+            }
+            else
+                return -1; //unreachable
         }
     }
 
@@ -1167,10 +1206,10 @@ public abstract class AbstractOperationSetTelephonyConferencing<
         throws IllegalArgumentException
     {
         if (from.getState() != ConferenceInfoDocument.State.FULL)
-            throw new IllegalArgumentException("The 'from' document needs to"
+            throw new IllegalArgumentException("The 'from' document needs to "
                     + "have state=full");
         if (to.getState() != ConferenceInfoDocument.State.FULL)
-            throw new IllegalArgumentException("The 'to' document needs to"
+            throw new IllegalArgumentException("The 'to' document needs to "
                     + "have state=full");
 
         if (conferenceInfoDocumentsMatch(from, to))
@@ -1185,10 +1224,86 @@ public abstract class AbstractOperationSetTelephonyConferencing<
     {
         logger.warn("Received a conference-info partial notification, which we"
                 + " can't handle. Sending peer: " + callPeer);
+        if (true)
+            return -1;
+
+        ConferenceInfoDocument ourDocument = callPeer.getConferenceState();
+        ConferenceInfoDocument newDocument;
+
+        ConferenceInfoDocument.State usersState = diff.getUsersState();
+        if (usersState == ConferenceInfoDocument.State.FULL)
+        {
+            //if users is 'full', all its children must be full
+            newDocument = diff;
+            newDocument.setState(ConferenceInfoDocument.State.FULL);
+        }
+        else if (usersState == ConferenceInfoDocument.State.DELETED)
+        {
+            try
+            {
+                newDocument = new ConferenceInfoDocument();
+            }
+            catch (Exception e)
+            {
+                logger.error("Could not create a new ConferenceInfoDocument", e);
+                return -1;
+            }
+
+            newDocument.setVersion(diff.getVersion());
+            newDocument.setEntity(diff.getEntity());
+            newDocument.setUserCount(diff.getUserCount());
+        }
+        else //'partial'
+        {
+            newDocument = ourDocument;
+
+            newDocument.setVersion(diff.getVersion());
+            newDocument.setEntity(diff.getEntity());
+            newDocument.setUserCount(diff.getUserCount());
+
+            for (ConferenceInfoDocument.User user : diff.getUsers())
+            {
+                ConferenceInfoDocument.State userState = user.getState();
+                if (userState == ConferenceInfoDocument.State.FULL)
+                {
+                    //copy the whole thing from diff to newDocument
+                }
+                else if (userState == ConferenceInfoDocument.State.DELETED)
+                {
+                    newDocument.removeUser(user.getEntity());
+                }
+                else
+                {
+                    ConferenceInfoDocument.User ourUser
+                            = newDocument.getUser(user.getEntity());
+                    for (ConferenceInfoDocument.Endpoint endpoint
+                            : user.getEndpoints())
+                    {
+                        ConferenceInfoDocument.State endpointState
+                                = endpoint.getState();
+                        if (endpointState == ConferenceInfoDocument.State.FULL)
+                        {
+                            //update the whole thing
+                        }
+                        else if (endpointState
+                                == ConferenceInfoDocument.State.DELETED)
+                        {
+                            ourUser.removeEndpoint(endpoint.getEntity());
+                        }
+                        else //'partial'
+                        {
+                            for (ConferenceInfoDocument.Media media
+                                        : endpoint.getMedias())
+                            {
+                                //copy media with id media.getId()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         return -1;
-        // TODO: generate a new full conf info by applying 'diff' to
-        // callPeer.getConferenceState
-        // return setConferenceInfoDocument(callPeer, newFullConfInfo);
     }
 
     /**

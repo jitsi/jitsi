@@ -39,6 +39,23 @@ public class ConferenceInfoDocument
             = "urn:ietf:params:xml:ns:conference-info";
 
     /**
+     * The name of the "conference-info" element.
+     */
+    public static final String CONFERENCE_INFO_ELEMENT_NAME = "conference-info";
+
+    /**
+     * The name of the "conference-description" element.
+     */
+    public static final String CONFERENCE_DESCRIPTION_ELEMENT_NAME
+            = "conference-description";
+
+    /**
+     * The name of the "conference-state" element.
+     */
+    public static final String CONFERENCE_STATE_ELEMENT_NAME
+            = "conference-state";
+
+    /**
      * The name of the "state" attribute.
      */
     public static final String STATE_ATTR_NAME = "state";
@@ -91,7 +108,17 @@ public class ConferenceInfoDocument
     /**
      * The name of the "type" element.
      */
-    public static final String TYPE_ELEMENT_NAME = "src-id";
+    public static final String TYPE_ELEMENT_NAME = "type";
+
+    /**
+     * The name of the "user-count" element.
+     */
+    public static final String USER_COUNT_ELEMENT_NAME = "user-count";
+
+    /**
+     * The mane of the "display-text" element.
+     */
+    public static final String DISPLAY_TEXT_ELEMENT_NAME = "display-text";
 
     /**
      * The <tt>Document</tt> object that we wrap around.
@@ -127,7 +154,7 @@ public class ConferenceInfoDocument
     /**
      * A list of <tt>User</tt>s representing the children of <tt>users</tt>
      */
-    private List<User> usersList = new LinkedList<User>();
+    private final List<User> usersList = new LinkedList<User>();
 
     /**
      * Creates a new <tt>ConferenceInfoDocument</tt> instance.
@@ -146,18 +173,19 @@ public class ConferenceInfoDocument
         }
 
 
-        conferenceInfo = document.createElementNS(NAMESPACE, "conference-info");
+        conferenceInfo = document
+                .createElementNS(NAMESPACE, CONFERENCE_INFO_ELEMENT_NAME);
         document.appendChild(conferenceInfo);
 
-        conferenceDescription = document.createElement("conference-description");
+        setVersion(1);
+
+        conferenceDescription
+                = document.createElement(CONFERENCE_DESCRIPTION_ELEMENT_NAME);
         conferenceInfo.appendChild(conferenceDescription);
 
-        conferenceState = document.createElement("conference-state");
+        conferenceState = document.createElement(CONFERENCE_STATE_ELEMENT_NAME);
         conferenceInfo.appendChild(conferenceState);
-
-        userCount = document.createElement("user-count");
-        userCount.setTextContent("0");
-        conferenceState.appendChild(userCount);
+        setUserCount(0);
 
         users = document.createElement(USERS_ELEMENT_NAME);
         conferenceState.appendChild(users);
@@ -197,15 +225,15 @@ public class ConferenceInfoDocument
             throw(e);
         }
 
-        conferenceInfo = document.getElementById("conference-info");
+        conferenceInfo = document.getElementById(CONFERENCE_INFO_ELEMENT_NAME);
         if (conferenceInfo == null)
         {
             throw(new Exception("Could not parse conference-info document,"
                     + " conference-info element not found"));
         }
 
-        conferenceDescription
-            = XMLUtils.findChild(conferenceInfo, "conference-description");
+        conferenceDescription = XMLUtils
+                .findChild(conferenceInfo, CONFERENCE_DESCRIPTION_ELEMENT_NAME);
         //conference-description is mandatory
         if (conferenceDescription == null)
         {
@@ -214,9 +242,10 @@ public class ConferenceInfoDocument
         }
 
         conferenceState
-            = XMLUtils.findChild(conferenceInfo, "conference-state");
+            = XMLUtils.findChild(conferenceInfo, CONFERENCE_STATE_ELEMENT_NAME);
         if (conferenceState != null)
-            userCount = XMLUtils.findChild(conferenceState, "user-count");
+            userCount = XMLUtils
+                    .findChild(conferenceState, USER_COUNT_ELEMENT_NAME);
 
         users = XMLUtils.findChild(conferenceInfo, USERS_ELEMENT_NAME);
         if (users == null)
@@ -270,7 +299,16 @@ public class ConferenceInfoDocument
      */
     public State getState()
     {
-        return State.parseString(conferenceInfo.getAttribute(STATE_ATTR_NAME));
+        return getState(conferenceInfo);
+    }
+
+    /**
+     * @return the value of the <tt>state</tt> attribute of the <tt>users</tt>
+     * child of the <tt>conference-info</tt> element.
+     */
+    public State getUsersState()
+    {
+        return getState(users);
     }
 
     /**
@@ -308,7 +346,7 @@ public class ConferenceInfoDocument
      */
     public void setEntity(String entity)
     {
-        conferenceInfo.setAttribute("entity", entity);
+        conferenceInfo.setAttribute(ENTITY_ATTR_NAME, entity);
     }
 
     /**
@@ -329,7 +367,7 @@ public class ConferenceInfoDocument
      */
     public void setUserCount(int count)
     {
-        // conference-state and therefore its user-count child aren't mandatory
+        // conference-state and its user-count child aren't mandatory
         if (userCount != null)
         {
             userCount.setTextContent(Integer.toString(count));
@@ -338,11 +376,12 @@ public class ConferenceInfoDocument
         {
             if (conferenceState == null)
             {
-                conferenceState = document.createElement("conference-state");
+                conferenceState
+                        = document.createElement(CONFERENCE_STATE_ELEMENT_NAME);
                 conferenceInfo.appendChild(conferenceState);
             }
 
-            userCount = document.createElement("user-count");
+            userCount = document.createElement(USER_COUNT_ELEMENT_NAME);
             userCount.setTextContent(Integer.toString(count));
             conferenceState.appendChild(userCount);
         }
@@ -432,11 +471,40 @@ public class ConferenceInfoDocument
     }
 
     /**
+     * Removes a specific <tt>User</tt> (the one with entity <tt>entity</tt>)
+     * from the document.
+     * @param entity the entity of the <tt>User</tt> to remove.
+     */
+    public void removeUser(String entity)
+    {
+        User user = getUser(entity);
+        if (user != null)
+        {
+            usersList.remove(user);
+            users.removeChild(user.userElement);
+        }
+    }
+
+    /**
      * @return the <tt>Document</tt> that this instance wraps around.
      */
     public Document getDocument()
     {
         return document;
+    }
+
+    /**
+     * @param element the <tt>Element</tt>
+     * @return the <tt>State</tt> corresponding to the <tt>state</tt> attribute
+     * of an <tt>Element</tt>. Default to <tt>State.FULL</tt> which is the
+     * RFC4575 default.
+     */
+    private State getState(Element element)
+    {
+        State state = State.parseString(element.getAttribute(STATE_ATTR_NAME));
+        return state == null
+                ? State.FULL
+                : state;
     }
 
     /**
@@ -566,6 +634,15 @@ public class ConferenceInfoDocument
         }
 
         /**
+         * @return the value of the <tt>state</tt> attribute of this
+         * <tt>User</tt>'s element
+         */
+        public State getState()
+        {
+            return ConferenceInfoDocument.this.getState(userElement);
+        }
+
+        /**
          * Sets the <tt>display-text</tt> child element to this <tt>User</tt>'s
          * element.
          * @param text the text content to use for the <tt>display-text</tt>
@@ -574,10 +651,10 @@ public class ConferenceInfoDocument
         public void setDisplayText(String text)
         {
             Element displayText
-                    = XMLUtils.findChild(userElement, "display-text");
+                    = XMLUtils.findChild(userElement, DISPLAY_TEXT_ELEMENT_NAME);
             if (displayText == null)
             {
-                displayText = document.createElement("display-text");
+                displayText = document.createElement(DISPLAY_TEXT_ELEMENT_NAME);
                 userElement.appendChild(displayText);
             }
 
@@ -592,7 +669,7 @@ public class ConferenceInfoDocument
         public String getDisplayText()
         {
             Element displayText
-                    = XMLUtils.findChild(userElement, "display-text");
+                    = XMLUtils.findChild(userElement, DISPLAY_TEXT_ELEMENT_NAME);
             if (displayText != null)
                 return displayText.getTextContent();
 
@@ -647,6 +724,20 @@ public class ConferenceInfoDocument
             return endpoint;
         }
 
+        /**
+         * Removes a specific <tt>Endpoint</tt> (the one with entity
+         * <tt>entity</tt>) from this <tt>User</tt>.
+         * @param entity the <tt>entity</tt> of the <tt>Endpoint</tt> to remove
+         */
+        public void removeEndpoint(String entity)
+        {
+            Endpoint endpoint = getEndpoint(entity);
+            if (endpoint != null)
+            {
+                endpointsList.remove(endpoint);
+                userElement.removeChild(endpoint.endpointElement);
+            }
+        }
     }
 
     /**
@@ -703,6 +794,25 @@ public class ConferenceInfoDocument
         }
 
         /**
+         * Sets the <tt>state</tt> attribute of this <tt>User</tt>'s element to
+         * <tt>state</tt>
+         * @param state the value to use for the <tt>state</tt> attribute.
+         */
+        public void setState(State state)
+        {
+            endpointElement.setAttribute(STATE_ATTR_NAME, state.toString());
+        }
+
+        /**
+         * @return the value of the <tt>state</tt> attribute of this
+         * <tt>Endpoint</tt>'s element
+         */
+        public State getState()
+        {
+            return ConferenceInfoDocument.this.getState(endpointElement);
+        }
+
+        /**
          * Sets the <tt>status</tt> child element of this <tt>Endpoint</tt>'s
          * element.
          * @param status the value to be used for the text content of the
@@ -714,7 +824,7 @@ public class ConferenceInfoDocument
                     = XMLUtils.findChild(endpointElement, STATUS_ELEMENT_NAME);
             if (statusElement == null)
             {
-                statusElement = document.createElement("status");
+                statusElement = document.createElement(STATUS_ELEMENT_NAME);
                 endpointElement.appendChild(statusElement);
             }
             statusElement.setTextContent(status.toString());
@@ -779,6 +889,21 @@ public class ConferenceInfoDocument
             mediasList.add(media);
 
             return media;
+        }
+
+        /**
+         * Removes a specific <tt>Media</tt> (the one with id <tt>id</tt>) from
+         * this <tt>Endpoint</tt>.
+         * @param id the <tt>id</tt> of the <tt>Media</tt> to remove.
+         */
+        public void removeMedia(String id)
+        {
+            Media media = getMedia(id);
+            if (media != null)
+            {
+                mediasList.remove(media);
+                endpointElement.removeChild(media.mediaElement);
+            }
         }
     }
 
