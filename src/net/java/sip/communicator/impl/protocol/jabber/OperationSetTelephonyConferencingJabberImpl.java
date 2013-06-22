@@ -171,8 +171,12 @@ public class OperationSetTelephonyConferencingJabberImpl
         ConferenceInfoDocument lastSentConfInfo
                 = callPeerJabber.getLastConferenceInfoSent();
 
-        ConferenceInfoDocument diff
-                = getConferenceInfoDiff(lastSentConfInfo, currentConfInfo);
+        ConferenceInfoDocument diff;
+
+        if (lastSentConfInfo == null)
+            diff = currentConfInfo;
+        else
+            diff = getConferenceInfoDiff(lastSentConfInfo, currentConfInfo);
 
         if (diff != null)
         {

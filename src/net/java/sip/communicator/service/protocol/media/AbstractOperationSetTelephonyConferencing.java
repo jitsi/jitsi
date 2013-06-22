@@ -1326,7 +1326,7 @@ public abstract class AbstractOperationSetTelephonyConferencing<
             throw new IllegalArgumentException("The 'b' document needs to"
                     + "have state=full");
 
-        if (stringsMatch(a.getEntity(), b.getEntity()))
+        if (!stringsMatch(a.getEntity(), b.getEntity()))
             return false;
         else if (a.getUserCount() != b.getUserCount())
             return false;
