@@ -784,9 +784,9 @@ public class IceUdpTransportManager
                                     component,
                                     org.ice4j.ice.CandidateType.parse(
                                             candidate.getType().toString()),
-                                    Integer.toString(candidate.getFoundation()),
-                                    candidate.getPriority(),
-                                    relatedCandidate));
+                                            candidate.getFoundation(),
+                                            candidate.getPriority(),
+                                            relatedCandidate));
                 }
             }
 
@@ -889,9 +889,9 @@ public class IceUdpTransportManager
                                 component,
                                 org.ice4j.ice.CandidateType.parse(
                                         candidate.getType().toString()),
-                                Integer.toString(candidate.getFoundation()),
-                                candidate.getPriority(),
-                                relatedCandidate));
+                                        candidate.getFoundation(),
+                                        candidate.getPriority(),
+                                        relatedCandidate));
                 startConnectivityEstablishment = true;
             }
         }

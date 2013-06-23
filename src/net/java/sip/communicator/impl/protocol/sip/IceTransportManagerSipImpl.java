@@ -12,6 +12,7 @@ import net.java.sip.communicator.impl.protocol.sip.sdp.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.media.*;
 import org.ice4j.ice.*;
+import org.ice4j.ice.sdp.*;
 import org.jitsi.service.neomedia.*;
 
 import javax.sdp.*;
@@ -85,7 +86,7 @@ public class IceTransportManagerSipImpl
         iceAgent = createIceAgent();
         iceAgent.setControlling(true);
 
-        SdpUtils.setIceCredentials(
+        IceSdpUtils.setIceCredentials(
             ourOffer, iceAgent.getLocalUfrag(), iceAgent.getLocalPassword());
 
         //obviously we ARE the controlling agent since we are the ones creating
@@ -94,14 +95,12 @@ public class IceTransportManagerSipImpl
 
         for(MediaDescription mLine : SdpUtils.extractMediaDescriptions(ourOffer))
         {
-            IceMediaStream stream = createIceStream(
+            IceMediaStream iceStream = createIceStream(
                 SdpUtils.getMediaType(mLine).toString(), iceAgent);
 
             //now, lets add whatever candidates we already have in the stream.
-            SdpUtils
+            IceSdpUtils.initMediaDescription(mLine, iceStream);
         }
-
-
     }
 
     /**

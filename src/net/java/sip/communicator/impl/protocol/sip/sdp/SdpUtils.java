@@ -19,6 +19,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
 
+import org.ice4j.ice.sdp.*;
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.MediaType;
 import org.jitsi.service.neomedia.format.*;
@@ -1742,32 +1743,18 @@ public class SdpUtils
      * specified session description.
      *
      * @param sDes the session description where we'd like to set a user
-     * fragment and a passowrd.
+     * fragment and a password.
      * @param uFrag the ICE user name fragment that we'd like to set on the
      * session description
      * @param pwd the ICE password that we'd like to set on the session
      * description
      *
-     * @throws OperationFailedException in case jain-sdp goes crazy and decides
-     * not to set the attributes
+     * @throws NullPointerException if the either of the parameters is null
      */
     public static void setIceCredentials(SessionDescription sDes,
-                                  String             uFrag,
-                                  String             pwd)
-        throws OperationFailedException
+                                         String             uFrag,
+                                         String             pwd)
     {
-        try
-        {
-            sDes.setAttribute(ICE_UFRAG, uFrag);
-            sDes.setAttribute(ICE_PWD, pwd);
-        }
-        catch (Exception cause)
-        {
-           // this is very unlikely to happen but we should still rethrow
-           ProtocolProviderServiceSipImpl.throwOperationFailedException(
-                           "Failed to set ICE credentials",
-                           OperationFailedException.INTERNAL_ERROR, cause,
-                           logger);
-        }
+        IceSdpUtils.setIceCredentials(sDes, uFrag, pwd);
     }
 }
