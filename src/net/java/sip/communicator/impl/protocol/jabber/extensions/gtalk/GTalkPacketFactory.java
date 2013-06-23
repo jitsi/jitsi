@@ -360,7 +360,7 @@ public class GTalkPacketFactory
             packet.setProtocol("ssltcp");
         }
         packet.setNetwork(0);
-        packet.setFoundation(0);
+        packet.setFoundation("0");
         packet.setComponent(component.getComponentID());
 
         CandidateType candType = CandidateType.valueOf(
