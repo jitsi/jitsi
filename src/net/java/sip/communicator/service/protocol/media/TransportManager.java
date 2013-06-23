@@ -7,6 +7,7 @@
 package net.java.sip.communicator.service.protocol.media;
 
 import java.net.*;
+import java.util.*;
 
 import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -96,6 +97,16 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
      * Number of empty UDP packets to send for NAT hole punching.
      */
     private static final int DEFAULT_HOLE_PUNCH_PKT_COUNT = 3;
+
+    /**
+     * Default STUN server address.
+     */
+    protected static final String DEFAULT_STUN_SERVER_ADDRESS = "stun.jitsi.net";
+
+    /**
+     * Default STUN server port.
+     */
+    protected static final int DEFAULT_STUN_SERVER_PORT = 3478;
 
     /**
      * The {@link MediaAwareCallPeer} whose traffic we will be taking care of.
@@ -296,7 +307,7 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
         ConfigurationService configuration
             = ProtocolMediaActivator.getConfigurationService();
         String minPortNumberStr = configuration.getString(
-                OperationSetBasicTelephony.MIN_MEDIA_PORT_NUMBER_PROPERTY_NAME);
+            OperationSetBasicTelephony.MIN_MEDIA_PORT_NUMBER_PROPERTY_NAME);
 
         String maxPortNumberStr = configuration.getString(
                 OperationSetBasicTelephony.MAX_MEDIA_PORT_NUMBER_PROPERTY_NAME);
@@ -394,8 +405,8 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
 
         //check how many hole punch packets we would be supposed to send:
         int packetCount = ProtocolMediaActivator.getConfigurationService()
-                    .getInt( HOLE_PUNCH_PKT_COUNT_PROPERTY,
-                             DEFAULT_HOLE_PUNCH_PKT_COUNT);
+                    .getInt(HOLE_PUNCH_PKT_COUNT_PROPERTY,
+                        DEFAULT_HOLE_PUNCH_PKT_COUNT);
 
         if (packetCount < 0)
             packetCount = DEFAULT_HOLE_PUNCH_PKT_COUNT;
@@ -618,15 +629,10 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
      * Creates the ICE agent that we would be using in this transport manager
      * for all negotiation.
      *
-     * @param isControlling specifies if the newly created agent was the one
-     * who initiated ICE processing (controlling) or the one who's responding
-     * (controlled).
-     *
      * @return the ICE agent to use for all the ICE negotiation that this
      * transport manager would be going through
      */
-    protected Agent createIceAgent(boolean                 isControlling,
-                                   ProtocolProviderFactory factory)
+    protected Agent createIceAgent()
     {
         long startGatheringHarvesterTime = System.currentTimeMillis();
         CallPeer peer = getCallPeer();
@@ -636,116 +642,16 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
         boolean atLeastOneStunServer = false;
         Agent agent = namSer.createIceAgent();
 
-        /*
-         * XEP-0176:  the initiator MUST include the ICE-CONTROLLING attribute,
-         * the responder MUST include the ICE-CONTROLLED attribute.
-         */
-        agent.setControlling(isControlling);
-
         //we will now create the harvesters
         AccountID accID = provider.getAccountID();
 
-        if (accID.isStunServerDiscoveryEnabled())
-        {
-            //the default server is supposed to use the same user name and
-            //password as the account itself.
-            String username = accID org.jivesoftware.smack.util.StringUtils.parseName(
-                    provider.getOurJID());
-            String password = factory.loadPassword(accID);
-
-            if(provider.getUserCredentials() != null)
-                password = provider.getUserCredentials().getPasswordAsString();
-
-            // ask for password if not saved
-            if (password == null)
-            {
-                //create a default credentials object
-                UserCredentials credentials = new UserCredentials();
-                credentials.setUserName(accID.getUserID());
-
-                //request a password from the user
-                credentials = provider.getAuthority().obtainCredentials(
-                    accID.getDisplayName(),
-                    credentials,
-                    SecurityAuthority.AUTHENTICATION_REQUIRED);
-
-                // in case user has canceled the login window
-                if(credentials == null)
-                {
-                    return null;
-                }
-
-                //extract the password the user passed us.
-                char[] pass = credentials.getPassword();
-
-                // the user didn't provide us a password (canceled the operation)
-                if(pass == null)
-                {
-                    return null;
-                }
-                password = new String(pass);
-
-                if (credentials.isPasswordPersistent())
-                {
-                    JabberActivator.getProtocolProviderFactory()
-                        .storePassword(accID, password);
-                }
-            }
-
-            StunCandidateHarvester autoHarvester
-                = namSer.discoverStunServer(
-                        accID.getService(),
-                        StringUtils.getUTF8Bytes(username),
-                        StringUtils.getUTF8Bytes(password));
-
-            if (logger.isInfoEnabled())
-                logger.info("Auto discovered harvester is " + autoHarvester);
-
-            if (autoHarvester != null)
-            {
-                atLeastOneStunServer = true;
-                agent.addCandidateHarvester(autoHarvester);
-            }
-        }
-
         //now create stun server descriptors for whatever other STUN/TURN
         //servers the user may have set.
-        for(StunServerDescriptor desc : accID.getStunServers())
+        for(CandidateHarvester harvester : getStunHarvesters(accID))
         {
-            TransportAddress addr = new TransportAddress(
-                            desc.getAddress(), desc.getPort(), Transport.UDP);
+            if(harvester instanceof StunCandidateHarvester)
+                atLeastOneStunServer = true;
 
-            // if we get STUN server from automatic discovery, it may just
-            // be server name (i.e. stun.domain.org) and it may be possible that
-            // it cannot be resolved
-            if(addr.getAddress() == null)
-            {
-                logger.info("Unresolved address for " + addr);
-                continue;
-            }
-
-            StunCandidateHarvester harvester;
-
-            if(desc.isTurnSupported())
-            {
-                //Yay! a TURN server
-                harvester
-                    = new TurnCandidateHarvester(
-                            addr,
-                            new LongTermCredential(
-                                    desc.getUsername(),
-                                    desc.getPassword()));
-            }
-            else
-            {
-                //this is a STUN only server
-                harvester = new StunCandidateHarvester(addr);
-            }
-
-            if (logger.isInfoEnabled())
-                logger.info("Adding pre-configured harvester " + harvester);
-
-            atLeastOneStunServer = true;
             agent.addCandidateHarvester(harvester);
         }
 
@@ -756,33 +662,12 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
              */
             if(accID.isUseDefaultStunServer())
             {
-                TransportAddress addr = new TransportAddress(
+                TransportAddress address = new TransportAddress(
                         DEFAULT_STUN_SERVER_ADDRESS,
                         DEFAULT_STUN_SERVER_PORT,
                         Transport.UDP);
                 StunCandidateHarvester harvester =
-                    new StunCandidateHarvester(addr);
-
-                if(harvester != null)
-                {
-                    agent.addCandidateHarvester(harvester);
-                }
-            }
-        }
-
-        /* Jingle nodes candidate */
-        if(accID.isJingleNodesRelayEnabled())
-        {
-            /* this method is blocking until Jingle Nodes auto-discovery (if
-             * enabled) finished
-             */
-            SmackServiceNode serviceNode =
-                peer.getProtocolProvider().getJingleNodesServiceNode();
-
-            if(serviceNode != null)
-            {
-                JingleNodesHarvester harvester = new JingleNodesHarvester(
-                        serviceNode);
+                    new StunCandidateHarvester(address);
 
                 if(harvester != null)
                 {
@@ -793,11 +678,11 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
 
         if(accID.isUPNPEnabled())
         {
-            UPNPHarvester harvester = new UPNPHarvester();
+            UPNPHarvester upnpHarvester = new UPNPHarvester();
 
-            if(harvester != null)
+            if(upnpHarvester != null)
             {
-                agent.addCandidateHarvester(harvester);
+                agent.addCandidateHarvester(upnpHarvester);
             }
         }
 
@@ -811,39 +696,129 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
     }
 
     /**
-     * Load password for this STUN descriptor.
+     * Creates and returns a list of candidate STUN/TURN harvesters as per the
+     * account configuration contained in the specified account ID.
      *
-     * @param namePrefix name prefix
-     * @return password or null if empty
+     * @param accID the ID of the account whose configuration we should search
+     * for STUN servers.
+     *
+     * @return a list of {@StunCandidateHarvester}s configured for the account
+     * with the specified ID.
      */
-    private String loadStunPassword(
-                                    String                  namePrefix,
-                                    ProtocolProviderService provider)
+    protected List<CandidateHarvester> getStunHarvesters(AccountID accID)
     {
+        List<StunServerDescriptor> stunServerDescriptors
+            = accID.getStunServers(ProtocolMediaActivator.bundleContext);
+        List<CandidateHarvester> stunHarvesters
+            = new ArrayList<CandidateHarvester>(stunServerDescriptors.size());
 
-        String password = null;
-        String className = provider.getClass().getName();
-        String packageSourceName = className.substring(0,
-                className.lastIndexOf('.'));
 
-        String accountPrefix = ProtocolProviderFactory.findAccountPrefix(
-                JabberActivator.bundleContext,
-                this, packageSourceName);
+        for(StunServerDescriptor desc : stunServerDescriptors)
+        {
+            TransportAddress address = new TransportAddress(
+                            desc.getAddress(), desc.getPort(), Transport.UDP);
 
-        CredentialsStorageService credentialsService =
-            JabberActivator.getCredentialsStorageService();
+            // if we get STUN server from automatic discovery, it may just
+            // be server name (i.e. stun.domain.org) and it may be possible that
+            // it cannot be resolved
+            if(address.getAddress() == null)
+            {
+                logger.info("Unresolved address for " + address);
+                continue;
+            }
 
+            StunCandidateHarvester harvester;
+
+            if(desc.isTurnSupported())
+            {
+                //Yay! a TURN server
+                harvester
+                    = new TurnCandidateHarvester(
+                            address,
+                            new LongTermCredential(
+                                    desc.getUsername(),
+                                    desc.getPassword()));
+            }
+            else
+            {
+                //this is a STUN only server
+                harvester = new StunCandidateHarvester(address);
+            }
+
+            if (logger.isInfoEnabled())
+                logger.info("Adding pre-configured harvester " + harvester);
+
+            stunHarvesters.add(harvester);
+        }
+
+        return stunHarvesters;
+    }
+
+    /**
+     * Creates an {@link IceMediaStream} with the specified <tt>media</tt>
+     * name.
+     *
+     * @param media the name of the stream we'd like to create.
+     * @param iceAgent the ICE agent that will create and handle th stream.
+     *
+     * @return the newly created {@link IceMediaStream}
+     *
+     * @throws OperationFailedException if binding on the specified media stream
+     * fails for some reason.
+     */
+    protected IceMediaStream createIceStream(String media, Agent iceAgent)
+        throws OperationFailedException
+    {
+        NetworkAddressManagerService namSer
+                    = ProtocolMediaActivator.getNetworkAddressManagerService();
+        IceMediaStream stream;
         try
         {
-            password = credentialsService.
-                loadPassword(accountPrefix + "." + namePrefix);
+            //the following call involves STUN processing so it may take a while
+            stream = namSer.createIceStream(
+                        getPortTracker(media).getPort(), media, iceAgent);
         }
-        catch(Exception e)
+        catch (Exception ex)
         {
-            return null;
+            throw new OperationFailedException(
+                    "Failed to initialize stream " + media,
+                    OperationFailedException.INTERNAL_ERROR,
+                    ex);
         }
 
-        return password;
+        //let's now update the next port var as best we can: we would assume
+        //that all local candidates are bound on the same port and set it
+        //to the one just above. if the assumption is wrong the next bind
+        //would simply include one more bind retry.
+        try
+        {
+            getPortTracker(media).setNextPort(
+                1 + stream.getComponent(Component.RTCP).getLocalCandidates()
+                    .get(0).getTransportAddress() .getPort());
+        }
+        catch(Throwable t)
+        {
+            //hey, we were just trying to be nice. if that didn't work for
+            //some reason we really can't be held responsible!
+            logger.debug("Determining next port didn't work: ", t);
+        }
+
+        return stream;
+    }
+
+
+    /**
+     * Returns a list of servers that are specific to the implementing protocol.
+     * Such servers include Jingle Node relays (XMPP only), or TurnServers using
+     * the credentials of the protocol. This list is added to all ICE
+     * {@link Agent}s created by this manager.
+     *
+     * @return a {@link List} of candidate harvesters to add to all newly
+     * created ICE {@link Agent}s or <tt>null</tt> if there are none.
+     */
+    protected List<CandidateHarvester> getProtocolSpecificHarvesters()
+    {
+        return null;
     }
 
     /**

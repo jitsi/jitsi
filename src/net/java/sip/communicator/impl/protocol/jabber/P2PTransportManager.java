@@ -62,8 +62,7 @@ public class P2PTransportManager
      * @return the ICE agent to use for all the ICE negotiation that this
      * transport manager would be going through
      */
-    @Override
-    protected Agent createIceAgent()
+    protected Agent createIceAgentPleaseDeleteMe()
     {
         CallPeerJabberImpl peer = getCallPeer();
         ProtocolProviderServiceJabberImpl provider = peer.getProtocolProvider();

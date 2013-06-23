@@ -839,6 +839,35 @@ public abstract class AccountID
     }
 
     /**
+     * Determines whether this account's provider uses UPnP (if available).
+     *
+     * @return <tt>true</tt> if this provider would use UPnP (if available),
+     * <tt>false</tt> otherwise
+     */
+    public boolean isUPNPEnabled()
+    {
+        return getAccountPropertyBoolean(
+                                        ProtocolProviderFactory.IS_USE_UPNP,
+                                        true);
+    }
+
+    /**
+     * Determines whether this account's provider uses the default STUN server
+     * provided by Jitsi (stun.jitsi.net) if there is no other STUN/TURN server
+     * discovered/configured.
+     *
+     * @return <tt>true</tt> if this provider would use the default STUN server,
+     * <tt>false</tt> otherwise
+     */
+    public boolean isUseDefaultStunServer()
+    {
+        return
+            getAccountPropertyBoolean(
+                    ProtocolProviderFactory.USE_DEFAULT_STUN_SERVER,
+                    true);
+    }
+
+    /**
      * Returns the actual name of the protocol used rather than a branded
      * variant. The method is primarily meant for open protocols such as SIP
      * or XMPP so that it would always return SIP or XMPP even in branded

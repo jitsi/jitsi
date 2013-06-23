@@ -58,6 +58,16 @@ public class SdpUtils
     public static final String ZRTP_HASH_ATTR = "zrtp-hash";
 
     /**
+     * The name of the SDP attribute that defines an ICE user fragment.
+     */
+    public static final String ICE_UFRAG = "ice-ufrag";
+
+    /**
+     * The name of the SDP attribute that defines an ICE password.
+     */
+    public static final String ICE_PWD = "ice-pwd";
+
+    /**
      * Parses the specified <tt>sdp String</tt> into a
      * <tt>SessionDescription</tt> and returns it;
      *
@@ -164,8 +174,7 @@ public class SdpUtils
                 : Connection.IP4;
 
             //o
-            if (userName == null)
-                userName = "jitsi.org";
+            userName = "jitsi.org";
 
             Origin o = sdpFactory.createOrigin(
                 userName, 0, 0, "IN", addrType, localAddress.getHostAddress());
@@ -1725,6 +1734,40 @@ public class SdpUtils
              * before.
              */
             return new String(rawContent);
+        }
+    }
+
+    /**
+     * Sets the specified ICE user fragment and password as attributes of the
+     * specified session description.
+     *
+     * @param sDes the session description where we'd like to set a user
+     * fragment and a passowrd.
+     * @param uFrag the ICE user name fragment that we'd like to set on the
+     * session description
+     * @param pwd the ICE password that we'd like to set on the session
+     * description
+     *
+     * @throws OperationFailedException in case jain-sdp goes crazy and decides
+     * not to set the attributes
+     */
+    public static void setIceCredentials(SessionDescription sDes,
+                                  String             uFrag,
+                                  String             pwd)
+        throws OperationFailedException
+    {
+        try
+        {
+            sDes.setAttribute(ICE_UFRAG, uFrag);
+            sDes.setAttribute(ICE_PWD, pwd);
+        }
+        catch (Exception cause)
+        {
+           // this is very unlikely to happen but we should still rethrow
+           ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                           "Failed to set ICE credentials",
+                           OperationFailedException.INTERNAL_ERROR, cause,
+                           logger);
         }
     }
 }

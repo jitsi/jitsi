@@ -526,22 +526,6 @@ public class JabberAccountID
     }
 
     /**
-     * Determines whether this account's provider uses the default STUN server
-     * provided by SIP Communicator if there is no other STUN/TURN server
-     * discovered/configured.
-     *
-     * @return <tt>true</tt> if this provider would use the default STUN server,
-     * <tt>false</tt> otherwise
-     */
-    public boolean isUseDefaultStunServer()
-    {
-        return
-            getAccountPropertyBoolean(
-                    ProtocolProviderFactory.USE_DEFAULT_STUN_SERVER,
-                    true);
-    }
-
-    /**
      * Returns the list of JingleNodes trackers/relays that this account is
      * currently configured to use.
      *
@@ -612,19 +596,6 @@ public class JabberAccountID
     {
         return getAccountPropertyBoolean(
                 ProtocolProviderFactory.IS_USE_JINGLE_NODES,
-                true);
-    }
-
-    /**
-     * Determines whether this account's provider uses UPnP (if available).
-     *
-     * @return <tt>true</tt> if this provider would use UPnP (if available),
-     * <tt>false</tt> otherwise
-     */
-    public boolean isUPNPEnabled()
-    {
-        return getAccountPropertyBoolean(
-                ProtocolProviderFactory.IS_USE_UPNP,
                 true);
     }
 

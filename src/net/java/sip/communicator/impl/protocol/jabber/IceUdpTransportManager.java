@@ -20,7 +20,6 @@ import net.java.sip.communicator.util.Logger;
 import org.ice4j.*;
 import org.ice4j.ice.*;
 import org.ice4j.ice.harvest.*;
-import org.ice4j.security.*;
 import org.jitsi.service.neomedia.*;
 import org.jitsi.util.*;
 import org.jivesoftware.smack.packet.*;
@@ -65,16 +64,6 @@ public class IceUdpTransportManager
     protected final Agent iceAgent;
 
     /**
-     * Default STUN server address.
-     */
-    protected static final String DEFAULT_STUN_SERVER_ADDRESS = "stun.jitsi.net";
-
-    /**
-     * Default STUN server port.
-     */
-    protected static final int DEFAULT_STUN_SERVER_PORT = 3478;
-
-    /**
      * Creates a new instance of this transport manager, binding it to the
      * specified peer.
      *
@@ -88,27 +77,25 @@ public class IceUdpTransportManager
         iceAgent.addStateChangeListener(this);
     }
 
+
+
     /**
-     * Creates the ICE agent that we would be using in this transport manager
-     * for all negotiation.
+     * Returns a list of servers that are specific to Jabber/XMPP and/or this
+     * account. These may includ Jingle Node relays or TURN servers using
+     * the credentials of the account. This list will be used by our
+     * {@link TransportManager} parent to populate ICE agents that it creates.
      *
-     * @return the ICE agent to use for all the ICE negotiation that this
-     * transport manager would be going through
+     * @return a {@link List} of candidate harvesters specific to this account
+     * or to XMPP.
      */
-    protected Agent createIceAgent()
+    protected List<CandidateHarvester> getProtocolSpecificHarvesters()
     {
-        long startGatheringHarvesterTime = System.currentTimeMillis();
+        List<CandidateHarvester> harvesters
+            = new LinkedList<CandidateHarvester>();
+
         CallPeerJabberImpl peer = getCallPeer();
         ProtocolProviderServiceJabberImpl provider = peer.getProtocolProvider();
         NetworkAddressManagerService namSer = getNetAddrMgr();
-        boolean atLeastOneStunServer = false;
-        Agent agent = namSer.createIceAgent();
-
-        /*
-         * XEP-0176:  the initiator MUST include the ICE-CONTROLLING attribute,
-         * the responder MUST include the ICE-CONTROLLED attribute.
-         */
-        agent.setControlling(!peer.isInitiator());
 
         //we will now create the harvesters
         JabberAccountIDImpl accID
@@ -174,70 +161,7 @@ public class IceUdpTransportManager
 
             if (autoHarvester != null)
             {
-                atLeastOneStunServer = true;
-                agent.addCandidateHarvester(autoHarvester);
-            }
-        }
-
-        //now create stun server descriptors for whatever other STUN/TURN
-        //servers the user may have set.
-        for(StunServerDescriptor desc : accID.getStunServers())
-        {
-            TransportAddress addr = new TransportAddress(
-                            desc.getAddress(), desc.getPort(), Transport.UDP);
-
-            // if we get STUN server from automatic discovery, it may just
-            // be server name (i.e. stun.domain.org) and it may be possible that
-            // it cannot be resolved
-            if(addr.getAddress() == null)
-            {
-                logger.info("Unresolved address for " + addr);
-                continue;
-            }
-
-            StunCandidateHarvester harvester;
-
-            if(desc.isTurnSupported())
-            {
-                //Yay! a TURN server
-                harvester
-                    = new TurnCandidateHarvester(
-                            addr,
-                            new LongTermCredential(
-                                    desc.getUsername(),
-                                    desc.getPassword()));
-            }
-            else
-            {
-                //this is a STUN only server
-                harvester = new StunCandidateHarvester(addr);
-            }
-
-            if (logger.isInfoEnabled())
-                logger.info("Adding pre-configured harvester " + harvester);
-
-            atLeastOneStunServer = true;
-            agent.addCandidateHarvester(harvester);
-        }
-
-        if(!atLeastOneStunServer)
-        {
-            /* we have no configured or discovered STUN server so takes the
-             * default provided by us if user allows it
-             */
-            if(accID.isUseDefaultStunServer())
-            {
-                TransportAddress addr = new TransportAddress(
-                        DEFAULT_STUN_SERVER_ADDRESS,
-                        DEFAULT_STUN_SERVER_PORT,
-                        Transport.UDP);
-                StunCandidateHarvester harvester =
-                    new StunCandidateHarvester(addr);
-
-                if(harvester != null)
-                {
-                    agent.addCandidateHarvester(harvester);
-                }
+                harvesters.add(autoHarvester);
             }
         }
 
@@ -257,29 +181,14 @@ public class IceUdpTransportManager
 
                 if(harvester != null)
                 {
-                    agent.addCandidateHarvester(harvester);
+                    harvesters.add(harvester);
                 }
             }
         }
 
-        if(accID.isUPNPEnabled())
-        {
-            UPNPHarvester harvester = new UPNPHarvester();
-
-            if(harvester != null)
-            {
-                agent.addCandidateHarvester(harvester);
-            }
-        }
-
-        long stopGatheringHarvesterTime = System.currentTimeMillis();
-        long  gatheringHarvesterTime
-            = stopGatheringHarvesterTime - startGatheringHarvesterTime;
-        if (logger.isInfoEnabled())
-            logger.info("End gathering harvester within "
-                    + gatheringHarvesterTime + " ms");
-        return agent;
+        return harvesters;
     }
+
 
     /**
      * Initializes a new <tt>StreamConnector</tt> to be used as the
@@ -528,6 +437,10 @@ public class IceUdpTransportManager
             TransportInfoSender transportInfoSender)
         throws OperationFailedException
     {
+        //obviously we are NOT the controlling agent since the offer came from
+        //the remote party.
+        iceAgent.setControlling(false);
+
         Collection<ContentPacketExtension> transportInfoContents
             = (transportInfoSender == null)
                 ? null
@@ -546,7 +459,8 @@ public class IceUdpTransportManager
             RtpDescriptionPacketExtension rtpDesc
                 = ourContent.getFirstChildOfType(
                         RtpDescriptionPacketExtension.class);
-            IceMediaStream stream = createIceStream(rtpDesc.getMedia());
+            IceMediaStream stream
+                = createIceStream(rtpDesc.getMedia(), iceAgent);
 
             // Report the gathered candidate addresses.
             if (transportInfoSender == null)
@@ -637,13 +551,18 @@ public class IceUdpTransportManager
             TransportInfoSender transportInfoSender)
         throws OperationFailedException
     {
+        //obviously we ARE the controlling agent since we are the ones creating
+        //the offer.
+        iceAgent.setControlling(true);
+
         for(ContentPacketExtension ourContent : ourOffer)
         {
             RtpDescriptionPacketExtension rtpDesc
                 = ourContent.getFirstChildOfType(
                         RtpDescriptionPacketExtension.class);
 
-            IceMediaStream stream = createIceStream(rtpDesc.getMedia());
+            IceMediaStream stream
+                = createIceStream(rtpDesc.getMedia(), iceAgent);
 
             //we now generate the XMPP code containing the candidates.
             ourContent.addChildExtension(createTransport(stream));
@@ -693,10 +612,7 @@ public class IceUdpTransportManager
     {
         CandidatePacketExtension packet = new CandidatePacketExtension();
 
-        //TODO: XMPP expects int values as foundations. Luckily that's exactly
-        //what ice4j is using under the hood at this time. still, we'd need to
-        //make sure that doesn't change ... possibly by setting a property there
-        packet.setFoundation(Integer.parseInt( candidate.getFoundation()));
+        packet.setFoundation(candidate.getFoundation());
 
         Component component = candidate.getParentComponent();
 
@@ -728,55 +644,6 @@ public class IceUdpTransportManager
         packet.setNetwork(0);
 
         return packet;
-    }
-
-    /**
-     * Creates an {@link IceMediaStream} with the specified <tt>media</tt>
-     * name.
-     *
-     * @param media the name of the stream we'd like to create.
-     *
-     * @return the newly created {@link IceMediaStream}
-     *
-     * @throws OperationFailedException if binding on the specified media stream
-     * fails for some reason.
-     */
-    protected IceMediaStream createIceStream(String media)
-        throws OperationFailedException
-    {
-        IceMediaStream stream;
-        try
-        {
-            //the following call involves STUN processing so it may take a while
-            stream = getNetAddrMgr().createIceStream(
-                        getPortTracker(media).getPort(), media, iceAgent);
-        }
-        catch (Exception ex)
-        {
-            throw new OperationFailedException(
-                    "Failed to initialize stream " + media,
-                    OperationFailedException.INTERNAL_ERROR,
-                    ex);
-        }
-
-        //let's now update the next port var as best we can: we would assume
-        //that all local candidates are bound on the same port and set it
-        //to the one just above. if the assumption is wrong the next bind
-        //would simply include one more bind retry.
-        try
-        {
-            getPortTracker(media).setNextPort(
-                1 + stream.getComponent(Component.RTCP).getLocalCandidates()
-                    .get(0).getTransportAddress() .getPort());
-        }
-        catch(Throwable t)
-        {
-            //hey, we were just trying to be nice. if that didn't work for
-            //some reason we really can't be held responsible!
-            logger.debug("Determining next port didn't work: ", t);
-        }
-
-        return stream;
     }
 
     /**
