@@ -306,6 +306,9 @@ public class ConferenceInfoDocument
     }
 
     /**
+     * Returns the value of the <tt>state</tt> attribute of the <tt>users</tt>
+     * child of the <tt>conference-info</tt> element.
+     *
      * @return the value of the <tt>state</tt> attribute of the <tt>users</tt>
      * child of the <tt>conference-info</tt> element.
      */
@@ -334,7 +337,6 @@ public class ConferenceInfoDocument
      *
      * @param sid the value to set the <tt>sid</tt> attribute of the
      * <tt>conference-info</tt> element to.
-     *
      */
     public void setSid(String sid)
     {
@@ -391,11 +393,14 @@ public class ConferenceInfoDocument
     }
 
     /**
-     * @return the content of the <tt>user-count</tt> field of the
+     * Returns the content of the <tt>user-count</tt> child of the
      * <tt>conference-state</tt> child of <tt>conference-info</tt>, parsed as
      * an integer, if they exist. Returns -1 if either there isn't a
      * <tt>conference-state</tt> element, it doesn't have a <tt>user-count</tt>
      * child, or parsing as integer failed.
+     *
+     * @return the content of the <tt>user-count</tt> child of the
+     * <tt>conference-state</tt> child of <tt>conference-info</tt> element.
      */
     public int getUserCount()
     {
@@ -412,6 +417,9 @@ public class ConferenceInfoDocument
     }
 
     /**
+     * Returns the XML representation of the <tt>conference-info</tt> tree,
+     * or <tt>null</tt> if an error occurs while trying to get it.
+     *
      * @return the XML representation of the <tt>conference-info</tt> tree,
      * or <tt>null</tt> if an error occurs while trying to get it.
      */
@@ -435,9 +443,10 @@ public class ConferenceInfoDocument
     }
 
     /**
-     * @return the XML representation of the document (from the
+     * Returns the XML representation of the document (from the
      * <tt>conference-info</tt> element down), or an error string in case the
      * XML cannot be generated for some reason.
+     * @return the XML representation of the document or an error string.
      */
     @Override
     public String toString()
@@ -448,7 +457,9 @@ public class ConferenceInfoDocument
                 : s;
     }
 
-   /**
+    /**
+     * Returns the list of <tt>User</tt> that represents the <tt>user</tt>
+     * children of the <tt>users</tt> child element of <tt>conference-info</tt>
      * @return the list of <tt>User</tt> that represents the <tt>user</tt>
      * children of the <tt>users</tt> child element of <tt>conference-info</tt>
      */
@@ -458,11 +469,13 @@ public class ConferenceInfoDocument
     }
 
     /**
-     * @param entity The value of the <tt>entity</tt> attribute to search for.
-     * @return Searches this document's <tt>User</tt>s and returns the one with
+     * Searches this document's <tt>User</tt>s and returns the one with
      * <tt>entity</tt> attribute <tt>entity</tt>, or <tt>null</tt> if one
      * wasn't found.
-     */
+     * @param entity The value of the <tt>entity</tt> attribute to search for.
+     * @return the <tt>User</tt> of this document with <tt>entity</tt>
+     * attribute <tt>entity</tt>, or <tt>null</tt> if one wasn't found.
+     * */
     public User getUser(String entity)
     {
         if (entity == null)
@@ -510,6 +523,7 @@ public class ConferenceInfoDocument
     }
 
     /**
+     * Returns the <tt>Document</tt> that this instance wraps around.
      * @return the <tt>Document</tt> that this instance wraps around.
      */
     public Document getDocument()
@@ -518,10 +532,12 @@ public class ConferenceInfoDocument
     }
 
     /**
-     * @param element the <tt>Element</tt>
-     * @return the <tt>State</tt> corresponding to the <tt>state</tt> attribute
+     * Returns the <tt>State</tt> corresponding to the <tt>state</tt> attribute
      * of an <tt>Element</tt>. Default to <tt>State.FULL</tt> which is the
      * RFC4575 default.
+     * @param element the <tt>Element</tt>
+     * @return the <tt>State</tt> corresponding to the <tt>state</tt> attribute
+     * of an <tt>Element</tt>.
      */
     private State getState(Element element)
     {
@@ -627,6 +643,8 @@ public class ConferenceInfoDocument
         }
 
         /**
+         * Returns a <tt>State</tt> value corresponding to the specified
+         * <tt>name</tt>
          * @return a <tt>State</tt> value corresponding to the specified
          * <tt>name</tt>
          */
@@ -652,13 +670,13 @@ public class ConferenceInfoDocument
         /**
          * The underlying <tt>Element</tt>.
          */
-        Element userElement;
+        private Element userElement;
 
         /**
          * The list of <tt>Endpoint</tt>s representing the <tt>endpoint</tt>
          * children of this <tt>User</tt>'s element.
          */
-        List<Endpoint> endpointsList = new LinkedList<Endpoint>();
+        private List<Endpoint> endpointsList = new LinkedList<Endpoint>();
 
         /**
          * Creates a new <tt>User</tt> instance with the specified
@@ -689,6 +707,8 @@ public class ConferenceInfoDocument
         }
 
         /**
+         * Returns the value of the <tt>entity</tt> attribute of this
+         * <tt>User</tt>'s element.
          * @return the value of the <tt>entity</tt> attribute of this
          * <tt>User</tt>'s element.
          */
@@ -708,6 +728,8 @@ public class ConferenceInfoDocument
         }
 
         /**
+         * Returns the value of the <tt>state</tt> attribute of this
+         * <tt>User</tt>'s element
          * @return the value of the <tt>state</tt> attribute of this
          * <tt>User</tt>'s element
          */
@@ -746,6 +768,9 @@ public class ConferenceInfoDocument
         }
 
         /**
+         * Returns the text content of the <tt>display-text</tt> child element
+         * of this <tt>User</tt>'s element, if it has such a child. Returns
+         * <tt>null</tt> otherwise.
          * @return the text content of the <tt>display-text</tt> child element
          * of this <tt>User</tt>'s element, if it has such a child. Returns
          * <tt>null</tt> otherwise.
@@ -761,6 +786,8 @@ public class ConferenceInfoDocument
         }
 
         /**
+         * Returns the list of <tt>Endpoint</tt>s which represent the
+         * <tt>endpoint</tt> children of this <tt>User</tt>'s element.
          * @return the list of <tt>Endpoint</tt>s which represent the
          * <tt>endpoint</tt> children of this <tt>User</tt>'s element.
          */
@@ -770,11 +797,13 @@ public class ConferenceInfoDocument
         }
 
         /**
-         * @param entity The value of the <tt>entity</tt> attribute to search
-         * for.
-         * @return Searches this <tt>User</tt>'s associated <tt>Endpoint</tt>s
+         * Searches this <tt>User</tt>'s associated <tt>Endpoint</tt>s
          * and returns the one with <tt>entity</tt> attribute <tt>entity</tt>,
          * or <tt>null</tt> if one wasn't found.
+         * @param entity The value of the <tt>entity</tt> attribute to search
+         * for.
+         * @return The <tt>Endpoint</tt> with <tt>entity</tt> attribute
+         * <tt>entity</tt>, or <tt>null</tt> if one wasn't found.
          */
         public Endpoint getEndpoint(String entity)
         {
@@ -869,6 +898,8 @@ public class ConferenceInfoDocument
         }
 
         /**
+         * Returns the <tt>entity</tt> attribute of this <tt>Endpoint</tt>'s
+         * element.
          * @return the <tt>entity</tt> attribute of this <tt>Endpoint</tt>'s
          * element.
          */
@@ -888,6 +919,8 @@ public class ConferenceInfoDocument
         }
 
         /**
+         * Returns the value of the <tt>state</tt> attribute of this
+         * <tt>Endpoint</tt>'s element
          * @return the value of the <tt>state</tt> attribute of this
          * <tt>Endpoint</tt>'s element
          */
@@ -911,6 +944,9 @@ public class ConferenceInfoDocument
         }
 
         /**
+         * Returns the <tt>EndpointStatusType</tt> corresponding to the
+         * <tt>status</tt> child of this <tt>Endpoint</tt>'s element, or
+         * <tt>null</tt>.
          * @return the <tt>EndpointStatusType</tt> corresponding to the
          * <tt>status</tt> child of this <tt>Endpoint</tt>'s element, or
          * <tt>null</tt>.
@@ -925,6 +961,8 @@ public class ConferenceInfoDocument
         }
 
         /**
+         * Returns the list of <tt>Media</tt>s which represent the
+         * <tt>media</tt> children of this <tt>Endpoint</tt>'s element.
          * @return the list of <tt>Media</tt>s which represent the
          * <tt>media</tt> children of this <tt>Endpoint</tt>'s element.
          */
@@ -934,11 +972,13 @@ public class ConferenceInfoDocument
         }
 
         /**
-         * @param id The value of the <tt>id</tt> attribute to search
-         * for.
-         * @return Searches this <tt>Endpoint</tt>'s associated <tt>Media</tt>s
+         * Searches this <tt>Endpoint</tt>'s associated <tt>Media</tt>s
          * and returns the one with <tt>id</tt> attribute <tt>id</tt>, or
          * <tt>null</tt> if one wasn't found.
+         * @param id The value of the <tt>id</tt> attribute to search
+         * for.
+         * @return The <tt>Media</tt>s with <tt>id</tt> attribute <tt>id</tt>,
+         * or <tt>null</tt> if one wasn't found.
          */
         public Media getMedia(String id)
         {
@@ -996,7 +1036,7 @@ public class ConferenceInfoDocument
         /**
          * The underlying <tt>Element</tt>.
          */
-        Element mediaElement;
+        private Element mediaElement;
 
         /**
          * Creates a new <tt>Media</tt> instance with the specified
@@ -1019,6 +1059,7 @@ public class ConferenceInfoDocument
         }
 
         /**
+         * Returns the <tt>id</tt> attribute of this <tt>Media</tt>'s element.
          * @return the <tt>id</tt> attribute of this <tt>Media</tt>'s element.
          */
         public String getId()
@@ -1046,6 +1087,9 @@ public class ConferenceInfoDocument
         }
 
         /**
+         * Returns the text content of the <tt>src-id</tt> child element
+         * of this <tt>Media</tt>'s element, if it has such a child. Returns
+         * <tt>null</tt> otherwise.
          * @return the text content of the <tt>src-id</tt> child element
          * of this <tt>Media</tt>'s element, if it has such a child. Returns
          * <tt>null</tt> otherwise.
@@ -1078,6 +1122,9 @@ public class ConferenceInfoDocument
         }
 
         /**
+         * Returns the text content of the <tt>type</tt> child element
+         * of this <tt>Media</tt>'s element, if it has such a child. Returns
+         * <tt>null</tt> otherwise.
          * @return the text content of the <tt>type</tt> child element
          * of this <tt>Media</tt>'s element, if it has such a child. Returns
          * <tt>null</tt> otherwise.
@@ -1103,6 +1150,9 @@ public class ConferenceInfoDocument
         }
 
         /**
+         * Returns the text content of the <tt>status</tt> child element
+         * of this <tt>Media</tt>'s element, if it has such a child. Returns
+         * <tt>null</tt> otherwise.
          * @return the text content of the <tt>status</tt> child element
          * of this <tt>Media</tt>'s element, if it has such a child. Returns
          * <tt>null</tt> otherwise.
