@@ -1465,6 +1465,13 @@ public class CallPeerJabberImpl
         }
     }
 
+    /**
+     * Check whether a COIN is scheduled to be sent to this <tt>CallPeer</tt>
+     * (i.e. there is a thread which will eventually (after sleeping a certain
+     * amount of time) trigger a COIN to be sent)
+     * @return <tt>true</tt> if there is a COIN scheduled to be sent to this
+     * <tt>CallPeer</tt> and <tt>false</tt> otherwise
+     */
     public boolean isCoinScheduled()
     {
         synchronized (coinScheduledSyncRoot)
@@ -1473,6 +1480,11 @@ public class CallPeerJabberImpl
         }
     }
 
+    /**
+     * Sets the property which indicates whether a COIN is scheduled to be sent
+     * to this <tt>CallPeer</tt>.
+     * @param coinScheduled
+     */
     public void setCoinScheduled(boolean coinScheduled)
     {
         synchronized (coinScheduledSyncRoot)
