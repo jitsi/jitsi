@@ -8,13 +8,11 @@ package net.java.sip.communicator.impl.gui.main.presence;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.*;
 
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
-import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -69,11 +67,6 @@ public class GlobalStatusSelectorBox
         = ImageLoader.getImage(ImageLoader.DOWN_ARROW_ICON);
 
     /**
-     * The main application window.
-     */
-    private final MainFrame mainFrame;
-
-    /**
      * The width of the text.
      */
     private int textWidth = 0;
@@ -90,14 +83,10 @@ public class GlobalStatusSelectorBox
 
     /**
      * Creates an instance of <tt>SimpleStatusSelectorBox</tt>.
-     *
-     * @param mainFrame The main application window.
      */
-    public GlobalStatusSelectorBox(MainFrame mainFrame)
+    public GlobalStatusSelectorBox()
     {
         super();
-
-        this.mainFrame = mainFrame;
 
         JLabel titleLabel = new JLabel(GuiActivator.getResources()
                         .getI18NString("service.gui.SET_GLOBAL_STATUS"));
@@ -138,6 +127,8 @@ public class GlobalStatusSelectorBox
     /**
      * Creates a menu item with the given <tt>textKey</tt>, <tt>iconID</tt> and
      * <tt>name</tt>.
+     *
+     * @param status the global status
      * @return the created <tt>JCheckBoxMenuItem</tt>
      */
     private JCheckBoxMenuItem createMenuItem(GlobalStatusEnum status)
@@ -392,66 +383,25 @@ public class GlobalStatusSelectorBox
      */
     private void updateGlobalStatus()
     {
-        int status = 0;
+        PresenceStatus globalStatus
+            = GuiActivator.getGlobalStatusService().getGlobalPresenceStatus();
 
-        Iterator<ProtocolProviderService> pProviders
-            = mainFrame.getProtocolProviders();
-        boolean hasAvailableProvider = false;
-
-        while (pProviders.hasNext())
-        {
-            ProtocolProviderService protocolProvider = pProviders.next();
-
-            // We do not show hidden protocols in our status bar, so we do not
-            // care about their status here.
-            boolean isProtocolHidden =
-                protocolProvider.getAccountID().getAccountProperty(
-                    ProtocolProviderFactory.IS_PROTOCOL_HIDDEN) != null;
-
-            if (isProtocolHidden)
-                continue;
-
-            if (!protocolProvider.isRegistered())
-                continue;
-
-            OperationSetPresence presence
-                = protocolProvider.getOperationSet(OperationSetPresence.class);
-
-            if(presence == null)
-            {
-                hasAvailableProvider = true;
-                continue;
-            }
-
-            int presenceStatus
-                = (presence == null)
-                    ? PresenceStatus.AVAILABLE_THRESHOLD
-                    : presence.getPresenceStatus().getStatus();
-
-            if (status < presenceStatus)
-                status = presenceStatus;
-        }
-
-        // if we have at least one online provider
-        if(status == 0 && hasAvailableProvider)
-            status = PresenceStatus.AVAILABLE_THRESHOLD;
-
-        JCheckBoxMenuItem item = getItemFromStatus(status);
+        JCheckBoxMenuItem item = getItemFromStatus(globalStatus);
         item.setSelected(true);
 
         setSelected(new SelectedObject(item.getText(), item.getIcon(), item));
         fitSizeToText();
 
         this.revalidate();
-        setSystrayIcon(status);
+        setSystrayIcon(globalStatus);
     }
 
     /**
      * Sets the systray icon corresponding to the given status.
      *
-     * @param status the status, for which we're setting the systray icon.
+     * @param globalStatus the status, for which we're setting the systray icon.
      */
-    private void setSystrayIcon(int status)
+    private void setSystrayIcon(PresenceStatus globalStatus)
     {
         SystrayService trayService = GuiActivator.getSystrayService();
         if(trayService == null)
@@ -459,23 +409,23 @@ public class GlobalStatusSelectorBox
 
         int imgType = SystrayService.SC_IMG_OFFLINE_TYPE;
 
-        if(status < PresenceStatus.ONLINE_THRESHOLD)
+        if (globalStatus.equals(GlobalStatusEnum.OFFLINE))
         {
             imgType = SystrayService.SC_IMG_OFFLINE_TYPE;
         }
-        else if(status < PresenceStatus.AWAY_THRESHOLD)
+        else if (globalStatus.equals(GlobalStatusEnum.DO_NOT_DISTURB))
         {
             imgType = SystrayService.SC_IMG_DND_TYPE;
         }
-        else if(status < PresenceStatus.AVAILABLE_THRESHOLD)
+        else if (globalStatus.equals(GlobalStatusEnum.AWAY))
         {
             imgType = SystrayService.SC_IMG_AWAY_TYPE;
         }
-        else if(status < PresenceStatus.EAGER_TO_COMMUNICATE_THRESHOLD)
+        else if (globalStatus.equals(GlobalStatusEnum.ONLINE))
         {
             imgType = SystrayService.SC_IMG_TYPE;
         }
-        else if(status < PresenceStatus.MAX_STATUS_VALUE)
+        else if (globalStatus.equals(GlobalStatusEnum.FREE_FOR_CHAT))
         {
             imgType = SystrayService.SC_IMG_FFC_TYPE;
         }
@@ -488,53 +438,17 @@ public class GlobalStatusSelectorBox
      * For status constants we use here the values defined in the
      * <tt>PresenceStatus</tt>, but this is only for convenience.
      *
-     * @param status the status to which the item should correspond
+     * @param globalStatus the status to which the item should correspond
      * @return the <tt>JCheckBoxMenuItem</tt> corresponding to the given status
      */
-    private JCheckBoxMenuItem getItemFromStatus(int status)
-    {
-        if(status < PresenceStatus.ONLINE_THRESHOLD)
-        {
-            return getItemFromName(GlobalStatusEnum.OFFLINE_STATUS);
-        }
-        else if(status < PresenceStatus.AWAY_THRESHOLD)
-        {
-            return getItemFromName(GlobalStatusEnum.DO_NOT_DISTURB_STATUS);
-        }
-        else if(status < PresenceStatus.AVAILABLE_THRESHOLD)
-        {
-            return getItemFromName(GlobalStatusEnum.AWAY_STATUS);
-        }
-        else if(status < PresenceStatus.EAGER_TO_COMMUNICATE_THRESHOLD)
-        {
-            return getItemFromName(GlobalStatusEnum.ONLINE_STATUS);
-        }
-        else if(status < PresenceStatus.MAX_STATUS_VALUE)
-        {
-            return getItemFromName(GlobalStatusEnum.FREE_FOR_CHAT_STATUS);
-        }
-        else
-        {
-            return getItemFromName(GlobalStatusEnum.OFFLINE_STATUS);
-        }
-    }
-
-    /**
-     * Returns the <tt>JCheckBoxMenuItem</tt> corresponding to the given status
-     * name.
-     *
-     * @param statusName the status name to which the item should correspond
-     * @return the <tt>JCheckBoxMenuItem</tt> corresponding to the given status
-     * name.
-     */
-    private JCheckBoxMenuItem getItemFromName(String statusName)
+    private JCheckBoxMenuItem getItemFromStatus(PresenceStatus globalStatus)
     {
         for(Component c : getMenuComponents())
         {
             if(c instanceof JCheckBoxMenuItem
-                && statusName.equals(c.getName()))
+                && globalStatus.getStatusName().equals(c.getName()))
             {
-                return (JCheckBoxMenuItem)c;
+                return (JCheckBoxMenuItem) c;
             }
         }
 

@@ -147,7 +147,7 @@ public class AccountStatusPanel
             accountNameLabel.getFont().deriveFont(12f));
         accountNameLabel.setOpaque(false);
 
-        statusComboBox = new GlobalStatusSelectorBox(mainFrame);
+        statusComboBox = new GlobalStatusSelectorBox();
         // Align status combo box with account name field.
         statusComboBox.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 

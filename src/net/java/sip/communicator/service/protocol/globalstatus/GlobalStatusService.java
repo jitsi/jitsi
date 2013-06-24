@@ -17,6 +17,13 @@ import net.java.sip.communicator.service.protocol.*;
 public interface GlobalStatusService
 {
     /**
+     * Returns the global presence status.
+     *
+     * @return the current global presence status
+     */
+    public PresenceStatus getGlobalPresenceStatus();
+
+    /**
      * Returns the last status that was stored in the configuration for the
      * given protocol provider.
      *

@@ -31,6 +31,103 @@ public class GlobalStatusServiceImpl
         = Logger.getLogger(GlobalStatusServiceImpl.class);
 
     /**
+     * Returns the global presence status.
+     *
+     * @return the current global presence status
+     */
+    public PresenceStatus getGlobalPresenceStatus()
+    {
+        int status = 0;
+
+        Collection<ProtocolProviderService> pProviders
+            = AccountUtils.getRegisteredProviders();
+
+        // If we don't have registered providers we return offline status.
+        if (pProviders == null || pProviders.size() <= 0)
+            return getPresenceStatus(status);
+
+        Iterator<ProtocolProviderService> providersIter = pProviders.iterator();
+
+        boolean hasAvailableProvider = false;
+
+        while (providersIter.hasNext())
+        {
+            ProtocolProviderService protocolProvider = providersIter.next();
+
+            // We do not show hidden protocols in our status bar, so we do not
+            // care about their status here.
+            boolean isProtocolHidden =
+                protocolProvider.getAccountID().getAccountProperty(
+                    ProtocolProviderFactory.IS_PROTOCOL_HIDDEN) != null;
+
+            if (isProtocolHidden)
+                continue;
+
+            if (!protocolProvider.isRegistered())
+                continue;
+
+            OperationSetPresence presence
+                = protocolProvider.getOperationSet(OperationSetPresence.class);
+
+            if(presence == null)
+            {
+                hasAvailableProvider = true;
+                continue;
+            }
+
+            int presenceStatus
+                = (presence == null)
+                    ? PresenceStatus.AVAILABLE_THRESHOLD
+                    : presence.getPresenceStatus().getStatus();
+
+            if (status < presenceStatus)
+                status = presenceStatus;
+        }
+
+        // if we have at least one online provider
+        if(status == 0 && hasAvailableProvider)
+            status = PresenceStatus.AVAILABLE_THRESHOLD;
+
+        return getPresenceStatus(status);
+    }
+
+    /**
+     * Returns the <tt>JCheckBoxMenuItem</tt> corresponding to the given status.
+     * For status constants we use here the values defined in the
+     * <tt>PresenceStatus</tt>, but this is only for convenience.
+     *
+     * @param status the status to which the item should correspond
+     * @return the <tt>JCheckBoxMenuItem</tt> corresponding to the given status
+     */
+    private PresenceStatus getPresenceStatus(int status)
+    {
+        if(status < PresenceStatus.ONLINE_THRESHOLD)
+        {
+            return GlobalStatusEnum.OFFLINE;
+        }
+        else if(status < PresenceStatus.AWAY_THRESHOLD)
+        {
+            return GlobalStatusEnum.DO_NOT_DISTURB;
+        }
+        else if(status < PresenceStatus.AVAILABLE_THRESHOLD)
+        {
+            return GlobalStatusEnum.AWAY;
+        }
+        else if(status < PresenceStatus.EAGER_TO_COMMUNICATE_THRESHOLD)
+        {
+            return GlobalStatusEnum.ONLINE;
+        }
+        else if(status < PresenceStatus.MAX_STATUS_VALUE)
+        {
+            return GlobalStatusEnum.FREE_FOR_CHAT;
+        }
+        else
+        {
+            return GlobalStatusEnum.OFFLINE;
+        }
+    }
+
+    /**
      * Returns the last status that was stored in the configuration for the
      * given protocol provider.
      *
