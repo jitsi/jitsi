@@ -136,7 +136,12 @@ public abstract class MediaAwareCallPeer
      */
     private long lastConferenceInfoSentTimestamp = -1;
 
-    private ConferenceInfoDocument conferenceState = null;
+    /**
+     * The last Conference Information (RFC4575) document sent to us by this
+     * <tt>CallPeer</tt>. This is always a document with state "full", which is
+     * only gets updated by "partial" or "deleted" documents.
+     */
+    private ConferenceInfoDocument lastConferenceInfoReceived = null;
 
     /**
      * Creates a new call peer with address <tt>peerAddress</tt>.
@@ -1022,40 +1027,83 @@ public abstract class MediaAwareCallPeer
         }
     }
 
+    /**
+     * Returns the last <tt>ConferenceInfoDocument</tt> sent by us to this
+     * <tt>CallPeer</tt>. It is a document with state <tt>full</tt>
+     * @return the last <tt>ConferenceInfoDocument</tt> sent by us to this
+     * <tt>CallPeer</tt>. It is a document with state <tt>full</tt>
+     */
     public ConferenceInfoDocument getLastConferenceInfoSent()
     {
         return lastConferenceInfoSent;
     }
 
+    /**
+     * Sets the last <tt>ConferenceInfoDocument</tt> sent by us to this
+     * <tt>CallPeer</tt>.
+     * @param confInfo the document to set.
+     */
     public void setLastConferenceInfoSent(ConferenceInfoDocument confInfo)
     {
         lastConferenceInfoSent = confInfo;
     }
 
+    /**
+     * Gets the time (as obtained by <tt>System.currentTimeMillis()</tt>)
+     * at which we last sent a <tt>ConferenceInfoDocument</tt> to this
+     * <tt>CallPeer</tt>.
+     * @return the time (as obtained by <tt>System.currentTimeMillis()</tt>)
+     * at which we last sent a <tt>ConferenceInfoDocument</tt> to this
+     * <tt>CallPeer</tt>.
+     */
     public long getLastConferenceInfoSentTimestamp()
     {
         return lastConferenceInfoSentTimestamp;
     }
 
+    /**
+     * Sets the time (as obtained by <tt>System.currentTimeMillis()</tt>)
+     * at which we last sent a <tt>ConferenceInfoDocument</tt> to this
+     * <tt>CallPeer</tt>.
+     * @param newTimestamp the time to set
+     */
     public void setLastConferenceInfoSentTimestamp(long newTimestamp)
     {
         lastConferenceInfoSentTimestamp = newTimestamp;
     }
 
-    public ConferenceInfoDocument getConferenceState()
+    /**
+     * Gets the last <tt>ConferenceInfoDocument</tt> sent to us by this
+     * <tt>CallPeer</tt>.
+     * @return the last <tt>ConferenceInfoDocument</tt> sent to us by this
+     * <tt>CallPeer</tt>.
+     */
+    public ConferenceInfoDocument getLastConferenceInfoReceived()
     {
-        return conferenceState;
+        return lastConferenceInfoReceived;
     }
 
-    public void setConferenceState(ConferenceInfoDocument confInfo)
+    /**
+     * Gets the last <tt>ConferenceInfoDocument</tt> sent to us by this
+     * <tt>CallPeer</tt>.
+     * @return the last <tt>ConferenceInfoDocument</tt> sent to us by this
+     * <tt>CallPeer</tt>.
+     */
+    public void setLastConferenceInfoReceived(ConferenceInfoDocument confInfo)
     {
-        conferenceState = confInfo;
+        lastConferenceInfoReceived = confInfo;
     }
 
-    public int getConferenceStateVersion()
+    /**
+     * Gets the <tt>version</tt> of the last <tt>ConferenceInfoDocument</tt>
+     * sent to us by this <tt>CallPeer</tt>, or -1 if we haven't (yet) received
+     * a <tt>ConferenceInformationDocument</tt> from this <tt>CallPeer</tt>.
+     * @return
+     */
+    public int getLastConferenceInfoReceivedVersion()
     {
-        return (conferenceState == null)
+        return (lastConferenceInfoReceived == null)
                 ? -1
-                : conferenceState.getVersion();
+                : lastConferenceInfoReceived.getVersion();
     }
 }

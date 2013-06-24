@@ -7,10 +7,7 @@
 package net.java.sip.communicator.service.protocol.media;
 
 import java.beans.*;
-import java.io.*;
 import java.util.*;
-
-import javax.xml.parsers.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -18,7 +15,6 @@ import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.neomedia.*;
 import org.w3c.dom.*;
-import org.xml.sax.*;
 
 /**
  * Represents a default implementation of
@@ -890,6 +886,7 @@ public abstract class AbstractOperationSetTelephonyConferencing<
         if (changed)
             notifyAll(callPeer.getCall());
 
+        callPeer.setLastConferenceInfoReceived(confInfo);
         return confInfo.getVersion();
     }
 
@@ -936,7 +933,7 @@ public abstract class AbstractOperationSetTelephonyConferencing<
          * RFC4575 - Constructing Coherent State
          */
         int documentVersion = confInfo.getVersion();
-        int ourVersion = callPeer.getConferenceStateVersion();
+        int ourVersion = callPeer.getLastConferenceInfoReceivedVersion();
         ConferenceInfoDocument.State documentState = confInfo.getState();
 
         if (ourVersion == -1)
@@ -1227,7 +1224,8 @@ public abstract class AbstractOperationSetTelephonyConferencing<
         if (true)
             return -1;
 
-        ConferenceInfoDocument ourDocument = callPeer.getConferenceState();
+        ConferenceInfoDocument ourDocument
+                = callPeer.getLastConferenceInfoReceived();
         ConferenceInfoDocument newDocument;
 
         ConferenceInfoDocument.State usersState = diff.getUsersState();
