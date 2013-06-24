@@ -389,8 +389,8 @@ public class OperationSetTelephonyConferencingJabberImpl
             if (callPeer != null)
             {
                 if (logger.isDebugEnabled())
-                    logger.debug("Processing COIN from" + coinIQ.getFrom()
-                                    + "(version=" + coinIQ.getVersion() + ")");
+                    logger.debug("Processing COIN from " + coinIQ.getFrom()
+                                    + " (version=" + coinIQ.getVersion() + ")");
                 handleCoin(callPeer, coinIQ);
             }
         }
