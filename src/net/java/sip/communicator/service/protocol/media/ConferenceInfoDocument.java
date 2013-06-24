@@ -4,8 +4,9 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.util;
+package net.java.sip.communicator.service.protocol.media;
 
+import net.java.sip.communicator.util.*;
 import org.jitsi.util.xml.*;
 import org.w3c.dom.*;
 
