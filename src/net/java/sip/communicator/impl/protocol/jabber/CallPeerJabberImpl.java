@@ -1480,4 +1480,12 @@ public class CallPeerJabberImpl
             this.coinScheduled = coinScheduled;
         }
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public String getEntity()
+    {
+        return getAddress();
+    }
 }

@@ -167,7 +167,7 @@ public class OperationSetTelephonyConferencingJabberImpl
         }
 
         ConferenceInfoDocument currentConfInfo
-                = getCurrentConferenceInfo(callPeer);
+                = getCurrentConferenceInfo(callPeerJabber);
         ConferenceInfoDocument lastSentConfInfo
                 = callPeerJabber.getLastConferenceInfoSent();
 
@@ -419,7 +419,8 @@ public class OperationSetTelephonyConferencingJabberImpl
      * temporary and should be removed once we choose a better way to pass the
      * SID.
      */
-    protected ConferenceInfoDocument getCurrentConferenceInfo(CallPeer callPeer)
+    protected ConferenceInfoDocument getCurrentConferenceInfo(
+            MediaAwareCallPeer<?,?,?> callPeer)
     {
         ConferenceInfoDocument confInfo
                 = super.getCurrentConferenceInfo(callPeer);

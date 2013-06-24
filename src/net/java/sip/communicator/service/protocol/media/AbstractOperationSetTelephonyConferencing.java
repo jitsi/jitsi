@@ -1003,7 +1003,7 @@ public abstract class AbstractOperationSetTelephonyConferencing<
      * @return a <tt>String</tt> representing the specified <tt>address</tt>
      * without any parameters
      */
-    protected static String stripParametersFromAddress(String address)
+    public static String stripParametersFromAddress(String address)
     {
         if (address != null)
         {
@@ -1024,7 +1024,8 @@ public abstract class AbstractOperationSetTelephonyConferencing<
      * @return a <tt>ConferenceInfoDocument</tt> which describes the current
      * state of the conference in which this <tt>CallPeer</tt> participates.
      */
-    protected ConferenceInfoDocument getCurrentConferenceInfo(CallPeer callPeer)
+    protected ConferenceInfoDocument getCurrentConferenceInfo(
+            MediaAwareCallPeer<?,?,?> callPeer)
     {
         ConferenceInfoDocument confInfo;
         try
@@ -1048,7 +1049,13 @@ public abstract class AbstractOperationSetTelephonyConferencing<
 
         /* Remote users */
         for (CallPeer conferenceCallPeer : conferenceCallPeers)
-            addPeerToConferenceInfo(confInfo, conferenceCallPeer, true);
+        {
+            if (conferenceCallPeer instanceof MediaAwareCallPeer<?,?,?>)
+                addPeerToConferenceInfo(
+                        confInfo,
+                        (MediaAwareCallPeer<?,?,?>)conferenceCallPeer,
+                        true);
+        }
 
         return confInfo;
     }
@@ -1065,12 +1072,12 @@ public abstract class AbstractOperationSetTelephonyConferencing<
      */
     private void addPeerToConferenceInfo(
             ConferenceInfoDocument confInfo,
-            CallPeer callPeer,
+            MediaAwareCallPeer<?,?,?> callPeer,
             boolean remote)
     {
         String entity
                 = remote
-                ? callPeer.getURI()
+                ? callPeer.getEntity()
                 : getLocalEntity(callPeer);
         ConferenceInfoDocument.User user = confInfo.addNewUser(entity);
 
@@ -1088,40 +1095,35 @@ public abstract class AbstractOperationSetTelephonyConferencing<
                 ? getEndpointStatus(callPeer)
                 : ConferenceInfoDocument.EndpointStatusType.connected);
 
-        if (callPeer instanceof MediaAwareCallPeer<?,?,?>)
+        CallPeerMediaHandler<?> mediaHandler
+                = callPeer.getMediaHandler();
+
+        for (MediaType mediaType : MediaType.values())
         {
-            MediaAwareCallPeer<?,?,?> mediaAwarePeer
-                    = (MediaAwareCallPeer<?,?,?>) callPeer;
-            CallPeerMediaHandler<?> mediaHandler
-                    = mediaAwarePeer.getMediaHandler();
-
-            for (MediaType mediaType : MediaType.values())
+            MediaStream stream = mediaHandler.getStream(mediaType);
+            if (stream != null)
             {
-                MediaStream stream = mediaHandler.getStream(mediaType);
-                if (stream != null)
-                {
-                    ConferenceInfoDocument.Media media
-                            = endpoint.addNewMedia(mediaType.toString());
-                    long srcId
-                            = remote
-                            ? getRemoteSourceID(mediaAwarePeer, mediaType)
-                            : stream.getLocalSourceID();
+                ConferenceInfoDocument.Media media
+                        = endpoint.addNewMedia(mediaType.toString());
+                long srcId
+                        = remote
+                        ? getRemoteSourceID(callPeer, mediaType)
+                        : stream.getLocalSourceID();
 
-                    if (srcId != -1)
-                        media.setSrcId(Long.toString(srcId));
+                if (srcId != -1)
+                    media.setSrcId(Long.toString(srcId));
 
-                    media.setType(mediaType.toString());
+                media.setType(mediaType.toString());
 
-                    MediaDirection direction
-                            = remote
-                            ? getRemoteDirection(mediaAwarePeer, mediaType)
-                            : stream.getDirection();
+                MediaDirection direction
+                        = remote
+                        ? getRemoteDirection(callPeer, mediaType)
+                        : stream.getDirection();
 
-                    if (direction == null)
-                        direction = MediaDirection.INACTIVE;
+                if (direction == null)
+                    direction = MediaDirection.INACTIVE;
 
-                    media.setStatus(direction.toString());
-                }
+                media.setStatus(direction.toString());
             }
         }
     }

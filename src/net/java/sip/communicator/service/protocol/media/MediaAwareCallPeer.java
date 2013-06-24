@@ -1106,4 +1106,17 @@ public abstract class MediaAwareCallPeer
                 ? -1
                 : lastConferenceInfoReceived.getVersion();
     }
+
+    /**
+     * Gets the <tt>String</tt> to be used for this <tt>CallPeer</tt> when
+     * we describe it in a <tt>ConferenceInfoDocument</tt> (e.g. the
+     * <tt>entity</tt> key attribute which to use for the <tt>user</tt>
+     * element corresponding to this <tt>CallPeer</tt>)
+     *
+     * @return the <tt>String</tt> to be used for this <tt>CallPeer</tt> when
+     * we describe it in a <tt>ConferenceInfoDocument</tt> (e.g. the
+     * <tt>entity</tt> key attribute which to use for the <tt>user</tt>
+     * element corresponding to this <tt>CallPeer</tt>)
+     */
+    public abstract String getEntity();
 }
