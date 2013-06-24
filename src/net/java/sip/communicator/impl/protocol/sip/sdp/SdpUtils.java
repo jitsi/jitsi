@@ -14,15 +14,18 @@ import java.util.*;
 import javax.sdp.*;
 import javax.sip.header.*;
 
+import gov.nist.javax.sdp.fields.*;
 import net.java.sip.communicator.impl.protocol.sip.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
 
+import net.java.sip.communicator.util.Logger;
 import org.ice4j.ice.sdp.*;
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.MediaType;
 import org.jitsi.service.neomedia.format.*;
+import org.jitsi.util.*;
 
 /**
  * The class contains a number of utility methods that are meant to facilitate
@@ -175,7 +178,10 @@ public class SdpUtils
                 : Connection.IP4;
 
             //o
-            userName = "jitsi.org";
+            if (StringUtils.isNullOrEmpty(userName) )
+                userName = "jitsi.org";
+            else
+                userName += "-jitsi.org";
 
             Origin o = sdpFactory.createOrigin(
                 userName, 0, 0, "IN", addrType, localAddress.getHostAddress());

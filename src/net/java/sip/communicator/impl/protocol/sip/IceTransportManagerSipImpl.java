@@ -86,21 +86,19 @@ public class IceTransportManagerSipImpl
         iceAgent = createIceAgent();
         iceAgent.setControlling(true);
 
-        IceSdpUtils.setIceCredentials(
-            ourOffer, iceAgent.getLocalUfrag(), iceAgent.getLocalPassword());
-
         //obviously we ARE the controlling agent since we are the ones creating
         //the offer.
         iceAgent.setControlling(true);
 
+        //add the candidate attributes and set default candidates
         for(MediaDescription mLine : SdpUtils.extractMediaDescriptions(ourOffer))
         {
             IceMediaStream iceStream = createIceStream(
                 SdpUtils.getMediaType(mLine).toString(), iceAgent);
-
-            //now, lets add whatever candidates we already have in the stream.
-            IceSdpUtils.initMediaDescription(mLine, iceStream);
         }
+
+        //now that our iceAgent is ready, reflect it on our offer.
+        IceSdpUtils.initSessionDescription(ourOffer, iceAgent);
     }
 
     /**
@@ -126,10 +124,6 @@ public class IceTransportManagerSipImpl
     {
         iceAgent = createIceAgent();
         iceAgent.setControlling(false);
-
-        SdpUtils.setIceCredentials(
-            ourAnswer, iceAgent.getLocalUfrag(), iceAgent.getLocalPassword());
-
     }
 
     /**

@@ -508,7 +508,7 @@ public class TransportManagerGTalkImpl
      * @return the ICE agent to use for all the ICE negotiation that this
      * transport manager would be going through
      */
-    private Agent createIceAgent()
+    protected Agent createIceAgent()
     {
         CallPeerGTalkImpl peer = getCallPeer();
         ProtocolProviderServiceJabberImpl provider = peer.getProtocolProvider();
@@ -574,8 +574,7 @@ public class TransportManagerGTalkImpl
      * of the <tt>MediaStream</tt> with the specified <tt>MediaType</tt>
      * @throws OperationFailedException if anything goes wrong while
      * initializing the requested <tt>StreamConnector</tt>
-     * @see net.java.sip.communicator.service.protocol.media.TransportManager#
-     * getStreamConnector(MediaType)
+     * @see TransportManager#getStreamConnector(MediaType)
      */
     @Override
     public StreamConnector getStreamConnector(MediaType mediaType)

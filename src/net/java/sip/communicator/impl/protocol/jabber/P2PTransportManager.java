@@ -223,7 +223,7 @@ public class P2PTransportManager
 
                     IceMediaStream stream = null;
 
-                    stream = createIceStream(rtpDesc.getMedia());
+                    stream = createIceStream(rtpDesc.getMedia(), iceAgent);
 
                     //we now generate the XMPP code containing the candidates.
                     ourContent.addChildExtension(createTransport(stream));
@@ -259,7 +259,8 @@ public class P2PTransportManager
                         IceMediaStream stream = null;
                         try
                         {
-                            stream = createIceStream(rtpDesc.getMedia());
+                            stream = createIceStream(
+                                rtpDesc.getMedia(), iceAgent);
                         }
                         catch (OperationFailedException e)
                         {

@@ -142,6 +142,10 @@ public class CallPeerMediaHandlerSipImpl
         SessionDescription sDes = SdpUtils.createSessionDescription(
             getTransportManager().getLastUsedLocalHost(), userName, mediaDescs);
 
+        //ICE HACK - please fix
+        new IceTransportManagerSipImpl(getPeer()).startCandidateHarvest(
+            sDes, null, false, false, false, false, false );
+
         this.localSess = sDes;
         return localSess;
     }

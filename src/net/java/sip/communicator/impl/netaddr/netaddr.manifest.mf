@@ -16,7 +16,9 @@ Import-Package: org.jitsi.service.configuration,
  org.xml.sax,
  org.xml.sax.helpers,
  javax.crypto,
- javax.crypto.spec
+ javax.crypto.spec,
+ javax.sdp,
+ gov.nist.javax.sdp.fields
 Export-Package: net.java.sip.communicator.service.netaddr,
  net.java.sip.communicator.service.netaddr.event,
  org.ice4j,
@@ -24,4 +26,5 @@ Export-Package: net.java.sip.communicator.service.netaddr,
  org.ice4j.stack,
  org.ice4j.ice,
  org.ice4j.ice.harvest,
+ org.ice4j.ice.sdp,
  org.ice4j.security
