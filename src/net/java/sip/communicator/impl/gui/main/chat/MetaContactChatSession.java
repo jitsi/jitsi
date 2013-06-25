@@ -736,6 +736,7 @@ public class MetaContactChatSession
             chatTransports.remove(chatTransport);
         }
         sessionRenderer.removeChatTransport(chatTransport);
+        chatTransport.dispose();
     }
 
     /**
