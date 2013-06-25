@@ -22,8 +22,6 @@ import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
 
-import org.jitsi.util.xml.*;
-
 /**
  * Implements <tt>OperationSetTelephonyConferencing</tt> for SIP.
  *
@@ -39,7 +37,6 @@ public class OperationSetTelephonyConferencingSipImpl
             Address>
     implements MethodProcessorListener
 {
-
     /**
      * The <tt>Logger</tt> used by the
      * <tt>OperationSetTelephonyConferencingSipImpl</tt> class and its instances
@@ -53,28 +50,6 @@ public class OperationSetTelephonyConferencingSipImpl
      * by <tt>OperationSetTelephonyConferencingSipImpl</tt>.
      */
     private static final String CONTENT_SUB_TYPE = "conference-info+xml";
-
-    /**
-     * The name of the conference-info XML element
-     * <tt>conference-description</tt>.
-     */
-    private static final String ELEMENT_CONFERENCE_DESCRIPTION
-        = "conference-description";
-
-    /**
-     * The name of the conference-info XML element <tt>conference-info</tt>.
-     */
-    private static final String ELEMENT_CONFERENCE_INFO = "conference-info";
-
-    /**
-     * The name of the conference-info XML element <tt>conference-state</tt>.
-     */
-    private static final String ELEMENT_CONFERENCE_STATE = "conference-state";
-
-    /**
-     * The name of the conference-info XML element <tt>user-count</tt>.
-     */
-    private static final String ELEMENT_USER_COUNT = "user-count";
 
     /**
      * The name of the event package supported by
@@ -96,12 +71,6 @@ public class OperationSetTelephonyConferencingSipImpl
      * manages it.
      */
     private static final int SUBSCRIPTION_DURATION = 3600;
-
-    /**
-     * The utility which encodes text so that it's acceptable as the text of an
-     * XML element or attribute.
-     */
-    private DOMElementWriter domElementWriter = new DOMElementWriter();
 
     /**
      * The <tt>EventPackageNotifier</tt> which implements conference
@@ -320,46 +289,6 @@ public class OperationSetTelephonyConferencingSipImpl
                     System.currentTimeMillis());
             return diff.toString();
         }
-    }
-
-    /**
-     * Generates the text content to be put in the <tt>status</tt> XML element
-     * of an <tt>endpoint</tt> XML element and which describes the state of a
-     * specific <tt>CallPeer</tt>.
-     *
-     * @param callPeer the <tt>CallPeer</tt> which is to get its state described
-     * in a <tt>status</tt> XML element of an <tt>endpoint</tt> XML element
-     * @return the text content to be put in the <tt>status</tt> XML element of
-     * an <tt>endpoint</tt> XML element and which describes the state of the
-     * specified <tt>callPeer</tt>
-     */
-    private String getEndpointStatusXML(CallPeer callPeer)
-    {
-        CallPeerState callPeerState = callPeer.getState();
-
-        if (CallPeerState.ALERTING_REMOTE_SIDE.equals(callPeerState))
-            return AbstractConferenceMember.ALERTING;
-        if (CallPeerState.CONNECTING.equals(callPeerState)
-                || CallPeerState
-                    .CONNECTING_WITH_EARLY_MEDIA.equals(callPeerState))
-            return AbstractConferenceMember.PENDING;
-        if (CallPeerState.DISCONNECTED.equals(callPeerState))
-            return AbstractConferenceMember.DISCONNECTED;
-        if (CallPeerState.INCOMING_CALL.equals(callPeerState))
-            return AbstractConferenceMember.DIALING_IN;
-        if (CallPeerState.INITIATING_CALL.equals(callPeerState))
-            return AbstractConferenceMember.DIALING_OUT;
-
-        /*
-         * he/she is neither "hearing" the conference mix nor is his/her media
-         * being mixed in the conference
-         */
-        if (CallPeerState.ON_HOLD_LOCALLY.equals(callPeerState)
-                || CallPeerState.ON_HOLD_MUTUALLY.equals(callPeerState))
-            return AbstractConferenceMember.ON_HOLD;
-        if (CallPeerState.CONNECTED.equals(callPeerState))
-            return AbstractConferenceMember.CONNECTED;
-        return null;
     }
 
     /**
@@ -592,6 +521,37 @@ public class OperationSetTelephonyConferencingSipImpl
                     && Request.INVITE.equalsIgnoreCase(cseqHeader.getMethod()))
                 inviteCompleted(sourceCallPeer, response, request);
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected String getLocalEntity(CallPeer callPeer)
+    {
+        if (callPeer instanceof CallPeerSipImpl)
+        {
+            Dialog dialog = ((CallPeerSipImpl)callPeer).getDialog();
+
+            if (dialog != null)
+            {
+                Address localPartyAddress = dialog.getLocalParty();
+
+                if (localPartyAddress != null)
+                    return stripParametersFromAddress(
+                            localPartyAddress.getURI().toString());
+            }
+        }
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected String getLocalDisplayName()
+    {
+        return parentProvider.getOurDisplayName();
     }
 
     /**
@@ -910,36 +870,5 @@ public class OperationSetTelephonyConferencingSipImpl
                             ofe);
                 }
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected String getLocalEntity(CallPeer callPeer)
-    {
-        if (callPeer instanceof CallPeerSipImpl)
-        {
-            Dialog dialog = ((CallPeerSipImpl)callPeer).getDialog();
-
-            if (dialog != null)
-            {
-                Address localPartyAddress = dialog.getLocalParty();
-
-                if (localPartyAddress != null)
-                    return stripParametersFromAddress(
-                            localPartyAddress.getURI().toString());
-            }
-        }
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected String getLocalDisplayName()
-    {
-        return parentProvider.getOurDisplayName();
     }
 }
