@@ -3692,7 +3692,8 @@ public class CallManager
                 (index > -1) ? peerAddress.substring(0, index) : peerAddress;
 
             // searches for the whole number/username or with the @serverpart
-            Pattern p = Pattern.compile(
+            peerUserID = Pattern.quote(peerUserID);
+            Pattern pattern = Pattern.compile(
                 "^(" + peerUserID + "|" + peerUserID + "@.*)$");
 
             // Queries all available resolvers
@@ -3706,7 +3707,7 @@ public class CallManager
                 // use the pattern method of (ExtendedContactSourceService)
                 ContactQuery query
                     = ((ExtendedContactSourceService)contactSourceService)
-                            .queryContactSource(p);
+                            .queryContactSource(pattern);
 
                 resolvers.add(
                         new ResolveAddressToDisplayNameContactQueryListener(
