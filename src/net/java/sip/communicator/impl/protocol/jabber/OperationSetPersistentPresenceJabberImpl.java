@@ -52,7 +52,7 @@ public class OperationSetPersistentPresenceJabberImpl
     private PresenceStatus currentStatus;
 
     /**
-     * A map containing bindings between SIP Communicator's jabber presence
+     * A map containing bindings between Jitsi's jabber presence
      * status instances and Jabber status codes
      */
     private static Map<String, Presence.Mode> scToJabberModesMappings
@@ -75,6 +75,13 @@ public class OperationSetPersistentPresenceJabberImpl
     }
 
     /**
+     * A map containing bindings between Jitsi's xmpp presence
+     * status instances and priorities to use for statuses.
+     */
+    private static Map<String, Integer> statusToPriorityMappings
+        = new Hashtable<String, Integer>();
+
+    /**
      * The server stored contact list that will be encapsulating smack's
      * buddy list.
      */
@@ -86,9 +93,9 @@ public class OperationSetPersistentPresenceJabberImpl
     private JabberSubscriptionListener subscribtionPacketListener = null;
 
     /**
-     * Current resource priority. 10 is default value.
+     * Current resource priority.
      */
-    private int resourcePriority = 10;
+    private int resourcePriorityAvailable = 30;
 
     /**
      * Manages statuses and different user resources.
@@ -116,6 +123,8 @@ public class OperationSetPersistentPresenceJabberImpl
         currentStatus =
             parentProvider.getJabberStatusEnum().getStatus(
                 JabberStatusEnum.OFFLINE);
+
+        initializePriorities();
 
         ssContactList = new ServerStoredContactListJabberImpl(
             this , provider, infoRetreiver);
@@ -391,7 +400,8 @@ public class OperationSetPersistentPresenceJabberImpl
         {
             Presence presence = new Presence(Presence.Type.available);
             presence.setMode(presenceStatusToJabberMode(status));
-            presence.setPriority(resourcePriority);
+            presence.setPriority(
+                getPriorityForPresenceStatus(status.getStatusName()));
 
             // on the phone is a special status which is away
             // with custom status message
@@ -1269,26 +1279,6 @@ public class OperationSetPersistentPresenceJabberImpl
     }
 
     /**
-     * Returns the jabber account resource priority property value.
-     *
-     * @return the jabber account resource priority property value
-     */
-    public int getResourcePriority()
-    {
-        return resourcePriority;
-    }
-
-    /**
-     * Updates the jabber account resource priority property value.
-     *
-     * @param resourcePriority the new priority to set
-     */
-    public void setResourcePriority(int resourcePriority)
-    {
-        this.resourcePriority = resourcePriority;
-    }
-
-    /**
      * Runnable that resolves our list against the server side roster.
      * This thread is the one which will call getRoaster for the first time.
      * And if roaster is currently processing will wait for it (the wait
@@ -1503,5 +1493,117 @@ public class OperationSetPersistentPresenceJabberImpl
                     logger.trace("vCard retrieval exception was: ", ex);
             }
         }
+    }
+
+    /**
+     * Initializes the map with priorities and statuses which we will use when
+     * changing statuses.
+     */
+    private void initializePriorities()
+    {
+        try
+        {
+            this.resourcePriorityAvailable =
+                Integer.parseInt(parentProvider.getAccountID()
+                    .getAccountPropertyString(
+                        ProtocolProviderFactory.RESOURCE_PRIORITY));
+        }
+        catch(NumberFormatException ex)
+        {
+            logger.error("Wrong value for resource priority", ex);
+        }
+
+        addDefaultValue(JabberStatusEnum.AWAY, -5);
+        addDefaultValue(JabberStatusEnum.EXTENDED_AWAY, -10);
+        addDefaultValue(JabberStatusEnum.ON_THE_PHONE, -15);
+        addDefaultValue(JabberStatusEnum.DO_NOT_DISTURB, -20);
+        addDefaultValue(JabberStatusEnum.FREE_FOR_CHAT, +5);
+    }
+
+    /**
+     * Checks for account property that can override this status.
+     * If missing use the shift value to create the priority to use, make sure
+     * it is not zero or less than it.
+     * @param statusName the status to check/create priority
+     * @param availableShift the difference from available resource
+     *                       value to use.
+     */
+    private void addDefaultValue(String statusName, int availableShift)
+    {
+        String resourcePriority = getAccountPriorityForStatus(statusName);
+        if(resourcePriority != null)
+        {
+            try
+            {
+                addPresenceToPriorityMapping(
+                    statusName,
+                    Integer.parseInt(resourcePriority));
+            }
+            catch(NumberFormatException ex)
+            {
+                logger.error(
+                    "Wrong value for resource priority for status: "
+                        + statusName, ex);
+            }
+        }
+        else
+        {
+            // if priority is less than zero, use the available priority
+            int priority = resourcePriorityAvailable + availableShift;
+            if(priority <= 0)
+                priority = resourcePriorityAvailable;
+
+            addPresenceToPriorityMapping(statusName, priority);
+        }
+    }
+
+    /**
+     * Adds the priority mapping for the <tt>statusName</tt>.
+     * Make sure we replace ' ' with '_' and use upper case as this will be
+     * and the property names used in account properties that can override
+     * this values.
+     * @param statusName the status name to use
+     * @param value and its priority
+     */
+    private static void addPresenceToPriorityMapping(String statusName,
+                                                     int value)
+    {
+        statusToPriorityMappings.put(
+            statusName.replaceAll(" ", "_").toUpperCase(), value);
+    }
+
+    /**
+     * Returns the priority which will be used for <tt>statusName</tt>.
+     * Make sure we replace ' ' with '_' and use upper case as this will be
+     * and the property names used in account properties that can override
+     * this values.
+     * @param statusName the status name
+     * @return the priority which will be used for <tt>statusName</tt>.
+     */
+    private int getPriorityForPresenceStatus(String statusName)
+    {
+        Integer priority = statusToPriorityMappings.get(
+                                statusName.replaceAll(" ", "_").toUpperCase());
+        if(priority == null)
+            return resourcePriorityAvailable;
+
+        return priority;
+    }
+
+    /**
+     * Returns the account property value for a status name, if missing return
+     * null.
+     * Make sure we replace ' ' with '_' and use upper case as this will be
+     * and the property names used in account properties that can override
+     * this values.
+     * @param statusName
+     * @return the account property value for a status name, if missing return
+     * null.
+     */
+    private String getAccountPriorityForStatus(String statusName)
+    {
+        return parentProvider.getAccountID().getAccountPropertyString(
+                    ProtocolProviderFactory.RESOURCE_PRIORITY + "_" +
+                        statusName.replaceAll(" ", "_").toUpperCase());
     }
 }
