@@ -614,28 +614,46 @@ public class OperationSetTelephonyConferencingSipImpl
                 return null;
             }
 
-            String conferenceInfoXML = getConferenceInfoXML(callPeer);
-            byte[] notifyContent;
+            ConferenceInfoDocument currentConfInfo
+                    = getCurrentConferenceInfo(callPeer);
+            ConferenceInfoDocument lastSentConfInfo
+                    = callPeer.getLastConferenceInfoSent();
+            ConferenceInfoDocument diff
+                    = lastSentConfInfo == null
+                      ? currentConfInfo
+                      :getConferenceInfoDiff(lastSentConfInfo, currentConfInfo);
 
-            if (conferenceInfoXML == null)
-                notifyContent = null;
+            if (diff == null)
+                return null;
             else
             {
+                int newVersion
+                        = lastSentConfInfo == null
+                        ? 1
+                        : lastSentConfInfo.getVersion() + 1;
+                diff.setVersion(newVersion);
+                currentConfInfo.setVersion(newVersion);
+
+                // We save currentConfInfo, because it is of state "full", while
+                // diff could be a partial
+                callPeer.setLastConferenceInfoSent(currentConfInfo);
+                callPeer.setLastConferenceInfoSentTimestamp(
+                        System.currentTimeMillis());
+
+                String xml = diff.toXml();
+                byte[] notifyContent;
                 try
                 {
-                    notifyContent = conferenceInfoXML.getBytes("UTF-8");
+                    notifyContent = xml.getBytes("UTF-8");
                 }
                 catch (UnsupportedEncodingException uee)
                 {
-                    logger
-                        .warn(
-                            "Failed to gets bytes from String for the UTF-8 " +
-                            "charset",
-                            uee);
-                    notifyContent = conferenceInfoXML.getBytes();
+                    logger.warn("Failed to gets bytes from String for the "
+                            + "UTF-8 charset", uee);
+                    notifyContent = xml.getBytes();
                 }
+                return notifyContent;
             }
-            return notifyContent;
         }
 
         /**
