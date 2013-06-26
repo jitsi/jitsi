@@ -381,6 +381,13 @@ public class ChatWritePanel
         if (typingState != OperationSetTypingNotifications.STATE_STOPPED)
             stopTypingTimer();
 
+        if(outdatedResourceTimer != null)
+        {
+            outdatedResourceTimer.cancel();
+            outdatedResourceTimer.purge();
+            outdatedResourceTimer = null;
+        }
+
         scrollPane.dispose();
     }
 
