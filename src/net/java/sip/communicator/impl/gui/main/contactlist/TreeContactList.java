@@ -369,7 +369,11 @@ public class TreeContactList
                 logger.info("Contact query error occured: "
                                 + event.getQuerySource());
         }
-        event.getQuerySource().removeContactQueryListener(this);
+
+        // do not remove listener, we are still showing the search
+        // when the filter is cleared or new one is applied it will clear the
+        // listener for the contact list
+        //event.getQuerySource().removeContactQueryListener(this);
     }
 
     /**
@@ -1857,15 +1861,61 @@ public class TreeContactList
                      * about the received <tt>SourceContact</tt>
                      */
                     public void contactRemoved(ContactRemovedEvent event)
-                    {}
+                    {
+                        final SourceContact sourceContact = event.getContact();
+
+                        ContactSourceService contactSource
+                            = sourceContact.getContactSource();
+
+                        UIContactSource sourceUI = getContactSource(contactSource);
+
+                        if (sourceUI == null)
+                            return;
+
+                        UIContact uiContact
+                            = sourceUI.getUIContact(sourceContact);
+
+                        if(uiContact == null)
+                            return;
+
+                        // ExtendedContactSourceService has already matched the
+                        // SourceContact over the pattern
+                        if((contactSource instanceof ExtendedContactSourceService)
+                            || currentFilter.isMatching(uiContact))
+                        {
+                            removeContact(uiContact, false);
+                        }
+                    }
 
                     /**
                      * Indicates that a contact has been updated after a search.
-                     * @param event the <tt>ContactQueryEvent</tt> containing information
+                     * @param event the <tt>ContactQueryEvent</tt> containing
+                     *              information
                      * about the updated <tt>SourceContact</tt>
                      */
                     public void contactChanged(ContactChangedEvent event)
-                    {}
+                    {
+                        final SourceContact sourceContact = event.getContact();
+
+                        ContactSourceService contactSource
+                            = sourceContact.getContactSource();
+
+                        UIContactSource sourceUI = getContactSource(contactSource);
+
+                        if (sourceUI == null)
+                            return;
+
+                        UIContact uiContact
+                            = sourceUI.getUIContact(sourceContact);
+
+                        if(uiContact == null || !(uiContact instanceof UIContactImpl))
+                            return;
+
+                        ContactNode contactNode = ((UIContactImpl) uiContact).getContactNode();
+
+                        if (contactNode != null)
+                            nodeChanged(contactNode);
+                    }
                 });
 
                 // If the image search has been canceled from one of the
