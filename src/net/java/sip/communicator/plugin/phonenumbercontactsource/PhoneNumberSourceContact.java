@@ -27,6 +27,11 @@ public class PhoneNumberSourceContact
     private String displayDetails;
 
     /**
+     * The protocol contact we wrap.
+     */
+    private Contact contact;
+
+    /**
      * Creates an instance of <tt>PhoneNumberSourceContact</tt>.
      *
      * @param parentQuery the parent contact query
@@ -47,6 +52,7 @@ public class PhoneNumberSourceContact
                 contact.getDisplayName(),
                 contactDetails);
 
+        this.contact = contact;
         displayDetails = detailDisplayName;
         setPresenceStatus(contact.getPresenceStatus());
         setImage(contact.getImage());
@@ -88,5 +94,14 @@ public class PhoneNumberSourceContact
             return false;
 
         return true;
+    }
+
+    /**
+     * Returns the protocol contact used.
+     * @return the protocol contact used.
+     */
+    public Contact getContact()
+    {
+        return contact;
     }
 }
