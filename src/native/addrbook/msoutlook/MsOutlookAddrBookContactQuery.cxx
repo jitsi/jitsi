@@ -90,6 +90,8 @@ static HRESULT MsOutlookAddrBookContactQuery_getContactsFolderEntryID
 LPSTR MsOutlookAddrBookContactQuery_getContactId(LPMAPIPROP contact);
 LPMAPIFOLDER MsOutlookAddrBookContactQuery_getDefaultContactFolderId(void);
 LPMDB MsOutlookAddrBookContactQuery_getDefaultMsgStores(void);
+ULONG MsOutlookAddrBookContactQuery_getPropTag
+    (LPMAPIPROP mapiProp, long propId, long propType);
 static ULONG MsOutlookAddrBookContactQuery_getPropTagFromLid
     (LPMAPIPROP mapiProp, LONG lid);
 static jboolean MsOutlookAddrBookContactQuery_mailUserMatches
@@ -996,6 +998,39 @@ LPMDB MsOutlookAddrBookContactQuery_getDefaultMsgStores(void)
     return msgStore;
 }
 
+/**
+ * Returns the property tag associated for the given identifier and type.
+ *
+ * @param mapiProp The MAPI object from which we need to get the property tag
+ * for a given identifier.
+ * @param propId The identifier to resolve into a tag.
+ * @param propType The type of the property (PT_UNSPECIFIED, PT_UNICODE, etc.).
+ *
+ * @return The property tag associated for the given identifier and type.
+ */
+ULONG MsOutlookAddrBookContactQuery_getPropTag
+    (LPMAPIPROP mapiProp, long propId, long propType)
+{
+    ULONG propTag;
+
+    if (propId < 0x8000)
+    {
+        if (propId == PROP_ID(PR_ATTACHMENT_CONTACTPHOTO))
+            propTag = PR_HASATTACH;
+        else
+            propTag = PROP_TAG(propType, propId);
+    }
+    else
+    {
+        propTag = MsOutlookAddrBookContactQuery_getPropTagFromLid(
+                (LPMAPIPROP) mapiProp,
+                (LONG)propId);
+        propTag = CHANGE_PROP_TYPE(propTag, propType);
+    }
+
+    return propTag;
+}
+
 static ULONG
 MsOutlookAddrBookContactQuery_getPropTagFromLid(LPMAPIPROP mapiProp, LONG lid)
 {
@@ -1129,9 +1164,10 @@ int MsOutlookAddrBookContactQuery_IMAPIProp_1DeleteProp
         propTagArray->cValues = nbProps;
         for(unsigned int i = 0; i < nbProps; ++i)
         {
-            propTag = MsOutlookAddrBookContactQuery_getPropTagFromLid(
+            propTag = MsOutlookAddrBookContactQuery_getPropTag(
                     (LPMAPIPROP) mapiProp,
-                    propIds[i]);
+                    propIds[i],
+                    PT_UNICODE);
             *(propTagArray->aulPropTag + i) = propTag;
         }
 
@@ -1162,14 +1198,10 @@ int MsOutlookAddrBookContactQuery_IMAPIProp_1DeleteProp
 
     SPropTagArray propToDelete;
     propToDelete.cValues = 1;
-    if(propId == 0x8062) // PidLidInstantMessagingAddress
-    {
-        propToDelete.aulPropTag[0] = 0x8046001F;
-    }
-    else
-    {
-        propToDelete.aulPropTag[0] = PROP_TAG(PT_UNICODE, propId);
-    }
+    propToDelete.aulPropTag[0] = MsOutlookAddrBookContactQuery_getPropTag(
+            (LPMAPIPROP) mapiProp,
+            propId,
+            PT_UNICODE);
 
     HRESULT hResult
         = ((LPMAPIPROP)  mapiProp)->DeleteProps(
@@ -1227,22 +1259,10 @@ HRESULT MsOutlookAddrBookContactQuery_IMAPIProp_1GetProps(
 
             long propId = propIds[i];
 
-            ULONG propTag;
-
-            if (propId < 0x8000)
-            {
-                if (propId == PROP_ID(PR_ATTACHMENT_CONTACTPHOTO))
-                    propTag = PR_HASATTACH;
-                else
-                    propTag = PROP_TAG(PT_UNSPECIFIED, propId);
-            }
-            else
-            {
-                propTag
-                    = MsOutlookAddrBookContactQuery_getPropTagFromLid(
-                            (LPMAPIPROP) mapiProp,
-                            (LONG)propId);
-            }
+            ULONG propTag = MsOutlookAddrBookContactQuery_getPropTag(
+                    (LPMAPIPROP) mapiProp,
+                    propId,
+                    PT_UNSPECIFIED);
             *(propTagArray->aulPropTag + i) = propTag;
         }
 
@@ -1437,9 +1457,10 @@ int MsOutlookAddrBookContactQuery_IMAPIProp_1SetPropString
         propTagArray->cValues = nbProps;
         for(unsigned int i = 0; i < nbProps; ++i)
         {
-            propTag = MsOutlookAddrBookContactQuery_getPropTagFromLid(
+            propTag = MsOutlookAddrBookContactQuery_getPropTag(
                     (LPMAPIPROP) mapiProp,
-                    propIds[i]);
+                    propIds[i],
+                    PT_UNSPECIFIED);
             *(propTagArray->aulPropTag + i) = propTag;
         }
         hResult = ((LPMAPIPROP)  mapiProp)->GetProps(
@@ -1497,34 +1518,10 @@ int MsOutlookAddrBookContactQuery_IMAPIProp_1SetPropString
     }
 
     SPropValue updateValue;
-    if(propId == 0x8062) // PidLidInstantMessagingAddress
-    {
-        updateValue.ulPropTag = 0x8046001F;
-    }
-    else if(propId == 0x8045) // business address - street
-    {
-        updateValue.ulPropTag = 0x805F001F;
-    }
-    else if(propId == 0x8046) // business address - city
-    {
-        updateValue.ulPropTag = 0x8060001F;
-    }
-    else if(propId == 0x8047) // business address - state
-    {
-        updateValue.ulPropTag = 0x8061001F;
-    }
-    else if(propId == 0x8048) // business address - zip
-    {
-        updateValue.ulPropTag = 0x8062001F;
-    }
-    else if(propId == 0x8049) // business address - country
-    {
-        updateValue.ulPropTag = 0x8063001F;
-    }
-    else
-    {
-        updateValue.ulPropTag = PROP_TAG(PT_UNICODE, propId);
-    }
+    updateValue.ulPropTag = MsOutlookAddrBookContactQuery_getPropTag(
+            (LPMAPIPROP) mapiProp,
+            propId,
+            PT_UNICODE);
     updateValue.Value.lpszW = wCharValue;
 
     hResult = ((LPMAPIPROP)  mapiProp)->SetProps(
@@ -1791,4 +1788,141 @@ MsOutlookAddrBookContactQuery_readAttachment
         }
     }
     return attachment;
+}
+
+/**
+ * Gets a string property for a given entry.
+ *
+ * @param entry The entry to red the property from.
+ * @param propId The property identifier.
+ *
+ * @return A string representation of the property value retrieved. Must be
+ * freed by the caller.
+ */
+char* MsOutlookAddrBookContactQuery_getStringUnicodeProp
+    (LPUNKNOWN entry, ULONG propId)
+{
+    SPropTagArray tagArray;
+    tagArray.cValues = 1;
+    tagArray.aulPropTag[0] = PROP_TAG(PT_UNICODE, propId);
+
+    ULONG propCount;
+    LPSPropValue propArray;
+    HRESULT hResult = ((LPMAPIPROP)entry)->GetProps(
+            &tagArray,
+            0x80000000, // MAPI_UNICODE.
+            &propCount,
+            &propArray);
+
+    if (HR_SUCCEEDED(hResult))
+    {
+        unsigned int length = wcslen(propArray->Value.lpszW);
+        char * value;
+        if((value = (char*) malloc((length + 1) * sizeof(char)))
+            == NULL)
+        {
+            fprintf(stderr,
+                    "getStringUnicodeProp (addrbook/MsOutlookAddrBookContactQuery.c): \
+                    \n\tmalloc\n");
+            fflush(stderr);
+        }
+        if(wcstombs(value, propArray->Value.lpszW, length + 1) != length)
+        {
+            fprintf(stderr,
+                    "getStringUnicodeProp (addrbook/MsOutlookAddrBookContactQuery.c): \
+                        \n\tmbstowcs\n");
+            fflush(stderr);
+            ::free(value);
+            value = NULL;
+            return NULL;
+        }
+        return value;
+    }
+
+    return NULL;
+}
+
+/**
+ * Compares two identifiers to determine if they are part of the same
+ * Outlook contact.
+ *
+ * @param id1 The first identifier.
+ * @param id2 The second identifier.
+ *
+ * @result True if id1 and id2 are two identifiers of the same contact.  False
+ * otherwise.
+ */
+int MsOutlookAddrBookContactQuery_compareEntryIds(
+       LPSTR id1,
+       LPSTR id2)
+{
+    if(strcmp(id1, id2) == 0)
+    {
+        fprintf(stderr,
+                "CHENZO compareEntryIds: \
+                \n\tid1: %s\
+                \n\tid2: %s\n",
+                id1,
+                id2);
+        fflush(stderr);
+    }
+    //id2 = "ROH";
+    int result = 0;
+    LPMAPISESSION session = MAPISession_getMapiSession();
+
+    LPMAPIPROP mapiId1;
+    if((mapiId1 = (LPMAPIPROP)
+                MsOutlookAddrBookContactQuery_openEntryIdStr(id1))
+            == NULL)
+    {
+        return result;
+    }
+    SBinary contactId1;
+    contactId1.cb = 0;
+    MsOutlookAddrBookContactQuery_getBinaryProp(mapiId1, 0x0FFF, &contactId1);
+
+    LPMAPIPROP mapiId2;
+    if((mapiId2 = (LPMAPIPROP)
+                MsOutlookAddrBookContactQuery_openEntryIdStr(id2))
+            == NULL)
+    {
+        return result;
+    }
+    SBinary contactId2;
+    contactId2.cb = 0;
+    MsOutlookAddrBookContactQuery_getBinaryProp(mapiId2, 0x0FFF, &contactId2);
+
+    if(session != NULL)
+    {
+        ULONG res;
+        if(session->CompareEntryIDs(
+                contactId1.cb,
+                (LPENTRYID) contactId1.lpb,
+                contactId2.cb,
+                (LPENTRYID) contactId2.lpb,
+                0,
+                &res) != S_OK)
+        {
+            fprintf(stderr,
+                    "compareEntryIds (addrbook/MsOutlookAddrBookContactQuery.c): \
+                        \n\tMAPISession::CompareEntryIDs\n");
+            fflush(stderr);
+            return result;
+        }
+        result = res;
+    }
+
+    if(strcmp(id1, id2) == 0)
+    {
+        fprintf(stderr,
+                "CHENZO compareEntryIds: \
+                \n\tid1: %s\
+                \n\tid2: %s\
+                \n\tresult: %d\n",
+                id1,
+                id2,
+                result);
+        fflush(stderr);
+    }
+    return result;
 }

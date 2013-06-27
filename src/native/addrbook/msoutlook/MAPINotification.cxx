@@ -10,6 +10,7 @@
 #include "net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService.h"
 #include "net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactQuery.h"
 #include "MsOutlookAddrBookContactSourceService.h"
+#include "MsOutlookAddrBookContactQuery.h"
 
 #include <mapidefs.h>
 #include <stdio.h>
@@ -29,7 +30,8 @@ static ULONG MAPINotification_EVENT_MASK
     = fnevObjectCreated
         | fnevObjectDeleted
         | fnevObjectModified
-        | fnevObjectMoved;
+        | fnevObjectMoved
+        | fnevObjectCopied;
 
 static LPMDB * MAPINotification_msgStores = NULL;
 static ULONG * MAPINotification_msgStoresConnection = NULL;
@@ -121,9 +123,12 @@ void MAPINotification_jniCallDeletedMethod(LPSTR iUnknown)
     if(MAPINotification_VM
             ->AttachCurrentThreadAsDaemon((void**) &tmpJniEnv, NULL) == 0)
     {
+        fprintf(stdout, "MAPINotification_jniCallDeletedMethod: id: %s\n",
+                iUnknown);
+        fflush(stdout);
         jstring value = tmpJniEnv->NewStringUTF(iUnknown);
 
-        tmpJniEnv->CallBooleanMethod(
+        tmpJniEnv->CallVoidMethod(
                 MAPINotification_notificationsDelegateObject,
                 MAPINotification_notificationsDelegateMethodIdDeleted,
                 value);
@@ -146,7 +151,7 @@ void MAPINotification_jniCallInsertedMethod(LPSTR iUnknown)
     {
         jstring value = tmpJniEnv->NewStringUTF(iUnknown);
 
-        tmpJniEnv->CallBooleanMethod(
+        tmpJniEnv->CallVoidMethod(
                 MAPINotification_notificationsDelegateObject,
                 MAPINotification_notificationsDelegateMethodIdInserted,
                 value);
@@ -169,7 +174,7 @@ void MAPINotification_jniCallUpdatedMethod(LPSTR iUnknown)
     {
         jstring value = tmpJniEnv->NewStringUTF(iUnknown);
 
-        tmpJniEnv->CallBooleanMethod(
+        tmpJniEnv->CallVoidMethod(
                 MAPINotification_notificationsDelegateObject,
                 MAPINotification_notificationsDelegateMethodIdUpdated,
                 value);
@@ -200,8 +205,9 @@ STDAPICALLTYPE MAPINotification_onNotify
                         lpvContext);
         }
 
-        // A contact has been created
-        if(lpNotifications[i].ulEventType == fnevObjectCreated)
+        // A contact has been created (a new one or a copy).
+        if(lpNotifications[i].ulEventType == fnevObjectCreated
+                || lpNotifications[i].ulEventType == fnevObjectCopied)
         {
             if(lpvContext != NULL)
             {
@@ -244,6 +250,30 @@ STDAPICALLTYPE MAPINotification_onNotify
 
                 ::free(entryIdStr);
                 entryIdStr = NULL;
+
+                // If the entry identifier has changed, then deletes the old
+                // one.
+                if(lpNotifications[i].info.obj.lpOldID != NULL
+                        && lpNotifications[i].info.obj.cbOldID > 0)
+                {
+                    LPSTR oldEntryIdStr = (LPSTR)
+                        ::malloc((lpNotifications[i].info.obj.cbOldID + 1) * 2);
+                    HexFromBin(
+                            (LPBYTE) lpNotifications[i].info.obj.lpOldID,
+                            lpNotifications[i].info.obj.cbOldID,
+                            oldEntryIdStr);
+                    fprintf(stdout,
+                            "MAPINotification_onNotify: evModified oldID: %s\n",
+                            oldEntryIdStr);
+                    fflush(stdout);
+                    if(lpNotifications[i].info.obj.ulObjType == MAPI_MESSAGE
+                            && MAPINotification_callDeletedMethod != NULL)
+                    {
+                        MAPINotification_callDeletedMethod(oldEntryIdStr);
+                    }
+                    ::free(oldEntryIdStr);
+                    oldEntryIdStr = NULL;
+                }
             }
         }
         // A contact has been deleted.
@@ -258,6 +288,10 @@ STDAPICALLTYPE MAPINotification_onNotify
                         (LPBYTE) lpNotifications[i].info.obj.lpEntryID,
                         lpNotifications[i].info.obj.cbEntryID,
                         entryIdStr);
+
+                fprintf(stdout, "MAPINotification_onNotify: evDeleted: %s\n",
+                        entryIdStr);
+                fflush(stdout);
 
                 if(lpNotifications[i].info.obj.ulObjType == MAPI_MESSAGE
                         && MAPINotification_callDeletedMethod != NULL)
@@ -306,6 +340,54 @@ STDAPICALLTYPE MAPINotification_onNotify
                         lpNotifications[i].info.obj.lpParentID,
                         lpvContext);
 
+                fprintf(stdout,
+                        "MAPINotification_onNotify: evMoved: bin %s / %s / %s\n",
+                        entryIdStr,
+                        parentEntryIdStr,
+                        wasteBasketEntryIdStr);
+                fflush(stdout);
+
+                LPUNKNOWN entryDirBin =
+                    MAPINotification_openEntry(
+                        lpNotifications[i].info.obj.cbEntryID,
+                        (LPENTRYID) lpNotifications[i].info.obj.lpEntryID,
+                        lpvContext);
+                char* entryDir
+                    = MsOutlookAddrBookContactQuery_getStringUnicodeProp(
+                        entryDirBin,
+                        0x3001); // PR_DISPLAY_NAME
+
+                LPUNKNOWN parentEntryDirBin =
+                    MAPINotification_openEntry(
+                        lpNotifications[i].info.obj.cbParentID,
+                        (LPENTRYID) lpNotifications[i].info.obj.lpParentID,
+                        lpvContext);
+                char* parentEntryDir
+                    = MsOutlookAddrBookContactQuery_getStringUnicodeProp(
+                        parentEntryDirBin,
+                        0x3001); // PR_DISPLAY_NAME
+
+                LPUNKNOWN basketEntryDirBin =
+                    MAPINotification_openEntry(
+                        wasteBasketProps[0].Value.bin.cb,
+                        (LPENTRYID) wasteBasketProps[0].Value.bin.lpb,
+                        lpvContext);
+                char* basketEntryDir
+                    = MsOutlookAddrBookContactQuery_getStringUnicodeProp(
+                        basketEntryDirBin,
+                        0x3001); // PR_DISPLAY_NAME
+
+                fprintf(stdout,
+                        "MAPINotification_onNotify: evMoved: %s / %s / %s\n",
+                        entryDir,
+                        parentEntryDir,
+                        basketEntryDir);
+                fflush(stdout);
+
+                free(entryDir);
+                free(parentEntryDir);
+                free(basketEntryDir);
+
 
                 if(lpNotifications[i].info.obj.ulObjType == MAPI_MESSAGE
                         && strcmp(parentEntryIdStr, wasteBasketEntryIdStr) == 0
@@ -320,6 +402,30 @@ STDAPICALLTYPE MAPINotification_onNotify
                 parentEntryIdStr = NULL;
                 ::free(wasteBasketEntryIdStr);
                 wasteBasketEntryIdStr = NULL;
+
+                // If the entry identifier has changed, then deletes the old
+                // one.
+                if(lpNotifications[i].info.obj.lpOldID != NULL
+                        && lpNotifications[i].info.obj.cbOldID > 0)
+                {
+                    LPSTR oldEntryIdStr = (LPSTR)
+                        ::malloc((lpNotifications[i].info.obj.cbOldID + 1) * 2);
+                    HexFromBin(
+                            (LPBYTE) lpNotifications[i].info.obj.lpOldID,
+                            lpNotifications[i].info.obj.cbOldID,
+                            oldEntryIdStr);
+                    fprintf(stdout,
+                            "MAPINotification_onNotify: evMoved oldID: %s\n",
+                            oldEntryIdStr);
+                    fflush(stdout);
+                    if(lpNotifications[i].info.obj.ulObjType == MAPI_MESSAGE
+                            && MAPINotification_callDeletedMethod != NULL)
+                    {
+                        MAPINotification_callDeletedMethod(oldEntryIdStr);
+                    }
+                    ::free(oldEntryIdStr);
+                    oldEntryIdStr = NULL;
+                }
             }
         }
 

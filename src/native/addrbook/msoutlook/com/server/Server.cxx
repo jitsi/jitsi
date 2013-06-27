@@ -125,6 +125,9 @@ void waitParentProcessStop()
 static void Server_deleted(LPSTR id)
 {
     HRESULT hr =  E_FAIL;
+    fprintf(stdout, "Server_deleted: id: %s\n",
+            id);
+    fflush(stdout);
 
     IMsOutlookAddrBookClient * msOutlookAddrBookClient = NULL;
     if((hr = CoCreateInstance(

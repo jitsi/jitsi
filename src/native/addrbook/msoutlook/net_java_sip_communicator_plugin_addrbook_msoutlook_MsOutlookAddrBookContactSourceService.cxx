@@ -44,4 +44,3 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
 
     MsOutlookAddrBookContactSourceService_MAPIUninitializeCOMServer();
 }
-

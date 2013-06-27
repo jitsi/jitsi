@@ -7,6 +7,8 @@
 #ifndef _NET_JAVA_SIP_COMMUNICATOR_PLUGIN_ADDRBOOK_MSOUTLOOK_MSOUTLOOKADDRBOOKCONTACTQUERY_H_
 #define _NET_JAVA_SIP_COMMUNICATOR_PLUGIN_ADDRBOOK_MSOUTLOOK_MSOUTLOOKADDRBOOKCONTACTQUERY_H_
 
+#include <mapidefs.h>
+
 int MsOutlookAddrBookContactQuery_IMAPIProp_1DeleteProp
     (long propId, const char * nativeEntryId);
 
@@ -28,5 +30,11 @@ int MsOutlookAddrBookContactQuery_deleteContact(const char * nativeEntryId);
 
 void MsOutlookAddrBookContactQuery_foreachMailUser
     (const char * query, void * callback, void * callbackObject);
+
+char* MsOutlookAddrBookContactQuery_getStringUnicodeProp
+    (LPUNKNOWN entry, ULONG propId);
+
+int MsOutlookAddrBookContactQuery_compareEntryIds
+    (LPSTR id1, LPSTR id2);
 
 #endif

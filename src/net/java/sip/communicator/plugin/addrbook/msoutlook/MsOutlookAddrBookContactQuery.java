@@ -362,7 +362,7 @@ public class MsOutlookAddrBookContactQuery
 
     /**
      * Boolea used to defined if we already get and logged a read contact
-     * property error. 
+     * property error.
      */
     private boolean firstIMAPIPropGetPropFailureLogged = false;
 
@@ -759,6 +759,18 @@ public class MsOutlookAddrBookContactQuery
     public static native String createContact();
 
     /**
+     * Compares two identifiers to determine if they are part of the same
+     * Outlook contact.
+     *
+     * @param id1 The first identifier.
+     * @param id2 The second identifier.
+     *
+     * @return True if id1 and id2 are two identifiers of the same contact.
+     * False otherwise.
+     */
+    public static native boolean compareEntryIds(String id1, String id2);
+
+    /**
      * Determines whether a specific index in {@link #MAPI_MAILUSER_PROP_IDS}
      * stands for a property with a phone number value.
      *
@@ -814,11 +826,6 @@ public class MsOutlookAddrBookContactQuery
     private boolean onMailUser(String id)
         throws MsOutlookMAPIHResultException
     {
-        if(logger.isDebugEnabled())
-        {
-            logger.debug("Found contact id: " + id);
-        }
-
         Object[] props = null;
         try
         {
@@ -1063,6 +1070,10 @@ public class MsOutlookAddrBookContactQuery
             ((MsOutlookAddrBookSourceContact) sourceContact).updated();
             fireContactChanged(sourceContact);
         }
+        else
+        {
+            inserted(id);
+        }
     }
 
     /**
@@ -1202,5 +1213,28 @@ public class MsOutlookAddrBookContactQuery
     public static String getOrganization(Object[] values)
     {
         return (String) values[PR_COMPANY_NAME];
+    }
+
+    /**
+     * Searches for source contact with the specified id.
+     * @param id the id to search for
+     * @return the source contact found or null.
+     */
+    protected SourceContact findSourceContactByID(String id)
+    {
+        synchronized(sourceContacts)
+        {
+            for(SourceContact sc : sourceContacts)
+            {
+                Object scID = sc.getData(SourceContact.DATA_ID);
+
+                if(id.equals(scID)
+                        || compareEntryIds(id, (String) scID))
+                    return sc;
+            }
+        }
+
+        // not found
+        return null;
     }
 }

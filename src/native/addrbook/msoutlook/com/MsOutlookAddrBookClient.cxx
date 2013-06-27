@@ -128,6 +128,9 @@ HRESULT STDMETHODCALLTYPE MsOutlookAddrBookClient::foreachMailUserCallback(
 HRESULT STDMETHODCALLTYPE MsOutlookAddrBookClient::deleted(BSTR id)
 {
     char * charId = StringUtils::WideCharToMultiByte(id);
+    fprintf(stdout, "MsOutlookAddrBookClient_deleted: id: %s\n",
+            charId);
+    fflush(stdout);
     MAPINotification_jniCallDeletedMethod(charId);
     free(charId);
 

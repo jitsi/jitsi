@@ -366,3 +366,34 @@ HRESULT STDMETHODCALLTYPE MsOutlookAddrBookServer::IMAPIProp_SetPropString(
     }
     return hr;
 }
+
+/**
+ * Compares two identifiers to determine if they are part of the same
+ * Outlook contact.
+ *
+ * @param id1 The first identifier.
+ * @param id2 The second identifier.
+ * @param result A boolean set to true if id1 and id2 are two identifiers of the
+ * same contact.  False otherwise.
+ *
+ * @return S_OK if eveything works fine. E_FAIL otherwise.
+ */
+HRESULT STDMETHODCALLTYPE MsOutlookAddrBookServer::compareEntryIds(
+       BSTR id1,
+       BSTR id2,
+       int * result)
+{
+    HRESULT hr = E_FAIL;
+    if(id1 != NULL && id2 != NULL)
+    {
+        LPSTR nativeId1 = StringUtils::WideCharToMultiByte(id1);
+        LPSTR nativeId2 = StringUtils::WideCharToMultiByte(id2);
+        (*result) = MsOutlookAddrBookContactQuery_compareEntryIds(
+                nativeId1,
+                nativeId2);
+        hr = S_OK;
+        free(nativeId1);
+        free(nativeId2);
+    }
+    return hr;
+}

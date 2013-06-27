@@ -420,3 +420,56 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
 
     return javaProps;
 }
+
+
+/**
+ * Compares two identifiers to determine if they are part of the same
+ * Outlook contact.
+ *
+ * @param jniEnv The Java native interface environment.
+ * @param clazz A Java class Object.
+ * @param id1 The first identifier.
+ * @param id2 The second identifier.
+ *
+ * @return True if id1 and id2 are two identifiers of the same contact.
+ * False otherwise.
+ */
+JNIEXPORT jboolean JNICALL
+Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactQuery_compareEntryIds
+  (JNIEnv *jniEnv, jclass clazz, jstring id1, jstring id2)
+{
+    jboolean res = JNI_FALSE;
+
+    if(id1 == NULL || id2 == NULL)
+    {
+        return res;
+    }
+
+    const char *nativeId1 = jniEnv->GetStringUTFChars(id1, NULL);
+    const char *nativeId2 = jniEnv->GetStringUTFChars(id2, NULL);
+
+    IMsOutlookAddrBookServer * iServer = ComClient_getIServer();
+    if(iServer)
+    {
+        LPWSTR unicodeId1 = StringUtils::MultiByteToWideChar(nativeId1);
+        LPWSTR unicodeId2 = StringUtils::MultiByteToWideChar(nativeId2);
+        BSTR comId1 = SysAllocString(unicodeId1);
+        BSTR comId2 = SysAllocString(unicodeId2);
+
+        int result = 0;
+        if(iServer->compareEntryIds(comId1, comId2, &result) == S_OK)
+        {
+            res = (result == 1);
+        }
+
+        SysFreeString(comId1);
+        SysFreeString(comId2);
+        free(unicodeId1);
+        free(unicodeId2);
+    }
+
+    jniEnv->ReleaseStringUTFChars(id1, nativeId1);
+    jniEnv->ReleaseStringUTFChars(id2, nativeId2);
+
+    return res;
+}
