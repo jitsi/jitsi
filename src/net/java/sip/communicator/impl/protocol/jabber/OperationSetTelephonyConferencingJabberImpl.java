@@ -15,6 +15,7 @@ import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
 
+import org.jitsi.util.xml.*;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
@@ -407,7 +408,15 @@ public class OperationSetTelephonyConferencingJabberImpl
      */
     private void handleCoin(CallPeerJabberImpl callPeer, CoinIQ coinIQ)
     {
-        setConferenceInfoXML(callPeer, coinIQ.getChildElementXML());
+        try
+        {
+            setConferenceInfoXML(callPeer, coinIQ.getChildElementXML());
+        }
+        catch (XMLException e)
+        {
+            logger.error("Could not handle received COIN from " + callPeer
+                + ": " + coinIQ);
+        }
     }
 
     /**

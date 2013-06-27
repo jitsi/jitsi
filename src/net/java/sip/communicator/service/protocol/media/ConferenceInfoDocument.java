@@ -162,9 +162,11 @@ public class ConferenceInfoDocument
 
     /**
      * Creates a new <tt>ConferenceInfoDocument</tt> instance.
+     *
+     * @throws XMLException if a document failed to be created.
      */
     public ConferenceInfoDocument()
-            throws Exception
+            throws XMLException
     {
         try
         {
@@ -173,7 +175,7 @@ public class ConferenceInfoDocument
         catch (Exception e)
         {
             logger.error("Failed to create a new document.", e);
-            throw(e);
+            throw(new XMLException(e.getMessage()));
         }
 
 
@@ -200,8 +202,11 @@ public class ConferenceInfoDocument
      * by parsing the XML in <tt>xml</tt>
      *
      * @param xml the XML string to parse
+     *
+     * @throws XMLException If parsing failed
      */
-    public ConferenceInfoDocument(String xml) throws Exception
+    public ConferenceInfoDocument(String xml)
+            throws XMLException
     {
         byte[] bytes;
 
@@ -225,15 +230,14 @@ public class ConferenceInfoDocument
         }
         catch (Exception e)
         {
-            logger.error("Failed to parse conference-info XML", e);
-            throw(e);
+            throw new XMLException(e.getMessage());
         }
 
         conferenceInfo = document.getDocumentElement();
         if (conferenceInfo == null)
         {
-            throw(new Exception("Could not parse conference-info document,"
-                    + " conference-info element not found"));
+            throw new XMLException("Could not parse conference-info document,"
+                    + " conference-info element not found");
         }
 
         conferenceDescription = XMLUtils
@@ -241,8 +245,8 @@ public class ConferenceInfoDocument
         //conference-description is mandatory
         if (conferenceDescription == null)
         {
-            throw(new Exception("Could not parse conference-info document,"
-                    + " conference-description element not found"));
+            throw new XMLException("Could not parse conference-info document,"
+                    + " conference-description element not found");
         }
 
         conferenceState
@@ -254,8 +258,8 @@ public class ConferenceInfoDocument
         users = XMLUtils.findChild(conferenceInfo, USERS_ELEMENT_NAME);
         if (users == null)
         {
-            throw(new Exception("Could not parse conference-info document,"
-                    + " 'users' element not found"));
+            throw new XMLException("Could not parse conference-info document,"
+                    + " 'users' element not found");
         }
         NodeList usersNodeList = users.getElementsByTagName(USER_ELEMENT_NAME);
         for(int i=0; i<usersNodeList.getLength(); i++)
@@ -267,19 +271,27 @@ public class ConferenceInfoDocument
 
     /**
      * Returns the value of the <tt>version</tt> attribute of the
-     * <tt>conference-info</tt> element.
+     * <tt>conference-info</tt> element, or -1 if there is no <tt>version</tt>
+     * attribute or if it's value couldn't be parsed as an integer.
      * @return the value of the <tt>version</tt> attribute of the
-     * <tt>conference-info</tt> element.
+     * <tt>conference-info</tt> element, or -1 if there is no <tt>version</tt>
+     * attribute or if it's value couldn't be parsed as an integer.
      */
     public int getVersion()
     {
         String versionString = conferenceInfo.getAttribute(VERSION_ATTR_NAME);
+        if (versionString == null)
+            return -1;
         int version = -1;
         try
         {
             version = Integer.parseInt(versionString);
         }
-        catch (Exception e){}
+        catch (NumberFormatException e)
+        {
+            if (logger.isInfoEnabled())
+                logger.info("Failed to parse version string: " + versionString);
+        }
 
         return version;
     }

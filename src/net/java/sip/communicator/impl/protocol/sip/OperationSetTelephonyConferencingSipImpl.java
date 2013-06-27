@@ -21,6 +21,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
+import org.jitsi.util.xml.*;
 
 /**
  * Implements <tt>OperationSetTelephonyConferencing</tt> for SIP.
@@ -784,9 +785,17 @@ public class OperationSetTelephonyConferencingSipImpl
         {
             if (rawContent != null)
             {
-                setConferenceInfoXML(
+                try
+                {
+                    setConferenceInfoXML(
                         callPeer,
                         SdpUtils.getContentAsString(requestEvent.getRequest()));
+                }
+                catch (XMLException e)
+                {
+                    logger.error("Could not handle conference-info NOTIFY sent"
+                            + " to us by " + callPeer);
+                }
             }
         }
 

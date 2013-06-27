@@ -14,6 +14,7 @@ import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.neomedia.*;
+import org.jitsi.util.xml.*;
 import org.w3c.dom.*;
 
 /**
@@ -905,22 +906,17 @@ public abstract class AbstractOperationSetTelephonyConferencing<
      * <tt>conference-info</tt> XML element of the specified
      * <tt>conferenceInfoXML</tt> if it was successfully parsed and represented
      * in the specified <tt>callPeer</tt>
+     *
+     * @throws XMLException If <tt>conferenceInfoXML</tt> couldn't be parsed as
+     * a <tt>ConferenceInfoDocument</tt>
      */
     protected int setConferenceInfoXML(
             MediaAwareCallPeerT callPeer,
             String conferenceInfoXML)
+        throws XMLException
     {
-        ConferenceInfoDocument confInfo = null;
-
-        try
-        {
-             confInfo = new ConferenceInfoDocument(conferenceInfoXML);
-        }
-        catch (Exception e)
-        {
-            logger.error("Failed to parse conference-info XML", e);
-            return -1;
-        }
+        ConferenceInfoDocument confInfo
+                = new ConferenceInfoDocument(conferenceInfoXML);
 
         /*
          * The CallPeer sent conference-info XML so we're sure it's a
@@ -1032,7 +1028,7 @@ public abstract class AbstractOperationSetTelephonyConferencing<
         {
            confInfo = new ConferenceInfoDocument();
         }
-        catch (Exception e)
+        catch (XMLException e)
         {
             return null;
         }
@@ -1217,6 +1213,22 @@ public abstract class AbstractOperationSetTelephonyConferencing<
         return to;
     }
 
+    /**
+     * Updates the conference-related properties of a specific <tt>CallPeer</tt>
+     * such as <tt>conferenceFocus</tt> and <tt>conferenceMembers</tt> with
+     * information received from it as a conference focus in the form of a
+     * partial conference-info XML document.
+     *
+     * @param callPeer the <tt>CallPeer</tt> which is a conference focus and has
+     * sent the specified partial conference-info XML document
+     * @param diff the partial conference-info XML document sent by
+     * <tt>callPeer</tt> in order to update the conference-related information
+     * of the local peer represented by the associated <tt>Call</tt>
+     * @return the value of the <tt>version</tt> attribute of the
+     * <tt>conference-info</tt> XML element of the specified
+     * <tt>conferenceInfoXML</tt> if it was successfully parsed and represented
+     * in the specified <tt>callPeer</tt>
+     */
     private int updateConferenceInfoDocument(
             MediaAwareCallPeerT callPeer,
             ConferenceInfoDocument diff)
@@ -1243,9 +1255,9 @@ public abstract class AbstractOperationSetTelephonyConferencing<
             {
                 newDocument = new ConferenceInfoDocument();
             }
-            catch (Exception e)
+            catch (XMLException e)
             {
-                logger.error("Could not create a new ConferenceInfoDocument", e);
+                logger.warn("Could not create a new ConferenceInfoDocument", e);
                 return -1;
             }
 
