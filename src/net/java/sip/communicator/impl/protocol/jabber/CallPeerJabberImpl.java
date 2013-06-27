@@ -72,6 +72,17 @@ public class CallPeerJabberImpl
     private final Object sidSyncRoot = new Object();
 
     /**
+     * Whether a COIN has been scheduled to be sent to this
+     * <tt>CallPeerJabberImpl</tt>
+     */
+    private boolean coinScheduled = false;
+
+    /**
+     * Synchronization object for coinScheduled
+     */
+    private final Object coinScheduledSyncRoot = new Object();
+
+    /**
      * Creates a new call peer with address <tt>peerAddress</tt>.
      *
      * @param peerAddress the Jabber address of the new call peer.
@@ -1452,5 +1463,41 @@ public class CallPeerJabberImpl
                     message,
                     new TransferredPacketExtension()));
         }
+    }
+
+    /**
+     * Check whether a COIN is scheduled to be sent to this <tt>CallPeer</tt>
+     * (i.e. there is a thread which will eventually (after sleeping a certain
+     * amount of time) trigger a COIN to be sent)
+     * @return <tt>true</tt> if there is a COIN scheduled to be sent to this
+     * <tt>CallPeer</tt> and <tt>false</tt> otherwise
+     */
+    public boolean isCoinScheduled()
+    {
+        synchronized (coinScheduledSyncRoot)
+        {
+            return coinScheduled;
+        }
+    }
+
+    /**
+     * Sets the property which indicates whether a COIN is scheduled to be sent
+     * to this <tt>CallPeer</tt>.
+     * @param coinScheduled
+     */
+    public void setCoinScheduled(boolean coinScheduled)
+    {
+        synchronized (coinScheduledSyncRoot)
+        {
+            this.coinScheduled = coinScheduled;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public String getEntity()
+    {
+        return getAddress();
     }
 }

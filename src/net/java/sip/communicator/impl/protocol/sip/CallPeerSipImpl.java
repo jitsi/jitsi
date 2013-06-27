@@ -1681,4 +1681,14 @@ public class CallPeerSipImpl
         else
             setState(CallPeerState.DISCONNECTED, reason);
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public String getEntity()
+    {
+        return AbstractOperationSetTelephonyConferencing
+                .stripParametersFromAddress(getURI());
+    }
+
 }

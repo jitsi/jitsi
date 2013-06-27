@@ -15,7 +15,7 @@ import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
 
-import org.jitsi.service.neomedia.*;
+import org.jitsi.util.xml.*;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
@@ -27,6 +27,7 @@ import org.jivesoftware.smackx.packet.*;
  *
  * @author Lyubomir Marinov
  * @author Sebastien Vincent
+ * @author Boris Grozev
  */
 public class OperationSetTelephonyConferencingJabberImpl
     extends AbstractOperationSetTelephonyConferencing<
@@ -49,15 +50,15 @@ public class OperationSetTelephonyConferencingJabberImpl
         = Logger.getLogger(OperationSetTelephonyConferencingJabberImpl.class);
 
     /**
+     * The minimum interval in milliseconds between COINs sent to a single
+     * <tt>CallPeer</tt>.
+     */
+    private static final int COIN_MIN_INTERVAL = 200;
+
+    /**
      * Synchronization object.
      */
     private final Object lock = new Object();
-
-    /**
-     * The value of the <tt>version</tt> attribute to be specified in the
-     * outgoing <tt>conference-info</tt> root XML elements.
-     */
-    private int version = 1;
 
     /**
      * Initializes a new <tt>OperationSetTelephonyConferencingJabberImpl</tt>
@@ -97,8 +98,6 @@ public class OperationSetTelephonyConferencingJabberImpl
                 {
                     notify(i.next());
                 }
-
-                version++;
             }
         }
     }
@@ -114,10 +113,41 @@ public class OperationSetTelephonyConferencingJabberImpl
         if(!(callPeer instanceof CallPeerJabberImpl))
             return;
 
+        final CallPeerJabberImpl callPeerJabber = (CallPeerJabberImpl)callPeer;
+
+        final long timeSinceLastCoin = System.currentTimeMillis()
+                - callPeerJabber.getLastConferenceInfoSentTimestamp();
+        if (timeSinceLastCoin < COIN_MIN_INTERVAL)
+        {
+            if (callPeerJabber.isCoinScheduled())
+                return;
+
+            logger.info("Scheduling to send a COIN to " + callPeerJabber);
+            callPeerJabber.setCoinScheduled(true);
+            new Thread(new Runnable(){
+                @Override
+                public void run()
+                {
+                    try
+                    {
+                        Thread.sleep(1 + COIN_MIN_INTERVAL - timeSinceLastCoin);
+                    }
+                    catch (InterruptedException ie) {}
+
+                    OperationSetTelephonyConferencingJabberImpl.this
+                            .notify(callPeerJabber);
+                }
+            }).start();
+
+            return;
+        }
+
         // check that callPeer supports COIN before sending him a
         // conference-info
         String to = getBasicTelephony().getFullCalleeURI(callPeer.getAddress());
 
+        // XXX if this generates actual disco#info requests we might want to
+        // cache it.
         try
         {
             DiscoverInfo discoverInfo
@@ -127,6 +157,7 @@ public class OperationSetTelephonyConferencingJabberImpl
                     ProtocolProviderServiceJabberImpl.URN_XMPP_JINGLE_COIN))
             {
                 logger.info(callPeer.getAddress() + " does not support COIN");
+                callPeerJabber.setCoinScheduled(false);
                 return;
             }
         }
@@ -135,135 +166,41 @@ public class OperationSetTelephonyConferencingJabberImpl
             logger.warn("Failed to retrieve DiscoverInfo for " + to, xmppe);
         }
 
-        IQ iq = getConferenceInfo((CallPeerJabberImpl) callPeer, version);
+        ConferenceInfoDocument currentConfInfo
+                = getCurrentConferenceInfo(callPeerJabber);
+        ConferenceInfoDocument lastSentConfInfo
+                = callPeerJabber.getLastConferenceInfoSent();
 
-        if (iq != null)
-            parentProvider.getConnection().sendPacket(iq);
-    }
+        ConferenceInfoDocument diff;
 
-    /**
-     * Get media packet extension for the specified <tt>CallPeerJabberImpl</tt>.
-     *
-     * @param callPeer <tt>CallPeer</tt>
-     * @param remote if the callPeer is remote or local
-     * @return list of media packet extension
-     */
-    private List<MediaPacketExtension> getMedia(
-            MediaAwareCallPeer<?,?,?> callPeer,
-            boolean remote)
-    {
-        CallPeerMediaHandler<?> mediaHandler = callPeer.getMediaHandler();
-        List<MediaPacketExtension> ret = new ArrayList<MediaPacketExtension>();
-        long i = 1;
+        if (lastSentConfInfo == null)
+            diff = currentConfInfo;
+        else
+            diff = getConferenceInfoDiff(lastSentConfInfo, currentConfInfo);
 
-        for(MediaType mediaType : MediaType.values())
+        if (diff != null)
         {
-            MediaStream stream = mediaHandler.getStream(mediaType);
+            int newVersion
+                    = lastSentConfInfo == null
+                    ? 1
+                    : lastSentConfInfo.getVersion() + 1;
+            diff.setVersion(newVersion);
 
-            if (stream != null)
+            IQ iq = getConferenceInfo(callPeerJabber, diff);
+
+            if (iq != null)
             {
-                MediaPacketExtension ext
-                    = new MediaPacketExtension(Long.toString(i));
-                long srcId
-                    = remote
-                        ? getRemoteSourceID(callPeer, mediaType)
-                        : stream.getLocalSourceID();
+                parentProvider.getConnection().sendPacket(iq);
 
-                if (srcId != -1)
-                    ext.setSrcID(Long.toString(srcId));
-
-                ext.setType(mediaType.toString());
-
-                MediaDirection direction
-                    = remote
-                        ? getRemoteDirection(callPeer, mediaType)
-                        : stream.getDirection();
-
-                if (direction == null)
-                    direction = MediaDirection.INACTIVE;
-
-                ext.setStatus(direction.toString());
-                ret.add(ext);
-                i++;
+                // We save currentConfInfo, because it is of state "full", while
+                // diff could be a partial
+                currentConfInfo.setVersion(newVersion);
+                callPeerJabber.setLastConferenceInfoSent(currentConfInfo);
+                callPeerJabber.setLastConferenceInfoSentTimestamp(
+                        System.currentTimeMillis());
             }
         }
-
-        return ret;
-    }
-
-    /**
-     * Get user packet extension for the specified <tt>CallPeerJabberImpl</tt>.
-     *
-     * @param callPeer <tt>CallPeer</tt>
-     * @return user packet extension
-     */
-    private UserPacketExtension getUser(CallPeer callPeer)
-    {
-        UserPacketExtension ext
-            = new UserPacketExtension(callPeer.getAddress());
-
-        ext.setDisplayText(callPeer.getDisplayName());
-
-        EndpointPacketExtension endpoint
-            = new EndpointPacketExtension(callPeer.getURI());
-
-        endpoint.setStatus(getEndpointStatus(callPeer));
-
-        if (callPeer instanceof MediaAwareCallPeer<?,?,?>)
-        {
-            List<MediaPacketExtension> medias
-                = getMedia((MediaAwareCallPeer<?,?,?>) callPeer, true);
-
-            if(medias != null)
-            {
-                for(MediaPacketExtension media : medias)
-                    endpoint.addChildExtension(media);
-            }
-        }
-
-        ext.addChildExtension(endpoint);
-
-        return ext;
-    }
-
-    /**
-     * Generates the text content to be put in the <tt>status</tt> XML element
-     * of an <tt>endpoint</tt> XML element and which describes the state of a
-     * specific <tt>CallPeer</tt>.
-     *
-     * @param callPeer the <tt>CallPeer</tt> which is to get its state described
-     * in a <tt>status</tt> XML element of an <tt>endpoint</tt> XML element
-     * @return the text content to be put in the <tt>status</tt> XML element of
-     * an <tt>endpoint</tt> XML element and which describes the state of the
-     * specified <tt>callPeer</tt>
-     */
-    private EndpointStatusType getEndpointStatus(CallPeer callPeer)
-    {
-        CallPeerState callPeerState = callPeer.getState();
-
-        if (CallPeerState.ALERTING_REMOTE_SIDE.equals(callPeerState))
-            return EndpointStatusType.alerting;
-        if (CallPeerState.CONNECTING.equals(callPeerState)
-                || CallPeerState
-                    .CONNECTING_WITH_EARLY_MEDIA.equals(callPeerState))
-            return EndpointStatusType.pending;
-        if (CallPeerState.DISCONNECTED.equals(callPeerState))
-            return EndpointStatusType.disconnected;
-        if (CallPeerState.INCOMING_CALL.equals(callPeerState))
-            return EndpointStatusType.dialing_in;
-        if (CallPeerState.INITIATING_CALL.equals(callPeerState))
-            return EndpointStatusType.dialing_out;
-
-        /*
-         * he/she is neither "hearing" the conference mix nor is his/her media
-         * being mixed in the conference
-         */
-        if (CallPeerState.ON_HOLD_LOCALLY.equals(callPeerState)
-                || CallPeerState.ON_HOLD_MUTUALLY.equals(callPeerState))
-            return EndpointStatusType.on_hold;
-        if (CallPeerState.CONNECTED.equals(callPeerState))
-            return EndpointStatusType.connected;
-        return null;
+        callPeerJabber.setCoinScheduled(false);
     }
 
     /**
@@ -272,67 +209,34 @@ public class OperationSetTelephonyConferencingJabberImpl
      * conference managed by the local peer.
      *
      * @param callPeer the <tt>CallPeer</tt> to generate conference-info XML for
-     * @param version the value of the version attribute of the
-     * <tt>conference-info</tt> root element of the conference-info XML to be
-     * generated
+     * @param confInfo the <tt>ConferenceInformationDocument</tt> which is to be
+     * included in the IQ
      * @return the conference-info IQ to be sent to the specified
      * <tt>callPeer</tt> in order to notify it of the current state of the
      * conference managed by the local peer
      */
-    private IQ getConferenceInfo(CallPeerJabberImpl callPeer, int version)
+    private IQ getConferenceInfo(CallPeerJabberImpl callPeer,
+                                 final ConferenceInfoDocument confInfo)
     {
         String callPeerSID = callPeer.getSID();
 
         if (callPeerSID == null)
             return null;
 
-        CoinIQ iq = new CoinIQ();
+        IQ iq = new IQ(){
+            @Override
+            public String getChildElementXML()
+            {
+                return confInfo.toXml();
+            }
+        };
+
         CallJabberImpl call = callPeer.getCall();
 
         iq.setFrom(call.getProtocolProvider().getOurJID());
         iq.setTo(callPeer.getAddress());
         iq.setType(Type.SET);
-        iq.setEntity(getBasicTelephony().getProtocolProvider().getOurJID());
-        iq.setVersion(version);
-        iq.setState(StateType.full);
-        iq.setSID(callPeerSID);
 
-        // conference-description
-        iq.addExtension(new DescriptionPacketExtension());
-
-        // conference-state
-        StatePacketExtension state = new StatePacketExtension();
-        List<CallPeer> conferenceCallPeers = CallConference.getCallPeers(call);
-
-        state.setUserCount(
-                1 /* the local peer/user */ + conferenceCallPeers.size());
-        iq.addExtension(state);
-
-        // users
-        UsersPacketExtension users = new UsersPacketExtension();
-
-        // user
-        UserPacketExtension user
-            = new UserPacketExtension("xmpp:" + parentProvider.getOurJID());
-
-        // endpoint
-        EndpointPacketExtension endpoint = new EndpointPacketExtension(
-            "xmpp:" + parentProvider.getOurJID());
-        endpoint.setStatus(EndpointStatusType.connected);
-
-        // media
-        List<MediaPacketExtension> medias = getMedia(callPeer, false);
-
-        for(MediaPacketExtension media : medias)
-            endpoint.addChildExtension(media);
-        user.addChildExtension(endpoint);
-        users.addChildExtension(user);
-
-        // other users
-        for (CallPeer conferenceCallPeer : conferenceCallPeers)
-            users.addChildExtension(getUser(conferenceCallPeer));
-
-        iq.addExtension(users);
         return iq;
     }
 
@@ -486,8 +390,8 @@ public class OperationSetTelephonyConferencingJabberImpl
             if (callPeer != null)
             {
                 if (logger.isDebugEnabled())
-                    logger.debug("Processing COIN from" + coinIQ.getFrom()
-                                    + "(version=" + coinIQ.getVersion() + ")");
+                    logger.debug("Processing COIN from " + coinIQ.getFrom()
+                                    + " (version=" + coinIQ.getVersion() + ")");
                 handleCoin(callPeer, coinIQ);
             }
         }
@@ -504,6 +408,53 @@ public class OperationSetTelephonyConferencingJabberImpl
      */
     private void handleCoin(CallPeerJabberImpl callPeer, CoinIQ coinIQ)
     {
-        setConferenceInfoXML(callPeer, -1, coinIQ.getChildElementXML());
+        try
+        {
+            setConferenceInfoXML(callPeer, coinIQ.getChildElementXML());
+        }
+        catch (XMLException e)
+        {
+            logger.error("Could not handle received COIN from " + callPeer
+                + ": " + coinIQ);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * For COINs (XEP-0298), we use the attributes of the
+     * <tt>conference-info</tt> element to piggyback a Jingle SID. This is
+     * temporary and should be removed once we choose a better way to pass the
+     * SID.
+     */
+    protected ConferenceInfoDocument getCurrentConferenceInfo(
+            MediaAwareCallPeer<?,?,?> callPeer)
+    {
+        ConferenceInfoDocument confInfo
+                = super.getCurrentConferenceInfo(callPeer);
+
+        if (callPeer instanceof CallPeerJabberImpl)
+        {
+            confInfo.setSid(((CallPeerJabberImpl)callPeer).getSID());
+        }
+        return confInfo;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected String getLocalEntity(CallPeer callPeer)
+    {
+        return "xmpp:" + parentProvider.getOurJID();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected String getLocalDisplayName()
+    {
+        return null;
     }
 }

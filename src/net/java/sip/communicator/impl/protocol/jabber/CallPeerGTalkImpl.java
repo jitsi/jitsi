@@ -658,4 +658,12 @@ public class CallPeerGTalkImpl
 
         protocolProvider.getConnection().sendPacket(candidatesIQ);
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public String getEntity()
+    {
+        return getAddress();
+    }
 }

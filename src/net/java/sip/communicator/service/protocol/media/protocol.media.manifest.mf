@@ -5,6 +5,9 @@ Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
 Import-Package: javax.xml.parsers,
+ javax.xml.transform,
+ javax.xml.transform.dom,
+ javax.xml.transform.stream,
  net.java.sip.communicator.service.netaddr,
  net.java.sip.communicator.service.protocol,
  net.java.sip.communicator.service.protocol.event,
@@ -20,6 +23,7 @@ Import-Package: javax.xml.parsers,
  org.jitsi.service.protocol,
  org.jitsi.util,
  org.jitsi.util.event,
+ org.jitsi.util.xml,
  org.osgi.framework,
  org.w3c.dom,
  org.xml.sax
