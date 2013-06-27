@@ -619,10 +619,16 @@ public class OperationSetTelephonyConferencingSipImpl
                     = getCurrentConferenceInfo(callPeer);
             ConferenceInfoDocument lastSentConfInfo
                     = callPeer.getLastConferenceInfoSent();
+
+            //Uncomment this when the rest of the code can handle a return value
+            //of null in case no NOTIFY needs to be sent.
+            /*
             ConferenceInfoDocument diff
                     = lastSentConfInfo == null
                       ? currentConfInfo
                       :getConferenceInfoDiff(lastSentConfInfo, currentConfInfo);
+            */
+            ConferenceInfoDocument diff = currentConfInfo;
 
             if (diff == null)
                 return null;
