@@ -907,7 +907,7 @@ public class MediaConfigurationImpl
      * be added
      */
     public void createAudioSystemControls(
-            AudioSystem audioSystem,
+            final AudioSystem audioSystem,
             JComponent container)
     {
         GridBagConstraints cnstrnts = new GridBagConstraints();
@@ -1003,14 +1003,13 @@ public class MediaConfigurationImpl
              * avoid saving the value when using the default one and only
              * showing to user without modification.
              */
-            echoCancelCheckBox.setSelected(
-                    mediaService.getDeviceConfiguration().isEchoCancel());
+            echoCancelCheckBox.setSelected(audioSystem.isEchoCancel());
             echoCancelCheckBox.addItemListener(
                     new ItemListener()
                     {
                         public void itemStateChanged(ItemEvent e)
                         {
-                            mediaService.getDeviceConfiguration().setEchoCancel(
+                            audioSystem.setEchoCancel(
                                     echoCancelCheckBox.isSelected());
                         }
                     });
@@ -1029,14 +1028,13 @@ public class MediaConfigurationImpl
              * avoid saving the value when using the default one and only
              * showing to user without modification.
              */
-            denoiseCheckBox.setSelected(
-                    mediaService.getDeviceConfiguration().isDenoise());
+            denoiseCheckBox.setSelected(audioSystem.isDenoise());
             denoiseCheckBox.addItemListener(
                     new ItemListener()
                     {
                         public void itemStateChanged(ItemEvent e)
                         {
-                            mediaService.getDeviceConfiguration().setDenoise(
+                            audioSystem.setDenoise(
                                     denoiseCheckBox.isSelected());
                         }
                     });
