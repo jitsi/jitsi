@@ -16,17 +16,16 @@ import java.util.List;
 import javax.swing.*;
 import javax.swing.text.*;
 
+import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.httputil.*;
 import net.java.sip.communicator.service.update.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.Logger;
-import net.java.sip.communicator.plugin.desktoputil.*;
 
 import org.jitsi.service.resources.*;
 import org.jitsi.service.version.*;
 import org.jitsi.util.*;
-// disambiguation
 
 /**
  * Implements checking for software updates, downloading and applying them i.e.
@@ -82,6 +81,53 @@ public class UpdateServiceImpl
      */
     private static final String PROP_UPDATE_LINK
         = "net.java.sip.communicator.UPDATE_LINK";
+
+    /**
+     * Initializes a new Web browser <tt>Component</tt> instance and navigates
+     * it to a specific URL.
+     *
+     * @param url the URL to navigate the new Web browser <tt>Component</tt>
+     * instance
+     * @return the new Web browser <tt>Component</tt> instance which has been
+     * navigated to the specified <tt>url</tt>
+     */
+    private static Component createBrowser(String url)
+    {
+        // Initialize the user interface.
+        JEditorPane editorPane = new JEditorPane();
+
+        editorPane.setBorder(BorderFactory.createLoweredBevelBorder());
+        editorPane.setContentType("text/html");
+        editorPane.setEditable(false);
+
+        JScrollPane scrollPane = new JScrollPane();
+
+        scrollPane.setViewportView(editorPane);
+
+        // Navigate the user interface to the specified URL. 
+        try
+        {
+            Document document = editorPane.getDocument();
+
+            if (document instanceof AbstractDocument)
+                ((AbstractDocument) document).setAsynchronousLoadPriority(0);
+
+            editorPane.setPage(new URL(url));
+        }
+        catch (Throwable t)
+        {
+            if (t instanceof ThreadDeath)
+                throw (ThreadDeath) t;
+            else
+            {
+                logger.error(
+                        "Failed to navigate the Web browser to: " + url,
+                        t);
+            }
+        }
+
+        return editorPane;
+    }
 
     /**
      * Tries to create a new <tt>FileOutputStream</tt> for a temporary file into
@@ -712,28 +758,12 @@ public class UpdateServiceImpl
         contentPane.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
         contentPane.add(contentMessage, BorderLayout.NORTH);
 
-        JScrollPane scrollChanges = new JScrollPane();
-        scrollChanges.setPreferredSize(new Dimension(550, 200));
-        JEditorPane changesHtml = new JEditorPane();
-        changesHtml.setContentType("text/html");
-        changesHtml.setEditable(false);
-        changesHtml.setBorder(BorderFactory.createLoweredBevelBorder());
-        scrollChanges.setViewportView(changesHtml);
-        contentPane.add(scrollChanges, BorderLayout.CENTER);
-        try
-        {
-            Document changesHtmlDocument = changesHtml.getDocument();
+        Component browser = createBrowser(changesLink);
 
-            if (changesHtmlDocument instanceof AbstractDocument)
-            {
-                ((AbstractDocument) changesHtmlDocument)
-                    .setAsynchronousLoadPriority(0);
-            }
-            changesHtml.setPage(new URL(changesLink));
-        }
-        catch (Exception e)
+        if (browser != null)
         {
-            logger.error("Cannot set changes Page", e);
+            browser.setPreferredSize(new Dimension(550, 200));
+            contentPane.add(browser, BorderLayout.CENTER);
         }
 
         JPanel buttonPanel

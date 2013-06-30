@@ -51,15 +51,16 @@ public class CheckForUpdatesMenuItemComponent
                 = new JMenuItem(
                         Resources.getResources().getI18NString(
                                 "plugin.updatechecker.UPDATE_MENU_ENTRY"));
-            checkForUpdatesMenuItem.addActionListener(new ActionListener()
-            {
-                public void actionPerformed(ActionEvent e)
-                {
-                    UpdateActivator.getUpdateService().checkForUpdates(true);
-                }
-            });
+            checkForUpdatesMenuItem.addActionListener(
+                    new ActionListener()
+                    {
+                        public void actionPerformed(ActionEvent e)
+                        {
+                            UpdateActivator.getUpdateService().checkForUpdates(
+                                    true);
+                        }
+                    });
         }
-
         return checkForUpdatesMenuItem;
     }
 

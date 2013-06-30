@@ -178,7 +178,7 @@ public class UpdateActivator
 
         if (OSUtils.IS_WINDOWS)
         {
-            updateService = new Update();
+            updateService = new UpdateServiceImpl();
 
             bundleContext.registerService(
                 UpdateService.class.getName(),
