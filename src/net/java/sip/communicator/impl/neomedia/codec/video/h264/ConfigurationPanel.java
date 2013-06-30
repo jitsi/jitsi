@@ -284,6 +284,7 @@ public class ConfigurationPanel
         textArea.setFocusable(false);
         textArea.setLineWrap(true);
         textArea.setOpaque(false);
+        textArea.setWrapStyleWord(true);
 
         textArea.setText(text);
 
