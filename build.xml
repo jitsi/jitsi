@@ -66,9 +66,13 @@
         </and>
     </condition>
 
-    <!-- Make sure we use the windows-64 natives if this is 64-bit Windows -->
+    <!-- Make sure we use the windows-64 natives if this is 64-bit Windows. Note
+         that properties are case-sensitive even if the environment variables on
+         the operating system are not. For example, Windows's system path
+         variable may be set to an Ant property "system.Path" rather than
+         "system.PATH". -->
     <condition property="path"
-            value="${lib}/native/windows-64:${system.PATH}">
+            value="${lib}/native/windows-64:${system.PATH}:${system.Path}">
         <and>
             <isset property="is.running.windows"/>
             <os arch="amd64" />
@@ -77,7 +81,7 @@
     <!-- Otherwise and if this is still Windows, go for the windows natives
          (i.e. os.arch==i386) -->
     <condition property="path"
-            value="${lib}/native/windows:${system.PATH}">
+            value="${lib}/native/windows:${system.PATH}:${system.Path}">
         <isset property="is.running.windows"/>
     </condition>
     <!-- At last i.e. if this is not Windows, use the system PATH environment
