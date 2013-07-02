@@ -9,8 +9,6 @@ package net.java.sip.communicator.impl.osdependent.jdic;
 import java.awt.*;
 import java.awt.event.*;
 import java.net.*;
-import java.util.*;
-import java.util.List;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -38,9 +36,10 @@ import com.apple.eawt.*;
  * @author Yana Stamcheva
  * @author Lyubomir Marinov
  * @author Symphorien Wanko
+ * @author Pawel Domas
  */
 public class SystrayServiceJdicImpl
-    implements SystrayService
+    extends AbstractSystrayService
 {
 
     /**
@@ -57,17 +56,6 @@ public class SystrayServiceJdicImpl
      * The menu that spring with a right click.
      */
     private Object menu;
-
-    /**
-     * The popup handler currently used to show popup messages
-     */
-    private PopupMessageHandler activePopupHandler;
-
-    /**
-     * A set of usable <tt>PopupMessageHandler</tt>
-     */
-    private final Hashtable<String, PopupMessageHandler> popupHandlerSet
-        = new Hashtable<String, PopupMessageHandler>();
 
     /**
      * The <tt>ConfigurationService</tt> obtained from the associated
@@ -127,12 +115,6 @@ public class SystrayServiceJdicImpl
      */
     private final SystrayPopupMessageListener popupMessageListener
         = new SystrayPopupMessageListenerImpl();
-
-    /**
-     * List of listeners from early received calls to addPopupMessageListener.
-     * Calls to addPopupMessageListener before the UIService is registered.
-     */
-    private List<SystrayPopupMessageListener> earlyAddedListeners = null;
 
     /**
      * Initializes a new <tt>SystrayServiceJdicImpl</tt> instance.
@@ -332,7 +314,7 @@ public class SystrayServiceJdicImpl
         if (!isMac)
         {
             pmh = new PopupMessageHandlerTrayIconImpl(trayIcon);
-            popupHandlerSet.put(pmh.getClass().getName(), pmh);
+            addPopupHandler(pmh);
             OsDependentActivator.bundleContext.registerService(
                     PopupMessageHandler.class.getName(),
                     pmh,
@@ -379,9 +361,9 @@ public class SystrayServiceJdicImpl
                                 handlerRef);
                 String handlerName = handler.getClass().getName();
 
-                if (!popupHandlerSet.containsKey(handlerName))
+                if (!containsHandler(handlerName))
                 {
-                    popupHandlerSet.put(handlerName, handler);
+                    addPopupHandler(handler);
                     if (logger.isInfoEnabled())
                     {
                         logger.info(
@@ -408,7 +390,7 @@ public class SystrayServiceJdicImpl
          * becomes available. We will be aware of it since we listen for new
          * registered services in the BundleContext.
          */
-        if ((activePopupHandler == null) && (pmh != null))
+        if ((getActivePopupMessageHandler() == null) && (pmh != null))
             setActivePopupMessageHandler(pmh);
 
         SwingUtilities.invokeLater(new Runnable()
@@ -422,51 +404,6 @@ public class SystrayServiceJdicImpl
         initialized = true;
 
         uiService.setExitOnMainWindowClose(false);
-    }
-
-    /**
-     * Implements <tt>SystraService#showPopupMessage()</tt>
-     *
-     * @param popupMessage the message we will show
-     */
-    public void showPopupMessage(PopupMessage popupMessage)
-    {
-        // since popup handler could be loaded and unloader on the fly,
-        // we have to check if we currently have a valid one.
-        if (activePopupHandler != null)
-            activePopupHandler.showPopupMessage(popupMessage);
-    }
-
-    /**
-     * Implements the <tt>SystrayService.addPopupMessageListener</tt> method.
-     * If <tt>activePopupHandler</tt> is still not available record the listener
-     * so we can add him later.
-     *
-     * @param listener the listener to add
-     */
-    public void addPopupMessageListener(SystrayPopupMessageListener listener)
-    {
-        if (activePopupHandler != null)
-            activePopupHandler.addPopupMessageListener(listener);
-        else
-        {
-            if(earlyAddedListeners == null)
-                earlyAddedListeners =
-                    new ArrayList<SystrayPopupMessageListener>();
-
-            earlyAddedListeners.add(listener);
-        }
-    }
-
-    /**
-     * Implements the <tt>SystrayService.removePopupMessageListener</tt> method.
-     *
-     * @param listener the listener to remove
-     */
-    public void removePopupMessageListener(SystrayPopupMessageListener listener)
-    {
-        if (activePopupHandler != null)
-            activePopupHandler.removePopupMessageListener(listener);
     }
 
     /**
@@ -594,67 +531,14 @@ public class SystrayServiceJdicImpl
     public PopupMessageHandler setActivePopupMessageHandler(
             PopupMessageHandler newHandler)
     {
-        PopupMessageHandler oldHandler = activePopupHandler;
+        PopupMessageHandler oldHandler = getActivePopupHandler();
 
         if (oldHandler != null)
             oldHandler.removePopupMessageListener(popupMessageListener);
         if (newHandler != null)
             newHandler.addPopupMessageListener(popupMessageListener);
-        if (logger.isInfoEnabled())
-        {
-            logger.info(
-                    "setting the following popup handler as active: "
-                        + newHandler);
-        }
-        activePopupHandler = newHandler;
-        // if we have received calls to addPopupMessageListener before
-        // the UIService is registered we should add those listeners
-        if(earlyAddedListeners != null)
-        {
-            for(SystrayPopupMessageListener l : earlyAddedListeners)
-                activePopupHandler.addPopupMessageListener(l);
 
-            earlyAddedListeners.clear();
-            earlyAddedListeners = null;
-        }
-
-        return oldHandler;
-    }
-
-    /**
-     * Get the handler currently used by this implementation to popup message
-     * @return the current handler
-     */
-    public PopupMessageHandler getActivePopupMessageHandler()
-    {
-        return activePopupHandler;
-    }
-
-    /**
-     * Sets activePopupHandler to be the one with the highest preference index.
-     */
-    public void selectBestPopupMessageHandler()
-    {
-        PopupMessageHandler preferedHandler = null;
-        int highestPrefIndex = 0;
-
-        if (!popupHandlerSet.isEmpty())
-        {
-            Enumeration<String> keys = popupHandlerSet.keys();
-
-            while (keys.hasMoreElements())
-            {
-                String handlerName = keys.nextElement();
-                PopupMessageHandler h = popupHandlerSet.get(handlerName);
-
-                if (h.getPreferenceIndex() > highestPrefIndex)
-                {
-                    highestPrefIndex = h.getPreferenceIndex();
-                    preferedHandler = h;
-                }
-            }
-            setActivePopupMessageHandler(preferedHandler);
-        }
+        return super.setActivePopupMessageHandler(newHandler);
     }
 
     /** our listener for popup message click */
@@ -700,14 +584,12 @@ public class SystrayServiceJdicImpl
 
                 if (serviceEvent.getType() == ServiceEvent.REGISTERED)
                 {
-                    if (!popupHandlerSet.containsKey(
-                        handler.getClass().getName()))
+                    if (!containsHandler(handler.getClass().getName()))
                     {
                         if (logger.isInfoEnabled())
                             logger.info(
                             "adding the following popup handler : " + handler);
-                        popupHandlerSet.put(
-                            handler.getClass().getName(), handler);
+                        addPopupHandler(handler);
                     }
                     else
                         logger.warn("the following popup handler has not " +
@@ -717,9 +599,10 @@ public class SystrayServiceJdicImpl
                         = (String) cfg.getProperty("systray.POPUP_HANDLER");
 
                     if ((configuredHandler == null)
-                            && ((activePopupHandler == null)
+                            && ((getActivePopupHandler() == null)
                                 || (handler.getPreferenceIndex()
-                                    > activePopupHandler.getPreferenceIndex())))
+                                    > getActivePopupHandler()
+                                            .getPreferenceIndex())))
                     {
                         // The user doesn't have a preferred handler set and new
                         // handler with better preference index has arrived,
@@ -740,12 +623,13 @@ public class SystrayServiceJdicImpl
                     if (logger.isInfoEnabled())
                         logger.info(
                         "removing the following popup handler : " + handler);
-                    popupHandlerSet.remove(handler.getClass().getName());
-                    if (activePopupHandler == handler)
+                    removePopupHandler(handler);
+                    PopupMessageHandler activeHandler = getActivePopupHandler();
+                    if (activeHandler == handler)
                     {
-                        activePopupHandler.removePopupMessageListener(
+                        activeHandler.removePopupMessageListener(
                             popupMessageListener);
-                        activePopupHandler = null;
+                        setActivePopupMessageHandler(null);
 
                         // We just lost our default handler, so we replace it
                         // with the one that has the highest preference index.
