@@ -6,4 +6,6 @@ Bundle-Version: 0.0.1
 System-Bundle: yes
 Import-Package: org.jitsi.service.configuration,
  org.jitsi.service.libjitsi,
+ org.jitsi.util,
+ com.sun.jna,
  org.osgi.framework
