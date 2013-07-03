@@ -41,10 +41,6 @@ MsOutlookAddrBookClient::~MsOutlookAddrBookClient()
  */
 STDMETHODIMP MsOutlookAddrBookClient::QueryInterface(REFIID iid, PVOID *obj)
 {
-    OLECHAR* strGuid;
-    StringFromCLSID(iid, &strGuid);
-    ::CoTaskMemFree(strGuid);
-
     HRESULT hr;
 
     if (!obj)

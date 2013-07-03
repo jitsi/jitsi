@@ -211,6 +211,7 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
 
     if(jniEnv->ExceptionCheck())
     {
+        jniEnv->ReleaseStringUTFChars(entryId, nativeEntryId);
         return NULL;
     }
 

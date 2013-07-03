@@ -44,6 +44,7 @@ int main(int argc, char** argv)
                 (void*) Server_updated)
             != S_OK)
     {
+        CoUninitialize();
         return hr;
     }
 
@@ -60,6 +61,7 @@ int main(int argc, char** argv)
             waitParentProcessStop();
 
             hr = ::CoSuspendClassObjects();
+            hr = classObject->revokeClassObject();
 
             classObject->Release();
         }
@@ -67,6 +69,8 @@ int main(int argc, char** argv)
     }
     MsOutlookAddrBookContactSourceService_NativeMAPIUninitialize();
     MAPISession_freeLock();
+
+    CoUninitialize();
 
     return hr;
 }
@@ -107,13 +111,14 @@ void waitParentProcessStop()
                         WaitForSingleObject(parentHandle, INFINITE);
                         GetExitCodeProcess(parentHandle, &exitCode);
                     }
+                    CloseHandle(parentHandle);
                     return;
                 }
             }
             while(Process32Next(handle, &processEntry));
         }
+        CloseHandle(handle);
     }
-    CloseHandle(handle);
 }
 
 /**

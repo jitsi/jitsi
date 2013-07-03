@@ -323,11 +323,13 @@ HRESULT MsOutlookAddrBookContactQuery_createEmailAddress
         }
 
         if (spvProps[6].Value.bin.lpb)
+        {
             free(spvProps[6].Value.bin.lpb);
+        }
+        MAPIFreeBuffer(lpNamedPropTags);
     }
 
-    MAPIFreeBuffer(lpNamedPropTags);
-    MAPIFreeBuffer(&parentId);
+    MAPIFreeBuffer(parentId.lpb);
     parentEntry->Release();
 
 	return hRes;
@@ -377,8 +379,8 @@ int MsOutlookAddrBookContactQuery_deleteContact(const char * nativeEntryId)
                 DELETE_HARD_DELETE) == S_OK);
 
     ((LPMAPIPROP)  parentEntry)->Release();
-    MAPIFreeBuffer(&parentId);
-    MAPIFreeBuffer(&contactId);
+    MAPIFreeBuffer(parentId.lpb);
+    MAPIFreeBuffer(contactId.lpb);
     ((LPMAPIPROP)  mapiProp)->Release();
 
     return res;
@@ -773,6 +775,8 @@ MsOutlookAddrBookContactQuery_getAttachmentContactPhoto
 void MsOutlookAddrBookContactQuery_getBinaryProp
     (LPMAPIPROP entry, ULONG propId, LPSBinary binaryProp)
 {
+    binaryProp->cb = 0;
+
     SPropTagArray tagArray;
     tagArray.cValues = 1;
     tagArray.aulPropTag[0] = PROP_TAG(PT_BINARY, propId);
@@ -788,8 +792,13 @@ void MsOutlookAddrBookContactQuery_getBinaryProp
     if (HR_SUCCEEDED(hResult))
     {
         SPropValue prop = propArray[0];
-        binaryProp->cb = prop.Value.bin.cb;
-        binaryProp->lpb = prop.Value.bin.lpb;
+        if(MAPIAllocateBuffer(prop.Value.bin.cb, (void **) &binaryProp->lpb)
+                == S_OK)
+        {
+            binaryProp->cb = prop.Value.bin.cb;
+            memcpy(binaryProp->lpb, prop.Value.bin.lpb, binaryProp->cb);
+        }
+        MAPIFreeBuffer(propArray);
     }
 }
 
@@ -863,6 +872,7 @@ LPSTR MsOutlookAddrBookContactQuery_getContactId(LPMAPIPROP contact)
     {
         entryId = (LPSTR)::malloc(binaryProp.cb * 2 + 1);
         HexFromBin(binaryProp.lpb, binaryProp.cb, entryId);
+        MAPIFreeBuffer(binaryProp.lpb);
     }
 
     return entryId;
@@ -1108,6 +1118,7 @@ MsOutlookAddrBookContactQuery_HrGetOneProp(
         }
         if (!propHasBeenAssignedTo)
             hResult = MAPI_E_NOT_FOUND;
+        MAPIFreeBuffer(values);
     }
     return hResult;
 }
@@ -1375,8 +1386,8 @@ HRESULT MsOutlookAddrBookContactQuery_IMAPIProp_1GetProps(
                     propArray++;
                     MAPIFreeBuffer(prop);
                 }
+                MAPIFreeBuffer(propTagArray);
             }
-            MAPIFreeBuffer(propTagArray);
         }
     }
     ((LPMAPIPROP)  mapiProp)->Release();
@@ -1414,6 +1425,7 @@ int MsOutlookAddrBookContactQuery_IMAPIProp_1SetPropString
                 "setPropUnicode (addrbook/MsOutlookAddrBookContactQuery.c): \
                     \n\tmbstowcs\n");
         fflush(stderr);
+        ((LPMAPIPROP)  mapiProp)->Release();
         ::free(wCharValue);
         wCharValue = NULL;
         return 0;
@@ -1507,13 +1519,18 @@ int MsOutlookAddrBookContactQuery_IMAPIProp_1SetPropString
                     propIds,
                     7) == S_OK)
             {
+                MAPIFreeBuffer(propArray);
                 MAPIFreeBuffer(propTagArray);
                 ((LPMAPIPROP)  mapiProp)->Release();
+                ::free(wCharValue);
+                wCharValue = NULL;
                 return 1;
             }
         }
         MAPIFreeBuffer(propTagArray);
         ((LPMAPIPROP)  mapiProp)->Release();
+        ::free(wCharValue);
+        wCharValue = NULL;
         return 0;
     }
 
@@ -1540,6 +1557,7 @@ int MsOutlookAddrBookContactQuery_IMAPIProp_1SetPropString
             ((LPMAPIPROP)  mapiProp)->Release();
             ::free(wCharValue);
             wCharValue = NULL;
+
             return 1;
         }
     }
@@ -1570,8 +1588,7 @@ MsOutlookAddrBookContactQuery_onForeachContactInMsgStoresTableRow
     // succeed.
     jboolean proceed = JNI_TRUE;
 
-    hResult
-        = ((LPMAPISESSION) mapiSession)->OpenMsgStore(
+    hResult = ((LPMAPISESSION) mapiSession)->OpenMsgStore(
                 0,
                 entryIDByteCount, entryID,
                 NULL,
@@ -1583,46 +1600,51 @@ MsOutlookAddrBookContactQuery_onForeachContactInMsgStoresTableRow
         ULONG contactsFolderEntryIDByteCount = 0;
         LPENTRYID contactsFolderEntryID = NULL;
 
-        hResult
-            = msgStore->GetReceiveFolder(
+        hResult = msgStore->GetReceiveFolder(
                     NULL,
                     0,
-                    &entryIDByteCount, &receiveFolderEntryID,
+                    &entryIDByteCount,
+                    &receiveFolderEntryID,
                     NULL);
         if (HR_SUCCEEDED(hResult))
         {
-            hResult
-                = MsOutlookAddrBookContactQuery_getContactsFolderEntryID(
+            hResult = MsOutlookAddrBookContactQuery_getContactsFolderEntryID(
                         msgStore,
-                        entryIDByteCount, receiveFolderEntryID,
-                        &contactsFolderEntryIDByteCount, &contactsFolderEntryID);
+                        entryIDByteCount,
+                        receiveFolderEntryID,
+                        &contactsFolderEntryIDByteCount,
+                        &contactsFolderEntryID);
             MAPIFreeBuffer(receiveFolderEntryID);
         }
         if (HR_FAILED(hResult))
         {
-            hResult
-                = MsOutlookAddrBookContactQuery_getContactsFolderEntryID(
+            hResult = MsOutlookAddrBookContactQuery_getContactsFolderEntryID(
                         msgStore,
-                        0, NULL,
-                        &contactsFolderEntryIDByteCount, &contactsFolderEntryID);
+                        0,
+                        NULL,
+                        &contactsFolderEntryIDByteCount,
+                        &contactsFolderEntryID);
         }
         if (HR_SUCCEEDED(hResult))
         {
             ULONG contactsFolderObjType;
             LPUNKNOWN contactsFolder;
 
-            hResult
-                = msgStore->OpenEntry(
-                    contactsFolderEntryIDByteCount, contactsFolderEntryID,
+            hResult = msgStore->OpenEntry(
+                    contactsFolderEntryIDByteCount,
+                    contactsFolderEntryID,
                     NULL,
                     MsOutlookAddrBookContactQuery_openEntryUlFlags,
-                    &contactsFolderObjType, &contactsFolder);
+                    &contactsFolderObjType,
+                    &contactsFolder);
             if (HR_SUCCEEDED(hResult))
             {
-                proceed
-                    = MsOutlookAddrBookContactQuery_foreachMailUser(
-                            contactsFolderObjType, contactsFolder,
-                            query, callback, callbackObject);
+                proceed = MsOutlookAddrBookContactQuery_foreachMailUser(
+                            contactsFolderObjType,
+                            contactsFolder,
+                            query,
+                            callback,
+                            callbackObject);
                 contactsFolder->Release();
             }
             MAPIFreeBuffer(contactsFolderEntryID);
@@ -1644,18 +1666,21 @@ MsOutlookAddrBookContactQuery_onForeachMailUserInContainerTableRow
     jboolean proceed;
 
     // Make write failed and image load.
-    hResult
-        = ((LPMAPICONTAINER) mapiContainer)->OpenEntry(
-                entryIDByteCount, entryID,
+    hResult = ((LPMAPICONTAINER) mapiContainer)->OpenEntry(
+                entryIDByteCount,
+                entryID,
                 NULL,
                 MsOutlookAddrBookContactQuery_openEntryUlFlags,
-                &objType, &iUnknown);
+                &objType,
+                &iUnknown);
     if (HR_SUCCEEDED(hResult))
     {
-        proceed
-            = MsOutlookAddrBookContactQuery_foreachMailUser(
-                    objType, iUnknown,
-                    query, callback, callbackObject);
+        proceed = MsOutlookAddrBookContactQuery_foreachMailUser(
+                    objType,
+                    iUnknown,
+                    query,
+                    callback,
+                    callbackObject);
         iUnknown->Release();
     }
     else
@@ -1679,12 +1704,16 @@ LPUNKNOWN MsOutlookAddrBookContactQuery_openEntryIdStr(const char* entryIdStr)
     ULONG entryIdSize = strlen(entryIdStr) / 2;
     LPENTRYID entryId = (LPENTRYID) malloc(entryIdSize * sizeof(char));
 
-    if(FBinFromHex((LPSTR) entryIdStr, (LPBYTE) entryId))
+    if(entryId != NULL)
     {
-       entry = MsOutlookAddrBookContactQuery_openEntryId(entryIdSize, entryId);
+        if(FBinFromHex((LPSTR) entryIdStr, (LPBYTE) entryId))
+        {
+            entry = MsOutlookAddrBookContactQuery_openEntryId(
+                    entryIdSize,
+                    entryId);
+        }
+        ::free(entryId);
     }
-
-    ::free(entryId);
     return entry;
 }
 
@@ -1832,10 +1861,12 @@ char* MsOutlookAddrBookContactQuery_getStringUnicodeProp
                     "getStringUnicodeProp (addrbook/MsOutlookAddrBookContactQuery.c): \
                         \n\tmbstowcs\n");
             fflush(stderr);
+            MAPIFreeBuffer(propArray);
             ::free(value);
             value = NULL;
             return NULL;
         }
+        MAPIFreeBuffer(propArray);
         return value;
     }
 
@@ -1856,17 +1887,6 @@ int MsOutlookAddrBookContactQuery_compareEntryIds(
        LPSTR id1,
        LPSTR id2)
 {
-    if(strcmp(id1, id2) == 0)
-    {
-        fprintf(stderr,
-                "CHENZO compareEntryIds: \
-                \n\tid1: %s\
-                \n\tid2: %s\n",
-                id1,
-                id2);
-        fflush(stderr);
-    }
-    //id2 = "ROH";
     int result = 0;
     LPMAPISESSION session = MAPISession_getMapiSession();
 
@@ -1886,6 +1906,8 @@ int MsOutlookAddrBookContactQuery_compareEntryIds(
                 MsOutlookAddrBookContactQuery_openEntryIdStr(id2))
             == NULL)
     {
+        mapiId1->Release();
+        MAPIFreeBuffer(contactId1.lpb);
         return result;
     }
     SBinary contactId2;
@@ -1907,6 +1929,10 @@ int MsOutlookAddrBookContactQuery_compareEntryIds(
                     "compareEntryIds (addrbook/MsOutlookAddrBookContactQuery.c): \
                         \n\tMAPISession::CompareEntryIDs\n");
             fflush(stderr);
+            mapiId1->Release();
+            MAPIFreeBuffer(contactId1.lpb);
+            mapiId2->Release();
+            MAPIFreeBuffer(contactId2.lpb);
             return result;
         }
         result = res;
@@ -1924,5 +1950,9 @@ int MsOutlookAddrBookContactQuery_compareEntryIds(
                 result);
         fflush(stderr);
     }
+    mapiId1->Release();
+    MAPIFreeBuffer(contactId1.lpb);
+    mapiId2->Release();
+    MAPIFreeBuffer(contactId2.lpb);
     return result;
 }

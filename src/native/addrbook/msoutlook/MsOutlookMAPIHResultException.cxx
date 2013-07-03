@@ -81,7 +81,12 @@ MsOutlookMAPIHResultException_throwNew
                                 (jlong) hResult, jmessage);
 
                     if (t)
+                    {
                         jniEnv->Throw((jthrowable) t);
+
+                        jniEnv->DeleteLocalRef(t);
+                    }
+                    jniEnv->DeleteLocalRef(jmessage);
                 }
                 return;
             }
@@ -95,11 +100,17 @@ MsOutlookMAPIHResultException_throwNew
                 jobject t = jniEnv->NewObject(clazz, methodID, hResult);
 
                 if (t)
+                {
                     jniEnv->Throw((jthrowable) t);
+
+                    jniEnv->DeleteLocalRef(t);
+                }
                 return;
             }
         }
 
         jniEnv->ThrowNew(clazz, message);
+
+        jniEnv->DeleteLocalRef(clazz);
     }
 }

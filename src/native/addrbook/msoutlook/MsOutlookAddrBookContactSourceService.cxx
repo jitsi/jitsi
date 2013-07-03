@@ -76,13 +76,14 @@ HRESULT MsOutlookAddrBookContactSourceService_MAPIInitialize
             DWORD pathValueType;
             DWORD pathValueSize;
 
-            regEnumKeyEx
-                = RegEnumKeyEx(
+            regEnumKeyEx = RegEnumKeyEx(
                         regKey,
                         i,
-                        installRootKeyName, &subkeyNameLength,
+                        installRootKeyName,
+                        &subkeyNameLength,
                         NULL,
-                        NULL, NULL,
+                        NULL,
+                        NULL,
                         NULL);
             if (ERROR_NO_MORE_ITEMS == regEnumKeyEx)
                 break;
@@ -102,63 +103,64 @@ HRESULT MsOutlookAddrBookContactSourceService_MAPIInitialize
                             KEY_QUERY_VALUE,
                             &installRootKey))
             {
-            if ((ERROR_SUCCESS
-                    == RegQueryValueEx(
-                            installRootKey,
-                            _T("Path"),
-                            NULL,
-                            &pathValueType,
-                            NULL, &pathValueSize))
-                && (REG_SZ == pathValueType)
-                && pathValueSize)
-            {
-                LPTSTR pathValue;
-
-                // MSDN says "the string may not have been stored with the
-                // proper terminating null characters."
-                pathValueSize
-                    += sizeof(TCHAR)
-                        * (12 // \Outlook.exe
-                            + 1); // The terminating null character
-
-                if (pathValueSize <= sizeof(installRootKeyName))
-                    pathValue = installRootKeyName;
-                else
-                {
-                    pathValue = (LPTSTR)::malloc(pathValueSize);
-                    if (!pathValue)
-                        continue;
-                }
-
-                if (ERROR_SUCCESS
+                if ((ERROR_SUCCESS
                         == RegQueryValueEx(
                                 installRootKey,
                                 _T("Path"),
                                 NULL,
+                                &pathValueType,
                                 NULL,
-                                (LPBYTE) pathValue, &pathValueSize))
+                                &pathValueSize))
+                    && (REG_SZ == pathValueType)
+                    && pathValueSize)
                 {
-                    DWORD pathValueLength = pathValueSize / sizeof(TCHAR);
+                    LPTSTR pathValue;
 
-                    if (pathValueLength)
+                    // MSDN says "the string may not have been stored with the
+                    // proper terminating null characters."
+                    pathValueSize
+                        += sizeof(TCHAR)
+                            * (12 // \Outlook.exe
+                                + 1); // The terminating null character
+
+                    if (pathValueSize <= sizeof(installRootKeyName))
+                        pathValue = installRootKeyName;
+                    else
                     {
-                        DWORD fileAttributes;
-
-                        str = pathValue + (pathValueLength - 1);
-                        if (*str)
-                            str++;
-                        memcpy(str, _T("\\Outlook.exe"), 12 * sizeof(TCHAR));
-                        *(str + 12) = 0;
-
-                        fileAttributes = GetFileAttributes(pathValue);
-                        if (INVALID_FILE_ATTRIBUTES != fileAttributes)
-                            hResult = S_OK;
+                        pathValue = (LPTSTR)::malloc(pathValueSize);
+                        if (!pathValue)
+                            continue;
                     }
-                }
 
-                if (pathValue != installRootKeyName)
-                    free(pathValue);
-            }
+                    if (ERROR_SUCCESS
+                            == RegQueryValueEx(
+                                    installRootKey,
+                                    _T("Path"),
+                                    NULL,
+                                    NULL,
+                                    (LPBYTE) pathValue, &pathValueSize))
+                    {
+                        DWORD pathValueLength = pathValueSize / sizeof(TCHAR);
+
+                        if (pathValueLength)
+                        {
+                            DWORD fileAttributes;
+
+                            str = pathValue + (pathValueLength - 1);
+                            if (*str)
+                                str++;
+                            memcpy(str, _T("\\Outlook.exe"), 12 * sizeof(TCHAR));
+                            *(str + 12) = 0;
+
+                            fileAttributes = GetFileAttributes(pathValue);
+                            if (INVALID_FILE_ATTRIBUTES != fileAttributes)
+                                hResult = S_OK;
+                        }
+                    }
+
+                    if (pathValue != installRootKeyName)
+                        free(pathValue);
+                }
                 RegCloseKey(installRootKey);
             }
         }
@@ -187,13 +189,13 @@ HRESULT MsOutlookAddrBookContactSourceService_MAPIInitialize
                             &regKey))
             {
                 DWORD defaultValueSize = defaultValueCapacity;
-                LONG regQueryValueEx
-                    = RegQueryValueEx(
-                            regKey,
-                            NULL,
-                            NULL,
-                            &defaultValueType,
-                            (LPBYTE) defaultValue, &defaultValueSize);
+                LONG regQueryValueEx = RegQueryValueEx(
+                        regKey,
+                        NULL,
+                        NULL,
+                        &defaultValueType,
+                        (LPBYTE) defaultValue,
+                        &defaultValueSize);
 
                 switch (regQueryValueEx)
                 {
