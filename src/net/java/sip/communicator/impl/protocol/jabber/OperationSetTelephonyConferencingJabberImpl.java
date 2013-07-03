@@ -428,7 +428,7 @@ public class OperationSetTelephonyConferencingJabberImpl
      * SID.
      */
     protected ConferenceInfoDocument getCurrentConferenceInfo(
-            MediaAwareCallPeer<?,?,?> callPeer)
+            MediaAwareCallPeer callPeer)
     {
         ConferenceInfoDocument confInfo
                 = super.getCurrentConferenceInfo(callPeer);

@@ -1021,7 +1021,7 @@ public abstract class AbstractOperationSetTelephonyConferencing<
      * state of the conference in which this <tt>CallPeer</tt> participates.
      */
     protected ConferenceInfoDocument getCurrentConferenceInfo(
-            MediaAwareCallPeer<?,?,?> callPeer)
+            MediaAwareCallPeer callPeer)
     {
         ConferenceInfoDocument confInfo;
         try
