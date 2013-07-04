@@ -13,6 +13,7 @@ import org.osgi.framework.*;
  * registered in a BundleContext.
  *
  * @author Lubomir Marinov
+ * @author Pawel Domas
  */
 public class ServiceUtils
 {
@@ -41,6 +42,36 @@ public class ServiceUtils
             (serviceReference == null)
                 ? null
                 : (T) bundleContext.getService(serviceReference);
+    }
+
+    /**
+     * Gets an OSGi service references registered in a specific
+     * <tt>BundleContext</tt> by its <tt>Class</tt>
+     *
+     * @param bundleContext the <tt>BundleContext</tt> in which the services to
+     * get have been registered
+     * @param serviceClass the <tt>Class</tt> of the OSGi service references to get
+     * @return the OSGi service references registered in <tt>bundleContext</tt>
+     * with the specified <tt>serviceClass</tt> if such a services exists there;
+     * otherwise, <tt>null</tt>
+     */
+    public static ServiceReference[] getServiceReferences(
+            BundleContext bundleContext,
+            Class serviceClass)
+    {
+        ServiceReference[] handlerRefs = null;
+        try
+        {
+            handlerRefs = bundleContext.getServiceReferences(
+                    serviceClass.getName(),
+                    null);
+        }
+        catch (InvalidSyntaxException ex)
+        {
+            throw new RuntimeException(ex);
+        }
+
+        return handlerRefs;
     }
 
     /** Prevents the creation of <tt>ServiceUtils</tt> instances. */
