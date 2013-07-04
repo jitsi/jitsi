@@ -61,9 +61,23 @@ public class MsOutlookAddrBookContactDetail
      */
     public boolean match(ContactDetail contactDetail)
     {
-        return (contactDetail != null
-                && this.getCategory() == contactDetail.getCategory()
-                && this.getDetail().equals(contactDetail.getDetail()));
+        boolean containsAll = true;
+
+        if(contactDetail != null)
+        {
+            for(SubCategory subCategory: this.getSubCategories())
+            {
+                containsAll &= contactDetail.containsSubCategory(subCategory);
+            }
+            for(SubCategory subCategory: contactDetail.getSubCategories())
+            {
+                containsAll &= this.containsSubCategory(subCategory);
+            }
+            return (containsAll
+                    && this.getCategory() == contactDetail.getCategory()
+                    && this.getDetail().equals(contactDetail.getDetail()));
+        }
+        return false;
     }
 
     /**
@@ -89,10 +103,5 @@ public class MsOutlookAddrBookContactDetail
         super.setDetail(value);
 
         EditableSourceContact sourceContact = this.getSourceContact();
-        if(sourceContact != null
-                && sourceContact instanceof MsOutlookAddrBookSourceContact)
-        {
-            ((MsOutlookAddrBookSourceContact) sourceContact).save();
-        }
     }
 }

@@ -199,7 +199,6 @@ public class MsOutlookAddrBookSourceContact
                 }
             }
             this.contactDetails.add(addDetail);
-            this.save();
         }
     }
 
@@ -299,6 +298,7 @@ public class MsOutlookAddrBookSourceContact
     {
         synchronized(this)
         {
+            this.save();
             locked = Boolean.FALSE;
             notify();
         }
