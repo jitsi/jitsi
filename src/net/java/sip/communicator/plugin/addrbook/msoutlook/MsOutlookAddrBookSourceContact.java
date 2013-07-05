@@ -336,4 +336,18 @@ public class MsOutlookAddrBookSourceContact
     {
         return -1;
     }
+
+    /**
+     * Tells if the id given in parameters corresponds to this contact.
+     *
+     * @return True if the id given in parameters corresponds to this contact.
+     * False otherwise.
+     */
+    public boolean match(String id)
+    {
+        String localId = this.getId();
+
+        return (localId.equals(id)
+                || MsOutlookAddrBookContactQuery.compareEntryIds(id, localId));
+    }
 }

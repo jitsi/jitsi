@@ -1031,7 +1031,7 @@ public class MsOutlookAddrBookContactQuery
         if(sourceContact != null
                 && sourceContact instanceof MsOutlookAddrBookSourceContact)
         {
-            updated(id);
+            updated(((MsOutlookAddrBookSourceContact) sourceContact).getId());
         }
         else
         {
@@ -1226,11 +1226,11 @@ public class MsOutlookAddrBookContactQuery
         {
             for(SourceContact sc : sourceContacts)
             {
-                Object scID = sc.getData(SourceContact.DATA_ID);
-
-                if(id.equals(scID)
-                        || compareEntryIds(id, (String) scID))
+                if(sc instanceof MsOutlookAddrBookSourceContact
+                    && ((MsOutlookAddrBookSourceContact) sc).match(id))
+                {
                     return sc;
+                }
             }
         }
 
