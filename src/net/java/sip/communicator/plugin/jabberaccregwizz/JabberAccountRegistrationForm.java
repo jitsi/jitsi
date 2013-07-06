@@ -11,6 +11,8 @@ import java.util.List;
 
 import javax.swing.*;
 
+import org.jitsi.util.StringUtils;
+
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.plugin.desktoputil.wizard.*;
 import net.java.sip.communicator.service.credentialsstorage.*;
@@ -314,7 +316,7 @@ public class JabberAccountRegistrationForm
             registration.setServerPort(serverPort);
 
         String priority = connectionPanel.getPriority();
-        if (priority != null)
+        if (!StringUtils.isNullOrEmpty(priority))
             registration.setPriority(Integer.parseInt(priority));
 
         registration.setDTMFMethod(connectionPanel.getDTMFMethod());
