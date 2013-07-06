@@ -44,7 +44,7 @@ public class OtrConfigurationPanel
     {
         private AccountsComboBox cbAccounts;
 
-        private JLabel lblFingerprint;
+        private JTextField lblFingerprint;
 
         private JButton btnGenerate;
 
@@ -189,7 +189,10 @@ public class OtrConfigurationPanel
             });
             valuesPanel.add(cbAccounts);
 
-            lblFingerprint = new JLabel();
+            lblFingerprint = new JTextField();
+            lblFingerprint.setEditable(false);
+            lblFingerprint.setOpaque(false);
+            lblFingerprint.setBorder(BorderFactory.createEmptyBorder());
             valuesPanel.add(lblFingerprint);
 
             JPanel buttonPanel
