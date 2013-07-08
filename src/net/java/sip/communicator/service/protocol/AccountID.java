@@ -709,6 +709,40 @@ public abstract class AccountID
     }
 
     /**
+     * Checks if the account is hidden.
+     * @return <tt>true</tt> if this account is hidden or <tt>false</tt>
+     *         otherwise.
+     */
+    public boolean isHidden()
+    {
+        return getAccountProperty(
+                ProtocolProviderFactory.IS_PROTOCOL_HIDDEN) != null;
+    }
+
+    /**
+     * Returns the first <tt>ProtocolProviderService</tt> implementation
+     * corresponding to the preferred protocol
+     *
+     * @return the <tt>ProtocolProviderService</tt> corresponding to the
+     * preferred protocol
+     */
+    public boolean isPreferredProvider()
+    {
+        String preferredProtocolProp
+                = getAccountPropertyString(
+                        ProtocolProviderFactory.IS_PREFERRED_PROTOCOL);
+
+        if (preferredProtocolProp != null
+                && preferredProtocolProp.length() > 0
+                && Boolean.parseBoolean(preferredProtocolProp))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Set the account properties.
      *
      * @param accountProperties the properties of the account

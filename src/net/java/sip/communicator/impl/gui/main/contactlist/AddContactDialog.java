@@ -281,10 +281,7 @@ public class AddContactDialog
         {
             ProtocolProviderService provider = providers.next();
 
-            boolean isHidden = provider.getAccountID().getAccountProperty(
-                    ProtocolProviderFactory.IS_PROTOCOL_HIDDEN) != null;
-
-            if(isHidden)
+            if(provider.getAccountID().isHidden())
                 continue;
 
             OperationSet opSet
@@ -295,7 +292,7 @@ public class AddContactDialog
 
             accountCombo.addItem(provider);
 
-            if (isPreferredProvider(provider.getAccountID()))
+            if (provider.getAccountID().isPreferredProvider())
                 accountCombo.setSelectedItem(provider);
         }
 
@@ -619,29 +616,6 @@ public class AddContactDialog
                 "service.gui.icons.ADD_CONTACT_DIALOG_ICON"));
 
         imageLabel.setVerticalAlignment(JLabel.TOP);
-    }
-
-    /**
-     * Returns the first <tt>ProtocolProviderService</tt> implementation
-     * corresponding to the preferred protocol
-     *
-     * @return the <tt>ProtocolProviderService</tt> corresponding to the
-     * preferred protocol
-     */
-    private boolean isPreferredProvider(AccountID accountID)
-    {
-        String preferredProtocolProp
-            = accountID.getAccountPropertyString(
-                ProtocolProviderFactory.IS_PREFERRED_PROTOCOL);
-
-        if (preferredProtocolProp != null
-            && preferredProtocolProp.length() > 0
-            && Boolean.parseBoolean(preferredProtocolProp))
-        {
-            return true;
-        }
-
-        return false;
     }
 
     /**
