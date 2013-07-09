@@ -126,7 +126,7 @@ public class UpdateServiceImpl
             }
         }
 
-        return editorPane;
+        return scrollPane;
     }
 
     /**
