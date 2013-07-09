@@ -126,9 +126,6 @@ void MAPINotification_jniCallDeletedMethod(LPSTR iUnknown)
     if(MAPINotification_VM
             ->AttachCurrentThreadAsDaemon((void**) &tmpJniEnv, NULL) == 0)
     {
-        fprintf(stdout, "MAPINotification_jniCallDeletedMethod: id: %s\n",
-                iUnknown);
-        fflush(stdout);
         jstring value = tmpJniEnv->NewStringUTF(iUnknown);
 
         tmpJniEnv->CallVoidMethod(
@@ -262,10 +259,6 @@ STDAPICALLTYPE MAPINotification_onNotify
                             (LPBYTE) lpNotifications[i].info.obj.lpOldID,
                             lpNotifications[i].info.obj.cbOldID,
                             oldEntryIdStr);
-                    fprintf(stdout,
-                            "MAPINotification_onNotify: evModified oldID: %s\n",
-                            oldEntryIdStr);
-                    fflush(stdout);
                     if(lpNotifications[i].info.obj.ulObjType == MAPI_MESSAGE
                             && MAPINotification_callDeletedMethod != NULL)
                     {
@@ -288,10 +281,6 @@ STDAPICALLTYPE MAPINotification_onNotify
                         (LPBYTE) lpNotifications[i].info.obj.lpEntryID,
                         lpNotifications[i].info.obj.cbEntryID,
                         entryIdStr);
-
-                fprintf(stdout, "MAPINotification_onNotify: evDeleted: %s\n",
-                        entryIdStr);
-                fflush(stdout);
 
                 if(lpNotifications[i].info.obj.ulObjType == MAPI_MESSAGE
                         && MAPINotification_callDeletedMethod != NULL)
@@ -335,13 +324,6 @@ STDAPICALLTYPE MAPINotification_onNotify
                         wasteBasketProps[0].Value.bin.cb,
                         wasteBasketEntryIdStr);
 
-                fprintf(stdout,
-                        "MAPINotification_onNotify: evMoved: bin %s / %s / %s\n",
-                        entryIdStr,
-                        parentEntryIdStr,
-                        wasteBasketEntryIdStr);
-                fflush(stdout);
-
                 if(lpNotifications[i].info.obj.ulObjType == MAPI_MESSAGE
                         && strcmp(parentEntryIdStr, wasteBasketEntryIdStr) == 0
                         && MAPINotification_callDeletedMethod != NULL)
@@ -368,10 +350,6 @@ STDAPICALLTYPE MAPINotification_onNotify
                             (LPBYTE) lpNotifications[i].info.obj.lpOldID,
                             lpNotifications[i].info.obj.cbOldID,
                             oldEntryIdStr);
-                    fprintf(stdout,
-                            "MAPINotification_onNotify: evMoved oldID: %s\n",
-                            oldEntryIdStr);
-                    fflush(stdout);
                     if(lpNotifications[i].info.obj.ulObjType == MAPI_MESSAGE
                             && MAPINotification_callDeletedMethod != NULL)
                     {

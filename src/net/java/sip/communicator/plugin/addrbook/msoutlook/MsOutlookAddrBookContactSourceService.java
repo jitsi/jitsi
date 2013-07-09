@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.plugin.addrbook.msoutlook;
 
+import java.util.*;
 import java.util.regex.*;
 
 import net.java.sip.communicator.plugin.addrbook.*;
@@ -50,6 +51,16 @@ public class MsOutlookAddrBookContactSourceService
     private static final long MAPI_INIT_VERSION = 0;
 
     private static final long MAPI_MULTITHREAD_NOTIFICATIONS = 0x00000001;
+
+    /**
+     * The thread used to collect the notifications.
+     */
+    private NotificationThread notificationThread = null;
+
+    /**
+     * The mutex used to synchronized the notification thread.
+     */
+    private Object notificationThreadMutex = new Object();
 
     /**
      * The latest query created.
@@ -209,12 +220,8 @@ public class MsOutlookAddrBookContactSourceService
          */
         public void inserted(String id)
         {
-            if(logger.isDebugEnabled())
-            {
-                logger.debug("Inserted: " + id);
-            }
             if(latestQuery != null)
-                latestQuery.inserted(id);
+                addNotification(id, 'i');
         }
 
         /**
@@ -222,12 +229,8 @@ public class MsOutlookAddrBookContactSourceService
          */
         public void updated(String id)
         {
-            if(logger.isDebugEnabled())
-            {
-                logger.debug("Updated: " + id);
-            }
             if(latestQuery != null)
-                latestQuery.updated(id);
+                addNotification(id, 'u');
         }
 
         /**
@@ -235,12 +238,8 @@ public class MsOutlookAddrBookContactSourceService
          */
         public void deleted(String id)
         {
-            if(logger.isDebugEnabled())
-            {
-                logger.debug("Deleted: " + id);
-            }
             if(latestQuery != null)
-                latestQuery.deleted(id);
+                addNotification(id, 'd');
         }
     }
 
@@ -263,10 +262,6 @@ public class MsOutlookAddrBookContactSourceService
      */
     public void addEmptyContact(String id)
     {
-        if(logger.isDebugEnabled())
-        {
-            logger.debug("Add empty contact: " + id);
-        }
         if(id != null && latestQuery != null)
         {
             latestQuery.addEmptyContact(id);
@@ -281,10 +276,6 @@ public class MsOutlookAddrBookContactSourceService
      */
     public void deleteContact(String id)
     {
-        if(logger.isDebugEnabled())
-        {
-            logger.debug("Delete contact: " + id);
-        }
         if(id != null && MsOutlookAddrBookContactQuery.deleteContact(id))
         {
             if(latestQuery != null)
@@ -308,5 +299,192 @@ public class MsOutlookAddrBookContactSourceService
     {
         return !AddrBookActivator.getConfigService().getBoolean(
                     PNAME_OUTLOOK_ADDR_BOOK_SEARCH_FIELD_DISABLED, false);
+    }
+
+    /**
+     * Collects a new notification and adds it to the notification thread.
+     *
+     * @param id The contact id.
+     * @param function The kind of notification: 'd' for deleted, 'u' for
+     * updated and 'i' for inserted.
+     */
+    public void addNotification(String id, char function)
+    {
+        synchronized(notificationThreadMutex)
+        {
+            if(notificationThread == null
+                    || !notificationThread.isAlive())
+            {
+                notificationThread = new NotificationThread();
+                notificationThread.start();
+            }
+            notificationThread.add(id, function);
+        }
+    }
+
+    /**
+     * Thread used to collect the notification.
+     */
+    private class NotificationThread
+        extends Thread
+    {
+
+        /**
+         * The list of notification collected.
+         */
+        private Vector<NotificationIdFunction> contactIds
+            = new Vector<NotificationIdFunction>();
+
+        /**
+         * Initializes a new notification thread.
+         */
+        public NotificationThread()
+        {
+            super("MsOutlookAddrbookContactSourceService notification thread");
+        }
+
+        /**
+         * Dispatchs the collected notifications.
+         */
+        public void run()
+        {
+            boolean hasMore = false;
+            NotificationIdFunction idFunction = null;
+            String id;
+            char function;
+
+            synchronized(notificationThreadMutex)
+            {
+                hasMore = (contactIds.size() > 0);
+                if(hasMore)
+                {
+                    idFunction = contactIds.remove(0);
+                }
+            }
+            while(hasMore)
+            {
+                if(latestQuery != null)
+                {
+                    id = idFunction.getId();
+                    function = idFunction.getFunction();
+                    if(function == 'd')
+                    {
+                        latestQuery.deleted(id);
+                    }
+                    else if(function == 'u')
+                    {
+                        latestQuery.updated(id);
+                    }
+                    else if(function == 'i')
+                    {
+                        latestQuery.inserted(id);
+                    }
+                }
+                synchronized(notificationThreadMutex)
+                {
+                    hasMore = (contactIds.size() > 0);
+                    if(hasMore)
+                    {
+                        idFunction = contactIds.remove(0);
+                    }
+                }
+            }
+        }
+
+        /**
+         * Adds a new notification. Avoids previous notification for the given
+         * contact.
+         *
+         * @param id The contact id.
+         * @param function The kind of notification: 'd' for deleted, 'u' for
+         * updated and 'i' for inserted.
+         */
+        public void add(String id, char function)
+        {
+            NotificationIdFunction idFunction
+                = new NotificationIdFunction(id, function);
+
+            synchronized(notificationThreadMutex)
+            {
+                contactIds.remove(idFunction);
+                contactIds.add(idFunction);
+            }
+        }
+    }
+
+    /**
+     * Defines a notification: a combination of a contact identifier and a
+     * function.
+     */
+    private class NotificationIdFunction
+    {
+        /**
+         * The contact identifier.
+         */
+        private String id;
+
+        /**
+         * The kind of notification: 'd' for deleted, 'u' for updated and 'i'
+         * for inserted.
+         */
+        private char function;
+
+        /**
+         * Creates a new notification.
+         *
+         * @param id The contact id.
+         * @param function The kind of notification: 'd' for deleted, 'u' for
+         * updated and 'i' for inserted.
+         */
+        public NotificationIdFunction(String id, char function)
+        {
+            this.id = id;
+            this.function = function;
+        }
+
+        /**
+         * Returns the contact identifier.
+         *
+         * @return The contact identifier.
+         */
+        public String getId()
+        {
+            return this.id;
+        }
+
+        /**
+         * Returns the kind of notification.
+         *
+         * @return 'd' for deleted, 'u' for updated and 'i' for inserted.
+         */
+        public char getFunction()
+        {
+            return this.function;
+        }
+
+        /**
+         * Returns if this notification is about the same contact has the one
+         * given in parameter.
+         *
+         * @param obj An NotificationIdFunction to compare with.
+         *
+         * @return True if this notification is about the same contact has the
+         * one given in parameter. False otherwise.
+         */
+        public boolean equals(Object obj)
+        {
+            return (this.id == null && obj == null
+                || obj instanceof String && this.id.equals((String) obj));
+        }
+
+        /**
+         * Returns the hash code corresponding to the contact identifier.
+         *
+         * @return The hash code corresponding to the contact identifier.
+         */
+        public int hashCode()
+        {
+            return this.id.hashCode();
+        }
     }
 }

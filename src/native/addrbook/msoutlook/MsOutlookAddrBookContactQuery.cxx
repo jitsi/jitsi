@@ -67,9 +67,6 @@ static jboolean MsOutlookAddrBookContactQuery_foreachContactInMsgStoresTable
 static jboolean MsOutlookAddrBookContactQuery_foreachMailUser
     (ULONG objType, LPUNKNOWN iUnknown,
      const char * query, void * callback, void * callbackObject);
-static jboolean MsOutlookAddrBookContactQuery_foreachMailUserInAddressBook
-    (LPMAPISESSION mapiSession, const char * query,
-     void * callback, void * callbackObject);
 static jboolean MsOutlookAddrBookContactQuery_foreachMailUserInContainerTable
     (LPMAPICONTAINER mapiContainer, LPMAPITABLE mapiTable,
     const char * query, void * callback, void * callbackObject);
@@ -397,21 +394,11 @@ void MsOutlookAddrBookContactQuery_foreachMailUser(
         return;
     }
 
-    jboolean proceed
-        = MsOutlookAddrBookContactQuery_foreachContactInMsgStoresTable(
-                mapiSession,
-                query,
-                callback,
-                callbackObject);
-
-    if(proceed)
-    {
-        MsOutlookAddrBookContactQuery_foreachMailUserInAddressBook(
-                mapiSession,
-                query,
-                callback,
-                callbackObject);
-    }
+    MsOutlookAddrBookContactQuery_foreachContactInMsgStoresTable(
+            mapiSession,
+            query,
+            callback,
+            callbackObject);
 
     MAPISession_unlock();
 }
@@ -505,45 +492,6 @@ MsOutlookAddrBookContactQuery_foreachMailUser
         break;
     }
     }
-    return proceed;
-}
-
-static jboolean
-MsOutlookAddrBookContactQuery_foreachMailUserInAddressBook
-    (LPMAPISESSION mapiSession, const char * query,
-     void * callback, void * callbackObject)
-{
-    HRESULT hResult;
-    LPADRBOOK adrBook;
-    jboolean proceed = JNI_FALSE;
-
-    hResult = mapiSession->OpenAddressBook(0, NULL, AB_NO_DIALOG, &adrBook);
-    if (HR_SUCCEEDED(hResult))
-    {
-        ULONG objType;
-        LPUNKNOWN iUnknown;
-
-        hResult = adrBook->OpenEntry(
-                0,
-                NULL,
-                NULL,
-                MsOutlookAddrBookContactQuery_openEntryUlFlags,
-                &objType,
-                &iUnknown);
-
-        if (HR_SUCCEEDED(hResult))
-        {
-            proceed
-                = MsOutlookAddrBookContactQuery_foreachMailUser(
-                        objType, iUnknown,
-                        query, callback, callbackObject);
-
-            iUnknown->Release();
-        }
-
-        adrBook->Release();
-    }
-
     return proceed;
 }
 
@@ -1936,19 +1884,6 @@ int MsOutlookAddrBookContactQuery_compareEntryIds(
             return result;
         }
         result = res;
-    }
-
-    if(strcmp(id1, id2) == 0)
-    {
-        fprintf(stderr,
-                "CHENZO compareEntryIds: \
-                \n\tid1: %s\
-                \n\tid2: %s\
-                \n\tresult: %d\n",
-                id1,
-                id2,
-                result);
-        fflush(stderr);
     }
     mapiId1->Release();
     MAPIFreeBuffer(contactId1.lpb);

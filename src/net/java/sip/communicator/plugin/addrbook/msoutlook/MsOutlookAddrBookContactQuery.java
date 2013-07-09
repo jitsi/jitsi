@@ -381,10 +381,6 @@ public class MsOutlookAddrBookContactQuery
             Pattern query)
     {
         super(msoabcss, query);
-        if(logger.isDebugEnabled())
-        {
-            logger.debug("Creating new query: " + query.toString());
-        }
     }
 
     /**
@@ -883,11 +879,6 @@ public class MsOutlookAddrBookContactQuery
 
         if (matches)
         {
-            if(logger.isDebugEnabled())
-            {
-                logger.debug("Contact matches: " + id
-                        + ", displayName: " + getDisplayName(props));
-            }
             List<ContactDetail> contactDetails = getContactDetails(props);
 
             // What's the point of showing a contact who has no contact details?
@@ -1004,10 +995,6 @@ public class MsOutlookAddrBookContactQuery
     @Override
     protected void run()
     {
-        if(logger.isDebugEnabled())
-        {
-            logger.debug("run query: " + query.toString());
-        }
         synchronized (MsOutlookAddrBookContactQuery.class)
         {
             foreachMailUser(
@@ -1023,10 +1010,6 @@ public class MsOutlookAddrBookContactQuery
      */
     public void inserted(String id)
     {
-        if(logger.isDebugEnabled())
-        {
-            logger.debug("inserted: " + id);
-        }
         SourceContact sourceContact = findSourceContactByID(id);
         if(sourceContact != null
                 && sourceContact instanceof MsOutlookAddrBookSourceContact)
@@ -1059,10 +1042,6 @@ public class MsOutlookAddrBookContactQuery
      */
     public void updated(String id)
     {
-        if(logger.isDebugEnabled())
-        {
-            logger.debug("updated: " + id);
-        }
         SourceContact sourceContact = findSourceContactByID(id);
         if(sourceContact != null
                 && sourceContact instanceof MsOutlookAddrBookSourceContact)
@@ -1083,10 +1062,6 @@ public class MsOutlookAddrBookContactQuery
      */
     public void deleted(String id)
     {
-        if(logger.isDebugEnabled())
-        {
-            logger.debug("deleted: " + id);
-        }
         if(id != null)
         {
             SourceContact sourceContact = findSourceContactByID(id);
@@ -1139,10 +1114,6 @@ public class MsOutlookAddrBookContactQuery
      */
     public void addEmptyContact(String id)
     {
-        if(logger.isDebugEnabled())
-        {
-            logger.debug("Add empty contact: " + id);
-        }
         if(id != null)
         {
             final MsOutlookAddrBookSourceContact sourceContact
