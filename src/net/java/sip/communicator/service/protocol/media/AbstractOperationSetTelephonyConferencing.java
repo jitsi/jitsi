@@ -1233,11 +1233,7 @@ public abstract class AbstractOperationSetTelephonyConferencing<
             MediaAwareCallPeerT callPeer,
             ConferenceInfoDocument diff)
     {
-        logger.warn("Received a conference-info partial notification, which we"
-                + " can't handle. Sending peer: " + callPeer);
-        if (true)
-            return -1;
-
+        // "apply" diff to ourDocument, result is in newDocument
         ConferenceInfoDocument ourDocument
                 = callPeer.getLastConferenceInfoReceived();
         ConferenceInfoDocument newDocument;
@@ -1278,13 +1274,32 @@ public abstract class AbstractOperationSetTelephonyConferencing<
                 ConferenceInfoDocument.State userState = user.getState();
                 if (userState == ConferenceInfoDocument.State.FULL)
                 {
-                    //copy the whole thing from diff to newDocument
+                    //copy the whole 'user' element from diff to newDocument
+                    newDocument.removeUser(user.getEntity());
+                    ConferenceInfoDocument.User newUser
+                            = newDocument.addNewUser(user.getEntity());
+                    for (ConferenceInfoDocument.Endpoint endpoint
+                            : user.getEndpoints())
+                    {
+                        ConferenceInfoDocument.Endpoint newEndpoint
+                                = newUser.addNewEndpoint(endpoint.getEntity());
+                        newEndpoint.setStatus(endpoint.getStatus());
+                        for (ConferenceInfoDocument.Media media
+                                : endpoint.getMedias())
+                        {
+                            ConferenceInfoDocument.Media newMedia
+                                    = newEndpoint.addNewMedia(media.getId());
+                            newMedia.setStatus(media.getStatus());
+                            newMedia.setSrcId(media.getSrcId());
+                            newMedia.setType(media.getType());
+                        }
+                    }
                 }
                 else if (userState == ConferenceInfoDocument.State.DELETED)
                 {
                     newDocument.removeUser(user.getEntity());
                 }
-                else
+                else // partial
                 {
                     ConferenceInfoDocument.User ourUser
                             = newDocument.getUser(user.getEntity());
@@ -1295,19 +1310,38 @@ public abstract class AbstractOperationSetTelephonyConferencing<
                                 = endpoint.getState();
                         if (endpointState == ConferenceInfoDocument.State.FULL)
                         {
-                            //update the whole thing
+                            ourUser.removeEndpoint(endpoint.getEntity());
+                            ConferenceInfoDocument.Endpoint newEndpoint
+                                    = ourUser
+                                         .addNewEndpoint(endpoint.getEntity());
+                            newEndpoint.setStatus(endpoint.getStatus());
+                            for (ConferenceInfoDocument.Media media
+                                    : endpoint.getMedias())
+                            {
+                                ConferenceInfoDocument.Media newMedia
+                                        = newEndpoint.addNewMedia(media.getId());
+                                newMedia.setStatus(media.getStatus());
+                                newMedia.setSrcId(media.getSrcId());
+                                newMedia.setType(media.getType());
+                            }
                         }
                         else if (endpointState
                                 == ConferenceInfoDocument.State.DELETED)
                         {
                             ourUser.removeEndpoint(endpoint.getEntity());
                         }
-                        else //'partial'
+                        else // partial
                         {
+                            ConferenceInfoDocument.Endpoint ourEndpoint
+                                    = ourUser.getEndpoint(endpoint.getEntity());
                             for (ConferenceInfoDocument.Media media
                                         : endpoint.getMedias())
                             {
-                                //copy media with id media.getId()
+                                ConferenceInfoDocument.Media newMedia
+                                        = ourEndpoint.addNewMedia(media.getId());
+                                newMedia.setStatus(media.getStatus());
+                                newMedia.setSrcId(media.getSrcId());
+                                newMedia.setType(media.getType());
                             }
                         }
                     }
@@ -1315,7 +1349,13 @@ public abstract class AbstractOperationSetTelephonyConferencing<
             }
         }
 
-        return -1;
+        if (logger.isDebugEnabled())
+        {
+            logger.debug("Applied a partial conference-info notification. "
+                + " Base: " + ourDocument + "\nDiff: " + diff + "\nResult:"
+                + newDocument);
+        }
+        return setConferenceInfoDocument(callPeer, newDocument);
     }
 
     /**

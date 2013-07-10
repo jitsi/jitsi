@@ -1339,7 +1339,7 @@ public class ProtocolProviderServiceJabberImpl
 
         /*
          * Expose the discoveryManager as service-public through the
-         * OperationSetContactCapabilities of this ProtocolProviderSerivce.
+         * OperationSetContactCapabilities of this ProtocolProviderService.
          */
         if (opsetContactCapabilities != null)
             opsetContactCapabilities.setDiscoveryManager(discoveryManager);
