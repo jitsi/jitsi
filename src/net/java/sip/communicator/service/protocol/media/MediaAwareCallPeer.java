@@ -144,11 +144,21 @@ public abstract class MediaAwareCallPeer
     private ConferenceInfoDocument lastConferenceInfoReceived = null;
 
     /**
+     * Whether a conference-info document has been scheduled to be sent to this
+     * <tt>CallPeer</tt>
+     */
+    private boolean confInfoScheduled = false;
+
+    /**
+     * Synchronization object for confInfoScheduled
+     */
+    private final Object confInfoScheduledSyncRoot = new Object();
+
+    /**
      * Creates a new call peer with address <tt>peerAddress</tt>.
      *
      * @param owningCall the call that contains this call peer.
      */
-
     public MediaAwareCallPeer(T owningCall)
     {
         this.call = owningCall;
@@ -1127,4 +1137,32 @@ public abstract class MediaAwareCallPeer
      * element corresponding to this <tt>CallPeer</tt>)
      */
     public abstract String getEntity();
+
+    /**
+     * Check whether a conference-info document is scheduled to be sent to
+     * this <tt>CallPeer</tt> (i.e. there is a thread which will eventually
+     * (after sleeping a certain amount of time) trigger a document to be sent)
+     * @return <tt>true</tt> if there is a conference-info document  scheduled
+     * to be sent to this <tt>CallPeer</tt> and <tt>false</tt> otherwise.
+     */
+    public boolean isConfInfoScheduled()
+    {
+        synchronized (confInfoScheduledSyncRoot)
+        {
+            return confInfoScheduled;
+        }
+    }
+
+    /**
+     * Sets the property which indicates whether a conference-info document
+     * is scheduled to be sent to this <tt>CallPeer</tt>.
+     * @param confInfoScheduled
+     */
+    public void setConfInfoScheduled(boolean confInfoScheduled)
+    {
+        synchronized (confInfoScheduledSyncRoot)
+        {
+            this.confInfoScheduled = confInfoScheduled;
+        }
+    }
 }

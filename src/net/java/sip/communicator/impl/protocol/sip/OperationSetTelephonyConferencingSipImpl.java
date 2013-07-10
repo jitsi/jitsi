@@ -75,6 +75,12 @@ public class OperationSetTelephonyConferencingSipImpl
     private static final int SUBSCRIPTION_DURATION = 3600;
 
     /**
+     * The minimum interval in milliseconds between conference-info NOTIFYs
+     * sent to a single <tt>CallPeer</tt>.
+     */
+    private static final int MIN_NOTIFY_INTERVAL = 200;
+
+    /**
      * The <tt>EventPackageNotifier</tt> which implements conference
      * event-package notifier support on behalf of this
      * <tt>OperationSetTelephonyConferencing</tt> instance.
@@ -887,9 +893,9 @@ public class OperationSetTelephonyConferencingSipImpl
          * (conference information) NOTIFYs
          */
         @Override
-        public void notify( Subscription subscription,
-                            String subscriptionState,
-                            String reason)
+        public void notify( final Subscription subscription,
+                            final String subscriptionState,
+                            final String reason)
                 throws OperationFailedException
         {
             ConferenceNotifierSubscription conferenceSubscription
@@ -905,6 +911,42 @@ public class OperationSetTelephonyConferencingSipImpl
                         OperationFailedException.INTERNAL_ERROR);
             }
 
+            final long timeSinceLastNotify = System.currentTimeMillis()
+                    - callPeer.getLastConferenceInfoSentTimestamp();
+            if (timeSinceLastNotify < MIN_NOTIFY_INTERVAL)
+            {
+                if (callPeer.isConfInfoScheduled())
+                    return;
+
+                logger.info("Scheduling to send a conference-info NOTIFY to "
+                        + callPeer);
+                callPeer.setConfInfoScheduled(true);
+                new Thread(new Runnable(){
+                    @Override
+                    public void run()
+                    {
+                        try
+                        {
+                            Thread.sleep(1 + MIN_NOTIFY_INTERVAL
+                                         - timeSinceLastNotify);
+                        }
+                        catch (InterruptedException ie) {}
+
+                        try
+                        {
+                            ConferenceEventPackageNotifier.this.notify(
+                                    subscription, subscriptionState, reason);
+                        }
+                        catch (OperationFailedException e)
+                        {
+                            logger.error("Failed to send NOTIFY request");
+                        }
+                    }
+                }).start();
+
+                return;
+            }
+
             ConferenceInfoDocument currentConfInfo
                     = getCurrentConferenceInfo(callPeer);
             ConferenceInfoDocument lastSentConfInfo
@@ -916,7 +958,10 @@ public class OperationSetTelephonyConferencingSipImpl
                       :getConferenceInfoDiff(lastSentConfInfo, currentConfInfo);
 
             if (diff == null)
+            {
+                callPeer.setConfInfoScheduled(false);
                 return; //no change -- no need to send NOTIFY
+            }
 
             int newVersion
                     = lastSentConfInfo == null
@@ -981,6 +1026,8 @@ public class OperationSetTelephonyConferencingSipImpl
 
             if (SubscriptionState.TERMINATED.equals(subscriptionState))
                 removeSubscription(callId, subscription);
+
+            callPeer.setConfInfoScheduled(false);
         }
     }
 }

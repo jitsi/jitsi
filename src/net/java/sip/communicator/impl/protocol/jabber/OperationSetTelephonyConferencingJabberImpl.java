@@ -119,11 +119,11 @@ public class OperationSetTelephonyConferencingJabberImpl
                 - callPeerJabber.getLastConferenceInfoSentTimestamp();
         if (timeSinceLastCoin < COIN_MIN_INTERVAL)
         {
-            if (callPeerJabber.isCoinScheduled())
+            if (callPeerJabber.isConfInfoScheduled())
                 return;
 
             logger.info("Scheduling to send a COIN to " + callPeerJabber);
-            callPeerJabber.setCoinScheduled(true);
+            callPeerJabber.setConfInfoScheduled(true);
             new Thread(new Runnable(){
                 @Override
                 public void run()
@@ -157,7 +157,7 @@ public class OperationSetTelephonyConferencingJabberImpl
                     ProtocolProviderServiceJabberImpl.URN_XMPP_JINGLE_COIN))
             {
                 logger.info(callPeer.getAddress() + " does not support COIN");
-                callPeerJabber.setCoinScheduled(false);
+                callPeerJabber.setConfInfoScheduled(false);
                 return;
             }
         }
@@ -200,7 +200,7 @@ public class OperationSetTelephonyConferencingJabberImpl
                         System.currentTimeMillis());
             }
         }
-        callPeerJabber.setCoinScheduled(false);
+        callPeerJabber.setConfInfoScheduled(false);
     }
 
     /**
