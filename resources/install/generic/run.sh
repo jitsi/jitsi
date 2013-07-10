@@ -12,4 +12,4 @@ then
 fi
 
 export PATH=$PATH:native
-java $CLIENTARGS -classpath "lib/felix.jar:lib/bcprovider.jar:sc-bundles/sc-launcher.jar:sc-bundles/util.jar" -Djava.library.path=native -Dfelix.config.properties=file:./lib/felix.client.run.properties -Djava.util.logging.config.file=lib/logging.properties net.java.sip.communicator.launcher.SIPCommunicator
+java $CLIENTARGS -classpath "lib/felix.jar:lib/bcprovider.jar:sc-bundles/sc-launcher.jar:sc-bundles/util.jar:lib/" -Djava.library.path=native -Dfelix.config.properties=file:./lib/felix.client.run.properties -Djava.util.logging.config.file=lib/logging.properties net.java.sip.communicator.launcher.SIPCommunicator
