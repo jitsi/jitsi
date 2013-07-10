@@ -16,6 +16,7 @@ import javax.sip.header.*;
 import javax.sip.message.*;
 import javax.sip.message.Message;
 
+import gov.nist.javax.sip.header.*;
 import net.java.sip.communicator.impl.protocol.sip.sdp.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -163,24 +164,8 @@ public class OperationSetTelephonyConferencingSipImpl
                         this.timer,
                         REFRESH_MARGIN);
         this.notifier
-                = new EventPackageNotifier(
-                        this.parentProvider,
-                        EVENT_PACKAGE,
-                        SUBSCRIPTION_DURATION,
-                        CONTENT_SUB_TYPE,
-                        this.timer)
-                {
-                    @Override
-                    protected Subscription createSubscription(
-                            Address fromAddress,
-                            String eventId)
-                    {
-                        return
-                            new ConferenceNotifierSubscription(
-                                    fromAddress,
-                                    eventId);
-                    }
-                };
+                = new ConferenceEventPackageNotifier(this.parentProvider,
+                    this.timer);
     }
 
     /**
@@ -250,49 +235,7 @@ public class OperationSetTelephonyConferencingSipImpl
     }
 
     /**
-     * Generates the conference-info XML to be sent to a specific
-     * <tt>CallPeer</tt> in order to notify it of the current state of the
-     * conference managed by the local peer. Return <tt>null</tt> if
-     * conference-info XML does not need to be sent to <tt>callPeer</tt>.
      *
-     * @param callPeer the <tt>CallPeer</tt> to generate conference-info XML for
-     * <tt>conference-info</tt> root element of the conference-info XML to be
-     * generated
-     * @return the conference-info XML to be sent to the specified
-     * <tt>callPeer</tt> in order to notify it of the current state of the
-     * conference managed by the local peer. Return <tt>null</tt> if
-     * conference-info XML does not need to be sent to <tt>callPeer</tt>.
-     */
-    private String getConferenceInfoXML(CallPeerSipImpl callPeer)
-    {
-        ConferenceInfoDocument currentConfInfo
-                = getCurrentConferenceInfo(callPeer);
-        ConferenceInfoDocument lastSentConfInfo
-                = callPeer.getLastConferenceInfoSent();
-        ConferenceInfoDocument diff
-                = getConferenceInfoDiff(lastSentConfInfo, currentConfInfo);
-
-        if (diff == null)
-            return null;
-        else
-        {
-            int newVersion
-                    = lastSentConfInfo == null
-                    ? 1
-                    : lastSentConfInfo.getVersion() + 1;
-            diff.setVersion(newVersion);
-            currentConfInfo.setVersion(newVersion);
-
-            // We save currentConfInfo, because it is of state "full", while
-            // diff could be a partial
-            callPeer.setLastConferenceInfoSent(currentConfInfo);
-            callPeer.setLastConferenceInfoSentTimestamp(
-                    System.currentTimeMillis());
-            return diff.toString();
-        }
-    }
-
-    /**
      * {@inheritDoc}
      *
      * Implements the protocol-dependent part of the logic of inviting a callee
@@ -461,10 +404,10 @@ public class OperationSetTelephonyConferencingSipImpl
         {
             ProtocolProviderServiceSipImpl
                 .throwOperationFailedException(
-                    "Failed to parse callee address " + calleeAddressString,
-                    OperationFailedException.ILLEGAL_ARGUMENT,
-                    pe,
-                    logger);
+                        "Failed to parse callee address " + calleeAddressString,
+                        OperationFailedException.ILLEGAL_ARGUMENT,
+                        pe,
+                        logger);
             return null;
         }
     }
@@ -902,6 +845,142 @@ public class OperationSetTelephonyConferencingSipImpl
                                 + this,
                             ofe);
                 }
+        }
+    }
+
+    /**
+     * An implementation of <tt>EventPackageNotifier</tt> which sends RFC4575
+     * NOTIFYs
+     */
+    private class ConferenceEventPackageNotifier
+            extends EventPackageNotifier
+    {
+        ConferenceEventPackageNotifier(
+                ProtocolProviderServiceSipImpl protocolProvider,
+                TimerScheduler timer)
+        {
+            super(protocolProvider,
+                    EVENT_PACKAGE,
+                    SUBSCRIPTION_DURATION,
+                    CONTENT_SUB_TYPE,
+                    timer);
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        protected EventPackageNotifier.Subscription createSubscription(
+            Address fromAddress,
+            String eventId)
+        {
+            return
+                    new ConferenceNotifierSubscription(
+                            fromAddress,
+                            eventId);
+        }
+
+        /**
+         * {@inheritDoc}
+         *
+         * Overrides the default implementation in order to send RFC4575
+         * (conference information) NOTIFYs
+         */
+        @Override
+        public void notify( Subscription subscription,
+                            String subscriptionState,
+                            String reason)
+                throws OperationFailedException
+        {
+            ConferenceNotifierSubscription conferenceSubscription
+                    = (ConferenceNotifierSubscription) subscription;
+
+            Dialog dialog = conferenceSubscription.getDialog();
+            CallPeerSipImpl callPeer = conferenceSubscription.getCallPeer();
+            if (callPeer == null)
+            {
+                throw new OperationFailedException("Failed to find the CallPeer"
+                            + " of the conference subscription "
+                            + conferenceSubscription,
+                        OperationFailedException.INTERNAL_ERROR);
+            }
+
+            ConferenceInfoDocument currentConfInfo
+                    = getCurrentConferenceInfo(callPeer);
+            ConferenceInfoDocument lastSentConfInfo
+                    = callPeer.getLastConferenceInfoSent();
+
+            ConferenceInfoDocument diff
+                    = lastSentConfInfo == null
+                      ? currentConfInfo
+                      :getConferenceInfoDiff(lastSentConfInfo, currentConfInfo);
+
+            if (diff == null)
+                return; //no change -- no need to send NOTIFY
+
+            int newVersion
+                    = lastSentConfInfo == null
+                    ? 1
+                    : lastSentConfInfo.getVersion() + 1;
+            diff.setVersion(newVersion);
+
+            String xml = diff.toXml();
+            byte[] notifyContent;
+            try
+            {
+                notifyContent = xml.getBytes("UTF-8");
+            }
+            catch (UnsupportedEncodingException uee)
+            {
+                logger.warn("Failed to gets bytes from String for the "
+                        + "UTF-8 charset", uee);
+                notifyContent = xml.getBytes();
+            }
+
+            String callId;
+
+            /*
+             * If sending a notify is requested too quickly (and in different
+             * threads, of course), a second notify may be created prior to
+             * sending a previous one and the Dialog implementation may mess up
+             * the CSeq which will lead to "500 Request out of order".
+             */
+            synchronized (dialog)
+            {
+                ClientTransaction transac = createNotify(dialog, notifyContent,
+                                subscriptionState, reason);
+
+                callId = dialog.getCallId().getCallId();
+
+                try
+                {
+                    if (logger.isInfoEnabled())
+                    {
+                        logger.info("Sending conference-info NOTIFY (version "
+                                + newVersion +") to " + callPeer);
+                    }
+                    dialog.sendRequest(transac);
+
+                    // We save currentConfInfo, because it is of state "full",
+                    // while diff could be a partial
+                    currentConfInfo.setVersion(newVersion);
+                    callPeer.setLastConferenceInfoSent(currentConfInfo);
+                    callPeer.setLastConferenceInfoSentTimestamp(
+                            System.currentTimeMillis());
+                }
+                catch (SipException sex)
+                {
+                    logger.error("Failed to send NOTIFY request.", sex);
+                    throw
+                            new OperationFailedException(
+                                    "Failed to send NOTIFY request.",
+                                    OperationFailedException.NETWORK_FAILURE,
+                                    sex);
+                }
+            }
+
+            if (SubscriptionState.TERMINATED.equals(subscriptionState))
+                removeSubscription(callId, subscription);
         }
     }
 }

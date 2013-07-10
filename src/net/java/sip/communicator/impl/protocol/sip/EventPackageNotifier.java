@@ -97,7 +97,7 @@ public abstract class EventPackageNotifier
      * @throws OperationFailedException if something goes wrong during the
      * creation of the request
      */
-    private ClientTransaction createNotify( Dialog dialog,
+     protected ClientTransaction createNotify( Dialog dialog,
                                             byte[] content,
                                             String subscriptionState,
                                             String reason)
