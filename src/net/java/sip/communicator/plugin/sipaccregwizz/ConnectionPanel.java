@@ -14,6 +14,8 @@ import javax.swing.event.*;
 import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.sip.*;
 import org.jitsi.util.*;
 
 /**
@@ -57,7 +59,9 @@ public class ConnectionPanel
     private JComboBox keepAliveMethodBox
         = new JComboBox(new String[] { "NONE", "REGISTER", "OPTIONS" });
 
-    private JTextField keepAliveIntervalValue = new JTextField();
+    private JTextField keepAliveIntervalValue
+            = new JTextField(SipAccountID.getDefaultStr(
+                    ProtocolProviderFactory.KEEP_ALIVE_INTERVAL));
 
     private JComboBox dtmfMethodBox
         = new JComboBox(
@@ -349,6 +353,9 @@ public class ConnectionPanel
         keepAliveIntervalExampleLabel
             .setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
 
+        keepAliveMethodBox.setSelectedItem(
+                SipAccountID.getDefaultStr(
+                        ProtocolProviderFactory.KEEP_ALIVE_METHOD));
         keepAliveValues.add(keepAliveMethodBox);
         keepAliveValues.add(keepAliveIntervalValue);
         keepAliveValues.add(keepAliveIntervalExampleLabel);

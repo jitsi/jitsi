@@ -283,9 +283,9 @@ public class ProtocolProviderServiceSipImpl
          * Evaluate whether FORCE_PROXY_BYPASS is enabled for the account
          * before registering.
          */
-        forceLooseRouting = Boolean.valueOf((String)
-                getAccountID().getAccountProperty(
-                    ProtocolProviderFactory.FORCE_PROXY_BYPASS));
+        forceLooseRouting
+                = getAccountID().getAccountPropertyBoolean(
+                        ProtocolProviderFactory.FORCE_PROXY_BYPASS, false);
 
         sipStackSharing.addSipListener(this);
         // be warned when we will unregister, so that we can

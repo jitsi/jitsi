@@ -232,8 +232,8 @@ public class SslNetworkLayer
             }
 
             return certificateVerification.getSSLContext(
-                (String)id.getAccountProperty(
-                    ProtocolProviderFactory.CLIENT_TLS_CERTIFICATE),
+                    id.getAccountPropertyString(
+                        ProtocolProviderFactory.CLIENT_TLS_CERTIFICATE),
                 certificateVerification.getTrustManager(
                     identities,
                     null,

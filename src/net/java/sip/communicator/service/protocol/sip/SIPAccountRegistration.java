@@ -243,21 +243,6 @@ public class SIPAccountRegistration
 
         securityAccountRegistration.storeProperties(this.accountProperties);
 
-        ensureDefaultValuePresent(ProtocolProviderFactory.PROXY_AUTO_CONFIG);
-
-        ensureDefaultValuePresent(ProtocolProviderFactory.IS_PRESENCE_ENABLED);
-
-        ensureDefaultValuePresent(ProtocolProviderFactory.FORCE_P2P_MODE);
-
-        ensureDefaultValuePresent(ProtocolProviderFactory.KEEP_ALIVE_METHOD);
-
-        ensureDefaultValuePresent(ProtocolProviderFactory.KEEP_ALIVE_INTERVAL);
-
-        ensureDefaultValuePresent(ProtocolProviderFactory.POLLING_PERIOD);
-
-        ensureDefaultValuePresent(
-                ProtocolProviderFactory.SUBSCRIPTION_EXPIRATION);
-
         encodingsRegistration.storeProperties(this.accountProperties);
 
         if (isModification)

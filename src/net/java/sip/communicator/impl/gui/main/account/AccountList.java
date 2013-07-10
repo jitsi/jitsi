@@ -90,10 +90,7 @@ public class AccountList
         {
             AccountID accountID = storedAccounts.next();
 
-            boolean isHidden = accountID.getAccountPropertyBoolean(
-                ProtocolProviderFactory.IS_PROTOCOL_HIDDEN, false);
-
-            if (isHidden)
+            if (accountID.isHidden())
                 continue;
 
             Account uiAccount = null;
@@ -193,11 +190,7 @@ public class AccountList
 
         // If the protocol provider is hidden we don't want to show it in the
         // list.
-        boolean isHidden
-            = (protocolProvider.getAccountID().getAccountProperty
-                (ProtocolProviderFactory.IS_PROTOCOL_HIDDEN) != null);
-
-        if (isHidden)
+        if (protocolProvider.getAccountID().isHidden())
             return;
 
         // Add or remove the protocol provider from our accounts list.

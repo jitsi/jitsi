@@ -235,14 +235,7 @@ public class AutoAnswerMenu
             return;
         }
 
-        boolean isHidden
-            = protocolProvider
-                    .getAccountID()
-                        .getAccountProperty(
-                            ProtocolProviderFactory.IS_PROTOCOL_HIDDEN)
-                != null;
-
-        if (isHidden)
+        if (protocolProvider.getAccountID().isHidden())
             return;
 
         AutoAnswerMenuItem providerMenu =

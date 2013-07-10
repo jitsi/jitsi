@@ -153,14 +153,7 @@ public class GlobalStatusSelectorBox
      */
     public void addAccount(ProtocolProviderService protocolProvider)
     {
-        boolean isHidden
-            = protocolProvider
-                    .getAccountID()
-                        .getAccountProperty(
-                            ProtocolProviderFactory.IS_PROTOCOL_HIDDEN)
-                != null;
-
-        if (isHidden)
+        if (protocolProvider.getAccountID().isHidden())
             return;
 
         OperationSetPersistentPresence presenceOpSet

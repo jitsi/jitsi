@@ -56,11 +56,7 @@ public class GlobalStatusServiceImpl
 
             // We do not show hidden protocols in our status bar, so we do not
             // care about their status here.
-            boolean isProtocolHidden =
-                protocolProvider.getAccountID().getAccountProperty(
-                    ProtocolProviderFactory.IS_PROTOCOL_HIDDEN) != null;
-
-            if (isProtocolHidden)
+            if (protocolProvider.getAccountID().isHidden())
                 continue;
 
             if (!protocolProvider.isRegistered())

@@ -334,9 +334,9 @@ public class FirstWizardPage
         this.lastField.setText(accountID.getAccountPropertyString("last"));
         this.mailField.setText(accountID.getAccountPropertyString("mail"));
 
-        Boolean remember =
-            (Boolean) accountID.getAccountProperty("rememberContacts");
-        if (remember.booleanValue())
+        boolean remember = accountID
+                .getAccountPropertyBoolean("rememberContacts", true);
+        if (remember)
             this.rememberContacts.setSelected(true);
     }
 

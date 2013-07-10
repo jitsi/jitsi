@@ -255,14 +255,7 @@ public class StatusSubMenu
 
         for(ProtocolProviderService provider : getProtocolProviders())
         {
-            boolean isHidden
-                = provider
-                        .getAccountID()
-                            .getAccountProperty(
-                                ProtocolProviderFactory.IS_PROTOCOL_HIDDEN)
-                    != null;
-
-            if(!isHidden)
+            if(!provider.getAccountID().isHidden())
                 this.addAccount(provider);
         }
     }
@@ -362,11 +355,7 @@ public class StatusSubMenu
         {
             // We do not show hidden protocols in our status bar, so we do not
             // care about their status here.
-            boolean isProtocolHidden =
-                protocolProvider.getAccountID().getAccountProperty(
-                    ProtocolProviderFactory.IS_PROTOCOL_HIDDEN) != null;
-
-            if (isProtocolHidden)
+            if (protocolProvider.getAccountID().isHidden())
                 continue;
 
             if (!protocolProvider.isRegistered())

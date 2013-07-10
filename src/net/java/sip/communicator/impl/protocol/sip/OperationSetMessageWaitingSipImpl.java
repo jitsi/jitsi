@@ -276,8 +276,8 @@ public class OperationSetMessageWaitingSipImpl
     private Address getSubscribeAddress()
         throws ParseException
     {
-        String vmAddressURI = (String)provider.getAccountID()
-            .getAccountProperty(
+        String vmAddressURI = provider.getAccountID()
+            .getAccountPropertyString(
                     ProtocolProviderFactory.VOICEMAIL_URI);
 
         if(StringUtils.isNullOrEmpty(vmAddressURI))
