@@ -15,6 +15,7 @@ import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.util.skin.*;
 
 import org.jitsi.service.protocol.event.*;
@@ -127,6 +128,12 @@ public class ConferenceFocusPanel
      */
     private void addConferenceMemberPanel(ConferenceMember conferenceMember)
     {
+        Logger.getLogger(ConferenceFocusPanel.class).info("AAAAAAAAAAAAAAA" ,
+            new Exception("addd!!"));
+        for(ConferenceMember c: conferenceMemberPanels.keySet())
+        {
+            Logger.getLogger(ConferenceFocusPanel.class).info("CCC/" + c.getDisplayName());
+        }
         /*
          * The local user/peer should not be depicted by a ConferenceMemberPanel
          * because it is not the responsibility of ConferenceFocusPanel and
@@ -159,6 +166,9 @@ public class ConferenceFocusPanel
          */
         conferenceMemberPanels.put(conferenceMember, conferenceMemberPanel);
 
+        Logger.getLogger(ConferenceFocusPanel.class).info("AAAAAAAAAAAAAAA11111"
+           + conferenceMember.getDisplayName(),
+            new Exception("addd111!!"));
         /*
          * Add the newly-initialized ConferenceMemberPanel to the user interface
          * hierarchy of this view.

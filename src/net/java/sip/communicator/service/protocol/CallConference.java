@@ -193,6 +193,20 @@ public class CallConference
             {
                 CallConference.this.onCallPeerConferenceEvent(ev);
             }
+            
+            /**
+             * {@inheritDoc}
+             *
+             * Invokes
+             * {@link CallConference#onCallPeerConferenceEvent(
+             * CallPeerConferenceEvent)}.
+             */
+            @Override
+            public void conferenceMemberErrorReceived(
+                CallPeerConferenceEvent ev)
+            {
+                CallConference.this.onCallPeerConferenceEvent(ev);
+            }
         };
 
     /**
@@ -691,6 +705,9 @@ public class CallConference
                 break;
             case CallPeerConferenceEvent.CONFERENCE_MEMBER_REMOVED:
                 l.conferenceMemberRemoved(ev);
+                break;
+            case CallPeerConferenceEvent.CONFERENCE_MEMBER_ERROR_RECEIVED:
+                l.conferenceMemberErrorReceived(ev);
                 break;
             default:
                 throw new UnsupportedOperationException(

@@ -471,6 +471,14 @@ public abstract class MediaAwareCallPeer
             mediaHandler.setCsrcAudioLevelListener(this);
         }
     }
+    
+    /**
+     * Dummy implementation of {@link CallPeerConferenceListener
+     * #conferenceMemberErrorReceived(CallPeerConferenceEvent)}.
+     *
+     * @param ev the event
+     */
+    public void conferenceMemberErrorReceived(CallPeerConferenceEvent ev) {};
 
     /**
      * Called when this peer stops being a mixer. The method add removes this

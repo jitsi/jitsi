@@ -41,6 +41,14 @@ public class CallPeerConferenceAdapter
     /**
      * {@inheritDoc}
      *
+     * Dummy implementation of 
+     * {@link #conferenceMemberErrorReceived(CallPeerConferenceEvent)}.
+     */
+    public void conferenceMemberErrorReceived(CallPeerConferenceEvent ev) {}
+    
+    /**
+     * {@inheritDoc}
+     *
      * Calls {@link #onCallPeerConferenceEvent(CallPeerConferenceEvent)}.
      */
     public void conferenceMemberRemoved(CallPeerConferenceEvent ev)

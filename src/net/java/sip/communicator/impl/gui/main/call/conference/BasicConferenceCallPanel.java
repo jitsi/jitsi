@@ -14,6 +14,7 @@ import java.util.List;
 import javax.swing.*;
 import javax.swing.Timer;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -24,6 +25,7 @@ import net.java.sip.communicator.service.protocol.event.*;
  * <tt>CallConference</tt> and is contained in a <tt>CallPanel</tt>.
  *
  * @author Lyubomir Marinov
+ * @author Hristo Terezov
  */
 public abstract class BasicConferenceCallPanel
     extends JPanel
@@ -242,6 +244,29 @@ public abstract class BasicConferenceCallPanel
     protected void conferenceMemberAdded(CallPeerConferenceEvent ev)
     {
         updateViewFromModel();
+    }
+    
+    /**
+    * Notifies this instance that a <tt>CallPeer</tt> associated with a
+    * <tt>Call</tt> participating in the telephony conference received a error 
+    * packet.
+    *
+    * @param ev a <tt>CallPeerConferenceEvent</tt> which specifies the
+    * <tt>CallPeer</tt> which sent the error packet and an error message.
+    */
+    protected void conferenceMemberErrorReceived(CallPeerConferenceEvent ev)
+    {
+        CallPeer callPeer = ev.getSourceCallPeer();
+        
+        callPeerPanels.get(callPeer).setErrorReason(
+            GuiActivator.getResources().getI18NString(
+                "service.gui.PROBLEMS_ENCOUNTERED"));
+        
+        GuiActivator.getAlertUIService().showAlertPopup(
+            GuiActivator.getResources().getI18NString(
+                "service.gui.ERROR_RECEIVED_FROM") 
+            + callPeer.getDisplayName(), 
+            ev.getErrorString());
     }
 
     /**
@@ -669,6 +694,17 @@ public abstract class BasicConferenceCallPanel
             BasicConferenceCallPanel.this.callStateChanged(ev);
         }
 
+        /**
+         * Invokes
+         * {@link BasicConferenceCallPanel#conferenceMemberErrorReceived(
+         * CallPeerConferenceEvent)}.
+         */
+        public void conferenceMemberErrorReceived(
+            CallPeerConferenceEvent ev)
+        {
+            BasicConferenceCallPanel.this.conferenceMemberErrorReceived(ev);
+        }
+        
         /**
          * {@inheritDoc}
          *

@@ -56,6 +56,12 @@ public class CallPeerConferenceEvent
     public static final int CONFERENCE_MEMBER_REMOVED = 3;
 
     /**
+     * The ID of <tt>CallPeerConferenceEvent</tt> which notifies
+     * about an error packet received from a <tt>CallPeer</tt>. 
+     */
+    public static final int CONFERENCE_MEMBER_ERROR_RECEIVED = 4;
+
+    /**
      * The <code>ConferenceMember</code> which has been changed (e.g. added to
      * or removed from the conference) if this event has been fired because of
      * such a change; otherwise, <tt>null</tt>.
@@ -64,12 +70,21 @@ public class CallPeerConferenceEvent
 
     /**
      * The ID of this event which may be one of
-     * {@link #CONFERENCE_FOCUS_CHANGED}, {@link #CONFERENCE_MEMBER_ADDED} and
+     * {@link #CONFERENCE_FOCUS_CHANGED}, {@link #CONFERENCE_MEMBER_ADDED}, 
+     * {@link #CONFERENCE_MEMBER_ERROR_RECEIVED} and
      * {@link #CONFERENCE_MEMBER_REMOVED} and indicates the specifics of the
      * change in the conference-related information and the details this event
      * carries.
      */
     private final int eventID;
+    
+    
+    /**
+     * The error message associated with the error packet that was received. If 
+     * the eventID is not {@link #CONFERENCE_MEMBER_ERROR_RECEIVED} the value
+     * should should be <tt>null</tt>.
+     */
+    private final String errorString;
 
     /**
      * Initializes a new <code>CallPeerConferenceEvent</code> which is to
@@ -113,10 +128,40 @@ public class CallPeerConferenceEvent
         int eventID,
         ConferenceMember conferenceMember)
     {
+        this(sourceCallPeer, eventID, conferenceMember, null);
+    }
+    
+    /**
+     * Initializes a new <tt>CallPeerConferenceEvent</tt> which is to
+     * be fired by a specific <tt>CallPeer</tt> and which notifies
+     * about a change in its conference-related information pertaining to a
+     * specific <tt>ConferenceMember</tt>.
+     *
+     * @param sourceCallPeer the <tt>CallPeer</tt> which is to fire the new
+     * event
+     * @param eventID
+     *            the ID of this event which may be
+     *            {@link #CONFERENCE_MEMBER_ADDED} and
+     *            {@link #CONFERENCE_MEMBER_REMOVED} and indicates the specifics
+     *            of the change in the conference-related information and the
+     *            details this event carries
+     * @param conferenceMember
+     *            the <tt>ConferenceMember</tt> which caused the new event
+     *            to be fired
+     * @param errorString the error string associated with the error packet that
+     *            is received
+     */
+    public CallPeerConferenceEvent(
+        CallPeer sourceCallPeer,
+        int eventID,
+        ConferenceMember conferenceMember,
+        String errorString)
+    {
         super(sourceCallPeer);
 
         this.eventID = eventID;
         this.conferenceMember = conferenceMember;
+        this.errorString = errorString;
     }
 
     /**
@@ -162,5 +207,14 @@ public class CallPeerConferenceEvent
     public CallPeer getSourceCallPeer()
     {
         return (CallPeer) getSource();
+    }
+
+    /**
+     * Gets the value of {@link #errorString}.
+     * @return the error string.
+     */
+    public String getErrorString()
+    {
+        return errorString;
     }
 }

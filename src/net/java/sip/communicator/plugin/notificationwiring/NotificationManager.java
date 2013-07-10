@@ -651,6 +651,13 @@ public class NotificationManager
      *
      * Not used.
      */
+    public void conferenceMemberErrorReceived(CallPeerConferenceEvent ev) {}
+
+    /**
+     * {@inheritDoc}
+     *
+     * Not used.
+     */
     public void conferenceMemberRemoved(CallPeerConferenceEvent ev) {}
 
     /**

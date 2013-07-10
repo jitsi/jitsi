@@ -370,6 +370,7 @@ public class OperationSetTelephonyConferencingJabberImpl
     public void processPacket(Packet packet)
     {
         CoinIQ coinIQ = (CoinIQ) packet;
+        String errorMessage = null;
 
         //first ack all "set" requests.
         if (coinIQ.getType() == IQ.Type.SET)
@@ -378,7 +379,22 @@ public class OperationSetTelephonyConferencingJabberImpl
 
             parentProvider.getConnection().sendPacket(ack);
         }
+        
+        if(coinIQ.getType() == IQ.Type.ERROR)
+        {
+            logger.error("Received error in COIN packet.");
 
+            XMPPError error = coinIQ.getError();
+            if(error != null)
+            {
+                String msg = error.getMessage();
+                errorMessage = ((msg != null)? (msg + " ") : "")
+                    + "Error code: " + error.getCode();
+
+                logger.error(errorMessage);
+            }
+        }
+        
         String sid = coinIQ.getSID();
 
         if (sid != null)
@@ -386,12 +402,20 @@ public class OperationSetTelephonyConferencingJabberImpl
             CallPeerJabberImpl callPeer
                 = getBasicTelephony().getActiveCallsRepository().findCallPeer(
                         sid);
-
+            
+            
             if (callPeer != null)
             {
                 if (logger.isDebugEnabled())
                     logger.debug("Processing COIN from " + coinIQ.getFrom()
                                     + " (version=" + coinIQ.getVersion() + ")");
+                
+                if(coinIQ.getType() == IQ.Type.ERROR)
+                {
+                    callPeer.fireConferenceMemberErrorEvent(errorMessage);
+                    return;
+                }
+                
                 handleCoin(callPeer, coinIQ);
             }
         }
