@@ -389,7 +389,10 @@ public class ConferenceInfoDocument
      */
     public void setSid(String sid)
     {
-        conferenceInfo.setAttribute("sid", sid);
+        if (sid == null || sid.equals(""))
+            conferenceInfo.removeAttribute("sid");
+        else
+            conferenceInfo.setAttribute("sid", sid);
     }
 
     /**
@@ -415,7 +418,10 @@ public class ConferenceInfoDocument
      */
     public void setEntity(String entity)
     {
-        conferenceInfo.setAttribute(ENTITY_ATTR_NAME, entity);
+        if (entity == null || entity.equals(""))
+            conferenceInfo.removeAttribute(ENTITY_ATTR_NAME);
+        else
+            conferenceInfo.setAttribute(ENTITY_ATTR_NAME, entity);
     }
 
     /**
@@ -636,7 +642,7 @@ public class ConferenceInfoDocument
     {
         if (element != null)
         {
-            if (state == State.FULL)
+            if (state == State.FULL || state == null)
                 element.removeAttribute(STATE_ATTR_NAME);
             else
                 element.setAttribute(STATE_ATTR_NAME, state.toString());
@@ -656,11 +662,9 @@ public class ConferenceInfoDocument
     {
         Element statusElement
                 = XMLUtils.findChild(element, STATUS_ELEMENT_NAME);
-        if (statusString == null)
+        if (statusString == null || statusString.equals(""))
         {
-            if(statusElement == null)
-                return;
-            else
+            if(statusElement != null)
                 element.removeChild(statusElement);
         }
         else
@@ -780,7 +784,10 @@ public class ConferenceInfoDocument
          */
         public void setEntity(String entity)
         {
-            userElement.setAttribute(ENTITY_ATTR_NAME, entity);
+            if (entity == null || entity.equals(""))
+                userElement.removeAttribute(ENTITY_ATTR_NAME);
+            else
+                userElement.setAttribute(ENTITY_ATTR_NAME, entity);
         }
 
         /**
@@ -827,9 +834,7 @@ public class ConferenceInfoDocument
                     = XMLUtils.findChild(userElement, DISPLAY_TEXT_ELEMENT_NAME);
             if (text == null || text.equals(""))
             {
-                if (displayText == null)
-                    return;
-                else
+                if (displayText != null)
                     userElement.removeChild(displayText);
             }
             else
@@ -984,7 +989,10 @@ public class ConferenceInfoDocument
          */
         public void setEntity(String entity)
         {
-            endpointElement.setAttribute(ENTITY_ATTR_NAME, entity);
+            if (entity == null || entity.equals(""))
+                endpointElement.removeAttribute(ENTITY_ATTR_NAME);
+            else
+                endpointElement.setAttribute(ENTITY_ATTR_NAME, entity);
         }
 
         /**
@@ -1157,7 +1165,10 @@ public class ConferenceInfoDocument
          */
         public void setId(String id)
         {
-            mediaElement.setAttribute(ID_ATTR_NAME, id);
+            if (id == null || id.equals(""))
+                mediaElement.removeAttribute(ID_ATTR_NAME);
+            else
+                mediaElement.setAttribute(ID_ATTR_NAME, id);
         }
 
         /**
@@ -1179,13 +1190,21 @@ public class ConferenceInfoDocument
         {
             Element srcIdElement
                     = XMLUtils.findChild(mediaElement, SRC_ID_ELEMENT_NAME);
-            if (srcIdElement == null)
+            if (srcId == null || srcId.equals(""))
             {
-                srcIdElement
-                        = document.createElement(SRC_ID_ELEMENT_NAME);
-                mediaElement.appendChild(srcIdElement);
+                if (srcIdElement != null)
+                    mediaElement.removeChild(srcIdElement);
             }
-            srcIdElement.setTextContent(srcId);
+            else
+            {
+                if (srcIdElement == null)
+                {
+                    srcIdElement
+                            = document.createElement(SRC_ID_ELEMENT_NAME);
+                    mediaElement.appendChild(srcIdElement);
+                }
+                srcIdElement.setTextContent(srcId);
+            }
         }
 
         /**
@@ -1215,12 +1234,20 @@ public class ConferenceInfoDocument
         {
             Element typeElement
                     = XMLUtils.findChild(mediaElement, TYPE_ELEMENT_NAME);
-            if (typeElement == null)
+            if (type == null || type.equals(""))
             {
-                typeElement = document.createElement(TYPE_ELEMENT_NAME);
-                mediaElement.appendChild(typeElement);
+                if (typeElement != null)
+                    mediaElement.removeChild(typeElement);
             }
-            typeElement.setTextContent(type);
+            else
+            {
+                if (typeElement == null)
+                {
+                    typeElement = document.createElement(TYPE_ELEMENT_NAME);
+                    mediaElement.appendChild(typeElement);
+                }
+                typeElement.setTextContent(type);
+            }
         }
 
         /**

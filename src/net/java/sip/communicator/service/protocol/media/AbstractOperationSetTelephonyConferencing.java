@@ -949,7 +949,7 @@ public abstract class AbstractOperationSetTelephonyConferencing<
             else
             {
                 logger.warn("Received a conference-info document with state '"
-                    + documentState + "'. Cannot apply it, because we haven't"
+                    + documentState + "'. Cannot apply it, because we haven't "
                     + "initialized a local document yet. Sending peer: "
                     + callPeer);
                 return -1;
@@ -1244,7 +1244,6 @@ public abstract class AbstractOperationSetTelephonyConferencing<
 
         diff.setUserCount(to.getUserCount());
         diff.setEntity(to.getEntity());
-        diff.setVersion(from.getVersion() + 1);
 
         boolean needsPartial = false;
         boolean hasDifference = false;
