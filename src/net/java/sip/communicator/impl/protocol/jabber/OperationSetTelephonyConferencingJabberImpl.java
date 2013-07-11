@@ -113,6 +113,15 @@ public class OperationSetTelephonyConferencingJabberImpl
         if(!(callPeer instanceof CallPeerJabberImpl))
             return;
 
+        //Don't send COINs to peers with might not be ready to accept COINs yet
+        CallPeerState peerState = callPeer.getState();
+        if (peerState == CallPeerState.CONNECTING
+                || peerState == CallPeerState.UNKNOWN
+                || peerState == CallPeerState.INITIATING_CALL
+                || peerState == CallPeerState.DISCONNECTED
+                || peerState == CallPeerState.FAILED)
+            return;
+
         final CallPeerJabberImpl callPeerJabber = (CallPeerJabberImpl)callPeer;
 
         final long timeSinceLastCoin = System.currentTimeMillis()
