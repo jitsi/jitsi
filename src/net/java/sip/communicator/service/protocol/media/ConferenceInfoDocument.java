@@ -270,6 +270,31 @@ public class ConferenceInfoDocument
     }
 
     /**
+     * Creates a new <tt>ConferenceInfoDocument</tt> instance that represents
+     * a copy of <tt>confInfo</tt>
+     * @param confInfo the document to copy
+     * @throws XMLException if a document failed to be created.
+     */
+    public ConferenceInfoDocument(ConferenceInfoDocument confInfo)
+            throws XMLException
+    {
+        this();
+
+        //temporary
+        String sid = confInfo.getSid();
+        if(sid != null && !sid.equals(""))
+            setSid(sid);
+
+        setEntity(confInfo.getEntity());
+        setState(confInfo.getState());
+        setUserCount(confInfo.getUserCount());
+        setUsersState(confInfo.getUsersState());
+        setVersion(confInfo.getVersion());
+        for (User user : confInfo.getUsers())
+            addUser(user);
+    }
+
+    /**
      * Returns the value of the <tt>version</tt> attribute of the
      * <tt>conference-info</tt> element, or -1 if there is no <tt>version</tt>
      * attribute or if it's value couldn't be parsed as an integer.
@@ -331,6 +356,17 @@ public class ConferenceInfoDocument
     }
 
     /**
+     * Sets the <tt>state</tt> attribute of the <tt>users</tt> chuld of the
+     * <tt>conference-info</tt> element.
+     *
+     * @param state the state to set
+     */
+    public void setUsersState(State state)
+    {
+        setState(users, state);
+    }
+
+    /**
      * Sets the value of the <tt>state</tt> attribute of the
      * <tt>conference-info</tt> element.
      * @param state the value to set the <tt>state</tt> attribute of the
@@ -354,6 +390,21 @@ public class ConferenceInfoDocument
     public void setSid(String sid)
     {
         conferenceInfo.setAttribute("sid", sid);
+    }
+
+    /**
+     * Gets the value of the <tt>sid</tt> attribute of the
+     * <tt>conference-info</tt> element.
+     * This is not part of RFC4575 and is here because we are temporarily using
+     * it in our XMPP implementation.
+     * TODO: remote it when we define another way to handle the Jingle SID
+     *
+     * @param sid the value to set the <tt>sid</tt> attribute of the
+     * <tt>conference-info</tt> element to.
+     */
+    public String getSid()
+    {
+        return conferenceInfo.getAttribute("sid");
     }
 
     /**
@@ -518,6 +569,19 @@ public class ConferenceInfoDocument
         usersList.add(user);
 
         return user;
+    }
+
+    /**
+     * Adds a copy of <tt>user</tt> to this <tt>ConferenceInfoDocument</tt>
+     * @param user the <tt>User</tt> to add a copy of
+     */
+    public void addUser(User user)
+    {
+        User newUser = addNewUser(user.getEntity());
+        newUser.setDisplayText(user.getDisplayText());
+        newUser.setState(user.getState());
+        for (Endpoint endpoint : user.getEndpoints())
+            newUser.addEndpoint(endpoint);
     }
 
     /**
@@ -851,6 +915,19 @@ public class ConferenceInfoDocument
         }
 
         /**
+         * Adds a copy of <tt>endpoint</tt> to this <tt>User</tt>
+         * @param endpoint the <tt>Endpoint</tt> to add a copy of
+         */
+        public void addEndpoint(Endpoint endpoint)
+        {
+            Endpoint newEndpoint = addNewEndpoint(endpoint.getEntity());
+            newEndpoint.setStatus(endpoint.getStatus());
+            newEndpoint.setState(endpoint.getState());
+            for (Media media : endpoint.getMedias())
+                newEndpoint.addMedia(media);
+        }
+
+        /**
          * Removes a specific <tt>Endpoint</tt> (the one with entity
          * <tt>entity</tt>) from this <tt>User</tt>.
          * @param entity the <tt>entity</tt> of the <tt>Endpoint</tt> to remove
@@ -1022,6 +1099,18 @@ public class ConferenceInfoDocument
             mediasList.add(media);
 
             return media;
+        }
+
+        /**
+         * Adds a copy of <tt>media</tt> to this <tt>Endpoint</tt>
+         * @param media the <tt>Media</tt> to add a copy of
+         */
+        public void addMedia(Media media)
+        {
+            Media newMedia = addNewMedia(media.getId());
+            newMedia.setSrcId(media.getSrcId());
+            newMedia.setType(media.getType());
+            newMedia.setStatus(media.getStatus());
         }
 
         /**

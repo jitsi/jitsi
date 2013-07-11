@@ -102,6 +102,14 @@ public abstract class AbstractOperationSetTelephonyConferencing<
     protected static final String ELEMENT_USERS = "users";
 
     /**
+     * The name of the account property which specifies whether we should
+     * generate and send RFC4575 partial notifications (as opposed to always
+     * sending 'full' documents)
+     */
+    private static final String PARTIAL_NOTIFICATIONS_PROP_NAME
+            = "RFC4575_PARTIAL_NOTIFICATIONS_ENABLED";
+
+    /**
      * The <tt>OperationSetBasicTelephony</tt> implementation which this
      * instance uses to carry out tasks such as establishing <tt>Call</tt>s.
      */
@@ -1207,10 +1215,100 @@ public abstract class AbstractOperationSetTelephonyConferencing<
             throw new IllegalArgumentException("The 'to' document needs to "
                     + "have state=full");
 
-        if (conferenceInfoDocumentsMatch(from, to))
+        if (!isPartialNotificationEnabled())
+        {
+            return conferenceInfoDocumentsMatch(from, to)
+                ? null
+                : to;
+        }
+
+        ConferenceInfoDocument diff;
+        try
+        {
+            diff = new ConferenceInfoDocument();
+        }
+        catch (XMLException e)
+        {
+            return conferenceInfoDocumentsMatch(from, to)
+                    ? null
+                    : to;
+        }
+
+        diff.setState(ConferenceInfoDocument.State.PARTIAL);
+        diff.setUsersState(ConferenceInfoDocument.State.PARTIAL);
+
+        //temporary, used for xmpp only
+        String sid = to.getSid();
+        if (sid != null && !sid.equals(""))
+            diff.setSid(to.getSid());
+
+        diff.setUserCount(to.getUserCount());
+        diff.setEntity(to.getEntity());
+        diff.setVersion(from.getVersion() + 1);
+
+        boolean needsPartial = false;
+        boolean hasDifference = false;
+        if (from.getEntity() != to.getEntity()
+                || from.getUserCount() != to.getUserCount())
+        {
+            hasDifference = true;
+        }
+
+        // find users which have been removed in 'to'
+        for (ConferenceInfoDocument.User user : from.getUsers())
+        {
+            if(to.getUser(user.getEntity()) == null)
+            {
+                ConferenceInfoDocument.User deletedUser
+                        = diff.addNewUser(user.getEntity());
+                deletedUser.setState(ConferenceInfoDocument.State.DELETED);
+                hasDifference = true;
+                needsPartial = true;
+            }
+        }
+
+        for (ConferenceInfoDocument.User toUser : to.getUsers())
+        {
+            ConferenceInfoDocument.User fromUser
+                    = from.getUser(toUser.getEntity());
+            if (!usersMatch(toUser, fromUser))
+            {
+                hasDifference = true;
+                diff.addUser(toUser);
+            }
+            else
+            {
+                //if there is a "user" element which didn't change, we skip it
+                //and we need to send state=partial, because otherwise it will
+                //be removed by the recipient
+                needsPartial = true;
+            }
+        }
+
+        if (logger.isDebugEnabled())
+        {
+            logger.debug("Generated partial notification. From: " + from
+                    + "\nTo: " + to + "\nDiff: " + diff + "(hasDifference: "
+                    + hasDifference + ")");
+        }
+
+        if (!hasDifference)
             return null;
 
-        return to;
+        /*
+         * In some cases (when all the user elements have changed, and none have
+         * been removed) we are essentially generating a full document, but
+         * marking it 'partial'. In this case it is better to send the full
+         * document, just in case the receiver lost the previous document
+         * somehow.
+         */
+        if (!needsPartial)
+        {
+            diff.setState(ConferenceInfoDocument.State.FULL);
+            diff.setUsersState(ConferenceInfoDocument.State.FULL);
+        }
+
+        return diff;
     }
 
     /**
@@ -1242,7 +1340,15 @@ public abstract class AbstractOperationSetTelephonyConferencing<
         if (usersState == ConferenceInfoDocument.State.FULL)
         {
             //if users is 'full', all its children must be full
-            newDocument = diff;
+            try
+            {
+                newDocument = new ConferenceInfoDocument(diff);
+            }
+            catch (XMLException e)
+            {
+                logger.error("Could not create a new ConferenceInfoDocument");
+                return -1;
+            }
             newDocument.setState(ConferenceInfoDocument.State.FULL);
         }
         else if (usersState == ConferenceInfoDocument.State.DELETED)
@@ -1253,7 +1359,7 @@ public abstract class AbstractOperationSetTelephonyConferencing<
             }
             catch (XMLException e)
             {
-                logger.warn("Could not create a new ConferenceInfoDocument", e);
+                logger.error("Could not create a new ConferenceInfoDocument", e);
                 return -1;
             }
 
@@ -1263,7 +1369,15 @@ public abstract class AbstractOperationSetTelephonyConferencing<
         }
         else //'partial'
         {
-            newDocument = ourDocument;
+            try
+            {
+                newDocument = new ConferenceInfoDocument(ourDocument);
+            }
+            catch (XMLException e)
+            {
+                logger.error("Could not create a new ConferenceInfoDocument", e);
+                return -1;
+            }
 
             newDocument.setVersion(diff.getVersion());
             newDocument.setEntity(diff.getEntity());
@@ -1274,26 +1388,8 @@ public abstract class AbstractOperationSetTelephonyConferencing<
                 ConferenceInfoDocument.State userState = user.getState();
                 if (userState == ConferenceInfoDocument.State.FULL)
                 {
-                    //copy the whole 'user' element from diff to newDocument
                     newDocument.removeUser(user.getEntity());
-                    ConferenceInfoDocument.User newUser
-                            = newDocument.addNewUser(user.getEntity());
-                    for (ConferenceInfoDocument.Endpoint endpoint
-                            : user.getEndpoints())
-                    {
-                        ConferenceInfoDocument.Endpoint newEndpoint
-                                = newUser.addNewEndpoint(endpoint.getEntity());
-                        newEndpoint.setStatus(endpoint.getStatus());
-                        for (ConferenceInfoDocument.Media media
-                                : endpoint.getMedias())
-                        {
-                            ConferenceInfoDocument.Media newMedia
-                                    = newEndpoint.addNewMedia(media.getId());
-                            newMedia.setStatus(media.getStatus());
-                            newMedia.setSrcId(media.getSrcId());
-                            newMedia.setType(media.getType());
-                        }
-                    }
+                    newDocument.addUser(user);
                 }
                 else if (userState == ConferenceInfoDocument.State.DELETED)
                 {
@@ -1303,6 +1399,7 @@ public abstract class AbstractOperationSetTelephonyConferencing<
                 {
                     ConferenceInfoDocument.User ourUser
                             = newDocument.getUser(user.getEntity());
+                    ourUser.setDisplayText(user.getDisplayText());
                     for (ConferenceInfoDocument.Endpoint endpoint
                             : user.getEndpoints())
                     {
@@ -1311,19 +1408,7 @@ public abstract class AbstractOperationSetTelephonyConferencing<
                         if (endpointState == ConferenceInfoDocument.State.FULL)
                         {
                             ourUser.removeEndpoint(endpoint.getEntity());
-                            ConferenceInfoDocument.Endpoint newEndpoint
-                                    = ourUser
-                                         .addNewEndpoint(endpoint.getEntity());
-                            newEndpoint.setStatus(endpoint.getStatus());
-                            for (ConferenceInfoDocument.Media media
-                                    : endpoint.getMedias())
-                            {
-                                ConferenceInfoDocument.Media newMedia
-                                        = newEndpoint.addNewMedia(media.getId());
-                                newMedia.setStatus(media.getStatus());
-                                newMedia.setSrcId(media.getSrcId());
-                                newMedia.setType(media.getType());
-                            }
+                            ourUser.addEndpoint(endpoint);
                         }
                         else if (endpointState
                                 == ConferenceInfoDocument.State.DELETED)
@@ -1337,11 +1422,8 @@ public abstract class AbstractOperationSetTelephonyConferencing<
                             for (ConferenceInfoDocument.Media media
                                         : endpoint.getMedias())
                             {
-                                ConferenceInfoDocument.Media newMedia
-                                        = ourEndpoint.addNewMedia(media.getId());
-                                newMedia.setStatus(media.getStatus());
-                                newMedia.setSrcId(media.getSrcId());
-                                newMedia.setType(media.getType());
+                                ourEndpoint.removeMedia(media.getId());
+                                ourEndpoint.addMedia(media);
                             }
                         }
                     }
@@ -1352,8 +1434,8 @@ public abstract class AbstractOperationSetTelephonyConferencing<
         if (logger.isDebugEnabled())
         {
             logger.debug("Applied a partial conference-info notification. "
-                + " Base: " + ourDocument + "\nDiff: " + diff + "\nResult:"
-                + newDocument);
+                    + " Base: " + ourDocument + "\nDiff: " + diff + "\nResult:"
+                    + newDocument);
         }
         return setConferenceInfoDocument(callPeer, newDocument);
     }
@@ -1508,4 +1590,12 @@ public abstract class AbstractOperationSetTelephonyConferencing<
         return a.equals(b);
     }
 
+    private boolean isPartialNotificationEnabled()
+    {
+        return Boolean.parseBoolean(
+                parentProvider
+                        .getAccountID()
+                        .getAccountProperties()
+                        .get(PARTIAL_NOTIFICATIONS_PROP_NAME));
+    }
 }
