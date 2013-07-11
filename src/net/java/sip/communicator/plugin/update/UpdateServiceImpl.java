@@ -96,7 +96,6 @@ public class UpdateServiceImpl
         // Initialize the user interface.
         JEditorPane editorPane = new JEditorPane();
 
-        editorPane.setBorder(BorderFactory.createLoweredBevelBorder());
         editorPane.setContentType("text/html");
         editorPane.setEditable(false);
 
