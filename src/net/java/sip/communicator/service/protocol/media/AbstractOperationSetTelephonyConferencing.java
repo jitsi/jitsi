@@ -1247,7 +1247,7 @@ public abstract class AbstractOperationSetTelephonyConferencing<
 
         boolean needsPartial = false;
         boolean hasDifference = false;
-        if (from.getEntity() != to.getEntity()
+        if (!from.getEntity().equals(to.getEntity())
                 || from.getUserCount() != to.getUserCount())
         {
             hasDifference = true;
