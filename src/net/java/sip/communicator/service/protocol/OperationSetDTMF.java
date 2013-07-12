@@ -18,15 +18,20 @@ public interface OperationSetDTMF
     extends OperationSet
 {
     /**
-     * The minimal tone duration value for RFC4733 is 70 ms.
+     * The minimal tone duration value for RFC4733 is 100 ms.
      */
-    public static final int DEFAULT_DTMF_MINIMAL_TONE_DURATION = 70;
+    public static final int DEFAULT_DTMF_MINIMAL_TONE_DURATION = 100;
 
     /**
      * The maximal tone duration value is -1 in order to stop sending tone only
      * when user requests to stop it.
      */
     public static final int DEFAULT_DTMF_MAXIMAL_TONE_DURATION = -1;
+
+    /**
+     * The default tone volume value.
+     */
+    public static final int DEFAULT_DTMF_TONE_VOLUME = 10;
 
     /**
      * The name of the <tt>ConfigurationService</tt> <tt>int</tt> property
