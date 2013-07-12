@@ -696,6 +696,13 @@ public class CallPeerJabberImpl
         setState(CallPeerState.CONNECTED);
 
         mediaHandler.start();
+
+        /*
+         * If video was added to the call after we sent the session-initiate
+         * to this peer, it needs to be added to this peer's session with a
+         * content-add.
+         */
+        sendModifyVideoContent();
     }
 
     /**
@@ -1142,9 +1149,12 @@ public class CallPeerJabberImpl
             }
             else
             {
-                if (logger.isInfoEnabled())
-                    logger.info("Adding video content for " + this);
-                sendAddVideoContent();
+                if (getState() == CallPeerState.CONNECTED)
+                {
+                    if (logger.isInfoEnabled())
+                        logger.info("Adding video content for " + this);
+                    sendAddVideoContent();
+                }
                 return;
             }
         }
