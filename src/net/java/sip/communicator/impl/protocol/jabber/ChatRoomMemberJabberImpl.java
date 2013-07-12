@@ -81,10 +81,6 @@ public class ChatRoomMemberJabberImpl
         if (contact != null)
         {
             this.avatar = contact.getImage();
-            String displayName = this.contact.getDisplayName();
-
-            if(displayName != null && displayName.length() > 0)
-                this.nickName = displayName;
         }
 
         // just query the stack for role, if its present will be set
