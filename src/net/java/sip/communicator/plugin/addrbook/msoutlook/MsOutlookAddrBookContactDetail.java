@@ -91,17 +91,4 @@ public class MsOutlookAddrBookContactDetail
     {
         return this.outlookPropId;
     }
-
-    /**
-     * Sets the given detail value.
-     *
-     * @param value the new value of the detail
-     */
-    @Override
-    public void setDetail(String value)
-    {
-        super.setDetail(value);
-
-        EditableSourceContact sourceContact = this.getSourceContact();
-    }
 }

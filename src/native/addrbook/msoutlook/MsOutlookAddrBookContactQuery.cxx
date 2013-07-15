@@ -1092,13 +1092,13 @@ int MsOutlookAddrBookContactQuery_IMAPIProp_1DeleteProp
     ULONG baseGroupEntryIdProp = 0;
     switch(propId)
     {
-        case 0x00008083: // dispidEmail1EmailAddress
+        case 0x00008084: // PidLidEmail1OriginalDisplayName
             baseGroupEntryIdProp = 0x00008080;
             break;
-        case 0x00008093: // dispidEmail2EmailAddress
+        case 0x00008094: // PidLidEmail2OriginalDisplayName
             baseGroupEntryIdProp = 0x00008090;
             break;
-        case 0x000080A3: // dispidEmail3EmailAddress
+        case 0x000080A4: // PidLidEmail3OriginalDisplayName
             baseGroupEntryIdProp = 0x000080A0;
             break;
     }
@@ -1382,13 +1382,13 @@ int MsOutlookAddrBookContactQuery_IMAPIProp_1SetPropString
     ULONG baseGroupEntryIdProp = 0;
     switch(propId)
     {
-        case 0x00008083: // dispidEmail1EmailAddress
+        case 0x00008084: // PidLidEmail1OriginalDisplayName
             baseGroupEntryIdProp = 0x00008080;
             break;
-        case 0x00008093: // dispidEmail2EmailAddress
+        case 0x00008094: // PidLidEmail2OriginalDisplayName
             baseGroupEntryIdProp = 0x00008090;
             break;
-        case 0x000080A3: // dispidEmail3EmailAddress
+        case 0x000080A4: // PidLidEmail3OriginalDisplayName
             baseGroupEntryIdProp = 0x000080A0;
             break;
     }
@@ -1435,25 +1435,42 @@ int MsOutlookAddrBookContactQuery_IMAPIProp_1SetPropString
             LONG providerEmailList[1];
             switch(propId)
             {
-                case 0x00008083: // dispidEmail1EmailAddress
+                case 0x00008084: // PidLidEmail1OriginalDisplayName
                     providerEmailList[0] = 0x00000000;
                     propArray[1].Value.l |= 0x00000001;
                     break;
-                case 0x00008093: // dispidEmail2EmailAddress
+                case 0x00008094: // PidLidEmail2OriginalDisplayName
                     providerEmailList[0] = 0x00000001;
                     propArray[1].Value.l |= 0x00000002;
                     break;
-                case 0x000080A3: // dispidEmail3EmailAddress
+                case 0x000080A4: // PidLidEmail3OriginalDisplayName
                     providerEmailList[0] = 0x00000002;
                     propArray[1].Value.l |= 0x00000004;
                     break;
             }
+
             propArray[0].Value.MVl.cValues = 1;
             propArray[0].Value.MVl.lpl = providerEmailList;
 
-            propArray[2].Value.lpszW = wCharValue;
-            propArray[3].Value.lpszW = addressType;
-            propArray[4].Value.lpszW = wCharValue;
+            if(propArray[2].ulPropTag == PT_ERROR
+                    || propArray[2].Value.err == MAPI_E_NOT_FOUND
+                    || propArray[2].Value.lpszW == NULL)
+            {
+                propArray[2].Value.lpszW = wCharValue;
+            }
+            if(propArray[3].ulPropTag == PT_ERROR
+                    || propArray[3].Value.err == MAPI_E_NOT_FOUND
+                    || propArray[3].Value.lpszW == NULL)
+            {
+                propArray[3].Value.lpszW = addressType;
+            }
+            if(propArray[4].ulPropTag == PT_ERROR
+                    || propArray[4].Value.err == MAPI_E_NOT_FOUND
+                    || propArray[4].Value.lpszW == NULL
+                    || wcsncmp(propArray[3].Value.lpszW, addressType, 4) == 0)
+            {
+                propArray[4].Value.lpszW = wCharValue;
+            }
             propArray[5].Value.lpszW = wCharValue;
 
             if(MsOutlookAddrBookContactQuery_createEmailAddress(
@@ -1885,6 +1902,7 @@ int MsOutlookAddrBookContactQuery_compareEntryIds(
         }
         result = res;
     }
+
     mapiId1->Release();
     MAPIFreeBuffer(contactId1.lpb);
     mapiId2->Release();

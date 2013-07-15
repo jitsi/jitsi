@@ -92,6 +92,8 @@ public class MsOutlookAddrBookSourceContact
     {
         synchronized(this)
         {
+            setDisplayPostalAddress();
+
             MsOutlookAddrBookContactDetail outlookContactDetail;
 
             for(ContactDetail contactDetail: this.contactDetails)
@@ -349,5 +351,228 @@ public class MsOutlookAddrBookSourceContact
 
         return (localId.equals(id)
                 || MsOutlookAddrBookContactQuery.compareEntryIds(id, localId));
+    }
+
+    /**
+     * Generates and stores the string representation of the home and work
+     * postall addresses.
+     */
+    private void setDisplayPostalAddress()
+    {
+        synchronized(this)
+        {
+            MsOutlookAddrBookContactDetail detail;
+            
+            // Setting the display work postal address.
+            boolean firstLineCR = false;
+            boolean secondLineCR = false;
+            String workAddress = "";
+            detail = findDetail(
+                    MsOutlookAddrBookContactQuery.MAPI_MAILUSER_PROP_IDS[
+                    MsOutlookAddrBookContactQuery.PR_BUSINESS_ADDRESS_STREET]);
+            if(detail != null)
+            {
+                workAddress += detail.getDetail();
+                firstLineCR = true;
+            }
+            detail = findDetail(
+                    MsOutlookAddrBookContactQuery.MAPI_MAILUSER_PROP_IDS[
+                    MsOutlookAddrBookContactQuery.PR_BUSINESS_ADDRESS_CITY]);
+            if(detail != null)
+            {
+                if(firstLineCR)
+                {
+                    workAddress += "\r";
+                    firstLineCR = false;
+                }
+                workAddress += detail.getDetail();
+                workAddress += " ";
+                secondLineCR = true;
+            }
+            detail = findDetail(
+                    MsOutlookAddrBookContactQuery.MAPI_MAILUSER_PROP_IDS[
+                    MsOutlookAddrBookContactQuery.
+                        PR_BUSINESS_ADDRESS_STATE_OR_PROVINCE]);
+            if(detail != null)
+            {
+                if(firstLineCR)
+                {
+                    workAddress += "\r";
+                    firstLineCR = false;
+                }
+                workAddress += detail.getDetail();
+                secondLineCR = true;
+            }
+            detail = findDetail(
+                    MsOutlookAddrBookContactQuery.MAPI_MAILUSER_PROP_IDS[
+                    MsOutlookAddrBookContactQuery.
+                        PR_BUSINESS_ADDRESS_POSTAL_CODE]);
+            if(detail != null)
+            {
+                if(firstLineCR)
+                {
+                    workAddress += "\r";
+                    firstLineCR = false;
+                }
+                workAddress += detail.getDetail();
+                workAddress += " ";
+                secondLineCR = true;
+            }
+            detail = findDetail(
+                    MsOutlookAddrBookContactQuery.MAPI_MAILUSER_PROP_IDS[
+                    MsOutlookAddrBookContactQuery.PR_BUSINESS_ADDRESS_COUNTRY]);
+            if(detail != null)
+            {
+                if(secondLineCR)
+                {
+                    workAddress += "\r";
+                    secondLineCR = false;
+                }
+                workAddress += detail.getDetail();
+            }
+
+            detail = findDetail(
+                    MsOutlookAddrBookContactQuery.MAPI_MAILUSER_PROP_IDS[
+                    MsOutlookAddrBookContactQuery.dispidWorkAddress]);
+            if(detail != null)
+            {
+                // set address.
+                detail.setDetail(workAddress);
+            }
+            else if(workAddress.length() > 0)
+            {
+                detail = new MsOutlookAddrBookContactDetail(
+                        workAddress,
+                        MsOutlookAddrBookContactQuery.getCategory(
+                            MsOutlookAddrBookContactQuery.dispidWorkAddress),
+                        MsOutlookAddrBookContactQuery.getSubCategories(
+                            MsOutlookAddrBookContactQuery.dispidWorkAddress),
+                        MsOutlookAddrBookContactQuery.MAPI_MAILUSER_PROP_IDS[
+                            MsOutlookAddrBookContactQuery.dispidWorkAddress]);
+                this.contactDetails.add(detail);
+            }
+
+            // Setting the display home postal address.
+            firstLineCR = false;
+            secondLineCR = false;
+            String homeAddress = "";
+            detail = findDetail(
+                    MsOutlookAddrBookContactQuery.MAPI_MAILUSER_PROP_IDS[
+                    MsOutlookAddrBookContactQuery.PR_HOME_ADDRESS_STREET]);
+            if(detail != null)
+            {
+                homeAddress += detail.getDetail();
+                firstLineCR = true;
+            }
+            detail = findDetail(
+                    MsOutlookAddrBookContactQuery.MAPI_MAILUSER_PROP_IDS[
+                    MsOutlookAddrBookContactQuery.PR_HOME_ADDRESS_CITY]);
+            if(detail != null)
+            {
+                if(firstLineCR)
+                {
+                    homeAddress += "\r";
+                    firstLineCR = false;
+                }
+                homeAddress += detail.getDetail();
+                homeAddress += " ";
+                secondLineCR = true;
+            }
+            detail = findDetail(
+                    MsOutlookAddrBookContactQuery.MAPI_MAILUSER_PROP_IDS[
+                    MsOutlookAddrBookContactQuery.
+                        PR_HOME_ADDRESS_STATE_OR_PROVINCE]);
+            if(detail != null)
+            {
+                if(firstLineCR)
+                {
+                    homeAddress += "\r";
+                    firstLineCR = false;
+                }
+                homeAddress += detail.getDetail();
+                secondLineCR = true;
+            }
+            detail = findDetail(
+                    MsOutlookAddrBookContactQuery.MAPI_MAILUSER_PROP_IDS[
+                    MsOutlookAddrBookContactQuery.PR_HOME_ADDRESS_POSTAL_CODE]);
+            if(detail != null)
+            {
+                if(firstLineCR)
+                {
+                    homeAddress += "\r";
+                    firstLineCR = false;
+                }
+                homeAddress += detail.getDetail();
+                homeAddress += " ";
+                secondLineCR = true;
+            }
+            detail = findDetail(
+                    MsOutlookAddrBookContactQuery.MAPI_MAILUSER_PROP_IDS[
+                    MsOutlookAddrBookContactQuery.PR_HOME_ADDRESS_COUNTRY]);
+            if(detail != null)
+            {
+                if(secondLineCR)
+                {
+                    homeAddress += "\r";
+                    secondLineCR = false;
+                }
+                homeAddress += detail.getDetail();
+            }
+
+            detail = findDetail(
+                    MsOutlookAddrBookContactQuery.MAPI_MAILUSER_PROP_IDS[
+                    MsOutlookAddrBookContactQuery.dispidHomeAddress]);
+            if(detail != null)
+            {
+                // set address.
+                detail.setDetail(homeAddress);
+            }
+            else if(homeAddress.length() > 0)
+            {
+                detail = new MsOutlookAddrBookContactDetail(
+                        homeAddress,
+                        MsOutlookAddrBookContactQuery.getCategory(
+                            MsOutlookAddrBookContactQuery.dispidHomeAddress),
+                        MsOutlookAddrBookContactQuery.getSubCategories(
+                            MsOutlookAddrBookContactQuery.dispidHomeAddress),
+                        MsOutlookAddrBookContactQuery.MAPI_MAILUSER_PROP_IDS[
+                            MsOutlookAddrBookContactQuery.dispidHomeAddress]);
+                this.contactDetails.add(detail);
+            }
+        }
+    }
+
+
+    /**
+     * Finds the detail corresponding to the given property id.
+     *
+     * @param detailPropId The detail identifier.
+     *
+     * @return The detail corresponding to the given property id. Null if not
+     * found.
+     */
+    private MsOutlookAddrBookContactDetail findDetail(long detailPropId)
+    {
+        synchronized(this)
+        {
+            MsOutlookAddrBookContactDetail outlookContactDetail;
+
+            for(ContactDetail contactDetail: this.contactDetails)
+            {
+                if(contactDetail instanceof MsOutlookAddrBookContactDetail)
+                {
+                    outlookContactDetail
+                        = (MsOutlookAddrBookContactDetail) contactDetail;
+                    for(Long propId: outlookContactDetail.getOutlookPropId())
+                    {
+                        if(propId.longValue() == detailPropId)
+                        {
+                            return outlookContactDetail;
+                        }
+                    }
+                }
+            }
+        }
+        return null;
     }
 }
