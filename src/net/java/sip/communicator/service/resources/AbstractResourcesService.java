@@ -519,10 +519,12 @@ public abstract class AbstractResourcesService
     }
 
     /**
-     * Returns an internationalized string corresponding to the given key.
+     * Returns the character after the first '&' in the internationalized
+     * string corresponding to <tt>key</tt>
      *
      * @param key The identifier of the string in the resources properties file.
-     * @return An internationalized string corresponding to the given key.
+     * @return the character after the first '&' in the internationalized
+     * string corresponding to <tt>key</tt>.
      */
     public char getI18nMnemonic(String key)
     {
@@ -530,11 +532,13 @@ public abstract class AbstractResourcesService
     }
 
     /**
-     * Returns an internationalized string corresponding to the given key.
+     * Returns the character after the first '&' in the internationalized
+     * string corresponding to <tt>key</tt>
      *
      * @param key The identifier of the string in the resources properties file.
      * @param locale The locale that we'd like to receive the result in.
-     * @return An internationalized string corresponding to the given key.
+     * @return the character after the first '&' in the internationalized
+     * string corresponding to <tt>key</tt>.
      */
     public char getI18nMnemonic(String key, Locale locale)
     {
@@ -547,7 +551,7 @@ public abstract class AbstractResourcesService
         }
 
         int mnemonicIndex = resourceString.indexOf('&');
-        if (mnemonicIndex > -1)
+        if (mnemonicIndex > -1 && mnemonicIndex < resourceString.length() - 1)
         {
             return resourceString.charAt(mnemonicIndex + 1);
         }
