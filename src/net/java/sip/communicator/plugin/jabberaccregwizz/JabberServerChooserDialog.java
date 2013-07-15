@@ -232,7 +232,7 @@ public class JabberServerChooserDialog
 
             try
             {
-                URL file = new URL("http://www.jabber.org/servers.xml");
+                URL file = new URL("http://xmpp.net/services.xml");
                 InputStream stream = file.openStream();
 
                 try
