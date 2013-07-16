@@ -698,8 +698,11 @@ class NotificationServiceImpl
                     String defaultMessage
                         = configService.getString(
                             actionPropName + ".defaultMessage");
-
-                    action = new PopupMessageNotificationAction(defaultMessage);
+                    long timeout
+                        = configService.getLong(
+                            actionPropName + ".timeout",-1);
+                    action = new PopupMessageNotificationAction(
+                                    defaultMessage, timeout);
                 }
                 else if(actionType.equals(ACTION_LOG_MESSAGE))
                 {
@@ -1268,6 +1271,9 @@ class NotificationServiceImpl
             configProperties.put(
                 actionTypeNodeName + ".defaultMessage",
                 messageAction.getDefaultMessage());
+            configProperties.put(
+                actionTypeNodeName + ".timeout",
+                messageAction.getTimeout());
         }
         else if(action instanceof LogMessageNotificationAction)
         {

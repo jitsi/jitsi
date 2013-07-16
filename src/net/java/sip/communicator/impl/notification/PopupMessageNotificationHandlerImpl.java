@@ -58,8 +58,11 @@ public class PopupMessageNotificationHandlerImpl
 
         if(!StringUtils.isNullOrEmpty(message))
         {
-            systray.showPopupMessage(
-                    new PopupMessage(title, message, icon, tag));
+            PopupMessage popupMsg
+                    = new PopupMessage(title, message, icon ,tag);
+            popupMsg.setTimeout(action.getTimeout());
+
+            systray.showPopupMessage(popupMsg);
         }
         else
         {
