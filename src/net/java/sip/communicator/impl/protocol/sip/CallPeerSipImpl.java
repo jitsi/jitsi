@@ -26,6 +26,8 @@ import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
 
+import org.jitsi.service.neomedia.*;
+import org.jitsi.service.neomedia.MediaType; // disambiguate
 import org.jitsi.service.neomedia.control.*;
 
 /**
@@ -1691,4 +1693,24 @@ public class CallPeerSipImpl
                 .stripParametersFromAddress(getURI());
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * Uses the direction of the media stream as a fallback.
+     * TODO: return the direction negotiated via SIP
+     */
+    @Override
+    public MediaDirection getDirection(MediaType mediaType)
+    {
+        MediaStream stream = getMediaHandler().getStream(mediaType);
+        if (stream != null)
+        {
+            MediaDirection direction = stream.getDirection();
+            return direction == null
+                    ? MediaDirection.INACTIVE
+                    : direction;
+        }
+
+        return MediaDirection.INACTIVE;
+    }
 }

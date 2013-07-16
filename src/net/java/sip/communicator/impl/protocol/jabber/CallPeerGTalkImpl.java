@@ -14,6 +14,7 @@ import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
+import org.jitsi.service.neomedia.*;
 import org.jivesoftware.smack.packet.*;
 
 /**
@@ -665,5 +666,26 @@ public class CallPeerGTalkImpl
     public String getEntity()
     {
         return getAddress();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Uses the direction of the media stream as a fallback.
+     * TODO: return the direction of the GTalk session?
+     */
+    @Override
+    public MediaDirection getDirection(MediaType mediaType)
+    {
+        MediaStream stream = getMediaHandler().getStream(mediaType);
+        if (stream != null)
+        {
+            MediaDirection direction = stream.getDirection();
+            return direction == null
+                    ? MediaDirection.INACTIVE
+                    : direction;
+        }
+
+        return MediaDirection.INACTIVE;
     }
 }

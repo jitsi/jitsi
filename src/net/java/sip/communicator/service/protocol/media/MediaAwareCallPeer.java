@@ -1165,4 +1165,21 @@ public abstract class MediaAwareCallPeer
             this.confInfoScheduled = confInfoScheduled;
         }
     }
+
+    /**
+     * Returns the direction of the session for media of type <tt>mediaType</tt>
+     * that we have with this <tt>CallPeer</tt>. This is the direction of the
+     * session negotiated in the signaling protocol, and it may or may not
+     * coincide with the direction of the media stream.
+     * For example, if we are the focus of a videobridge conference and another
+     * peer is sending video to us, we have a <tt>RECVONLY</tt> video stream,
+     * but <tt>SENDONLY</tt> or <tt>SENDRECV</tt> (Jingle) sessions with the
+     * rest of the conference members.
+     * Should always return non-null.
+     *
+     * @param mediaType the <tt>MediaType</tt> to use
+     * @return Returns the direction of the session for media of type
+     * <tt>mediaType</tt> that we have with this <tt>CallPeer</tt>.
+     */
+    public abstract MediaDirection getDirection(MediaType mediaType);
 }

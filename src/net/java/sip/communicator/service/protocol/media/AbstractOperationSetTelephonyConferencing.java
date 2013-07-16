@@ -487,35 +487,6 @@ public abstract class AbstractOperationSetTelephonyConferencing<
     }
 
     /**
-     * Gets the <tt>MediaDirection</tt> of the media RTP stream of a specific
-     * <tt>CallPeer</tt> with a specific <tt>MediaType</tt> from the point of
-     * view of the remote peer.
-     *
-     * @param callPeer
-     * @param mediaType
-     * @return the <tt>MediaDirection</tt> of the media RTP stream of a specific
-     * <tt>CallPeer</tt> with a specific <tt>MediaType</tt> from the point of
-     * view of the remote peer
-     */
-    protected MediaDirection getRemoteDirection(
-            MediaAwareCallPeer<?,?,?> callPeer,
-            MediaType mediaType)
-    {
-        MediaStream stream = callPeer.getMediaHandler().getStream(mediaType);
-        MediaDirection remoteDirection;
-
-        if (stream != null)
-        {
-            remoteDirection = stream.getDirection();
-            if (remoteDirection != null)
-                remoteDirection = remoteDirection.getReverseDirection();
-        }
-        else
-            remoteDirection = null;
-        return remoteDirection;
-    }
-
-    /**
      * Gets the remote SSRC to be reported in the conference-info XML for a
      * specific <tt>CallPeer</tt>'s media of a specific <tt>MediaType</tt>.
      *
@@ -1119,10 +1090,23 @@ public abstract class AbstractOperationSetTelephonyConferencing<
 
                 media.setType(mediaType.toString());
 
-                MediaDirection direction
-                        = remote
-                        ? getRemoteDirection(callPeer, mediaType)
-                        : stream.getDirection();
+                MediaDirection direction = MediaDirection.INACTIVE;
+                if (remote)
+                    direction
+                        = callPeer.getDirection(mediaType).getReverseDirection();
+                else
+                {
+                    if (mediaType == MediaType.AUDIO &&
+                            callPeer.getMediaHandler()
+                                    .isLocalAudioTransmissionEnabled())
+                        direction = direction.or(MediaDirection.SENDONLY);
+                    else if (mediaType == MediaType.VIDEO &&
+                            callPeer.isLocalVideoStreaming())
+                        direction = direction.or(MediaDirection.SENDONLY);
+
+                    if (callPeer.getDirection(mediaType).allowsReceiving())
+                        direction = direction.or(MediaDirection.RECVONLY);
+                }
 
                 if (direction == null)
                     direction = MediaDirection.INACTIVE;

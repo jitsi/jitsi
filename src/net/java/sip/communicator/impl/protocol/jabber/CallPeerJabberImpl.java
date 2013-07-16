@@ -1067,7 +1067,7 @@ public class CallPeerJabberImpl
     }
 
     /**
-     * Returns the <tt>MediaDirection</tt> that should be used for the content
+     * Returns the <tt>MediaDirection</tt> that should be set for the content
      * of type <tt>mediaType</tt> in the Jingle session for this
      * <tt>CallPeer</tt>.
      * If we are the focus of a conference and are doing RTP translation,
@@ -1079,7 +1079,7 @@ public class CallPeerJabberImpl
      * of type <tt>mediaType</tt> in the Jingle session for this
      * <tt>CallPeer</tt>.
      */
-    private MediaDirection getJingleDirection(MediaType mediaType)
+    private MediaDirection getDirectionForJingle(MediaType mediaType)
     {
         MediaDirection direction = MediaDirection.INACTIVE;
         CallPeerMediaHandlerJabberImpl mediaHandler = getMediaHandler();
@@ -1135,7 +1135,7 @@ public class CallPeerJabberImpl
     public void sendModifyVideoContent()
     {
         CallPeerMediaHandlerJabberImpl mediaHandler = getMediaHandler();
-        MediaDirection direction = getJingleDirection(MediaType.VIDEO);
+        MediaDirection direction = getDirectionForJingle(MediaType.VIDEO);
 
         ContentPacketExtension remoteContent
             = mediaHandler.getLocalContent(MediaType.VIDEO.toString());
@@ -1470,5 +1470,29 @@ public class CallPeerJabberImpl
     public String getEntity()
     {
         return getAddress();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * In Jingle there isn't an actual "direction" parameter. We use the
+     * <tt>senders</tt> field to calculate the direction.
+     */
+    @Override
+    public MediaDirection getDirection(MediaType mediaType)
+    {
+        SendersEnum senders = getMediaHandler().getSenders(mediaType);
+        if (senders == SendersEnum.none)
+            return MediaDirection.INACTIVE;
+        else if (senders == null || senders == SendersEnum.both)
+            return MediaDirection.SENDRECV;
+        else if (senders == SendersEnum.initiator)
+            return isInitiator()
+                ? MediaDirection.RECVONLY
+                : MediaDirection.SENDONLY;
+        else //senders == SendersEnum.responder
+            return isInitiator()
+                ? MediaDirection.SENDONLY
+                : MediaDirection.RECVONLY;
     }
 }
