@@ -877,6 +877,10 @@
       <arg value="${src}/native/addrbook/msoutlook/com/*.tlb"/>
       <arg value="${native_install_dir}/"/>
     </exec>
+    <exec executable="windres">
+      <arg value="${src}/native/addrbook/msoutlook/com/Resources32.rc" />
+      <arg value="${obj}/Resources.o"/>
+    </exec>
     <cc
         name="g++"
         objdir="${obj}"
@@ -901,6 +905,11 @@
     <exec executable="strip">
       <arg value="-x"/>
       <arg value="${native_install_dir}/jmsoutlookaddrbookcomserver32.exe"/>
+    </exec>
+
+    <exec executable="windres">
+      <arg value="${src}/native/addrbook/msoutlook/com/Resources64.rc" />
+      <arg value="${obj}/Resources.o"/>
     </exec>
     <cc
         name="g++"
