@@ -1131,8 +1131,10 @@ public class CallPeerJabberImpl
      * <tt>CallPeer</tt>, or content-remove if we stop video and video is
      * enabled for the <tt>CallPeer</tt>.
      *
+     * @return <tt>true</tt> if a modification was done (a Jingle message was
+     * sent).
      */
-    public void sendModifyVideoContent()
+    public boolean sendModifyVideoContent()
     {
         CallPeerMediaHandlerJabberImpl mediaHandler = getMediaHandler();
         MediaDirection direction = getDirectionForJingle(MediaType.VIDEO);
@@ -1145,7 +1147,7 @@ public class CallPeerJabberImpl
             if (direction == MediaDirection.INACTIVE)
             {
                 // no video content, none needed
-                return;
+                return false;
             }
             else
             {
@@ -1154,8 +1156,9 @@ public class CallPeerJabberImpl
                     if (logger.isInfoEnabled())
                         logger.info("Adding video content for " + this);
                     sendAddVideoContent();
+                    return true;
                 }
-                return;
+                return false;
             }
         }
         else
@@ -1165,7 +1168,7 @@ public class CallPeerJabberImpl
                 // We could send a content-remove in this case, but instead
                 // we just set senders=none
                 //sendRemoveVideoContent();
-                //return;
+                //return true;
             }
         }
 
@@ -1219,6 +1222,8 @@ public class CallPeerJabberImpl
         {
             logger.warn("Exception occurred during media reinitialization", e);
         }
+
+        return true;
     }
 
     /**

@@ -28,6 +28,15 @@ public class CallChangeEvent
     public static final String CALL_STATE_CHANGE = "CallState";
 
     /**
+     * The type of <tt>CallChangeEvent</tt> which indicates that there was some
+     * kind of change in the participants in the associated <tt>Call</tt> (e.g.
+     * a <tt>CallPeer</tt> participating in the <tt>Call</tt> has enabled
+     * or disabled video)
+     */
+    public static final String CALL_PARTICIPANTS_CHANGE
+            = "CallParticipantsChanged";
+
+    /**
      * Serial version UID.
      */
     private static final long serialVersionUID = 0L;

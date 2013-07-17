@@ -620,8 +620,13 @@ public class CallJabberImpl
         if (logger.isDebugEnabled())
             logger.debug("Updating video content for " + this);
 
+        boolean change = false;
         for (CallPeerJabberImpl peer : getCallPeerList())
-            peer.sendModifyVideoContent();
+            change |= peer.sendModifyVideoContent();
+
+        if (change)
+            fireCallChangeEvent(
+                    CallChangeEvent.CALL_PARTICIPANTS_CHANGE, null, null);
     }
 
     /**

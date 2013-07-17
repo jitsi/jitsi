@@ -664,6 +664,10 @@ public abstract class MediaAwareCall<
                      */
                     public void callStateChanged(CallChangeEvent evt)
                     {
+                        if (!CallChangeEvent.CALL_STATE_CHANGE
+                                .equals(evt.getPropertyName()))
+                            return;
+
                         if (CallState.CALL_ENDED.equals(evt.getNewValue()))
                             recorder.stop();
                     }

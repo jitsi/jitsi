@@ -308,6 +308,11 @@ public abstract class AbstractOperationSetTelephonyConferencing<
      */
     public void callStateChanged(CallChangeEvent event)
     {
+        if (CallChangeEvent.CALL_PARTICIPANTS_CHANGE
+                .equals(event.getPropertyName()))
+        {
+            notifyAll(event.getSourceCall());
+        }
     }
 
     /**

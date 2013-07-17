@@ -136,6 +136,9 @@ public class CallManager
                                 });
                         return;
                     }
+                    if (!CallChangeEvent.CALL_STATE_CHANGE
+                            .equals(ev.getPropertyName()))
+                        return;
 
                     // When the call state changes, we ensure here that the
                     // received call notification dialog is closed.

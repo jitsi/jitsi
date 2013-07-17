@@ -467,7 +467,9 @@ public class CallConference
             }
             finally
             {
-                if (CallState.CALL_ENDED.equals(ev.getNewValue()))
+                if (CallChangeEvent.CALL_STATE_CHANGE
+                        .equals(ev.getPropertyName())
+                    && CallState.CALL_ENDED.equals(ev.getNewValue()))
                 {
                     /*
                      * Should not be vital because Call will remove itself.

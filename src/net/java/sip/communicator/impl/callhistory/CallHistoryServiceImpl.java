@@ -1213,6 +1213,9 @@ public class CallHistoryServiceImpl
             // no such call
             if (callRecord == null)
                 return;
+            if (!CallChangeEvent.CALL_STATE_CHANGE
+                    .equals(evt.getPropertyName()))
+                return;
 
             if (evt.getNewValue().equals(CallState.CALL_ENDED))
             {

@@ -326,8 +326,7 @@ public abstract class Call
                         new CallChangeListener[callListeners.size()]);
         }
         for (CallChangeListener listener : listeners)
-            if(type.equals(CallChangeEvent.CALL_STATE_CHANGE))
-                listener.callStateChanged(event);
+            listener.callStateChanged(event);
     }
 
     /**
