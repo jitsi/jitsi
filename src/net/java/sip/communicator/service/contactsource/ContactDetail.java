@@ -472,6 +472,14 @@ public class ContactDetail
         Map<Class<? extends OperationSet>, String> preferredProtocols)
     {
         this.preferredProtocols = preferredProtocols;
+
+        // protocol added so an opset is supported, add it if missing
+        for(Class<? extends OperationSet> opsetClass
+                : preferredProtocols.keySet())
+        {
+            if(supportedOpSets == null || !supportedOpSets.contains(opsetClass))
+                addSupportedOpSet(opsetClass);
+        }
     }
 
     /**
