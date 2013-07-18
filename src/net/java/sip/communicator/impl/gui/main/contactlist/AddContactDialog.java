@@ -374,7 +374,7 @@ public class AddContactDialog
         {
             final ProtocolProviderService protocolProvider
                 = (ProtocolProviderService) accountCombo.getSelectedItem();
-            final String contactAddress = contactAddressField.getText();
+            final String contactAddress = contactAddressField.getText().trim();
             final String displayName = displayNameField.getText();
 
             if (!protocolProvider.isRegistered())
