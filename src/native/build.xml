@@ -878,6 +878,7 @@
       <arg value="${native_install_dir}/"/>
     </exec>
     <exec executable="windres">
+      <arg value="--target=pe-i386"/>
       <arg value="${src}/native/addrbook/msoutlook/com/Resources32.rc" />
       <arg value="${obj}/Resources.o"/>
     </exec>
@@ -894,6 +895,7 @@
 
       <linkerarg value="-ojmsoutlookaddrbookcomserver32.exe" />
       <linkerarg value="-m32" />
+      <linkerarg value="${obj}/Resources.o" location="mid" />
       <linkerarg value="-Wl,-Bstatic" location="end" if="is.running.windows" />
       <libset libs="uuid, ole32, oleaut32, msi, stdc++" />
 
@@ -908,6 +910,7 @@
     </exec>
 
     <exec executable="windres">
+      <arg value="--target=pe-x86-64"/>
       <arg value="${src}/native/addrbook/msoutlook/com/Resources64.rc" />
       <arg value="${obj}/Resources.o"/>
     </exec>
@@ -924,6 +927,7 @@
 
       <linkerarg value="-ojmsoutlookaddrbookcomserver64.exe" />
       <linkerarg value="-m64" />
+      <linkerarg value="${obj}/Resources.o" location="mid" />
       <linkerarg value="-Wl,-Bstatic" location="end" if="is.running.windows" />
       <libset libs="uuid, ole32, oleaut32, msi, stdc++" />
 
