@@ -234,16 +234,23 @@ public class TestMetaHistoryService
 
         // First cancel an out file transfer
         FileTransfer ft = mockFTOpSet.sendFile(testContact, files[0]);
-        mockFTOpSet.changeFileTransferStatus(ft, FileTransferStatusChangeEvent.CANCELED);
+        waitSeconds(200);
+        mockFTOpSet.changeFileTransferStatus(
+            ft, FileTransferStatusChangeEvent.CANCELED);
         // now receive a filetransfer and accept it
         TransferListener tl = new TransferListener(files[1].getName(), true, true);
         mockFTOpSet.addFileTransferListener(tl);
+        waitSeconds(200);
         mockFTOpSet.receiveFile(files[1], testContact);
         mockFTOpSet.removeFileTransferListener(tl);
 
+        waitSeconds(200);
         generateCall(participantAddresses.get(0));
+        waitSeconds(200);
         generateCall(participantAddresses.get(1));
+        waitSeconds(200);
         mockBImOpSet.deliverMessage(TEST_CONTACT_NAME_1, messagesToSend[0]);
+        waitSeconds(200);
         mockBImOpSet.deliverMessage(TEST_CONTACT_NAME_2, messagesToSend[1]);
 
         controlDate1 = new Date();
@@ -251,33 +258,50 @@ public class TestMetaHistoryService
         waitSeconds(200);
 
         generateCall(participantAddresses.get(2));
+        waitSeconds(200);
         generateCall(participantAddresses.get(3));
+        waitSeconds(200);
         mockBImOpSet.deliverMessage(TEST_CONTACT_NAME_1, messagesToSend[2]);
+        waitSeconds(200);
         mockBImOpSet.deliverMessage(TEST_CONTACT_NAME_2, messagesToSend[3]);
+        waitSeconds(200);
         // finish an out file transfer
         ft = mockFTOpSet.sendFile(testContact, files[2]);
-        mockFTOpSet.changeFileTransferStatus(ft, FileTransferStatusChangeEvent.COMPLETED);
+        waitSeconds(200);
+        mockFTOpSet.changeFileTransferStatus(
+            ft, FileTransferStatusChangeEvent.COMPLETED);
+        waitSeconds(200);
         // now receive a filetransfer and decline it
         tl = new TransferListener(files[3].getName(), false, false);
         mockFTOpSet.addFileTransferListener(tl);
         mockFTOpSet.receiveFile(files[3], testContact);
+        waitSeconds(200);
         mockFTOpSet.removeFileTransferListener(tl);
 
         controlDate2 = new Date();
         waitSeconds(200);
 
+        waitSeconds(200);
         generateCall(participantAddresses.get(4));
+        waitSeconds(200);
         generateCall(participantAddresses.get(5));
+        waitSeconds(200);
         // finish an out file transfer
         ft = mockFTOpSet.sendFile(testContact, files[4]);
+        waitSeconds(200);
         mockFTOpSet.changeFileTransferStatus(ft, FileTransferStatusChangeEvent.REFUSED);
+        waitSeconds(200);
         // now receive a filetransfer and decline it
         tl = new TransferListener(files[5].getName(), true, true);
         mockFTOpSet.addFileTransferListener(tl);
+        waitSeconds(200);
         mockFTOpSet.receiveFile(files[5], testContact);
+        waitSeconds(200);
         mockFTOpSet.removeFileTransferListener(tl);
         mockBImOpSet.deliverMessage(TEST_CONTACT_NAME_1, messagesToSend[4]);
+        waitSeconds(200);
         mockBImOpSet.deliverMessage(TEST_CONTACT_NAME_2, messagesToSend[5]);
+        waitSeconds(200);
     }
 
     private void generateCall(String participant)
@@ -407,7 +431,7 @@ public class TestMetaHistoryService
 
         msgs = getMessages(rs);
 
-        assertEquals("Messages must be 2", msgs.size(), 2);
+        assertEquals("Messages must be 2", 2, msgs.size());
 
         assertTrue("Message no found",
                    msgs.contains(messagesToSend[2].getContent()));
