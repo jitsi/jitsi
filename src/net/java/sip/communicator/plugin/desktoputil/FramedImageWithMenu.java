@@ -100,6 +100,20 @@ public class FramedImageWithMenu
     }
 
     /**
+     * Sets the image to display in the frame.
+     *
+     * @param image the image to display in the frame
+     */
+    public void setImageIcon(byte[] image)
+    {
+        // Intercept the action to validate the user icon and not the default
+        super.setImageIcon(image);
+        this.isDefaultImage = false;
+
+        this.currentImage = super.getImage();
+    }
+
+    /**
      * Returns the current image with no rounded corners. Only return the user
      * image and not the default image.
      *

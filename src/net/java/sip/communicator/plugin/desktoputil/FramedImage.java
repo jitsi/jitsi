@@ -117,7 +117,9 @@ public class FramedImage
      */
     public Image getImage()
     {
-        return icon.getImage();
+        if(icon != null)
+            return icon.getImage();
+        return null;
     }
 
     /**

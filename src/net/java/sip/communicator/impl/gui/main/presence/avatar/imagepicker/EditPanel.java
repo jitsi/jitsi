@@ -160,6 +160,8 @@ public class EditPanel
     {
         BufferedImage fullImage = getResizedImage(true);
 
+        if(fullImage == null)
+            return null;
 
         Rectangle clipping = this.imageClipper.getCroppedArea();
 
@@ -178,6 +180,9 @@ public class EditPanel
      */
     private BufferedImage getResizedImage(boolean hq)
     {
+        if(this.image == null)
+            return null;
+
         BufferedImage i = null;
         int size = this.imageSizeSlider.getValue();
 
