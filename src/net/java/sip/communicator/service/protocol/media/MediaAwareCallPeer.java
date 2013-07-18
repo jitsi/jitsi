@@ -1182,4 +1182,33 @@ public abstract class MediaAwareCallPeer
      * <tt>mediaType</tt> that we have with this <tt>CallPeer</tt>.
      */
     public abstract MediaDirection getDirection(MediaType mediaType);
+
+    /**
+     * {@inheritDoc}
+     *
+     * When a <tt>ConferenceMember</tt> is removed from a conference with a
+     * Jitsi-videobridge, an RTCP BYE packet is not always sent. Therefore,
+     * if the <tt>ConferenceMember</tt> had an associated video SSRC, the stream
+     * isn't be removed until it times out, leaving a blank video container in
+     * the interface for a few seconds.
+     * TODO: This works around the problem by removing the
+     * <tt>ConferenceMember</tt>'s <tt>ReceiveStream</tt> when the
+     * <tt>ConferenceMember</tt> is removed. The proper solution is to ensure
+     * that RTCP BYEs are sent whenever necessary, and when it is deployed this
+     * code should be removed.
+     *
+     * @param conferenceMember a <tt>ConferenceMember</tt> to be removed from
+     * the list of <tt>ConferenceMember</tt> reported by this peer. If the
+     * specified <tt>ConferenceMember</tt> is no contained in the list, no event
+     */
+    @Override
+    public void removeConferenceMember(ConferenceMember conferenceMember)
+    {
+        MediaStream videoStream = getMediaHandler().getStream(MediaType.VIDEO);
+        if (videoStream != null)
+            videoStream.removeReceiveStreamForSsrc(
+                    conferenceMember.getVideoSsrc());
+
+        super.removeConferenceMember(conferenceMember);
+    }
 }
