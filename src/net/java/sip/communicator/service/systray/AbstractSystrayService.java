@@ -295,6 +295,13 @@ public abstract class AbstractSystrayService
         {
             try
             {
+                Object service
+                        = bundleContext.getService(
+                                serviceEvent.getServiceReference());
+                // Event filters don't work on Android
+                if(!(service instanceof PopupMessageHandler))
+                    return;
+
                 PopupMessageHandler handler
                         = (PopupMessageHandler) bundleContext
                                 .getService(serviceEvent.getServiceReference());
