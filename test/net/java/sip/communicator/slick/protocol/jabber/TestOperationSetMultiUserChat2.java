@@ -418,6 +418,9 @@ public class TestOperationSetMultiUserChat2
 
         assertNotNull("createChatRoom returned null", opSet1Room);
 
+        /*
+        Room listing has been disabled on testing server,
+        so skip checks
         // and check if it exists on the server
         List<String> existingRooms = opSetMUC1.getExistingChatRooms();
 
@@ -429,6 +432,7 @@ public class TestOperationSetMultiUserChat2
             }
         }
         fail("the new created room is not listed on server");
+        */
     }
 
     /**
