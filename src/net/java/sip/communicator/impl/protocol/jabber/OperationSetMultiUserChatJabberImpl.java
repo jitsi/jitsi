@@ -75,6 +75,21 @@ public class OperationSetMultiUserChatJabberImpl
     }
 
     /**
+     * Add SmackInvitationRejectionListener to <tt>MultiUserChat</tt> instance
+     * which will dispatch all rejection events.
+     *
+     * @param muc the smack MultiUserChat instance that we're going to wrap our
+     * chat room around.
+     * @param chatRoom the associated chat room instance
+     */
+    public void addSmackInvitationRejectionListener(MultiUserChat muc, 
+        ChatRoom chatRoom)
+    {
+        muc.addInvitationRejectionListener(
+            new SmackInvitationRejectionListener(chatRoom));
+    }
+
+    /**
      * Creates a room with the named <tt>roomName</tt> and according to the
      * specified <tt>roomProperties</tt> on the server that this protocol
      * provider is currently connected to.
@@ -168,8 +183,7 @@ public class OperationSetMultiUserChatJabberImpl
             // Add the contained in this class SmackInvitationRejectionListener
             // which will dispatch all rejection events to the
             // ChatRoomInvitationRejectionListener.
-            muc.addInvitationRejectionListener(
-                new SmackInvitationRejectionListener(chatRoom));
+            addSmackInvitationRejectionListener(muc, chatRoom);
 
             return chatRoom;
         }
@@ -200,26 +214,12 @@ public class OperationSetMultiUserChatJabberImpl
         if (room != null)
             return room;
 
-        try
-        {
-            // throws Exception if room does not exist
-            // do not use MultiUserChat.getRoomInfo as there is a bug which
-            // throws NPE
-            ServiceDiscoveryManager.getInstanceFor(getXmppConnection()).
-                discoverInfo(canonicalRoomName);
+        MultiUserChat muc
+            = new MultiUserChat(getXmppConnection(), canonicalRoomName);
 
-            MultiUserChat muc
-                = new MultiUserChat(getXmppConnection(), canonicalRoomName);
-
-            room = new ChatRoomJabberImpl(muc, jabberProvider);
-            chatRoomCache.put(canonicalRoomName, room);
-            return room;
-        }
-        catch (XMPPException e)
-        {
-            // room not found
-            return null;
-        }
+        room = new ChatRoomJabberImpl(muc, jabberProvider);
+        chatRoomCache.put(canonicalRoomName, room);
+        return room;
     }
 
     /**
@@ -597,11 +597,6 @@ public class OperationSetMultiUserChatJabberImpl
             try
             {
                 chatRoom = (ChatRoomJabberImpl) findRoom(room);
-                if (chatRoom == null)
-                {
-                    MultiUserChat muc = new MultiUserChat(conn, room);
-                    chatRoom = new ChatRoomJabberImpl(muc, jabberProvider);
-                }
                 if (password != null)
                     fireInvitationEvent(
                         chatRoom, inviter, reason, password.getBytes());
