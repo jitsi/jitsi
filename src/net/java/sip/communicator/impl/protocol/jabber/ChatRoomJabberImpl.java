@@ -504,13 +504,6 @@ public class ChatRoomJabberImpl
             }
             else
             {
-                this.provider.getConnection().addPacketListener(
-                    new PresenceListeners(this),
-                    new AndFilter(
-                        new FromMatchesFilter(
-                            multiUserChat.getRoom() + "/" + this.nickname),
-                        new PacketTypeFilter(
-                            org.jivesoftware.smack.packet.Presence.class)));
                 if(password == null)
                     multiUserChat.join(nickname);
                 else
@@ -2330,62 +2323,6 @@ public class ChatRoomJabberImpl
     MultiUserChat getMultiUserChat()
     {
         return multiUserChat;
-    }
-    
-    /**
-     * Listens for presence packets.
-     */
-    private class PresenceListeners
-    implements PacketListener
-    {
-        /**
-         * Chat room associated with the listener.
-         */
-        private ChatRoom chatRoom;
-        
-        /**
-         * Creates an instance of a listener of presence packets.
-         *
-         * @param chatRoom the chat room associated with the listener
-         */
-        public PresenceListeners(ChatRoom chatRoom)
-        {
-            super();
-            this.chatRoom = chatRoom;
-        }
-        
-        /**
-         * Process incoming presence packet, checks if the room is created and 
-         * finishes the creation of the room.
-         * @param packet the incoming packet.
-         */
-        @Override
-        public void processPacket(Packet packet)
-        {
-            Presence presence = (Presence) packet;
-            if (presence == null || presence.getError() != null) 
-                return;
-            
-            MUCUser mucUser = getMUCUserExtension(packet);
-            if (mucUser != null && mucUser.getStatus() != null) {
-                if ("201".equals(mucUser.getStatus().getCode())) {
-                   try
-                   {
-                       multiUserChat.sendConfigurationForm(
-                           new Form(Form.TYPE_SUBMIT));
-                   } catch (XMPPException e)
-                   {
-                       logger.error("Failed to send config form.", e);
-                   }
-                   opSetMuc.addSmackInvitationRejectionListener(multiUserChat, 
-                       chatRoom);
-                   setLocalUserRole(ChatRoomMemberRole.MODERATOR);
-                   provider.getConnection().removePacketListener(this);
-                }
-            }
-        }
-        
-        
     }
 
     /**
