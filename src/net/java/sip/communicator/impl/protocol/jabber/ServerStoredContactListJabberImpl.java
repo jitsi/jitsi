@@ -967,7 +967,7 @@ public class ServerStoredContactListJabberImpl
      *
      * @return ContactGroupJabberImpl
      */
-    private ContactGroupJabberImpl getNonPersistentGroup()
+    ContactGroupJabberImpl getNonPersistentGroup()
     {
         for (int i = 0; i < getRootGroup().countSubgroups(); i++)
         {

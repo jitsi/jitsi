@@ -503,6 +503,15 @@ public class ContactJabberImpl
      */
     void updateResources()
     {
+        updateResources(true);
+    }
+
+    /**
+     * Updates the resources for this contact.
+     * @param removeUnavailable whether to remove unavailable resources.
+     */
+    private void updateResources(boolean removeUnavailable)
+    {
         if (jid == null)
             return;
 
@@ -566,6 +575,9 @@ public class ContactJabberImpl
             }
         }
 
+        if(!removeUnavailable)
+            return;
+
         Iterator<String> resourceIter = resources.keySet().iterator();
         while (resourceIter.hasNext())
         {
@@ -587,5 +599,18 @@ public class ContactJabberImpl
                 }
             }
         }
+    }
+
+    /**
+     * Used from volatile contacts to handle jid and resources.
+     * Volatile contacts are always unavailable so do not remove their
+     * resources from the contact as it will be the only resource we will use.
+     * @param fullJid the full jid of the contact.
+     */
+    protected void setJid(String fullJid)
+    {
+        this.jid = fullJid;
+
+        updateResources(false);
     }
 }

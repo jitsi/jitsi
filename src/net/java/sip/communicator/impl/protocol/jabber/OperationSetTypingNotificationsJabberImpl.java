@@ -357,7 +357,7 @@ public class OperationSetTypingNotificationsJabberImpl
             if(sourceContact == null)
             {
                 //create the volatile contact
-                sourceContact = opSetPersPresence.createVolatileContact(fromID);
+                sourceContact = opSetPersPresence.createVolatileContact(from);
             }
 
             fireTypingNotificationsEvent(sourceContact, STATE_TYPING);
@@ -375,7 +375,7 @@ public class OperationSetTypingNotificationsJabberImpl
             if(sourceContact == null)
             {
                 //create the volatile contact
-                sourceContact = opSetPersPresence.createVolatileContact(fromID);
+                sourceContact = opSetPersPresence.createVolatileContact(from);
             }
 
             fireTypingNotificationsEvent(sourceContact, STATE_STOPPED);
@@ -411,7 +411,8 @@ public class OperationSetTypingNotificationsJabberImpl
             if(sourceContact == null)
             {
                 //create the volatile contact
-                sourceContact = opSetPersPresence.createVolatileContact(fromID);
+                sourceContact = opSetPersPresence.createVolatileContact(
+                    chat.getParticipant());
             }
 
             int evtCode = STATE_UNKNOWN;

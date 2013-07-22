@@ -178,9 +178,19 @@ public class OperationSetPersistentPresenceJabberImpl
      * @param id the address of the contact to create.
      * @return the newly created volatile <tt>ContactImpl</tt>
      */
-    public ContactJabberImpl createVolatileContact(String id)
+    public synchronized ContactJabberImpl createVolatileContact(String id)
     {
-        return ssContactList.createVolatileContact(id);
+        // first check for already created one.
+        ContactGroupJabberImpl notInContactListGroup =
+            ssContactList.getNonPersistentGroup();
+        ContactJabberImpl sourceContact;
+        if(notInContactListGroup != null
+            && (sourceContact = notInContactListGroup.findContact(
+                                    StringUtils.parseBareAddress(id)))
+                != null)
+            return sourceContact;
+        else
+            return ssContactList.createVolatileContact(id);
     }
 
     /**

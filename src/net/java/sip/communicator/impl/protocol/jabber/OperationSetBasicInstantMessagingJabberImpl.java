@@ -787,7 +787,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
                                    + fromUserID);
                 //create the volatile contact
                 sourceContact = opSetPersPresence
-                    .createVolatileContact(fromUserID);
+                    .createVolatileContact(msg.getFrom());
             }
 
             Date timestamp = new Date();

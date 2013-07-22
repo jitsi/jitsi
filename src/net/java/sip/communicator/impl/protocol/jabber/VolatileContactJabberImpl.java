@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
+import org.jivesoftware.smack.util.*;
+
 /**
  * The Jabber implementation for Volatile Contact
  * @author Damian Minkov
@@ -27,7 +29,13 @@ public class VolatileContactJabberImpl
                               ServerStoredContactListJabberImpl ssclCallback)
     {
         super(null, ssclCallback, false, false);
-        this.contactId = id;
+        this.contactId = StringUtils.parseBareAddress(id);
+
+        String resource = StringUtils.parseResource(id);
+        if(resource != null)
+        {
+            setJid(id);
+        }
     }
 
     /**
