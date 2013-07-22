@@ -919,6 +919,12 @@ public class ImageLoader
      */
     public static final ImageID CHAT_ROOM_16x16_ICON
         = new ImageID("service.gui.icons.CHAT_ROOM_16x16_ICON");
+    
+    /**
+     * The image used for joined chat rooms.
+     */
+    public static final ImageID CHAT_ROOM_JOINED_ICON
+        = new ImageID("service.gui.icons.CHAT_ROOM_JOINED_ICON");
 
     /**
      * The image used for multi user chat servers.

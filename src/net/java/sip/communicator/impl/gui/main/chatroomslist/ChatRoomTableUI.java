@@ -325,14 +325,18 @@ public class ChatRoomTableUI
 
             this.setText(chatRoom.getChatRoomName());
 
-            Image chatRoomImage = ImageLoader
-                .getImage(ImageLoader.CHAT_ROOM_16x16_ICON);
+            Image chatRoomImage = null;
 
             if(chatRoom.getChatRoom() == null ||
                 !chatRoom.getChatRoom().isJoined())
             {
-                chatRoomImage
-                    = LightGrayFilter.createDisabledImage(chatRoomImage);
+                chatRoomImage = ImageLoader
+                    .getImage(ImageLoader.CHAT_ROOM_16x16_ICON);
+            }
+            else
+            {
+                chatRoomImage = ImageLoader
+                    .getImage(ImageLoader.CHAT_ROOM_JOINED_ICON);
             }
 
             this.setIcon(new ImageIcon(chatRoomImage));
