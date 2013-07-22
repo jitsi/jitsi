@@ -1165,10 +1165,8 @@ public class CallPeerJabberImpl
         {
             if (direction == MediaDirection.INACTIVE)
             {
-                // We could send a content-remove in this case, but instead
-                // we just set senders=none
-                //sendRemoveVideoContent();
-                //return true;
+                sendRemoveVideoContent();
+                return true;
             }
         }
 
@@ -1290,6 +1288,8 @@ public class CallPeerJabberImpl
         ContentPacketExtension content = new ContentPacketExtension();
         ContentPacketExtension remoteContent
             = mediaHandler.getRemoteContent(MediaType.VIDEO.toString());
+        if (remoteContent == null)
+            return;
         String remoteContentName = remoteContent.getName();
 
         content.setName(remoteContentName);
