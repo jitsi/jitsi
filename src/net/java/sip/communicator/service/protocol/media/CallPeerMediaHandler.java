@@ -1846,8 +1846,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
                  * send the hole-punch packet anyway to let the remote video
                  * reach this local peer.
                  */
-                if (stream instanceof VideoMediaStream
-                        && !getPeer().isJitsiVideoBridge())
+                if (stream instanceof VideoMediaStream)
                     sendHolePunchPacket(stream.getTarget());
             }
         }
