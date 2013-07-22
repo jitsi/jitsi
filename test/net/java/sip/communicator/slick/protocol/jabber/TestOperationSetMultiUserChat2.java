@@ -529,6 +529,10 @@ public class TestOperationSetMultiUserChat2
         opSet1Room.join();
 
         ChatRoom foundRoom = null;
+        /*
+         //findRoom always returns ChatRoom instance. If it doesn't exists in 
+         //the cache it creates an instance of ChatRoom.
+        
         try
         {
             foundRoom = opSetMUC1.findRoom("WhoCreatedThatRoom");
@@ -539,7 +543,7 @@ public class TestOperationSetMultiUserChat2
         }
         assertNull("wasnt expecting to find the room named " +
             "'WhoCreatedThatRoom' on server", foundRoom);
-
+*/
         // to find the existing room created with opSetMUC1,
         // we will use opSetMUC2 to be sure the room will not be retrieved from
         // opSetMUC1 cache
