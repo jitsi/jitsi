@@ -100,6 +100,17 @@ public class CallJabberImpl
             ColibriStreamConnector colibriStreamConnector)
     {
         colibriStreamConnector.close();
+        synchronized (colibriStreamConnectors)
+        {
+            int index = mediaType.ordinal();
+            WeakReference<ColibriStreamConnector> weakReference
+                    = colibriStreamConnectors.get(index);
+            if (weakReference != null && colibriStreamConnector
+                    .equals(weakReference.get()))
+            {
+                colibriStreamConnectors.set(index, null);
+            }
+        }
     }
 
     /**
