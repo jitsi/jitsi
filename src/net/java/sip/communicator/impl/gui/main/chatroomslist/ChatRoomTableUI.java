@@ -76,6 +76,7 @@ public class ChatRoomTableUI
 
         this.chatRoomList.setOpaque(false);
         this.chatRoomList.setModel(chatRoomsTableModel);
+        this.chatRoomList.setRowHeight(32);
 
         /*
          * XXX The ConferenceChatManager instance will surely outlive
