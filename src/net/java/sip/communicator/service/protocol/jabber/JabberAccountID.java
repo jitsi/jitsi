@@ -95,6 +95,14 @@ public class JabberAccountID
     }
 
     /**
+     * Default constructor for serialization purposes.
+     */
+    public JabberAccountID()
+    {
+        this(null, new HashMap<String, String>());
+    }
+
+    /**
      * Returns the override phone suffix.
      *
      * @return the phone suffix
