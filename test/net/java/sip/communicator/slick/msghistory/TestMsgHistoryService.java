@@ -69,6 +69,8 @@ public class TestMsgHistoryService
 
     private static Date controlDate1 = null;
     private static Date controlDate2 = null;
+    
+    private static Object lock = new Object();
 
     public TestMsgHistoryService(String name)
     {
@@ -392,6 +394,21 @@ public class TestMsgHistoryService
                    msgs.contains(messagesToSend[2].getContent()));
     }
 
+    private static void waitWrite(long timeout)
+    {
+        synchronized (lock)
+        {
+            // wait a moment
+            try
+            {
+                lock.wait(timeout);
+            }
+            catch (InterruptedException ex)
+            {
+            }
+        }
+    }
+    
     public void writeRecordsToMultiChat()
     {
         try
@@ -407,39 +424,26 @@ public class TestMsgHistoryService
 
             TestMsgHistoryService.controlDate1 = new Date();
 
-            Object lock = new Object();
-            synchronized (lock)
-            {
-                // wait a moment
-                try
-                {
-                    lock.wait(200);
-                }
-                catch (InterruptedException ex)
-                {
-                }
-            }
+            waitWrite(200);
+            
 
             room.sendMessage(messagesToSend[1]);
 
+            waitWrite(200);
+            
             room.sendMessage(messagesToSend[2]);
 
             TestMsgHistoryService.controlDate2 = new Date();
-            synchronized (lock)
-            {
-                // wait a moment
-                try
-                {
-                    lock.wait(200);
-                }
-                catch (InterruptedException ex)
-                {
-                }
-            }
+            
+            waitWrite(200);
 
             room.sendMessage(messagesToSend[3]);
-
+            
+            waitWrite(200);
+            
             room.sendMessage(messagesToSend[4]);
+            
+            waitWrite(200);
         }
         catch(OperationFailedException ex)
         {
