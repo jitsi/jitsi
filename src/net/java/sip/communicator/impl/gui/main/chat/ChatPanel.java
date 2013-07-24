@@ -77,6 +77,13 @@ public class ChatPanel
 
     private final ChatConversationPanel conversationPanel;
 
+    /**
+     * Will contain the typing panel on south and centered the
+     * conversation panel.
+     */
+    private final JPanel conversationPanelContainer
+        = new JPanel(new BorderLayout());
+
     private final ChatWritePanel writeMessagePanel;
 
     private ChatRoomMemberListPanel chatContactListPanel;
@@ -165,10 +172,14 @@ public class ChatPanel
         this.conversationPanel.getChatTextPane()
             .setTransferHandler(new ChatTransferHandler(this));
 
+        this.conversationPanelContainer.add(
+            conversationPanel, BorderLayout.CENTER);
+        this.conversationPanelContainer.setBackground(Color.WHITE);
+        initTypingNotificationLabel(conversationPanelContainer);
+
         topPanel.setBackground(Color.WHITE);
         topPanel.setBorder(
             BorderFactory.createMatteBorder(1, 0, 1, 0, Color.GRAY));
-        initTypingNotificationLabel();
 
         this.writeMessagePanel = new ChatWritePanel(this);
 
@@ -207,7 +218,7 @@ public class ChatPanel
         if ((this.chatSession != null)
                 && this.chatSession.isContactListSupported())
         {
-            topPanel.remove(conversationPanel);
+            topPanel.remove(conversationPanelContainer);
 
             TransparentPanel rightPanel
                 = new TransparentPanel(new BorderLayout(5, 5));
@@ -236,7 +247,7 @@ public class ChatPanel
             rightPanel.add(localUserLabel, BorderLayout.NORTH);
             rightPanel.add(chatContactListPanel, BorderLayout.CENTER);
 
-            topSplitPane.setLeftComponent(conversationPanel);
+            topSplitPane.setLeftComponent(conversationPanelContainer);
             topSplitPane.setRightComponent(rightPanel);
 
             topPanel.add(topSplitPane);
@@ -255,7 +266,7 @@ public class ChatPanel
                 topSplitPane = null;
             }
 
-            topPanel.add(conversationPanel);
+            topPanel.add(conversationPanelContainer);
         }
 
         if (chatSession instanceof MetaContactChatSession)
@@ -434,8 +445,10 @@ public class ChatPanel
 
     /**
      * Initializes the typing notification label.
+     * @param typingLabelParent the parent container
+     *                          of typing notification label.
      */
-    private void initTypingNotificationLabel()
+    private void initTypingNotificationLabel(JPanel typingLabelParent)
     {
         typingNotificationLabel
             = new JLabel(" ", SwingConstants.CENTER);
@@ -447,7 +460,7 @@ public class ChatPanel
         typingNotificationLabel.setVerticalTextPosition(JLabel.BOTTOM);
         typingNotificationLabel.setHorizontalTextPosition(JLabel.LEFT);
         typingNotificationLabel.setIconTextGap(0);
-        topPanel.add(typingNotificationLabel, BorderLayout.SOUTH);
+        typingLabelParent.add(typingNotificationLabel, BorderLayout.SOUTH);
     }
 
     /**
