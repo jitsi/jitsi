@@ -589,8 +589,22 @@ public class MetaContactChatSession
     @Override
     public ImageIcon getChatStatusIcon()
     {
-        PresenceStatus status
-            = this.metaContact.getDefaultContact().getPresenceStatus();
+        if (this.metaContact == null)
+        {
+            return null;
+        }
+
+        Contact c = this.metaContact.getDefaultContact();
+        if (c == null)
+        {
+            return null;
+        }
+
+        PresenceStatus status = c.getPresenceStatus();
+        if (status == null)
+        {
+            return null;
+        }
 
         return new ImageIcon(Constants.getStatusIcon(status));
     }
