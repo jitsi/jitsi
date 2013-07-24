@@ -602,7 +602,7 @@ public class HistoryReaderImpl
             }
         }
 
-//      if maximum value is not reached fire an event
+        // if maximum value is not reached fire an event
         if((int)currentProgress
                 < HistorySearchProgressListener.PROGRESS_MAXIMUM_VALUE)
         {
@@ -624,21 +624,21 @@ public class HistoryReaderImpl
      */
     static boolean isInPeriod(Date timestamp, Date startDate, Date endDate)
     {
+        Long startLong;
+        Long endLong;
+        Long tsLong = timestamp.getTime();
+
         if(startDate == null)
-        {
-            if(endDate == null)
-                return true;
-            else
-                return timestamp.before(endDate);
-        }
+            startLong = Long.MIN_VALUE;
         else
-        {
-            if(endDate == null)
-                return timestamp.after(startDate);
-            else
-                return
-                    timestamp.after(startDate) && timestamp.before(endDate);
-        }
+            startLong = startDate.getTime();
+
+        if(endDate == null)
+            endLong = Long.MAX_VALUE;
+        else
+            endLong = endDate.getTime();
+
+        return startLong <= tsLong && tsLong < endLong;
     }
 
     /**
@@ -803,70 +803,40 @@ public class HistoryReaderImpl
         // Temporary fix of a NoSuchElementException
         if(files.size() == 0)
         {
-            Vector<String> result = new Vector<String>();
-            Iterator<Long> iter = resultAsLong.iterator();
-
-            while (iter.hasNext())
-            {
-                Long item = iter.next();
-                result.add(item.toString() + ".xml");
-            }
-            return result;
+            return new Vector<String>();
         }
 
-        // if there is no startDate limit only to end date
+        Long startLong;
+        Long endLong;
+
         if(startDate == null)
-        {
-            Long endLong = Long.valueOf(endDate.getTime());
-            files.add(endLong);
-
-            resultAsLong.addAll(files.subSet(files.first(), endLong));
-
-            resultAsLong.remove(endLong);
-        }
-        else if(endDate == null)
-        {
-            // end date is null get all the inclusive the one record before the startdate
-            Long startLong = Long.valueOf(startDate.getTime());
-
-            if(files.size() > 0 &&
-               (startLong.longValue() < (files.first()).longValue()))
-            {
-                // if the start date is before any existing file date
-                // then return all the files
-                resultAsLong = files;
-            }
-            else
-            {
-                files.add(startLong);
-
-                resultAsLong.addAll(files.subSet(startLong, files.last()));
-                resultAsLong.add(files.last());
-
-                // here we must get and the element before startLong
-                resultAsLong.add(files.subSet(files.first(), startLong).last());
-                resultAsLong.remove(startLong);
-            }
-        }
+            startLong = Long.MIN_VALUE;
         else
+            startLong = startDate.getTime();
+
+        if(endDate == null)
+            endLong = Long.MAX_VALUE;
+        else
+            endLong = endDate.getTime();
+
+        // get all records inclusive the one before the startdate
+        for(Long f : files)
         {
-            // if both are present we must return all the elements between
-            // the two dates and the one before the start date
-            Long startLong = Long.valueOf(startDate.getTime());
-            Long endLong = Long.valueOf(endDate.getTime());
-            files.add(startLong);
-            files.add(endLong);
+            if(startLong <= f
+               && f <= endLong)
+            {
+                resultAsLong.add(f);
+            }
+        }
 
-            resultAsLong.addAll(files.subSet(startLong, endLong));
-
-            // here we must get and the element before startLong
-            SortedSet<Long> theFirstToStart
-                = files.subSet(files.first(), startLong);
-            if(!theFirstToStart.isEmpty())
-                resultAsLong.add(theFirstToStart.last());
-
-            resultAsLong.remove(startLong);
-            resultAsLong.remove(endLong);
+        // get the subset before the start date, to get its last element
+        // if exists
+        if(!files.isEmpty() && files.first() <= startLong)
+        {
+            SortedSet<Long> setBeforeTheInterval =
+                files.subSet(files.first(), true, startLong, true);
+            if(!setBeforeTheInterval.isEmpty())
+                resultAsLong.add(setBeforeTheInterval.last());
         }
 
         Vector<String> result = new Vector<String>();
