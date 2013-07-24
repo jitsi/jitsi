@@ -198,39 +198,23 @@ public class TestMsgHistoryService
         mockBImOpSet.deliverMessage(TEST_CONTACT_NAME_1, messagesToSend[0]);
         mockBImOpSet.deliverMessage(TEST_CONTACT_NAME_2, messagesToSend[0]);
 
+        waitWrite(100);
+
         TestMsgHistoryService.controlDate1 = new Date();
         logger.info("controlDate1:" + controlDate1.getTime());
 
-        Object lock = new Object();
-        synchronized (lock)
-        {
-            // wait a moment
-            try
-            {
-                lock.wait(200);
-            }
-            catch (InterruptedException ex)
-            {
-            }
-        }
+        waitWrite(100);
 
         mockBImOpSet.deliverMessage(TEST_CONTACT_NAME_1, messagesToSend[1]);
 
         mockBImOpSet.deliverMessage(TEST_CONTACT_NAME_2, messagesToSend[2]);
 
+        waitWrite(100);
+
         TestMsgHistoryService.controlDate2 = new Date();
-        logger.info("controlDate2:" + controlDate1.getTime());
-        synchronized (lock)
-        {
-            // wait a moment
-            try
-            {
-                lock.wait(200);
-            }
-            catch (InterruptedException ex)
-            {
-            }
-        }
+        logger.info("controlDate2:" + controlDate2.getTime());
+
+        waitWrite(100);
 
         mockBImOpSet.deliverMessage(TEST_CONTACT_NAME_1, messagesToSend[3]);
 
@@ -436,6 +420,8 @@ public class TestMsgHistoryService
             waitWrite(100);
 
             room.sendMessage(messagesToSend[2]);
+
+            waitWrite(100);
 
             TestMsgHistoryService.controlDate2 = new Date();
             logger.info("controlDate2:" + controlDate2.getTime());
