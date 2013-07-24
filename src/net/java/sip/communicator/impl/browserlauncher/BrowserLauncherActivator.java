@@ -9,59 +9,31 @@ package net.java.sip.communicator.impl.browserlauncher;
 import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.util.*;
 
-import org.osgi.framework.*;
-
 /**
  * Implements <tt>BundleActivator</tt> for the browserlauncher bundle.
  *
  * @author Yana Stamcheva
  * @author Lubomir Marinov
+ * @author Pawel Domas
  */
 public class BrowserLauncherActivator
-    implements BundleActivator
+    extends SimpleServiceActivator<BrowserLauncherImpl>
 {
 
     /**
-     * The <tt>Logger</tt> instance used by the
-     * <tt>BrowserLauncherActivator</tt> class and its instances for logging
-     * output.
+     * Creates new instance of <tt>BrowserLauncherActivator</tt>.
      */
-    private static final Logger logger
-        = Logger.getLogger(BrowserLauncherActivator.class);
-
-    /**
-     * Initialize and start the service.
-     *
-     * @param bundleContext the <tt>BundleContext</tt>
-     * @throws Exception if initializing and starting this service fails
-     */
-    public void start(BundleContext bundleContext)
-        throws Exception
+    public BrowserLauncherActivator()
     {
-        //Create the browser launcher service
-        BrowserLauncherService browserLauncher = new BrowserLauncherImpl();
-
-        if (logger.isInfoEnabled())
-            logger.info("Browser Launcher Service STARTED");
-
-        bundleContext
-            .registerService(
-                BrowserLauncherService.class.getName(),
-                browserLauncher,
-                null);
-
-        if (logger.isInfoEnabled())
-            logger.info("Browser Launcher Service REGISTERED");
+        super(BrowserLauncherService.class, "Browser Launcher Service");
     }
 
     /**
-     * Stops this bundle.
-     *
-     * @param bundleContext the <tt>BundleContext</tt>
-     * @throws Exception if the stop operation goes wrong
+     * {@inheritDoc}
      */
-    public void stop(BundleContext bundleContext)
-        throws Exception
+    @Override
+    protected BrowserLauncherImpl createServiceImpl()
     {
+        return new BrowserLauncherImpl();
     }
 }

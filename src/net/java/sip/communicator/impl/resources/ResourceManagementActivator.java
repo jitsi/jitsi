@@ -8,46 +8,34 @@ package net.java.sip.communicator.impl.resources;
 
 import net.java.sip.communicator.util.*;
 
-import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
 
 /**
  * Starts Resource Management Service.
  * @author Damian Minkov
+ * @author Pawel Domas
  */
 public class ResourceManagementActivator
-    implements BundleActivator
+    extends SimpleServiceActivator<ResourceManagementServiceImpl>
 {
-    private Logger logger =
-        Logger.getLogger(ResourceManagementActivator.class);
-
     static BundleContext bundleContext;
 
-    private ResourceManagementServiceImpl resPackImpl = null;
-
-    private static ConfigurationService configService;
-
     /**
-     * Starts this bundle.
-     *
-     * @param bc the osgi bundle context
-     * @throws Exception
+     * Creates new instance of <tt>ResourceManagementActivator</tt>
      */
-    public void start(BundleContext bc) throws Exception
+    public ResourceManagementActivator()
+    {
+        super(ResourceManagementService.class, "Resource manager");
+    }
+
+    @Override
+    public void start(BundleContext bc)
+            throws Exception
     {
         bundleContext = bc;
 
-        resPackImpl =
-            new ResourceManagementServiceImpl();
-
-        bundleContext.registerService(
-                ResourceManagementService.class.getName(),
-                resPackImpl,
-                null);
-
-        if (logger.isInfoEnabled())
-            logger.info("Resource manager ... [REGISTERED]");
+        super.start(bc);
     }
 
     /**
@@ -58,27 +46,15 @@ public class ResourceManagementActivator
      */
     public void stop(BundleContext bc) throws Exception
     {
-        bc.removeServiceListener(resPackImpl);
-
-        configService = null;
+        bc.removeServiceListener(serviceImpl);
     }
 
     /**
-     * Returns the <tt>ConfigurationService</tt> obtained from the bundle
-     * context.
-     * @return the <tt>ConfigurationService</tt> obtained from the bundle
-     * context
+     * {@inheritDoc}
      */
-    public static ConfigurationService getConfigurationService()
+    @Override
+    protected ResourceManagementServiceImpl createServiceImpl()
     {
-        if(configService == null) {
-            ServiceReference configReference = bundleContext
-                .getServiceReference(ConfigurationService.class.getName());
-
-            configService = (ConfigurationService) bundleContext
-                .getService(configReference);
-        }
-
-        return configService;
+        return new ResourceManagementServiceImpl();
     }
 }
