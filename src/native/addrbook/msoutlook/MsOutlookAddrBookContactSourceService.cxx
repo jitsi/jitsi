@@ -453,9 +453,11 @@ HRESULT MsOutlookAddrBookContactSourceService_MAPIInitializeCOMServer(void)
     MAPISession_lock();
 
     // Start COM service
-    hr = MsOutlookAddrBookContactSourceService_startComServer();
-    // Start COM client
-    ComClient_start();
+    if((hr = MsOutlookAddrBookContactSourceService_startComServer()) == S_OK)
+    {
+        // Start COM client
+        ComClient_start();
+    }
 
     MAPISession_unlock();
 
@@ -590,47 +592,51 @@ MsOutlookAddrBookContactSourceService_isValidDefaultMailClient
  */
 HRESULT MsOutlookAddrBookContactSourceService_startComServer(void)
 {
-    // Start COM service
-    char applicationName32[] = "jmsoutlookaddrbookcomserver32.exe";
-    char applicationName64[] = "jmsoutlookaddrbookcomserver64.exe";
-    char * applicationName = applicationName32;
-    if(MAPIBitness_getOutlookBitnessVersion() == 64)
+    int bitness = MAPIBitness_getOutlookBitnessVersion();
+    if(bitness != -1)
     {
-        applicationName = applicationName64;
-    }
-    int applicationNameLength = strlen(applicationName);
-    char currentDirectory[FILENAME_MAX - applicationNameLength - 8];
-    GetCurrentDirectory(
-            FILENAME_MAX - applicationNameLength - 8,
-            currentDirectory);
-    char comServer[FILENAME_MAX];
-    sprintf(comServer, "%s/native/%s", currentDirectory, applicationName);
-
-    STARTUPINFO startupInfo;
-    PROCESS_INFORMATION processInfo;
-    memset(&startupInfo, 0, sizeof(startupInfo));
-    memset(&processInfo, 0, sizeof(processInfo));
-    startupInfo.dwFlags = STARTF_USESHOWWINDOW;
-    startupInfo.wShowWindow = SW_HIDE;
-
-    // Test 2 files: 0 for the build version, 1 for the git source version.
-    char * serverExec[2];
-    serverExec[0] = comServer;
-    serverExec[1] = applicationName;
-    for(int i = 0; i < 2; ++i)
-    {
-        // Create the COM server
-        if(CreateProcess(
-                    NULL,
-                    serverExec[i],
-                    NULL, NULL, false, 0, NULL, NULL,
-                    &startupInfo,
-                    &processInfo))
+        // Start COM service
+        char applicationName32[] = "jmsoutlookaddrbookcomserver32.exe";
+        char applicationName64[] = "jmsoutlookaddrbookcomserver64.exe";
+        char * applicationName = applicationName32;
+        if(bitness == 64)
         {
-            MsOutlookAddrBookContactSourceService_comServerHandle
-                = processInfo.hProcess;
+            applicationName = applicationName64;
+        }
+        int applicationNameLength = strlen(applicationName);
+        char currentDirectory[FILENAME_MAX - applicationNameLength - 8];
+        GetCurrentDirectory(
+                FILENAME_MAX - applicationNameLength - 8,
+                currentDirectory);
+        char comServer[FILENAME_MAX];
+        sprintf(comServer, "%s/native/%s", currentDirectory, applicationName);
 
-            return S_OK;
+        STARTUPINFO startupInfo;
+        PROCESS_INFORMATION processInfo;
+        memset(&startupInfo, 0, sizeof(startupInfo));
+        memset(&processInfo, 0, sizeof(processInfo));
+        startupInfo.dwFlags = STARTF_USESHOWWINDOW;
+        startupInfo.wShowWindow = SW_HIDE;
+
+        // Test 2 files: 0 for the build version, 1 for the git source version.
+        char * serverExec[2];
+        serverExec[0] = comServer;
+        serverExec[1] = applicationName;
+        for(int i = 0; i < 2; ++i)
+        {
+            // Create the COM server
+            if(CreateProcess(
+                        NULL,
+                        serverExec[i],
+                        NULL, NULL, false, 0, NULL, NULL,
+                        &startupInfo,
+                        &processInfo))
+            {
+                MsOutlookAddrBookContactSourceService_comServerHandle
+                    = processInfo.hProcess;
+
+                return S_OK;
+            }
         }
     }
 
