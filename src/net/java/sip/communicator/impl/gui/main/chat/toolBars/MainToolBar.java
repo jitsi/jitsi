@@ -344,7 +344,9 @@ public class MainToolBar
             sendFileButton.setEnabled(
                 chatPanel.findFileTransferChatTransport() != null);
 
-            new UpdateCallButtonWorker(contact).start();
+            // null when using chat rooms
+            if(contact != null)
+                new UpdateCallButtonWorker(contact).start();
 
             changeHistoryButtonsState(chatPanel);
         }
