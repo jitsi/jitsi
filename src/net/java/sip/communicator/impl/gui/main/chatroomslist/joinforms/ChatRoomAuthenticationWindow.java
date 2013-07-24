@@ -15,6 +15,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 
 /**
@@ -31,13 +32,10 @@ public class ChatRoomAuthenticationWindow
 {
     private JTextArea infoTextArea = new JTextArea();
 
-    private JLabel idLabel = new JLabel(
-        GuiActivator.getResources().getI18NString("service.gui.IDENTIFIER"));
-
     private JLabel passwdLabel = new JLabel(
         GuiActivator.getResources().getI18NString("service.gui.PASSWORD"));
 
-    private JTextField idValue;
+    private JCheckBox rememberPassword;
 
     private JPasswordField passwdField = new JPasswordField(15);
 
@@ -52,6 +50,11 @@ public class ChatRoomAuthenticationWindow
 
     private JPanel textFieldsPanel =
         new TransparentPanel(new GridLayout(0, 1, 8, 8));
+    
+
+    private JPanel bottomPanel =
+        new TransparentPanel(new GridLayout(0, 1, 8, 8));
+
 
     private JPanel mainPanel = new TransparentPanel(new BorderLayout(10, 10));
 
@@ -61,14 +64,18 @@ public class ChatRoomAuthenticationWindow
     private LoginWindowBackground backgroundPanel;
 
     private ChatRoomWrapper chatRoom;
+    
+    private String nickname;
 
     /**
      * Creates an instance of the <tt>LoginWindow</tt>.
      * @param chatRoom the chat room for which we're authenticating
      */
-    public ChatRoomAuthenticationWindow(ChatRoomWrapper chatRoom)
+    public ChatRoomAuthenticationWindow(ChatRoomWrapper chatRoom, String nickname)
     {
         this.chatRoom = chatRoom;
+        
+        this.nickname = nickname;
 
         ImageIcon logoImage
             = new ImageIcon(chatRoom.getParentProvider().getImage());
@@ -104,9 +111,7 @@ public class ChatRoomAuthenticationWindow
      */
     private void init()
     {
-        this.idValue = new JTextField(
-            chatRoom.getParentProvider().getProtocolProvider()
-                .getAccountID().getUserID());
+        
 
         this.infoTextArea.setOpaque(false);
         this.infoTextArea.setLineWrap(true);
@@ -118,23 +123,26 @@ public class ChatRoomAuthenticationWindow
                 "service.gui.CHAT_ROOM_REQUIRES_PASSWORD",
                 new String[]{chatRoom.getChatRoomName()}));
 
-        this.idLabel.setFont(idLabel.getFont().deriveFont(Font.BOLD));
         this.passwdLabel.setFont(passwdLabel.getFont().deriveFont(Font.BOLD));
 
-        this.labelsPanel.add(idLabel);
+        
         this.labelsPanel.add(passwdLabel);
 
-        this.textFieldsPanel.add(idValue);
+        
         this.textFieldsPanel.add(passwdField);
-
+        this.rememberPassword = new JCheckBox(GuiActivator.getResources()
+            .getI18NString("service.gui.CHAT_ROOM_REMEMBER_PASSWORD"), 
+            chatRoom.isPersistent());
+        this.bottomPanel.add(rememberPassword);
         this.buttonsPanel.add(loginButton);
         this.buttonsPanel.add(cancelButton);
-
+        this.bottomPanel.add(buttonsPanel);
         this.mainPanel.add(infoTextArea, BorderLayout.NORTH);
         this.mainPanel.add(labelsPanel, BorderLayout.WEST);
         this.mainPanel.add(textFieldsPanel, BorderLayout.CENTER);
-        this.mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
-
+        this.mainPanel.add(bottomPanel, BorderLayout.SOUTH);
+        
+        
         this.backgroundPanel.add(mainPanel, BorderLayout.CENTER);
 
         this.loginButton.setName("ok");
@@ -163,7 +171,8 @@ public class ChatRoomAuthenticationWindow
         this.mainPanel.setOpaque(!transparent);
         this.labelsPanel.setOpaque(!transparent);
         this.textFieldsPanel.setOpaque(!transparent);
-        this.buttonsPanel.setOpaque(!transparent);
+        this.bottomPanel.setOpaque(!transparent);
+        
     }
 
     /**
@@ -181,8 +190,10 @@ public class ChatRoomAuthenticationWindow
         if (buttonName.equals("ok"))
         {
             GuiActivator.getUIService().getConferenceChatManager()
-                .joinChatRoom(chatRoom, idValue.getText(),
-                    new String(passwdField.getPassword()).getBytes());
+                .joinChatRoom(chatRoom, nickname,
+                    new String(passwdField.getPassword()).getBytes(), 
+                    rememberPassword.isSelected());
+            
         }
 
         this.dispose();

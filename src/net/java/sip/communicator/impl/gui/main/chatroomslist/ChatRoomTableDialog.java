@@ -417,7 +417,7 @@ public class ChatRoomTableDialog
                     }
 
                     GuiActivator.getUIService().getConferenceChatManager()
-                        .joinChatRoom(chatRoomWrapper);
+                        .joinChatRoom(chatRoomWrapper, nickName, null);
 
                     ChatWindowManager chatWindowManager =
                         GuiActivator.getUIService().getChatWindowManager();

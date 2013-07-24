@@ -636,6 +636,39 @@ public class ConferenceChatManager
      * @param chatRoomWrapper the chat room to join.
      * @param nickName the nickname we choose for the given chat room.
      * @param password the password.
+     * @param rememberPassword if true the password should be saved.
+     */
+    public void joinChatRoom(   ChatRoomWrapper chatRoomWrapper,
+                                String nickName,
+                                byte[] password, 
+                                boolean rememberPassword)
+    {
+        ChatRoom chatRoom = chatRoomWrapper.getChatRoom();
+
+        if(chatRoom == null)
+        {
+            new ErrorDialog(
+               GuiActivator.getUIService().getMainFrame(),
+               GuiActivator.getResources().getI18NString("service.gui.WARNING"),
+               GuiActivator.getResources().getI18NString(
+                    "service.gui.CHAT_ROOM_NOT_CONNECTED",
+                    new String[]{chatRoomWrapper.getChatRoomName()}))
+                    .showDialog();
+
+            return;
+        }
+
+        new JoinChatRoomTask(chatRoomWrapper, nickName, password,
+            rememberPassword).execute();
+    }
+
+    /**
+     * Joins the given chat room with the given password and manages all the
+     * exceptions that could occur during the join process.
+     *
+     * @param chatRoomWrapper the chat room to join.
+     * @param nickName the nickname we choose for the given chat room.
+     * @param password the password.
      */
     public void joinChatRoom(   ChatRoomWrapper chatRoomWrapper,
                                 String nickName,
@@ -658,7 +691,6 @@ public class ConferenceChatManager
 
         new JoinChatRoomTask(chatRoomWrapper, nickName, password).execute();
     }
-
     /**
      * Creates a chat room, by specifying the chat room name, the parent
      * protocol provider and eventually, the contacts invited to participate in
@@ -1461,14 +1493,42 @@ public class ConferenceChatManager
         private final String nickName;
 
         private final byte[] password;
+        
+        private final boolean rememberPassword;
 
         JoinChatRoomTask(   ChatRoomWrapper chatRoomWrapper,
                             String nickName,
-                            byte[] password)
+                            byte[] password,
+                            boolean rememberPassword)
         {
             this.chatRoomWrapper = chatRoomWrapper;
             this.nickName = nickName;
-            this.password = password;
+            
+            if(password == null)
+            {
+                String passString = chatRoomWrapper.loadPassword();
+                if(passString != null)
+                {
+                    this.password = passString.getBytes();
+                }
+                else
+                {
+                    this.password = null;
+                }
+            }
+            else
+            {
+                this.password = password;
+            }
+            this.rememberPassword = rememberPassword;
+        }
+        
+        JoinChatRoomTask(   ChatRoomWrapper chatRoomWrapper,
+            String nickName,
+            byte[] password)
+        {
+            this(chatRoomWrapper, nickName, password, false);
+            
         }
 
         /**
@@ -1540,7 +1600,8 @@ public class ConferenceChatManager
             if(AUTHENTICATION_FAILED.equals(returnCode))
             {
                 ChatRoomAuthenticationWindow authWindow
-                    = new ChatRoomAuthenticationWindow(chatRoomWrapper);
+                    = new ChatRoomAuthenticationWindow(chatRoomWrapper,
+                        nickName);
 
                 authWindow.setVisible(true);
             }
@@ -1574,13 +1635,21 @@ public class ConferenceChatManager
                             new String[]{chatRoomWrapper.getChatRoomName()});
             }
 
-            if (!SUCCESS.equals(returnCode)
-                    && !AUTHENTICATION_FAILED.equals(returnCode))
+            if (!SUCCESS.equals(returnCode))
             {
-                new ErrorDialog(
-                    GuiActivator.getUIService().getMainFrame(),
-                    GuiActivator.getResources().getI18NString(
-                            "service.gui.ERROR"), errorMessage).showDialog();
+                if(!AUTHENTICATION_FAILED.equals(returnCode))
+                {
+                    new ErrorDialog(
+                        GuiActivator.getUIService().getMainFrame(),
+                        GuiActivator.getResources().getI18NString(
+                                "service.gui.ERROR"), errorMessage).showDialog();
+                }
+                chatRoomWrapper.removePassword();
+            }
+            
+            if (SUCCESS.equals(returnCode) && rememberPassword)
+            {
+                chatRoomWrapper.savePassword(new String(password));
             }
         }
     }

@@ -364,7 +364,12 @@ public class ChatContactRightButtonMenu
             {
                 try
                 {
-                    room.setUserNickname(reasonDialog.getReason().trim());
+                    String nickname = reasonDialog.getReason().trim();
+                    room.setUserNickname(nickname);
+                    ConfigurationUtils.updateChatRoomProperty(
+                        room.getParentProvider(),
+                        room.getIdentifier(),
+                        "userNickName", nickname);
                 }
                 catch (OperationFailedException ex)
                 {

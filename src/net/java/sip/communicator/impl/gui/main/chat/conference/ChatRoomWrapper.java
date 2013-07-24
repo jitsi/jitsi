@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.gui.main.chat.conference;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
@@ -56,6 +57,13 @@ public class ChatRoomWrapper
      * If not overridden we query the wrapped room.
      */
     private Boolean persistent = null;
+    
+    /**
+     * The prefix needed by the credential storage service to store the password
+     * of the chat room.
+     */
+    private String passwordPrefix
+        = "net.java.sip.communicator.impl.gui.accounts.";
 
     /**
      * Creates a <tt>ChatRoomWrapper</tt> by specifying the protocol provider,
@@ -73,6 +81,10 @@ public class ChatRoomWrapper
         this.parentProvider = parentProvider;
         this.chatRoomID = chatRoomID;
         this.chatRoomName = chatRoomName;
+        
+        passwordPrefix += getParentProvider().getProtocolProvider()
+            .getAccountID().getAccountUniqueID() + ".chatrooms." + 
+            getChatRoomID() + ".password";
     }
 
     /**
@@ -170,6 +182,39 @@ public class ChatRoomWrapper
     public void setPersistent(boolean value)
     {
         this.persistent = value;
+    }
+    
+    
+    /**
+     * Stores the password for the chat room.
+     * 
+     * @param password the password to store
+     */
+    public void savePassword(String password)
+    {
+        
+        GuiActivator.getCredentialsStorageService()
+            .storePassword(passwordPrefix, password);
+    }
+    
+    /**
+     * Returns the password for the chat room.
+     * 
+     * @return the password
+     */
+    public String loadPassword()
+    {
+        return GuiActivator.getCredentialsStorageService()
+            .loadPassword(passwordPrefix);
+    }
+    
+    /**
+     * Removes the saved password for the chat room.
+     */
+    public void removePassword()
+    {
+        GuiActivator.getCredentialsStorageService()
+            .removePassword(passwordPrefix);
     }
 
     /**

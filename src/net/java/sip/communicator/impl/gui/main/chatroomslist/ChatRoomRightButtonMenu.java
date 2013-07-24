@@ -195,10 +195,31 @@ public class ChatRoomRightButtonMenu
         }
         else if(itemName.equals("joinAsChatRoom"))
         {
-            ChatRoomAuthenticationWindow authWindow
-                = new ChatRoomAuthenticationWindow(chatRoomWrapper);
+            String nickName = null;
 
-            authWindow.setVisible(true);
+            ChatOperationReasonDialog reasonDialog =
+                new ChatOperationReasonDialog(GuiActivator
+                    .getResources().getI18NString(
+                        "service.gui.CHANGE_NICKNAME"), GuiActivator
+                    .getResources().getI18NString(
+                        "service.gui.CHANGE_NICKNAME_LABEL"));
+
+            reasonDialog.setReasonFieldText(chatRoomWrapper
+                .getChatRoom().getUserNickname());
+
+            int result = reasonDialog.showDialog();
+
+            if (result == MessageDialog.OK_RETURN_CODE)
+            {
+                nickName = reasonDialog.getReason().trim();
+
+                ConfigurationUtils.updateChatRoomProperty(
+                    chatRoomWrapper.getParentProvider().getProtocolProvider(),
+                    chatRoomWrapper.getChatRoomID(), "userNickName",
+                    nickName);
+            }
+            GuiActivator.getUIService().getConferenceChatManager()
+                .joinChatRoom(chatRoomWrapper, nickName, null);
         }
         else if(itemName.equals("nickNameChatRoom"))
         {

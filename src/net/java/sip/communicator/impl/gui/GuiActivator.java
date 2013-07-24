@@ -15,6 +15,7 @@ import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.service.callhistory.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.contactsource.*;
+import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.customcontactactions.*;
 import net.java.sip.communicator.service.desktop.*;
 import net.java.sip.communicator.service.globaldisplaydetails.*;
@@ -102,6 +103,8 @@ public class GuiActivator implements BundleActivator
     private static GlobalDisplayDetailsService globalDisplayDetailsService;
 
     private static AlertUIService alertUIService;
+    
+    private static CredentialsStorageService credentialsService;
 
     private static final Map<Object, ProtocolProviderFactory>
         providerFactoriesMap = new Hashtable<Object, ProtocolProviderFactory>();
@@ -828,5 +831,27 @@ public class GuiActivator implements BundleActivator
             }
         }
         return null;
+    }
+
+    /**
+     * Returns a reference to a CredentialsStorageService implementation
+     * currently registered in the bundle context or null if no such
+     * implementation was found.
+     *
+     * @return a currently valid implementation of the
+     * CredentialsStorageService.
+     */
+    public static CredentialsStorageService getCredentialsStorageService()
+    {
+        if (credentialsService == null)
+        {
+            ServiceReference credentialsReference
+                = bundleContext.getServiceReference(
+                    CredentialsStorageService.class.getName());
+            credentialsService
+                = (CredentialsStorageService) bundleContext
+                                        .getService(credentialsReference);
+        }
+        return credentialsService;
     }
 }
