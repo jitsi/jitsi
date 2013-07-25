@@ -1076,7 +1076,7 @@ public class MainFrame
      */
     public boolean isMenuSelected()
     {
-        return menu.isSelected();
+        return menu.hasSelectedMenus();
     }
 
     /**
