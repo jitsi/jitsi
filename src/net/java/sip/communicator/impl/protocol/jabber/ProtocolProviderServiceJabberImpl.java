@@ -1933,11 +1933,12 @@ public class ProtocolProviderServiceJabberImpl
         // we try determine the reason according to their message
         // all messages that were found in smack 3.1.0 were took in count
         return
-            (exMsg.indexOf("authentication failed") != -1)
-                || ((exMsg.indexOf("authentication") != -1)
-                        && (exMsg.indexOf("failed") != -1))
-                || (exMsg.indexOf("login failed") != -1)
-                || (exMsg.indexOf("unable to determine password") != -1);
+            ((exMsg.indexOf("sasl authentication") != -1)
+                    && (exMsg.indexOf("failed") != -1))
+            || (exMsg.indexOf(
+                    "does not support compatible authentication mechanism")
+                        != -1)
+            || (exMsg.indexOf("unable to determine password") != -1);
     }
 
     /**
