@@ -10,6 +10,7 @@ import java.util.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 
+import org.jitsi.service.neomedia.*;
 import org.jivesoftware.smack.packet.*;
 
 /**
@@ -284,6 +285,12 @@ public class ColibriConferenceIQ
         public static final String SSRC_ELEMENT_NAME = "ssrc";
 
         /**
+         * The name of the XML attribute of a <tt>channel</tt> which represents
+         * its direction.
+         */
+        public static final String DIRECTION_ATTR_NAME = "direction";
+
+        /**
          * The number of seconds of inactivity after which the <tt>channel</tt>
          * represented by this instance expires.
          */
@@ -322,6 +329,11 @@ public class ColibriConferenceIQ
          * active. Set by the Jitsi VideoBridge server, not its clients.
          */
         private long[] ssrcs = NO_SSRCS;
+
+        /**
+         * The direction of the <tt>channel</tt> represented by this instance.
+         */
+        private MediaDirection direction;
 
         /**
          * Adds a <tt>payload-type</tt> element defined by XEP-0167: Jingle RTP
@@ -460,6 +472,16 @@ public class ColibriConferenceIQ
         public synchronized long[] getSSRCs()
         {
             return (ssrcs.length == 0) ? NO_SSRCS : ssrcs.clone();
+        }
+
+        /**
+         * Gets the <tt>direction</tt> of this <tt>Channel</tt>.
+         *
+         * @return the <tt>direction</tt> of this <tt>Channel</tt>.
+         */
+        public MediaDirection getDirection()
+        {
+            return direction;
         }
 
         /**
@@ -609,6 +631,17 @@ public class ColibriConferenceIQ
         }
 
         /**
+         * Sets the <tt>direction</tt> of this <tt>Channel</tt>
+         *
+         * @param direction the <tt>MediaDirection</tt> to set the
+         * <tt>direction</tt> of this <tt>Channel</tt> to.
+         */
+        public void setDirection(MediaDirection direction)
+        {
+            this.direction = direction;
+        }
+
+        /**
          * Appends the XML <tt>String</tt> representation of this
          * <tt>Channel</tt> to a specific <tt>StringBuilder</tt>.
          *
@@ -658,6 +691,13 @@ public class ColibriConferenceIQ
             {
                 xml.append(' ').append(EXPIRE_ATTR_NAME).append("='")
                         .append(expire).append('\'');
+            }
+
+            MediaDirection direction = getDirection();
+            if (direction != null && direction != MediaDirection.SENDRECV)
+            {
+                xml.append(' ').append(DIRECTION_ATTR_NAME).append("='")
+                        .append(direction.toString()).append('\'');
             }
 
             List<PayloadTypePacketExtension> payloadTypes = getPayloadTypes();
