@@ -1170,6 +1170,17 @@ public abstract class AbstractOperationSetTelephonyConferencing<
             return ConferenceInfoDocument.EndpointStatusType.dialing_out;
 
         /*
+         * RFC4575 does not list an appropriate endpoint status for
+         * "remotely on hold", e.g. the endpoint is not "hearing" the conference
+         * mix, but it's media stream *is* being mixed into the conference.
+         *
+         * We use the on-hold status anyway, because it's the one that makes
+         * the most sense.
+         */
+        if (CallPeerState.ON_HOLD_REMOTELY.equals(callPeerState))
+            return ConferenceInfoDocument.EndpointStatusType.on_hold;
+
+        /*
          * he/she is neither "hearing" the conference mix nor is his/her
          * media being mixed in the conference
          */
