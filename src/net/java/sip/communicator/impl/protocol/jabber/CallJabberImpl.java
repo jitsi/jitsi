@@ -544,6 +544,64 @@ public class CallJabberImpl
     }
 
     /**
+     * Sends a <tt>ColibriConferenceIQ</tt> to the videobridge used by this
+     * <tt>CallJabberImpl</tt>, in order to request the the direction of
+     * the <tt>channel</tt> with ID <tt>channelID</tt> be set to
+     * <tt>direction</tt>
+     * @param channelID the ID of the <tt>channel</tt> for which to set the
+     * direction.
+     * @param mediaType the <tt>MediaType</tt> of the channel (we can deduce this
+     * by searching the <tt>ColibriConferenceIQ</tt>, but it's more convenient
+     * to have it)
+     * @param direction the <tt>MediaDirection</tt> to set.
+     */
+    public void setChannelDirection(String channelID,
+                                    MediaType mediaType,
+                                    MediaDirection direction)
+    {
+        if (colibri != null && channelID != null)
+        {
+            ColibriConferenceIQ.Content content
+                    = colibri.getContent(mediaType.toString());
+            if (content != null)
+            {
+                ColibriConferenceIQ.Channel channel
+                        = content.getChannel(channelID);
+                /*
+                 * Note that we send requests even when the local Channel's
+                 * direction and the direction we are setting are the same.
+                 * We can easily avoid this, but we risk not sending necessary
+                 * packets if local Channel and the actual channel on the
+                 * videobridge are out of sync.
+                 */
+                //if (channel != null && direction != channel.getDirection())
+                if (channel != null) // && direction != channel.getDirection())
+                {
+                    ColibriConferenceIQ.Channel requestChannel
+                            = new ColibriConferenceIQ.Channel();
+                    requestChannel.setID(channelID);
+                    requestChannel.setDirection(direction);
+
+                    ColibriConferenceIQ.Content requestContent
+                            = new ColibriConferenceIQ.Content();
+                    requestContent.setName(mediaType.toString());
+                    requestContent.addChannel(requestChannel);
+
+                    ColibriConferenceIQ conferenceRequest
+                            = new ColibriConferenceIQ();
+                    conferenceRequest.setID(colibri.getID());
+                    conferenceRequest.setTo(colibri.getFrom());
+                    conferenceRequest.setType(IQ.Type.SET);
+                    conferenceRequest.addContent(requestContent);
+
+                    getProtocolProvider().getConnection()
+                            .sendPacket(conferenceRequest);
+                }
+            }
+        }
+    }
+
+    /**
      * Creates a <tt>CallPeerJabberImpl</tt> from <tt>calleeJID</tt> and sends
      * them <tt>session-initiate</tt> IQ request.
      *
