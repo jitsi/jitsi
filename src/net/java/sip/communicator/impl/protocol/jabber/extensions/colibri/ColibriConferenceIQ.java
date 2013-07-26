@@ -481,7 +481,9 @@ public class ColibriConferenceIQ
          */
         public MediaDirection getDirection()
         {
-            return direction;
+            return direction == null
+                    ? MediaDirection.SENDRECV
+                    : direction;
         }
 
         /**

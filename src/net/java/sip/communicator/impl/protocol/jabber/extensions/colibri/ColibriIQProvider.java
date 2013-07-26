@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.protocol.jabber.extensions.colibri;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 
+import org.jitsi.service.neomedia.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
 import org.xmlpull.v1.*;
@@ -127,6 +128,15 @@ public class ColibriIQProvider
 
                         if ((rtcpPort != null) && (rtcpPort.length() != 0))
                             channel.setRTCPPort(Integer.parseInt(rtcpPort));
+
+                        String directionStr
+                            = parser.getAttributeValue(
+                                    "" ,
+                                    ColibriConferenceIQ.Channel
+                                            .DIRECTION_ATTR_NAME);
+                        if (directionStr != null)
+                            channel.setDirection(
+                                    MediaDirection.parseString(directionStr));
 
                         String expire
                             = parser.getAttributeValue(
