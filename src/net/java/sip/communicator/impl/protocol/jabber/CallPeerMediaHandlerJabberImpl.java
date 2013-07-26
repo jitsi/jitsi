@@ -150,7 +150,7 @@ public class CallPeerMediaHandlerJabberImpl
     }
 
     /**
-     * Determines and sets the direction that a stream, which has been place on
+     * Determines and sets the direction that a stream, which has been placed on
      * hold by the remote party, would need to go back to after being
      * re-activated. If the stream is not currently on hold (i.e. it is still
      * sending media), this method simply returns its current direction.
@@ -194,8 +194,6 @@ public class CallPeerMediaHandlerJabberImpl
 
         // 4. the device direction
         postHoldDir = postHoldDir.and(device.getDirection());
-
-        stream.setDirection(postHoldDir);
 
         return postHoldDir;
     }
@@ -806,20 +804,9 @@ public class CallPeerMediaHandlerJabberImpl
          * with the CallPeers from which they are actually being sent. That's
          * why the server will report them to the conference focus.
          */
-        TransportManagerJabberImpl transportManager = this.transportManager;
-
-        if (transportManager instanceof RawUdpTransportManager)
-        {
-            RawUdpTransportManager rawUdpTransportManager
-                = (RawUdpTransportManager) transportManager;
-            ColibriConferenceIQ.Channel channel
-                = rawUdpTransportManager.getColibriChannel(
-                        mediaType,
-                        false /* remote */);
-
-            if (channel != null)
-                return channel.getSSRCs();
-        }
+        ColibriConferenceIQ.Channel channel = getColibriChannel(mediaType);
+        if (channel != null)
+            return channel.getSSRCs();
 
         /*
          * XXX The fallback to the super implementation that follows may lead to
@@ -1880,29 +1867,56 @@ public class CallPeerMediaHandlerJabberImpl
     {
         this.remotelyOnHold = onHold;
 
-        MediaStream audioStream = getStream(MediaType.AUDIO);
-        MediaStream videoStream = getStream(MediaType.VIDEO);
+        for (MediaType mediaType : MediaType.values())
+        {
+            MediaStream stream = getStream(mediaType);
+            if (stream == null)
+                continue;
 
-        if(remotelyOnHold)
-        {
-            if(audioStream != null)
+            if (getPeer().isJitsiVideoBridge())
             {
-                audioStream.setDirection(audioStream.getDirection()
-                            .and(MediaDirection.RECVONLY));
+                /*
+                 * If we are the focus of a videobridge conference, we
+                 * need to ask the videobridge to change the stream
+                 * direction on behalf of us.
+                 */
+                if(remotelyOnHold)
+                {
+                    ColibriConferenceIQ.Channel channel
+                            = getColibriChannel(mediaType);
+                    //TODO: calculate the direction independently of 'channel'
+                    MediaDirection direction
+                            = channel.getDirection().and(MediaDirection.RECVONLY);
+                    getPeer().getCall().setChannelDirection(
+                            channel.getID(),
+                            mediaType,
+                            direction);
+                }
+                else
+                {
+                    //TODO: calculate the direction properly
+                    ColibriConferenceIQ.Channel channel
+                            = getColibriChannel(mediaType);
+                    MediaDirection direction
+                            = channel.getDirection().or(MediaDirection.SENDONLY);
+                    getPeer().getCall().setChannelDirection(
+                            channel.getID(),
+                            mediaType,
+                            direction);
+                }
             }
-            if(videoStream != null)
+            else //no videobridge
             {
-                videoStream.setDirection(videoStream.getDirection()
+                if (remotelyOnHold)
+                {
+                    stream.setDirection(stream.getDirection()
                             .and(MediaDirection.RECVONLY));
+                }
+                else
+                {
+                    stream.setDirection(calculatePostHoldDirection(stream));
+                }
             }
-        }
-        else
-        {
-            //off hold - make sure that we re-enable sending if that's
-            if(audioStream != null)
-                calculatePostHoldDirection(audioStream);
-            if(videoStream != null)
-                calculatePostHoldDirection(videoStream);
         }
     }
 
@@ -2097,4 +2111,45 @@ public class CallPeerMediaHandlerJabberImpl
         else
             throw new IllegalArgumentException("mediaType");
     }
+
+    /**
+     * If Jitsi Videobridge is in use, returns the
+     * <tt>ColibriConferenceIQ.Channel</tt> that this
+     * <tt>CallPeerMediaHandler</tt> uses for media of type <tt>mediaType</tt>.
+     * Otherwise, returns <tt>null</tt>
+     *
+     * @param mediaType the <tt>MediaType</tt> for which to return a
+     * <tt>ColibriConferenceIQ.Channel</tt>
+     * @return the <tt>ColibriConferenceIQ.Channel</tt> that this
+     * <tt>CallPeerMediaHandler</tt> uses for media of type <tt>mediaType</tt>
+     * or <tt>null</tt>.
+     */
+    private ColibriConferenceIQ.Channel getColibriChannel(MediaType mediaType)
+    {
+        ColibriConferenceIQ.Channel channel = null;
+
+        if (getPeer().isJitsiVideoBridge()
+                && (transportManager instanceof RawUdpTransportManager))
+        {
+            channel = ((RawUdpTransportManager) transportManager)
+                    .getColibriChannel(mediaType, false /* remote */);
+        }
+
+        return channel;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * The super implementation relies on the direction of the streams and is
+     * therefore not accurate when we use a videobridge.
+     */
+    @Override
+    public boolean isRemotelyOnHold()
+    {
+        return remotelyOnHold;
+    }
+
+
+
 }
