@@ -7,6 +7,8 @@
 package net.java.sip.communicator.impl.gui.main.chat.conference;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
@@ -270,5 +272,61 @@ public class ChatRoomWrapper
                 getParentProvider().getProtocolProvider(),
                 chatRoomID, AUTOJOIN_PROPERTY_NAME, null);
         }
+    }
+    
+    /**
+     * Opens a dialog with a field for the nickname and returns the nickname.
+     *
+     * @return the nickname
+     */
+    public String getNickname()
+    {
+        String nickName = null;
+        ChatOperationReasonDialog reasonDialog =
+            new ChatOperationReasonDialog(GuiActivator.getResources()
+                .getI18NString("service.gui.CHANGE_NICKNAME"), GuiActivator
+                .getResources().getI18NString(
+                    "service.gui.CHANGE_NICKNAME_LABEL"), true);
+        
+        final OperationSetServerStoredAccountInfo accountInfoOpSet
+            =  getParentProvider().getProtocolProvider().getOperationSet(
+                    OperationSetServerStoredAccountInfo.class);
+        
+        String displayName = "";
+        if (accountInfoOpSet != null)
+        {
+            displayName = AccountInfoUtils.getDisplayName(accountInfoOpSet);
+        }
+        
+        if(displayName == null || displayName.length() == 0)
+        {
+            displayName = GuiActivator.getGlobalDisplayDetailsService()
+                .getGlobalDisplayName();
+            if(displayName == null || displayName.length() == 0)
+            {
+                displayName = getParentProvider().getProtocolProvider()
+                    .getAccountID().getUserID();
+                if(displayName != null)
+                {
+                    int atIndex = displayName.lastIndexOf("@");
+                    if (atIndex > 0)
+                        displayName = displayName.substring(0, atIndex);
+                }
+            }
+        }
+        reasonDialog.setReasonFieldText(displayName);
+        
+        int result = reasonDialog.showDialog();
+
+        if (result == MessageDialog.OK_RETURN_CODE)
+        {
+            nickName = reasonDialog.getReason().trim();
+            ConfigurationUtils.updateChatRoomProperty(
+                getParentProvider().getProtocolProvider(),
+                getChatRoomID(), "userNickName", nickName);
+            
+        }
+
+        return nickName;
     }
 }

@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.gui.main.chat;
 import java.awt.*;
 
 import javax.swing.*;
+import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
@@ -39,7 +40,29 @@ public class ChatOperationReasonDialog extends MessageDialog
             GuiActivator.getResources().getI18NString(
             "service.gui.SPECIFY_REASON"),
             GuiActivator.getResources().getI18NString(
-            "service.gui.OK"), true);
+            "service.gui.OK"), true, false);
+        
+        
+    }
+    
+    /**
+     * Creates an instance of <tt>ChatOperationReasonDialog</tt> using the
+     * default title and message.
+     * 
+     * @param disableOKIfReasonIsEmpty if true the OK button will be disabled if
+     * the reason text is empty.
+     */
+    public ChatOperationReasonDialog(boolean disableOKIfReasonIsEmpty)
+    {
+        this(null,
+            GuiActivator.getResources().getI18NString(
+            "service.gui.REASON"),
+            GuiActivator.getResources().getI18NString(
+            "service.gui.SPECIFY_REASON"),
+            GuiActivator.getResources().getI18NString(
+            "service.gui.OK"), true, disableOKIfReasonIsEmpty);
+        
+        
     }
 
     /**
@@ -54,7 +77,29 @@ public class ChatOperationReasonDialog extends MessageDialog
             title,
             message,
             GuiActivator.getResources().getI18NString("service.gui.OK"),
-            true);
+            true,
+            false);
+        
+    }
+    
+    /**
+     * Creates an instance of <tt>ChatOperationReasonDialog</tt> by specifying
+     * the title and the message shown in the dialog.
+     * @param title the title of this dialog
+     * @param message the message shown in this dialog
+     * @param disableOKIfReasonIsEmpty if true the OK button will be disabled if
+     * the reason text is empty.
+     */
+    public ChatOperationReasonDialog(String title, String message, 
+        boolean disableOKIfReasonIsEmpty)
+    {
+        this(null,
+            title,
+            message,
+            GuiActivator.getResources().getI18NString("service.gui.OK"),
+            true,
+            disableOKIfReasonIsEmpty);
+        
     }
 
     /**
@@ -68,6 +113,29 @@ public class ChatOperationReasonDialog extends MessageDialog
      */
     public ChatOperationReasonDialog(Frame chatWindow, String title,
         String message, String okButtonName, boolean showReasonLabel)
+    {
+        this(chatWindow,
+            title,
+            message,
+            okButtonName,
+            showReasonLabel,
+            false);
+    }
+    
+    /**
+     * Creates an instance of <tt>ChatOperationReasonDialog</tt> by specifying
+     * the parent window, the title and the message to show.
+     * @param chatWindow the parent window
+     * @param title the title of this dialog
+     * @param message the message shown in this dialog
+     * @param okButtonName the custom name of the ok button
+     * @param showReasonLabel specify if we want the "Reason:" label
+     * @param disableOKIfReasonIsEmpty if true the OK button will be disabled if
+     * the reason text is empty.
+     */
+    public ChatOperationReasonDialog(Frame chatWindow, String title,
+        String message, String okButtonName, boolean showReasonLabel, 
+        boolean disableOKIfReasonIsEmpty)
     {
         super(chatWindow, title, message, okButtonName, false);
 
@@ -85,8 +153,44 @@ public class ChatOperationReasonDialog extends MessageDialog
         reasonPanel.setOpaque(false);
 
         this.getContentPane().add(reasonPanel, BorderLayout.CENTER);
-
+        
+        if(disableOKIfReasonIsEmpty)
+        {
+            updateOKButtonState();
+            this.reasonField.getDocument().addDocumentListener(new DocumentListener()
+            {
+                
+                @Override
+                public void removeUpdate(DocumentEvent arg0)
+                {
+                    updateOKButtonState();                
+                }
+                
+                @Override
+                public void insertUpdate(DocumentEvent arg0)
+                {
+                    updateOKButtonState();
+                }
+                
+                @Override
+                public void changedUpdate(DocumentEvent arg0)
+                {
+                    updateOKButtonState();
+                }
+                
+               
+            });
+        }
         this.pack();
+    }
+    
+    /**
+     * Enables the OK button if reason field is not empty and disables it if the
+     * reason field is empty.
+     */
+    private void updateOKButtonState()
+    {
+        okButton.setEnabled(!reasonField.getText().trim().equals(""));
     }
 
     /**

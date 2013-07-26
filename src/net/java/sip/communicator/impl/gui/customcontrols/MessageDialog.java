@@ -37,7 +37,7 @@ public class MessageDialog
     private JButton cancelButton = new JButton(
         GuiActivator.getResources().getI18NString("service.gui.CANCEL"));
 
-    private JButton okButton = new JButton(
+    protected JButton okButton = new JButton(
         GuiActivator.getResources().getI18NString("service.gui.OK"));
 
     private JCheckBox doNotAskAgain = new SIPCommCheckBox(

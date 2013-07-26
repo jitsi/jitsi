@@ -352,7 +352,7 @@ public class ChatContactRightButtonMenu
                     GuiActivator.getResources().getI18NString(
                     "service.gui.CHANGE_NICKNAME_LABEL"),
                     "Ok",
-                    false);
+                    false, true);
 
            // reasonDialog.setIconImage(ImageLoader.getImage(
            //   ImageLoader.CHANGE_NICKNAME_ICON_16x16));

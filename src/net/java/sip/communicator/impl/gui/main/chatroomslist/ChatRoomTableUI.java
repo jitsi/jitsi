@@ -178,27 +178,9 @@ public class ChatRoomTableUI
 
         if (savedNick == null)
         {
-            String nickName = null;
-            ChatOperationReasonDialog reasonDialog =
-                new ChatOperationReasonDialog(GuiActivator.getResources()
-                    .getI18NString("service.gui.CHANGE_NICKNAME"), GuiActivator
-                    .getResources().getI18NString(
-                        "service.gui.CHANGE_NICKNAME_LABEL"));
-
-            reasonDialog.setReasonFieldText(chatRoomWrapper.getChatRoom()
-                .getUserNickname());
-
-            int result = reasonDialog.showDialog();
-
-            if (result == MessageDialog.OK_RETURN_CODE)
-            {
-                nickName = reasonDialog.getReason().trim();
-
-                ConfigurationUtils.updateChatRoomProperty(chatRoomWrapper
-                    .getParentProvider().getProtocolProvider(), chatRoomWrapper
-                    .getChatRoomID(), "userNickName", nickName);
-
-            }
+            String nickName = chatRoomWrapper.getNickname();
+            if(nickName == null)
+                return;
 
             if (!chatRoomWrapper.getChatRoom().isJoined())
             {
