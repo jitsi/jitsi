@@ -371,6 +371,9 @@ public class OperationSetDesktopSharingServerJabberImpl
             PacketFilter packetFilter,
             Connection connection)
     {
+        if(connection == null)
+            return;
+
         if ((evt.getNewState() == RegistrationState.REGISTERING))
         {
             /* listen to specific inputevt IQ */

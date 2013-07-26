@@ -176,7 +176,7 @@ public class ChatRoomConfigurationWindow
             Iterator<?> values = formField.getValues();
             Iterator<String> options = formField.getOptions();
 
-            JComponent field = null;
+            JComponent field;
             JLabel label = new JLabel("", JLabel.RIGHT);
 
             if(formField.getLabel() != null)
@@ -192,7 +192,7 @@ public class ChatRoomConfigurationWindow
                 if(values.hasNext())
                 {
                     ((JCheckBox)field)
-                        .setSelected(((Boolean)values.next()).booleanValue());
+                        .setSelected((Boolean)values.next());
                 }
             }
             else if(fieldType.equals(
@@ -205,8 +205,8 @@ public class ChatRoomConfigurationWindow
                     String value = values.next().toString();
 
                     ((JLabel) field).setText(value);
-                    ((JLabel) field).setFont(new Font(null, Font.ITALIC, 9));
-                    ((JLabel) field).setForeground(Color.GRAY);
+                    field.setFont(new Font(null, Font.ITALIC, 9));
+                    field.setForeground(Color.GRAY);
                 }
             }
             else if(fieldType.equals(
@@ -408,7 +408,7 @@ public class ChatRoomConfigurationWindow
                 {
                     boolean isSelected = ((AbstractButton)c).isSelected();
 
-                    formField.addValue(Boolean.valueOf(isSelected));
+                    formField.addValue(isSelected);
                 }
                 else if (c instanceof JComboBox)
                 {
@@ -420,12 +420,12 @@ public class ChatRoomConfigurationWindow
                 {
                     Component[] components = c.getComponents();
 
-                    for(int i = 0; i < components.length; i++)
+                    for(Component comp : components)
                     {
-                        if(!(components[i] instanceof JCheckBox))
+                        if(!(comp instanceof JCheckBox))
                             continue;
 
-                        JCheckBox checkBox = (JCheckBox) components[i];
+                        JCheckBox checkBox = (JCheckBox) comp;
 
                         formField.addValue(checkBox.getText());
                     }

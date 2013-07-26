@@ -739,6 +739,9 @@ public class ChatRoomJabberImpl
 
         this.provider.getConnection().removePacketListener(
             invitationRejectionListeners);
+
+        opSetMuc.fireLocalUserPresenceEvent(this,
+            LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_LEFT, null);
     }
 
     /**

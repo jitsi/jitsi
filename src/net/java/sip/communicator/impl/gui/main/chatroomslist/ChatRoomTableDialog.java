@@ -347,7 +347,7 @@ public class ChatRoomTableDialog
                         getSelectedProvider().getProtocolProvider(),
                         new ArrayList<String>(), "", false, true);
 
-            String nickName = null;
+            String nickName;
 
             ChatOperationReasonDialog reasonDialog =
                 new ChatOperationReasonDialog(GuiActivator.getResources()
@@ -554,7 +554,7 @@ public class ChatRoomTableDialog
 
                 roomsCombo.removeAllItems();
 
-                // if there is no room list comming from provider
+                // if there is no room list coming from provider
                 if(rooms == null)
                 {
                     roomsCombo.setEnabled(true);

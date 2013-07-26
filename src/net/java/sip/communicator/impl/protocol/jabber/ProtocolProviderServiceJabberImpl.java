@@ -1419,6 +1419,15 @@ public class ProtocolProviderServiceJabberImpl
     {
         synchronized(initializationLock)
         {
+            if(fireEvent)
+            {
+                fireRegistrationStateChanged(
+                    getRegistrationState()
+                    , RegistrationState.UNREGISTERING
+                    , RegistrationStateChangeEvent.REASON_NOT_SPECIFIED
+                    , null);
+            }
+
             disconnectAndCleanConnection();
 
             RegistrationState currRegState = getRegistrationState();

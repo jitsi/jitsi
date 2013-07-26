@@ -683,6 +683,15 @@ public class OperationSetMultiUserChatJabberImpl
                 // clear cached chatrooms as there are no longer valid
                 chatRoomCache.clear();
             }
+            else if (evt.getNewState() == RegistrationState.UNREGISTERING)
+            {
+                // lets check for joined rooms and leave them
+                List<ChatRoom> joinedRooms = getCurrentlyJoinedChatRooms();
+                for(ChatRoom room : joinedRooms)
+                {
+                    room.leave();
+                }
+            }
         }
     }
 
