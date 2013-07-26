@@ -64,8 +64,7 @@ public class ChatRoomWrapper
      * The prefix needed by the credential storage service to store the password
      * of the chat room.
      */
-    private String passwordPrefix
-        = "net.java.sip.communicator.impl.gui.accounts.";
+    private String passwordPrefix;
 
     /**
      * Creates a <tt>ChatRoomWrapper</tt> by specifying the protocol provider,
@@ -83,10 +82,10 @@ public class ChatRoomWrapper
         this.parentProvider = parentProvider;
         this.chatRoomID = chatRoomID;
         this.chatRoomName = chatRoomName;
+        passwordPrefix = ConfigurationUtils.getChatRoomPrefix(
+            getParentProvider().getProtocolProvider().getAccountID()
+            .getAccountUniqueID(), chatRoomID) + ".password";
         
-        passwordPrefix += getParentProvider().getProtocolProvider()
-            .getAccountID().getAccountUniqueID() + ".chatrooms." + 
-            getChatRoomID() + ".password";
     }
 
     /**

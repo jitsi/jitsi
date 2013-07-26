@@ -2296,6 +2296,46 @@ public class ConfigurationUtils
     }
 
     /**
+     * Returns the chat room prefix saved in <tt>ConfigurationService</tt> 
+     * associated with the <tt>accountID</tt> and <tt>chatRoomID</tt>.
+     *
+     * @param accountID the account id
+     * @param chatRoomId the chat room id
+     * @return the chat room prefix saved in <tt>ConfigurationService</tt>.
+     */
+    public static String getChatRoomPrefix(String accountID, String chatRoomId)
+    {
+        String prefix = "net.java.sip.communicator.impl.gui.accounts";
+        List<String> accounts = configService
+            .getPropertyNamesByPrefix(prefix, true);
+        for (String accountRootPropName : accounts)
+        {
+            
+            String tmpAccountID
+                = configService.getString(accountRootPropName);
+
+            if(tmpAccountID.equals(accountID))
+            {
+                List<String> chatRooms = configService
+                    .getPropertyNamesByPrefix(
+                        accountRootPropName + ".chatRooms", true);
+
+                for (String chatRoomPropName : chatRooms)
+                {
+                    String tmpChatRoomID
+                        = configService.getString(chatRoomPropName);
+
+                    if(tmpChatRoomID.equals(chatRoomId))
+                    {
+                        return chatRoomPropName;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
      * Returns the last chat room status, saved through the
      * <tt>ConfigurationService</tt>.
      *
