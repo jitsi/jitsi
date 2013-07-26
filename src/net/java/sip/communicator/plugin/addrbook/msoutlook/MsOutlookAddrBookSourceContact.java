@@ -37,6 +37,11 @@ public class MsOutlookAddrBookSourceContact
     private Boolean locked = Boolean.FALSE;
 
     /**
+     * The list of Outlook entry IDs we have already seen for this contact.
+     */
+    private Vector<String> ids = new Vector<String>(1, 1);
+
+    /**
      * Initializes a new MsOutlookAddrBookSourceContact instance.
      *
      * @param contactSource The ContactSourceService which is creating the new
@@ -57,6 +62,8 @@ public class MsOutlookAddrBookSourceContact
 
         this.setData(SourceContact.DATA_ID, id);
         this.setDisplayDetails(organization);
+
+        this.ids.add(id);
     }
 
     /**
@@ -347,10 +354,17 @@ public class MsOutlookAddrBookSourceContact
      */
     public boolean match(String id)
     {
-        String localId = this.getId();
+        if(!this.ids.contains(id))
+        {
+            String localId = this.getId();
+            if(!MsOutlookAddrBookContactQuery.compareEntryIds(id, localId))
+            {
+                return false;
+            }
+            this.ids.add(id);
+        }
 
-        return (localId.equals(id)
-                || MsOutlookAddrBookContactQuery.compareEntryIds(id, localId));
+        return true;
     }
 
     /**

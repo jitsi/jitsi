@@ -95,6 +95,14 @@ public class MsOutlookAddrBookContactSourceService
         {
             throw new RuntimeException(cnfe);
         }
+
+        int bitness = getOutlookBitnessVersion();
+        int version = getOutlookVersion();
+        if(bitness != -1 && version != -1)
+        {
+            logger.info(
+                    "Outlook " + version + "-x" + bitness + " is installed.");
+        }
     }
 
     /**
@@ -147,6 +155,10 @@ public class MsOutlookAddrBookContactSourceService
         throws MsOutlookMAPIHResultException;
 
     private static native void MAPIUninitialize();
+
+    public static native int getOutlookBitnessVersion();
+
+    public static native int getOutlookVersion();
 
     /**
      * Queries this <tt>ContactSourceService</tt> for <tt>SourceContact</tt>s
@@ -486,5 +498,25 @@ public class MsOutlookAddrBookContactSourceService
         {
             return this.id.hashCode();
         }
+    }
+
+    /**
+     * Returns the bitness of this contact source service.
+     *
+     * @return The bitness of this contact source service.
+     */
+    public int getBitness()
+    {
+        return getOutlookBitnessVersion();
+    }
+
+    /**
+     * Returns the version of this contact source service.
+     *
+     * @return The version of this contact source service.
+     */
+    public int getVersion()
+    {
+        return getOutlookVersion();
     }
 }

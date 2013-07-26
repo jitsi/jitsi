@@ -16,4 +16,6 @@
 
 int MAPIBitness_getOutlookBitnessVersion(void);
 
+int MAPIBitness_getOutlookVersion(void);
+
 #endif

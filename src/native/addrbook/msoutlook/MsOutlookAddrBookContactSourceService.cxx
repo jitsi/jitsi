@@ -406,10 +406,13 @@ HRESULT MsOutlookAddrBookContactSourceService_MAPIInitialize
                                         | MAPI_NO_MAIL
                                         | MAPI_USE_DEFAULT,
                                     &mapiSession);
-                            // Register the notification of contact changed,
-                            // created and deleted.
-                            MAPINotification_registerNotifyAllMsgStores(
-                                    mapiSession);
+                            if(HR_SUCCEEDED(hResult))
+                            {
+                                // Register the notification of contact changed,
+                                // created and deleted.
+                                MAPINotification_registerNotifyAllMsgStores(
+                                        mapiSession);
+                            }
                         }
                         ::SetCurrentDirectory(lpszWorkingDir);
                         MAPISession_unlock();

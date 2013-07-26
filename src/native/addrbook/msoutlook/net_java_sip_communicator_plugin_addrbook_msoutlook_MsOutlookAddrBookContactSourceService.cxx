@@ -44,3 +44,29 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
 
     MsOutlookAddrBookContactSourceService_MAPIUninitializeCOMServer();
 }
+
+/**
+ * Returns the bitness of the Outlook installation.
+ *
+ * @return 64 if Outlook 64 bits version is installed. 32 if Outlook 32 bits
+ * version is installed. -1 otherwise.
+ */
+JNIEXPORT int JNICALL
+Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService_getOutlookBitnessVersion
+    (JNIEnv *jniEnv, jclass clazz)
+{
+    return MAPIBitness_getOutlookBitnessVersion();
+}
+
+/**
+ * Returns the Outlook version installed.
+ *
+ * @return 2013 for "Outlook 2013", 2010 for "Outlook 2010", 2007 for "Outlook
+ * 2007" or 2003 for "Outlook 2003". -1 otherwise.
+ */
+JNIEXPORT int JNICALL
+Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService_getOutlookVersion
+    (JNIEnv *jniEnv, jclass clazz)
+{
+    return MAPIBitness_getOutlookVersion();
+}

@@ -280,4 +280,24 @@ public class MacOSXAddrBookContactSourceService
         return !AddrBookActivator.getConfigService().getBoolean(
                     PNAME_MACOSX_ADDR_BOOK_SEARCH_FIELD_DISABLED, false);
     }
+
+    /**
+     * Returns the bitness of this contact source service.
+     *
+     * @return The bitness of this contact source service.
+     */
+    public int getBitness()
+    {
+        return -1;
+    }
+
+    /**
+     * Returns the version of this contact source service.
+     *
+     * @return The version of this contact source service.
+     */
+    public int getVersion()
+    {
+        return -1;
+    }
 }
