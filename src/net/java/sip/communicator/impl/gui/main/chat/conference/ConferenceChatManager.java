@@ -1599,6 +1599,7 @@ public class ConferenceChatManager
             String errorMessage = null;
             if(AUTHENTICATION_FAILED.equals(returnCode))
             {
+                chatRoomWrapper.removePassword();
                 ChatRoomAuthenticationWindow authWindow
                     = new ChatRoomAuthenticationWindow(chatRoomWrapper,
                         nickName);
@@ -1635,16 +1636,13 @@ public class ConferenceChatManager
                             new String[]{chatRoomWrapper.getChatRoomName()});
             }
 
-            if (!SUCCESS.equals(returnCode))
+            if (!SUCCESS.equals(returnCode) && 
+                !AUTHENTICATION_FAILED.equals(returnCode))
             {
-                if(!AUTHENTICATION_FAILED.equals(returnCode))
-                {
-                    new ErrorDialog(
-                        GuiActivator.getUIService().getMainFrame(),
-                        GuiActivator.getResources().getI18NString(
-                                "service.gui.ERROR"), errorMessage).showDialog();
-                }
-                chatRoomWrapper.removePassword();
+                new ErrorDialog(
+                    GuiActivator.getUIService().getMainFrame(),
+                    GuiActivator.getResources().getI18NString(
+                            "service.gui.ERROR"), errorMessage).showDialog();
             }
             
             if (SUCCESS.equals(returnCode) && rememberPassword)
