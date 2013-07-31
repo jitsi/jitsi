@@ -12,10 +12,8 @@ import java.util.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
-import net.java.sip.communicator.impl.gui.main.chatroomslist.joinforms.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -34,7 +32,7 @@ import org.jitsi.service.resources.*;
  */
 public class ChatRoomRightButtonMenu
     extends SIPCommPopupMenu
-    implements  ActionListener
+    implements ActionListener
 {
     /**
      * The current chat room wrapper.

@@ -127,7 +127,8 @@ public class SSLSocketFactoryEx
         }
         catch(SocketTimeoutException ex)
         {
-            throw new ConnectTimeoutException("Connect to " + remoteAddress + " timed out");
+            throw new ConnectTimeoutException(
+                    "Connect to " + remoteAddress + " timed out");
         }
 
         String hostname;

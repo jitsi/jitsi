@@ -15,7 +15,6 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
@@ -36,7 +35,7 @@ import org.jitsi.util.*;
  */
 public class ChatRoomTableDialog
     extends SIPCommDialog
-    implements  ActionListener
+    implements ActionListener
 {
     /**
      * The global/shared <code>ChatRoomTableDialog</code> currently showing.
