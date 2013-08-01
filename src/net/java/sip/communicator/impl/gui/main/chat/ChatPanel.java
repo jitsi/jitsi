@@ -221,7 +221,7 @@ public class ChatPanel
             topPanel.remove(conversationPanelContainer);
 
             TransparentPanel rightPanel
-                = new TransparentPanel(new BorderLayout(5, 5));
+                = new TransparentPanel(new BorderLayout());
             Dimension chatContactPanelSize = new Dimension(150, 100);
             rightPanel.setMinimumSize(chatContactPanelSize);
             rightPanel.setPreferredSize(chatContactPanelSize);
@@ -237,14 +237,24 @@ public class ChatPanel
 
             ChatTransport chatTransport = chatSession.getCurrentChatTransport();
 
+            JPanel localUserLabelPanel = new JPanel(new BorderLayout());
             JLabel localUserLabel = new JLabel(
                 chatTransport.getProtocolProvider()
                     .getAccountID().getDisplayName());
 
             localUserLabel.setFont(
                 localUserLabel.getFont().deriveFont(Font.BOLD));
+            localUserLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            localUserLabel.setBorder(
+                            BorderFactory.createEmptyBorder(2, 0, 3, 0));
+            localUserLabel.setForeground(
+                Color.decode(ChatHtmlUtils.MSG_IN_NAME_FOREGROUND));
 
-            rightPanel.add(localUserLabel, BorderLayout.NORTH);
+            localUserLabelPanel.add(localUserLabel, BorderLayout.CENTER);
+            localUserLabelPanel.setBackground(
+                Color.decode(ChatHtmlUtils.MSG_NAME_BACKGROUND));
+
+            rightPanel.add(localUserLabelPanel, BorderLayout.NORTH);
             rightPanel.add(chatContactListPanel, BorderLayout.CENTER);
 
             topSplitPane.setLeftComponent(conversationPanelContainer);

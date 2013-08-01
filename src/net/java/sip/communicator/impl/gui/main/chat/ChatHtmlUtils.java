@@ -67,6 +67,17 @@ public class ChatHtmlUtils
     public static final String TEXT_CONTENT_TYPE = "text/plain";
 
     /**
+     * The color used in html for name background.
+     */
+    public static final String MSG_NAME_BACKGROUND = "#efefef";
+
+    /**
+     * The color used in html for incoming message contact name foreground.
+     */
+    public static final String MSG_IN_NAME_FOREGROUND = "#488fe7";
+
+
+    /**
      * Creates an incoming message tag.
      *
      * @param messageID the identifier
@@ -231,7 +242,8 @@ public class ChatHtmlUtils
         headerBuffer.append("<h2 id=\"" + MESSAGE_HEADER_ID + "\" ");
         headerBuffer.append(DATE_ATTRIBUTE + "='"
             + sdf.format(date) + "'" + ">");
-        headerBuffer.append("<a style=\"color:#488fe7;");
+        headerBuffer.append("<a style=\"color:");
+        headerBuffer.append(MSG_IN_NAME_FOREGROUND).append(";");
         headerBuffer.append("font-weight:bold;");
         headerBuffer.append("text-decoration:none;\" ");
         headerBuffer.append("href=\"" + contactName + "\">");
@@ -245,7 +257,8 @@ public class ChatHtmlUtils
         messageBuff.append("<table width=\"100%\" ");
         messageBuff.append(NAME_ATTRIBUTE + "=\""
                             +  Tag.TABLE.toString() + "\" ");
-        messageBuff.append("style=\"background-color:#efefef;\">");
+        messageBuff.append("style=\"background-color:");
+        messageBuff.append(MSG_NAME_BACKGROUND).append(";\">");
         messageBuff.append("<tr>");
         messageBuff.append("<td align=\"left\" >");
         messageBuff.append(headerBuffer.toString());
@@ -311,7 +324,8 @@ public class ChatHtmlUtils
         messageBuff.append("<table width=\"100%\" ");
         messageBuff.append(NAME_ATTRIBUTE + "=\""
                             +  Tag.TABLE.toString() + "\" ");
-        messageBuff.append("style=\"background-color:#efefef;\">");
+        messageBuff.append("style=\"background-color:");
+        messageBuff.append(MSG_NAME_BACKGROUND).append(";\">");
         messageBuff.append("<tr>");
         messageBuff.append("<td align=\"left\" >");
         messageBuff.append(headerBuffer.toString());
@@ -363,7 +377,8 @@ public class ChatHtmlUtils
         headerBuffer.append("<h2 id=\"" + MESSAGE_HEADER_ID + "\" ");
         headerBuffer.append(DATE_ATTRIBUTE + "='" + sdf.format(date) + "' ");
         headerBuffer.append(IncomingMessageStyle.createHeaderStyle() + ">");
-        headerBuffer.append("<a style=\"color:#488fe7;");
+        headerBuffer.append("<a style=\"color:");
+        headerBuffer.append(MSG_IN_NAME_FOREGROUND).append(";");
         headerBuffer.append("font-weight:bold;");
         headerBuffer.append("text-decoration:none;\" ");
         headerBuffer.append("href=\"" + contactName + "\">");

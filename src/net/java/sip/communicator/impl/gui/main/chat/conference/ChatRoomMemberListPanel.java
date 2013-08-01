@@ -103,6 +103,7 @@ public class ChatRoomMemberListPanel
         contactsScrollPane.setHorizontalScrollBarPolicy(
             JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         contactsScrollPane.setOpaque(false);
+        contactsScrollPane.setBorder(null);
 
         JViewport viewport = contactsScrollPane.getViewport();
         viewport.setOpaque(false);
