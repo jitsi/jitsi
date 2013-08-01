@@ -354,8 +354,8 @@ public class ChatContactRightButtonMenu
                     "Ok",
                     false, true);
 
-           // reasonDialog.setIconImage(ImageLoader.getImage(
-           //   ImageLoader.CHANGE_NICKNAME_ICON_16x16));
+           reasonDialog.setIconImage(ImageLoader.getImage(
+              ImageLoader.CHANGE_NICKNAME_ICON));
             reasonDialog.setReasonFieldText(chatContact.getName());
 
             int result = reasonDialog.showDialog();

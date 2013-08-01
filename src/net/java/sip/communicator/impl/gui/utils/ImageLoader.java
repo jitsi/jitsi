@@ -1331,6 +1331,12 @@ public class ImageLoader
         = new ImageID("service.gui.icons.CHANGE_NICKNAME_16x16");
 
     /**
+     * Change nickname icon
+     */
+    public static final ImageID CHANGE_NICKNAME_ICON
+        = new ImageID("service.gui.icons.CHANGE_NICKNAME");
+
+    /**
      * Ban icon.
      */
     public static final ImageID BAN_ICON_16x16

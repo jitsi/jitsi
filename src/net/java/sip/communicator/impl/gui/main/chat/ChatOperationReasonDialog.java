@@ -89,15 +89,17 @@ public class ChatOperationReasonDialog extends MessageDialog
      * @param message the message shown in this dialog
      * @param disableOKIfReasonIsEmpty if true the OK button will be disabled if
      * the reason text is empty.
+     * @param showReasonLabel specify if we want the "Reason:" label
      */
-    public ChatOperationReasonDialog(String title, String message, 
+    public ChatOperationReasonDialog(String title, String message,
+        boolean showReasonLabel,
         boolean disableOKIfReasonIsEmpty)
     {
         this(null,
             title,
             message,
             GuiActivator.getResources().getI18NString("service.gui.OK"),
-            true,
+            showReasonLabel,
             disableOKIfReasonIsEmpty);
         
     }
@@ -145,14 +147,19 @@ public class ChatOperationReasonDialog extends MessageDialog
         {
             reasonPanel.add(reasonLabel, BorderLayout.WEST);
         }
+        else
+            reasonPanel.add(new JLabel(""), BorderLayout.WEST);
 
-        reasonPanel.add(new JLabel("          "), BorderLayout.WEST);
         reasonPanel.add(new JLabel("          "), BorderLayout.EAST);
-        reasonPanel.add(reasonField, BorderLayout.CENTER);
+
+        JPanel reasonFieldPanel = new JPanel(new BorderLayout());
+        reasonFieldPanel.add(reasonField, BorderLayout.NORTH);
+
+        reasonPanel.add(reasonFieldPanel, BorderLayout.CENTER);
         reasonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         reasonPanel.setOpaque(false);
 
-        this.getContentPane().add(reasonPanel, BorderLayout.CENTER);
+        replaceCheckBoxPanel(reasonPanel);
         
         if(disableOKIfReasonIsEmpty)
         {
@@ -209,5 +216,16 @@ public class ChatOperationReasonDialog extends MessageDialog
     public void setReasonFieldText(String value)
     {
         reasonField.setText(value);
+    }
+
+    /**
+     * Sets the message to be displayed.
+     * @param message The message to be displayed.
+     */
+    public void setMessage(String message)
+    {
+        super.setMessage(message);
+
+        setMaxWidth(400);
     }
 }

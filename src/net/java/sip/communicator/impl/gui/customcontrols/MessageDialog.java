@@ -55,7 +55,7 @@ public class MessageDialog
     private TransparentPanel checkBoxPanel
         = new TransparentPanel(new FlowLayout(FlowLayout.LEADING));
 
-    private TransparentPanel messagePanel
+    private TransparentPanel mainPanel
         = new TransparentPanel(new BorderLayout(5, 5));
 
     private boolean isConfirmationEnabled = true;
@@ -103,7 +103,7 @@ public class MessageDialog
         this.messageArea.setEditable(false);
         this.messageArea.setContentType("text/html");
 
-        this.messagePanel.setBorder(
+        this.messageArea.setBorder(
             BorderFactory.createEmptyBorder(10, 10, 0, 10));
         this.checkBoxPanel.setBorder(
             BorderFactory.createEmptyBorder(0, 10, 10, 10));
@@ -212,12 +212,22 @@ public class MessageDialog
         this.cancelButton.addActionListener(this);
 
         this.cancelButton.setMnemonic(cancelButton.getText().charAt(0));
-        this.messagePanel.add(iconLabel, BorderLayout.WEST);
-        this.messagePanel.add(messageArea, BorderLayout.CENTER);
 
-        this.getContentPane().add(messagePanel, BorderLayout.NORTH);
-        this.getContentPane().add(checkBoxPanel, BorderLayout.CENTER);
+        this.mainPanel.add(messageArea, BorderLayout.NORTH);
+        this.mainPanel.add(checkBoxPanel, BorderLayout.CENTER);
+
+        TransparentPanel iconPanel = new TransparentPanel(new BorderLayout());
+        iconPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 0));
+        iconPanel.add(iconLabel, BorderLayout.CENTER);
+
+        this.getContentPane().add(iconPanel, BorderLayout.WEST);
+        this.getContentPane().add(mainPanel, BorderLayout.CENTER);
         this.getContentPane().add(buttonsPanel, BorderLayout.SOUTH);
+    }
+
+    public void replaceCheckBoxPanel(Component comp)
+    {
+        this.mainPanel.add(comp, BorderLayout.CENTER);
     }
 
     /**
@@ -228,12 +238,21 @@ public class MessageDialog
     {
         this.messageArea.setText(message);
 
+        setMaxWidth(600);
+    }
+
+    /**
+     * try to reevaluate the preferred size of the message pane.
+     * (this is definitely not a neat way to do it ... but it works).
+     */
+    public void setMaxWidth(int maxWidth)
+    {
         //try to reevaluate the preferred size of the message pane.
         //(this is definitely not a neat way to do it ... but it works).
         this.messageArea.setSize(
                         new Dimension(MAX_MSG_PANE_WIDTH, MAX_MSG_PANE_HEIGHT));
         int height = this.messageArea.getPreferredSize().height;
-        this.messageArea.setPreferredSize(new Dimension(600, height));
+        this.messageArea.setPreferredSize(new Dimension(maxWidth, height));
     }
 
     /**
@@ -327,5 +346,14 @@ public class MessageDialog
     {
         iconLabel.setIcon(new ImageIcon(ImageLoader
             .getImage(ImageLoader.WARNING_ICON)));
+    }
+
+    /**
+     * Changes the icon in the dialog.
+     * @param image
+     */
+    public void setIcon(Image image)
+    {
+        iconLabel.setIcon(new ImageIcon(image));
     }
 }

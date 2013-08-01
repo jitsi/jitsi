@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.gui.main.chat.conference;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
@@ -285,7 +286,9 @@ public class ChatRoomWrapper
             new ChatOperationReasonDialog(GuiActivator.getResources()
                 .getI18NString("service.gui.CHANGE_NICKNAME"), GuiActivator
                 .getResources().getI18NString(
-                    "service.gui.CHANGE_NICKNAME_LABEL"), true);
+                    "service.gui.CHANGE_NICKNAME_LABEL"), false, true);
+        reasonDialog.setIcon(ImageLoader.getImage(
+                    ImageLoader.CHANGE_NICKNAME_ICON));
         
         final OperationSetServerStoredAccountInfo accountInfoOpSet
             =  getParentProvider().getProtocolProvider().getOperationSet(
