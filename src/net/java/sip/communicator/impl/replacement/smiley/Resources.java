@@ -89,7 +89,7 @@ public class Resources
             new String[] {"(angry)"}, "Angry"));
 
         defaultSmileyList.add(new SmileyImpl("service.gui.smileys.SMILEY18",
-            new String[] {"(bomb)"}, "Explosing"));
+            new String[] {"(bomb)"}, "Exploding"));
 
         defaultSmileyList.add(new SmileyImpl("service.gui.smileys.SMILEY19",
             new String[] {"(search)"}, "Searching"));
