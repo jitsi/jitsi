@@ -207,6 +207,7 @@ public class OtrMetaContactButton
     private void setStatus(SessionStatus status)
     {
         String urlKey;
+        String tipKey;
         switch (status)
         {
         case ENCRYPTED:
@@ -214,12 +215,15 @@ public class OtrMetaContactButton
                 = OtrActivator.scOtrKeyManager.isVerified(contact)
                     ? "plugin.otr.ENCRYPTED_ICON_22x22"
                     : "plugin.otr.ENCRYPTED_UNVERIFIED_ICON_22x22";
+            tipKey = "plugin.otr.menu.END_OTR";
             break;
         case FINISHED:
             urlKey = "plugin.otr.FINISHED_ICON_22x22";
+            tipKey = "plugin.otr.menu.END_OTR";
             break;
         case PLAINTEXT:
             urlKey = "plugin.otr.PLAINTEXT_ICON_22x22";
+            tipKey = "plugin.otr.menu.START_OTR";
             break;
         default:
             return;
@@ -227,8 +231,11 @@ public class OtrMetaContactButton
 
         try
         {
-            getButton().setImage(
+            SIPCommButton button = getButton();
+            button.setImage(
                 ImageIO.read(OtrActivator.resourceService.getImageURL(urlKey)));
+            button.setToolTipText(OtrActivator.resourceService
+                .getI18NString(tipKey));
         }
         catch (IOException e)
         {
