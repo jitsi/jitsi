@@ -115,31 +115,6 @@ public class SIPCommFrame
     }
 
     /**
-     * Validates this container and all of its subcomponents.
-     * <p>
-     * The <code>validate</code> method is used to cause a container
-     * to lay out its subcomponents again. It should be invoked when
-     * this container's subcomponents are modified (added to or
-     * removed from the container, or layout-related information
-     * changed) after the container has been displayed.
-     *
-     * <p>If this {@code Container} is not valid, this method invokes
-     * the {@code validateTree} method and marks this {@code Container}
-     * as valid. Otherwise, no action is performed.
-     *
-     * @see #add(java.awt.Component)
-     * @see Component#invalidate
-     * @see javax.swing.JComponent#revalidate()
-     * @see #validateTree
-     */
-    @Override
-    public void validate()
-    {
-        init();
-        super.validate();
-    }
-
-    /**
      * Initialize default values.
      */
     private void init()
