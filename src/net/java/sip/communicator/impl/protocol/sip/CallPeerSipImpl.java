@@ -206,7 +206,6 @@ public class CallPeerSipImpl
             else
             {
                 URI peerURI = getPeerAddress().getURI();
-
                 if (peerURI instanceof SipURI)
                 {
                     String userName = ((SipURI) peerURI).getUser();
@@ -214,7 +213,8 @@ public class CallPeerSipImpl
                     if (userName != null && userName.length() > 0)
                         displayName = userName;
                 }
-                else
+
+                if (displayName == null)
                 {
                     displayName = peerURI.toString();
                 }
