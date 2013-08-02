@@ -1148,6 +1148,7 @@ public class ChatWindow
             else if (!isWindowVisible)
             {
                 setFocusableWindowState(false);
+                setState(Frame.ICONIFIED);
                 setVisible(true);
                 setFocusableWindowState(true);
             }
