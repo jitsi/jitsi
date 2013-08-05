@@ -1549,23 +1549,26 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
         if(locallyOnHold)
         {
             MediaStream audioStream = getStream(MediaType.AUDIO);
+            MediaDirection direction
+                    = getPeer().getCall().isConferenceFocus()
+                    ? MediaDirection.INACTIVE
+                    : audioStream.getDirection().and(MediaDirection.SENDONLY);
 
             if(audioStream != null)
             {
-                audioStream.setDirection(
-                        audioStream.getDirection().and(
-                                MediaDirection.SENDONLY));
-                audioStream.setMute(locallyOnHold);
+                audioStream.setDirection(direction);
+                audioStream.setMute(true);
             }
 
             MediaStream videoStream = getStream(MediaType.VIDEO);
+            direction = getPeer().getCall().isConferenceFocus()
+                    ? MediaDirection.INACTIVE
+                    : videoStream.getDirection().and(MediaDirection.SENDONLY);
 
             if(videoStream != null)
             {
-                videoStream.setDirection(
-                        videoStream.getDirection().and(
-                                MediaDirection.SENDONLY));
-                videoStream.setMute(locallyOnHold);
+                videoStream.setDirection(direction);
+                videoStream.setMute(true);
             }
         }
         /*
@@ -1580,7 +1583,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
             {
                 audioStream.setDirection(
                         audioStream.getDirection().or(MediaDirection.SENDONLY));
-                audioStream.setMute(locallyOnHold);
+                audioStream.setMute(false);
             }
 
             MediaStream videoStream = getStream(MediaType.VIDEO);
@@ -1590,7 +1593,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
             {
                 videoStream.setDirection(
                         videoStream.getDirection().or(MediaDirection.SENDONLY));
-                videoStream.setMute(locallyOnHold);
+                videoStream.setMute(false);
             }
         }
     }
