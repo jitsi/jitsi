@@ -1880,10 +1880,10 @@ public class CallPeerMediaHandlerJabberImpl
                  * need to ask the videobridge to change the stream
                  * direction on behalf of us.
                  */
+                ColibriConferenceIQ.Channel channel
+                        = getColibriChannel(mediaType);
                 if(remotelyOnHold)
                 {
-                    ColibriConferenceIQ.Channel channel
-                            = getColibriChannel(mediaType);
                     getPeer().getCall().setChannelDirection(
                             channel.getID(),
                             mediaType,
@@ -1892,8 +1892,6 @@ public class CallPeerMediaHandlerJabberImpl
                 else
                 {
                     //TODO: does SENDRECV always make sense?
-                    ColibriConferenceIQ.Channel channel
-                            = getColibriChannel(mediaType);
                     getPeer().getCall().setChannelDirection(
                             channel.getID(),
                             mediaType,
@@ -2152,6 +2150,48 @@ public class CallPeerMediaHandlerJabberImpl
         return remotelyOnHold;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * Handles the case when a videobridge is in use.
+     *
+     * @param locallyOnHold <tt>true</tt> if we are to make our streams
+     * stop transmitting and <tt>false</tt> if we are to start transmitting
+     */
+    @Override
+    public void setLocallyOnHold(boolean locallyOnHold)
+    {
+        if (!getPeer().isJitsiVideoBridge())
+        {
+            super.setLocallyOnHold(locallyOnHold);
+        }
+        else
+        {
+            this.locallyOnHold = locallyOnHold;
+
+            if (!locallyOnHold
+                && CallPeerState.ON_HOLD_MUTUALLY.equals(getPeer().getState()))
+                return;
+
+            for (MediaType mediaType : MediaType.values())
+            {
+                ColibriConferenceIQ.Channel channel
+                        = getColibriChannel(mediaType);
+                if (channel == null)
+                    continue;
+
+                MediaDirection direction
+                        = locallyOnHold
+                        ? MediaDirection.INACTIVE
+                        : MediaDirection.SENDRECV;
+
+                getPeer().getCall().setChannelDirection(
+                        channel.getID(),
+                        mediaType,
+                        direction);
+            }
+        }
+    }
 
 
 }

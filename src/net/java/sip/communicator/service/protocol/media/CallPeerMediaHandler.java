@@ -134,7 +134,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
     /**
      * Determines whether we have placed the call on hold locally.
      */
-    private boolean locallyOnHold = false;
+    protected boolean locallyOnHold = false;
 
     /**
      * The listener that the <tt>CallPeer</tt> registered for local user audio
@@ -1534,7 +1534,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
      * (according to the value of <tt>locallyOnHold</tt>). This would also be
      * taken into account when the next update offer is generated.
      *
-     * @param locallyOnHold <tt>true</tt> if we are to make our audio stream
+     * @param locallyOnHold <tt>true</tt> if we are to make our streams
      * stop transmitting and <tt>false</tt> if we are to start transmitting
      * again.
      */
