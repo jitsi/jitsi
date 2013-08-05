@@ -1909,7 +1909,7 @@ public class CallPeerMediaHandlerJabberImpl
                     MediaDirection newDirection
                             = getPeer().getCall().isConferenceFocus()
                             ? MediaDirection.INACTIVE
-                            : stream.getDirection().and(MediaDirection.SENDRECV);
+                            : stream.getDirection().and(MediaDirection.RECVONLY);
                     stream.setDirection(newDirection);
                 }
                 else
