@@ -47,7 +47,7 @@ public class ChatRoomConfigurationWindow
     /**
      * The main panel.
      */
-    private JPanel mainPanel = new JPanel();
+    private JPanel mainPanel = new TransparentPanel();
 
     /**
      * The button that stores the data.
@@ -64,12 +64,14 @@ public class ChatRoomConfigurationWindow
     /**
      * The panel contained in the "Options" tab.
      */
-    private JPanel roomOptionsPanel = new JPanel(new GridLayout(0, 1));
+    private JPanel roomOptionsPanel =
+        new TransparentPanel(new GridLayout(0, 1));
 
     /**
      * The panel containing all buttons.
      */
-    private JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+    private JPanel buttonsPanel =
+        new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
 
     /**
      * The tabbed pane containing the "General" and "Options" tabs.
@@ -107,13 +109,18 @@ public class ChatRoomConfigurationWindow
             new String[]{chatRoomName}));
 
         titlePanel.setTitleText(GuiActivator.getResources().getI18NString(
-            "service.gui.SETTINGS"));
+            "service.gui.CHAT_ROOM_OPTIONS"));
 
         this.generalScrollPane.setPreferredSize(new Dimension(820, 520));
         this.generalScrollPane.setHorizontalScrollBarPolicy(
             JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         this.optionsScrollPane.setHorizontalScrollBarPolicy(
             JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+        this.generalScrollPane.setOpaque(false);
+        this.generalScrollPane.getViewport().setOpaque(false);
+        this.optionsScrollPane.setOpaque(false);
+        this.optionsScrollPane.getViewport().setOpaque(false);
 
         this.mainPanel.setBorder(
             BorderFactory.createEmptyBorder(15, 15, 15, 15));
@@ -151,11 +158,8 @@ public class ChatRoomConfigurationWindow
         mainPanel.setOpaque(false);
         generalScrollPane.setOpaque(false);
 
-        this.roomOptionsPanel.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createEmptyBorder(15, 15, 15, 15),
-            BorderFactory.createTitledBorder(
-                GuiActivator.getResources()
-                    .getI18NString("service.gui.CHAT_ROOM_OPTIONS"))));
+        this.roomOptionsPanel.setBorder(
+            BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         this.loadConfigurationForm();
     }
@@ -212,7 +216,7 @@ public class ChatRoomConfigurationWindow
             else if(fieldType.equals(
                 ChatRoomConfigurationFormField.TYPE_LIST_MULTI))
             {
-                field = new JPanel(new GridLayout(0, 1));
+                field = new TransparentPanel(new GridLayout(0, 1));
 
                 field.setBorder(BorderFactory.createLineBorder(Color.GRAY));
 
@@ -318,7 +322,7 @@ public class ChatRoomConfigurationWindow
             }
             else
             {
-                JPanel fieldPanel = new JPanel(new GridLayout(1,2));
+                JPanel fieldPanel = new TransparentPanel(new GridLayout(1,2));
                 fieldPanel.setOpaque(false);
 
                 if(!(field instanceof JLabel))
