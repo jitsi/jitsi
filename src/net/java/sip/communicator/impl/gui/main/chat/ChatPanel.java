@@ -16,6 +16,8 @@ import java.util.List;
 
 import javax.swing.*;
 import javax.swing.event.*;
+import javax.swing.plaf.*;
+import javax.swing.plaf.basic.*;
 import javax.swing.text.*;
 
 import net.java.sip.communicator.impl.gui.*;
@@ -235,6 +237,17 @@ public class ChatPanel
             topSplitPane.setOpaque(false);
             topSplitPane.setResizeWeight(1.0D);
 
+            Color msgNameBackground =
+                Color.decode(ChatHtmlUtils.MSG_NAME_BACKGROUND);
+
+            // add border to the divider
+            if(topSplitPane.getUI() instanceof BasicSplitPaneUI)
+            {
+                ((BasicSplitPaneUI)topSplitPane.getUI()).getDivider()
+                    .setBorder(
+                        BorderFactory.createLineBorder(msgNameBackground));
+            }
+
             ChatTransport chatTransport = chatSession.getCurrentChatTransport();
 
             JPanel localUserLabelPanel = new JPanel(new BorderLayout());
@@ -251,8 +264,7 @@ public class ChatPanel
                 Color.decode(ChatHtmlUtils.MSG_IN_NAME_FOREGROUND));
 
             localUserLabelPanel.add(localUserLabel, BorderLayout.CENTER);
-            localUserLabelPanel.setBackground(
-                Color.decode(ChatHtmlUtils.MSG_NAME_BACKGROUND));
+            localUserLabelPanel.setBackground(msgNameBackground);
 
             rightPanel.add(localUserLabelPanel, BorderLayout.NORTH);
             rightPanel.add(chatContactListPanel, BorderLayout.CENTER);
