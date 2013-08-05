@@ -99,8 +99,8 @@ public class ProviderManagerExt
             DiscoverInfoProvider.class);
 
         //<!-- Data Forms-->
-        //addExtProvider("x", "jabber:x:data",
-        //    org.jivesoftware.smackx.provider.DataFormProvider.class);
+        addExtProvider("x", "jabber:x:data",
+            org.jivesoftware.smackx.provider.DataFormProvider.class);
 
         //<!-- MUC User -->
         addExtProvider("x", "http://jabber.org/protocol/muc#user",
