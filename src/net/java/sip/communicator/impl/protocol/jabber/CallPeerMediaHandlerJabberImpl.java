@@ -150,7 +150,7 @@ public class CallPeerMediaHandlerJabberImpl
     }
 
     /**
-     * Determines and sets the direction that a stream, which has been placed on
+     * Determines the direction that a stream, which has been placed on
      * hold by the remote party, would need to go back to after being
      * re-activated. If the stream is not currently on hold (i.e. it is still
      * sending media), this method simply returns its current direction.
@@ -1884,33 +1884,35 @@ public class CallPeerMediaHandlerJabberImpl
                 {
                     ColibriConferenceIQ.Channel channel
                             = getColibriChannel(mediaType);
-                    //TODO: calculate the direction independently of 'channel'
-                    MediaDirection direction
-                            = channel.getDirection().and(MediaDirection.RECVONLY);
                     getPeer().getCall().setChannelDirection(
                             channel.getID(),
                             mediaType,
-                            direction);
+                            MediaDirection.INACTIVE);
                 }
                 else
                 {
-                    //TODO: calculate the direction properly
+                    //TODO: does SENDRECV always make sense?
                     ColibriConferenceIQ.Channel channel
                             = getColibriChannel(mediaType);
-                    MediaDirection direction
-                            = channel.getDirection().or(MediaDirection.SENDONLY);
                     getPeer().getCall().setChannelDirection(
                             channel.getID(),
                             mediaType,
-                            direction);
+                            MediaDirection.SENDRECV);
                 }
             }
             else //no videobridge
             {
                 if (remotelyOnHold)
                 {
-                    stream.setDirection(stream.getDirection()
-                            .and(MediaDirection.RECVONLY));
+                    /*
+                     * In conferences we use INACTIVE to prevent, for example,
+                     * on-hold music from being played to all the participants.
+                     */
+                    MediaDirection newDirection
+                            = getPeer().getCall().isConferenceFocus()
+                            ? MediaDirection.INACTIVE
+                            : stream.getDirection().and(MediaDirection.SENDRECV);
+                    stream.setDirection(newDirection);
                 }
                 else
                 {
