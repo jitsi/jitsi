@@ -534,7 +534,8 @@ public class ReconnectPluginActivator
 
                 if (logger.isTraceEnabled())
                     logger.trace("Network is down!");
-                notify("", "plugin.reconnectplugin.NETWORK_DOWN", new String[0]);
+                notify("", "plugin.reconnectplugin.NETWORK_DOWN",
+                       new String[0], this);
             }
         }
 
@@ -635,14 +636,23 @@ public class ReconnectPluginActivator
      * @param title the title.
      * @param i18nKey the resource key of the notification.
      * @param params and parameters in any.
+     * @param tag extra notification tag object
      */
-    private void notify(String title, String i18nKey, String[] params)
+    private void notify(String title, String i18nKey, String[] params,
+                        Object tag)
     {
+        Map<String,Object> extras = new HashMap<String,Object>();
+
+        extras.put(
+                NotificationData.POPUP_MESSAGE_HANDLER_TAG_EXTRA,
+                tag);
+
         getNotificationService().fireNotification(
                     NETWORK_NOTIFICATIONS,
                     title,
                     getResources().getI18NString(i18nKey, params),
-                    null);
+                    null,
+                    extras);
     }
 
     /**
@@ -682,7 +692,8 @@ public class ReconnectPluginActivator
                         notify(
                             getResources().getI18NString("service.gui.ERROR"),
                             "service.gui.NON_EXISTING_USER_ID",
-                            new String[]{pp.getAccountID().getService()});
+                            new String[]{pp.getAccountID().getService()},
+                            pp.getAccountID());
                     }
                     else
                     {
@@ -691,7 +702,8 @@ public class ReconnectPluginActivator
                             "plugin.reconnectplugin.CONNECTION_FAILED_MSG",
                             new String[]
                             {   pp.getAccountID().getUserID(),
-                                pp.getAccountID().getService() });
+                                pp.getAccountID().getService() },
+                            pp.getAccountID());
                     }
 
                     return;
