@@ -203,10 +203,16 @@ public class ChatRoomTableDialog
             public void itemStateChanged(ItemEvent e)
             {
                 if(e.getStateChange() == ItemEvent.SELECTED
-                    && roomsCombo.getSelectedIndex() != -1)
+                    && roomsCombo.getSelectedIndex() > -1)
                 {
                     okButton.setEnabled(true);
                     addButton.setEnabled(true);
+                }
+                else if(roomsCombo.getSelectedIndex() == -1
+                        || e.getStateChange() == ItemEvent.DESELECTED)
+                {
+                    okButton.setEnabled(false);
+                    addButton.setEnabled(false);
                 }
             }
         });
@@ -516,7 +522,6 @@ public class ChatRoomTableDialog
                 roomsCombo.setSelectedIndex(-1);
 
                 roomsCombo.setEnabled(true);
-                //okButton.setEnabled(true);
             }
         }.start();
     }
