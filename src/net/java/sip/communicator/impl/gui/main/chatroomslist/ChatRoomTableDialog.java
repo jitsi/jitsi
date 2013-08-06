@@ -68,7 +68,7 @@ public class ChatRoomTableDialog
      */
     private final JButton okButton
         = new JButton(
-                GuiActivator.getResources().getI18NString("service.gui.OK"));
+                GuiActivator.getResources().getI18NString("service.gui.JOIN"));
 
     /**
      * The cancel button.
@@ -232,6 +232,13 @@ public class ChatRoomTableDialog
         removeButton.addActionListener(this);
         okButton.addActionListener(this);
         cancelButton.addActionListener(this);
+
+        addButton.setToolTipText(GuiActivator.getResources()
+            .getI18NString("service.gui.CHAT_ROOM_SAVE_BUTTON_TOOLTIP"));
+        removeButton.setToolTipText(GuiActivator.getResources()
+            .getI18NString("service.gui.CHAT_ROOM_REMOVE_BUTTON_TOOLTIP"));
+        okButton.setToolTipText(GuiActivator.getResources()
+            .getI18NString("service.gui.JOIN_CHAT_ROOM"));
 
         addButton.setEnabled(false);
         removeButton.setEnabled(false);
