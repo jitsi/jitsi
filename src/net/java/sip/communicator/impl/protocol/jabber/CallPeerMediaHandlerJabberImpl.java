@@ -1627,14 +1627,15 @@ public class CallPeerMediaHandlerJabberImpl
                 continue;
             }
 
+            SendersEnum senders = JingleUtils.getSenders(
+                    direction,
+                    !getPeer().isInitiator());
             // create the answer description
             ContentPacketExtension ourContent
                 = JingleUtils.createDescription(
                         content.getCreator(),
                         content.getName(),
-                        JingleUtils.getSenders(
-                                direction,
-                                !getPeer().isInitiator()),
+                        senders,
                         mutuallySupportedFormats,
                         rtpExtensions,
                         getDynamicPayloadTypes(),
@@ -1659,6 +1660,7 @@ public class CallPeerMediaHandlerJabberImpl
 
             answer.add(ourContent);
             localContentMap.put(content.getName(), ourContent);
+            setSenders(mediaType, senders);
 
             atLeastOneValidDescription = true;
         }
