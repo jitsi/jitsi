@@ -262,14 +262,11 @@ public class ChatRoomList
         {
             chatRoomProvider.removeChatRoom(chatRoomWrapper);
 
-            if (chatRoomWrapper.isPersistent())
-            {
-                ConfigurationUtils.saveChatRoom(
-                    chatRoomProvider.getProtocolProvider(),
-                    chatRoomWrapper.getChatRoomID(),
-                    null,   // The new identifier.
-                    null);   // The name of the chat room.
-            }
+            ConfigurationUtils.saveChatRoom(
+                chatRoomProvider.getProtocolProvider(),
+                chatRoomWrapper.getChatRoomID(),
+                null,   // The new identifier.
+                null);   // The name of the chat room.
         }
     }
 
