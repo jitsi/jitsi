@@ -208,8 +208,9 @@ public class ChatRoomTableDialog
                     okButton.setEnabled(true);
                     addButton.setEnabled(true);
                 }
-                else if(roomsCombo.getSelectedIndex() == -1
+                else if((roomsCombo.getSelectedIndex() == -1
                         || e.getStateChange() == ItemEvent.DESELECTED)
+                        && editor.getText().trim().length() <= 0)
                 {
                     okButton.setEnabled(false);
                     addButton.setEnabled(false);
