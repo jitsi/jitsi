@@ -473,17 +473,13 @@ public class SipCommunicatorLock extends Thread
      */
     private File getLockFile()
     {
-        String homeDirLocation
-            = System.getProperty(SIPCommunicator.PNAME_SC_HOME_DIR_LOCATION);
-        String homeDirName
-            = System.getProperty(SIPCommunicator.PNAME_SC_HOME_DIR_NAME);
-        String fileSeparator = System.getProperty("file.separator");
-        String fullLockFileName
-            = homeDirLocation + fileSeparator
-                + homeDirName + fileSeparator
-                + LOCK_FILE_NAME;
+        String homeDirLocation =
+            System
+                .getProperty(SIPCommunicator.PNAME_SC_CACHE_DIR_LOCATION);
+        String homeDirName = System
+                        .getProperty(SIPCommunicator.PNAME_SC_HOME_DIR_NAME);
 
-        return new File(fullLockFileName);
+        return new File(new File(homeDirLocation, homeDirName), LOCK_FILE_NAME);
     }
 
     /**

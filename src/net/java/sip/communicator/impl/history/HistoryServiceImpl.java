@@ -101,7 +101,7 @@ public class HistoryServiceImpl
                 = getFileAccessService().getPrivatePersistentDirectory(
                         (userSetDataDirectory == null)
                             ? DATA_DIRECTORY
-                            : userSetDataDirectory);
+                            : userSetDataDirectory, FileCategory.PROFILE);
 
             findDatFiles(vect, histDir);
         } catch (Exception e)
@@ -246,24 +246,29 @@ public class HistoryServiceImpl
         throws IOException
     {
         String[] idComponents = id.getID();
-        String[] dirs = new String[idComponents.length + 1];
 
-        String userSetDataDirectory = System.getProperty("HistoryServiceDirectory");
-        if(userSetDataDirectory != null)
-            dirs[0] = userSetDataDirectory;
-        else
-            dirs[0] = DATA_DIRECTORY;
-
-        // escape chars in direcotory names
+        // escape chars in directory names
         escapeCharacters(idComponents);
 
-        System.arraycopy(idComponents, 0, dirs, 1, dirs.length - 1);
+        String userSetDataDirectory
+            = System.getProperty("HistoryServiceDirectory");
+
+        File dir = new File(userSetDataDirectory != null
+            ? userSetDataDirectory
+            : DATA_DIRECTORY);
+
+        for (String s : idComponents)
+        {
+            dir = new File(dir, s);
+        }
 
         File directory = null;
         try
         {
             directory
-                = getFileAccessService().getPrivatePersistentDirectory(dirs);
+                = getFileAccessService().getPrivatePersistentDirectory(
+                    dir.toString(),
+                    FileCategory.PROFILE);
         }
         catch (Exception e)
         {
@@ -475,7 +480,8 @@ public class HistoryServiceImpl
                 = getFileAccessService().getPrivatePersistentDirectory(
                         (userSetDataDirectory == null)
                             ? DATA_DIRECTORY
-                            : userSetDataDirectory);
+                            : userSetDataDirectory,
+                        FileCategory.PROFILE);
         }
         catch (Exception e)
         {

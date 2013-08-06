@@ -98,7 +98,8 @@ class SpellChecker
             SpellCheckActivator.getFileAccessService();
 
         // checks if DICT_DIR exists to see if this is the first run
-        File dictionaryDir = faService.getPrivatePersistentFile(DICT_DIR);
+        File dictionaryDir = faService.getPrivatePersistentFile(DICT_DIR,
+            FileCategory.CACHE);
 
         if (!dictionaryDir.exists())
         {
@@ -124,7 +125,8 @@ class SpellChecker
                     String filename = dictUrl.getPath().substring(filenameStart);
 
                     File dictLocation =
-                        faService.getPrivatePersistentFile(DICT_DIR + filename);
+                        faService.getPrivatePersistentFile(DICT_DIR + filename,
+                            FileCategory.CACHE);
 
                     copyDictionary(source, dictLocation);
                 }
@@ -133,7 +135,8 @@ class SpellChecker
 
         // gets resource for personal dictionary
         this.personalDictLocation =
-            faService.getPrivatePersistentFile(DICT_DIR + PERSONAL_DICT_NAME);
+            faService.getPrivatePersistentFile(DICT_DIR + PERSONAL_DICT_NAME,
+                FileCategory.PROFILE);
 
         if (!personalDictLocation.exists())
             personalDictLocation.createNewFile();
@@ -379,7 +382,8 @@ class SpellChecker
 
             File dictLocation =
                 SpellCheckActivator.getFileAccessService()
-                    .getPrivatePersistentFile(DICT_DIR + filename);
+                    .getPrivatePersistentFile(DICT_DIR + filename,
+                        FileCategory.CACHE);
 
             // downloads dictionary if unavailable (not cached)
             if (!dictLocation.exists())
@@ -430,7 +434,8 @@ class SpellChecker
 
             File dictLocation =
                 SpellCheckActivator.getFileAccessService()
-                    .getPrivatePersistentFile(DICT_DIR + filename);
+                    .getPrivatePersistentFile(DICT_DIR + filename,
+                        FileCategory.CACHE);
 
             if (dictLocation.exists())
                 dictLocation.delete();
@@ -457,7 +462,8 @@ class SpellChecker
         {
             File dictLocation =
                 SpellCheckActivator.getFileAccessService()
-                    .getPrivatePersistentFile(DICT_DIR + filename);
+                    .getPrivatePersistentFile(DICT_DIR + filename,
+                        FileCategory.CACHE);
 
             return dictLocation.exists();
         }

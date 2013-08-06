@@ -22,6 +22,7 @@ import javax.swing.text.html.*;
 import javax.swing.text.html.HTML.*;
 
 import org.jitsi.service.configuration.*;
+import org.jitsi.service.fileaccess.FileCategory;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
@@ -1841,7 +1842,7 @@ public class ChatConversationPanel
         try
         {
             avatarFile = GuiActivator.getFileAccessService()
-                .getPrivatePersistentFile(avatarPath);
+                .getPrivatePersistentFile(avatarPath, FileCategory.CACHE);
         }
         catch (Exception e)
         {
@@ -1874,7 +1875,7 @@ public class ChatConversationPanel
         try
         {
             avatarFile = GuiActivator.getFileAccessService()
-                .getPrivatePersistentFile(avatarPath);
+                .getPrivatePersistentFile(avatarPath, FileCategory.CACHE);
         }
         catch (Exception e)
         {

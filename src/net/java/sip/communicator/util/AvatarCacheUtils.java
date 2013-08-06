@@ -176,7 +176,8 @@ public class AvatarCacheUtils
             File avatarFile
                 = UtilActivator
                     .getFileAccessService()
-                        .getPrivatePersistentFile(avatarPath);
+                        .getPrivatePersistentFile(avatarPath,
+                            FileCategory.CACHE);
 
             if(avatarFile.exists())
             {
@@ -297,10 +298,11 @@ public class AvatarCacheUtils
 
             avatarDir
                 = fileAccessService.getPrivatePersistentDirectory(
-                        avatarDirPath);
+                        avatarDirPath, FileCategory.CACHE);
             avatarFile
                 = fileAccessService.getPrivatePersistentFile(
-                        avatarDirPath + File.separator + avatarFileName);
+                        new File(avatarDirPath, avatarFileName).toString(),
+                        FileCategory.CACHE);
 
             if(!avatarFile.exists())
             {

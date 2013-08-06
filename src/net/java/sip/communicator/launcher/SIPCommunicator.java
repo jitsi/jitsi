@@ -32,6 +32,20 @@ public class SIPCommunicator
         = { ".sip-communicator", "SIP Communicator" };
 
     /**
+     * The name of the property that stores the home dir for cache data, such
+     * as avatars and spelling dictionaries.
+     */
+    public static final String PNAME_SC_CACHE_DIR_LOCATION =
+            "net.java.sip.communicator.SC_CACHE_DIR_LOCATION";
+
+    /**
+     * The name of the property that stores the home dir for application log
+     * files (not history).
+     */
+    public static final String PNAME_SC_LOG_DIR_LOCATION =
+            "net.java.sip.communicator.SC_LOG_DIR_LOCATION";
+
+    /**
      * Name of the possible configuration file names (used under macosx).
      */
     private static final String[] LEGACY_CONFIGURATION_FILE_NAMES
@@ -182,12 +196,14 @@ public class SIPCommunicator
          * ${user.home}/.sip-communicator if it exists (and the new path isn't
          * already in use).
          */
-        String location = System.getProperty(PNAME_SC_HOME_DIR_LOCATION);
+        String profileLocation = System.getProperty(PNAME_SC_HOME_DIR_LOCATION);
+        String cacheLocation = System.getProperty(PNAME_SC_CACHE_DIR_LOCATION);
+        String logLocation = System.getProperty(PNAME_SC_LOG_DIR_LOCATION);
         String name = System.getProperty(PNAME_SC_HOME_DIR_NAME);
 
         boolean isHomeDirnameForced = name != null;
 
-        if ((location == null) || (name == null))
+        if (profileLocation == null || name == null)
         {
             String defaultLocation = System.getProperty("user.home");
             String defaultName = ".jitsi";
@@ -202,11 +218,22 @@ public class SIPCommunicator
 
             if (osName.startsWith("Mac"))
             {
-                if (location == null)
-                    location =
+                if (profileLocation == null)
+                    profileLocation =
                             System.getProperty("user.home") + File.separator
                             + "Library" + File.separator
                             + "Application Support";
+                if (cacheLocation == null)
+                    cacheLocation = 
+                        System.getProperty("user.home") + File.separator
+                        + "Library" + File.separator
+                        + "Caches";
+                if (logLocation == null)
+                    logLocation = 
+                        System.getProperty("user.home") + File.separator
+                        + "Library" + File.separator
+                        + "Logs";
+
                 if (name == null)
                     name = "Jitsi";
             }
@@ -218,15 +245,23 @@ public class SIPCommunicator
                  * it may be a good idea to follow the OS recommendations and
                  * use APPDATA on pre-Vista systems as well.
                  */
-                if (location == null)
-                    location = System.getenv("APPDATA");
+                if (profileLocation == null)
+                    profileLocation = System.getenv("APPDATA");
+                if (cacheLocation == null)
+                    cacheLocation = System.getenv("LOCALAPPDATA");
+                if (logLocation == null)
+                    logLocation = System.getenv("LOCALAPPDATA");
                 if (name == null)
                     name = "Jitsi";
             }
 
             /* If there're no OS specifics, use the defaults. */
-            if (location == null)
-                location = defaultLocation;
+            if (profileLocation == null)
+                profileLocation = defaultLocation;
+            if (cacheLocation == null)
+                cacheLocation = profileLocation;
+            if (logLocation == null)
+                logLocation = profileLocation;
             if (name == null)
                 name = defaultName;
 
@@ -236,23 +271,23 @@ public class SIPCommunicator
              * doesn't look for the default dir.
              */
             if (!isHomeDirnameForced
-                && (new File(location, name).isDirectory() == false)
+                && (new File(profileLocation, name).isDirectory() == false)
                 && new File(defaultLocation, defaultName).isDirectory())
             {
-                location = defaultLocation;
+                profileLocation = defaultLocation;
                 name = defaultName;
             }
 
             // if we need to check legacy names and there is no current home dir
             // already created
             if(chekLegacyDirNames
-                    && !checkHomeFolderExist(location, name, osName))
+                    && !checkHomeFolderExist(profileLocation, name, osName))
             {
                 // now check whether a legacy dir name exists and use it
                 for(String dir : LEGACY_DIR_NAMES)
                 {
                     // check the platform specific directory
-                    if(checkHomeFolderExist(location, dir, osName))
+                    if(checkHomeFolderExist(profileLocation, dir, osName))
                     {
                         name = dir;
                         break;
@@ -262,18 +297,20 @@ public class SIPCommunicator
                     if(checkHomeFolderExist(defaultLocation, dir, osName))
                     {
                         name = dir;
-                        location = defaultLocation;
+                        profileLocation = defaultLocation;
                         break;
                     }
                 }
             }
 
-            System.setProperty(PNAME_SC_HOME_DIR_LOCATION, location);
+            System.setProperty(PNAME_SC_HOME_DIR_LOCATION, profileLocation);
+            System.setProperty(PNAME_SC_CACHE_DIR_LOCATION, cacheLocation);
+            System.setProperty(PNAME_SC_LOG_DIR_LOCATION, logLocation);
             System.setProperty(PNAME_SC_HOME_DIR_NAME, name);
         }
 
         // when we end up with the home dirs, make sure we have log dir
-        new File(location, name + File.separator + "log").mkdirs();
+        new File(new File(logLocation, name), "log").mkdirs();
     }
 
     /**

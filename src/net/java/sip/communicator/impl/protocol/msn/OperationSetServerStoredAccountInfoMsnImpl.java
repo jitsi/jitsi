@@ -11,6 +11,8 @@ import java.util.*;
 
 import javax.imageio.*;
 
+import org.jitsi.service.fileaccess.FileCategory;
+
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.GenericDetail;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.ImageDetail;
@@ -397,13 +399,13 @@ public class OperationSetServerStoredAccountInfoMsnImpl
                 + msnProvider.getAccountID().getAccountUniqueID() + ".jpg";
 
         File storeDir = MsnActivator.getFileAccessService()
-            .getPrivatePersistentDirectory(STORE_DIR);
+            .getPrivatePersistentDirectory(STORE_DIR, FileCategory.CACHE);
 
         // if dir doesn't exist create it
         storeDir.mkdirs();
 
         File file = MsnActivator.getFileAccessService()
-            .getPrivatePersistentFile(imagePath);
+            .getPrivatePersistentFile(imagePath, FileCategory.CACHE);
 
         ImageIO.write(
             ImageIO.read(new ByteArrayInputStream(data)),
@@ -557,7 +559,7 @@ public class OperationSetServerStoredAccountInfoMsnImpl
                     + msnProvider.getAccountID().getAccountUniqueID() + ".jpg";
 
                 File file = MsnActivator.getFileAccessService()
-                    .getPrivatePersistentFile(imagePath);
+                    .getPrivatePersistentFile(imagePath, FileCategory.CACHE);
 
                 if(file.exists())
                 {

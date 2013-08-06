@@ -45,7 +45,7 @@ public class AvatarStackManager
         {
             File imageFile
                 = GuiActivator.getFileAccessService().getPrivatePersistentFile(
-                        fileName);
+                        fileName, FileCategory.CACHE);
 
             if (imageFile.exists() && !imageFile.delete())
                 logger.error("Failed to delete stored image at index " + index);
@@ -72,7 +72,7 @@ public class AvatarStackManager
 
             imageFile
                 = GuiActivator.getFileAccessService().getPrivatePersistentFile(
-                        imagePath);
+                        imagePath, FileCategory.CACHE);
         }
         catch (Exception e)
         {
@@ -108,11 +108,13 @@ public class AvatarStackManager
         try
         {
             FileAccessService fas = GuiActivator.getFileAccessService();
-            File oldFile = fas.getPrivatePersistentFile(oldImagePath);
+            File oldFile = fas.getPrivatePersistentFile(oldImagePath,
+                FileCategory.CACHE);
 
             if (oldFile.exists())
             {
-                File newFile = fas.getPrivatePersistentFile(newImagePath);
+                File newFile = fas.getPrivatePersistentFile(newImagePath,
+                    FileCategory.CACHE);
 
                 oldFile.renameTo(newFile);
             }
@@ -147,12 +149,14 @@ public class AvatarStackManager
         try
         {
             FileAccessService fas = GuiActivator.getFileAccessService();
-            File storeDir = fas.getPrivatePersistentDirectory(STORE_DIR);
+            File storeDir = fas.getPrivatePersistentDirectory(STORE_DIR,
+                FileCategory.CACHE);
 
             // if dir doesn't exist create it
             storeDir.mkdirs();
 
-            File file = fas.getPrivatePersistentFile(imagePath);
+            File file = fas.getPrivatePersistentFile(imagePath,
+                FileCategory.CACHE);
 
             ImageIO.write(image, "png", file);
         }

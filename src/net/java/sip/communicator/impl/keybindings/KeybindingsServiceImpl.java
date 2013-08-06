@@ -139,13 +139,15 @@ class KeybindingsServiceImpl
                 // Makes directory for custom bindings if it doesn't exist
                 File customDir =
                     faService
-                        .getPrivatePersistentDirectory(CUSTOM_KEYBINDING_DIR);
+                        .getPrivatePersistentDirectory(CUSTOM_KEYBINDING_DIR,
+                            FileCategory.PROFILE);
                 if (!customDir.exists())
                     customDir.mkdir();
 
                 // Gets file access service to reference persistent storage
                 // of the user
-                customFile = faService.getPrivatePersistentFile(customPath);
+                customFile = faService.getPrivatePersistentFile(customPath,
+                    FileCategory.PROFILE);
             }
             catch (Exception exc)
             {

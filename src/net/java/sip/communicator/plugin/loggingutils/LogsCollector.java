@@ -13,6 +13,7 @@ import java.util.zip.*;
 
 import net.java.sip.communicator.util.Logger;
 
+import org.jitsi.service.fileaccess.*;
 import org.jitsi.util.*;
 
 /**
@@ -124,7 +125,8 @@ public class LogsCollector
         try
         {
             File[] fs = LoggingUtilsActivator.getFileAccessService()
-                .getPrivatePersistentDirectory(LOGGING_DIR_NAME).listFiles();
+                .getPrivatePersistentDirectory(LOGGING_DIR_NAME,
+                    FileCategory.LOG).listFiles();
 
             for(File f : fs)
             {

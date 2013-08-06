@@ -295,7 +295,8 @@ public class MclStorageManager
         // get a reference to the contact list file.
         try
         {
-            contactlistFile = faService.getPrivatePersistentFile(fileName);
+            contactlistFile = faService.getPrivatePersistentFile(fileName,
+                FileCategory.PROFILE);
 
             if (!contactlistFile.exists() && !contactlistFile.createNewFile())
                 throw new IOException("Failed to create file"

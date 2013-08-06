@@ -35,6 +35,20 @@ public class LaunchArgHandler
          "net.java.sip.communicator.SC_HOME_DIR_LOCATION";
 
      /**
+      * The name of the property that stores the home dir for cache data, such
+      * as avatars or spelling dictionaries.
+      */
+     private static final String PNAME_SC_CACHE_DIR_LOCATION =
+         "net.java.sip.communicator.SC_CACHE_DIR_LOCATION";
+
+     /**
+      * The name of the property that stores the home dir for application logs
+      * (not history).
+      */
+     private static final String PNAME_SC_LOG_DIR_LOCATION =
+         "net.java.sip.communicator.SC_LOG_DIR_LOCATION";
+
+     /**
       * The name of the property that contains the name of the SC configuration
       * directory.
       */
@@ -381,6 +395,8 @@ public class LaunchArgHandler
         }
 
         System.setProperty(PNAME_SC_HOME_DIR_LOCATION, configDir.getParent());
+        System.setProperty(PNAME_SC_CACHE_DIR_LOCATION, configDir.getParent());
+        System.setProperty(PNAME_SC_LOG_DIR_LOCATION, configDir.getParent());
         System.setProperty(PNAME_SC_HOME_DIR_NAME, configDir.getName());
 
         //we instantiated our class logger before we had a chance to change
