@@ -170,11 +170,10 @@ public class CallPeerMediaHandlerSipImpl
 
         if(qualityControls != null)
         {
-            // the one we will send is the one the other part has announced
-            // as receive
+            // the one we will send is the one the other part has announced as
+            // receive
             sendQualityPreset = qualityControls.getRemoteReceivePreset();
-            // the one we want to receive is the setting that remote
-            // can send
+            // the one we want to receive is the setting that remote can send
             receiveQualityPreset = qualityControls.getRemoteSendMaxPreset();
         }
 
@@ -185,8 +184,8 @@ public class CallPeerMediaHandlerSipImpl
             if (!isDeviceActive(dev, sendQualityPreset, receiveQualityPreset))
                 continue;
 
-            MediaDirection direction = dev.getDirection().and(
-                            getDirectionUserPreference(mediaType));
+            MediaDirection direction
+                = dev.getDirection().and(getDirectionUserPreference(mediaType));
 
             if(isLocallyOnHold())
                 direction = direction.and(MediaDirection.SENDONLY);
@@ -196,27 +195,46 @@ public class CallPeerMediaHandlerSipImpl
                 boolean hadSavp = false;
                 for (String profileName : getRtpTransports())
                 {
-                    MediaDescription md =
-                        createMediaDescription(
-                            profileName,
-                            getLocallySupportedFormats(dev,
-                                    sendQualityPreset,
-                                    receiveQualityPreset),
-                            getTransportManager().getStreamConnector(mediaType),
-                            direction,
-                            dev.getSupportedExtensions());
+                    /*
+                     * If we start an audio-only call and re-INVITE the remote
+                     * peer for desktop sharing/streaming later on, we will have
+                     * effectively switched from the webcam to the
+                     * display/screen. It seems beneficial in such a scenario to
+                     * not have a send quality preset unless we actually intend
+                     * to send video.
+                     */
+                    QualityPreset effectiveSendQualityPreset
+                        = direction.allowsSending() ? sendQualityPreset : null;
+                    MediaDescription md
+                        = createMediaDescription(
+                                profileName,
+                                getLocallySupportedFormats(
+                                        dev,
+                                        effectiveSendQualityPreset,
+                                        receiveQualityPreset),
+                                getTransportManager().getStreamConnector(
+                                        mediaType),
+                                direction,
+                                dev.getSupportedExtensions());
 
                     try
                     {
-                        // if we have setting for video preset lets
-                        // send info for the desired framerate
-                        if(mediaType.equals(MediaType.VIDEO)
-                           && receiveQualityPreset != null
-                           && receiveQualityPreset.getFameRate() > 0)
-                            md.setAttribute("framerate",
-                                // doing only int frame rate for now
-                                String.valueOf(
-                                    (int)receiveQualityPreset.getFameRate()));
+                        // If we have a video preset, let's send info about the
+                        // desired frame rate.
+                        if (mediaType.equals(MediaType.VIDEO)
+                                && (receiveQualityPreset != null))
+                        {
+                            // doing only int frame rate for now
+                            int frameRate
+                                = (int) receiveQualityPreset.getFameRate();
+
+                            if (frameRate > 0)
+                            {
+                                md.setAttribute(
+                                        "framerate",
+                                        String.valueOf(frameRate));
+                            }
+                        }
                     }
                     catch(SdpException e)
                     {
@@ -240,8 +258,7 @@ public class CallPeerMediaHandlerSipImpl
         //fail if all devices were inactive
         if(mediaDescs.isEmpty())
         {
-            ProtocolProviderServiceSipImpl
-                .throwOperationFailedException(
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
                     "We couldn't find any active Audio/Video devices and "
                         + "couldn't create a call",
                     OperationFailedException.GENERAL_ERROR,
@@ -417,16 +434,15 @@ public class CallPeerMediaHandlerSipImpl
         boolean atLeastOneValidDescription = false;
         boolean rejectedAvpOfferDueToSavpRequired = false;
 
-        boolean encryptionEnabled = getPeer()
-            .getProtocolProvider()
-            .getAccountID()
-            .getAccountPropertyBoolean(
-                ProtocolProviderFactory.DEFAULT_ENCRYPTION, true);
-        int savpOption = getPeer()
-            .getProtocolProvider()
-            .getAccountID()
-            .getAccountPropertyInt(ProtocolProviderFactory.SAVP_OPTION,
-                ProtocolProviderFactory.SAVP_OFF);
+        AccountID accountID = getPeer().getProtocolProvider().getAccountID();
+        boolean encryptionEnabled
+            = accountID.getAccountPropertyBoolean(
+                    ProtocolProviderFactory.DEFAULT_ENCRYPTION,
+                    true);
+        int savpOption
+            = accountID.getAccountPropertyInt(
+                    ProtocolProviderFactory.SAVP_OPTION,
+                    ProtocolProviderFactory.SAVP_OFF);
 
         boolean masterStreamSet = false;
         List<MediaType> seenMediaTypes = new ArrayList<MediaType>();
@@ -445,10 +461,10 @@ public class CallPeerMediaHandlerSipImpl
             }
 
             //ignore RTP/AVP(F) stream when RTP/SAVP(F) is mandatory
-            if (savpOption == ProtocolProviderFactory.SAVP_MANDATORY
-                && !(transportProtocol.equals("RTP/SAVP")
-                    || transportProtocol.equals("RTP/SAVPF"))
-                && encryptionEnabled)
+            if ((savpOption == ProtocolProviderFactory.SAVP_MANDATORY)
+                    && !(transportProtocol.equals("RTP/SAVP")
+                            || transportProtocol.equals("RTP/SAVPF"))
+                    && encryptionEnabled)
             {
                 rejectedAvpOfferDueToSavpRequired = true;
                 continue;
@@ -495,21 +511,37 @@ public class CallPeerMediaHandlerSipImpl
             {
                 mutuallySupportedFormats = null;
             }
-            else if(mediaType.equals(MediaType.VIDEO) &&
-                    qualityControls != null)
+            else if(mediaType.equals(MediaType.VIDEO)
+                    && (qualityControls != null))
             {
-                mutuallySupportedFormats = intersectFormats(
-                        remoteFormats,
-                        getLocallySupportedFormats(
-                                dev,
-                                qualityControls.getRemoteReceivePreset(),
-                                qualityControls.getRemoteSendMaxPreset()));
+                /*
+                 * If we start an audio-only call and re-INVITE the remote peer
+                 * for desktop sharing/streaming later on, we will have
+                 * effectively switched from the webcam to the display/screen.
+                 * It seems beneficial in such a scenario to not have a send
+                 * quality preset unless we actually intend to send video.
+                 */
+                QualityPreset sendQualityPreset
+                    = direction.allowsSending()
+                        ? qualityControls.getRemoteReceivePreset()
+                        : null;
+                QualityPreset receiveQualityPreset
+                    = qualityControls.getRemoteSendMaxPreset();
+
+                mutuallySupportedFormats
+                    = intersectFormats(
+                            remoteFormats,
+                            getLocallySupportedFormats(
+                                    dev,
+                                    sendQualityPreset,
+                                    receiveQualityPreset));
             }
             else
             {
-                mutuallySupportedFormats = intersectFormats(
-                        remoteFormats,
-                        getLocallySupportedFormats(dev));
+                mutuallySupportedFormats
+                    = intersectFormats(
+                            remoteFormats,
+                            getLocallySupportedFormats(dev));
             }
 
             // stream target
@@ -583,9 +615,7 @@ public class CallPeerMediaHandlerSipImpl
                 }
 
                 if(frameRate > 0)
-                {
                     qualityControls.setMaxFrameRate(frameRate);
-                }
             }
 
             MediaDescription md = createMediaDescription(transportProtocol,

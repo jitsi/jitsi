@@ -194,8 +194,10 @@ public class SdpUtils
             // it could be we were unable to open device or some problem
             // with hostnames
             ProtocolProviderServiceSipImpl.throwOperationFailedException(
-                "An error occurred while creating session description",
-                OperationFailedException.INTERNAL_ERROR, exc, logger);
+                    "An error occurred while creating session description",
+                    OperationFailedException.INTERNAL_ERROR,
+                    exc,
+                    logger);
         }
 
         return sessDescr;

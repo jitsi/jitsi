@@ -256,7 +256,8 @@ public class CallPeerMediaHandlerJabberImpl
         {
             ContentPacketExtension content
                 = createContentForOffer(
-                        getLocallySupportedFormats(dev,
+                        getLocallySupportedFormats(
+                                dev,
                                 sendQualityPreset,
                                 receiveQualityPreset),
                         direction,
@@ -1414,23 +1415,23 @@ public class CallPeerMediaHandlerJabberImpl
          * the other participants.
          */
         CallJabberImpl call = getPeer().getCall();
-        if (call != null && call.getConference().isConferenceFocus())
+        if ((call != null) && call.getConference().isConferenceFocus())
         {
             for (CallPeerJabberImpl peer : call.getCallPeerList())
             {
                 SendersEnum senders
-                        = peer.getMediaHandler().getSenders(mediaType);
+                    = peer.getMediaHandler().getSenders(mediaType);
                 boolean initiator = peer.isInitiator();
                 //check if the direction of the jingle session we have with
                 //this peer allows us receiving media. If senders is null,
                 //assume the default of 'both'
-                if (senders == null ||
-                        (SendersEnum.both == senders) ||
-                        (initiator && SendersEnum.initiator == senders) ||
-                        (!initiator && SendersEnum.responder == senders))
+                if ((senders == null)
+                        || (SendersEnum.both == senders)
+                        || (initiator && SendersEnum.initiator == senders)
+                        || (!initiator && SendersEnum.responder == senders))
                 {
                     remoteDirection
-                            = remoteDirection.or(MediaDirection.SENDONLY);
+                        = remoteDirection.or(MediaDirection.SENDONLY);
                 }
             }
         }
@@ -1440,10 +1441,11 @@ public class CallPeerMediaHandlerJabberImpl
 
         // update the RTP extensions that we will be exchanging.
         List<RTPExtension> remoteRTPExtensions
-                = JingleUtils.extractRTPExtensions(
-                        description, getRtpExtensionsRegistry());
+            = JingleUtils.extractRTPExtensions(
+                    description,
+                    getRtpExtensionsRegistry());
         List<RTPExtension> supportedExtensions
-                = getExtensionsForType(mediaType);
+            = getExtensionsForType(mediaType);
         List<RTPExtension> rtpExtensions
             = intersectRTPExtensions(remoteRTPExtensions, supportedExtensions);
 
@@ -1462,9 +1464,6 @@ public class CallPeerMediaHandlerJabberImpl
         // check for options from remote party and set them locally
         if(mediaType.equals(MediaType.VIDEO) && modify)
         {
-            QualityPreset sendQualityPreset = null;
-            QualityPreset receiveQualityPreset = null;
-
             // update stream
             MediaStream stream = getStream(MediaType.VIDEO);
 
@@ -1483,15 +1482,18 @@ public class CallPeerMediaHandlerJabberImpl
 
             if(qualityControls != null)
             {
-                receiveQualityPreset = qualityControls.getRemoteReceivePreset();
-                sendQualityPreset = qualityControls.getRemoteSendMaxPreset();
+                QualityPreset receiveQualityPreset
+                    = qualityControls.getRemoteReceivePreset();
+                QualityPreset sendQualityPreset
+                    = qualityControls.getRemoteSendMaxPreset();
 
                 supportedFormats
                     = (dev == null)
                         ? null
                         : intersectFormats(
                                 supportedFormats,
-                                getLocallySupportedFormats(dev,
+                                getLocallySupportedFormats(
+                                        dev,
                                         sendQualityPreset,
                                         receiveQualityPreset));
             }

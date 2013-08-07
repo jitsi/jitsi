@@ -21,6 +21,7 @@ import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.util.*;
+import org.jivesoftware.smackx.packet.*;
 
 /**
  * Implements a Jabber <tt>CallPeer</tt>.
@@ -817,17 +818,17 @@ public class CallPeerJabberImpl
         //if this is a 3264 initiator, let's give them an early peek at our
         //answer so that they could start ICE (SIP-2-Jingle gateways won't
         //be able to send their candidates unless they have this)
-        if(    getDiscoveryInfo() != null
-            && getDiscoveryInfo().containsFeature(
+        DiscoverInfo discoverInfo = getDiscoveryInfo();
+        if ((discoverInfo != null)
+                && discoverInfo.containsFeature(
                         ProtocolProviderServiceJabberImpl.URN_IETF_RFC_3264))
         {
             getProtocolProvider().getConnection().sendPacket(
-                            JinglePacketFactory.createDescriptionInfo(
-                                sessionInitIQ.getTo(),
-                                sessionInitIQ.getFrom(),
-                                sessionInitIQ.getSID(),
-                                getMediaHandler().getLocalContentList()
-                            ));
+                    JinglePacketFactory.createDescriptionInfo(
+                            sessionInitIQ.getTo(),
+                            sessionInitIQ.getFrom(),
+                            sessionInitIQ.getSID(),
+                            getMediaHandler().getLocalContentList()));
         }
     }
 

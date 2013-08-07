@@ -866,7 +866,6 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
             encodingConfiguration.loadProperties(
                     accountProperties,
                     ProtocolProviderFactory.ENCODING_PROP_PREFIX);
-
             return
                 mediaDevice.getSupportedFormats(
                         sendPreset, receivePreset,
