@@ -596,9 +596,10 @@ public class ReconnectPluginActivator
 
                             currentlyReconnecting.put(pp, task);
 
-                            if (logger.isTraceEnabled())
-                                logger.trace("Reconnect " + pp +
-                                    " after " + task.delay + " ms.");
+                            if (logger.isInfoEnabled())
+                                logger.info("Reconnect " +
+                                    pp.getAccountID().getDisplayName()
+                                    + " after " + task.delay + " ms.");
 
                             timer.schedule(task, task.delay);
                         }
@@ -858,9 +859,10 @@ public class ReconnectPluginActivator
 
                              currentlyReconnecting.put(pp, task);
 
-                             if (logger.isTraceEnabled())
-                                 logger.trace("Reconnect " + pp +
-                                         " after " + task.delay + " ms.");
+                             if (logger.isInfoEnabled())
+                                 logger.info("Reconnect " +
+                                     pp.getAccountID().getDisplayName() +
+                                     " after " + task.delay + " ms.");
 
                              timer.schedule(task, task.delay);
                          }
