@@ -79,6 +79,7 @@ public class CertificateVerificationActivator
         configService = null;
         resourcesService = null;
         credService = null;
+        certificateDialogService = null;
     }
 
     /**
