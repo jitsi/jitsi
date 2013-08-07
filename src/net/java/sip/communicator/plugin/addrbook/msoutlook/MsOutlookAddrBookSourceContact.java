@@ -349,22 +349,32 @@ public class MsOutlookAddrBookSourceContact
     /**
      * Tells if the id given in parameters corresponds to this contact.
      *
+     * @param id The id to compare with.
+     * @param level 0 to only look at cached ids. 1 to only look at outlook
+     * database ids.
+     *
      * @return True if the id given in parameters corresponds to this contact.
      * False otherwise.
      */
-    public boolean match(String id)
+    public boolean match(String id, int level)
     {
-        if(!this.ids.contains(id))
+        boolean res = false;
+        switch(level)
         {
-            String localId = this.getId();
-            if(!MsOutlookAddrBookContactQuery.compareEntryIds(id, localId))
-            {
-                return false;
-            }
-            this.ids.add(id);
+            case 0:
+                res = this.ids.contains(id);
+                break;
+            case 1:
+                String localId = this.getId();
+                res =
+                    MsOutlookAddrBookContactQuery.compareEntryIds(id, localId);
+                if(res && !this.ids.contains(id))
+                {
+                    this.ids.add(id);
+                }
+                break;
         }
-
-        return true;
+        return res;
     }
 
     /**

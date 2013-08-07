@@ -1046,14 +1046,40 @@ public class MsOutlookAddrBookContactQuery
      */
     public void inserted(String id)
     {
-        SourceContact sourceContact = findSourceContactByID(id);
+        insertedOrUpdated(id, 0);
+    }
+
+    /**
+     * Callback method when receiving notifications for updated items.
+     *
+     * @param id The outlook contact identifier.
+     */
+    public void updated(String id)
+    {
+        insertedOrUpdated(id, 1);
+    }
+
+    /**
+     * Callback method when receiving notifications for updated items.
+     *
+     * @param id The outlook contact identifier.
+     * @param maxLevel The maximum level for comparing ids: 0 cached ids only, 1
+     * cached ids and outlook database ids.
+     */
+    public void insertedOrUpdated(String id, int maxLevel)
+    {
+        SourceContact sourceContact = findSourceContactByID(id, maxLevel);
+
         if(sourceContact != null
                 && sourceContact instanceof MsOutlookAddrBookSourceContact)
         {
-            updated(((MsOutlookAddrBookSourceContact) sourceContact).getId());
+            // updated
+            ((MsOutlookAddrBookSourceContact) sourceContact).updated();
+            fireContactChanged(sourceContact);
         }
         else
         {
+            // inserted
             try
             {
                 onMailUser(id);
@@ -1072,26 +1098,6 @@ public class MsOutlookAddrBookContactQuery
     }
 
     /**
-     * Callback method when receiving notifications for updated items.
-     *
-     * @param id The outlook contact identifier.
-     */
-    public void updated(String id)
-    {
-        SourceContact sourceContact = findSourceContactByID(id);
-        if(sourceContact != null
-                && sourceContact instanceof MsOutlookAddrBookSourceContact)
-        {
-            ((MsOutlookAddrBookSourceContact) sourceContact).updated();
-            fireContactChanged(sourceContact);
-        }
-        else
-        {
-            inserted(id);
-        }
-    }
-
-    /**
      * Callback method when receiving notifications for deleted items.
      *
      * @param id The outlook contact identifier.
@@ -1100,7 +1106,7 @@ public class MsOutlookAddrBookContactQuery
     {
         if(id != null)
         {
-            SourceContact sourceContact = findSourceContactByID(id);
+            SourceContact sourceContact = findSourceContactByID(id, 1);
 
             if(sourceContact != null)
             {
@@ -1224,19 +1230,27 @@ public class MsOutlookAddrBookContactQuery
 
     /**
      * Searches for source contact with the specified id.
-     * @param id the id to search for
+     *
+     * @param id the id to search for.
+     * @param maxLevel The maximum level for comparing ids: 0 cached ids only, 1
+     * cached ids and outlook database ids.
+     *
      * @return the source contact found or null.
      */
-    protected SourceContact findSourceContactByID(String id)
+    protected SourceContact findSourceContactByID(String id, int maxLevel)
     {
         synchronized(sourceContacts)
         {
-            for(SourceContact sc : sourceContacts)
+            for(int level = 0; level <= maxLevel; ++level)
             {
-                if(sc instanceof MsOutlookAddrBookSourceContact
-                    && ((MsOutlookAddrBookSourceContact) sc).match(id))
+                for(SourceContact sc : sourceContacts)
                 {
-                    return sc;
+                    if(sc instanceof MsOutlookAddrBookSourceContact
+                        && ((MsOutlookAddrBookSourceContact) sc)
+                                .match(id, level))
+                    {
+                        return sc;
+                    }
                 }
             }
         }
