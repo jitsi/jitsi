@@ -1081,19 +1081,38 @@ public abstract class AbstractOperationSetTelephonyConferencing<
         for (MediaType mediaType : MediaType.values())
         {
             MediaStream stream = mediaHandler.getStream(mediaType);
-            if (stream != null)
+            if (stream != null || !remote)
             {
-                ConferenceInfoDocument.Media media
-                        = endpoint.addNewMedia(mediaType.toString());
-                long srcId
-                        = remote
-                        ? getRemoteSourceID(callPeer, mediaType)
-                        : stream.getLocalSourceID();
-
-                if (srcId != -1)
-                    media.setSrcId(Long.toString(srcId));
-
-                media.setType(mediaType.toString());
+                long srcId = -1;
+                if (remote)
+                    srcId = getRemoteSourceID(callPeer, mediaType);
+                else if (stream != null)
+                {
+                    srcId = stream.getLocalSourceID();
+                }
+                else // stream == null && !remote
+                {
+                    /*
+                     * If we are describing the local peer, but we don't have
+                     * media streams with callPeer (which is the case when we
+                     * send conference-info while the other side is still
+                     * ringing), we can try to obtain our local SSRC from the
+                     * streams we have already set up with the other
+                     * participants in the conference.
+                     */
+                    for (MediaAwareCallPeer otherCallPeer
+                            : callPeer.getCall().getCallPeerList())
+                    {
+                        MediaStream otherStream
+                            = otherCallPeer
+                                    .getMediaHandler().getStream(mediaType);
+                        if (otherStream != null)
+                        {
+                            srcId = otherStream.getLocalSourceID();
+                            break;
+                        }
+                    }
+                }
 
                 MediaDirection direction = MediaDirection.INACTIVE;
                 if (remote)
@@ -1113,10 +1132,16 @@ public abstract class AbstractOperationSetTelephonyConferencing<
                         direction = direction.or(MediaDirection.RECVONLY);
                 }
 
-                if (direction == null)
-                    direction = MediaDirection.INACTIVE;
+                if ((srcId != -1) || (direction != MediaDirection.INACTIVE))
+                {
+                    ConferenceInfoDocument.Media media
+                        = endpoint.addNewMedia(mediaType.toString());
 
-                media.setStatus(direction.toString());
+                    media.setType(mediaType.toString());
+                    if (srcId != -1)
+                        media.setSrcId(Long.toString(srcId));
+                    media.setStatus(direction.toString());
+                }
             }
         }
     }
