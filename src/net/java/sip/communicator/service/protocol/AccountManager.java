@@ -660,7 +660,7 @@ public class AccountManager
             = ProtocolProviderActivator.getConfigurationService();
         String factoryPackage = getFactoryImplPackageName(factory);
 
-       String accountNodeName
+        String accountNodeName
                = getAccountNodeName( factory,
                                      accountID.getAccountUniqueID() );
 
@@ -743,7 +743,12 @@ public class AccountManager
 
         // clear the password if missing property, modification can request
         // password delete
-        if(!accountProperties.containsKey(ProtocolProviderFactory.PASSWORD))
+        if(!accountProperties.containsKey(ProtocolProviderFactory.PASSWORD)
+                && // And only if it's not stored already in encrypted form.
+                   // Account registration object clears also this property
+                   // in order to forget the password
+                !configurationProperties.containsKey(
+                    factoryPackage+"."+accountNodeName+".ENCRYPTED_PASSWORD"))
         {
             CredentialsStorageService credentialsStorage
                     = ServiceUtils.getService(
