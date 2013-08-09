@@ -32,6 +32,8 @@ public class OperationSetAutoAnswerJabberImpl
             ProtocolProviderServiceJabberImpl protocolProvider)
     {
         super(protocolProvider);
+
+        this.load();
     }
 
     /**

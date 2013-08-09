@@ -52,9 +52,6 @@ public abstract class AbstractOperationSetBasicAutoAnswer
             ProtocolProviderService protocolProvider)
     {
         this.protocolProvider = protocolProvider;
-
-        // init values from account props
-        load();
     }
 
     /**
