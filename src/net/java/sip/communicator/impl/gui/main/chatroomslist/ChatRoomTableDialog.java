@@ -19,6 +19,7 @@ import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.plugin.desktoputil.SwingWorker;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
@@ -499,39 +500,10 @@ public class ChatRoomTableDialog
      */
     public void loadProviderRooms()
     {
-        new Thread()
-        {
-            @Override
-            public void run()
-            {
-                okButton.setEnabled(false);
-                roomsCombo.setEnabled(false);
+        okButton.setEnabled(false);
+        roomsCombo.setEnabled(false);
 
-                List<String> rooms = GuiActivator.getUIService()
-                    .getConferenceChatManager()
-                        .getExistingChatRooms(getSelectedProvider());
-
-                roomsCombo.removeAllItems();
-
-                // if there is no room list coming from provider
-                if(rooms == null)
-                {
-                    roomsCombo.setEnabled(true);
-                    //okButton.setEnabled(true);
-                    return;
-                }
-
-                Collections.sort(rooms);
-
-                for(String room : rooms)
-                    roomsCombo.addItem(room);
-
-                // select nothing
-                roomsCombo.setSelectedIndex(-1);
-
-                roomsCombo.setEnabled(true);
-            }
-        }.start();
+        new LoadProvidersWorker().start();
     }
 
     /**
@@ -589,6 +561,63 @@ public class ChatRoomTableDialog
                     .getProtocolIcon().getIcon(ProtocolIcon.ICON_SIZE_16x16)));
 
             return this;
+        }
+    }
+
+    /**
+     * SwingWorker that will load rooms list and show them in the ui.
+     */
+    private class LoadProvidersWorker
+        extends SwingWorker
+    {
+        /**
+         * List of rooms.
+         */
+        private List<String> rooms;
+
+        /**
+         * Worker thread.
+         * @return
+         * @throws Exception
+         */
+        @Override
+        protected Object construct()
+            throws
+            Exception
+        {
+            rooms = GuiActivator.getUIService()
+                .getConferenceChatManager()
+                    .getExistingChatRooms(getSelectedProvider());
+
+            return null;
+        }
+
+        /**
+         * Called on the event dispatching thread (not on the worker thread)
+         * after the <code>construct</code> method has returned.
+         */
+        @Override
+        protected void finished()
+        {
+            roomsCombo.removeAllItems();
+
+            // if there is no room list coming from provider
+            if(rooms == null)
+            {
+                roomsCombo.setEnabled(true);
+                //okButton.setEnabled(true);
+                return;
+            }
+
+            Collections.sort(rooms);
+
+            for(String room : rooms)
+                roomsCombo.addItem(room);
+
+            // select nothing
+            roomsCombo.setSelectedIndex(-1);
+
+            roomsCombo.setEnabled(true);
         }
     }
 }

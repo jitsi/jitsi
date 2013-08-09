@@ -388,8 +388,22 @@ public class ConferenceChatSession
      * @param evt the <tt>ChatRoomMemberPresenceChangeEvent</tt> that notified
      * us
      */
-    public void memberPresenceChanged(ChatRoomMemberPresenceChangeEvent evt)
+    public void memberPresenceChanged(
+        final ChatRoomMemberPresenceChangeEvent evt)
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    memberPresenceChanged(evt);
+                }
+            });
+            return;
+        }
+
         ChatRoom sourceChatRoom = (ChatRoom) evt.getSource();
 
         if(!sourceChatRoom.equals(chatRoomWrapper.getChatRoom()))

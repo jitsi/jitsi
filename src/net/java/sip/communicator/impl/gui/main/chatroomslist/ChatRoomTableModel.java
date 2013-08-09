@@ -255,8 +255,21 @@ public class ChatRoomTableModel
      * occurred.
      * @param evt
      */
-    public void contentChanged(ChatRoomListChangeEvent evt)
+    public void contentChanged(final ChatRoomListChangeEvent evt)
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    contentChanged(evt);
+                }
+            });
+            return;
+        }
+
         ChatRoomWrapper chatRoomWrapper = evt.getSourceChatRoom();
 
         if (evt.getEventID() == ChatRoomListChangeEvent.CHAT_ROOM_ADDED)

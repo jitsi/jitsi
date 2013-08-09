@@ -24,6 +24,8 @@ import net.java.sip.communicator.util.*;
 import org.jitsi.service.resources.*;
 import org.jdesktop.swingworker.SwingWorker;
 import org.osgi.framework.*;
+
+import javax.swing.*;
 // Java 1.6 has javax.swing.SwingWorker so we have to disambiguate.
 
 /**
@@ -490,8 +492,21 @@ public class ConferenceChatManager
      * notified us
      */
     public void localUserPresenceChanged(
-        LocalUserChatRoomPresenceChangeEvent evt)
+        final LocalUserChatRoomPresenceChangeEvent evt)
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    localUserPresenceChanged(evt);
+                }
+            });
+            return;
+        }
+
         ChatRoom sourceChatRoom = evt.getChatRoom();
         ChatRoomWrapper chatRoomWrapper
             = chatRoomList.findChatRoomWrapperFromChatRoom(sourceChatRoom);
