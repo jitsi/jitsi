@@ -15,6 +15,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 
@@ -30,7 +31,8 @@ import org.jitsi.service.resources.*;
  */
 public class ChatRoomSubjectPanel
     extends TransparentPanel
-    implements Skinnable
+    implements Skinnable,
+               ChatRoomLocalUserRoleListener
 {
     /**
      * The <tt>Logger</tt> used by the <tt>ChatRoomSubjectPanel</tt> class and
@@ -79,23 +81,45 @@ public class ChatRoomSubjectPanel
         add(subjectLabel, BorderLayout.WEST);
         add(subjectField, BorderLayout.CENTER);
 
+        chatSession.addLocalUserRoleListener(this);
+        updateConfigButton();
+    }
+
+    /**
+     * Updates the config button state add or remove depending on the
+     * user role.
+     */
+    private synchronized void updateConfigButton()
+    {
         ChatRoomMemberRole role = ((ChatRoomWrapper)chatSession.getDescriptor())
                 .getChatRoom().getUserRole();
 
         if(!ConfigurationUtils.isChatRoomConfigDisabled()
-            && (role.equals(ChatRoomMemberRole.ADMINISTRATOR)
-                || role.equals(ChatRoomMemberRole.MODERATOR)
-                || role.equals(ChatRoomMemberRole.OWNER)))
+            && role.equals(ChatRoomMemberRole.OWNER))
         {
-            configButton
-                = new JButton(
-                        new ImageIcon(
-                                ImageLoader.getImage(
-                                        ImageLoader.CHAT_ROOM_CONFIG)));
-            configButton.setPreferredSize(new Dimension(26, 26));
-            configButton.addActionListener(new ConfigButtonActionListener());
+            if(configButton == null)
+            {
+                configButton
+                    = new JButton(
+                            new ImageIcon(
+                                    ImageLoader.getImage(
+                                            ImageLoader.CHAT_ROOM_CONFIG)));
+                configButton.setPreferredSize(new Dimension(26, 26));
+                configButton.addActionListener(new ConfigButtonActionListener());
 
-            add(configButton, BorderLayout.EAST);
+                add(configButton, BorderLayout.EAST);
+
+                revalidate();
+                repaint();
+            }
+        }
+        else if(configButton != null)
+        {
+            remove(configButton);
+            configButton = null;
+
+            revalidate();
+            repaint();
         }
     }
 
@@ -121,6 +145,29 @@ public class ChatRoomSubjectPanel
     public void setSubject(String subject)
     {
         subjectField.setText(subject);
+    }
+
+    /**
+     * Fired when local user role has changed.
+     * @param evt the <tt>ChatRoomLocalUserRoleChangeEvent</tt> instance
+     */
+    @Override
+    public void localUserRoleChanged(final ChatRoomLocalUserRoleChangeEvent evt)
+    {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    localUserRoleChanged(evt);
+                }
+            });
+            return;
+        }
+
+        updateConfigButton();
     }
 
     /**
