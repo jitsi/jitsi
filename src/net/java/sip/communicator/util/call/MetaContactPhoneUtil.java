@@ -141,6 +141,11 @@ public class MetaContactPhoneUtil
 
         videoPhones.put(contact, phonesList);
 
+        // to check for routingForVideoEnabled prop
+        isVideoCallEnabled(contact);
+        // to check for routingForDesktopEnabled prop
+        isDesktopSharingEnabled(contact);
+
         return phonesList;
     }
 
@@ -232,7 +237,7 @@ public class MetaContactPhoneUtil
         routingForVideoEnabled =
             ConfigurationUtils
                 .isRouteVideoAndDesktopUsingPhoneNumberEnabled()
-            && phones.contains(contact)
+            && phones.containsKey(contact)
             && phones.get(contact).size() > 0
             && AccountUtils.getOpSetRegisteredProviders(
                 OperationSetVideoTelephony.class,
@@ -293,7 +298,7 @@ public class MetaContactPhoneUtil
         routingForDesktopEnabled =
             ConfigurationUtils
                 .isRouteVideoAndDesktopUsingPhoneNumberEnabled()
-            && phones.contains(contact)
+            && phones.containsKey(contact)
             && phones.get(contact).size() > 0
             && AccountUtils.getOpSetRegisteredProviders(
                     OperationSetDesktopSharingServer.class,
