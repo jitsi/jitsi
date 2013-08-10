@@ -634,7 +634,20 @@ public abstract class ProtocolProviderFactory
             registration =
                 registeredAccounts.get(accountID);
         }
-        return (registration == null) ? null : registration.getReference();
+
+        try
+        {
+            return (registration == null) ? null : registration.getReference();
+        }
+        catch (IllegalStateException ise)
+        {
+            synchronized (registeredAccounts)
+            {
+                registeredAccounts.remove(accountID);
+            }
+        }
+
+        return null;
     }
 
     /**
