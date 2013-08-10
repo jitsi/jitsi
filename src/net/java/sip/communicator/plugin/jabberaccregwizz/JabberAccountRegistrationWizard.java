@@ -211,9 +211,13 @@ public class JabberAccountRegistrationWizard
         throws OperationFailedException
     {
         firstWizardPage.commitPage();
+        if (firstWizardPage.isCommitted())
+        {
+            return signin(  registration.getUserID(),
+                            registration.getPassword());
+        }
 
-        return signin(  registration.getUserID(),
-                        registration.getPassword());
+        return null;
     }
 
     /**
