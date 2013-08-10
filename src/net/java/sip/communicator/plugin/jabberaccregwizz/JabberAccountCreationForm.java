@@ -168,6 +168,7 @@ public class JabberAccountCreationForm
         }
         catch (XMPPException exc)
         {
+            logger.error(exc);
             if (exc.getXMPPError().getCode() == 409)
             {
                 showErrorMessage(Resources.getString(
@@ -179,9 +180,12 @@ public class JabberAccountCreationForm
             }
             else
             {
-                showErrorMessage(Resources.getString(
-                        "plugin.jabberaccregwizz.UNKNOWN_XMPP_ERROR"));
+                showErrorMessage(Resources.getResources().getI18NString(
+                        "plugin.jabberaccregwizz.UNKNOWN_XMPP_ERROR",
+                        new String[]{exc.getMessage()}
+                    ));
             }
+
             return false;
         }
     }
@@ -274,7 +278,9 @@ public class JabberAccountCreationForm
         if (errorPane.getParent() == null)
             userIDPassPanel.add(errorPane, BorderLayout.NORTH);
 
-        SwingUtilities.getWindowAncestor(this).pack();
+        Window ancestor = SwingUtilities.getWindowAncestor(this);
+        if (ancestor != null)
+            ancestor.pack();
     }
 
     /**
