@@ -42,7 +42,7 @@ public class AccountPanel
 
     private final JPanel emptyPanel = new TransparentPanel();
 
-    private final JTextField userIDField = new TrimTextField();
+    final JTextField userIDField = new TrimTextField();
 
     private final JPasswordField passField = new JPasswordField();
 
@@ -317,7 +317,6 @@ public class AccountPanel
     void setUsername(String username)
     {
         userIDField.setText(username);
-        userIDField.setEnabled(false);
     }
 
     /**

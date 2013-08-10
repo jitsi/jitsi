@@ -377,6 +377,7 @@ public class JabberAccountRegistrationForm
     public void loadAccount(JabberAccountRegistration accountReg)
     {
         accountPanel.setUsername(accountReg.getUserID());
+        accountPanel.userIDField.setEnabled(false);
 
         String password = accountReg.getPassword();
         accountPanel.setPassword(password);
