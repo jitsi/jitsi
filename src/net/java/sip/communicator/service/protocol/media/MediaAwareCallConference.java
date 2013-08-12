@@ -213,22 +213,22 @@ public class MediaAwareCallConference
      *
      * @param mediaType the <tt>MediaType</tt> in which the retrieved
      * <tt>MediaDevice</tt> is to capture and/or play back media
-     * @param mediaUseCase the <tt>MediaUseCase</tt> associated with the
-     * intended utilization of the <tt>MediaDevice</tt> to be retrieved
+     * @param useCase the <tt>MediaUseCase</tt> associated with the intended
+     * utilization of the <tt>MediaDevice</tt> to be retrieved
      * @return a <tt>MediaDevice</tt> which is capable of capture and/or
      * playback of media of the specified <tt>mediaType</tt> and is the default
      * choice of the user with respect to such a <tt>MediaDevice</tt>
      */
     public MediaDevice getDefaultDevice(
             MediaType mediaType,
-            MediaUseCase mediaUseCase)
+            MediaUseCase useCase)
     {
         int mediaTypeIndex = mediaType.ordinal();
         MediaDevice device = devices[mediaTypeIndex];
         MediaService mediaService = ProtocolMediaActivator.getMediaService();
 
         if (device == null)
-            device = mediaService.getDefaultDevice(mediaType, mediaUseCase);
+            device = mediaService.getDefaultDevice(mediaType, useCase);
 
         /*
          * Make sure that the device is capable of mixing in order to support
@@ -420,7 +420,7 @@ public class MediaAwareCallConference
             oldValue = ((MediaDeviceWrapper) mixer).getWrappedDevice();
 
         MediaDevice newValue = devices[mediaTypeIndex] = device;
-
+System.err.println(MediaAwareCallConference.class.getName() + ".setDevice: oldValue= " + oldValue + "; newValue= " + newValue);
         if (oldValue != newValue)
         {
             mixers[mediaTypeIndex] = null;

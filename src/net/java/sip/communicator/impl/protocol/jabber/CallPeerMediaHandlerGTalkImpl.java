@@ -244,11 +244,12 @@ public class CallPeerMediaHandlerGTalkImpl
                 {
                     if(mediaType.equals(MediaType.VIDEO))
                     {
-                        description.setNamespace(SessionIQProvider.
-                                GTALK_VIDEO_NAMESPACE);
+                        description.setNamespace(
+                                SessionIQProvider.GTALK_VIDEO_NAMESPACE);
 
                         getPeer().getCall().setLocalVideoAllowed(
-                            true, MediaUseCase.CALL);
+                                true,
+                                MediaUseCase.CALL);
 
                         ext.setAttribute("width", 320);
                         ext.setAttribute("height", 200);

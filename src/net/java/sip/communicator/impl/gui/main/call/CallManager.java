@@ -2935,40 +2935,45 @@ public class CallManager
         @Override
         public void run()
         {
-            OperationSetVideoTelephony telephony
-                = call.getProtocolProvider()
-                    .getOperationSet(OperationSetVideoTelephony.class);
+            OperationSetVideoTelephony videoTelephony
+                = call.getProtocolProvider().getOperationSet(
+                        OperationSetVideoTelephony.class);
             boolean enableSucceeded = false;
 
-            if (telephony != null)
+            if (videoTelephony != null)
             {
                 // First make sure the desktop sharing is disabled.
                 if (enable && isDesktopSharingEnabled(call))
                 {
                     JFrame frame = DesktopSharingFrame.getFrameForCall(call);
 
-                    if(frame != null)
+                    if (frame != null)
                         frame.dispose();
                 }
 
                 try
                 {
-                    telephony.setLocalVideoAllowed(call, enable);
+                    videoTelephony.setLocalVideoAllowed(call, enable);
                     enableSucceeded = true;
                 }
                 catch (OperationFailedException ex)
                 {
                     logger.error(
-                        "Failed to toggle the streaming of local video.",
-                        ex);
-                    ResourceManagementService resources
-                        = GuiActivator.getResources();
-                    String title = resources.getI18NString(
-                        "service.gui.LOCAL_VIDEO_ERROR_TITLE");
-                    String message = resources.getI18NString(
-                        "service.gui.LOCAL_VIDEO_ERROR_MESSAGE");
+                            "Failed to toggle the streaming of local video.",
+                            ex);
+
+                    ResourceManagementService r = GuiActivator.getResources();
+                    String title
+                        = r.getI18NString(
+                                "service.gui.LOCAL_VIDEO_ERROR_TITLE");
+                    String message
+                        = r.getI18NString(
+                                "service.gui.LOCAL_VIDEO_ERROR_MESSAGE");
+
                     GuiActivator.getAlertUIService().showAlertPopup(
-                        title, message, ex);
+                            title,
+                            message,
+                            ex);
                 }
             }
 

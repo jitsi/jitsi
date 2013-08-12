@@ -361,23 +361,30 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
                 if (stream == null)
                     continue;
 
-                /*
-                 * Update the stream device, if necessary
-                 */
+                // Update the stream device, if necessary.
                 MediaDevice oldDevice = stream.getDevice();
+
                 if (oldDevice != null)
                 {
                     if (oldDevice instanceof MediaDeviceWrapper)
-                        oldDevice = ((MediaDeviceWrapper) oldDevice)
-                                        .getWrappedDevice();
+                    {
+                        oldDevice
+                            = ((MediaDeviceWrapper) oldDevice)
+                                .getWrappedDevice();
+                    }
 
                     MediaDevice newDevice = getDefaultDevice(mediaType);
-                    MediaDevice wrappedNewDevice = newDevice;
-                    if (newDevice instanceof MediaDeviceWrapper)
-                        wrappedNewDevice = ((MediaDeviceWrapper) newDevice)
-                                                .getWrappedDevice();
+                    MediaDevice newWrappedDevice = newDevice;
 
-                    if (oldDevice != wrappedNewDevice)
+                    if (newDevice instanceof MediaDeviceWrapper)
+                    {
+                        newWrappedDevice
+                            = ((MediaDeviceWrapper) newDevice)
+                                .getWrappedDevice();
+                    }
+if (MediaAwareCall.DEFAULT_DEVICE.equals(propertyName))
+    System.err.println(CallPeerMediaHandler.class.getName() + ".callPropertyChange: oldDevice= " + oldDevice + "; newDevice= " + newDevice + "; newWrappedDevice= " + newWrappedDevice);
+                    if (oldDevice != newWrappedDevice)
                         stream.setDevice(newDevice);
                 }
 

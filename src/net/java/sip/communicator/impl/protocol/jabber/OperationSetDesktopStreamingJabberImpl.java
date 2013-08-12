@@ -194,16 +194,19 @@ public class OperationSetDesktopStreamingJabberImpl
     {
         AbstractCallJabberGTalkImpl<?> callImpl
             = (AbstractCallJabberGTalkImpl<?>) call;
+        MediaUseCase useCase = getMediaUseCase();
 
         if (mediaDevice == null)
         {
-            MediaService mediaService = ProtocolMediaActivator.getMediaService();
-            mediaDevice = mediaService.getDefaultDevice(MediaType.VIDEO,
-                getMediaUseCase());
+            MediaService mediaService
+                = ProtocolMediaActivator.getMediaService();
+
+            mediaDevice
+                = mediaService.getDefaultDevice(MediaType.VIDEO, useCase);
         }
 
-        callImpl.setVideoDevice(mediaDevice);
-        callImpl.setLocalVideoAllowed(allowed, getMediaUseCase());
+        callImpl.setVideoDevice(mediaDevice, useCase);
+        callImpl.setLocalVideoAllowed(allowed, useCase);
 
         MediaFormat mediaDeviceFormat = mediaDevice.getFormat();
 
@@ -257,11 +260,12 @@ public class OperationSetDesktopStreamingJabberImpl
         }
 
         CallJabberImpl call = new CallJabberImpl(basicTelephony);
+        MediaUseCase useCase = getMediaUseCase();
 
         /* enable video */
         if (videoDevice != null)
-            call.setVideoDevice(videoDevice);
-        call.setLocalVideoAllowed(true, getMediaUseCase());
+            call.setVideoDevice(videoDevice, useCase);
+        call.setLocalVideoAllowed(true, useCase);
 
         basicTelephony.createOutgoingCall(call, calleeAddress);
         origin = getOriginForMediaDevice(videoDevice);
