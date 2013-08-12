@@ -420,7 +420,7 @@ public class MediaAwareCallConference
             oldValue = ((MediaDeviceWrapper) mixer).getWrappedDevice();
 
         MediaDevice newValue = devices[mediaTypeIndex] = device;
-System.err.println(MediaAwareCallConference.class.getName() + ".setDevice: oldValue= " + oldValue + "; newValue= " + newValue);
+
         if (oldValue != newValue)
         {
             mixers[mediaTypeIndex] = null;

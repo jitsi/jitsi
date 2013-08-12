@@ -382,8 +382,6 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
                             = ((MediaDeviceWrapper) newDevice)
                                 .getWrappedDevice();
                     }
-if (MediaAwareCall.DEFAULT_DEVICE.equals(propertyName))
-    System.err.println(CallPeerMediaHandler.class.getName() + ".callPropertyChange: oldDevice= " + oldDevice + "; newDevice= " + newDevice + "; newWrappedDevice= " + newWrappedDevice);
                     if (oldDevice != newWrappedDevice)
                         stream.setDevice(newDevice);
                 }
