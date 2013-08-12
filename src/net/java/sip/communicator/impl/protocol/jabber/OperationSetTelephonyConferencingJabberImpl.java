@@ -382,28 +382,26 @@ public class OperationSetTelephonyConferencingJabberImpl
         String errorMessage = null;
 
         //first ack all "set" requests.
-        if (coinIQ.getType() == IQ.Type.SET)
+        IQ.Type type = coinIQ.getType();
+        if (type == IQ.Type.SET)
         {
             IQ ack = IQ.createResultIQ(coinIQ);
 
             parentProvider.getConnection().sendPacket(ack);
         }
-        
-        if(coinIQ.getType() == IQ.Type.ERROR)
+        else if(type == IQ.Type.ERROR)
         {
-            logger.error("Received error in COIN packet.");
-
             XMPPError error = coinIQ.getError();
             if(error != null)
             {
                 String msg = error.getMessage();
                 errorMessage = ((msg != null)? (msg + " ") : "")
                     + "Error code: " + error.getCode();
-
-                logger.error(errorMessage);
             }
+
+            logger.error("Received error in COIN packet. "+errorMessage);
         }
-        
+
         String sid = coinIQ.getSID();
 
         if (sid != null)
@@ -411,20 +409,20 @@ public class OperationSetTelephonyConferencingJabberImpl
             CallPeerJabberImpl callPeer
                 = getBasicTelephony().getActiveCallsRepository().findCallPeer(
                         sid);
-            
-            
+
+
             if (callPeer != null)
             {
-                if (logger.isDebugEnabled())
-                    logger.debug("Processing COIN from " + coinIQ.getFrom()
-                                    + " (version=" + coinIQ.getVersion() + ")");
-                
-                if(coinIQ.getType() == IQ.Type.ERROR)
+                if(type == IQ.Type.ERROR)
                 {
                     callPeer.fireConferenceMemberErrorEvent(errorMessage);
                     return;
                 }
-                
+
+                if (logger.isDebugEnabled())
+                    logger.debug("Processing COIN from " + coinIQ.getFrom()
+                            + " (version=" + coinIQ.getVersion() + ")");
+
                 handleCoin(callPeer, coinIQ);
             }
         }

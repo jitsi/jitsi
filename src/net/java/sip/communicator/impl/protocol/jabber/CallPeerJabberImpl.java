@@ -311,9 +311,7 @@ public class CallPeerJabberImpl
     }
 
     /**
-     * Processes the session initiation {@link JingleIQ} that we were created
-     * with, passing its content to the media handler and then sends either a
-     * "session-info/ringing" or a "session-terminate" response.
+     * Creates and sends a session-initiate {@link JingleIQ}.
      *
      * @param sessionInitiateExtensions a collection of additional and optional
      * <tt>PacketExtension</tt>s to be added to the <tt>session-initiate</tt>
@@ -330,10 +328,6 @@ public class CallPeerJabberImpl
         //Create the media description that we'd like to send to the other side.
         List<ContentPacketExtension> offer
             = getMediaHandler().createContentList();
-
-        //send a ringing response
-        if (logger.isTraceEnabled())
-            logger.trace("will send ringing response: ");
 
         ProtocolProviderServiceJabberImpl protocolProvider
             = getProtocolProvider();
@@ -656,12 +650,9 @@ public class CallPeerJabberImpl
     }
 
     /**
-     * Processes the session initiation {@link JingleIQ} that we were created
-     * with, passing its content to the media handler and then sends either a
-     * "session-info/ringing" or a "session-terminate" response.
+     * Processes a session-accept {@link JingleIQ}.
      *
-     * @param sessionInitIQ The {@link JingleIQ} that created the session that
-     * we are handling here.
+     * @param sessionInitIQ The session-accept {@link JingleIQ} to process.
      */
     public void processSessionAccept(JingleIQ sessionInitIQ)
     {
@@ -692,7 +683,7 @@ public class CallPeerJabberImpl
             return;
         }
 
-        //tell everyone we are connecting so that the audio notifications would
+        //tell everyone we are connected so that the audio notifications would
         //stop
         setState(CallPeerState.CONNECTED);
 
@@ -1100,9 +1091,9 @@ public class CallPeerJabberImpl
                     (!isInitiator() && senders == SendersEnum.responder))
             direction = direction.or(MediaDirection.RECVONLY);
 
-        // If RTP translation is enabled and we are receiving media from another
-        // CallPeer in the same Call, the direction should allow sending
-        if (mediaHandler.isRTPTranslationEnabled(mediaType))
+        // If we are the focus of a conference and we are receiving media from
+        // another CallPeer in the same Call, the direction should allow sending
+        if (getCall().isConferenceFocus())
         {
             for (CallPeerJabberImpl peer : getCall().getCallPeerList())
             {
