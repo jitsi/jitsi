@@ -613,4 +613,29 @@ public class JingleUtils
 
         return ptExt;
     }
+
+    /**
+     * Returns the <tt>MediaType</tt> for <tt>content</tt> by looking for it
+     * in the <tt>content</tt>'s <tt>description</tt>, if any.
+     *
+     * @param content the content to return the <tt>MediaType</tt> of
+     * @return the <tt>MediaType</tt> for <tt>content</tt> by looking for it
+     * in the <tt>content</tt>'s <tt>description</tt>, if any.
+     * <tt>contentName</tt>
+     */
+    public static MediaType getMediaType(ContentPacketExtension content)
+    {
+        if (content == null)
+            return null;
+        RtpDescriptionPacketExtension desc = getRtpDescription(content);
+        if (desc != null)
+        {
+            String mediaTypeStr = desc.getMedia();
+            if (mediaTypeStr != null)
+                return MediaType.parseString(mediaTypeStr);
+        }
+
+        return null;
+    }
+
 }
