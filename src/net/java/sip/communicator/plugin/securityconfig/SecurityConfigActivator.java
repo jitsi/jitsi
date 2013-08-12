@@ -303,6 +303,62 @@ public class SecurityConfigActivator
     }
 
     /**
+     * Finds all chat rooms with saved encrypted passwords.
+     *
+     * @return a {@link List} with the saved encrypted
+     * password.
+     */
+    public static Map<String, String> getChatRoomsWithSavedPasswords()
+    {
+        Map<?, ProtocolProviderFactory> providerFactoriesMap
+        = getProtocolProviderFactories();
+
+        if (providerFactoriesMap == null)
+            return null;
+
+        CredentialsStorageService credentialsStorageService
+            = getCredentialsStorageService();
+        
+        Map<String, String> chatRoomIDs = new HashMap<String, String>();
+        String prefix = "net.java.sip.communicator.impl.gui.accounts";
+        List<String> accounts = getConfigurationService()
+            .getPropertyNamesByPrefix(prefix, true);
+       
+        for (ProtocolProviderFactory providerFactory
+            : providerFactoriesMap.values())
+        {
+            for (AccountID accountID : providerFactory.getRegisteredAccounts())
+            {
+                for (String accountRootPropName : accounts)
+                {
+                    String accountName
+                    = getConfigurationService().getString(accountRootPropName);
+                    
+                    if(!accountID.getAccountUniqueID().equals(accountName))
+                        continue;
+                    
+                    List<String> chatRooms = getConfigurationService()
+                        .getPropertyNamesByPrefix(
+                            accountRootPropName + ".chatRooms", true);
+        
+                    for (String chatRoomPropName : chatRooms)
+                    {
+                        String chatRoomName = getConfigurationService()
+                            .getString(chatRoomPropName);
+                        if (credentialsStorageService.isStoredEncrypted(
+                                    chatRoomPropName + ".password"))
+                            chatRoomIDs.put(chatRoomName + " " + resources
+                                .getI18NString("service.gui.VIA") + " "
+                                + accountID.getUserID(), chatRoomPropName 
+                                + ".password");
+                    }
+                }
+            }
+        }
+        return chatRoomIDs;
+    }
+    
+    /**
      * @return a String containing the package name of the concrete factory
      * class that extends the abstract factory.
      */

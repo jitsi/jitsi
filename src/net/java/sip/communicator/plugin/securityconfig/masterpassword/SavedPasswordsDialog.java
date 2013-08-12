@@ -485,7 +485,20 @@ public class SavedPasswordsDialog
                             protocol,
                             accID.getUserID()));
             }
+            
+            for(Map.Entry<String, String> entry :
+                SecurityConfigActivator.getChatRoomsWithSavedPasswords()
+                    .entrySet())
+            {
+                String description = entry.getKey();
 
+                model.savedPasswords.add(
+                    new PasswordsTableRow(
+                            entry.getValue(),
+                            resources.getI18NString("service.gui.CHAT_ROOM"),
+                            description));
+            }
+            
             // load provisioning passwords
             String PROVISIONING_PROPERTIES_PREFIX =
                 "net.java.sip.communicator.plugin.provisioning.auth";
