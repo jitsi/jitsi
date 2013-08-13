@@ -672,16 +672,13 @@ public class GuiActivator implements BundleActivator
      */
     public static NotificationService getNotificationService()
     {
-        if(notificationService == null)
+        if (notificationService == null)
         {
-            // Get the notification service implementation
-            ServiceReference notifReference = bundleContext
-                .getServiceReference(NotificationService.class.getName());
-
-            notificationService = (NotificationService) bundleContext
-                .getService(notifReference);
+            notificationService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        NotificationService.class);
         }
-
         return notificationService;
     }
 

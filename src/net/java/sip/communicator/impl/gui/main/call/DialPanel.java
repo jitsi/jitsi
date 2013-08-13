@@ -18,32 +18,30 @@ import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.skin.*;
 
+import org.jitsi.service.resources.*;
+
 /**
  * The <tt>DialPanel</tt> is the panel that contains the buttons to dial a
  * phone number.
  *
  * @author Yana Stamcheva
  * @author Adam Netocny
+ * @author Lyubomir Marinov
  */
 public class DialPanel
     extends JPanel
-    implements  MouseListener,
-                Skinnable
+    implements MouseListener,
+               Skinnable
 {
     /**
      * The dial panel.
      */
-    private final JPanel dialPadPanel =
-        new JPanel(new GridLayout(4, 3,
-            GuiActivator.getResources()
-                .getSettingsInt("impl.gui.DIAL_PAD_HORIZONTAL_GAP"),
-            GuiActivator.getResources()
-                .getSettingsInt("impl.gui.DIAL_PAD_VERTICAL_GAP")));
+    private final JPanel dialPadPanel;
 
     /**
      * Handles DTMFs.
      */
-    private DTMFHandler dtmfHandler;
+    private final DTMFHandler dtmfHandler;
 
     /**
      * Creates an instance of <tt>DialPanel</tt> for a specific call, by
@@ -56,29 +54,21 @@ public class DialPanel
     {
         this.dtmfHandler = dtmfHandler;
 
-        this.init();
-    }
+        // Initialize this panel by adding all dial buttons to it.
+        ResourceManagementService r = GuiActivator.getResources();
+        int hgap = r.getSettingsInt("impl.gui.DIAL_PAD_HORIZONTAL_GAP");
+        int vgap = r.getSettingsInt("impl.gui.DIAL_PAD_VERTICAL_GAP");
+        int width = r.getSettingsInt("impl.gui.DIAL_PAD_WIDTH");
+        int height = r.getSettingsInt("impl.gui.DIAL_PAD_HEIGHT");
 
-    /**
-     * Initializes this panel by adding all dial buttons to it.
-     */
-    public void init()
-    {
-        this.dialPadPanel.setOpaque(false);
+        dialPadPanel = new JPanel(new GridLayout(4, 3, hgap, vgap));
+        dialPadPanel.setOpaque(false);
+        dialPadPanel.setPreferredSize(new Dimension(width, height));
 
-        this.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
-
-        int width = GuiActivator.getResources()
-            .getSettingsInt("impl.gui.DIAL_PAD_WIDTH");
-
-        int height = GuiActivator.getResources()
-            .getSettingsInt("impl.gui.DIAL_PAD_HEIGHT");
-
-        this.dialPadPanel.setPreferredSize(new Dimension(width, height));
+        setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
+        add(dialPadPanel, BorderLayout.CENTER);
 
         loadSkin();
-
-        this.add(dialPadPanel, BorderLayout.CENTER);
     }
 
     /**
@@ -89,97 +79,19 @@ public class DialPanel
      * @param name
      * @return the created dial button
      */
-    private JButton createDialButton(Image bgImage, ImageID iconImage,
-        String name)
+    private JButton createDialButton(
+            Image bgImage,
+            ImageID iconImage,
+            String name)
     {
-        JButton button =
-            new SIPCommButton(bgImage, ImageLoader.getImage(iconImage));
+        JButton button
+            = new SIPCommButton(bgImage, ImageLoader.getImage(iconImage));
 
         button.setAlignmentY(JButton.LEFT_ALIGNMENT);
         button.setName(name);
         button.setOpaque(false);
         button.addMouseListener(this);
         return button;
-    }
-
-    public void mouseClicked(MouseEvent e) {}
-
-    public void mouseEntered(MouseEvent e) {}
-
-    public void mouseExited(MouseEvent e) {}
-
-    /**
-     * Handles the <tt>MouseEvent</tt> triggered when user presses one of the
-     * dial buttons.
-     * @param e the event
-     */
-    public void mousePressed(MouseEvent e)
-    {
-        JButton button = (JButton) e.getSource();
-        dtmfHandler.startSendingDtmfTone(button.getName());
-    }
-
-    /**
-     * Handles the <tt>MouseEvent</tt> triggered when user releases one of the
-     * dial buttons.
-     * @param e the event
-     */
-    public void mouseReleased(MouseEvent e)
-    {
-        dtmfHandler.stopSendingDtmfTone();
-    }
-
-    /**
-     * Paints the main background image to the background of this dial panel.
-     *
-     * @param g the <tt>Graphics</tt> object used for painting
-     */
-    @Override
-    public void paintComponent(Graphics g)
-    {
-        // do the superclass behavior first
-        super.paintComponent(g);
-
-        Graphics2D g2 = (Graphics2D) g;
-
-        boolean isTextureBackground
-            = Boolean.parseBoolean(GuiActivator.getResources()
-            .getSettingsString("impl.gui.IS_CONTACT_LIST_TEXTURE_BG_ENABLED"));
-
-        BufferedImage bgImage
-            = ImageLoader.getImage(ImageLoader.MAIN_WINDOW_BACKGROUND);
-
-        // paint the image
-        if (bgImage != null)
-        {
-            if (isTextureBackground)
-            {
-                Rectangle rect
-                    = new Rectangle(0, 0,
-                            bgImage.getWidth(null),
-                            bgImage.getHeight(null));
-
-                TexturePaint texture = new TexturePaint(bgImage, rect);
-
-                g2.setPaint(texture);
-
-                g2.fillRect(0, 0, this.getWidth(), this.getHeight());
-            }
-            else
-            {
-                g.setColor(new Color(
-                    GuiActivator.getResources()
-                        .getColor("contactListBackground")));
-
-                // paint the background with the choosen color
-                g.fillRect(0, 0, getWidth(), getHeight());
-
-                g2.drawImage(bgImage,
-                        this.getWidth() - bgImage.getWidth(),
-                        this.getHeight() - bgImage.getHeight(),
-                        this);
-            }
-        }
     }
 
     /**
@@ -204,6 +116,86 @@ public class DialPanel
                                 bgImage,
                                 info.imageID,
                                 info.tone.getValue()));
+            }
+        }
+    }
+
+    public void mouseClicked(MouseEvent ev) {}
+
+    public void mouseEntered(MouseEvent ev) {}
+
+    public void mouseExited(MouseEvent ev) {}
+
+    /**
+     * Handles the <tt>MouseEvent</tt> triggered when user presses one of the
+     * dial buttons.
+     *
+     * @param ev the event
+     */
+    public void mousePressed(MouseEvent ev)
+    {
+        dtmfHandler.startSendingDtmfTone(ev.getComponent().getName());
+    }
+
+    /**
+     * Handles the <tt>MouseEvent</tt> triggered when user releases one of the
+     * dial buttons.
+     *
+     * @param ev the event
+     */
+    public void mouseReleased(MouseEvent ev)
+    {
+        dtmfHandler.stopSendingDtmfTone();
+    }
+
+    /**
+     * Paints the main background image to the background of this dial panel.
+     *
+     * @param g the <tt>Graphics</tt> object used for painting
+     */
+    @Override
+    public void paintComponent(Graphics g)
+    {
+        // do the superclass behavior first
+        super.paintComponent(g);
+
+        Graphics2D g2 = (Graphics2D) g;
+        BufferedImage bgImage
+            = ImageLoader.getImage(ImageLoader.MAIN_WINDOW_BACKGROUND);
+
+        // paint the image
+        if (bgImage != null)
+        {
+            ResourceManagementService r = GuiActivator.getResources();
+            boolean isTextureBackground
+                = Boolean.parseBoolean(
+                        r.getSettingsString(
+                                "impl.gui.IS_CONTACT_LIST_TEXTURE_BG_ENABLED"));
+            int width = getWidth(), height = getHeight();
+
+            if (isTextureBackground)
+            {
+                Rectangle rect
+                    = new Rectangle(
+                            0,
+                            0,
+                            bgImage.getWidth(null),
+                            bgImage.getHeight(null));
+                TexturePaint texture = new TexturePaint(bgImage, rect);
+
+                g2.setPaint(texture);
+                g2.fillRect(0, 0, width, height);
+            }
+            else
+            {
+                g.setColor(new Color(r.getColor("contactListBackground")));
+                // paint the background with the chosen color
+                g.fillRect(0, 0, width, height);
+                g2.drawImage(
+                        bgImage,
+                        width - bgImage.getWidth(),
+                        height - bgImage.getHeight(),
+                        this);
             }
         }
     }

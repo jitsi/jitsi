@@ -211,6 +211,7 @@ class NotificationServiceImpl
 
     /**
      * Executes a notification data object on the handlers.
+     *
      * @param data The notification data to act upon.
      */
     private void fireNotification(NotificationData data)
@@ -290,11 +291,10 @@ class NotificationServiceImpl
      * go through the list of registered actions and execute them.
      *
      * @param eventType the type of the event that we'd like to fire a
-     *            notification for.
-     *
+     * notification for.
      * @return An object referencing the notification. It may be used to stop a
-     *         still running notification. Can be null if the eventType is
-     *         unknown or the notification is not active.
+     * still running notification. Can be null if the eventType is unknown or
+     * the notification is not active.
      */
     public NotificationData fireNotification(String eventType)
     {
@@ -307,22 +307,21 @@ class NotificationServiceImpl
      * list of registered actions is executed.
      *
      * @param eventType the type of the event that we'd like to fire a
-     *            notification for.
+     * notification for.
      * @param title the title of the given message
      * @param message the message to use if and where appropriate (e.g. with
-     *            systray or log notification.)
+     * systray or log notification.)
      * @param icon the icon to show in the notification if and where appropriate
      * @param tag additional info to be used by the notification handler
-     *
      * @return An object referencing the notification. It may be used to stop a
-     *         still running notification. Can be null if the eventType is
-     *         unknown or the notification is not active.
+     * still running notification. Can be null if the eventType is unknown or
+     * the notification is not active.
      */
     public NotificationData fireNotification(
-        String eventType,
-        String title,
-        String message,
-        byte[] icon)
+            String eventType,
+            String title,
+            String message,
+            byte[] icon)
     {
         return fireNotification(eventType, title, message, icon, null);
     }
@@ -333,19 +332,18 @@ class NotificationServiceImpl
      * list of registered actions is executed.
      *
      * @param eventType the type of the event that we'd like to fire a
-     *            notification for.
+     * notification for.
      * @param title the title of the given message
      * @param message the message to use if and where appropriate (e.g. with
-     *            systray or log notification.)
+     * systray or log notification.)
      * @param icon the icon to show in the notification if and where appropriate
      * @param extras additiona/extra {@link NotificationHandler}-specific data
      * to be provided to the firing of the specified notification(s). The
      * well-known keys are defined by the <tt>NotificationData</tt>
      * <tt>XXX_EXTRA</tt> constants.
-     *
      * @return An object referencing the notification. It may be used to stop a
-     *         still running notification. Can be null if the eventType is
-     *         unknown or the notification is not active.
+     * still running notification. Can be null if the eventType is unknown or
+     * the notification is not active.
      */
     public NotificationData fireNotification(
             String eventType,
@@ -356,7 +354,7 @@ class NotificationServiceImpl
     {
         Notification notification = notifications.get(eventType);
 
-        if((notification == null) || !notification.isActive())
+        if ((notification == null) || !notification.isActive())
             return null;
 
         NotificationData data

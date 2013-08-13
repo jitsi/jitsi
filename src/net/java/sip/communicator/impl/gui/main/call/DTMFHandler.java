@@ -32,49 +32,70 @@ public class DTMFHandler
                 Runnable
 {
     /**
-     * The <tt>Logger</tt> used by the <tt>DTMFHandler</tt> class and its
-     * instances for logging output.
+     * DTMF extended information.
      */
-    private static final Logger logger = Logger.getLogger(DTMFHandler.class);
+    public static class DTMFToneInfo
+    {
+        /**
+         * The image to display in buttons sending DTMFs.
+         */
+        public final ImageID imageID;
 
-    /**
-     * The call dialog, where this handler is registered.
-     */
-    private final CallPanel callContainer;
+        /**
+         * The char associated with this DTMF tone.
+         */
+        public final char keyChar;
 
-    /**
-     * The <tt>KeyboadFocusManager</tt> to which this instance is added as a
-     * <tt>KeyEventDispatcher</tt>.
-     */
-    private KeyboardFocusManager keyboardFocusManager;
+        /**
+         * The key code when entered from keyboard.
+         */
+        public final int keyCode;
 
-    /**
-     * The <tt>Window</tt>s which this instance listens to for key presses and
-     * releases.
-     */
-    private final List<Window> parents = new ArrayList<Window>();
+        /**
+         * The image to display on Mac buttons.
+         */
+        public final ImageID macImageID;
 
-    /**
-     * If we are currently playing an audio for a DTMF tone. Used
-     * to play in Loop and stop it if forced to do or new tone has come.
-     */
-    NotificationData currentlyPlayingTone;
+        /**
+         * The id of the image to display on Mac buttons on rollover.
+         */
+        public final ImageID macImageRolloverID;
 
-    /**
-     * Default event type for DTMF tone.
-     */
-    public static final String DTMF_TONE_PREFIX = "DTMFTone.";
+        /**
+         * The sound to play during send of this tone.
+         */
+        public final String sound;
 
-    /**
-     * The list of audio DTMF tones to play.
-     */
-    private Vector<DTMFToneInfo> dmtfToneNotifications
-        = new Vector<DTMFToneInfo>(1, 1);
+        /**
+         * The tone itself
+         */
+        public final DTMFTone tone;
 
-    /**
-     * The thread which plays the audio DTMF notifications.
-     */
-    private Thread dtmfToneNotificationThread;
+        /**
+         * Creates DTMF extended info.
+         * @param tone the tone.
+         * @param keyCode its key code.
+         * @param keyChar the char associated with the DTMF
+         * @param imageID the image if any.
+         * @param macImageID the Mac OS X-specific image if any.
+         * @param macImageRolloverID the Mac OS X-specific rollover image if any
+         * @param sound the sound if any.
+         */
+        public DTMFToneInfo(
+            DTMFTone tone,
+            int keyCode, char keyChar,
+            ImageID imageID, ImageID macImageID, ImageID macImageRolloverID,
+            String sound)
+        {
+            this.tone = tone;
+            this.keyCode = keyCode;
+            this.keyChar = keyChar;
+            this.imageID = imageID;
+            this.macImageID = macImageID;
+            this.macImageRolloverID = macImageRolloverID;
+            this.sound = sound;
+        }
+    }
 
     /**
      * All available tones and its properties like images for buttons, and
@@ -219,6 +240,66 @@ public class DTMFHandler
     private static Boolean defaultsLoaded = false;
 
     /**
+     * Default event type for DTMF tone.
+     */
+    public static final String DTMF_TONE_PREFIX = "DTMFTone.";
+
+    /**
+     * The <tt>Logger</tt> used by the <tt>DTMFHandler</tt> class and its
+     * instances for logging output.
+     */
+    private static final Logger logger = Logger.getLogger(DTMFHandler.class);
+
+    /**
+     * Load the defaults for dtmf tones.
+     */
+    public static void loadDefaults()
+    {
+        synchronized(defaultsLoaded)
+        {
+            if(defaultsLoaded)
+                return;
+
+            // init the
+            NotificationService notificationService =
+                GuiActivator.getNotificationService();
+
+            for(DTMFToneInfo info : AVAILABLE_TONES)
+            {
+                notificationService.registerDefaultNotificationForEvent(
+                    DTMF_TONE_PREFIX + info.tone.getValue(),
+                    new SoundNotificationAction(
+                        info.sound, 0, false, true, false));
+            }
+
+            defaultsLoaded = true;
+        }
+    }
+
+    /**
+     * The call dialog, where this handler is registered.
+     */
+    private final CallPanel callContainer;
+
+    /**
+     * The list of audio DTMF tones to play.
+     */
+    private Vector<DTMFToneInfo> dtmfToneNotifications
+        = new Vector<DTMFToneInfo>(1, 1);
+
+    /**
+     * The <tt>KeyboadFocusManager</tt> to which this instance is added as a
+     * <tt>KeyEventDispatcher</tt>.
+     */
+    private KeyboardFocusManager keyboardFocusManager;
+
+    /**
+     * The <tt>Window</tt>s which this instance listens to for key presses and
+     * releases.
+     */
+    private final List<Window> parents = new ArrayList<Window>();
+
+    /**
      * Creates DTMF handler for a call.
      */
     public DTMFHandler()
@@ -264,32 +345,6 @@ public class DTMFHandler
     }
 
     /**
-     * Load the defaults for dtmf tones.
-     */
-    public static void loadDefaults()
-    {
-        synchronized(defaultsLoaded)
-        {
-            if(defaultsLoaded)
-                return;
-
-            // init the
-            NotificationService notificationService =
-                GuiActivator.getNotificationService();
-
-            for(DTMFToneInfo info : AVAILABLE_TONES)
-            {
-                notificationService.registerDefaultNotificationForEvent(
-                    DTMF_TONE_PREFIX + info.tone.getValue(),
-                    new SoundNotificationAction(
-                        info.sound, 0, false, true, false));
-            }
-
-            defaultsLoaded = true;
-        }
-    }
-
-    /**
      * Adds a <tt>Window</tt> on which key presses and releases are to be
      * monitored for the purposes of this <tt>DTMFHandler</tt>.
      *
@@ -307,27 +362,6 @@ public class DTMFHandler
                 keyboardFocusManager
                     = KeyboardFocusManager.getCurrentKeyboardFocusManager();
                 keyboardFocusManager.addKeyEventDispatcher(this);
-            }
-        }
-    }
-
-    /**
-     * Removes a <tt>Window</tt> on which key presses and releases are to no
-     * longer be monitored for the purposes of this <tt>DTMFHandler</tt>.
-     *
-     * @param parent the <tt>Window</tt> on which key presses and releases are
-     * to no longer be monitored for the purposes of this <tt>DTMFHandler</tt>
-     */
-    public void removeParent(Window parent)
-    {
-        synchronized (parents)
-        {
-            if (parents.remove(parent)
-                    && parents.isEmpty()
-                    && (keyboardFocusManager != null))
-            {
-                keyboardFocusManager.removeKeyEventDispatcher(this);
-                keyboardFocusManager = null;
             }
         }
     }
@@ -396,64 +430,82 @@ public class DTMFHandler
     }
 
     /**
-     * Sends a DTMF tone to the current DTMF operation set.
+     * Removes a <tt>Window</tt> on which key presses and releases are to no
+     * longer be monitored for the purposes of this <tt>DTMFHandler</tt>.
      *
-     * @param toneValue the value of the DTMF tone to send.
+     * @param parent the <tt>Window</tt> on which key presses and releases are
+     * to no longer be monitored for the purposes of this <tt>DTMFHandler</tt>
      */
-    public void startSendingDtmfTone(String toneValue)
+    public void removeParent(Window parent)
     {
-        for (int i = 0; i < AVAILABLE_TONES.length; i++)
+        synchronized (parents)
         {
-            DTMFToneInfo info = AVAILABLE_TONES[i];
-
-            if (info.tone.getValue().equals(toneValue))
+            if (parents.remove(parent)
+                    && parents.isEmpty()
+                    && (keyboardFocusManager != null))
             {
-                startSendingDtmfTone(info);
-                return;
+                keyboardFocusManager.removeKeyEventDispatcher(this);
+                keyboardFocusManager = null;
             }
         }
     }
 
     /**
-     * Sends a DTMF tone to the current DTMF operation set.
-     *
-     * @param info The DTMF tone to send.
+     * Runs in a background/daemon thread and consecutively plays each of the
+     * {@link #dtmfToneNotifications} through the current
+     * {@link NotificationService}.
      */
-    private synchronized void startSendingDtmfTone(DTMFToneInfo info)
+    public void run()
     {
-        if(info.sound != null)
+        do
         {
-            synchronized(dmtfToneNotifications)
+            DTMFToneInfo toneToPlay;
+
+            synchronized (dtmfToneNotifications)
             {
-                boolean startThread = (dmtfToneNotifications.size() == 0);
-                dmtfToneNotifications.add(info);
-                if(startThread)
+                if (dtmfToneNotifications.size() != 0)
                 {
-                    dtmfToneNotificationThread
-                        = new Thread(
-                                this,
-                                "DTMFHandler: DTMF tone notification player");
-                    dtmfToneNotificationThread.start();
+                    /*
+                     * XXX We will purposefully remove the toneToPlay once it
+                     * has been played in order to reduce the risk of
+                     * simultaneously playing one and the same tone multiple
+                     * times. 
+                     */
+                    toneToPlay = dtmfToneNotifications.get(0);
+                }
+                else
+                    break;
+            }
+            try
+            {
+                if (toneToPlay.sound != null)
+                {
+                    NotificationService notificationService
+                        = GuiActivator.getNotificationService();
+                    // Plays the next DTMF sound notification.
+                    NotificationData currentlyPlayingTone
+                        = notificationService.fireNotification(
+                                DTMF_TONE_PREFIX + toneToPlay.tone.getValue());
+
+                    // Waits for the current notification to end.
+                    while (notificationService.isPlayingNotification(
+                            currentlyPlayingTone))
+                    {
+                        Thread.yield();
+                    }
+                    // Removes the ended notification from the DTMF list.
+                    notificationService.stopNotification(currentlyPlayingTone);
+                }
+            }
+            finally
+            {
+                synchronized (dtmfToneNotifications)
+                {
+                    dtmfToneNotifications.remove(0);
                 }
             }
         }
-
-        if (callContainer != null)
-        {
-            startSendingDtmfTone(
-                callContainer.getCurrentCallRenderer().getCall(),
-                info);
-        }
-        else
-        {
-            Collection<Call> activeCalls = CallManager.getInProgressCalls();
-
-            if (activeCalls != null)
-            {
-                for (Call activeCall : activeCalls)
-                    startSendingDtmfTone(activeCall, info);
-            }
-        }
+        while (true);
     }
 
     /**
@@ -492,6 +544,69 @@ public class DTMFHandler
         catch (Throwable t)
         {
             logger.error("Failed to send a DTMF tone.", t);
+        }
+    }
+
+    /**
+     * Sends a DTMF tone to the current DTMF operation set.
+     *
+     * @param info The DTMF tone to send.
+     */
+    private synchronized void startSendingDtmfTone(DTMFToneInfo info)
+    {
+        if(info.sound != null)
+        {
+            synchronized(dtmfToneNotifications)
+            {
+                boolean startThread = (dtmfToneNotifications.size() == 0);
+
+                dtmfToneNotifications.add(info);
+                if(startThread)
+                {
+                    Thread dtmfToneNotificationThread = new Thread(this);
+
+                    dtmfToneNotificationThread.setDaemon(true);
+                    dtmfToneNotificationThread.setName(
+                            "DTMFHandler: DTMF tone notification player");
+                    dtmfToneNotificationThread.start();
+                }
+            }
+        }
+
+        if (callContainer != null)
+        {
+            startSendingDtmfTone(
+                callContainer.getCurrentCallRenderer().getCall(),
+                info);
+        }
+        else
+        {
+            Collection<Call> activeCalls = CallManager.getInProgressCalls();
+
+            if (activeCalls != null)
+            {
+                for (Call activeCall : activeCalls)
+                    startSendingDtmfTone(activeCall, info);
+            }
+        }
+    }
+
+    /**
+     * Sends a DTMF tone to the current DTMF operation set.
+     *
+     * @param toneValue the value of the DTMF tone to send.
+     */
+    public void startSendingDtmfTone(String toneValue)
+    {
+        for (int i = 0; i < AVAILABLE_TONES.length; i++)
+        {
+            DTMFToneInfo info = AVAILABLE_TONES[i];
+
+            if (info.tone.getValue().equals(toneValue))
+            {
+                startSendingDtmfTone(info);
+                return;
+            }
         }
     }
 
@@ -542,107 +657,6 @@ public class DTMFHandler
         catch (Throwable t)
         {
             logger.error("Failed to send a DTMF tone.", t);
-        }
-    }
-
-    /**
-     * DTMF extended information.
-     */
-    public static class DTMFToneInfo
-    {
-        /**
-         * The tone itself
-         */
-        public final DTMFTone tone;
-
-        /**
-         * The key code when entered from keyboard.
-         */
-        public final int keyCode;
-
-        /**
-         * The char associated with this DTMF tone.
-         */
-        public final char keyChar;
-
-        /**
-         * The image to display in buttons sending DTMFs.
-         */
-        public final ImageID imageID;
-
-        /**
-         * The image to display on Mac buttons.
-         */
-        public final ImageID macImageID;
-
-        /**
-         * The id of the image to display on Mac buttons on rollover.
-         */
-        public final ImageID macImageRolloverID;
-
-        /**
-         * The sound to play during send of this tone.
-         */
-        public final String sound;
-
-        /**
-         * Creates DTMF extended info.
-         * @param tone the tone.
-         * @param keyCode its key code.
-         * @param keyChar the char associated with the DTMF
-         * @param imageID the image if any.
-         * @param macImageID the Mac OS X-specific image if any.
-         * @param macImageRolloverID the Mac OS X-specific rollover image if any
-         * @param sound the sound if any.
-         */
-        public DTMFToneInfo(
-            DTMFTone tone,
-            int keyCode, char keyChar,
-            ImageID imageID, ImageID macImageID, ImageID macImageRolloverID,
-            String sound)
-        {
-            this.tone = tone;
-            this.keyCode = keyCode;
-            this.keyChar = keyChar;
-            this.imageID = imageID;
-            this.macImageID = macImageID;
-            this.macImageRolloverID = macImageRolloverID;
-            this.sound = sound;
-        }
-    }
-
-    /**
-     * Runnable used to read all waiting DTMF tone notification.
-     */
-    public void run()
-    {
-        boolean moreToPlay = (dmtfToneNotifications.size() > 0);
-        DTMFToneInfo toneToPlay = null;
-        while(moreToPlay)
-        {
-            toneToPlay = dmtfToneNotifications.get(0);
-            if(toneToPlay.sound != null)
-            {
-                // Plays the next DTMF sond notification.
-                currentlyPlayingTone
-                    = GuiActivator.getNotificationService().fireNotification(
-                            DTMF_TONE_PREFIX + toneToPlay.tone.getValue());
-
-                // Waits for the current notification to end.
-                while(GuiActivator.getNotificationService()
-                        .isPlayingNotification(currentlyPlayingTone))
-                {
-                    Thread.yield();
-                }
-                // Removes the ended notification from the DTMF list.
-                GuiActivator.getNotificationService()
-                    .stopNotification(currentlyPlayingTone);
-                synchronized(dmtfToneNotifications)
-                {
-                    dmtfToneNotifications.remove(0);
-                    moreToPlay = (dmtfToneNotifications.size() > 0);
-                }
-            }
         }
     }
 }
