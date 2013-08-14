@@ -197,7 +197,6 @@ public abstract class AbstractOperationSetVideoTelephony<
         MediaAwareCall<?, ?, ?> mediaAwareCall = (MediaAwareCall<?, ?, ?>) call;
         MediaUseCase useCase = MediaUseCase.CALL;
 
-        mediaAwareCall.setVideoDevice(null, useCase);
         mediaAwareCall.setLocalVideoAllowed(allowed, useCase);
     }
 

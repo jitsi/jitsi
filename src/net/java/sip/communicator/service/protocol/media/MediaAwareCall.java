@@ -527,6 +527,14 @@ public abstract class MediaAwareCall<
     public void setLocalVideoAllowed(boolean allowed, MediaUseCase useCase)
         throws OperationFailedException
     {
+        /*
+         * If the use case changes and we don't change the device, calls to
+         * getDefaultDevice() will return the device for the old use case (
+         * because it cached in MediaAwareCallConference)
+         */
+        if (mediaUseCase != useCase)
+            setVideoDevice(null, useCase);
+
         localVideoAllowed = allowed;
         mediaUseCase = useCase;
 
