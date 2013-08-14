@@ -1020,6 +1020,9 @@ public abstract class AbstractOperationSetTelephonyConferencing<
         confInfo.setEntity(getLocalEntity(callPeer));
 
         Call call = callPeer.getCall();
+        if (call == null)
+            return null;
+
         List<CallPeer> conferenceCallPeers = CallConference.getCallPeers(call);
         confInfo.setUserCount(
                 1 /* the local peer/user */ + conferenceCallPeers.size());
