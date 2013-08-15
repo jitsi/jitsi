@@ -49,7 +49,7 @@ public class CallPeerMenu
     private final String offHoldText = GuiActivator.getResources()
         .getI18NString("service.gui.PUT_OFF_HOLD");
 
-    private final JMenuItem holdMenuItem= new JMenuItem(onHoldText);
+    private final JMenuItem holdMenuItem;
 
 
     /**
@@ -95,6 +95,10 @@ public class CallPeerMenu
                 }
             });
 
+        holdMenuItem = new JMenuItem(
+                CallPeerState.isOnHold(callPeer.getState())
+                ? offHoldText
+                : onHoldText);
         initHoldMenuItem();
 
         this.add(holdMenuItem);
