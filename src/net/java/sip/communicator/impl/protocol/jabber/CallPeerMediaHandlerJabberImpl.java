@@ -229,7 +229,9 @@ public class CallPeerMediaHandlerJabberImpl
         throws OperationFailedException
     {
         MediaType mediaType = dev.getMediaType();
+        //this is the direction to be used in the jingle session
         MediaDirection direction = dev.getDirection();
+        CallPeerJabberImpl peer = getPeer();
 
         /*
          * In the case of RTP translation performed by the conference focus,
@@ -238,6 +240,24 @@ public class CallPeerMediaHandlerJabberImpl
         if (!(MediaType.VIDEO.equals(mediaType)
                 && isRTPTranslationEnabled(mediaType)))
             direction = direction.and(getDirectionUserPreference(mediaType));
+
+        /*
+         * Check if we need to announce sending on behalf of other peers
+         */
+        if (peer.getCall().isConferenceFocus())
+        {
+            for (CallPeerJabberImpl anotherPeer
+                    : peer.getCall().getCallPeerList())
+            {
+                if (anotherPeer != peer
+                        && anotherPeer.getDirection(mediaType).allowsReceiving())
+                {
+                    direction = direction.or(MediaDirection.SENDONLY);
+                    break;
+                }
+            }
+        }
+
         if (isLocallyOnHold())
             direction = direction.and(MediaDirection.SENDONLY);
 
