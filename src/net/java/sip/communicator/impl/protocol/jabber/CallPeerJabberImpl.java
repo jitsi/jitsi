@@ -1343,6 +1343,7 @@ public class CallPeerJabberImpl
     @Override
     public void setState(CallPeerState newState, String reason, int reasonCode)
     {
+        CallPeerState oldState = getState();
         try
         {
             /*
@@ -1358,6 +1359,20 @@ public class CallPeerJabberImpl
         finally
         {
             super.setState(newState, reason, reasonCode);
+        }
+
+        if (CallPeerState.isOnHold(oldState)
+                && CallPeerState.CONNECTED.equals(newState))
+        {
+            try
+            {
+                getCall().modifyVideoContent();
+            }
+            catch (OperationFailedException ofe)
+            {
+                logger.error("Failed to update call video state after " +
+                        "'hold' status removed for "+this);
+            }
         }
     }
 
