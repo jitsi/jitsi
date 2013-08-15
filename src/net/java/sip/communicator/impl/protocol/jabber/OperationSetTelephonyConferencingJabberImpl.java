@@ -464,7 +464,8 @@ public class OperationSetTelephonyConferencingJabberImpl
         ConferenceInfoDocument confInfo
                 = super.getCurrentConferenceInfo(callPeer);
 
-        if (callPeer instanceof CallPeerJabberImpl)
+        if (callPeer instanceof CallPeerJabberImpl
+                && confInfo != null)
         {
             confInfo.setSid(((CallPeerJabberImpl)callPeer).getSID());
         }

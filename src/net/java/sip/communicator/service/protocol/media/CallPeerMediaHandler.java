@@ -1565,12 +1565,11 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
             }
 
             MediaStream videoStream = getStream(MediaType.VIDEO);
-            direction = getPeer().getCall().isConferenceFocus()
-                    ? MediaDirection.INACTIVE
-                    : videoStream.getDirection().and(MediaDirection.SENDONLY);
-
             if(videoStream != null)
             {
+                direction = getPeer().getCall().isConferenceFocus()
+                        ? MediaDirection.INACTIVE
+                        : videoStream.getDirection().and(MediaDirection.SENDONLY);
                 /*
                  * Set the video direction to INACTIVE, because currently we
                  * cannot mute video streams.
