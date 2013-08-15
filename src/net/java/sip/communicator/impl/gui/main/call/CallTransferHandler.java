@@ -160,9 +160,28 @@ public class CallTransferHandler
 
                     if (detailProvider != null)
                     {
-                        callee = detail.getAddress();
-                        provider = detailProvider;
-                        break;
+                        /*
+                         * Currently for videobridge conferences we only support
+                         * adding contacts via the account with the videobridge
+                         */
+                        if (callConference.isJitsiVideoBridge())
+                        {
+                            for (Call call : callConference.getCalls())
+                            {
+                                if (detailProvider == call.getProtocolProvider())
+                                {
+                                    callee = detail.getAddress();
+                                    provider = detailProvider;
+                                    break;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            callee = detail.getAddress();
+                            provider = detailProvider;
+                            break;
+                        }
                     }
                 }
 
