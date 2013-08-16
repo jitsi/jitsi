@@ -136,7 +136,7 @@ public class CallPeerJabberImpl
                 .getTransportManager().wrapupConnectivityEstablishment();
             answer = mediaHandler.generateSessionAccept();
             for (ContentPacketExtension c : answer)
-                setSenders(JingleUtils.getMediaType(c), c.getSenders());
+                setSenders(getMediaType(c), c.getSenders());
         }
         catch(Exception exc)
         {
@@ -413,7 +413,7 @@ public class CallPeerJabberImpl
                 .getTransportManager().wrapupConnectivityEstablishment();
             mediaHandler.processAnswer(contents);
             for (ContentPacketExtension c : contents)
-                setSenders(JingleUtils.getMediaType(c), c.getSenders());
+                setSenders(getMediaType(c), c.getSenders());
         }
         catch (Exception e)
         {
@@ -536,7 +536,7 @@ public class CallPeerJabberImpl
                         getSID(),
                         answerContents);
             for (ContentPacketExtension c : answerContents)
-                setSenders(JingleUtils.getMediaType(c), c.getSenders());
+                setSenders(getMediaType(c), c.getSenders());
         }
 
         getProtocolProvider().getConnection().sendPacket(contentIQ);
@@ -576,6 +576,7 @@ public class CallPeerJabberImpl
     public void processContentModify(JingleIQ content)
     {
         ContentPacketExtension ext = content.getContentList().get(0);
+        MediaType mediaType = getMediaType(ext);
 
         try
         {
@@ -584,9 +585,10 @@ public class CallPeerJabberImpl
                     != null);
 
             getMediaHandler().reinitContent(ext.getName(), ext, modify);
-            setSenders(JingleUtils.getMediaType(ext), ext.getSenders());
 
-            if (MediaType.VIDEO.toString().equals(ext.getName()))
+            setSenders(mediaType, ext.getSenders());
+
+            if (MediaType.VIDEO.equals(mediaType));
                 getCall().modifyVideoContent();
         }
         catch(Exception e)
@@ -649,7 +651,7 @@ public class CallPeerJabberImpl
             {
                 mediaHandler.removeContent(c.getName());
 
-                MediaType mediaType = JingleUtils.getMediaType(c);
+                MediaType mediaType = getMediaType(c);
                 setSenders(mediaType, SendersEnum.none);
 
                 if (MediaType.VIDEO.equals(mediaType))
@@ -698,7 +700,7 @@ public class CallPeerJabberImpl
                 .getTransportManager().wrapupConnectivityEstablishment();
             mediaHandler.processAnswer(answer);
             for (ContentPacketExtension c : answer)
-                setSenders(JingleUtils.getMediaType(c), c.getSenders());
+                setSenders(getMediaType(c), c.getSenders());
         }
         catch(Exception exc)
         {
@@ -1578,5 +1580,44 @@ public class CallPeerJabberImpl
             this.videoSenders = senders;
         else
             throw new IllegalArgumentException("mediaType");
+    }
+
+    /**
+     * Gets the <tt>MediaType</tt> of <tt>content</tt>. If <tt>content</tt>
+     * does not have a <tt>description</tt> child and therefore not
+     * <tt>MediaType</tt> can be associated with it, tries to take the
+     * <tt>MediaType</tt> from the session's already established contents with
+     * the same name as <tt>content</tt>
+     * @param content the <tt>ContentPacketExtention</tt> for which to get the
+     * <tt>MediaType</tt>
+     * @return the <tt>MediaType</tt> of <tt>content</tt>.
+     */
+    public MediaType getMediaType (ContentPacketExtension content)
+    {
+        String contentName = content.getName();
+        if (contentName == null)
+            return null;
+
+        MediaType mediaType = JingleUtils.getMediaType(content);
+        if (mediaType == null)
+        {
+            CallPeerMediaHandlerJabberImpl mediaHandler = getMediaHandler();
+            for (MediaType m : MediaType.values())
+            {
+                ContentPacketExtension sessionContent
+                        = mediaHandler.getRemoteContent(m.toString());
+                if (sessionContent == null)
+                    sessionContent = mediaHandler.getLocalContent(m.toString());
+
+                if (sessionContent != null
+                        && contentName.equals(sessionContent.getName()))
+                {
+                    mediaType = m;
+                    break;
+                }
+            }
+        }
+
+        return mediaType;
     }
 }
