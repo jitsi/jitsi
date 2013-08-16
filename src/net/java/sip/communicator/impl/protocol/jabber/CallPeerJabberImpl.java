@@ -588,7 +588,7 @@ public class CallPeerJabberImpl
 
             setSenders(mediaType, ext.getSenders());
 
-            if (MediaType.VIDEO.equals(mediaType));
+            if (MediaType.VIDEO.equals(mediaType))
                 getCall().modifyVideoContent();
         }
         catch(Exception e)
