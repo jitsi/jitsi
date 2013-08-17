@@ -161,13 +161,12 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
 {
     jboolean res = JNI_FALSE;
     const char *nativeEntryId = jniEnv->GetStringUTFChars(entryId, NULL);
-    const char *nativeValue = jniEnv->GetStringUTFChars(value, NULL);
 
     IMsOutlookAddrBookServer * iServer = ComClient_getIServer();
     if(iServer)
     {
-        LPWSTR unicodeValue
-            = StringUtils::MultiByteToWideChar(nativeValue);
+        const LPWSTR unicodeValue
+            = (const LPWSTR) jniEnv->GetStringChars(value, NULL);
         BSTR comValue = SysAllocString(unicodeValue);
         LPWSTR unicodeId = StringUtils::MultiByteToWideChar(nativeEntryId);
         BSTR comId = SysAllocString(unicodeId);
@@ -178,11 +177,10 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
         SysFreeString(comId);
         free(unicodeId);
         SysFreeString(comValue);
-        free(unicodeValue);
+        jniEnv->ReleaseStringChars(value, (const jchar*) unicodeValue);
     }
 
     jniEnv->ReleaseStringUTFChars(entryId, nativeEntryId);
-    jniEnv->ReleaseStringUTFChars(value, nativeValue);
 
     return res;
 }

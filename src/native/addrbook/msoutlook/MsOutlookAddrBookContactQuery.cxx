@@ -1353,7 +1353,7 @@ HRESULT MsOutlookAddrBookContactQuery_IMAPIProp_1GetProps(
  * @return 1 if the modification succeded. 0 otherwise.
  */
 int MsOutlookAddrBookContactQuery_IMAPIProp_1SetPropString
-    (long propId, const char* nativeValue, const char* nativeEntryId)
+    (long propId, const wchar_t* nativeValue, const char* nativeEntryId)
 {
     HRESULT hResult;
 
@@ -1364,20 +1364,9 @@ int MsOutlookAddrBookContactQuery_IMAPIProp_1SetPropString
         return 0;
     }
 
-    size_t valueLength = strlen(nativeValue);
+    size_t valueLength = wcslen(nativeValue);
     LPWSTR wCharValue = (LPWSTR)::malloc((valueLength + 1) * sizeof(wchar_t));
-    if(mbstowcs(wCharValue, nativeValue, valueLength + 1)
-            != valueLength)
-    {
-        fprintf(stderr,
-                "setPropUnicode (addrbook/MsOutlookAddrBookContactQuery.c): \
-                    \n\tmbstowcs\n");
-        fflush(stderr);
-        ((LPMAPIPROP)  mapiProp)->Release();
-        ::free(wCharValue);
-        wCharValue = NULL;
-        return 0;
-    }
+    memcpy(wCharValue, nativeValue, (valueLength + 1) * sizeof(wchar_t));
 
     ULONG baseGroupEntryIdProp = 0;
     switch(propId)

@@ -22,7 +22,7 @@ long MsOutlookAddrBookContactQuery_IMAPIProp_1GetProps(
         char * propsType);
 
 int MsOutlookAddrBookContactQuery_IMAPIProp_1SetPropString
-    (long propId, const char* nativeValue, const char* nativeEntryId);
+    (long propId, const wchar_t* nativeValue, const char* nativeEntryId);
 
 char* MsOutlookAddrBookContactQuery_createContact(void);
 

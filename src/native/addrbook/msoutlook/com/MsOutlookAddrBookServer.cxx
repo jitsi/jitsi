@@ -348,17 +348,15 @@ HRESULT STDMETHODCALLTYPE MsOutlookAddrBookServer::IMAPIProp_SetPropString(
     HRESULT hr = E_FAIL;
     if(value != NULL && entryId != NULL)
     {
-        LPSTR nativeValue = StringUtils::WideCharToMultiByte(value);
         LPSTR nativeId = StringUtils::WideCharToMultiByte(entryId);
         if(MsOutlookAddrBookContactQuery_IMAPIProp_1SetPropString(
                     propId,
-                    nativeValue,
+                    value,
                     nativeId) == 1)
         {
             hr = S_OK;
         }
         free(nativeId);
-        free(nativeValue);
     }
     return hr;
 }
