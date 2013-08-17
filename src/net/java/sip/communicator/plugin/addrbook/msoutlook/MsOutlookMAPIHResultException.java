@@ -96,6 +96,7 @@ public class MsOutlookMAPIHResultException
             s.append(((hResult & 0x80000000L) == 0) ? 'W' : 'E');
             s.append("_0x");
             s.append(Long.toHexString(hResult & 0xFFFL));
+            s.append(" (" + Long.toHexString(hResult) + ")");
             return s.toString();
         }
     }
