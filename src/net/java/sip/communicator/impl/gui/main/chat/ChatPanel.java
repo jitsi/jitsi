@@ -734,7 +734,8 @@ public class ChatPanel
                             evt.getTimestamp(),
                             Chat.HISTORY_OUTGOING_MESSAGE,
                             evt.getMessage().getContent(),
-                            evt.getMessage().getContentType());
+                            evt.getMessage().getContentType(),
+                            evt.getMessage().getMessageUID());
             }
             else if(o instanceof ChatRoomMessageReceivedEvent)
             {
@@ -750,7 +751,8 @@ public class ChatPanel
                             evt.getTimestamp(),
                             Chat.HISTORY_INCOMING_MESSAGE,
                             evt.getMessage().getContent(),
-                            evt.getMessage().getContentType());
+                            evt.getMessage().getContentType(),
+                            evt.getMessage().getMessageUID());
                 }
             }
             else if (o instanceof FileRecord)

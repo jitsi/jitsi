@@ -1922,7 +1922,7 @@ public class MessageHistoryServiceImpl
         /**
          * Calculates the progress according the count of the records
          * we will search
-         * @param historyProgress int
+         * @param evt the progress event
          * @return int
          */
         private int getProgressMapping(ProgressEvent evt)

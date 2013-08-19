@@ -179,10 +179,13 @@ public class ConferenceChatManager
 
             chatPanel.addMessage(
                 sourceChatRoom.getUserNickname(),
+                null,
                 evt.getTimestamp(),
                 messageType,
                 msg.getContent(),
-                msg.getContentType());
+                msg.getContentType(),
+                msg.getMessageUID(),
+                null);
         }
     }
 
@@ -287,10 +290,13 @@ public class ConferenceChatManager
 
         chatPanel.addMessage(
             sourceMember.getName(),
+            null,
             evt.getTimestamp(),
             messageType,
             messageContent,
-            message.getContentType());
+            message.getContentType(),
+            message.getMessageUID(),
+            null);
 
         chatWindowManager.openChat(chatPanel, false);
     }
@@ -1956,10 +1962,13 @@ public class ConferenceChatManager
                 .addMessage(
                     sourceChatRoom
                         .getParentProvider().getAccountID().getUserID(),
+                    null,
                     evt.getTimestamp(),
                     messageType,
                     msg.getContent(),
-                    msg.getContentType());
+                    msg.getContentType(),
+                    msg.getMessageUID(),
+                    null);
         }
         else
         {
@@ -2078,10 +2087,13 @@ public class ConferenceChatManager
 
         chatPanel.addMessage(
             sourceParticipant.getDisplayName(),
+            null,
             evt.getTimestamp(),
             messageType,
             messageContent,
-            message.getContentType());
+            message.getContentType(),
+            message.getMessageUID(),
+            null);
 
         chatWindowManager.openChat(chatPanel, false);
     }

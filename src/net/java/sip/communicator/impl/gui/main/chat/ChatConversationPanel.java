@@ -1022,6 +1022,9 @@ public class ChatConversationPanel
                                     String contentType,
                                     String keyword)
     {
+        if(message == null)
+            return message;
+
         Matcher m
             = Pattern.compile(Pattern.quote(keyword), Pattern.CASE_INSENSITIVE)
                 .matcher(message);
