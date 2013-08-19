@@ -1863,7 +1863,7 @@ public class ChatRoomJabberImpl
         */
         public void ownershipRevoked()
         {
-            setLocalUserRole(ChatRoomMemberRole.ADMINISTRATOR);
+            setLocalUserRole(ChatRoomMemberRole.MEMBER);
         }
 
         /**
@@ -2370,25 +2370,63 @@ public class ChatRoomJabberImpl
                 return;
 
             MUCUser mucUser = getMUCUserExtension(packet);
-            if (mucUser != null && mucUser.getStatus() != null) {
-                if ("201".equals(mucUser.getStatus().getCode())) {
-                   try
-                   {
-                       multiUserChat.sendConfigurationForm(
-                           new Form(Form.TYPE_SUBMIT));
-                   } catch (XMPPException e)
-                   {
-                       logger.error("Failed to send config form.", e);
-                   }
-                   opSetMuc.addSmackInvitationRejectionListener(multiUserChat, 
-                       chatRoom);
-                   setLocalUserRole(ChatRoomMemberRole.MODERATOR);
-                   provider.getConnection().removePacketListener(this);
+
+            if (mucUser != null)
+            {
+                // if status 201 is available means that
+                // room is created and locked till we send
+                // the configuration
+                if (mucUser.getStatus() != null
+                    && "201".equals(mucUser.getStatus().getCode()))
+                {
+                    try
+                    {
+                        multiUserChat.sendConfigurationForm(
+                            new Form(Form.TYPE_SUBMIT));
+                    } catch (XMPPException e)
+                    {
+                        logger.error("Failed to send config form.", e);
+                    }
+
+                    opSetMuc.addSmackInvitationRejectionListener(multiUserChat,
+                        chatRoom);
+                    setLocalUserRole(ChatRoomMemberRole.MODERATOR);
                 }
+                else
+                {
+                    // this is the presence for our member initial role and
+                    // affiliation, as smack do not fire any initial
+                    // events lets check it and fire events
+                    String affiliation = mucUser.getItem().getAffiliation();
+                    String role = mucUser.getItem().getRole();
+                    if(role != null
+                        && role.equalsIgnoreCase(ChatRoomMemberRole.MODERATOR
+                                .getRoleName().toLowerCase()))
+                    {
+                        setLocalUserRole(ChatRoomMemberRole.MODERATOR);
+                    }
+
+                    if(affiliation != null)
+                    {
+                        if(affiliation.equalsIgnoreCase(ChatRoomMemberRole.OWNER
+                                .getRoleName().toLowerCase()))
+                        {
+                            setLocalUserRole(ChatRoomMemberRole.OWNER);
+                        }
+                        else if(affiliation.equalsIgnoreCase(
+                                    ChatRoomMemberRole.ADMINISTRATOR
+                                        .getRoleName().toLowerCase()))
+                        {
+                            setLocalUserRole(ChatRoomMemberRole.ADMINISTRATOR);
+                        }
+                        // by default everyone is member no need of initial
+                        // role change
+                    }
+                }
+
+                provider.getConnection().removePacketListener(this);
             }
         }
-        
-        
     }
 
     /**
