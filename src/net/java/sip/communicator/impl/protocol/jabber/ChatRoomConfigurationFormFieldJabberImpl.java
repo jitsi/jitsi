@@ -138,6 +138,10 @@ public class ChatRoomConfigurationFormFieldJabberImpl
             return TYPE_LIST_SINGLE;
         else if(smackType.equals(FormField.TYPE_LIST_MULTI))
             return TYPE_LIST_MULTI;
+        else if(smackType.equals(FormField.TYPE_JID_SINGLE))
+            return TYPE_ID_SINGLE;
+        else if(smackType.equals(FormField.TYPE_JID_MULTI))
+            return TYPE_ID_MULTI;
         else
             return TYPE_UNDEFINED;
     }

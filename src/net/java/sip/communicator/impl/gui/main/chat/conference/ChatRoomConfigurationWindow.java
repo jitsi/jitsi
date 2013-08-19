@@ -267,7 +267,9 @@ public class ChatRoomConfigurationWindow
                 }
             }
             else if(fieldType.equals(
-                ChatRoomConfigurationFormField.TYPE_TEXT_SINGLE))
+                ChatRoomConfigurationFormField.TYPE_TEXT_SINGLE)
+                    || fieldType.equals(
+                            ChatRoomConfigurationFormField.TYPE_ID_SINGLE))
             {
                 field = new JTextField();
 
@@ -289,6 +291,21 @@ public class ChatRoomConfigurationWindow
 
                     ((JPasswordField) field).setText(value);
                 }
+            }
+            else if(fieldType.equals(
+                ChatRoomConfigurationFormField.TYPE_ID_MULTI))
+            {
+                StringBuffer buff = new StringBuffer();
+
+                while(values.hasNext())
+                {
+                    String value = values.next().toString();
+                    buff.append(value);
+
+                    if(values.hasNext())
+                        buff.append(System.getProperty("line.separator"));
+                }
+                field = new JTextArea(buff.toString());
             }
             else
             {
@@ -406,7 +423,19 @@ public class ChatRoomConfigurationWindow
                 {
                     String newValue = ((JTextComponent)c).getText();
 
-                    formField.addValue(newValue);
+                    if(formField.getType().equals(
+                        ChatRoomConfigurationFormField.TYPE_ID_MULTI))
+                    {
+                        // extract values
+                        StringTokenizer idTokens = new StringTokenizer(
+                            newValue, System.getProperty("line.separator"));
+                        while(idTokens.hasMoreTokens())
+                        {
+                            formField.addValue(idTokens.nextToken());
+                        }
+                    }
+                    else
+                        formField.addValue(newValue);
                 }
                 else if (c instanceof AbstractButton)
                 {
