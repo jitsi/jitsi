@@ -244,12 +244,13 @@ public class ScOtrEngineImpl
                     contact.getAddress(),
                     pps.getProtocolName());
 
-        if(contactsMap.containsKey(sessionID))
-            return sessionID;
-
-        ScSessionID scSessionID = new ScSessionID(sessionID);
         synchronized (contactsMap)
         {
+            if(contactsMap.containsKey(new ScSessionID(sessionID)))
+                return sessionID;
+
+            ScSessionID scSessionID = new ScSessionID(sessionID);
+
             contactsMap.put(scSessionID, contact);
         }
 
@@ -258,7 +259,7 @@ public class ScOtrEngineImpl
 
     public static Contact getContact(SessionID sessionID)
     {
-        return contactsMap.get(sessionID);
+        return contactsMap.get(new ScSessionID(sessionID));
     }
 
     public void endSession(Contact contact)
