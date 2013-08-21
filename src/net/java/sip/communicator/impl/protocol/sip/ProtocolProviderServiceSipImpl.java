@@ -533,6 +533,10 @@ public class ProtocolProviderServiceSipImpl
                         new OperationSetTypingNotificationsSipImpl(
                             this,
                             opSetBasicIM));
+
+                    addSupportedOperationSet(
+                        OperationSetInstantMessageTransform.class,
+                        new OperationSetInstantMessageTransformImpl());
                 }
 
                 OperationSetServerStoredAccountInfoSipImpl opSetSSAccountInfo =
