@@ -130,7 +130,7 @@ class OtrContactMenu
 
         else if (ACTION_COMMAND_AUTHENTICATE_BUDDY.equals(actionCommand))
             // Launch auth buddy dialog.
-            OtrActionHandlers.openAuthDialog(contact);
+            SwingOtrActionHandler.openAuthDialog(contact);
 
         else if (ACTION_COMMAND_CB_ENABLE.equals(actionCommand))
         {

@@ -12,9 +12,11 @@ import java.util.*;
 
 import net.java.otr4j.*;
 import net.java.otr4j.session.*;
+
 import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
 
@@ -22,11 +24,17 @@ import org.osgi.framework.*;
  *
  * @author George Politis
  * @author Lyubomir Marinov
+ * @author Pawel Domas
  */
 public class ScOtrEngineImpl
     implements ScOtrEngine,
                ChatLinkClickedListener
 {
+    /**
+     * The logger
+     */
+    private final Logger logger = Logger.getLogger(ScOtrEngineImpl.class);
+
     private final OtrConfigurator configurator = new OtrConfigurator();
 
     private static final Map<ScSessionID, Contact> contactsMap =
@@ -144,6 +152,10 @@ public class ScOtrEngineImpl
 
     public ScOtrEngineImpl()
     {
+        // Clears the map after previous instance
+        // This is required because of OSGi restarts in the same VM on Android
+        contactsMap.clear();
+
         this.otrEngine.addOtrEngineListener(new OtrEngineListener()
         {
             public void sessionStatusChanged(SessionID sessionID)
@@ -257,6 +269,24 @@ public class ScOtrEngineImpl
         return sessionID;
     }
 
+    /**
+     * Returns the <tt>ScSessionID</tt> for given <tt>UUID</tt>.
+     * @param guid the <tt>UUID</tt> identifying <tt>ScSessionID</tt>.
+     * @return the <tt>ScSessionID</tt> for given <tt>UUID</tt> or <tt>null</tt>
+     *         if no matching session found.
+     */
+    public static ScSessionID getScSessionForGuid(UUID guid)
+    {
+        for(ScSessionID scSessionID : contactsMap.keySet())
+        {
+            if(scSessionID.getGUID().equals(guid))
+            {
+                return scSessionID;
+            }
+        }
+        return null;
+    }
+
     public static Contact getContact(SessionID sessionID)
     {
         return contactsMap.get(new ScSessionID(sessionID));
@@ -289,6 +319,7 @@ public class ScOtrEngineImpl
         }
         catch (OtrException e)
         {
+            logger.error("Error receiving the message", e);
             showError(sessionID, e.getMessage());
             return null;
         }
@@ -303,6 +334,7 @@ public class ScOtrEngineImpl
         }
         catch (OtrException e)
         {
+            logger.error("Error transforming the message", e);
             showError(sessionID, e.getMessage());
             return null;
         }
@@ -317,6 +349,7 @@ public class ScOtrEngineImpl
         }
         catch (OtrException e)
         {
+            logger.error("Error refreshing session", e);
             showError(sessionID, e.getMessage());
         }
     }
@@ -330,6 +363,7 @@ public class ScOtrEngineImpl
         }
         catch (OtrException e)
         {
+            logger.error("Error starting session", e);
             showError(sessionID, e.getMessage());
         }
     }
@@ -396,14 +430,24 @@ public class ScOtrEngineImpl
         if(action.equals("/AUTHENTIFICATION"))
         {
             UUID guid = UUID.fromString(url.getQuery());
-            for(ScSessionID scSessionID : contactsMap.keySet())
+
+            if(guid == null)
+                throw new RuntimeException(
+                        "No UUID found in OTR authenticate URL");
+
+            // Looks for registered action handler
+            OtrActionHandler actionHandler
+                    = ServiceUtils.getService(
+                            OtrActivator.bundleContext,
+                            OtrActionHandler.class);
+
+            if(actionHandler != null)
             {
-                if(scSessionID.getGUID().equals(guid))
-                {
-                    Contact c = contactsMap.get(scSessionID.getSessionID());
-                    OtrActionHandlers.openAuthDialog(c);
-                    break;
-                }
+                actionHandler.onAuthenticateLinkClicked(guid);
+            }
+            else
+            {
+                logger.error("No OtrActionHandler registered");
             }
         }
     }

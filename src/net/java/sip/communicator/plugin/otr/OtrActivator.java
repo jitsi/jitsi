@@ -13,12 +13,15 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
+import net.java.sip.communicator.util.Logger;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
+import org.jitsi.util.*;
 import org.osgi.framework.*;
 
 /**
  * @author George Politis
+ * @author Pawel Domas
  */
 public class OtrActivator
     extends AbstractServiceDependentActivator
@@ -128,18 +131,10 @@ public class OtrActivator
         // Register Transformation Layer
         bundleContext.addServiceListener(this);
 
-        ServiceReference[] protocolProviderRefs = null;
-        try
-        {
-            protocolProviderRefs =
-                bundleContext.getServiceReferences(
-                    ProtocolProviderService.class.getName(), null);
-        }
-        catch (InvalidSyntaxException ex)
-        {
-            logger.error("Error while retrieving service refs", ex);
-            return;
-        }
+        ServiceReference[] protocolProviderRefs = ServiceUtils
+                .getServiceReferences(
+                        bundleContext,
+                        ProtocolProviderService.class);
 
         if (protocolProviderRefs != null && protocolProviderRefs.length > 0)
         {
@@ -156,37 +151,49 @@ public class OtrActivator
             }
         }
 
-        Hashtable<String, String> containerFilter
-            = new Hashtable<String, String>();
+        if(!OSUtils.IS_ANDROID)
+        {
+            Hashtable<String, String> containerFilter = new Hashtable<String, String>();
 
-        // Register the right-click menu item.
-        containerFilter.put(Container.CONTAINER_ID,
-            Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU.getID());
+            // Register the right-click menu item.
+            containerFilter.put(Container.CONTAINER_ID,
+                Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU.getID());
 
-        bundleContext
-            .registerService(PluginComponent.class.getName(),
-                new OtrMetaContactMenu(
-                    Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU),
+
+            bundleContext
+                .registerService(PluginComponent.class.getName(),
+                    new OtrMetaContactMenu(
+                            Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU),
+                            containerFilter);
+
+            // Register the chat window menu bar item.
+            containerFilter.put(Container.CONTAINER_ID,
+                                Container.CONTAINER_CHAT_MENU_BAR.getID());
+
+            bundleContext.registerService(PluginComponent.class.getName(),
+                new OtrMetaContactMenu(Container.CONTAINER_CHAT_MENU_BAR),
                 containerFilter);
 
-        // Register the chat window menu bar item.
-        containerFilter.put(Container.CONTAINER_ID,
-            Container.CONTAINER_CHAT_MENU_BAR.getID());
+            // Register the chat button bar default-action-button.
+            containerFilter.put(Container.CONTAINER_ID,
+                                Container.CONTAINER_CHAT_TOOL_BAR.getID());
 
-        bundleContext.registerService(PluginComponent.class.getName(),
-            new OtrMetaContactMenu(Container.CONTAINER_CHAT_MENU_BAR),
-            containerFilter);
+            bundleContext.registerService(
+                PluginComponent.class.getName(),
+                new OtrMetaContactButton(Container.CONTAINER_CHAT_TOOL_BAR),
+                containerFilter);
 
-        // Register the chat button bar default-action-button.
-        containerFilter.put(Container.CONTAINER_ID,
-            Container.CONTAINER_CHAT_TOOL_BAR.getID());
+            // Register Swing OTR action handler
+            bundleContext.registerService(
+                OtrActionHandler.class.getName(),
+                new SwingOtrActionHandler(), null);
+        }
 
-        bundleContext.registerService(PluginComponent.class.getName(),
-            new OtrMetaContactButton(Container.CONTAINER_CHAT_TOOL_BAR),
-            containerFilter);
+
 
         // If the general configuration form is disabled don't register it.
-        if (!configService.getBoolean(OTR_CHAT_CONFIG_DISABLED_PROP, false))
+        if (!configService.getBoolean(OTR_CHAT_CONFIG_DISABLED_PROP, false)
+                && !OSUtils.IS_ANDROID)
         {
             Dictionary<String, String> properties
                 = new Hashtable<String, String>();
