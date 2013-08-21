@@ -206,7 +206,54 @@ public class VersionImpl
         if(getVersionMinor() != version.getVersionMinor())
             return getVersionMinor() - version.getVersionMinor();
 
+        try
+        {
+            return compareNightlyBuildIDByComponents(
+                getNightlyBuildID(), version.getNightlyBuildID());
+        }
+        catch(Throwable th)
+        {
+            // if parsing fails will continue with lexicographically compare
+        }
+
         return getNightlyBuildID().compareTo(version.getNightlyBuildID());
+    }
+
+    /**
+     *  As normally nightly.build.id is in the form of <build-num> or
+     *  <build-num>.<revision> we will first try to compare them by splitting
+     *  the id in components and compare them one by one asnumbers
+     * @param v1 the first version to compare
+     * @param v2 the second version to compare
+     * @return a negative integer, zero, or a positive integer as the first
+     * parameter <tt>v1</tt> represents a version that is earlier, same,
+     * or more recent than the one referenced by the <tt>v2</tt> parameter.
+     */
+    private static int compareNightlyBuildIDByComponents(String v1, String v2)
+    {
+        String[] s1 = v1.split("\\.");
+        String[] s2 = v2.split("\\.");
+
+        int len = Math.max(s1.length, s2.length);
+        for(int i = 0; i < len; i++)
+        {
+            int n1 = 0;
+            int n2 = 0;
+
+            if(i < s1.length)
+                n1 = Integer.valueOf(s1[i]);
+            if(i < s2.length)
+                n2 = Integer.valueOf(s2[i]);
+
+            if(n1 == n2)
+                continue;
+            else
+                return n1 - n2;
+        }
+
+        // will happen if boths version has identical numbers in
+        // their components (even if one of them is longer, has more components)
+        return 0;
     }
 
     /**
