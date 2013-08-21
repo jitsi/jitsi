@@ -211,7 +211,8 @@ public class OperationSetBasicInstantMessagingSipImpl
         Request mes;
         try
         {
-            mes = createMessageRequest(to, message);
+            Message transformedMessage = transformSIPMessage(to, message);
+            mes = createMessageRequest(to, transformedMessage);
         }
         catch (OperationFailedException ex)
         {
@@ -465,6 +466,38 @@ public class OperationSetBasicInstantMessagingSipImpl
         req.addHeader(contLengthHeader);
 
         return req;
+    }
+
+    /**
+     * Transforms SIP message via transformation layer.
+     *
+     * @param to The <tt>Contact</tt> to send the <tt>message</tt> to.
+     * @param message The <tt>message</tt> to send.
+     *
+     * @return The new transformed <tt>Message</tt>
+     */
+    private Message transformSIPMessage(Contact to, Message message)
+    {
+        MessageDeliveredEvent msgDeliveryPendingEvt
+           = new MessageDeliveredEvent(message, to);
+
+        msgDeliveryPendingEvt
+            = messageDeliveryPendingTransform(msgDeliveryPendingEvt);
+
+        if (msgDeliveryPendingEvt == null)
+            return null;
+
+        String content = msgDeliveryPendingEvt.getSourceMessage().getContent();
+
+        OperationSetBasicInstantMessaging opSetBasicIM =
+            (OperationSetBasicInstantMessaging) sipProvider
+                .getSupportedOperationSets().get(
+                    OperationSetBasicInstantMessaging.class.getName());
+        Message transformedMesssage =
+            opSetBasicIM.createMessage(content, message.getContentType(),
+                message.getEncoding(), message.getSubject());
+
+        return transformedMesssage;
     }
 
     /**
