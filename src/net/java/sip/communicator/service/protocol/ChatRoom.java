@@ -533,4 +533,12 @@ public interface ChatRoom
     * (e.g. "john").
     */
     public void revokeVoice(String nickname);
+
+    /**
+     * Publishes a <tt>ConferenceDescription</tt> to the chat room.
+     *
+     * @param cd the description to publish
+     * @return the published conference
+     */
+    public ConferenceDescription publishConference(ConferenceDescription cd);
 }

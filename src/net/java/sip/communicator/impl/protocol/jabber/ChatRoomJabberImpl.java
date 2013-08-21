@@ -2496,4 +2496,9 @@ public class ChatRoomJabberImpl
             }
         }
     }
+
+    public ConferenceDescription publishConference(ConferenceDescription cd)
+    {
+        return null;
+    }
 }

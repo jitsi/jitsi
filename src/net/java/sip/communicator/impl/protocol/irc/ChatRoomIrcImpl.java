@@ -1170,4 +1170,14 @@ public class ChatRoomIrcImpl
     {
         throw new UnsupportedOperationException("Not supported yet.");
     }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Not implemented.
+     */
+    public ConferenceDescription publishConference(ConferenceDescription cd)
+    {
+        return null;
+    }
 }

@@ -1704,6 +1704,11 @@ public class ProtocolProviderServiceJabberImpl
                                 ParameterPacketExtension>(
                             ParameterPacketExtension.class));
 
+            providerManager.addExtensionProvider(
+                    ConferenceDescriptionPacketExtension.ELEMENT_NAME,
+                    ConferenceDescriptionPacketExtension.NAMESPACE,
+                    new ConferenceDescriptionPacketExtension.Provider());
+
             //initialize the telephony operation set
             boolean isCallingDisabled
                 = JabberActivator.getConfigurationService()

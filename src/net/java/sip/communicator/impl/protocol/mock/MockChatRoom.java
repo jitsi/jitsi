@@ -754,4 +754,14 @@ public class MockChatRoom
     {
         throw new UnsupportedOperationException("Not supported yet.");
     }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Not implemented.
+     */
+    public ConferenceDescription publishConference(ConferenceDescription cd)
+    {
+        return null;
+    }
 }
