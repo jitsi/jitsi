@@ -106,7 +106,8 @@ public class CreateChatRoomDialog
                 .createChatRoom(chatRoomName,
                                 chatRoomProvider.getProtocolProvider(),
                                 null,
-                                "");
+                                "",
+                                true);
         }
         this.dispose();
     }

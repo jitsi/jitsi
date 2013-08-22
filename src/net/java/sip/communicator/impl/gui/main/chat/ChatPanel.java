@@ -2479,7 +2479,8 @@ public class ChatPanel
                     = conferenceChatManager.createChatRoom(
                         inviteChatTransport.getProtocolProvider(),
                         chatContacts,
-                        reason);
+                        reason,
+                        false);
 
                 conferenceChatSession
                     = new ConferenceChatSession(this, chatRoomWrapper);

@@ -720,14 +720,17 @@ public class ConferenceChatManager
      * @param protocolProvider the parent protocol provider.
      * @param contacts the contacts invited when creating the chat room.
      * @param reason
+     * @param persistent is the room persistent
      * @return the <tt>ChatRoomWrapper</tt> corresponding to the created room
      */
     public ChatRoomWrapper createChatRoom(
         ProtocolProviderService protocolProvider,
         Collection<String> contacts,
-        String reason)
+        String reason,
+        boolean persistent)
     {
-        return this.createChatRoom(null, protocolProvider, contacts, reason);
+        return this.createChatRoom(
+            null, protocolProvider, contacts, reason, persistent);
     }
 
     /**
@@ -739,16 +742,18 @@ public class ConferenceChatManager
      * @param protocolProvider the parent protocol provider.
      * @param contacts the contacts invited when creating the chat room.
      * @param reason
+     * @param persistent is the room persistent
      * @return the <tt>ChatRoomWrapper</tt> corresponding to the created room
      */
     public ChatRoomWrapper createChatRoom(
         String roomName,
         ProtocolProviderService protocolProvider,
         Collection<String> contacts,
-        String reason)
+        String reason,
+        boolean persistent)
     {
         return createChatRoom(
-            roomName, protocolProvider, contacts, reason, true, true);
+            roomName, protocolProvider, contacts, reason, true, persistent);
     }
 
     /**

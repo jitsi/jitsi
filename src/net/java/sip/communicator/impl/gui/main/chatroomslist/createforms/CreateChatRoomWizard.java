@@ -66,7 +66,8 @@ public class CreateChatRoomWizard
                 .createChatRoom(newChatRoom.getChatRoomName(),
                                 newChatRoom.getProtocolProvider(),
                                 null,
-                                "");
+                                "",
+                                true);
         }
     }
 }
