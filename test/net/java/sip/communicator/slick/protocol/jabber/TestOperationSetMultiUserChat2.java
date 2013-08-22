@@ -1286,7 +1286,7 @@ public class TestOperationSetMultiUserChat2
 
         // User1 who just created the room is supposed to be the owner:
         assertEquals("Unexpected role for user1",
-            roomUser1.getUserRole(), ChatRoomMemberRole.MODERATOR);
+            roomUser1.getUserRole(), ChatRoomMemberRole.OWNER);
         assertEquals("Unexpected role for user1", roomUser1.getUserRole(),
             getRole(fixture.userID1, roomUser1.getMembers(),
                     roomUser1.getName(), true));
