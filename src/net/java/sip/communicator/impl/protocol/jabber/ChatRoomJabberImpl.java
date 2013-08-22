@@ -666,20 +666,34 @@ public class ChatRoomJabberImpl
      * <tt>Occupant.getRole()</tt>.
      * @return ChatRoomMemberRole
      */
-    static ChatRoomMemberRole smackRoleToScRole(String smackRole)
+    static ChatRoomMemberRole smackRoleToScRole(String smackRole,
+                                                String affiliation)
     {
-        if (smackRole.equalsIgnoreCase("moderator"))
+        if(affiliation != null)
         {
-            return ChatRoomMemberRole.MODERATOR;
+            if(affiliation.equals("admin"))
+            {
+                return ChatRoomMemberRole.ADMINISTRATOR;
+            }
+            else if(affiliation.equals("owner"))
+            {
+                return ChatRoomMemberRole.OWNER;
+            }
         }
-        else if (smackRole.equalsIgnoreCase("participant"))
+
+        if(smackRole != null)
         {
-            return ChatRoomMemberRole.MEMBER;
+            if (smackRole.equalsIgnoreCase("moderator"))
+            {
+                return ChatRoomMemberRole.MODERATOR;
+            }
+            else if (smackRole.equalsIgnoreCase("participant"))
+            {
+                return ChatRoomMemberRole.MEMBER;
+            }
         }
-        else
-        {
-            return ChatRoomMemberRole.GUEST;
-        }
+
+        return ChatRoomMemberRole.GUEST;
     }
 
     /**
@@ -842,7 +856,7 @@ public class ChatRoomJabberImpl
             if(o == null)
                 return ChatRoomMemberRole.GUEST;
             else
-                this.role = smackRoleToScRole(o.getRole());
+                this.role = smackRoleToScRole(o.getRole(), o.getAffiliation());
         }
 
         return this.role;
@@ -2407,26 +2421,14 @@ public class ChatRoomJabberImpl
                     // this is the presence for our member initial role and
                     // affiliation, as smack do not fire any initial
                     // events lets check it and fire events
-                    if(role != null
-                        && role.equalsIgnoreCase(ChatRoomMemberRole.MODERATOR
-                                .getRoleName().toLowerCase()))
-                    {
-                        setLocalUserRole(ChatRoomMemberRole.MODERATOR);
-                    }
+                    ChatRoomMemberRole jitsiRole =
+                        ChatRoomJabberImpl.smackRoleToScRole(role, affiliation);
 
-                    if(affiliation != null)
+                    if(jitsiRole == ChatRoomMemberRole.MODERATOR
+                        || jitsiRole == ChatRoomMemberRole.OWNER
+                        || jitsiRole == ChatRoomMemberRole.ADMINISTRATOR)
                     {
-                        if(affiliation.equalsIgnoreCase(ChatRoomMemberRole.OWNER
-                                .getRoleName().toLowerCase()))
-                        {
-                            setLocalUserRole(ChatRoomMemberRole.OWNER);
-                        }
-                        else if(affiliation.equalsIgnoreCase("admin"))
-                        {
-                            setLocalUserRole(ChatRoomMemberRole.ADMINISTRATOR);
-                        }
-                        // by default everyone is member no need of initial
-                        // role change
+                        setLocalUserRole(jitsiRole);
                     }
                 }
 

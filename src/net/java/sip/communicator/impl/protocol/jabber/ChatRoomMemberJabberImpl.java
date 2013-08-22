@@ -163,7 +163,8 @@ public class ChatRoomMemberJabberImpl
                 return ChatRoomMemberRole.GUEST;
             }
             else
-                role = ChatRoomJabberImpl.smackRoleToScRole(o.getRole());
+                role = ChatRoomJabberImpl.smackRoleToScRole(
+                    o.getRole(), o.getAffiliation());
         }
 
         return role;
