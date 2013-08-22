@@ -354,7 +354,7 @@ public class ChatContactRightButtonMenu
                     "Ok",
                     false, true);
 
-           reasonDialog.setIconImage(ImageLoader.getImage(
+            reasonDialog.setIconImage(ImageLoader.getImage(
               ImageLoader.CHANGE_NICKNAME_ICON));
             reasonDialog.setReasonFieldText(chatContact.getName());
 
@@ -362,9 +362,9 @@ public class ChatContactRightButtonMenu
 
             if (result == MessageDialog.OK_RETURN_CODE)
             {
+                String nickname = reasonDialog.getReason().trim();
                 try
                 {
-                    String nickname = reasonDialog.getReason().trim();
                     room.setUserNickname(nickname);
                     ConfigurationUtils.updateChatRoomProperty(
                         room.getParentProvider(),
@@ -373,9 +373,26 @@ public class ChatContactRightButtonMenu
                 }
                 catch (OperationFailedException ex)
                 {
-                    ex.printStackTrace();
-                }
-            }
+                    String errorMessage = null;
+                    if(ex.getErrorCode()
+                        == OperationFailedException.IDENTIFICATION_CONFLICT)
+                    {
+                        errorMessage = GuiActivator.getResources()
+                            .getI18NString(
+                                "service.gui.CHANGE_NICKNAME_CONFLICT_ERROR");
+                    }
+                    else
+                    {
+                        errorMessage = ex.getLocalizedMessage();
+                    }
+
+                    chatPanel.addErrorMessage(
+                        nickname,
+                        GuiActivator.getResources().getI18NString(
+                            "service.gui.CHANGE_NICKNAME_ERROR"),
+                        errorMessage);
+               }
+           }
         }
         else if (menuItemName.equals("grantVoiceItem"))
         {

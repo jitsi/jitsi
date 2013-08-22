@@ -433,16 +433,7 @@ public class ChatConversationPanel
         String chatString = "";
         String endHeaderTag = "";
 
-        String startSystemDivTag
-            = "<DIV id=\"systemMessage\" style=\"color:#627EB7;\">";
-        String endDivTag = "</DIV>";
-
         lastMessageUID = chatMessage.getMessageUID();
-
-        String startPlainTextTag
-            = ChatHtmlUtils.createStartPlainTextTag(contentType);
-        String endPlainTextTag
-            = ChatHtmlUtils.createEndPlainTextTag(contentType);
 
         if (messageType.equals(Chat.INCOMING_MESSAGE))
         {
@@ -534,6 +525,14 @@ public class ChatConversationPanel
         }
         else if (messageType.equals(Chat.SYSTEM_MESSAGE))
         {
+            String startSystemDivTag
+                = "<DIV id=\"systemMessage\" style=\"color:#627EB7;\">";
+            String endDivTag = "</DIV>";
+            String startPlainTextTag
+                = ChatHtmlUtils.createStartPlainTextTag(contentType);
+            String endPlainTextTag
+                = ChatHtmlUtils.createEndPlainTextTag(contentType);
+
             chatString
                 += startSystemDivTag + startPlainTextTag
                     + formatMessage(message, contentType, keyword)
