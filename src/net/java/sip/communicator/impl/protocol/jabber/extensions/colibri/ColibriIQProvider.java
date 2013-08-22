@@ -198,7 +198,22 @@ public class ColibriIQProvider
                                         .parseExtension(parser);
 
                             if (payloadType != null)
+                            {
+                                if("opus".equals(payloadType.getName())
+                                        && payloadType.getChannels() != 2)
+                                {
+                                    /*
+                                     * We only have a Format for opus with 2
+                                     * channels, because it MUST be advertised
+                                     * with 2 channels.
+                                     * Fixing the number of channels here allows
+                                     * us to be compatible with agents who
+                                     * advertise it with 1 channel.
+                                     */
+                                    payloadType.setChannels(2);
+                                }
                                 channel.addPayloadType(payloadType);
+                            }
                         }
                     }
                     break;
