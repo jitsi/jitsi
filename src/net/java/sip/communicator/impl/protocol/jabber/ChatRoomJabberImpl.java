@@ -2366,13 +2366,16 @@ public class ChatRoomJabberImpl
         public void processPacket(Packet packet)
         {
             Presence presence = (Presence) packet;
-            if (presence == null || presence.getError() != null) 
+            if (presence == null || presence.getError() != null)
                 return;
 
             MUCUser mucUser = getMUCUserExtension(packet);
 
             if (mucUser != null)
             {
+                String affiliation = mucUser.getItem().getAffiliation();
+                String role = mucUser.getItem().getRole();
+
                 // if status 201 is available means that
                 // room is created and locked till we send
                 // the configuration
@@ -2390,15 +2393,20 @@ public class ChatRoomJabberImpl
 
                     opSetMuc.addSmackInvitationRejectionListener(multiUserChat,
                         chatRoom);
-                    setLocalUserRole(ChatRoomMemberRole.MODERATOR);
+
+                    if(affiliation.equalsIgnoreCase(ChatRoomMemberRole.OWNER
+                            .getRoleName().toLowerCase()))
+                    {
+                        setLocalUserRole(ChatRoomMemberRole.OWNER);
+                    }
+                    else
+                        setLocalUserRole(ChatRoomMemberRole.MODERATOR);
                 }
                 else
                 {
                     // this is the presence for our member initial role and
                     // affiliation, as smack do not fire any initial
                     // events lets check it and fire events
-                    String affiliation = mucUser.getItem().getAffiliation();
-                    String role = mucUser.getItem().getRole();
                     if(role != null
                         && role.equalsIgnoreCase(ChatRoomMemberRole.MODERATOR
                                 .getRoleName().toLowerCase()))
@@ -2413,9 +2421,7 @@ public class ChatRoomJabberImpl
                         {
                             setLocalUserRole(ChatRoomMemberRole.OWNER);
                         }
-                        else if(affiliation.equalsIgnoreCase(
-                                    ChatRoomMemberRole.ADMINISTRATOR
-                                        .getRoleName().toLowerCase()))
+                        else if(affiliation.equalsIgnoreCase("admin"))
                         {
                             setLocalUserRole(ChatRoomMemberRole.ADMINISTRATOR);
                         }

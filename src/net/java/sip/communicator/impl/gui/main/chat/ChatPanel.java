@@ -336,6 +336,9 @@ public class ChatPanel
             // The subject panel is added here, because it's specific for the
             // multi user chat and is not contained in the single chat chat panel.
             this.add(subjectPanel, BorderLayout.NORTH);
+
+            this.revalidate();
+            this.repaint();
         }
 
         if (chatContactListPanel != null)

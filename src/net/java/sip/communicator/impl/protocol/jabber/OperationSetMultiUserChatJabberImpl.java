@@ -158,7 +158,9 @@ public class OperationSetMultiUserChatJabberImpl
             }
 
             room = createLocalChatRoomInstance(muc);
-            room.setLocalUserRole(ChatRoomMemberRole.MODERATOR);
+            // as we are creating the room we are the owner of it
+            // at least that's what MultiUserChat.create says
+            room.setLocalUserRole(ChatRoomMemberRole.OWNER);
         }
         return room;
     }
