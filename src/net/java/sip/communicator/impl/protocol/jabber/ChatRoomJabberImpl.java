@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import java.beans.*;
 import java.util.*;
 
+import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.Message;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -29,6 +30,7 @@ import org.jivesoftware.smackx.packet.*;
  * @author Emil Ivov
  * @author Yana Stamcheva
  * @author Valentin Martinet
+ * @author Boris Grozev
  */
 public class ChatRoomJabberImpl
     implements ChatRoom
@@ -138,6 +140,25 @@ public class ChatRoomJabberImpl
         = new InvitationRejectionListeners();
 
     /**
+     * The conference which we have announced in the room in our last sent
+     * <tt>Presence</tt> update.
+     */
+    private ConferenceDescription publishedConference = null;
+
+    /**
+     * The <tt>ConferenceAnnouncementPacketExtension</tt> corresponding to
+     * <tt>this.publishedConference</tt> which we add to all our presence
+     * updates.
+     * This MUST be kep in sync with <tt>this.publishedConference</tt>
+     */
+    private ConferenceDescriptionPacketExtension publishedConferenceExt = null;
+
+    /**
+     * The last <tt>Presence</tt> packet we sent to the MUC.
+     */
+    private Presence lastPresenceSent = null;
+
+    /**
      * Creates an instance of a chat room that has been.
      *
      * @param multiUserChat MultiUserChat
@@ -160,6 +181,7 @@ public class ChatRoomJabberImpl
         multiUserChat.addMessageListener(new SmackMessageListener());
         multiUserChat.addParticipantStatusListener(new MemberListener());
         multiUserChat.addUserStatusListener(new UserListener());
+        multiUserChat.addPresenceInterceptor(new PresenceInterceptor());
 
         this.provider.getConnection().addPacketListener(
             invitationRejectionListeners,
@@ -505,10 +527,9 @@ public class ChatRoomJabberImpl
             else
             {
                 this.provider.getConnection().addPacketListener(
-                    new PresenceListeners(this),
+                    new PresenceListener(this),
                     new AndFilter(
-                        new FromMatchesFilter(
-                            multiUserChat.getRoom() + "/" + nickname),
+                        new FromMatchesFilter(multiUserChat.getRoom()),
                         new PacketTypeFilter(
                             org.jivesoftware.smack.packet.Presence.class)));
                 if(password == null)
@@ -1593,6 +1614,70 @@ public class ChatRoomJabberImpl
     }
 
     /**
+     * Publishes a conference to the room by sending a <tt>Presence</tt> IQ
+     * which contains a <tt>ConferenceDescriptionPacketExtension</tt>
+     *
+     * @param cd the description of the conference to announce
+     * @return the <tt>ConferenceDescription</tt> that was announced (e.g.
+     * <tt>cd</tt> on success or <tt>null</tt> on failure)
+     */
+    public ConferenceDescription publishConference(ConferenceDescription cd)
+    {
+        if(cd != publishedConference)
+        {
+            publishedConference = cd;
+            publishedConferenceExt
+                    = (cd == null)
+                    ? null
+                    : new ConferenceDescriptionPacketExtension(
+                    publishedConference);
+
+            if (lastPresenceSent != null)
+            {
+                setConferenceDescriptionPacketExtension(
+                        lastPresenceSent,
+                        publishedConferenceExt);
+
+                provider.getConnection().sendPacket(lastPresenceSent);
+            }
+            else
+            {
+                logger.warn("Could not publish conference," +
+                        " lastPresenceSent is null.");
+                return null;
+            }
+        }
+
+        return publishedConference;
+    }
+
+    /**
+     * Sets <tt>ext</tt> as the only
+     * <tt>ConferenceDescriptionPacketExtension</tt> of <tt>presence</tt>.
+     *
+     * @param packet the <tt>Packet<tt>
+     * @param ext the <tt>ConferenceDescriptionPacketExtension<tt> to set,
+     * or <tt>null</tt> to not set one.
+     */
+    private void setConferenceDescriptionPacketExtension(
+            Packet packet,
+            ConferenceDescriptionPacketExtension ext)
+    {
+        //clear previous announcements
+        PacketExtension pe;
+        while (null !=
+                (pe = packet.getExtension(
+                        ConferenceDescriptionPacketExtension.NAMESPACE)))
+        {
+            packet.removeExtension(pe);
+        }
+
+        if (ext != null)
+            packet.addExtension(ext);
+    }
+
+
+    /**
      * A listener that listens for packets of type Message and fires an event
      * to notifier interesting parties that a message was received.
      */
@@ -2352,7 +2437,7 @@ public class ChatRoomJabberImpl
     /**
      * Listens for presence packets.
      */
-    private class PresenceListeners
+    private class PresenceListener
     implements PacketListener
     {
         /**
@@ -2365,25 +2450,44 @@ public class ChatRoomJabberImpl
          *
          * @param chatRoom the chat room associated with the listener
          */
-        public PresenceListeners(ChatRoom chatRoom)
+        public PresenceListener(ChatRoom chatRoom)
         {
             super();
             this.chatRoom = chatRoom;
         }
         
         /**
-         * Process incoming presence packet, checks if the room is created and 
-         * finishes the creation of the room.
+         * Processes an incoming presence packet.
          * @param packet the incoming packet.
          */
         @Override
         public void processPacket(Packet packet)
         {
-            Presence presence = (Presence) packet;
-            if (presence == null || presence.getError() != null)
+            if (packet == null
+                    || !(packet instanceof Presence)
+                    || packet.getError() != null)
+            {
+                logger.warn("Unable to handle packet: " + packet);
                 return;
+            }
 
-            MUCUser mucUser = getMUCUserExtension(packet);
+            Presence presence = (Presence) packet;
+            String ourOccupantJid
+                    = multiUserChat.getRoom() + "/" + multiUserChat.getNickname();
+            if (ourOccupantJid.equals(presence.getFrom()))
+                processOwnPresence(presence);
+            else
+                processOtherPresence(presence);
+        }
+
+        /**
+         * Processes a <tt>Presence</tt> packet addressed to our own occupant
+         * JID.
+         * @param presence the packet to process.
+         */
+        private void processOwnPresence(Presence presence)
+        {
+            MUCUser mucUser = getMUCUserExtension(presence);
 
             if (mucUser != null)
             {
@@ -2435,6 +2539,25 @@ public class ChatRoomJabberImpl
                 provider.getConnection().removePacketListener(this);
             }
         }
+
+        /**
+         * Process a <tt>Presence</tt> packet sent by one of the other room
+         * occupants.
+         */
+        private void processOtherPresence(Presence presence)
+        {
+            PacketExtension ext
+                    = presence.getExtension(
+                    ConferenceDescriptionPacketExtension.NAMESPACE);
+            if(presence.isAvailable() && ext != null)
+            {
+                if (logger.isDebugEnabled())
+                logger.debug("Looks like " + presence.getFrom() + " has a"
+                        + " little conference going on. I guess we should"
+                        + " notify the GUI, or something. " + ext.toXML());
+            }
+        }
+
     }
 
     /**
@@ -2497,8 +2620,32 @@ public class ChatRoomJabberImpl
         }
     }
 
-    public ConferenceDescription publishConference(ConferenceDescription cd)
+    /**
+     * The <tt>PacketInterceptor</tt> we use to make sure that our outgoing
+     * <tt>Presence</tt> packets contain the correct
+     * <tt>ConferenceAnnouncementPacketExtension</tt>.
+     */
+    private class PresenceInterceptor
+            implements PacketInterceptor
     {
-        return null;
+        /**
+         * {@inheritDoc}
+         *
+         * Adds <tt>this.publishedConferenceExt</tt> as the only
+         * <tt>ConferenceAnnouncementPacketExtension</tt> of <tt>packet</tt>.
+         */
+        @Override
+        public void interceptPacket(Packet packet)
+        {
+            if (packet instanceof Presence)
+            {
+                setConferenceDescriptionPacketExtension(
+                        packet,
+                        publishedConferenceExt);
+
+                lastPresenceSent = (Presence) packet;
+            }
+        }
     }
+
 }
