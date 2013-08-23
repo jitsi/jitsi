@@ -603,12 +603,13 @@ public class CallPeerMediaHandlerJabberImpl
                 = JingleUtils.getRtpDescription(theirContent);
             MediaFormat format = null;
 
+            List<MediaFormat> localFormats = getLocallySupportedFormats(dev);
             for(PayloadTypePacketExtension payload
                     : theirDescription.getPayloadTypes())
             {
                 format = JingleUtils.payloadTypeToMediaFormat(
                             payload, getDynamicPayloadTypes());
-                if(format != null)
+                if(format != null && localFormats.contains(format))
                     break;
             }
 
