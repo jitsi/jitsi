@@ -533,6 +533,9 @@ public class ConferenceChatManager
                 ChatPanel chatPanel
                     = chatWindowManager.getMultiChat(chatRoomWrapper, true);
 
+                chatPanel.setChatIcon(
+                    chatPanel.getChatSession().getChatStatusIcon());
+
                 // Check if we have already opened a chat window for this chat
                 // wrapper and load the real chat room corresponding to the
                 // wrapper.
