@@ -357,7 +357,7 @@ public class ChatRoomTableDialog
                 GuiActivator
                     .getUIService()
                     .getConferenceChatManager()
-                    .createChatRoom(chatRoomName,
+                    .createChatRoom(chatRoomName.trim(),
                         getSelectedProvider().getProtocolProvider(),
                         new ArrayList<String>(), "", false, true);
 
@@ -380,7 +380,7 @@ public class ChatRoomTableDialog
                     ChatRoomWrapper chatRoomWrapper =
                     GuiActivator.getUIService().getConferenceChatManager()
                         .createChatRoom(
-                            editor.getText(),
+                            editor.getText().trim(),
                             getSelectedProvider().getProtocolProvider(),
                             new ArrayList<String>(),
                             "",
