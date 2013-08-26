@@ -13,7 +13,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
-import net.java.sip.communicator.impl.gui.main.chatroomslist.joinforms.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -1626,11 +1626,40 @@ public class ConferenceChatManager
             if(AUTHENTICATION_FAILED.equals(returnCode))
             {
                 chatRoomWrapper.removePassword();
-                ChatRoomAuthenticationWindow authWindow
-                    = new ChatRoomAuthenticationWindow(chatRoomWrapper,
-                        nickName);
+
+                AuthenticationWindowService authWindowsService
+                    = ServiceUtils.getService(
+                        GuiActivator.bundleContext,
+                        AuthenticationWindowService.class);
+
+                AuthenticationWindowService.AuthenticationWindow authWindow =
+                    authWindowsService.create(
+                        null, null, null, false,
+                        chatRoomWrapper.isPersistent(),
+                        ImageLoader.getAuthenticationWindowIcon(
+                            chatRoomWrapper.getParentProvider()
+                                .getProtocolProvider()),
+                        GuiActivator.getResources().getI18NString(
+                            "service.gui.AUTHENTICATION_WINDOW_TITLE",
+                            new String[]{chatRoomWrapper.getParentProvider()
+                                            .getName()}),
+                        GuiActivator.getResources().getI18NString(
+                                "service.gui.CHAT_ROOM_REQUIRES_PASSWORD",
+                                new String[]{
+                                        chatRoomWrapper.getChatRoomName()}),
+                        "", null, null, null);
 
                 authWindow.setVisible(true);
+
+                if (!authWindow.isCanceled())
+                {
+                    GuiActivator.getUIService().getConferenceChatManager()
+                        .joinChatRoom(
+                            chatRoomWrapper,
+                            nickName,
+                            new String(authWindow.getPassword()).getBytes(),
+                            authWindow.isRememberPassword());
+                }
             }
             else if(REGISTRATION_REQUIRED.equals(returnCode))
             {
@@ -1670,7 +1699,7 @@ public class ConferenceChatManager
                     GuiActivator.getResources().getI18NString(
                             "service.gui.ERROR"), errorMessage).showDialog();
             }
-            
+
             if (SUCCESS.equals(returnCode) && rememberPassword)
             {
                 chatRoomWrapper.savePassword(new String(password));

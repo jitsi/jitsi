@@ -1223,12 +1223,6 @@ public class ImageLoader
             "service.gui.icons.TOOLBAR_DRAG_ICON");
 
     /**
-     * The background image of the <tt>AuthenticationWindow</tt>.
-     */
-    public static final ImageID AUTH_WINDOW_BACKGROUND = new ImageID(
-            "service.gui.AUTH_WINDOW_BACKGROUND");
-
-    /**
      * The icon used to indicate a search.
      */
     public static final ImageID SEARCH_ICON
