@@ -664,6 +664,27 @@ public class ConferenceChatManager
                                 byte[] password, 
                                 boolean rememberPassword)
     {
+        this.joinChatRoom(
+                chatRoomWrapper, nickName, password, rememberPassword, true);
+    }
+
+    /**
+     * Joins the given chat room with the given password and manages all the
+     * exceptions that could occur during the join process.
+     *
+     * @param chatRoomWrapper the chat room to join.
+     * @param nickName the nickname we choose for the given chat room.
+     * @param password the password.
+     * @param rememberPassword if true the password should be saved.
+     * @param isFirstAttempt is this the first attempt to join room, used
+     *                       to check whether to show some error messages
+     */
+    public void joinChatRoom(   ChatRoomWrapper chatRoomWrapper,
+                                String nickName,
+                                byte[] password,
+                                boolean rememberPassword,
+                                boolean isFirstAttempt)
+    {
         ChatRoom chatRoom = chatRoomWrapper.getChatRoom();
 
         if(chatRoom == null)
@@ -680,7 +701,7 @@ public class ConferenceChatManager
         }
 
         new JoinChatRoomTask(chatRoomWrapper, nickName, password,
-            rememberPassword).execute();
+            rememberPassword, isFirstAttempt).execute();
     }
 
     /**
@@ -1522,14 +1543,18 @@ public class ConferenceChatManager
         
         private final boolean rememberPassword;
 
+        private final boolean isFirstAttempt;
+
         JoinChatRoomTask(   ChatRoomWrapper chatRoomWrapper,
                             String nickName,
                             byte[] password,
-                            boolean rememberPassword)
+                            boolean rememberPassword,
+                            boolean isFirstAttempt)
         {
             this.chatRoomWrapper = chatRoomWrapper;
             this.nickName = nickName;
-            
+            this.isFirstAttempt = isFirstAttempt;
+
             if(password == null)
             {
                 String passString = chatRoomWrapper.loadPassword();
@@ -1553,8 +1578,7 @@ public class ConferenceChatManager
             String nickName,
             byte[] password)
         {
-            this(chatRoomWrapper, nickName, password, false);
-            
+            this(chatRoomWrapper, nickName, password, false, true);
         }
 
         /**
@@ -1647,7 +1671,13 @@ public class ConferenceChatManager
                                 "service.gui.CHAT_ROOM_REQUIRES_PASSWORD",
                                 new String[]{
                                         chatRoomWrapper.getChatRoomName()}),
-                        "", null, null, null);
+                        "", null,
+                        isFirstAttempt ?
+                            null :
+                            GuiActivator.getResources().getI18NString(
+                                "service.gui.AUTHENTICATION_FAILED",
+                                new String[]{chatRoomWrapper.getChatRoomName()}),
+                        null);
 
                 authWindow.setVisible(true);
 
@@ -1658,7 +1688,8 @@ public class ConferenceChatManager
                             chatRoomWrapper,
                             nickName,
                             new String(authWindow.getPassword()).getBytes(),
-                            authWindow.isRememberPassword());
+                            authWindow.isRememberPassword(),
+                            false);
                 }
             }
             else if(REGISTRATION_REQUIRED.equals(returnCode))
