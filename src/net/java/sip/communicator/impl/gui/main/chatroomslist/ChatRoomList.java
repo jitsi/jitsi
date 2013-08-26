@@ -179,6 +179,13 @@ public class ChatRoomList
     {
         providersList.remove(chatRoomProvider);
 
+        ConferenceChatManager conferenceChatManager =
+            GuiActivator.getUIService().getConferenceChatManager();
+        // as we are removing provider lets remove all opened chat rooms if any
+        for(int i = 0; i < chatRoomProvider.countChatRooms(); i++)
+            conferenceChatManager.closeChatRoom(
+                                            chatRoomProvider.getChatRoom(i));
+
         if(permanently)
         {
             chatRoomProvider.getProtocolProvider()

@@ -572,13 +572,17 @@ public class ConferenceChatManager
                     || LocalUserChatRoomPresenceChangeEvent
                             .LOCAL_USER_DROPPED.equals(eventType))
         {
-            this.closeChatRoom(chatRoomWrapper);
+            if(chatRoomWrapper != null)
+            {
+                this.closeChatRoom(chatRoomWrapper);
 
-            // Need to refresh the chat room's list in order to change
-            // the state of the chat room to offline.
-            fireChatRoomListChangedEvent(
-                chatRoomWrapper,
-                ChatRoomListChangeEvent.CHAT_ROOM_CHANGED);
+                // Need to refresh the chat room's list in order to change
+                // the state of the chat room to offline.
+
+                fireChatRoomListChangedEvent(
+                    chatRoomWrapper,
+                    ChatRoomListChangeEvent.CHAT_ROOM_CHANGED);
+            }
 
             sourceChatRoom.removeMessageListener(this);
         }
@@ -1426,7 +1430,7 @@ public class ConferenceChatManager
      * @param chatRoomWrapper the chat room wrapper for which we search a chat
      * to close.
      */
-    private void closeChatRoom(ChatRoomWrapper chatRoomWrapper)
+    public void closeChatRoom(ChatRoomWrapper chatRoomWrapper)
     {
         ChatWindowManager chatWindowManager
             = GuiActivator.getUIService().getChatWindowManager();

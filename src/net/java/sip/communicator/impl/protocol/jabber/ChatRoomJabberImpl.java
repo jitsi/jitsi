@@ -750,11 +750,13 @@ public class ChatRoomJabberImpl
      */
     public void leave()
     {
+        XMPPConnection connection = this.provider.getConnection();
         try
         {
             // if we are already disconnected
             // leave maybe called from gui when closing chat window
-            multiUserChat.leave();
+            if(connection != null)
+                multiUserChat.leave();
         }
         catch(Throwable e)
         {
@@ -772,8 +774,9 @@ public class ChatRoomJabberImpl
         // Delete the list of members
         members.clear();
 
-        this.provider.getConnection().removePacketListener(
-            invitationRejectionListeners);
+        // connection can be null if we are leaving cause connection failed
+        if(connection != null)
+            connection.removePacketListener(invitationRejectionListeners);
 
         opSetMuc.fireLocalUserPresenceEvent(this,
             LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_LEFT, null);
