@@ -25,6 +25,7 @@ import net.java.sip.communicator.util.skin.*;
  *
  * @author Yana Stamcheva
  * @author Adam Netocny
+ * @author Marin Dzhigarov
  */
 public class SearchField
     extends SIPCommTextField
@@ -35,22 +36,18 @@ public class SearchField
     /**
      * Class id key used in UIDefaults.
      */
-    private static final String uiClassID =
-        SearchField.class.getName() +  "FieldUI";
+    private static final String uiClassID
+        = SearchField.class.getName() +  "FieldUI";
 
     /**
      * Adds the ui class to UIDefaults.
      */
     static
     {
-        UIManager.getDefaults().put(uiClassID,
-            SearchFieldUI.class.getName());
+        UIManager.getDefaults().put(
+                uiClassID,
+                ContactSearchFieldUI.class.getName());
     }
-
-    /**
-     * The main application window.
-     */
-    private final MainFrame mainFrame;
 
     /**
      * The contact list on which we apply the filter.
@@ -58,14 +55,19 @@ public class SearchField
     private ContactList contactList;
 
     /**
-     * The filter to apply on search.
-     */
-    private final ContactListSearchFilter searchFilter;
-
-    /**
      * The current filter query.
      */
     private FilterQuery currentFilterQuery = null;
+
+    /**
+     * The main application window.
+     */
+    private final MainFrame mainFrame;
+
+    /**
+     * The filter to apply on search.
+     */
+    private final ContactListSearchFilter searchFilter;
 
     /**
      * Creates the <tt>SearchField</tt>.
@@ -85,10 +87,11 @@ public class SearchField
         this.mainFrame = frame;
         this.searchFilter = searchFilter;
 
-        if(getUI() instanceof  SearchFieldUI)
+        if (getUI() instanceof ContactSearchFieldUI)
         {
-            ((SearchFieldUI)getUI()).setDeleteButtonEnabled(true);
-            ((SearchFieldUI)getUI()).setCallButtonEnabled(isCallButtonEnabled);
+            ((ContactSearchFieldUI) getUI()).setDeleteButtonEnabled(true);
+            ((ContactSearchFieldUI) getUI())
+                .setCallButtonEnabled(isCallButtonEnabled);
         }
 
         this.setBorder(null);
@@ -116,6 +119,107 @@ public class SearchField
     }
 
     /**
+     * Do not need this for the moment.
+     * @param e the <tt>DocumentEvent</tt> that notified us
+     */
+    @Override
+    public void changedUpdate(DocumentEvent e) {}
+
+    /**
+     * Sets the unknown contact view to the main contact list window.
+     *
+     * @param isEnabled indicates if the unknown contact view should be enabled
+     * or disabled.
+     */
+    public void enableUnknownContactView(final boolean isEnabled)
+    {
+        SwingUtilities.invokeLater(new Runnable()
+        {
+            public void run()
+            {
+                if (mainFrame != null)
+                    mainFrame.enableUnknownContactView(isEnabled);
+            }
+        });
+    }
+
+    /**
+     * Indicates that the given <tt>query</tt> has finished with failure, i.e.
+     * no results for the filter were found.
+     *
+     * @param query the <tt>FilterQuery</tt>, where this listener is registered
+     */
+    public void filterQueryFailed(FilterQuery query)
+    {
+        // If the query has failed then we don't have results.
+        if (currentFilterQuery.equals(query))
+            filterQueryFinished(query, false);
+    }
+
+    /**
+     * Performs all needed updates when a filter query has finished.
+     *
+     * @param query the query that has finished
+     * @param hasResults indicates if the query has results
+     */
+    private void filterQueryFinished(FilterQuery query, boolean hasResults)
+    {
+        // If the unknown contact view was previously enabled, but we
+        // have found matching contacts we enter the normal view.
+        enableUnknownContactView(!hasResults);
+
+        if (hasResults)
+            contactList.selectFirstContact();
+
+        query.setQueryListener(null);
+    }
+
+    /**
+     * Indicates that the given <tt>query</tt> has finished with success, i.e.
+     * the filter has returned results.
+     *
+     * @param query the <tt>FilterQuery</tt>, where this listener is registered
+     */
+    public void filterQuerySucceeded(FilterQuery query)
+    {
+        // If the query has succeeded then we have results.
+        if (currentFilterQuery.equals(query))
+            filterQueryFinished(query, true);
+    }
+
+    /**
+     * Returns the name of the L&F class that renders this component.
+     *
+     * @return the string "TreeUI"
+     * @see JComponent#getUIClassID
+     * @see UIDefaults#getUI
+     */
+    @Override
+    public String getUIClassID()
+    {
+        return uiClassID;
+    }
+
+    /**
+     * Reloads text field UI defs.
+     */
+    public void loadSkin()
+    {
+        if (getUI() instanceof ContactSearchFieldUI)
+            ((ContactSearchFieldUI) getUI()).loadSkin();
+    }
+
+    /**
+     * Sets the contact list, in which the search is performed.
+     *
+     * @param contactList the contact list in which the search is performed
+     */
+    public void setContactList(ContactList contactList)
+    {
+        this.contactList = contactList;
+    }
+
+    /**
      * Handles the change when a char has been inserted in the field.
      */
     public void textInserted()
@@ -136,13 +240,6 @@ public class SearchField
     {
         updateContactListView();
     }
-
-    /**
-     * Do not need this for the moment.
-     * @param e the <tt>DocumentEvent</tt> that notified us
-     */
-    @Override
-    public void changedUpdate(DocumentEvent e) {}
 
     /**
      * Schedules an update if necessary.
@@ -188,99 +285,5 @@ public class SearchField
             // contact list content.
             filterQueryFinished(currentFilterQuery, !contactList.isEmpty());
         }
-    }
-
-    /**
-     * Sets the unknown contact view to the main contact list window.
-     *
-     * @param isEnabled indicates if the unknown contact view should be enabled
-     * or disabled.
-     */
-    public void enableUnknownContactView(final boolean isEnabled)
-    {
-        SwingUtilities.invokeLater(new Runnable()
-        {
-            public void run()
-            {
-                if (mainFrame != null)
-                    mainFrame.enableUnknownContactView(isEnabled);
-            }
-        });
-    }
-
-    /**
-     * Sets the contact list, in which the search is performed.
-     *
-     * @param contactList the contact list in which the search is performed
-     */
-    public void setContactList(ContactList contactList)
-    {
-        this.contactList = contactList;
-    }
-
-    /**
-     * Indicates that the given <tt>query</tt> has finished with failure, i.e.
-     * no results for the filter were found.
-     *
-     * @param query the <tt>FilterQuery</tt>, where this listener is registered
-     */
-    public void filterQueryFailed(FilterQuery query)
-    {
-        // If the query has failed then we don't have results.
-        if (currentFilterQuery.equals(query))
-            filterQueryFinished(query, false);
-    }
-
-    /**
-     * Indicates that the given <tt>query</tt> has finished with success, i.e.
-     * the filter has returned results.
-     *
-     * @param query the <tt>FilterQuery</tt>, where this listener is registered
-     */
-    public void filterQuerySucceeded(FilterQuery query)
-    {
-        // If the query has succeeded then we have results.
-        if (currentFilterQuery.equals(query))
-            filterQueryFinished(query, true);
-    }
-
-    /**
-     * Reloads text field UI defs.
-     */
-    public void loadSkin()
-    {
-        if(getUI() instanceof  SearchFieldUI)
-            ((SearchFieldUI)getUI()).loadSkin();
-    }
-
-    /**
-     * Returns the name of the L&F class that renders this component.
-     *
-     * @return the string "TreeUI"
-     * @see JComponent#getUIClassID
-     * @see UIDefaults#getUI
-     */
-    @Override
-    public String getUIClassID()
-    {
-        return uiClassID;
-    }
-
-    /**
-     * Performs all needed updates when a filter query has finished.
-     *
-     * @param query the query that has finished
-     * @param hasResults indicates if the query has results
-     */
-    private void filterQueryFinished(FilterQuery query, boolean hasResults)
-    {
-        // If the unknown contact view was previously enabled, but we
-        // have found matching contacts we enter the normal view.
-        enableUnknownContactView(!hasResults);
-
-        if (hasResults)
-            contactList.selectFirstContact();
-
-        query.setQueryListener(null);
     }
 }

@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.main.contactlist;
+package net.java.sip.communicator.plugin.desktoputil.plaf;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -13,12 +13,10 @@ import javax.swing.*;
 import javax.swing.plaf.*;
 import javax.swing.text.*;
 
-import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
-import net.java.sip.communicator.plugin.desktoputil.plaf.*;
-import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
+
+import org.jitsi.service.resources.*;
 
 /**
  * The <tt>SearchTextFieldUI</tt> is the one responsible for the search field
@@ -27,15 +25,22 @@ import net.java.sip.communicator.util.skin.*;
  *
  * @author Yana Stamcheva
  * @author Adam Netocny
+ * @author Marin Dzhigarov
  */
 public class SearchFieldUI
     extends SIPCommTextFieldUI
     implements Skinnable
 {
     /**
-     * The icon indicating that this is a search field.
+     * Creates a UI for a SearchFieldUI.
+     *
+     * @param c the text field
+     * @return the UI
      */
-    private ImageIcon searchIcon;
+    public static ComponentUI createUI(JComponent c)
+    {
+        return new SearchFieldUI();
+    }
 
     /**
      * The default icon of the call button.
@@ -43,9 +48,9 @@ public class SearchFieldUI
     private Image callIcon;
 
     /**
-     * The separator icon shown between the call icon and the close.
+     * The pressed icon of the call button.
      */
-    private Image separatorIcon;
+    private Image callPressedIcon;
 
     /**
      * The roll over icon of the call button.
@@ -53,9 +58,20 @@ public class SearchFieldUI
     private Image callRolloverIcon;
 
     /**
-     * The pressed icon of the call button.
+     * The call button tool tip string.
      */
-    private Image callPressedIcon;
+    private final String callString = DesktopUtilActivator.getResources()
+        .getI18NString("service.gui.CALL");
+
+    /**
+     * Indicates if the call button is enabled in this search field.
+     */
+    protected boolean isCallButtonEnabled = true;
+
+    /**
+     * Indicates if the call icon is currently visible.
+     */
+    protected boolean isCallIconVisible = false;
 
     /**
      * Indicates if the mouse is currently over the call button.
@@ -68,61 +84,23 @@ public class SearchFieldUI
     private boolean isCallMousePressed = false;
 
     /**
-     * The call button tool tip string.
+     * The icon indicating that this is a search field.
      */
-    private final String callString
-        = GuiActivator.getResources().getI18NString("service.gui.CALL");
+    private ImageIcon searchIcon;
 
     /**
-     * Indicates if the call icon is currently visible.
+     * The separator icon shown between the call icon and the close.
      */
-    private boolean isCallIconVisible = false;
+    private Image separatorIcon;
 
     /**
-     * Indicates if the call button is enabled in this search field.
-     */
-    private boolean isCallButtonEnabled = true;
-
-    /**
-     * Creates a <tt>SIPCommTextFieldUI</tt>.
+     * Creates a <tt>GenericSearchFieldUI</tt>.
      */
     public SearchFieldUI()
     {
-        // Indicates if the big call button outside the search is enabled.
-        String callButtonEnabledString = UtilActivator.getResources()
-            .getSettingsString("impl.gui.CALL_BUTTON_ENABLED");
-
-        if (callButtonEnabledString != null
-                && callButtonEnabledString.length() > 0)
-        {
-            // If the outside call button is enabled the call button in this
-            // search field is disabled.
-            isCallButtonEnabled
-                = !new Boolean(callButtonEnabledString).booleanValue();
-        }
+        isCallButtonEnabled = false;
 
         loadSkin();
-    }
-
-    /**
-     * Enables/disabled the call button in the search field.
-     *
-     * @param isEnabled indicates if the call button is enabled
-     */
-    public void setCallButtonEnabled(boolean isEnabled)
-    {
-        this.isCallButtonEnabled = isEnabled;
-    }
-
-    /**
-     * Implements parent paintSafely method and enables antialiasing.
-     * @param g the <tt>Graphics</tt> object that notified us
-     */
-    @Override
-    protected void paintSafely(Graphics g)
-    {
-        customPaintBackground(g);
-        super.paintSafely(g);
     }
 
     /**
@@ -144,11 +122,10 @@ public class SearchFieldUI
             int dy = (c.getY() + c.getHeight()) / 2
                 - searchIcon.getIconHeight()/2;
 
-            g2.drawImage(searchIcon.getImage(), 3, dy + 1, null);
+            g2.drawImage(searchIcon.getImage(), 3, dy, null);
 
             if (c.getText() != null
                 && c.getText().length() > 0
-                && CallManager.getTelephonyProviders().size() > 0
                 && isCallButtonEnabled)
             {
                 // Paint call button.
@@ -178,6 +155,25 @@ public class SearchFieldUI
         {
             g2.dispose();
         }
+    }
+
+    /**
+     * Calculates the call button rectangle.
+     *
+     * @return the call button rectangle
+     */
+    protected Rectangle getCallButtonRect()
+    {
+        Component c = getComponent();
+        Rectangle rect = c.getBounds();
+
+        int dx = getDeleteButtonRect().x - callRolloverIcon.getWidth(null) - 8;
+        int dy = (rect.y + rect.height) / 2 - callRolloverIcon.getHeight(null)/2;
+
+        return new Rectangle(   dx,
+                                dy,
+                                callRolloverIcon.getWidth(null),
+                                callRolloverIcon.getHeight(null));
     }
 
     /**
@@ -211,6 +207,32 @@ public class SearchFieldUI
     }
 
     /**
+     * Reloads UI icons.
+     */
+    @Override
+    public void loadSkin()
+    {
+        super.loadSkin();
+
+        ResourceManagementService r = DesktopUtilActivator.getResources();
+
+        searchIcon = r.getImage("service.gui.icons.SEARCH_ICON");
+        if (isCallButtonEnabled)
+        {
+            callIcon
+                = r.getImage("service.gui.buttons.SEARCH_CALL_ICON").getImage();
+            callRolloverIcon
+                = r.getImage("service.gui.buttons.SEARCH_CALL_ROLLOVER_ICON")
+                    .getImage();
+            callPressedIcon
+                = r.getImage("service.gui.buttons.SEARCH_CALL_PRESSED_ICON")
+                    .getImage();
+            separatorIcon
+                = r.getImage("service.gui.icons.SEARCH_SEPARATOR").getImage();
+        }
+    }
+
+    /**
      * Updates the call button when the mouse was clicked.
      * @param e the <tt>MouseEvent</tt> that notified us of the click
      */
@@ -218,6 +240,19 @@ public class SearchFieldUI
     public void mouseClicked(MouseEvent e)
     {
         super.mouseClicked(e);
+
+        if(isCallButtonEnabled)
+            updateCallIcon(e);
+    }
+
+    /**
+     * Updates the delete icon when the mouse is dragged over.
+     * @param e the <tt>MouseEvent</tt> that notified us
+     */
+    @Override
+    public void mouseDragged(MouseEvent e)
+    {
+        super.mouseDragged(e);
 
         if(isCallButtonEnabled)
             updateCallIcon(e);
@@ -249,6 +284,19 @@ public class SearchFieldUI
             updateCallIcon(e);
     }
 
+    /**
+     * Updates the delete icon when the mouse is moved over.
+     * @param e the <tt>MouseEvent</tt> that notified us
+     */
+    @Override
+    public void mouseMoved(MouseEvent e)
+    {
+        super.mouseMoved(e);
+
+        if(isCallButtonEnabled)
+            updateCallIcon(e);
+    }
+
     @Override
     public void mousePressed(MouseEvent e)
     {
@@ -268,29 +316,24 @@ public class SearchFieldUI
     }
 
     /**
-     * Updates the delete icon when the mouse is dragged over.
-     * @param e the <tt>MouseEvent</tt> that notified us
+     * Implements parent paintSafely method and enables antialiasing.
+     * @param g the <tt>Graphics</tt> object that notified us
      */
     @Override
-    public void mouseDragged(MouseEvent e)
+    protected void paintSafely(Graphics g)
     {
-        super.mouseDragged(e);
-
-        if(isCallButtonEnabled)
-            updateCallIcon(e);
+        customPaintBackground(g);
+        super.paintSafely(g);
     }
 
     /**
-     * Updates the delete icon when the mouse is moved over.
-     * @param e the <tt>MouseEvent</tt> that notified us
+     * Enables/disabled the call button in the search field.
+     *
+     * @param isEnabled indicates if the call button is enabled
      */
-    @Override
-    public void mouseMoved(MouseEvent e)
+    public void setCallButtonEnabled(boolean isEnabled)
     {
-        super.mouseMoved(e);
-
-        if(isCallButtonEnabled)
-            updateCallIcon(e);
+        this.isCallButtonEnabled = isEnabled;
     }
 
     /**
@@ -301,7 +344,7 @@ public class SearchFieldUI
      * @param evt the mouse event that has prompted us to update the delete
      * icon.
      */
-    private void updateCallIcon(MouseEvent evt)
+    protected void updateCallIcon(MouseEvent evt)
     {
         int x = evt.getX();
         int y = evt.getY();
@@ -336,12 +379,6 @@ public class SearchFieldUI
 
             // Update the default cursor.
             getComponent().setCursor(Cursor.getDefaultCursor());
-
-            // Perform call action when the call button is clicked.
-            if (evt.getID() == MouseEvent.MOUSE_CLICKED)
-            {
-                CallManager.createCall(searchText, c);
-            }
         }
         else
         {
@@ -358,64 +395,5 @@ public class SearchFieldUI
         }
 
         getComponent().repaint();
-    }
-
-    /**
-     * Calculates the call button rectangle.
-     *
-     * @return the call button rectangle
-     */
-    protected Rectangle getCallButtonRect()
-    {
-        Component c = getComponent();
-        Rectangle rect = c.getBounds();
-
-        int dx = getDeleteButtonRect().x - callRolloverIcon.getWidth(null) - 8;
-        int dy = (rect.y + rect.height) / 2 - callRolloverIcon.getHeight(null)/2;
-
-        return new Rectangle(   dx,
-                                dy,
-                                callRolloverIcon.getWidth(null),
-                                callRolloverIcon.getHeight(null));
-    }
-
-    /**
-     * Reloads UI icons.
-     */
-    @Override
-    public void loadSkin()
-    {
-        super.loadSkin();
-
-        searchIcon = UtilActivator.getResources()
-            .getImage("service.gui.icons.SEARCH_ICON");
-
-        if (isCallButtonEnabled)
-        {
-            callIcon = UtilActivator.getResources()
-                .getImage("service.gui.buttons.SEARCH_CALL_ICON").getImage();
-
-            callRolloverIcon = UtilActivator.getResources()
-                .getImage("service.gui.buttons.SEARCH_CALL_ROLLOVER_ICON")
-                    .getImage();
-
-            callPressedIcon = UtilActivator.getResources()
-                .getImage("service.gui.buttons.SEARCH_CALL_PRESSED_ICON")
-                    .getImage();
-
-            separatorIcon = UtilActivator.getResources()
-                .getImage("service.gui.icons.SEARCH_SEPARATOR").getImage();
-        }
-    }
-
-    /**
-     * Creates a UI for a SearchFieldUI.
-     *
-     * @param c the text field
-     * @return the UI
-     */
-    public static ComponentUI createUI(JComponent c)
-    {
-        return new SearchFieldUI();
     }
 }

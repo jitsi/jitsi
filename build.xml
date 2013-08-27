@@ -1079,7 +1079,7 @@
         bundle-globalshortcut,bundle-plugin-msofficecomm,bundle-libjitsi,
         bundle-customcontactactions, bundle-phonenumbercontactsource,
         bundle-demuxcontactsource, bundle-desktoputil,
-        bundle-globaldisplaydetails"/>
+        bundle-globaldisplaydetails,bundle-plugin-propertieseditor"/>
 
     <!--BUNDLE-SC-LAUNCHER-->
     <target name="bundle-sc-launcher">
@@ -2939,6 +2939,16 @@ javax.swing.event, javax.swing.border"/>
                 prefix="net/java/sip/communicator/service/globaldisplaydetails"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/globaldisplaydetails"
                 prefix="net/java/sip/communicator/impl/globaldisplaydetails" />
+        </jar>
+    </target>
+
+    <!--BUNDLE-PLUGIN-PROPERTIESEDITOR-->
+    <target name="bundle-plugin-propertieseditor">
+        <!-- Creates a bundle for the plugin Configuration Properties Editor.-->
+        <jar compress="false" destfile="${bundles.dest}/propertieseditor.jar"
+            manifest="${src}/net/java/sip/communicator/plugin/propertieseditor/propertieseditor.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/propertieseditor"
+                prefix="net/java/sip/communicator/plugin/propertieseditor"/>
         </jar>
     </target>
 </project>
