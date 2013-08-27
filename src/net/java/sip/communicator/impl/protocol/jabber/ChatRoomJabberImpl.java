@@ -384,7 +384,10 @@ public class ChatRoomJabberImpl
      */
     public List<ChatRoomMember> getMembers()
     {
-        return new LinkedList<ChatRoomMember>(members.values());
+        synchronized (members)
+        {
+            return new LinkedList<ChatRoomMember>(members.values());
+        }
     }
 
     /**
@@ -543,8 +546,10 @@ public class ChatRoomJabberImpl
                                                 nickname,
                                                 provider.getAccountID()
                                                     .getAccountAddress());
-
-            members.put(nickname, member);
+            synchronized (members)
+            {
+                members.put(nickname, member);
+            }
 
             // We don't specify a reason.
             opSetMuc.fireLocalUserPresenceEvent(this,
@@ -729,18 +734,20 @@ public class ChatRoomJabberImpl
     public ChatRoomMemberJabberImpl smackParticipantToScMember(String participant)
     {
         String participantName = StringUtils.parseResource(participant);
-
-        Iterator<ChatRoomMemberJabberImpl> chatRoomMembers =
-            this.members.values().iterator();
-
-        while(chatRoomMembers.hasNext())
+        synchronized (members)
         {
-            ChatRoomMemberJabberImpl member = chatRoomMembers.next();
-
-            if(participantName.equals(member.getName())
-                || participant.equals(member.getContactAddress())
-                || participantName.equals(member.getContactAddress()))
-                return member;
+            Iterator<ChatRoomMemberJabberImpl> chatRoomMembers =
+                this.members.values().iterator();
+    
+            while(chatRoomMembers.hasNext())
+            {
+                ChatRoomMemberJabberImpl member = chatRoomMembers.next();
+    
+                if(participantName.equals(member.getName())
+                    || participant.equals(member.getContactAddress())
+                    || participantName.equals(member.getContactAddress()))
+                    return member;
+            }
         }
         return null;
     }
@@ -765,14 +772,20 @@ public class ChatRoomJabberImpl
         }
 
         // FIXME Do we have to do the following when we leave the room?
-        for (ChatRoomMember member : members.values())
-            fireMemberPresenceEvent(
-                member,
-                ChatRoomMemberPresenceChangeEvent.MEMBER_LEFT,
-                "Local user has left the chat room.");
+        synchronized (members)
+        {
+            for (ChatRoomMember member : members.values())
+                fireMemberPresenceEvent(
+                    member,
+                    ChatRoomMemberPresenceChangeEvent.MEMBER_LEFT,
+                    "Local user has left the chat room.");
+            
+         // Delete the list of members
+            members.clear();
+        }
+        
 
-        // Delete the list of members
-        members.clear();
+        
 
         // connection can be null if we are leaving cause connection failed
         if(connection != null)
@@ -928,9 +941,12 @@ public class ChatRoomJabberImpl
                 return;
 
             String participantName = StringUtils.parseResource(participant);
-
-            members.remove(participantName);
-
+            
+            synchronized (members)
+            {
+                members.remove(participantName);
+            }
+            
             banList.put(participant, member);
 
             fireMemberRoleEvent(member, member.getCurrentRole(),
@@ -1043,8 +1059,10 @@ public class ChatRoomJabberImpl
                 return;
 
             String participantName = StringUtils.parseResource(participant);
-
-            members.remove(participantName);
+            synchronized (members)
+            {
+                members.remove(participantName);
+            }
 
             fireMemberPresenceEvent(member,
                 ChatRoomMemberPresenceChangeEvent.MEMBER_LEFT, null);
@@ -1072,11 +1090,14 @@ public class ChatRoomJabberImpl
             ((ChatRoomMemberJabberImpl) member).setName(newNickname);
 
             String participantName = StringUtils.parseResource(participant);
-
-            // chnage the member key
-            ChatRoomMemberJabberImpl mem = members.remove(participantName);
-            members.put(newNickname, mem);
-
+            
+            synchronized (members)
+            {
+                // chnage the member key
+                ChatRoomMemberJabberImpl mem = members.remove(participantName);
+                members.put(newNickname, mem);
+            }
+            
             ChatRoomMemberPropertyChangeEvent evt
                 = new ChatRoomMemberPropertyChangeEvent(
                     member,
@@ -1132,8 +1153,10 @@ public class ChatRoomJabberImpl
                 return;
 
             String participantName = StringUtils.parseResource(participant);
-
-            members.remove(participantName);
+            synchronized (members)
+            {
+                members.remove(participantName);
+            }
 
             fireMemberPresenceEvent(member, actorMember,
                 ChatRoomMemberPresenceChangeEvent.MEMBER_KICKED, reason);
@@ -2179,7 +2202,10 @@ public class ChatRoomJabberImpl
      */
     public ChatRoomMemberJabberImpl findMemberForNickName(String jabberID)
     {
-        return members.get(jabberID);
+        synchronized (members)
+        {
+            return members.get(jabberID);
+        }
     }
 
    /**
