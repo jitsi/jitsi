@@ -822,16 +822,6 @@ public class ChatRoomJabberImpl
              // We send only the content because it doesn't work if we send the
              // Message object.
              multiUserChat.sendMessage(message.getContent());
-
-             ChatRoomMessageDeliveredEvent msgDeliveredEvt
-                 = new ChatRoomMessageDeliveredEvent(
-                     this,
-                     new Date(),
-                     message,
-                     ChatRoomMessageDeliveredEvent
-                         .CONVERSATION_MESSAGE_DELIVERED);
-
-             fireMessageEvent(msgDeliveredEvt);
          }
          catch (XMPPException ex)
          {
@@ -1749,10 +1739,6 @@ public class ChatRoomJabberImpl
 
             String fromUserName = StringUtils.parseResource(msgFrom);
 
-            // skip our own messages
-            if(getUserNickname().equals(fromUserName))
-                return;
-
             // when the message comes from the room itself its a system message
             if(msgFrom.equals(getName()))
             {
@@ -1785,6 +1771,27 @@ public class ChatRoomJabberImpl
             }
 
             Message newMessage = createMessage(msgBody);
+
+            // if we are sending this message, this either a delivery report
+            // or if there is a delay extension this is a history coming from
+            // the chat room
+            if(getUserNickname().equals(fromUserName))
+            {
+                // message delivered
+                ChatRoomMessageDeliveredEvent msgDeliveredEvt
+                     = new ChatRoomMessageDeliveredEvent(
+                         ChatRoomJabberImpl.this,
+                         timeStamp,
+                         newMessage,
+                         ChatRoomMessageDeliveredEvent
+                            .CONVERSATION_MESSAGE_DELIVERED);
+
+                if(delay != null)
+                    msgDeliveredEvt.setHistoryMessage(true);
+
+                fireMessageEvent(msgDeliveredEvt);
+                return;
+            }
 
             if(msg.getType() == org.jivesoftware.smack.packet.Message.Type.error)
             {

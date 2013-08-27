@@ -57,6 +57,11 @@ public class ChatRoomMessageDeliveredEvent
      private int eventType = -1;
 
      /**
+      * Some services can fill our room with message history.
+      */
+     private boolean historyMessage = false;
+
+     /**
       * Creates a <tt>MessageDeliveredEvent</tt> representing delivery of the
       * <tt>source</tt> message to the specified <tt>to</tt> contact.
       *
@@ -116,5 +121,24 @@ public class ChatRoomMessageDeliveredEvent
      public int getEventType()
      {
          return eventType;
+     }
+
+     /**
+      * Is current event for history message.
+      * @return is current event for history message.
+      */
+     public boolean isHistoryMessage()
+     {
+         return historyMessage;
+     }
+
+     /**
+      * Changes property, whether this event is for a history message.
+      *
+      * @param historyMessage whether its event for history message.
+      */
+     public void setHistoryMessage(boolean historyMessage)
+     {
+         this.historyMessage = historyMessage;
      }
 }
