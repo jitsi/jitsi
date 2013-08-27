@@ -2476,7 +2476,7 @@ public class ChatPanel
                     getOperationSet(OperationSetMultiUserChat.class) != null)
             {
                 ChatRoomWrapper chatRoomWrapper
-                    = conferenceChatManager.createChatRoom(
+                    = conferenceChatManager.createPrivateChatRoom(
                         inviteChatTransport.getProtocolProvider(),
                         chatContacts,
                         reason,

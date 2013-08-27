@@ -740,6 +740,7 @@ public class ConferenceChatManager
 
         new JoinChatRoomTask(chatRoomWrapper, nickName, password).execute();
     }
+
     /**
      * Creates a chat room, by specifying the chat room name, the parent
      * protocol provider and eventually, the contacts invited to participate in
@@ -758,9 +759,35 @@ public class ConferenceChatManager
         boolean persistent)
     {
         return this.createChatRoom(
-            null, protocolProvider, contacts, reason, persistent);
+            null, protocolProvider, contacts, reason, persistent, false);
     }
 
+    /**
+     * Creates a chat room, by specifying the chat room name, the parent
+     * protocol provider and eventually, the contacts invited to participate in
+     * this chat room.
+     *
+     * @param roomName the name of the room
+     * @param protocolProvider the parent protocol provider.
+     * @param contacts the contacts invited when creating the chat room.
+     * @param reason
+     * @param persistent is the room persistent
+     * @param isPrivate whether the room will be private or public.
+     * @return the <tt>ChatRoomWrapper</tt> corresponding to the created room
+     */
+    public ChatRoomWrapper createChatRoom(
+        String roomName,
+        ProtocolProviderService protocolProvider,
+        Collection<String> contacts,
+        String reason,
+        boolean persistent,
+        boolean isPrivate)
+    {
+        return createChatRoom(
+            roomName, protocolProvider, contacts, reason, true, persistent,
+            isPrivate);
+    }
+    
     /**
      * Creates a chat room, by specifying the chat room name, the parent
      * protocol provider and eventually, the contacts invited to participate in
@@ -781,7 +808,8 @@ public class ConferenceChatManager
         boolean persistent)
     {
         return createChatRoom(
-            roomName, protocolProvider, contacts, reason, true, persistent);
+            roomName, protocolProvider, contacts, reason, true, persistent,
+            false);
     }
 
     /**
@@ -795,6 +823,7 @@ public class ConferenceChatManager
      * @param reason
      * @param join whether we should join the room after creating it.
      * @param persistent whether the newly created room will be persistent.
+     * @param isPrivate whether the room will be private or public.
      * @return the <tt>ChatRoomWrapper</tt> corresponding to the created room
      */
     public ChatRoomWrapper createChatRoom(
@@ -803,7 +832,8 @@ public class ConferenceChatManager
         Collection<String> contacts,
         String reason,
         boolean join,
-        boolean persistent)
+        boolean persistent,
+        boolean isPrivate)
     {
         ChatRoomWrapper chatRoomWrapper = null;
 
@@ -817,7 +847,10 @@ public class ConferenceChatManager
         ChatRoom chatRoom = null;
         try
         {
-            chatRoom = groupChatOpSet.createChatRoom(roomName, null);
+            HashMap<String, Object> roomProperties = 
+                new HashMap<String, Object>();
+            roomProperties.put("isPrivate", isPrivate);
+            chatRoom = groupChatOpSet.createChatRoom(roomName, roomProperties);
 
             if(join)
             {
@@ -877,6 +910,27 @@ public class ConferenceChatManager
         }
 
         return chatRoomWrapper;
+    }
+
+    /**
+     * Creates a private chat room, by specifying the parent
+     * protocol provider and eventually, the contacts invited to participate in
+     * this chat room.
+     *
+     * @param protocolProvider the parent protocol provider.
+     * @param contacts the contacts invited when creating the chat room.
+     * @param reason
+     * @param persistent is the room persistent
+     * @return the <tt>ChatRoomWrapper</tt> corresponding to the created room
+     */
+    public ChatRoomWrapper createPrivateChatRoom(
+        ProtocolProviderService protocolProvider,
+        Collection<String> contacts,
+        String reason,
+        boolean persistent)
+    {
+        return this.createChatRoom(
+            null, protocolProvider, contacts, reason, persistent, true);
     }
 
     /**

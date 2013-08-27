@@ -148,10 +148,58 @@ public class OperationSetMultiUserChatJabberImpl
                                                    , ex.getXMPPError().getCode()
                                                    , ex.getCause());
             }
-
+            
+            boolean isPrivate = false;
+            if(roomProperties != null)
+            {
+                Object isPrivateObject = roomProperties.get("isPrivate");
+                if(isPrivateObject != null)
+                {
+                    isPrivate = isPrivateObject.equals(true);
+                }
+            }
+                
             try
             {
-                muc.sendConfigurationForm(new Form(Form.TYPE_SUBMIT));
+                Form form;
+                if(isPrivate)
+                {
+                    Form initForm = muc.getConfigurationForm();
+                    form = initForm.createAnswerForm();
+                    Iterator<FormField> fieldIterator = initForm.getFields();
+                    while(fieldIterator.hasNext())
+                    {
+                        FormField initField = fieldIterator.next();
+                        if( initField == null ||
+                            initField.getVariable() == null ||
+                            initField.getType() == FormField.TYPE_FIXED ||
+                            initField.getType() == FormField.TYPE_HIDDEN)
+                            continue;
+                        FormField submitField 
+                            = form.getField(initField.getVariable());
+                        if(submitField == null)                       
+                            continue;
+                        Iterator<String> value = initField.getValues();
+                        while(value.hasNext())
+                            submitField.addValue(value.next());
+                    }
+                    String[] fields = {"muc#roomconfig_membersonly",
+                        "muc#roomconfig_allowinvites",
+                        "muc#roomconfig_publicroom"};
+                    Boolean[] values = {true, true, false};
+                    for(int i = 0; i < fields.length; i++)
+                    {
+                        FormField field = new FormField(fields[i]);
+                        field.setType("boolean");
+                        form.addField(field);
+                        form.setAnswer(fields[i], values[i]);
+                    }
+                }
+                else
+                {
+                    form = new Form(Form.TYPE_SUBMIT);
+                }
+                muc.sendConfigurationForm(form);
             } catch (XMPPException e)
             {
                 logger.error("Failed to send config form.", e);
