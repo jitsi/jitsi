@@ -265,7 +265,8 @@ public class ConferenceChatManager
                     {
                         ChatRoomMessageDeliveredEvent ev =
                             (ChatRoomMessageDeliveredEvent) o;
-                        if (evt.getTimestamp() == ev.getTimestamp())
+                        if (evt.getTimestamp() != null
+                            && evt.getTimestamp().equals(ev.getTimestamp()))
                         {
                             isPresent = true;
                             break;
@@ -275,7 +276,8 @@ public class ConferenceChatManager
                     {
                         ChatRoomMessageReceivedEvent ev =
                             (ChatRoomMessageReceivedEvent) o;
-                        if (evt.getTimestamp() == ev.getTimestamp())
+                        if (evt.getTimestamp() != null
+                            && evt.getTimestamp().equals(ev.getTimestamp()))
                         {
                             isPresent = true;
                             break;
