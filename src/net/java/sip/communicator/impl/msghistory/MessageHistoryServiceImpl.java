@@ -869,6 +869,43 @@ public class MessageHistoryServiceImpl
             History history = this.getHistoryForMultiChat(
                 evt.getSourceChatRoom());
 
+            // if this is chat room message history on every room enter
+            // we can receive the same latest history messages and this
+            // will just fill the history on every join
+            if(evt.isHistoryMessage())
+            {
+                Collection<EventObject> c =
+                    findFirstMessagesAfter(evt.getSourceChatRoom(),
+                        evt.getTimestamp(),
+                        10);
+
+                Iterator<EventObject> iter = c.iterator();
+                boolean isPresent = false;
+                while(iter.hasNext())
+                {
+                    EventObject e = iter.next();
+
+                    if(e instanceof ChatRoomMessageReceivedEvent)
+                    {
+                        ChatRoomMessageReceivedEvent cev =
+                            (ChatRoomMessageReceivedEvent)e;
+
+                        if( evt.getSourceChatRoomMember().getContactAddress()
+                                .equals(cev.getSourceChatRoomMember()
+                                                .getContactAddress())
+                            && evt.getTimestamp() != null
+                            && evt.getTimestamp().equals(cev.getTimestamp()))
+                        {
+                            isPresent = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (isPresent)
+                    return;
+            }
+
             writeMessage(history, "in", evt.getSourceChatRoomMember(),
                 evt.getMessage(), evt.getTimestamp());
         } catch (IOException e)
@@ -884,6 +921,39 @@ public class MessageHistoryServiceImpl
             History history = this.
                 getHistoryForMultiChat(
                 evt.getSourceChatRoom());
+
+            // if this is chat room message history on every room enter
+            // we can receive the same latest history messages and this
+            // will just fill the history on every join
+            if(evt.isHistoryMessage())
+            {
+                Collection<EventObject> c =
+                    findFirstMessagesAfter(evt.getSourceChatRoom(),
+                        evt.getTimestamp(),
+                        10);
+
+                Iterator<EventObject> iter = c.iterator();
+                boolean isPresent = false;
+                while(iter.hasNext())
+                {
+                    EventObject e = iter.next();
+                    if(e instanceof  ChatRoomMessageDeliveredEvent)
+                    {
+                        ChatRoomMessageDeliveredEvent cev =
+                            (ChatRoomMessageDeliveredEvent)e;
+
+                        if(evt.getTimestamp() != null
+                            && evt.getTimestamp().equals(cev.getTimestamp()))
+                        {
+                            isPresent = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (isPresent)
+                    return;
+            }
 
             writeMessage(history, "out", evt.getMessage(), evt.getTimestamp());
         } catch (IOException e)
