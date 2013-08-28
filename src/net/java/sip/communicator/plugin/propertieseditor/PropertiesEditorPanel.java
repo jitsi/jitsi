@@ -3,7 +3,6 @@
  * 
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.plugin.propertieseditor;
 
 import java.awt.*;
@@ -19,11 +18,9 @@ import org.jitsi.service.resources.*;
 /**
  * @author Marin Dzhigarov
  * @author Pawel Domas
- * 
  */
 public class PropertiesEditorPanel
     extends TransparentPanel
-
 {
     /**
      * Serial version UID.

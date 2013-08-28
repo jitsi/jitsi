@@ -21,7 +21,6 @@ import net.java.sip.communicator.util.skin.*;
  * The field used for searching in the properties table.
  * 
  * @author Marin Dzhigarov
- * 
  */
 public class SearchField
     extends SIPCommTextField

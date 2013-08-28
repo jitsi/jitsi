@@ -9,7 +9,6 @@ package net.java.sip.communicator.plugin.propertieseditor;
  * The Constants of this package.
  * 
  * @author Marin Dzhigarov
- * 
  */
 public class Constants
 {

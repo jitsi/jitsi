@@ -14,8 +14,7 @@ import org.jitsi.service.configuration.*;
 
 /**
  * @author Marin Dzhigarov
- * @author Pawel Domas 
- *
+ * @author Pawel Domas
  */
 public class PropsTableModel 
     implements TableModel, 
