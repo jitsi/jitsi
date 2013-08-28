@@ -94,26 +94,29 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
         // a given DESCRIPTION.
         EncryptionPacketExtension encryptionPacketExtension
             = description.getFirstChildOfType(
-                EncryptionPacketExtension.class);
+                    EncryptionPacketExtension.class);
+
         if(encryptionPacketExtension != null)
         {
             AccountID accountID
                 = getPeer().getProtocolProvider().getAccountID();
 
-            // ZRTP
-            ZrtpHashPacketExtension zrtpHashPacketExtension =
-                encryptionPacketExtension.getFirstChildOfType(
-                    ZrtpHashPacketExtension.class);
-
-            if(zrtpHashPacketExtension != null
-                && zrtpHashPacketExtension.getValue() != null
-                && accountID.getAccountPropertyBoolean(
+            if (accountID.getAccountPropertyBoolean(
                         ProtocolProviderFactory.DEFAULT_ENCRYPTION,
                         true)
-                && accountID.isEncryptionProtocolEnabled("ZRTP")
-                && getPeer().getCall().isSipZrtpAttribute())
+                    && accountID.isEncryptionProtocolEnabled("ZRTP")
+                    && getPeer().getCall().isSipZrtpAttribute())
             {
-                addAdvertisedEncryptionMethod(SrtpControlType.ZRTP);
+                // ZRTP
+                ZrtpHashPacketExtension zrtpHashPacketExtension
+                    = encryptionPacketExtension.getFirstChildOfType(
+                            ZrtpHashPacketExtension.class);
+
+                if ((zrtpHashPacketExtension != null)
+                        && (zrtpHashPacketExtension.getValue() != null))
+                {
+                    addAdvertisedEncryptionMethod(SrtpControlType.ZRTP);
+                }
             }
         }
     }
@@ -137,23 +140,25 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
         // a given DESCRIPTION.
         EncryptionPacketExtension encryptionPacketExtension
             = description.getFirstChildOfType(
-                EncryptionPacketExtension.class);
+                    EncryptionPacketExtension.class);
+
         if(encryptionPacketExtension != null)
         {
             AccountID accountID
                 = getPeer().getProtocolProvider().getAccountID();
 
             // SDES
-            if(accountID.isEncryptionProtocolEnabled("SDES")
-                    && accountID.getAccountPropertyBoolean(
+            if(accountID.getAccountPropertyBoolean(
                         ProtocolProviderFactory.DEFAULT_ENCRYPTION,
-                        true))
+                        true)
+                    && accountID.isEncryptionProtocolEnabled("SDES"))
             {
                 Map<MediaTypeSrtpControl, SrtpControl> srtpControls
                     = getSrtpControls();
                 MediaTypeSrtpControl key
                     = new MediaTypeSrtpControl(mediaType, SrtpControlType.SDES);
                 SrtpControl control = srtpControls.get(key);
+
                 if(control == null)
                 {
                     control
@@ -162,10 +167,11 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
                 }
 
                 SDesControl tmpSDesControl = (SDesControl) control;
-                SrtpCryptoAttribute selectedSdes = selectSdesCryptoSuite(
-                        isInitiator,
-                        tmpSDesControl,
-                        encryptionPacketExtension);
+                SrtpCryptoAttribute selectedSdes
+                    = selectSdesCryptoSuite(
+                            isInitiator,
+                            tmpSDesControl,
+                            encryptionPacketExtension);
 
                 if(selectedSdes != null)
                 {
@@ -180,7 +186,8 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
                         MediaTypeSrtpControl mtsc = entry.getKey();
 
                         if ((mtsc.mediaType == mediaType)
-                             && (mtsc.srtpControlType != SrtpControlType.SDES))
+                                && (mtsc.srtpControlType
+                                        != SrtpControlType.SDES))
                         {
                             entry.getValue().cleanup();
                             iter.remove();
@@ -204,16 +211,17 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
                 = getPeer().getProtocolProvider().getAccountID();
 
             // SDES
-            if(accountID.isEncryptionProtocolEnabled("SDES")
-                    && accountID.getAccountPropertyBoolean(
+            if(accountID.getAccountPropertyBoolean(
                         ProtocolProviderFactory.DEFAULT_ENCRYPTION,
-                        true))
+                        true)
+                    && accountID.isEncryptionProtocolEnabled("SDES"))
             {
                 Map<MediaTypeSrtpControl, SrtpControl> srtpControls
                     = getSrtpControls();
                 MediaTypeSrtpControl key
                     = new MediaTypeSrtpControl(mediaType, SrtpControlType.SDES);
                 SrtpControl control = srtpControls.get(key);
+
                 if(control != null)
                 {
                     control.cleanup();
@@ -303,72 +311,82 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
             RtpDescriptionPacketExtension description,
             RtpDescriptionPacketExtension remoteDescription)
     {
-        boolean isRemoteZrtpCapable = (remoteDescription == null);
-        if(remoteDescription != null)
+        boolean isRemoteZrtpCapable;
+
+        if (remoteDescription == null)
+            isRemoteZrtpCapable = true;
+        else
         {
-            // Conforming to XEP-0167 schema there is 0 or 1 ENCRYPTION
-            // element for a given DESCRIPTION.
+            // Conforming to XEP-0167 schema there is 0 or 1 ENCRYPTION element
+            // for a given DESCRIPTION.
             EncryptionPacketExtension remoteEncryption
                 = remoteDescription.getFirstChildOfType(
                         EncryptionPacketExtension.class);
-            if(remoteEncryption != null
-                    && isRemoteZrtpCapable(remoteEncryption))
-            {
-                isRemoteZrtpCapable = true;
-            }
+
+            isRemoteZrtpCapable
+                = (remoteEncryption != null)
+                    && isRemoteZrtpCapable(remoteEncryption);
         }
 
-        if(getPeer().getProtocolProvider().getAccountID()
-                .getAccountPropertyBoolean(
-                    ProtocolProviderFactory.DEFAULT_ENCRYPTION,
-                    true)
-                && getPeer().getProtocolProvider().getAccountID()
-                    .isEncryptionProtocolEnabled("ZRTP")
-                && getPeer().getCall().isSipZrtpAttribute()
-                && isRemoteZrtpCapable)
+        boolean zrtpHashSet = false; // Will become true if at least one is set.
+
+        if (isRemoteZrtpCapable)
         {
-            Map<MediaTypeSrtpControl, SrtpControl> srtpControls
-                = getSrtpControls();
-            MediaTypeSrtpControl key
-                = new MediaTypeSrtpControl(mediaType, SrtpControlType.ZRTP);
-            SrtpControl control = srtpControls.get(key);
+            CallPeer peer = getPeer();
+            AccountID accountID = peer.getProtocolProvider().getAccountID();
 
-            if(control == null)
+            if(accountID.getAccountPropertyBoolean(
+                        ProtocolProviderFactory.DEFAULT_ENCRYPTION,
+                        true)
+                    && accountID.isEncryptionProtocolEnabled("ZRTP")
+                    && peer.getCall().isSipZrtpAttribute())
             {
-                control = JabberActivator.getMediaService().createZrtpControl();
-                srtpControls.put(key, control);
-            }
+                Map<MediaTypeSrtpControl, SrtpControl> srtpControls
+                    = getSrtpControls();
+                MediaTypeSrtpControl key
+                    = new MediaTypeSrtpControl(mediaType, SrtpControlType.ZRTP);
+                SrtpControl control = srtpControls.get(key);
 
-            ZrtpControl zcontrol = (ZrtpControl) control;
-            int versionIndex = zcontrol.getNumberSupportedVersions();
-            boolean zrtpHashSet = false;    // will become true if at least one is set
-
-            for (int i = 0; i < versionIndex; i++)
-            {
-                String helloHash[] = ((ZrtpControl) control).getHelloHashSep(i);
-                if (helloHash != null && helloHash[1].length() > 0)
+                if(control == null)
                 {
-                    ZrtpHashPacketExtension hash =
-                        new ZrtpHashPacketExtension();
-                    hash.setVersion(helloHash[0]);
-                    hash.setValue(helloHash[1]);
+                    control
+                        = JabberActivator.getMediaService().createZrtpControl();
+                    srtpControls.put(key, control);
+                }
 
-                    EncryptionPacketExtension encryption =
-                        description
-                            .getFirstChildOfType(EncryptionPacketExtension.class);
-                    if (encryption == null)
+                ZrtpControl zcontrol = (ZrtpControl) control;
+                int versionIndex = zcontrol.getNumberSupportedVersions();
+
+                for (int i = 0; i < versionIndex; i++)
+                {
+                    String helloHash[]
+                        = ((ZrtpControl) control).getHelloHashSep(i);
+
+                    if ((helloHash != null) && (helloHash[1].length() > 0))
                     {
-                        encryption = new EncryptionPacketExtension();
-                        description.addChildExtension(encryption);
+                        ZrtpHashPacketExtension hash
+                            = new ZrtpHashPacketExtension();
+
+                        hash.setVersion(helloHash[0]);
+                        hash.setValue(helloHash[1]);
+
+                        EncryptionPacketExtension encryption
+                            = description.getFirstChildOfType(
+                                    EncryptionPacketExtension.class);
+
+                        if (encryption == null)
+                        {
+                            encryption = new EncryptionPacketExtension();
+                            description.addChildExtension(encryption);
+                        }
+                        encryption.addChildExtension(hash);
+                        zrtpHashSet = true;
                     }
-                    encryption.addChildExtension(hash);
-                    zrtpHashSet = true;
                 }
             }
-            return zrtpHashSet;
         }
 
-        return false;
+        return zrtpHashSet;
     }
 
     /**
@@ -394,10 +412,10 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
         AccountID accountID = getPeer().getProtocolProvider().getAccountID();
 
         // check if SDES and encryption is enabled at all
-        if(accountID.isEncryptionProtocolEnabled("SDES")
-                && accountID.getAccountPropertyBoolean(
+        if (accountID.getAccountPropertyBoolean(
                     ProtocolProviderFactory.DEFAULT_ENCRYPTION,
-                    true))
+                    true)
+                && accountID.isEncryptionProtocolEnabled("SDES"))
         {
             // get or create the control
             Map<MediaTypeSrtpControl, SrtpControl> srtpControls
@@ -432,12 +450,12 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
                 EncryptionPacketExtension localEncryption
                     = localDescription.getFirstChildOfType(
                             EncryptionPacketExtension.class);
+
                 if(localEncryption == null)
                 {
                     localEncryption = new EncryptionPacketExtension();
                     localDescription.addChildExtension(localEncryption);
                 }
-
                 for(SrtpCryptoAttribute ca:
                         sdcontrol.getInitiatorCryptoAttributes())
                 {
@@ -456,6 +474,7 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
                 EncryptionPacketExtension remoteEncryption
                     = remoteDescription.getFirstChildOfType(
                             EncryptionPacketExtension.class);
+
                 if(remoteEncryption != null)
                 {
                     SrtpCryptoAttribute selectedSdes = selectSdesCryptoSuite(
@@ -468,13 +487,16 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
                         EncryptionPacketExtension localEncryption
                             = localDescription.getFirstChildOfType(
                                     EncryptionPacketExtension.class);
+
                         if(localEncryption == null)
                         {
                             localEncryption = new EncryptionPacketExtension();
                             localDescription.addChildExtension(localEncryption);
                         }
+
                         CryptoPacketExtension crypto
                             = new CryptoPacketExtension(selectedSdes);
+
                         localEncryption.addChildExtension(crypto);
 
                         return true;

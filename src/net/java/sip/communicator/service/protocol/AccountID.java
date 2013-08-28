@@ -750,12 +750,14 @@ public abstract class AccountID
     public boolean isEncryptionProtocolEnabled(String encryptionProtocolName)
     {
         // The default value is false, except for ZRTP.
-        boolean defaultValue = (encryptionProtocolName.equals("ZRTP"));
-        return getAccountPropertyBoolean(
-                ProtocolProviderFactory.ENCRYPTION_PROTOCOL_STATUS
-                    + "."
-                    + encryptionProtocolName,
-                defaultValue);
+        boolean defaultValue = "ZRTP".equals(encryptionProtocolName);
+
+        return
+            getAccountPropertyBoolean(
+                    ProtocolProviderFactory.ENCRYPTION_PROTOCOL_STATUS
+                        + "."
+                        + encryptionProtocolName,
+                    defaultValue);
     }
 
     /**

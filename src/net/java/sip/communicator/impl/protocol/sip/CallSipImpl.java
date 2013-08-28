@@ -347,13 +347,14 @@ public class CallSipImpl
         throws OperationFailedException
     {
         // create the invite request
-        Request invite = messageFactory
-            .createInviteRequest(calleeAddress, cause);
+        Request invite
+            = messageFactory.createInviteRequest(calleeAddress, cause);
 
         // Transaction
         ClientTransaction inviteTransaction = null;
         SipProvider jainSipProvider
             = getProtocolProvider().getDefaultJainSipProvider();
+
         try
         {
             inviteTransaction = jainSipProvider.getNewClientTransaction(invite);
@@ -365,6 +366,7 @@ public class CallSipImpl
                     + "This is most probably a network connection error.",
                 OperationFailedException.INTERNAL_ERROR, ex, logger);
         }
+
         // create the call peer
         CallPeerSipImpl callPeer
             = createCallPeerFor(inviteTransaction, jainSipProvider);

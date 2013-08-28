@@ -41,37 +41,40 @@ public class SecurityConfigForm
 
         final ResourceManagementService resources
             = NeomediaActivator.getResources();
-
         JPanel mainPanel = new TransparentPanel(new BorderLayout(0, 10));
+
         add(mainPanel, BorderLayout.NORTH);
 
         JTextPane pane = new JTextPane();
+
         pane.setEditable(false);
         pane.setOpaque(false);
-        pane.setText(resources.getI18NString(
-            "impl.media.security.zrtp.DESCRIPTION",
-            new String[]{resources.getSettingsString(
-                "service.gui.APPLICATION_NAME")}));
-
+        pane.setText(
+                resources.getI18NString(
+                        "impl.media.security.zrtp.DESCRIPTION",
+                        new String[]
+                                {
+                                    resources.getSettingsString(
+                                            "service.gui.APPLICATION_NAME")
+                                }));
         mainPanel.add(pane);
 
-        JButton zrtpButton = new JButton(
-            resources.getI18NString("impl.media.security.zrtp.ZRTP_NINJA"));
+        JButton zrtpButton
+            = new JButton(
+                    resources.getI18NString(
+                            "impl.media.security.zrtp.ZRTP_NINJA"));
 
         zrtpButton.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent e)
             {
-                SIPCommDialog zrtpDialog = new SIPCommDialog()
-                {
-                    /**
-                     * Serial version UID.
-                     */
-                    private static final long serialVersionUID = 0L;
-
-                    @Override
-                    protected void close(boolean escaped) {}
-                };
+                @SuppressWarnings("serial")
+                SIPCommDialog zrtpDialog
+                    = new SIPCommDialog()
+                            {
+                                @Override
+                                protected void close(boolean escaped) {}
+                            };
 
                 zrtpDialog.setTitle(
                     resources.getI18NString("impl.media.security.zrtp.CONFIG"));
