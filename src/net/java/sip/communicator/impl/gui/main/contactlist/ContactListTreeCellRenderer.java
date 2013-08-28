@@ -170,6 +170,11 @@ public class ContactListTreeCellRenderer
     private final SIPCommButton chatButton = new SIPCommButton();
 
     /**
+     * The web button.
+     */
+    private final SIPCommButton webButton = new SIPCommButton();
+
+    /**
      * The add contact button.
      */
     private final SIPCommButton addContactButton = new SIPCommButton();
@@ -338,6 +343,13 @@ public class ContactListTreeCellRenderer
                 }
             }
         });
+        webButton.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                openURL(treeContactList, treeNode, webButton);
+            }
+        });
 
         initButtonToolTips();
         this.setToolTipText("");
@@ -483,6 +495,7 @@ public class ContactListTreeCellRenderer
             this.remove(desktopSharingButton);
             this.remove(chatButton);
             this.remove(addContactButton);
+            this.remove(webButton);
 
             clearCustomActionButtons();
 
@@ -748,6 +761,7 @@ public class ContactListTreeCellRenderer
         this.remove(callVideoButton);
         this.remove(desktopSharingButton);
         this.remove(addContactButton);
+        this.remove(webButton);
 
         clearCustomActionButtons();
 
@@ -846,6 +860,13 @@ public class ContactListTreeCellRenderer
             && !ConfigurationUtils.isAddContactDisabled())
         {
             x += addButton(addContactButton, ++gridX, x, false);
+        }
+
+        //webButton
+        if (uiContact.getDescriptor() instanceof MetaContact)
+        {
+            if(containsWebPageDetail(uiContact))
+                x += addButton(webButton, ++gridX, x, false);
         }
 
         // The list of the contact actions
@@ -1245,6 +1266,7 @@ public class ContactListTreeCellRenderer
         callVideoButton.getModel().setRollover(false);
         desktopSharingButton.getModel().setRollover(false);
         addContactButton.getModel().setRollover(false);
+        webButton.getModel().setRollover(false);
 
         if (customActionButtons != null)
         {
@@ -1289,6 +1311,9 @@ public class ContactListTreeCellRenderer
 
         if (!addContactButton.equals(excludeComponent))
             addContactButton.getModel().setRollover(false);
+
+        if (!webButton.equals(excludeComponent))
+            webButton.getModel().setRollover(false);
 
         if (customActionButtons != null)
         {
@@ -1376,6 +1401,247 @@ public class ContactListTreeCellRenderer
             ImageLoader.getImage(ImageLoader.ADD_CONTACT_BUTTON_SMALL_ROLLOVER));
         addContactButton.setPressedIcon(
             ImageLoader.getImage(ImageLoader.ADD_CONTACT_BUTTON_SMALL_PRESSED));
+
+        webButton.setIconImage(
+            ImageLoader.getImage(ImageLoader.WEB_BUTTON));
+        webButton.setRolloverIcon(
+            ImageLoader.getImage(ImageLoader.WEB_BUTTON_ROLLOVER));
+        webButton.setPressedIcon(
+            ImageLoader.getImage(ImageLoader.WEB_BUTTON_PRESSED));
+    }
+
+    /**
+     * Listens for contact details if not cached, we will receive when they
+     * are retrieved to update current web button state, if meanwhile
+     * user hasn't changed the current contact.
+     */
+    private class WebDetailsListener
+        implements OperationSetServerStoredContactInfo.DetailsResponseListener
+    {
+        /**
+         * The source this listener is created for, if current tree node
+         * changes ignore any event.
+         */
+        private Object source;
+
+        /**
+         * The button to change.
+         */
+        private JButton webButton;
+
+        /**
+         * The ui contact to update after changes.
+         */
+        private UIContact uiContact;
+
+        /**
+         * Create listener.
+         * @param source the contact this listener is for, if different
+         *               than current ignore.
+         * @param webButton
+         * @param uiContact the contact to refresh
+         */
+        WebDetailsListener(Object source, JButton webButton, UIContact uiContact)
+        {
+            this.source = source;
+            this.webButton = webButton;
+            this.uiContact = uiContact;
+        }
+
+        /**
+         * Details have been retrieved.
+         * @param details the details retrieved if any.
+         */
+        public void detailsRetrieved(Iterator<GenericDetail> details)
+        {
+            // if treenode has changed ignore
+            if(!source.equals(treeNode))
+                return;
+
+            while(details.hasNext())
+            {
+                GenericDetail d = details.next();
+
+                if(d instanceof WebPageDetail)
+                {
+                    final WebPageDetail webd = (WebPageDetail)d;
+                    if(webd.getDetailValue() != null)
+                    {
+                        SwingUtilities.invokeLater(new Runnable()
+                        {
+                            public void run()
+                            {
+                                webButton.setEnabled(true);
+
+                                treeContactList.refreshContact(uiContact);
+                            }
+                        });
+
+                        return;
+                    }
+                 }
+            }
+        }
+    }
+
+    /**
+     * Checks for existence of at least single web page detail.
+     * @param uiContact the contact to check
+     * @return true if at least one detail available, false otherwise.
+     */
+    private boolean containsWebPageDetail(UIContact uiContact)
+    {
+        WebDetailsListener webDetailsListener =
+            new WebDetailsListener(treeNode, webButton, uiContact);
+
+        return getWebPageDetails(uiContact, webDetailsListener, true) != null;
+    }
+
+    /**
+     * Retrieves all web page details for the supplied uiContact.
+     * @param uiContact the contacts
+     * @param webDetailsListener the listener to wait for details retrieval,
+     *                           or null of we do not want to wait
+     * @param returnFirst should we return after founding the first one,
+     *                    used for check whether such detail exist
+     * @return list of details or null if currently not available
+     */
+    private static List<WebPageDetail> getWebPageDetails(
+        UIContact uiContact,
+        WebDetailsListener webDetailsListener,
+        boolean returnFirst)
+    {
+        Iterator<Contact> contacts
+            = ((MetaContact)uiContact.getDescriptor())
+                .getContactsForOperationSet(
+                    OperationSetServerStoredContactInfo.class).iterator();
+
+        List<WebPageDetail> res = new ArrayList<WebPageDetail>();
+
+        boolean foundWebLink = false;
+        while (contacts.hasNext())
+        {
+            Contact contact = contacts.next();
+            OperationSetServerStoredContactInfo opset
+                = contact.getProtocolProvider().getOperationSet(
+                    OperationSetServerStoredContactInfo.class);
+
+            Iterator<GenericDetail> iter =
+                opset.requestAllDetailsForContact(
+                    contact, webDetailsListener);
+
+            if(iter == null)
+                continue;
+
+            while(iter.hasNext())
+            {
+                GenericDetail d = iter.next();
+                if(d instanceof WebPageDetail)
+                {
+                    final WebPageDetail webd = (WebPageDetail)d;
+                    if(webd.getDetailValue() != null)
+                    {
+                        res.add(webd);
+
+                        if(returnFirst)
+                        {
+                            foundWebLink = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if(returnFirst && foundWebLink)
+                break;
+        }
+
+        if(returnFirst)
+        {
+            if(res.isEmpty())
+                return null;
+        }
+
+        return res;
+    }
+
+    /**
+     * Opens url, used from webButton.
+     * @param treeContactList the contactlist component
+     * @param treeNode the currently selected node
+     * @param button the button that was clicked
+     */
+    private static void openURL(
+        TreeContactList treeContactList, TreeNode treeNode, JButton button)
+    {
+        if (treeNode != null && treeNode instanceof ContactNode)
+        {
+            UIContact contactDescriptor
+                = ((ContactNode) treeNode).getContactDescriptor();
+
+            if (contactDescriptor instanceof MetaUIContact)
+            {
+                List<WebPageDetail> details =
+                    getWebPageDetails(contactDescriptor, null, false);
+
+                if(details == null)
+                    return;
+
+                if(details.size() == 1)
+                {
+                    GuiActivator.getBrowserLauncher().openURL(
+                        details.get(0).getURL().toString());
+                }
+                else
+                {
+                    Point location = new Point(button.getX(),
+                        button.getY() + button.getHeight());
+
+                    SwingUtilities.convertPointToScreen(
+                        location, treeContactList);
+
+                    location.y = location.y
+                        + treeContactList.getPathBounds(
+                                treeContactList.getSelectionPath()).y;
+                    location.x += 8;
+                    location.y -= 8;
+
+                    List<JMenuItem> items = new ArrayList<JMenuItem>();
+                    Iterator<WebPageDetail> detailIterator = details.iterator();
+                    while(detailIterator.hasNext())
+                    {
+                        final WebPageDetail wd = detailIterator.next();
+                        String url = wd.getDetailValue().toString();
+
+                        String displayStr = url;
+                        // do not display too long links
+                        if(displayStr.length() > 60)
+                        {
+                            displayStr = displayStr.substring(0, 60);
+                            displayStr += "...";
+                        }
+                        final JMenuItem menuItem = new JMenuItem(displayStr);
+                        menuItem.setName(url);
+                        menuItem.setToolTipText(url);
+
+                        menuItem.addActionListener(new ActionListener()
+                        {
+                            public void actionPerformed(ActionEvent e)
+                            {
+                                GuiActivator.getBrowserLauncher().openURL(
+                                    menuItem.getName());
+                            }
+                        });
+                        items.add(menuItem);
+                    }
+
+                    new ExtendedPopupMenu(
+                            treeContactList,
+                            null,
+                            items).showPopupMenu(location.x, location.y);
+                }
+            }
+        }
     }
 
     /**
@@ -1572,6 +1838,8 @@ public class ContactListTreeCellRenderer
             .getI18NString("service.gui.SEND_MESSAGE"));
         addContactButton.setToolTipText(GuiActivator.getResources()
             .getI18NString("service.gui.ADD_CONTACT"));
+        webButton.setToolTipText(GuiActivator.getResources()
+            .getI18NString("service.gui.WEBPAGE"));
 
         // We need to explicitly remove the buttons from the tooltip manager,
         // because we're going to manager the tooltip ourselves in the
@@ -1583,5 +1851,6 @@ public class ContactListTreeCellRenderer
         ttManager.unregisterComponent(desktopSharingButton);
         ttManager.unregisterComponent(chatButton);
         ttManager.unregisterComponent(addContactButton);
+        ttManager.unregisterComponent(webButton);
     }
 }

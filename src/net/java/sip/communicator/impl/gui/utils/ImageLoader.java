@@ -329,6 +329,24 @@ public class ImageLoader
         = new ImageID("service.gui.buttons.ADD_CONTACT_BUTTON_SMALL_PRESSED");
 
     /**
+     * The web button image.
+     */
+    public static final ImageID WEB_BUTTON
+        = new ImageID("service.gui.buttons.WEB_BUTTON");
+
+    /**
+     * The call web pressed image.
+     */
+    public static final ImageID WEB_BUTTON_ROLLOVER
+        = new ImageID("service.gui.buttons.WEB_BUTTON_ROLLOVER");
+
+    /**
+     * The web button pressed image.
+     */
+    public static final ImageID WEB_BUTTON_PRESSED
+        = new ImageID("service.gui.buttons.WEB_BUTTON_PRESSED");
+
+    /**
      * The chat button small image.
      */
     public static final ImageID CHAT_BUTTON_SMALL

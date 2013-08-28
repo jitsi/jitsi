@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.lang.reflect.*;
+import java.net.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
@@ -288,6 +289,14 @@ public class InfoRetreiver
             byte[] imageBytes = card.getAvatar();
             if(imageBytes != null && imageBytes.length > 0)
                 result.add(new ImageDetail("Image", imageBytes));
+
+            try
+            {
+                tmp = card.getField("URL");
+                if(tmp != null)
+                    result.add(new WebPageDetail(new URL(tmp)));
+            }
+            catch(MalformedURLException e){}
         }
         catch (Throwable exc)
         {
