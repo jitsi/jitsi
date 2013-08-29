@@ -177,14 +177,16 @@ public class ChatRoomTableUI
 
         if (savedNick == null)
         {
-            String nickName = chatRoomWrapper.getNickname();
+            String[] joinOptions = chatRoomWrapper.getJoinOptions();
+            String nickName = joinOptions[0];
             if(nickName == null)
                 return;
 
             if (!chatRoomWrapper.getChatRoom().isJoined())
             {
                 GuiActivator.getUIService().getConferenceChatManager()
-                    .joinChatRoom(chatRoomWrapper, nickName, null);
+                    .joinChatRoom(chatRoomWrapper, nickName, null, 
+                        joinOptions[1]);
             }
 
         }

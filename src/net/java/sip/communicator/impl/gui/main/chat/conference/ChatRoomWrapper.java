@@ -6,10 +6,16 @@
  */
 package net.java.sip.communicator.impl.gui.main.chat.conference;
 
+import java.awt.*;
+import java.awt.event.*;
+
+import javax.swing.*;
+
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
@@ -273,20 +279,34 @@ public class ChatRoomWrapper
                 chatRoomID, AUTOJOIN_PROPERTY_NAME, null);
         }
     }
-    
+
     /**
-     * Opens a dialog with a field for the nickname and returns the nickname.
+     * Opens a dialog with a fields for the nickname and the subject of the room
+     *  and returns them.
      *
-     * @return the nickname
+     * @return array with the nickname and subject values.
      */
-    public String getNickname()
+    public String[] getJoinOptions()
+    {
+        return getJoinOptions(false);
+    }
+
+    /**
+     * Opens a dialog with a fields for the nickname and the subject of the room
+     *  and returns them.
+     *
+     * @param dontDisplaySubjectFields if true the subject fields will be hidden
+     * @return array with the nickname and subject values.
+     */
+    public String[] getJoinOptions(boolean dontDisplaySubjectFields)
     {
         String nickName = null;
-        ChatOperationReasonDialog reasonDialog =
-            new ChatOperationReasonDialog(GuiActivator.getResources()
+        ChatRoomJoinOptionsDialog reasonDialog =
+            new ChatRoomJoinOptionsDialog(GuiActivator.getResources()
                 .getI18NString("service.gui.CHANGE_NICKNAME"), GuiActivator
                 .getResources().getI18NString(
-                    "service.gui.CHANGE_NICKNAME_LABEL"), false, true);
+                    "service.gui.CHANGE_NICKNAME_LABEL"), false, true, 
+                    dontDisplaySubjectFields);
         reasonDialog.setIcon(ImageLoader.getImage(
                     ImageLoader.CHANGE_NICKNAME_ICON));
         
@@ -328,7 +348,99 @@ public class ChatRoomWrapper
                 getChatRoomID(), "userNickName", nickName);
             
         }
+        String[] joinOptions = {nickName, 
+            (reasonDialog.isSubjectCheckboxChecked()? 
+                reasonDialog.getSubject() : null)};
+        return joinOptions;
+    }
+    
+    /**
+     * Dialog with fields for nickname and subject.
+     */
+    private class ChatRoomJoinOptionsDialog extends ChatOperationReasonDialog
+    {
+        /**
+         * Checkbox that hides or displays the subject field.
+         */
+        private JCheckBox setSubject = new SIPCommCheckBox(GuiActivator
+            .getResources().getI18NString("service.gui.SET_SUBJECT"));
+        
+        /** 
+         * Text field for the subject.
+         */
+        private JTextField subject = new JTextField();
+        
+        /**
+         * Adds the subject fields to dialog. Sets action listeners.
+         * 
+         * @param title the title of the dialog
+         * @param message the message shown in this dialog
+         * @param disableOKIfReasonIsEmpty if true the OK button will be 
+         * disabled if the reason text is empty.
+         * @param showReasonLabel specify if we want the "Reason:" label
+         * @param dontDisplaySubjectFields if true the sibject fields will be 
+         * hidden.
+         */
+        public ChatRoomJoinOptionsDialog(String title, String message,
+            boolean showReasonLabel,
+            boolean disableOKIfReasonIsEmpty,
+            boolean dontDisplaySubjectFields)
+        {
+            super(title,
+                message,
+                showReasonLabel,
+                disableOKIfReasonIsEmpty);
+            subject.setVisible(false);
+            if(!dontDisplaySubjectFields)
+            {
+                JPanel subjectPannel = new JPanel(new BorderLayout());
+                subjectPannel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+                subjectPannel.setOpaque(false);
+                subjectPannel.add(setSubject, BorderLayout.NORTH);
+                subjectPannel.add(subject, BorderLayout.CENTER);
+                addToReasonFieldPannel(subjectPannel);
+                setSubject.addActionListener(this);
+                this.pack();
+            }
+        }
 
-        return nickName;
+        /**
+        * Handles the <tt>ActionEvent</tt>.
+        *
+        * @param e the <tt>ActionEvent</tt> that notified us
+        */
+       public void actionPerformed(ActionEvent e)
+       {
+           if(e.getSource() instanceof JCheckBox)
+           {
+               subject.setVisible(setSubject.isSelected());
+               this.pack();
+           }
+           else
+           {
+               super.actionPerformed(e);
+           }
+       }
+    
+       /**
+        * Returns the text entered in the subject field.
+        * 
+        * @return the text from the subject field.
+        */
+       public String getSubject()
+       {
+           return subject.getText();
+       }
+       
+       /**
+        * Checks if the subject checkbox is checked or not.
+        * 
+        * @return true if the checkbox is checked and false if the checkbox is 
+        * not checked.
+        */
+       public boolean isSubjectCheckboxChecked()
+       {
+           return setSubject.isSelected();
+       }
     }
 }

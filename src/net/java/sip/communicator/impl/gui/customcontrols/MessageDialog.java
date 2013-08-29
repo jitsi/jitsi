@@ -218,7 +218,7 @@ public class MessageDialog
 
         TransparentPanel iconPanel = new TransparentPanel(new BorderLayout());
         iconPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 0));
-        iconPanel.add(iconLabel, BorderLayout.CENTER);
+        iconPanel.add(iconLabel, BorderLayout.NORTH);
 
         this.getContentPane().add(iconPanel, BorderLayout.WEST);
         this.getContentPane().add(mainPanel, BorderLayout.CENTER);

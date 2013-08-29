@@ -1860,7 +1860,7 @@ public class ChatRoomJabberImpl
                 logger.info("Subject updated to " + subject);
 
             // only fire event if subject has really changed, not for new one
-            if(oldSubject != null && !oldSubject.equals(subject))
+            if(subject != null && !subject.equals(oldSubject))
             {
                 ChatRoomPropertyChangeEvent evt
                     = new ChatRoomPropertyChangeEvent(

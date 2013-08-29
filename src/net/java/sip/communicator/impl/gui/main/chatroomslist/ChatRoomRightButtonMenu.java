@@ -102,6 +102,8 @@ public class ChatRoomRightButtonMenu
 
         ConferenceChatManager conferenceManager
             = GuiActivator.getUIService().getConferenceChatManager();
+        String[] joinOptions;
+        String subject = null;
 
         if (itemName.equals("removeChatRoom"))
         {
@@ -121,10 +123,15 @@ public class ChatRoomRightButtonMenu
                         .getProtocolProvider(), chatRoomWrapper
                         .getChatRoomID(), "userNickName");
             if(nickName == null)
-                nickName = chatRoomWrapper.getNickname();
+            {
+                joinOptions = chatRoomWrapper.getJoinOptions();
+                nickName = joinOptions[0];
+                subject = joinOptions[1];
+            }
 
             if (nickName != null)
-                conferenceManager.joinChatRoom(chatRoomWrapper, nickName, null);
+                conferenceManager.joinChatRoom(chatRoomWrapper, nickName, null,
+                    subject);
         }
         else if (itemName.equals("openChatRoom"))
         {
@@ -154,11 +161,15 @@ public class ChatRoomRightButtonMenu
                             .getProtocolProvider(), chatRoomWrapper
                             .getChatRoomID(), "userNickName");
                 if(nickName == null)
-                    nickName = chatRoomWrapper.getNickname();
+                {
+                    joinOptions = chatRoomWrapper.getJoinOptions();
+                    nickName = joinOptions[0];
+                    subject = joinOptions[1];
+                }
 
                 if (nickName != null)
                     conferenceManager.joinChatRoom(chatRoomWrapper,
-                        nickName, null);
+                        nickName, null, subject);
                 else
                     return;
             }
@@ -172,15 +183,16 @@ public class ChatRoomRightButtonMenu
         }
         else if(itemName.equals("joinAsChatRoom"))
         {
-            String nickName = chatRoomWrapper.getNickname();
-            if(nickName == null)
+            joinOptions = chatRoomWrapper.getJoinOptions();
+            if(joinOptions[0] == null)
                 return;
             GuiActivator.getUIService().getConferenceChatManager()
-                .joinChatRoom(chatRoomWrapper, nickName, null);
+                .joinChatRoom(chatRoomWrapper, joinOptions[0], null,
+                    joinOptions[1]);
         }
         else if(itemName.equals("nickNameChatRoom"))
         {
-            chatRoomWrapper.getNickname();
+            chatRoomWrapper.getJoinOptions(true);
         }
     }
 

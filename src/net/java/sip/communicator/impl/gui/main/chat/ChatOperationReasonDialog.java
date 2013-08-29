@@ -25,6 +25,9 @@ public class ChatOperationReasonDialog extends MessageDialog
     private final JLabel reasonLabel = new JLabel(
         GuiActivator.getResources()
             .getI18NString("service.gui.REASON") + ":");
+    
+    
+    private JPanel reasonFieldPanel = new JPanel(new BorderLayout());
 
     private final JTextField reasonField = new JTextField();
 
@@ -152,9 +155,9 @@ public class ChatOperationReasonDialog extends MessageDialog
 
         reasonPanel.add(new JLabel("          "), BorderLayout.EAST);
 
-        JPanel reasonFieldPanel = new JPanel(new BorderLayout());
+        
         reasonFieldPanel.add(reasonField, BorderLayout.NORTH);
-
+        reasonFieldPanel.setOpaque(false);
         reasonPanel.add(reasonFieldPanel, BorderLayout.CENTER);
         reasonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         reasonPanel.setOpaque(false);
@@ -191,6 +194,15 @@ public class ChatOperationReasonDialog extends MessageDialog
         this.pack();
     }
     
+    /**
+     * Adds component to panel which contains the reason text field.
+     * @param comp the component to be added.
+     */
+    public void addToReasonFieldPannel(Component comp)
+    {
+        reasonFieldPanel.add(comp, BorderLayout.CENTER);
+    }
+
     /**
      * Enables the OK button if reason field is not empty and disables it if the
      * reason field is empty.

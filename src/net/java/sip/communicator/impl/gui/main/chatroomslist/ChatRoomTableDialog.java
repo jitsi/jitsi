@@ -345,6 +345,8 @@ public class ChatRoomTableDialog
      */
     public void actionPerformed(ActionEvent e)
     {
+        String[] joinOptions;
+        String subject = null;
         JButton sourceButton = (JButton) e.getSource();
         if(sourceButton.equals(addButton))
         {
@@ -361,7 +363,7 @@ public class ChatRoomTableDialog
                         getSelectedProvider().getProtocolProvider(),
                         new ArrayList<String>(), "", false, true);
 
-            chatRoomWrapper.getNickname();
+            chatRoomWrapper.getJoinOptions(true);
 
         }
         else if(sourceButton.equals(removeButton))
@@ -387,13 +389,14 @@ public class ChatRoomTableDialog
                             false,
                             false);
 
-                    String nickName = chatRoomWrapper.getNickname();
-                    
+                    joinOptions = chatRoomWrapper.getJoinOptions();
+                    String nickName = joinOptions[0];
+                    subject = joinOptions[1];
                     if(nickName == null)
                         return;
 
                     GuiActivator.getUIService().getConferenceChatManager()
-                        .joinChatRoom(chatRoomWrapper, nickName, null);
+                        .joinChatRoom(chatRoomWrapper, nickName, null, subject);
 
                     ChatWindowManager chatWindowManager =
                         GuiActivator.getUIService().getChatWindowManager();
@@ -418,13 +421,16 @@ public class ChatRoomTableDialog
                         {
                             
                            
-                            savedNick = selectedRoom.getNickname();
+                            joinOptions = selectedRoom.getJoinOptions();
+                            savedNick = joinOptions[0];
+                            subject = joinOptions[1];
                             if(savedNick == null)
                                 return;
                         }
                         GuiActivator.getUIService()
                             .getConferenceChatManager()
-                            .joinChatRoom(selectedRoom, savedNick, null);
+                            .joinChatRoom(selectedRoom, savedNick, null,
+                                subject);
                     }
                     else
                         chatRoomsTableUI.openChatForSelection();
@@ -451,13 +457,15 @@ public class ChatRoomTableDialog
 
                     if (savedNick == null)
                     {
-                        savedNick = chatRoomWrapper.getNickname();
+                        joinOptions = selectedRoom.getJoinOptions();
+                        savedNick = joinOptions[0];
+                        subject = joinOptions[1];
                         if(savedNick == null)
                             return;
                     }
                     
                     GuiActivator.getUIService().getConferenceChatManager()
-                        .joinChatRoom(chatRoomWrapper,savedNick,null);
+                        .joinChatRoom(chatRoomWrapper,savedNick,null, subject);
 
                 }
             }

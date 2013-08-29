@@ -667,6 +667,45 @@ public class ConferenceChatManager
      * @param nickName the nickname we choose for the given chat room.
      * @param password the password.
      * @param rememberPassword if true the password should be saved.
+     * @param isFirstAttempt is this the first attempt to join room, used
+     *                       to check whether to show some error messages
+     * @param subject the subject which will be set to the room after the user 
+     * join successful.
+     */
+    public void joinChatRoom(   ChatRoomWrapper chatRoomWrapper,
+                                String nickName,
+                                byte[] password,
+                                boolean rememberPassword,
+                                boolean isFirstAttempt,
+                                String subject)
+    {
+        ChatRoom chatRoom = chatRoomWrapper.getChatRoom();
+
+        if(chatRoom == null)
+        {
+            new ErrorDialog(
+               GuiActivator.getUIService().getMainFrame(),
+               GuiActivator.getResources().getI18NString("service.gui.WARNING"),
+               GuiActivator.getResources().getI18NString(
+                    "service.gui.CHAT_ROOM_NOT_CONNECTED",
+                    new String[]{chatRoomWrapper.getChatRoomName()}))
+                    .showDialog();
+
+            return;
+        }
+
+        new JoinChatRoomTask(chatRoomWrapper, nickName, password,
+            rememberPassword, isFirstAttempt, subject).execute();
+    }
+
+    /**
+     * Joins the given chat room with the given password and manages all the
+     * exceptions that could occur during the join process.
+     *
+     * @param chatRoomWrapper the chat room to join.
+     * @param nickName the nickname we choose for the given chat room.
+     * @param password the password.
+     * @param rememberPassword if true the password should be saved.
      */
     public void joinChatRoom(   ChatRoomWrapper chatRoomWrapper,
                                 String nickName,
@@ -694,23 +733,9 @@ public class ConferenceChatManager
                                 boolean rememberPassword,
                                 boolean isFirstAttempt)
     {
-        ChatRoom chatRoom = chatRoomWrapper.getChatRoom();
-
-        if(chatRoom == null)
-        {
-            new ErrorDialog(
-               GuiActivator.getUIService().getMainFrame(),
-               GuiActivator.getResources().getI18NString("service.gui.WARNING"),
-               GuiActivator.getResources().getI18NString(
-                    "service.gui.CHAT_ROOM_NOT_CONNECTED",
-                    new String[]{chatRoomWrapper.getChatRoomName()}))
-                    .showDialog();
-
-            return;
-        }
-
-        new JoinChatRoomTask(chatRoomWrapper, nickName, password,
-            rememberPassword, isFirstAttempt).execute();
+        this.joinChatRoom(
+            chatRoomWrapper, nickName, password, rememberPassword, 
+            isFirstAttempt, null);
     }
 
     /**
@@ -741,6 +766,40 @@ public class ConferenceChatManager
         }
 
         new JoinChatRoomTask(chatRoomWrapper, nickName, password).execute();
+    }
+
+    /**
+     * Joins the given chat room with the given password and manages all the
+     * exceptions that could occur during the join process.
+     *
+     * @param chatRoomWrapper the chat room to join.
+     * @param nickName the nickname we choose for the given chat room.
+     * @param password the password.
+     * @param subject the subject which will be set to the room after the user 
+     * join successful.
+     */
+    public void joinChatRoom(   ChatRoomWrapper chatRoomWrapper,
+                                String nickName,
+                                byte[] password,
+                                String subject)
+    {
+        ChatRoom chatRoom = chatRoomWrapper.getChatRoom();
+
+        if(chatRoom == null)
+        {
+            new ErrorDialog(
+               GuiActivator.getUIService().getMainFrame(),
+               GuiActivator.getResources().getI18NString("service.gui.WARNING"),
+               GuiActivator.getResources().getI18NString(
+                    "service.gui.CHAT_ROOM_NOT_CONNECTED",
+                    new String[]{chatRoomWrapper.getChatRoomName()}))
+                    .showDialog();
+
+            return;
+        }
+
+        new JoinChatRoomTask(chatRoomWrapper, nickName, password, subject)
+            .execute();
     }
 
     /**
@@ -1607,16 +1666,20 @@ public class ConferenceChatManager
         private final boolean rememberPassword;
 
         private final boolean isFirstAttempt;
+        
+        private final String subject;
 
         JoinChatRoomTask(   ChatRoomWrapper chatRoomWrapper,
                             String nickName,
                             byte[] password,
                             boolean rememberPassword,
-                            boolean isFirstAttempt)
+                            boolean isFirstAttempt,
+                            String subject)
         {
             this.chatRoomWrapper = chatRoomWrapper;
             this.nickName = nickName;
             this.isFirstAttempt = isFirstAttempt;
+            this.subject = subject;
 
             if(password == null)
             {
@@ -1641,7 +1704,15 @@ public class ConferenceChatManager
             String nickName,
             byte[] password)
         {
-            this(chatRoomWrapper, nickName, password, false, true);
+            this(chatRoomWrapper, nickName, password, false, true, null);
+        }
+        
+        JoinChatRoomTask(   ChatRoomWrapper chatRoomWrapper,
+            String nickName,
+            byte[] password,
+            String subject)
+        {
+            this(chatRoomWrapper, nickName, password, false, true, subject);
         }
 
         /**
@@ -1752,7 +1823,8 @@ public class ConferenceChatManager
                             nickName,
                             new String(authWindow.getPassword()).getBytes(),
                             authWindow.isRememberPassword(),
-                            false);
+                            false,
+                            subject);
                 }
             }
             else if(REGISTRATION_REQUIRED.equals(returnCode))
@@ -1794,9 +1866,24 @@ public class ConferenceChatManager
                             "service.gui.ERROR"), errorMessage).showDialog();
             }
 
-            if (SUCCESS.equals(returnCode) && rememberPassword)
+            if (SUCCESS.equals(returnCode))
             {
-                chatRoomWrapper.savePassword(new String(password));
+                if(rememberPassword)
+                {
+                    chatRoomWrapper.savePassword(new String(password));
+                }
+                
+                if(subject != null)
+                {
+                    try
+                    {
+                        chatRoomWrapper.getChatRoom().setSubject(subject);
+                    }
+                    catch(OperationFailedException ex)
+                    {
+                        logger.warn("Failed to set subject.");
+                    }
+                }
             }
         }
     }
