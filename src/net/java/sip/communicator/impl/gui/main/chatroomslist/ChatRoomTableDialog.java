@@ -362,7 +362,7 @@ public class ChatRoomTableDialog
                     .getConferenceChatManager()
                     .createChatRoom(chatRoomName.trim(),
                         getSelectedProvider().getProtocolProvider(),
-                        new ArrayList<String>(), "", false, false, true);
+                        new ArrayList<String>(), "", false, true, true);
 
             chatRoomWrapper.getJoinOptions(true);
 
