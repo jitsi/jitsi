@@ -158,7 +158,7 @@ public class ChatRoomTableUI
                         chatRoomWrapper.getChatRoomName(),
                         chatRoomWrapper.getParentProvider()
                             .getProtocolProvider(), new ArrayList<String>(),
-                        "", false, true);
+                        "", false, false, true);
 
             // leave the chatroom because getChatRoom().isJoined() returns true
             // otherwise

@@ -25,6 +25,7 @@ import net.java.sip.communicator.util.*;
 
 import org.jitsi.util.*;
 
+
 /**
  * The dialog containing a list of all chat rooms of the user and
  * also interface for create a new chat room, join a chat room, search all
@@ -361,7 +362,7 @@ public class ChatRoomTableDialog
                     .getConferenceChatManager()
                     .createChatRoom(chatRoomName.trim(),
                         getSelectedProvider().getProtocolProvider(),
-                        new ArrayList<String>(), "", false, true);
+                        new ArrayList<String>(), "", false, false, true);
 
             chatRoomWrapper.getJoinOptions(true);
 
@@ -386,6 +387,7 @@ public class ChatRoomTableDialog
                             getSelectedProvider().getProtocolProvider(),
                             new ArrayList<String>(),
                             "",
+                            false,
                             false,
                             false);
 
@@ -446,6 +448,7 @@ public class ChatRoomTableDialog
                             getSelectedProvider().getProtocolProvider(),
                             new ArrayList<String>(),
                             "",
+                            false,
                             false,
                             true);
 

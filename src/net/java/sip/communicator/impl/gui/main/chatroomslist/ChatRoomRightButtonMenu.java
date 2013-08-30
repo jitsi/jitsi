@@ -148,6 +148,7 @@ public class ChatRoomRightButtonMenu
                             new ArrayList<String>(),
                             "",
                             false,
+                            false,
                             true);
             }
             
