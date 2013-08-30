@@ -10,6 +10,7 @@ import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
+import javax.swing.border.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
@@ -348,9 +349,7 @@ public class ChatRoomWrapper
                 getChatRoomID(), "userNickName", nickName);
             
         }
-        String[] joinOptions = {nickName, 
-            (reasonDialog.isSubjectCheckboxChecked()? 
-                reasonDialog.getSubject() : null)};
+        String[] joinOptions = {nickName, reasonDialog.getSubject()};
         return joinOptions;
     }
     
@@ -359,16 +358,21 @@ public class ChatRoomWrapper
      */
     private class ChatRoomJoinOptionsDialog extends ChatOperationReasonDialog
     {
-        /**
-         * Checkbox that hides or displays the subject field.
-         */
-        private JCheckBox setSubject = new SIPCommCheckBox(GuiActivator
-            .getResources().getI18NString("service.gui.SET_SUBJECT"));
-        
         /** 
          * Text field for the subject.
          */
-        private JTextField subject = new JTextField();
+        private SIPCommTextField subject = new SIPCommTextField(GuiActivator
+            .getResources().getI18NString("service.gui.SUBJECT"));
+        
+        /**
+         * Label that hides and shows the subject fields panel on click.
+         */
+        private JLabel cmdExpandSubjectFields;
+        
+        /**
+         * Panel that holds the subject fields.
+         */
+        private JPanel subjectFieldsPannel = new JPanel(new BorderLayout());
         
         /**
          * Adds the subject fields to dialog. Sets action listeners.
@@ -390,37 +394,50 @@ public class ChatRoomWrapper
                 message,
                 showReasonLabel,
                 disableOKIfReasonIsEmpty);
-            subject.setVisible(false);
-            if(!dontDisplaySubjectFields)
+            
+            if(dontDisplaySubjectFields)
+                return;
+            
+            JPanel subjectPanel = new JPanel(new BorderLayout());
+            subjectPanel.setOpaque(false);
+            subjectPanel.setBorder(
+                BorderFactory.createEmptyBorder(10, 0, 0, 0));
+            
+            subjectFieldsPannel.setBorder(
+                BorderFactory.createEmptyBorder(10, 30, 0, 0));
+            subjectFieldsPannel.setOpaque(false);
+            subjectFieldsPannel.add(subject, BorderLayout.CENTER);
+            subjectFieldsPannel.setVisible(false);
+            subject.setFont(getFont().deriveFont(12f));
+            
+            cmdExpandSubjectFields = new JLabel();
+            cmdExpandSubjectFields.setBorder(new EmptyBorder(0, 5, 0, 0));
+            cmdExpandSubjectFields.setIcon(GuiActivator.getResources()
+                .getImage("service.gui.icons.RIGHT_ARROW_ICON"));
+            cmdExpandSubjectFields.setText(GuiActivator
+                .getResources().getI18NString("service.gui.SET_SUBJECT"));
+            cmdExpandSubjectFields.addMouseListener(new MouseAdapter()
             {
-                JPanel subjectPannel = new JPanel(new BorderLayout());
-                subjectPannel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
-                subjectPannel.setOpaque(false);
-                subjectPannel.add(setSubject, BorderLayout.NORTH);
-                subjectPannel.add(subject, BorderLayout.CENTER);
-                addToReasonFieldPannel(subjectPannel);
-                setSubject.addActionListener(this);
-                this.pack();
-            }
-        }
+                @Override
+                public void mouseClicked(MouseEvent e)
+                {
+                    cmdExpandSubjectFields.setIcon(
+                            UtilActivator.getResources().getImage(
+                                subjectFieldsPannel.isVisible()
+                                        ? "service.gui.icons.RIGHT_ARROW_ICON"
+                                        : "service.gui.icons.DOWN_ARROW_ICON"));
 
-        /**
-        * Handles the <tt>ActionEvent</tt>.
-        *
-        * @param e the <tt>ActionEvent</tt> that notified us
-        */
-       public void actionPerformed(ActionEvent e)
-       {
-           if(e.getSource() instanceof JCheckBox)
-           {
-               subject.setVisible(setSubject.isSelected());
-               this.pack();
-           }
-           else
-           {
-               super.actionPerformed(e);
-           }
-       }
+                    subjectFieldsPannel.setVisible(
+                        !subjectFieldsPannel.isVisible());
+
+                    pack();
+                }
+            });
+            subjectPanel.add(cmdExpandSubjectFields,BorderLayout.NORTH);
+            subjectPanel.add(subjectFieldsPannel,BorderLayout.CENTER);
+            addToReasonFieldPannel(subjectPanel);
+            this.pack();
+        }
     
        /**
         * Returns the text entered in the subject field.
@@ -430,17 +447,6 @@ public class ChatRoomWrapper
        public String getSubject()
        {
            return subject.getText();
-       }
-       
-       /**
-        * Checks if the subject checkbox is checked or not.
-        * 
-        * @return true if the checkbox is checked and false if the checkbox is 
-        * not checked.
-        */
-       public boolean isSubjectCheckboxChecked()
-       {
-           return setSubject.isSelected();
        }
     }
 }
