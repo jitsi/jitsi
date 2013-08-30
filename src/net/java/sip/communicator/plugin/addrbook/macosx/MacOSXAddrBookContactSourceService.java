@@ -300,4 +300,14 @@ public class MacOSXAddrBookContactSourceService
     {
         return -1;
     }
+
+    /**
+     * Returns the number of contact notifications to deal with.
+     *
+     * @return The number of contact notifications to deal with.
+     */
+    public int getNbRemainingNotifications()
+    {
+        return 0;
+    }
 }

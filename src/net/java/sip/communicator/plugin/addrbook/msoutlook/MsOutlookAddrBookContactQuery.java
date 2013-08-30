@@ -855,7 +855,7 @@ public class MsOutlookAddrBookContactQuery
      * @throws MsOutlookMAPIHResultException if anything goes wrong while
      * getting the properties of the specified <tt>MAPI_MAILUSER</tt>
      */
-    private boolean onMailUser(String id)
+    private synchronized boolean onMailUser(String id)
         throws MsOutlookMAPIHResultException
     {
         Object[] props = null;
@@ -1046,7 +1046,10 @@ public class MsOutlookAddrBookContactQuery
      */
     public void inserted(String id)
     {
-        insertedOrUpdated(id, 0);
+        synchronized (MsOutlookAddrBookContactQuery.class)
+        {
+            insertedOrUpdated(id, 0);
+        }
     }
 
     /**
@@ -1056,7 +1059,10 @@ public class MsOutlookAddrBookContactQuery
      */
     public void updated(String id)
     {
-        insertedOrUpdated(id, 1);
+        synchronized (MsOutlookAddrBookContactQuery.class)
+        {
+            insertedOrUpdated(id, 1);
+        }
     }
 
     /**
@@ -1106,11 +1112,14 @@ public class MsOutlookAddrBookContactQuery
     {
         if(id != null)
         {
-            SourceContact sourceContact = findSourceContactByID(id, 1);
-
-            if(sourceContact != null)
+            synchronized (MsOutlookAddrBookContactQuery.class)
             {
-                fireContactRemoved(sourceContact);
+                SourceContact sourceContact = findSourceContactByID(id, 1);
+
+                if(sourceContact != null)
+                {
+                    fireContactRemoved(sourceContact);
+                }
             }
         }
     }

@@ -52,4 +52,11 @@ public interface EditableContactSourceService
      * @return The version of this contact source service.
      */
     public int getVersion();
+
+    /**
+     * Returns the number of contact notifications to deal with.
+     *
+     * @return The number of contact notifications to deal with.
+     */
+    public int getNbRemainingNotifications();
 }

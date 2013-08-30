@@ -422,6 +422,16 @@ public class MsOutlookAddrBookContactSourceService
                 contactIds.add(idFunction);
             }
         }
+
+        /**
+         * Returns the number of contact notifications to deal with.
+         *
+         * @return The number of contact notifications to deal with.
+         */
+        public int getNbRemainingNotifications()
+        {
+            return contactIds.size();
+        }
     }
 
     /**
@@ -518,5 +528,26 @@ public class MsOutlookAddrBookContactSourceService
     public int getVersion()
     {
         return getOutlookVersion();
+    }
+
+    /**
+     * Returns the number of contact notifications to deal with.
+     *
+     * @return The number of contact notifications to deal with.
+     */
+    public int getNbRemainingNotifications()
+    {
+        int nbNotifications = 0;
+        
+        synchronized(notificationThreadMutex)
+        {
+            if(notificationThread != null)
+            {
+                nbNotifications
+                    = notificationThread.getNbRemainingNotifications();
+            }
+        }
+
+        return nbNotifications;
     }
 }
