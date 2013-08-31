@@ -868,6 +868,8 @@ public class CallPeerMediaHandlerJabberImpl
                     = protocolProvider.getDiscoveryManager();
                 DiscoverInfo peerDiscoverInfo = peer.getDiscoveryInfo();
 
+                boolean isJitsiVideoBridge = peer.isJitsiVideoBridge();
+
                 // We use Google P2P transport if both conditions are satisfied:
                 // - both peers have Google P2P transport in their features;
                 // - at least one peer is a Gmail or Google Apps account.
@@ -878,6 +880,11 @@ public class CallPeerMediaHandlerJabberImpl
                         || ProtocolProviderServiceJabberImpl
                             .isGmailOrGoogleAppsAccount(
                                     StringUtils.parseServer(peer.getAddress()));
+
+                // if we use jitsi videobridge, we have to use RAW-UDP (or
+                // possibly ICE, but not google P2P)
+                if (isJitsiVideoBridge)
+                    google = false;
 
                 // Put Google P2P transport first. We will take it
                 // for a node that support both ICE-UDP and Google P2P to use
@@ -913,7 +920,7 @@ public class CallPeerMediaHandlerJabberImpl
                      */
                     CallJabberImpl call = peer.getCall();
 
-                    if (call.getConference().isJitsiVideoBridge())
+                    if (isJitsiVideoBridge)
                     {
                         /*
                          * XXX If a telephony conference utilizing the Jitsi
