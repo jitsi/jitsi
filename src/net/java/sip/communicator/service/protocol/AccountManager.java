@@ -870,7 +870,7 @@ public class AccountManager
                 accountRootPropertyName //node id
                 + "." + ProtocolProviderFactory.ACCOUNT_UID); // propname
 
-            if (accountUID.equals(accountID.getAccountUniqueID()))
+            if (accountID.getAccountUniqueID().equals(accountUID))
             {
                 //retrieve the names of all properties registered for the
                 //current account.
