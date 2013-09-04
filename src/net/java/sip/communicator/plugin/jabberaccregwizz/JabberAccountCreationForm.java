@@ -169,7 +169,8 @@ public class JabberAccountCreationForm
         catch (XMPPException exc)
         {
             logger.error(exc);
-            if (exc.getXMPPError().getCode() == 409)
+            if (exc.getXMPPError() != null
+                && exc.getXMPPError().getCode() == 409)
             {
                 showErrorMessage(Resources.getString(
                         "plugin.jabberaccregwizz.USER_EXISTS_ERROR"));
