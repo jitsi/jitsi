@@ -370,7 +370,7 @@ public class MsOutlookAddrBookContactSourceService
                 hasMore = (contactIds.size() > 0);
                 if(hasMore)
                 {
-                    idFunction = contactIds.remove(0);
+                    idFunction = contactIds.get(0);
                 }
             }
             while(hasMore)
@@ -394,10 +394,11 @@ public class MsOutlookAddrBookContactSourceService
                 }
                 synchronized(notificationThreadMutex)
                 {
+                    contactIds.remove(0);
                     hasMore = (contactIds.size() > 0);
                     if(hasMore)
                     {
-                        idFunction = contactIds.remove(0);
+                        idFunction = contactIds.get(0);
                     }
                 }
             }
