@@ -60,6 +60,7 @@ public class BrowserLauncherImpl
                 = new String[]
                         {
                             "google-chrome",
+                            "chromium-browser",
                             "firefox",
                             "iceweasel",
                             "opera",
