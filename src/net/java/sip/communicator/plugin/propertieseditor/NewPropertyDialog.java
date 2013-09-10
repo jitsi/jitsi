@@ -17,6 +17,7 @@ import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
 
 /**
+ *
  * @author Marin Dzhigarov
  */
 public class NewPropertyDialog

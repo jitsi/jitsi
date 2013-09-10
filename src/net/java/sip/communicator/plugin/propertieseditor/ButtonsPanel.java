@@ -10,6 +10,7 @@ import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
+import javax.swing.table.*;
 
 import net.java.sip.communicator.plugin.desktoputil.*;
 
@@ -25,45 +26,28 @@ public class ButtonsPanel
     extends TransparentPanel 
     implements ActionListener
 {
-
     /**
      * Serial version UID.
      */
     private static final long serialVersionUID = 1L;
 
-    private ConfigurationService confService 
+    private final ConfigurationService confService 
         = PropertiesEditorActivator.getConfigurationService();
-    
-    private ResourceManagementService resourceManagementService 
-        = PropertiesEditorActivator.getResourceManagementService();
 
     /**
      * The delete button.
      */
-    private JButton deleteButton = new JButton(
-        resourceManagementService.getI18NString("service.gui.DELETE"));
+    private final JButton deleteButton;
 
     /**
      * The new button.
      */
-    private JButton newButton = new JButton(
-        resourceManagementService.getI18NString("service.gui.NEW"));
-
-    /**
-     * The panel, containing all buttons.
-     */
-    private JPanel buttonsPanel
-        = new TransparentPanel(new GridLayout(0, 1, 8, 8));
+    private final JButton newButton;
 
     /**
      * The props table.
      */
-    private JTable propsTable;
-
-    /**
-     * Instance of the search box panel.
-     */
-    private SearchField searchField;
+    private final JTable propsTable;
 
     /**
      * Creates an instance of <tt>ButtonsPanel</tt>.
@@ -75,22 +59,25 @@ public class ButtonsPanel
     {
         this.propsTable = propsTable;
 
-        this.searchField = searchField;
+        ResourceManagementService r
+            = PropertiesEditorActivator.getResourceManagementService();
 
-        this.setLayout(new BorderLayout());
+        newButton = new JButton(r.getI18NString("service.gui.NEW"));
+        deleteButton = new JButton(r.getI18NString("service.gui.DELETE"));
+        newButton.setOpaque(false);
+        deleteButton.setOpaque(false);
 
-        this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+        JPanel buttonsPanel = new TransparentPanel(new GridLayout(0, 1, 8, 8));
 
-        this.newButton.setOpaque(false);
-        this.deleteButton.setOpaque(false);
+        buttonsPanel.add(newButton);
+        buttonsPanel.add(deleteButton);
 
-        this.buttonsPanel.add(newButton);
-        this.buttonsPanel.add(deleteButton);
+        setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+        setLayout(new BorderLayout());
+        add(buttonsPanel, BorderLayout.NORTH);
 
-        this.add(buttonsPanel, BorderLayout.NORTH);
-
-        this.newButton.addActionListener(this);
-        this.deleteButton.addActionListener(this);
+        newButton.addActionListener(this);
+        deleteButton.addActionListener(this);
 
         //default as nothing is selected
         defaultButtonState();
@@ -125,33 +112,26 @@ public class ButtonsPanel
         if (sourceButton.equals(newButton))
         {
             NewPropertyDialog dialog = new NewPropertyDialog();
+            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
             dialog.pack();
             dialog.setLocation(
-                    Toolkit.getDefaultToolkit().getScreenSize().width/2
-                        - dialog.getWidth()/2,
-                    Toolkit.getDefaultToolkit().getScreenSize().height/2
-                        - dialog.getHeight()/2
-                    );
+                    (screenSize.width - dialog.getWidth()) / 2,
+                    (screenSize.height - dialog.getHeight()) / 2);
 
             dialog.setVisible(true);
-
-        } else if (sourceButton.equals(deleteButton))
+        }
+        else if (sourceButton.equals(deleteButton))
         {
             int viewRow = propsTable.getSelectedRow();
-            int modelRow = 
-                propsTable.convertRowIndexToModel(viewRow);
+            int modelRow =  propsTable.convertRowIndexToModel(viewRow);
             String selectedProperty
-                = (String)propsTable.getModel().getValueAt(modelRow, 0);
+                = (String) propsTable.getModel().getValueAt(modelRow, 0);
+
             confService.removeProperty(selectedProperty);
+            ((DefaultTableModel) propsTable.getModel()).removeRow(modelRow);
             propsTable.clearSelection();
             defaultButtonState();
-            /**
-             * Resets the text in the search box text field in order to fire 
-             * a new value change event for the FilterRow to update the view.
-             */
-            String text = searchField.getText();
-            searchField.setText(text);
         }
     }
 }
