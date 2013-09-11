@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.msghistory;
 
+import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.history.*;
 import net.java.sip.communicator.service.msghistory.*;
 import net.java.sip.communicator.util.*;
@@ -32,6 +33,11 @@ public class MessageHistoryActivator
      * The <tt>MessageHistoryService</tt> reference.
      */
     private MessageHistoryServiceImpl msgHistoryService = null;
+
+    /**
+     * The <tt>MetaContactListService</tt> reference.
+     */
+    private static MetaContactListService metaCListService;
 
     /**
      * The <tt>BundleContext</tt> of the service.
@@ -89,5 +95,23 @@ public class MessageHistoryActivator
     {
         if(msgHistoryService != null)
             msgHistoryService.stop(bundleContext);
+    }
+
+    /**
+     * Returns the <tt>MetaContactListService</tt> obtained from the bundle
+     * context.
+     * @return the <tt>MetaContactListService</tt> obtained from the bundle
+     * context
+     */
+    public static MetaContactListService getContactListService()
+    {
+        if (metaCListService == null)
+        {
+            metaCListService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        MetaContactListService.class);
+        }
+        return metaCListService;
     }
 }

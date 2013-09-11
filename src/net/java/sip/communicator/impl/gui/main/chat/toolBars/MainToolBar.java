@@ -67,9 +67,7 @@ public class MainToolBar
     /**
      * The history button.
      */
-    private final ChatToolbarButton historyButton
-        = new ChatToolbarButton(
-                ImageLoader.getImage(ImageLoader.HISTORY_ICON));
+    private final HistorySelectorBox historyButton;
 
     /**
      * The send file button.
@@ -166,6 +164,8 @@ public class MainToolBar
     {
         this.chatContainer = chatContainer;
 
+        historyButton = new HistorySelectorBox(chatContainer);
+
         init();
 
         pluginContainer
@@ -202,7 +202,12 @@ public class MainToolBar
 
         this.addSeparator();
 
-        this.add(historyButton);
+        SIPCommMenuBar historyMenuBar = new SIPCommMenuBar();
+        historyMenuBar.setOpaque(false);
+        historyMenuBar.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        historyMenuBar.add(historyButton);
+        this.add(historyMenuBar);
+
         this.add(previousButton);
         this.add(nextButton);
 
@@ -256,11 +261,6 @@ public class MainToolBar
             GuiActivator.getResources().getI18NString(
                 "service.gui.SHARE_DESKTOP_WITH_CONTACT"));
 
-        this.historyButton.setName("history");
-        this.historyButton.setToolTipText(
-            GuiActivator.getResources().getI18NString("service.gui.HISTORY")
-            + " Ctrl-H");
-
         optionsButton.setName("options");
         optionsButton.setToolTipText(
             GuiActivator.getResources().getI18NString("service.gui.OPTIONS"));
@@ -282,7 +282,6 @@ public class MainToolBar
         callButton.addActionListener(this);
         callVideoButton.addActionListener(this);
         desktopSharingButton.addActionListener(this);
-        historyButton.addActionListener(this);
         optionsButton.addActionListener(this);
         sendFileButton.addActionListener(this);
         previousButton.addActionListener(this);
@@ -313,6 +312,8 @@ public class MainToolBar
     public void dispose()
     {
         pluginContainer.dispose();
+
+        historyButton.dispose();
     }
 
     /**
@@ -456,38 +457,6 @@ public class MainToolBar
                 chatContainer.getCurrentChat().sendFile(selectedFile);
             }
         }
-        else if (buttonText.equals("history"))
-        {
-            HistoryWindow history;
-
-            HistoryWindowManager historyWindowManager
-                = GuiActivator.getUIService().getHistoryWindowManager();
-
-            ChatSession chatSession = chatPanel.getChatSession();
-
-            if(historyWindowManager
-                .containsHistoryWindowForContact(chatSession.getDescriptor()))
-            {
-                history = historyWindowManager
-                    .getHistoryWindowForContact(chatSession.getDescriptor());
-
-                if(history.getState() == JFrame.ICONIFIED)
-                    history.setState(JFrame.NORMAL);
-
-                history.toFront();
-            }
-            else
-            {
-                history = new HistoryWindow(
-                    chatPanel.getChatSession().getDescriptor());
-
-                history.setVisible(true);
-
-                historyWindowManager
-                    .addHistoryWindowForContact(chatSession.getDescriptor(),
-                                                    history);
-            }
-        }
         else if (buttonText.equals("invite"))
         {
             ChatInviteDialog inviteDialog = new ChatInviteDialog(chatPanel);
@@ -527,7 +496,7 @@ public class MainToolBar
      *
      * @return the button used to show the history window.
      */
-    public ChatToolbarButton getHistoryButton()
+    public HistorySelectorBox getHistoryButton()
     {
         return historyButton;
     }
@@ -610,8 +579,7 @@ public class MainToolBar
         inviteButton.setIconImage(ImageLoader.getImage(
                 ImageLoader.ADD_TO_CHAT_ICON));
 
-        historyButton.setIconImage(ImageLoader.getImage(
-                ImageLoader.HISTORY_ICON));
+        historyButton.loadSkin();
 
         sendFileButton.setIconImage(ImageLoader.getImage(
                 ImageLoader.SEND_FILE_ICON));

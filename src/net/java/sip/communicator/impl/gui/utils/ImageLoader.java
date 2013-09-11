@@ -1149,6 +1149,18 @@ public class ImageLoader
         = new ImageID("service.gui.icons.HISTORY_ICON");
 
     /**
+     * Clock icon on.
+     */
+    public static final ImageID HISTORY_ICON_ON
+        = new ImageID("service.gui.icons.HISTORY_ICON_ON");
+
+    /**
+     * Clock icon off.
+     */
+    public static final ImageID HISTORY_ICON_OFF
+        = new ImageID("service.gui.icons.HISTORY_ICON_OFF");
+
+    /**
      * Send file icon.
      */
     public static final ImageID SEND_FILE_ICON

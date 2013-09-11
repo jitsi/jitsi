@@ -308,6 +308,48 @@ public class HistoryServiceImpl
         if (logger.isTraceEnabled())
             logger.trace("Removing history directory " + dir);
         deleteDirAndContent(dir);
+
+        History history = histories.remove(id);
+        if(history == null)
+        {
+            // well this can be global delete, so lets remove all matching
+            // sub-histories
+            String[] ids = id.getID();
+
+            Iterator<Map.Entry<HistoryID, History>>
+                iter = histories.entrySet().iterator();
+            while(iter.hasNext())
+            {
+                Map.Entry<HistoryID, History> entry = iter.next();
+                if(isSubHistory(ids, entry.getKey()))
+                {
+                    iter.remove();
+                }
+            }
+        }
+    }
+
+    /**
+     * Checks the ids of the parent, do they exist in the supplied history ids.
+     * If it exist the history is sub history of the on with the supplied ids.
+     * @param parentIDs the parent ids
+     * @param hid the history to check
+     * @return whether history is sub one (contained) of the parent.
+     */
+    private boolean isSubHistory(String[] parentIDs, HistoryID hid)
+    {
+        String[] hids = hid.getID();
+
+        if(hids.length < parentIDs.length)
+            return false;
+
+        for(int i = 0; i < parentIDs.length; i++)
+        {
+            if(!parentIDs[i].equals(hids[i]))
+                return false;
+        }
+        // everything matches, return true
+        return true;
     }
 
     /**

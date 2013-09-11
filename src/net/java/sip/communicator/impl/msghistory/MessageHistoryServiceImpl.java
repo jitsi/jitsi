@@ -978,7 +978,17 @@ public class MessageHistoryServiceImpl
     private void writeMessage(String direction, Contact source,
             Contact destination, Message message, Date messageTimestamp)
     {
-        try {
+        try
+        {
+            MetaContact metaContact = MessageHistoryActivator
+                .getContactListService().findMetaContactByContact(destination);
+            if(metaContact != null
+                && !ConfigurationUtils.isHistoryLoggingEnabled(metaContact))
+            {
+                // logging is switched off for this particular contact
+                return;
+            }
+
             History history = this.getHistory(source, destination);
 
             writeMessage(history, direction, message, messageTimestamp);
@@ -2336,6 +2346,39 @@ public class MessageHistoryServiceImpl
         else
         {
             evt.getAdHocChatRoom().removeMessageListener(this);
+        }
+    }
+
+    /**
+     * Permanently removes all locally stored message history.
+     *
+     * @throws java.io.IOException
+     *         Thrown if the history could not be removed due to a IO error.
+     */
+    public void eraseLocallyStoredHistory()
+        throws IOException
+    {
+        HistoryID historyId = HistoryID.createFromRawID(
+                    new String[] {  "messages" });
+        historyService.purgeLocallyStoredHistory(historyId);
+    }
+
+    /**
+     * Permanently removes locally stored message history for the metacontact.
+     *
+     * @throws java.io.IOException
+     *         Thrown if the history could not be removed due to a IO error.
+     */
+    public void eraseLocallyStoredHistory(MetaContact contact)
+        throws IOException
+    {
+        Iterator<Contact> iter = contact.getContacts();
+        while (iter.hasNext())
+        {
+            Contact item = iter.next();
+
+            History history = this.getHistory(null, item);
+            historyService.purgeLocallyStoredHistory(history.getID());
         }
     }
 }

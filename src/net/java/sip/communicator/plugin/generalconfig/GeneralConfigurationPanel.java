@@ -8,6 +8,7 @@ package net.java.sip.communicator.plugin.generalconfig;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.beans.*;
 import java.io.*;
 import java.util.*;
 
@@ -17,6 +18,7 @@ import javax.swing.event.*;
 
 import net.java.sip.communicator.plugin.generalconfig.autoaway.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.service.msghistory.*;
 import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.Logger;
@@ -351,6 +353,18 @@ public class GeneralConfigurationPanel
                     logHistoryCheckBox.isSelected());
             }
         });
+        GeneralConfigPluginActivator.getConfigurationService()
+            .addPropertyChangeListener(
+                MessageHistoryService.PNAME_IS_MESSAGE_HISTORY_ENABLED,
+                new PropertyChangeListener()
+                {
+                    @Override
+                    public void propertyChange(PropertyChangeEvent evt)
+                    {
+                        logHistoryCheckBox.setSelected(
+                            ConfigurationUtils.isHistoryLoggingEnabled());
+                    }
+                });
 
         // Show history check box.
         JPanel showHistoryPanel = new TransparentPanel();

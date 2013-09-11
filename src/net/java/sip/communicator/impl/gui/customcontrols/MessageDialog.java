@@ -90,12 +90,23 @@ public class MessageDialog
 
     /**
      * Creates an instance of <tt>MessageDialog</tt> by specifying the
-     * owner window.
-     * @param owner This dialog owner.
+     * owner window and the message to be displayed.
+     * @param owner the dialog owner
+     * @param title the title of the message
+     * @param message the message to be displayed
+     * @param okButtonName ok button name
+     * @param isConfirmationEnabled indicates whether the "Do not ask again"
+     * button should be enabled or not
      */
-    public MessageDialog(Frame owner)
+    public MessageDialog(Frame owner,
+                         String title,
+                         String message,
+                         String okButtonName,
+                         boolean isConfirmationEnabled)
     {
         super(owner, false);
+
+        this.isConfirmationEnabled = isConfirmationEnabled;
 
         this.getContentPane().setLayout(new BorderLayout(5, 5));
 
@@ -109,22 +120,16 @@ public class MessageDialog
             BorderFactory.createEmptyBorder(0, 10, 10, 10));
 
         this.init();
-    }
-
-    /**
-     * Creates an instance of <tt>MessageDialog</tt> by specifying the
-     * owner window and the message to be displayed.
-     * @param owner the dialog owner
-     * @param title the title of the message
-     * @param message the message to be displayed
-     */
-    public MessageDialog(Frame owner, String title, String message)
-    {
-        this(owner);
 
         this.setTitle(title);
 
         setMessage(message);
+
+        if(okButtonName != null)
+        {
+            this.okButton.setText(okButtonName);
+            this.okButton.setMnemonic(okButtonName.charAt(0));
+        }
     }
 
     /**
@@ -140,34 +145,7 @@ public class MessageDialog
                             String message,
                             String okButtonName)
     {
-        this(owner, title, message);
-
-        this.okButton.setText(okButtonName);
-        this.okButton.setMnemonic(okButtonName.charAt(0));
-    }
-
-    /**
-     * Creates an instance of <tt>MessageDialog</tt> by specifying the
-     * owner window and the message to be displayed.
-     * @param owner the dialog owner
-     * @param title the title of the message
-     * @param message the message to be displayed
-     * @param okButtonName ok button name
-     * @param isConfirmationEnabled indicates whether the "Do not ask again"
-     * button should be enabled or not
-     */
-    public MessageDialog(   Frame owner,
-                            String title,
-                            String message,
-                            String okButtonName,
-                            boolean isConfirmationEnabled)
-    {
-        this(owner, title, message);
-
-        this.okButton.setText(okButtonName);
-        this.okButton.setMnemonic(okButtonName.charAt(0));
-
-        this.isConfirmationEnabled = isConfirmationEnabled;
+        this(owner, title, message, okButtonName, true);
     }
 
     /**
@@ -184,7 +162,7 @@ public class MessageDialog
                             String message,
                             boolean isCancelButtonEnabled)
     {
-        this(owner, title, message);
+        this(owner, title, message, null, true);
 
         if(!isCancelButtonEnabled)
         {

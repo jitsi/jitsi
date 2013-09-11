@@ -14,6 +14,7 @@ import java.util.List; /* disambiguation */
 
 import javax.net.ssl.*;
 
+import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.msghistory.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
@@ -1102,6 +1103,46 @@ public class ConfigurationUtils
             MessageHistoryService.PNAME_IS_MESSAGE_HISTORY_ENABLED,
             Boolean.toString(isHistoryLoggingEnabled));
     }
+
+    /**
+     * Returns <code>true</code> if the "IS_MESSAGE_HISTORY_ENABLED"
+     * property is true for the <tt>contact</tt>, otherwise - returns
+     * <code>false</code>.
+     * Indicates to the user interface whether the history logging is enabled
+     * for the supplied MetaContact.
+     * @return <code>true</code> if the "IS_MESSAGE_HISTORY_ENABLED"
+     * property is true for the <tt>contact</tt>, otherwise - returns
+     * <code>false</code>.
+     */
+    public static boolean isHistoryLoggingEnabled(MetaContact contact)
+    {
+        return configService.getBoolean(MessageHistoryService
+                    .PNAME_IS_MESSAGE_HISTORY_PER_CONTACT_ENABLED_PREFIX
+                        + "." + contact.getMetaUID(), true);
+    }
+
+    /**
+     * Updates the "isHistoryLoggingEnabled" property through the
+     * <tt>ConfigurationService</tt> for the contact.
+     *
+     * @param isEnabled indicates if the history logging is
+     * enabled for the contact.
+     */
+    public static void setHistoryLoggingEnabled(
+        boolean isEnabled, MetaContact contact)
+    {
+        if(isEnabled)
+            configService.setProperty(
+                MessageHistoryService
+                    .PNAME_IS_MESSAGE_HISTORY_PER_CONTACT_ENABLED_PREFIX
+                + "." + contact.getMetaUID(), null);
+        else
+            configService.setProperty(
+                MessageHistoryService
+                    .PNAME_IS_MESSAGE_HISTORY_PER_CONTACT_ENABLED_PREFIX
+                + "." + contact.getMetaUID(), isEnabled);
+    }
+
 
     /**
      * Returns <code>true</code> if the "isHistoryShown" property is
