@@ -14,6 +14,7 @@ import net.java.otr4j.*;
 import net.java.otr4j.session.*;
 
 import net.java.sip.communicator.service.browserlauncher.*;
+import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
@@ -208,6 +209,42 @@ public class ScOtrEngineImpl
                             OperationSetBasicInstantMessaging.HTML_MIME_TYPE);
 
                     }
+
+                    // show info whether history is on or off
+                    String otrAndHistoryMessage;
+                    if(!ConfigurationUtils.isHistoryLoggingEnabled()
+                        || !isHistoryLoggingEnabled(contact))
+                    {
+                        otrAndHistoryMessage =
+                            OtrActivator.resourceService.getI18NString(
+                                "plugin.otr.activator.historyoff",
+                                new String[]{
+                                    OtrActivator.resourceService
+                                        .getSettingsString(
+                                            "service.gui.APPLICATION_NAME"),
+                                    this.getClass().getName(),
+                                    "showHistoryPopupMenu"
+                                });
+                    }
+                    else
+                    {
+                        otrAndHistoryMessage =
+                            OtrActivator.resourceService.getI18NString(
+                                "plugin.otr.activator.historyon",
+                                new String[]{
+                                    OtrActivator.resourceService
+                                        .getSettingsString(
+                                            "service.gui.APPLICATION_NAME"),
+                                    this.getClass().getName(),
+                                    "showHistoryPopupMenu"
+                                });
+                    }
+                    OtrActivator.uiService.getChat(contact).addMessage(
+                        contact.getDisplayName(),
+                        new Date(), Chat.SYSTEM_MESSAGE,
+                        otrAndHistoryMessage,
+                        OperationSetBasicInstantMessaging.HTML_MIME_TYPE);
+
                     message
                         = OtrActivator.resourceService.getI18NString(
                                 OtrActivator.scOtrKeyManager.isVerified(contact)
@@ -241,6 +278,23 @@ public class ScOtrEngineImpl
                     l.sessionStatusChanged(contact);
             }
         });
+    }
+
+    /**
+     * Checks whether history is enabled for the metacontact containing
+     * the <tt>contact</tt>.
+     * @param contact the contact to check.
+     * @return whether chat logging is enabled while chatting
+     * with <tt>contact</tt>.
+     */
+    private boolean isHistoryLoggingEnabled(Contact contact)
+    {
+        MetaContact metaContact = OtrActivator
+            .getContactListService().findMetaContactByContact(contact);
+        if(metaContact != null)
+            return ConfigurationUtils.isHistoryLoggingEnabled(metaContact);
+        else
+            return true;
     }
 
     public void addListener(ScOtrEngineListener l)

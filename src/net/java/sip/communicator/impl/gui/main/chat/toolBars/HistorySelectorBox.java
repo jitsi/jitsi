@@ -12,6 +12,7 @@ import net.java.sip.communicator.impl.gui.main.chat.history.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.msghistory.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
@@ -22,6 +23,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.beans.*;
 import java.io.*;
+import java.net.*;
 
 /**
  * The <tt>HistorySelectorBox</tt> is the component where user could choose a
@@ -35,6 +37,7 @@ public class HistorySelectorBox
     implements ActionListener,
                PropertyChangeListener,
                ChatChangeListener,
+               ChatLinkClickedListener,
                Skinnable
 {
     /**
@@ -346,5 +349,20 @@ public class HistorySelectorBox
     public void chatChanged(ChatPanel panel)
     {
         changeHistoryIcon();
+
+        panel.addChatLinkClickedListener(this);
+    }
+
+    /**
+     * If a link is clicked with certain action to open the history popup menu.
+     * @param url The URI of the link that was clicked.
+     */
+    @Override
+    public void chatLinkClicked(URI url)
+    {
+        if(url.getPath().equals("/showHistoryPopupMenu"))
+        {
+            this.doClick();
+        }
     }
 }

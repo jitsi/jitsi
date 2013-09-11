@@ -58,16 +58,6 @@ public class KnownFingerprintsTableModel
             || protocolProviderRefs.length < 1)
             return;
 
-        // Get the metacontactlist service.
-        ServiceReference ref =
-            OtrActivator.bundleContext
-                .getServiceReference(MetaContactListService.class
-                    .getName());
-
-        MetaContactListService service
-            = (MetaContactListService) OtrActivator
-                .bundleContext.getService(ref);
-
         // Populate contacts.
         for (int i = 0; i < protocolProviderRefs.length; i++)
         {
@@ -77,7 +67,8 @@ public class KnownFingerprintsTableModel
                         .getService(protocolProviderRefs[i]);
 
             Iterator<MetaContact> metaContacts =
-                service.findAllMetaContactsForProvider(provider);
+                OtrActivator.getContactListService()
+                    .findAllMetaContactsForProvider(provider);
             while (metaContacts.hasNext())
             {
                 MetaContact metaContact = metaContacts.next();

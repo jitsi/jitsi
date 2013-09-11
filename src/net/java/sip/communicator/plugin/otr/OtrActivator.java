@@ -8,6 +8,7 @@ package net.java.sip.communicator.plugin.otr;
 
 import java.util.*;
 
+import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
@@ -94,6 +95,11 @@ public class OtrActivator
      * for convenience.
      */
     public static UIService uiService;
+
+    /**
+     * The <tt>MetaContactListService</tt> reference.
+     */
+    private static MetaContactListService metaCListService;
 
     /**
      * Gets an {@link AccountID} by its UID.
@@ -421,5 +427,23 @@ public class OtrActivator
                 this.handleProviderRemoved(provider);
             }
         }
+    }
+
+    /**
+     * Returns the <tt>MetaContactListService</tt> obtained from the bundle
+     * context.
+     * @return the <tt>MetaContactListService</tt> obtained from the bundle
+     * context
+     */
+    public static MetaContactListService getContactListService()
+    {
+        if (metaCListService == null)
+        {
+            metaCListService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        MetaContactListService.class);
+        }
+        return metaCListService;
     }
 }
