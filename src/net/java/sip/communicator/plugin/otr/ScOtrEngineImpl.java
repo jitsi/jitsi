@@ -292,7 +292,8 @@ public class ScOtrEngineImpl
         MetaContact metaContact = OtrActivator
             .getContactListService().findMetaContactByContact(contact);
         if(metaContact != null)
-            return ConfigurationUtils.isHistoryLoggingEnabled(metaContact);
+            return ConfigurationUtils.isHistoryLoggingEnabled(
+                metaContact.getMetaUID());
         else
             return true;
     }
