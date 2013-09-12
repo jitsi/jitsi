@@ -1106,19 +1106,19 @@ public class ConfigurationUtils
 
     /**
      * Returns <code>true</code> if the "IS_MESSAGE_HISTORY_ENABLED"
-     * property is true for the <tt>contact</tt>, otherwise - returns
+     * property is true for the <tt>id</tt>, otherwise - returns
      * <code>false</code>.
      * Indicates to the user interface whether the history logging is enabled
-     * for the supplied MetaContact.
+     * for the supplied id (id for metacontact or for chat room).
      * @return <code>true</code> if the "IS_MESSAGE_HISTORY_ENABLED"
-     * property is true for the <tt>contact</tt>, otherwise - returns
+     * property is true for the <tt>id</tt>, otherwise - returns
      * <code>false</code>.
      */
-    public static boolean isHistoryLoggingEnabled(MetaContact contact)
+    public static boolean isHistoryLoggingEnabled(String id)
     {
         return configService.getBoolean(MessageHistoryService
                     .PNAME_IS_MESSAGE_HISTORY_PER_CONTACT_ENABLED_PREFIX
-                        + "." + contact.getMetaUID(), true);
+                        + "." + id, true);
     }
 
     /**
@@ -1129,18 +1129,18 @@ public class ConfigurationUtils
      * enabled for the contact.
      */
     public static void setHistoryLoggingEnabled(
-        boolean isEnabled, MetaContact contact)
+        boolean isEnabled, String id)
     {
         if(isEnabled)
             configService.setProperty(
                 MessageHistoryService
                     .PNAME_IS_MESSAGE_HISTORY_PER_CONTACT_ENABLED_PREFIX
-                + "." + contact.getMetaUID(), null);
+                + "." + id, null);
         else
             configService.setProperty(
                 MessageHistoryService
                     .PNAME_IS_MESSAGE_HISTORY_PER_CONTACT_ENABLED_PREFIX
-                + "." + contact.getMetaUID(), isEnabled);
+                + "." + id, isEnabled);
     }
 
 

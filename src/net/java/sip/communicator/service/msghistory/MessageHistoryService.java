@@ -385,4 +385,13 @@ public interface MessageHistoryService
     */
    public void eraseLocallyStoredHistory(MetaContact contact)
        throws IOException;
+
+   /**
+    * Permanently removes locally stored message history for the chatroom.
+    *
+    * @throws java.io.IOException
+    *         Thrown if the history could not be removed due to a IO error.
+    */
+   public void eraseLocallyStoredHistory(ChatRoom room)
+       throws IOException;
 }

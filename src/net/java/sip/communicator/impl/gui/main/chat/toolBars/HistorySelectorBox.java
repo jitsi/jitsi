@@ -8,12 +8,14 @@ package net.java.sip.communicator.impl.gui.main.chat.toolBars;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
+import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.msghistory.*;
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 import org.jitsi.service.resources.*;
@@ -59,6 +61,11 @@ public class HistorySelectorBox
      * The menu item to turn off/on the history logging for all contacts.
      */
     private JCheckBoxMenuItem toggleAllHistory;
+
+    /**
+     * The menu item to erase history for contact or chat room.
+     */
+    private JMenuItem eraseHistoryPerContact;
 
     /**
      * The chat container, where this tool bar is added.
@@ -134,19 +141,32 @@ public class HistorySelectorBox
             {
                 MetaContact currentContact = (MetaContact)desc;
                 boolean isHistoryEnabled =
-                    ConfigurationUtils.isHistoryLoggingEnabled(currentContact);
+                    ConfigurationUtils.isHistoryLoggingEnabled(
+                        currentContact.getMetaUID());
                 ConfigurationUtils.setHistoryLoggingEnabled(
-                    !isHistoryEnabled, currentContact);
+                    !isHistoryEnabled, currentContact.getMetaUID());
+            }
+            else if(desc instanceof ChatRoomWrapper)
+            {
+                ChatRoom currentChatRoom = ((ChatRoomWrapper)desc).getChatRoom();
+                boolean isHistoryEnabled =
+                    ConfigurationUtils.isHistoryLoggingEnabled(
+                        currentChatRoom.getIdentifier());
+                ConfigurationUtils.setHistoryLoggingEnabled(
+                    !isHistoryEnabled, currentChatRoom.getIdentifier());
             }
         }
         else if (menuItemName.equals("eraseHistoryPerContact"))
         {
             Object desc = chatPanel.getChatSession().getDescriptor();
 
-            if(!(desc instanceof MetaContact))
+            String destination;
+            if(desc instanceof MetaContact)
+                destination = ((MetaContact)desc).getDisplayName();
+            else if(desc instanceof ChatRoomWrapper)
+                destination = ((ChatRoomWrapper)desc).getChatRoomName();
+            else
                 return;
-
-            MetaContact contact = (MetaContact)desc;
 
             MessageDialog dialog =
                 new MessageDialog(null,
@@ -154,7 +174,7 @@ public class HistorySelectorBox
                     "service.gui.WARNING"),
                 GuiActivator.getResources().getI18NString(
                     "service.gui.HISTORY_REMOVE_PER_CONTACT_WARNING",
-                    new String[]{contact.getDisplayName()}),
+                    new String[]{destination}),
                 GuiActivator.getResources().getI18NString("service.gui.OK"),
                 false);
 
@@ -162,15 +182,26 @@ public class HistorySelectorBox
             {
                 try
                 {
-                    ServiceUtils.getService(GuiActivator.bundleContext,
-                        MessageHistoryService.class).eraseLocallyStoredHistory(
-                        contact);
+                    if(desc instanceof MetaContact)
+                    {
+                        ServiceUtils.getService(GuiActivator.bundleContext,
+                            MessageHistoryService.class)
+                                .eraseLocallyStoredHistory(
+                                    (MetaContact)desc);
+                    }
+                    else if(desc instanceof ChatRoomWrapper)
+                    {
+                        ServiceUtils.getService(GuiActivator.bundleContext,
+                            MessageHistoryService.class)
+                                .eraseLocallyStoredHistory(
+                                    ((ChatRoomWrapper)desc).getChatRoom());
+                    }
                 }
                 catch(IOException ex)
                 {
                     logger.error("Error removing history", ex);
 
-                    chatPanel.addErrorMessage(contact.getDisplayName(),
+                    chatPanel.addErrorMessage(destination,
                         GuiActivator.getResources().getI18NString(
                             "service.gui.HISTORY_REMOVE_ERROR"),
                         ex.getLocalizedMessage());
@@ -224,8 +255,7 @@ public class HistorySelectorBox
 
         popupMenu.addSeparator();
 
-        toggleHistoryPerContact = new JCheckBoxMenuItem(
-            R.getI18NString("service.gui.HISTORY_TOGGLE_PER_CONTACT"));
+        toggleHistoryPerContact = new JCheckBoxMenuItem();
         toggleHistoryPerContact.setName("toggleHistoryPerContact");
         toggleHistoryPerContact.addActionListener(this);
         popupMenu.add(toggleHistoryPerContact);
@@ -238,8 +268,7 @@ public class HistorySelectorBox
 
         popupMenu.addSeparator();
 
-        JMenuItem eraseHistoryPerContact = new JMenuItem(
-            R.getI18NString("service.gui.HISTORY_ERASE_PER_CONTACT"));
+        eraseHistoryPerContact = new JMenuItem();
         eraseHistoryPerContact.setName("eraseHistoryPerContact");
         eraseHistoryPerContact.addActionListener(this);
         popupMenu.add(eraseHistoryPerContact);
@@ -268,7 +297,7 @@ public class HistorySelectorBox
         if(evt.getPropertyName().equals(
             MessageHistoryService.PNAME_IS_MESSAGE_HISTORY_ENABLED))
         {
-            changeHistoryIcon();
+            updateMenus();
         }
         else if(evt.getPropertyName().startsWith(MessageHistoryService
             .PNAME_IS_MESSAGE_HISTORY_PER_CONTACT_ENABLED_PREFIX))
@@ -280,7 +309,13 @@ public class HistorySelectorBox
                 MetaContact contact = (MetaContact)desc;
 
                 if(evt.getPropertyName().endsWith(contact.getMetaUID()))
-                    changeHistoryIcon();
+                    updateMenus();
+            }
+            else if(desc instanceof ChatRoomWrapper)
+            {
+                if(evt.getPropertyName().endsWith(
+                        ((ChatRoomWrapper)desc).getChatRoom().getIdentifier()))
+                    updateMenus();
             }
         }
     }
@@ -290,13 +325,16 @@ public class HistorySelectorBox
      */
     public void loadSkin()
     {
-        changeHistoryIcon();
+        updateMenus();
     }
 
     /**
      * Changes currently used icon on or off, depending on the current settings.
+     * Updates selected menu items, depends on current configuration.
+     * Updates the text depending on the current chat session, is it chat room
+     * or a metacontact.
      */
-    private void changeHistoryIcon()
+    private void updateMenus()
     {
         toggleAllHistory.setSelected(false);
         toggleHistoryPerContact.setSelected(false);
@@ -306,16 +344,37 @@ public class HistorySelectorBox
 
         if(chatContainer.getCurrentChat() != null)
         {
+            ResourceManagementService R = GuiActivator.getResources();
+
             Object desc = chatContainer.getCurrentChat()
                 .getChatSession().getDescriptor();
             if(desc instanceof MetaContact)
             {
                 MetaContact contact = (MetaContact)desc;
 
-                if(!ConfigurationUtils.isHistoryLoggingEnabled(contact))
+                if(!ConfigurationUtils.isHistoryLoggingEnabled(
+                        contact.getMetaUID()))
                 {
                     toggleHistoryPerContact.setSelected(true);
                 }
+
+                toggleHistoryPerContact.setText(
+                    R.getI18NString("service.gui.HISTORY_TOGGLE_PER_CONTACT"));
+                eraseHistoryPerContact.setText(
+                    R.getI18NString("service.gui.HISTORY_ERASE_PER_CONTACT"));
+            }
+            else if(desc instanceof ChatRoomWrapper)
+            {
+                if(!ConfigurationUtils.isHistoryLoggingEnabled(
+                        ((ChatRoomWrapper)desc).getChatRoom().getIdentifier()))
+                {
+                    toggleHistoryPerContact.setSelected(true);
+                }
+
+                toggleHistoryPerContact.setText(
+                    R.getI18NString("service.gui.HISTORY_TOGGLE_PER_CHATROOM"));
+                eraseHistoryPerContact.setText(
+                    R.getI18NString("service.gui.HISTORY_ERASE_PER_CHATROOM"));
             }
         }
 
@@ -348,7 +407,7 @@ public class HistorySelectorBox
     @Override
     public void chatChanged(ChatPanel panel)
     {
-        changeHistoryIcon();
+        updateMenus();
 
         panel.addChatLinkClickedListener(this);
     }

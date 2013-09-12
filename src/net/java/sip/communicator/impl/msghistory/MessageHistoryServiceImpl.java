@@ -859,6 +859,13 @@ public class MessageHistoryServiceImpl
 
     public void messageReceived(ChatRoomMessageReceivedEvent evt)
     {
+        if(!ConfigurationUtils.isHistoryLoggingEnabled(
+                evt.getSourceChatRoom().getIdentifier()))
+        {
+            // logging is switched off for this particular chat room
+            return;
+        }
+
         try
         {
             // ignore non conversation messages
@@ -918,8 +925,14 @@ public class MessageHistoryServiceImpl
     {
         try
         {
-            History history = this.
-                getHistoryForMultiChat(
+            if(!ConfigurationUtils.isHistoryLoggingEnabled(
+                    evt.getSourceChatRoom().getIdentifier()))
+            {
+                // logging is switched off for this particular chat room
+                return;
+            }
+
+            History history = this.getHistoryForMultiChat(
                 evt.getSourceChatRoom());
 
             // if this is chat room message history on every room enter
@@ -983,7 +996,8 @@ public class MessageHistoryServiceImpl
             MetaContact metaContact = MessageHistoryActivator
                 .getContactListService().findMetaContactByContact(destination);
             if(metaContact != null
-                && !ConfigurationUtils.isHistoryLoggingEnabled(metaContact))
+                && !ConfigurationUtils.isHistoryLoggingEnabled(
+                        metaContact.getMetaUID()))
             {
                 // logging is switched off for this particular contact
                 return;
@@ -2292,6 +2306,13 @@ public class MessageHistoryServiceImpl
 
     public void messageDelivered(AdHocChatRoomMessageDeliveredEvent evt)
     {
+        if(!ConfigurationUtils.isHistoryLoggingEnabled(
+                evt.getSourceAdHocChatRoom().getIdentifier()))
+        {
+            // logging is switched off for this particular chat room
+            return;
+        }
+
         try
         {
             History history = this.
@@ -2314,6 +2335,13 @@ public class MessageHistoryServiceImpl
 
     public void messageReceived(AdHocChatRoomMessageReceivedEvent evt)
     {
+        if(!ConfigurationUtils.isHistoryLoggingEnabled(
+                evt.getSourceChatRoom().getIdentifier()))
+        {
+            // logging is switched off for this particular chat room
+            return;
+        }
+
          try
             {
                 History history = this.getHistoryForAdHocMultiChat(
@@ -2380,5 +2408,18 @@ public class MessageHistoryServiceImpl
             History history = this.getHistory(null, item);
             historyService.purgeLocallyStoredHistory(history.getID());
         }
+    }
+
+    /**
+     * Permanently removes locally stored message history for the chatroom.
+     *
+     * @throws java.io.IOException
+     *         Thrown if the history could not be removed due to a IO error.
+     */
+    public void eraseLocallyStoredHistory(ChatRoom room)
+        throws IOException
+    {
+        History history = this.getHistoryForMultiChat(room);
+        historyService.purgeLocallyStoredHistory(history.getID());
     }
 }
