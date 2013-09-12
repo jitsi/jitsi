@@ -1698,7 +1698,7 @@
         <!-- the target we will use to build the package,
             depends whether we are building source package or just a deb -->
         <property name="debianize.build.target"
-                  value="make" />
+                  value="make-and-deploy" />
         <antcall target="dpkg-debianize" />
 
         <!-- Build i386 binary package -->
@@ -3151,6 +3151,7 @@ org.jitsi.bccontrib.util"/>
 
         <!-- now rebuild jitsi -->
         <antcall target="rebuild"/>
+        <antcall target="make-and-deploy"/>
 
         <!-- will build native libs -->
         <symlink resource="/usr/share/java/ant-contrib-cpptasks.jar"
