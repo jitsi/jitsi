@@ -1701,6 +1701,18 @@ public class ChatRoomJabberImpl
         implements PacketListener
     {
         /**
+         * The timestamp of the last history message sent to the UI.
+         * Do not send earlier or messages with the same timestamp.
+         */
+        private Date lastSeenDelayedMessage = null;
+
+        /**
+         * The property to store the timestamp.
+         */
+        private static final String LAST_SEEN_DELAYED_MESSAGE_PROP
+            = "lastSeenDelayedMessage";
+
+        /**
          * Process a packet.
          * @param packet to process.
          */
@@ -1720,6 +1732,41 @@ public class ChatRoomJabberImpl
             if(delay != null)
             {
                 timeStamp = delay.getStamp();
+
+                // This is a delayed chat room message, a history message for
+                // the room coming from server. Lets check have we already
+                // shown this message and if this is the case skip it
+                // otherwise save it as last seen delayed message
+                if(lastSeenDelayedMessage == null)
+                {
+                    // initialise this from configuration
+                    String timestamp =
+                        ConfigurationUtils.getChatRoomProperty(
+                            provider,
+                            getIdentifier(),
+                            LAST_SEEN_DELAYED_MESSAGE_PROP);
+
+                    try
+                    {
+                        lastSeenDelayedMessage =
+                            new Date(Long.parseLong(timestamp));
+                    }
+                    catch(Throwable t)
+                    {}
+                }
+
+                if(lastSeenDelayedMessage != null
+                    && !timeStamp.after(lastSeenDelayedMessage))
+                    return;
+
+                // save it in configuration
+                ConfigurationUtils.updateChatRoomProperty(
+                    provider,
+                    getIdentifier(),
+                    LAST_SEEN_DELAYED_MESSAGE_PROP,
+                    String.valueOf(timeStamp.getTime()));
+
+                lastSeenDelayedMessage = timeStamp;
             }
             else
             {
