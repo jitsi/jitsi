@@ -788,9 +788,6 @@ public class OperationSetMultiUserChatJabberImpl
       */
      public void subscriptionRemoved(SubscriptionEvent evt)
      {
-         // Set to null the contact reference in all corresponding chat room
-         // members.
-         this.updateChatRoomMembers(null);
      }
 
      /**
