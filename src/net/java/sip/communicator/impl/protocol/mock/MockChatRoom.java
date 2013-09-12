@@ -551,7 +551,7 @@ public class MockChatRoom
      */
     public String getIdentifier()
     {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return name;
     }
 
     /**
