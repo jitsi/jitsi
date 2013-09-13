@@ -115,16 +115,16 @@ public class GlobalProxyPluginActivator implements BundleActivator
     {
                 // Activate proxy settings
             String globalProxyType = getConfigurationService()
-                .getString(ProxyInfo.CONNECTON_PROXY_TYPE_PROPERTY_NAME);
+                .getString(ProxyInfo.CONNECTION_PROXY_TYPE_PROPERTY_NAME);
             if(globalProxyType != null &&
                !globalProxyType.equals(ProxyInfo.ProxyType.NONE.name()))
             {
                 String globalProxyAddress =
                     getConfigurationService().getString(
-                    ProxyInfo.CONNECTON_PROXY_ADDRESS_PROPERTY_NAME);
+                    ProxyInfo.CONNECTION_PROXY_ADDRESS_PROPERTY_NAME);
                 String globalProxyPortStr =
                     getConfigurationService().getString(
-                    ProxyInfo.CONNECTON_PROXY_PORT_PROPERTY_NAME);
+                    ProxyInfo.CONNECTION_PROXY_PORT_PROPERTY_NAME);
                 int globalProxyPort = -1;
                 try
                 {
@@ -137,10 +137,10 @@ public class GlobalProxyPluginActivator implements BundleActivator
                 }
                 String globalProxyUsername =
                     getConfigurationService().getString(
-                    ProxyInfo.CONNECTON_PROXY_USERNAME_PROPERTY_NAME);
+                    ProxyInfo.CONNECTION_PROXY_USERNAME_PROPERTY_NAME);
                 String globalProxyPassword =
                     getConfigurationService().getString(
-                    ProxyInfo.CONNECTON_PROXY_PASSWORD_PROPERTY_NAME);
+                    ProxyInfo.CONNECTION_PROXY_PASSWORD_PROPERTY_NAME);
                 if(globalProxyAddress == null ||
                     globalProxyAddress.length() <= 0)
                 {

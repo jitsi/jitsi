@@ -179,22 +179,22 @@ public class GlobalProxyConfigForm
             GlobalProxyPluginActivator.getConfigurationService();
 
         String serverAddress = configService.getString(
-            ProxyInfo.CONNECTON_PROXY_ADDRESS_PROPERTY_NAME);
+            ProxyInfo.CONNECTION_PROXY_ADDRESS_PROPERTY_NAME);
         if(serverAddress != null)
             serverAddressField.setText(serverAddress);
 
         String port = configService.getString(
-            ProxyInfo.CONNECTON_PROXY_PORT_PROPERTY_NAME);
+            ProxyInfo.CONNECTION_PROXY_PORT_PROPERTY_NAME);
         if(port != null)
             portField.setText(port);
 
         String username = configService.getString(
-            ProxyInfo.CONNECTON_PROXY_USERNAME_PROPERTY_NAME);
+            ProxyInfo.CONNECTION_PROXY_USERNAME_PROPERTY_NAME);
         if(username != null)
             usernameField.setText(username);
 
         String password = configService.getString(
-            ProxyInfo.CONNECTON_PROXY_PASSWORD_PROPERTY_NAME);
+            ProxyInfo.CONNECTION_PROXY_PASSWORD_PROPERTY_NAME);
         if(password != null)
             passwordField.setText(password);
 
@@ -204,7 +204,7 @@ public class GlobalProxyConfigForm
         try
         {
             String type = configService.getString(
-                ProxyInfo.CONNECTON_PROXY_TYPE_PROPERTY_NAME);
+                ProxyInfo.CONNECTION_PROXY_TYPE_PROPERTY_NAME);
             if(type != null)
                 typeCombo.setSelectedItem(ProxyInfo.ProxyType.valueOf(type));
         } catch (IllegalArgumentException e)
@@ -233,58 +233,58 @@ public class GlobalProxyConfigForm
         if(typeCombo.getSelectedItem().equals(ProxyInfo.ProxyType.NONE))
         {
             configService.setProperty(
-                ProxyInfo.CONNECTON_PROXY_TYPE_PROPERTY_NAME,
+                ProxyInfo.CONNECTION_PROXY_TYPE_PROPERTY_NAME,
                 ProxyInfo.ProxyType.NONE.name());
 
             configService.removeProperty(
-                ProxyInfo.CONNECTON_PROXY_ADDRESS_PROPERTY_NAME);
+                ProxyInfo.CONNECTION_PROXY_ADDRESS_PROPERTY_NAME);
             configService.removeProperty(
-                ProxyInfo.CONNECTON_PROXY_PORT_PROPERTY_NAME);
+                ProxyInfo.CONNECTION_PROXY_PORT_PROPERTY_NAME);
             configService.removeProperty(
-                ProxyInfo.CONNECTON_PROXY_USERNAME_PROPERTY_NAME);
+                ProxyInfo.CONNECTION_PROXY_USERNAME_PROPERTY_NAME);
             configService.removeProperty(
-                ProxyInfo.CONNECTON_PROXY_PASSWORD_PROPERTY_NAME);
+                ProxyInfo.CONNECTION_PROXY_PASSWORD_PROPERTY_NAME);
 
             return;
         }
 
         configService.setProperty(
-                ProxyInfo.CONNECTON_PROXY_TYPE_PROPERTY_NAME,
+                ProxyInfo.CONNECTION_PROXY_TYPE_PROPERTY_NAME,
                 ((ProxyInfo.ProxyType)typeCombo.getSelectedItem()).name());
 
         String serverAddress = serverAddressField.getText();
         if(serverAddress != null && serverAddress.length() > 0)
             configService.setProperty(
-                ProxyInfo.CONNECTON_PROXY_ADDRESS_PROPERTY_NAME, serverAddress);
+                ProxyInfo.CONNECTION_PROXY_ADDRESS_PROPERTY_NAME, serverAddress);
 
         String port = portField.getText();
         if(port != null && port.length() > 0)
             configService.setProperty(
-                ProxyInfo.CONNECTON_PROXY_PORT_PROPERTY_NAME, port);
+                ProxyInfo.CONNECTION_PROXY_PORT_PROPERTY_NAME, port);
 
         String username = usernameField.getText();
         if(username != null && username.length() > 0)
         {
             configService.setProperty(
-                ProxyInfo.CONNECTON_PROXY_USERNAME_PROPERTY_NAME, username);
+                ProxyInfo.CONNECTION_PROXY_USERNAME_PROPERTY_NAME, username);
         }
         else
         {
             configService.removeProperty(
-                ProxyInfo.CONNECTON_PROXY_USERNAME_PROPERTY_NAME);
+                ProxyInfo.CONNECTION_PROXY_USERNAME_PROPERTY_NAME);
         }
 
         char[] password = passwordField.getPassword();
         if(password.length > 0)
         {
             configService.setProperty(
-                ProxyInfo.CONNECTON_PROXY_PASSWORD_PROPERTY_NAME,
+                ProxyInfo.CONNECTION_PROXY_PASSWORD_PROPERTY_NAME,
                 new String(password));
         }
         else
         {
             configService.removeProperty(
-                ProxyInfo.CONNECTON_PROXY_PASSWORD_PROPERTY_NAME);
+                ProxyInfo.CONNECTION_PROXY_PASSWORD_PROPERTY_NAME);
         }
 
         GlobalProxyPluginActivator.initProperties();

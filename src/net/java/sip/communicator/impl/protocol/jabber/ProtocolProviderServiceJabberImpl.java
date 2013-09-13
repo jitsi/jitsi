@@ -1031,7 +1031,7 @@ public class ProtocolProviderServiceJabberImpl
     {
         String globalProxyType =
             JabberActivator.getConfigurationService()
-            .getString(ProxyInfo.CONNECTON_PROXY_TYPE_PROPERTY_NAME);
+            .getString(ProxyInfo.CONNECTION_PROXY_TYPE_PROPERTY_NAME);
         if(globalProxyType == null ||
            globalProxyType.equals(ProxyInfo.ProxyType.NONE.name()))
         {
@@ -1041,10 +1041,10 @@ public class ProtocolProviderServiceJabberImpl
         {
             String globalProxyAddress =
                 JabberActivator.getConfigurationService().getString(
-                ProxyInfo.CONNECTON_PROXY_ADDRESS_PROPERTY_NAME);
+                ProxyInfo.CONNECTION_PROXY_ADDRESS_PROPERTY_NAME);
             String globalProxyPortStr =
                 JabberActivator.getConfigurationService().getString(
-                ProxyInfo.CONNECTON_PROXY_PORT_PROPERTY_NAME);
+                ProxyInfo.CONNECTION_PROXY_PORT_PROPERTY_NAME);
             int globalProxyPort;
             try
             {
@@ -1061,10 +1061,10 @@ public class ProtocolProviderServiceJabberImpl
             }
             String globalProxyUsername =
                 JabberActivator.getConfigurationService().getString(
-                ProxyInfo.CONNECTON_PROXY_USERNAME_PROPERTY_NAME);
+                ProxyInfo.CONNECTION_PROXY_USERNAME_PROPERTY_NAME);
             String globalProxyPassword =
                 JabberActivator.getConfigurationService().getString(
-                ProxyInfo.CONNECTON_PROXY_PASSWORD_PROPERTY_NAME);
+                ProxyInfo.CONNECTION_PROXY_PASSWORD_PROPERTY_NAME);
             if(globalProxyAddress == null ||
                 globalProxyAddress.length() <= 0)
             {

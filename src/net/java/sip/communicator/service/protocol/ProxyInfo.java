@@ -40,30 +40,30 @@ public class ProxyInfo
     /**
      * Stores in the configuration the connection proxy type.
      */
-    public final static String CONNECTON_PROXY_TYPE_PROPERTY_NAME =
+    public final static String CONNECTION_PROXY_TYPE_PROPERTY_NAME =
         "net.java.sip.communicator.service.connectionProxyType";
 
     /**
      * Stores in the configuration the connection proxy address.
      */
-    public final static String CONNECTON_PROXY_ADDRESS_PROPERTY_NAME =
+    public final static String CONNECTION_PROXY_ADDRESS_PROPERTY_NAME =
         "net.java.sip.communicator.service.connectionProxyAddress";
 
     /**
      * Stores in the configuration the connection proxy port.
      */
-    public final static String CONNECTON_PROXY_PORT_PROPERTY_NAME =
+    public final static String CONNECTION_PROXY_PORT_PROPERTY_NAME =
         "net.java.sip.communicator.service.connectionProxyPort";
 
     /**
      * Stores in the configuration the connection proxy username.
      */
-    public final static String CONNECTON_PROXY_USERNAME_PROPERTY_NAME =
+    public final static String CONNECTION_PROXY_USERNAME_PROPERTY_NAME =
         "net.java.sip.communicator.service.connectionProxyUsername";
 
     /**
      * Stores in the configuration the connection proxy password.
      */
-    public final static String CONNECTON_PROXY_PASSWORD_PROPERTY_NAME =
+    public final static String CONNECTION_PROXY_PASSWORD_PROPERTY_NAME =
         "net.java.sip.communicator.service.connectionProxyPassword";
 }
