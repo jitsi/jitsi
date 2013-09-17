@@ -174,18 +174,6 @@ public class CallManager
                         }
 
                         call.removeCallChangeListener(this);
-
-                        // If we're currently in the call history view, refresh
-                        // it.
-                        TreeContactList contactList
-                            = GuiActivator.getContactList();
-
-                        if (contactList.getCurrentFilter().equals(
-                                TreeContactList.historyFilter))
-                        {
-                            contactList.applyFilter(
-                                    TreeContactList.historyFilter);
-                        }
                     }
                 }
             });
@@ -217,6 +205,18 @@ public class CallManager
              * they need to update their UI, for example).
              */
             forwardCallEventToCallPanels(ev);
+
+            // If we're currently in the call history view, refresh
+            // it.
+            TreeContactList contactList
+                = GuiActivator.getContactList();
+
+            if (contactList.getCurrentFilter().equals(
+                    TreeContactList.historyFilter))
+            {
+                contactList.applyFilter(
+                        TreeContactList.historyFilter);
+            }
         }
 
         /**
