@@ -533,7 +533,10 @@ public class NeomediaActivator
         // Call Recording
         // If the call recording configuration form is disabled don't continue.
         if ((cfg == null)
-                || !cfg.getBoolean(CALL_RECORDING_CONFIG_DISABLED_PROP, false))
+            || !(cfg.getBoolean(CALL_RECORDING_CONFIG_DISABLED_PROP, false)
+                 || cfg.getBoolean("net.java.sip.communicator" +
+                            ".impl.gui.main.call.HIDE_CALL_RECORD_BUTTON",
+                                   false)))
         {
             Dictionary<String, String> callRecordingProps
                 = new Hashtable<String, String>();
