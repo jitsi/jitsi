@@ -1,39 +1,37 @@
 Name:     jitsi
-Version:  1.1
-Release:  4467.10442
+Version:  2.3
+Release:  4831
 Summary:  Jitsi - Open Source Video Calls and Chat
-Packager: Damian Minkov <damencho@jitsi.org>
+Packager: Pavel Tankov <ptankov@bluejimp.com>
 
 Group:     Applications/Internet
 License:   GNU Lesser General Public License
 URL:       https://www.jitsi.org
-Source0:   http://download.jitsi.org/jitsi/nightly/src/jitsi-src-1.1-4467-10442.zip
+Source0:   http://download.jitsi.org/jitsi/nightly/src/jitsi-src-2.3-4831.zip
 BuildRoot: %{_topdir}/buildroot
 
 AutoReqProv:   no
-BuildRequires: java-devel >= 0:1.5.0
+BuildRequires: java-devel >= 0:1.6
 BuildRequires: ant
-BuildRequires: ant-nodeps
 BuildRequires: gzip
-BuildRequires: subversion
 
-Requires: java >= 0:1.5.0
+Requires: java >= 0:1.6
 
 %description
-Jitsi is an audio/video Internet phone and instant messenger that
-supports some of the most popular instant messaging and telephony protocols
-such as SIP, Jabber, AIM/ICQ, MSN, Yahoo! Messenger, Bonjour, RSS and
-counting. Jitsi is completely Open Source / Free Software, and is
-freely available under the terms of the GNU Lesser General Public License.
+Jitsi (formerly SIP Communicator) is an audio/video and chat communicator
+that supports protocols such as SIP, XMPP/Jabber, AIM/ICQ, Windows Live,
+Yahoo! and many other useful features.
+
+%define debug_package %{nil}
 
 %prep
 %setup -q -n jitsi
 
 %build
-ant -Dlabel=4467.10442 rebuild
+ant -Dlabel=4831 rebuild
 
 %install
-[ "$RPM_BUILD_ROOT" != "/" ] && rm -rf $RPM_BUILD_ROOT
+[ "$(readlink -f "$RPM_BUILD_ROOT")" != "/" ] && rm -rf $RPM_BUILD_ROOT
 
 mkdir -p $RPM_BUILD_ROOT
 mkdir -p $RPM_BUILD_ROOT/usr
@@ -86,7 +84,7 @@ cp sc-bundles/os-specific/linux/*.jar $RPM_BUILD_ROOT/usr/share/jitsi/sc-bundles
 cp lib/*.jar $RPM_BUILD_ROOT/usr/share/jitsi/lib/
 cp lib/bundle/* $RPM_BUILD_ROOT/usr/share/jitsi/lib/bundle/
 rm $RPM_BUILD_ROOT/usr/share/jitsi/lib/bundle/junit.jar
-cp lib/os-specific/linux/*.jar $RPM_BUILD_ROOT/usr/share/jitsi/lib/
+#cp lib/os-specific/linux/*.jar $RPM_BUILD_ROOT/usr/share/jitsi/lib/
 
 # copy the native libs
 %ifarch i386 i586 i686
@@ -98,6 +96,7 @@ cp lib/native/linux-64/* $RPM_BUILD_ROOT/usr/share/jitsi/lib/native/
 # copy the resources
 cp resources/install/logging.properties $RPM_BUILD_ROOT/usr/share/jitsi/lib/
 cp lib/felix.client.run.properties $RPM_BUILD_ROOT/usr/share/jitsi/lib/
+cp lib/jitsi-defaults.properties $RPM_BUILD_ROOT/usr/share/jitsi/lib/
 
 # Make felix deploy its bundles in ~/.felix/sip-communicator.bin
 sed -i -e "s/felix.cache.profiledir=sip-communicator.bin/felix.cache.profile=sip-communicator.bin/" $RPM_BUILD_ROOT/usr/share/jitsi/lib/felix.client.run.properties
@@ -121,6 +120,13 @@ sed -i -e "s/\/launchutils.jar//" $RPM_BUILD_ROOT/usr/bin/jitsi
 %doc %{_mandir}/man*/*
 
 %changelog
+* Fri Sep 13 2013 Pavel Tankov <ptankov@bluejimp.com>
+- Now depends on java >= 0:1.6.
+- Changed the info to conform with the description on the website.
+- Deleted the build requirement on svn because it was long ago
+  taken out of the rpm build procedure.
+- Some other minor adjustments.
+
 * Mon Mar 11 2013 Pavel Tankov <ptankov@bluejimp.com>
 - Now depends on java >= 0:1.5.0.
 
@@ -129,7 +135,7 @@ sed -i -e "s/\/launchutils.jar//" $RPM_BUILD_ROOT/usr/bin/jitsi
 - Add felix.framework and felix.main dependencies.
 - Fix warning about conflicting folders with filesystem package.
 
-* Thu Mar 23 2011 Pavel Tankov <tankov_pavel@yahoo.com>
+* Wed Mar 23 2011 Pavel Tankov <tankov_pavel@yahoo.com>
 - Renamed to the new project name -jitsi
 
 * Mon Apr 19 2010 Pavel Tankov <tankov_pavel@yahoo.com>
