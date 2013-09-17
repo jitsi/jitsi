@@ -122,6 +122,12 @@ public class GlobalProxyPluginActivator implements BundleActivator
                 String globalProxyAddress =
                     getConfigurationService().getString(
                     ProxyInfo.CONNECTION_PROXY_ADDRESS_PROPERTY_NAME);
+                if(globalProxyAddress == null ||
+                    globalProxyAddress.length() <= 0)
+                {
+                    // no address
+                    return;
+                }
                 String globalProxyPortStr =
                     getConfigurationService().getString(
                     ProxyInfo.CONNECTION_PROXY_PORT_PROPERTY_NAME);
@@ -141,12 +147,6 @@ public class GlobalProxyPluginActivator implements BundleActivator
                 String globalProxyPassword =
                     getConfigurationService().getString(
                     ProxyInfo.CONNECTION_PROXY_PASSWORD_PROPERTY_NAME);
-                if(globalProxyAddress == null ||
-                    globalProxyAddress.length() <= 0)
-                {
-                    // no address
-                    return;
-                }
 
                 String type = null;
                 if(globalProxyType.equals(

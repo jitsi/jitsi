@@ -66,4 +66,22 @@ public class ProxyInfo
      */
     public final static String CONNECTION_PROXY_PASSWORD_PROPERTY_NAME =
         "net.java.sip.communicator.service.connectionProxyPassword";
+
+    /**
+     * Stores in the configuration the connection dns forwarding is it enabled.
+     */
+    public final static String CONNECTION_PROXY_FORWARD_DNS_PROPERTY_NAME =
+        "net.java.sip.communicator.service.connectionProxyForwardDNS";
+
+    /**
+     * Stores in the configuration the connection dns forwarding address.
+     */
+    public final static String CONNECTION_PROXY_FORWARD_DNS_ADDRESS_PROPERTY_NAME
+        = "net.java.sip.communicator.service.connectionProxyForwardDNSAddress";
+
+    /**
+     * Stores in the configuration the connection dns forwarding port.
+     */
+    public final static String CONNECTION_PROXY_FORWARD_DNS_PORT_PROPERTY_NAME
+        = "net.java.sip.communicator.service.connectionProxyForwardDNSPort";
 }

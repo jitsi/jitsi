@@ -10,13 +10,18 @@ import net.java.sip.communicator.service.dns.*;
 import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.netaddr.event.*;
 import net.java.sip.communicator.service.notification.*;
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
+import net.java.sip.communicator.util.Logger;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
+import org.jitsi.util.*;
 import org.osgi.framework.*;
 import org.xbill.DNS.*;
+
+import java.net.*;
 
 /**
  * The DNS Util activator registers the DNSSEC resolver if enabled.
@@ -103,6 +108,15 @@ public class DnsUtilActivator
         bundleContext = context;
         context.addServiceListener(this);
 
+        if(Logger.getLogger("org.xbill").isTraceEnabled())
+            Options.set("verbose", "1");
+
+        if(loadDNSProxyForward())
+        {
+            // dns is forced to go through a proxy so skip any further settings
+            return;
+        }
+
         if(UtilActivator.getConfigurationService().getBoolean(
                 DnsUtilActivator.PNAME_BACKUP_RESOLVER_ENABLED,
                 DnsUtilActivator.PDEFAULT_BACKUP_RESOLVER_ENABLED)
@@ -129,6 +143,59 @@ public class DnsUtilActivator
         }
 
         logger.info("DNS service ... [STARTED]");
+    }
+
+    /**
+     * Checks settings and if needed load forwarding of dns to the server
+     * that is specified.
+     * @return whether loading was successfull or <tt>false</tt> if it is not or
+     * was not enabled.
+     */
+    private static boolean loadDNSProxyForward()
+    {
+        if(getConfigurationService().getBoolean(
+            ProxyInfo.CONNECTION_PROXY_FORWARD_DNS_PROPERTY_NAME, false))
+        {
+            try
+            {
+                // enabled forward of dns
+                String serverAddress =
+                    (String)getConfigurationService().getProperty(
+                        ProxyInfo
+                           .CONNECTION_PROXY_FORWARD_DNS_ADDRESS_PROPERTY_NAME);
+                if(StringUtils.isNullOrEmpty(serverAddress, true))
+                    return false;
+
+                int port = SimpleResolver.DEFAULT_PORT;
+
+                try
+                {
+                    port = getConfigurationService()
+                        .getInt(ProxyInfo
+                            .CONNECTION_PROXY_FORWARD_DNS_PORT_PROPERTY_NAME,
+                                SimpleResolver.DEFAULT_PORT);
+                }
+                catch(NumberFormatException ne)
+                {
+                    logger.error("Wrong port value", ne);
+                }
+
+                // initially created with localhost setting
+                SimpleResolver sResolver = new SimpleResolver("0");
+                // then set the desired address and port
+                sResolver.setAddress(
+                    new InetSocketAddress(serverAddress, port));
+                Lookup.setDefaultResolver(sResolver);
+
+                return true;
+            }
+            catch(Throwable t)
+            {
+                logger.error("Creating simple forwarding resolver", t);
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -189,7 +256,8 @@ public class DnsUtilActivator
         else
         {
             // or the default otherwise
-            Lookup.refreshDefault();
+            if(!loadDNSProxyForward())
+                Lookup.refreshDefault();
         }
     }
 
