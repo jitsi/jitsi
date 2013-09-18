@@ -863,7 +863,7 @@ public class SIPCommTabbedPaneUI
      * Returns the index of the tab closest to the passed in location, note that
      * the returned tab may not contain the location x,y.
      */
-    private int getClosestTab(int x, int y)
+    protected int getClosestTab(int x, int y)
     {
         int min = 0;
         int tabCount = Math.min(rects.length, tabPane.getTabCount());
@@ -1358,7 +1358,7 @@ public class SIPCommTabbedPaneUI
         }
     }
 
-    private class ScrollableTabSupport implements ChangeListener
+    protected class ScrollableTabSupport implements ChangeListener
     {
         public ScrollableTabViewport viewport;
 
@@ -1471,7 +1471,7 @@ public class SIPCommTabbedPaneUI
 
     }
 
-    private static class ScrollableTabViewport
+    protected static class ScrollableTabViewport
         extends JViewport
         implements UIResource
     {
