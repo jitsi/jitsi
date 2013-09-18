@@ -202,20 +202,29 @@ public class JabberAccountCreationForm
         char[] password = passField.getPassword();
         char[] password2 = pass2Field.getPassword();
         String server = serverField.getText();
-        String port = portField.getText();
+        int port = 5222; // default port 
+        try
+        {
+            // custom port, if exists
+            port = Integer.parseInt(portField.getText());
+        }
+        catch (NumberFormatException e){}
 
         if (new String(password).equals(new String(password2)))
         {
             // the two password fields are the same
             boolean result = createJabberAccount(server,
-                5222,
+                port,
                 userID,
                 new String(password));
 
             if (result == true)
             {
                 return new NewAccount(
-                    getCompleteUserID(userID, server), password, server, port);
+                    getCompleteUserID(userID, server),
+                    password,
+                    server, 
+                    String.valueOf(port));
             }
         }
         else
