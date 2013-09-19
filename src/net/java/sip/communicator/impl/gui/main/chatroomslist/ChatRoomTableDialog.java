@@ -566,7 +566,7 @@ public class ChatRoomTableDialog
             }
 
             setText(provider.getProtocolProvider()
-                .getAccountID().getAccountAddress());
+                .getAccountID().getDisplayName());
 
             setIcon(new ImageIcon(provider.getProtocolProvider()
                     .getProtocolIcon().getIcon(ProtocolIcon.ICON_SIZE_16x16)));
