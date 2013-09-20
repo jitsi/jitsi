@@ -91,7 +91,7 @@ public class ChatWritePanel
 
     /**
      * A timer used to reset the transport resource to the bare ID if there was
-     * no activity from this resource since a buch a time.
+     * no activity from this resource since a bunch of time.
      */
     private java.util.Timer outdatedResourceTimer = null;
 
@@ -1104,9 +1104,12 @@ public class ChatWritePanel
             }
         }
 
-        // Sets the new reousrce transport is really effective (i.e. we have
+        // Sets the new resource transport is really effective (i.e. we have
         // received a message from this resource).
-        if(transportSelectorBox != null && isMessageOrFileTransferReceived)
+        // or if it is the last one
+        if(transportSelectorBox != null
+            && (isMessageOrFileTransferReceived
+                || transportSelectorBox.getMenu().getItemCount() == 1))
         {
             transportSelectorBox.setSelected(chatTransport);
         }

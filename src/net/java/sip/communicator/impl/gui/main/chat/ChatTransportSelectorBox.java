@@ -249,13 +249,21 @@ public class ChatTransportSelectorBox
             ChatTransport newChatTransport
                 = getParentContactTransport(chatTransport);
 
-            ChatTransport onlineTransport = getOnlineTransport();
+            ChatTransport onlineTransport = getTransport(true);
 
             if(newChatTransport != null
                 && newChatTransport.getStatus().isOnline())
                 setSelected(newChatTransport);
             else if (onlineTransport != null)
                 setSelected(onlineTransport);
+            else
+            {
+                // update when going to offline
+                ChatTransport offlineTransport = getTransport(false);
+
+                if(offlineTransport != null)
+                    setSelected(offlineTransport);
+            }
         }
 
         menuItem = transportMenuItems.get(chatTransport);
@@ -372,15 +380,17 @@ public class ChatTransportSelectorBox
     /**
      * Searches online contacts in the send via combo box.
      *
-     * @param chatTransport the chat transport to check
-     * @return TRUE if the send via combo box contains online contacts,
-     * otherwise returns FALSE.
+     * @param online if <tt>TRUE</tt> will return online transport, otherwise
+     *               will return offline one.
+     * @return online or offline contact transport from combo box.
      */
-    private ChatTransport getOnlineTransport()
+    private ChatTransport getTransport(boolean online)
     {
         for (ChatTransport comboChatTransport : transportMenuItems.keySet())
         {
-            if(comboChatTransport.getStatus().isOnline())
+            if(online && comboChatTransport.getStatus().isOnline())
+                return comboChatTransport;
+            else if(!online && !comboChatTransport.getStatus().isOnline())
                 return comboChatTransport;
         }
         return null;
