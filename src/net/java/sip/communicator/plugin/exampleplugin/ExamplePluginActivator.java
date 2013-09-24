@@ -33,7 +33,7 @@ public class ExamplePluginActivator
     public void start(BundleContext bc)
         throws Exception
     {
-        ExamplePluginMenuItem examplePlugin = new ExamplePluginMenuItem();
+        final ExamplePluginMenuItem examplePlugin = new ExamplePluginMenuItem();
 
         Hashtable<String, String> containerFilter
             = new Hashtable<String, String>();
@@ -41,9 +41,18 @@ public class ExamplePluginActivator
                 Container.CONTAINER_ID,
                 Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU.getID());
 
-        bc.registerService(  PluginComponent.class.getName(),
-                                        examplePlugin,
-                                        containerFilter);
+        bc.registerService(
+            PluginComponentFactory.class.getName(),
+            new PluginComponentFactory(
+                    Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU)
+            {
+                @Override
+                protected PluginComponent getPluginInstance()
+                {
+                    return examplePlugin;
+                }
+            },
+            containerFilter);
 
         if (logger.isInfoEnabled())
             logger.info("CONTACT INFO... [REGISTERED]");

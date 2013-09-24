@@ -109,7 +109,7 @@ public class ChatRoomCommonRightButtonMenu
         try
         {
             serRefs = GuiActivator.bundleContext.getServiceReferences(
-                PluginComponent.class.getName(),
+                PluginComponentFactory.class.getName(),
                 osgiFilter);
         }
         catch (InvalidSyntaxException exc)
@@ -121,8 +121,11 @@ public class ChatRoomCommonRightButtonMenu
         {
             for (int i = 0; i < serRefs.length; i ++)
             {
-                PluginComponent component = (PluginComponent) GuiActivator
-                    .bundleContext.getService(serRefs[i]);;
+                PluginComponentFactory factory =
+                    (PluginComponentFactory) GuiActivator
+                        .bundleContext.getService(serRefs[i]);
+                PluginComponent component =
+                    factory.getPluginComponentInstance(this);
 
                 if (component.getComponent() == null)
                     continue;
@@ -169,9 +172,10 @@ public class ChatRoomCommonRightButtonMenu
      */
     public void pluginComponentAdded(PluginComponentEvent event)
     {
-        PluginComponent c = event.getPluginComponent();
+        PluginComponentFactory factory = event.getPluginComponentFactory();
 
-        this.add((Component) c.getComponent());
+        this.add(
+            (Component)factory.getPluginComponentInstance(this).getComponent());
 
         this.repaint();
     }
@@ -184,9 +188,10 @@ public class ChatRoomCommonRightButtonMenu
      */
     public void pluginComponentRemoved(PluginComponentEvent event)
     {
-        PluginComponent c = event.getPluginComponent();
+        PluginComponentFactory factory = event.getPluginComponentFactory();
 
-        this.remove((Component) c.getComponent());
+        this.remove(
+            (Component)factory.getPluginComponentInstance(this).getComponent());
     }
 
     /**

@@ -399,7 +399,8 @@ public class AccountStatusPanel
      */
     public void pluginComponentAdded(PluginComponentEvent event)
     {
-        PluginComponent pluginComponent = event.getPluginComponent();
+        PluginComponentFactory pluginComponent =
+            event.getPluginComponentFactory();
         Container containerID = pluginComponent.getContainer();
         /*
         // avoid early creating of components by calling getComponent
@@ -425,7 +426,8 @@ public class AccountStatusPanel
      */
     public void pluginComponentRemoved(PluginComponentEvent event)
     {
-        PluginComponent pluginComponent = event.getPluginComponent();
+        PluginComponentFactory pluginComponent =
+            event.getPluginComponentFactory();
         Container pluginContainer = pluginComponent.getContainer();
         /*Object component = pluginComponent.getComponent();
 

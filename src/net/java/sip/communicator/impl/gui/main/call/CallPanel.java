@@ -1272,7 +1272,7 @@ public class CallPanel
         {
             serRefs
                 = GuiActivator.bundleContext.getServiceReferences(
-                        PluginComponent.class.getName(),
+                        PluginComponentFactory.class.getName(),
                         osgiFilter);
         }
         catch (InvalidSyntaxException ise)
@@ -1284,9 +1284,12 @@ public class CallPanel
         {
             for (ServiceReference serRef : serRefs)
             {
-                PluginComponent component
-                    = (PluginComponent)
+                PluginComponentFactory factory
+                    = (PluginComponentFactory)
                         GuiActivator.bundleContext.getService(serRef);
+
+                PluginComponent component =
+                    factory.getPluginComponentInstance(CallPanel.this);
 
                 component.setCurrentContact(
                     CallManager.getPeerMetaContact(
@@ -1685,25 +1688,26 @@ public class CallPanel
      */
     protected void onPluginComponentEvent(PluginComponentEvent ev)
     {
-        PluginComponent pc = ev.getPluginComponent();
-        Object c;
+        PluginComponentFactory pc = ev.getPluginComponentFactory();
 
         if (pc.getContainer().equals(
                     net.java.sip.communicator.service.gui.Container
-                            .CONTAINER_CALL_DIALOG)
-                && ((c = pc.getComponent()) instanceof Component))
+                            .CONTAINER_CALL_DIALOG))
         {
-            pc.setCurrentContact(
+            PluginComponent plugin =
+                pc.getPluginComponentInstance(CallPanel.this);
+            Component c = (Component)plugin.getComponent();
+            plugin.setCurrentContact(
                 CallManager.getPeerMetaContact(
                     callConference.getCallPeers().get(0)));
 
             switch (ev.getEventID())
             {
             case PluginComponentEvent.PLUGIN_COMPONENT_ADDED:
-                settingsPanel.add((Component) c);
+                settingsPanel.add(c);
                 break;
             case PluginComponentEvent.PLUGIN_COMPONENT_REMOVED:
-                settingsPanel.remove((Component) c);
+                settingsPanel.remove(c);
                 break;
             }
 

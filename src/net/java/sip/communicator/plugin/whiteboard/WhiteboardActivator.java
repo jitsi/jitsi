@@ -44,7 +44,7 @@ public class WhiteboardActivator implements BundleActivator
 
         session = new WhiteboardSessionManager ();
 
-        WhiteboardMenuItem whiteboardPlugin = new WhiteboardMenuItem (session);
+        final WhiteboardMenuItem whiteboardPlugin = new WhiteboardMenuItem (session);
 
         Hashtable<String, String> containerFilter
             = new Hashtable<String, String>();
@@ -52,9 +52,18 @@ public class WhiteboardActivator implements BundleActivator
                 Container.CONTAINER_ID,
                 Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU.getID());
 
-        bundleContext.registerService(  PluginComponent.class.getName(),
-                                        whiteboardPlugin,
-                                        containerFilter);
+        bundleContext.registerService(
+            PluginComponentFactory.class.getName(),
+            new PluginComponentFactory(
+                    Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU)
+            {
+                @Override
+                protected PluginComponent getPluginInstance()
+                {
+                    return whiteboardPlugin;
+                }
+            },
+            containerFilter);
 
         if (logger.isInfoEnabled())
             logger.info("WHITEBOARD... [REGISTERED]");

@@ -14,7 +14,7 @@ import net.java.sip.communicator.service.protocol.*;
  * all plugins that would like to add a user interface component to a particular
  * container in the graphical user interface (GUI). In order to appear in the
  * GUI all implementations of this interface should be registered through the
- * OSGI bundle context.
+ * OSGI bundle context using <tt>PluginComponentFactory</tt>.
  * <p>
  * All components interested in the current contact or group that they're
  * dealing with (i.g. the one selected in the contact list for example), should
@@ -36,37 +36,6 @@ public interface PluginComponent
      * @return the name of this plugin component
      */
     public String getName();
-
-    /**
-     * Returns the identifier of the container, where we would like to add
-     * our control. All possible container identifiers are defined in the
-     * <tt>Container</tt> class. If the <tt>Container</tt> returned by this
-     * method is not supported by the current UI implementation the plugin won't
-     * be added.
-     *
-     * @return the container, where we would like to add our control.
-     */
-    public Container getContainer();
-
-    /**
-     * Returns the constraints, which will indicate to the container, where this
-     * component should be added. All constraints are defined in the Container
-     * class and are as follows: START, END, TOP, BOTTOM, LEFT, RIGHT.
-     *
-     * @return the constraints, which will indicate to the container, where this
-     * component should be added.
-     */
-    public String getConstraints();
-
-    /**
-     * Returns the index position of this component in the container, where it
-     * will be added. An index of 0 would mean that this component should be
-     * added before all other components. An index of -1 would mean that the
-     * position of this component is not important.
-     * @return the index position of this component in the container, where it
-     * will be added.
-     */
-    public int getPositionIndex();
 
     /**
      * Returns the component that should be added. This method should return a
@@ -106,14 +75,4 @@ public interface PluginComponent
      * @param metaGroup the current meta contact group
      */
     public void setCurrentContactGroup(MetaContactGroup metaGroup);
-
-    /**
-     * Returns <code>true</code> to indicate that this component is a native
-     * component and <code>false</code> otherwise. This method is meant to be
-     * used by containers if a special treatment is needed for native components.
-     *
-     * @return <code>true</code> to indicate that this component is a native
-     * component and <code>false</code> otherwise.
-     */
-    public boolean isNativeComponent();
 }

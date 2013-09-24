@@ -190,10 +190,6 @@ public class UpdateActivator
             if(!cfg.getBoolean(CHECK_FOR_UPDATES_MENU_DISABLED_PROP, false))
             {
                 // Register the "Check for Updates" menu item.
-                CheckForUpdatesMenuItemComponent
-                    checkForUpdatesMenuItemComponent
-                    = new CheckForUpdatesMenuItemComponent(
-                            Container.CONTAINER_HELP_MENU);
 
                 Hashtable<String, String> toolsMenuFilter
                     = new Hashtable<String, String>();
@@ -202,9 +198,17 @@ public class UpdateActivator
                         Container.CONTAINER_HELP_MENU.getID());
 
                 bundleContext.registerService(
-                        PluginComponent.class.getName(),
-                        checkForUpdatesMenuItemComponent,
-                        toolsMenuFilter);
+                    PluginComponentFactory.class.getName(),
+                    new PluginComponentFactory(Container.CONTAINER_HELP_MENU)
+                    {
+                        @Override
+                        protected PluginComponent getPluginInstance()
+                        {
+                            return new CheckForUpdatesMenuItemComponent(
+                                getContainer());
+                        }
+                    },
+                    toolsMenuFilter);
             }
 
             // Check for software update upon startup if enabled.

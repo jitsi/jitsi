@@ -818,7 +818,7 @@ public class ChatWindow
         try
         {
             serRefs = GuiActivator.bundleContext.getServiceReferences(
-                PluginComponent.class.getName(),
+                PluginComponentFactory.class.getName(),
                 osgiFilter);
         }
         catch (InvalidSyntaxException exc)
@@ -830,11 +830,12 @@ public class ChatWindow
         {
             for (ServiceReference serRef : serRefs)
             {
-                PluginComponent c
-                    = (PluginComponent)
+                PluginComponentFactory factory
+                    = (PluginComponentFactory)
                         GuiActivator .bundleContext.getService(serRef);
 
-                Component comp = (Component) c.getComponent();
+                Component comp = (Component)factory.getPluginComponentInstance(
+                    ChatWindow.this).getComponent();
 
                 // If this component has been already added, we have nothing
                 // more to do here.
@@ -842,10 +843,11 @@ public class ChatWindow
                     return;
 
                 Object borderLayoutConstraint = UIServiceImpl
-                    .getBorderLayoutConstraintsFromContainer(c.getConstraints());
+                    .getBorderLayoutConstraintsFromContainer(
+                        factory.getConstraints());
 
                 this.addPluginComponent(comp,
-                                        c.getContainer(),
+                                        factory.getContainer(),
                                         borderLayoutConstraint);
             }
         }
@@ -858,23 +860,26 @@ public class ChatWindow
      */
     public void pluginComponentAdded(PluginComponentEvent event)
     {
-        PluginComponent c = event.getPluginComponent();
+        PluginComponentFactory factory = event.getPluginComponentFactory();
 
-        Component comp = (Component) c.getComponent();
+        Component comp = (Component)factory.getPluginComponentInstance(
+            ChatWindow.this).getComponent();
 
         // If this component has been already added, we have nothing more to do
         // here.
         if (comp.getParent() != null)
             return;
 
-        if (c.getContainer().equals(Container.CONTAINER_CHAT_WINDOW)
-            || c.getContainer().equals(Container.CONTAINER_CHAT_STATUS_BAR))
+        if (factory.getContainer().equals(Container.CONTAINER_CHAT_WINDOW)
+            || factory.getContainer().equals(
+                    Container.CONTAINER_CHAT_STATUS_BAR))
         {
             Object borderLayoutConstraints = UIServiceImpl
-                .getBorderLayoutConstraintsFromContainer(c.getConstraints());
+                .getBorderLayoutConstraintsFromContainer(
+                    factory.getConstraints());
 
-            this.addPluginComponent((Component) c.getComponent(),
-                                    c.getContainer(),
+            this.addPluginComponent(comp,
+                                    factory.getContainer(),
                                     borderLayoutConstraints);
         }
     }
@@ -886,17 +891,21 @@ public class ChatWindow
      */
     public void pluginComponentRemoved(PluginComponentEvent event)
     {
-        PluginComponent c = event.getPluginComponent();
+        PluginComponentFactory factory = event.getPluginComponentFactory();
 
-        if (c.getContainer().equals(Container.CONTAINER_CHAT_WINDOW)
-            || c.getContainer().equals(Container.CONTAINER_CHAT_STATUS_BAR))
+        if (factory.getContainer().equals(Container.CONTAINER_CHAT_WINDOW)
+            || factory.getContainer().equals(
+                    Container.CONTAINER_CHAT_STATUS_BAR))
         {
             Object borderLayoutConstraint = UIServiceImpl
-                .getBorderLayoutConstraintsFromContainer(c.getConstraints());
+                .getBorderLayoutConstraintsFromContainer(
+                    factory.getConstraints());
 
-            this.removePluginComponent( (Component) c.getComponent(),
-                                        c.getContainer(),
-                                        borderLayoutConstraint);
+            this.removePluginComponent(
+                (Component)factory.getPluginComponentInstance(
+                    ChatWindow.this).getComponent(),
+                factory.getContainer(),
+                borderLayoutConstraint);
 
             this.pack();
         }

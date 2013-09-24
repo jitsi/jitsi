@@ -43,10 +43,6 @@ public class LanguageMenuBar
      */
     private static final long serialVersionUID = 0L;
 
-    private static final HashMap<SpellChecker, LanguageMenuBar>
-        CLASS_INSTANCES =
-            new HashMap<SpellChecker, LanguageMenuBar>();
-
     // parallel maps containing cached instances of country flags
     private static final HashMap<Parameters.Locale, ImageIcon>
         AVAILABLE_FLAGS = new HashMap<Parameters.Locale, ImageIcon>();
@@ -77,30 +73,7 @@ public class LanguageMenuBar
 
     public final JList list;
 
-    /**
-     * Provides instance of this class associated with a spell checker. If ones
-     * already been created then this instance is used.
-     *
-     * @param checker spell checker field is to be associated with
-     * @return spell checker locale selection field
-     */
-    public synchronized static LanguageMenuBar makeSelectionField(
-        SpellChecker checker)
-    {
-        // singleton constructor to ensure only one combo box is associated with
-        // each checker
-        if (CLASS_INSTANCES.containsKey(checker))
-            return CLASS_INSTANCES.get(checker);
-        else
-        {
-            LanguageMenuBar instance =
-                new LanguageMenuBar(checker);
-            CLASS_INSTANCES.put(checker, instance);
-            return instance;
-        }
-    }
-
-    private LanguageMenuBar(SpellChecker checker)
+    LanguageMenuBar(SpellChecker checker)
     {
         this.spellChecker = checker;
 
@@ -264,40 +237,10 @@ public class LanguageMenuBar
         });
     }
 
-    /**
-     * Clears any cached data used by the field so it reflects the current state
-     * of its associated spell checker.
-     */
-    // public void revalidate()
-    // {
-    // this.localeAvailabilityCache.clear();
-    // this.field.setSelectedItem(this.spellChecker.getLocale());
-    // }
-
-    public String getConstraints()
-    {
-        return Container.RIGHT;
-    }
-
-    public Container getContainer()
-    {
-        return Container.CONTAINER_CHAT_TOOL_BAR;
-    }
-
     @Override
     public String getName()
     {
         return "Spell Checker Toggle";
-    }
-
-    public int getPositionIndex()
-    {
-        return -1;
-    }
-
-    public boolean isNativeComponent()
-    {
-        return false;
     }
 
     public void setCurrentContact(MetaContact metaContact)

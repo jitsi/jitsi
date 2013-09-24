@@ -158,7 +158,7 @@ public class ToolsMenu
         try
         {
             serRefs = GuiActivator.bundleContext.getServiceReferences(
-                PluginComponent.class.getName(),
+                PluginComponentFactory.class.getName(),
                 osgiFilter);
         }
         catch (InvalidSyntaxException exc)
@@ -170,14 +170,15 @@ public class ToolsMenu
         {
             for (ServiceReference serRef : serRefs)
             {
-                final PluginComponent component = (PluginComponent) GuiActivator
+                final PluginComponentFactory f = (PluginComponentFactory) GuiActivator
                     .bundleContext.getService(serRef);
 
                 SwingUtilities.invokeLater(new Runnable()
                 {
                     public void run()
                     {
-                        add((Component) component.getComponent());
+                        add((Component) f.getPluginComponentInstance(
+                            ToolsMenu.this).getComponent());
                     }
                 });
             }
@@ -293,7 +294,7 @@ public class ToolsMenu
      */
     public void pluginComponentAdded(PluginComponentEvent event)
     {
-        final PluginComponent c = event.getPluginComponent();
+        final PluginComponentFactory c = event.getPluginComponentFactory();
 
         if(c.getContainer().equals(Container.CONTAINER_TOOLS_MENU))
         {
@@ -301,7 +302,7 @@ public class ToolsMenu
             {
                 public void run()
                 {
-                    add((Component) c.getComponent());
+                    add((Component) c.getPluginComponentInstance(ToolsMenu.this));
                 }
             });
 
@@ -317,7 +318,7 @@ public class ToolsMenu
      */
     public void pluginComponentRemoved(PluginComponentEvent event)
     {
-        final PluginComponent c = event.getPluginComponent();
+        final PluginComponentFactory c = event.getPluginComponentFactory();
 
         if(c.getContainer().equals(Container.CONTAINER_TOOLS_MENU))
         {
@@ -325,7 +326,7 @@ public class ToolsMenu
             {
                 public void run()
                 {
-                    remove((Component) c.getComponent());
+                    remove((Component) c.getPluginComponentInstance(ToolsMenu.this).getComponent());
                 }
             });
         }

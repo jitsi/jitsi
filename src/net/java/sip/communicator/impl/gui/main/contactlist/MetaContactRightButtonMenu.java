@@ -887,7 +887,7 @@ public class MetaContactRightButtonMenu
         try
         {
             serRefs = GuiActivator.bundleContext.getServiceReferences(
-                PluginComponent.class.getName(),
+                PluginComponentFactory.class.getName(),
                 osgiFilter);
         }
         catch (InvalidSyntaxException exc)
@@ -899,17 +899,21 @@ public class MetaContactRightButtonMenu
         {
             for (int i = 0; i < serRefs.length; i ++)
             {
-                PluginComponent component = (PluginComponent) GuiActivator
-                    .bundleContext.getService(serRefs[i]);
+                PluginComponentFactory factory =
+                    (PluginComponentFactory) GuiActivator
+                        .bundleContext.getService(serRefs[i]);
+
+                PluginComponent component =
+                    factory.getPluginComponentInstance(this);
 
                 component.setCurrentContact(metaContact);
 
                 if (component.getComponent() == null)
                     continue;
 
-                if(component.getPositionIndex() != -1)
+                if(factory.getPositionIndex() != -1)
                     this.add((Component)component.getComponent(),
-                             component.getPositionIndex());
+                        factory.getPositionIndex());
                 else
                     this.add((Component)component.getComponent());
 
@@ -1359,20 +1363,21 @@ public class MetaContactRightButtonMenu
      */
     public void pluginComponentAdded(PluginComponentEvent event)
     {
-        PluginComponent c = event.getPluginComponent();
+        PluginComponentFactory factory = event.getPluginComponentFactory();
 
-        if(!c.getContainer()
+        if(!factory.getContainer()
                 .equals(Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU))
             return;
 
         Object constraints
             = UIServiceImpl.getBorderLayoutConstraintsFromContainer(
-                c.getConstraints());
+                factory.getConstraints());
 
+        PluginComponent c = factory.getPluginComponentInstance(this);
         if (c.getComponent() == null)
             return;
 
-        int ix = c.getPositionIndex();
+        int ix = factory.getPositionIndex();
 
         if (constraints == null)
         {
@@ -1401,12 +1406,13 @@ public class MetaContactRightButtonMenu
      */
     public void pluginComponentRemoved(PluginComponentEvent event)
     {
-        PluginComponent c = event.getPluginComponent();
+        PluginComponentFactory factory = event.getPluginComponentFactory();
 
-        if(c.getContainer()
+        if(factory.getContainer()
                 .equals(Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU))
         {
-            this.remove((Component) c.getComponent());
+            this.remove((Component)factory.getPluginComponentInstance(this)
+                .getComponent());
         }
     }
 

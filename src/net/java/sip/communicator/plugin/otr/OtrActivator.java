@@ -340,18 +340,20 @@ public class OtrActivator
             containerFilter.put(Container.CONTAINER_ID,
                 Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU.getID());
 
-            bundleContext
-                .registerService(PluginComponent.class.getName(),
-                    new OtrMetaContactMenu(
-                            Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU),
-                            containerFilter);
+            bundleContext.registerService(
+                PluginComponentFactory.class.getName(),
+                new OtrPluginComponentFactory(
+                        Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU),
+                containerFilter);
 
             // Register the chat window menu bar item.
             containerFilter.put(Container.CONTAINER_ID,
                                 Container.CONTAINER_CHAT_MENU_BAR.getID());
 
-            bundleContext.registerService(PluginComponent.class.getName(),
-                new OtrMetaContactMenu(Container.CONTAINER_CHAT_MENU_BAR),
+            bundleContext.registerService(
+                PluginComponentFactory.class.getName(),
+                new OtrPluginComponentFactory(
+                        Container.CONTAINER_CHAT_MENU_BAR),
                 containerFilter);
 
             // Register the chat button bar default-action-button.
@@ -359,8 +361,9 @@ public class OtrActivator
                                 Container.CONTAINER_CHAT_TOOL_BAR.getID());
 
             bundleContext.registerService(
-                PluginComponent.class.getName(),
-                new OtrMetaContactButton(Container.CONTAINER_CHAT_TOOL_BAR),
+                PluginComponentFactory.class.getName(),
+                new OtrPluginComponentFactory(
+                        Container.CONTAINER_CHAT_TOOL_BAR),
                 containerFilter);
 
             // Register Swing OTR action handler
@@ -368,8 +371,6 @@ public class OtrActivator
                 OtrActionHandler.class.getName(),
                 new SwingOtrActionHandler(), null);
         }
-
-
 
         // If the general configuration form is disabled don't register it.
         if (!configService.getBoolean(OTR_CHAT_CONFIG_DISABLED_PROP, false)
@@ -445,5 +446,24 @@ public class OtrActivator
                         MetaContactListService.class);
         }
         return metaCListService;
+    }
+
+    /**
+     * The factory that will be registered in OSGi and will create
+     * otr menu instances.
+     */
+    private class OtrPluginComponentFactory
+        extends PluginComponentFactory
+    {
+        OtrPluginComponentFactory(Container c)
+        {
+            super(c);
+        }
+
+        @Override
+        protected PluginComponent getPluginInstance()
+        {
+            return new OtrMetaContactMenu(getContainer());
+        }
     }
 }

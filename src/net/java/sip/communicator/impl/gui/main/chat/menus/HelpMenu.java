@@ -78,7 +78,7 @@ public class HelpMenu
         try
         {
             serRefs = GuiActivator.bundleContext.getServiceReferences(
-                PluginComponent.class.getName(),
+                PluginComponentFactory.class.getName(),
                 osgiFilter);
         }
         catch (InvalidSyntaxException exc)
@@ -90,8 +90,11 @@ public class HelpMenu
         {
             for (int i = 0; i < serRefs.length; i ++)
             {
-                PluginComponent component = (PluginComponent) GuiActivator
-                    .bundleContext.getService(serRefs[i]);;
+                PluginComponentFactory factory =
+                    (PluginComponentFactory) GuiActivator
+                        .bundleContext.getService(serRefs[i]);
+                PluginComponent component =
+                    factory.getPluginComponentInstance(HelpMenu.this);
 
                 this.add((Component)component.getComponent());
             }
@@ -110,11 +113,13 @@ public class HelpMenu
 
     public void pluginComponentAdded(PluginComponentEvent event)
     {
-        PluginComponent c = event.getPluginComponent();
+        PluginComponentFactory factory = event.getPluginComponentFactory();
 
-        if (c.getContainer().equals(Container.CONTAINER_CHAT_HELP_MENU))
+        if (factory.getContainer().equals(Container.CONTAINER_CHAT_HELP_MENU))
         {
-            this.add((Component) c.getComponent());
+            this.add(
+                (Component)factory.getPluginComponentInstance(HelpMenu.this)
+                    .getComponent());
 
             this.revalidate();
             this.repaint();
@@ -123,12 +128,13 @@ public class HelpMenu
 
     public void pluginComponentRemoved(PluginComponentEvent event)
     {
-        PluginComponent c = event.getPluginComponent();
+        PluginComponentFactory factory = event.getPluginComponentFactory();
 
-        if (c.getContainer().equals(Container.CONTAINER_CHAT_HELP_MENU))
+        if (factory.getContainer().equals(Container.CONTAINER_CHAT_HELP_MENU))
         {
-            this.remove((Component) c.getComponent());
+            this.remove(
+                (Component)factory.getPluginComponentInstance(HelpMenu.this)
+                    .getComponent());
         }
     }
-
 }

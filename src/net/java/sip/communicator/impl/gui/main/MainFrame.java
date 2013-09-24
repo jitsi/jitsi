@@ -126,8 +126,8 @@ public class MainFrame
     /**
      * A mapping of plug-in components and their corresponding native components.
      */
-    private final Map<PluginComponent, Component> nativePluginsTable =
-        new Hashtable<PluginComponent, Component>();
+    private final List<PluginComponentFactory> nativePluginsTable =
+        new ArrayList<PluginComponentFactory>();
 
     /**
      * The north plug-in panel.
@@ -1441,7 +1441,7 @@ public class MainFrame
                 = GuiActivator
                     .bundleContext
                         .getServiceReferences(
-                            PluginComponent.class.getName(),
+                            PluginComponentFactory.class.getName(),
                             "(|("
                                 + Container.CONTAINER_ID
                                 + "="
@@ -1461,15 +1461,15 @@ public class MainFrame
         {
             for (ServiceReference serRef : serRefs)
             {
-                PluginComponent c
-                    = (PluginComponent)
-                        GuiActivator.bundleContext.getService(serRef);
+                PluginComponentFactory factory
+                    = (PluginComponentFactory)
+                            GuiActivator.bundleContext.getService(serRef);
 
-                if (c.isNativeComponent())
-                    nativePluginsTable.put(c, new JPanel());
+                if (factory.isNativeComponent())
+                    nativePluginsTable.add(factory);
                 else
                 {
-                    String pluginConstraints = c.getConstraints();
+                    String pluginConstraints = factory.getConstraints();
                     Object constraints;
 
                     if (pluginConstraints != null)
@@ -1480,8 +1480,11 @@ public class MainFrame
                     else
                         constraints = BorderLayout.SOUTH;
 
-                    this.addPluginComponent((Component) c.getComponent(), c
-                        .getContainer(), constraints);
+                    this.addPluginComponent(
+                        (Component)factory.getPluginComponentInstance(this)
+                            .getComponent(),
+                        factory.getContainer(),
+                        constraints);
                 }
             }
         }
@@ -1497,13 +1500,13 @@ public class MainFrame
      */
     public void pluginComponentAdded(PluginComponentEvent event)
     {
-        PluginComponent pluginComponent = event.getPluginComponent();
-        Container pluginContainer = pluginComponent.getContainer();
+        PluginComponentFactory factory = event.getPluginComponentFactory();
+        Container pluginContainer = factory.getContainer();
 
         if (pluginContainer.equals(Container.CONTAINER_MAIN_WINDOW)
             || pluginContainer.equals(Container.CONTAINER_STATUS_BAR))
         {
-            String pluginConstraints = pluginComponent.getConstraints();
+            String pluginConstraints = factory.getConstraints();
             Object constraints;
 
             if (pluginConstraints != null)
@@ -1513,9 +1516,9 @@ public class MainFrame
             else
                 constraints = BorderLayout.SOUTH;
 
-            if (pluginComponent.isNativeComponent())
+            if (factory.isNativeComponent())
             {
-                this.nativePluginsTable.put(pluginComponent, new JPanel());
+                this.nativePluginsTable.add(factory);
 
                 if (isFrameVisible())
                 {
@@ -1530,8 +1533,12 @@ public class MainFrame
             }
             else
             {
-                this.addPluginComponent((Component) pluginComponent
-                    .getComponent(), pluginContainer, constraints);
+                this.addPluginComponent(
+                    (Component)factory
+                        .getPluginComponentInstance(MainFrame.this)
+                            .getComponent(),
+                    pluginContainer,
+                    constraints);
             }
         }
     }
@@ -1544,30 +1551,33 @@ public class MainFrame
      */
     public void pluginComponentRemoved(PluginComponentEvent event)
     {
-        final PluginComponent pluginComponent = event.getPluginComponent();
-        final Container containerID = pluginComponent.getContainer();
+        final PluginComponentFactory factory =
+            event.getPluginComponentFactory();
+        final Container containerID = factory.getContainer();
 
         if (containerID.equals(Container.CONTAINER_MAIN_WINDOW))
         {
             Object constraints = UIServiceImpl
                     .getBorderLayoutConstraintsFromContainer(
-                        pluginComponent.getConstraints());
+                        factory.getConstraints());
 
             if (constraints == null)
                 constraints = BorderLayout.SOUTH;
 
-            if (pluginComponent.isNativeComponent())
+            if (factory.isNativeComponent())
             {
-                if (nativePluginsTable.containsKey(pluginComponent))
+                if (nativePluginsTable.contains(factory))
                 {
-                    final Component c = nativePluginsTable.get(pluginComponent);
                     final Object finalConstraints = constraints;
 
                     SwingUtilities.invokeLater(new Runnable()
                     {
                         public void run()
                         {
-                            removePluginComponent(c, containerID,
+                            removePluginComponent(
+                                (Component)factory.getPluginComponentInstance(
+                                    MainFrame.this).getComponent(),
+                                containerID,
                                 finalConstraints);
 
                             getContentPane().repaint();
@@ -1577,11 +1587,15 @@ public class MainFrame
             }
             else
             {
-                this.removePluginComponent((Component) pluginComponent
-                    .getComponent(), containerID, constraints);
+                this.removePluginComponent(
+                    (Component) factory
+                        .getPluginComponentInstance(MainFrame.this)
+                            .getComponent(),
+                    containerID,
+                    constraints);
             }
 
-            nativePluginsTable.remove(pluginComponent);
+            nativePluginsTable.remove(factory);
         }
     }
 
@@ -1590,21 +1604,20 @@ public class MainFrame
      */
     private void removeNativePlugins()
     {
-        for (Map.Entry<PluginComponent, Component> entry
-                : nativePluginsTable.entrySet())
+        for (PluginComponentFactory factory: nativePluginsTable)
         {
-            PluginComponent pluginComponent = entry.getKey();
-            Component c = entry.getValue();
-
             Object constraints
                 = UIServiceImpl
-                    .getBorderLayoutConstraintsFromContainer(pluginComponent
+                    .getBorderLayoutConstraintsFromContainer(factory
                         .getConstraints());
 
             if (constraints == null)
                 constraints = BorderLayout.SOUTH;
 
-            this.removePluginComponent(c, pluginComponent.getContainer(),
+            this.removePluginComponent(
+                (Component)factory.getPluginComponentInstance(MainFrame.this)
+                    .getComponent(),
+                factory.getContainer(),
                 constraints);
 
             this.getContentPane().repaint();
@@ -1618,20 +1631,20 @@ public class MainFrame
     {
         this.removeNativePlugins();
 
-        for (Map.Entry<PluginComponent, Component> pluginEntry
-                : nativePluginsTable.entrySet())
+        for (PluginComponentFactory factory: nativePluginsTable)
         {
-            PluginComponent plugin = pluginEntry.getKey();
             Object constraints
                 = UIServiceImpl
                     .getBorderLayoutConstraintsFromContainer(
-                        plugin.getConstraints());
+                        factory.getConstraints());
 
-            Component c = (Component) plugin.getComponent();
+            Component c = (Component) factory
+                .getPluginComponentInstance(MainFrame.this)
+                    .getComponent();
 
-            this.addPluginComponent(c, plugin.getContainer(), constraints);
+            this.addPluginComponent(c, factory.getContainer(), constraints);
 
-            this.nativePluginsTable.put(plugin, c);
+            this.nativePluginsTable.add(factory);
         }
     }
 

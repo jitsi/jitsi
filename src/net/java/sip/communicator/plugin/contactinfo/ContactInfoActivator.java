@@ -55,17 +55,17 @@ public class ContactInfoActivator implements BundleActivator
     {
         bundleContext = bc;
 
-        ContactInfoMenuItem cinfoMenuItem = new ContactInfoMenuItem();
-
         Hashtable<String, String> containerFilter
             = new Hashtable<String, String>();
         containerFilter.put(
                 Container.CONTAINER_ID,
                 Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU.getID());
 
-        bundleContext.registerService(  PluginComponent.class.getName(),
-                                        cinfoMenuItem,
-                                        containerFilter);
+        bundleContext.registerService(
+            PluginComponentFactory.class.getName(),
+            new ContactInfoPluginComponentFactory(
+                    Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU),
+            containerFilter);
 
         if(getConfigService().getBoolean(ENABLED_IN_CHAT_WINDOW_PROP, false))
         {
@@ -75,8 +75,9 @@ public class ContactInfoActivator implements BundleActivator
                     Container.CONTAINER_CHAT_TOOL_BAR.getID());
 
             bundleContext.registerService(
-                PluginComponent.class.getName(),
-                new ContactInfoMenuItem(Container.CONTAINER_CHAT_TOOL_BAR),
+                PluginComponentFactory.class.getName(),
+                new ContactInfoPluginComponentFactory(
+                        Container.CONTAINER_CHAT_TOOL_BAR),
                 containerFilter);
         }
 
@@ -88,8 +89,9 @@ public class ContactInfoActivator implements BundleActivator
                     Container.CONTAINER_CALL_DIALOG.getID());
 
             bundleContext.registerService(
-                PluginComponent.class.getName(),
-                new ContactInfoMenuItem(Container.CONTAINER_CALL_DIALOG),
+                PluginComponentFactory.class.getName(),
+                new ContactInfoPluginComponentFactory(
+                        Container.CONTAINER_CALL_DIALOG),
                 containerFilter);
         }
 
@@ -169,4 +171,21 @@ public class ContactInfoActivator implements BundleActivator
             ConfigurationService.class);
     }
 
+    /**
+     * Contact info create factory.
+     */
+    private class ContactInfoPluginComponentFactory
+        extends PluginComponentFactory
+    {
+        ContactInfoPluginComponentFactory(Container c)
+        {
+            super(c);
+        }
+
+        @Override
+        protected PluginComponent getPluginInstance()
+        {
+            return new ContactInfoMenuItem(getContainer());
+        }
+    }
 }

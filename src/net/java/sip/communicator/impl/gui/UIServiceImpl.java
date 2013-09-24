@@ -214,15 +214,15 @@ public class UIServiceImpl
      * <tt>ContainerPluginListener</tt>s that a plugin component is added or
      * removed from the container.
      *
-     * @param pluginComponent the plugin component that is added to the
+     * @param factory the plugin component factory that is added to the
      *            container.
      * @param eventID one of the PLUGIN_COMPONENT_XXX static fields indicating
      *            the nature of the event.
      */
-    private void firePluginEvent(PluginComponent pluginComponent, int eventID)
+    private void firePluginEvent(PluginComponentFactory factory,
+                                 int eventID)
     {
-        PluginComponentEvent evt =
-            new PluginComponentEvent(pluginComponent, eventID);
+        PluginComponentEvent evt = new PluginComponentEvent(factory, eventID);
 
         if (logger.isDebugEnabled())
             logger.debug("Will dispatch the following plugin component event: "
@@ -661,7 +661,7 @@ public class UIServiceImpl
      * contact exists already, returns it; otherwise, creates a new one.
      *
      * @param contact the contact that we'd like to retrieve a chat window for.
-     * @param escapedMessageID the message ID of the message that should be
+     * @param escapedMessageUID the message ID of the message that should be
      * excluded from the history when the last one is loaded in the chat
      * @return the <tt>Chat</tt> corresponding to the specified contact.
      * @see UIService#getChat(Contact)
@@ -1060,10 +1060,10 @@ public class UIServiceImpl
             event.getServiceReference());
 
         // we don't care if the source service is not a plugin component
-        if (! (sService instanceof PluginComponent))
+        if (! (sService instanceof PluginComponentFactory))
             return;
 
-        PluginComponent pluginComponent = (PluginComponent) sService;
+        PluginComponentFactory factory = (PluginComponentFactory) sService;
 
         switch (event.getType())
         {
@@ -1071,27 +1071,12 @@ public class UIServiceImpl
             if (logger.isInfoEnabled())
                 logger.info("Handling registration of a new Plugin Component.");
 
-            /*
-            // call getComponent for the first time when the component is
-            // needed to be created and add to a container
-            // skip early creating of components
-            Object component = pluginComponent.getComponent();
-            if (!(component instanceof Component))
-            {
-                logger.error("Plugin Component type is not supported."
-                    + "Should provide a plugin in AWT, SWT or Swing.");
-                if (logger.isDebugEnabled())
-                    logger.debug("Logging exception to show the calling plugin",
-                    new Exception(""));
-                return;
-            }*/
-
-            this.firePluginEvent(pluginComponent,
+            this.firePluginEvent(factory,
                 PluginComponentEvent.PLUGIN_COMPONENT_ADDED);
             break;
 
         case ServiceEvent.UNREGISTERING:
-            this.firePluginEvent(pluginComponent,
+            this.firePluginEvent(factory,
                 PluginComponentEvent.PLUGIN_COMPONENT_REMOVED);
             break;
         }

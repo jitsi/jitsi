@@ -712,7 +712,7 @@ public class ContactListPane
         try
         {
             serRefs = GuiActivator.bundleContext.getServiceReferences(
-                PluginComponent.class.getName(),
+                PluginComponentFactory.class.getName(),
                 osgiFilter);
         }
         catch (InvalidSyntaxException exc)
@@ -724,9 +724,11 @@ public class ContactListPane
         {
             for (ServiceReference serRef : serRefs)
             {
-                PluginComponent component
-                    = (PluginComponent)
+                PluginComponentFactory factory =
+                    (PluginComponentFactory)
                         GuiActivator.bundleContext.getService(serRef);
+                PluginComponent component =
+                    factory.getPluginComponentInstance(this);
 
                 Object selectedValue = getContactList().getSelectedValue();
 
@@ -740,8 +742,8 @@ public class ContactListPane
                         .setCurrentContactGroup((MetaContactGroup)selectedValue);
                 }
 
-                String pluginConstraints = component.getConstraints();
-                Object constraints = null;
+                String pluginConstraints = factory.getConstraints();
+                Object constraints;
 
                 if (pluginConstraints != null)
                     constraints = UIServiceImpl
@@ -766,22 +768,22 @@ public class ContactListPane
      */
     public void pluginComponentAdded(PluginComponentEvent event)
     {
-        PluginComponent pluginComponent = event.getPluginComponent();
+        PluginComponentFactory factory = event.getPluginComponentFactory();
 
         // If the container id doesn't correspond to the id of the plugin
         // container we're not interested.
-        if(!pluginComponent.getContainer()
-                .equals(Container.CONTAINER_CONTACT_LIST))
+        if(!factory.getContainer().equals(Container.CONTAINER_CONTACT_LIST))
             return;
 
         Object constraints = UIServiceImpl
-            .getBorderLayoutConstraintsFromContainer(
-                    pluginComponent.getConstraints());
+            .getBorderLayoutConstraintsFromContainer(factory.getConstraints());
 
         if (constraints == null)
             constraints = BorderLayout.SOUTH;
 
-        this.add((Component) pluginComponent.getComponent(), constraints);
+        PluginComponent pluginComponent =
+            factory.getPluginComponentInstance(this);
+        this.add((Component)pluginComponent.getComponent(), constraints);
 
         Object selectedValue = getContactList().getSelectedValue();
 
@@ -807,14 +809,15 @@ public class ContactListPane
      */
     public void pluginComponentRemoved(PluginComponentEvent event)
     {
-        PluginComponent c = event.getPluginComponent();
+        PluginComponentFactory factory = event.getPluginComponentFactory();
 
         // If the container id doesn't correspond to the id of the plugin
         // container we're not interested.
-        if(!c.getContainer()
+        if(!factory.getContainer()
                 .equals(Container.CONTAINER_CONTACT_LIST))
             return;
 
-        this.remove((Component) c.getComponent());
+        this.remove(
+            (Component)factory.getPluginComponentInstance(this).getComponent());
     }
 }

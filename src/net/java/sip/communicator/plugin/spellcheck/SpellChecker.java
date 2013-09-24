@@ -151,14 +151,7 @@ class SpellChecker
         {
             public void run()
             {
-                // initializes dictionary and saves locale config
-                // use the worker to set the locale if it fails
-                // will still show spellcheck and will not fail
-                // starting spell check plugin
-                LanguageMenuBar.makeSelectionField(SpellChecker.this)
-                    .createSpellCheckerWorker(locale).start();
-
-                // attaches to uiService so this'll be attached to future chats
+                // attaches to uiService so we'll be attached to future chats
                 SpellCheckActivator.getUIService()
                     .addChatListener(SpellChecker.this);
 
