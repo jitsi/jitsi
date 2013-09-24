@@ -322,4 +322,15 @@ public class OperationSetMultiUserChatIrcImpl
                 ircProvider.getAccountID().getService(),
                 ChatRoomMemberRole.GUEST);
     }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Always returns <tt>false</tt>.
+     */
+    @Override
+    public boolean isPrivateMessagingContact(String contactAddress)
+    {
+        return false;
+    }
 }

@@ -97,6 +97,14 @@ public class ChatRoomMemberJabberImpl
     }
 
     /**
+     * Returns the jabber id of the member.
+     * @return the jabber id.
+     */
+    public String getJabberID()
+    {
+        return jabberID;
+    }
+    /**
      * Returns the contact identifier representing this contact.
      *
      * @return a String (contact address), uniquely representing the contact

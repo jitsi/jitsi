@@ -764,4 +764,33 @@ public class MockChatRoom
     {
         return null;
     }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Not implemented.
+     */
+    @Override
+    public Contact getPrivateContactByNickname(String name)
+    {
+        return null;
+        // TODO Auto-generated method stub
+        
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Not implemented.
+     */
+    @Override
+    public void updatePrivateContactPresenceStatus(String nickname) { }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Not implemented.
+     */
+    @Override
+    public void updatePrivateContactPresenceStatus(Contact sourceContact) { }
 }

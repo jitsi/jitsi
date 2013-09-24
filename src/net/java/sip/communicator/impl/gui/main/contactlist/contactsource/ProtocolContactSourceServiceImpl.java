@@ -255,6 +255,7 @@ public class ProtocolContactSourceServiceImpl
                     sourceContact.setImage(metaContact.getAvatar());
                     sourceContact.setPresenceStatus(
                             contact.getPresenceStatus());
+                    sourceContact.setContactAddress(contactAddress);
 
                     addQueryResult(sourceContact);
                 }

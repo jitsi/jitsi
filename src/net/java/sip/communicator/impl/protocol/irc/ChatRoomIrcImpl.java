@@ -1180,4 +1180,31 @@ public class ChatRoomIrcImpl
     {
         return null;
     }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Not implemented.
+     */
+    @Override
+    public Contact getPrivateContactByNickname(String name)
+    {
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Not implemented.
+     */
+    @Override
+    public void updatePrivateContactPresenceStatus(String nickname) { }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Not implemented.
+     */
+    @Override
+    public void updatePrivateContactPresenceStatus(Contact sourceContact) { }
 }

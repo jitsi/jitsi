@@ -302,8 +302,13 @@ public class OperationSetBasicTelephonyJabberImpl
                                     calleeAddress.indexOf('@') + 1)))
                 || isGoogleVoice;
 
-        if(!getProtocolProvider().getConnection().getRoster().contains(
-            StringUtils.parseBareAddress(calleeAddress)) && !alwaysCallGtalk)
+        boolean isPrivateMessagingContact = getProtocolProvider()
+            .getOperationSet(OperationSetMultiUserChat.class)
+            .isPrivateMessagingContact(calleeAddress);
+
+        if((!getProtocolProvider().getConnection().getRoster().contains(
+            StringUtils.parseBareAddress(calleeAddress)) &&
+            !isPrivateMessagingContact) && !alwaysCallGtalk)
         {
             throw new OperationFailedException(
                 calleeAddress + " does not belong to our contact list",
@@ -313,7 +318,9 @@ public class OperationSetBasicTelephonyJabberImpl
         // If there's no fullCalleeURI specified we'll discover the most
         // connected one with highest priority.
         if (fullCalleeURI == null)
-            fullCalleeURI = discoverFullJid(calleeAddress, alwaysCallGtalk);
+            fullCalleeURI = (isPrivateMessagingContact? 
+                discoverFullJid(calleeAddress, alwaysCallGtalk) : 
+                    calleeAddress);
 
         if (fullCalleeURI == null)
             throw new OperationFailedException(

@@ -13,6 +13,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 
@@ -74,8 +75,66 @@ public class ChatInviteDialog
             new ProtocolContactSourceServiceImpl(
                 inviteChatTransport.getProtocolProvider(),
                 OperationSetMultiUserChat.class));
+        srcContactList.setDefaultFilter(
+            new ChatInviteContactListFilter(srcContactList));
 
         srcContactList.applyDefaultFilter();
+    }
+    
+    /**
+     * The <tt>ChatInviteContactListFilter</tt> is 
+     * <tt>InviteContactListFilter</tt> which doesn't list contact that don't 
+     * have persistable addresses ( for example private messaging contacts are 
+     * not listed).
+     */
+    private class ChatInviteContactListFilter extends InviteContactListFilter
+    {
+        /**
+         * The Multi User Chat operation set instance.
+         */
+        private OperationSetMultiUserChat opSetMUC;
+        
+        /**
+         * Creates an instance of <tt>InviteContactListFilter</tt>.
+         *
+         * @param sourceContactList the contact list to filter
+         */
+        public ChatInviteContactListFilter(ContactList sourceContactList)
+        {
+            super(sourceContactList);
+            opSetMUC = inviteChatTransport
+                .getProtocolProvider().getOperationSet(
+                    OperationSetMultiUserChat.class);
+        }
+        
+        @Override public boolean isMatching(UIContact uiContact) 
+        {
+            SourceContact contact = (SourceContact)uiContact.getDescriptor();
+            if(opSetMUC.isPrivateMessagingContact(
+                contact.getContactAddress()))
+            {
+                return false;
+            }
+            return true;
+        }
+        
+        @Override
+        protected void addMatching(List<SourceContact> sourceContacts)
+        {
+            Iterator<SourceContact> contactsIter = sourceContacts.iterator();
+            
+            List<SourceContact> matchedContacts = new ArrayList<SourceContact>();
+            while (contactsIter.hasNext())
+            {
+                SourceContact contact = contactsIter.next();
+                if(!opSetMUC.isPrivateMessagingContact(
+                    contact.getContactAddress()))
+                {
+                    matchedContacts.add(contact);
+                }
+            }
+            super.addMatching(matchedContacts);
+        }
     }
 
     /**

@@ -666,8 +666,17 @@ public class OperationSetBasicInstantMessagingJabberImpl
             // its not for us
             if(multiChatExtension != null)
                 return;
-
+            
             String fromUserID = StringUtils.parseBareAddress(msg.getFrom());
+            boolean isPrivateMessaging = false;
+            ChatRoom privateContactRoom = ((OperationSetMultiUserChatJabberImpl)
+                jabberProvider.getOperationSet(OperationSetMultiUserChat.class))
+                    .getChatRoom(fromUserID);
+            if(privateContactRoom != null)
+            {
+                isPrivateMessaging = true;
+            }
+            
 
             if(logger.isDebugEnabled())
             {
@@ -730,10 +739,10 @@ public class OperationSetBasicInstantMessagingJabberImpl
                 correctedMessageUID = ((MessageCorrectionExtension)
                         correctionExtension).getCorrectedMessageUID();
             }
-
+            
             Contact sourceContact
-                = opSetPersPresence.findContactByID(fromUserID);
-
+                = opSetPersPresence.findContactByID(
+                    (isPrivateMessaging? msg.getFrom() : fromUserID));
             if(msg.getType()
                             == org.jivesoftware.smack.packet.Message.Type.error)
             {
@@ -768,11 +777,18 @@ public class OperationSetBasicInstantMessagingJabberImpl
                     fireMessageEvent(ev);
                 return;
             }
-
             //cache the jid (resource included) of the contact that's sending us
             //a message so that all following messages would go to the resource
             //that they contacted us from.
-            putJidForAddress(fromUserID, msg.getFrom());
+            String address = fromUserID;
+            if(isPrivateMessaging)
+            {
+                address = StringUtils.parseResource(msg.getFrom()) + " " + 
+                    JabberActivator.getResources().getI18NString(
+                        "service.gui.FROM") + " " + fromUserID;
+            }
+           
+            putJidForAddress(address, msg.getFrom());
 
             if (logger.isTraceEnabled())
                 logger.trace("just mapped: " + fromUserID
@@ -787,7 +803,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
                                    + fromUserID);
                 //create the volatile contact
                 sourceContact = opSetPersPresence
-                    .createVolatileContact(msg.getFrom());
+                    .createVolatileContact(msg.getFrom(), isPrivateMessaging);
             }
 
             Date timestamp = new Date();
@@ -805,17 +821,18 @@ public class OperationSetBasicInstantMessagingJabberImpl
             }
 
             ContactResource resource = ((ContactJabberImpl) sourceContact)
-                .getResourceFromJid(msg.getFrom());
-
+                    .getResourceFromJid(msg.getFrom());
+            
             MessageReceivedEvent msgReceivedEvt
                 = new MessageReceivedEvent( newMessage,
                                             sourceContact,
                                             resource,
                                             timestamp,
-                                            correctedMessageUID);
+                                            correctedMessageUID,
+                                            isPrivateMessaging,
+                                            privateContactRoom);
 
             // msgReceivedEvt = messageReceivedTransform(msgReceivedEvt);
-
             if (msgReceivedEvt != null)
                 fireMessageEvent(msgReceivedEvt);
         }

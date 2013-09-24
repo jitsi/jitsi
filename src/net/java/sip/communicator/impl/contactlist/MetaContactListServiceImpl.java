@@ -963,7 +963,8 @@ public class MetaContactListServiceImpl
      *
      *
      * @param contact the <tt>Contact</tt> to move to the
-     * @param newParentMetaGroup the MetaContactGroup where we'd like contact to be moved.
+     * @param newParentMetaGroup the MetaContactGroup where we'd like contact to
+     *  be moved.
      * @throws MetaContactListException with an appropriate code if the
      * operation fails for some reason.
      */
@@ -971,6 +972,12 @@ public class MetaContactListServiceImpl
                             MetaContactGroup newParentMetaGroup)
         throws MetaContactListException
     {
+        if(contact.getPersistableAddress() == null)
+        {
+           logger.info("Contact cannot be moved! This contact doesn't have " +
+                "persistant address.");
+           return;
+        }
         /** first create the new meta contact */
         MetaContactImpl metaContactImpl = new MetaContactImpl();
 
@@ -1003,6 +1010,36 @@ public class MetaContactListServiceImpl
                             MetaContact newParentMetaContact) throws
         MetaContactListException
     {
+        if(contact.getPersistableAddress() == null)
+        {
+           logger.info("Contact cannot be moved! This contact doesn't have " +
+                "persistant address.");
+           return;
+        }
+        
+        ProtocolProviderService provider = contact.getProtocolProvider();
+        
+        OperationSetMultiUserChat opSetMUC
+            = provider.getOperationSet(OperationSetMultiUserChat.class);
+        
+        if(opSetMUC.isPrivateMessagingContact(contact.getAddress()))
+        {
+            addNewContactToMetaContact(provider, newParentMetaContact, 
+                contact.getPersistableAddress());
+            return;
+        }
+        
+        //get a persistent  presence operation set
+        OperationSetPersistentPresence opSetPresence
+            = provider.getOperationSet(OperationSetPersistentPresence.class);
+
+        if (opSetPresence == null)
+        {
+            /** @todo handle non persistent presence operation sets */
+        }
+        
+        
+        
         if (! (newParentMetaContact instanceof MetaContactImpl))
         {
             throw new IllegalArgumentException(
@@ -1014,16 +1051,6 @@ public class MetaContactListServiceImpl
 
         currentParentMetaContact.removeProtoContact(contact);
 
-        //get a persistent  presence operation set
-        OperationSetPersistentPresence opSetPresence
-            = contact
-                .getProtocolProvider()
-                    .getOperationSet(OperationSetPersistentPresence.class);
-
-        if (opSetPresence == null)
-        {
-            /** @todo handle non persistent presence operation sets */
-        }
 
         MetaContactGroup newParentGroup
             = findParentMetaContactGroup(newParentMetaContact);

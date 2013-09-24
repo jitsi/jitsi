@@ -84,6 +84,9 @@ public class ChatContactRightButtonMenu
     private final JMenuItem revokeVoiceItem
         = new JMenuItem(GuiActivator.getResources().getI18NString(
             "service.gui.REVOKE_VOICE"));
+    private final JMenuItem sendPrivateMessageItem
+    = new JMenuItem(GuiActivator.getResources().getI18NString(
+        "service.gui.SEND_PRIVATE_MESSAGE"));
 
     private final ChatPanel chatPanel;
 
@@ -166,6 +169,9 @@ public class ChatContactRightButtonMenu
         this.changeRoomSubjectItem.setMnemonic(
             GuiActivator.getResources().getI18nMnemonic(
             "service.gui.CHANGE_ROOM_SUBJECT"));
+        this.sendPrivateMessageItem.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic(
+            "service.gui.SEND_PRIVATE_MESSAGE"));
 
         this.kickItem.addActionListener(this);
         this.banItem.addActionListener(this);
@@ -181,6 +187,7 @@ public class ChatContactRightButtonMenu
         this.revokeModeratorItem.addActionListener(this);
         this.revokeOwnershipItem.addActionListener(this);
         this.revokeVoiceItem.addActionListener(this);
+        this.sendPrivateMessageItem.addActionListener(this);
 
         this.kickItem.setName("kickItem");
         this.banItem.setName("banItem");
@@ -196,6 +203,7 @@ public class ChatContactRightButtonMenu
         this.revokeModeratorItem.setName("revokeModeratorItem");
         this.revokeOwnershipItem.setName("revokeOwnershipItem");
         this.revokeVoiceItem.setName("revokeVoiceItem");
+        this.sendPrivateMessageItem.setName("sendPrivateMessageItem");
 
         loadSkin();
 
@@ -227,6 +235,7 @@ public class ChatContactRightButtonMenu
         }
         else
         {
+            this.add(this.sendPrivateMessageItem);
             if(room.getUserRole().getRoleIndex() >= 50)
             {
                 if(roleIndex <= 40)
@@ -459,6 +468,14 @@ public class ChatContactRightButtonMenu
             room.revokeVoice(chatContact.getName());
             ((ChatRoomMember)chatContact.getDescriptor()).setRole(
                 ChatRoomMemberRole.SILENT_MEMBER);
+        }
+        else if(menuItemName.equals("sendPrivateMessageItem"))
+        {
+            ChatWindowManager chatWindowManager
+                = GuiActivator.getUIService()
+                    .getChatWindowManager();
+            chatWindowManager.openPrivateChatForChatRoomMember(room, 
+                chatContact.getName());
         }
     }
 

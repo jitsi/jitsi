@@ -391,6 +391,7 @@ public class MetaContactRightButtonMenu
 
         contactPhoneUtil = MetaContactPhoneUtil.getPhoneUtil(metaContact);
 
+        boolean hasPersistableAddress = false;
         while (contacts.hasNext())
         {
             Contact contact = contacts.next();
@@ -398,6 +399,7 @@ public class MetaContactRightButtonMenu
             ProtocolProviderService protocolProvider
                 = contact.getProtocolProvider();
 
+            String contactPersistableAddress = contact.getPersistableAddress();
             String contactAddress = contact.getAddress();
 
             Icon protocolIcon = new ImageIcon(
@@ -409,11 +411,15 @@ public class MetaContactRightButtonMenu
                                     removeContactPrefix,
                                     protocolIcon));
 
-            this.moveSubcontactMenu.add(
-                new ContactMenuItem(contact,
-                                    contactAddress,
-                                    moveSubcontactPrefix,
-                                    protocolIcon));
+            if(contactPersistableAddress != null)
+            {
+                hasPersistableAddress = true;
+                this.moveSubcontactMenu.add(
+                    new ContactMenuItem(contact,
+                                        contactPersistableAddress,
+                                        moveSubcontactPrefix,
+                                        protocolIcon));
+            }
 
             List<String> phones = contactPhoneUtil.getPhones(contact);
 
@@ -454,11 +460,16 @@ public class MetaContactRightButtonMenu
                 OperationSetExtendedAuthorizations authOpSet
                     = protocolProvider.getOperationSet(
                         OperationSetExtendedAuthorizations.class);
+                
+                OperationSetMultiUserChat opSetMUC
+                    = protocolProvider.getOperationSet(
+                        OperationSetMultiUserChat.class);
 
                 if (authOpSet != null
                     && authOpSet.getSubscriptionStatus(contact) != null
                     && !authOpSet.getSubscriptionStatus(contact)
-                        .equals(SubscriptionStatus.Subscribed))
+                        .equals(SubscriptionStatus.Subscribed)
+                    && !opSetMUC.isPrivateMessagingContact(contactAddress))
                 {
                     if (firstUnsubscribedContact == null)
                         firstUnsubscribedContact = contact;
@@ -576,7 +587,8 @@ public class MetaContactRightButtonMenu
         addSeparator();
 
         if (!ConfigurationUtils.isContactMoveDisabled() &&
-            !ConfigurationUtils.isCreateGroupDisabled())
+            !ConfigurationUtils.isCreateGroupDisabled() &&
+            hasPersistableAddress)
         {
 
             add(moveToMenu);
@@ -635,6 +647,10 @@ public class MetaContactRightButtonMenu
 
         Contact defaultContact = metaContact.getDefaultContact();
         int authRequestItemCount = multiContactRequestAuthMenu.getItemCount();
+        OperationSetMultiUserChat opSetMUC
+            = defaultContact.getProtocolProvider().getOperationSet(
+                OperationSetMultiUserChat.class);
+        
         // If we have more than one request to make.
         if (authRequestItemCount > 1)
         {
@@ -646,7 +662,9 @@ public class MetaContactRightButtonMenu
             || (metaContact.getContactCount() == 1
                 && defaultContact.getProtocolProvider()
                     .getOperationSet(OperationSetExtendedAuthorizations.class)
-                        != null)
+                        != null
+                && !opSetMUC.isPrivateMessagingContact(
+                        defaultContact.getAddress()))
                 && !SubscriptionStatus.Subscribed
                         .equals(defaultContact.getProtocolProvider()
                                     .getOperationSet(

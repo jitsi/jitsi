@@ -55,6 +55,12 @@ public class OperationSetMultiUserChatJabberImpl
         = new RegistrationStateListener();
 
     /**
+     * A reference to the persistent presence operation set that we use
+     * to match incoming messages to <tt>Contact</tt>s and vice versa.
+     */
+    private OperationSetPersistentPresenceJabberImpl opSetPersPresence = null;
+    
+    /**
      * Instantiates the user operation set with a currently valid instance of
      * the Jabber protocol provider.
      * @param jabberProvider a currently valid instance of
@@ -67,11 +73,11 @@ public class OperationSetMultiUserChatJabberImpl
 
         jabberProvider.addRegistrationStateChangeListener(providerRegListener);
 
-        OperationSetPersistentPresence presenceOpSet
-            = jabberProvider
+        opSetPersPresence
+            = (OperationSetPersistentPresenceJabberImpl)jabberProvider
                 .getOperationSet(OperationSetPersistentPresence.class);
 
-        presenceOpSet.addSubscriptionListener(this);
+        opSetPersPresence.addSubscriptionListener(this);
     }
 
     /**
@@ -419,6 +425,18 @@ public class OperationSetMultiUserChatJabberImpl
             return true;
 
         return false;
+    }
+
+    /**
+     * Checks if the contact address is associated with private messaging 
+     * contact or not.
+     * 
+     * @return <tt>true</tt> if the contact address is associated with private
+     * messaging contact and <tt>false</tt> if not.
+     */
+    public boolean isPrivateMessagingContact(String contactAddress)
+    {
+        return opSetPersPresence.isPrivateMessagingContact(contactAddress);
     }
 
     /**

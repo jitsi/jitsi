@@ -428,7 +428,13 @@ public class ConferenceChatSession
                     chatParticipants.add(chatContact);
                     sessionRenderer.addChatContact(chatContact);
             }
-
+            
+            ChatRoom room = chatRoomWrapper.getChatRoom();
+            if(room != null)
+            {
+                room.updatePrivateContactPresenceStatus(
+                    chatRoomMember.getName());
+            }
             /*
              * When the whole list of members of a given chat room is reported,
              * it doesn't make sense to see "ChatContact has joined #ChatRoom"
@@ -480,6 +486,12 @@ public class ConferenceChatSession
                         chatContact, statusMessage);
 
                     sessionRenderer.removeChatContact(chatContact);
+                    ChatRoom room = chatRoomWrapper.getChatRoom();
+                    if(room != null)
+                    {
+                        room.updatePrivateContactPresenceStatus(
+                            chatRoomMember.getName());
+                    }
                     break;
                 }
             }

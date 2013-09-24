@@ -11,6 +11,7 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
@@ -93,6 +94,28 @@ public class ChatRoomMemberListPanel
                                     ChatRoomMemberListPanel.this.chatPanel,
                                     chatContact)
                                 .show(memberList, e.getX(), e.getY());
+                    }
+                    else if(e.getButton() == MouseEvent.BUTTON1 
+                        && e.getClickCount() == 2)
+                    {
+                        memberList.setSelectedIndex(
+                            memberList.locationToIndex(e.getPoint()));
+
+                        ChatContact<?> chatContact
+                            = (ChatContact<?>) memberList.getSelectedValue();
+                        
+                        ChatRoom room 
+                            = ((ChatRoomWrapper) ChatRoomMemberListPanel.this
+                                .chatPanel.getChatSession().getDescriptor())
+                                    .getChatRoom();
+                        if(room.getUserNickname().equals(chatContact.getName()))
+                            return;
+                        ChatWindowManager chatWindowManager
+                            = GuiActivator.getUIService()
+                                .getChatWindowManager();
+                        chatWindowManager.openPrivateChatForChatRoomMember(room, 
+                            chatContact.getName());
+
                     }
                 }
             });

@@ -38,6 +38,11 @@ public abstract class ChatSession
      */
     protected final List<ChatTransport> chatTransports
         = new LinkedList<ChatTransport>();
+    
+    /**
+     * The persistable address of the contact from the session.
+     */
+    protected String persistableAddress = null;
 
     /**
      * Returns the descriptor of this chat session.
@@ -45,6 +50,15 @@ public abstract class ChatSession
      * @return the descriptor of this chat session.
      */
     public abstract Object getDescriptor();
+    
+    /**
+     * Returns the persistable address of the contact from the session.
+     * @return the persistable address.
+     */
+    public String getPersistableAddress()
+    {
+        return persistableAddress;
+    }
 
     /**
      * Returns <code>true</code> if this chat session descriptor is persistent,

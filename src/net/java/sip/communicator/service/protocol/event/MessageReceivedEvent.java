@@ -66,6 +66,16 @@ public class MessageReceivedEvent
      * and not a correction.
      */
     private String correctedMessageUID = null;
+    
+    /**
+     * Indicates whether this is private messaging event or not.
+     */
+    private boolean isPrivateMessaging = false;
+    
+    /**
+     * The room associated with the contact which sent the message.
+     */
+    private ChatRoom privateMessagingContactRoom = null;
 
     /**
      * Creates a <tt>MessageReceivedEvent</tt> representing reception of the
@@ -155,6 +165,41 @@ public class MessageReceivedEvent
 
         this.correctedMessageUID = correctedMessageUID;
     }
+    
+    /**
+     * Creates a <tt>MessageReceivedEvent</tt> representing reception of the
+     * <tt>source</tt> message received from the specified <tt>from</tt>
+     * contact.
+     *
+     * @param source the <tt>Message</tt> whose reception this event represents.
+     * @param from the <tt>Contact</tt> that has sent this message.
+     * @param fromResource the <tt>ContactResource</tt>, from which this message
+     * was sent
+     * @param timestamp the exact date when the event occurred.
+     * @param correctedMessageUID The ID of the message being corrected, or null
+     * if this is a new message and not a correction.
+     * @param isPrivateMessaging indicates whether the this is private messaging
+     * event or not.
+     * @param privateContactRoom the chat room associated with the contact.
+     */
+    public MessageReceivedEvent(Message source,
+                                Contact from,
+                                ContactResource fromResource,
+                                Date timestamp,
+                                String correctedMessageUID,
+                                boolean isPrivateMessaging,
+                                ChatRoom privateContactRoom)
+    {
+        this(   source,
+                from,
+                fromResource,
+                timestamp,
+                CONVERSATION_MESSAGE_RECEIVED,
+                isPrivateMessaging,
+                privateContactRoom);
+        
+        this.correctedMessageUID = correctedMessageUID;
+    }
 
     /**
      * Creates a <tt>MessageReceivedEvent</tt> representing reception of the
@@ -194,12 +239,41 @@ public class MessageReceivedEvent
                                 Date timestamp,
                                 int eventType)
     {
-        super(source);
+        this(source, from, fromResource, timestamp, eventType, false, null);
+    }
 
+    /**
+     * Creates a <tt>MessageReceivedEvent</tt> representing reception of the
+     * <tt>source</tt> message received from the specified <tt>from</tt>
+     * contact.
+     *
+     * @param source the <tt>Message</tt> whose reception this event represents.
+     * @param from the <tt>Contact</tt> that has sent this message.
+     * @param fromResource the <tt>ContactResource</tt>, from which this message
+     * was sent
+     * @param timestamp the exact date when the event occurred.
+     * @param eventType the type of message event that this instance represents
+     * (one of the XXX_MESSAGE_RECEIVED static fields).
+     * @param isPrivateMessaging indicates whether the this is private messaging
+     * event or not.
+     * @param privateContactRoom the chat room associated with the contact.
+     */
+    public MessageReceivedEvent(Message source,
+                                Contact from,
+                                ContactResource fromResource,
+                                Date timestamp,
+                                int eventType,
+                                boolean isPrivateMessaging,
+                                ChatRoom privateContactRoom)
+    {
+        super(source);
+        
         this.from = from;
         this.fromResource = fromResource;
         this.timestamp = timestamp;
         this.eventType = eventType;
+        this.isPrivateMessaging = isPrivateMessaging;
+        this.privateMessagingContactRoom = privateContactRoom;
     }
 
     /**
@@ -270,4 +344,30 @@ public class MessageReceivedEvent
     {
         return correctedMessageUID;
     }
+
+    /**
+     * Returns the chat room of the private messaging contact associated with 
+     * the event and null if the contact is not private messaging contact.
+     * 
+     * @return the chat room associated with the contact or null if no chat room
+     * is associated with the contact.
+     */
+    public ChatRoom getPrivateMessagingContactRoom()
+    {
+        return privateMessagingContactRoom;
+    }
+    
+    /**
+     * Returns <tt>true</true> if this is private messaging event and 
+     * <tt>false</tt> if not.
+     * 
+     * @return <tt>true</true> if this is private messaging event and 
+     * <tt>false</tt> if not.
+     */
+    public boolean isPrivateMessaging()
+    {
+        return isPrivateMessaging;
+    }
+
+
 }

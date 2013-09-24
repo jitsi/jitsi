@@ -255,7 +255,9 @@ public class ContactListPane
                             message,
                             eventType,
                             evt.getTimestamp(),
-                            evt.getCorrectedMessageUID());
+                            evt.getCorrectedMessageUID(),
+                            evt.isPrivateMessaging(),
+                            evt.getPrivateMessagingContactRoom());
         }
         else
         {
@@ -279,6 +281,10 @@ public class ContactListPane
      * @param eventType the event type
      * @param timestamp the timestamp of the event
      * @param correctedMessageUID the identifier of the corrected message
+     * @param isPrivateMessaging if <tt>true</tt> the message is received from 
+     * private messaging contact.
+     * @param privateContactRoom the chat room associated with the private 
+     * messaging contact.
      */
     private void messageReceived(final Contact protocolContact,
                                  final ContactResource contactResource,
@@ -286,7 +292,9 @@ public class ContactListPane
                                  final Message message,
                                  final int eventType,
                                  final Date timestamp,
-                                 final String correctedMessageUID)
+                                 final String correctedMessageUID, 
+                                 final boolean isPrivateMessaging,
+                                 final ChatRoom privateContactRoom)
     {
         if(!SwingUtilities.isEventDispatchThread())
         {
@@ -300,7 +308,9 @@ public class ContactListPane
                                     message,
                                     eventType,
                                     timestamp,
-                                    correctedMessageUID);
+                                    correctedMessageUID,
+                                    isPrivateMessaging,
+                                    privateContactRoom);
                 }
             });
             return;
@@ -350,12 +360,21 @@ public class ContactListPane
             message.getMessageUID(),
             correctedMessageUID);
 
-        chatWindowManager.openChat(chatPanel, false);
-
         String resourceName = (contactResource != null)
                                 ? contactResource.getResourceName()
                                 : null;
 
+        if(isPrivateMessaging)
+        {
+            chatWindowManager.openPrivateChatForChatRoomMember(
+                privateContactRoom, 
+                protocolContact);
+        }
+        else
+        {
+            chatWindowManager.openChat(chatPanel, false);
+        }
+        
         ChatTransport chatTransport
             = chatPanel.getChatSession()
                 .findChatTransportForDescriptor(protocolContact, resourceName);

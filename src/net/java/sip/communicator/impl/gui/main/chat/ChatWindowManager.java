@@ -85,6 +85,66 @@ public class ChatWindowManager
     }
 
     /**
+     * Opens the specified <tt>ChatPanel</tt> and optionally brings it to the
+     * front.
+     * 
+     * @param room the chat room associated with the contact.
+     * @param nickname the nickname of the contact in the chat room.
+     */
+    public void openPrivateChatForChatRoomMember(final ChatRoom room,
+        final String nickname)
+    {
+        if (!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    openPrivateChatForChatRoomMember(room, nickname);
+                }
+            });
+            return;
+        }
+        
+        Contact sourceContact = room.getPrivateContactByNickname(
+            nickname);
+        
+        openPrivateChatForChatRoomMember(room, sourceContact);
+    }
+    
+    /**
+     * Opens the specified <tt>ChatPanel</tt> and optionally brings it to the
+     * front.
+     * @param room the chat room associated with the contact.
+     * @param sourceContact the contact.
+     */
+    public void openPrivateChatForChatRoomMember(final ChatRoom room, 
+        final Contact sourceContact)
+    {
+        if (!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    openPrivateChatForChatRoomMember(room, sourceContact);
+                }
+            });
+            return;
+        }
+        
+        MetaContact metaContact
+            = GuiActivator.getContactListService()
+                .findMetaContactByContact(sourceContact);
+        
+        room.updatePrivateContactPresenceStatus(sourceContact);
+        
+        ChatPanel chatPanel = getContactChat(metaContact, sourceContact);
+        chatPanel.setPrivateMessagingChat(true);
+    
+        openChat(chatPanel, true);
+    }
+    /**
      * Returns <tt>true</tt> if there is an opened <tt>ChatPanel</tt> for the
      * given <tt>MetaContact</tt>.
      *
@@ -478,6 +538,7 @@ public class ChatWindowManager
                         protocolContact,
                         contactResource,
                         escapedMessageID);
+
             return chatPanel;
         }
     }

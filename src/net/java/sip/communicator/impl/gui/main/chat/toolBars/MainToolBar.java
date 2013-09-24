@@ -199,6 +199,11 @@ public class MainToolBar
         if (chatPanel == null
             || !(chatPanel.getChatSession() instanceof MetaContactChatSession))
             sendFileButton.setEnabled(false);
+        
+        if(chatPanel != null && chatPanel.isPrivateMessagingChat())
+        {
+            inviteButton.setEnabled(false);
+        }
 
         this.addSeparator();
 
@@ -344,6 +349,7 @@ public class MainToolBar
 
             sendFileButton.setEnabled(
                 chatPanel.findFileTransferChatTransport() != null);
+            inviteButton.setEnabled(!chatPanel.isPrivateMessagingChat());
 
             // null when using chat rooms
             if(contact != null)

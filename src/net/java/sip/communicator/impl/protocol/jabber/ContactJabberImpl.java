@@ -510,7 +510,7 @@ public class ContactJabberImpl
      * Updates the resources for this contact.
      * @param removeUnavailable whether to remove unavailable resources.
      */
-    private void updateResources(boolean removeUnavailable)
+    protected void updateResources(boolean removeUnavailable)
     {
         if (jid == null)
             return;
@@ -607,10 +607,19 @@ public class ContactJabberImpl
      * resources from the contact as it will be the only resource we will use.
      * @param fullJid the full jid of the contact.
      */
-    protected void setJid(String fullJid)
+    protected void setJid(String fullJid, boolean dontUpdateResources)
     {
         this.jid = fullJid;
 
-        updateResources(false);
+        if(!dontUpdateResources)
+        {
+            updateResources(false);
+        }
+        else
+        {
+            if (resources == null)
+                resources
+                    = new ConcurrentHashMap<String, ContactResourceJabberImpl>();
+        }
     }
 }

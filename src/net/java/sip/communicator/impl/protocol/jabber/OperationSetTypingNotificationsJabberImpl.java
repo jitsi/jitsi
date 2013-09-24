@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
+import java.util.*;
+
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.jabberconstants.*;
@@ -406,13 +408,26 @@ public class OperationSetTypingNotificationsJabberImpl
                 + state.name()+ " state.");
 
             String fromID = StringUtils.parseBareAddress(chat.getParticipant());
-            Contact sourceContact = opSetPersPresence.findContactByID(fromID);
-
+            
+            List<ChatRoom> chatRooms = parentProvider.getOperationSet(
+                OperationSetMultiUserChat.class).getCurrentlyJoinedChatRooms();
+            boolean isPrivateMessagingAddress = false;
+            for(ChatRoom chatRoom : chatRooms)
+            {
+                if(chatRoom.getName().equals(fromID))
+                {
+                    isPrivateMessagingAddress = true;
+                    break;
+                }
+            }
+            
+            Contact sourceContact = opSetPersPresence.findContactByID(
+                (isPrivateMessagingAddress? message.getFrom() : fromID));
             if(sourceContact == null)
             {
                 //create the volatile contact
                 sourceContact = opSetPersPresence.createVolatileContact(
-                    chat.getParticipant());
+                    chat.getParticipant(), isPrivateMessagingAddress);
             }
 
             int evtCode = STATE_UNKNOWN;

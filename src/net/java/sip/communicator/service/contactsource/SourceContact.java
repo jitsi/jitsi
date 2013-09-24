@@ -34,6 +34,14 @@ public interface SourceContact
      */
     public static final String DATA_ID = SourceContact.class.getName() + ".id";
 
+
+    /**
+     * Returns the address of the contact.
+     * 
+     * @return the contact address.
+     */
+    public String getContactAddress();
+
     /**
      * Returns the parent <tt>ContactSourceService</tt> from which this contact
      * came from.
@@ -109,6 +117,14 @@ public interface SourceContact
      * association with the specified <tt>key</tt> exists in this instance
      */
     public Object getData(Object key);
+
+
+    /**
+     * Sets the address of the contact.
+     * 
+     * @param contactAddress the address to set.
+     */
+    public void setContactAddress(String contactAddress);
 
     /**
      * Sets a user-specific association in this instance in the form of a

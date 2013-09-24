@@ -180,6 +180,23 @@ public class OperationSetPersistentPresenceJabberImpl
      */
     public synchronized ContactJabberImpl createVolatileContact(String id)
     {
+        return createVolatileContact(id, false);
+    }
+    
+    /**
+     * Creates a non persistent contact for the specified address. This would
+     * also create (if necessary) a group for volatile contacts that would not
+     * be added to the server stored contact list. The volatile contact would
+     * remain in the list until it is really added to the contact list or
+     * until the application is terminated.
+     * @param id the address of the contact to create.
+     * @param isPrivateMessagingContact indicates whether the contact should be private
+     * messaging contact or not.
+     * @return the newly created volatile <tt>ContactImpl</tt>
+     */
+    public synchronized ContactJabberImpl createVolatileContact(String id,
+        boolean isPrivateMessagingContact)
+    {
         // first check for already created one.
         ContactGroupJabberImpl notInContactListGroup =
             ssContactList.getNonPersistentGroup();
@@ -190,7 +207,7 @@ public class OperationSetPersistentPresenceJabberImpl
                 != null)
             return sourceContact;
         else
-            return ssContactList.createVolatileContact(id);
+            return ssContactList.createVolatileContact(id, isPrivateMessagingContact);
     }
 
     /**
@@ -334,6 +351,18 @@ public class OperationSetPersistentPresenceJabberImpl
     public Iterator<PresenceStatus> getSupportedStatusSet()
     {
         return parentProvider.getJabberStatusEnum().getSupportedStatusSet();
+    }
+    
+    /**
+     * Checks if the contact address is associated with private messaging 
+     * contact or not.
+     * @param contactAddress the address of the contact.
+     * @return <tt>true</tt> the contact address is associated with private 
+     * messaging contact and <tt>false</tt> if not.
+     */
+    public boolean isPrivateMessagingContact(String contactAddress)
+    {
+        return ssContactList.isPrivateMessagingContact(contactAddress);
     }
 
     /**
@@ -1026,6 +1055,18 @@ public class OperationSetPersistentPresenceJabberImpl
                 String userID
                     = StringUtils.parseBareAddress(presence.getFrom());
 
+                List<ChatRoom> chatRooms = parentProvider.getOperationSet(
+                    OperationSetMultiUserChat.class).getCurrentlyJoinedChatRooms();
+                for(ChatRoom chatRoom : chatRooms)
+                {
+                    if(chatRoom.getName().equals(userID))
+                    {
+                        userID = presence.getFrom();
+                        break;
+                    }
+                }
+                
+                
                 if (logger.isDebugEnabled())
                     logger.debug("Received a status update for buddy=" + userID);
 

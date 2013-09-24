@@ -377,4 +377,23 @@ public class CallHistorySourceContact
     {
         return -1;
     }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Not implemented.
+     */
+    @Override
+    public String getContactAddress()
+    {
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Not implemented.
+     */
+    @Override
+    public void setContactAddress(String contactAddress) { }
 }

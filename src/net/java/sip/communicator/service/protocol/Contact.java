@@ -151,4 +151,11 @@ public interface Contact
      * @param l the <tt>ContactResourceListener</tt> to rmove
      */
     public void removeResourceListener(ContactResourceListener l);
+    
+    /**
+     * Returns the persistent contact address.
+     * 
+     * @return the address of the contact.
+     */
+    public String getPersistableAddress();
 }

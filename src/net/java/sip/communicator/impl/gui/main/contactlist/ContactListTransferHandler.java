@@ -19,6 +19,7 @@ import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -46,6 +47,11 @@ public class ContactListTransferHandler
      * The contact list, where this transfer happens.
      */
     private final DefaultTreeContactList contactList;
+    
+    /**
+     * The transferred object.
+     */
+    private Object transferredObject = null;
 
     /**
      * Creates an instance of <tt>ContactListTransferHandler</tt> passing the
@@ -77,9 +83,11 @@ public class ContactListTransferHandler
         {
             JTree tree = (JTree) component;
             TreePath selectionPath = tree.getSelectionPath();
+            transferredObject = selectionPath.getLastPathComponent();
             return new ContactListTransferable(
                 tree.getRowForPath(selectionPath),
                 selectionPath.getLastPathComponent());
+            
         }
 
         return super.createTransferable(component);
@@ -100,6 +108,22 @@ public class ContactListTransferHandler
     @Override
     public boolean canImport(JComponent comp, DataFlavor flavor[])
     {
+        Object selectedObject = ((UIContact)((ContactNode)transferredObject)
+            .getContactDescriptor()).getDescriptor();
+        if (selectedObject instanceof MetaContact)
+        {
+            MetaContact metaContact = (MetaContact) selectedObject;
+            Iterator<Contact> contacts = metaContact.getContacts();
+            while(contacts.hasNext())
+            {
+                Contact contact = contacts.next();
+                if(contact.getPersistableAddress() == null)
+                {
+                    return false;
+                }
+            }
+        }
+        
         for (int i = 0, n = flavor.length; i < n; i++)
         {
             if (flavor[i].equals(uiContactDataFlavor))

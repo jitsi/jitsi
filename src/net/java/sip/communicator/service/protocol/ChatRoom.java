@@ -425,6 +425,15 @@ public interface ChatRoom
     public boolean isPersistent();
 
     /**
+     * Finds private messaging contact by nickname. If the contact doesn't 
+     * exists a new volatile contact is created.
+     * 
+     * @param nickname the nickname of the contact.
+     * @return the contact instance.
+     */
+    public Contact getPrivateContactByNickname(String name);
+
+    /**
     * Grants administrator privileges to another user. Room owners may grant
     * administrator privileges to a member or unaffiliated user. An
     * administrator is allowed to perform administrative functions such as
@@ -541,4 +550,18 @@ public interface ChatRoom
      * @return the published conference
      */
     public ConferenceDescription publishConference(ConferenceDescription cd);
+
+    /**
+     * Updates the presence status of private messaging contact.
+     * 
+     * @param nickname the nickname of the contact.
+     */
+    public void updatePrivateContactPresenceStatus(String nickname);
+
+    /**
+     * Updates the presence status of private messaging contact.
+     * 
+     * @param contact the contact.
+     */
+    public void updatePrivateContactPresenceStatus(Contact contact);
 }

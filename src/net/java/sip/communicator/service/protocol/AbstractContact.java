@@ -169,4 +169,14 @@ public abstract class AbstractContact
                 listenersIter.next().contactResourceModified(event);
         }
     }
+    
+    /**
+     * Returns the same as <tt>getAddress</tt> function.
+     * 
+     * @return the address of the contact.
+     */
+    public String getPersistableAddress()
+    {
+        return getAddress();
+    }
 }

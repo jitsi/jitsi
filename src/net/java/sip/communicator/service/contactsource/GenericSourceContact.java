@@ -51,6 +51,11 @@ public class GenericSourceContact
      * The image/avatar of this <tt>SourceContact</tt>
      */
     private byte[] image;
+    
+    /**
+     * The address of the contact.
+     */
+    private String contactAddress = null;
 
     /**
      * Initializes a new <tt>AddrBookSourceContact</tt> instance.
@@ -68,6 +73,16 @@ public class GenericSourceContact
         this.contactSource = contactSource;
         this.displayName = displayName;
         this.contactDetails = contactDetails;
+    }
+
+    /**
+     * Returns the address of the contact.
+     * 
+     * @return the contact address.
+     */
+    public String getContactAddress()
+    {
+        return contactAddress;
     }
 
     /**
@@ -155,6 +170,16 @@ public class GenericSourceContact
     public String getDisplayDetails()
     {
         return displayDetails;
+    }
+
+    /**
+     * Sets the address of the contact.
+     * 
+     * @param contactAddress the address to set.
+     */
+    public void setContactAddress(String contactAddress)
+    {
+        this.contactAddress = contactAddress;
     }
 
     /**

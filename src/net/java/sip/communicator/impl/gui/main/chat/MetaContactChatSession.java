@@ -65,6 +65,8 @@ public class MetaContactChatSession
     {
         this.sessionRenderer = sessionRenderer;
         this.metaContact = metaContact;
+        persistableAddress 
+            = protocolContact.getPersistableAddress();
 
         ChatContact<?> chatContact = new MetaContactChatContact(metaContact);
 

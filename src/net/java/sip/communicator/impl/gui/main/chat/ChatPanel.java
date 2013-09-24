@@ -156,6 +156,11 @@ public class ChatPanel
      * The ID of the last sent message in this chat.
      */
     private String lastSentMessageUID = null;
+    
+    /**
+     * Indicates whether the chat is private messaging chat or not.
+     */
+    private boolean isPrivateMessagingChat = false;
 
     /**
      * Creates a <tt>ChatPanel</tt> which is added to the given chat window.
@@ -651,6 +656,17 @@ public class ChatPanel
         }
 
         return false;
+    }
+
+    /**
+     * Returns <tt>true</tt> if the chat is private messaging chat and 
+     * <tt>false</tt> if not.
+     * @return <tt>true</tt> if the chat is private messaging chat and 
+     * <tt>false</tt> if not.
+     */
+    public boolean isPrivateMessagingChat()
+    {
+        return isPrivateMessagingChat;
     }
 
     /**
@@ -1661,6 +1677,18 @@ public class ChatPanel
             // Send TYPING STOPPED event before sending the message
             getChatWritePanel().stopTypingTimer();
         }
+    }
+
+    /**
+     * Sets the property which identifies whether the chat is private messaging 
+     * chat or not.
+     * 
+     * @param isPrivateMessagingChat if <tt>true</tt> the chat panel will be 
+     * private messaging chat panel.
+     */
+    public void setPrivateMessagingChat(boolean isPrivateMessagingChat)
+    {
+        this.isPrivateMessagingChat = isPrivateMessagingChat;
     }
 
     /**

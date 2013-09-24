@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
+import net.java.sip.communicator.service.protocol.*;
+
 import org.jivesoftware.smack.util.*;
 
 /**
@@ -19,6 +21,18 @@ public class VolatileContactJabberImpl
      * This contact id
      */
     private String contactId = null;
+    
+    /**
+     * Indicates whether the contact is private messaging contact or not.
+     */
+    private boolean isPrivateMessagingContact = false;
+    
+    /**
+     * The display name of the contact. This property is used only for private 
+     * messaging contacts.
+     */
+    private String displayName = null;
+    
     /**
      * Creates an Volatile JabberContactImpl with the specified id
      * @param id String the user id/address
@@ -28,14 +42,43 @@ public class VolatileContactJabberImpl
     VolatileContactJabberImpl(String id,
                               ServerStoredContactListJabberImpl ssclCallback)
     {
+        this(id, ssclCallback, false);
+    }
+    
+    /**
+     * Creates an Volatile JabberContactImpl with the specified id
+     * @param id String the user id/address
+     * @param ssclCallback a reference to the ServerStoredContactListImpl
+     * instance that created us.
+     * @param isPrivateMessagingContact if <tt>true</tt> this should be private 
+     * messaging contact.
+     */
+    VolatileContactJabberImpl(String id,
+                              ServerStoredContactListJabberImpl ssclCallback,
+                              boolean isPrivateMessagingContact)
+    {
         super(null, ssclCallback, false, false);
-        this.contactId = StringUtils.parseBareAddress(id);
-
-        String resource = StringUtils.parseResource(id);
-        if(resource != null)
+        
+        this.isPrivateMessagingContact = isPrivateMessagingContact;
+        
+        if(this.isPrivateMessagingContact)
         {
-            setJid(id);
+            displayName = StringUtils.parseResource(id) + " from " + 
+                StringUtils.parseBareAddress(id);
+            this.contactId = id;
+            setJid(id, true);
         }
+        else
+        {
+            this.contactId = StringUtils.parseBareAddress(id);
+            String resource = StringUtils.parseResource(id);
+            if(resource != null)
+            {
+                setJid(id, false);
+            }
+        }
+
+        
     }
 
     /**
@@ -58,7 +101,7 @@ public class VolatileContactJabberImpl
     @Override
     public String getDisplayName()
     {
-        return contactId;
+        return (isPrivateMessagingContact? displayName : contactId);
     }
 
     /**
@@ -87,4 +130,51 @@ public class VolatileContactJabberImpl
     {
         return false;
     }
+    
+    /**
+     * Updates the resources for this contact.
+     * 
+     * @param removeUnavailable whether to remove unavailable resources.
+     */
+    protected void updateResources(boolean removeUnavailable)
+    {
+        if(!isPrivateMessagingContact)
+        {
+            super.updateResources(removeUnavailable);
+        }
+    }
+
+    /**
+     * Checks if the contact is private messaging contact or not.
+     * 
+     * @return <tt>true</tt> if this is private messaging contact and 
+     * <tt>false</tt> if it isn't.
+     */
+    public boolean isPrivateMessagingContact()
+    {
+        return isPrivateMessagingContact;
+    }
+    
+    /**
+     * Returns the real address of the contact. If the contact is not private 
+     * messaging contact the result will be the same as <tt>getAddress</tt>'s 
+     * result.
+     * 
+     * @return the real address of the contact.
+     */
+    @Override 
+    public String getPersistableAddress()
+    {
+        if(!isPrivateMessagingContact)
+            return getAddress();
+        ChatRoomMemberJabberImpl chatRoomMember 
+            = ((OperationSetMultiUserChatJabberImpl)getProtocolProvider()
+                    .getOperationSet(OperationSetMultiUserChat.class))
+                    .getChatRoom(StringUtils.parseBareAddress(contactId))
+                    .findMemberForNickName(
+                        StringUtils.parseResource(contactId));
+        return ((chatRoomMember == null)? null : StringUtils.parseBareAddress(
+            chatRoomMember.getJabberID()));
+    }
+   
 }

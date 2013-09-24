@@ -71,7 +71,7 @@ public class IncomingFileTransferRequestJabberImpl
         this.fileTransferRequest = fileTransferRequest;
 
         String fromUserID
-            = StringUtils.parseBareAddress(fileTransferRequest.getRequestor());
+            = fileTransferRequest.getRequestor();
 
         OperationSetPersistentPresenceJabberImpl opSetPersPresence
             = (OperationSetPersistentPresenceJabberImpl)
@@ -79,7 +79,24 @@ public class IncomingFileTransferRequestJabberImpl
                     .getOperationSet(OperationSetPersistentPresence.class);
 
         sender = opSetPersPresence.findContactByID(fromUserID);
-
+        if(sender == null)
+        {
+            ChatRoom privateContactRoom 
+                = ((OperationSetMultiUserChatJabberImpl)
+                    jabberProvider.getOperationSet(
+                        OperationSetMultiUserChat.class))
+                    .getChatRoom(StringUtils.parseBareAddress(fromUserID));
+            if(privateContactRoom != null)
+            {
+                sender = ((OperationSetPersistentPresenceJabberImpl)
+                    jabberProvider.getOperationSet(
+                        OperationSetPersistentPresence.class))
+                    .createVolatileContact(fromUserID, true);
+                privateContactRoom.updatePrivateContactPresenceStatus(sender);
+            }
+        }
+        
+        
         this.id = String.valueOf( System.currentTimeMillis())
                     + String.valueOf(hashCode());
     }

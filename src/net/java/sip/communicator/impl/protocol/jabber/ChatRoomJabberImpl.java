@@ -13,6 +13,7 @@ import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.Message;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.service.protocol.jabberconstants.*;
 import net.java.sip.communicator.util.*;
 
 import org.jivesoftware.smack.*;
@@ -434,6 +435,30 @@ public class ChatRoomJabberImpl
     public String getUserNickname()
     {
         return multiUserChat.getNickname();
+    }
+
+    /**
+     * Finds private messaging contact by nickname. If the contact doesn't 
+     * exists a new volatile contact is created.
+     * 
+     * @param nickname the nickname of the contact.
+     * @return the contact instance.
+     */
+    @Override
+    public Contact getPrivateContactByNickname(String nickname)
+    {
+        OperationSetPersistentPresenceJabberImpl opSetPersPresence
+            = (OperationSetPersistentPresenceJabberImpl) provider
+                .getOperationSet(OperationSetPersistentPresence.class);
+        String jid = getName() + "/" + nickname;
+        Contact sourceContact = opSetPersPresence.findContactByID(jid);
+        if(sourceContact == null)
+        {
+            sourceContact = opSetPersPresence.createVolatileContact(jid, true);
+        }
+        
+        return sourceContact;
+        
     }
 
     /**
@@ -2731,4 +2756,54 @@ public class ChatRoomJabberImpl
         }
     }
 
+
+    /**
+     * Updates the presence status of private messaging contact.
+     * 
+     * @param nickname the nickname of the contact.
+     */
+    public void updatePrivateContactPresenceStatus(String nickname)
+    {
+        OperationSetPersistentPresenceJabberImpl presenceOpSet
+            = (OperationSetPersistentPresenceJabberImpl) provider
+                .getOperationSet(OperationSetPersistentPresence.class);
+        ContactJabberImpl sourceContact
+            = (ContactJabberImpl)presenceOpSet.findContactByID(getName() + "/"
+                    + nickname);
+        
+        updatePrivateContactPresenceStatus(sourceContact);
+        
+    }
+    
+    /**
+     * Updates the presence status of private messaging contact.
+     * 
+     * @param contact the contact.
+     */
+    public void updatePrivateContactPresenceStatus(Contact contact)
+    {
+        OperationSetPersistentPresenceJabberImpl presenceOpSet
+            = (OperationSetPersistentPresenceJabberImpl) provider
+                .getOperationSet(OperationSetPersistentPresence.class);
+        
+        if(contact == null)
+            return;
+        
+        PresenceStatus oldContactStatus
+            = contact.getPresenceStatus();
+        String nickname = StringUtils.parseResource(contact.getAddress());
+        boolean isOffline = !members.containsKey(nickname);
+        
+        PresenceStatus offlineStatus =
+            provider.getJabberStatusEnum().getStatus(
+                isOffline? JabberStatusEnum.OFFLINE : JabberStatusEnum.AVAILABLE);
+        
+        // When status changes this may be related to a change in the
+        // available resources.
+        ((ContactJabberImpl)contact).updatePresenceStatus(offlineStatus);
+        
+        presenceOpSet.fireContactPresenceStatusChangeEvent(contact, 
+            contact.getParentContactGroup(),
+            oldContactStatus, offlineStatus);
+    }
 }
