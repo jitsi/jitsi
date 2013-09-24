@@ -1472,6 +1472,29 @@ public class CallManager
      */
     public static Contact getIMCapableCusaxContact(CallPeer peer)
     {
+        // We try to find the <tt>UIContact</tt>, to which the call was
+        // created if this was an outgoing call.
+        UIContactImpl uiContact
+            = CallManager.getCallUIContact(peer.getCall());
+
+        if (uiContact != null)
+        {
+            if(uiContact.getDescriptor() instanceof MetaContact)
+            {
+                MetaContact metaContact =
+                    (MetaContact)uiContact.getDescriptor();
+                Iterator<Contact> iter = metaContact.getContacts();
+                while(iter.hasNext())
+                {
+                    Contact contact = iter.next();
+                    if(contact.getProtocolProvider()
+                        .getOperationSet(
+                            OperationSetBasicInstantMessaging.class) != null)
+                        return contact;
+                }
+            }
+        }
+
         // We try to find the an alternative peer address.
         String imppAddress = peer.getAlternativeIMPPAddress();
 
@@ -1583,6 +1606,19 @@ public class CallManager
         if(peer.getContact() != null)
             return GuiActivator.getContactListService()
                 .findMetaContactByContact(peer.getContact());
+
+        // We try to find the <tt>UIContact</tt>, to which the call was
+        // created if this was an outgoing call.
+        UIContactImpl uiContact
+            = CallManager.getCallUIContact(peer.getCall());
+
+        if (uiContact != null)
+        {
+            if(uiContact.getDescriptor() instanceof MetaContact)
+            {
+                return (MetaContact)uiContact.getDescriptor();
+            }
+        }
 
         String imppAddress = peer.getAlternativeIMPPAddress();
 
