@@ -1320,10 +1320,16 @@ public class ServerStoredContactListJabberImpl
         {
             ContactGroupJabberImpl volatileGroup
                 = getNonPersistentGroup();
+            if(volatileGroup == null)
+                return null;
             Iterator<Contact> it = volatileGroup.contacts();
             while(it.hasNext())
             {
                 Contact contact = it.next();
+                
+                if(contact.getPersistableAddress() == null)
+                    continue;
+                
                 if(contact.getPersistableAddress().equals(
                     StringUtils.parseBareAddress(id)))
                 {
