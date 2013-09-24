@@ -463,7 +463,11 @@ public class OtrActivator
         @Override
         protected PluginComponent getPluginInstance()
         {
-            return new OtrMetaContactMenu(getContainer());
+            Container container = getContainer();
+            if(container.equals(Container.CONTAINER_CHAT_TOOL_BAR))
+                return new OtrMetaContactButton(container);
+            else
+                return new OtrMetaContactMenu(container);
         }
     }
 }
