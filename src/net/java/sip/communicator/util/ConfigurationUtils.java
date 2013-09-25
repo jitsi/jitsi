@@ -308,6 +308,19 @@ public class ConfigurationUtils
     private static boolean isSingleWindowInterfaceEnabled = false;
 
     /**
+     * Whether addresses will be shown in call history tooltips.
+     */
+    private static boolean isHideAddressInCallHistoryTooltipEnabled = false;
+
+    /**
+     * The name of the property, whether to show addresses in call history
+     * tooltip.
+     */
+    private static final String HIDE_ADDR_IN_CALL_HISTORY_TOOLTIP_PROPERTY
+        = "net.java.sip.communicator.impl.gui.contactlist" +
+                ".HIDE_ADDRESS_IN_CALL_HISTORY_TOOLTIP_ENABLED";
+
+    /**
      * The name of the show smileys property.
      */
     private static final String SHOW_SMILEYS_PROPERTY
@@ -874,6 +887,10 @@ public class ConfigurationUtils
             = configService.getBoolean(
                     "impl.gui.ACCEPT_PHONE_NUMBER_WITH_ALPHA_CHARS",
                     true);
+
+        isHideAddressInCallHistoryTooltipEnabled = configService.getBoolean(
+            HIDE_ADDR_IN_CALL_HISTORY_TOOLTIP_PROPERTY,
+            isHideAddressInCallHistoryTooltipEnabled);
     }
 
     /**
@@ -1741,6 +1758,15 @@ public class ConfigurationUtils
     public static boolean isSingleWindowInterfaceEnabled()
     {
         return isSingleWindowInterfaceEnabled;
+    }
+
+    /**
+     * Whether addresses will be shown in call history tooltips.
+     * @return whether addresses will be shown in call history tooltips.
+     */
+    public static boolean isHideAddressInCallHistoryTooltipEnabled()
+    {
+        return isHideAddressInCallHistoryTooltipEnabled;
     }
 
     /**

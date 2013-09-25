@@ -13,6 +13,7 @@ import java.util.List;
 import javax.swing.*;
 
 import org.jitsi.service.resources.*;
+import org.jitsi.util.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
@@ -22,6 +23,7 @@ import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.globalstatus.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>SourceUIContact</tt> is the implementation of the UIContact for the
@@ -517,7 +519,20 @@ public class SourceUIContact
                 }
             }
 
-            jLabels[i] = new JLabel(contactDetail.getDetail());
+            String labelText;
+
+            if(ConfigurationUtils.isHideAddressInCallHistoryTooltipEnabled())
+            {
+                labelText = contactDetail.getDisplayName();
+                if(StringUtils.isNullOrEmpty(labelText))
+                    labelText = contactDetail.getDetail();
+            }
+            else
+            {
+                labelText = contactDetail.getDetail();
+            }
+
+            jLabels[i] = new JLabel(labelText);
 
             toolTip.addLine(jLabels);
         }

@@ -111,7 +111,14 @@ public class CallHistorySourceContact
 
             if (peerAddress != null)
             {
-                ContactDetail contactDetail = new ContactDetail(peerAddress);
+                String peerRecordDisplayName = peerRecord.getDisplayName();
+
+                if(peerRecordDisplayName == null
+                    || peerRecordDisplayName.length() == 0)
+                    peerRecordDisplayName = peerAddress;
+
+                ContactDetail contactDetail =
+                    new ContactDetail(peerAddress, peerRecordDisplayName);
 
                 Map<Class<? extends OperationSet>, ProtocolProviderService>
                     preferredProviders = null;
