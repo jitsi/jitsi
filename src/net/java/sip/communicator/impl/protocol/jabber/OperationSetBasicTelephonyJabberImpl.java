@@ -318,7 +318,7 @@ public class OperationSetBasicTelephonyJabberImpl
         // If there's no fullCalleeURI specified we'll discover the most
         // connected one with highest priority.
         if (fullCalleeURI == null)
-            fullCalleeURI = (isPrivateMessagingContact? 
+            fullCalleeURI = (!isPrivateMessagingContact? 
                 discoverFullJid(calleeAddress, alwaysCallGtalk) : 
                     calleeAddress);
 
