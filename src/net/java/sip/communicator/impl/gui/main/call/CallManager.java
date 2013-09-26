@@ -1413,8 +1413,13 @@ public class CallManager
             UIContactImpl uiContact
                 = CallManager.getCallUIContact(peer.getCall());
 
-            if (uiContact != null)
+            if (uiContact != null
+                && !(uiContact.getDescriptor() instanceof SourceContact
+                        && ((SourceContact)uiContact.getDescriptor())
+                                .isDefaultImage()))
+            {
                 image = uiContact.getAvatar();
+            }
         }
 
         // We try to find the an alternative peer address.

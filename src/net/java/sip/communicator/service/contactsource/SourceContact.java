@@ -108,6 +108,15 @@ public interface SourceContact
     public byte[] getImage();
 
     /**
+     * Whether the current image returned by @see #getImage() is the one
+     * provided by the SourceContact by default, or is a one used and obtained
+     * from external source.
+     *
+     * @return whether this is the default image for this SourceContact.
+     */
+    public boolean isDefaultImage();
+
+    /**
      * Gets the user data associated with this instance and a specific key.
      *
      * @param key the key of the user data associated with this instance to be
@@ -117,7 +126,6 @@ public interface SourceContact
      * association with the specified <tt>key</tt> exists in this instance
      */
     public Object getData(Object key);
-
 
     /**
      * Sets the address of the contact.

@@ -253,6 +253,20 @@ public class GenericSourceContact
     }
 
     /**
+     * Whether the current image returned by @see #getImage() is the one
+     * provided by the SourceContact by default, or is a one used and obtained
+     * from external source.
+     *
+     * @return whether this is the default image for this SourceContact.
+     */
+    @Override
+    public boolean isDefaultImage()
+    {
+        // in this SourceContact we always show an externally set image or null
+        return false;
+    }
+
+    /**
      * Returns the status of the source contact. And null if such information
      * is not available.
      * @return the PresenceStatus representing the state of this source contact.

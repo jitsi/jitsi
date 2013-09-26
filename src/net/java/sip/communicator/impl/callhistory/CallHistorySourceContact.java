@@ -403,4 +403,19 @@ public class CallHistorySourceContact
      */
     @Override
     public void setContactAddress(String contactAddress) { }
+
+    /**
+     * Whether the current image returned by @see #getImage() is the one
+     * provided by the SourceContact by default, or is a one used and obtained
+     * from external source.
+     *
+     * @return whether this is the default image for this SourceContact.
+     */
+    @Override
+    public boolean isDefaultImage()
+    {
+        // in this SourceContact we always show a default image based
+        // on the call direction (in, out or missed)
+        return true;
+    }
 }
