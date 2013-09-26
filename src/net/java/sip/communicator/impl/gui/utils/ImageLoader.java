@@ -1306,6 +1306,42 @@ public class ImageLoader
     public static final ImageID USER_USER_ON_THE_PHONE_ICON
         = new ImageID("service.gui.statusicons.USER_ON_THE_PHONE_ICON");
 
+    /**
+     * Chat button "online" icon.
+     */
+    public static final ImageID CHAT_BUTTON_ONLINE_ICON
+        = new ImageID("service.gui.buttons.CHAT_BUTTON_ONLINE_ICON");
+
+    /**
+     * Chat button "offline" icon.
+     */
+    public static final ImageID CHAT_BUTTON_OFFLINE_ICON
+        = new ImageID("service.gui.buttons.CHAT_BUTTON_OFFLINE_ICON");
+
+    /**
+     * Chat button "away" icon.
+     */
+    public static final ImageID CHAT_BUTTON_AWAY_ICON
+        = new ImageID("service.gui.buttons.CHAT_BUTTON_AWAY_ICON");
+
+    /**
+     * Chat button "free for chat" icon.
+     */
+    public static final ImageID CHAT_BUTTON_FFC_ICON
+        = new ImageID("service.gui.buttons.CHAT_BUTTON_FFC_ICON");
+
+    /**
+     * Chat button "do not disturb" icon.
+     */
+    public static final ImageID CHAT_BUTTON_DND_ICON
+        = new ImageID("service.gui.buttons.CHAT_BUTTON_DND_ICON");
+
+    /**
+     * Chat button "on the phone" icon.
+     */
+    public static final ImageID CHAT_BUTTON_ON_THE_PHONE_ICON
+        = new ImageID("service.gui.buttons.CHAT_BUTTON_ON_THE_PHONE_ICON");
+
    /**
     * Owner chatroom member.
     */

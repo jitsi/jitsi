@@ -20,6 +20,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.main.call.conference.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
@@ -67,7 +68,8 @@ public class CallPanel
     implements ActionListener,
                PluginComponentListener,
                Skinnable,
-               ConferencePeerViewListener
+               ConferencePeerViewListener,
+               ContactPresenceStatusListener
 {
     /**
      * The chat button name.
@@ -685,6 +687,17 @@ public class CallPanel
             ((CallRenderer) callPanel).dispose();
         }
 
+        // clears the contact status listener
+        List<Contact> imContacts = getIMCapableCallPeers(1);
+        if(imContacts.size() == 1)
+        {
+            Contact contact = imContacts.get(0);
+            OperationSetPresence operationSetPresence =
+                contact.getProtocolProvider()
+                    .getOperationSet(OperationSetPresence.class);
+            if(operationSetPresence != null)
+                operationSetPresence.removeContactPresenceStatusListener(this);
+        }
     }
 
     /**
@@ -746,8 +759,22 @@ public class CallPanel
          * telephony conference at this time so we do not want the chatButton
          * visible in such a scenario.
          */
+        List<Contact> imContacts = getIMCapableCallPeers(1);
         chatButton.setVisible(
-                !isConference && (getIMCapableCallPeers(1).size() == 1));
+                !isConference && (imContacts.size() == 1));
+        if(chatButton.isVisible())
+        {
+            Contact contact = imContacts.get(0);
+            OperationSetPresence operationSetPresence =
+                contact.getProtocolProvider()
+                    .getOperationSet(OperationSetPresence.class);
+            if(operationSetPresence != null)
+                operationSetPresence.addContactPresenceStatusListener(this);
+
+            chatButton.setIconImage(
+                Constants.getMessageStatusIcon(contact.getPresenceStatus()));
+            chatButton.repaint();
+        }
 
         updateHoldButtonState();
         updateMergeButtonState();
@@ -2170,6 +2197,24 @@ public class CallPanel
                         this,
                         newPrefSize.width, newPrefSize.height);
             }
+        }
+    }
+
+    /**
+     * Listens for contact status changes and updates the image of the
+     * chat message button.
+     * @param evt the ContactPresenceStatusChangeEvent describing the status
+     */
+    @Override
+    public void contactPresenceStatusChanged(ContactPresenceStatusChangeEvent evt)
+    {
+        Contact contact = getIMCapableCallPeers(1).get(0);
+
+        if(contact.equals(evt.getSourceContact()))
+        {
+            chatButton.setIconImage(
+                Constants.getMessageStatusIcon(contact.getPresenceStatus()));
+            chatButton.repaint();
         }
     }
 

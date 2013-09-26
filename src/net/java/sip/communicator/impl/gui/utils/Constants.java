@@ -308,6 +308,63 @@ public class Constants
     }
 
     /**
+     * Returns the image corresponding to the given presence status.
+     * @param status The presence status.
+     * @return the image corresponding to the given presence status.
+     */
+    public static BufferedImage getMessageStatusIcon(PresenceStatus status)
+    {
+        if(status != null)
+        {
+            int connectivity = status.getStatus();
+
+            if(connectivity < PresenceStatus.ONLINE_THRESHOLD)
+            {
+                return ImageLoader
+                    .getImage(ImageLoader.CHAT_BUTTON_OFFLINE_ICON);
+            }
+            else if(connectivity < PresenceStatus.AWAY_THRESHOLD)
+            {
+                return ImageLoader
+                    .getImage(ImageLoader.CHAT_BUTTON_DND_ICON);
+            }
+            else if(connectivity == PresenceStatus.AWAY_THRESHOLD)
+            {
+                // the special status On The Phone is state
+                // between DND and AWAY states.
+                return ImageLoader
+                    .getImage(ImageLoader.CHAT_BUTTON_ON_THE_PHONE_ICON);
+            }
+            else if(connectivity < PresenceStatus.AVAILABLE_THRESHOLD)
+            {
+                return ImageLoader
+                    .getImage(ImageLoader.CHAT_BUTTON_AWAY_ICON);
+            }
+            else if(connectivity
+                        < PresenceStatus.EAGER_TO_COMMUNICATE_THRESHOLD)
+            {
+                return ImageLoader
+                    .getImage(ImageLoader.CHAT_BUTTON_ONLINE_ICON);
+            }
+            else if(connectivity < PresenceStatus.MAX_STATUS_VALUE)
+            {
+                return ImageLoader
+                    .getImage(ImageLoader.CHAT_BUTTON_FFC_ICON);
+            }
+            else
+            {
+                return ImageLoader
+                    .getImage(ImageLoader.CHAT_BUTTON_OFFLINE_ICON);
+            }
+        }
+        else
+        {
+            return ImageLoader
+                .getImage(ImageLoader.CHAT_BUTTON_SMALL_WHITE);
+        }
+    }
+
+    /**
      * Loads a chat window style.
      */
     public static void loadAdiumStyle(){
