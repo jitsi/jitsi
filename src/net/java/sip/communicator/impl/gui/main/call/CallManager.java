@@ -1323,8 +1323,21 @@ public class CallManager
         UIContactImpl uiContact
             = CallManager.getCallUIContact(peer.getCall());
 
-        if (uiContact != null)
-            displayName = uiContact.getDisplayName();
+        if(uiContact != null)
+        {
+            if(uiContact.getDescriptor() instanceof SourceContact)
+            {
+                // if it is source contact (history record)
+                // search for cusax contact match
+                Contact contact = getPeerCusaxContact(peer.getAddress(),
+                    (SourceContact)uiContact.getDescriptor());
+                if(contact != null)
+                    displayName = contact.getDisplayName();
+            }
+
+            if(StringUtils.isNullOrEmpty(displayName, true))
+                displayName = uiContact.getDisplayName();
+        }
 
         // We search for a contact corresponding to this call peer and
         // try to get its display name.
@@ -1413,12 +1426,22 @@ public class CallManager
             UIContactImpl uiContact
                 = CallManager.getCallUIContact(peer.getCall());
 
-            if (uiContact != null
-                && !(uiContact.getDescriptor() instanceof SourceContact
-                        && ((SourceContact)uiContact.getDescriptor())
-                                .isDefaultImage()))
+            if (uiContact != null)
             {
-                image = uiContact.getAvatar();
+                if(uiContact.getDescriptor() instanceof SourceContact
+                    && ((SourceContact)uiContact.getDescriptor())
+                        .isDefaultImage())
+                {
+                    // if it is source contact (history record)
+                    // search for cusax contact match
+                    Contact contact = getPeerCusaxContact(peer.getAddress(),
+                        (SourceContact)uiContact.getDescriptor());
+
+                    if(contact != null)
+                        image = contact.getImage();
+                }
+                else
+                    image = uiContact.getAvatar();
             }
         }
 
@@ -1498,6 +1521,17 @@ public class CallManager
                         return contact;
                 }
             }
+            else if(uiContact.getDescriptor() instanceof SourceContact)
+            {
+                // if it is source contact (history record)
+                // search for cusax contact match
+                Contact contact = getPeerCusaxContact(peer.getAddress(),
+                            (SourceContact)uiContact.getDescriptor());
+                if(contact != null
+                    && contact.getProtocolProvider().getOperationSet(
+                            OperationSetBasicInstantMessaging.class) != null)
+                    return contact;
+            }
         }
 
         // We try to find the an alternative peer address.
@@ -1532,6 +1566,110 @@ public class CallManager
                     return contact;
                 }
             }
+        }
+
+        return null;
+    }
+
+    /**
+     * Find is there a linked cusax protocol provider for this source contact,
+     * if it exist we try to resolve current peer to one of its contacts
+     * or details of a contact (numbers).
+     * @param peerAddress the address of the peer to check
+     * @param sourceContact the currently selected source contact.
+     * @return matching cusax contact.
+     */
+    private static Contact getPeerCusaxContact(
+        String peerAddress, SourceContact sourceContact)
+    {
+        ProtocolProviderService linkedCusaxProvider = null;
+        for(ContactDetail detail : sourceContact.getContactDetails())
+        {
+            ProtocolProviderService pps
+                = detail.getPreferredProtocolProvider(
+                OperationSetBasicTelephony.class);
+
+            if(pps != null)
+            {
+                OperationSetCusaxUtils cusaxOpSet =
+                    pps.getOperationSet(OperationSetCusaxUtils.class);
+
+                if(cusaxOpSet != null)
+                {
+                    linkedCusaxProvider
+                        = cusaxOpSet.getLinkedCusaxProvider();
+                    break;
+                }
+            }
+        }
+
+        if(linkedCusaxProvider != null)
+        {
+            OperationSetPersistentPresence opSetPersistentPresence
+                = linkedCusaxProvider.getOperationSet(
+                        OperationSetPersistentPresence.class);
+
+            if(opSetPersistentPresence != null)
+            {
+                // will strip the @server-address part, as the regular expression
+                // will match it
+                int index = peerAddress.indexOf("@");
+                String peerUserID =
+                    (index > -1) ? peerAddress.substring(0, index) : peerAddress;
+
+                // searches for the whole number/username or with the @serverpart
+                String peerUserIDQ = Pattern.quote(peerUserID);
+
+                Pattern pattern = Pattern.compile(
+                    "^(" + peerUserIDQ + "|" + peerUserIDQ + "@.*)$");
+
+                return findContactByPeer(
+                    peerUserID,
+                    pattern,
+                    opSetPersistentPresence.getServerStoredContactListRoot(),
+                    linkedCusaxProvider.getOperationSet(
+                        OperationSetCusaxUtils.class));
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Finds a matching cusax contact.
+     * @param peerUserID the userID of the call peer to search for
+     * @param searchPattern the pattern (userID | userID@...)
+     * @param parent the parent group of the groups and contacts to search in
+     * @param cusaxOpSet the opset of the provider which will be used to match
+     *                   contact's details to peer userID (stored numbers).
+     * @return a cusax matching contac
+     */
+    private static Contact findContactByPeer(
+        String peerUserID,
+        Pattern searchPattern,
+        ContactGroup parent,
+        OperationSetCusaxUtils cusaxOpSet)
+    {
+        Iterator<Contact> contactIterator = parent.contacts();
+        while(contactIterator.hasNext())
+        {
+            Contact contact = contactIterator.next();
+
+            if(searchPattern.matcher(contact.getAddress()).find()
+                || cusaxOpSet.doesDetailBelong(contact, peerUserID))
+            {
+                return contact;
+            }
+        }
+
+        Iterator<ContactGroup> groupsIterator = parent.subgroups();
+        while(groupsIterator.hasNext())
+        {
+            ContactGroup gr = groupsIterator.next();
+            Contact contact = findContactByPeer(
+                peerUserID, searchPattern, gr, cusaxOpSet);
+            if(contact != null)
+                return contact;
         }
 
         return null;
@@ -1622,6 +1760,15 @@ public class CallManager
             if(uiContact.getDescriptor() instanceof MetaContact)
             {
                 return (MetaContact)uiContact.getDescriptor();
+            }
+            else if(uiContact.getDescriptor() instanceof SourceContact)
+            {
+                // if it is a source contact check for matching cusax contact
+                Contact contact = getPeerCusaxContact(peer.getAddress(),
+                    (SourceContact)uiContact.getDescriptor());
+                if(contact != null)
+                    return GuiActivator.getContactListService()
+                                .findMetaContactByContact(contact);
             }
         }
 

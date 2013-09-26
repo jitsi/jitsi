@@ -798,8 +798,13 @@ public class SipMessageFactory
         CallInfoHeader callInfoHeader = null;
         try
         {
-            ProtocolProviderService cusaxProvider
-                = protocolProvider.getLinkedCusaxProvider();
+            ProtocolProviderService cusaxProvider = null;
+
+            OperationSetCusaxUtils cusaxOpSet =
+                protocolProvider.getOperationSet(OperationSetCusaxUtils.class);
+
+            if(cusaxOpSet != null)
+                cusaxProvider = cusaxOpSet.getLinkedCusaxProvider();
 
             String alternativeImppAddress = null;
 

@@ -386,31 +386,22 @@ public class SingleCallInProgressPolicy
                 {
                     // there is no presence opset let's check
                     // the connected cusax provider if available
-                    String cusaxProviderID = provider.getAccountID()
-                        .getAccountPropertyString(
-                            ProtocolProviderFactory.CUSAX_PROVIDER_ACCOUNT_PROP);
+                    OperationSetCusaxUtils cusaxOpSet =
+                        provider.getOperationSet(OperationSetCusaxUtils.class);
 
-                    AccountID acc =
-                        ProtocolProviderActivator.getAccountManager()
-                            .findAccountID(cusaxProviderID);
-                    if(acc == null)
+                    if(cusaxOpSet != null)
                     {
-                        logger.warn("No connected cusax account found for "
-                            + cusaxProviderID);
-                    }
-                    else
-                    {
-                        for(ProtocolProviderService pProvider :
-                          ProtocolProviderActivator.getProtocolProviders())
+                        ProtocolProviderService linkedCusaxProvider
+                            = cusaxOpSet.getLinkedCusaxProvider();
+
+                        if(linkedCusaxProvider != null)
                         {
-                            if(pProvider.getAccountID().equals(acc))
-                            {
-                                // we found the provider, lets take its
-                                // presence opset
-                                presence = pProvider.getOperationSet(
-                                    OperationSetPresence.class);
-                            }
+                            // we found the provider, lets take its
+                            // presence opset
+                            presence = linkedCusaxProvider.getOperationSet(
+                                OperationSetPresence.class);
                         }
+
                     }
                 }
 

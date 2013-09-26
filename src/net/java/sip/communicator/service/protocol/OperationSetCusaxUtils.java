@@ -25,4 +25,12 @@ public interface OperationSetCusaxUtils
      * details of the given <tt>contact</tt>
      */
     public boolean doesDetailBelong(Contact contact, String detailAddress);
+
+    /**
+     * Returns the linked CUSAX provider for this protocol provider.
+     *
+     * @return the linked CUSAX provider for this protocol provider or null
+     * if such isn't specified
+     */
+    public ProtocolProviderService getLinkedCusaxProvider();
 }

@@ -566,6 +566,14 @@ public class ProtocolProviderServiceSipImpl
                     new OperationSetMessageWaitingSipImpl(this));
             }
 
+            if(getAccountID().getAccountPropertyString(
+                ProtocolProviderFactory.CUSAX_PROVIDER_ACCOUNT_PROP) != null)
+            {
+                addSupportedOperationSet(
+                    OperationSetCusaxUtils.class,
+                    new OperationSetCusaxUtilsSipImpl(this));
+            }
+
             //initialize our OPTIONS handler
             new ClientCapabilities(this);
 
@@ -2569,45 +2577,5 @@ public class ProtocolProviderServiceSipImpl
         return ListeningPoint.UDP.equalsIgnoreCase(transport)
             || ListeningPoint.TLS.equalsIgnoreCase(transport)
             || ListeningPoint.TCP.equalsIgnoreCase(transport);
-    }
-
-    /**
-     * Returns the linked CUSAX provider for this SIP protocol provider.
-     *
-     * @return the linked CUSAX provider for this SIP protocol provider or null
-     * if such isn't specified
-     */
-    public ProtocolProviderService getLinkedCusaxProvider()
-    {
-        String cusaxProviderID = getAccountID()
-            .getAccountPropertyString(
-                ProtocolProviderFactory.CUSAX_PROVIDER_ACCOUNT_PROP);
-
-        if (cusaxProviderID == null)
-            return null;
-
-        AccountID acc
-            = ProtocolProviderActivator.getAccountManager()
-                .findAccountID(cusaxProviderID);
-
-        if(acc == null)
-        {
-            logger.warn("No connected cusax account found for "
-                + cusaxProviderID);
-            return null;
-        }
-        else
-        {
-            for (ProtocolProviderService pProvider :
-              ProtocolProviderActivator.getProtocolProviders())
-            {
-                if(pProvider.getAccountID().equals(acc))
-                {
-                    return pProvider;
-                }
-            }
-        }
-
-        return null;
     }
 }
