@@ -32,9 +32,10 @@ public class CheckForUpdatesMenuItemComponent
      *
      * @param container the container of the update menu component
      */
-    public CheckForUpdatesMenuItemComponent(Container container)
+    public CheckForUpdatesMenuItemComponent(Container container,
+                                            PluginComponentFactory parentFactory)
     {
-        super(container);
+        super(container, parentFactory);
     }
 
     /**

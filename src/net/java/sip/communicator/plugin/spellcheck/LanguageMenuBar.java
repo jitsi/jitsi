@@ -73,9 +73,15 @@ public class LanguageMenuBar
 
     public final JList list;
 
-    LanguageMenuBar(SpellChecker checker)
+    /**
+     * The parent factory.
+     */
+    private final PluginComponentFactory parentFactory;
+
+    LanguageMenuBar(SpellChecker checker, PluginComponentFactory parentFactory)
     {
         this.spellChecker = checker;
+        this.parentFactory = parentFactory;
 
         setPreferredSize(new Dimension(30, 28));
         setMaximumSize(new Dimension(30, 28));
@@ -446,6 +452,15 @@ public class LanguageMenuBar
     public SetSpellChecker createSpellCheckerWorker(Parameters.Locale locale)
     {
         return new SetSpellChecker(locale, list);
+    }
+
+    /**
+     * Returns the factory that has created the component.
+     * @return the parent factory.
+     */
+    public PluginComponentFactory getParentFactory()
+    {
+        return parentFactory;
     }
 
     /**

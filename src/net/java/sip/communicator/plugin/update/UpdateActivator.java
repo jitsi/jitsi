@@ -205,7 +205,7 @@ public class UpdateActivator
                         protected PluginComponent getPluginInstance()
                         {
                             return new CheckForUpdatesMenuItemComponent(
-                                getContainer());
+                                getContainer(), this);
                         }
                     },
                     toolsMenuFilter);

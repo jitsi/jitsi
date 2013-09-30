@@ -24,9 +24,10 @@ public class SettingsWindowMenuEntry
     private static final String PROFILER_NAME = "plugin.profiler.PLUGIN_NAME";
     private JMenuItem settingsMenuEntry;
 
-    public SettingsWindowMenuEntry(Container container)
+    public SettingsWindowMenuEntry(Container container,
+                                   PluginComponentFactory parentFactory)
     {
-        super(container);
+        super(container, parentFactory);
 
         settingsMenuEntry = new JMenuItem(Resources.getString( PROFILER_NAME ));
         settingsMenuEntry.addActionListener(new ActionListener()

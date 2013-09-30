@@ -44,8 +44,6 @@ public class WhiteboardActivator implements BundleActivator
 
         session = new WhiteboardSessionManager ();
 
-        final WhiteboardMenuItem whiteboardPlugin = new WhiteboardMenuItem (session);
-
         Hashtable<String, String> containerFilter
             = new Hashtable<String, String>();
         containerFilter.put(
@@ -60,7 +58,7 @@ public class WhiteboardActivator implements BundleActivator
                 @Override
                 protected PluginComponent getPluginInstance()
                 {
-                    return whiteboardPlugin;
+                    return new WhiteboardMenuItem(session, this);
                 }
             },
             containerFilter);

@@ -307,10 +307,15 @@ public class PluginContainer
     private synchronized void removePluginComponent(
         PluginComponentFactory factory)
     {
-        PluginComponent p =
-            factory.getPluginComponentInstance(PluginContainer.this);
-        Component c = (Component)factory.getPluginComponentInstance(p);
-        container.remove(c);
-        pluginComponents.remove(p);
+        Iterator<PluginComponent> iterator = pluginComponents.iterator();
+        while(iterator.hasNext())
+        {
+            PluginComponent c = iterator.next();
+            if(c.getParentFactory().equals(factory))
+            {
+                iterator.remove();
+                container.remove((Component)c.getComponent());
+            }
+        }
     }
 }

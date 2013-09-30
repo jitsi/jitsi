@@ -229,7 +229,7 @@ public class BrandingActivator
                 @Override
                 protected PluginComponent getPluginInstance()
                 {
-                    return new AboutWindowPluginComponent(getContainer());
+                    return new AboutWindowPluginComponent(getContainer(), this);
                 }
             },
             helpMenuFilter);
@@ -251,7 +251,7 @@ public class BrandingActivator
                 @Override
                 protected PluginComponent getPluginInstance()
                 {
-                    return new AboutWindowPluginComponent(getContainer());
+                    return new AboutWindowPluginComponent(getContainer(), this);
                 }
             },
             chatHelpMenuFilter);

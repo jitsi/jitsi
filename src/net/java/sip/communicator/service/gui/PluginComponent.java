@@ -75,4 +75,10 @@ public interface PluginComponent
      * @param metaGroup the current meta contact group
      */
     public void setCurrentContactGroup(MetaContactGroup metaGroup);
+
+    /**
+     * Returns the factory that has created the component.
+     * @return the parent factory.
+     */
+    public PluginComponentFactory getParentFactory();
 }

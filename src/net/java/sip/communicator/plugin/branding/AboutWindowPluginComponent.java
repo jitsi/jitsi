@@ -38,9 +38,10 @@ public class AboutWindowPluginComponent
      *
      * @param container parent container
      */
-    public AboutWindowPluginComponent(Container container)
+    public AboutWindowPluginComponent(Container container,
+                                      PluginComponentFactory parentFactory)
     {
-        super(container);
+        super(container, parentFactory);
     }
 
     public Object getComponent()

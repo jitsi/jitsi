@@ -185,7 +185,7 @@ public class ContactInfoActivator implements BundleActivator
         @Override
         protected PluginComponent getPluginInstance()
         {
-            return new ContactInfoMenuItem(getContainer());
+            return new ContactInfoMenuItem(getContainer(), this);
         }
     }
 }

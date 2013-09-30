@@ -33,8 +33,6 @@ public class ExamplePluginActivator
     public void start(BundleContext bc)
         throws Exception
     {
-        final ExamplePluginMenuItem examplePlugin = new ExamplePluginMenuItem();
-
         Hashtable<String, String> containerFilter
             = new Hashtable<String, String>();
         containerFilter.put(
@@ -49,7 +47,7 @@ public class ExamplePluginActivator
                 @Override
                 protected PluginComponent getPluginInstance()
                 {
-                    return examplePlugin;
+                    return new ExamplePluginMenuItem(this);
                 }
             },
             containerFilter);

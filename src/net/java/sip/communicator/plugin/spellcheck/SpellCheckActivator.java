@@ -62,7 +62,7 @@ public class SpellCheckActivator
                 protected PluginComponent getPluginInstance()
                 {
                     LanguageMenuBarCreator creator =
-                        new LanguageMenuBarCreator();
+                        new LanguageMenuBarCreator(this);
 
                     try
                     {
@@ -113,6 +113,13 @@ public class SpellCheckActivator
         implements Runnable
     {
         LanguageMenuBar menuBar;
+        final PluginComponentFactory parentFactory;
+
+        LanguageMenuBarCreator(PluginComponentFactory parentFactory)
+        {
+            this.parentFactory = parentFactory;
+        }
+
         public void run()
         {
             if(SpellCheckActivator.this.checker == null)
@@ -127,7 +134,7 @@ public class SpellCheckActivator
                     ex.printStackTrace();
                 }
             }
-            menuBar = new LanguageMenuBar(checker);
+            menuBar = new LanguageMenuBar(checker, parentFactory);
             menuBar.createSpellCheckerWorker(
                 SpellCheckActivator.this.checker.getLocale()).start();
         }

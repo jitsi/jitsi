@@ -32,9 +32,6 @@ public class ProfilerActivator implements BundleActivator {
     public void start(BundleContext bc) throws Exception {
         bundleContext = bc;
 
-        final SettingsWindowMenuEntry menuEntry = new SettingsWindowMenuEntry(
-                Container.CONTAINER_TOOLS_MENU);
-
         Hashtable<String, String> toolsMenuFilter =
             new Hashtable<String, String>();
         toolsMenuFilter.put(Container.CONTAINER_ID,
@@ -47,7 +44,8 @@ public class ProfilerActivator implements BundleActivator {
                 @Override
                 protected PluginComponent getPluginInstance()
                 {
-                    return menuEntry;
+                    return new SettingsWindowMenuEntry(
+                                    Container.CONTAINER_TOOLS_MENU, this);
                 }
             },
             toolsMenuFilter);

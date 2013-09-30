@@ -465,9 +465,9 @@ public class OtrActivator
         {
             Container container = getContainer();
             if(container.equals(Container.CONTAINER_CHAT_TOOL_BAR))
-                return new OtrMetaContactButton(container);
+                return new OtrMetaContactButton(container, this);
             else
-                return new OtrMetaContactMenu(container);
+                return new OtrMetaContactMenu(container, this);
         }
     }
 }

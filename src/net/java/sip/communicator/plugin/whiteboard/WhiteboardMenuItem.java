@@ -42,9 +42,10 @@ public class WhiteboardMenuItem
      *
      * @param session the whiteboard session manager
      */
-    public WhiteboardMenuItem (WhiteboardSessionManager session)
+    public WhiteboardMenuItem (WhiteboardSessionManager session,
+                               PluginComponentFactory parentFactory)
     {
-        super(Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU);
+        super(Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU, parentFactory);
 
         this.session = session;
         this.whiteboardMenu.setIcon (

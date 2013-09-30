@@ -19,6 +19,10 @@ import net.java.sip.communicator.service.protocol.*;
 public abstract class AbstractPluginComponent
     implements PluginComponent
 {
+    /**
+     * The parent factory.
+     */
+    private final PluginComponentFactory parentFactory;
 
     /**
      * The container in which the component of this plug-in is to be added.
@@ -31,10 +35,14 @@ public abstract class AbstractPluginComponent
      *
      * @param container the container in which the component of the new plug-in
      * is to be added
+     * @param parentFactory the parent <tt>PluginComponentFactory</tt> that is
+     * creating this plugin component.
      */
-    protected AbstractPluginComponent(Container container)
+    protected AbstractPluginComponent(Container container,
+                                      PluginComponentFactory parentFactory)
     {
         this.container = container;
+        this.parentFactory = parentFactory;
     }
 
     /*
@@ -96,5 +104,14 @@ public abstract class AbstractPluginComponent
      */
     public void setCurrentContactGroup(MetaContactGroup metaGroup)
     {
+    }
+
+    /**
+     * Returns the factory that has created the component.
+     * @return the parent factory.
+     */
+    public PluginComponentFactory getParentFactory()
+    {
+        return parentFactory;
     }
 }

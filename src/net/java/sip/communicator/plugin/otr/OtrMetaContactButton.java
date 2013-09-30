@@ -78,9 +78,10 @@ public class OtrMetaContactButton
             }
         };
 
-    public OtrMetaContactButton(Container container)
+    public OtrMetaContactButton(Container container,
+                                PluginComponentFactory parentFactory)
     {
-        super(container);
+        super(container, parentFactory);
 
         OtrActivator.scOtrEngine.addListener(scOtrEngineListener);
         OtrActivator.scOtrKeyManager.addListener(scOtrKeyManagerListener);

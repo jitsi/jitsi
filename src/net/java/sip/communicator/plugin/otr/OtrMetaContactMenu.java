@@ -54,9 +54,10 @@ public class OtrMetaContactMenu
      */
     private JMenuItem whatsThis;
 
-    public OtrMetaContactMenu(Container container)
+    public OtrMetaContactMenu(Container container,
+                              PluginComponentFactory parentFactory)
     {
-        super(container);
+        super(container, parentFactory);
 
         inMacOSXScreenMenuBar =
             Container.CONTAINER_CHAT_MENU_BAR.equals(container)
