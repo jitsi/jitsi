@@ -139,9 +139,9 @@ public class ReplacementServiceDirectImageImpl
      * @return the file size in bytes of the image link provided; -1 if the size
      * isn't available or exceeds the max allowed image size.
      */
-    public long getImageSize(String sourceString)
+    public int getImageSize(String sourceString)
     {
-        long length = -1;
+        int length = -1;
         try
         {
             
@@ -151,7 +151,7 @@ public class ReplacementServiceDirectImageImpl
             {
                 HttpURLConnection connection =
                     (HttpURLConnection)url.openConnection();
-                length = connection.getContentLengthLong();
+                length = connection.getContentLength();
                 connection.disconnect();
             }
             else if (protocol.equals("ftp"))

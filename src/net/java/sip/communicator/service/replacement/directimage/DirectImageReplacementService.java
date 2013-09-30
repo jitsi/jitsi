@@ -22,7 +22,7 @@ public interface DirectImageReplacementService
      * @return the file size in bytes of the image link provided; -1 if the size
      * isn't available or exceeds the max allowed image size.
      */
-    public long getImageSize(String sourceString);
+    public int getImageSize(String sourceString);
 
     /**
      * Checks if the resource pointed by sourceString is an image.

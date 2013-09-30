@@ -146,7 +146,7 @@ public class FTPUtils
      * @return the size of the file in bytes.
      * @throws Exception if <tt>readLine</tt> fails.
      */
-    public long getSize() throws Exception
+    public int getSize() throws Exception
     {
         sendLine("SIZE " + path);
 
@@ -157,11 +157,11 @@ public class FTPUtils
         }
 
         String fileSizeStr = line.substring(4);
-        long fileSize = INVALID_FILE_SIZE;
+        int fileSize = INVALID_FILE_SIZE;
 
         try
         {
-            fileSize = Long.parseLong(fileSizeStr);
+            fileSize = Integer.parseInt(fileSizeStr);
         }
         catch (NumberFormatException e)
         {
