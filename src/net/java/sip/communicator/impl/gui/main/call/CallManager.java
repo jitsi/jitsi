@@ -62,6 +62,14 @@ public class CallManager
             + ".call.SHOW_DESKTOP_SHARING_WARNING";
 
     /**
+     * The name of the property which indicates whether the preferred provider
+     * will be used when calling UIContact (call history).
+     */
+    private static final String USE_PREFERRED_PROVIDER_PROP
+        = "net.java.sip.communicator.impl.gui.main"
+            + ".call.USE_PREFERRED_PROVIDER_PROP";
+
+    /**
      * The <tt>CallPanel</tt>s opened by <tt>CallManager</tt> (because
      * <tt>CallContainer</tt> does not give access to such lists.)
      */
@@ -3692,6 +3700,36 @@ public class CallManager
                             JComponent invoker,
                             Point location)
     {
+        call(uiContactDetailList,
+            uiContact,
+            isVideo,
+            isDesktop,
+            invoker,
+            location,
+            true);
+    }
+
+    /**
+     * Call any of the supplied details.
+     *
+     * @param uiContactDetailList the list with details to choose for calling
+     * @param uiContact the <tt>UIContactImpl</tt> to check what is enabled,
+     * available.
+     * @param isVideo if <tt>true</tt> will create video call.
+     * @param isDesktop if <tt>true</tt> will share the desktop.
+     * @param invoker the invoker component
+     * @param location the location where this was invoked.
+     * @param usePreferredProvider whether to use the <tt>uiContact</tt>
+     * preferredProvider if provided.
+     */
+    private static void call(List<UIContactDetail> uiContactDetailList,
+                            UIContactImpl uiContact,
+                            boolean isVideo,
+                            boolean isDesktop,
+                            JComponent invoker,
+                            Point location,
+                            boolean usePreferredProvider)
+    {
         ChooseCallAccountPopupMenu chooseCallAccountPopupMenu = null;
 
         Class<? extends OperationSet> opsetClass =
@@ -3737,8 +3775,11 @@ public class CallManager
         {
             UIContactDetail detail = uiContactDetailList.get(0);
 
-            ProtocolProviderService preferredProvider
-                = detail.getPreferredProtocolProvider(opsetClass);
+            ProtocolProviderService preferredProvider = null;
+
+            if(usePreferredProvider)
+                preferredProvider =
+                    detail.getPreferredProtocolProvider(opsetClass);
 
             List<ProtocolProviderService> providers = null;
             String protocolName = null;
@@ -3853,12 +3894,17 @@ public class CallManager
             = uiContact.getContactDetailsForOperationSet(
                 getOperationSetForCall(isVideo, isDesktop));
 
+        boolean usePreferredProvider =
+            GuiActivator.getConfigurationService().getBoolean(
+                USE_PREFERRED_PROVIDER_PROP, true);
+
         call(   telephonyContacts,
                 uiContactImpl,
                 isVideo,
                 isDesktop,
                 invoker,
-                location);
+                location,
+                usePreferredProvider);
     }
 
     /**
