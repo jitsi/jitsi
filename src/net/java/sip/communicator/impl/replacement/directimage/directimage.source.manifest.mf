@@ -7,6 +7,7 @@ System-Bundle: yes
 Import-Package: org.osgi.framework,
  org.jitsi.service.version,
  net.java.sip.communicator.service.replacement,
+ net.java.sip.communicator.service.replacement.directimage,
  org.jitsi.service.configuration,
  org.jitsi.service.resources, net.java.sip.communicator.service.resources,
  net.java.sip.communicator.util

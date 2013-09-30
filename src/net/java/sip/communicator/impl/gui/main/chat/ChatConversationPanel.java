@@ -33,6 +33,7 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.history.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.replacement.*;
+import net.java.sip.communicator.service.replacement.directimage.*;
 import net.java.sip.communicator.service.replacement.smilies.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
@@ -103,7 +104,7 @@ public class ChatConversationPanel
     /**
      * The document used by the text component.
      */
-    private HTMLDocument document;
+    HTMLDocument document;
 
     /**
      * The parent container.
@@ -159,6 +160,9 @@ public class ChatConversationPanel
     private String lastMessageUID = null;
 
     private boolean isSimpleTheme = true;
+
+    private final ShowPreviewDialog showPreview
+        = new ShowPreviewDialog(ChatConversationPanel.this);
 
     /**
      * The implementation of the routine which scrolls {@link #chatTextPane} to its
@@ -226,6 +230,8 @@ public class ChatConversationPanel
         this.chatTextPane.addMouseListener(this);
         this.chatTextPane.setCursor(
             Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
+
+        this.addChatLinkClickedListener(showPreview);
 
         this.setWheelScrollingEnabled(true);
 
@@ -818,6 +824,7 @@ public class ChatConversationPanel
         ConfigurationService cfg = GuiActivator.getConfigurationService();
 
         if (cfg.getBoolean(ReplacementProperty.REPLACEMENT_ENABLE, true)
+                ||cfg.getBoolean(ReplacementProperty.REPLACEMENT_PROPOSAL, true)
                 || cfg.getBoolean(
                         ReplacementProperty.getPropertyName("SMILEY"),
                         true))
@@ -837,9 +844,9 @@ public class ChatConversationPanel
     * @param chatString the message.
     * @param contentType
     */
-    private void processReplacement(final String messageID,
-                                    final String chatString,
-                                    final String contentType)
+    void processReplacement(final String messageID,
+                            final String chatString,
+                            final String contentType)
     {
         SwingWorker worker = new SwingWorker()
         {
@@ -854,6 +861,8 @@ public class ChatConversationPanel
 
                 if (newMessage != null && !newMessage.equals(chatString))
                 {
+                    showPreview.getMsgIDToChatString().put(
+                        messageID, newMessage);
                     synchronized (scrollToBottomRunnable)
                     {
                         scrollToBottomIsPending = true;
@@ -884,6 +893,10 @@ public class ChatConversationPanel
                     = cfg.getBoolean(
                             ReplacementProperty.REPLACEMENT_ENABLE,
                             true);
+                boolean isProposalEnabled
+                    = cfg.getBoolean(
+                            ReplacementProperty.REPLACEMENT_PROPOSAL,
+                            true);
                 Matcher divMatcher = DIV_PATTERN.matcher(chatString);
                 String openingTag = "";
                 String msgStore = chatString;
@@ -895,6 +908,7 @@ public class ChatConversationPanel
                     closingTag = divMatcher.group(3);
                 }
 
+                int linkCounter = 0;
                 for (Map.Entry<String, ReplacementService> entry
                         : GuiActivator.getReplacementSources().entrySet())
                 {
@@ -902,13 +916,12 @@ public class ChatConversationPanel
 
                     boolean isSmiley
                         = source instanceof SmiliesReplacementService;
-
-                    if (!(cfg.getBoolean(
-                                ReplacementProperty.getPropertyName(
-                                        source.getSourceName()),
-                                true)
-                            && (isEnabled || isSmiley)))
-                        continue;
+                    boolean isDirectImage
+                        = source instanceof DirectImageReplacementService;
+                    boolean isEnabledForSource
+                        = cfg.getBoolean(
+                            ReplacementProperty.getPropertyName(
+                                source.getSourceName()), true);
 
                     String sourcePattern = source.getPattern();
                     Pattern p
@@ -916,7 +929,6 @@ public class ChatConversationPanel
                                 sourcePattern,
                                 Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
                     Matcher m = p.matcher(msgStore);
-
                     StringBuilder msgBuff = new StringBuilder();
                     int startPos = 0;
 
@@ -929,31 +941,86 @@ public class ChatConversationPanel
                         String temp = source.getReplacement(group);
                         String group0 = m.group(0);
 
-                        if(!temp.equals(group0)
-                                || source.getSourceName().equals("DIRECTIMAGE"))
+                        if(!temp.equals(group0) || isDirectImage)
                         {
-                            if(isSmiley)
+                            if (isSmiley)
                             {
+                                if (cfg.getBoolean(ReplacementProperty.
+                                                    getPropertyName("SMILEY"),
+                                                    true))
+                                {
+                                    msgBuff.append(
+                                            ChatHtmlUtils.createEndPlainTextTag(
+                                                    contentType));
+                                    msgBuff.append("<IMG SRC=\"");
+                                    msgBuff.append(temp);
+                                    msgBuff.append("\" BORDER=\"0\" ALT=\"");
+                                    msgBuff.append(group0);
+                                    msgBuff.append("\"></IMG>");
+                                    msgBuff.append(
+                                        ChatHtmlUtils.createStartPlainTextTag(
+                                            contentType));
+                                }
+                                else
+                                {
+                                    msgBuff.append(group);
+                                }
+                            }
+                            else if (isEnabled && isEnabledForSource)
+                            {
+                                if (isDirectImage)
+                                {
+                                    DirectImageReplacementService service
+                                        = (DirectImageReplacementService)source;
+                                    if (service.isDirectImage(group)
+                                        && service.getImageSize(group) != -1)
+                                    {
+                                        msgBuff.append(
+                                            "<IMG HEIGHT=\"90\" "
+                                            + "WIDTH=\"120\" SRC=\"");
+                                        msgBuff.append(temp);
+                                        msgBuff.append("\" BORDER=\"0\" ALT=\"");
+                                        msgBuff.append(group0);
+                                        msgBuff.append("\"></IMG>");
+                                    }
+                                    else
+                                    {
+                                        msgBuff.append(group);
+                                    }
+                                }
+                                else
+                                {
+                                    msgBuff.append(
+                                        "<IMG HEIGHT=\"90\" "
+                                        + "WIDTH=\"120\" SRC=\"");
+                                    msgBuff.append(temp);
+                                    msgBuff.append("\" BORDER=\"0\" ALT=\"");
+                                    msgBuff.append(group0);
+                                    msgBuff.append("\"></IMG>");
+                                }
+                            }
+                            else if (isProposalEnabled)
+                            {
+                                msgBuff.append(group);
                                 msgBuff.append(
-                                        ChatHtmlUtils.createEndPlainTextTag(
-                                                contentType));
-                                msgBuff.append("<IMG SRC=\"");
+                                    "</A> <A href=\"jitsi://"
+                                     + showPreview.getClass().getName()
+                                     + "/SHOWPREVIEW?" + messageID + "#"
+                                     + linkCounter + "\">"
+                                     + GuiActivator.getResources().
+                                     getI18NString("service.gui.SHOW_PREVIEW"));
+
+                                showPreview.getMsgIDandPositionToLink()
+                                    .put(
+                                        messageID + "#" + linkCounter++, group);
+                                showPreview.getLinkToReplacement()
+                                    .put(
+                                        group, temp);
                             }
                             else
                             {
-                                msgBuff.append(
-                                    "<IMG HEIGHT=\"90\" WIDTH=\"120\" SRC=\"");
+                                msgBuff.append(group);
                             }
-
-                            msgBuff.append(temp);
-                            msgBuff.append("\" BORDER=\"0\" ALT=\"");
-                            msgBuff.append(group0);
-                            msgBuff.append("\"></IMG>");
-
-                            if(isSmiley)
-                                msgBuff.append(
-                                    ChatHtmlUtils.createStartPlainTextTag(
-                                        contentType));
                         }
                         else
                         {

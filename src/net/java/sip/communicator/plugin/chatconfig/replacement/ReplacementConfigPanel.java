@@ -45,6 +45,11 @@ public class ReplacementConfigPanel
     private JCheckBox enableReplacement;
 
     /**
+     * Checkbox to enable/disable proposal messages for image/video replacement.
+     */
+    private JCheckBox enableReplacementProposal;
+
+    /**
      * Jtable to list all the available replacement sources.
      */
     private JTable table;
@@ -109,6 +114,23 @@ public class ReplacementConfigPanel
                 saveData();
                 table.revalidate();
                 table.repaint();
+            }
+        });
+
+        mainPanel.add(Box.createVerticalStrut(10));
+
+        enableReplacementProposal =
+            new SIPCommCheckBox(ChatConfigActivator.getResources()
+                .getI18NString(
+                    "plugin.chatconfig.replacement.ENABLE_REPLACEMENT_PROPOSAL"));
+
+        mainPanel.add(enableReplacementProposal, BorderLayout.WEST);
+
+        enableReplacementProposal.addActionListener(new ActionListener(){
+
+            public void actionPerformed(ActionEvent arg0)
+            {
+                saveData();
             }
         });
 
@@ -205,6 +227,12 @@ public class ReplacementConfigPanel
                 true);
         this.enableReplacement.setSelected(e);
 
+        this.enableReplacementProposal.setEnabled(!e);
+        e =
+            configService.getBoolean(ReplacementProperty.REPLACEMENT_PROPOSAL,
+                true);
+        this.enableReplacementProposal.setSelected(e);
+
         this.table.setEnabled(e);
     }
 
@@ -224,6 +252,12 @@ public class ReplacementConfigPanel
             Boolean.toString(enableReplacement.isSelected()));
 
         boolean e = enableReplacement.isSelected();
+
+        enableReplacementProposal.setEnabled(!e);
+        configService.setProperty(
+            "plugin.chatconfig.replacement.proposal.enable"
+            , Boolean.toString(!e && enableReplacementProposal.isSelected()));
+
         table.getSelectionModel().clearSelection();
         table.setEnabled(e);
     }

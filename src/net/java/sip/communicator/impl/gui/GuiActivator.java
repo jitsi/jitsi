@@ -8,6 +8,8 @@ package net.java.sip.communicator.impl.gui;
 
 import java.util.*;
 
+import javax.swing.*;
+
 import net.java.sip.communicator.impl.gui.main.account.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -26,6 +28,7 @@ import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.globalstatus.*;
 import net.java.sip.communicator.service.replacement.*;
+import net.java.sip.communicator.service.replacement.directimage.*;
 import net.java.sip.communicator.service.replacement.smilies.*;
 import net.java.sip.communicator.service.shutdown.*;
 import net.java.sip.communicator.service.systray.*;
@@ -37,8 +40,6 @@ import org.jitsi.service.fileaccess.*;
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
-
-import javax.swing.*;
 
 /**
  * The GUI Activator class.
@@ -85,6 +86,8 @@ public class GuiActivator implements BundleActivator
     private static MediaService mediaService;
 
     private static SmiliesReplacementService smiliesService;
+
+    private static DirectImageReplacementService directImageService;
 
     private static GlobalStatusService globalStatusService;
 
@@ -645,6 +648,24 @@ public class GuiActivator implements BundleActivator
                     SmiliesReplacementService.class);
         }
         return smiliesService;
+    }
+
+    /**
+     * Returns the <tt>DirectImageReplacementService</tt> obtained from the
+     * bundle context.
+     * 
+     * @return the <tt>DirectImageReplacementService</tt> implementation
+     * obtained from the bundle context
+     */
+    public static DirectImageReplacementService getDirectImageReplacementSource()
+    {
+        if (directImageService == null)
+        {
+            directImageService
+                = ServiceUtils.getService(bundleContext,
+                    DirectImageReplacementService.class);
+        }
+        return directImageService;
     }
 
     /**

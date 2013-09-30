@@ -13,6 +13,12 @@ package net.java.sip.communicator.service.replacement;
 public final class ReplacementProperty
 {
     /**
+     * The replacement proposal property.
+     */
+    public static final String REPLACEMENT_PROPOSAL =
+        "plugin.chatconfig.replacement.proposal.enable";
+
+    /**
      *  The replacement property.
      */
     public static final String REPLACEMENT_ENABLE =

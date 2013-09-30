@@ -66,7 +66,7 @@ public class ReplacementServiceVbox7Impl
 
         while (m.find())
         {
-            thumbUrl = "http://i.vbox7.com/p/" + m.group(1) + "3.jpg";
+            thumbUrl = "https://i.vbox7.com/p/" + m.group(1) + "3.jpg";
         }
 
         return thumbUrl;
