@@ -1200,6 +1200,11 @@ public class UIServiceImpl
     {
         try
         {
+            // close chats, so we do not start removing plugins one by one
+            // when we start to stop the application
+            for(ChatPanel cp : chatWindowManager.getAllChats())
+                chatWindowManager.closeChat(cp);
+
             if (mainFrame != null)
                 mainFrame.dispose();
         }
