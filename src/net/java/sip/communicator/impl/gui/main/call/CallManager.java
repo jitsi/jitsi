@@ -65,9 +65,9 @@ public class CallManager
      * The name of the property which indicates whether the preferred provider
      * will be used when calling UIContact (call history).
      */
-    private static final String USE_PREFERRED_PROVIDER_PROP
+    private static final String IGNORE_PREFERRED_PROVIDER_PROP
         = "net.java.sip.communicator.impl.gui.main"
-            + ".call.USE_PREFERRED_PROVIDER_PROP";
+            + ".call.IGNORE_PREFERRED_PROVIDER_PROP";
 
     /**
      * The <tt>CallPanel</tt>s opened by <tt>CallManager</tt> (because
@@ -3894,9 +3894,9 @@ public class CallManager
             = uiContact.getContactDetailsForOperationSet(
                 getOperationSetForCall(isVideo, isDesktop));
 
-        boolean usePreferredProvider =
+        boolean ignorePreferredProvider =
             GuiActivator.getConfigurationService().getBoolean(
-                USE_PREFERRED_PROVIDER_PROP, true);
+                IGNORE_PREFERRED_PROVIDER_PROP, false);
 
         call(   telephonyContacts,
                 uiContactImpl,
@@ -3904,7 +3904,7 @@ public class CallManager
                 isDesktop,
                 invoker,
                 location,
-                usePreferredProvider);
+                !ignorePreferredProvider);
     }
 
     /**
