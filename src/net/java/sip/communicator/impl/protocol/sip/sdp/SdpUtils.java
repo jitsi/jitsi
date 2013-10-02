@@ -28,7 +28,7 @@ import org.jitsi.service.neomedia.format.*;
  * creating and parsing SDP descriptions.
  *
  * @author Emil Ivov
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class SdpUtils
 {
@@ -1564,13 +1564,14 @@ public class SdpUtils
         {
             return MediaType.parseString(description.getMedia().getMediaType());
         }
-        catch (SdpException exc)
+        catch (SdpException e)
         {
             // impossible to happen for reasons mentioned many times here :)
+            String message = "Invalid media type in m= line: " + description;
+
             if (logger.isDebugEnabled())
-                logger.debug("Invalid media type in m= line: " + description, exc);
-            throw new IllegalArgumentException(
-                         "Invalid media type in m= line: " + description, exc);
+                logger.debug(message, e);
+            throw new IllegalArgumentException(message, e);
         }
     }
 
@@ -1590,24 +1591,27 @@ public class SdpUtils
     @SuppressWarnings("unchecked") // legacy jain-sdp code
     public static boolean containsAttribute(MediaDescription description,
                                             String attributeName)
-        throws  IllegalArgumentException
+        throws IllegalArgumentException
     {
         try
         {
             Vector<Attribute> atts = description.getAttributes(false);
+
             for(Attribute a : atts)
+            {
                 if(a.getName().equals(attributeName))
                     return true;
-
+            }
             return false;
         }
-        catch (SdpException exc)
+        catch (SdpException e)
         {
             // impossible to happen for reasons mentioned many times here :)
+            String message = "Invalid media type in a= line: " + description;
+
             if (logger.isDebugEnabled())
-                logger.debug("Invalid media type in a= line: " + description, exc);
-            throw new IllegalArgumentException(
-                         "Invalid media type in a= line: " + description, exc);
+                logger.debug(message, e);
+            throw new IllegalArgumentException(message, e);
         }
     }
 
@@ -1653,8 +1657,9 @@ public class SdpUtils
         }
         catch (Exception e)
         {
-            throw new IllegalArgumentException("Could not create a disabling " +
-                    "answer", e);
+            throw new IllegalArgumentException(
+                    "Could not create a disabling answer",
+                    e);
         }
     }
 
@@ -1690,7 +1695,7 @@ public class SdpUtils
         if(remoteDescriptions == null || remoteDescriptions.size() == 0)
         {
             throw new IllegalArgumentException(
-                "Could not find any media descriptions.");
+                    "Could not find any media descriptions.");
         }
 
         return remoteDescriptions;
@@ -1727,8 +1732,7 @@ public class SdpUtils
         }
         catch (UnsupportedEncodingException uee)
         {
-            logger
-                .warn(
+            logger.warn(
                     "SIP message with unsupported charset of its content",
                     uee);
 

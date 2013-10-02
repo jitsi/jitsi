@@ -775,9 +775,9 @@ public abstract class AccountID
                     true);
         Map<String, Boolean> encryptionProtocolStatus
             = getBooleanPropertiesByPrefix(
-                ProtocolProviderFactory.ENCRYPTION_PROTOCOL_STATUS,
-                true,
-                false);
+                    ProtocolProviderFactory.ENCRYPTION_PROTOCOL_STATUS,
+                    true,
+                    false);
 
         // If the account is not yet configured, then ZRTP is activated by
         // default.
@@ -812,7 +812,7 @@ public abstract class AccountID
             }
         }
 
-        // Second: remove all disabled protocol.
+        // Second: remove all disabled protocols.
         int namePrefixLength
             = ProtocolProviderFactory.ENCRYPTION_PROTOCOL.length() + 1;
 

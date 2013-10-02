@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
+import gov.nist.javax.sip.header.*;
+
 import java.io.*;
 import java.text.*;
 import java.util.*;
@@ -16,12 +18,12 @@ import javax.sip.header.*;
 import javax.sip.message.*;
 import javax.sip.message.Message;
 
-import gov.nist.javax.sip.header.*;
 import net.java.sip.communicator.impl.protocol.sip.sdp.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
+
 import org.jitsi.util.xml.*;
 
 /**

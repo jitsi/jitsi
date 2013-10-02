@@ -15,15 +15,14 @@ import java.util.List;
 import javax.swing.*;
 import javax.swing.event.*;
 
+import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.plugin.desktoputil.SwingWorker;
 import net.java.sip.communicator.plugin.spellcheck.Parameters.Default;
 import net.java.sip.communicator.plugin.spellcheck.Parameters.Locale;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.plugin.desktoputil.*;
-import net.java.sip.communicator.plugin.desktoputil.SwingWorker;
 
 /**
  * Combo box providing a listing of all available locales with corresponding

@@ -10,11 +10,10 @@ import java.awt.*;
 import java.beans.*;
 import java.io.*;
 import java.util.*;
-import java.util.List; /* disambiguation */
+import java.util.List;
 
 import javax.net.ssl.*;
 
-import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.msghistory.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
