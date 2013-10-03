@@ -403,6 +403,9 @@ public class ContactListTreeCellRenderer
             }
         }
 
+        // clear icon if any (mobile indicator)
+        this.nameLabel.setIcon(null);
+
         // Make appropriate adjustments for contact nodes and group nodes.
         if (value instanceof ContactNode)
         {
@@ -438,6 +441,15 @@ public class ContactListTreeCellRenderer
             // Initializes status message components if the given meta contact
             // contains a status message.
             this.initDisplayDetails(contact.getDisplayDetails());
+
+            // Checks and set mobile indicator
+            if (contact.getDescriptor() instanceof MetaContact
+                && isMobile((MetaContact)contact.getDescriptor()))
+            {
+                this.nameLabel.setIcon(new ImageIcon(ImageLoader.getImage(
+                    ImageLoader.CONTACT_LIST_MOBILE_INDICATOR)));
+                this.nameLabel.setHorizontalTextPosition(SwingConstants.LEFT);
+            }
 
             if (this.treeContactList.isContactButtonsVisible())
                 this.initButtonsPanel(contact);
@@ -525,6 +537,26 @@ public class ContactListTreeCellRenderer
         }
 
         return this;
+    }
+
+    /**
+     * Checks whether metaContact has mobile indicator.
+     * Needs all of the contacts to have it to indicate it.
+     * @param metaContact the metacontact to check for mobile indicator
+     * @return whether to indicate contact as mobile one.
+     */
+    private boolean isMobile(MetaContact metaContact)
+    {
+        Iterator<Contact> iter = metaContact.getContacts();
+        while(iter.hasNext())
+        {
+            Contact contact = iter.next();
+
+            if(!contact.isMobile())
+                return false;
+        }
+
+        return metaContact.getContactCount() > 0 ? true : false;
     }
 
     /**

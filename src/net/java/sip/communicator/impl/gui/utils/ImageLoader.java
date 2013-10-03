@@ -248,6 +248,12 @@ public class ImageLoader
         = new ImageID("service.gui.buttons.CONTACT_LIST_BUTTON_SEPARATOR");
 
     /**
+     * The mobile indicator for contacts in contact list.
+     */
+    public static final ImageID CONTACT_LIST_MOBILE_INDICATOR
+        = new ImageID("service.gui.buttons.CONTACT_LIST_MOBILE_INDICATOR");
+
+    /**
      * The call button small image.
      */
     public static final ImageID CALL_BUTTON_SMALL

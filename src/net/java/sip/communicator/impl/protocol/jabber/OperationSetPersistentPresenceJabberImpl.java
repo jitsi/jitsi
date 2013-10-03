@@ -109,6 +109,8 @@ public class OperationSetPersistentPresenceJabberImpl
     private VCardTempXUpdatePresenceExtension vCardTempXUpdatePresenceExtension
         = null;
 
+    private final MobileIndicator mobileIndicator;
+
     /**
      * Creates the OperationSet.
      * @param provider the parent provider.
@@ -131,6 +133,8 @@ public class OperationSetPersistentPresenceJabberImpl
 
         parentProvider.addRegistrationStateChangeListener(
             new RegistrationStateListener());
+
+        mobileIndicator = new MobileIndicator(parentProvider, ssContactList);
     }
 
     /**
@@ -1157,6 +1161,7 @@ public class OperationSetPersistentPresenceJabberImpl
                 // When status changes this may be related to a change in the
                 // available resources.
                 sourceContact.updateResources();
+                mobileIndicator.resourcesUpdated(sourceContact);
 
                 PresenceStatus oldStatus
                     = sourceContact.getPresenceStatus();

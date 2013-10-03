@@ -179,4 +179,13 @@ public abstract class AbstractContact
     {
         return getAddress();
     }
+
+    /**
+     * Whether contact is mobile one. Logged in only from mobile device.
+     * @return whether contact is mobile one.
+     */
+    public boolean isMobile()
+    {
+        return false;
+    }
 }

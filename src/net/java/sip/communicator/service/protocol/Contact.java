@@ -158,4 +158,11 @@ public interface Contact
      * @return the address of the contact.
      */
     public String getPersistableAddress();
+
+    /**
+     * Whether contact is mobile one. Logged in only from mobile device.
+     * @return whether contact is mobile one.
+     */
+    public boolean isMobile();
+
 }

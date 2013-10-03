@@ -1211,7 +1211,8 @@ public class ChatWritePanel
         if (transportSelectorBox != null)
             transportSelectorBox.removeChatTransport(chatTransport);
 
-        if(transportSelectorBox.getMenu().getItemCount() == 1
+        if(transportSelectorBox != null
+            && transportSelectorBox.getMenu().getItemCount() == 1
             && ConfigurationUtils.isHideAccountSelectionWhenPossibleEnabled())
         {
             transportSelectorBox.setVisible(false);

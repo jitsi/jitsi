@@ -80,6 +80,11 @@ public class ContactJabberImpl
     private Map<String, ContactResourceJabberImpl> resources = null;
 
     /**
+     * Whether this contact is a mobile one.
+     */
+    private boolean mobile = false;
+
+    /**
      * Creates an JabberContactImpl
      * @param rosterEntry the RosterEntry object that we will be encapsulating.
      * @param ssclCallback a reference to the ServerStoredContactListImpl
@@ -621,5 +626,26 @@ public class ContactJabberImpl
                 resources
                     = new ConcurrentHashMap<String, ContactResourceJabberImpl>();
         }
+    }
+
+    /**
+     * Whether contact is mobile one. Logged in from mobile device.
+     * @return whether contact is mobile one.
+     */
+    public boolean isMobile()
+    {
+        if(!getPresenceStatus().isOnline())
+            return false;
+
+        return mobile;
+    }
+
+    /**
+     * Changes the mobile indicator value.
+     * @param mobile is mobile
+     */
+    void setMobile(boolean mobile)
+    {
+        this.mobile = mobile;
     }
 }
