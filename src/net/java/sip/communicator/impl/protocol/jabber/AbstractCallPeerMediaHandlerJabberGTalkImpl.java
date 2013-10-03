@@ -16,7 +16,6 @@ import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.neomedia.*;
-
 import org.jivesoftware.smack.packet.*;
 
 /**
@@ -104,7 +103,8 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
             if (accountID.getAccountPropertyBoolean(
                         ProtocolProviderFactory.DEFAULT_ENCRYPTION,
                         true)
-                    && accountID.isEncryptionProtocolEnabled("ZRTP")
+                    && accountID.isEncryptionProtocolEnabled(
+                            ZrtpControl.PROTO_NAME)
                     && getPeer().getCall().isSipZrtpAttribute())
             {
                 // ZRTP
@@ -151,55 +151,33 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
             if(accountID.getAccountPropertyBoolean(
                         ProtocolProviderFactory.DEFAULT_ENCRYPTION,
                         true)
-                    && accountID.isEncryptionProtocolEnabled("SDES"))
+                    && accountID.isEncryptionProtocolEnabled(
+                            SDesControl.PROTO_NAME))
             {
-                Map<MediaTypeSrtpControl, SrtpControl> srtpControls
-                    = getSrtpControls();
-                MediaTypeSrtpControl key
-                    = new MediaTypeSrtpControl(mediaType, SrtpControlType.SDES);
-                SrtpControl control = srtpControls.get(key);
-
-                if(control == null)
-                {
-                    control
-                        = JabberActivator.getMediaService().createSDesControl();
-                    srtpControls.put(key, control);
-                }
-
-                SDesControl tmpSDesControl = (SDesControl) control;
+                SrtpControls srtpControls = getSrtpControls();
+                SDesControl sdesControl
+                    = (SDesControl)
+                        srtpControls.getOrCreate(
+                                mediaType,
+                                SrtpControlType.SDES);
                 SrtpCryptoAttribute selectedSdes
                     = selectSdesCryptoSuite(
                             isInitiator,
-                            tmpSDesControl,
+                            sdesControl,
                             encryptionPacketExtension);
 
                 if(selectedSdes != null)
                 {
                     //found an SDES answer, remove all other controls
-                    Iterator<Map.Entry<MediaTypeSrtpControl, SrtpControl>> iter
-                            = srtpControls.entrySet().iterator();
-
-                    while (iter.hasNext())
-                    {
-                        Map.Entry<MediaTypeSrtpControl, SrtpControl> entry
-                            = iter.next();
-                        MediaTypeSrtpControl mtsc = entry.getKey();
-
-                        if ((mtsc.mediaType == mediaType)
-                                && (mtsc.srtpControlType
-                                        != SrtpControlType.SDES))
-                        {
-                            entry.getValue().cleanup();
-                            iter.remove();
-                        }
-                    }
-
+                    removeAndCleanupOtherSrtpControls(
+                            mediaType,
+                            SrtpControlType.SDES);
                     addAdvertisedEncryptionMethod(SrtpControlType.SDES);
                 }
                 else
                 {
-                    control.cleanup();
-                    srtpControls.remove(key);
+                    sdesControl.cleanup();
+                    srtpControls.remove(mediaType, SrtpControlType.SDES);
                 }
             }
         }
@@ -207,27 +185,12 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
         // manage it, then we must remove the unusable SDES srtpControl.
         else if(isInitiator)
         {
-            AccountID accountID
-                = getPeer().getProtocolProvider().getAccountID();
-
             // SDES
-            if(accountID.getAccountPropertyBoolean(
-                        ProtocolProviderFactory.DEFAULT_ENCRYPTION,
-                        true)
-                    && accountID.isEncryptionProtocolEnabled("SDES"))
-            {
-                Map<MediaTypeSrtpControl, SrtpControl> srtpControls
-                    = getSrtpControls();
-                MediaTypeSrtpControl key
-                    = new MediaTypeSrtpControl(mediaType, SrtpControlType.SDES);
-                SrtpControl control = srtpControls.get(key);
+            SrtpControl scontrol
+                = getSrtpControls().remove(mediaType, SrtpControlType.SDES);
 
-                if(control != null)
-                {
-                    control.cleanup();
-                    srtpControls.remove(key);
-                }
-            }
+            if (scontrol != null)
+                scontrol.cleanup();
         }
     }
 
@@ -283,11 +246,8 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
         for(int i = 0; i < packetExtensions.size(); ++i)
         {
             if(packetExtensions.get(i) instanceof ZrtpHashPacketExtension)
-            {
                 return true;
-            }
         }
-
         return false;
     }
 
@@ -338,29 +298,21 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
             if(accountID.getAccountPropertyBoolean(
                         ProtocolProviderFactory.DEFAULT_ENCRYPTION,
                         true)
-                    && accountID.isEncryptionProtocolEnabled("ZRTP")
+                    && accountID.isEncryptionProtocolEnabled(
+                            ZrtpControl.PROTO_NAME)
                     && peer.getCall().isSipZrtpAttribute())
             {
-                Map<MediaTypeSrtpControl, SrtpControl> srtpControls
-                    = getSrtpControls();
-                MediaTypeSrtpControl key
-                    = new MediaTypeSrtpControl(mediaType, SrtpControlType.ZRTP);
-                SrtpControl control = srtpControls.get(key);
+                ZrtpControl zrtpControl
+                    = (ZrtpControl)
+                        getSrtpControls().getOrCreate(
+                                mediaType,
+                                SrtpControlType.ZRTP);
+                int numberSupportedVersions
+                    = zrtpControl.getNumberSupportedVersions();
 
-                if(control == null)
+                for (int i = 0; i < numberSupportedVersions; i++)
                 {
-                    control
-                        = JabberActivator.getMediaService().createZrtpControl();
-                    srtpControls.put(key, control);
-                }
-
-                ZrtpControl zcontrol = (ZrtpControl) control;
-                int versionIndex = zcontrol.getNumberSupportedVersions();
-
-                for (int i = 0; i < versionIndex; i++)
-                {
-                    String helloHash[]
-                        = ((ZrtpControl) control).getHelloHashSep(i);
+                    String helloHash[] = zrtpControl.getHelloHashSep(i);
 
                     if ((helloHash != null) && (helloHash[1].length() > 0))
                     {
@@ -415,23 +367,15 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
         if (accountID.getAccountPropertyBoolean(
                     ProtocolProviderFactory.DEFAULT_ENCRYPTION,
                     true)
-                && accountID.isEncryptionProtocolEnabled("SDES"))
+                && accountID.isEncryptionProtocolEnabled(
+                        SDesControl.PROTO_NAME))
         {
             // get or create the control
-            Map<MediaTypeSrtpControl, SrtpControl> srtpControls
-                = getSrtpControls();
-            MediaTypeSrtpControl key
-                = new MediaTypeSrtpControl(mediaType, SrtpControlType.SDES);
-            SrtpControl control = srtpControls.get(key);
-
-            if (control == null)
-            {
-                control = JabberActivator.getMediaService().createSDesControl();
-                srtpControls.put(key, control);
-            }
-
+            SrtpControls srtpControls = getSrtpControls();
+            SDesControl sdesControl
+                = (SDesControl)
+                    srtpControls.getOrCreate(mediaType, SrtpControlType.SDES);
             // set the enabled ciphers suites
-            SDesControl sdcontrol = (SDesControl) control;
             String ciphers
                 = accountID.getAccountPropertyString(
                         ProtocolProviderFactory.SDES_CIPHER_SUITES);
@@ -442,7 +386,7 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
                     JabberActivator.getResources().getSettingsString(
                         SDesControl.SDES_CIPHER_SUITES);
             }
-            sdcontrol.setEnabledCiphers(Arrays.asList(ciphers.split(",")));
+            sdesControl.setEnabledCiphers(Arrays.asList(ciphers.split(",")));
 
             // act as initiator
             if (remoteDescription == null)
@@ -457,7 +401,7 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
                     localDescription.addChildExtension(localEncryption);
                 }
                 for(SrtpCryptoAttribute ca:
-                        sdcontrol.getInitiatorCryptoAttributes())
+                        sdesControl.getInitiatorCryptoAttributes())
                 {
                     CryptoPacketExtension crypto
                         = new CryptoPacketExtension(ca);
@@ -479,7 +423,7 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
                 {
                     SrtpCryptoAttribute selectedSdes = selectSdesCryptoSuite(
                             false,
-                            sdcontrol,
+                            sdesControl,
                             remoteEncryption);
 
                     if(selectedSdes != null)
@@ -505,8 +449,8 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
                     {
                         // none of the offered suites match, destroy the sdes
                         // control
-                        sdcontrol.cleanup();
-                        srtpControls.remove(key);
+                        sdesControl.cleanup();
+                        srtpControls.remove(mediaType, SrtpControlType.SDES);
                         logger.warn(
                                 "Received unsupported sdes crypto attribute");
                     }
@@ -515,8 +459,8 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
                 {
                     // peer doesn't offer any SDES attribute, destroy the sdes
                     // control
-                    sdcontrol.cleanup();
-                    srtpControls.remove(key);
+                    sdesControl.cleanup();
+                    srtpControls.remove(mediaType, SrtpControlType.SDES);
                 }
             }
         }
@@ -548,9 +492,29 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
 
         for(String preferredEncryptionProtocol : preferredEncryptionProtocols)
         {
+            String protoName
+                = preferredEncryptionProtocol.substring(
+                        ProtocolProviderFactory.ENCRYPTION_PROTOCOL.length()
+                            + 1);
+
+            // SDES
+            if(SDesControl.PROTO_NAME.equals(protoName))
+            {
+                addSDESAdvertisedEncryptions(
+                        false,
+                        remoteDescription,
+                        mediaType);
+                if(setSDesEncryptionToDescription(
+                        mediaType,
+                        localDescription,
+                        remoteDescription))
+                {
+                    // Stop once an encryption advertisement has been chosen.
+                    return;
+                }
+            }
             // ZRTP
-            if(preferredEncryptionProtocol.equals(
-                        ProtocolProviderFactory.ENCRYPTION_PROTOCOL + ".ZRTP"))
+            else if(ZrtpControl.PROTO_NAME.equals(protoName))
             {
                 boolean isZRTPAddedToDescription
                     = setZrtpEncryptionToDescription(
@@ -564,24 +528,7 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
                             false,
                             remoteDescription,
                             mediaType);
-                    // Stops once an encryption advertisement has been chosen.
-                    return;
-                }
-            }
-            // SDES
-            else if(preferredEncryptionProtocol.equals(
-                        ProtocolProviderFactory.ENCRYPTION_PROTOCOL + ".SDES"))
-            {
-                addSDESAdvertisedEncryptions(
-                        false,
-                        remoteDescription,
-                        mediaType);
-                if(setSDesEncryptionToDescription(
-                        mediaType,
-                        localDescription,
-                        remoteDescription))
-                {
-                    // Stops once an encryption advertisement has been chosen.
+                    // Stop once an encryption advertisement has been chosen.
                     return;
                 }
             }

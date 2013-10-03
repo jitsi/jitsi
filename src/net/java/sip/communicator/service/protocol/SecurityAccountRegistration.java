@@ -13,11 +13,12 @@ import java.util.*;
 
 /**
  * The <tt>SecurityAccountRegistration</tt> is used to determine security
- * options for different registration protocol (Jabber, SIP). Useful fot the
+ * options for different registration protocol (Jabber, SIP). Useful to the
  * SecurityPanel.
  *
  * @author Vincent Lucas
  * @author Pawel Domas
+ * @author Lyubomir Marinov
  */
 public abstract class SecurityAccountRegistration
     implements Serializable
@@ -25,7 +26,12 @@ public abstract class SecurityAccountRegistration
     /**
      * The encryption protocols managed by this SecurityPanel.
      */
-    public static final String[] ENCRYPTION_PROTOCOLS = {"ZRTP", "SDES"};
+    public static final List<String> ENCRYPTION_PROTOCOLS
+        = Collections.unmodifiableList(
+                Arrays.asList(
+                        ZrtpControl.PROTO_NAME,
+                        SDesControl.PROTO_NAME,
+                        DtlsControl.PROTO_NAME));
 
     /**
      * Enables support to encrypt calls.
@@ -33,7 +39,7 @@ public abstract class SecurityAccountRegistration
     private boolean defaultEncryption = true;
 
     /**
-     * Enqbles ZRTP encryption.
+     * Enables ZRTP encryption.
      */
     private boolean sipZrtpAttribute = true;
 
@@ -65,13 +71,13 @@ public abstract class SecurityAccountRegistration
     public SecurityAccountRegistration()
     {
         // Sets the default values.
-        this.encryptionProtocols = new HashMap<String, Integer>(1);
-        this.encryptionProtocols.put("ZRTP", 0);
-        this.encryptionProtocolStatus = new HashMap<String, Boolean>(1);
-        this.encryptionProtocolStatus.put("ZRTP", true);
+        encryptionProtocols = new HashMap<String, Integer>(1);
+        encryptionProtocols.put("ZRTP", 0);
+        encryptionProtocolStatus = new HashMap<String, Boolean>(1);
+        encryptionProtocolStatus.put("ZRTP", true);
         sdesCipherSuites
-                = UtilActivator.getResources()
-                        .getSettingsString(SDesControl.SDES_CIPHER_SUITES);
+            = UtilActivator.getResources().getSettingsString(
+                    SDesControl.SDES_CIPHER_SUITES);
     }
 
     /**
@@ -223,19 +229,13 @@ public abstract class SecurityAccountRegistration
     private void addEncryptionProtocolsToProperties(
             Map<String, String> properties)
     {
-        Map<String, Integer> encryptionProtocols
-            = this.getEncryptionProtocols();
-        Iterator<String> encryptionProtocolIterator
-            = encryptionProtocols.keySet().iterator();
-        String encryptionProtocol;
-        while(encryptionProtocolIterator.hasNext())
+        for (Map.Entry<String, Integer> e : getEncryptionProtocols().entrySet())
         {
-            encryptionProtocol = encryptionProtocolIterator.next();
             properties.put(
                     ProtocolProviderFactory.ENCRYPTION_PROTOCOL
                         + "."
-                        + encryptionProtocol,
-                    encryptionProtocols.get(encryptionProtocol).toString());
+                        + e.getKey(),
+                    e.getValue().toString());
         }
     }
 
@@ -248,20 +248,14 @@ public abstract class SecurityAccountRegistration
     private void addEncryptionProtocolStatusToProperties(
             Map<String, String> properties)
     {
-        Map<String, Boolean> encryptionProtocolStatus
-            = this.getEncryptionProtocolStatus();
-        Iterator<String> encryptionProtocolStatusIterator
-            = encryptionProtocolStatus.keySet().iterator();
-        String encryptionProtocol;
-        while(encryptionProtocolStatusIterator.hasNext())
+        for (Map.Entry<String,Boolean> e
+                : getEncryptionProtocolStatus().entrySet())
         {
-            encryptionProtocol = encryptionProtocolStatusIterator.next();
             properties.put(
                     ProtocolProviderFactory.ENCRYPTION_PROTOCOL_STATUS
                         + "."
-                        + encryptionProtocol,
-                    encryptionProtocolStatus.get(encryptionProtocol)
-                        .toString());
+                        + e.getKey(),
+                    e.getValue().toString());
         }
     }
 
@@ -278,16 +272,13 @@ public abstract class SecurityAccountRegistration
 
         // Sets the ordered list of encryption protocols.
         addEncryptionProtocolsToProperties(propertiesMap);
-
         // Sets the list of encryption protocol status.
         addEncryptionProtocolStatusToProperties(propertiesMap);
 
         propertiesMap.put(ProtocolProviderFactory.DEFAULT_SIPZRTP_ATTRIBUTE,
                           Boolean.toString(isSipZrtpAttribute()));
-
         propertiesMap.put(ProtocolProviderFactory.SAVP_OPTION,
                           Integer.toString(getSavpOption()));
-
         propertiesMap.put(ProtocolProviderFactory.SDES_CIPHER_SUITES,
                           getSDesCipherSuites());
     }
@@ -306,31 +297,30 @@ public abstract class SecurityAccountRegistration
         encryptionProtocols = new HashMap<String, Integer>();
         encryptionProtocolStatus = new HashMap<String, Boolean>();
 
-        Map<String, Integer> srcEncryptionProtocols
-                = accountID.getIntegerPropertiesByPrefix(
-                        ProtocolProviderFactory.ENCRYPTION_PROTOCOL, true);
-        Map<String, Boolean> srcEncryptionProtocolStatus
-                = accountID.getBooleanPropertiesByPrefix(
+        Map<String,Integer> srcEncryptionProtocols
+            = accountID.getIntegerPropertiesByPrefix(
+                    ProtocolProviderFactory.ENCRYPTION_PROTOCOL,
+                    true);
+        Map<String,Boolean> srcEncryptionProtocolStatus
+            = accountID.getBooleanPropertiesByPrefix(
                     ProtocolProviderFactory.ENCRYPTION_PROTOCOL_STATUS,
-                            true,
-                            false);
+                    true,
+                    false);
         // Load stored values.
         int prefixeLength
-                = ProtocolProviderFactory.ENCRYPTION_PROTOCOL.length() + 1;
-        String name;
-        boolean enabled;
-        for(String protocolPropertyName : srcEncryptionProtocols.keySet())
+            = ProtocolProviderFactory.ENCRYPTION_PROTOCOL.length() + 1;
+
+        for (Map.Entry<String,Integer> e : srcEncryptionProtocols.entrySet())
         {
-            name = protocolPropertyName.substring(prefixeLength);
+            String name = e.getKey().substring(prefixeLength);
             if (isExistingEncryptionProtocol(name))
             {
-                // Copies the priority
-                encryptionProtocols.put(
-                        name,
-                        srcEncryptionProtocols.get(protocolPropertyName));
-                // Extracts the status
-                enabled = srcEncryptionProtocolStatus.get(
-                        ProtocolProviderFactory.ENCRYPTION_PROTOCOL_STATUS
+                // Copy the priority
+                encryptionProtocols.put(name, e.getValue());
+                // Extract the status
+                boolean enabled
+                    = srcEncryptionProtocolStatus.get(
+                            ProtocolProviderFactory.ENCRYPTION_PROTOCOL_STATUS
                                 + "."
                                 + name);
                 encryptionProtocolStatus.put(name, enabled);
@@ -341,12 +331,10 @@ public abstract class SecurityAccountRegistration
                 accountID.getAccountPropertyBoolean(
                         ProtocolProviderFactory.DEFAULT_SIPZRTP_ATTRIBUTE,
                         true));
-
         setSavpOption(
                 accountID.getAccountPropertyInt(
                         ProtocolProviderFactory.SAVP_OPTION,
                         ProtocolProviderFactory.SAVP_OFF));
-
         setSDesCipherSuites(
                 accountID.getAccountPropertyString(
                         ProtocolProviderFactory.SDES_CIPHER_SUITES));
@@ -369,42 +357,37 @@ public abstract class SecurityAccountRegistration
             Map<String, Integer> encryptionProtocols,
             Map<String, Boolean> encryptionProtocolStatus)
     {
-        int nbEncryptionProtocols = ENCRYPTION_PROTOCOLS.length;
+        int nbEncryptionProtocols = ENCRYPTION_PROTOCOLS.size();
         String[] encryptions = new String[nbEncryptionProtocols];
         boolean[] selectedEncryptions = new boolean[nbEncryptionProtocols];
 
         // Load stored values.
-        String name;
-        int index;
-        Iterator<String> encryptionProtocolNames
-                = encryptionProtocols.keySet().iterator();
-        while(encryptionProtocolNames.hasNext())
+        for (Map.Entry<String,Integer> e : encryptionProtocols.entrySet())
         {
-            name = encryptionProtocolNames.next();
-            index = encryptionProtocols.get(name);
+            int index = e.getValue();
+
             // If the property is set.
-            if(index != -1)
+            if (index != -1)
             {
+                String name = e.getKey();
+
                 if (isExistingEncryptionProtocol(name))
                 {
                     encryptions[index] = name;
                     selectedEncryptions[index]
-                            = encryptionProtocolStatus.get(name);
+                        = encryptionProtocolStatus.get(name);
                 }
             }
         }
 
         // Load default values.
-        String encryptionProtocol;
-        boolean set;
         int j = 0;
-        for(int i = 0; i < ENCRYPTION_PROTOCOLS.length; ++i)
+        for (String encryptionProtocol : ENCRYPTION_PROTOCOLS)
         {
-            encryptionProtocol = ENCRYPTION_PROTOCOLS[i];
             // Specify a default value only if there is no specific value set.
             if(!encryptionProtocols.containsKey(encryptionProtocol))
             {
-                set = false;
+                boolean set = false;
                 // Search for the first empty element.
                 while(j < encryptions.length && !set)
                 {
@@ -418,30 +401,22 @@ public abstract class SecurityAccountRegistration
                     }
                     ++j;
                 }
-
             }
         }
 
-        return new Object[]{ encryptions, selectedEncryptions};
+        return new Object[] { encryptions, selectedEncryptions};
     }
 
     /**
-     * Checks if given <tt>protocol</tt> is on supported protocols list.
+     * Checks if a specific <tt>protocol</tt> is on the list of supported
+     * (encryption) protocols.
+     *
      * @param protocol the protocol name
-     * @return <tt>true</tt> if encryption protocol with given protocol name is
-     * supported.
+     * @return <tt>true</tt> if <tt>protocol</tt> is supported; <tt>false</tt>,
+     * otherwise
      */
     private static boolean isExistingEncryptionProtocol(String protocol)
     {
-        for (String key : ENCRYPTION_PROTOCOLS)
-        {
-            if (key.equals(protocol))
-            {
-                return true;
-            }
-        }
-
-        return false;
+        return ENCRYPTION_PROTOCOLS.contains(protocol);
     }
-
 }

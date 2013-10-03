@@ -661,7 +661,7 @@ public class IceUdpTransportManager
      *
      * @return the {@link IceUdpTransportPacketExtension} that we
      */
-    public PacketExtension createTransport(IceMediaStream stream)
+    protected PacketExtension createTransport(IceMediaStream stream)
     {
         IceUdpTransportPacketExtension trans
             = new IceUdpTransportPacketExtension();

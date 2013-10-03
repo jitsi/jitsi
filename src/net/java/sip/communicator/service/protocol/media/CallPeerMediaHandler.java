@@ -13,8 +13,8 @@ import java.util.*;
 import java.util.List;
 
 import net.java.sip.communicator.service.protocol.*;
-
 import net.java.sip.communicator.util.*;
+
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.codec.*;
 import org.jitsi.service.neomedia.control.*;
@@ -980,7 +980,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
      * @return the <tt>SrtpControl</tt>s of the <tt>MediaStream</tt>s of this
      * instance
      */
-    protected Map<MediaTypeSrtpControl, SrtpControl> getSrtpControls()
+    protected SrtpControls getSrtpControls()
     {
         return mediaHandler.getSrtpControls(this);
     }
@@ -1441,6 +1441,24 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
     public boolean processKeyFrameRequest()
     {
         return mediaHandler.processKeyFrameRequest(this);
+    }
+
+    protected void removeAndCleanupOtherSrtpControls(
+            MediaType mediaType,
+            SrtpControlType srtpControlType)
+    {
+        SrtpControls srtpControls = getSrtpControls();
+
+        for (SrtpControlType i : SrtpControlType.values())
+        {
+            if (!i.equals(srtpControlType))
+            {
+                SrtpControl e = srtpControls.remove(mediaType, i);
+
+                if (e != null)
+                    e.cleanup();
+            }
+        }
     }
 
     /**

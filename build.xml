@@ -1286,6 +1286,7 @@
 
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/libjitsi"
                 prefix="net/java/sip/communicator/impl/libjitsi"/>
+            <zipfileset src="${lib.noinst}/bcpkix-jdk15on-149.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/fmj.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/libjitsi.jar" prefix=""/>
         </jar>
@@ -2517,7 +2518,7 @@ javax.swing.event, javax.swing.border"/>
 
     <!--BUNDLE-BOUNCYCASTLE -->
     <target name="bundle-bouncycastle">
-        <copy file="${lib.noinst}/bcprov-jdk15on-148.jar" tofile="${bundles.dest}/bouncycastle.jar"/>
+        <copy file="${lib.noinst}/bcprov-jdk15on-149.jar" tofile="${bundles.dest}/bouncycastle.jar"/>
         <copy file="${lib.noinst}/bccontrib-1.0-SNAPSHOT.jar" tofile="${bundles.dest}/bccontrib.jar"/>
     </target>
 

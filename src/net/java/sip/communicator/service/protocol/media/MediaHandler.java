@@ -138,8 +138,8 @@ public class MediaHandler
     /**
      * The <tt>SrtpControl</tt>s of the <tt>MediaStream</tt>s of this instance.
      */
-    private final SortedMap<MediaTypeSrtpControl, SrtpControl> srtpControls
-        = new TreeMap<MediaTypeSrtpControl, SrtpControl>();
+    private final SrtpControls srtpControls
+        = new SrtpControls();
 
     private final SrtpListener srtpListener
         = new SrtpListener()
@@ -597,19 +597,7 @@ public class MediaHandler
         }
 
         // Clean up the SRTP controls used for the associated Call.
-        Iterator<Map.Entry<MediaTypeSrtpControl, SrtpControl>> iter
-            = srtpControls.entrySet().iterator();
-
-        while (iter.hasNext())
-        {
-            Map.Entry<MediaTypeSrtpControl, SrtpControl> entry = iter.next();
-
-            if (entry.getKey().mediaType == mediaType)
-            {
-                entry.getValue().cleanup();
-                iter.remove();
-            }
-        }
+        callPeerMediaHandler.removeAndCleanupOtherSrtpControls(mediaType, null);
     }
 
     /**
@@ -771,8 +759,8 @@ public class MediaHandler
         for(SrtpControlType srtpControlType : SrtpControlType.values())
         {
             SrtpControl srtpControl
-                = getSrtpControls(callPeerMediaHandler).get(
-                        new MediaTypeSrtpControl(mediaType, srtpControlType));
+                = getSrtpControls(callPeerMediaHandler)
+                    .get(mediaType, srtpControlType);
 
             if((srtpControl != null)
                     && srtpControl.getSecureCommunicationStatus())
@@ -798,8 +786,7 @@ public class MediaHandler
      * @return the <tt>SrtpControl</tt>s of the <tt>MediaStream</tt>s of this
      * instance
      */
-    Map<MediaTypeSrtpControl, SrtpControl> getSrtpControls(
-            CallPeerMediaHandler<?> callPeerMediaHandler)
+    SrtpControls getSrtpControls(CallPeerMediaHandler<?> callPeerMediaHandler)
     {
         return srtpControls;
     }
@@ -884,17 +871,7 @@ public class MediaHandler
 
             MediaService mediaService
                 = ProtocolMediaActivator.getMediaService();
-            /*
-             * The default SrtpControlType is ZRTP. But if a SrtpControl exists
-             * already, it determines the SrtpControlType.
-             */
-            SrtpControlType srtpControlType
-                = (srtpControls.size() > 0)
-                    ? srtpControls.firstKey().srtpControlType
-                    : SrtpControlType.ZRTP;
-            MediaTypeSrtpControl mediaTypeSrtpControl
-                = new MediaTypeSrtpControl(mediaType, srtpControlType);
-            SrtpControl srtpControl = srtpControls.get(mediaTypeSrtpControl);
+            SrtpControl srtpControl = srtpControls.findFirst(mediaType);
 
             // If a SrtpControl does not exist yet, create a default one.
             if (srtpControl == null)
@@ -905,7 +882,9 @@ public class MediaHandler
                  * Consequently, it needs to be linked to the srtpControls Map.
                  */
                 stream = mediaService.createMediaStream(connector, device);
-                srtpControls.put(mediaTypeSrtpControl, stream.getSrtpControl());
+                srtpControl = stream.getSrtpControl();
+                if (srtpControl != null)
+                    srtpControls.set(mediaType, srtpControl);
             }
             else
             {

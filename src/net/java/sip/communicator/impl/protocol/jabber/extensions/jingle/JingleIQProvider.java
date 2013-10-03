@@ -142,6 +142,14 @@ public class JingleIQProvider implements IQProvider
                 new DefaultPacketExtensionProvider<CoinPacketExtension>(
                         CoinPacketExtension.class));
 
+        // DTLS-SRTP
+        providerManager.addExtensionProvider(
+                DtlsFingerprintPacketExtension.ELEMENT_NAME,
+                DtlsFingerprintPacketExtension.NAMESPACE,
+                new DefaultPacketExtensionProvider
+                    <DtlsFingerprintPacketExtension>(
+                        DtlsFingerprintPacketExtension.class));
+
         /*
          * XEP-0251: Jingle Session Transfer <transfer/> and <transferred>
          * providers

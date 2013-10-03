@@ -222,11 +222,11 @@ public class CallPeerMediaHandlerGTalkImpl
      * @throws OperationFailedException if we fail to configure the media stream
      */
     public RtpDescriptionPacketExtension generateSessionAccept(
-        boolean initStream)
+            boolean initStream)
         throws OperationFailedException
     {
-        RtpDescriptionPacketExtension description =
-            new RtpDescriptionPacketExtension();
+        RtpDescriptionPacketExtension description
+            = new RtpDescriptionPacketExtension();
         List<PayloadTypePacketExtension> lst = localContentMap.get("audio");
 
         description.setNamespace(SessionIQProvider.GTALK_AUDIO_NAMESPACE);
@@ -282,11 +282,10 @@ public class CallPeerMediaHandlerGTalkImpl
                 continue;
 
             // stream target
-            MediaStreamTarget target = transportManager.getStreamTarget(
-                    mediaType);
+            MediaStreamTarget target
+                = transportManager.getStreamTarget(mediaType);
 
-            List<RTPExtension> rtpExtensions =
-                new ArrayList<RTPExtension>();
+            List<RTPExtension> rtpExtensions = new ArrayList<RTPExtension>();
             MediaDirection direction = MediaDirection.SENDRECV;
 
             boolean masterStream = false;

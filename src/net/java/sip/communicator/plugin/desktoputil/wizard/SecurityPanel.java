@@ -310,7 +310,7 @@ public class SecurityPanel
         pnlAdvancedSettings.add(lblEncryptionProtocolPreferences, c);
 
         int nbEncryptionProtocols
-                = SecurityAccountRegistration.ENCRYPTION_PROTOCOLS.length;
+                = SecurityAccountRegistration.ENCRYPTION_PROTOCOLS.size();
         String[] encryptions = new String[nbEncryptionProtocols];
         boolean[] selectedEncryptions = new boolean[nbEncryptionProtocols];
 

@@ -32,19 +32,6 @@ public class JabberAccountIDImpl
     }
 
     /**
-     * Returns the service name - the server we are logging to
-     * if it is null which is not supposed to be - we return for compatibility
-     * the string we used in the first release for creating AccountID
-     * (Using this string is wrong, but used for compatibility for now)
-     * @param accountProperties Map
-     * @return String
-     */
-    private static String getServiceName(Map<String, String> accountProperties)
-    {
-        return accountProperties.get(ProtocolProviderFactory.SERVER_ADDRESS);
-    }
-
-    /**
      * Returns the list of STUN servers that this account is currently
      * configured to use.
      *

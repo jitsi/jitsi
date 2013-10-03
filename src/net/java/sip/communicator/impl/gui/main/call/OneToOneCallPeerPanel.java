@@ -843,11 +843,8 @@ public class OneToOneCallPeerPanel
 
         SrtpControl srtpControl = evt.getSecurityController();
 
-        if ((srtpControl.requiresSecureSignalingTransport()
-                    && callPeer
-                        .getProtocolProvider()
-                            .isSignalingTransportSecure())
-                || !srtpControl.requiresSecureSignalingTransport())
+        if (!srtpControl.requiresSecureSignalingTransport()
+                || callPeer.getProtocolProvider().isSignalingTransportSecure())
         {
             if (srtpControl instanceof ZrtpControl)
             {

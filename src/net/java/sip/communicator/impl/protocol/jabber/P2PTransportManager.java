@@ -120,7 +120,7 @@ public class P2PTransportManager
      * @return the {@link GTalkTransportPacketExtension}
      */
     @Override
-    public PacketExtension createTransport(IceMediaStream stream)
+    protected PacketExtension createTransport(IceMediaStream stream)
     {
         GTalkTransportPacketExtension trans
             = new GTalkTransportPacketExtension();

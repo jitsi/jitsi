@@ -227,8 +227,8 @@ public class RawUdpTransportManager
             MediaType mediaType,
             StreamConnector connector)
     {
-        ColibriConferenceIQ.Channel channel = getColibriChannel(mediaType,
-            false);
+        ColibriConferenceIQ.Channel channel
+            = getColibriChannel(mediaType, false);
 
         RawUdpTransportPacketExtension ourTransport
             = new RawUdpTransportPacketExtension();

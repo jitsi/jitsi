@@ -32,11 +32,26 @@ import ch.imvs.sdes4j.srtp.*;
  * both classes are only separated for reasons of readability.
  *
  * @author Emil Ivov
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class CallPeerMediaHandlerSipImpl
     extends CallPeerMediaHandler<CallPeerSipImpl>
 {
+    /**
+     * The name of the SDP attribute which specifies the fingerprint and hash
+     * function which has computed it of the certificate to validate a DTLS
+     * flow.
+     */
+    private static final String DTLS_SRTP_FINGERPRINT_ATTR = "fingerprint";
+
+    private static final String DTLS_SRTP_SETUP_ACTIVE = "active";
+
+    private static final String DTLS_SRTP_SETUP_ACTPASS = "actpass";
+
+    private static final String DTLS_SRTP_SETUP_ATTR = "setup";
+
+    private static final String DTLS_SRTP_SETUP_PASSIVE = "passive";
+
     /**
      * Our class logger.
      */
@@ -197,9 +212,7 @@ public class CallPeerMediaHandlerSipImpl
 
             if(direction != MediaDirection.INACTIVE)
             {
-                boolean hadSavp = false;
-
-                for (String profileName : getRtpTransports())
+                for (String proto : getRtpTransports())
                 {
                     /*
                      * If we start an audio-only call and re-INVITE the remote
@@ -213,7 +226,7 @@ public class CallPeerMediaHandlerSipImpl
                         = direction.allowsSending() ? sendQualityPreset : null;
                     MediaDescription md
                         = createMediaDescription(
-                                profileName,
+                                proto,
                                 getLocallySupportedFormats(
                                         dev,
                                         effectiveSendQualityPreset,
@@ -247,16 +260,36 @@ public class CallPeerMediaHandlerSipImpl
                         // do nothing in case of error.
                     }
 
-                    if(!hadSavp)
+                    if (DtlsControl.UDP_TLS_RTP_SAVP.equals(proto)
+                            || DtlsControl.UDP_TLS_RTP_SAVPF.equals(proto))
                     {
-                        updateMediaDescriptionForZrtp(mediaType, md);
-                        updateMediaDescriptionForSDes(mediaType, md, null);
+                        updateMediaDescriptionForDtls(mediaType, md, null);
+                    }
+                    else
+                    {
+                        /*
+                         * According to RFC 6189 "ZRTP: Media Path Key Agreement
+                         * for Unicast Secure RTP", "ZRTP utilizes normal
+                         * RTP/AVP (Audio-Visual Profile) profiles", "[t]he
+                         * Secure RTP/AVP (SAVP) profile MAY be used in
+                         * subsequent offer/answer exchanges after a successful
+                         * ZRTP exchange has resulted in an SRTP session, or if
+                         * it is known that the other endpoint supports this
+                         * profile" and "[o]ther profiles MAY also be used."
+                         */
+                        updateMediaDescriptionForZrtp(mediaType, md, null);
+                        /*
+                         * According to Ingo Bauersachs, SDES "[b]asically
+                         * requires SAVP per RFC."
+                         */
+                        if (SrtpControl.RTP_SAVP.equals(proto)
+                                || SrtpControl.RTP_SAVPF.equals(proto))
+                        {
+                            updateMediaDescriptionForSDes(mediaType, md, null);
+                        }
                     }
 
                     mediaDescs.add(md);
-
-                    if(!hadSavp && profileName.contains("SAVP"))
-                        hadSavp = true;
                 }
             }
         }
@@ -426,16 +459,15 @@ public class CallPeerMediaHandlerSipImpl
      * or semantics of <tt>newOffer</tt>.
      */
     private Vector<MediaDescription> createMediaDescriptionsForAnswer(
-                    SessionDescription offer)
+            SessionDescription offer)
         throws OperationFailedException,
                IllegalArgumentException
     {
-        List<MediaDescription> remoteDescriptions = SdpUtils
-                        .extractMediaDescriptions(offer);
-
+        List<MediaDescription> remoteDescriptions
+            = SdpUtils.extractMediaDescriptions(offer);
         // prepare to generate answers to all the incoming descriptions
         Vector<MediaDescription> answerDescriptions
-            = new Vector<MediaDescription>( remoteDescriptions.size() );
+            = new Vector<MediaDescription>(remoteDescriptions.size());
 
         this.setCallInfoURL(SdpUtils.getCallInfoURL(offer));
 
@@ -457,22 +489,26 @@ public class CallPeerMediaHandlerSipImpl
 
         for (MediaDescription mediaDescription : remoteDescriptions)
         {
-            String transportProtocol;
+            String proto;
             try
             {
-                transportProtocol = mediaDescription.getMedia().getProtocol();
+                proto = mediaDescription.getMedia().getProtocol();
             }
             catch (SdpParseException e)
             {
                 throw new OperationFailedException(
-                    "unable to create the media description",
-                    OperationFailedException.ILLEGAL_ARGUMENT, e);
+                        "Unable to create the media description",
+                        OperationFailedException.ILLEGAL_ARGUMENT,
+                        e);
             }
 
-            //ignore RTP/AVP(F) stream when RTP/SAVP(F) is mandatory
+            /*
+             * Ignore a RTP/AVP(F) stream when RTP/SAVP(F) is mandatory. At the
+             * time of this writing we support ZRTP, SDES and DTLS-SRTP.
+             */
             if ((savpOption == ProtocolProviderFactory.SAVP_MANDATORY)
-                    && !(transportProtocol.equals("RTP/SAVP")
-                            || transportProtocol.equals("RTP/SAVPF")))
+                    && !(proto.endsWith(SrtpControl.RTP_SAVP)
+                            || proto.endsWith(SrtpControl.RTP_SAVPF)))
             {
                 rejectedAvpOfferDueToSavpMandatory = true;
                 continue;
@@ -630,7 +666,7 @@ public class CallPeerMediaHandlerSipImpl
 
             MediaDescription md
                 = createMediaDescription(
-                        transportProtocol,
+                        proto,
                         mutuallySupportedFormats,
                         connector,
                         direction,
@@ -676,7 +712,6 @@ public class CallPeerMediaHandlerSipImpl
             atLeastOneValidDescription = true;
         }
 
-
         if (!atLeastOneValidDescription)
         {
             if (rejectedAvpOfferDueToSavpMandatory)
@@ -699,72 +734,270 @@ public class CallPeerMediaHandlerSipImpl
     }
 
     /**
-     * Updates the supplied description with zrtp hello hash if necessary.
+     * Updates a specific local <tt>MediaDescription</tt> and the state of this
+     * instance for the purposes of DTLS-SRTP.
      *
-     * @param mediaType the media type.
-     * @param md the description to be updated.
-     *
-     * @return True if ZRTP is added tp the media description. False, otherwise.
+     * @param mediaType the <tt>MediaType</tt> of the media described by
+     * <tt>localMd</tt> and <tt>remoteMd</tt>
+     * @param localMd the local <tt>MediaDescription</tt> to be updated
+     * @param remoteMd the remote <tt>MediaDescription</tt>, if any, associated
+     * with <tt>localMd</tt>
+     * @return <tt>true</tt> if the specified <tt>localMd</tt> and/or the state
+     * of this instance was updated for the purposes of DTLS-SRTP or
+     * <tt>false</tt> if the specified <tt>localMd</tt> (and <tt>remoteMd</tt>)
+     * did not concern DTLS-SRTP
      */
-    private boolean updateMediaDescriptionForZrtp(
-        MediaType mediaType, MediaDescription md)
+    private boolean updateMediaDescriptionForDtls(
+            MediaType mediaType,
+            MediaDescription localMd,
+            MediaDescription remoteMd)
     {
-        MediaAwareCallPeer<?, ?, ?> peer = getPeer();
-        AccountID accountID = peer.getProtocolProvider().getAccountID();
+        AccountID accountID = getPeer().getProtocolProvider().getAccountID();
+        boolean b = false;
 
-        if(accountID.getAccountPropertyBoolean(
+        if (accountID.getAccountPropertyBoolean(
                     ProtocolProviderFactory.DEFAULT_ENCRYPTION,
                     true)
-                && accountID.isEncryptionProtocolEnabled("ZRTP")
-                && peer.getCall().isSipZrtpAttribute())
+                && accountID.isEncryptionProtocolEnabled(
+                        DtlsControl.PROTO_NAME))
         {
-            try
-            {
-                Map<MediaTypeSrtpControl, SrtpControl> srtpControls
-                    = getSrtpControls();
-                MediaTypeSrtpControl key
-                    = new MediaTypeSrtpControl(mediaType, SrtpControlType.ZRTP);
-                SrtpControl scontrol = srtpControls.get(key);
+            /*
+             * The transport protocol of the media described by localMd should
+             * be DTLS-SRTP in order to be of any concern here.
+             */
+            Media localMedia = localMd.getMedia();
 
-                if(scontrol == null)
+            if (localMedia != null)
+            {
+                String proto;
+
+                try
                 {
-                    scontrol
-                        = SipActivator.getMediaService().createZrtpControl();
-                    srtpControls.put(key, scontrol);
+                    proto = localMedia.getProtocol();
+                }
+                catch (SdpParseException e)
+                {
+                    /*
+                     * Well, if the protocol of the Media cannot be parsed, then
+                     * surely we do not want to have anything to do with it.
+                     */
+                    proto = null;
                 }
 
-                ZrtpControl zcontrol = (ZrtpControl) scontrol;
-                int versionIndex = zcontrol.getNumberSupportedVersions();
-                boolean zrtpHashSet = false; // will become true if at least one is set
+                boolean dtls
+                    = DtlsControl.UDP_TLS_RTP_SAVP.equals(proto)
+                        || DtlsControl.UDP_TLS_RTP_SAVPF.equals(proto);
+                SrtpControls srtpControls = getSrtpControls();
 
-                for (int i = 0; i < versionIndex; i++)
+                if (dtls)
                 {
-                    String helloHash = zcontrol.getHelloHash(i);
+                    DtlsControl dtlsControl
+                        = (DtlsControl)
+                            srtpControls.getOrCreate(
+                                    mediaType,
+                                    SrtpControlType.DTLS_SRTP);
 
-                    if ((helloHash != null) && helloHash.length() > 0)
-                    {
-                        md.setAttribute(SdpUtils.ZRTP_HASH_ATTR, helloHash);
-                        zrtpHashSet = true;
-                    }
+                    // SDP attributes
+                    @SuppressWarnings("unchecked")
+                    Vector<Attribute> attrs = localMd.getAttributes(true);
+
+                    // setup
+                    String setup
+                        = (remoteMd == null)
+                            ? DTLS_SRTP_SETUP_ACTPASS
+                            : DTLS_SRTP_SETUP_ACTIVE;
+                    Attribute setupAttr
+                        = SdpUtils.createAttribute(DTLS_SRTP_SETUP_ATTR, setup);
+
+                    attrs.add(setupAttr);
+
+                    // fingerprint
+                    String hashFunction
+                        = dtlsControl.getLocalFingerprintHashFunction();
+                    String fingerprint = dtlsControl.getLocalFingerprint();
+                    Attribute fingerprintAttr
+                        = SdpUtils.createAttribute(
+                                DTLS_SRTP_FINGERPRINT_ATTR,
+                                hashFunction + " " + fingerprint);
+
+                    attrs.add(fingerprintAttr);
+
+                    int dtlsProtocol
+                        = DTLS_SRTP_SETUP_ACTIVE.equals(setup)
+                            ? DtlsControl.DTLS_CLIENT_PROTOCOL
+                            : DtlsControl.DTLS_SERVER_PROTOCOL;
+
+                    dtlsControl.setDtlsProtocol(dtlsProtocol);
+
+                    if (remoteMd != null) // answer
+                        updateSrtpControlsForDtls(mediaType, localMd, remoteMd);
+
+                    b = true;
                 }
-                return zrtpHashSet;
-            }
-            catch (SdpException ex)
-            {
-                logger.error("Cannot add zrtp-hash to sdp", ex);
+                else if (remoteMd != null) // answer
+                {
+                    /*
+                     * If DTLS-SRTP has been rejected as the transport protocol,
+                     * then halt the operation of DTLS-SRTP.
+                     */
+                    SrtpControl dtlsControl
+                        = srtpControls.remove(
+                                mediaType,
+                                SrtpControlType.DTLS_SRTP);
+
+                    if (dtlsControl != null)
+                        dtlsControl.cleanup();
+                }
             }
         }
-        return false;
+        return b;
     }
 
     /**
-     * Updates the supplied description with SDES attributes if necessary.
+     * Updates the <tt>SrtpControls</tt> of this instance in accord with a
+     * specific <tt>MediaDescription</tt> presented by a remote peer.
+     *
+     * @param mediaType the <tt>MediaType</tt> of the specified
+     * <tt>MediaDescription</tt> to be analyzed
+     * @param localMd the <tt>MediaDescription</tt> of the local peer that is
+     * the answer to the offer presented by a remote peer represented by
+     * <tt>remoteMd</tt> or <tt>null</tt> if the specified <tt>remoteMd</tt> is
+     * an answer to an offer of the local peer
+     * @param remoteMd the <tt>MediaDescription</tt> presented by a remote peer
+     * to be analyzed
+     */
+    private void updateSrtpControlsForDtls(
+            MediaType mediaType,
+            MediaDescription localMd,
+            MediaDescription remoteMd)
+    {
+        SrtpControls srtpControls = getSrtpControls();
+        DtlsControl dtlsControl
+            = (DtlsControl)
+                srtpControls.get(mediaType, SrtpControlType.DTLS_SRTP);
+
+        if (dtlsControl == null)
+            return;
+
+        Media remoteMedia = remoteMd.getMedia();
+        boolean dtls = false;
+
+        if (remoteMedia != null)
+        {
+            String proto;
+
+            try
+            {
+                proto = remoteMedia.getProtocol();
+            }
+            catch (SdpParseException e)
+            {
+                /*
+                 * Well, if the protocol of the Media cannot be parsed, then
+                 * surely we do not want to have anything to do with it.
+                 */
+                proto = null;
+            }
+            dtls
+                = DtlsControl.UDP_TLS_RTP_SAVP.equals(proto)
+                    || DtlsControl.UDP_TLS_RTP_SAVPF.equals(proto);
+        }
+        if (dtls)
+        {
+            if (localMd == null) // answer
+            {
+                // setup
+                /*
+                 * RFC 5763 requires setup:actpass from the offerer i.e. the
+                 * offerer is the DTLS server and recommends setup:active to the
+                 * answerer i.e the answerer is the DTLS client. If the answerer
+                 * chooses setup:passive i.e. the answerer is the DTLS server,
+                 * the offerer has to become the DTLS client. 
+                 */
+                String setup;
+
+                try
+                {
+                    setup = remoteMd.getAttribute(DTLS_SRTP_SETUP_ATTR);
+                }
+                catch (SdpParseException spe)
+                {
+                    setup = null;
+                }
+                if (DTLS_SRTP_SETUP_PASSIVE.equals(setup))
+                {
+                    dtlsControl.setDtlsProtocol(
+                            DtlsControl.DTLS_CLIENT_PROTOCOL);
+                }
+            }
+
+            // fingerprint
+            @SuppressWarnings("unchecked")
+            Vector<Attribute> attrs = remoteMd.getAttributes(false);
+            Map<String, String> remoteFingerprints
+                = new LinkedHashMap<String, String>();
+
+            if (attrs != null)
+            {
+                for (Attribute attr : attrs)
+                {
+                    String fingerprint;
+
+                    try
+                    {
+                        if (DTLS_SRTP_FINGERPRINT_ATTR.equals(attr.getName()))
+                        {
+                            fingerprint = attr.getValue();
+                            if (fingerprint == null)
+                                continue;
+                            else
+                                fingerprint = fingerprint.trim();
+                        }
+                        else
+                        {
+                            continue;
+                        }
+                    }
+                    catch (SdpParseException spe)
+                    {
+                        /*
+                         * Whatever part of the SDP failed to parse, we would
+                         * better not try to recover from it.
+                         */
+                        continue;
+                    }
+
+                    int spIndex = fingerprint.indexOf(' ');
+
+                    if ((spIndex > 0) && (spIndex < fingerprint.length() - 1))
+                    {
+                        String hashFunction = fingerprint.substring(0, spIndex);
+
+                        fingerprint = fingerprint.substring(spIndex + 1);
+                        remoteFingerprints.put(hashFunction, fingerprint);
+                    }
+                }
+            }
+            dtlsControl.setRemoteFingerprints(remoteFingerprints);
+
+            removeAndCleanupOtherSrtpControls(
+                    mediaType,
+                    SrtpControlType.DTLS_SRTP);
+        }
+        else
+        {
+            srtpControls.remove(mediaType, SrtpControlType.DTLS_SRTP);
+            dtlsControl.cleanup();
+        }
+    }
+
+    /**
+     * Updates the supplied media description with SDES attributes if necessary.
      *
      * @param mediaType the media type.
      * @param localMd the description of the local peer.
      * @param remoteMd the description of the remote peer.
-     *
-     * @return <tt>true</tt> if SDES is added to the media description;
+     * @return <tt>true</tt> if SDES has been added to the media description;
      * <tt>false</tt>, otherwise.
      */
     private boolean updateMediaDescriptionForSDes(
@@ -774,29 +1007,22 @@ public class CallPeerMediaHandlerSipImpl
     {
         AccountID accountID = getPeer().getProtocolProvider().getAccountID();
 
-        // check if SDES and encryption is enabled at all
+        // Check if encryption and SDES are enabled at all.
         if(!accountID.getAccountPropertyBoolean(
                     ProtocolProviderFactory.DEFAULT_ENCRYPTION,
                     true)
-                || !accountID.isEncryptionProtocolEnabled("SDES"))
+                || !accountID.isEncryptionProtocolEnabled(
+                        SDesControl.PROTO_NAME))
         {
             return false;
         }
 
         // get or create the control
-        Map<MediaTypeSrtpControl, SrtpControl> srtpControls = getSrtpControls();
-        MediaTypeSrtpControl key
-            = new MediaTypeSrtpControl(mediaType, SrtpControlType.SDES);
-        SrtpControl scontrol = srtpControls.get(key);
-
-        if (scontrol == null)
-        {
-            scontrol = SipActivator.getMediaService().createSDesControl();
-            srtpControls.put(key, scontrol);
-        }
-
+        SrtpControls srtpControls = getSrtpControls();
+        SDesControl sdesControl
+            = (SDesControl)
+                srtpControls.getOrCreate(mediaType, SrtpControlType.SDES);
         // set the enabled ciphers suites
-        SDesControl sdcontrol = (SDesControl) scontrol;
         String ciphers
             = accountID.getAccountPropertyString(
                     ProtocolProviderFactory.SDES_CIPHER_SUITES);
@@ -807,26 +1033,24 @@ public class CallPeerMediaHandlerSipImpl
                 = SipActivator.getResources().getSettingsString(
                         SDesControl.SDES_CIPHER_SUITES);
         }
-        sdcontrol.setEnabledCiphers(Arrays.asList(ciphers.split(",")));
+        sdesControl.setEnabledCiphers(Arrays.asList(ciphers.split(",")));
 
-        // act as initiator
-        if (remoteMd == null)
+        if (remoteMd == null) // act as initiator
         {
             @SuppressWarnings("unchecked")
             Vector<Attribute> atts = localMd.getAttributes(true);
 
             for (SrtpCryptoAttribute ca
-                    : sdcontrol.getInitiatorCryptoAttributes())
+                    : sdesControl.getInitiatorCryptoAttributes())
             {
                 atts.add(SdpUtils.createAttribute("crypto", ca.encode()));
             }
             return true;
         }
-        // act as responder
-        else
+        else // act as responder
         {
             SrtpCryptoAttribute localAttr
-                = selectSdesCryptoSuite(false, sdcontrol, remoteMd);
+                = selectSdesCryptoSuite(false, sdesControl, remoteMd);
 
             if (localAttr != null)
             {
@@ -842,16 +1066,84 @@ public class CallPeerMediaHandlerSipImpl
             }
             else
             {
-                // none of the offered suites match, destroy the sdes control
-                sdcontrol.cleanup();
-                srtpControls.remove(key);
+                // None of the offered suites match, destroy the SDES control.
+                sdesControl.cleanup();
+                srtpControls.remove(mediaType, SrtpControlType.SDES);
                 logger.warn("Received unsupported sdes crypto attribute.");
             }
             return false;
         }
     }
 
-    private List<String> getRtpTransports() throws OperationFailedException
+    /**
+     * Updates the supplied media description with ZRTP hello hash if necessary.
+     *
+     * @param mediaType the media type.
+     * @param localMd the media description to update.
+     * @return <tt>true</tt> if ZRTP is added to the media description;
+     * <tt>false</tt>, otherwise.
+     */
+    private boolean updateMediaDescriptionForZrtp(
+            MediaType mediaType,
+            MediaDescription localMd,
+            MediaDescription remoteMd)
+    {
+        MediaAwareCallPeer<?, ?, ?> peer = getPeer();
+        AccountID accountID = peer.getProtocolProvider().getAccountID();
+        boolean b = false;
+
+        if(accountID.getAccountPropertyBoolean(
+                    ProtocolProviderFactory.DEFAULT_ENCRYPTION,
+                    true)
+                && accountID.isEncryptionProtocolEnabled(ZrtpControl.PROTO_NAME)
+                && peer.getCall().isSipZrtpAttribute())
+        {
+            ZrtpControl zrtpControl
+                = (ZrtpControl)
+                    getSrtpControls().getOrCreate(
+                            mediaType,
+                            SrtpControlType.ZRTP);
+            int numberSupportedVersions
+                = zrtpControl.getNumberSupportedVersions();
+
+            try
+            {
+                for (int i = 0; i < numberSupportedVersions; i++)
+                {
+                    String helloHash = zrtpControl.getHelloHash(i);
+
+                    if ((helloHash != null) && helloHash.length() > 0)
+                    {
+                        localMd.setAttribute(
+                                SdpUtils.ZRTP_HASH_ATTR,
+                                helloHash);
+                        /*
+                         * Will return true if at least one zrtp-hash has been
+                         * set.
+                         */
+                        b = true;
+                    }
+                }
+            }
+            catch (SdpException ex)
+            {
+                logger.error("Cannot add zrtp-hash to sdp", ex);
+            }
+        }
+        return b;
+    }
+
+    /**
+     * Gets a list of (RTP) transport protocols (i.e. <tt>&lt;proto&gt;</tt>) to
+     * be announced in a SDP media description (i.e. <tt>m=</tt> line).
+     *
+     * @return a <tt>List</tt> of (RTP) transport protocols to be announced in a
+     * SDP media description
+     * @throws OperationFailedException if the value of the <tt>AccountID</tt>
+     * property {@link ProtocolProviderFactory#SAVP_OPTION} is invalid
+     */
+    private List<String> getRtpTransports()
+        throws OperationFailedException
     {
         AccountID accountID = getPeer().getProtocolProvider().getAccountID();
         int savpOption
@@ -862,25 +1154,65 @@ public class CallPeerMediaHandlerSipImpl
                         ProtocolProviderFactory.SAVP_OPTION,
                         ProtocolProviderFactory.SAVP_OFF)
                 : ProtocolProviderFactory.SAVP_OFF;
-        List<String> result = new ArrayList<String>(2);
+        List<String> result = new ArrayList<String>(3);
 
-        switch (savpOption)
+        if (savpOption == ProtocolProviderFactory.SAVP_OFF)
         {
-        case ProtocolProviderFactory.SAVP_MANDATORY:
-            result.add("RTP/SAVP");
-            break;
-        case ProtocolProviderFactory.SAVP_OFF:
             result.add(SdpConstants.RTP_AVP);
-            break;
-        case ProtocolProviderFactory.SAVP_OPTIONAL:
-            result.add("RTP/SAVP");
-            result.add(SdpConstants.RTP_AVP);
-            break;
-        default:
-            throw new OperationFailedException(
-                    "invalid value for SAVP_OPTION",
-                    OperationFailedException.GENERAL_ERROR);
         }
+        else
+        {
+            /*
+             * List the secure transports in the result according to the order
+             * of preference of their respective encryption protocols.
+             */
+            List<String> encryptionProtocols
+                = accountID.getSortedEnabledEncryptionProtocolList();
+            int encryptionProtocolCount = encryptionProtocols.size();
+
+            for (int i = encryptionProtocolCount - 1; i >= 0; i--)
+            {
+                String encryptionProtocol = encryptionProtocols.get(i);
+                String protoName
+                    = encryptionProtocol.substring(
+                            ProtocolProviderFactory.ENCRYPTION_PROTOCOL.length()
+                                + 1);
+                String proto;
+
+                if (DtlsControl.PROTO_NAME.equals(protoName))
+                {
+                    proto = DtlsControl.UDP_TLS_RTP_SAVP;
+                }
+                else
+                {
+                    /*
+                     * According to Ingo Bauersachs, SDES "[b]asically requires
+                     * SAVP per RFC."
+                     */
+                    /*
+                     * According to RFC 6189 "ZRTP: Media Path Key Agreement for
+                     * Unicast Secure RTP", "ZRTP utilizes normal RTP/AVP
+                     * (Audio-Visual Profile) profiles", "[t]he Secure RTP/AVP
+                     * (SAVP) profile MAY be used in subsequent offer/answer
+                     * exchanges after a successful ZRTP exchange has resulted
+                     * in an SRTP session, or if it is known that the other
+                     * endpoint supports this profile" and "[o]ther profiles MAY
+                     * also be used."
+                     */
+                    proto = SrtpControl.RTP_SAVP;
+                }
+
+                int protoIndex = result.indexOf(proto);
+
+                if (protoIndex > 0)
+                    result.remove(protoIndex);
+                result.add(0, proto);
+            }
+
+            if (savpOption == ProtocolProviderFactory.SAVP_OPTIONAL)
+                result.add(SdpConstants.RTP_AVP);
+        }
+
         return result;
     }
 
@@ -1051,45 +1383,34 @@ public class CallPeerMediaHandlerSipImpl
                     = SdpUtils.containsAttribute(mediaDescription, "imageattr");
             }
 
-            // select the crypto key the peer has chosen from our proposal
-            Map<MediaTypeSrtpControl, SrtpControl> srtpControls
-                = getSrtpControls();
-            MediaTypeSrtpControl key
-                = new MediaTypeSrtpControl(mediaType, SrtpControlType.SDES);
-            SrtpControl scontrol = srtpControls.get(key);
 
-            if(scontrol != null)
+            // DTLS-SRTP
+            updateSrtpControlsForDtls(mediaType, null, mediaDescription);
+
+            // SDES
+            // select the crypto key the peer has chosen from our proposal
+            SrtpControls srtpControls = getSrtpControls();
+            SDesControl sdesControl
+                = (SDesControl)
+                    srtpControls.get(mediaType, SrtpControlType.SDES);
+
+            if(sdesControl != null)
             {
                 if(selectSdesCryptoSuite(
                         true,
-                        (SDesControl) scontrol,
+                        sdesControl,
                         mediaDescription) == null)
                 {
-                    scontrol.cleanup();
-                    srtpControls.remove(key);
+                    sdesControl.cleanup();
+                    srtpControls.remove(mediaType, SrtpControlType.SDES);
                     logger.warn("Received unsupported sdes crypto attribute.");
                 }
                 else
                 {
                     //found an SDES answer, remove all other controls
-                    Iterator<Map.Entry<MediaTypeSrtpControl, SrtpControl>> iter
-                        = srtpControls.entrySet().iterator();
-
-                    while (iter.hasNext())
-                    {
-                        Map.Entry<MediaTypeSrtpControl, SrtpControl> entry
-                            = iter.next();
-                        MediaTypeSrtpControl mtsc = entry.getKey();
-
-                        if ((mtsc.mediaType == mediaType)
-                                && (mtsc.srtpControlType
-                                        != SrtpControlType.SDES))
-                        {
-                            entry.getValue().cleanup();
-                            iter.remove();
-                        }
-                    }
-
+                    removeAndCleanupOtherSrtpControls(
+                            mediaType,
+                            SrtpControlType.SDES);
                     addAdvertisedEncryptionMethod(SrtpControlType.SDES);
                 }
             }
@@ -1386,28 +1707,37 @@ public class CallPeerMediaHandlerSipImpl
                     .getAccountID()
                         .getSortedEnabledEncryptionProtocolList();
 
-        for(int i = 0; i < preferredEncryptionProtocols.size(); ++i)
+        for(String preferredEncryptionProtocol : preferredEncryptionProtocols)
         {
-            // ZRTP
-            if(preferredEncryptionProtocols.get(i).equals(
-                        ProtocolProviderFactory.ENCRYPTION_PROTOCOL + ".ZRTP"))
+            String protoName
+                = preferredEncryptionProtocol.substring(
+                        ProtocolProviderFactory.ENCRYPTION_PROTOCOL.length()
+                            + 1);
+
+            // DTLS-SRTP
+            if (DtlsControl.PROTO_NAME.equals(protoName))
             {
-                if(updateMediaDescriptionForZrtp(mediaType, localMd))
+                if(updateMediaDescriptionForDtls(mediaType, localMd, remoteMd))
                 {
-                    // Stops once an encryption advertisement has been chosen.
+                    // Stop once an encryption advertisement has been chosen.
                     return;
                 }
             }
             // SDES
-            else if(preferredEncryptionProtocols.get(i).equals(
-                        ProtocolProviderFactory.ENCRYPTION_PROTOCOL + ".SDES"))
+            else if(SDesControl.PROTO_NAME.equals(protoName))
             {
-                if(updateMediaDescriptionForSDes(
-                            mediaType,
-                            localMd,
-                            remoteMd))
+                if(updateMediaDescriptionForSDes(mediaType, localMd, remoteMd))
                 {
-                    // Stops once an encryption advertisement has been chosen.
+                    // Stop once an encryption advertisement has been chosen.
+                    return;
+                }
+            }
+            // ZRTP
+            else if(ZrtpControl.PROTO_NAME.equals(protoName))
+            {
+                if(updateMediaDescriptionForZrtp(mediaType, localMd, remoteMd))
+                {
+                    // Stop once an encryption advertisement has been chosen.
                     return;
                 }
             }

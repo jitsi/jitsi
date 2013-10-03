@@ -918,8 +918,6 @@ public class CallPeerMediaHandlerJabberImpl
                      * Jitsi VideoBridge working on the server, prefer a
                      * transport which will route the conference through there.
                      */
-                    CallJabberImpl call = peer.getCall();
-
                     if (isJitsiVideoBridge)
                     {
                         /*
