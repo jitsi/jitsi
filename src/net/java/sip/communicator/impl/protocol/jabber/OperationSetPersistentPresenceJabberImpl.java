@@ -211,7 +211,16 @@ public class OperationSetPersistentPresenceJabberImpl
                 != null)
             return sourceContact;
         else
-            return ssContactList.createVolatileContact(id, isPrivateMessagingContact);
+        {
+            sourceContact = ssContactList.createVolatileContact(
+                id, isPrivateMessagingContact);
+            if(isPrivateMessagingContact
+                && StringUtils.parseResource(id) != null)
+            {
+                updateResources(sourceContact, false);
+            }
+            return sourceContact;
+        }
     }
 
     /**
@@ -956,6 +965,103 @@ public class OperationSetPersistentPresenceJabberImpl
     }
 
     /**
+     * Updates the resources for the contact.
+     * @param contact the contact which resources to update.
+     * @param removeUnavailable whether to remove unavailable resources.
+     */
+    private void updateResources(ContactJabberImpl contact,
+                                 boolean removeUnavailable)
+    {
+        if (!contact.isResolved()
+            || (contact instanceof VolatileContactJabberImpl
+                && ((VolatileContactJabberImpl)contact)
+                        .isPrivateMessagingContact()))
+            return;
+
+        Map<String, ContactResourceJabberImpl> resources =
+            contact.getResourcesMap();
+
+        Iterator<Presence> it =
+            parentProvider.getConnection().getRoster()
+                .getPresences(contact.getAddress());
+
+        // Choose the resource which has the highest priority AND supports
+        // Jingle, if we have two resources with same priority take
+        // the most available.
+        while(it.hasNext())
+        {
+            Presence presence = it.next();
+
+            String resource = StringUtils.parseResource(presence.getFrom());
+
+            if (resource != null && resource.length() > 0)
+            {
+                String fullJid = presence.getFrom();
+                ContactResourceJabberImpl contactResource
+                    = resources.get(fullJid);
+
+                PresenceStatus newPresenceStatus
+                    = OperationSetPersistentPresenceJabberImpl
+                        .jabberStatusToPresenceStatus(
+                            presence,
+                            parentProvider);
+
+                if (contactResource == null)
+                {
+                    contactResource = new ContactResourceJabberImpl(
+                                                    fullJid,
+                                                    contact,
+                                                    resource,
+                                                    newPresenceStatus,
+                                                    presence.getPriority());
+
+                    resources.put(fullJid, contactResource);
+
+                    contact.fireContactResourceEvent(
+                        new ContactResourceEvent(contact, contactResource,
+                            ContactResourceEvent.RESOURCE_ADDED));
+                }
+                else
+                {
+                    if (contactResource.getPresenceStatus().getStatus()
+                        != newPresenceStatus.getStatus())
+                    {
+                        contactResource.setPresenceStatus(newPresenceStatus);
+
+                        contact.fireContactResourceEvent(
+                            new ContactResourceEvent(contact, contactResource,
+                                ContactResourceEvent.RESOURCE_MODIFIED));
+                    }
+                }
+            }
+        }
+
+        if(!removeUnavailable)
+            return;
+
+        Iterator<String> resourceIter = resources.keySet().iterator();
+        while (resourceIter.hasNext())
+        {
+            String fullJid = resourceIter.next();
+
+            if(!parentProvider.getConnection().getRoster()
+                    .getPresenceResource(fullJid).isAvailable())
+            {
+                ContactResource removedResource = resources.get(fullJid);
+
+                if (resources.containsKey(fullJid))
+                {
+                    resources.remove(fullJid);
+
+                    contact.fireContactResourceEvent(
+                        new ContactResourceEvent(contact, removedResource,
+                            ContactResourceEvent.RESOURCE_REMOVED));
+                }
+            }
+        }
+    }
+
+    /**
      * Fires the status change, respecting resource priorities.
      * @param presence the presence changed.
      */
@@ -1160,7 +1266,7 @@ public class OperationSetPersistentPresenceJabberImpl
 
                 // When status changes this may be related to a change in the
                 // available resources.
-                sourceContact.updateResources();
+                updateResources(sourceContact, true);
                 mobileIndicator.resourcesUpdated(sourceContact);
 
                 PresenceStatus oldStatus

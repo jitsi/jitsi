@@ -66,7 +66,7 @@ public class VolatileContactJabberImpl
             displayName = StringUtils.parseResource(id) + " from " + 
                 StringUtils.parseBareAddress(id);
             this.contactId = id;
-            setJid(id, true);
+            setJid(id);
         }
         else
         {
@@ -74,7 +74,7 @@ public class VolatileContactJabberImpl
             String resource = StringUtils.parseResource(id);
             if(resource != null)
             {
-                setJid(id, false);
+                setJid(id);
             }
         }
 
@@ -129,19 +129,6 @@ public class VolatileContactJabberImpl
     public boolean isPersistent()
     {
         return false;
-    }
-    
-    /**
-     * Updates the resources for this contact.
-     * 
-     * @param removeUnavailable whether to remove unavailable resources.
-     */
-    protected void updateResources(boolean removeUnavailable)
-    {
-        if(!isPrivateMessagingContact)
-        {
-            super.updateResources(removeUnavailable);
-        }
     }
 
     /**

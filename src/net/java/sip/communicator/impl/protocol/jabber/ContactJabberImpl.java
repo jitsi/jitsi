@@ -503,107 +503,24 @@ public class ContactJabberImpl
         return resources.get(jid);
     }
 
-    /**
-     * Updates the resources for this contact.
-     */
-    void updateResources()
+    Map<String, ContactResourceJabberImpl> getResourcesMap()
     {
-        updateResources(true);
-    }
-
-    /**
-     * Updates the resources for this contact.
-     * @param removeUnavailable whether to remove unavailable resources.
-     */
-    protected void updateResources(boolean removeUnavailable)
-    {
-        if (jid == null)
-            return;
-
         if (resources == null)
             resources
                 = new ConcurrentHashMap<String, ContactResourceJabberImpl>();
 
-        Iterator<Presence> it
-            = ((ProtocolProviderServiceJabberImpl) getProtocolProvider())
-                .getConnection().getRoster().getPresences(jid);
+        return this.resources;
+    }
 
-        // Choose the resource which has the highest priority AND supports
-        // Jingle, if we have two resources with same priority take
-        // the most available.
-        while(it.hasNext())
-        {
-            Presence presence = it.next();
-
-            String resource = StringUtils.parseResource(presence.getFrom());
-
-            if (resource != null && resource.length() > 0)
-            {
-                String fullJid = presence.getFrom();
-                ContactResourceJabberImpl contactResource
-                    = resources.get(fullJid);
-
-                PresenceStatus newPresenceStatus
-                    = OperationSetPersistentPresenceJabberImpl
-                        .jabberStatusToPresenceStatus(
-                            presence,
-                            (ProtocolProviderServiceJabberImpl)
-                            getProtocolProvider());
-
-                if (contactResource == null)
-                {
-                    contactResource = new ContactResourceJabberImpl(
-                                                    fullJid,
-                                                    this,
-                                                    resource,
-                                                    newPresenceStatus,
-                                                    presence.getPriority());
-
-                    resources.put(fullJid, contactResource);
-
-                    fireContactResourceEvent(
-                        new ContactResourceEvent(this, contactResource,
-                            ContactResourceEvent.RESOURCE_ADDED));
-                }
-                else
-                {
-                    if (contactResource.getPresenceStatus().getStatus()
-                        != newPresenceStatus.getStatus())
-                    {
-                        contactResource.setPresenceStatus(newPresenceStatus);
-
-                        fireContactResourceEvent(
-                            new ContactResourceEvent(this, contactResource,
-                                ContactResourceEvent.RESOURCE_MODIFIED));
-                    }
-                }
-            }
-        }
-
-        if(!removeUnavailable)
-            return;
-
-        Iterator<String> resourceIter = resources.keySet().iterator();
-        while (resourceIter.hasNext())
-        {
-            String fullJid = resourceIter.next();
-
-            if(!((ProtocolProviderServiceJabberImpl) getProtocolProvider())
-                .getConnection().getRoster().getPresenceResource(fullJid)
-                    .isAvailable())
-            {
-                ContactResource removedResource = resources.get(fullJid);
-
-                if (resources.containsKey(fullJid))
-                {
-                    resources.remove(fullJid);
-
-                    fireContactResourceEvent(
-                        new ContactResourceEvent(this, removedResource,
-                            ContactResourceEvent.RESOURCE_REMOVED));
-                }
-            }
-        }
+    /**
+     * Notifies all registered <tt>ContactResourceListener</tt>s that an event
+     * has occurred.
+     *
+     * @param event the <tt>ContactResourceEvent</tt> to fire notification for
+     */
+    public void fireContactResourceEvent(ContactResourceEvent event)
+    {
+        super.fireContactResourceEvent(event);
     }
 
     /**
@@ -612,20 +529,13 @@ public class ContactJabberImpl
      * resources from the contact as it will be the only resource we will use.
      * @param fullJid the full jid of the contact.
      */
-    protected void setJid(String fullJid, boolean dontUpdateResources)
+    protected void setJid(String fullJid)
     {
         this.jid = fullJid;
 
-        if(!dontUpdateResources)
-        {
-            updateResources(false);
-        }
-        else
-        {
-            if (resources == null)
-                resources
-                    = new ConcurrentHashMap<String, ContactResourceJabberImpl>();
-        }
+        if (resources == null)
+            resources
+                = new ConcurrentHashMap<String, ContactResourceJabberImpl>();
     }
 
     /**
