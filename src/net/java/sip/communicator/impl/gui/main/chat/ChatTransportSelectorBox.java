@@ -164,6 +164,8 @@ public class ChatTransportSelectorBox
             this.menu.add(menuItem);
 
             updateEnableStatus();
+
+            updateTransportStatus(chatTransport);
         }
     }
 
@@ -277,9 +279,12 @@ public class ChatTransportSelectorBox
         icon = new ImageIcon(createTransportStatusImage(chatTransport));
 
         menuItem.setIcon(icon);
-        if(menu.getSelectedObject().equals(chatTransport))
+        if( menu.getSelectedObject() != null
+            && menu.getSelectedObject().equals(chatTransport))
         {
             this.menu.setIcon(icon);
+            this.chatSession.fireCurrentChatTransportUpdated(
+                    ChatSessionChangeListener.ICON_UPDATED);
         }
     }
 
@@ -302,6 +307,9 @@ public class ChatTransportSelectorBox
         SelectedObject selectedObject = new SelectedObject(icon, chatTransport);
 
         this.menu.setSelected(selectedObject);
+
+        this.chatSession.fireCurrentChatTransportUpdated(
+                ChatSessionChangeListener.ICON_UPDATED);
 
         String resourceName = (chatTransport.getResourceName() != null)
                                 ? " (" + chatTransport.getResourceName() + ")"

@@ -430,6 +430,14 @@ public class MainToolBar
     }
 
     /**
+     * When a property of the chatTransport has changed.
+     * @param eventID the event id representing the property of the transport
+     * that has changed.
+     */
+    public void currentChatTransportUpdated(int eventID)
+    {}
+
+    /**
      * Handles the <tt>ActionEvent</tt>, when one of the tool bar buttons is
      * clicked.
      * @param e the <tt>ActionEvent</tt> that notified us

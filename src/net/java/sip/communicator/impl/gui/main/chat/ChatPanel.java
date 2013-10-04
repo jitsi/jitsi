@@ -55,6 +55,7 @@ import org.jitsi.util.*;
 public class ChatPanel
     extends TransparentPanel
     implements  ChatSessionRenderer,
+                ChatSessionChangeListener,
                 Chat,
                 ChatConversationContainer,
                 ChatRoomMemberRoleListener,
@@ -219,7 +220,14 @@ public class ChatPanel
      */
     public void setChatSession(ChatSession chatSession)
     {
+        if(this.chatSession != null)
+        {
+            // remove old listener
+            this.chatSession.removeChatTransportChangeListener(this);
+        }
+
         this.chatSession = chatSession;
+        this.chatSession.addChatTransportChangeListener(this);
 
         if ((this.chatSession != null)
                 && this.chatSession.isContactListSupported())
@@ -595,6 +603,33 @@ public class ChatPanel
     public String getLastSentMessageUID()
     {
         return lastSentMessageUID;
+    }
+
+    /**
+     * Called when the current {@link ChatTransport} has
+     * changed. We will change current icon
+     *
+     * @param chatSession the {@link ChatSession} it's current
+     * {@link ChatTransport} has changed
+     */
+    @Override
+    public void currentChatTransportChanged(ChatSession chatSession)
+    {
+        setChatIcon(new ImageIcon(Constants.getStatusIcon(
+            this.chatSession.getCurrentChatTransport().getStatus())));
+    }
+
+    /**
+     * When a property of the chatTransport has changed.
+     */
+    @Override
+    public void currentChatTransportUpdated(int eventID)
+    {
+        if(eventID == ChatSessionChangeListener.ICON_UPDATED)
+        {
+            setChatIcon(new ImageIcon(Constants.getStatusIcon(
+                this.chatSession.getCurrentChatTransport().getStatus())));
+        }
     }
 
     /**
@@ -2027,13 +2062,6 @@ public class ChatPanel
     public void removeChatTransport(ChatTransport chatTransport)
     {
         writeMessagePanel.removeChatTransport(chatTransport);
-
-        if (chatSession != null
-            && !chatTransport.equals(chatSession.getCurrentChatTransport()))
-            return;
-
-        setChatIcon(new ImageIcon(
-                    Constants.getStatusIcon(chatTransport.getStatus())));
     }
 
     /**
@@ -2054,13 +2082,6 @@ public class ChatPanel
         writeMessagePanel.setSelectedChatTransport(
                 chatTransport,
                 isMessageOrFileTransferReceived);
-
-        if (chatSession != null
-            && !chatTransport.equals(chatSession.getCurrentChatTransport()))
-            return;
-
-        setChatIcon(new ImageIcon(
-                    Constants.getStatusIcon(chatTransport.getStatus())));
     }
 
     /**
@@ -2099,9 +2120,6 @@ public class ChatPanel
                     new String[]{chatTransport.getStatus().getStatusName()}),
                     "text/plain");
         }
-
-        setChatIcon(new ImageIcon(
-            Constants.getStatusIcon(chatTransport.getStatus())));
     }
 
     /**

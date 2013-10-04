@@ -38,7 +38,15 @@ public abstract class ChatSession
      */
     protected final List<ChatTransport> chatTransports
         = new LinkedList<ChatTransport>();
-    
+
+    /**
+     * The list of all <tt>ChatSessionChangeListener</tt>-s registered to listen
+     * for transport modifications.
+     */
+    private final List<ChatSessionChangeListener>
+            chatTransportChangeListeners
+                = new ArrayList<ChatSessionChangeListener>();
+
     /**
      * The persistable address of the contact from the session.
      */
@@ -50,7 +58,7 @@ public abstract class ChatSession
      * @return the descriptor of this chat session.
      */
     public abstract Object getDescriptor();
-    
+
     /**
      * Returns the persistable address of the contact from the session.
      * @return the persistable address.
@@ -266,8 +274,15 @@ public abstract class ChatSession
      *
      * @param l the <tt>ChatSessionChangeListener</tt> to add
      */
-    public abstract void addChatTransportChangeListener(
-        ChatSessionChangeListener l);
+    public void addChatTransportChangeListener(
+        ChatSessionChangeListener l)
+    {
+        synchronized (chatTransportChangeListeners)
+        {
+            if (!chatTransportChangeListeners.contains(l))
+                chatTransportChangeListeners.add(l);
+        }
+    }
 
     /**
      * Removes the given {@link ChatSessionChangeListener} to this
@@ -275,6 +290,44 @@ public abstract class ChatSession
      *
      * @param l the <tt>ChatSessionChangeListener</tt> to add
      */
-    public abstract void removeChatTransportChangeListener(
-        ChatSessionChangeListener l);
+    public void removeChatTransportChangeListener(
+        ChatSessionChangeListener l)
+    {
+        synchronized (chatTransportChangeListeners)
+        {
+            chatTransportChangeListeners.remove(l);
+        }
+    }
+
+    /**
+     * Fires a event that current ChatTransport has changed.
+     */
+    public void fireCurrentChatTransportChange()
+    {
+        List<ChatSessionChangeListener> listeners = null;
+        synchronized (chatTransportChangeListeners)
+        {
+            listeners = new ArrayList<ChatSessionChangeListener>(
+                chatTransportChangeListeners);
+        }
+
+        for (ChatSessionChangeListener l : listeners)
+            l.currentChatTransportChanged(this);
+    }
+
+    /**
+     * Fires a event that current ChatTransport has been updated.
+     */
+    public void fireCurrentChatTransportUpdated(int eventID)
+    {
+        List<ChatSessionChangeListener> listeners = null;
+        synchronized (chatTransportChangeListeners)
+        {
+            listeners = new ArrayList<ChatSessionChangeListener>(
+                chatTransportChangeListeners);
+        }
+
+        for (ChatSessionChangeListener l : listeners)
+            l.currentChatTransportUpdated(eventID);
+    }
 }

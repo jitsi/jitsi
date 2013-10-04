@@ -1106,10 +1106,7 @@ public class ChatWritePanel
 
         // Sets the new resource transport is really effective (i.e. we have
         // received a message from this resource).
-        // or if it is the last one
-        if(transportSelectorBox != null
-            && (isMessageOrFileTransferReceived
-                || transportSelectorBox.getMenu().getItemCount() == 1))
+        if(transportSelectorBox != null && isMessageOrFileTransferReceived)
         {
             transportSelectorBox.setSelected(chatTransport);
         }

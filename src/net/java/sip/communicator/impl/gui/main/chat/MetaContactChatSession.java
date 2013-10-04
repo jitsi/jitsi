@@ -41,10 +41,6 @@ public class MetaContactChatSession
 
     private final ChatSessionRenderer sessionRenderer;
 
-    private final java.util.List<ChatSessionChangeListener>
-            chatTransportChangeListeners
-                = new Vector<ChatSessionChangeListener>();
-
     /**
      * Creates an instance of <tt>MetaContactChatSession</tt> by specifying the
      * renderer, which gives the connection with the UI, the meta contact
@@ -362,8 +358,7 @@ public class MetaContactChatSession
     {
         this.currentChatTransport = chatTransport;
 
-        for (ChatSessionChangeListener l : chatTransportChangeListeners)
-            l.currentChatTransportChanged(this);
+        fireCurrentChatTransportChange();
     }
 
     public void childContactsReordered(MetaContactGroupEvent evt)
@@ -632,25 +627,6 @@ public class MetaContactChatSession
     public boolean isContactListSupported()
     {
         return false;
-    }
-
-    @Override
-    public void addChatTransportChangeListener(ChatSessionChangeListener l)
-    {
-        synchronized (chatTransportChangeListeners)
-        {
-            if (!chatTransportChangeListeners.contains(l))
-                chatTransportChangeListeners.add(l);
-        }
-    }
-
-    @Override
-    public void removeChatTransportChangeListener(ChatSessionChangeListener l)
-    {
-        synchronized (chatTransportChangeListeners)
-        {
-            chatTransportChangeListeners.remove(l);
-        }
     }
 
     /**

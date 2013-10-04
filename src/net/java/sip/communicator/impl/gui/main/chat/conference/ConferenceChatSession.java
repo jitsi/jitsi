@@ -46,14 +46,6 @@ public class ConferenceChatSession
     private final ChatSessionRenderer sessionRenderer;
 
     /**
-     * The list of all <tt>ChatSessionChangeListener</tt>-s registered to listen
-     * for transport modifications.
-     */
-    private final java.util.List<ChatSessionChangeListener>
-        chatTransportChangeListeners
-            = new Vector<ChatSessionChangeListener>();
-
-    /**
      * Creates an instance of <tt>ConferenceChatSession</tt>, by specifying the
      * sessionRenderer to be used for communication with the UI and the chatRoom
      * corresponding to this conference session.
@@ -352,10 +344,8 @@ public class ConferenceChatSession
     public void setCurrentChatTransport(ChatTransport chatTransport)
     {
         this.currentChatTransport = chatTransport;
-        for (ChatSessionChangeListener l : chatTransportChangeListeners)
-        {
-            l.currentChatTransportChanged(this);
-        }
+
+        fireCurrentChatTransportChange();
     }
 
     /**
@@ -613,35 +603,6 @@ public class ConferenceChatSession
         return
             !chatRoom.isSystem()
                 && !ConferenceChatManager.isPrivate(chatRoom);
-    }
-
-    /**
-     * Adds the given <tt>ChatSessionChangeListener</tt> to the list of
-     * transport listeners.
-     * @param l the listener to add
-     */
-    @Override
-    public void addChatTransportChangeListener(ChatSessionChangeListener l)
-    {
-        synchronized (chatTransportChangeListeners)
-        {
-            if (!chatTransportChangeListeners.contains(l))
-                chatTransportChangeListeners.add(l);
-        }
-    }
-
-    /**
-     * Removes the given <tt>ChatSessionChangeListener</tt> from contained
-     * transport listeners.
-     * @param l the listener to remove
-     */
-    @Override
-    public void removeChatTransportChangeListener(ChatSessionChangeListener l)
-    {
-        synchronized (chatTransportChangeListeners)
-        {
-            chatTransportChangeListeners.remove(l);
-        }
     }
 
     /**

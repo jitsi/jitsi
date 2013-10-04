@@ -497,14 +497,4 @@ public class AdHocConferenceChatSession
             }
         }
     }
-
-    @Override
-    public void addChatTransportChangeListener(ChatSessionChangeListener l)
-    {
-    }
-
-    @Override
-    public void removeChatTransportChangeListener(ChatSessionChangeListener l)
-    {
-    }
 }
