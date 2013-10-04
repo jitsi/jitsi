@@ -143,7 +143,7 @@ public class MobileIndicator
         boolean allMobile = false;
         for(ContactResource res : highestPriorityResources)
         {
-            if(startsWithStrings(res.getResourceName(), checkStrings))
+            if(res.isMobile())
                 allMobile = true;
             else
             {
@@ -156,6 +156,34 @@ public class MobileIndicator
             contact.setMobile(allMobile);
         else
             contact.setMobile(false);
+    }
+
+    /**
+     * Checks a resource whether it is mobile or not, by checking the
+     * cache.
+     * @param resourceName the resource name to check.
+     * @param fullJid the jid to check.
+     * @return whether resource with that name is mobile or not.
+     */
+    boolean isMobileResource(String resourceName, String fullJid)
+    {
+        if(isCapsMobileIndicator)
+        {
+            EntityCapsManager capsManager  = ssclCallback.getParentProvider()
+                .getDiscoveryManager().getCapsManager();
+
+            EntityCapsManager.Caps caps = capsManager.getCapsByUser(fullJid);
+
+            if(caps != null && containsStrings(caps.node, checkStrings))
+                return true;
+            else
+                return false;
+        }
+
+        if(startsWithStrings(resourceName, checkStrings))
+            return true;
+        else
+            return false;
     }
 
     /**
@@ -210,10 +238,6 @@ public class MobileIndicator
         if(contact == null)
             return;
 
-        // Now lets check for mobile indicator
-        EntityCapsManager capsManager  = ssclCallback.getParentProvider()
-            .getDiscoveryManager().getCapsManager();
-
         // 1. Find most connected resources and if all are mobile
         int currentMostConnectedStatus = 0;
         List<ContactResource> mostAvailableResources =
@@ -241,17 +265,7 @@ public class MobileIndicator
         boolean allMobile = false;
         for(ContactResource res : mostAvailableResources)
         {
-            EntityCapsManager.Caps caps = capsManager.getCapsByUser(
-                ((ContactResourceJabberImpl)res).getFullJid());
-
-            if(caps == null)
-            {
-                // missing caps, no indicator so its not mobile
-                allMobile = false;
-                break;
-            }
-
-            if(containsStrings(caps.node, checkStrings))
+            if(res.isMobile())
                 allMobile = true;
             else
             {

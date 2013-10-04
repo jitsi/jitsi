@@ -44,6 +44,11 @@ public class ContactResource
     private int priority;
 
     /**
+     * Whether this contact resource is a mobile one.
+     */
+    private boolean mobile = false;
+
+    /**
      * Creates an empty instance of <tt>ContactResource</tt> representing the
      * base resource.
      */
@@ -62,12 +67,14 @@ public class ContactResource
     public ContactResource( Contact contact,
                             String resourceName,
                             PresenceStatus presenceStatus,
-                            int priority)
+                            int priority,
+                            boolean mobile)
     {
         this.contact = contact;
         this.resourceName = resourceName;
         this.presenceStatus = presenceStatus;
         this.priority = priority;
+        this.mobile = mobile;
     }
 
     /**
@@ -108,5 +115,14 @@ public class ContactResource
     public int getPriority()
     {
         return priority;
+    }
+
+    /**
+     * Whether contact is mobile one. Logged in only from mobile device.
+     * @return whether contact is mobile one.
+     */
+    public boolean isMobile()
+    {
+        return mobile;
     }
 }

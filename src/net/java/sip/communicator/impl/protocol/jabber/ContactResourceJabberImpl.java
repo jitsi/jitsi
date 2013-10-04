@@ -32,12 +32,14 @@ public class ContactResourceJabberImpl
                                         Contact contact,
                                         String resourceName,
                                         PresenceStatus presenceStatus,
-                                        int priority)
+                                        int priority,
+                                        boolean isMobile)
     {
         super(  contact,
                 resourceName,
                 presenceStatus,
-                priority);
+                priority,
+                isMobile);
 
         this.fullJid = fullJid;
     }

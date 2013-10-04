@@ -1009,11 +1009,12 @@ public class OperationSetPersistentPresenceJabberImpl
                 if (contactResource == null)
                 {
                     contactResource = new ContactResourceJabberImpl(
-                                                    fullJid,
-                                                    contact,
-                                                    resource,
-                                                    newPresenceStatus,
-                                                    presence.getPriority());
+                        fullJid,
+                        contact,
+                        resource,
+                        newPresenceStatus,
+                        presence.getPriority(),
+                        mobileIndicator.isMobileResource(resource, fullJid));
 
                     resources.put(fullJid, contactResource);
 
