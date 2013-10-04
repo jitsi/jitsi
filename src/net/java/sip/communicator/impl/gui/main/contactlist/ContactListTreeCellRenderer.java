@@ -552,7 +552,7 @@ public class ContactListTreeCellRenderer
         {
             Contact contact = iter.next();
 
-            if(!contact.isMobile())
+            if(contact.getPresenceStatus().isOnline() && !contact.isMobile())
                 return false;
         }
 
