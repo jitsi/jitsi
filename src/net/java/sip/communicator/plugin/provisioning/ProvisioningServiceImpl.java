@@ -596,14 +596,22 @@ public class ProvisioningServiceImpl
 
             InputStream in = res.getContent();
 
-            // Chain a ProgressMonitorInputStream to the
-            // URLConnection's InputStream
-            final ProgressMonitorInputStream pin
-                = new ProgressMonitorInputStream(null, u.toString(), in);
+            // Skips ProgressMonitorInputStream wrapper on Android
+            InputStream usedStream = in;
+            if(!OSUtils.IS_ANDROID)
+            {
+                // Chain a ProgressMonitorInputStream to the
+                // URLConnection's InputStream
+                final ProgressMonitorInputStream pin;
+                pin = new ProgressMonitorInputStream(null, u.toString(), in);
 
-            // Set the maximum value of the ProgressMonitor
-            ProgressMonitor pm = pin.getProgressMonitor();
-            pm.setMaximum((int)res.getContentLength());
+                // Set the maximum value of the ProgressMonitor
+                ProgressMonitor pm = pin.getProgressMonitor();
+                pm.setMaximum((int)res.getContentLength());
+
+                // Uses ProgressMonitorInputStream if available
+                usedStream = pin;
+            }
 
             final BufferedOutputStream bout
                 = new BufferedOutputStream(new FileOutputStream(temp));
@@ -615,13 +623,13 @@ public class ProvisioningServiceImpl
                 int read = -1;
                 byte[] buff = new byte[1024];
 
-                while((read = pin.read(buff)) != -1)
+                while((read = usedStream.read(buff)) != -1)
                 {
                     bout.write(buff, 0, read);
                     logStream.write(buff, 0, read);
                 }
 
-                pin.close();
+                usedStream.close();
                 bout.flush();
                 bout.close();
 
@@ -633,7 +641,7 @@ public class ProvisioningServiceImpl
 
                 try
                 {
-                    pin.close();
+                    usedStream.close();
                     bout.close();
                 }
                 catch (Exception e1)
