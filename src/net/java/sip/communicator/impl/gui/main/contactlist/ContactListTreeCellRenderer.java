@@ -547,16 +547,25 @@ public class ContactListTreeCellRenderer
      */
     private boolean isMobile(MetaContact metaContact)
     {
+        boolean hasConnectedStatus = false;
         Iterator<Contact> iter = metaContact.getContacts();
         while(iter.hasNext())
         {
             Contact contact = iter.next();
 
-            if(contact.getPresenceStatus().isOnline() && !contact.isMobile())
+            boolean isConnected = contact.getPresenceStatus().isOnline();
+
+            if(isConnected)
+                hasConnectedStatus = true;
+
+            if(isConnected && !contact.isMobile())
                 return false;
         }
 
-        return metaContact.getContactCount() > 0 ? true : false;
+        if(!hasConnectedStatus)
+            return false;
+        else
+            return metaContact.getContactCount() > 0 ? true : false;
     }
 
     /**

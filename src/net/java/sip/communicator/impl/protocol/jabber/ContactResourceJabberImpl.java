@@ -63,4 +63,13 @@ public class ContactResourceJabberImpl
     {
         this.presenceStatus = newStatus;
     }
+
+    /**
+     * Changed whether contact is mobile one. Logged in only from mobile device.
+     * @param isMobile whether contact is mobile one.
+     */
+    public void setMobile(boolean isMobile)
+    {
+        this.mobile = isMobile;
+    }
 }

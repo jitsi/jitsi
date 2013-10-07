@@ -46,7 +46,7 @@ public class ContactResource
     /**
      * Whether this contact resource is a mobile one.
      */
-    private boolean mobile = false;
+    protected boolean mobile = false;
 
     /**
      * Creates an empty instance of <tt>ContactResource</tt> representing the

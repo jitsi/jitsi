@@ -243,10 +243,25 @@ public class MobileIndicator
         List<ContactResource> mostAvailableResources =
             new ArrayList<ContactResource>();
 
-        for(ContactResource res : contact.getResources())
+        for(Map.Entry<String, ContactResourceJabberImpl> resEntry
+                : contact.getResourcesMap().entrySet())
         {
+            ContactResourceJabberImpl res = resEntry.getValue();
             if(!res.getPresenceStatus().isOnline())
                 continue;
+
+            // update the mobile indicator of connected resource,
+            // as caps have been updated
+            boolean oldIndicator = res.isMobile();
+            res.setMobile(isMobileResource(
+                res.getResourceName(), res.getFullJid()));
+
+            if(oldIndicator != res.isMobile())
+            {
+                contact.fireContactResourceEvent(
+                    new ContactResourceEvent(
+                        contact, res, ContactResourceEvent.RESOURCE_MODIFIED));
+            }
 
             int status = res.getPresenceStatus().getStatus();
 

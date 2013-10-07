@@ -1024,8 +1024,17 @@ public class OperationSetPersistentPresenceJabberImpl
                 }
                 else
                 {
+                    boolean oldIndicator = contactResource.isMobile();
+                    boolean newIndicator =
+                        mobileIndicator.isMobileResource(resource, fullJid);
+
+                    // update mobile indicator, as cabs maybe added after
+                    // creating the resource for the contact
+                    contactResource.setMobile(newIndicator);
+
                     if (contactResource.getPresenceStatus().getStatus()
-                        != newPresenceStatus.getStatus())
+                        != newPresenceStatus.getStatus()
+                        || (oldIndicator != newIndicator))
                     {
                         contactResource.setPresenceStatus(newPresenceStatus);
 
