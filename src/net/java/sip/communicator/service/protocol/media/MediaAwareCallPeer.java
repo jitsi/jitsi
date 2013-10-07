@@ -15,6 +15,7 @@ import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.event.*;
+import org.jitsi.service.protocol.event.*;
 
 /**
  * A utility class implementing media control code shared between current
@@ -852,7 +853,9 @@ public abstract class MediaAwareCallPeer
      * @param severity severity level
      */
     public void securityMessageReceived(
-        String messageType, String i18nMessage, int severity)
+            String messageType,
+            String i18nMessage,
+            int severity)
     {
         fireCallPeerSecurityMessageEvent(messageType,
                                          i18nMessage,
@@ -863,60 +866,72 @@ public abstract class MediaAwareCallPeer
      * Indicates that the other party has timeouted replying to our
      * offer to secure the connection.
      *
-     * @param sessionType the type of the call session - audio or video.
+     * @param mediaType the <tt>MediaType</tt> of the call session
      * @param sender the security controller that caused the event
      */
-    public void securityNegotiationStarted(int sessionType, SrtpControl sender)
+    public void securityNegotiationStarted(
+            MediaType mediaType,
+            SrtpControl sender)
     {
-        CallPeerSecurityNegotiationStartedEvent evt =
-            new CallPeerSecurityNegotiationStartedEvent(this, sessionType, sender);
-        fireCallPeerSecurityNegotiationStartedEvent(evt);
+        fireCallPeerSecurityNegotiationStartedEvent(
+                new CallPeerSecurityNegotiationStartedEvent(
+                        this,
+                        toSessionType(mediaType),
+                        sender));
     }
 
     /**
      * Indicates that the other party has timeouted replying to our
      * offer to secure the connection.
      *
-     * @param sessionType the type of the call session - audio or video.
+     * @param mediaType the <tt>MediaType</tt> of the call session
      */
-    public void securityTimeout(int sessionType)
+    public void securityTimeout(MediaType mediaType)
     {
-        CallPeerSecurityTimeoutEvent evt =
-            new CallPeerSecurityTimeoutEvent(this, sessionType);
-        fireCallPeerSecurityTimeoutEvent(evt);
+        fireCallPeerSecurityTimeoutEvent(
+                new CallPeerSecurityTimeoutEvent(
+                        this,
+                        toSessionType(mediaType)));
     }
 
     /**
      * Sets the security status to OFF for this call peer.
      *
-     * @param sessionType the type of the call session - audio or video.
+     * @param mediaType the <tt>MediaType</tt> of the call session
      */
-    public void securityTurnedOff(int sessionType)
+    public void securityTurnedOff(MediaType mediaType)
     {
         // If this event has been triggered because of a call end event and the
         // call is already ended we don't need to alert the user for
         // security off.
         if((call != null) && !call.getCallState().equals(CallState.CALL_ENDED))
         {
-            CallPeerSecurityOffEvent event
-                = new CallPeerSecurityOffEvent( this, sessionType);
-            fireCallPeerSecurityOffEvent(event);
+            fireCallPeerSecurityOffEvent(
+                    new CallPeerSecurityOffEvent(
+                            this,
+                            toSessionType(mediaType)));
         }
     }
 
     /**
      * Sets the security status to ON for this call peer.
      *
-     * @param sessionType the type of the call session - audio or video.
+     * @param mediaType the <tt>MediaType</tt> of the call session
      * @param cipher the cipher
      * @param sender the security controller that caused the event
      */
-    public void securityTurnedOn(int sessionType, String cipher,
-        SrtpControl sender)
+    public void securityTurnedOn(
+            MediaType mediaType,
+            String cipher,
+            SrtpControl sender)
     {
         getMediaHandler().startSrtpMultistream(sender);
         fireCallPeerSecurityOnEvent(
-                new CallPeerSecurityOnEvent(this, sessionType, cipher, sender));
+                new CallPeerSecurityOnEvent(
+                        this,
+                        toSessionType(mediaType),
+                        cipher,
+                        sender));
     }
 
     /**
@@ -1210,5 +1225,27 @@ public abstract class MediaAwareCallPeer
                     conferenceMember.getVideoSsrc());
 
         super.removeConferenceMember(conferenceMember);
+    }
+
+    /**
+     * Converts a specific <tt>MediaType</tt> into a <tt>sessionType</tt> value
+     * in the terms of the <tt>CallPeerSecurityStatusEvent</tt> class.
+     *
+     * @param mediaType the <tt>MediaType</tt> to be converted
+     * @return the <tt>sessionType</tt> value in the terms of the
+     * <tt>CallPeerSecurityStatusEvent</tt> class that is equivalent to the
+     * specified <tt>mediaType</tt>
+     */
+    private static int toSessionType(MediaType mediaType)
+    {
+        switch (mediaType)
+        {
+        case AUDIO:
+            return CallPeerSecurityStatusEvent.AUDIO_SESSION;
+        case VIDEO:
+            return CallPeerSecurityStatusEvent.VIDEO_SESSION;
+        default:
+            throw new IllegalArgumentException("mediaType");
+        }
     }
 }

@@ -154,30 +154,30 @@ public class MediaHandler
                 }
             }
 
-            public void securityTimeout(int sessionType)
+            public void securityNegotiationStarted(
+                    MediaType mediaType, SrtpControl sender)
             {
                 for (SrtpListener listener : getSrtpListeners())
-                    listener.securityTimeout(sessionType);
+                    listener.securityNegotiationStarted(mediaType, sender);
             }
 
-            public void securityTurnedOff(int sessionType)
+            public void securityTimeout(MediaType mediaType)
             {
                 for (SrtpListener listener : getSrtpListeners())
-                    listener.securityTurnedOff(sessionType);
+                    listener.securityTimeout(mediaType);
+            }
+
+            public void securityTurnedOff(MediaType mediaType)
+            {
+                for (SrtpListener listener : getSrtpListeners())
+                    listener.securityTurnedOff(mediaType);
             }
 
             public void securityTurnedOn(
-                    int sessionType, String cipher, SrtpControl sender)
+                    MediaType mediaType, String cipher, SrtpControl sender)
             {
                 for (SrtpListener listener : getSrtpListeners())
-                    listener.securityTurnedOn(sessionType, cipher, sender);
-            }
-
-            public void securityNegotiationStarted(int sessionType,
-                                                    SrtpControl sender)
-            {
-                for (SrtpListener listener : getSrtpListeners())
-                    listener.securityNegotiationStarted(sessionType, sender);
+                    listener.securityTurnedOn(mediaType, cipher, sender);
             }
         };
 
