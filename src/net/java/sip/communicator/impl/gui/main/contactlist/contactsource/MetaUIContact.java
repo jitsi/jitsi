@@ -572,6 +572,12 @@ public class MetaUIContact
                                     + " (" + contactResource.getPriority() + ")"
                                     : contactResource.getResourceName();
 
+            if(contactResource.isMobile())
+            {
+                resourceName += " " + GuiActivator.getResources()
+                    .getI18NString("service.gui.ON_MOBILE_TOOLTIP");
+            }
+
             if (protocolStatusIcon == null)
                 tip.addSubLine( protocolStatusIcon,
                                 resourceName,
