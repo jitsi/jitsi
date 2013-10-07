@@ -41,7 +41,7 @@ public class ContactResource
     /**
      * The priority of this contact source.
      */
-    private int priority;
+    protected int priority;
 
     /**
      * Whether this contact resource is a mobile one.

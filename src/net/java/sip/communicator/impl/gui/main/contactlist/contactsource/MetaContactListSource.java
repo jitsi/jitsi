@@ -357,8 +357,11 @@ public class MetaContactListSource
     public void contactPresenceStatusChanged(
         ContactPresenceStatusChangeEvent evt)
     {
-        if (evt.getOldStatus() == evt.getNewStatus())
+        if (evt.getOldStatus() == evt.getNewStatus()
+            && !evt.isResourceChanged())
+        {
             return;
+        }
 
         final Contact sourceContact = evt.getSourceContact();
         final MetaContact metaContact

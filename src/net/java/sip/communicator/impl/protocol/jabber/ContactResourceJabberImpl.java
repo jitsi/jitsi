@@ -72,4 +72,13 @@ public class ContactResourceJabberImpl
     {
         this.mobile = isMobile;
     }
+
+    /**
+     * Changes resource priority.
+     * @param priority the new priority
+     */
+    public void setPriority(int priority)
+    {
+        this.priority = priority;
+    }
 }

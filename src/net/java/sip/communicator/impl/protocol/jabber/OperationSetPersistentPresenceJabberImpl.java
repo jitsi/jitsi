@@ -968,16 +968,18 @@ public class OperationSetPersistentPresenceJabberImpl
      * Updates the resources for the contact.
      * @param contact the contact which resources to update.
      * @param removeUnavailable whether to remove unavailable resources.
+     * @return whether resource has been updated
      */
-    private void updateResources(ContactJabberImpl contact,
+    private boolean updateResources(ContactJabberImpl contact,
                                  boolean removeUnavailable)
     {
         if (!contact.isResolved()
             || (contact instanceof VolatileContactJabberImpl
                 && ((VolatileContactJabberImpl)contact)
                         .isPrivateMessagingContact()))
-            return;
+            return false;
 
+        boolean eventFired = false;
         Map<String, ContactResourceJabberImpl> resources =
             contact.getResourcesMap();
 
@@ -1021,33 +1023,45 @@ public class OperationSetPersistentPresenceJabberImpl
                     contact.fireContactResourceEvent(
                         new ContactResourceEvent(contact, contactResource,
                             ContactResourceEvent.RESOURCE_ADDED));
+                    eventFired = true;
                 }
                 else
                 {
                     boolean oldIndicator = contactResource.isMobile();
                     boolean newIndicator =
                         mobileIndicator.isMobileResource(resource, fullJid);
+                    int oldPriority = contactResource.getPriority();
 
                     // update mobile indicator, as cabs maybe added after
                     // creating the resource for the contact
                     contactResource.setMobile(newIndicator);
 
+                    contactResource.setPriority(presence.getPriority());
+                    if(oldPriority != contactResource.getPriority())
+                    {
+                        // priority has been updated so update and the
+                        // mobile indicator before firing an event
+                        mobileIndicator.resourcesUpdated(contact);
+                    }
+
                     if (contactResource.getPresenceStatus().getStatus()
                         != newPresenceStatus.getStatus()
-                        || (oldIndicator != newIndicator))
+                        || (oldIndicator != newIndicator)
+                        || (oldPriority != contactResource.getPriority()))
                     {
                         contactResource.setPresenceStatus(newPresenceStatus);
 
                         contact.fireContactResourceEvent(
                             new ContactResourceEvent(contact, contactResource,
                                 ContactResourceEvent.RESOURCE_MODIFIED));
+                        eventFired = true;
                     }
                 }
             }
         }
 
         if(!removeUnavailable)
-            return;
+            return eventFired;
 
         Iterator<String> resourceIter = resources.keySet().iterator();
         while (resourceIter.hasNext())
@@ -1066,9 +1080,12 @@ public class OperationSetPersistentPresenceJabberImpl
                     contact.fireContactResourceEvent(
                         new ContactResourceEvent(contact, removedResource,
                             ContactResourceEvent.RESOURCE_REMOVED));
+                    eventFired = true;
                 }
             }
         }
+
+        return eventFired;
     }
 
     /**
@@ -1276,7 +1293,8 @@ public class OperationSetPersistentPresenceJabberImpl
 
                 // When status changes this may be related to a change in the
                 // available resources.
-                updateResources(sourceContact, true);
+                boolean oldMobileIndicator = sourceContact.isMobile();
+                boolean resourceUpdated = updateResources(sourceContact, true);
                 mobileIndicator.resourcesUpdated(sourceContact);
 
                 PresenceStatus oldStatus
@@ -1288,8 +1306,11 @@ public class OperationSetPersistentPresenceJabberImpl
 
                 // when old and new status are the same do nothing
                 // no change
-                if(oldStatus.equals(newStatus))
+                if(oldStatus.equals(newStatus)
+                    && oldMobileIndicator == sourceContact.isMobile())
+                {
                     return;
+                }
 
                 sourceContact.updatePresenceStatus(newStatus);
 
@@ -1299,7 +1320,7 @@ public class OperationSetPersistentPresenceJabberImpl
                 if (logger.isDebugEnabled())
                     logger.debug("Will Dispatch the contact status event.");
                 fireContactPresenceStatusChangeEvent(sourceContact, parent,
-                    oldStatus, newStatus);
+                    oldStatus, newStatus, resourceUpdated);
             }
             catch (IllegalStateException ex)
             {
