@@ -267,6 +267,8 @@ public class CallPeerMediaHandlerJabberImpl
             RtpDescriptionPacketExtension description
                 = JingleUtils.getRtpDescription(content);
 
+            // DTLS-SRTP
+            setDtlsEncryptionToContent(mediaType, content, null);
             //SDES
             // It is important to set SDES before ZRTP in order to make GTALK
             // application able to work with SDES.
@@ -320,13 +322,13 @@ public class CallPeerMediaHandlerJabberImpl
     {
         ContentPacketExtension content
             = JingleUtils.createDescription(
-            ContentPacketExtension.CreatorEnum.initiator,
-            supportedFormats.get(0).getMediaType().toString(),
-            JingleUtils.getSenders(direction, !getPeer().isInitiator()),
-            supportedFormats,
-            supportedExtensions,
-            getDynamicPayloadTypes(),
-            getRtpExtensionsRegistry());
+                    ContentPacketExtension.CreatorEnum.initiator,
+                    supportedFormats.get(0).getMediaType().toString(),
+                    JingleUtils.getSenders(direction, !getPeer().isInitiator()),
+                    supportedFormats,
+                    supportedExtensions,
+                    getDynamicPayloadTypes(),
+                    getRtpExtensionsRegistry());
 
         this.localContentMap.put(content.getName(), content);
         return content;
@@ -390,6 +392,8 @@ public class CallPeerMediaHandlerJabberImpl
                     RtpDescriptionPacketExtension description
                         = JingleUtils.getRtpDescription(content);
 
+                    // DTLS-SRTP
+                    setDtlsEncryptionToContent(mediaType, content, null);
                     //SDES
                     // It is important to set SDES before ZRTP in order to make
                     // GTALK application able to work with SDES.
@@ -542,11 +546,10 @@ public class CallPeerMediaHandlerJabberImpl
         //user answered an incoming call so we go through whatever content
         //entries we are initializing and init their corresponding streams
 
-        // First parse content so we know how may streams,
-        // and what type of content we have
-        Map<ContentPacketExtension, RtpDescriptionPacketExtension> contents
-                = new HashMap<ContentPacketExtension,
-                              RtpDescriptionPacketExtension>();
+        // First parse content so we know how many streams and what type of
+        // content we have
+        Map<ContentPacketExtension,RtpDescriptionPacketExtension> contents
+            = new HashMap<ContentPacketExtension,RtpDescriptionPacketExtension>();
 
         for(ContentPacketExtension ourContent : sessAccept)
         {
@@ -1065,7 +1068,6 @@ public class CallPeerMediaHandlerJabberImpl
         throws OperationFailedException
     {
         long startCandidateHarvestTime = System.currentTimeMillis();
-
         TransportManagerJabberImpl transportManager = getTransportManager();
 
         if (remote == null)
@@ -1090,11 +1092,19 @@ public class CallPeerMediaHandlerJabberImpl
         }
 
         long stopCandidateHarvestTime = System.currentTimeMillis();
-        long  candidateHarvestTime
-            = stopCandidateHarvestTime - startCandidateHarvestTime;
+
         if (logger.isInfoEnabled())
-            logger.info("End candidate harvest within "
-                    + candidateHarvestTime + " ms");
+        {
+            long candidateHarvestTime
+                = stopCandidateHarvestTime - startCandidateHarvestTime;
+
+            logger.info(
+                    "End candidate harvest within " + candidateHarvestTime
+                        + " ms");
+        }
+
+        setDtlsEncryptionToTransports(local);
+
         /*
          * TODO Ideally, we wouldn't wrap up that quickly. We need to revisit
          * this.
@@ -1220,7 +1230,7 @@ public class CallPeerMediaHandlerJabberImpl
                 RtpDescriptionPacketExtension description
                     = JingleUtils.getRtpDescription(content);
                 MediaType mediaType
-                    = MediaType.parseString( description.getMedia() );
+                    = MediaType.parseString(description.getMedia());
 
                 if(answer.size() > 1)
                 {
@@ -1408,8 +1418,9 @@ public class CallPeerMediaHandlerJabberImpl
                     logger);
         }
 
-        addZRTPAdvertisedEncryptions(true, description, mediaType);
-        addSDESAdvertisedEncryptions(true, description, mediaType);
+        addZrtpAdvertisedEncryptions(true, description, mediaType);
+        addSDesAdvertisedEncryptions(true, description, mediaType);
+        addDtlsAdvertisedEncryptions(true, content, mediaType);
 
         StreamConnector connector
             = transportManager.getStreamConnector(mediaType);
@@ -1573,7 +1584,9 @@ public class CallPeerMediaHandlerJabberImpl
 
             // intersect the MediaFormats of our device with remote ones
             List<MediaFormat> mutuallySupportedFormats
-                = intersectFormats(remoteFormats, getLocallySupportedFormats(dev));
+                = intersectFormats(
+                        remoteFormats,
+                        getLocallySupportedFormats(dev));
 
             // check whether we will be exchanging any RTP extensions.
             List<RTPExtension> offeredRTPExtensions
@@ -1649,14 +1662,14 @@ public class CallPeerMediaHandlerJabberImpl
                         getDynamicPayloadTypes(),
                         getRtpExtensionsRegistry());
 
-            RtpDescriptionPacketExtension localDescription =
-                JingleUtils.getRtpDescription(ourContent);
-
-            // Sets ZRTP or SDES, depending on the preferences for this account.
+            /*
+             * Sets ZRTP, SDES or DTLS-SRTP depending on the preferences for
+             * this account.
+             */
             setAndAddPreferredEncryptionProtocol(
                     mediaType,
-                    localDescription,
-                    description);
+                    ourContent,
+                    content);
 
             // Got a content which has inputevt. It means that the peer requests
             // a desktop sharing session so tell it we support inputevt.
@@ -2163,4 +2176,343 @@ public class CallPeerMediaHandlerJabberImpl
         }
     }
 
+    /**
+     * Detects and adds DTLS-SRTP available encryption method present in the
+     * content (description) given in parameter.
+     *
+     * @param isInitiator <tt>true</tt> if the local call instance is the
+     * initiator of the call; <tt>false</tt>, otherwise.
+     * @param content The CONTENT element of the JINGLE element which contains
+     * the TRANSPORT element
+     * @param mediaType The type of media (AUDIO or VIDEO).
+     */
+    private boolean addDtlsAdvertisedEncryptions(
+            boolean isInitiator,
+            ContentPacketExtension content,
+            MediaType mediaType)
+    {
+        IceUdpTransportPacketExtension remoteTransport
+            = content.getFirstChildOfType(IceUdpTransportPacketExtension.class);
+        SrtpControls srtpControls = getSrtpControls();
+        boolean b = false;
+
+        if (remoteTransport != null)
+        {
+            List<DtlsFingerprintPacketExtension> remoteFingerpintPEs
+                = remoteTransport.getChildExtensionsOfType(
+                        DtlsFingerprintPacketExtension.class);
+
+            if (!remoteFingerpintPEs.isEmpty())
+            {
+                AccountID accountID
+                    = getPeer().getProtocolProvider().getAccountID();
+
+                if (accountID.getAccountPropertyBoolean(
+                            ProtocolProviderFactory.DEFAULT_ENCRYPTION,
+                            true)
+                        && accountID.isEncryptionProtocolEnabled(
+                                DtlsControl.PROTO_NAME))
+                {
+                    Map<String,String> remoteFingerprints
+                        = new LinkedHashMap<String,String>();
+
+                    for (DtlsFingerprintPacketExtension remoteFingerprintPE
+                            : remoteFingerpintPEs)
+                    {
+                        String remoteFingerprint
+                            = remoteFingerprintPE.getFingerprint();
+                        String remoteHash = remoteFingerprintPE.getHash();
+
+                        remoteFingerprints.put(
+                                remoteHash,
+                                remoteFingerprint);
+                    }
+
+                    DtlsControl dtlsControl;
+                    int dtlsProtocol;
+
+                    if (isInitiator)
+                    {
+                        dtlsControl
+                            = (DtlsControl)
+                                srtpControls.get(
+                                        mediaType,
+                                        SrtpControlType.DTLS_SRTP);
+                        dtlsProtocol = DtlsControl.DTLS_SERVER_PROTOCOL;
+                    }
+                    else
+                    {
+                        dtlsControl
+                            = (DtlsControl)
+                                srtpControls.getOrCreate(
+                                        mediaType,
+                                        SrtpControlType.DTLS_SRTP);
+                        dtlsProtocol = DtlsControl.DTLS_CLIENT_PROTOCOL;
+                    }
+                    if (dtlsControl != null)
+                    {
+                        dtlsControl.setDtlsProtocol(dtlsProtocol);
+                        dtlsControl.setRemoteFingerprints(remoteFingerprints);
+                        removeAndCleanupOtherSrtpControls(
+                                mediaType,
+                                SrtpControlType.DTLS_SRTP);
+                        addAdvertisedEncryptionMethod(
+                                SrtpControlType.DTLS_SRTP);
+                        b = true;
+                    }
+                }
+            }
+        }
+        /*
+         * If they haven't advertised DTLS-SRTP in their (media) description,
+         * then DTLS-SRTP shouldn't be functioning as far as we're concerned.
+         */
+        if (!b)
+        {
+            SrtpControl dtlsControl
+                = srtpControls.get(mediaType, SrtpControlType.DTLS_SRTP);
+
+            if (dtlsControl != null)
+            {
+                srtpControls.remove(mediaType, SrtpControlType.DTLS_SRTP);
+                dtlsControl.cleanup();
+            }
+        }
+        return b;
+    }
+
+    /**
+     * Selects the preferred encryption protocol (only used by the callee).
+     *
+     * @param mediaType The type of media (AUDIO or VIDEO).
+     * @param localContent The element containing the media DESCRIPTION and
+     * its encryption.
+     * @param remoteContent The element containing the media DESCRIPTION and
+     * its encryption for the remote peer; <tt>null</tt> if the local peer is
+     * the initiator of the call.
+     */
+    private void setAndAddPreferredEncryptionProtocol(
+            MediaType mediaType,
+            ContentPacketExtension localContent,
+            ContentPacketExtension remoteContent)
+    {
+        List<String> preferredEncryptionProtocols
+            = getPeer()
+                .getProtocolProvider()
+                    .getAccountID()
+                        .getSortedEnabledEncryptionProtocolList();
+
+        for (String preferredEncryptionProtocol : preferredEncryptionProtocols)
+        {
+            String protoName
+                = preferredEncryptionProtocol.substring(
+                        ProtocolProviderFactory.ENCRYPTION_PROTOCOL.length()
+                            + 1);
+
+            // DTLS-SRTP
+            if (DtlsControl.PROTO_NAME.equals(protoName))
+            {
+                addDtlsAdvertisedEncryptions(
+                        false,
+                        remoteContent,
+                        mediaType);
+                if (setDtlsEncryptionToContent(
+                        mediaType,
+                        localContent,
+                        remoteContent))
+                {
+                    // Stop once an encryption advertisement has been chosen.
+                    return;
+                }
+            }
+            else
+            {
+                RtpDescriptionPacketExtension localDescription
+                    = (localContent == null)
+                        ? null
+                        : JingleUtils.getRtpDescription(localContent);
+                RtpDescriptionPacketExtension remoteDescription
+                    = (remoteContent == null)
+                        ? null
+                        : JingleUtils.getRtpDescription(remoteContent);
+
+                if (setAndAddPreferredEncryptionProtocol(
+                        protoName,
+                        mediaType,
+                        localDescription,
+                        remoteDescription))
+                {
+                    // Stop once an encryption advertisement has been chosen.
+                    return;
+                }
+            }
+        }
+    }
+
+    /**
+     * Sets DTLS-SRTP element(s) to the TRANSPORT element of the CONTENT for a
+     * given media.
+     *
+     * @param mediaType The type of media we are modifying the CONTENT to
+     * integrate the DTLS-SRTP element(s).
+     * @param localContent The element containing the media CONTENT and its
+     * TRANSPORT.
+     * @param remoteContent The element containing the media CONTENT and its
+     * TRANSPORT for the remote peer. Null, if the local peer is the initiator
+     * of the call.
+     * @return <tt>true</tt> if any DTLS-SRTP element has been added to the
+     * specified <tt>localContent</tt>; <tt>false</tt>, otherwise.
+     */
+    private boolean setDtlsEncryptionToContent(
+            MediaType mediaType,
+            ContentPacketExtension localContent,
+            ContentPacketExtension remoteContent)
+    {
+        CallPeerJabberImpl peer = getPeer();
+        ProtocolProviderServiceJabberImpl protocolProvider
+            = peer.getProtocolProvider();
+        AccountID accountID = protocolProvider.getAccountID();
+        SrtpControls srtpControls = getSrtpControls();
+        boolean b = false;
+
+        if (accountID.getAccountPropertyBoolean(
+                    ProtocolProviderFactory.DEFAULT_ENCRYPTION,
+                    true)
+                && accountID.isEncryptionProtocolEnabled(
+                        DtlsControl.PROTO_NAME))
+        {
+            boolean addFingerprintToLocalTransport;
+
+            if (remoteContent == null) // initiator
+            {
+                addFingerprintToLocalTransport
+                    = protocolProvider.isFeatureSupported(
+                            peer.getAddress(),
+                            ProtocolProviderServiceJabberImpl
+                                .URN_XMPP_JINGLE_DTLS_SRTP);
+            }
+            else // responder
+            {
+                addFingerprintToLocalTransport
+                    = addDtlsAdvertisedEncryptions(
+                            false,
+                            remoteContent,
+                            mediaType);
+            }
+            if (addFingerprintToLocalTransport)
+            {
+                DtlsControl dtlsControl
+                    = (DtlsControl)
+                        srtpControls.getOrCreate(
+                                mediaType,
+                                SrtpControlType.DTLS_SRTP);
+
+                if (dtlsControl != null)
+                {
+                    int dtlsProtocol
+                        = (remoteContent == null)
+                            ? DtlsControl.DTLS_SERVER_PROTOCOL
+                            : DtlsControl.DTLS_CLIENT_PROTOCOL;
+
+                    dtlsControl.setDtlsProtocol(dtlsProtocol);
+                    b = true;
+
+                    setDtlsEncryptionToTransport(mediaType, localContent);
+                }
+            }
+        }
+        /*
+         * If we haven't advertised DTLS-SRTP in our (media) description, then
+         * DTLS-SRTP shouldn't be functioning as far as we're concerned.
+         */
+        if (!b)
+        {
+            SrtpControl dtlsControl
+                = srtpControls.get(mediaType, SrtpControlType.DTLS_SRTP);
+
+            if (dtlsControl != null)
+            {
+                srtpControls.remove(mediaType, SrtpControlType.DTLS_SRTP);
+                dtlsControl.cleanup();
+            }
+        }
+        return b;
+    }
+
+    /**
+     * Sets DTLS-SRTP element(s) to the TRANSPORT element of the CONTENT for a
+     * given media.
+     *
+     * @param mediaType The type of media we are modifying the CONTENT to
+     * integrate the DTLS-SRTP element(s).
+     * @param localContent The element containing the media CONTENT and its
+     * TRANSPORT.
+     */
+    private void setDtlsEncryptionToTransport(
+            MediaType mediaType,
+            ContentPacketExtension localContent)
+    {
+        SrtpControls srtpControls = getSrtpControls();
+        DtlsControl dtlsControl
+            = (DtlsControl)
+                srtpControls.get(
+                        mediaType,
+                        SrtpControlType.DTLS_SRTP);
+
+        if (dtlsControl != null)
+        {
+            IceUdpTransportPacketExtension localTransport
+                = localContent.getFirstChildOfType(
+                        IceUdpTransportPacketExtension.class);
+
+            if (localTransport != null)
+            {
+                String localFingerprint = dtlsControl.getLocalFingerprint();
+                String localFingerprintHashFunction
+                    = dtlsControl.getLocalFingerprintHashFunction();
+
+                {
+                    DtlsFingerprintPacketExtension localFingerprintPE
+                        = localTransport.getFirstChildOfType(
+                                DtlsFingerprintPacketExtension.class);
+
+                    if (localFingerprintPE == null)
+                    {
+                        localFingerprintPE
+                            = new DtlsFingerprintPacketExtension();
+                        localTransport.addChildExtension(
+                                localFingerprintPE);
+                    }
+                    localFingerprintPE.setFingerprint(localFingerprint);
+                    localFingerprintPE.setHash(
+                            localFingerprintHashFunction);
+                }
+            }
+        }
+    }
+
+    /**
+     * Sets DTLS-SRTP element(s) to the TRANSPORT element of a specified list of
+     * CONTENT elements.
+     *
+     * @param localContents The elements containing the media CONTENT elements
+     * and their respective TRANSPORT elements.
+     */
+    private void setDtlsEncryptionToTransports(
+            List<ContentPacketExtension> localContents)
+    {
+        for (ContentPacketExtension localContent : localContents)
+        {
+            RtpDescriptionPacketExtension description
+                = JingleUtils.getRtpDescription(localContent);
+
+            if (description != null)
+            {
+                MediaType mediaType = JingleUtils.getMediaType(localContent);
+
+                if (mediaType != null)
+                    setDtlsEncryptionToTransport(mediaType, localContent);
+            }
+        }
+    }
 }

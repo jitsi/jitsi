@@ -1443,6 +1443,17 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
         return mediaHandler.processKeyFrameRequest(this);
     }
 
+    /**
+     * Removes from this instance and cleans up the <tt>SrtpControl</tt> which
+     * are not of a specific <tt>SrtpControlType</tt>.
+     * 
+     * @param mediaType the <tt>MediaType</tt> of the <tt>SrtpControl</tt> to be
+     * examined
+     * @param srtpControlType the <tt>SrtpControlType</tt> of the
+     * <tt>SrtpControl</tt>s to not be removed from this instance and cleaned
+     * up. If <tt>null</tt>, all <tt>SrtpControl</tt>s are removed from this
+     * instance and cleaned up
+     */
     protected void removeAndCleanupOtherSrtpControls(
             MediaType mediaType,
             SrtpControlType srtpControlType)

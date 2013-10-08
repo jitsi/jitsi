@@ -51,7 +51,7 @@ public abstract class AbstractPacketExtension
     /**
      * A list of extensions registered with this element.
      */
-    private List<PacketExtension> childExtensions
+    private final List<PacketExtension> childExtensions
                                 = new ArrayList<PacketExtension>();
 
     /**

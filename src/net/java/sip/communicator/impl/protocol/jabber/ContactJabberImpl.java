@@ -14,8 +14,6 @@ import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.jabberconstants.*;
 
 import org.jivesoftware.smack.*;
-import org.jivesoftware.smack.packet.*;
-import org.jivesoftware.smack.util.*;
 
 /**
  * The Jabber implementation of the service.protocol.Contact interface.

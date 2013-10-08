@@ -362,8 +362,8 @@ public class CallPeerMediaHandlerGTalkImpl
             if(format == null)
                 continue;
 
-            addZRTPAdvertisedEncryptions(true, answer, mediaType);
-            addSDESAdvertisedEncryptions(true, answer, mediaType);
+            addZrtpAdvertisedEncryptions(true, answer, mediaType);
+            addSDesAdvertisedEncryptions(true, answer, mediaType);
 
             // stream connector
             StreamConnector connector
@@ -521,7 +521,6 @@ public class CallPeerMediaHandlerGTalkImpl
                             mediaType,
                             description,
                             null);
-
                     //ZRTP
                     setZrtpEncryptionToDescription(
                             mediaType,

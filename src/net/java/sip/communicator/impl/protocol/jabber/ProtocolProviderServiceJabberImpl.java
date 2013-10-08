@@ -33,9 +33,10 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.jabberconstants.*;
 import net.java.sip.communicator.util.*;
-
 import net.java.sip.communicator.util.Logger;
+
 import org.jitsi.service.configuration.*;
+import org.jitsi.service.neomedia.*;
 import org.jitsi.util.*;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.packet.*;
@@ -123,6 +124,13 @@ public class ProtocolProviderServiceJabberImpl
      * Information to Jingle Participants (Coin)" support.
      */
     public static final String URN_XMPP_JINGLE_COIN = "urn:xmpp:coin";
+
+    /**
+     * Jingle's Discovery Info URN for &quot;XEP-0320: Use of DTLS-SRTP in
+     * Jingle Sessions&quot;.
+     */
+    public static final String URN_XMPP_JINGLE_DTLS_SRTP
+        = "urn:xmpp:jingle:apps:dtls:0";
 
     /**
      * Discovery Info URN for classic RFC3264-style Offer/Answer negotiation
@@ -1889,6 +1897,16 @@ public class ProtocolProviderServiceJabberImpl
 
         // XEP-0251: Jingle Session Transfer
         supportedFeatures.add(URN_XMPP_JINGLE_TRANSFER_0);
+
+        // XEP-0320: Use of DTLS-SRTP in Jingle Sessions
+        if (accountID.getAccountPropertyBoolean(
+                    ProtocolProviderFactory.DEFAULT_ENCRYPTION,
+                    true)
+                && accountID.isEncryptionProtocolEnabled(
+                        DtlsControl.PROTO_NAME))
+        {
+            supportedFeatures.add(URN_XMPP_JINGLE_DTLS_SRTP);
+        }
     }
 
     /**

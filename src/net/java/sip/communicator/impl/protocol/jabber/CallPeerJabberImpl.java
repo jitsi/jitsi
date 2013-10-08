@@ -979,7 +979,7 @@ public class CallPeerJabberImpl
             }
 
             getMediaHandler().processTransportInfo(
-                jingleIQ.getContentList());
+                    jingleIQ.getContentList());
         }
         catch (OperationFailedException ofe)
         {

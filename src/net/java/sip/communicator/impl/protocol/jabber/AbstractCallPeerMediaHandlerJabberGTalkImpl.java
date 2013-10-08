@@ -6,8 +6,6 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
-import ch.imvs.sdes4j.srtp.*;
-
 import java.util.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
@@ -18,11 +16,14 @@ import net.java.sip.communicator.util.*;
 import org.jitsi.service.neomedia.*;
 import org.jivesoftware.smack.packet.*;
 
+import ch.imvs.sdes4j.srtp.*;
+
 /**
  * An implementation of the <tt>CallPeerMediaHandler</tt> abstract class for the
  * common part of Jabber and Gtalk protocols.
  *
  * @author Vincent Lucas
+ * @author Lyubomir Marinov
  */
 public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
         <T extends AbstractCallPeerJabberGTalkImpl<?,?,?>>
@@ -84,7 +85,7 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
      * contains the PAYLOAD-TYPE and (more important here) the ENCRYPTION.
      * @param mediaType The type of media (AUDIO or VIDEO).
      */
-    protected void addZRTPAdvertisedEncryptions(
+    protected void addZrtpAdvertisedEncryptions(
             boolean isInitiator,
             RtpDescriptionPacketExtension description,
             MediaType mediaType)
@@ -131,7 +132,7 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
      * contains the PAYLOAD-TYPE and (more important here) the ENCRYPTION.
      * @param mediaType The type of media (AUDIO or VIDEO).
      */
-    protected void addSDESAdvertisedEncryptions(
+    protected void addSDesAdvertisedEncryptions(
             boolean isInitiator,
             RtpDescriptionPacketExtension description,
             MediaType mediaType)
@@ -380,7 +381,7 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
                 = accountID.getAccountPropertyString(
                         ProtocolProviderFactory.SDES_CIPHER_SUITES);
 
-             if (ciphers == null)
+            if (ciphers == null)
             {
                 ciphers =
                     JabberActivator.getResources().getSettingsString(
@@ -475,8 +476,8 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
      * @param localDescription The element containing the media DESCRIPTION and
      * its encryption.
      * @param remoteDescription The element containing the media DESCRIPTION and
-     * its encryption for the remote peer. Null, if the local peer is the
-     * initiator of the call.
+     * its encryption for the remote peer; <tt>null</tt> if the local peer is
+     * the initiator of the call.
      */
     protected void setAndAddPreferredEncryptionProtocol(
             MediaType mediaType,
@@ -497,41 +498,71 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
                         ProtocolProviderFactory.ENCRYPTION_PROTOCOL.length()
                             + 1);
 
-            // SDES
-            if(SDesControl.PROTO_NAME.equals(protoName))
+            if (setAndAddPreferredEncryptionProtocol(
+                    protoName,
+                    mediaType,
+                    localDescription,
+                    remoteDescription))
             {
-                addSDESAdvertisedEncryptions(
+                // Stop once an encryption advertisement has been chosen.
+                return;
+            }
+        }
+    }
+
+    /**
+     * Selects a specific encryption protocol if it is the preferred (only used
+     * by the callee).
+     *
+     * @param protoName the name of the encryption protocol which is to be
+     * selected
+     * @param mediaType The type of media (AUDIO or VIDEO).
+     * @param localDescription The element containing the media DESCRIPTION and
+     * its encryption.
+     * @param remoteDescription The element containing the media DESCRIPTION and
+     * its encryption for the remote peer; <tt>null</tt> if the local peer is
+     * the initiator of the call.
+     * @return <tt>true</tt> if the specified encryption protocol has been
+     * selected; <tt>false</tt>, otherwise
+     */
+    protected boolean setAndAddPreferredEncryptionProtocol(
+            String protoName,
+            MediaType mediaType,
+            RtpDescriptionPacketExtension localDescription,
+            RtpDescriptionPacketExtension remoteDescription)
+    {
+        // SDES
+        if(SDesControl.PROTO_NAME.equals(protoName))
+        {
+            addSDesAdvertisedEncryptions(
+                    false,
+                    remoteDescription,
+                    mediaType);
+            if(setSDesEncryptionToDescription(
+                    mediaType,
+                    localDescription,
+                    remoteDescription))
+            {
+                // Stop once an encryption advertisement has been chosen.
+                return true;
+            }
+        }
+        // ZRTP
+        else if(ZrtpControl.PROTO_NAME.equals(protoName))
+        {
+            if(setZrtpEncryptionToDescription(
+                    mediaType,
+                    localDescription,
+                    remoteDescription))
+            {
+                addZrtpAdvertisedEncryptions(
                         false,
                         remoteDescription,
                         mediaType);
-                if(setSDesEncryptionToDescription(
-                        mediaType,
-                        localDescription,
-                        remoteDescription))
-                {
-                    // Stop once an encryption advertisement has been chosen.
-                    return;
-                }
-            }
-            // ZRTP
-            else if(ZrtpControl.PROTO_NAME.equals(protoName))
-            {
-                boolean isZRTPAddedToDescription
-                    = setZrtpEncryptionToDescription(
-                            mediaType,
-                            localDescription,
-                            remoteDescription);
-
-                if(isZRTPAddedToDescription)
-                {
-                    addZRTPAdvertisedEncryptions(
-                            false,
-                            remoteDescription,
-                            mediaType);
-                    // Stop once an encryption advertisement has been chosen.
-                    return;
-                }
+                // Stop once an encryption advertisement has been chosen.
+                return true;
             }
         }
+        return false;
     }
 }
