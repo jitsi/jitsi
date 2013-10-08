@@ -651,6 +651,9 @@
         <!-- before deleting try building the deltas -->
         <antcall target="build-wix-delta-updates"/>
 
+        <!-- Creates updates files -->
+        <antcall target="build-wix-updates-files"/>
+
         <delete dir="${light.dir}" />
         <delete dir="${windows.app.dir}/tmp" />
     </target>
@@ -946,6 +949,58 @@
                 </fileset>
             </path>
         </foreach>
+    </target>
+
+    <!-- creates updates file, will be shown in dialog when update is
+     available -->
+    <target name="build-wix-updates-files">
+        <mkdir dir="${windows.app.dir}\updates"/>
+        <copy file="${inst.resrc}\windows\updates\sc.png"
+              todir="${windows.app.dir}\updates"/>
+        <copy file="${inst.resrc}\windows\updates\index-bottom.html"
+              todir="${windows.app.dir}\updates"/>
+        <copy file="${inst.resrc}\windows\updates\index.css"
+              todir="${windows.app.dir}\updates"/>
+
+        <tstamp>
+            <format property="current.tstamp" pattern="d MMM yyyy HH:mm:ss"
+                    locale="en,US"/>
+        </tstamp>
+
+        <filter token="BUILD" value="${label}" />
+        <filter token="DATE" value="${current.tstamp}" />
+        <filter token="APP_NAME" value="${application.name}" />
+        <copy file="${inst.resrc}\windows\updates\index-top.html"
+              todir="${windows.app.dir}\updates"
+              overwrite="true" filtering="yes"/>
+
+        <get src="${link.update.changelog.prefix}/extended-changelog-${label}.html"
+             dest="changelog-${label}.html"
+             ignoreerrors="true"/>
+        <loadfile property="latest.changelog"
+                  srcFile="changelog-${label}.html"
+                  failonerror="false"/>
+        <!-- Load a default value if file with changelogs is missing -->
+        <condition property="latest.changelog" value="Nightly builds">
+            <not>
+                <isset property="latest.changelog"/>
+            </not>
+        </condition>
+
+        <concat destfile="${windows.app.dir}\updates\index.html">
+            <fileset dir="${windows.app.dir}\updates">
+                <include name="index-top.html"/>
+            </fileset>
+            <propertyset>
+                <propertyref name="latest.changelog"/>
+            </propertyset>
+            <fileset dir="${windows.app.dir}\updates">
+                <include name="index-bottom.html"/>
+            </fileset>
+        </concat>
+        <delete file="${windows.app.dir}\updates\index-top.html"/>
+        <delete file="${windows.app.dir}\updates\index-bottom.html"/>
+        <delete file="changelog-${label}.html"/>
     </target>
 
     <!-- - - - - - - - - - - BUILDING RELEASE PACKAGES - - - - - - - - - - - -->
