@@ -1557,7 +1557,8 @@
         <!-- copy data for next delta builds-->
         <mkdir dir="${delta.history.location}/${sparkle.build}"/>
         <copy file="${macosx.app.dir}/${macosx.dmg.name}"
-              tofile="${delta.history.location}/${sparkle.build}/${package.name}.dmg"/>
+              tofile="${delta.history.location}/${sparkle.build}/${package.name}.dmg"
+              overwrite="true"/>
 
         <!-- now delete old one -->
         <antcall target="-delete-oldest-delta-data"/>
