@@ -1729,12 +1729,11 @@
         ln -s /usr/bin/strip /usr/bin/i486-linux-gnu-strip
         ln -s /usr/bin/objdump /usr/bin/i486-linux-gnu-objdump
         dpkg-cross
-        dpkg -add-architecture i386
+        dpkg -add-architecture i386 (the option is with two dashes!)
         apt-get update
-        apt-get install ia32-libs
-        apt-get install ia32-libs-gtk
+        apt-get install libc6:i386 libpulse0:i386 libx11-6:i386 libxv1:i386 libstdc++6:i386 libasound2:i386
     -->
-    <target name="deb" depends="init,version,load-properties,dpkg-build-warning"
+    <target name="-make-deb-package" depends="init,version,load-properties,dpkg-build-warning"
             if="dpkg.build.present"
             description="Create a .deb package for Debian (needs dpkg utilities)">
 
@@ -1746,6 +1745,7 @@
         <antcall target="deb-copy-jitsi">
             <param name="target.dir" value="${debian.target.dir}"/>
         </antcall>
+
         <antcall target="deb-copy-jitsi-libs">
             <param name="target.dir" value="${debian.target.dir}"/>
         </antcall>
@@ -1753,30 +1753,18 @@
         <property name="debianize.dir" value="${debian.target.dir}/debian" />
         <!-- the target we will use to build the package,
             depends whether we are building source package or just a deb -->
-        <property name="debianize.build.target"
-                  value="make-and-deploy" />
+        <property name="debianize.build.target" value="make-and-deploy" />
+
         <antcall target="dpkg-debianize" />
 
-        <!-- Build i386 binary package -->
+        <!-- Build binary .deb package -->
         <exec executable="${dpkg-buildpackage}" dir="${debian.target.dir}">
-            <arg value="-rfakeroot"/>
             <arg value="-tc"/>
             <arg value="-us"/>
             <arg value="-uc"/>
             <arg value="-b"/>
             <arg value="-d"/>
-            <arg value="-ai386"/>
-        </exec>
-
-        <!-- Build amd64 binary package -->
-        <exec executable="${dpkg-buildpackage}" dir="${debian.target.dir}">
-            <arg value="-rfakeroot"/>
-            <arg value="-tc"/>
-            <arg value="-us"/>
-            <arg value="-uc"/>
-            <arg value="-b"/>
-            <arg value="-d"/>
-            <arg value="-aamd64"/>
+            <arg value="-a${deb-arch}"/>
         </exec>
 
         <move todir="${debian.dir}">
@@ -1788,15 +1776,27 @@
         </move>
 
         <!--
-            Copy changelogs before deleting them, this changelogs are used from
+            Copy changelogs before deleting them, these changelogs are used by
             tools like Update Manager in Ubuntu distribution. -->
         <copy file="${debianize.dir}/changelog"
-            tofile="${debian.dir}/${package.name}_${sip-communicator.version}_i386.changelog"/>
-        <copy file="${debianize.dir}/changelog"
-            tofile="${debian.dir}/${package.name}_${sip-communicator.version}_amd64.changelog"/>
+            tofile="${debian.dir}/${package.name}_${sip-communicator.version}_${deb-arch}.changelog"/>
 
         <delete dir="${debian.tmp.dir}"/>
     </target>
+    
+    <target name="deb-32">
+        <antcall target="-make-deb-package">
+            <param name="deb-arch" value="i386"/>
+        </antcall>
+    </target>
+
+    <target name="deb-64">
+        <antcall target="-make-deb-package">
+            <param name="deb-arch" value="amd64"/>
+        </antcall>
+    </target>
+    
+    <target name="deb" depends="deb-32,deb-64"/>
 
     <!-- Outputs a warning notifying the user that dpkg-scanpackages is not installed. -->
     <target name="dpkg-scan-warning" unless="dpkg.scan.present">
