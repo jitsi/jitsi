@@ -1135,6 +1135,8 @@ public class ChatConversationPanel
                                  String contentType,
                                  String keyword)
     {
+        if(message == null)
+            return "";
         // If the message content type is HTML we won't process links and
         // new lines, but only the smileys.
         if (!ChatHtmlUtils.HTML_CONTENT_TYPE.equals(contentType))
