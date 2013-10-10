@@ -178,6 +178,12 @@ public class CallPanel
     private SIPCommButton chatButton;
 
     /**
+     * The operation set that will be used to update chatButton icon and
+     * the corresponding contact.
+     */
+    private OperationSetPresence operationSetPresence;
+
+    /**
      * The conference button.
      */
     private CallToolBarButton conferenceButton;
@@ -688,15 +694,9 @@ public class CallPanel
         }
 
         // clears the contact status listener
-        List<Contact> imContacts = getIMCapableCallPeers(1);
-        if(imContacts.size() == 1)
+        if(operationSetPresence != null)
         {
-            Contact contact = imContacts.get(0);
-            OperationSetPresence operationSetPresence =
-                contact.getProtocolProvider()
-                    .getOperationSet(OperationSetPresence.class);
-            if(operationSetPresence != null)
-                operationSetPresence.removeContactPresenceStatusListener(this);
+            operationSetPresence.removeContactPresenceStatusListener(this);
         }
     }
 
@@ -762,10 +762,10 @@ public class CallPanel
         List<Contact> imContacts = getIMCapableCallPeers(1);
         chatButton.setVisible(
                 !isConference && (imContacts.size() == 1));
-        if(chatButton.isVisible())
+        if(chatButton.isVisible() && operationSetPresence == null)
         {
             Contact contact = imContacts.get(0);
-            OperationSetPresence operationSetPresence =
+            operationSetPresence =
                 contact.getProtocolProvider()
                     .getOperationSet(OperationSetPresence.class);
             if(operationSetPresence != null)
@@ -2210,7 +2210,7 @@ public class CallPanel
     {
         Contact contact = getIMCapableCallPeers(1).get(0);
 
-        if(contact.equals(evt.getSourceContact()))
+        if(contact != null && contact.equals(evt.getSourceContact()))
         {
             chatButton.setIconImage(
                 Constants.getMessageStatusIcon(contact.getPresenceStatus()));
