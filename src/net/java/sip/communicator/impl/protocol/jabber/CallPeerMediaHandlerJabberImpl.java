@@ -2114,10 +2114,10 @@ public class CallPeerMediaHandlerJabberImpl
         if (getPeer().isJitsiVideoBridge()
                 && (transportManager instanceof RawUdpTransportManager))
         {
-            channel = ((RawUdpTransportManager) transportManager)
+            channel
+                = ((RawUdpTransportManager) transportManager)
                     .getColibriChannel(mediaType, false /* remote */);
         }
-
         return channel;
     }
 
@@ -2144,35 +2144,38 @@ public class CallPeerMediaHandlerJabberImpl
     @Override
     public void setLocallyOnHold(boolean locallyOnHold)
     {
-        if (!getPeer().isJitsiVideoBridge())
-        {
-            super.setLocallyOnHold(locallyOnHold);
-        }
-        else
+        CallPeerJabberImpl peer = getPeer();
+
+        if (peer.isJitsiVideoBridge())
         {
             this.locallyOnHold = locallyOnHold;
 
-            if (!locallyOnHold
-                && CallPeerState.ON_HOLD_MUTUALLY.equals(getPeer().getState()))
-                return;
-
-            for (MediaType mediaType : MediaType.values())
+            if (locallyOnHold
+                    || !CallPeerState.ON_HOLD_MUTUALLY.equals(peer.getState()))
             {
-                ColibriConferenceIQ.Channel channel
+                for (MediaType mediaType : MediaType.values())
+                {
+                    ColibriConferenceIQ.Channel channel
                         = getColibriChannel(mediaType);
-                if (channel == null)
-                    continue;
 
-                MediaDirection direction
-                        = locallyOnHold
-                        ? MediaDirection.INACTIVE
-                        : MediaDirection.SENDRECV;
+                    if (channel != null)
+                    {
+                        MediaDirection direction
+                            = locallyOnHold
+                                ? MediaDirection.INACTIVE
+                                : MediaDirection.SENDRECV;
 
-                getPeer().getCall().setChannelDirection(
-                        channel.getID(),
-                        mediaType,
-                        direction);
+                        peer.getCall().setChannelDirection(
+                                channel.getID(),
+                                mediaType,
+                                direction);
+                    }
+                }
             }
+        }
+        else
+        {
+            super.setLocallyOnHold(locallyOnHold);
         }
     }
 

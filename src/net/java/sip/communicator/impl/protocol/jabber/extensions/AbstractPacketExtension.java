@@ -110,17 +110,16 @@ public abstract class AbstractPacketExtension
 
         bldr.append("<").append(getElementName()).append(" ");
 
-        if(getNamespace() != null)
-            bldr.append("xmlns='").append(getNamespace()).append("'");
+        String namespace = getNamespace();
+
+        if(namespace != null)
+            bldr.append("xmlns='").append(namespace).append("'");
 
         //add the rest of the attributes if any
         for(Map.Entry<String, String> entry : attributes.entrySet())
         {
-            bldr.append(" ")
-                    .append(entry.getKey())
-                        .append("='")
-                            .append(entry.getValue())
-                                .append("'");
+            bldr.append(" ").append(entry.getKey()).append("='")
+                    .append(entry.getValue()).append("'");
         }
 
         //add child elements if any

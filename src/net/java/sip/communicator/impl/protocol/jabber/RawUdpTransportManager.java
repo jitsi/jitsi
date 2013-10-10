@@ -355,14 +355,14 @@ public class RawUdpTransportManager
      * @param local <tt>true</tt> if the <tt>ColibriConferenceIQ.Channel</tt>
      * which is to be used locally is to be returned or <tt>false</tt> for the
      * one which is to be used remotely
-     * @return the <tt>ColibriConferenceIQ.Channel</tt> which belongs to a content
-     * associated with the specified <tt>mediaType</tt> and which is to be used
-     * in accord with the specified <tt>local</tt> indicator if such a channel
-     * exists; otherwise, <tt>null</tt>
+     * @return the <tt>ColibriConferenceIQ.Channel</tt> which belongs to a
+     * content associated with the specified <tt>mediaType</tt> and which is to
+     * be used in accord with the specified <tt>local</tt> indicator if such a
+     * channel exists; otherwise, <tt>null</tt>
      */
     ColibriConferenceIQ.Channel getColibriChannel(
-        MediaType mediaType,
-        boolean local)
+            MediaType mediaType,
+            boolean local)
     {
         ColibriConferenceIQ.Channel channel = null;
 
@@ -380,7 +380,6 @@ public class RawUdpTransportManager
                     channel = channels.get(local ? 0 : 1);
             }
         }
-
         return channel;
     }
 
@@ -520,15 +519,15 @@ public class RawUdpTransportManager
          */
         if (call.getConference().isJitsiVideoBridge())
         {
-            List<RtpDescriptionPacketExtension> descriptions
+            List<RtpDescriptionPacketExtension> rdpes
                 = new ArrayList<RtpDescriptionPacketExtension>();
 
             for (ContentPacketExtension cpe : cpes)
             {
-                RtpDescriptionPacketExtension rtpDesc
+                RtpDescriptionPacketExtension rdpe
                     = cpe.getFirstChildOfType(
                             RtpDescriptionPacketExtension.class);
-                MediaType mediaType = MediaType.parseString(rtpDesc.getMedia());
+                MediaType mediaType = MediaType.parseString(rdpe.getMedia());
 
                 /*
                  * The existence of a content for the mediaType and regardless
@@ -538,24 +537,24 @@ public class RawUdpTransportManager
                 if ((colibri == null)
                         || (colibri.getContent(mediaType.toString()) == null))
                 {
-                    if (!descriptions.contains(rtpDesc))
-                        descriptions.add(rtpDesc);
+                    if (!rdpes.contains(rdpe))
+                        rdpes.add(rdpe);
                 }
             }
-            if (!descriptions.isEmpty())
+            if (!rdpes.isEmpty())
             {
                 /*
-                 * We are about to request the channel allocations for the
-                 * media types found in 'descriptions'. Regardless of the
-                 * response, we do not want to repeat these requests.
+                 * We are about to request the channel allocations for the media
+                 * types found in 'rdpes'. Regardless of the response, we do not
+                 * want to repeat these requests.
                  */
                 if (colibri == null)
                     colibri = new ColibriConferenceIQ();
-                for (RtpDescriptionPacketExtension description : descriptions)
-                    colibri.getOrCreateContent(description.getMedia());
+                for (RtpDescriptionPacketExtension rdpe : rdpes)
+                    colibri.getOrCreateContent(rdpe.getMedia());
 
                 ColibriConferenceIQ conferenceResult
-                    = call.createColibriChannels(peer, descriptions);
+                    = call.createColibriChannels(peer, rdpes);
 
                 if (conferenceResult != null)
                 {
@@ -579,24 +578,25 @@ public class RawUdpTransportManager
                         {
                             if (content.getChannel(channelResult.getID())
                                     == null)
+                            {
                                 content.addChannel(channelResult);
+                            }
                         }
                     }
                 }
                 else
                 {
                     /*
-                     * The call fails if createColibriChannels method fails
-                     * this can happen if the conference packet timeouts or
-                     * it can't be build.
+                     * The call fails if the createColibriChannels method fails
+                     * which may happen if the conference packet times out or it
+                     * can't be built.
                      */
                     ProtocolProviderServiceJabberImpl
                         .throwOperationFailedException(
                             "Failed to allocate colibri channel.",
                             OperationFailedException.GENERAL_ERROR,
                             null,
-                            Logger.getLogger(
-                                RawUdpTransportManager.class));
+                            Logger.getLogger(RawUdpTransportManager.class));
                 }
             }
         }

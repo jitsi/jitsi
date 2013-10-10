@@ -18,6 +18,7 @@ import org.jivesoftware.smack.packet.*;
  * COnferencing with LIghtweight BRIdging.
  *
  * @author Lyubomir Marinov
+ * @author Boris Grozev
  */
 public class ColibriConferenceIQ
     extends IQ
@@ -225,6 +226,12 @@ public class ColibriConferenceIQ
     public static class Channel
     {
         /**
+         * The name of the XML attribute of a <tt>channel</tt> which represents
+         * its direction.
+         */
+        public static final String DIRECTION_ATTR_NAME = "direction";
+
+        /**
          * The XML element name of a <tt>channel</tt> of a <tt>content</tt> of a
          * Jitsi VideoBridge <tt>conference</tt> IQ.
          */
@@ -285,10 +292,9 @@ public class ColibriConferenceIQ
         public static final String SSRC_ELEMENT_NAME = "ssrc";
 
         /**
-         * The name of the XML attribute of a <tt>channel</tt> which represents
-         * its direction.
+         * The direction of the <tt>channel</tt> represented by this instance.
          */
-        public static final String DIRECTION_ATTR_NAME = "direction";
+        private MediaDirection direction;
 
         /**
          * The number of seconds of inactivity after which the <tt>channel</tt>
@@ -330,10 +336,7 @@ public class ColibriConferenceIQ
          */
         private long[] ssrcs = NO_SSRCS;
 
-        /**
-         * The direction of the <tt>channel</tt> represented by this instance.
-         */
-        private MediaDirection direction;
+        private IceUdpTransportPacketExtension transport;
 
         /**
          * Adds a <tt>payload-type</tt> element defined by XEP-0167: Jingle RTP
@@ -388,6 +391,18 @@ public class ColibriConferenceIQ
             newSSRCs[ssrcs.length] = ssrc;
             ssrcs = newSSRCs;
             return true;
+        }
+
+        /**
+         * Gets the <tt>direction</tt> of this <tt>Channel</tt>.
+         *
+         * @return the <tt>direction</tt> of this <tt>Channel</tt>.
+         */
+        public MediaDirection getDirection()
+        {
+            return direction == null
+                    ? MediaDirection.SENDRECV
+                    : direction;
         }
 
         /**
@@ -474,16 +489,9 @@ public class ColibriConferenceIQ
             return (ssrcs.length == 0) ? NO_SSRCS : ssrcs.clone();
         }
 
-        /**
-         * Gets the <tt>direction</tt> of this <tt>Channel</tt>.
-         *
-         * @return the <tt>direction</tt> of this <tt>Channel</tt>.
-         */
-        public MediaDirection getDirection()
+        public IceUdpTransportPacketExtension getTransport()
         {
-            return direction == null
-                    ? MediaDirection.SENDRECV
-                    : direction;
+            return transport;
         }
 
         /**
@@ -547,6 +555,17 @@ public class ColibriConferenceIQ
                 }
                 return false;
             }
+        }
+
+        /**
+         * Sets the <tt>direction</tt> of this <tt>Channel</tt>
+         *
+         * @param direction the <tt>MediaDirection</tt> to set the
+         * <tt>direction</tt> of this <tt>Channel</tt> to.
+         */
+        public void setDirection(MediaDirection direction)
+        {
+            this.direction = direction;
         }
 
         /**
@@ -632,15 +651,9 @@ public class ColibriConferenceIQ
                     : ssrcs.clone();
         }
 
-        /**
-         * Sets the <tt>direction</tt> of this <tt>Channel</tt>
-         *
-         * @param direction the <tt>MediaDirection</tt> to set the
-         * <tt>direction</tt> of this <tt>Channel</tt> to.
-         */
-        public void setDirection(MediaDirection direction)
+        public void setTransport(IceUdpTransportPacketExtension transport)
         {
-            this.direction = direction;
+            this.transport = transport;
         }
 
         /**
@@ -696,7 +709,8 @@ public class ColibriConferenceIQ
             }
 
             MediaDirection direction = getDirection();
-            if (direction != null && direction != MediaDirection.SENDRECV)
+
+            if ((direction != null) && (direction != MediaDirection.SENDRECV))
             {
                 xml.append(' ').append(DIRECTION_ATTR_NAME).append("='")
                         .append(direction.toString()).append('\'');
@@ -706,8 +720,10 @@ public class ColibriConferenceIQ
             boolean hasPayloadTypes = (payloadTypes.size() != 0);
             long[] ssrcs = getSSRCs();
             boolean hasSSRCs = (ssrcs.length != 0);
+            IceUdpTransportPacketExtension transport = getTransport();
+            boolean hasTransport = (transport != null);
 
-            if (hasPayloadTypes || hasSSRCs)
+            if (hasPayloadTypes || hasSSRCs || hasTransport)
             {
                 xml.append('>');
                 if (hasPayloadTypes)
@@ -724,6 +740,8 @@ public class ColibriConferenceIQ
                                         .append(SSRC_ELEMENT_NAME).append('>');
                     }
                 }
+                if (hasTransport)
+                    xml.append(transport.toXML());
                 xml.append("</").append(ELEMENT_NAME).append('>');
             }
             else

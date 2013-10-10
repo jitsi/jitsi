@@ -150,9 +150,9 @@ public class CallJabberImpl
      * @param rdpes the <tt>RtpDescriptionPacketExtension</tt>s which specify
      * the <tt>MediaType</tt>s for which colibri (conference) channels are to be
      * allocated
-     * @return a <tt>ColibriConferenceIQ</tt> which describes the allocated colibri
-     * (conference) channels for the specified <tt>mediaTypes</tt> which are to
-     * be used by the specified <tt>peer</tt>; otherwise, <tt>null</tt>
+     * @return a <tt>ColibriConferenceIQ</tt> which describes the allocated
+     * colibri (conference) channels for the specified <tt>mediaTypes</tt> which
+     * are to be used by the specified <tt>peer</tt>; otherwise, <tt>null</tt>
      */
     public ColibriConferenceIQ createColibriChannels(
             CallPeerJabberImpl peer,
@@ -172,8 +172,10 @@ public class CallJabberImpl
         if (peerMediaHandler.getMediaHandler() != colibriMediaHandler)
         {
             for (MediaType mediaType : MediaType.values())
+            {
                 if (peerMediaHandler.getStream(mediaType) != null)
                     return null;
+            }
         }
 
         ProtocolProviderServiceJabberImpl protocolProvider
@@ -186,8 +188,11 @@ public class CallJabberImpl
         if ((jitsiVideoBridge == null) || (jitsiVideoBridge.length() == 0))
         {
             if (logger.isInfoEnabled())
-                logger.info("Failed to allocate colibri channels: no " +
-                        " videobridge found.");
+            {
+                logger.info(
+                        "Failed to allocate colibri channels: no videobridge"
+                            + " found.");
+            }
             return null;
         }
 
@@ -251,22 +256,31 @@ public class CallJabberImpl
         if (response == null)
         {
             if (logger.isInfoEnabled())
-                logger.info("Failed to allocate colibri channels: response " +
-                        "is null. Maybe the response timeouted.");
+            {
+                logger.info(
+                        "Failed to allocate colibri channels: response is null."
+                            + " Maybe the response timeouted.");
+            }
             return null;
         }
         else if (response.getError() != null)
         {
             if (logger.isInfoEnabled())
-                logger.info("Failed to allocate colibri channels: " +
-                        response.getError());
+            {
+                logger.info(
+                        "Failed to allocate colibri channels: "
+                            + response.getError());
+            }
             return null;
         }
         else if (!(response instanceof ColibriConferenceIQ))
         {
             if (logger.isInfoEnabled())
-                logger.info("Failed to allocate colibri channels: response is" +
-                        "not a colibri conference");
+            {
+                logger.info(
+                        "Failed to allocate colibri channels: response is not a"
+                            + " colibri conference");
+            }
             return null;
         }
 

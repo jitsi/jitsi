@@ -750,7 +750,7 @@ public class CallInfoFrame
             }
             else
             {
-                info = "SDES";
+                info = srtpControl.getSrtpControlType().toString();
             }
 
             rtpType = resources.getI18NString(

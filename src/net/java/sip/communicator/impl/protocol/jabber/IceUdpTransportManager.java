@@ -664,20 +664,20 @@ public class IceUdpTransportManager
      */
     protected PacketExtension createTransport(IceMediaStream stream)
     {
-        IceUdpTransportPacketExtension trans
+        IceUdpTransportPacketExtension transport
             = new IceUdpTransportPacketExtension();
         Agent iceAgent = stream.getParentAgent();
 
-        trans.setUfrag(iceAgent.getLocalUfrag());
-        trans.setPassword(iceAgent.getLocalPassword());
+        transport.setUfrag(iceAgent.getLocalUfrag());
+        transport.setPassword(iceAgent.getLocalPassword());
 
         for(Component component : stream.getComponents())
         {
             for(Candidate<?> candidate : component.getLocalCandidates())
-                trans.addCandidate(createCandidate(candidate));
+                transport.addCandidate(createCandidate(candidate));
         }
 
-        return trans;
+        return transport;
     }
 
     /**

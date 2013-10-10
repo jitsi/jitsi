@@ -18,10 +18,71 @@ import org.xmlpull.v1.*;
  * Jitsi VideoBridge extension <tt>ColibriConferenceIQ</tt>.
  *
  * @author Lyubomir Marinov
+ * @author Boris Grozev
  */
 public class ColibriIQProvider
     implements IQProvider
 {
+    private void addChildExtension(
+            ColibriConferenceIQ.Channel channel,
+            PacketExtension childExtension)
+    {
+        if (childExtension instanceof PayloadTypePacketExtension)
+        {
+            PayloadTypePacketExtension payloadType
+                = (PayloadTypePacketExtension) childExtension;
+
+            if ("opus".equals(payloadType.getName())
+                    && (payloadType.getChannels() != 2))
+            {
+                /*
+                 * We only have a Format for opus with 2 channels, because it
+                 * MUST be advertised with 2 channels. Fixing the number of
+                 * channels here allows us to be compatible with agents who
+                 * advertise it with 1 channel.
+                 */
+                payloadType.setChannels(2);
+            }
+            channel.addPayloadType(payloadType);
+        }
+        else if (childExtension instanceof IceUdpTransportPacketExtension)
+        {
+            IceUdpTransportPacketExtension transport
+                = (IceUdpTransportPacketExtension) childExtension;
+
+            channel.setTransport(transport);
+        }
+    }
+
+    private PacketExtension parseExtension(
+            XmlPullParser parser,
+            String name,
+            String namespace)
+        throws Exception
+    {
+        PacketExtensionProvider extensionProvider
+            = (PacketExtensionProvider)
+                ProviderManager.getInstance().getExtensionProvider(
+                        name,
+                        namespace);
+        PacketExtension extension;
+
+        if (extensionProvider == null)
+        {
+            /*
+             * No PacketExtensionProvider for the specified name and namespace
+             * has been registered. Throw away the element.
+             */
+            throwAway(parser, name);
+            extension = null;
+        }
+        else
+        {
+            extension = extensionProvider.parseExtension(parser);
+        }
+        return extension;
+    }
+
     /**
      * Parses an IQ sub-document and creates an
      * <tt>org.jivesoftware.smack.packet.IQ</tt> instance.
@@ -51,7 +112,6 @@ public class ColibriIQProvider
             boolean done = false;
             ColibriConferenceIQ.Channel channel = null;
             ColibriConferenceIQ.Content content = null;
-            PacketExtensionProvider payloadTypePacketExtensionProvider = null;
             StringBuilder ssrc = null;
 
             while (!done)
@@ -129,19 +189,23 @@ public class ColibriIQProvider
                         if ((rtcpPort != null) && (rtcpPort.length() != 0))
                             channel.setRTCPPort(Integer.parseInt(rtcpPort));
 
-                        String directionStr
+                        String direction
                             = parser.getAttributeValue(
                                     "" ,
                                     ColibriConferenceIQ.Channel
                                             .DIRECTION_ATTR_NAME);
-                        if (directionStr != null)
+
+                        if ((direction != null) && (direction.length() != 0))
+                        {
                             channel.setDirection(
-                                    MediaDirection.parseString(directionStr));
+                                    MediaDirection.parseString(direction));
+                        }
 
                         String expire
                             = parser.getAttributeValue(
                                     "",
-                                    ColibriConferenceIQ.Channel.EXPIRE_ATTR_NAME);
+                                    ColibriConferenceIQ.Channel
+                                            .EXPIRE_ATTR_NAME);
 
                         if ((expire != null) && (expire.length() != 0))
                             channel.setExpire(Integer.parseInt(expire));
@@ -165,55 +229,52 @@ public class ColibriIQProvider
                                 && (contentName.length() != 0))
                             content.setName(contentName);
                     }
-                    else if (PayloadTypePacketExtension.ELEMENT_NAME.equals(
-                            name))
+                    else if (channel != null)
                     {
-                        /*
-                         * The channel element of the Jitsi VideoBridge protocol
-                         * reuses the payload-type element defined in XEP-0167:
-                         * Jingle RTP Sessions.
-                         */
-                        if (payloadTypePacketExtensionProvider == null)
-                        {
-                            payloadTypePacketExtensionProvider
-                                = (PacketExtensionProvider)
-                                    ProviderManager.getInstance()
-                                        .getExtensionProvider(name, namespace);
-                        }
-                        if (payloadTypePacketExtensionProvider == null)
+                        String peName = null;
+                        String peNamespace = null;
+
+                        if (PayloadTypePacketExtension.ELEMENT_NAME.equals(
+                                name))
                         {
                             /*
-                             * Well, the PacketExtensionProvider appears to have
-                             * not been registered. Throw away the payload-type
-                             * element.
+                             * The channel element of the Jitsi VideoBridge
+                             * protocol reuses the payload-type element defined
+                             * in XEP-0167: Jingle RTP Sessions.
                              */
-                            while ((XmlPullParser.END_TAG != parser.next())
-                                    || !name.equals(parser.getName()));
+                            peName = name;
+                            peNamespace = namespace;
+                        }
+                        else if (IceUdpTransportPacketExtension.ELEMENT_NAME
+                                    .equals(name)
+                                && IceUdpTransportPacketExtension.NAMESPACE
+                                        .equals(parser.getNamespace()))
+                        {
+                            peName = name;
+                            peNamespace
+                                = IceUdpTransportPacketExtension.NAMESPACE;
+                        }
+                        else if (RawUdpTransportPacketExtension.ELEMENT_NAME
+                                    .equals(name)
+                                && RawUdpTransportPacketExtension.NAMESPACE
+                                        .equals(parser.getNamespace()))
+                        {
+                            peName = name;
+                            peNamespace
+                                = RawUdpTransportPacketExtension.NAMESPACE;
+                        }
+
+                        if (peName == null)
+                        {
+                            throwAway(parser, name);
                         }
                         else
                         {
-                            PayloadTypePacketExtension payloadType
-                                = (PayloadTypePacketExtension)
-                                    payloadTypePacketExtensionProvider
-                                        .parseExtension(parser);
+                            PacketExtension extension
+                                = parseExtension(parser, peName, peNamespace);
 
-                            if (payloadType != null)
-                            {
-                                if("opus".equals(payloadType.getName())
-                                        && payloadType.getChannels() != 2)
-                                {
-                                    /*
-                                     * We only have a Format for opus with 2
-                                     * channels, because it MUST be advertised
-                                     * with 2 channels.
-                                     * Fixing the number of channels here allows
-                                     * us to be compatible with agents who
-                                     * advertise it with 1 channel.
-                                     */
-                                    payloadType.setChannels(2);
-                                }
-                                channel.addPayloadType(payloadType);
-                            }
+                            if (extension != null)
+                                addChildExtension(channel, extension);
                         }
                     }
                     break;
@@ -234,5 +295,12 @@ public class ColibriIQProvider
             iq = null;
 
         return iq;
+    }
+
+    private void throwAway(XmlPullParser parser, String name)
+        throws Exception
+    {
+        while ((XmlPullParser.END_TAG != parser.next())
+                || !name.equals(parser.getName()));
     }
 }
