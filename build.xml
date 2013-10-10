@@ -1286,7 +1286,8 @@
 
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/libjitsi"
                 prefix="net/java/sip/communicator/impl/libjitsi"/>
-            <zipfileset src="${lib.noinst}/bcpkix-jdk15on-149.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/bcpkix-jdk15on-149.jar" prefix=""
+                excludes="META-INF/BCKEY.*"/>
             <zipfileset src="${lib.noinst}/fmj.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/libjitsi.jar" prefix=""/>
         </jar>
