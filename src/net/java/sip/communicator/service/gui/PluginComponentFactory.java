@@ -139,6 +139,7 @@ public abstract class PluginComponentFactory
         if(p == null)
         {
             p = getPluginInstance();
+            pluginInstances.put(parent, p);
         }
 
         return p;
