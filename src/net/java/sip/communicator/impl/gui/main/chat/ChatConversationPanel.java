@@ -1945,6 +1945,9 @@ public class ChatConversationPanel
     {
         super.dispose();
 
+        if(showPreview != null)
+            showPreview.dispose();
+
         clear();
     }
 
