@@ -195,11 +195,26 @@ public class DefaultTreeContactList
         }
         else if (element instanceof GroupNode)
         {
-            UIGroup group
-                = ((GroupNode) element).getGroupDescriptor();
+            Component cellComponent
+                = findTreeCellComponent(currentMouseLocation);
 
-            tip = new ExtendedTooltip(true);
-            tip.setTitle(group.getDisplayName());
+            // If we're over a button we show the button tool tip.
+            if (cellComponent instanceof SIPCommButton
+                && ((SIPCommButton) cellComponent).getToolTipText() != null
+                && ((SIPCommButton) cellComponent)
+                    .getToolTipText().length() > 0)
+            {
+                tip = new ExtendedTooltip(true);
+                tip.setTitle(((SIPCommButton)cellComponent).getToolTipText());
+            }
+            else
+            {
+                UIGroup group
+                    = ((GroupNode) element).getGroupDescriptor();
+
+                tip = new ExtendedTooltip(true);
+                tip.setTitle(group.getDisplayName());
+            }
         }
         else if (element instanceof ChatContact<?>)
         {

@@ -15,6 +15,7 @@ import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.util.*;
 import org.osgi.framework.*;
 
+import javax.swing.*;
 import java.awt.*;
 
 /**
@@ -75,10 +76,17 @@ public class ViewMenu
         {
             for (ServiceReference serRef : serRefs)
             {
-                PluginComponent component = (PluginComponent) GuiActivator
+                final PluginComponentFactory f = (PluginComponentFactory) GuiActivator
                     .bundleContext.getService(serRef);
 
-                this.add((Component)component.getComponent());
+                SwingUtilities.invokeLater(new Runnable()
+                {
+                    public void run()
+                    {
+                        add((Component) f.getPluginComponentInstance(
+                            ViewMenu.this).getComponent());
+                    }
+                });
             }
         }
 
