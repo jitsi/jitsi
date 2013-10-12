@@ -93,104 +93,6 @@ public class CallManager
         extends SwingCallListener
     {
         /**
-         * The received call dialog.
-         */
-        private ReceivedCallDialog receivedCallDialog;
-
-        /**
-         * We show it by default, but if the event for stop showing it
-         * is received just before we show it mark it for not showing it.
-         */
-        private boolean showReceivedCallDialog = true;
-
-        /**
-         * Delivers the <tt>CallEvent</tt> in protocol thread.
-         */
-        @Override
-        public void incomingCallReceived(CallEvent ev)
-        {
-            // first add call change listener cause while waiting for EDT
-            // we may miss some events if the come too quickly after incoming
-            // call received event
-            Call sourceCall = ev.getSourceCall();
-
-            Iterator<? extends CallPeer> peerIter = sourceCall.getCallPeers();
-
-            if(peerIter.hasNext())
-            {
-                final String peerName = peerIter.next().getDisplayName();
-                final long callTime = System.currentTimeMillis();
-
-                sourceCall.addCallChangeListener(new CallChangeAdapter()
-                {
-                    @Override
-                    public void callStateChanged(final CallChangeEvent ev)
-                    {
-                        if(!SwingUtilities.isEventDispatchThread())
-                        {
-                            SwingUtilities.invokeLater(
-                                    new Runnable()
-                                    {
-                                        public void run()
-                                        {
-                                            callStateChanged(ev);
-                                        }
-                                    });
-                            return;
-                        }
-                        if (!CallChangeEvent.CALL_STATE_CHANGE
-                                .equals(ev.getPropertyName()))
-                            return;
-
-                        // When the call state changes, we ensure here that the
-                        // received call notification dialog is closed.
-                        if(receivedCallDialog != null
-                            && receivedCallDialog.isVisible())
-                        {
-                            receivedCallDialog.setVisible(false);
-                        }
-
-                        showReceivedCallDialog = false;
-
-                        // Ensure that the CallDialog is created, because
-                        // it is the one that listens for CallPeers.
-                        Object newValue = ev.getNewValue();
-                        Call call = ev.getSourceCall();
-
-                        if (CallState.CALL_INITIALIZATION.equals(newValue)
-                                || CallState.CALL_IN_PROGRESS.equals(newValue))
-                        {
-                            openCallContainerIfNecessary(call);
-                        }
-                        else if (CallState.CALL_ENDED.equals(newValue))
-                        {
-                            if (ev.getOldValue().equals(
-                                    CallState.CALL_INITIALIZATION))
-                            {
-                                // If the call was answered elsewhere,
-                                // don't mark it as missed.
-                                CallPeerChangeEvent cause = ev.getCause();
-
-                                if ((cause == null)
-                                        || (cause.getReasonCode()
-                                                != CallPeerChangeEvent
-                                                        .NORMAL_CALL_CLEARING))
-                                {
-                                    addMissedCallNotification(
-                                        peerName, callTime);
-                                }
-                            }
-
-                            call.removeCallChangeListener(this);
-                        }
-                    }
-                });
-            }
-
-            super.incomingCallReceived(ev);
-        }
-
-        /**
          * Implements {@link CallListener#incomingCallReceived(CallEvent)}. When
          * a call is received, creates a <tt>ReceivedCallDialog</tt> and plays
          * the ring phone sound to the user.
@@ -205,27 +107,84 @@ public class CallManager
                 = ev.isVideoCall()
                     && ConfigurationUtils.hasEnabledVideoFormat(
                             sourceCall.getProtocolProvider());
+            final ReceivedCallDialog receivedCallDialog
+                = new ReceivedCallDialog(
+                        sourceCall,
+                        isVideoCall,
+                        (CallManager.getInProgressCalls().size() > 0));
 
-            if(showReceivedCallDialog)
-            {
-                receivedCallDialog
-                    = new ReceivedCallDialog(
-                            sourceCall,
-                            isVideoCall,
-                            (CallManager.getInProgressCalls().size() > 0));
-
-                receivedCallDialog.setVisible(true);
-            }
+            receivedCallDialog.setVisible(true);
 
             Iterator<? extends CallPeer> peerIter = sourceCall.getCallPeers();
 
             if(!peerIter.hasNext())
             {
-                if (receivedCallDialog != null
-                    && receivedCallDialog.isVisible())
+                if (receivedCallDialog.isVisible())
                     receivedCallDialog.setVisible(false);
                 return;
             }
+
+            final String peerName = peerIter.next().getDisplayName();
+            final long callTime = System.currentTimeMillis();
+
+            sourceCall.addCallChangeListener(new CallChangeAdapter()
+            {
+                @Override
+                public void callStateChanged(final CallChangeEvent ev)
+                {
+                    if(!SwingUtilities.isEventDispatchThread())
+                    {
+                        SwingUtilities.invokeLater(
+                                new Runnable()
+                                {
+                                    public void run()
+                                    {
+                                        callStateChanged(ev);
+                                    }
+                                });
+                        return;
+                    }
+                    if (!CallChangeEvent.CALL_STATE_CHANGE
+                            .equals(ev.getPropertyName()))
+                        return;
+
+                    // When the call state changes, we ensure here that the
+                    // received call notification dialog is closed.
+                    if (receivedCallDialog.isVisible())
+                        receivedCallDialog.setVisible(false);
+
+                    // Ensure that the CallDialog is created, because it is the
+                    // one that listens for CallPeers.
+                    Object newValue = ev.getNewValue();
+                    Call call = ev.getSourceCall();
+
+                    if (CallState.CALL_INITIALIZATION.equals(newValue)
+                            || CallState.CALL_IN_PROGRESS.equals(newValue))
+                    {
+                        openCallContainerIfNecessary(call);
+                    }
+                    else if (CallState.CALL_ENDED.equals(newValue))
+                    {
+                        if (ev.getOldValue().equals(
+                                CallState.CALL_INITIALIZATION))
+                        {
+                            // If the call was answered elsewhere, don't mark it
+                            // as missed.
+                            CallPeerChangeEvent cause = ev.getCause();
+
+                            if ((cause == null)
+                                    || (cause.getReasonCode()
+                                            != CallPeerChangeEvent
+                                                    .NORMAL_CALL_CLEARING))
+                            {
+                                addMissedCallNotification(peerName, callTime);
+                            }
+                        }
+
+                        call.removeCallChangeListener(this);
+                    }
+                }
+            });
 
             /*
              * Notify the existing CallPanels about the CallEvent (in case they
