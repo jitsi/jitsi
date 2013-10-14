@@ -42,6 +42,11 @@ public class SIPCommButton
     private Image iconImage;
 
     /**
+     * Custom tooltip to be used with this button.
+     */
+    private ExtendedTooltip extendedTooltip;
+
+    /**
      * The index of the button, used when we want to order our buttons.
      */
     private int index = -1;
@@ -363,6 +368,24 @@ public class SIPCommButton
     public int getIndex()
     {
         return this.index;
+    }
+
+    /**
+     * Changes the custom tooltip for this button. By default no custom tip.
+     * @param extendedTooltip the new tooltip to use.
+     */
+    public void setTooltip(ExtendedTooltip extendedTooltip)
+    {
+        this.extendedTooltip = extendedTooltip;
+    }
+
+    /**
+     * Returns the custom tooltip.
+     * @returns the custom tooltip.
+     */
+    public ExtendedTooltip getTooltip()
+    {
+        return extendedTooltip;
     }
 
     /**

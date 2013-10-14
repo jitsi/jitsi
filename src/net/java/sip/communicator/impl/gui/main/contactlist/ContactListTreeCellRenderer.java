@@ -906,8 +906,34 @@ public class ContactListTreeCellRenderer
         //webButton
         if (uiContact.getDescriptor() instanceof MetaContact)
         {
-            if(containsWebPageDetail(uiContact))
+            // first check for web page detail
+            WebDetailsListener webDetailsListener =
+                new WebDetailsListener(treeNode, webButton, uiContact);
+
+            List<WebPageDetail> dets =
+                getWebPageDetails(uiContact, webDetailsListener, true);
+            if(dets != null && dets.size() > 0)
+            {
                 x += addButton(webButton, ++gridX, x, false);
+
+                // create a custom button tooltip to show the available links
+                ExtendedTooltip tip = new ExtendedTooltip(true);
+                tip.setTitle(webButton.getToolTipText());
+
+                for(WebPageDetail wd : dets)
+                {
+                    String displayStr = wd.getDetailValue().toString();
+                    // do not display too long links
+                    if(displayStr.length() > 60)
+                    {
+                        displayStr = displayStr.substring(0, 60);
+                        displayStr += "...";
+                    }
+                    tip.addLine(null, displayStr);
+                }
+
+                webButton.setTooltip(tip);
+            }
         }
 
         // The list of the contact actions
@@ -1523,19 +1549,6 @@ public class ContactListTreeCellRenderer
                  }
             }
         }
-    }
-
-    /**
-     * Checks for existence of at least single web page detail.
-     * @param uiContact the contact to check
-     * @return true if at least one detail available, false otherwise.
-     */
-    private boolean containsWebPageDetail(UIContact uiContact)
-    {
-        WebDetailsListener webDetailsListener =
-            new WebDetailsListener(treeNode, webButton, uiContact);
-
-        return getWebPageDetails(uiContact, webDetailsListener, true) != null;
     }
 
     /**
