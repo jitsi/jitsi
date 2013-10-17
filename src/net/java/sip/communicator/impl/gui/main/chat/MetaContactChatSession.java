@@ -448,7 +448,13 @@ public class MetaContactChatSession
         {
             Contact protoContact = evt.getProtoContact();
 
-            for (ChatTransport chatTransport : chatTransports)
+            List<ChatTransport> transports;
+            synchronized (chatTransports)
+            {
+                transports = new ArrayList<ChatTransport>(chatTransports);
+            }
+
+            for (ChatTransport chatTransport : transports)
             {
                 if(((MetaContactChatTransport) chatTransport).getContact()
                         .equals(protoContact))
