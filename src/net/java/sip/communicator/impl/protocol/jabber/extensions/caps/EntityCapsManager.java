@@ -1019,5 +1019,29 @@ public class EntityCapsManager
             }
             return false;
         }
+
+        @Override
+        public boolean equals(Object o)
+        {
+            if(this == o) return true;
+            if(o == null || getClass() != o.getClass()) return false;
+
+            Caps caps = (Caps) o;
+
+            if(!hash.equals(caps.hash)) return false;
+            if(!node.equals(caps.node)) return false;
+            if(!ver.equals(caps.ver)) return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode()
+        {
+            int result = hash.hashCode();
+            result = 31 * result + node.hashCode();
+            result = 31 * result + ver.hashCode();
+            return result;
+        }
     }
 }
