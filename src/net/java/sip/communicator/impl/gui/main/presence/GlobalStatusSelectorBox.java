@@ -227,7 +227,10 @@ public class GlobalStatusSelectorBox
         StatusSelectorMenu menu = getStatusSelectorMenu(protocolProvider);
 
         if (menu != null)
+        {
+            menu.dispose();
             remove(menu);
+        }
     }
 
     /**

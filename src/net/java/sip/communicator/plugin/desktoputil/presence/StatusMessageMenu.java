@@ -71,36 +71,36 @@ public class StatusMessageMenu
         = DesktopUtilActivator.getResources()
             .getI18NString("service.gui.BUSY_MESSAGE");
 
-    private final Object noMessageItem;
+    private Object noMessageItem;
 
-    private final Object newMessageItem;
+    private Object newMessageItem;
 
     /**
      * To clear and delete currently saved custom messages.
      */
-    private final Object clearCustomMessageItem;
+    private Object clearCustomMessageItem;
 
     /**
      * The pre-set busy message.
      */
-    private final Object busyMessageItem;
+    private Object busyMessageItem;
 
     /**
      * The pre-set BRB message.
      */
-    private final Object brbMessageItem;
+    private Object brbMessageItem;
 
     private ProtocolProviderService protocolProvider;
 
     /**
      * The menu we will be populating.
      */
-    private final Object menu;
+    private Object menu;
 
     /**
      * All property change listeners registered so far.
      */
-    private static java.util.List<PropertyChangeListener>
+    private java.util.List<PropertyChangeListener>
         propertyChangeListeners = new ArrayList<PropertyChangeListener>();
 
     /**
@@ -924,6 +924,23 @@ public class StatusMessageMenu
                 }
             }
         }
+    }
+
+    /**
+     * Clears resources.
+     */
+    public void dispose()
+    {
+        protocolProvider = null;
+        propertyChangeListeners.clear();
+        propertyChangeListeners = null;
+
+        noMessageItem = null;
+        newMessageItem = null;
+        clearCustomMessageItem = null;
+        busyMessageItem = null;
+        brbMessageItem = null;
+        menu = null;
     }
 
     /**

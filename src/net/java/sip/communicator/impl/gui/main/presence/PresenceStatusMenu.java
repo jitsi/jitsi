@@ -323,4 +323,19 @@ public class PresenceStatusMenu
             updateTitleArea();
         }
     }
+
+    /**
+     * Clears resources.
+     */
+    public void dispose()
+    {
+        super.dispose();
+
+        presence = null;
+        titleArea = null;
+
+        if(statusMessageMenu != null)
+            statusMessageMenu.dispose();
+        statusMessageMenu = null;
+    }
 }

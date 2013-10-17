@@ -346,6 +346,7 @@ public class AutoAnswerMenu
             if(menuAccountID.equals(protocolProvider.getAccountID()))
             {
                 parentMenu.remove(menu);
+                menu.clear();
                 break;
             }
         }
@@ -565,6 +566,15 @@ public class AutoAnswerMenu
                     + " - " + provider.getAccountID().getDisplayName();
             else
                 return provider.getAccountID().getDisplayName();
+        }
+
+        /**
+         * A bug in macosx leaking instances of Menu and MenuItems, we prevent
+         * leaking Protocol Providers.
+         */
+        public void clear()
+        {
+            providerService = null;
         }
     }
 

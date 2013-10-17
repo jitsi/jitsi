@@ -172,4 +172,13 @@ public abstract class StatusSelectorMenu
             = GuiActivator.getResources()
                 .getImage("service.gui.icons.CONNECTING").getImage();
     }
+
+    /**
+     * Clears resources.
+     */
+    public void dispose()
+    {
+        protocolProvider = null;
+        connectingIcon = null;
+    }
 }
