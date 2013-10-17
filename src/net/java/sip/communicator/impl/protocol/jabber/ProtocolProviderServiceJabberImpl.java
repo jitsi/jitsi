@@ -2301,6 +2301,9 @@ public class ProtocolProviderServiceJabberImpl
 
         try
         {
+            if(discoveryManager == null)
+                return isFeatureListSupported;
+
             DiscoverInfo featureInfo =
                 discoveryManager.discoverInfoNonBlocking(jid);
 
@@ -2367,7 +2370,8 @@ public class ProtocolProviderServiceJabberImpl
     {
         XMPPConnection connection = getConnection();
 
-        if (connection != null)
+        // when we are not connected there is no full jid
+        if (connection != null && connection.isConnected())
         {
             Roster roster = connection.getRoster();
 

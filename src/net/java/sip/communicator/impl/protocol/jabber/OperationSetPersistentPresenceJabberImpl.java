@@ -983,6 +983,31 @@ public class OperationSetPersistentPresenceJabberImpl
         Map<String, ContactResourceJabberImpl> resources =
             contact.getResourcesMap();
 
+        // Do not obtain getRoster if we are not connected, or new Roster
+        // will be created, all the resources that will be returned will be
+        // unavailable. As we are not connected if set remove all resources
+        if(!parentProvider.getConnection().isConnected())
+        {
+            if(removeUnavailable)
+            {
+                Iterator<Map.Entry<String, ContactResourceJabberImpl>>
+                    iter = resources.entrySet().iterator();
+                while(iter.hasNext())
+                {
+                    Map.Entry<String, ContactResourceJabberImpl> entry
+                        = iter.next();
+
+                    iter.remove();
+
+                    contact.fireContactResourceEvent(
+                        new ContactResourceEvent(contact, entry.getValue(),
+                            ContactResourceEvent.RESOURCE_REMOVED));
+                    eventFired = true;
+                }
+            }
+            return eventFired;
+        }
+
         Iterator<Presence> it =
             parentProvider.getConnection().getRoster()
                 .getPresences(contact.getAddress());
