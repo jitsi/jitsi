@@ -550,6 +550,7 @@ public class AddContactDialog
                                                         boolean isSelected,
                                                         boolean cellHasFocus)
         {
+            this.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
             if (value instanceof String)
             {
                 setIcon(null);
@@ -606,12 +607,12 @@ public class AddContactDialog
             {
                 this.setBorder(BorderFactory.createCompoundBorder(
                     BorderFactory.createMatteBorder(1, 0, 0, 0, Color.LIGHT_GRAY),
-                    BorderFactory.createEmptyBorder(5, 0, 0, 0)));
+                    BorderFactory.createEmptyBorder(5, 5, 0, 0)));
                 this.setText((String) value);
             }
             else
             {
-                this.setBorder(null);
+                this.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
                 MetaContactGroup group = (MetaContactGroup) value;
 
                 if (group.equals(GuiActivator
