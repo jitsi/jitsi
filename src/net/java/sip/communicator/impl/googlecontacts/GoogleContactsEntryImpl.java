@@ -361,8 +361,8 @@ public class GoogleContactsEntryImpl
             }
         }
 
-        photoLink = contact.getContactPhotoLink().getHref();
         googlePhotoLink = contact.getContactPhotoLink();
+        photoLink = googlePhotoLink.getHref();
 
         for(Email mail : contact.getEmailAddresses())
         {
