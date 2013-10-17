@@ -197,6 +197,10 @@ class SpellChecker
                 attachedChats.remove(wrapper);
                 wrapper.detachListeners();
             }
+
+            // this is the last chat, window is closed
+            if(attachedChats.size() == 0)
+                stop();
         }
     }
 

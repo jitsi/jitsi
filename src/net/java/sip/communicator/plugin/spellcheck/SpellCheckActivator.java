@@ -26,8 +26,6 @@ public class SpellCheckActivator
 {
     static BundleContext bundleContext;
 
-    private SpellChecker checker = null;
-
     private static UIService uiService;
 
     private static FileAccessService faService;
@@ -122,21 +120,17 @@ public class SpellCheckActivator
 
         public void run()
         {
-            if(SpellCheckActivator.this.checker == null)
+            SpellChecker checker = new SpellChecker();
+            try
             {
-                SpellCheckActivator.this.checker = new SpellChecker();
-                try
-                {
-                    SpellCheckActivator.this.checker.start(bundleContext);
-                }
-                catch(Exception ex)
-                {
-                    ex.printStackTrace();
-                }
+                checker.start(bundleContext);
+            }
+            catch(Exception ex)
+            {
+                ex.printStackTrace();
             }
             menuBar = new LanguageMenuBar(checker, parentFactory);
-            menuBar.createSpellCheckerWorker(
-                SpellCheckActivator.this.checker.getLocale()).start();
+            menuBar.createSpellCheckerWorker(checker.getLocale()).start();
         }
     }
 
@@ -203,7 +197,5 @@ public class SpellCheckActivator
      */
     public void stop(BundleContext arg0) throws Exception
     {
-        if(this.checker != null)
-            this.checker.stop();
     }
 }
