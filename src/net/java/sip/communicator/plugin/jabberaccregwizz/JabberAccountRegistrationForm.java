@@ -214,12 +214,8 @@ public class JabberAccountRegistrationForm
     public static String getUserFromUserName(String userName)
     {
         int delimIndex = userName.indexOf("@");
-        if (delimIndex != -1)
-        {
-            return userName.substring(0, delimIndex);
-        }
-
-        return userName;
+        return
+            (delimIndex == -1) ? userName : userName.substring(0, delimIndex);
     }
 
     /**
