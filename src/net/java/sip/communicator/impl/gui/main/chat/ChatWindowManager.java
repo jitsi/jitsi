@@ -1101,8 +1101,8 @@ public class ChatWindowManager
      * <tt>ChatPanel</tt>; <tt>null</tt> to select the default <tt>Contact</tt>
      * of <tt>metaContact</tt> if it is online or one of its <tt>Contact</tt>s
      * which supports offline messaging
-     * @param the <tt>ContactResource</tt>, to be selected in the newly created
-     * <tt>ChatPanel</tt>
+     * @param contactResource the <tt>ContactResource</tt>, to be selected in
+     * the newly created <tt>ChatPanel</tt>
      * @param escapedMessageID the message ID of the message that should be
      * excluded from the history when the last one is loaded in the chat.
      * @return The <code>ChatPanel</code> newly created.
@@ -1298,11 +1298,14 @@ public class ChatWindowManager
      */
     private void fireChatClosed(Chat chat)
     {
+        List <ChatListener> listeners;
         synchronized (chatListeners)
         {
-            for (ChatListener listener : chatListeners)
-                listener.chatClosed(chat);
+            listeners = new ArrayList<ChatListener>(chatListeners);
         }
+
+        for(ChatListener listener : listeners)
+            listener.chatClosed(chat);
     }
 
     /**
@@ -1315,11 +1318,14 @@ public class ChatWindowManager
      */
     private void fireChatCreated(Chat chat)
     {
+        List <ChatListener> listeners;
         synchronized (chatListeners)
         {
-            for (ChatListener listener : chatListeners)
-                listener.chatCreated(chat);
+            listeners = new ArrayList<ChatListener>(chatListeners);
         }
+
+        for(ChatListener listener : listeners)
+            listener.chatCreated(chat);
     }
 
     /**
