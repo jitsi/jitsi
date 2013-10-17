@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.service.gui;
 
+import java.lang.ref.*;
 import java.util.*;
 
 /**
@@ -41,8 +42,8 @@ public abstract class PluginComponentFactory
      * Weak hash map holding plugins if the parent (container) is garbage
      * collected free and the plugin instance that corresponds it.
      */
-    private WeakHashMap<Object,PluginComponent> pluginInstances =
-        new WeakHashMap<Object, PluginComponent>();
+    private WeakHashMap<Object,WeakReference<PluginComponent>> pluginInstances =
+        new WeakHashMap<Object, WeakReference<PluginComponent>>();
 
     /**
      * Creates a default factory for a <tt>container</tt>.
@@ -133,16 +134,17 @@ public abstract class PluginComponentFactory
      *
      * @return the component that should be added.
      */
+    @SuppressWarnings("unchecked")
     public PluginComponent getPluginComponentInstance(Object parent)
     {
-        PluginComponent p = pluginInstances.get(parent);
+        WeakReference<PluginComponent> p = pluginInstances.get(parent);
         if(p == null)
         {
-            p = getPluginInstance();
+            p = new WeakReference(getPluginInstance());
             pluginInstances.put(parent, p);
         }
 
-        return p;
+        return p.get();
     }
 
     /**
