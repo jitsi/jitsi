@@ -350,7 +350,7 @@ public class GeneralConfigPluginActivator
 
         if (serRefs == null || serRefs[0] == null)
         {
-            return null;
+            return new ProtocolProviderService[0];
         }
 
         Set<ProtocolProviderService> pps = new HashSet<ProtocolProviderService>();

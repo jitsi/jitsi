@@ -712,6 +712,10 @@ public class ChatWindow
         {
             ChatPanel chatPanel = getCurrentChat();
 
+            if(chatPanel == null
+                || chatPanel.getChatConversationPanel() == null)
+                return;
+
             ChatRightButtonMenu chatRightMenu
                 = chatPanel.getChatConversationPanel().getRightButtonMenu();
 
