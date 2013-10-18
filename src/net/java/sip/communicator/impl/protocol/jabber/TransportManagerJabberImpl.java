@@ -200,7 +200,7 @@ public abstract class TransportManagerJabberImpl
      * @return the {@link ContentPacketExtension} with the specified name or
      * <tt>null</tt> if no such content element exists.
      */
-    protected static ContentPacketExtension findContentByName(
+    public static ContentPacketExtension findContentByName(
             Iterable<ContentPacketExtension> cpExtList,
             String name)
     {

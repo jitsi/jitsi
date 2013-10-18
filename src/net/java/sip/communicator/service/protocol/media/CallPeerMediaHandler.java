@@ -980,7 +980,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
      * @return the <tt>SrtpControl</tt>s of the <tt>MediaStream</tt>s of this
      * instance
      */
-    protected SrtpControls getSrtpControls()
+    public SrtpControls getSrtpControls()
     {
         return mediaHandler.getSrtpControls(this);
     }

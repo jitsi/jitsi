@@ -174,7 +174,7 @@ public class RawUdpTransportManager
         throws OperationFailedException
     {
         ColibriConferenceIQ.Channel channel
-                                        = getColibriChannel(mediaType, true);
+            = getColibriChannel(mediaType, true /* local */);
 
         if (channel != null)
         {
@@ -182,27 +182,27 @@ public class RawUdpTransportManager
             CallJabberImpl call = peer.getCall();
             StreamConnector streamConnector
                 = call.createColibriStreamConnector(
-                peer,
-                mediaType,
-                channel,
-                new StreamConnectorFactory()
-                {
-                    public StreamConnector createStreamConnector()
-                    {
-                        try
+                        peer,
+                        mediaType,
+                        channel,
+                        new StreamConnectorFactory()
                         {
-                            return
-                                RawUdpTransportManager
-                                    .super
-                                    .createStreamConnector(
-                                        mediaType);
-                        }
-                        catch (OperationFailedException ofe)
-                        {
-                            return null;
-                        }
-                    }
-                });
+                            public StreamConnector createStreamConnector()
+                            {
+                                try
+                                {
+                                    return
+                                        RawUdpTransportManager
+                                            .super
+                                                .createStreamConnector(
+                                                        mediaType);
+                                }
+                                catch (OperationFailedException ofe)
+                                {
+                                    return null;
+                                }
+                            }
+                        });
 
             if (streamConnector != null)
                 return streamConnector;
@@ -228,7 +228,7 @@ public class RawUdpTransportManager
             StreamConnector connector)
     {
         ColibriConferenceIQ.Channel channel
-            = getColibriChannel(mediaType, false);
+            = getColibriChannel(mediaType, false /* remote */);
 
         RawUdpTransportPacketExtension ourTransport
             = new RawUdpTransportPacketExtension();
@@ -314,7 +314,7 @@ public class RawUdpTransportManager
                 if (mediaType.equals(contentMediaType))
                 {
                     ColibriConferenceIQ.Channel channel
-                        = getColibriChannel(mediaType, true);
+                        = getColibriChannel(mediaType, true /* local */);
 
                     if (channel == null)
                     {
@@ -519,8 +519,9 @@ public class RawUdpTransportManager
          */
         if (call.getConference().isJitsiVideoBridge())
         {
-            List<RtpDescriptionPacketExtension> rdpes
-                = new ArrayList<RtpDescriptionPacketExtension>();
+            Map<ContentPacketExtension,ContentPacketExtension> contentMap
+                = new LinkedHashMap
+                    <ContentPacketExtension,ContentPacketExtension>();
 
             for (ContentPacketExtension cpe : cpes)
             {
@@ -537,11 +538,25 @@ public class RawUdpTransportManager
                 if ((colibri == null)
                         || (colibri.getContent(mediaType.toString()) == null))
                 {
-                    if (!rdpes.contains(rdpe))
-                        rdpes.add(rdpe);
+                    ContentPacketExtension local, remote;
+
+                    if (cpes == ourAnswer)
+                    {
+                        local = cpe;
+                        remote
+                            = (theirOffer == null)
+                                ? null
+                                : findContentByName(theirOffer, cpe.getName());
+                    }
+                    else
+                    {
+                        local = findContentByName(ourAnswer, cpe.getName());
+                        remote = cpe;
+                    }
+                    contentMap.put(local, remote);
                 }
             }
-            if (!rdpes.isEmpty())
+            if (!contentMap.isEmpty())
             {
                 /*
                  * We are about to request the channel allocations for the media
@@ -550,11 +565,23 @@ public class RawUdpTransportManager
                  */
                 if (colibri == null)
                     colibri = new ColibriConferenceIQ();
-                for (RtpDescriptionPacketExtension rdpe : rdpes)
+                for (Map.Entry<ContentPacketExtension,ContentPacketExtension> e
+                        : contentMap.entrySet())
+                {
+                    ContentPacketExtension cpe = e.getValue();
+
+                    if (cpe == null)
+                        cpe = e.getKey();
+
+                    RtpDescriptionPacketExtension rdpe
+                        = cpe.getFirstChildOfType(
+                                RtpDescriptionPacketExtension.class);
+
                     colibri.getOrCreateContent(rdpe.getMedia());
+                }
 
                 ColibriConferenceIQ conferenceResult
-                    = call.createColibriChannels(peer, rdpes);
+                    = call.createColibriChannels(peer, contentMap);
 
                 if (conferenceResult != null)
                 {

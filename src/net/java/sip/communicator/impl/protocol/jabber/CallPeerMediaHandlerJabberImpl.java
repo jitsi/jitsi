@@ -226,13 +226,15 @@ public class CallPeerMediaHandlerJabberImpl
         /*
          * Check if we need to announce sending on behalf of other peers
          */
-        if (peer.getCall().isConferenceFocus())
+        CallJabberImpl call = peer.getCall();
+
+        if (call.isConferenceFocus())
         {
-            for (CallPeerJabberImpl anotherPeer
-                    : peer.getCall().getCallPeerList())
+            for (CallPeerJabberImpl anotherPeer : call.getCallPeerList())
             {
-                if (anotherPeer != peer
-                        && anotherPeer.getDirection(mediaType).allowsReceiving())
+                if ((anotherPeer != peer)
+                        && anotherPeer.getDirection(mediaType)
+                                .allowsReceiving())
                 {
                     direction = direction.or(MediaDirection.SENDONLY);
                     break;
@@ -269,12 +271,19 @@ public class CallPeerMediaHandlerJabberImpl
 
             // DTLS-SRTP
             setDtlsEncryptionToContent(mediaType, content, null);
-            //SDES
-            // It is important to set SDES before ZRTP in order to make GTALK
-            // application able to work with SDES.
-            setSDesEncryptionToDescription(mediaType, description, null);
-            //ZRTP
-            setZrtpEncryptionToDescription(mediaType, description, null);
+            /*
+             * Neither SDES nor ZRTP is supported in telephony conferences
+             * utilizing the server-side technology Jitsi Videobridge yet.
+             */
+            if (!call.getConference().isJitsiVideoBridge())
+            {
+                // SDES
+                // It is important to set SDES before ZRTP in order to make
+                // GTALK application able to work with SDES.
+                setSDesEncryptionToDescription(mediaType, description, null);
+                // ZRTP
+                setZrtpEncryptionToDescription(mediaType, description, null);
+            }
 
             return content;
         }
@@ -352,6 +361,8 @@ public class CallPeerMediaHandlerJabberImpl
         // Describe the media.
         List<ContentPacketExtension> mediaDescs
             = new ArrayList<ContentPacketExtension>();
+        boolean jitsiVideoBridge
+            = getPeer().getCall().getConference().isJitsiVideoBridge();
 
         for (MediaType mediaType : MediaType.values())
         {
@@ -394,18 +405,26 @@ public class CallPeerMediaHandlerJabberImpl
 
                     // DTLS-SRTP
                     setDtlsEncryptionToContent(mediaType, content, null);
-                    //SDES
-                    // It is important to set SDES before ZRTP in order to make
-                    // GTALK application able to work with SDES.
-                    setSDesEncryptionToDescription(
-                            mediaType,
-                            description,
-                            null);
-                    //ZRTP
-                    setZrtpEncryptionToDescription(
-                            mediaType,
-                            description,
-                            null);
+                    /*
+                     * Neither SDES nor ZRTP is supported in telephony
+                     * conferences utilizing the server-side technology Jitsi
+                     * Videobridge yet.
+                     */
+                    if (!jitsiVideoBridge)
+                    {
+                        // SDES
+                        // It is important to set SDES before ZRTP in order to
+                        // make GTALK application able to work with SDES.
+                        setSDesEncryptionToDescription(
+                                mediaType,
+                                description,
+                                null);
+                        //ZRTP
+                        setZrtpEncryptionToDescription(
+                                mediaType,
+                                description,
+                                null);
+                    }
 
                     // we request a desktop sharing session so add the inputevt
                     // extension in the "video" content
@@ -1103,7 +1122,7 @@ public class CallPeerMediaHandlerJabberImpl
                         + " ms");
         }
 
-        setDtlsEncryptionToTransports(local);
+        setDtlsEncryptionToTransports(remote, local);
 
         /*
          * TODO Ideally, we wouldn't wrap up that quickly. We need to revisit
@@ -1224,7 +1243,7 @@ public class CallPeerMediaHandlerJabberImpl
             remoteContentMap.put(content.getName(), content);
 
             boolean masterStream = false;
-            // if we have more than one stream, lets the audio be the master
+            // if we have more than one stream, let the audio be the master
             if(!masterStreamSet)
             {
                 RtpDescriptionPacketExtension description
@@ -1418,8 +1437,19 @@ public class CallPeerMediaHandlerJabberImpl
                     logger);
         }
 
-        addZrtpAdvertisedEncryptions(true, description, mediaType);
-        addSDesAdvertisedEncryptions(true, description, mediaType);
+        CallJabberImpl call = getPeer().getCall();
+        CallConference conference
+            = (call == null) ? null : call.getConference();
+
+        /*
+         * Neither SDES nor ZRTP is supported in telephony conferences utilizing
+         * the server-side technology Jitsi Videobridge yet.
+         */
+        if ((conference == null) || !conference.isJitsiVideoBridge())
+        {
+            addZrtpAdvertisedEncryptions(true, description, mediaType);
+            addSDesAdvertisedEncryptions(true, description, mediaType);
+        }
         addDtlsAdvertisedEncryptions(true, content, mediaType);
 
         StreamConnector connector
@@ -1428,11 +1458,11 @@ public class CallPeerMediaHandlerJabberImpl
         //determine the direction that we need to announce.
         MediaDirection remoteDirection
             = JingleUtils.getDirection(content, getPeer().isInitiator());
-        /* If we are the focus of a conference, we need to take into account
-         * the other participants.
+        /*
+         * If we are the focus of a conference, we need to take into account the
+         * other participants.
          */
-        CallJabberImpl call = getPeer().getCall();
-        if ((call != null) && call.getConference().isConferenceFocus())
+        if ((conference != null) && conference.isConferenceFocus())
         {
             for (CallPeerJabberImpl peer : call.getCallPeerList())
             {
@@ -1890,33 +1920,34 @@ public class CallPeerMediaHandlerJabberImpl
         for (MediaType mediaType : MediaType.values())
         {
             MediaStream stream = getStream(mediaType);
+
             if (stream == null)
                 continue;
 
             if (getPeer().isJitsiVideoBridge())
             {
                 /*
-                 * If we are the focus of a videobridge conference, we
-                 * need to ask the videobridge to change the stream
-                 * direction on behalf of us.
+                 * If we are the focus of a videobridge conference, we need to
+                 * ask the videobridge to change the stream direction on our
+                 * behalf.
                  */
                 ColibriConferenceIQ.Channel channel
-                        = getColibriChannel(mediaType);
+                    = getColibriChannel(mediaType);
+                MediaDirection direction;
+
                 if(remotelyOnHold)
                 {
-                    getPeer().getCall().setChannelDirection(
-                            channel.getID(),
-                            mediaType,
-                            MediaDirection.INACTIVE);
+                    direction =  MediaDirection.INACTIVE;
                 }
                 else
                 {
-                    //TODO: does SENDRECV always make sense?
-                    getPeer().getCall().setChannelDirection(
-                            channel.getID(),
-                            mediaType,
-                            MediaDirection.SENDRECV);
+                    // TODO Does SENDRECV always make sense?
+                    direction =  MediaDirection.SENDRECV;
                 }
+                getPeer().getCall().setChannelDirection(
+                        channel.getID(),
+                        mediaType,
+                        direction);
             }
             else //no videobridge
             {
@@ -1927,9 +1958,11 @@ public class CallPeerMediaHandlerJabberImpl
                      * on-hold music from being played to all the participants.
                      */
                     MediaDirection newDirection
-                            = getPeer().getCall().isConferenceFocus()
+                        = getPeer().getCall().isConferenceFocus()
                             ? MediaDirection.INACTIVE
-                            : stream.getDirection().and(MediaDirection.RECVONLY);
+                            : stream.getDirection().and(
+                                    MediaDirection.RECVONLY);
+
                     stream.setDirection(newDirection);
                 }
                 else
@@ -2194,8 +2227,41 @@ public class CallPeerMediaHandlerJabberImpl
             ContentPacketExtension content,
             MediaType mediaType)
     {
-        IceUdpTransportPacketExtension remoteTransport
-            = content.getFirstChildOfType(IceUdpTransportPacketExtension.class);
+        if (getPeer().isJitsiVideoBridge())
+        {
+            // TODO Auto-generated method stub
+            return false;
+        }
+        else
+        {
+            IceUdpTransportPacketExtension remoteTransport
+                = content.getFirstChildOfType(
+                        IceUdpTransportPacketExtension.class);
+
+            return
+                addDtlsAdvertisedEncryptions(
+                        isInitiator,
+                        remoteTransport,
+                        mediaType);
+        }
+    }
+
+    /**
+     * Detects and adds DTLS-SRTP available encryption method present in the
+     * transport (description) given in parameter.
+     *
+     * @param isInitiator <tt>true</tt> if the local call instance is the
+     * initiator of the call; <tt>false</tt>, otherwise.
+     * @param remoteTransport the TRANSPORT element
+     * @param mediaType The type of media (AUDIO or VIDEO).
+     * @param <tt>true</tt> if DTLS-SRTP has been selected by the local peer as
+     * the secure transport; otherwise, <tt>false</tt>
+     */
+    boolean addDtlsAdvertisedEncryptions(
+            boolean isInitiator,
+            IceUdpTransportPacketExtension remoteTransport,
+            MediaType mediaType)
+    {
         SrtpControls srtpControls = getSrtpControls();
         boolean b = false;
 
@@ -2372,11 +2438,22 @@ public class CallPeerMediaHandlerJabberImpl
             ContentPacketExtension remoteContent)
     {
         CallPeerJabberImpl peer = getPeer();
+        boolean b = false;
+
+        if (peer.isJitsiVideoBridge())
+        {
+            b
+                = setDtlsEncryptionToTransport(
+                        mediaType,
+                        localContent,
+                        remoteContent);
+            return b;
+        }
+
         ProtocolProviderServiceJabberImpl protocolProvider
             = peer.getProtocolProvider();
         AccountID accountID = protocolProvider.getAccountID();
         SrtpControls srtpControls = getSrtpControls();
-        boolean b = false;
 
         if (accountID.getAccountPropertyBoolean(
                     ProtocolProviderFactory.DEFAULT_ENCRYPTION,
@@ -2420,7 +2497,10 @@ public class CallPeerMediaHandlerJabberImpl
                     dtlsControl.setDtlsProtocol(dtlsProtocol);
                     b = true;
 
-                    setDtlsEncryptionToTransport(mediaType, localContent);
+                    setDtlsEncryptionToTransport(
+                            mediaType,
+                            localContent,
+                            remoteContent);
                 }
             }
         }
@@ -2451,47 +2531,132 @@ public class CallPeerMediaHandlerJabberImpl
      * @param localContent The element containing the media CONTENT and its
      * TRANSPORT.
      */
-    private void setDtlsEncryptionToTransport(
+    private boolean setDtlsEncryptionToTransport(
             MediaType mediaType,
-            ContentPacketExtension localContent)
+            ContentPacketExtension localContent,
+            ContentPacketExtension remoteContent)
     {
-        SrtpControls srtpControls = getSrtpControls();
-        DtlsControl dtlsControl
-            = (DtlsControl)
-                srtpControls.get(
-                        mediaType,
-                        SrtpControlType.DTLS_SRTP);
+        IceUdpTransportPacketExtension localTransport
+            = localContent.getFirstChildOfType(
+                    IceUdpTransportPacketExtension.class);
+        boolean b = false;
 
-        if (dtlsControl != null)
+        if (localTransport == null)
+            return b;
+
+        CallPeerJabberImpl peer = getPeer();
+
+        if (peer.isJitsiVideoBridge())
         {
-            IceUdpTransportPacketExtension localTransport
-                = localContent.getFirstChildOfType(
-                        IceUdpTransportPacketExtension.class);
+            ProtocolProviderServiceJabberImpl protocolProvider
+                = peer.getProtocolProvider();
+            AccountID accountID = protocolProvider.getAccountID();
 
-            if (localTransport != null)
+            if (accountID.getAccountPropertyBoolean(
+                        ProtocolProviderFactory.DEFAULT_ENCRYPTION,
+                        true)
+                    && accountID.isEncryptionProtocolEnabled(
+                            DtlsControl.PROTO_NAME))
             {
-                String localFingerprint = dtlsControl.getLocalFingerprint();
-                String localFingerprintHashFunction
-                    = dtlsControl.getLocalFingerprintHashFunction();
+                // Gather the local fingerprints to be sent to the remote peer.
+                ColibriConferenceIQ.Channel channel
+                    = getColibriChannel(mediaType);
+                List<DtlsFingerprintPacketExtension> localFingerprints = null;
 
+                if (channel != null)
                 {
-                    DtlsFingerprintPacketExtension localFingerprintPE
-                        = localTransport.getFirstChildOfType(
-                                DtlsFingerprintPacketExtension.class);
+                    IceUdpTransportPacketExtension transport
+                        = channel.getTransport();
 
-                    if (localFingerprintPE == null)
+                    if (transport != null)
                     {
-                        localFingerprintPE
-                            = new DtlsFingerprintPacketExtension();
-                        localTransport.addChildExtension(
-                                localFingerprintPE);
+                        localFingerprints
+                            = transport.getChildExtensionsOfType(
+                                    DtlsFingerprintPacketExtension.class);
                     }
-                    localFingerprintPE.setFingerprint(localFingerprint);
-                    localFingerprintPE.setHash(
-                            localFingerprintHashFunction);
+                }
+
+                /*
+                 * Determine whether the local fingerprints are to be sent to
+                 * the remote peer.
+                 */
+                if ((localFingerprints != null) && !localFingerprints.isEmpty())
+                {
+                    if (remoteContent == null) // initiator
+                    {
+                        if (!protocolProvider.isFeatureSupported(
+                                peer.getAddress(),
+                                ProtocolProviderServiceJabberImpl
+                                    .URN_XMPP_JINGLE_DTLS_SRTP))
+                        {
+                            localFingerprints = null;
+                        }
+                    }
+                    else // responder
+                    {
+                        IceUdpTransportPacketExtension transport
+                            = remoteContent.getFirstChildOfType(
+                                    IceUdpTransportPacketExtension.class);
+
+                        if (transport == null)
+                        {
+                            localFingerprints = null;
+                        }
+                        else
+                        {
+                            List<DtlsFingerprintPacketExtension>
+                                remoteFingerprints
+                                    = transport.getChildExtensionsOfType(
+                                            DtlsFingerprintPacketExtension
+                                                .class);
+
+                            if (remoteFingerprints.isEmpty())
+                                localFingerprints = null;
+                        }
+                    }
+                    // Send the local fingerprints to the remote peer.
+                    if (localFingerprints != null)
+                    {
+                        List<DtlsFingerprintPacketExtension> fingerprintPEs
+                            = localTransport.getChildExtensionsOfType(
+                                    DtlsFingerprintPacketExtension.class);
+
+                        if (fingerprintPEs.isEmpty())
+                        {
+                            for (DtlsFingerprintPacketExtension localFingerprint
+                                    : localFingerprints)
+                            {
+                                DtlsFingerprintPacketExtension fingerprintPE
+                                    = new DtlsFingerprintPacketExtension();
+
+                                fingerprintPE.setFingerprint(
+                                        localFingerprint.getFingerprint());
+                                fingerprintPE.setHash(
+                                        localFingerprint.getHash());
+                                localTransport.addChildExtension(fingerprintPE);
+                            }
+                        }
+                        b = true;
+                    }
                 }
             }
         }
+        else
+        {
+            SrtpControls srtpControls = getSrtpControls();
+            DtlsControl dtlsControl
+                = (DtlsControl)
+                    srtpControls.get(mediaType, SrtpControlType.DTLS_SRTP);
+
+            if (dtlsControl != null)
+            {
+                CallJabberImpl.setDtlsEncryptionToTransport(
+                        dtlsControl,
+                        localTransport);
+                b = true;
+            }
+        }
+        return b;
     }
 
     /**
@@ -2502,6 +2667,7 @@ public class CallPeerMediaHandlerJabberImpl
      * and their respective TRANSPORT elements.
      */
     private void setDtlsEncryptionToTransports(
+            List<ContentPacketExtension> remoteContents,
             List<ContentPacketExtension> localContents)
     {
         for (ContentPacketExtension localContent : localContents)
@@ -2514,7 +2680,19 @@ public class CallPeerMediaHandlerJabberImpl
                 MediaType mediaType = JingleUtils.getMediaType(localContent);
 
                 if (mediaType != null)
-                    setDtlsEncryptionToTransport(mediaType, localContent);
+                {
+                    ContentPacketExtension remoteContent
+                        = (remoteContents == null)
+                            ? null
+                            : TransportManagerJabberImpl.findContentByName(
+                                    remoteContents,
+                                    localContent.getName());
+
+                    setDtlsEncryptionToTransport(
+                            mediaType,
+                            localContent,
+                            remoteContent);
+                }
             }
         }
     }

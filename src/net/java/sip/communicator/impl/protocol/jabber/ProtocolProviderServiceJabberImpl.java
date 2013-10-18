@@ -2779,6 +2779,13 @@ public class ProtocolProviderServiceJabberImpl
             }
             catch (XMPPException xmppe)
             {
+                if (logger.isDebugEnabled())
+                {
+                    logger.debug(
+                            "Failed to discover the items associated with"
+                                + " Jabber entity: " + serviceName,
+                            xmppe);
+                }
             }
             if (discoverItems != null)
             {
@@ -2797,6 +2804,10 @@ public class ProtocolProviderServiceJabberImpl
                     }
                     catch (XMPPException xmppe)
                     {
+                        logger.warn(
+                                "Failed to discover information about Jabber"
+                                    + " entity: " + entityID,
+                                xmppe);
                     }
                     if ((discoverInfo != null)
                             && discoverInfo.containsFeature(
