@@ -15,6 +15,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 
 /**
+ *
  * @author Yana Stamcheva
  * @author Valentin Martinet
  */
@@ -22,14 +23,9 @@ public class ChatOperationReasonDialog extends MessageDialog
 {
     private static final long serialVersionUID = 3290030744711759011L;
 
-    private final JLabel reasonLabel = new JLabel(
-        GuiActivator.getResources()
-            .getI18NString("service.gui.REASON") + ":");
-    
-    
-    private JPanel reasonFieldPanel = new JPanel(new BorderLayout());
-
     private final JTextField reasonField = new JTextField();
+
+    private final JPanel reasonFieldPanel = new JPanel(new BorderLayout());
 
     /**
      * Creates an instance of <tt>ChatOperationReasonDialog</tt> using the
@@ -104,7 +100,6 @@ public class ChatOperationReasonDialog extends MessageDialog
             GuiActivator.getResources().getI18NString("service.gui.OK"),
             showReasonLabel,
             disableOKIfReasonIsEmpty);
-        
     }
 
     /**
@@ -130,6 +125,7 @@ public class ChatOperationReasonDialog extends MessageDialog
     /**
      * Creates an instance of <tt>ChatOperationReasonDialog</tt> by specifying
      * the parent window, the title and the message to show.
+     *
      * @param chatWindow the parent window
      * @param title the title of this dialog
      * @param message the message shown in this dialog
@@ -145,17 +141,17 @@ public class ChatOperationReasonDialog extends MessageDialog
         super(chatWindow, title, message, okButtonName, false);
 
         JPanel reasonPanel = new JPanel(new BorderLayout());
+        JLabel reasonLabel
+            = new JLabel(
+                    showReasonLabel
+                        ? (GuiActivator.getResources().getI18NString(
+                                "service.gui.REASON")
+                            + ":")
+                        : "");
 
-        if(showReasonLabel)
-        {
-            reasonPanel.add(reasonLabel, BorderLayout.WEST);
-        }
-        else
-            reasonPanel.add(new JLabel(""), BorderLayout.WEST);
-
+        reasonPanel.add(reasonLabel, BorderLayout.WEST);
         reasonPanel.add(new JLabel("          "), BorderLayout.EAST);
 
-        
         reasonFieldPanel.add(reasonField, BorderLayout.NORTH);
         reasonFieldPanel.setOpaque(false);
         reasonPanel.add(reasonFieldPanel, BorderLayout.CENTER);
@@ -167,29 +163,24 @@ public class ChatOperationReasonDialog extends MessageDialog
         if(disableOKIfReasonIsEmpty)
         {
             updateOKButtonState();
-            this.reasonField.getDocument().addDocumentListener(new DocumentListener()
-            {
-                
-                @Override
-                public void removeUpdate(DocumentEvent arg0)
-                {
-                    updateOKButtonState();                
-                }
-                
-                @Override
-                public void insertUpdate(DocumentEvent arg0)
-                {
-                    updateOKButtonState();
-                }
-                
-                @Override
-                public void changedUpdate(DocumentEvent arg0)
-                {
-                    updateOKButtonState();
-                }
-                
-               
-            });
+            reasonField.getDocument().addDocumentListener(
+                    new DocumentListener()
+                    {
+                        public void removeUpdate(DocumentEvent ev)
+                        {
+                            updateOKButtonState();                
+                        }
+
+                        public void insertUpdate(DocumentEvent ev)
+                        {
+                            updateOKButtonState();
+                        }
+
+                        public void changedUpdate(DocumentEvent ev)
+                        {
+                            updateOKButtonState();
+                        }
+                    });
         }
         this.pack();
     }

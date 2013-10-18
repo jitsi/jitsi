@@ -5,6 +5,7 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
+import java.beans.*;
 import java.util.*;
 import java.util.regex.*;
 
@@ -246,11 +247,11 @@ public class UriHandlerJabberImpl
     }
 
     /**
-     * Returns the protocol that this handler is responsible for or "xmpp" in
-     * other words.
+     * Returns the protocol that this handler is responsible for or
+     * &quot;xmpp&quot; in other words.
      *
-     * @return the "xmpp" string to indicate that this handler is responsible for
-     *         handling "xmpp" uris.
+     * @return the &quot;xmpp&quot; string to indicate that this handler is
+     * responsible for handling &quot;xmpp&quot; uris.
      */
     public String getProtocol()
     {
@@ -327,11 +328,12 @@ public class UriHandlerJabberImpl
             if(contact == null)
             {
                 Object result =
-                    JabberActivator.getUIService().getPopupDialog().
-                        showConfirmPopupDialog(
-                            "Do you want to add the contact : " + contactId + " ?",
-                            "Add contact",
-                            PopupDialog.YES_NO_OPTION);
+                    JabberActivator.getUIService().getPopupDialog()
+                            .showConfirmPopupDialog(
+                                    "Do you want to add the contact : "
+                                        + contactId + " ?",
+                                    "Add contact",
+                                    PopupDialog.YES_NO_OPTION);
 
                 if(result.equals(PopupDialog.YES_OPTION))
                 {
@@ -373,7 +375,8 @@ public class UriHandlerJabberImpl
                 {
                     // if we are not online we get this error
                     // will wait for it and then will try to handle once again
-                    if(exc.getErrorCode() == OperationFailedException.NETWORK_FAILURE
+                    if((exc.getErrorCode()
+                                == OperationFailedException.NETWORK_FAILURE)
                             && !networkFailReceived)
                     {
                         networkFailReceived = true;
@@ -388,7 +391,9 @@ public class UriHandlerJabberImpl
                 }
                 catch (OperationNotSupportedException exc)
                 {
-                    showErrorMessage("Join to " + croom + ", not supported!", exc);
+                    showErrorMessage(
+                            "Join to " + croom + ", not supported!",
+                            exc);
                 }
             }
             else
@@ -511,7 +516,7 @@ public class UriHandlerJabberImpl
 
         /**
          * Starts the registration process, ads this class as a registration
-         * listener and then tries to rehandle the uri this thread was initiaded
+         * listener and then tries to rehandle the uri this thread was initiated
          * with.
          */
         @Override
@@ -622,12 +627,15 @@ public class UriHandlerJabberImpl
             providers.add(new ProviderComboBoxEntry(provider));
         }
 
-        Object result =
-            JabberActivator.getUIService().getPopupDialog().showInputPopupDialog(
-                "Please select the account that you would like \n"
-                    + "to use to chat with " + uri, "Account Selection",
-                PopupDialog.OK_CANCEL_OPTION, providers.toArray(),
-                providers.get(0));
+        Object result
+            = JabberActivator.getUIService().getPopupDialog()
+                    .showInputPopupDialog(
+                            "Please select the account that you would like \n"
+                                + "to use to chat with " + uri,
+                            "Account Selection",
+                            PopupDialog.OK_CANCEL_OPTION,
+                            providers.toArray(),
+                            providers.get(0));
 
         if (result == null)
         {
@@ -665,31 +673,31 @@ public class UriHandlerJabberImpl
     }
 
     /**
-     * Waiting for the provider to bcome online and then handle the uri.
+     * Waiting for the provider to become online and then handle the uri.
      */
     private class ProviderStatusListener
         implements ProviderPresenceStatusListener
     {
-        private String uri;
-        private OperationSetPresence parentOpSet;
+        private final String uri;
+        private final OperationSetPresence parentOpSet;
 
-        public ProviderStatusListener(String uri, OperationSetPresence parentOpSet)
+        public ProviderStatusListener(
+                String uri,
+                OperationSetPresence parentOpSet)
         {
             this.uri = uri;
             this.parentOpSet = parentOpSet;
         }
 
-        public void providerStatusChanged(ProviderPresenceStatusChangeEvent evt)
+        public void providerStatusChanged(ProviderPresenceStatusChangeEvent ev)
         {
-            if(evt.getNewStatus().isOnline())
+            if(ev.getNewStatus().isOnline())
             {
                 parentOpSet.removeProviderPresenceStatusListener(this);
                 handleUri(uri);
             }
         }
 
-        public void providerStatusMessageChanged(java.beans.PropertyChangeEvent evt)
-        {
-        }
+        public void providerStatusMessageChanged(PropertyChangeEvent ev) {}
     }
 }
