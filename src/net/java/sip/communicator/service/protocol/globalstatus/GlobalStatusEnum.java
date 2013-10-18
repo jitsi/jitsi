@@ -47,7 +47,7 @@ public class GlobalStatusEnum
      */
     public static final GlobalStatusEnum ONLINE
         = new GlobalStatusEnum(
-                85,
+                65,
                 ONLINE_STATUS,
                 loadIcon("service.gui.statusicons.USER_ONLINE_ICON"),
                 "service.gui.ONLINE");
@@ -58,7 +58,7 @@ public class GlobalStatusEnum
      */
     public static final GlobalStatusEnum FREE_FOR_CHAT
         = new GlobalStatusEnum(
-                65,
+                85,
                 FREE_FOR_CHAT_STATUS,
                 loadIcon("service.gui.statusicons.USER_FFC_ICON"),
                 "service.gui.FFC_STATUS");
