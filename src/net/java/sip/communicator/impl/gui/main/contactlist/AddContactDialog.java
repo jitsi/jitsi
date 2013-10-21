@@ -265,6 +265,8 @@ public class AddContactDialog
 
         // All items are now instantiated and could safely load the skin.
         loadSkin();
+
+        this.initialized = true;
     }
 
     /**
