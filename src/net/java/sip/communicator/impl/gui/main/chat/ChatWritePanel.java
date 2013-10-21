@@ -64,7 +64,7 @@ public class ChatWritePanel
 
     private int typingState = OperationSetTypingNotifications.STATE_STOPPED;
 
-    private final WritePanelRightButtonMenu rightButtonMenu;
+    private WritePanelRightButtonMenu rightButtonMenu;
 
     private final ArrayList<ChatMenuListener> menuListeners
         = new ArrayList<ChatMenuListener>();
@@ -386,6 +386,15 @@ public class ChatWritePanel
             outdatedResourceTimer.cancel();
             outdatedResourceTimer.purge();
             outdatedResourceTimer = null;
+        }
+
+        editorPane.removeKeyListener(this);
+        menuListeners.clear();
+
+        if(rightButtonMenu != null)
+        {
+            rightButtonMenu.dispose();
+            rightButtonMenu = null;
         }
 
         scrollPane.dispose();

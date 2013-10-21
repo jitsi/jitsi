@@ -139,4 +139,14 @@ public class ChatRightButtonMenu
         closeMenuItem.setIcon(new ImageIcon(
                 ImageLoader.getImage(ImageLoader.CLOSE_ICON)));
     }
+
+    /**
+     * Clear resources.
+     */
+    public void dispose()
+    {
+        this.chatConvPanel = null;
+        copyMenuItem = null;
+        closeMenuItem = null;
+    }
 }

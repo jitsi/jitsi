@@ -384,6 +384,17 @@ public class ChatPanel
         writeMessagePanel.dispose();
         chatSession.dispose();
         conversationPanel.dispose();
+
+        if (chatSession instanceof ConferenceChatSession)
+        {
+            ConferenceChatSession confSession
+                            = (ConferenceChatSession) chatSession;
+
+            confSession.removeLocalUserRoleListener(this);
+            confSession.removeMemberRoleListener(this);
+            ((ChatRoomWrapper) chatSession.getDescriptor())
+                .getChatRoom().removeMemberPropertyChangeListener(this);
+        }
     }
 
     /**

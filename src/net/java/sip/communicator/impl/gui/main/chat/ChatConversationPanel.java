@@ -114,7 +114,7 @@ public class ChatConversationPanel
     /**
      * The menu shown on right button mouse click.
      */
-    private final ChatRightButtonMenu rightButtonMenu;
+    private ChatRightButtonMenu rightButtonMenu;
 
     /**
      * The currently shown href.
@@ -161,7 +161,7 @@ public class ChatConversationPanel
 
     private boolean isSimpleTheme = true;
 
-    private final ShowPreviewDialog showPreview
+    private ShowPreviewDialog showPreview
         = new ShowPreviewDialog(ChatConversationPanel.this);
 
     /**
@@ -1946,7 +1946,16 @@ public class ChatConversationPanel
         super.dispose();
 
         if(showPreview != null)
+        {
             showPreview.dispose();
+            showPreview = null;
+        }
+
+        if(rightButtonMenu != null)
+        {
+            rightButtonMenu.dispose();
+            rightButtonMenu = null;
+        }
 
         clear();
     }

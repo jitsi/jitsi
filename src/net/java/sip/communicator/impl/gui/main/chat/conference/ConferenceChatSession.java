@@ -624,4 +624,24 @@ public class ConferenceChatSession
     {
         chatRoomWrapper.getChatRoom().addLocalUserRoleListener(l);
     }
+
+    /**
+     * Removes the given <tt>ChatRoomMemberRoleListener</tt> from the contained
+     * chat room role listeners.
+     * @param l the listener to remove
+     */
+    public void removeMemberRoleListener(ChatRoomMemberRoleListener l)
+    {
+        chatRoomWrapper.getChatRoom().removeMemberRoleListener(l);
+    }
+
+    /**
+     * Removes the given <tt>ChatRoomLocalUserRoleListener</tt> from the
+     * contained chat room role listeners.
+     * @param l the listener to remove
+     */
+    public void removeLocalUserRoleListener(ChatRoomLocalUserRoleListener l)
+    {
+        chatRoomWrapper.getChatRoom().removelocalUserRoleListener(l);
+    }
 }
