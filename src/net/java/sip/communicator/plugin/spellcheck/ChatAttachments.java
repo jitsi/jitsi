@@ -121,8 +121,7 @@ class ChatAttachments
                     }
                     catch (BadLocationException e)
                     {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
+                        logger.error("Error", e);
                     }
                 }
 

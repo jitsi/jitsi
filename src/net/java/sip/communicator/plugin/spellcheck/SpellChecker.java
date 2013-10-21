@@ -5,7 +5,9 @@
  */
 package net.java.sip.communicator.plugin.spellcheck;
 
+import java.beans.*;
 import java.io.*;
+import java.lang.ref.*;
 import java.net.*;
 import java.util.*;
 
@@ -68,6 +70,15 @@ class SpellChecker
         new ArrayList<ChatAttachments>();
 
     private boolean enabled = true;
+
+    static final String LOCALE_CHANGED_PROP = "LocaleChanged";
+
+    /**
+     * Listeners waiting for spell checker locale update.
+     */
+    private final List<WeakReference<PropertyChangeListener>>
+            propertyListeners
+                = new ArrayList<WeakReference<PropertyChangeListener>>();
 
     /**
      * Associates spell checking capabilities with all chats. This doesn't do
@@ -358,6 +369,9 @@ class SpellChecker
     {
         synchronized (this.locale)
         {
+            if(this.locale.equals(locale))
+                return;
+
             String path = locale.getDictUrl().getFile();
 
             int filenameStart = path.lastIndexOf('/') + 1;
@@ -382,6 +396,7 @@ class SpellChecker
 
                 this.dict = dict;
                 this.dictLocation = dictLocation;
+                Parameters.Locale oldLocale = this.locale;
                 this.locale = locale;
 
                 // saves locale choice to configuration properties
@@ -391,6 +406,9 @@ class SpellChecker
                 // updates chats
                 for (ChatAttachments chat : this.attachedChats)
                     chat.setDictionary(this.dict);
+
+                firePropertyChangedEvent(
+                    LOCALE_CHANGED_PROP, oldLocale, this.locale);
             }
         }
     }
@@ -505,6 +523,92 @@ class SpellChecker
         {
             logger.error("Dictionary validation failed", exc);
             return false;
+        }
+    }
+
+    /**
+     * Adds a PropertyChangeListener to the listener list.
+     * <p>
+     * @param listener the PropertyChangeListener to be added
+     */
+    public void addPropertyChangeListener(PropertyChangeListener listener)
+    {
+        synchronized (propertyListeners)
+        {
+            Iterator<WeakReference<PropertyChangeListener>> i
+                = propertyListeners.iterator();
+            boolean contains = false;
+
+            while (i.hasNext())
+            {
+                PropertyChangeListener l = i.next().get();
+
+                if (l == null)
+                    i.remove();
+                else if (l.equals(listener))
+                    contains = true;
+            }
+            if (!contains)
+                propertyListeners.add(
+                        new WeakReference<PropertyChangeListener>(listener));
+        }
+    }
+
+    /**
+     * Removes a PropertyChangeListener from the listener list.
+     * <p>
+     * @param listener the PropertyChangeListener to be removed
+     */
+    public void removePropertyChangeListener(PropertyChangeListener listener)
+    {
+        synchronized (propertyListeners)
+        {
+            Iterator<WeakReference<PropertyChangeListener>> i
+                = propertyListeners.iterator();
+
+            while (i.hasNext())
+            {
+                PropertyChangeListener l = i.next().get();
+
+                if ((l == null) || l.equals(listener))
+                    i.remove();
+            }
+        }
+    }
+
+    /**
+     * Fires event.
+     * @param property
+     * @param oldValue
+     * @param newValue
+     */
+    private void firePropertyChangedEvent(String property,
+                                          Object oldValue,
+                                          Object newValue)
+    {
+        PropertyChangeEvent evt = new PropertyChangeEvent(
+            this, property, oldValue, newValue);
+
+        if (logger.isDebugEnabled())
+            logger.debug("Will dispatch the following plugin component event: "
+            + evt);
+
+        synchronized (propertyListeners)
+        {
+            Iterator<WeakReference<PropertyChangeListener>> i
+                = propertyListeners.iterator();
+
+            while (i.hasNext())
+            {
+                PropertyChangeListener l = i.next().get();
+
+                if (l == null)
+                    i.remove();
+                else
+                {
+                    l.propertyChange(evt);
+                }
+            }
         }
     }
 }

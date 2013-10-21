@@ -8,6 +8,7 @@ package net.java.sip.communicator.plugin.spellcheck;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
+import java.beans.*;
 import java.io.*;
 import java.util.*;
 import java.util.List;
@@ -35,7 +36,8 @@ import net.java.sip.communicator.util.*;
  */
 public class LanguageMenuBar
     extends SIPCommMenuBar
-    implements PluginComponent
+    implements PluginComponent,
+               PropertyChangeListener
 {
     /**
      * Serial version UID.
@@ -80,6 +82,7 @@ public class LanguageMenuBar
     LanguageMenuBar(SpellChecker checker, PluginComponentFactory parentFactory)
     {
         this.spellChecker = checker;
+        this.spellChecker.addPropertyChangeListener(this);
         this.parentFactory = parentFactory;
 
         setPreferredSize(new Dimension(30, 28));
@@ -236,7 +239,7 @@ public class LanguageMenuBar
                         Resources
                             .getString("plugin.spellcheck.DICT_ERROR_DELETE_TITLE"),
                         PopupDialog.WARNING_MESSAGE);
-                    ex.printStackTrace();
+                    logger.error("Error removing dict", ex);
                 }
             }
         });
@@ -365,7 +368,26 @@ public class LanguageMenuBar
 
     }
 
-    private class SelectorMenu
+    /**
+     * When locale changed update the selected dict.
+     * @param evt
+     */
+    @Override
+    public void propertyChange(PropertyChangeEvent evt)
+    {
+        if(!evt.getPropertyName().equals(SpellChecker.LOCALE_CHANGED_PROP))
+            return;
+
+        Locale currentLocale = spellChecker.getLocale();
+        ImageIcon flagIcon =
+            getLocaleIcon(currentLocale,
+                localeAvailabilityCache.get(currentLocale));
+        SelectedObject selectedObject =
+            new SelectedObject(flagIcon, currentLocale);
+        menu.setSelected(selectedObject);
+    }
+
+    private static class SelectorMenu
         extends SIPCommMenu
     {
         /**

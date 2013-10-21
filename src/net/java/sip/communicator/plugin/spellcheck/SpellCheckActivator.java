@@ -24,6 +24,12 @@ import javax.swing.*;
 public class SpellCheckActivator
     extends AbstractServiceDependentActivator
 {
+    /**
+     * Our Logger.
+     */
+    private static final Logger logger = Logger
+            .getLogger(SpellCheckActivator.class);
+
     static BundleContext bundleContext;
 
     private static UIService uiService;
@@ -31,6 +37,8 @@ public class SpellCheckActivator
     private static FileAccessService faService;
 
     private static ConfigurationService configService;
+
+    private static SpellChecker checker = null;
 
     /**
      * Called when this bundle is started.
@@ -73,7 +81,7 @@ public class SpellCheckActivator
                     }
                     catch(Throwable t)
                     {
-                        t.printStackTrace();
+                        logger.error("Error creating LanguageMenuBar", t);
                     }
 
                     return null;
@@ -120,14 +128,21 @@ public class SpellCheckActivator
 
         public void run()
         {
-            SpellChecker checker = new SpellChecker();
+            synchronized(SpellCheckActivator.this)
+            {
+                if(checker == null)
+                {
+                    checker = new SpellChecker();
+                }
+            }
+
             try
             {
                 checker.start(bundleContext);
             }
             catch(Exception ex)
             {
-                ex.printStackTrace();
+                logger.error("Error starting SpellChecker", ex);
             }
             menuBar = new LanguageMenuBar(checker, parentFactory);
             menuBar.createSpellCheckerWorker(checker.getLocale()).start();
