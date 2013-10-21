@@ -131,6 +131,26 @@ public class ScOtrKeyManagerImpl
         }
     }
 
+    public byte[] getLocalFingerprintRaw(AccountID account)
+    {
+        KeyPair keyPair = loadKeyPair(account);
+
+        if (keyPair == null)
+            return null;
+
+        PublicKey pubKey = keyPair.getPublic();
+
+        try
+        {
+            return new OtrCryptoEngineImpl().getFingerprintRaw(pubKey);
+        }
+        catch (OtrCryptoException e)
+        {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     public void savePublicKey(Contact contact, PublicKey pubKey)
     {
         if (contact == null)

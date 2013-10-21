@@ -6,13 +6,20 @@
  */
 package net.java.sip.communicator.plugin.otr;
 
+import java.awt.*;
+import java.awt.event.*;
 import java.net.*;
 import java.security.*;
 import java.util.*;
+import java.util.List;
+import java.util.concurrent.*;
+
+import javax.swing.*;
+import javax.swing.plaf.basic.*;
 
 import net.java.otr4j.*;
 import net.java.otr4j.session.*;
-
+import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
@@ -36,7 +43,7 @@ public class ScOtrEngineImpl
     class ScOtrEngineHost
         implements OtrEngineHost
     {
-        public KeyPair getKeyPair(SessionID sessionID)
+        public KeyPair getLocalKeyPair(SessionID sessionID)
         {
             AccountID accountID =
                 OtrActivator.getAccountIDByUID(sessionID.getAccountID());
@@ -83,10 +90,241 @@ public class ScOtrEngineImpl
                 Chat.SYSTEM_MESSAGE, warn,
                 OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE);
         }
+
+        @Override
+        public void unreadableMessageReceived(SessionID sessionID)
+            throws OtrException
+        {
+            Contact contact = getContact(sessionID);
+            if (contact == null)
+                return;
+
+            String error =
+                OtrActivator.resourceService.getI18NString(
+                    "plugin.otr.activator.unreadablemsgreceived",
+                    new String[] {contact.getDisplayName()});
+            OtrActivator.uiService.getChat(contact).addMessage(
+                contact.getDisplayName(), new Date(),
+                Chat.ERROR_MESSAGE, error,
+                OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE);
+        }
+
+        @Override
+        public void unencryptedMessageReceived(SessionID sessionID, String msg)
+            throws OtrException
+        {
+            Contact contact = getContact(sessionID);
+            if (contact == null)
+                return;
+
+            String warn =
+                OtrActivator.resourceService.getI18NString(
+                    "plugin.otr.activator.unencryptedmsgreceived");
+            OtrActivator.uiService.getChat(contact).addMessage(
+                contact.getDisplayName(), new Date(),
+                Chat.SYSTEM_MESSAGE, warn,
+                OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE);
+        }
+
+        @Override
+        public void smpError(SessionID sessionID, int tlvType, boolean cheated)
+            throws OtrException
+        {
+            Contact contact = getContact(sessionID);
+            if (contact == null)
+                return;
+
+            logger.debug("SMP error occurred"
+                        + ". Contact: " + contact.getDisplayName()
+                        + ". TLV type: " + tlvType
+                        + ". Cheated: " + cheated);
+
+            String error =
+                OtrActivator.resourceService.getI18NString(
+                    "plugin.otr.activator.smperror");
+            OtrActivator.uiService.getChat(contact).addMessage(
+                contact.getDisplayName(), new Date(),
+                Chat.ERROR_MESSAGE, error,
+                OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE);
+
+            SmpProgressDialog progressDialog = progressDialogMap.get(contact);
+            if (progressDialog == null)
+            {
+                progressDialog = new SmpProgressDialog(contact);
+                progressDialogMap.put(contact, progressDialog);
+            }
+
+            progressDialog.setProgressFail();
+            progressDialog.setVisible(true);
+        }
+
+        @Override
+        public void smpAborted(SessionID sessionID) throws OtrException
+        {
+            Contact contact = getContact(sessionID);
+            if (contact == null)
+                return;
+
+            Session session = otrEngine.getSession(sessionID);
+            if (session.isSmpInProgress())
+            {
+                String warn =
+                    OtrActivator.resourceService.getI18NString(
+                        "plugin.otr.activator.smpaborted",
+                        new String[] {contact.getDisplayName()});
+                OtrActivator.uiService.getChat(contact).addMessage(
+                    contact.getDisplayName(), new Date(),
+                    Chat.SYSTEM_MESSAGE, warn,
+                    OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE);
+    
+                SmpProgressDialog progressDialog = progressDialogMap.get(contact);
+                if (progressDialog == null)
+                {
+                    progressDialog = new SmpProgressDialog(contact);
+                    progressDialogMap.put(contact, progressDialog);
+                }
+    
+                progressDialog.setProgressFail();
+                progressDialog.setVisible(true);
+            }
+        }
+
+        @Override
+        public void finishedSessionMessage(SessionID sessionID)
+            throws OtrException
+        {
+            Contact contact = getContact(sessionID);
+            if (contact == null)
+                return;
+
+            String error =
+                OtrActivator.resourceService.getI18NString(
+                    "plugin.otr.activator.sessionfinishederror",
+                    new String[] {contact.getDisplayName()});
+            OtrActivator.uiService.getChat(contact).addMessage(
+                contact.getDisplayName(), new Date(),
+                Chat.ERROR_MESSAGE, error,
+                OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE);
+        }
+
+        @Override
+        public void requireEncryptedMessage(SessionID sessionID, String msgText)
+            throws OtrException
+        {
+            Contact contact = getContact(sessionID);
+            if (contact == null)
+                return;
+
+            String error =
+                OtrActivator.resourceService.getI18NString(
+                    "plugin.otr.activator.requireencryption",
+                    new String[] {contact.getDisplayName()});
+            OtrActivator.uiService.getChat(contact).addMessage(
+                contact.getDisplayName(), new Date(),
+                Chat.ERROR_MESSAGE, error,
+                OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE);
+        }
+
+        @Override
+        public byte[] getLocalFingerprintRaw(SessionID sessionID)
+        {
+            AccountID accountID =
+                OtrActivator.getAccountIDByUID(sessionID.getAccountID());
+            return
+                OtrActivator.scOtrKeyManager.getLocalFingerprintRaw(accountID);
+        }
+
+        @Override
+        public void askForSecret(SessionID sessionID, String question)
+        {
+            Contact contact = getContact(sessionID);
+            if (contact == null)
+                return;
+
+            SmpAuthenticateBuddyDialog dialog =
+                new SmpAuthenticateBuddyDialog(contact, question);
+            dialog.setVisible(true);
+
+            SmpProgressDialog progressDialog = progressDialogMap.get(contact);
+            if (progressDialog == null)
+            {
+                progressDialog = new SmpProgressDialog(contact);
+                progressDialogMap.put(contact, progressDialog);
+            }
+            
+            progressDialog.init();
+            progressDialog.setVisible(true);
+        }
+
+        @Override
+        public void verify(SessionID sessionID, boolean approved)
+        {
+            Contact contact = getContact(sessionID);
+            if (contact == null)
+                return;
+
+            OtrActivator.scOtrKeyManager.verify(contact);
+
+            SmpProgressDialog progressDialog = progressDialogMap.get(contact);
+            if (progressDialog == null)
+            {
+                progressDialog = new SmpProgressDialog(contact);
+                progressDialogMap.put(contact, progressDialog);
+            }
+            
+            progressDialog.setProgressSuccess();
+            progressDialog.setVisible(true);
+        }
+
+        @Override
+        public void unverify(SessionID sessionID)
+        {
+            Contact contact = getContact(sessionID);
+            if (contact == null)
+                return;
+
+            OtrActivator.scOtrKeyManager.unverify(contact);
+            
+            SmpProgressDialog progressDialog = progressDialogMap.get(contact);
+            if (progressDialog == null)
+            {
+                progressDialog = new SmpProgressDialog(contact);
+                progressDialogMap.put(contact, progressDialog);
+            }
+
+            progressDialog.setProgressFail();
+            progressDialog.setVisible(true);
+        }
+
+        @Override
+        public String getReplyForUnreadableMessage(SessionID sessionID)
+        {
+            AccountID accountID =
+                OtrActivator.getAccountIDByUID(sessionID.getAccountID());
+
+            return OtrActivator.resourceService.getI18NString(
+                "plugin.otr.activator.unreadablemsgreply",
+                new String[] {accountID.getDisplayName(),
+                              accountID.getDisplayName()});
+        }
+
+        @Override
+        public String getFallbackMessage(SessionID sessionID)
+        {
+            AccountID accountID =
+                OtrActivator.getAccountIDByUID(sessionID.getAccountID());
+
+            return OtrActivator.resourceService.getI18NString(
+                "plugin.otr.activator.fallbackmessage",
+                new String[] {accountID.getDisplayName()});
+        }
     }
 
     private static final Map<ScSessionID, Contact> contactsMap =
         new Hashtable<ScSessionID, Contact>();
+
+    private static final Map<Contact, SmpProgressDialog> progressDialogMap =
+        new ConcurrentHashMap<Contact, SmpProgressDialog>();
 
     public static Contact getContact(SessionID sessionID)
     {
@@ -145,11 +383,14 @@ public class ScOtrEngineImpl
      */
     private final Logger logger = Logger.getLogger(ScOtrEngineImpl.class);
 
-    private final OtrEngine otrEngine
-        = new OtrEngineImpl(new ScOtrEngineHost());
+    final OtrEngineHost otrEngineHost = new ScOtrEngineHost();
+
+    private final OtrEngine otrEngine;
 
     public ScOtrEngineImpl()
     {
+        otrEngine = new OtrEngineImpl(otrEngineHost);
+
         // Clears the map after previous instance
         // This is required because of OSGi restarts in the same VM on Android
         contactsMap.clear();
@@ -449,6 +690,9 @@ public class ScOtrEngineImpl
                 logger.debug(
                         "Unregistering a ProtocolProviderService, cleaning"
                             + " OTR's ScSessionID to Contact map.");
+                logger.debug(
+                        "Unregistering a ProtocolProviderService, cleaning"
+                            + " OTR's Contact to SpmProgressDialog map.");
             }
 
             ProtocolProviderService provider
@@ -463,6 +707,14 @@ public class ScOtrEngineImpl
                     if (provider.equals(i.next().getProtocolProvider()))
                         i.remove();
                 }
+            }
+
+            Iterator<Contact> i = progressDialogMap.keySet().iterator();
+
+            while (i.hasNext())
+            {
+                if (provider.equals(i.next().getProtocolProvider()))
+                    i.remove();
             }
         }
     }
@@ -543,6 +795,400 @@ public class ScOtrEngineImpl
             logger.error("Error transforming the message", e);
             showError(sessionID, e.getMessage());
             return null;
+        }
+    }
+
+    private Session getSession(Contact contact)
+    {
+        SessionID sessionID = getSessionID(contact);
+        return otrEngine.getSession(sessionID);
+    }
+
+    @Override
+    public void initSmp(Contact contact, String question, String secret)
+    {
+        Session session = getSession(contact);
+        try
+        {
+            session.initSmp(question, secret);
+
+            SmpProgressDialog progressDialog = progressDialogMap.get(contact);
+            if (progressDialog == null)
+            {
+                progressDialog = new SmpProgressDialog(contact);
+                progressDialogMap.put(contact, progressDialog);
+            }
+
+            progressDialog.init();
+            progressDialog.setVisible(true);
+        }
+        catch (OtrException e)
+        {
+            logger.error("Error initializing SMP session with contact "
+                         + contact.getDisplayName(), e);
+            showError(session.getSessionID(), e.getMessage());
+        }
+    }
+
+    @Override
+    public void respondSmp(Contact contact, String question, String secret)
+    {
+        Session session = getSession(contact);
+        try
+        {
+            session.respondSmp(question, secret);
+
+            SmpProgressDialog progressDialog = progressDialogMap.get(contact);
+            if (progressDialog == null)
+            {
+                progressDialog = new SmpProgressDialog(contact);
+                progressDialogMap.put(contact, progressDialog);
+            }
+
+            progressDialog.incrementProgress();
+            progressDialog.setVisible(true);
+        }
+        catch (OtrException e)
+        {
+            logger.error(
+                "Error occured when sending SMP response to contact "
+                + contact.getDisplayName(), e);
+            showError(session.getSessionID(), e.getMessage());
+        }
+    }
+
+    @Override
+    public void abortSmp(Contact contact)
+    {
+        Session session = getSession(contact);
+        try
+        {
+            session.abortSmp();
+
+            SmpProgressDialog progressDialog = progressDialogMap.get(contact);
+            if (progressDialog == null)
+            {
+                progressDialog = new SmpProgressDialog(contact);
+                progressDialogMap.put(contact, progressDialog);
+            }
+
+            progressDialog.dispose();
+        }
+        catch (OtrException e)
+        {
+            logger.error("Error aborting SMP session with contact "
+                         + contact.getDisplayName(), e);
+            showError(session.getSessionID(), e.getMessage());
+        }
+        
+    }
+
+    /**
+     * The dialog that pops up when SMP negotiation starts.
+     * It contains a progress bar that indicates the status of the SMP
+     * authentication process.
+     */
+    @SuppressWarnings("serial")
+    private class SmpProgressDialog
+        extends SIPCommDialog
+    {
+        private final JProgressBar progressBar = new JProgressBar(0, 100);
+
+        private final Color successColor = new Color(86, 140, 2);
+
+        private final Color failColor = new Color(204, 0, 0);
+
+        private final JLabel iconLabel = new JLabel();
+
+        /**
+         * Instantiates SmpProgressDialog.
+         * 
+         * @param contact The contact that this dialog is associated with.
+         */
+        public SmpProgressDialog(Contact contact)
+        {
+            setTitle(
+                OtrActivator.resourceService.getI18NString(
+                    "plugin.otr.smpprogressdialog.TITLE"));
+
+            JPanel mainPanel = new TransparentPanel();
+            mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+            mainPanel.setBorder(
+                BorderFactory.createEmptyBorder(10, 10, 10, 10));
+            mainPanel.setPreferredSize(new Dimension(300, 70));
+
+            String authFromText =
+                String.format(
+                    OtrActivator.resourceService
+                        .getI18NString(
+                            "plugin.otr.authbuddydialog.AUTHENTICATION_FROM",
+                            new String[] {contact.getDisplayName()}));
+
+            JPanel labelsPanel = new TransparentPanel();
+            labelsPanel.setLayout(new BoxLayout(labelsPanel, BoxLayout.X_AXIS));
+
+            labelsPanel.add(iconLabel);
+            labelsPanel.add(Box.createRigidArea(new Dimension(5,0)));
+            labelsPanel.add(new JLabel(authFromText));
+
+            mainPanel.add(labelsPanel);
+            mainPanel.add(progressBar);
+
+            init();
+
+            this.getContentPane().add(mainPanel);
+            this.pack();
+        }
+
+        /**
+         * Initializes the progress bar and sets it's progression to 1/3.
+         */
+        public void init()
+        {
+            progressBar.setUI(new BasicProgressBarUI() {
+                private Rectangle r = new Rectangle();
+
+                @Override
+                protected void paintIndeterminate(Graphics g, JComponent c) {
+                    Graphics2D g2d = (Graphics2D) g;
+                    g2d.setRenderingHint(
+                        RenderingHints.KEY_ANTIALIASING,
+                        RenderingHints.VALUE_ANTIALIAS_ON);
+                    r = getBox(r);
+                    g.setColor(progressBar.getForeground());
+                    g.fillOval(r.x, r.y, r.width, r.height);
+                }
+            });
+            progressBar.setValue(33);
+            progressBar.setForeground(successColor);
+            progressBar.setStringPainted(false);
+            iconLabel.setIcon(
+                OtrActivator.resourceService.getImage(
+                    "plugin.otr.ENCRYPTED_UNVERIFIED_ICON_22x22"));
+        }
+
+        /**
+         * Sets the progress bar to 2/3 of completion.
+         */
+        public void incrementProgress()
+        {
+            progressBar.setValue(66);
+        }
+
+        /**
+         * Sets the progress bar to green.
+         */
+        public void setProgressSuccess()
+        {
+            progressBar.setValue(100);
+            progressBar.setForeground(successColor);
+            progressBar.setStringPainted(true);
+            progressBar.setString(
+                OtrActivator.resourceService
+                    .getI18NString(
+                        "plugin.otr.smpprogressdialog.AUTHENTICATION_SUCCESS"));
+            iconLabel.setIcon(
+                OtrActivator.resourceService.getImage(
+                    "plugin.otr.ENCRYPTED_ICON_22x22"));
+        }
+
+        /**
+         * Sets the progress bar to red.
+         */
+        public void setProgressFail()
+        {
+            progressBar.setValue(100);
+            progressBar.setForeground(failColor);
+            progressBar.setStringPainted(true);
+            progressBar.setString(
+                OtrActivator.resourceService
+                    .getI18NString(
+                        "plugin.otr.smpprogressdialog.AUTHENTICATION_FAIL"));
+        }
+    }
+
+    /**
+     * The dialog that pops up when the remote party send us SMP
+     * request. It contains detailed information for the user about
+     * the authentication process and allows him to authenticate.
+     *
+     */
+    @SuppressWarnings("serial")
+    private class SmpAuthenticateBuddyDialog
+        extends SIPCommDialog
+    {
+        private final Contact contact;
+
+        private final String question;
+
+        SmpAuthenticateBuddyDialog(Contact contact, String question)
+        {
+            this.contact = contact;
+            this.question = question;
+            initComponents();
+        }
+
+        private void initComponents()
+        {
+            this.setTitle(
+                OtrActivator.resourceService
+                    .getI18NString(
+                        "plugin.otr.authbuddydialog.TITLE"));
+
+            // The main panel that contains all components.
+            JPanel mainPanel = new TransparentPanel();
+            mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+            mainPanel.setBorder(
+                BorderFactory.createEmptyBorder(10, 10, 10, 10));
+            mainPanel.setPreferredSize(new Dimension(300, 350));
+
+            // Add "authentication from contact" to the main panel.
+            JTextArea authenticationFrom = new CustomTextArea();
+            Font newFont =
+                new Font(
+                    UIManager.getDefaults().getFont("TextArea.font").
+                        getFontName()
+                    , Font.BOLD
+                    , 14);
+            authenticationFrom.setFont(newFont);
+            String authFromText =
+                String.format(
+                    OtrActivator.resourceService
+                        .getI18NString(
+                            "plugin.otr.authbuddydialog.AUTHENTICATION_FROM",
+                            new String[] {contact.getDisplayName()}));
+            authenticationFrom.setText(authFromText);
+            mainPanel.add(authenticationFrom);
+
+            // Add "general info" text to the main panel.
+            JTextArea generalInfo = new CustomTextArea();
+            generalInfo.setText(OtrActivator.resourceService
+                .getI18NString(
+                    "plugin.otr.authbuddydialog.AUTHENTICATION_INFO"));
+            mainPanel.add(generalInfo);
+
+            // Add "authentication-by-secret" info text to the main panel.
+            JTextArea authBySecretInfo = new CustomTextArea();
+            newFont =
+                new Font(
+                    UIManager.getDefaults().getFont("TextArea.font").
+                        getFontName()
+                    , Font.ITALIC
+                    , 10);
+            authBySecretInfo.setText(OtrActivator.resourceService
+                .getI18NString(
+                    "plugin.otr.authbuddydialog.AUTH_BY_SECRET_INFO_RESPOND"));
+            authBySecretInfo.setFont(newFont);
+            mainPanel.add(authBySecretInfo);
+
+            // Create a panel to add question/answer related components
+            JPanel questionAnswerPanel = new JPanel(new GridBagLayout());
+            questionAnswerPanel.setBorder(BorderFactory.createEtchedBorder());
+
+            GridBagConstraints c = new GridBagConstraints();
+            c.gridx = 0;
+            c.gridy = 0;
+            c.fill = GridBagConstraints.HORIZONTAL;
+            c.insets = new Insets(5, 5, 0, 5);
+            c.weightx = 0;
+
+            // Add question label.
+            JLabel questionLabel =
+                new JLabel(
+                    OtrActivator.resourceService
+                        .getI18NString(
+                            "plugin.otr.authbuddydialog.QUESTION_RESPOND"));
+            questionAnswerPanel.add(questionLabel, c);
+
+            // Add the question.
+            c.insets = new Insets(0, 5, 5, 5);
+            c.gridy = 1;
+            JTextArea questionArea = 
+                new CustomTextArea();
+            newFont =
+                new Font(
+                    UIManager.getDefaults().getFont("TextArea.font").
+                        getFontName()
+                    , Font.BOLD
+                    , UIManager.getDefaults().getFont("TextArea.font")
+                        .getSize());
+            questionArea.setFont(newFont);
+            questionArea.setText(question);
+            questionAnswerPanel.add(questionArea, c);
+
+            // Add answer label.
+            c.insets = new Insets(5, 5, 5, 5);
+            c.gridy = 2;
+            JLabel answerLabel =
+                new JLabel(OtrActivator.resourceService
+                    .getI18NString("plugin.otr.authbuddydialog.ANSWER"));
+            questionAnswerPanel.add(answerLabel, c);
+
+            // Add the answer text field.
+            c.gridy = 3;
+            final JTextField answerTextBox = new JTextField();
+            questionAnswerPanel.add(answerTextBox, c);
+
+            // Add the question/answer panel to the main panel.
+            mainPanel.add(questionAnswerPanel);
+
+            // Buttons panel.
+            JPanel buttonPanel = new TransparentPanel(new GridBagLayout());
+            buttonPanel.setBorder(BorderFactory.createEmptyBorder(0, 5, 5, 5));
+
+            JButton helpButton =
+                new JButton(OtrActivator.resourceService
+                    .getI18NString("plugin.otr.authbuddydialog.HELP"));
+            helpButton.addActionListener(new ActionListener()
+            {
+                public void actionPerformed(ActionEvent arg0)
+                {
+                    OtrActivator.scOtrEngine.launchHelp();
+                }
+            });
+
+            c.gridwidth = 1;
+            c.gridy = 0;
+            c.gridx = 0;
+            c.weightx = 0;
+            c.insets = new Insets(5, 5, 5, 20);
+            buttonPanel.add(helpButton, c);
+
+            JButton cancelButton =
+                new JButton(OtrActivator.resourceService
+                    .getI18NString("plugin.otr.authbuddydialog.CANCEL"));
+            cancelButton.addActionListener(new ActionListener()
+            {
+                public void actionPerformed(ActionEvent e)
+                {
+                    ScOtrEngineImpl.this.abortSmp(contact);
+                    SmpAuthenticateBuddyDialog.this.dispose();
+                }
+            });
+            c.insets = new Insets(5, 5, 5, 5);
+            c.gridx = 1;
+            buttonPanel.add(cancelButton, c);
+
+            c.gridx = 2;
+            JButton authenticateButton =
+                new JButton(OtrActivator.resourceService
+                    .getI18NString(
+                        "plugin.otr.authbuddydialog.AUTHENTICATE_BUDDY"));
+            authenticateButton.addActionListener(new ActionListener()
+            {
+                public void actionPerformed(ActionEvent e)
+                {
+                    ScOtrEngineImpl.this.respondSmp(
+                        contact, question, answerTextBox.getText());
+                    SmpAuthenticateBuddyDialog.this.dispose();
+                }
+            });
+
+            buttonPanel.add(authenticateButton, c);
+
+            this.getContentPane().add(mainPanel, BorderLayout.NORTH);
+            this.getContentPane().add(buttonPanel, BorderLayout.SOUTH);
+            this.pack();
         }
     }
 }

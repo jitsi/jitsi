@@ -21,6 +21,38 @@ public interface ScOtrEngine
     // Proxy methods OtrEngine.
 
     /**
+     * Initializes Smp negotiation.
+     * See {@link http://en.wikipedia.org/wiki/Socialist_Millionaire_Problem}
+     * 
+     * @param contact The contact with whom we want to start the Smp negotiation
+     * @param question The question that is asked during the Smp negotiation
+     * @param secret The secret answer for the question.
+     */
+    public abstract void initSmp(
+        Contact contact, String question, String secret);
+
+    /**
+     * Responds to a question that is asked during the Smp negotiation process.
+     * See {@link http://en.wikipedia.org/wiki/Socialist_Millionaire_Problem}
+     * 
+     * @param contact The contact for whom we want to respond to a question
+     * during the Smp negotiation process.
+     * @param question The question that is asked during the Smp negotiation.
+     * @param secret The secret answer for the question.
+     */
+    public abstract void respondSmp(
+        Contact contact, String question, String secret);
+
+    /**
+     * Aborts the Smp negotiation process.
+     * See {@link http://en.wikipedia.org/wiki/Socialist_Millionaire_Problem}
+     * 
+     * @param contact The contact with whom we want to abort the
+     * Smp negotiation process.
+     */
+    public abstract void abortSmp(Contact contact);
+
+    /**
      * Transforms an outgoing message.
      *
      * @param contact the destination {@link Contact}.
