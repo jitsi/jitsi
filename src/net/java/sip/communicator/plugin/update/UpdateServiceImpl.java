@@ -444,6 +444,31 @@ public class UpdateServiceImpl
 
                     latestVersion = props.getProperty("last_version");
                     downloadLink = props.getProperty("download_link");
+                    /*
+                     * Make sure that download_link points to the architecture
+                     * of the running application.
+                     */
+                    if (downloadLink != null)
+                    {
+                        if (OSUtils.IS_LINUX32)
+                        {
+                            downloadLink
+                                = downloadLink.replace("amd64", "i386");
+                        }
+                        else if (OSUtils.IS_LINUX64)
+                        {
+                            downloadLink
+                                = downloadLink.replace("i386", "amd64");
+                        }
+                        else if (OSUtils.IS_WINDOWS32)
+                        {
+                            downloadLink = downloadLink.replace("x64", "x86");
+                        }
+                        else if (OSUtils.IS_WINDOWS64)
+                        {
+                            downloadLink = downloadLink.replace("x86", "x64");
+                        }
+                    }
 
                     changesLink
                         = updateLink.substring(
@@ -634,10 +659,6 @@ public class UpdateServiceImpl
             {
                 public void actionPerformed(ActionEvent e)
                 {
-                    if(OSUtils.IS_LINUX64)
-                        downloadLink
-                            = downloadLink.replace("i386", "amd64");
-
                     UpdateActivator.getBrowserLauncher().openURL(downloadLink);
 
                     /*
@@ -697,20 +718,20 @@ public class UpdateServiceImpl
          * once depending on its modality.
          */
         final boolean[] exitCheckForUpdates = new boolean[] { false };
-        final JDialog dialog = new SIPCommDialog()
-        {
-            private static final long serialVersionUID = 0L;
-
-            @Override
-            protected void close(boolean escaped)
+        @SuppressWarnings("serial")
+        final JDialog dialog
+            = new SIPCommDialog()
             {
-                synchronized (exitCheckForUpdates)
+                @Override
+                protected void close(boolean escaped)
                 {
-                    if (exitCheckForUpdates[0])
-                        exitCheckForUpdates(this);
+                    synchronized (exitCheckForUpdates)
+                    {
+                        if (exitCheckForUpdates[0])
+                            exitCheckForUpdates(this);
+                    }
                 }
-            }
-        };
+            };
         ResourceManagementService r = Resources.getResources();
 
         dialog.setTitle(r.getI18NString("plugin.updatechecker.DIALOG_TITLE"));
@@ -772,15 +793,16 @@ public class UpdateServiceImpl
                     r.getI18NString(
                             "plugin.updatechecker.BUTTON_CLOSE"));
 
-        closeButton.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                dialog.dispose();
-                if (exitCheckForUpdates[0])
-                    exitCheckForUpdates(dialog);
-            }
-        });
+        closeButton.addActionListener(
+                new ActionListener()
+                {
+                    public void actionPerformed(ActionEvent e)
+                    {
+                        dialog.dispose();
+                        if (exitCheckForUpdates[0])
+                            exitCheckForUpdates(dialog);
+                    }
+                });
 
         if(downloadLink != null)
         {
@@ -788,53 +810,51 @@ public class UpdateServiceImpl
                 = new JButton(
                         r.getI18NString("plugin.updatechecker.BUTTON_INSTALL"));
 
-            installButton.addActionListener(new ActionListener()
-            {
-                public void actionPerformed(ActionEvent e)
-                {
-                    if(OSUtils.IS_WINDOWS64)
-                        downloadLink = downloadLink.replace("x86", "x64");
-
-                    enterCheckForUpdates(null);
-                    try
+            installButton.addActionListener(
+                    new ActionListener()
                     {
-                        /*
-                         * Do the same as the Close button in order to not
-                         * duplicate the code.
-                         */
-                        closeButton.doClick();
-                    }
-                    finally
-                    {
-                        boolean windowsUpdateThreadHasStarted = false;
-
-                        try
+                        public void actionPerformed(ActionEvent e)
                         {
-                            new Thread()
+                            enterCheckForUpdates(null);
+                            try
                             {
-                                @Override
-                                public void run()
+                                /*
+                                 * Do the same as the Close button in order to
+                                 * not duplicate the code.
+                                 */
+                                closeButton.doClick();
+                            }
+                            finally
+                            {
+                                boolean windowsUpdateThreadHasStarted = false;
+
+                                try
                                 {
-                                    try
+                                    new Thread()
                                     {
-                                        windowsUpdate();
-                                    }
-                                    finally
-                                    {
-                                        exitCheckForUpdates(null);
-                                    }
+                                        @Override
+                                        public void run()
+                                        {
+                                            try
+                                            {
+                                                windowsUpdate();
+                                            }
+                                            finally
+                                            {
+                                                exitCheckForUpdates(null);
+                                            }
+                                        }
+                                    }.start();
+                                    windowsUpdateThreadHasStarted = true;
                                 }
-                            }.start();
-                            windowsUpdateThreadHasStarted = true;
+                                finally
+                                {
+                                    if (!windowsUpdateThreadHasStarted)
+                                        exitCheckForUpdates(null);
+                                }
+                            }
                         }
-                        finally
-                        {
-                            if (!windowsUpdateThreadHasStarted)
-                                exitCheckForUpdates(null);
-                        }
-                    }
-                }
-            });
+                    });
 
             buttonPanel.add(installButton);
         }
@@ -1108,6 +1128,8 @@ public class UpdateServiceImpl
             };
 
         checkForUpdatesThread.setDaemon(true);
+        checkForUpdatesThread.setName(
+                getClass().getName() + ".checkForUpdates");
 
         enterCheckForUpdates(null);
         try
