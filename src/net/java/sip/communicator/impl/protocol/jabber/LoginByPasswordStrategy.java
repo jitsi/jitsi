@@ -42,6 +42,20 @@ public class LoginByPasswordStrategy
             ".jabber.DISABLE_CUSTOM_DIGEST_MD5";
 
     /**
+     * SASLAuthentication currently supports only global mechanisms setting
+     * so per account property is not of much use, but will keep it for
+     * compatibility with old versions.
+     * We try to modify it only once or some concurrent modification exceptions
+     * can occur.
+     */
+    private static boolean saslMechanismsInitialized = false;
+
+    /**
+     * Used to lock the modifying mechanisms and any login that can occur.
+     */
+    private static Object modifySASLMechanisms = new Object();
+
+    /**
      * Create a login strategy that logs in using user credentials (username
      * and password)
      * @param protocolProvider  protocol provider service to fire registration
@@ -94,26 +108,41 @@ public class LoginByPasswordStrategy
             String resource)
             throws XMPPException
     {
-        SASLAuthentication.supportSASLMechanism("PLAIN", 0);
-
-        // Insert our sasl mechanism implementation
-        // in order to support some incompatible servers
-        boolean disableCustomDigestMD5
-            = accountID.getAccountPropertyBoolean(
-            DISABLE_CUSTOM_DIGEST_MD5_ACCOUNT_PROP,
-            false)
-            || JabberActivator.getConfigurationService().getBoolean(
-                DISABLE_CUSTOM_DIGEST_MD5_CONFIG_PROP, false);
-
-        if(!disableCustomDigestMD5)
+        synchronized(modifySASLMechanisms)
         {
-            SASLAuthentication.unregisterSASLMechanism("DIGEST-MD5");
-            SASLAuthentication.registerSASLMechanism("DIGEST-MD5",
-                SASLDigestMD5Mechanism.class);
-            SASLAuthentication.supportSASLMechanism("DIGEST-MD5");
+            boolean disableCustomDigestMD5PerAccount
+                        = accountID.getAccountPropertyBoolean(
+                        DISABLE_CUSTOM_DIGEST_MD5_ACCOUNT_PROP,
+                        false);
+
+            if(!saslMechanismsInitialized || disableCustomDigestMD5PerAccount)
+            {
+                SASLAuthentication.supportSASLMechanism("PLAIN", 0);
+
+                // Insert our sasl mechanism implementation
+                // in order to support some incompatible servers
+                boolean disableCustomDigestMD5
+                    = disableCustomDigestMD5PerAccount
+                    || JabberActivator.getConfigurationService().getBoolean(
+                        DISABLE_CUSTOM_DIGEST_MD5_CONFIG_PROP, false);
+
+                if(!disableCustomDigestMD5)
+                {
+                    SASLAuthentication.unregisterSASLMechanism("DIGEST-MD5");
+                    SASLAuthentication.registerSASLMechanism("DIGEST-MD5",
+                        SASLDigestMD5Mechanism.class);
+                    SASLAuthentication.supportSASLMechanism("DIGEST-MD5");
+                }
+
+                saslMechanismsInitialized = true;
+            }
         }
 
-        connection.login(userName, password, resource);
+        synchronized(modifySASLMechanisms)
+        {
+            connection.login(userName, password, resource);
+        }
+
         return true;
     }
 
