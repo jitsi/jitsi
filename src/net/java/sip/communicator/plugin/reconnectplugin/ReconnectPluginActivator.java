@@ -174,6 +174,17 @@ public class ReconnectPluginActivator
             "ATLEAST_ONE_SUCCESSFUL_CONNECTION";
 
     /**
+     * Timer used to filter out too frequent "network down" notifications
+     * on Android.
+     */
+    private Timer delayedNetworkDown;
+
+    /**
+     * Delay used for filtering out "network down" notifications.
+     */
+    private static final long NETWORK_DOWN_THRESHOLD = 30 * 1000;
+
+    /**
      * Starts this bundle.
      *
      * @param bundleContext the <tt>BundleContext</tt> in which this bundle is
@@ -453,6 +464,8 @@ public class ReconnectPluginActivator
             // no connection so one is up, lets connect
             if(connectedInterfaces.isEmpty())
             {
+                onNetworkUp();
+
                 Iterator<ProtocolProviderService> iter =
                     needsReconnection.iterator();
                 while (iter.hasNext())
@@ -532,10 +545,7 @@ public class ReconnectPluginActivator
 
                 connectedInterfaces.clear();
 
-                if (logger.isTraceEnabled())
-                    logger.trace("Network is down!");
-                notify("", "plugin.reconnectplugin.NETWORK_DOWN",
-                       new String[0], this);
+                onNetworkDown();
             }
         }
 
@@ -977,5 +987,59 @@ public class ReconnectPluginActivator
            ATLEAST_ONE_CONNECTION_PROP + "."
             + pp.getAccountID().getAccountUniqueID(),
            Boolean.valueOf(value).toString());
+    }
+
+    /**
+     * Called when first connected interface is added to
+     * {@link #connectedInterfaces} list.
+     */
+    private void onNetworkUp()
+    {
+        if(delayedNetworkDown != null)
+        {
+            delayedNetworkDown.cancel();
+            delayedNetworkDown = null;
+        }
+    }
+
+    /**
+     * Called when first there are no more connected interface present in
+     * {@link #connectedInterfaces} list.
+     */
+    private void onNetworkDown()
+    {
+        if(!org.jitsi.util.OSUtils.IS_ANDROID)
+        {
+            notifyNetworkDown();
+        }
+        else
+        {
+            // Android never keeps two active connection at the same time
+            // and it may take some time to attach next connection
+            // even if it was already enabled by user
+            if(delayedNetworkDown == null)
+            {
+                delayedNetworkDown = new Timer();
+                delayedNetworkDown.schedule(new TimerTask()
+                {
+                    @Override
+                    public void run()
+                    {
+                        notifyNetworkDown();
+                    }
+                }, NETWORK_DOWN_THRESHOLD);
+            }
+        }
+    }
+
+    /**
+     * Posts "network is down" notification.
+     */
+    private void notifyNetworkDown()
+    {
+        if (logger.isTraceEnabled())
+            logger.trace("Network is down!");
+        notify("", "plugin.reconnectplugin.NETWORK_DOWN",
+               new String[0], this);
     }
 }

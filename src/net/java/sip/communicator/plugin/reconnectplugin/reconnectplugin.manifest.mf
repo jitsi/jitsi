@@ -13,5 +13,6 @@ Import-Package: org.osgi.framework,
  net.java.sip.communicator.service.protocol,
  net.java.sip.communicator.service.protocol.event,
  org.jitsi.service.resources, net.java.sip.communicator.service.resources,
+ org.jitsi.util,
  net.java.sip.communicator.util,
  net.java.sip.communicator.plugin.desktoputil
