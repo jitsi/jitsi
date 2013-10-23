@@ -1106,7 +1106,7 @@ public class ChatWritePanel
             // Schedules the timer.
             if(chatTransport.getResourceName() != null)
             {
-                OutdatedResourceTimerTask task 
+                OutdatedResourceTimerTask task
                     = new OutdatedResourceTimerTask();
                 outdatedResourceTimer = new java.util.Timer();
                 outdatedResourceTimer.schedule(task, timeout);
@@ -1115,7 +1115,13 @@ public class ChatWritePanel
 
         // Sets the new resource transport is really effective (i.e. we have
         // received a message from this resource).
-        if(transportSelectorBox != null && isMessageOrFileTransferReceived)
+        // if we do not have any selected resource, or the currently selected
+        // if offline
+        if(transportSelectorBox != null
+            && (isMessageOrFileTransferReceived
+                || (!transportSelectorBox.hasSelectedTransport()
+                    || !chatPanel.getChatSession().getCurrentChatTransport()
+                            .getStatus().isOnline())))
         {
             transportSelectorBox.setSelected(chatTransport);
         }
@@ -1493,7 +1499,9 @@ public class ChatWritePanel
 
                     // We found the bare ID, then set it as the current resource
                     // transport.
-                    if(transport.getResourceName() == null)
+                    // choose only online resources
+                    if(transport.getResourceName() == null
+                        && transport.getStatus().isOnline())
                     {
                         isOutdatedResource = false;
                         setSelectedChatTransport(transport, true);

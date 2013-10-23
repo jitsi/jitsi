@@ -761,6 +761,8 @@ public class MetaContactChatSession
         }
 
         contact.removeResourceListener(this);
+
+        currentChatTransport = null;
     }
 
     /**

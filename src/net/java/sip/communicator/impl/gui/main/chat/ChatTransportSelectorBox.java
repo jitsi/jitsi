@@ -356,6 +356,21 @@ public class ChatTransportSelectorBox
     }
 
     /**
+     * Do we have a selected transport.
+     * @return do we have a selected transport.
+     */
+    boolean hasSelectedTransport()
+    {
+        for(JCheckBoxMenuItem item : transportMenuItems.values())
+        {
+            if(item.isSelected())
+                return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Returns the protocol menu.
      *
      * @return the protocol menu
