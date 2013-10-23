@@ -90,11 +90,12 @@ public class ConferenceChatSession
     @Override
     public void dispose()
     {
+        ChatRoom chatRoom = chatRoomWrapper.getChatRoom();
+        chatRoom.removeMemberPresenceListener(this);
+        chatRoom.removePropertyChangeListener(this);
+
         if(ConfigurationUtils.isLeaveChatRoomOnWindowCloseEnabled())
         {
-            ChatRoom chatRoom = chatRoomWrapper.getChatRoom();
-            chatRoom.removeMemberPresenceListener(this);
-            chatRoom.removePropertyChangeListener(this);
             chatRoom.leave();
         }
     }
