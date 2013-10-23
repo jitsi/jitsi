@@ -10,6 +10,7 @@ import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
+import javax.swing.event.*;
 import javax.swing.plaf.*;
 import javax.swing.plaf.metal.*;
 
@@ -22,6 +23,8 @@ import net.java.sip.communicator.util.*;
  */
 public class ExtendedTooltip
     extends JToolTip
+    implements AncestorListener,
+               WindowFocusListener
 {
     private static final Logger logger
         = Logger.getLogger(ExtendedTooltip.class);
@@ -54,6 +57,13 @@ public class ExtendedTooltip
     private int textHeight = 0;
 
     private boolean isListViewEnabled;
+
+    /**
+     * The parent window where this tooltip was created, not the one the
+     * component was added to, but where the focus is when the component is
+     * created/added.
+     */
+    private Window parentWindow = null;
 
     /**
      * Created a <tt>MetaContactTooltip</tt>.
@@ -99,42 +109,7 @@ public class ExtendedTooltip
         bottomTextArea.setFont(bottomTextArea.getFont().deriveFont(10f));
         mainPanel.add(bottomTextArea, BorderLayout.SOUTH);
 
-        final Window parentWindow
-            = KeyboardFocusManager.getCurrentKeyboardFocusManager()
-                .getActiveWindow();
-
-        // Hide the tooltip when the parent window hides.
-        /*
-         * FIXME The parentWindow will surely outlive this ExtendedTooltip so
-         * adding a WindowFocusListener without removing the same
-         * WindowFocusListener later on is guaranteed to cause a memory leak.
-         */
-        if (parentWindow != null)
-            parentWindow.addWindowFocusListener(new WindowFocusListener()
-            {
-                public void windowLostFocus(WindowEvent e)
-                {
-                    Window popupWindow
-                        = SwingUtilities.getWindowAncestor(
-                            ExtendedTooltip.this);
-
-                    if ((popupWindow != null)
-                        && popupWindow.isVisible()
-                        // The popup window should normally be a JWindow, so we
-                        // check here explicitly if for some reason we didn't
-                        // get something else.
-                        && (popupWindow instanceof JWindow))
-                    {
-                        if (logger.isInfoEnabled())
-                            logger.info("Tooltip window ancestor to hide: "
-                                + popupWindow);
-
-                        popupWindow.setVisible(false);
-                    }
-                }
-
-                public void windowGainedFocus(WindowEvent e) {}
-            });
+        this.addAncestorListener(this);
 
         this.add(mainPanel);
     }
@@ -310,6 +285,82 @@ public class ExtendedTooltip
 
         textHeight += newTextHeight;
     }
+
+    /**
+     * When main windows focus is lost hide the tooltip.
+     * @param e window event.
+     */
+    @Override
+    public void windowLostFocus(WindowEvent e)
+    {
+        Window popupWindow
+            = SwingUtilities.getWindowAncestor(
+                ExtendedTooltip.this);
+
+        if ((popupWindow != null)
+            && popupWindow.isVisible()
+            // The popup window should normally be a JWindow, so we
+            // check here explicitly if for some reason we didn't
+            // get something else.
+            && (popupWindow instanceof JWindow))
+        {
+            if (logger.isInfoEnabled())
+                logger.info("Tooltip window ancestor to hide: "
+                    + popupWindow);
+
+            popupWindow.setVisible(false);
+        }
+    }
+
+    /**
+     * Not used.
+     * @param e
+     */
+    @Override
+    public void windowGainedFocus(WindowEvent e) {}
+
+    /**
+     * Not used.
+     * @param event
+     */
+    @Override
+    public void ancestorAdded(AncestorEvent event)
+    {
+        this.parentWindow
+            = KeyboardFocusManager.getCurrentKeyboardFocusManager()
+                .getActiveWindow();
+
+        // Hide the tooltip when the parent window hides.
+        if (parentWindow != null)
+        {
+            parentWindow.addWindowFocusListener(this);
+        }
+    }
+
+    /**
+     * When the tooltip window is disposed elements are removed from it
+     * and this is the time to clear resources.
+     * @param event
+     */
+    @Override
+    public void ancestorRemoved(AncestorEvent event)
+    {
+        if(this.parentWindow != null)
+        {
+            this.parentWindow.removeWindowFocusListener(this);
+            this.parentWindow = null;
+        }
+
+        this.removeAncestorListener(this);
+    }
+
+    /**
+     * Not used.
+     * @param event
+     */
+    @Override
+    public void ancestorMoved(AncestorEvent event)
+    {}
 
     /**
      * Customized UI for this MetaContactTooltip.
