@@ -39,7 +39,7 @@ public class ContactInfoActivator implements BundleActivator
     /**
      * The image loader service implementation.
      */
-    private static ImageLoaderService imageLoaderService = null;
+    private static ImageLoaderService<?> imageLoaderService = null;
 
     /**
      * The contact list service implementation.
@@ -127,14 +127,14 @@ public class ContactInfoActivator implements BundleActivator
      * Returns the imageLoaderService instance, if missing query osgi for it.
      * @return the imageLoaderService.
      */
-    public static ImageLoaderService getImageLoaderService()
+    public static ImageLoaderService<?> getImageLoaderService()
     {
         if(imageLoaderService == null)
         {
-            imageLoaderService =
-                ServiceUtils.getService(
-                    bundleContext,
-                    ImageLoaderService.class);
+            imageLoaderService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        ImageLoaderService.class);
         }
 
         return imageLoaderService;

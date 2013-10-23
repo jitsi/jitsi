@@ -130,21 +130,25 @@ public abstract class PluginComponentFactory
      * Returns the component that should be added. This method should return a
      * valid AWT, SWT or Swing object in order to appear properly in the user
      * interface.
-     * @param parent the parent that will contain this plugin
      *
+     * @param parent the parent that will contain this plugin
      * @return the component that should be added.
      */
-    @SuppressWarnings("unchecked")
     public PluginComponent getPluginComponentInstance(Object parent)
     {
-        WeakReference<PluginComponent> p = pluginInstances.get(parent);
-        if(p == null)
-        {
-            p = new WeakReference(getPluginInstance());
-            pluginInstances.put(parent, p);
-        }
+        WeakReference<PluginComponent> ref = pluginInstances.get(parent);
+        PluginComponent pluginComponent = (ref == null) ? null : ref.get();
 
-        return p.get();
+        if (pluginComponent == null)
+        {
+            pluginComponent = getPluginInstance();
+            if (pluginComponent != null)
+            {
+                ref = new WeakReference<PluginComponent>(pluginComponent);
+                pluginInstances.put(parent, ref);
+            }
+        }
+        return pluginComponent;
     }
 
     /**

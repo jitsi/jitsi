@@ -208,20 +208,23 @@ public class ExternalContactSource
      */
     private void initCustomContactActionButtons()
     {
-        customContactActionButtons = new LinkedHashMap
-            <ContactAction<SourceContact>, SIPCommButton>();
-
+        customContactActionButtons
+            = new LinkedHashMap<ContactAction<SourceContact>, SIPCommButton>();
         for (CustomContactActionsService<SourceContact> ccas
                 : getContactActionsServices())
         {
             Iterator<ContactAction<SourceContact>> actionIterator
                 = ccas.getCustomContactActions();
 
-            while (actionIterator!= null && actionIterator.hasNext())
+            if (actionIterator!= null)
             {
-                final ContactAction<SourceContact> ca = actionIterator.next();
+                while (actionIterator.hasNext())
+                {
+                    final ContactAction<SourceContact> ca
+                        = actionIterator.next();
 
-                initActionButton(ca, SourceContact.class);
+                    initActionButton(ca, SourceContact.class);
+                }
             }
         }
     }
@@ -255,9 +258,9 @@ public class ExternalContactSource
      *
      * @param ca the <tt>ContactAction</tt> corresponding to the button.
      */
-    @SuppressWarnings ("unchecked")
-    private void initActionButton(final ContactAction ca,
-                                  final Class contactSourceClass)
+    private <T> void initActionButton(
+            final ContactAction<T> ca,
+            final Class<T> contactSourceClass)
     {
         SIPCommButton actionButton;
 
@@ -298,24 +301,28 @@ public class ExternalContactSource
                             = contactListTree.getSelectionPath();
 
                         if (selectionPath != null)
-                            location.y = location.y
-                                + contactListTree.getPathBounds(
-                                    selectionPath).y;
+                        {
+                            location.y
+                                += contactListTree
+                                    .getPathBounds(selectionPath)
+                                        .y;
+                        }
 
-                        if(contactSourceClass
-                                    .equals(SourceContact.class))
-                            ca.actionPerformed(
-                                customActionContact,
-                                location.x,
-                                location.y);
-                        else if(contactSourceClass
-                                    .equals(ContactSourceService.class))
-                            ca.actionPerformed(
-                                contactSource,
-                                location.x,
-                                location.y);
+                        if(contactSourceClass.equals(SourceContact.class))
+                        {
+                            @SuppressWarnings("unchecked")
+                            T t = (T) customActionContact;
 
+                            ca.actionPerformed(t, location.x, location.y);
+                        }
+                        else if(contactSourceClass.equals(
+                                ContactSourceService.class))
+                        {
+                            @SuppressWarnings("unchecked")
+                            T t = (T) contactSource;
 
+                            ca.actionPerformed(t, location.x, location.y);
+                        }
                     }
                     catch (OperationFailedException e)
                     {
@@ -328,9 +335,21 @@ public class ExternalContactSource
             });
 
             if(contactSourceClass.equals(SourceContact.class))
-                customContactActionButtons.put(ca, actionButton);
+            {
+                @SuppressWarnings("unchecked")
+                ContactAction<SourceContact> casc
+                    = (ContactAction<SourceContact>) ca;
+
+                customContactActionButtons.put(casc, actionButton);
+            }
             else if(contactSourceClass.equals(ContactSourceService.class))
-                customServiceActionButtons.put(ca, actionButton);
+            {
+                @SuppressWarnings("unchecked")
+                ContactAction<ContactSourceService> cacss
+                    = (ContactAction<ContactSourceService>) ca;
+
+                customServiceActionButtons.put(cacss, actionButton);
+            }
         }
     }
 
@@ -375,7 +394,8 @@ public class ExternalContactSource
         }
 
         GuiActivator.bundleContext.addServiceListener(
-            new ContactActionsServiceListener(SourceContact.class));
+            new ContactActionsServiceListener<SourceContact>(
+                    SourceContact.class));
 
         return contactActionsServices;
     }
@@ -423,7 +443,8 @@ public class ExternalContactSource
         }
 
         GuiActivator.bundleContext.addServiceListener(
-            new ContactActionsServiceListener(ContactSourceService.class));
+            new ContactActionsServiceListener<ContactSourceService>(
+                    ContactSourceService.class));
 
         return contactActionsServices;
     }
@@ -626,9 +647,9 @@ public class ExternalContactSource
     private class ContactActionsServiceListener<T>
         implements ServiceListener
     {
-        Class contactSourceClass;
+        private final Class<T> contactSourceClass;
 
-        ContactActionsServiceListener(Class contactSourceClass)
+        ContactActionsServiceListener(Class<T> contactSourceClass)
         {
             this.contactSourceClass = contactSourceClass;
         }
@@ -640,44 +661,46 @@ public class ExternalContactSource
             // if the event is caused by a bundle being stopped, we don't want to
             // know
             if (serviceRef.getBundle().getState() == Bundle.STOPPING)
-            {
                 return;
-            }
 
             Object service = GuiActivator.bundleContext.getService(serviceRef);
 
             // we don't care if the source service is not a protocol provider
             if (!(service instanceof CustomContactActionsService))
-            {
                 return;
-            }
 
+            @SuppressWarnings("rawtypes")
             CustomContactActionsService cContactActionsService
                 = (CustomContactActionsService) service;
 
-            if(!cContactActionsService
-                    .getContactSourceClass().equals(contactSourceClass))
+            if(!cContactActionsService.getContactSourceClass().equals(
+                    contactSourceClass))
                 return;
 
             @SuppressWarnings("unchecked")
-            Iterator<ContactAction<SourceContact>> actionIterator
+            Iterator<ContactAction<T>> actionIterator
                 = cContactActionsService.getCustomContactActions();
+
             while (actionIterator!= null && actionIterator.hasNext())
             {
-                final ContactAction<SourceContact> ca = actionIterator.next();
+                final ContactAction<T> ca = actionIterator.next();
 
                 switch (event.getType())
                 {
-                    case ServiceEvent.REGISTERED:
-                        initActionButton(ca, contactSourceClass);
-                        break;
-                    case ServiceEvent.UNREGISTERING:
-                        if(contactSourceClass.equals(SourceContact.class))
-                            customContactActionButtons.remove(ca);
-                        else if(contactSourceClass.equals(
+                case ServiceEvent.REGISTERED:
+                    initActionButton(ca, contactSourceClass);
+                    break;
+                case ServiceEvent.UNREGISTERING:
+                    if(contactSourceClass.equals(SourceContact.class))
+                    {
+                        customContactActionButtons.remove(ca);
+                    }
+                    else if(contactSourceClass.equals(
                             ContactSourceService.class))
-                            customServiceActionButtons.remove(ca);
-                        break;
+                    {
+                        customServiceActionButtons.remove(ca);
+                    }
+                    break;
                 }
             }
         }

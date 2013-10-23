@@ -57,7 +57,7 @@ public class ServiceUtils
      */
     public static ServiceReference[] getServiceReferences(
             BundleContext bundleContext,
-            Class serviceClass)
+            Class<?> serviceClass)
     {
         ServiceReference[] handlerRefs = null;
         try
