@@ -437,7 +437,7 @@ public class ToolsMenu
         {
             OperationSetVideoBridge videoBridgeOpSet
                 = videoBridgeProvider.getOperationSet(
-                    OperationSetVideoBridge.class);
+                        OperationSetVideoBridge.class);
 
             // Check if the video bridge is actually active before adding it to
             // the list of active providers.
