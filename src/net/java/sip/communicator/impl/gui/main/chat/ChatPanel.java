@@ -395,6 +395,9 @@ public class ChatPanel
             ((ChatRoomWrapper) chatSession.getDescriptor())
                 .getChatRoom().removeMemberPropertyChangeListener(this);
         }
+
+        if(subjectPanel != null)
+            subjectPanel.dispose();
     }
 
     /**

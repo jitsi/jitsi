@@ -238,4 +238,12 @@ public class ChatRoomSubjectPanel
             configButton.setIcon(new ImageIcon(
                     ImageLoader.getImage(ImageLoader.CHAT_ROOM_CONFIG)));
     }
+
+    /**
+     * Runs clean-up.
+     */
+    public void dispose()
+    {
+        chatSession.removeLocalUserRoleListener(this);
+    }
 }
