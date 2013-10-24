@@ -263,6 +263,11 @@ public class CallPeerMediaHandlerSipImpl
                     if (DtlsControl.UDP_TLS_RTP_SAVP.equals(proto)
                             || DtlsControl.UDP_TLS_RTP_SAVPF.equals(proto))
                     {
+                        /*
+                         * RFC 5764 "Datagram Transport Layer Security (DTLS)
+                         * Extension to Establish Keys for the Secure Real-time
+                         * Transport Protocol (SRTP)"
+                         */
                         updateMediaDescriptionForDtls(mediaType, md, null);
                     }
                     else
@@ -278,14 +283,23 @@ public class CallPeerMediaHandlerSipImpl
                          * profile" and "[o]ther profiles MAY also be used."
                          */
                         updateMediaDescriptionForZrtp(mediaType, md, null);
-                        /*
-                         * According to Ingo Bauersachs, SDES "[b]asically
-                         * requires SAVP per RFC."
-                         */
                         if (SrtpControl.RTP_SAVP.equals(proto)
                                 || SrtpControl.RTP_SAVPF.equals(proto))
                         {
+                            /*
+                             * According to Ingo Bauersachs, SDES "[b]asically
+                             * requires SAVP per RFC."
+                             */
                             updateMediaDescriptionForSDes(mediaType, md, null);
+                        }
+                        if (SrtpControl.RTP_SAVPF.equals(proto))
+                        {
+                            /*
+                             * draft-ietf-rtcweb-rtp-usage-09 "Web Real-Time
+                             * Communication (WebRTC): Media Transport and Use
+                             * of RTP"
+                             */
+                            updateMediaDescriptionForDtls(mediaType, md, null);
                         }
                     }
 
@@ -786,7 +800,11 @@ public class CallPeerMediaHandlerSipImpl
 
                 boolean dtls
                     = DtlsControl.UDP_TLS_RTP_SAVP.equals(proto)
-                        || DtlsControl.UDP_TLS_RTP_SAVPF.equals(proto);
+                        || DtlsControl.UDP_TLS_RTP_SAVPF.equals(proto)
+                        || SrtpControl.RTP_SAVPF.equals(proto);
+
+                if (dtls && (remoteMd != null))
+                    dtls = isDtlsMediaDescription(remoteMd);
                 SrtpControls srtpControls = getSrtpControls();
 
                 if (dtls)
@@ -879,29 +897,8 @@ public class CallPeerMediaHandlerSipImpl
         if (dtlsControl == null)
             return;
 
-        Media remoteMedia = remoteMd.getMedia();
-        boolean dtls = false;
+        boolean dtls = isDtlsMediaDescription(remoteMd);
 
-        if (remoteMedia != null)
-        {
-            String proto;
-
-            try
-            {
-                proto = remoteMedia.getProtocol();
-            }
-            catch (SdpParseException e)
-            {
-                /*
-                 * Well, if the protocol of the Media cannot be parsed, then
-                 * surely we do not want to have anything to do with it.
-                 */
-                proto = null;
-            }
-            dtls
-                = DtlsControl.UDP_TLS_RTP_SAVP.equals(proto)
-                    || DtlsControl.UDP_TLS_RTP_SAVPF.equals(proto);
-        }
         if (dtls)
         {
             if (localMd == null) // answer
@@ -1168,20 +1165,35 @@ public class CallPeerMediaHandlerSipImpl
              */
             List<String> encryptionProtocols
                 = accountID.getSortedEnabledEncryptionProtocolList();
-            int encryptionProtocolCount = encryptionProtocols.size();
 
-            for (int i = encryptionProtocolCount - 1; i >= 0; i--)
+            for (int epi = encryptionProtocols.size() - 1; epi >= 0; epi--)
             {
-                String encryptionProtocol = encryptionProtocols.get(i);
+                String encryptionProtocol = encryptionProtocols.get(epi);
                 String protoName
                     = encryptionProtocol.substring(
                             ProtocolProviderFactory.ENCRYPTION_PROTOCOL.length()
                                 + 1);
-                String proto;
+                String[] protos;
 
                 if (DtlsControl.PROTO_NAME.equals(protoName))
                 {
-                    proto = DtlsControl.UDP_TLS_RTP_SAVP;
+                    protos
+                        = new String[]
+                                {
+                                    /*
+                                     * RFC 5764 "Datagram Transport Layer
+                                     * Security (DTLS) Extension to Establish
+                                     * Keys for the Secure Real-time Transport
+                                     * Protocol (SRTP)"
+                                     */
+                                    DtlsControl.UDP_TLS_RTP_SAVP,
+                                    /*
+                                     * draft-ietf-rtcweb-rtp-usage-09 "Web
+                                     * Real-Time Communication (WebRTC): Media
+                                     * Transport and Use of RTP"
+                                     */
+                                    SrtpControl.RTP_SAVPF
+                                };
                 }
                 else
                 {
@@ -1199,14 +1211,18 @@ public class CallPeerMediaHandlerSipImpl
                      * endpoint supports this profile" and "[o]ther profiles MAY
                      * also be used."
                      */
-                    proto = SrtpControl.RTP_SAVP;
+                    protos = new String[] { SrtpControl.RTP_SAVP };
                 }
 
-                int protoIndex = result.indexOf(proto);
+                for (int pi = protos.length - 1; pi >= 0; pi--)
+                {
+                    String proto = protos[pi];
+                    int ri = result.indexOf(proto);
 
-                if (protoIndex > 0)
-                    result.remove(protoIndex);
-                result.add(0, proto);
+                    if (ri > 0)
+                        result.remove(ri);
+                    result.add(0, proto);
+                }
             }
 
             if (savpOption == ProtocolProviderFactory.SAVP_OPTIONAL)
@@ -1761,5 +1777,62 @@ public class CallPeerMediaHandlerSipImpl
         {
             super.start();
         }
+    }
+
+    /**
+     * Determines whether a specific <tt>MediaDescription</tt> selects DTLS-SRTP
+     * as the encryption protocol i.e. checks whether the <tt>proto</tt> of the
+     * specified <tt>mediaDescription</tt> is supported by DTLS-SRTP and
+     * whether the specified <tt>mediaDescription</tt> assigns non-empty values
+     * to the SDP attributes <tt>fingerprint</tt> and <tt>setup</tt>.
+     *
+     * @param mediaDescription the <tt>MediaDescription</tt> to be analyzed
+     * @return <tt>true</tt> if the specified <tt>mediaDescription</tt> selects
+     * DTLS-SRTP as the encryption protocol; otherwise, <tt>false</tt>
+     */
+    private boolean isDtlsMediaDescription(MediaDescription mediaDescription)
+    {
+        boolean dtls = false;
+
+        if (mediaDescription != null)
+        {
+            Media media = mediaDescription.getMedia();
+
+            if (media != null)
+            {
+                try
+                {
+                    String proto = media.getProtocol();
+
+                    if (DtlsControl.UDP_TLS_RTP_SAVP.equals(proto)
+                            || DtlsControl.UDP_TLS_RTP_SAVPF.equals(proto)
+                            || SrtpControl.RTP_SAVPF.equals(proto))
+                    {
+                        String fingerprint
+                            = mediaDescription.getAttribute(
+                                    DTLS_SRTP_FINGERPRINT_ATTR);
+
+                        if ((fingerprint != null)
+                                && (fingerprint.length() != 0))
+                        {
+                            String setup
+                                = mediaDescription.getAttribute(
+                                        DTLS_SRTP_SETUP_ATTR);
+
+                            if ((setup != null) && (setup.length() != 0))
+                                dtls = true;
+                        }
+                    }
+                }
+                catch (SdpParseException e)
+                {
+                    /*
+                     * Well, if the protocol of the Media cannot be parsed, then
+                     * surely we do not want to have anything to do with it.
+                     */
+                }
+            }
+        }
+        return dtls;
     }
 }
