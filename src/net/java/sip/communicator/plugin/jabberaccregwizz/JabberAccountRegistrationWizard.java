@@ -279,16 +279,26 @@ public class JabberAccountRegistrationWizard
         {
             try
             {
-                SwingUtilities.invokeAndWait(
-                        new Runnable()
-                        {
-                            public void run()
+                if(SwingUtilities.isEventDispatchThread())
+                {
+                    accPanel.setUsername(userName);
+                    accPanel.setPassword(password);
+                    accPanel.setRememberPassword(rememberPassword);
+                }
+                else
+                {
+                    SwingUtilities.invokeAndWait(
+                            new Runnable()
                             {
-                                accPanel.setUsername(userName);
-                                accPanel.setPassword(password);
-                                accPanel.setRememberPassword(rememberPassword);
-                            }
-                        });
+                                public void run()
+                                {
+                                    accPanel.setUsername(userName);
+                                    accPanel.setPassword(password);
+                                    accPanel.setRememberPassword(
+                                        rememberPassword);
+                                }
+                            });
+                }
             }
             catch (Exception e)
             {
