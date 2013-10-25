@@ -586,17 +586,7 @@ public class OperationSetPersistentPresenceJabberImpl
      */
     public void setAuthorizationHandler(AuthorizationHandler handler)
     {
-        if(subscribtionPacketListener == null)
-        {
-            subscribtionPacketListener = new JabberSubscriptionListener();
-            parentProvider
-                .getConnection()
-                    .addPacketListener(
-                        subscribtionPacketListener,
-                        new PacketTypeFilter(Presence.class));
-        }
-
-        subscribtionPacketListener.handler = handler;
+        subscribtionPacketListener.setHandler(handler);
     }
 
     /**
@@ -924,6 +914,19 @@ public class OperationSetPersistentPresenceJabberImpl
                     new ServerStoredListInit(),
                     new PacketTypeFilter(RosterPacket.class)
                 );
+
+                // Adds subscription listener as soon as connection is created
+                // or we can miss some subscription requests
+                if(subscribtionPacketListener == null)
+                {
+                    subscribtionPacketListener =
+                        new JabberSubscriptionListener();
+                    parentProvider
+                        .getConnection()
+                            .addPacketListener(
+                                subscribtionPacketListener,
+                                new PacketTypeFilter(Presence.class));
+                }
             }
             else if(evt.getNewState() == RegistrationState.REGISTERED)
             {
@@ -1367,7 +1370,24 @@ public class OperationSetPersistentPresenceJabberImpl
         /**
          * The authorization handler.
          */
-        AuthorizationHandler handler = null;
+        private AuthorizationHandler handler = null;
+
+        /**
+         * List of early subscriptions.
+         */
+        private List<String> earlySubscriptions = new ArrayList<String>();
+
+        /**
+         * Adds auth handler.
+         *
+         * @param handler
+         */
+        private synchronized void setHandler(AuthorizationHandler handler)
+        {
+            this.handler = handler;
+
+            handleEarlySubscribeReceived();
+        }
 
         /**
          * Process packets.
@@ -1385,81 +1405,31 @@ public class OperationSetPersistentPresenceJabberImpl
 
             if (presenceType == Presence.Type.subscribe)
             {
-                // run waiting for user response in different thread
-                // as this seems to block the packet dispatch thread
-                // and we don't receive anything till we unblock it
-                new Thread(new Runnable() {
-                public void run()
+                synchronized(this)
                 {
-                    if (logger.isTraceEnabled())
+                    if(handler == null)
                     {
-                        logger.trace(
-                                fromID
-                                    + " wants to add you to its contact list");
-                    }
+                        earlySubscriptions.add(fromID);
 
-                    // buddy want to add you to its roster
-                    ContactJabberImpl srcContact
-                        = ssContactList.findContactById(fromID);
-
-                    Presence.Type responsePresenceType = null;
-
-                    if(srcContact == null)
-                    {
-                        srcContact = createVolatileContact(fromID);
-                    }
-                    else
-                    {
-                        if(srcContact.isPersistent())
-                            responsePresenceType = Presence.Type.subscribed;
-                    }
-
-                    if(responsePresenceType == null)
-                    {
-                        AuthorizationRequest req = new AuthorizationRequest();
-                        AuthorizationResponse response
-                            = handler.processAuthorisationRequest(
-                                            req, srcContact);
-
-                        if(response != null)
-                        {
-                            if(response.getResponseCode()
-                                   .equals(AuthorizationResponse.ACCEPT))
-                            {
-                                responsePresenceType
-                                    = Presence.Type.subscribed;
-                                if (logger.isInfoEnabled())
-                                    logger.info(
-                                        "Sending Accepted Subscription");
-                            }
-                            else if(response.getResponseCode()
-                                    .equals(AuthorizationResponse.REJECT))
-                            {
-                                responsePresenceType
-                                    = Presence.Type.unsubscribed;
-                                if (logger.isInfoEnabled())
-                                    logger.info(
-                                        "Sending Rejected Subscription");
-                            }
-                        }
-                    }
-
-                    // subscription ignored
-                    if(responsePresenceType == null)
+                        // nothing to handle
                         return;
+                    }
+                }
 
-                    Presence responsePacket = new Presence(
-                            responsePresenceType);
-
-                    responsePacket.setTo(fromID);
-                    parentProvider.getConnection().sendPacket(responsePacket);
-
-                }}).start();
+                handleSubscribeReceived(fromID);
             }
             else if (presenceType == Presence.Type.unsubscribed)
             {
                 if (logger.isTraceEnabled())
                     logger.trace(fromID + " does not allow your subscription");
+
+                if(handler == null)
+                {
+                    logger.warn(
+                        "No to handle unsubscribed AuthorizationHandler for "
+                            + fromID);
+                    return;
+                }
 
                 ContactJabberImpl contact
                     = ssContactList.findContactById(fromID);
@@ -1484,6 +1454,14 @@ public class OperationSetPersistentPresenceJabberImpl
             }
             else if (presenceType == Presence.Type.subscribed)
             {
+                if(handler == null)
+                {
+                    logger.warn(
+                        "No AuthorizationHandler to handle subscribed for "
+                            + fromID);
+                    return;
+                }
+
                 ContactJabberImpl contact
                     = ssContactList.findContactById(fromID);
                 AuthorizationResponse response
@@ -1493,6 +1471,97 @@ public class OperationSetPersistentPresenceJabberImpl
 
                 handler.processAuthorizationResponse(response, contact);
             }
+        }
+
+        /**
+         * Handles early presence subscribe that were received.
+         */
+        private void handleEarlySubscribeReceived()
+        {
+            for(String from : earlySubscriptions)
+            {
+                handleSubscribeReceived(from);
+            }
+
+            earlySubscriptions.clear();
+        }
+
+        /**
+         * Handles receiving a presence subscribe
+         * @param fromID sender
+         */
+        private void handleSubscribeReceived(final String fromID)
+        {
+            // run waiting for user response in different thread
+            // as this seems to block the packet dispatch thread
+            // and we don't receive anything till we unblock it
+            new Thread(new Runnable() {
+            public void run()
+            {
+                if (logger.isTraceEnabled())
+                {
+                    logger.trace(
+                            fromID
+                                + " wants to add you to its contact list");
+                }
+
+                // buddy want to add you to its roster
+                ContactJabberImpl srcContact
+                    = ssContactList.findContactById(fromID);
+
+                Presence.Type responsePresenceType = null;
+
+                if(srcContact == null)
+                {
+                    srcContact = createVolatileContact(fromID);
+                }
+                else
+                {
+                    if(srcContact.isPersistent())
+                        responsePresenceType = Presence.Type.subscribed;
+                }
+
+                if(responsePresenceType == null)
+                {
+                    AuthorizationRequest req = new AuthorizationRequest();
+                    AuthorizationResponse response
+                        = handler.processAuthorisationRequest(
+                                        req, srcContact);
+
+                    if(response != null)
+                    {
+                        if(response.getResponseCode()
+                               .equals(AuthorizationResponse.ACCEPT))
+                        {
+                            responsePresenceType
+                                = Presence.Type.subscribed;
+                            if (logger.isInfoEnabled())
+                                logger.info(
+                                    "Sending Accepted Subscription");
+                        }
+                        else if(response.getResponseCode()
+                                .equals(AuthorizationResponse.REJECT))
+                        {
+                            responsePresenceType
+                                = Presence.Type.unsubscribed;
+                            if (logger.isInfoEnabled())
+                                logger.info(
+                                    "Sending Rejected Subscription");
+                        }
+                    }
+                }
+
+                // subscription ignored
+                if(responsePresenceType == null)
+                    return;
+
+                Presence responsePacket = new Presence(
+                        responsePresenceType);
+
+                responsePacket.setTo(fromID);
+                parentProvider.getConnection().sendPacket(responsePacket);
+
+            }}).start();
         }
     }
 
