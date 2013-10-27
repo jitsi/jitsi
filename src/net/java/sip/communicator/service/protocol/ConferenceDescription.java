@@ -35,15 +35,23 @@ public class ConferenceDescription
      * The password to use to call into the conference.
      */
     private String password;
+    
+    /**
+     * The name of the conference.
+     */
+    private String displayName;
+    /**
+     * Whether the conference is available or not.
+     */
+    private boolean available = true;
 
     /**
      * The transport methods supported for calling into the conference.
      *
-     * If the set is empty, the intended interpretation is that there are no
-     * restrictions on the supported transports (e.g. that all transports are
-     * supported).
+     * If the set is empty, the intended interpretation is that it is up to the
+     * caller to chose an appropriate transport.
      */
-    private Set<Transport> transports = new HashSet<Transport>();
+    private Set<String> transports = new HashSet<String>();
 
     /**
      * Creates a new instance with the specified <tt>uri</tt>, <tt>callId</tt>
@@ -79,10 +87,37 @@ public class ConferenceDescription
     }
 
     /**
+     * Creates a new instance.
+     */
+    public ConferenceDescription()
+    {
+        this(null, null, null);
+    }
+
+    /**
+     * Returns the display name of the conference.
+     * @return the display name
+     */
+    public String getDisplayName()
+    {
+        return displayName;
+    }
+
+    /**
+     * Sets the display name of the conference.
+     * @param displayName the display name to set
+     */
+    public void setDisplayName(String displayName)
+    {
+        this.displayName = displayName;
+    }
+
+    /**
      * Gets the uri of this <tt>ConferenceDescription</tt>.
      * @return the uri of this <tt>ConferenceDescription</tt>.
      */
-    public String getUri() {
+    public String getUri()
+    {
         return uri;
     }
 
@@ -90,7 +125,8 @@ public class ConferenceDescription
      * Sets the uri of this <tt>ConferenceDescription</tt>.
      * @param uri the value to set
      */
-    public void setUri(String uri) {
+    public void setUri(String uri)
+    {
         this.uri = uri;
     }
 
@@ -98,7 +134,8 @@ public class ConferenceDescription
      * Gets the subject of this <tt>ConferenceDescription</tt>.
      * @return the subject of this <tt>ConferenceDescription</tt>.
      */
-    public String getSubject() {
+    public String getSubject()
+    {
         return subject;
     }
 
@@ -106,7 +143,8 @@ public class ConferenceDescription
      * Sets the subject of this <tt>ConferenceDescription</tt>.
      * @param subject the value to set
      */
-    public void setSubject(String subject) {
+    public void setSubject(String subject)
+    {
         this.subject = subject;
     }
 
@@ -114,7 +152,8 @@ public class ConferenceDescription
      * Gets the call ID of this <tt>ConferenceDescription</tt>
      * @return the call ID of this <tt>ConferenceDescription</tt>
      */
-    public String getCallId() {
+    public String getCallId()
+    {
         return callId;
     }
 
@@ -122,7 +161,8 @@ public class ConferenceDescription
      * Sets the call ID of this <tt>ConferenceDescription</tt>.
      * @param callId the value to set
      */
-    public void setCallId(String callId) {
+    public void setCallId(String callId)
+    {
         this.callId = callId;
     }
 
@@ -130,7 +170,8 @@ public class ConferenceDescription
      * Gets the password of this <tt>ConferenceDescription</tt>
      * @return the password of this <tt>ConferenceDescription</tt>
      */
-    public String getPassword() {
+    public String getPassword()
+    {
         return password;
     }
 
@@ -138,8 +179,27 @@ public class ConferenceDescription
      * Sets the auth of this <tt>ConferenceDescription</tt>.
      * @param password the value to set
      */
-    public void setPassword(String password) {
+    public void setPassword(String password)
+    {
         this.password = password;
+    }
+
+    /**
+     * Checks if the conference is available.
+     * @return <tt>true</tt> iff the conference is available.
+     */
+    public boolean isAvailable()
+    {
+        return available;
+    }
+
+    /**
+     * Sets the availability of this <tt>ConferenceDescription</tt>.
+     * @param available the value to set
+     */
+    public void setAvailable(boolean available)
+    {
+        this.available = available;
     }
 
     /**
@@ -147,19 +207,20 @@ public class ConferenceDescription
      * by the conference.
      * @param transport the <tt>Transport</tt> to add.
      */
-    public void addTransport(Transport transport)
+    public void addTransport(String transport)
     {
         transports.add(transport);
     }
 
     /**
      * Checks whether <tt>transport</tt> is supported by this
-     * <tt>ConferenceDescription</tt>.
+     * <tt>ConferenceDescription</tt>. If the set of transports for this
+     * <tt>ConferenceDescription</tt> is empty, always returns true.
      * @param transport the <tt>Transport</tt> to check.
      * @return <tt>true</tt> if <tt>transport</tt> is supported by this
      * <tt>ConferenceDescription</tt>
      */
-    public boolean supportsTransport(Transport transport)
+    public boolean supportsTransport(String transport)
     {
         /*
          * An empty list means that all transports are supported.
@@ -170,74 +231,39 @@ public class ConferenceDescription
     }
 
     /**
-     * Returns the set of <tt>Transport</tt>s supported by this
-     * <tt>ConferenceDescription</tt>
-     * @return the set of <tt>Transport</tt>s supported by this
-     * <tt>ConferenceDescription</tt>
+     * Returns the transports supported by this <tt>ConferenceDescription</tt>
+     * @return the supported by this <tt>ConferenceDescription</tt>
      */
-    public Set<Transport> getSupportedTransports()
+    public Set<String> getSupportedTransports()
     {
-        return new HashSet<Transport>(transports);
+        return new HashSet<String>(transports);
     }
 
     /**
-     * A list of possible transport methods that could be supported by a
-     * <tt>ConferenceDescription</tt>.
+     * {@inheritDoc}
      */
-    public static enum Transport
+    @Override
+    public String toString()
     {
-        /**
-         * ICE.
-         */
-        ICE("ice"),
-
-        /**
-         * RAW UDP.
-         */
-        RAW_UDP("raw-udp");
-
-        /**
-         * The name of this <tt>Transport</tt>
-         */
-        private String name;
-
-        /**
-         * Creates a new instance.
-         *
-         * @param name the name of the new instance.
-         */
-        private Transport(String name)
-        {
-            this.name = name;
-        }
-
-        /**
-         * Returns the name of the instance.
-         * @return the name of the instance.
-         */
-        @Override
-        public String toString()
-        {
-            return name;
-        }
-
-        /**
-         * Parses a <tt>String</tt> and returns one of the instances defined
-         * in the enum, or <tt>null</tt> on failure to parse.
-         * @param str the <tt>String</tt> to parse.
-         * @return one of the instances of the enum or <tt>null</tt> on failure
-         * to parse.
-         */
-        public static Transport parseString(String str)
-        {
-            if (str == null)
-                return null;
-            else if (str.equals(ICE.toString()))
-                return ICE;
-            else if (str.equals(RAW_UDP.toString()))
-                return RAW_UDP;
-
-            return null;
-        }
+        return "ConferenceDescription(uri="+uri+"; callid="+callId+")";
+    }
+    
+    
+    /**
+     * Checks if two <tt>ConferenceDescription</tt> instances have the same 
+     * call id, URI and supported transports.
+     * 
+     * @param cd1 the first <tt>ConferenceDescription</tt> instance.
+     * @param cd2 the second <tt>ConferenceDescription</tt> instance.
+     * @return <tt>true</tt> if the <tt>ConferenceDescription</tt> instances 
+     * have the same call id, URI and supported transports. Otherwise 
+     * <tt>false</tt> is returned.
+     */
+    public boolean compareConferenceDescription(ConferenceDescription cd)
+    {
+        return (getCallId().equals(cd.getCallId())
+            && getUri().equals(cd.getUri())
+            && getSupportedTransports().equals(
+                cd.getSupportedTransports()));
     }
 }

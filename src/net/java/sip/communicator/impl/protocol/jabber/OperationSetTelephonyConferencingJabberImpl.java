@@ -20,6 +20,7 @@ import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.packet.IQ.Type;
+import org.jivesoftware.smack.util.*;
 import org.jivesoftware.smackx.packet.*;
 
 /**
@@ -478,6 +479,17 @@ public class OperationSetTelephonyConferencingJabberImpl
     @Override
     protected String getLocalEntity(CallPeer callPeer)
     {
+        JingleIQ sessionIQ = ((CallPeerJabberImpl)callPeer).getSessionIQ();
+        String from = sessionIQ.getFrom();
+        String chatRoomName = StringUtils.parseBareAddress(from);
+        OperationSetMultiUserChatJabberImpl opSetMUC
+            = (OperationSetMultiUserChatJabberImpl)parentProvider.getOperationSet(OperationSetMultiUserChat.class);
+        ChatRoom room = null;
+        room = opSetMUC.getChatRoom(chatRoomName);
+        
+        if(room != null)
+            return "xmpp:" + chatRoomName + "/" + room.getUserNickname();
+        
         return "xmpp:" + parentProvider.getOurJID();
     }
 
@@ -488,5 +500,78 @@ public class OperationSetTelephonyConferencingJabberImpl
     protected String getLocalDisplayName()
     {
         return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * The URI of the returned <tt>ConferenceDescription</tt> is the occupant
+     * JID with which we have joined the room.
+     *
+     * If a videobridge is available for our <tt>ProtocolProviderService</tt>
+     * we use it. TODO: this should be relaxed when we refactor the videobrdige
+     * implementation, so that any videobrdige (on any protocol provider) can
+     * be used.
+     *
+     */
+    @Override
+    public ConferenceDescription setupConference(final ChatRoom chatRoom)
+    {
+        OperationSetVideoBridge videoBridge
+                = parentProvider.getOperationSet(OperationSetVideoBridge.class);
+        boolean isVideoBridge = (videoBridge != null) && videoBridge.isActive();
+
+        CallJabberImpl call = new CallJabberImpl(getBasicTelephony());
+        call.setAutoAnswer(true);
+
+        String uri = "xmpp:" + chatRoom.getIdentifier() +
+                "/" + chatRoom.getUserNickname();
+
+        ConferenceDescription cd
+                = new ConferenceDescription(uri, call.getCallID());
+
+        call.addCallChangeListener(new CallChangeListener()
+        {
+            
+            @Override
+            public void callStateChanged(CallChangeEvent evt)
+            {
+                if(CallState.CALL_ENDED.equals(evt.getNewValue()))
+                {
+                    chatRoom.publishConference(null, null);
+                }
+                
+            }
+            
+            @Override
+            public void callPeerRemoved(CallPeerEvent evt)
+            {
+                
+            }
+            
+            @Override
+            public void callPeerAdded(CallPeerEvent evt)
+            {
+                
+            }
+        });
+        if (isVideoBridge)
+        {
+            call.setConference(new MediaAwareCallConference(true));
+            
+
+            //For videobridge we set the transports to RAW-UDP, otherwise
+            //we leave them empty (meaning both RAW-UDP and ICE could be used)
+            cd.addTransport(
+                ProtocolProviderServiceJabberImpl.URN_XMPP_JINGLE_RAW_UDP_0);
+        }
+
+        if (logger.isInfoEnabled())
+        {
+            logger.info("Setup a conference with uri=" + uri + " and callid=" +
+                    call.getCallID() + ". Videobridge in use: " + isVideoBridge);
+        }
+
+        return cd;
     }
 }

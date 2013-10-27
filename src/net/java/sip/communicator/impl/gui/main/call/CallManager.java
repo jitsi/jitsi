@@ -45,6 +45,7 @@ import org.jitsi.util.*;
  *
  * @author Yana Stamcheva
  * @author Lyubomir Marinov
+ * @author Boris Grozev
  */
 public class CallManager
 {
@@ -453,7 +454,7 @@ public class CallManager
                                     UIContactImpl uiContact)
     {
         new CreateCallThread(protocolProvider, null, null, uiContact,
-            contact, false /* audio-only */).start();
+            contact, null, null, false /* audio-only */).start();
     }
 
     /**
@@ -481,7 +482,7 @@ public class CallManager
                                         UIContactImpl uiContact)
     {
         new CreateCallThread(protocolProvider, null, null, uiContact,
-            contact, true /* video */).start();
+            contact, null, null, true /* video */).start();
     }
 
     /**
@@ -2326,11 +2327,21 @@ public class CallManager
         private final String stringContact;
 
         /**
+         * The description of a conference to call, if any.
+         */
+        private final ConferenceDescription conferenceDescription;
+
+        /**
          * The indicator which determines whether this instance is to create a
          * new video (as opposed to audio-only) <tt>Call</tt>.
          */
         private final boolean video;
 
+        /**
+         * The chat room associated with the call.
+         */
+        private final ChatRoom chatRoom;
+        
         /**
          * Creates an instance of <tt>CreateCallThread</tt>.
          *
@@ -2347,7 +2358,8 @@ public class CallManager
                 ContactResource contactResource,
                 boolean video)
         {
-            this(protocolProvider, contact, contactResource, null, null, video);
+            this(protocolProvider, contact, contactResource, null, null, null,
+                null, video);
         }
 
         /**
@@ -2363,7 +2375,27 @@ public class CallManager
                 String contact,
                 boolean video)
         {
-            this(protocolProvider, null, null, null, contact, video);
+            this(protocolProvider, null, null, null, contact, null, null, video);
+        }
+
+        /**
+         * Initializes a new <tt>CreateCallThread</tt> instance which is to
+         * create a new <tt>Call</tt> to a conference specified via a
+         * <tt>ConferenceDescription</tt>.
+         * @param protocolProvider the <tt>ProtocolProviderService</tt> which is
+         * to perform the establishment of the new <tt>Call</tt>.
+         * @param conferenceDescription the description of the conference to
+         * call.
+         * @param chatRoom the chat room associated with the call.
+         */
+        public CreateCallThread(
+                ProtocolProviderService protocolProvider,
+                ConferenceDescription conferenceDescription,
+                ChatRoom chatRoom)
+        {
+            this(protocolProvider, null, null, null, null,
+                    conferenceDescription, chatRoom,
+                    false /* video */);
         }
 
         /**
@@ -2384,6 +2416,8 @@ public class CallManager
          * @param stringContact the string to call
          * @param video <tt>true</tt> if this instance is to create a new video
          * (as opposed to audio-only) <tt>Call</tt>
+         * @param conferenceDescription the description of a conference to call
+         * @param chatRoom the chat room associated with the call.
          */
         public CreateCallThread(
                 ProtocolProviderService protocolProvider,
@@ -2391,6 +2425,8 @@ public class CallManager
                 ContactResource contactResource,
                 UIContactImpl uiContact,
                 String stringContact,
+                ConferenceDescription conferenceDescription,
+                ChatRoom chatRoom,
                 boolean video)
         {
             this.protocolProvider = protocolProvider;
@@ -2399,6 +2435,8 @@ public class CallManager
             this.uiContact = uiContact;
             this.stringContact = stringContact;
             this.video = video;
+            this.conferenceDescription = conferenceDescription;
+            this.chatRoom = chatRoom;
         }
 
         @Override
@@ -2455,25 +2493,38 @@ public class CallManager
                     contact = null;
                 }
 
-                stringContact = PhoneNumberI18nService.normalize(stringContact);
+                if (stringContact != null)
+                {
+                    stringContact
+                            = PhoneNumberI18nService.normalize(stringContact);
+                }
             }
 
             try
             {
-                if (video)
+                if (conferenceDescription != null)
                 {
-                    internalCallVideo(  protocolProvider,
-                                        contact,
-                                        uiContact,
-                                        stringContact);
+                    internalCall(  protocolProvider,
+                                   conferenceDescription,
+                                   chatRoom);
                 }
                 else
                 {
-                    internalCall(   protocolProvider,
-                                    contact,
-                                    stringContact,
-                                    contactResource,
-                                    uiContact);
+                    if (video)
+                    {
+                        internalCallVideo(  protocolProvider,
+                                            contact,
+                                            uiContact,
+                                            stringContact);
+                    }
+                    else
+                    {
+                        internalCall(   protocolProvider,
+                                        contact,
+                                        stringContact,
+                                        contactResource,
+                                        uiContact);
+                    }
                 }
             }
             catch (Throwable t)
@@ -2592,6 +2643,29 @@ public class CallManager
 
         if (uiContact != null && createdCall != null)
             addUIContactCall(uiContact, createdCall);
+    }
+
+    /**
+     * Creates a call through the given <tt>protocolProvider</tt>.
+     *
+     * @param protocolProvider the <tt>ProtocolProviderService</tt> through
+     * which to make the call
+     * @param conferenceDescription the description of the conference to call
+     * @param chatRoom the chat room associated with the call.
+     */
+    private static void internalCall(ProtocolProviderService protocolProvider,
+                                     ConferenceDescription conferenceDescription,
+                                     ChatRoom chatRoom)
+            throws OperationFailedException
+    {
+        OperationSetBasicTelephony<?> telephony
+                = protocolProvider.getOperationSet(
+                OperationSetBasicTelephony.class);
+
+        if (telephony != null)
+        {
+            telephony.createCall(conferenceDescription, chatRoom);
+        }
     }
 
     /**
@@ -3645,6 +3719,23 @@ public class CallManager
                     contactResource,
                     isVideo).start();
         }
+    }
+
+    /**
+     * Creates a call to the conference described in
+     * <tt>conferenceDescription</tt> through <tt>protocolProvider</tt>
+     *
+     * @param protocolProvider the protocol provider through which to create
+     * the call
+     * @param conferenceDescription the description of the conference to call
+     * @param chatRoom the chat room associated with the call.
+     */
+    public static void call(ProtocolProviderService protocolProvider,
+                            ConferenceDescription conferenceDescription,
+                            ChatRoom chatRoom)
+    {
+        new CreateCallThread(protocolProvider, conferenceDescription, chatRoom)
+            .start();
     }
 
     /**

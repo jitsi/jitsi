@@ -13,6 +13,7 @@ package net.java.sip.communicator.service.protocol;
  * associated chat room and other.
  *
  * @author Emil Ivov
+ * @author Boris Grozev
  */
 public interface ChatRoomMember
 {

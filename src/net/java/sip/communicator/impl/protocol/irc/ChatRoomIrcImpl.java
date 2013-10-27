@@ -22,7 +22,7 @@ import net.java.sip.communicator.util.*;
  * @author Yana Stamcheva
  */
 public class ChatRoomIrcImpl
-    implements ChatRoom
+    extends AbstractChatRoom
 {
     /**
      * The object used for logging.
@@ -1176,7 +1176,8 @@ public class ChatRoomIrcImpl
      *
      * Not implemented.
      */
-    public ConferenceDescription publishConference(ConferenceDescription cd)
+    public ConferenceDescription publishConference(ConferenceDescription cd,
+        String name)
     {
         return null;
     }

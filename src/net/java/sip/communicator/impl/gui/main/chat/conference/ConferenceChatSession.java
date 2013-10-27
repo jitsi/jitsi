@@ -24,11 +24,13 @@ import net.java.sip.communicator.util.*;
  * @author Yana Stamcheva
  * @author Lubomir Marinov
  * @author Valentin Martinet
+ * @author Boris Grozev
  */
 public class ConferenceChatSession
     extends ChatSession
     implements  ChatRoomMemberPresenceListener,
-                ChatRoomPropertyChangeListener
+                ChatRoomPropertyChangeListener,
+                ChatRoomConferencePublishedListener
 {
     /**
      * The current chat transport used for messaging.
@@ -71,6 +73,7 @@ public class ConferenceChatSession
         ChatRoom chatRoom = chatRoomWrapper.getChatRoom();
         chatRoom.addMemberPresenceListener(this);
         chatRoom.addPropertyChangeListener(this);
+        chatRoom.addConferencePublishedListener(this);
     }
 
     /**
@@ -644,5 +647,92 @@ public class ConferenceChatSession
     public void removeLocalUserRoleListener(ChatRoomLocalUserRoleListener l)
     {
         chatRoomWrapper.getChatRoom().removelocalUserRoleListener(l);
+    }
+
+    /**
+     * Acts upon a <tt>ChatRoomConferencePublishedEvent</tt>, dispatched when
+     * a member of a chat room publishes a <tt>ConferenceDescription</tt>.
+     *
+     * @param evt the event received, which contains the <tt>ChatRoom</tt>,
+     * <tt>ChatRoomMember</tt> and <tt>ConferenceDescription</tt> involved.
+     */
+    public void conferencePublished(final ChatRoomConferencePublishedEvent evt)
+    {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    conferencePublished(evt);
+                }
+            });
+            return;
+        }
+        
+        ChatRoom room = evt.getChatRoom();
+        if(!room.equals(chatRoomWrapper.getChatRoom()))
+            return;
+        
+        ConferenceDescription cd = evt.getConferenceDescription();
+        if(evt.getType() 
+            == ChatRoomConferencePublishedEvent.CONFERENCE_DESCRIPTION_SENT)
+        {
+            sessionRenderer.chatConferenceDescriptionSent(cd);
+        }
+        else if(evt.getType() 
+            == ChatRoomConferencePublishedEvent.CONFERENCE_DESCRIPTION_RECEIVED)
+        {
+            updateChatConferences(room, evt.getMember(), cd , 
+                room.getCachedConferenceDescriptionSize());
+            
+        }
+        
+    }
+    
+    /**
+     * Adds/Removes the announced conference to the interface.
+     * 
+     * @param chatRoom the chat room where the conference is announced.
+     * @param chatRoomMember the chat room member who announced the conference.
+     * @param cd the <tt>ConferenceDescription</tt> instance which represents 
+     * the conference.
+     */
+    private void updateChatConferences(ChatRoom chatRoom, 
+        ChatRoomMember chatRoomMember, 
+        ConferenceDescription cd, 
+        int activeConferencesCount)
+    {
+        boolean isAvailable = cd.isAvailable();
+        
+        for (ChatContact<?> chatContact : chatParticipants)
+        {
+            if(chatContact.getDescriptor().equals(chatRoomMember))
+            {
+                /*
+                 * TODO: we want more things to happen, e.g. the
+                 * ConferenceDescription being added to a list in the GUI
+                 * TODO: i13ze the string, if we decide to keep it at all
+                 */
+                sessionRenderer.updateChatContactStatus(
+                        chatContact, (isAvailable ? "published" : "removed") + 
+                        " a conference " + cd);
+                break;
+            }
+        }
+        
+        if(isAvailable)
+        {
+            sessionRenderer.addChatConferenceCall(cd);
+            if(activeConferencesCount == 1)
+                sessionRenderer.setConferencesPanelVisible(true);
+        }
+        else
+        {
+            sessionRenderer.removeChatConferenceCall(cd);
+            if(activeConferencesCount == 0)
+                sessionRenderer.setConferencesPanelVisible(false);
+        }
     }
 }

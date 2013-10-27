@@ -69,9 +69,10 @@ public class OperationSetAutoAnswerJabberImpl
     @Override
     protected boolean satisfyAutoAnswerConditions(Call call)
     {
-        // Nothing to do here, as long as the jabber account does not implements
-        // advanced auto answer functionnalities.
-        return false;
+        // The jabber implementation does not support advanced auto answer
+        // functionalities. We only need to check if the specific Call object
+        // knows it has to be auto-answered.
+        return call.isAutoAnswer();
     }
 
     /**

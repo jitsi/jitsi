@@ -118,6 +118,19 @@ public class CallPeerMediaHandlerJabberImpl
     private final Object transportManagerSyncRoot = new Object();
 
     /**
+     * The ordered by preference array of the XML namespaces of the jingle
+     * transports that this peer supports. If it is non-null, it will be used
+     * instead of checking disco#info in order to select an appropriate
+     * transport manager.
+     */
+    private String[] supportedTransports = null;
+
+    /**
+     * Object used to synchronize access to <tt>supportedTransports</tt>
+     */
+    private final Object supportedTransportsSyncRoot = new Object();
+
+    /**
      * Creates a new handler that will be managing media streams for
      * <tt>peer</tt>.
      *
@@ -851,6 +864,8 @@ public class CallPeerMediaHandlerJabberImpl
      * Gets the <tt>TransportManager</tt> implementation handling our address
      * management.
      *
+     * TODO: this method can and should be simplified.
+     *
      * @return the <tt>TransportManager</tt> implementation handling our address
      * management
      * @see CallPeerMediaHandler#getTransportManager()
@@ -908,10 +923,48 @@ public class CallPeerMediaHandlerJabberImpl
                 if (isJitsiVideoBridge)
                     google = false;
 
-                // Put Google P2P transport first. We will take it
-                // for a node that support both ICE-UDP and Google P2P to use
-                // Google relay.
-                if (google
+                /*
+                 * If this.supportedTransports has been explicitly set, we use
+                 * it to select the transport manager -- we use the first
+                 * transport in the list which we recognize (e.g. the first
+                 * that is either ice or raw-udp
+                 */
+                synchronized (supportedTransportsSyncRoot)
+                {
+                    if (supportedTransports != null
+                            && supportedTransports.length > 0)
+                    {
+                        for (int i = 0; i < supportedTransports.length; i++)
+                        {
+                            if (ProtocolProviderServiceJabberImpl.
+                                    URN_XMPP_JINGLE_ICE_UDP_1.
+                                            equals(supportedTransports[i]))
+                            {
+                                transportManager
+                                        = new IceUdpTransportManager(peer);
+                                break;
+                            }
+                            else if (ProtocolProviderServiceJabberImpl.
+                                        URN_XMPP_JINGLE_RAW_UDP_0.
+                                            equals(supportedTransports[i]))
+                            {
+                                transportManager
+                                        = new RawUdpTransportManager(peer);
+                                break;
+                            }
+                        }
+
+                        if (transportManager == null)
+                        {
+                            logger.warn("Could not find a supported transport" +
+                                    "manager in supportedTransports. Will try" +
+                                    "to select one based on disco#info");
+                        }
+                    }
+                }
+
+                if (transportManager == null
+                        && google
                         && isFeatureSupported(
                                 discoveryManager,
                                 peerDiscoverInfo,
@@ -920,7 +973,7 @@ public class CallPeerMediaHandlerJabberImpl
                 {
                     transportManager = new P2PTransportManager(peer);
                 }
-                else
+                else if (transportManager == null)
                 {
                     /*
                      * The list of possible transports ordered by decreasing
@@ -2692,6 +2745,57 @@ public class CallPeerMediaHandlerJabberImpl
                             mediaType,
                             localContent,
                             remoteContent);
+                }
+            }
+        }
+    }
+     
+    /**
+     * Sets the jingle transports that this
+     * <tt>CallPeerMediaHandlerJabberImpl</tt> supports. Unknown transports are
+     * ignored, and the <tt>transports</tt> <tt>Collection</tt> is put into
+     * order depending on local preference.
+     *
+     * Currently only ice and raw-udp are recognized, with ice being preffered
+     * over raw-udp
+     *
+     * @param transports A <tt>Collection</tt> of XML namespaces of jingle
+     * transport elements to be set as the supported jingle transports for this
+     * <tt>CallPeerMediaHandlerJabberImpl</tt>
+     */
+    public void setSupportedTransports(Collection<String> transports)
+    {
+        if (transports == null)
+            return;
+
+        String ice
+                = ProtocolProviderServiceJabberImpl.URN_XMPP_JINGLE_ICE_UDP_1;
+        String rawUdp
+                = ProtocolProviderServiceJabberImpl.URN_XMPP_JINGLE_RAW_UDP_0;
+
+        int size = 0;
+        for(String transport : transports)
+            if (ice.equals(transport) || rawUdp.equals(transport))
+                size++;
+
+        if (size > 0)
+        {
+            synchronized (supportedTransportsSyncRoot)
+            {
+                supportedTransports = new String[size];
+                int i = 0;
+
+                // we prefer ice over raw-udp
+                if (transports.contains(ice))
+                {
+                    supportedTransports[i] = ice;
+                    i++;
+                }
+
+                if (transports.contains(rawUdp))
+                {
+                    supportedTransports[i] = rawUdp;
+                    i++;
                 }
             }
         }

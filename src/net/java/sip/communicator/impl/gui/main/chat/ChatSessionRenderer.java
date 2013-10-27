@@ -8,6 +8,8 @@ package net.java.sip.communicator.impl.gui.main.chat;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.service.protocol.*;
+
 /**
  * The <tt>ChatSessionRenderer</tt> is the connector between the
  * <tt>ChatSession</tt> and the <tt>ChatPanel</tt>, which represents the UI
@@ -102,4 +104,38 @@ public interface ChatSessionRenderer
      * @param icon the chat icon to set
      */
     public void setChatIcon(Icon icon);
+
+    /**
+     * Adds the given <tt>conferenceDescription</tt> to the list of chat 
+     * conferences in this chat renderer.
+     * @param conferenceDescription the conference to add.
+     */
+    public void addChatConferenceCall(
+        ConferenceDescription conferenceDescription);
+
+    /**
+     * Removes the given <tt>conferenceDescription</tt> from the list of chat 
+     * conferences in this chat panel chat.
+     * @param conferenceDescription the conference to remove.
+     */
+    public void removeChatConferenceCall(
+        ConferenceDescription conferenceDescription);
+    
+    /**
+     * Sets the visibility of conferences panel to <tt>true</tt> or 
+     * <tt>false</tt>
+     * 
+     * @param isVisible if <tt>true</tt> the panel is visible.
+     */
+    public void setConferencesPanelVisible(boolean isVisible);
+    
+    /**
+     * This method is called when the local user publishes a 
+     * <tt>ConferenceDescription</tt> instance.
+     * 
+     * @param conferenceDescription the <tt>ConferenceDescription</tt> instance 
+     * associated with the conference.
+     */
+    public void chatConferenceDescriptionSent(
+        ConferenceDescription conferenceDescription);
 }

@@ -13,6 +13,7 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
@@ -29,6 +30,7 @@ import net.java.sip.communicator.util.skin.*;
  * @author Valentin Martinet
  * @author Adam Netocny
  * @author Ingo Bauersachs
+ * @author Boris Grozev
  */
 public class ChatContactRightButtonMenu
     extends SIPCommPopupMenu

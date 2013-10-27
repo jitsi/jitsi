@@ -1617,6 +1617,13 @@ public abstract class AbstractOperationSetTelephonyConferencing<
         return a.equals(b);
     }
 
+    /**
+     * Checks whether sending of RFC4575 partial notifications is enabled in
+     * the configuration. If disabled, RFC4575 documents will always be sent
+     * with state 'full'.
+     * @return <tt>true</tt> if sending of RFC4575 partial notifications is
+     * enabled in the configuration.
+     */
     private boolean isPartialNotificationEnabled()
     {
         return Boolean.parseBoolean(
@@ -1624,5 +1631,16 @@ public abstract class AbstractOperationSetTelephonyConferencing<
                         .getAccountID()
                         .getAccountProperties()
                         .get(PARTIAL_NOTIFICATIONS_PROP_NAME));
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Unimplemented by default, returns <tt>null</tt>.
+     */
+    @Override
+    public ConferenceDescription setupConference(ChatRoom chatRoom)
+    {
+        return null;
     }
 }

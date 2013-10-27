@@ -16,7 +16,7 @@ import net.java.sip.communicator.service.protocol.event.*;
  * @author Damian Minkov
  */
 public class MockChatRoom
-    implements ChatRoom
+    extends AbstractChatRoom
 {
     private MockProvider provider;
 
@@ -760,7 +760,8 @@ public class MockChatRoom
      *
      * Not implemented.
      */
-    public ConferenceDescription publishConference(ConferenceDescription cd)
+    public ConferenceDescription publishConference(ConferenceDescription cd,
+        String name)
     {
         return null;
     }

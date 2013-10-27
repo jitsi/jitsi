@@ -34,7 +34,7 @@ import org.jivesoftware.smackx.packet.*;
  * @author Boris Grozev
  */
 public class ChatRoomJabberImpl
-    implements ChatRoom
+    extends AbstractChatRoom
 {
     /**
      * The logger of this class.
@@ -158,6 +158,12 @@ public class ChatRoomJabberImpl
      * The last <tt>Presence</tt> packet we sent to the MUC.
      */
     private Presence lastPresenceSent = null;
+    
+    /**
+     * 
+     */
+    private List<CallJabberImpl> chatRoomConferenceCalls 
+        = new ArrayList<CallJabberImpl>();
 
     /**
      * Creates an instance of a chat room that has been.
@@ -334,6 +340,31 @@ public class ChatRoomJabberImpl
         {
             memberListeners.remove(listener);
         }
+    }
+
+
+    /**
+     * Adds a <tt>CallJabberImpl</tt> instance to the list of conference calls
+     * associated with the room.
+     * 
+     * @param call the call to add
+     */
+    public synchronized void addConferenceCall(CallJabberImpl call)
+    {
+        if(!chatRoomConferenceCalls.contains(call))
+            chatRoomConferenceCalls.add(call);
+    }
+
+    /**
+     * Removes a <tt>CallJabberImpl</tt> instance from the list of conference 
+     * calls associated with the room.
+     * 
+     * @param call the call to remove.
+     */
+    public synchronized void removeConferenceCall(CallJabberImpl call)
+    {
+        if(chatRoomConferenceCalls.contains(call))
+            chatRoomConferenceCalls.remove(call);
     }
 
     /**
@@ -782,6 +813,46 @@ public class ChatRoomJabberImpl
      */
     public void leave()
     {
+        OperationSetBasicTelephonyJabberImpl basicTelephony
+            = (OperationSetBasicTelephonyJabberImpl) provider
+                .getOperationSet(OperationSetBasicTelephony.class);
+        ActiveCallsRepositoryJabberGTalkImpl<CallJabberImpl, CallPeerJabberImpl> 
+            activeRepository = basicTelephony.getActiveCallsRepository();
+        
+        if(this.publishedConference != null)
+        {
+            
+            String callid = publishedConference.getCallId();
+            
+            if (callid != null)
+            {
+                CallJabberImpl call = activeRepository.findCallId(callid);
+                for(CallPeerJabberImpl peer : call.getCallPeerList())
+                {
+                    peer.hangup(false, null, null);
+                }
+            }
+            
+        }
+        
+        List<CallJabberImpl> tmpConferenceCalls;
+        synchronized (chatRoomConferenceCalls)
+        {
+            logger.info("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+            tmpConferenceCalls 
+                = new ArrayList<CallJabberImpl>(chatRoomConferenceCalls);
+            chatRoomConferenceCalls.clear();
+            logger.info("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA2222222222");
+        }
+        
+        for(CallJabberImpl call : tmpConferenceCalls)
+        {
+            for(CallPeerJabberImpl peer : call.getCallPeerList())
+                peer.hangup(false, null, null);
+        }
+        
+        clearCachedConferenceDescriptionList();
+        
         XMPPConnection connection = this.provider.getConnection();
         try
         {
@@ -808,8 +879,6 @@ public class ChatRoomJabberImpl
          // Delete the list of members
             members.clear();
         }
-        
-
         
 
         // connection can be null if we are leaving cause connection failed
@@ -1659,37 +1728,64 @@ public class ChatRoomJabberImpl
      * which contains a <tt>ConferenceDescriptionPacketExtension</tt>
      *
      * @param cd the description of the conference to announce
+     * @param name the name of the conference
      * @return the <tt>ConferenceDescription</tt> that was announced (e.g.
      * <tt>cd</tt> on success or <tt>null</tt> on failure)
      */
-    public ConferenceDescription publishConference(ConferenceDescription cd)
+    public ConferenceDescription publishConference(ConferenceDescription cd, 
+        String name)
     {
-        if(cd != publishedConference)
+        if (publishedConference != null)
         {
-            publishedConference = cd;
-            publishedConferenceExt
-                    = (cd == null)
-                    ? null
-                    : new ConferenceDescriptionPacketExtension(
-                    publishedConference);
-
-            if (lastPresenceSent != null)
+            cd = publishedConference;
+            cd.setAvailable(false);
+        }
+        else
+        {
+            String displayName;
+            if(name == null)
             {
-                setConferenceDescriptionPacketExtension(
-                        lastPresenceSent,
-                        publishedConferenceExt);
-
-                provider.getConnection().sendPacket(lastPresenceSent);
+                displayName = nickname + JabberActivator.getResources()
+                    .getI18NString("service.gui.CHAT_CONFERENCE_ITEM_LABEL");
             }
             else
             {
-                logger.warn("Could not publish conference," +
-                        " lastPresenceSent is null.");
-                return null;
+                displayName = name;
             }
+            cd.setDisplayName(displayName);
         }
-
-        return publishedConference;
+        
+        ConferenceDescriptionPacketExtension ext
+                = new ConferenceDescriptionPacketExtension(cd);
+        if (lastPresenceSent != null)
+        {
+            setConferenceDescriptionPacketExtension(lastPresenceSent, ext);
+            provider.getConnection().sendPacket(lastPresenceSent);
+        }
+        else
+        {
+            logger.warn("Could not publish conference," +
+                    " lastPresenceSent is null.");
+            publishedConference = null;
+            publishedConferenceExt = null;
+            return null;
+        }
+       
+        /*
+         * Save the extensions to set to other outgoing Presence packets
+         */
+        publishedConference
+                = (cd == null || !cd.isAvailable())
+                ? null
+                : cd;
+        publishedConferenceExt
+                = (publishedConference == null)
+                ? null
+                : ext;
+        
+        fireConferencePublishedEvent(members.get(nickname), cd, 
+            ChatRoomConferencePublishedEvent.CONFERENCE_DESCRIPTION_SENT);
+        return cd;
     }
 
     /**
@@ -2643,8 +2739,6 @@ public class ChatRoomJabberImpl
                         setLocalUserRole(jitsiRole);
                     }
                 }
-
-                provider.getConnection().removePacketListener(this);
             }
         }
 
@@ -2659,13 +2753,41 @@ public class ChatRoomJabberImpl
                     ConferenceDescriptionPacketExtension.NAMESPACE);
             if(presence.isAvailable() && ext != null)
             {
-                if (logger.isDebugEnabled())
-                logger.debug("Looks like " + presence.getFrom() + " has a"
-                        + " little conference going on. I guess we should"
-                        + " notify the GUI, or something. " + ext.toXML());
+                ConferenceDescriptionPacketExtension cdExt
+                        = (ConferenceDescriptionPacketExtension) ext;
+
+                ConferenceDescription cd = cdExt.toConferenceDescription();
+
+                String from = presence.getFrom();
+                String participantName = null;
+                if (from != null)
+                {
+                    participantName = StringUtils.parseResource(from);
+                }
+                ChatRoomMember member = members.get(participantName);
+                
+                if(!processConferenceDescription(cd, participantName))
+                    return;
+                
+                if (member != null)
+                {
+                    if (logger.isDebugEnabled())
+                        logger.debug("Received " + cd + " from " +
+                                participantName + "in " +
+                                multiUserChat.getRoom());
+                    fireConferencePublishedEvent(member, cd, 
+                        ChatRoomConferencePublishedEvent
+                            .CONFERENCE_DESCRIPTION_RECEIVED);
+                }
+                else
+                {
+                    logger.warn("Received a ConferenceDescription from an " +
+                            "unknown member ("+participantName+") in " +
+                            multiUserChat.getRoom());
+                }
+                
             }
         }
-
     }
 
     /**

@@ -497,4 +497,24 @@ public class AdHocConferenceChatSession
             }
         }
     }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Not implemented.
+     */
+    @Override
+    public void addChatTransportChangeListener(ChatSessionChangeListener l)
+    {
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Not implemented.
+     */
+    @Override
+    public void removeChatTransportChangeListener(ChatSessionChangeListener l)
+    {
+    }
 }

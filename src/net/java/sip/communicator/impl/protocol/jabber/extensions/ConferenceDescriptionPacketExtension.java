@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.protocol.jabber.extensions;
 import net.java.sip.communicator.service.protocol.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
+import org.jivesoftware.smack.util.*;
 import org.xmlpull.v1.*;
 
 import java.util.*;
@@ -53,6 +54,21 @@ public class ConferenceDescriptionPacketExtension
     public static final String CALLID_ATTR_NAME = "callid";
 
     /**
+     * The name of the "callid" element.
+     */
+    public static final String CALLID_ELEM_NAME = "callid";
+
+    /**
+     * The name of the "available" attribute.
+     */
+    public static final String AVAILABLE_ATTR_NAME = "available";
+    
+    /**
+     * The name of the conference name attribute.
+     */
+    public static final String CONFERENCE_NAME_ATTR_NAME = "conference_name";
+
+    /**
      * Creates a new instance without any attributes or children.
      */
     public ConferenceDescriptionPacketExtension()
@@ -82,7 +98,8 @@ public class ConferenceDescriptionPacketExtension
     }
 
     /**
-     * Creates a new instance and sets the "uri", "callid" and "password" attributes.
+     * Creates a new instance and sets the "uri", "callid" and "password"
+     * attributes.
      *
      * @param uri the value to use for the "uri" attribute.
      * @param callId the value to use for the "callid" attribute.
@@ -109,10 +126,12 @@ public class ConferenceDescriptionPacketExtension
     public ConferenceDescriptionPacketExtension(ConferenceDescription cd)
     {
         this(cd.getUri(), cd.getCallId(), cd.getPassword());
+        setAvailable(cd.isAvailable());
+        if(cd.getDisplayName() != null)
+            setName(cd.getDisplayName());
 
-        Set<ConferenceDescription.Transport> transports
-                = cd.getSupportedTransports();
-        for(ConferenceDescription.Transport transport : transports)
+        Set<String> transports = cd.getSupportedTransports();
+        for(String transport : transports)
         {
             addChildExtension(new TransportPacketExtension(transport));
         }
@@ -151,7 +170,7 @@ public class ConferenceDescriptionPacketExtension
      */
     public void setUri(String uri)
     {
-        setAttribute(URI_ATTR_NAME, uri);
+        setAttribute(URI_ATTR_NAME, StringUtils.escapeForXML(uri));
     }
 
     /**
@@ -173,39 +192,86 @@ public class ConferenceDescriptionPacketExtension
     }
 
     /**
+     * Sets the value of the "available" attribute.
+     * @param available the value to set
+     */
+    public void setAvailable(boolean available)
+    {
+       setAttribute(AVAILABLE_ATTR_NAME, available);
+    }
+    
+    /**
+     * Sets the value of the "available" attribute.
+     * @param available the value to set
+     */
+    public void setName(String name)
+    {
+       setAttribute(CONFERENCE_NAME_ATTR_NAME, StringUtils.escapeForXML(name));
+    }
+
+    /**
+     * Gets the value of the "available" attribute.
+     */
+    public boolean isAvailable()
+    {
+        return Boolean.parseBoolean(getAttributeAsString(AVAILABLE_ATTR_NAME));
+    }
+
+    /**
+     * Adds a "transport" child element with the given value.
+     *
+     * @param transport the transport to add.
+     */
+    public void addTransport(String transport)
+    {
+        addChildExtension(new TransportPacketExtension(transport));
+    }
+
+    /**
+     * Creates a <tt>ConferenceDescription</tt> corresponding to this
+     * <tt>ConferenceDescriptionPacketExtension</tt>
+     * @return a <tt>ConferenceDescription</tt> corresponding to this
+     * <tt>ConferenceDescriptionPacketExtension</tt>
+     */
+    public ConferenceDescription toConferenceDescription()
+    {
+        ConferenceDescription conferenceDescription
+                = new ConferenceDescription(getUri(), getCallId(), getPassword());
+        conferenceDescription.setAvailable(isAvailable());
+        conferenceDescription.setDisplayName(getName());
+        for (TransportPacketExtension t
+                : getChildExtensionsOfType(TransportPacketExtension.class))
+        {
+            conferenceDescription.addTransport(t.getNamespace());
+        }
+
+        return conferenceDescription;
+    }
+
+    /**
+     * Returns the value of the <tt>CONFERENCE_NAME_ATTR_NAME</tt> attribute.
+     * @return the name of the conference.
+     */
+    private String getName()
+    {
+        return getAttributeAsString(CONFERENCE_NAME_ATTR_NAME);
+    }
+
+    /**
      * A <tt>PacketExtension</tt> that represents a "transport" child element.
-     * It corresponds to a <tt>ConferenceDescription.Transport</tt>.
      */
     public static class TransportPacketExtension
         extends AbstractPacketExtension
     {
         /**
-         * The name of the "name" attribute.
-         */
-        public static final String NAME_ATTR_NAME = "name";
-
-        /**
-         * Creates a new instance and sets the "name" attribute to the
-         * <tt>String</tt> value of <tt>transport</tt>
+         * Creates a new instance and sets the XML namespace to
+         * <tt>transport</tt>
          *
-         * @param transport the <tt>ConferenceDescription.Transport</tt> to
-         * use to get set the "name" attribute.
+         * @param namespace the XML namespace of the "transport" element.
          */
-        public TransportPacketExtension(
-                ConferenceDescription.Transport transport)
+        public TransportPacketExtension(String namespace)
         {
-            this();
-
-            if (transport != null)
-                setAttribute(NAME_ATTR_NAME, transport.toString());
-        }
-
-        /**
-         * Creates a new instance.
-         */
-        public TransportPacketExtension()
-        {
-            super(null, TRANSPORT_ELEM_NAME);
+            super(namespace, TRANSPORT_ELEM_NAME);
         }
     }
 
@@ -253,17 +319,12 @@ public class ConferenceDescriptionPacketExtension
                     elementName = parser.getName();
                     if (TRANSPORT_ELEM_NAME.equals(elementName))
                     {
-                        String transportStr = parser.getAttributeValue(
-                                "",
-                                TransportPacketExtension.NAME_ATTR_NAME);
-                        ConferenceDescription.Transport transport =
-                                ConferenceDescription.Transport.
-                                        parseString(transportStr);
+                        String transportNs = parser.getNamespace();
 
-                        if (transport != null)
+                        if (transportNs != null)
                         {
                             transportExt
-                                    = new TransportPacketExtension(transport);
+                                    = new TransportPacketExtension(transportNs);
                         }
                     }
                     break;

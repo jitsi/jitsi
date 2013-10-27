@@ -668,6 +668,8 @@ public class CallJabberImpl
      * @param sessionInitiateExtensions a collection of additional and optional
      * <tt>PacketExtension</tt>s to be added to the <tt>session-initiate</tt>
      * {@link JingleIQ} which is to init this <tt>CallJabberImpl</tt>
+     * @param supportedTransports the XML namespaces of the jingle transports
+     * to use.
      *
      * @return the newly created <tt>CallPeerJabberImpl</tt> corresponding to
      * <tt>calleeJID</tt>. All following state change events will be
@@ -679,7 +681,8 @@ public class CallJabberImpl
     public CallPeerJabberImpl initiateSession(
             String calleeJID,
             DiscoverInfo discoverInfo,
-            Iterable<PacketExtension> sessionInitiateExtensions)
+            Iterable<PacketExtension> sessionInitiateExtensions,
+            Collection<String> supportedTransports)
         throws OperationFailedException
     {
         // create the session-initiate IQ
@@ -698,6 +701,9 @@ public class CallJabberImpl
 
         CallPeerMediaHandlerJabberImpl mediaHandler
             = callPeer.getMediaHandler();
+
+        //set the supported transports before the transport manager is created
+        mediaHandler.setSupportedTransports(supportedTransports);
 
         /* enable video if it is a video call */
         mediaHandler.setLocalVideoTransmissionEnabled(localVideoAllowed);

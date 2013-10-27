@@ -63,6 +63,25 @@ public class ActiveCallsRepositoryJabberGTalkImpl
     }
 
     /**
+     * Returns the <tt>Call</tt> with ID equal to <tt>callid</tt>.
+     *
+     * @param callid the ID to search for
+     * @return the <tt>Call</tt> with ID equal to <tt>callid</tt>.
+     */
+    public T findCallId(String callid)
+    {
+        Iterator<T> calls = getActiveCalls();
+
+        while (calls.hasNext())
+        {
+            T call = calls.next();
+            if (call.getCallID().equals(callid))
+                return call;
+        }
+        return null;
+    }
+
+    /**
      * Returns the {@link CallPeerJabberImpl} whose jingle session has the
      * specified jingle <tt>sid</tt>.
      *

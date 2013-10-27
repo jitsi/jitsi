@@ -204,6 +204,10 @@ public class MainToolBar
             inviteButton.setEnabled(false);
         }
 
+        if (chatPanel == null
+            || !(chatPanel.getChatSession() instanceof ConferenceChatSession))
+            desktopSharingButton.setEnabled(false);
+        
         this.addSeparator();
 
         SIPCommMenuBar historyMenuBar = new SIPCommMenuBar();
@@ -250,16 +254,17 @@ public class MainToolBar
         this.leaveChatRoomButton.setToolTipText(
             GuiActivator.getResources().getI18NString("service.gui.LEAVE"));
 
-        this.callButton.setName("call");
         this.callButton.setToolTipText(
             GuiActivator.getResources().getI18NString(
                 "service.gui.CALL_CONTACT"));
 
-        this.callVideoButton.setName("callVideo");
         this.callVideoButton.setToolTipText(
             GuiActivator.getResources().getI18NString(
                 "service.gui.CALL_CONTACT"));
 
+        setCallButtonsName();
+        setCallButtonsIcons();
+        
         this.desktopSharingButton.setName("desktop");
         this.desktopSharingButton.setToolTipText(
             GuiActivator.getResources().getI18NString(
@@ -342,6 +347,9 @@ public class MainToolBar
 
             leaveChatRoomButton.setEnabled(
                 chatPanel.chatSession instanceof ConferenceChatSession);
+            
+            desktopSharingButton.setEnabled(
+                !(chatPanel.chatSession instanceof ConferenceChatSession));
 
             inviteButton.setEnabled(
                 chatPanel.findInviteChatTransport() != null);
@@ -355,6 +363,9 @@ public class MainToolBar
                 new UpdateCallButtonWorker(contact).start();
 
             changeHistoryButtonsState(chatPanel);
+            
+            setCallButtonsName();
+            setCallButtonsIcons();
         }
     }
 
@@ -502,6 +513,10 @@ public class MainToolBar
         }
         else if (buttonText.equals("font"))
             chatPanel.showFontChooserDialog();
+        else if (buttonText.equals("createConference"))
+        {
+            chatPanel.showChatConferenceDialog();
+        }
     }
 
     /**
@@ -609,14 +624,13 @@ public class MainToolBar
         leaveChatRoomButton.setIconImage(ImageLoader.getImage(
                 ImageLoader.LEAVE_ICON));
 
-        callButton.setIconImage(ImageLoader.getImage(
-                ImageLoader.CHAT_CALL));
-
         desktopSharingButton.setIconImage(ImageLoader.getImage(
             ImageLoader.CHAT_DESKTOP_SHARING));
 
         optionsButton.setIconImage(ImageLoader.getImage(
                 ImageLoader.CHAT_CONFIGURE_ICON));
+        
+        setCallButtonsIcons();
     }
 
     /**
@@ -706,6 +720,46 @@ public class MainToolBar
     }
 
     /**
+     * Sets the names of the call buttons depending on the chat session type.
+     */
+    private void setCallButtonsName()
+    {
+        if(chatSession instanceof ConferenceChatSession)
+        {
+            callButton.setName("createConference");
+            callVideoButton.setName("createConference");
+        }
+        else
+        {
+            callButton.setName("call");
+            callVideoButton.setName("callVideo");
+        }
+    }
+
+    /**
+     * Sets the icons of the call buttons depending on the chat session type.
+     */
+    private void setCallButtonsIcons()
+    {
+        if(chatSession instanceof ConferenceChatSession)
+        {
+            callButton.setIconImage(ImageLoader.getImage(
+                ImageLoader.CHAT_ROOM_CALL));
+            callVideoButton.setIconImage(ImageLoader.getImage(
+                ImageLoader.CHAT_ROOM_VIDEO_CALL));
+        }
+        else
+        {
+            callButton.setIconImage(ImageLoader.getImage(
+                ImageLoader.CHAT_CALL));
+            callVideoButton.setIconImage(ImageLoader.getImage(
+                ImageLoader.CHAT_VIDEO_CALL));
+        }
+        callButton.repaint();
+        callVideoButton.repaint();
+    }
+
+    /**
      * Searches for phone numbers in <tt>MetaContact/tt> operation sets.
      * And changes the call button enable/disable state.
      */
@@ -770,7 +824,6 @@ public class MainToolBar
             callButton.setEnabled(isCallEnabled);
             callVideoButton.setEnabled(isVideoCallEnabled);
             desktopSharingButton.setEnabled(isDesktopSharingEnabled);
-
         }
 
     }

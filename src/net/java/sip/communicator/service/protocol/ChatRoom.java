@@ -547,9 +547,11 @@ public interface ChatRoom
      * Publishes a <tt>ConferenceDescription</tt> to the chat room.
      *
      * @param cd the description to publish
+     * @param name the name of the conference
      * @return the published conference
      */
-    public ConferenceDescription publishConference(ConferenceDescription cd);
+    public ConferenceDescription publishConference(ConferenceDescription cd,
+        String name);
 
     /**
      * Updates the presence status of private messaging contact.
@@ -564,4 +566,34 @@ public interface ChatRoom
      * @param contact the contact.
      */
     public void updatePrivateContactPresenceStatus(Contact contact);
+
+    /**
+     * Adds a listener that will be notified when a member of this chat room
+     * has published a <tt>ConferenceDescription</tt> to the room.
+     *
+     * @param listener the listener to add.
+     */
+    public void addConferencePublishedListener(
+            ChatRoomConferencePublishedListener listener);
+
+    /**
+     * Removes a listener that was being notified when a member of this chat
+     * room had published a <tt>ConferenceDescription</tt> to the room.
+     *
+     * @param listener the listener to remove.
+     */
+    public void removeConferencePublishedListener(
+            ChatRoomConferencePublishedListener listener);
+    
+    /**
+     * Returns cached <tt>ConferenceDescription</tt> instances.
+     * @return the cached <tt>ConferenceDescription</tt> instances.
+     */
+    public Map<String, ConferenceDescription> getCachedConferenceDescriptions();
+    
+    /**
+     * Returns the number of cached <tt>ConferenceDescription</tt> instances.
+     * @return the number of cached <tt>ConferenceDescription</tt> instances.
+     */
+    public int getCachedConferenceDescriptionSize();
 }

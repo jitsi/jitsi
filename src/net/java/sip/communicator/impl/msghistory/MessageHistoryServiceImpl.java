@@ -2198,6 +2198,16 @@ public class MessageHistoryServiceImpl
         {
             return null;
         }
+
+        public ConferenceDescription getConferenceDescription()
+        {
+            return null;
+        }
+
+        public void setConferenceDescription(ConferenceDescription cd)
+        {
+            return;
+        }
     }
 
     /**

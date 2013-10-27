@@ -295,6 +295,12 @@ public class OperationSetAutoAnswerSipImpl
         Iterator<? extends CallPeer> peers = call.getCallPeers();
         CallPeer peer;
 
+        /*
+         * Check if the specific Call should be auto-answered.
+         */
+        if (call.isAutoAnswer())
+            return true;
+
         // lets check for headers
         if(answerConditional)
         {

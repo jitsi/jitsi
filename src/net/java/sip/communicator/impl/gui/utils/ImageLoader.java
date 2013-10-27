@@ -381,12 +381,24 @@ public class ImageLoader
      */
     public static final ImageID CHAT_CALL
         = new ImageID("service.gui.buttons.CHAT_CALL");
+    
+    /**
+     * The chat room call button image.
+     */
+    public static final ImageID CHAT_ROOM_CALL
+        = new ImageID("service.gui.buttons.CHAT_ROOM_CALL");
 
     /**
      * The chat video call button image.
      */
     public static final ImageID CHAT_VIDEO_CALL
         = new ImageID("service.gui.buttons.CHAT_VIDEO_CALL");
+    
+    /**
+     * The chat room video call button image.
+     */
+    public static final ImageID CHAT_ROOM_VIDEO_CALL
+        = new ImageID("service.gui.buttons.CHAT_ROOM_VIDEO_CALL");
 
     /**
      * The chat call button image.
@@ -1177,6 +1189,12 @@ public class ImageLoader
      */
     public static final ImageID FONT_ICON
         = new ImageID("service.gui.icons.FONT_ICON");
+
+    /**
+     * Invite to conference icon
+     */
+    public static final ImageID CONFERENCE_ICON
+        = new ImageID("service.gui.icons.CONFERENCE_CALL");
 
     /*
      * =======================================================================
