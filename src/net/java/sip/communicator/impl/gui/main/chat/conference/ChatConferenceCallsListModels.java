@@ -20,7 +20,7 @@ import net.java.sip.communicator.service.protocol.*;
  * @author Hristo Terezov
  */
 public class ChatConferenceCallsListModels
-    extends AbstractListModel<ConferenceDescription>
+    extends AbstractListModel
 {
 
     /**

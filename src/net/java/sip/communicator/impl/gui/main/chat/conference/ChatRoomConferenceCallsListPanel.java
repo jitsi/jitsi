@@ -34,7 +34,7 @@ public class ChatRoomConferenceCallsListPanel
     /**
      * The list of conferences.
      */
-    private final JList<ConferenceDescription> conferenceCallList;
+    private final JList conferenceCallList;
 
     /**
      * The model of the conferences list.
@@ -179,7 +179,7 @@ public class ChatRoomConferenceCallsListPanel
         this.conferenceCallsListModel
             = new ChatConferenceCallsListModels(chatPanel.getChatSession());
         this.conferenceCallList 
-            = new JList<ConferenceDescription>(conferenceCallsListModel);
+            = new JList(conferenceCallsListModel);
         this.conferenceCallList.addKeyListener(
             new CListKeySearchListener(conferenceCallList));
         this.conferenceCallList.setCellRenderer(
