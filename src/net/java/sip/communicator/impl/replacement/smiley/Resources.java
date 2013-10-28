@@ -39,13 +39,14 @@ public class Resources
             "Sad"));
 
         defaultSmileyList.add(new SmileyImpl("service.gui.smileys.SMILEY2",
-            new String[] {"(angel)" }, "Angel"));
+            new String[] {"(angry)"}, "Angry"));
 
         defaultSmileyList.add(new SmileyImpl("service.gui.smileys.SMILEY3",
-            new String[] {":-*", ":*", "(kiss)"}, "Kiss"));
+            new String[] {"(n)", "(N)" }, "No"));
 
         defaultSmileyList.add(new SmileyImpl("service.gui.smileys.SMILEY4",
-            new String[] {":-0", "(shocked)"}, "Shocked"));
+            new String[] {":-))", ":))", ";-))", ";))", "(lol)", ":-D", ":D",
+                        ";-D", ";D"}, "Laughing"));
 
         defaultSmileyList.add(new SmileyImpl("service.gui.smileys.SMILEY5",
             new String[] {  ";-((", ";((", ";-(", ";(", ":'(", ":'-(",
@@ -55,14 +56,13 @@ public class Resources
             new String[] {"&lt;3", "(L)" , "(l)", "(H)", "(h)"}, "In love"));
 
         defaultSmileyList.add(new SmileyImpl("service.gui.smileys.SMILEY7",
-            new String[] {"(blush)"}, "Blushing"));
+            new String[] {"(angel)" }, "Angel"));
 
         defaultSmileyList.add(new SmileyImpl("service.gui.smileys.SMILEY8",
-            new String[] {":-P", ":P", ":-p", ":p" }, "Tongue out"));
+            new String[] {"(bomb)"}, "Exploding"));
 
         defaultSmileyList.add(new SmileyImpl("service.gui.smileys.SMILEY9",
-            new String[] {":-))", ":))", ";-))", ";))", "(lol)", ":-D", ":D",
-                        ";-D", ";D"}, "Laughing"));
+            new String[] {"(chuckle)" }, "Chuckle"));
 
         defaultSmileyList.add(new SmileyImpl("service.gui.smileys.SMILEY10",
             new String[] {"(y)", "(Y)", "(ok)"}, "Ok"));
@@ -71,13 +71,13 @@ public class Resources
             new String[] {";-)", ";)", ":-)", ":)"}, "Smile"));
 
         defaultSmileyList.add(new SmileyImpl("service.gui.smileys.SMILEY12",
-            new String[] {"(sick)"}, "Sick"));
+            new String[] {"(blush)"}, "Blushing"));
 
         defaultSmileyList.add(new SmileyImpl("service.gui.smileys.SMILEY13",
-            new String[] {"(n)", "(N)" }, "No"));
+            new String[] {":-*", ":*", "(kiss)"}, "Kiss"));
 
         defaultSmileyList.add(new SmileyImpl("service.gui.smileys.SMILEY14",
-            new String[] {"(chuckle)" }, "Chuckle"));
+            new String[] {"(search)"}, "Searching"));
 
         defaultSmileyList.add(new SmileyImpl("service.gui.smileys.SMILEY15",
             new String[] {"(wave)" }, "Waving"));
@@ -86,13 +86,13 @@ public class Resources
             new String[] {"(clap)"}, "Clapping"));
 
         defaultSmileyList.add(new SmileyImpl("service.gui.smileys.SMILEY17",
-            new String[] {"(angry)"}, "Angry"));
+            new String[] {"(sick)"}, "Sick"));
 
         defaultSmileyList.add(new SmileyImpl("service.gui.smileys.SMILEY18",
-            new String[] {"(bomb)"}, "Exploding"));
+            new String[] {":-P", ":P", ":-p", ":p" }, "Tongue out"));
 
         defaultSmileyList.add(new SmileyImpl("service.gui.smileys.SMILEY19",
-            new String[] {"(search)"}, "Searching"));
+            new String[] {":-0", "(shocked)"}, "Shocked"));
 
         defaultSmileyList.add(new SmileyImpl("service.gui.smileys.SMILEY20",
             new String[] {"(oops)"}, "Oops"));
