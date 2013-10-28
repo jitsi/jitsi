@@ -25,41 +25,44 @@ import org.apache.felix.main.*;
 public class SIPCommunicator
 {
     /**
-     * The name of the property that stores our home dir location.
+     * Legacy home directory names that we can use if current dir name is the
+     * currently active name (overridableDirName).
      */
-    public static final String PNAME_SC_HOME_DIR_LOCATION =
-            "net.java.sip.communicator.SC_HOME_DIR_LOCATION";
-
-    /**
-     * The name of the property that stores our home dir name.
-     */
-    public static final String PNAME_SC_HOME_DIR_NAME =
-            "net.java.sip.communicator.SC_HOME_DIR_NAME";
-
-    /**
-     * The currently active name.
-     */
-    private static String overridableDirName = "Jitsi";
-
-    /**
-     * Legacy home directory names that we can use if current dir name
-     * is the currently active name (overridableDirName).
-     */
-    private static String[] legacyDirNames =
-        {".sip-communicator", "SIP Communicator"};
+    private static final String[] LEGACY_DIR_NAMES
+        = { ".sip-communicator", "SIP Communicator" };
 
     /**
      * Name of the possible configuration file names (used under macosx).
      */
-    private static String[] legacyConfigurationFileNames =
-        {"sip-communicator.properties", "jitsi.properties",
-         "sip-communicator.xml", "jitsi.xml"};
+    private static final String[] LEGACY_CONFIGURATION_FILE_NAMES
+        = {
+            "sip-communicator.properties",
+            "jitsi.properties",
+            "sip-communicator.xml",
+            "jitsi.xml"
+        };
+
+    /**
+     * The currently active name.
+     */
+    private static final String OVERRIDABLE_DIR_NAME = "Jitsi";
+
+    /**
+     * The name of the property that stores our home dir location.
+     */
+    public static final String PNAME_SC_HOME_DIR_LOCATION
+        = "net.java.sip.communicator.SC_HOME_DIR_LOCATION";
+
+    /**
+     * The name of the property that stores our home dir name.
+     */
+    public static final String PNAME_SC_HOME_DIR_NAME
+        = "net.java.sip.communicator.SC_HOME_DIR_NAME";
 
     /**
      * Starts the SIP Communicator.
      *
      * @param args command line args if any
-     *
      * @throws Exception whenever it makes sense.
      */
     public static void main(String[] args)
@@ -79,12 +82,18 @@ public class SIPCommunicator
         setScHomeDir(osName);
 
         // this needs to be set before any DNS lookup is run
-        File f = new File(System.getProperty(PNAME_SC_HOME_DIR_LOCATION),
-            System.getProperty(PNAME_SC_HOME_DIR_NAME)
-            + File.separator + ".usednsjava");
+        File f
+            = new File(
+                    System.getProperty(PNAME_SC_HOME_DIR_LOCATION),
+                    System.getProperty(PNAME_SC_HOME_DIR_NAME)
+                        + File.separator
+                        + ".usednsjava");
         if(f.exists())
+        {
             System.setProperty(
-                "sun.net.spi.nameservice.provider.1", "dns,dnsjava");
+                    "sun.net.spi.nameservice.provider.1",
+                    "dns,dnsjava");
+        }
 
         if (version.startsWith("1.4") || vmVendor.startsWith("Gnu") ||
                 vmVendor.startsWith("Free"))
@@ -162,7 +171,7 @@ public class SIPCommunicator
      * wrappers to call it.
      *
      * @param osName the name of the OS according to which the SC_HOME_DIR_*
-     *            properties are to be set
+     * properties are to be set
      */
     static void setScHomeDir(String osName)
     {
@@ -188,8 +197,8 @@ public class SIPCommunicator
             // 2) if such is forced and is the overridableDirName check it
             //      (the later is the case with name transition SIP Communicator
             //      -> Jitsi, check them only for Jitsi)
-            boolean chekLegacyDirNames = (name == null) ||
-                name.equals(overridableDirName);
+            boolean chekLegacyDirNames
+                = (name == null) || name.equals(OVERRIDABLE_DIR_NAME);
 
             if (osName.startsWith("Mac"))
             {
@@ -234,28 +243,25 @@ public class SIPCommunicator
                 name = defaultName;
             }
 
-            // if we need to check legacy names and there is no
-            // current home dir already created
+            // if we need to check legacy names and there is no current home dir
+            // already created
             if(chekLegacyDirNames
-               && !checkHomeFolderExist(location, name, osName))
+                    && !checkHomeFolderExist(location, name, osName))
             {
-                // now check whether some of the legacy dir names
-                // exists, and use it if exist
-                for(int i = 0; i < legacyDirNames.length; i++)
+                // now check whether a legacy dir name exists and use it
+                for(String dir : LEGACY_DIR_NAMES)
                 {
                     // check the platform specific directory
-                    if(checkHomeFolderExist(
-                            location, legacyDirNames[i], osName))
+                    if(checkHomeFolderExist(location, dir, osName))
                     {
-                        name = legacyDirNames[i];
+                        name = dir;
                         break;
                     }
 
                     // now check it and in the default location
-                    if(checkHomeFolderExist(
-                            defaultLocation, legacyDirNames[i], osName))
+                    if(checkHomeFolderExist(defaultLocation, dir, osName))
                     {
-                        name = legacyDirNames[i];
+                        name = dir;
                         location = defaultLocation;
                         break;
                     }
@@ -271,13 +277,12 @@ public class SIPCommunicator
     }
 
     /**
-     * Checks whether home folder exists.
-     * Special situation checked under macosx, due to created folder
-     * of the new version of the updater we may end up with our
-     * settings in 'SIP Communicator' folder and having 'Jitsi' folder
-     * created by the updater(its download location).
-     * So we check not only the folder exist but whether it contains
-     * any of the known configuration files in it.
+     * Checks whether home folder exists. Special situation checked under
+     * macosx, due to created folder of the new version of the updater we may
+     * end up with our settings in 'SIP Communicator' folder and having 'Jitsi'
+     * folder created by the updater(its download location). So we check not
+     * only the folder exist but whether it contains any of the known
+     * configuration files in it.
      *
      * @param parent the parent folder
      * @param name the folder name to check.
@@ -285,17 +290,15 @@ public class SIPCommunicator
      * @return whether folder exists.
      */
     static boolean checkHomeFolderExist(
-        String parent, String name, String osName)
+            String parent, String name, String osName)
     {
         if(osName.startsWith("Mac"))
         {
-            for(int i = 0; i < legacyConfigurationFileNames.length; i++)
+            for(String f : LEGACY_CONFIGURATION_FILE_NAMES)
             {
-                if(new File(new File(parent, name)
-                            , legacyConfigurationFileNames[i]).exists())
+                if(new File(new File(parent, name), f).exists())
                     return true;
             }
-
             return false;
         }
 

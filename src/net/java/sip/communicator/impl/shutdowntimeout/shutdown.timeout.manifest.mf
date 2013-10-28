@@ -6,4 +6,5 @@ Bundle-Version: 0.0.1
 System-Bundle: yes
 Import-Package: org.osgi.framework,
  org.jitsi.service.configuration,
- net.java.sip.communicator.util
+ net.java.sip.communicator.util,
+ net.java.sip.communicator.util.launchutils
