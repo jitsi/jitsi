@@ -15,6 +15,7 @@ import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.util.skin.*;
 
 /**
@@ -79,10 +80,17 @@ public class ChatFileMenu
     @Override
     public void actionPerformed(ActionEvent e)
     {
-        super.actionPerformed(e);
-
         JMenuItem menuItem = (JMenuItem) e.getSource();
         String itemText = menuItem.getName();
+        
+        if (itemText.equalsIgnoreCase("close"))
+        {
+            this.chatWindow.setVisible(false);
+            this.chatWindow.dispose();
+            return;
+        }
+        
+        super.actionPerformed(e);
 
         if (itemText.equalsIgnoreCase("myChatRooms"))
         {
@@ -119,11 +127,6 @@ public class ChatFileMenu
                 historyWindowManager.addHistoryWindowForContact(
                     chatSession.getDescriptor(), history);
             }
-        }
-        else if (itemText.equalsIgnoreCase("close"))
-        {
-            this.chatWindow.setVisible(false);
-            this.chatWindow.dispose();
         }
     }
 
