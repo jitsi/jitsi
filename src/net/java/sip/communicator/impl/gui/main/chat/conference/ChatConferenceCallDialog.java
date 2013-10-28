@@ -10,17 +10,11 @@ import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
-import javax.swing.border.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.main.call.CallManager;
-import net.java.sip.communicator.impl.gui.main.chat.ChatPanel;
-import net.java.sip.communicator.impl.gui.main.chat.ChatSession;
-import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.impl.gui.main.call.*;
+import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
-import net.java.sip.communicator.plugin.jabberaccregwizz.AccountPanel;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.skin.*;
 

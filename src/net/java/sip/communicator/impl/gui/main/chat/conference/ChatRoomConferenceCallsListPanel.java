@@ -7,12 +7,11 @@
 package net.java.sip.communicator.impl.gui.main.chat.conference;
 
 import java.awt.*;
-import java.awt.event.*;
+import java.lang.annotation.*;
 
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
