@@ -254,14 +254,6 @@ public class MainToolBar
         this.leaveChatRoomButton.setToolTipText(
             GuiActivator.getResources().getI18NString("service.gui.LEAVE"));
 
-        this.callButton.setToolTipText(
-            GuiActivator.getResources().getI18NString(
-                "service.gui.CALL_CONTACT"));
-
-        this.callVideoButton.setToolTipText(
-            GuiActivator.getResources().getI18NString(
-                "service.gui.CALL_CONTACT"));
-
         setCallButtonsName();
         setCallButtonsIcons();
         
@@ -358,9 +350,15 @@ public class MainToolBar
                 chatPanel.findFileTransferChatTransport() != null);
             inviteButton.setEnabled(!chatPanel.isPrivateMessagingChat());
 
-            // null when using chat rooms
-            if(contact != null)
+            if(chatPanel.chatSession instanceof ConferenceChatSession)
+            {
+                callButton.setEnabled(true);
+                callVideoButton.setEnabled(true);
+            }
+            else if(contact != null)
+            {
                 new UpdateCallButtonWorker(contact).start();
+            }
 
             changeHistoryButtonsState(chatPanel);
             
@@ -728,11 +726,25 @@ public class MainToolBar
         {
             callButton.setName("createConference");
             callVideoButton.setName("createConference");
+            this.callButton.setToolTipText(
+                GuiActivator.getResources().getI18NString(
+                    "service.gui.CREATE_JOIN_VIDEO_CONFERENCE"));
+
+            this.callVideoButton.setToolTipText(
+                GuiActivator.getResources().getI18NString(
+                    "service.gui.CREATE_JOIN_VIDEO_CONFERENCE"));
         }
         else
         {
             callButton.setName("call");
             callVideoButton.setName("callVideo");
+            this.callButton.setToolTipText(
+                GuiActivator.getResources().getI18NString(
+                    "service.gui.CALL_CONTACT"));
+
+            this.callVideoButton.setToolTipText(
+                GuiActivator.getResources().getI18NString(
+                    "service.gui.CALL_CONTACT"));
         }
     }
 
@@ -747,6 +759,8 @@ public class MainToolBar
                 ImageLoader.CHAT_ROOM_CALL));
             callVideoButton.setIconImage(ImageLoader.getImage(
                 ImageLoader.CHAT_ROOM_VIDEO_CALL));
+            callButton.setPreferredSize(new Dimension(29, 25));
+            callVideoButton.setPreferredSize(new Dimension(29, 25));
         }
         else
         {
@@ -754,6 +768,8 @@ public class MainToolBar
                 ImageLoader.CHAT_CALL));
             callVideoButton.setIconImage(ImageLoader.getImage(
                 ImageLoader.CHAT_VIDEO_CALL));
+            callButton.setPreferredSize(new Dimension(25, 25));
+            callVideoButton.setPreferredSize(new Dimension(25, 25));
         }
         callButton.repaint();
         callVideoButton.repaint();
