@@ -294,7 +294,7 @@ public class ChatConferenceCallDialog
             {
                 chatRoom.publishConference(null, null);
             }
-            this.dispose();
+            this.setVisible(false);
 
         }
         else if(source instanceof JRadioButton)

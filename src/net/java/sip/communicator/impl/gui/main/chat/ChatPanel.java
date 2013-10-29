@@ -414,8 +414,9 @@ public class ChatPanel
         }
         
         chatConferencesDialog.setVisible(true);
-        chatConferencesDialog.pack();
+        
         chatConferencesDialog.toFront();
+        chatConferencesDialog.pack();
     }
     
     /**
