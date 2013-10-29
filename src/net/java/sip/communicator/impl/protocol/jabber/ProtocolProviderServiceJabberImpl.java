@@ -1148,6 +1148,19 @@ public class ProtocolProviderServiceJabberImpl
             {
                 SSLContext sslContext = loginStrategy.createSslContext(cvs,
                         getTrustManager(cvs, serviceName));
+                
+                // log SSL/TLS algorithms and protocols
+                if (logger.isDebugEnabled())
+                {
+                    final StringBuilder buff = new StringBuilder();
+                    buff.append("Available TLS protocols and algorithms:\n")
+                            .append("Default protocols:       ").append(Arrays.toString(sslContext.getDefaultSSLParameters().getProtocols())).append("\n")
+                            .append("Supported protocols:     ").append(Arrays.toString(sslContext.getSupportedSSLParameters().getProtocols())).append("\n")
+                            .append("Default cipher suites:   ").append(Arrays.toString(sslContext.getDefaultSSLParameters().getCipherSuites())).append("\n")
+                            .append("Supported cipher suites: ").append(Arrays.toString(sslContext.getSupportedSSLParameters().getCipherSuites()));
+                    logger.debug(buff.toString());
+                }
+                
                 connection.setCustomSslContext(sslContext);
             }
             else if (tlsRequired)
@@ -1214,6 +1227,31 @@ public class ProtocolProviderServiceJabberImpl
         }
         else
         {
+            if (connection.getSocket() instanceof SSLSocket)
+            {
+                final SSLSocket sslSocket = (SSLSocket) connection.getSocket();
+                StringBuilder buff = new StringBuilder();
+                buff.append("Chosen TLS protocol and algorithm:\n")
+                        .append("Protocol:     ").append(sslSocket.getSession().getProtocol()).append("\n")
+                        .append("Cipher suite: ").append(sslSocket.getSession().getCipherSuite());
+                logger.info(buff.toString());
+                
+                if (logger.isDebugEnabled())
+                {
+                    buff = new StringBuilder();
+                    buff.append("Server TLS certificate chain:\n");
+                    try
+                    {
+                        buff.append(Arrays.toString(sslSocket.getSession().getPeerCertificates()));
+                    }
+                    catch (SSLPeerUnverifiedException ex)
+                    {
+                        buff.append("<unavailable: ").append(ex.getLocalizedMessage()).append(">");
+                    }
+                    logger.debug(buff.toString());
+                }
+            }
+            
             connection.addConnectionListener(connectionListener);
         }
 
