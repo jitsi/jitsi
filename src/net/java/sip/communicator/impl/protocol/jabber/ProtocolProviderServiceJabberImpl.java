@@ -636,6 +636,70 @@ public class ProtocolProviderServiceJabberImpl
         }
         return TransportProtocol.UNKNOWN;
     }
+    
+    /**
+     * Returns the negotiated cipher suite if TLS is used.
+     *
+     * @return The cipher suite name used for instance 
+     * "TLS_RSA_WITH_AES_256_CBC_SHA" or null if TLS is not used.
+     */
+    @Override
+    public String getTLSCipherSuite() {
+        final String result;
+        if (connection.getSocket() instanceof SSLSocket)
+        {
+            final SSLSocket sslSocket = (SSLSocket) connection.getSocket();
+            result = sslSocket.getSession().getCipherSuite();
+        }
+        else
+        {
+            result = null;
+        }
+        return result;
+    }
+
+    /**
+     * Returns the negotiated SSL/TLS protocol.
+     *
+     * @return The protocol name used for instance "TLSv1" or null if TLS 
+     * (or SSL) is not used.
+     */
+    @Override
+    public String getTLSProtocol() {
+        final String result;
+        if (connection.getSocket() instanceof SSLSocket)
+        {
+            final SSLSocket sslSocket = (SSLSocket) connection.getSocket();
+            result = sslSocket.getSession().getProtocol();
+        }
+        else
+        {
+            result = null;
+        }
+        return result;
+    }
+
+    /**
+     * Returns the TLS server certificate chain with the end entity certificate
+     * in the first position and the issuers following (if any returned by the 
+     * server).
+     *
+     * @return The TLS server certificate chain or null if TLS is not used.
+     */
+    @Override
+    public java.security.cert.Certificate[] getTLSServerCertificates() {
+        java.security.cert.Certificate[] result = null;
+        if (connection.getSocket() instanceof SSLSocket)
+        {
+            try {
+                final SSLSocket sslSocket = (SSLSocket) connection.getSocket();
+                result = sslSocket.getSession().getPeerCertificates();
+            } catch (SSLPeerUnverifiedException ignored) {
+                // result will be null
+            }
+        }
+        return result;
+    }
 
     /**
      * Connects and logins to the server
