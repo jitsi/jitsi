@@ -113,6 +113,12 @@ public class CallPanel
         = "net.java.sip.communicator.impl.gui.main.call.HIDE_CALL_INFO_BUTTON";
 
     /**
+     * Property to disable the conference "add to call" button.
+     */
+    private static final String HIDE_CONFERENCE_BUTON_PROP
+        = "net.java.sip.communicator.impl.gui.main.call.HIDE_CONFERENCE_BUTTON";
+
+    /**
      * Property to disable the record button.
      */
     private static final String HIDE_CALL_RECORD_BUTON_PROP
@@ -871,7 +877,9 @@ public class CallPanel
             }
         }
 
-        conferenceButton.setEnabled(telephonyConferencing);
+        if(conferenceButton != null)
+            conferenceButton.setEnabled(telephonyConferencing);
+
         transferCallButton.setEnabled(advancedTelephony);
         transferCallButton.setVisible(!callConference.isConferenceFocus());
 
@@ -1255,7 +1263,8 @@ public class CallPanel
     private void initButtonIndexes()
     {
         dialButton.setIndex(0);
-        conferenceButton.setIndex(1);
+        if (conferenceButton != null)
+            conferenceButton.setIndex(1);
         holdButton.setIndex(2);
         if (recordButton != null)
             recordButton.setIndex(3);
@@ -1364,12 +1373,19 @@ public class CallPanel
                     CHAT_BUTTON,
                     GuiActivator.getResources().getI18NString(
                             "service.gui.CHAT"));
-        conferenceButton
-            = new CallToolBarButton(
+
+        if(!GuiActivator.getConfigurationService().getBoolean(
+           HIDE_CONFERENCE_BUTON_PROP,
+           false))
+        {
+            conferenceButton
+                = new CallToolBarButton(
                     ImageLoader.getImage(ImageLoader.ADD_TO_CALL_BUTTON),
                     CONFERENCE_BUTTON,
                     GuiActivator.getResources().getI18NString(
-                            "service.gui.CREATE_CONFERENCE_CALL"));
+                        "service.gui.CREATE_CONFERENCE_CALL"));
+        }
+
         desktopSharingButton = new DesktopSharingButton(aCall);
         dialButton
             = new CallToolBarButton(
@@ -1430,14 +1446,16 @@ public class CallPanel
         initButtonIndexes();
 
         chatButton.addActionListener(this);
-        conferenceButton.addActionListener(this);
+        if (conferenceButton != null)
+            conferenceButton.addActionListener(this);
         dialButton.addActionListener(this);
         if (infoButton != null)
             infoButton.addActionListener(this);
         mergeButton.addActionListener(this);
 
         settingsPanel.add(chatButton);
-        settingsPanel.add(conferenceButton);
+        if (conferenceButton != null)
+            settingsPanel.add(conferenceButton);
         settingsPanel.add(desktopSharingButton);
         settingsPanel.add(dialButton);
         settingsPanel.add(fullScreenButton);
@@ -1547,10 +1565,13 @@ public class CallPanel
         dialButton.setIconImage(
                 ImageLoader.getImage(ImageLoader.DIAL_BUTTON));
 
-        conferenceButton.setBackgroundImage(
+        if (conferenceButton != null)
+        {
+            conferenceButton.setBackgroundImage(
                 ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_BG));
-        conferenceButton.setIconImage(
-                ImageLoader.getImage(ImageLoader.ADD_TO_CALL_BUTTON));
+            conferenceButton.setIconImage(
+                    ImageLoader.getImage(ImageLoader.ADD_TO_CALL_BUTTON));
+        }
 
         if (hangupButton != null)
             hangupButton.setBackgroundImage(

@@ -69,6 +69,13 @@ public class ToolsMenu
     private static final String AUTO_ANSWER_MENU_DISABLED_PROP =
         "net.java.sip.communicator.impl.gui.main.menus.AUTO_ANSWER_MENU_DISABLED";
 
+    /**
+     * Property to disable conference initialization.
+     */
+    private static final String CONFERENCE_CALL_DISABLED_PROP =
+        "net.java.sip.communicator.impl.gui.main.menus"
+            + ".CONFERENCE_CALL_MENU_ITEM_DISABLED";
+
    /**
     * Conference call menu item.
     */
@@ -359,14 +366,21 @@ public class ToolsMenu
 
         ResourceManagementService r = GuiActivator.getResources();
 
-        conferenceMenuItem
-            = new JMenuItem(
+        Boolean showConferenceMenuItemProp
+            = cfg.getBoolean(CONFERENCE_CALL_DISABLED_PROP,
+                            false);
+
+        if(!showConferenceMenuItemProp.booleanValue())
+        {
+            conferenceMenuItem
+                = new JMenuItem(
                     r.getI18NString("service.gui.CREATE_CONFERENCE_CALL"));
-        conferenceMenuItem.setMnemonic(
+            conferenceMenuItem.setMnemonic(
                 r.getI18nMnemonic("service.gui.CREATE_CONFERENCE_CALL"));
-        conferenceMenuItem.setName("conference");
-        conferenceMenuItem.addActionListener(this);
-        add(conferenceMenuItem);
+            conferenceMenuItem.setName("conference");
+            conferenceMenuItem.addActionListener(this);
+            add(conferenceMenuItem);
+        }
 
         // Add a service listener in order to be notified when a new protocol
         // provider is added or removed and the list should be refreshed.
@@ -716,8 +730,12 @@ public class ToolsMenu
     {
         ResourceManagementService r = GuiActivator.getResources();
 
-        conferenceMenuItem.setIcon(
-                r.getImage("service.gui.icons.CONFERENCE_CALL"));
+        if (conferenceMenuItem != null)
+        {
+            conferenceMenuItem.setIcon(
+                    r.getImage("service.gui.icons.CONFERENCE_CALL"));
+        }
+
         if (configMenuItem != null)
         {
             configMenuItem.setIcon(
