@@ -125,6 +125,30 @@ public class CallPanel
         = "net.java.sip.communicator.impl.gui.main.call.HIDE_CALL_RECORD_BUTTON";
 
     /**
+     * Property to disable the "call merge" button.
+     */
+    private static final String HIDE_CALL_MERGE_BUTON_PROP
+        = "net.java.sip.communicator.impl.gui.main.call.HIDE_CALL_MERGE_BUTTON";
+
+    /**
+     * Property to disable the "call merge" button.
+     */
+    private static final String HIDE_CALL_TRANSFER_BUTON_PROP
+        = "net.java.sip.communicator.impl.gui.main.call.HIDE_CALL_TRANSFER_BUTTON";
+
+    /**
+     * Property to disable the "hold" button.
+     */
+    private static final String HIDE_CALL_HOLD_BUTON_PROP
+        = "net.java.sip.communicator.impl.gui.main.call.HIDE_CALL_HOLD_BUTTON";
+
+    /**
+     * Property to disable the dial button.
+     */
+    private static final String HIDE_DIAL_BUTON_PROP
+        = "net.java.sip.communicator.impl.gui.main.call.HIDE_DIAL_BUTTON";
+
+    /**
      * The <tt>Component</tt> which is at the bottom of this view and contains
      * {@link #settingsPanel}. It overrides the Swing-defined background on OS
      * X so it needs explicit updating upon switching between full-screen and
@@ -880,8 +904,11 @@ public class CallPanel
         if(conferenceButton != null)
             conferenceButton.setEnabled(telephonyConferencing);
 
-        transferCallButton.setEnabled(advancedTelephony);
-        transferCallButton.setVisible(!callConference.isConferenceFocus());
+        if(transferCallButton != null)
+        {
+            transferCallButton.setEnabled(advancedTelephony);
+            transferCallButton.setVisible(!callConference.isConferenceFocus());
+        }
 
         /*
          * The videoButton is a beast of its own kind because it depends not
@@ -1262,14 +1289,18 @@ public class CallPanel
      */
     private void initButtonIndexes()
     {
-        dialButton.setIndex(0);
+        if (dialButton != null)
+            dialButton.setIndex(0);
         if (conferenceButton != null)
             conferenceButton.setIndex(1);
-        holdButton.setIndex(2);
+        if (holdButton != null)
+            holdButton.setIndex(2);
         if (recordButton != null)
             recordButton.setIndex(3);
-        mergeButton.setIndex(4);
-        transferCallButton.setIndex(5);
+        if (mergeButton != null)
+            mergeButton.setIndex(4);
+        if (transferCallButton != null)
+            transferCallButton.setIndex(5);
 
         localLevel.setIndex(6);
         if (remoteLevel instanceof OrderedComponent)
@@ -1387,15 +1418,27 @@ public class CallPanel
         }
 
         desktopSharingButton = new DesktopSharingButton(aCall);
-        dialButton
-            = new CallToolBarButton(
-                    ImageLoader.getImage(ImageLoader.DIAL_BUTTON),
-                    DIAL_BUTTON,
-                    GuiActivator.getResources().getI18NString(
-                            "service.gui.DIALPAD"));
+        if(!GuiActivator.getConfigurationService().getBoolean(
+            HIDE_DIAL_BUTON_PROP,
+            false))
+        {
+            dialButton
+                = new CallToolBarButton(
+                        ImageLoader.getImage(ImageLoader.DIAL_BUTTON),
+                        DIAL_BUTTON,
+                        GuiActivator.getResources().getI18NString(
+                                "service.gui.DIALPAD"));
+        }
+
         fullScreenButton = new FullScreenButton(this);
         hangupButton = new HangupButton(this);
-        holdButton = new HoldButton(aCall);
+        if(!GuiActivator.getConfigurationService().getBoolean(
+            HIDE_CALL_HOLD_BUTON_PROP,
+            false))
+        {
+            holdButton = new HoldButton(aCall);
+        }
+
         if(!GuiActivator.getConfigurationService().getBoolean(
                 HIDE_CALL_INFO_BUTON_PROP,
                 false))
@@ -1407,12 +1450,18 @@ public class CallPanel
                         GuiActivator.getResources().getI18NString(
                                 "service.gui.PRESS_FOR_CALL_INFO"));
         }
-        mergeButton
-            = new CallToolBarButton(
-                    ImageLoader.getImage(ImageLoader.MERGE_CALL_BUTTON),
-                    MERGE_BUTTON,
-                    GuiActivator.getResources().getI18NString(
-                            "service.gui.MERGE_TO_CALL"));
+        if(!GuiActivator.getConfigurationService().getBoolean(
+            HIDE_CALL_MERGE_BUTON_PROP,
+            false))
+        {
+            mergeButton
+                = new CallToolBarButton(
+                        ImageLoader.getImage(ImageLoader.MERGE_CALL_BUTTON),
+                        MERGE_BUTTON,
+                        GuiActivator.getResources().getI18NString(
+                                "service.gui.MERGE_TO_CALL"));
+
+        }
 
         if(!GuiActivator.getConfigurationService().getBoolean(
             HIDE_CALL_RECORD_BUTON_PROP,
@@ -1420,8 +1469,16 @@ public class CallPanel
         {
             recordButton = new RecordButton(aCall);
         }
+
         showHideVideoButton = new ShowHideVideoButton(uiVideoHandler);
-        transferCallButton = new TransferCallButton(aCall);
+
+        if(!GuiActivator.getConfigurationService().getBoolean(
+            HIDE_CALL_TRANSFER_BUTON_PROP,
+            false))
+        {
+            transferCallButton = new TransferCallButton(aCall);
+        }
+
         videoButton = new LocalVideoButton(aCall);
 
         localLevel
@@ -1448,26 +1505,32 @@ public class CallPanel
         chatButton.addActionListener(this);
         if (conferenceButton != null)
             conferenceButton.addActionListener(this);
-        dialButton.addActionListener(this);
+        if (dialButton != null)
+            dialButton.addActionListener(this);
         if (infoButton != null)
             infoButton.addActionListener(this);
-        mergeButton.addActionListener(this);
+        if (mergeButton != null)
+            mergeButton.addActionListener(this);
 
         settingsPanel.add(chatButton);
         if (conferenceButton != null)
             settingsPanel.add(conferenceButton);
         settingsPanel.add(desktopSharingButton);
-        settingsPanel.add(dialButton);
+        if (dialButton != null)
+            settingsPanel.add(dialButton);
         settingsPanel.add(fullScreenButton);
         settingsPanel.add(hangupButton);
-        settingsPanel.add(holdButton);
+        if (holdButton != null)
+            settingsPanel.add(holdButton);
         if (infoButton != null)
             settingsPanel.add(infoButton);
-        settingsPanel.add(mergeButton);
+        if (mergeButton != null)
+            settingsPanel.add(mergeButton);
         if (recordButton != null)
             settingsPanel.add(recordButton);
         settingsPanel.add(showHideVideoButton);
-        settingsPanel.add(transferCallButton);
+        if (mergeButton != null)
+            settingsPanel.add(transferCallButton);
         settingsPanel.add(videoButton);
 
         // The bottom bar will contain the settingsPanel.
@@ -1560,10 +1623,13 @@ public class CallPanel
      */
     public void loadSkin()
     {
-        dialButton.setBackgroundImage(
+        if (dialButton != null)
+        {
+            dialButton.setBackgroundImage(
                 ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_BG));
-        dialButton.setIconImage(
-                ImageLoader.getImage(ImageLoader.DIAL_BUTTON));
+            dialButton.setIconImage(
+                    ImageLoader.getImage(ImageLoader.DIAL_BUTTON));
+        }
 
         if (conferenceButton != null)
         {
@@ -2019,6 +2085,11 @@ public class CallPanel
      */
     public void updateHoldButtonState()
     {
+        // If the hold button has been disabled by its configuration property we
+        // have nothing more to do here.
+        if (holdButton == null)
+            return;
+
         if(!SwingUtilities.isEventDispatchThread())
         {
             SwingUtilities.invokeLater(new Runnable()
@@ -2068,10 +2139,16 @@ public class CallPanel
     }
 
     /**
-     * Updates the <tt>visible</tt> state/property of {@link #mergeButton}.
+     * Updates the <tt>visible</tt> state/property of {@link #mergeButton} if
+     * the merge button is present.
      */
     private void updateMergeButtonState()
     {
+        // If the merge button isn't present, for example if it's hidden by
+        // its configuration property we have nothing more to do here.
+        if (mergeButton == null)
+            return;
+
         List<CallConference> conferences = new ArrayList<CallConference>();
         int cpt = 0;
 
