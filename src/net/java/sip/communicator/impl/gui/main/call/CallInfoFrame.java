@@ -297,10 +297,14 @@ public class CallInfoFrame
 
             if (preferredTransport == TransportProtocol.TLS)
             {
-                stringBuffer.append(getLineString("Protocol", 
-                        aCall.getProtocolProvider().getTLSProtocol())); // TODO: I18N
-                stringBuffer.append(getLineString("Cipher suite", 
-                        aCall.getProtocolProvider().getTLSCipherSuite())); // TODO: I18N
+                stringBuffer.append(getLineString(
+                        resources.getI18NString(
+                        "service.gui.callinfo.TLS_PROTOCOL"), 
+                        aCall.getProtocolProvider().getTLSProtocol()));
+                stringBuffer.append(getLineString(
+                        resources.getI18NString(
+                        "service.gui.callinfo.TLS_CIPHER_SUITE"), 
+                        aCall.getProtocolProvider().getTLSCipherSuite()));
             }
             
             constructCallPeersInfo(stringBuffer);
@@ -308,7 +312,9 @@ public class CallInfoFrame
             if (preferredTransport == TransportProtocol.TLS)
             {
                 stringBuffer.append("<br/>\n");
-                stringBuffer.append(getLineString("Server certificate chain", 
+                stringBuffer.append(getLineString(
+                        resources.getI18NString(
+                        "service.gui.callinfo.TLS_SERVER_CERTIFICATE_CHAIN"), 
                         getPEMChain(aCall.getProtocolProvider()
                         .getTLSServerCertificates())));
             }
