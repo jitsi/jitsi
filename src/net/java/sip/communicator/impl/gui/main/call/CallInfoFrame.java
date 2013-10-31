@@ -187,18 +187,23 @@ public class CallInfoFrame
         buff.append("<pre>");
         if (chain != null)
         {
-            for (Certificate cert : chain) {
+            for (Certificate cert : chain)
+            {
                 if (cert instanceof X509Certificate)
                 {
                     X509Certificate x509 = (X509Certificate) cert;
-                    buff.append("Subject: ").append(x509.getSubjectDN().getName()).append("\n");
-                    buff.append("Issuer: ").append(x509.getIssuerDN().getName()).append("\n");
+                    buff.append("Subject: ");
+                    buff.append(x509.getSubjectDN().getName()).append("\n");
+                    buff.append("Issuer: ");
+                    buff.append(x509.getIssuerDN().getName()).append("\n");
                 }
                 else
                 {
-                    buff.append("Unknown certificate type: ").append(cert.getType());
+                    buff.append("Unknown certificate type: ");
+                    buff.append(cert.getType());
                 }
-                try {
+                try
+                {
                     buff.append("-----BEGIN CERTIFICATE-----\n");
                     byte[] encoded = Base64.encode(cert.getEncoded());
                     ByteArrayOutputStream os = new ByteArrayOutputStream();
@@ -216,8 +221,11 @@ public class CallInfoFrame
                      }
                     buff.append(os.toString()).append("\n");
                     buff.append("-----END CERTIFICATE-----\n");
-                } catch (CertificateEncodingException ex) {
-                    buff.append("Unable to encode certificate: ").append(ex.getLocalizedMessage());
+                }
+                catch (CertificateEncodingException ex)
+                {
+                    buff.append("Unable to encode certificate: ");
+                    buff.append(ex.getLocalizedMessage());
                 }
             }
         }
@@ -289,8 +297,10 @@ public class CallInfoFrame
 
             if (preferredTransport == TransportProtocol.TLS)
             {
-                stringBuffer.append(getLineString("Protocol", aCall.getProtocolProvider().getTLSProtocol())); // TODO: I18N
-                stringBuffer.append(getLineString("Cipher suite", aCall.getProtocolProvider().getTLSCipherSuite())); // TODO: I18N
+                stringBuffer.append(getLineString("Protocol", 
+                        aCall.getProtocolProvider().getTLSProtocol())); // TODO: I18N
+                stringBuffer.append(getLineString("Cipher suite", 
+                        aCall.getProtocolProvider().getTLSCipherSuite())); // TODO: I18N
             }
             
             constructCallPeersInfo(stringBuffer);
@@ -298,7 +308,9 @@ public class CallInfoFrame
             if (preferredTransport == TransportProtocol.TLS)
             {
                 stringBuffer.append("<br/>\n");
-                stringBuffer.append(getLineString("Server certificate chain", getPEMChain(aCall.getProtocolProvider().getTLSServerCertificates())));
+                stringBuffer.append(getLineString("Server certificate chain", 
+                        getPEMChain(aCall.getProtocolProvider()
+                        .getTLSServerCertificates())));
             }
 
             stringBuffer.append("</font></p></body></html>");

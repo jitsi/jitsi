@@ -1716,18 +1716,24 @@ public class ProtocolProviderServiceSipImpl
     }
 
     @Override
-    public String getTLSCipherSuite() {
-        return null; // TODO: Return the negotiated cipher suite if TLS is used
+    public String getTLSCipherSuite()
+    {
+        // TODO: Return the negotiated cipher suite if TLS is used
+        return null;
     }
 
     @Override
-    public String getTLSProtocol() {
-        return null; // TODO: Return the negotiated SSL/TLS protocol if used
+    public String getTLSProtocol()
+    {
+        // TODO: Return the negotiated SSL/TLS protocol if used
+        return null;
     }
 
     @Override
-    public Certificate[] getTLSServerCertificates() {
-        return null; // TODO: Return the TLS server certificate chain if available
+    public Certificate[] getTLSServerCertificates()
+    {
+        // TODO: Return the TLS server certificate chain if available
+        return null;
     }
 
     /**

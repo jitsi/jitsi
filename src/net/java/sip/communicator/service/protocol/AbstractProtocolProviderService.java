@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.service.protocol;
 
-import java.security.cert.Certificate;
+import java.security.cert.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.event.*;
@@ -313,7 +313,8 @@ public abstract class AbstractProtocolProviderService
      * "TLS_RSA_WITH_AES_256_CBC_SHA" or null if TLS is not used.
      */
     @Override
-    public String getTLSCipherSuite() {
+    public String getTLSCipherSuite()
+    {
         return null;
     }
 
@@ -328,7 +329,8 @@ public abstract class AbstractProtocolProviderService
      * (or SSL) is not used.
      */
     @Override
-    public String getTLSProtocol() {
+    public String getTLSProtocol()
+    {
         return null;
     }
 
@@ -344,7 +346,8 @@ public abstract class AbstractProtocolProviderService
      * @return The TLS server certificate chain or null if TLS is not used.
      */
     @Override
-    public Certificate[] getTLSServerCertificates() {
+    public Certificate[] getTLSServerCertificates()
+    {
         return null;
     }
 

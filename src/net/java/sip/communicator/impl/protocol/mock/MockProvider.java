@@ -272,7 +272,8 @@ public class MockProvider
      * @return The cipher suite name used for instance 
      * "TLS_RSA_WITH_AES_256_CBC_SHA" or null if TLS is not used.
      */
-    public String getTLSCipherSuite() {
+    public String getTLSCipherSuite()
+    {
         return null;
     }
 
@@ -284,7 +285,8 @@ public class MockProvider
      * @return The protocol name used for instance "TLSv1" or null if TLS 
      * (or SSL) is not used.
      */
-    public String getTLSProtocol() {
+    public String getTLSProtocol()
+    {
         return null;
     }
 
