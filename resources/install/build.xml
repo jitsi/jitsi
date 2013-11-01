@@ -1014,7 +1014,7 @@
         <delete failonerror="false" file="${macosx.resrc.dir}/logging.properties"/>
         <delete failonerror="false" file="${macosx.resrc.dir}/felix.client.run.properties"/>
         <symlink action="delete" failonerror="false"
-                 link="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/libAEGetURLEventHandlerAgent.jnilib"/>
+                 link="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/libAEGetURLEventHandlerAgent.dylib"/>
 
         <symlink action="delete" failonerror="false"
                  link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/GrowlFramework/Growl.framework/Headers"/>
@@ -1063,43 +1063,6 @@
                 casesensitive="false"
                 trim="true"/>
       </condition>
-
-      <!-- Prepare the logging.properties file for macosx -->
-      <copy file="${inst.resrc}/logging.properties"
-              tofile="${macosx.resrc.dir}/logging.properties"
-              overwrite="true"/>
-      <replace file="${macosx.resrc.dir}/logging.properties"
-            token="java.util.logging.FileHandler.pattern = %h/.sip-communicator/log"
-            value="java.util.logging.FileHandler.pattern = log"/>
-
-      <!-- Prepare the felix.client.run.properties file for macosx -->
-      <copy file="${lib}/felix.client.run.properties"
-            tofile="${macosx.resrc.dir}/felix.client.run.properties"
-            overwrite="true"/>
-
-      <!-- Prepare the jitsi-defaults.properties file for macosx -->
-      <copy file="${lib}/jitsi-defaults.properties"
-            tofile="${macosx.resrc.dir}/jitsi-defaults.properties"
-            overwrite="true"
-            failonerror="false"/>
-
-      <replace file="${macosx.resrc.dir}/felix.client.run.properties"
-            token="swingnotification.jar">
-      <replacevalue><![CDATA[swingnotification.jar reference\:file\:sc-bundles/growlnotification.jar]]></replacevalue>
-       </replace>
-
-      <!-- Remove the reference to the update bundle -->
-      <replace file="${macosx.resrc.dir}/felix.client.run.properties"
-               token="reference:file:sc-bundles/update.jar"
-               value=""/>
-      <!-- colons can be escaped after some modifications -->
-      <replace file="${macosx.resrc.dir}/felix.client.run.properties"
-               token="reference\:file\:sc-bundles/update.jar"
-               value=""/>
-      <replaceregexp file="${macosx.resrc.dir}/felix.client.run.properties"
-                match="^org.osgi.framework.storage=\$\{user.home\}/.sip-communicator/sip-communicator.bin"
-                replace="org.osgi.framework.storage=$\{user.home\}/Library/Application Support/${application.name}/sip-communicator.bin"
-                flags="m"/>
 
       <!-- We copy macosx-specific bundles from
            sc-bundles/os-specific/macosx to sc-bundles -->
@@ -1150,7 +1113,7 @@
                   signature="sipc"
                   mainclass="net.java.sip.communicator.launcher.SIPCommunicator"
                   icon="resources/images/logo/sc_logo_128x128.icns"
-                  jvmversion="1.5+"
+                  jvmversion="1.6+"
                   version="${sip-communicator.version}"
                   build="${sparkle.build}"
                   infostring="${application.name}"
@@ -1193,13 +1156,32 @@
             <exclude name="${bundles.dest}/update.jar" />
             <include name="resources/images/logo/sc_logo_128x128.icns" />
         </jarfileset>
-        <javafilelist dir="${macosx.resrc.dir}"
+        <javafilelist dir="${inst.resrc}"
                       files="logging.properties"/>
-        <javafilelist dir="${macosx.resrc.dir}"
+        <javafilelist dir="${lib}"
                       files="felix.client.run.properties"/>
-        <javafilelist dir="${macosx.resrc.dir}"
+        <javafilelist dir="${lib}"
                       files="jitsi-defaults.properties"/>
       </jarbundler>
+
+      <!-- -->
+      <replace file="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/felix.client.run.properties"
+               token="swingnotification.jar">
+            <replacevalue><![CDATA[swingnotification.jar reference\:file\:sc-bundles/growlnotification.jar]]></replacevalue>
+      </replace>
+
+      <!-- Remove the reference to the update bundle -->
+      <replace file="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/felix.client.run.properties"
+               token="reference:file:sc-bundles/update.jar"
+               value=""/>
+      <!-- colons can be escaped after some modifications -->
+      <replace file="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/felix.client.run.properties"
+               token="reference\:file\:sc-bundles/update.jar"
+               value=""/>
+      <replaceregexp file="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/felix.client.run.properties"
+                match="^org.osgi.framework.storage=\$\{user.home\}/.sip-communicator/sip-communicator.bin"
+                replace="org.osgi.framework.storage=$\{user.home\}/Library/Application Support/${application.name}/sip-communicator.bin"
+                flags="m"/>
 
       <!-- Install the Growl Framework in the application package -->
       <mkdir dir="${macosx.app.dir}/${application.name}.app/Contents/Frameworks"/>
@@ -1255,15 +1237,55 @@
       <true/>
       <key>CFBundleName</key>]]></replacevalue>
       </replace>
-      <symlink resource="lib/native/mac/libAEGetURLEventHandlerAgent.jnilib"
-               link="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/libAEGetURLEventHandlerAgent.jnilib"/>
+      <symlink resource="lib/native/mac/libAEGetURLEventHandlerAgent.dylib"
+               link="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/libAEGetURLEventHandlerAgent.dylib"/>
 
       <copy file="${macosx.resrc.dir}/libgrowl4j.dylib"
             todir="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/lib/native/mac/"/>
 
+      <antcall target="-macosx-include-jre"/>
+
       <!-- Delete the tmp if it exists -->
       <delete dir="${macosx.app.dir}/tmp"
               quiet="yes" failonerror="false"/>
+    </target>
+
+    <!-- if folder for a macosx jdk is supplied we embed it in the distributed
+        dmg and provide info for it in Info.plist -->
+    <target name="-macosx-include-jre"
+            if="macosx.jre"
+            unless="macosx.embed.jre.disabled">
+
+        <basename property="jre.folder.name" file="${macosx.jre}"/>
+        <dirname property="jre.parent.folder" file="${macosx.jre}"/>
+
+        <mkdir dir="${macosx.app.dir}/${application.name}.app/Contents/PlugIns"/>
+        <copy todir="${macosx.app.dir}/${application.name}.app/Contents/PlugIns">
+              <fileset dir="${jre.parent.folder}">
+                  <include name="${jre.folder.name}/Contents/Info.plist"/>
+                  <include name="${jre.folder.name}/Contents/Home/jre/"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/bin/"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/bin/"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/deploy/"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/deploy.jar"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/javaws.jar"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/libdeploy.dylib"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/libnpjp2.dylib"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/plugin.jar"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/security/javaws.policy"/>
+              </fileset>
+        </copy>
+
+        <!-- and now the entry in Info.plist-->
+        <replace file="${macosx.app.dir}/${application.name}.app/Contents/Info.plist">
+            <replacetoken><![CDATA[<key>VMOptions</key>]]></replacetoken>
+            <replacevalue><![CDATA[<key>JVMRuntime</key>
+      <string>__jre.folder.name__</string>
+      <key>VMOptions</key>]]></replacevalue>
+        </replace>
+        <replace file="${macosx.app.dir}/${application.name}.app/Contents/Info.plist">
+            <replacefilter token="__jre.folder.name__" value="${jre.folder.name}"/>
+        </replace>
     </target>
 
     <!-- Create a MacOSX application package with Sparkle support.
