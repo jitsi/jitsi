@@ -454,6 +454,9 @@ public class ChatPanel
 
         if(subjectPanel != null)
             subjectPanel.dispose();
+
+        if(this.chatContactListPanel != null)
+            this.chatContactListPanel.dispose();
     }
 
     /**

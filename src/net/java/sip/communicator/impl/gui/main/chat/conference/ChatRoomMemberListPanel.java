@@ -183,6 +183,15 @@ public class ChatRoomMemberListPanel
     }
 
     /**
+     * Runs clean-up.
+     */
+    public void dispose()
+    {
+        if(memberListModel != null)
+            memberListModel.dispose();
+    }
+
+    /**
      * Opens a web page containing information of the currently selected user.
      *
      * @param evt the action event that has just occurred.
