@@ -149,6 +149,30 @@ public class CallPanel
         = "net.java.sip.communicator.impl.gui.main.call.HIDE_DIAL_BUTTON";
 
     /**
+     * Property to disable the video button.
+     */
+    private static final String HIDE_VIDEO_BUTON_PROP
+        = "net.java.sip.communicator.impl.gui.main.call.HIDE_VIDEO_BUTTON";
+
+    /**
+     * Property to disable the desktop sharing button.
+     */
+    private static final String HIDE_DESKTOP_SHARING_BUTON_PROP
+        = "net.java.sip.communicator.impl.gui.main.call.HIDE_DESKTOP_SHARING_BUTTON"; 
+
+    /**
+     * Property to disable the full screen button.
+     */
+    private static final String HIDE_FULL_SCREEN_BUTON_PROP
+        = "net.java.sip.communicator.impl.gui.main.call.HIDE_FULL_SCREEN_BUTTON";
+
+    /**
+     * Property to disable the "show/hide local video" button.
+     */
+    private static final String HIDE_TOGGLE_VIDEO_BUTON_PROP
+        = "net.java.sip.communicator.impl.gui.main.call.HIDE_TOGGLE_VIDEO_BUTTON";
+
+    /**
      * The <tt>Component</tt> which is at the bottom of this view and contains
      * {@link #settingsPanel}. It overrides the Swing-defined background on OS
      * X so it needs explicit updating upon switching between full-screen and
@@ -915,25 +939,35 @@ public class CallPanel
          * only on the state of the depicted telephony conference but also on
          * the global application state.
          */
-        videoButton.setEnabled(allCallsConnected && videoTelephony);
-        videoButton.setSelected(videoTelephonyIsLocalVideoAllowed);
+        if(videoButton != null)
+        {
+            videoButton.setEnabled(allCallsConnected && videoTelephony);
+            videoButton.setSelected(videoTelephonyIsLocalVideoAllowed);
 
-        /*
-         * Consequently, the showHideVideoButton which depends on videoButton
-         * has to be updated depending on the state of the videoButton as well.
-         */
-        showHideVideoButton.setEnabled(
-                videoButton.isEnabled()
-                    && videoTelephonyIsLocalVideoAllowed);
-        showHideVideoButton.setSelected(
-                showHideVideoButton.isEnabled()
-                    && uiVideoHandler.isLocalVideoVisible());
-        showHideVideoButton.setVisible(showHideVideoButton.isEnabled());
+            /*
+             * Consequently, the showHideVideoButton which depends on videoButton
+             * has to be updated depending on the state of the videoButton as well.
+             */
+            if(showHideVideoButton != null)
+            {
+                showHideVideoButton.setEnabled(
+                        videoButton.isEnabled()
+                            && videoTelephonyIsLocalVideoAllowed);
+                showHideVideoButton.setSelected(
+                        showHideVideoButton.isEnabled()
+                            && uiVideoHandler.isLocalVideoVisible());
+                showHideVideoButton.setVisible(showHideVideoButton.isEnabled());
+            }
+        }
 
         // The desktop sharing button depends on the operation set desktop
         // sharing server.
-        desktopSharingButton.setEnabled(desktopSharing);
-        desktopSharingButton.setSelected(desktopSharingIsStreamed);
+        if(desktopSharingButton != null)
+        {
+            desktopSharingButton.setEnabled(desktopSharing);
+            desktopSharingButton.setSelected(desktopSharingIsStreamed);
+        }
+
         if (callPanel instanceof OneToOneCallPanel)
         {
             OneToOneCallPanel oneToOneCallPanel = (OneToOneCallPanel) callPanel;
@@ -1306,10 +1340,16 @@ public class CallPanel
         if (remoteLevel instanceof OrderedComponent)
             ((OrderedComponent) remoteLevel).setIndex(7);
 
-        desktopSharingButton.setIndex(8);
-        fullScreenButton.setIndex(10);
-        videoButton.setIndex(11);
-        showHideVideoButton.setIndex(12);
+        if (desktopSharingButton != null)
+            desktopSharingButton.setIndex(8);
+
+        if (fullScreenButton != null)
+            fullScreenButton.setIndex(10);
+
+        if (videoButton != null)
+            videoButton.setIndex(11);
+        if (showHideVideoButton != null)
+            showHideVideoButton.setIndex(12);
         chatButton.setIndex(19);
 
         if (infoButton != null)
@@ -1405,9 +1445,7 @@ public class CallPanel
                     GuiActivator.getResources().getI18NString(
                             "service.gui.CHAT"));
 
-        if(!GuiActivator.getConfigurationService().getBoolean(
-           HIDE_CONFERENCE_BUTON_PROP,
-           false))
+        if(isButtonEnabled(HIDE_CONFERENCE_BUTON_PROP))
         {
             conferenceButton
                 = new CallToolBarButton(
@@ -1417,10 +1455,12 @@ public class CallPanel
                         "service.gui.CREATE_CONFERENCE_CALL"));
         }
 
-        desktopSharingButton = new DesktopSharingButton(aCall);
-        if(!GuiActivator.getConfigurationService().getBoolean(
-            HIDE_DIAL_BUTON_PROP,
-            false))
+        if(isButtonEnabled(HIDE_DESKTOP_SHARING_BUTON_PROP))
+        {
+            desktopSharingButton = new DesktopSharingButton(aCall);
+        }
+
+        if(isButtonEnabled(HIDE_DIAL_BUTON_PROP))
         {
             dialButton
                 = new CallToolBarButton(
@@ -1430,18 +1470,19 @@ public class CallPanel
                                 "service.gui.DIALPAD"));
         }
 
-        fullScreenButton = new FullScreenButton(this);
+        if(isButtonEnabled(HIDE_FULL_SCREEN_BUTON_PROP))
+        {
+            fullScreenButton = new FullScreenButton(this);
+        }
+
         hangupButton = new HangupButton(this);
-        if(!GuiActivator.getConfigurationService().getBoolean(
-            HIDE_CALL_HOLD_BUTON_PROP,
-            false))
+
+        if(isButtonEnabled(HIDE_CALL_HOLD_BUTON_PROP))
         {
             holdButton = new HoldButton(aCall);
         }
 
-        if(!GuiActivator.getConfigurationService().getBoolean(
-                HIDE_CALL_INFO_BUTON_PROP,
-                false))
+        if(isButtonEnabled(HIDE_CALL_INFO_BUTON_PROP))
         {
             infoButton
                 = new CallToolBarButton(
@@ -1450,9 +1491,8 @@ public class CallPanel
                         GuiActivator.getResources().getI18NString(
                                 "service.gui.PRESS_FOR_CALL_INFO"));
         }
-        if(!GuiActivator.getConfigurationService().getBoolean(
-            HIDE_CALL_MERGE_BUTON_PROP,
-            false))
+
+        if(isButtonEnabled(HIDE_CALL_MERGE_BUTON_PROP))
         {
             mergeButton
                 = new CallToolBarButton(
@@ -1463,23 +1503,25 @@ public class CallPanel
 
         }
 
-        if(!GuiActivator.getConfigurationService().getBoolean(
-            HIDE_CALL_RECORD_BUTON_PROP,
-            false))
+        if(isButtonEnabled(HIDE_CALL_RECORD_BUTON_PROP))
         {
             recordButton = new RecordButton(aCall);
         }
 
-        showHideVideoButton = new ShowHideVideoButton(uiVideoHandler);
+        if(isButtonEnabled(HIDE_TOGGLE_VIDEO_BUTON_PROP))
+        {
+            showHideVideoButton = new ShowHideVideoButton(uiVideoHandler);
+        }
 
-        if(!GuiActivator.getConfigurationService().getBoolean(
-            HIDE_CALL_TRANSFER_BUTON_PROP,
-            false))
+        if(isButtonEnabled(HIDE_CALL_TRANSFER_BUTON_PROP))
         {
             transferCallButton = new TransferCallButton(aCall);
         }
 
-        videoButton = new LocalVideoButton(aCall);
+        if(isButtonEnabled(HIDE_VIDEO_BUTON_PROP))
+        {
+            videoButton = new LocalVideoButton(aCall);
+        }
 
         localLevel
             = new InputVolumeControlButton(
@@ -1515,11 +1557,15 @@ public class CallPanel
         settingsPanel.add(chatButton);
         if (conferenceButton != null)
             settingsPanel.add(conferenceButton);
-        settingsPanel.add(desktopSharingButton);
+        if (desktopSharingButton != null)
+            settingsPanel.add(desktopSharingButton);
         if (dialButton != null)
             settingsPanel.add(dialButton);
-        settingsPanel.add(fullScreenButton);
+        if (fullScreenButton != null)
+            settingsPanel.add(fullScreenButton);
+
         settingsPanel.add(hangupButton);
+
         if (holdButton != null)
             settingsPanel.add(holdButton);
         if (infoButton != null)
@@ -1528,13 +1574,31 @@ public class CallPanel
             settingsPanel.add(mergeButton);
         if (recordButton != null)
             settingsPanel.add(recordButton);
-        settingsPanel.add(showHideVideoButton);
+        if (showHideVideoButton != null)
+            settingsPanel.add(showHideVideoButton);
         if (mergeButton != null)
             settingsPanel.add(transferCallButton);
-        settingsPanel.add(videoButton);
+        if (videoButton != null)
+            settingsPanel.add(videoButton);
 
         // The bottom bar will contain the settingsPanel.
         add(createBottomBar(), BorderLayout.SOUTH);
+    }
+
+    /**
+     * Tests a provided boolean property name, returning false if it should be
+     * hidden.
+     * 
+     * Used in {@link #initializeUserInterfaceHierarchy()} 
+     * @param buttonHidePropertyName the name of the boolean property to check.
+     * @return false if the button should be hidden, true otherwise.
+     * 
+     */
+    private boolean isButtonEnabled(String buttonHidePropertyName)
+    {
+        return !GuiActivator.getConfigurationService().getBoolean(
+            buttonHidePropertyName,
+            false);
     }
 
     /**
