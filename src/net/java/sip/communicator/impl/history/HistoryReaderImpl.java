@@ -661,6 +661,7 @@ public class HistoryReaderImpl
     {
         ArrayList<String> nameVals = new ArrayList<String>();
         int len = propertyNodes.getLength();
+        boolean targetNodeFound = false;
         for (int j = 0; j < len; j++)
         {
             Node propertyNode = propertyNodes.item(j);
@@ -676,11 +677,13 @@ public class HistoryReaderImpl
                 // Get nested TEXT node's value
                 String nodeValue = nestedNode.getNodeValue();
 
-                if(field != null && field.equals(nodeName)
-                   && !matchKeyword(nodeValue, keywords, caseSensitive))
+                if(field != null && field.equals(nodeName))
                 {
-                    return null; // doesn't match the given keyword(s)
-                                // so return nothing
+                    targetNodeFound = true;
+
+                    if(!matchKeyword(nodeValue, keywords, caseSensitive))
+                        return null; // doesn't match the given keyword(s)
+                                    // so return nothing
                 }
 
                 nameVals.add(nodeName);
@@ -688,6 +691,13 @@ public class HistoryReaderImpl
                 nameVals.add(nodeValue);
 
             }
+        }
+
+        // if we need to find a particular record but the target node is not
+        // present skip this record
+        if(keywords != null && keywords.length > 0 && !targetNodeFound)
+        {
+            return null;
         }
 
         String[] propertyNames = new String[nameVals.size() / 2];
