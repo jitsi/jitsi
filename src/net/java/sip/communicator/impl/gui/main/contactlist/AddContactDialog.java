@@ -192,7 +192,7 @@ public class AddContactDialog
         {
             groupCombo.setEnabled(false);
 
-            this.setSelectedGroup(metaContact.getParentMetaContactGroup());
+            groupCombo.setSelectedItem(metaContact.getParentMetaContactGroup());
         }
 
         TransparentPanel labelsPanel
