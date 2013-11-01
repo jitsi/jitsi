@@ -1022,7 +1022,8 @@ public class MetaContactListServiceImpl
         OperationSetMultiUserChat opSetMUC
             = provider.getOperationSet(OperationSetMultiUserChat.class);
         
-        if(opSetMUC.isPrivateMessagingContact(contact.getAddress()))
+        if(opSetMUC != null
+           && opSetMUC.isPrivateMessagingContact(contact.getAddress()))
         {
             addNewContactToMetaContact(provider, newParentMetaContact, 
                 contact.getPersistableAddress());
