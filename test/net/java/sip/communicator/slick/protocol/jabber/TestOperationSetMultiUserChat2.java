@@ -1084,6 +1084,13 @@ public class TestOperationSetMultiUserChat2
         throws OperationFailedException,
         OperationNotSupportedException
     {
+        try
+        {
+            Thread.sleep(2000);
+        }
+        catch (InterruptedException ex)
+        {}
+
         String testRoomName = testRoomBaseName + roomID++;
 
         logger.info("--- Start testMemberBan room:" + testRoomName);
@@ -1172,6 +1179,13 @@ public class TestOperationSetMultiUserChat2
         throws OperationFailedException,
         OperationNotSupportedException
     {
+        try
+        {
+            Thread.sleep(2000);
+        }
+        catch (InterruptedException ex)
+        {}
+
         String testRoomName = testRoomBaseName + roomID++;
 
         logger.info("--- Start testMemberKick room:" + testRoomName);
@@ -1374,6 +1388,13 @@ public class TestOperationSetMultiUserChat2
     public void testGrantMembership()
     throws OperationFailedException, OperationNotSupportedException
     {
+        try
+        {
+            Thread.sleep(2000);
+        }
+        catch (InterruptedException ex)
+        {}
+
         String roomName = testRoomBaseName + roomID;
 
         logger.info("--- Start testGrantMembership room:" + roomName);
@@ -1444,6 +1465,13 @@ public class TestOperationSetMultiUserChat2
     public void testGrantModerator()
     throws OperationFailedException, OperationNotSupportedException
     {
+        try
+        {
+            Thread.sleep(2000);
+        }
+        catch (InterruptedException ex)
+        {}
+
         String roomName = testRoomBaseName + roomID;
 
         logger.info("--- Start testGrantModerator room:" + roomName);
@@ -1513,6 +1541,13 @@ public class TestOperationSetMultiUserChat2
     public void testRevokeVoice()
     throws OperationFailedException, OperationNotSupportedException
     {
+        try
+        {
+            Thread.sleep(2000);
+        }
+        catch (InterruptedException ex)
+        {}
+
         String roomName = testRoomBaseName + roomID;
 
         logger.info("---= Start test for RevokeVoice =--- room: " + roomName);
@@ -1586,6 +1621,13 @@ public class TestOperationSetMultiUserChat2
     public void testGrantVoice()
     throws OperationFailedException, OperationNotSupportedException
     {
+        try
+        {
+            Thread.sleep(2000);
+        }
+        catch (InterruptedException ex)
+        {}
+
         String roomName = testRoomBaseName + roomID;
 
         logger.info("---= Start test for GrantVoice =--- room: " + roomName);
@@ -1655,6 +1697,13 @@ public class TestOperationSetMultiUserChat2
     public void testGrantAdmin()
     throws OperationFailedException, OperationNotSupportedException
     {
+        try
+        {
+            Thread.sleep(2000);
+        }
+        catch (InterruptedException ex)
+        {}
+
         String roomName = testRoomBaseName + roomID;
 
         logger.info("--- Start testGrantAdmin room:" + roomName);
@@ -1727,6 +1776,13 @@ public class TestOperationSetMultiUserChat2
     public void testGrantOwnership()
     throws OperationFailedException, OperationNotSupportedException
     {
+        try
+        {
+            Thread.sleep(2000);
+        }
+        catch (InterruptedException ex)
+        {}
+
         String roomName = testRoomBaseName + roomID;
 
         logger.info("--- Start testGrantOwnership room:" + roomName);
@@ -1795,6 +1851,13 @@ public class TestOperationSetMultiUserChat2
     public void testRevokeMembership()
     throws OperationFailedException, OperationNotSupportedException
     {
+        try
+        {
+            Thread.sleep(2000);
+        }
+        catch (InterruptedException ex)
+        {}
+
         String roomName = testRoomBaseName + roomID;
 
         logger.info("--- Start testRevokeMembership room:" + roomName);
@@ -1843,6 +1906,13 @@ public class TestOperationSetMultiUserChat2
     public void testRevokeModerator()
     throws OperationFailedException, OperationNotSupportedException
     {
+        try
+        {
+            Thread.sleep(2000);
+        }
+        catch (InterruptedException ex)
+        {}
+
         String roomName = testRoomBaseName + roomID;
 
         logger.info("--- Start testRevokeModerator room:" + roomName);
@@ -1911,6 +1981,13 @@ public class TestOperationSetMultiUserChat2
     public void testRevokeAdmin()
     throws OperationFailedException, OperationNotSupportedException
     {
+        try
+        {
+            Thread.sleep(2000);
+        }
+        catch (InterruptedException ex)
+        {}
+
         String roomName = testRoomBaseName + roomID;
 
         logger.info("--- Start testRevokeAdmin room:" + roomName);
@@ -1979,6 +2056,13 @@ public class TestOperationSetMultiUserChat2
     public void testRevokeOwnership()
     throws OperationFailedException, OperationNotSupportedException
     {
+        try
+        {
+            Thread.sleep(2000);
+        }
+        catch (InterruptedException ex)
+        {}
+
         String roomName = testRoomBaseName + roomID;
 
         logger.info("--- Start testRevokeOwnership room:" + roomName);
