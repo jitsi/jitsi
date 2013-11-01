@@ -32,6 +32,7 @@ import org.jivesoftware.smackx.packet.*;
  * @author Yana Stamcheva
  * @author Valentin Martinet
  * @author Boris Grozev
+ * @author Hristo Terezov
  */
 public class ChatRoomJabberImpl
     extends AbstractChatRoom
@@ -838,11 +839,9 @@ public class ChatRoomJabberImpl
         List<CallJabberImpl> tmpConferenceCalls;
         synchronized (chatRoomConferenceCalls)
         {
-            logger.info("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
             tmpConferenceCalls 
                 = new ArrayList<CallJabberImpl>(chatRoomConferenceCalls);
             chatRoomConferenceCalls.clear();
-            logger.info("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA2222222222");
         }
         
         for(CallJabberImpl call : tmpConferenceCalls)

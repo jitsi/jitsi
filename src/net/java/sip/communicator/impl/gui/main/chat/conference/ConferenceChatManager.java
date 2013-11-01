@@ -35,6 +35,7 @@ import javax.swing.*;
  * @author Yana Stamcheva
  * @author Lubomir Marinov
  * @author Valentin Martinet
+ * @author Hristo Terezov
  */
 public class ConferenceChatManager
     implements  ChatRoomMessageListener,
@@ -2314,4 +2315,59 @@ public class ConferenceChatManager
     }
 
     public void invitationRejected(AdHocChatRoomInvitationRejectedEvent evt) {}
+    
+    
+    /**
+     * Opens a chat window for the chat room.
+     * 
+     * @param room the chat room.
+     */
+    public void openChatRoom(ChatRoomWrapper room)
+    {
+        if (room.getChatRoom() == null)
+        {
+            room = createChatRoom(
+                room.getChatRoomName(),
+                room.getParentProvider().getProtocolProvider(), 
+                new ArrayList<String>(),"", false, false, true);
+
+            // leave the chatroom because getChatRoom().isJoined() returns true
+            // otherwise
+            if (room.getChatRoom().isJoined())
+                room.getChatRoom().leave();
+
+        }
+
+        String savedNick =
+            ConfigurationUtils.getChatRoomProperty(room
+                .getParentProvider().getProtocolProvider(), room
+                .getChatRoomID(), "userNickName");
+
+        if (savedNick == null)
+        {
+            String[] joinOptions = room.getJoinOptions();
+            String nickName = joinOptions[0];
+            if(nickName == null)
+                return;
+
+            if (!room.getChatRoom().isJoined())
+            {
+                joinChatRoom(room, nickName, null, 
+                        joinOptions[1]);
+            }
+
+        }
+        else
+        {
+            if (!room.getChatRoom().isJoined())
+                joinChatRoom(room, savedNick, null);
+        }
+
+        ChatWindowManager chatWindowManager
+            = GuiActivator.getUIService().getChatWindowManager();
+        ChatPanel chatPanel
+            = chatWindowManager.getMultiChat(room, true);
+
+        chatWindowManager.openChat(chatPanel, true);
+    }
 }

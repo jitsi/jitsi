@@ -20,6 +20,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.notifsource.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.impl.muc.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.contactsource.*;
@@ -216,7 +217,6 @@ public class TreeContactList
 
         if (sourceUI == null)
             return;
-
         UIContact uiContact
             = sourceUI.createUIContact(sourceContact);
 
@@ -1250,8 +1250,10 @@ public class TreeContactList
                 UIContact uiContact
                     = ((ContactNode) lastComponent).getContactDescriptor();
 
-                if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0
+                if (((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0
                         || (e.isControlDown() && !e.isMetaDown()))
+                    && !(uiContact.getDescriptor() 
+                            instanceof ChatRoomSourceContact))
                 {
                     rightButtonMenu = uiContact.getRightButtonMenu();
 
@@ -1669,6 +1671,7 @@ public class TreeContactList
                 else
                     contactSources.add(extContactSource);
             }
+            
 
         }
         GuiActivator.bundleContext.addServiceListener(

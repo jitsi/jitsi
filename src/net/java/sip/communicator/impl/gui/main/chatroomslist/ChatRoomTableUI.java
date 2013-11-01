@@ -315,12 +315,12 @@ public class ChatRoomTableUI
                 !chatRoom.getChatRoom().isJoined())
             {
                 chatRoomImage = ImageLoader
-                    .getImage(ImageLoader.CHAT_ROOM_16x16_ICON);
+                    .getImage(ImageLoader.CHAT_ROOM_OFFLINE_ICON);
             }
             else
             {
                 chatRoomImage = ImageLoader
-                    .getImage(ImageLoader.CHAT_ROOM_JOINED_ICON);
+                    .getImage(ImageLoader.CHAT_ROOM_ONLINE_ICON);
             }
 
             this.setIcon(new ImageIcon(chatRoomImage));

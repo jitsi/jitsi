@@ -15,6 +15,7 @@ import net.java.sip.communicator.util.*;
 /**
  * @author Yana Stamcheva
  * @author Damian Minkov
+ * @author Hristo Terezov
  */
 public class ChatRoomProviderWrapper
 {
@@ -151,12 +152,25 @@ public class ChatRoomProviderWrapper
      */
     public ChatRoomWrapper findChatRoomWrapperForChatRoom(ChatRoom chatRoom)
     {
+        return findChatRoomWrapperForChatRoomID(chatRoom.getIdentifier());
+    }
+    
+    /**
+     * Returns the chat room wrapper contained in this provider that corresponds
+     * to the chat room with the given id.
+     *
+     * @param chatRoomID the id of the chat room we're looking for.
+     * @return the chat room wrapper contained in this provider that corresponds
+     * to the given chat room id.
+     */
+    public ChatRoomWrapper findChatRoomWrapperForChatRoomID(String chatRoomID)
+    {
         // Compare ids, cause saved chatrooms don't have ChatRoom object
         // but Id's are the same.
         for (ChatRoomWrapper chatRoomWrapper : chatRoomsOrderedCopy)
         {
             if (chatRoomWrapper.getChatRoomID()
-                    .equals(chatRoom.getIdentifier()))
+                    .equals(chatRoomID))
             {
                 return chatRoomWrapper;
             }

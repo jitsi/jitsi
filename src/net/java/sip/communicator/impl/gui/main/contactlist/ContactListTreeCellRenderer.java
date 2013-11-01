@@ -18,8 +18,11 @@ import javax.swing.tree.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
+import net.java.sip.communicator.impl.gui.main.chat.conference.*;
+import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.impl.muc.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.contactsource.*;
@@ -41,6 +44,7 @@ import net.java.sip.communicator.util.skin.*;
  * @author Yana Stamcheva
  * @author Lubomir Marinov
  * @author Adam Netocny
+ * @author Hristo Terezov
  */
 public class ContactListTreeCellRenderer
     extends JPanel
@@ -320,6 +324,22 @@ public class ContactListTreeCellRenderer
                         GuiActivator.getUIService().getChatWindowManager()
                             .startChat(
                                 (MetaContact) contactDescriptor.getDescriptor());
+                    }
+                    else if(contactDescriptor.getDescriptor() 
+                        instanceof ChatRoomSourceContact)
+                    {
+                        ConferenceChatManager conferenceChatManager
+                            = GuiActivator.getUIService()
+                                .getConferenceChatManager();
+                        ChatRoomList chatRoomList 
+                            = conferenceChatManager.getChatRoomList();
+                        
+                        ChatRoomSourceContact contact = (ChatRoomSourceContact)
+                            contactDescriptor.getDescriptor();
+                        ChatRoomWrapper room 
+                            = chatRoomList.findChatRoomWrapperFromChatRoomID(
+                                contact.getChatRoomID(), contact.getProvider());
+                        conferenceChatManager.openChatRoom(room);
                     }
                 }
             }
@@ -815,6 +835,10 @@ public class ContactListTreeCellRenderer
         if (uiContact.getDescriptor() instanceof MetaContact)
             imContact = uiContact.getDefaultContactDetail(
                          OperationSetBasicInstantMessaging.class);
+        
+        if(imContact == null)
+            imContact = uiContact.getDefaultContactDetail(
+                OperationSetMultiUserChat.class);
 
         int x = (statusIcon == null ? 0 : statusIcon.getIconWidth())
                 + LEFT_BORDER

@@ -33,7 +33,7 @@ public class ChatRoomServerRightButtonMenu
 {
     private JMenuItem createChatRoomItem = new JMenuItem(
         GuiActivator.getResources().getI18NString("service.gui.CREATE_CHAT_ROOM"),
-        new ImageIcon(ImageLoader.getImage(ImageLoader.CHAT_ROOM_16x16_ICON)));
+        new ImageIcon(ImageLoader.getImage(ImageLoader.CHAT_ROOM_OFFLINE_ICON)));
 
     private JMenuItem joinChannelItem = new JMenuItem(
         GuiActivator.getResources().getI18NString("service.gui.JOIN_CHAT_ROOM"),
@@ -111,7 +111,7 @@ public class ChatRoomServerRightButtonMenu
     public void loadSkin()
     {
         createChatRoomItem.setIcon(new ImageIcon(
-                ImageLoader.getImage(ImageLoader.CHAT_ROOM_16x16_ICON)));
+                ImageLoader.getImage(ImageLoader.CHAT_ROOM_OFFLINE_ICON)));
 
         joinChannelItem.setIcon(new ImageIcon(
                 ImageLoader.getImage(ImageLoader.SEARCH_ICON_16x16)));

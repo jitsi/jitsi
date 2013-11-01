@@ -26,6 +26,7 @@ import net.java.sip.communicator.util.*;
  * @author Yana Stamcheva
  * @author Lubomir Marinov
  * @author Adam Netocny
+ * @author Hristo Terezov
  */
 public class ImageLoader
 {
@@ -953,13 +954,13 @@ public class ImageLoader
     /**
      * The image used for chat rooms.
      */
-    public static final ImageID CHAT_ROOM_16x16_ICON
+    public static final ImageID CHAT_ROOM_OFFLINE_ICON
         = new ImageID("service.gui.icons.CHAT_ROOM_16x16_ICON");
     
     /**
      * The image used for joined chat rooms.
      */
-    public static final ImageID CHAT_ROOM_JOINED_ICON
+    public static final ImageID CHAT_ROOM_ONLINE_ICON
         = new ImageID("service.gui.icons.CHAT_ROOM_JOINED_ICON");
 
     /**

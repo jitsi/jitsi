@@ -70,7 +70,7 @@ public class ChatRoomsListCellRenderer extends JPanel
             this.nameLabel.setText(chatRoomWrapper.getChatRoomName());
 
             Image chatRoomImage = ImageLoader
-                .getImage(ImageLoader.CHAT_ROOM_16x16_ICON);
+                .getImage(ImageLoader.CHAT_ROOM_OFFLINE_ICON);
 
             if(chatRoomWrapper.getChatRoom() == null ||
                 !chatRoomWrapper.getChatRoom().isJoined())

@@ -1078,7 +1078,8 @@
         bundle-plugin-contactsourceconfig,bundle-plugin-certconfig,
         bundle-globalshortcut,bundle-plugin-msofficecomm,bundle-libjitsi,
         bundle-customcontactactions, bundle-phonenumbercontactsource,
-        bundle-demuxcontactsource, bundle-desktoputil,
+        bundle-demuxcontactsource, bundle-muc,
+    	bundle-desktoputil,
         bundle-globaldisplaydetails,bundle-plugin-propertieseditor"/>
 
     <!--BUNDLE-SC-LAUNCHER-->
@@ -2898,7 +2899,7 @@ javax.swing.event, javax.swing.border"/>
                 prefix="net/java/sip/communicator/service/customcontactactions"/>
         </jar>
     </target>
-
+	
     <!-- BUNDLE-PHONE-NUMBER-CONTACT-SOURCE -->
     <target name="bundle-phonenumbercontactsource">
         <!-- Creates a bundle containing the contact source interfaces.-->
@@ -2916,6 +2917,16 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/plugin/demuxcontactsource/demuxcontactsource.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/demuxcontactsource"
                 prefix="net/java/sip/communicator/plugin/demuxcontactsource"/>
+        </jar>
+    </target>
+	
+	<!-- BUNDLE-CHAT-ROOM-CONTACT-SOURCE -->
+    <target name="bundle-muc">
+        <!-- Creates a bundle containing the contact source interfaces.-->
+        <jar compress="false" destfile="${bundles.dest}/muc.jar"
+            manifest="${src}/net/java/sip/communicator/impl/muc/muc.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/muc"
+                prefix="net/java/sip/communicator/impl/muc"/>
         </jar>
     </target>
 

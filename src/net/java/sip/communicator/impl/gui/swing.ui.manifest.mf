@@ -78,4 +78,5 @@ Import-Package: com.apple.eawt,
  org.jitsi.util.swing,
  org.osgi.framework,
  say.swing,
- net.java.sip.communicator.service.credentialsstorage
+ net.java.sip.communicator.service.credentialsstorage,
+ net.java.sip.communicator.impl.muc

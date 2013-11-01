@@ -21,6 +21,7 @@ import org.osgi.framework.*;
  * The <tt>ChatRoomsList</tt> is the list containing all chat rooms.
  *
  * @author Yana Stamcheva
+ * @author Hristo Terezov
  */
 public class ChatRoomList
     implements RegistrationStateChangeListener
@@ -321,6 +322,45 @@ public class ChatRoomList
 
                     return chatRoomWrapper;
                 }
+            }
+        }
+
+        return null;
+    }
+    
+    /**
+     * Returns the <tt>ChatRoomWrapper</tt> that correspond to the given id of 
+     * chat room and provider. If the list of chat rooms doesn't contain a
+     * corresponding wrapper - returns null.
+     *
+     * @param chatRoomID the id of <tt>ChatRoom</tt> that we're looking for
+     * @param pps the procol provider associated with the chat room.
+     * @return the <tt>ChatRoomWrapper</tt> object corresponding to the given id
+     * of the chat room
+     */
+    public ChatRoomWrapper findChatRoomWrapperFromChatRoomID(String chatRoomID,
+        ProtocolProviderService pps)
+    {
+        for (ChatRoomProviderWrapper provider : providersList)
+        {
+            // check only for the right PP
+            if(!pps.equals(provider.getProtocolProvider()))
+                continue;
+
+            ChatRoomWrapper systemRoomWrapper = provider.getSystemRoomWrapper();
+            ChatRoom systemRoom = systemRoomWrapper.getChatRoom();
+
+            if ((systemRoom != null) 
+                && systemRoom.getIdentifier().equals(chatRoomID))
+            {
+                return systemRoomWrapper;
+            }
+            else
+            {
+                ChatRoomWrapper chatRoomWrapper
+                    = provider.findChatRoomWrapperForChatRoomID(chatRoomID);
+                
+                return chatRoomWrapper;
             }
         }
 

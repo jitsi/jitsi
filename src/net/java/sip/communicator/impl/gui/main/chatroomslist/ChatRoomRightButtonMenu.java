@@ -52,7 +52,7 @@ public class ChatRoomRightButtonMenu
 
         createMenuItem(
                 "service.gui.OPEN",
-                ImageLoader.CHAT_ROOM_16x16_ICON,
+                ImageLoader.CHAT_ROOM_OFFLINE_ICON,
                 "openChatRoom");
         JMenuItem joinChatRoomItem
             = createMenuItem(

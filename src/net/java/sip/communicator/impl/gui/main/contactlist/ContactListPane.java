@@ -17,6 +17,9 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
+import net.java.sip.communicator.impl.gui.main.chat.conference.*;
+import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
+import net.java.sip.communicator.impl.muc.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.contacteventhandler.*;
 import net.java.sip.communicator.service.contactlist.*;
@@ -35,6 +38,7 @@ import org.osgi.framework.*;
  * all typing notifications. Here are managed all contact list mouse events.
  *
  * @author Yana Stamcheva
+ * @author Hristo Terezov
  */
 public class ContactListPane
     extends SIPCommScrollPane
@@ -152,61 +156,76 @@ public class ContactListPane
         UIContact descriptor = evt.getSourceContact();
 
         // We're currently only interested in MetaContacts.
-        if (!(descriptor.getDescriptor() instanceof MetaContact))
-            return;
-
-        MetaContact metaContact = (MetaContact) descriptor.getDescriptor();
-
-        // Searching for the right proto contact to use as default for the
-        // chat conversation.
-        Contact defaultContact = metaContact.getDefaultContact(
-                                    OperationSetBasicInstantMessaging.class);
-
-        // do nothing
-        if(defaultContact == null)
-            return;
-
-        ProtocolProviderService defaultProvider
-            = defaultContact.getProtocolProvider();
-
-        OperationSetBasicInstantMessaging
-            defaultIM = defaultProvider.getOperationSet(
-                          OperationSetBasicInstantMessaging.class);
-
-        ProtocolProviderService protoContactProvider;
-        OperationSetBasicInstantMessaging protoContactIM;
-
-        boolean isOfflineMessagingSupported
-            = defaultIM != null && !defaultIM.isOfflineMessagingSupported();
-
-        if (defaultContact.getPresenceStatus().getStatus() < 1
-                && (!isOfflineMessagingSupported
-                    || !defaultProvider.isRegistered()))
+        if (descriptor.getDescriptor() instanceof MetaContact)
         {
-            Iterator<Contact> protoContacts = metaContact.getContacts();
+            MetaContact metaContact = (MetaContact) descriptor.getDescriptor();
 
-            while(protoContacts.hasNext())
+            // Searching for the right proto contact to use as default for the
+            // chat conversation.
+            Contact defaultContact = metaContact.getDefaultContact(
+                                        OperationSetBasicInstantMessaging.class);
+
+            // do nothing
+            if(defaultContact == null)
+                return;
+
+            ProtocolProviderService defaultProvider
+                = defaultContact.getProtocolProvider();
+    
+            OperationSetBasicInstantMessaging
+                defaultIM = defaultProvider.getOperationSet(
+                              OperationSetBasicInstantMessaging.class);
+    
+            ProtocolProviderService protoContactProvider;
+            OperationSetBasicInstantMessaging protoContactIM;
+    
+            boolean isOfflineMessagingSupported
+                = defaultIM != null && !defaultIM.isOfflineMessagingSupported();
+    
+            if (defaultContact.getPresenceStatus().getStatus() < 1
+                    && (!isOfflineMessagingSupported
+                        || !defaultProvider.isRegistered()))
             {
-                Contact contact = protoContacts.next();
-
-                protoContactProvider = contact.getProtocolProvider();
-
-                protoContactIM = protoContactProvider.getOperationSet(
-                                    OperationSetBasicInstantMessaging.class);
-
-                if(protoContactIM != null
-                        && protoContactIM.isOfflineMessagingSupported()
-                        && protoContactProvider.isRegistered())
+                Iterator<Contact> protoContacts = metaContact.getContacts();
+    
+                while(protoContacts.hasNext())
                 {
-                    defaultContact = contact;
+                    Contact contact = protoContacts.next();
+    
+                    protoContactProvider = contact.getProtocolProvider();
+    
+                    protoContactIM = protoContactProvider.getOperationSet(
+                                        OperationSetBasicInstantMessaging.class);
+    
+                    if(protoContactIM != null
+                            && protoContactIM.isOfflineMessagingSupported()
+                            && protoContactProvider.isRegistered())
+                    {
+                        defaultContact = contact;
+                    }
                 }
             }
+
+            ContactEventHandler contactHandler = mainFrame
+                .getContactHandler(defaultContact.getProtocolProvider());
+
+            contactHandler.contactClicked(defaultContact, evt.getClickCount());
         }
-
-        ContactEventHandler contactHandler = mainFrame
-            .getContactHandler(defaultContact.getProtocolProvider());
-
-        contactHandler.contactClicked(defaultContact, evt.getClickCount());
+        else if(descriptor.getDescriptor() instanceof ChatRoomSourceContact)
+        {
+            ConferenceChatManager conferenceChatManager
+                = GuiActivator.getUIService()
+                    .getConferenceChatManager();
+            ChatRoomList chatRoomList 
+                = conferenceChatManager.getChatRoomList();
+        
+            ChatRoomSourceContact contact = (ChatRoomSourceContact)
+                descriptor.getDescriptor();
+            ChatRoomWrapper room 
+                = chatRoomList.findChatRoomWrapperFromChatRoomID(
+                    contact.getChatRoomID(), contact.getProvider());
+            conferenceChatManager.openChatRoom(room);
+        }
     }
 
     /**
