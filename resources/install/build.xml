@@ -1617,7 +1617,7 @@
 
 
         <!-- Find all previous builds we have to build deltas for them -->
-        <foreach param="build-location" target="-make-sparkle-delta"
+        <foreach param="build-location" target="-make-sparkle-pre-delta"
                  inheritall="true" inheritrefs="true">
             <path>
                 <dirset dir="${delta.history.location}">
@@ -1645,7 +1645,29 @@
         <antcall target="-delete-oldest-delta-data"/>
     </target>
 
-    <target name="-make-sparkle-delta">
+    <!-- just checks if current build is the same number as the history build
+     so we do not build delta against the same build -->
+    <target name="-make-sparkle-pre-delta">
+
+        <basename property="old.sparkle.build" file="${build-location}"/>
+
+        <!-- we must skip building deltas for current build
+            and if the source setup file is missing
+        -->
+        <condition property="process.delta">
+            <and>
+                <not>
+                    <equals arg1="${old.sparkle.build}" arg2="${build.label}"/>
+                </not>
+                <available file="${build-location}\${package.name}.dmg"/>
+            </and>
+        </condition>
+
+        <antcall target="-make-sparkle-delta"/>
+    </target>
+
+    <target name="-make-sparkle-delta"
+            if="process.delta">
 
         <basename property="old.sparkle.build" file="${build-location}"/>
         <echo message="Creating dmg delta for ${old.sparkle.build}-${sparkle.build}"/>
