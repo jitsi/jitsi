@@ -328,18 +328,6 @@ public abstract class BasicConferenceCallPanel
     /**
      * {@inheritDoc}
      *
-     * <tt>BasicConferenceCallPanel</tt> always returns <tt>null</tt> because it
-     * depicts a <tt>CallConference</tt> which may have multiple <tt>Call</tt>s.
-     */
-    public Call getCall()
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     *
      * Implements {@link SwingCallRenderer#getCallContainer()}.
      */
     public CallPanel getCallContainer()

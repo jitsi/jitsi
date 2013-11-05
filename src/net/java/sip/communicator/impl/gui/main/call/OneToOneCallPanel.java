@@ -291,15 +291,6 @@ public class OneToOneCallPanel
     }
 
     /**
-     * Returns the call represented by this call renderer.
-     * @return the call represented by this call renderer
-     */
-    public Call getCall()
-    {
-        return call;
-    }
-
-    /**
      * Returns the parent call container, where this renderer is contained.
      * @return the parent call container, where this renderer is contained
      */

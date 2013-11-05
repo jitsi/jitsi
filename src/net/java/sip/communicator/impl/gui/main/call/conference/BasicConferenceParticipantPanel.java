@@ -485,8 +485,13 @@ public abstract class BasicConferenceParticipantPanel<T>
         SrtpControl srtpControl = evt.getSecurityController();
 
         if (!srtpControl.requiresSecureSignalingTransport()
-                || getCallRenderer().getCall().getProtocolProvider()
-                        .isSignalingTransportSecure())
+                || getCallRenderer()
+                    .getCallContainer()
+                    .getCallConference()
+                    .getCalls()
+                    .get(0)
+                    .getProtocolProvider()
+                    .isSignalingTransportSecure())
         {
             if (srtpControl instanceof ZrtpControl)
             {

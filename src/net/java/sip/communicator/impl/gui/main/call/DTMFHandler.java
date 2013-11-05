@@ -575,9 +575,10 @@ public class DTMFHandler
 
         if (callContainer != null)
         {
-            startSendingDtmfTone(
-                callContainer.getCurrentCallRenderer().getCall(),
-                info);
+            for (Call c : callContainer.getCallConference().getCalls())
+            {
+                startSendingDtmfTone(c, info);
+            }
         }
         else
         {
@@ -617,8 +618,10 @@ public class DTMFHandler
     {
         if (callContainer != null)
         {
-            stopSendingDtmfTone(
-                    callContainer.getCurrentCallRenderer().getCall());
+            for (Call c : callContainer.getCallConference().getCalls())
+            {
+                stopSendingDtmfTone(c);
+            }
         }
         else
         {
