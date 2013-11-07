@@ -11,7 +11,6 @@
 
 #define JVM_JAVA_KEY "Java"
 #define JVM_WORKING_DIR_KEY "WorkingDirectory"
-#define JVM_RUNTIME_KEY "JVMRuntime"
 #define JVM_MAIN_CLASS_NAME_KEY "MainClass"
 #define JVM_CLASSPATH_KEY "ClassPath"
 #define JVM_OPTIONS_KEY "VMOptions"
@@ -21,8 +20,6 @@
 
 #define APP_PACKAGE_PREFIX "$APP_PACKAGE"
 #define JAVA_ROOT_PREFIX "$JAVAROOT"
-
-#define LIBJLI_DYLIB "/Library/Internet Plug-Ins/JavaAppletPlugin.plugin/Contents/Home/lib/jli/libjli.dylib"
 
 typedef int (JNICALL *JLI_Launch_t)(int argc, char ** argv,
                                     int jargc, const char** jargv,
@@ -71,6 +68,124 @@ int main(int argc, char *argv[])
     }
 }
 
+JLI_Launch_t getJLILaunch(NSString *parentPath)
+{
+    void *libJLI = NULL;
+    for (NSString *path
+            in @[@"Contents/Libraries/libjli.jnilib",
+                 @"Contents/Home/jre/lib/jli/libjli.dylib",
+                 @"Contents/Home/lib/jli/libjli.dylib"])
+    {
+        const char *libjliPath =
+            [[parentPath stringByAppendingPathComponent:path]
+                           fileSystemRepresentation];
+
+        libJLI = dlopen(libjliPath, RTLD_LAZY);
+
+        if(libJLI != NULL)
+            break;
+    }
+    // if jre folder is deleted
+    if(libJLI == NULL)
+        return NULL;
+
+    JLI_Launch_t jli_LaunchFxnPtr = NULL;
+    if (libJLI != NULL)
+    {
+        jli_LaunchFxnPtr = dlsym(libJLI, "JLI_Launch");
+    }
+
+    return jli_LaunchFxnPtr;
+}
+
+BOOL satisfies(NSString *vmVersion, NSString *requiredVersion)
+{
+    if ([requiredVersion hasSuffix:@"+"])
+    {
+        requiredVersion =
+            [requiredVersion substringToIndex:[requiredVersion length] - 1];
+        return [requiredVersion compare:vmVersion options:NSNumericSearch] <= 0;
+    }
+
+    if ([requiredVersion hasSuffix:@"*"])
+    {
+        requiredVersion =
+            [requiredVersion substringToIndex:[requiredVersion length] - 1];
+    }
+
+    return [vmVersion hasPrefix:requiredVersion];
+}
+
+JLI_Launch_t getLauncher(NSDictionary *javaDictionary)
+{
+    // lets find all jre/jdk we can discover and use the preferred one
+    // will search for environment variable JITSI_JRE
+    NSString *required =
+        [javaDictionary valueForKey:@"JVMVersion"];
+    if(required == NULL)
+        required = @"1.7*";
+
+    NSString *overridenJVM =
+        [[[NSProcessInfo processInfo] environment] objectForKey:@"JITSI_JRE"];
+
+    if (overridenJVM != NULL)
+    {
+        JLI_Launch_t jli_LaunchFxnPtr = getJLILaunch(overridenJVM);
+
+        if(jli_LaunchFxnPtr != NULL)
+            return jli_LaunchFxnPtr;
+    }
+
+    for (NSString *jvmPath
+            in @[[[NSBundle mainBundle] builtInPlugInsPath],
+                 @"Library/Java/JavaVirtualMachines",
+                 @"/Library/Java/JavaVirtualMachines",
+                 @"/System/Library/Java/JavaVirtualMachines",
+                 @"/Library/Internet Plug-Ins/JavaAppletPlugin.plugin"])
+    {
+        NSError *error = nil;
+        NSArray *vms =
+            [[NSFileManager defaultManager]
+                contentsOfDirectoryAtPath:jvmPath error:&error];
+
+        if (vms != nil)
+        {
+            for (NSString *vmFolderName in vms)
+            {
+                NSString *bundlePath =
+                    [jvmPath stringByAppendingPathComponent:vmFolderName];
+
+                if ([vmFolderName hasSuffix:@".jdk"]
+                    || [vmFolderName hasSuffix:@".jre"])
+                {
+                    NSBundle *bundle = [NSBundle bundleWithPath:bundlePath];
+
+                    NSDictionary *jdict =
+                        [bundle.infoDictionary valueForKey:@"JavaVM"];
+
+                    if(jdict == NULL)
+                        continue;
+
+                    NSString *jvmVersion = [jdict valueForKey:@"JVMVersion"];
+
+                    if (jvmVersion == NULL
+                        || !satisfies(jvmVersion, required))
+                        continue;
+                }
+
+                JLI_Launch_t jli_LaunchFxnPtr = getJLILaunch(bundlePath);
+
+                if(jli_LaunchFxnPtr != NULL)
+                {
+                    return jli_LaunchFxnPtr;
+                }
+            }
+        }
+    }
+
+    return NULL;
+}
+
 void launchJitsi(int argMainCount, char *argMainValues[])
 {
     NSBundle *mainBundle = [NSBundle mainBundle];
@@ -85,72 +200,50 @@ void launchJitsi(int argMainCount, char *argMainValues[])
         [[javaDictionary objectForKey:@JVM_WORKING_DIR_KEY]
             stringByReplacingOccurrencesOfString:@APP_PACKAGE_PREFIX
             withString:[mainBundle bundlePath]];
-    if (workingDirectory == nil)
+    if (workingDirectory == NULL)
     {
         [[NSException exceptionWithName:@LAUNCH_ERROR
                       reason:@"Working directory not set"
-                      userInfo:nil] raise];
+                      userInfo:NULL] raise];
     }
     else
     {
         chdir([workingDirectory UTF8String]);
     }
 
-    // Locate the JLI_Launch() function
-    NSString *runtime = [javaDictionary objectForKey:@JVM_RUNTIME_KEY];
+    JLI_Launch_t jli_LaunchFxnPtr = getLauncher(javaDictionary);
 
-    const char *libjliPath = NULL;
-    if (runtime != nil)
+    NSString *pname = [infoDictionary objectForKey:@"CFBundleName"];
+
+    if(jli_LaunchFxnPtr == NULL)
     {
-        NSString *runtimePath =
-            [[[NSBundle mainBundle] builtInPlugInsPath]
-                stringByAppendingPathComponent:runtime];
-        libjliPath =
-            [[runtimePath stringByAppendingPathComponent:@"Contents/Home/jre/lib/jli/libjli.dylib"]
-                          fileSystemRepresentation];
-    } else {
-        libjliPath = LIBJLI_DYLIB;
-    }
+        NSString *oldLauncher =
+            [NSMutableString stringWithFormat:@"%@/Contents/MacOS/%@_Launcher",
+                                        [mainBundle bundlePath], pname];
 
-    void *libJLI = dlopen(libjliPath, RTLD_LAZY);
+        execv([oldLauncher fileSystemRepresentation], argMainValues);
 
-    // if jre folder is deleted
-    if(libJLI == NULL)
-    {
-        libJLI = dlopen(LIBJLI_DYLIB, RTLD_LAZY);
-    }
-
-    JLI_Launch_t jli_LaunchFxnPtr = NULL;
-    if (libJLI != NULL)
-    {
-        jli_LaunchFxnPtr = dlsym(libJLI, "JLI_Launch");
-    }
-
-    if (jli_LaunchFxnPtr == NULL)
-    {
-        [[NSException exceptionWithName:@LAUNCH_ERROR
-            reason:@"JRE load error"
-            userInfo:nil] raise];
+        exit(-1);
     }
 
     NSString *mainClassName =
         [javaDictionary objectForKey:@JVM_MAIN_CLASS_NAME_KEY];
-    if (mainClassName == nil)
+    if (mainClassName == NULL)
     {
         [[NSException exceptionWithName:@LAUNCH_ERROR
             reason:@"Missing main class name"
-            userInfo:nil] raise];
+            userInfo:NULL] raise];
     }
 
-    NSMutableString *classPath =
-        [NSMutableString stringWithFormat:@"-Djava.class.path=%@", workingDirectory];
+    NSMutableString *classPath = [NSMutableString
+        stringWithFormat:@"-Djava.class.path=%@", workingDirectory];
 
     NSArray *jvmcp = [javaDictionary objectForKey:@JVM_CLASSPATH_KEY];
-    if (jvmcp == nil)
+    if (jvmcp == NULL)
     {
         [[NSException exceptionWithName:@LAUNCH_ERROR
             reason:@"Missing class path entry"
-            userInfo:nil] raise];
+            userInfo:NULL] raise];
     }
     else
     {
@@ -177,7 +270,7 @@ void launchJitsi(int argMainCount, char *argMainValues[])
 
     // Initialize the arguments to JLI_Launch()
     int argc = 2 + [sprops count] + 1 + appArgc;
-    if(options != nil)
+    if(options != NULL)
         argc++;
 
     char *argv[argc + appArgc];
@@ -186,7 +279,7 @@ void launchJitsi(int argMainCount, char *argMainValues[])
     argv[i++] = argMainValues[0];
     argv[i++] = strdup([classPath UTF8String]);
 
-    if(options != nil)
+    if(options != NULL)
     {
         NSString *op =
             [options stringByReplacingOccurrencesOfString:@JAVA_ROOT_PREFIX
@@ -203,8 +296,9 @@ void launchJitsi(int argMainCount, char *argMainValues[])
                         [NSCharacterSet whitespaceAndNewlineCharacterSet]];
         argv[i++] = strdup(
             [[NSMutableString stringWithFormat:@"-D%@=%@", sPropKey,
-                [sPropValue stringByReplacingOccurrencesOfString:@JAVA_ROOT_PREFIX
-                            withString:workingDirectory]]
+                [sPropValue
+                    stringByReplacingOccurrencesOfString:@JAVA_ROOT_PREFIX
+                    withString:workingDirectory]]
             UTF8String]);
     }
 
@@ -217,8 +311,6 @@ void launchJitsi(int argMainCount, char *argMainValues[])
         argv[i++] = strdup(argMainValues[argMainCount-j]);
     }
     argsSupplied++;
-
-    NSString *pname = [infoDictionary objectForKey:@"CFBundleName"];
 
     // Invoke JLI_Launch()
     jli_LaunchFxnPtr(argc, argv,
