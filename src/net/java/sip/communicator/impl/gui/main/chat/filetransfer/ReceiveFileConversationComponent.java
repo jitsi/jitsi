@@ -377,8 +377,8 @@ public class ReceiveFileConversationComponent
     @Override
     protected String getProgressLabel(String bytesString)
     {
-        return bytesString
-            + " " + resources.getI18NString("service.gui.RECEIVED");
+        return resources.getI18NString("service.gui.RECEIVED",
+            new String[]{bytesString});
     }
 
     public void fileTransferCreated(FileTransferCreatedEvent event)

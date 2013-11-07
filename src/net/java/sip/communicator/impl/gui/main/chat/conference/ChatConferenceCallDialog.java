@@ -139,10 +139,10 @@ public class ChatConferenceCallDialog
         name.setEditable(true);
         name.setColumns(30);
         if(chatRoom != null)
-            name.setText(chatRoom.getUserNickname() + 
-                GuiActivator.getResources()
-                    .getI18NString("service.gui.CHAT_CONFERENCE_ITEM_LABEL"));
-        
+            name.setText(GuiActivator.getResources()
+                    .getI18NString("service.gui.CHAT_CONFERENCE_ITEM_LABEL",
+                        new String[]{chatRoom.getUserNickname()}));
+
         createPanel.add(conferenceNamePanel,BorderLayout.CENTER);
         createPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
         

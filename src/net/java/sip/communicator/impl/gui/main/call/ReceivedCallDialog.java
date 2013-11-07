@@ -104,11 +104,10 @@ public class ReceivedCallDialog
             // Only one peer.
             else
             {
-                textDisplayName = callLabel[1].getText()
-                    + CallManager.getPeerDisplayName(peer)
-                    + " "
-                    + GuiActivator.getResources()
-                        .getI18NString("service.gui.IS_CALLING");
+                textDisplayName = GuiActivator.getResources()
+                        .getI18NString("service.gui.IS_CALLING",
+                            new String[]{
+                                CallManager.getPeerDisplayName(peer) });
 
                 String peerAddress = getPeerDisplayAddress(peer);
 
@@ -137,8 +136,9 @@ public class ReceivedCallDialog
         }
 
         if (hasMorePeers)
-            textDisplayName += GuiActivator.getResources()
-                .getI18NString("service.gui.ARE_CALLING");
+            textDisplayName = GuiActivator.getResources()
+                .getI18NString("service.gui.ARE_CALLING",
+                    new String[]{textDisplayName});
 
         callLabel[0].setIcon(imageIcon);
 

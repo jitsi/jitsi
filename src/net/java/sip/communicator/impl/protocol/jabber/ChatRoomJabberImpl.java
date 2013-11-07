@@ -1744,8 +1744,9 @@ public class ChatRoomJabberImpl
             String displayName;
             if(name == null)
             {
-                displayName = nickname + JabberActivator.getResources()
-                    .getI18NString("service.gui.CHAT_CONFERENCE_ITEM_LABEL");
+                displayName = JabberActivator.getResources()
+                    .getI18NString("service.gui.CHAT_CONFERENCE_ITEM_LABEL",
+                        new String[]{nickname});
             }
             else
             {

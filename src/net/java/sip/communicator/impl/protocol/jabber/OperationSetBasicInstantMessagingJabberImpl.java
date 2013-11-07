@@ -783,11 +783,13 @@ public class OperationSetBasicInstantMessagingJabberImpl
             String address = fromUserID;
             if(isPrivateMessaging)
             {
-                address = StringUtils.parseResource(msg.getFrom()) + " " + 
-                    JabberActivator.getResources().getI18NString(
-                        "service.gui.FROM") + " " + fromUserID;
+                address = JabberActivator.getResources().getI18NString(
+                        "service.gui.FROM",
+                        new String[]{
+                            StringUtils.parseResource(msg.getFrom()),
+                            fromUserID} );
             }
-           
+
             putJidForAddress(address, msg.getFrom());
 
             if (logger.isTraceEnabled())
