@@ -188,6 +188,15 @@ JLI_Launch_t getLauncher(NSDictionary *javaDictionary)
 
 void launchJitsi(int argMainCount, char *argMainValues[])
 {
+    // special psn args that we will skip,
+    // those args are added when application is started from finder
+    int psnArgsCount = 0;
+    for(int i = 0; i < argMainCount; i++)
+    {
+        if(memcmp(argMainValues[i], "-psn_", 4) == 0)
+            psnArgsCount++;
+    }
+
     NSBundle *mainBundle = [NSBundle mainBundle];
 
     NSDictionary *infoDictionary = [mainBundle infoDictionary];
@@ -269,11 +278,11 @@ void launchJitsi(int argMainCount, char *argMainValues[])
         appArgc = jargc;
 
     // Initialize the arguments to JLI_Launch()
-    int argc = 2 + [sprops count] + 1 + appArgc;
+    int argc = 2 + [sprops count] + 1 + appArgc - psnArgsCount;
     if(options != NULL)
         argc++;
 
-    char *argv[argc + appArgc];
+    char *argv[argc];
 
     int i = 0;
     argv[i++] = argMainValues[0];
@@ -308,9 +317,15 @@ void launchJitsi(int argMainCount, char *argMainValues[])
     // the params are last in the array of arguments
     for(int j = appArgc; j > 0; j--)
     {
-        argv[i++] = strdup(argMainValues[argMainCount-j]);
+        // skip -psn args
+        if (memcmp(argMainValues[argMainCount-j], "-psn_", 4) != 0)
+            argv[i++] = strdup(argMainValues[argMainCount-j]);
     }
     argsSupplied++;
+
+    // once psn args are filtered, no more count them as they will not be
+    // supplied to the launch function
+    jargc = jargc - psnArgsCount;
 
     // Invoke JLI_Launch()
     jli_LaunchFxnPtr(argc, argv,
