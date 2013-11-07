@@ -681,9 +681,8 @@ public class MUCServiceImpl
         }
 
         /**
-         * @override {@link SwingWorker}{@link #doInBackground()} to perform
-         * all asynchronous tasks.
-         * @return SUCCESS if success, otherwise the error code
+         * @override {@link Thread}{@link #run()} to perform all asynchronous 
+         * tasks.
          */
         @Override
         public void run()
@@ -711,12 +710,16 @@ public class MUCServiceImpl
                 {
                 case OperationFailedException.AUTHENTICATION_FAILED:
                     done(AUTHENTICATION_FAILED);
+                    break;
                 case OperationFailedException.REGISTRATION_REQUIRED:
                     done(REGISTRATION_REQUIRED);
+                    break;
                 case OperationFailedException.PROVIDER_NOT_REGISTERED:
                     done(PROVIDER_NOT_REGISTERED);
+                    break;
                 case OperationFailedException.SUBSCRIPTION_ALREADY_EXISTS:
                     done(SUBSCRIPTION_ALREADY_EXISTS);
+                    break;
                 default:
                     done(UNKNOWN_ERROR);
                 }
@@ -724,8 +727,8 @@ public class MUCServiceImpl
         }
 
         /**
-         * @override {@link SwingWorker}{@link #done()} to perform UI changes
-         * after the chat room join task has finished.
+         * Performs UI changes after the chat room join task has finished.
+         * @param returnCode the result code from the chat room join task.
          */
         private void done(String returnCode)
         {

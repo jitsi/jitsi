@@ -193,7 +193,7 @@ public class MUCActivator
         if (credentialsService == null)
         {
             credentialsService
-                = (CredentialsStorageService) ServiceUtils.getService(
+                = ServiceUtils.getService(
                     bundleContext, CredentialsStorageService.class);
         }
         return credentialsService;

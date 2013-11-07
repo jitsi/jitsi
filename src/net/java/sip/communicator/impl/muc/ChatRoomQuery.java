@@ -13,8 +13,6 @@ import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 
-import org.jitsi.service.configuration.*;
-
 /**
  * The <tt>ChatRoomQuery</tt> is a query over the
  * <tt>ChatRoomContactSourceService</tt>.
@@ -42,7 +40,7 @@ public class ChatRoomQuery
      *
      * @param contactSource the parent contact source
      * @param queryString the query string to match
-     * @param contactCount the maximum result contact count
+     * @param count the maximum result contact count
      */
     public ChatRoomQuery(String queryString,
         int count, ChatRoomContactSourceService contactSource)
@@ -55,8 +53,8 @@ public class ChatRoomQuery
         for(ProtocolProviderService pps : MUCActivator
             .getChatRoomProviders())
         {
-            OperationSetMultiUserChat opSetMUC = (OperationSetMultiUserChat)
-                pps.getOperationSet(OperationSetMultiUserChat.class);
+            OperationSetMultiUserChat opSetMUC 
+                = pps.getOperationSet(OperationSetMultiUserChat.class);
             if(opSetMUC != null)
             {
                 opSetMUC.addPresenceListener(this);
@@ -69,42 +67,23 @@ public class ChatRoomQuery
     @Override
     protected void run()
     {
-        ConfigurationService configService
-            = MUCActivator.getConfigurationService();
-    
-        String prefix = "net.java.sip.communicator.impl.gui.accounts";
-    
-        List<String> accounts =
-            configService.getPropertyNamesByPrefix(prefix, true);
-    
-        for(ProtocolProviderService pps : MUCActivator
-            .getChatRoomProviders())
+        Iterator<ChatRoomProviderWrapper> chatRoomProviders
+            = MUCActivator
+                .getMUCService().getChatRoomList().getChatRoomProviders();
+        while (chatRoomProviders.hasNext())
         {
-            for (String accountRootPropName : accounts) {
-                String accountUID
-                    = configService.getString(accountRootPropName);
-    
-                if(accountUID.equals(pps
-                        .getAccountID().getAccountUniqueID()))
+            ChatRoomProviderWrapper provider = chatRoomProviders.next();
+            for(int i = 0; i < provider.countChatRooms(); i++)
+            {
+                if(count > 0 && getQueryResultCount() > count)
                 {
-                    List<String> chatRooms = configService
-                        .getPropertyNamesByPrefix(
-                            accountRootPropName + ".chatRooms", true);
-    
-                    for (String chatRoomPropName : chatRooms)
-                    {
-                        if(count > 0 && getQueryResultCount() > count)
-                        {
-                            if (getStatus() != QUERY_CANCELED)
-                                setStatus(QUERY_COMPLETED);
-                            return;
-                        }
-                        
-                        addChatRoom( pps, configService.getString(
-                            chatRoomPropName + ".chatRoomName"),
-                            configService.getString(chatRoomPropName));
-                    }
+                    if (getStatus() != QUERY_CANCELED)
+                        setStatus(QUERY_COMPLETED);
+                    return;
                 }
+                ChatRoomWrapper chatRoom = provider.getChatRoom(i);
+                addChatRoom( provider.getProtocolProvider(), 
+                    chatRoom.getChatRoomName(), chatRoom.getChatRoomID());
             }
         }
         if (getStatus() != QUERY_CANCELED)

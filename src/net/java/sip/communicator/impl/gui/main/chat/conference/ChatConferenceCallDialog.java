@@ -361,7 +361,7 @@ public class ChatConferenceCallDialog
     {
         
         ConferenceDescription chatConference
-            = (ConferenceDescription)chatConferenceListPanel.getSelectedValue();
+            = chatConferenceListPanel.getSelectedValue();
 
         if (chatConference != null)
             CallManager.call(chatPanel.getChatSession()
@@ -381,7 +381,7 @@ public class ChatConferenceCallDialog
     /**
      * Adds a <tt>ConferenceDescription</tt> to the list of conferences.
      *
-     * @param chatConference the <tt>ConferenceDescription</tt> to add
+     * @param conferenceDescription the <tt>ConferenceDescription</tt> to add
      */
     public void addConference(ConferenceDescription conferenceDescription)
     {
