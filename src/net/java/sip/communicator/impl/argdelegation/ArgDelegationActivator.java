@@ -25,7 +25,7 @@ import com.apple.eawt.*;
  * @author Emil Ivov
  */
 public class ArgDelegationActivator
-    implements BundleActivator
+    extends AbstractServiceDependentActivator
 {
     /**
      * A reference to the bundle context that is currently in use.
@@ -48,15 +48,14 @@ public class ArgDelegationActivator
      * Starts the arg delegation bundle and registers the delegationPeer with
      * the util package URI manager.
      *
-     * @param bc a reference to the currently active bundle context.
+     * @param dependentService the service this activator is waiting.
      * @throws Exception if starting the arg delegation bundle and registering
      * the delegationPeer with the util package URI manager fails
      */
-    public void start(BundleContext bc) throws Exception
+    public void start(Object dependentService)
     {
-        bundleContext = bc;
-        delegationPeer = new ArgDelegationPeerImpl(bc);
-        bc.addServiceListener(delegationPeer);
+        delegationPeer = new ArgDelegationPeerImpl(bundleContext);
+        bundleContext.addServiceListener(delegationPeer);
 
         //register our instance of delegation peer.
         LaunchArgHandler.getInstance().setDelegationPeer(delegationPeer);
@@ -90,6 +89,26 @@ public class ArgDelegationActivator
                 {}
             }
         }
+    }
+
+    /**
+     * The dependent class. We are waiting for the ui service.
+     * @return the ui service class.
+     */
+    @Override
+    public Class<?> getDependentServiceClass()
+    {
+        return UIService.class;
+    }
+
+    /**
+     * Sets the bundle context to use.
+     * @param context a reference to the currently active bundle context.
+     */
+    @Override
+    public void setBundleContext(BundleContext context)
+    {
+        bundleContext = context;
     }
 
     /**
