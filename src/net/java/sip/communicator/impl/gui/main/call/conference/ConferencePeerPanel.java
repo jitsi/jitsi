@@ -303,6 +303,8 @@ public class ConferencePeerPanel
      */
     private void initSecuritySettings()
     {
+        securityStatusLabel.setSecurityOff();
+
         CallPeerSecurityStatusEvent securityEvent
             = callPeer.getCurrentSecuritySettings();
 
@@ -317,8 +319,6 @@ public class ConferencePeerPanel
 
         securityStatusLabel.setBorder(
             BorderFactory.createEmptyBorder(2, 5, 2, 5));
-
-        securityStatusLabel.setSecurityOff();
 
         securityStatusLabel.addMouseListener(new MouseAdapter()
         {
