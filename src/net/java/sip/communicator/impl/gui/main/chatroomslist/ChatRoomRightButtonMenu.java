@@ -16,6 +16,7 @@ import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.service.muc.ChatRoomWrapper;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
@@ -124,13 +125,15 @@ public class ChatRoomRightButtonMenu
                         .getChatRoomID(), "userNickName");
             if(nickName == null)
             {
-                joinOptions = chatRoomWrapper.getJoinOptions();
+                joinOptions = conferenceManager.getJoinOptions(
+                    chatRoomWrapper.getParentProvider().getProtocolProvider(), 
+                    chatRoomWrapper.getChatRoomID());
                 nickName = joinOptions[0];
                 subject = joinOptions[1];
             }
 
             if (nickName != null)
-                conferenceManager.joinChatRoom(chatRoomWrapper, nickName, null,
+                GuiActivator.getMUCService().joinChatRoom(chatRoomWrapper, nickName, null,
                     subject);
         }
         else if (itemName.equals("openChatRoom"))
@@ -140,8 +143,7 @@ public class ChatRoomRightButtonMenu
                 // this is not a server persistent room we must create it
                 // and join
                 chatRoomWrapper =
-                    GuiActivator.getUIService().getConferenceChatManager()
-                        .createChatRoom(
+                    GuiActivator.getMUCService().createChatRoom(
                             chatRoomWrapper.getChatRoomName(),
                             chatRoomWrapper.getParentProvider()
                                 .getProtocolProvider(),
@@ -163,13 +165,16 @@ public class ChatRoomRightButtonMenu
                             .getChatRoomID(), "userNickName");
                 if(nickName == null)
                 {
-                    joinOptions = chatRoomWrapper.getJoinOptions();
+                    joinOptions = conferenceManager.getJoinOptions(
+                        chatRoomWrapper.getParentProvider()
+                            .getProtocolProvider(), 
+                        chatRoomWrapper.getChatRoomID());
                     nickName = joinOptions[0];
                     subject = joinOptions[1];
                 }
 
                 if (nickName != null)
-                    conferenceManager.joinChatRoom(chatRoomWrapper,
+                    GuiActivator.getMUCService().joinChatRoom(chatRoomWrapper,
                         nickName, null, subject);
                 else
                     return;
@@ -184,16 +189,20 @@ public class ChatRoomRightButtonMenu
         }
         else if(itemName.equals("joinAsChatRoom"))
         {
-            joinOptions = chatRoomWrapper.getJoinOptions();
+            joinOptions = conferenceManager.getJoinOptions(
+                chatRoomWrapper.getParentProvider().getProtocolProvider(), 
+                chatRoomWrapper.getChatRoomID());
             if(joinOptions[0] == null)
                 return;
-            GuiActivator.getUIService().getConferenceChatManager()
+            GuiActivator.getMUCService()
                 .joinChatRoom(chatRoomWrapper, joinOptions[0], null,
                     joinOptions[1]);
         }
         else if(itemName.equals("nickNameChatRoom"))
         {
-            chatRoomWrapper.getJoinOptions(true);
+            conferenceManager.getJoinOptions(true,
+                chatRoomWrapper.getParentProvider().getProtocolProvider(), 
+                chatRoomWrapper.getChatRoomID());
         }
     }
 

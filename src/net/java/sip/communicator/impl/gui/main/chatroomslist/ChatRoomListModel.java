@@ -11,7 +11,7 @@ import java.util.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.main.chat.conference.*;
+import net.java.sip.communicator.service.muc.*;
 
 /**
  *
@@ -26,9 +26,7 @@ public class ChatRoomListModel
     {
         chatRoomList
             = GuiActivator
-                .getUIService()
-                    .getConferenceChatManager()
-                        .getChatRoomList();
+                .getMUCService().getChatRoomList();
     }
 
     /**

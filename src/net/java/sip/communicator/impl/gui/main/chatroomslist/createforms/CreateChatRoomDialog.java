@@ -12,8 +12,8 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.service.muc.*;
 
 /**
  * The <tt>CreateChatRoomDialog</tt> is the dialog containing the form for
@@ -102,7 +102,7 @@ public class CreateChatRoomDialog
         {
             String chatRoomName = chatRoomPanel.getChatRoomName();
 
-            GuiActivator.getUIService().getConferenceChatManager()
+            GuiActivator.getMUCService()
                 .createChatRoom(chatRoomName,
                                 chatRoomProvider.getProtocolProvider(),
                                 null,

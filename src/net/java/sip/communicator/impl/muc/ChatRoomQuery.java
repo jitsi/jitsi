@@ -9,6 +9,7 @@ import java.util.*;
 import java.util.regex.*;
 
 import net.java.sip.communicator.service.contactsource.*;
+import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 
@@ -22,7 +23,7 @@ import org.jitsi.service.configuration.*;
  */
 public class ChatRoomQuery
     extends AsyncContactQuery<ContactSourceService>
-    implements LocalUserChatRoomPresenceListener
+    implements LocalUserChatRoomPresenceListener, ChatRoomListChangeListener
 {
     /**
      * Creates an instance of <tt>ChatRoomQuery</tt> by specifying
@@ -49,6 +50,8 @@ public class ChatRoomQuery
                 opSetMUC.addPresenceListener(this);
             }
         }
+        
+        MUCActivator.getMUCService().addChatRoomListChangeListener(this);
     }
     
     @Override
@@ -160,5 +163,35 @@ public class ChatRoomQuery
         
         addQueryResult(
             new ChatRoomSourceContact(chatRoomName, chatRoomID, this, pps));
+    }
+
+    /**
+     * Indicates that a change has occurred in the chat room data list.
+     * @param evt the event that describes the change.
+     */
+    @Override
+    public void contentChanged(ChatRoomListChangeEvent evt)
+    {
+        ChatRoomWrapper chatRoom = evt.getSourceChatRoom();
+        
+        switch(evt.getEventID())
+        {
+            case ChatRoomListChangeEvent.CHAT_ROOM_ADDED:
+                addQueryResult(
+                    new ChatRoomSourceContact(chatRoom.getChatRoom(),this));
+                break;
+            case ChatRoomListChangeEvent.CHAT_ROOM_REMOVED:
+                for(SourceContact contact : getQueryResults())
+                {
+                    if(contact.getContactAddress().equals(chatRoom.getChatRoomName()))
+                    {
+                        fireContactRemoved(contact);
+                        break;
+                    }
+                }
+                break;
+            default:
+                break;
+        }
     }
 }

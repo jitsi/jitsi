@@ -19,6 +19,7 @@ import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
@@ -83,7 +84,7 @@ public class ChatRoomTableUI
          * removeChatRoomListChangeListener method on it in order to prevent the
          * leaking of memory.
          */
-        GuiActivator.getUIService().getConferenceChatManager()
+        GuiActivator.getMUCService()
                 .addChatRoomListChangeListener(chatRoomsTableModel);
 
 //        this.chatRoomList.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
@@ -151,9 +152,7 @@ public class ChatRoomTableUI
         if (chatRoomWrapper.getChatRoom() == null)
         {
             chatRoomWrapper =
-                GuiActivator
-                    .getUIService()
-                    .getConferenceChatManager()
+                GuiActivator.getMUCService()
                     .createChatRoom(
                         chatRoomWrapper.getChatRoomName(),
                         chatRoomWrapper.getParentProvider()
@@ -177,24 +176,27 @@ public class ChatRoomTableUI
 
         if (savedNick == null)
         {
-            String[] joinOptions = chatRoomWrapper.getJoinOptions();
+            ConferenceChatManager conferenceManager 
+                = GuiActivator.getUIService().getConferenceChatManager();
+            String[] joinOptions = conferenceManager.getJoinOptions(
+                chatRoomWrapper.getParentProvider().getProtocolProvider(), 
+                chatRoomWrapper.getChatRoomID());
             String nickName = joinOptions[0];
             if(nickName == null)
                 return;
 
             if (!chatRoomWrapper.getChatRoom().isJoined())
             {
-                GuiActivator.getUIService().getConferenceChatManager()
-                    .joinChatRoom(chatRoomWrapper, nickName, null, 
-                        joinOptions[1]);
+                GuiActivator.getMUCService().joinChatRoom(
+                    chatRoomWrapper, nickName, null, joinOptions[1]);
             }
 
         }
         else
         {
             if (!chatRoomWrapper.getChatRoom().isJoined())
-                GuiActivator.getUIService().getConferenceChatManager()
-                    .joinChatRoom(chatRoomWrapper, savedNick, null);
+                GuiActivator.getMUCService().joinChatRoom(
+                    chatRoomWrapper, savedNick, null);
         }
 
         ChatWindowManager chatWindowManager
@@ -276,8 +278,8 @@ public class ChatRoomTableUI
     @Override
     public void dispose()
     {
-        GuiActivator.getUIService().getConferenceChatManager()
-                .removeChatRoomListChangeListener(chatRoomsTableModel);
+        GuiActivator.getMUCService().removeChatRoomListChangeListener(
+            chatRoomsTableModel);
         chatRoomsTableModel.dispose();
 
         super.dispose();

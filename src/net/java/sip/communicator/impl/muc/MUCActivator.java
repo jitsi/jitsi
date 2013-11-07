@@ -9,10 +9,13 @@ package net.java.sip.communicator.impl.muc;
 import java.util.*;
 
 import net.java.sip.communicator.service.contactsource.*;
+import net.java.sip.communicator.service.credentialsstorage.*;
+import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
-import org.jitsi.service.configuration.ConfigurationService;
+import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
 
@@ -56,7 +59,29 @@ public class MUCActivator
      * The resource service.
      */
     private static ResourceManagementService resources = null;
+    
+    /**
+     * The MUC service.
+     */
+    private static MUCServiceImpl mucService;
 
+    private static AccountManager accountManager;
+
+    private static AlertUIService alertUIService;
+
+    private static CredentialsStorageService credentialsService;
+
+    public MUCActivator()
+    {
+        try
+        {
+            mucService = new MUCServiceImpl();
+        }
+        catch(Exception e)
+        {
+            
+        }
+    }
     /**
      * Starts this bundle.
      *
@@ -70,12 +95,20 @@ public class MUCActivator
             ContactSourceService.class.getName(),
             chatRoomContactSource,
             null);
+        bundleContext.registerService(
+            MUCService.class.getName(),
+            mucService,
+            null);
     }
 
     public void stop(BundleContext context) throws Exception
     {
     }
 
+    public static MUCServiceImpl getMUCService()
+    {
+        return mucService;
+    }
     /**
      * Returns a reference to the ResourceManagementService implementation
      * currently registered in the bundle context or null if no such
@@ -113,6 +146,57 @@ public class MUCActivator
                         ConfigurationService.class);
         }
         return configService;
+    }
+    
+    /**
+     * Returns the <tt>AccountManager</tt> obtained from the bundle context.
+     * @return the <tt>AccountManager</tt> obtained from the bundle context
+     */
+    public static AccountManager getAccountManager()
+    {
+        if(accountManager == null)
+        {
+            accountManager
+                = ServiceUtils.getService(bundleContext, AccountManager.class);
+        }
+        return accountManager;
+    }
+    
+    /**
+     * Returns the <tt>AlertUIService</tt> obtained from the bundle
+     * context.
+     * @return the <tt>AlertUIService</tt> obtained from the bundle
+     * context
+     */
+    public static AlertUIService getAlertUIService()
+    {
+        if(alertUIService == null)
+        {
+            alertUIService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        AlertUIService.class);
+        }
+        return alertUIService;
+    }
+    
+    /**
+     * Returns a reference to a CredentialsStorageService implementation
+     * currently registered in the bundle context or null if no such
+     * implementation was found.
+     *
+     * @return a currently valid implementation of the
+     * CredentialsStorageService.
+     */
+    public static CredentialsStorageService getCredentialsStorageService()
+    {
+        if (credentialsService == null)
+        {
+            credentialsService
+                = (CredentialsStorageService) ServiceUtils.getService(
+                    bundleContext, CredentialsStorageService.class);
+        }
+        return credentialsService;
     }
     
     /**

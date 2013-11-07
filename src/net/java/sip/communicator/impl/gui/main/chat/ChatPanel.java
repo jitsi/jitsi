@@ -30,6 +30,7 @@ import net.java.sip.communicator.service.filehistory.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.service.metahistory.*;
+import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -50,6 +51,7 @@ import org.jitsi.util.*;
  * @author Yana Stamcheva
  * @author Lyubomir Marinov
  * @author Adam Netocny
+ * @author Hristo Terezov
  */
 @SuppressWarnings("serial")
 public class ChatPanel
@@ -2650,7 +2652,7 @@ public class ChatPanel
                     getOperationSet(OperationSetMultiUserChat.class) != null)
             {
                 ChatRoomWrapper chatRoomWrapper
-                    = conferenceChatManager.createPrivateChatRoom(
+                    = GuiActivator.getMUCService().createPrivateChatRoom(
                         inviteChatTransport.getProtocolProvider(),
                         chatContacts,
                         reason,

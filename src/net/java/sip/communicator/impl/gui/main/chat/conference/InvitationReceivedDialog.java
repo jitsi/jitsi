@@ -266,7 +266,7 @@ public class InvitationReceivedDialog
         if (button.equals(acceptButton))
         {
             if(invitationAdHoc == null)
-                multiUserChatManager.acceptInvitation(invitation);
+                GuiActivator.getMUCService().acceptInvitation(invitation);
             else
                 try
                 {
@@ -280,8 +280,8 @@ public class InvitationReceivedDialog
         else if (button.equals(rejectButton))
         {
             if(multiUserChatAdHocOpSet == null && invitationAdHoc == null)
-                multiUserChatManager.rejectInvitation(multiUserChatOpSet,
-                    invitation, reasonField.getText());
+                GuiActivator.getMUCService().rejectInvitation(
+                    multiUserChatOpSet, invitation, reasonField.getText());
             else
                 multiUserChatManager.rejectInvitation(multiUserChatAdHocOpSet,
                         invitationAdHoc, reasonField.getText());

@@ -20,6 +20,9 @@ import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.plugin.desktoputil.SwingWorker;
+import net.java.sip.communicator.service.muc.ChatRoomList;
+import net.java.sip.communicator.service.muc.ChatRoomProviderWrapper;
+import net.java.sip.communicator.service.muc.ChatRoomWrapper;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
@@ -91,8 +94,7 @@ public class ChatRoomTableDialog
     private ChatRoomTableUI chatRoomsTableUI = null;
 
     private final ChatRoomList chatRoomList
-        = GuiActivator.getUIService().getConferenceChatManager()
-                .getChatRoomList();
+        = GuiActivator.getMUCService().getChatRoomList();
 
     /**
      * The <tt>ChatRoomList.ChatRoomProviderWrapperListener</tt> instance which
@@ -349,6 +351,8 @@ public class ChatRoomTableDialog
         String[] joinOptions;
         String subject = null;
         JButton sourceButton = (JButton) e.getSource();
+        ConferenceChatManager conferenceManager 
+            = GuiActivator.getUIService().getConferenceChatManager();
         if(sourceButton.equals(addButton))
         {
             String chatRoomName = editor.getText();
@@ -357,14 +361,13 @@ public class ChatRoomTableDialog
                 return;
 
             ChatRoomWrapper chatRoomWrapper =
-                GuiActivator
-                    .getUIService()
-                    .getConferenceChatManager()
-                    .createChatRoom(chatRoomName.trim(),
+                GuiActivator.getMUCService().createChatRoom(chatRoomName.trim(),
                         getSelectedProvider().getProtocolProvider(),
                         new ArrayList<String>(), "", false, true, true);
 
-            chatRoomWrapper.getJoinOptions(true);
+            conferenceManager.getJoinOptions(true,
+                chatRoomWrapper.getParentProvider().getProtocolProvider(), 
+                chatRoomWrapper.getChatRoomID());
 
         }
         else if(sourceButton.equals(removeButton))
@@ -381,8 +384,7 @@ public class ChatRoomTableDialog
                         && editor.getText().trim().length() > 0)
                 {
                     ChatRoomWrapper chatRoomWrapper =
-                    GuiActivator.getUIService().getConferenceChatManager()
-                        .createChatRoom(
+                        GuiActivator.getMUCService().createChatRoom(
                             editor.getText().trim(),
                             getSelectedProvider().getProtocolProvider(),
                             new ArrayList<String>(),
@@ -391,13 +393,15 @@ public class ChatRoomTableDialog
                             false,
                             false);
 
-                    joinOptions = chatRoomWrapper.getJoinOptions();
+                    joinOptions = conferenceManager.getJoinOptions(
+                        chatRoomWrapper.getParentProvider().getProtocolProvider(), 
+                        chatRoomWrapper.getChatRoomID());
                     String nickName = joinOptions[0];
                     subject = joinOptions[1];
                     if(nickName == null)
                         return;
 
-                    GuiActivator.getUIService().getConferenceChatManager()
+                    GuiActivator.getMUCService()
                         .joinChatRoom(chatRoomWrapper, nickName, null, subject);
 
                     ChatWindowManager chatWindowManager =
@@ -423,16 +427,17 @@ public class ChatRoomTableDialog
                         {
                             
                            
-                            joinOptions = selectedRoom.getJoinOptions();
+                            joinOptions = conferenceManager.getJoinOptions(
+                                selectedRoom.getParentProvider()
+                                    .getProtocolProvider(), 
+                                selectedRoom.getChatRoomID());
                             savedNick = joinOptions[0];
                             subject = joinOptions[1];
                             if(savedNick == null)
                                 return;
                         }
-                        GuiActivator.getUIService()
-                            .getConferenceChatManager()
-                            .joinChatRoom(selectedRoom, savedNick, null,
-                                subject);
+                        GuiActivator.getMUCService().joinChatRoom(
+                            selectedRoom, savedNick, null, subject);
                     }
                     else
                         chatRoomsTableUI.openChatForSelection();
@@ -442,8 +447,7 @@ public class ChatRoomTableDialog
                     // this is not a server persistent room we must create it
                     // and join
                     ChatRoomWrapper chatRoomWrapper =
-                    GuiActivator.getUIService().getConferenceChatManager()
-                        .createChatRoom(
+                        GuiActivator.getMUCService().createChatRoom(
                             selectedRoom.getChatRoomName(),
                             getSelectedProvider().getProtocolProvider(),
                             new ArrayList<String>(),
@@ -460,14 +464,17 @@ public class ChatRoomTableDialog
 
                     if (savedNick == null)
                     {
-                        joinOptions = selectedRoom.getJoinOptions();
+                        joinOptions = conferenceManager.getJoinOptions(
+                            selectedRoom.getParentProvider()
+                            .getProtocolProvider(), 
+                        selectedRoom.getChatRoomID());
                         savedNick = joinOptions[0];
                         subject = joinOptions[1];
                         if(savedNick == null)
                             return;
                     }
                     
-                    GuiActivator.getUIService().getConferenceChatManager()
+                    GuiActivator.getMUCService()
                         .joinChatRoom(chatRoomWrapper,savedNick,null, subject);
 
                 }
@@ -596,8 +603,7 @@ public class ChatRoomTableDialog
             throws
             Exception
         {
-            rooms = GuiActivator.getUIService()
-                .getConferenceChatManager()
+            rooms = GuiActivator.getMUCService()
                     .getExistingChatRooms(getSelectedProvider());
 
             return null;

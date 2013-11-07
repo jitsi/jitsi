@@ -2927,6 +2927,8 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/impl/muc/muc.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/muc"
                 prefix="net/java/sip/communicator/impl/muc"/>
+        	<zipfileset dir="${dest}/net/java/sip/communicator/service/muc"
+        	                prefix="net/java/sip/communicator/service/muc" />
         </jar>
     </target>
 

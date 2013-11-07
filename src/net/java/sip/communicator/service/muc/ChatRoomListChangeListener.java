@@ -4,7 +4,8 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.main.chatroomslist;
+package net.java.sip.communicator.service.muc;
+
 
 /**
  *

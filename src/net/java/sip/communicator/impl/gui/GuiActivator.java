@@ -24,6 +24,7 @@ import net.java.sip.communicator.service.globaldisplaydetails.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.keybindings.*;
 import net.java.sip.communicator.service.metahistory.*;
+import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.globalstatus.*;
@@ -108,6 +109,8 @@ public class GuiActivator implements BundleActivator
     private static AlertUIService alertUIService;
     
     private static CredentialsStorageService credentialsService;
+    
+    private static MUCService mucService;
 
     private static final Map<Object, ProtocolProviderFactory>
         providerFactoriesMap = new Hashtable<Object, ProtocolProviderFactory>();
@@ -871,5 +874,25 @@ public class GuiActivator implements BundleActivator
                                         .getService(credentialsReference);
         }
         return credentialsService;
+    }
+    
+    /**
+     * Returns a reference to a MUCService implementation
+     * currently registered in the bundle context or null if no such
+     * implementation was found.
+     *
+     * @return a currently valid implementation of the
+     * MUCService.
+     */
+    public static MUCService getMUCService()
+    {
+        if (mucService == null)
+        {
+            ServiceReference mucServiceReference
+                = bundleContext.getServiceReference(MUCService.class.getName());
+            mucService
+                = (MUCService) bundleContext.getService(mucServiceReference);
+        }
+        return mucService;
     }
 }

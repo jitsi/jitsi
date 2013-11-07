@@ -11,6 +11,7 @@ import java.util.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.main.chat.*;
+import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**

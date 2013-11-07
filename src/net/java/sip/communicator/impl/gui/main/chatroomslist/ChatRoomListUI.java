@@ -15,6 +15,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.service.muc.*;
 
 /**
  * The <tt>ChatRoomsListPanel</tt> is the panel that contains the
@@ -46,7 +47,7 @@ public class ChatRoomListUI
         ConferenceChatManager confChatManager
             = GuiActivator.getUIService().getConferenceChatManager();
 
-        confChatManager.addChatRoomListChangeListener(this);
+        GuiActivator.getMUCService().addChatRoomListChangeListener(this);
         confChatManager.addAdHocChatRoomListChangeListener(this);
 
         this.treePanel.add(chatRoomList, BorderLayout.NORTH);

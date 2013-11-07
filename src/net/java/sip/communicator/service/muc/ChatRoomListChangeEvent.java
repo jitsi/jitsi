@@ -4,11 +4,9 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.main.chatroomslist;
+package net.java.sip.communicator.service.muc;
 
 import java.util.*;
-
-import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 
 /**
  * Parent class for gui chat room events indicating addition and removal of

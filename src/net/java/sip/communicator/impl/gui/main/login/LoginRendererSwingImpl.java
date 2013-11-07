@@ -95,8 +95,8 @@ public class LoginRendererSwingImpl
 
         if(multiUserChat != null)
         {
-            GuiActivator.getUIService().getConferenceChatManager()
-                .getChatRoomList().synchronizeOpSetWithLocalContactList(
+            GuiActivator.getMUCService().getChatRoomList()
+                .synchronizeOpSetWithLocalContactList(
                     protocolProvider, multiUserChat);
         }
     }

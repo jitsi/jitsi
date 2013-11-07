@@ -11,9 +11,9 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.table.*;
 
-import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**

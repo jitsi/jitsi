@@ -11,7 +11,7 @@ import java.util.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.wizard.*;
 import net.java.sip.communicator.impl.gui.main.*;
-import net.java.sip.communicator.impl.gui.main.chat.conference.*;
+import net.java.sip.communicator.service.muc.*;
 
 /**
  * The <tt>JoinChatRoomWizard</tt> is the wizard through which the user could
@@ -47,8 +47,8 @@ public class JoinChatRoomWizard
             .getI18NString("service.gui.JOIN"));
 
         Iterator<ChatRoomProviderWrapper> chatRoomProviders
-            = GuiActivator.getUIService().getConferenceChatManager()
-                .getChatRoomList().getChatRoomProviders();
+            = GuiActivator.getMUCService().getChatRoomList()
+                .getChatRoomProviders();
 
         page1 = new JoinChatRoomWizardPage1(this,
                                             newChatRoom,
@@ -70,9 +70,9 @@ public class JoinChatRoomWizard
     {
         if(e.getEventCode() == WizardEvent.SUCCESS)
         {
-            GuiActivator.getUIService().getConferenceChatManager()
-                .joinChatRoom(  newChatRoom.getChatRoomName(),
-                                newChatRoom.getChatRoomProvider());
+            GuiActivator.getMUCService().joinChatRoom(
+                newChatRoom.getChatRoomName(), 
+                newChatRoom.getChatRoomProvider());
         }
     }
 }

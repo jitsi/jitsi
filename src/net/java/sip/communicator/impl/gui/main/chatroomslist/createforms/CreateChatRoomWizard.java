@@ -62,7 +62,7 @@ public class CreateChatRoomWizard
     {
         if(e.getEventCode() == WizardEvent.SUCCESS)
         {
-            GuiActivator.getUIService().getConferenceChatManager()
+            GuiActivator.getMUCService()
                 .createChatRoom(newChatRoom.getChatRoomName(),
                                 newChatRoom.getProtocolProvider(),
                                 null,

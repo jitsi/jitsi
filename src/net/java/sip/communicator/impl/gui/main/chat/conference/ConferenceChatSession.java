@@ -13,6 +13,7 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.service.metahistory.*;
+import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.globalstatus.*;
@@ -606,7 +607,7 @@ public class ConferenceChatSession
 
         return
             !chatRoom.isSystem()
-                && !ConferenceChatManager.isPrivate(chatRoom);
+                && !MUCService.isPrivate(chatRoom);
     }
 
     /**

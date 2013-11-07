@@ -4,11 +4,12 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.main.chat.conference;
+package net.java.sip.communicator.impl.muc;
 
 import java.util.*;
 
-import net.java.sip.communicator.impl.gui.*;
+//import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
@@ -17,10 +18,11 @@ import net.java.sip.communicator.util.*;
  * @author Damian Minkov
  * @author Hristo Terezov
  */
-public class ChatRoomProviderWrapper
+public class ChatRoomProviderWrapperImpl
+    implements ChatRoomProviderWrapper
 {
     private static final Logger logger
-        = Logger.getLogger(ChatRoomProviderWrapper.class);
+        = Logger.getLogger(ChatRoomProviderWrapperImpl.class);
 
     private final ProtocolProviderService protocolProvider;
 
@@ -36,14 +38,14 @@ public class ChatRoomProviderWrapper
      * @param protocolProvider protocol provider, corresponding to the multi
      * user chat account.
      */
-    public ChatRoomProviderWrapper(
+    public ChatRoomProviderWrapperImpl(
         ProtocolProviderService protocolProvider)
     {
         this.protocolProvider = protocolProvider;
 
         String accountIdService = protocolProvider.getAccountID().getService();
         this.systemRoomWrapper
-            = new ChatRoomWrapper(this, accountIdService, accountIdService);
+            = new ChatRoomWrapperImpl(this, accountIdService, accountIdService);
     }
 
     /**
@@ -246,15 +248,6 @@ public class ChatRoomProviderWrapper
                     {
                         chatRoomWrapper.setChatRoom(chatRoom);
 
-                        /*String lastChatRoomStatus
-                            = ConfigurationManager.getChatRoomStatus(
-                                protocolProvider,
-                                chatRoomWrapper.getChatRoomID());
-                        if((lastChatRoomStatus == null
-                            || lastChatRoomStatus.equals(
-                                Constants.ONLINE_STATUS))
-                        */
-
                         if(chatRoomWrapper.isAutojoin())
                         {
                             String nickName =
@@ -265,15 +258,13 @@ public class ChatRoomProviderWrapper
 
                             if (nickName != null)
                             {
-                                GuiActivator.getUIService()
-                                    .getConferenceChatManager()
-                                    .joinChatRoom(chatRoom, nickName, null);
+                                MUCActivator.getMUCService().joinChatRoom(
+                                    chatRoom, nickName, null);
                             }
                             else
                             {
-                                GuiActivator.getUIService()
-                                    .getConferenceChatManager()
-                                    .joinChatRoom(chatRoom);
+                                MUCActivator.getMUCService().joinChatRoom(
+                                    chatRoomWrapper);
                             }
                         }
                     }
@@ -284,9 +275,7 @@ public class ChatRoomProviderWrapper
                             // chat room is not existent we must create it and join
                             // it
                             ChatRoomWrapper roomWrapper =
-                                GuiActivator
-                                    .getUIService()
-                                    .getConferenceChatManager()
+                                MUCActivator.getMUCService()
                                     .createChatRoom(
                                         chatRoomWrapper.getChatRoomName(),
                                         chatRoomWrapper.getParentProvider()
@@ -302,16 +291,13 @@ public class ChatRoomProviderWrapper
 
                             if (nickName != null)
                             {
-                                GuiActivator
-                                    .getUIService()
-                                    .getConferenceChatManager()
+                                MUCActivator.getMUCService()
                                     .joinChatRoom(roomWrapper.getChatRoom(),
                                         nickName, null);
                             }
                             else
                             {
-                                GuiActivator.getUIService()
-                                    .getConferenceChatManager()
+                                MUCActivator.getMUCService()
                                     .joinChatRoom(roomWrapper);
                             }
                         }

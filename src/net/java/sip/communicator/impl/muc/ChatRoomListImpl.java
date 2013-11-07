@@ -4,12 +4,11 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.main.chatroomslist;
+package net.java.sip.communicator.impl.muc;
 
 import java.util.*;
 
-import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.main.chat.conference.*;
+import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -23,13 +22,13 @@ import org.osgi.framework.*;
  * @author Yana Stamcheva
  * @author Hristo Terezov
  */
-public class ChatRoomList
-    implements RegistrationStateChangeListener
+public class ChatRoomListImpl
+    implements RegistrationStateChangeListener, ChatRoomList
 {
     /**
      * The logger.
      */
-    private static final Logger logger = Logger.getLogger(ChatRoomList.class);
+    private static final Logger logger = Logger.getLogger(ChatRoomListImpl.class);
 
     /**
      * The list containing all chat servers and rooms.
@@ -42,6 +41,12 @@ public class ChatRoomList
      */
     private final List<ChatRoomProviderWrapperListener> providerChangeListeners
         = new ArrayList<ChatRoomProviderWrapperListener>();
+    
+    /**
+     * A list of all <tt>ChatRoomListChangeListener</tt>-s.
+     */
+    private final Vector<ChatRoomListChangeListener> listChangeListeners
+        = new Vector<ChatRoomListChangeListener>();
 
     /**
      * Initializes the list of chat rooms.
@@ -51,7 +56,7 @@ public class ChatRoomList
         try
         {
             ServiceReference[] serRefs
-                = GuiActivator.bundleContext.getServiceReferences(
+                = MUCActivator.bundleContext.getServiceReferences(
                                         ProtocolProviderService.class.getName(),
                                         null);
 
@@ -63,7 +68,7 @@ public class ChatRoomList
             {
                 ProtocolProviderService protocolProvider
                     = (ProtocolProviderService)
-                            GuiActivator.bundleContext.getService(serRef);
+                        MUCActivator.bundleContext.getService(serRef);
 
                 Object multiUserChatOpSet
                     = protocolProvider
@@ -82,6 +87,53 @@ public class ChatRoomList
     }
 
     /**
+     * Adds the given <tt>ChatRoomListChangeListener</tt> that will listen for
+     * all changes of the chat room list data model.
+     *
+     * @param l the listener to add.
+     */
+    public void addChatRoomListChangeListener(ChatRoomListChangeListener l)
+    {
+        synchronized (listChangeListeners)
+        {
+            listChangeListeners.add(l);
+        }
+    }
+
+    /**
+     * Removes the given <tt>ChatRoomListChangeListener</tt>.
+     *
+     * @param l the listener to remove.
+     */
+    public void removeChatRoomListChangeListener(ChatRoomListChangeListener l)
+    {
+        synchronized (listChangeListeners)
+        {
+            listChangeListeners.remove(l);
+        }
+    }
+    
+
+    /**
+     * Notifies all interested listeners that a change in the chat room list
+     * model has occurred.
+     * @param chatRoomWrapper the chat room wrapper that identifies the chat
+     * room
+     * @param eventID the identifier of the event
+     */
+    public void fireChatRoomListChangedEvent(  ChatRoomWrapper chatRoomWrapper,
+                                                int eventID)
+    {
+        ChatRoomListChangeEvent evt
+            = new ChatRoomListChangeEvent(chatRoomWrapper, eventID);
+
+        for (ChatRoomListChangeListener l : listChangeListeners)
+        {
+            l.contentChanged(evt);
+        }
+    }
+    
+    /**
      * Adds a chat server which is registered and all its existing chat rooms.
      *
      * @param pps the <tt>ProtocolProviderService</tt> corresponding to the chat
@@ -91,12 +143,12 @@ public class ChatRoomList
         addRegisteredChatProvider(ProtocolProviderService pps)
     {
         ChatRoomProviderWrapper chatRoomProvider
-            = new ChatRoomProviderWrapper(pps);
+            = new ChatRoomProviderWrapperImpl(pps);
 
         providersList.add(chatRoomProvider);
 
         ConfigurationService configService
-            = GuiActivator.getConfigurationService();
+            = MUCActivator.getConfigurationService();
 
         String prefix = "net.java.sip.communicator.impl.gui.accounts";
 
@@ -123,9 +175,9 @@ public class ChatRoomList
                         chatRoomPropName + ".chatRoomName");
 
                     ChatRoomWrapper chatRoomWrapper
-                        = new ChatRoomWrapper(  chatRoomProvider,
-                                                chatRoomID,
-                                                chatRoomName);
+                        = new ChatRoomWrapperImpl(  chatRoomProvider,
+                                                    chatRoomID,
+                                                    chatRoomName);
 
                     chatRoomProvider.addChatRoom(chatRoomWrapper);
                 }
@@ -180,26 +232,19 @@ public class ChatRoomList
     {
         providersList.remove(chatRoomProvider);
 
-        ConferenceChatManager conferenceChatManager =
-            GuiActivator.getUIService().getConferenceChatManager();
-        // as we are removing provider lets remove all opened chat rooms if any
-        for(int i = 0; i < chatRoomProvider.countChatRooms(); i++)
-            conferenceChatManager.closeChatRoom(
-                                            chatRoomProvider.getChatRoom(i));
-
         if(permanently)
         {
             chatRoomProvider.getProtocolProvider()
                 .removeRegistrationStateChangeListener(this);
 
             ConfigurationService configService
-                = GuiActivator.getConfigurationService();
+                = MUCActivator.getConfigurationService();
             String prefix = "net.java.sip.communicator.impl.gui.accounts";
             AccountID accountID =
                     chatRoomProvider.getProtocolProvider().getAccountID();
 
             // if provider is just disabled don't remove its stored rooms
-            if(!GuiActivator.getAccountManager().getStoredAccounts()
+            if(!MUCActivator.getAccountManager().getStoredAccounts()
                     .contains(accountID))
             {
                 String providerAccountUID = accountID.getAccountUniqueID();
@@ -254,6 +299,10 @@ public class ChatRoomList
                 chatRoomWrapper.getChatRoomID(),
                 chatRoomWrapper.getChatRoomName());
         }
+        
+        fireChatRoomListChangedEvent(
+            chatRoomWrapper,
+            ChatRoomListChangeEvent.CHAT_ROOM_ADDED);
     }
 
     /**
@@ -275,6 +324,10 @@ public class ChatRoomList
                 chatRoomWrapper.getChatRoomID(),
                 null,   // The new identifier.
                 null);   // The name of the chat room.
+            
+            fireChatRoomListChangedEvent(
+                chatRoomWrapper,
+                ChatRoomListChangeEvent.CHAT_ROOM_REMOVED);
         }
     }
 
@@ -509,27 +562,5 @@ public class ChatRoomList
                 removeChatProvider(wrapper, false);
             }
         }
-    }
-
-    /**
-     * Listener which registers for provider add/remove changes.
-     */
-    public static interface ChatRoomProviderWrapperListener
-    {
-        /**
-         * When a provider wrapper is added this method is called to inform
-         * listeners.
-         * @param provider which was added.
-         */
-        public void chatRoomProviderWrapperAdded(
-            ChatRoomProviderWrapper provider);
-
-        /**
-         * When a provider wrapper is removed this method is called to inform
-         * listeners.
-         * @param provider which was removed.
-         */
-        public void chatRoomProviderWrapperRemoved(
-            ChatRoomProviderWrapper provider);
     }
 }

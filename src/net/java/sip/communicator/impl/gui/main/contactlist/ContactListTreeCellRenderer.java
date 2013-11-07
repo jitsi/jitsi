@@ -19,14 +19,13 @@ import javax.swing.tree.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
-import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.impl.muc.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.OperationSetServerStoredContactInfo.*;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
@@ -325,21 +324,20 @@ public class ContactListTreeCellRenderer
                             .startChat(
                                 (MetaContact) contactDescriptor.getDescriptor());
                     }
-                    else if(contactDescriptor.getDescriptor() 
-                        instanceof ChatRoomSourceContact)
+                    else if(((SourceContact) contactDescriptor.getDescriptor())
+                        .getContactDetails(OperationSetMultiUserChat.class) 
+                            != null)
                     {
                         ConferenceChatManager conferenceChatManager
                             = GuiActivator.getUIService()
                                 .getConferenceChatManager();
-                        ChatRoomList chatRoomList 
-                            = conferenceChatManager.getChatRoomList();
-                        
-                        ChatRoomSourceContact contact = (ChatRoomSourceContact)
+                        SourceContact contact = (SourceContact)
                             contactDescriptor.getDescriptor();
                         ChatRoomWrapper room 
-                            = chatRoomList.findChatRoomWrapperFromChatRoomID(
-                                contact.getChatRoomID(), contact.getProvider());
-                        conferenceChatManager.openChatRoom(room);
+                            = GuiActivator.getMUCService()
+                                .findChatRoomWrapperFromSourceContact(contact);
+                        if(room != null)
+                            conferenceChatManager.openChatRoom(room);
                     }
                 }
             }

@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.muc;
 import java.util.*;
 
 import net.java.sip.communicator.service.contactsource.*;
+import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**

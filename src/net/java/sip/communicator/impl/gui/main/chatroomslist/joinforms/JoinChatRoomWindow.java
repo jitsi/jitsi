@@ -14,8 +14,8 @@ import java.util.List;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.skin.*;
 
@@ -99,8 +99,8 @@ public class JoinChatRoomWindow
         super();
 
         Iterator<ChatRoomProviderWrapper> providers =
-            GuiActivator.getUIService().getConferenceChatManager()
-                .getChatRoomList().getChatRoomProviders();
+            GuiActivator.getMUCService().getChatRoomList()
+                .getChatRoomProviders();
 
         while(providers.hasNext())
         {
@@ -165,8 +165,8 @@ public class JoinChatRoomWindow
         jb_join.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e)
             {
-                GuiActivator.getUIService().getConferenceChatManager()
-                    .joinChatRoom(editor.getText(), getSelectedProvider());
+                GuiActivator.getMUCService().joinChatRoom(
+                    editor.getText(), getSelectedProvider());
                 dispose();
             }
         });
@@ -306,8 +306,8 @@ public class JoinChatRoomWindow
      */
     public void loadProviderRooms()
     {
-        serverRooms = GuiActivator.getUIService().getConferenceChatManager()
-            .getExistingChatRooms(getSelectedProvider());
+        serverRooms = GuiActivator.getMUCService().getExistingChatRooms(
+           getSelectedProvider());
     }
 
     /**

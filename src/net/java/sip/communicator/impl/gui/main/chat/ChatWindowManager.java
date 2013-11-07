@@ -19,6 +19,7 @@ import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.event.*;
+import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.Logger;
@@ -32,6 +33,7 @@ import org.jitsi.util.*;
  * @author Yana Stamcheva
  * @author Valentin Martinet
  * @author Lyubomir Marinov
+ * @author Hristo Terezov
  */
 public class ChatWindowManager
 {
@@ -756,8 +758,7 @@ public class ChatWindowManager
         {
             ChatRoomList chatRoomList
                 = GuiActivator
-                    .getUIService()
-                        .getConferenceChatManager().getChatRoomList();
+                    .getMUCService().getChatRoomList();
 
             // Search in the chat room's list for a chat room that correspond
             // to the given one.
@@ -770,7 +771,9 @@ public class ChatWindowManager
                     = chatRoomList.findServerWrapperFromProvider(
                         chatRoom.getParentProvider());
 
-                chatRoomWrapper = new ChatRoomWrapper(parentProvider, chatRoom);
+                chatRoomWrapper 
+                    = GuiActivator.getMUCService().createChatRoomWrapper(
+                        parentProvider, chatRoom);
 
                 chatRoomList.addChatRoom(chatRoomWrapper);
             }

@@ -14,7 +14,7 @@ import javax.swing.*;
 import javax.swing.table.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.main.chat.conference.*;
+import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 
@@ -23,6 +23,7 @@ import net.java.sip.communicator.service.protocol.event.*;
  *
  * @author Damian Minkov
  * @author Lyubomir Marinov
+ * @author Hristo Terezov
  */
 public class ChatRoomTableModel
     extends AbstractTableModel
@@ -65,8 +66,7 @@ public class ChatRoomTableModel
         this.parentTable = parentTable;
 
         chatRoomList
-            = GuiActivator.getUIService().getConferenceChatManager()
-                    .getChatRoomList();
+            = GuiActivator.getMUCService().getChatRoomList();
         /*
          * XXX The chatRoomList instance will surely outlive this instance so it
          * is essential to call the removeChatRoomProviderWrapperListener method
