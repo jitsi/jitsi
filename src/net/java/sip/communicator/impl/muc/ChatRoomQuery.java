@@ -26,6 +26,16 @@ public class ChatRoomQuery
     implements LocalUserChatRoomPresenceListener, ChatRoomListChangeListener
 {
     /**
+     * The query string.
+     */
+    private String queryString;
+
+    /**
+     * The contact count.
+     */
+    private int count = 0;
+    
+    /**
      * Creates an instance of <tt>ChatRoomQuery</tt> by specifying
      * the parent contact source, the query string to match and the maximum
      * result contacts to return.
@@ -40,6 +50,8 @@ public class ChatRoomQuery
         super(contactSource,
             Pattern.compile(queryString, Pattern.CASE_INSENSITIVE
                             | Pattern.LITERAL), true);
+        this.count = count;
+        this.queryString = queryString;
         for(ProtocolProviderService pps : MUCActivator
             .getChatRoomProviders())
         {
@@ -81,6 +93,13 @@ public class ChatRoomQuery
     
                     for (String chatRoomPropName : chatRooms)
                     {
+                        if(count > 0 && getQueryResultCount() > count)
+                        {
+                            if (getStatus() != QUERY_CANCELED)
+                                setStatus(QUERY_COMPLETED);
+                            return;
+                        }
+                        
                         addChatRoom( pps, configService.getString(
                             chatRoomPropName + ".chatRoomName"),
                             configService.getString(chatRoomPropName));
@@ -88,7 +107,8 @@ public class ChatRoomQuery
                 }
             }
         }
-        
+        if (getStatus() != QUERY_CANCELED)
+            setStatus(QUERY_COMPLETED);
     }
     
     /**
@@ -128,6 +148,11 @@ public class ChatRoomQuery
             }
             else
             {
+                if(queryString == null
+                    || ((sourceChatRoom.getName().startsWith(
+                                    queryString)
+                            || sourceChatRoom.getIdentifier().startsWith(queryString)
+                            )))
                     addQueryResult(
                         new ChatRoomSourceContact(sourceChatRoom,this));
             }
@@ -160,9 +185,15 @@ public class ChatRoomQuery
     private void addChatRoom(ProtocolProviderService pps, 
         String chatRoomName, String chatRoomID)
     {
-        
-        addQueryResult(
-            new ChatRoomSourceContact(chatRoomName, chatRoomID, this, pps));
+        if(queryString == null
+            || ((chatRoomName.startsWith(
+                            queryString)
+                    || chatRoomID.startsWith(queryString)
+                    )))
+        {
+            addQueryResult(
+                new ChatRoomSourceContact(chatRoomName, chatRoomID, this, pps));
+        }
     }
 
     /**
@@ -177,8 +208,13 @@ public class ChatRoomQuery
         switch(evt.getEventID())
         {
             case ChatRoomListChangeEvent.CHAT_ROOM_ADDED:
-                addQueryResult(
-                    new ChatRoomSourceContact(chatRoom.getChatRoom(),this));
+                if(queryString == null
+                    || ((chatRoom.getChatRoomName().startsWith(
+                                    queryString)
+                            || chatRoom.getChatRoomID().startsWith(queryString)
+                            )))
+                    addQueryResult(
+                        new ChatRoomSourceContact(chatRoom.getChatRoom(),this));
                 break;
             case ChatRoomListChangeEvent.CHAT_ROOM_REMOVED:
                 for(SourceContact contact : getQueryResults())
