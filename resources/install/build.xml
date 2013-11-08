@@ -1113,7 +1113,7 @@
                   signature="sipc"
                   mainclass="net.java.sip.communicator.launcher.SIPCommunicator"
                   icon="resources/images/logo/sc_logo_128x128.icns"
-                  jvmversion="1.6+"
+                  jvmversion="1.6*"
                   version="${sip-communicator.version}"
                   build="${sparkle.build}"
                   infostring="${application.name}"
@@ -1243,11 +1243,6 @@
                link="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/libAEGetURLEventHandlerAgent.dylib"/>
       <symlink resource="libAEGetURLEventHandlerAgent.jnilib"
                link="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/lib/native/mac/libAEGetURLEventHandlerAgent.dylib"/>
-
-      <copy file="${macosx.resrc.dir}/JavaApplicationStub_Old"
-            tofile="${macosx.app.dir}/${application.name}.app/Contents/MacOS/${application.name}_Launcher"/>
-      <chmod file="${macosx.app.dir}/${application.name}.app/Contents/MacOS/${application.name}_Launcher"
-             perm="ugo+rx"/>
 
       <copy file="${macosx.resrc.dir}/libgrowl4j.dylib"
             todir="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/lib/native/mac/"/>
