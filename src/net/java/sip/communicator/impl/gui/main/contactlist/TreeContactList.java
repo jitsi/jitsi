@@ -17,6 +17,7 @@ import javax.swing.event.*;
 import javax.swing.tree.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.main.chat.conference.ConferenceChatManager;
 import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.notifsource.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -26,6 +27,7 @@ import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.event.*;
+import net.java.sip.communicator.service.muc.ChatRoomWrapper;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.Logger;
@@ -1553,8 +1555,25 @@ public class TreeContactList
                     .getContactDescriptor();
 
             if (uiContact instanceof MetaUIContact)
+            {
                 GuiActivator.getUIService().getChatWindowManager()
                     .startChat((MetaContact) uiContact.getDescriptor());
+            }
+            else if(((SourceContact) uiContact.getDescriptor())
+                .getContactDetails(OperationSetMultiUserChat.class) 
+                != null)
+            {
+                ConferenceChatManager conferenceChatManager
+                    = GuiActivator.getUIService()
+                        .getConferenceChatManager();
+                SourceContact contact = (SourceContact)
+                    uiContact.getDescriptor();
+                ChatRoomWrapper room 
+                    = GuiActivator.getMUCService()
+                        .findChatRoomWrapperFromSourceContact(contact);
+                if(room != null)
+                    conferenceChatManager.openChatRoom(room);
+            }
         }
     }
 
