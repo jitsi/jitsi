@@ -264,8 +264,8 @@ public abstract class BasicConferenceCallPanel
         
         GuiActivator.getAlertUIService().showAlertPopup(
             GuiActivator.getResources().getI18NString(
-                "service.gui.ERROR_RECEIVED_FROM") 
-            + callPeer.getDisplayName(), 
+                "service.gui.ERROR_RECEIVED_FROM",
+                new String[]{callPeer.getDisplayName()}), 
             ev.getErrorString());
     }
 
