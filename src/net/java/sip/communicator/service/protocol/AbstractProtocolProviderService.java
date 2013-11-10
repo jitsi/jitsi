@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.service.protocol;
 
+import java.security.cert.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.event.*;
@@ -299,6 +300,55 @@ public abstract class AbstractProtocolProviderService
         {
             registrationListeners.clear();
         }
+    }
+    
+    /**
+     * Returns the negotiated cipher suite if TLS is used.
+     * 
+     * Note: The default implementation always returns null. Implementors 
+     * should override and provide an implementation for this method if TLS is
+     * used.
+     *
+     * @return The cipher suite name used for instance 
+     * "TLS_RSA_WITH_AES_256_CBC_SHA" or null if TLS is not used.
+     */
+    @Override
+    public String getTLSCipherSuite()
+    {
+        return null;
+    }
+
+    /**
+     * Returns the negotiated SSL/TLS protocol.
+     *
+     * Note: The default implementation always returns null. Implementors 
+     * should override and provide an implementation for this method if TLS is
+     * used.
+     *
+     * @return The protocol name used for instance "TLSv1" or null if TLS 
+     * (or SSL) is not used.
+     */
+    @Override
+    public String getTLSProtocol()
+    {
+        return null;
+    }
+
+    /**
+     * Returns the TLS server certificate chain with the end entity certificate
+     * in the first position and the issuers following (if any returned by the 
+     * server).
+     *
+     * Note: The default implementation always returns null. Implementors 
+     * should override and provide an implementation for this method if TLS is
+     * used.
+     *
+     * @return The TLS server certificate chain or null if TLS is not used.
+     */
+    @Override
+    public Certificate[] getTLSServerCertificates()
+    {
+        return null;
     }
 
     /**

@@ -27,6 +27,8 @@ import org.jitsi.service.resources.*;
 import org.jitsi.util.*;
 
 import com.explodingpixels.macwidgets.*;
+import java.io.*;
+import java.security.cert.*;
 
 /**
  * The frame displaying the statistical information for a telephony conference.
@@ -172,6 +174,64 @@ public class CallInfoFrame
     {
         return "<b>" + labelText + "</b> : " + infoText + "<br/>";
     }
+    
+    /**
+     * Returns an HTML string containing the PEM encoded certificate chain.
+     * 
+     * @param chain the certificate chain
+     * @return the newly constructed HTML string
+     */
+    private String getPEMChain(Certificate[] chain)
+    {
+        final StringBuilder buff = new StringBuilder();
+        buff.append("<pre>");
+        if (chain != null)
+        {
+            for (Certificate cert : chain)
+            {
+                if (cert instanceof X509Certificate)
+                {
+                    X509Certificate x509 = (X509Certificate) cert;
+                    buff.append("Subject: ");
+                    buff.append(x509.getSubjectDN().getName()).append("\n");
+                    buff.append("Issuer: ");
+                    buff.append(x509.getIssuerDN().getName()).append("\n");
+                }
+                else
+                {
+                    buff.append("Unknown certificate type: ");
+                    buff.append(cert.getType());
+                }
+                try
+                {
+                    buff.append("-----BEGIN CERTIFICATE-----\n");
+                    byte[] encoded = Base64.encode(cert.getEncoded());
+                    ByteArrayOutputStream os = new ByteArrayOutputStream();
+                    for (int i = 0; i < encoded.length; i += 64)
+                    {
+                        if ((i + 64) < encoded.length)
+                        {
+                            os.write(encoded, i, 64);
+                            os.write('\n');
+                        }
+                        else
+                        {
+                            os.write(encoded, i, encoded.length - i);
+                        }
+                     }
+                    buff.append(os.toString()).append("\n");
+                    buff.append("-----END CERTIFICATE-----\n");
+                }
+                catch (CertificateEncodingException ex)
+                {
+                    buff.append("Unable to encode certificate: ");
+                    buff.append(ex.getLocalizedMessage());
+                }
+            }
+        }
+        buff.append("</pre>");
+        return buff.toString();
+    }
 
     /**
      * Constructs the call info text.
@@ -235,7 +295,29 @@ public class CallInfoFrame
                     resources.getI18NString("service.gui.callinfo.CALL_TRANSPORT"),
                     preferredTransport.toString()));
 
+            if (preferredTransport == TransportProtocol.TLS)
+            {
+                stringBuffer.append(getLineString(
+                        resources.getI18NString(
+                        "service.gui.callinfo.TLS_PROTOCOL"), 
+                        aCall.getProtocolProvider().getTLSProtocol()));
+                stringBuffer.append(getLineString(
+                        resources.getI18NString(
+                        "service.gui.callinfo.TLS_CIPHER_SUITE"), 
+                        aCall.getProtocolProvider().getTLSCipherSuite()));
+            }
+            
             constructCallPeersInfo(stringBuffer);
+            
+            if (preferredTransport == TransportProtocol.TLS)
+            {
+                stringBuffer.append("<br/>\n");
+                stringBuffer.append(getLineString(
+                        resources.getI18NString(
+                        "service.gui.callinfo.TLS_SERVER_CERTIFICATE_CHAIN"), 
+                        getPEMChain(aCall.getProtocolProvider()
+                        .getTLSServerCertificates())));
+            }
 
             stringBuffer.append("</font></p></body></html>");
 

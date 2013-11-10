@@ -638,6 +638,73 @@ public class ProtocolProviderServiceJabberImpl
     }
 
     /**
+     * Returns the negotiated cipher suite if TLS is used.
+     *
+     * @return The cipher suite name used for instance
+     * "TLS_RSA_WITH_AES_256_CBC_SHA" or null if TLS is not used.
+     */
+    @Override
+    public String getTLSCipherSuite()
+    {
+        final String result;
+        if (connection.getSocket() instanceof SSLSocket)
+        {
+            final SSLSocket sslSocket = (SSLSocket) connection.getSocket();
+            result = sslSocket.getSession().getCipherSuite();
+        }
+        else
+        {
+            result = null;
+        }
+        return result;
+    }
+
+    /**
+     * Returns the negotiated SSL/TLS protocol.
+     *
+     * @return The protocol name used for instance "TLSv1" or null if TLS
+     * (or SSL) is not used.
+     */
+    @Override
+    public String getTLSProtocol()
+    {
+        final String result;
+        if (connection.getSocket() instanceof SSLSocket)
+        {
+            final SSLSocket sslSocket = (SSLSocket) connection.getSocket();
+            result = sslSocket.getSession().getProtocol();
+        }
+        else
+        {
+            result = null;
+        }
+        return result;
+    }
+
+    /**
+     * Returns the TLS server certificate chain with the end entity certificate
+     * in the first position and the issuers following (if any returned by the
+     * server).
+     *
+     * @return The TLS server certificate chain or null if TLS is not used.
+     */
+    @Override
+    public java.security.cert.Certificate[] getTLSServerCertificates()
+    {
+        java.security.cert.Certificate[] result = null;
+        if (connection.getSocket() instanceof SSLSocket)
+        {
+            try {
+                final SSLSocket sslSocket = (SSLSocket) connection.getSocket();
+                result = sslSocket.getSession().getPeerCertificates();
+            } catch (SSLPeerUnverifiedException ignored) {
+                // result will be null
+            }
+        }
+        return result;
+    }
+
+    /**
      * Connects and logins to the server
      * @param authority SecurityAuthority
      * @param reasonCode the authentication reason code. Indicates the reason of
@@ -1148,6 +1215,32 @@ public class ProtocolProviderServiceJabberImpl
             {
                 SSLContext sslContext = loginStrategy.createSslContext(cvs,
                         getTrustManager(cvs, serviceName));
+
+                // log SSL/TLS algorithms and protocols
+                if (logger.isDebugEnabled())
+                {
+                    final StringBuilder buff = new StringBuilder();
+                    buff.append("Available TLS protocols and algorithms:\n");
+                    buff.append("Default protocols:       ");
+                    buff.append(Arrays.toString(
+                        sslContext.getDefaultSSLParameters().getProtocols()));
+                    buff.append("\n");
+                    buff.append("Supported protocols:     ");
+                    buff.append(Arrays.toString(
+                        sslContext.getSupportedSSLParameters().getProtocols()));
+                    buff.append("\n");
+                    buff.append("Default cipher suites:   ");
+                    buff.append(Arrays.toString(
+                            sslContext.getDefaultSSLParameters()
+                            .getCipherSuites()));
+                    buff.append("\n");
+                    buff.append("Supported cipher suites: ");
+                    buff.append(Arrays.toString(
+                            sslContext.getSupportedSSLParameters()
+                            .getCipherSuites()));
+                    logger.debug(buff.toString());
+                }
+
                 connection.setCustomSslContext(sslContext);
             }
             else if (tlsRequired)
@@ -1214,6 +1307,35 @@ public class ProtocolProviderServiceJabberImpl
         }
         else
         {
+            if (connection.getSocket() instanceof SSLSocket)
+            {
+                final SSLSocket sslSocket = (SSLSocket) connection.getSocket();
+                StringBuilder buff = new StringBuilder();
+                buff.append("Chosen TLS protocol and algorithm:\n")
+                        .append("Protocol:     ").append(sslSocket.getSession()
+                        .getProtocol()).append("\n")
+                        .append("Cipher suite: ").append(sslSocket.getSession()
+                        .getCipherSuite());
+                logger.info(buff.toString());
+
+                if (logger.isDebugEnabled())
+                {
+                    buff = new StringBuilder();
+                    buff.append("Server TLS certificate chain:\n");
+                    try
+                    {
+                        buff.append(Arrays.toString(
+                                sslSocket.getSession().getPeerCertificates()));
+                    }
+                    catch (SSLPeerUnverifiedException ex)
+                    {
+                        buff.append("<unavailable: ")
+                                .append(ex.getLocalizedMessage()).append(">");
+                    }
+                    logger.debug(buff.toString());
+                }
+            }
+
             connection.addConnectionListener(connectionListener);
         }
 

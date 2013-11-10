@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.mock;
 
+import java.security.cert.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
@@ -261,6 +262,45 @@ public class MockProvider
     public TransportProtocol getTransportProtocol()
     {
         return TransportProtocol.UNKNOWN;
+    }
+
+    /**
+     * Returns the negotiated cipher suite if TLS is used.
+     * 
+     * Note: This implementation always returns null as TLS is not used.
+     *
+     * @return The cipher suite name used for instance 
+     * "TLS_RSA_WITH_AES_256_CBC_SHA" or null if TLS is not used.
+     */
+    public String getTLSCipherSuite()
+    {
+        return null;
+    }
+
+    /**
+     * Returns the negotiated SSL/TLS protocol.
+     *
+     * Note: This implementation always returns null as TLS is not used.
+     *
+     * @return The protocol name used for instance "TLSv1" or null if TLS 
+     * (or SSL) is not used.
+     */
+    public String getTLSProtocol()
+    {
+        return null;
+    }
+
+    /**
+     * Returns the TLS server certificate chain with the end entity certificate
+     * in the first position and the issuers following (if any returned by the 
+     * server).
+     *
+     * Note: This implementation always returns null as TLS is not used.
+     *
+     * @return The TLS server certificate chain or null if TLS is not used.
+     */
+    public Certificate[] getTLSServerCertificates() {
+        return null;
     }
 
     /**

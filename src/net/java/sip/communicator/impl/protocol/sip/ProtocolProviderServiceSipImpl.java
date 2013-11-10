@@ -11,6 +11,7 @@ import gov.nist.javax.sip.header.*;
 import gov.nist.javax.sip.message.*;
 
 import java.net.*;
+import java.security.cert.*;
 import java.text.*;
 import java.util.*;
 
@@ -1712,6 +1713,27 @@ public class ProtocolProviderServiceSipImpl
         }
         return TransportProtocol.parse(
                 sipRegistrarConnection.getTransport());
+    }
+
+    @Override
+    public String getTLSCipherSuite()
+    {
+        // TODO: Return the negotiated cipher suite if TLS is used
+        return null;
+    }
+
+    @Override
+    public String getTLSProtocol()
+    {
+        // TODO: Return the negotiated SSL/TLS protocol if used
+        return null;
+    }
+
+    @Override
+    public Certificate[] getTLSServerCertificates()
+    {
+        // TODO: Return the TLS server certificate chain if available
+        return null;
     }
 
     /**
