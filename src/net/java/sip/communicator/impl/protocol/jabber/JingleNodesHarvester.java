@@ -88,8 +88,13 @@ public class JingleNodesHarvester
         {
             LocalCandidate candidate = createJingleNodesCandidate(
                     relayedAddressSecond, component, localAddressSecond);
-            candidates.add(candidate);
-            component.addLocalCandidate(candidate);
+
+            //try to add the candidate to the component and then only add it to
+            //the harvest not redundant (not sure how it could be red. but ...)
+            if( component.addLocalCandidate(candidate))
+            {
+                candidates.add(candidate);
+            }
 
             localAddressSecond = null;
             relayedAddressSecond = null;
@@ -136,8 +141,13 @@ public class JingleNodesHarvester
                 = new TransportAddress(ip, ciq.getLocalport() + 1,
                         Transport.UDP);
 
-            candidates.add(local);
-            component.addLocalCandidate(local);
+
+            //try to add the candidate to the component and then only add it to
+            //the harvest not redundant (not sure how it could be red. but ...)
+            if( component.addLocalCandidate(local))
+            {
+                candidates.add(local);
+            }
         }
         return candidates;
     }

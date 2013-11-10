@@ -62,16 +62,6 @@ public class SdpUtils
     public static final String ZRTP_HASH_ATTR = "zrtp-hash";
 
     /**
-     * The name of the SDP attribute that defines an ICE user fragment.
-     */
-    public static final String ICE_UFRAG = "ice-ufrag";
-
-    /**
-     * The name of the SDP attribute that defines an ICE password.
-     */
-    public static final String ICE_PWD = "ice-pwd";
-
-    /**
      * Parses the specified <tt>sdp String</tt> into a
      * <tt>SessionDescription</tt> and returns it;
      *
