@@ -203,7 +203,10 @@ public class SIPCommunicator
 
         boolean isHomeDirnameForced = name != null;
 
-        if (profileLocation == null || name == null)
+        if (profileLocation == null
+            || cacheLocation == null
+            || logLocation == null
+            || name == null)
         {
             String defaultLocation = System.getProperty("user.home");
             String defaultName = ".jitsi";
