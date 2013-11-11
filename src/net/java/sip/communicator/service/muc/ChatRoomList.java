@@ -95,21 +95,6 @@ public interface ChatRoomList
         ProtocolProviderService protocolProvider);
 
     /**
-     * Goes through the locally stored chat rooms list and for each
-     * {@link ChatRoomWrapper} tries to find the corresponding server stored
-     * {@link ChatRoom} in the specified operation set. Joins automatically all
-     * found chat rooms.
-     *
-     * @param protocolProvider the protocol provider for the account to
-     * synchronize
-     * @param opSet the multi user chat operation set, which give us access to
-     * chat room server
-     */
-    public void synchronizeOpSetWithLocalContactList(
-        ProtocolProviderService protocolProvider,
-        final OperationSetMultiUserChat opSet);
-
-    /**
      * Returns an iterator to the list of chat room providers.
      *
      * @return an iterator to the list of chat room providers.

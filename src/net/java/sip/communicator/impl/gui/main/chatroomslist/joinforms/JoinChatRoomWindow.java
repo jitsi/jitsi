@@ -99,8 +99,7 @@ public class JoinChatRoomWindow
         super();
 
         Iterator<ChatRoomProviderWrapper> providers =
-            GuiActivator.getMUCService().getChatRoomList()
-                .getChatRoomProviders();
+            GuiActivator.getMUCService().getChatRoomProviders();
 
         while(providers.hasNext())
         {

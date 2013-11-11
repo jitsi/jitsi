@@ -71,17 +71,6 @@ public class MUCActivator
 
     private static CredentialsStorageService credentialsService;
 
-    public MUCActivator()
-    {
-        try
-        {
-            mucService = new MUCServiceImpl();
-        }
-        catch(Exception e)
-        {
-            
-        }
-    }
     /**
      * Starts this bundle.
      *
@@ -95,6 +84,7 @@ public class MUCActivator
             ContactSourceService.class.getName(),
             chatRoomContactSource,
             null);
+        mucService = new MUCServiceImpl();
         bundleContext.registerService(
             MUCService.class.getName(),
             mucService,

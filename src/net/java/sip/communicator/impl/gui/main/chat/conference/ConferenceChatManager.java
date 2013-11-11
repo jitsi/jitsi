@@ -66,11 +66,6 @@ public class ConferenceChatManager
         new Hashtable<ChatRoomWrapper, HistoryWindow>();
 
     /**
-     * The list of persistent chat rooms.
-     */
-    private final ChatRoomList chatRoomList;
-
-    /**
      * The list of ad-hoc chat rooms.
      */
     private final AdHocChatRoomList adHocChatRoomList = new AdHocChatRoomList();
@@ -86,15 +81,13 @@ public class ConferenceChatManager
      */
     public ConferenceChatManager()
     {
-        chatRoomList = GuiActivator.getMUCService().getChatRoomList();
-        chatRoomList.addChatRoomProviderWrapperListener(this);
+        GuiActivator.getMUCService().addChatRoomProviderWrapperListener(this);
         // Loads the chat rooms list in a separate thread.
         new Thread()
         {
             @Override
             public void run()
             {
-                chatRoomList.loadList();
                 adHocChatRoomList.loadList();
             }
         }.start();
@@ -223,7 +216,7 @@ public class ConferenceChatManager
         if(sourceChatRoom.isSystem())
         {
             ChatRoomProviderWrapper serverWrapper
-                = chatRoomList.findServerWrapperFromProvider(
+                = GuiActivator.getMUCService().findServerWrapperFromProvider(
                     sourceChatRoom.getParentProvider());
 
             chatPanel = chatWindowManager.getMultiChat(
@@ -478,7 +471,8 @@ public class ConferenceChatManager
 
         ChatRoom sourceChatRoom = evt.getChatRoom();
         ChatRoomWrapper chatRoomWrapper
-            = chatRoomList.findChatRoomWrapperFromChatRoom(sourceChatRoom);
+            = GuiActivator.getMUCService().findChatRoomWrapperFromChatRoom(
+                sourceChatRoom);
 
         String eventType = evt.getEventType();
 
@@ -512,8 +506,9 @@ public class ConferenceChatManager
             if (sourceChatRoom.isSystem())
             {
                 ChatRoomProviderWrapper serverWrapper
-                    = chatRoomList.findServerWrapperFromProvider(
-                        sourceChatRoom.getParentProvider());
+                    = GuiActivator.getMUCService()
+                        .findServerWrapperFromProvider(
+                            sourceChatRoom.getParentProvider());
 
                 serverWrapper.setSystemRoom(sourceChatRoom);
             }
@@ -708,7 +703,7 @@ public class ConferenceChatManager
 
         this.closeChatRoom(chatRoomWrapper);
 
-        chatRoomList.removeChatRoom(chatRoomWrapper);
+        GuiActivator.getMUCService().removeChatRoom(chatRoomWrapper);
 
     }
 
@@ -945,15 +940,12 @@ public class ConferenceChatManager
         ProtocolProviderService protocolProvider
             = (ProtocolProviderService) service;
 
-        Object multiUserChatOpSet
-            = protocolProvider
-                .getOperationSet(OperationSetMultiUserChat.class);
 
         Object multiUserChatAdHocOpSet
             = protocolProvider
             .getOperationSet(OperationSetAdHocMultiUserChat.class);
 
-        if (multiUserChatOpSet == null && multiUserChatAdHocOpSet != null)
+        if (multiUserChatAdHocOpSet != null)
         {
              if (event.getType() == ServiceEvent.REGISTERED)
              {
@@ -962,17 +954,6 @@ public class ConferenceChatManager
              else if (event.getType() == ServiceEvent.UNREGISTERING)
              {
                  adHocChatRoomList.removeChatProvider(protocolProvider);
-             }
-        }
-        else if (multiUserChatAdHocOpSet == null && multiUserChatOpSet != null)
-        {
-             if (event.getType() == ServiceEvent.REGISTERED)
-             {
-                 chatRoomList.addChatProvider(protocolProvider);
-             }
-             else if (event.getType() == ServiceEvent.UNREGISTERING)
-             {
-                 chatRoomList.removeChatProvider(protocolProvider);
              }
         }
     }

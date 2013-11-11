@@ -1049,25 +1049,6 @@ public class MainFrame
     }
 
     /**
-     * Returns the multi user chat operation set for the given protocol provider.
-     *
-     * @param protocolProvider The protocol provider for which the multi user
-     * chat operation set is about.
-     * @return OperationSetMultiUserChat The telephony operation
-     * set for the given protocol provider.
-     */
-    public OperationSetMultiUserChat getMultiUserChatOpSet(
-            ProtocolProviderService protocolProvider)
-    {
-        OperationSet opSet
-            = protocolProvider.getOperationSet(OperationSetMultiUserChat.class);
-
-        return (opSet instanceof OperationSetMultiUserChat)
-            ? (OperationSetMultiUserChat) opSet
-            : null;
-    }
-
-    /**
      * Returns <tt>true</tt> if there's any currently selected menu related to
      * this <tt>ContactListContainer</tt>, <tt>false</tt> - otherwise.
      *

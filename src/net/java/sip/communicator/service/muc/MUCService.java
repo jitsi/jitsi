@@ -20,18 +20,6 @@ import net.java.sip.communicator.service.protocol.*;
 public abstract class MUCService
 {
     /**
-     * Creates a <tt>ChatRoomWrapper</tt> by specifying the corresponding chat
-     * room.
-     *
-     * @param parentProvider the protocol provider to which the corresponding
-     * chat room belongs
-     * @param chatRoom the chat room to which this wrapper corresponds.
-     */
-    public abstract ChatRoomWrapper createChatRoomWrapper( 
-        ChatRoomProviderWrapper parentProvider,
-        ChatRoom chatRoom);
-
-    /**
      * Returns the <tt>ChatRoomList</tt> instance.
      * 
      * @return the <tt>ChatRoomList</tt> instance.
@@ -219,4 +207,96 @@ public abstract class MUCService
 
     public abstract ChatRoomWrapper findChatRoomWrapperFromSourceContact(
         SourceContact contact);
+    
+    /**
+     * Searches for chat room wrapper in chat room list by chat room.
+     * 
+     * @param chatRoom the chat room.
+     * @param create if <tt>true</tt> and the chat room wrapper is not found new
+     * chatRoomWrapper is created.
+     * @return found chat room wrapper or the created chat room wrapper.
+     */
+    public abstract ChatRoomWrapper getChatRoomWrapperByChatRoom(
+        ChatRoom chatRoom, boolean create);
+    
+    /**
+     * Returns the multi user chat operation set for the given protocol provider.
+     *
+     * @param protocolProvider The protocol provider for which the multi user
+     * chat operation set is about.
+     * @return OperationSetMultiUserChat The telephony operation
+     * set for the given protocol provider.
+     */
+    public static OperationSetMultiUserChat getMultiUserChatOpSet(
+            ProtocolProviderService protocolProvider)
+    {
+        OperationSet opSet
+            = protocolProvider.getOperationSet(OperationSetMultiUserChat.class);
+
+        return (opSet instanceof OperationSetMultiUserChat)
+            ? (OperationSetMultiUserChat) opSet
+            : null;
+    }
+    
+    /**
+     * Goes through the locally stored chat rooms list and for each
+     * {@link ChatRoomWrapper} tries to find the corresponding server stored
+     * {@link ChatRoom} in the specified operation set. Joins automatically all
+     * found chat rooms.
+     *
+     * @param protocolProvider the protocol provider for the account to
+     * synchronize
+     * @param opSet the multi user chat operation set, which give us access to
+     * chat room server
+     */
+    public abstract void synchronizeOpSetWithLocalContactList(
+        ProtocolProviderService protocolProvider,
+        final OperationSetMultiUserChat opSet);
+    
+    /**
+     * Returns an iterator to the list of chat room providers.
+     *
+     * @return an iterator to the list of chat room providers.
+     */
+    public abstract Iterator<ChatRoomProviderWrapper> getChatRoomProviders();
+    
+    /**
+     * Removes the given <tt>ChatRoom</tt> from the list of all chat rooms.
+     *
+     * @param chatRoomWrapper the <tt>ChatRoomWrapper</tt> to remove
+     */
+    public abstract void removeChatRoom(ChatRoomWrapper chatRoomWrapper);
+    
+    /**
+     * Adds a ChatRoomProviderWrapperListener to the listener list.
+     *
+     * @param listener the ChatRoomProviderWrapperListener to be added
+     */
+    public abstract void addChatRoomProviderWrapperListener(
+        ChatRoomList.ChatRoomProviderWrapperListener listener);
+    
+    /**
+     * Returns the <tt>ChatRoomProviderWrapper</tt> that correspond to the
+     * given <tt>ProtocolProviderService</tt>. If the list doesn't contain a
+     * corresponding wrapper - returns null.
+     *
+     * @param protocolProvider the protocol provider that we're looking for
+     * @return the <tt>ChatRoomProvider</tt> object corresponding to
+     * the given <tt>ProtocolProviderService</tt>
+     */
+    public abstract ChatRoomProviderWrapper findServerWrapperFromProvider(
+        ProtocolProviderService protocolProvider);
+    
+    /**
+     * Returns the <tt>ChatRoomWrapper</tt> that correspond to the given
+     * <tt>ChatRoom</tt>. If the list of chat rooms doesn't contain a
+     * corresponding wrapper - returns null.
+     *
+     * @param chatRoom the <tt>ChatRoom</tt> that we're looking for
+     * @return the <tt>ChatRoomWrapper</tt> object corresponding to the given
+     * <tt>ChatRoom</tt>
+     */
+    public abstract ChatRoomWrapper findChatRoomWrapperFromChatRoom(
+        ChatRoom chatRoom);
+
 }

@@ -756,27 +756,9 @@ public class ChatWindowManager
     {
         synchronized (chatSyncRoot)
         {
-            ChatRoomList chatRoomList
-                = GuiActivator
-                    .getMUCService().getChatRoomList();
-
-            // Search in the chat room's list for a chat room that correspond
-            // to the given one.
             ChatRoomWrapper chatRoomWrapper
-                = chatRoomList.findChatRoomWrapperFromChatRoom(chatRoom);
-
-            if ((chatRoomWrapper == null) && create)
-            {
-                ChatRoomProviderWrapper parentProvider
-                    = chatRoomList.findServerWrapperFromProvider(
-                        chatRoom.getParentProvider());
-
-                chatRoomWrapper 
-                    = GuiActivator.getMUCService().createChatRoomWrapper(
-                        parentProvider, chatRoom);
-
-                chatRoomList.addChatRoom(chatRoomWrapper);
-            }
+                = GuiActivator.getMUCService().getChatRoomWrapperByChatRoom(
+                    chatRoom, create);
 
             ChatPanel chatPanel = null;
 

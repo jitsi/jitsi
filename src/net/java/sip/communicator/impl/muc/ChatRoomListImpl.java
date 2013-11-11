@@ -23,7 +23,7 @@ import org.osgi.framework.*;
  * @author Hristo Terezov
  */
 public class ChatRoomListImpl
-    implements RegistrationStateChangeListener, ChatRoomList
+    implements RegistrationStateChangeListener, ChatRoomList, ServiceListener
 {
     /**
      * The logger.
@@ -48,6 +48,16 @@ public class ChatRoomListImpl
     private final Vector<ChatRoomListChangeListener> listChangeListeners
         = new Vector<ChatRoomListChangeListener>();
 
+    /**
+     * Constructs and initializes new <tt>ChatRoomListImpl</tt> objects. Adds 
+     * the created object as service lister to the bundle context.
+     */
+    public ChatRoomListImpl()
+    {
+        loadList();
+        MUCActivator.bundleContext.addServiceListener(this);
+    }
+    
     /**
      * Initializes the list of chat rooms.
      */
@@ -139,7 +149,7 @@ public class ChatRoomListImpl
      * @param pps the <tt>ProtocolProviderService</tt> corresponding to the chat
      * server
      */
-    private ChatRoomProviderWrapper
+    ChatRoomProviderWrapper
         addRegisteredChatProvider(ProtocolProviderService pps)
     {
         ChatRoomProviderWrapper chatRoomProvider
@@ -444,35 +454,6 @@ public class ChatRoomListImpl
     }
 
     /**
-     * Goes through the locally stored chat rooms list and for each
-     * {@link ChatRoomWrapper} tries to find the corresponding server stored
-     * {@link ChatRoom} in the specified operation set. Joins automatically all
-     * found chat rooms.
-     *
-     * @param protocolProvider the protocol provider for the account to
-     * synchronize
-     * @param opSet the multi user chat operation set, which give us access to
-     * chat room server
-     */
-    public void synchronizeOpSetWithLocalContactList(
-        ProtocolProviderService protocolProvider,
-        final OperationSetMultiUserChat opSet)
-    {
-        ChatRoomProviderWrapper chatRoomProvider
-            = findServerWrapperFromProvider(protocolProvider);
-
-        if(chatRoomProvider == null)
-        {
-            chatRoomProvider = addRegisteredChatProvider(protocolProvider);
-        }
-
-        if (chatRoomProvider != null)
-        {
-            chatRoomProvider.synchronizeProvider();
-        }
-    }
-
-    /**
      * Returns an iterator to the list of chat room providers.
      *
      * @return an iterator to the list of chat room providers.
@@ -561,6 +542,42 @@ public class ChatRoomListImpl
             {
                 removeChatProvider(wrapper, false);
             }
+        }
+    }
+
+    @Override
+    public void serviceChanged(ServiceEvent event)
+    {
+        // if the event is caused by a bundle being stopped, we don't want to
+        // know
+        if (event.getServiceReference().getBundle().getState()
+                == Bundle.STOPPING)
+            return;
+
+        Object service = MUCActivator.bundleContext.getService(event
+            .getServiceReference());
+
+        // we don't care if the source service is not a protocol provider
+        if (!(service instanceof ProtocolProviderService))
+            return;
+
+        ProtocolProviderService protocolProvider
+            = (ProtocolProviderService) service;
+
+        Object multiUserChatOpSet
+            = protocolProvider
+                .getOperationSet(OperationSetMultiUserChat.class);
+
+         if (multiUserChatOpSet != null)
+        {
+             if (event.getType() == ServiceEvent.REGISTERED)
+             {
+                 addChatProvider(protocolProvider);
+             }
+             else if (event.getType() == ServiceEvent.UNREGISTERING)
+             {
+                 removeChatProvider(protocolProvider);
+             }
         }
     }
 }

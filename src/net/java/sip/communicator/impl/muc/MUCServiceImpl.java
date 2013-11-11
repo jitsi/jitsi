@@ -12,7 +12,7 @@ import org.jitsi.service.resources.*;
 
 
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.contactsource.SourceContact;
+import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -54,21 +54,6 @@ public class MUCServiceImpl
             = chatRoom.getParentProvider().getAccountID().getUserID();
 
         joinChatRoom(chatRoom, nickName, password);
-    }
-
-    /**
-     * Creates a <tt>ChatRoomWrapper</tt> instance.
-     * 
-     * @param parentProvider the protocol provider to which the corresponding 
-     * chat room belongs.
-     * @param chatRoom the chat room to which this wrapper corresponds.
-     * @return the <tt>ChatRoomWrapper</tt> instance.
-     */
-    @Override
-    public ChatRoomWrapper createChatRoomWrapper(
-        ChatRoomProviderWrapper parentProvider, ChatRoom chatRoom)
-    {
-        return new ChatRoomWrapperImpl(parentProvider, chatRoom);
     }
 
     /**
@@ -851,5 +836,124 @@ public class MUCServiceImpl
         ChatRoomSourceContact chatRoomContact = (ChatRoomSourceContact) contact;
         return chatRoomList.findChatRoomWrapperFromChatRoomID(
                 chatRoomContact.getChatRoomID(), chatRoomContact.getProvider()); 
+    }
+
+    /**
+     * Searches for chat room wrapper in chat room list by chat room.
+     * 
+     * @param chatRoom the chat room.
+     * @param create if <tt>true</tt> and the chat room wrapper is not found new
+     * chatRoomWrapper is created.
+     * @return found chat room wrapper or the created chat room wrapper.
+     */
+    @Override
+    public ChatRoomWrapper getChatRoomWrapperByChatRoom(ChatRoom chatRoom, 
+        boolean create)
+    {
+        ChatRoomWrapper chatRoomWrapper
+            = chatRoomList.findChatRoomWrapperFromChatRoom(chatRoom);
+    
+        if ((chatRoomWrapper == null) && create)
+        {
+            ChatRoomProviderWrapper parentProvider
+                = chatRoomList.findServerWrapperFromProvider(
+                    chatRoom.getParentProvider());
+    
+            chatRoomWrapper 
+                = new ChatRoomWrapperImpl(
+                    parentProvider, chatRoom);
+    
+            chatRoomList.addChatRoom(chatRoomWrapper);
+        }
+        return chatRoomWrapper;
+    }
+    
+    /**
+     * Goes through the locally stored chat rooms list and for each
+     * {@link ChatRoomWrapper} tries to find the corresponding server stored
+     * {@link ChatRoom} in the specified operation set. Joins automatically all
+     * found chat rooms.
+     *
+     * @param protocolProvider the protocol provider for the account to
+     * synchronize
+     * @param opSet the multi user chat operation set, which give us access to
+     * chat room server
+     */
+    public void synchronizeOpSetWithLocalContactList(
+        ProtocolProviderService protocolProvider,
+        final OperationSetMultiUserChat opSet)
+    {
+        ChatRoomProviderWrapper chatRoomProvider
+            = findServerWrapperFromProvider(protocolProvider);
+
+        if(chatRoomProvider == null)
+        {
+            chatRoomProvider = chatRoomList.addRegisteredChatProvider(protocolProvider);
+        }
+        
+        if (chatRoomProvider != null)
+        {
+            chatRoomProvider.synchronizeProvider();
+        }
+    }
+    
+    /**
+     * Returns an iterator to the list of chat room providers.
+     *
+     * @return an iterator to the list of chat room providers.
+     */
+    public Iterator<ChatRoomProviderWrapper> getChatRoomProviders()
+    {
+        return chatRoomList.getChatRoomProviders();
+    }
+    
+    /**
+     * Removes the given <tt>ChatRoom</tt> from the list of all chat rooms.
+     *
+     * @param chatRoomWrapper the <tt>ChatRoomWrapper</tt> to remove
+     */
+    public void removeChatRoom(ChatRoomWrapper chatRoomWrapper)
+    {
+        chatRoomList.removeChatRoom(chatRoomWrapper);
+    }
+
+    /**
+     * Adds a ChatRoomProviderWrapperListener to the listener list.
+     *
+     * @param listener the ChatRoomProviderWrapperListener to be added
+     */
+    public  void addChatRoomProviderWrapperListener(
+        ChatRoomList.ChatRoomProviderWrapperListener listener)
+    {
+        chatRoomList.addChatRoomProviderWrapperListener(listener);
+    }
+    
+    /**
+     * Returns the <tt>ChatRoomProviderWrapper</tt> that correspond to the
+     * given <tt>ProtocolProviderService</tt>. If the list doesn't contain a
+     * corresponding wrapper - returns null.
+     *
+     * @param protocolProvider the protocol provider that we're looking for
+     * @return the <tt>ChatRoomProvider</tt> object corresponding to
+     * the given <tt>ProtocolProviderService</tt>
+     */
+    public ChatRoomProviderWrapper findServerWrapperFromProvider(
+        ProtocolProviderService protocolProvider)
+    {
+        return chatRoomList.findServerWrapperFromProvider(protocolProvider);
+    }
+    
+    /**
+     * Returns the <tt>ChatRoomWrapper</tt> that correspond to the given
+     * <tt>ChatRoom</tt>. If the list of chat rooms doesn't contain a
+     * corresponding wrapper - returns null.
+     *
+     * @param chatRoom the <tt>ChatRoom</tt> that we're looking for
+     * @return the <tt>ChatRoomWrapper</tt> object corresponding to the given
+     * <tt>ChatRoom</tt>
+     */
+    public ChatRoomWrapper findChatRoomWrapperFromChatRoom(ChatRoom chatRoom)
+    {
+        return chatRoomList.findChatRoomWrapperFromChatRoom(chatRoom);
     }
 }

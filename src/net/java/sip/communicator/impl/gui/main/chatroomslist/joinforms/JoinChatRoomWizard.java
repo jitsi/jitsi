@@ -47,8 +47,7 @@ public class JoinChatRoomWizard
             .getI18NString("service.gui.JOIN"));
 
         Iterator<ChatRoomProviderWrapper> chatRoomProviders
-            = GuiActivator.getMUCService().getChatRoomList()
-                .getChatRoomProviders();
+            = GuiActivator.getMUCService().getChatRoomProviders();
 
         page1 = new JoinChatRoomWizardPage1(this,
                                             newChatRoom,
