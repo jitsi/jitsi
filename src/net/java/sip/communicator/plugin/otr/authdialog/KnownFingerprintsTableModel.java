@@ -4,13 +4,14 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.plugin.otr;
+package net.java.sip.communicator.plugin.otr.authdialog;
 
 import java.awt.*;
 import java.util.*;
 
 import javax.swing.table.*;
 
+import net.java.sip.communicator.plugin.otr.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
 

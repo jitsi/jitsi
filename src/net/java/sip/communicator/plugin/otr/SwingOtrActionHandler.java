@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.plugin.otr;
 
+import net.java.sip.communicator.plugin.otr.authdialog.*;
 import net.java.sip.communicator.service.protocol.*;
 
 import java.awt.*;

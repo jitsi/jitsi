@@ -32,6 +32,8 @@ public interface ScOtrKeyManager
 
     public abstract String getLocalFingerprint(AccountID account);
 
+    public abstract byte[] getLocalFingerprintRaw(AccountID account);
+
     public abstract void savePublicKey(Contact contact, PublicKey pubKey);
 
     public abstract PublicKey loadPublicKey(Contact contact);

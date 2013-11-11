@@ -9,10 +9,11 @@ package net.java.sip.communicator.plugin.otr;
 import java.net.*;
 import java.security.*;
 import java.util.*;
+import java.util.concurrent.*;
 
 import net.java.otr4j.*;
 import net.java.otr4j.session.*;
-
+import net.java.sip.communicator.plugin.otr.authdialog.*;
 import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
@@ -36,7 +37,7 @@ public class ScOtrEngineImpl
     class ScOtrEngineHost
         implements OtrEngineHost
     {
-        public KeyPair getKeyPair(SessionID sessionID)
+        public KeyPair getLocalKeyPair(SessionID sessionID)
         {
             AccountID accountID =
                 OtrActivator.getAccountIDByUID(sessionID.getAccountID());
@@ -83,10 +84,241 @@ public class ScOtrEngineImpl
                 Chat.SYSTEM_MESSAGE, warn,
                 OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE);
         }
+
+        @Override
+        public void unreadableMessageReceived(SessionID sessionID)
+            throws OtrException
+        {
+            Contact contact = getContact(sessionID);
+            if (contact == null)
+                return;
+
+            String error =
+                OtrActivator.resourceService.getI18NString(
+                    "plugin.otr.activator.unreadablemsgreceived",
+                    new String[] {contact.getDisplayName()});
+            OtrActivator.uiService.getChat(contact).addMessage(
+                contact.getDisplayName(), new Date(),
+                Chat.ERROR_MESSAGE, error,
+                OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE);
+        }
+
+        @Override
+        public void unencryptedMessageReceived(SessionID sessionID, String msg)
+            throws OtrException
+        {
+            Contact contact = getContact(sessionID);
+            if (contact == null)
+                return;
+
+            String warn =
+                OtrActivator.resourceService.getI18NString(
+                    "plugin.otr.activator.unencryptedmsgreceived");
+            OtrActivator.uiService.getChat(contact).addMessage(
+                contact.getDisplayName(), new Date(),
+                Chat.SYSTEM_MESSAGE, warn,
+                OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE);
+        }
+
+        @Override
+        public void smpError(SessionID sessionID, int tlvType, boolean cheated)
+            throws OtrException
+        {
+            Contact contact = getContact(sessionID);
+            if (contact == null)
+                return;
+
+            logger.debug("SMP error occurred"
+                        + ". Contact: " + contact.getDisplayName()
+                        + ". TLV type: " + tlvType
+                        + ". Cheated: " + cheated);
+
+            String error =
+                OtrActivator.resourceService.getI18NString(
+                    "plugin.otr.activator.smperror");
+            OtrActivator.uiService.getChat(contact).addMessage(
+                contact.getDisplayName(), new Date(),
+                Chat.ERROR_MESSAGE, error,
+                OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE);
+
+            SmpProgressDialog progressDialog = progressDialogMap.get(contact);
+            if (progressDialog == null)
+            {
+                progressDialog = new SmpProgressDialog(contact);
+                progressDialogMap.put(contact, progressDialog);
+            }
+
+            progressDialog.setProgressFail();
+            progressDialog.setVisible(true);
+        }
+
+        @Override
+        public void smpAborted(SessionID sessionID) throws OtrException
+        {
+            Contact contact = getContact(sessionID);
+            if (contact == null)
+                return;
+
+            Session session = otrEngine.getSession(sessionID);
+            if (session.isSmpInProgress())
+            {
+                String warn =
+                    OtrActivator.resourceService.getI18NString(
+                        "plugin.otr.activator.smpaborted",
+                        new String[] {contact.getDisplayName()});
+                OtrActivator.uiService.getChat(contact).addMessage(
+                    contact.getDisplayName(), new Date(),
+                    Chat.SYSTEM_MESSAGE, warn,
+                    OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE);
+    
+                SmpProgressDialog progressDialog = progressDialogMap.get(contact);
+                if (progressDialog == null)
+                {
+                    progressDialog = new SmpProgressDialog(contact);
+                    progressDialogMap.put(contact, progressDialog);
+                }
+    
+                progressDialog.setProgressFail();
+                progressDialog.setVisible(true);
+            }
+        }
+
+        @Override
+        public void finishedSessionMessage(SessionID sessionID)
+            throws OtrException
+        {
+            Contact contact = getContact(sessionID);
+            if (contact == null)
+                return;
+
+            String error =
+                OtrActivator.resourceService.getI18NString(
+                    "plugin.otr.activator.sessionfinishederror",
+                    new String[] {contact.getDisplayName()});
+            OtrActivator.uiService.getChat(contact).addMessage(
+                contact.getDisplayName(), new Date(),
+                Chat.ERROR_MESSAGE, error,
+                OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE);
+        }
+
+        @Override
+        public void requireEncryptedMessage(SessionID sessionID, String msgText)
+            throws OtrException
+        {
+            Contact contact = getContact(sessionID);
+            if (contact == null)
+                return;
+
+            String error =
+                OtrActivator.resourceService.getI18NString(
+                    "plugin.otr.activator.requireencryption",
+                    new String[] {contact.getDisplayName()});
+            OtrActivator.uiService.getChat(contact).addMessage(
+                contact.getDisplayName(), new Date(),
+                Chat.ERROR_MESSAGE, error,
+                OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE);
+        }
+
+        @Override
+        public byte[] getLocalFingerprintRaw(SessionID sessionID)
+        {
+            AccountID accountID =
+                OtrActivator.getAccountIDByUID(sessionID.getAccountID());
+            return
+                OtrActivator.scOtrKeyManager.getLocalFingerprintRaw(accountID);
+        }
+
+        @Override
+        public void askForSecret(SessionID sessionID, String question)
+        {
+            Contact contact = getContact(sessionID);
+            if (contact == null)
+                return;
+
+            SmpAuthenticateBuddyDialog dialog =
+                new SmpAuthenticateBuddyDialog(contact, question);
+            dialog.setVisible(true);
+
+            SmpProgressDialog progressDialog = progressDialogMap.get(contact);
+            if (progressDialog == null)
+            {
+                progressDialog = new SmpProgressDialog(contact);
+                progressDialogMap.put(contact, progressDialog);
+            }
+            
+            progressDialog.init();
+            progressDialog.setVisible(true);
+        }
+
+        @Override
+        public void verify(SessionID sessionID, boolean approved)
+        {
+            Contact contact = getContact(sessionID);
+            if (contact == null)
+                return;
+
+            OtrActivator.scOtrKeyManager.verify(contact);
+
+            SmpProgressDialog progressDialog = progressDialogMap.get(contact);
+            if (progressDialog == null)
+            {
+                progressDialog = new SmpProgressDialog(contact);
+                progressDialogMap.put(contact, progressDialog);
+            }
+            
+            progressDialog.setProgressSuccess();
+            progressDialog.setVisible(true);
+        }
+
+        @Override
+        public void unverify(SessionID sessionID)
+        {
+            Contact contact = getContact(sessionID);
+            if (contact == null)
+                return;
+
+            OtrActivator.scOtrKeyManager.unverify(contact);
+            
+            SmpProgressDialog progressDialog = progressDialogMap.get(contact);
+            if (progressDialog == null)
+            {
+                progressDialog = new SmpProgressDialog(contact);
+                progressDialogMap.put(contact, progressDialog);
+            }
+
+            progressDialog.setProgressFail();
+            progressDialog.setVisible(true);
+        }
+
+        @Override
+        public String getReplyForUnreadableMessage(SessionID sessionID)
+        {
+            AccountID accountID =
+                OtrActivator.getAccountIDByUID(sessionID.getAccountID());
+
+            return OtrActivator.resourceService.getI18NString(
+                "plugin.otr.activator.unreadablemsgreply",
+                new String[] {accountID.getDisplayName(),
+                              accountID.getDisplayName()});
+        }
+
+        @Override
+        public String getFallbackMessage(SessionID sessionID)
+        {
+            AccountID accountID =
+                OtrActivator.getAccountIDByUID(sessionID.getAccountID());
+
+            return OtrActivator.resourceService.getI18NString(
+                "plugin.otr.activator.fallbackmessage",
+                new String[] {accountID.getDisplayName()});
+        }
     }
 
     private static final Map<ScSessionID, Contact> contactsMap =
         new Hashtable<ScSessionID, Contact>();
+
+    private static final Map<Contact, SmpProgressDialog> progressDialogMap =
+        new ConcurrentHashMap<Contact, SmpProgressDialog>();
 
     public static Contact getContact(SessionID sessionID)
     {
@@ -145,11 +377,14 @@ public class ScOtrEngineImpl
      */
     private final Logger logger = Logger.getLogger(ScOtrEngineImpl.class);
 
-    private final OtrEngine otrEngine
-        = new OtrEngineImpl(new ScOtrEngineHost());
+    final OtrEngineHost otrEngineHost = new ScOtrEngineHost();
+
+    private final OtrEngine otrEngine;
 
     public ScOtrEngineImpl()
     {
+        otrEngine = new OtrEngineImpl(otrEngineHost);
+
         // Clears the map after previous instance
         // This is required because of OSGi restarts in the same VM on Android
         contactsMap.clear();
@@ -449,6 +684,9 @@ public class ScOtrEngineImpl
                 logger.debug(
                         "Unregistering a ProtocolProviderService, cleaning"
                             + " OTR's ScSessionID to Contact map.");
+                logger.debug(
+                        "Unregistering a ProtocolProviderService, cleaning"
+                            + " OTR's Contact to SpmProgressDialog map.");
             }
 
             ProtocolProviderService provider
@@ -463,6 +701,14 @@ public class ScOtrEngineImpl
                     if (provider.equals(i.next().getProtocolProvider()))
                         i.remove();
                 }
+            }
+
+            Iterator<Contact> i = progressDialogMap.keySet().iterator();
+
+            while (i.hasNext())
+            {
+                if (provider.equals(i.next().getProtocolProvider()))
+                    i.remove();
             }
         }
     }
@@ -544,5 +790,90 @@ public class ScOtrEngineImpl
             showError(sessionID, e.getMessage());
             return null;
         }
+    }
+
+    private Session getSession(Contact contact)
+    {
+        SessionID sessionID = getSessionID(contact);
+        return otrEngine.getSession(sessionID);
+    }
+
+    @Override
+    public void initSmp(Contact contact, String question, String secret)
+    {
+        Session session = getSession(contact);
+        try
+        {
+            session.initSmp(question, secret);
+
+            SmpProgressDialog progressDialog = progressDialogMap.get(contact);
+            if (progressDialog == null)
+            {
+                progressDialog = new SmpProgressDialog(contact);
+                progressDialogMap.put(contact, progressDialog);
+            }
+
+            progressDialog.init();
+            progressDialog.setVisible(true);
+        }
+        catch (OtrException e)
+        {
+            logger.error("Error initializing SMP session with contact "
+                         + contact.getDisplayName(), e);
+            showError(session.getSessionID(), e.getMessage());
+        }
+    }
+
+    @Override
+    public void respondSmp(Contact contact, String question, String secret)
+    {
+        Session session = getSession(contact);
+        try
+        {
+            session.respondSmp(question, secret);
+
+            SmpProgressDialog progressDialog = progressDialogMap.get(contact);
+            if (progressDialog == null)
+            {
+                progressDialog = new SmpProgressDialog(contact);
+                progressDialogMap.put(contact, progressDialog);
+            }
+
+            progressDialog.incrementProgress();
+            progressDialog.setVisible(true);
+        }
+        catch (OtrException e)
+        {
+            logger.error(
+                "Error occured when sending SMP response to contact "
+                + contact.getDisplayName(), e);
+            showError(session.getSessionID(), e.getMessage());
+        }
+    }
+
+    @Override
+    public void abortSmp(Contact contact)
+    {
+        Session session = getSession(contact);
+        try
+        {
+            session.abortSmp();
+
+            SmpProgressDialog progressDialog = progressDialogMap.get(contact);
+            if (progressDialog == null)
+            {
+                progressDialog = new SmpProgressDialog(contact);
+                progressDialogMap.put(contact, progressDialog);
+            }
+
+            progressDialog.dispose();
+        }
+        catch (OtrException e)
+        {
+            logger.error("Error aborting SMP session with contact "
+                         + contact.getDisplayName(), e);
+            showError(session.getSessionID(), e.getMessage());
+        }
+        
     }
 }
