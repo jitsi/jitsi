@@ -293,8 +293,8 @@ public class ChatRoomIrcImpl
     public void banParticipant(ChatRoomMember chatRoomMember, String reason)
         throws OperationFailedException
     {
-        this.parentProvider.getIrcStack().banParticipant(this.getName(),
-            chatRoomMember.getContactAddress(), reason);
+        this.parentProvider.getIrcStack().banParticipant(this,
+            chatRoomMember, reason);
     }
 
     /**
@@ -308,8 +308,8 @@ public class ChatRoomIrcImpl
     public void kickParticipant(ChatRoomMember chatRoomMember, String reason)
         throws OperationFailedException
     {
-        this.parentProvider.getIrcStack().kickParticipant(this.getName(),
-            chatRoomMember.getContactAddress(), reason);
+        this.parentProvider.getIrcStack().kickParticipant(this,
+            chatRoomMember, reason);
     }
 
     /**
@@ -490,7 +490,7 @@ public class ChatRoomIrcImpl
     public void setSubject(String subject)
         throws OperationFailedException
     {
-        parentProvider.getIrcStack().setSubject(getName(), subject);
+        parentProvider.getIrcStack().setSubject(this, subject);
     }
 
     /**
@@ -645,7 +645,7 @@ public class ChatRoomIrcImpl
     public void invite(String userAddress, String reason)
     {
         parentProvider.getIrcStack()
-            .sendInvite(userAddress, chatRoomName);
+            .invite(userAddress, this);
     }
 
     /**
@@ -740,12 +740,12 @@ public class ChatRoomIrcImpl
             if (((MessageIrcImpl) message).isCommand())
             {
                 parentProvider.getIrcStack()
-                    .sendCommand(this, messagePortion);
+                    .command(this, messagePortion);
             }
             else
             {
                 parentProvider.getIrcStack()
-                    .sendMessage(chatRoomName, messagePortion);
+                    .message(this, messagePortion);
             }
 
             this.fireMessageDeliveredEvent(

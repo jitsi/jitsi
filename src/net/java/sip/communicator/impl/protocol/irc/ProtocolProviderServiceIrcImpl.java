@@ -100,7 +100,7 @@ public class ProtocolProviderServiceIrcImpl
                         this,
                         userID,
                         userID,
-                        "SIP Communicator 1.0",
+                        "Jitsi",
                         "");
 
             isInitialized = true;
