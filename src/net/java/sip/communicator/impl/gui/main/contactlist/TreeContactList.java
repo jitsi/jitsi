@@ -1253,10 +1253,7 @@ public class TreeContactList
                     = ((ContactNode) lastComponent).getContactDescriptor();
 
                 if (((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0
-                        || (e.isControlDown() && !e.isMetaDown()))
-                    && !(((SourceContact) uiContact.getDescriptor())
-                        .getContactDetails(OperationSetMultiUserChat.class) 
-                            != null))
+                        || (e.isControlDown() && !e.isMetaDown())))
                 {
                     rightButtonMenu = uiContact.getRightButtonMenu();
 
