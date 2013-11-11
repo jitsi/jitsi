@@ -22,7 +22,8 @@ public interface ScOtrEngine
 
     /**
      * Initializes Smp negotiation.
-     * See {@link http://en.wikipedia.org/wiki/Socialist_Millionaire_Problem}
+     * @See <a href="http://en.wikipedia.org/wiki/Socialist_Millionaire_Problem"
+     * >http://en.wikipedia.org/wiki/Socialist_Millionaire_Problem</a>
      * 
      * @param contact The contact with whom we want to start the Smp negotiation
      * @param question The question that is asked during the Smp negotiation
@@ -33,7 +34,8 @@ public interface ScOtrEngine
 
     /**
      * Responds to a question that is asked during the Smp negotiation process.
-     * See {@link http://en.wikipedia.org/wiki/Socialist_Millionaire_Problem}
+     * @See <a href="http://en.wikipedia.org/wiki/Socialist_Millionaire_Problem"
+     * >http://en.wikipedia.org/wiki/Socialist_Millionaire_Problem</a>
      * 
      * @param contact The contact for whom we want to respond to a question
      * during the Smp negotiation process.
@@ -45,7 +47,8 @@ public interface ScOtrEngine
 
     /**
      * Aborts the Smp negotiation process.
-     * See {@link http://en.wikipedia.org/wiki/Socialist_Millionaire_Problem}
+     * @See <a href="http://en.wikipedia.org/wiki/Socialist_Millionaire_Problem"
+     * >http://en.wikipedia.org/wiki/Socialist_Millionaire_Problem</a>
      * 
      * @param contact The contact with whom we want to abort the
      * Smp negotiation process.

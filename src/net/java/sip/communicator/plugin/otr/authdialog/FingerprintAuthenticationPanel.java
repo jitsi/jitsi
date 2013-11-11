@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.plugin.otr;
+package net.java.sip.communicator.plugin.otr.authdialog;
 
 import java.awt.*;
 
@@ -12,6 +12,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.plugin.otr.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
@@ -103,13 +104,13 @@ public class FingerprintAuthenticationPanel
         c.insets = new Insets(5, 5, 5, 5);
         c.weightx = 0.0;
 
-        setCbAction(new JComboBox());
-        getCbAction().addItem(actionIHave);
-        getCbAction().addItem(actionIHaveNot);
-        getCbAction().setSelectedItem(OtrActivator.scOtrKeyManager
+        cbAction = new JComboBox();
+        cbAction.addItem(actionIHave);
+        cbAction.addItem(actionIHaveNot);
+        cbAction.setSelectedItem(OtrActivator.scOtrKeyManager
             .isVerified(contact) ? actionIHave : actionIHaveNot);
 
-        pnlAction.add(getCbAction(), c);
+        pnlAction.add(cbAction, c);
 
         txtAction = new CustomTextArea();
         c.weightx = 1.0;
@@ -126,6 +127,11 @@ public class FingerprintAuthenticationPanel
         pnlAction.add(txtRemoteFingerprintComparison, c);
         c.gridwidth = 1;
         c.gridy = 0;
+    }
+
+    public JComboBox getCbAction()
+    {
+        return cbAction;
     }
 
     /**
@@ -187,24 +193,14 @@ public class FingerprintAuthenticationPanel
                 .getRemoteFingerprint(contact).toLowerCase()))
         {
             txtRemoteFingerprintComparison.setBackground(Color.green);
-            getCbAction().setSelectedItem(actionIHave);
+            cbAction.setSelectedItem(actionIHave);
         }
         else
         {
             txtRemoteFingerprintComparison.setBackground(
                 new Color(243, 72, 48));
-            getCbAction().setSelectedItem(actionIHaveNot);
+            cbAction.setSelectedItem(actionIHaveNot);
         }
-    }
-
-    public JComboBox getCbAction()
-    {
-        return cbAction;
-    }
-
-    public void setCbAction(JComboBox cbAction)
-    {
-        this.cbAction = cbAction;
     }
 
     /**

@@ -1,4 +1,4 @@
-package net.java.sip.communicator.plugin.otr;
+package net.java.sip.communicator.plugin.otr.authdialog;
 
 import java.awt.*;
 
