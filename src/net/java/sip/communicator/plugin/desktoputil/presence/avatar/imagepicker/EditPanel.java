@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.main.presence.avatar.imagepicker;
+package net.java.sip.communicator.plugin.desktoputil.presence.avatar.imagepicker;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -13,7 +13,6 @@ import java.awt.image.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
-import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 
 /**
@@ -53,15 +52,15 @@ public class EditPanel
         this.clippingZoneWidth = clippingZoneWidth;
         this.clippingZoneHeight = clippingZoneHeight;
 
-        this.zoomOut = new JButton(GuiActivator.getResources()
+        this.zoomOut = new JButton(DesktopUtilActivator.getResources()
                 .getImage("service.gui.buttons.ZOOM_OUT"));
         this.zoomOut.addActionListener(this);
-        this.zoomIn = new JButton(GuiActivator.getResources()
+        this.zoomIn = new JButton(DesktopUtilActivator.getResources()
                 .getImage("service.gui.buttons.ZOOM_IN"));
         this.zoomIn.addActionListener(this);
-        this.reset = new JButton(GuiActivator.getResources()
+        this.reset = new JButton(DesktopUtilActivator.getResources()
                 .getImage("service.gui.buttons.RESET"));
-        this.reset.setToolTipText(GuiActivator.getResources()
+        this.reset.setToolTipText(DesktopUtilActivator.getResources()
                 .getI18NString("service.gui.avatar.imagepicker.RESET"));
         this.reset.addActionListener(this);
 
@@ -69,7 +68,7 @@ public class EditPanel
                 clippingZoneWidth);
         imageSizeSlider.addChangeListener(this);
         imageSizeSlider.setOpaque(false);
-        imageSizeSlider.setToolTipText(GuiActivator.getResources()
+        imageSizeSlider.setToolTipText(DesktopUtilActivator.getResources()
                 .getI18NString("service.gui.avatar.imagepicker.IMAGE_SIZE"));
 
         TransparentPanel sliderPanel = new TransparentPanel();

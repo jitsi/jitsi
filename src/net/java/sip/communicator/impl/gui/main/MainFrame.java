@@ -186,7 +186,7 @@ public class MainFrame
 
         this.contactListPanel = new ContactListPane(this);
 
-        this.accountStatusPanel = new AccountStatusPanel(this);
+        this.accountStatusPanel = new AccountStatusPanel();
 
         this.searchField = new SearchField( this,
                                             TreeContactList.searchFilter,

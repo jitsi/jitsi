@@ -1079,8 +1079,8 @@
         bundle-globalshortcut,bundle-plugin-msofficecomm,bundle-libjitsi,
         bundle-customcontactactions, bundle-phonenumbercontactsource,
         bundle-demuxcontactsource, bundle-muc,
-    	bundle-desktoputil,
-        bundle-globaldisplaydetails,bundle-plugin-propertieseditor"/>
+    	bundle-desktoputil,bundle-globaldisplaydetails,
+        bundle-plugin-propertieseditor,bundle-plugin-accountinfo"/>
 
     <!--BUNDLE-SC-LAUNCHER-->
     <target name="bundle-sc-launcher">
@@ -2226,6 +2226,7 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/plugin/accountinfo/accountinfo.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/accountinfo"
                 prefix="net/java/sip/communicator/plugin/accountinfo"/>
+            <zipfileset src="${lib.noinst}/jcalendar-1.4.jar"/>
         </jar>
     </target>
 

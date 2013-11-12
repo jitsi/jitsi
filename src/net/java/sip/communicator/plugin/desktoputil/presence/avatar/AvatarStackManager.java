@@ -4,17 +4,17 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.main.presence.avatar;
+package net.java.sip.communicator.plugin.desktoputil.presence.avatar;
 
 import java.awt.image.*;
 import java.io.*;
 
 import javax.imageio.*;
 
-import org.jitsi.service.fileaccess.*;
-
-import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.util.*;
+
+import org.jitsi.service.fileaccess.*;
 
 /**
  * Take cares of storing(deleting, moving) images with the given indexes.
@@ -44,8 +44,9 @@ public class AvatarStackManager
         try
         {
             File imageFile
-                = GuiActivator.getFileAccessService().getPrivatePersistentFile(
-                        fileName, FileCategory.CACHE);
+                = DesktopUtilActivator.getFileAccessService()
+                    .getPrivatePersistentFile(
+                        fileName);
 
             if (imageFile.exists() && !imageFile.delete())
                 logger.error("Failed to delete stored image at index " + index);
@@ -71,8 +72,9 @@ public class AvatarStackManager
             String imagePath = STORE_DIR + index + ".png";
 
             imageFile
-                = GuiActivator.getFileAccessService().getPrivatePersistentFile(
-                        imagePath, FileCategory.CACHE);
+                = DesktopUtilActivator.getFileAccessService().
+                    getPrivatePersistentFile(
+                        imagePath);
         }
         catch (Exception e)
         {
@@ -107,14 +109,12 @@ public class AvatarStackManager
 
         try
         {
-            FileAccessService fas = GuiActivator.getFileAccessService();
-            File oldFile = fas.getPrivatePersistentFile(oldImagePath,
-                FileCategory.CACHE);
+            FileAccessService fas = DesktopUtilActivator.getFileAccessService();
+            File oldFile = fas.getPrivatePersistentFile(oldImagePath);
 
             if (oldFile.exists())
             {
-                File newFile = fas.getPrivatePersistentFile(newImagePath,
-                    FileCategory.CACHE);
+                File newFile = fas.getPrivatePersistentFile(newImagePath);
 
                 oldFile.renameTo(newFile);
             }
@@ -148,15 +148,13 @@ public class AvatarStackManager
 
         try
         {
-            FileAccessService fas = GuiActivator.getFileAccessService();
-            File storeDir = fas.getPrivatePersistentDirectory(STORE_DIR,
-                FileCategory.CACHE);
+            FileAccessService fas = DesktopUtilActivator.getFileAccessService();
+            File storeDir = fas.getPrivatePersistentDirectory(STORE_DIR);
 
             // if dir doesn't exist create it
             storeDir.mkdirs();
 
-            File file = fas.getPrivatePersistentFile(imagePath,
-                FileCategory.CACHE);
+            File file = fas.getPrivatePersistentFile(imagePath);
 
             ImageIO.write(image, "png", file);
         }

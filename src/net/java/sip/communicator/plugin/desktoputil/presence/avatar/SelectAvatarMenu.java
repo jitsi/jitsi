@@ -4,18 +4,20 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.main.presence.avatar;
+package net.java.sip.communicator.plugin.desktoputil.presence.avatar;
 
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
+import java.util.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.main.presence.avatar.imagepicker.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.plugin.desktoputil.presence.avatar.imagepicker.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.GenericDetail;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.ImageDetail;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.account.*;
 
@@ -86,6 +88,12 @@ public class SelectAvatarMenu
     private FramedImageWithMenu avatarImage;
 
     /**
+     * The AccountID that we want to select avatar for. Could be null if
+     * we want to select a global avatar.
+     */
+    private AccountID accountID;
+
+    /**
      * Creates the dialog.
      * @param avatarImage the button that will trigger this menu.
      */
@@ -98,6 +106,11 @@ public class SelectAvatarMenu
         this.pack();
     }
 
+    public void setAccountID(AccountID accountID)
+    {
+        this.accountID = accountID;
+    }
+
     /**
      * Init visible components.
      */
@@ -108,7 +121,7 @@ public class SelectAvatarMenu
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         // Title label
-        JLabel titleLabel = new JLabel(GuiActivator.getResources()
+        JLabel titleLabel = new JLabel(DesktopUtilActivator.getResources()
                 .getI18NString("service.gui.avatar.RECENT_ICONS"));
         titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD));
 
@@ -146,17 +159,17 @@ public class SelectAvatarMenu
         Color linkColor = new JMenuItem().getForeground();
 
         addActionButton(buttonsPanel, this,
-                GuiActivator.getResources().getI18NString(
+            DesktopUtilActivator.getResources().getI18NString(
                     "service.gui.avatar.CHOOSE_ICON"),
                 CHOSE_BUTTON_NAME,
                 linkColor);
         addActionButton(buttonsPanel, this,
-                GuiActivator.getResources().getI18NString(
+            DesktopUtilActivator.getResources().getI18NString(
                     "service.gui.avatar.REMOVE_ICON"),
                 REMOVE_BUTTON_NAME,
                 linkColor);
         addActionButton(buttonsPanel, this,
-                GuiActivator.getResources().getI18NString(
+            DesktopUtilActivator.getResources().getI18NString(
                     "service.gui.avatar.CLEAR_RECENT"),
                 CLEAR_BUTTON_NAME,
                 linkColor);
@@ -267,11 +280,11 @@ public class SelectAvatarMenu
             public void run()
             {
                 AccountManager accountManager
-                        = GuiActivator.getAccountManager();
+                        = DesktopUtilActivator.getAccountManager();
 
-                for(AccountID accountID : accountManager.getStoredAccounts())
+                for (AccountID accountID : accountManager.getStoredAccounts())
                 {
-                    if(accountManager.isAccountLoaded(accountID))
+                    if (accountManager.isAccountLoaded(accountID))
                     {
                         ProtocolProviderService protocolProvider
                             = AccountUtils.getRegisteredProviderForAccount(
@@ -280,27 +293,78 @@ public class SelectAvatarMenu
                         if(protocolProvider != null
                            && protocolProvider.isRegistered())
                         {
-                            OperationSetAvatar opSetAvatar
-                                = protocolProvider
-                                    .getOperationSet(OperationSetAvatar.class);
-
-                            if(opSetAvatar != null)
+                            // If account id is set this means that we want to
+                            // edit our current account image, not the global
+                            // avatar. Hence, we might not want to save this
+                            // account image on the server yet. For example: in
+                            // the account info plugin the user might set a new
+                            // avatar and then click the cancel button.
+                            if (SelectAvatarMenu.this.accountID != null)
                             {
-                                byte[] imageByte = null;
-                                // Sets new avatar if not null. Otherwise, the
-                                // opSetAvatar.setAvatar(null) will removes the
-                                // current one.
-                                if(image != null)
+                                if (accountID.equals(
+                                    SelectAvatarMenu.this.accountID))
                                 {
-                                    imageByte = ImageUtils.toByteArray(image);
+                                    OperationSetServerStoredAccountInfo opSet =
+                                        protocolProvider.getOperationSet(
+                                            OperationSetServerStoredAccountInfo.class);
+                                    if (opSet != null)
+                                    {
+                                        byte[] imageByte = null;
+                                        if (image != null)
+                                        {
+                                            imageByte =
+                                                ImageUtils.toByteArray(image);
+                                        }
+                                        avatarImage.setImageIcon(imageByte);
+                                        ImageDetail newDetail =
+                                            new ImageDetail(
+                                                "avatar", imageByte);
+
+                                        Iterator<GenericDetail> oldDetail =
+                                            opSet.getDetails(ImageDetail.class);
+                                        try
+                                        {
+                                            if (oldDetail.hasNext())
+                                            {
+                                                opSet.replaceDetail(
+                                                    oldDetail.next(),
+                                                    newDetail);
+                                            }
+                                            else
+                                                opSet.addDetail(newDetail);
+                                        }
+                                        catch (Throwable t)
+                                        {
+                                            logger.error(
+                                                "Error setting image", t);
+                                        }
+                                    }
                                 }
-                                try
+                            }
+                            else
+                            {
+                                OperationSetAvatar opSetAvatar
+                                    = protocolProvider
+                                        .getOperationSet(OperationSetAvatar.class);
+
+                                if(opSetAvatar != null)
                                 {
-                                    opSetAvatar.setAvatar(imageByte);
-                                }
-                                catch(Throwable t)
-                                {
-                                    logger.error("Error setting image", t);
+                                    byte[] imageByte = null;
+                                    // Sets new avatar if not null. Otherwise, the
+                                    // opSetAvatar.setAvatar(null) will removes the
+                                    // current one.
+                                    if(image != null)
+                                    {
+                                        imageByte = ImageUtils.toByteArray(image);
+                                    }
+                                    try
+                                    {
+                                        opSetAvatar.setAvatar(imageByte);
+                                    }
+                                    catch(Throwable t)
+                                    {
+                                        logger.error("Error setting image", t);
+                                    }
                                 }
                             }
                         }

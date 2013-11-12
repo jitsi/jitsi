@@ -57,6 +57,12 @@ public class AccountList
     private final JButton editButton;
 
     /**
+     * The menu that appears when right click on account is detected.
+     */
+    private final AccountRightButtonMenu rightButtonMenu
+        = new AccountRightButtonMenu();
+
+    /**
      * Creates an instance of this account list by specifying the parent
      * container of the list.
      *
@@ -69,11 +75,39 @@ public class AccountList
 
         this.addMouseListener(this);
 
+        this.addMouseListener(new MouseAdapter()
+        {
+            public void mousePressed(MouseEvent e)
+            {
+                if (SwingUtilities.isRightMouseButton(e))
+                {
+                    Point point = e.getPoint();
+
+                    AccountList.this.setSelectedIndex(getRow(point));
+
+                    rightButtonMenu.setAccount(getSelectedAccount());
+
+                    SwingUtilities.convertPointToScreen(
+                        point, AccountList.this);
+
+                    ((JPopupMenu) rightButtonMenu).setInvoker(AccountList.this);
+
+                    rightButtonMenu.setLocation(point.x, point.y);
+                    rightButtonMenu.setVisible(true);
+                }
+            }
+        });
+
         this.accountsInit();
 
         GuiActivator.bundleContext.addServiceListener(this);
 
         this.editButton = parentConfigPanel.getEditButton();
+    }
+
+    private int getRow(Point point)
+    {
+        return locationToIndex(point);
     }
 
     /**

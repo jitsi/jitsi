@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.main.presence.avatar.imagepicker;
+package net.java.sip.communicator.plugin.desktoputil.presence.avatar.imagepicker;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -12,10 +12,8 @@ import java.awt.image.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
-import net.java.sip.communicator.plugin.desktoputil.TransparentPanel;
+import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.audionotifier.*;
 import org.jitsi.service.neomedia.*;
@@ -51,7 +49,7 @@ public class WebcamDialog
     public WebcamDialog(ImagePickerDialog parent)
     {
         super(false);
-        this.setTitle(GuiActivator.getResources()
+        this.setTitle(DesktopUtilActivator.getResources()
                 .getI18NString("service.gui.avatar.imagepicker.TAKE_PHOTO"));
         this.setModal(true);
 
@@ -66,13 +64,13 @@ public class WebcamDialog
     private void init()
     {
         this.grabSnapshot = new JButton();
-        this.grabSnapshot.setText(GuiActivator.getResources()
+        this.grabSnapshot.setText(DesktopUtilActivator.getResources()
                 .getI18NString("service.gui.avatar.imagepicker.CLICK"));
         this.grabSnapshot.setName("grab");
         this.grabSnapshot.addActionListener(this);
         this.grabSnapshot.setEnabled(false);
 
-        JButton cancelButton = new JButton(GuiActivator.getResources()
+        JButton cancelButton = new JButton(DesktopUtilActivator.getResources()
                 .getI18NString("service.gui.avatar.imagepicker.CANCEL"));
         cancelButton.setName("cancel");
         cancelButton.addActionListener(this);
@@ -120,7 +118,7 @@ public class WebcamDialog
     private void initAccessWebcam()
     {
         //Call the method in the media service
-        MediaService mediaService = GuiActivator.getMediaService();
+        MediaService mediaService = DesktopUtilActivator.getMediaService();
 
         this.videoContainer
             = (Component)
@@ -174,10 +172,10 @@ public class WebcamDialog
      */
     private void playSound()
     {
-        String soundKey = GuiActivator.getResources()
+        String soundKey = DesktopUtilActivator.getResources()
             .getSoundPath("WEBCAM_SNAPSHOT");
 
-        SCAudioClip audio = GuiActivator.getAudioNotifier()
+        SCAudioClip audio = DesktopUtilActivator.getAudioNotifier()
             .createAudio(soundKey);
 
         audio.play();

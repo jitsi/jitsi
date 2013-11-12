@@ -106,6 +106,13 @@ public abstract class AbstractPluginComponent
     {
     }
 
+    /*
+     * Implements PluginComponent#setCurrentAccountID(AccountID).
+     */
+    public void setCurrentAccountID(AccountID accountID)
+    {
+    }
+
     /**
      * Returns the factory that has created the component.
      * @return the parent factory.

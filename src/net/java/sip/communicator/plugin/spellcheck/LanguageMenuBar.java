@@ -261,6 +261,11 @@ public class LanguageMenuBar
 
     }
 
+    public void setCurrentAccountID(AccountID account)
+    {
+
+    }
+
     private static ImageIcon getLocaleIcon(Parameters.Locale locale,
         boolean isAvailable)
     {

@@ -161,6 +161,12 @@ public class ImageLoader
         = new ImageID("service.gui.icons.RIGHT_ARROW_ICON");
 
     /**
+     * The edit icon that is shown when account is right clicked on.
+     */
+    public static final ImageID ACCOUNT_EDIT_ICON
+        = new ImageID("service.gui.buttons.ACCOUNT_EDIT_ICON");
+
+    /**
      * The call button image.
      */
     public static final ImageID INCOMING_CALL_BUTTON_BG

@@ -142,14 +142,17 @@ public class FramedImage
                     null);
         }
 
-        int frameWidth = frameImage.getWidth(this);
-        int frameHeight = frameImage.getHeight(this);
-        if ((frameWidth != -1) && (frameHeight != -1))
-            g.drawImage(
-                frameImage,
-                width / 2 - frameWidth / 2,
-                height / 2 - frameHeight / 2,
-                null);
+        if (frameImage != null)
+        {
+            int frameWidth = frameImage.getWidth(this);
+            int frameHeight = frameImage.getHeight(this);
+            if ((frameWidth != -1) && (frameHeight != -1))
+                g.drawImage(
+                    frameImage,
+                    width / 2 - frameWidth / 2,
+                    height / 2 - frameHeight / 2,
+                    null);
+        }
     }
 
     /**
@@ -157,14 +160,21 @@ public class FramedImage
      */
     public void loadSkin()
     {
-        this.frameImage
-            = ImageUtils
-                .scaleImageWithinBounds(
-                    DesktopUtilActivator
-                        .getResources()
-                            .getImage("service.gui.USER_PHOTO_FRAME").getImage(),
-                    width,
-                    height);
+        ImageIcon frameIcon = DesktopUtilActivator
+            .getResources()
+                .getImage("service.gui.USER_PHOTO_FRAME");
+
+        // Frame image will be drawn only if's bigger or equal to the underlying
+        // image. We would like to avoid pixelated results!
+        if (frameIcon.getIconWidth() >= width
+            && frameIcon.getIconHeight() >= frameIcon.getIconHeight())
+        {
+            this.frameImage
+                = ImageUtils
+                    .scaleImageWithinBounds(frameIcon.getImage(),
+                        width,
+                        height);
+        }
     }
 
     /**

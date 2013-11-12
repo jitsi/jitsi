@@ -6,6 +6,7 @@
 package net.java.sip.communicator.plugin.accountinfo;
 
 import java.awt.*;
+import java.awt.event.*;
 import java.util.*;
 
 import javax.swing.*;
@@ -17,13 +18,15 @@ import net.java.sip.communicator.service.protocol.event.*;
 import org.osgi.framework.*;
 
 /**
- * A GUI plug-in for SIP Communicator that will allow users to set cross
+ * A GUI plug-in for Jitsi that will allow users to set cross
  * protocol account information.
  *
  * @author Adam Goldstein
+ * @author Marin Dzhigarov
  */
 public class AccountInfoPanel
     extends TransparentPanel
+    implements ServiceListener
 {
     /**
      * Serial version UID.
@@ -31,25 +34,86 @@ public class AccountInfoPanel
     private static final long serialVersionUID = 0L;
 
     /**
-     * The right side of the AccountInfo frame that contains protocol specific
-     * account details.
+     * The panel that contains the currently active <tt>AccountDetailsPanel</tt>
      */
-    private AccountDetailsPanel detailsPanel;
-
-    private final Map<ProtocolProviderService, AccountDetailsPanel> accountsTable =
-        new Hashtable<ProtocolProviderService, AccountDetailsPanel>();
+    private final JPanel centerPanel =
+        new TransparentPanel(new BorderLayout(10, 10));
 
     /**
-     * Constructs a frame with an AccuontInfoAccountPanel to display all
-     * registered accounts on the left, and an information interface,
-     * AccountDetailsPanel, on the right.
+     * The currently active <tt>AccountDetailsPanel</tt>
+     */
+    private AccountDetailsPanel currentDetailsPanel;
+
+    /**
+     * Combo box that is used for switching between accounts.
+     */
+    private final JComboBox accountsComboBox;
+
+    /**
+     * Instances of the <tt>AccountDetailsPanel</tt> are created for every
+     * registered <tt>AccountID</tt>. All such pairs are stored in
+     * this map.
+     */
+    private final Map<AccountID, AccountDetailsPanel>
+        accountsTable =
+            new HashMap<AccountID, AccountDetailsPanel>();
+
+    /**
+     * Creates an instance of <tt>AccountInfoPanel</tt> that contains combo box
+     * component with active user accounts and <tt>AccountDetailsPanel</tt> to
+     * display and edit account information.
      */
     public AccountInfoPanel()
     {
-        super(new BorderLayout());
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
-        JTabbedPane accountsTabbedPane = new SIPCommTabbedPane();
+        accountsComboBox = new JComboBox();
+        accountsComboBox.addItemListener(new ItemListener()
+        {
+            @Override
+            public void itemStateChanged(ItemEvent e)
+            {
+                if (e.getStateChange() == ItemEvent.SELECTED)
+                {
+                    AccountDetailsPanel panel =
+                        (AccountDetailsPanel) e.getItem();
+                    panel.setOpaque(false);
+                    centerPanel.removeAll();
+                    centerPanel.add(panel, BorderLayout.CENTER);
+                    centerPanel.revalidate();
+                    centerPanel.repaint();
+                    currentDetailsPanel = panel;
+                }
+            }
+        });
 
+        init();
+
+        centerPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        ComboBoxRenderer renderer = new ComboBoxRenderer();
+        accountsComboBox.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+        accountsComboBox.setRenderer(renderer);
+
+        JLabel comboLabel = new JLabel(
+            Resources.getString(
+                "plugin.accountinfo.SELECT_ACCOUNT"));
+        comboLabel.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+
+        JPanel comboBoxPanel = new TransparentPanel();
+        comboBoxPanel.setLayout(new BoxLayout(comboBoxPanel, BoxLayout.X_AXIS));
+        comboBoxPanel.setBorder(
+            BorderFactory.createEmptyBorder(10, 10, 10, 10)); 
+
+        comboBoxPanel.add(comboLabel);
+        comboBoxPanel.add(accountsComboBox);
+
+        add(comboBoxPanel);
+        add(centerPanel);
+    }
+
+    private void init()
+    {
         for (ProtocolProviderFactory providerFactory : AccountInfoActivator
             .getProtocolProviderFactories().values())
         {
@@ -63,22 +127,56 @@ public class AccountInfoPanel
             {
                 serRef = providerFactory.getProviderForAccount(accountID);
 
-                protocolProvider = (ProtocolProviderService) AccountInfoActivator
+                protocolProvider = (ProtocolProviderService)AccountInfoActivator
                     .bundleContext.getService(serRef);
 
-                detailsPanel = new AccountDetailsPanel(protocolProvider);
+                currentDetailsPanel = new AccountDetailsPanel(protocolProvider);
 
-                accountsTable.put(protocolProvider, detailsPanel);
+                accountsTable.put(
+                    protocolProvider.getAccountID(), currentDetailsPanel);
+
+                accountsComboBox.addItem(currentDetailsPanel);
 
                 protocolProvider.addRegistrationStateChangeListener(
                     new RegistrationStateChangeListenerImpl());
-
-                accountsTabbedPane.addTab(
-                    accountID.getUserID(), detailsPanel);
             }
         }
+    }
 
-        this.add(accountsTabbedPane, BorderLayout.CENTER);
+    /**
+     * A custom renderer to display properly <tt>AccountDetailsPanel</tt>
+     * in a combo box.
+     */
+    private class ComboBoxRenderer extends DefaultListCellRenderer
+    {
+        /**
+         * Serial version UID.
+         */
+        private static final long serialVersionUID = 0L;
+
+        @Override
+        public Component getListCellRendererComponent(
+            JList list, Object value, int index,
+                boolean isSelected, boolean hasFocus)
+        {
+            JLabel renderer
+                = (JLabel) super.getListCellRendererComponent(
+                    list, value, index, isSelected, hasFocus);
+
+            if (value != null)
+            {
+                AccountDetailsPanel panel = (AccountDetailsPanel) value;
+
+                renderer.setText(
+                    panel.protocolProvider.getAccountID().getUserID());
+                ImageIcon protocolIcon =
+                    new ImageIcon(panel.protocolProvider.getProtocolIcon().
+                        getIcon((ProtocolIcon.ICON_SIZE_16x16)));
+                renderer.setIcon(protocolIcon);
+            }
+
+            return renderer;
+        }
     }
 
     private class RegistrationStateChangeListenerImpl
@@ -88,19 +186,117 @@ public class AccountInfoPanel
         {
             ProtocolProviderService protocolProvider = evt.getProvider();
 
-            if (protocolProvider.getOperationSet(
-                    OperationSetServerStoredAccountInfo.class) != null
-                && evt.getNewState() == RegistrationState.REGISTERED)
+            if (evt.getNewState() == RegistrationState.REGISTERED)
             {
-                if (accountsTable.containsKey(protocolProvider))
+                if (accountsTable.containsKey(protocolProvider.getAccountID()))
                 {
                     AccountDetailsPanel detailsPanel
-                        = accountsTable.get(protocolProvider);
-
-                    if(!detailsPanel.isDataLoaded())
-                        detailsPanel.loadDetails();
+                        = accountsTable.get(protocolProvider.getAccountID());
+                    detailsPanel.loadDetails();
+                }
+                else
+                {
+                    AccountDetailsPanel panel =
+                        new AccountDetailsPanel(protocolProvider);
+                    accountsTable.put(protocolProvider.getAccountID(), panel);
+                    accountsComboBox.addItem(panel);
+                }
+            }
+            else if (evt.getNewState() == RegistrationState.UNREGISTERING)
+            {
+                AccountDetailsPanel panel
+                    = accountsTable.get(protocolProvider.getAccountID());
+                if (panel != null)
+                {
+                    accountsTable.remove(protocolProvider.getAccountID());
+                    accountsComboBox.removeItem(panel);
+                    if (currentDetailsPanel == panel)
+                    {
+                        currentDetailsPanel = null;
+                        centerPanel.removeAll();
+                        centerPanel.revalidate();
+                        centerPanel.repaint();
+                    }
                 }
             }
         }
+    }
+
+    /**
+     * Handles registration and unregistration of
+     * <tt>ProtocolProviderService</tt>
+     * 
+     * @param event
+     */
+    @Override
+    public void serviceChanged(ServiceEvent event)
+    {
+        // Get the service from the event.
+        Object service
+            = AccountInfoActivator.bundleContext.getService(
+                event.getServiceReference());
+
+        // We are not interested in any services
+        // other than ProtocolProviderService
+        if (!(service instanceof ProtocolProviderService))
+            return;
+
+        ProtocolProviderService protocolProvider =
+            (ProtocolProviderService) service;
+
+        // If a new protocol provider is registered we to add new 
+        // AccountDetailsPanel to the combo box containing active accounts.
+        if (event.getType() == ServiceEvent.REGISTERED)
+        {
+            if (accountsTable.get(protocolProvider.getAccountID()) == null)
+            {
+                AccountDetailsPanel panel =
+                    new AccountDetailsPanel(protocolProvider);
+                accountsTable.put(protocolProvider.getAccountID(), panel);
+                accountsComboBox.addItem(panel);
+                protocolProvider.addRegistrationStateChangeListener(
+                    new RegistrationStateChangeListenerImpl());
+            }
+        }
+        // If the protocol provider is being unregistered we have to remove
+        // a AccountDetailsPanel from the combo box containing active accounts.
+        else if (event.getType() == ServiceEvent.UNREGISTERING)
+        {
+            AccountDetailsPanel panel
+                = accountsTable.get(protocolProvider.getAccountID());
+            if (panel != null)
+            {
+                accountsTable.remove(protocolProvider.getAccountID());
+                accountsComboBox.removeItem(panel);
+                if (currentDetailsPanel == panel)
+                {
+                    currentDetailsPanel = null;
+                    centerPanel.removeAll();
+                    centerPanel.revalidate();
+                    centerPanel.repaint();
+                }
+            }
+        }
+    }
+
+    /**
+     * Returns the combo box that switches between account detail panels. 
+     *
+     * @return The combo box that switches between account detail panels.
+     */
+    public JComboBox getAccountsComboBox()
+    {
+        return accountsComboBox;
+    }
+
+    /**
+     * Returns mapping between registered AccountIDs and their respective
+     * AccountDetailsPanel that contains all the details for the account.
+     *
+     * @return mapping between registered AccountIDs and AccountDetailsPanel.
+     */
+    public Map<AccountID, AccountDetailsPanel> getAccountsTable()
+    {
+        return accountsTable;
     }
 }

@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.main.presence.avatar.imagepicker;
+package net.java.sip.communicator.plugin.desktoputil.presence.avatar.imagepicker;
 
 import java.awt.*;
 import java.awt.event.*;

@@ -7,75 +7,150 @@ package net.java.sip.communicator.plugin.accountinfo;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.io.*;
-import java.text.*;
+import java.beans.*;
+import java.net.*;
 import java.util.*;
 
-import javax.imageio.*;
 import javax.swing.*;
+import javax.swing.text.*;
+
+import org.jitsi.util.*;
 
 import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.plugin.desktoputil.presence.avatar.*;
+import net.java.sip.communicator.service.globaldisplaydetails.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.BinaryDetail;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.AboutMeDetail;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.AddressDetail;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.BirthDateDetail;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.CityDetail;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.CountryDetail;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.DisplayNameDetail;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.EmailAddressDetail;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.FirstNameDetail;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.GenderDetail;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.GenericDetail;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.ImageDetail;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.JobTitleDetail;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.LastNameDetail;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.MiddleNameDetail;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.NicknameDetail;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.PhoneNumberDetail;
-import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.skin.*;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.PostalCodeDetail;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.ProvinceDetail;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.URLDetail;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.WorkEmailAddressDetail;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.WorkOrganizationNameDetail;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.WorkPhoneDetail;
+
+import net.java.sip.communicator.util.Logger;
+
+import com.toedter.calendar.*;
 
 /**
- * The right side panel of AccountDetailsDialog. Shows one tab of a summary of
- * contact information for the selected subcontact, and has an extended tab
- * listing all of the details.
+ * The main panel that allows users to view and edit their account information.
+ * Different instances of this class are created for every registered
+ * <tt>ProtocolProviderService</tt>.
+ * Currently, supported account details are first/middle/last names, nickname,
+ * street/city/region/country address, postal code, birth date, gender,
+ * organization name, job title, about me, home/work email, home/work phone.
  *
  * @author Yana Stamcheva
  * @author Adam Netocny
+ * @author Marin Dzhigarov
  */
 public class AccountDetailsPanel
     extends TransparentPanel
-    implements Skinnable
 {
-    private static final long serialVersionUID = 5524135388175045624L;
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 1L;
 
+    /**
+     * The logger
+     */
     private Logger logger = Logger.getLogger(AccountDetailsPanel.class);
+
+    /**
+     * Mapping between all supported by this plugin <tt>ServerStoredDetails</tt>
+     * and their respective <tt>JTextField</tt> that are used for modifying
+     * the details.
+     */
+    private final Map<Class<? extends GenericDetail>, JTextField>
+        detailToTextField
+            = new HashMap<Class<? extends GenericDetail>, JTextField>();
+
+    /**
+     * The <tt>ProtocolProviderService</tt> that this panel is associated with.
+     */
+    ProtocolProviderService protocolProvider;
 
     /**
      * The operation set giving access to the server stored account details.
      */
     private OperationSetServerStoredAccountInfo accountInfoOpSet;
 
-    private JTextField firstNameField = new JTextField();
+    private JTextField displayNameField;
 
-    private JTextField middleNameField = new JTextField();
+    private JTextField firstNameField;
 
-    private JTextField lastNameField = new JTextField();
+    private JTextField middleNameField;
 
-    private JTextField genderField = new JTextField();
+    private JTextField lastNameField;
 
-    private JTextField ageField = new JTextField();
+    private JTextField nicknameField;
 
-    private JTextField birthdayField = new JTextField();
+    private JTextField urlField;
 
-    private JTextField emailField = new JTextField();
+    private JTextField streetAddressField;
 
-    private JTextField phoneField = new JTextField();
+    private JTextField cityField;
 
-    private JLabel avatarLabel = new JLabel();
+    private JTextField regionField;
 
+    private JTextField postalCodeField;
+
+    private JTextField countryField;
+
+    private JTextField phoneField;
+
+    private JTextField workPhoneField;
+
+    private JTextField emailField;
+
+    private JTextField workEmailField;
+
+    private JTextField organizationField;
+
+    private JTextField jobTitleField;
+
+    private JTextArea aboutMeArea;
+
+    private JTextField genderField;
+
+    private JTextField ageField;
+
+    private JDateChooser birthDayCalendar;
+
+    private JRadioButton globalIcon;
+
+    private JRadioButton localIcon;
+
+    private FramedImageWithMenu imageWithMenu;
+    /**
+     * The "apply" button.
+     */
     private JButton applyButton
         = new JButton(Resources.getString("service.gui.APPLY"));
 
+    /**
+     * The panel containing all buttons.
+     */
     private JPanel buttonPanel =
         new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
 
-    private JScrollPane mainScrollPane = new JScrollPane();
-
-    private boolean isDataLoaded = false;
+    private DisplayNameDetail displayNameDetail;
 
     private FirstNameDetail firstNameDetail;
 
@@ -83,24 +158,47 @@ public class AccountDetailsPanel
 
     private LastNameDetail lastNameDetail;
 
+    private NicknameDetail nicknameDetail;
+
+    private URLDetail urlDetail;
+
+    private AddressDetail streetAddressDetail;
+
+    private CityDetail cityDetail;
+
+    private ProvinceDetail regionDetail;
+
+    private PostalCodeDetail postalCodeDetail;
+
+    private CountryDetail countryDetail;
+
+    private PhoneNumberDetail phoneDetail;
+    
+    private WorkPhoneDetail workPhoneDetail;
+
+    private EmailAddressDetail emailDetail;
+
+    private WorkEmailAddressDetail workEmailDetail;
+
+    private WorkOrganizationNameDetail organizationDetail;
+
+    private JobTitleDetail jobTitleDetail;
+
+    private AboutMeDetail aboutMeDetail;
+
     private GenderDetail genderDetail;
 
     private BirthDateDetail birthDateDetail;
 
-    private EmailAddressDetail emailDetail;
-
-    private PhoneNumberDetail phoneDetail;
-
-    private BinaryDetail avatarDetail;
-
-    private byte[] newAvatarImage;
-
-    private ImageIcon avatarImageIcon = null;
+    private ImageDetail avatarDetail;
 
     /**
-     * The last avatar file directory open.
+     * The panel that contains description labels and text fields
+     * for every account detail.
      */
-    private File lastAvatarDir;
+    private JPanel valuesPanel;
+
+    private JScrollPane mainScrollPane;
 
     /**
      * Construct a panel containing all account details for the given protocol
@@ -110,10 +208,11 @@ public class AccountDetailsPanel
      */
     public AccountDetailsPanel(ProtocolProviderService protocolProvider)
     {
-        super(new BorderLayout());
-
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        setOpaque(false);
+        this.setPreferredSize(new Dimension(600, 400));
+        this.protocolProvider = protocolProvider;
         this.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-//        this.setPreferredSize(new Dimension(500, 400));
 
         accountInfoOpSet
             = protocolProvider
@@ -134,95 +233,6 @@ public class AccountDetailsPanel
         }
     }
 
-    private void initSummaryPanel()
-    {
-        JPanel summaryPanel = new TransparentPanel(new BorderLayout(10, 10));
-
-        summaryPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        summaryPanel.setSize(this.getWidth(), this.getHeight());
-
-        // Create the avatar panel.
-        JPanel leftPanel = new TransparentPanel(new BorderLayout());
-        JPanel avatarPanel = new TransparentPanel(new BorderLayout());
-        JButton changeAvatarButton = new JButton(Resources.getString("plugin.accountinfo.CHANGE"));
-        JPanel changeButtonPanel
-            = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
-
-        changeAvatarButton.addActionListener(new ChangeAvatarActionListener());
-
-        changeButtonPanel.add(changeAvatarButton);
-
-        avatarPanel.add(avatarLabel, BorderLayout.CENTER);
-        avatarPanel.add(changeButtonPanel, BorderLayout.SOUTH);
-
-        leftPanel.add(avatarPanel, BorderLayout.NORTH);
-
-        summaryPanel.add(leftPanel, BorderLayout.WEST);
-
-        // Create the summary details panel.
-        JPanel detailsPanel = new TransparentPanel(new BorderLayout(10, 10));
-        detailsPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
-        summaryPanel.add(detailsPanel, BorderLayout.CENTER);
-
-        // Labels panel.
-        JPanel labelsPanel = new TransparentPanel(new GridLayout(0, 1, 5, 5));
-
-        labelsPanel.add(new JLabel(
-            Resources.getString("plugin.accountinfo.FIRST_NAME")));
-//        labelsPanel.add(new JLabel(Resources.getString("plugin.accountinfo.MIDDLE_NAME")));
-        labelsPanel.add(new JLabel(
-            Resources.getString("plugin.accountinfo.LAST_NAME")));
-        labelsPanel.add(new JLabel(
-            Resources.getString("plugin.accountinfo.GENDER")));
-        labelsPanel.add(new JLabel(
-            Resources.getString("plugin.accountinfo.AGE")));
-        labelsPanel.add(new JLabel(
-            Resources.getString("plugin.accountinfo.BDAY")));
-        labelsPanel.add(new JLabel(
-            Resources.getString("plugin.accountinfo.EMAIL")));
-        labelsPanel.add(new JLabel(
-            Resources.getString("plugin.accountinfo.PHONE")));
-
-        detailsPanel.add(labelsPanel, BorderLayout.WEST);
-
-        // Values panel.
-        JPanel valuesPanel = new TransparentPanel(new GridLayout(0, 1, 5, 5));
-
-        valuesPanel.add(firstNameField);
-//        valuesPanel.add(middleNameField);
-        valuesPanel.add(lastNameField);
-        valuesPanel.add(genderField);
-        valuesPanel.add(ageField);
-        valuesPanel.add(birthdayField);
-        valuesPanel.add(emailField);
-        valuesPanel.add(phoneField);
-
-        detailsPanel.add(valuesPanel, BorderLayout.CENTER);
-
-        this.mainScrollPane.getViewport().add(summaryPanel);
-
-        this.add(mainScrollPane, BorderLayout.NORTH);
-
-        this.applyButton.addActionListener(new SubmitActionListener());
-
-        this.buttonPanel.add(applyButton);
-
-        this.add(buttonPanel, BorderLayout.SOUTH);
-
-        // All items are now instantiated and could safely load the skin.
-        loadSkin();
-    }
-
-    /**
-     * Loads details for
-     */
-    public void loadDetails()
-    {
-        this.loadSummaryDetails();
-        this.isDataLoaded = true;
-    }
-
     /**
      * Creates the panel that indicates to the user that the currently selected
      * contact does not support server stored contact info.
@@ -234,450 +244,920 @@ public class AccountDetailsPanel
                 "plugin.accountinfo.NOT_SUPPORTED"));
 
         unsupportedTextArea.setEditable(false);
-        unsupportedTextArea.setLineWrap(true);
+        unsupportedTextArea.setOpaque(false);
 
         JPanel unsupportedPanel
-            = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
-
-        unsupportedTextArea.setPreferredSize(new Dimension(200, 200));
+            = new TransparentPanel();
 
         unsupportedPanel.setBorder(
             BorderFactory.createEmptyBorder(50, 20, 50, 20));
 
         unsupportedPanel.add(unsupportedTextArea);
 
-        this.add(unsupportedPanel);
+        this.add(unsupportedPanel, BorderLayout.NORTH);
     }
 
     /**
-     * Creates a panel that can be added as the summary tab that displays the
-     * following details: -
-     * <p>
-     * Avatar(Contact image) - FirstNameDetail - MiddleNameDetail -
-     * LastNameDetail - BirthdateDetail (and calculate age) - GenderDetail -
-     * EmailAddressDetail - PhoneNumberDetail. All other details will be* added
-     * to our list of extended details.
+     * Initialized the main panel that contains all <tt>ServerStoredDetails</tt>
      */
-    private void loadSummaryDetails()
+    private void initSummaryPanel()
     {
-        Iterator<GenericDetail> contactDetails;
+        JPanel summaryPanel = new TransparentPanel(new BorderLayout(10, 10));
 
-        // Avatar details.
-        contactDetails
-            = accountInfoOpSet.getDetails(BinaryDetail.class);
+        summaryPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-        byte[] avatarImage = null;
-        if (contactDetails.hasNext())
+        // Create the avatar panel.
+        JPanel leftPanel = new TransparentPanel(new BorderLayout());
+        JPanel avatarPanel = new TransparentPanel(new BorderLayout());
+
+        JPanel radioButtonPanel = new TransparentPanel(new GridLayout(2, 1));
+        globalIcon =
+            new JRadioButton(
+                Resources.getString("plugin.accountinfo.GLOBAL_ICON"));
+        globalIcon.setSelected(true);
+        globalIcon.setOpaque(false);
+        globalIcon.setEnabled(false);
+        localIcon =
+            new JRadioButton(
+                Resources.getString("plugin.accountinfo.LOCAL_ICON"));
+        localIcon.setOpaque(false);
+        localIcon.setEnabled(false);
+        ButtonGroup group = new ButtonGroup();
+        group.add(globalIcon);
+        group.add(localIcon);
+        radioButtonPanel.add(globalIcon);
+        radioButtonPanel.add(localIcon);
+        avatarPanel.add(radioButtonPanel, BorderLayout.NORTH);
+
+        leftPanel.add(avatarPanel, BorderLayout.NORTH);
+        summaryPanel.add(leftPanel, BorderLayout.WEST);
+        detailToTextField.put(ImageDetail.class, new JTextField());
+
+        imageWithMenu
+            = new FramedImageWithMenu(
+                    Resources.getImage(
+                        "service.gui.DEFAULT_USER_PHOTO"),
+                    Resources.getImage(
+                        "service.gui.DEFAULT_USER_PHOTO").getIconWidth(),
+                    Resources.getImage(
+                        "service.gui.DEFAULT_USER_PHOTO").getIconHeight());
+        SelectAvatarMenu selectAvatarMenu = new SelectAvatarMenu(imageWithMenu);
+        selectAvatarMenu.setAccountID(protocolProvider.getAccountID());
+        imageWithMenu.setPopupMenu(selectAvatarMenu);
+        avatarPanel.add(imageWithMenu, BorderLayout.SOUTH);
+
+        globalIcon.addActionListener(new ActionListener()
         {
-            avatarDetail = (BinaryDetail) contactDetails.next();
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                imageWithMenu.setEnabled(false);
+            }
+        });
+        localIcon.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                imageWithMenu.setEnabled(true);
+            }
+        });
+        imageWithMenu.setEnabled(false);
 
-            avatarImage = avatarDetail.getBytes();
+        valuesPanel = new TransparentPanel(new GridBagLayout());
+        valuesPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
+        GridBagConstraints first = new GridBagConstraints();
+        first.gridx = 0;
+        first.gridy = 0;
+        first.weightx = 0;
+        first.anchor = GridBagConstraints.LINE_START;
+        first.gridwidth = 1;
+        first.insets = new Insets(4, 4, 4, 4);
+        first.fill = GridBagConstraints.HORIZONTAL;
+        GridBagConstraints second = new GridBagConstraints();
+        second.gridx = 1;
+        second.gridy = 0;
+        second.weightx = 2;
+        second.anchor = GridBagConstraints.LINE_START;
+        second.gridwidth = 1; // GridBagConstraints.REMAINDER;
+        second.insets = first.insets;
+        second.fill = GridBagConstraints.HORIZONTAL;
+
+        if (accountInfoOpSet.isDetailClassSupported(DisplayNameDetail.class))
+        {
+            displayNameField = new JTextField();
+            valuesPanel.add(new JLabel(
+                Resources.getString("plugin.accountinfo.DISPLAY_NAME"))
+                , first);
+            valuesPanel.add(displayNameField, second);
+            first.gridy = ++second.gridy;
+            detailToTextField.put(DisplayNameDetail.class, displayNameField);
         }
 
-        if (avatarImage != null && avatarImage.length > 0)
+        firstNameField = new JTextField();
+        valuesPanel.add(new JLabel(
+            Resources.getString("plugin.accountinfo.FIRST_NAME"))
+            , first);
+        valuesPanel.add(firstNameField, second);
+        first.gridy = ++second.gridy;
+        detailToTextField.put(FirstNameDetail.class, firstNameField);
+
+        middleNameField = new JTextField();
+        valuesPanel.add(new JLabel(
+            Resources.getString("plugin.accountinfo.MIDDLE_NAME"))
+            , first);
+        valuesPanel.add(middleNameField, second);
+        first.gridy = ++second.gridy;
+        detailToTextField.put(MiddleNameDetail.class, middleNameField);
+ 
+        lastNameField = new JTextField();
+        valuesPanel.add(new JLabel(
+            Resources.getString("plugin.accountinfo.LAST_NAME"))
+            , first);
+        valuesPanel.add(lastNameField, second);
+        first.gridy = ++second.gridy;
+        detailToTextField.put(LastNameDetail.class, lastNameField);
+
+        if (accountInfoOpSet.isDetailClassSupported(NicknameDetail.class))
         {
-            avatarImageIcon = new ImageIcon(
-                getScaledImageInstance(avatarImage));
-            avatarLabel.setIcon(avatarImageIcon);
+            nicknameField = new JTextField();
+            valuesPanel.add(new JLabel(
+                Resources.getString("plugin.accountinfo.NICKNAME"))
+                , first);
+            valuesPanel.add(nicknameField, second);
+            first.gridy = ++second.gridy;
+            detailToTextField.put(NicknameDetail.class, nicknameField);
+        }
+        if (accountInfoOpSet.isDetailClassSupported(URLDetail.class))
+        {
+            urlField = new JTextField();
+            valuesPanel.add(new JLabel(
+                Resources.getString("plugin.accountinfo.URL"))
+                , first);
+            valuesPanel.add(urlField, second);
+            first.gridy = ++second.gridy;
+            detailToTextField.put(URLDetail.class, urlField);
+        }
+        if (accountInfoOpSet.isDetailClassSupported(GenderDetail.class))
+        {
+            genderField = new JTextField();
+            valuesPanel.add(new JLabel(
+                Resources.getString("plugin.accountinfo.GENDER"))
+                , first);
+            valuesPanel.add(genderField, second);
+            first.gridy = ++second.gridy;
+            detailToTextField.put(GenderDetail.class, genderField);
         }
 
-        // First name details.
-        contactDetails =
-            accountInfoOpSet.getDetails(FirstNameDetail.class);
+        birthDayCalendar = new JDateChooser();
+        valuesPanel.add(new JLabel(
+            Resources.getString("plugin.accountinfo.BDAY"))
+            , first);
+        valuesPanel.add(birthDayCalendar, second);
+        birthDayCalendar.setDateFormatString(
+            Resources.getString("plugin.accountinfo.BDAY_FORMAT"));
+        birthDayCalendar.addPropertyChangeListener(
+            new PropertyChangeListener() {
+                @Override
+                public void propertyChange(PropertyChangeEvent evt)
+                {
+                    if (evt.getPropertyName().equals("date"))
+                    {
+                        Date date = (Date) evt.getNewValue();
+                        if (date != null)
+                        {
+                            Calendar currentDate = Calendar.getInstance();
+                            Calendar c = Calendar.getInstance();
+                            c.setTime(date);
+                            int age =
+                                currentDate.get(Calendar.YEAR) -
+                                c.get(Calendar.YEAR);
 
-        String firstNameDetailString = "";
-        while (contactDetails.hasNext())
+                            if (currentDate.get(Calendar.MONTH) <
+                                c.get(Calendar.MONTH))
+                                age--;
+                            if ((currentDate.get(Calendar.MONTH) ==
+                                    c.get(Calendar.MONTH))
+                                &&
+                                (currentDate.get(Calendar.DAY_OF_MONTH) <
+                                    c.get(Calendar.DAY_OF_MONTH)))
+                                age--;
+                            String ageDetail = Integer.toString(age).trim();
+                            ageField.setText(ageDetail);
+                        }
+                    }
+                }
+        });
+        first.gridy = ++second.gridy;
+        ageField = new JTextField();
+        valuesPanel.add(new JLabel(
+            Resources.getString("plugin.accountinfo.AGE")), first);
+        valuesPanel.add(ageField, second);
+        first.gridy = ++second.gridy;
+        ageField.setEditable(false);
+        detailToTextField.put(BirthDateDetail.class, new JTextField());
+
+        if (accountInfoOpSet.isDetailClassSupported(AddressDetail.class))
         {
-            firstNameDetail = (FirstNameDetail) contactDetails.next();
-
-            firstNameDetailString =
-                firstNameDetailString + " " + firstNameDetail.getDetailValue();
+            streetAddressField = new JTextField();
+            valuesPanel.add(new JLabel(
+                Resources.getString("plugin.accountinfo.STREET"))
+                , first);
+            valuesPanel.add(streetAddressField, second);
+            first.gridy = ++second.gridy;
+            detailToTextField.put(AddressDetail.class, streetAddressField);
+        }
+        if (accountInfoOpSet.isDetailClassSupported(CityDetail.class))
+        {
+            cityField = new JTextField();
+            valuesPanel.add(new JLabel(
+                Resources.getString("plugin.accountinfo.CITY")), first);
+            valuesPanel.add(cityField, second);
+            first.gridy = ++second.gridy;
+            detailToTextField.put(CityDetail.class, cityField);
+        }
+        if (accountInfoOpSet.isDetailClassSupported(ProvinceDetail.class))
+        {
+            regionField = new JTextField();
+            valuesPanel.add(new JLabel(
+                Resources.getString("plugin.accountinfo.REGION"))
+                , first);
+            valuesPanel.add(regionField, second);
+            first.gridy = ++second.gridy;
+            detailToTextField.put(ProvinceDetail.class, regionField);
+        }
+        if (accountInfoOpSet.isDetailClassSupported(PostalCodeDetail.class))
+        {
+            postalCodeField = new JTextField();
+            valuesPanel.add(new JLabel(
+                Resources.getString("plugin.accountinfo.POST"))
+                , first);
+            valuesPanel.add(postalCodeField, second);
+            first.gridy = ++second.gridy;
+            detailToTextField.put(PostalCodeDetail.class, postalCodeField);
+        }
+        if (accountInfoOpSet.isDetailClassSupported(CountryDetail.class))
+        {
+            countryField = new JTextField();
+            valuesPanel.add(new JLabel(
+                Resources.getString("plugin.accountinfo.COUNTRY"))
+                , first);
+            valuesPanel.add(countryField, second);
+            first.gridy = ++second.gridy;
+            detailToTextField.put(CountryDetail.class, countryField);
         }
 
-        firstNameField.setText(firstNameDetailString);
+        emailField = new JTextField();
+        valuesPanel.add(new JLabel(
+            Resources.getString("plugin.accountinfo.EMAIL"))
+            , first);
+        valuesPanel.add(emailField, second);
+        first.gridy = ++second.gridy;
+        detailToTextField.put(EmailAddressDetail.class, emailField);
 
-        // Middle name details.
-        contactDetails =
-            accountInfoOpSet.getDetails(MiddleNameDetail.class);
-
-        String middleNameDetailString = "";
-        while (contactDetails.hasNext())
+        if (accountInfoOpSet.isDetailClassSupported(
+            WorkEmailAddressDetail.class))
         {
-            middleNameDetail = (MiddleNameDetail) contactDetails.next();
-            middleNameDetailString =
-                middleNameDetailString + " " + middleNameDetail.getDetailValue();
+            workEmailField = new JTextField();
+            valuesPanel.add(new JLabel(
+                Resources.getString("plugin.accountinfo.WORK_EMAIL"))
+                , first);
+            valuesPanel.add(workEmailField, second);
+            first.gridy = ++second.gridy;
+            detailToTextField.put(WorkEmailAddressDetail.class, workEmailField);
         }
 
-        middleNameField.setText(middleNameDetailString);
+        phoneField = new JTextField();
+        valuesPanel.add(new JLabel(
+            Resources.getString("plugin.accountinfo.PHONE"))
+            , first);
+        valuesPanel.add(phoneField, second);
+        first.gridy = ++second.gridy;
+        detailToTextField.put(PhoneNumberDetail.class, phoneField);
 
-        // Last name details.
-        contactDetails =
-            accountInfoOpSet.getDetails(LastNameDetail.class);
-
-        String lastNameDetailString = "";
-        while (contactDetails.hasNext())
+        if (accountInfoOpSet.isDetailClassSupported(WorkPhoneDetail.class))
         {
-            lastNameDetail = (LastNameDetail) contactDetails.next();
+            workPhoneField = new JTextField();
+            valuesPanel.add(new JLabel(
+                Resources.getString("plugin.accountinfo.WORK_PHONE"))
+                , first);
+            valuesPanel.add(workPhoneField, second);
+            first.gridy = ++second.gridy;
+            detailToTextField.put(
+                WorkPhoneDetail.class, workPhoneField);
+        }
+        if (accountInfoOpSet.isDetailClassSupported(
+            WorkOrganizationNameDetail.class))
+        {
+            organizationField = new JTextField();
+            valuesPanel.add(new JLabel(
+                Resources.getString("plugin.accountinfo.ORGANIZATION"))
+                , first);
+            valuesPanel.add(organizationField, second);
+            first.gridy = ++second.gridy;
+            detailToTextField.put(
+                WorkOrganizationNameDetail.class, organizationField);
+        }
+        if (accountInfoOpSet.isDetailClassSupported(JobTitleDetail.class))
+        {
+            jobTitleField = new JTextField();
+            valuesPanel.add(new JLabel(
+                Resources.getString("plugin.accountinfo.JOB_TITLE"))
+                , first);
+            valuesPanel.add(jobTitleField, second);
+            first.gridy = ++second.gridy;
+            detailToTextField.put(
+                JobTitleDetail.class, jobTitleField);
+        }
+        if (accountInfoOpSet.isDetailClassSupported(AboutMeDetail.class))
+        {
+            aboutMeArea = new JTextArea(3, 0);
+            valuesPanel.add(new JLabel(
+                Resources.getString("plugin.accountinfo.ABOUT_ME"))
+                , first);
+            second.gridheight = 3;
+            JScrollPane areaScrollPane = new JScrollPane(aboutMeArea);
+            areaScrollPane.setOpaque(false);
+            areaScrollPane.setBorder(BorderFactory.createEmptyBorder());
+            areaScrollPane.setVerticalScrollBarPolicy(
+                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+            valuesPanel.add(areaScrollPane, second);
+            first.gridy = ++second.gridy;
 
-            lastNameDetailString =
-                lastNameDetailString + " " + lastNameDetail.getDetailValue();
+            DefaultStyledDocument doc = new DefaultStyledDocument();
+            doc.setDocumentFilter(new DocumentFilter() {
+
+                private final int MAX_CHARACTERS =
+                    Integer.valueOf(Resources.getString(
+                        "plugin.accountinfo.ABOUT_ME_MAX_CHARACTERS"));
+
+                public void insertString(FilterBypass fb, int offs,
+                    String str, AttributeSet a)
+                    throws BadLocationException {
+                    //This rejects the entire insertion if it would make
+                    //the contents too long. Another option would be
+                    //to truncate the inserted string so the contents
+                    //would be exactly maxCharacters in length.
+                    if ((fb.getDocument().getLength() + str.length())
+                        <= MAX_CHARACTERS)
+                       super.insertString(fb, offs, str, a);
+                    else
+                       Toolkit.getDefaultToolkit().beep();
+                    }
+
+                    public void replace(FilterBypass fb, int offs,
+                                   int length, 
+                                   String str, AttributeSet a)
+                    throws BadLocationException {
+                    //This rejects the entire replacement if it would make
+                    //the contents too long. Another option would be
+                    //to truncate the replacement string so the contents
+                    //would be exactly maxCharacters in length.
+                    if ((fb.getDocument().getLength() + str.length()
+                        - length) <= MAX_CHARACTERS)
+                       super.replace(fb, offs, length, str, a);
+                    else
+                       Toolkit.getDefaultToolkit().beep();
+                    }
+            });
+
+            aboutMeArea.setDocument(doc);
+            aboutMeArea.setBorder(firstNameField.getBorder());
+            aboutMeArea.setLineWrap(true);
+            aboutMeArea.setWrapStyleWord(true);
+            aboutMeArea.setPreferredSize(new Dimension(50, 100));
+            aboutMeArea.setMinimumSize(new Dimension(50, 100));
+            detailToTextField.put(AboutMeDetail.class, new JTextField());
         }
 
-        lastNameField.setText(lastNameDetailString);
+        mainScrollPane = new JScrollPane(summaryPanel,
+            JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+            JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        mainScrollPane.getViewport().setOpaque(false);
+        mainScrollPane.setOpaque(false);
+        mainScrollPane.setBorder(BorderFactory.createEmptyBorder());
 
-        // Gender details.
-        contactDetails =
-            accountInfoOpSet.getDetails(GenderDetail.class);
+        summaryPanel.add(valuesPanel, BorderLayout.CENTER);
 
-        String genderDetailString = "";
-        while (contactDetails.hasNext())
+        this.add(mainScrollPane);
+
+        this.applyButton.addActionListener(new SubmitActionListener());
+
+        JButton cancelButton =
+            new JButton(Resources.getString("service.gui.CANCEL"));
+        cancelButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt)
+            {
+                AccountInfoMenuItemComponent.dialog.setVisible(false);
+                mainScrollPane.getVerticalScrollBar().setValue(0);
+            }
+        });
+        this.buttonPanel.add(applyButton);
+        this.buttonPanel.add(cancelButton);
+
+        this.add(buttonPanel);
+
+        for (Component component : valuesPanel.getComponents())
+            component.setEnabled(false);
+        if (aboutMeArea != null)
+            aboutMeArea.setEnabled(false);
+        applyButton.setEnabled(false);
+    }
+
+    /**
+     * Loads all <tt>ServerStoredDetails</tt> which are currently supported by
+     * this plugin. Note that some <tt>OperationSetServerStoredAccountInfo</tt>
+     * implementations may support details that are not supported by this plugin.
+     * In this case they will not be loaded.
+     */
+    public void loadDetails()
+    {
+        if (accountInfoOpSet != null)
         {
-            genderDetail = (GenderDetail) contactDetails.next();
-            genderDetailString = genderDetailString + " "
-                                    + genderDetail.getDetailValue();
+            Iterator<GenericDetail> allDetails =
+                accountInfoOpSet.getAllAvailableDetails();
+
+            while (allDetails.hasNext())
+            {
+                GenericDetail detail = allDetails.next();
+                loadDetail(detail);
+            }
+
+            boolean isAnyDetailEditable = false;
+            for (Class<? extends GenericDetail> editable :
+                    detailToTextField.keySet())
+            {
+                if (accountInfoOpSet.isDetailClassEditable(editable))
+                {
+                    isAnyDetailEditable = true;
+                    if (editable.equals(AboutMeDetail.class))
+                        aboutMeArea.setEnabled(true);
+                    else if (editable.equals(BirthDateDetail.class))
+                        birthDayCalendar.setEnabled(true);
+                    else if (editable.equals(ImageDetail.class))
+                    {
+                        globalIcon.setEnabled(true);
+                        localIcon.setEnabled(true);
+                        imageWithMenu.setEnabled(true);
+                    }
+                    else
+                    {
+                        JTextField field = detailToTextField.get(editable);
+                        field.setEnabled(true);
+                    }
+                }
+            }
+            if (isAnyDetailEditable)
+                applyButton.setEnabled(true);
         }
+    }
 
-        genderField.setText(genderDetailString);
-
-        // Birthday details.
-        contactDetails =
-            accountInfoOpSet.getDetails(BirthDateDetail.class);
-
-        String birthDateDetailString = "";
-        String ageDetail = "";
-        if (contactDetails.hasNext())
+    /**
+     * Loads a single <tt>GenericDetail</tt> obtained from the
+     * <tt>OperationSetServerStoredAccountInfo</tt> into this plugin.
+     * @param detail to be loaded.
+     */
+    private void loadDetail(GenericDetail detail)
+    {
+        if (detail.getClass().equals(AboutMeDetail.class))
         {
-            birthDateDetail = (BirthDateDetail) contactDetails.next();
+            aboutMeDetail = (AboutMeDetail) detail;
+            aboutMeArea.setText((String) detail.getDetailValue());
+            return;
+        }
+        if (detail instanceof BirthDateDetail)
+        {
+            birthDateDetail = (BirthDateDetail) detail;
 
             Calendar calendarDetail =
                 (Calendar) birthDateDetail.getDetailValue();
 
-            Date birthDate = calendarDetail.getTime();
-            DateFormat dateFormat = DateFormat.getDateInstance();
-
-            birthDateDetailString = dateFormat.format(birthDate).trim();
-
-            Calendar c = Calendar.getInstance();
-            int age = c.get(Calendar.YEAR) - calendarDetail.get(Calendar.YEAR);
-
-            if (c.get(Calendar.MONTH) < calendarDetail.get(Calendar.MONTH))
-                age--;
-
-            ageDetail = Integer.toString(age).trim();
+            birthDayCalendar.setCalendar(calendarDetail);
+            return;
         }
 
-        birthdayField.setText(birthDateDetailString);
-        ageField.setText(ageDetail);
-
-        // Email details.
-        contactDetails =
-            accountInfoOpSet.getDetails(EmailAddressDetail.class);
-
-        String emailDetailString = "";
-        while (contactDetails.hasNext())
+        JTextField field = detailToTextField.get(detail.getClass());
+        if (field != null)
         {
-            emailDetail = (EmailAddressDetail) contactDetails.next();
-            emailDetailString = emailDetailString + " "
-                + emailDetail.getDetailValue();
+            if (detail instanceof ImageDetail)
+            {
+                localIcon.setSelected(true);
+                avatarDetail = (ImageDetail) detail;
+                byte[] avatarImage = avatarDetail.getBytes();
+                imageWithMenu.setImageIcon(avatarImage);
+            }
+            else if (detail instanceof URLDetail)
+            {
+                urlDetail = (URLDetail) detail;
+                urlField.setText(urlDetail.getURL().toString());
+            }
+            else
+            {
+                field.setText((String) detail.getDetailValue());
+                if (detail.getClass().equals(DisplayNameDetail.class))
+                    displayNameDetail = (DisplayNameDetail) detail;
+                else if (detail.getClass().equals(FirstNameDetail.class))
+                    firstNameDetail = (FirstNameDetail) detail;
+                else if (detail.getClass().equals(MiddleNameDetail.class))
+                    middleNameDetail = (MiddleNameDetail) detail;
+                else if (detail.getClass().equals(LastNameDetail.class))
+                    lastNameDetail = (LastNameDetail) detail;
+                else if (detail.getClass().equals(NicknameDetail.class))
+                    nicknameDetail = (NicknameDetail) detail;
+                else if (detail.getClass().equals(URLDetail.class))
+                    urlDetail = (URLDetail) detail;
+                else if (detail.getClass().equals(GenderDetail.class))
+                    genderDetail = (GenderDetail) detail;
+                else if (detail.getClass().equals(AddressDetail.class))
+                    streetAddressDetail = (AddressDetail) detail;
+                else if (detail.getClass().equals(CityDetail.class))
+                    cityDetail = (CityDetail) detail;
+                else if (detail.getClass().equals(ProvinceDetail.class))
+                    regionDetail = (ProvinceDetail) detail;
+                else if (detail.getClass().equals(PostalCodeDetail.class))
+                    postalCodeDetail = (PostalCodeDetail) detail;
+                else if (detail.getClass().equals(CountryDetail.class))
+                    countryDetail = (CountryDetail) detail;
+                else if (detail.getClass().equals(PhoneNumberDetail.class))
+                    phoneDetail = (PhoneNumberDetail) detail;
+                else if (detail.getClass().equals(WorkPhoneDetail.class))
+                    workPhoneDetail = (WorkPhoneDetail) detail;
+                else if (detail.getClass().equals(EmailAddressDetail.class))
+                    emailDetail = (EmailAddressDetail) detail;
+                else if (detail.getClass().equals(WorkEmailAddressDetail.class))
+                    workEmailDetail = (WorkEmailAddressDetail) detail;
+                else if (detail.getClass().equals(
+                    WorkOrganizationNameDetail.class))
+                    organizationDetail = (WorkOrganizationNameDetail) detail;
+                else if (detail.getClass().equals(JobTitleDetail.class))
+                    jobTitleDetail = (JobTitleDetail) detail;
+                else if (detail.getClass().equals(AboutMeDetail.class))
+                    aboutMeDetail = (AboutMeDetail) detail;
+            }
         }
-
-        emailField.setText(emailDetailString);
-
-        // Phone number details.
-        contactDetails =
-            accountInfoOpSet.getDetails(PhoneNumberDetail.class);
-
-        String phoneNumberDetailString = "";
-        while (contactDetails.hasNext())
-        {
-            phoneDetail = (PhoneNumberDetail) contactDetails.next();
-            phoneNumberDetailString =
-                phoneNumberDetailString + " " + phoneDetail.getDetailValue();
-        }
-
-        phoneField.setText(phoneNumberDetailString);
     }
 
+    /**
+     * Attempts to upload all <tt>ServerStoredDetails</tt> on the server using
+     * <tt>OperationSetServerStoredAccountInfo</tt>
+     *
+     */
     private class SubmitActionListener implements ActionListener
     {
         public void actionPerformed(ActionEvent e)
         {
-            String firstName = firstNameField.getText();
-//            String middleName = middleNameField.getText();
-            String lastName = lastNameField.getText();
-            String gender = genderField.getText();
-            String email = emailField.getText();
-            String phoneNumber = phoneField.getText();
-
-            Calendar birthDateCalendar = Calendar.getInstance();
-
-            if(birthdayField.getText() != null
-                && birthdayField.getText().length() > 0)
+            if (accountInfoOpSet.isDetailClassSupported(ImageDetail.class))
             {
-                try
+                if (globalIcon.isSelected())
                 {
-                    DateFormat dateFormat
-                        = DateFormat.getDateInstance(DateFormat.DEFAULT);
+                    GlobalDisplayDetailsService serv =
+                        AccountInfoActivator.getGlobalDisplayDetailsService();
 
-                    Date birthDate = dateFormat.parse(birthdayField.getText());
+                    byte[] newIcon = serv.getGlobalDisplayAvatar();
 
-                    birthDateCalendar.setTime(birthDate);
+                    ImageDetail newDetail = null;
+                    if (newIcon != null)
+                        newDetail =
+                            new ImageDetail(
+                                "avatar", serv.getGlobalDisplayAvatar());
+
+                    if (avatarDetail != null || newDetail != null)
+                        changeDetail(avatarDetail, newDetail);
                 }
-                catch (ParseException e2)
+            }
+            if (accountInfoOpSet.isDetailClassSupported
+                (DisplayNameDetail.class))
+            {
+                String text =
+                    detailToTextField.get(DisplayNameDetail.class).getText();
+
+                DisplayNameDetail newDetail = null;
+                if (!StringUtils.isNullOrEmpty(text, true))
+                    newDetail = new DisplayNameDetail(text);
+
+                if (displayNameDetail != null || newDetail != null)
+                    changeDetail(displayNameDetail, newDetail);
+            }
+            if (accountInfoOpSet.isDetailClassSupported(
+                FirstNameDetail.class))
+            {
+                String text =
+                    detailToTextField.get(FirstNameDetail.class).getText();
+
+                FirstNameDetail newDetail = null;
+                if (!StringUtils.isNullOrEmpty(text, true))
+                    newDetail = new FirstNameDetail(text);
+
+                if (firstNameDetail != null || newDetail != null)
+                    changeDetail(firstNameDetail, newDetail);
+            }
+            if (accountInfoOpSet.isDetailClassSupported(
+                MiddleNameDetail.class))
+            {
+                String text =
+                    detailToTextField.get(MiddleNameDetail.class).getText();
+
+                MiddleNameDetail newDetail = null;
+                if (!StringUtils.isNullOrEmpty(text, true))
+                    newDetail = new MiddleNameDetail(text);
+
+                if (middleNameDetail != null || newDetail != null)
+                    changeDetail(middleNameDetail, newDetail);
+            }
+            if (accountInfoOpSet.isDetailClassSupported(
+                LastNameDetail.class))
+            {
+                String text =
+                    detailToTextField.get(LastNameDetail.class).getText();
+                LastNameDetail newDetail = null;
+
+                if (!StringUtils.isNullOrEmpty(text, true))
+                    newDetail = new LastNameDetail(text);
+
+                if (lastNameDetail != null || newDetail != null)
+                    changeDetail(lastNameDetail, newDetail);
+            }
+            if (accountInfoOpSet.isDetailClassSupported(NicknameDetail.class))
+            {
+                String text =
+                    detailToTextField.get(NicknameDetail.class).getText();
+
+                NicknameDetail newDetail = null;
+                if (!StringUtils.isNullOrEmpty(text, true))
+                    newDetail = new NicknameDetail(text);
+
+                if (nicknameDetail != null || newDetail != null)
+                    changeDetail(nicknameDetail, newDetail);
+            }
+
+            if (accountInfoOpSet.isDetailClassSupported(URLDetail.class))
+            {
+                String text
+                    = detailToTextField.get(URLDetail.class).getText();
+
+                URL url = null;
+                if (!StringUtils.isNullOrEmpty(text, true))
+                    try
+                    {
+                        url = new URL(text);
+                    }
+                    catch (MalformedURLException e1)
+                    {
+                        logger.debug("Failed to update URL detail due to " +
+                                        "malformed URL.");
+                    }
+
+                URLDetail newDetail = null;
+
+                if (url != null)
+                    newDetail = new URLDetail("URL", url);
+
+                if (urlDetail != null || newDetail != null)
+                    changeDetail(urlDetail, newDetail);
+            }
+
+            if (accountInfoOpSet.isDetailClassSupported(
+                GenderDetail.class))
+            {
+                String text =
+                    detailToTextField.get(GenderDetail.class).getText();
+
+                GenderDetail newDetail = null;
+
+                if (!StringUtils.isNullOrEmpty(text, true))
+                    newDetail = new GenderDetail(text);
+
+                if (genderDetail != null || newDetail != null)
+                    changeDetail(genderDetail, newDetail);
+            }
+
+            if (accountInfoOpSet.isDetailClassSupported(
+                BirthDateDetail.class))
+            {
+                BirthDateDetail newDetail = null;
+
+                if (birthDayCalendar.getDate() != null)
                 {
-                    logger.error("Failed to parse birth date.", e2);
+                    newDetail =
+                        new BirthDateDetail(birthDayCalendar.getCalendar());
                 }
+
+                if (birthDateDetail != null || newDetail != null)
+                    changeDetail(birthDateDetail, newDetail);
+            }
+
+            if (accountInfoOpSet.isDetailClassSupported(
+                AddressDetail.class))
+            {
+                String text =
+                    detailToTextField.get(AddressDetail.class).getText();
+
+                AddressDetail newDetail = null;
+                if (!StringUtils.isNullOrEmpty(text, true))
+                    newDetail = new AddressDetail(text);
+
+                if (streetAddressDetail != null || newDetail != null)
+                    changeDetail(streetAddressDetail, newDetail);
+            }
+
+            if (accountInfoOpSet.isDetailClassSupported(
+                CityDetail.class))
+            {
+                String text =
+                    detailToTextField.get(CityDetail.class).getText();
+
+                CityDetail newDetail = null;
+                if (!StringUtils.isNullOrEmpty(text, true))
+                    newDetail = new CityDetail(text);
+
+                if (cityDetail != null || newDetail != null)
+                    changeDetail(cityDetail, newDetail);
+            }
+
+            if (accountInfoOpSet.isDetailClassSupported(
+                ProvinceDetail.class))
+            {
+                String text =
+                    detailToTextField.get(ProvinceDetail.class).getText();
+
+                ProvinceDetail newDetail = null;
+                if (!StringUtils.isNullOrEmpty(text, true))
+                newDetail = new ProvinceDetail(text);
+
+                if (regionDetail != null || newDetail != null)
+                    changeDetail(regionDetail, newDetail);
+            }
+
+            if (accountInfoOpSet.isDetailClassSupported(
+                PostalCodeDetail.class))
+            {
+                String text =
+                    detailToTextField.get(PostalCodeDetail.class).getText();
+
+                PostalCodeDetail newDetail = null;
+                if (!StringUtils.isNullOrEmpty(text, true))
+                    newDetail = new PostalCodeDetail(text);
+
+                if (postalCodeDetail != null || newDetail != null)
+                    changeDetail(postalCodeDetail, newDetail);
+            }
+
+            if (accountInfoOpSet.isDetailClassSupported(CountryDetail.class))
+            {
+                String text = detailToTextField.get(CountryDetail.class).getText();
+
+                CountryDetail newDetail = null;
+                if (!StringUtils.isNullOrEmpty(text, true))
+                    newDetail = new CountryDetail(text);
+
+                if (countryDetail != null || newDetail != null)
+                    changeDetail(countryDetail, newDetail);
+            }
+
+            if (accountInfoOpSet.isDetailClassSupported(
+                EmailAddressDetail.class))
+            {
+                String text =
+                    detailToTextField.get(EmailAddressDetail.class).getText();
+
+                EmailAddressDetail newDetail = null;
+                if (!StringUtils.isNullOrEmpty(text, true))
+                    newDetail = new EmailAddressDetail(text);
+
+                if (emailDetail != null || newDetail != null)
+                    changeDetail(emailDetail, newDetail);
+            }
+
+            if (accountInfoOpSet.isDetailClassSupported(
+                WorkEmailAddressDetail.class))
+            {
+                String text =
+                    detailToTextField.get(WorkEmailAddressDetail.class)
+                        .getText();
+
+                WorkEmailAddressDetail newDetail = null;
+                if (!StringUtils.isNullOrEmpty(text, true))
+                    newDetail = new WorkEmailAddressDetail(text);
+
+                if (workEmailDetail != null || newDetail != null)
+                    changeDetail(workEmailDetail, newDetail);
+            }
+
+            if (accountInfoOpSet.isDetailClassSupported(
+                PhoneNumberDetail.class))
+            {
+                String text =
+                    detailToTextField.get(PhoneNumberDetail.class).getText();
+
+                PhoneNumberDetail newDetail = null;
+                if (!StringUtils.isNullOrEmpty(text, true))
+                    newDetail = new PhoneNumberDetail(text);
+
+                if (phoneDetail != null || newDetail != null)
+                    changeDetail(phoneDetail, newDetail);
+            }
+            if (accountInfoOpSet.isDetailClassSupported(
+                WorkPhoneDetail.class))
+            {
+                String text =
+                    detailToTextField.get(WorkPhoneDetail.class).getText();
+
+                WorkPhoneDetail newDetail = null;
+                if (!StringUtils.isNullOrEmpty(text, true))
+                    newDetail = new WorkPhoneDetail(text);
+
+                if (workPhoneDetail != null || newDetail != null)
+                    changeDetail(workPhoneDetail, newDetail);
+            }
+            if (accountInfoOpSet.isDetailClassSupported(
+                WorkOrganizationNameDetail.class))
+            {
+                String text =
+                    detailToTextField.get(WorkOrganizationNameDetail.class)
+                        .getText();
+
+                WorkOrganizationNameDetail newDetail = null;
+                if (!StringUtils.isNullOrEmpty(text, true))
+                    newDetail = new WorkOrganizationNameDetail(text);
+
+                if (organizationDetail != null || newDetail != null)
+                    changeDetail(organizationDetail, newDetail);
+            }
+
+            if (accountInfoOpSet.isDetailClassSupported(JobTitleDetail.class))
+            {
+                String text =
+                    detailToTextField.get(JobTitleDetail.class)
+                        .getText();
+
+                JobTitleDetail newDetail = null;
+                if (!StringUtils.isNullOrEmpty(text, true))
+                    newDetail = new JobTitleDetail(text);
+
+                if (jobTitleDetail != null || newDetail != null)
+                    changeDetail(jobTitleDetail, newDetail);
+            }
+            if (accountInfoOpSet.isDetailClassSupported(AboutMeDetail.class))
+            {
+                String text =
+                    aboutMeArea.getText();
+
+                AboutMeDetail newDetail = null;
+                if (!StringUtils.isNullOrEmpty(text, true))
+                    newDetail = new AboutMeDetail(text);
+
+                if (aboutMeDetail != null || newDetail != null)
+                    changeDetail(aboutMeDetail, newDetail);
             }
 
             try
             {
-                FirstNameDetail newFirstNameDetail
-                    = new ServerStoredDetails.FirstNameDetail(firstName);
-
-                if (firstNameDetail == null)
-                    accountInfoOpSet.addDetail(newFirstNameDetail);
-                else
-                    accountInfoOpSet.replaceDetail( firstNameDetail,
-                                                    newFirstNameDetail);
-
-//                MiddleNameDetail newMiddleNameDetail
-//                    = new ServerStoredDetails.MiddleNameDetail(middleName);
-//
-//                if (middleNameDetail == null)
-//                    accountInfoOpSet.addDetail(newMiddleNameDetail);
-//                else
-//                    accountInfoOpSet.replaceDetail( middleNameDetail,
-//                                                    newMiddleNameDetail);
-
-                LastNameDetail newLastNameDetail
-                    = new ServerStoredDetails.LastNameDetail(lastName);
-
-                if (lastNameDetail == null)
-                    accountInfoOpSet.addDetail(newLastNameDetail);
-                else
-                    accountInfoOpSet.replaceDetail( lastNameDetail,
-                        newLastNameDetail);
-
-                GenderDetail newGenderDetail
-                    = new ServerStoredDetails.GenderDetail(gender);
-
-                if (genderDetail == null)
-                    accountInfoOpSet.addDetail(newGenderDetail);
-                else
-                    accountInfoOpSet.replaceDetail( genderDetail,
-                                                    newGenderDetail);
-
-                BirthDateDetail newBirthDateDetail
-                    = new ServerStoredDetails.BirthDateDetail(birthDateCalendar);
-
-                if (birthDateDetail == null)
-                    accountInfoOpSet.addDetail(newBirthDateDetail);
-                else
-                    accountInfoOpSet.replaceDetail( birthDateDetail,
-                                                    newBirthDateDetail);
-
-                EmailAddressDetail newEmailDetail
-                    = new ServerStoredDetails.EmailAddressDetail(email);
-
-                if (emailDetail == null)
-                    accountInfoOpSet.addDetail(newEmailDetail);
-                else
-                    accountInfoOpSet.replaceDetail( emailDetail,
-                                                    newEmailDetail);
-
-                PhoneNumberDetail newPhoneDetail
-                    = new ServerStoredDetails.PhoneNumberDetail(phoneNumber);
-
-                if (phoneDetail == null)
-                    accountInfoOpSet.addDetail(newPhoneDetail);
-                else
-                    accountInfoOpSet.replaceDetail( phoneDetail,
-                                                    newPhoneDetail);
-
-                BinaryDetail newAvatarDetail
-                    = new ServerStoredDetails.BinaryDetail(
-                        "Avatar",
-                        newAvatarImage);
-
-                if (avatarDetail == null)
-                    accountInfoOpSet.addDetail(newAvatarDetail);
-                else
-                    accountInfoOpSet.replaceDetail( avatarDetail,
-                                                    newAvatarDetail);
-            }
-            catch (ClassCastException e1)
-            {
-                logger.error("Failed to update account details.", e1);
+                AccountInfoMenuItemComponent.dialog.setVisible(false);
+                mainScrollPane.getVerticalScrollBar().setValue(0);
+                accountInfoOpSet.save();
             }
             catch (OperationFailedException e1)
             {
-                logger.error("Failed to update account details.", e1);
+                logger.debug("Failed to update account details.", e1);
             }
         }
-    }
 
-    private class ChangeAvatarActionListener implements ActionListener
-    {
-        public void actionPerformed(ActionEvent e)
-        {
-            SipCommFileChooser chooser = GenericFileDialog.create(
-                null, "Change avatar...",
-                SipCommFileChooser.LOAD_FILE_OPERATION,
-                lastAvatarDir.getAbsolutePath());
-            chooser.addFilter(new ImageFilter());
-
-            File file = chooser.getFileFromDialog();
-
-            if (file != null)
-            {
-                try
-                {
-                    lastAvatarDir = file.getParentFile();
-
-                    FileInputStream in = new FileInputStream(file);
-                    byte[] buffer;
-
-                    try
-                    {
-                        buffer = new byte[in.available()];
-                        in.read(buffer);
-                    }
-                    finally
-                    {
-                        in.close();
-                    }
-                    if (buffer == null || buffer.length <= 0)
-                        return;
-
-                    newAvatarImage = buffer;
-
-                    avatarImageIcon = new ImageIcon(
-                        getScaledImageInstance(newAvatarImage));
-                    avatarLabel.setIcon(avatarImageIcon);
-                }
-                catch (IOException ex)
-                {
-                    logger.error("Failed to load image.", ex);
-                }
-            }
-        }
-    }
-
-    /**
-     * A custom filter that would accept only image files.
-     */
-    private static class ImageFilter extends SipCommFileFilter
-    {
         /**
-         * Accept all directories and all gif, jpg, tiff, or png files.
-         * Method implemented from FileFilter abstract class.
-         *
-         * @param f a file to accept or not
+         * A helper method to decide whether to add new
+         * <tt>ServerStoredDetails</tt> or to replace an old one.
+         * @param oldDetail the detail to be replaced.
+         * @param newDetail the replacement.
          */
-        @Override
-        public boolean accept(File f)
+        private void changeDetail(  GenericDetail oldDetail,
+                                    GenericDetail newDetail)
         {
-            if (f.isDirectory())
+            try
             {
-                return true;
-            }
-
-            String extension = getExtension(f);
-            if (extension != null)
-            {
-                if (extension.equals("tiff") ||
-                    extension.equals("tif") ||
-                    extension.equals("gif") ||
-                    extension.equals("jpeg") ||
-                    extension.equals("jpg") ||
-                    extension.equals("png"))
+                if (newDetail == null)
                 {
-                    return true;
+                    accountInfoOpSet.removeDetail(oldDetail);
+                }
+                else if (oldDetail == null)
+                {
+                    accountInfoOpSet.addDetail(newDetail);
                 }
                 else
                 {
-                    return false;
+                    accountInfoOpSet.replaceDetail(oldDetail, newDetail);
                 }
             }
-
-            return false;
-        }
-
-        /**
-         * Get the extension of a file.
-         *
-         * @param f the file
-         * @return the extension of the file
-         */
-        public String getExtension(File f)
-        {
-            String ext = null;
-            String s = f.getName();
-            int i = s.lastIndexOf('.');
-
-            if (i > 0 &&  i < s.length() - 1) {
-                ext = s.substring(i+1).toLowerCase();
+            catch (ArrayIndexOutOfBoundsException e1)
+            {
+                logger.debug("Failed to update account details. " +
+                            newDetail.getDetailDisplayName() + " " + e1);
             }
-            return ext;
+            catch (OperationFailedException e1)
+            {
+                logger.debug("Failed to update account details. " +
+                            newDetail.getDetailDisplayName() + " " + e1);
+            }
         }
-
-        /**
-         * The description of this filter.
-         */
-        @Override
-        public String getDescription()
-        {
-            return Resources.getString("plugin.accountinfo.ONLY_MESSAGE");
-        }
-
-    }
-
-    /**
-     * Returns a scaled <tt>Image</tt> instance of the given byte image.
-     *
-     * @param image the image in bytes
-     * @return a scaled <tt>Image</tt> instance of the given byte image.
-     */
-    private Image getScaledImageInstance(byte[] image)
-    {
-        Image resultImage = null;
-
-        try
-        {
-            resultImage = ImageIO.read(
-                    new ByteArrayInputStream(image));
-        }
-        catch (Exception e)
-        {
-            logger.error("Failed to convert bytes to image.", e);
-        }
-
-        if(resultImage == null)
-            return null;
-
-        return resultImage.getScaledInstance(
-            avatarLabel.getWidth(),
-            avatarLabel.getHeight(),
-            Image.SCALE_SMOOTH);
-    }
-
-    /**
-     * Returns <code>true</code> if the account details are loaded,
-     * <code>false</code> - otherwise.
-     *
-     * @return <code>true</code> if the account details are loaded,
-     * <code>false</code> - otherwise
-     */
-    public boolean isDataLoaded()
-    {
-        return isDataLoaded;
-    }
-
-    /**
-     * Loads the avatar default icon.
-     */
-    public void loadSkin()
-    {
-        avatarLabel.setIcon(Resources.getImage("accountInfoDefaultPersonIcon"));
     }
 }

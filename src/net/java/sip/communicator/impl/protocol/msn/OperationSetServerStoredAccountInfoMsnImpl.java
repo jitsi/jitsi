@@ -268,6 +268,23 @@ public class OperationSetServerStoredAccountInfoMsnImpl
     }
 
     /**
+     * Determines whether the underlying implementation supports edition
+     * of this detail class.
+     * <p>
+     * @param detailClass the class whose edition we'd like to determine if it's
+     * possible
+     * @return true if the underlying implementation supports edition of this
+     * type of detail and false otherwise.
+     */
+    public boolean isDetailClassEditable(
+        Class<? extends GenericDetail> detailClass)
+    {
+        return 
+            isDetailClassSupported(detailClass)
+            && ImageDetail.class.isAssignableFrom(detailClass);
+    }
+
+    /**
      * The method returns the number of instances supported for a particular
      * detail type. Some protocols offer storing multiple values for a
      * particular detail type. Spoken languages are a good example.
@@ -517,6 +534,18 @@ public class OperationSetServerStoredAccountInfoMsnImpl
 
         return false;
     }
+
+    /*
+     * (non-Javadoc)
+     * @see net.java.sip.communicator.service.protocol.OperationSetServerStoredAccountInfo#save()
+     * This method is currently unimplemented.
+     * The idea behind this method is for users to call it only once, meaning 
+     * that all ServerStoredDetails previously modified by addDetail/removeDetail
+     * and/or replaceDetail will be saved online on the server in one step.
+     * Currently, addDetail/removeDetail/replaceDetail methods are doing the
+     * actual saving but in the future the saving part must be carried here. 
+     */
+    public void save() throws OperationFailedException {}
 
     /**
      * Utility method throwing an exception if the icq stack is not properly

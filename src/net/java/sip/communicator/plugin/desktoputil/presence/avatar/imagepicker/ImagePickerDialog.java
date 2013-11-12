@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.main.presence.avatar.imagepicker;
+package net.java.sip.communicator.plugin.desktoputil.presence.avatar.imagepicker;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -14,7 +14,6 @@ import java.io.*;
 import javax.imageio.*;
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 
 /**
@@ -51,7 +50,7 @@ public class ImagePickerDialog
      */
     private void initDialog()
     {
-        this.setTitle(GuiActivator.getResources()
+        this.setTitle(DesktopUtilActivator.getResources()
                 .getI18NString("service.gui.avatar.imagepicker.IMAGE_PICKER"));
         this.setModal(true);
         this.setResizable(true);
@@ -91,22 +90,22 @@ public class ImagePickerDialog
         this.editPanel = new EditPanel(clipperZoneWidth, clipperZoneHeight);
 
         // Buttons
-        this.okButton = new JButton(GuiActivator.getResources()
+        this.okButton = new JButton(DesktopUtilActivator.getResources()
                 .getI18NString("service.gui.avatar.imagepicker.SET"));
         this.okButton.addActionListener(this);
         this.okButton.setName("okButton");
 
-        this.cancelButton = new JButton(GuiActivator.getResources()
+        this.cancelButton = new JButton(DesktopUtilActivator.getResources()
                 .getI18NString("service.gui.avatar.imagepicker.CANCEL"));
         this.cancelButton.addActionListener(this);
         this.cancelButton.setName("cancelButton");
 
-        this.selectFileButton = new JButton(GuiActivator.getResources()
+        this.selectFileButton = new JButton(DesktopUtilActivator.getResources()
                 .getI18NString("service.gui.avatar.imagepicker.CHOOSE_FILE"));
         this.selectFileButton.addActionListener(this);
         this.selectFileButton.setName("selectFileButton");
 
-        this.webcamButton = new JButton(GuiActivator.getResources()
+        this.webcamButton = new JButton(DesktopUtilActivator.getResources()
                 .getI18NString("service.gui.avatar.imagepicker.TAKE_PHOTO"));
 
         this.webcamButton.addActionListener(this);
@@ -146,8 +145,9 @@ public class ImagePickerDialog
         else if (name.equals("selectFileButton"))
         {
             SipCommFileChooser chooser = GenericFileDialog.create(
-                GuiActivator.getUIService().getMainFrame(),
-                GuiActivator.getResources().getI18NString(
+                //GuiActivator.getUIService().getMainFrame(),
+                null,
+                DesktopUtilActivator.getResources().getI18NString(
                         "service.gui.avatar.imagepicker.CHOOSE_FILE"),
                 SipCommFileChooser.LOAD_FILE_OPERATION);
 
@@ -217,7 +217,7 @@ public class ImagePickerDialog
         @Override
         public String getDescription()
         {
-            return GuiActivator.getResources()
+            return DesktopUtilActivator.getResources()
                 .getI18NString("service.gui.avatar.imagepicker.IMAGE_FILES");
         }
     }

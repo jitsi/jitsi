@@ -107,6 +107,7 @@ public abstract class AbstractOperationSetAvatar<T extends ProtocolProviderServi
                 this.accountInfoOpSet.addDetail(newDetail);
             else
                 this.accountInfoOpSet.replaceDetail(oldDetail, newDetail);
+            accountInfoOpSet.save();
         } catch (OperationFailedException e)
         {
             logger.warn("Unable to set new avatar", e);

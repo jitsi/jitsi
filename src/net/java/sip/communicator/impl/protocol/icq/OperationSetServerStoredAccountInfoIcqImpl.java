@@ -52,6 +52,7 @@ public class OperationSetServerStoredAccountInfoIcqImpl
     public static final Map<Class<? extends GenericDetail>, int[]> supportedTypes
         = new Hashtable<Class<? extends GenericDetail>, int[]>();
     static {
+        supportedTypes.put(ServerStoredDetails.ImageDetail.class,       new int[]{1});
         supportedTypes.put(ServerStoredDetails.CountryDetail.class,     new int[]{1, 0x01A4});
         supportedTypes.put(ServerStoredDetails.NicknameDetail.class,    new int[]{1, 0x0154});
         supportedTypes.put(ServerStoredDetails.FirstNameDetail.class,   new int[]{1, 0x0140});
@@ -224,6 +225,23 @@ public class OperationSetServerStoredAccountInfoIcqImpl
         Class<? extends GenericDetail> detailClass)
     {
         return supportedTypes.get(detailClass) != null;
+    }
+
+    /**
+     * Determines whether the underlying implementation supports edition
+     * of this detail class.
+     * <p>
+     * @param detailClass the class whose edition we'd like to determine if it's
+     * possible
+     * @return true if the underlying implementation supports edition of this
+     * type of detail and false otherwise.
+     */
+    public boolean isDetailClassEditable(
+        Class<? extends GenericDetail> detailClass)
+    {
+        return 
+            isDetailClassSupported(detailClass)
+            && ImageDetail.class.isAssignableFrom(detailClass);
     }
 
     /**
@@ -793,6 +811,18 @@ public class OperationSetServerStoredAccountInfoIcqImpl
         else
             return false;
     }
+
+    /*
+     * (non-Javadoc)
+     * @see net.java.sip.communicator.service.protocol.OperationSetServerStoredAccountInfo#save()
+     * This method is currently unimplemented.
+     * The idea behind this method is for users to call it only once, meaning 
+     * that all ServerStoredDetails previously modified by addDetail/removeDetail
+     * and/or replaceDetail will be saved online on the server in one step.
+     * Currently, addDetail/removeDetail/replaceDetail methods are doing the
+     * actual saving but in the future the saving part must be carried here. 
+     */
+    public void save() throws OperationFailedException {}
 
     /**
      * Requests the account image if its missing.

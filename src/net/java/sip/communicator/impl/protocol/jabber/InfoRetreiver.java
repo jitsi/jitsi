@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.lang.reflect.*;
 import java.net.*;
+import java.text.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
@@ -175,6 +176,24 @@ public class InfoRetreiver
             if(tmp != null)
                 result.add(new NicknameDetail(tmp));
 
+            tmp = card.getField("BDAY");
+            if (tmp != null)
+            {
+                try
+                {
+                    Calendar birthDateCalendar = Calendar.getInstance();
+                    DateFormat dateFormat =
+                        new SimpleDateFormat(
+                            JabberActivator.getResources().getI18NString(
+                                "plugin.accountinfo.BDAY_FORMAT"));
+                    Date birthDate =
+                        dateFormat.parse(tmp);
+                    birthDateCalendar.setTime(birthDate);
+                    BirthDateDetail bd = new BirthDateDetail(birthDateCalendar);
+                    result.add(bd);
+                }
+                catch (ParseException e) {}
+            }
             // Home Details
             // addrField one of
             // POSTAL, PARCEL, (DOM | INTL), PREF, POBOX, EXTADR, STREET,
@@ -195,9 +214,9 @@ public class InfoRetreiver
             if(tmp != null)
                 result.add(new PostalCodeDetail(tmp));
 
-//                tmp = card.getAddressFieldHome("CTRY");
-//                if(tmp != null)
-//                    result.add(new CountryDetail(tmp);
+                tmp = card.getAddressFieldHome("CTRY");
+                if(tmp != null)
+                    result.add(new CountryDetail(tmp));
 
             // phoneType one of
             //VOICE, FAX, PAGER, MSG, CELL, VIDEO, BBS, MODEM, ISDN, PCS, PREF
@@ -276,7 +295,7 @@ public class InfoRetreiver
 
             tmp = card.getEmailWork();
             if(tmp != null)
-                result.add(new EmailAddressDetail(tmp));
+                result.add(new WorkEmailAddressDetail(tmp));
 
             tmp = card.getOrganization();
             if(tmp != null)
@@ -286,15 +305,25 @@ public class InfoRetreiver
             if(tmp != null)
                 result.add(new WorkDepartmentNameDetail(tmp));
 
+            tmp = card.getField("TITLE");
+            if(tmp != null)
+                result.add(new JobTitleDetail(tmp));
+
+            tmp = card.getField("ABOUTME");
+            if (tmp != null)
+                result.add(new AboutMeDetail(tmp));
+
             byte[] imageBytes = card.getAvatar();
             if(imageBytes != null && imageBytes.length > 0)
+            {
                 result.add(new ImageDetail("Image", imageBytes));
+            }
 
             try
             {
                 tmp = card.getField("URL");
                 if(tmp != null)
-                    result.add(new WebPageDetail(new URL(tmp)));
+                    result.add(new URLDetail("URL", new URL(tmp)));
             }
             catch(MalformedURLException e){}
         }

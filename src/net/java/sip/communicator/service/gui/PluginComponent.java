@@ -21,6 +21,11 @@ import net.java.sip.communicator.service.protocol.*;
  * implement the <tt>setCurrentContact</tt> and
  * <tt>setCurrentContactGroup</tt> methods.
  * <p>
+ * <p>
+ * All components interested in the current account that they're dealing
+ * with (i.g. the one selected in the account list for example), should
+ * implement the <tt>setCurrentAccountID</tt> method.
+ * <p>
  * Note that <tt>getComponent</tt> should return a valid AWT, SWT or Swing
  * control in order to appear properly in the GUI.
  *
@@ -75,6 +80,16 @@ public interface PluginComponent
      * @param metaGroup the current meta contact group
      */
     public void setCurrentContactGroup(MetaContactGroup metaGroup);
+
+    /**
+     * Sets the current AccountID. Meant to be used by plugin components that are
+     * interested in the current AccountID. The current AccountID could be that
+     * of a currently selected account in the account list. It depends on the
+     * container, where this component is meant to be added.
+     *
+     * @param account the current account.
+     */
+    public void setCurrentAccountID(AccountID accountID);
 
     /**
      * Returns the factory that has created the component.
