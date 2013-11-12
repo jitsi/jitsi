@@ -20,67 +20,51 @@ import org.osgi.framework.*;
  * @author Lionel Ferreira & Michael Tarantino
  */
 public class IrcAccRegWizzActivator
-    implements BundleActivator
+    extends AbstractServiceDependentActivator
 {
     private static Logger logger = Logger.getLogger(
         IrcAccRegWizzActivator.class.getName());
+    
+    static BundleContext bundleContext;
+    
+    private static UIService uiService;
+    
+    private static WizardContainer wizardContainer;
 
-    /**
-     * A currently valid bundle context.
-     */
-    public static BundleContext bundleContext;
+    private IrcAccountRegistrationWizard ircWizard;
 
-    /**
-     * The <tt>UIService</tt>.
-     */
-    public static UIService uiService;
-
-    /**
-     * Starts this bundle.
-     * @param bc the currently valid <tt>BundleContext</tt>.
-     */
-    public void start(BundleContext bc)
+    public void start(Object dependentService)
     {
         if (logger.isInfoEnabled())
             logger.info("Loading irc account wizard.");
 
-        bundleContext = bc;
-
-        ServiceReference uiServiceRef = bundleContext
-            .getServiceReference(UIService.class.getName());
-
-        UIService uiService
-            = (UIService) bundleContext.getService(uiServiceRef);
-
-        WizardContainer wizardContainer
-            = uiService.getAccountRegWizardContainer();
-
-        IrcAccountRegistrationWizard ircWizard
-            = new IrcAccountRegistrationWizard(wizardContainer);
-
-        Hashtable<String, String> containerFilter
-            = new Hashtable<String, String>();
-
-        containerFilter.put(
-                ProtocolProviderFactory.PROTOCOL,
-                ProtocolNames.IRC);
-
-        bundleContext.registerService(
-            AccountRegistrationWizard.class.getName(),
-            ircWizard,
-            containerFilter);
+        uiService = (UIService)dependentService;
+        
+        wizardContainer = uiService.getAccountRegWizardContainer();
+        
+        ircWizard = new IrcAccountRegistrationWizard(wizardContainer);
+        
+        Hashtable<String, String> containerFilter = new Hashtable<String, String>();
+        containerFilter.put(ProtocolProviderFactory.PROTOCOL, ProtocolNames.IRC);
+        
+        bundleContext.registerService(AccountRegistrationWizard.class.getName(), ircWizard, containerFilter);
 
         if (logger.isInfoEnabled())
             logger.info("IRC account registration wizard [STARTED].");
     }
-
-    /**
-     * Called when this bundle is stopped so the Framework can perform the
-     * bundle-specific activities necessary to stop the bundle.
-     *
-     * @param context The execution context of the bundle being stopped.
-     */
-    public void stop(BundleContext context)
+    
+    public Class<?> getDependentServiceClass()
+    {
+        return UIService.class;
+    }
+    
+    @Override
+    public void setBundleContext(BundleContext context)
+    {
+        bundleContext = context;
+    }
+    
+    public void stop(BundleContext bundleContext)
     {
     }
 
@@ -108,22 +92,7 @@ public class IrcAccRegWizzActivator
 
         return (ProtocolProviderFactory) bundleContext.getService(serRefs[0]);
     }
-
-    /**
-     * Returns the bundleContext that we received when we were started.
-     *
-     * @return a currently valid instance of a bundleContext.
-     */
-    public BundleContext getBundleContext()
-    {
-        return bundleContext;
-    }
-
-    /**
-     * Returns the <tt>UIService</tt>.
-     *
-     * @return the <tt>UIService</tt>
-     */
+    
     public static UIService getUIService()
     {
         return uiService;
