@@ -11,7 +11,7 @@ import org.jitsi.service.neomedia.*;
 /**
  * Implements a <tt>StreamConnector</tt> which allows sharing a specific
  * <tt>StreamConnector</tt> instance among multiple <tt>TransportManager</tt>s
- * for the purposes of the Jitsi VideoBridge.
+ * for the purposes of the Jitsi Videobridge.
  *
  * @author Lyubomir Marinov
  */
@@ -21,11 +21,11 @@ public class ColibriStreamConnector
     /**
      * Initializes a new <tt>ColibriStreamConnector</tt> instance which is to
      * share a specific <tt>StreamConnector</tt> instance among multiple
-     * <tt>TransportManager</tt>s for the purposes of the Jitsi VideoBridge.
+     * <tt>TransportManager</tt>s for the purposes of the Jitsi Videobridge.
      *
      * @param streamConnector the <tt>StreamConnector</tt> instance to be shared
      * by the new instance among multiple <tt>TransportManager</tt>s for the
-     * purposes of the Jitsi VideoBridge
+     * purposes of the Jitsi Videobridge
      */
     public ColibriStreamConnector(StreamConnector streamConnector)
     {

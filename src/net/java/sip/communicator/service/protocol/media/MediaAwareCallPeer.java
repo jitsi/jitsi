@@ -225,11 +225,11 @@ public abstract class MediaAwareCallPeer
             {
                 CallPeerMediaHandler<?> mediaHandler = getMediaHandler();
 
-                if (isJitsiVideoBridge())
+                if (isJitsiVideobridge())
                 {
                     /*
                      * When the local user/peer has organized a telephony
-                     * conference utilizing the Jitsi VideoBridge server-side
+                     * conference utilizing the Jitsi Videobridge server-side
                      * technology, the server will calculate the audio levels
                      * and not the client.
                      */
@@ -377,10 +377,10 @@ public abstract class MediaAwareCallPeer
     {
         /*
          * When the local user/peer has organized a telephony conference
-         * utilizing the Jitsi VideoBridge server-side technology, the server
+         * utilizing the Jitsi Videobridge server-side technology, the server
          * will calculate the audio levels and not the client.
          */
-        if (isJitsiVideoBridge())
+        if (isJitsiVideobridge())
         {
             long audioRemoteSSRC
                 = getMediaHandler().getRemoteSSRC(MediaType.AUDIO);
@@ -627,13 +627,13 @@ public abstract class MediaAwareCallPeer
     /**
      * Determines whether this <tt>CallPeer</tt> is participating in a telephony
      * conference organized by the local user/peer utilizing the Jitsi
-     * VideoBridge server-side technology.
+     * Videobridge server-side technology.
      *
      * @return <tt>true</tt> if this <tt>CallPeer</tt> is participating in a
      * telephony conference organized by the local user/peer utilizing the Jitsi
-     * VideoBridge server-side technology; otherwise, <tt>false</tt>
+     * Videobridge server-side technology; otherwise, <tt>false</tt>
      */
-    public final boolean isJitsiVideoBridge()
+    public final boolean isJitsiVideobridge()
     {
         Call call = getCall();
 
@@ -642,7 +642,7 @@ public abstract class MediaAwareCallPeer
             CallConference conference = call.getConference();
 
             if (conference != null)
-                return conference.isJitsiVideoBridge();
+                return conference.isJitsiVideobridge();
         }
         return false;
     }

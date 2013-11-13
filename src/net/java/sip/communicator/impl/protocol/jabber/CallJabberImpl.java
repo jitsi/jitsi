@@ -41,7 +41,7 @@ public class CallJabberImpl
     private static final Logger logger = Logger.getLogger(CallJabberImpl.class);
 
     /**
-     * The Jitsi VideoBridge conference which the local peer represented by this
+     * The Jitsi Videobridge conference which the local peer represented by this
      * instance is a focus of.
      */
     private ColibriConferenceIQ colibri;
@@ -158,7 +158,7 @@ public class CallJabberImpl
             CallPeerJabberImpl peer,
             Map<ContentPacketExtension,ContentPacketExtension> contentMap)
     {
-        if (!getConference().isJitsiVideoBridge())
+        if (!getConference().isJitsiVideobridge())
             return null;
 
         /*
@@ -180,12 +180,12 @@ public class CallJabberImpl
 
         ProtocolProviderServiceJabberImpl protocolProvider
             = getProtocolProvider();
-        String jitsiVideoBridge
+        String jitsiVideobridge
             = (colibri == null)
-                ? protocolProvider.getJitsiVideoBridge()
+                ? protocolProvider.getJitsiVideobridge()
                 : colibri.getFrom();
 
-        if ((jitsiVideoBridge == null) || (jitsiVideoBridge.length() == 0))
+        if ((jitsiVideobridge == null) || (jitsiVideobridge.length() == 0))
         {
             logger.error(
                     "Failed to allocate colibri channels: no videobridge"
@@ -243,7 +243,7 @@ public class CallJabberImpl
                     localChannelRequest.addPayloadType(ptpe);
                 // DTLS-SRTP
                 setDtlsEncryptionToChannel(
-                        jitsiVideoBridge,
+                        jitsiVideobridge,
                         peer,
                         mediaType,
                         localChannelRequest);
@@ -269,7 +269,7 @@ public class CallJabberImpl
             = connection.createPacketCollector(
                     new PacketIDFilter(conferenceRequest.getPacketID()));
 
-        conferenceRequest.setTo(jitsiVideoBridge);
+        conferenceRequest.setTo(jitsiVideobridge);
         conferenceRequest.setType(IQ.Type.GET);
         connection.sendPacket(conferenceRequest);
 
@@ -770,7 +770,7 @@ public class CallJabberImpl
      * processed by this instance and no further processing is to be performed
      * by other possible processors of <tt>ColibriConferenceIQ</tt>s; otherwise,
      * <tt>false</tt>. Because a <tt>ColibriConferenceIQ</tt> request sent from
-     * the Jitsi VideoBridge server to the application as its client concerns a
+     * the Jitsi Videobridge server to the application as its client concerns a
      * specific <tt>CallJabberImpl</tt> implementation, no further processing by
      * other <tt>CallJabberImpl</tt> instances is necessary once the
      * <tt>ColibriConferenceIQ</tt> is processed by the associated
@@ -782,7 +782,7 @@ public class CallJabberImpl
         {
             /*
              * This instance has not set up any conference using the Jitsi
-             * VideoBridge server-side technology yet so it cannot be bothered
+             * Videobridge server-side technology yet so it cannot be bothered
              * with related requests.
              */
             return false;
@@ -792,7 +792,7 @@ public class CallJabberImpl
             /*
              * Remove the local Channels (from the specified conferenceIQ) i.e.
              * the Channels on which the local peer/user is sending to the Jitsi
-             * VideoBridge server because they concern this Call only and not
+             * Videobridge server because they concern this Call only and not
              * its CallPeers.
              */
             for (MediaType mediaType : MediaType.values())
@@ -833,7 +833,7 @@ public class CallJabberImpl
         else
         {
             /*
-             * This instance has set up a conference using the Jitsi VideoBridge
+             * This instance has set up a conference using the Jitsi Videobridge
              * server-side technology but it is not the one referred to by the
              * specified conferenceIQ i.e. the specified conferenceIQ does not
              * concern this instance.
@@ -1186,7 +1186,7 @@ public class CallJabberImpl
      * purposes of transmitting media between the local peer and the Jitsi
      * Videobridge server.
      *
-     * @param jitsiVideoBridge the address/JID of the Jitsi Videobridge
+     * @param jitsiVideobridge the address/JID of the Jitsi Videobridge
      * @param peer the <tt>CallPeer</tt> associated with the method invocation
      * @param mediaType the <tt>MediaType</tt> of the media to be transmitted
      * over the DTLS-SRTP session
@@ -1194,7 +1194,7 @@ public class CallJabberImpl
      * the state of the remote DTLS-SRTP endpoint.
      */
     private void setDtlsEncryptionToChannel(
-            String jitsiVideoBridge,
+            String jitsiVideobridge,
             CallPeerJabberImpl peer,
             MediaType mediaType,
             ColibriConferenceIQ.Channel channel)
@@ -1209,7 +1209,7 @@ public class CallJabberImpl
                 && accountID.isEncryptionProtocolEnabled(
                         DtlsControl.PROTO_NAME)
                 && protocolProvider.isFeatureSupported(
-                        jitsiVideoBridge,
+                        jitsiVideobridge,
                         ProtocolProviderServiceJabberImpl
                             .URN_XMPP_JINGLE_DTLS_SRTP))
         {

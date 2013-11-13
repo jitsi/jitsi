@@ -1092,7 +1092,7 @@ public class CallManager
      * @param callees the list of participants/callees to invite to the
      * newly-created video bridge conference <tt>Call</tt>
      */
-    public static void createVideoBridgeConfCall(
+    public static void createJitsiVideobridgeConfCall(
                                         ProtocolProviderService callProvider,
                                         String[] callees)
     {
@@ -1106,7 +1106,7 @@ public class CallManager
      * @param callees the list of contacts to invite
      * @param call the protocol provider to which this call belongs
      */
-    public static void inviteToVideoBridgeConfCall(String[] callees, Call call)
+    public static void inviteToJitsiVideobridgeConfCall(String[] callees, Call call)
     {
         new InviteToConferenceBridgeThread( call.getProtocolProvider(),
                                             callees,

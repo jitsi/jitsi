@@ -20,7 +20,7 @@ public class LibJitsiActivator
         /*
          * XXX To start/initialize the libjitsi library, simply call
          * LibJitsi#start(). The following is a temporary workaround for the
-         * benefit of the Jitsi VideoBridge project (which uses Jitsi's libjitsi
+         * benefit of the Jitsi Videobridge project (which uses Jitsi's libjitsi
          * bundle and runs on an incomplete OSGi implementation) and not the
          * Jitsi project.
          */

@@ -331,7 +331,7 @@ public abstract class ProtocolProviderFactory
 
     /**
      * The name of the boolean account property which indicates whether Jitsi
-     * VideoBridge is to be used, if available and supported, for conference
+     * Videobridge is to be used, if available and supported, for conference
      * calls.
      */
     public static final String USE_JITSI_VIDEO_BRIDGE

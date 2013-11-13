@@ -219,14 +219,15 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
     }
 
     /**
-     * Creates a media <tt>StreamConnector</tt>. The method takes into account
-     * the minimum and maximum media port boundaries.
+     * Creates a media <tt>StreamConnector</tt> for a stream of a specific
+     * <tt>MediaType</tt>. The minimum and maximum of the media port boundaries
+     * are taken into account.
      *
-     * @param mediaType the <tt>MediaType</tt> of the stream for which a new
+     * @param mediaType the <tt>MediaType</tt> of the stream for which a
      * <tt>StreamConnector</tt> is to be created
-     * @return a new <tt>StreamConnector</tt>.
-     *
-     * @throws OperationFailedException if the binding of the sockets fails.
+     * @return a <tt>StreamConnector</tt> for the stream of the specified
+     * <tt>mediaType</tt>
+     * @throws OperationFailedException if the binding of the sockets fails
      */
     protected StreamConnector createStreamConnector(MediaType mediaType)
         throws OperationFailedException
@@ -285,55 +286,63 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
     /**
      * (Re)Sets the all the port allocators to reflect current values specified
      * in the <tt>ConfigurationService</tt>. Calling this method may very well
-     * result in creating new port allocators or destroying exising ones.
+     * result in creating new port allocators or destroying existing ones.
      */
     protected static void initializePortNumbers()
     {
         //try the default tracker first
-        ConfigurationService configuration
+        ConfigurationService cfg
             = ProtocolMediaActivator.getConfigurationService();
-        String minPortNumberStr = configuration.getString(
-                OperationSetBasicTelephony.MIN_MEDIA_PORT_NUMBER_PROPERTY_NAME);
-
-        String maxPortNumberStr = configuration.getString(
-                OperationSetBasicTelephony.MAX_MEDIA_PORT_NUMBER_PROPERTY_NAME);
+        String minPortNumberStr
+            = cfg.getString(
+                    OperationSetBasicTelephony
+                        .MIN_MEDIA_PORT_NUMBER_PROPERTY_NAME);
+        String maxPortNumberStr
+            = cfg.getString(
+                    OperationSetBasicTelephony
+                        .MAX_MEDIA_PORT_NUMBER_PROPERTY_NAME);
 
         //try to send the specified range. If there's no specified range in
         //configuration, we'll just leave the tracker as it is: [5000 to 6000]
         defaultPortTracker.tryRange(minPortNumberStr, maxPortNumberStr);
 
-
         //try the VIDEO tracker
-        minPortNumberStr = configuration.getString(
-            OperationSetBasicTelephony.MIN_VIDEO_PORT_NUMBER_PROPERTY_NAME);
-
-        maxPortNumberStr = configuration.getString(
-            OperationSetBasicTelephony.MAX_VIDEO_PORT_NUMBER_PROPERTY_NAME);
-
+        minPortNumberStr
+            = cfg.getString(
+                    OperationSetBasicTelephony
+                        .MIN_VIDEO_PORT_NUMBER_PROPERTY_NAME);
+        maxPortNumberStr
+            = cfg.getString(
+                    OperationSetBasicTelephony
+                        .MAX_VIDEO_PORT_NUMBER_PROPERTY_NAME);
         //try to send the specified range. If there's no specified range in
         //configuration, we'll just leave this tracker to null
         videoPortTracker
             = PortTracker.createTracker(minPortNumberStr, maxPortNumberStr);
 
-
         //try the AUDIO tracker
-        minPortNumberStr = configuration.getString(
-            OperationSetBasicTelephony.MIN_AUDIO_PORT_NUMBER_PROPERTY_NAME);
-
-        maxPortNumberStr = configuration.getString(
-            OperationSetBasicTelephony.MAX_AUDIO_PORT_NUMBER_PROPERTY_NAME);
-
+        minPortNumberStr
+            = cfg.getString(
+                    OperationSetBasicTelephony
+                        .MIN_AUDIO_PORT_NUMBER_PROPERTY_NAME);
+        maxPortNumberStr
+            = cfg.getString(
+                    OperationSetBasicTelephony
+                        .MAX_AUDIO_PORT_NUMBER_PROPERTY_NAME);
         //try to send the specified range. If there's no specified range in
         //configuration, we'll just leave this tracker to null
         audioPortTracker
             = PortTracker.createTracker(minPortNumberStr, maxPortNumberStr);
 
         //try the DATA CHANNEL tracker
-        minPortNumberStr = configuration.getString(OperationSetBasicTelephony
-            .MIN_DATA_CHANNEL_PORT_NUMBER_PROPERTY_NAME);
-
-        maxPortNumberStr = configuration.getString(OperationSetBasicTelephony
-            .MAX_DATA_CHANNEL_PORT_NUMBER_PROPERTY_NAME);
+        minPortNumberStr
+            = cfg.getString(
+                    OperationSetBasicTelephony
+                        .MIN_DATA_CHANNEL_PORT_NUMBER_PROPERTY_NAME);
+        maxPortNumberStr
+            = cfg.getString(
+                    OperationSetBasicTelephony
+                        .MAX_DATA_CHANNEL_PORT_NUMBER_PROPERTY_NAME);
 
         //try to send the specified range. If there's no specified range in
         //configuration, we'll just leave this tracker to null
@@ -571,11 +580,16 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
      */
     protected static PortTracker getPortTracker(MediaType mediaType)
     {
-        if(MediaType.AUDIO == mediaType && audioPortTracker != null)
-            return audioPortTracker;
-
-        if(MediaType.VIDEO == mediaType && videoPortTracker != null)
-            return videoPortTracker;
+        if (MediaType.AUDIO == mediaType)
+        {
+            if (audioPortTracker != null)
+                return audioPortTracker;
+        }
+        else if (MediaType.VIDEO == mediaType)
+        {
+            if (videoPortTracker != null)
+                return videoPortTracker;
+        }
 
         return defaultPortTracker;
     }
@@ -753,12 +767,11 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
     {
         if(iceAgent != null)
         {
-            LocalCandidate localCandidate =
-                iceAgent.getSelectedLocalCandidate(streamName);
+            LocalCandidate localCandidate
+                = iceAgent.getSelectedLocalCandidate(streamName);
+
             if(localCandidate != null)
-            {
                 return localCandidate.getExtendedType().toString();
-            }
         }
         return null;
     }

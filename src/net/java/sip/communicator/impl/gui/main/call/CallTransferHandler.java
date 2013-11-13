@@ -164,7 +164,7 @@ public class CallTransferHandler
                          * Currently for videobridge conferences we only support
                          * adding contacts via the account with the videobridge
                          */
-                        if (callConference.isJitsiVideoBridge())
+                        if (callConference.isJitsiVideobridge())
                         {
                             for (Call call : callConference.getCalls())
                             {

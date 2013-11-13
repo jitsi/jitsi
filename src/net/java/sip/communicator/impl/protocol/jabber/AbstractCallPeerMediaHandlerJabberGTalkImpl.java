@@ -96,7 +96,7 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
          * ZRTP is not supported in telephony conferences utilizing the
          * server-side technology Jitsi Videobridge yet.
          */
-        if (call.getConference().isJitsiVideoBridge())
+        if (call.getConference().isJitsiVideobridge())
             return;
 
         // Conforming to XEP-0167 schema there is 0 or 1 ENCRYPTION element for
@@ -151,7 +151,7 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
          * SDES is not supported in telephony conferences utilizing the
          * server-side technology Jitsi Videobridge yet.
          */
-        if (peer.getCall().getConference().isJitsiVideoBridge())
+        if (peer.getCall().getConference().isJitsiVideobridge())
             return;
 
         // Conforming to XEP-0167 schema there is 0 or 1 ENCRYPTION element for
@@ -278,7 +278,7 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
      * @return True if the ZRTP element has been added to encryption. False,
      * otherwise.
      */
-    protected boolean setZrtpEncryptionToDescription(
+    protected boolean setZrtpEncryptionOnDescription(
             MediaType mediaType,
             RtpDescriptionPacketExtension description,
             RtpDescriptionPacketExtension remoteDescription)
@@ -290,7 +290,7 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
          * ZRTP is not supported in telephony conferences utilizing the
          * server-side technology Jitsi Videobridge yet.
          */
-        if (call.getConference().isJitsiVideoBridge())
+        if (call.getConference().isJitsiVideobridge())
             return false;
 
         boolean isRemoteZrtpCapable;
@@ -377,7 +377,7 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
      * @return True if the crypto element has been added to encryption. False,
      * otherwise.
      */
-    protected boolean setSDesEncryptionToDescription(
+    protected boolean setSDesEncryptionOnDescription(
             MediaType mediaType,
             RtpDescriptionPacketExtension localDescription,
             RtpDescriptionPacketExtension remoteDescription)
@@ -388,7 +388,7 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
          * SDES is not supported in telephony conferences utilizing the
          * server-side technology Jitsi Videobridge yet.
          */
-        if (peer.getCall().getConference().isJitsiVideoBridge())
+        if (peer.getCall().getConference().isJitsiVideobridge())
             return false;
 
         AccountID accountID = peer.getProtocolProvider().getAccountID();
@@ -564,7 +564,7 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
          * Neither SDES nor ZRTP is supported in telephony conferences utilizing
          * the server-side technology Jitsi Videobridge yet.
          */
-        if (getPeer().isJitsiVideoBridge())
+        if (getPeer().isJitsiVideobridge())
             return false;
 
         // SDES
@@ -574,7 +574,7 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
                     false,
                     remoteDescription,
                     mediaType);
-            if(setSDesEncryptionToDescription(
+            if(setSDesEncryptionOnDescription(
                     mediaType,
                     localDescription,
                     remoteDescription))
@@ -586,7 +586,7 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
         // ZRTP
         else if(ZrtpControl.PROTO_NAME.equals(protoName))
         {
-            if(setZrtpEncryptionToDescription(
+            if(setZrtpEncryptionOnDescription(
                     mediaType,
                     localDescription,
                     remoteDescription))

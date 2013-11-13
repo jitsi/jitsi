@@ -71,10 +71,10 @@ public class ConferenceInviteDialog
     private ProtocolProviderService preselectedProtocolProvider;
 
     /**
-     * Indicates if this conference invite dialog is associated with a video
-     * bridge invite.
+     * Indicates whether this conference invite dialog is associated with a
+     * Jitsi Videobridge invite.
      */
-    private final boolean isVideoBridge;
+    private final boolean isJitsiVideobridge;
 
     /**
      * Initializes a new <tt>ConferenceInviteDialog</tt> instance which is to
@@ -87,11 +87,11 @@ public class ConferenceInviteDialog
                             CallConference conference,
                             ProtocolProviderService preselectedProvider,
                             List<ProtocolProviderService> protocolProviders,
-                            final boolean isVideoBridge)
+                            final boolean isJitsiVideobridge)
     {
         // Set the correct dialog title depending if we're going to create a
         // video bridge conference call
-        super((isVideoBridge
+        super((isJitsiVideobridge
                 ? GuiActivator.getResources()
                     .getI18NString("service.gui.INVITE_CONTACT_TO_VIDEO_BRIDGE")
                 : GuiActivator.getResources()
@@ -100,7 +100,7 @@ public class ConferenceInviteDialog
 
         this.conference = conference;
         this.preselectedProtocolProvider = preselectedProvider;
-        this.isVideoBridge = isVideoBridge;
+        this.isJitsiVideobridge = isJitsiVideobridge;
 
         if (preselectedProtocolProvider == null)
             initAccountSelectorPanel(protocolProviders);
@@ -137,8 +137,8 @@ public class ConferenceInviteDialog
                             = (ProtocolProviderService) accountSelectorBox
                                 .getSelectedItem();
 
-                    if (isVideoBridge)
-                        inviteVideoBridgeContacts(  preselectedProtocolProvider,
+                    if (isJitsiVideobridge)
+                        inviteJitsiVideobridgeContacts(  preselectedProtocolProvider,
                                                     selectedContacts);
                     else
                         inviteContacts(selectedContacts);
@@ -198,9 +198,9 @@ public class ConferenceInviteDialog
     public ConferenceInviteDialog(
                         CallConference conference,
                         ProtocolProviderService preselectedProtocolProvider,
-                        boolean isVideoBridge)
+                        boolean isJitsiVideobridge)
     {
-        this(conference, preselectedProtocolProvider, null, isVideoBridge);
+        this(conference, preselectedProtocolProvider, null, isJitsiVideobridge);
     }
 
     /**
@@ -209,14 +209,14 @@ public class ConferenceInviteDialog
      * a video bridge conference.
      *
      * @param selectedConfProvider the preselected protocol provider
-     * @param isVideoBridge indicates if this dialog should create a conference
-     * through a video bridge
+     * @param isJitsiVideobridge <tt>true</tt> if this dialog should create a
+     * conference through a Jitsi Videobridge; otherwise, <tt>false</tt>
      */
     public ConferenceInviteDialog(
                                 List<ProtocolProviderService> protocolProviders,
-                                boolean isVideoBridge)
+                                boolean isJitsiVideobridge)
     {
-        this(null, null, protocolProviders, isVideoBridge);
+        this(null, null, protocolProviders, isJitsiVideobridge);
     }
 
     /**
@@ -225,14 +225,14 @@ public class ConferenceInviteDialog
      * a video bridge conference.
      *
      * @param selectedConfProvider the preselected protocol provider
-     * @param isVideoBridge indicates if this dialog should create a conference
-     * through a video bridge
+     * @param isJitsiVideobridge <tt>true</tt> if this dialog should create a
+     * conference through a Jitsi Videobridge; otherwise, <tt>false</tt>
      */
     public ConferenceInviteDialog(
                                 ProtocolProviderService selectedConfProvider,
-                                boolean isVideoBridge)
+                                boolean isJitsiVideobridge)
     {
-        this(null, selectedConfProvider, null, isVideoBridge);
+        this(null, selectedConfProvider, null, isJitsiVideobridge);
     }
 
     /**
@@ -302,7 +302,7 @@ public class ConferenceInviteDialog
                         (ProtocolProviderService) accountSelectorBox
                             .getSelectedItem());
 
-                    if (isVideoBridge)
+                    if (isJitsiVideobridge)
                         destContactList.removeAll();
                 }
             }
@@ -531,7 +531,7 @@ public class ConferenceInviteDialog
      *
      * @param contacts the list of contacts to invite
      */
-    private void inviteVideoBridgeContacts(
+    private void inviteJitsiVideobridgeContacts(
                                 ProtocolProviderService preselectedProvider,
                                 Collection<UIContact> contacts)
     {
@@ -559,13 +559,13 @@ public class ConferenceInviteDialog
 
         if(conference != null)
         {
-            CallManager.inviteToVideoBridgeConfCall(
+            CallManager.inviteToJitsiVideobridgeConfCall(
                     callees.toArray(new String[callees.size()]),
                     conference.getCalls().get(0));
         }
         else
         {
-            CallManager.createVideoBridgeConfCall(
+            CallManager.createJitsiVideobridgeConfCall(
                 preselectedProvider,
                 callees.toArray(new String[callees.size()]));
         }

@@ -133,7 +133,8 @@ public class CallPeerJabberImpl
         try
         {
             mediaHandler
-                .getTransportManager().wrapupConnectivityEstablishment();
+                .getTransportManager()
+                    .wrapupConnectivityEstablishment();
             answer = mediaHandler.generateSessionAccept();
             for (ContentPacketExtension c : answer)
                 setSenders(getMediaType(c), c.getSenders());
@@ -389,7 +390,7 @@ public class CallPeerJabberImpl
     {
         /*
          * CallPeerJabberImpl does not itself/directly know the specifics
-         * related to the channels allocated on the Jitsi VideoBridge server.
+         * related to the channels allocated on the Jitsi Videobridge server.
          * The channels contain transport and media-related information so
          * forward the notification to CallPeerMediaHandlerJabberImpl.
          */
@@ -410,7 +411,8 @@ public class CallPeerJabberImpl
         try
         {
             mediaHandler
-                .getTransportManager().wrapupConnectivityEstablishment();
+                .getTransportManager()
+                    .wrapupConnectivityEstablishment();
             mediaHandler.processAnswer(contents);
             for (ContentPacketExtension c : contents)
                 setSenders(getMediaType(c), c.getSenders());
@@ -506,8 +508,9 @@ public class CallPeerJabberImpl
                 return;
             }
 
-            mediaHandler.getTransportManager().
-                wrapupConnectivityEstablishment();
+            mediaHandler
+                .getTransportManager()
+                    .wrapupConnectivityEstablishment();
             if(logger.isInfoEnabled())
                 logger.info("Wrapping up connectivity establishment");
             answerContents = mediaHandler.generateSessionAccept();
@@ -697,7 +700,8 @@ public class CallPeerJabberImpl
         try
         {
             mediaHandler
-                .getTransportManager().wrapupConnectivityEstablishment();
+                .getTransportManager()
+                    .wrapupConnectivityEstablishment();
             mediaHandler.processAnswer(answer);
             for (ContentPacketExtension c : answer)
                 setSenders(getMediaType(c), c.getSenders());
@@ -1384,9 +1388,9 @@ public class CallPeerJabberImpl
         {
             /*
              * We need to dispose of the transport manager before the
-             * 'call' field is set to null, because if Jitsi VideoBridge is in
+             * 'call' field is set to null, because if Jitsi Videobridge is in
              * use, it (the call) is needed in order to expire the
-             * VideoBridge channels.
+             * Videobridge channels.
              */
             if (CallPeerState.DISCONNECTED.equals(newState)
                     || CallPeerState.FAILED.equals(newState))

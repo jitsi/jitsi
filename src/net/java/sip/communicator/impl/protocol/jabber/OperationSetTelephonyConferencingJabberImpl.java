@@ -483,7 +483,8 @@ public class OperationSetTelephonyConferencingJabberImpl
         String from = sessionIQ.getFrom();
         String chatRoomName = StringUtils.parseBareAddress(from);
         OperationSetMultiUserChatJabberImpl opSetMUC
-            = (OperationSetMultiUserChatJabberImpl)parentProvider.getOperationSet(OperationSetMultiUserChat.class);
+            = (OperationSetMultiUserChatJabberImpl)
+                parentProvider.getOperationSet(OperationSetMultiUserChat.class);
         ChatRoom room = null;
         room = opSetMUC.getChatRoom(chatRoomName);
         
@@ -508,18 +509,17 @@ public class OperationSetTelephonyConferencingJabberImpl
      * The URI of the returned <tt>ConferenceDescription</tt> is the occupant
      * JID with which we have joined the room.
      *
-     * If a videobridge is available for our <tt>ProtocolProviderService</tt>
-     * we use it. TODO: this should be relaxed when we refactor the videobrdige
-     * implementation, so that any videobrdige (on any protocol provider) can
+     * If a Videobridge is available for our <tt>ProtocolProviderService</tt>
+     * we use it. TODO: this should be relaxed when we refactor the Videobridge
+     * implementation, so that any Videobridge (on any protocol provider) can
      * be used.
-     *
      */
     @Override
     public ConferenceDescription setupConference(final ChatRoom chatRoom)
     {
         OperationSetVideoBridge videoBridge
-                = parentProvider.getOperationSet(OperationSetVideoBridge.class);
-        boolean isVideoBridge = (videoBridge != null) && videoBridge.isActive();
+            = parentProvider.getOperationSet(OperationSetVideoBridge.class);
+        boolean isVideobridge = (videoBridge != null) && videoBridge.isActive();
 
         CallJabberImpl call = new CallJabberImpl(getBasicTelephony());
         call.setAutoAnswer(true);
@@ -532,35 +532,28 @@ public class OperationSetTelephonyConferencingJabberImpl
 
         call.addCallChangeListener(new CallChangeListener()
         {
-            
             @Override
-            public void callStateChanged(CallChangeEvent evt)
+            public void callStateChanged(CallChangeEvent ev)
             {
-                if(CallState.CALL_ENDED.equals(evt.getNewValue()))
-                {
+                if(CallState.CALL_ENDED.equals(ev.getNewValue()))
                     chatRoom.publishConference(null, null);
-                }
-                
             }
             
             @Override
-            public void callPeerRemoved(CallPeerEvent evt)
+            public void callPeerRemoved(CallPeerEvent ev)
             {
-                
             }
             
             @Override
-            public void callPeerAdded(CallPeerEvent evt)
+            public void callPeerAdded(CallPeerEvent ev)
             {
-                
             }
         });
-        if (isVideoBridge)
+        if (isVideobridge)
         {
             call.setConference(new MediaAwareCallConference(true));
             
-
-            //For videobridge we set the transports to RAW-UDP, otherwise
+            //For Jitsi Videobridge we set the transports to RAW-UDP, otherwise
             //we leave them empty (meaning both RAW-UDP and ICE could be used)
             cd.addTransport(
                 ProtocolProviderServiceJabberImpl.URN_XMPP_JINGLE_RAW_UDP_0);
@@ -569,7 +562,7 @@ public class OperationSetTelephonyConferencingJabberImpl
         if (logger.isInfoEnabled())
         {
             logger.info("Setup a conference with uri=" + uri + " and callid=" +
-                    call.getCallID() + ". Videobridge in use: " + isVideoBridge);
+                    call.getCallID() + ". Videobridge in use: " + isVideobridge);
         }
 
         return cd;

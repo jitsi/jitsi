@@ -539,7 +539,7 @@ public class VideoConferenceCallPanel
                          * ConferenceMember and once with a ConferenceMember
                          * without video. This will surely be the case at the
                          * time of this writing with non-focus participants in a
-                         * telephony conference hosted on a Jitsi VideoBridge.
+                         * telephony conference hosted on a Jitsi Videobridge.
                          * Such a display is undesirable. If the
                          * conferenceMember is known to send video, we will not
                          * display it until we associated it with a video. This
@@ -737,7 +737,7 @@ public class VideoConferenceCallPanel
      * <tt>SHOW_TOOLBARS</tt> may be that the functionality implemented in the
      * model may not fully support mapping of visual <tt>Component</tt>s
      * displaying video to telephony conference participants (e.g. in telephony
-     * conferences utilizing the Jitsi VideoBridge server-side technology). In
+     * conferences utilizing the Jitsi Videobridge server-side technology). In
      * such a case displays the videos only, does not map videos to participants
      * and does not display participants who do not have videos.
      */

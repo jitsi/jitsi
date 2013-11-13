@@ -90,16 +90,16 @@ public class MediaAwareCallConference
 
     /**
      * Initializes a new <tt>MediaAwareCallConference</tt> instance which is to
-     * optionally utilize the Jitsi VideoBridge server-side telephony
+     * optionally utilize the Jitsi Videobridge server-side telephony
      * conferencing technology.
      *
-     * @param jitsiVideoBridge <tt>true</tt> if the telephony conference
-     * represented by the new instance is to utilize the Jitsi VideoBridge
+     * @param jitsiVideobridge <tt>true</tt> if the telephony conference
+     * represented by the new instance is to utilize the Jitsi Videobridge
      * server-side telephony conferencing technology; otherwise, <tt>false</tt>
      */
-    public MediaAwareCallConference(boolean jitsiVideoBridge)
+    public MediaAwareCallConference(boolean jitsiVideobridge)
     {
-        super(jitsiVideoBridge);
+        super(jitsiVideobridge);
 
         int mediaTypeCount = MediaType.values().length;
 

@@ -133,9 +133,9 @@ public class OperationSetVideoBridgeImpl
      */
     public boolean isActive()
     {
-        String jitsiVideoBridge = protocolProvider.getJitsiVideoBridge();
+        String jitsiVideobridge = protocolProvider.getJitsiVideobridge();
 
-        return ((jitsiVideoBridge != null) && (jitsiVideoBridge.length() > 0));
+        return ((jitsiVideobridge != null) && (jitsiVideobridge.length() > 0));
     }
 
     /**
@@ -148,14 +148,14 @@ public class OperationSetVideoBridgeImpl
     private void processColibriConferenceIQ(ColibriConferenceIQ conferenceIQ)
     {
         /*
-         * The application is not a Jitsi VideoBridge server, it is a client.
+         * The application is not a Jitsi Videobridge server, it is a client.
          * Consequently, the specified ColibriConferenceIQ is sent to it in
          * relation to the part of the application's functionality which makes
-         * requests to a Jitsi VideoBridge server i.e. CallJabberImpl.
+         * requests to a Jitsi Videobridge server i.e. CallJabberImpl.
          *
          * Additionally, the method processColibriConferenceIQ is presently tasked
          * with processing ColibriConferenceIQ requests only. They are SET IQs
-         * sent by the Jitsi VideoBridge server to notify the application about
+         * sent by the Jitsi Videobridge server to notify the application about
          * updates in the states of (colibri) conferences organized by the
          * application.
          */
@@ -181,7 +181,7 @@ public class OperationSetVideoBridgeImpl
                             = callJabberImpl.getConference();
 
                         if ((conference != null)
-                                && conference.isJitsiVideoBridge())
+                                && conference.isJitsiVideobridge())
                         {
                             /*
                              * TODO We may want to disallow rogue CallJabberImpl

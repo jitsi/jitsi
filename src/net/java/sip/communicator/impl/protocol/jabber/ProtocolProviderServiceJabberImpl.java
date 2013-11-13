@@ -1694,7 +1694,7 @@ public class ProtocolProviderServiceJabberImpl
                                           JingleInfoQueryIQ.NAMESPACE,
                                           new JingleInfoQueryIQProvider());
 
-            // Jitsi VideoBridge IQProvider and PacketExtensionProvider
+            // Jitsi Videobridge IQProvider and PacketExtensionProvider
             providerManager.addIQProvider(
                     ColibriConferenceIQ.ELEMENT_NAME,
                     ColibriConferenceIQ.NAMESPACE,
@@ -1764,12 +1764,12 @@ public class ProtocolProviderServiceJabberImpl
                     new OperationSetResAwareTelephonyJabberImpl(basicTelephony));
 
                 // Only init video bridge if enabled
-                boolean isVideoBridgeDisabled
+                boolean isVideobridgeDisabled
                     = JabberActivator.getConfigurationService()
                       .getBoolean(OperationSetVideoBridge.
                           IS_VIDEO_BRIDGE_DISABLED, false);
 
-                if (!isVideoBridgeDisabled)
+                if (!isVideobridgeDisabled)
                 {
                     // init video bridge
                     addSupportedOperationSet(
@@ -2756,14 +2756,14 @@ public class ProtocolProviderServiceJabberImpl
     }
 
     /**
-     * Gets the entity ID of the first Jitsi VideoBridge associated with
+     * Gets the entity ID of the first Jitsi Videobridge associated with
      * {@link #connection} i.e. provided by the <tt>serviceName</tt> of
      * <tt>connection</tt>.
      *
-     * @return the entity ID of the first Jitsi VideoBridge associated with
+     * @return the entity ID of the first Jitsi Videobridge associated with
      * <tt>connection</tt>
      */
-    public String getJitsiVideoBridge()
+    public String getJitsiVideobridge()
     {
         XMPPConnection connection = getConnection();
 

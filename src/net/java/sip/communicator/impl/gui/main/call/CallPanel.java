@@ -506,7 +506,7 @@ public class CallPanel
         {
             ConferenceInviteDialog inviteDialog;
 
-            if (callConference.isJitsiVideoBridge())
+            if (callConference.isJitsiVideobridge())
             {
                 inviteDialog
                     = new ConferenceInviteDialog(
