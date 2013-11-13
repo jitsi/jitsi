@@ -1,22 +1,36 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- *
- * Distributable under LGPL license.
- * See terms of license at gnu.org.
+ * 
+ * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.impl.protocol.irc;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import net.java.sip.communicator.service.protocol.ChatRoomMember;
+import net.java.sip.communicator.service.protocol.ChatRoomMemberRole;
+import net.java.sip.communicator.service.protocol.RegistrationState;
+import net.java.sip.communicator.service.protocol.event.ChatRoomMessageReceivedEvent;
+import net.java.sip.communicator.service.protocol.event.LocalUserChatRoomPresenceChangeEvent;
+import net.java.sip.communicator.util.Logger;
 
 import com.ircclouds.irc.api.Callback;
 import com.ircclouds.irc.api.IRCApi;
 import com.ircclouds.irc.api.IRCApiImpl;
 import com.ircclouds.irc.api.IServerParameters;
+import com.ircclouds.irc.api.domain.IRCChannel;
 import com.ircclouds.irc.api.domain.IRCServer;
+import com.ircclouds.irc.api.domain.messages.ChanJoinMessage;
+import com.ircclouds.irc.api.domain.messages.ChanPartMessage;
+import com.ircclouds.irc.api.domain.messages.ChannelPrivMsg;
+import com.ircclouds.irc.api.domain.messages.ServerNotice;
+import com.ircclouds.irc.api.domain.messages.ServerNumericMessage;
+import com.ircclouds.irc.api.domain.messages.interfaces.IMessage;
+import com.ircclouds.irc.api.listeners.IMessageListener;
+import com.ircclouds.irc.api.listeners.VariousMessageListenerAdapter;
 import com.ircclouds.irc.api.state.IIRCState;
-
-import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * An implementation of the PircBot IRC stack.
@@ -26,33 +40,60 @@ public class IrcStack
     private static final Logger LOGGER = Logger.getLogger(IrcStack.class);
 
     private final ProtocolProviderServiceIrcImpl provider;
-    
+
     private final IRCApi irc = new IRCApiImpl(true);
-    
+
     private final ServerParameters params;
 
     private IIRCState connectionState;
-    
-    public IrcStack(final ProtocolProviderServiceIrcImpl parentProvider, final String nick, final String login, final String version, final String finger)
+
+    public IrcStack(final ProtocolProviderServiceIrcImpl parentProvider,
+        final String nick, final String login, final String version,
+        final String finger)
     {
         if (parentProvider == null)
         {
             throw new NullPointerException("parentProvider cannot be null");
         }
         this.provider = parentProvider;
-        this.params = new IrcStack.ServerParameters(nick, "", finger, null);
+        this.params =
+            new IrcStack.ServerParameters(nick, login, finger, null);
     }
-    
+
     public boolean isConnected()
     {
-        return (this.connectionState != null && this.connectionState.isConnected());
+        return (this.connectionState != null && this.connectionState
+            .isConnected());
     }
-    
-    public void connect(String host, int port, String password, boolean autoNickChange)
+
+    public void connect(String host, int port, String password,
+        boolean autoNickChange)
     {
+        if (this.connectionState != null && this.connectionState.isConnected())
+            return;
+
         this.params.setServer(new IRCServer(host, port, password, false));
-        synchronized(this.irc)
+        synchronized (this.irc)
         {
+            this.irc.addListener(new IMessageListener()
+            {
+
+                @Override
+                public void onMessage(IMessage msg)
+                {
+                    if (msg instanceof ServerNotice)
+                    {
+                        System.out.println("NOTICE: "
+                            + ((ServerNotice) msg).getText());
+                    }
+                    else if (msg instanceof ServerNumericMessage)
+                    {
+                        System.out.println("NUM MSG: "
+                            + ((ServerNumericMessage) msg).getNumericCode()
+                            + ": " + ((ServerNumericMessage) msg).getText());
+                    }
+                }
+            });
             // start connecting to the specified server ...
             this.irc.connect(this.params, new Callback<IIRCState>()
             {
@@ -60,7 +101,7 @@ public class IrcStack
                 @Override
                 public void onSuccess(IIRCState state)
                 {
-                    synchronized(IrcStack.this.irc)
+                    synchronized (IrcStack.this.irc)
                     {
                         System.out.println("IRC connected successfully!");
                         IrcStack.this.connectionState = state;
@@ -71,51 +112,65 @@ public class IrcStack
                 @Override
                 public void onFailure(Exception e)
                 {
-                    synchronized(IrcStack.this.irc)
+                    synchronized (IrcStack.this.irc)
                     {
                         System.out.println("IRC connection FAILED!");
                         e.printStackTrace();
                         IrcStack.this.connectionState = null;
+                        IrcStack.this.disconnect();
                         IrcStack.this.irc.notifyAll();
                     }
                 }
             });
-            
+
             // wait while the irc connection is being established ...
             try
             {
                 System.out.println("Waiting for a connection ...");
                 this.irc.wait();
+                if (this.connectionState != null
+                    && this.connectionState.isConnected())
+                {
+                    this.provider
+                        .setCurrentRegistrationState(RegistrationState.REGISTERED);
+                }
+                else
+                {
+                    // TODO Get reason from other thread.
+                    this.provider
+                        .setCurrentRegistrationState(RegistrationState.UNREGISTERED);
+                }
             }
             catch (InterruptedException e)
             {
+                this.provider
+                    .setCurrentRegistrationState(RegistrationState.UNREGISTERED);
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-            
-            //TODO do something on connection fail!
         }
     }
-    
+
     public void disconnect()
     {
-        if(this.connectionState != null)
+        if (this.connectionState != null)
         {
             this.irc.disconnect();
             this.connectionState = null;
         }
     }
-    
+
     public void dispose()
     {
         disconnect();
     }
-    
+
     public String getNick()
     {
-        return (this.connectionState == null) ? this.params.getNickname() : this.connectionState.getNickname();
+        return (this.connectionState == null) ? this.params.getNickname()
+            : this.connectionState.getNickname();
     }
-    
+
     public void setUserNickname(String nick)
     {
         if (this.connectionState == null)
@@ -127,97 +182,116 @@ public class IrcStack
             this.irc.changeNick(nick);
         }
     }
-    
+
     public void setSubject(ChatRoomIrcImpl chatroom, String subject)
     {
         if (this.connectionState == null)
-            throw new IllegalStateException("Please connect to an IRC server first.");
+            throw new IllegalStateException(
+                "Please connect to an IRC server first.");
         if (chatroom == null)
             throw new IllegalArgumentException("Cannot have a null chatroom");
-        this.irc.changeTopic(chatroom.getName(), subject == null ? "" : subject);
+        this.irc
+            .changeTopic(chatroom.getName(), subject == null ? "" : subject);
     }
-    
+
     public boolean isJoined(ChatRoomIrcImpl chatroom)
     {
-        //TODO Implement this.
+        //TODO Fix this method!
+        String chatRoomName = chatroom.getIdentifier();
+        for(IRCChannel channel : this.connectionState.getChannels())
+        {
+            if (chatRoomName.equals(channel.getName()))
+            {
+                return true;
+            }
+        }
         return false;
     }
-    
+
     public List<String> getServerChatRoomList()
     {
-        //TODO Implement this.
+        // TODO Implement this.
         return new ArrayList<String>();
     }
-    
+
     public void join(ChatRoomIrcImpl chatroom)
     {
-        join(chatroom, "".getBytes());
+        join(chatroom, "");
     }
-    
-    public void join(ChatRoomIrcImpl chatroom, byte[] password)
+
+    public void join(ChatRoomIrcImpl chatroom, String password)
     {
-        //TODO password as String
+        // TODO password as String
         if (chatroom == null)
             throw new IllegalArgumentException("chatroom cannot be null");
         if (password == null)
             throw new IllegalArgumentException("password cannot be null");
-        //TODO add chatroom listener
-        this.irc.joinChannel(chatroom.getName(), password.toString());
+        this.irc.addListener(new ChatRoomListener(chatroom));
+        this.irc.joinChannel(chatroom.getIdentifier(), password);
     }
-    
+
     public void leave(ChatRoomIrcImpl chatroom)
     {
-        //TODO Implement this.
+        this.irc.leaveChannel(chatroom.getIdentifier());
     }
-    
-    public void banParticipant(ChatRoomIrcImpl chatroom, ChatRoomMember member, String reason)
+
+    public void banParticipant(ChatRoomIrcImpl chatroom, ChatRoomMember member,
+        String reason)
     {
-        //TODO Implement this.
+        // TODO Implement this.
     }
-    
-    public void kickParticipant(ChatRoomIrcImpl chatroom, ChatRoomMember member, String reason)
+
+    public void kickParticipant(ChatRoomIrcImpl chatroom,
+        ChatRoomMember member, String reason)
     {
-        //TODO Implement this.
+        this.irc.kick(chatroom.getName(), member.getContactAddress());
     }
-    
+
     public void invite(String memberId, ChatRoomIrcImpl chatroom)
     {
-        //TODO Implement this.
+        // TODO Implement this.
     }
-    
+
     public void command(ChatRoomIrcImpl chatroom, String command)
     {
-        //TODO Implement this.
+        // TODO Implement this.
     }
-    
+
     public void message(ChatRoomIrcImpl chatroom, String message)
     {
-        //TODO Implement this.
+        this.irc.message(chatroom.getIdentifier(), message);
     }
-    
-    private static class ServerParameters implements IServerParameters {
+
+    private static class ServerParameters
+        implements IServerParameters
+    {
 
         private String nick;
+
         private List<String> alternativeNicks = new ArrayList<String>();
+
         private String real;
+
         private String ident;
+
         private IRCServer server;
-        
-        private ServerParameters(String nickName, String realName, String ident, IRCServer server)
+
+        private ServerParameters(String nickName, String realName,
+            String ident, IRCServer server)
         {
             this.nick = nickName;
-            this.alternativeNicks.add(nickName+"_");
+            this.alternativeNicks.add(nickName + "_");
             this.real = realName;
             this.ident = ident;
             this.server = server;
         }
-        
+
         @Override
         public String getNickname()
         {
             return this.nick;
         }
-        
+
         public void setNickname(String nick)
         {
             this.nick = nick;
@@ -228,7 +302,7 @@ public class IrcStack
         {
             return this.alternativeNicks;
         }
-        
+
         public void setAlternativeNicknames(List<String> names)
         {
             this.alternativeNicks = names;
@@ -239,7 +313,7 @@ public class IrcStack
         {
             return this.ident;
         }
-        
+
         public void setIdent(String ident)
         {
             this.ident = ident;
@@ -250,7 +324,7 @@ public class IrcStack
         {
             return this.real;
         }
-        
+
         public void setRealname(String realname)
         {
             this.real = realname;
@@ -261,10 +335,66 @@ public class IrcStack
         {
             return this.server;
         }
-        
+
         public void setServer(IRCServer server)
         {
             this.server = server;
+        }
+    }
+
+    private class ChatRoomListener
+        extends VariousMessageListenerAdapter
+    {
+        private ChatRoomIrcImpl chatroom;
+
+        private ChatRoomListener(ChatRoomIrcImpl chatroom)
+        {
+            if (chatroom == null)
+                throw new IllegalArgumentException("chatroom cannot be null");
+
+            this.chatroom = chatroom;
+        }
+
+        @Override
+        public void onChannelJoin(ChanJoinMessage msg)
+        {
+            if (chatroom.getIdentifier().equals(msg.getChannelName()))
+            {
+                IrcStack.this.provider.getMUC().fireLocalUserPresenceEvent(
+                    this.chatroom,
+                    LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_JOINED,
+                    null);
+            }
+        }
+
+        @Override
+        public void onChannelPart(ChanPartMessage msg)
+        {
+            if (this.chatroom.getIdentifier().equals(msg.getChannelName()))
+            {
+                IrcStack.this.provider.getMUC().fireLocalUserPresenceEvent(
+                    this.chatroom,
+                    LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_LEFT, null);
+                IrcStack.this.irc.deleteListener(this);
+            }
+        }
+
+        @Override
+        public void onChannelMessage(ChannelPrivMsg msg)
+        {
+            if (this.chatroom.getIdentifier().equals(msg.getChannelName()))
+            {
+                MessageIrcImpl message =
+                    new MessageIrcImpl(msg.getText(), "text/plain", "UTF-8",
+                        null);
+                ChatRoomMemberIrcImpl member =
+                    new ChatRoomMemberIrcImpl(IrcStack.this.provider,
+                        this.chatroom, msg.getSource().getNick(),
+                        ChatRoomMemberRole.MEMBER);
+                this.chatroom.fireMessageReceivedEvent(message, member,
+                    new Date(),
+                    ChatRoomMessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED);
+            }
         }
     }
 }

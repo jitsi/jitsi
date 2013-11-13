@@ -207,7 +207,7 @@ public class ChatRoomIrcImpl
      */
     public void join(byte[] password) throws OperationFailedException
     {
-        parentProvider.getIrcStack().join(this, password);
+        parentProvider.getIrcStack().join(this, password.toString());
     }
 
     /**
@@ -1064,7 +1064,8 @@ public class ChatRoomIrcImpl
      */
     public ChatRoomMemberRole getUserRole()
     {
-        throw new UnsupportedOperationException("Not supported yet.");
+        //TODO Implement correctly, now uses dummy value.
+        return ChatRoomMemberRole.MEMBER;
     }
 
     /**

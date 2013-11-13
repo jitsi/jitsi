@@ -101,10 +101,15 @@ public class ProtocolProviderServiceIrcImpl
                         userID,
                         userID,
                         "Jitsi",
-                        "");
+                        userID);
 
             isInitialized = true;
         }
+    }
+    
+    public OperationSetMultiUserChatIrcImpl getMUC()
+    {
+        return this.multiUserChat;
     }
 
     /**
