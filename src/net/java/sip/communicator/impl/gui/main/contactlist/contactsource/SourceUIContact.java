@@ -16,9 +16,11 @@ import org.jitsi.service.resources.*;
 import org.jitsi.util.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -411,7 +413,19 @@ public class SourceUIContact
     @Override
     public JPopupMenu getRightButtonMenu()
     {
-        return new SourceContactRightButtonMenu(this);
+        if(!(sourceContact instanceof MetaContact) && 
+            (sourceContact.getPreferredContactDetail(
+                OperationSetMultiUserChat.class) 
+                != null))
+        {
+            return new ChatRoomRightButtonMenu(
+                GuiActivator.getMUCService()
+                    .findChatRoomWrapperFromSourceContact(sourceContact));
+        }
+        else
+        {
+            return new SourceContactRightButtonMenu(this);
+        }
     }
 
     /**

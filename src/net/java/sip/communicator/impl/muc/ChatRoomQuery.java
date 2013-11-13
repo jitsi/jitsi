@@ -10,6 +10,7 @@ import java.util.regex.*;
 
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.muc.*;
+import net.java.sip.communicator.service.muc.ChatRoomList.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 
@@ -21,7 +22,8 @@ import net.java.sip.communicator.service.protocol.event.*;
  */
 public class ChatRoomQuery
     extends AsyncContactQuery<ContactSourceService>
-    implements LocalUserChatRoomPresenceListener, ChatRoomListChangeListener
+    implements LocalUserChatRoomPresenceListener, ChatRoomListChangeListener, 
+    ChatRoomProviderWrapperListener
 {
     /**
      * The query string.
@@ -32,6 +34,17 @@ public class ChatRoomQuery
      * The contact count.
      */
     private int count = 0;
+    
+    /**
+     * List with the current results for the query.
+     */
+    private List<ChatRoomSourceContact> contactResults
+        = new LinkedList<ChatRoomSourceContact>();
+    
+    /**
+     * MUC service.
+     */
+    private MUCServiceImpl mucService;
     
     /**
      * Creates an instance of <tt>ChatRoomQuery</tt> by specifying
@@ -50,44 +63,70 @@ public class ChatRoomQuery
                             | Pattern.LITERAL), true);
         this.count = count;
         this.queryString = queryString;
-        for(ProtocolProviderService pps : MUCActivator
-            .getChatRoomProviders())
+        for(ProtocolProviderService pps : MUCActivator.getChatRoomProviders())
         {
-            OperationSetMultiUserChat opSetMUC 
-                = pps.getOperationSet(OperationSetMultiUserChat.class);
-            if(opSetMUC != null)
-            {
-                opSetMUC.addPresenceListener(this);
-            }
+            addQueryToProviderPresenceListeners(pps);
         }
         
-        MUCActivator.getMUCService().addChatRoomListChangeListener(this);
+        mucService = MUCActivator.getMUCService();
+        mucService.addChatRoomListChangeListener(this);
+        mucService.addChatRoomProviderWrapperListener(this);
+    }
+    
+    public void addQueryToProviderPresenceListeners(ProtocolProviderService pps)
+    {
+        OperationSetMultiUserChat opSetMUC 
+            = pps.getOperationSet(OperationSetMultiUserChat.class);
+        if(opSetMUC != null)
+        {
+            opSetMUC.addPresenceListener(this);
+        }
+    }
+    
+    public void removeQueryFromProviderPresenceListeners(
+        ProtocolProviderService pps)
+    {
+        OperationSetMultiUserChat opSetMUC 
+            = pps.getOperationSet(OperationSetMultiUserChat.class);
+        if(opSetMUC != null)
+        {
+            opSetMUC.removePresenceListener(this);
+        }
     }
     
     @Override
     protected void run()
     {
         Iterator<ChatRoomProviderWrapper> chatRoomProviders
-            = MUCActivator
-                .getMUCService().getChatRoomList().getChatRoomProviders();
+            = mucService.getChatRoomList().getChatRoomProviders();
+        
         while (chatRoomProviders.hasNext())
         {
             ChatRoomProviderWrapper provider = chatRoomProviders.next();
-            for(int i = 0; i < provider.countChatRooms(); i++)
-            {
-                if(count > 0 && getQueryResultCount() > count)
-                {
-                    if (getStatus() != QUERY_CANCELED)
-                        setStatus(QUERY_COMPLETED);
-                    return;
-                }
-                ChatRoomWrapper chatRoom = provider.getChatRoom(i);
-                addChatRoom( provider.getProtocolProvider(), 
-                    chatRoom.getChatRoomName(), chatRoom.getChatRoomID());
-            }
+            providerAdded(provider, true);
         }
+        
         if (getStatus() != QUERY_CANCELED)
             setStatus(QUERY_COMPLETED);
+    }
+    
+    private void providerAdded(ChatRoomProviderWrapper provider, 
+        boolean addQueryResult)
+    {
+       
+        for(int i = 0; i < provider.countChatRooms(); i++)
+        {
+            if(count > 0 && getQueryResultCount() > count)
+            {
+                if (getStatus() != QUERY_CANCELED)
+                    setStatus(QUERY_COMPLETED);
+                return;
+            }
+            ChatRoomWrapper chatRoom = provider.getChatRoom(i);
+            addChatRoom( provider.getProtocolProvider(), 
+                chatRoom.getChatRoomName(), chatRoom.getChatRoomID(), 
+                addQueryResult);
+        }
     }
     
     /**
@@ -106,15 +145,19 @@ public class ChatRoomQuery
         
         boolean existingContact = false;
         SourceContact foundContact = null;
-        for(SourceContact contact : getQueryResults())
+        synchronized (contactResults)
         {
-            if(contact.getContactAddress().equals(sourceChatRoom.getName()))
+            for(SourceContact contact : contactResults)
             {
-                existingContact = true;
-                foundContact = contact;
-                break;
+                if(contact.getContactAddress().equals(sourceChatRoom.getName()))
+                {
+                    existingContact = true;
+                    foundContact = contact;
+                    break;
+                }
             }
         }
+        
         
         if (LocalUserChatRoomPresenceChangeEvent
             .LOCAL_USER_JOINED.equals(eventType))
@@ -127,13 +170,7 @@ public class ChatRoomQuery
             }
             else
             {
-                if(queryString == null
-                    || ((sourceChatRoom.getName().startsWith(
-                                    queryString)
-                            || sourceChatRoom.getIdentifier().startsWith(queryString)
-                            )))
-                    addQueryResult(
-                        new ChatRoomSourceContact(sourceChatRoom,this));
+                addChatRoom(sourceChatRoom, false);
             }
         }
         else if ((LocalUserChatRoomPresenceChangeEvent
@@ -160,9 +197,45 @@ public class ChatRoomQuery
      * @param pps the protocol provider associated with the found chat room.
      * @param chatRoomName the name of the chat room.
      * @param chatRoomID the id of the chat room.
+     * @param addQueryResult 
+     */
+    private void addChatRoom(ChatRoom room, boolean addQueryResult)
+    {
+        if(queryString == null
+            || ((room.getName().startsWith(
+                            queryString)
+                    || room.getIdentifier().startsWith(queryString)
+                    )))
+        {
+            ChatRoomSourceContact contact 
+                = new ChatRoomSourceContact(room, this);
+            synchronized (contactResults)
+            {
+                contactResults.add(contact);
+            }
+            
+            if(addQueryResult)
+            {
+                addQueryResult(contact);
+            }
+            else
+            {
+                fireContactReceived(contact);
+            }
+        }
+    }
+    
+    
+    /**
+     * Adds found result to the query results.
+     * 
+     * @param pps the protocol provider associated with the found chat room.
+     * @param chatRoomName the name of the chat room.
+     * @param chatRoomID the id of the chat room.
+     * @param addQueryResult 
      */
     private void addChatRoom(ProtocolProviderService pps, 
-        String chatRoomName, String chatRoomID)
+        String chatRoomName, String chatRoomID, boolean addQueryResult)
     {
         if(queryString == null
             || ((chatRoomName.startsWith(
@@ -170,8 +243,21 @@ public class ChatRoomQuery
                     || chatRoomID.startsWith(queryString)
                     )))
         {
-            addQueryResult(
-                new ChatRoomSourceContact(chatRoomName, chatRoomID, this, pps));
+            ChatRoomSourceContact contact 
+                = new ChatRoomSourceContact(chatRoomName, chatRoomID, this, pps);
+            synchronized (contactResults)
+            {
+                contactResults.add(contact);
+            }
+            
+            if(addQueryResult)
+            {
+                addQueryResult(contact);
+            }
+            else
+            {
+                fireContactReceived(contact);
+            }
         }
     }
 
@@ -183,30 +269,59 @@ public class ChatRoomQuery
     public void contentChanged(ChatRoomListChangeEvent evt)
     {
         ChatRoomWrapper chatRoom = evt.getSourceChatRoom();
-        
         switch(evt.getEventID())
         {
             case ChatRoomListChangeEvent.CHAT_ROOM_ADDED:
-                if(queryString == null
-                    || ((chatRoom.getChatRoomName().startsWith(
-                                    queryString)
-                            || chatRoom.getChatRoomID().startsWith(queryString)
-                            )))
-                    addQueryResult(
-                        new ChatRoomSourceContact(chatRoom.getChatRoom(),this));
+                addChatRoom(chatRoom.getChatRoom(), false);
                 break;
             case ChatRoomListChangeEvent.CHAT_ROOM_REMOVED:
-                for(SourceContact contact : getQueryResults())
+                LinkedList<ChatRoomSourceContact> tmpContactResults;
+                synchronized (contactResults)
                 {
-                    if(contact.getContactAddress().equals(chatRoom.getChatRoomName()))
+                    tmpContactResults 
+                        = new LinkedList<ChatRoomSourceContact>(contactResults);
+                
+                
+                    for(ChatRoomSourceContact contact : tmpContactResults)
                     {
-                        fireContactRemoved(contact);
-                        break;
+                        if(contact.getContactAddress().equals(
+                            chatRoom.getChatRoomName()))
+                        {
+                            contactResults.remove(contact);
+                            fireContactRemoved(contact);
+                            break;
+                        }
                     }
                 }
                 break;
             default:
                 break;
+        }
+    }
+    
+    @Override
+    public void chatRoomProviderWrapperAdded(ChatRoomProviderWrapper provider)
+    {
+        providerAdded(provider, false);
+    }
+
+    @Override
+    public void chatRoomProviderWrapperRemoved(ChatRoomProviderWrapper provider)
+    {
+        LinkedList<ChatRoomSourceContact> tmpContactResults;
+        synchronized (contactResults)
+        {
+            tmpContactResults 
+                = new LinkedList<ChatRoomSourceContact>(contactResults);
+        
+            for(ChatRoomSourceContact contact : tmpContactResults)
+            {
+                if(contact.getProvider().equals(provider.getProtocolProvider()))
+                {
+                    contactResults.remove(contact);
+                    fireContactRemoved(contact);
+                }
+            }
         }
     }
 }

@@ -929,6 +929,17 @@ public class MUCServiceImpl
     }
     
     /**
+     * Adds a ChatRoomProviderWrapperListener to the listener list.
+     *
+     * @param listener the ChatRoomProviderWrapperListener to be added
+     */
+    public  void removeChatRoomProviderWrapperListener(
+        ChatRoomList.ChatRoomProviderWrapperListener listener)
+    {
+        chatRoomList.removeChatRoomProviderWrapperListener(listener);
+    }
+    
+    /**
      * Returns the <tt>ChatRoomProviderWrapper</tt> that correspond to the
      * given <tt>ProtocolProviderService</tt>. If the list doesn't contain a
      * corresponding wrapper - returns null.

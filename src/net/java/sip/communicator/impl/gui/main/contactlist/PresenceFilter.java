@@ -11,8 +11,10 @@ import java.util.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
 import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.event.*;
+import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
@@ -60,19 +62,53 @@ public class PresenceFilter
     {
         // Create the query that will track filtering.
         MetaContactQuery query = new MetaContactQuery();
-
+        
         // Add this query to the filterQuery.
         filterQuery.addContactQuery(query);
+        
+        List<ContactQuery> contactQueryList = new ArrayList<ContactQuery>();
+        Iterator<UIContactSource> filterSources 
+            = GuiActivator.getContactList().getContactSources(
+                ContactSourceService.PRESENCE_TYPE).iterator();
+        
+        while (filterSources.hasNext())
+        {
+            final UIContactSource filterSource
+                = filterSources.next();
+            
+            ContactSourceService sourceService =
+                filterSource.getContactSourceService();
+            
+            ContactQuery contactQuery = sourceService.queryContactSource(null);
+            
+            contactQueryList.add(contactQuery);
+            
+            
+            // Add this query to the filterQuery.
+            filterQuery.addContactQuery(contactQuery);
+        }
+        
         // Closes this filter to indicate that we finished adding queries to it.
         filterQuery.close();
 
         query.addContactQueryListener(GuiActivator.getContactList());
+        
+        
 
         int resultCount = 0;
         addMatching(GuiActivator.getContactListService().getRoot(),
                     query,
                     resultCount);
-
+        
+        for(ContactQuery contactQuery : contactQueryList)
+        {
+            for(SourceContact contact : contactQuery.getQueryResults())
+            {
+                addSourceContact(contact);
+            }
+            contactQuery.addContactQueryListener(GuiActivator.getContactList());
+        }
+        
         if (!query.isCanceled())
             query.fireQueryEvent(MetaContactQueryStatusEvent.QUERY_COMPLETED);
         else
@@ -91,6 +127,8 @@ public class PresenceFilter
         Object descriptor = uiContact.getDescriptor();
         if (descriptor instanceof MetaContact)
             return isMatching((MetaContact) descriptor);
+        else if (descriptor instanceof SourceContact)
+            return isMatching((SourceContact)descriptor);
 
         return false;
     }
@@ -146,6 +184,20 @@ public class PresenceFilter
     public boolean isMatching(MetaContact metaContact)
     {
         return isShowOffline || isContactOnline(metaContact);
+    }
+    
+    /**
+     * Returns <tt>true</tt> if offline contacts are shown or if the given
+     * <tt>MetaContact</tt> is online, otherwise returns false.
+     *
+     * @param metaContact the <tt>MetaContact</tt> to check
+     * @return <tt>true</tt> if the given <tt>MetaContact</tt> is matching this
+     * filter
+     */
+    public boolean isMatching(SourceContact contact)
+    {
+        return isShowOffline || contact.getPresenceStatus().equals(
+            ChatRoomPresenceStatus.CHAT_ROOM_ONLINE);
     }
 
     /**
@@ -275,5 +327,36 @@ public class PresenceFilter
                 addMatching(subgroup, query, resultCount);
             }
         }
+    }
+    
+    /**
+     * Adds the given <tt>sourceContact</tt> to the contact list.
+     * @param sourceContact the <tt>SourceContact</tt> to add
+     */
+    private void addSourceContact(SourceContact sourceContact)
+    {
+        ContactSourceService contactSource
+            = sourceContact.getContactSource();
+
+        TreeContactList sourceContactList = GuiActivator.getContactList();
+        UIContactSource sourceUI
+            = sourceContactList .getContactSource(contactSource);
+
+        if (sourceUI != null
+            // ExtendedContactSourceService has already matched the
+            // SourceContact over the pattern
+            && (contactSource instanceof ExtendedContactSourceService)
+                || isMatching(sourceContact))
+        {
+            boolean isSorted = (sourceContact.getIndex() > -1) ? true : false;
+
+            sourceContactList.addContact(
+                sourceUI.createUIContact(sourceContact),
+                sourceUI.getUIGroup(),
+                isSorted,
+                true);
+        }
+        else
+            sourceUI.removeUIContact(sourceContact);
     }
 }

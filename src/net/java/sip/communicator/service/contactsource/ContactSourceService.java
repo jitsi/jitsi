@@ -29,6 +29,11 @@ public interface ContactSourceService
      * Type of a history source. Queries only when history should be shown.
      */
     public static final int HISTORY_TYPE = 2;
+    
+    /**
+     * Type of a presence source. Queries when presence should be shown.
+     */
+    public static final int PRESENCE_TYPE = 3;
 
     /**
      * Returns the type of this contact source.

@@ -50,7 +50,7 @@ public class MUCActivator
     private static List<ProtocolProviderService> chatRoomProviders;
 
     /**
-     * The contact source.
+     * The chat room contact source.
      */
     private static final ChatRoomContactSourceService chatRoomContactSource
         = new ChatRoomContactSourceService();
@@ -65,10 +65,19 @@ public class MUCActivator
      */
     private static MUCServiceImpl mucService;
 
+    /**
+     * The account manager.
+     */
     private static AccountManager accountManager;
 
+    /**
+     * The alert UI service.
+     */
     private static AlertUIService alertUIService;
 
+    /**
+     * The credential storage service.
+     */
     private static CredentialsStorageService credentialsService;
 
     /**
@@ -95,10 +104,25 @@ public class MUCActivator
     {
     }
 
+    /**
+     * Returns the MUC service instance.
+     * @return the MUC service instance.
+     */
     public static MUCServiceImpl getMUCService()
     {
         return mucService;
     }
+    
+    /**
+     * Returns the chat room contact source.
+     * 
+     * @return the chat room contact source
+     */
+    public static ChatRoomContactSourceService getContactSource()
+    {
+        return chatRoomContactSource;
+    }
+    
     /**
      * Returns a reference to the ResourceManagementService implementation
      * currently registered in the bundle context or null if no such
@@ -198,7 +222,7 @@ public class MUCActivator
     {
         if (chatRoomProviders != null)
             return chatRoomProviders;
-
+        
         chatRoomProviders = new LinkedList<ProtocolProviderService>();
 
         bundleContext.addServiceListener(new ProtocolProviderRegListener());
@@ -275,9 +299,15 @@ public class MUCActivator
             {
             case ServiceEvent.REGISTERED:
                 handleProviderAdded((ProtocolProviderService) service);
+                for(ChatRoomQuery query : getContactSource().getQueries())
+                    query.addQueryToProviderPresenceListeners(
+                        (ProtocolProviderService) service);
                 break;
             case ServiceEvent.UNREGISTERING:
                 handleProviderRemoved((ProtocolProviderService) service);
+                for(ChatRoomQuery query : getContactSource().getQueries())
+                    query.removeQueryFromProviderPresenceListeners(
+                        (ProtocolProviderService) service);
                 break;
             }
         }
@@ -294,7 +324,6 @@ public class MUCActivator
     {
         if (protocolProvider.getOperationSet(
                 OperationSetMultiUserChat.class) != null
-            && protocolProvider.isRegistered()
             && !chatRoomProviders.contains(protocolProvider))
         {
             chatRoomProviders.add(protocolProvider);

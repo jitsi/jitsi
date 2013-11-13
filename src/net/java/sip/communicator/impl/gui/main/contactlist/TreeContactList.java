@@ -21,7 +21,6 @@ import net.java.sip.communicator.impl.gui.main.chat.conference.ConferenceChatMan
 import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.notifsource.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.impl.muc.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.contactsource.*;
@@ -210,6 +209,7 @@ public class TreeContactList
      */
     public void contactReceived(ContactReceivedEvent event)
     {
+        
         final SourceContact sourceContact = event.getContact();
 
         ContactSourceService contactSource
@@ -219,6 +219,7 @@ public class TreeContactList
 
         if (sourceUI == null)
             return;
+        
         UIContact uiContact
             = sourceUI.createUIContact(sourceContact);
 
@@ -228,7 +229,6 @@ public class TreeContactList
             || currentFilter.isMatching(uiContact))
         {
             boolean isSorted = (sourceContact.getIndex() > -1) ? true : false;
-
             addContact(event.getQuerySource(),
                 uiContact,
                 sourceUI.getUIGroup(), isSorted);
@@ -1252,8 +1252,8 @@ public class TreeContactList
                 UIContact uiContact
                     = ((ContactNode) lastComponent).getContactDescriptor();
 
-                if (((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0
-                        || (e.isControlDown() && !e.isMetaDown())))
+                if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0
+                        || (e.isControlDown() && !e.isMetaDown()))
                 {
                     rightButtonMenu = uiContact.getRightButtonMenu();
 

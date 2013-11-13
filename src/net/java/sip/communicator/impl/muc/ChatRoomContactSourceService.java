@@ -30,7 +30,7 @@ public class ChatRoomContactSourceService
      */
     public int getType()
     {
-        return DEFAULT_TYPE;
+        return PRESENCE_TYPE;
     }
 
     /**
@@ -97,6 +97,10 @@ public class ChatRoomContactSourceService
         return contactQuery;
     }
 
+    public synchronized List<ChatRoomQuery> getQueries()
+    {
+        return queries;
+    }
     /**
      * Returns the index of the contact source in the result list.
      *

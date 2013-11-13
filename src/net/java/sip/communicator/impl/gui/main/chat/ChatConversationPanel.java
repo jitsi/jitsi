@@ -1346,7 +1346,8 @@ public class ChatConversationPanel
             }
             catch (URISyntaxException e1)
             {
-                logger.error("Invalid URL", e1);
+                logger.error("Failed to open hyperlink in chat window. " +
+                		"Error was: Invalid URL - " + currentHref);
                 return;
             }
             if("jitsi".equals(uri.getScheme()))
