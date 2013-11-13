@@ -379,7 +379,7 @@ public class P2PTransportManager
                         null,
                         ufrag);
 
-                    component.addUpdateRemoteCandidate(remoteCandidate);
+                    component.addUpdateRemoteCandidates(remoteCandidate);
                 }
             }
 
@@ -387,7 +387,7 @@ public class P2PTransportManager
             for(IceMediaStream stream : iceAgent.getStreams())
             {
                 for(Component component : stream.getComponents())
-                    component.updateRemoteCandidate();
+                    component.updateRemoteCandidates();
             }
 
             return false;

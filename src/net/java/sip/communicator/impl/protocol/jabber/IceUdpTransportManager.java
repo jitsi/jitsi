@@ -908,7 +908,7 @@ public class IceUdpTransportManager
                     }
                     RemoteCandidate relatedCandidate
                         = component.findRemoteCandidate(relatedAddr);
-                    component.addUpdateRemoteCandidate(
+                    component.addUpdateRemoteCandidates(
                             new RemoteCandidate(
                                     new TransportAddress(
                                             candidate.getIP(),
@@ -929,7 +929,7 @@ public class IceUdpTransportManager
             {
                 for(Component component : stream.getComponents())
                 {
-                    component.updateRemoteCandidate();
+                    component.updateRemoteCandidates();
                 }
             }
 
@@ -1440,7 +1440,7 @@ public class IceUdpTransportManager
     {
         if(iceAgent != null)
         {
-            return iceAgent.getNbHarvesting();
+            return iceAgent.getHarvestCount();
         }
         return 0;
     }
@@ -1459,7 +1459,7 @@ public class IceUdpTransportManager
     {
         if(iceAgent != null)
         {
-            return iceAgent.getNbHarvesting(harvesterName);
+            return iceAgent.getHarvestCount(harvesterName);
         }
         return 0;
     }

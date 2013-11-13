@@ -1079,7 +1079,7 @@ public class TransportManagerGTalkImpl
                         // Gingle does not send rel-addr/rel-port infromation.
                         null,
                         ufrag);
-                component.addUpdateRemoteCandidate(remoteCandidate);
+                component.addUpdateRemoteCandidates(remoteCandidate);
             }
 
             /* update all components of all streams */
@@ -1087,7 +1087,7 @@ public class TransportManagerGTalkImpl
             {
                 for(Component component : stream.getComponents())
                 {
-                    component.updateRemoteCandidate();
+                    component.updateRemoteCandidates();
                 }
             }
             return false;
@@ -1535,7 +1535,7 @@ public class TransportManagerGTalkImpl
     {
         if(iceAgent != null)
         {
-            return iceAgent.getNbHarvesting();
+            return iceAgent.getHarvestCount();
         }
         return 0;
     }
@@ -1554,7 +1554,7 @@ public class TransportManagerGTalkImpl
     {
         if(iceAgent != null)
         {
-            return iceAgent.getNbHarvesting(harvesterName);
+            return iceAgent.getHarvestCount(harvesterName);
         }
         return 0;
     }
