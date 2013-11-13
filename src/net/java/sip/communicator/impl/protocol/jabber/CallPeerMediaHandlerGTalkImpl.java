@@ -517,12 +517,12 @@ public class CallPeerMediaHandlerGTalkImpl
                     //SDES
                     // It is important to set SDES before ZRTP in order to make
                     // GTALK application able to work with SDES.
-                    setSDesEncryptionToDescription(
+                    setSDesEncryptionOnDescription(
                             mediaType,
                             description,
                             null);
                     //ZRTP
-                    setZrtpEncryptionToDescription(
+                    setZrtpEncryptionOnDescription(
                             mediaType,
                             description,
                             null);

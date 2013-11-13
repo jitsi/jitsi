@@ -43,9 +43,9 @@ public class RawUdpTransportManager
         = new LinkedList<Iterable<ContentPacketExtension>>();
 
     /**
-     * The information pertaining to the Jisti VideoBridge conference which the
+     * The information pertaining to the Jisti Videobridge conference which the
      * local peer represented by this instance is a focus of. It gives a view of
-     * the whole Jitsi VideoBridge conference managed by the associated
+     * the whole Jitsi Videobridge conference managed by the associated
      * <tt>CallJabberImpl</tt> which provides information specific to this
      * <tt>RawUdpTransportManager</tt> only.
      */
@@ -514,10 +514,10 @@ public class RawUdpTransportManager
             = (theirOffer == null) ? ourAnswer : theirOffer;
 
         /*
-         * If Jitsi VideoBridge is to be used, determine which channels are to
+         * If Jitsi Videobridge is to be used, determine which channels are to
          * be allocated and attempt to allocate them now.
          */
-        if (call.getConference().isJitsiVideoBridge())
+        if (call.getConference().isJitsiVideobridge())
         {
             Map<ContentPacketExtension,ContentPacketExtension> contentMap
                 = new LinkedHashMap
