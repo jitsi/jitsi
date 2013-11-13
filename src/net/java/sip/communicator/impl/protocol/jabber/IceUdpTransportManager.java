@@ -694,10 +694,7 @@ public class IceUdpTransportManager
     {
         CandidatePacketExtension packet = new CandidatePacketExtension();
 
-        //TODO: XMPP expects int values as foundations. Luckily that's exactly
-        //what ice4j is using under the hood at this time. still, we'd need to
-        //make sure that doesn't change ... possibly by setting a property there
-        packet.setFoundation(Integer.parseInt( candidate.getFoundation()));
+        packet.setFoundation(candidate.getFoundation());
 
         Component component = candidate.getParentComponent();
 
@@ -918,7 +915,7 @@ public class IceUdpTransportManager
                                     component,
                                     org.ice4j.ice.CandidateType.parse(
                                             candidate.getType().toString()),
-                                    Integer.toString(candidate.getFoundation()),
+                                    candidate.getFoundation(),
                                     candidate.getPriority(),
                                     relatedCandidate));
                 }
@@ -1023,7 +1020,7 @@ public class IceUdpTransportManager
                                 component,
                                 org.ice4j.ice.CandidateType.parse(
                                         candidate.getType().toString()),
-                                Integer.toString(candidate.getFoundation()),
+                                candidate.getFoundation(),
                                 candidate.getPriority(),
                                 relatedCandidate));
                 startConnectivityEstablishment = true;
