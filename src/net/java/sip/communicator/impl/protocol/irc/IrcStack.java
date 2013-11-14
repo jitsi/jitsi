@@ -6,15 +6,21 @@
 package net.java.sip.communicator.impl.protocol.irc;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import net.java.sip.communicator.service.protocol.ChatRoomMember;
 import net.java.sip.communicator.service.protocol.ChatRoomMemberRole;
 import net.java.sip.communicator.service.protocol.RegistrationState;
+import net.java.sip.communicator.service.protocol.event.ChatRoomMemberPresenceChangeEvent;
 import net.java.sip.communicator.service.protocol.event.ChatRoomMessageReceivedEvent;
+import net.java.sip.communicator.service.protocol.event.ChatRoomPropertyChangeEvent;
 import net.java.sip.communicator.service.protocol.event.LocalUserChatRoomPresenceChangeEvent;
-import net.java.sip.communicator.util.Logger;
 
 import com.ircclouds.irc.api.Callback;
 import com.ircclouds.irc.api.IRCApi;
@@ -22,7 +28,9 @@ import com.ircclouds.irc.api.IRCApiImpl;
 import com.ircclouds.irc.api.IServerParameters;
 import com.ircclouds.irc.api.domain.IRCChannel;
 import com.ircclouds.irc.api.domain.IRCServer;
-import com.ircclouds.irc.api.domain.messages.ChanJoinMessage;
+import com.ircclouds.irc.api.domain.IRCTopic;
+import com.ircclouds.irc.api.domain.IRCUser;
+import com.ircclouds.irc.api.domain.IRCUserStatus;
 import com.ircclouds.irc.api.domain.messages.ChanPartMessage;
 import com.ircclouds.irc.api.domain.messages.ChannelPrivMsg;
 import com.ircclouds.irc.api.domain.messages.ServerNotice;
@@ -37,11 +45,13 @@ import com.ircclouds.irc.api.state.IIRCState;
  */
 public class IrcStack
 {
-    private static final Logger LOGGER = Logger.getLogger(IrcStack.class);
+    //private static final Logger LOGGER = Logger.getLogger(IrcStack.class);
 
     private final ProtocolProviderServiceIrcImpl provider;
 
     private final IRCApi irc = new IRCApiImpl(true);
+    
+    private final Map<String,IRCChannel> joined = Collections.synchronizedMap(new HashMap<String,IRCChannel>());
 
     private final ServerParameters params;
 
@@ -196,16 +206,8 @@ public class IrcStack
 
     public boolean isJoined(ChatRoomIrcImpl chatroom)
     {
-        //TODO Fix this method!
         String chatRoomName = chatroom.getIdentifier();
-        for(IRCChannel channel : this.connectionState.getChannels())
-        {
-            if (chatRoomName.equals(channel.getName()))
-            {
-                return true;
-            }
-        }
-        return false;
+        return this.joined.containsKey(chatRoomName);
     }
 
     public List<String> getServerChatRoomList()
@@ -219,15 +221,48 @@ public class IrcStack
         join(chatroom, "");
     }
 
-    public void join(ChatRoomIrcImpl chatroom, String password)
+    public void join(final ChatRoomIrcImpl chatroom, final String password)
     {
         // TODO password as String
         if (chatroom == null)
             throw new IllegalArgumentException("chatroom cannot be null");
         if (password == null)
             throw new IllegalArgumentException("password cannot be null");
-        this.irc.addListener(new ChatRoomListener(chatroom));
-        this.irc.joinChannel(chatroom.getIdentifier(), password);
+        
+        this.irc.joinChannel(chatroom.getIdentifier(), password, new Callback<IRCChannel>(){
+
+            @Override
+            public void onSuccess(IRCChannel channel)
+            {
+                String name = channel.getName();
+                IrcStack.this.joined.put(name, channel);
+                
+                IrcStack.this.provider.getMUC().fireLocalUserPresenceEvent(
+                    chatroom,
+                    LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_JOINED,
+                    null);
+
+                IrcStack.this.irc.addListener(new ChatRoomListener(chatroom));
+                
+                IRCTopic topic = channel.getTopic();
+                ChatRoomPropertyChangeEvent topicChangeEvent = new ChatRoomPropertyChangeEvent(chatroom, ChatRoomPropertyChangeEvent.CHAT_ROOM_SUBJECT, "", topic.getValue());
+                chatroom.firePropertyChangeEvent(topicChangeEvent);
+                
+                for(Entry<IRCUser, Set<IRCUserStatus>> userEntry : channel.getUsers().entrySet())
+                {
+                    IRCUser user = userEntry.getKey();
+                    Set<IRCUserStatus> statuses = userEntry.getValue();
+                    
+                    ChatRoomMemberIrcImpl member = new ChatRoomMemberIrcImpl(IrcStack.this.provider, chatroom, user.getNick(), ChatRoomMemberRole.MEMBER);
+                    chatroom.fireMemberPresenceEvent(member, null, ChatRoomMemberPresenceChangeEvent.MEMBER_JOINED, null);
+                }
+            }
+
+            @Override
+            public void onFailure(Exception aExc)
+            {
+                // TODO Auto-generated method stub
+            }});
     }
 
     public void leave(ChatRoomIrcImpl chatroom)
@@ -356,18 +391,6 @@ public class IrcStack
         }
 
         @Override
-        public void onChannelJoin(ChanJoinMessage msg)
-        {
-            if (chatroom.getIdentifier().equals(msg.getChannelName()))
-            {
-                IrcStack.this.provider.getMUC().fireLocalUserPresenceEvent(
-                    this.chatroom,
-                    LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_JOINED,
-                    null);
-            }
-        }
-
-        @Override
         public void onChannelPart(ChanPartMessage msg)
         {
             if (this.chatroom.getIdentifier().equals(msg.getChannelName()))
@@ -375,6 +398,7 @@ public class IrcStack
                 IrcStack.this.provider.getMUC().fireLocalUserPresenceEvent(
                     this.chatroom,
                     LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_LEFT, null);
+                IrcStack.this.joined.remove(this.chatroom.getIdentifier());
                 IrcStack.this.irc.deleteListener(this);
             }
         }
