@@ -597,7 +597,7 @@ public class ScOtrEngineImpl
     public OtrPolicy getGlobalPolicy()
     {
         return new OtrPolicyImpl(this.configurator.getPropertyInt("POLICY",
-            OtrPolicy.OTRL_POLICY_DEFAULT));
+            OtrPolicy.OTRL_POLICY_MANUAL));
     }
 
     /**

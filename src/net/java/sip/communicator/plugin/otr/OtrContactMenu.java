@@ -13,8 +13,8 @@ import javax.swing.*;
 
 import net.java.otr4j.*;
 import net.java.otr4j.session.*;
-import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * A special {@link JMenu} that holds the menu items for controlling the
@@ -32,6 +32,8 @@ class OtrContactMenu
         "AUTHENTICATE_BUDDY";
 
     private static final String ACTION_COMMAND_CB_AUTO = "CB_AUTO";
+
+    private static final String ACTION_COMMAND_CB_AUTO_ALL = "CB_AUTO_ALL";
 
     private static final String ACTION_COMMAND_CB_ENABLE = "CB_ENABLE";
 
@@ -149,10 +151,22 @@ class OtrContactMenu
             boolean state = ((JCheckBoxMenuItem) e.getSource()).isSelected();
 
             policy.setEnableAlways(state);
+
+            OtrActivator.scOtrEngine.setContactPolicy(contact, policy);
+        }
+
+        else if (ACTION_COMMAND_CB_AUTO_ALL.equals(actionCommand))
+        {
+            OtrPolicy globalPolicy =
+                OtrActivator.scOtrEngine.getGlobalPolicy();
+            boolean state = ((JCheckBoxMenuItem) e.getSource()).isSelected();
+
+            globalPolicy.setEnableAlways(state);
             OtrActivator.configService.setProperty(
                 OtrActivator.AUTO_INIT_OTR_PROP,
                 Boolean.toString(state));
-            OtrActivator.scOtrEngine.setContactPolicy(contact, policy);
+
+            OtrActivator.scOtrEngine.setGlobalPolicy(globalPolicy);
         }
 
         else if (ACTION_COMMAND_CB_REQUIRE.equals(actionCommand))
@@ -235,16 +249,16 @@ class OtrContactMenu
         startOtr.setActionCommand(ACTION_COMMAND_START_OTR);
         startOtr.addActionListener(this);
 
+        JMenuItem refreshOtr = new JMenuItem();
+        refreshOtr.setText(OtrActivator.resourceService
+            .getI18NString("plugin.otr.menu.REFRESH_OTR"));
+        refreshOtr.setEnabled(policy.getEnableManual());
+        refreshOtr.setActionCommand(ACTION_COMMAND_REFRESH_OTR);
+        refreshOtr.addActionListener(this);
+
         switch (this.sessionStatus)
         {
         case ENCRYPTED:
-            JMenuItem refreshOtr = new JMenuItem();
-            refreshOtr.setText(OtrActivator.resourceService
-                .getI18NString("plugin.otr.menu.REFRESH_OTR"));
-            refreshOtr.setEnabled(policy.getEnableManual());
-            refreshOtr.setActionCommand(ACTION_COMMAND_REFRESH_OTR);
-            refreshOtr.addActionListener(this);
-
             JMenuItem authBuddy = new JMenuItem();
             authBuddy.setText(OtrActivator.resourceService
                 .getI18NString("plugin.otr.menu.AUTHENTICATE_BUDDY"));
@@ -270,12 +284,12 @@ class OtrContactMenu
             if (separateMenu != null)
             {
                 separateMenu.add(endOtr);
-                separateMenu.add(startOtr);
+                separateMenu.add(refreshOtr);
             }
             else
             {
                 parentMenu.add(endOtr);
-                parentMenu.add(startOtr);
+                parentMenu.add(refreshOtr);
             }
             break;
 
@@ -296,21 +310,34 @@ class OtrContactMenu
         cbEnable.addActionListener(this);
 
         JCheckBoxMenuItem cbAlways = new JCheckBoxMenuItem();
-        cbAlways.setText(OtrActivator.resourceService
-            .getI18NString("plugin.otr.menu.CB_AUTO"));
+        cbAlways.setText(String.format(
+                OtrActivator.resourceService
+                    .getI18NString(
+                        "plugin.otr.menu.CB_AUTO",
+                        new String[] {contact.getDisplayName()})));
         cbAlways.setEnabled(policy.getEnableManual());
+
+        cbAlways.setSelected(policy.getEnableAlways());
+
+        cbAlways.setActionCommand(ACTION_COMMAND_CB_AUTO);
+        cbAlways.addActionListener(this);
+
+        JCheckBoxMenuItem cbAlwaysAll = new JCheckBoxMenuItem();
+        cbAlwaysAll.setText(OtrActivator.resourceService
+            .getI18NString("plugin.otr.menu.CB_AUTO_ALL"));
+        cbAlwaysAll.setEnabled(policy.getEnableManual());
 
         String autoInitPropValue
             = OtrActivator.configService.getString(
                 OtrActivator.AUTO_INIT_OTR_PROP);
-        boolean isAutoInit = policy.getEnableAlways();
+        boolean isAutoInit =
+            OtrActivator.scOtrEngine.getGlobalPolicy().getEnableAlways();
         if (autoInitPropValue != null)
             isAutoInit = Boolean.parseBoolean(autoInitPropValue);
+        cbAlwaysAll.setSelected(isAutoInit);
 
-        cbAlways.setSelected(isAutoInit);
-
-        cbAlways.setActionCommand(ACTION_COMMAND_CB_AUTO);
-        cbAlways.addActionListener(this);
+        cbAlwaysAll.setActionCommand(ACTION_COMMAND_CB_AUTO_ALL);
+        cbAlwaysAll.addActionListener(this);
 
         JCheckBoxMenuItem cbRequire = new JCheckBoxMenuItem();
         cbRequire.setText(OtrActivator.resourceService
@@ -346,6 +373,7 @@ class OtrContactMenu
             separateMenu.addSeparator();
             separateMenu.add(cbEnable);
             separateMenu.add(cbAlways);
+            separateMenu.add(cbAlwaysAll);
             separateMenu.add(cbRequire);
             separateMenu.addSeparator();
             separateMenu.add(cbReset);
@@ -357,6 +385,7 @@ class OtrContactMenu
             parentMenu.addSeparator();
             parentMenu.add(cbEnable);
             parentMenu.add(cbAlways);
+            parentMenu.add(cbAlwaysAll);
             parentMenu.add(cbRequire);
             parentMenu.addSeparator();
             parentMenu.add(cbReset);
