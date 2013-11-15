@@ -1676,8 +1676,16 @@ public class ChatPanel
         SendSmsDialog smsDialog
             = new SendSmsDialog(this, smsChatTransport, messageText);
 
-        smsDialog.setPreferredSize(new Dimension(400, 200));
-        smsDialog.setVisible(true);
+        if(smsChatTransport.askForSMSNumber())
+        {
+            smsDialog.setPreferredSize(new Dimension(400, 200));
+            smsDialog.setVisible(true);
+        }
+        else
+        {
+            smsDialog.sendSmsMessage(null, messageText);
+            smsDialog.dispose();
+        }
     }
 
     /**

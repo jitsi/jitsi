@@ -176,7 +176,7 @@ public class ServerStoredContactListJabberImpl
      * @param group the ContactGroup that has been created/modified/removed
      * @param eventID the id of the event to generate.
      */
-    private void fireGroupEvent(ContactGroupJabberImpl group, int eventID)
+    void fireGroupEvent(ContactGroupJabberImpl group, int eventID)
     {
         //bail out if no one's listening
         if(parentOperationSet == null){

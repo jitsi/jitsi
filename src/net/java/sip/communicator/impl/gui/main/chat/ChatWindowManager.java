@@ -1338,7 +1338,7 @@ public class ChatWindowManager
 
         private Contact protocolContact;
 
-        private boolean isSmsSelected = false;
+        private Boolean isSmsSelected = null;
 
         /**
          * Creates an instance of <tt>RunMessageWindow</tt> by specifying the
@@ -1387,7 +1387,10 @@ public class ChatWindowManager
             ChatPanel chatPanel
                 = getContactChat(metaContact, protocolContact);
 
-            chatPanel.setSmsSelected(isSmsSelected);
+            // if not explicitly set, do not set it, leave it to default
+            // or internally make the decision
+            if(isSmsSelected != null)
+                chatPanel.setSmsSelected(isSmsSelected);
 
             openChat(chatPanel, true);
         }

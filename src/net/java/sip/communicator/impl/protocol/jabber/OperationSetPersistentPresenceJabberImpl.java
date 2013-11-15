@@ -1893,4 +1893,13 @@ public class OperationSetPersistentPresenceJabberImpl
                     ProtocolProviderFactory.RESOURCE_PRIORITY + "_" +
                         statusName.replaceAll(" ", "_").toUpperCase());
     }
+
+    /**
+     * Returns the contactlist impl.
+     * @return
+     */
+    public ServerStoredContactListJabberImpl getSsContactList()
+    {
+        return ssContactList;
+    }
 }

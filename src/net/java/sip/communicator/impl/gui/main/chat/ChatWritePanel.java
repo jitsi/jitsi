@@ -20,9 +20,11 @@ import javax.swing.undo.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.chat.menus.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 
@@ -75,9 +77,7 @@ public class ChatWritePanel
 
     private final Container centerPanel;
 
-    private JLabel smsLabel;
-
-    private JCheckBoxMenuItem smsMenuItem;
+    private SIPCommToggleButton smsButton;
 
     private JLabel smsCharCountLabel;
 
@@ -260,66 +260,51 @@ public class ChatWritePanel
         constraints.weighty = 0f;
         constraints.insets = new Insets(0, 3, 0, 0);
 
-        final Icon smsIcon = GuiActivator.getResources()
-        .getImage("service.gui.icons.SEND_SMS");
+        ImageID smsIcon =
+            new ImageID("service.gui.icons.SEND_SMS");
 
-        final Icon selectedIcon = GuiActivator.getResources()
-            .getImage("service.gui.icons.SEND_SMS_SELECTED");
+        ImageID selectedIcon =
+            new ImageID("service.gui.icons.SEND_SMS_SELECTED");
 
-        smsLabel = new JLabel(smsIcon);
+        smsButton = new SIPCommToggleButton(
+                    ImageLoader.getImage(smsIcon),
+                    ImageLoader.getImage(selectedIcon),
+                    ImageLoader.getImage(smsIcon),
+                    ImageLoader.getImage(selectedIcon));
 
-        // We hide the sms label until we know if the chat supports sms.
-        smsLabel.setVisible(false);
-
-        smsMenuItem = new JCheckBoxMenuItem(GuiActivator.getResources()
-            .getI18NString("service.gui.VIA_SMS"));
-
-        smsMenuItem.addChangeListener(new ChangeListener()
+        smsButton.addActionListener(new ActionListener()
         {
-            public void stateChanged(ChangeEvent e)
+            @Override
+            public void actionPerformed(ActionEvent e)
             {
-                smsMode = smsMenuItem.isSelected();
+                smsMode = smsButton.isSelected();
 
                 Color bgColor;
                 if (smsMode)
                 {
-                    smsLabel.setIcon(selectedIcon);
                     bgColor = new Color(GuiActivator.getResources()
                         .getColor("service.gui.LIST_SELECTION_COLOR"));
+
+                    smsCharCountLabel.setVisible(true);
+                    smsNumberLabel.setVisible(true);
                 }
                 else
                 {
-                    smsLabel.setIcon(smsIcon);
                     bgColor = Color.WHITE;
+                    smsCharCountLabel.setVisible(false);
+                    smsNumberLabel.setVisible(false);
                 }
 
                 centerPanel.setBackground(bgColor);
                 editorPane.setBackground(bgColor);
-
-                smsLabel.repaint();
             }
         });
 
-        smsLabel.addMouseListener(new MouseAdapter()
-        {
-            @Override
-            public void mousePressed(MouseEvent mouseevent)
-            {
-                Point location = new Point(smsLabel.getX(),
-                    smsLabel.getY() + smsLabel.getHeight());
 
-                SwingUtilities.convertPointToScreen(location, smsLabel);
+        // We hide the sms label until we know if the chat supports sms.
+        smsButton.setVisible(false);
 
-                JPopupMenu smsPopupMenu = new JPopupMenu();
-                smsPopupMenu.setFocusable(true);
-                smsPopupMenu.setInvoker(ChatWritePanel.this);
-                smsPopupMenu.add(smsMenuItem);
-                smsPopupMenu.setLocation(location.x, location.y);
-                smsPopupMenu.setVisible(true);
-            }
-        });
-
-        centerPanel.add(smsLabel, constraints);
+        centerPanel.add(smsButton, constraints);
     }
 
     private void initTextArea(JPanel centerPanel)
@@ -460,7 +445,11 @@ public class ChatWritePanel
      */
     public void setSmsSelected(boolean selected)
     {
-        smsMenuItem.setSelected(selected);
+        if((selected && !smsButton.isSelected())
+            || (!selected && smsButton.isSelected()))
+        {
+            smsButton.doClick();
+        }
     }
 
     /**
@@ -1242,9 +1231,7 @@ public class ChatWritePanel
         smsCharCount = 160;
         smsNumberCount = 1;
 
-        smsLabel.setVisible(isVisible);
-        smsCharCountLabel.setVisible(isVisible);
-        smsNumberLabel.setVisible(isVisible);
+        smsButton.setVisible(isVisible);
 
         centerPanel.repaint();
     }
@@ -1421,7 +1408,7 @@ public class ChatWritePanel
     public void insertUpdate(DocumentEvent event)
     {
         // If we're in sms mode count the chars typed.
-        if (smsLabel.isVisible())
+        if (smsButton.isVisible())
         {
             if (smsCharCount == 0)
             {
@@ -1445,7 +1432,7 @@ public class ChatWritePanel
     public void removeUpdate(DocumentEvent event)
     {
         // If we're in sms mode count the chars typed.
-        if (smsLabel.isVisible())
+        if (smsButton.isVisible())
         {
             if (smsCharCount == 160 && smsNumberCount > 1)
             {

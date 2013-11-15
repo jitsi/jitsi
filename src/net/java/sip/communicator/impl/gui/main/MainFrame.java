@@ -890,6 +890,31 @@ public class MainFrame
     }
 
     /**
+     * Checks whether we have the operation set in already loaded
+     * protocol providers.
+     * @param opSet the operation set to check.
+     * @return whether we have provider to handle operation set.
+     */
+    public boolean hasOperationSet(Class<? extends OperationSet> opSet)
+    {
+        synchronized(this.protocolProviders)
+        {
+            Iterator<ProtocolProviderService> iter =
+                this.protocolProviders.keySet().iterator();
+            while(iter.hasNext())
+            {
+                ProtocolProviderService pp = iter.next();
+                if(pp.getOperationSet(opSet) != null)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+    }
+
+    /**
      * Adds an account to the application.
      *
      * @param protocolProvider The protocol provider of the account.

@@ -167,6 +167,11 @@ public class ChatTransportSelectorBox
 
             updateTransportStatus(chatTransport);
         }
+
+        if(!allowsInstantMessage() && allowsSmsMessage())
+            chatPanel.getChatWritePanel().setSmsSelected(true);
+        else
+            chatPanel.getChatWritePanel().setSmsSelected(false);
     }
 
     /**
@@ -417,6 +422,44 @@ public class ChatTransportSelectorBox
                 return comboChatTransport;
         }
         return null;
+    }
+
+    /**
+     * Returns <code>true</code> if this contains a chat transport that
+     * supports instant messaging, otherwise returns <code>false</code>.
+     *
+     * @return <code>true</code> if this contains a chat transport that
+     * supports instant messaging, otherwise returns <code>false</code>
+     */
+    private boolean allowsInstantMessage()
+    {
+        for(ChatTransport tr : transportMenuItems.keySet())
+        {
+            if(tr.allowsInstantMessage())
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Returns <code>true</code> if this contains a chat transport that
+     * supports sms messaging, otherwise returns <code>false</code>.
+     *
+     * @return <code>true</code> if this contains a chat transport that
+     * supports sms messaging, otherwise returns <code>false</code>
+     */
+    private boolean allowsSmsMessage()
+    {
+        for(ChatTransport tr : transportMenuItems.keySet())
+        {
+            if(tr.allowsSmsMessage())
+                return true;
+        }
+
+        return false;
     }
 
     /**

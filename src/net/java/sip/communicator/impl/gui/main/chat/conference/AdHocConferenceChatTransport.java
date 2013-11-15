@@ -194,9 +194,18 @@ public class AdHocConferenceChatTransport
      * Sending sms messages is not supported by this chat transport
      * implementation.
      */
-    public void sendSmsMessage(Contact contact, String message)
+    public void sendSmsMessage(String message)
         throws Exception
     {}
+
+    /**
+     * Not used.
+     * @return
+     */
+    public boolean askForSMSNumber()
+    {
+        return false;
+    }
 
     /**
      * Sending typing notifications is not supported by this chat transport

@@ -200,13 +200,13 @@ public class ChooseCallAccountPopupMenu
             public void actionPerformed(ActionEvent e)
             {
                 if (uiContact != null)
-                    CallManager.createCall(
+                    itemSelected(
                         opSetClass,
                         providerItem.getProtocolProvider(),
                         contactString,
                         uiContact);
                 else
-                    CallManager.createCall(
+                    itemSelected(
                         opSetClass,
                         providerItem.getProtocolProvider(),
                         contactString);
@@ -272,13 +272,13 @@ public class ChooseCallAccountPopupMenu
                     String contactAddress = telephonyContact.getAddress();
 
                     if (uiContact != null)
-                        CallManager.createCall(
+                        itemSelected(
                             opSetClass,
                             provider,
                             contactAddress,
                             uiContact);
                     else
-                        CallManager.createCall(
+                        itemSelected(
                             opSetClass,
                             provider,
                             contactAddress);
@@ -430,6 +430,44 @@ public class ChooseCallAccountPopupMenu
         infoLabel.setText("<html><b>" + infoString + "</b></html>");
 
         return infoLabel;
+    }
+
+    /**
+     * Item was selected, give a chance for extenders to override.
+     *
+     * @param opSetClass the operation set to use.
+     * @param protocolProviderService the protocol provider
+     * @param contact the contact address
+     *  @param uiContact the <tt>MetaContact</tt> selected
+     */
+    protected void itemSelected(
+                    Class<? extends OperationSet> opSetClass,
+                    ProtocolProviderService protocolProviderService,
+                    String contact,
+                    UIContactImpl uiContact)
+    {
+        CallManager.createCall(
+            opSetClass,
+            protocolProviderService,
+            contact,
+            uiContact);
+    }
+
+    /**
+     * Item was selected, give a chance for extenders to override.
+     *
+     * @param opSetClass the operation set to use.
+     * @param protocolProviderService the protocol provider
+     * @param contact the contact address selected
+     */
+    protected void itemSelected(Class<? extends OperationSet> opSetClass,
+                    ProtocolProviderService protocolProviderService,
+                    String contact)
+    {
+        CallManager.createCall(
+            opSetClass,
+            protocolProviderService,
+            contact);
     }
 
     /**

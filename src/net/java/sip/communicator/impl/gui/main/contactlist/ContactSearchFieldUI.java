@@ -13,8 +13,11 @@ import javax.swing.*;
 import javax.swing.plaf.*;
 import javax.swing.text.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.plaf.*;
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 
@@ -65,6 +68,11 @@ public class ContactSearchFieldUI
     protected void customPaintBackground(Graphics g)
     {
         isCallButtonEnabled = CallManager.getTelephonyProviders().size() > 0;
+
+        setSMSButtonEnabled(
+            GuiActivator.getUIService().getMainFrame()
+                .hasOperationSet(OperationSetSmsMessaging.class));
+
         super.customPaintBackground(g);
     }
 
@@ -74,24 +82,32 @@ public class ContactSearchFieldUI
      * @param ev the mouse event that has prompted us to create the call.
      */
     @Override
-    protected void updateCallIcon(MouseEvent ev)
+    protected void updateIcon(MouseEvent ev)
     {
-        super.updateCallIcon(ev);
+        super.updateIcon(ev);
 
-
-        if ((ev.getID() == MouseEvent.MOUSE_CLICKED) && isCallIconVisible)
+        if ((ev.getID() == MouseEvent.MOUSE_CLICKED))
         {
-            Rectangle callButtonRect = getCallButtonRect();
             int x = ev.getX();
             int y = ev.getY();
 
-            if (callButtonRect.contains(x, y))
+            if (isCallIconVisible && getCallButtonRect().contains(x, y))
             {
                 JTextComponent c = getComponent();
                 String searchText = c.getText();
 
                 if (searchText != null)
                     CallManager.createCall(searchText, c);
+            }
+            else if (isSMSIconVisible && getSMSButtonRect().contains(x, y))
+            {
+                JTextComponent c = getComponent();
+                final String searchText = c.getText();
+
+                if (searchText == null)
+                    return;
+
+                SMSManager.sendSMS(getComponent(), searchText);
             }
         }
     }

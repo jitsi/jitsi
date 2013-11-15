@@ -26,6 +26,7 @@ import org.jitsi.service.resources.*;
  * @author Yana Stamcheva
  * @author Adam Netocny
  * @author Marin Dzhigarov
+ * @author Damian Minkov
  */
 public class SearchFieldUI
     extends SIPCommTextFieldUI
@@ -58,15 +59,41 @@ public class SearchFieldUI
     private Image callRolloverIcon;
 
     /**
+     * The default icon of the sms button.
+     */
+    private Image smsIcon;
+
+    /**
+     * The pressed icon of the sms button.
+     */
+    private Image smsPressedIcon;
+
+    /**
+     * The roll over icon of the sms button.
+     */
+    private Image smsRolloverIcon;
+
+    /**
      * The call button tool tip string.
      */
     private final String callString = DesktopUtilActivator.getResources()
         .getI18NString("service.gui.CALL");
 
     /**
+     * The sms button tool tip string.
+     */
+    private final String smsString = DesktopUtilActivator.getResources()
+        .getI18NString("service.gui.SMS");
+
+    /**
      * Indicates if the call button is enabled in this search field.
      */
     protected boolean isCallButtonEnabled = true;
+
+    /**
+     * Indicates if the sms button is enabled in this search field.
+     */
+    private boolean isSMSButtonEnabled = false;
 
     /**
      * Indicates if the call icon is currently visible.
@@ -82,6 +109,21 @@ public class SearchFieldUI
      * Indicates if the mouse is currently over the call button.
      */
     private boolean isCallMousePressed = false;
+
+    /**
+     * Indicates if the sms icon is currently visible.
+     */
+    protected boolean isSMSIconVisible = false;
+
+    /**
+     * Indicates if the mouse is currently over the sms button.
+     */
+    private boolean isSMSMouseOver = false;
+
+    /**
+     * Indicates if the mouse is currently over the sms button.
+     */
+    private boolean isSMSMousePressed = false;
 
     /**
      * The icon indicating that this is a search field.
@@ -123,6 +165,29 @@ public class SearchFieldUI
                 - searchIcon.getIconHeight()/2;
 
             g2.drawImage(searchIcon.getImage(), 3, dy, null);
+
+            if (c.getText() != null
+                && c.getText().length() > 0
+                && isSMSButtonEnabled)
+            {
+                // Paint sms button.
+                Rectangle smsRect = getSMSButtonRect();
+                int dx = smsRect.x;
+                dy = smsRect.y;
+
+                if (isSMSMousePressed)
+                    g2.drawImage(smsPressedIcon, dx, dy, null);
+                else if (isSMSMouseOver)
+                {
+                    g2.drawImage(smsRolloverIcon, dx, dy, null);
+                }
+                else
+                    g2.drawImage(smsIcon, dx, dy, null);
+
+                isSMSIconVisible = true;
+            }
+            else
+                isSMSIconVisible = false;
 
             if (c.getText() != null
                 && c.getText().length() > 0
@@ -177,6 +242,28 @@ public class SearchFieldUI
     }
 
     /**
+     * Calculates the sms button rectangle.
+     *
+     * @return the sms button rectangle
+     */
+    protected Rectangle getSMSButtonRect()
+    {
+        Component c = getComponent();
+        Rectangle rect = c.getBounds();
+
+        int dx = getDeleteButtonRect().x - smsRolloverIcon.getWidth(null) - 8;
+        if(isCallIconVisible)
+            dx -= callRolloverIcon.getWidth(null) + 4;
+
+        int dy = (rect.y + rect.height) / 2 - smsRolloverIcon.getHeight(null)/2;
+
+        return new Rectangle(   dx,
+                                dy,
+                                smsRolloverIcon.getWidth(null),
+                                smsRolloverIcon.getHeight(null));
+    }
+
+    /**
      * If we are in the case of disabled delete button, we simply call the
      * parent implementation of this method, otherwise we recalculate the editor
      * rectangle in order to leave place for the delete button.
@@ -195,6 +282,9 @@ public class SearchFieldUI
         {
             rect.x += searchIcon.getIconWidth() + 5;
             rect.width -= (searchIcon.getIconWidth() + 5);
+
+            if (isSMSIconVisible)
+                rect.width -= (smsRolloverIcon.getWidth(null) + 12);
 
             if (isCallIconVisible)
                 rect.width -= (callRolloverIcon.getWidth(null) + 12);
@@ -227,9 +317,33 @@ public class SearchFieldUI
             callPressedIcon
                 = r.getImage("service.gui.buttons.SEARCH_CALL_PRESSED_ICON")
                     .getImage();
+        }
+
+        if (isSMSButtonEnabled)
+        {
+            loadSMSIcons();
+        }
+
+        if(isSMSButtonEnabled || isCallButtonEnabled)
             separatorIcon
                 = r.getImage("service.gui.icons.SEARCH_SEPARATOR").getImage();
-        }
+    }
+
+    /**
+     * Loads sms icons.
+     */
+    private void loadSMSIcons()
+    {
+        ResourceManagementService r = DesktopUtilActivator.getResources();
+
+        smsIcon
+            = r.getImage("service.gui.buttons.SEARCH_SMS_ICON").getImage();
+        smsRolloverIcon
+            = r.getImage("service.gui.buttons.SEARCH_SMS_ROLLOVER_ICON")
+                .getImage();
+        smsPressedIcon
+            = r.getImage("service.gui.buttons.SEARCH_SMS_PRESSED_ICON")
+                .getImage();
     }
 
     /**
@@ -241,8 +355,8 @@ public class SearchFieldUI
     {
         super.mouseClicked(e);
 
-        if(isCallButtonEnabled)
-            updateCallIcon(e);
+        if(isCallButtonEnabled || isSMSButtonEnabled)
+            updateIcon(e);
     }
 
     /**
@@ -254,8 +368,8 @@ public class SearchFieldUI
     {
         super.mouseDragged(e);
 
-        if(isCallButtonEnabled)
-            updateCallIcon(e);
+        if(isCallButtonEnabled || isSMSButtonEnabled)
+            updateIcon(e);
     }
 
     /**
@@ -267,8 +381,8 @@ public class SearchFieldUI
     {
         super.mouseEntered(e);
 
-        if(isCallButtonEnabled)
-            updateCallIcon(e);
+        if(isCallButtonEnabled || isSMSButtonEnabled)
+            updateIcon(e);
     }
 
     /**
@@ -280,8 +394,8 @@ public class SearchFieldUI
     {
         super.mouseExited(e);
 
-        if(isCallButtonEnabled)
-            updateCallIcon(e);
+        if(isCallButtonEnabled || isSMSButtonEnabled)
+            updateIcon(e);
     }
 
     /**
@@ -293,8 +407,8 @@ public class SearchFieldUI
     {
         super.mouseMoved(e);
 
-        if(isCallButtonEnabled)
-            updateCallIcon(e);
+        if(isCallButtonEnabled || isSMSButtonEnabled)
+            updateIcon(e);
     }
 
     @Override
@@ -302,8 +416,8 @@ public class SearchFieldUI
     {
         super.mousePressed(e);
 
-        if(isCallButtonEnabled)
-            updateCallIcon(e);
+        if(isCallButtonEnabled || isSMSButtonEnabled)
+            updateIcon(e);
     }
 
     @Override
@@ -311,8 +425,8 @@ public class SearchFieldUI
     {
         super.mouseReleased(e);
 
-        if(isCallButtonEnabled)
-            updateCallIcon(e);
+        if(isCallButtonEnabled || isSMSButtonEnabled)
+            updateIcon(e);
     }
 
     /**
@@ -337,6 +451,18 @@ public class SearchFieldUI
     }
 
     /**
+     * Enables/disabled the sms button in the search field.
+     *
+     * @param isEnabled indicates if the sms button is enabled
+     */
+    public void setSMSButtonEnabled(boolean isEnabled)
+    {
+        loadSMSIcons();
+
+        this.isSMSButtonEnabled = isEnabled;
+    }
+
+    /**
      * Updates the delete icon, changes the cursor and deletes the content of
      * the associated text component when the mouse is pressed over the delete
      * icon.
@@ -344,12 +470,14 @@ public class SearchFieldUI
      * @param evt the mouse event that has prompted us to update the delete
      * icon.
      */
-    protected void updateCallIcon(MouseEvent evt)
+    protected void updateIcon(MouseEvent evt)
     {
         int x = evt.getX();
         int y = evt.getY();
 
         Rectangle callButtonRect = getCallButtonRect();
+
+        boolean outsideButtons = true;
 
         if (isCallIconVisible && callButtonRect.contains(x, y))
         {
@@ -358,6 +486,8 @@ public class SearchFieldUI
 
             if (searchText == null)
                 return;
+
+            outsideButtons = false;
 
             // Show a tool tip over the call button.
             getComponent().setToolTipText(callString + " " + searchText);
@@ -380,7 +510,40 @@ public class SearchFieldUI
             // Update the default cursor.
             getComponent().setCursor(Cursor.getDefaultCursor());
         }
-        else
+
+        if (isSMSIconVisible && getSMSButtonRect().contains(x, y))
+        {
+            JTextComponent c = getComponent();
+            String searchText = c.getText();
+
+            if (searchText == null)
+                return;
+
+            outsideButtons = false;
+
+            // Show a tool tip over the call button.
+            getComponent().setToolTipText(smsString + " " + searchText);
+            ToolTipManager.sharedInstance().mouseEntered(
+                new MouseEvent(c, 0, x, y,
+                        x, y, // X-Y of the mouse for the tool tip
+                        0, false));
+
+            if (evt.getID() == MouseEvent.MOUSE_PRESSED)
+            {
+                isSMSMouseOver = false;
+                isSMSMousePressed = true;
+            }
+            else
+            {
+                isSMSMouseOver = true;
+                isSMSMousePressed = false;
+            }
+
+            // Update the default cursor.
+            getComponent().setCursor(Cursor.getDefaultCursor());
+        }
+
+        if(outsideButtons)
         {
             // Remove the call button tool tip when the mouse exits the call
             // button area.
@@ -392,6 +555,9 @@ public class SearchFieldUI
 
             isCallMouseOver = false;
             isCallMousePressed = false;
+
+            isSMSMouseOver = false;
+            isSMSMousePressed = false;
         }
 
         getComponent().repaint();

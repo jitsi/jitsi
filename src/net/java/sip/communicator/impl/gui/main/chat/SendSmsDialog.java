@@ -114,22 +114,26 @@ public class SendSmsDialog
      * Sends the given message to the given phoneNumber, using the current
      * SMS operation set.
      *
-     * @param phoneNumber the phone number to which the message should be sent.
+     * @param phoneNumber the phone number to which the message should be sent,
+     * if is null, will leave transport to choose
      * @param message the message to send.
      */
-    private void sendSmsMessage(String phoneNumber, String message)
+    public void sendSmsMessage(String phoneNumber, String message)
     {
-        chatTransport.getParentChatSession().setDefaultSmsNumber(phoneNumber);
+        if(phoneNumber != null)
+            chatTransport.getParentChatSession()
+                .setDefaultSmsNumber(phoneNumber);
 
         try
         {
-            chatTransport.sendSmsMessage(phoneNumber, message);
+            if(phoneNumber != null)
+                chatTransport.sendSmsMessage(phoneNumber, message);
+            else
+                chatTransport.sendSmsMessage(message);
         }
         catch (IllegalStateException ex)
         {
             logger.error("Failed to send SMS.", ex);
-
-            chatPanel.refreshWriteArea();
 
             chatPanel.addMessage(
                 phoneNumber,
@@ -147,8 +151,6 @@ public class SendSmsDialog
         {
             logger.error("Failed to send SMS.", ex);
 
-            chatPanel.refreshWriteArea();
-
             chatPanel.addMessage(
                 phoneNumber,
                 new Date(),
@@ -162,6 +164,8 @@ public class SendSmsDialog
                     .getI18NString("service.gui.MSG_DELIVERY_ERROR",
                     new String[]{ex.getMessage()}));
         }
+
+        chatPanel.refreshWriteArea();
 
         this.dispose();
     }

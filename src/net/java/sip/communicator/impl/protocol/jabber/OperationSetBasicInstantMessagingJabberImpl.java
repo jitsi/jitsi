@@ -120,6 +120,12 @@ public class OperationSetBasicInstantMessagingJabberImpl
         "http://jabber.org/protocol/xhtml-im";
 
     /**
+     * List of filters to be used to filter which messages to handle
+     * current Operation Set.
+     */
+    private List<PacketFilter> packetFilters = new ArrayList<PacketFilter>();
+
+    /**
      * Creates an instance of this operation set.
      * @param provider a reference to the <tt>ProtocolProviderServiceImpl</tt>
      * that created us and that we'll use for retrieving the underlying aim
@@ -129,6 +135,11 @@ public class OperationSetBasicInstantMessagingJabberImpl
         ProtocolProviderServiceJabberImpl provider)
     {
         this.jabberProvider = provider;
+
+        packetFilters.add(new GroupMessagePacketFilter());
+        packetFilters.add(
+            new PacketTypeFilter(org.jivesoftware.smack.packet.Message.class));
+
         provider.addRegistrationStateChangeListener(
                         new RegistrationStateListener());
 
@@ -169,7 +180,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
         return new MessageJabberImpl(content, contentType, encoding, subject);
     }
 
-    private Message createMessage(String content, String contentType,
+    Message createMessage(String content, String contentType,
             String messageUID)
     {
         return new MessageJabberImpl(content, contentType,
@@ -603,9 +614,8 @@ public class OperationSetBasicInstantMessagingJabberImpl
                 jabberProvider.getConnection().addPacketListener(
                         smackMessageListener,
                         new AndFilter(
-                            new PacketFilter[]{new GroupMessagePacketFilter(),
-                            new PacketTypeFilter(
-                            org.jivesoftware.smack.packet.Message.class)}));
+                            packetFilters.toArray(
+                                new PacketFilter[packetFilters.size()])));
             }
             else if (evt.getNewState() == RegistrationState.REGISTERED)
             {
@@ -1107,5 +1117,15 @@ public class OperationSetBasicInstantMessagingJabberImpl
     public long getInactivityTimeout()
     {
         return JID_INACTIVITY_TIMEOUT;
+    }
+
+    /**
+     * Adds additional filters for incoming messages. To be able to skip some
+     * messages.
+     * @param filter to add
+     */
+    public void addMessageFilters(PacketFilter filter)
+    {
+        this.packetFilters.add(filter);
     }
 }

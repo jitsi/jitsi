@@ -16,6 +16,7 @@ import javax.swing.text.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.plugin.desktoputil.event.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -41,6 +42,8 @@ public class UnknownContactPanel
 
     private final JButton callButton = new JButton(
         GuiActivator.getResources().getI18NString("service.gui.CALL_CONTACT"));
+
+    private JButton smsButton;
 
     private final JTextPane textArea = new JTextPane();
 
@@ -77,6 +80,8 @@ public class UnknownContactPanel
         }
 
         initCallButton();
+
+        initSMSButton();
 
         initTextArea();
         mainPanel.add(textArea, BorderLayout.CENTER);
@@ -169,6 +174,37 @@ public class UnknownContactPanel
     }
 
     /**
+     * Initializes the call button.
+     */
+    private void initSMSButton()
+    {
+        if(!parentWindow.hasOperationSet(OperationSetSmsMessaging.class))
+            return;
+
+        smsButton = new JButton(
+            GuiActivator.getResources().getI18NString("service.gui.SEND_SMS"));
+
+        smsButton.setIcon(GuiActivator.getResources()
+            .getImage("service.gui.icons.SMS_BUTTON_ICON"));
+
+        buttonPanel.add(smsButton);
+
+        smsButton.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                final String searchText = parentWindow.getCurrentSearchText();
+
+                if (searchText == null)
+                    return;
+
+                SMSManager.sendSMS(smsButton, searchText);
+            }
+        });
+    }
+
+    /**
      * Clicks the call contact button in order to call the unknown contact.
      */
     public void startCall()
@@ -245,6 +281,10 @@ public class UnknownContactPanel
             .getImage("service.gui.icons.ADD_CONTACT_16x16_ICON"));
         callButton.setIcon(GuiActivator.getResources()
             .getImage("service.gui.icons.CALL_16x16_ICON"));
+
+        if(smsButton != null)
+            smsButton.setIcon(GuiActivator.getResources()
+                .getImage("service.gui.icons.SMS_BUTTON_ICON"));
     }
 
     /**
