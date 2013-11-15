@@ -2643,16 +2643,6 @@
              overwrite="true"
              link="${debian.src.dir}/lib/src/ice4j/lib/weupnp-0.1.2-SNAPSHOT.jar"/>
 
-        <!-- ice4j -->
-        <ant dir="${debian.src.dir}/lib/src/ice4j"
-             inheritAll="false"
-             target="jar">
-            <property name="src2" value="src"/>
-        </ant>
-        <symlink resource="../../ice4j/ice4j.jar"
-                 overwrite="true"
-                 link="${debian.src.dir}/lib/src/libjitsi/lib"/>
-
         <!-- sdes -->
         <mkdir dir="${debian.src.dir}/lib/src/sdes4j/lib"/>
         <symlink resource="/usr/share/java/commons-codec.jar"
@@ -2692,6 +2682,19 @@
         <symlink resource="../../jsip/jain-sip-sdp-1.2.159.jar"
                  overwrite="true"
                  link="${debian.src.dir}/lib/src/libjitsi/lib/jain-sdp.jar"/>
+         <symlink resource="../../jsip/jain-sip-sdp-1.2.159.jar"
+                 overwrite="true"
+                 link="${debian.src.dir}/lib/src/ice4j/lib/jain-sdp.jar"/>  
+                 
+        <!-- ice4j -->
+        <ant dir="${debian.src.dir}/lib/src/ice4j"
+             inheritAll="false"
+             target="jar">
+            <property name="src2" value="src"/>
+        </ant>
+        <symlink resource="../../ice4j/ice4j.jar"
+                 overwrite="true"
+                 link="${debian.src.dir}/lib/src/libjitsi/lib"/>
 
         <!-- compile and pack bccontrib -->
         <mkdir dir="${debian.src.dir}/lib/src/bccontrib/target/classes"/>
@@ -3270,6 +3273,11 @@ org.jitsi.bccontrib.util"/>
              overwrite="true"
              link="${debian.src.dir}/lib/installer-exclude"/>
 
+        <!-- libjcalendar-java -->
+        <symlink resource="/usr/share/java/jcalendar.jar"
+             overwrite="true"
+             link="${debian.src.dir}/lib/installer-exclude/jcalendar-1.4.jar"/>
+
         <!-- now rebuild jitsi -->
         <antcall target="rebuild"/>
         <antcall target="make-and-deploy"/>
@@ -3762,6 +3770,43 @@ org.jitsi.bccontrib.util"/>
             append="true"
             eol="crlf"
             fixlastline="true">Bundle-ClassPath: .,bcprov.jar&#013;&#010;&#013;&#010;</concat>
+    </target>
+    
+    <!-- target to rebuild the account info bundle reusing debian package -->
+    <target name="deb-bundle-plugin-accountinfo">
+
+        <unzip src="${debian.bundles.dest}/accountinfo.jar"
+               dest="${debian.bundles.dest}">
+          <patternset>
+            <include name="META-INF/MANIFEST.MF"/>
+          </patternset>
+        </unzip>
+        <delete file="${debian.bundles.dest}/accountinfo.jar"/>
+        <mkdir dir="${debian.bundles.dest}/accountinfo.jar/META-INF"/>
+        <symlink resource="../../../../share/java/jcalendar.jar"
+             link="${debian.bundles.dest}/accountinfo.jar/"/>
+
+        <!-- Create the sys .jar-->
+        <jar compress="false"
+             destfile="${debian.bundles.dest}/accountinfo.jar/accountinfo.jar">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/accountinfo"
+                        prefix="net/java/sip/communicator/plugin/accountinfo"/>
+        </jar>
+        <move file="${debian.bundles.dest}/META-INF/MANIFEST.MF"
+              todir="${debian.bundles.dest}/accountinfo.jar/META-INF"/>
+        <delete dir="${debian.bundles.dest}/META-INF"/>
+
+        <!-- Removes the last empty line -->
+        <replaceregexp
+            file="${debian.bundles.dest}/accountinfo.jar/META-INF/MANIFEST.MF"
+            match="^\r\n$"
+            flags="m"
+            replace=""/>
+        <concat
+            destfile="${debian.bundles.dest}/accountinfo.jar/META-INF/MANIFEST.MF"
+            append="true"
+            eol="crlf"
+            fixlastline="true">Bundle-ClassPath: .,accountinfo.jar,jcalendar.jar&#013;&#010;&#013;&#010;</concat>
     </target>
 
 </project>

@@ -59,7 +59,8 @@ Build-Depends: debhelper (>= 9), javahelper,
                libguava-java,
                glassfish-activation,
                glassfish-mail,
-               libbcpkix-java
+               libbcpkix-java,
+               libjcalendar-java
 Standards-Version: 3.9.4
 
 Package: _PACKAGE_NAME_
@@ -86,7 +87,8 @@ Depends: ${misc:Depends},
          libbcprov-java,
          libjna-java,
          libjgoodies-forms-java,
-         libjson-simple-java
+         libjson-simple-java,
+         libjcalendar-java
 Recommends: ${java:Recommends}
 Description: VoIP and Instant Messaging client
  _APP_NAME_ is an application that allows you to do audio/video
