@@ -1,0 +1,13 @@
+Index: jitsi-2.3.4901/lib/src/gdata-java-client/java/src/com/google/gdata/wireformats/AltFormat.java
+===================================================================
+--- jitsi-2.3.4901.orig/lib/src/gdata-java-client/java/src/com/google/gdata/wireformats/AltFormat.java	2012-09-27 14:40:10.000000000 -0400
++++ jitsi-2.3.4901/lib/src/gdata-java-client/java/src/com/google/gdata/wireformats/AltFormat.java	2013-11-11 10:42:56.309608000 -0500
+@@ -396,7 +396,7 @@
+       if (types == null) {
+         acceptableTypes = ImmutableSet.of();
+       } else {
+-        acceptableTypes = ImmutableSet.of(types);
++        acceptableTypes = ImmutableSet.copyOf(types);
+       }
+       return this;
+     }

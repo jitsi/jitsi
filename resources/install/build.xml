@@ -2464,8 +2464,13 @@
                dest="${debian.src.dir}/lib/src/dhcp4java"/>
 
         <!-- otr4j -->
-        <unzip src="${sc.basedir}/../libsrc/otr4j.zip"
-               dest="${debian.src.dir}/lib/src"/>
+        <mkdir dir="${debian.src.dir}/lib/src/otr4j/lib"/>
+        <copy todir="${debian.src.dir}/lib/src/otr4j">
+            <fileset dir="${sc.basedir}/../otr4j">
+                <include name="src/main/**"/>
+                <exclude name="**/.git/**"/>
+            </fileset>
+        </copy>
 
         <!-- myspell-->
         <unzip src="${sc.basedir}/../libsrc/jmyspell-core-src.zip"
@@ -2576,9 +2581,8 @@
             target="clean"/>
         <delete dir="${debian.src.dir}/lib/src/dhcp4java/classes"
                 failonerror="false"/>
-        <ant dir="${debian.src.dir}/lib/src/otr4j"
-            inheritAll="false"
-            target="clean"/>
+        <delete dir="${debian.src.dir}/lib/src/otr4j/bin"
+                failonerror="false"/>
         <delete dir="${debian.src.dir}/lib/src/jmyspell/classes"
                 failonerror="false"/>
         <delete dir="${debian.src.dir}/lib/src/jfontchooser/classes"
@@ -2808,6 +2812,10 @@ org.jitsi.bccontrib.util"/>
         <symlink resource="/usr/share/java/bcprov.jar"
                  overwrite="true"
                  link="${debian.src.dir}/lib/src/libjitsi/lib"/>
+        <symlink resource="/usr/share/java/bcpkix.jar"
+                 overwrite="true"
+                 link="${debian.src.dir}/lib/src/libjitsi/lib"/>
+                 
         <ant dir="${debian.src.dir}/lib/src/libjitsi"
              inheritAll="false"
              target="jar">
@@ -3032,12 +3040,18 @@ org.jitsi.bccontrib.util"/>
         <symlink resource="/usr/share/java/bcprov.jar"
              overwrite="true"
              link="${debian.src.dir}/lib/src/otr4j/lib"/>
-        <ant dir="${debian.src.dir}/lib/src/otr4j"
-             inheritAll="false"
-             target="jar">
-            <property name="test.dir" value="src"/>
-        </ant>
-        <symlink resource="../src/otr4j/bin/debug/jar/otr4j.jar"
+        
+        <path id="otr4j-classpath">
+            <fileset dir="${debian.src.dir}/lib/src/otr4j/lib" includes="**/*.jar" />
+        </path>
+        <mkdir dir="${debian.src.dir}/lib/src/otr4j/bin/classes" />
+        <javac target="1.6" srcdir="${debian.src.dir}/lib/src/otr4j/src"
+               destdir="${debian.src.dir}/lib/src/otr4j/bin/classes"
+               classpathref="otr4j-classpath"
+               debug="On" />
+        <jar destfile="${debian.src.dir}/lib/src/otr4j/bin/otr4j.jar"
+             basedir="${debian.src.dir}/lib/src/otr4j/bin/classes"/>
+        <symlink resource="../src/otr4j/bin/otr4j.jar"
                  overwrite="true"
                  link="${debian.src.dir}/lib/installer-exclude"/>
 
@@ -3101,7 +3115,10 @@ org.jitsi.bccontrib.util"/>
                  link="${debian.src.dir}/lib/installer-exclude"/>
         <symlink resource="/usr/share/java/bcprov.jar"
                  overwrite="true"
-                 link="${debian.src.dir}/lib/installer-exclude/bcprov-jdk15on-148.jar"/>
+                 link="${debian.src.dir}/lib/installer-exclude/bcprov-jdk15on-149.jar"/>
+        <symlink resource="/usr/share/java/bcpkix.jar"
+                 overwrite="true"
+                 link="${debian.src.dir}/lib/installer-exclude/bcpkix-jdk15on-149.jar"/>
 
         <!-- liblaf-widget-java -->
         <symlink resource="/usr/share/java/laf-widget.jar"
@@ -3115,7 +3132,7 @@ org.jitsi.bccontrib.util"/>
              antfile="build-src.xml"
              >
             <property name="google-collect.jar"
-                      value="/usr/share/java/google-collections-1.0.jar"/>
+                      value="/usr/share/java/guava.jar"/>
             <property name="google-jsr305.jar"
                       value="/usr/share/java/jsr305.jar"/>
             <property name="activation.jar"
@@ -3144,7 +3161,7 @@ org.jitsi.bccontrib.util"/>
              overwrite="true"
              link="${debian.src.dir}/lib/installer-exclude/"/>
         <symlink
-             resource="/usr/share/java/google-collections-1.0.jar"
+             resource="/usr/share/java/guava.jar"
              overwrite="true"
              link="${debian.src.dir}/lib/installer-exclude/google-collect-1.0-rc1.jar"/>
 
