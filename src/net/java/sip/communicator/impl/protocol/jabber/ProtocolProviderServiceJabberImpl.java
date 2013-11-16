@@ -20,7 +20,6 @@ import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.caps.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.colibri.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.coin.*;
-import net.java.sip.communicator.impl.protocol.jabber.extensions.gtalk.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.inputevt.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingleinfo.*;
@@ -162,12 +161,6 @@ public class ProtocolProviderServiceJabberImpl
      * version.
      */
     public static final String CAPS_GTALK_WEB_CAMERA = "camera-v1";
-
-    /**
-     * Google P2P transport URN.
-     */
-    public static final String URN_GOOGLE_TRANSPORT_P2P
-        = "http://www.google.com/transport/p2p";
 
     /**
      * URN for Google voice.
@@ -1360,7 +1353,6 @@ public class ProtocolProviderServiceJabberImpl
             discoveryManager.addFeature(URN_GOOGLE_VOICE);
             discoveryManager.addFeature(URN_GOOGLE_VIDEO);
             discoveryManager.addFeature(URN_GOOGLE_CAMERA);
-            discoveryManager.addFeature(URN_GOOGLE_TRANSPORT_P2P);
         }
 
         /*
@@ -1683,11 +1675,6 @@ public class ProtocolProviderServiceJabberImpl
                                           CoinIQ.NAMESPACE,
                                           new CoinIQProvider());
             supportedFeatures.add(URN_XMPP_JINGLE_COIN);
-
-            //register our GTalk dialect provider
-            providerManager.addIQProvider( SessionIQ.ELEMENT_NAME,
-                                           SessionIQ.NAMESPACE,
-                                           new SessionIQProvider());
 
             // register our JingleInfo provider
             providerManager.addIQProvider(JingleInfoQueryIQ.ELEMENT_NAME,

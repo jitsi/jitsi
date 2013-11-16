@@ -23,7 +23,6 @@ import net.java.sip.communicator.util.*;
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.device.*;
 import org.jitsi.service.neomedia.format.*;
-import org.jivesoftware.smack.util.*;
 import org.jivesoftware.smackx.packet.*;
 
 /**
@@ -466,20 +465,7 @@ public class CallPeerMediaHandlerJabberImpl
         }
 
         // Describe the transport(s).
-        TransportInfoSender transportInfoSender
-            = getTransportManager().getXmlNamespace().equals(
-                    ProtocolProviderServiceJabberImpl.URN_GOOGLE_TRANSPORT_P2P)
-                ? new TransportInfoSender()
-                        {
-                            public void sendTransportInfo(
-                                    Iterable<ContentPacketExtension> contents)
-                            {
-                                getPeer().sendTransportInfo(contents);
-                            }
-                        }
-                : null;
-
-        return harvestCandidates(null, mediaDescs, transportInfoSender);
+        return harvestCandidates(null, mediaDescs, null);
     }
 
     /**
@@ -523,20 +509,7 @@ public class CallPeerMediaHandlerJabberImpl
         }
 
         // Describe the transport(s).
-        TransportInfoSender transportInfoSender
-            = getTransportManager().getXmlNamespace().equals(
-                    ProtocolProviderServiceJabberImpl.URN_GOOGLE_TRANSPORT_P2P)
-                ? new TransportInfoSender()
-                        {
-                            public void sendTransportInfo(
-                                    Iterable<ContentPacketExtension> contents)
-                            {
-                                getPeer().sendTransportInfo(contents);
-                            }
-                        }
-                : null;
-
-        return harvestCandidates(null, mediaDescs, transportInfoSender);
+        return harvestCandidates(null, mediaDescs, null);
     }
 
     /**
@@ -908,22 +881,6 @@ public class CallPeerMediaHandlerJabberImpl
 
                 boolean isJitsiVideobridge = peer.isJitsiVideobridge();
 
-                // We use Google P2P transport if both conditions are satisfied:
-                // - both peers have Google P2P transport in their features;
-                // - at least one peer is a Gmail or Google Apps account.
-                //
-                // Otherwise we go for an ICE-UDP transport
-                boolean google
-                    = protocolProvider.isGmailOrGoogleAppsAccount()
-                        || ProtocolProviderServiceJabberImpl
-                            .isGmailOrGoogleAppsAccount(
-                                    StringUtils.parseServer(peer.getAddress()));
-
-                // if we use jitsi videobridge, we have to use RAW-UDP (or
-                // possibly ICE, but not google P2P)
-                if (isJitsiVideobridge)
-                    google = false;
-
                 /*
                  * If this.supportedTransports has been explicitly set, we use
                  * it to select the transport manager -- we use the first
@@ -965,17 +922,7 @@ public class CallPeerMediaHandlerJabberImpl
                     }
                 }
 
-                if ((transportManager == null)
-                        && google
-                        && isFeatureSupported(
-                                discoveryManager,
-                                peerDiscoverInfo,
-                                ProtocolProviderServiceJabberImpl
-                                    .URN_GOOGLE_TRANSPORT_P2P))
-                {
-                    transportManager = new P2PTransportManager(peer);
-                }
-                else if (transportManager == null)
+                if (transportManager == null)
                 {
                     /*
                      * The list of possible transports ordered by decreasing
@@ -1151,9 +1098,7 @@ public class CallPeerMediaHandlerJabberImpl
              * We'll be harvesting candidates in order to make an offer so it
              * doesn't make sense to send them in transport-info.
              */
-            if (!ProtocolProviderServiceJabberImpl.URN_GOOGLE_TRANSPORT_P2P
-                        .equals(transportManager.getXmlNamespace())
-                    && (transportInfoSender != null))
+            if (transportInfoSender != null)
                 throw new IllegalArgumentException("transportInfoSender");
 
             transportManager.startCandidateHarvest(local, transportInfoSender);
@@ -2104,7 +2049,7 @@ public class CallPeerMediaHandlerJabberImpl
 
         /*
          * TODO The transportManager is going to be changed so it may need to be
-         * disposed prior to the change.
+         * disposed of prior to the change.
          */
 
         if (xmlns.equals(
@@ -2116,11 +2061,6 @@ public class CallPeerMediaHandlerJabberImpl
                 ProtocolProviderServiceJabberImpl.URN_XMPP_JINGLE_RAW_UDP_0))
         {
             transportManager = new RawUdpTransportManager(peer);
-        }
-        else if (xmlns.equals(
-            ProtocolProviderServiceJabberImpl.URN_GOOGLE_TRANSPORT_P2P))
-        {
-            transportManager = new P2PTransportManager(peer);
         }
         else
         {
