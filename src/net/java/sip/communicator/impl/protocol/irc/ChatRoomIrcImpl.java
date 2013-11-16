@@ -38,7 +38,7 @@ public class ChatRoomIrcImpl
     /**
      * The subject of the chat room.
      */
-    private String chatSubject = null;
+    private String chatSubject = "";
 
     /**
      * list of members of this chatRoom
@@ -118,6 +118,11 @@ public class ChatRoomIrcImpl
      * The nick name of the local user for this chat room.
      */
     private String userNickName;
+    
+    /**
+     * The role of the local user for this chat room.
+     */
+    private ChatRoomMemberRole userRole = ChatRoomMemberRole.MEMBER;
 
     /**
      * Creates an instance of <tt>ChatRoomIrcImpl</tt>, by specifying the room
@@ -172,6 +177,29 @@ public class ChatRoomIrcImpl
     public String getIdentifier()
     {
         return chatRoomName;
+    }
+    
+    /**
+     * Adds a <tt>ChatRoomMember</tt> to the list of members of this chat room.
+     *
+     * @param memberID the identifier of the member
+     * @param member the <tt>ChatRoomMember</tt> to add.
+     */
+
+    protected void addChatRoomMember(String memberID, ChatRoomMember member)
+    {
+        chatRoomMembers.put(memberID, member);
+    }
+
+    /**
+     * Removes a <tt>ChatRoomMember</tt> from the list of members of this chat
+     * room.
+     *
+     * @param memberID the name of the <tt>ChatRoomMember</tt> to remove.
+     */
+    protected void removeChatRoomMember(String memberID)
+    {
+        chatRoomMembers.remove(memberID);
     }
 
     /**
@@ -267,6 +295,7 @@ public class ChatRoomIrcImpl
     public void leave()
     {
         this.parentProvider.getIrcStack().leave(this);
+        this.chatRoomMembers.clear();
     }
 
     /**
@@ -589,28 +618,6 @@ public class ChatRoomIrcImpl
 
 
     /**
-     * Adds a <tt>ChatRoomMember</tt> to the list of members of this chat room.
-     *
-     * @param memberID the identifier of the member
-     * @param member the <tt>ChatRoomMember</tt> to add.
-     */
-    protected void addChatRoomMember(String memberID, ChatRoomMember member)
-    {
-        chatRoomMembers.put(memberID, member);
-    }
-
-    /**
-     * Removes a <tt>ChatRoomMember</tt> from the list of members of this chat
-     * room.
-     *
-     * @param memberID the name of the <tt>ChatRoomMember</tt> to remove.
-     */
-    protected void removeChatRoomMember(String memberID)
-    {
-        chatRoomMembers.remove(memberID);
-    }
-
-    /**
      * Returns the <tt>ChatRoomMember</tt> corresponding to the given member id.
      * If no member is found for the given id, returns NULL.
      *
@@ -867,6 +874,7 @@ public class ChatRoomIrcImpl
      */
     public void firePropertyChangeEvent(PropertyChangeEvent evt)
     {
+        
         Iterable<ChatRoomPropertyChangeListener> listeners;
         synchronized (propertyChangeListeners)
         {
@@ -927,6 +935,16 @@ public class ChatRoomIrcImpl
                                         String eventID,
                                         String eventReason)
     {
+        // TODO Separate this from fireMemberPresenceEvent ... it does state modification not informing.
+        if (eventID == ChatRoomMemberPresenceChangeEvent.MEMBER_JOINED)
+        {
+            this.chatRoomMembers.put(member.getContactAddress(), member);
+        }
+        else
+        {
+            this.chatRoomMembers.remove(member.getContactAddress());
+        }
+        
         ChatRoomMemberPresenceChangeEvent evt;
         if(actorMember != null)
             evt = new ChatRoomMemberPresenceChangeEvent(
@@ -1064,8 +1082,16 @@ public class ChatRoomIrcImpl
      */
     public ChatRoomMemberRole getUserRole()
     {
-        //TODO Implement correctly, now uses dummy value.
-        return ChatRoomMemberRole.MEMBER;
+        return this.userRole;
+    }
+    
+    /**
+     * Prepare the local user role.
+     * @param role
+     */
+    void prepUserRole(ChatRoomMemberRole role)
+    {
+        this.userRole = role;
     }
 
     /**
@@ -1240,4 +1266,16 @@ public class ChatRoomIrcImpl
     @Override
     public void setMembersWhiteList(List<String> members)
     {}
+    
+    public void updateSubject(String subject)
+    {
+        if (this.chatSubject.equals(subject) == false)
+        {
+            this.chatSubject = subject;
+            ChatRoomPropertyChangeEvent topicChangeEvent =
+                new ChatRoomPropertyChangeEvent(this,
+                    ChatRoomPropertyChangeEvent.CHAT_ROOM_SUBJECT, "", subject);
+            firePropertyChangeEvent(topicChangeEvent);
+        }
+    }
 }
