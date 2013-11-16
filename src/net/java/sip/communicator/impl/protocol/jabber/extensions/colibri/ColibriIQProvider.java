@@ -15,7 +15,7 @@ import org.xmlpull.v1.*;
 
 /**
  * Implements an <tt>org.jivesoftware.smack.provider.IQProvider</tt> for the
- * Jitsi VideoBridge extension <tt>ColibriConferenceIQ</tt>.
+ * Jitsi Videobridge extension <tt>ColibriConferenceIQ</tt>.
  *
  * @author Lyubomir Marinov
  * @author Boris Grozev
@@ -93,6 +93,8 @@ public class ColibriIQProvider
      * sub-document
      * @see IQProvider#parseIQ(XmlPullParser)
      */
+    @SuppressWarnings("deprecation") // Compatibility with legacy Jitsi and
+                                     // Jitsi Videobridge
     public IQ parseIQ(XmlPullParser parser)
         throws Exception
     {
@@ -155,40 +157,7 @@ public class ColibriIQProvider
                     {
                         channel = new ColibriConferenceIQ.Channel();
 
-                        String channelID
-                            = parser.getAttributeValue(
-                                    "",
-                                    ColibriConferenceIQ.Channel.ID_ATTR_NAME);
-
-                        if ((channelID != null) && (channelID.length() != 0))
-                            channel.setID(channelID);
-
-                        String host
-                            = parser.getAttributeValue(
-                                    "",
-                                    ColibriConferenceIQ.Channel.HOST_ATTR_NAME);
-
-                        if ((host != null) && (host.length() != 0))
-                            channel.setHost(host);
-
-                        String rtpPort
-                            = parser.getAttributeValue(
-                                    "",
-                                    ColibriConferenceIQ.Channel
-                                            .RTP_PORT_ATTR_NAME);
-
-                        if ((rtpPort != null) && (rtpPort.length() != 0))
-                            channel.setRTPPort(Integer.parseInt(rtpPort));
-
-                        String rtcpPort
-                            = parser.getAttributeValue(
-                                    "",
-                                    ColibriConferenceIQ.Channel
-                                            .RTCP_PORT_ATTR_NAME);
-
-                        if ((rtcpPort != null) && (rtcpPort.length() != 0))
-                            channel.setRTCPPort(Integer.parseInt(rtcpPort));
-
+                        // direction
                         String direction
                             = parser.getAttributeValue(
                                     "" ,
@@ -201,6 +170,7 @@ public class ColibriIQProvider
                                     MediaDirection.parseString(direction));
                         }
 
+                        // expire
                         String expire
                             = parser.getAttributeValue(
                                     "",
@@ -209,6 +179,54 @@ public class ColibriIQProvider
 
                         if ((expire != null) && (expire.length() != 0))
                             channel.setExpire(Integer.parseInt(expire));
+
+                        // host
+                        String host
+                            = parser.getAttributeValue(
+                                    "",
+                                    ColibriConferenceIQ.Channel.HOST_ATTR_NAME);
+
+                        if ((host != null) && (host.length() != 0))
+                            channel.setHost(host);
+
+                        // id
+                        String channelID
+                            = parser.getAttributeValue(
+                                    "",
+                                    ColibriConferenceIQ.Channel.ID_ATTR_NAME);
+
+                        if ((channelID != null) && (channelID.length() != 0))
+                            channel.setID(channelID);
+
+                        // initiator
+                        String initiator
+                            = parser.getAttributeValue(
+                                    "",
+                                    ColibriConferenceIQ.Channel
+                                            .INITIATOR_ATTR_NAME);
+
+                        if ((initiator != null) && (initiator.length() != 0))
+                            channel.setInitiator(Boolean.valueOf(initiator));
+
+                        // rtcpPort
+                        String rtcpPort
+                            = parser.getAttributeValue(
+                                    "",
+                                    ColibriConferenceIQ.Channel
+                                            .RTCP_PORT_ATTR_NAME);
+
+                        if ((rtcpPort != null) && (rtcpPort.length() != 0))
+                            channel.setRTCPPort(Integer.parseInt(rtcpPort));
+
+                        // rtpPort
+                        String rtpPort
+                            = parser.getAttributeValue(
+                                    "",
+                                    ColibriConferenceIQ.Channel
+                                            .RTP_PORT_ATTR_NAME);
+
+                        if ((rtpPort != null) && (rtpPort.length() != 0))
+                            channel.setRTPPort(Integer.parseInt(rtpPort));
                     }
                     else if (ColibriConferenceIQ.Channel.SSRC_ELEMENT_NAME
                             .equals(name))
@@ -238,7 +256,7 @@ public class ColibriIQProvider
                                 name))
                         {
                             /*
-                             * The channel element of the Jitsi VideoBridge
+                             * The channel element of the Jitsi Videobridge
                              * protocol reuses the payload-type element defined
                              * in XEP-0167: Jingle RTP Sessions.
                              */

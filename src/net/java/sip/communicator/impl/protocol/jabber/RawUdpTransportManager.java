@@ -15,7 +15,7 @@ import net.java.sip.communicator.impl.protocol.jabber.jinglesdp.*;
 import net.java.sip.communicator.service.protocol.*;
 
 import org.jitsi.service.neomedia.*;
-import net.java.sip.communicator.util.*;
+import org.jivesoftware.smack.packet.*;
 
 /**
  * A {@link TransportManagerJabberImpl} implementation that would only gather a
@@ -43,15 +43,6 @@ public class RawUdpTransportManager
         = new LinkedList<Iterable<ContentPacketExtension>>();
 
     /**
-     * The information pertaining to the Jisti Videobridge conference which the
-     * local peer represented by this instance is a focus of. It gives a view of
-     * the whole Jitsi Videobridge conference managed by the associated
-     * <tt>CallJabberImpl</tt> which provides information specific to this
-     * <tt>RawUdpTransportManager</tt> only.
-     */
-    private ColibriConferenceIQ colibri;
-
-    /**
      * Creates a new instance of this transport manager, binding it to the
      * specified peer.
      *
@@ -64,172 +55,31 @@ public class RawUdpTransportManager
     }
 
     /**
-     * Closes a specific <tt>StreamConnector</tt> associated with a specific
-     * <tt>MediaType</tt>. If this <tt>TransportManager</tt> has a reference to
-     * the specified <tt>streamConnector</tt>, it remains.
-     * Also expires the <tt>ColibriConferenceIQ.Channel</tt> associated with
-     * the closed <tt>StreamConnector</tt>.
-     *
-     * @param mediaType the <tt>MediaType</tt> associated with the specified
-     * <tt>streamConnector</tt>
-     * @param streamConnector the <tt>StreamConnector</tt> to be closed
+     * {@inheritDoc}
      */
-    @Override
-    protected void closeStreamConnector(
-            MediaType mediaType,
-            StreamConnector streamConnector)
-    {
-        try
-        {
-            boolean superCloseStreamConnector = true;
-
-            if (streamConnector instanceof ColibriStreamConnector)
-            {
-                CallPeerJabberImpl peer = getCallPeer();
-
-                if (peer != null)
-                {
-                    CallJabberImpl call = peer.getCall();
-
-                    if (call != null)
-                    {
-                        superCloseStreamConnector = false;
-                        call.closeColibriStreamConnector(
-                            peer,
-                            mediaType,
-                            (ColibriStreamConnector) streamConnector);
-                    }
-                }
-            }
-            if (superCloseStreamConnector)
-                super.closeStreamConnector(mediaType, streamConnector);
-        }
-        finally
-        {
-            /*
-             * Expire the ColibriConferenceIQ.Channel associated with the closed
-             * StreamConnector.
-             */
-            if (colibri != null)
-            {
-                ColibriConferenceIQ.Content content
-                    = colibri.getContent(mediaType.toString());
-
-                if (content != null)
-                {
-                    List<ColibriConferenceIQ.Channel> channels
-                        = content.getChannels();
-
-                    if (channels.size() == 2)
-                    {
-                        ColibriConferenceIQ requestConferenceIQ
-                            = new ColibriConferenceIQ();
-
-                        requestConferenceIQ.setID(colibri.getID());
-
-                        ColibriConferenceIQ.Content requestContent
-                            = requestConferenceIQ.getOrCreateContent(
-                                    content.getName());
-
-                        requestContent.addChannel(channels.get(1 /* remote */));
-
-                        /*
-                         * Regardless of whether the request to expire the
-                         * Channel associated with mediaType succeeds, consider
-                         * the Channel in question expired. Since
-                         * RawUdpTransportManager allocates a single channel per
-                         * MediaType, consider the whole Content expired.
-                         */
-                        colibri.removeContent(content);
-
-                        CallPeerJabberImpl peer = getCallPeer();
-
-                        if (peer != null)
-                        {
-                            CallJabberImpl call = peer.getCall();
-
-                            if (call != null)
-                                call.expireColibriChannels(
-                                    peer,
-                                    requestConferenceIQ);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Creates a media <tt>StreamConnector</tt> for a stream of a specific
-     * <tt>MediaType</tt>.
-     *
-     * @param mediaType the <tt>MediaType</tt> of the stream for which a
-     * <tt>StreamConnector</tt> is to be created
-     * @return a <tt>StreamConnector</tt> for the stream of the specified
-     * <tt>mediaType</tt>
-     * @throws OperationFailedException if the binding of the sockets fails
-     */
-    @Override
-    protected StreamConnector createStreamConnector(final MediaType mediaType)
+    protected PacketExtension createTransport(String media)
         throws OperationFailedException
     {
-        ColibriConferenceIQ.Channel channel
-            = getColibriChannel(mediaType, true /* local */);
+        MediaType mediaType = MediaType.parseString(media);
 
-        if (channel != null)
-        {
-            CallPeerJabberImpl peer = getCallPeer();
-            CallJabberImpl call = peer.getCall();
-            StreamConnector streamConnector
-                = call.createColibriStreamConnector(
-                        peer,
-                        mediaType,
-                        channel,
-                        new StreamConnectorFactory()
-                        {
-                            public StreamConnector createStreamConnector()
-                            {
-                                try
-                                {
-                                    return
-                                        RawUdpTransportManager
-                                            .super
-                                                .createStreamConnector(
-                                                        mediaType);
-                                }
-                                catch (OperationFailedException ofe)
-                                {
-                                    return null;
-                                }
-                            }
-                        });
-
-            if (streamConnector != null)
-                return streamConnector;
-        }
-
-        return super.createStreamConnector(mediaType);
+        return createTransport(mediaType, getStreamConnector(mediaType));
     }
 
     /**
-     * Creates a raw UDP transport element according to the specified stream
-     * <tt>connector</tt>.
+     * Creates a raw UDP transport element according to a specific
+     * <tt>StreamConnector</tt>.
      *
      * @param mediaType the <tt>MediaType</tt> of the <tt>MediaStream</tt> which
-     * uses the specified <tt>connector</tt>
-     * @param connector the connector that we'd like to describe within the
-     * transport element.
-     *
+     * uses the specified <tt>connector</tt> or <tt>channel</tt>
+     * @param connector the <tt>StreamConnector</tt> to be described within the
+     * transport element
      * @return a {@link RawUdpTransportPacketExtension} containing the RTP and
-     * RTCP candidates of the specified {@link StreamConnector}.
+     * RTCP candidates of the specified <tt>connector</tt>
      */
     private RawUdpTransportPacketExtension createTransport(
             MediaType mediaType,
             StreamConnector connector)
     {
-        ColibriConferenceIQ.Channel channel
-            = getColibriChannel(mediaType, false /* remote */);
-
         RawUdpTransportPacketExtension ourTransport
             = new RawUdpTransportPacketExtension();
         int generation = getCurrentGeneration();
@@ -243,18 +93,10 @@ public class RawUdpTransportManager
         rtpCand.setID(getNextID());
         rtpCand.setType(CandidateType.host);
 
-        if (channel == null)
-        {
-            DatagramSocket dataSocket = connector.getDataSocket();
+        DatagramSocket dataSocket = connector.getDataSocket();
 
-            rtpCand.setIP(dataSocket.getLocalAddress().getHostAddress());
-            rtpCand.setPort(dataSocket.getLocalPort());
-        }
-        else
-        {
-            rtpCand.setIP(channel.getHost());
-            rtpCand.setPort(channel.getRTPPort());
-        }
+        rtpCand.setIP(dataSocket.getLocalAddress().getHostAddress());
+        rtpCand.setPort(dataSocket.getLocalPort());
 
         ourTransport.addCandidate(rtpCand);
 
@@ -266,22 +108,22 @@ public class RawUdpTransportManager
         rtcpCand.setID(getNextID());
         rtcpCand.setType(CandidateType.host);
 
-        if (channel == null)
-        {
-            DatagramSocket controlSocket = connector.getControlSocket();
+        DatagramSocket controlSocket = connector.getControlSocket();
 
-            rtcpCand.setIP(controlSocket.getLocalAddress().getHostAddress());
-            rtcpCand.setPort(controlSocket.getLocalPort());
-        }
-        else
-        {
-            rtcpCand.setIP(channel.getHost());
-            rtcpCand.setPort(channel.getRTCPPort());
-        }
+        rtcpCand.setIP(controlSocket.getLocalAddress().getHostAddress());
+        rtcpCand.setPort(controlSocket.getLocalPort());
 
         ourTransport.addCandidate(rtcpCand);
 
         return ourTransport;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected PacketExtension createTransportPacketExtension()
+    {
+        return new RawUdpTransportPacketExtension();
     }
 
     /**
@@ -299,88 +141,62 @@ public class RawUdpTransportManager
     @Override
     public MediaStreamTarget getStreamTarget(MediaType mediaType)
     {
+        ColibriConferenceIQ.Channel channel
+            = getColibriChannel(mediaType, true /* local */);
         MediaStreamTarget streamTarget = null;
 
-        for (Iterable<ContentPacketExtension> remote : remotes)
+        if (channel == null)
         {
-            for (ContentPacketExtension content : remote)
+            String media = mediaType.toString();
+
+            for (Iterable<ContentPacketExtension> remote : remotes)
             {
-                RtpDescriptionPacketExtension rtpDescription
-                    = content.getFirstChildOfType(
-                            RtpDescriptionPacketExtension.class);
-                MediaType contentMediaType
-                    = MediaType.parseString(rtpDescription.getMedia());
-
-                if (mediaType.equals(contentMediaType))
+                for (ContentPacketExtension content : remote)
                 {
-                    ColibriConferenceIQ.Channel channel
-                        = getColibriChannel(mediaType, true /* local */);
+                    RtpDescriptionPacketExtension rtpDescription
+                        = content.getFirstChildOfType(
+                                RtpDescriptionPacketExtension.class);
 
-                    if (channel == null)
+                    if (media.equals(rtpDescription.getMedia()))
                     {
                         streamTarget
                             = JingleUtils.extractDefaultTarget(content);
+                        break;
                     }
-                    else
-                    {
-                        streamTarget
-                            = new MediaStreamTarget(
-                                    new InetSocketAddress(
-                                            channel.getHost(),
-                                            channel.getRTPPort()),
-                                    new InetSocketAddress(
-                                            channel.getHost(),
-                                            channel.getRTCPPort()));
-                    }
+                }
+            }
+        }
+        else
+        {
+            IceUdpTransportPacketExtension transport = channel.getTransport();
 
-                    break;
+            if (transport != null)
+                streamTarget = JingleUtils.extractDefaultTarget(transport);
+            if (streamTarget == null)
+            {
+                /*
+                 * For the purposes of compatibility with legacy Jitsi
+                 * Videobridge, support the channel attributes host, rtpPort and
+                 * rtcpPort.
+                 */
+                @SuppressWarnings("deprecation")
+                String host = channel.getHost();
+
+                if (host != null)
+                {
+                    @SuppressWarnings("deprecation")
+                    int rtpPort = channel.getRTPPort();
+                    @SuppressWarnings("deprecation")
+                    int rtcpPort = channel.getRTCPPort();
+
+                    streamTarget
+                        = new MediaStreamTarget(
+                                new InetSocketAddress(host, rtpPort),
+                                new InetSocketAddress(host, rtcpPort));
                 }
             }
         }
         return streamTarget;
-    }
-
-    /**
-     * Gets the {@link ColibriConferenceIQ.Channel} which belongs to a content
-     * associated with a specific <tt>MediaType</tt> and is to be either locally
-     * or remotely used.
-     * <p>
-     * <b>Note</b>: Modifications to the <tt>ColibriConferenceIQ.Channel</tt>
-     * instance returned by the method propagate to (the state of) this
-     * instance.
-     * </p>
-     *
-     * @param mediaType the <tt>MediaType</tt> associated with the content which
-     * contains the <tt>ColibriConferenceIQ.Channel</tt> to get
-     * @param local <tt>true</tt> if the <tt>ColibriConferenceIQ.Channel</tt>
-     * which is to be used locally is to be returned or <tt>false</tt> for the
-     * one which is to be used remotely
-     * @return the <tt>ColibriConferenceIQ.Channel</tt> which belongs to a
-     * content associated with the specified <tt>mediaType</tt> and which is to
-     * be used in accord with the specified <tt>local</tt> indicator if such a
-     * channel exists; otherwise, <tt>null</tt>
-     */
-    ColibriConferenceIQ.Channel getColibriChannel(
-            MediaType mediaType,
-            boolean local)
-    {
-        ColibriConferenceIQ.Channel channel = null;
-
-        if (colibri != null)
-        {
-            ColibriConferenceIQ.Content content
-                = colibri.getContent(mediaType.toString());
-
-            if (content != null)
-            {
-                List<ColibriConferenceIQ.Channel> channels
-                    = content.getChannels();
-
-                if (channels.size() == 2)
-                    channel = channels.get(local ? 0 : 1);
-            }
-        }
-        return channel;
     }
 
     /**
@@ -447,32 +263,16 @@ public class RawUdpTransportManager
     }
 
     /**
-     * Starts transport candidate harvest. This method should complete rapidly
-     * and, in case of lengthy procedures like STUN/TURN/UPnP candidate harvests
-     * are necessary, they should be executed in a separate thread. Candidate
-     * harvest would then need to be concluded in the
-     * {@link #wrapupCandidateHarvest()} method which would be called once we
-     * absolutely need the candidates.
-     *
-     * @param ourOffer the content list that should tell us how many stream
-     * connectors we actually need.
-     * @param transportInfoSender the <tt>TransportInfoSender</tt> to be used by
-     * this <tt>TransportManagerJabberImpl</tt> to send <tt>transport-info</tt>
-     * <tt>JingleIQ</tt>s from the local peer to the remote peer if this
-     * <tt>TransportManagerJabberImpl</tt> wishes to utilize
-     * <tt>transport-info</tt>. Local candidate addresses sent by this
-     * <tt>TransportManagerJabberImpl</tt> in <tt>transport-info</tt> are
-     * expected to not be included in the result of
-     * {@link #wrapupCandidateHarvest()}.
-     * @throws OperationFailedException in case we fail allocating ports
+     * {@inheritDoc}
      */
-    @Override
-    public void startCandidateHarvest(
-            List<ContentPacketExtension> ourOffer,
-            TransportInfoSender transportInfoSender)
+    protected PacketExtension startCandidateHarvest(
+            ContentPacketExtension theirContent,
+            ContentPacketExtension ourContent,
+            TransportInfoSender transportInfoSender,
+            String media)
         throws OperationFailedException
     {
-        startCandidateHarvest(null, ourOffer, transportInfoSender);
+        return createTransportForStartCandidateHarvest(media);
     }
 
     /**
@@ -508,161 +308,15 @@ public class RawUdpTransportManager
             TransportInfoSender transportInfoSender)
         throws OperationFailedException
     {
-        CallPeerJabberImpl peer = getCallPeer();
-        CallJabberImpl call = peer.getCall();
-        List<ContentPacketExtension> cpes
-            = (theirOffer == null) ? ourAnswer : theirOffer;
-
-        /*
-         * If Jitsi Videobridge is to be used, determine which channels are to
-         * be allocated and attempt to allocate them now.
-         */
-        if (call.getConference().isJitsiVideobridge())
-        {
-            Map<ContentPacketExtension,ContentPacketExtension> contentMap
-                = new LinkedHashMap
-                    <ContentPacketExtension,ContentPacketExtension>();
-
-            for (ContentPacketExtension cpe : cpes)
-            {
-                RtpDescriptionPacketExtension rdpe
-                    = cpe.getFirstChildOfType(
-                            RtpDescriptionPacketExtension.class);
-                MediaType mediaType = MediaType.parseString(rdpe.getMedia());
-
-                /*
-                 * The existence of a content for the mediaType and regardless
-                 * of the existence of channels in it signals that a channel
-                 * allocation request has already been sent for that mediaType.
-                 */
-                if ((colibri == null)
-                        || (colibri.getContent(mediaType.toString()) == null))
-                {
-                    ContentPacketExtension local, remote;
-
-                    if (cpes == ourAnswer)
-                    {
-                        local = cpe;
-                        remote
-                            = (theirOffer == null)
-                                ? null
-                                : findContentByName(theirOffer, cpe.getName());
-                    }
-                    else
-                    {
-                        local = findContentByName(ourAnswer, cpe.getName());
-                        remote = cpe;
-                    }
-                    contentMap.put(local, remote);
-                }
-            }
-            if (!contentMap.isEmpty())
-            {
-                /*
-                 * We are about to request the channel allocations for the media
-                 * types found in 'rdpes'. Regardless of the response, we do not
-                 * want to repeat these requests.
-                 */
-                if (colibri == null)
-                    colibri = new ColibriConferenceIQ();
-                for (Map.Entry<ContentPacketExtension,ContentPacketExtension> e
-                        : contentMap.entrySet())
-                {
-                    ContentPacketExtension cpe = e.getValue();
-
-                    if (cpe == null)
-                        cpe = e.getKey();
-
-                    RtpDescriptionPacketExtension rdpe
-                        = cpe.getFirstChildOfType(
-                                RtpDescriptionPacketExtension.class);
-
-                    colibri.getOrCreateContent(rdpe.getMedia());
-                }
-
-                ColibriConferenceIQ conferenceResult
-                    = call.createColibriChannels(peer, contentMap);
-
-                if (conferenceResult != null)
-                {
-                    String videoBridgeID = colibri.getID();
-                    String conferenceResultID = conferenceResult.getID();
-
-                    if (videoBridgeID == null)
-                        colibri.setID(conferenceResultID);
-                    else if (!videoBridgeID.equals(conferenceResultID))
-                        throw new IllegalStateException("conference.id");
-
-                    for (ColibriConferenceIQ.Content contentResult
-                            : conferenceResult.getContents())
-                    {
-                        ColibriConferenceIQ.Content content
-                            = colibri.getOrCreateContent(
-                                    contentResult.getName());
-
-                        for (ColibriConferenceIQ.Channel channelResult
-                                : contentResult.getChannels())
-                        {
-                            if (content.getChannel(channelResult.getID())
-                                    == null)
-                            {
-                                content.addChannel(channelResult);
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    /*
-                     * The call fails if the createColibriChannels method fails
-                     * which may happen if the conference packet times out or it
-                     * can't be built.
-                     */
-                    ProtocolProviderServiceJabberImpl
-                        .throwOperationFailedException(
-                            "Failed to allocate colibri channel.",
-                            OperationFailedException.GENERAL_ERROR,
-                            null,
-                            Logger.getLogger(RawUdpTransportManager.class));
-                }
-            }
-        }
-
-        /*
-         * RawUdpTransportManager#startCandidateHarvest(
-         * List<ContentPacketExtension>, TransportInfoSender) delegates here
-         * because the implementations are pretty much identical and it's just
-         * that there's no theirOffer and ourAnswer is in fact our offer to
-         * which their answer is expected.
-         */
-        for (ContentPacketExtension cpe : cpes)
-        {
-            RtpDescriptionPacketExtension rtpDesc
-                = cpe.getFirstChildOfType(
-                        RtpDescriptionPacketExtension.class);
-            MediaType mediaType = MediaType.parseString(rtpDesc.getMedia());
-            StreamConnector connector = getStreamConnector(mediaType);
-            RawUdpTransportPacketExtension ourTransport
-                = createTransport(mediaType, connector);
-
-            //now add our transport to our answer
-            ContentPacketExtension ourCpe
-                = findContentByName(ourAnswer, cpe.getName());
-
-            //it might be that we decided not to reply to this content
-            if (ourCpe != null)
-                ourCpe.addChildExtension(ourTransport);
-        }
-
         this.local = ourAnswer;
+
+        super.startCandidateHarvest(theirOffer, ourAnswer, transportInfoSender);
     }
 
     /**
-     * Overrides
-     * <tt>TransportManagerJabberImpl#startConnectivityEstablishment(Iterable&lt;ContentPacketExtension&gt;)</tt>
-     * in order to remember the remote counterpart of the negotiation between
-     * the local and the remote peer for subsequent calls to
-     * {@link #getStreamTarget(MediaType)}.
+     * Overrides the super implementation in order to remember the remote
+     * counterpart of the negotiation between the local and the remote peer for
+     * subsequent calls to {@link #getStreamTarget(MediaType)}.
      *
      * @param remote the collection of <tt>ContentPacketExtension</tt>s which
      * represents the remote counterpart of the negotiation between the local

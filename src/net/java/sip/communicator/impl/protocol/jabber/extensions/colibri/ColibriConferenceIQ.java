@@ -14,7 +14,7 @@ import org.jitsi.service.neomedia.*;
 import org.jivesoftware.smack.packet.*;
 
 /**
- * Implements the Jitsi VideoBridge <tt>conference</tt> IQ within the
+ * Implements the Jitsi Videobridge <tt>conference</tt> IQ within the
  * COnferencing with LIghtweight BRIdging.
  *
  * @author Lyubomir Marinov
@@ -24,12 +24,12 @@ public class ColibriConferenceIQ
     extends IQ
 {
     /**
-     * The XML element name of the Jitsi VideoBridge <tt>conference</tt> IQ.
+     * The XML element name of the Jitsi Videobridge <tt>conference</tt> IQ.
      */
     public static final String ELEMENT_NAME = "conference";
 
     /**
-     * The XML name of the <tt>id</tt> attribute of the Jitsi VideoBridge
+     * The XML name of the <tt>id</tt> attribute of the Jitsi Videobridge
      * <tt>conference</tt> IQ which represents the value of the <tt>id</tt>
      * property of <tt>ColibriConferenceIQ</tt>.
      */
@@ -37,7 +37,7 @@ public class ColibriConferenceIQ
 
     /**
      * The XML COnferencing with LIghtweight BRIdging namespace of the Jitsi
-     * VideoBridge <tt>conference</tt> IQ.
+     * Videobridge <tt>conference</tt> IQ.
      */
     public static final String NAMESPACE
         = "http://jitsi.org/protocol/colibri";
@@ -58,6 +58,11 @@ public class ColibriConferenceIQ
      * The ID of the conference represented by this IQ.
      */
     private String id;
+
+    /** Initializes a new <tt>ColibriConferenceIQ</tt> instance. */
+    public ColibriConferenceIQ()
+    {
+    }
 
     /**
      * Initializes a new {@link Content} instance with a specific name and adds
@@ -221,7 +226,7 @@ public class ColibriConferenceIQ
 
     /**
      * Represents a <tt>channel</tt> included into a <tt>content</tt> of a Jitsi
-     * VideoBridge <tt>conference</tt> IQ.
+     * Videobridge <tt>conference</tt> IQ.
      */
     public static class Channel
     {
@@ -233,7 +238,7 @@ public class ColibriConferenceIQ
 
         /**
          * The XML element name of a <tt>channel</tt> of a <tt>content</tt> of a
-         * Jitsi VideoBridge <tt>conference</tt> IQ.
+         * Jitsi Videobridge <tt>conference</tt> IQ.
          */
         public static final String ELEMENT_NAME = "channel";
 
@@ -257,7 +262,11 @@ public class ColibriConferenceIQ
          * a <tt>content</tt> of a <tt>conference</tt> IQ which represents the
          * value of the <tt>host</tt> property of
          * <tt>ColibriConferenceIQ.Channel</tt>.
+         *
+         * @deprecated The attribute is supported for the purposes of
+         * compatibility with legacy versions of Jitsi and Jitsi Videobridge. 
          */
+        @Deprecated
         public static final String HOST_ATTR_NAME = "host";
 
         /**
@@ -269,11 +278,23 @@ public class ColibriConferenceIQ
         public static final String ID_ATTR_NAME = "id";
 
         /**
+         * The XML name of the <tt>initiator</tt> attribute of a
+         * <tt>channel</tt> of a <tt>content</tt> of a <tt>conference</tt> IQ
+         * which represents the value of the <tt>initiator</tt> property of
+         * <tt>ColibriConferenceIQ.Channel</tt>.
+         */
+        public static final String INITIATOR_ATTR_NAME = "initiator";
+
+        /**
          * The XML name of the <tt>rtcpport</tt> attribute of a <tt>channel</tt>
          * of a <tt>content</tt> of a <tt>conference</tt> IQ which represents
          * the value of the <tt>rtcpPort</tt> property of
          * <tt>ColibriConferenceIQ.Channel</tt>.
+         *
+         * @deprecated The attribute is supported for the purposes of
+         * compatibility with legacy versions of Jitsi and Jitsi Videobridge. 
          */
+        @Deprecated
         public static final String RTCP_PORT_ATTR_NAME = "rtcpport";
 
         /**
@@ -281,7 +302,11 @@ public class ColibriConferenceIQ
          * of a <tt>content</tt> of a <tt>conference</tt> IQ which represents
          * the value of the <tt>rtpPort</tt> property of
          * <tt>ColibriConferenceIQ.Channel</tt>.
+         *
+         * @deprecated The attribute is supported for the purposes of
+         * compatibility with legacy versions of Jitsi and Jitsi Videobridge. 
          */
+        @Deprecated
         public static final String RTP_PORT_ATTR_NAME = "rtpport";
 
         /**
@@ -304,13 +329,24 @@ public class ColibriConferenceIQ
 
         /**
          * The host of the <tt>channel</tt> represented by this instance.
+         *
+         * @deprecated The field is supported for the purposes of compatibility
+         * with legacy versions of Jitsi and Jitsi Videobridge. 
          */
+        @Deprecated
         private String host;
 
         /**
          * The ID of the <tt>channel</tt> represented by this instance.
          */
         private String id;
+
+        /**
+         * The indicator which determines whether the conference focus is the
+         * initiator/offerer (as opposed to the responder/answerer) of the media
+         * negotiation associated with this instance.
+         */
+        private Boolean initiator;
 
         /**
          * The <tt>payload-type</tt> elements defined by XEP-0167: Jingle RTP
@@ -321,22 +357,35 @@ public class ColibriConferenceIQ
 
         /**
          * The RTCP port of the <tt>channel</tt> represented by this instance.
+         *
+         * @deprecated The field is supported for the purposes of compatibility
+         * with legacy versions of Jitsi and Jitsi Videobridge. 
          */
+        @Deprecated
         private int rtcpPort;
 
         /**
          * The RTP port of the <tt>channel</tt> represented by this instance.
+         *
+         * @deprecated The field is supported for the purposes of compatibility
+         * with legacy versions of Jitsi and Jitsi Videobridge. 
          */
+        @Deprecated
         private int rtpPort;
 
         /**
          * The list of (RTP) SSRCs which have been seen/received on this
          * <tt>Channel</tt> by now. These may exclude SSRCs which are no longer
-         * active. Set by the Jitsi VideoBridge server, not its clients.
+         * active. Set by the Jitsi Videobridge server, not its clients.
          */
         private long[] ssrcs = NO_SSRCS;
 
         private IceUdpTransportPacketExtension transport;
+
+        /** Initializes a new <tt>Channel</tt> instance. */
+        public Channel()
+        {
+        }
 
         /**
          * Adds a <tt>payload-type</tt> element defined by XEP-0167: Jingle RTP
@@ -368,7 +417,7 @@ public class ColibriConferenceIQ
 
         /**
          * Adds a specific (RTP) SSRC to the list of SSRCs seen/received on this
-         * <tt>Channel</tt>. Invoked by the Jitsi VideoBridge server, not its
+         * <tt>Channel</tt>. Invoked by the Jitsi Videobridge server, not its
          * clients.
          *
          * @param ssrc the (RTP) SSRC to be added to the list of SSRCs
@@ -424,7 +473,11 @@ public class ColibriConferenceIQ
          * @return a <tt>String</tt> value which represents the IP address of
          * the host on which the <tt>channel</tt> represented by this instance
          * has been allocated
+         *
+         * @deprecated The method is supported for the purposes of compatibility
+         * with legacy versions of Jitsi and Jitsi Videobridge. 
          */
+        @Deprecated
         public String getHost()
         {
             return host;
@@ -459,7 +512,11 @@ public class ColibriConferenceIQ
          *
          * @return the port which has been allocated to this <tt>channel</tt>
          * for the purposes of transmitting RTCP packets
+         *
+         * @deprecated The method is supported for the purposes of compatibility
+         * with legacy versions of Jitsi and Jitsi Videobridge. 
          */
+        @Deprecated
         public int getRTCPPort()
         {
             return rtcpPort;
@@ -471,7 +528,11 @@ public class ColibriConferenceIQ
          *
          * @return the port which has been allocated to this <tt>channel</tt>
          * for the purposes of transmitting RTP packets
+         *
+         * @deprecated The method is supported for the purposes of compatibility
+         * with legacy versions of Jitsi and Jitsi Videobridge. 
          */
+        @Deprecated
         public int getRTPPort()
         {
             return rtpPort;
@@ -495,6 +556,22 @@ public class ColibriConferenceIQ
         }
 
         /**
+         * Gets the indicator which determines whether the conference focus is
+         * the initiator/offerer (as opposed to the responder/answerer) of the
+         * media negotiation associated with this instance.
+         *
+         * @return {@link Boolean#TRUE} if the conference focus is the
+         * initiator/offerer of the media negotiation associated with this
+         * instance, {@link Boolean#FALSE} if the conference focus is the
+         * responder/answerer or <tt>null</tt> if the <tt>initiator</tt> state
+         * is unspecified
+         */
+        public Boolean isInitiator()
+        {
+            return initiator;
+        }
+
+        /**
          * Removes a <tt>payload-type</tt> element defined by XEP-0167: Jingle
          * RTP Sessions from this <tt>channel</tt>.
          *
@@ -511,7 +588,7 @@ public class ColibriConferenceIQ
 
         /**
          * Removes a specific (RTP) SSRC from the list of SSRCs seen/received on
-         * this <tt>Channel</tt>. Invoked by the Jitsi VideoBridge server, not
+         * this <tt>Channel</tt>. Invoked by the Jitsi Videobridge server, not
          * its clients.
          *
          * @param ssrc the (RTP) SSRC to be removed from the list of SSRCs
@@ -593,7 +670,11 @@ public class ColibriConferenceIQ
          * @param host a <tt>String</tt> value which represents the IP address
          * of the host on which the <tt>channel</tt> represented by this
          * instance has been allocated
+         *
+         * @deprecated The method is supported for the purposes of compatibility
+         * with legacy versions of Jitsi and Jitsi Videobridge. 
          */
+        @Deprecated
         public void setHost(String host)
         {
             this.host = host;
@@ -610,12 +691,32 @@ public class ColibriConferenceIQ
         }
 
         /**
+         * Sets the indicator which determines whether the conference focus is
+         * the initiator/offerer (as opposed to the responder/answerer) of the
+         * media negotiation associated with this instance.
+         *
+         * @param initiator {@link Boolean#TRUE} if the conference focus is the
+         * initiator/offerer of the media negotiation associated with this
+         * instance, {@link Boolean#FALSE} if the conference focus is the
+         * responder/answerer or <tt>null</tt> if the <tt>initiator</tt> state
+         * is to be unspecified
+         */
+        public void setInitiator(Boolean initiator)
+        {
+            this.initiator = initiator;
+        }
+
+        /**
          * Sets the port which has been allocated to this <tt>channel</tt> for
          * the purposes of transmitting RTCP packets.
          *
          * @param rtcpPort the port which has been allocated to this
          * <tt>channel</tt> for the purposes of transmitting RTCP packets
+         *
+         * @deprecated The method is supported for the purposes of compatibility
+         * with legacy versions of Jitsi and Jitsi Videobridge. 
          */
+        @Deprecated
         public void setRTCPPort(int rtcpPort)
         {
             this.rtcpPort = rtcpPort;
@@ -627,7 +728,11 @@ public class ColibriConferenceIQ
          *
          * @param rtpPort the port which has been allocated to this
          * <tt>channel</tt> for the purposes of transmitting RTP packets
+         *
+         * @deprecated The method is supported for the purposes of compatibility
+         * with legacy versions of Jitsi and Jitsi Videobridge. 
          */
+        @Deprecated
         public void setRTPPort(int rtpPort)
         {
             this.rtpPort = rtpPort;
@@ -668,38 +773,16 @@ public class ColibriConferenceIQ
         {
             xml.append('<').append(ELEMENT_NAME);
 
-            String id = getID();
+            // direction
+            MediaDirection direction = getDirection();
 
-            if (id != null)
+            if ((direction != null) && (direction != MediaDirection.SENDRECV))
             {
-                xml.append(' ').append(ID_ATTR_NAME).append("='").append(id)
-                        .append('\'');
+                xml.append(' ').append(DIRECTION_ATTR_NAME).append("='")
+                        .append(direction.toString()).append('\'');
             }
 
-            String host = getHost();
-
-            if (host != null)
-            {
-                xml.append(' ').append(HOST_ATTR_NAME).append("='").append(host)
-                        .append('\'');
-            }
-
-            int rtpPort = getRTPPort();
-
-            if (rtpPort > 0)
-            {
-                xml.append(' ').append(RTP_PORT_ATTR_NAME).append("='")
-                        .append(rtpPort).append('\'');
-            }
-
-            int rtcpPort = getRTCPPort();
-
-            if (rtcpPort > 0)
-            {
-                xml.append(' ').append(RTCP_PORT_ATTR_NAME).append("='")
-                        .append(rtcpPort).append('\'');
-            }
-
+            // expire
             int expire = getExpire();
 
             if (expire >= 0)
@@ -708,12 +791,49 @@ public class ColibriConferenceIQ
                         .append(expire).append('\'');
             }
 
-            MediaDirection direction = getDirection();
+            // host
+            String host = getHost();
 
-            if ((direction != null) && (direction != MediaDirection.SENDRECV))
+            if (host != null)
             {
-                xml.append(' ').append(DIRECTION_ATTR_NAME).append("='")
-                        .append(direction.toString()).append('\'');
+                xml.append(' ').append(HOST_ATTR_NAME).append("='").append(host)
+                        .append('\'');
+            }
+
+            // id
+            String id = getID();
+
+            if (id != null)
+            {
+                xml.append(' ').append(ID_ATTR_NAME).append("='").append(id)
+                        .append('\'');
+            }
+
+            // initiator
+            Boolean initiator = isInitiator();
+
+            if (initiator != null)
+            {
+                xml.append(' ').append(INITIATOR_ATTR_NAME).append("='")
+                        .append(initiator).append('\'');
+            }
+
+            // rtcpPort
+            int rtcpPort = getRTCPPort();
+
+            if (rtcpPort > 0)
+            {
+                xml.append(' ').append(RTCP_PORT_ATTR_NAME).append("='")
+                        .append(rtcpPort).append('\'');
+            }
+
+            // rtpPort
+            int rtpPort = getRTPPort();
+
+            if (rtpPort > 0)
+            {
+                xml.append(' ').append(RTP_PORT_ATTR_NAME).append("='")
+                        .append(rtpPort).append('\'');
             }
 
             List<PayloadTypePacketExtension> payloadTypes = getPayloadTypes();
@@ -752,13 +872,13 @@ public class ColibriConferenceIQ
     }
 
     /**
-     * Represents a <tt>content</tt> included into a Jitsi VideoBridge
+     * Represents a <tt>content</tt> included into a Jitsi Videobridge
      * <tt>conference</tt> IQ.
      */
     public static class Content
     {
         /**
-         * The XML element name of a <tt>content</tt> of a Jitsi VideoBridge
+         * The XML element name of a <tt>content</tt> of a Jitsi Videobridge
          * <tt>conference</tt> IQ.
          */
         public static final String ELEMENT_NAME = "content";

@@ -157,6 +157,7 @@ public class CallJabberImpl
     public ColibriConferenceIQ createColibriChannels(
             CallPeerJabberImpl peer,
             Map<ContentPacketExtension,ContentPacketExtension> contentMap)
+        throws OperationFailedException
     {
         if (!getConference().isJitsiVideobridge())
             return null;
@@ -167,7 +168,8 @@ public class CallJabberImpl
          * i.e. they must use a single set of MediaStreams as if there was a
          * single CallPeerMediaHandler.
          */
-        CallPeerMediaHandler<?> peerMediaHandler = peer.getMediaHandler();
+        CallPeerMediaHandlerJabberImpl peerMediaHandler
+            = peer.getMediaHandler();
 
         if (peerMediaHandler.getMediaHandler() != colibriMediaHandler)
         {
@@ -217,7 +219,8 @@ public class CallJabberImpl
             RtpDescriptionPacketExtension rdpe
                 = cpe.getFirstChildOfType(
                         RtpDescriptionPacketExtension.class);
-            MediaType mediaType = MediaType.parseString(rdpe.getMedia());
+            String media = rdpe.getMedia();
+            MediaType mediaType = MediaType.parseString(media);
             String contentName = mediaType.toString();
             ColibriConferenceIQ.Content contentRequest
                 = new ColibriConferenceIQ.Content(contentName);
@@ -234,33 +237,59 @@ public class CallJabberImpl
                 if ((content != null) && (content.getChannelCount() > 0))
                     requestLocalChannel = false;
             }
+
+            boolean peerIsInitiator = peer.isInitiator();
+
             if (requestLocalChannel)
             {
                 ColibriConferenceIQ.Channel localChannelRequest
                     = new ColibriConferenceIQ.Channel();
 
+                localChannelRequest.setInitiator(peerIsInitiator);
+
                 for (PayloadTypePacketExtension ptpe : rdpe.getPayloadTypes())
                     localChannelRequest.addPayloadType(ptpe);
+                setTransportOnChannel(peer, media, localChannelRequest);
                 // DTLS-SRTP
-                setDtlsEncryptionToChannel(
+                setDtlsEncryptionOnChannel(
                         jitsiVideobridge,
                         peer,
                         mediaType,
                         localChannelRequest);
+                /*
+                 * Since Jitsi Videobridge supports multiple Jingle transports,
+                 * it is a good idea to indicate which one is expected on a
+                 * channel.
+                 */
+                ensureTransportOnChannel(localChannelRequest, peer);
                 contentRequest.addChannel(localChannelRequest);
             }
 
             ColibriConferenceIQ.Channel remoteChannelRequest
                 = new ColibriConferenceIQ.Channel();
 
+            remoteChannelRequest.setInitiator(!peerIsInitiator);
+
             for (PayloadTypePacketExtension ptpe : rdpe.getPayloadTypes())
                 remoteChannelRequest.addPayloadType(ptpe);
+            setTransportOnChannel(
+                    media,
+                    localContent,
+                    remoteContent,
+                    peer,
+                    remoteChannelRequest);
             // DTLS-SRTP
-            setDtlsEncryptionToChannel(
+            setDtlsEncryptionOnChannel(
                     mediaType,
                     localContent,
                     remoteContent,
+                    peer,
                     remoteChannelRequest);
+            /*
+             * Since Jitsi Videobridge supports multiple Jingle transports, it
+             * is a good idea to indicate which one is expected on a channel.
+             */
+            ensureTransportOnChannel(remoteChannelRequest, peer);
             contentRequest.addChannel(remoteChannelRequest);
         }
 
@@ -343,6 +372,16 @@ public class CallJabberImpl
                     content.addChannel(channelResponse);
                     if (channelIndex == 0)
                     {
+                        TransportManagerJabberImpl transportManager
+                            = peerMediaHandler.getTransportManager();
+
+                        transportManager
+                            .isEstablishingConnectivityWithJitsiVideobridge
+                                = true;
+                        transportManager
+                            .startConnectivityEstablishmentWithJitsiVideobridge
+                                = true;
+
                         MediaType mediaType
                             = MediaType.parseString(contentName);
 
@@ -364,6 +403,7 @@ public class CallJabberImpl
          */
         ColibriConferenceIQ conferenceResult = new ColibriConferenceIQ();
 
+        conferenceResult.setFrom(colibri.getFrom());
         conferenceResult.setID(conferenceResponseID);
 
         for (Map.Entry<ContentPacketExtension,ContentPacketExtension> e
@@ -510,7 +550,8 @@ public class CallJabberImpl
 
             if (conferenceID.equals(conference.getID()))
             {
-                ColibriConferenceIQ conferenceRequest = new ColibriConferenceIQ();
+                ColibriConferenceIQ conferenceRequest
+                    = new ColibriConferenceIQ();
 
                 conferenceRequest.setID(conferenceID);
 
@@ -1116,13 +1157,16 @@ public class CallJabberImpl
      * <tt>null</tt>, <tt>localContent</tt> represents an offer from the local
      * peer to the remote peer; otherwise, <tt>localContent</tt> represents an
      * answer from the local peer to an offer from the remote peer
+     * @param peer the <tt>CallPeer</tt> which represents the remote peer and
+     * which is associated with the specified <tt>channel</tt>
      * @param channel the <tt>ColibriConferenceIQ.Channel</tt> which represents
      * the state of the remote DTLS-SRTP endpoint.
      */
-    private void setDtlsEncryptionToChannel(
+    private void setDtlsEncryptionOnChannel(
             MediaType mediaType,
             ContentPacketExtension localContent,
             ContentPacketExtension remoteContent,
+            CallPeerJabberImpl peer,
             ColibriConferenceIQ.Channel channel)
     {
         AccountID accountID = getProtocolProvider().getAccountID();
@@ -1147,30 +1191,29 @@ public class CallJabberImpl
                 if (!remoteFingerprints.isEmpty())
                 {
                     IceUdpTransportPacketExtension localTransport
-                        = channel.getTransport();
+                        = ensureTransportOnChannel(channel, peer);
 
-                    if (localTransport == null)
+                    if (localTransport != null)
                     {
-                        localTransport = new RawUdpTransportPacketExtension();
-                        channel.setTransport(localTransport);
-                    }
+                        List<DtlsFingerprintPacketExtension> localFingerprints
+                            = localTransport.getChildExtensionsOfType(
+                                    DtlsFingerprintPacketExtension.class);
 
-                    List<DtlsFingerprintPacketExtension> localFingerprints
-                        = localTransport.getChildExtensionsOfType(
-                                DtlsFingerprintPacketExtension.class);
-
-                    if (localFingerprints.isEmpty())
-                    {
-                        for (DtlsFingerprintPacketExtension remoteFingerprint
-                                : remoteFingerprints)
+                        if (localFingerprints.isEmpty())
                         {
-                            DtlsFingerprintPacketExtension localFingerprint
-                                = new DtlsFingerprintPacketExtension();
+                            for (DtlsFingerprintPacketExtension remoteFingerprint
+                                    : remoteFingerprints)
+                            {
+                                DtlsFingerprintPacketExtension localFingerprint
+                                    = new DtlsFingerprintPacketExtension();
 
-                            localFingerprint.setFingerprint(
-                                    remoteFingerprint.getFingerprint());
-                            localFingerprint.setHash(
-                                    remoteFingerprint.getHash());
+                                localFingerprint.setFingerprint(
+                                        remoteFingerprint.getFingerprint());
+                                localFingerprint.setHash(
+                                        remoteFingerprint.getHash());
+                                localTransport.addChildExtension(
+                                        localFingerprint);
+                            }
                         }
                     }
                 }
@@ -1193,7 +1236,7 @@ public class CallJabberImpl
      * @param channel the <tt>ColibriConferenceIQ.Channel</tt> which represents
      * the state of the remote DTLS-SRTP endpoint.
      */
-    private void setDtlsEncryptionToChannel(
+    private void setDtlsEncryptionOnChannel(
             String jitsiVideobridge,
             CallPeerJabberImpl peer,
             MediaType mediaType,
@@ -1213,23 +1256,21 @@ public class CallJabberImpl
                         ProtocolProviderServiceJabberImpl
                             .URN_XMPP_JINGLE_DTLS_SRTP))
         {
+            CallPeerMediaHandlerJabberImpl mediaHandler
+                = peer.getMediaHandler();
             DtlsControl dtlsControl
                 = (DtlsControl)
-                    peer.getMediaHandler().getSrtpControls().getOrCreate(
+                    mediaHandler.getSrtpControls().getOrCreate(
                             mediaType,
                             SrtpControlType.DTLS_SRTP);
 
             if (dtlsControl != null)
             {
                 IceUdpTransportPacketExtension transport
-                    = channel.getTransport();
+                    = ensureTransportOnChannel(channel, peer);
 
-                if (transport == null)
-                {
-                    transport = new RawUdpTransportPacketExtension();
-                    channel.setTransport(transport);
-                }
-                setDtlsEncryptionToTransport(dtlsControl, transport);
+                if (transport != null)
+                    setDtlsEncryptionOnTransport(dtlsControl, transport);
             }
         }
     }
@@ -1244,7 +1285,7 @@ public class CallJabberImpl
      * @param localTransport the <tt>IceUdpTransportPacketExtension</tt> on
      * which the properties of the specified <tt>dtlsControl</tt> are to be set
      */
-    static void setDtlsEncryptionToTransport(
+    static void setDtlsEncryptionOnTransport(
             DtlsControl dtlsControl,
             IceUdpTransportPacketExtension localTransport)
     {
@@ -1262,5 +1303,79 @@ public class CallJabberImpl
         }
         fingerprintPE.setFingerprint(fingerprint);
         fingerprintPE.setHash(hash);
+    }
+
+    private void setTransportOnChannel(
+            CallPeerJabberImpl peer,
+            String media,
+            ColibriConferenceIQ.Channel channel)
+        throws OperationFailedException
+    {
+        PacketExtension transport
+            = peer.getMediaHandler().getTransportManager().createTransport(
+                    media);
+
+        if (transport instanceof IceUdpTransportPacketExtension)
+            channel.setTransport((IceUdpTransportPacketExtension) transport);
+    }
+
+    private void setTransportOnChannel(
+            String media,
+            ContentPacketExtension localContent,
+            ContentPacketExtension remoteContent,
+            CallPeerJabberImpl peer,
+            ColibriConferenceIQ.Channel channel)
+        throws OperationFailedException
+    {
+        if (remoteContent != null)
+        {
+            IceUdpTransportPacketExtension transport
+                = remoteContent.getFirstChildOfType(
+                        IceUdpTransportPacketExtension.class);
+
+            channel.setTransport(
+                    TransportManagerJabberImpl.cloneTransportAndCandidates(
+                            transport));
+        }
+    }
+
+    /**
+     * Makes an attempt to ensure that a specific
+     * <tt>ColibriConferenceIQ.Channel</tt> has a non-<tt>null</tt>
+     * <tt>transport</tt> set. If the specified <tt>channel</tt> does not have
+     * a <tt>transport</tt>, the method invokes the <tt>TransportManager</tt> of
+     * the specified <tt>CallPeerJabberImpl</tt> to initialize a new
+     * <tt>PacketExtension</tt>.
+     *
+     * @param channel the <tt>ColibriConferenceIQ.Channel</tt> to ensure the
+     * <tt>transport</tt> on
+     * @param peer the <tt>CallPeerJabberImpl</tt> which is associated with the
+     * specified <tt>channel</tt> and which specifies the
+     * <tt>TransportManager</tt> to be described in the specified
+     * <tt>channel</tt>
+     * @return the <tt>transport</tt> of the specified <tt>channel</tt>
+     */
+    private IceUdpTransportPacketExtension ensureTransportOnChannel(
+            ColibriConferenceIQ.Channel channel,
+            CallPeerJabberImpl peer)
+    {
+        IceUdpTransportPacketExtension transport
+            = channel.getTransport();
+
+        if (transport == null)
+        {
+            PacketExtension pe
+                = peer
+                    .getMediaHandler()
+                        .getTransportManager()
+                            .createTransportPacketExtension();
+
+            if (pe instanceof IceUdpTransportPacketExtension)
+            {
+                transport = (IceUdpTransportPacketExtension) pe;
+                channel.setTransport(transport);
+            }
+        }
+        return transport;
     }
 }

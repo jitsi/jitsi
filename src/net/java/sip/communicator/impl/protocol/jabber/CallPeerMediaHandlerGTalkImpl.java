@@ -407,11 +407,8 @@ public class CallPeerMediaHandlerGTalkImpl
     }
 
     /**
-     * Gets the <tt>TransportManager</tt> implementation handling our address
-     * management.
+     * {@inheritDoc}
      *
-     * @return the <tt>TransportManager</tt> implementation handling our address
-     * management
      * @see CallPeerMediaHandler#getTransportManager()
      */
     @Override
@@ -422,6 +419,17 @@ public class CallPeerMediaHandlerGTalkImpl
             // Google Talk assumes the use of ICE.
             transportManager = new TransportManagerGTalkImpl(getPeer());
         }
+        return transportManager;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @see CallPeerMediaHandler#queryTransportManager()
+     */
+    @Override
+    protected synchronized TransportManagerGTalkImpl queryTransportManager()
+    {
         return transportManager;
     }
 

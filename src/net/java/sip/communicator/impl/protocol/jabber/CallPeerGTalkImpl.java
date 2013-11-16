@@ -104,8 +104,9 @@ public class CallPeerGTalkImpl
 
         try
         {
-            getMediaHandler().getTransportManager().
-                wrapupConnectivityEstablishment();
+            getMediaHandler()
+                .getTransportManager()
+                    .wrapupConnectivityEstablishment();
             answer = getMediaHandler().generateSessionAccept(true);
         }
         catch(IllegalArgumentException e)
@@ -176,7 +177,12 @@ public class CallPeerGTalkImpl
                         Reason.GENERAL_ERROR,
                         reasonText);
 
-            getMediaHandler().getTransportManager().close();
+            TransportManagerGTalkImpl transportManager
+                =  getMediaHandler().queryTransportManager();
+
+            if (transportManager != null)
+                transportManager.close();
+
             setState(CallPeerState.FAILED, reasonText);
             getProtocolProvider().getConnection().sendPacket(errResp);
             return;
@@ -226,7 +232,12 @@ public class CallPeerGTalkImpl
         }
 
         CallPeerState prevPeerState = getState();
-        getMediaHandler().getTransportManager().close();
+
+        TransportManagerGTalkImpl transportManager
+            = getMediaHandler().queryTransportManager();
+
+        if (transportManager != null)
+            transportManager.close();
 
         if (failed)
             setState(CallPeerState.FAILED, reasonText);
@@ -397,7 +408,12 @@ public class CallPeerGTalkImpl
                         Reason.GENERAL_ERROR,
                         reasonText);
 
-            getMediaHandler().getTransportManager().close();
+            TransportManagerGTalkImpl transportManager
+                =  getMediaHandler().queryTransportManager();
+
+            if (transportManager != null)
+                transportManager.close();
+
             setState(CallPeerState.FAILED, reasonText);
             getProtocolProvider().getConnection().sendPacket(errResp);
             return;
@@ -466,8 +482,9 @@ public class CallPeerGTalkImpl
 
         try
         {
-            mediaHandler.getTransportManager().
-                wrapupConnectivityEstablishment();
+            mediaHandler
+                .getTransportManager()
+                    .wrapupConnectivityEstablishment();
             mediaHandler.processAnswer(answer);
         }
         catch(IllegalArgumentException e)
@@ -492,7 +509,12 @@ public class CallPeerGTalkImpl
                         Reason.GENERAL_ERROR,
                         reasonText);
 
-            getMediaHandler().getTransportManager().close();
+            TransportManagerGTalkImpl transportManager
+                =  getMediaHandler().queryTransportManager();
+
+            if (transportManager != null)
+                transportManager.close();
+
             setState(CallPeerState.FAILED, reasonText);
             getProtocolProvider().getConnection().sendPacket(errResp);
             return;
@@ -617,7 +639,12 @@ public class CallPeerGTalkImpl
                 reasonStr += " " + text;
         }
 
-        getMediaHandler().getTransportManager().close();
+        TransportManagerGTalkImpl transportManager
+            =  getMediaHandler().queryTransportManager();
+
+        if (transportManager != null)
+            transportManager.close();
+
         setState(CallPeerState.DISCONNECTED, reasonStr);
     }
 

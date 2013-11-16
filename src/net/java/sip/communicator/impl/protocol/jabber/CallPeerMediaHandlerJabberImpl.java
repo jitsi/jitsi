@@ -283,7 +283,7 @@ public class CallPeerMediaHandlerJabberImpl
                 = JingleUtils.getRtpDescription(content);
 
             // DTLS-SRTP
-            setDtlsEncryptionToContent(mediaType, content, null);
+            setDtlsEncryptionOnContent(mediaType, content, null);
             /*
              * Neither SDES nor ZRTP is supported in telephony conferences
              * utilizing the server-side technology Jitsi Videobridge yet.
@@ -417,7 +417,7 @@ public class CallPeerMediaHandlerJabberImpl
                         = JingleUtils.getRtpDescription(content);
 
                     // DTLS-SRTP
-                    setDtlsEncryptionToContent(mediaType, content, null);
+                    setDtlsEncryptionOnContent(mediaType, content, null);
                     /*
                      * Neither SDES nor ZRTP is supported in telephony
                      * conferences utilizing the server-side technology Jitsi
@@ -889,11 +889,12 @@ public class CallPeerMediaHandlerJabberImpl
                     {
                     }
                 }
-
                 if(transportManager == null)
+                {
                     throw new IllegalStateException(
-                        "The initiator is expected to specify the transport"
-                            + " in their offer.");
+                            "The initiator is expected to specify the transport"
+                                + " in their offer.");
+                }
                 else
                     return transportManager;
             }
@@ -953,17 +954,18 @@ public class CallPeerMediaHandlerJabberImpl
                                 break;
                             }
                         }
-
                         if (transportManager == null)
                         {
-                            logger.warn("Could not find a supported transport" +
-                                    "manager in supportedTransports. Will try" +
-                                    "to select one based on disco#info");
+                            logger.warn(
+                                    "Could not find a supported"
+                                        + " TransportManager in"
+                                        + " supportedTransports. Will try to"
+                                        + " select one based on disco#info.");
                         }
                     }
                 }
 
-                if (transportManager == null
+                if ((transportManager == null)
                         && google
                         && isFeatureSupported(
                                 discoveryManager,
@@ -981,12 +983,12 @@ public class CallPeerMediaHandlerJabberImpl
                      */
                     String[] transports
                         = new String[]
-                        {
-                            ProtocolProviderServiceJabberImpl
-                                .URN_XMPP_JINGLE_ICE_UDP_1,
-                            ProtocolProviderServiceJabberImpl
-                                .URN_XMPP_JINGLE_RAW_UDP_0
-                        };
+                                {
+                                    ProtocolProviderServiceJabberImpl
+                                        .URN_XMPP_JINGLE_ICE_UDP_1,
+                                    ProtocolProviderServiceJabberImpl
+                                        .URN_XMPP_JINGLE_RAW_UDP_0
+                                };
 
                     /*
                      * If the local peer is a conference focus and there is a
@@ -995,16 +997,7 @@ public class CallPeerMediaHandlerJabberImpl
                      */
                     if (isJitsiVideobridge)
                     {
-                        /*
-                         * XXX If a telephony conference utilizing the Jitsi
-                         * Videobridge server-side telephony conferencing
-                         * technology is to work, its only chance of working
-                         * is to use RAW UDP at the time of this writing.
-                         */
-                        transports
-                            = new String[] {
-                                ProtocolProviderServiceJabberImpl
-                                    .URN_XMPP_JINGLE_RAW_UDP_0 };
+                        // TODO Auto-generated method stub
                     }
 
                     /*
@@ -1042,13 +1035,23 @@ public class CallPeerMediaHandlerJabberImpl
                     if ((transportManager == null) && logger.isDebugEnabled())
                     {
                         logger.debug(
-                                "No known Jingle transport supported"
-                                    + " by Jabber call peer "
-                                    + peer);
+                                "No known Jingle transport supported by Jabber"
+                                    + " call peer " + peer);
                     }
                 }
             }
         }
+        return transportManager;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @see CallPeerMediaHandler#queryTransportManager()
+     */
+    @Override
+    protected synchronized TransportManagerJabberImpl queryTransportManager()
+    {
         return transportManager;
     }
 
@@ -1175,7 +1178,37 @@ public class CallPeerMediaHandlerJabberImpl
                         + " ms");
         }
 
-        setDtlsEncryptionToTransports(remote, local);
+        setDtlsEncryptionOnTransports(remote, local);
+
+        if (transportManager.startConnectivityEstablishmentWithJitsiVideobridge)
+        {
+            Map<String,IceUdpTransportPacketExtension> map
+                = new LinkedHashMap<String,IceUdpTransportPacketExtension>();
+
+            for (MediaType mediaType : MediaType.values())
+            {
+                ColibriConferenceIQ.Channel channel
+                    = transportManager.getColibriChannel(
+                            mediaType,
+                            true /* local */);
+
+                if (channel != null)
+                {
+                    IceUdpTransportPacketExtension transport
+                        = channel.getTransport();
+
+                    if (transport != null)
+                        map.put(mediaType.toString(), transport);
+                }
+            }
+            if (!map.isEmpty())
+            {
+                transportManager
+                    .startConnectivityEstablishmentWithJitsiVideobridge
+                        = false;
+                transportManager.startConnectivityEstablishment(map);
+            }
+        }
 
         /*
          * TODO Ideally, we wouldn't wrap up that quickly. We need to revisit
@@ -1224,13 +1257,13 @@ public class CallPeerMediaHandlerJabberImpl
     {
         MediaStream stream
             = super.initStream(
-            connector,
-            device,
-            format,
-            target,
-            direction,
-            rtpExtensions,
-            masterStream);
+                    connector,
+                    device,
+                    format,
+                    target,
+                    direction,
+                    rtpExtensions,
+                    masterStream);
 
         if (stream != null)
             stream.setName(streamName);
@@ -1291,22 +1324,23 @@ public class CallPeerMediaHandlerJabberImpl
         processTransportInfo(answer);
 
         boolean masterStreamSet = false;
+
         for (ContentPacketExtension content : answer)
         {
             remoteContentMap.put(content.getName(), content);
 
             boolean masterStream = false;
+
             // if we have more than one stream, let the audio be the master
             if(!masterStreamSet)
             {
-                RtpDescriptionPacketExtension description
-                    = JingleUtils.getRtpDescription(content);
-                MediaType mediaType
-                    = MediaType.parseString(description.getMedia());
-
                 if(answer.size() > 1)
                 {
-                    if(mediaType.equals(MediaType.AUDIO))
+                    RtpDescriptionPacketExtension description
+                        = JingleUtils.getRtpDescription(content);
+
+                    if(MediaType.AUDIO.toString().equals(
+                            description.getMedia()))
                     {
                         masterStream = true;
                         masterStreamSet = true;
@@ -1346,17 +1380,15 @@ public class CallPeerMediaHandlerJabberImpl
          */
         TransportManagerJabberImpl transportManager = this.transportManager;
 
-        if (transportManager instanceof RawUdpTransportManager)
+        if (transportManager != null)
         {
-            RawUdpTransportManager rawUdpTransportManager
-                = (RawUdpTransportManager) transportManager;
             long oldAudioRemoteSSRC = getRemoteSSRC(MediaType.AUDIO);
             long oldVideoRemoteSSRC = getRemoteSSRC(MediaType.VIDEO);
 
             for (MediaType mediaType : MediaType.values())
             {
                 ColibriConferenceIQ.Channel dst
-                    = rawUdpTransportManager.getColibriChannel(
+                    = transportManager.getColibriChannel(
                             mediaType,
                             false /* remote */);
 
@@ -1783,16 +1815,16 @@ public class CallPeerMediaHandlerJabberImpl
          * connectivity prior to ringing.
          */
         harvestCandidates(
-            offer,
-            answer,
-            new TransportInfoSender()
-                    {
-                        public void sendTransportInfo(
-                                Iterable<ContentPacketExtension> contents)
+                offer,
+                answer,
+                new TransportInfoSender()
                         {
-                            getPeer().sendTransportInfo(contents);
-                        }
-                    });
+                            public void sendTransportInfo(
+                                    Iterable<ContentPacketExtension> contents)
+                            {
+                                getPeer().sendTransportInfo(contents);
+                            }
+                        });
 
         /*
          * While it may sound like we can completely eliminate the post-pickup
@@ -1956,7 +1988,11 @@ public class CallPeerMediaHandlerJabberImpl
     {
         removeContent(localContentMap, name);
         removeContent(remoteContentMap, name);
-        getTransportManager().removeContent(name);
+
+        TransportManagerJabberImpl transportManager =  queryTransportManager();
+
+        if (transportManager != null)
+            transportManager.removeContent(name);
     }
 
     /**
@@ -2197,12 +2233,17 @@ public class CallPeerMediaHandlerJabberImpl
     {
         ColibriConferenceIQ.Channel channel = null;
 
-        if (getPeer().isJitsiVideobridge()
-                && (transportManager instanceof RawUdpTransportManager))
+        if (getPeer().isJitsiVideobridge())
         {
-            channel
-                = ((RawUdpTransportManager) transportManager)
-                    .getColibriChannel(mediaType, false /* remote */);
+            TransportManagerJabberImpl transportManager = this.transportManager;
+
+            if (transportManager != null)
+            {
+                channel
+                    = transportManager.getColibriChannel(
+                            mediaType,
+                            false /* remote */);
+            }
         }
         return channel;
     }
@@ -2438,7 +2479,7 @@ public class CallPeerMediaHandlerJabberImpl
                         false,
                         remoteContent,
                         mediaType);
-                if (setDtlsEncryptionToContent(
+                if (setDtlsEncryptionOnContent(
                         mediaType,
                         localContent,
                         remoteContent))
@@ -2485,7 +2526,7 @@ public class CallPeerMediaHandlerJabberImpl
      * @return <tt>true</tt> if any DTLS-SRTP element has been added to the
      * specified <tt>localContent</tt>; <tt>false</tt>, otherwise.
      */
-    private boolean setDtlsEncryptionToContent(
+    private boolean setDtlsEncryptionOnContent(
             MediaType mediaType,
             ContentPacketExtension localContent,
             ContentPacketExtension remoteContent)
@@ -2496,7 +2537,7 @@ public class CallPeerMediaHandlerJabberImpl
         if (peer.isJitsiVideobridge())
         {
             b
-                = setDtlsEncryptionToTransport(
+                = setDtlsEncryptionOnTransport(
                         mediaType,
                         localContent,
                         remoteContent);
@@ -2550,7 +2591,7 @@ public class CallPeerMediaHandlerJabberImpl
                     dtlsControl.setDtlsProtocol(dtlsProtocol);
                     b = true;
 
-                    setDtlsEncryptionToTransport(
+                    setDtlsEncryptionOnTransport(
                             mediaType,
                             localContent,
                             remoteContent);
@@ -2584,7 +2625,7 @@ public class CallPeerMediaHandlerJabberImpl
      * @param localContent The element containing the media CONTENT and its
      * TRANSPORT.
      */
-    private boolean setDtlsEncryptionToTransport(
+    private boolean setDtlsEncryptionOnTransport(
             MediaType mediaType,
             ContentPacketExtension localContent,
             ContentPacketExtension remoteContent)
@@ -2703,7 +2744,7 @@ public class CallPeerMediaHandlerJabberImpl
 
             if (dtlsControl != null)
             {
-                CallJabberImpl.setDtlsEncryptionToTransport(
+                CallJabberImpl.setDtlsEncryptionOnTransport(
                         dtlsControl,
                         localTransport);
                 b = true;
@@ -2719,7 +2760,7 @@ public class CallPeerMediaHandlerJabberImpl
      * @param localContents The elements containing the media CONTENT elements
      * and their respective TRANSPORT elements.
      */
-    private void setDtlsEncryptionToTransports(
+    private void setDtlsEncryptionOnTransports(
             List<ContentPacketExtension> remoteContents,
             List<ContentPacketExtension> localContents)
     {
@@ -2741,7 +2782,7 @@ public class CallPeerMediaHandlerJabberImpl
                                     remoteContents,
                                     localContent.getName());
 
-                    setDtlsEncryptionToTransport(
+                    setDtlsEncryptionOnTransport(
                             mediaType,
                             localContent,
                             remoteContent);

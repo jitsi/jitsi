@@ -386,60 +386,69 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
     }
 
     /**
-     * Send empty UDP packets to target destination data/control ports
-     * in order to open ports on NATs or and help RTP proxies latch onto our
-     * RTP ports.
+     * Sends empty UDP packets to target destination data/control ports in order
+     * to open ports on NATs or and help RTP proxies latch onto our RTP ports.
      *
      * @param target <tt>MediaStreamTarget</tt>
-     * @param type the {@link MediaType} of the connector we'd like to send
-     * the hole punching packet through.
+     * @param type the {@link MediaType} of the connector we'd like to send the
+     * hole punching packet through.
      */
     public void sendHolePunchPacket(MediaStreamTarget target, MediaType type)
     {
         logger.info("Send NAT hole punch packets");
 
         //check how many hole punch packets we would be supposed to send:
-        int packetCount = ProtocolMediaActivator.getConfigurationService()
-                    .getInt( HOLE_PUNCH_PKT_COUNT_PROPERTY,
-                             DEFAULT_HOLE_PUNCH_PKT_COUNT);
+        int packetCount
+            = ProtocolMediaActivator.getConfigurationService().getInt(
+                    HOLE_PUNCH_PKT_COUNT_PROPERTY,
+                    DEFAULT_HOLE_PUNCH_PKT_COUNT);
 
         if (packetCount < 0)
             packetCount = DEFAULT_HOLE_PUNCH_PKT_COUNT;
+        if (packetCount == 0)
+            return;
 
         try
         {
             StreamConnector connector = getStreamConnector(type);
 
+            if(connector.getProtocol() == StreamConnector.Protocol.TCP)
+                return;
+
+            byte[] buf = new byte[0];
+
             synchronized(connector)
             {
-                if(connector.getProtocol() == StreamConnector.Protocol.TCP)
-                    return;
-
-                DatagramSocket socket;
-
                 //we may want to send more than one packet in case they get lost
                 for(int i=0; i < packetCount; i++)
                 {
-                    /* data port (RTP) */
+                    DatagramSocket socket;
+
+                    // data/RTP
                     if((socket = connector.getDataSocket()) != null)
                     {
+                        InetSocketAddress dataAddress = target.getDataAddress();
+
                         socket.send(
-                            new DatagramPacket(
-                                new byte[0],
-                                0,
-                                target.getDataAddress().getAddress(),
-                                target.getDataAddress().getPort()));
+                                new DatagramPacket(
+                                        buf,
+                                        buf.length,
+                                        dataAddress.getAddress(),
+                                        dataAddress.getPort()));
                     }
 
-                    /* control port (RTCP) */
+                    // control/RTCP
                     if((socket = connector.getControlSocket()) != null)
                     {
+                        InetSocketAddress controlAddress
+                            = target.getControlAddress();
+
                         socket.send(
-                            new DatagramPacket(
-                                new byte[0],
-                                0,
-                                target.getControlAddress().getAddress(),
-                                target.getControlAddress().getPort()));
+                                new DatagramPacket(
+                                        buf,
+                                        buf.length,
+                                        controlAddress.getAddress(),
+                                        controlAddress.getPort()));
                     }
                 }
             }

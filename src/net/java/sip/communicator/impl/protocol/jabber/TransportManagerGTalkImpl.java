@@ -180,13 +180,13 @@ public class TransportManagerGTalkImpl
 
         // check for google:jingleinfo support
         if(!jingleInfoIsSupported)
-        {
             return servers;
-        }
 
         if(logger.isDebugEnabled())
-            logger.debug("google:jingleinfo supported for " +
-                    provider.getOurJID());
+        {
+            logger.debug(
+                    "google:jingleinfo supported for " + provider.getOurJID());
+        }
 
         iq.setFrom(provider.getOurJID());
         iq.setTo(StringUtils.parseBareAddress(
@@ -322,30 +322,17 @@ public class TransportManagerGTalkImpl
             String token = tokenizer.nextToken();
 
             if(token.startsWith("relay.ip="))
-            {
                 ret.put("relay", token.substring(token.indexOf("=") + 1));
-            }
             else if(token.startsWith("relay.udp_port="))
-            {
                 ret.put("udpport", token.substring(token.indexOf("=") + 1));
-            }
             else if(token.startsWith("relay.tcp_port="))
-            {
                 ret.put("tcpport", token.substring(token.indexOf("=") + 1));
-            }
             else if(token.startsWith("relay.ssltcp_port="))
-            {
                 ret.put("ssltcpport", token.substring(token.indexOf("=") + 1));
-            }
             else if(token.startsWith("username="))
-            {
                 ret.put("username", token.substring(token.indexOf("=") + 1));
-            }
             else if(token.startsWith("password="))
-            {
                 ret.put("password", token.substring(token.indexOf("=") + 1));
-            }
-
         }
         return ret;
     }
@@ -517,18 +504,7 @@ public class TransportManagerGTalkImpl
     }
 
     /**
-     * Initializes a new <tt>StreamConnector</tt> to be used as the
-     * <tt>connector</tt> of the <tt>MediaStream</tt> with a specific
-     * <tt>MediaType</tt>.
-     *
-     * @param mediaType the <tt>MediaType</tt> of the <tt>MediaStream</tt> which
-     * is to have its <tt>connector</tt> set to the returned
-     * <tt>StreamConnector</tt>
-     * @return a new <tt>StreamConnector</tt> to be used as the
-     * <tt>connector</tt> of the <tt>MediaStream</tt> with the specified
-     * <tt>MediaType</tt>
-     * @throws OperationFailedException if anything goes wrong while
-     * initializing the new <tt>StreamConnector</tt>
+     * {@inheritDoc}
      */
     @Override
     protected StreamConnector createStreamConnector(MediaType mediaType)
@@ -762,9 +738,7 @@ public class TransportManagerGTalkImpl
                 }
             }
             if (streamConnectorSocketCount > 0)
-            {
                 return streamConnectorSockets;
-            }
         }
         return null;
     }
@@ -1005,14 +979,10 @@ public class TransportManagerGTalkImpl
         if (IceProcessingState.RUNNING.equals(iceAgent.getState()))
         {
             if(logger.isInfoEnabled())
-            {
                 logger.info("Update Google ICE remote candidates");
-            }
 
             if(remote == null)
-            {
                 return false;
-            }
 
             for(GTalkCandidatePacketExtension candidate : remote)
             {
@@ -1044,9 +1014,7 @@ public class TransportManagerGTalkImpl
                 IceMediaStream stream = iceAgent.getStream(name);
 
                 if(stream == null)
-                {
                     continue;
-                }
 
                 /* Different candidates may have different ufrag/password */
                 String ufrag = candidate.getUsername();
@@ -1086,9 +1054,7 @@ public class TransportManagerGTalkImpl
             for(IceMediaStream stream : iceAgent.getStreams())
             {
                 for(Component component : stream.getComponents())
-                {
                     component.updateRemoteCandidates();
-                }
             }
             return false;
         }
@@ -1265,7 +1231,6 @@ public class TransportManagerGTalkImpl
                 }
             }
         }
-
         if (interrupted)
             Thread.currentThread().interrupt();
 
@@ -1283,9 +1248,7 @@ public class TransportManagerGTalkImpl
                     OperationFailedException.GENERAL_ERROR);
         }
         if(iceAgent.getState().equals(IceProcessingState.WAITING))
-        {
             throw new IllegalArgumentException("ICE not started");
-        }
     }
 
     /**
@@ -1304,7 +1267,6 @@ public class TransportManagerGTalkImpl
          * those installed on smartphones like Android ones), the zero length
          * UDP packet can confuse them.
          */
-        return;
     }
 
     /**
@@ -1332,9 +1294,8 @@ public class TransportManagerGTalkImpl
     @Override
     public String getICECandidateExtendedType(String streamName)
     {
-        return TransportManager.getICECandidateExtendedType(
-                this.iceAgent,
-                streamName);
+        return
+            TransportManager.getICECandidateExtendedType(iceAgent, streamName);
     }
 
     /**
@@ -1361,12 +1322,11 @@ public class TransportManagerGTalkImpl
     {
         if(iceAgent != null)
         {
-            LocalCandidate localCandidate =
-                iceAgent.getSelectedLocalCandidate(streamName);
+            LocalCandidate localCandidate
+                = iceAgent.getSelectedLocalCandidate(streamName);
+
             if(localCandidate != null)
-            {
                 return localCandidate.getHostAddress();
-            }
         }
         return null;
     }
@@ -1384,12 +1344,11 @@ public class TransportManagerGTalkImpl
     {
         if(iceAgent != null)
         {
-            RemoteCandidate remoteCandidate =
-                iceAgent.getSelectedRemoteCandidate(streamName);
+            RemoteCandidate remoteCandidate
+                = iceAgent.getSelectedRemoteCandidate(streamName);
+
             if(remoteCandidate != null)
-            {
                 return remoteCandidate.getHostAddress();
-            }
         }
         return null;
     }
@@ -1408,12 +1367,11 @@ public class TransportManagerGTalkImpl
     {
         if(iceAgent != null)
         {
-            LocalCandidate localCandidate =
-                iceAgent.getSelectedLocalCandidate(streamName);
+            LocalCandidate localCandidate
+                = iceAgent.getSelectedLocalCandidate(streamName);
+
             if(localCandidate != null)
-            {
                 return localCandidate.getReflexiveAddress();
-            }
         }
         return null;
     }
@@ -1432,12 +1390,11 @@ public class TransportManagerGTalkImpl
     {
         if(iceAgent != null)
         {
-            RemoteCandidate remoteCandidate =
-                iceAgent.getSelectedRemoteCandidate(streamName);
+            RemoteCandidate remoteCandidate
+                = iceAgent.getSelectedRemoteCandidate(streamName);
+
             if(remoteCandidate != null)
-            {
                 return remoteCandidate.getReflexiveAddress();
-            }
         }
         return null;
     }
@@ -1456,12 +1413,11 @@ public class TransportManagerGTalkImpl
     {
         if(iceAgent != null)
         {
-            LocalCandidate localCandidate =
-                iceAgent.getSelectedLocalCandidate(streamName);
+            LocalCandidate localCandidate
+                = iceAgent.getSelectedLocalCandidate(streamName);
+
             if(localCandidate != null)
-            {
                 return localCandidate.getRelayedAddress();
-            }
         }
         return null;
     }
@@ -1480,12 +1436,11 @@ public class TransportManagerGTalkImpl
     {
         if(iceAgent != null)
         {
-            RemoteCandidate remoteCandidate =
-                iceAgent.getSelectedRemoteCandidate(streamName);
+            RemoteCandidate remoteCandidate
+                = iceAgent.getSelectedRemoteCandidate(streamName);
+
             if(remoteCandidate != null)
-            {
                 return remoteCandidate.getRelayedAddress();
-            }
         }
         return null;
     }
@@ -1499,11 +1454,7 @@ public class TransportManagerGTalkImpl
     @Override
     public long getTotalHarvestingTime()
     {
-        if(iceAgent != null)
-        {
-            return iceAgent.getTotalHarvestingTime();
-        }
-        return 0;
+        return (iceAgent == null) ? 0 : iceAgent.getTotalHarvestingTime();
     }
 
     /**
@@ -1518,11 +1469,8 @@ public class TransportManagerGTalkImpl
     @Override
     public long getHarvestingTime(String harvesterName)
     {
-        if(iceAgent != null)
-        {
-            return iceAgent.getHarvestingTime(harvesterName);
-        }
-        return 0;
+        return
+            (iceAgent == null) ? 0 : iceAgent.getHarvestingTime(harvesterName);
     }
 
     /**
@@ -1533,11 +1481,7 @@ public class TransportManagerGTalkImpl
     @Override
     public int getNbHarvesting()
     {
-        if(iceAgent != null)
-        {
-            return iceAgent.getHarvestCount();
-        }
-        return 0;
+        return (iceAgent == null) ? 0 : iceAgent.getHarvestCount();
     }
 
     /**
@@ -1552,11 +1496,7 @@ public class TransportManagerGTalkImpl
     @Override
     public int getNbHarvesting(String harvesterName)
     {
-        if(iceAgent != null)
-        {
-            return iceAgent.getHarvestCount(harvesterName);
-        }
-        return 0;
+        return (iceAgent == null) ? 0 : iceAgent.getHarvestCount(harvesterName);
     }
 
     /**

@@ -1625,6 +1625,17 @@ public class CallPeerMediaHandlerSipImpl
     }
 
     /**
+     * Returns the transport manager that is handling our address management.
+     *
+     * @return the transport manager that is handling our address management.
+     */
+    @Override
+    protected TransportManagerSipImpl queryTransportManager()
+    {
+        return transportManager;
+    }
+
+    /**
      * Returns the quality control for video calls if any.
      * @return the implemented quality control.
      */

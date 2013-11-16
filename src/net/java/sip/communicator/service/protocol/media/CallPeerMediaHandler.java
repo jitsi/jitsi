@@ -45,6 +45,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
      */
     private static final Logger logger
                 = Logger.getLogger(CallPeerMediaHandler.class);
+
     /**
      * The name of the <tt>CallPeerMediaHandler</tt> property which specifies
      * the local SSRC of its audio <tt>MediaStream</tt>.
@@ -446,7 +447,10 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
         if (mediaHandlerCloseStream)
             mediaHandler.closeStream(this, mediaType);
 
-        getTransportManager().closeStreamConnector(mediaType);
+        TransportManager<?> transportManager = queryTransportManager();
+
+        if (transportManager != null)
+            transportManager.closeStreamConnector(mediaType);
     }
 
     /**
@@ -651,7 +655,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
      */
     public long getHarvestingTime(String harvesterName)
     {
-        TransportManager<?> transportManager = getTransportManager();
+        TransportManager<?> transportManager = queryTransportManager();
 
         return
             (transportManager == null)
@@ -670,7 +674,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
      */
     public String getICECandidateExtendedType(String streamName)
     {
-        TransportManager<?> transportManager = getTransportManager();
+        TransportManager<?> transportManager = queryTransportManager();
 
         return
             (transportManager == null)
@@ -688,7 +692,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
      */
     public InetSocketAddress getICELocalHostAddress(String streamName)
     {
-        TransportManager<?> transportManager = getTransportManager();
+        TransportManager<?> transportManager = queryTransportManager();
 
         return
             (transportManager == null)
@@ -707,7 +711,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
      */
     public InetSocketAddress getICELocalReflexiveAddress(String streamName)
     {
-        TransportManager<?> transportManager = getTransportManager();
+        TransportManager<?> transportManager = queryTransportManager();
 
         return
             (transportManager == null)
@@ -726,7 +730,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
      */
     public InetSocketAddress getICELocalRelayedAddress(String streamName)
     {
-        TransportManager<?> transportManager = getTransportManager();
+        TransportManager<?> transportManager = queryTransportManager();
 
         return
             (transportManager == null)
@@ -744,7 +748,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
      */
     public InetSocketAddress getICERemoteHostAddress(String streamName)
     {
-        TransportManager<?> transportManager = getTransportManager();
+        TransportManager<?> transportManager = queryTransportManager();
 
         return
             (transportManager == null)
@@ -763,7 +767,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
      */
     public InetSocketAddress getICERemoteReflexiveAddress(String streamName)
     {
-        TransportManager<?> transportManager = getTransportManager();
+        TransportManager<?> transportManager = queryTransportManager();
 
         return
             (transportManager == null)
@@ -782,7 +786,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
      */
     public InetSocketAddress getICERemoteRelayedAddress(String streamName)
     {
-        TransportManager<?> transportManager = getTransportManager();
+        TransportManager<?> transportManager = queryTransportManager();
 
         return
             (transportManager == null)
@@ -798,7 +802,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
      */
     public String getICEState()
     {
-        TransportManager<?> transportManager = getTransportManager();
+        TransportManager<?> transportManager = queryTransportManager();
 
         return
             (transportManager == null)
@@ -912,7 +916,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
      */
     public int getNbHarvesting()
     {
-        TransportManager<?> transportManager = getTransportManager();
+        TransportManager<?> transportManager = queryTransportManager();
 
         return
             (transportManager == null)
@@ -931,7 +935,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
      */
     public int getNbHarvesting(String harvesterName)
     {
-        TransportManager<?> transportManager = getTransportManager();
+        TransportManager<?> transportManager = queryTransportManager();
 
         return
             (transportManager == null)
@@ -1017,7 +1021,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
      */
     public long getTotalHarvestingTime()
     {
-        TransportManager<?> transportManager = getTransportManager();
+        TransportManager<?> transportManager = queryTransportManager();
 
         return
             (transportManager == null)
@@ -1027,12 +1031,23 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
 
     /**
      * Gets the <tt>TransportManager</tt> implementation handling our address
-     * management.
+     * management. If the <tt>TransportManager</tt> does not exist yet, it is
+     * created.
      *
      * @return the <tt>TransportManager</tt> implementation handling our address
      * management
      */
     protected abstract TransportManager<T> getTransportManager();
+
+    /**
+     * Gets the <tt>TransportManager</tt> implementation handling our address
+     * management. If the <tt>TransportManager</tt> does not exist yet, it is
+     * not created.
+     *
+     * @return the <tt>TransportManager</tt> implementation handling our address
+     * management
+     */
+    protected abstract TransportManager<T> queryTransportManager();
 
     /**
      * Gets the visual <tt>Component</tt> in which video from the remote peer is
@@ -1847,6 +1862,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
     {
         if (logger.isInfoEnabled())
             logger.info("Starting");
+
         MediaStream stream;
 
         stream = getStream(MediaType.AUDIO);
@@ -1881,13 +1897,12 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
                 stream.start();
 
                 /*
-                 * Send an empty packet to unblock some kinds of RTP proxies.
-                 * Do not consult whether the local video should be streamed and
+                 * Send an empty packet to unblock some kinds of RTP proxies. Do
+                 * not consult whether the local video should be streamed and
                  * send the hole-punch packet anyway to let the remote video
                  * reach this local peer.
                  */
-                if (stream instanceof VideoMediaStream)
-                    sendHolePunchPacket(stream.getTarget());
+                sendHolePunchPacket(stream.getTarget());
             }
         }
     }

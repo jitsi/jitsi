@@ -34,14 +34,14 @@ public class P2PTransportManager
         = Logger.getLogger(P2PTransportManager.class);
 
     /**
-     * Synchronization object for harvesting wrapup.
-     */
-    private final Object wrapupSyncRoot = new Object();
-
-    /**
      * Synchronization object for connectivity wrapup.
      */
     private final Object stateSyncRoot = new Object();
+
+    /**
+     * Synchronization object for harvesting wrapup.
+     */
+    private final Object wrapupSyncRoot = new Object();
 
     /**
      * Creates a new instance of this transport manager, binding it to the
@@ -100,12 +100,10 @@ public class P2PTransportManager
     }
 
     /**
-     * Get the transport <tt>PacketExtension</tt> to add.
-     *
-     * @return <tt>PacketExtension</tt>
+     * {@inheritDoc}
      */
     @Override
-    protected PacketExtension getTransportPacketExtension()
+    protected PacketExtension createTransportPacketExtension()
     {
         return new GTalkTransportPacketExtension();
     }
@@ -221,10 +219,7 @@ public class P2PTransportManager
                     RtpDescriptionPacketExtension rtpDesc
                         = ourContent.getFirstChildOfType(
                                 RtpDescriptionPacketExtension.class);
-
-                    IceMediaStream stream = null;
-
-                    stream = createIceStream(rtpDesc.getMedia());
+                    IceMediaStream stream = createIceStream(rtpDesc.getMedia());
 
                     //we now generate the XMPP code containing the candidates.
                     ourContent.addChildExtension(createTransport(stream));
@@ -234,7 +229,7 @@ public class P2PTransportManager
         }
 
         for(ContentPacketExtension ourContent : offer)
-            ourContent.addChildExtension(getTransportPacketExtension());
+            ourContent.addChildExtension(createTransportPacketExtension());
 
         new Thread()
         {
@@ -255,7 +250,7 @@ public class P2PTransportManager
                                     RtpDescriptionPacketExtension.class);
 
                         ourContent.addChildExtension(
-                                getTransportPacketExtension());
+                                createTransportPacketExtension());
 
                         IceMediaStream stream = null;
                         try
