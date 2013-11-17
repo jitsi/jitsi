@@ -198,7 +198,8 @@ public class LanguageMenuBar
         });
 
         removeItem.setEnabled(!spellChecker.getLocale().getIsoCode()
-            .equals(Parameters.getDefault(Parameters.Default.LOCALE)));
+            .equals(Parameters.getDefault(Parameters.Default.LOCALE))
+            && spellChecker.isUserLocale(spellChecker.getLocale()));
 
         removeItem.addActionListener(new ActionListener()
         {
@@ -556,7 +557,8 @@ public class LanguageMenuBar
             setModelElements((DefaultListModel) sourceList.getModel());
             sourceList.setSelectedValue(locale, true);
             removeItem.setEnabled(!spellChecker.getLocale().getIsoCode()
-                .equals(Parameters.getDefault(Parameters.Default.LOCALE)));
+                .equals(Parameters.getDefault(Parameters.Default.LOCALE))
+                && spellChecker.isUserLocale(spellChecker.getLocale()));
             sourceList
                 .addListSelectionListener(new LanguageListSelectionListener());
 

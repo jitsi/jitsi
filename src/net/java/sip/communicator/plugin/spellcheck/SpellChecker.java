@@ -104,33 +104,6 @@ class SpellChecker
         if (!dictionaryDir.exists())
         {
             dictionaryDir.mkdir();
-
-            // copy default dictionaries so they don't need to be downloaded
-            @SuppressWarnings ("unchecked")
-            Enumeration<URL> dictUrls
-                = SpellCheckActivator.bundleContext.getBundle()
-                    .findEntries(DEFAULT_DICT_PATH,
-                                "*.zip",
-                                false);
-
-            if (dictUrls != null)
-            {
-                while (dictUrls.hasMoreElements())
-                {
-                    URL dictUrl = dictUrls.nextElement();
-
-                    InputStream source = dictUrl.openStream();
-
-                    int filenameStart = dictUrl.getPath().lastIndexOf('/') + 1;
-                    String filename = dictUrl.getPath().substring(filenameStart);
-
-                    File dictLocation =
-                        faService.getPrivatePersistentFile(DICT_DIR + filename,
-                            FileCategory.CACHE);
-
-                    copyDictionary(source, dictLocation);
-                }
-            }
         }
 
         // gets resource for personal dictionary
@@ -375,25 +348,53 @@ class SpellChecker
             if(this.locale.equals(locale))
                 return;
 
-            String path = locale.getDictUrl().getFile();
-
-            int filenameStart = path.lastIndexOf('/') + 1;
-            String filename = path.substring(filenameStart);
-
-            File dictLocation =
-                SpellCheckActivator.getFileAccessService()
-                    .getPrivatePersistentFile(DICT_DIR + filename,
-                        FileCategory.CACHE);
+            File dictLocation = getLocalDictForLocale(locale);
+            InputStream dictInput = null;
 
             // downloads dictionary if unavailable (not cached)
             if (!dictLocation.exists())
-                copyDictionary(locale.getDictUrl().openStream(), dictLocation);
+            {
+                boolean dictFound = false;
+                // see if the requested locale is a built-in that doesn't
+                // need to be downloaded
+                @SuppressWarnings ("unchecked")
+                Enumeration<URL> dictUrls
+                    = SpellCheckActivator.bundleContext.getBundle()
+                        .findEntries(DEFAULT_DICT_PATH,
+                                    "*.zip",
+                                    false);
+
+                if (dictUrls != null)
+                {
+                    while (dictUrls.hasMoreElements())
+                    {
+                        URL dictUrl = dictUrls.nextElement();
+                        if (new File(dictUrl.getFile()).getName().equals(
+                            new File(locale.getDictUrl().getFile()).getName()))
+                        {
+                            dictInput = dictUrl.openStream();
+                            dictFound = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (!dictFound)
+                {
+                    copyDictionary(locale.getDictUrl().openStream(),
+                        dictLocation);
+                }
+            }
+            
+
+            if (dictInput == null)
+            {
+                dictInput = new FileInputStream(dictLocation);
+            }
 
             // resets dictionary being used to include changes
             synchronized (this.attachedChats)
             {
-                InputStream dictInput = new FileInputStream(dictLocation);
-
                 SpellDictionary dict =
                     new OpenOfficeSpellDictionary(dictInput,
                         this.personalDictLocation);
@@ -415,6 +416,26 @@ class SpellChecker
                     LOCALE_CHANGED_PROP, oldLocale, this.locale);
             }
         }
+    }
+
+    /**
+     * Gets the file object for user-installed dictionaries.
+     * 
+     * @param locale The locale whose filename is needed.
+     * @return The file object of the locale.
+     * @throws Exception 
+     */
+    File getLocalDictForLocale(Parameters.Locale locale) throws Exception
+    {
+        String path = locale.getDictUrl().getFile();
+        int filenameStart = path.lastIndexOf('/') + 1;
+        String filename = path.substring(filenameStart);
+        File dictLocation =
+            SpellCheckActivator.getFileAccessService()
+                .getPrivatePersistentFile(DICT_DIR + filename,
+                    FileCategory.CACHE);
+
+        return dictLocation;
     }
 
     /**
@@ -447,7 +468,7 @@ class SpellChecker
     }
 
     /**
-     * Determines if locale's dictionary is locally available or not.
+     * Determines if locale's dictionary is locally available or a system.
      *
      * @param locale locale to be checked
      * @return true if local resources for dictionary are available and
@@ -455,17 +476,55 @@ class SpellChecker
      */
     boolean isLocaleAvailable(Parameters.Locale locale)
     {
-        String path = locale.getDictUrl().getFile();
-        int filenameStart = path.lastIndexOf('/') + 1;
-        String filename = path.substring(filenameStart);
         try
         {
-            File dictLocation =
-                SpellCheckActivator.getFileAccessService()
-                    .getPrivatePersistentFile(DICT_DIR + filename,
-                        FileCategory.CACHE);
+            if (getLocalDictForLocale(locale).exists())
+            {
+                return true;
+            }
+            else
+            {
+                @SuppressWarnings ("unchecked")
+                Enumeration<URL> dictUrls
+                    = SpellCheckActivator.bundleContext.getBundle()
+                        .findEntries(DEFAULT_DICT_PATH,
+                                    "*.zip",
+                                    false);
 
-            return dictLocation.exists();
+                if (dictUrls != null)
+                {
+                    while (dictUrls.hasMoreElements())
+                    {
+                        URL dictUrl = dictUrls.nextElement();
+                        if (new File(dictUrl.getFile()).getName().equals(
+                            new File(locale.getDictUrl().getFile()).getName()))
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
+        }
+        catch (Exception exc)
+        {
+            return false;
+        }
+    }
+
+    /**
+     * Determines if locale's dictionary is locally available or a system.
+     *
+     * @param locale locale to be checked
+     * @return true if local resources for dictionary are available and
+     *         accessible, false otherwise
+     */
+    boolean isUserLocale(Parameters.Locale locale)
+    {
+        try
+        {
+            return getLocalDictForLocale(locale).exists();
         }
         catch (Exception exc)
         {
