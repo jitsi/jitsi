@@ -290,7 +290,7 @@ public class ProtocolProviderServiceIrcImpl
      */
     public boolean isSignalingTransportSecure()
     {
-        return false;
+        return this.ircStack.isSecureConnection();
     }
 
     /**

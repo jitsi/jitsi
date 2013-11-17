@@ -14,15 +14,14 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import net.java.sip.communicator.service.muc.ChatRoomPresenceStatus;
+import net.java.sip.communicator.impl.protocol.irc.ModeParser.Mode;
 import net.java.sip.communicator.service.protocol.ChatRoomMember;
 import net.java.sip.communicator.service.protocol.ChatRoomMemberRole;
 import net.java.sip.communicator.service.protocol.RegistrationState;
 import net.java.sip.communicator.service.protocol.event.ChatRoomMemberPresenceChangeEvent;
 import net.java.sip.communicator.service.protocol.event.ChatRoomMessageReceivedEvent;
-import net.java.sip.communicator.service.protocol.event.ChatRoomPropertyChangeEvent;
 import net.java.sip.communicator.service.protocol.event.LocalUserChatRoomPresenceChangeEvent;
-import net.java.sip.communicator.service.protocol.event.RegistrationStateChangeEvent;
+import net.java.sip.communicator.service.protocol.event.MessageReceivedEvent;
 
 import com.ircclouds.irc.api.Callback;
 import com.ircclouds.irc.api.IRCApi;
@@ -52,9 +51,12 @@ import com.ircclouds.irc.api.state.IIRCState;
 public class IrcStack
 {
     // private static final Logger LOGGER = Logger.getLogger(IrcStack.class);
-    
+
+    // TODO Create an enum for this.
     private static final char MODE_MEMBER_OWNER = 'O';
+
     private static final char MODE_MEMBER_OPERATOR = 'o';
+
     private static final char MODE_MEMBER_VOICE = 'v';
 
     private final ProtocolProviderServiceIrcImpl provider;
@@ -86,10 +88,16 @@ public class IrcStack
             .isConnected());
     }
 
+    public boolean isSecureConnection()
+    {
+        return isConnected() && this.connectionState.getServer().isSSL();
+    }
+
     public void connect(String host, int port, String password,
         boolean autoNickChange)
     {
-        if (this.irc != null && this.connectionState != null && this.connectionState.isConnected())
+        if (this.irc != null && this.connectionState != null
+            && this.connectionState.isConnected())
             return;
 
         this.irc = new IRCApiImpl(true);
@@ -184,7 +192,8 @@ public class IrcStack
             this.irc.disconnect();
             this.irc = null;
             this.connectionState = null;
-            this.provider.setCurrentRegistrationState(RegistrationState.UNREGISTERED);
+            this.provider
+                .setCurrentRegistrationState(RegistrationState.UNREGISTERED);
         }
     }
 
@@ -213,7 +222,7 @@ public class IrcStack
 
     public void setSubject(ChatRoomIrcImpl chatroom, String subject)
     {
-        if (this.connectionState == null)
+        if (isConnected() == false)
             throw new IllegalStateException(
                 "Please connect to an IRC server first.");
         if (chatroom == null)
@@ -241,6 +250,9 @@ public class IrcStack
 
     public void join(final ChatRoomIrcImpl chatroom, final String password)
     {
+        if (isConnected() == false)
+            throw new IllegalStateException(
+                "Please connect to an IRC server first");
         // TODO password as String
         if (chatroom == null)
             throw new IllegalArgumentException("chatroom cannot be null");
@@ -272,9 +284,11 @@ public class IrcStack
                             ChatRoomMemberRole.SILENT_MEMBER;
                         for (IRCUserStatus status : statuses)
                         {
-                            role = convertMemberMode(status.getChanModeType().charValue());
+                            role =
+                                convertMemberMode(status.getChanModeType()
+                                    .charValue());
                         }
-                        
+
                         if (IrcStack.this.getNick().equals(user.getNick()))
                         {
                             chatroom.prepUserRole(role);
@@ -282,10 +296,11 @@ public class IrcStack
                         else
                         {
                             ChatRoomMemberIrcImpl member =
-                                new ChatRoomMemberIrcImpl(IrcStack.this.provider,
-                                    chatroom, user.getNick(), role);
-                            chatroom.addChatRoomMember(member.getContactAddress(),
-                                member);
+                                new ChatRoomMemberIrcImpl(
+                                    IrcStack.this.provider, chatroom, user
+                                        .getNick(), role);
+                            chatroom.addChatRoomMember(
+                                member.getContactAddress(), member);
                         }
                     }
 
@@ -296,9 +311,16 @@ public class IrcStack
                 }
 
                 @Override
-                public void onFailure(Exception aExc)
+                public void onFailure(Exception e)
                 {
-                    // TODO Auto-generated method stub
+                    e.printStackTrace();
+                    MessageIrcImpl message =
+                        new MessageIrcImpl("Failed to join channel "
+                            + chatroom.getIdentifier(), "text/plain", "UTF-8",
+                            "Failed to join");
+                    chatroom.fireMessageReceivedEvent(message, null,
+                        new Date(),
+                        MessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED);
                 }
             });
     }
@@ -312,7 +334,7 @@ public class IrcStack
     {
         this.irc.leaveChannel(chatRoomName);
     }
-    
+
     public void banParticipant(ChatRoomIrcImpl chatroom, ChatRoomMember member,
         String reason)
     {
@@ -339,10 +361,10 @@ public class IrcStack
     {
         this.irc.message(chatroom.getIdentifier(), message);
     }
-    
+
     private static ChatRoomMemberRole convertMemberMode(char mode)
     {
-        switch(mode)
+        switch (mode)
         {
         case MODE_MEMBER_OWNER:
             return ChatRoomMemberRole.OWNER;
@@ -351,7 +373,8 @@ public class IrcStack
         case MODE_MEMBER_VOICE:
             return ChatRoomMemberRole.MEMBER;
         default:
-            throw new IllegalArgumentException("Unknown member mode '"+mode+"'.");
+            throw new IllegalArgumentException("Unknown member mode '" + mode
+                + "'.");
         }
     }
 
@@ -366,11 +389,6 @@ public class IrcStack
                 throw new IllegalArgumentException("chatroom cannot be null");
 
             this.chatroom = chatroom;
-        }
-        
-        private boolean isThisChatRoom(String chatRoomName)
-        {
-            return this.chatroom.getIdentifier().equals(chatRoomName);
         }
 
         @Override
@@ -387,7 +405,7 @@ public class IrcStack
         {
             if (isThisChatRoom(msg.getChannelName()))
             {
-                System.out.println("MODE: " + msg.getModeStr());
+                processModeMessage(msg);
             }
         }
 
@@ -397,16 +415,17 @@ public class IrcStack
             if (isThisChatRoom(msg.getChannelName()))
             {
                 String user = msg.getSource().getNick();
-                
-                if (IrcStack.this.getNick().equals(msg.getSource().getNick()))
+
+                if (isMe(msg.getSource()))
                 {
-                    //I think that this should not happen.
+                    // I think that this should not happen.
                 }
                 else
                 {
                     ChatRoomMemberIrcImpl member =
                         new ChatRoomMemberIrcImpl(IrcStack.this.provider,
-                            this.chatroom, user, ChatRoomMemberRole.SILENT_MEMBER);
+                            this.chatroom, user,
+                            ChatRoomMemberRole.SILENT_MEMBER);
                     this.chatroom.fireMemberPresenceEvent(member, null,
                         ChatRoomMemberPresenceChangeEvent.MEMBER_JOINED, null);
                 }
@@ -419,12 +438,13 @@ public class IrcStack
             if (isThisChatRoom(msg.getChannelName()))
             {
                 String user = msg.getSource().getNick();
-                
-                if (IrcStack.this.getNick().equals(msg.getSource().getNick()))
+
+                if (isMe(msg.getSource()))
                 {
                     IrcStack.this.provider.getMUC().fireLocalUserPresenceEvent(
                         this.chatroom,
-                        LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_LEFT, null);
+                        LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_LEFT,
+                        null);
                     IrcStack.this.joined.remove(this.chatroom.getIdentifier());
                     IrcStack.this.irc.deleteListener(this);
                 }
@@ -468,6 +488,74 @@ public class IrcStack
                     new Date(),
                     ChatRoomMessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED);
             }
+        }
+
+        private void processModeMessage(ChannelModeMessage msg)
+        {
+            ModeParser parser = new ModeParser(msg);
+            for (Mode mode : parser.getModes())
+            {
+                switch (mode.getMode())
+                {
+                case 'O':
+                    ChatRoomMember owner =
+                        this.chatroom.getChatRoomMember(mode.getParams()[0]);
+                    if (mode.isAdded())
+                    {
+                        this.chatroom.fireMemberRoleEvent(owner,
+                            ChatRoomMemberRole.OWNER);
+                    }
+                    else
+                    {
+                        this.chatroom.fireMemberRoleEvent(owner,
+                            ChatRoomMemberRole.SILENT_MEMBER);
+                    }
+                    break;
+                case 'o':
+                    ChatRoomMember op =
+                        this.chatroom.getChatRoomMember(mode.getParams()[0]);
+                    if (mode.isAdded())
+                    {
+                        this.chatroom.fireMemberRoleEvent(op,
+                            ChatRoomMemberRole.ADMINISTRATOR);
+                    }
+                    else
+                    {
+                        this.chatroom.fireMemberRoleEvent(op,
+                            ChatRoomMemberRole.SILENT_MEMBER);
+                    }
+                    break;
+                case 'v':
+                    ChatRoomMember voice =
+                        this.chatroom.getChatRoomMember(mode.getParams()[0]);
+                    if (mode.isAdded())
+                    {
+                        this.chatroom.fireMemberRoleEvent(voice,
+                            ChatRoomMemberRole.MEMBER);
+                    }
+                    else
+                    {
+                        this.chatroom.fireMemberRoleEvent(voice,
+                            ChatRoomMemberRole.SILENT_MEMBER);
+                    }
+                    break;
+                default:
+                    System.out.println("Unsupported mode '" + mode.getMode()
+                        + "' (from modestring '" + msg.getModeStr() + "')");
+                    break;
+                }
+            }
+        }
+
+        private boolean isThisChatRoom(String chatRoomName)
+        {
+            return this.chatroom.getIdentifier().equals(chatRoomName);
+        }
+
+        private boolean isMe(IRCUser user)
+        {
+            return IrcStack.this.connectionState.getNickname().equals(
+                user.getNick());
         }
     }
 
