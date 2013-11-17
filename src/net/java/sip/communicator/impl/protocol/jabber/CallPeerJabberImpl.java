@@ -1596,7 +1596,7 @@ public class CallPeerJabberImpl
      * <tt>MediaType</tt>
      * @return the <tt>MediaType</tt> of <tt>content</tt>.
      */
-    public MediaType getMediaType (ContentPacketExtension content)
+    public MediaType getMediaType(ContentPacketExtension content)
     {
         String contentName = content.getName();
         if (contentName == null)

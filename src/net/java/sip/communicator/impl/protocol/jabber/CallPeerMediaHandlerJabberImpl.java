@@ -879,8 +879,6 @@ public class CallPeerMediaHandlerJabberImpl
                     = protocolProvider.getDiscoveryManager();
                 DiscoverInfo peerDiscoverInfo = peer.getDiscoveryInfo();
 
-                boolean isJitsiVideobridge = peer.isJitsiVideobridge();
-
                 /*
                  * If this.supportedTransports has been explicitly set, we use
                  * it to select the transport manager -- we use the first
@@ -938,13 +936,40 @@ public class CallPeerMediaHandlerJabberImpl
                                 };
 
                     /*
-                     * If the local peer is a conference focus and there is a
-                     * Jitsi Videobridge working on the server, prefer a
-                     * transport which will route the conference through there.
+                     * If Jitsi Videobridge is to be employed, pick up a Jingle
+                     * transport supported by it.
                      */
-                    if (isJitsiVideobridge)
+                    if (peer.isJitsiVideobridge())
                     {
-                        // TODO Auto-generated method stub
+                        CallJabberImpl call = peer.getCall();
+
+                        if (call != null)
+                        {
+                            String jitsiVideobridge
+                                = peer.getCall().getJitsiVideobridge();
+
+                            /*
+                             * Jitsi Videobridge supports the Jingle Raw UDP
+                             * transport from its inception. But that is not the
+                             * case with the Jingle ICE-UDP transport.
+                             */
+                            if ((jitsiVideobridge != null)
+                                    && !protocolProvider.isFeatureSupported(
+                                            jitsiVideobridge,
+                                            ProtocolProviderServiceJabberImpl
+                                                .URN_XMPP_JINGLE_ICE_UDP_1))
+                            {
+                                for (int i = transports.length - 1; i >= 0; i--)
+                                {
+                                    if (ProtocolProviderServiceJabberImpl
+                                            .URN_XMPP_JINGLE_ICE_UDP_1
+                                                .equals(transports[i]))
+                                    {
+                                        transports[i] = null;
+                                    }
+                                }
+                            }
+                        }
                     }
 
                     /*
@@ -954,6 +979,8 @@ public class CallPeerMediaHandlerJabberImpl
                      */
                     for (String transport : transports)
                     {
+                        if (transport == null)
+                            continue;
                         if (isFeatureSupported(
                                 discoveryManager,
                                 peerDiscoverInfo,
@@ -1961,8 +1988,8 @@ public class CallPeerMediaHandlerJabberImpl
             if (getPeer().isJitsiVideobridge())
             {
                 /*
-                 * If we are the focus of a videobridge conference, we need to
-                 * ask the videobridge to change the stream direction on our
+                 * If we are the focus of a Videobridge conference, we need to
+                 * ask the Videobridge to change the stream direction on our
                  * behalf.
                  */
                 ColibriConferenceIQ.Channel channel
@@ -1983,7 +2010,7 @@ public class CallPeerMediaHandlerJabberImpl
                         mediaType,
                         direction);
             }
-            else //no videobridge
+            else //no Videobridge
             {
                 if (remotelyOnHold)
                 {
@@ -2192,7 +2219,7 @@ public class CallPeerMediaHandlerJabberImpl
      * {@inheritDoc}
      *
      * The super implementation relies on the direction of the streams and is
-     * therefore not accurate when we use a videobridge.
+     * therefore not accurate when we use a Videobridge.
      */
     @Override
     public boolean isRemotelyOnHold()
@@ -2203,7 +2230,7 @@ public class CallPeerMediaHandlerJabberImpl
     /**
      * {@inheritDoc}
      *
-     * Handles the case when a videobridge is in use.
+     * Handles the case when a Videobridge is in use.
      *
      * @param locallyOnHold <tt>true</tt> if we are to make our streams
      * stop transmitting and <tt>false</tt> if we are to start transmitting

@@ -59,6 +59,13 @@ public class CallJabberImpl
         colibriStreamConnectors;
 
     /**
+     * The entity ID of the Jitsi Videobridge to be utilized by this
+     * <tt>Call</tt> for the purposes of establishing a server-assisted
+     * telephony conference.
+     */
+    private String jitsiVideobridge;
+
+    /**
      * Initializes a new <tt>CallJabberImpl</tt> instance.
      *
      * @param parentOpSet the {@link OperationSetBasicTelephonyJabberImpl}
@@ -183,9 +190,7 @@ public class CallJabberImpl
         ProtocolProviderServiceJabberImpl protocolProvider
             = getProtocolProvider();
         String jitsiVideobridge
-            = (colibri == null)
-                ? protocolProvider.getJitsiVideobridge()
-                : colibri.getFrom();
+            = (colibri == null) ? getJitsiVideobridge() : colibri.getFrom();
 
         if ((jitsiVideobridge == null) || (jitsiVideobridge.length() == 0))
         {
@@ -1377,5 +1382,28 @@ public class CallJabberImpl
             }
         }
         return transport;
+    }
+
+    /**
+     * Gets the entity ID of the Jitsi Videobridge to be utilized by this
+     * <tt>Call</tt> for the purposes of establishing a server-assisted
+     * telephony conference.
+     *
+     * @return the entity ID of the Jitsi Videobridge to be utilized by this
+     * <tt>Call</tt> for the purposes of establishing a server-assisted
+     * telephony conference.
+     */
+    public String getJitsiVideobridge()
+    {
+        if ((this.jitsiVideobridge == null)
+                && getConference().isJitsiVideobridge())
+        {
+            String jitsiVideobridge
+                = getProtocolProvider().getJitsiVideobridge();
+
+            if (jitsiVideobridge != null)
+                this.jitsiVideobridge = jitsiVideobridge;
+        }
+        return this.jitsiVideobridge;
     }
 }

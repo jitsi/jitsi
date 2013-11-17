@@ -32,6 +32,10 @@ import org.jivesoftware.smack.packet.*;
 public abstract class TransportManagerJabberImpl
     extends TransportManager<CallPeerJabberImpl>
 {
+    /**
+     * The <tt>Logger</tt> used by the <tt>TransportManagerJabberImpl</tt> class
+     * and its instances to print debug messages.
+     */
     private static final Logger logger
         = Logger.getLogger(TransportManagerJabberImpl.class);
 
@@ -57,8 +61,18 @@ public abstract class TransportManagerJabberImpl
      */
     private int currentGeneration = 0;
 
+    /**
+     * The indicator which determines whether this <tt>TransportManager</tt>
+     * instance is responsible to establish the connectivity with the associated
+     * Jitsi Videobridge (in case it is being employed at all).
+     */
     boolean isEstablishingConnectivityWithJitsiVideobridge = false;
 
+    /**
+     * The indicator which determines whether this <tt>TransportManager</tt>
+     * instance is yet to start establishing the connectivity with the
+     * associated Jitsi Videobridge (in case it is being employed at all).
+     */
     boolean startConnectivityEstablishmentWithJitsiVideobridge = false;
 
     /**
@@ -150,6 +164,17 @@ public abstract class TransportManagerJabberImpl
         currentGeneration++;
     }
 
+    /**
+     * Sends transport-related information received from the remote peer to the
+     * associated Jiitsi Videobridge in order to update the (remote)
+     * <tt>ColibriConferenceIQ.Channel</tt> associated with this
+     * <tt>TransportManager</tt> instance.
+     *
+     * @param map a <tt>Map</tt> of media-IceUdpTransportPacketExtension pairs
+     * which represents the transport-related information which has been
+     * received from the remote peer and which is to be sent to the associated
+     * Jitsi Videobridge
+     */
     protected void sendTransportInfoToJitsiVideobridge(
             Map<String,IceUdpTransportPacketExtension> map)
     {
@@ -614,6 +639,18 @@ public abstract class TransportManagerJabberImpl
         return null;
     }
 
+    /**
+     * Clones the attributes, namespace and text of a specific
+     * <tt>AbstractPacketExtension</tt> into a new
+     * <tt>AbstractPacketExtension</tt> instance of the same run-time type.
+     *
+     * @param src the <tt>AbstractPacketExtension</tt> to be cloned
+     * @return a new <tt>AbstractPacketExtension</tt> instance of the run-time
+     * type of the specified <tt>src</tt> which has the same attributes,
+     * namespace and text
+     * @throws Exception if an error occurs during the cloning of the specified
+     * <tt>src</tt>
+     */
     private static <T extends AbstractPacketExtension> T clone(T src)
         throws Exception
     {
@@ -630,6 +667,17 @@ public abstract class TransportManagerJabberImpl
         return dst;
     }
 
+    /**
+     * Clones a specific <tt>IceUdpTransportPacketExtension</tt> and its
+     * candidates.
+     *
+     * @param src the <tt>IceUdpTransportPacketExtension</tt> to be cloned
+     * @return a new <tt>IceUdpTransportPacketExtension</tt> instance which has
+     * the same run-time type, attributes, namespace, text and candidates as the
+     * specified <tt>src</tt>
+     * @throws OperationFailedException if an error occurs during the cloing of
+     * the specified <tt>src</tt> and its candidates
+     */
     static IceUdpTransportPacketExtension cloneTransportAndCandidates(
             IceUdpTransportPacketExtension src)
         throws OperationFailedException
