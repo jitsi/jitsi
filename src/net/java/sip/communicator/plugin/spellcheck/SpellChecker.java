@@ -17,6 +17,7 @@ import net.java.sip.communicator.util.*;
 
 import org.dts.spell.dictionary.*;
 import org.jitsi.service.fileaccess.*;
+import org.jitsi.util.OSUtils;
 import org.osgi.framework.*;
 
 import javax.swing.*;
@@ -50,6 +51,12 @@ class SpellChecker
 
     // filename of custom dictionary (added words)
     private static final String PERSONAL_DICT_NAME = "custom.per";
+
+    /**
+     * System directory for hunspell-dictionaries.
+     */
+    private static final String SYSTEM_HUNSPELL_DIR
+        = "net.java.sip.communicator.plugin.spellcheck.SYSTEM_HUNSPELL_DIR";
 
     /*-
      * Dictionary resources.
@@ -350,11 +357,27 @@ class SpellChecker
 
             File dictLocation = getLocalDictForLocale(locale);
             InputStream dictInput = null;
+            InputStream affInput = null;
 
-            // downloads dictionary if unavailable (not cached)
-            if (!dictLocation.exists())
+            if (OSUtils.IS_LINUX && !dictLocation.exists())
+            {
+                String sysDir =
+                    SpellCheckActivator.getConfigService().getString(
+                        SYSTEM_HUNSPELL_DIR);
+                File systemDict =
+                    new File(sysDir, locale.getIcuLocale() + ".dic");
+                if (systemDict.exists())
+                {
+                    dictInput = new FileInputStream(systemDict);
+                    affInput = new FileInputStream(new File(sysDir,
+                            locale.getIcuLocale() + ".aff"));
+                }
+            }
+
+            if (!dictLocation.exists() && dictInput == null)
             {
                 boolean dictFound = false;
+
                 // see if the requested locale is a built-in that doesn't
                 // need to be downloaded
                 @SuppressWarnings ("unchecked")
@@ -379,13 +402,13 @@ class SpellChecker
                     }
                 }
 
+                // downloads dictionary if unavailable (not cached)
                 if (!dictFound)
                 {
                     copyDictionary(locale.getDictUrl().openStream(),
                         dictLocation);
                 }
             }
-            
 
             if (dictInput == null)
             {
@@ -395,9 +418,18 @@ class SpellChecker
             // resets dictionary being used to include changes
             synchronized (this.attachedChats)
             {
-                SpellDictionary dict =
-                    new OpenOfficeSpellDictionary(dictInput,
+                SpellDictionary dict;
+                if (affInput == null)
+                {
+                    dict = new OpenOfficeSpellDictionary(dictInput,
                         this.personalDictLocation);
+                }
+                else
+                {
+                    dict =
+                        new OpenOfficeSpellDictionary(affInput, dictInput,
+                            personalDictLocation, true);
+                }
 
                 this.dict = dict;
                 this.dictLocation = dictLocation;
