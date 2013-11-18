@@ -597,6 +597,19 @@ public class MainFrame
             im.addMessageListener(getContactListPanel());
         }
 
+        // Obtain the sms messaging operation set.
+        String smsOpSetClassName = OperationSetSmsMessaging
+                                    .class.getName();
+
+        if (supportedOperationSets.containsKey(smsOpSetClassName))
+        {
+            OperationSetSmsMessaging sms
+                = (OperationSetSmsMessaging)
+                    supportedOperationSets.get(smsOpSetClassName);
+
+            sms.addMessageListener(getContactListPanel());
+        }
+
         // Obtain the typing notifications operation set.
         String tnOpSetClassName = OperationSetTypingNotifications
                                     .class.getName();
@@ -725,6 +738,18 @@ public class MainFrame
                     supportedOperationSets.get(imOpSetClassName);
 
             im.removeMessageListener(getContactListPanel());
+        }
+
+        // Obtain the sms messaging operation set.
+        String smsOpSetClassName = OperationSetSmsMessaging.class.getName();
+
+        if (supportedOperationSets.containsKey(smsOpSetClassName))
+        {
+            OperationSetSmsMessaging sms
+                = (OperationSetSmsMessaging)
+                    supportedOperationSets.get(smsOpSetClassName);
+
+            sms.removeMessageListener(getContactListPanel());
         }
 
         // Obtain the typing notifications operation set.

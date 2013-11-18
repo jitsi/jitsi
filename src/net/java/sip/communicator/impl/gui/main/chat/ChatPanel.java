@@ -1669,9 +1669,6 @@ public class ChatPanel
             return;
         }
 
-        smsChatTransport.addSmsMessageListener(
-                new SmsMessageListener(smsChatTransport));
-
         // We open the send SMS dialog.
         SendSmsDialog smsDialog
             = new SendSmsDialog(this, smsChatTransport, messageText);
@@ -1900,105 +1897,6 @@ public class ChatPanel
     public boolean isMessageCorrectionActive()
     {
         return correctedMessageUID != null;
-    }
-
-    /**
-     * Listens for SMS messages and shows them in the chat.
-     */
-    private class SmsMessageListener implements MessageListener
-    {
-        /**
-         * Initializes a new <tt>SmsMessageListener</tt> instance.
-         *
-         * @param chatTransport Currently unused
-         */
-        public SmsMessageListener(ChatTransport chatTransport)
-        {
-        }
-
-        public void messageDelivered(MessageDeliveredEvent evt)
-        {
-            Message msg = evt.getSourceMessage();
-
-            Contact contact = evt.getDestinationContact();
-
-            addMessage(
-                contact.getDisplayName(),
-                new Date(),
-                Chat.OUTGOING_MESSAGE,
-                msg.getContent(), msg.getContentType());
-
-            addMessage(
-                    contact.getDisplayName(),
-                    new Date(),
-                    Chat.ACTION_MESSAGE,
-                    GuiActivator.getResources().getI18NString(
-                        "service.gui.SMS_SUCCESSFULLY_SENT"),
-                    "text");
-        }
-
-        public void messageDeliveryFailed(MessageDeliveryFailedEvent evt)
-        {
-            logger.error(evt.getReason());
-
-            String errorMsg = null;
-
-            Message sourceMessage = (Message) evt.getSource();
-
-            Contact sourceContact = evt.getDestinationContact();
-
-            MetaContact metaContact = GuiActivator
-                .getContactListService().findMetaContactByContact(sourceContact);
-
-            if (evt.getErrorCode()
-                    == MessageDeliveryFailedEvent.OFFLINE_MESSAGES_NOT_SUPPORTED)
-            {
-                errorMsg = GuiActivator.getResources().getI18NString(
-                    "service.gui.MSG_DELIVERY_NOT_SUPPORTED",
-                    new String[]{sourceContact.getDisplayName()});
-            }
-            else if (evt.getErrorCode()
-                    == MessageDeliveryFailedEvent.NETWORK_FAILURE)
-            {
-                errorMsg = GuiActivator.getResources().getI18NString(
-                    "service.gui.MSG_NOT_DELIVERED");
-            }
-            else if (evt.getErrorCode()
-                    == MessageDeliveryFailedEvent.PROVIDER_NOT_REGISTERED)
-            {
-                errorMsg = GuiActivator.getResources().getI18NString(
-                    "service.gui.MSG_SEND_CONNECTION_PROBLEM");
-            }
-            else if (evt.getErrorCode()
-                    == MessageDeliveryFailedEvent.INTERNAL_ERROR)
-            {
-                errorMsg = GuiActivator.getResources().getI18NString(
-                    "service.gui.MSG_DELIVERY_INTERNAL_ERROR");
-            }
-            else {
-                errorMsg = GuiActivator.getResources().getI18NString(
-                    "service.gui.MSG_DELIVERY_UNKNOWN_ERROR");
-            }
-
-            String reason = evt.getReason();
-            if (reason != null)
-                errorMsg += " " + GuiActivator.getResources().getI18NString(
-                    "service.gui.ERROR_WAS",
-                    new String[]{reason});
-
-            addMessage(
-                    metaContact.getDisplayName(),
-                    new Date(),
-                    Chat.OUTGOING_MESSAGE,
-                    sourceMessage.getContent(),
-                    sourceMessage.getContentType());
-
-            addErrorMessage(
-                    metaContact.getDisplayName(),
-                    errorMsg);
-        }
-
-        public void messageReceived(MessageReceivedEvent evt) {}
     }
 
     /**

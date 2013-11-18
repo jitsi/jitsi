@@ -439,6 +439,17 @@ public class ContactListPane
                 msg.getContentType(),
                 msg.getMessageUID(),
                 evt.getCorrectedMessageUID());
+
+            if(evt.isSmsMessage())
+            {
+                chatPanel.addMessage(
+                        contact.getDisplayName(),
+                        new Date(),
+                        Chat.ACTION_MESSAGE,
+                        GuiActivator.getResources().getI18NString(
+                            "service.gui.SMS_SUCCESSFULLY_SENT"),
+                        "text");
+            }
         }
     }
 

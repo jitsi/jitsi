@@ -25,20 +25,25 @@ public class MessageDeliveredEvent
     private static final long serialVersionUID = 0L;
 
     /**
-      * The contact that has sent this message.
-      */
-     private Contact to = null;
+     * The contact that has sent this message.
+     */
+    private Contact to = null;
 
-     /**
-      * A timestamp indicating the exact date when the event occurred.
-      */
-     private final Date timestamp;
+    /**
+     * A timestamp indicating the exact date when the event occurred.
+     */
+    private final Date timestamp;
 
-     /**
-      * The ID of the message being corrected, or null if this was a new message
-      * and not a message correction.
-      */
-     private String correctedMessageUID;
+    /**
+     * The ID of the message being corrected, or null if this was a new message
+     * and not a message correction.
+     */
+    private String correctedMessageUID;
+
+    /**
+     * Whether the delivered message is a sms message.
+     */
+    private boolean smsMessage = false;
 
      /**
       * Constructor.
@@ -136,4 +141,21 @@ public class MessageDeliveredEvent
         this.correctedMessageUID = correctedMessageUID;
     }
 
+    /**
+     * Sets whether the message is a sms one.
+     * @param smsMessage whether it is a sms one.
+     */
+    public void setSmsMessage(boolean smsMessage)
+    {
+        this.smsMessage = smsMessage;
+    }
+
+    /**
+     * Returns whether the delivered message is a sms one.
+     * @return whether the delivered message is a sms one.
+     */
+    public boolean isSmsMessage()
+    {
+        return smsMessage;
+    }
 }

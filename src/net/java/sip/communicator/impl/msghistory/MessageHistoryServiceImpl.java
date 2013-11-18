@@ -1203,6 +1203,19 @@ public class MessageHistoryServiceImpl
                 logger.trace("Service did not have a im op. set.");
         }
 
+        OperationSetSmsMessaging opSetSMS =
+            provider.getOperationSet(OperationSetSmsMessaging.class);
+
+        if (opSetSMS != null)
+        {
+            opSetSMS.addMessageListener(this);
+        }
+        else
+        {
+            if (logger.isTraceEnabled())
+                logger.trace("Service did not have a sms op. set.");
+        }
+
         OperationSetMultiUserChat opSetMultiUChat =
             provider.getOperationSet(OperationSetMultiUserChat.class);
 
@@ -1240,6 +1253,14 @@ public class MessageHistoryServiceImpl
         if (opSetIm != null)
         {
             opSetIm.removeMessageListener(this);
+        }
+
+        OperationSetSmsMessaging opSetSMS =
+            provider.getOperationSet(OperationSetSmsMessaging.class);
+
+        if (opSetSMS != null)
+        {
+            opSetSMS.removeMessageListener(this);
         }
 
         OperationSetMultiUserChat opSetMultiUChat =

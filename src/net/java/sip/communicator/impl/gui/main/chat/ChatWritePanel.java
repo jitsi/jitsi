@@ -550,7 +550,7 @@ public class ChatWritePanel
      */
     public void keyTyped(KeyEvent e)
     {
-        if (ConfigurationUtils.isSendTypingNotifications())
+        if (ConfigurationUtils.isSendTypingNotifications() && !smsMode)
         {
             if (typingState != OperationSetTypingNotifications.STATE_TYPING)
             {
