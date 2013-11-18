@@ -6,7 +6,6 @@
  */
 package net.java.sip.communicator.service.customcontactactions;
 
-import net.java.sip.communicator.service.contactsource.SourceContact;
 import net.java.sip.communicator.service.protocol.*;
 
 /**

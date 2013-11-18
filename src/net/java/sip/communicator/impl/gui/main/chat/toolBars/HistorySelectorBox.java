@@ -5,8 +5,15 @@
  */
 package net.java.sip.communicator.impl.gui.main.chat.toolBars;
 
+import java.awt.*;
+import java.awt.event.*;
+import java.beans.*;
+import java.io.*;
+import java.net.*;
+
+import javax.swing.*;
+
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -18,14 +25,8 @@ import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
-import org.jitsi.service.resources.*;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
-import java.beans.*;
-import java.io.*;
-import java.net.*;
+import org.jitsi.service.resources.*;
 
 /**
  * The <tt>HistorySelectorBox</tt> is the component where user could choose a
