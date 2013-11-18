@@ -25,6 +25,13 @@ public class CallHistorySourceContact
     implements SourceContact
 {
     /**
+     * Whether we need to strip saved addresses to numbers. We strip everything
+     * before '@', if it is absent nothing is changed from the saved address.
+     */
+    private static final String STRIP_ADDRESSES_TO_NUMBERS =
+        "net.java.sip.communicator.impl.callhistory.STRIP_ADDRESSES_TO_NUMBERS";
+
+    /**
      * The parent <tt>CallHistoryContactSource</tt>, where this contact is
      * contained.
      */
@@ -100,6 +107,14 @@ public class CallHistorySourceContact
      */
     private void initPeerDetails()
     {
+        boolean stripAddress = false;
+        String stripAddressProp = CallHistoryActivator.getResources()
+            .getSettingsString(STRIP_ADDRESSES_TO_NUMBERS);
+
+        if(stripAddressProp != null
+            && Boolean.parseBoolean(stripAddressProp))
+            stripAddress = true;
+
         Iterator<CallPeerRecord> recordsIter
             = callRecord.getPeerRecords().iterator();
 
@@ -111,6 +126,11 @@ public class CallHistorySourceContact
 
             if (peerAddress != null)
             {
+                if(stripAddress && !peerAddress.startsWith("@"))
+                {
+                    peerAddress = peerAddress.split("@")[0];
+                }
+
                 String peerRecordDisplayName = peerRecord.getDisplayName();
 
                 if(peerRecordDisplayName == null
