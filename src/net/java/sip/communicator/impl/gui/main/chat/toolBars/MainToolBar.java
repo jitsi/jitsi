@@ -488,10 +488,14 @@ public class MainToolBar
         }
         else if (buttonText.equals("leave"))
         {
-            ConferenceChatManager conferenceManager
-                = GuiActivator.getUIService().getConferenceChatManager();
-            conferenceManager.leaveChatRoom(
-                (ChatRoomWrapper)chatPanel.getChatSession().getDescriptor());
+            ChatRoomWrapper chatRoomWrapper 
+                = (ChatRoomWrapper)chatPanel.getChatSession().getDescriptor();
+            ChatRoomWrapper leavedRoomWrapped 
+                = GuiActivator.getMUCService().leaveChatRoom(
+                    chatRoomWrapper);
+            if(leavedRoomWrapped != null)
+                GuiActivator.getUIService().closeChatRoomWindow(
+                    leavedRoomWrapped);
         }
         else if (buttonText.equals("call"))
         {

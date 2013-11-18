@@ -12,6 +12,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.Logger;
 
 import org.jitsi.util.*;
@@ -756,6 +757,37 @@ public class AuthenticationWindow
             }
         });
         return subscribeLabel;
+    }
+    
+
+    /**
+     * Returns the icon corresponding to the given <tt>protocolProvider</tt>.
+     *
+     * @param protocolProvider the <tt>ProtocolProviderService</tt>, which icon
+     * we're looking for
+     * @return the icon to show on the authentication window
+     */
+    public static ImageIcon getAuthenticationWindowIcon(
+        ProtocolProviderService protocolProvider)
+    {
+        Image image = null;
+
+        if(protocolProvider != null)
+        {
+            ProtocolIcon protocolIcon = protocolProvider.getProtocolIcon();
+
+            if(protocolIcon.isSizeSupported(ProtocolIcon.ICON_SIZE_64x64))
+                image = ImageUtils.getBytesInImage(
+                    protocolIcon.getIcon(ProtocolIcon.ICON_SIZE_64x64));
+            else if(protocolIcon.isSizeSupported(ProtocolIcon.ICON_SIZE_48x48))
+                image = ImageUtils.getBytesInImage(
+                    protocolIcon.getIcon(ProtocolIcon.ICON_SIZE_48x48));
+        }
+
+        if (image != null)
+            return new ImageIcon(image);
+
+        return null;
     }
 
 }

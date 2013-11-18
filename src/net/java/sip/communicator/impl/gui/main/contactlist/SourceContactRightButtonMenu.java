@@ -93,7 +93,9 @@ public class SourceContactRightButtonMenu
             add(initCallMenu());
 
         // Only create the menu if the add contact functionality is enabled.
-        if (!ConfigurationUtils.isAddContactDisabled())
+        if ((sourceContact.getPreferredContactDetail(
+                OperationSetMultiUserChat.class) == null) 
+            && !ConfigurationUtils.isAddContactDisabled())
         {
             addContactComponent
                 = TreeContactList.createAddContactMenu(sourceContact);
@@ -101,6 +103,12 @@ public class SourceContactRightButtonMenu
 
         if (addContactComponent != null)
             add(addContactComponent);
+        
+        for(JMenuItem item : 
+            sourceUIContact.getContactCustomActionMenuItems(true))
+        {
+            add(item);
+        }
     }
 
     /**

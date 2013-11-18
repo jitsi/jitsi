@@ -6,18 +6,15 @@
  */
 package net.java.sip.communicator.impl.gui.main.chat.conference;
 
-import java.awt.*;
-import java.awt.event.*;
 import java.util.*;
 import java.util.concurrent.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
-import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.plugin.desktoputil.chat.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -29,8 +26,6 @@ import org.jdesktop.swingworker.SwingWorker;
 import org.osgi.framework.*;
 
 import javax.swing.*;
-// Java 1.6 has javax.swing.SwingWorker so we have to disambiguate.
-import javax.swing.border.*;
 
 /**
  * The <tt>ConferenceChatManager</tt> is the one that manages both chat room and
@@ -535,7 +530,8 @@ public class ConferenceChatManager
         {
             if(chatRoomWrapper != null)
             {
-                this.closeChatRoom(chatRoomWrapper);
+                GuiActivator.getUIService()
+                    .closeChatRoomWindow(chatRoomWrapper);
 
                 // Need to refresh the chat room's list in order to change
                 // the state of the chat room to offline.
@@ -701,7 +697,7 @@ public class ConferenceChatManager
         if (chatRoom != null)
             leaveChatRoom(chatRoomWrapper);
 
-        this.closeChatRoom(chatRoomWrapper);
+        GuiActivator.getUIService().closeChatRoomWindow(chatRoomWrapper);
 
         GuiActivator.getMUCService().removeChatRoom(chatRoomWrapper);
 
@@ -755,7 +751,7 @@ public class ConferenceChatManager
         ChatRoomWrapper leavedRoomWrapped 
             = GuiActivator.getMUCService().leaveChatRoom(chatRoomWrapper);
         if(leavedRoomWrapped != null)
-            this.closeChatRoom(leavedRoomWrapped);
+            GuiActivator.getUIService().closeChatRoomWindow(leavedRoomWrapped);
     }
 
     /**
@@ -879,23 +875,6 @@ public class ConferenceChatManager
         }
     }
 
-    /**
-     * Closes the chat corresponding to the given chat room wrapper, if such
-     * exists.
-     *
-     * @param chatRoomWrapper the chat room wrapper for which we search a chat
-     * to close.
-     */
-    public void closeChatRoom(ChatRoomWrapper chatRoomWrapper)
-    {
-        ChatWindowManager chatWindowManager
-            = GuiActivator.getUIService().getChatWindowManager();
-        ChatPanel chatPanel
-            = chatWindowManager.getMultiChat(chatRoomWrapper, false);
-
-        if (chatPanel != null)
-            chatWindowManager.closeChat(chatPanel);
-    }
 
     /**
      * Closes the chat corresponding to the given ad-hoc chat room wrapper, if
@@ -1316,7 +1295,7 @@ public class ConferenceChatManager
 
         if (savedNick == null)
         {
-            String[] joinOptions = getJoinOptions(
+            String[] joinOptions = ChatRoomJoinOptionsDialog.getJoinOptions(
                 room.getParentProvider().getProtocolProvider(), 
                 room.getChatRoomID());
             String nickName = joinOptions[0];
@@ -1336,186 +1315,9 @@ public class ConferenceChatManager
                 GuiActivator.getMUCService().joinChatRoom(room, savedNick, null);
         }
 
-        ChatWindowManager chatWindowManager
-            = GuiActivator.getUIService().getChatWindowManager();
-        ChatPanel chatPanel
-            = chatWindowManager.getMultiChat(room, true);
-
-        chatWindowManager.openChat(chatPanel, true);
+        GuiActivator.getUIService().openChatRoomWindow(room);
     }
     
-    /**
-     * Opens a dialog with a fields for the nickname and the subject of the room
-     *  and returns them.
-     *
-     * @param pps the protocol provider associated with the chat room.
-     * @param chatRoomId the id of the chat room.
-     * @return array with the nickname and subject values.
-     */
-    public String[] getJoinOptions(ProtocolProviderService pps, 
-        String chatRoomId)
-    {
-        return getJoinOptions(false, pps, chatRoomId);
-    }
-
-    /**
-     * Opens a dialog with a fields for the nickname and the subject of the room
-     *  and returns them.
-     *
-     * @param dontDisplaySubjectFields if true the subject fields will be hidden
-     * @return array with the nickname and subject values.
-     */
-    public String[] getJoinOptions(boolean dontDisplaySubjectFields,
-        ProtocolProviderService pps, String chatRoomId)
-    {
-        String nickName = null;
-        ChatRoomJoinOptionsDialog reasonDialog =
-            new ChatRoomJoinOptionsDialog(GuiActivator.getResources()
-                .getI18NString("service.gui.CHANGE_NICKNAME"), GuiActivator
-                .getResources().getI18NString(
-                    "service.gui.CHANGE_NICKNAME_LABEL"), false, true, 
-                    dontDisplaySubjectFields);
-        reasonDialog.setIcon(ImageLoader.getImage(
-                    ImageLoader.CHANGE_NICKNAME_ICON));
-        
-        final OperationSetServerStoredAccountInfo accountInfoOpSet
-            = pps.getOperationSet(
-                    OperationSetServerStoredAccountInfo.class);
-        
-        String displayName = "";
-        if (accountInfoOpSet != null)
-        {
-            displayName = AccountInfoUtils.getDisplayName(accountInfoOpSet);
-        }
-        
-        if(displayName == null || displayName.length() == 0)
-        {
-            displayName = GuiActivator.getGlobalDisplayDetailsService()
-                .getGlobalDisplayName();
-            if(displayName == null || displayName.length() == 0)
-            {
-                displayName = pps.getAccountID().getUserID();
-                if(displayName != null)
-                {
-                    int atIndex = displayName.lastIndexOf("@");
-                    if (atIndex > 0)
-                        displayName = displayName.substring(0, atIndex);
-                }
-            }
-        }
-        reasonDialog.setReasonFieldText(displayName);
-        
-        int result = reasonDialog.showDialog();
-
-        if (result == MessageDialog.OK_RETURN_CODE)
-        {
-            nickName = reasonDialog.getReason().trim();
-            ConfigurationUtils.updateChatRoomProperty(
-                pps,
-                chatRoomId, "userNickName", nickName);
-            
-        }
-        String[] joinOptions = {nickName, reasonDialog.getSubject()};
-        return joinOptions;
-    }
-    
-    /**
-     * Dialog with fields for nickname and subject.
-     */
-    private class ChatRoomJoinOptionsDialog extends ChatOperationReasonDialog
-    {
-        /** 
-         * Text field for the subject.
-         */
-        private SIPCommTextField subject = new SIPCommTextField(GuiActivator
-            .getResources().getI18NString("service.gui.SUBJECT"));
-        
-        /**
-         * Label that hides and shows the subject fields panel on click.
-         */
-        private JLabel cmdExpandSubjectFields;
-        
-        /**
-         * Panel that holds the subject fields.
-         */
-        private JPanel subjectFieldsPannel = new JPanel(new BorderLayout());
-        
-        /**
-         * Adds the subject fields to dialog. Sets action listeners.
-         * 
-         * @param title the title of the dialog
-         * @param message the message shown in this dialog
-         * @param disableOKIfReasonIsEmpty if true the OK button will be 
-         * disabled if the reason text is empty.
-         * @param showReasonLabel specify if we want the "Reason:" label
-         * @param dontDisplaySubjectFields if true the sibject fields will be 
-         * hidden.
-         */
-        public ChatRoomJoinOptionsDialog(String title, String message,
-            boolean showReasonLabel,
-            boolean disableOKIfReasonIsEmpty,
-            boolean dontDisplaySubjectFields)
-        {
-            super(title,
-                message,
-                showReasonLabel,
-                disableOKIfReasonIsEmpty);
-            
-            if(dontDisplaySubjectFields)
-                return;
-            
-            JPanel subjectPanel = new JPanel(new BorderLayout());
-            subjectPanel.setOpaque(false);
-            subjectPanel.setBorder(
-                BorderFactory.createEmptyBorder(10, 0, 0, 0));
-            
-            subjectFieldsPannel.setBorder(
-                BorderFactory.createEmptyBorder(10, 30, 0, 0));
-            subjectFieldsPannel.setOpaque(false);
-            subjectFieldsPannel.add(subject, BorderLayout.CENTER);
-            subjectFieldsPannel.setVisible(false);
-            subject.setFont(getFont().deriveFont(12f));
-            
-            cmdExpandSubjectFields = new JLabel();
-            cmdExpandSubjectFields.setBorder(new EmptyBorder(0, 5, 0, 0));
-            cmdExpandSubjectFields.setIcon(GuiActivator.getResources()
-                .getImage("service.gui.icons.RIGHT_ARROW_ICON"));
-            cmdExpandSubjectFields.setText(GuiActivator
-                .getResources().getI18NString("service.gui.SET_SUBJECT"));
-            cmdExpandSubjectFields.addMouseListener(new MouseAdapter()
-            {
-                @Override
-                public void mouseClicked(MouseEvent e)
-                {
-                    cmdExpandSubjectFields.setIcon(
-                            UtilActivator.getResources().getImage(
-                                subjectFieldsPannel.isVisible()
-                                        ? "service.gui.icons.RIGHT_ARROW_ICON"
-                                        : "service.gui.icons.DOWN_ARROW_ICON"));
-
-                    subjectFieldsPannel.setVisible(
-                        !subjectFieldsPannel.isVisible());
-
-                    pack();
-                }
-            });
-            subjectPanel.add(cmdExpandSubjectFields,BorderLayout.NORTH);
-            subjectPanel.add(subjectFieldsPannel,BorderLayout.CENTER);
-            addToReasonFieldPannel(subjectPanel);
-            this.pack();
-        }
-    
-       /**
-        * Returns the text entered in the subject field.
-        * 
-        * @return the text from the subject field.
-        */
-       public String getSubject()
-       {
-           return subject.getText();
-       }
-    }
-
     @Override
     public void chatRoomProviderWrapperAdded(ChatRoomProviderWrapper provider)
     {}
@@ -1524,6 +1326,6 @@ public class ConferenceChatManager
     public void chatRoomProviderWrapperRemoved(ChatRoomProviderWrapper provider)
     {
         for(int i = 0; i < provider.countChatRooms(); i++)
-            closeChatRoom(provider.getChatRoom(i));
+            GuiActivator.getUIService().closeChatRoomWindow(provider.getChatRoom(i));
     }
 }

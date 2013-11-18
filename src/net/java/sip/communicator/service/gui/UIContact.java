@@ -10,6 +10,8 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 
+import javax.swing.*;
+
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.protocol.*;
 
@@ -135,5 +137,17 @@ public abstract class UIContact
     public int getPreferredHeight()
     {
         return -1;
+    }
+
+    /**
+     * Returns all custom action menu items for this contact.
+     * 
+     * @param initActions if <tt>true</tt> the actions will be reloaded.
+     * @return a list of all custom action menu items for this contact.
+     */
+    public Collection<JMenuItem> getContactCustomActionMenuItems(
+        boolean initActions)
+    {
+        return null;
     }
 }

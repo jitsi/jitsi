@@ -4,15 +4,15 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.main.chat;
+package net.java.sip.communicator.plugin.desktoputil.chat;
 
 import java.awt.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
 
-import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.plugin.desktoputil.DesktopUtilActivator;
+import net.java.sip.communicator.plugin.desktoputil.MessageDialog;
 
 /**
  *
@@ -34,11 +34,11 @@ public class ChatOperationReasonDialog extends MessageDialog
     public ChatOperationReasonDialog()
     {
         this(null,
-            GuiActivator.getResources().getI18NString(
+            DesktopUtilActivator.getResources().getI18NString(
             "service.gui.REASON"),
-            GuiActivator.getResources().getI18NString(
+            DesktopUtilActivator.getResources().getI18NString(
             "service.gui.SPECIFY_REASON"),
-            GuiActivator.getResources().getI18NString(
+            DesktopUtilActivator.getResources().getI18NString(
             "service.gui.OK"), true, false);
         
         
@@ -54,11 +54,11 @@ public class ChatOperationReasonDialog extends MessageDialog
     public ChatOperationReasonDialog(boolean disableOKIfReasonIsEmpty)
     {
         this(null,
-            GuiActivator.getResources().getI18NString(
+            DesktopUtilActivator.getResources().getI18NString(
             "service.gui.REASON"),
-            GuiActivator.getResources().getI18NString(
+            DesktopUtilActivator.getResources().getI18NString(
             "service.gui.SPECIFY_REASON"),
-            GuiActivator.getResources().getI18NString(
+            DesktopUtilActivator.getResources().getI18NString(
             "service.gui.OK"), true, disableOKIfReasonIsEmpty);
         
         
@@ -75,7 +75,7 @@ public class ChatOperationReasonDialog extends MessageDialog
         this(null,
             title,
             message,
-            GuiActivator.getResources().getI18NString("service.gui.OK"),
+            DesktopUtilActivator.getResources().getI18NString("service.gui.OK"),
             true,
             false);
         
@@ -97,7 +97,7 @@ public class ChatOperationReasonDialog extends MessageDialog
         this(null,
             title,
             message,
-            GuiActivator.getResources().getI18NString("service.gui.OK"),
+            DesktopUtilActivator.getResources().getI18NString("service.gui.OK"),
             showReasonLabel,
             disableOKIfReasonIsEmpty);
     }
@@ -144,7 +144,7 @@ public class ChatOperationReasonDialog extends MessageDialog
         JLabel reasonLabel
             = new JLabel(
                     showReasonLabel
-                        ? (GuiActivator.getResources().getI18NString(
+                        ? (DesktopUtilActivator.getResources().getI18NString(
                                 "service.gui.REASON")
                             + ":")
                         : "");

@@ -10,6 +10,7 @@ import javax.swing.*;
 import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.service.credentialsstorage.*;
+import net.java.sip.communicator.service.globaldisplaydetails.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.keybindings.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -51,6 +52,8 @@ public class DesktopUtilActivator
     private static MediaService mediaService;
 
     private static AudioNotifierService audioNotifierService;
+
+    private static GlobalDisplayDetailsService globalDisplayDetailsService;
 
     static BundleContext bundleContext;
 
@@ -323,5 +326,24 @@ public class DesktopUtilActivator
                         AudioNotifierService.class);
         }
         return audioNotifierService;
+    }
+    
+    /**
+     * Returns the <tt>GlobalDisplayDetailsService</tt> obtained from the bundle
+     * context.
+     *
+     * @return the <tt>GlobalDisplayDetailsService</tt> obtained from the bundle
+     * context
+     */
+    public static GlobalDisplayDetailsService getGlobalDisplayDetailsService()
+    {
+        if (globalDisplayDetailsService == null)
+        {
+            globalDisplayDetailsService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        GlobalDisplayDetailsService.class);
+        }
+        return globalDisplayDetailsService;
     }
 }

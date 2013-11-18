@@ -10,6 +10,7 @@ import java.util.*;
 
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.credentialsstorage.*;
+import net.java.sip.communicator.service.customcontactactions.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -79,6 +80,16 @@ public class MUCActivator
      * The credential storage service.
      */
     private static CredentialsStorageService credentialsService;
+    
+    /**
+     * The custom actions service.
+     */
+    private static MUCCustomContactActionService mucCustomActionService;
+    
+    /**
+     * The UI service.
+     */
+    private static UIService uiService = null;
 
     /**
      * Starts this bundle.
@@ -97,6 +108,11 @@ public class MUCActivator
         bundleContext.registerService(
             MUCService.class.getName(),
             mucService,
+            null);
+        mucCustomActionService = new MUCCustomContactActionService();
+        bundleContext.registerService(
+            CustomContactActionsService.class.getName(), 
+            mucCustomActionService, 
             null);
     }
 
@@ -342,5 +358,23 @@ public class MUCActivator
     {
         if (chatRoomProviders.contains(protocolProvider))
             chatRoomProviders.remove(protocolProvider);
+    }
+
+    /**
+     * Returns the <tt>UIService</tt> obtained from the bundle
+     * context.
+     * @return the <tt>UIService</tt> obtained from the bundle
+     * context
+     */
+    public static UIService getUIService()
+    {
+        if(uiService == null)
+        {
+            uiService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        UIService.class);
+        }
+        return uiService;
     }
 }

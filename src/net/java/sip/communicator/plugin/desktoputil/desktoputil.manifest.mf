@@ -59,7 +59,8 @@ Import-Package: com.sun.awt,
  org.xml.sax,
  sun.awt.shell,
  sun.net.dns,
- sun.net.util
+ sun.net.util,
+ net.java.sip.communicator.service.globaldisplaydetails
 Export-Package: net.java.sip.communicator.plugin.desktoputil,
  net.java.sip.communicator.plugin.desktoputil.border,
  net.java.sip.communicator.plugin.desktoputil.event,
@@ -67,4 +68,5 @@ Export-Package: net.java.sip.communicator.plugin.desktoputil,
  net.java.sip.communicator.plugin.desktoputil.presence,
  net.java.sip.communicator.plugin.desktoputil.presence.avatar,
  net.java.sip.communicator.plugin.desktoputil.transparent,
- net.java.sip.communicator.plugin.desktoputil.wizard
+ net.java.sip.communicator.plugin.desktoputil.wizard,
+ net.java.sip.communicator.plugin.desktoputil.chat

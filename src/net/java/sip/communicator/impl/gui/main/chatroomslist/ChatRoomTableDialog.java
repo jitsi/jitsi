@@ -17,9 +17,9 @@ import javax.swing.event.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
-import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.plugin.desktoputil.SwingWorker;
+import net.java.sip.communicator.plugin.desktoputil.chat.*;
 import net.java.sip.communicator.service.muc.ChatRoomList;
 import net.java.sip.communicator.service.muc.ChatRoomProviderWrapper;
 import net.java.sip.communicator.service.muc.ChatRoomWrapper;
@@ -351,8 +351,6 @@ public class ChatRoomTableDialog
         String[] joinOptions;
         String subject = null;
         JButton sourceButton = (JButton) e.getSource();
-        ConferenceChatManager conferenceManager 
-            = GuiActivator.getUIService().getConferenceChatManager();
         if(sourceButton.equals(addButton))
         {
             String chatRoomName = editor.getText();
@@ -365,7 +363,7 @@ public class ChatRoomTableDialog
                         getSelectedProvider().getProtocolProvider(),
                         new ArrayList<String>(), "", false, true, true);
 
-            conferenceManager.getJoinOptions(true,
+            ChatRoomJoinOptionsDialog.getJoinOptions(true,
                 chatRoomWrapper.getParentProvider().getProtocolProvider(), 
                 chatRoomWrapper.getChatRoomID());
 
@@ -393,7 +391,7 @@ public class ChatRoomTableDialog
                             false,
                             false);
 
-                    joinOptions = conferenceManager.getJoinOptions(
+                    joinOptions = ChatRoomJoinOptionsDialog.getJoinOptions(
                         chatRoomWrapper.getParentProvider().getProtocolProvider(), 
                         chatRoomWrapper.getChatRoomID());
                     String nickName = joinOptions[0];
@@ -427,10 +425,11 @@ public class ChatRoomTableDialog
                         {
                             
                            
-                            joinOptions = conferenceManager.getJoinOptions(
-                                selectedRoom.getParentProvider()
-                                    .getProtocolProvider(), 
-                                selectedRoom.getChatRoomID());
+                            joinOptions = ChatRoomJoinOptionsDialog
+                                .getJoinOptions(
+                                    selectedRoom.getParentProvider()
+                                        .getProtocolProvider(), 
+                                    selectedRoom.getChatRoomID());
                             savedNick = joinOptions[0];
                             subject = joinOptions[1];
                             if(savedNick == null)
@@ -464,7 +463,7 @@ public class ChatRoomTableDialog
 
                     if (savedNick == null)
                     {
-                        joinOptions = conferenceManager.getJoinOptions(
+                        joinOptions = ChatRoomJoinOptionsDialog.getJoinOptions(
                             selectedRoom.getParentProvider()
                             .getProtocolProvider(), 
                         selectedRoom.getChatRoomID());

@@ -19,6 +19,7 @@ import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.plugin.desktoputil.chat.*;
 import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
@@ -176,9 +177,7 @@ public class ChatRoomTableUI
 
         if (savedNick == null)
         {
-            ConferenceChatManager conferenceManager 
-                = GuiActivator.getUIService().getConferenceChatManager();
-            String[] joinOptions = conferenceManager.getJoinOptions(
+            String[] joinOptions = ChatRoomJoinOptionsDialog.getJoinOptions(
                 chatRoomWrapper.getParentProvider().getProtocolProvider(), 
                 chatRoomWrapper.getChatRoomID());
             String nickName = joinOptions[0];

@@ -7,9 +7,9 @@
 package net.java.sip.communicator.impl.gui.main.login;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.authorization.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.account.*;

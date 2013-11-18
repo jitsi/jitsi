@@ -13,6 +13,7 @@ import java.util.List;
 
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.event.*;
+import net.java.sip.communicator.service.muc.ChatRoomWrapper;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.account.*;
 
@@ -49,6 +50,7 @@ import net.java.sip.communicator.util.account.*;
  * @author Dmitri Melnikov
  * @author Adam Netocny
  * @author Lyubomir Marinov
+ * @author Hristo Terezov
  */
 public interface UIService
 {
@@ -473,4 +475,19 @@ public interface UIService
      * @return the login manager used by the current UI implementation
      */
     public LoginManager getLoginManager();
+    
+    /**
+     * Opens a chat room window for the given <tt>ChatRoomWrapper</tt> instance.
+     * 
+     * @param chatRoom the chat room associated with the chat room window
+     */
+    public void openChatRoomWindow(ChatRoomWrapper chatRoom);
+    
+    /**
+     * Closes the chat room window for the given <tt>ChatRoomWrapper</tt> 
+     * instance.
+     * 
+     * @param chatRoom the chat room associated with the chat room window
+     */
+    public void closeChatRoomWindow(ChatRoomWrapper chatRoom);
 }

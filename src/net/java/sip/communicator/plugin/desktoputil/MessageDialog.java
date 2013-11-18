@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.customcontrols;
+package net.java.sip.communicator.plugin.desktoputil;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -12,9 +12,6 @@ import java.lang.reflect.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.util.skin.*;
 
 /**
@@ -35,17 +32,17 @@ public class MessageDialog
     private static final long serialVersionUID = 1L;
 
     private JButton cancelButton = new JButton(
-        GuiActivator.getResources().getI18NString("service.gui.CANCEL"));
+        DesktopUtilActivator.getResources().getI18NString("service.gui.CANCEL"));
 
     protected JButton okButton = new JButton(
-        GuiActivator.getResources().getI18NString("service.gui.OK"));
+        DesktopUtilActivator.getResources().getI18NString("service.gui.OK"));
 
     private JCheckBox doNotAskAgain = new SIPCommCheckBox(
-        GuiActivator.getResources()
+        DesktopUtilActivator.getResources()
             .getI18NString("service.gui.DO_NOT_ASK_AGAIN"));
 
-    private JLabel iconLabel = new JLabel(new ImageIcon(ImageLoader
-            .getImage(ImageLoader.WARNING_ICON)));
+    private JLabel iconLabel = new JLabel(new ImageIcon(
+        DesktopUtilActivator.getImage("service.gui.icons.WARNING_ICON")));
 
     private StyledHTMLEditorPane messageArea = new StyledHTMLEditorPane();
 
@@ -166,7 +163,7 @@ public class MessageDialog
 
         if(!isCancelButtonEnabled)
         {
-            doNotAskAgain.setText(GuiActivator.getResources()
+            doNotAskAgain.setText(DesktopUtilActivator.getResources()
                 .getI18NString("service.gui.DO_NOT_SHOW_AGAIN"));
 
             buttonsPanel.remove(cancelButton);
@@ -322,8 +319,8 @@ public class MessageDialog
      */
     public void loadSkin()
     {
-        iconLabel.setIcon(new ImageIcon(ImageLoader
-            .getImage(ImageLoader.WARNING_ICON)));
+        iconLabel.setIcon(new ImageIcon(
+            DesktopUtilActivator.getImage("service.gui.icons.WARNING_ICON")));
     }
 
     /**
@@ -333,5 +330,14 @@ public class MessageDialog
     public void setIcon(Image image)
     {
         iconLabel.setIcon(new ImageIcon(image));
+    }
+    
+    /**
+     * Changes the icon in the dialog.
+     * @param image
+     */
+    public void setIcon(ImageIcon image)
+    {
+        iconLabel.setIcon(image);
     }
 }

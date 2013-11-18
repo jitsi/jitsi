@@ -9,7 +9,6 @@ package net.java.sip.communicator.impl.gui.main.login;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.protocol.*;
 
@@ -71,7 +70,7 @@ public class DefaultSecurityAuthority
         String userName = userCredentials.getUserName();
         char[] password = userCredentials.getPassword();
         ImageIcon icon
-            = ImageLoader.getAuthenticationWindowIcon(protocolProvider);
+            = AuthenticationWindow.getAuthenticationWindowIcon(protocolProvider);
 
         if (errorMessage == null)
             loginWindow = new AuthenticationWindow(

@@ -16,6 +16,7 @@ import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.plugin.desktoputil.chat.*;
 import net.java.sip.communicator.service.muc.ChatRoomWrapper;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
@@ -125,7 +126,7 @@ public class ChatRoomRightButtonMenu
                         .getChatRoomID(), "userNickName");
             if(nickName == null)
             {
-                joinOptions = conferenceManager.getJoinOptions(
+                joinOptions = ChatRoomJoinOptionsDialog.getJoinOptions(
                     chatRoomWrapper.getParentProvider().getProtocolProvider(), 
                     chatRoomWrapper.getChatRoomID());
                 nickName = joinOptions[0];
@@ -165,7 +166,7 @@ public class ChatRoomRightButtonMenu
                             .getChatRoomID(), "userNickName");
                 if(nickName == null)
                 {
-                    joinOptions = conferenceManager.getJoinOptions(
+                    joinOptions = ChatRoomJoinOptionsDialog.getJoinOptions(
                         chatRoomWrapper.getParentProvider()
                             .getProtocolProvider(), 
                         chatRoomWrapper.getChatRoomID());
@@ -189,7 +190,7 @@ public class ChatRoomRightButtonMenu
         }
         else if(itemName.equals("joinAsChatRoom"))
         {
-            joinOptions = conferenceManager.getJoinOptions(
+            joinOptions = ChatRoomJoinOptionsDialog.getJoinOptions(
                 chatRoomWrapper.getParentProvider().getProtocolProvider(), 
                 chatRoomWrapper.getChatRoomID());
             if(joinOptions[0] == null)
@@ -200,7 +201,7 @@ public class ChatRoomRightButtonMenu
         }
         else if(itemName.equals("nickNameChatRoom"))
         {
-            conferenceManager.getJoinOptions(true,
+            ChatRoomJoinOptionsDialog.getJoinOptions(true,
                 chatRoomWrapper.getParentProvider().getProtocolProvider(), 
                 chatRoomWrapper.getChatRoomID());
         }

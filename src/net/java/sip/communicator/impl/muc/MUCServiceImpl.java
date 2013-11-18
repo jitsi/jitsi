@@ -11,7 +11,7 @@ import java.util.*;
 import org.jitsi.service.resources.*;
 
 
-import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.muc.*;
@@ -737,7 +737,7 @@ public class MUCServiceImpl
                     authWindowsService.create(
                         null, null, null, false,
                         chatRoomWrapper.isPersistent(),
-                        ImageLoader.getAuthenticationWindowIcon(
+                        AuthenticationWindow.getAuthenticationWindowIcon(
                             chatRoomWrapper.getParentProvider()
                                 .getProtocolProvider()),
                         resources.getI18NString(

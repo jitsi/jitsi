@@ -28,6 +28,7 @@ import java.util.List;
  * <tt>ContactSourceService</tt>.
  *
  * @author Yana Stamcheva
+ * @author Hristo Terezov
  */
 public class ExternalContactSource
     implements UIContactSource
@@ -59,6 +60,12 @@ public class ExternalContactSource
      */
     private static Map<ContactAction<SourceContact>, SIPCommButton>
                                     customContactActionButtons;
+    
+    /**
+     * The list of right menu action items for this source contact.
+     */
+    private static Map<ContactActionMenuItem<SourceContact>, JMenuItem>
+                                    customContactActionMenuItems;
 
     /**
      * The list of action buttons for this source service.
@@ -174,14 +181,51 @@ public class ExternalContactSource
             SIPCommButton actionButton =
                 customContactActionButtons.get(contactAction);
 
-            if (isContactActionVisible( contactAction,
-                                        sourceContact))
+            if (isContactActionVisible( contactAction, sourceContact))
             {
                 availableCustomActionButtons.add(actionButton);
             }
         }
 
         return availableCustomActionButtons;
+    }
+    
+    /**
+     * Returns all custom action menu items for this contact.
+     *
+     * @param initActions if <tt>true</tt> the actions will be reloaded.
+     * @param sourceContact the contact.
+     * @return a list of all custom action menu items for this contact.
+     */
+    public Collection<JMenuItem> getContactCustomActionMenuItems(
+        final SourceContact sourceContact, boolean initActions)
+    {
+        customActionContact = sourceContact;
+
+        if (initActions || (customContactActionMenuItems == null))
+            initCustomContactActionMenuItems();
+
+        Iterator<ContactActionMenuItem<SourceContact>> customActionsIter
+            = customContactActionMenuItems.keySet().iterator();
+
+        Collection<JMenuItem> availableCustomActionMenuItems
+            = new LinkedList<JMenuItem>();
+
+        while (customActionsIter.hasNext())
+        {
+            ContactActionMenuItem<SourceContact> contactAction
+                = customActionsIter.next();
+
+            JMenuItem actionMenuItem =
+                customContactActionMenuItems.get(contactAction);
+
+            if (isContactActionVisible( contactAction, sourceContact))
+            {
+                availableCustomActionMenuItems.add(actionMenuItem);
+            }
+        }
+
+        return availableCustomActionMenuItems;
     }
 
     /**
@@ -195,6 +239,25 @@ public class ExternalContactSource
      */
     private static boolean isContactActionVisible(
                             ContactAction<SourceContact> contactAction,
+                            SourceContact contact)
+    {
+        if (contactAction.isVisible(contact))
+            return true;
+
+        return false;
+    }
+    
+    /**
+     * Indicates if the given <tt>ContactActionMenuItem</tt> should be visible 
+     * for the given <tt>SourceContact</tt>.
+     *
+     * @param contactAction the <tt>ContactActionMenuItem</tt> to verify
+     * if the given action should be visible
+     * @return <tt>true</tt> if the given <tt>ContactActionMenuItem</tt> is 
+     * visible for the given <tt>SourceContact</tt>, <tt>false</tt> - otherwise
+     */
+    private static boolean isContactActionVisible(
+                            ContactActionMenuItem<SourceContact> contactAction,
                             SourceContact contact)
     {
         if (contactAction.isVisible(contact))
@@ -222,8 +285,32 @@ public class ExternalContactSource
                 {
                     final ContactAction<SourceContact> ca
                         = actionIterator.next();
-
                     initActionButton(ca, SourceContact.class);
+                }
+            }
+        }
+    }
+    
+    /**
+     * Initializes custom action menu items for this contact source.
+     */
+    private void initCustomContactActionMenuItems()
+    {
+        customContactActionMenuItems
+            = new LinkedHashMap<ContactActionMenuItem<SourceContact>, JMenuItem>();
+        for (CustomContactActionsService<SourceContact> ccas
+                : getContactActionsServices())
+        {
+            Iterator<ContactActionMenuItem<SourceContact>> actionIterator
+                = ccas.getCustomContactActionsMenuItems();
+
+            if (actionIterator!= null)
+            {
+                while (actionIterator.hasNext())
+                {
+                    final ContactActionMenuItem<SourceContact> ca
+                        = actionIterator.next();
+                    initActionMenuItem(ca);
                 }
             }
         }
@@ -247,7 +334,6 @@ public class ExternalContactSource
             while (actionIterator!= null && actionIterator.hasNext())
             {
                 final ContactAction<ContactSourceService> ca = actionIterator.next();
-
                 initActionButton(ca, ContactSourceService.class);
             }
         }
@@ -350,6 +436,63 @@ public class ExternalContactSource
 
                 customServiceActionButtons.put(cacss, actionButton);
             }
+        }
+    }
+    
+    /**
+     * Initializes an action menu item.
+     *
+     * @param ca the <tt>ContactActionMenuItem</tt> corresponding to the item.
+     */
+    private void initActionMenuItem(
+            final ContactActionMenuItem<SourceContact> ca)
+    {
+        JMenuItem actionMenuItem;
+
+        actionMenuItem = customContactActionMenuItems.get(ca);
+
+        if (actionMenuItem == null)
+        {
+            if(ca.isCheckBox())
+            {
+                actionMenuItem = new JCheckBoxMenuItem();
+            }
+            else
+            {
+                actionMenuItem = new JMenuItem();
+            }
+
+            actionMenuItem.setText(ca.getText());
+
+            actionMenuItem.setMnemonic(ca.getMnemonics());
+            
+            byte[] icon = ca.getIcon();
+            if(icon != null)
+                actionMenuItem.setIcon(
+                    new ImageIcon(icon));
+            
+            actionMenuItem.setSelected(ca.isSelected(customActionContact));
+            actionMenuItem.setEnabled(ca.isEnabled(customActionContact));
+
+            actionMenuItem.addActionListener(new ActionListener()
+            {
+                public void actionPerformed(ActionEvent event)
+                {
+                    try
+                    {
+                        ca.actionPerformed(customActionContact);
+                    }
+                    catch (OperationFailedException e)
+                    {
+                        new ErrorDialog(null,
+                            GuiActivator.getResources()
+                                .getI18NString("service.gui.ERROR"),
+                            e.getMessage());
+                    }
+                }
+            });
+
+            customContactActionMenuItems.put(ca, actionMenuItem);
         }
     }
 

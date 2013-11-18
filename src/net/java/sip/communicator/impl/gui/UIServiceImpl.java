@@ -34,6 +34,7 @@ import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.gui.event.*;
+import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.shutdown.*;
 import net.java.sip.communicator.util.*;
@@ -55,6 +56,7 @@ import com.sun.jna.platform.WindowUtils;
  * @author Lyubomir Marinov
  * @author Dmitri Melnikov
  * @author Adam Netocny
+ * @author Hristo Terezov
  */
 public class UIServiceImpl
     implements UIService,
@@ -1541,6 +1543,38 @@ public class UIServiceImpl
             getChatWindowManager().startChat(participants[0]);
         else
             throw new IllegalArgumentException("participants");
+    }
+    
+    /**
+     * Opens a chat room window for the given <tt>ChatRoomWrapper</tt> instance.
+     * 
+     * @param chatRoom the chat room associated with the chat room window
+     */
+    public void openChatRoomWindow(ChatRoomWrapper chatRoom)
+    {
+        ChatWindowManager chatWindowManager
+            = getChatWindowManager();
+        ChatPanel chatPanel
+            = chatWindowManager.getMultiChat(chatRoom, true);
+    
+        chatWindowManager.openChat(chatPanel, true);
+    }
+    
+    /**
+     * Closes the chat room window for the given <tt>ChatRoomWrapper</tt> 
+     * instance.
+     * 
+     * @param chatRoom the chat room associated with the chat room window.
+     */
+    public void closeChatRoomWindow(ChatRoomWrapper chatRoom)
+    {
+        ChatWindowManager chatWindowManager
+            = getChatWindowManager();
+        ChatPanel chatPanel
+            = chatWindowManager.getMultiChat(chatRoom, false);
+    
+        if (chatPanel != null)
+            chatWindowManager.closeChat(chatPanel);
     }
 
     /**
