@@ -20,6 +20,10 @@ public class ChatRoomSourceContact
     extends SortedGenericSourceContact
 {
     /**
+     * The parent contact query.
+     */
+    private final ChatRoomQuery parentQuery;
+    /**
      * The name of the chat room associated with the contact.
      */
     private String chatRoomName;
@@ -50,6 +54,7 @@ public class ChatRoomSourceContact
         this.chatRoomName = chatRoomName;
         this.chatRoomID = chatRoomID;
         this.provider = pps;
+        this.parentQuery = query;
         
         initContactProperties(getChatRoomStateByName());
         
@@ -68,6 +73,7 @@ public class ChatRoomSourceContact
         this.chatRoomName = chatRoom.getName();
         this.chatRoomID = chatRoom.getIdentifier();
         this.provider = chatRoom.getParentProvider();
+        this.parentQuery = query;
         
         initContactProperties(
             (chatRoom.isJoined()? 
@@ -161,5 +167,17 @@ public class ChatRoomSourceContact
     {
         return provider;
     }
+
+    /**
+     * Returns the index of this source contact in its parent group.
+     *
+     * @return the index of this contact in its parent
+     */
+    @Override
+    public int getIndex()
+    {
+        return parentQuery.indexOf(this);
+    }
+
 
 }

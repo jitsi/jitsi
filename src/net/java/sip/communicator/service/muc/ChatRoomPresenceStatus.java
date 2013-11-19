@@ -65,4 +65,10 @@ public class ChatRoomPresenceStatus extends PresenceStatus
         super(status, statusName);
     }
     
+    @Override
+    public boolean isOnline()
+    {
+        return getStatus() == CHAT_ROOM_ONLINE_THRESHOLD;
+    }
+    
 }

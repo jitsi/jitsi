@@ -38,8 +38,8 @@ public class ChatRoomQuery
     /**
      * List with the current results for the query.
      */
-    private List<ChatRoomSourceContact> contactResults
-        = new LinkedList<ChatRoomSourceContact>();
+    private Set<ChatRoomSourceContact> contactResults
+        = new TreeSet<ChatRoomSourceContact>();
     
     /**
      * MUC service.
@@ -144,15 +144,16 @@ public class ChatRoomQuery
         String eventType = evt.getEventType();
         
         boolean existingContact = false;
-        SourceContact foundContact = null;
+        ChatRoomSourceContact foundContact = null;
         synchronized (contactResults)
         {
-            for(SourceContact contact : contactResults)
+            for(ChatRoomSourceContact contact : contactResults)
             {
                 if(contact.getContactAddress().equals(sourceChatRoom.getName()))
                 {
                     existingContact = true;
                     foundContact = contact;
+                    contactResults.remove(contact);
                     break;
                 }
             }
@@ -166,6 +167,10 @@ public class ChatRoomQuery
             {
                 ((ChatRoomSourceContact)foundContact).setPresenceStatus(
                     ChatRoomPresenceStatus.CHAT_ROOM_ONLINE);
+                synchronized (contactResults)
+                {
+                    contactResults.add(foundContact);
+                }
                 fireContactChanged(foundContact);
             }
             else
@@ -186,6 +191,10 @@ public class ChatRoomQuery
                 ((ChatRoomSourceContact)foundContact)
                     .setPresenceStatus(
                         ChatRoomPresenceStatus.CHAT_ROOM_OFFLINE);
+                synchronized (contactResults)
+                {
+                    contactResults.add(foundContact);
+                }
                 fireContactChanged(foundContact);
             }
         }
@@ -323,5 +332,21 @@ public class ChatRoomQuery
                 }
             }
         }
+    }
+
+    public synchronized int indexOf(ChatRoomSourceContact contact)
+    {
+       Iterator<ChatRoomSourceContact> it = contactResults.iterator();
+       int i = 0;
+       while(it.hasNext())
+       {
+           if(contact.equals(it.next()))
+           {
+               return i;
+               
+           }
+           i++;
+       }
+       return -1;
     }
 }

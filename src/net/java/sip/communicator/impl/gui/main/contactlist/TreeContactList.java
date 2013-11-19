@@ -296,9 +296,24 @@ public class TreeContactList
             return;
 
         ContactNode contactNode = ((UIContactImpl) uiContact).getContactNode();
-
+       
         if (contactNode != null)
+        {
             nodeChanged(contactNode);
+            
+            TreeNode parentNode = contactNode.getParent();
+            if(parentNode == null)
+                return;
+            int currentIndex = parentNode.getIndex(contactNode);
+            if(currentIndex != sourceContact.getIndex())
+            {
+                UIGroupImpl uiGroup = (UIGroupImpl)sourceUI.getUIGroup();
+                GroupNode groupNode = uiGroup.getGroupNode();
+                if (groupNode == null)
+                    return;
+                groupNode.sort(treeModel);
+            }
+        }
     }
 
     /**
