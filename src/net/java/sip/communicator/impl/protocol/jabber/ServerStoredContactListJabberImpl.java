@@ -341,7 +341,8 @@ public class ServerStoredContactListJabberImpl
             ContactGroupJabberImpl contactGroup
                 = (ContactGroupJabberImpl) contactGroups.next();
 
-            if (contactGroup.getNameCopy().trim().equals(name))
+            if (contactGroup.getNameCopy() != null
+                && contactGroup.getNameCopy().trim().equals(name))
                 return contactGroup;
 
         }
@@ -639,7 +640,7 @@ public class ServerStoredContactListJabberImpl
 
         ContactGroupJabberImpl newGroup =
             new ContactGroupJabberImpl(newRosterGroup,
-                                       new Vector<RosterEntry>().iterator(),
+                                       new ArrayList<RosterEntry>().iterator(),
                                        this,
                                        true);
         rootGroup.addSubGroup(newGroup);
@@ -1364,7 +1365,8 @@ public class ServerStoredContactListJabberImpl
 
                 for (RosterGroup gr : entry.getGroups())
                 {
-                    if(findContactGroup(gr.getName()) == null)
+                    ContactGroup cgr = findContactGroup(gr.getName());
+                    if(cgr == null)
                     {
                         // such group does not exist. so it must be
                         // renamed one
@@ -1380,10 +1382,53 @@ public class ServerStoredContactListJabberImpl
                         }
                         else
                         {
-                            // strange ???
+                            // the group was renamed on different location
+                            // so we do not have it at our side
+                            // now lets find the group for the contact
+                            // and rename it,
+                            // - if it is the only contact in
+                            // the group this is rename, otherwise it is move
+                            ContactGroup currentParentGroup =
+                                contact.getParentContactGroup();
+
+                            if(currentParentGroup.countContacts() > 1)
+                            {
+                                cgr = currentParentGroup;
+                            }
+                            else
+                            {
+                                // make sure this group name is not present
+                                // in entry groups
+                                boolean present = false;
+                                for (RosterGroup entryGr : entry.getGroups())
+                                {
+                                    if(entryGr.getName().equals(
+                                            currentParentGroup.getGroupName()))
+                                    {
+                                        present = true;
+                                        break;
+                                    }
+                                }
+
+                                if(!present
+                                    && currentParentGroup instanceof
+                                            ContactGroupJabberImpl)
+                                {
+                                    ContactGroupJabberImpl currentGroup =
+                                        (ContactGroupJabberImpl)
+                                            currentParentGroup;
+                                    currentGroup.setSourceGroup(gr);
+
+                                    fireGroupEvent(
+                                        currentGroup,
+                                        ServerStoredGroupEvent
+                                            .GROUP_RENAMED_EVENT);
+                                }
+                            }
                         }
                     }
-                    else
+
+                    if(cgr != null)
                     {
                         // the group is found the contact may be moved from
                         // one group to another
@@ -1405,16 +1450,45 @@ public class ServerStoredContactListJabberImpl
                             ContactGroupJabberImpl newParentGroup =
                                 findContactGroup(gr.getName());
 
+                            // the new parent group maybe missing
+                            if(newParentGroup == null)
+                            {
+                                // create the group as it doesn't exist
+                                newParentGroup =
+                                    new ContactGroupJabberImpl(
+                                        gr,
+                                        new ArrayList<RosterEntry>().iterator(),
+                                        ServerStoredContactListJabberImpl.this,
+                                        true);
+
+                                rootGroup.addSubGroup(newParentGroup);
+
+                                //tell listeners about the added group
+                                fireGroupEvent(newParentGroup,
+                                    ServerStoredGroupEvent.GROUP_CREATED_EVENT);
+                            }
+
                             newParentGroup.addContact(contact);
 
                             fireContactMoved(contactGroup,
-                                             newParentGroup,
-                                             contact);
+                                newParentGroup,
+                                contact);
+
+                            if(contactGroup instanceof ContactGroupJabberImpl
+                               && contactGroup.countContacts() == 0)
+                            {
+                                // in xmpp if group is empty it is removed
+                                rootGroup.removeSubGroup(
+                                    (ContactGroupJabberImpl)contactGroup);
+
+                                fireGroupEvent(
+                                    (ContactGroupJabberImpl)contactGroup,
+                                    ServerStoredGroupEvent.GROUP_REMOVED_EVENT);
+                            }
                         }
                         else
                         {
                             // check for change in display name
-
                             checkForRename(entry.getName(), contact);
                         }
                     }

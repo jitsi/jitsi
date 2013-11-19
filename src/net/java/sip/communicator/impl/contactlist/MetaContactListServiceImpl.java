@@ -2792,7 +2792,6 @@ public class MetaContactListServiceImpl
          */
         public void groupRemoved(ServerStoredGroupEvent evt)
         {
-
             if (logger.isTraceEnabled())
                 logger.trace("ContactGroup removed: " + evt);
 
@@ -2810,10 +2809,10 @@ public class MetaContactListServiceImpl
             removeContactGroupFromMetaContactGroup(metaContactGroup,
                 evt.getSourceGroup(), evt.getSourceProvider());
 
-            //do not remove the meta contact group even if this is the las
-            //protocol specific contact group. Contrary to contacts, meta
-            //contact groups are to only be remove upon user indication or
-            //otherwise it would be difficult for a user to create a new grp.
+            if(metaContactGroup.countContactGroups() == 0)
+            {
+                removeMetaContactGroup(metaContactGroup);
+            }
         }
 
         /**
@@ -2829,6 +2828,14 @@ public class MetaContactListServiceImpl
 
             MetaContactGroup metaContactGroup
                 = findMetaContactGroupByContactGroup(evt.getSourceGroup());
+
+            if(metaContactGroup.countContactGroups() == 1)
+            {
+                // if the only group contained in this group is renamed
+                // rename it
+                ((MetaContactGroupImpl)metaContactGroup)
+                    .setGroupName(evt.getSourceGroup().getGroupName());
+            }
 
             fireMetaContactGroupEvent(
                 metaContactGroup
