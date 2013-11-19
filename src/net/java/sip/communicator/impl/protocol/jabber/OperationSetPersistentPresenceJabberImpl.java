@@ -388,6 +388,7 @@ public class OperationSetPersistentPresenceJabberImpl
      */
     public void moveContactToGroup(Contact contactToMove,
                                    ContactGroup newParent)
+        throws OperationFailedException
     {
         assertConnected();
 
@@ -536,6 +537,7 @@ public class OperationSetPersistentPresenceJabberImpl
      * @param group the group to remove.
      */
     public void removeServerStoredContactGroup(ContactGroup group)
+        throws OperationFailedException
     {
         assertConnected();
 
@@ -1168,6 +1170,12 @@ public class OperationSetPersistentPresenceJabberImpl
          * @param addresses list of addresses deleted
          */
         public void entriesDeleted(Collection<String> addresses)
+        {}
+
+        /**
+         * Not used here.
+         */
+        public void rosterError(XMPPError error, Packet packet)
         {}
 
         /**

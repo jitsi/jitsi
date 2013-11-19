@@ -276,10 +276,17 @@ public class TestOperationSetPersistentPresence
         opSetPersPresence1
             .addServerStoredGroupChangeListener(groupChangeCollector);
 
-        //remove the group
-        opSetPersPresence1.removeServerStoredContactGroup(
-            opSetPersPresence1.getServerStoredContactListRoot()
-                .getGroup(testGroupName));
+        try
+        {
+            //remove the group
+            opSetPersPresence1.removeServerStoredContactGroup(
+                opSetPersPresence1.getServerStoredContactListRoot()
+                    .getGroup(testGroupName));
+        }
+        catch(OperationFailedException ex)
+        {
+            logger.error("error removing group", ex);
+        }
 
         groupChangeCollector.waitForEvent(10000);
 

@@ -656,6 +656,7 @@ public class ServerStoredContactListJabberImpl
      * @param groupToRemove the group that we'd like removed.
      */
     public void removeGroup(ContactGroupJabberImpl groupToRemove)
+        throws OperationFailedException
     {
         try
         {
@@ -681,6 +682,8 @@ public class ServerStoredContactListJabberImpl
         catch (XMPPException ex)
         {
             logger.error("Error removing group", ex);
+            throw new OperationFailedException(
+                ex.getMessage(), OperationFailedException.GENERAL_ERROR, ex);
         }
     }
 
@@ -748,6 +751,7 @@ public class ServerStoredContactListJabberImpl
      */
     public void moveContact(ContactJabberImpl contact,
                             ContactGroupJabberImpl newParent)
+        throws OperationFailedException
     {
         // when the contact is not persistent, coming
         // from NotInContactList group, we need just to add it to the list
@@ -773,10 +777,11 @@ public class ServerStoredContactListJabberImpl
             catch(OperationFailedException ex)
             {
                 logger.error("Cannot move contact! ", ex);
+                throw new OperationFailedException(
+                    ex.getMessage(),
+                    OperationFailedException.GENERAL_ERROR, ex);
             }
         }
-
-        newParent.addContact(contact);
 
         try
         {
@@ -790,10 +795,15 @@ public class ServerStoredContactListJabberImpl
                                contact.getDisplayName(),
                                new String[]{newParent.getGroupName()});
             SmackConfiguration.setPacketReplyTimeout(5000);
+
+            newParent.addContact(contact);
         }
         catch (XMPPException ex)
         {
             logger.error("Cannot move contact! ", ex);
+            throw new OperationFailedException(
+                ex.getMessage(),
+                OperationFailedException.GENERAL_ERROR, ex);
         }
     }
 
@@ -1195,6 +1205,17 @@ public class ServerStoredContactListJabberImpl
     private class ChangeListener
         implements RosterListener
     {
+        /**
+         * Notifies for errors in roster packets.
+         * @param error the error.
+         * @param packet the source packet containing the error.
+         */
+        public void rosterError(XMPPError error, Packet packet)
+        {
+            logger.error("Error received in roster " + error.getCode() + " "
+                + error.getMessage());
+        }
+
         /**
          * Received event when entry is added to the server stored list
          * @param addresses Collection

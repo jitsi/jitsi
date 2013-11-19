@@ -1050,9 +1050,6 @@ public class MetaContactListServiceImpl
         MetaContactImpl currentParentMetaContact
             = (MetaContactImpl)this.findMetaContactByContact(contact);
 
-        currentParentMetaContact.removeProtoContact(contact);
-
-
         MetaContactGroup newParentGroup
             = findParentMetaContactGroup(newParentMetaContact);
 
@@ -1061,8 +1058,22 @@ public class MetaContactListServiceImpl
 
         //if the contact is not currently in the proto group corresponding to
         //its new metacontact group parent then move it
-        if(contact.getParentContactGroup() != parentProtoGroup && opSetPresence != null)
-            opSetPresence.moveContactToGroup(contact, parentProtoGroup);
+        try
+        {
+            if(contact.getParentContactGroup() != parentProtoGroup
+                && opSetPresence != null)
+            {
+                opSetPresence.moveContactToGroup(contact, parentProtoGroup);
+            }
+
+            // remove the proto-contact only if move is successful
+            currentParentMetaContact.removeProtoContact(contact);
+        }
+        catch(OperationFailedException ex)
+        {
+            throw new MetaContactListException(ex.getMessage(),
+                MetaContactListException.CODE_MOVE_CONTACT_ERROR);
+        }
 
         ( (MetaContactImpl) newParentMetaContact).addProtoContact(contact);
 
