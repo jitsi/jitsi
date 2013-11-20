@@ -991,7 +991,19 @@ public class MetaContactListServiceImpl
                              , MetaContactEvent.META_CONTACT_ADDED);
 
         /** then move the sub contactact to the new metacontact container */
-        moveContact(contact, metaContactImpl);
+        try
+        {
+            moveContact(contact, metaContactImpl);
+        }
+        catch(MetaContactListException mex)
+        {
+            newParentMetaGroupImpl.removeMetaContact(metaContactImpl);
+            fireMetaContactEvent(metaContactImpl
+                , newParentMetaGroupImpl
+                , MetaContactEvent.META_CONTACT_REMOVED);
+
+            throw mex;
+        }
     }
 
     /**
