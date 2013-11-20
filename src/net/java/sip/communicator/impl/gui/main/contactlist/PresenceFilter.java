@@ -196,8 +196,9 @@ public class PresenceFilter
      */
     public boolean isMatching(SourceContact contact)
     {
-        return isShowOffline || contact.getPresenceStatus().equals(
-            ChatRoomPresenceStatus.CHAT_ROOM_ONLINE);
+        return isShowOffline || contact.getPresenceStatus().isOnline() || 
+            (contact.getPreferredContactDetail(OperationSetMultiUserChat.class) 
+                != null);
     }
 
     /**
