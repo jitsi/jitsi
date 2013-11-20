@@ -69,7 +69,7 @@ public class ChatRoomContactSourceService
         if (queryString == null)
             queryString = "";
         ChatRoomQuery contactQuery
-            = new ChatRoomQuery(queryString, contactCount, this);
+            = new ChatRoomQuery(queryString, this);
 
         synchronized (queries)
         {

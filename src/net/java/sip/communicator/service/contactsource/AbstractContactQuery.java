@@ -98,8 +98,11 @@ public abstract class AbstractContactQuery<T extends ContactSourceService>
      * @param contact the <tt>SourceContact</tt> which has been received and
      * which the registered <tt>ContactQueryListener</tt>s are to be notified
      * about
+     * @param showMoreEnabled indicates whether show more label should be shown 
+     * or not.
      */
-    protected void fireContactReceived(SourceContact contact)
+    protected void fireContactReceived(SourceContact contact, 
+        boolean showMoreEnabled)
     {
         ContactQueryListener[] ls;
 
@@ -108,10 +111,27 @@ public abstract class AbstractContactQuery<T extends ContactSourceService>
             ls = listeners.toArray(new ContactQueryListener[listeners.size()]);
         }
 
-        ContactReceivedEvent ev = new ContactReceivedEvent(this, contact);
+        ContactReceivedEvent ev 
+            = new ContactReceivedEvent(this, contact, showMoreEnabled);
 
         for (ContactQueryListener l : ls)
+        {
             l.contactReceived(ev);
+        }
+    }
+    
+    /**
+     * Notifies the <tt>ContactQueryListener</tt>s registered with this
+     * <tt>ContactQuery</tt> that a new <tt>SourceContact</tt> has been
+     * received.
+     *
+     * @param contact the <tt>SourceContact</tt> which has been received and
+     * which the registered <tt>ContactQueryListener</tt>s are to be notified
+     * about
+     */
+    protected void fireContactReceived(SourceContact contact)
+    {
+        fireContactReceived(contact, true);
     }
 
     /**

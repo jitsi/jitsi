@@ -31,11 +31,6 @@ public class ChatRoomQuery
     private String queryString;
 
     /**
-     * The contact count.
-     */
-    private int count = 0;
-    
-    /**
      * List with the current results for the query.
      */
     private Set<ChatRoomSourceContact> contactResults
@@ -55,13 +50,12 @@ public class ChatRoomQuery
      * @param queryString the query string to match
      * @param count the maximum result contact count
      */
-    public ChatRoomQuery(String queryString,
-        int count, ChatRoomContactSourceService contactSource)
+    public ChatRoomQuery(String queryString, 
+        ChatRoomContactSourceService contactSource)
     {
         super(contactSource,
             Pattern.compile(queryString, Pattern.CASE_INSENSITIVE
                             | Pattern.LITERAL), true);
-        this.count = count;
         this.queryString = queryString;
         for(ProtocolProviderService pps : MUCActivator.getChatRoomProviders())
         {
@@ -116,12 +110,6 @@ public class ChatRoomQuery
        
         for(int i = 0; i < provider.countChatRooms(); i++)
         {
-            if(count > 0 && getQueryResultCount() > count)
-            {
-                if (getStatus() != QUERY_CANCELED)
-                    setStatus(QUERY_COMPLETED);
-                return;
-            }
             ChatRoomWrapper chatRoom = provider.getChatRoom(i);
             addChatRoom( provider.getProtocolProvider(), 
                 chatRoom.getChatRoomName(), chatRoom.getChatRoomID(), 
@@ -225,11 +213,11 @@ public class ChatRoomQuery
             
             if(addQueryResult)
             {
-                addQueryResult(contact);
+                addQueryResult(contact, false);
             }
             else
             {
-                fireContactReceived(contact);
+                fireContactReceived(contact, false);
             }
         }
     }
@@ -261,11 +249,11 @@ public class ChatRoomQuery
             
             if(addQueryResult)
             {
-                addQueryResult(contact);
+                addQueryResult(contact, false);
             }
             else
             {
-                fireContactReceived(contact);
+                fireContactReceived(contact, false);
             }
         }
     }
@@ -343,7 +331,6 @@ public class ChatRoomQuery
            if(contact.equals(it.next()))
            {
                return i;
-               
            }
            i++;
        }

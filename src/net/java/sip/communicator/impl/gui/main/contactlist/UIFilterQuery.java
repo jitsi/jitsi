@@ -369,8 +369,7 @@ public class UIFilterQuery
         List<SourceContact> queryResults = filterQueries.get(query);
 
         queryResults.add(contact);
-
-        if (getMaxResultShown() > -1
+        if (getMaxResultShown() > -1 && event.isShowMoreEnabled()
             && queryResults.size() == getMaxResultShown())
         {
             query.removeContactQueryListener(contactList);

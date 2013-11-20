@@ -99,6 +99,33 @@ public abstract class AsyncContactQuery<T extends ContactSourceService>
      *
      * @param sourceContact the <tt>SourceContact</tt> to be added to the
      * <tt>queryResults</tt> of this <tt>ContactQuery</tt>
+     * @param showMoreEnabled indicates whether show more label should be shown 
+     * or not.
+     * @return <tt>true</tt> if the <tt>queryResults</tt> of this
+     * <tt>ContactQuery</tt> has changed in response to the call
+     */
+    protected boolean addQueryResult(SourceContact sourceContact, 
+        boolean showMoreEnabled)
+    {
+        boolean changed;
+
+        synchronized (queryResults)
+        {
+            changed = queryResults.add(sourceContact);
+        }
+        if (changed)
+            fireContactReceived(sourceContact, showMoreEnabled);
+
+        return changed;
+    }
+    
+    /**
+     * Adds a specific <tt>SourceContact</tt> to the list of
+     * <tt>SourceContact</tt>s to be returned by this <tt>ContactQuery</tt> in
+     * response to {@link #getQueryResults()}.
+     *
+     * @param sourceContact the <tt>SourceContact</tt> to be added to the
+     * <tt>queryResults</tt> of this <tt>ContactQuery</tt>
      * @return <tt>true</tt> if the <tt>queryResults</tt> of this
      * <tt>ContactQuery</tt> has changed in response to the call
      */

@@ -26,6 +26,11 @@ public class ContactReceivedEvent
      * The contact that has been received.
      */
     private final SourceContact contact;
+    
+    /**
+     * Indicates whether show more label should be shown or not.
+     */
+    private final boolean showMoreEnabled;
 
     /**
      * Creates a <tt>ContactReceivedEvent</tt> by specifying the contact search
@@ -39,6 +44,27 @@ public class ContactReceivedEvent
         super(source);
 
         this.contact = contact;
+        
+        showMoreEnabled = true;
+    }
+    
+    /**
+     * Creates a <tt>ContactReceivedEvent</tt> by specifying the contact search
+     * source and the received <tt>searchContact</tt>.
+     * @param source the source that triggered this event
+     * @param contact the received contact
+     * @param showMoreEnabled indicates whether show more label should be shown 
+     * or not.
+     */
+    public ContactReceivedEvent(ContactQuery source,
+                                SourceContact contact,
+                                boolean showMoreEnabled)
+    {
+        super(source);
+
+        this.contact = contact;
+        
+        this.showMoreEnabled = showMoreEnabled;
     }
 
     /**
@@ -57,5 +83,16 @@ public class ContactReceivedEvent
     public SourceContact getContact()
     {
         return contact;
+    }
+    
+    /**
+     * Returns <tt>true</tt> if show more label should be shown and 
+     * <tt>false</tt> if not.
+     * @return <tt>true</tt> if show more label should be shown and 
+     * <tt>false</tt> if not.
+     */
+    public boolean isShowMoreEnabled()
+    {
+        return showMoreEnabled;
     }
 }
