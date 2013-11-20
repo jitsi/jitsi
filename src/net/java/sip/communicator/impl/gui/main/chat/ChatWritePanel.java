@@ -893,6 +893,15 @@ public class ChatWritePanel
         {
             this.editorPane.getDocument()
                 .remove(0, editorPane.getDocument().getLength());
+
+            if(smsMode)
+            {
+                // use this to reset sms counter
+                setSmsLabelVisible(true);
+                // set the reset values
+                smsCharCountLabel.setText(String.valueOf(smsCharCount));
+                smsNumberLabel.setText(String.valueOf(smsNumberCount));
+            }
         }
         catch (BadLocationException e)
         {
