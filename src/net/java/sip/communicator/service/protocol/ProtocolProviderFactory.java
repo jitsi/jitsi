@@ -308,6 +308,12 @@ public abstract class ProtocolProviderFactory
     public static final String IS_ACCOUNT_DISABLED = "IS_ACCOUNT_DISABLED";
 
     /**
+     * The name of the property that would indicate if a given account
+     * configuration form is currently hidden.
+     */
+    public static final String IS_ACCOUNT_CONFIG_HIDDEN = "IS_CONFIG_HIDDEN";
+
+    /**
      * Indicates if ICE should be used.
      */
     public static final String IS_USE_ICE = "ICE_ENABLED";

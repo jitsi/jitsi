@@ -709,6 +709,17 @@ public abstract class AccountID
     }
 
     /**
+     * Checks if the account config is hidden.
+     * @return <tt>true</tt> if the account config is hidden or <tt>false</tt>
+     *         otherwise.
+     */
+    public boolean isConfigHidden()
+    {
+        return getAccountPropertyString(
+                ProtocolProviderFactory.IS_ACCOUNT_CONFIG_HIDDEN) != null;
+    }
+
+    /**
      * Returns the first <tt>ProtocolProviderService</tt> implementation
      * corresponding to the preferred protocol
      *
