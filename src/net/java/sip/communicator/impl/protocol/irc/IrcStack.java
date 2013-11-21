@@ -463,16 +463,36 @@ public class IrcStack
         @Override
         public void onChannelKick(ChannelKick msg)
         {
-            // TODO Danny: Do we get kicked out ourselves via this way too?
+            //TODO DEBUG CODE!
+            System.out.println("KICK: " + msg.getText() + " "
+                + msg.getChannelName() + " " + msg.getKickedUser());
+
             if (isThisChatRoom(msg.getChannelName()))
             {
-                String user = msg.getSource().getNick();
-                ChatRoomMember member = this.chatroom.getChatRoomMember(user);
-                if (member != null)
+                String kickedUser = msg.getKickedUser();
+                if (isMe(kickedUser))
                 {
-                    this.chatroom.fireMemberPresenceEvent(member, null,
-                        ChatRoomMemberPresenceChangeEvent.MEMBER_KICKED,
+                    IrcStack.this.provider.getMUC().fireLocalUserPresenceEvent(
+                        this.chatroom,
+                        LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_KICKED,
                         msg.getText());
+                    IrcStack.this.joined.remove(this.chatroom.getIdentifier());
+                    IrcStack.this.irc.deleteListener(this);
+                }
+                else
+                {
+                    ChatRoomMember kickedMember =
+                        this.chatroom.getChatRoomMember(kickedUser);
+                    String user = msg.getSource().getNick();
+                    if (kickedMember != null)
+                    {
+                        ChatRoomMember kicker =
+                            this.chatroom.getChatRoomMember(user);
+                        this.chatroom.fireMemberPresenceEvent(kickedMember,
+                            kicker,
+                            ChatRoomMemberPresenceChangeEvent.MEMBER_KICKED,
+                            msg.getText());
+                    }
                 }
             }
         }
