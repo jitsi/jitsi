@@ -95,12 +95,15 @@ public class IrcStack
     }
 
     public void connect(String host, int port, String password,
-        boolean autoNickChange)
+        boolean autoNickChange) throws Exception
     {
         if (this.irc != null && this.connectionState != null
             && this.connectionState.isConnected())
             return;
 
+        //A container for storing the exception if connecting fails.
+        final Exception[] exceptionContainer = new Exception[1];
+        
         this.irc = new IRCApiImpl(true);
         this.params.setServer(new IRCServer(host, port, password, false));
         synchronized (this.irc)
@@ -146,6 +149,7 @@ public class IrcStack
                     {
                         System.out.println("IRC connection FAILED!");
                         e.printStackTrace();
+                        exceptionContainer[0] = e;
                         IrcStack.this.connectionState = null;
                         IrcStack.this.disconnect();
                         IrcStack.this.irc.notifyAll();
@@ -166,36 +170,40 @@ public class IrcStack
                 }
                 else
                 {
-                    // TODO Get reason from other thread.
                     this.provider
                         .setCurrentRegistrationState(RegistrationState.UNREGISTERED);
+                    
+                    if (exceptionContainer[0] != null) {
+                        // If an exception happens to be available that explains
+                        // the connection problem, throw it.
+                        throw exceptionContainer[0];
+                    }
                 }
             }
             catch (InterruptedException e)
             {
                 this.provider
                     .setCurrentRegistrationState(RegistrationState.UNREGISTERED);
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                throw e;
             }
         }
     }
 
     public void disconnect()
     {
-        if (this.connectionState != null)
+        if (this.connectionState == null && this.irc == null)
+            return;
+        
+        for (String channel : this.joined.keySet())
         {
-            for (String channel : this.joined.keySet())
-            {
-                leave(channel);
-            }
-            this.joined.clear();
-            this.irc.disconnect();
-            this.irc = null;
-            this.connectionState = null;
-            this.provider
-                .setCurrentRegistrationState(RegistrationState.UNREGISTERED);
+            leave(channel);
         }
+        this.joined.clear();
+        this.irc.disconnect();
+        this.irc = null;
+        this.connectionState = null;
+        this.provider
+            .setCurrentRegistrationState(RegistrationState.UNREGISTERED);
     }
 
     public void dispose()

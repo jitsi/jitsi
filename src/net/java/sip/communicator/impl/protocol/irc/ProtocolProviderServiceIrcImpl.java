@@ -218,10 +218,15 @@ public class ProtocolProviderServiceIrcImpl
             }
         }
 
-        this.ircStack.connect(  serverAddress,
-                                serverPort,
-                                serverPassword,
-                                autoNickChange);
+        try
+        {
+            this.ircStack.connect(serverAddress, serverPort, serverPassword,
+                autoNickChange);
+        }
+        catch (Exception e)
+        {
+            throw new OperationFailedException(e.getMessage(), 0, e);
+        }
     }
 
     /**
