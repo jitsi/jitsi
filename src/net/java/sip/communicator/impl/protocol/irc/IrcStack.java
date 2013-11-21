@@ -395,104 +395,99 @@ public class IrcStack
         @Override
         public void onTopicChange(TopicMessage msg)
         {
-            if (isThisChatRoom(msg.getChannelName()))
-            {
-                this.chatroom.updateSubject(msg.getTopic().getValue());
-            }
+            if (isThisChatRoom(msg.getChannelName()) == false)
+                return;
+            
+            this.chatroom.updateSubject(msg.getTopic().getValue());
         }
 
         @Override
         public void onChannelMode(ChannelModeMessage msg)
         {
-            if (isThisChatRoom(msg.getChannelName()))
-            {
-                processModeMessage(msg);
-            }
+            if (isThisChatRoom(msg.getChannelName()) == false)
+                return;
+            
+            processModeMessage(msg);
         }
 
         @Override
         public void onChannelJoin(ChanJoinMessage msg)
         {
-            if (isThisChatRoom(msg.getChannelName()))
+            if (isThisChatRoom(msg.getChannelName()) == false)
+                return;
+            
+            if (isMe(msg.getSource()))
+            {
+                // I think that this should not happen.
+            }
+            else
             {
                 String user = msg.getSource().getNick();
-
-                if (isMe(msg.getSource()))
-                {
-                    // I think that this should not happen.
-                }
-                else
-                {
-                    ChatRoomMemberIrcImpl member =
-                        new ChatRoomMemberIrcImpl(IrcStack.this.provider,
-                            this.chatroom, user,
-                            ChatRoomMemberRole.SILENT_MEMBER);
-                    this.chatroom.fireMemberPresenceEvent(member, null,
-                        ChatRoomMemberPresenceChangeEvent.MEMBER_JOINED, null);
-                }
+                ChatRoomMemberIrcImpl member =
+                    new ChatRoomMemberIrcImpl(IrcStack.this.provider,
+                        this.chatroom, user, ChatRoomMemberRole.SILENT_MEMBER);
+                this.chatroom.fireMemberPresenceEvent(member, null,
+                    ChatRoomMemberPresenceChangeEvent.MEMBER_JOINED, null);
             }
         }
 
         @Override
         public void onChannelPart(ChanPartMessage msg)
         {
-            if (isThisChatRoom(msg.getChannelName()))
+            if (isThisChatRoom(msg.getChannelName()) == false)
+                return;
+            
+            if (isMe(msg.getSource()))
+            {
+                IrcStack.this.provider.getMUC().fireLocalUserPresenceEvent(
+                    this.chatroom,
+                    LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_LEFT, null);
+                IrcStack.this.joined.remove(this.chatroom.getIdentifier());
+                IrcStack.this.irc.deleteListener(this);
+            }
+            else
             {
                 String user = msg.getSource().getNick();
-
-                if (isMe(msg.getSource()))
-                {
-                    IrcStack.this.provider.getMUC().fireLocalUserPresenceEvent(
-                        this.chatroom,
-                        LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_LEFT,
-                        null);
-                    IrcStack.this.joined.remove(this.chatroom.getIdentifier());
-                    IrcStack.this.irc.deleteListener(this);
-                }
-                else
-                {
-                    ChatRoomMember member =
-                        this.chatroom.getChatRoomMember(user);
-                    this.chatroom.fireMemberPresenceEvent(member, null,
-                        ChatRoomMemberPresenceChangeEvent.MEMBER_LEFT,
-                        msg.getPartMsg());
-                }
+                ChatRoomMember member = this.chatroom.getChatRoomMember(user);
+                this.chatroom.fireMemberPresenceEvent(member, null,
+                    ChatRoomMemberPresenceChangeEvent.MEMBER_LEFT,
+                    msg.getPartMsg());
             }
         }
         
         @Override
         public void onChannelKick(ChannelKick msg)
         {
+            if (isThisChatRoom(msg.getChannelName()) == false)
+                return;
+            
             //TODO DEBUG CODE!
             System.out.println("KICK: " + msg.getText() + " "
                 + msg.getChannelName() + " " + msg.getKickedUser());
 
-            if (isThisChatRoom(msg.getChannelName()))
+            String kickedUser = msg.getKickedUser();
+            if (isMe(kickedUser))
             {
-                String kickedUser = msg.getKickedUser();
-                if (isMe(kickedUser))
+                IrcStack.this.provider.getMUC().fireLocalUserPresenceEvent(
+                    this.chatroom,
+                    LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_KICKED,
+                    msg.getText());
+                IrcStack.this.joined.remove(this.chatroom.getIdentifier());
+                IrcStack.this.irc.deleteListener(this);
+            }
+            else
+            {
+                ChatRoomMember kickedMember =
+                    this.chatroom.getChatRoomMember(kickedUser);
+                String user = msg.getSource().getNick();
+                if (kickedMember != null)
                 {
-                    IrcStack.this.provider.getMUC().fireLocalUserPresenceEvent(
-                        this.chatroom,
-                        LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_KICKED,
+                    ChatRoomMember kicker =
+                        this.chatroom.getChatRoomMember(user);
+                    this.chatroom.fireMemberPresenceEvent(kickedMember,
+                        kicker,
+                        ChatRoomMemberPresenceChangeEvent.MEMBER_KICKED,
                         msg.getText());
-                    IrcStack.this.joined.remove(this.chatroom.getIdentifier());
-                    IrcStack.this.irc.deleteListener(this);
-                }
-                else
-                {
-                    ChatRoomMember kickedMember =
-                        this.chatroom.getChatRoomMember(kickedUser);
-                    String user = msg.getSource().getNick();
-                    if (kickedMember != null)
-                    {
-                        ChatRoomMember kicker =
-                            this.chatroom.getChatRoomMember(user);
-                        this.chatroom.fireMemberPresenceEvent(kickedMember,
-                            kicker,
-                            ChatRoomMemberPresenceChangeEvent.MEMBER_KICKED,
-                            msg.getText());
-                    }
                 }
             }
         }
@@ -513,19 +508,17 @@ public class IrcStack
         @Override
         public void onChannelMessage(ChannelPrivMsg msg)
         {
-            if (isThisChatRoom(msg.getChannelName()))
-            {
-                MessageIrcImpl message =
-                    new MessageIrcImpl(msg.getText(), "text/plain", "UTF-8",
-                        null);
-                ChatRoomMemberIrcImpl member =
-                    new ChatRoomMemberIrcImpl(IrcStack.this.provider,
-                        this.chatroom, msg.getSource().getNick(),
-                        ChatRoomMemberRole.MEMBER);
-                this.chatroom.fireMessageReceivedEvent(message, member,
-                    new Date(),
-                    ChatRoomMessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED);
-            }
+            if (isThisChatRoom(msg.getChannelName()) == false)
+                return;
+
+            MessageIrcImpl message =
+                new MessageIrcImpl(msg.getText(), "text/plain", "UTF-8", null);
+            ChatRoomMemberIrcImpl member =
+                new ChatRoomMemberIrcImpl(IrcStack.this.provider,
+                    this.chatroom, msg.getSource().getNick(),
+                    ChatRoomMemberRole.MEMBER);
+            this.chatroom.fireMessageReceivedEvent(message, member, new Date(),
+                ChatRoomMessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED);
         }
 
         private void processModeMessage(ChannelModeMessage msg)
