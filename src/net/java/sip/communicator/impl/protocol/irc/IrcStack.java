@@ -151,7 +151,6 @@ public class IrcStack
                         e.printStackTrace();
                         exceptionContainer[0] = e;
                         IrcStack.this.connectionState = null;
-                        IrcStack.this.disconnect();
                         IrcStack.this.irc.notifyAll();
                     }
                 }
