@@ -14,7 +14,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import net.java.sip.communicator.impl.protocol.irc.ModeParser.Mode;
+import net.java.sip.communicator.impl.protocol.irc.ModeParser.ModeEntry;
+import net.java.sip.communicator.impl.protocol.irc.listener.GenericListener;
 import net.java.sip.communicator.service.protocol.ChatRoomMember;
 import net.java.sip.communicator.service.protocol.ChatRoomMemberRole;
 import net.java.sip.communicator.service.protocol.RegistrationState;
@@ -38,11 +39,7 @@ import com.ircclouds.irc.api.domain.messages.ChannelKick;
 import com.ircclouds.irc.api.domain.messages.ChannelModeMessage;
 import com.ircclouds.irc.api.domain.messages.ChannelPrivMsg;
 import com.ircclouds.irc.api.domain.messages.QuitMessage;
-import com.ircclouds.irc.api.domain.messages.ServerNotice;
-import com.ircclouds.irc.api.domain.messages.ServerNumericMessage;
 import com.ircclouds.irc.api.domain.messages.TopicMessage;
-import com.ircclouds.irc.api.domain.messages.interfaces.IMessage;
-import com.ircclouds.irc.api.listeners.IMessageListener;
 import com.ircclouds.irc.api.listeners.VariousMessageListenerAdapter;
 import com.ircclouds.irc.api.state.IIRCState;
 
@@ -52,13 +49,6 @@ import com.ircclouds.irc.api.state.IIRCState;
 public class IrcStack
 {
     // private static final Logger LOGGER = Logger.getLogger(IrcStack.class);
-
-    // TODO Create an enum for this.
-    private static final char MODE_MEMBER_OWNER = 'O';
-
-    private static final char MODE_MEMBER_OPERATOR = 'o';
-
-    private static final char MODE_MEMBER_VOICE = 'v';
 
     private final ProtocolProviderServiceIrcImpl provider;
 
@@ -101,32 +91,14 @@ public class IrcStack
             && this.connectionState.isConnected())
             return;
 
-        //A container for storing the exception if connecting fails.
+        // A container for storing the exception if connecting fails.
         final Exception[] exceptionContainer = new Exception[1];
-        
+
         this.irc = new IRCApiImpl(true);
         this.params.setServer(new IRCServer(host, port, password, false));
         synchronized (this.irc)
         {
-            this.irc.addListener(new IMessageListener()
-            {
-
-                @Override
-                public void onMessage(IMessage msg)
-                {
-                    if (msg instanceof ServerNotice)
-                    {
-                        System.out.println("NOTICE: "
-                            + ((ServerNotice) msg).getText());
-                    }
-                    else if (msg instanceof ServerNumericMessage)
-                    {
-                        System.out.println("NUM MSG: "
-                            + ((ServerNumericMessage) msg).getNumericCode()
-                            + ": " + ((ServerNumericMessage) msg).getText());
-                    }
-                }
-            });
+            this.irc.addListener(new GenericListener());
             // start connecting to the specified server ...
             this.irc.connect(this.params, new Callback<IIRCState>()
             {
@@ -147,8 +119,8 @@ public class IrcStack
                 {
                     synchronized (IrcStack.this.irc)
                     {
-                        System.out.println("IRC connection FAILED!");
-                        e.printStackTrace();
+                        System.out.println("IRC connection FAILED! ("
+                            + e.getMessage() + ")");
                         exceptionContainer[0] = e;
                         IrcStack.this.connectionState = null;
                         IrcStack.this.irc.notifyAll();
@@ -171,8 +143,9 @@ public class IrcStack
                 {
                     this.provider
                         .setCurrentRegistrationState(RegistrationState.UNREGISTERED);
-                    
-                    if (exceptionContainer[0] != null) {
+
+                    if (exceptionContainer[0] != null)
+                    {
                         // If an exception happens to be available that explains
                         // the connection problem, throw it.
                         throw exceptionContainer[0];
@@ -247,7 +220,7 @@ public class IrcStack
 
     public List<String> getServerChatRoomList()
     {
-        // TODO Implement this.
+        // TODO Implement this. (Also probably cache the list, to prevent doing too many requests.)
         return new ArrayList<String>();
     }
 
@@ -261,7 +234,6 @@ public class IrcStack
         if (isConnected() == false)
             throw new IllegalStateException(
                 "Please connect to an IRC server first");
-        // TODO password as String
         if (chatroom == null)
             throw new IllegalArgumentException("chatroom cannot be null");
         if (password == null)
@@ -372,18 +344,7 @@ public class IrcStack
 
     private static ChatRoomMemberRole convertMemberMode(char mode)
     {
-        switch (mode)
-        {
-        case MODE_MEMBER_OWNER:
-            return ChatRoomMemberRole.OWNER;
-        case MODE_MEMBER_OPERATOR:
-            return ChatRoomMemberRole.ADMINISTRATOR;
-        case MODE_MEMBER_VOICE:
-            return ChatRoomMemberRole.MEMBER;
-        default:
-            throw new IllegalArgumentException("Unknown member mode '" + mode
-                + "'.");
-        }
+        return Mode.convertSymbolToRole(mode);
     }
 
     private class ChatRoomListener
@@ -531,11 +492,11 @@ public class IrcStack
         private void processModeMessage(ChannelModeMessage msg)
         {
             ModeParser parser = new ModeParser(msg);
-            for (Mode mode : parser.getModes())
+            for (ModeEntry mode : parser.getModes())
             {
                 switch (mode.getMode())
                 {
-                case 'O':
+                case OWNER:
                     String ownerUserName = mode.getParams()[0];
                     if (isMe(ownerUserName))
                     {
@@ -560,7 +521,7 @@ public class IrcStack
                         }
                     }
                     break;
-                case 'o':
+                case OPERATOR:
                     String opUserName = mode.getParams()[0];
                     if (isMe(opUserName))
                     {
@@ -587,7 +548,7 @@ public class IrcStack
                         }
                     }
                     break;
-                case 'v':
+                case VOICE:
                     String voiceUserName = mode.getParams()[0];
                     if (isMe(voiceUserName))
                     {
