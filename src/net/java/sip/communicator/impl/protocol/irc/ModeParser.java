@@ -76,6 +76,7 @@ public class ModeParser
     public static class Mode
     {
         private final boolean added;
+        //TODO Danny: Use enums for modes instead of characters.
         private final char mode;
         private final String[] params;
         

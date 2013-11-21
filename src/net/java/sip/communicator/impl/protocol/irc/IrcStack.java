@@ -34,6 +34,7 @@ import com.ircclouds.irc.api.domain.IRCUser;
 import com.ircclouds.irc.api.domain.IRCUserStatus;
 import com.ircclouds.irc.api.domain.messages.ChanJoinMessage;
 import com.ircclouds.irc.api.domain.messages.ChanPartMessage;
+import com.ircclouds.irc.api.domain.messages.ChannelKick;
 import com.ircclouds.irc.api.domain.messages.ChannelModeMessage;
 import com.ircclouds.irc.api.domain.messages.ChannelPrivMsg;
 import com.ircclouds.irc.api.domain.messages.QuitMessage;
@@ -458,6 +459,23 @@ public class IrcStack
                 }
             }
         }
+        
+        @Override
+        public void onChannelKick(ChannelKick msg)
+        {
+            // TODO Danny: Do we get kicked out ourselves via this way too?
+            if (isThisChatRoom(msg.getChannelName()))
+            {
+                String user = msg.getSource().getNick();
+                ChatRoomMember member = this.chatroom.getChatRoomMember(user);
+                if (member != null)
+                {
+                    this.chatroom.fireMemberPresenceEvent(member, null,
+                        ChatRoomMemberPresenceChangeEvent.MEMBER_KICKED,
+                        msg.getText());
+                }
+            }
+        }
 
         @Override
         public void onUserQuit(QuitMessage msg)
@@ -498,49 +516,83 @@ public class IrcStack
                 switch (mode.getMode())
                 {
                 case 'O':
-                    ChatRoomMember owner =
-                        this.chatroom.getChatRoomMember(mode.getParams()[0]);
-                    if (mode.isAdded())
+                    String ownerUserName = mode.getParams()[0];
+                    if (isMe(ownerUserName))
                     {
-                        this.chatroom.fireMemberRoleEvent(owner,
-                            ChatRoomMemberRole.OWNER);
+                        System.out.println("Local user owner change! "
+                            + mode.isAdded());
+                        // TODO Do something on local user owner change.
                     }
                     else
                     {
-                        this.chatroom.fireMemberRoleEvent(owner,
-                            ChatRoomMemberRole.SILENT_MEMBER);
+                        ChatRoomMember owner =
+                            this.chatroom
+                                .getChatRoomMember(mode.getParams()[0]);
+                        if (mode.isAdded())
+                        {
+                            this.chatroom.fireMemberRoleEvent(owner,
+                                ChatRoomMemberRole.OWNER);
+                        }
+                        else
+                        {
+                            this.chatroom.fireMemberRoleEvent(owner,
+                                ChatRoomMemberRole.SILENT_MEMBER);
+                        }
                     }
                     break;
                 case 'o':
-                    ChatRoomMember op =
-                        this.chatroom.getChatRoomMember(mode.getParams()[0]);
-                    if (mode.isAdded())
+                    String opUserName = mode.getParams()[0];
+                    if (isMe(opUserName))
                     {
-                        this.chatroom.fireMemberRoleEvent(op,
-                            ChatRoomMemberRole.ADMINISTRATOR);
+                        System.out.println("Local user op change! "
+                            + mode.isAdded());
+                        // TODO How to fire a local user role change event?
+                        // TODO Do something in case the local user is affected,
+                        // hence the member cannot be found using
+                        // getChatRoomMember.
                     }
                     else
                     {
-                        this.chatroom.fireMemberRoleEvent(op,
-                            ChatRoomMemberRole.SILENT_MEMBER);
+                        ChatRoomMember op =
+                            this.chatroom.getChatRoomMember(opUserName);
+                        if (mode.isAdded())
+                        {
+                            this.chatroom.fireMemberRoleEvent(op,
+                                ChatRoomMemberRole.ADMINISTRATOR);
+                        }
+                        else
+                        {
+                            this.chatroom.fireMemberRoleEvent(op,
+                                ChatRoomMemberRole.SILENT_MEMBER);
+                        }
                     }
                     break;
                 case 'v':
-                    ChatRoomMember voice =
-                        this.chatroom.getChatRoomMember(mode.getParams()[0]);
-                    if (mode.isAdded())
+                    String voiceUserName = mode.getParams()[0];
+                    if (isMe(voiceUserName))
                     {
-                        this.chatroom.fireMemberRoleEvent(voice,
-                            ChatRoomMemberRole.MEMBER);
+                        System.out.println("Local user voice change! "+mode.isAdded());
+                        // TODO Do something when local user is affected.
                     }
                     else
                     {
-                        this.chatroom.fireMemberRoleEvent(voice,
-                            ChatRoomMemberRole.SILENT_MEMBER);
+                        ChatRoomMember voice =
+                            this.chatroom.getChatRoomMember(voiceUserName);
+                        if (mode.isAdded())
+                        {
+                            this.chatroom.fireMemberRoleEvent(voice,
+                                ChatRoomMemberRole.MEMBER);
+                        }
+                        else
+                        {
+                            this.chatroom.fireMemberRoleEvent(voice,
+                                ChatRoomMemberRole.SILENT_MEMBER);
+                        }
                     }
                     break;
                 default:
-                    System.out.println("Unsupported mode '" + mode.getMode()
+                    System.out.println("Unsupported mode '"
+                        + (mode.isAdded() ? "+" : "-") + mode.getMode()
                         + "' (from modestring '" + msg.getModeStr() + "')");
                     break;
                 }
@@ -556,6 +608,11 @@ public class IrcStack
         {
             return IrcStack.this.connectionState.getNickname().equals(
                 user.getNick());
+        }
+
+        private boolean isMe(String name)
+        {
+            return IrcStack.this.connectionState.getNickname().equals(name);
         }
     }
 
