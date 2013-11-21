@@ -17,6 +17,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.configuration.*;
+import org.jitsi.util.OSUtils;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
@@ -63,7 +64,8 @@ public class EntityCapsManager
     /**
      * The node value to advertise.
      */
-    private static String entityNode = "http://jitsi.org";
+    private static String entityNode
+        = OSUtils.IS_ANDROID ? "http://android.jitsi.org" : "http://jitsi.org";
 
     /**
      * The <tt>Map</tt> of <tt>Caps</tt> to <tt>DiscoverInfo</tt> which
