@@ -32,6 +32,10 @@ public class IrcAccountID
                 ProtocolNames.IRC,
                 getServiceName(accountProperties));
     }
+    
+    // TODO Danny: Fix equality: Since we can have completely different IRC
+    // networks, we should not limit account creation purely on the user's
+    // id/nickname.
 
     /**
      * Returns the service name - the server we are logging to
