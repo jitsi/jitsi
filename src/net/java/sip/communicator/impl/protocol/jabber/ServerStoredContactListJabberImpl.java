@@ -695,8 +695,7 @@ public class ServerStoredContactListJabberImpl
     void removeContact(ContactJabberImpl contactToRemove)
         throws OperationFailedException
     {
-        if(contactToRemove instanceof VolatileContactJabberImpl &&
-            ((VolatileContactJabberImpl)contactToRemove).isPrivateMessagingContact())
+        if(contactToRemove instanceof VolatileContactJabberImpl)
         {
             contactDeleted(contactToRemove);
             return;
