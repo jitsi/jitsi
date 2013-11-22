@@ -18,7 +18,6 @@ import javax.swing.tree.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
-import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
@@ -328,16 +327,13 @@ public class ContactListTreeCellRenderer
                         .getContactDetails(OperationSetMultiUserChat.class) 
                             != null)
                     {
-                        ConferenceChatManager conferenceChatManager
-                            = GuiActivator.getUIService()
-                                .getConferenceChatManager();
                         SourceContact contact = (SourceContact)
                             contactDescriptor.getDescriptor();
                         ChatRoomWrapper room 
                             = GuiActivator.getMUCService()
                                 .findChatRoomWrapperFromSourceContact(contact);
                         if(room != null)
-                            conferenceChatManager.openChatRoom(room);
+                            GuiActivator.getMUCService().openChatRoom(room);
                     }
                 }
             }

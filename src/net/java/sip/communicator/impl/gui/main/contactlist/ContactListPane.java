@@ -17,7 +17,6 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
-import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.contacteventhandler.*;
 import net.java.sip.communicator.service.contactlist.*;
@@ -214,17 +213,13 @@ public class ContactListPane
         else if(((SourceContact) descriptor.getDescriptor())
             .getContactDetails(OperationSetMultiUserChat.class) != null)
         {
-            ConferenceChatManager conferenceChatManager
-                = GuiActivator.getUIService()
-                    .getConferenceChatManager();
-        
             SourceContact contact = (SourceContact)
                 descriptor.getDescriptor();
             ChatRoomWrapper room 
                 = GuiActivator.getMUCService()
                     .findChatRoomWrapperFromSourceContact(contact);
             if(room != null)
-                conferenceChatManager.openChatRoom(room);
+                GuiActivator.getMUCService().openChatRoom(room);
         }
     }
 

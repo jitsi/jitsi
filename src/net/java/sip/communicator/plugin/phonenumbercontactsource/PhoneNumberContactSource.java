@@ -21,13 +21,6 @@ public class PhoneNumberContactSource
     implements ContactSourceService
 {
     /**
-     * The <tt>List</tt> of <tt>PhoneNumberContactQuery</tt> instances
-     * which have been started and haven't stopped yet.
-     */
-    private final List<PhoneNumberContactQuery> queries
-        = new LinkedList<PhoneNumberContactQuery>();
-
-    /**
      * Returns DEFAULT_TYPE to indicate that this contact source is a default
      * source.
      *
@@ -76,29 +69,7 @@ public class PhoneNumberContactSource
         PhoneNumberContactQuery contactQuery
             = new PhoneNumberContactQuery(this, queryString, contactCount);
 
-        synchronized (queries)
-        {
-            queries.add(contactQuery);
-        }
-
-        boolean queryHasStarted = false;
-
-        try
-        {
-            contactQuery.start();
-            queryHasStarted = true;
-        }
-        finally
-        {
-            if (!queryHasStarted)
-            {
-                synchronized (queries)
-                {
-                    if (queries.remove(contactQuery))
-                        queries.notify();
-                }
-            }
-        }
+        contactQuery.start();
         return contactQuery;
     }
 

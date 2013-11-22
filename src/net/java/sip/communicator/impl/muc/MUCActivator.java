@@ -92,6 +92,12 @@ public class MUCActivator
     private static UIService uiService = null;
 
     /**
+     * Listens for ProtocolProviderService registrations.
+     */
+    private static ProtocolProviderRegListener protocolProviderRegListener 
+        = null;
+
+    /**
      * Starts this bundle.
      *
      * @param context the bundle context where we register and obtain services.
@@ -118,6 +124,11 @@ public class MUCActivator
 
     public void stop(BundleContext context) throws Exception
     {
+        if(protocolProviderRegListener != null)
+        {
+            bundleContext.removeServiceListener(protocolProviderRegListener);
+        }
+        chatRoomProviders.clear();
     }
 
     /**
@@ -240,8 +251,9 @@ public class MUCActivator
             return chatRoomProviders;
         
         chatRoomProviders = new LinkedList<ProtocolProviderService>();
-
-        bundleContext.addServiceListener(new ProtocolProviderRegListener());
+        
+        protocolProviderRegListener = new ProtocolProviderRegListener();
+        bundleContext.addServiceListener(protocolProviderRegListener);
 
         ServiceReference[] serRefs = null;
         try
@@ -315,15 +327,9 @@ public class MUCActivator
             {
             case ServiceEvent.REGISTERED:
                 handleProviderAdded((ProtocolProviderService) service);
-                for(ChatRoomQuery query : getContactSource().getQueries())
-                    query.addQueryToProviderPresenceListeners(
-                        (ProtocolProviderService) service);
                 break;
             case ServiceEvent.UNREGISTERING:
                 handleProviderRemoved((ProtocolProviderService) service);
-                for(ChatRoomQuery query : getContactSource().getQueries())
-                    query.removeQueryFromProviderPresenceListeners(
-                        (ProtocolProviderService) service);
                 break;
             }
         }

@@ -5,7 +5,6 @@
  */
 package net.java.sip.communicator.impl.muc;
 
-import java.util.*;
 import net.java.sip.communicator.service.contactsource.*;
 
 /**
@@ -16,13 +15,6 @@ import net.java.sip.communicator.service.contactsource.*;
 public class ChatRoomContactSourceService
     implements ContactSourceService
 {
-    /**
-     * The <tt>List</tt> of <tt>ChatRoomQuery</tt> instances
-     * which have been started and haven't stopped yet.
-     */
-    private final List<ChatRoomQuery> queries
-        = new LinkedList<ChatRoomQuery>();
-    
     /**
      * Returns the type of this contact source.
      *
@@ -68,38 +60,14 @@ public class ChatRoomContactSourceService
     {
         if (queryString == null)
             queryString = "";
+        
         ChatRoomQuery contactQuery
             = new ChatRoomQuery(queryString, this);
 
-        synchronized (queries)
-        {
-            queries.add(contactQuery);
-        }
-    
-        boolean queryHasStarted = false;
-    
-        try
-        {
-            contactQuery.start();
-            queryHasStarted = true;
-        }
-        finally
-        {
-            if (!queryHasStarted)
-            {
-                synchronized (queries)
-                {
-                    if (queries.remove(contactQuery))
-                        queries.notify();
-                }
-            }
-        }
+        contactQuery.start();
+        
+        
         return contactQuery;
-    }
-
-    public synchronized List<ChatRoomQuery> getQueries()
-    {
-        return queries;
     }
     /**
      * Returns the index of the contact source in the result list.

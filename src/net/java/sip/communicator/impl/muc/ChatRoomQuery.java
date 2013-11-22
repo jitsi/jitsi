@@ -8,6 +8,8 @@ package net.java.sip.communicator.impl.muc;
 import java.util.*;
 import java.util.regex.*;
 
+import org.osgi.framework.*;
+
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.muc.ChatRoomList.*;
@@ -40,6 +42,18 @@ public class ChatRoomQuery
      * MUC service.
      */
     private MUCServiceImpl mucService;
+
+    /**
+     * The number of contact query listeners.
+     */
+    private int contactQueryListenersCount = 0;
+
+    /**
+     * The protocol provider registration listener.
+     */
+    private ServiceListener protolProviderRegistrationListener = null;
+    
+    
     
     /**
      * Creates an instance of <tt>ChatRoomQuery</tt> by specifying
@@ -57,16 +71,32 @@ public class ChatRoomQuery
             Pattern.compile(queryString, Pattern.CASE_INSENSITIVE
                             | Pattern.LITERAL), true);
         this.queryString = queryString;
+        
+        mucService = MUCActivator.getMUCService();
+        
+    }
+    
+    /**
+     * Adds listeners for the query
+     */
+    private void initListeners()
+    {
         for(ProtocolProviderService pps : MUCActivator.getChatRoomProviders())
         {
             addQueryToProviderPresenceListeners(pps);
         }
         
-        mucService = MUCActivator.getMUCService();
         mucService.addChatRoomListChangeListener(this);
         mucService.addChatRoomProviderWrapperListener(this);
+        protolProviderRegistrationListener = new ProtocolProviderRegListener();
+        MUCActivator.bundleContext.addServiceListener(
+            protolProviderRegistrationListener);
     }
     
+    /**
+     * Adds the query as presence listener to protocol provider service.
+     * @param pps the protocol provider service.
+     */
     public void addQueryToProviderPresenceListeners(ProtocolProviderService pps)
     {
         OperationSetMultiUserChat opSetMUC 
@@ -77,6 +107,10 @@ public class ChatRoomQuery
         }
     }
     
+    /**
+     * Removes the query from protocol provider service presence listeners.
+     * @param pps the protocol provider service.
+     */
     public void removeQueryFromProviderPresenceListeners(
         ProtocolProviderService pps)
     {
@@ -104,6 +138,12 @@ public class ChatRoomQuery
             setStatus(QUERY_COMPLETED);
     }
     
+    /**
+     * Handles adding a chat room provider.
+     * @param provider the provider.
+     * @param addQueryResult indicates whether we should add the chat room to 
+     * the query results or fire an event without adding it to the results. 
+     */
     private void providerAdded(ChatRoomProviderWrapper provider, 
         boolean addQueryResult)
     {
@@ -351,6 +391,11 @@ public class ChatRoomQuery
         }
     }
 
+    /**
+     * Returns the index of the contact in the contact results list.
+     * @param contact the contact.
+     * @return the index of the contact in the contact results list.
+     */
     public synchronized int indexOf(ChatRoomSourceContact contact)
     {
        Iterator<ChatRoomSourceContact> it = contactResults.iterator();
@@ -364,5 +409,110 @@ public class ChatRoomQuery
            i++;
        }
        return -1;
+    }
+    
+    /**
+     * Clears any listener we used.
+     */
+    private void clearListeners()
+    {
+        mucService.removeChatRoomListChangeListener(this);
+        mucService.removeChatRoomProviderWrapperListener(this);
+        if(protolProviderRegistrationListener != null)
+            MUCActivator.bundleContext.removeServiceListener(
+                protolProviderRegistrationListener);
+        protolProviderRegistrationListener = null;
+        for(ProtocolProviderService pps : MUCActivator.getChatRoomProviders())
+        {
+            removeQueryFromProviderPresenceListeners(pps);
+        }
+    }
+    
+    /**
+     * Cancels this <tt>ContactQuery</tt>.
+     *
+     * @see ContactQuery#cancel()
+     */
+    public void cancel()
+    {
+        clearListeners();
+
+        super.cancel();
+    }
+    
+    /**
+     * If query has status changed to cancel, let's clear listeners.
+     * @param status {@link ContactQuery#QUERY_CANCELED},
+     * {@link ContactQuery#QUERY_COMPLETED}
+     */
+    public void setStatus(int status)
+    {
+        if(status == QUERY_CANCELED)
+            clearListeners();
+
+        super.setStatus(status);
+    }
+    
+    @Override
+    public void addContactQueryListener(ContactQueryListener l)
+    {
+        super.addContactQueryListener(l);
+        contactQueryListenersCount++;
+        if(contactQueryListenersCount == 1)
+        {
+            initListeners();
+        }
+    }
+    @Override
+    public void removeContactQueryListener(ContactQueryListener l)
+    {
+        super.removeContactQueryListener(l);
+        contactQueryListenersCount--;
+        if(contactQueryListenersCount == 0)
+        {
+            clearListeners();
+        }
+    }
+    
+    /**
+     * Listens for <tt>ProtocolProviderService</tt> registrations.
+     */
+    private class ProtocolProviderRegListener
+        implements ServiceListener
+    {
+        /**
+         * Handles service change events.
+         */
+        public void serviceChanged(ServiceEvent event)
+        {
+            ServiceReference serviceRef = event.getServiceReference();
+
+            // if the event is caused by a bundle being stopped, we don't want to
+            // know
+            if (serviceRef.getBundle().getState() == Bundle.STOPPING)
+            {
+                return;
+            }
+
+            Object service = MUCActivator.bundleContext.getService(serviceRef);
+
+            // we don't care if the source service is not a protocol provider
+            if (!(service instanceof ProtocolProviderService))
+            {
+                return;
+            }
+
+            switch (event.getType())
+            {
+            case ServiceEvent.REGISTERED:
+                    addQueryToProviderPresenceListeners(
+                        (ProtocolProviderService) service);
+                break;
+            case ServiceEvent.UNREGISTERING:
+                    removeQueryFromProviderPresenceListeners(
+                        (ProtocolProviderService) service);
+                break;
+            }
+        }
     }
 }

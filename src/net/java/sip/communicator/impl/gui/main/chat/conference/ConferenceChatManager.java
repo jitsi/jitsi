@@ -45,8 +45,7 @@ public class ConferenceChatManager
                 AdHocChatRoomInvitationRejectionListener,
                 LocalUserChatRoomPresenceListener,
                 LocalUserAdHocChatRoomPresenceListener,
-                ServiceListener,
-                ChatRoomList.ChatRoomProviderWrapperListener
+                ServiceListener
 {
     /**
      * The object used for logging.
@@ -76,7 +75,6 @@ public class ConferenceChatManager
      */
     public ConferenceChatManager()
     {
-        GuiActivator.getMUCService().addChatRoomProviderWrapperListener(this);
         // Loads the chat rooms list in a separate thread.
         new Thread()
         {
@@ -1267,65 +1265,4 @@ public class ConferenceChatManager
 
     public void invitationRejected(AdHocChatRoomInvitationRejectedEvent evt) {}
     
-    /**
-     * Opens a chat window for the chat room.
-     * 
-     * @param room the chat room.
-     */
-    public void openChatRoom(ChatRoomWrapper room)
-    {
-        if (room.getChatRoom() == null)
-        {
-            room = GuiActivator.getMUCService().createChatRoom(
-                room.getChatRoomName(),
-                room.getParentProvider().getProtocolProvider(), 
-                new ArrayList<String>(),"", false, false, true);
-
-            // leave the chatroom because getChatRoom().isJoined() returns true
-            // otherwise
-            if (room.getChatRoom().isJoined())
-                room.getChatRoom().leave();
-
-        }
-
-        String savedNick =
-            ConfigurationUtils.getChatRoomProperty(room
-                .getParentProvider().getProtocolProvider(), room
-                .getChatRoomID(), "userNickName");
-
-        if (savedNick == null)
-        {
-            String[] joinOptions = ChatRoomJoinOptionsDialog.getJoinOptions(
-                room.getParentProvider().getProtocolProvider(), 
-                room.getChatRoomID());
-            String nickName = joinOptions[0];
-            if(nickName == null)
-                return;
-
-            if (!room.getChatRoom().isJoined())
-            {
-                GuiActivator.getMUCService().joinChatRoom(room, nickName, null, 
-                        joinOptions[1]);
-            }
-
-        }
-        else
-        {
-            if (!room.getChatRoom().isJoined())
-                GuiActivator.getMUCService().joinChatRoom(room, savedNick, null);
-        }
-
-        GuiActivator.getUIService().openChatRoomWindow(room);
-    }
-    
-    @Override
-    public void chatRoomProviderWrapperAdded(ChatRoomProviderWrapper provider)
-    {}
-
-    @Override
-    public void chatRoomProviderWrapperRemoved(ChatRoomProviderWrapper provider)
-    {
-        for(int i = 0; i < provider.countChatRooms(); i++)
-            GuiActivator.getUIService().closeChatRoomWindow(provider.getChatRoom(i));
-    }
 }

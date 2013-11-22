@@ -298,5 +298,12 @@ public abstract class MUCService
      */
     public abstract ChatRoomWrapper findChatRoomWrapperFromChatRoom(
         ChatRoom chatRoom);
+    
+    /**
+     * Opens a chat window for the chat room.
+     * 
+     * @param room the chat room.
+     */
+    public abstract void openChatRoom(ChatRoomWrapper room);
 
 }

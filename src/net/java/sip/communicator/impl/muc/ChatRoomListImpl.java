@@ -284,7 +284,11 @@ public class ChatRoomListImpl
                 }
             }
         }
-
+        
+        for(int i = 0; i < chatRoomProvider.countChatRooms(); i++)
+            MUCActivator.getUIService().closeChatRoomWindow(
+                chatRoomProvider.getChatRoom(i));
+        
         fireProviderWrapperRemoved(chatRoomProvider);
     }
 

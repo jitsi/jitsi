@@ -12,6 +12,7 @@ import org.jitsi.service.resources.*;
 
 
 import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.plugin.desktoputil.chat.*;
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.muc.*;
@@ -966,5 +967,56 @@ public class MUCServiceImpl
     public ChatRoomWrapper findChatRoomWrapperFromChatRoom(ChatRoom chatRoom)
     {
         return chatRoomList.findChatRoomWrapperFromChatRoom(chatRoom);
+    }
+    
+    /**
+     * Opens a chat window for the chat room.
+     * 
+     * @param room the chat room.
+     */
+    public void openChatRoom(ChatRoomWrapper room)
+    {
+        if (room.getChatRoom() == null)
+        {
+            room = createChatRoom(
+                room.getChatRoomName(),
+                room.getParentProvider().getProtocolProvider(), 
+                new ArrayList<String>(),"", false, false, true);
+
+            // leave the chatroom because getChatRoom().isJoined() returns true
+            // otherwise
+            if (room.getChatRoom().isJoined())
+                room.getChatRoom().leave();
+
+        }
+
+        String savedNick =
+            ConfigurationUtils.getChatRoomProperty(room
+                .getParentProvider().getProtocolProvider(), room
+                .getChatRoomID(), "userNickName");
+
+        if (savedNick == null)
+        {
+            String[] joinOptions = ChatRoomJoinOptionsDialog.getJoinOptions(
+                room.getParentProvider().getProtocolProvider(), 
+                room.getChatRoomID());
+            String nickName = joinOptions[0];
+            if(nickName == null)
+                return;
+
+            if (!room.getChatRoom().isJoined())
+            {
+                joinChatRoom(room, nickName, null, 
+                        joinOptions[1]);
+            }
+
+        }
+        else
+        {
+            if (!room.getChatRoom().isJoined())
+                joinChatRoom(room, savedNick, null);
+        }
+
+        MUCActivator.getUIService().openChatRoomWindow(room);
     }
 }
