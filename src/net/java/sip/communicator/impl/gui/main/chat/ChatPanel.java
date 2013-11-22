@@ -1080,32 +1080,22 @@ public class ChatPanel
      */
     private void appendChatMessage(ChatMessage chatMessage)
     {
-        String processedMessage
-            = this.conversationPanel.processMessage(chatMessage,
+        String keyword = null;
+
+        if (chatSession instanceof ConferenceChatSession && Chat.INCOMING_MESSAGE.equals(chatMessage.getMessageType()))
+        {
+            keyword =
+                ((ChatRoomWrapper) chatSession.getDescriptor()).getChatRoom()
+                    .getUserNickname();
+        }
+
+        String processedMessage =
+            this.conversationPanel.processMessage(chatMessage, keyword,
                 chatSession.getCurrentChatTransport().getProtocolProvider(),
                 chatSession.getCurrentChatTransport().getName());
 
         if (chatSession instanceof ConferenceChatSession)
         {
-            if (chatMessage.getMessageType().equals(Chat.INCOMING_MESSAGE))
-            {
-                String keyWord =
-                    ((ChatRoomWrapper) chatSession.getDescriptor())
-                        .getChatRoom().getUserNickname();
-
-                try
-                {
-                    processedMessage =
-                        this.conversationPanel
-                            .processChatRoomHighlight(processedMessage,
-                                chatMessage.getContentType(), keyWord);
-                }
-                catch(Throwable t)
-                {
-                    logger.error("Error processing highlight", t);
-                }
-            }
-
             String meCommandMsg
                 = this.conversationPanel.processMeCommand(chatMessage);
 
