@@ -6,8 +6,6 @@
  */
 package net.java.sip.communicator.plugin.phonenumbercontactsource;
 
-import java.util.*;
-
 import net.java.sip.communicator.service.contactsource.*;
 
 /**

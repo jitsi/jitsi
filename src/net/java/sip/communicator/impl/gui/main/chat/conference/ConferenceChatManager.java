@@ -9,12 +9,13 @@ package net.java.sip.communicator.impl.gui.main.chat.conference;
 import java.util.*;
 import java.util.concurrent.*;
 
+import javax.swing.*;
+
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
-import net.java.sip.communicator.plugin.desktoputil.chat.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -24,8 +25,6 @@ import net.java.sip.communicator.util.*;
 
 import org.jdesktop.swingworker.SwingWorker;
 import org.osgi.framework.*;
-
-import javax.swing.*;
 
 /**
  * The <tt>ConferenceChatManager</tt> is the one that manages both chat room and
