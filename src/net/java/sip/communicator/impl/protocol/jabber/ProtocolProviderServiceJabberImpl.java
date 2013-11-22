@@ -1563,6 +1563,15 @@ public class ProtocolProviderServiceJabberImpl
                 OperationSetPresence.class,
                 persistentPresence);
 
+            if(accountID.getAccountPropertyString(
+                    ProtocolProviderFactory.ACCOUNT_READ_ONLY_GROUPS) != null)
+            {
+                addSupportedOperationSet(
+                    OperationSetPersistentPresencePermissions.class,
+                    new OperationSetPersistentPresencePermissionsJabberImpl(
+                            this));
+            }
+
             //initialize the IM operation set
             OperationSetBasicInstantMessagingJabberImpl basicInstantMessaging =
                 new OperationSetBasicInstantMessagingJabberImpl(this);

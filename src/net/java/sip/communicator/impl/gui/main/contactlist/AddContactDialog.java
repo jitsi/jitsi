@@ -329,6 +329,16 @@ public class AddContactDialog
             if (opSet == null)
                 continue;
 
+            OperationSetPersistentPresencePermissions opSetPermissions
+                = provider.getOperationSet(
+                    OperationSetPersistentPresencePermissions.class);
+            if(opSetPermissions != null)
+            {
+                // let's check whether we can edit something
+                if(opSetPermissions.isReadOnly())
+                    continue;
+            }
+
             accountCombo.addItem(provider);
 
             if (provider.getAccountID().isPreferredProvider())
@@ -350,34 +360,17 @@ public class AddContactDialog
 
         groupCombo.setRenderer(new GroupComboRenderer());
 
-        groupCombo.addItem(GuiActivator.getContactListService().getRoot());
-
-        Iterator<MetaContactGroup> groupList
-            = GuiActivator.getContactListService().getRoot().getSubgroups();
-
-        while (groupList.hasNext())
-        {
-            MetaContactGroup group = groupList.next();
-
-            if (!group.isPersistent())
-                continue;
-
-            groupCombo.addItem(group);
-        }
+        updateGroupItems(groupCombo, null);
 
         final String newGroupString = GuiActivator.getResources()
             .getI18NString("service.gui.CREATE_GROUP");
-
-        if (!ConfigurationUtils.isCreateGroupDisabled())
-        {
-            groupCombo.addItem(newGroupString);
-        }
 
         groupCombo.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent e)
             {
-                if (groupCombo.getSelectedItem().equals(newGroupString))
+                if (groupCombo.getSelectedItem() != null
+                    && groupCombo.getSelectedItem().equals(newGroupString))
                 {
                     CreateGroupDialog dialog
                         = new CreateGroupDialog(parentDialog, false);
@@ -399,6 +392,80 @@ public class AddContactDialog
         });
 
         return groupCombo;
+    }
+
+    /**
+     * Update the group items in the combo supplied, by checking
+     * and the edit permissions
+     */
+    private static void updateGroupItems(JComboBox groupCombo,
+                                         ProtocolProviderService provider)
+    {
+        OperationSetPersistentPresencePermissions opsetPermissions = null;
+        OperationSetPersistentPresence opsetPresence = null;
+
+        boolean isRootReadOnly = false;
+
+        if(provider != null)
+        {
+            groupCombo.removeAllItems();
+
+            opsetPermissions = provider.getOperationSet(
+                OperationSetPersistentPresencePermissions.class);
+            opsetPresence = provider.getOperationSet(
+                OperationSetPersistentPresence.class);
+
+            if(opsetPermissions != null
+                && opsetPresence != null)
+                isRootReadOnly =  opsetPermissions.isReadOnly(
+                    opsetPresence.getServerStoredContactListRoot());
+        }
+
+        if(!isRootReadOnly)
+        {
+            groupCombo.addItem(GuiActivator.getContactListService().getRoot());
+        }
+
+        Iterator<MetaContactGroup> groupList
+            = GuiActivator.getContactListService().getRoot().getSubgroups();
+
+        while (groupList.hasNext())
+        {
+            MetaContactGroup group = groupList.next();
+
+            if (!group.isPersistent())
+                continue;
+
+            if(provider != null && opsetPermissions != null)
+            {
+                Iterator<ContactGroup> protoGroupsIter =
+                    group.getContactGroupsForProvider(provider);
+                boolean foundWritableGroup = false;
+                while(protoGroupsIter.hasNext())
+                {
+                    ContactGroup gr = protoGroupsIter.next();
+                    if(!opsetPermissions.isReadOnly(gr))
+                    {
+                        foundWritableGroup = true;
+                        break;
+                    }
+                }
+
+                if(!foundWritableGroup)
+                    continue;
+            }
+
+            groupCombo.addItem(group);
+        }
+
+        final String newGroupString = GuiActivator.getResources()
+            .getI18NString("service.gui.CREATE_GROUP");
+
+        if (!ConfigurationUtils.isCreateGroupDisabled()
+            && !isRootReadOnly)
+        {
+            groupCombo.addItem(newGroupString);
+        }
     }
 
     /**
@@ -692,12 +759,16 @@ public class AddContactDialog
     {
         String contactAddress = contactAddressField.getText();
 
-        if (accountCombo.getSelectedItem()
-            instanceof ProtocolProviderService
+        Object selectedItem = accountCombo.getSelectedItem();
+        if (selectedItem instanceof ProtocolProviderService
             && contactAddress != null && contactAddress.length() > 0)
             addButton.setEnabled(true);
         else
             addButton.setEnabled(false);
+
+        if(selectedItem instanceof ProtocolProviderService)
+            updateGroupItems(groupCombo,
+                (ProtocolProviderService)accountCombo.getSelectedItem());
     }
 
     /**

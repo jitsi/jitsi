@@ -314,6 +314,13 @@ public abstract class ProtocolProviderFactory
     public static final String IS_ACCOUNT_CONFIG_HIDDEN = "IS_CONFIG_HIDDEN";
 
     /**
+     * The name of the property that would indicate if a given account
+     * groups are readonly, values can be all or a comma separated
+     * group names including root.
+     */
+    public static final String ACCOUNT_READ_ONLY_GROUPS = "READ_ONLY_GROUPS";
+
+    /**
      * Indicates if ICE should be used.
      */
     public static final String IS_USE_ICE = "ICE_ENABLED";

@@ -12,7 +12,10 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+
+import java.util.*;
 
 /**
  * The <tt>MetaUIGroup</tt> is the implementation of the UIGroup for the
@@ -170,6 +173,28 @@ public class MetaUIGroup
     @Override
     public JPopupMenu getRightButtonMenu()
     {
+        // check if group has readonly proto group then skip menu
+        boolean hasReadonlyGroup = false;
+        Iterator<ContactGroup> groupsIterator =
+            metaGroup.getContactGroups();
+        while(groupsIterator.hasNext())
+        {
+            ContactGroup group = groupsIterator.next();
+            OperationSetPersistentPresencePermissions opsetPermissions =
+                group.getProtocolProvider().getOperationSet(
+                    OperationSetPersistentPresencePermissions.class);
+
+            if(opsetPermissions != null
+                && opsetPermissions.isReadOnly(group))
+            {
+                hasReadonlyGroup = true;
+                break;
+            }
+        }
+
+        if(hasReadonlyGroup)
+            return null;
+
         return new GroupRightButtonMenu(
             GuiActivator.getUIService().getMainFrame(), metaGroup);
     }

@@ -366,6 +366,30 @@ public class MetaContactRightButtonMenu
             this.moveToMenu.add(menuItem);
         }
 
+        boolean hasOnlyReadonlyContacts = true;
+        boolean hasAnyReadonlyContact = false;
+        Iterator<Contact> iter = metaContact.getContacts();
+        while(iter.hasNext())
+        {
+            Contact c = iter.next();
+            OperationSetPersistentPresencePermissions opsetPermissions =
+                c.getProtocolProvider()
+                    .getOperationSet(
+                        OperationSetPersistentPresencePermissions.class);
+
+            if( opsetPermissions == null
+                || !opsetPermissions.isReadOnly(c))
+            {
+                hasOnlyReadonlyContacts = false;
+            }
+
+            if(opsetPermissions != null
+                && opsetPermissions.isReadOnly(c))
+            {
+                hasAnyReadonlyContact = true;
+            }
+        }
+
         //Initialize removeContact menu.
         Iterator<Contact> contacts = metaContact.getContacts();
 
@@ -383,10 +407,13 @@ public class MetaContactRightButtonMenu
 
             allItem1.setName(moveSubcontactPrefix + "allContacts");
 
-            this.removeContactMenu.add(allItem);
-            this.moveSubcontactMenu.add(allItem1);
-            this.removeContactMenu.addSeparator();
-            this.moveSubcontactMenu.addSeparator();
+            if(!hasAnyReadonlyContact)
+            {
+                this.removeContactMenu.add(allItem);
+                this.moveSubcontactMenu.add(allItem1);
+                this.removeContactMenu.addSeparator();
+                this.moveSubcontactMenu.addSeparator();
+            }
         }
 
         contactPhoneUtil = MetaContactPhoneUtil.getPhoneUtil(metaContact);
@@ -405,20 +432,33 @@ public class MetaContactRightButtonMenu
             Icon protocolIcon = new ImageIcon(
                     createContactStatusImage(contact));
 
-            this.removeContactMenu.add(
-                new ContactMenuItem(contact,
-                                    contactAddress,
-                                    removeContactPrefix,
-                                    protocolIcon));
+            boolean isContactReadonly = false;
+
+            OperationSetPersistentPresencePermissions opsetPermissions =
+                protocolProvider
+                    .getOperationSet(
+                        OperationSetPersistentPresencePermissions.class);
+            if(opsetPermissions != null
+               && opsetPermissions.isReadOnly(contact))
+                isContactReadonly = true;
+
+            if(!isContactReadonly)
+                this.removeContactMenu.add(
+                    new ContactMenuItem(contact,
+                                        contactAddress,
+                                        removeContactPrefix,
+                                        protocolIcon));
 
             if(contactPersistableAddress != null)
             {
                 hasPersistableAddress = true;
-                this.moveSubcontactMenu.add(
-                    new ContactMenuItem(contact,
-                                        contactPersistableAddress,
-                                        moveSubcontactPrefix,
-                                        protocolIcon));
+
+                if(!isContactReadonly)
+                    this.moveSubcontactMenu.add(
+                        new ContactMenuItem(contact,
+                                            contactPersistableAddress,
+                                            moveSubcontactPrefix,
+                                            protocolIcon));
             }
 
             List<String> phones = contactPhoneUtil.getPhones(contact);
@@ -590,15 +630,27 @@ public class MetaContactRightButtonMenu
             !ConfigurationUtils.isCreateGroupDisabled() &&
             hasPersistableAddress)
         {
+            boolean addSeparator = false;
 
-            add(moveToMenu);
-            add(moveSubcontactMenu);
+            if(!hasAnyReadonlyContact)
+            {
+                add(moveToMenu);
+                addSeparator = true;
+            }
 
-            addSeparator();
+            if(moveSubcontactMenu.getItemCount() > 0)
+            {
+                add(moveSubcontactMenu);
+                addSeparator = true;
+            }
+
+            if(addSeparator)
+                addSeparator();
         }
 
-        if (!ConfigurationUtils.isAddContactDisabled() &&
-            !ConfigurationUtils.isMergeContactDisabled())
+        if (!ConfigurationUtils.isAddContactDisabled()
+            && !ConfigurationUtils.isMergeContactDisabled()
+            && !hasAnyReadonlyContact)
         {
             add(addContactItem);
             addSeparator();
@@ -612,7 +664,7 @@ public class MetaContactRightButtonMenu
                 add(removeContactMenu);
                 separator = true;
             }
-            else
+            else if(!hasOnlyReadonlyContacts)
             {
                 // There is only one contact, so a submenu is unnecessary -
                 // just add a single menu item.  It masquerades as an item to

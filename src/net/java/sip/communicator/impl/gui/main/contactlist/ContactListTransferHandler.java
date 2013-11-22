@@ -224,6 +224,32 @@ public class ContactListTransferHandler
                 if (transferredContact == null)
                     return false;
 
+                if(transferredContact.getDescriptor() instanceof MetaContact)
+                {
+                    // check if underlying account is readonly
+                    MetaContact metaContact =
+                        (MetaContact)transferredContact.getDescriptor();
+                    boolean onlyReadonlyContacts = true;
+                    Iterator<Contact> iter = metaContact.getContacts();
+                    while(iter.hasNext())
+                    {
+                        Contact c = iter.next();
+                        ProtocolProviderService pp = c.getProtocolProvider();
+                        OperationSetPersistentPresencePermissions
+                            opsetPermissions = pp.getOperationSet(
+                                OperationSetPersistentPresencePermissions.class);
+
+                        if( opsetPermissions == null
+                            || !opsetPermissions.isReadOnly(c))
+                        {
+                            onlyReadonlyContacts = false;
+                            break;
+                        }
+                    }
+                    if(onlyReadonlyContacts)
+                        return false;
+                }
+
                 if (dest instanceof ContactNode)
                 {
                     UIContact destContact
