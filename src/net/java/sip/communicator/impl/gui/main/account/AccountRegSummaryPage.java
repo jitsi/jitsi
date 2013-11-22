@@ -37,6 +37,11 @@ public class AccountRegSummaryPage
     private final AccountRegWizardContainerImpl wizardContainer;
 
     /**
+     * In case of modification the modified protocol provider is supplied.
+     */
+    private ProtocolProviderService protocolProviderService;
+
+    /**
      * Creates an <tt>AccountRegSummaryPage</tt>.
      *
      * @param wizardContainer The account registration wizard container where
@@ -144,6 +149,14 @@ public class AccountRegSummaryPage
         this.valuesPanel.removeAll();
 
         this.init(wizard.getSummary());
+
+        if(protocolProviderService != null
+            && protocolProviderService.getAccountID().isReadOnly())
+        {
+            // disable commit button as the account is readonly
+            // we will just show its values
+            wizardContainer.setNextFinishButtonEnabled(false);
+        }
     }
 
     /**
@@ -155,6 +168,12 @@ public class AccountRegSummaryPage
     {
         AccountRegistrationWizard wizard =
             this.wizardContainer.getCurrentWizard();
+
+        if(this.protocolProviderService != null)
+        {
+            // we do not need it anymore
+            protocolProviderService = null;
+        }
 
         try
         {
@@ -216,5 +235,29 @@ public class AccountRegSummaryPage
 
     public void pageShown()
     {
+    }
+
+    /**
+     * Sets the modification property to indicate if this wizard is opened for
+     * a modification.
+     *
+     * @param protocolProvider indicates that this wizard is opened for
+     * modification.
+     */
+    public void setModification(ProtocolProviderService protocolProvider)
+    {
+        this.protocolProviderService = protocolProvider;
+    }
+
+    @Override
+    public void dispose()
+    {
+        super.dispose();
+
+        if(this.protocolProviderService != null)
+        {
+            // we do not need it anymore
+            protocolProviderService = null;
+        }
     }
 }

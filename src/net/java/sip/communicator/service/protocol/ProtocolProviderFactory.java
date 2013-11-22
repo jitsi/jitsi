@@ -315,6 +315,12 @@ public abstract class ProtocolProviderFactory
 
     /**
      * The name of the property that would indicate if a given account
+     * configuration is read only.
+     */
+    public static final String IS_ACCOUNT_READ_ONLY = "IS_READ_ONLY";
+
+    /**
+     * The name of the property that would indicate if a given account
      * groups are readonly, values can be all or a comma separated
      * group names including root.
      */

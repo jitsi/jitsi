@@ -95,7 +95,7 @@ public class Wizard
 
     private WizardController wizardController;
 
-    private TransparentPanel cardPanel;
+    protected TransparentPanel cardPanel;
 
     private CardLayout cardLayout;
 

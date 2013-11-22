@@ -720,6 +720,17 @@ public abstract class AccountID
     }
 
     /**
+     * Checks if the account is marked as readonly.
+     * @return <tt>true</tt> if the account is marked as readonly or
+     * <tt>false</tt> otherwise.
+     */
+    public boolean isReadOnly()
+    {
+        return getAccountPropertyString(
+                ProtocolProviderFactory.IS_ACCOUNT_READ_ONLY) != null;
+    }
+
+    /**
      * Returns the first <tt>ProtocolProviderService</tt> implementation
      * corresponding to the preferred protocol
      *

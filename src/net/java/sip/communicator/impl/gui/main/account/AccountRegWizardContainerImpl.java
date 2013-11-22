@@ -5,10 +5,15 @@
  */
 package net.java.sip.communicator.impl.gui.main.account;
 
+import java.awt.*;
+import java.awt.Container;
 import java.io.*;
 import java.util.*;
+import java.util.List;
 
 import javax.imageio.*;
+import javax.swing.*;
+import javax.swing.text.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.wizard.*;
@@ -146,8 +151,37 @@ public class AccountRegWizardContainerImpl
         this.setCurrentWizard(wizard);
 
         wizard.setModification(true);
+        this.summaryPage.setModification(protocolProvider);
+
+        if(protocolProvider != null
+            && protocolProvider.getAccountID().isReadOnly())
+        {
+            // cardPanel is the main panel of the wizard pages
+            setDisabled(cardPanel.getComponents());
+        }
 
         wizard.loadAccount(protocolProvider);
+    }
+
+    /**
+     * Disables all editable components. Used to enable readonly accounts
+     * to only show their values and forbid the user to edit.
+     *
+     * @param components the components to disable
+     */
+    private void setDisabled(Component[] components)
+    {
+        for(Component c : components)
+        {
+            if(c instanceof JTextComponent)
+                ((JTextComponent)c).setEditable(false);
+            else if(c instanceof JComboBox
+                    || c instanceof AbstractButton)
+                c.setEnabled(false);
+
+            if(c instanceof Container)
+                setDisabled(((Container)c).getComponents());
+        }
     }
 
     /**
