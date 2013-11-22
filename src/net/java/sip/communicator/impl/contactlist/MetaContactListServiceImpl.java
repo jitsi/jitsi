@@ -978,31 +978,120 @@ public class MetaContactListServiceImpl
                 "persistant address.");
            return;
         }
-        /** first create the new meta contact */
-        MetaContactImpl metaContactImpl = new MetaContactImpl();
 
-        MetaContactGroupImpl newParentMetaGroupImpl
-            = (MetaContactGroupImpl)newParentMetaGroup;
+        if(contact.getPersistableAddress() == null)
+        {
+            logger.info("Contact cannot be moved! This contact doesn't have " +
+                "persistant address.");
+            return;
+        }
 
-        newParentMetaGroupImpl.addMetaContact(metaContactImpl);
+        ProtocolProviderService provider = contact.getProtocolProvider();
 
-        fireMetaContactEvent(metaContactImpl
-                             , newParentMetaGroupImpl
-                             , MetaContactEvent.META_CONTACT_ADDED);
+        OperationSetMultiUserChat opSetMUC
+            = provider.getOperationSet(OperationSetMultiUserChat.class);
 
-        /** then move the sub contactact to the new metacontact container */
+        if(opSetMUC != null
+            && opSetMUC.isPrivateMessagingContact(contact.getAddress()))
+        {
+            MetaContactImpl metaContactImpl = new MetaContactImpl();
+            MetaContactGroupImpl newParentMetaGroupImpl
+                = (MetaContactGroupImpl)newParentMetaGroup;
+
+            newParentMetaGroupImpl.addMetaContact(metaContactImpl);
+
+            fireMetaContactEvent(metaContactImpl
+                                 , newParentMetaGroupImpl
+                                 , MetaContactEvent.META_CONTACT_ADDED);
+
+            addNewContactToMetaContact(provider, metaContactImpl,
+                contact.getPersistableAddress());
+            return;
+        }
+
+        //get a persistent  presence operation set
+        OperationSetPersistentPresence opSetPresence
+            = provider.getOperationSet(OperationSetPersistentPresence.class);
+
+        if (opSetPresence == null)
+        {
+            /** @todo handle non persistent presence operation sets */
+        }
+
+        MetaContactImpl currentParentMetaContact
+            = (MetaContactImpl)this.findMetaContactByContact(contact);
+
+        ContactGroup parentProtoGroup = resolveProtoPath(contact
+            .getProtocolProvider(), (MetaContactGroupImpl) newParentMetaGroup);
+
+        //if the contact is not currently in the proto group corresponding to
+        //its new metacontact group parent then move it
         try
         {
-            moveContact(contact, metaContactImpl);
-        }
-        catch(MetaContactListException mex)
-        {
-            newParentMetaGroupImpl.removeMetaContact(metaContactImpl);
-            fireMetaContactEvent(metaContactImpl
-                , newParentMetaGroupImpl
-                , MetaContactEvent.META_CONTACT_REMOVED);
+            if(contact.getParentContactGroup() != parentProtoGroup
+                && opSetPresence != null)
+            {
+                opSetPresence.moveContactToGroup(contact, parentProtoGroup);
+            }
 
-            throw mex;
+            // remove the proto-contact only if move is successful
+            currentParentMetaContact.removeProtoContact(contact);
+        }
+        catch(OperationFailedException ex)
+        {
+            throw new MetaContactListException(ex.getMessage(),
+                MetaContactListException.CODE_MOVE_CONTACT_ERROR);
+        }
+
+        // first check if this has been already done on other place
+        // (SubscriptionListener.subscriptionMoved)
+        MetaContactImpl metaContactImpl = null;
+        synchronized(contact)
+        {
+            MetaContact checkContact = findMetaContactByContact(contact);
+
+            if(checkContact == null)
+            {
+                metaContactImpl = new MetaContactImpl();
+
+                ((MetaContactGroupImpl)newParentMetaGroup)
+                    .addMetaContact(metaContactImpl);
+
+                metaContactImpl.addProtoContact(contact);
+            }
+        }
+
+        if(metaContactImpl != null)
+        {
+            fireMetaContactEvent(metaContactImpl
+                , newParentMetaGroup
+                , MetaContactEvent.META_CONTACT_ADDED);
+
+            //fire an event telling everyone that contact has been added to its
+            //new parent.
+            fireProtoContactEvent(
+                contact,
+                ProtoContactEvent.PROTO_CONTACT_MOVED,
+                currentParentMetaContact,
+                metaContactImpl);
+        }
+
+        //if this was the last contact in the meta contact - remove it.
+        //it is true that in some cases the move would be followed by some kind
+        //of protocol provider events indicating the change which on its turn
+        //may trigger the removal of empty meta contacts. Yet in many cases
+        //particularly if parent groups were not changed in the protocol contact
+        //list no event would come and the meta contact will remain empty
+        //that's why we delete it here and if an event follows it would simply
+        //be ignored.
+        if (currentParentMetaContact.getContactCount() == 0)
+        {
+            MetaContactGroupImpl parentMetaGroup =
+                currentParentMetaContact.getParentGroup();
+            parentMetaGroup.removeMetaContact(currentParentMetaContact);
+
+            fireMetaContactEvent(currentParentMetaContact, parentMetaGroup
+                , MetaContactEvent.META_CONTACT_REMOVED);
         }
     }
 
@@ -1087,12 +1176,24 @@ public class MetaContactListServiceImpl
                 MetaContactListException.CODE_MOVE_CONTACT_ERROR);
         }
 
-        ( (MetaContactImpl) newParentMetaContact).addProtoContact(contact);
+        synchronized(contact)
+        {
+            MetaContact checkContact = findMetaContactByContact(contact);
 
-        //fire an event telling everyone that contact has been added to its new
-        //parent.
-        fireProtoContactEvent(contact, ProtoContactEvent.PROTO_CONTACT_MOVED
-            , currentParentMetaContact , newParentMetaContact);
+            if(checkContact == null)
+            {
+                ( (MetaContactImpl) newParentMetaContact)
+                    .addProtoContact(contact);
+            }
+        }
+
+        if(newParentMetaContact.containsContact(contact))
+        {
+            //fire an event telling everyone that contact has been added to its
+            //new parent.
+            fireProtoContactEvent(contact, ProtoContactEvent.PROTO_CONTACT_MOVED
+                , currentParentMetaContact , newParentMetaContact);
+        }
 
         //if this was the last contact in the meta contact - remove it.
         //it is true that in some cases the move would be followed by some kind
@@ -2433,9 +2534,11 @@ public class MetaContactListServiceImpl
             if (logger.isTraceEnabled())
                 logger.trace("Subscription moved: " + evt);
 
+            Contact sourceContact = evt.getSourceContact();
+
             //ignore the event if the source contact is in the ignore list
             if (isContactInEventIgnoreList(
-                     evt.getSourceContact()
+                     sourceContact
                    , evt.getSourceProvider()))
             {
                 return;
@@ -2454,7 +2557,7 @@ public class MetaContactListServiceImpl
             }
 
             MetaContactImpl currentMetaContact = (MetaContactImpl)
-                               findMetaContactByContact(evt.getSourceContact());
+                               findMetaContactByContact(sourceContact);
 
             if(currentMetaContact == null)
             {
@@ -2491,24 +2594,41 @@ public class MetaContactListServiceImpl
             //parent group and move the source contact to it.
             else
             {
-                MetaContactImpl newMetaContact = new MetaContactImpl();
-                newMetaContact.setDisplayName(evt
-                                          .getSourceContact().getDisplayName());
-                newParentGroup.addMetaContact(newMetaContact);
 
-                //fire an event notifying that a new meta contact was added.
-                fireMetaContactEvent(newMetaContact,
-                                     newParentGroup,
-                                     MetaContactEvent.META_CONTACT_ADDED);
+                MetaContactImpl newMetaContact = null;
 
-                //move the proto contact and fire the corresponding event
-                currentMetaContact.removeProtoContact(evt.getSourceContact());
-                newMetaContact.addProtoContact(evt.getSourceContact());
+                // first check whether a contact hasn't been already added to
+                // a metacontact
+                synchronized(sourceContact)
+                {
+                    //move the proto contact and fire the corresponding event
+                    currentMetaContact.removeProtoContact(sourceContact);
 
-                fireProtoContactEvent(evt.getSourceContact()
-                                      , ProtoContactEvent.PROTO_CONTACT_MOVED
-                                      , currentMetaContact
-                                      , newMetaContact);
+                    MetaContact checkContact =
+                        findMetaContactByContact(sourceContact);
+                    if(checkContact == null)
+                    {
+                        newMetaContact = new MetaContactImpl();
+                        newMetaContact.setDisplayName(
+                            sourceContact.getDisplayName());
+
+                        newParentGroup.addMetaContact(newMetaContact);
+                        newMetaContact.addProtoContact(sourceContact);
+                    }
+                }
+                // new contact was created
+                if(newMetaContact != null)
+                {
+                    //fire an event notifying that a new meta contact was added.
+                    fireMetaContactEvent(newMetaContact,
+                        newParentGroup,
+                        MetaContactEvent.META_CONTACT_ADDED);
+
+                    fireProtoContactEvent(sourceContact
+                        , ProtoContactEvent.PROTO_CONTACT_MOVED
+                        , currentMetaContact
+                        , newMetaContact);
+                }
             }
         }
 
