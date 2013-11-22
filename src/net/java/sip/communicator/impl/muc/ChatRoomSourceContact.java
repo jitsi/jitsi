@@ -39,14 +39,21 @@ public class ChatRoomSourceContact
     private ProtocolProviderService provider;
     
     /**
-     * 
-     * @param chatRoomName
-     * @param chatRoomID
-     * @param query
-     * @param pps
+     * The protocol provider of the chat room associated with the contact.
+     */
+    private boolean isAutoJoin;
+    
+    /**
+     * Contsructs new chat room source contact.
+     * @param chatRoomName the name of the chat room associated with the room.
+     * @param chatRoomID the id of the chat room associated with the room.
+     * @param query the query associated with the contact.
+     * @param pps the protocol provider of the contact.
+     * @param isAutoJoin the auto join state.
      */
     public ChatRoomSourceContact(String chatRoomName, 
-        String chatRoomID, ChatRoomQuery query, ProtocolProviderService pps)
+        String chatRoomID, ChatRoomQuery query, ProtocolProviderService pps,
+        boolean isAutoJoin)
     {
         super(query, query.getContactSource(), chatRoomName,
             generateDefaultContactDetails(chatRoomName));
@@ -55,17 +62,21 @@ public class ChatRoomSourceContact
         this.chatRoomID = chatRoomID;
         this.provider = pps;
         this.parentQuery = query;
+        this.isAutoJoin = isAutoJoin;
         
         initContactProperties(getChatRoomStateByName());
         
     }
     
     /**
+     * Constructs new chat room source contact.
      * 
-     * @param chatRoom
-     * @param query
+     * @param chatRoom the chat room associated with the contact.
+     * @param query the query associated with the contact.
+     * @param isAutoJoin the auto join state
      */
-    public ChatRoomSourceContact(ChatRoom chatRoom, ChatRoomQuery query)
+    public ChatRoomSourceContact(ChatRoom chatRoom, ChatRoomQuery query,
+        boolean isAutoJoin)
     { 
         super(query, query.getContactSource(), chatRoom.getName(),
             generateDefaultContactDetails(chatRoom.getName()));
@@ -74,6 +85,7 @@ public class ChatRoomSourceContact
         this.chatRoomID = chatRoom.getIdentifier();
         this.provider = chatRoom.getParentProvider();
         this.parentQuery = query;
+        this.isAutoJoin = isAutoJoin;
         
         initContactProperties(
             (chatRoom.isJoined()? 
@@ -179,5 +191,21 @@ public class ChatRoomSourceContact
         return parentQuery.indexOf(this);
     }
 
+    /**
+     * Returns the auto join state of the contact.
+     * @return the auto join state of the contact.
+     */
+    public boolean isAutoJoin()
+    {
+        return isAutoJoin;
+    }
 
+    /**
+     * Sets the auto join state of the contact.
+     * @param isAutoJoin the auto join state to be set.
+     */
+    public void setAutoJoin(boolean isAutoJoin)
+    {
+        this.isAutoJoin = isAutoJoin;
+    }
 }

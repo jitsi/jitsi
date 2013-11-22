@@ -271,6 +271,8 @@ public class ChatRoomWrapperImpl
                 getParentProvider().getProtocolProvider(),
                 chatRoomID, AUTOJOIN_PROPERTY_NAME, null);
         }
+        MUCActivator.getMUCService().fireChatRoomListChangedEvent(this, 
+            ChatRoomListChangeEvent.CHAT_ROOM_CHANGED);
     }
 
     

@@ -113,7 +113,7 @@ public class ChatRoomQuery
             ChatRoomWrapper chatRoom = provider.getChatRoom(i);
             addChatRoom( provider.getProtocolProvider(), 
                 chatRoom.getChatRoomName(), chatRoom.getChatRoomID(), 
-                addQueryResult);
+                addQueryResult, chatRoom.isAutojoin());
         }
     }
     
@@ -163,7 +163,10 @@ public class ChatRoomQuery
             }
             else
             {
-                addChatRoom(sourceChatRoom, false);
+                ChatRoomWrapper chatRoom 
+                    = MUCActivator.getMUCService()
+                        .findChatRoomWrapperFromChatRoom(sourceChatRoom);
+                addChatRoom(sourceChatRoom, false, chatRoom.isAutojoin());
             }
         }
         else if ((LocalUserChatRoomPresenceChangeEvent
@@ -194,9 +197,12 @@ public class ChatRoomQuery
      * @param pps the protocol provider associated with the found chat room.
      * @param chatRoomName the name of the chat room.
      * @param chatRoomID the id of the chat room.
-     * @param addQueryResult 
+     * @param addQueryResult indicates whether we should add the chat room to 
+     * the query results or fire an event without adding it to the results.
+     * @param isAutoJoin the auto join state of the contact.
      */
-    private void addChatRoom(ChatRoom room, boolean addQueryResult)
+    private void addChatRoom(ChatRoom room, boolean addQueryResult, 
+        boolean isAutoJoin)
     {
         if(queryString == null
             || ((room.getName().startsWith(
@@ -205,7 +211,7 @@ public class ChatRoomQuery
                     )))
         {
             ChatRoomSourceContact contact 
-                = new ChatRoomSourceContact(room, this);
+                = new ChatRoomSourceContact(room, this, isAutoJoin);
             synchronized (contactResults)
             {
                 contactResults.add(contact);
@@ -229,10 +235,13 @@ public class ChatRoomQuery
      * @param pps the protocol provider associated with the found chat room.
      * @param chatRoomName the name of the chat room.
      * @param chatRoomID the id of the chat room.
-     * @param addQueryResult 
+     * @param addQueryResult indicates whether we should add the chat room to 
+     * the query results or fire an event without adding it to the results.
+     * @param isAutoJoin the auto join state of the contact.
      */
     private void addChatRoom(ProtocolProviderService pps, 
-        String chatRoomName, String chatRoomID, boolean addQueryResult)
+        String chatRoomName, String chatRoomID, boolean addQueryResult, 
+        boolean isAutoJoin)
     {
         if(queryString == null
             || ((chatRoomName.startsWith(
@@ -241,7 +250,8 @@ public class ChatRoomQuery
                     )))
         {
             ChatRoomSourceContact contact 
-                = new ChatRoomSourceContact(chatRoomName, chatRoomID, this, pps);
+                = new ChatRoomSourceContact(chatRoomName, chatRoomID, this, pps,
+                    isAutoJoin);
             synchronized (contactResults)
             {
                 contactResults.add(contact);
@@ -269,7 +279,8 @@ public class ChatRoomQuery
         switch(evt.getEventID())
         {
             case ChatRoomListChangeEvent.CHAT_ROOM_ADDED:
-                addChatRoom(chatRoom.getChatRoom(), false);
+                addChatRoom(chatRoom.getChatRoom(), false, 
+                    chatRoom.isAutojoin());
                 break;
             case ChatRoomListChangeEvent.CHAT_ROOM_REMOVED:
                 LinkedList<ChatRoomSourceContact> tmpContactResults;
@@ -286,6 +297,24 @@ public class ChatRoomQuery
                         {
                             contactResults.remove(contact);
                             fireContactRemoved(contact);
+                            break;
+                        }
+                    }
+                }
+                break;
+            case ChatRoomListChangeEvent.CHAT_ROOM_CHANGED:
+                synchronized (contactResults)
+                {
+                    for(ChatRoomSourceContact contact : contactResults)
+                    {
+                        if(contact.getContactAddress().equals(
+                            chatRoom.getChatRoomName()))
+                        {
+                            if(chatRoom.isAutojoin() != contact.isAutoJoin())
+                            {
+                                contact.setAutoJoin(chatRoom.isAutojoin());
+                                fireContactChanged(contact);
+                            }
                             break;
                         }
                     }

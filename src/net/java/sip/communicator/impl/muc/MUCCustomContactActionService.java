@@ -32,31 +32,131 @@ public class MUCCustomContactActionService
         = new LinkedList<ContactActionMenuItem<SourceContact>>();
     
     /**
-     * Array of labels for the custom menu items.
+     * List of custom actions.
+     */
+    private final List<ContactAction<SourceContact>> MUCActions
+        = new LinkedList<ContactAction<SourceContact>>();
+    
+    /**
+     * Array of names for the custom actions.
+     */
+    private String[] actionsNames = {
+      "leave", "autojoin", "autojoin_pressed"  
+    };
+    
+    /**
+     * Array of labels for the custom actions.
      */
     private String[] actionsLabels = {
+      "service.gui.LEAVE",
+      "service.gui.JOIN_AUTOMATICALLY",
+      "service.gui.JOIN_AUTOMATICALLY"
+    };
+    
+    /**
+     * Array of icons for the custom actions.
+     */
+    private String[] actionsIcons = {
+        "service.gui.icons.LEAVE_ICON_BUTTON", 
+        "service.gui.icons.AUTOJOIN_ICON_BUTTON",
+        "service.gui.icons.AUTOJOIN_ICON_PRESSED_BUTTON"
+      };
+    
+    /**
+     * Array of rollover icons for the custom actions.
+     */
+    private String[] actionsIconsRollover = {
+        "service.gui.icons.LEAVE_ICON_ROLLOVER_BUTTON", 
+        "service.gui.icons.AUTOJOIN_ICON_ROLLOVER_BUTTON",
+        "service.gui.icons.AUTOJOIN_ICON_ROLLOVER_BUTTON"
+      };
+    
+    /**
+     * Array of pressed icons for the custom actions.
+     */
+    private String[] actionsIconsPressed = {
+        "service.gui.icons.LEAVE_ICON_PRESSED_BUTTON", 
+        "service.gui.icons.AUTOJOIN_ICON_PRESSED_BUTTON",
+        "service.gui.icons.AUTOJOIN_ICON_BUTTON",
+      };
+    
+    /**
+     * Array of names for the custom menu items.
+     */
+    private String[] menuActionsNames = {
+      "open", "join", "join_as", "leave", "remove", "change_nick", "autojoin",
+      "autojoin_pressed"
+    };
+    
+    /**
+     * Array of labels for the custom menu items.
+     */
+    private String[] menuActionsLabels = {
       "service.gui.OPEN", "service.gui.JOIN", 
       "service.gui.JOIN_AS", "service.gui.LEAVE",
       "service.gui.REMOVE", "service.gui.CHANGE_NICK",
-      "service.gui.JOIN_AUTOMATICALLY"
+      "service.gui.JOIN_AUTOMATICALLY",
+      "service.gui.DONT_JOIN_AUTOMATICALLY"
     };
     
     /**
      * Array of icons for the custom menu items.
      */
-    private String[] actionsIcons = {
+    private String[] menuActionsIcons = {
         "service.gui.icons.CHAT_ROOM_16x16_ICON", "service.gui.icons.JOIN_ICON",
         "service.gui.icons.JOIN_AS_ICON", "service.gui.icons.LEAVE_ICON", 
         "service.gui.icons.REMOVE_CHAT_ICON", 
         "service.gui.icons.RENAME_16x16_ICON",
-        null
+        "service.gui.icons.AUTOJOIN", "service.gui.icons.AUTOJOIN"
       };
+
+    /**
+     * A runnable that leaves the chat room.
+     */
+    private MUCCustomActionRunnable leaveRunnable 
+        = new MUCCustomActionRunnable()
+        {
+            
+            @Override
+            public void run()
+            {
+                ChatRoomWrapper leavedRoomWrapped 
+                    = MUCActivator.getMUCService().leaveChatRoom(
+                        chatRoomWrapper);
+                if(leavedRoomWrapped != null)
+                    MUCActivator.getUIService().closeChatRoomWindow(
+                        leavedRoomWrapped);
+            }
+        };
+
+    /**
+     * A runnable that sets / unsets auto join setting of the chat room.
+     */
+    private MUCCustomActionRunnable autoJoinRunnable
+        = new MUCCustomActionRunnable()
+        {
+            
+            @Override
+            public void run()
+            {
+                    chatRoomWrapper.setAutoJoin(!chatRoomWrapper.isAutojoin());
+                    
+            }
+        };
     
     /**
      * Array of <tt>MUCCustomActionRunnable</tt> objects for the custom menu 
      * items. They will be executed when the item is pressed.
      */
     private MUCCustomActionRunnable[] actionsRunnable = {
+        leaveRunnable, autoJoinRunnable, autoJoinRunnable
+    };
+    
+    /**
+     * Array of <tt>MUCCustomActionRunnable</tt> objects for the custom menu 
+     * items. They will be executed when the item is pressed.
+     */
+    private MUCCustomActionRunnable[] menuActionsRunnable = {
         new MUCCustomActionRunnable()
         {
             @Override
@@ -100,8 +200,8 @@ public class MUCCustomContactActionService
                     }
 
                     if (nickName != null)
-                        MUCActivator.getMUCService().joinChatRoom(chatRoomWrapper,
-                            nickName, null, subject);
+                        MUCActivator.getMUCService().joinChatRoom(
+                            chatRoomWrapper,nickName, null, subject);
                     else
                         return;
                 }
@@ -156,20 +256,7 @@ public class MUCCustomContactActionService
                         joinOptions[1]);
             }
         },
-        new MUCCustomActionRunnable()
-        {
-            
-            @Override
-            public void run()
-            {
-                ChatRoomWrapper leavedRoomWrapped 
-                    = MUCActivator.getMUCService().leaveChatRoom(
-                        chatRoomWrapper);
-                if(leavedRoomWrapped != null)
-                    MUCActivator.getUIService().closeChatRoomWindow(
-                        leavedRoomWrapped);
-            }
-        },
+        leaveRunnable,
         new MUCCustomActionRunnable()
         {
             
@@ -204,15 +291,8 @@ public class MUCCustomContactActionService
                     chatRoomWrapper.getChatRoomID());
             }
         },
-        new MUCCustomActionRunnable()
-        {
-            
-            @Override
-            public void run()
-            {
-                    chatRoomWrapper.setAutoJoin(!chatRoomWrapper.isAutojoin());
-            }
-        }
+        autoJoinRunnable,
+        autoJoinRunnable
     };
     
     /**
@@ -226,40 +306,36 @@ public class MUCCustomContactActionService
       new LeaveEnableChecker(),
       null,
       null,
+      null,
       null
     };
-    
-    /**
-     * Array for the custom menu items that describes the type of the menu item.
-     * If <tt>true</tt> - the item is check box.
-     */
-    private boolean[] actionsIsCheckBox = {
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        true
-      };
     
     /**
      * The resource management service instance.
      */
     ResourceManagementService resources = MUCActivator.getResources();
-    
+
     /**
      * Constructs the custom actions.
      */
     public MUCCustomContactActionService()
     {
-        for(int i = 0; i < actionsLabels.length; i++)
+        for(int i = 0; i < menuActionsLabels.length; i++)
         {
-            MUCActionMenuItems item = new MUCActionMenuItems(actionsLabels[i], 
-                actionsIcons[i], actionsRunnable[i], actionsIsCheckBox[i]);
+            MUCActionMenuItems item 
+                = new MUCActionMenuItems(menuActionsNames[i], menuActionsLabels[i], 
+                    menuActionsIcons[i], menuActionsRunnable[i]);
             MUCActionMenuItems.add(item);
             if(actionsEnabledCheckers[i] != null)
                 item.setEnabled(actionsEnabledCheckers[i]);
+        }
+        
+        for(int i = 0; i < actionsLabels.length; i++)
+        {
+            MUCAction item = new MUCAction(actionsNames[i], actionsLabels[i], 
+                actionsIcons[i], actionsIconsRollover[i], actionsIconsPressed[i], 
+                actionsRunnable[i]);
+            MUCActions.add(item);
         }
         
     }
@@ -285,7 +361,128 @@ public class MUCCustomContactActionService
     @Override
     public Iterator<ContactAction<SourceContact>> getCustomContactActions()
     {
-        return null;
+        return MUCActions.iterator();
+    }
+    
+    /**
+     * Implements the MUC custom action.
+     */
+    private class MUCAction
+        implements ContactAction<SourceContact>
+    {
+        /**
+         * The text of the action.
+         */
+        private String text;
+        
+        /**
+         * The icon of the action
+         */
+        private byte[] icon;
+        
+        /**
+         * The icon that is shown when the action is pressed.
+         */
+        private byte[] iconPressed;
+        
+        /**
+         * The runnable that is executed when the action is pressed.
+         */
+        private MUCCustomActionRunnable actionPerformed;
+        
+        /**
+         * The icon that is shown when the mouse is over the action.
+         */
+        private byte[] iconRollover;
+       
+        /**
+         * The name of the action.
+         */
+        private String name;
+
+        /**
+         * Constructs <tt>MUCAction</tt> instance.
+         * 
+         * @param textKey the key used to retrieve the label for the action.
+         * @param iconKey the key used to retrieve the icon for the action.
+         * @param actionPerformed the action executed when the action is 
+         * pressed.
+         * @param iconRolloverKey the key used to retrieve the rollover icon for 
+         * the action.
+         * @param iconPressedKey the key used to retrieve the pressed icon for 
+         * the action.
+         */
+        public MUCAction(String name, String textKey, String iconKey, 
+            String iconRolloverKey, String iconPressedKey, 
+            MUCCustomActionRunnable actionPerformed)
+        {
+            this.name = name;
+            this.text = resources.getI18NString(textKey);
+            this.icon = resources.getImageInBytes(iconKey);
+            this.iconRollover = resources.getImageInBytes(iconRolloverKey);
+            this.iconPressed = resources.getImageInBytes(iconPressedKey);
+            this.actionPerformed = actionPerformed;
+        }
+        
+        @Override
+        public void actionPerformed(SourceContact actionSource, int x, int y)
+            throws OperationFailedException
+        {
+            if(!(actionSource instanceof ChatRoomSourceContact))
+                return;
+            actionPerformed.setContact(actionSource);
+            new Thread(actionPerformed).start();            
+        }
+
+        @Override
+        public byte[] getIcon()
+        {
+            return icon;
+        }
+
+        @Override
+        public byte[] getRolloverIcon()
+        {
+            return iconRollover;
+        }
+
+        @Override
+        public byte[] getPressedIcon()
+        {
+            return iconPressed;
+        }
+
+        @Override
+        public String getToolTipText()
+        {
+            return text;
+        }
+
+        @Override
+        public boolean isVisible(SourceContact actionSource)
+        {
+            if(actionSource instanceof ChatRoomSourceContact)
+            {
+                if(name.equals("leave"))
+                {
+                    return true;
+                }
+                else
+                {
+                    ChatRoomSourceContact contact 
+                        = (ChatRoomSourceContact) actionSource;
+                    ChatRoomWrapper room = MUCActivator.getMUCService()
+                        .findChatRoomWrapperFromSourceContact(contact);
+                    if(name.equals("autojoin"))
+                        return !room.isAutojoin();
+                    
+                    if(name.equals("autojoin_pressed"))
+                        return room.isAutojoin();
+                }
+            }
+            return false;
+        }
+        
     }
 
     /**
@@ -295,14 +492,14 @@ public class MUCCustomContactActionService
         implements ContactActionMenuItem<SourceContact>
     {
         /**
-         * The key used to retrieve the label for the menu item.
+         * The label for the menu item.
          */
-        private String textKey;
+        private String text;
         
         /**
-         * The key used to retrieve the icon for the menu item.
+         * The the icon for the menu item.
          */
-        private String imageKey;
+        private byte[] image;
         
         /**
          * The action executed when the menu item is pressed.
@@ -313,13 +510,17 @@ public class MUCCustomContactActionService
          * Object that is used to check if the item is enabled or disabled.
          */
         private EnableChecker enabled;
-        
-        /**
-         * if <tt>true</tt> the item should be check box and if <tt>false</tt> 
-         * it is standard menu item.
-         */
-        private boolean isCheckBox;
 
+        /**
+         * The name of the custom action menu item.
+         */
+        private String name;
+
+        /**
+         * The mnemonic for the action. 
+         */
+        private char mnemonics;
+        
         /**
          * Constructs <tt>MUCActionMenuItems</tt> instance.
          * 
@@ -327,16 +528,17 @@ public class MUCCustomContactActionService
          * @param imageKey the key used to retrieve the icon for the menu item.
          * @param actionPerformed the action executed when the menu item is 
          * pressed.
-         * @param isCheckBox if <tt>true</tt> the item should be check box.
          */
-        public MUCActionMenuItems(String textKey, String imageKey,
-            MUCCustomActionRunnable actionPerformed, boolean isCheckBox)
+        public MUCActionMenuItems(String name, String textKey, String imageKey,
+            MUCCustomActionRunnable actionPerformed)
         {
-            this.textKey = textKey;
-            this.imageKey = imageKey;
+            this.text = resources.getI18NString(textKey);
+            this.image = (imageKey == null)? null : 
+                resources.getImageInBytes(imageKey);
             this.actionPerformed = actionPerformed;
             this.enabled = new EnableChecker();
-            this.isCheckBox = isCheckBox;
+            this.name = name;
+            this.mnemonics = resources.getI18nMnemonic(text);
         }
 
         @Override
@@ -352,27 +554,41 @@ public class MUCCustomContactActionService
         @Override
         public byte[] getIcon()
         {
-            return (imageKey == null)? null : 
-                resources.getImageInBytes(imageKey);
+            return image;
         }
 
 
         @Override
         public String getText()
         {
-            return resources.getI18NString(textKey);
+            return text;
         }
 
         @Override
         public boolean isVisible(SourceContact actionSource)
         {
-            return (actionSource instanceof ChatRoomSourceContact);
+            if(!(actionSource instanceof ChatRoomSourceContact))
+                return false;
+            
+            if(name.equals("autojoin") || name.equals("autojoin_pressed"))
+            {
+                ChatRoomSourceContact contact 
+                = (ChatRoomSourceContact) actionSource;
+                ChatRoomWrapper room = MUCActivator.getMUCService()
+                    .findChatRoomWrapperFromSourceContact(contact);
+                if(name.equals("autojoin"))
+                    return !room.isAutojoin();
+                
+                if(name.equals("autojoin_pressed"))
+                    return room.isAutojoin();
+            }
+            return true;
         }
 
         @Override
         public char getMnemonics()
         {
-            return resources.getI18nMnemonic(textKey);
+            return mnemonics;
         }
 
         @Override
@@ -395,7 +611,7 @@ public class MUCCustomContactActionService
         @Override
         public boolean isCheckBox()
         {
-            return isCheckBox;
+            return false;
         }
 
         @Override
@@ -487,7 +703,7 @@ public class MUCCustomContactActionService
          * The contact associated with the menu item.
          */
         protected ChatRoomWrapper chatRoomWrapper;
-
+        
         /**
          * Sets the source contact.
          * @param contact the contact to set
@@ -498,6 +714,5 @@ public class MUCCustomContactActionService
             chatRoomWrapper = MUCActivator.getMUCService()
                 .findChatRoomWrapperFromSourceContact(contact);
         }
-        
     }
 }
