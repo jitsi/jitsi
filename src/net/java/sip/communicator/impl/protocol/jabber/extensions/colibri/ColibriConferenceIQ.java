@@ -297,6 +297,9 @@ public class ColibriConferenceIQ
         @Deprecated
         public static final String RTCP_PORT_ATTR_NAME = "rtcpport";
 
+        public static final String RTP_LEVEL_RELAY_TYPE_ATTR_NAME
+            = "rtp-level-relay-type";
+
         /**
          * The XML name of the <tt>rtpport</tt> attribute of a <tt>channel</tt>
          * of a <tt>content</tt> of a <tt>conference</tt> IQ which represents
@@ -365,6 +368,14 @@ public class ColibriConferenceIQ
         private int rtcpPort;
 
         /**
+         * The type of RTP-level relay (in the terms specified by RFC 3550
+         * &quot;RTP: A Transport Protocol for Real-Time Applications&quot; in
+         * section 2.3 &quot;Mixers and Translators&quot;) used for this
+         * <tt>Channel</tt>.
+         */
+        private RTPLevelRelayType rtpLevelRelayType;
+
+        /**
          * The RTP port of the <tt>channel</tt> represented by this instance.
          *
          * @deprecated The field is supported for the purposes of compatibility
@@ -372,6 +383,12 @@ public class ColibriConferenceIQ
          */
         @Deprecated
         private int rtpPort;
+
+        /**
+         * The <tt>SourcePacketExtension</tt>s of this channel.
+         */
+        private final List<SourcePacketExtension> sources
+            = new LinkedList<SourcePacketExtension>();
 
         /**
          * The list of (RTP) SSRCs which have been seen/received on this
@@ -413,6 +430,23 @@ public class ColibriConferenceIQ
                 payloadTypes.contains(payloadType)
                     ? false
                     : payloadTypes.add(payloadType);
+        }
+
+        /**
+         * Adds a <tt>SourcePacketExtension</tt> to the list of sources of this
+         * channel.
+         *
+         * @param source the <tt>SourcePacketExtension</tt> to add to the list
+         * of sources of this channel
+         * @return <tt>true</tt> if the list of sources of this channel changed
+         * as a result of the execution of the method; otherwise, <tt>false</tt>
+         */
+        public synchronized boolean addSource(SourcePacketExtension source)
+        {
+            if (source == null)
+                throw new NullPointerException("source");
+
+            return sources.contains(source) ? false : sources.add(source);
         }
 
         /**
@@ -523,6 +557,19 @@ public class ColibriConferenceIQ
         }
 
         /**
+         * Gets the type of RTP-level relay (in the terms specified by RFC 3550
+         * &quot;RTP: A Transport Protocol for Real-Time Applications&quot; in
+         * section 2.3 &quot;Mixers and Translators&quot;) used for this
+         * <tt>Channel</tt>.
+         *
+         * @return the type of RTP-level relay used for this <tt>Channel</tt>
+         */
+        public RTPLevelRelayType getRTPLevelRelayType()
+        {
+            return rtpLevelRelayType;
+        }
+
+        /**
          * Gets the port which has been allocated to this <tt>channel</tt> for
          * the purposes of transmitting RTP packets.
          *
@@ -536,6 +583,18 @@ public class ColibriConferenceIQ
         public int getRTPPort()
         {
             return rtpPort;
+        }
+
+        /**
+         * Gets the list of <tt>SourcePacketExtensions</tt>s which represent the
+         * sources of this channel.
+         *
+         * @return a <tt>List</tt> of <tt>SourcePacketExtension</tt>s which
+         * represent the sources of this channel
+         */
+        public synchronized List<SourcePacketExtension> getSources()
+        {
+            return new ArrayList<SourcePacketExtension>(sources);
         }
 
         /**
@@ -584,6 +643,20 @@ public class ColibriConferenceIQ
         public boolean removePayloadType(PayloadTypePacketExtension payloadType)
         {
             return payloadTypes.remove(payloadType);
+        }
+
+        /**
+         * Removes a <tt>SourcePacketExtension</tt> from the list of sources of
+         * this channel.
+         *
+         * @param source the <tt>SourcePacketExtension</tt> to remove from the
+         * list of sources of this channel
+         * @return <tt>true</tt> if the list of sources of this channel changed
+         * as a result of the execution of the method; otherwise, <tt>false</tt>
+         */
+        public synchronized boolean removeSource(SourcePacketExtension source)
+        {
+            return sources.remove(source);
         }
 
         /**
@@ -723,6 +796,32 @@ public class ColibriConferenceIQ
         }
 
         /**
+         * Sets the type of RTP-level relay (in the terms specified by RFC 3550
+         * &quot;RTP: A Transport Protocol for Real-Time Applications&quot; in
+         * section 2.3 &quot;Mixers and Translators&quot;) used for this
+         * <tt>Channel</tt>.
+         *
+         * @param s the type of RTP-level relay used for this <tt>Channel</tt>
+         */
+        public void setRTPLevelRelayType(RTPLevelRelayType rtpLevelRelayType)
+        {
+            this.rtpLevelRelayType = rtpLevelRelayType;
+        }
+
+        /**
+         * Sets the type of RTP-level relay (in the terms specified by RFC 3550
+         * &quot;RTP: A Transport Protocol for Real-Time Applications&quot; in
+         * section 2.3 &quot;Mixers and Translators&quot;) used for this
+         * <tt>Channel</tt>.
+         *
+         * @param s the type of RTP-level relay used for this <tt>Channel</tt>
+         */
+        public void setRTPLevelRelayType(String s)
+        {
+            setRTPLevelRelayType(RTPLevelRelayType.parseRTPLevelRelayType(s));
+        }
+
+        /**
          * Sets the port which has been allocated to this <tt>channel</tt> for
          * the purposes of transmitting RTP packets.
          *
@@ -827,6 +926,15 @@ public class ColibriConferenceIQ
                         .append(rtcpPort).append('\'');
             }
 
+            // rtpLevelRelayType
+            RTPLevelRelayType rtpLevelRelayType = getRTPLevelRelayType();
+
+            if (rtpLevelRelayType != null)
+            {
+                xml.append(' ').append(RTP_LEVEL_RELAY_TYPE_ATTR_NAME)
+                        .append("='").append(rtpLevelRelayType).append('\'');
+            }
+
             // rtpPort
             int rtpPort = getRTPPort();
 
@@ -837,19 +945,26 @@ public class ColibriConferenceIQ
             }
 
             List<PayloadTypePacketExtension> payloadTypes = getPayloadTypes();
-            boolean hasPayloadTypes = (payloadTypes.size() != 0);
+            boolean hasPayloadTypes = !payloadTypes.isEmpty();
+            List<SourcePacketExtension> sources = getSources();
+            boolean hasSources = !sources.isEmpty();
             long[] ssrcs = getSSRCs();
             boolean hasSSRCs = (ssrcs.length != 0);
             IceUdpTransportPacketExtension transport = getTransport();
             boolean hasTransport = (transport != null);
 
-            if (hasPayloadTypes || hasSSRCs || hasTransport)
+            if (hasPayloadTypes || hasSources || hasSSRCs || hasTransport)
             {
                 xml.append('>');
                 if (hasPayloadTypes)
                 {
                     for (PayloadTypePacketExtension payloadType : payloadTypes)
                         xml.append(payloadType.toXML());
+                }
+                if (hasSources)
+                {
+                    for (SourcePacketExtension source : sources)
+                        xml.append(source.toXML());
                 }
                 if (hasSSRCs)
                 {

@@ -1498,8 +1498,8 @@ public class ProtocolProviderServiceJabberImpl
             // in case of modified account, we clear list of supported features
             // and every state change listeners, otherwise we can have two
             // OperationSet for same feature and it can causes problem (i.e.
-            // two OperationSetBasicTelephony can launch two ICE negociations
-            // (with different ufrag/passwd) and peer will failed call. And
+            // two OperationSetBasicTelephony can launch two ICE negotiations
+            // (with different ufrag/pwd) and peer will failed call. And
             // by the way user will see two dialog for answering/refusing the
             // call
             supportedFeatures.clear();
@@ -1547,7 +1547,7 @@ public class ProtocolProviderServiceJabberImpl
 
             InfoRetreiver infoRetreiver = new InfoRetreiver(this, screenname);
 
-            //initialize the presence operationset
+            //initialize the presence OperationSet
             OperationSetPersistentPresenceJabberImpl persistentPresence =
                 new OperationSetPersistentPresenceJabberImpl(this, infoRetreiver);
 
@@ -1695,18 +1695,6 @@ public class ProtocolProviderServiceJabberImpl
                     ColibriConferenceIQ.ELEMENT_NAME,
                     ColibriConferenceIQ.NAMESPACE,
                     new ColibriIQProvider());
-            providerManager.addExtensionProvider(
-                    PayloadTypePacketExtension.ELEMENT_NAME,
-                    ColibriConferenceIQ.NAMESPACE,
-                    new DefaultPacketExtensionProvider<
-                                PayloadTypePacketExtension>(
-                            PayloadTypePacketExtension.class));
-            providerManager.addExtensionProvider(
-                    ParameterPacketExtension.ELEMENT_NAME,
-                    ColibriConferenceIQ.NAMESPACE,
-                    new DefaultPacketExtensionProvider<
-                                ParameterPacketExtension>(
-                            ParameterPacketExtension.class));
 
             providerManager.addExtensionProvider(
                     ConferenceDescriptionPacketExtension.ELEMENT_NAME,

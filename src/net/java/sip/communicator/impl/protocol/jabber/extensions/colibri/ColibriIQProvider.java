@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber.extensions.colibri;
 
+import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 
 import org.jitsi.service.neomedia.*;
@@ -23,6 +24,36 @@ import org.xmlpull.v1.*;
 public class ColibriIQProvider
     implements IQProvider
 {
+    /** Initializes a new <tt>ColibriIQProvider</tt> instance. */
+    public ColibriIQProvider()
+    {
+        ProviderManager providerManager = ProviderManager.getInstance();
+
+        providerManager.addExtensionProvider(
+                PayloadTypePacketExtension.ELEMENT_NAME,
+                ColibriConferenceIQ.NAMESPACE,
+                new DefaultPacketExtensionProvider<PayloadTypePacketExtension>(
+                        PayloadTypePacketExtension.class));
+        providerManager.addExtensionProvider(
+                SourcePacketExtension.ELEMENT_NAME,
+                SourcePacketExtension.NAMESPACE,
+                new DefaultPacketExtensionProvider<SourcePacketExtension>(
+                        SourcePacketExtension.class));
+
+        PacketExtensionProvider parameterProvider
+            = new DefaultPacketExtensionProvider<ParameterPacketExtension>(
+                    ParameterPacketExtension.class);
+
+        providerManager.addExtensionProvider(
+                ParameterPacketExtension.ELEMENT_NAME,
+                ColibriConferenceIQ.NAMESPACE,
+                parameterProvider);
+        providerManager.addExtensionProvider(
+                ParameterPacketExtension.ELEMENT_NAME,
+                SourcePacketExtension.NAMESPACE,
+                parameterProvider);
+    }
+
     private void addChildExtension(
             ColibriConferenceIQ.Channel channel,
             PacketExtension childExtension)
@@ -218,6 +249,19 @@ public class ColibriIQProvider
                         if ((rtcpPort != null) && (rtcpPort.length() != 0))
                             channel.setRTCPPort(Integer.parseInt(rtcpPort));
 
+                        // rtpLevelRelayType
+                        String rtpLevelRelayType
+                            = parser.getAttributeValue(
+                                    "",
+                                    ColibriConferenceIQ.Channel
+                                            .RTP_LEVEL_RELAY_TYPE_ATTR_NAME);
+
+                        if ((rtpLevelRelayType != null)
+                                && (rtpLevelRelayType.length() != 0))
+                        {
+                            channel.setRTPLevelRelayType(rtpLevelRelayType);
+                        }
+
                         // rtpPort
                         String rtpPort
                             = parser.getAttributeValue(
@@ -252,7 +296,16 @@ public class ColibriIQProvider
                         String peName = null;
                         String peNamespace = null;
 
-                        if (PayloadTypePacketExtension.ELEMENT_NAME.equals(
+                        if (IceUdpTransportPacketExtension.ELEMENT_NAME
+                                    .equals(name)
+                                && IceUdpTransportPacketExtension.NAMESPACE
+                                        .equals(parser.getNamespace()))
+                        {
+                            peName = name;
+                            peNamespace
+                                = IceUdpTransportPacketExtension.NAMESPACE;
+                        }
+                        else if (PayloadTypePacketExtension.ELEMENT_NAME.equals(
                                 name))
                         {
                             /*
@@ -263,15 +316,6 @@ public class ColibriIQProvider
                             peName = name;
                             peNamespace = namespace;
                         }
-                        else if (IceUdpTransportPacketExtension.ELEMENT_NAME
-                                    .equals(name)
-                                && IceUdpTransportPacketExtension.NAMESPACE
-                                        .equals(parser.getNamespace()))
-                        {
-                            peName = name;
-                            peNamespace
-                                = IceUdpTransportPacketExtension.NAMESPACE;
-                        }
                         else if (RawUdpTransportPacketExtension.ELEMENT_NAME
                                     .equals(name)
                                 && RawUdpTransportPacketExtension.NAMESPACE
@@ -280,6 +324,13 @@ public class ColibriIQProvider
                             peName = name;
                             peNamespace
                                 = RawUdpTransportPacketExtension.NAMESPACE;
+                        }
+                        else if (SourcePacketExtension.ELEMENT_NAME.equals(name)
+                                && SourcePacketExtension.NAMESPACE.equals(
+                                        parser.getNamespace()))
+                        {
+                            peName = name;
+                            peNamespace = SourcePacketExtension.NAMESPACE;
                         }
 
                         if (peName == null)
@@ -315,6 +366,18 @@ public class ColibriIQProvider
         return iq;
     }
 
+    /**
+     * Parses using a specific <tt>XmlPullParser</tt> and ignores XML content
+     * presuming that the specified <tt>parser</tt> is currently at the start
+     * tag of an element with a specific name and throwing away until the end
+     * tag with the specified name is encountered.
+     *
+     * @param parser the <tt>XmlPullParser</tt> which parses the XML content
+     * @param name the name of the element at the start tag of which the
+     * specified <tt>parser</tt> is presumed to currently be and until the end
+     * tag of which XML content is to be thrown away
+     * @throws Exception if an errors occurs while parsing the XML content
+     */
     private void throwAway(XmlPullParser parser, String name)
         throws Exception
     {

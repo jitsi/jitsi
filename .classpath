@@ -21,7 +21,7 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/installer-exclude/easymock-3.1.jar"/>
-	<classpathentry kind="lib" path="lib/installer-exclude/fmj.jar"/>
+	<classpathentry kind="lib" path="lib/installer-exclude/fmj.jar" sourcepath="/fmj"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/forms-1.2.1.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/gdata-client-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/gdata-client-meta-1.0.jar"/>
