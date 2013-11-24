@@ -287,8 +287,10 @@ public class SIPCommunicator
                     && !checkHomeFolderExist(profileLocation, name, osName))
             {
                 // now check whether a legacy dir name exists and use it
-                for(String dir : LEGACY_DIR_NAMES)
+                for(int i = 0; i < LEGACY_DIR_NAMES.length; i++)
                 {
+                    String dir = LEGACY_DIR_NAMES[i];
+
                     // check the platform specific directory
                     if(checkHomeFolderExist(profileLocation, dir, osName))
                     {
@@ -334,8 +336,10 @@ public class SIPCommunicator
     {
         if(osName.startsWith("Mac"))
         {
-            for(String f : LEGACY_CONFIGURATION_FILE_NAMES)
+            for(int i = 0; i < LEGACY_CONFIGURATION_FILE_NAMES.length; i++)
             {
+                String f = LEGACY_CONFIGURATION_FILE_NAMES[i];
+
                 if(new File(new File(parent, name), f).exists())
                     return true;
             }
