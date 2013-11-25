@@ -355,6 +355,17 @@ public class InfoRetreiver
     }
 
     /**
+     * Adds a cached contact details.
+     * @param contactAddress the contact address
+     * @param details the details to add
+     */
+    void addCachedContactDetails(
+        String contactAddress, List<GenericDetail> details)
+    {
+        retreivedDetails.put(contactAddress, details);
+    }
+
+    /**
      * Checks for full name tag in the <tt>card</tt>.
      * @param card the card to check.
      * @return the Full name if existing, null otherwise.

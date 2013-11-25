@@ -31,7 +31,7 @@ public class VolatileContactJabberImpl
      * The display name of the contact. This property is used only for private 
      * messaging contacts.
      */
-    private String displayName = null;
+    protected String displayName = null;
     
     /**
      * Creates an Volatile JabberContactImpl with the specified id

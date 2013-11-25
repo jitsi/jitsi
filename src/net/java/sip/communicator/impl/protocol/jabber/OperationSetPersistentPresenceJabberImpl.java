@@ -879,7 +879,9 @@ public class OperationSetPersistentPresenceJabberImpl
             throw new IllegalArgumentException(
                 "Argument is not an jabber contact (contact=" + contact + ")");
 
-        ((ContactJabberImpl)contact).getSourceEntry().setName(newName);
+        RosterEntry entry = ((ContactJabberImpl)contact).getSourceEntry();
+        if(entry != null)
+            entry.setName(newName);
     }
 
     /**
