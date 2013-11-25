@@ -23,7 +23,7 @@ import org.osgi.framework.*;
  * @author Hristo Terezov
  */
 public class ChatRoomListImpl
-    implements RegistrationStateChangeListener, ChatRoomList, ServiceListener
+    implements RegistrationStateChangeListener, ServiceListener
 {
     /**
      * The logger.

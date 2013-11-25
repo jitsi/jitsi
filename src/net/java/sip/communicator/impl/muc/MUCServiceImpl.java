@@ -58,18 +58,6 @@ public class MUCServiceImpl
     }
 
     /**
-     * Returns the <tt>ChatRoomList</tt> instance.
-     * 
-     * @return the <tt>ChatRoomList</tt> instance.
-     */
-    @Override
-    public ChatRoomList getChatRoomList()
-    {
-        // TODO Auto-generated method stub
-        return chatRoomList;
-    }
-    
-    /**
      * Adds a change listener to the <tt>ChatRoomList</tt>.
      * 
      * @param l the listener.
@@ -924,18 +912,18 @@ public class MUCServiceImpl
      * @param listener the ChatRoomProviderWrapperListener to be added
      */
     public  void addChatRoomProviderWrapperListener(
-        ChatRoomList.ChatRoomProviderWrapperListener listener)
+        ChatRoomProviderWrapperListener listener)
     {
         chatRoomList.addChatRoomProviderWrapperListener(listener);
     }
     
     /**
-     * Adds a ChatRoomProviderWrapperListener to the listener list.
+     * Removes the ChatRoomProviderWrapperListener to the listener list.
      *
-     * @param listener the ChatRoomProviderWrapperListener to be added
+     * @param listener the ChatRoomProviderWrapperListener to be removed
      */
     public  void removeChatRoomProviderWrapperListener(
-        ChatRoomList.ChatRoomProviderWrapperListener listener)
+        ChatRoomProviderWrapperListener listener)
     {
         chatRoomList.removeChatRoomProviderWrapperListener(listener);
     }

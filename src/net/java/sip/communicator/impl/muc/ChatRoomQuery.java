@@ -12,7 +12,6 @@ import org.osgi.framework.*;
 
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.muc.*;
-import net.java.sip.communicator.service.muc.ChatRoomList.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 
@@ -126,7 +125,7 @@ public class ChatRoomQuery
     protected void run()
     {
         Iterator<ChatRoomProviderWrapper> chatRoomProviders
-            = mucService.getChatRoomList().getChatRoomProviders();
+            = mucService.getChatRoomProviders();
         
         while (chatRoomProviders.hasNext())
         {

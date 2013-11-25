@@ -20,27 +20,6 @@ import net.java.sip.communicator.service.protocol.*;
 public abstract class MUCService
 {
     /**
-     * Returns the <tt>ChatRoomList</tt> instance.
-     * 
-     * @return the <tt>ChatRoomList</tt> instance.
-     */
-    public abstract ChatRoomList getChatRoomList();
-    
-    /**
-     * Adds a change listener to the <tt>ChatRoomList</tt>.
-     * 
-     * @param l the listener.
-     */
-    public abstract void addChatRoomListChangeListener(ChatRoomListChangeListener l);
-    
-    /**
-     * Removes a change listener to the <tt>ChatRoomList</tt>.
-     * 
-     * @param l the listener.
-     */
-    public abstract void removeChatRoomListChangeListener(ChatRoomListChangeListener l);
-    
-    /**
      * Fires a <tt>ChatRoomListChangedEvent</tt> event.
      * 
      * @param chatRoomWrapper the chat room.
@@ -48,18 +27,6 @@ public abstract class MUCService
      */
     public abstract void fireChatRoomListChangedEvent(
         ChatRoomWrapper chatRoomWrapper, int eventID);
-    
-    /**
-    * Joins the given chat room with the given password and manages all the
-    * exceptions that could occur during the join process.
-    *
-    * @param chatRoomWrapper the chat room to join.
-    * @param nickName the nickname we choose for the given chat room.
-    * @param password the password.
-    */
-    public abstract void joinChatRoom(   ChatRoomWrapper chatRoomWrapper,
-            String nickName,
-            byte[] password);
     
     /**
     * Joins the given chat room with the given password and manages all the
@@ -205,6 +172,13 @@ public abstract class MUCService
      */
     public abstract ChatRoomWrapper leaveChatRoom(ChatRoomWrapper chatRoomWrapper);
 
+    /**
+     * Finds <tt>ChatRoomWrapper</tt> instance associated with the given source 
+     * contact.
+     * @param contact the contact.
+     * @return <tt>ChatRoomWrapper</tt> instance associated with the given 
+     * source contact.
+     */
     public abstract ChatRoomWrapper findChatRoomWrapperFromSourceContact(
         SourceContact contact);
     
@@ -273,7 +247,15 @@ public abstract class MUCService
      * @param listener the ChatRoomProviderWrapperListener to be added
      */
     public abstract void addChatRoomProviderWrapperListener(
-        ChatRoomList.ChatRoomProviderWrapperListener listener);
+        ChatRoomProviderWrapperListener listener);
+    
+    /**
+     * Removes the ChatRoomProviderWrapperListener to the listener list.
+     *
+     * @param listener the ChatRoomProviderWrapperListener to be removed
+     */
+    public abstract void removeChatRoomProviderWrapperListener(
+        ChatRoomProviderWrapperListener listener);
     
     /**
      * Returns the <tt>ChatRoomProviderWrapper</tt> that correspond to the
